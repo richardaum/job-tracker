@@ -1,7 +1,7 @@
 # State
 
 **Last Updated:** 2026-04-19
-**Current Work:** M1 - Foundation (Planning)
+**Current Work:** M1 - Foundation (Planning); dev ergonomics — lint/format/pre-commit documented in `.specs/quick/001-lint-format-precommit/`
 
 ---
 
@@ -12,14 +12,17 @@
 **Decision:** Tailwind CSS for styling + Radix UI for behavior/accessibility primitives
 
 **Reason:**
+
 - Pre-styled libraries (Chakra UI, shadcn/ui) impose a recognizable visual language that's hard to override
 - Goal is a distinctive UI — requires full style control with zero imposed visual opinions
 
 **Trade-off:**
+
 - More CSS to write
 - No out-of-the-box visual defaults
 
 **Impact:**
+
 - Style everything from scratch with Tailwind utility classes
 - Use Radix only for interactive behavior (dialogs, dropdowns, tooltips, etc.)
 - Every visual decision is explicit and intentional
@@ -129,6 +132,16 @@
 **Trade-off:** User must manually trigger the refresh; summary is not automatically regenerated
 **Impact:** Job entity has a `summaryStale: boolean` field; no GraphQL subscriptions or WebSockets required for this feature
 
+### AD-017: ESLint 9 + Prettier + Husky + lint-staged at monorepo root (2026-04-19)
+
+**Decision:** One shared ESLint flat config (`eslint.config.ts`, loaded via `jiti`) and Prettier (`prettier.config.mts`) at the repository root; `tsconfig.repo.json` type-checks those files; Husky runs `lint-staged` on pre-commit; each app/package exposes `lint` for Turbo.
+
+**Reason:** Consistent style and static analysis across web, API, and UI without duplicating config; pre-commit catches issues before push.
+
+**Trade-off:** First-time contributors must install git hooks (`pnpm install` runs `prepare` → husky); local skill/cursor trees are partially excluded from Prettier via `.prettierignore` so editor-managed copies do not fail `format:check`.
+
+**Impact:** `pnpm lint` and `pnpm format:check` are the project gates for lint/format; see `.specs/quick/001-lint-format-precommit/` and `TESTING.md` gate table.
+
 ---
 
 ## Active Blockers
@@ -147,7 +160,7 @@ _No active blockers._
 
 **Fix:** Add `drizzle.config.ts` to `include` in `apps/api/tsconfig.json` (and remove a restrictive `rootDir` that would forbid files outside `src/`). Add `apps/api/tsconfig.build.json` extending it with `rootDir: "./src"` and `include` only `src/**/*` so `nest build` keeps emitting `dist/main.js` as before.
 
-**Takeaway:** Any TypeScript tooling file at the package root (Drizzle, Vitest, ESLint flat config in TS, etc.) must be covered by `include` (or a dedicated `tsconfig`) so Node globals and shared compiler options apply consistently in CI and in the editor.
+**Takeaway:** Any TypeScript tooling file at the package root (Drizzle, Vitest, etc.) must be covered by `include` (or a dedicated `tsconfig`) so Node globals and shared compiler options apply consistently in CI and in the editor. Monorepo-wide ESLint/Prettier configs use **`tsconfig.repo.json`** at the repository root instead of folding them into an app `tsconfig`.
 
 ### LL-002: Vitest globals vs TypeScript, and `vitest.config.ts` in Next `tsc` (2026-04-19)
 
@@ -159,12 +172,33 @@ _No active blockers._
 
 **Takeaway:** Treat Vitest like its own toolchain for types: either explicit imports from `"vitest"` or a deliberate `vitest/globals` setup. Keep Vitest/Vite config files out of the Next `tsc` program if they only exist for the test runner and cause duplicate-Vite type clashes.
 
+### LL-003: TLC quick mode for cross-cutting tooling (2026-04-19)
+
+**Situation:** Cross-repo tooling (ESLint, Prettier, Husky, lint-staged) was implemented without first opening TLC / `STATE.md` or leaving a quick-task paper trail.
+
+**Cause:** The agent treated the request as a pure “chore” and skipped spec-driven steps.
+
+**Fix:** Use **quick mode** for this class of work: `.specs/quick/NNN-slug/TASK.md` + `SUMMARY.md`, update `STATE.md` (decision + Quick Tasks table), and extend `.specs/codebase/TESTING.md` gate commands when new verification commands exist.
+
+**Takeaway:** Even small or multi-file chores get **Specify (quick) → Execute → Verify → track** per TLC; load `STATE.md` at session start when the project uses SDD.
+
+### LL-004: `eslint.config.ts` and pnpm workspaces need explicit `jiti` (2026-04-19)
+
+**Situation:** After moving the flat config to `eslint.config.ts`, `pnpm turbo lint --force` failed from `apps/*` and `packages/*` with “The `jiti` library is required for loading TypeScript configuration files.”
+
+**Cause:** ESLint resolves optional `jiti` from the package that runs `eslint`; under pnpm, the dependency is not always visible from workspace children.
+
+**Fix:** Add `jiti` as a **root** `devDependency` so every workspace can resolve it when ESLint loads the shared TS config.
+
+**Takeaway:** Prefer `eslint.config.ts` for typing and consistency, but treat **`jiti` at the monorepo root** (or an equivalent loader flag) as part of the contract when using TS ESLint config with pnpm.
+
 ---
 
 ## Quick Tasks Completed
 
-| #   | Description | Date | Commit | Status |
-| --- | ----------- | ---- | ------ | ------ |
+| #   | Description                                        | Date       | Commit                     | Status                                                       |
+| --- | -------------------------------------------------- | ---------- | -------------------------- | ------------------------------------------------------------ |
+| 001 | ESLint + Prettier + Husky + lint-staged (monorepo) | 2026-04-19 | _(add SHA when committed)_ | Done — [TASK.md](../quick/001-lint-format-precommit/TASK.md) |
 
 ---
 

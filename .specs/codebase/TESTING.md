@@ -2,61 +2,64 @@
 
 ## Tools
 
-| Tool | Purpose |
-|---|---|
-| Vitest | Unit and integration tests (all workspaces) |
+| Tool                   | Purpose                                         |
+| ---------------------- | ----------------------------------------------- |
+| Vitest                 | Unit and integration tests (all workspaces)     |
 | @testing-library/react | React component testing (packages/ui, apps/web) |
-| Playwright | End-to-end tests (apps/web) |
-| Storybook Test Runner | Visual/interaction gate (packages/ui) |
+| Playwright             | End-to-end tests (apps/web)                     |
+| Storybook Test Runner  | Visual/interaction gate (packages/ui)           |
 
 ---
 
 ## Test Coverage Matrix
 
-| Layer | Workspace | Type | Parallel-Safe |
-|---|---|---|---|
-| Services / utils | apps/api | unit | Yes |
-| Guards / interceptors | apps/api | unit | Yes |
-| GraphQL resolvers | apps/api | integration | No |
-| Repositories + real DB | apps/api | integration | No |
-| React components | packages/ui | unit | Yes |
-| Storybook stories | packages/ui | visual | Yes |
-| Hooks / utils | apps/web | unit | Yes |
-| Full user flows | apps/web | e2e | Yes |
+| Layer                  | Workspace   | Type        | Parallel-Safe |
+| ---------------------- | ----------- | ----------- | ------------- |
+| Services / utils       | apps/api    | unit        | Yes           |
+| Guards / interceptors  | apps/api    | unit        | Yes           |
+| GraphQL resolvers      | apps/api    | integration | No            |
+| Repositories + real DB | apps/api    | integration | No            |
+| React components       | packages/ui | unit        | Yes           |
+| Storybook stories      | packages/ui | visual      | Yes           |
+| Hooks / utils          | apps/web    | unit        | Yes           |
+| Full user flows        | apps/web    | e2e         | Yes           |
 
 ---
 
 ## Coverage Thresholds
 
-| Workspace | Metric | Threshold |
-|---|---|---|
-| apps/api | line coverage | 80% |
-| apps/web | line coverage | 80% |
-| packages/ui | line coverage | 80% |
-| packages/ui | story coverage | 100% |
+| Workspace   | Metric         | Threshold |
+| ----------- | -------------- | --------- |
+| apps/api    | line coverage  | 80%       |
+| apps/web    | line coverage  | 80%       |
+| packages/ui | line coverage  | 80%       |
+| packages/ui | story coverage | 100%      |
 
 ---
 
 ## Gate Check Commands
 
-| Gate | Command | When to use |
-|---|---|---|
-| **quick** | `pnpm vitest run` (within workspace) | Unit tests only — fast feedback during task execution |
-| **full** | `pnpm turbo test` | All unit + integration tests across all workspaces |
-| **e2e** | `pnpm --filter @job-tracker/web playwright test` | End-to-end flows — run after full gate passes |
-| **storybook** | `pnpm --filter @job-tracker/ui test-storybook` | Visual gate — 100% story coverage enforced |
-| **build** | `pnpm turbo build && pnpm turbo typecheck` | Compilation + type checking — required before deploy |
+| Gate          | Command                                          | When to use                                                        |
+| ------------- | ------------------------------------------------ | ------------------------------------------------------------------ |
+| **lint**      | `pnpm lint`                                      | ESLint (Turbo) — all workspaces; run before commit                 |
+| **format**    | `pnpm format:check`                              | Prettier check — matches CI / pre-commit formatting                |
+| **repo-ts**   | `pnpm typecheck:repo`                            | `tsc --noEmit` for root `eslint.config.ts` / `prettier.config.mts` |
+| **quick**     | `pnpm vitest run` (within workspace)             | Unit tests only — fast feedback during task execution              |
+| **full**      | `pnpm turbo test`                                | All unit + integration tests across all workspaces                 |
+| **e2e**       | `pnpm --filter @job-tracker/web playwright test` | End-to-end flows — run after full gate passes                      |
+| **storybook** | `pnpm --filter @job-tracker/ui test-storybook`   | Visual gate — 100% story coverage enforced                         |
+| **build**     | `pnpm turbo build && pnpm turbo typecheck`       | Compilation + type checking — required before deploy               |
 
 ---
 
 ## Parallelism Assessment
 
-| Test Type | Parallel-Safe | Reason |
-|---|---|---|
-| unit | Yes | No shared state, no I/O |
-| integration | No | Shared PostgreSQL instance — concurrent writes cause flaky tests |
-| e2e | Yes | Playwright manages parallelism internally per worker |
-| visual (Storybook) | Yes | Static rendering, no shared state |
+| Test Type          | Parallel-Safe | Reason                                                           |
+| ------------------ | ------------- | ---------------------------------------------------------------- |
+| unit               | Yes           | No shared state, no I/O                                          |
+| integration        | No            | Shared PostgreSQL instance — concurrent writes cause flaky tests |
+| e2e                | Yes           | Playwright manages parallelism internally per worker             |
+| visual (Storybook) | Yes           | Static rendering, no shared state                                |
 
 ---
 
