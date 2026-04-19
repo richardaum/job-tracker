@@ -1,7 +1,7 @@
 # State
 
 **Last Updated:** 2026-04-19
-**Current Work:** M1 - Foundation (Planning); dev ergonomics — lint/format/pre-commit documented in `.specs/quick/001-lint-format-precommit/`
+**Current Work:** M1 - Foundation (Planning); env validation documented in `.specs/quick/002-env-validation-zod-server-only/`
 
 ---
 
@@ -142,6 +142,16 @@
 
 **Impact:** `pnpm lint` and `pnpm format:check` are the project gates for lint/format; see `.specs/quick/001-lint-format-precommit/` and `TESTING.md` gate table.
 
+### AD-018: Zod-validated server env + server-only on Next (2026-04-19)
+
+**Decision:** Each runnable app keeps an `src/env/server.ts` (or equivalent) that defines a Zod object schema over `process.env`, calls `.parse()` at module load, and exports typed values. The Next.js app file starts with `import "server-only"`. The API uses the same pattern for consistency and to keep a single shape if code is ever shared.
+
+**Reason:** Missing or malformed environment variables surface at startup with clear Zod errors instead of failing deep in a deploy. On Next, `server-only` prevents secrets from being imported into Client Components and ending up in the browser bundle.
+
+**Trade-off:** Eager parsing means any test file that statically imports a module which imports `env/server` must have a valid env (or use dynamic import / isolation). Adding a variable requires editing the schema in one place.
+
+**Impact:** `DATABASE_URL` is enforced as a PostgreSQL URL on the API; Drizzle config reuses the same export. Web layout loads an extendable empty schema today; new secrets get the same validation and export pattern. See `.specs/quick/002-env-validation-zod-server-only/`.
+
 ---
 
 ## Active Blockers
@@ -192,13 +202,34 @@ _No active blockers._
 
 **Takeaway:** Prefer `eslint.config.ts` for typing and consistency, but treat **`jiti` at the monorepo root** (or an equivalent loader flag) as part of the contract when using TS ESLint config with pnpm.
 
+### LL-005: Eager Zod env parse vs Vitest “skip when no DATABASE_URL” (2026-04-19)
+
+**Situation:** An integration spec should run only when `DATABASE_URL` is set, using `it.skipIf(!hasDb)`. With env validation in `env/server.ts` as top-level `zod.parse(process.env)`, Vitest could throw during collection before any skip ran.
+
+**Cause:** A static `import { DatabaseService } from './database.service'` loads `database.service.ts`, which imports `env/server`, which parses immediately. If `DATABASE_URL` is missing, Zod throws while loading the test file — `skipIf` never runs.
+
+**Fix:** In the spec, use `import type` for `DatabaseService` (type-only, no runtime import) and `await import('./database.service')` inside `beforeAll` only when `hasDb` is true. Keep API bootstrap explicit with `import './env/server'` in `main.ts` so production still fails fast.
+
+**Takeaway:** Eager env modules and optional integration tests do not mix unless the test entry point avoids importing the service module until the gate passes, or the test runner sets valid dummy env before any imports.
+
+### LL-006: `server-only` is for the Next bundle boundary, not a Nest substitute (2026-04-19)
+
+**Situation:** The same `import "server-only"` line appears in the Nest API `env/server.ts` as in the Next app.
+
+**Cause:** Vercel’s `server-only` package throws when the module is evaluated in a browser-oriented bundle; Nest runs only on Node, so it does not change runtime behavior there.
+
+**Fix:** Keep `server-only` in both places for a **uniform module shape** across apps and so any future shared import path still trips the Next client build if misused.
+
+**Takeaway:** Treat `server-only` as mandatory for any Next module that reads secrets or server env; on Nest it documents intent and stays harmless on the server.
+
 ---
 
 ## Quick Tasks Completed
 
-| #   | Description                                        | Date       | Commit    | Status                                                       |
-| --- | -------------------------------------------------- | ---------- | --------- | ------------------------------------------------------------ |
-| 001 | ESLint + Prettier + Husky + lint-staged (monorepo) | 2026-04-19 | `f480363` | Done — [TASK.md](../quick/001-lint-format-precommit/TASK.md) |
+| #   | Description                                        | Date       | Commit               | Status                                                                |
+| --- | -------------------------------------------------- | ---------- | -------------------- | --------------------------------------------------------------------- |
+| 001 | ESLint + Prettier + Husky + lint-staged (monorepo) | 2026-04-19 | `f480363`            | Done — [TASK.md](../quick/001-lint-format-precommit/TASK.md)          |
+| 002 | Zod + server-only server env (API + Web)           | 2026-04-19 | `5be7589`, `e1a73e4` | Done — [TASK.md](../quick/002-env-validation-zod-server-only/TASK.md) |
 
 ---
 
