@@ -139,7 +139,25 @@ _No active blockers._
 
 ## Lessons Learned
 
-_No lessons recorded yet._
+### LL-001: Root-level `drizzle.config.ts` and Node globals in TypeScript (2026-04-19)
+
+**Situation:** `drizzle.config.ts` lived next to `apps/api` (outside `src/`). The IDE reported `Cannot find name 'process'` even though `@types/node` was already a devDependency.
+
+**Cause:** `tsconfig.json` only `include`d `src/**/*`, so the config file was not part of the TypeScript program. Editors type-check “orphan” files with defaults that do not load Node’s ambient types the same way.
+
+**Fix:** Add `drizzle.config.ts` to `include` in `apps/api/tsconfig.json` (and remove a restrictive `rootDir` that would forbid files outside `src/`). Add `apps/api/tsconfig.build.json` extending it with `rootDir: "./src"` and `include` only `src/**/*` so `nest build` keeps emitting `dist/main.js` as before.
+
+**Takeaway:** Any TypeScript tooling file at the package root (Drizzle, Vitest, ESLint flat config in TS, etc.) must be covered by `include` (or a dedicated `tsconfig`) so Node globals and shared compiler options apply consistently in CI and in the editor.
+
+### LL-002: Vitest globals vs TypeScript, and `vitest.config.ts` in Next `tsc` (2026-04-19)
+
+**Situation:** Unit tests under `apps/web` used Vitest with `test.globals: true`, but the editor / `tsc` reported `Cannot find name 'describe'` (and suggested `@types/jest` or `@types/mocha`).
+
+**Cause:** `describe` / `it` / `expect` are injected at test runtime by Vitest, but TypeScript only knows them if `vitest/globals` is loaded (e.g. `compilerOptions.types`) or the symbols are imported from `"vitest"`. Without that, the checker assumes a different test runner or plain scripts.
+
+**Fix:** Import `describe`, `it`, and `expect` from `"vitest"` in each test file (or add `"vitest/globals"` to `types`—mind that `types` replaces the default `@types/*` discovery, so list everything you still need). Separately, `tsc` can fail on `vitest.config.ts` when `@vitejs/plugin-react` resolves a different Vite major than Vitest’s bundled Vite; excluding `vitest.config.ts` from the Next app `tsconfig.json` `include`/`exclude` keeps `pnpm typecheck` green while Vitest still loads the config at runtime.
+
+**Takeaway:** Treat Vitest like its own toolchain for types: either explicit imports from `"vitest"` or a deliberate `vitest/globals` setup. Keep Vitest/Vite config files out of the Next `tsc` program if they only exist for the test runner and cause duplicate-Vite type clashes.
 
 ---
 
