@@ -4,21 +4,21 @@
 
 ## Glossary
 
-| Term | Full Name | What it does |
-| --- | --- | --- |
-| EC2 | Elastic Compute Cloud | Virtual machine (server) on AWS |
-| RDS | Relational Database Service | Managed PostgreSQL database on AWS |
-| ALB | Application Load Balancer | Distributes traffic across multiple instances |
-| ECS | Elastic Container Service | Runs Docker containers on AWS |
-| Fargate | AWS Fargate | Serverless compute engine for ECS — no server management |
-| ACM | AWS Certificate Manager | Provisions and manages SSL/TLS certificates for free |
-| SSM | AWS Systems Manager | Stores environment variables and secrets securely |
-| SSL/TLS | Secure Sockets Layer / Transport Layer Security | Encrypts traffic between browser and server (the "S" in HTTPS) |
-| CloudFront | Amazon CloudFront | AWS CDN — caches and serves content from edge locations globally |
-| ElastiCache | Amazon ElastiCache | Managed Redis for caching and sessions |
-| Redis | Remote Dictionary Server | In-memory key-value store used for caching and session storage |
-| Multi-AZ | Multi Availability Zone | Runs DB replicas in multiple data centers for high availability |
-| CDN | Content Delivery Network | Network of edge servers that cache content close to users |
+| Term        | Full Name                                       | What it does                                                     |
+| ----------- | ----------------------------------------------- | ---------------------------------------------------------------- |
+| EC2         | Elastic Compute Cloud                           | Virtual machine (server) on AWS                                  |
+| RDS         | Relational Database Service                     | Managed PostgreSQL database on AWS                               |
+| ALB         | Application Load Balancer                       | Distributes traffic across multiple instances                    |
+| ECS         | Elastic Container Service                       | Runs Docker containers on AWS                                    |
+| Fargate     | AWS Fargate                                     | Serverless compute engine for ECS — no server management         |
+| ACM         | AWS Certificate Manager                         | Provisions and manages SSL/TLS certificates for free             |
+| SSM         | AWS Systems Manager                             | Stores environment variables and secrets securely                |
+| SSL/TLS     | Secure Sockets Layer / Transport Layer Security | Encrypts traffic between browser and server (the "S" in HTTPS)   |
+| CloudFront  | Amazon CloudFront                               | AWS CDN — caches and serves content from edge locations globally |
+| ElastiCache | Amazon ElastiCache                              | Managed Redis for caching and sessions                           |
+| Redis       | Remote Dictionary Server                        | In-memory key-value store used for caching and session storage   |
+| Multi-AZ    | Multi Availability Zone                         | Runs DB replicas in multiple data centers for high availability  |
+| CDN         | Content Delivery Network                        | Network of edge servers that cache content close to users        |
 
 ---
 
@@ -34,21 +34,21 @@ flowchart LR
     EC2 --> RDS[RDS PostgreSQL db.t3.micro]
 ```
 
-| Service | Free Tier | After Free Tier |
-| --- | --- | --- |
-| Vercel (Next.js) | $0 | $0 |
-| EC2 t3.micro (NestJS) | $0 (12 months) | ~$8/mo |
-| RDS PostgreSQL db.t3.micro | $0 (12 months) | ~$15/mo |
-| CloudFront | $0 | ~$0 |
-| Cloudflare DNS | $0 | $0 |
-| ACM | $0 | $0 |
-| SSM Parameter Store | $0 | $0 |
-| AWS Budgets | $0 | $0 |
-| AWS CloudWatch | $0 | ~$0 |
-| GitHub Actions | $0 | $0 |
-| Sentry | $0 | $0 |
-| PostHog | $0 | $0 |
-| **Total** | **$0/mo** | **~$23/mo** |
+| Service                    | Free Tier      | After Free Tier |
+| -------------------------- | -------------- | --------------- |
+| Vercel (Next.js)           | $0             | $0              |
+| EC2 t3.micro (NestJS)      | $0 (12 months) | ~$8/mo          |
+| RDS PostgreSQL db.t3.micro | $0 (12 months) | ~$15/mo         |
+| CloudFront                 | $0             | ~$0             |
+| Cloudflare DNS             | $0             | $0              |
+| ACM                        | $0             | $0              |
+| SSM Parameter Store        | $0             | $0              |
+| AWS Budgets                | $0             | $0              |
+| AWS CloudWatch             | $0             | ~$0             |
+| GitHub Actions             | $0             | $0              |
+| Sentry                     | $0             | $0              |
+| PostHog                    | $0             | $0              |
+| **Total**                  | **$0/mo**      | **~$23/mo**     |
 
 ### Limits
 
@@ -74,19 +74,19 @@ flowchart LR
     API --> Redis[ElastiCache Redis]
 ```
 
-| Service | Estimated Cost |
-| --- | --- |
-| ALB | ~$16/mo |
-| ECS Fargate (Next.js) | ~$10-20/mo |
-| ECS Fargate (NestJS) | ~$10-20/mo |
-| RDS PostgreSQL db.t3.small Multi-AZ | ~$25-30/mo |
-| ElastiCache cache.t3.micro | ~$15/mo |
-| CloudFront | ~$0-5/mo |
-| Cloudflare DNS | $0 |
-| GitHub Actions | $0 |
-| Sentry | $0 |
-| PostHog | $0 |
-| **Total** | **~$77-107/mo** |
+| Service                             | Estimated Cost  |
+| ----------------------------------- | --------------- |
+| ALB                                 | ~$16/mo         |
+| ECS Fargate (Next.js)               | ~$10-20/mo      |
+| ECS Fargate (NestJS)                | ~$10-20/mo      |
+| RDS PostgreSQL db.t3.small Multi-AZ | ~$25-30/mo      |
+| ElastiCache cache.t3.micro          | ~$15/mo         |
+| CloudFront                          | ~$0-5/mo        |
+| Cloudflare DNS                      | $0              |
+| GitHub Actions                      | $0              |
+| Sentry                              | $0              |
+| PostHog                             | $0              |
+| **Total**                           | **~$77-107/mo** |
 
 ### Limits
 

@@ -39,6 +39,7 @@ T03, T04 ──┬── T05 [P]
 **Requirement:** VI-01
 
 **Done when:**
+
 - [ ] CSS custom properties defined for: primary, secondary, neutral, success, warning, error color scales
 - [ ] Typography variables: font families, size scale (xs → 4xl), line heights, font weights
 - [ ] Spacing scale aligned with Tailwind defaults (4px base unit)
@@ -58,6 +59,7 @@ T03, T04 ──┬── T05 [P]
 **Requirement:** VI-02, VI-03
 
 **Done when:**
+
 - [ ] `theme.extend.colors` references CSS variables from `tokens.css`
 - [ ] `theme.extend.fontFamily`, `fontSize`, `spacing` aligned with token definitions
 - [ ] Mobile-first breakpoints defined: `sm: 640px`, `md: 768px`, `lg: 1024px`, `xl: 1280px`
@@ -76,6 +78,7 @@ T03, T04 ──┬── T05 [P]
 **Requirement:** VI-04
 
 **Done when:**
+
 - [ ] `tailwind.config.ts` sets `darkMode: ['attribute', 'data-theme']`
 - [ ] `tokens.css` defines dark mode overrides under `[data-theme='dark']`
 - [ ] Switching `data-theme` on `<html>` flips all color tokens
@@ -94,6 +97,7 @@ T03, T04 ──┬── T05 [P]
 **Requirement:** VI-04
 
 **Done when:**
+
 - [ ] `ThemeProvider` wraps children and sets `data-theme` on mount (persists in `localStorage`)
 - [ ] `useTheme()` returns `{ theme, toggleTheme }` — `theme` is `'light' | 'dark'`
 - [ ] `ThemeProvider.test.tsx` — asserts `toggleTheme` switches the `data-theme` attribute
@@ -114,6 +118,7 @@ T03, T04 ──┬── T05 [P]
 **Requirement:** VI-01, VI-02
 
 **Done when:**
+
 - [ ] `Heading` accepts `as` prop (`h1`–`h6`) and `size` prop mapped to token scale
 - [ ] `Text` accepts `size` and `weight` props mapped to token scale
 - [ ] Both components use only Tailwind classes — no inline styles
@@ -135,6 +140,7 @@ T03, T04 ──┬── T05 [P]
 **Requirement:** VI-01
 
 **Done when:**
+
 - [ ] Story renders color palette swatches for all token groups
 - [ ] Story renders typography scale (all sizes and weights)
 - [ ] Story renders spacing scale
@@ -161,37 +167,37 @@ Phase 3:  T03, T04 ──┬── T05 [P]
 
 ## Granularity Check
 
-| Task | Scope | Status |
-|---|---|---|
-| T01: Design tokens CSS | 1 CSS file | ✅ |
-| T02: Tailwind theme config | 1 config file | ✅ |
-| T03: Dark mode setup | 2 file edits (tokens + tailwind config) | ✅ |
-| T04: ThemeProvider + useTheme | 3 files (component + test + story) | ✅ |
-| T05: Heading + Text components | 4 files, cohesive (2 components + tests + story) | ✅ |
-| T06: Token documentation story | 1 story file | ✅ |
+| Task                           | Scope                                            | Status |
+| ------------------------------ | ------------------------------------------------ | ------ |
+| T01: Design tokens CSS         | 1 CSS file                                       | ✅     |
+| T02: Tailwind theme config     | 1 config file                                    | ✅     |
+| T03: Dark mode setup           | 2 file edits (tokens + tailwind config)          | ✅     |
+| T04: ThemeProvider + useTheme  | 3 files (component + test + story)               | ✅     |
+| T05: Heading + Text components | 4 files, cohesive (2 components + tests + story) | ✅     |
+| T06: Token documentation story | 1 story file                                     | ✅     |
 
 ---
 
 ## Diagram-Definition Cross-Check
 
 | Task | Depends On (body) | Diagram Shows | Status |
-|---|---|---|---|
-| T01 | project-setup T04 | start | ✅ |
-| T02 | T01 | T01 → T02 | ✅ |
-| T03 | T02 | T02 → T03 | ✅ |
-| T04 | T02 | T02 → T04 | ✅ |
-| T05 | T03, T04 | T03,T04 → T05 | ✅ |
-| T06 | T03, T04 | T03,T04 → T06 | ✅ |
+| ---- | ----------------- | ------------- | ------ |
+| T01  | project-setup T04 | start         | ✅     |
+| T02  | T01               | T01 → T02     | ✅     |
+| T03  | T02               | T02 → T03     | ✅     |
+| T04  | T02               | T02 → T04     | ✅     |
+| T05  | T03, T04          | T03,T04 → T05 | ✅     |
+| T06  | T03, T04          | T03,T04 → T06 | ✅     |
 
 ---
 
 ## Test Co-location Validation
 
-| Task | Layer Created | Matrix Requires | Task Says | Status |
-|---|---|---|---|---|
-| T01 | CSS tokens (config) | none | none | ✅ |
-| T02 | Tailwind config | none | none | ✅ |
-| T03 | config edits | none | none | ✅ |
-| T04 | React component (ui) + story | unit + visual | unit + visual | ✅ |
-| T05 | React component (ui) + story | unit + visual | unit + visual | ✅ |
-| T06 | Storybook story | visual | visual | ✅ |
+| Task | Layer Created                | Matrix Requires | Task Says     | Status |
+| ---- | ---------------------------- | --------------- | ------------- | ------ |
+| T01  | CSS tokens (config)          | none            | none          | ✅     |
+| T02  | Tailwind config              | none            | none          | ✅     |
+| T03  | config edits                 | none            | none          | ✅     |
+| T04  | React component (ui) + story | unit + visual   | unit + visual | ✅     |
+| T05  | React component (ui) + story | unit + visual   | unit + visual | ✅     |
+| T06  | Storybook story              | visual          | visual        | ✅     |

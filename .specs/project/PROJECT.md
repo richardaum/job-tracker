@@ -8,10 +8,10 @@
 
 ## Versioning & Phasing
 
-| Concept | What it means |
-| --- | --- |
-| **v1 / v2** | Product versions — what features ship and when |
-| **M1 → M3** | Milestones within v1 — implementation order (see ROADMAP.md) |
+| Concept       | What it means                                                                 |
+| ------------- | ----------------------------------------------------------------------------- |
+| **v1 / v2**   | Product versions — what features ship and when                                |
+| **M1 → M3**   | Milestones within v1 — implementation order (see ROADMAP.md)                  |
 | **IP1 / IP2** | Infrastructure scaling tiers — driven by traffic, not features (see COSTS.md) |
 
 ---
@@ -122,11 +122,13 @@
 ## Non-Functional Requirements
 
 **Performance**
+
 - API response time: p95 < 500ms
 - Web page load: LCP < 2.5s (Core Web Vitals standard)
 - GraphQL queries must avoid N+1 patterns (use DataLoader where applicable)
 
 **Security**
+
 - Security review mandatory before closing any feature — no exceptions
 - HTTPS enforced in all environments
 - JWT access token expiry: 15 minutes; refresh token expiry: 7 days
@@ -134,21 +136,26 @@
 - Input validation on all API endpoints (NestJS class-validator)
 
 **Accessibility**
+
 - WCAG 2.1 Level A compliance — Web (v1), Chrome Extension (v2)
 
 **Availability**
+
 - Best-effort uptime on single EC2 instance — no redundancy, planned downtime acceptable
 - Availability is secondary to cost and simplicity at current scale
 
 **Browser Support**
+
 - Primary: Chrome (latest 2 major versions)
 - Secondary: Safari (latest 2 major versions)
 
 **Database Backup**
+
 - Automated daily backups via RDS (7-day retention)
 - Manual snapshot required before every production migration
 
 **Test Coverage**
+
 - Minimum: 70% across all services (enforced in CI)
 
 ---
