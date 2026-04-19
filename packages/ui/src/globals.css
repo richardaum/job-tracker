@@ -1,0 +1,6 @@
+@import "tailwindcss";
+
+@theme {
+  /* Extend the default theme here using CSS custom properties.
+     Example: --color-brand: oklch(62.3% 0.214 259.815); */
+}
