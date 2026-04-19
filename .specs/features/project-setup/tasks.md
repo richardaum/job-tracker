@@ -220,7 +220,7 @@ T05, T06, T07, T08, T09, T10, T11, T12 ──── T13
 
 ---
 
-### T10: Docker setup (Dockerfile + docker-compose) ⚠️ [P]
+### T10: Docker setup (Dockerfile + docker-compose) ✅ [P]
 
 **What:** Create a production `Dockerfile` for `apps/api` and a `docker-compose.yml` for local PostgreSQL
 **Where:** `apps/api/Dockerfile`, `docker-compose.yml` (root)
@@ -229,12 +229,12 @@ T05, T06, T07, T08, T09, T10, T11, T12 ──── T13
 
 **Done when:**
 
-- [ ] `Dockerfile` is multi-stage: build → production, final image excludes devDependencies
-- [ ] `docker-compose.yml` starts PostgreSQL on port 5432 with env vars
-- [ ] `docker build -t job-tracker-api ./apps/api` passes without errors
+- [x] `Dockerfile` is multi-stage: build → production, final image excludes devDependencies
+- [x] `docker-compose.yml` starts PostgreSQL on port 5432 with env vars
+- [x] `docker build -t job-tracker-api -f apps/api/Dockerfile .` passes without errors
 
 **Tests:** none
-**Gate:** build — `docker build -t job-tracker-api ./apps/api`
+**Gate:** build — `docker build -t job-tracker-api -f apps/api/Dockerfile .`
 
 ---
 

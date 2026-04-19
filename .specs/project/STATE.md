@@ -212,6 +212,21 @@ _No active blockers._
 
 **Takeaway:** Eager env modules and optional integration tests do not mix unless the test entry point avoids importing the service module until the gate passes, or the test runner sets valid dummy env before any imports.
 
+### LL-007: pnpm workspace .bin scripts hardcode workspace paths — unusable in Docker (2026-04-19)
+
+**Situation:** `docker build -f apps/api/Dockerfile .` failed with `Cannot find module '/app/apps/api/node_modules/@nestjs/cli/bin/nest.js'` even after trying `shamefully-hoist=true` and `node-linker=hoisted`.
+
+**Cause:** pnpm generates `.bin` wrapper scripts that contain hardcoded absolute paths to the workspace-local package location (e.g. `/app/apps/api/node_modules/@nestjs/cli/bin/nest.js`). Since pnpm uses a virtual store with symlinks, that path doesn't exist as a real file in Docker. The wrapper scripts are generated at install time and don't change with linker mode.
+
+**Fix:** Replaced `nest build` in the Dockerfile builder stage with `tsc -p tsconfig.build.json` called directly via absolute path (`/app/node_modules/.bin/tsc`). `nest build` for a project without `nest-cli.json` is functionally identical to `tsc -p tsconfig.build.json`. The `typescript` binary is hoisted to the root `node_modules` with `node-linker=hoisted` and resolves correctly.
+
+**Additional fixes applied to the same Dockerfile:**
+
+- Wrong build context: gate command was `docker build ./apps/api`; must be `docker build -f apps/api/Dockerfile .` so root monorepo files are accessible
+- Production install triggered `husky` (`prepare` script); fixed with `--ignore-scripts`
+
+**Takeaway:** For pnpm monorepos in Docker, never rely on workspace `.bin` scripts for build tools — call the binary directly via its absolute path in `node_modules/.bin/`. For production installs, always use `--ignore-scripts` to skip git-hook setup scripts.
+
 ### LL-006: `server-only` is for the Next bundle boundary, not a Nest substitute (2026-04-19)
 
 **Situation:** The same `import "server-only"` line appears in the Nest API `env/server.ts` as in the Next app.
@@ -230,6 +245,7 @@ _No active blockers._
 | --- | -------------------------------------------------- | ---------- | -------------------- | --------------------------------------------------------------------- |
 | 001 | ESLint + Prettier + Husky + lint-staged (monorepo) | 2026-04-19 | `f480363`            | Done — [TASK.md](../quick/001-lint-format-precommit/TASK.md)          |
 | 002 | Zod + server-only server env (API + Web)           | 2026-04-19 | `5be7589`, `e1a73e4` | Done — [TASK.md](../quick/002-env-validation-zod-server-only/TASK.md) |
+| 003 | OrbStack install + Dockerfile fixes (T10 gate)     | 2026-04-19 | _pending_            | Done — [TASK.md](../quick/003-orbstack-docker-setup/TASK.md)          |
 
 ---
 
