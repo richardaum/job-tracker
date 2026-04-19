@@ -1,5 +1,12 @@
 import "reflect-metadata";
 import "./env/server";
+import * as Sentry from "@sentry/node";
+
+Sentry.init({
+  dsn: process.env.SENTRY_DSN,
+  tracesSampleRate: 1.0,
+});
+
 import { NestFactory } from "@nestjs/core";
 import {
   FastifyAdapter,

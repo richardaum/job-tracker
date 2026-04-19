@@ -12,7 +12,7 @@
 
 ### Features
 
-**Project Setup** - PLANNED
+**Project Setup** - DONE
 
 - Initialize pnpm workspaces monorepo (Web + API + Extension + packages/ui)
 - Initialize Next.js 15 (Web) and NestJS (API) as separate services

@@ -1,7 +1,7 @@
 # Project Setup — Tasks
 
 **Spec:** `.specs/features/project-setup/spec.md`
-**Status:** In Progress
+**Status:** Done
 
 ---
 
@@ -238,25 +238,25 @@ T05, T06, T07, T08, T09, T10, T11, T12 ──── T13
 
 ---
 
-### T11: Sentry setup (apps/web) [P]
+### T11: Sentry setup (apps/web) ✅ [P]
 
 **What:** Configure Sentry in Next.js 15 via `@sentry/nextjs`
-**Where:** `apps/web/sentry.client.config.ts`, `apps/web/sentry.server.config.ts`, `apps/web/instrumentation.ts`
+**Where:** `apps/web/sentry.client.config.ts`, `apps/web/sentry.server.config.ts`, `apps/web/src/instrumentation.ts`
 **Depends on:** T07
 **Requirement:** PS-08
 
 **Done when:**
 
-- [ ] `@sentry/nextjs` installed and `withSentryConfig` applied in `next.config.ts`
-- [ ] DSN read from `NEXT_PUBLIC_SENTRY_DSN` env var
-- [ ] `pnpm --filter @job-tracker/web build` passes without errors
+- [x] `@sentry/nextjs` installed and `withSentryConfig` applied in `next.config.ts`
+- [x] DSN read from `NEXT_PUBLIC_SENTRY_DSN` env var
+- [x] `pnpm --filter @job-tracker/web build` passes without errors
 
 **Tests:** none
 **Gate:** build — `pnpm --filter @job-tracker/web build`
 
 ---
 
-### T12: Sentry setup (apps/api) [P]
+### T12: Sentry setup (apps/api) ✅ [P]
 
 **What:** Configure Sentry in NestJS via `@sentry/node`
 **Where:** `apps/api/src/main.ts` (Sentry.init before NestJS factory)
@@ -265,16 +265,16 @@ T05, T06, T07, T08, T09, T10, T11, T12 ──── T13
 
 **Done when:**
 
-- [ ] `@sentry/node` installed and `Sentry.init()` called at the top of `main.ts`
-- [ ] DSN read from `SENTRY_DSN` env var
-- [ ] `pnpm --filter @job-tracker/api build` passes without errors
+- [x] `@sentry/node` installed and `Sentry.init()` called at the top of `main.ts`
+- [x] DSN read from `SENTRY_DSN` env var
+- [x] `pnpm --filter @job-tracker/api build` passes without errors
 
 **Tests:** none
 **Gate:** build — `pnpm --filter @job-tracker/api build`
 
 ---
 
-### T13: GitHub Actions CI pipeline
+### T13: GitHub Actions CI pipeline ✅
 
 **What:** Create a CI workflow running lint → typecheck → test → build for all workspaces
 **Where:** `.github/workflows/ci.yml`
@@ -283,10 +283,10 @@ T05, T06, T07, T08, T09, T10, T11, T12 ──── T13
 
 **Done when:**
 
-- [ ] Workflow triggers on `push` and `pull_request` to `main`
-- [ ] Steps: install → lint → typecheck → test → build (via `turbo`)
-- [ ] PostgreSQL service container configured for integration tests
-- [ ] 80% line coverage threshold enforced via Vitest reporter
+- [x] Workflow triggers on `push` and `pull_request` to `main`
+- [x] Steps: install → lint → typecheck → test → build (via `turbo`)
+- [x] PostgreSQL service container configured for integration tests
+- [x] 80% line coverage threshold enforced via Vitest reporter
 
 **Tests:** none
 **Gate:** N/A (validated via GitHub after push)

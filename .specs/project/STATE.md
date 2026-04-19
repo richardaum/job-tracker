@@ -1,7 +1,7 @@
 # State
 
 **Last Updated:** 2026-04-19
-**Current Work:** M1 - Foundation (Planning); env validation documented in `.specs/quick/002-env-validation-zod-server-only/`
+**Current Work:** M1 - Foundation; Project Setup complete — starting Google OAuth (T01)
 
 ---
 
