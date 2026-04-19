@@ -20,4 +20,4 @@ Install OrbStack as the Docker runtime on macOS and verify the T10 gate (`docker
 
 ## Commit
 
-_pending_
+`c26f9c5` — fix(docker): fix Dockerfile build context, prod install, and pnpm .bin resolution
