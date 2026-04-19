@@ -1,3 +1,4 @@
+import "../env/server";
 import type { ReactNode } from "react";
 
 export const metadata = {
