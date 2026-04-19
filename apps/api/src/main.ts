@@ -1,8 +1,11 @@
-import 'reflect-metadata';
-import './env/server';
-import { NestFactory } from '@nestjs/core';
-import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
-import { AppModule } from './app.module';
+import "reflect-metadata";
+import "./env/server";
+import { NestFactory } from "@nestjs/core";
+import {
+  FastifyAdapter,
+  NestFastifyApplication,
+} from "@nestjs/platform-fastify";
+import { AppModule } from "./app.module";
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -10,7 +13,7 @@ async function bootstrap() {
     new FastifyAdapter(),
   );
   app.enableCors();
-  await app.listen(3001, '0.0.0.0');
+  await app.listen(3001, "0.0.0.0");
 }
 
 bootstrap();
