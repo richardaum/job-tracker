@@ -196,9 +196,9 @@ _No active blockers._
 
 ## Quick Tasks Completed
 
-| #   | Description                                        | Date       | Commit                     | Status                                                       |
-| --- | -------------------------------------------------- | ---------- | -------------------------- | ------------------------------------------------------------ |
-| 001 | ESLint + Prettier + Husky + lint-staged (monorepo) | 2026-04-19 | _(add SHA when committed)_ | Done — [TASK.md](../quick/001-lint-format-precommit/TASK.md) |
+| #   | Description                                        | Date       | Commit    | Status                                                       |
+| --- | -------------------------------------------------- | ---------- | --------- | ------------------------------------------------------------ |
+| 001 | ESLint + Prettier + Husky + lint-staged (monorepo) | 2026-04-19 | `f480363` | Done — [TASK.md](../quick/001-lint-format-precommit/TASK.md) |
 
 ---
 

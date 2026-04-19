@@ -25,4 +25,4 @@ _Note:_ Implementation touched more than the quick-mode “≤3 files” rule be
 
 ## Commit
 
-_Record the conventional commit SHA and message here after the change is committed._
+`f480363` — chore(lint): add ESLint, Prettier, Husky, lint-staged, and repo TS config
