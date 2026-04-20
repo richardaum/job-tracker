@@ -1,7 +1,7 @@
 # Google OAuth — Tasks
 
 **Spec:** `.specs/features/google-oauth/spec.md`
-**Status:** Planned
+**Status:** In Progress (T01–T08 done, T09 next)
 
 ---
 
@@ -52,7 +52,7 @@ T11, T12, T13 ──→ T14 ──→ T15
 
 ## Task Breakdown
 
-### T01: User Drizzle schema
+### T01: User Drizzle schema ✅ `168c93b`
 
 **What:** Define the `users` table schema using Drizzle ORM
 **Where:** `apps/api/src/users/users.schema.ts`
@@ -61,16 +61,16 @@ T11, T12, T13 ──→ T14 ──→ T15
 
 **Done when:**
 
-- [ ] Schema defines: `id`, `googleId`, `email`, `name`, `avatarUrl`, `role`, `createdAt`, `updatedAt`
-- [ ] `role` typed as `pgEnum('role', ['user'])` — extensible for future roles
-- [ ] No TypeScript errors
+- [x] Schema defines: `id`, `googleId`, `email`, `name`, `avatarUrl`, `role`, `createdAt`, `updatedAt`
+- [x] `role` typed as `pgEnum('role', ['user'])` — extensible for future roles
+- [x] No TypeScript errors
 
 **Tests:** none
 **Gate:** build — `pnpm --filter @job-tracker/api build`
 
 ---
 
-### T02: Users migration
+### T02: Users migration ✅ `4a96d35`
 
 **What:** Generate and apply Drizzle migration for the `users` table
 **Where:** `apps/api/src/database/migrations/`
@@ -79,53 +79,55 @@ T11, T12, T13 ──→ T14 ──→ T15
 
 **Done when:**
 
-- [ ] `drizzle-kit generate` produces migration file for `users` table
-- [ ] `drizzle-kit migrate` applies it against local PostgreSQL without errors
-- [ ] Migration is idempotent (re-running does not fail)
+- [x] `drizzle-kit generate` produces migration file for `users` table
+- [x] `drizzle-kit migrate` applies it against local PostgreSQL without errors
+- [x] Migration is idempotent (re-running does not fail)
 
 **Tests:** none
 **Gate:** build — `drizzle-kit migrate`
 
 ---
 
-### T03: UserRepository
+### T03: UserRepository ✅ `c4e3158`
 
-**What:** Create `UserRepository` with `findByGoogleId` and `upsert` methods
+**What:** Create `UserRepository` with `findByGoogleId`, `findById`, and `upsert` methods
 **Where:** `apps/api/src/users/users.repository.ts`, `apps/api/src/users/users.repository.spec.ts`
 **Depends on:** T02
 **Requirement:** GO-01
 
 **Done when:**
 
-- [ ] `findByGoogleId(googleId: string)` returns user or `null`
-- [ ] `upsert(profile)` creates or updates user by `googleId`
-- [ ] Integration test covers both methods against real DB
-- [ ] Gate: `pnpm --filter @job-tracker/api vitest run` — repository tests pass
+- [x] `findByGoogleId(googleId: string)` returns user or `null`
+- [x] `findById(id: string)` returns user or `null` — added to support RolesGuard DB lookup
+- [x] `upsert(profile)` creates or updates user by `googleId`
+- [x] Integration test covers both methods against real DB
+- [x] Gate: `pnpm --filter @job-tracker/api vitest run` — repository tests pass
 
 **Tests:** integration
 **Gate:** full — `pnpm --filter @job-tracker/api vitest run`
 
 ---
 
-### T04: UserService [P]
+### T04: UserService [P] ✅ `b5db026`
 
-**What:** Create `UserService` with `findOrCreateFromGoogle(profile)` method
+**What:** Create `UserService` with `findOrCreateFromGoogle(profile)` and `findById(id)` methods
 **Where:** `apps/api/src/users/users.service.ts`, `apps/api/src/users/users.service.spec.ts`
 **Depends on:** T03
 **Requirement:** GO-01
 
 **Done when:**
 
-- [ ] `findOrCreateFromGoogle` calls `UserRepository.upsert` and returns the user
-- [ ] Unit test mocks `UserRepository` and asserts correct delegation
-- [ ] Gate: `pnpm --filter @job-tracker/api vitest run` — 1+ unit tests pass
+- [x] `findOrCreateFromGoogle` calls `UserRepository.upsert` and returns the user
+- [x] `findById(id)` delegates to `UserRepository.findById` — exposed for RolesGuard
+- [x] Unit test mocks `UserRepository` and asserts correct delegation
+- [x] Gate: `pnpm --filter @job-tracker/api vitest run` — 1+ unit tests pass
 
 **Tests:** unit
 **Gate:** quick — `pnpm --filter @job-tracker/api vitest run`
 
 ---
 
-### T05: AuthService — token generation [P]
+### T05: AuthService — token generation [P] ✅ `e2ec21d` → updated `9e64525`
 
 **What:** Create `AuthService` with `generateAccessToken` and `generateRefreshToken` methods
 **Where:** `apps/api/src/auth/auth.service.ts`, `apps/api/src/auth/auth.service.spec.ts`
@@ -134,18 +136,18 @@ T11, T12, T13 ──→ T14 ──→ T15
 
 **Done when:**
 
-- [ ] `generateAccessToken(user)` returns a signed JWT (15 min expiry)
-- [ ] `generateRefreshToken(user)` returns a signed JWT (7 days expiry)
-- [ ] Both tokens include `userId` and `role` in payload
-- [ ] Unit tests assert token structure and expiry using `jsonwebtoken` decode
-- [ ] Gate: `pnpm --filter @job-tracker/api vitest run` — 2+ unit tests pass
+- [x] `generateAccessToken(user)` returns a signed JWT (15 min expiry)
+- [x] `generateRefreshToken(user)` returns a signed JWT (7 days expiry)
+- [x] Tokens carry only `{ sub: user.id }` — role is NOT in the payload (resolved from DB at request time to prevent stale role claims)
+- [x] Unit tests assert token structure and expiry using `jsonwebtoken` decode
+- [x] Gate: `pnpm --filter @job-tracker/api vitest run` — 2+ unit tests pass
 
 **Tests:** unit
 **Gate:** quick — `pnpm --filter @job-tracker/api vitest run`
 
 ---
 
-### T06: JwtStrategy + JwtAuthGuard [P]
+### T06: JwtStrategy + JwtAuthGuard [P] ✅ `3c86173` → updated `ab46788`
 
 **What:** Create Passport JWT strategy and NestJS guard for protecting resolvers/routes
 **Where:** `apps/api/src/auth/jwt.strategy.ts`, `apps/api/src/auth/jwt-auth.guard.ts`, `apps/api/src/auth/jwt-auth.guard.spec.ts`
@@ -154,17 +156,17 @@ T11, T12, T13 ──→ T14 ──→ T15
 
 **Done when:**
 
-- [ ] `JwtStrategy` validates access token and returns user from DB
-- [ ] `JwtAuthGuard` extends `AuthGuard('jwt')` and is applicable as `@UseGuards(JwtAuthGuard)`
-- [ ] Unit test asserts guard throws `UnauthorizedException` for invalid token
-- [ ] Gate: `pnpm --filter @job-tracker/api vitest run` — 1+ unit tests pass
+- [x] `JwtStrategy` validates access token and returns `{ userId }` from payload — extracts from httpOnly cookie or Bearer header
+- [x] `JwtAuthGuard` extends `AuthGuard('jwt')` and is applicable as `@UseGuards(JwtAuthGuard)`
+- [x] Unit test asserts strategy returns correct shape from payload
+- [x] Gate: `pnpm --filter @job-tracker/api vitest run` — 1+ unit tests pass
 
 **Tests:** unit
 **Gate:** quick — `pnpm --filter @job-tracker/api vitest run`
 
 ---
 
-### T07: RolesGuard + @Roles() decorator [P]
+### T07: RolesGuard + @Roles() decorator [P] ✅ `e2288eb` → updated `9e64525`
 
 **What:** Create extensible RBAC guard and decorator
 **Where:** `apps/api/src/auth/roles.guard.ts`, `apps/api/src/auth/roles.decorator.ts`, `apps/api/src/auth/roles.guard.spec.ts`
@@ -173,17 +175,17 @@ T11, T12, T13 ──→ T14 ──→ T15
 
 **Done when:**
 
-- [ ] `@Roles('user')` decorator sets metadata on the resolver/route
-- [ ] `RolesGuard` reads metadata and compares against JWT payload `role`
-- [ ] Unit test asserts guard allows matching role and blocks mismatched role
-- [ ] Gate: `pnpm --filter @job-tracker/api vitest run` — 2+ unit tests pass
+- [x] `@Roles('user')` decorator sets metadata on the resolver/route
+- [x] `RolesGuard` fetches the current role from DB via `UserService.findById` — not from JWT claim — ensuring stale tokens cannot grant elevated access
+- [x] Unit test asserts guard allows matching role, blocks mismatched role, and skips DB call on public routes
+- [x] Gate: `pnpm --filter @job-tracker/api vitest run` — 2+ unit tests pass
 
 **Tests:** unit
 **Gate:** quick — `pnpm --filter @job-tracker/api vitest run`
 
 ---
 
-### T08: GoogleStrategy + AuthController
+### T08: GoogleStrategy + AuthController ✅ `ab46788`
 
 **What:** Create Passport Google strategy and REST controller for OAuth redirect flow
 **Where:** `apps/api/src/auth/google.strategy.ts`, `apps/api/src/auth/auth.controller.ts`, `apps/api/src/auth/auth.controller.spec.ts`
@@ -192,12 +194,14 @@ T11, T12, T13 ──→ T14 ──→ T15
 
 **Done when:**
 
-- [ ] `GoogleStrategy` validates Google profile and calls `UserService.findOrCreateFromGoogle`
-- [ ] `GET /auth/google` initiates OAuth redirect
-- [ ] `GET /auth/google/callback` sets access token in response + refresh token as httpOnly cookie
-- [ ] `POST /auth/logout` clears the refresh token cookie
-- [ ] Integration test mocks Google response and asserts cookies are set correctly
-- [ ] Gate: `pnpm --filter @job-tracker/api vitest run` — integration tests pass
+- [x] `GoogleStrategy` validates Google profile and calls `UserService.findOrCreateFromGoogle`
+- [x] `GET /auth/google` initiates OAuth redirect
+- [x] `GET /auth/google/callback` sets both access and refresh tokens as httpOnly cookies and redirects to `WEB_URL`
+- [x] `POST /auth/logout` clears both auth cookies
+- [x] Integration test mocks Google guard and asserts cookies set on callback and cleared on logout
+- [x] Gate: `pnpm --filter @job-tracker/api vitest run` — integration tests pass
+
+**Note:** Migrated from `@nestjs/platform-fastify` to `@nestjs/platform-express` during this task to eliminate Fastify type leakage into controllers.
 
 **Tests:** integration
 **Gate:** full — `pnpm --filter @job-tracker/api vitest run`
