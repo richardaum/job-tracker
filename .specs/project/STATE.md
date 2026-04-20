@@ -237,6 +237,16 @@ _No active blockers._
 
 **Takeaway:** `server-only` is a **Next.js build-time guard only** — it relies on Next replacing the module with a no-op on the server. In any other Node.js runtime (NestJS, scripts, tests) it always crashes. Never add it outside `apps/web`.
 
+### LL-008: NestJS does not auto-load `.env` — dotenv must be imported explicitly (2026-04-19)
+
+**Situation:** `apps/api/src/env/server.ts` called `zod.parse(process.env)` at module load time. The `apps/api/.env` file existed and contained `DATABASE_URL`, but the API crashed with a ZodError saying the value was `undefined`.
+
+**Cause:** Unlike Next.js (which loads `.env` files automatically), NestJS/Node.js does not read `.env` files unless explicitly instructed. The Zod parse runs at import time, before any application bootstrap logic.
+
+**Fix:** Add `import "dotenv/config"` as the **first import** in `env/server.ts` so the `.env` file is populated into `process.env` before the Zod schema parses it.
+
+**Takeaway:** In NestJS, always load dotenv before any top-level `process.env` access. `import "dotenv/config"` as the first line of `env/server.ts` is the correct pattern — it guarantees `.env` is read regardless of import order elsewhere.
+
 ---
 
 ## Quick Tasks Completed
@@ -247,6 +257,7 @@ _No active blockers._
 | 002 | Zod + server-only server env (API + Web)           | 2026-04-19 | `5be7589`, `e1a73e4` | Done — [TASK.md](../quick/002-env-validation-zod-server-only/TASK.md) |
 | 003 | OrbStack install + Dockerfile fixes (T10 gate)     | 2026-04-19 | `c26f9c5`            | Done — [TASK.md](../quick/003-orbstack-docker-setup/TASK.md)          |
 | 004 | Remove `server-only` from NestJS API env module    | 2026-04-19 | `7c9ae2c`            | Done — [TASK.md](../quick/004-remove-server-only-api-env/TASK.md)     |
+| 005 | Load dotenv before Zod env validation in API       | 2026-04-19 | `8f6bb51`            | Done — [TASK.md](../quick/005-dotenv-api-env-load/TASK.md)            |
 
 ---
 
