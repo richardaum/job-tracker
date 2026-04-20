@@ -134,6 +134,7 @@
 - JWT access token expiry: 15 minutes; refresh token expiry: 7 days
 - No sensitive data stored in localStorage — use httpOnly cookies for refresh token
 - Input validation on all API endpoints (NestJS class-validator)
+- Dependency audit (`pnpm audit`) must pass with no high/critical vulnerabilities before merging any PR
 
 **Accessibility**
 

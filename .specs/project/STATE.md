@@ -102,7 +102,7 @@
 **Decision:** Use GitHub Actions as the CI/CD pipeline across all services
 **Reason:** Free, integrated with the repository, no external service to manage; Turborepo ensures only affected services are rebuilt and redeployed on each push
 **Trade-off:** Build minutes are limited on the free tier for private repos (2000 min/month)
-**Impact:** Pipeline: lint → test → build → migrate (API only) → deploy; each service deploys independently based on what changed
+**Impact:** Pipeline: lint → audit → test → build → migrate (API only) → deploy; each service deploys independently based on what changed
 
 ### AD-013: AWS infrastructure — Vercel + EC2 + CloudFront + RDS (2026-04-19)
 

@@ -49,6 +49,7 @@
 | **e2e**       | `pnpm --filter @job-tracker/web playwright test` | End-to-end flows — run after full gate passes                      |
 | **storybook** | `pnpm --filter @job-tracker/ui test-storybook`   | Visual gate — 100% story coverage enforced                         |
 | **build**     | `pnpm turbo build && pnpm turbo typecheck`       | Compilation + type checking — required before deploy               |
+| **audit**     | `pnpm audit --audit-level=high`                  | Dependency vulnerability scan — must pass before merging any PR    |
 
 ---
 
