@@ -251,13 +251,15 @@ _No active blockers._
 
 ## Quick Tasks Completed
 
-| #   | Description                                        | Date       | Commit               | Status                                                                |
-| --- | -------------------------------------------------- | ---------- | -------------------- | --------------------------------------------------------------------- |
-| 001 | ESLint + Prettier + Husky + lint-staged (monorepo) | 2026-04-19 | `f480363`            | Done — [TASK.md](../quick/001-lint-format-precommit/TASK.md)          |
-| 002 | Zod + server-only server env (API + Web)           | 2026-04-19 | `5be7589`, `e1a73e4` | Done — [TASK.md](../quick/002-env-validation-zod-server-only/TASK.md) |
-| 003 | OrbStack install + Dockerfile fixes (T10 gate)     | 2026-04-19 | `c26f9c5`            | Done — [TASK.md](../quick/003-orbstack-docker-setup/TASK.md)          |
-| 004 | Remove `server-only` from NestJS API env module    | 2026-04-19 | `7c9ae2c`            | Done — [TASK.md](../quick/004-remove-server-only-api-env/TASK.md)     |
-| 005 | Load dotenv before Zod env validation in API       | 2026-04-19 | `8f6bb51`            | Done — [TASK.md](../quick/005-dotenv-api-env-load/TASK.md)            |
+| #   | Description                                          | Date       | Commit               | Status                                                                |
+| --- | ---------------------------------------------------- | ---------- | -------------------- | --------------------------------------------------------------------- |
+| 001 | ESLint + Prettier + Husky + lint-staged (monorepo)   | 2026-04-19 | `f480363`            | Done — [TASK.md](../quick/001-lint-format-precommit/TASK.md)          |
+| 002 | Zod + server-only server env (API + Web)             | 2026-04-19 | `5be7589`, `e1a73e4` | Done — [TASK.md](../quick/002-env-validation-zod-server-only/TASK.md) |
+| 003 | OrbStack install + Dockerfile fixes (T10 gate)       | 2026-04-19 | `c26f9c5`            | Done — [TASK.md](../quick/003-orbstack-docker-setup/TASK.md)          |
+| 004 | Remove `server-only` from NestJS API env module      | 2026-04-19 | `7c9ae2c`            | Done — [TASK.md](../quick/004-remove-server-only-api-env/TASK.md)     |
+| 005 | Load dotenv before Zod env validation in API         | 2026-04-19 | `8f6bb51`            | Done — [TASK.md](../quick/005-dotenv-api-env-load/TASK.md)            |
+| 006 | Fix Sentry Next.js SDK warnings                      | 2026-04-19 | TBD                  | Done — [TASK.md](../quick/006-sentry-nextjs-warnings/TASK.md)         |
+| 007 | Configurable PORT in 31xx range (web=3100, api=3101) | 2026-04-19 | TBD                  | Done — [TASK.md](../quick/007-api-port-finder/TASK.md)                |
 
 ---
 
