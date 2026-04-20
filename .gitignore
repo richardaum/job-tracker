@@ -6,3 +6,13 @@ dist/
 .env.local
 .env.*.local
 *.tsbuildinfo
+
+# Build artifacts
+storybook-static/
+test-results/
+
+# Editor tooling
+.agents/
+.claude/
+.cursor/
+.windsurf/
