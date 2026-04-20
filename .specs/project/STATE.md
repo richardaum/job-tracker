@@ -227,15 +227,15 @@ _No active blockers._
 
 **Takeaway:** For pnpm monorepos in Docker, never rely on workspace `.bin` scripts for build tools — call the binary directly via its absolute path in `node_modules/.bin/`. For production installs, always use `--ignore-scripts` to skip git-hook setup scripts.
 
-### LL-006: `server-only` is for the Next bundle boundary, not a Nest substitute (2026-04-19)
+### LL-006: `server-only` throws in plain Node.js — do not use it in NestJS (corrected 2026-04-19)
 
-**Situation:** The same `import "server-only"` line appears in the Nest API `env/server.ts` as in the Next app.
+**Situation:** `import "server-only"` was added to `apps/api/src/env/server.ts` mirroring the Next.js pattern, causing the NestJS process to crash on startup with "This module cannot be imported from a Client Component module."
 
-**Cause:** Vercel’s `server-only` package throws when the module is evaluated in a browser-oriented bundle; Nest runs only on Node, so it does not change runtime behavior there.
+**Cause:** `server-only` unconditionally throws at import time. Next.js suppresses the error server-side by swapping the module for an empty shim during RSC compilation; plain Node.js (NestJS) has no such shim, so the throw propagates.
 
-**Fix:** Keep `server-only` in both places for a **uniform module shape** across apps and so any future shared import path still trips the Next client build if misused.
+**Fix:** Remove `import "server-only"` from all NestJS modules. Keep it only in `apps/web` env modules where Next.js provides the shim.
 
-**Takeaway:** Treat `server-only` as mandatory for any Next module that reads secrets or server env; on Nest it documents intent and stays harmless on the server.
+**Takeaway:** `server-only` is a **Next.js build-time guard only** — it relies on Next replacing the module with a no-op on the server. In any other Node.js runtime (NestJS, scripts, tests) it always crashes. Never add it outside `apps/web`.
 
 ---
 
@@ -246,6 +246,7 @@ _No active blockers._
 | 001 | ESLint + Prettier + Husky + lint-staged (monorepo) | 2026-04-19 | `f480363`            | Done — [TASK.md](../quick/001-lint-format-precommit/TASK.md)          |
 | 002 | Zod + server-only server env (API + Web)           | 2026-04-19 | `5be7589`, `e1a73e4` | Done — [TASK.md](../quick/002-env-validation-zod-server-only/TASK.md) |
 | 003 | OrbStack install + Dockerfile fixes (T10 gate)     | 2026-04-19 | `c26f9c5`            | Done — [TASK.md](../quick/003-orbstack-docker-setup/TASK.md)          |
+| 004 | Remove `server-only` from NestJS API env module    | 2026-04-19 | TBD                  | Done — [TASK.md](../quick/004-remove-server-only-api-env/TASK.md)     |
 
 ---
 
