@@ -68,6 +68,9 @@ importers:
       '@sentry/node':
         specifier: ^10.49.0
         version: 10.49.0
+      dotenv:
+        specifier: ^16.6.1
+        version: 16.6.1
       drizzle-orm:
         specifier: ^0.45.2
         version: 0.45.2(@opentelemetry/api@1.9.1)(@types/pg@8.20.0)(pg@8.20.0)
@@ -80,9 +83,6 @@ importers:
       rxjs:
         specifier: ^7.8.2
         version: 7.8.2
-      server-only:
-        specifier: ^0.0.1
-        version: 0.0.1
       zod:
         specifier: ^4.3.6
         version: 4.3.6
