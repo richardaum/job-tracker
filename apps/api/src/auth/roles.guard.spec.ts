@@ -2,40 +2,53 @@ import "reflect-metadata";
 import { describe, it, expect, vi } from "vitest";
 import { ExecutionContext } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
+import { UserService } from "../users/users.service";
 import { RolesGuard } from "./roles.guard";
 
-function makeContext(role: string | undefined): ExecutionContext {
+function makeContext(userId: string | undefined): ExecutionContext {
   return {
     getHandler: () => ({}),
     getClass: () => ({}),
     switchToHttp: () => ({
-      getRequest: () => ({ user: role !== undefined ? { role } : undefined }),
+      getRequest: () => ({
+        user: userId !== undefined ? { userId } : undefined,
+      }),
     }),
   } as unknown as ExecutionContext;
 }
 
 describe("RolesGuard", () => {
-  it("allows when role matches required role", () => {
+  it("allows when user role matches required role", async () => {
     const reflector = {
       getAllAndOverride: vi.fn().mockReturnValue(["user"]),
     } as unknown as Reflector;
-    const guard = new RolesGuard(reflector);
-    expect(guard.canActivate(makeContext("user"))).toBe(true);
+    const userService = {
+      findById: vi.fn().mockResolvedValue({ role: "user" }),
+    } as unknown as UserService;
+    const guard = new RolesGuard(reflector, userService);
+    expect(await guard.canActivate(makeContext("user-1"))).toBe(true);
   });
 
-  it("blocks when role does not match required role", () => {
+  it("blocks when user role does not match required role", async () => {
     const reflector = {
       getAllAndOverride: vi.fn().mockReturnValue(["admin"]),
     } as unknown as Reflector;
-    const guard = new RolesGuard(reflector);
-    expect(guard.canActivate(makeContext("user"))).toBe(false);
+    const userService = {
+      findById: vi.fn().mockResolvedValue({ role: "user" }),
+    } as unknown as UserService;
+    const guard = new RolesGuard(reflector, userService);
+    expect(await guard.canActivate(makeContext("user-1"))).toBe(false);
   });
 
-  it("allows when no roles metadata is set (public route)", () => {
+  it("allows when no roles metadata is set (public route)", async () => {
     const reflector = {
       getAllAndOverride: vi.fn().mockReturnValue(undefined),
     } as unknown as Reflector;
-    const guard = new RolesGuard(reflector);
-    expect(guard.canActivate(makeContext(undefined))).toBe(true);
+    const userService = {
+      findById: vi.fn(),
+    } as unknown as UserService;
+    const guard = new RolesGuard(reflector, userService);
+    expect(await guard.canActivate(makeContext(undefined))).toBe(true);
+    expect(userService.findById).not.toHaveBeenCalled();
   });
 });

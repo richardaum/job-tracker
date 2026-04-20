@@ -23,12 +23,12 @@ describe("AuthService", () => {
     service = new AuthService(new JwtService({}));
   });
 
-  it("generateAccessToken returns a JWT with sub, role and 15m expiry", () => {
+  it("generateAccessToken returns a JWT with sub (no role) and 15m expiry", () => {
     const token = service.generateAccessToken(mockUser);
     const decoded = jwt.decode(token) as jwt.JwtPayload;
 
     expect(decoded.sub).toBe(mockUser.id);
-    expect(decoded.role).toBe(mockUser.role);
+    expect(decoded.role).toBeUndefined();
 
     const nowSeconds = Math.floor(Date.now() / 1000);
     const expectedExpiry = nowSeconds + 15 * 60;
@@ -36,12 +36,12 @@ describe("AuthService", () => {
     expect(decoded.exp).toBeLessThanOrEqual(expectedExpiry + 5);
   });
 
-  it("generateRefreshToken returns a JWT with sub, role and 7d expiry", () => {
+  it("generateRefreshToken returns a JWT with sub (no role) and 7d expiry", () => {
     const token = service.generateRefreshToken(mockUser);
     const decoded = jwt.decode(token) as jwt.JwtPayload;
 
     expect(decoded.sub).toBe(mockUser.id);
-    expect(decoded.role).toBe(mockUser.role);
+    expect(decoded.role).toBeUndefined();
 
     const nowSeconds = Math.floor(Date.now() / 1000);
     const expectedExpiry = nowSeconds + 7 * 24 * 60 * 60;

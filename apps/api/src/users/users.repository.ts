@@ -7,6 +7,15 @@ import { users, User, NewUser } from "./users.schema";
 export class UserRepository {
   constructor(private readonly db: DatabaseService) {}
 
+  async findById(id: string): Promise<User | null> {
+    const result = await this.db.db
+      .select()
+      .from(users)
+      .where(eq(users.id, id))
+      .limit(1);
+    return result[0] ?? null;
+  }
+
   async findByGoogleId(googleId: string): Promise<User | null> {
     const result = await this.db.db
       .select()

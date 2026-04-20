@@ -6,6 +6,10 @@ import { User } from "./users.schema";
 export class UserService {
   constructor(private readonly userRepository: UserRepository) {}
 
+  async findById(id: string): Promise<User | null> {
+    return this.userRepository.findById(id);
+  }
+
   async findOrCreateFromGoogle(profile: {
     googleId: string;
     email: string;

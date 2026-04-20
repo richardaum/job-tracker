@@ -15,9 +15,9 @@ describe("JwtAuthGuard", () => {
 });
 
 describe("JwtStrategy", () => {
-  it("validate returns userId and role from payload", () => {
+  it("validate returns only userId from payload (role resolved via DB)", () => {
     const strategy = new JwtStrategy();
-    const result = strategy.validate({ sub: "user-1", role: "user" });
-    expect(result).toEqual({ userId: "user-1", role: "user" });
+    const result = strategy.validate({ sub: "user-1" });
+    expect(result).toEqual({ userId: "user-1" });
   });
 });

@@ -9,14 +9,14 @@ export class AuthService {
 
   generateAccessToken(user: User): string {
     return this.jwtService.sign(
-      { sub: user.id, role: user.role },
+      { sub: user.id },
       { secret: JWT_ACCESS_SECRET, expiresIn: "15m" },
     );
   }
 
   generateRefreshToken(user: User): string {
     return this.jwtService.sign(
-      { sub: user.id, role: user.role },
+      { sub: user.id },
       { secret: JWT_REFRESH_SECRET, expiresIn: "7d" },
     );
   }
