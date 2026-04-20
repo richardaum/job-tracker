@@ -258,8 +258,8 @@ _No active blockers._
 | 003 | OrbStack install + Dockerfile fixes (T10 gate)       | 2026-04-19 | `c26f9c5`            | Done — [TASK.md](../quick/003-orbstack-docker-setup/TASK.md)          |
 | 004 | Remove `server-only` from NestJS API env module      | 2026-04-19 | `7c9ae2c`            | Done — [TASK.md](../quick/004-remove-server-only-api-env/TASK.md)     |
 | 005 | Load dotenv before Zod env validation in API         | 2026-04-19 | `8f6bb51`            | Done — [TASK.md](../quick/005-dotenv-api-env-load/TASK.md)            |
-| 006 | Fix Sentry Next.js SDK warnings                      | 2026-04-19 | TBD                  | Done — [TASK.md](../quick/006-sentry-nextjs-warnings/TASK.md)         |
-| 007 | Configurable PORT in 31xx range (web=3100, api=3101) | 2026-04-19 | TBD                  | Done — [TASK.md](../quick/007-api-port-finder/TASK.md)                |
+| 006 | Fix Sentry Next.js SDK warnings                      | 2026-04-19 | `d9ea280`            | Done — [TASK.md](../quick/006-sentry-nextjs-warnings/TASK.md)         |
+| 007 | Configurable PORT in 31xx range (web=3100, api=3101) | 2026-04-19 | `f948d93`            | Done — [TASK.md](../quick/007-api-port-finder/TASK.md)                |
 
 ---
 

@@ -11,4 +11,4 @@ Fixed all `@sentry/nextjs` startup warnings in `apps/web`:
 
 ## Commit
 
-`TBD`
+`d9ea280`

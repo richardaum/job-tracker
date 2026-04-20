@@ -31,4 +31,4 @@ Fix all `@sentry/nextjs` deprecation and configuration warnings that appeared on
 
 ## Commit
 
-`TBD`
+`d9ea280`
