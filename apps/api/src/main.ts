@@ -1,9 +1,9 @@
 import "reflect-metadata";
-import "./env/server";
+import { SENTRY_DSN } from "./env/server";
 import * as Sentry from "@sentry/node";
 
 Sentry.init({
-  dsn: process.env.SENTRY_DSN,
+  dsn: SENTRY_DSN,
   tracesSampleRate: 1.0,
 });
 

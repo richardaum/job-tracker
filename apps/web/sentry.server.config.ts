@@ -1,6 +1,7 @@
 import * as Sentry from "@sentry/nextjs";
+import { NEXT_PUBLIC_SENTRY_DSN } from "./src/env/client";
 
 Sentry.init({
-  dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
+  dsn: NEXT_PUBLIC_SENTRY_DSN,
   tracesSampleRate: 1.0,
 });
