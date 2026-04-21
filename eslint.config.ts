@@ -3,6 +3,7 @@ import nextPlugin from "@next/eslint-plugin-next";
 import eslintConfigPrettier from "eslint-config-prettier";
 import react from "eslint-plugin-react";
 import reactHooks from "eslint-plugin-react-hooks";
+import testingLibrary from "eslint-plugin-testing-library";
 import globals from "globals";
 import tseslint from "typescript-eslint";
 
@@ -88,6 +89,13 @@ export default tseslint.config(
         },
       ],
     },
+  },
+  {
+    files: [
+      "apps/web/src/**/*.{test,spec}.{js,jsx,ts,tsx,mjs,cjs}",
+      "packages/ui/**/*.{test,spec}.{js,jsx,ts,tsx,mjs,cjs}",
+    ],
+    ...testingLibrary.configs["flat/react"],
   },
   eslintConfigPrettier,
 );

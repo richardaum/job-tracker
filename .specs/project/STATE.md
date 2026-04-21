@@ -1,7 +1,7 @@
 # State
 
 **Last Updated:** 2026-04-21
-**Current Work:** M1 - Foundation; design-system resumed. Spec + context + research + design + tasks are in place. Next execution step is design-system T01 (token source of truth), then resume application-crud UI tasks on top of shared primitives.
+**Current Work:** M1 - Foundation; design-system execution progressing. T01-T04 are complete (tokens, theme wiring, tokens story, layout primitives). Next steps are T05/T06 form + feedback primitives, then T07-T11.
 
 ---
 

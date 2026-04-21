@@ -2,7 +2,7 @@
 
 **Spec:** `.specs/features/design-system/spec.md`  
 **Design:** `.specs/features/design-system/design.md`  
-**Status:** In Progress - T02 complete, T03 next
+**Status:** In Progress - T03 and T04 complete; T05/T06 next
 
 ---
 
@@ -85,12 +85,12 @@ T07,T08,T09 -> T10 -> T11
 
 **Done when:**
 
-- [ ] Storybook includes a Tokens story with primitive and semantic sections
-- [ ] Story reflects current token names from `tokens.css`
-- [ ] Storybook test runner passes with the new story
+- [x] Storybook includes a Tokens story with primitive and semantic sections
+- [x] Story reflects current token names from `tokens.css`
+- [x] Storybook test runner passes with the new story
 
 **Tests:** visual  
-**Gate:** storybook - `pnpm --filter @job-tracker/ui test-storybook`
+**Gate:** storybook - `pnpm --filter @job-tracker/ui test-storybook` ✅
 
 ---
 
@@ -103,12 +103,12 @@ T07,T08,T09 -> T10 -> T11
 
 **Done when:**
 
-- [ ] All layout primitives use token-backed Tailwind classes only
-- [ ] `Separator` uses Radix Separator for behavior where applicable
-- [ ] Each component has test + story + export entry
+- [x] All layout primitives use token-backed Tailwind classes only
+- [x] `Separator` uses Radix Separator for behavior where applicable
+- [x] Each component has test + story + export entry
 
 **Tests:** unit + visual  
-**Gate:** quick + storybook - `pnpm --filter @job-tracker/ui test && pnpm --filter @job-tracker/ui test-storybook`
+**Gate:** quick + storybook - `pnpm --filter @job-tracker/ui test && pnpm --filter @job-tracker/ui test-storybook` ✅
 
 ---
 
