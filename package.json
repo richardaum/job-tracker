@@ -5,6 +5,7 @@
     "dev": "turbo dev",
     "build": "turbo build",
     "test": "turbo test",
+    "test:coverage": "pnpm --filter @job-tracker/ui test:coverage",
     "lint": "turbo lint",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
