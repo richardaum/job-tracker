@@ -2,7 +2,7 @@
 
 **Spec:** `.specs/features/design-system/spec.md`  
 **Design:** `.specs/features/design-system/design.md`  
-**Status:** In Progress - T08 complete; T09 next
+**Status:** In Progress - T09 complete; T10 next
 
 ---
 
@@ -195,12 +195,12 @@ T07,T08,T09 -> T10 -> T11
 
 **Done when:**
 
-- [ ] No hardcoded color/spacing/font values remain in CRUD UI surfaces
-- [ ] CRUD flows use `@job-tracker/ui` components for cards/forms/feedback
-- [ ] Existing CRUD tests continue to pass
+- [x] No hardcoded color/spacing/font values remain in CRUD UI surfaces
+- [x] CRUD flows use `@job-tracker/ui` components for cards/forms/feedback
+- [x] Existing CRUD tests continue to pass
 
 **Tests:** unit + e2e (if present)  
-**Gate:** full - `pnpm --filter @job-tracker/web test && pnpm --filter @job-tracker/web build`
+**Gate:** full - `pnpm --filter @job-tracker/web test && pnpm --filter @job-tracker/web build` ✅ (7 tests pass; build clean)
 
 ---
 
@@ -242,4 +242,4 @@ T07,T08,T09 -> T10 -> T11
 
 ## Immediate Next Step
 
-Start with **T09** (Application CRUD migration), then run `pnpm --filter @job-tracker/web test && pnpm --filter @job-tracker/web build`.
+Start with **T10** (Dark mode token remap scaffold) in `packages/ui/src/tokens.css`.

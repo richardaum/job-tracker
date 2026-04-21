@@ -15,6 +15,7 @@
     "@apollo/client": "^4.1.7",
     "@graphql-typed-document-node/core": "^3.2.0",
     "@job-tracker/ui": "workspace:*",
+    "@phosphor-icons/react": "^2.1.10",
     "@sentry/nextjs": "^10.49.0",
     "graphql": "^16.13.2",
     "next": "^15.3.1",

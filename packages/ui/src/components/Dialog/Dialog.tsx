@@ -5,7 +5,7 @@ import { X } from "@phosphor-icons/react";
 export interface DialogProps {
   trigger: React.ReactElement;
   title: string;
-  children: React.ReactNode;
+  children?: React.ReactNode;
   description?: string;
   footer?: React.ReactNode;
   open?: boolean;

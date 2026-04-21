@@ -14,6 +14,11 @@ const cleaned = original
     "",
   )
   .replace(/^\s*export type \w+SuspenseQueryHookResult.*$/gm, "")
-  .replace(/^\s*export type \w+QueryResult.*$/gm, "");
+  .replace(/^\s*export type \w+QueryResult.*$/gm, "")
+  // Apollo v4 removed/renamed several mutation types — strip unused re-exports.
+  .replace(/^\s*export type \w+MutationFn.*$/gm, "")
+  .replace(/^\s*export type \w+MutationResult.*$/gm, "")
+  .replace(/^\s*export type \w+MutationOptions.*$/gm, "")
+  .replace(/^\s*export type \w+MutationHookResult.*$/gm, "");
 
 writeFileSync(hooksPath, cleaned, "utf8");

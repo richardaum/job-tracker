@@ -11,6 +11,7 @@ export interface StackProps {
   gap?: Gap;
   align?: Align;
   justify?: Justify;
+  className?: string;
 }
 
 const directionClasses: Record<Direction, string> = {
@@ -45,10 +46,11 @@ export function Stack({
   gap = "card",
   align = "stretch",
   justify = "start",
+  className,
 }: StackProps) {
   return (
     <div
-      className={`flex ${directionClasses[direction]} ${gapClasses[gap]} ${alignClasses[align]} ${justifyClasses[justify]}`}
+      className={`flex ${directionClasses[direction]} ${gapClasses[gap]} ${alignClasses[align]} ${justifyClasses[justify]}${className ? ` ${className}` : ""}`}
     >
       {children}
     </div>

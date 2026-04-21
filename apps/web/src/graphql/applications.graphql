@@ -1,0 +1,36 @@
+query Applications {
+  applications {
+    id
+    title
+    company
+    url
+    appliedAt
+    createdAt
+  }
+}
+
+mutation CreateApplication($input: CreateApplicationInput!) {
+  createApplication(input: $input) {
+    id
+    title
+    company
+    url
+    appliedAt
+    createdAt
+  }
+}
+
+mutation UpdateApplication($id: ID!, $input: UpdateApplicationInput!) {
+  updateApplication(id: $id, input: $input) {
+    id
+    title
+    company
+    url
+    appliedAt
+    createdAt
+  }
+}
+
+mutation DeleteApplication($id: ID!) {
+  deleteApplication(id: $id)
+}

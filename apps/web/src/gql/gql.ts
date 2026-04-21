@@ -14,9 +14,12 @@ import { TypedDocumentNode as DocumentNode } from "@graphql-typed-document-node/
  * Learn more about it here: https://the-guild.dev/graphql/codegen/plugins/presets/preset-client#reducing-bundle-size
  */
 type Documents = {
+  "query Applications {\n  applications {\n    id\n    title\n    company\n    url\n    appliedAt\n    createdAt\n  }\n}\n\nmutation CreateApplication($input: CreateApplicationInput!) {\n  createApplication(input: $input) {\n    id\n    title\n    company\n    url\n    appliedAt\n    createdAt\n  }\n}\n\nmutation UpdateApplication($id: ID!, $input: UpdateApplicationInput!) {\n  updateApplication(id: $id, input: $input) {\n    id\n    title\n    company\n    url\n    appliedAt\n    createdAt\n  }\n}\n\nmutation DeleteApplication($id: ID!) {\n  deleteApplication(id: $id)\n}": typeof types.ApplicationsDocument;
   "query Me {\n  me {\n    id\n    email\n    name\n    role\n    avatarUrl\n  }\n}": typeof types.MeDocument;
 };
 const documents: Documents = {
+  "query Applications {\n  applications {\n    id\n    title\n    company\n    url\n    appliedAt\n    createdAt\n  }\n}\n\nmutation CreateApplication($input: CreateApplicationInput!) {\n  createApplication(input: $input) {\n    id\n    title\n    company\n    url\n    appliedAt\n    createdAt\n  }\n}\n\nmutation UpdateApplication($id: ID!, $input: UpdateApplicationInput!) {\n  updateApplication(id: $id, input: $input) {\n    id\n    title\n    company\n    url\n    appliedAt\n    createdAt\n  }\n}\n\nmutation DeleteApplication($id: ID!) {\n  deleteApplication(id: $id)\n}":
+    types.ApplicationsDocument,
   "query Me {\n  me {\n    id\n    email\n    name\n    role\n    avatarUrl\n  }\n}":
     types.MeDocument,
 };
@@ -35,6 +38,12 @@ const documents: Documents = {
  */
 export function graphql(source: string): unknown;
 
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: "query Applications {\n  applications {\n    id\n    title\n    company\n    url\n    appliedAt\n    createdAt\n  }\n}\n\nmutation CreateApplication($input: CreateApplicationInput!) {\n  createApplication(input: $input) {\n    id\n    title\n    company\n    url\n    appliedAt\n    createdAt\n  }\n}\n\nmutation UpdateApplication($id: ID!, $input: UpdateApplicationInput!) {\n  updateApplication(id: $id, input: $input) {\n    id\n    title\n    company\n    url\n    appliedAt\n    createdAt\n  }\n}\n\nmutation DeleteApplication($id: ID!) {\n  deleteApplication(id: $id)\n}",
+): (typeof documents)["query Applications {\n  applications {\n    id\n    title\n    company\n    url\n    appliedAt\n    createdAt\n  }\n}\n\nmutation CreateApplication($input: CreateApplicationInput!) {\n  createApplication(input: $input) {\n    id\n    title\n    company\n    url\n    appliedAt\n    createdAt\n  }\n}\n\nmutation UpdateApplication($id: ID!, $input: UpdateApplicationInput!) {\n  updateApplication(id: $id, input: $input) {\n    id\n    title\n    company\n    url\n    appliedAt\n    createdAt\n  }\n}\n\nmutation DeleteApplication($id: ID!) {\n  deleteApplication(id: $id)\n}"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
