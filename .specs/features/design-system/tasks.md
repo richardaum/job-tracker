@@ -2,7 +2,7 @@
 
 **Spec:** `.specs/features/design-system/spec.md`  
 **Design:** `.specs/features/design-system/design.md`  
-**Status:** In Progress - T05 complete; T06 next
+**Status:** In Progress - T08 complete; T09 next
 
 ---
 
@@ -140,13 +140,13 @@ T07,T08,T09 -> T10 -> T11
 
 **Done when:**
 
-- [ ] Variants (`intent`, `size`, `state`) are consistent and typed
-- [ ] Icons (when present) use Phosphor only
-- [ ] Existing `Button` is migrated to token-backed classes
-- [ ] Each component has test + story + export entry
+- [x] Variants (`intent`, `size`, `state`) are consistent and typed
+- [x] Icons (when present) use Phosphor only
+- [x] Existing `Button` is migrated to token-backed classes
+- [x] Each component has test + story + export entry
 
 **Tests:** unit + visual  
-**Gate:** quick + storybook - `pnpm --filter @job-tracker/ui test && pnpm --filter @job-tracker/ui test-storybook`
+**Gate:** quick + storybook - `pnpm --filter @job-tracker/ui test && pnpm --filter @job-tracker/ui test-storybook` ✅
 
 ---
 
@@ -159,12 +159,12 @@ T07,T08,T09 -> T10 -> T11
 
 **Done when:**
 
-- [ ] All overlay components are Radix-backed
-- [ ] Open/close and keyboard interactions are covered in tests
-- [ ] Storybook examples include representative composition usage
+- [x] All overlay components are Radix-backed
+- [x] Open/close and keyboard interactions are covered in tests
+- [x] Storybook examples include representative composition usage
 
 **Tests:** unit + visual  
-**Gate:** quick + storybook - `pnpm --filter @job-tracker/ui test && pnpm --filter @job-tracker/ui test-storybook`
+**Gate:** quick + storybook - `pnpm --filter @job-tracker/ui test && pnpm --filter @job-tracker/ui test-storybook` ✅
 
 ---
 
@@ -177,12 +177,12 @@ T07,T08,T09 -> T10 -> T11
 
 **Done when:**
 
-- [ ] `layout.tsx` loads Outfit through `next/font/google`
-- [ ] Base body typography is token-aligned and no layout shift is introduced
-- [ ] Web build/typecheck passes
+- [x] `layout.tsx` loads Outfit through `next/font/google`
+- [x] Base body typography is token-aligned and no layout shift is introduced
+- [x] Web build/typecheck passes
 
 **Tests:** build  
-**Gate:** build - `pnpm --filter @job-tracker/web build`
+**Gate:** build - `pnpm --filter @job-tracker/web build` ✅
 
 ---
 
@@ -242,4 +242,4 @@ T07,T08,T09 -> T10 -> T11
 
 ## Immediate Next Step
 
-Start with **T01** (token source of truth), then run `pnpm --filter @job-tracker/ui build` for gate evidence.
+Start with **T09** (Application CRUD migration), then run `pnpm --filter @job-tracker/web test && pnpm --filter @job-tracker/web build`.

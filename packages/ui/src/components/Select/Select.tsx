@@ -1,6 +1,6 @@
 import React from "react";
+import { CaretDown } from "@phosphor-icons/react";
 import * as RadixSelect from "@radix-ui/react-select";
-import { ChevronDownIcon } from "@radix-ui/react-icons";
 
 export interface SelectOption {
   label: string;
@@ -59,7 +59,7 @@ export function Select({
       >
         <RadixSelect.Value placeholder={placeholder} />
         <RadixSelect.Icon className="ml-2 text-text-muted">
-          <ChevronDownIcon />
+          <CaretDown size={16} weight="regular" />
         </RadixSelect.Icon>
       </RadixSelect.Trigger>
       <RadixSelect.Portal>

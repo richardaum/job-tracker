@@ -1,0 +1,12 @@
+@import "@job-tracker/ui/src/globals.css";
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background-color: var(--semantic-color-bg-canvas);
+  color: var(--semantic-color-text-primary);
+}

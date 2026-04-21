@@ -137,4 +137,8 @@
   --component-input-border-focus: var(--semantic-color-border-brand);
   --component-input-border-error: var(--semantic-color-border-error);
   --component-input-radius: var(--primitive-radius-md);
+  --component-overlay-backdrop: rgb(17 24 39 / 0.4);
+  --component-dialog-max-width: 32rem;
+  --component-dropdown-min-width: 11rem;
+  --component-toast-min-width: 18rem;
 }
