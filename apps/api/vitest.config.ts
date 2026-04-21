@@ -3,6 +3,7 @@ import { defineConfig } from "vitest/config";
 import swc from "unplugin-swc";
 
 export default defineConfig({
+  // Keep SWC in Vitest to preserve NestJS decorator metadata during test transforms.
   plugins: [swc.vite({ module: { type: "es6" } })],
   resolve: {
     alias: {
