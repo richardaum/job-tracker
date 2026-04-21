@@ -10,6 +10,7 @@ dist/
 # Build artifacts
 storybook-static/
 test-results/
+coverage/
 
 # Editor tooling
 .agents/
