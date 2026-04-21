@@ -1,4 +1,8 @@
-@import "@job-tracker/ui/src/globals.css";
+@import "tailwindcss";
+@import "@job-tracker/ui/src/tokens.css";
+@import "@job-tracker/ui/src/theme.css";
+
+@source "../../../../packages/ui/src/**/*.{ts,tsx}";
 
 html,
 body {
