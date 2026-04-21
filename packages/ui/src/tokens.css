@@ -1,0 +1,140 @@
+:root {
+  /* Primitive colors - brand */
+  --primitive-color-brand-50: #eef2ff;
+  --primitive-color-brand-100: #e0e7ff;
+  --primitive-color-brand-200: #c7d2fe;
+  --primitive-color-brand-300: #a5b4fc;
+  --primitive-color-brand-400: #818cf8;
+  --primitive-color-brand-500: #6366f1;
+  --primitive-color-brand-600: #4f46e5;
+  --primitive-color-brand-700: #4338ca;
+  --primitive-color-brand-800: #3730a3;
+  --primitive-color-brand-900: #312e81;
+
+  /* Primitive colors - neutral */
+  --primitive-color-neutral-0: #ffffff;
+  --primitive-color-neutral-50: #f9fafb;
+  --primitive-color-neutral-100: #f3f4f6;
+  --primitive-color-neutral-200: #e5e7eb;
+  --primitive-color-neutral-300: #d1d5db;
+  --primitive-color-neutral-400: #9ca3af;
+  --primitive-color-neutral-500: #6b7280;
+  --primitive-color-neutral-600: #4b5563;
+  --primitive-color-neutral-700: #374151;
+  --primitive-color-neutral-800: #1f2937;
+  --primitive-color-neutral-900: #111827;
+
+  /* Primitive colors - feedback */
+  --primitive-color-green-50: #f0fdf4;
+  --primitive-color-green-100: #dcfce7;
+  --primitive-color-green-500: #22c55e;
+  --primitive-color-green-600: #16a34a;
+  --primitive-color-green-700: #15803d;
+  --primitive-color-red-50: #fff1f2;
+  --primitive-color-red-100: #fee2e2;
+  --primitive-color-red-500: #ef4444;
+  --primitive-color-red-600: #dc2626;
+  --primitive-color-red-700: #b91c1c;
+  --primitive-color-yellow-50: #fefce8;
+  --primitive-color-yellow-100: #fef9c3;
+  --primitive-color-yellow-500: #eab308;
+  --primitive-color-yellow-600: #ca8a04;
+  --primitive-color-orange-50: #fff7ed;
+  --primitive-color-orange-100: #ffedd5;
+  --primitive-color-orange-500: #f97316;
+  --primitive-color-orange-600: #ea580c;
+
+  /* Primitive typography */
+  --primitive-font-family-base: "Outfit", system-ui, sans-serif;
+  --primitive-font-size-xs: 0.6875rem;
+  --primitive-font-size-sm: 0.75rem;
+  --primitive-font-size-base: 0.8125rem;
+  --primitive-font-size-md: 0.875rem;
+  --primitive-font-size-lg: 1rem;
+  --primitive-font-size-xl: 1.125rem;
+  --primitive-font-size-2xl: 1.375rem;
+  --primitive-font-size-3xl: 1.75rem;
+  --primitive-font-weight-regular: 400;
+  --primitive-font-weight-medium: 500;
+  --primitive-font-weight-semibold: 600;
+  --primitive-font-weight-bold: 700;
+  --primitive-line-height-tight: 1.2;
+  --primitive-line-height-snug: 1.375;
+  --primitive-line-height-normal: 1.5;
+
+  /* Primitive spacing */
+  --primitive-space-0: 0px;
+  --primitive-space-1: 4px;
+  --primitive-space-2: 8px;
+  --primitive-space-3: 12px;
+  --primitive-space-4: 16px;
+  --primitive-space-5: 20px;
+  --primitive-space-6: 24px;
+  --primitive-space-8: 32px;
+  --primitive-space-10: 40px;
+  --primitive-space-12: 48px;
+
+  /* Primitive border and elevation */
+  --primitive-border-width-1: 1px;
+  --primitive-border-width-2: 2px;
+  --primitive-border-width-4: 4px;
+  --primitive-radius-sm: 6px;
+  --primitive-radius-md: 10px;
+  --primitive-radius-lg: 14px;
+  --primitive-radius-xl: 20px;
+  --primitive-radius-full: 9999px;
+  --primitive-shadow-none: none;
+  --primitive-shadow-sm: 0 1px 3px rgb(0 0 0 / 0.06), 0 1px 2px rgb(0 0 0 / 0.04);
+  --primitive-shadow-md: 0 4px 12px rgb(0 0 0 / 0.08);
+
+  /* Semantic color tokens */
+  --semantic-color-text-primary: var(--primitive-color-neutral-900);
+  --semantic-color-text-secondary: var(--primitive-color-neutral-500);
+  --semantic-color-text-muted: var(--primitive-color-neutral-400);
+  --semantic-color-text-inverted: var(--primitive-color-neutral-0);
+  --semantic-color-text-brand: var(--primitive-color-brand-600);
+  --semantic-color-text-success: var(--primitive-color-green-600);
+  --semantic-color-text-error: var(--primitive-color-red-600);
+  --semantic-color-text-warning: var(--primitive-color-yellow-600);
+  --semantic-color-bg-canvas: var(--primitive-color-neutral-100);
+  --semantic-color-bg-surface: var(--primitive-color-neutral-0);
+  --semantic-color-bg-surface-hover: var(--primitive-color-neutral-50);
+  --semantic-color-bg-brand: var(--primitive-color-brand-600);
+  --semantic-color-bg-brand-subtle: var(--primitive-color-brand-50);
+  --semantic-color-bg-brand-hover: var(--primitive-color-brand-700);
+  --semantic-color-bg-success-subtle: var(--primitive-color-green-50);
+  --semantic-color-bg-error-subtle: var(--primitive-color-red-50);
+  --semantic-color-bg-warning-subtle: var(--primitive-color-yellow-50);
+  --semantic-color-border-subtle: var(--primitive-color-neutral-200);
+  --semantic-color-border-default: var(--primitive-color-neutral-300);
+  --semantic-color-border-brand: var(--primitive-color-brand-600);
+  --semantic-color-border-error: var(--primitive-color-red-500);
+
+  /* Semantic spacing tokens */
+  --semantic-space-card-padding: var(--primitive-space-4);
+  --semantic-space-card-gap: var(--primitive-space-4);
+  --semantic-space-section-gap: var(--primitive-space-6);
+  --semantic-space-inline-gap: var(--primitive-space-2);
+  --semantic-space-form-gap: var(--primitive-space-3);
+  --semantic-space-button-x: var(--primitive-space-4);
+  --semantic-space-button-y-sm: var(--primitive-space-2);
+  --semantic-space-button-y-md: var(--primitive-space-3);
+
+  /* Representative component tokens */
+  --component-button-bg: var(--semantic-color-bg-brand);
+  --component-button-bg-hover: var(--semantic-color-bg-brand-hover);
+  --component-button-text: var(--semantic-color-text-inverted);
+  --component-button-radius: var(--primitive-radius-md);
+  --component-button-padding-x: var(--semantic-space-button-x);
+  --component-button-padding-y: var(--semantic-space-button-y-md);
+  --component-card-bg: var(--semantic-color-bg-surface);
+  --component-card-border: var(--semantic-color-border-subtle);
+  --component-card-radius: var(--primitive-radius-lg);
+  --component-card-padding: var(--semantic-space-card-padding);
+  --component-card-shadow: var(--primitive-shadow-sm);
+  --component-input-bg: var(--semantic-color-bg-surface);
+  --component-input-border: var(--semantic-color-border-default);
+  --component-input-border-focus: var(--semantic-color-border-brand);
+  --component-input-border-error: var(--semantic-color-border-error);
+  --component-input-radius: var(--primitive-radius-md);
+}

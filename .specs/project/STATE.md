@@ -1,7 +1,7 @@
 # State
 
 **Last Updated:** 2026-04-21
-**Current Work:** M1 - Foundation; Application CRUD API layer done (T01–T06 ✅). UI components (T07–T11) blocked on Visual Identity — being handled by separate agent. Resume application-crud T07 after visual-identity is complete.
+**Current Work:** M1 - Foundation; design-system resumed. Spec + context + research + design + tasks are in place. Next execution step is design-system T01 (token source of truth), then resume application-crud UI tasks on top of shared primitives.
 
 ---
 

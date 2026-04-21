@@ -1,6 +1,48 @@
 @import "tailwindcss";
+@import "./tokens.css";
 
 @theme {
-  /* Extend the default theme here using CSS custom properties.
-     Example: --color-brand: oklch(62.3% 0.214 259.815); */
+  --font-sans: var(--primitive-font-family-base);
+
+  --color-text-primary: var(--semantic-color-text-primary);
+  --color-text-secondary: var(--semantic-color-text-secondary);
+  --color-text-muted: var(--semantic-color-text-muted);
+  --color-text-inverted: var(--semantic-color-text-inverted);
+  --color-text-brand: var(--semantic-color-text-brand);
+  --color-text-success: var(--semantic-color-text-success);
+  --color-text-error: var(--semantic-color-text-error);
+  --color-text-warning: var(--semantic-color-text-warning);
+
+  --color-bg-canvas: var(--semantic-color-bg-canvas);
+  --color-bg-surface: var(--semantic-color-bg-surface);
+  --color-bg-surface-hover: var(--semantic-color-bg-surface-hover);
+  --color-bg-brand: var(--semantic-color-bg-brand);
+  --color-bg-brand-subtle: var(--semantic-color-bg-brand-subtle);
+  --color-bg-brand-hover: var(--semantic-color-bg-brand-hover);
+  --color-bg-success-subtle: var(--semantic-color-bg-success-subtle);
+  --color-bg-error-subtle: var(--semantic-color-bg-error-subtle);
+  --color-bg-warning-subtle: var(--semantic-color-bg-warning-subtle);
+
+  --color-border-subtle: var(--semantic-color-border-subtle);
+  --color-border-default: var(--semantic-color-border-default);
+  --color-border-brand: var(--semantic-color-border-brand);
+  --color-border-error: var(--semantic-color-border-error);
+
+  --spacing-card-padding: var(--semantic-space-card-padding);
+  --spacing-card-gap: var(--semantic-space-card-gap);
+  --spacing-section-gap: var(--semantic-space-section-gap);
+  --spacing-inline-gap: var(--semantic-space-inline-gap);
+  --spacing-form-gap: var(--semantic-space-form-gap);
+  --spacing-button-x: var(--semantic-space-button-x);
+  --spacing-button-y-sm: var(--semantic-space-button-y-sm);
+  --spacing-button-y-md: var(--semantic-space-button-y-md);
+
+  --radius-sm: var(--primitive-radius-sm);
+  --radius-md: var(--primitive-radius-md);
+  --radius-lg: var(--primitive-radius-lg);
+  --radius-xl: var(--primitive-radius-xl);
+  --radius-full: var(--primitive-radius-full);
+
+  --shadow-sm: var(--primitive-shadow-sm);
+  --shadow-md: var(--primitive-shadow-md);
 }
