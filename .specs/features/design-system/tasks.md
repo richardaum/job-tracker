@@ -2,7 +2,7 @@
 
 **Spec:** `.specs/features/design-system/spec.md`  
 **Design:** `.specs/features/design-system/design.md`  
-**Status:** In Progress - T03 and T04 complete; T05/T06 next
+**Status:** In Progress - T05 complete; T06 next
 
 ---
 
@@ -121,13 +121,13 @@ T07,T08,T09 -> T10 -> T11
 
 **Done when:**
 
-- [ ] `state` and `size` variants are explicit component props
-- [ ] `Select` and `Checkbox` use Radix primitives
-- [ ] Focus ring and error states are visible and token-backed
-- [ ] Each component has test + story + export entry
+- [x] `state` and `size` variants are explicit component props
+- [x] `Select` and `Checkbox` use Radix primitives
+- [x] Focus ring and error states are visible and token-backed
+- [x] Each component has test + story + export entry
 
 **Tests:** unit + visual  
-**Gate:** quick + storybook - `pnpm --filter @job-tracker/ui test && pnpm --filter @job-tracker/ui test-storybook`
+**Gate:** quick + storybook - `pnpm --filter @job-tracker/ui test` ✅; `pnpm --filter @job-tracker/ui test-storybook` ✅ (validated in consecutive runs)
 
 ---
 

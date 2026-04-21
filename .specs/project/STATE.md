@@ -1,7 +1,7 @@
 # State
 
 **Last Updated:** 2026-04-21
-**Current Work:** M1 - Foundation; design-system execution progressing. T01-T04 are complete (tokens, theme wiring, tokens story, layout primitives). Next steps are T05/T06 form + feedback primitives, then T07-T11.
+**Current Work:** M1 - Foundation; design-system execution progressing. T01-T05 are complete (tokens, theme wiring, tokens story, layout primitives, form primitives). Next steps are T06 feedback primitives, then T07-T11.
 
 ---
 
