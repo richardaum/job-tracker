@@ -65,6 +65,12 @@
 - Overview of all applications by stage
 - Filters and search
 
+**Platform Reliability Hardening (TLC)** - PLANNED
+
+- Start TLC flow on `.specs/features/platform-reliability-hardening/spec.md` (`Specify -> Design -> Tasks -> Execute`)
+- Instrument query-per-request monitoring with warning threshold (>15 queries)
+- Cover concurrency, memory leak prevention, profiling, supply chain security, architecture decisions, and failure simulations
+
 **Multi-language Support** - PLANNED
 
 - i18n setup with locale detection
