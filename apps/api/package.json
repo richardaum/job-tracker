@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "nest start --watch",
-    "build": "nest build",
+    "build": "nest build && tsc-alias -p tsconfig.build.json",
     "start": "node dist/main",
     "lint": "eslint . --max-warnings=0",
     "typecheck": "tsc --noEmit",
@@ -32,6 +32,7 @@
     "pg": "^8.20.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2",
+    "tsconfig-paths": "^4.2.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {
@@ -49,6 +50,7 @@
     "@types/supertest": "^7.2.0",
     "drizzle-kit": "^0.31.10",
     "supertest": "^7.2.2",
+    "tsc-alias": "^1.8.16",
     "typescript": "^5.8.3",
     "unplugin-swc": "^1.5.9",
     "vitest": "^3.1.2"

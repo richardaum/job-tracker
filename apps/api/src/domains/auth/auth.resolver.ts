@@ -5,8 +5,8 @@ import { createParamDecorator, ExecutionContext } from "@nestjs/common";
 import { JwtAuthGuard } from "./jwt-auth.guard";
 import { RolesGuard } from "./roles.guard";
 import { Roles } from "./roles.decorator";
-import { UserService } from "../users/users.service";
-import { UserType } from "../users/user.type";
+import { UserService } from "@api/domains/users/users.service";
+import { UserType } from "@api/domains/users/user.type";
 
 const CurrentUser = createParamDecorator(
   (_: unknown, ctx: ExecutionContext) => {

@@ -1,3 +1,4 @@
+import "tsconfig-paths/register";
 import "reflect-metadata";
 import { SENTRY_DSN, PORT } from "./env/server";
 import * as Sentry from "@sentry/node";

@@ -1,6 +1,6 @@
 import { pgTable, text, timestamp } from "drizzle-orm/pg-core";
 
-import { users } from "../users/users.schema";
+import { users } from "@api/domains/users/users.schema";
 
 export const applications = pgTable("applications", {
   id: text("id")

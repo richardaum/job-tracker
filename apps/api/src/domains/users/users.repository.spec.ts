@@ -4,7 +4,7 @@ import { drizzle } from "drizzle-orm/node-postgres";
 import { migrate } from "drizzle-orm/node-postgres/migrator";
 import { UserRepository } from "./users.repository";
 import { users } from "./users.schema";
-import { DatabaseService } from "../../database/database.service";
+import { DatabaseService } from "@api/database/database.service";
 import path from "path";
 
 const DATABASE_URL = process.env.DATABASE_URL;

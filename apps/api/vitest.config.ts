@@ -1,8 +1,14 @@
+import path from "path";
 import { defineConfig } from "vitest/config";
 import swc from "unplugin-swc";
 
 export default defineConfig({
   plugins: [swc.vite({ module: { type: "es6" } })],
+  resolve: {
+    alias: {
+      "@api": path.resolve(__dirname, "src"),
+    },
+  },
   test: {
     environment: "node",
     include: ["src/**/*.spec.ts"],

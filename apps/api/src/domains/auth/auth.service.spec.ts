@@ -3,7 +3,7 @@ import { describe, it, expect, beforeEach } from "vitest";
 import { JwtService } from "@nestjs/jwt";
 import * as jwt from "jsonwebtoken";
 import { AuthService } from "./auth.service";
-import type { User } from "../users/users.schema";
+import type { User } from "@api/domains/users/users.schema";
 
 const mockUser: User = {
   id: "user-123",

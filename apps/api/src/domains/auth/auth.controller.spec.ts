@@ -7,9 +7,9 @@ import cookieParser from "cookie-parser";
 import request from "supertest";
 import { AuthController } from "./auth.controller";
 import { AuthService } from "./auth.service";
-import { UserService } from "../users/users.service";
-import type { User } from "../users/users.schema";
-import { WEB_URL } from "../../env/server";
+import { UserService } from "@api/domains/users/users.service";
+import type { User } from "@api/domains/users/users.schema";
+import { WEB_URL } from "@api/env/server";
 
 const mockUser: User = {
   id: "user-1",

@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
-import { JWT_ACCESS_SECRET, JWT_REFRESH_SECRET } from "../../env/server";
-import type { User } from "../users/users.schema";
+import { JWT_ACCESS_SECRET, JWT_REFRESH_SECRET } from "@api/env/server";
+import type { User } from "@api/domains/users/users.schema";
 
 @Injectable()
 export class AuthService {

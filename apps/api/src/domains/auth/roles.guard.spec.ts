@@ -2,7 +2,7 @@ import "reflect-metadata";
 import { describe, it, expect, vi } from "vitest";
 import { ExecutionContext } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
-import { UserService } from "../users/users.service";
+import { UserService } from "@api/domains/users/users.service";
 import { RolesGuard } from "./roles.guard";
 
 function makeContext(userId: string | undefined): ExecutionContext {
