@@ -6,13 +6,17 @@
     "dev": "next dev --port ${PORT:-3100}",
     "build": "next build",
     "start": "next start --port ${PORT:-3100}",
+    "codegen": "graphql-codegen --config codegen.ts && node ./scripts/postprocess-codegen-hooks.mjs",
     "lint": "eslint . --max-warnings=0",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },
   "dependencies": {
+    "@apollo/client": "^4.1.7",
+    "@graphql-typed-document-node/core": "^3.2.0",
     "@job-tracker/ui": "workspace:*",
     "@sentry/nextjs": "^10.49.0",
+    "graphql": "^16.13.2",
     "next": "^15.3.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
@@ -20,6 +24,11 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@graphql-codegen/cli": "^6.3.1",
+    "@graphql-codegen/client-preset": "^5.3.0",
+    "@graphql-codegen/typescript": "^5.0.10",
+    "@graphql-codegen/typescript-operations": "^5.1.0",
+    "@graphql-codegen/typescript-react-apollo": "^4.4.2",
     "@playwright/test": "^1.59.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",

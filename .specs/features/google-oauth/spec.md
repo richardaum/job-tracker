@@ -1,7 +1,7 @@
 # Google OAuth — Spec
 
 **Milestone:** M1
-**Status:** Planned
+**Status:** Done
 
 ## Requirements
 

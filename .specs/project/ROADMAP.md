@@ -1,7 +1,7 @@
 # Roadmap
 
 **Current Milestone:** M1 - Foundation
-**Status:** Planning
+**Status:** In Progress
 
 ---
 
@@ -22,11 +22,12 @@
 - Configure Docker for NestJS production deployment
 - Configure Sentry on all services
 
-**Google OAuth** - PLANNED
+**Google OAuth** - DONE
 
 - Login and logout with Google account
 - Persistent session per user
 - Protected authenticated routes
+- GraphQL Codegen baseline in Web with `me` query using generated hook (`useMeQuery`)
 
 **Application CRUD** - PLANNED
 

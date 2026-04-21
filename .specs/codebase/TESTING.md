@@ -71,3 +71,16 @@
 - Every task that creates a code layer must include its required test type in **Done when**
 - CI enforces coverage thresholds — builds fail below 80%
 - `packages/ui`: story coverage gate is 100% — every exported component must have a story
+
+---
+
+## TLC Evidence Checklist (Before marking done)
+
+For each task, capture this minimum evidence:
+
+- **Artifacts**: list each expected file from `Where` and confirm it exists.
+- **Assertions**: map each `Done when` bullet to code or test evidence.
+- **Gate output**: run and record the exact gate command result.
+- **Preconditions**: record required runtime context (e.g. Storybook server running for `test-storybook`).
+
+If any one item above is missing, the task must remain open.

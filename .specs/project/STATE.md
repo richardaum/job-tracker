@@ -1,7 +1,7 @@
 # State
 
-**Last Updated:** 2026-04-19
-**Current Work:** M1 - Foundation; Project Setup complete — starting Google OAuth (T01)
+**Last Updated:** 2026-04-20
+**Current Work:** M1 - Foundation; Google OAuth complete (T01-T15). Next up: Application CRUD (planning/execution)
 
 ---
 
@@ -247,19 +247,30 @@ _No active blockers._
 
 **Takeaway:** In NestJS, always load dotenv before any top-level `process.env` access. `import "dotenv/config"` as the first line of `env/server.ts` is the correct pattern — it guarantees `.env` is read regardless of import order elsewhere.
 
+### LL-009: Task status must be evidence-backed, not gate-backed (2026-04-20)
+
+**Situation:** Google OAuth tasks T11-T15 were marked as done in TLC docs even though required artifacts (files declared in `Where`) were missing.
+
+**Cause:** Validation relied on aggregate gate commands and prior status marks, without verifying task artifacts file-by-file.
+
+**Fix:** Added mandatory TLC completion protocol to `.specs/codebase/CONVENTIONS.md` and evidence checklist to `.specs/codebase/TESTING.md`; reopened T11-T15 and reset feature status to in progress.
+
+**Takeaway:** A task can only be marked done after artifact existence + done-when behavior + gate output are all verified and recorded.
+
 ---
 
 ## Quick Tasks Completed
 
-| #   | Description                                          | Date       | Commit               | Status                                                                |
-| --- | ---------------------------------------------------- | ---------- | -------------------- | --------------------------------------------------------------------- |
-| 001 | ESLint + Prettier + Husky + lint-staged (monorepo)   | 2026-04-19 | `f480363`            | Done — [TASK.md](../quick/001-lint-format-precommit/TASK.md)          |
-| 002 | Zod + server-only server env (API + Web)             | 2026-04-19 | `5be7589`, `e1a73e4` | Done — [TASK.md](../quick/002-env-validation-zod-server-only/TASK.md) |
-| 003 | OrbStack install + Dockerfile fixes (T10 gate)       | 2026-04-19 | `c26f9c5`            | Done — [TASK.md](../quick/003-orbstack-docker-setup/TASK.md)          |
-| 004 | Remove `server-only` from NestJS API env module      | 2026-04-19 | `7c9ae2c`            | Done — [TASK.md](../quick/004-remove-server-only-api-env/TASK.md)     |
-| 005 | Load dotenv before Zod env validation in API         | 2026-04-19 | `8f6bb51`            | Done — [TASK.md](../quick/005-dotenv-api-env-load/TASK.md)            |
-| 006 | Fix Sentry Next.js SDK warnings                      | 2026-04-19 | `d9ea280`            | Done — [TASK.md](../quick/006-sentry-nextjs-warnings/TASK.md)         |
-| 007 | Configurable PORT in 31xx range (web=3100, api=3101) | 2026-04-19 | `f948d93`            | Done — [TASK.md](../quick/007-api-port-finder/TASK.md)                |
+| #   | Description                                          | Date       | Commit               | Status                                                                      |
+| --- | ---------------------------------------------------- | ---------- | -------------------- | --------------------------------------------------------------------------- |
+| 001 | ESLint + Prettier + Husky + lint-staged (monorepo)   | 2026-04-19 | `f480363`            | Done — [TASK.md](../quick/001-lint-format-precommit/TASK.md)                |
+| 002 | Zod + server-only server env (API + Web)             | 2026-04-19 | `5be7589`, `e1a73e4` | Done — [TASK.md](../quick/002-env-validation-zod-server-only/TASK.md)       |
+| 003 | OrbStack install + Dockerfile fixes (T10 gate)       | 2026-04-19 | `c26f9c5`            | Done — [TASK.md](../quick/003-orbstack-docker-setup/TASK.md)                |
+| 004 | Remove `server-only` from NestJS API env module      | 2026-04-19 | `7c9ae2c`            | Done — [TASK.md](../quick/004-remove-server-only-api-env/TASK.md)           |
+| 005 | Load dotenv before Zod env validation in API         | 2026-04-19 | `8f6bb51`            | Done — [TASK.md](../quick/005-dotenv-api-env-load/TASK.md)                  |
+| 006 | Fix Sentry Next.js SDK warnings                      | 2026-04-19 | `d9ea280`            | Done — [TASK.md](../quick/006-sentry-nextjs-warnings/TASK.md)               |
+| 007 | Configurable PORT in 31xx range (web=3100, api=3101) | 2026-04-19 | `f948d93`            | Done — [TASK.md](../quick/007-api-port-finder/TASK.md)                      |
+| 008 | Web typed env lint + generated codegen hooks         | 2026-04-20 | _pending_            | Done — [TASK.md](../quick/008-web-typed-env-lint-and-codegen-hooks/TASK.md) |
 
 ---
 
@@ -278,9 +289,9 @@ Ideas captured during work that belong in future features or phases. Prevents sc
 
 Capture in-progress thoughts and action items that don't fit in active tasks.
 
-- [ ] Initialize Next.js 15 (frontend) and NestJS (backend) projects
-- [ ] Set up local PostgreSQL and Drizzle connection
-- [ ] Configure Google OAuth via @nestjs/passport + passport-google-oauth20
+- [x] Initialize Next.js 15 (frontend) and NestJS (backend) projects
+- [x] Set up local PostgreSQL and Drizzle connection
+- [x] Complete Google OAuth remaining tasks (T11-T15)
 
 ---
 

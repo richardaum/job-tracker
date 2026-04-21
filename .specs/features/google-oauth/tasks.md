@@ -1,7 +1,14 @@
 # Google OAuth — Tasks
 
 **Spec:** `.specs/features/google-oauth/spec.md`
-**Status:** In Progress (T01–T08 done, T09 next)
+**Status:** Done (T01–T15 complete)
+
+---
+
+## Implementation Reality Check (2026-04-20)
+
+- ✅ T01-T15 implemented and validated.
+- ✅ Previously missing T11-T15 artifacts now exist and pass their gates.
 
 ---
 
@@ -61,9 +68,9 @@ T11, T12, T13 ──→ T14 ──→ T15
 
 **Done when:**
 
-- [x] Schema defines: `id`, `googleId`, `email`, `name`, `avatarUrl`, `role`, `createdAt`, `updatedAt`
-- [x] `role` typed as `pgEnum('role', ['user'])` — extensible for future roles
-- [x] No TypeScript errors
+- Schema defines: `id`, `googleId`, `email`, `name`, `avatarUrl`, `role`, `createdAt`, `updatedAt`
+- `role` typed as `pgEnum('role', ['user'])` — extensible for future roles
+- No TypeScript errors
 
 **Tests:** none
 **Gate:** build — `pnpm --filter @job-tracker/api build`
@@ -79,9 +86,9 @@ T11, T12, T13 ──→ T14 ──→ T15
 
 **Done when:**
 
-- [x] `drizzle-kit generate` produces migration file for `users` table
-- [x] `drizzle-kit migrate` applies it against local PostgreSQL without errors
-- [x] Migration is idempotent (re-running does not fail)
+- `drizzle-kit generate` produces migration file for `users` table
+- `drizzle-kit migrate` applies it against local PostgreSQL without errors
+- Migration is idempotent (re-running does not fail)
 
 **Tests:** none
 **Gate:** build — `drizzle-kit migrate`
@@ -97,11 +104,11 @@ T11, T12, T13 ──→ T14 ──→ T15
 
 **Done when:**
 
-- [x] `findByGoogleId(googleId: string)` returns user or `null`
-- [x] `findById(id: string)` returns user or `null` — added to support RolesGuard DB lookup
-- [x] `upsert(profile)` creates or updates user by `googleId`
-- [x] Integration test covers both methods against real DB
-- [x] Gate: `pnpm --filter @job-tracker/api vitest run` — repository tests pass
+- `findByGoogleId(googleId: string)` returns user or `null`
+- `findById(id: string)` returns user or `null` — added to support RolesGuard DB lookup
+- `upsert(profile)` creates or updates user by `googleId`
+- Integration test covers both methods against real DB
+- Gate: `pnpm --filter @job-tracker/api vitest run` — repository tests pass
 
 **Tests:** integration
 **Gate:** full — `pnpm --filter @job-tracker/api vitest run`
@@ -117,10 +124,10 @@ T11, T12, T13 ──→ T14 ──→ T15
 
 **Done when:**
 
-- [x] `findOrCreateFromGoogle` calls `UserRepository.upsert` and returns the user
-- [x] `findById(id)` delegates to `UserRepository.findById` — exposed for RolesGuard
-- [x] Unit test mocks `UserRepository` and asserts correct delegation
-- [x] Gate: `pnpm --filter @job-tracker/api vitest run` — 1+ unit tests pass
+- `findOrCreateFromGoogle` calls `UserRepository.upsert` and returns the user
+- `findById(id)` delegates to `UserRepository.findById` — exposed for RolesGuard
+- Unit test mocks `UserRepository` and asserts correct delegation
+- Gate: `pnpm --filter @job-tracker/api vitest run` — 1+ unit tests pass
 
 **Tests:** unit
 **Gate:** quick — `pnpm --filter @job-tracker/api vitest run`
@@ -136,11 +143,11 @@ T11, T12, T13 ──→ T14 ──→ T15
 
 **Done when:**
 
-- [x] `generateAccessToken(user)` returns a signed JWT (15 min expiry)
-- [x] `generateRefreshToken(user)` returns a signed JWT (7 days expiry)
-- [x] Tokens carry only `{ sub: user.id }` — role is NOT in the payload (resolved from DB at request time to prevent stale role claims)
-- [x] Unit tests assert token structure and expiry using `jsonwebtoken` decode
-- [x] Gate: `pnpm --filter @job-tracker/api vitest run` — 2+ unit tests pass
+- `generateAccessToken(user)` returns a signed JWT (15 min expiry)
+- `generateRefreshToken(user)` returns a signed JWT (7 days expiry)
+- Tokens carry only `{ sub: user.id }` — role is NOT in the payload (resolved from DB at request time to prevent stale role claims)
+- Unit tests assert token structure and expiry using `jsonwebtoken` decode
+- Gate: `pnpm --filter @job-tracker/api vitest run` — 2+ unit tests pass
 
 **Tests:** unit
 **Gate:** quick — `pnpm --filter @job-tracker/api vitest run`
@@ -156,10 +163,10 @@ T11, T12, T13 ──→ T14 ──→ T15
 
 **Done when:**
 
-- [x] `JwtStrategy` validates access token and returns `{ userId }` from payload — extracts from httpOnly cookie or Bearer header
-- [x] `JwtAuthGuard` extends `AuthGuard('jwt')` and is applicable as `@UseGuards(JwtAuthGuard)`
-- [x] Unit test asserts strategy returns correct shape from payload
-- [x] Gate: `pnpm --filter @job-tracker/api vitest run` — 1+ unit tests pass
+- `JwtStrategy` validates access token and returns `{ userId }` from payload — extracts from httpOnly cookie or Bearer header
+- `JwtAuthGuard` extends `AuthGuard('jwt')` and is applicable as `@UseGuards(JwtAuthGuard)`
+- Unit test asserts strategy returns correct shape from payload
+- Gate: `pnpm --filter @job-tracker/api vitest run` — 1+ unit tests pass
 
 **Tests:** unit
 **Gate:** quick — `pnpm --filter @job-tracker/api vitest run`
@@ -175,10 +182,10 @@ T11, T12, T13 ──→ T14 ──→ T15
 
 **Done when:**
 
-- [x] `@Roles('user')` decorator sets metadata on the resolver/route
-- [x] `RolesGuard` fetches the current role from DB via `UserService.findById` — not from JWT claim — ensuring stale tokens cannot grant elevated access
-- [x] Unit test asserts guard allows matching role, blocks mismatched role, and skips DB call on public routes
-- [x] Gate: `pnpm --filter @job-tracker/api vitest run` — 2+ unit tests pass
+- `@Roles('user')` decorator sets metadata on the resolver/route
+- `RolesGuard` fetches the current role from DB via `UserService.findById` — not from JWT claim — ensuring stale tokens cannot grant elevated access
+- Unit test asserts guard allows matching role, blocks mismatched role, and skips DB call on public routes
+- Gate: `pnpm --filter @job-tracker/api vitest run` — 2+ unit tests pass
 
 **Tests:** unit
 **Gate:** quick — `pnpm --filter @job-tracker/api vitest run`
@@ -194,12 +201,12 @@ T11, T12, T13 ──→ T14 ──→ T15
 
 **Done when:**
 
-- [x] `GoogleStrategy` validates Google profile and calls `UserService.findOrCreateFromGoogle`
-- [x] `GET /auth/google` initiates OAuth redirect
-- [x] `GET /auth/google/callback` sets both access and refresh tokens as httpOnly cookies and redirects to `WEB_URL`
-- [x] `POST /auth/logout` clears both auth cookies
-- [x] Integration test mocks Google guard and asserts cookies set on callback and cleared on logout
-- [x] Gate: `pnpm --filter @job-tracker/api vitest run` — integration tests pass
+- `GoogleStrategy` validates Google profile and calls `UserService.findOrCreateFromGoogle`
+- `GET /auth/google` initiates OAuth redirect
+- `GET /auth/google/callback` sets both access and refresh tokens as httpOnly cookies and redirects to `WEB_URL`
+- `POST /auth/logout` clears both auth cookies
+- Integration test mocks Google guard and asserts cookies set on callback and cleared on logout
+- Gate: `pnpm --filter @job-tracker/api vitest run` — integration tests pass
 
 **Note:** Migrated from `@nestjs/platform-fastify` to `@nestjs/platform-express` during this task to eliminate Fastify type leakage into controllers.
 
@@ -208,7 +215,7 @@ T11, T12, T13 ──→ T14 ──→ T15
 
 ---
 
-### T09: AuthResolver — me query
+### T09: AuthResolver — me query ✅
 
 **What:** Create GraphQL resolver exposing the `me` query for the authenticated user
 **Where:** `apps/api/src/auth/auth.resolver.ts`, `apps/api/src/auth/auth.resolver.spec.ts`
@@ -217,18 +224,18 @@ T11, T12, T13 ──→ T14 ──→ T15
 
 **Done when:**
 
-- [ ] `Query.me` is protected by `@UseGuards(JwtAuthGuard)` and `@Roles('user')`
-- [ ] Returns the current user from JWT context
-- [ ] Integration test calls `me` with a valid JWT and asserts user fields returned
-- [ ] Integration test calls `me` without JWT and asserts `401 Unauthorized`
-- [ ] Gate: `pnpm --filter @job-tracker/api vitest run` — integration tests pass
+- `Query.me` is protected by `@UseGuards(JwtAuthGuard)` and `@Roles('user')`
+- Returns the current user from JWT context
+- Integration test calls `me` with a valid JWT and asserts user fields returned
+- Integration test calls `me` without JWT and asserts unauthorized access (`UNAUTHENTICATED`)
+- Gate: `pnpm --filter @job-tracker/api vitest run` — integration tests pass
 
 **Tests:** integration
 **Gate:** full — `pnpm --filter @job-tracker/api vitest run`
 
 ---
 
-### T10: AuthModule
+### T10: AuthModule ✅
 
 **What:** Wire all auth providers and exports into `AuthModule`
 **Where:** `apps/api/src/auth/auth.module.ts`
@@ -237,36 +244,38 @@ T11, T12, T13 ──→ T14 ──→ T15
 
 **Done when:**
 
-- [ ] `AuthModule` registers: `GoogleStrategy`, `JwtStrategy`, `JwtAuthGuard`, `RolesGuard`, `AuthService`, `AuthController`, `AuthResolver`
-- [ ] `UsersModule` imported and `UserRepository` available
-- [ ] `pnpm --filter @job-tracker/api build` passes with no errors
+- `AuthModule` registers: `GoogleStrategy`, `JwtStrategy`, `JwtAuthGuard`, `RolesGuard`, `AuthService`, `AuthController`, `AuthResolver`
+- `UsersModule` imported and `UserRepository` available
+- `pnpm --filter @job-tracker/api build` passes with no errors
 
 **Tests:** none
 **Gate:** build — `pnpm --filter @job-tracker/api build`
 
 ---
 
-### T11: Apollo Client setup (apps/web) [P]
+### T11: Apollo Client + Codegen baseline (apps/web) [P] ✅
 
-**What:** Configure Apollo Client in `apps/web` with `credentials: 'include'` for cookie-based auth
-**Where:** `apps/web/src/lib/apollo-client.ts`, `apps/web/src/app/providers.tsx`
+**What:** Configure Apollo Client in `apps/web` with `credentials: 'include'` and establish GraphQL Codegen baseline for typed operations
+**Where:** `apps/web/src/lib/apollo-client.ts`, `apps/web/src/app/providers.tsx`, `apps/web/codegen.ts`, `apps/web/src/gql/`, `apps/web/package.json`
 **Depends on:** T10
 **Requirement:** GO-03
 
 **Done when:**
 
-- [ ] `ApolloClient` configured with `HttpLink` pointing to API GraphQL endpoint
-- [ ] `credentials: 'include'` set so httpOnly cookies are sent on every request
-- [ ] `ApolloProvider` wraps the app in `providers.tsx`
-- [ ] Unit test asserts `ApolloClient` is instantiated with correct config
-- [ ] Gate: `pnpm --filter @job-tracker/web vitest run` — 1+ unit tests pass
+- [x] `ApolloClient` configured with `HttpLink` pointing to API GraphQL endpoint
+- [x] `credentials: 'include'` set so httpOnly cookies are sent on every request
+- [x] `ApolloProvider` wraps the app in `providers.tsx`
+- [x] `codegen` script exists in `apps/web/package.json`
+- [x] `pnpm --filter @job-tracker/web codegen` generates typed artifacts in `src/gql/`
+- [x] Unit test asserts `ApolloClient` is instantiated with correct config
+- [x] Gate: `pnpm --filter @job-tracker/web test` — unit tests pass
 
 **Tests:** unit
 **Gate:** quick — `pnpm --filter @job-tracker/web vitest run`
 
 ---
 
-### T12: GoogleLoginButton component (packages/ui) [P]
+### T12: GoogleLoginButton component (packages/ui) [P] ✅
 
 **What:** Create `GoogleLoginButton` component with unit test and Storybook story
 **Where:** `packages/ui/src/components/GoogleLoginButton/`
@@ -275,18 +284,18 @@ T11, T12, T13 ──→ T14 ──→ T15
 
 **Done when:**
 
-- [ ] Component renders a button that triggers `onClick` prop
-- [ ] `GoogleLoginButton.test.tsx` — renders correctly and fires click handler
-- [ ] `GoogleLoginButton.stories.tsx` — `Default` story renders without errors
-- [ ] Gate (unit): `pnpm --filter @job-tracker/ui vitest run` — 1+ tests pass
-- [ ] Gate (visual): `pnpm --filter @job-tracker/ui test-storybook` — story passes
+- [x] Component renders a button that triggers `onClick` prop
+- [x] `GoogleLoginButton.test.tsx` — renders correctly and fires click handler
+- [x] `GoogleLoginButton.stories.tsx` — `Default` story renders without errors
+- [x] Gate (unit): `pnpm --filter @job-tracker/ui test` — unit tests pass
+- [x] Gate (visual): `pnpm --filter @job-tracker/ui test-storybook` — story passes
 
 **Tests:** unit + visual
 **Gate:** quick + storybook
 
 ---
 
-### T13: useCurrentUser hook [P]
+### T13: useCurrentUser hook [P] ✅
 
 **What:** Create `useCurrentUser` hook wrapping the GraphQL `me` query
 **Where:** `apps/web/src/hooks/useCurrentUser.ts`, `apps/web/src/hooks/useCurrentUser.test.ts`
@@ -295,16 +304,16 @@ T11, T12, T13 ──→ T14 ──→ T15
 
 **Done when:**
 
-- [ ] Hook calls `me` query via Apollo and returns `{ user, loading, error }`
-- [ ] Unit test mocks Apollo and asserts hook returns user data correctly
-- [ ] Gate: `pnpm --filter @job-tracker/web vitest run` — 1+ unit tests pass
+- [x] Hook calls generated `useMeQuery` hook from `src/gql/hooks.ts` and returns `{ user, loading, error }`
+- [x] Unit test mocks Apollo and asserts hook returns user data correctly
+- [x] Gate: `pnpm --filter @job-tracker/web test` — unit tests pass
 
 **Tests:** unit
 **Gate:** quick — `pnpm --filter @job-tracker/web vitest run`
 
 ---
 
-### T14: LoginPage
+### T14: LoginPage ✅
 
 **What:** Create the `/login` page rendering `GoogleLoginButton` and redirecting to `/auth/google`
 **Where:** `apps/web/src/app/login/page.tsx`, `apps/web/src/app/login/page.test.tsx`
@@ -313,17 +322,17 @@ T11, T12, T13 ──→ T14 ──→ T15
 
 **Done when:**
 
-- [ ] Page renders `GoogleLoginButton` linked to `GET /auth/google`
-- [ ] Authenticated users are redirected away from `/login`
-- [ ] Unit test asserts page renders the button
-- [ ] Gate: `pnpm --filter @job-tracker/web vitest run` — 1+ unit tests pass
+- [x] Page renders `GoogleLoginButton` linked to `GET /auth/google`
+- [x] Authenticated users are redirected away from `/login`
+- [x] Unit test asserts page renders the button
+- [x] Gate: `pnpm --filter @job-tracker/web test` — unit tests pass
 
 **Tests:** unit
 **Gate:** quick — `pnpm --filter @job-tracker/web vitest run`
 
 ---
 
-### T15: ProtectedLayout
+### T15: ProtectedLayout ✅
 
 **What:** Create authenticated layout that redirects unauthenticated users to `/login`
 **Where:** `apps/web/src/app/(authenticated)/layout.tsx`, `apps/web/src/app/(authenticated)/layout.test.tsx`
@@ -332,10 +341,10 @@ T11, T12, T13 ──→ T14 ──→ T15
 
 **Done when:**
 
-- [ ] Layout calls `useCurrentUser` — redirects to `/login` if no user
-- [ ] Renders children when authenticated
-- [ ] Unit test asserts redirect behavior for unauthenticated state
-- [ ] Gate: `pnpm --filter @job-tracker/web vitest run` — 1+ unit tests pass
+- [x] Layout calls `useCurrentUser` — redirects to `/login` if no user
+- [x] Renders children when authenticated
+- [x] Unit test asserts redirect behavior for unauthenticated state
+- [x] Gate: `pnpm --filter @job-tracker/web test` — unit tests pass
 
 **Tests:** unit
 **Gate:** quick — `pnpm --filter @job-tracker/web vitest run`
@@ -366,6 +375,8 @@ Phase 6:  T11, T12, T13 ──→ T14 ──→ T15
 ---
 
 ## Granularity Check
+
+Note: this section validates planning quality (task decomposition), not implementation completion.
 
 | Task                                 | Scope                                       | Status |
 | ------------------------------------ | ------------------------------------------- | ------ |

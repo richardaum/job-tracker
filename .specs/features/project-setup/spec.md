@@ -1,7 +1,7 @@
 # Project Setup — Spec
 
 **Milestone:** M1
-**Status:** In Progress
+**Status:** Done
 
 ## Requirements
 

@@ -17,6 +17,7 @@ export default tseslint.config(
       "**/playwright-report/**",
       "**/test-results/**",
       "apps/web/next-env.d.ts",
+      "apps/web/src/gql/**",
     ],
   },
   eslint.configs.recommended,
@@ -54,6 +55,38 @@ export default tseslint.config(
     rules: {
       ...nextPlugin.configs["core-web-vitals"].rules,
       "@next/next/no-html-link-for-pages": "off",
+    },
+  },
+  {
+    files: ["apps/web/src/**/*.{js,jsx,ts,tsx,mjs,cjs}"],
+    ignores: [
+      "apps/web/src/env/**/*.{js,jsx,ts,tsx,mjs,cjs}",
+      "apps/web/src/instrumentation.ts",
+    ],
+    rules: {
+      "no-restricted-syntax": [
+        "warn",
+        {
+          selector:
+            "MemberExpression[object.name='process'][property.name='env']",
+          message:
+            "Avoid direct process.env access in apps/web source. Use typed env modules from src/env instead.",
+        },
+      ],
+    },
+  },
+  {
+    files: ["apps/web/*.config.ts", "apps/web/codegen.ts"],
+    rules: {
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector:
+            "MemberExpression[object.object.name='process'][object.property.name='env']:not([property.name='CI']):not([property.name='E2E_PORT']):not([property.name='API_GRAPHQL_URL'])",
+          message:
+            "Only allowlisted env vars are allowed in apps/web config/codegen files (CI, E2E_PORT, API_GRAPHQL_URL).",
+        },
+      ],
     },
   },
   eslintConfigPrettier,
