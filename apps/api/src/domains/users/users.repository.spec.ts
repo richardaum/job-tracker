@@ -4,7 +4,7 @@ import { drizzle } from "drizzle-orm/node-postgres";
 import { migrate } from "drizzle-orm/node-postgres/migrator";
 import { UserRepository } from "./users.repository";
 import { users } from "./users.schema";
-import { DatabaseService } from "../database/database.service";
+import { DatabaseService } from "../../database/database.service";
 import path from "path";
 
 const DATABASE_URL = process.env.DATABASE_URL;
@@ -19,7 +19,7 @@ describe.skipIf(!hasDb)("UserRepository (integration)", () => {
     pool = new Pool({ connectionString: DATABASE_URL });
     const db = drizzle(pool);
     await migrate(db, {
-      migrationsFolder: path.join(__dirname, "../database/migrations"),
+      migrationsFolder: path.join(__dirname, "../../database/migrations"),
     });
     dbService = { db } as unknown as DatabaseService;
     repo = new UserRepository(dbService);

@@ -1,2 +1,2 @@
-export * from "../../users/users.schema";
-export * from "../../applications/applications.schema";
+export * from "../../domains/users/users.schema";
+export * from "../../domains/applications/applications.schema";

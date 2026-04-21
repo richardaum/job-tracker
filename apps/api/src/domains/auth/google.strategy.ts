@@ -5,7 +5,7 @@ import {
   GOOGLE_CLIENT_ID,
   GOOGLE_CLIENT_SECRET,
   GOOGLE_CALLBACK_URL,
-} from "../env/server";
+} from "../../env/server";
 import { UserService } from "../users/users.service";
 import type { User } from "../users/users.schema";
 

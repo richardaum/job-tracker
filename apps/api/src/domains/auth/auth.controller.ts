@@ -11,7 +11,7 @@ import { AuthGuard } from "@nestjs/passport";
 import type { Request, Response } from "express";
 import { AuthService } from "./auth.service";
 import type { User } from "../users/users.schema";
-import { WEB_URL } from "../env/server";
+import { WEB_URL } from "../../env/server";
 
 const COOKIE_BASE = { httpOnly: true, sameSite: "lax" as const, path: "/" };
 

@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
-import { JWT_ACCESS_SECRET, JWT_REFRESH_SECRET } from "../env/server";
+import { JWT_ACCESS_SECRET, JWT_REFRESH_SECRET } from "../../env/server";
 import type { User } from "../users/users.schema";
 
 @Injectable()

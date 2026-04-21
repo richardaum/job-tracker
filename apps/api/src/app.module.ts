@@ -5,7 +5,7 @@ import { ApolloDriver } from "@nestjs/apollo";
 import type { ApolloDriverConfig } from "@nestjs/apollo";
 import { AppController } from "./app.controller";
 import { DatabaseModule } from "./database/database.module";
-import { AuthModule } from "./auth/auth.module";
+import { AuthModule } from "./domains/auth/auth.module";
 
 @Module({
   imports: [

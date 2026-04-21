@@ -9,7 +9,7 @@ import { AuthController } from "./auth.controller";
 import { AuthService } from "./auth.service";
 import { UserService } from "../users/users.service";
 import type { User } from "../users/users.schema";
-import { WEB_URL } from "../env/server";
+import { WEB_URL } from "../../env/server";
 
 const mockUser: User = {
   id: "user-1",
