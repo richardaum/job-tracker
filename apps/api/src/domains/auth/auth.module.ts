@@ -11,7 +11,11 @@ import { AuthController } from "./auth.controller";
 import { AuthResolver } from "./auth.resolver";
 
 @Module({
-  imports: [UsersModule, PassportModule, JwtModule.register({})],
+  imports: [
+    UsersModule,
+    PassportModule.register({ session: false }),
+    JwtModule.register({}),
+  ],
   providers: [
     GoogleStrategy,
     JwtStrategy,
