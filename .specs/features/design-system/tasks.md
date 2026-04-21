@@ -2,7 +2,7 @@
 
 **Spec:** `.specs/features/design-system/spec.md`  
 **Design:** `.specs/features/design-system/design.md`  
-**Status:** In Progress - T01 complete, T02 next
+**Status:** In Progress - T02 complete, T03 next
 
 ---
 
@@ -67,12 +67,12 @@ T07,T08,T09 -> T10 -> T11
 
 **Done when:**
 
-- [ ] Semantic token names are available through stable utility classes
-- [ ] Typography, spacing, border radius, and shadow scales are token-backed
-- [ ] Existing `Button`/`GoogleLoginButton` compile without hardcoded visual values
+- [x] Semantic token names are available through stable utility classes
+- [x] Typography, spacing, border radius, and shadow scales are token-backed
+- [x] Existing `Button`/`GoogleLoginButton` compile without hardcoded visual values
 
-**Tests:** none  
-**Gate:** build - `pnpm --filter @job-tracker/ui build`
+**Tests:** unit  
+**Gate:** build - `pnpm --filter @job-tracker/ui build` ✅ (`pnpm --filter @job-tracker/ui test` also passing)
 
 ---
 
