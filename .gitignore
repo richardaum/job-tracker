@@ -12,6 +12,9 @@ storybook-static/
 test-results/
 coverage/
 
+# Logs
+logs/
+
 # Editor tooling
 .agents/
 .notebook/
