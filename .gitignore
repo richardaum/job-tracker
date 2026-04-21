@@ -14,6 +14,7 @@ coverage/
 
 # Editor tooling
 .agents/
+.notebook/
 .claude/
 .cursor/
 .windsurf/
