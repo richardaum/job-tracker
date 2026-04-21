@@ -106,8 +106,26 @@ Component   →  button-bg-default: {color-action-primary}
 | ------------------ | --------- |
 | `color-orange-50`  | `#FFF7ED` |
 | `color-orange-100` | `#FFEDD5` |
+| `color-orange-400` | `#FB923C` |
 | `color-orange-500` | `#F97316` |
 | `color-orange-600` | `#EA580C` |
+
+#### Blue (Requested / Status)
+
+| Token            | Value     |
+| ---------------- | --------- |
+| `color-blue-100` | `#DBEAFE` |
+| `color-blue-400` | `#60A5FA` |
+| `color-blue-500` | `#4B6CF7` |
+| `color-blue-600` | `#3B5FE0` |
+
+#### Purple (Data Visualization)
+
+| Token              | Value     |
+| ------------------ | --------- |
+| `color-purple-400` | `#C084FC` |
+| `color-purple-500` | `#A855F7` |
+| `color-purple-600` | `#9333EA` |
 
 ---
 
@@ -131,6 +149,7 @@ Component   →  button-bg-default: {color-action-primary}
 | `font-size-xl`   | `1.125rem`  | 18px |
 | `font-size-2xl`  | `1.375rem`  | 22px |
 | `font-size-3xl`  | `1.75rem`   | 28px |
+| `font-size-4xl`  | `2rem`      | 32px |
 
 #### Font Weight
 
@@ -143,11 +162,12 @@ Component   →  button-bg-default: {color-action-primary}
 
 #### Line Height
 
-| Token                | Value   |
-| -------------------- | ------- |
-| `line-height-tight`  | `1.2`   |
-| `line-height-snug`   | `1.375` |
-| `line-height-normal` | `1.5`   |
+| Token                 | Value   |
+| --------------------- | ------- |
+| `line-height-tight`   | `1.2`   |
+| `line-height-snug`    | `1.375` |
+| `line-height-normal`  | `1.5`   |
+| `line-height-relaxed` | `1.625` |
 
 ---
 
@@ -162,6 +182,7 @@ Component   →  button-bg-default: {color-action-primary}
 | `space-4`  | `16px` |
 | `space-5`  | `20px` |
 | `space-6`  | `24px` |
+| `space-7`  | `28px` |
 | `space-8`  | `32px` |
 | `space-10` | `40px` |
 | `space-12` | `48px` |
@@ -225,42 +246,73 @@ Component   →  button-bg-default: {color-action-primary}
 | `color-bg-brand-hover`    | `color-brand-700`   | Primary button hover            |
 | `color-bg-success-subtle` | `color-green-50`    | Success badge background        |
 | `color-bg-error-subtle`   | `color-red-50`      | Error badge background          |
-| `color-bg-warning-subtle` | `color-yellow-50`   | Warning badge background        |
+| `color-bg-warning-subtle` | `color-yellow-100`  | Warning badge background        |
+| `color-bg-info-subtle`    | `color-blue-100`    | Info / requested badge bg       |
+
+### Color — Status (data visualization)
+
+| Token                    | Primitive          | Usage                      |
+| ------------------------ | ------------------ | -------------------------- |
+| `color-status-requested` | `color-blue-500`   | Requested segment + legend |
+| `color-status-approved`  | `color-green-500`  | Approved segment + legend  |
+| `color-status-pending`   | `color-yellow-500` | Pending segment + legend   |
+| `color-status-rejected`  | `color-red-500`    | Rejected segment + legend  |
+
+### Color — Leave Type (data visualization)
+
+| Token                   | Primitive          | Usage                         |
+| ----------------------- | ------------------ | ----------------------------- |
+| `color-leave-sick`      | `color-orange-500` | Sick leave chart + label      |
+| `color-leave-maternity` | `color-purple-500` | Maternity leave chart + label |
+| `color-leave-other`     | `color-green-500`  | Other leave chart + label     |
 
 ### Color — Border
 
-| Token                  | Primitive           | Usage                       |
-| ---------------------- | ------------------- | --------------------------- |
-| `color-border-subtle`  | `color-neutral-200` | Card outlines, row dividers |
-| `color-border-default` | `color-neutral-300` | Input default state         |
-| `color-border-brand`   | `color-brand-600`   | Focus ring, accent bars     |
-| `color-border-error`   | `color-red-500`     | Input error state           |
+| Token                  | Primitive           | Usage                                    |
+| ---------------------- | ------------------- | ---------------------------------------- |
+| `color-border-subtle`  | `color-neutral-200` | Card outlines, row dividers              |
+| `color-border-default` | `color-neutral-300` | Input default state                      |
+| `color-border-strong`  | `color-neutral-400` | Input focus (unfocused contrast variant) |
+| `color-border-brand`   | `color-brand-600`   | Focus ring, accent bars                  |
+| `color-border-success` | `color-green-500`   | Success state border                     |
+| `color-border-error`   | `color-red-500`     | Input error state                        |
 
 ### Typography — Semantic Roles
 
-| Token                | Size / Weight / Line-height | Usage                           |
-| -------------------- | --------------------------- | ------------------------------- |
-| `text-page-title`    | `2xl / bold / tight`        | Page headings                   |
-| `text-section-title` | `md / semibold / snug`      | Card and section titles         |
-| `text-body`          | `base / regular / normal`   | Default body, table rows        |
-| `text-body-medium`   | `base / medium / normal`    | Emphasized body (names, labels) |
-| `text-caption`       | `sm / regular / normal`     | Supporting text, hints          |
-| `text-label`         | `sm / medium / normal`      | Badges, chips, nav items        |
-| `text-button`        | `md / medium / tight`       | Button labels                   |
-| `text-metric`        | `3xl / bold / tight`        | Dashboard stat numbers          |
+| Token                | Size / Weight / Line-height | Usage                                                       |
+| -------------------- | --------------------------- | ----------------------------------------------------------- |
+| `text-page-title`    | `2xl / bold / tight`        | Page headings                                               |
+| `text-page-subtitle` | `sm / regular / normal`     | Page description below title                                |
+| `text-section-title` | `md / semibold / snug`      | Card and section titles                                     |
+| `text-metric-large`  | `4xl / bold / tight`        | Chart center numbers, stat totals                           |
+| `text-metric-label`  | `xs / regular / normal`     | Chart center sub-labels                                     |
+| `text-table-header`  | `sm / medium / normal`      | Table column headers                                        |
+| `text-table-body`    | `base / regular / normal`   | Table row content                                           |
+| `text-nav-item`      | `base / medium / normal`    | Sidebar navigation labels                                   |
+| `text-body`          | `base / regular / normal`   | Default body, form descriptions                             |
+| `text-body-medium`   | `base / medium / normal`    | Emphasized body (names, labels)                             |
+| `text-caption`       | `sm / regular / normal`     | Supporting text, hints                                      |
+| `text-label-sm`      | `sm / medium / normal`      | Badge text, status chips                                    |
+| `text-button`        | `md / medium / tight`       | Button labels                                               |
+| `text-metric`        | `3xl / bold / tight`        | Dashboard stat numbers (deprecated → use text-metric-large) |
 
 ### Spacing — Semantic Roles
 
-| Token                | Primitive        | Usage                      |
-| -------------------- | ---------------- | -------------------------- |
-| `space-card-padding` | `space-4` (16px) | Card internal padding      |
-| `space-card-gap`     | `space-4` (16px) | Gap between cards in list  |
-| `space-section-gap`  | `space-6` (24px) | Gap between page sections  |
-| `space-inline-gap`   | `space-2` (8px)  | Icon + label inline gap    |
-| `space-form-gap`     | `space-3` (12px) | Gap between form fields    |
-| `space-button-x`     | `space-4` (16px) | Button horizontal padding  |
-| `space-button-y-sm`  | `space-2` (8px)  | Button vertical padding sm |
-| `space-button-y-md`  | `space-3` (12px) | Button vertical padding md |
+| Token                 | Primitive        | Usage                          |
+| --------------------- | ---------------- | ------------------------------ |
+| `space-card-padding`  | `space-6` (24px) | Card internal padding          |
+| `space-card-gap`      | `space-4` (16px) | Gap between cards in list      |
+| `space-component-gap` | `space-5` (20px) | Gap between stat cards in grid |
+| `space-section-gap`   | `space-6` (24px) | Gap between page sections      |
+| `space-inline-gap`    | `space-2` (8px)  | Icon + label inline gap        |
+| `space-form-gap`      | `space-3` (12px) | Gap between form fields        |
+| `space-button-x`      | `space-5` (20px) | Button horizontal padding      |
+| `space-button-y-sm`   | `space-2` (8px)  | Button vertical padding sm     |
+| `space-button-y-md`   | `space-3` (12px) | Button vertical padding md     |
+| `space-table-cell-x`  | `space-4` (16px) | Table cell horizontal padding  |
+| `space-table-row-y`   | `space-3` (12px) | Table row vertical padding     |
+| `space-nav-item-x`    | `space-4` (16px) | Nav item horizontal padding    |
+| `space-nav-item-y`    | `space-2` (8px)  | Nav item vertical padding      |
 
 ---
 
@@ -312,7 +364,211 @@ Component   →  button-bg-default: {color-action-primary}
 | `input-border-radius` | `radius-md`                               |
 | `input-text`          | `color-text-primary`                      |
 | `input-placeholder`   | `color-text-muted`                        |
-| `input-font`          | `text-body`                               |
+| `input-padding-x`     | `space-4`                                 |
+| `input-padding-y`     | `space-2`                                 |
+| `input-font`          | `text-table-body`                         |
+
+### Table
+
+| Slot                   | Token                                    |
+| ---------------------- | ---------------------------------------- |
+| `table-bg`             | `color-bg-surface`                       |
+| `table-row-border`     | `border-width-1` + `color-border-subtle` |
+| `table-row-bg-hover`   | `color-bg-surface-hover`                 |
+| `table-header-text`    | `color-text-secondary`                   |
+| `table-header-font`    | `text-table-header`                      |
+| `table-body-text`      | `color-text-primary`                     |
+| `table-body-font`      | `text-table-body`                        |
+| `table-cell-padding-x` | `space-table-cell-x`                     |
+| `table-cell-padding-y` | `space-table-row-y`                      |
+
+### Navigation Item
+
+| Slot                     | Token                                   |
+| ------------------------ | --------------------------------------- |
+| `nav-item-text-default`  | `color-text-secondary`                  |
+| `nav-item-text-active`   | `color-text-brand`                      |
+| `nav-item-bg-default`    | `transparent`                           |
+| `nav-item-bg-active`     | `color-bg-brand-subtle`                 |
+| `nav-item-border-active` | `border-width-2` + `color-border-brand` |
+| `nav-item-padding-x`     | `space-nav-item-x`                      |
+| `nav-item-padding-y`     | `space-nav-item-y`                      |
+| `nav-item-font`          | `text-nav-item`                         |
+| `nav-item-border-radius` | `radius-md`                             |
+
+---
+
+## Design Directions
+
+Prescriptive rules for building any screen in this product. Derived from the visual reference and design principles. Every screen decision should be traceable to one of these directions.
+
+### Layout Composition
+
+All authenticated screens follow this shell:
+
+```
+App Shell (bg: color-bg-canvas, padding: space-6)
+├── Sidebar (width: 200px, bg: color-bg-surface, border-right: border-default)
+│   ├── Logo zone (padding: space-5)
+│   ├── Search bar (margin-x: space-4)
+│   ├── Nav section label (text-xs, semibold, text-muted, uppercase, tracking-wide)
+│   ├── Nav items (gap: space-1)
+│   │   └── Sub-items (margin-left: space-7, gap: space-1)
+│   └── Bottom nav (margin-top: auto, gap: space-1)
+│
+└── Content Area (padding: space-6 all sides)
+    ├── Page header (flex, justify-between, align-center)
+    │   ├── Left: page title (text-page-title) + subtitle (text-page-subtitle)
+    │   └── Right: icon actions + user block (gap: space-4)
+    │
+    ├── Action bar (flex, justify-between, margin-top: space-5)
+    │   ├── Left: search + filter inputs (gap: space-3)
+    │   └── Right: secondary actions + primary CTA (gap: space-3)
+    │
+    ├── Stat cards row (grid, 3 cols, gap: space-component-gap, margin-top: space-6)
+    │   └── Each card: Card component (radius-lg, shadow-sm, padding: space-card-padding)
+    │
+    └── Data table (margin-top: space-6)
+        ├── Toolbar (flex, justify-between, margin-bottom: space-4)
+        └── Table (full-width, row border: border-default)
+```
+
+**Rules:**
+
+- Content area always gets `space-6` padding on all sides — never less.
+- Sidebar is fixed-width `200px`. Never shrink or collapse for desktop.
+- Page header is always the topmost element inside the content area.
+- Action bar separates page-level controls (filters, search) from the header.
+
+---
+
+### Visual Hierarchy
+
+Follow the 60/30/10 rule:
+
+| Layer   | Proportion         | What                                              |
+| ------- | ------------------ | ------------------------------------------------- |
+| **60%** | Neutral surfaces   | White cards, `color-bg-canvas` background         |
+| **30%** | Text and secondary | Primary/secondary text, borders, icons            |
+| **10%** | Brand accents      | Active nav, primary CTA, focus rings, accent bars |
+
+**Rules:**
+
+- Brand color (`color-brand-500/600`) appears **only** on: primary button, active nav state, focus rings, left accent bars on card titles.
+- Never fill large areas with brand color — it's an accent, not a background.
+- Typography hierarchy is achieved via **weight**, not size jumps. Same size, different weight signals level.
+- Status colors (green/red/yellow/orange) are **semantic only** — never decorative.
+
+---
+
+### Color Usage Rules
+
+| Situation                    | Correct token                                                                               | Never use                                    |
+| ---------------------------- | ------------------------------------------------------------------------------------------- | -------------------------------------------- |
+| Page background              | `color-bg-canvas`                                                                           | Hardcoded `#F2F2F5`                          |
+| Card / panel surface         | `color-bg-surface`                                                                          | `color-neutral-0` directly                   |
+| Row hover state              | `color-bg-surface-hover`                                                                    | Opacity tricks                               |
+| Primary action (button, CTA) | `color-bg-brand`                                                                            | `color-brand-500` directly                   |
+| Active nav background        | `color-bg-brand-subtle`                                                                     | Any other tint                               |
+| Success / approved state     | `color-status-approved` (charts), `color-text-success` + `color-bg-success-subtle` (badges) | Mixed primitives                             |
+| Pending / warning state      | `color-status-pending` (charts), `color-text-warning` + `color-bg-warning-subtle` (badges)  | Orange for "warning" — that's for sick leave |
+| Requested state              | `color-status-requested`                                                                    | `color-blue-500` directly                    |
+| Data visualization only      | `color-status-*` and `color-leave-*` tokens                                                 | Status tokens in UI chrome                   |
+
+---
+
+### Spacing Rhythm
+
+All spacing is 4px-based. Allowed values: `space-1` through `space-12`.
+
+| Context                   | Token                 | Value |
+| ------------------------- | --------------------- | ----- |
+| Gap between page sections | `space-section-gap`   | 24px  |
+| Gap between stat cards    | `space-component-gap` | 20px  |
+| Card internal padding     | `space-card-padding`  | 24px  |
+| Table cell horizontal     | `space-table-cell-x`  | 16px  |
+| Table row vertical        | `space-table-row-y`   | 12px  |
+| Nav item padding (x)      | `space-nav-item-x`    | 16px  |
+| Nav item padding (y)      | `space-nav-item-y`    | 8px   |
+| Sub-nav indent            | `space-7`             | 28px  |
+| Button padding (x)        | `space-button-x`      | 20px  |
+| Form field gap            | `space-form-gap`      | 12px  |
+
+**Rules:**
+
+- Never use arbitrary pixel values in components — map to a spacing token first.
+- Inline gaps (icon + label) always use `space-inline-gap` (8px).
+- Nested items indent with `space-7` (28px), not arbitrary margins.
+
+---
+
+### Shadow and Elevation
+
+Cards are differentiated from the canvas **primarily by background color** (`#FFF` on `#F2F2F5`), not heavy shadows. Shadows are subtle reinforcement only.
+
+| Level             | Token       | Usage                                  |
+| ----------------- | ----------- | -------------------------------------- |
+| Cards, sidebar    | `shadow-sm` | Subtle — `0 1px 3px rgba(0,0,0,0.06)`  |
+| Modals, dropdowns | `shadow-md` | Medium — `0 4px 12px rgba(0,0,0,0.08)` |
+| Elevated panels   | `shadow-lg` | Strong — `0 8px 24px rgba(0,0,0,0.12)` |
+
+**Never** use `shadow-lg` on cards or inline components.
+
+---
+
+### Component Composition Patterns
+
+**Stat card (metric + label):**
+
+```
+Card (card-bg, card-padding, card-shadow, card-border-radius)
+├── Section title (text-section-title, color-text-primary)
+│   └── Left accent bar (border-accent-left — border-width-4, color-border-brand)
+├── Metric number (text-metric-large, color-text-primary)
+└── Metric label (text-metric-label, color-text-secondary)
+```
+
+**Table row with status badge:**
+
+```
+<tr> (table-row-border bottom, table-row-bg-hover on hover)
+  <td> (table-cell-padding-x, table-cell-padding-y)
+    text → text-table-body, color-text-primary
+  <td> badge → Badge component (badge-bg-*, badge-text-*, radius-full)
+```
+
+**Nav item (active state):**
+
+```
+<a> (nav-item-bg-active, nav-item-padding-x, nav-item-padding-y, nav-item-border-radius)
+  text → text-nav-item, color-text-brand
+  left border → border-width-2, color-border-brand (2px left accent)
+```
+
+**Primary CTA button:**
+
+```
+Button (button-bg, button-text, button-border-radius, button-padding-x, button-padding-y)
+  hover → button-bg-hover
+  loading → Spinner sm inside button
+```
+
+---
+
+### Screen Construction Checklist
+
+Before submitting any screen implementation, verify:
+
+- [ ] Page background uses `color-bg-canvas` — no hardcoded colors
+- [ ] All card/panel surfaces use `color-bg-surface` + `shadow-sm`
+- [ ] Brand color appears only on accents (nav active, primary button, focus ring) — not large fills
+- [ ] Every text element maps to a `text-*` semantic role — no ad-hoc size+weight combos
+- [ ] All spacing values come from `space-*` tokens — no arbitrary px/rem values
+- [ ] Status colors (`color-status-*`) used exclusively for data visualization
+- [ ] Badge colors (`color-bg-*-subtle` + `color-text-*`) used exclusively for status chips in UI chrome
+- [ ] Interactive elements have visible focus ring (`color-border-brand`, `border-width-2`)
+- [ ] Table headers use `color-text-secondary`; body uses `color-text-primary`
+- [ ] No component references primitive tokens directly — only semantic or component tokens
 
 ---
 

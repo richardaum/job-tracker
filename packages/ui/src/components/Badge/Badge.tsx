@@ -11,7 +11,7 @@ const intentClasses: Record<BadgeIntent, string> = {
   success: "bg-bg-success-subtle text-text-success border-border-default",
   warning: "bg-bg-warning-subtle text-text-warning border-border-default",
   error: "bg-bg-error-subtle text-text-error border-border-error",
-  info: "bg-bg-brand-subtle text-text-brand border-border-brand",
+  info: "bg-bg-info-subtle text-text-brand border-border-brand",
 };
 
 export function Badge({

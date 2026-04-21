@@ -22,20 +22,37 @@
   --color-bg-success-subtle: var(--semantic-color-bg-success-subtle);
   --color-bg-error-subtle: var(--semantic-color-bg-error-subtle);
   --color-bg-warning-subtle: var(--semantic-color-bg-warning-subtle);
+  --color-bg-info-subtle: var(--semantic-color-bg-info-subtle);
 
   --color-border-subtle: var(--semantic-color-border-subtle);
   --color-border-default: var(--semantic-color-border-default);
+  --color-border-strong: var(--semantic-color-border-strong);
   --color-border-brand: var(--semantic-color-border-brand);
+  --color-border-success: var(--semantic-color-border-success);
   --color-border-error: var(--semantic-color-border-error);
+
+  --color-status-requested: var(--semantic-color-status-requested);
+  --color-status-approved: var(--semantic-color-status-approved);
+  --color-status-pending: var(--semantic-color-status-pending);
+  --color-status-rejected: var(--semantic-color-status-rejected);
+
+  --color-leave-sick: var(--semantic-color-leave-sick);
+  --color-leave-maternity: var(--semantic-color-leave-maternity);
+  --color-leave-other: var(--semantic-color-leave-other);
 
   --spacing-card-padding: var(--semantic-space-card-padding);
   --spacing-card-gap: var(--semantic-space-card-gap);
+  --spacing-component-gap: var(--semantic-space-component-gap);
   --spacing-section-gap: var(--semantic-space-section-gap);
   --spacing-inline-gap: var(--semantic-space-inline-gap);
   --spacing-form-gap: var(--semantic-space-form-gap);
   --spacing-button-x: var(--semantic-space-button-x);
   --spacing-button-y-sm: var(--semantic-space-button-y-sm);
   --spacing-button-y-md: var(--semantic-space-button-y-md);
+  --spacing-table-cell-x: var(--semantic-space-table-cell-x);
+  --spacing-table-row-y: var(--semantic-space-table-row-y);
+  --spacing-nav-item-x: var(--semantic-space-nav-item-x);
+  --spacing-nav-item-y: var(--semantic-space-nav-item-y);
 
   --radius-sm: var(--primitive-radius-sm);
   --radius-md: var(--primitive-radius-md);
@@ -45,4 +62,5 @@
 
   --shadow-sm: var(--primitive-shadow-sm);
   --shadow-md: var(--primitive-shadow-md);
+  --shadow-lg: var(--primitive-shadow-lg);
 }
