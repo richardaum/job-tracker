@@ -29,18 +29,18 @@
 - Protected authenticated routes
 - GraphQL Codegen baseline in Web with `me` query using generated hook (`useMeQuery`)
 
-**Application CRUD** - PLANNED
-
-- Create application with title, company, URL, and date
-- List applications for the authenticated user
-- Edit and delete application
-
-**Visual Identity** - PLANNED
+**Visual Identity** - IN PROGRESS
 
 - Define color palette, typography, and spacing tokens
 - Configure Tailwind CSS theme (design tokens)
 - Establish mobile-first breakpoints
 - Light/dark mode support
+
+**Application CRUD** - IN PROGRESS (API complete; UI blocked on Visual Identity)
+
+- Create application with title, company, URL, and date
+- List applications for the authenticated user
+- Edit and delete application
 
 ---
 

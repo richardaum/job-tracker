@@ -1,7 +1,7 @@
 # State
 
-**Last Updated:** 2026-04-20
-**Current Work:** M1 - Foundation; Google OAuth complete (T01-T15). Next up: Application CRUD (planning/execution)
+**Last Updated:** 2026-04-21
+**Current Work:** M1 - Foundation; Application CRUD API layer done (T01–T06 ✅). UI components (T07–T11) blocked on Visual Identity — being handled by separate agent. Resume application-crud T07 after visual-identity is complete.
 
 ---
 
@@ -256,6 +256,16 @@ _No active blockers._
 **Fix:** Added mandatory TLC completion protocol to `.specs/codebase/CONVENTIONS.md` and evidence checklist to `.specs/codebase/TESTING.md`; reopened T11-T15 and reset feature status to in progress.
 
 **Takeaway:** A task can only be marked done after artifact existence + done-when behavior + gate output are all verified and recorded.
+
+### LL-010: Vitest parallel file execution causes DB interference between integration test suites (2026-04-21)
+
+**Situation:** `applications.repository.spec.ts` and `users.repository.spec.ts` both call `db.delete(users)` in their `beforeAll`. When Vitest runs files in parallel (default), the cascade delete from one suite can delete rows that another suite depends on mid-run, causing flaky "update" and "delete" tests to fail.
+
+**Cause:** Vitest's default `fileParallelism: true` runs all spec files concurrently. Integration test suites that share a database and truncate tables in `beforeAll`/`afterAll` are not safe to run in parallel.
+
+**Fix:** Set `fileParallelism: false` in `apps/api/vitest.config.ts` to force sequential file execution.
+
+**Takeaway:** Any API vitest config with real-DB integration tests should have `fileParallelism: false`. Unit-only test suites are safe to parallelize, but mixing unit and integration in the same runner requires sequential file execution.
 
 ---
 

@@ -1,7 +1,7 @@
 # Application CRUD — Tasks
 
 **Spec:** `.specs/features/application-crud/spec.md`
-**Status:** Planned
+**Status:** In Progress — Phase 1-3 complete (T01–T06 ✅); Phase 4 next (T07–T11)
 
 ---
 
@@ -45,25 +45,25 @@ T05, T08, T09, T10, T11 ──→ T12 ──→ T13
 
 ## Task Breakdown
 
-### T01: Application Drizzle schema
+### T01: Application Drizzle schema ✅
 
 **What:** Define the `applications` table schema using Drizzle ORM
-**Where:** `apps/api/src/applications/applications.schema.ts`
+**Where:** `apps/api/src/domains/applications/applications.schema.ts`
 **Depends on:** google-oauth T01 (users schema exists)
 **Requirement:** AC-01
 
 **Done when:**
 
-- [ ] Schema defines: `id`, `userId` (FK → users), `title`, `company`, `url`, `appliedAt`, `createdAt`, `updatedAt`
-- [ ] Foreign key to `users.id` with `onDelete: 'cascade'`
-- [ ] No TypeScript errors
+- [x] Schema defines: `id`, `userId` (FK → users), `title`, `company`, `url`, `appliedAt`, `createdAt`, `updatedAt`
+- [x] Foreign key to `users.id` with `onDelete: 'cascade'`
+- [x] No TypeScript errors
 
 **Tests:** none
-**Gate:** build — `pnpm --filter @job-tracker/api build`
+**Gate:** build — `pnpm --filter @job-tracker/api build` ✅
 
 ---
 
-### T02: Applications migration
+### T02: Applications migration ✅
 
 **What:** Generate and apply Drizzle migration for the `applications` table
 **Where:** `apps/api/src/database/migrations/`
@@ -72,93 +72,93 @@ T05, T08, T09, T10, T11 ──→ T12 ──→ T13
 
 **Done when:**
 
-- [ ] `drizzle-kit generate` produces migration for `applications` table
-- [ ] `drizzle-kit migrate` applies it without errors
-- [ ] Migration is idempotent
+- [x] `drizzle-kit generate` produces migration for `applications` table
+- [x] `drizzle-kit migrate` applies it without errors
+- [x] Migration is idempotent
 
 **Tests:** none
-**Gate:** build — `drizzle-kit migrate`
+**Gate:** build — `drizzle-kit migrate` ✅
 
 ---
 
-### T03: ApplicationRepository
+### T03: ApplicationRepository ✅
 
 **What:** Create `ApplicationRepository` with CRUD methods scoped to `userId`
-**Where:** `apps/api/src/applications/applications.repository.ts`, `apps/api/src/applications/applications.repository.spec.ts`
+**Where:** `apps/api/src/domains/applications/applications.repository.ts`, `apps/api/src/domains/applications/applications.repository.spec.ts`
 **Depends on:** T02
 **Requirement:** AC-01, AC-02, AC-03, AC-04, AC-05
 
 **Done when:**
 
-- [ ] `findAllByUserId(userId)` returns only the user's applications
-- [ ] `findOneByIdAndUserId(id, userId)` returns `null` if not found or wrong owner
-- [ ] `create(userId, dto)`, `update(id, userId, dto)`, `delete(id, userId)` implemented
-- [ ] Integration tests cover all methods including ownership isolation
-- [ ] Gate: `pnpm --filter @job-tracker/api vitest run` — integration tests pass
+- [x] `findAllByUserId(userId)` returns only the user's applications
+- [x] `findOneByIdAndUserId(id, userId)` returns `null` if not found or wrong owner
+- [x] `create(userId, dto)`, `update(id, userId, dto)`, `delete(id, userId)` implemented
+- [x] Integration tests cover all methods including ownership isolation (8 tests)
+- [x] Gate: `pnpm --filter @job-tracker/api run test` — 8 integration tests pass ✅
 
 **Tests:** integration
-**Gate:** full — `pnpm --filter @job-tracker/api vitest run`
+**Gate:** full — `pnpm --filter @job-tracker/api run test` ✅
 
 ---
 
-### T04: ApplicationService [P]
+### T04: ApplicationService ✅
 
 **What:** Create `ApplicationService` with CRUD business logic and ownership enforcement
-**Where:** `apps/api/src/applications/applications.service.ts`, `apps/api/src/applications/applications.service.spec.ts`
+**Where:** `apps/api/src/domains/applications/applications.service.ts`, `apps/api/src/domains/applications/applications.service.spec.ts`
 **Depends on:** T03
 **Requirement:** AC-01, AC-02, AC-03, AC-04, AC-05
 
 **Done when:**
 
-- [ ] `findAll(userId)`, `findOne(id, userId)`, `create(userId, dto)`, `update(id, userId, dto)`, `remove(id, userId)` implemented
-- [ ] `findOne` throws `NotFoundException` when application not found or not owned by user
-- [ ] `remove` throws `NotFoundException` when application not found or not owned
-- [ ] Unit tests mock `ApplicationRepository` and assert all methods + error cases
-- [ ] Gate: `pnpm --filter @job-tracker/api vitest run` — 5+ unit tests pass
+- [x] `findAll(userId)`, `findOne(id, userId)`, `create(userId, dto)`, `update(id, userId, dto)`, `remove(id, userId)` implemented
+- [x] `findOne` throws `NotFoundException` when application not found or not owned by user
+- [x] `remove` throws `NotFoundException` when application not found or not owned
+- [x] Unit tests mock `ApplicationRepository` and assert all methods + error cases (6 tests)
+- [x] Gate: `pnpm --filter @job-tracker/api run test` — 6 unit tests pass ✅
 
 **Tests:** unit
-**Gate:** quick — `pnpm --filter @job-tracker/api vitest run`
+**Gate:** quick — `pnpm --filter @job-tracker/api run test` ✅
 
 ---
 
-### T05: ApplicationResolver
+### T05: ApplicationResolver ✅
 
 **What:** Create GraphQL resolver with queries and mutations for application CRUD
-**Where:** `apps/api/src/applications/applications.resolver.ts`, `apps/api/src/applications/applications.resolver.spec.ts`
+**Where:** `apps/api/src/domains/applications/applications.resolver.ts`, `apps/api/src/domains/applications/applications.resolver.spec.ts`
 **Depends on:** T04
 **Requirement:** AC-01, AC-02, AC-03, AC-04
 
 **Done when:**
 
-- [ ] `Query.applications` returns all applications for the current user
-- [ ] `Query.application(id)` returns one application (or 404)
-- [ ] `Mutation.createApplication(input)` creates and returns the new application
-- [ ] `Mutation.updateApplication(id, input)` updates and returns the application
-- [ ] `Mutation.deleteApplication(id)` removes and returns `true`
-- [ ] All endpoints protected with `@UseGuards(JwtAuthGuard)` and `@Roles('user')`
-- [ ] Integration tests cover all operations with valid JWT
-- [ ] Gate: `pnpm --filter @job-tracker/api vitest run` — integration tests pass
+- [x] `Query.applications` returns all applications for the current user
+- [x] `Query.application(id)` returns one application (or 404)
+- [x] `Mutation.createApplication(input)` creates and returns the new application
+- [x] `Mutation.updateApplication(id, input)` updates and returns the application
+- [x] `Mutation.deleteApplication(id)` removes and returns `true`
+- [x] All endpoints protected with `@UseGuards(JwtAuthGuard, RolesGuard)` and `@Roles('user')`
+- [x] Integration tests cover all operations with valid JWT (5 tests)
+- [x] Gate: `pnpm --filter @job-tracker/api run test` — 5 integration tests pass ✅
 
 **Tests:** integration
-**Gate:** full — `pnpm --filter @job-tracker/api vitest run`
+**Gate:** full — `pnpm --filter @job-tracker/api run test` ✅
 
 ---
 
-### T06: ApplicationModule
+### T06: ApplicationModule ✅
 
 **What:** Wire all application providers into `ApplicationModule`
-**Where:** `apps/api/src/applications/applications.module.ts`
+**Where:** `apps/api/src/domains/applications/applications.module.ts`
 **Depends on:** T05
 **Requirement:** AC-01
 
 **Done when:**
 
-- [ ] `ApplicationModule` registers `ApplicationRepository`, `ApplicationService`, `ApplicationResolver`
-- [ ] Module imported in `AppModule`
-- [ ] `pnpm --filter @job-tracker/api build` passes
+- [x] `ApplicationModule` registers `ApplicationRepository`, `ApplicationService`, `ApplicationResolver`
+- [x] Module imported in `AppModule`
+- [x] `pnpm --filter @job-tracker/api build` passes ✅
 
 **Tests:** none
-**Gate:** build — `pnpm --filter @job-tracker/api build`
+**Gate:** build — `pnpm --filter @job-tracker/api build` ✅
 
 ---
 

@@ -1,19 +1,11 @@
 import { Query, Resolver } from "@nestjs/graphql";
 import { UseGuards, UnauthorizedException } from "@nestjs/common";
-import { GqlExecutionContext } from "@nestjs/graphql";
-import { createParamDecorator, ExecutionContext } from "@nestjs/common";
 import { JwtAuthGuard } from "./jwt-auth.guard";
 import { RolesGuard } from "./roles.guard";
 import { Roles } from "./roles.decorator";
+import { CurrentUser } from "./current-user.decorator";
 import { UserService } from "@api/domains/users/users.service";
 import { UserType } from "@api/domains/users/user.type";
-
-const CurrentUser = createParamDecorator(
-  (_: unknown, ctx: ExecutionContext) => {
-    const gqlCtx = GqlExecutionContext.create(ctx);
-    return gqlCtx.getContext<{ req: { user: { userId: string } } }>().req.user;
-  },
-);
 
 @Resolver()
 export class AuthResolver {

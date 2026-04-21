@@ -5,8 +5,8 @@ import { migrate } from "drizzle-orm/node-postgres/migrator";
 import path from "path";
 import { ApplicationRepository } from "./applications.repository";
 import { applications } from "./applications.schema";
-import { users } from "../users/users.schema";
-import { DatabaseService } from "../../database/database.service";
+import { users } from "@api/domains/users/users.schema";
+import { DatabaseService } from "@api/database/database.service";
 
 const DATABASE_URL = process.env.DATABASE_URL;
 const hasDb = !!DATABASE_URL;
