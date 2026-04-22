@@ -1,9 +1,14 @@
 import "dotenv/config";
 import { z } from "zod";
 
+const nodeEnvSchema = z
+  .enum(["development", "test", "production"])
+  .default("development");
+
 const serverEnvSchema = z.object({
+  NODE_ENV: nodeEnvSchema,
   DATABASE_URL: z.url().startsWith("postgresql://"),
-  SENTRY_DSN: z.string().optional(),
+  SENTRY_DSN: z.url().optional(),
   PORT: z.coerce.number().int().min(1).max(65535).default(3101),
   GOOGLE_CLIENT_ID: z.string(),
   GOOGLE_CLIENT_SECRET: z.string(),
@@ -15,9 +20,19 @@ const serverEnvSchema = z.object({
   WEB_URL: z.url().default("http://localhost:3100"),
 });
 
-const validated = serverEnvSchema.parse(process.env);
+const validated = serverEnvSchema
+  .refine(
+    ({ NODE_ENV, PORT }) =>
+      NODE_ENV === "production" || (PORT >= 3100 && PORT <= 3199),
+    {
+      message: "PORT must stay in the 31xx range for local/test environments.",
+      path: ["PORT"],
+    },
+  )
+  .parse(process.env);
 
 export const {
+  NODE_ENV,
   DATABASE_URL,
   SENTRY_DSN,
   PORT,
