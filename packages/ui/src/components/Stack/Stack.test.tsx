@@ -17,7 +17,7 @@ describe("Stack", () => {
 
   it("supports direction and gap props", () => {
     render(
-      <Stack direction="row" gap="inline">
+      <Stack direction="row" gap="xs">
         one
       </Stack>,
     );

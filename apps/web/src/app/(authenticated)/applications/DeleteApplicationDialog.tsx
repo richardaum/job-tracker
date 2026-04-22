@@ -39,7 +39,7 @@ export function DeleteApplicationDialog({
   }
 
   const footer = (
-    <Stack direction="row" gap="inline" justify="end">
+    <Stack direction="row" gap="xs" justify="end">
       <Button
         intent="secondary"
         size="sm"

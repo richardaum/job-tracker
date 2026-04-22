@@ -1,7 +1,8 @@
 import React from "react";
+import { cn } from "@ui/lib/cn";
 
 type Direction = "row" | "column";
-type Gap = "inline" | "form" | "card" | "section";
+type Gap = "xs" | "sm" | "md" | "lg";
 type Align = "start" | "center" | "end" | "stretch";
 type Justify = "start" | "center" | "end" | "between";
 
@@ -20,10 +21,10 @@ const directionClasses: Record<Direction, string> = {
 };
 
 const gapClasses: Record<Gap, string> = {
-  inline: "gap-2",
-  form: "gap-3",
-  card: "gap-4",
-  section: "gap-6",
+  xs: "gap-2",
+  sm: "gap-3",
+  md: "gap-4",
+  lg: "gap-6",
 };
 
 const alignClasses: Record<Align, string> = {
@@ -43,14 +44,21 @@ const justifyClasses: Record<Justify, string> = {
 export function Stack({
   children,
   direction = "column",
-  gap = "card",
+  gap = "md",
   align = "stretch",
   justify = "start",
   className,
 }: StackProps) {
   return (
     <div
-      className={`flex ${directionClasses[direction]} ${gapClasses[gap]} ${alignClasses[align]} ${justifyClasses[justify]}${className ? ` ${className}` : ""}`}
+      className={cn(
+        "flex",
+        directionClasses[direction],
+        gapClasses[gap],
+        alignClasses[align],
+        justifyClasses[justify],
+        className,
+      )}
     >
       {children}
     </div>

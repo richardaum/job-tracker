@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Button, Dialog, FormField, Input, Stack } from "@job-tracker/ui";
+import { Button, Dialog, FormField, Input, Stack, cn } from "@job-tracker/ui";
 import {
   useCreateApplicationMutation,
   useUpdateApplicationMutation,
@@ -99,7 +99,7 @@ function ApplicationFormBody({
   return (
     <>
       <form id="application-form" onSubmit={handleSubmit} noValidate>
-        <Stack gap="form">
+        <Stack gap="sm">
           <FormField
             label="Job title"
             htmlFor="app-title"
@@ -167,7 +167,7 @@ function ApplicationFormBody({
         </Stack>
       </form>
 
-      <Stack direction="row" gap="inline" justify="end" className="mt-4">
+      <Stack direction="row" gap="xs" justify="end" className={cn("mt-4")}>
         <Button
           intent="secondary"
           size="sm"
