@@ -1,0 +1,15 @@
+# Build context is only used for apps/api image; keep uploads small and deterministic.
+.git
+.turbo
+node_modules
+**/.next
+**/.next-dev
+**/coverage
+**/dist
+*.log
+.env
+.env.*
+!.env.example
+apps/web
+.specs
+.cursor

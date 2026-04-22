@@ -1,5 +1,6 @@
 # History
 
+- [H-15] 2026-04-22T22:15:00Z - Validated API Docker build from repo root, added `.dockerignore`, root `README.md` deployment and build notes for [T-44] and [T-53], and `pnpm docker:build:api` for reproducible image builds. - Related: [R-7], [F-20], [T-44], [T-46], [T-53], [T-55]
 - [H-14] 2026-04-22T22:05:00Z - Aligned root `test:coverage` and `ci:local` with CI coverage flags, scoped `apps/web` Vitest coverage to tested client modules, raised UI default line threshold to 80 percent, and advanced execution to [R-7]. - Related: [R-6], [R-7], [F-9], [T-35], [T-40], [T-54]
 - [H-13] 2026-04-22T21:50:57Z - Verified full monorepo typecheck, lint, and test gates, fixed `apps/web` Vitest resolution for the `@ui` path alias, and moved execution to [R-6]. - Related: [R-6], [F-9], [P-14], [T-40]
 - [H-12] 2026-04-22T21:47:48Z - Added database pool instrumentation tests (success, failure, slow query) and fixed unhandled promise rejection on failed `pool.query` in the `finally` side-effect chain. - Related: [R-5], [F-15], [P-14], [T-30]
