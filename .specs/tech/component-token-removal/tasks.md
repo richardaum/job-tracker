@@ -101,7 +101,7 @@ T01 -> T02 -> T03 -> T04 -> T05 -> T06
 
 - [x] Build and tests pass
 - [x] Storybook tests pass
-- [ ] Quick manual check on authenticated applications screen confirms no obvious spacing/overlay regressions
+- [x] Quick manual check on authenticated applications screen confirms no obvious spacing/overlay regressions
 
 **Tests:** build + unit + visual  
 **Gate:** `pnpm --filter @job-tracker/ui build && pnpm --filter @job-tracker/ui test && pnpm --filter @job-tracker/ui test-storybook`
