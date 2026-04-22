@@ -1,5 +1,15 @@
 # History
 
+- [H-13] 2026-04-22T21:50:57Z - Verified full monorepo typecheck, lint, and test gates, fixed `apps/web` Vitest resolution for the `@ui` path alias, and moved execution to [R-6]. - Related: [R-6], [F-9], [P-14], [T-40]
+- [H-12] 2026-04-22T21:47:48Z - Added database pool instrumentation tests (success, failure, slow query) and fixed unhandled promise rejection on failed `pool.query` in the `finally` side-effect chain. - Related: [R-5], [F-15], [P-14], [T-30]
+- [H-11] 2026-04-22T21:45:13Z - Fixed request metrics async context scoping, exported telemetry thresholds, and added interceptor unit tests for [T-29] verification. - Related: [R-5], [F-6], [P-14], [T-29]
+- [H-10] 2026-04-22T18:34:32Z - Started [R-5] implementation by adding request-scoped metrics context, global latency/query-count interceptor, and slow-query warnings with passing API lint/test gates. - Related: [R-5], [F-15], [P-14], [T-29]
+- [H-9] 2026-04-22T18:30:21Z - Closed [R-4] validation with API/web lint gates, full API test suite, and specs structure checks; advanced active execution to [R-5]. - Related: [R-5], [F-8], [P-14], [T-18]
+- [H-8] 2026-04-22T18:29:12Z - Fixed `roles.guard` test context mocks for GraphQL execution and verified the full API test suite passes cleanly. - Related: [R-4], [F-9], [P-14], [T-18]
+- [H-7] 2026-04-22T18:27:17Z - Added API env schema runtime tests and validated isolated execution; noted pre-existing `roles.guard` suite failures when attempting full API test gate. - Related: [R-4], [F-8], [P-14], [T-17]
+- [H-6] 2026-04-22T18:21:11Z - Verified API and web lint/typecheck gates after env hardening and fixed ESLint root ignores to exclude generated `.next-dev` artifacts. - Related: [R-4], [F-9], [P-14], [T-18]
+- [H-5] 2026-04-22T18:19:59Z - Started [R-4] execution by hardening typed env schemas with URL validation and explicit 31xx local port constraints in web and API env modules. - Related: [R-4], [F-8], [P-10], [T-14]
+- [H-4] 2026-04-22T18:18:28Z - Updated execution state to roadmap hardening phase after confirming authenticated access and application CRUD are already established. - Related: [R-4], [F-2], [P-11], [T-10]
 - [H-3] 2026-04-22T18:13:54Z - Resumed SDD execution and advanced active state to roadmap sequence start for authenticated access implementation. - Related: [R-1], [F-1], [P-1], [T-10]
 - [H-2] 2026-04-22T18:10:50Z - Completed SDD migration, validated template and ID compliance, and finalized canonical product and technical scopes. - Related: [R-14], [F-11], [P-1], [T-53]
 - [H-1] 2026-04-22T00:00:00Z - Initialized strict SDD structure and migrated legacy specification content into product, technical, and docs scopes. - Related: [R-9], [F-11], [P-1], [T-42]
