@@ -1,6 +1,7 @@
 import React from "react";
 import { CaretDownIcon } from "@phosphor-icons/react";
 import * as RadixSelect from "@radix-ui/react-select";
+import { cn } from "@ui/lib/cn";
 
 export interface SelectOption {
   label: string;
@@ -55,24 +56,30 @@ export function Select({
     >
       <RadixSelect.Trigger
         aria-label={placeholder}
-        className={`inline-flex w-full items-center justify-between rounded-md border bg-bg-surface text-left text-text-primary shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:bg-bg-surface-hover ${sizeClasses[size]} ${stateClasses[state]}`}
+        className={cn(
+          `inline-flex w-full items-center justify-between rounded-md border bg-bg-surface text-left text-text-primary shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:bg-bg-surface-hover ${sizeClasses[size]} ${stateClasses[state]}`,
+        )}
       >
         <RadixSelect.Value placeholder={placeholder} />
-        <RadixSelect.Icon className="ml-2 text-text-muted">
+        <RadixSelect.Icon className={cn("ml-2 text-text-muted")}>
           <CaretDownIcon size={16} weight="regular" />
         </RadixSelect.Icon>
       </RadixSelect.Trigger>
       <RadixSelect.Portal>
         <RadixSelect.Content
           position="popper"
-          className="z-50 min-w-(--radix-select-trigger-width) rounded-md border border-border-subtle bg-bg-surface p-1 shadow-md"
+          className={cn(
+            "z-50 min-w-(--radix-select-trigger-width) rounded-md border border-border-subtle bg-bg-surface p-1 shadow-md",
+          )}
         >
           <RadixSelect.Viewport>
             {options.map((option) => (
               <RadixSelect.Item
                 key={option.value}
                 value={option.value}
-                className="flex cursor-pointer items-center rounded-sm px-3 py-2 text-sm text-text-primary outline-none hover:bg-bg-surface-hover focus:bg-bg-surface-hover data-[state=checked]:bg-bg-brand-subtle data-[state=checked]:text-text-brand"
+                className={cn(
+                  "flex cursor-pointer items-center rounded-sm px-3 py-2 text-sm text-text-primary outline-none hover:bg-bg-surface-hover focus:bg-bg-surface-hover data-[state=checked]:bg-bg-brand-subtle data-[state=checked]:text-text-brand",
+                )}
               >
                 <RadixSelect.ItemText>{option.label}</RadixSelect.ItemText>
               </RadixSelect.Item>

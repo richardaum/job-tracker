@@ -1,4 +1,5 @@
 import React from "react";
+import { cn } from "@ui/lib/cn";
 
 export type HeadingLevel = "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
 export type HeadingSize = "4xl" | "3xl" | "2xl" | "xl" | "lg" | "base";
@@ -29,14 +30,14 @@ const defaultSizeByLevel: Record<HeadingLevel, HeadingSize> = {
 export function Heading({
   as: Tag = "h2",
   size,
-  className = "",
+  className,
   children,
   ...props
 }: HeadingProps) {
   const resolvedSize = size ?? defaultSizeByLevel[Tag];
   return (
     <Tag
-      className={`text-text-primary ${sizeClasses[resolvedSize]} ${className}`}
+      className={cn("text-text-primary", sizeClasses[resolvedSize], className)}
       {...props}
     >
       {children}

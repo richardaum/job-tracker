@@ -83,3 +83,4 @@ export type {
   TextSize,
   TextWeight,
 } from "./components/Typography/Text";
+export { cn } from "./lib/cn";

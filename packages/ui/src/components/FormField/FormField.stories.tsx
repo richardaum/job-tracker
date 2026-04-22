@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { FormField } from "./FormField";
 import { Input } from "../Input/Input";
+import { cn } from "@ui/lib/cn";
 
 const meta: Meta<typeof FormField> = {
   title: "Components/FormField",
@@ -16,7 +17,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   render: () => (
-    <div className="w-80">
+    <div className={cn("w-80")}>
       <FormField
         label="Email"
         htmlFor="email"
@@ -30,7 +31,7 @@ export const Default: Story = {
 
 export const Error: Story = {
   render: () => (
-    <div className="w-80">
+    <div className={cn("w-80")}>
       <FormField
         label="Email"
         htmlFor="email"

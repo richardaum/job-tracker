@@ -1,4 +1,5 @@
 import React from "react";
+import { cn } from "@ui/lib/cn";
 
 export type IconButtonIntent =
   | "primary"
@@ -41,14 +42,12 @@ export function IconButton({
   className,
   ...props
 }: IconButtonProps) {
-  const classes = [
+  const classes = cn(
     "inline-flex cursor-pointer items-center justify-center rounded-md border shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-brand focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60",
     intentClasses[intent],
     sizeClasses[size],
     className,
-  ]
-    .filter(Boolean)
-    .join(" ");
+  );
 
   return (
     <button type="button" aria-label={label} className={classes} {...props}>

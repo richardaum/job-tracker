@@ -1,4 +1,5 @@
 import React from "react";
+import { cn } from "@ui/lib/cn";
 
 export type TextSize = "xs" | "sm" | "base" | "md" | "lg";
 export type TextWeight = "regular" | "medium" | "semibold" | "bold";
@@ -46,13 +47,18 @@ export function Text({
   size = "base",
   weight = "regular",
   color = "primary",
-  className = "",
+  className,
   children,
   ...props
 }: TextProps) {
   return (
     <Tag
-      className={`${sizeClasses[size]} ${weightClasses[weight]} ${colorClasses[color]} ${className}`}
+      className={cn(
+        sizeClasses[size],
+        weightClasses[weight],
+        colorClasses[color],
+        className,
+      )}
       {...props}
     >
       {children}

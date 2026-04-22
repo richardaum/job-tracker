@@ -1,4 +1,5 @@
 import React from "react";
+import { cn } from "@ui/lib/cn";
 
 export type SpinnerSize = "sm" | "md" | "lg";
 
@@ -19,13 +20,11 @@ export function Spinner({
   className,
   ...props
 }: SpinnerProps) {
-  const classes = [
+  const classes = cn(
     "inline-block animate-spin rounded-full border-bg-surface border-t-border-brand",
     sizeClasses[size],
     className,
-  ]
-    .filter(Boolean)
-    .join(" ");
+  );
 
   return (
     <span role="status" aria-label={label} className={classes} {...props} />

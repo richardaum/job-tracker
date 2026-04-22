@@ -45,6 +45,28 @@ export default tseslint.config(
     },
     rules: {
       ...reactHooks.configs.recommended.rules,
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector: "JSXAttribute[name.name='className'] > Literal",
+          message: "Use className={cn(...)} instead of string literals.",
+        },
+        {
+          selector:
+            "JSXAttribute[name.name='className'] JSXExpressionContainer > Literal",
+          message: "Use className={cn(...)} instead of string literals.",
+        },
+        {
+          selector:
+            "JSXAttribute[name.name='className'] JSXExpressionContainer > TemplateLiteral",
+          message: "Use className={cn(...)} instead of template literals.",
+        },
+        {
+          selector:
+            "JSXAttribute[name.name='className'] JSXExpressionContainer > ArrayExpression",
+          message: "Use className={cn(...)} instead of array join patterns.",
+        },
+      ],
     },
     settings: {
       react: { version: "detect" },

@@ -1,24 +1,34 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import React from "react";
 import { ThemeProvider, useTheme } from "./ThemeProvider";
+import { cn } from "@ui/lib/cn";
 
 function ThemeToggleDemo() {
   const { theme, toggleTheme } = useTheme();
   return (
-    <div className="flex flex-col gap-4 p-6">
-      <p className="text-sm text-text-secondary">
-        Current theme: <strong className="text-text-primary">{theme}</strong>
+    <div className={cn("flex flex-col gap-4 p-6")}>
+      <p className={cn("text-sm text-text-secondary")}>
+        Current theme:{" "}
+        <strong className={cn("text-text-primary")}>{theme}</strong>
       </p>
       <button
         onClick={toggleTheme}
-        className="rounded-md bg-bg-brand px-4 py-2 text-sm font-medium text-text-inverted"
+        className={cn(
+          "rounded-md bg-bg-brand px-4 py-2 text-sm font-medium text-text-inverted",
+        )}
       >
         Toggle theme
       </button>
-      <div className="rounded-md border border-border-subtle bg-bg-surface p-4">
-        <p className="text-sm text-text-primary">Surface with primary text</p>
-        <p className="text-sm text-text-secondary">Secondary text</p>
-        <p className="text-sm text-text-muted">Muted text</p>
+      <div
+        className={cn(
+          "rounded-md border border-border-subtle bg-bg-surface p-4",
+        )}
+      >
+        <p className={cn("text-sm text-text-primary")}>
+          Surface with primary text
+        </p>
+        <p className={cn("text-sm text-text-secondary")}>Secondary text</p>
+        <p className={cn("text-sm text-text-muted")}>Muted text</p>
       </div>
     </div>
   );

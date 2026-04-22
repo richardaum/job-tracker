@@ -1,4 +1,5 @@
 import React from "react";
+import { cn } from "@ui/lib/cn";
 
 export type SkeletonVariant = "text" | "rect" | "circle";
 
@@ -17,13 +18,11 @@ export function Skeleton({
   className,
   ...props
 }: SkeletonProps) {
-  const classes = [
+  const classes = cn(
     "animate-pulse bg-bg-surface-hover",
     variantClasses[variant],
     className,
-  ]
-    .filter(Boolean)
-    .join(" ");
+  );
 
   return <div aria-hidden className={classes} {...props} />;
 }

@@ -2,6 +2,7 @@ import React from "react";
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { Heading } from "./Heading";
+import { cn } from "@ui/lib/cn";
 
 describe("Heading", () => {
   it("renders as h2 by default", () => {
@@ -25,7 +26,7 @@ describe("Heading", () => {
   });
 
   it("passes extra className", () => {
-    render(<Heading className="custom">Title</Heading>);
+    render(<Heading className={cn("custom")}>Title</Heading>);
     expect(screen.getByRole("heading")).toHaveClass("custom");
   });
 });

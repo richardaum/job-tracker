@@ -1,5 +1,6 @@
 import React from "react";
 import * as RadixCheckbox from "@radix-ui/react-checkbox";
+import { cn } from "@ui/lib/cn";
 
 export interface CheckboxProps {
   checked?: boolean;
@@ -54,9 +55,13 @@ export function Checkbox({
       }
       disabled={disabled}
       required={required}
-      className={`inline-flex items-center justify-center rounded-sm border bg-bg-surface text-text-inverted shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-brand focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 ${sizeClasses[size]} ${stateClasses[state]}`}
+      className={cn(
+        `inline-flex items-center justify-center rounded-sm border bg-bg-surface text-text-inverted shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-brand focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 ${sizeClasses[size]} ${stateClasses[state]}`,
+      )}
     >
-      <RadixCheckbox.Indicator className="text-[10px] font-bold leading-none text-text-inverted">
+      <RadixCheckbox.Indicator
+        className={cn("text-[10px] font-bold leading-none text-text-inverted")}
+      >
         ✓
       </RadixCheckbox.Indicator>
     </RadixCheckbox.Root>

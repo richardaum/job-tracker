@@ -1,4 +1,5 @@
 import React from "react";
+import { cn } from "@ui/lib/cn";
 
 export type BadgeIntent = "default" | "success" | "warning" | "error" | "info";
 
@@ -20,13 +21,11 @@ export function Badge({
   children,
   ...props
 }: BadgeProps) {
-  const classes = [
+  const classes = cn(
     "inline-flex items-center rounded-full border px-3 py-1 text-sm font-medium",
     intentClasses[intent],
     className,
-  ]
-    .filter(Boolean)
-    .join(" ");
+  );
 
   return (
     <span className={classes} {...props}>

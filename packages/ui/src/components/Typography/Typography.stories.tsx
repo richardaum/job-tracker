@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import React from "react";
 import { Heading } from "./Heading";
 import { Text } from "./Text";
+import { cn } from "@ui/lib/cn";
 
 const meta: Meta = {
   title: "Foundations/Typography",
@@ -14,7 +15,7 @@ type Story = StoryObj<typeof meta>;
 
 export const HeadingScale: Story = {
   render: () => (
-    <div className="flex flex-col gap-4">
+    <div className={cn("flex flex-col gap-4")}>
       <Heading as="h1" size="4xl">
         Heading 4xl — h1
       </Heading>
@@ -39,7 +40,7 @@ export const HeadingScale: Story = {
 
 export const TextSizes: Story = {
   render: () => (
-    <div className="flex flex-col gap-3">
+    <div className={cn("flex flex-col gap-3")}>
       <Text size="lg">Text lg — body large</Text>
       <Text size="md">Text md — body default</Text>
       <Text size="base">Text base</Text>
@@ -51,7 +52,7 @@ export const TextSizes: Story = {
 
 export const TextWeights: Story = {
   render: () => (
-    <div className="flex flex-col gap-3">
+    <div className={cn("flex flex-col gap-3")}>
       <Text weight="bold">Bold weight</Text>
       <Text weight="semibold">Semibold weight</Text>
       <Text weight="medium">Medium weight</Text>
@@ -62,7 +63,7 @@ export const TextWeights: Story = {
 
 export const TextColors: Story = {
   render: () => (
-    <div className="flex flex-col gap-3">
+    <div className={cn("flex flex-col gap-3")}>
       <Text color="primary">Primary color</Text>
       <Text color="secondary">Secondary color</Text>
       <Text color="muted">Muted color</Text>
