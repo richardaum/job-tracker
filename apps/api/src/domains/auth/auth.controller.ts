@@ -5,6 +5,7 @@ import {
   Post,
   Req,
   Res,
+  UnauthorizedException,
   UseGuards,
 } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
@@ -50,5 +51,27 @@ export class AuthController {
     res.clearCookie("access_token", { path: "/" });
     res.clearCookie("refresh_token", { path: "/" });
     res.json({ ok: true });
+  }
+
+  @Post("refresh")
+  @HttpCode(200)
+  refresh(@Req() req: Request, @Res() res: Response): void {
+    const refreshToken = req.cookies?.refresh_token;
+    if (!refreshToken) {
+      throw new UnauthorizedException();
+    }
+
+    try {
+      const { userId } = this.authService.verifyRefreshToken(refreshToken);
+      const accessToken = this.authService.generateAccessToken({ id: userId });
+
+      res.cookie("access_token", accessToken, {
+        ...COOKIE_BASE,
+        maxAge: 15 * 60 * 1000,
+      });
+      res.json({ ok: true });
+    } catch {
+      throw new UnauthorizedException();
+    }
   }
 }

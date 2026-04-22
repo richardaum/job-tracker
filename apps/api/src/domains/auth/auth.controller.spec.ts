@@ -34,6 +34,7 @@ describe("AuthController (integration)", () => {
           useValue: {
             generateAccessToken: () => "mock-access-token",
             generateRefreshToken: () => "mock-refresh-token",
+            verifyRefreshToken: () => ({ userId: mockUser.id }),
           },
         },
         { provide: UserService, useValue: {} },
@@ -79,5 +80,21 @@ describe("AuthController (integration)", () => {
     const cookies = ([] as string[]).concat(res.headers["set-cookie"] ?? []);
     expect(cookies.some((c) => c.startsWith("access_token=;"))).toBe(true);
     expect(cookies.some((c) => c.startsWith("refresh_token=;"))).toBe(true);
+  });
+
+  it("POST /auth/refresh sets a new access token cookie", async () => {
+    const res = await request(app.getHttpServer())
+      .post("/auth/refresh")
+      .set("Cookie", ["refresh_token=valid-refresh"]);
+
+    expect(res.statusCode).toBe(200);
+    const cookies = ([] as string[]).concat(res.headers["set-cookie"] ?? []);
+    expect(cookies.some((c) => c.startsWith("access_token="))).toBe(true);
+    expect(cookies.some((c) => c.startsWith("refresh_token="))).toBe(false);
+  });
+
+  it("POST /auth/refresh returns 401 without refresh cookie", async () => {
+    const res = await request(app.getHttpServer()).post("/auth/refresh");
+    expect(res.statusCode).toBe(401);
   });
 });

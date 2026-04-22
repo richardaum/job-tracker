@@ -1,5 +1,5 @@
-import { renderHook } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { renderHook, waitFor } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { CurrentUser } from "./useCurrentUser";
 
 const useMeQueryMock = vi.fn();
@@ -14,6 +14,10 @@ vi.mock("@/gql/hooks", async () => {
 });
 
 describe("useCurrentUser", () => {
+  beforeEach(() => {
+    useMeQueryMock.mockReset();
+  });
+
   it("returns current user data shape", async () => {
     const mockUser: CurrentUser = {
       id: "user-1",
@@ -35,5 +39,25 @@ describe("useCurrentUser", () => {
     expect(result.current.user).toEqual(mockUser);
     expect(result.current.loading).toBe(false);
     expect(result.current.error).toBeUndefined();
+  });
+
+  it("returns null user when unauthenticated", async () => {
+    const authError = {
+      graphQLErrors: [{ extensions: { code: "UNAUTHENTICATED" } }],
+    };
+    useMeQueryMock.mockReturnValue({
+      data: { me: null },
+      loading: false,
+      error: authError,
+    });
+
+    const { useCurrentUser } = await import("./useCurrentUser");
+    const { result } = renderHook(() => useCurrentUser());
+
+    await waitFor(() => {
+      expect(result.current.user).toBeNull();
+    });
+    expect(result.current.loading).toBe(false);
+    expect(result.current.error).toEqual(authError);
   });
 });

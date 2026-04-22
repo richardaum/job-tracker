@@ -48,4 +48,10 @@ describe("AuthService", () => {
     expect(decoded.exp).toBeGreaterThanOrEqual(expectedExpiry - 5);
     expect(decoded.exp).toBeLessThanOrEqual(expectedExpiry + 5);
   });
+
+  it("verifyRefreshToken returns user id from token sub", () => {
+    const token = service.generateRefreshToken(mockUser);
+    const payload = service.verifyRefreshToken(token);
+    expect(payload.userId).toBe(mockUser.id);
+  });
 });
