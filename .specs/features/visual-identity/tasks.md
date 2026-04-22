@@ -1,7 +1,7 @@
 # Visual Identity — Tasks
 
 **Spec:** `.specs/features/visual-identity/spec.md`
-**Status:** Planned
+**Status:** DONE — all tasks complete
 
 ---
 
@@ -40,14 +40,14 @@ T03, T04 ──┬── T05 [P]
 
 **Done when:**
 
-- [ ] CSS custom properties defined for: primary, secondary, neutral, success, warning, error color scales
-- [ ] Typography variables: font families, size scale (xs → 4xl), line heights, font weights
-- [ ] Spacing scale aligned with Tailwind defaults (4px base unit)
-- [ ] `tokens.css` imported in `globals.css`
-- [ ] `pnpm --filter @job-tracker/ui build` passes
+- [x] CSS custom properties defined for: primary, secondary, neutral, success, warning, error color scales
+- [x] Typography variables: font families, size scale (xs → 4xl), line heights, font weights
+- [x] Spacing scale aligned with Tailwind defaults (4px base unit)
+- [x] `tokens.css` imported in `globals.css`
+- [x] `pnpm --filter @job-tracker/ui build` passes
 
 **Tests:** none
-**Gate:** build — `pnpm --filter @job-tracker/ui build`
+**Gate:** build — `pnpm --filter @job-tracker/ui build` ✅ (covered by design-system T01)
 
 ---
 
@@ -60,13 +60,13 @@ T03, T04 ──┬── T05 [P]
 
 **Done when:**
 
-- [ ] `theme.extend.colors` references CSS variables from `tokens.css`
-- [ ] `theme.extend.fontFamily`, `fontSize`, `spacing` aligned with token definitions
-- [ ] Mobile-first breakpoints defined: `sm: 640px`, `md: 768px`, `lg: 1024px`, `xl: 1280px`
-- [ ] `pnpm --filter @job-tracker/ui build` passes
+- [x] `theme.extend.colors` references CSS variables from `tokens.css`
+- [x] `theme.extend.fontFamily`, `fontSize`, `spacing` aligned with token definitions
+- [x] Mobile-first breakpoints defined: `sm: 640px`, `md: 768px`, `lg: 1024px`, `xl: 1280px`
+- [x] `pnpm --filter @job-tracker/ui build` passes
 
 **Tests:** none
-**Gate:** build — `pnpm --filter @job-tracker/ui build`
+**Gate:** build — `pnpm --filter @job-tracker/ui build` ✅ (covered by design-system T02)
 
 ---
 
@@ -79,13 +79,13 @@ T03, T04 ──┬── T05 [P]
 
 **Done when:**
 
-- [ ] `tailwind.config.ts` sets `darkMode: ['attribute', 'data-theme']`
-- [ ] `tokens.css` defines dark mode overrides under `[data-theme='dark']`
-- [ ] Switching `data-theme` on `<html>` flips all color tokens
-- [ ] `pnpm --filter @job-tracker/ui build` passes
+- [x] `tailwind.config.ts` sets `darkMode: ['attribute', 'data-theme']`
+- [x] `tokens.css` defines dark mode overrides under `[data-theme='dark']`
+- [x] Switching `data-theme` on `<html>` flips all color tokens
+- [x] `pnpm --filter @job-tracker/ui build` passes
 
 **Tests:** none
-**Gate:** build — `pnpm --filter @job-tracker/ui build`
+**Gate:** build — `pnpm --filter @job-tracker/ui build` ✅ (covered by design-system T10)
 
 ---
 
@@ -98,15 +98,15 @@ T03, T04 ──┬── T05 [P]
 
 **Done when:**
 
-- [ ] `ThemeProvider` wraps children and sets `data-theme` on mount (persists in `localStorage`)
-- [ ] `useTheme()` returns `{ theme, toggleTheme }` — `theme` is `'light' | 'dark'`
-- [ ] `ThemeProvider.test.tsx` — asserts `toggleTheme` switches the `data-theme` attribute
-- [ ] `ThemeProvider.stories.tsx` — `LightMode` and `DarkMode` stories pass
-- [ ] Gate (unit): `pnpm --filter @job-tracker/ui vitest run` — tests pass
-- [ ] Gate (visual): `pnpm --filter @job-tracker/ui test-storybook` — stories pass
+- [x] `ThemeProvider` wraps children and sets `data-theme` on mount (persists in `localStorage`)
+- [x] `useTheme()` returns `{ theme, toggleTheme }` — `theme` is `'light' | 'dark'`
+- [x] `ThemeProvider.test.tsx` — asserts `toggleTheme` switches the `data-theme` attribute
+- [x] `ThemeProvider.stories.tsx` — `LightMode` and `DarkMode` stories pass
+- [x] Gate (unit): `pnpm --filter @job-tracker/ui vitest run` — tests pass
+- [x] Gate (visual): `pnpm --filter @job-tracker/ui test-storybook` — stories pass
 
 **Tests:** unit + visual
-**Gate:** quick + storybook
+**Gate:** quick + storybook — `pnpm --filter @job-tracker/ui test && pnpm --filter @job-tracker/ui test-storybook` ✅ (64 unit + 55 storybook tests pass)
 
 ---
 
@@ -119,16 +119,16 @@ T03, T04 ──┬── T05 [P]
 
 **Done when:**
 
-- [ ] `Heading` accepts `as` prop (`h1`–`h6`) and `size` prop mapped to token scale
-- [ ] `Text` accepts `size` and `weight` props mapped to token scale
-- [ ] Both components use only Tailwind classes — no inline styles
-- [ ] `Heading.test.tsx` and `Text.test.tsx` assert correct tag and class rendering
-- [ ] `Typography.stories.tsx` — stories for all heading levels and text sizes pass
-- [ ] Gate (unit): `pnpm --filter @job-tracker/ui vitest run` — tests pass
-- [ ] Gate (visual): `pnpm --filter @job-tracker/ui test-storybook` — stories pass
+- [x] `Heading` accepts `as` prop (`h1`–`h6`) and `size` prop mapped to token scale
+- [x] `Text` accepts `size` and `weight` props mapped to token scale
+- [x] Both components use only Tailwind classes — no inline styles
+- [x] `Heading.test.tsx` and `Text.test.tsx` assert correct tag and class rendering
+- [x] `Typography.stories.tsx` — stories for all heading levels and text sizes pass
+- [x] Gate (unit): `pnpm --filter @job-tracker/ui vitest run` — tests pass
+- [x] Gate (visual): `pnpm --filter @job-tracker/ui test-storybook` — stories pass
 
 **Tests:** unit + visual
-**Gate:** quick + storybook
+**Gate:** quick + storybook — `pnpm --filter @job-tracker/ui test && pnpm --filter @job-tracker/ui test-storybook` ✅ (64 unit + 55 storybook tests pass)
 
 ---
 
@@ -141,13 +141,13 @@ T03, T04 ──┬── T05 [P]
 
 **Done when:**
 
-- [ ] Story renders color palette swatches for all token groups
-- [ ] Story renders typography scale (all sizes and weights)
-- [ ] Story renders spacing scale
-- [ ] Gate: `pnpm --filter @job-tracker/ui test-storybook` — story passes
+- [x] Story renders color palette swatches for all token groups
+- [x] Story renders typography scale (all sizes and weights)
+- [x] Story renders spacing scale
+- [x] Gate: `pnpm --filter @job-tracker/ui test-storybook` — story passes
 
 **Tests:** visual
-**Gate:** storybook — `pnpm --filter @job-tracker/ui test-storybook`
+**Gate:** storybook — `pnpm --filter @job-tracker/ui test-storybook` ✅ (covered by design-system T03)
 
 ---
 
