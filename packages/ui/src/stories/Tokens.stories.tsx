@@ -1,5 +1,6 @@
 import React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
+import { cn } from "@ui/lib/cn";
 
 type ColorToken = {
   name: string;
@@ -29,20 +30,28 @@ const semanticColors: ColorToken[] = [
 
 function ColorGrid({ title, tokens }: { title: string; tokens: ColorToken[] }) {
   return (
-    <section className="space-y-3">
-      <h3 className="text-lg font-semibold text-text-primary">{title}</h3>
-      <div className="grid grid-cols-1 gap-card-gap sm:grid-cols-2 lg:grid-cols-3">
+    <section className={cn("space-y-3")}>
+      <h3 className={cn("text-lg font-semibold text-text-primary")}>{title}</h3>
+      <div
+        className={cn("grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3")}
+      >
         {tokens.map((token) => (
           <div
             key={token.name}
-            className="rounded-lg border border-border-subtle bg-bg-surface p-card-padding shadow-sm"
+            className={cn(
+              "rounded-lg border border-border-subtle bg-bg-surface p-6 shadow-sm",
+            )}
           >
             <div
-              className="mb-inline-gap h-12 w-full rounded-md border border-border-subtle"
+              className={cn(
+                "mb-2 h-12 w-full rounded-md border border-border-subtle",
+              )}
               style={{ backgroundColor: `var(${token.cssVar})` }}
             />
-            <p className="font-mono text-sm text-text-primary">{token.name}</p>
-            <p className="font-mono text-xs text-text-secondary">
+            <p className={cn("font-mono text-sm text-text-primary")}>
+              {token.name}
+            </p>
+            <p className={cn("font-mono text-xs text-text-secondary")}>
               {token.cssVar}
             </p>
           </div>
@@ -54,10 +63,12 @@ function ColorGrid({ title, tokens }: { title: string; tokens: ColorToken[] }) {
 
 function TokensShowcase() {
   return (
-    <div className="space-y-section-gap bg-bg-surface p-section-gap font-sans">
-      <section className="space-y-2">
-        <h2 className="text-2xl font-bold text-text-primary">Design Tokens</h2>
-        <p className="max-w-3xl text-sm text-text-secondary">
+    <div className={cn("space-y-6 bg-bg-surface p-6 font-sans")}>
+      <section className={cn("space-y-2")}>
+        <h2 className={cn("text-2xl font-bold text-text-primary")}>
+          Design Tokens
+        </h2>
+        <p className={cn("max-w-3xl text-sm text-text-secondary")}>
           Foundations are documented in two layers: primitive values and
           semantic aliases. Component-specific defaults stay close to each
           component implementation for easier debugging.
@@ -67,18 +78,26 @@ function TokensShowcase() {
       <ColorGrid title="Primitive Color Tokens" tokens={primitiveColors} />
       <ColorGrid title="Semantic Color Tokens" tokens={semanticColors} />
 
-      <section className="space-y-3">
-        <h3 className="text-lg font-semibold text-text-primary">
+      <section className={cn("space-y-3")}>
+        <h3 className={cn("text-lg font-semibold text-text-primary")}>
           Typography and Spacing Samples
         </h3>
-        <div className="rounded-lg border border-border-subtle bg-bg-surface p-card-padding shadow-sm">
-          <p className="text-2xl font-bold text-text-primary">
+        <div
+          className={cn(
+            "rounded-lg border border-border-subtle bg-bg-surface p-6 shadow-sm",
+          )}
+        >
+          <p className={cn("text-2xl font-bold text-text-primary")}>
             Page Title Token
           </p>
-          <p className="text-sm text-text-secondary">
+          <p className={cn("text-sm text-text-secondary")}>
             Body copy token sample using semantic text colors and spacing.
           </p>
-          <div className="mt-card-gap inline-flex items-center gap-inline-gap rounded-full bg-bg-brand-subtle px-button-x py-button-y-sm text-sm font-medium text-text-brand">
+          <div
+            className={cn(
+              "mt-4 inline-flex items-center gap-2 rounded-full bg-bg-brand-subtle px-5 py-2 text-sm font-medium text-text-brand",
+            )}
+          >
             Semantic spacing + semantic colors
           </div>
         </div>

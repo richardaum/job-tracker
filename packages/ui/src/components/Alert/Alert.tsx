@@ -5,6 +5,7 @@ import {
   WarningCircleIcon,
   XCircleIcon,
 } from "@phosphor-icons/react";
+import { cn } from "@ui/lib/cn";
 
 export type AlertIntent = "info" | "success" | "warning" | "error";
 
@@ -36,22 +37,20 @@ export function Alert({
   children,
   ...props
 }: AlertProps) {
-  const classes = [
-    "flex items-start gap-inline-gap rounded-md border p-4 shadow-sm",
+  const classes = cn(
+    "flex items-start gap-2 rounded-md border p-4 shadow-sm",
     intentClasses[intent],
     className,
-  ]
-    .filter(Boolean)
-    .join(" ");
+  );
 
   return (
     <div role="alert" className={classes} {...props}>
-      <span aria-hidden className="pt-0.5">
+      <span aria-hidden className={cn("pt-0.5")}>
         {icon ?? intentIcons[intent]}
       </span>
-      <div className="space-y-1">
-        {title ? <p className="text-sm font-semibold">{title}</p> : null}
-        {children ? <div className="text-sm">{children}</div> : null}
+      <div className={cn("space-y-1")}>
+        {title ? <p className={cn("text-sm font-semibold")}>{title}</p> : null}
+        {children ? <div className={cn("text-sm")}>{children}</div> : null}
       </div>
     </div>
   );

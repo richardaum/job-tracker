@@ -13,11 +13,11 @@ const variantClasses: Record<NonNullable<CardProps["variant"]>, string> = {
 };
 
 const paddingClasses: Record<NonNullable<CardProps["padding"]>, string> = {
-  xs: "px-form-gap py-inline-gap",
-  sm: "px-card-gap py-form-gap",
-  md: "px-component-gap py-card-gap",
-  lg: "px-card-padding py-card-gap",
-  xl: "px-card-padding py-component-gap",
+  xs: "px-3 py-2",
+  sm: "px-4 py-3",
+  md: "px-5 py-4",
+  lg: "px-6 py-4",
+  xl: "px-6 py-5",
 };
 
 export function Card({

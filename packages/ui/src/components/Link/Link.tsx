@@ -1,4 +1,5 @@
 import React from "react";
+import { cn } from "@ui/lib/cn";
 
 export type LinkVariant = "default" | "muted";
 
@@ -17,13 +18,11 @@ export function Link({
   children,
   ...props
 }: LinkProps) {
-  const classes = [
-    "inline-flex items-center gap-inline-gap text-sm font-medium underline-offset-4 transition-colors hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-brand focus-visible:ring-offset-2",
+  const classes = cn(
+    "inline-flex items-center gap-2 text-sm font-medium underline-offset-4 transition-colors hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-brand focus-visible:ring-offset-2",
     variantClasses[variant],
     className,
-  ]
-    .filter(Boolean)
-    .join(" ");
+  );
 
   return (
     <a className={classes} {...props}>

@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { Checkbox } from "./Checkbox";
+import { cn } from "@ui/lib/cn";
 
 const meta: Meta<typeof Checkbox> = {
   title: "Components/Checkbox",
@@ -15,9 +16,9 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   render: () => (
-    <div className="flex items-center gap-inline-gap">
+    <div className={cn("flex items-center gap-2")}>
       <Checkbox id="accept" />
-      <label htmlFor="accept" className="text-sm text-text-secondary">
+      <label htmlFor="accept" className={cn("text-sm text-text-secondary")}>
         Accept terms
       </label>
     </div>

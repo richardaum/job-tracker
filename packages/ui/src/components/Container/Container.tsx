@@ -1,4 +1,5 @@
 import React from "react";
+import { cn } from "@ui/lib/cn";
 
 export interface ContainerProps {
   children: React.ReactNode;
@@ -6,8 +7,6 @@ export interface ContainerProps {
 
 export function Container({ children }: ContainerProps) {
   return (
-    <div className="mx-auto w-full max-w-5xl px-card-padding py-section-gap">
-      {children}
-    </div>
+    <div className={cn("mx-auto w-full max-w-5xl px-6 py-6")}>{children}</div>
   );
 }

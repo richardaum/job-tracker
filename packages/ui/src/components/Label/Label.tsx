@@ -1,4 +1,5 @@
 import React from "react";
+import { cn } from "@ui/lib/cn";
 
 export interface LabelProps {
   children: React.ReactNode;
@@ -28,11 +29,13 @@ export function Label({
   return (
     <label
       htmlFor={htmlFor}
-      className={`inline-flex items-center gap-inline-gap font-medium ${sizeClasses[size]} ${stateClasses[state]}`}
+      className={cn(
+        `inline-flex items-center gap-2 font-medium ${sizeClasses[size]} ${stateClasses[state]}`,
+      )}
     >
       <span>{children}</span>
       {required ? (
-        <span aria-hidden="true" className="text-text-error">
+        <span aria-hidden="true" className={cn("text-text-error")}>
           *
         </span>
       ) : null}

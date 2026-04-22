@@ -125,31 +125,6 @@
   --semantic-color-border-error: var(--primitive-color-red-500);
   --semantic-color-overlay-backdrop: rgb(17 24 39 / 0.4);
 
-  /* Status tokens — data visualization only */
-  --semantic-color-status-requested: var(--primitive-color-blue-500);
-  --semantic-color-status-approved: var(--primitive-color-green-500);
-  --semantic-color-status-pending: var(--primitive-color-yellow-500);
-  --semantic-color-status-rejected: var(--primitive-color-red-500);
-
-  /* Leave type tokens — data visualization only */
-  --semantic-color-leave-sick: var(--primitive-color-orange-500);
-  --semantic-color-leave-maternity: var(--primitive-color-purple-500);
-  --semantic-color-leave-other: var(--primitive-color-green-500);
-
-  /* Semantic spacing tokens */
-  --semantic-space-card-padding: var(--primitive-space-6);
-  --semantic-space-card-gap: var(--primitive-space-4);
-  --semantic-space-component-gap: var(--primitive-space-5);
-  --semantic-space-section-gap: var(--primitive-space-6);
-  --semantic-space-inline-gap: var(--primitive-space-2);
-  --semantic-space-form-gap: var(--primitive-space-3);
-  --semantic-space-button-x: var(--primitive-space-5);
-  --semantic-space-button-y-sm: var(--primitive-space-2);
-  --semantic-space-button-y-md: var(--primitive-space-3);
-  --semantic-space-table-cell-x: var(--primitive-space-4);
-  --semantic-space-table-row-y: var(--primitive-space-3);
-  --semantic-space-nav-item-x: var(--primitive-space-4);
-  --semantic-space-nav-item-y: var(--primitive-space-2);
 }
 
 [data-theme="dark"] {

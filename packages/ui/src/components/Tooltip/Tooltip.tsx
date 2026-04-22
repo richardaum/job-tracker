@@ -1,5 +1,6 @@
 import React from "react";
 import * as RadixTooltip from "@radix-ui/react-tooltip";
+import { cn } from "@ui/lib/cn";
 
 export interface TooltipProps {
   content: React.ReactNode;
@@ -30,10 +31,12 @@ export function Tooltip({
           <RadixTooltip.Content
             side={side}
             sideOffset={6}
-            className="z-50 rounded-sm border border-border-subtle bg-bg-surface p-inline-gap text-sm text-text-secondary shadow-sm"
+            className={cn(
+              "z-50 rounded-sm border border-border-subtle bg-bg-surface p-2 text-sm text-text-secondary shadow-sm",
+            )}
           >
             {content}
-            <RadixTooltip.Arrow className="fill-bg-surface" />
+            <RadixTooltip.Arrow className={cn("fill-bg-surface")} />
           </RadixTooltip.Content>
         </RadixTooltip.Portal>
       </RadixTooltip.Root>

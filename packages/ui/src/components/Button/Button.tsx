@@ -1,4 +1,5 @@
 import React from "react";
+import { cn } from "@ui/lib/cn";
 
 export type ButtonIntent = "primary" | "secondary" | "ghost" | "destructive";
 export type ButtonSize = "sm" | "md";
@@ -27,8 +28,8 @@ const intentClasses: Record<ButtonIntent, string> = {
 };
 
 const sizeClasses: Record<ButtonSize, string> = {
-  sm: "px-button-x py-button-y-sm text-sm",
-  md: "px-button-x py-button-y-md text-base",
+  sm: "px-5 py-2 text-sm",
+  md: "px-5 py-3 text-base",
 };
 
 const stateClasses: Record<ButtonState, string> = {
@@ -48,15 +49,13 @@ export function Button({
   ...props
 }: ButtonProps) {
   const isDisabled = disabled || state === "loading";
-  const classes = [
-    "inline-flex cursor-pointer items-center justify-center gap-inline-gap rounded-md border font-medium shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-brand focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60",
+  const classes = cn(
+    "inline-flex cursor-pointer items-center justify-center gap-2 rounded-md border font-medium shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-brand focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60",
     intentClasses[intent],
     sizeClasses[size],
     stateClasses[state],
     className,
-  ]
-    .filter(Boolean)
-    .join(" ");
+  );
 
   return (
     <button

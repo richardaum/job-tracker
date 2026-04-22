@@ -1,5 +1,6 @@
 import React from "react";
 import { Label } from "../Label/Label";
+import { cn } from "@ui/lib/cn";
 
 export interface FormFieldProps {
   label: string;
@@ -23,17 +24,17 @@ export function FormField({
   const state = error ? "error" : "default";
 
   return (
-    <div className="flex w-full flex-col gap-inline-gap">
+    <div className={cn("flex w-full flex-col gap-2")}>
       <Label htmlFor={htmlFor} required={required} size={size} state={state}>
         {label}
       </Label>
       {children}
       {error ? (
-        <p className="text-sm text-text-error" role="alert">
+        <p className={cn("text-sm text-text-error")} role="alert">
           {error}
         </p>
       ) : hint ? (
-        <p className="text-sm text-text-muted">{hint}</p>
+        <p className={cn("text-sm text-text-muted")}>{hint}</p>
       ) : null}
     </div>
   );

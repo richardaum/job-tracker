@@ -1,5 +1,6 @@
 import React from "react";
 import * as RadixDropdownMenu from "@radix-ui/react-dropdown-menu";
+import { cn } from "@ui/lib/cn";
 
 export interface DropdownMenuProps {
   trigger: React.ReactElement;
@@ -26,7 +27,9 @@ export function DropdownMenu({
         <RadixDropdownMenu.Content
           align={align}
           sideOffset={6}
-          className="z-50 min-w-44 rounded-md border border-border-subtle bg-bg-surface p-inline-gap shadow-md"
+          className={cn(
+            "z-50 min-w-44 rounded-md border border-border-subtle bg-bg-surface p-2 shadow-md",
+          )}
         >
           {children}
         </RadixDropdownMenu.Content>
@@ -45,7 +48,9 @@ export function DropdownMenuItem({
     <RadixDropdownMenu.Item
       onSelect={onSelect}
       disabled={disabled}
-      className={`flex cursor-pointer select-none items-center rounded-sm px-button-x py-button-y-sm text-sm outline-none transition-colors data-disabled:cursor-not-allowed data-disabled:opacity-50 ${destructive ? "text-text-error hover:bg-bg-error-subtle focus:bg-bg-error-subtle" : "text-text-primary hover:bg-bg-surface-hover focus:bg-bg-surface-hover"}`}
+      className={cn(
+        `flex cursor-pointer select-none items-center rounded-sm px-5 py-2 text-sm outline-none transition-colors data-disabled:cursor-not-allowed data-disabled:opacity-50 ${destructive ? "text-text-error hover:bg-bg-error-subtle focus:bg-bg-error-subtle" : "text-text-primary hover:bg-bg-surface-hover focus:bg-bg-surface-hover"}`,
+      )}
     >
       {children}
     </RadixDropdownMenu.Item>
@@ -53,5 +58,7 @@ export function DropdownMenuItem({
 }
 
 export function DropdownMenuSeparator() {
-  return <RadixDropdownMenu.Separator className="my-1 h-px bg-border-subtle" />;
+  return (
+    <RadixDropdownMenu.Separator className={cn("my-1 h-px bg-border-subtle")} />
+  );
 }

@@ -19,14 +19,14 @@ export const Default: Story = {
     <Stack>
       <div
         className={cn(
-          "rounded-md bg-bg-surface p-inline-gap text-text-primary shadow-sm",
+          "rounded-md bg-bg-surface p-2 text-text-primary shadow-sm",
         )}
       >
         Item A
       </div>
       <div
         className={cn(
-          "rounded-md bg-bg-surface p-inline-gap text-text-primary shadow-sm",
+          "rounded-md bg-bg-surface p-2 text-text-primary shadow-sm",
         )}
       >
         Item B
@@ -40,14 +40,14 @@ export const Row: Story = {
     <Stack direction="row" gap="xs" align="center">
       <div
         className={cn(
-          "rounded-md bg-bg-surface p-inline-gap text-text-primary shadow-sm",
+          "rounded-md bg-bg-surface p-2 text-text-primary shadow-sm",
         )}
       >
         Item A
       </div>
       <div
         className={cn(
-          "rounded-md bg-bg-surface p-inline-gap text-text-primary shadow-sm",
+          "rounded-md bg-bg-surface p-2 text-text-primary shadow-sm",
         )}
       >
         Item B
