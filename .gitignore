@@ -19,7 +19,6 @@ logs/
 
 # Editor tooling
 .agents/
-.notebook/
 .claude/
 .cursor/
 .windsurf/

@@ -1,0 +1,23 @@
+# Quick Task 003: Install OrbStack and verify Docker T10 gate
+
+**Date:** 2026-04-19
+**Status:** Done
+
+## Description
+
+Install OrbStack as the Docker runtime on macOS and verify the T10 gate (`docker build -t job-tracker-api ./apps/api`) passes.
+
+## Files Changed
+
+- No project source files changed — system tooling install only
+- `.specs/tech/project-setup/tasks.md` — mark T10 ✅
+
+## Verification
+
+- [x] `docker --version` returns a valid version
+- [x] `docker build -t job-tracker-api -f apps/api/Dockerfile .` exits 0
+- [x] T10 done-when checkboxes confirmed
+
+## Commit
+
+`c26f9c5` — fix(docker): fix Dockerfile build context, prod install, and pnpm .bin resolution

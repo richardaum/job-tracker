@@ -1,1 +1,2 @@
+pnpm specs:validate
 pnpm lint-staged

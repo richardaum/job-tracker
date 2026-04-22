@@ -12,7 +12,8 @@
     "lint-staged": "lint-staged",
     "prepare": "husky",
     "typecheck": "turbo typecheck",
-    "typecheck:repo": "tsc -p tsconfig.repo.json --noEmit"
+    "typecheck:repo": "tsc -p tsconfig.repo.json --noEmit",
+    "specs:validate": "node scripts/validate-specs-structure.mjs"
   },
   "lint-staged": {
     "*.{js,jsx,mjs,cjs,ts,tsx}": [
