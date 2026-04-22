@@ -1,7 +1,7 @@
 # Application CRUD — Spec
 
 **Milestone:** M1
-**Status:** Planned
+**Status:** DONE
 
 ## Requirements
 

@@ -1,6 +1,6 @@
 # Roadmap
 
-**Current Milestone:** M1 - Foundation
+**Current Milestone:** M2 - Rich Tracking
 **Status:** In Progress
 
 ---
@@ -29,14 +29,14 @@
 - Protected authenticated routes
 - GraphQL Codegen baseline in Web with `me` query using generated hook (`useMeQuery`)
 
-**Visual Identity** - IN PROGRESS
+**Visual Identity** - DONE
 
 - Define color palette, typography, and spacing tokens
 - Configure Tailwind CSS theme (design tokens)
 - Establish mobile-first breakpoints
 - Light/dark mode support
 
-**Application CRUD** - IN PROGRESS (API complete; UI blocked on Visual Identity)
+**Application CRUD** - DONE
 
 - Create application with title, company, URL, and date
 - List applications for the authenticated user

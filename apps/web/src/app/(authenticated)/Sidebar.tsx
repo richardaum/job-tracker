@@ -23,7 +23,12 @@ const bottomItems = [
   { href: "#", label: "Settings", icon: GearIcon },
 ];
 
-export function Sidebar() {
+interface SidebarProps {
+  open?: boolean;
+  onClose?: () => void;
+}
+
+export function Sidebar({ open = false, onClose }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
 
@@ -32,11 +37,12 @@ export function Sidebar() {
       method: "POST",
       credentials: "include",
     });
+    onClose?.();
     router.replace("/login");
   }
 
-  return (
-    <aside className="flex h-full w-56 shrink-0 flex-col">
+  const navContent = (
+    <>
       {/* Logo */}
       <div className="flex items-center gap-2 px-5 py-5">
         <BriefcaseIcon size={22} weight="fill" className="text-text-brand" />
@@ -78,6 +84,7 @@ export function Sidebar() {
               <Link
                 key={href}
                 href={href}
+                onClick={() => onClose?.()}
                 className={[
                   "flex items-center gap-3 rounded-md px-4 py-2.5 text-sm font-medium transition-colors",
                   isActive
@@ -99,6 +106,7 @@ export function Sidebar() {
           <Link
             key={label}
             href={href}
+            onClick={() => onClose?.()}
             className="flex items-center gap-3 rounded-md px-4 py-2.5 text-sm font-medium text-text-secondary transition-colors hover:bg-bg-surface"
           >
             <Icon size={16} />
@@ -113,6 +121,53 @@ export function Sidebar() {
           Log Out
         </button>
       </div>
-    </aside>
+    </>
+  );
+
+  return (
+    <>
+      <aside className="hidden h-full w-56 shrink-0 flex-col md:flex">
+        {navContent}
+      </aside>
+
+      <div
+        className={[
+          "fixed inset-0 z-50 md:hidden",
+          open ? "pointer-events-auto" : "pointer-events-none",
+        ].join(" ")}
+        aria-hidden={!open}
+      >
+        <button
+          type="button"
+          aria-label="Close menu"
+          onClick={() => onClose?.()}
+          className={[
+            "absolute inset-0 bg-black/35 transition-opacity",
+            open ? "opacity-100" : "opacity-0",
+          ].join(" ")}
+        />
+        <aside
+          className={[
+            "relative flex h-full w-72 max-w-[85vw] flex-col bg-bg-surface shadow-md transition-transform",
+            open ? "translate-x-0" : "-translate-x-full",
+          ].join(" ")}
+        >
+          <div className="flex items-center justify-between px-5 py-3">
+            <Text as="span" size="base" weight="bold">
+              Navigation
+            </Text>
+            <button
+              type="button"
+              aria-label="Close navigation"
+              onClick={() => onClose?.()}
+              className="rounded-md border border-border-subtle px-2 py-1 text-xs text-text-secondary hover:bg-bg-surface-hover"
+            >
+              Close
+            </button>
+          </div>
+          {navContent}
+        </aside>
+      </div>
+    </>
   );
 }
