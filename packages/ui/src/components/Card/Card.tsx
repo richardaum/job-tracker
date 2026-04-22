@@ -8,7 +8,7 @@ export interface CardProps {
 }
 
 const variantClasses: Record<NonNullable<CardProps["variant"]>, string> = {
-  default: "border-border-subtle shadow-sm",
+  default: "border-border-subtle shadow-none",
   outlined: "border-border-default shadow-none",
 };
 
