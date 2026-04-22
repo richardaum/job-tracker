@@ -2,7 +2,7 @@
 
 **Spec:** `.specs/features/design-system/spec.md`  
 **Design:** `.specs/features/design-system/design.md`  
-**Status:** In Progress - T10 complete; T11 next
+**Status:** DONE — all tasks complete
 
 ---
 
@@ -231,15 +231,13 @@ T07,T08,T09 -> T10 -> T11
 
 **Done when:**
 
-- [ ] `@job-tracker/ui` build, tests, and storybook tests pass
-- [ ] `apps/web` build passes with Outfit and UI package consumption
-- [ ] Requirement-to-artifact evidence is captured before marking feature done
+- [x] `@job-tracker/ui` build, tests, and storybook tests pass
+- [x] `apps/web` build passes with Outfit and UI package consumption
+- [x] Requirement-to-artifact evidence is captured before marking feature done
 
 **Tests:** unit + visual + build  
-**Gate:** build + storybook - `pnpm --filter @job-tracker/ui build && pnpm --filter @job-tracker/ui test && pnpm --filter @job-tracker/ui test-storybook && pnpm --filter @job-tracker/web build`
+**Gate:** build + storybook - `pnpm --filter @job-tracker/ui build && pnpm --filter @job-tracker/ui test && pnpm --filter @job-tracker/ui test-storybook && pnpm --filter @job-tracker/web build` ✅ (47 unit + 49 storybook tests pass, web build clean)
 
 ---
 
-## Immediate Next Step
-
-Start with **T11** (Final system verification and adoption check).
+## Feature Complete
