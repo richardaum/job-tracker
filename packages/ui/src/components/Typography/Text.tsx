@@ -10,7 +10,7 @@ export type TextColor =
   | "error"
   | "success";
 
-export interface TextProps extends React.HTMLAttributes<HTMLParagraphElement> {
+export interface TextProps extends React.HTMLAttributes<HTMLElement> {
   as?: "p" | "span" | "label" | "div";
   size?: TextSize;
   weight?: TextWeight;

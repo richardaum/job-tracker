@@ -9,6 +9,7 @@ import {
   QuestionIcon,
   SignOutIcon,
 } from "@phosphor-icons/react";
+import { Text } from "@job-tracker/ui";
 import { NEXT_PUBLIC_API_URL } from "@/env/client";
 
 const API_URL = NEXT_PUBLIC_API_URL ?? "http://localhost:3101";
@@ -39,9 +40,9 @@ export function Sidebar() {
       {/* Logo */}
       <div className="flex items-center gap-2 px-5 py-5">
         <BriefcaseIcon size={22} weight="fill" className="text-text-brand" />
-        <span className="text-base font-bold text-text-primary">
+        <Text as="span" size="base" weight="bold">
           Job Tracker
-        </span>
+        </Text>
       </div>
 
       {/* Search */}
@@ -52,7 +53,9 @@ export function Sidebar() {
             weight="regular"
             className="shrink-0 text-text-muted"
           />
-          <span className="flex-1 text-sm text-text-muted">Search here...</span>
+          <Text as="span" size="sm" color="muted" className="flex-1">
+            Search here...
+          </Text>
           <span className="rounded border border-border-subtle px-1.5 py-0.5 text-xs text-text-muted">
             ⌘/
           </span>
@@ -61,9 +64,13 @@ export function Sidebar() {
 
       {/* Nav */}
       <nav className="flex flex-1 flex-col px-3">
-        <p className="mb-2 px-2 text-xs font-semibold uppercase tracking-wider text-text-muted">
+        <Text
+          size="xs"
+          weight="semibold"
+          className="mb-2 px-2 uppercase tracking-wider"
+        >
           Menu
-        </p>
+        </Text>
         <div className="flex flex-col gap-0.5">
           {navItems.map(({ href, label, icon: Icon }) => {
             const isActive = pathname.startsWith(href);

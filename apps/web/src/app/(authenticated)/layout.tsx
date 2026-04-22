@@ -2,6 +2,7 @@
 
 import { useEffect, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
+import { Text } from "@job-tracker/ui";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { Sidebar } from "./Sidebar";
 
@@ -21,7 +22,9 @@ export default function ProtectedLayout({ children }: { children: ReactNode }) {
         className="flex h-screen items-center justify-center"
         style={{ backgroundColor: "var(--primitive-color-neutral-100)" }}
       >
-        <span className="text-sm text-text-secondary">Loading…</span>
+        <Text as="span" size="sm" color="secondary">
+          Loading…
+        </Text>
       </div>
     );
   }

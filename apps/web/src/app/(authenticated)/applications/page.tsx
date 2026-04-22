@@ -6,10 +6,12 @@ import {
   Badge,
   Button,
   Card,
+  Heading,
   IconButton,
   Link,
   Skeleton,
   Stack,
+  Text,
   Toast,
 } from "@job-tracker/ui";
 import {
@@ -61,12 +63,12 @@ export default function ApplicationsPage() {
       {/* Page header */}
       <div className="flex items-center justify-between border-b border-border-subtle px-6 py-5">
         <div>
-          <h1 className="text-[22px] font-medium leading-tight text-text-primary">
+          <Heading as="h1" size="2xl">
             Applications
-          </h1>
-          <p className="mt-1 text-sm text-text-secondary">
+          </Heading>
+          <Text size="sm" color="secondary" className="mt-1">
             Track and manage your job applications
-          </p>
+          </Text>
         </div>
 
         <div className="flex items-center gap-4">
@@ -93,10 +95,12 @@ export default function ApplicationsPage() {
                 </div>
               )}
               <div>
-                <p className="text-sm font-semibold leading-tight text-text-primary">
+                <Text size="sm" weight="semibold">
                   {user.name}
-                </p>
-                <p className="text-xs text-text-muted">{user.email}</p>
+                </Text>
+                <Text size="xs" color="muted">
+                  {user.email}
+                </Text>
               </div>
             </div>
           )}
@@ -111,9 +115,9 @@ export default function ApplicationsPage() {
             weight="regular"
             className="shrink-0 text-text-muted"
           />
-          <span className="w-56 text-sm text-text-muted">
+          <Text as="span" size="sm" color="muted" className="w-56">
             Search applications...
-          </span>
+          </Text>
           <span className="rounded border border-border-subtle px-1.5 py-0.5 text-xs text-text-muted">
             ⌘/
           </span>
@@ -148,15 +152,15 @@ export default function ApplicationsPage() {
             ))}
           </Stack>
         ) : error ? (
-          <p className="text-sm text-text-error">
+          <Text size="sm" color="error">
             Failed to load applications. Please refresh the page.
-          </p>
+          </Text>
         ) : applications.length === 0 ? (
           <Card variant="outlined">
             <Stack align="center" justify="center" gap="form">
-              <p className="text-sm text-text-secondary">
+              <Text size="sm" color="secondary">
                 No applications yet. Add your first one!
-              </p>
+              </Text>
             </Stack>
           </Card>
         ) : (
@@ -166,20 +170,20 @@ export default function ApplicationsPage() {
                 <Stack direction="row" align="center" justify="between">
                   <Stack gap="form">
                     <Stack direction="row" align="center" gap="inline">
-                      <span className="text-base font-medium text-text-primary">
+                      <Text as="span" size="base" weight="medium">
                         {app.title}
-                      </span>
+                      </Text>
                       <Badge intent="default">{app.company}</Badge>
                     </Stack>
                     <Stack direction="row" align="center" gap="inline">
-                      <span className="text-sm text-text-secondary">
+                      <Text as="span" size="sm" color="secondary">
                         Applied{" "}
                         {new Date(app.appliedAt).toLocaleDateString("en-US", {
                           year: "numeric",
                           month: "short",
                           day: "numeric",
                         })}
-                      </span>
+                      </Text>
                       {app.url ? (
                         <>
                           <span className="text-text-muted" aria-hidden>
