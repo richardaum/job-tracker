@@ -6,14 +6,19 @@ import { UserService } from "@api/domains/users/users.service";
 import { RolesGuard } from "./roles.guard";
 
 function makeContext(userId: string | undefined): ExecutionContext {
+  const request = {
+    user: userId !== undefined ? { userId } : undefined,
+  };
+  const gqlContext = { req: request };
+  const args = [{}, {}, gqlContext, {}];
+
   return {
     getHandler: () => ({}),
     getClass: () => ({}),
-    switchToHttp: () => ({
-      getRequest: () => ({
-        user: userId !== undefined ? { userId } : undefined,
-      }),
-    }),
+    getType: () => "graphql",
+    getArgs: () => args,
+    getArgByIndex: (index: number) => args[index],
+    switchToHttp: () => ({ getRequest: () => request }),
   } as unknown as ExecutionContext;
 }
 
