@@ -65,7 +65,7 @@ export function Select({
       <RadixSelect.Portal>
         <RadixSelect.Content
           position="popper"
-          className="z-50 min-w-[var(--radix-select-trigger-width)] rounded-md border border-border-subtle bg-bg-surface p-1 shadow-md"
+          className="z-50 min-w-(--radix-select-trigger-width) rounded-md border border-border-subtle bg-bg-surface p-1 shadow-md"
         >
           <RadixSelect.Viewport>
             {options.map((option) => (
