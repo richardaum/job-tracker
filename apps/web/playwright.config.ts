@@ -1,6 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
 
-const PORT = process.env.E2E_PORT ?? "3000";
+// Match `apps/web` server env: PORT must stay in the 31xx range for local dev and CI.
+const PORT = process.env.E2E_PORT ?? "3100";
 const baseURL = `http://localhost:${PORT}`;
 
 export default defineConfig({

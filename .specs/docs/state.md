@@ -1,8 +1,8 @@
 # State
 
-- Status: in-progress
-- Active scope: project-foundation-and-governance
-- Current step: [R-7]
-- Next action: Optionally add a CI workflow job that builds the API Docker image; otherwise prioritize product delivery from the roadmap.
+- Status: complete
+- Active scope: none
+- Current step: none
+- Next action: Start new work from product priorities; append `.specs/docs/history.md` when closing meaningful increments.
 - Blockers: none
-- Last update: 2026-04-22T22:15:00Z
+- Last update: 2026-04-22T22:30:00Z

@@ -21,11 +21,21 @@ Run the stack in development (Turborepo):
 pnpm dev
 ```
 
-Match CI locally (lint, typecheck, tests with coverage, production build):
+Match CI locally (SDD specs validation, lint, typecheck, tests with coverage, production build):
 
 ```bash
 pnpm ci:local
 ```
+
+## End-to-end tests
+
+Playwright drives the web dev server on port **3100** by default (`E2E_PORT`). Use another free port in the **31xx** range if something already listens on 3100 (for example your own `pnpm dev`):
+
+```bash
+E2E_PORT=3102 pnpm e2e
+```
+
+This runs `turbo build --filter=@job-tracker/web` then the suite under `apps/web/e2e` (including the mocked GraphQL CRUD flow for [P-14]).
 
 ## API container image
 

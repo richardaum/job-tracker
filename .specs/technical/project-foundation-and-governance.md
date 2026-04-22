@@ -24,3 +24,4 @@
 - [T-52] Verify monorepo bootstrap requirements through successful workspace build, test, and CI workflow execution.
 - [T-53] Verify API container image builds successfully with the documented root-context Docker command.
 - [T-55] Keep root `README.md` deployment notes and `pnpm docker:build:api` aligned with the Dockerfile and [T-44] infrastructure profiles.
+- [T-56] Keep GitHub Actions aligned with local gates by running specs validation, Playwright end-to-end tests, and the root-context API Docker build alongside lint, typecheck, coverage-enforced tests, and production builds.

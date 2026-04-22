@@ -22,3 +22,7 @@
 - [R-12] Milestone M1: authenticated application core delivered with owner isolation and verified user flows.
 - [R-13] Milestone M2: SDD documentation model established with deterministic IDs, state tracking, and history logging.
 - [R-14] Milestone M3: reliability, tooling, and platform hardening baselines verified for ongoing feature delivery.
+
+## Completion status
+
+As of 2026-04-22, the sequence [R-1] through [R-7] is treated as complete in this repository: authenticated owner-scoped flows, SDD governance, environment hardening, observability instrumentation, CI and local quality gates, container build documentation, and Playwright coverage for the core applications UI path ([P-14]) are all enforced or documented, and milestones [R-12], [R-13], and [R-14] are reflected in the current CI and script surface.

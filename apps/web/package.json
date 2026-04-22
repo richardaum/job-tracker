@@ -9,7 +9,8 @@
     "codegen": "graphql-codegen --config codegen.ts && node ./scripts/postprocess-codegen-hooks.mjs",
     "lint": "eslint . --max-warnings=0 && tsc --noEmit",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "e2e": "playwright test"
   },
   "dependencies": {
     "@apollo/client": "^4.1.7",
