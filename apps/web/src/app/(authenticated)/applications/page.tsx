@@ -1,19 +1,26 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import {
   Badge,
   Button,
   Card,
-  Container,
   IconButton,
   Link,
   Skeleton,
   Stack,
   Toast,
 } from "@job-tracker/ui";
-import { PencilSimple, Plus, Trash } from "@phosphor-icons/react";
+import {
+  BellIcon,
+  MagnifyingGlassIcon,
+  PencilSimpleIcon,
+  PlusIcon,
+  TrashIcon,
+} from "@phosphor-icons/react";
 import { useApplicationsQuery } from "@/gql/hooks";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { ApplicationFormDialog } from "./ApplicationFormDialog";
 import { DeleteApplicationDialog } from "./DeleteApplicationDialog";
 
@@ -27,6 +34,7 @@ export default function ApplicationsPage() {
   const { data, loading, error } = useApplicationsQuery({
     fetchPolicy: "cache-and-network",
   });
+  const { user } = useCurrentUser();
 
   const [toast, setToast] = useState<ToastState>({
     open: false,
@@ -40,26 +48,94 @@ export default function ApplicationsPage() {
 
   const applications = data?.applications ?? [];
 
-  return (
-    <Container>
-      <Stack gap="section">
-        <Stack direction="row" align="center" justify="between">
-          <h1 className="text-2xl font-bold text-text-primary">Applications</h1>
-          <ApplicationFormDialog
-            trigger={
-              <Button
-                intent="primary"
-                size="sm"
-                leftIcon={<Plus size={16} weight="bold" />}
-              >
-                New application
-              </Button>
-            }
-            onSuccess={(msg) => showToast(msg, "success")}
-            onError={(msg) => showToast(msg, "error")}
-          />
-        </Stack>
+  const initials =
+    user?.name
+      .split(" ")
+      .slice(0, 2)
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase() ?? "";
 
+  return (
+    <div className="flex h-full flex-col">
+      {/* Page header */}
+      <div className="flex items-center justify-between border-b border-border-subtle px-6 py-5">
+        <div>
+          <h1 className="text-[22px] font-medium leading-tight text-text-primary">
+            Applications
+          </h1>
+          <p className="mt-1 text-sm text-text-secondary">
+            Track and manage your job applications
+          </p>
+        </div>
+
+        <div className="flex items-center gap-4">
+          <IconButton
+            intent="ghost"
+            size="sm"
+            label="Notifications"
+            icon={<BellIcon size={18} />}
+          />
+
+          {user && (
+            <div className="flex items-center gap-3">
+              {user.avatarUrl ? (
+                <Image
+                  src={user.avatarUrl}
+                  alt={user.name}
+                  width={36}
+                  height={36}
+                  className="rounded-full object-cover"
+                />
+              ) : (
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-bg-brand-subtle text-sm font-semibold text-text-brand">
+                  {initials}
+                </div>
+              )}
+              <div>
+                <p className="text-sm font-semibold leading-tight text-text-primary">
+                  {user.name}
+                </p>
+                <p className="text-xs text-text-muted">{user.email}</p>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Action bar */}
+      <div className="flex items-center justify-between border-b border-border-subtle px-6 py-4">
+        <div className="flex items-center gap-2 rounded-md border border-border-subtle bg-bg-surface-hover px-3 py-2">
+          <MagnifyingGlassIcon
+            size={14}
+            weight="regular"
+            className="shrink-0 text-text-muted"
+          />
+          <span className="w-56 text-sm text-text-muted">
+            Search applications...
+          </span>
+          <span className="rounded border border-border-subtle px-1.5 py-0.5 text-xs text-text-muted">
+            ⌘/
+          </span>
+        </div>
+
+        <ApplicationFormDialog
+          trigger={
+            <Button
+              intent="primary"
+              size="sm"
+              leftIcon={<PlusIcon size={16} weight="bold" />}
+            >
+              New application
+            </Button>
+          }
+          onSuccess={(msg) => showToast(msg, "success")}
+          onError={(msg) => showToast(msg, "error")}
+        />
+      </div>
+
+      {/* Content */}
+      <div className="flex-1 overflow-auto p-6">
         {loading && !data ? (
           <Stack gap="card">
             {Array.from({ length: 3 }).map((_, i) => (
@@ -124,7 +200,7 @@ export default function ApplicationsPage() {
                           intent="ghost"
                           size="sm"
                           label={`Edit ${app.title}`}
-                          icon={<PencilSimple size={16} weight="regular" />}
+                          icon={<PencilSimpleIcon size={16} weight="regular" />}
                         />
                       }
                       application={{
@@ -143,7 +219,7 @@ export default function ApplicationsPage() {
                           intent="ghost"
                           size="sm"
                           label={`Delete ${app.title}`}
-                          icon={<Trash size={16} weight="regular" />}
+                          icon={<TrashIcon size={16} weight="regular" />}
                         />
                       }
                       applicationId={app.id}
@@ -157,7 +233,7 @@ export default function ApplicationsPage() {
             ))}
           </Stack>
         )}
-      </Stack>
+      </div>
 
       <Toast
         trigger={<span aria-hidden style={{ display: "none" }} />}
@@ -166,6 +242,6 @@ export default function ApplicationsPage() {
         title={toast.message}
         intent={toast.intent}
       />
-    </Container>
+    </div>
   );
 }

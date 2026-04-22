@@ -7,6 +7,7 @@ const useCurrentUserMock = vi.fn();
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ replace: replaceMock }),
+  usePathname: () => "/applications",
 }));
 
 vi.mock("@/hooks/useCurrentUser", () => ({

@@ -11,6 +11,6 @@ body {
 
 body {
   margin: 0;
-  background-color: var(--semantic-color-bg-canvas);
+  background-color: var(--primitive-color-neutral-100);
   color: var(--semantic-color-text-primary);
 }
