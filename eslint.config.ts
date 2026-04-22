@@ -83,9 +83,9 @@ export default tseslint.config(
         "error",
         {
           selector:
-            "MemberExpression[object.object.name='process'][object.property.name='env']:not([property.name='CI']):not([property.name='E2E_PORT']):not([property.name='API_GRAPHQL_URL'])",
+            "MemberExpression[object.object.name='process'][object.property.name='env']:not([property.name='CI']):not([property.name='E2E_PORT']):not([property.name='API_GRAPHQL_URL']):not([property.name='NODE_ENV'])",
           message:
-            "Only allowlisted env vars are allowed in apps/web config/codegen files (CI, E2E_PORT, API_GRAPHQL_URL).",
+            "Only allowlisted env vars are allowed in apps/web config/codegen files (CI, E2E_PORT, API_GRAPHQL_URL, NODE_ENV).",
         },
       ],
     },
