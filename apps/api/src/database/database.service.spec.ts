@@ -2,6 +2,8 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { sql } from "drizzle-orm";
 import type { DatabaseService } from "./database.service";
+import { DatabasePoolInterceptor } from "@api/observability/database-pool.interceptor";
+import { RequestMetricsContext } from "@api/observability/request-metrics.context";
 
 const hasDb = !!process.env.DATABASE_URL;
 
@@ -12,7 +14,8 @@ describe("DatabaseService (integration)", () => {
     if (!hasDb) return;
     const { DatabaseService: DatabaseServiceClass } =
       await import("./database.service");
-    service = new DatabaseServiceClass();
+    const metrics = new RequestMetricsContext();
+    service = new DatabaseServiceClass(new DatabasePoolInterceptor(metrics));
     service.onModuleInit();
   });
 
