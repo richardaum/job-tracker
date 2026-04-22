@@ -62,3 +62,24 @@ export { Toast } from "./components/Toast/Toast";
 export type { ToastIntent, ToastProps } from "./components/Toast/Toast";
 export { Tooltip } from "./components/Tooltip/Tooltip";
 export type { TooltipProps } from "./components/Tooltip/Tooltip";
+export {
+  ThemeProvider,
+  useTheme,
+} from "./components/ThemeProvider/ThemeProvider";
+export type {
+  Theme,
+  ThemeProviderProps,
+} from "./components/ThemeProvider/ThemeProvider";
+export { Heading } from "./components/Typography/Heading";
+export type {
+  HeadingLevel,
+  HeadingProps,
+  HeadingSize,
+} from "./components/Typography/Heading";
+export { Text } from "./components/Typography/Text";
+export type {
+  TextColor,
+  TextProps,
+  TextSize,
+  TextWeight,
+} from "./components/Typography/Text";
