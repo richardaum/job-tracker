@@ -1,6 +1,6 @@
 import React from "react";
 import * as RadixDialog from "@radix-ui/react-dialog";
-import { X } from "@phosphor-icons/react";
+import { XIcon } from "@phosphor-icons/react";
 
 export interface DialogProps {
   trigger: React.ReactElement;
@@ -48,7 +48,7 @@ export function Dialog({
               aria-label="Close dialog"
               className="inline-flex size-8 items-center justify-center rounded-md text-text-secondary transition-colors hover:bg-bg-surface-hover hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-brand focus-visible:ring-offset-2"
             >
-              <X size={16} weight="regular" />
+              <XIcon size={16} weight="regular" />
             </RadixDialog.Close>
           </div>
           <div>{children}</div>

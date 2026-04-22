@@ -1,9 +1,9 @@
 import React from "react";
 import {
-  CheckCircle,
-  Info,
-  WarningCircle,
-  XCircle,
+  CheckCircleIcon,
+  InfoIcon,
+  WarningCircleIcon,
+  XCircleIcon,
 } from "@phosphor-icons/react";
 
 export type AlertIntent = "info" | "success" | "warning" | "error";
@@ -22,10 +22,10 @@ const intentClasses: Record<AlertIntent, string> = {
 };
 
 const intentIcons: Record<AlertIntent, React.ReactNode> = {
-  info: <Info size={20} weight="regular" />,
-  success: <CheckCircle size={20} weight="regular" />,
-  warning: <WarningCircle size={20} weight="regular" />,
-  error: <XCircle size={20} weight="regular" />,
+  info: <InfoIcon size={20} weight="regular" />,
+  success: <CheckCircleIcon size={20} weight="regular" />,
+  warning: <WarningCircleIcon size={20} weight="regular" />,
+  error: <XCircleIcon size={20} weight="regular" />,
 };
 
 export function Alert({

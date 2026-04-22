@@ -1,11 +1,11 @@
 import React from "react";
 import * as RadixToast from "@radix-ui/react-toast";
 import {
-  CheckCircle,
-  Info,
-  WarningCircle,
-  XCircle,
-  X,
+  CheckCircleIcon,
+  InfoIcon,
+  WarningCircleIcon,
+  XCircleIcon,
+  XIcon,
 } from "@phosphor-icons/react";
 
 export type ToastIntent = "info" | "success" | "warning" | "error";
@@ -32,10 +32,10 @@ const intentClasses: Record<ToastIntent, string> = {
 };
 
 const intentIcons: Record<ToastIntent, React.ReactNode> = {
-  info: <Info size={18} weight="regular" />,
-  success: <CheckCircle size={18} weight="regular" />,
-  warning: <WarningCircle size={18} weight="regular" />,
-  error: <XCircle size={18} weight="regular" />,
+  info: <InfoIcon size={18} weight="regular" />,
+  success: <CheckCircleIcon size={18} weight="regular" />,
+  warning: <WarningCircleIcon size={18} weight="regular" />,
+  error: <XCircleIcon size={18} weight="regular" />,
 };
 
 export function Toast({
@@ -103,7 +103,7 @@ export function Toast({
           aria-label="Close toast"
           className="inline-flex size-7 items-center justify-center rounded-sm text-current/80 transition-colors hover:bg-current/10 hover:text-current focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-brand focus-visible:ring-offset-2"
         >
-          <X size={14} weight="regular" />
+          <XIcon size={14} weight="regular" />
         </RadixToast.Close>
       </RadixToast.Root>
 

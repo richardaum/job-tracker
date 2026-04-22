@@ -97,5 +97,21 @@ export default tseslint.config(
     ],
     ...testingLibrary.configs["flat/react"],
   },
+  {
+    files: ["apps/web/src/**/*.{ts,tsx}", "packages/ui/src/**/*.{ts,tsx}"],
+    ignores: [
+      "**/*.stories.{ts,tsx}",
+      "**/*.{test,spec}.{ts,tsx}",
+      "apps/web/src/gql/**",
+    ],
+    languageOptions: {
+      parserOptions: {
+        projectService: true,
+      },
+    },
+    rules: {
+      "@typescript-eslint/no-deprecated": "error",
+    },
+  },
   eslintConfigPrettier,
 );

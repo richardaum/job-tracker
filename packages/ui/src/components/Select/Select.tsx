@@ -1,5 +1,5 @@
 import React from "react";
-import { CaretDown } from "@phosphor-icons/react";
+import { CaretDownIcon } from "@phosphor-icons/react";
 import * as RadixSelect from "@radix-ui/react-select";
 
 export interface SelectOption {
@@ -59,7 +59,7 @@ export function Select({
       >
         <RadixSelect.Value placeholder={placeholder} />
         <RadixSelect.Icon className="ml-2 text-text-muted">
-          <CaretDown size={16} weight="regular" />
+          <CaretDownIcon size={16} weight="regular" />
         </RadixSelect.Icon>
       </RadixSelect.Trigger>
       <RadixSelect.Portal>
