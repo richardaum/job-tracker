@@ -31,8 +31,8 @@ export function Dialog({
     >
       <RadixDialog.Trigger asChild>{trigger}</RadixDialog.Trigger>
       <RadixDialog.Portal>
-        <RadixDialog.Overlay className="fixed inset-0 z-40 bg-[var(--component-overlay-backdrop)]" />
-        <RadixDialog.Content className="fixed left-1/2 top-1/2 z-50 w-[min(var(--component-dialog-max-width),calc(100vw-(var(--semantic-space-card-padding)*2)))] -translate-x-1/2 -translate-y-1/2 rounded-lg border border-border-subtle bg-bg-surface p-card-padding shadow-md focus:outline-none">
+        <RadixDialog.Overlay className="fixed inset-0 z-40 bg-(--semantic-color-overlay-backdrop)" />
+        <RadixDialog.Content className="fixed left-1/2 top-1/2 z-50 w-[calc(100vw-(var(--semantic-space-card-padding)*2))] max-w-lg -translate-x-1/2 -translate-y-1/2 rounded-lg border border-border-subtle bg-bg-surface p-card-padding shadow-md focus:outline-none">
           <div className="mb-3 flex items-start justify-between gap-inline-gap">
             <div className="space-y-1">
               <RadixDialog.Title className="text-md font-semibold text-text-primary">

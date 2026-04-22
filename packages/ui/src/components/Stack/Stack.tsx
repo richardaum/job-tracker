@@ -20,10 +20,10 @@ const directionClasses: Record<Direction, string> = {
 };
 
 const gapClasses: Record<Gap, string> = {
-  inline: "gap-inline-gap",
-  form: "gap-form-gap",
-  card: "gap-card-gap",
-  section: "gap-section-gap",
+  inline: "gap-2",
+  form: "gap-3",
+  card: "gap-4",
+  section: "gap-6",
 };
 
 const alignClasses: Record<Align, string> = {

@@ -29,12 +29,12 @@ Layers:
 
 - `--primitive-*`: raw values (palette, spacing, typography, border, shadow)
 - `--semantic-*`: usage-intent aliases (`text-primary`, `bg-surface`, etc.)
-- `--component-*`: slot-level aliases (`button-bg`, `card-padding`, etc.)
 
 Rules:
 
 - Components never consume primitive tokens directly.
-- Tailwind utilities map to semantic/component tokens only.
+- Tailwind utilities map to semantic tokens and approved scale utilities.
+- Component-specific visual defaults are defined near each component implementation.
 - Dark mode uses semantic remapping under `[data-theme='dark']` (prep only in this milestone).
 
 ### 2) Theme and Styling Consumption
@@ -106,15 +106,15 @@ Coverage is enforced by unit + Storybook test gates.
 
 ## Traceability Matrix
 
-| Requirement | Design response                                                                 |
-| ----------- | ------------------------------------------------------------------------------- |
-| DS-01       | Three-tier tokens + Tailwind semantic mapping; no primitive usage in components |
-| DS-02       | Variant props standardized per component API                                    |
-| DS-03       | Radix mandatory for select/checkbox/separator/dialog/dropdown/tooltip/toast     |
-| DS-04       | Accessibility baseline + gate coverage in tests/stories                         |
-| DS-05       | Component file set contract enforced per task                                   |
-| DS-06       | Storybook required per exported component and token docs                        |
-| DS-07       | Barrel exports in `packages/ui/src/index.ts`                                    |
-| DS-08       | Component order aligned to CRUD list/forms/status flows                         |
-| DS-09       | Outfit wired at `apps/web` root layout                                          |
-| DS-10       | Phosphor-only icon policy in component APIs/stories                             |
+| Requirement | Design response                                                                          |
+| ----------- | ---------------------------------------------------------------------------------------- |
+| DS-01       | Primitive + semantic tokens + component-local defaults; no primitive usage in components |
+| DS-02       | Variant props standardized per component API                                             |
+| DS-03       | Radix mandatory for select/checkbox/separator/dialog/dropdown/tooltip/toast              |
+| DS-04       | Accessibility baseline + gate coverage in tests/stories                                  |
+| DS-05       | Component file set contract enforced per task                                            |
+| DS-06       | Storybook required per exported component and token docs                                 |
+| DS-07       | Barrel exports in `packages/ui/src/index.ts`                                             |
+| DS-08       | Component order aligned to CRUD list/forms/status flows                                  |
+| DS-09       | Outfit wired at `apps/web` root layout                                                   |
+| DS-10       | Phosphor-only icon policy in component APIs/stories                                      |

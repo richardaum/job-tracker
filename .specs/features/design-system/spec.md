@@ -24,15 +24,15 @@ Derived from DS-CTX-01:
 
 ## Token Architecture
 
-Three-tier model (see [resume.md](./resume.md)):
+Two-tier model:
 
 ```
 Primitive   →  color-brand-600: #4F46E5
 Semantic    →  color-action-primary: {color-brand-600}
-Component   →  button-bg-default: {color-action-primary}
+Component   →  local style map near the component implementation
 ```
 
-**Rule:** components reference only semantic or component tokens — never primitives.
+**Rule:** components reference semantic tokens (or approved scale utilities) and local component style maps — never primitives.
 
 ---
 
@@ -316,7 +316,7 @@ Component   →  button-bg-default: {color-action-primary}
 
 ---
 
-## Tier 3 — Component Tokens (representative set)
+## Tier 3 — Component Defaults (co-located, no token tier)
 
 ### Button
 
@@ -568,7 +568,7 @@ Before submitting any screen implementation, verify:
 - [ ] Badge colors (`color-bg-*-subtle` + `color-text-*`) used exclusively for status chips in UI chrome
 - [ ] Interactive elements have visible focus ring (`color-border-brand`, `border-width-2`)
 - [ ] Table headers use `color-text-secondary`; body uses `color-text-primary`
-- [ ] No component references primitive tokens directly — only semantic or component tokens
+- [ ] No component references primitive tokens directly — only semantic tokens and local component style maps
 
 ---
 

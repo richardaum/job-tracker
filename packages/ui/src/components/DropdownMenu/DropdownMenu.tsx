@@ -26,7 +26,7 @@ export function DropdownMenu({
         <RadixDropdownMenu.Content
           align={align}
           sideOffset={6}
-          className="z-50 min-w-[var(--component-dropdown-min-width)] rounded-md border border-border-subtle bg-bg-surface p-inline-gap shadow-md"
+          className="z-50 min-w-44 rounded-md border border-border-subtle bg-bg-surface p-inline-gap shadow-md"
         >
           {children}
         </RadixDropdownMenu.Content>
@@ -45,7 +45,7 @@ export function DropdownMenuItem({
     <RadixDropdownMenu.Item
       onSelect={onSelect}
       disabled={disabled}
-      className={`flex cursor-pointer select-none items-center rounded-sm px-button-x py-button-y-sm text-sm outline-none transition-colors data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50 ${destructive ? "text-text-error hover:bg-bg-error-subtle focus:bg-bg-error-subtle" : "text-text-primary hover:bg-bg-surface-hover focus:bg-bg-surface-hover"}`}
+      className={`flex cursor-pointer select-none items-center rounded-sm px-button-x py-button-y-sm text-sm outline-none transition-colors data-disabled:cursor-not-allowed data-disabled:opacity-50 ${destructive ? "text-text-error hover:bg-bg-error-subtle focus:bg-bg-error-subtle" : "text-text-primary hover:bg-bg-surface-hover focus:bg-bg-surface-hover"}`}
     >
       {children}
     </RadixDropdownMenu.Item>

@@ -58,9 +58,9 @@ function TokensShowcase() {
       <section className="space-y-2">
         <h2 className="text-2xl font-bold text-text-primary">Design Tokens</h2>
         <p className="max-w-3xl text-sm text-text-secondary">
-          Foundations are documented in three layers: primitive values, semantic
-          aliases, and component mappings. Components should consume semantic or
-          component tokens only.
+          Foundations are documented in two layers: primitive values and
+          semantic aliases. Component-specific defaults stay close to each
+          component implementation for easier debugging.
         </p>
       </section>
 

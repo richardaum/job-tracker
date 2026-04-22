@@ -123,6 +123,7 @@
   --semantic-color-border-brand: var(--primitive-color-brand-600);
   --semantic-color-border-success: var(--primitive-color-green-500);
   --semantic-color-border-error: var(--primitive-color-red-500);
+  --semantic-color-overlay-backdrop: rgb(17 24 39 / 0.4);
 
   /* Status tokens — data visualization only */
   --semantic-color-status-requested: var(--primitive-color-blue-500);
@@ -149,40 +150,6 @@
   --semantic-space-table-row-y: var(--primitive-space-3);
   --semantic-space-nav-item-x: var(--primitive-space-4);
   --semantic-space-nav-item-y: var(--primitive-space-2);
-
-  /* Representative component tokens */
-  --component-button-bg: var(--semantic-color-bg-brand);
-  --component-button-bg-hover: var(--semantic-color-bg-brand-hover);
-  --component-button-text: var(--semantic-color-text-inverted);
-  --component-button-radius: var(--primitive-radius-md);
-  --component-button-padding-x: var(--semantic-space-button-x);
-  --component-button-padding-y: var(--semantic-space-button-y-md);
-  --component-card-bg: var(--semantic-color-bg-surface);
-  --component-card-border: var(--semantic-color-border-subtle);
-  --component-card-radius: var(--primitive-radius-lg);
-  --component-card-padding: var(--semantic-space-card-padding);
-  --component-card-shadow: var(--primitive-shadow-sm);
-  --component-input-bg: var(--semantic-color-bg-surface);
-  --component-input-border: var(--semantic-color-border-default);
-  --component-input-border-focus: var(--semantic-color-border-brand);
-  --component-input-border-error: var(--semantic-color-border-error);
-  --component-input-radius: var(--primitive-radius-md);
-  --component-overlay-backdrop: rgb(17 24 39 / 0.4);
-  --component-dialog-max-width: 32rem;
-  --component-dropdown-min-width: 11rem;
-  --component-toast-min-width: 18rem;
-  --component-table-bg: var(--semantic-color-bg-surface);
-  --component-table-row-border: var(--semantic-color-border-subtle);
-  --component-table-row-bg-hover: var(--semantic-color-bg-surface-hover);
-  --component-table-cell-padding-x: var(--semantic-space-table-cell-x);
-  --component-table-cell-padding-y: var(--semantic-space-table-row-y);
-  --component-nav-item-text-default: var(--semantic-color-text-secondary);
-  --component-nav-item-text-active: var(--semantic-color-text-brand);
-  --component-nav-item-bg-active: var(--semantic-color-bg-brand-subtle);
-  --component-nav-item-border-active: var(--semantic-color-border-brand);
-  --component-nav-item-padding-x: var(--semantic-space-nav-item-x);
-  --component-nav-item-padding-y: var(--semantic-space-nav-item-y);
-  --component-nav-item-radius: var(--primitive-radius-md);
 }
 
 [data-theme="dark"] {
@@ -213,5 +180,5 @@
   --semantic-color-border-brand: var(--primitive-color-brand-500);
 
   /* Overlay */
-  --component-overlay-backdrop: rgb(0 0 0 / 0.6);
+  --semantic-color-overlay-backdrop: rgb(0 0 0 / 0.6);
 }

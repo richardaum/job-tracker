@@ -42,14 +42,14 @@ T07,T08,T09 -> T10 -> T11
 
 ### T01: Create token source of truth
 
-**What:** Implement primitive, semantic, and representative component tokens in CSS  
+**What:** Implement primitive and semantic tokens in CSS  
 **Where:** `packages/ui/src/tokens.css`, `packages/ui/src/globals.css`  
 **Depends on:** design-system spec  
 **Requirement:** DS-01
 
 **Done when:**
 
-- [x] `tokens.css` defines primitive + semantic + component token namespaces
+- [x] `tokens.css` defines primitive + semantic token namespaces
 - [x] `globals.css` imports token source and exposes Tailwind-consumable theme values
 - [x] No design-system value used in components without a named token
 
@@ -60,7 +60,7 @@ T07,T08,T09 -> T10 -> T11
 
 ### T02: Tailwind semantic theme wiring
 
-**What:** Map semantic and component tokens to Tailwind utilities  
+**What:** Map semantic tokens to Tailwind utilities  
 **Where:** `packages/ui/src/globals.css`, `packages/ui/tailwind.config.ts`  
 **Depends on:** T01  
 **Requirement:** DS-01, DS-02

@@ -73,7 +73,7 @@ export function Toast({
       <RadixToast.Root
         open={currentOpen}
         onOpenChange={handleOpenChange}
-        className={`grid min-w-[var(--component-toast-min-width)] grid-cols-[auto_1fr_auto] items-start gap-inline-gap rounded-md border p-card-padding shadow-md ${intentClasses[intent]}`}
+        className={`grid min-w-72 grid-cols-[auto_1fr_auto] items-start gap-inline-gap rounded-md border p-card-padding shadow-md ${intentClasses[intent]}`}
       >
         <span aria-hidden className="pt-0.5">
           {intentIcons[intent]}
