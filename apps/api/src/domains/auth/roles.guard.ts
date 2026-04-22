@@ -21,6 +21,8 @@ export class RolesGuard implements CanActivate {
     const request = ctx.getContext().req ?? context.switchToHttp().getRequest();
     const { user } = request;
     if (!user?.userId) return false;
+
+    // TODO Add cache to save some db roundtrips
     const dbUser = await this.userService.findById(user.userId);
     return !!dbUser && requiredRoles.includes(dbUser.role);
   }
