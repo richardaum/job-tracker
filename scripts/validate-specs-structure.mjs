@@ -5,7 +5,7 @@ import { join, relative } from "node:path";
 
 const root = process.cwd();
 const specsRoot = join(root, ".specs");
-const allowedTopLevel = new Set(["project", "features", "tech", "memory"]);
+const allowedTopLevel = new Set(["docs", "product", "technical"]);
 const forbiddenPaths = [
   join(specsRoot, "quick"),
   join(specsRoot, "codebase"),
