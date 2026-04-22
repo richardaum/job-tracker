@@ -1,5 +1,6 @@
 # History
 
+- [H-14] 2026-04-22T22:05:00Z - Aligned root `test:coverage` and `ci:local` with CI coverage flags, scoped `apps/web` Vitest coverage to tested client modules, raised UI default line threshold to 80 percent, and advanced execution to [R-7]. - Related: [R-6], [R-7], [F-9], [T-35], [T-40], [T-54]
 - [H-13] 2026-04-22T21:50:57Z - Verified full monorepo typecheck, lint, and test gates, fixed `apps/web` Vitest resolution for the `@ui` path alias, and moved execution to [R-6]. - Related: [R-6], [F-9], [P-14], [T-40]
 - [H-12] 2026-04-22T21:47:48Z - Added database pool instrumentation tests (success, failure, slow query) and fixed unhandled promise rejection on failed `pool.query` in the `finally` side-effect chain. - Related: [R-5], [F-15], [P-14], [T-30]
 - [H-11] 2026-04-22T21:45:13Z - Fixed request metrics async context scoping, exported telemetry thresholds, and added interceptor unit tests for [T-29] verification. - Related: [R-5], [F-6], [P-14], [T-29]

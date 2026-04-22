@@ -9,6 +9,19 @@ export default defineConfig({
     globals: true,
     setupFiles: ["./vitest.setup.ts"],
     include: ["src/**/*.test.{ts,tsx}"],
+    coverage: {
+      reporter: ["text", "lcov"],
+      include: [
+        "src/app/page.tsx",
+        "src/hooks/**/*.{ts,tsx}",
+        "src/env/client.ts",
+        "src/lib/apollo-client.ts",
+      ],
+      exclude: ["**/*.test.{ts,tsx}"],
+      thresholds: {
+        lines: 80,
+      },
+    },
   },
   resolve: {
     alias: {

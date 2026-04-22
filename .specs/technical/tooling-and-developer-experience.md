@@ -22,3 +22,4 @@
 
 - [T-40] Verify lint, format, typecheck, and test gates pass with shared root scripts and workspace-level commands.
 - [T-41] Verify alias resolution in API build/runtime/test contexts and maintain regression checks for web and UI workspaces.
+- [T-54] Keep `apps/web` coverage includes aligned with unit-tested client modules so CI line thresholds stay meaningful as app routes expand.

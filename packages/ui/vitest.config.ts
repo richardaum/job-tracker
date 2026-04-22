@@ -20,7 +20,7 @@ export default defineConfig({
         "src/components/**/*.stories.{ts,tsx}",
       ],
       thresholds: {
-        lines: 70,
+        lines: 80,
       },
     },
   },
