@@ -10,7 +10,7 @@
     "build": "tsc",
     "build-storybook": "storybook build",
     "test-storybook": "test-storybook",
-    "lint": "eslint . --max-warnings=0",
+    "lint": "eslint . --max-warnings=0 && tsc --noEmit",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage"
