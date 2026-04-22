@@ -2,7 +2,7 @@
 
 **Spec:** `.specs/features/design-system/spec.md`  
 **Design:** `.specs/features/design-system/design.md`  
-**Status:** In Progress - T09 complete; T10 next
+**Status:** In Progress - T10 complete; T11 next
 
 ---
 
@@ -213,12 +213,12 @@ T07,T08,T09 -> T10 -> T11
 
 **Done when:**
 
-- [ ] `[data-theme='dark']` semantic overrides exist for core text/background/border tokens
-- [ ] Components require no code changes to pick remapped semantics
-- [ ] Light mode remains the default
+- [x] `[data-theme='dark']` semantic overrides exist for core text/background/border tokens
+- [x] Components require no code changes to pick remapped semantics
+- [x] Light mode remains the default
 
 **Tests:** visual  
-**Gate:** storybook - `pnpm --filter @job-tracker/ui test-storybook`
+**Gate:** storybook - `pnpm --filter @job-tracker/ui test-storybook` ✅ (49 tests pass)
 
 ---
 
@@ -242,4 +242,4 @@ T07,T08,T09 -> T10 -> T11
 
 ## Immediate Next Step
 
-Start with **T10** (Dark mode token remap scaffold) in `packages/ui/src/tokens.css`.
+Start with **T11** (Final system verification and adoption check).

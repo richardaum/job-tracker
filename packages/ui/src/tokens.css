@@ -108,7 +108,6 @@
   --semantic-color-text-success: var(--primitive-color-green-600);
   --semantic-color-text-error: var(--primitive-color-red-600);
   --semantic-color-text-warning: var(--primitive-color-yellow-600);
-  --semantic-color-bg-canvas: var(--primitive-color-neutral-100);
   --semantic-color-bg-surface: var(--primitive-color-neutral-0);
   --semantic-color-bg-surface-hover: var(--primitive-color-neutral-50);
   --semantic-color-bg-brand: var(--primitive-color-brand-600);
@@ -184,4 +183,35 @@
   --component-nav-item-padding-x: var(--semantic-space-nav-item-x);
   --component-nav-item-padding-y: var(--semantic-space-nav-item-y);
   --component-nav-item-radius: var(--primitive-radius-md);
+}
+
+[data-theme="dark"] {
+  /* Text */
+  --semantic-color-text-primary: var(--primitive-color-neutral-50);
+  --semantic-color-text-secondary: var(--primitive-color-neutral-400);
+  --semantic-color-text-muted: var(--primitive-color-neutral-500);
+  --semantic-color-text-brand: var(--primitive-color-brand-400);
+  --semantic-color-text-success: var(--primitive-color-green-500);
+  --semantic-color-text-error: var(--primitive-color-red-500);
+  --semantic-color-text-warning: var(--primitive-color-yellow-500);
+
+  /* Backgrounds */
+  --semantic-color-bg-surface: var(--primitive-color-neutral-800);
+  --semantic-color-bg-surface-hover: var(--primitive-color-neutral-700);
+  --semantic-color-bg-brand: var(--primitive-color-brand-500);
+  --semantic-color-bg-brand-subtle: var(--primitive-color-brand-900);
+  --semantic-color-bg-brand-hover: var(--primitive-color-brand-400);
+  --semantic-color-bg-success-subtle: var(--primitive-color-green-700);
+  --semantic-color-bg-error-subtle: var(--primitive-color-red-700);
+  --semantic-color-bg-warning-subtle: var(--primitive-color-yellow-600);
+  --semantic-color-bg-info-subtle: var(--primitive-color-blue-600);
+
+  /* Borders */
+  --semantic-color-border-subtle: var(--primitive-color-neutral-700);
+  --semantic-color-border-default: var(--primitive-color-neutral-600);
+  --semantic-color-border-strong: var(--primitive-color-neutral-500);
+  --semantic-color-border-brand: var(--primitive-color-brand-500);
+
+  /* Overlay */
+  --component-overlay-backdrop: rgb(0 0 0 / 0.6);
 }

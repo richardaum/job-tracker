@@ -1,7 +1,7 @@
 # State
 
 **Last Updated:** 2026-04-21
-**Current Work:** M1 - Foundation; design-system execution progressing. T01-T09 are complete (tokens, theme wiring, tokens story, layout/form/actions primitives, overlay primitives, font wiring, CRUD UI). Next step is T10 (dark mode token scaffold).
+**Current Work:** M1 - Foundation; design-system execution progressing. T01-T10 are complete (tokens, theme wiring, tokens story, layout/form/actions primitives, overlay primitives, font wiring, CRUD UI, dark mode scaffold). Next step is T11 (final system verification).
 
 ---
 

@@ -21,7 +21,6 @@ const primitiveColors: ColorToken[] = [
 const semanticColors: ColorToken[] = [
   { name: "text-primary", cssVar: "--semantic-color-text-primary" },
   { name: "text-secondary", cssVar: "--semantic-color-text-secondary" },
-  { name: "bg-canvas", cssVar: "--semantic-color-bg-canvas" },
   { name: "bg-surface", cssVar: "--semantic-color-bg-surface" },
   { name: "bg-brand", cssVar: "--semantic-color-bg-brand" },
   { name: "border-default", cssVar: "--semantic-color-border-default" },
@@ -55,7 +54,7 @@ function ColorGrid({ title, tokens }: { title: string; tokens: ColorToken[] }) {
 
 function TokensShowcase() {
   return (
-    <div className="space-y-section-gap bg-bg-canvas p-section-gap font-sans">
+    <div className="space-y-section-gap bg-bg-surface p-section-gap font-sans">
       <section className="space-y-2">
         <h2 className="text-2xl font-bold text-text-primary">Design Tokens</h2>
         <p className="max-w-3xl text-sm text-text-secondary">
