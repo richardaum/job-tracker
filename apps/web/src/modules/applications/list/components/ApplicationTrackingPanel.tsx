@@ -172,12 +172,12 @@ export function ApplicationTrackingPanel({
                           key={option.label}
                           type="button"
                           size="sm"
-                          intent={
-                            scheduledAtValue === optionValue
-                              ? "secondary"
-                              : "ghost"
-                          }
-                          className={cn("h-7 px-2 text-xs")}
+                          intent="outlined"
+                          className={cn(
+                            "h-7 px-2 text-xs",
+                            scheduledAtValue === optionValue &&
+                              "border-border-brand bg-bg-brand-subtle text-text-brand hover:bg-bg-brand-subtle",
+                          )}
                           onClick={() => setScheduledAtDraft(optionValue)}
                           disabled={statusSaving}
                         >
