@@ -5,6 +5,11 @@ query Applications {
     company
     description
     url
+    salaryMinCents
+    salaryMaxCents
+    salaryCurrency
+    salaryPeriod
+    salaryTags
     createdAt
   }
 }
@@ -16,6 +21,11 @@ query Application($id: ID!) {
     company
     description
     url
+    salaryMinCents
+    salaryMaxCents
+    salaryCurrency
+    salaryPeriod
+    salaryTags
     createdAt
   }
 }
@@ -27,6 +37,11 @@ mutation CreateApplication($input: CreateApplicationInput!) {
     company
     description
     url
+    salaryMinCents
+    salaryMaxCents
+    salaryCurrency
+    salaryPeriod
+    salaryTags
     createdAt
   }
 }
@@ -38,6 +53,11 @@ mutation UpdateApplication($id: ID!, $input: UpdateApplicationInput!) {
     company
     description
     url
+    salaryMinCents
+    salaryMaxCents
+    salaryCurrency
+    salaryPeriod
+    salaryTags
     createdAt
   }
 }

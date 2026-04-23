@@ -1,10 +1,11 @@
 import type { CodegenConfig } from "@graphql-codegen/cli";
+import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 
-const API_GRAPHQL_URL =
-  process.env.API_GRAPHQL_URL ?? "http://localhost:3101/graphql";
+const here = fileURLToPath(new URL(".", import.meta.url));
 
 const config: CodegenConfig = {
-  schema: API_GRAPHQL_URL,
+  schema: join(here, "../api/src/schema.gql"),
   documents: ["src/graphql/**/*.graphql"],
   generates: {
     "src/gql/": {

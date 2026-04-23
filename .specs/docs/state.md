@@ -3,6 +3,6 @@
 - Status: in-progress
 - Active scope: application-compensation
 - Current step: [R-28]
-- Next action: Implement [R-28] from `.specs/technical/application-compensation.md` (schema migration, API validation, GraphQL, then list and Overview UI) and record verification in a new [H-*] entry.
+- Next action: Run DB migration in each environment, manually verify list/details flows, then mark [R-28] execution done or open follow-up for [R-17] salary-aware filters.
 - Blockers: none
-- Last update: 2026-04-23T22:00:00Z
+- Last update: 2026-04-23T23:10:00Z

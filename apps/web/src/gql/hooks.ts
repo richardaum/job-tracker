@@ -29,6 +29,7 @@ export type Scalars = {
   Boolean: { input: boolean; output: boolean };
   Int: { input: number; output: number };
   Float: { input: number; output: number };
+  /** A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format. */
   DateTime: { input: any; output: any };
 };
 
@@ -70,6 +71,11 @@ export type ApplicationType = {
   createdAt: Scalars["DateTime"]["output"];
   description?: Maybe<Scalars["String"]["output"]>;
   id: Scalars["ID"]["output"];
+  salaryCurrency?: Maybe<Scalars["String"]["output"]>;
+  salaryMaxCents?: Maybe<Scalars["Int"]["output"]>;
+  salaryMinCents?: Maybe<Scalars["Int"]["output"]>;
+  salaryPeriod?: Maybe<SalaryPeriod>;
+  salaryTags: Array<Scalars["String"]["output"]>;
   title: Scalars["String"]["output"];
   updatedAt: Scalars["DateTime"]["output"];
   url?: Maybe<Scalars["String"]["output"]>;
@@ -79,6 +85,11 @@ export type ApplicationType = {
 export type CreateApplicationInput = {
   company: Scalars["String"]["input"];
   description?: InputMaybe<Scalars["String"]["input"]>;
+  salaryCurrency?: InputMaybe<Scalars["String"]["input"]>;
+  salaryMaxCents?: InputMaybe<Scalars["Int"]["input"]>;
+  salaryMinCents?: InputMaybe<Scalars["Int"]["input"]>;
+  salaryPeriod?: InputMaybe<SalaryPeriod>;
+  salaryTags?: InputMaybe<Array<Scalars["String"]["input"]>>;
   title: Scalars["String"]["input"];
   url?: InputMaybe<Scalars["String"]["input"]>;
 };
@@ -163,9 +174,20 @@ export type QueryApplicationStageEventsArgs = {
   applicationId: Scalars["ID"]["input"];
 };
 
+export enum SalaryPeriod {
+  Hour = "HOUR",
+  Month = "MONTH",
+  Year = "YEAR",
+}
+
 export type UpdateApplicationInput = {
   company?: InputMaybe<Scalars["String"]["input"]>;
   description?: InputMaybe<Scalars["String"]["input"]>;
+  salaryCurrency?: InputMaybe<Scalars["String"]["input"]>;
+  salaryMaxCents?: InputMaybe<Scalars["Int"]["input"]>;
+  salaryMinCents?: InputMaybe<Scalars["Int"]["input"]>;
+  salaryPeriod?: InputMaybe<SalaryPeriod>;
+  salaryTags?: InputMaybe<Array<Scalars["String"]["input"]>>;
   title?: InputMaybe<Scalars["String"]["input"]>;
   url?: InputMaybe<Scalars["String"]["input"]>;
 };
@@ -200,6 +222,11 @@ export type ApplicationsQuery = {
     company: string;
     description?: string | null;
     url?: string | null;
+    salaryMinCents?: number | null;
+    salaryMaxCents?: number | null;
+    salaryCurrency?: string | null;
+    salaryPeriod?: SalaryPeriod | null;
+    salaryTags: Array<string>;
     createdAt: any;
   }>;
 };
@@ -217,6 +244,11 @@ export type ApplicationQuery = {
     company: string;
     description?: string | null;
     url?: string | null;
+    salaryMinCents?: number | null;
+    salaryMaxCents?: number | null;
+    salaryCurrency?: string | null;
+    salaryPeriod?: SalaryPeriod | null;
+    salaryTags: Array<string>;
     createdAt: any;
   };
 };
@@ -234,6 +266,11 @@ export type CreateApplicationMutation = {
     company: string;
     description?: string | null;
     url?: string | null;
+    salaryMinCents?: number | null;
+    salaryMaxCents?: number | null;
+    salaryCurrency?: string | null;
+    salaryPeriod?: SalaryPeriod | null;
+    salaryTags: Array<string>;
     createdAt: any;
   };
 };
@@ -252,6 +289,11 @@ export type UpdateApplicationMutation = {
     company: string;
     description?: string | null;
     url?: string | null;
+    salaryMinCents?: number | null;
+    salaryMaxCents?: number | null;
+    salaryCurrency?: string | null;
+    salaryPeriod?: SalaryPeriod | null;
+    salaryTags: Array<string>;
     createdAt: any;
   };
 };
@@ -403,6 +445,11 @@ export const ApplicationsDocument = gql`
       company
       description
       url
+      salaryMinCents
+      salaryMaxCents
+      salaryCurrency
+      salaryPeriod
+      salaryTags
       createdAt
     }
   }
@@ -463,6 +510,11 @@ export const ApplicationDocument = gql`
       company
       description
       url
+      salaryMinCents
+      salaryMaxCents
+      salaryCurrency
+      salaryPeriod
+      salaryTags
       createdAt
     }
   }
@@ -526,6 +578,11 @@ export const CreateApplicationDocument = gql`
       company
       description
       url
+      salaryMinCents
+      salaryMaxCents
+      salaryCurrency
+      salaryPeriod
+      salaryTags
       createdAt
     }
   }
@@ -569,6 +626,11 @@ export const UpdateApplicationDocument = gql`
       company
       description
       url
+      salaryMinCents
+      salaryMaxCents
+      salaryCurrency
+      salaryPeriod
+      salaryTags
       createdAt
     }
   }

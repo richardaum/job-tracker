@@ -21,6 +21,11 @@ const mockApp: Application = {
   company: "Acme Corp",
   description: "Frontend role with React",
   url: "https://acme.com",
+  salaryMinCents: null,
+  salaryMaxCents: null,
+  salaryCurrency: null,
+  salaryPeriod: null,
+  salaryTags: [],
   createdAt: new Date("2026-01-01T00:00:00.000Z"),
   updatedAt: new Date("2026-01-01T00:00:00.000Z"),
 };

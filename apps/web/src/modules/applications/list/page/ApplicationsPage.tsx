@@ -35,6 +35,11 @@ import {
 } from "@/modules/applications/shared/components/StatusBadge";
 import { StageTimeline } from "@/modules/applications/shared/components/StageTimeline";
 import { tipTapToPlainText } from "@/modules/applications/shared/utils/tiptap";
+import { CompensationChipsRow } from "@/modules/applications/shared/utils/CompensationChipsRow";
+import {
+  formatCompensationLine,
+  hasCompensationOnCard,
+} from "@/modules/applications/shared/utils/compensationFormat";
 
 interface ToastState {
   open: boolean;
@@ -273,6 +278,17 @@ export default function ApplicationsPage() {
           <Stack gap="sm">
             {applications.map((app) => {
               const descriptionPreview = tipTapToPlainText(app.description);
+              const compLine = formatCompensationLine({
+                salaryMinCents: app.salaryMinCents,
+                salaryMaxCents: app.salaryMaxCents,
+                salaryCurrency: app.salaryCurrency,
+                salaryPeriod: app.salaryPeriod,
+              });
+              const compTags = app.salaryTags ?? [];
+              const showComp = hasCompensationOnCard({
+                line: compLine,
+                tags: compTags,
+              });
 
               return (
                 <Card key={app.id} padding="sm">
@@ -320,6 +336,11 @@ export default function ApplicationsPage() {
                               title: app.title,
                               company: app.company,
                               url: app.url,
+                              salaryMinCents: app.salaryMinCents,
+                              salaryMaxCents: app.salaryMaxCents,
+                              salaryCurrency: app.salaryCurrency,
+                              salaryPeriod: app.salaryPeriod,
+                              salaryTags: app.salaryTags,
                             }}
                             onSuccess={(msg) => showToast(msg, "success")}
                             onError={(msg) => showToast(msg, "error")}
@@ -375,6 +396,35 @@ export default function ApplicationsPage() {
                             <Link href={app.url} variant="default">
                               View posting
                             </Link>
+                          </>
+                        ) : null}
+                        {showComp ? (
+                          <>
+                            <span className={cn("text-text-muted")} aria-hidden>
+                              ·
+                            </span>
+                            <span
+                              className={cn(
+                                "inline-flex min-w-0 max-w-full flex-wrap items-center gap-2",
+                              )}
+                            >
+                              {compLine ? (
+                                <Text
+                                  as="span"
+                                  size="sm"
+                                  color="secondary"
+                                  className={cn("min-w-0")}
+                                >
+                                  {compLine}
+                                </Text>
+                              ) : null}
+                              <CompensationChipsRow
+                                currency={compLine ? null : app.salaryCurrency}
+                                period={compLine ? null : app.salaryPeriod}
+                                tags={compTags}
+                                omitPeriodCurrency={Boolean(compLine)}
+                              />
+                            </span>
                           </>
                         ) : null}
                       </div>

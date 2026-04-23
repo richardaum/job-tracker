@@ -21,6 +21,12 @@ import {
   FieldEditTriggerButton,
   HoverEditableFieldRow,
 } from "./HoverEditableFieldRow";
+import { CompensationEditDialog } from "./CompensationEditDialog";
+import { CompensationChipsRow } from "@/modules/applications/shared/utils/CompensationChipsRow";
+import {
+  formatCompensationLine,
+  hasCompensationOnCard,
+} from "@/modules/applications/shared/utils/compensationFormat";
 
 function TextFieldEditDialog({
   label,
@@ -265,6 +271,58 @@ export function OverviewTabContent({
             <UrlFieldEditDialog
               value={application.url}
               onSave={handleSaveUrl}
+            />
+          }
+        />
+      </div>
+
+      <div className={cn("max-w-full sm:col-span-2")}>
+        <HoverEditableFieldRow
+          label="Compensation"
+          content={(() => {
+            const compLine = formatCompensationLine({
+              salaryMinCents: application.salaryMinCents,
+              salaryMaxCents: application.salaryMaxCents,
+              salaryCurrency: application.salaryCurrency,
+              salaryPeriod: application.salaryPeriod,
+            });
+            const compTags = application.salaryTags ?? [];
+            const has = hasCompensationOnCard({
+              line: compLine,
+              tags: compTags,
+            });
+            if (!has) {
+              return (
+                <Text size="sm" color="secondary">
+                  Not set
+                </Text>
+              );
+            }
+            return (
+              <div
+                className={cn(
+                  "flex min-w-0 flex-col gap-1 sm:flex-row sm:flex-wrap sm:items-center sm:gap-2",
+                )}
+              >
+                {compLine ? (
+                  <Text as="span" size="sm">
+                    {compLine}
+                  </Text>
+                ) : null}
+                <CompensationChipsRow
+                  currency={compLine ? null : application.salaryCurrency}
+                  period={compLine ? null : application.salaryPeriod}
+                  tags={compTags}
+                  omitPeriodCurrency={Boolean(compLine)}
+                />
+              </div>
+            );
+          })()}
+          editControl={
+            <CompensationEditDialog
+              application={application}
+              onSuccess={onSuccess}
+              onError={onError}
             />
           }
         />

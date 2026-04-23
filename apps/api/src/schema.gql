@@ -17,8 +17,19 @@ type ApplicationType {
   company: String!
   description: String
   url: String
+  salaryMinCents: Int
+  salaryMaxCents: Int
+  salaryCurrency: String
+  salaryPeriod: SalaryPeriod
+  salaryTags: [String!]!
   createdAt: DateTime!
   updatedAt: DateTime!
+}
+
+enum SalaryPeriod {
+  YEAR
+  MONTH
+  HOUR
 }
 
 """
@@ -80,6 +91,11 @@ input CreateApplicationInput {
   company: String!
   description: String
   url: String
+  salaryMinCents: Int
+  salaryMaxCents: Int
+  salaryCurrency: String
+  salaryPeriod: SalaryPeriod
+  salaryTags: [String!]
 }
 
 input UpdateApplicationInput {
@@ -87,6 +103,11 @@ input UpdateApplicationInput {
   company: String
   description: String
   url: String
+  salaryMinCents: Int
+  salaryMaxCents: Int
+  salaryCurrency: String
+  salaryPeriod: SalaryPeriod
+  salaryTags: [String!]
 }
 
 input CreateApplicationStageEventInput {

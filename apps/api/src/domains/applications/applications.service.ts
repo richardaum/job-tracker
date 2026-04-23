@@ -9,12 +9,22 @@ import { Application } from "./applications.schema";
 import { Note } from "./application-notes.schema";
 import { ApplicationStageEvent } from "./application-stage-events.schema";
 import { ApplicationStageEnum } from "./application-stage.enum";
+import { SalaryPeriodEnum } from "./salary-period.enum";
+import {
+  mergeCompensationForUpdate,
+  normalizeCreateCompensation,
+} from "./application-compensation.util";
 
 type CreateDto = {
   title: string;
   company: string;
   description?: string | null;
   url?: string | null;
+  salaryMinCents?: number | null;
+  salaryMaxCents?: number | null;
+  salaryCurrency?: string | null;
+  salaryPeriod?: SalaryPeriodEnum | null;
+  salaryTags?: string[] | null;
 };
 type UpdateDto = Partial<CreateDto>;
 type CreateStageEventDto = {
@@ -74,7 +84,24 @@ export class ApplicationService {
       );
     }
 
-    const application = await this.repo.create(userId, dto);
+    const {
+      salaryMinCents: _smin,
+      salaryMaxCents: _smax,
+      salaryCurrency: _scur,
+      salaryPeriod: _sper,
+      salaryTags: _stag,
+      ...coreCreate
+    } = dto;
+    void _smin;
+    void _smax;
+    void _scur;
+    void _sper;
+    void _stag;
+    const comp = normalizeCreateCompensation(dto);
+    const application = await this.repo.create(userId, {
+      ...coreCreate,
+      ...comp,
+    });
     await this.repo.createStageEvent(userId, application.id, {
       fromStage: null,
       toStage: ApplicationStageEnum.NEW,
@@ -88,7 +115,7 @@ export class ApplicationService {
     userId: string,
     dto: UpdateDto,
   ): Promise<Application> {
-    await this.findOne(id, userId);
+    const existing = await this.findOne(id, userId);
     if (
       dto.description !== undefined &&
       dto.description !== null &&
@@ -98,7 +125,24 @@ export class ApplicationService {
         "description must be valid TipTap document JSON",
       );
     }
-    const updated = await this.repo.update(id, userId, dto);
+    const {
+      salaryMinCents: _uMin,
+      salaryMaxCents: _uMax,
+      salaryCurrency: _uCur,
+      salaryPeriod: _uPer,
+      salaryTags: _uTag,
+      ...coreUpdate
+    } = dto;
+    void _uMin;
+    void _uMax;
+    void _uCur;
+    void _uPer;
+    void _uTag;
+    const compPatch = mergeCompensationForUpdate(existing, dto);
+    const updated = await this.repo.update(id, userId, {
+      ...coreUpdate,
+      ...(compPatch ?? {}),
+    });
     if (!updated) throw new NotFoundException(`Application ${id} not found`);
     return updated;
   }

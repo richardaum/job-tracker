@@ -15,7 +15,15 @@ import { Note, notes, NewNote } from "./application-notes.schema";
 
 type CreateDto = Pick<
   NewApplication,
-  "title" | "company" | "description" | "url"
+  | "title"
+  | "company"
+  | "description"
+  | "url"
+  | "salaryMinCents"
+  | "salaryMaxCents"
+  | "salaryCurrency"
+  | "salaryPeriod"
+  | "salaryTags"
 >;
 type UpdateDto = Partial<CreateDto>;
 type CreateStageEventDto = Pick<

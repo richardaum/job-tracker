@@ -33,7 +33,12 @@ describe("ProtectedLayout", () => {
 
   it("renders children when authenticated", () => {
     useCurrentUserMock.mockReturnValue({
-      user: { id: "user-1" },
+      user: {
+        id: "user-1",
+        name: "Test User",
+        email: "test@example.com",
+        avatarUrl: null,
+      },
       loading: false,
       error: undefined,
     });

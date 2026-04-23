@@ -69,6 +69,11 @@ export type ApplicationType = {
   createdAt: Scalars["DateTime"]["output"];
   description?: Maybe<Scalars["String"]["output"]>;
   id: Scalars["ID"]["output"];
+  salaryCurrency?: Maybe<Scalars["String"]["output"]>;
+  salaryMaxCents?: Maybe<Scalars["Int"]["output"]>;
+  salaryMinCents?: Maybe<Scalars["Int"]["output"]>;
+  salaryPeriod?: Maybe<SalaryPeriod>;
+  salaryTags: Array<Scalars["String"]["output"]>;
   title: Scalars["String"]["output"];
   updatedAt: Scalars["DateTime"]["output"];
   url?: Maybe<Scalars["String"]["output"]>;
@@ -78,6 +83,11 @@ export type ApplicationType = {
 export type CreateApplicationInput = {
   company: Scalars["String"]["input"];
   description?: InputMaybe<Scalars["String"]["input"]>;
+  salaryCurrency?: InputMaybe<Scalars["String"]["input"]>;
+  salaryMaxCents?: InputMaybe<Scalars["Int"]["input"]>;
+  salaryMinCents?: InputMaybe<Scalars["Int"]["input"]>;
+  salaryPeriod?: InputMaybe<SalaryPeriod>;
+  salaryTags?: InputMaybe<Array<Scalars["String"]["input"]>>;
   title: Scalars["String"]["input"];
   url?: InputMaybe<Scalars["String"]["input"]>;
 };
@@ -162,9 +172,20 @@ export type QueryApplicationStageEventsArgs = {
   applicationId: Scalars["ID"]["input"];
 };
 
+export enum SalaryPeriod {
+  Hour = "HOUR",
+  Month = "MONTH",
+  Year = "YEAR",
+}
+
 export type UpdateApplicationInput = {
   company?: InputMaybe<Scalars["String"]["input"]>;
   description?: InputMaybe<Scalars["String"]["input"]>;
+  salaryCurrency?: InputMaybe<Scalars["String"]["input"]>;
+  salaryMaxCents?: InputMaybe<Scalars["Int"]["input"]>;
+  salaryMinCents?: InputMaybe<Scalars["Int"]["input"]>;
+  salaryPeriod?: InputMaybe<SalaryPeriod>;
+  salaryTags?: InputMaybe<Array<Scalars["String"]["input"]>>;
   title?: InputMaybe<Scalars["String"]["input"]>;
   url?: InputMaybe<Scalars["String"]["input"]>;
 };
@@ -199,6 +220,11 @@ export type ApplicationsQuery = {
     company: string;
     description?: string | null;
     url?: string | null;
+    salaryMinCents?: number | null;
+    salaryMaxCents?: number | null;
+    salaryCurrency?: string | null;
+    salaryPeriod?: SalaryPeriod | null;
+    salaryTags: Array<string>;
     createdAt: any;
   }>;
 };
@@ -216,6 +242,11 @@ export type ApplicationQuery = {
     company: string;
     description?: string | null;
     url?: string | null;
+    salaryMinCents?: number | null;
+    salaryMaxCents?: number | null;
+    salaryCurrency?: string | null;
+    salaryPeriod?: SalaryPeriod | null;
+    salaryTags: Array<string>;
     createdAt: any;
   };
 };
@@ -233,6 +264,11 @@ export type CreateApplicationMutation = {
     company: string;
     description?: string | null;
     url?: string | null;
+    salaryMinCents?: number | null;
+    salaryMaxCents?: number | null;
+    salaryCurrency?: string | null;
+    salaryPeriod?: SalaryPeriod | null;
+    salaryTags: Array<string>;
     createdAt: any;
   };
 };
@@ -251,6 +287,11 @@ export type UpdateApplicationMutation = {
     company: string;
     description?: string | null;
     url?: string | null;
+    salaryMinCents?: number | null;
+    salaryMaxCents?: number | null;
+    salaryCurrency?: string | null;
+    salaryPeriod?: SalaryPeriod | null;
+    salaryTags: Array<string>;
     createdAt: any;
   };
 };
@@ -415,6 +456,23 @@ export const ApplicationsDocument = {
                 { kind: "Field", name: { kind: "Name", value: "company" } },
                 { kind: "Field", name: { kind: "Name", value: "description" } },
                 { kind: "Field", name: { kind: "Name", value: "url" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "salaryMinCents" },
+                },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "salaryMaxCents" },
+                },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "salaryCurrency" },
+                },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "salaryPeriod" },
+                },
+                { kind: "Field", name: { kind: "Name", value: "salaryTags" } },
                 { kind: "Field", name: { kind: "Name", value: "createdAt" } },
               ],
             },
@@ -465,6 +523,23 @@ export const ApplicationDocument = {
                 { kind: "Field", name: { kind: "Name", value: "company" } },
                 { kind: "Field", name: { kind: "Name", value: "description" } },
                 { kind: "Field", name: { kind: "Name", value: "url" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "salaryMinCents" },
+                },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "salaryMaxCents" },
+                },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "salaryCurrency" },
+                },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "salaryPeriod" },
+                },
+                { kind: "Field", name: { kind: "Name", value: "salaryTags" } },
                 { kind: "Field", name: { kind: "Name", value: "createdAt" } },
               ],
             },
@@ -521,6 +596,23 @@ export const CreateApplicationDocument = {
                 { kind: "Field", name: { kind: "Name", value: "company" } },
                 { kind: "Field", name: { kind: "Name", value: "description" } },
                 { kind: "Field", name: { kind: "Name", value: "url" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "salaryMinCents" },
+                },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "salaryMaxCents" },
+                },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "salaryCurrency" },
+                },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "salaryPeriod" },
+                },
+                { kind: "Field", name: { kind: "Name", value: "salaryTags" } },
                 { kind: "Field", name: { kind: "Name", value: "createdAt" } },
               ],
             },
@@ -596,6 +688,23 @@ export const UpdateApplicationDocument = {
                 { kind: "Field", name: { kind: "Name", value: "company" } },
                 { kind: "Field", name: { kind: "Name", value: "description" } },
                 { kind: "Field", name: { kind: "Name", value: "url" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "salaryMinCents" },
+                },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "salaryMaxCents" },
+                },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "salaryCurrency" },
+                },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "salaryPeriod" },
+                },
+                { kind: "Field", name: { kind: "Name", value: "salaryTags" } },
                 { kind: "Field", name: { kind: "Name", value: "createdAt" } },
               ],
             },

@@ -1,4 +1,5 @@
-import { ObjectType, Field, ID } from "@nestjs/graphql";
+import { ObjectType, Field, ID, Int } from "@nestjs/graphql";
+import { SalaryPeriodEnum } from "./salary-period.enum";
 
 @ObjectType()
 export class ApplicationType {
@@ -19,6 +20,21 @@ export class ApplicationType {
 
   @Field(() => String, { nullable: true })
   url!: string | null;
+
+  @Field(() => Int, { nullable: true })
+  salaryMinCents?: number | null;
+
+  @Field(() => Int, { nullable: true })
+  salaryMaxCents?: number | null;
+
+  @Field(() => String, { nullable: true })
+  salaryCurrency?: string | null;
+
+  @Field(() => SalaryPeriodEnum, { nullable: true })
+  salaryPeriod?: string | null;
+
+  @Field(() => [String])
+  salaryTags!: string[];
 
   @Field()
   createdAt!: Date;
