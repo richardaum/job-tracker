@@ -4,6 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "nest start --watch",
+    "db:migrate": "drizzle-kit migrate",
+    "db:migrate:watch": "node ./scripts/watch-migrations.mjs",
+    "db:migrate:squash": "node ./scripts/squash-migrations.mjs",
     "build": "nest build && tsc-alias -p tsconfig.build.json",
     "start": "node dist/main",
     "lint": "eslint . --max-warnings=0 && tsc --noEmit",
