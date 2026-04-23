@@ -5,7 +5,6 @@ type Application = {
   title: string;
   company: string;
   url: string | null;
-  appliedAt: string;
 };
 
 test("authenticated user can create, edit, and delete an application", async ({
@@ -54,7 +53,6 @@ test("authenticated user can create, edit, and delete an application", async ({
             title: string;
             company: string;
             url?: string | null;
-            appliedAt: string;
           }
         | undefined;
 
@@ -68,7 +66,6 @@ test("authenticated user can create, edit, and delete an application", async ({
         title: input.title,
         company: input.company,
         url: input.url ?? null,
-        appliedAt: input.appliedAt,
       };
       applications.unshift(created);
 
@@ -91,7 +88,6 @@ test("authenticated user can create, edit, and delete an application", async ({
             title?: string;
             company?: string;
             url?: string | null;
-            appliedAt?: string;
           }
         | undefined;
 
@@ -154,7 +150,6 @@ test("authenticated user can create, edit, and delete an application", async ({
   await page.getByLabel("Job title").fill("Senior Frontend Engineer");
   await page.getByLabel("Company").fill("Acme Corp");
   await page.getByLabel("Job URL").fill("https://example.com/jobs/123");
-  await page.getByLabel("Applied date").fill("2026-04-20");
   await page.getByRole("button", { name: "Create" }).click();
 
   await expect(page.getByText("Senior Frontend Engineer")).toBeVisible();

@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 import { withSentryConfig } from "@sentry/nextjs";
 import { RsdoctorWebpackPlugin } from "@rsdoctor/webpack-plugin";
 
-const isRsdoctorEnabled = process.env.NODE_ENV === "development";
+const isRsdoctorEnabled = false;
 
 const nextConfig: NextConfig = {
   // Keep separate dist dirs so `next build` does not conflict with a running `next dev`.

@@ -32,11 +32,43 @@ export type Scalars = {
   DateTime: { input: any; output: any };
 };
 
+export type ApplicationNoteType = {
+  __typename?: "ApplicationNoteType";
+  applicationId?: Maybe<Scalars["String"]["output"]>;
+  content: Scalars["String"]["output"];
+  createdAt: Scalars["DateTime"]["output"];
+  id: Scalars["ID"]["output"];
+  revision: Scalars["Int"]["output"];
+  updatedAt: Scalars["DateTime"]["output"];
+  userId: Scalars["String"]["output"];
+};
+
+export enum ApplicationStage {
+  Applied = "APPLIED",
+  New = "NEW",
+  Offer = "OFFER",
+  RecruiterScreen = "RECRUITER_SCREEN",
+  Rejected = "REJECTED",
+  Technical = "TECHNICAL",
+}
+
+export type ApplicationStageEventType = {
+  __typename?: "ApplicationStageEventType";
+  applicationId: Scalars["String"]["output"];
+  createdAt: Scalars["DateTime"]["output"];
+  fromStage?: Maybe<ApplicationStage>;
+  id: Scalars["ID"]["output"];
+  scheduledAt?: Maybe<Scalars["DateTime"]["output"]>;
+  source: Scalars["String"]["output"];
+  toStage: ApplicationStage;
+  userId: Scalars["String"]["output"];
+};
+
 export type ApplicationType = {
   __typename?: "ApplicationType";
-  appliedAt: Scalars["DateTime"]["output"];
   company: Scalars["String"]["output"];
   createdAt: Scalars["DateTime"]["output"];
+  description?: Maybe<Scalars["String"]["output"]>;
   id: Scalars["ID"]["output"];
   title: Scalars["String"]["output"];
   updatedAt: Scalars["DateTime"]["output"];
@@ -45,24 +77,53 @@ export type ApplicationType = {
 };
 
 export type CreateApplicationInput = {
-  appliedAt: Scalars["DateTime"]["input"];
   company: Scalars["String"]["input"];
+  description?: InputMaybe<Scalars["String"]["input"]>;
   title: Scalars["String"]["input"];
   url?: InputMaybe<Scalars["String"]["input"]>;
+};
+
+export type CreateApplicationNoteInput = {
+  applicationId: Scalars["String"]["input"];
+  content: Scalars["String"]["input"];
+};
+
+export type CreateApplicationStageEventInput = {
+  applicationId: Scalars["String"]["input"];
+  scheduledAt?: InputMaybe<Scalars["DateTime"]["input"]>;
+  source?: InputMaybe<Scalars["String"]["input"]>;
+  toStage: ApplicationStage;
 };
 
 export type Mutation = {
   __typename?: "Mutation";
   createApplication: ApplicationType;
+  createApplicationNote: ApplicationNoteType;
+  createApplicationStageEvent: ApplicationStageEventType;
   deleteApplication: Scalars["Boolean"]["output"];
+  deleteApplicationNote: Scalars["Boolean"]["output"];
   updateApplication: ApplicationType;
+  updateApplicationNote: ApplicationNoteType;
+  updateApplicationStageEvent: ApplicationStageEventType;
 };
 
 export type MutationCreateApplicationArgs = {
   input: CreateApplicationInput;
 };
 
+export type MutationCreateApplicationNoteArgs = {
+  input: CreateApplicationNoteInput;
+};
+
+export type MutationCreateApplicationStageEventArgs = {
+  input: CreateApplicationStageEventInput;
+};
+
 export type MutationDeleteApplicationArgs = {
+  id: Scalars["ID"]["input"];
+};
+
+export type MutationDeleteApplicationNoteArgs = {
   id: Scalars["ID"]["input"];
 };
 
@@ -71,9 +132,21 @@ export type MutationUpdateApplicationArgs = {
   input: UpdateApplicationInput;
 };
 
+export type MutationUpdateApplicationNoteArgs = {
+  id: Scalars["ID"]["input"];
+  input: UpdateApplicationNoteInput;
+};
+
+export type MutationUpdateApplicationStageEventArgs = {
+  id: Scalars["ID"]["input"];
+  input: UpdateApplicationStageEventInput;
+};
+
 export type Query = {
   __typename?: "Query";
   application: ApplicationType;
+  applicationNotes: Array<ApplicationNoteType>;
+  applicationStageEvents: Array<ApplicationStageEventType>;
   applications: Array<ApplicationType>;
   me: UserType;
 };
@@ -82,11 +155,29 @@ export type QueryApplicationArgs = {
   id: Scalars["ID"]["input"];
 };
 
+export type QueryApplicationNotesArgs = {
+  applicationId: Scalars["ID"]["input"];
+};
+
+export type QueryApplicationStageEventsArgs = {
+  applicationId: Scalars["ID"]["input"];
+};
+
 export type UpdateApplicationInput = {
-  appliedAt?: InputMaybe<Scalars["DateTime"]["input"]>;
   company?: InputMaybe<Scalars["String"]["input"]>;
+  description?: InputMaybe<Scalars["String"]["input"]>;
   title?: InputMaybe<Scalars["String"]["input"]>;
   url?: InputMaybe<Scalars["String"]["input"]>;
+};
+
+export type UpdateApplicationNoteInput = {
+  content?: InputMaybe<Scalars["String"]["input"]>;
+  expectedRevision: Scalars["Int"]["input"];
+};
+
+export type UpdateApplicationStageEventInput = {
+  scheduledAt?: InputMaybe<Scalars["DateTime"]["input"]>;
+  toStage?: InputMaybe<ApplicationStage>;
 };
 
 export type UserType = {
@@ -107,10 +198,27 @@ export type ApplicationsQuery = {
     id: string;
     title: string;
     company: string;
+    description?: string | null;
     url?: string | null;
-    appliedAt: any;
     createdAt: any;
   }>;
+};
+
+export type ApplicationQueryVariables = Exact<{
+  id: Scalars["ID"]["input"];
+}>;
+
+export type ApplicationQuery = {
+  __typename?: "Query";
+  application: {
+    __typename?: "ApplicationType";
+    id: string;
+    title: string;
+    company: string;
+    description?: string | null;
+    url?: string | null;
+    createdAt: any;
+  };
 };
 
 export type CreateApplicationMutationVariables = Exact<{
@@ -124,8 +232,8 @@ export type CreateApplicationMutation = {
     id: string;
     title: string;
     company: string;
+    description?: string | null;
     url?: string | null;
-    appliedAt: any;
     createdAt: any;
   };
 };
@@ -142,8 +250,8 @@ export type UpdateApplicationMutation = {
     id: string;
     title: string;
     company: string;
+    description?: string | null;
     url?: string | null;
-    appliedAt: any;
     createdAt: any;
   };
 };
@@ -155,6 +263,122 @@ export type DeleteApplicationMutationVariables = Exact<{
 export type DeleteApplicationMutation = {
   __typename?: "Mutation";
   deleteApplication: boolean;
+};
+
+export type ApplicationStageEventsQueryVariables = Exact<{
+  applicationId: Scalars["ID"]["input"];
+}>;
+
+export type ApplicationStageEventsQuery = {
+  __typename?: "Query";
+  applicationStageEvents: Array<{
+    __typename?: "ApplicationStageEventType";
+    id: string;
+    applicationId: string;
+    fromStage?: ApplicationStage | null;
+    toStage: ApplicationStage;
+    source: string;
+    scheduledAt?: any | null;
+    createdAt: any;
+  }>;
+};
+
+export type CreateApplicationStageEventMutationVariables = Exact<{
+  input: CreateApplicationStageEventInput;
+}>;
+
+export type CreateApplicationStageEventMutation = {
+  __typename?: "Mutation";
+  createApplicationStageEvent: {
+    __typename?: "ApplicationStageEventType";
+    id: string;
+    applicationId: string;
+    fromStage?: ApplicationStage | null;
+    toStage: ApplicationStage;
+    source: string;
+    scheduledAt?: any | null;
+    createdAt: any;
+  };
+};
+
+export type UpdateApplicationStageEventMutationVariables = Exact<{
+  id: Scalars["ID"]["input"];
+  input: UpdateApplicationStageEventInput;
+}>;
+
+export type UpdateApplicationStageEventMutation = {
+  __typename?: "Mutation";
+  updateApplicationStageEvent: {
+    __typename?: "ApplicationStageEventType";
+    id: string;
+    applicationId: string;
+    fromStage?: ApplicationStage | null;
+    toStage: ApplicationStage;
+    source: string;
+    scheduledAt?: any | null;
+    createdAt: any;
+  };
+};
+
+export type ApplicationNotesQueryVariables = Exact<{
+  applicationId: Scalars["ID"]["input"];
+}>;
+
+export type ApplicationNotesQuery = {
+  __typename?: "Query";
+  applicationNotes: Array<{
+    __typename?: "ApplicationNoteType";
+    id: string;
+    applicationId?: string | null;
+    content: string;
+    revision: number;
+    createdAt: any;
+    updatedAt: any;
+  }>;
+};
+
+export type CreateApplicationNoteMutationVariables = Exact<{
+  input: CreateApplicationNoteInput;
+}>;
+
+export type CreateApplicationNoteMutation = {
+  __typename?: "Mutation";
+  createApplicationNote: {
+    __typename?: "ApplicationNoteType";
+    id: string;
+    applicationId?: string | null;
+    content: string;
+    revision: number;
+    createdAt: any;
+    updatedAt: any;
+  };
+};
+
+export type UpdateApplicationNoteMutationVariables = Exact<{
+  id: Scalars["ID"]["input"];
+  input: UpdateApplicationNoteInput;
+}>;
+
+export type UpdateApplicationNoteMutation = {
+  __typename?: "Mutation";
+  updateApplicationNote: {
+    __typename?: "ApplicationNoteType";
+    id: string;
+    applicationId?: string | null;
+    content: string;
+    revision: number;
+    createdAt: any;
+    updatedAt: any;
+  };
+};
+
+export type DeleteApplicationNoteMutationVariables = Exact<{
+  id: Scalars["ID"]["input"];
+}>;
+
+export type DeleteApplicationNoteMutation = {
+  __typename?: "Mutation";
+  deleteApplicationNote: boolean;
 };
 
 export type MeQueryVariables = Exact<{ [key: string]: never }>;
@@ -177,8 +401,8 @@ export const ApplicationsDocument = gql`
       id
       title
       company
+      description
       url
-      appliedAt
       createdAt
     }
   }
@@ -231,14 +455,77 @@ export type ApplicationsLazyQueryHookResult = ReturnType<
   typeof useApplicationsLazyQuery
 >;
 
+export const ApplicationDocument = gql`
+  query Application($id: ID!) {
+    application(id: $id) {
+      id
+      title
+      company
+      description
+      url
+      createdAt
+    }
+  }
+`;
+
+/**
+ * __useApplicationQuery__
+ *
+ * To run a query within a React component, call `useApplicationQuery` and pass it any options that fit your needs.
+ * When your component renders, `useApplicationQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useApplicationQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useApplicationQuery(
+  baseOptions: ApolloReactHooks.QueryHookOptions<
+    ApplicationQuery,
+    ApplicationQueryVariables
+  > &
+    (
+      | { variables: ApplicationQueryVariables; skip?: boolean }
+      | { skip: boolean }
+    ),
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useQuery<ApplicationQuery, ApplicationQueryVariables>(
+    ApplicationDocument,
+    options,
+  );
+}
+export function useApplicationLazyQuery(
+  baseOptions?: ApolloReactHooks.LazyQueryHookOptions<
+    ApplicationQuery,
+    ApplicationQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useLazyQuery<
+    ApplicationQuery,
+    ApplicationQueryVariables
+  >(ApplicationDocument, options);
+}
+
+export type ApplicationQueryHookResult = ReturnType<typeof useApplicationQuery>;
+export type ApplicationLazyQueryHookResult = ReturnType<
+  typeof useApplicationLazyQuery
+>;
+
 export const CreateApplicationDocument = gql`
   mutation CreateApplication($input: CreateApplicationInput!) {
     createApplication(input: $input) {
       id
       title
       company
+      description
       url
-      appliedAt
       createdAt
     }
   }
@@ -280,8 +567,8 @@ export const UpdateApplicationDocument = gql`
       id
       title
       company
+      description
       url
-      appliedAt
       createdAt
     }
   }
@@ -352,6 +639,357 @@ export function useDeleteApplicationMutation(
     DeleteApplicationMutation,
     DeleteApplicationMutationVariables
   >(DeleteApplicationDocument, options);
+}
+
+export const ApplicationStageEventsDocument = gql`
+  query ApplicationStageEvents($applicationId: ID!) {
+    applicationStageEvents(applicationId: $applicationId) {
+      id
+      applicationId
+      fromStage
+      toStage
+      source
+      scheduledAt
+      createdAt
+    }
+  }
+`;
+
+/**
+ * __useApplicationStageEventsQuery__
+ *
+ * To run a query within a React component, call `useApplicationStageEventsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useApplicationStageEventsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useApplicationStageEventsQuery({
+ *   variables: {
+ *      applicationId: // value for 'applicationId'
+ *   },
+ * });
+ */
+export function useApplicationStageEventsQuery(
+  baseOptions: ApolloReactHooks.QueryHookOptions<
+    ApplicationStageEventsQuery,
+    ApplicationStageEventsQueryVariables
+  > &
+    (
+      | { variables: ApplicationStageEventsQueryVariables; skip?: boolean }
+      | { skip: boolean }
+    ),
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useQuery<
+    ApplicationStageEventsQuery,
+    ApplicationStageEventsQueryVariables
+  >(ApplicationStageEventsDocument, options);
+}
+export function useApplicationStageEventsLazyQuery(
+  baseOptions?: ApolloReactHooks.LazyQueryHookOptions<
+    ApplicationStageEventsQuery,
+    ApplicationStageEventsQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useLazyQuery<
+    ApplicationStageEventsQuery,
+    ApplicationStageEventsQueryVariables
+  >(ApplicationStageEventsDocument, options);
+}
+
+export type ApplicationStageEventsQueryHookResult = ReturnType<
+  typeof useApplicationStageEventsQuery
+>;
+export type ApplicationStageEventsLazyQueryHookResult = ReturnType<
+  typeof useApplicationStageEventsLazyQuery
+>;
+
+export const CreateApplicationStageEventDocument = gql`
+  mutation CreateApplicationStageEvent(
+    $input: CreateApplicationStageEventInput!
+  ) {
+    createApplicationStageEvent(input: $input) {
+      id
+      applicationId
+      fromStage
+      toStage
+      source
+      scheduledAt
+      createdAt
+    }
+  }
+`;
+
+/**
+ * __useCreateApplicationStageEventMutation__
+ *
+ * To run a mutation, you first call `useCreateApplicationStageEventMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateApplicationStageEventMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createApplicationStageEventMutation, { data, loading, error }] = useCreateApplicationStageEventMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateApplicationStageEventMutation(
+  baseOptions?: ApolloReactHooks.MutationHookOptions<
+    CreateApplicationStageEventMutation,
+    CreateApplicationStageEventMutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useMutation<
+    CreateApplicationStageEventMutation,
+    CreateApplicationStageEventMutationVariables
+  >(CreateApplicationStageEventDocument, options);
+}
+
+export const UpdateApplicationStageEventDocument = gql`
+  mutation UpdateApplicationStageEvent(
+    $id: ID!
+    $input: UpdateApplicationStageEventInput!
+  ) {
+    updateApplicationStageEvent(id: $id, input: $input) {
+      id
+      applicationId
+      fromStage
+      toStage
+      source
+      scheduledAt
+      createdAt
+    }
+  }
+`;
+
+/**
+ * __useUpdateApplicationStageEventMutation__
+ *
+ * To run a mutation, you first call `useUpdateApplicationStageEventMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateApplicationStageEventMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateApplicationStageEventMutation, { data, loading, error }] = useUpdateApplicationStageEventMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateApplicationStageEventMutation(
+  baseOptions?: ApolloReactHooks.MutationHookOptions<
+    UpdateApplicationStageEventMutation,
+    UpdateApplicationStageEventMutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useMutation<
+    UpdateApplicationStageEventMutation,
+    UpdateApplicationStageEventMutationVariables
+  >(UpdateApplicationStageEventDocument, options);
+}
+
+export const ApplicationNotesDocument = gql`
+  query ApplicationNotes($applicationId: ID!) {
+    applicationNotes(applicationId: $applicationId) {
+      id
+      applicationId
+      content
+      revision
+      createdAt
+      updatedAt
+    }
+  }
+`;
+
+/**
+ * __useApplicationNotesQuery__
+ *
+ * To run a query within a React component, call `useApplicationNotesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useApplicationNotesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useApplicationNotesQuery({
+ *   variables: {
+ *      applicationId: // value for 'applicationId'
+ *   },
+ * });
+ */
+export function useApplicationNotesQuery(
+  baseOptions: ApolloReactHooks.QueryHookOptions<
+    ApplicationNotesQuery,
+    ApplicationNotesQueryVariables
+  > &
+    (
+      | { variables: ApplicationNotesQueryVariables; skip?: boolean }
+      | { skip: boolean }
+    ),
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useQuery<
+    ApplicationNotesQuery,
+    ApplicationNotesQueryVariables
+  >(ApplicationNotesDocument, options);
+}
+export function useApplicationNotesLazyQuery(
+  baseOptions?: ApolloReactHooks.LazyQueryHookOptions<
+    ApplicationNotesQuery,
+    ApplicationNotesQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useLazyQuery<
+    ApplicationNotesQuery,
+    ApplicationNotesQueryVariables
+  >(ApplicationNotesDocument, options);
+}
+
+export type ApplicationNotesQueryHookResult = ReturnType<
+  typeof useApplicationNotesQuery
+>;
+export type ApplicationNotesLazyQueryHookResult = ReturnType<
+  typeof useApplicationNotesLazyQuery
+>;
+
+export const CreateApplicationNoteDocument = gql`
+  mutation CreateApplicationNote($input: CreateApplicationNoteInput!) {
+    createApplicationNote(input: $input) {
+      id
+      applicationId
+      content
+      revision
+      createdAt
+      updatedAt
+    }
+  }
+`;
+
+/**
+ * __useCreateApplicationNoteMutation__
+ *
+ * To run a mutation, you first call `useCreateApplicationNoteMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateApplicationNoteMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createApplicationNoteMutation, { data, loading, error }] = useCreateApplicationNoteMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateApplicationNoteMutation(
+  baseOptions?: ApolloReactHooks.MutationHookOptions<
+    CreateApplicationNoteMutation,
+    CreateApplicationNoteMutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useMutation<
+    CreateApplicationNoteMutation,
+    CreateApplicationNoteMutationVariables
+  >(CreateApplicationNoteDocument, options);
+}
+
+export const UpdateApplicationNoteDocument = gql`
+  mutation UpdateApplicationNote(
+    $id: ID!
+    $input: UpdateApplicationNoteInput!
+  ) {
+    updateApplicationNote(id: $id, input: $input) {
+      id
+      applicationId
+      content
+      revision
+      createdAt
+      updatedAt
+    }
+  }
+`;
+
+/**
+ * __useUpdateApplicationNoteMutation__
+ *
+ * To run a mutation, you first call `useUpdateApplicationNoteMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateApplicationNoteMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateApplicationNoteMutation, { data, loading, error }] = useUpdateApplicationNoteMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateApplicationNoteMutation(
+  baseOptions?: ApolloReactHooks.MutationHookOptions<
+    UpdateApplicationNoteMutation,
+    UpdateApplicationNoteMutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useMutation<
+    UpdateApplicationNoteMutation,
+    UpdateApplicationNoteMutationVariables
+  >(UpdateApplicationNoteDocument, options);
+}
+
+export const DeleteApplicationNoteDocument = gql`
+  mutation DeleteApplicationNote($id: ID!) {
+    deleteApplicationNote(id: $id)
+  }
+`;
+
+/**
+ * __useDeleteApplicationNoteMutation__
+ *
+ * To run a mutation, you first call `useDeleteApplicationNoteMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteApplicationNoteMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteApplicationNoteMutation, { data, loading, error }] = useDeleteApplicationNoteMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteApplicationNoteMutation(
+  baseOptions?: ApolloReactHooks.MutationHookOptions<
+    DeleteApplicationNoteMutation,
+    DeleteApplicationNoteMutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useMutation<
+    DeleteApplicationNoteMutation,
+    DeleteApplicationNoteMutationVariables
+  >(DeleteApplicationNoteDocument, options);
 }
 
 export const MeDocument = gql`

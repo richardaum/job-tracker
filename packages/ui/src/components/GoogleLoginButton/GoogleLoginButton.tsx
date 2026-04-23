@@ -11,7 +11,7 @@ export function GoogleLoginButton({ onClick }: GoogleLoginButtonProps) {
       type="button"
       onClick={onClick}
       className={cn(
-        "inline-flex items-center justify-center gap-2 rounded-md border border-border-default bg-bg-surface px-5 py-3 font-medium text-text-primary shadow-sm transition-colors hover:bg-bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-brand focus-visible:ring-offset-2",
+        "inline-flex items-center justify-center gap-2 rounded-md border border-border-default bg-bg-surface px-5 py-3 font-medium text-text-primary shadow-sm transition-colors hover:bg-bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-brand focus-visible:ring-inset focus-visible:ring-offset-0",
       )}
     >
       Continue with Google

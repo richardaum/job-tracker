@@ -3,8 +3,19 @@ query Applications {
     id
     title
     company
+    description
     url
-    appliedAt
+    createdAt
+  }
+}
+
+query Application($id: ID!) {
+  application(id: $id) {
+    id
+    title
+    company
+    description
+    url
     createdAt
   }
 }
@@ -14,8 +25,8 @@ mutation CreateApplication($input: CreateApplicationInput!) {
     id
     title
     company
+    description
     url
-    appliedAt
     createdAt
   }
 }
@@ -25,8 +36,8 @@ mutation UpdateApplication($id: ID!, $input: UpdateApplicationInput!) {
     id
     title
     company
+    description
     url
-    appliedAt
     createdAt
   }
 }
@@ -34,3 +45,77 @@ mutation UpdateApplication($id: ID!, $input: UpdateApplicationInput!) {
 mutation DeleteApplication($id: ID!) {
   deleteApplication(id: $id)
 }
+
+query ApplicationStageEvents($applicationId: ID!) {
+  applicationStageEvents(applicationId: $applicationId) {
+    id
+    applicationId
+    fromStage
+    toStage
+    source
+    scheduledAt
+    createdAt
+  }
+}
+
+mutation CreateApplicationStageEvent($input: CreateApplicationStageEventInput!) {
+  createApplicationStageEvent(input: $input) {
+    id
+    applicationId
+    fromStage
+    toStage
+    source
+    scheduledAt
+    createdAt
+  }
+}
+
+mutation UpdateApplicationStageEvent($id: ID!, $input: UpdateApplicationStageEventInput!) {
+  updateApplicationStageEvent(id: $id, input: $input) {
+    id
+    applicationId
+    fromStage
+    toStage
+    source
+    scheduledAt
+    createdAt
+  }
+}
+
+query ApplicationNotes($applicationId: ID!) {
+  applicationNotes(applicationId: $applicationId) {
+    id
+    applicationId
+    content
+    revision
+    createdAt
+    updatedAt
+  }
+}
+
+mutation CreateApplicationNote($input: CreateApplicationNoteInput!) {
+  createApplicationNote(input: $input) {
+    id
+    applicationId
+    content
+    revision
+    createdAt
+    updatedAt
+  }
+}
+
+mutation UpdateApplicationNote($id: ID!, $input: UpdateApplicationNoteInput!) {
+  updateApplicationNote(id: $id, input: $input) {
+    id
+    applicationId
+    content
+    revision
+    createdAt
+    updatedAt
+  }
+}
+
+mutation DeleteApplicationNote($id: ID!) {
+  deleteApplicationNote(id: $id)
+}
+

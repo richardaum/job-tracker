@@ -6,6 +6,8 @@ export interface DropdownMenuProps {
   trigger: React.ReactElement;
   children: React.ReactNode;
   align?: "start" | "center" | "end";
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 export interface DropdownMenuItemProps {
@@ -19,9 +21,11 @@ export function DropdownMenu({
   trigger,
   children,
   align = "end",
+  open,
+  onOpenChange,
 }: DropdownMenuProps) {
   return (
-    <RadixDropdownMenu.Root>
+    <RadixDropdownMenu.Root open={open} onOpenChange={onOpenChange}>
       <RadixDropdownMenu.Trigger asChild>{trigger}</RadixDropdownMenu.Trigger>
       <RadixDropdownMenu.Portal>
         <RadixDropdownMenu.Content

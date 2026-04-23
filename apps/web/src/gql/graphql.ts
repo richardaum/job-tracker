@@ -31,11 +31,43 @@ export type Scalars = {
   DateTime: { input: any; output: any };
 };
 
+export type ApplicationNoteType = {
+  __typename?: "ApplicationNoteType";
+  applicationId?: Maybe<Scalars["String"]["output"]>;
+  content: Scalars["String"]["output"];
+  createdAt: Scalars["DateTime"]["output"];
+  id: Scalars["ID"]["output"];
+  revision: Scalars["Int"]["output"];
+  updatedAt: Scalars["DateTime"]["output"];
+  userId: Scalars["String"]["output"];
+};
+
+export enum ApplicationStage {
+  Applied = "APPLIED",
+  New = "NEW",
+  Offer = "OFFER",
+  RecruiterScreen = "RECRUITER_SCREEN",
+  Rejected = "REJECTED",
+  Technical = "TECHNICAL",
+}
+
+export type ApplicationStageEventType = {
+  __typename?: "ApplicationStageEventType";
+  applicationId: Scalars["String"]["output"];
+  createdAt: Scalars["DateTime"]["output"];
+  fromStage?: Maybe<ApplicationStage>;
+  id: Scalars["ID"]["output"];
+  scheduledAt?: Maybe<Scalars["DateTime"]["output"]>;
+  source: Scalars["String"]["output"];
+  toStage: ApplicationStage;
+  userId: Scalars["String"]["output"];
+};
+
 export type ApplicationType = {
   __typename?: "ApplicationType";
-  appliedAt: Scalars["DateTime"]["output"];
   company: Scalars["String"]["output"];
   createdAt: Scalars["DateTime"]["output"];
+  description?: Maybe<Scalars["String"]["output"]>;
   id: Scalars["ID"]["output"];
   title: Scalars["String"]["output"];
   updatedAt: Scalars["DateTime"]["output"];
@@ -44,24 +76,53 @@ export type ApplicationType = {
 };
 
 export type CreateApplicationInput = {
-  appliedAt: Scalars["DateTime"]["input"];
   company: Scalars["String"]["input"];
+  description?: InputMaybe<Scalars["String"]["input"]>;
   title: Scalars["String"]["input"];
   url?: InputMaybe<Scalars["String"]["input"]>;
+};
+
+export type CreateApplicationNoteInput = {
+  applicationId: Scalars["String"]["input"];
+  content: Scalars["String"]["input"];
+};
+
+export type CreateApplicationStageEventInput = {
+  applicationId: Scalars["String"]["input"];
+  scheduledAt?: InputMaybe<Scalars["DateTime"]["input"]>;
+  source?: InputMaybe<Scalars["String"]["input"]>;
+  toStage: ApplicationStage;
 };
 
 export type Mutation = {
   __typename?: "Mutation";
   createApplication: ApplicationType;
+  createApplicationNote: ApplicationNoteType;
+  createApplicationStageEvent: ApplicationStageEventType;
   deleteApplication: Scalars["Boolean"]["output"];
+  deleteApplicationNote: Scalars["Boolean"]["output"];
   updateApplication: ApplicationType;
+  updateApplicationNote: ApplicationNoteType;
+  updateApplicationStageEvent: ApplicationStageEventType;
 };
 
 export type MutationCreateApplicationArgs = {
   input: CreateApplicationInput;
 };
 
+export type MutationCreateApplicationNoteArgs = {
+  input: CreateApplicationNoteInput;
+};
+
+export type MutationCreateApplicationStageEventArgs = {
+  input: CreateApplicationStageEventInput;
+};
+
 export type MutationDeleteApplicationArgs = {
+  id: Scalars["ID"]["input"];
+};
+
+export type MutationDeleteApplicationNoteArgs = {
   id: Scalars["ID"]["input"];
 };
 
@@ -70,9 +131,21 @@ export type MutationUpdateApplicationArgs = {
   input: UpdateApplicationInput;
 };
 
+export type MutationUpdateApplicationNoteArgs = {
+  id: Scalars["ID"]["input"];
+  input: UpdateApplicationNoteInput;
+};
+
+export type MutationUpdateApplicationStageEventArgs = {
+  id: Scalars["ID"]["input"];
+  input: UpdateApplicationStageEventInput;
+};
+
 export type Query = {
   __typename?: "Query";
   application: ApplicationType;
+  applicationNotes: Array<ApplicationNoteType>;
+  applicationStageEvents: Array<ApplicationStageEventType>;
   applications: Array<ApplicationType>;
   me: UserType;
 };
@@ -81,11 +154,29 @@ export type QueryApplicationArgs = {
   id: Scalars["ID"]["input"];
 };
 
+export type QueryApplicationNotesArgs = {
+  applicationId: Scalars["ID"]["input"];
+};
+
+export type QueryApplicationStageEventsArgs = {
+  applicationId: Scalars["ID"]["input"];
+};
+
 export type UpdateApplicationInput = {
-  appliedAt?: InputMaybe<Scalars["DateTime"]["input"]>;
   company?: InputMaybe<Scalars["String"]["input"]>;
+  description?: InputMaybe<Scalars["String"]["input"]>;
   title?: InputMaybe<Scalars["String"]["input"]>;
   url?: InputMaybe<Scalars["String"]["input"]>;
+};
+
+export type UpdateApplicationNoteInput = {
+  content?: InputMaybe<Scalars["String"]["input"]>;
+  expectedRevision: Scalars["Int"]["input"];
+};
+
+export type UpdateApplicationStageEventInput = {
+  scheduledAt?: InputMaybe<Scalars["DateTime"]["input"]>;
+  toStage?: InputMaybe<ApplicationStage>;
 };
 
 export type UserType = {
@@ -106,10 +197,27 @@ export type ApplicationsQuery = {
     id: string;
     title: string;
     company: string;
+    description?: string | null;
     url?: string | null;
-    appliedAt: any;
     createdAt: any;
   }>;
+};
+
+export type ApplicationQueryVariables = Exact<{
+  id: Scalars["ID"]["input"];
+}>;
+
+export type ApplicationQuery = {
+  __typename?: "Query";
+  application: {
+    __typename?: "ApplicationType";
+    id: string;
+    title: string;
+    company: string;
+    description?: string | null;
+    url?: string | null;
+    createdAt: any;
+  };
 };
 
 export type CreateApplicationMutationVariables = Exact<{
@@ -123,8 +231,8 @@ export type CreateApplicationMutation = {
     id: string;
     title: string;
     company: string;
+    description?: string | null;
     url?: string | null;
-    appliedAt: any;
     createdAt: any;
   };
 };
@@ -141,8 +249,8 @@ export type UpdateApplicationMutation = {
     id: string;
     title: string;
     company: string;
+    description?: string | null;
     url?: string | null;
-    appliedAt: any;
     createdAt: any;
   };
 };
@@ -154,6 +262,122 @@ export type DeleteApplicationMutationVariables = Exact<{
 export type DeleteApplicationMutation = {
   __typename?: "Mutation";
   deleteApplication: boolean;
+};
+
+export type ApplicationStageEventsQueryVariables = Exact<{
+  applicationId: Scalars["ID"]["input"];
+}>;
+
+export type ApplicationStageEventsQuery = {
+  __typename?: "Query";
+  applicationStageEvents: Array<{
+    __typename?: "ApplicationStageEventType";
+    id: string;
+    applicationId: string;
+    fromStage?: ApplicationStage | null;
+    toStage: ApplicationStage;
+    source: string;
+    scheduledAt?: any | null;
+    createdAt: any;
+  }>;
+};
+
+export type CreateApplicationStageEventMutationVariables = Exact<{
+  input: CreateApplicationStageEventInput;
+}>;
+
+export type CreateApplicationStageEventMutation = {
+  __typename?: "Mutation";
+  createApplicationStageEvent: {
+    __typename?: "ApplicationStageEventType";
+    id: string;
+    applicationId: string;
+    fromStage?: ApplicationStage | null;
+    toStage: ApplicationStage;
+    source: string;
+    scheduledAt?: any | null;
+    createdAt: any;
+  };
+};
+
+export type UpdateApplicationStageEventMutationVariables = Exact<{
+  id: Scalars["ID"]["input"];
+  input: UpdateApplicationStageEventInput;
+}>;
+
+export type UpdateApplicationStageEventMutation = {
+  __typename?: "Mutation";
+  updateApplicationStageEvent: {
+    __typename?: "ApplicationStageEventType";
+    id: string;
+    applicationId: string;
+    fromStage?: ApplicationStage | null;
+    toStage: ApplicationStage;
+    source: string;
+    scheduledAt?: any | null;
+    createdAt: any;
+  };
+};
+
+export type ApplicationNotesQueryVariables = Exact<{
+  applicationId: Scalars["ID"]["input"];
+}>;
+
+export type ApplicationNotesQuery = {
+  __typename?: "Query";
+  applicationNotes: Array<{
+    __typename?: "ApplicationNoteType";
+    id: string;
+    applicationId?: string | null;
+    content: string;
+    revision: number;
+    createdAt: any;
+    updatedAt: any;
+  }>;
+};
+
+export type CreateApplicationNoteMutationVariables = Exact<{
+  input: CreateApplicationNoteInput;
+}>;
+
+export type CreateApplicationNoteMutation = {
+  __typename?: "Mutation";
+  createApplicationNote: {
+    __typename?: "ApplicationNoteType";
+    id: string;
+    applicationId?: string | null;
+    content: string;
+    revision: number;
+    createdAt: any;
+    updatedAt: any;
+  };
+};
+
+export type UpdateApplicationNoteMutationVariables = Exact<{
+  id: Scalars["ID"]["input"];
+  input: UpdateApplicationNoteInput;
+}>;
+
+export type UpdateApplicationNoteMutation = {
+  __typename?: "Mutation";
+  updateApplicationNote: {
+    __typename?: "ApplicationNoteType";
+    id: string;
+    applicationId?: string | null;
+    content: string;
+    revision: number;
+    createdAt: any;
+    updatedAt: any;
+  };
+};
+
+export type DeleteApplicationNoteMutationVariables = Exact<{
+  id: Scalars["ID"]["input"];
+}>;
+
+export type DeleteApplicationNoteMutation = {
+  __typename?: "Mutation";
+  deleteApplicationNote: boolean;
 };
 
 export type MeQueryVariables = Exact<{ [key: string]: never }>;
@@ -189,8 +413,8 @@ export const ApplicationsDocument = {
                 { kind: "Field", name: { kind: "Name", value: "id" } },
                 { kind: "Field", name: { kind: "Name", value: "title" } },
                 { kind: "Field", name: { kind: "Name", value: "company" } },
+                { kind: "Field", name: { kind: "Name", value: "description" } },
                 { kind: "Field", name: { kind: "Name", value: "url" } },
-                { kind: "Field", name: { kind: "Name", value: "appliedAt" } },
                 { kind: "Field", name: { kind: "Name", value: "createdAt" } },
               ],
             },
@@ -200,6 +424,56 @@ export const ApplicationsDocument = {
     },
   ],
 } as unknown as DocumentNode<ApplicationsQuery, ApplicationsQueryVariables>;
+export const ApplicationDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "query",
+      name: { kind: "Name", value: "Application" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "id" } },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "application" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "id" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "id" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                { kind: "Field", name: { kind: "Name", value: "title" } },
+                { kind: "Field", name: { kind: "Name", value: "company" } },
+                { kind: "Field", name: { kind: "Name", value: "description" } },
+                { kind: "Field", name: { kind: "Name", value: "url" } },
+                { kind: "Field", name: { kind: "Name", value: "createdAt" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ApplicationQuery, ApplicationQueryVariables>;
 export const CreateApplicationDocument = {
   kind: "Document",
   definitions: [
@@ -245,8 +519,8 @@ export const CreateApplicationDocument = {
                 { kind: "Field", name: { kind: "Name", value: "id" } },
                 { kind: "Field", name: { kind: "Name", value: "title" } },
                 { kind: "Field", name: { kind: "Name", value: "company" } },
+                { kind: "Field", name: { kind: "Name", value: "description" } },
                 { kind: "Field", name: { kind: "Name", value: "url" } },
-                { kind: "Field", name: { kind: "Name", value: "appliedAt" } },
                 { kind: "Field", name: { kind: "Name", value: "createdAt" } },
               ],
             },
@@ -320,8 +594,8 @@ export const UpdateApplicationDocument = {
                 { kind: "Field", name: { kind: "Name", value: "id" } },
                 { kind: "Field", name: { kind: "Name", value: "title" } },
                 { kind: "Field", name: { kind: "Name", value: "company" } },
+                { kind: "Field", name: { kind: "Name", value: "description" } },
                 { kind: "Field", name: { kind: "Name", value: "url" } },
-                { kind: "Field", name: { kind: "Name", value: "appliedAt" } },
                 { kind: "Field", name: { kind: "Name", value: "createdAt" } },
               ],
             },
@@ -375,6 +649,449 @@ export const DeleteApplicationDocument = {
 } as unknown as DocumentNode<
   DeleteApplicationMutation,
   DeleteApplicationMutationVariables
+>;
+export const ApplicationStageEventsDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "query",
+      name: { kind: "Name", value: "ApplicationStageEvents" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "applicationId" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "applicationStageEvents" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "applicationId" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "applicationId" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "applicationId" },
+                },
+                { kind: "Field", name: { kind: "Name", value: "fromStage" } },
+                { kind: "Field", name: { kind: "Name", value: "toStage" } },
+                { kind: "Field", name: { kind: "Name", value: "source" } },
+                { kind: "Field", name: { kind: "Name", value: "scheduledAt" } },
+                { kind: "Field", name: { kind: "Name", value: "createdAt" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  ApplicationStageEventsQuery,
+  ApplicationStageEventsQueryVariables
+>;
+export const CreateApplicationStageEventDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "CreateApplicationStageEvent" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "input" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: {
+              kind: "NamedType",
+              name: { kind: "Name", value: "CreateApplicationStageEventInput" },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "createApplicationStageEvent" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "input" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "input" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "applicationId" },
+                },
+                { kind: "Field", name: { kind: "Name", value: "fromStage" } },
+                { kind: "Field", name: { kind: "Name", value: "toStage" } },
+                { kind: "Field", name: { kind: "Name", value: "source" } },
+                { kind: "Field", name: { kind: "Name", value: "scheduledAt" } },
+                { kind: "Field", name: { kind: "Name", value: "createdAt" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  CreateApplicationStageEventMutation,
+  CreateApplicationStageEventMutationVariables
+>;
+export const UpdateApplicationStageEventDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "UpdateApplicationStageEvent" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "id" } },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "input" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: {
+              kind: "NamedType",
+              name: { kind: "Name", value: "UpdateApplicationStageEventInput" },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "updateApplicationStageEvent" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "id" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "id" },
+                },
+              },
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "input" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "input" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "applicationId" },
+                },
+                { kind: "Field", name: { kind: "Name", value: "fromStage" } },
+                { kind: "Field", name: { kind: "Name", value: "toStage" } },
+                { kind: "Field", name: { kind: "Name", value: "source" } },
+                { kind: "Field", name: { kind: "Name", value: "scheduledAt" } },
+                { kind: "Field", name: { kind: "Name", value: "createdAt" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  UpdateApplicationStageEventMutation,
+  UpdateApplicationStageEventMutationVariables
+>;
+export const ApplicationNotesDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "query",
+      name: { kind: "Name", value: "ApplicationNotes" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "applicationId" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "applicationNotes" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "applicationId" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "applicationId" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "applicationId" },
+                },
+                { kind: "Field", name: { kind: "Name", value: "content" } },
+                { kind: "Field", name: { kind: "Name", value: "revision" } },
+                { kind: "Field", name: { kind: "Name", value: "createdAt" } },
+                { kind: "Field", name: { kind: "Name", value: "updatedAt" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  ApplicationNotesQuery,
+  ApplicationNotesQueryVariables
+>;
+export const CreateApplicationNoteDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "CreateApplicationNote" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "input" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: {
+              kind: "NamedType",
+              name: { kind: "Name", value: "CreateApplicationNoteInput" },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "createApplicationNote" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "input" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "input" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "applicationId" },
+                },
+                { kind: "Field", name: { kind: "Name", value: "content" } },
+                { kind: "Field", name: { kind: "Name", value: "revision" } },
+                { kind: "Field", name: { kind: "Name", value: "createdAt" } },
+                { kind: "Field", name: { kind: "Name", value: "updatedAt" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  CreateApplicationNoteMutation,
+  CreateApplicationNoteMutationVariables
+>;
+export const UpdateApplicationNoteDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "UpdateApplicationNote" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "id" } },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "input" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: {
+              kind: "NamedType",
+              name: { kind: "Name", value: "UpdateApplicationNoteInput" },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "updateApplicationNote" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "id" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "id" },
+                },
+              },
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "input" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "input" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "applicationId" },
+                },
+                { kind: "Field", name: { kind: "Name", value: "content" } },
+                { kind: "Field", name: { kind: "Name", value: "revision" } },
+                { kind: "Field", name: { kind: "Name", value: "createdAt" } },
+                { kind: "Field", name: { kind: "Name", value: "updatedAt" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  UpdateApplicationNoteMutation,
+  UpdateApplicationNoteMutationVariables
+>;
+export const DeleteApplicationNoteDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "DeleteApplicationNote" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "id" } },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "deleteApplicationNote" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "id" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "id" },
+                },
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  DeleteApplicationNoteMutation,
+  DeleteApplicationNoteMutationVariables
 >;
 export const MeDocument = {
   kind: "Document",

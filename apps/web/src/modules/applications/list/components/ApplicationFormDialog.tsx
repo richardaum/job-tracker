@@ -13,14 +13,12 @@ interface ApplicationValues {
   title: string;
   company: string;
   url?: string | null;
-  appliedAt: string;
 }
 
 interface FormState {
   title: string;
   company: string;
   url: string;
-  appliedAt: string;
 }
 
 interface ApplicationFormBodyProps {
@@ -42,9 +40,6 @@ function ApplicationFormBody({
     title: application?.title ?? "",
     company: application?.company ?? "",
     url: application?.url ?? "",
-    appliedAt: application?.appliedAt
-      ? application.appliedAt.slice(0, 10)
-      : new Date().toISOString().slice(0, 10),
   });
   const [errors, setErrors] = useState<Partial<FormState>>({});
 
@@ -56,7 +51,7 @@ function ApplicationFormBody({
   const loading = creating || updating;
 
   function set(field: keyof FormState) {
-    return (e: React.ChangeEvent<HTMLInputElement>) =>
+    return (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
       setForm((f) => ({ ...f, [field]: e.target.value }));
   }
 
@@ -64,7 +59,6 @@ function ApplicationFormBody({
     const next: Partial<FormState> = {};
     if (!form.title.trim()) next.title = "Title is required.";
     if (!form.company.trim()) next.company = "Company is required.";
-    if (!form.appliedAt) next.appliedAt = "Applied date is required.";
     if (form.url && !/^https?:\/\/.+/.test(form.url))
       next.url = "URL must start with http:// or https://";
     setErrors(next);
@@ -79,7 +73,6 @@ function ApplicationFormBody({
       title: form.title.trim(),
       company: form.company.trim(),
       url: form.url.trim() || null,
-      appliedAt: new Date(form.appliedAt),
     };
 
     try {
@@ -145,22 +138,6 @@ function ApplicationFormBody({
               onChange={set("url")}
               placeholder="https://example.com/jobs/123"
               state={errors.url ? "error" : "default"}
-              disabled={loading}
-            />
-          </FormField>
-
-          <FormField
-            label="Applied date"
-            htmlFor="app-applied-at"
-            required
-            error={errors.appliedAt}
-          >
-            <Input
-              id="app-applied-at"
-              type="date"
-              value={form.appliedAt}
-              onChange={set("appliedAt")}
-              state={errors.appliedAt ? "error" : "default"}
               disabled={loading}
             />
           </FormField>

@@ -12,6 +12,7 @@ export interface DialogProps {
   open?: boolean;
   defaultOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
+  contentClassName?: string;
 }
 
 export function Dialog({
@@ -23,6 +24,7 @@ export function Dialog({
   open,
   defaultOpen,
   onOpenChange,
+  contentClassName,
 }: DialogProps) {
   return (
     <RadixDialog.Root
@@ -40,6 +42,7 @@ export function Dialog({
         <RadixDialog.Content
           className={cn(
             "fixed left-1/2 top-1/2 z-50 w-[calc(100vw-(var(--primitive-space-6)*2))] max-w-lg -translate-x-1/2 -translate-y-1/2 rounded-lg border border-border-subtle bg-bg-surface p-6 shadow-md focus:outline-none",
+            contentClassName,
           )}
         >
           <div className={cn("mb-3 flex items-start justify-between gap-2")}>
@@ -60,7 +63,7 @@ export function Dialog({
             <RadixDialog.Close
               aria-label="Close dialog"
               className={cn(
-                "inline-flex size-8 items-center justify-center rounded-md text-text-secondary transition-colors hover:bg-bg-surface-hover hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-brand focus-visible:ring-offset-2",
+                "inline-flex size-8 items-center justify-center rounded-md text-text-secondary transition-colors hover:bg-bg-surface-hover hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-brand focus-visible:ring-inset focus-visible:ring-offset-0",
               )}
             >
               <XIcon size={16} weight="regular" />

@@ -1,8 +1,9 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import ApplicationsPage from "./page";
+import ApplicationsPage from "./ApplicationsPage";
 
 const useApplicationsQueryMock = vi.fn();
+const useApplicationStageEventsQueryMock = vi.fn();
 const useCurrentUserMock = vi.fn();
 
 vi.mock("next/image", () => ({
@@ -13,28 +14,47 @@ vi.mock("next/image", () => ({
 }));
 
 vi.mock("@/gql/hooks", () => ({
+  ApplicationStage: {
+    New: "new",
+    Applied: "applied",
+    RecruiterScreen: "recruiter_screen",
+    Technical: "technical",
+    Offer: "offer",
+    Rejected: "rejected",
+  },
   useApplicationsQuery: (...args: unknown[]) =>
     useApplicationsQueryMock(...args),
+  useApplicationStageEventsQuery: (...args: unknown[]) =>
+    useApplicationStageEventsQueryMock(...args),
 }));
 
 vi.mock("@/hooks/useCurrentUser", () => ({
   useCurrentUser: () => useCurrentUserMock(),
 }));
 
-vi.mock("./ApplicationFormDialog", () => ({
+vi.mock("../components/ApplicationFormDialog", () => ({
   ApplicationFormDialog: ({ trigger }: { trigger: React.ReactNode }) => (
     <div>{trigger}</div>
   ),
 }));
 
-vi.mock("./DeleteApplicationDialog", () => ({
+vi.mock("../components/DeleteApplicationDialog", () => ({
   DeleteApplicationDialog: ({ trigger }: { trigger: React.ReactNode }) => (
     <div>{trigger}</div>
   ),
 }));
 
+vi.mock("../components/ApplicationTrackingPanel", () => ({
+  ApplicationTrackingPanel: () => <div>Tracking panel</div>,
+}));
+
 describe("ApplicationsPage", () => {
-  it("renders applications list from query data", () => {
+  it("renders current stage badge when stage events exist", () => {
+    useApplicationStageEventsQueryMock.mockReturnValue({
+      data: {
+        applicationStageEvents: [{ id: "event-1", toStage: "technical" }],
+      },
+    });
     useCurrentUserMock.mockReturnValue({
       user: {
         id: "user-1",
@@ -64,10 +84,55 @@ describe("ApplicationsPage", () => {
     expect(screen.getByText("Applications")).toBeInTheDocument();
     expect(screen.getByText("Frontend Engineer")).toBeInTheDocument();
     expect(screen.getByText("Acme")).toBeInTheDocument();
+    expect(screen.getByText("Technical")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /view posting/i })).toBeVisible();
+  });
+
+  it("renders applications list from query data", () => {
+    useApplicationStageEventsQueryMock.mockReturnValue({
+      data: {
+        applicationStageEvents: [],
+      },
+    });
+    useCurrentUserMock.mockReturnValue({
+      user: {
+        id: "user-1",
+        name: "Test User",
+        email: "test@example.com",
+        avatarUrl: null,
+      },
+    });
+    useApplicationsQueryMock.mockReturnValue({
+      data: {
+        applications: [
+          {
+            id: "app-1",
+            title: "Frontend Engineer",
+            company: "Acme",
+            url: "https://example.com",
+            appliedAt: "2026-04-20T00:00:00.000Z",
+          },
+        ],
+      },
+      loading: false,
+      error: undefined,
+    });
+
+    render(<ApplicationsPage />);
+
+    expect(screen.getByText("Applications")).toBeInTheDocument();
+    expect(screen.getByText("Frontend Engineer")).toBeInTheDocument();
+    expect(screen.getByText("Acme")).toBeInTheDocument();
+    expect(screen.getByText("New")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /view posting/i })).toBeVisible();
   });
 
   it("renders empty state when user has no applications", () => {
+    useApplicationStageEventsQueryMock.mockReturnValue({
+      data: {
+        applicationStageEvents: [],
+      },
+    });
     useCurrentUserMock.mockReturnValue({
       user: {
         id: "user-1",

@@ -19,7 +19,7 @@ export function Link({
   ...props
 }: LinkProps) {
   const classes = cn(
-    "inline-flex items-center gap-2 text-sm font-medium underline-offset-4 transition-colors hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-brand focus-visible:ring-offset-2",
+    "inline-flex items-center gap-2 text-sm font-medium underline-offset-4 transition-colors hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-brand focus-visible:ring-inset focus-visible:ring-offset-0",
     variantClasses[variant],
     className,
   );

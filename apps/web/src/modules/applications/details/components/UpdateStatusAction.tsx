@@ -1,0 +1,184 @@
+"use client";
+
+import React, { useMemo, useState } from "react";
+import {
+  Button,
+  Dialog,
+  FormField,
+  Input,
+  Select,
+  Stack,
+  cn,
+} from "@job-tracker/ui";
+import {
+  ApplicationStage,
+  ApplicationStageEventsDocument,
+  useCreateApplicationStageEventMutation,
+} from "@/gql/hooks";
+import {
+  buildScheduledAtWithBrowserTimezone,
+  getDateInputValueFromToday,
+} from "@/modules/applications/details/utils/scheduled-at";
+import { formatStage } from "@/modules/applications/details/utils/application-details.shared";
+
+const stageOptions: Array<{ value: ApplicationStage; label: string }> = [
+  { value: ApplicationStage.New, label: "New" },
+  { value: ApplicationStage.Applied, label: "Applied" },
+  { value: ApplicationStage.RecruiterScreen, label: "Recruiter Screen" },
+  { value: ApplicationStage.Technical, label: "Technical" },
+  { value: ApplicationStage.Offer, label: "Offer" },
+  { value: ApplicationStage.Rejected, label: "Rejected" },
+];
+
+const quickScheduleOptions = [
+  { label: "Today", offsetDays: 0 },
+  { label: "Tomorrow", offsetDays: 1 },
+  { label: "+2d", offsetDays: 2 },
+  { label: "+3d", offsetDays: 3 },
+] as const;
+
+export function UpdateStatusAction({
+  applicationId,
+  currentStage,
+  trigger,
+  open,
+  onOpenChange,
+  onSuccess,
+  onError,
+}: {
+  applicationId: string;
+  currentStage: ApplicationStage;
+  trigger?: React.ReactElement;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  onSuccess?: (message: string) => void;
+  onError?: (message: string) => void;
+}) {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const [selectedStage, setSelectedStage] = useState<
+    ApplicationStage | undefined
+  >(undefined);
+  const [scheduledAtDraft, setScheduledAtDraft] = useState("");
+
+  const [createStageEvent, { loading: stageSaving }] =
+    useCreateApplicationStageEventMutation({
+      refetchQueries: [
+        {
+          query: ApplicationStageEventsDocument,
+          variables: { applicationId },
+        },
+      ],
+    });
+  const saving = stageSaving;
+  const canSave = Boolean(selectedStage) && !saving;
+  const scheduledAtValue = scheduledAtDraft.trim();
+  const selectOptions = useMemo(
+    () => stageOptions.map((option) => ({ ...option, value: option.value })),
+    [],
+  );
+
+  const resolvedOpen = open ?? internalOpen;
+
+  function handleOpenChange(nextOpen: boolean) {
+    if (open === undefined) {
+      setInternalOpen(nextOpen);
+    }
+    onOpenChange?.(nextOpen);
+    if (nextOpen) {
+      setSelectedStage(undefined);
+      setScheduledAtDraft("");
+    }
+  }
+
+  async function handleSaveStatusUpdate() {
+    if (!selectedStage) return;
+
+    try {
+      await createStageEvent({
+        variables: {
+          input: {
+            applicationId,
+            toStage: selectedStage,
+            scheduledAt: buildScheduledAtWithBrowserTimezone(scheduledAtValue),
+            source: "manual",
+          },
+        },
+      });
+      handleOpenChange(false);
+      onSuccess?.("Status update saved.");
+    } catch {
+      onError?.("Could not save status update.");
+    }
+  }
+
+  return (
+    <Dialog
+      title="Update status"
+      open={resolvedOpen}
+      onOpenChange={handleOpenChange}
+      trigger={trigger ?? <span aria-hidden style={{ display: "none" }} />}
+    >
+      <Stack gap="sm">
+        <FormField label="Status" htmlFor={`history-status-${applicationId}`}>
+          <Select
+            value={selectedStage}
+            onValueChange={(value) =>
+              setSelectedStage(value as ApplicationStage)
+            }
+            options={selectOptions}
+            placeholder={`Current: ${formatStage(currentStage)}`}
+            size="sm"
+          />
+        </FormField>
+        <FormField
+          label="Scheduled at (optional)"
+          htmlFor={`history-scheduled-at-${applicationId}`}
+        >
+          <Stack gap="xs">
+            <Input
+              id={`history-scheduled-at-${applicationId}`}
+              type="date"
+              size="sm"
+              value={scheduledAtDraft}
+              onChange={(event) => setScheduledAtDraft(event.target.value)}
+              disabled={saving}
+            />
+            <div className={cn("flex flex-wrap gap-1")}>
+              {quickScheduleOptions.map((option) => {
+                const optionValue = getDateInputValueFromToday(
+                  option.offsetDays,
+                );
+                return (
+                  <Button
+                    key={option.label}
+                    type="button"
+                    size="sm"
+                    intent={
+                      scheduledAtDraft === optionValue ? "secondary" : "ghost"
+                    }
+                    className={cn("h-7 px-2 text-xs")}
+                    onClick={() => setScheduledAtDraft(optionValue)}
+                    disabled={saving}
+                  >
+                    {option.label}
+                  </Button>
+                );
+              })}
+            </div>
+          </Stack>
+        </FormField>
+        <div className={cn("flex justify-end")}>
+          <Button
+            intent="primary"
+            size="sm"
+            onClick={() => void handleSaveStatusUpdate()}
+            disabled={!canSave}
+            state={saving ? "loading" : "default"}
+          >
+            Save
+          </Button>
+        </div>
+      </Stack>
+    </Dialog>
+  );
+}

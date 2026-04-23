@@ -31,6 +31,8 @@ export type {
   DropdownMenuItemProps,
   DropdownMenuProps,
 } from "./components/DropdownMenu/DropdownMenu";
+export { Popover } from "./components/Popover/Popover";
+export type { PopoverProps } from "./components/Popover/Popover";
 export { IconButton } from "./components/IconButton/IconButton";
 export type {
   IconButtonIntent,
@@ -56,6 +58,18 @@ export { Spinner } from "./components/Spinner/Spinner";
 export type { SpinnerProps, SpinnerSize } from "./components/Spinner/Spinner";
 export { Stack } from "./components/Stack/Stack";
 export type { StackProps } from "./components/Stack/Stack";
+export {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "./components/Tabs/Tabs";
+export type {
+  TabsContentProps,
+  TabsListProps,
+  TabsProps,
+  TabsTriggerProps,
+} from "./components/Tabs/Tabs";
 export { Textarea } from "./components/Textarea/Textarea";
 export type { TextareaProps } from "./components/Textarea/Textarea";
 export { Toast } from "./components/Toast/Toast";

@@ -5,6 +5,7 @@ export interface CardProps {
   children: React.ReactNode;
   variant?: "default" | "outlined";
   padding?: "xs" | "sm" | "md" | "lg" | "xl";
+  className?: string;
 }
 
 const variantClasses: Record<NonNullable<CardProps["variant"]>, string> = {
@@ -24,11 +25,13 @@ export function Card({
   children,
   variant = "default",
   padding = "md",
+  className,
 }: CardProps) {
   return (
     <article
       className={cn(
         `rounded-lg border bg-bg-surface ${variantClasses[variant]} ${paddingClasses[padding]}`,
+        className,
       )}
     >
       {children}

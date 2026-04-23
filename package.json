@@ -2,7 +2,7 @@
   "name": "job-tracker",
   "private": true,
   "scripts": {
-    "dev": "turbo dev",
+    "dev": "turbo run dev db:migrate:watch",
     "build": "turbo build",
     "test": "turbo test",
     "test:coverage": "turbo test -- --coverage --coverage.thresholds.lines=80",
