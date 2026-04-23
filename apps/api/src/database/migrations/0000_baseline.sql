@@ -37,19 +37,16 @@ CREATE TABLE "application_stage_events" (
 --> statement-breakpoint
 CREATE TABLE "application_notes" (
 	"id" text PRIMARY KEY NOT NULL,
-	"application_id" text,
-	"stage_event_id" text,
+	"application_id" text NOT NULL,
 	"user_id" text NOT NULL,
 	"content" text DEFAULT '{"type":"doc","content":[{"type":"paragraph"}]}' NOT NULL,
 	"revision" integer DEFAULT 1 NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_at" timestamp DEFAULT now() NOT NULL,
-	CONSTRAINT "application_notes_exactly_one_target" CHECK ((("application_notes"."application_id" IS NOT NULL AND "application_notes"."stage_event_id" IS NULL) OR ("application_notes"."application_id" IS NULL AND "application_notes"."stage_event_id" IS NOT NULL)))
+	"updated_at" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
 ALTER TABLE "applications" ADD CONSTRAINT "applications_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "application_stage_events" ADD CONSTRAINT "application_stage_events_application_id_applications_id_fk" FOREIGN KEY ("application_id") REFERENCES "public"."applications"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "application_stage_events" ADD CONSTRAINT "application_stage_events_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "application_notes" ADD CONSTRAINT "application_notes_application_id_applications_id_fk" FOREIGN KEY ("application_id") REFERENCES "public"."applications"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "application_notes" ADD CONSTRAINT "application_notes_stage_event_id_application_stage_events_id_fk" FOREIGN KEY ("stage_event_id") REFERENCES "public"."application_stage_events"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "application_notes" ADD CONSTRAINT "application_notes_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;

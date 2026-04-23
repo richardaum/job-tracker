@@ -1,5 +1,5 @@
 {
-  "id": "9eb3a1f2-c109-42d3-b3b2-566131e22b97",
+  "id": "bf1f1912-cde6-4145-89f7-6db5e55dda9a",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -251,13 +251,7 @@
           "name": "application_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
-        },
-        "stage_event_id": {
-          "name": "stage_event_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "user_id": {
           "name": "user_id",
@@ -305,15 +299,6 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "application_notes_stage_event_id_application_stage_events_id_fk": {
-          "name": "application_notes_stage_event_id_application_stage_events_id_fk",
-          "tableFrom": "application_notes",
-          "tableTo": "application_stage_events",
-          "columnsFrom": ["stage_event_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
         "application_notes_user_id_users_id_fk": {
           "name": "application_notes_user_id_users_id_fk",
           "tableFrom": "application_notes",
@@ -327,12 +312,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
-      "checkConstraints": {
-        "application_notes_exactly_one_target": {
-          "name": "application_notes_exactly_one_target",
-          "value": "((\"application_notes\".\"application_id\" IS NOT NULL AND \"application_notes\".\"stage_event_id\" IS NULL) OR (\"application_notes\".\"application_id\" IS NULL AND \"application_notes\".\"stage_event_id\" IS NOT NULL))"
-        }
-      },
+      "checkConstraints": {},
       "isRLSEnabled": false
     }
   },
