@@ -24,4 +24,4 @@
 
 ## Completion status
 
-Beta1 is complete and archived under `.specs/beta1`; this roadmap tracks only prioritized Beta2 work from [R-15] through [R-20] using one canonical scope file per product topic.
+Beta1 is complete and archived under `.specs/beta1`; Beta2 execution has completed [R-16] (`application-stages-and-notes`) and is now advancing to [R-17] (`dashboard-and-search`) using one canonical scope file per product topic.
