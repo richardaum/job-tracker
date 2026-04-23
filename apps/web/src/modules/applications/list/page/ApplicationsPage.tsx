@@ -407,7 +407,7 @@ export default function ApplicationsPage() {
                                 <Text
                                   as="span"
                                   size="sm"
-                                  color="secondary"
+                                  color="success"
                                   className={cn("min-w-0")}
                                 >
                                   {compLine}
@@ -417,6 +417,7 @@ export default function ApplicationsPage() {
                                 currency={compLine ? null : app.salaryCurrency}
                                 period={compLine ? null : app.salaryPeriod}
                                 tags={compTags}
+                                maxTagChips={3}
                                 omitPeriodCurrency={Boolean(compLine)}
                               />
                             </span>
