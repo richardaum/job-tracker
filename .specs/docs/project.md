@@ -2,32 +2,31 @@
 
 ## Functional Requirements
 
-- [F-1] Users must authenticate with Google OAuth before accessing protected application management features.
-- [F-2] Authenticated users must create, list, update, and delete their own job application records.
-- [F-3] Access control must enforce ownership isolation so users cannot access other users' application data.
-- [F-4] The product must support application tracking workflows that improve update consistency over time.
-- [F-5] Future product expansion may include extension-based import and guided automation capabilities.
+- [F-22] Users must track each application through explicit stages with history and interview-oriented notes.
+- [F-23] Users must visualize pipeline health with stage-level dashboard metrics, filtering, and text search.
+- [F-24] Users must use the product in English and Portuguese (Brazil) with consistent locale behavior.
+- [F-25] Users must receive AI-generated job insights and AI-assisted note structuring before saving updates.
+- [F-26] Users must import opportunities from extension flows and generic board URLs without manual retyping.
+- [F-27] Users may explore the product through a guest onboarding path before creating an authenticated account.
 
 ## Non-Functional Requirements
 
-- [F-6] API latency target is p95 under 500ms for primary request paths.
-- [F-7] Web experience target includes LCP under 2.5 seconds on core user pages.
-- [F-8] Security controls must include HTTPS, validated input boundaries, and protected token handling practices.
-- [F-9] Minimum line coverage target in CI is 80 percent across main workspaces.
-- [F-10] Baseline accessibility target is WCAG 2.1 Level A for user-facing experiences.
+- [F-28] API latency target remains p95 under 500ms for core CRUD and dashboard query paths after Beta2 changes.
+- [F-29] AI enrichment requests must return a first response within 10 seconds for p95 successful calls.
+- [F-30] Beta2 user-facing flows must preserve WCAG 2.1 Level A baseline in all supported locales.
+- [F-31] CI line coverage target remains at least 80 percent across impacted workspaces and new modules.
+- [F-32] Imported and AI-generated fields must preserve provenance metadata for user review and auditability.
 
 ## High-Level Architecture
 
-- [F-11] The system uses a pnpm monorepo with `apps/web`, `apps/api`, and shared `packages/ui`.
-- [F-12] `apps/web` is a Next.js UI client that consumes GraphQL APIs and shared UI components.
-- [F-13] `apps/api` is a NestJS GraphQL service backed by PostgreSQL and Drizzle ORM.
-- [F-14] Shared UI and tokenized visual standards are managed in `packages/ui` with Storybook support.
-- [F-15] Observability and analytics rely on service telemetry tooling across frontend and backend paths.
+- [F-33] The system remains a pnpm monorepo with `apps/web`, `apps/api`, shared `packages/ui`, and optional extension workspace integration.
+- [F-34] `apps/web` remains a UI-only Next.js client that consumes GraphQL and never embeds direct board automation logic.
+- [F-35] `apps/api` remains the orchestration layer for stages, notes, AI enrichment, import processing, and guest-to-user migration.
+- [F-36] Async workloads for AI and import processing must be isolated behind internal API boundaries and observable job execution paths.
 
 ## Constraints
 
-- [F-16] The project is optimized for single-developer execution and pragmatic iteration speed.
-- [F-17] Architecture must avoid lock-in to Vercel-specific runtime services and vendor-only platform features.
-- [F-18] Refresh and session handling must avoid exposing sensitive token data in browser localStorage.
-- [F-19] Integration tests that require a real database must run with explicit environment preconditions.
-- [F-20] Deployment and infrastructure choices must preserve a migration path from low-traffic to scaled operation modes.
+- [F-37] Autonomous job submission to third-party boards remains out of scope for Beta2 even when import is available.
+- [F-38] AI suggestions must require explicit user confirmation before persisted changes become final application data.
+- [F-39] Architecture must continue to avoid vendor lock-in and preserve migration paths from low-traffic to scaled operation modes.
+- [F-40] Integration tests requiring real services must keep explicit environment preconditions and deterministic fallback behavior.

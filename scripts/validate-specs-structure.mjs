@@ -5,7 +5,9 @@ import { join, relative } from "node:path";
 
 const root = process.cwd();
 const specsRoot = join(root, ".specs");
-const allowedTopLevel = new Set(["docs", "product", "technical"]);
+const requiredTopLevel = new Set(["docs", "product", "technical"]);
+const optionalTopLevel = new Set(["beta1"]);
+const allowedTopLevel = new Set([...requiredTopLevel, ...optionalTopLevel]);
 const forbiddenPaths = [
   join(specsRoot, "quick"),
   join(specsRoot, "codebase"),
@@ -52,7 +54,7 @@ if (!existsSync(specsRoot)) {
     }
   }
 
-  for (const required of allowedTopLevel) {
+  for (const required of requiredTopLevel) {
     if (!topLevelDirs.includes(required)) {
       errors.push(
         `Missing required top-level specs directory: .specs/${required}`,

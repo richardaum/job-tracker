@@ -2,27 +2,26 @@
 
 ## Sequence
 
-- [R-1] Finalize authenticated user access foundation and stable session handling for protected workflows.
-- [R-2] Deliver and maintain owner-scoped application CRUD as the core user value stream.
-- [R-3] Consolidate product and technical planning artifacts under strict SDD structure and governance.
-- [R-4] Harden environment safety, validation paths, and runtime configuration consistency.
-- [R-5] Improve reliability and observability through instrumentation, resilience checks, and profiling standards.
-- [R-6] Strengthen developer workflow quality gates for linting, testing, build, and coverage enforcement.
-- [R-7] Evolve platform foundation for scalable operation modes without sacrificing architecture portability.
+- [R-15] Establish Beta2 planning baseline by separating implemented Beta1 scope from pending product expansion work.
+- [R-16] Deliver `application-stages-and-notes` as the canonical tracking scope, including workflow integrity and timeline consistency.
+- [R-17] Deliver `dashboard-and-search` as the canonical discovery scope, including aggregate query consistency and indexed retrieval.
+- [R-19] Deliver `ai-assistance` as the canonical AI scope, including deterministic enrichment contracts and approval-gated persistence.
+- [R-20] Deliver `import-and-onboarding-expansion` as the canonical import scope, including connector safeguards and guest migration integrity.
+- [R-18] Deliver `multilingual-experience` as the canonical i18n scope, including locale routing, dictionary governance, and EN/PT-BR quality checks.
 
 ## Dependencies
 
-- [R-8] [R-2] depends on [R-1] for authenticated access and user identity context.
-- [R-9] [R-3] depends on [R-2] artifacts and [F-11] architecture definitions for complete migration coverage.
-- [R-10] [R-4], [R-5], and [R-6] depend on [R-3] so documentation and governance rules are canonical first.
-- [R-11] [R-7] depends on [R-4], [R-5], and [R-6] to scale from a validated and observable baseline.
+- [R-21] [R-17] depends on [R-16] because dashboard views require normalized stage and note data.
+- [R-22] [R-18] depends on [R-16] and [R-17] so multilingual coverage targets concrete user-facing surfaces.
+- [R-23] [R-19] depends on [R-16] and [R-17] because AI assistance consumes tracked application context and searchable content.
+- [R-24] [R-20] depends on [R-16] and [R-19] because imported data must map to the same tracking model and enrichment pipeline.
 
 ## Milestones
 
-- [R-12] Milestone M1: authenticated application core delivered with owner isolation and verified user flows.
-- [R-13] Milestone M2: SDD documentation model established with deterministic IDs, state tracking, and history logging.
-- [R-14] Milestone M3: reliability, tooling, and platform hardening baselines verified for ongoing feature delivery.
+- [R-25] Milestone B2-M1: tracking and dashboard canonical scopes (`application-stages-and-notes`, `dashboard-and-search`) are operational behind stable ownership boundaries.
+- [R-26] Milestone B2-M2: multilingual and AI canonical scopes (`multilingual-experience`, `ai-assistance`) are production-ready with quality and review controls.
+- [R-27] Milestone B2-M3: import canonical scope (`import-and-onboarding-expansion`) is validated with explicit guardrails and rollout strategy.
 
 ## Completion status
 
-As of 2026-04-22, the sequence [R-1] through [R-7] is treated as complete in this repository: authenticated owner-scoped flows, SDD governance, environment hardening, observability instrumentation, CI and local quality gates, container build documentation, and Playwright coverage for the core applications UI path ([P-14]) are all enforced or documented, and milestones [R-12], [R-13], and [R-14] are reflected in the current CI and script surface.
+Beta1 is complete and archived under `.specs/beta1`; this roadmap tracks only prioritized Beta2 work from [R-15] through [R-20] using one canonical scope file per product topic.

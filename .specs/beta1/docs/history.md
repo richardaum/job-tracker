@@ -1,6 +1,5 @@
 # History
 
-- [H-17] 2026-04-23T14:22:25Z - Rehydrated pre-migration feature backlog from Git history, split completed scope into `.specs/beta1`, and reset `.specs` root to Beta2-only prioritized planning with new product/technical tracks and roadmap [R-15]–[R-27]. - Related: [R-15], [R-16], [R-17], [R-18], [R-19], [R-20], [F-22], [P-15], [T-57]
 - [H-16] 2026-04-22T22:30:00Z - Closed roadmap [R-1]–[R-7] by wiring CI with specs validation, Playwright e2e, and API Docker image jobs; aligned Playwright with 31xx port rules; added root `pnpm e2e` and extended `ci:local` with `specs:validate`; recorded roadmap completion and milestone [R-12]–[R-14] baselines. - Related: [R-7], [R-12], [R-13], [R-14], [P-14], [T-52], [T-53], [T-56]
 - [H-15] 2026-04-22T22:15:00Z - Validated API Docker build from repo root, added `.dockerignore`, root `README.md` deployment and build notes for [T-44] and [T-53], and `pnpm docker:build:api` for reproducible image builds. - Related: [R-7], [F-20], [T-44], [T-46], [T-53], [T-55]
 - [H-14] 2026-04-22T22:05:00Z - Aligned root `test:coverage` and `ci:local` with CI coverage flags, scoped `apps/web` Vitest coverage to tested client modules, raised UI default line threshold to 80 percent, and advanced execution to [R-7]. - Related: [R-6], [R-7], [F-9], [T-35], [T-40], [T-54]

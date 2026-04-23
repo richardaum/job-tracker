@@ -1,8 +1,8 @@
 # State
 
-- Status: complete
-- Active scope: none
-- Current step: none
-- Next action: Start new work from product priorities; append `.specs/docs/history.md` when closing meaningful increments.
+- Status: in-progress
+- Active scope: application-stages-and-notes
+- Current step: [R-16]
+- Next action: Design Beta2 tracking data model and user workflows before implementation tasking.
 - Blockers: none
-- Last update: 2026-04-22T22:30:00Z
+- Last update: 2026-04-23T14:22:25Z
