@@ -4,6 +4,7 @@ import React, { useMemo, useState } from "react";
 import {
   Button,
   FormField,
+  IconButton,
   Input,
   Popover,
   Select,
@@ -48,12 +49,17 @@ function formatStage(value: string) {
 
 interface ApplicationTrackingPanelProps {
   applicationId: string;
+  /** When true, only the popover trigger is rendered (e.g. inline with other row actions). */
+  inline?: boolean;
+  triggerIcon?: React.ReactNode;
   onSuccess: (message: string) => void;
   onError: (message: string) => void;
 }
 
 export function ApplicationTrackingPanel({
   applicationId,
+  inline = false,
+  triggerIcon,
   onSuccess,
   onError,
 }: ApplicationTrackingPanelProps) {
@@ -109,91 +115,107 @@ export function ApplicationTrackingPanel({
     }
   }
 
+  const popover = (
+    <Popover
+      trigger={
+        <IconButton
+          intent="ghost"
+          size="sm"
+          label="Update status"
+          tooltip="Update status"
+          className={cn(
+            "text-text-muted/80 hover:text-text-muted",
+            inline ? "h-6 w-6" : "h-7 w-7",
+          )}
+          icon={triggerIcon}
+        />
+      }
+      align="start"
+    >
+      <div className={cn("w-80 p-1")}>
+        <Stack gap="xs">
+          <FormField label="Status" htmlFor={`status-${applicationId}`}>
+            <Select
+              value={selectedStage}
+              onValueChange={(value) =>
+                setSelectedStageDraft(value as ApplicationStage)
+              }
+              options={stageOptions}
+              placeholder={`Current: ${formatStage(currentStage)}`}
+              size="sm"
+            />
+          </FormField>
+          {showStageControls ? (
+            <>
+              <FormField
+                label="Scheduled at (optional)"
+                htmlFor={`scheduled-at-${applicationId}`}
+              >
+                <Stack gap="xs">
+                  <Input
+                    id={`scheduled-at-${applicationId}`}
+                    type="date"
+                    size="sm"
+                    value={scheduledAtValue}
+                    onChange={(event) =>
+                      setScheduledAtDraft(event.target.value)
+                    }
+                    disabled={statusSaving}
+                  />
+                  <div className={cn("flex flex-wrap gap-1")}>
+                    {quickScheduleOptions.map((option) => {
+                      const optionValue = getDateInputValueFromToday(
+                        option.offsetDays,
+                      );
+                      return (
+                        <Button
+                          key={option.label}
+                          type="button"
+                          size="sm"
+                          intent={
+                            scheduledAtValue === optionValue
+                              ? "secondary"
+                              : "ghost"
+                          }
+                          className={cn("h-7 px-2 text-xs")}
+                          onClick={() => setScheduledAtDraft(optionValue)}
+                          disabled={statusSaving}
+                        >
+                          {option.label}
+                        </Button>
+                      );
+                    })}
+                  </div>
+                </Stack>
+              </FormField>
+            </>
+          ) : (
+            <Text size="xs" color="muted">
+              Select a status to define optional schedule and one note.
+            </Text>
+          )}
+          <Button
+            intent="secondary"
+            size="sm"
+            onClick={handleSaveStageUpdate}
+            disabled={!canSaveStageUpdate}
+            state={statusSaving ? "loading" : "default"}
+          >
+            Save
+          </Button>
+        </Stack>
+      </div>
+    </Popover>
+  );
+
+  if (inline) {
+    return popover;
+  }
+
   return (
     <Stack gap="sm" className={cn("mt-3 border-t border-border-subtle pt-3")}>
       <Stack direction="row" gap="xs" className={cn("flex-wrap")}>
-        <Popover
-          trigger={
-            <Button intent="secondary" size="sm">
-              Update status
-            </Button>
-          }
-          align="start"
-        >
-          <div className={cn("w-80 p-1")}>
-            <Stack gap="xs">
-              <FormField label="Status" htmlFor={`status-${applicationId}`}>
-                <Select
-                  value={selectedStage}
-                  onValueChange={(value) =>
-                    setSelectedStageDraft(value as ApplicationStage)
-                  }
-                  options={stageOptions}
-                  placeholder={`Current: ${formatStage(currentStage)}`}
-                  size="sm"
-                />
-              </FormField>
-              {showStageControls ? (
-                <>
-                  <FormField
-                    label="Scheduled at (optional)"
-                    htmlFor={`scheduled-at-${applicationId}`}
-                  >
-                    <Stack gap="xs">
-                      <Input
-                        id={`scheduled-at-${applicationId}`}
-                        type="date"
-                        size="sm"
-                        value={scheduledAtValue}
-                        onChange={(event) =>
-                          setScheduledAtDraft(event.target.value)
-                        }
-                        disabled={statusSaving}
-                      />
-                      <div className={cn("flex flex-wrap gap-1")}>
-                        {quickScheduleOptions.map((option) => {
-                          const optionValue = getDateInputValueFromToday(
-                            option.offsetDays,
-                          );
-                          return (
-                            <Button
-                              key={option.label}
-                              type="button"
-                              size="sm"
-                              intent={
-                                scheduledAtValue === optionValue
-                                  ? "secondary"
-                                  : "ghost"
-                              }
-                              className={cn("h-7 px-2 text-xs")}
-                              onClick={() => setScheduledAtDraft(optionValue)}
-                              disabled={statusSaving}
-                            >
-                              {option.label}
-                            </Button>
-                          );
-                        })}
-                      </div>
-                    </Stack>
-                  </FormField>
-                </>
-              ) : (
-                <Text size="xs" color="muted">
-                  Select a status to define optional schedule and one note.
-                </Text>
-              )}
-              <Button
-                intent="secondary"
-                size="sm"
-                onClick={handleSaveStageUpdate}
-                disabled={!canSaveStageUpdate}
-                state={statusSaving ? "loading" : "default"}
-              >
-                Save
-              </Button>
-            </Stack>
-          </div>
-        </Popover>
+        {popover}
       </Stack>
     </Stack>
   );

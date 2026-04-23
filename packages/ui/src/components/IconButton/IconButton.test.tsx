@@ -7,7 +7,11 @@ import { IconButton } from "./IconButton";
 describe("IconButton", () => {
   it("renders an accessible icon button", () => {
     render(
-      <IconButton icon={<Bell size={16} weight="regular" />} label="Notify" />,
+      <IconButton
+        icon={<Bell size={16} weight="regular" />}
+        label="Notify"
+        tooltip="Notify"
+      />,
     );
     expect(screen.getByRole("button", { name: /notify/i })).toBeInTheDocument();
   });
@@ -18,6 +22,7 @@ describe("IconButton", () => {
       <IconButton
         icon={<Bell size={16} weight="regular" />}
         label="Notify"
+        tooltip="Notify"
         onClick={onClick}
       />,
     );

@@ -32,11 +32,11 @@ export function Tooltip({
             side={side}
             sideOffset={6}
             className={cn(
-              "z-50 rounded-sm border border-border-subtle bg-bg-surface p-2 text-sm text-text-secondary shadow-sm",
+              "z-50 rounded-sm bg-black px-2 py-1.5 text-xs text-white shadow-sm",
             )}
           >
             {content}
-            <RadixTooltip.Arrow className={cn("fill-bg-surface")} />
+            <RadixTooltip.Arrow className={cn("fill-black")} />
           </RadixTooltip.Content>
         </RadixTooltip.Portal>
       </RadixTooltip.Root>

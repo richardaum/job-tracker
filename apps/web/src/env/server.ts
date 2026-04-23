@@ -7,6 +7,8 @@ const serverEnvSchema = z.object({
     .enum(["development", "test", "production"])
     .default("development"),
   PORT: z.coerce.number().int().min(1).max(65535).default(3100),
+  /** Used by server-only fetches (e.g. generateMetadata) and shared with the client bundle. */
+  NEXT_PUBLIC_API_GRAPHQL_URL: z.url().optional(),
 });
 
 export type ServerEnv = z.infer<typeof serverEnvSchema>;

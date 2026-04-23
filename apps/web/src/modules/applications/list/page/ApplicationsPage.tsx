@@ -6,7 +6,6 @@ import {
   Button,
   Card,
   DropdownMenu,
-  Heading,
   IconButton,
   Link,
   Skeleton,
@@ -16,7 +15,7 @@ import {
   cn,
 } from "@job-tracker/ui";
 import {
-  BellIcon,
+  ArrowSquareRightIcon,
   MagnifyingGlassIcon,
   PencilSimpleIcon,
   PlusIcon,
@@ -145,35 +144,6 @@ export default function ApplicationsPage() {
 
   return (
     <div className={cn("flex h-full flex-col")}>
-      {/* Page header */}
-      <div
-        className={cn(
-          "flex flex-col gap-4 border-b border-border-subtle px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-5",
-        )}
-      >
-        <div className={cn("min-w-0")}>
-          <Heading as="h1" size="2xl">
-            Applications
-          </Heading>
-          <Text size="sm" color="secondary" className={cn("mt-1")}>
-            Track and manage your job applications
-          </Text>
-        </div>
-
-        <div
-          className={cn(
-            "flex items-center justify-between gap-3 sm:justify-end sm:gap-4",
-          )}
-        >
-          <IconButton
-            intent="ghost"
-            size="sm"
-            label="Notifications"
-            icon={<BellIcon size={18} />}
-          />
-        </div>
-      </div>
-
       {/* Action bar */}
       <div
         className={cn(
@@ -276,7 +246,66 @@ export default function ApplicationsPage() {
                         >
                           {app.title}
                         </NextLink>
-                        <CurrentStageBadge applicationId={app.id} />
+                        <div className={cn("flex items-center gap-1")}>
+                          <CurrentStageBadge applicationId={app.id} />
+                          <ApplicationFormDialog
+                            trigger={
+                              <IconButton
+                                intent="ghost"
+                                size="sm"
+                                label={`Edit ${app.title}`}
+                                tooltip="Edit"
+                                className={cn(
+                                  "h-6 w-6 text-text-muted/80 hover:text-text-muted",
+                                )}
+                                icon={
+                                  <PencilSimpleIcon
+                                    size={13}
+                                    weight="regular"
+                                  />
+                                }
+                              />
+                            }
+                            application={{
+                              id: app.id,
+                              title: app.title,
+                              company: app.company,
+                              url: app.url,
+                            }}
+                            onSuccess={(msg) => showToast(msg, "success")}
+                            onError={(msg) => showToast(msg, "error")}
+                          />
+                          <DeleteApplicationDialog
+                            trigger={
+                              <IconButton
+                                intent="ghost"
+                                size="sm"
+                                label={`Delete ${app.title}`}
+                                tooltip="Delete"
+                                className={cn(
+                                  "h-6 w-6 text-text-muted/80 hover:text-text-muted",
+                                )}
+                                icon={<TrashIcon size={13} weight="regular" />}
+                              />
+                            }
+                            applicationId={app.id}
+                            applicationTitle={app.title}
+                            onSuccess={(msg) => showToast(msg, "success")}
+                            onError={(msg) => showToast(msg, "error")}
+                          />
+                          <ApplicationTrackingPanel
+                            inline
+                            applicationId={app.id}
+                            triggerIcon={
+                              <ArrowSquareRightIcon
+                                size={13}
+                                weight="regular"
+                              />
+                            }
+                            onSuccess={(msg) => showToast(msg, "success")}
+                            onError={(msg) => showToast(msg, "error")}
+                          />
+                        </div>
                       </div>
                       <div className={cn("flex flex-wrap items-center gap-2")}>
                         <Text as="span" size="sm" color="secondary">
@@ -310,53 +339,7 @@ export default function ApplicationsPage() {
                         </Text>
                       ) : null}
                     </div>
-
-                    <div
-                      className={cn(
-                        "flex items-center gap-2 self-end sm:self-auto",
-                      )}
-                    >
-                      <ApplicationFormDialog
-                        trigger={
-                          <IconButton
-                            intent="ghost"
-                            size="sm"
-                            label={`Edit ${app.title}`}
-                            icon={
-                              <PencilSimpleIcon size={16} weight="regular" />
-                            }
-                          />
-                        }
-                        application={{
-                          id: app.id,
-                          title: app.title,
-                          company: app.company,
-                          url: app.url,
-                        }}
-                        onSuccess={(msg) => showToast(msg, "success")}
-                        onError={(msg) => showToast(msg, "error")}
-                      />
-                      <DeleteApplicationDialog
-                        trigger={
-                          <IconButton
-                            intent="ghost"
-                            size="sm"
-                            label={`Delete ${app.title}`}
-                            icon={<TrashIcon size={16} weight="regular" />}
-                          />
-                        }
-                        applicationId={app.id}
-                        applicationTitle={app.title}
-                        onSuccess={(msg) => showToast(msg, "success")}
-                        onError={(msg) => showToast(msg, "error")}
-                      />
-                    </div>
                   </div>
-                  <ApplicationTrackingPanel
-                    applicationId={app.id}
-                    onSuccess={(msg) => showToast(msg, "success")}
-                    onError={(msg) => showToast(msg, "error")}
-                  />
                 </Card>
               );
             })}

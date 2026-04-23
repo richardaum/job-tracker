@@ -4,7 +4,7 @@ import { IconButton, Text, cn } from "@job-tracker/ui";
 
 type FieldEditTriggerButtonProps = Omit<
   React.ComponentProps<typeof IconButton>,
-  "icon" | "intent" | "size"
+  "icon" | "intent" | "size" | "tooltip"
 > & {
   label: string;
 };
@@ -19,6 +19,7 @@ export function FieldEditTriggerButton({
       intent="ghost"
       size="sm"
       label={label}
+      tooltip={label}
       icon={<PencilSimpleIcon size={14} weight="regular" />}
       className={cn(
         "h-7 w-7 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100",

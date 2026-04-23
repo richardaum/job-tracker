@@ -1,5 +1,6 @@
 import React from "react";
 import { cn } from "@ui/lib/cn";
+import { Tooltip } from "../Tooltip/Tooltip";
 
 export type IconButtonIntent =
   | "primary"
@@ -14,19 +15,20 @@ export interface IconButtonProps extends Omit<
 > {
   icon: React.ReactNode;
   label: string;
+  tooltip: React.ReactNode;
   intent?: IconButtonIntent;
   size?: IconButtonSize;
 }
 
 const intentClasses: Record<IconButtonIntent, string> = {
   primary:
-    "border-transparent bg-bg-brand text-text-inverted hover:bg-bg-brand-hover",
+    "border-transparent bg-bg-brand text-text-inverted hover:bg-bg-brand-hover data-[state=open]:bg-bg-brand-hover",
   secondary:
-    "border-border-default bg-bg-surface text-text-primary hover:bg-bg-surface-hover",
+    "border-border-default bg-bg-surface text-text-primary hover:bg-bg-surface-hover data-[state=open]:bg-bg-surface-hover",
   ghost:
-    "border-transparent bg-transparent text-text-brand shadow-none hover:bg-bg-brand-subtle",
+    "border-transparent bg-transparent text-text-brand shadow-none hover:bg-bg-brand-subtle data-[state=open]:bg-bg-brand-subtle",
   destructive:
-    "border-border-error bg-bg-error-subtle text-text-error hover:bg-bg-surface",
+    "border-border-error bg-bg-error-subtle text-text-error hover:bg-bg-surface data-[state=open]:bg-bg-surface",
 };
 
 const sizeClasses: Record<IconButtonSize, string> = {
@@ -37,6 +39,7 @@ const sizeClasses: Record<IconButtonSize, string> = {
 export function IconButton({
   icon,
   label,
+  tooltip,
   intent = "secondary",
   size = "md",
   className,
@@ -50,8 +53,10 @@ export function IconButton({
   );
 
   return (
-    <button type="button" aria-label={label} className={classes} {...props}>
-      <span aria-hidden>{icon}</span>
-    </button>
+    <Tooltip content={tooltip}>
+      <button type="button" aria-label={label} className={classes} {...props}>
+        <span aria-hidden>{icon}</span>
+      </button>
+    </Tooltip>
   );
 }

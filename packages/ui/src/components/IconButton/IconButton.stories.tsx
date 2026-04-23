@@ -17,6 +17,7 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     label: "Notifications",
+    tooltip: "Notifications",
     icon: <Bell size={20} weight="regular" />,
   },
 };
@@ -24,6 +25,7 @@ export const Default: Story = {
 export const Destructive: Story = {
   args: {
     label: "Delete",
+    tooltip: "Delete",
     intent: "destructive",
     icon: <Trash size={20} weight="regular" />,
   },

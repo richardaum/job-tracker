@@ -1,6 +1,5 @@
 "use client";
 
-import { useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -14,6 +13,7 @@ import {
 import { Text, cn } from "@job-tracker/ui";
 import { NEXT_PUBLIC_API_URL } from "@/env/client";
 import type { CurrentUser } from "@/hooks/useCurrentUser";
+import { ObfuscatedText } from "@/modules/navigation/components/ObfuscatedText";
 
 const API_URL = NEXT_PUBLIC_API_URL ?? "http://localhost:3101";
 
@@ -48,17 +48,12 @@ interface SidebarProps {
 export function Sidebar({ open = false, onClose, user }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const hoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [isEmailVisible, setIsEmailVisible] = useState(false);
   const initials = user.name
     .split(" ")
     .slice(0, 2)
     .map((namePart) => namePart[0])
     .join("")
     .toUpperCase();
-  const displayedEmail = isEmailVisible
-    ? user.email
-    : obfuscateEmail(user.email);
 
   async function handleLogout() {
     await fetch(`${API_URL}/auth/logout`, {
@@ -67,24 +62,6 @@ export function Sidebar({ open = false, onClose, user }: SidebarProps) {
     });
     onClose?.();
     router.replace("/login");
-  }
-
-  function handleAccountMouseEnter() {
-    if (hoverTimeoutRef.current) {
-      clearTimeout(hoverTimeoutRef.current);
-    }
-    hoverTimeoutRef.current = setTimeout(() => {
-      setIsEmailVisible(true);
-      hoverTimeoutRef.current = null;
-    }, 3000);
-  }
-
-  function handleAccountMouseLeave() {
-    if (hoverTimeoutRef.current) {
-      clearTimeout(hoverTimeoutRef.current);
-      hoverTimeoutRef.current = null;
-    }
-    setIsEmailVisible(false);
   }
 
   const navContent = (
@@ -162,8 +139,6 @@ export function Sidebar({ open = false, onClose, user }: SidebarProps) {
       <div className={cn("flex flex-col gap-0 px-3 py-3")}>
         <div className={cn("mx-1 mb-1 border-t border-border-subtle")} />
         <div
-          onMouseEnter={handleAccountMouseEnter}
-          onMouseLeave={handleAccountMouseLeave}
           className={cn(
             "mb-1 flex min-w-0 items-center gap-3 rounded-md px-4 py-2",
           )}
@@ -190,7 +165,10 @@ export function Sidebar({ open = false, onClose, user }: SidebarProps) {
               {user.name}
             </Text>
             <Text size="xs" color="muted" className={cn("truncate")}>
-              {displayedEmail}
+              <ObfuscatedText
+                text={user.email}
+                obfuscatedText={obfuscateEmail(user.email)}
+              />
             </Text>
           </div>
         </div>

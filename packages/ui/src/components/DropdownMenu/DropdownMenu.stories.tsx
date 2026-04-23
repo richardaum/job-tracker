@@ -25,6 +25,7 @@ export const Default: Story = {
       trigger={
         <IconButton
           label="Open actions menu"
+          tooltip="Open actions menu"
           icon={<DotsThreeOutlineVertical size={16} weight="regular" />}
         />
       }

@@ -81,7 +81,6 @@ describe("ApplicationsPage", () => {
 
     render(<ApplicationsPage />);
 
-    expect(screen.getByText("Applications")).toBeInTheDocument();
     expect(screen.getByText("Frontend Engineer")).toBeInTheDocument();
     expect(screen.getByText("Acme")).toBeInTheDocument();
     expect(screen.getByText("Technical")).toBeInTheDocument();
@@ -120,7 +119,6 @@ describe("ApplicationsPage", () => {
 
     render(<ApplicationsPage />);
 
-    expect(screen.getByText("Applications")).toBeInTheDocument();
     expect(screen.getByText("Frontend Engineer")).toBeInTheDocument();
     expect(screen.getByText("Acme")).toBeInTheDocument();
     expect(screen.getByText("New")).toBeInTheDocument();

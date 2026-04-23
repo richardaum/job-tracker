@@ -221,6 +221,7 @@ export function NotesPanel({
                             size="sm"
                             intent="ghost"
                             label="Edit note"
+                            tooltip="Edit note"
                             icon={
                               <PencilSimpleIcon size={13} weight="regular" />
                             }
@@ -238,6 +239,7 @@ export function NotesPanel({
                             size="sm"
                             intent="ghost"
                             label="Delete note"
+                            tooltip="Delete note"
                             icon={<TrashIcon size={13} weight="regular" />}
                             className={cn(
                               "h-6 w-6 text-text-muted/80 hover:text-text-muted",

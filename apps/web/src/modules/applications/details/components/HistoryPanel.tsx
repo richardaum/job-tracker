@@ -174,6 +174,7 @@ export function HistoryPanel({
                 intent="ghost"
                 size="sm"
                 label="Edit history item"
+                tooltip="Edit history item"
                 icon={<PencilSimpleIcon size={14} weight="regular" />}
                 className={cn("h-6 w-6 text-text-muted")}
                 onClick={() => openEditDialog(item.id)}
