@@ -1,10 +1,8 @@
+import * as Sentry from "@sentry/nextjs";
 import { NEXT_PUBLIC_SENTRY_DSN } from "./src/env/client";
 
-if (process.env.NODE_ENV !== "development") {
-  import("@sentry/nextjs").then((Sentry) => {
-    Sentry.init({
-      dsn: NEXT_PUBLIC_SENTRY_DSN,
-      tracesSampleRate: 1.0,
-    });
-  });
-}
+Sentry.init({
+  dsn: NEXT_PUBLIC_SENTRY_DSN,
+  enabled: process.env.NODE_ENV !== "development",
+  tracesSampleRate: 1.0,
+});
