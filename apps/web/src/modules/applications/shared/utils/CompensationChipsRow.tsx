@@ -1,5 +1,5 @@
 import { type SalaryPeriod } from "@/gql/hooks";
-import { cn } from "@job-tracker/ui";
+import { Tooltip, cn } from "@job-tracker/ui";
 import { formatSalaryPeriodChip } from "./compensationFormat";
 
 function TextChip({ children }: { children: React.ReactNode }) {
@@ -16,12 +16,13 @@ function TextChip({ children }: { children: React.ReactNode }) {
 
 /**
  * When `omitPeriodCurrency` is set (e.g. range already shown on the same line), only tag chips are rendered.
+ * Omit `maxTagChips` to show every tag; pass a number to cap chips and show "+k" for the rest.
  */
 export function CompensationChipsRow({
   currency,
   period,
   tags,
-  maxTagChips = 3,
+  maxTagChips,
   omitPeriodCurrency = false,
   className,
 }: {
@@ -36,8 +37,10 @@ export function CompensationChipsRow({
   const pChip = !omitPeriodCurrency
     ? formatSalaryPeriodChip(period ?? null)
     : null;
-  const showTags = tags.slice(0, maxTagChips);
+  const showTags =
+    maxTagChips === undefined ? tags : tags.slice(0, maxTagChips);
   const rest = Math.max(0, tags.length - showTags.length);
+  const hiddenTags = maxTagChips !== undefined ? tags.slice(maxTagChips) : [];
   if (!showCur && !pChip && showTags.length === 0) return null;
   return (
     <span
@@ -65,14 +68,22 @@ export function CompensationChipsRow({
         <span
           key={t}
           className={cn(
-            "inline-flex max-w-[10rem] truncate rounded border border-border-subtle bg-bg-surface-hover px-1.5 py-0.5 text-xs text-text-secondary",
+            "inline-flex max-w-40 truncate rounded border border-border-subtle bg-bg-surface-hover px-1.5 py-0.5 text-xs text-text-secondary",
           )}
           title={t}
         >
           {t}
         </span>
       ))}
-      {rest > 0 ? <TextChip>+{rest}</TextChip> : null}
+      {rest > 0 ? (
+        <Tooltip
+          content={`${rest} more ${rest === 1 ? "tag" : "tags"}: ${hiddenTags.join(", ")}`}
+        >
+          <span className={cn("inline-flex")}>
+            <TextChip>+{rest}</TextChip>
+          </span>
+        </Tooltip>
+      ) : null}
     </span>
   );
 }
