@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { ArrowRightIcon } from "@phosphor-icons/react";
 import { ApplicationStage } from "@/gql/hooks";
 import {
   Text,
@@ -76,7 +77,13 @@ export function StageTimeline({
               <Text size={isCompact ? "xs" : "sm"} weight="medium">
                 {item.fromStage ? (
                   <>
-                    {formatStage(item.fromStage)} {"->"}{" "}
+                    {formatStage(item.fromStage)}{" "}
+                    <ArrowRightIcon
+                      aria-hidden
+                      className="inline-block shrink-0 align-[-0.125em] text-current"
+                      size={isCompact ? 12 : 14}
+                      weight="bold"
+                    />{" "}
                     {formatStage(item.toStage)}
                   </>
                 ) : (
