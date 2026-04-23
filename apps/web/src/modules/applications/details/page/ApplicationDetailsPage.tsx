@@ -226,16 +226,16 @@ export default function ApplicationDetailsPage({ params }: PageProps) {
 
             <TabsContent
               value="history"
-              className={cn("mt-3 flex-1 min-h-0 overflow-hidden")}
+              className={cn(
+                "mt-3 flex flex-1 min-h-0 flex-col overflow-hidden",
+              )}
             >
-              <Card padding="sm" className={cn("flex h-full min-h-0 flex-col")}>
-                <HistoryPanel
-                  applicationId={application.id}
-                  fillHeight
-                  onSuccess={handleEntitySuccess}
-                  onError={handleEntityError}
-                />
-              </Card>
+              <HistoryPanel
+                applicationId={application.id}
+                fillHeight
+                onSuccess={handleEntitySuccess}
+                onError={handleEntityError}
+              />
             </TabsContent>
           </Tabs>
         ) : (
