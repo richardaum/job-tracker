@@ -38,7 +38,7 @@ export function StatusBadge({
     <Badge
       intent={getStageBadgeIntent(stage)}
       className={cn(
-        "rounded-md border border-current/20 px-1.5 py-0.5 text-[11px] font-normal leading-4",
+        "rounded border border-current/20 px-1.5 py-0.5 text-[11px] font-normal leading-4",
         className,
       )}
     >

@@ -36,6 +36,7 @@ import {
   formatStage,
   StatusBadge,
 } from "@/modules/applications/shared/components/StatusBadge";
+import { StageTimeline } from "@/modules/applications/shared/components/StageTimeline";
 import { tipTapToPlainText } from "@/modules/applications/shared/utils/tiptap";
 
 interface ToastState {
@@ -53,14 +54,18 @@ function CurrentStageBadge({ applicationId }: { applicationId: string }) {
   const latestStage = events[0]?.toStage ?? ApplicationStage.New;
   const timelineItems = events.map((event) => ({
     id: event.id,
-    label: `${event.fromStage ? `${formatStage(event.fromStage)} -> ` : ""}${formatStage(event.toStage)}`,
-    date: new Date(event.createdAt).toLocaleString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    }),
+    fromStage: event.fromStage,
+    toStage: event.toStage,
+    dateLabel: new Date(event.scheduledAt ?? event.createdAt).toLocaleString(
+      "en-US",
+      {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      },
+    ),
   }));
 
   return (
@@ -81,22 +86,12 @@ function CurrentStageBadge({ applicationId }: { applicationId: string }) {
         </button>
       }
     >
-      <div className={cn("w-72 p-1")}>
-        <Stack gap="xs">
+      <div className={cn("w-72 p-1.5")}>
+        <Stack gap="sm">
           <Text size="sm" weight="semibold">
             Status history
           </Text>
-          {timelineItems.length > 0 ? (
-            timelineItems.map((item) => (
-              <Text key={item.id} size="xs" color="secondary">
-                {item.label} · {item.date}
-              </Text>
-            ))
-          ) : (
-            <Text size="xs" color="muted">
-              No status history yet.
-            </Text>
-          )}
+          <StageTimeline items={timelineItems} variant="compact" />
         </Stack>
       </div>
     </DropdownMenu>

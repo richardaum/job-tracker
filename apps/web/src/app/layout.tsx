@@ -1,7 +1,7 @@
 import "../env/server";
 import type { ReactNode } from "react";
 import { Outfit } from "next/font/google";
-import { Providers } from "./providers";
+import { AppProviders } from "@/modules/core/providers/AppProviders";
 import "./globals.css";
 
 const outfit = Outfit({
@@ -19,7 +19,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <body className={`${outfit.variable} font-sans`}>
-        <Providers>{children}</Providers>
+        <AppProviders>{children}</AppProviders>
       </body>
     </html>
   );
