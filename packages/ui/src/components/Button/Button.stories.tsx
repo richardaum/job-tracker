@@ -27,6 +27,13 @@ export const Secondary: Story = {
   },
 };
 
+export const Outlined: Story = {
+  args: {
+    children: "Outlined",
+    intent: "outlined",
+  },
+};
+
 export const Destructive: Story = {
   args: {
     children: "Delete",

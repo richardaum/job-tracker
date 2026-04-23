@@ -25,6 +25,13 @@ describe("Button", () => {
     ).toHaveClass("bg-bg-surface");
   });
 
+  it("renders outlined intent with transparent background", () => {
+    render(<Button intent="outlined">Outline</Button>);
+    expect(screen.getByRole("button", { name: /outline/i })).toHaveClass(
+      "bg-transparent",
+    );
+  });
+
   it("is disabled while loading", () => {
     render(<Button state="loading">Saving</Button>);
     expect(screen.getByRole("button", { name: /saving/i })).toBeDisabled();

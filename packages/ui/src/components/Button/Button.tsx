@@ -1,7 +1,12 @@
 import React from "react";
 import { cn } from "@ui/lib/cn";
 
-export type ButtonIntent = "primary" | "secondary" | "ghost" | "destructive";
+export type ButtonIntent =
+  | "primary"
+  | "secondary"
+  | "ghost"
+  | "outlined"
+  | "destructive";
 export type ButtonSize = "sm" | "md";
 export type ButtonState = "default" | "loading";
 
@@ -23,6 +28,8 @@ const intentClasses: Record<ButtonIntent, string> = {
     "border-border-default bg-bg-surface text-text-primary hover:bg-bg-surface-hover",
   ghost:
     "border-transparent bg-transparent text-text-brand shadow-none hover:bg-bg-brand-subtle",
+  outlined:
+    "border-border-default bg-transparent text-text-primary shadow-none hover:bg-bg-surface-hover",
   destructive:
     "border-border-error bg-bg-error-subtle text-text-error hover:bg-bg-surface",
 };
