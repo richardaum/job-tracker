@@ -4,7 +4,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { Text, cn } from "@job-tracker/ui";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
-import { Sidebar } from "./Sidebar";
+import { Sidebar } from "@/modules/navigation/components/Sidebar";
 
 export default function ProtectedLayout({ children }: { children: ReactNode }) {
   const router = useRouter();
