@@ -1,22 +1,9 @@
-import { pgEnum, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import type { UserEntity } from "@api/database/entities/user.entity";
 
-export const roleEnum = pgEnum("role", ["user"]);
+export type User = Omit<UserEntity, "setId">;
 
-export const users = pgTable("users", {
-  id: text("id")
-    .primaryKey()
-    .$defaultFn(() => crypto.randomUUID()),
-  googleId: text("google_id").notNull().unique(),
-  email: text("email").notNull().unique(),
-  name: text("name").notNull(),
-  avatarUrl: text("avatar_url"),
-  role: roleEnum("role").notNull().default("user"),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at")
-    .notNull()
-    .defaultNow()
-    .$onUpdateFn(() => new Date()),
-});
-
-export type User = typeof users.$inferSelect;
-export type NewUser = typeof users.$inferInsert;
+export type NewUser = Pick<
+  UserEntity,
+  "googleId" | "email" | "name" | "avatarUrl"
+> &
+  Partial<Pick<UserEntity, "id" | "role">>;

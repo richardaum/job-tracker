@@ -2,6 +2,7 @@
 
 ## Sequence
 
+- [R-31] Deliver `typeorm-data-layer` by replacing Drizzle with TypeORM in `apps/api`, including Nest module wiring, entity definitions, migration runner, and Drizzle cutover notes for existing databases.
 - [R-15] Establish Beta2 planning baseline by separating implemented Beta1 scope from pending product expansion work.
 - [R-16] Deliver `application-stages-and-notes` as the canonical tracking scope, including workflow integrity and timeline consistency.
 - [R-17] Deliver `dashboard-and-search` as the canonical discovery scope, including aggregate query consistency and indexed retrieval.
@@ -12,6 +13,7 @@
 
 ## Dependencies
 
+- [R-32] [R-31] should complete before adding new ORM-specific patterns in `apps/api` so dashboard, multilingual, AI, and import scopes share a single migration and entity workflow.
 - [R-21] [R-17] depends on [R-16] because dashboard views require normalized stage and note data.
 - [R-22] [R-18] depends on [R-16] and [R-17] so multilingual coverage targets concrete user-facing surfaces.
 - [R-23] [R-19] depends on [R-16] and [R-17] because AI assistance consumes tracked application context and searchable content.
@@ -27,4 +29,4 @@
 
 ## Completion status
 
-Beta1 is complete and archived under `.specs/beta1`; Beta2 execution has completed [R-16] (`application-stages-and-notes`) and is now advancing to [R-17] (`dashboard-and-search`) using one canonical scope file per product topic.
+Beta1 is complete and archived under `.specs/beta1`; Beta2 execution has completed [R-16] (`application-stages-and-notes`) and [R-28] (`application-compensation`), and is executing [R-31] (`typeorm-data-layer`) before advancing feature work such as [R-17] (`dashboard-and-search`).

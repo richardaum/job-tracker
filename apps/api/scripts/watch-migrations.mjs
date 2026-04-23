@@ -51,7 +51,9 @@ function scheduleMigrate() {
 }
 
 console.log(`[migrate:watch] Watching ${migrationsDir}`);
-console.log("[migrate:watch] Waiting for migration file changes...");
+console.log(
+  "[migrate:watch] Migrations run before Nest via api#dev; this watcher re-runs migrate when TypeORM migration sources change.",
+);
 
 const watcher = watch(
   migrationsDir,

@@ -118,6 +118,7 @@ describe("ApplicationService", () => {
       fromStage: null,
       toStage: "new",
       source: "system",
+      scheduledAt: null,
     });
   });
 
@@ -196,7 +197,7 @@ describe("ApplicationService", () => {
       fromStage: "technical",
       toStage: "offer",
       source: "manual",
-      scheduledAt: undefined,
+      scheduledAt: null,
     });
   });
 

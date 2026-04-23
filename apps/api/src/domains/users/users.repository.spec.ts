@@ -1,42 +1,29 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
-import { Pool } from "pg";
-import { sql } from "drizzle-orm";
-import { drizzle } from "drizzle-orm/node-postgres";
-import { migrate } from "drizzle-orm/node-postgres/migrator";
+
+import { resetPublicSchemaAndMigrate } from "@api/database/test-db";
+import type { DataSource } from "typeorm";
+
 import { UserRepository } from "./users.repository";
-import { users } from "./users.schema";
-import { DatabaseService } from "@api/database/database.service";
-import path from "path";
+import { UserEntity } from "@api/database/entities/user.entity";
 
 const DATABASE_URL = process.env.DATABASE_URL;
 const hasDb = !!DATABASE_URL;
 
 describe.skipIf(!hasDb)("UserRepository (integration)", () => {
-  let pool: Pool;
-  let dbService: DatabaseService;
+  let dataSource: DataSource;
   let repo: UserRepository;
 
   beforeAll(async () => {
-    pool = new Pool({ connectionString: DATABASE_URL });
-    const db = drizzle(pool);
-    await db.execute(sql`drop schema if exists drizzle cascade`);
-    await db.execute(sql`drop schema if exists public cascade`);
-    await db.execute(sql`create schema if not exists drizzle`);
-    await db.execute(sql`create schema if not exists public`);
-    await migrate(db, {
-      migrationsFolder: path.join(__dirname, "../../database/migrations"),
-    });
-    dbService = { db } as unknown as DatabaseService;
-    repo = new UserRepository(dbService);
-    await db.delete(users);
+    dataSource = await resetPublicSchemaAndMigrate(DATABASE_URL as string);
+    repo = new UserRepository(dataSource.getRepository(UserEntity));
   });
 
   afterAll(async () => {
-    if (dbService?.db) {
-      await dbService.db.delete(users);
-    }
-    if (pool) {
-      await pool.end();
+    if (dataSource?.isInitialized) {
+      await dataSource.query(
+        "TRUNCATE application_notes, application_stage_events, applications, users CASCADE",
+      );
+      await dataSource.destroy();
     }
   });
 

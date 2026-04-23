@@ -3,8 +3,9 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "dev": "nest start --watch",
-    "db:migrate": "drizzle-kit migrate",
+    "dev": "pnpm run db:migrate && nest start --watch",
+    "db:migrate": "tsx --tsconfig tsconfig.json src/database/run-migrations.ts",
+    "db:migrate:mark-applied": "tsx --tsconfig tsconfig.json src/database/mark-migrations-applied.ts",
     "db:migrate:watch": "node ./scripts/watch-migrations.mjs",
     "db:migrate:squash": "node ./scripts/squash-migrations.mjs",
     "build": "nest build && tsc-alias -p tsconfig.build.json",
@@ -14,9 +15,9 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@job-tracker/logger": "workspace:*",
     "@apollo/server": "^5.5.0",
     "@as-integrations/express5": "^1.1.2",
+    "@job-tracker/logger": "workspace:*",
     "@nestjs/apollo": "^13.2.5",
     "@nestjs/common": "^11.1.0",
     "@nestjs/core": "^11.1.0",
@@ -24,10 +25,10 @@
     "@nestjs/jwt": "^11.0.2",
     "@nestjs/passport": "^11.0.5",
     "@nestjs/platform-express": "^11.1.19",
+    "@nestjs/typeorm": "^11.0.1",
     "@sentry/node": "^10.49.0",
     "cookie-parser": "^1.4.7",
     "dotenv": "^16.6.1",
-    "drizzle-orm": "^0.45.2",
     "graphql": "^16.13.2",
     "jsonwebtoken": "^9.0.3",
     "passport": "^0.7.0",
@@ -37,6 +38,7 @@
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2",
     "tsconfig-paths": "^4.2.0",
+    "typeorm": "^0.3.28",
     "zod": "^4.3.6"
   },
   "devDependencies": {
@@ -52,9 +54,9 @@
     "@types/passport-jwt": "^4.0.1",
     "@types/pg": "^8.20.0",
     "@types/supertest": "^7.2.0",
-    "drizzle-kit": "^0.31.10",
     "supertest": "^7.2.2",
     "tsc-alias": "^1.8.16",
+    "tsx": "^4.21.0",
     "typescript": "^5.8.3",
     "unplugin-swc": "^1.5.9",
     "vite": "^8.0.9",

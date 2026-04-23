@@ -1,17 +1,17 @@
 import { Injectable } from "@nestjs/common";
-import { and, desc, eq, sql } from "drizzle-orm";
-import { DatabaseService } from "@api/database/database.service";
-import {
-  applications,
-  Application,
-  NewApplication,
-} from "./applications.schema";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
+
+import { ApplicationEntity } from "@api/database/entities/application.entity";
+import { ApplicationNoteEntity } from "@api/database/entities/application-note.entity";
+import { ApplicationStageEventEntity } from "@api/database/entities/application-stage-event.entity";
+
+import { Application, NewApplication } from "./applications.schema";
 import {
   ApplicationStageEvent,
-  applicationStageEvents,
   NewApplicationStageEvent,
 } from "./application-stage-events.schema";
-import { Note, notes, NewNote } from "./application-notes.schema";
+import { Note, NewNote } from "./application-notes.schema";
 
 type CreateDto = Pick<
   NewApplication,
@@ -41,33 +41,35 @@ type UpdateNoteDto = Pick<NewNote, "content">;
 
 @Injectable()
 export class ApplicationRepository {
-  constructor(private readonly db: DatabaseService) {}
+  constructor(
+    @InjectRepository(ApplicationEntity)
+    private readonly applicationsRepo: Repository<ApplicationEntity>,
+    @InjectRepository(ApplicationStageEventEntity)
+    private readonly stageEventsRepo: Repository<ApplicationStageEventEntity>,
+    @InjectRepository(ApplicationNoteEntity)
+    private readonly notesRepo: Repository<ApplicationNoteEntity>,
+  ) {}
 
   async findAllByUserId(userId: string): Promise<Application[]> {
-    return this.db.db
-      .select()
-      .from(applications)
-      .where(eq(applications.userId, userId));
+    return this.applicationsRepo.find({
+      where: { userId },
+      order: { createdAt: "ASC" },
+    });
   }
 
   async findOneByIdAndUserId(
     id: string,
     userId: string,
   ): Promise<Application | null> {
-    const result = await this.db.db
-      .select()
-      .from(applications)
-      .where(and(eq(applications.id, id), eq(applications.userId, userId)))
-      .limit(1);
-    return result[0] ?? null;
+    return this.applicationsRepo.findOne({ where: { id, userId } });
   }
 
   async create(userId: string, dto: CreateDto): Promise<Application> {
-    const result = await this.db.db
-      .insert(applications)
-      .values({ userId, ...dto })
-      .returning();
-    return result[0];
+    const row = this.applicationsRepo.create({
+      userId,
+      ...dto,
+    });
+    return this.applicationsRepo.save(row);
   }
 
   async update(
@@ -75,80 +77,56 @@ export class ApplicationRepository {
     userId: string,
     dto: UpdateDto,
   ): Promise<Application | null> {
-    const result = await this.db.db
-      .update(applications)
-      .set({ ...dto, updatedAt: new Date() })
-      .where(and(eq(applications.id, id), eq(applications.userId, userId)))
-      .returning();
-    return result[0] ?? null;
+    const existing = await this.findOneByIdAndUserId(id, userId);
+    if (!existing) {
+      return null;
+    }
+    Object.assign(existing, dto);
+    return this.applicationsRepo.save(existing);
   }
 
   async delete(id: string, userId: string): Promise<Application | null> {
-    const result = await this.db.db
-      .delete(applications)
-      .where(and(eq(applications.id, id), eq(applications.userId, userId)))
-      .returning();
-    return result[0] ?? null;
+    const existing = await this.findOneByIdAndUserId(id, userId);
+    if (!existing) {
+      return null;
+    }
+    await this.applicationsRepo.delete({ id, userId });
+    return existing;
   }
 
   async findStageEventsByApplicationIdAndUserId(
     applicationId: string,
     userId: string,
   ): Promise<ApplicationStageEvent[]> {
-    return this.db.db
-      .select()
-      .from(applicationStageEvents)
-      .where(
-        and(
-          eq(applicationStageEvents.applicationId, applicationId),
-          eq(applicationStageEvents.userId, userId),
-        ),
-      )
-      .orderBy(
-        desc(
-          sql`coalesce(${applicationStageEvents.scheduledAt}, ${applicationStageEvents.createdAt})`,
-        ),
-        desc(applicationStageEvents.createdAt),
-        desc(applicationStageEvents.id),
-      );
+    return this.stageEventsRepo
+      .createQueryBuilder("e")
+      .where("e.application_id = :applicationId AND e.user_id = :userId", {
+        applicationId,
+        userId,
+      })
+      .orderBy("COALESCE(e.schedule_at, e.created_at)", "DESC")
+      .addOrderBy("e.created_at", "DESC")
+      .addOrderBy("e.id", "DESC")
+      .getMany();
   }
 
   async findLatestStageEventByApplicationIdAndUserId(
     applicationId: string,
     userId: string,
   ): Promise<ApplicationStageEvent | null> {
-    const result = await this.db.db
-      .select()
-      .from(applicationStageEvents)
-      .where(
-        and(
-          eq(applicationStageEvents.applicationId, applicationId),
-          eq(applicationStageEvents.userId, userId),
-        ),
-      )
-      .orderBy(
-        desc(applicationStageEvents.createdAt),
-        desc(applicationStageEvents.id),
-      )
-      .limit(1);
-    return result[0] ?? null;
+    return this.stageEventsRepo.findOne({
+      where: { applicationId, userId },
+      order: { createdAt: "DESC", id: "DESC" },
+    });
   }
 
   async findStageEventByIdAndUserId(
     stageEventId: string,
     userId: string,
   ): Promise<ApplicationStageEvent | null> {
-    const result = await this.db.db
-      .select()
-      .from(applicationStageEvents)
-      .where(
-        and(
-          eq(applicationStageEvents.id, stageEventId),
-          eq(applicationStageEvents.userId, userId),
-        ),
-      )
-      .limit(1);
-    return result[0] ?? null;
+    return this.stageEventsRepo.findOne({
+      where: { id: stageEventId, userId },
+    });
   }
 
   async createStageEvent(
@@ -156,18 +134,15 @@ export class ApplicationRepository {
     applicationId: string,
     dto: CreateStageEventDto,
   ): Promise<ApplicationStageEvent> {
-    const result = await this.db.db
-      .insert(applicationStageEvents)
-      .values({
-        userId,
-        applicationId,
-        fromStage: dto.fromStage ?? null,
-        toStage: dto.toStage,
-        source: dto.source ?? "manual",
-        scheduledAt: dto.scheduledAt ?? null,
-      })
-      .returning();
-    return result[0];
+    const row = this.stageEventsRepo.create({
+      userId,
+      applicationId,
+      fromStage: dto.fromStage ?? null,
+      toStage: dto.toStage,
+      source: dto.source ?? "manual",
+      scheduledAt: dto.scheduledAt ?? null,
+    });
+    return this.stageEventsRepo.save(row);
   }
 
   async updateStageEvent(
@@ -175,59 +150,45 @@ export class ApplicationRepository {
     userId: string,
     dto: Partial<UpdateStageEventDto>,
   ): Promise<ApplicationStageEvent | null> {
-    const result = await this.db.db
-      .update(applicationStageEvents)
-      .set({
-        ...(dto.toStage !== undefined ? { toStage: dto.toStage } : {}),
-        ...(dto.scheduledAt !== undefined
-          ? { scheduledAt: dto.scheduledAt }
-          : {}),
-      })
-      .where(
-        and(
-          eq(applicationStageEvents.id, stageEventId),
-          eq(applicationStageEvents.userId, userId),
-        ),
-      )
-      .returning();
-    return result[0] ?? null;
+    const existing = await this.stageEventsRepo.findOne({
+      where: { id: stageEventId, userId },
+    });
+    if (!existing) {
+      return null;
+    }
+    if (dto.toStage !== undefined) {
+      existing.toStage = dto.toStage;
+    }
+    if (dto.scheduledAt !== undefined) {
+      existing.scheduledAt = dto.scheduledAt;
+    }
+    return this.stageEventsRepo.save(existing);
   }
 
   async findNotesByApplicationIdAndUserId(
     applicationId: string,
     userId: string,
   ): Promise<Note[]> {
-    return this.db.db
-      .select()
-      .from(notes)
-      .where(
-        and(eq(notes.userId, userId), eq(notes.applicationId, applicationId)),
-      )
-      .orderBy(desc(notes.createdAt), desc(notes.id));
+    return this.notesRepo.find({
+      where: { applicationId, userId },
+      order: { createdAt: "DESC", id: "DESC" },
+    });
   }
 
   async findNoteByIdAndUserId(
     noteId: string,
     userId: string,
   ): Promise<Note | null> {
-    const result = await this.db.db
-      .select()
-      .from(notes)
-      .where(and(eq(notes.id, noteId), eq(notes.userId, userId)))
-      .limit(1);
-    return result[0] ?? null;
+    return this.notesRepo.findOne({ where: { id: noteId, userId } });
   }
 
   async createNote(userId: string, dto: CreateNoteDto): Promise<Note> {
-    const result = await this.db.db
-      .insert(notes)
-      .values({
-        userId,
-        applicationId: dto.applicationId ?? null,
-        content: dto.content,
-      })
-      .returning();
-    return result[0];
+    const row = this.notesRepo.create({
+      userId,
+      applicationId: dto.applicationId!,
+      content: dto.content,
+    });
+    return this.notesRepo.save(row);
   }
 
   async updateNoteWithRevision(
@@ -236,29 +197,26 @@ export class ApplicationRepository {
     expectedRevision: number,
     dto: UpdateNoteDto,
   ): Promise<Note | null> {
-    const result = await this.db.db
-      .update(notes)
-      .set({
+    const result = await this.notesRepo.update(
+      { id: noteId, userId, revision: expectedRevision },
+      {
         content: dto.content,
         revision: expectedRevision + 1,
         updatedAt: new Date(),
-      })
-      .where(
-        and(
-          eq(notes.id, noteId),
-          eq(notes.userId, userId),
-          eq(notes.revision, expectedRevision),
-        ),
-      )
-      .returning();
-    return result[0] ?? null;
+      },
+    );
+    if (!result.affected) {
+      return null;
+    }
+    return this.findNoteByIdAndUserId(noteId, userId);
   }
 
   async deleteNote(noteId: string, userId: string): Promise<Note | null> {
-    const result = await this.db.db
-      .delete(notes)
-      .where(and(eq(notes.id, noteId), eq(notes.userId, userId)))
-      .returning();
-    return result[0] ?? null;
+    const existing = await this.findNoteByIdAndUserId(noteId, userId);
+    if (!existing) {
+      return null;
+    }
+    await this.notesRepo.delete({ id: noteId, userId });
+    return existing;
   }
 }

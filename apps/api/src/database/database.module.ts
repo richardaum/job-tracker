@@ -1,10 +1,17 @@
 import { Module } from "@nestjs/common";
-import { DatabaseService } from "./database.service";
+import { TypeOrmModule } from "@nestjs/typeorm";
+
 import { ObservabilityModule } from "@api/observability/observability.module";
 
+import { DatabasePoolHookService } from "./database-pool-hook.service";
+import { databaseModuleOptions } from "./database-module-options";
+
 @Module({
-  imports: [ObservabilityModule],
-  providers: [DatabaseService],
-  exports: [DatabaseService],
+  imports: [
+    ObservabilityModule,
+    TypeOrmModule.forRoot({ ...databaseModuleOptions }),
+  ],
+  providers: [DatabasePoolHookService],
+  exports: [TypeOrmModule],
 })
 export class DatabaseModule {}

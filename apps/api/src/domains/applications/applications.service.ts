@@ -106,6 +106,7 @@ export class ApplicationService {
       fromStage: null,
       toStage: ApplicationStageEnum.NEW,
       source: "system",
+      scheduledAt: null,
     });
     return application;
   }
@@ -178,7 +179,7 @@ export class ApplicationService {
       fromStage: latest?.toStage ?? null,
       toStage: dto.toStage,
       source: dto.source ?? "manual",
-      scheduledAt: dto.scheduledAt,
+      scheduledAt: dto.scheduledAt ?? null,
     });
   }
 

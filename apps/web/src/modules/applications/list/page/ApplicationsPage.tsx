@@ -26,7 +26,7 @@ import {
   useApplicationStageEventsQuery,
   useApplicationsQuery,
 } from "@/gql/hooks";
-import { ApplicationFormDialog } from "@/modules/applications/list/components/ApplicationFormDialog";
+import { ApplicationQuickEditModal } from "@/modules/applications/list/components/ApplicationQuickEditModal";
 import { ApplicationTrackingPanel } from "@/modules/applications/list/components/ApplicationTrackingPanel";
 import { DeleteApplicationDialog } from "@/modules/applications/list/components/DeleteApplicationDialog";
 import {
@@ -249,7 +249,7 @@ export default function ApplicationsPage() {
         </div>
 
         <div className={cn("w-full sm:w-auto")}>
-          <ApplicationFormDialog
+          <ApplicationQuickEditModal
             trigger={
               <Button
                 intent="primary"
@@ -313,7 +313,7 @@ export default function ApplicationsPage() {
                         </NextLink>
                         <div className={cn("flex items-center gap-1")}>
                           <CurrentStageBadge applicationId={app.id} />
-                          <ApplicationFormDialog
+                          <ApplicationQuickEditModal
                             trigger={
                               <IconButton
                                 intent="ghost"
@@ -336,11 +336,6 @@ export default function ApplicationsPage() {
                               title: app.title,
                               company: app.company,
                               url: app.url,
-                              salaryMinCents: app.salaryMinCents,
-                              salaryMaxCents: app.salaryMaxCents,
-                              salaryCurrency: app.salaryCurrency,
-                              salaryPeriod: app.salaryPeriod,
-                              salaryTags: app.salaryTags,
                             }}
                             onSuccess={(msg) => showToast(msg, "success")}
                             onError={(msg) => showToast(msg, "error")}

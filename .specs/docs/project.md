@@ -23,7 +23,7 @@
 
 - [F-33] The system remains a pnpm monorepo with `apps/web`, `apps/api`, shared `packages/ui`, and optional extension workspace integration.
 - [F-34] `apps/web` remains a UI-only Next.js client that consumes GraphQL and never embeds direct board automation logic.
-- [F-35] `apps/api` remains the orchestration layer for stages, notes, AI enrichment, import processing, and guest-to-user migration.
+- [F-35] `apps/api` remains the orchestration layer for stages, notes, AI enrichment, import processing, and guest-to-user migration, using TypeORM for PostgreSQL access.
 - [F-36] Async workloads for AI and import processing must be isolated behind internal API boundaries and observable job execution paths.
 - [F-43] Optional compensation data remains first-class columns on the `applications` table and travels through the existing application GraphQL read and write paths.
 
@@ -34,3 +34,5 @@
 - [F-39] Architecture must continue to avoid vendor lock-in and preserve migration paths from low-traffic to scaled operation modes.
 - [F-40] Integration tests requiring real services must keep explicit environment preconditions and deterministic fallback behavior.
 - [F-44] Company-wide or market-wide compensation analytics, payroll system integrations, and third-party pay APIs remain out of scope for the compensation feature slice.
+- [F-45] The API persists relational data through TypeORM integrated with NestJS, not through Drizzle, while preserving existing ownership, revision, and timeline rules.
+- [F-46] Schema changes ship as reviewed TypeORM migration classes; using TypeORM `synchronize` against shared or production-like databases is forbidden.
