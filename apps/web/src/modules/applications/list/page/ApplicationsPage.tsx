@@ -125,6 +125,72 @@ function CurrentStageDateText({
   );
 }
 
+function ApplicationListCardSkeleton() {
+  return (
+    <Card padding="sm">
+      <div
+        className={cn(
+          "flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between",
+        )}
+      >
+        <div className={cn("flex min-w-0 flex-col gap-1")}>
+          <div className={cn("flex min-w-0 flex-wrap items-center gap-2")}>
+            <Skeleton
+              variant="text"
+              className={cn("h-5 w-[min(12rem,100%)] max-w-full")}
+            />
+            <Skeleton className={cn("h-6 w-20 shrink-0 rounded-full")} />
+            <div className={cn("flex items-center gap-1")}>
+              <Skeleton className={cn("size-6 rounded-sm")} />
+              <Skeleton className={cn("size-6 rounded-sm")} />
+              <Skeleton className={cn("size-6 rounded-sm")} />
+            </div>
+          </div>
+          <div className={cn("flex flex-wrap items-center gap-2")}>
+            <Skeleton variant="text" className={cn("h-4 w-28 max-w-full")} />
+            <Skeleton variant="text" className={cn("h-4 w-44 max-w-full")} />
+            <Skeleton variant="text" className={cn("h-4 w-24 max-w-full")} />
+          </div>
+          <div className={cn("space-y-1")}>
+            <Skeleton variant="text" className={cn("h-4 w-full max-w-2xl")} />
+            <Skeleton variant="text" className={cn("h-4 w-full max-w-lg")} />
+          </div>
+        </div>
+      </div>
+    </Card>
+  );
+}
+
+function ApplicationsListSkeleton({ count = 3 }: { count?: number } = {}) {
+  return (
+    <Stack gap="sm">
+      {Array.from({ length: count }, (_, i) => (
+        <ApplicationListCardSkeleton key={i} />
+      ))}
+    </Stack>
+  );
+}
+
+function ApplicationsListError() {
+  return (
+    <Text size="sm" color="error">
+      Failed to load applications. Please refresh the page.
+    </Text>
+  );
+}
+
+function ApplicationsListEmpty() {
+  return (
+    <Card variant="outlined">
+      <Stack align="center" justify="center" gap="sm">
+        <Text size="sm" color="secondary">
+          No applications yet. Add your first one!
+        </Text>
+      </Stack>
+    </Card>
+  );
+}
+
 export default function ApplicationsPage() {
   const { data, loading, error } = useApplicationsQuery({
     fetchPolicy: "cache-and-network",
@@ -198,28 +264,11 @@ export default function ApplicationsPage() {
       {/* Content */}
       <div className={cn("flex-1 overflow-auto p-4 sm:p-6")}>
         {loading && !data ? (
-          <Stack gap="sm">
-            {Array.from({ length: 3 }).map((_, i) => (
-              <Card key={i} padding="xs">
-                <Stack gap="xs">
-                  <Skeleton variant="text" />
-                  <Skeleton variant="text" />
-                </Stack>
-              </Card>
-            ))}
-          </Stack>
+          <ApplicationsListSkeleton />
         ) : error ? (
-          <Text size="sm" color="error">
-            Failed to load applications. Please refresh the page.
-          </Text>
+          <ApplicationsListError />
         ) : applications.length === 0 ? (
-          <Card variant="outlined">
-            <Stack align="center" justify="center" gap="sm">
-              <Text size="sm" color="secondary">
-                No applications yet. Add your first one!
-              </Text>
-            </Stack>
-          </Card>
+          <ApplicationsListEmpty />
         ) : (
           <Stack gap="sm">
             {applications.map((app) => {
@@ -253,8 +302,8 @@ export default function ApplicationsPage() {
                               <IconButton
                                 intent="ghost"
                                 size="sm"
-                                label={`Edit ${app.title}`}
-                                tooltip="Edit"
+                                label={`Quick edit ${app.title}`}
+                                tooltip="Quick edit"
                                 className={cn(
                                   "h-6 w-6 text-text-muted/80 hover:text-text-muted",
                                 )}
