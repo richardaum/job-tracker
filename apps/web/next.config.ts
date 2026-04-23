@@ -1,5 +1,8 @@
 import type { NextConfig } from "next";
 import { withSentryConfig } from "@sentry/nextjs";
+import { RsdoctorWebpackPlugin } from "@rsdoctor/webpack-plugin";
+
+const isRsdoctorEnabled = process.env.NODE_ENV === "development";
 
 const nextConfig: NextConfig = {
   // Keep separate dist dirs so `next build` does not conflict with a running `next dev`.
@@ -12,6 +15,25 @@ const nextConfig: NextConfig = {
         hostname: "lh3.googleusercontent.com",
       },
     ],
+  },
+  webpack: (config) => {
+    if (!isRsdoctorEnabled) {
+      return config;
+    }
+
+    const targetName = typeof config.name === "string" ? config.name : "client";
+
+    config.plugins ??= [];
+    config.plugins.push(
+      new RsdoctorWebpackPlugin({
+        disableClientServer: true,
+        output: {
+          reportDir: `./.rsdoctor/${targetName}`,
+        },
+      }),
+    );
+
+    return config;
   },
 };
 

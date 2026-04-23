@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --port ${PORT:-3100}",
+    "dev:rsdoctor": "next dev --port ${RSDOCTOR_PORT:-3200}",
     "build": "next build",
     "start": "next start --port ${PORT:-3100}",
     "codegen": "graphql-codegen --config codegen.ts && node ./scripts/postprocess-codegen-hooks.mjs",
@@ -32,6 +33,8 @@
     "@graphql-codegen/typescript-operations": "^5.1.0",
     "@graphql-codegen/typescript-react-apollo": "^4.4.2",
     "@playwright/test": "^1.59.1",
+    "@rsdoctor/cli": "^1.5.9",
+    "@rsdoctor/webpack-plugin": "^1.5.9",
     "@tailwindcss/postcss": "^4.2.4",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",

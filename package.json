@@ -16,7 +16,8 @@
     "typecheck": "turbo typecheck",
     "typecheck:repo": "tsc -p tsconfig.repo.json --noEmit",
     "specs:validate": "node scripts/validate-specs-structure.mjs",
-    "docker:build:api": "docker build -f apps/api/Dockerfile -t job-tracker-api:local ."
+    "docker:build:api": "docker build -f apps/api/Dockerfile -t job-tracker-api:local .",
+    "perf:rsdoctor:dev": "pnpm --filter @job-tracker/web run dev:rsdoctor"
   },
   "lint-staged": {
     "*.{js,jsx,mjs,cjs,ts,tsx}": [
