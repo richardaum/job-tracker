@@ -11,8 +11,8 @@ export const applications = pgTable("applications", {
     .references(() => users.id, { onDelete: "cascade" }),
   title: text("title").notNull(),
   company: text("company").notNull(),
+  description: text("description"),
   url: text("url"),
-  appliedAt: timestamp("applied_at").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at")
     .notNull()

@@ -15,8 +15,8 @@ type ApplicationType {
   userId: String!
   title: String!
   company: String!
+  description: String
   url: String
-  appliedAt: DateTime!
   createdAt: DateTime!
   updatedAt: DateTime!
 }
@@ -26,28 +26,87 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
+type ApplicationStageEventType {
+  id: ID!
+  applicationId: String!
+  userId: String!
+  fromStage: ApplicationStage
+  toStage: ApplicationStage!
+  source: String!
+  scheduledAt: DateTime
+  createdAt: DateTime!
+}
+
+enum ApplicationStage {
+  NEW
+  APPLIED
+  RECRUITER_SCREEN
+  TECHNICAL
+  OFFER
+  REJECTED
+}
+
+type ApplicationNoteType {
+  id: ID!
+  applicationId: String
+  userId: String!
+  content: String!
+  revision: Int!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
 type Query {
   me: UserType!
   applications: [ApplicationType!]!
   application(id: ID!): ApplicationType!
+  applicationStageEvents(applicationId: ID!): [ApplicationStageEventType!]!
+  applicationNotes(applicationId: ID!): [ApplicationNoteType!]!
 }
 
 type Mutation {
   createApplication(input: CreateApplicationInput!): ApplicationType!
   updateApplication(id: ID!, input: UpdateApplicationInput!): ApplicationType!
   deleteApplication(id: ID!): Boolean!
+  createApplicationStageEvent(input: CreateApplicationStageEventInput!): ApplicationStageEventType!
+  updateApplicationStageEvent(id: ID!, input: UpdateApplicationStageEventInput!): ApplicationStageEventType!
+  createApplicationNote(input: CreateApplicationNoteInput!): ApplicationNoteType!
+  updateApplicationNote(id: ID!, input: UpdateApplicationNoteInput!): ApplicationNoteType!
+  deleteApplicationNote(id: ID!): Boolean!
 }
 
 input CreateApplicationInput {
   title: String!
   company: String!
+  description: String
   url: String
-  appliedAt: DateTime!
 }
 
 input UpdateApplicationInput {
   title: String
   company: String
+  description: String
   url: String
-  appliedAt: DateTime
+}
+
+input CreateApplicationStageEventInput {
+  applicationId: String!
+  toStage: ApplicationStage!
+  source: String
+  scheduledAt: DateTime
+}
+
+input UpdateApplicationStageEventInput {
+  toStage: ApplicationStage
+  scheduledAt: DateTime
+}
+
+input CreateApplicationNoteInput {
+  applicationId: String!
+  content: String!
+}
+
+input UpdateApplicationNoteInput {
+  content: String
+  expectedRevision: Int!
 }

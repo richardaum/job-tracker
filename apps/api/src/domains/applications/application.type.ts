@@ -15,10 +15,10 @@ export class ApplicationType {
   company!: string;
 
   @Field(() => String, { nullable: true })
-  url!: string | null;
+  description!: string | null;
 
-  @Field()
-  appliedAt!: Date;
+  @Field(() => String, { nullable: true })
+  url!: string | null;
 
   @Field()
   createdAt!: Date;

@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { Pool } from "pg";
+import { sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { migrate } from "drizzle-orm/node-postgres/migrator";
 import { UserRepository } from "./users.repository";
@@ -18,6 +19,10 @@ describe.skipIf(!hasDb)("UserRepository (integration)", () => {
   beforeAll(async () => {
     pool = new Pool({ connectionString: DATABASE_URL });
     const db = drizzle(pool);
+    await db.execute(sql`drop schema if exists drizzle cascade`);
+    await db.execute(sql`drop schema if exists public cascade`);
+    await db.execute(sql`create schema if not exists drizzle`);
+    await db.execute(sql`create schema if not exists public`);
     await migrate(db, {
       migrationsFolder: path.join(__dirname, "../../database/migrations"),
     });
@@ -27,8 +32,12 @@ describe.skipIf(!hasDb)("UserRepository (integration)", () => {
   });
 
   afterAll(async () => {
-    await dbService.db.delete(users);
-    await pool.end();
+    if (dbService?.db) {
+      await dbService.db.delete(users);
+    }
+    if (pool) {
+      await pool.end();
+    }
   });
 
   it("findByGoogleId returns null when user does not exist", async () => {

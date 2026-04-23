@@ -19,8 +19,8 @@ const mockApp: Application = {
   userId: "user-1",
   title: "Software Engineer",
   company: "Acme Corp",
+  description: "Frontend role with React",
   url: "https://acme.com",
-  appliedAt: new Date("2026-01-01T00:00:00.000Z"),
   createdAt: new Date("2026-01-01T00:00:00.000Z"),
   updatedAt: new Date("2026-01-01T00:00:00.000Z"),
 };
@@ -33,6 +33,7 @@ describe("ApplicationResolver (integration)", () => {
     create: ReturnType<typeof vi.fn>;
     update: ReturnType<typeof vi.fn>;
     remove: ReturnType<typeof vi.fn>;
+    removeNote: ReturnType<typeof vi.fn>;
   };
 
   beforeAll(async () => {
@@ -42,6 +43,7 @@ describe("ApplicationResolver (integration)", () => {
       create: vi.fn().mockResolvedValue(mockApp),
       update: vi.fn().mockResolvedValue(mockApp),
       remove: vi.fn().mockResolvedValue(mockApp),
+      removeNote: vi.fn().mockResolvedValue(true),
     };
 
     const moduleRef = await Test.createTestingModule({
@@ -107,7 +109,7 @@ describe("ApplicationResolver (integration)", () => {
       .set(auth)
       .send({
         query: `mutation {
-          createApplication(input: { title: "Engineer", company: "Acme", appliedAt: "2026-01-01T00:00:00.000Z" }) {
+          createApplication(input: { title: "Engineer", company: "Acme" }) {
             id title company
           }
         }`,
@@ -141,5 +143,15 @@ describe("ApplicationResolver (integration)", () => {
 
     expect(res.statusCode).toBe(200);
     expect(res.body.data.deleteApplication).toBe(true);
+  });
+
+  it("deleteApplicationNote mutation returns true", async () => {
+    const res = await request(app.getHttpServer())
+      .post("/graphql")
+      .set(auth)
+      .send({ query: `mutation { deleteApplicationNote(id: "note-1") }` });
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body.data.deleteApplicationNote).toBe(true);
   });
 });

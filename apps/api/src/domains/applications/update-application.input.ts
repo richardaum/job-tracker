@@ -9,8 +9,8 @@ export class UpdateApplicationInput {
   company?: string;
 
   @Field(() => String, { nullable: true })
-  url?: string | null;
+  description?: string | null;
 
-  @Field({ nullable: true })
-  appliedAt?: Date;
+  @Field(() => String, { nullable: true })
+  url?: string | null;
 }

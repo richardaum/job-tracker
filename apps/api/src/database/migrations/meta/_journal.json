@@ -8,6 +8,20 @@
       "when": 1776967277261,
       "tag": "0000_baseline",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1776967958403,
+      "tag": "0001_schema-sync-hotfix",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1776970800000,
+      "tag": "0002_remove_stage_note_target",
+      "breakpoints": true
     }
   ]
 }
