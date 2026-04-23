@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -25,6 +26,19 @@ const bottomItems = [
   { href: "#", label: "Settings", icon: GearIcon },
 ];
 
+function obfuscateEmail(email: string) {
+  const [localPart, domainPart] = email.split("@");
+  if (!localPart || !domainPart) {
+    return email;
+  }
+
+  if (localPart.length <= 2) {
+    return `${localPart[0] ?? "*"}***@${domainPart}`;
+  }
+
+  return `${localPart.slice(0, 2)}***@${domainPart}`;
+}
+
 interface SidebarProps {
   open?: boolean;
   onClose?: () => void;
@@ -34,12 +48,17 @@ interface SidebarProps {
 export function Sidebar({ open = false, onClose, user }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
+  const hoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [isEmailVisible, setIsEmailVisible] = useState(false);
   const initials = user.name
     .split(" ")
     .slice(0, 2)
     .map((namePart) => namePart[0])
     .join("")
     .toUpperCase();
+  const displayedEmail = isEmailVisible
+    ? user.email
+    : obfuscateEmail(user.email);
 
   async function handleLogout() {
     await fetch(`${API_URL}/auth/logout`, {
@@ -48,6 +67,24 @@ export function Sidebar({ open = false, onClose, user }: SidebarProps) {
     });
     onClose?.();
     router.replace("/login");
+  }
+
+  function handleAccountMouseEnter() {
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+    }
+    hoverTimeoutRef.current = setTimeout(() => {
+      setIsEmailVisible(true);
+      hoverTimeoutRef.current = null;
+    }, 3000);
+  }
+
+  function handleAccountMouseLeave() {
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+      hoverTimeoutRef.current = null;
+    }
+    setIsEmailVisible(false);
   }
 
   const navContent = (
@@ -122,11 +159,13 @@ export function Sidebar({ open = false, onClose, user }: SidebarProps) {
       </nav>
 
       {/* Bottom items */}
-      <div className={cn("flex flex-col gap-0.5 px-3 py-4")}>
-        <div className={cn("mx-1 mb-2 border-t border-border-subtle")} />
+      <div className={cn("flex flex-col gap-0 px-3 py-3")}>
+        <div className={cn("mx-1 mb-1 border-t border-border-subtle")} />
         <div
+          onMouseEnter={handleAccountMouseEnter}
+          onMouseLeave={handleAccountMouseLeave}
           className={cn(
-            "mb-2 flex min-w-0 items-center gap-3 rounded-md px-4 py-2.5",
+            "mb-1 flex min-w-0 items-center gap-3 rounded-md px-4 py-2",
           )}
         >
           {user.avatarUrl ? (
@@ -151,18 +190,18 @@ export function Sidebar({ open = false, onClose, user }: SidebarProps) {
               {user.name}
             </Text>
             <Text size="xs" color="muted" className={cn("truncate")}>
-              {user.email}
+              {displayedEmail}
             </Text>
           </div>
         </div>
-        <div className={cn("mx-1 mb-2 border-t border-border-subtle")} />
+        <div className={cn("mx-1 mb-1 border-t border-border-subtle")} />
         {bottomItems.map(({ href, label, icon: Icon }) => (
           <Link
             key={label}
             href={href}
             onClick={() => onClose?.()}
             className={cn(
-              "flex items-center gap-3 rounded-md px-4 py-2.5 text-sm font-medium text-text-secondary transition-colors hover:bg-bg-surface",
+              "flex items-center gap-3 rounded-md px-4 py-2 text-sm font-medium text-text-secondary transition-colors hover:bg-bg-surface",
             )}
           >
             <Icon size={16} />
@@ -172,7 +211,7 @@ export function Sidebar({ open = false, onClose, user }: SidebarProps) {
         <button
           onClick={handleLogout}
           className={cn(
-            "flex w-full items-center gap-3 rounded-md px-4 py-2.5 text-left text-sm font-medium text-text-error transition-colors hover:bg-bg-error-subtle",
+            "flex w-full items-center gap-3 rounded-md px-4 py-2 text-left text-sm font-medium text-text-error transition-colors hover:bg-bg-error-subtle",
           )}
         >
           <SignOutIcon size={16} />
