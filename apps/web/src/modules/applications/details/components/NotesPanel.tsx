@@ -4,7 +4,15 @@ import React, { useMemo, useState } from "react";
 import StarterKit from "@tiptap/starter-kit";
 import { renderToReactElement } from "@tiptap/static-renderer/pm/react";
 import { PencilSimpleIcon, TrashIcon } from "@phosphor-icons/react";
-import { Button, Dialog, IconButton, Stack, Text, cn } from "@job-tracker/ui";
+import {
+  Button,
+  ConfirmDialog,
+  Dialog,
+  IconButton,
+  Stack,
+  Text,
+  cn,
+} from "@job-tracker/ui";
 import {
   ApplicationNotesDocument,
   useDeleteApplicationNoteMutation,
@@ -45,6 +53,9 @@ export function NotesPanel({
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
   const [editingNoteContent, setEditingNoteContent] =
     useState(EMPTY_TIPTAP_DOC);
+  const [noteIdPendingDelete, setNoteIdPendingDelete] = useState<string | null>(
+    null,
+  );
   const { data: notesData } = useApplicationNotesQuery({
     variables: { applicationId },
     fetchPolicy: "cache-and-network",
@@ -157,24 +168,16 @@ export function NotesPanel({
     }
   }
 
-  async function handleDeleteNote(noteId: string) {
-    if (typeof window !== "undefined") {
-      const shouldDelete = window.confirm(
-        "Delete this note? This action cannot be undone.",
-      );
-      if (!shouldDelete) return;
+  async function confirmDeleteNote() {
+    if (!noteIdPendingDelete) {
+      throw new Error("No note selected for delete");
     }
-
-    try {
-      await deleteApplicationNote({
-        variables: { id: noteId },
-      });
-
-      if (editingNoteId === noteId) {
-        handleCancelEditNote();
-      }
-    } catch {
-      // Keep note visible so user can retry.
+    const noteId = noteIdPendingDelete;
+    await deleteApplicationNote({
+      variables: { id: noteId },
+    });
+    if (editingNoteId === noteId) {
+      handleCancelEditNote();
     }
   }
 
@@ -244,7 +247,7 @@ export function NotesPanel({
                             className={cn(
                               "h-6 w-6 text-text-muted/80 hover:text-text-muted",
                             )}
-                            onClick={() => void handleDeleteNote(note.id)}
+                            onClick={() => setNoteIdPendingDelete(note.id)}
                             disabled={
                               creatingNote || updatingNote || deletingNote
                             }
@@ -288,6 +291,17 @@ export function NotesPanel({
           </Stack>
         </div>
       </div>
+      <ConfirmDialog
+        trigger={<span aria-hidden style={{ display: "none" }} />}
+        title="Delete note"
+        description="Delete this note? This action cannot be undone."
+        confirmLabel="Delete"
+        open={noteIdPendingDelete !== null}
+        onOpenChange={(next) => {
+          if (!next) setNoteIdPendingDelete(null);
+        }}
+        onConfirm={confirmDeleteNote}
+      />
       <Dialog
         title="Edit note"
         open={Boolean(editingNote)}

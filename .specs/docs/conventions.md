@@ -15,6 +15,12 @@
 - Keep cross-directory imports on workspace aliases where configured (`@api/*`, `@ui/*`, `@/*`).
 - Route environment access through typed env modules, not direct `process.env` in application code.
 
+## Web UI
+
+- Use `ConfirmDialog` from `@job-tracker/ui` for user confirmations, especially destructive or irreversible actions; do not use `window.confirm`, `window.alert`, or `window.prompt` in application code.
+- Prefer small feature components that compose `ConfirmDialog` (for example a delete flow wrapper) over hand-rolled `Dialog` footers that duplicate the same cancel + confirm pattern.
+- Storybook reference: **Components → ConfirmDialog** (`pnpm --filter @job-tracker/ui storybook`).
+
 ## Process
 
 - Use deterministic SDD update order: structure, templates, IDs, scoped writes, state update, then prepend history.

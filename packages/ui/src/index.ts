@@ -22,6 +22,8 @@ export { GoogleLoginButton } from "./components/GoogleLoginButton/GoogleLoginBut
 export type { GoogleLoginButtonProps } from "./components/GoogleLoginButton/GoogleLoginButton";
 export { Dialog } from "./components/Dialog/Dialog";
 export type { DialogProps } from "./components/Dialog/Dialog";
+export { ConfirmDialog } from "./components/ConfirmDialog/ConfirmDialog";
+export type { ConfirmDialogProps } from "./components/ConfirmDialog/ConfirmDialog";
 export {
   DropdownMenu,
   DropdownMenuItem,

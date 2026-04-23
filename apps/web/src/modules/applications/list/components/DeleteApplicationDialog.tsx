@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
-import { Button, Dialog, Stack } from "@job-tracker/ui";
+import React from "react";
+import { ConfirmDialog } from "@job-tracker/ui";
 import {
   useDeleteApplicationMutation,
   ApplicationsDocument,
@@ -22,51 +22,25 @@ export function DeleteApplicationDialog({
   onSuccess,
   onError,
 }: DeleteApplicationDialogProps) {
-  const [open, setOpen] = useState(false);
-
-  const [deleteApplication, { loading }] = useDeleteApplicationMutation({
+  const [deleteApplication] = useDeleteApplicationMutation({
     refetchQueries: [{ query: ApplicationsDocument }],
   });
 
-  async function handleDelete() {
-    try {
-      await deleteApplication({ variables: { id: applicationId } });
-      onSuccess?.(`"${applicationTitle}" was deleted.`);
-      setOpen(false);
-    } catch {
-      onError?.("Could not delete the application. Please try again.");
-    }
-  }
-
-  const footer = (
-    <Stack direction="row" gap="xs" justify="end">
-      <Button
-        intent="secondary"
-        size="sm"
-        onClick={() => setOpen(false)}
-        disabled={loading}
-      >
-        Cancel
-      </Button>
-      <Button
-        intent="destructive"
-        size="sm"
-        state={loading ? "loading" : "default"}
-        onClick={handleDelete}
-      >
-        Delete
-      </Button>
-    </Stack>
-  );
-
   return (
-    <Dialog
+    <ConfirmDialog
       trigger={trigger}
       title="Delete application"
       description={`Are you sure you want to delete "${applicationTitle}"? This cannot be undone.`}
-      footer={footer}
-      open={open}
-      onOpenChange={setOpen}
+      confirmLabel="Delete"
+      onConfirm={async () => {
+        try {
+          await deleteApplication({ variables: { id: applicationId } });
+          onSuccess?.(`"${applicationTitle}" was deleted.`);
+        } catch (err) {
+          onError?.("Could not delete the application. Please try again.");
+          throw err;
+        }
+      }}
     />
   );
 }

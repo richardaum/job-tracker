@@ -8,6 +8,12 @@ const meta: Meta<typeof Dialog> = {
   component: Dialog,
   parameters: {
     layout: "centered",
+    docs: {
+      description: {
+        component:
+          "Low-level modal shell. For yes/no confirmations (especially destructive actions), prefer **ConfirmDialog** instead of composing Cancel/Delete footers by hand.",
+      },
+    },
   },
   tags: ["autodocs"],
 };
