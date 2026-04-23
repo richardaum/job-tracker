@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import Image from "next/image";
 import NextLink from "next/link";
 import {
   Button,
@@ -28,7 +27,6 @@ import {
   useApplicationStageEventsQuery,
   useApplicationsQuery,
 } from "@/gql/hooks";
-import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { ApplicationFormDialog } from "@/modules/applications/list/components/ApplicationFormDialog";
 import { ApplicationTrackingPanel } from "@/modules/applications/list/components/ApplicationTrackingPanel";
 import { DeleteApplicationDialog } from "@/modules/applications/list/components/DeleteApplicationDialog";
@@ -132,7 +130,6 @@ export default function ApplicationsPage() {
   const { data, loading, error } = useApplicationsQuery({
     fetchPolicy: "cache-and-network",
   });
-  const { user } = useCurrentUser();
 
   const [toast, setToast] = useState<ToastState>({
     open: false,
@@ -145,14 +142,6 @@ export default function ApplicationsPage() {
   }
 
   const applications = data?.applications ?? [];
-
-  const initials =
-    user?.name
-      .split(" ")
-      .slice(0, 2)
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase() ?? "";
 
   return (
     <div className={cn("flex h-full flex-col")}>
@@ -182,40 +171,6 @@ export default function ApplicationsPage() {
             label="Notifications"
             icon={<BellIcon size={18} />}
           />
-
-          {user && (
-            <div className={cn("flex min-w-0 items-center gap-3")}>
-              {user.avatarUrl ? (
-                <Image
-                  src={user.avatarUrl}
-                  alt={user.name}
-                  width={36}
-                  height={36}
-                  className={cn("rounded-full object-cover")}
-                />
-              ) : (
-                <div
-                  className={cn(
-                    "flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-bg-brand-subtle text-sm font-semibold text-text-brand",
-                  )}
-                >
-                  {initials}
-                </div>
-              )}
-              <div className={cn("min-w-0")}>
-                <Text size="sm" weight="semibold" className={cn("truncate")}>
-                  {user.name}
-                </Text>
-                <Text
-                  size="xs"
-                  color="muted"
-                  className={cn("hidden truncate sm:block")}
-                >
-                  {user.email}
-                </Text>
-              </div>
-            </div>
-          )}
         </div>
       </div>
 

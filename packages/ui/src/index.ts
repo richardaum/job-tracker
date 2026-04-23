@@ -59,6 +59,18 @@ export type { SpinnerProps, SpinnerSize } from "./components/Spinner/Spinner";
 export { Stack } from "./components/Stack/Stack";
 export type { StackProps } from "./components/Stack/Stack";
 export {
+  Timeline,
+  TimelineContent,
+  TimelineItem,
+  TimelineMarker,
+} from "./components/Timeline/Timeline";
+export type {
+  TimelineContentProps,
+  TimelineItemProps,
+  TimelineMarkerProps,
+  TimelineProps,
+} from "./components/Timeline/Timeline";
+export {
   Tabs,
   TabsContent,
   TabsList,

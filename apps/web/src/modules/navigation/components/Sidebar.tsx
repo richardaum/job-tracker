@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -11,6 +12,7 @@ import {
 } from "@phosphor-icons/react";
 import { Text, cn } from "@job-tracker/ui";
 import { NEXT_PUBLIC_API_URL } from "@/env/client";
+import type { CurrentUser } from "@/hooks/useCurrentUser";
 
 const API_URL = NEXT_PUBLIC_API_URL ?? "http://localhost:3101";
 
@@ -26,11 +28,18 @@ const bottomItems = [
 interface SidebarProps {
   open?: boolean;
   onClose?: () => void;
+  user: CurrentUser;
 }
 
-export function Sidebar({ open = false, onClose }: SidebarProps) {
+export function Sidebar({ open = false, onClose, user }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
+  const initials = user.name
+    .split(" ")
+    .slice(0, 2)
+    .map((namePart) => namePart[0])
+    .join("")
+    .toUpperCase();
 
   async function handleLogout() {
     await fetch(`${API_URL}/auth/logout`, {
@@ -114,6 +123,39 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
 
       {/* Bottom items */}
       <div className={cn("flex flex-col gap-0.5 px-3 py-4")}>
+        <div className={cn("mx-1 mb-2 border-t border-border-subtle")} />
+        <div
+          className={cn(
+            "mb-2 flex min-w-0 items-center gap-3 rounded-md px-4 py-2.5",
+          )}
+        >
+          {user.avatarUrl ? (
+            <Image
+              src={user.avatarUrl}
+              alt={user.name}
+              width={36}
+              height={36}
+              className={cn("h-9 w-9 shrink-0 rounded-full object-cover")}
+            />
+          ) : (
+            <div
+              className={cn(
+                "flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-bg-brand-subtle text-sm font-semibold text-text-brand",
+              )}
+            >
+              {initials}
+            </div>
+          )}
+          <div className={cn("min-w-0")}>
+            <Text size="sm" weight="semibold" className={cn("truncate")}>
+              {user.name}
+            </Text>
+            <Text size="xs" color="muted" className={cn("truncate")}>
+              {user.email}
+            </Text>
+          </div>
+        </div>
+        <div className={cn("mx-1 mb-2 border-t border-border-subtle")} />
         {bottomItems.map(({ href, label, icon: Icon }) => (
           <Link
             key={label}

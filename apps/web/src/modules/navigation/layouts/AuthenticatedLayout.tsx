@@ -40,7 +40,11 @@ export default function ProtectedLayout({ children }: { children: ReactNode }) {
       style={{ backgroundColor: "var(--primitive-color-neutral-100)" }}
     >
       {/* Sidebar sits flat on the gray background (desktop + mobile drawer) */}
-      <Sidebar open={isNavOpen} onClose={() => setIsNavOpen(false)} />
+      <Sidebar
+        user={user}
+        open={isNavOpen}
+        onClose={() => setIsNavOpen(false)}
+      />
 
       {/* Content panel: white card elevated above the gray */}
       <div className={cn("flex flex-1 overflow-hidden p-2 md:pl-0")}>
