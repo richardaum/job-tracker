@@ -7,12 +7,19 @@ import { EditorContent, useEditor } from "@tiptap/react";
 import { cn } from "@job-tracker/ui";
 import { useHasVerticalOverflow } from "@/modules/applications/shared/hooks/useHasVerticalOverflow";
 import {
-  EMPTY_TIPTAP_DOC,
+  useTipTapEditorHandle,
+  type TipTapEditorHandle,
+} from "@/modules/applications/details/hooks/useTipTapEditorHandle";
+import {
   normalizeTipTapDocument,
   parseTipTapDocument,
+  tipTapToPlainText,
 } from "@/modules/applications/shared/utils/tiptap";
 
+export type { TipTapEditorHandle } from "@/modules/applications/details/hooks/useTipTapEditorHandle";
+
 interface TipTapEditorProps {
+  ref?: React.Ref<TipTapEditorHandle>;
   id?: string;
   value: string | null | undefined;
   onChange: (nextValue: string) => void;
@@ -52,6 +59,7 @@ function ToolbarButton({
 }
 
 export function TipTapEditor({
+  ref,
   id,
   value,
   onChange,
@@ -77,21 +85,38 @@ export function TipTapEditor({
     },
   });
 
-  React.useEffect(() => {
-    if (!editor) return;
-    editor.setEditable(!disabled);
-  }, [disabled, editor]);
-
+  // Controlled `value` / `disabled`: keep editor in sync when the parent changes data
+  // (restore draft, edit dialog, description tab). Prefer `ref.clear()` to empty the composer.
+  // Avoid `setContent` while the editor is ahead of React `value` (common during RTL `user.type`
+  // and fast typing); see https://github.com/ueberdosis/tiptap/discussions/4008
   React.useEffect(() => {
     if (!editor) return;
     const incoming = normalizeTipTapDocument(value);
     const current = JSON.stringify(editor.getJSON());
     if (incoming !== current) {
-      editor.commands.setContent(parseTipTapDocument(value), {
-        emitUpdate: false,
-      });
+      const plainIn = tipTapToPlainText(incoming).trim();
+      const plainCur = tipTapToPlainText(current).trim();
+      const editorAheadWhileFocused =
+        editor.isFocused && plainCur.length > plainIn.length;
+      const samePlainDifferentJson = plainIn === plainCur && plainIn.length > 0;
+      if (!editorAheadWhileFocused && !samePlainDifferentJson) {
+        editor.commands.setContent(parseTipTapDocument(value), {
+          emitUpdate: false,
+        });
+      }
     }
-  }, [editor, value]);
+    const nextEditable = !disabled;
+    if (editor.isEditable !== nextEditable) {
+      editor.setEditable(nextEditable);
+    }
+  }, [editor, value, disabled]);
+
+  const { clearDocument } = useTipTapEditorHandle({
+    ref,
+    editor,
+    onChange,
+  });
+
   const hasVerticalOverflow = useHasVerticalOverflow(
     (editor?.view.dom as HTMLElement | undefined) ?? null,
     {
@@ -149,9 +174,7 @@ export function TipTapEditor({
         <ToolbarButton
           label="Clear"
           onClick={() => {
-            editor.chain().focus().clearNodes().unsetAllMarks().run();
-            editor.commands.setContent(parseTipTapDocument(EMPTY_TIPTAP_DOC));
-            onChange(EMPTY_TIPTAP_DOC);
+            clearDocument(true);
           }}
           disabled={disabled}
         />

@@ -20,6 +20,10 @@
 - Prefer small feature components that compose `ConfirmDialog` (for example a delete flow wrapper) over hand-rolled `Dialog` footers that duplicate the same cancel + confirm pattern.
 - Storybook reference: **Components → ConfirmDialog** (`pnpm --filter @job-tracker/ui storybook`).
 
+## TypeScript
+
+- Avoid inline type-only imports in type positions (for example `Foo<import("@/path").Bar>`). Prefer a normal top-of-file `import type { Bar } from "@/path"` (or `import { type Bar }`) and then `Foo<Bar>`. Inline `import("...")` types are harder to read, grep, and refactor.
+
 ## Process
 
 - Use deterministic SDD update order: structure, templates, IDs, scoped writes, state update, then prepend history.

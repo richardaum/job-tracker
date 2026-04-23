@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import StarterKit from "@tiptap/starter-kit";
 import { renderToReactElement } from "@tiptap/static-renderer/pm/react";
 import { PencilSimpleIcon, TrashIcon } from "@phosphor-icons/react";
@@ -20,7 +20,7 @@ import {
   useApplicationNotesQuery,
   useUpdateApplicationNoteMutation,
 } from "@/gql/hooks";
-import { TipTapEditor } from "./TipTapEditor";
+import { TipTapEditor, type TipTapEditorHandle } from "./TipTapEditor";
 import {
   EMPTY_TIPTAP_DOC,
   parseTipTapDocument,
@@ -50,6 +50,7 @@ export function NotesPanel({
   fillHeight?: boolean;
 }) {
   const [draftNote, setDraftNote] = useState(EMPTY_TIPTAP_DOC);
+  const composerEditorRef = useRef<TipTapEditorHandle>(null);
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
   const [editingNoteContent, setEditingNoteContent] =
     useState(EMPTY_TIPTAP_DOC);
@@ -121,7 +122,7 @@ export function NotesPanel({
   async function handleSendNote() {
     if (!canSend) return;
     const noteContent = draftNote;
-    setDraftNote(EMPTY_TIPTAP_DOC);
+    composerEditorRef.current?.clear();
 
     try {
       await createApplicationNote({
@@ -266,6 +267,7 @@ export function NotesPanel({
         <div className={cn("mt-2 pt-2")}>
           <Stack gap="xs">
             <TipTapEditor
+              ref={composerEditorRef}
               id={`application-note-composer-${applicationId}`}
               value={draftNote}
               onChange={(nextValue) =>

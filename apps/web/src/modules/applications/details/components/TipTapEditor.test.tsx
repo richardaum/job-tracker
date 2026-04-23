@@ -1,28 +1,24 @@
-import React, { useState } from "react";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { beforeAll, describe, expect, it } from "vitest";
+import React, { createRef, useState } from "react";
+import { render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { describe, expect, it } from "vitest";
 import { Button, cn } from "@job-tracker/ui";
-import { TipTapEditor } from "./TipTapEditor";
+import { TipTapEditor, type TipTapEditorHandle } from "./TipTapEditor";
 import {
   EMPTY_TIPTAP_DOC,
-  plainTextToTipTap,
   tipTapToPlainText,
 } from "@/modules/applications/shared/utils/tiptap";
 
-beforeAll(() => {
-  globalThis.ResizeObserver = class {
-    observe() {}
-    unobserve() {}
-    disconnect() {}
-  } as unknown as typeof ResizeObserver;
-});
-
 /**
  * Mirrors {@link NotesPanel} composer: controlled draft, same onChange guard,
- * and clearing the draft the same way as after a successful send.
+ * and clearing via `composerRef.current.clear()` like {@link NotesPanel} after send.
  */
-function NotesComposerLikeFixture({ initialDraft }: { initialDraft: string }) {
-  const [draftNote, setDraftNote] = useState(initialDraft);
+function NotesComposerLikeFixture({
+  composerRef,
+}: {
+  composerRef: React.RefObject<TipTapEditorHandle | null>;
+}) {
+  const [draftNote, setDraftNote] = useState(EMPTY_TIPTAP_DOC);
   const creatingNote = false;
 
   const canSend =
@@ -30,13 +26,14 @@ function NotesComposerLikeFixture({ initialDraft }: { initialDraft: string }) {
 
   function handleSendNote() {
     if (!canSend) return;
-    setDraftNote(EMPTY_TIPTAP_DOC);
+    composerRef.current?.clear();
   }
 
   return (
     <div>
       <div className={cn("mt-2 pt-2")}>
         <TipTapEditor
+          ref={composerRef}
           id="application-note-composer-test"
           value={draftNote}
           onChange={(nextValue) => setDraftNote(nextValue || EMPTY_TIPTAP_DOC)}
@@ -66,28 +63,30 @@ function NotesComposerLikeFixture({ initialDraft }: { initialDraft: string }) {
 }
 
 describe("TipTapEditor (integration)", () => {
-  it("clears like NotesPanel after send: controlled draft and EMPTY_TIPTAP_DOC", async () => {
-    const initialDraft = plainTextToTipTap(
-      "Text that should disappear after clearing",
-    );
+  it("clears like NotesPanel after send: type a message, then ref.clear()", async () => {
+    const user = userEvent.setup();
+    const message = "Text that should disappear after clearing";
+    const composerRef = createRef<TipTapEditorHandle>();
 
-    render(<NotesComposerLikeFixture initialDraft={initialDraft} />);
+    render(<NotesComposerLikeFixture composerRef={composerRef} />);
 
-    await waitFor(() => {
-      expect(
-        screen.getByText("Text that should disappear after clearing"),
-      ).toBeVisible();
-    });
-
-    fireEvent.click(screen.getByRole("button", { name: "Send" }));
+    // Layout DOM stubs live in `vitest.setup.ts` (see tiptap#4008). `TipTapEditor` skips
+    // controlled `setContent` while the doc is ahead of React `value` so typing stays stable.
+    const editor = await screen.findByRole("textbox");
+    await user.click(editor);
+    await user.type(editor, message);
 
     await waitFor(() => {
-      expect(
-        screen.queryByText("Text that should disappear after clearing"),
-      ).not.toBeInTheDocument();
+      expect(screen.getByText(message)).toBeVisible();
+      expect(screen.getByRole("button", { name: "Send" })).toBeEnabled();
     });
 
-    const editor = screen.getByRole("textbox");
-    expect(editor).toHaveTextContent("");
+    await user.click(screen.getByRole("button", { name: "Send" }));
+
+    await waitFor(() => {
+      expect(screen.queryByText(message)).not.toBeInTheDocument();
+    });
+
+    expect(screen.getByRole("textbox")).toHaveTextContent("");
   });
 });
