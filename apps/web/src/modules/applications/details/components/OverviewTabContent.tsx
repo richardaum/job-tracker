@@ -11,6 +11,7 @@ import {
   Text,
   cn,
 } from "@job-tracker/ui";
+import { TagsInput } from "@/modules/applications/shared/components/TagsInput";
 import {
   ApplicationDocument,
   ApplicationsDocument,
@@ -23,12 +24,8 @@ import {
   HoverEditableFieldRow,
 } from "./HoverEditableFieldRow";
 import { CompensationEditDialog } from "./CompensationEditDialog";
-import { CompensationRow } from "@/modules/applications/shared/utils/CompensationRow";
 import { ApplicationTags } from "@/modules/applications/shared/utils/ApplicationTags";
-import {
-  formatCompensationLine,
-  parseTagInput,
-} from "@/modules/applications/shared/utils/compensationFormat";
+import { formatCompensationLine } from "@/modules/applications/shared/utils/compensationFormat";
 
 function TextFieldEditDialog({
   label,
@@ -186,7 +183,7 @@ function TagsEditDialog({
   onError?: (message: string) => void;
 }) {
   const [open, setOpen] = useState(false);
-  const [draft, setDraft] = useState("");
+  const [draft, setDraft] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
 
   const [update] = useUpdateApplicationMutation({
@@ -198,17 +195,14 @@ function TagsEditDialog({
 
   function handleOpenChange(next: boolean) {
     setOpen(next);
-    if (next) setDraft(tags.join(", "));
+    if (next) setDraft(tags);
   }
 
   async function handleSave() {
     setSaving(true);
     try {
       await update({
-        variables: {
-          id: applicationId,
-          input: { tags: parseTagInput(draft) },
-        },
+        variables: { id: applicationId, input: { tags: draft } },
       });
       onSuccess?.("Tags updated.");
       setOpen(false);
@@ -227,12 +221,15 @@ function TagsEditDialog({
       trigger={<FieldEditTriggerButton label="Edit tags" />}
     >
       <Stack gap="sm">
-        <FormField label="Tags" htmlFor="ov-tags" hint="Comma-separated">
-          <Input
+        <FormField
+          label="Tags"
+          htmlFor="ov-tags"
+          hint="Press Enter or comma to add"
+        >
+          <TagsInput
             id="ov-tags"
             value={draft}
-            onChange={(e) => setDraft(e.target.value)}
-            placeholder="e.g. remote, senior, react"
+            onChange={setDraft}
             disabled={saving}
           />
         </FormField>
@@ -323,10 +320,6 @@ export function OverviewTabContent({
     salaryCurrency: application.salaryCurrency,
     salaryPeriod: application.salaryPeriod,
   });
-  const hasCompensation = compLine != null && compLine.length > 0;
-  const hasSalaryChips =
-    !hasCompensation &&
-    (application.salaryCurrency != null || application.salaryPeriod != null);
   const tags = application.tags ?? [];
 
   return (
@@ -388,24 +381,10 @@ export function OverviewTabContent({
         <HoverEditableFieldRow
           label="Compensation"
           content={
-            hasCompensation || hasSalaryChips ? (
-              <div
-                className={cn(
-                  "flex min-w-0 flex-col gap-1 sm:flex-row sm:flex-wrap sm:items-center sm:gap-2",
-                )}
-              >
-                {compLine ? (
-                  <Text as="span" size="sm">
-                    {compLine}
-                  </Text>
-                ) : null}
-                {hasSalaryChips ? (
-                  <CompensationRow
-                    currency={application.salaryCurrency}
-                    period={application.salaryPeriod}
-                  />
-                ) : null}
-              </div>
+            compLine ? (
+              <Text as="span" size="sm">
+                {compLine}
+              </Text>
             ) : (
               <Text size="sm" color="secondary">
                 Not set
