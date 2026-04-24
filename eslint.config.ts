@@ -74,9 +74,11 @@ export default tseslint.config(
     },
   },
   {
-    files: ["apps/web/**/*.{js,jsx,ts,tsx,mjs,cjs}"],
-    ...nextPlugin.configs["core-web-vitals"],
+    plugins: {
+      "@next/next": nextPlugin,
+    },
     rules: {
+      ...nextPlugin.configs.recommended.rules,
       ...nextPlugin.configs["core-web-vitals"].rules,
       "@next/next/no-html-link-for-pages": "off",
     },
