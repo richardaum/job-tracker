@@ -1,5 +1,8 @@
 # History
 
+- [H-54] 2026-04-24T22:00:00Z - Performed platform maintenance: updated Next.js to 16.2.4, fixed ESLint plugin detection and type mismatches in config, and untracked worktrees. - Related: [R-31]
+- [H-53] 2026-04-24T21:00:00Z - Implemented rich company descriptions and unified management UI, including API services, repository, and GraphQL resolver for company data, plus UI components (Combobox, Popover, Tooltip). - Related: [R-17]
+- [H-52] 2026-04-24T20:00:00Z - Implemented dedicated application notes page and refined Button component with loading state and click blocking, while documenting Web UI patterns for hydration prevention. - Related: [R-16]
 - [H-51] 2026-04-24T18:00:00Z - Added idempotent TypeORM migration `1747000000000-add-application-salary-columns` so `applications` gains `salary_*` columns when the database predates compensation DDL, fixing runtime `column ... salary_min_cents does not exist` errors after `db:migrate`. - Related: [R-31], [F-41], [T-131]
 - [H-50] 2026-04-24T14:00:00Z - Renamed API database layout: `typeorm-migrations` to `migrations`, `typeorm-base.ts` to `data-source-options.ts` (`buildDataSourceOptions`, `apiEntities`, `apiMigrations`), `typeorm-options.ts` to `database-module-options.ts`, removed empty Drizzle-era paths, and updated watchers and scripts to match. - Related: [R-31], [T-122], [T-131]
 - [H-49] 2026-04-24T12:00:00Z - Added `db:migrate:mark-applied` (`mark-migrations-applied.ts`) using TypeORM `runMigrations({ fake: true })` so existing databases can record baseline migrations without re-running DDL. - Related: [R-31], [T-129], [P-97]
