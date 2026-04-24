@@ -10,6 +10,7 @@ import {
   Dialog,
   IconButton,
   Stack,
+  TabsContent,
   Text,
   cn,
 } from "@job-tracker/ui";
@@ -42,13 +43,7 @@ function renderNoteContent(content: string): React.ReactNode {
   }
 }
 
-export function NotesPanel({
-  applicationId,
-  fillHeight = false,
-}: {
-  applicationId: string;
-  fillHeight?: boolean;
-}) {
+export function NotesPanel({ applicationId }: { applicationId: string }) {
   const [draftNote, setDraftNote] = useState(EMPTY_TIPTAP_DOC);
   const composerEditorRef = useRef<TipTapEditorHandle>(null);
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
@@ -184,13 +179,8 @@ export function NotesPanel({
 
   return (
     <>
-      <div
-        className={cn(
-          "flex min-h-0 flex-col",
-          fillHeight ? "h-full" : "h-auto",
-        )}
-      >
-        <div className={cn(fillHeight && "min-h-0 flex-1 overflow-auto")}>
+      <div className={cn("flex h-full min-h-0 flex-col")}>
+        <div className={cn("min-h-0 flex-1 overflow-auto")}>
           {applicationNotes.length === 0 ? (
             <Text size="sm" color="muted">
               No application notes yet.
@@ -349,5 +339,22 @@ export function NotesPanel({
         </Stack>
       </Dialog>
     </>
+  );
+}
+
+export function NotesPanelTabsContent({
+  applicationId,
+  className,
+}: {
+  applicationId: string;
+  className?: string;
+}) {
+  return (
+    <TabsContent
+      value="notes"
+      className={cn("flex-1 min-h-0 overflow-hidden", className)}
+    >
+      <NotesPanel applicationId={applicationId} />
+    </TabsContent>
   );
 }

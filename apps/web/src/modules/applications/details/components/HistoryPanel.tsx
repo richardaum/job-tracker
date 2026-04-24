@@ -10,6 +10,7 @@ import {
   Input,
   Select,
   Stack,
+  TabsContent,
   Text,
   cn,
 } from "@job-tracker/ui";
@@ -58,12 +59,10 @@ function toDateInputValue(value?: string | null): string {
 
 export function HistoryPanel({
   applicationId,
-  fillHeight = false,
   onSuccess,
   onError,
 }: {
   applicationId: string;
-  fillHeight?: boolean;
   onSuccess?: (message: string) => void;
   onError?: (message: string) => void;
 }) {
@@ -134,12 +133,7 @@ export function HistoryPanel({
 
   return (
     <>
-      <div
-        className={cn(
-          "overflow-auto pr-1",
-          fillHeight ? "h-full min-h-0" : "max-h-[65vh]",
-        )}
-      >
+      <div className={cn("h-full min-h-0 overflow-auto pr-1")}>
         <div className={cn("mb-2")}>
           <UpdateStatusAction
             applicationId={applicationId}
@@ -259,5 +253,30 @@ export function HistoryPanel({
         </Stack>
       </Dialog>
     </>
+  );
+}
+
+export function HistoryPanelTabsContent({
+  applicationId,
+  className,
+  onSuccess,
+  onError,
+}: {
+  applicationId: string;
+  className?: string;
+  onSuccess?: (message: string) => void;
+  onError?: (message: string) => void;
+}) {
+  return (
+    <TabsContent
+      value="history"
+      className={cn("flex-1 min-h-0 overflow-hidden", className)}
+    >
+      <HistoryPanel
+        applicationId={applicationId}
+        onSuccess={onSuccess}
+        onError={onError}
+      />
+    </TabsContent>
   );
 }

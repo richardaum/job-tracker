@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import Link from "next/link";
 import {
   Button,
-  Card,
   DropdownMenu,
   DropdownMenuItem,
   Heading,
@@ -27,8 +26,8 @@ import { type ApplicationDetailsValues } from "@/modules/applications/details/ut
 import { StatusBadge } from "@/modules/applications/shared/components/StatusBadge";
 import { OverviewTabContent } from "@/modules/applications/details/components/OverviewTabContent";
 import { DescriptionTabContent } from "@/modules/applications/details/components/DescriptionTabContent";
-import { NotesPanel } from "@/modules/applications/details/components/NotesPanel";
-import { HistoryPanel } from "@/modules/applications/details/components/HistoryPanel";
+import { NotesPanelTabsContent } from "@/modules/applications/details/components/NotesPanel";
+import { HistoryPanelTabsContent } from "@/modules/applications/details/components/HistoryPanel";
 import { ActivitySidePanel } from "@/modules/applications/details/components/ActivitySidePanel";
 import { UpdateStatusAction } from "@/modules/applications/details/components/UpdateStatusAction";
 
@@ -215,28 +214,16 @@ export default function ApplicationDetailsPage({ params }: PageProps) {
               descriptionClassName: "mt-3 flex-1 min-h-0 overflow-auto",
             })}
 
-            <TabsContent
-              value="notes"
-              className={cn("mt-3 flex-1 min-h-0 overflow-hidden")}
-            >
-              <Card padding="sm" className={cn("flex h-full min-h-0 flex-col")}>
-                <NotesPanel applicationId={application.id} fillHeight />
-              </Card>
-            </TabsContent>
-
-            <TabsContent
-              value="history"
-              className={cn(
-                "mt-3 flex flex-1 min-h-0 flex-col overflow-hidden",
-              )}
-            >
-              <HistoryPanel
-                applicationId={application.id}
-                fillHeight
-                onSuccess={handleEntitySuccess}
-                onError={handleEntityError}
-              />
-            </TabsContent>
+            <NotesPanelTabsContent
+              applicationId={application.id}
+              className="mt-3"
+            />
+            <HistoryPanelTabsContent
+              applicationId={application.id}
+              className="mt-3"
+              onSuccess={handleEntitySuccess}
+              onError={handleEntityError}
+            />
           </Tabs>
         ) : (
           <div
@@ -264,7 +251,6 @@ export default function ApplicationDetailsPage({ params }: PageProps) {
             >
               <ActivitySidePanel
                 applicationId={application.id}
-                fillHeight
                 onSuccess={handleEntitySuccess}
                 onError={handleEntityError}
               />
