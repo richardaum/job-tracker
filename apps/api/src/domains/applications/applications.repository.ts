@@ -14,10 +14,10 @@ import {
 import { Note, NewNote } from "./application-notes.schema";
 import { ApplicationQuickFilterEnum } from "./application-quick-filter.enum";
 
-type CreateDto = Pick<
+export type CreateApplicationRepoDto = Pick<
   NewApplication,
   | "title"
-  | "company"
+  | "companyId"
   | "description"
   | "url"
   | "salaryMinCents"
@@ -26,7 +26,7 @@ type CreateDto = Pick<
   | "salaryPeriod"
   | "tags"
 >;
-type UpdateDto = Partial<CreateDto>;
+export type UpdateApplicationRepoDto = Partial<CreateApplicationRepoDto>;
 type CreateStageEventDto = Pick<
   NewApplicationStageEvent,
   "toStage" | "source" | "scheduledAt"
@@ -57,6 +57,7 @@ export class ApplicationRepository {
   ): Promise<Application[]> {
     const qb = this.applicationsRepo
       .createQueryBuilder("a")
+      .leftJoinAndSelect("a.company", "company")
       .where("a.user_id = :userId", { userId })
       .orderBy(
         `(
@@ -105,10 +106,16 @@ export class ApplicationRepository {
     id: string,
     userId: string,
   ): Promise<Application | null> {
-    return this.applicationsRepo.findOne({ where: { id, userId } });
+    return this.applicationsRepo.findOne({
+      where: { id, userId },
+      relations: ["company"],
+    });
   }
 
-  async create(userId: string, dto: CreateDto): Promise<Application> {
+  async create(
+    userId: string,
+    dto: CreateApplicationRepoDto,
+  ): Promise<Application> {
     const row = this.applicationsRepo.create({
       userId,
       ...dto,
@@ -119,7 +126,7 @@ export class ApplicationRepository {
   async update(
     id: string,
     userId: string,
-    dto: UpdateDto,
+    dto: UpdateApplicationRepoDto,
   ): Promise<Application | null> {
     const existing = await this.findOneByIdAndUserId(id, userId);
     if (!existing) {

@@ -72,7 +72,8 @@ export type ApplicationStageEventType = {
 
 export type ApplicationType = {
   __typename?: "ApplicationType";
-  company: Scalars["String"]["output"];
+  company: CompanyType;
+  companyId: Scalars["ID"]["output"];
   createdAt: Scalars["DateTime"]["output"];
   description?: Maybe<Scalars["String"]["output"]>;
   id: Scalars["ID"]["output"];
@@ -87,8 +88,19 @@ export type ApplicationType = {
   userId: Scalars["String"]["output"];
 };
 
+export type CompanyType = {
+  __typename?: "CompanyType";
+  createdAt: Scalars["DateTime"]["output"];
+  description?: Maybe<Scalars["String"]["output"]>;
+  id: Scalars["ID"]["output"];
+  name: Scalars["String"]["output"];
+  updatedAt: Scalars["DateTime"]["output"];
+  userId: Scalars["String"]["output"];
+};
+
 export type CreateApplicationInput = {
   company: Scalars["String"]["input"];
+  companyId?: InputMaybe<Scalars["ID"]["input"]>;
   description?: InputMaybe<Scalars["String"]["input"]>;
   salaryCurrency?: InputMaybe<Scalars["String"]["input"]>;
   salaryMaxCents?: InputMaybe<Scalars["Int"]["input"]>;
@@ -122,6 +134,7 @@ export type Mutation = {
   updateApplication: ApplicationType;
   updateApplicationNote: ApplicationNoteType;
   updateApplicationStageEvent: ApplicationStageEventType;
+  updateCompany: CompanyType;
 };
 
 export type MutationCreateApplicationArgs = {
@@ -164,12 +177,18 @@ export type MutationUpdateApplicationStageEventArgs = {
   input: UpdateApplicationStageEventInput;
 };
 
+export type MutationUpdateCompanyArgs = {
+  id: Scalars["ID"]["input"];
+  input: UpdateCompanyInput;
+};
+
 export type Query = {
   __typename?: "Query";
   application: ApplicationType;
   applicationNotes: Array<ApplicationNoteType>;
   applicationStageEvents: Array<ApplicationStageEventType>;
   applications: Array<ApplicationType>;
+  companies: Array<CompanyType>;
   me: UserType;
 };
 
@@ -197,6 +216,7 @@ export enum SalaryPeriod {
 
 export type UpdateApplicationInput = {
   company?: InputMaybe<Scalars["String"]["input"]>;
+  companyId?: InputMaybe<Scalars["ID"]["input"]>;
   description?: InputMaybe<Scalars["String"]["input"]>;
   salaryCurrency?: InputMaybe<Scalars["String"]["input"]>;
   salaryMaxCents?: InputMaybe<Scalars["Int"]["input"]>;
@@ -215,6 +235,11 @@ export type UpdateApplicationNoteInput = {
 export type UpdateApplicationStageEventInput = {
   scheduledAt?: InputMaybe<Scalars["DateTime"]["input"]>;
   toStage?: InputMaybe<ApplicationStage>;
+};
+
+export type UpdateCompanyInput = {
+  description?: InputMaybe<Scalars["String"]["input"]>;
+  name?: InputMaybe<Scalars["String"]["input"]>;
 };
 
 export type UserType = {
@@ -236,7 +261,7 @@ export type ApplicationsQuery = {
     __typename?: "ApplicationType";
     id: string;
     title: string;
-    company: string;
+    companyId: string;
     description?: string | null;
     url?: string | null;
     salaryMinCents?: number | null;
@@ -245,6 +270,12 @@ export type ApplicationsQuery = {
     salaryPeriod?: SalaryPeriod | null;
     tags: Array<string>;
     createdAt: any;
+    company: {
+      __typename?: "CompanyType";
+      id: string;
+      name: string;
+      description?: string | null;
+    };
   }>;
 };
 
@@ -258,7 +289,7 @@ export type ApplicationQuery = {
     __typename?: "ApplicationType";
     id: string;
     title: string;
-    company: string;
+    companyId: string;
     description?: string | null;
     url?: string | null;
     salaryMinCents?: number | null;
@@ -267,6 +298,12 @@ export type ApplicationQuery = {
     salaryPeriod?: SalaryPeriod | null;
     tags: Array<string>;
     createdAt: any;
+    company: {
+      __typename?: "CompanyType";
+      id: string;
+      name: string;
+      description?: string | null;
+    };
   };
 };
 
@@ -280,7 +317,7 @@ export type CreateApplicationMutation = {
     __typename?: "ApplicationType";
     id: string;
     title: string;
-    company: string;
+    companyId: string;
     description?: string | null;
     url?: string | null;
     salaryMinCents?: number | null;
@@ -289,6 +326,12 @@ export type CreateApplicationMutation = {
     salaryPeriod?: SalaryPeriod | null;
     tags: Array<string>;
     createdAt: any;
+    company: {
+      __typename?: "CompanyType";
+      id: string;
+      name: string;
+      description?: string | null;
+    };
   };
 };
 
@@ -303,7 +346,7 @@ export type UpdateApplicationMutation = {
     __typename?: "ApplicationType";
     id: string;
     title: string;
-    company: string;
+    companyId: string;
     description?: string | null;
     url?: string | null;
     salaryMinCents?: number | null;
@@ -312,6 +355,12 @@ export type UpdateApplicationMutation = {
     salaryPeriod?: SalaryPeriod | null;
     tags: Array<string>;
     createdAt: any;
+    company: {
+      __typename?: "CompanyType";
+      id: string;
+      name: string;
+      description?: string | null;
+    };
   };
 };
 
@@ -454,6 +503,33 @@ export type DeleteApplicationNoteMutation = {
   deleteApplicationNote: boolean;
 };
 
+export type UpdateCompanyMutationVariables = Exact<{
+  id: Scalars["ID"]["input"];
+  input: UpdateCompanyInput;
+}>;
+
+export type UpdateCompanyMutation = {
+  __typename?: "Mutation";
+  updateCompany: {
+    __typename?: "CompanyType";
+    id: string;
+    name: string;
+    description?: string | null;
+  };
+};
+
+export type CompaniesQueryVariables = Exact<{ [key: string]: never }>;
+
+export type CompaniesQuery = {
+  __typename?: "Query";
+  companies: Array<{
+    __typename?: "CompanyType";
+    id: string;
+    name: string;
+    description?: string | null;
+  }>;
+};
+
 export type MeQueryVariables = Exact<{ [key: string]: never }>;
 
 export type MeQuery = {
@@ -509,7 +585,22 @@ export const ApplicationsDocument = {
               selections: [
                 { kind: "Field", name: { kind: "Name", value: "id" } },
                 { kind: "Field", name: { kind: "Name", value: "title" } },
-                { kind: "Field", name: { kind: "Name", value: "company" } },
+                { kind: "Field", name: { kind: "Name", value: "companyId" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "company" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      { kind: "Field", name: { kind: "Name", value: "id" } },
+                      { kind: "Field", name: { kind: "Name", value: "name" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "description" },
+                      },
+                    ],
+                  },
+                },
                 { kind: "Field", name: { kind: "Name", value: "description" } },
                 { kind: "Field", name: { kind: "Name", value: "url" } },
                 {
@@ -576,7 +667,22 @@ export const ApplicationDocument = {
               selections: [
                 { kind: "Field", name: { kind: "Name", value: "id" } },
                 { kind: "Field", name: { kind: "Name", value: "title" } },
-                { kind: "Field", name: { kind: "Name", value: "company" } },
+                { kind: "Field", name: { kind: "Name", value: "companyId" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "company" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      { kind: "Field", name: { kind: "Name", value: "id" } },
+                      { kind: "Field", name: { kind: "Name", value: "name" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "description" },
+                      },
+                    ],
+                  },
+                },
                 { kind: "Field", name: { kind: "Name", value: "description" } },
                 { kind: "Field", name: { kind: "Name", value: "url" } },
                 {
@@ -649,7 +755,22 @@ export const CreateApplicationDocument = {
               selections: [
                 { kind: "Field", name: { kind: "Name", value: "id" } },
                 { kind: "Field", name: { kind: "Name", value: "title" } },
-                { kind: "Field", name: { kind: "Name", value: "company" } },
+                { kind: "Field", name: { kind: "Name", value: "companyId" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "company" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      { kind: "Field", name: { kind: "Name", value: "id" } },
+                      { kind: "Field", name: { kind: "Name", value: "name" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "description" },
+                      },
+                    ],
+                  },
+                },
                 { kind: "Field", name: { kind: "Name", value: "description" } },
                 { kind: "Field", name: { kind: "Name", value: "url" } },
                 {
@@ -741,7 +862,22 @@ export const UpdateApplicationDocument = {
               selections: [
                 { kind: "Field", name: { kind: "Name", value: "id" } },
                 { kind: "Field", name: { kind: "Name", value: "title" } },
-                { kind: "Field", name: { kind: "Name", value: "company" } },
+                { kind: "Field", name: { kind: "Name", value: "companyId" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "company" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      { kind: "Field", name: { kind: "Name", value: "id" } },
+                      { kind: "Field", name: { kind: "Name", value: "name" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "description" },
+                      },
+                    ],
+                  },
+                },
                 { kind: "Field", name: { kind: "Name", value: "description" } },
                 { kind: "Field", name: { kind: "Name", value: "url" } },
                 {
@@ -1326,6 +1462,105 @@ export const DeleteApplicationNoteDocument = {
   DeleteApplicationNoteMutation,
   DeleteApplicationNoteMutationVariables
 >;
+export const UpdateCompanyDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "UpdateCompany" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "id" } },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "input" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: {
+              kind: "NamedType",
+              name: { kind: "Name", value: "UpdateCompanyInput" },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "updateCompany" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "id" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "id" },
+                },
+              },
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "input" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "input" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                { kind: "Field", name: { kind: "Name", value: "name" } },
+                { kind: "Field", name: { kind: "Name", value: "description" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  UpdateCompanyMutation,
+  UpdateCompanyMutationVariables
+>;
+export const CompaniesDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "query",
+      name: { kind: "Name", value: "Companies" },
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "companies" },
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                { kind: "Field", name: { kind: "Name", value: "name" } },
+                { kind: "Field", name: { kind: "Name", value: "description" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CompaniesQuery, CompaniesQueryVariables>;
 export const MeDocument = {
   kind: "Document",
   definitions: [

@@ -23,7 +23,7 @@ export type { FormFieldProps } from "./components/FormField/FormField";
 export { GoogleLoginButton } from "./components/GoogleLoginButton/GoogleLoginButton";
 export type { GoogleLoginButtonProps } from "./components/GoogleLoginButton/GoogleLoginButton";
 export { Dialog } from "./components/Dialog/Dialog";
-export type { DialogProps } from "./components/Dialog/Dialog";
+export type { DialogProps, DialogSize } from "./components/Dialog/Dialog";
 export { ConfirmDialog } from "./components/ConfirmDialog/ConfirmDialog";
 export type { ConfirmDialogProps } from "./components/ConfirmDialog/ConfirmDialog";
 export {
@@ -47,6 +47,11 @@ export { Input } from "./components/Input/Input";
 export type { InputProps } from "./components/Input/Input";
 export { Label } from "./components/Label/Label";
 export type { LabelProps } from "./components/Label/Label";
+export { Combobox } from "./components/Combobox/Combobox";
+export type {
+  ComboboxOption,
+  ComboboxProps,
+} from "./components/Combobox/Combobox";
 export { Link } from "./components/Link/Link";
 export type { LinkProps, LinkVariant } from "./components/Link/Link";
 export { Select } from "./components/Select/Select";

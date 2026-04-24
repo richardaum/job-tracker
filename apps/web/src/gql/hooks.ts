@@ -74,7 +74,8 @@ export type ApplicationStageEventType = {
 
 export type ApplicationType = {
   __typename?: "ApplicationType";
-  company: Scalars["String"]["output"];
+  company: CompanyType;
+  companyId: Scalars["ID"]["output"];
   createdAt: Scalars["DateTime"]["output"];
   description?: Maybe<Scalars["String"]["output"]>;
   id: Scalars["ID"]["output"];
@@ -89,8 +90,19 @@ export type ApplicationType = {
   userId: Scalars["String"]["output"];
 };
 
+export type CompanyType = {
+  __typename?: "CompanyType";
+  createdAt: Scalars["DateTime"]["output"];
+  description?: Maybe<Scalars["String"]["output"]>;
+  id: Scalars["ID"]["output"];
+  name: Scalars["String"]["output"];
+  updatedAt: Scalars["DateTime"]["output"];
+  userId: Scalars["String"]["output"];
+};
+
 export type CreateApplicationInput = {
   company: Scalars["String"]["input"];
+  companyId?: InputMaybe<Scalars["ID"]["input"]>;
   description?: InputMaybe<Scalars["String"]["input"]>;
   salaryCurrency?: InputMaybe<Scalars["String"]["input"]>;
   salaryMaxCents?: InputMaybe<Scalars["Int"]["input"]>;
@@ -124,6 +136,7 @@ export type Mutation = {
   updateApplication: ApplicationType;
   updateApplicationNote: ApplicationNoteType;
   updateApplicationStageEvent: ApplicationStageEventType;
+  updateCompany: CompanyType;
 };
 
 export type MutationCreateApplicationArgs = {
@@ -166,12 +179,18 @@ export type MutationUpdateApplicationStageEventArgs = {
   input: UpdateApplicationStageEventInput;
 };
 
+export type MutationUpdateCompanyArgs = {
+  id: Scalars["ID"]["input"];
+  input: UpdateCompanyInput;
+};
+
 export type Query = {
   __typename?: "Query";
   application: ApplicationType;
   applicationNotes: Array<ApplicationNoteType>;
   applicationStageEvents: Array<ApplicationStageEventType>;
   applications: Array<ApplicationType>;
+  companies: Array<CompanyType>;
   me: UserType;
 };
 
@@ -199,6 +218,7 @@ export enum SalaryPeriod {
 
 export type UpdateApplicationInput = {
   company?: InputMaybe<Scalars["String"]["input"]>;
+  companyId?: InputMaybe<Scalars["ID"]["input"]>;
   description?: InputMaybe<Scalars["String"]["input"]>;
   salaryCurrency?: InputMaybe<Scalars["String"]["input"]>;
   salaryMaxCents?: InputMaybe<Scalars["Int"]["input"]>;
@@ -217,6 +237,11 @@ export type UpdateApplicationNoteInput = {
 export type UpdateApplicationStageEventInput = {
   scheduledAt?: InputMaybe<Scalars["DateTime"]["input"]>;
   toStage?: InputMaybe<ApplicationStage>;
+};
+
+export type UpdateCompanyInput = {
+  description?: InputMaybe<Scalars["String"]["input"]>;
+  name?: InputMaybe<Scalars["String"]["input"]>;
 };
 
 export type UserType = {
@@ -238,7 +263,7 @@ export type ApplicationsQuery = {
     __typename?: "ApplicationType";
     id: string;
     title: string;
-    company: string;
+    companyId: string;
     description?: string | null;
     url?: string | null;
     salaryMinCents?: number | null;
@@ -247,6 +272,12 @@ export type ApplicationsQuery = {
     salaryPeriod?: SalaryPeriod | null;
     tags: Array<string>;
     createdAt: any;
+    company: {
+      __typename?: "CompanyType";
+      id: string;
+      name: string;
+      description?: string | null;
+    };
   }>;
 };
 
@@ -260,7 +291,7 @@ export type ApplicationQuery = {
     __typename?: "ApplicationType";
     id: string;
     title: string;
-    company: string;
+    companyId: string;
     description?: string | null;
     url?: string | null;
     salaryMinCents?: number | null;
@@ -269,6 +300,12 @@ export type ApplicationQuery = {
     salaryPeriod?: SalaryPeriod | null;
     tags: Array<string>;
     createdAt: any;
+    company: {
+      __typename?: "CompanyType";
+      id: string;
+      name: string;
+      description?: string | null;
+    };
   };
 };
 
@@ -282,7 +319,7 @@ export type CreateApplicationMutation = {
     __typename?: "ApplicationType";
     id: string;
     title: string;
-    company: string;
+    companyId: string;
     description?: string | null;
     url?: string | null;
     salaryMinCents?: number | null;
@@ -291,6 +328,12 @@ export type CreateApplicationMutation = {
     salaryPeriod?: SalaryPeriod | null;
     tags: Array<string>;
     createdAt: any;
+    company: {
+      __typename?: "CompanyType";
+      id: string;
+      name: string;
+      description?: string | null;
+    };
   };
 };
 
@@ -305,7 +348,7 @@ export type UpdateApplicationMutation = {
     __typename?: "ApplicationType";
     id: string;
     title: string;
-    company: string;
+    companyId: string;
     description?: string | null;
     url?: string | null;
     salaryMinCents?: number | null;
@@ -314,6 +357,12 @@ export type UpdateApplicationMutation = {
     salaryPeriod?: SalaryPeriod | null;
     tags: Array<string>;
     createdAt: any;
+    company: {
+      __typename?: "CompanyType";
+      id: string;
+      name: string;
+      description?: string | null;
+    };
   };
 };
 
@@ -456,6 +505,33 @@ export type DeleteApplicationNoteMutation = {
   deleteApplicationNote: boolean;
 };
 
+export type UpdateCompanyMutationVariables = Exact<{
+  id: Scalars["ID"]["input"];
+  input: UpdateCompanyInput;
+}>;
+
+export type UpdateCompanyMutation = {
+  __typename?: "Mutation";
+  updateCompany: {
+    __typename?: "CompanyType";
+    id: string;
+    name: string;
+    description?: string | null;
+  };
+};
+
+export type CompaniesQueryVariables = Exact<{ [key: string]: never }>;
+
+export type CompaniesQuery = {
+  __typename?: "Query";
+  companies: Array<{
+    __typename?: "CompanyType";
+    id: string;
+    name: string;
+    description?: string | null;
+  }>;
+};
+
 export type MeQueryVariables = Exact<{ [key: string]: never }>;
 
 export type MeQuery = {
@@ -475,7 +551,12 @@ export const ApplicationsDocument = gql`
     applications(filter: $filter) {
       id
       title
-      company
+      companyId
+      company {
+        id
+        name
+        description
+      }
       description
       url
       salaryMinCents
@@ -541,7 +622,12 @@ export const ApplicationDocument = gql`
     application(id: $id) {
       id
       title
-      company
+      companyId
+      company {
+        id
+        name
+        description
+      }
       description
       url
       salaryMinCents
@@ -609,7 +695,12 @@ export const CreateApplicationDocument = gql`
     createApplication(input: $input) {
       id
       title
-      company
+      companyId
+      company {
+        id
+        name
+        description
+      }
       description
       url
       salaryMinCents
@@ -657,7 +748,12 @@ export const UpdateApplicationDocument = gql`
     updateApplication(id: $id, input: $input) {
       id
       title
-      company
+      companyId
+      company {
+        id
+        name
+        description
+      }
       description
       url
       salaryMinCents
@@ -1127,6 +1223,102 @@ export function useDeleteApplicationNoteMutation(
     DeleteApplicationNoteMutationVariables
   >(DeleteApplicationNoteDocument, options);
 }
+
+export const UpdateCompanyDocument = gql`
+  mutation UpdateCompany($id: ID!, $input: UpdateCompanyInput!) {
+    updateCompany(id: $id, input: $input) {
+      id
+      name
+      description
+    }
+  }
+`;
+
+/**
+ * __useUpdateCompanyMutation__
+ *
+ * To run a mutation, you first call `useUpdateCompanyMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateCompanyMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateCompanyMutation, { data, loading, error }] = useUpdateCompanyMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateCompanyMutation(
+  baseOptions?: ApolloReactHooks.MutationHookOptions<
+    UpdateCompanyMutation,
+    UpdateCompanyMutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useMutation<
+    UpdateCompanyMutation,
+    UpdateCompanyMutationVariables
+  >(UpdateCompanyDocument, options);
+}
+
+export const CompaniesDocument = gql`
+  query Companies {
+    companies {
+      id
+      name
+      description
+    }
+  }
+`;
+
+/**
+ * __useCompaniesQuery__
+ *
+ * To run a query within a React component, call `useCompaniesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCompaniesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCompaniesQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useCompaniesQuery(
+  baseOptions?: ApolloReactHooks.QueryHookOptions<
+    CompaniesQuery,
+    CompaniesQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useQuery<CompaniesQuery, CompaniesQueryVariables>(
+    CompaniesDocument,
+    options,
+  );
+}
+export function useCompaniesLazyQuery(
+  baseOptions?: ApolloReactHooks.LazyQueryHookOptions<
+    CompaniesQuery,
+    CompaniesQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useLazyQuery<CompaniesQuery, CompaniesQueryVariables>(
+    CompaniesDocument,
+    options,
+  );
+}
+
+export type CompaniesQueryHookResult = ReturnType<typeof useCompaniesQuery>;
+export type CompaniesLazyQueryHookResult = ReturnType<
+  typeof useCompaniesLazyQuery
+>;
 
 export const MeDocument = gql`
   query Me {

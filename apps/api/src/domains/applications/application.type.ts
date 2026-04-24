@@ -1,4 +1,5 @@
 import { ObjectType, Field, ID, Int } from "@nestjs/graphql";
+import { CompanyType } from "@api/domains/companies/company.type";
 import { SalaryPeriodEnum } from "./salary-period.enum";
 
 @ObjectType()
@@ -12,8 +13,11 @@ export class ApplicationType {
   @Field()
   title!: string;
 
-  @Field()
-  company!: string;
+  @Field(() => ID)
+  companyId!: string;
+
+  @Field(() => CompanyType)
+  company!: CompanyType;
 
   @Field(() => String, { nullable: true })
   description!: string | null;

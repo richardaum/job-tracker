@@ -6,37 +6,50 @@ import { Application } from "./applications.schema";
 import { Note } from "./application-notes.schema";
 import { ApplicationStageEvent } from "./application-stage-events.schema";
 import { ApplicationStageEnum } from "./application-stage.enum";
+import { CompanyService } from "@api/domains/companies/companies.service";
+import { CompensationService } from "./compensation.service";
+import { TagService } from "./tag.service";
 
-const makeApp = (overrides: Partial<Application> = {}): Application => ({
-  id: "app-1",
-  userId: "user-1",
-  title: "Engineer",
-  company: "Acme",
-  description: null,
-  url: null,
-  salaryMinCents: null,
-  salaryMaxCents: null,
-  salaryCurrency: null,
-  salaryPeriod: null,
-  tags: [],
-  createdAt: new Date(),
-  updatedAt: new Date(),
-  ...overrides,
-});
+const makeApp = (overrides: Partial<Application> = {}): Application =>
+  ({
+    id: "app-1",
+    userId: "user-1",
+    title: "Engineer",
+    companyId: "company-1",
+    company: {
+      id: "company-1",
+      name: "Acme",
+      userId: "user-1",
+      description: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    description: null,
+    url: null,
+    salaryMinCents: null,
+    salaryMaxCents: null,
+    salaryCurrency: null,
+    salaryPeriod: null,
+    tags: [],
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    ...overrides,
+  }) as unknown as Application;
 
 const makeEvent = (
   overrides: Partial<ApplicationStageEvent> = {},
-): ApplicationStageEvent => ({
-  id: "event-1",
-  applicationId: "app-1",
-  userId: "user-1",
-  fromStage: null,
-  toStage: "new",
-  source: "manual",
-  createdAt: new Date("2026-01-02"),
-  ...overrides,
-  scheduledAt: overrides.scheduledAt ?? null,
-});
+): ApplicationStageEvent =>
+  ({
+    id: "event-1",
+    applicationId: "app-1",
+    userId: "user-1",
+    fromStage: null,
+    toStage: "new",
+    source: "manual",
+    createdAt: new Date("2026-01-02"),
+    ...overrides,
+    scheduledAt: overrides.scheduledAt ?? null,
+  }) as unknown as ApplicationStageEvent;
 
 const makeNote = (overrides: Partial<Note> = {}): Note => ({
   id: "note-1",
@@ -52,6 +65,9 @@ const makeNote = (overrides: Partial<Note> = {}): Note => ({
 describe("ApplicationService", () => {
   let service: ApplicationService;
   let repo: ApplicationRepository;
+  let companyService: CompanyService;
+  let compensationService: CompensationService;
+  let tagService: TagService;
 
   beforeEach(() => {
     repo = {
@@ -71,7 +87,22 @@ describe("ApplicationService", () => {
       updateNoteWithRevision: vi.fn(),
       deleteNote: vi.fn(),
     } as unknown as ApplicationRepository;
-    service = new ApplicationService(repo);
+
+    companyService = {
+      findOne: vi.fn(),
+      findOrCreateByName: vi.fn(),
+      update: vi.fn(),
+    } as unknown as CompanyService;
+
+    compensationService = new CompensationService();
+    tagService = new TagService();
+
+    service = new ApplicationService(
+      repo,
+      companyService,
+      compensationService,
+      tagService,
+    );
   });
 
   it("findAll delegates to repo", async () => {
@@ -96,6 +127,7 @@ describe("ApplicationService", () => {
 
   it("create persists application and emits initial New stage event", async () => {
     const app = makeApp();
+    vi.mocked(companyService.findOrCreateByName).mockResolvedValue(app.company);
     vi.mocked(repo.create).mockResolvedValue(app);
     vi.mocked(repo.createStageEvent).mockResolvedValue(
       makeEvent({ toStage: "new", source: "system" }),
@@ -114,6 +146,10 @@ describe("ApplicationService", () => {
       }),
     });
     expect(result).toBe(app);
+    expect(companyService.findOrCreateByName).toHaveBeenCalledWith(
+      "user-1",
+      "Acme",
+    );
     expect(repo.createStageEvent).toHaveBeenCalledWith("user-1", app.id, {
       fromStage: null,
       toStage: "new",

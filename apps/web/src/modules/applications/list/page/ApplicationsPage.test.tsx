@@ -86,7 +86,11 @@ describe("ApplicationsPage", () => {
           {
             id: "app-1",
             title: "Frontend Engineer",
-            company: "Acme",
+            companyId: "company-1",
+            company: {
+              id: "company-1",
+              name: "Acme",
+            },
             description: null,
             url: "https://example.com",
             createdAt: "2026-04-20T00:00:00.000Z",
@@ -130,7 +134,11 @@ describe("ApplicationsPage", () => {
           {
             id: "app-1",
             title: "Frontend Engineer",
-            company: "Acme",
+            companyId: "company-1",
+            company: {
+              id: "company-1",
+              name: "Acme",
+            },
             description: null,
             url: "https://example.com",
             createdAt: "2026-04-20T00:00:00.000Z",

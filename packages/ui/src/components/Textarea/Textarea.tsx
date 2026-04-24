@@ -7,6 +7,7 @@ export interface TextareaProps extends Omit<
 > {
   size?: "sm" | "md";
   state?: "default" | "error";
+  ref?: React.Ref<HTMLTextAreaElement>;
 }
 
 const sizeClasses: Record<NonNullable<TextareaProps["size"]>, string> = {
@@ -26,11 +27,13 @@ export function Textarea({
   state = "default",
   className,
   rows = 4,
+  ref,
   ...props
 }: TextareaProps) {
   return (
     <textarea
       {...props}
+      ref={ref}
       rows={rows}
       className={cn(
         `w-full rounded-md border bg-bg-surface text-text-primary shadow-sm transition-colors placeholder:text-text-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:bg-bg-surface-hover ${sizeClasses[size]} ${stateClasses[state]} ${className ?? ""}`,

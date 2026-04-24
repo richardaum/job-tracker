@@ -25,10 +25,11 @@ import { ApplicationQuickEditModal } from "@/modules/applications/list/component
 import { DeleteApplicationDialog } from "@/modules/applications/list/components/DeleteApplicationDialog";
 import { ApplicationTrackingPanel } from "@/modules/applications/list/components/ApplicationTrackingPanel";
 import {
-  formatStage,
   StatusBadge,
+  formatStage,
 } from "@/modules/applications/shared/components/StatusBadge";
 import { StageTimeline } from "@/modules/applications/shared/components/StageTimeline";
+import { CompanyNameWithPopover } from "@/modules/applications/shared/components/CompanyNameWithPopover";
 import { tipTapToPlainText } from "@/modules/applications/shared/utils/tiptap";
 import { CompensationRow } from "@/modules/applications/shared/utils/CompensationRow";
 import { ApplicationTags } from "@/modules/applications/shared/utils/ApplicationTags";
@@ -40,7 +41,12 @@ import {
 export interface ApplicationCardApplication {
   id: string;
   title: string;
-  company: string;
+  companyId: string;
+  company: {
+    id: string;
+    name: string;
+    description?: string | null;
+  };
   description?: string | null;
   url?: string | null;
   salaryMinCents?: number | null;
@@ -190,7 +196,7 @@ export function ApplicationCard({
                 application={{
                   id: app.id,
                   title: app.title,
-                  company: app.company,
+                  company: app.company.name,
                   url: app.url,
                 }}
                 onSuccess={onSuccess}
@@ -226,9 +232,10 @@ export function ApplicationCard({
             </div>
           </div>
           <div className={cn("flex flex-wrap items-center gap-2")}>
-            <Text as="span" size="sm" color="secondary">
-              {app.company}
-            </Text>
+            <CompanyNameWithPopover
+              name={app.company.name}
+              description={app.company.description}
+            />
             <span className={cn("text-text-muted")} aria-hidden>
               ·
             </span>

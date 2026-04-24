@@ -3,7 +3,12 @@ import { type SalaryPeriod, ApplicationStage } from "@/gql/hooks";
 export interface ApplicationDetailsValues {
   id: string;
   title: string;
-  company: string;
+  companyId: string;
+  company: {
+    id: string;
+    name: string;
+    description?: string | null;
+  };
   description?: string | null;
   url?: string | null;
   salaryMinCents?: number | null;

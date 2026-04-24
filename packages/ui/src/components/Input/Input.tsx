@@ -7,6 +7,7 @@ export interface InputProps extends Omit<
 > {
   size?: "sm" | "md";
   state?: "default" | "error";
+  ref?: React.Ref<HTMLInputElement>;
 }
 
 const sizeClasses: Record<NonNullable<InputProps["size"]>, string> = {
@@ -25,11 +26,13 @@ export function Input({
   size = "md",
   state = "default",
   className,
+  ref,
   ...props
 }: InputProps) {
   return (
     <input
       {...props}
+      ref={ref}
       className={cn(
         `w-full rounded-md border bg-bg-surface text-text-primary shadow-sm transition-colors placeholder:text-text-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:bg-bg-surface-hover ${sizeClasses[size]} ${stateClasses[state]} ${className ?? ""}`,
       )}

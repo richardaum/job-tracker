@@ -9,6 +9,7 @@ export interface TooltipProps {
   open?: boolean;
   defaultOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
+  enabled?: boolean;
 }
 
 export function Tooltip({
@@ -18,7 +19,12 @@ export function Tooltip({
   open,
   defaultOpen,
   onOpenChange,
+  enabled = true,
 }: TooltipProps) {
+  if (!enabled) {
+    return children;
+  }
+
   return (
     <RadixTooltip.Provider delayDuration={0}>
       <RadixTooltip.Root

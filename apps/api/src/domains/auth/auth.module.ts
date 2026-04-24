@@ -25,6 +25,6 @@ import { AuthResolver } from "./auth.resolver";
     AuthResolver,
   ],
   controllers: [AuthController],
-  exports: [JwtAuthGuard, RolesGuard],
+  exports: [JwtAuthGuard, RolesGuard, UsersModule],
 })
 export class AuthModule {}

@@ -4,22 +4,25 @@ import {
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
-import { ApplicationRepository } from "./applications.repository";
-import { Application } from "./applications.schema";
 import { Note } from "./application-notes.schema";
+import { ApplicationQuickFilterEnum } from "./application-quick-filter.enum";
 import { ApplicationStageEvent } from "./application-stage-events.schema";
 import { ApplicationStageEnum } from "./application-stage.enum";
-import { SalaryPeriodEnum } from "./salary-period.enum";
 import {
-  mergeCompensationForUpdate,
-  normalizeCreateCompensation,
-  normalizeTags,
-} from "./application-compensation.util";
-import { ApplicationQuickFilterEnum } from "./application-quick-filter.enum";
+  ApplicationRepository,
+  CreateApplicationRepoDto,
+  UpdateApplicationRepoDto,
+} from "./applications.repository";
+import { Application } from "./applications.schema";
+import { CompensationService } from "./compensation.service";
+import { SalaryPeriodEnum } from "./salary-period.enum";
+import { TagService } from "./tag.service";
+import { CompanyService } from "@api/domains/companies/companies.service";
 
 type CreateDto = {
   title: string;
   company: string;
+  companyId?: string | null;
   description?: string | null;
   url?: string | null;
   salaryMinCents?: number | null;
@@ -63,7 +66,12 @@ function isValidTipTapDescription(value: string): boolean {
 
 @Injectable()
 export class ApplicationService {
-  constructor(private readonly repo: ApplicationRepository) {}
+  constructor(
+    private readonly repo: ApplicationRepository,
+    private readonly companyService: CompanyService,
+    private readonly compensationService: CompensationService,
+    private readonly tagService: TagService,
+  ) {}
 
   findAll(
     userId: string,
@@ -89,24 +97,28 @@ export class ApplicationService {
       );
     }
 
-    const {
-      salaryMinCents: _smin,
-      salaryMaxCents: _smax,
-      salaryCurrency: _scur,
-      salaryPeriod: _sper,
+    const companyId = await this.resolveCompanyId(
+      userId,
+      dto.company,
+      dto.companyId,
+    );
+    if (!companyId) {
+      throw new BadRequestException("Company could not be resolved");
+    }
+    const compensation = this.compensationService.getCreateCompensation(dto);
+    const tags = this.tagService.normalizeTags(dto.tags);
+
+    const repoDto: CreateApplicationRepoDto = {
+      title: dto.title,
+      companyId,
+      description: dto.description ?? null,
+      url: dto.url ?? null,
       tags,
-      ...coreCreate
-    } = dto;
-    void _smin;
-    void _smax;
-    void _scur;
-    void _sper;
-    const comp = normalizeCreateCompensation(dto);
-    const application = await this.repo.create(userId, {
-      ...coreCreate,
-      ...comp,
-      tags: normalizeTags(tags),
-    });
+      ...compensation,
+    };
+
+    const application = await this.repo.create(userId, repoDto);
+
     await this.repo.createStageEvent(userId, application.id, {
       fromStage: null,
       toStage: ApplicationStageEnum.NEW,
@@ -131,26 +143,55 @@ export class ApplicationService {
         "description must be valid TipTap document JSON",
       );
     }
-    const {
-      salaryMinCents: _uMin,
-      salaryMaxCents: _uMax,
-      salaryCurrency: _uCur,
-      salaryPeriod: _uPer,
-      tags,
-      ...coreUpdate
-    } = dto;
-    void _uMin;
-    void _uMax;
-    void _uCur;
-    void _uPer;
-    const compPatch = mergeCompensationForUpdate(existing, dto);
-    const updated = await this.repo.update(id, userId, {
-      ...coreUpdate,
-      ...(compPatch ?? {}),
-      ...(tags !== undefined ? { tags: normalizeTags(tags) } : {}),
-    });
+
+    const companyId = await this.resolveCompanyId(
+      userId,
+      dto.company,
+      dto.companyId,
+    );
+    const compensation = this.compensationService.getUpdateCompensation(
+      existing,
+      dto,
+    );
+    const tags =
+      dto.tags !== undefined
+        ? this.tagService.normalizeTags(dto.tags)
+        : undefined;
+
+    const repoDto: UpdateApplicationRepoDto = {
+      ...(dto.title !== undefined ? { title: dto.title } : {}),
+      ...(companyId !== undefined ? { companyId } : {}),
+      ...(dto.description !== undefined
+        ? { description: dto.description }
+        : {}),
+      ...(dto.url !== undefined ? { url: dto.url } : {}),
+      ...(tags !== undefined ? { tags } : {}),
+      ...(compensation ?? {}),
+    };
+
+    const updated = await this.repo.update(id, userId, repoDto);
+
     if (!updated) throw new NotFoundException(`Application ${id} not found`);
     return updated;
+  }
+
+  private async resolveCompanyId(
+    userId: string,
+    companyName?: string,
+    companyId?: string | null,
+  ): Promise<string | undefined> {
+    if (companyId) {
+      const company = await this.companyService.findOne(companyId, userId);
+      return company.id;
+    }
+    if (companyName) {
+      const company = await this.companyService.findOrCreateByName(
+        userId,
+        companyName,
+      );
+      return company.id;
+    }
+    return undefined;
   }
 
   async remove(id: string, userId: string): Promise<Application> {

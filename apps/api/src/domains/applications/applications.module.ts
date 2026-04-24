@@ -4,14 +4,15 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { ApplicationEntity } from "@api/database/entities/application.entity";
 import { ApplicationNoteEntity } from "@api/database/entities/application-note.entity";
 import { ApplicationStageEventEntity } from "@api/database/entities/application-stage-event.entity";
+import { CompanyEntity } from "@api/database/entities/company.entity";
 import { DatabaseModule } from "@api/database/database.module";
 import { AuthModule } from "@api/domains/auth/auth.module";
-import { UsersModule } from "@api/domains/users/users.module";
-import { JwtAuthGuard } from "@api/domains/auth/jwt-auth.guard";
-import { RolesGuard } from "@api/domains/auth/roles.guard";
 import { ApplicationRepository } from "./applications.repository";
 import { ApplicationService } from "./applications.service";
 import { ApplicationResolver } from "./applications.resolver";
+import { CompaniesModule } from "@api/domains/companies/companies.module";
+import { CompensationService } from "./compensation.service";
+import { TagService } from "./tag.service";
 
 @Module({
   imports: [
@@ -20,16 +21,18 @@ import { ApplicationResolver } from "./applications.resolver";
       ApplicationEntity,
       ApplicationStageEventEntity,
       ApplicationNoteEntity,
+      CompanyEntity,
     ]),
     AuthModule,
-    UsersModule,
+    CompaniesModule,
   ],
   providers: [
     ApplicationRepository,
     ApplicationService,
     ApplicationResolver,
-    JwtAuthGuard,
-    RolesGuard,
+    CompensationService,
+    TagService,
   ],
+  exports: [ApplicationService],
 })
 export class ApplicationModule {}

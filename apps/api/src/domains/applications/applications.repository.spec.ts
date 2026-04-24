@@ -4,6 +4,7 @@ import type { DataSource } from "typeorm";
 import { ApplicationEntity } from "@api/database/entities/application.entity";
 import { ApplicationNoteEntity } from "@api/database/entities/application-note.entity";
 import { ApplicationStageEventEntity } from "@api/database/entities/application-stage-event.entity";
+import { CompanyEntity } from "@api/database/entities/company.entity";
 import { UserEntity } from "@api/database/entities/user.entity";
 import { resetPublicSchemaAndMigrate } from "@api/database/test-db";
 
@@ -41,11 +42,16 @@ describe.skipIf(!hasDb)("ApplicationRepository (integration)", () => {
   afterAll(async () => {
     if (dataSource?.isInitialized) {
       await dataSource.query(
-        "TRUNCATE application_notes, application_stage_events, applications, users CASCADE",
+        "TRUNCATE companies, application_notes, application_stage_events, applications, users CASCADE",
       );
       await dataSource.destroy();
     }
   });
+
+  async function createTestCompany(uId: string, name: string) {
+    const companyRepo = dataSource.getRepository(CompanyEntity);
+    return companyRepo.save(companyRepo.create({ userId: uId, name }));
+  }
 
   it("findAllByUserId returns empty array when no applications", async () => {
     const result = await repo.findAllByUserId(userId);
@@ -53,21 +59,23 @@ describe.skipIf(!hasDb)("ApplicationRepository (integration)", () => {
   });
 
   it("create inserts a new application", async () => {
+    const company = await createTestCompany(userId, "Acme Corp");
     const app = await repo.create(userId, {
       title: "Software Engineer",
-      company: "Acme Corp",
+      companyId: company.id,
       url: "https://acme.com/jobs/1",
     });
     expect(app.id).toBeDefined();
     expect(app.userId).toBe(userId);
     expect(app.title).toBe("Software Engineer");
-    expect(app.company).toBe("Acme Corp");
+    expect(app.companyId).toBe(company.id);
   });
 
   it("findAllByUserId returns only the user's applications", async () => {
     const result = await repo.findAllByUserId(userId);
     expect(result).toHaveLength(1);
     expect(result[0].title).toBe("Software Engineer");
+    expect(result[0].company.name).toBe("Acme Corp");
   });
 
   it("findOneByIdAndUserId returns application when owner matches", async () => {
@@ -75,6 +83,7 @@ describe.skipIf(!hasDb)("ApplicationRepository (integration)", () => {
     const found = await repo.findOneByIdAndUserId(app.id, userId);
     expect(found).not.toBeNull();
     expect(found?.id).toBe(app.id);
+    expect(found?.company.name).toBe("Acme Corp");
   });
 
   it("findOneByIdAndUserId returns null when owner does not match", async () => {
@@ -112,9 +121,10 @@ describe.skipIf(!hasDb)("ApplicationRepository (integration)", () => {
       }),
     );
 
+    const otherCompany = await createTestCompany(otherUser.id, "Other Corp");
     await repo.create(otherUser.id, {
       title: "Other User's Job",
-      company: "Other Corp",
+      companyId: otherCompany.id,
       url: null,
     });
 
@@ -123,9 +133,10 @@ describe.skipIf(!hasDb)("ApplicationRepository (integration)", () => {
   });
 
   it("stores and returns stage events in desc order using scheduledAt fallback createdAt", async () => {
+    const company = await createTestCompany(userId, "Timeline Corp");
     const app = await repo.create(userId, {
       title: "Platform Engineer",
-      company: "Timeline Corp",
+      companyId: company.id,
       url: null,
     });
 
@@ -155,9 +166,10 @@ describe.skipIf(!hasDb)("ApplicationRepository (integration)", () => {
   });
 
   it("enforces note revision checks on update", async () => {
+    const company = await createTestCompany(userId, "Revision Corp");
     const app = await repo.create(userId, {
       title: "Backend Engineer",
-      company: "Revision Corp",
+      companyId: company.id,
       url: null,
     });
 
@@ -194,9 +206,10 @@ describe.skipIf(!hasDb)("ApplicationRepository (integration)", () => {
   });
 
   it("returns application notes in desc order", async () => {
+    const company = await createTestCompany(userId, "Order Corp");
     const app = await repo.create(userId, {
       title: "Notes Timeline",
-      company: "Order Corp",
+      companyId: company.id,
       url: null,
     });
 

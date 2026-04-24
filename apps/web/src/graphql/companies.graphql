@@ -1,0 +1,15 @@
+mutation UpdateCompany($id: ID!, $input: UpdateCompanyInput!) {
+  updateCompany(id: $id, input: $input) {
+    id
+    name
+    description
+  }
+}
+
+query Companies {
+  companies {
+    id
+    name
+    description
+  }
+}

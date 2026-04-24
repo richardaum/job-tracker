@@ -2,7 +2,12 @@ query Applications($filter: ApplicationQuickFilter) {
   applications(filter: $filter) {
     id
     title
-    company
+    companyId
+    company {
+      id
+      name
+      description
+    }
     description
     url
     salaryMinCents
@@ -18,7 +23,12 @@ query Application($id: ID!) {
   application(id: $id) {
     id
     title
-    company
+    companyId
+    company {
+      id
+      name
+      description
+    }
     description
     url
     salaryMinCents
@@ -34,7 +44,12 @@ mutation CreateApplication($input: CreateApplicationInput!) {
   createApplication(input: $input) {
     id
     title
-    company
+    companyId
+    company {
+      id
+      name
+      description
+    }
     description
     url
     salaryMinCents
@@ -50,7 +65,12 @@ mutation UpdateApplication($id: ID!, $input: UpdateApplicationInput!) {
   updateApplication(id: $id, input: $input) {
     id
     title
-    company
+    companyId
+    company {
+      id
+      name
+      description
+    }
     description
     url
     salaryMinCents
@@ -145,4 +165,3 @@ mutation UpdateApplicationNote($id: ID!, $input: UpdateApplicationNoteInput!) {
 mutation DeleteApplicationNote($id: ID!) {
   deleteApplicationNote(id: $id)
 }
-

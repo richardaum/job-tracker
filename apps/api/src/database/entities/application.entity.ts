@@ -4,9 +4,12 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  ManyToOne,
+  JoinColumn,
   PrimaryColumn,
   UpdateDateColumn,
 } from "typeorm";
+import { CompanyEntity } from "./company.entity";
 
 @Entity({ name: "applications" })
 export class ApplicationEntity {
@@ -26,8 +29,12 @@ export class ApplicationEntity {
   @Column({ type: "text" })
   title!: string;
 
-  @Column({ type: "text" })
-  company!: string;
+  @Column({ name: "company_id", type: "text" })
+  companyId!: string;
+
+  @ManyToOne(() => CompanyEntity, (company) => company.applications)
+  @JoinColumn({ name: "company_id" })
+  company!: CompanyEntity;
 
   @Column({ type: "text", nullable: true })
   description!: string | null;

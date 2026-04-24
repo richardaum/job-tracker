@@ -18,7 +18,15 @@ const mockApp: Application = {
   id: "app-1",
   userId: "user-1",
   title: "Software Engineer",
-  company: "Acme Corp",
+  companyId: "company-1",
+  company: {
+    id: "company-1",
+    userId: "user-1",
+    name: "Acme Corp",
+    description: null,
+    createdAt: new Date("2026-01-01T00:00:00.000Z"),
+    updatedAt: new Date("2026-01-01T00:00:00.000Z"),
+  },
   description: "Frontend role with React",
   url: "https://acme.com",
   salaryMinCents: null,
@@ -28,7 +36,7 @@ const mockApp: Application = {
   tags: [],
   createdAt: new Date("2026-01-01T00:00:00.000Z"),
   updatedAt: new Date("2026-01-01T00:00:00.000Z"),
-};
+} as unknown as Application;
 
 describe("ApplicationResolver (integration)", () => {
   let app: INestApplication;
@@ -91,11 +99,12 @@ describe("ApplicationResolver (integration)", () => {
     const res = await request(app.getHttpServer())
       .post("/graphql")
       .set(auth)
-      .send({ query: "{ applications { id title company } }" });
+      .send({ query: "{ applications { id title company { name } } }" });
 
     expect(res.statusCode).toBe(200);
     expect(res.body.data.applications).toHaveLength(1);
     expect(res.body.data.applications[0].title).toBe("Software Engineer");
+    expect(res.body.data.applications[0].company.name).toBe("Acme Corp");
   });
 
   it("application query returns one by id", async () => {
@@ -115,13 +124,14 @@ describe("ApplicationResolver (integration)", () => {
       .send({
         query: `mutation {
           createApplication(input: { title: "Engineer", company: "Acme" }) {
-            id title company
+            id title company { name }
           }
         }`,
       });
 
     expect(res.statusCode).toBe(200);
     expect(res.body.data.createApplication.id).toBe("app-1");
+    expect(res.body.data.createApplication.company.name).toBe("Acme Corp");
   });
 
   it("updateApplication mutation updates and returns application", async () => {

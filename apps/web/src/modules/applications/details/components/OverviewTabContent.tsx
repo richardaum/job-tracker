@@ -3,7 +3,6 @@
 import React, { useState } from "react";
 import {
   Button,
-  Combobox,
   Dialog,
   FormField,
   Input,
@@ -18,7 +17,6 @@ import {
   ApplicationsDocument,
   useRemoveApplicationTagMutation,
   useUpdateApplicationMutation,
-  useCompaniesQuery,
   useUpdateCompanyMutation,
 } from "@/gql/hooks";
 import { TipTapEditor } from "./TipTapEditor";
@@ -130,12 +128,6 @@ function CompanyEditDialog({
   );
   const [saving, setSaving] = useState(false);
 
-  const { data: companiesData } = useCompaniesQuery();
-  const companyOptions = (companiesData?.companies ?? []).map((c) => ({
-    label: c.name,
-    value: c.name,
-  }));
-
   const [updateApplication] = useUpdateApplicationMutation({
     refetchQueries: [
       { query: ApplicationDocument, variables: { id: application.id } },
@@ -221,11 +213,10 @@ function CompanyEditDialog({
     >
       <Stack gap="sm">
         <FormField label="Company name" htmlFor="edit-company-name">
-          <Combobox
+          <Input
             id="edit-company-name"
             value={nameDraft}
-            onValueChange={setNameDraft}
-            options={companyOptions}
+            onChange={(e) => setNameDraft(e.target.value)}
             placeholder="e.g. Acme Corp"
             disabled={saving}
           />
