@@ -78,7 +78,7 @@ describe("ApplicationService", () => {
     vi.mocked(repo.findAllByUserId).mockResolvedValue([makeApp()]);
     const result = await service.findAll("user-1");
     expect(result).toHaveLength(1);
-    expect(repo.findAllByUserId).toHaveBeenCalledWith("user-1");
+    expect(repo.findAllByUserId).toHaveBeenCalledWith("user-1", undefined);
   });
 
   it("findOne returns application when found", async () => {
@@ -263,5 +263,71 @@ describe("ApplicationService", () => {
     const deleted = await service.removeNote("note-1", "user-1");
     expect(deleted.id).toBe("note-1");
     expect(repo.deleteNote).toHaveBeenCalledWith("note-1", "user-1");
+  });
+
+  it("removeNote throws NotFoundException when deleteNote returns null", async () => {
+    vi.mocked(repo.findNoteByIdAndUserId).mockResolvedValue(makeNote());
+    vi.mocked(repo.deleteNote).mockResolvedValue(null);
+
+    await expect(service.removeNote("note-1", "user-1")).rejects.toThrow(
+      NotFoundException,
+    );
+  });
+
+  it("updateNote throws BadRequestException for invalid TipTap content", async () => {
+    vi.mocked(repo.findNoteByIdAndUserId).mockResolvedValue(makeNote());
+
+    await expect(
+      service.updateNote("note-1", "user-1", {
+        content: "plain text",
+        expectedRevision: 1,
+      }),
+    ).rejects.toThrow("content must be valid TipTap document JSON");
+  });
+
+  it("updateNote returns updated note on success", async () => {
+    const updated = makeNote({
+      content: JSON.stringify({ type: "doc", content: [] }),
+    });
+    vi.mocked(repo.findNoteByIdAndUserId).mockResolvedValue(makeNote());
+    vi.mocked(repo.updateNoteWithRevision).mockResolvedValue(updated);
+
+    const result = await service.updateNote("note-1", "user-1", {
+      content: JSON.stringify({ type: "doc", content: [] }),
+      expectedRevision: 1,
+    });
+    expect(result.id).toBe("note-1");
+  });
+
+  it("removeTag removes matching tag and updates application", async () => {
+    const app = makeApp({ tags: ["react", "typescript"] });
+    vi.mocked(repo.findOneByIdAndUserId).mockResolvedValue(app);
+    vi.mocked(repo.update).mockResolvedValue(makeApp({ tags: ["typescript"] }));
+
+    const result = await service.removeTag("app-1", "user-1", "react");
+    expect(result.tags).toEqual(["typescript"]);
+    expect(repo.update).toHaveBeenCalledWith("app-1", "user-1", {
+      tags: ["typescript"],
+    });
+  });
+
+  it("removeTag is case-insensitive", async () => {
+    const app = makeApp({ tags: ["React"] });
+    vi.mocked(repo.findOneByIdAndUserId).mockResolvedValue(app);
+    vi.mocked(repo.update).mockResolvedValue(makeApp({ tags: [] }));
+
+    await service.removeTag("app-1", "user-1", "react");
+    expect(repo.update).toHaveBeenCalledWith("app-1", "user-1", { tags: [] });
+  });
+
+  it("removeTag throws NotFoundException when update returns null", async () => {
+    vi.mocked(repo.findOneByIdAndUserId).mockResolvedValue(
+      makeApp({ tags: ["react"] }),
+    );
+    vi.mocked(repo.update).mockResolvedValue(null);
+
+    await expect(service.removeTag("app-1", "user-1", "react")).rejects.toThrow(
+      NotFoundException,
+    );
   });
 });

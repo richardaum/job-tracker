@@ -6,6 +6,12 @@ const useApplicationsQueryMock = vi.fn();
 const useApplicationStageEventsQueryMock = vi.fn();
 const useCurrentUserMock = vi.fn();
 
+vi.mock("next/navigation", () => ({
+  useSearchParams: () => new URLSearchParams(),
+  useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
+  usePathname: () => "/",
+}));
+
 vi.mock("next/image", () => ({
   default: (props: React.ImgHTMLAttributes<HTMLImageElement>) => (
     // eslint-disable-next-line @next/next/no-img-element
@@ -14,6 +20,12 @@ vi.mock("next/image", () => ({
 }));
 
 vi.mock("@/gql/hooks", () => ({
+  ApplicationQuickFilter: {
+    Active: "ACTIVE",
+    Applied: "APPLIED",
+    Incoming: "INCOMING",
+    New: "NEW",
+  },
   ApplicationStage: {
     New: "new",
     Applied: "applied",
@@ -138,7 +150,7 @@ describe("ApplicationsPage", () => {
 
     expect(screen.getByText("Frontend Engineer")).toBeInTheDocument();
     expect(screen.getByText("Acme")).toBeInTheDocument();
-    expect(screen.getByText("New")).toBeInTheDocument();
+    expect(screen.getAllByText("New").length).toBeGreaterThan(0);
     expect(screen.getByRole("link", { name: /view posting/i })).toBeVisible();
   });
 
