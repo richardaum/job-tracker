@@ -1,5 +1,6 @@
 import eslint from "@eslint/js";
 import nextPlugin from "@next/eslint-plugin-next";
+import { defineConfig } from "eslint/config";
 import eslintConfigPrettier from "eslint-config-prettier";
 import react from "eslint-plugin-react";
 import reactHooks from "eslint-plugin-react-hooks";
@@ -7,7 +8,7 @@ import testingLibrary from "eslint-plugin-testing-library";
 import globals from "globals";
 import tseslint from "typescript-eslint";
 
-export default tseslint.config(
+export default defineConfig(
   {
     ignores: [
       "**/node_modules/**",
