@@ -13,6 +13,7 @@ import { SalaryPeriodEnum } from "./salary-period.enum";
 import {
   mergeCompensationForUpdate,
   normalizeCreateCompensation,
+  normalizeTags,
 } from "./application-compensation.util";
 
 type CreateDto = {
@@ -24,7 +25,7 @@ type CreateDto = {
   salaryMaxCents?: number | null;
   salaryCurrency?: string | null;
   salaryPeriod?: SalaryPeriodEnum | null;
-  salaryTags?: string[] | null;
+  tags?: string[] | null;
 };
 type UpdateDto = Partial<CreateDto>;
 type CreateStageEventDto = {
@@ -89,18 +90,18 @@ export class ApplicationService {
       salaryMaxCents: _smax,
       salaryCurrency: _scur,
       salaryPeriod: _sper,
-      salaryTags: _stag,
+      tags,
       ...coreCreate
     } = dto;
     void _smin;
     void _smax;
     void _scur;
     void _sper;
-    void _stag;
     const comp = normalizeCreateCompensation(dto);
     const application = await this.repo.create(userId, {
       ...coreCreate,
       ...comp,
+      tags: normalizeTags(tags),
     });
     await this.repo.createStageEvent(userId, application.id, {
       fromStage: null,
@@ -131,18 +132,18 @@ export class ApplicationService {
       salaryMaxCents: _uMax,
       salaryCurrency: _uCur,
       salaryPeriod: _uPer,
-      salaryTags: _uTag,
+      tags,
       ...coreUpdate
     } = dto;
     void _uMin;
     void _uMax;
     void _uCur;
     void _uPer;
-    void _uTag;
     const compPatch = mergeCompensationForUpdate(existing, dto);
     const updated = await this.repo.update(id, userId, {
       ...coreUpdate,
       ...(compPatch ?? {}),
+      ...(tags !== undefined ? { tags: normalizeTags(tags) } : {}),
     });
     if (!updated) throw new NotFoundException(`Application ${id} not found`);
     return updated;

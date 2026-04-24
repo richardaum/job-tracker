@@ -23,7 +23,7 @@ type CreateDto = Pick<
   | "salaryMaxCents"
   | "salaryCurrency"
   | "salaryPeriod"
-  | "salaryTags"
+  | "tags"
 >;
 type UpdateDto = Partial<CreateDto>;
 type CreateStageEventDto = Pick<

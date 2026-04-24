@@ -54,12 +54,12 @@ export class ApplicationEntity {
   salaryPeriod!: "year" | "month" | "hour" | null;
 
   @Column({
-    name: "salary_tags",
+    name: "tags",
     type: "text",
     array: true,
     default: () => "ARRAY[]::text[]",
   })
-  salaryTags!: string[];
+  tags!: string[];
 
   @CreateDateColumn({ name: "created_at", type: "timestamp" })
   createdAt!: Date;

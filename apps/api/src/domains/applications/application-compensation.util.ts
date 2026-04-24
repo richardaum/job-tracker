@@ -4,20 +4,14 @@ import { SalaryPeriodEnum } from "./salary-period.enum";
 
 type CompensationColumns = Pick<
   NewApplication,
-  | "salaryMinCents"
-  | "salaryMaxCents"
-  | "salaryCurrency"
-  | "salaryPeriod"
-  | "salaryTags"
+  "salaryMinCents" | "salaryMaxCents" | "salaryCurrency" | "salaryPeriod"
 >;
 
-const MAX_SALARY_TAGS = 8;
+const MAX_TAGS = 8;
 const MAX_TAG_LENGTH = 32;
 const CURRENCY_RE = /^[A-Z]{3}$/;
 
-export function normalizeSalaryTags(
-  tags: string[] | null | undefined,
-): string[] {
+export function normalizeTags(tags: string[] | null | undefined): string[] {
   if (tags == null || tags.length === 0) return [];
   const seen = new Set<string>();
   const out: string[] = [];
@@ -28,7 +22,7 @@ export function normalizeSalaryTags(
     if (seen.has(key)) continue;
     seen.add(key);
     out.push(t.length > MAX_TAG_LENGTH ? t.slice(0, MAX_TAG_LENGTH) : t);
-    if (out.length >= MAX_SALARY_TAGS) break;
+    if (out.length >= MAX_TAGS) break;
   }
   return out;
 }
@@ -38,64 +32,40 @@ type CompensationShape = {
   salaryMaxCents: number | null;
   salaryCurrency: string | null;
   salaryPeriod: SalaryPeriodEnum | null;
-  salaryTags: string[];
 };
 
 export function assertValidCompensationState(c: CompensationShape): void {
   const hasMin = c.salaryMinCents != null;
   const hasMax = c.salaryMaxCents != null;
   const hasAmount = hasMin || hasMax;
-  const hasTags = c.salaryTags.length > 0;
 
-  if (!hasAmount && !hasTags) {
-    return;
+  if (!hasAmount) return;
+
+  if (c.salaryCurrency == null || c.salaryPeriod == null) {
+    throw new BadRequestException(
+      "A salary range requires salaryCurrency and salaryPeriod",
+    );
   }
-
-  if (hasAmount) {
-    if (c.salaryCurrency == null || c.salaryPeriod == null) {
-      throw new BadRequestException(
-        "A salary range requires salaryCurrency and salaryPeriod",
-      );
-    }
-    if (!CURRENCY_RE.test(c.salaryCurrency)) {
-      throw new BadRequestException(
-        "salaryCurrency must be a 3-letter ISO 4217 code (e.g. BRL, USD)",
-      );
-    }
-    if (c.salaryMinCents != null && c.salaryMinCents < 0) {
-      throw new BadRequestException("salaryMinCents must be non-negative");
-    }
-    if (c.salaryMaxCents != null && c.salaryMaxCents < 0) {
-      throw new BadRequestException("salaryMaxCents must be non-negative");
-    }
-    if (
-      c.salaryMinCents != null &&
-      c.salaryMaxCents != null &&
-      c.salaryMinCents > c.salaryMaxCents
-    ) {
-      throw new BadRequestException(
-        "salaryMinCents must be less than or equal to salaryMaxCents",
-      );
-    }
-  } else {
-    if (c.salaryCurrency != null || c.salaryPeriod != null) {
-      throw new BadRequestException(
-        "Remove salaryCurrency and salaryPeriod when no salary range is set",
-      );
-    }
+  if (!CURRENCY_RE.test(c.salaryCurrency)) {
+    throw new BadRequestException(
+      "salaryCurrency must be a 3-letter ISO 4217 code (e.g. BRL, USD)",
+    );
   }
-}
-
-export function compensationRowToShape(
-  current: Application,
-): CompensationShape {
-  return {
-    salaryMinCents: current.salaryMinCents,
-    salaryMaxCents: current.salaryMaxCents,
-    salaryCurrency: current.salaryCurrency,
-    salaryPeriod: (current.salaryPeriod as SalaryPeriodEnum | null) ?? null,
-    salaryTags: normalizeSalaryTags(current.salaryTags ?? []),
-  };
+  if (c.salaryMinCents != null && c.salaryMinCents < 0) {
+    throw new BadRequestException("salaryMinCents must be non-negative");
+  }
+  if (c.salaryMaxCents != null && c.salaryMaxCents < 0) {
+    throw new BadRequestException("salaryMaxCents must be non-negative");
+  }
+  if (
+    c.salaryMinCents != null &&
+    c.salaryMaxCents != null &&
+    c.salaryMinCents > c.salaryMaxCents
+  ) {
+    throw new BadRequestException(
+      "salaryMinCents must be less than or equal to salaryMaxCents",
+    );
+  }
 }
 
 function rowAfterValidation(c: CompensationShape): CompensationColumns {
@@ -106,7 +76,6 @@ function rowAfterValidation(c: CompensationShape): CompensationColumns {
       salaryMaxCents: null,
       salaryCurrency: null,
       salaryPeriod: null,
-      salaryTags: c.salaryTags,
     };
   }
   return {
@@ -116,7 +85,6 @@ function rowAfterValidation(c: CompensationShape): CompensationColumns {
     salaryPeriod: c.salaryPeriod as NonNullable<
       CompensationColumns["salaryPeriod"]
     >,
-    salaryTags: c.salaryTags,
   };
 }
 
@@ -125,7 +93,6 @@ export type CompensationInput = {
   salaryMaxCents?: number | null;
   salaryCurrency?: string | null;
   salaryPeriod?: SalaryPeriodEnum | null;
-  salaryTags?: string[] | null;
 };
 
 export function mergeCompensationForUpdate(
@@ -136,8 +103,7 @@ export function mergeCompensationForUpdate(
     input.salaryMinCents !== undefined ||
     input.salaryMaxCents !== undefined ||
     input.salaryCurrency !== undefined ||
-    input.salaryPeriod !== undefined ||
-    input.salaryTags !== undefined;
+    input.salaryPeriod !== undefined;
   if (!anyKey) return null;
 
   const min =
@@ -158,17 +124,12 @@ export function mergeCompensationForUpdate(
     input.salaryPeriod === undefined
       ? (current.salaryPeriod as SalaryPeriodEnum | null)
       : input.salaryPeriod;
-  const tags =
-    input.salaryTags === undefined
-      ? normalizeSalaryTags(current.salaryTags ?? [])
-      : normalizeSalaryTags(input.salaryTags);
 
   const c: CompensationShape = {
     salaryMinCents: min,
     salaryMaxCents: max,
     salaryCurrency: currency,
     salaryPeriod: period,
-    salaryTags: tags,
   };
   assertValidCompensationState(c);
   return rowAfterValidation(c);
@@ -184,9 +145,6 @@ export function normalizeCreateCompensation(
       ? input.salaryCurrency.trim().toUpperCase()
       : null,
     salaryPeriod: input.salaryPeriod ?? null,
-    salaryTags: normalizeSalaryTags(
-      input.salaryTags == null ? [] : input.salaryTags,
-    ),
   };
   assertValidCompensationState(c);
   return rowAfterValidation(c);
