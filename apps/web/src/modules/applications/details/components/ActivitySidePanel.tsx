@@ -1,7 +1,16 @@
 import React from "react";
-import { Tabs, TabsList, TabsTrigger, cn } from "@job-tracker/ui";
+import NextLink from "next/link";
+import {
+  Link,
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  Tooltip,
+  cn,
+} from "@job-tracker/ui";
 import { HistoryPanelTabsContent } from "./HistoryPanel";
 import { NotesPanelTabsContent } from "./NotesPanel";
+import { ArrowSquareOutIcon } from "@phosphor-icons/react";
 
 export function ActivitySidePanel({
   applicationId,
@@ -18,8 +27,29 @@ export function ActivitySidePanel({
       className={cn("flex h-full min-h-0 w-full flex-col")}
     >
       <TabsList className={cn("w-full")}>
-        <TabsTrigger value="notes" className={cn("flex-1")}>
-          Notes
+        <TabsTrigger
+          value="notes"
+          asChild
+          className={cn(
+            "group flex-1 flex items-center justify-center gap-1.5",
+          )}
+        >
+          <div>
+            <span>Notes</span>
+            <Tooltip content="Open full page">
+              <Link
+                variant="muted"
+                asChild
+                className={cn(
+                  "opacity-0 transition-opacity group-hover:opacity-100 data-[state=active]:opacity-100 no-underline hover:no-underline",
+                )}
+              >
+                <NextLink href={`/applications/${applicationId}/notes`}>
+                  <ArrowSquareOutIcon size={14} weight="regular" />
+                </NextLink>
+              </Link>
+            </Tooltip>
+          </div>
         </TabsTrigger>
         <TabsTrigger value="history" className={cn("flex-1")}>
           History

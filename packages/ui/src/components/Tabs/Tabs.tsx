@@ -19,6 +19,7 @@ export interface TabsTriggerProps {
   value: string;
   children: React.ReactNode;
   className?: string;
+  asChild?: boolean;
 }
 
 export interface TabsContentProps {
@@ -59,10 +60,16 @@ export function TabsList({ children, className }: TabsListProps) {
   );
 }
 
-export function TabsTrigger({ value, children, className }: TabsTriggerProps) {
+export function TabsTrigger({
+  value,
+  children,
+  className,
+  asChild,
+}: TabsTriggerProps) {
   return (
     <RadixTabs.Trigger
       value={value}
+      asChild={asChild}
       className={cn(
         "inline-flex h-8 items-center justify-center rounded-sm px-3 text-sm font-medium text-text-secondary transition-colors hover:bg-bg-surface-hover hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-brand focus-visible:ring-offset-0 data-[state=active]:bg-bg-brand-subtle data-[state=active]:text-text-brand",
         className,

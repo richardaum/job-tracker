@@ -1,32 +1,119 @@
 # Roadmap
 
-## Sequence
+**Current Milestone:** M2 - Rich Tracking
+**Status:** In Progress
 
-- [R-31] Deliver `typeorm-data-layer` by replacing Drizzle with TypeORM in `apps/api`, including Nest module wiring, entity definitions, migration runner, and Drizzle cutover notes for existing databases.
-- [R-15] Establish Beta2 planning baseline by separating implemented Beta1 scope from pending product expansion work.
-- [R-16] Deliver `application-stages-and-notes` as the canonical tracking scope, including workflow integrity and timeline consistency.
-- [R-17] Deliver `dashboard-and-search` as the canonical discovery scope, including aggregate query consistency and indexed retrieval.
-- [R-19] Deliver `ai-assistance` as the canonical AI scope, including deterministic enrichment contracts and approval-gated persistence.
-- [R-20] Deliver `import-and-onboarding-expansion` as the canonical import scope, including connector safeguards and guest migration integrity.
-- [R-18] Deliver `multilingual-experience` as the canonical i18n scope, including locale routing, dictionary governance, and EN/PT-BR quality checks.
-- [R-28] Deliver `application-compensation` as the optional structured pay and tags scope on the canonical application record, including list and details UI parity.
+---
 
-## Dependencies
+## M1 - Foundation
 
-- [R-32] [R-31] should complete before adding new ORM-specific patterns in `apps/api` so dashboard, multilingual, AI, and import scopes share a single migration and entity workflow.
-- [R-21] [R-17] depends on [R-16] because dashboard views require normalized stage and note data.
-- [R-22] [R-18] depends on [R-16] and [R-17] so multilingual coverage targets concrete user-facing surfaces.
-- [R-23] [R-19] depends on [R-16] and [R-17] because AI assistance consumes tracked application context and searchable content.
-- [R-24] [R-20] depends on [R-16] and [R-19] because imported data must map to the same tracking model and enrichment pipeline.
-- [R-29] [R-28] depends on [R-16] because compensation fields extend the same `applications` entity and must remain consistent with stage and note ownership rules.
+**Goal:** Functional app with authentication and basic application CRUD
+**Target:** Feature completeness (no fixed deadline)
 
-## Milestones
+### Features
 
-- [R-25] Milestone B2-M1: tracking and dashboard canonical scopes (`application-stages-and-notes`, `dashboard-and-search`) are operational behind stable ownership boundaries.
-- [R-26] Milestone B2-M2: multilingual and AI canonical scopes (`multilingual-experience`, `ai-assistance`) are production-ready with quality and review controls.
-- [R-27] Milestone B2-M3: import canonical scope (`import-and-onboarding-expansion`) is validated with explicit guardrails and rollout strategy.
-- [R-30] Milestone B2-M1b: `application-compensation` ships optional pay metadata on applications so owners can compare opportunities without cross-user analytics in Beta2.
+**Project Setup** - DONE
 
-## Completion status
+- Initialize pnpm workspaces monorepo (Web + API + Extension + packages/ui)
+- Initialize Next.js 15 (Web) and NestJS (API) as separate services
+- Set up Design System package (packages/ui) with Tailwind CSS, Radix UI, Storybook and Vitest
+- Set up local PostgreSQL and Drizzle
+- Configure GitHub Actions CI/CD pipeline
+- Configure Docker for NestJS production deployment
+- Configure Sentry on all services
 
-Beta1 is complete and archived under `.specs/beta1`; Beta2 execution has completed [R-16] (`application-stages-and-notes`) and [R-28] (`application-compensation`), and is executing [R-31] (`typeorm-data-layer`) before advancing feature work such as [R-17] (`dashboard-and-search`).
+**Google OAuth** - DONE
+
+- Login and logout with Google account
+- Persistent session per user
+- Protected authenticated routes
+- GraphQL Codegen baseline in Web with `me` query using generated hook (`useMeQuery`)
+
+**Visual Identity** - DONE
+
+- Define color palette, typography, and spacing tokens
+- Configure Tailwind CSS theme (design tokens)
+- Establish mobile-first breakpoints
+- Light/dark mode support
+
+**Application CRUD** - DONE
+
+- Create application with title, company, URL, and date
+- List applications for the authenticated user
+- Edit and delete application
+
+---
+
+## M2 - Rich Tracking
+
+**Goal:** Detailed tracking of each application with stages and notes
+
+### Features
+
+**Stages** - PLANNED
+
+- Define application stages (Applied, Phone Screen, Technical, Offer, Rejected, etc.)
+- Stage change history with timestamps
+
+**Notes** - PLANNED
+
+- Add free-form notes per application
+- Post-interview feedback field
+
+**Dashboard Overview** - PLANNED
+
+- Overview of all applications by stage
+- Filters and search
+
+**Platform Reliability Hardening (TLC)** - PLANNED
+
+- Start TLC flow on `.specs/tech/platform-reliability-hardening/spec.md` (`Specify -> Design -> Tasks -> Execute`)
+- Instrument query-per-request monitoring with warning threshold (>15 queries)
+- Cover concurrency, memory leak prevention, profiling, supply chain security, architecture decisions, and failure simulations
+
+**Multi-language Support** - PLANNED
+
+- i18n setup with locale detection
+- English and Portuguese (BR) as initial languages
+- All UI strings externalized
+
+---
+
+## M3 - AI Features
+
+**Goal:** Smart insights to increase application success rate and reduce manual effort
+
+### Features
+
+**AI-powered Insights** - PLANNED
+
+- Real-time job summary
+- Candidate vs. job fit assessment
+- Skills gap analysis
+- Interview preparation tips
+
+**AI Note Structuring** - PLANNED
+
+- User types raw notes after an interview
+- AI restructures and enriches the note using job description and candidate resume as context
+- Output is a clean, organized note saved back to the application
+
+**Goal:** Smart insights to increase application success rate
+
+### Features
+
+**AI-powered Insights** - PLANNED
+
+- Real-time job summary
+- Candidate vs. job fit assessment
+- Skills gap analysis
+- Interview preparation tips
+
+---
+
+## Future Considerations
+
+- Chrome extension to import applications from job boards (LinkedIn, Jack, RemoteYeah)
+- Automatic job import from generic job boards
+- Guided auto-apply
+- Guest onboarding: try before you sign up

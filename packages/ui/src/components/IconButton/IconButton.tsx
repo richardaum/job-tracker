@@ -1,4 +1,5 @@
 import React from "react";
+import { Slot } from "@radix-ui/react-slot";
 import { cn } from "@ui/lib/cn";
 import { Tooltip } from "../Tooltip/Tooltip";
 
@@ -18,6 +19,7 @@ export interface IconButtonProps extends Omit<
   tooltip: React.ReactNode;
   intent?: IconButtonIntent;
   size?: IconButtonSize;
+  asChild?: boolean;
 }
 
 const intentClasses: Record<IconButtonIntent, string> = {
@@ -43,8 +45,10 @@ export function IconButton({
   intent = "secondary",
   size = "md",
   className,
+  asChild,
   ...props
 }: IconButtonProps) {
+  const Component = asChild ? Slot : "button";
   const classes = cn(
     "inline-flex cursor-pointer items-center justify-center rounded-md border shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-brand focus-visible:ring-inset focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-60",
     intentClasses[intent],
@@ -54,9 +58,14 @@ export function IconButton({
 
   return (
     <Tooltip content={tooltip}>
-      <button type="button" aria-label={label} className={classes} {...props}>
+      <Component
+        type="button"
+        aria-label={label}
+        className={classes}
+        {...props}
+      >
         <span aria-hidden>{icon}</span>
-      </button>
+      </Component>
     </Tooltip>
   );
 }

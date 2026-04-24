@@ -3,6 +3,16 @@ import * as RadixDialog from "@radix-ui/react-dialog";
 import { XIcon } from "@phosphor-icons/react";
 import { cn } from "@ui/lib/cn";
 
+export type DialogSize =
+  | "xs"
+  | "sm"
+  | "md"
+  | "lg"
+  | "xl"
+  | "2xl"
+  | "3xl"
+  | "4xl";
+
 export interface DialogProps {
   trigger: React.ReactElement;
   title: string;
@@ -13,7 +23,20 @@ export interface DialogProps {
   defaultOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
   contentClassName?: string;
+  childrenClassName?: string;
+  size?: DialogSize;
 }
+
+const sizeClasses: Record<DialogSize, string> = {
+  xs: "max-w-xs",
+  sm: "max-w-sm",
+  md: "max-w-md",
+  lg: "max-w-lg",
+  xl: "max-w-xl",
+  "2xl": "max-w-2xl",
+  "3xl": "max-w-3xl",
+  "4xl": "max-w-4xl",
+};
 
 export function Dialog({
   trigger,
@@ -25,6 +48,8 @@ export function Dialog({
   defaultOpen,
   onOpenChange,
   contentClassName,
+  childrenClassName,
+  size = "lg",
 }: DialogProps) {
   return (
     <RadixDialog.Root
@@ -41,11 +66,16 @@ export function Dialog({
         />
         <RadixDialog.Content
           className={cn(
-            "fixed left-1/2 top-1/2 z-50 w-[calc(100vw-(var(--primitive-space-6)*2))] max-w-lg -translate-x-1/2 -translate-y-1/2 rounded-lg border border-border-subtle bg-bg-surface p-6 shadow-md focus:outline-none",
+            "fixed left-1/2 top-1/2 z-50 flex w-[calc(100vw-(var(--primitive-space-6)*2))] -translate-x-1/2 -translate-y-1/2 flex-col rounded-lg border border-border-subtle bg-bg-surface p-6 shadow-md focus:outline-none",
+            sizeClasses[size],
             contentClassName,
           )}
         >
-          <div className={cn("mb-3 flex items-start justify-between gap-2")}>
+          <div
+            className={cn(
+              "mb-3 flex shrink-0 items-start justify-between gap-2",
+            )}
+          >
             <div className={cn("space-y-1")}>
               <RadixDialog.Title
                 className={cn("text-md font-semibold text-text-primary")}
@@ -69,8 +99,10 @@ export function Dialog({
               <XIcon size={16} weight="regular" />
             </RadixDialog.Close>
           </div>
-          <div>{children}</div>
-          {footer ? <div className={cn("mt-4")}>{footer}</div> : null}
+          <div className={cn("flex-1 min-h-0", childrenClassName)}>
+            {children}
+          </div>
+          {footer ? <div className={cn("mt-4 shrink-0")}>{footer}</div> : null}
         </RadixDialog.Content>
       </RadixDialog.Portal>
     </RadixDialog.Root>

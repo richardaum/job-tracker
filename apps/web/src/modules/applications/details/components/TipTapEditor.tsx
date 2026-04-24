@@ -27,6 +27,7 @@ interface TipTapEditorProps {
   placeholder?: string;
   disabled?: boolean;
   fillHeight?: boolean;
+  autofocus?: boolean | "start" | "end" | "all" | number | null;
   contentClassName?: string;
 }
 
@@ -90,6 +91,7 @@ export function TipTapEditor({
   placeholder = "Write...",
   disabled = false,
   fillHeight = false,
+  autofocus = false,
   contentClassName,
 }: TipTapEditorProps) {
   const onHardEnterRef = React.useRef(onHardEnter);
@@ -107,6 +109,7 @@ export function TipTapEditor({
       Placeholder.configure({ placeholder }),
     ],
     content: parseTipTapDocument(value),
+    autofocus,
     editable: !disabled,
     immediatelyRender: false,
     editorProps: {
