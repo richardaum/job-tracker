@@ -59,6 +59,28 @@ function ToolbarButton({
   );
 }
 
+const editorContentClasses = {
+  container: cn("min-h-24 rounded-b-md border border-border-subtle border-t-0"),
+  proseMirrorBase: cn(
+    "[&_.ProseMirror]:min-h-20 [&_.ProseMirror]:p-3 [&_.ProseMirror]:text-sm [&_.ProseMirror]:outline-none [&_.ProseMirror]:wrap-break-word",
+  ),
+  bulletList: cn("[&_.ProseMirror_ul]:list-disc [&_.ProseMirror_ul]:pl-5"),
+  orderedList: cn("[&_.ProseMirror_ol]:list-decimal [&_.ProseMirror_ol]:pl-5"),
+  link: cn(
+    "[&_.ProseMirror_a]:text-text-brand [&_.ProseMirror_a]:underline [&_.ProseMirror_a]:underline-offset-2",
+    "[&_.ProseMirror_a:hover]:text-text-brand-hover",
+    "[&_.ProseMirror_a:focus-visible]:rounded-xs [&_.ProseMirror_a:focus-visible]:outline-none [&_.ProseMirror_a:focus-visible]:ring-2 [&_.ProseMirror_a:focus-visible]:ring-border-brand",
+  ),
+  placeholder: cn(
+    "[&_.ProseMirror_p.is-editor-empty:first-child::before]:pointer-events-none [&_.ProseMirror_p.is-editor-empty:first-child::before]:float-left [&_.ProseMirror_p.is-editor-empty:first-child::before]:h-0 [&_.ProseMirror_p.is-editor-empty:first-child::before]:text-text-muted [&_.ProseMirror_p.is-editor-empty:first-child::before]:content-[attr(data-placeholder)]",
+  ),
+  overflowHidden: cn("border-r-0"),
+  fillHeight: cn(
+    "flex-1 min-h-0 overflow-hidden",
+    "[&_.ProseMirror]:h-full [&_.ProseMirror]:min-h-full [&_.ProseMirror]:overflow-y-auto",
+  ),
+};
+
 export function TipTapEditor({
   ref,
   id,
@@ -208,10 +230,14 @@ export function TipTapEditor({
         editor={editor}
         id={id}
         className={cn(
-          "min-h-24 rounded-b-md border border-border-subtle border-t-0 [&_.ProseMirror]:min-h-20 [&_.ProseMirror]:p-3 [&_.ProseMirror]:text-sm [&_.ProseMirror]:outline-none [&_.ProseMirror]:wrap-break-word [&_.ProseMirror_a]:text-text-brand [&_.ProseMirror_a]:underline [&_.ProseMirror_a]:underline-offset-2 [&_.ProseMirror_a:hover]:text-text-brand-hover [&_.ProseMirror_a:focus-visible]:rounded-xs [&_.ProseMirror_a:focus-visible]:outline-none [&_.ProseMirror_a:focus-visible]:ring-2 [&_.ProseMirror_a:focus-visible]:ring-border-brand [&_.ProseMirror_p.is-editor-empty:first-child::before]:pointer-events-none [&_.ProseMirror_p.is-editor-empty:first-child::before]:float-left [&_.ProseMirror_p.is-editor-empty:first-child::before]:h-0 [&_.ProseMirror_p.is-editor-empty:first-child::before]:text-text-muted [&_.ProseMirror_p.is-editor-empty:first-child::before]:content-[attr(data-placeholder)]",
-          hasVerticalOverflow && "border-r-0",
-          fillHeight &&
-            "flex-1 min-h-0 overflow-hidden [&_.ProseMirror]:h-full [&_.ProseMirror]:min-h-full [&_.ProseMirror]:overflow-y-auto",
+          editorContentClasses.container,
+          editorContentClasses.proseMirrorBase,
+          editorContentClasses.bulletList,
+          editorContentClasses.orderedList,
+          editorContentClasses.link,
+          editorContentClasses.placeholder,
+          hasVerticalOverflow && editorContentClasses.overflowHidden,
+          fillHeight && editorContentClasses.fillHeight,
           contentClassName,
         )}
       />
