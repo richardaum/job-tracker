@@ -1,8 +1,6 @@
 "use client";
 
 import React, { useMemo, useRef, useState } from "react";
-import StarterKit from "@tiptap/starter-kit";
-import { renderToReactElement } from "@tiptap/static-renderer/pm/react";
 import { PencilSimpleIcon, TrashIcon } from "@phosphor-icons/react";
 import {
   Button,
@@ -22,28 +20,21 @@ import {
   useUpdateApplicationNoteMutation,
 } from "@/gql/hooks";
 import { TipTapEditor, type TipTapEditorHandle } from "./TipTapEditor";
+import { TipTapContent } from "@/modules/applications/shared/components/TipTapContent";
 import {
   EMPTY_TIPTAP_DOC,
-  parseTipTapDocument,
   tipTapToPlainText,
 } from "@/modules/applications/shared/utils/tiptap";
 import { formatDateTime } from "@/modules/applications/details/utils/application-details.shared";
 import { useNotesComposerBehavior } from "@/modules/applications/details/hooks/useNotesComposerBehavior";
 
-const NOTE_RENDER_EXTENSIONS = [StarterKit];
-
-function renderNoteContent(content: string): React.ReactNode {
-  try {
-    return renderToReactElement({
-      extensions: NOTE_RENDER_EXTENSIONS,
-      content: parseTipTapDocument(content),
-    });
-  } catch {
-    return tipTapToPlainText(content);
-  }
-}
-
-export function NotesPanel({ applicationId }: { applicationId: string }) {
+export function NotesPanel({
+  applicationId,
+  isModalInstance = false,
+}: {
+  applicationId: string;
+  isModalInstance?: boolean;
+}) {
   const [draftNote, setDraftNote] = useState(EMPTY_TIPTAP_DOC);
   const composerEditorRef = useRef<TipTapEditorHandle>(null);
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
@@ -52,6 +43,7 @@ export function NotesPanel({ applicationId }: { applicationId: string }) {
   const [noteIdPendingDelete, setNoteIdPendingDelete] = useState<string | null>(
     null,
   );
+
   const { data: notesData } = useApplicationNotesQuery({
     variables: { applicationId },
     fetchPolicy: "cache-and-network",
@@ -200,7 +192,7 @@ export function NotesPanel({ applicationId }: { applicationId: string }) {
                           "text-sm whitespace-pre-wrap wrap-break-word [&_p]:m-0 [&_p+p]:mt-2 [&_ul]:my-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:my-2 [&_ol]:list-decimal [&_ol]:pl-5 [&_a]:text-text-brand [&_a]:underline",
                         )}
                       >
-                        {renderNoteContent(note.content)}
+                        <TipTapContent content={note.content} />
                       </div>
                       <div
                         className={cn(
@@ -258,7 +250,7 @@ export function NotesPanel({ applicationId }: { applicationId: string }) {
           <Stack gap="xs">
             <TipTapEditor
               ref={composerEditorRef}
-              id={`application-note-composer-${applicationId}`}
+              id={`application-note-composer-${applicationId}${isModalInstance ? "-modal" : ""}`}
               value={draftNote}
               onChange={(nextValue) =>
                 setDraftNote(nextValue || EMPTY_TIPTAP_DOC)
@@ -266,6 +258,7 @@ export function NotesPanel({ applicationId }: { applicationId: string }) {
               onHardEnter={canSend ? () => void handleSendNote() : undefined}
               placeholder="Write a note..."
               disabled={creatingNote}
+              autofocus={true}
               contentClassName={cn(
                 "min-h-0 [&_.ProseMirror]:min-h-5 [&_.ProseMirror]:max-h-40 [&_.ProseMirror]:overflow-y-auto",
               )}
@@ -314,6 +307,7 @@ export function NotesPanel({ applicationId }: { applicationId: string }) {
               }
               placeholder="Edit note..."
               disabled={updatingNote}
+              autofocus="end"
               fillHeight
             />
           </div>
