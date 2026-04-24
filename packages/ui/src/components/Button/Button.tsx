@@ -1,4 +1,5 @@
 import React from "react";
+import { CircleNotchIcon } from "@phosphor-icons/react";
 import { cn } from "@ui/lib/cn";
 
 export type ButtonIntent =
@@ -7,7 +8,7 @@ export type ButtonIntent =
   | "ghost"
   | "outlined"
   | "destructive";
-export type ButtonSize = "sm" | "md";
+export type ButtonSize = "xs" | "sm" | "md";
 export type ButtonState = "default" | "loading";
 
 export interface ButtonProps extends Omit<
@@ -35,13 +36,9 @@ const intentClasses: Record<ButtonIntent, string> = {
 };
 
 const sizeClasses: Record<ButtonSize, string> = {
+  xs: "px-2 py-1 text-xs",
   sm: "px-5 py-2 text-sm",
   md: "px-5 py-3 text-base",
-};
-
-const stateClasses: Record<ButtonState, string> = {
-  default: "",
-  loading: "cursor-wait opacity-80",
 };
 
 export function Button({
@@ -55,12 +52,13 @@ export function Button({
   disabled,
   ...props
 }: ButtonProps) {
-  const isDisabled = disabled || state === "loading";
+  const isLoading = state === "loading";
+  const isDisabled = disabled || isLoading;
   const classes = cn(
     "inline-flex cursor-pointer items-center justify-center gap-2 rounded-md border font-medium shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-brand focus-visible:ring-inset focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-60",
     intentClasses[intent],
     sizeClasses[size],
-    stateClasses[state],
+    isLoading && "cursor-wait opacity-80",
     className,
   );
 
@@ -69,12 +67,16 @@ export function Button({
       type="button"
       {...props}
       disabled={isDisabled}
-      aria-busy={state === "loading" ? true : undefined}
+      aria-busy={isLoading ? true : undefined}
       className={classes}
     >
-      {leftIcon ? <span aria-hidden>{leftIcon}</span> : null}
+      {isLoading ? (
+        <CircleNotchIcon className={cn("animate-spin")} size={16} />
+      ) : leftIcon ? (
+        <span aria-hidden>{leftIcon}</span>
+      ) : null}
       {children}
-      {rightIcon ? <span aria-hidden>{rightIcon}</span> : null}
+      {!isLoading && rightIcon ? <span aria-hidden>{rightIcon}</span> : null}
     </button>
   );
 }

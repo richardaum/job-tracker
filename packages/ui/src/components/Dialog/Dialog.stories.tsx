@@ -1,6 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { Button } from "../Button/Button";
 import { Dialog } from "./Dialog";
+import { Stack } from "../Stack/Stack";
+import { Text } from "../Typography/Text";
 import { cn } from "@ui/lib/cn";
 
 const meta: Meta<typeof Dialog> = {
@@ -16,6 +18,13 @@ const meta: Meta<typeof Dialog> = {
     },
   },
   tags: ["autodocs"],
+  argTypes: {
+    size: {
+      control: "select",
+      options: ["xs", "sm", "md", "lg", "xl", "2xl", "3xl", "4xl"],
+      description: "Controls the maximum width of the dialog content.",
+    },
+  },
 };
 
 export default meta;
@@ -41,4 +50,25 @@ export const Default: Story = {
       </div>
     ),
   },
+};
+
+export const Sizes: Story = {
+  render: () => (
+    <Stack gap="md" align="start">
+      {(["xs", "sm", "md", "lg", "xl", "2xl", "3xl", "4xl"] as const).map(
+        (size) => (
+          <Dialog
+            key={size}
+            size={size}
+            trigger={<Button size="sm">Open {size} dialog</Button>}
+            title={`${size.toUpperCase()} Dialog`}
+          >
+            <div className={cn("py-10 text-center")}>
+              <Text>This is a {size} sized dialog.</Text>
+            </div>
+          </Dialog>
+        ),
+      )}
+    </Stack>
+  ),
 };
