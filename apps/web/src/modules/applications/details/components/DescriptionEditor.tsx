@@ -68,6 +68,7 @@ export function DescriptionEditor({
           }
           placeholder="Add role context, stack, interview notes..."
           disabled={saving}
+          autofocus="end"
           fillHeight
         />
       </div>

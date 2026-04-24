@@ -220,7 +220,6 @@ export function CompensationEditDialog({
             size="sm"
             onClick={() => void handleSave()}
             state={saving ? "loading" : "default"}
-            disabled={saving}
           >
             Save
           </Button>

@@ -1,5 +1,6 @@
 "use client";
 
+import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -10,7 +11,7 @@ import {
   QuestionIcon,
   SignOutIcon,
 } from "@phosphor-icons/react";
-import { Text, cn } from "@job-tracker/ui";
+import { Button, Text, cn } from "@job-tracker/ui";
 import { NEXT_PUBLIC_API_URL } from "@/env/client";
 import type { CurrentUser } from "@/hooks/useCurrentUser";
 import { ObfuscatedText } from "@/modules/navigation/components/ObfuscatedText";
@@ -48,6 +49,7 @@ interface SidebarProps {
 export function Sidebar({ open = false, onClose, user }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
+  const [loggingOut, setLoggingOut] = useState(false);
   const initials = user.name
     .split(" ")
     .slice(0, 2)
@@ -56,12 +58,17 @@ export function Sidebar({ open = false, onClose, user }: SidebarProps) {
     .toUpperCase();
 
   async function handleLogout() {
-    await fetch(`${API_URL}/auth/logout`, {
-      method: "POST",
-      credentials: "include",
-    });
-    onClose?.();
-    router.replace("/login");
+    setLoggingOut(true);
+    try {
+      await fetch(`${API_URL}/auth/logout`, {
+        method: "POST",
+        credentials: "include",
+      });
+      onClose?.();
+      router.replace("/login");
+    } finally {
+      setLoggingOut(false);
+    }
   }
 
   const navContent = (
@@ -186,15 +193,18 @@ export function Sidebar({ open = false, onClose, user }: SidebarProps) {
             {label}
           </Link>
         ))}
-        <button
-          onClick={handleLogout}
+        <Button
+          intent="ghost"
+          size="sm"
+          onClick={() => void handleLogout()}
+          state={loggingOut ? "loading" : "default"}
           className={cn(
-            "flex w-full items-center gap-3 rounded-md px-4 py-2 text-left text-sm font-medium text-text-error transition-colors hover:bg-bg-error-subtle",
+            "flex w-full items-center justify-start gap-3 rounded-md px-4 py-2 text-left text-sm font-medium text-text-error transition-colors hover:bg-bg-error-subtle hover:text-text-error",
           )}
+          leftIcon={<SignOutIcon size={16} />}
         >
-          <SignOutIcon size={16} />
           Log Out
-        </button>
+        </Button>
       </div>
     </>
   );

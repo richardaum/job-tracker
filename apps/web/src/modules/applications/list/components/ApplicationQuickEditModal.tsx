@@ -1,10 +1,19 @@
 "use client";
 
 import React, { useState } from "react";
-import { Button, Dialog, FormField, Input, Stack, cn } from "@job-tracker/ui";
+import {
+  Button,
+  Combobox,
+  Dialog,
+  FormField,
+  Input,
+  Stack,
+  cn,
+} from "@job-tracker/ui";
 import {
   useCreateApplicationMutation,
   useUpdateApplicationMutation,
+  useCompaniesQuery,
   ApplicationsDocument,
 } from "@/gql/hooks";
 
@@ -50,9 +59,19 @@ function ApplicationQuickEditModalForm({
     useUpdateApplicationMutation({ refetchQueries });
   const loading = creating || updating;
 
+  const { data: companiesData } = useCompaniesQuery();
+  const companyOptions = (companiesData?.companies ?? []).map((c) => ({
+    label: c.name,
+    value: c.id,
+  }));
+
   function set(field: keyof FormState) {
     return (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
       setForm((f) => ({ ...f, [field]: e.target.value }));
+  }
+
+  function setCompany(value: string) {
+    setForm((f) => ({ ...f, company: value }));
   }
 
   function validate(): boolean {
@@ -119,10 +138,11 @@ function ApplicationQuickEditModalForm({
             required
             error={errors.company}
           >
-            <Input
+            <Combobox
               id="app-company"
               value={form.company}
-              onChange={set("company")}
+              onValueChange={setCompany}
+              options={companyOptions}
               placeholder="e.g. Acme Corp"
               state={errors.company ? "error" : "default"}
               disabled={loading}
