@@ -41,7 +41,7 @@ export function HoverEditableFieldRow({
 }) {
   return (
     <div className={cn("group")}>
-      <div className={cn("inline-flex items-center gap-1")}>
+      <div className={cn("flex items-center gap-1")}>
         <Text size="xs" color="muted">
           {label}
         </Text>
