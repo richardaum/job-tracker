@@ -11,6 +11,8 @@ interface DeleteApplicationDialogProps {
   trigger: React.ReactElement;
   applicationId: string;
   applicationTitle: string;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
   onSuccess?: (message: string) => void;
   onError?: (message: string) => void;
 }
@@ -19,6 +21,8 @@ export function DeleteApplicationDialog({
   trigger,
   applicationId,
   applicationTitle,
+  open,
+  onOpenChange,
   onSuccess,
   onError,
 }: DeleteApplicationDialogProps) {
@@ -32,6 +36,8 @@ export function DeleteApplicationDialog({
       title="Delete application"
       description={`Are you sure you want to delete "${applicationTitle}"? This cannot be undone.`}
       confirmLabel="Delete"
+      open={open}
+      onOpenChange={onOpenChange}
       onConfirm={async () => {
         try {
           await deleteApplication({ variables: { id: applicationId } });

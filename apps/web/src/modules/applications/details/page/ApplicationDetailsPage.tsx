@@ -2,10 +2,12 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   Button,
   DropdownMenu,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   Heading,
   Tabs,
   TabsContent,
@@ -30,6 +32,7 @@ import { NotesPanelTabsContent } from "@/modules/applications/details/components
 import { HistoryPanelTabsContent } from "@/modules/applications/details/components/HistoryPanel";
 import { ActivitySidePanel } from "@/modules/applications/details/components/ActivitySidePanel";
 import { UpdateStatusAction } from "@/modules/applications/details/components/UpdateStatusAction";
+import { DeleteApplicationDialog } from "@/modules/applications/list/components/DeleteApplicationDialog";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -37,8 +40,10 @@ interface PageProps {
 
 export default function ApplicationDetailsPage({ params }: PageProps) {
   const { id } = React.use(params);
+  const router = useRouter();
   const [actionsMenuOpen, setActionsMenuOpen] = useState(false);
   const [actionsOpen, setActionsOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [toastOpen, setToastOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [toastIntent, setToastIntent] = useState<"success" | "error">(
@@ -140,6 +145,10 @@ export default function ApplicationDetailsPage({ params }: PageProps) {
       <DropdownMenuItem onSelect={() => setActionsOpen(true)}>
         Update status
       </DropdownMenuItem>
+      <DropdownMenuSeparator />
+      <DropdownMenuItem destructive onSelect={() => setDeleteDialogOpen(true)}>
+        Remove
+      </DropdownMenuItem>
     </DropdownMenu>
   ) : null;
 
@@ -173,14 +182,25 @@ export default function ApplicationDetailsPage({ params }: PageProps) {
           </Heading>
         </div>
         {application ? (
-          <UpdateStatusAction
-            applicationId={application.id}
-            currentStage={currentStage}
-            open={actionsOpen}
-            onOpenChange={setActionsOpen}
-            onSuccess={handleEntitySuccess}
-            onError={handleEntityError}
-          />
+          <>
+            <UpdateStatusAction
+              applicationId={application.id}
+              currentStage={currentStage}
+              open={actionsOpen}
+              onOpenChange={setActionsOpen}
+              onSuccess={handleEntitySuccess}
+              onError={handleEntityError}
+            />
+            <DeleteApplicationDialog
+              trigger={<span aria-hidden style={{ display: "none" }} />}
+              applicationId={application.id}
+              applicationTitle={application.title}
+              open={deleteDialogOpen}
+              onOpenChange={setDeleteDialogOpen}
+              onSuccess={() => router.push("/applications")}
+              onError={(msg) => handleEntityError(msg)}
+            />
+          </>
         ) : null}
       </div>
 
