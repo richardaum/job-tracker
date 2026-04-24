@@ -20,6 +20,7 @@
 - Use `ConfirmDialog` from `@job-tracker/ui` for user confirmations, especially destructive or irreversible actions; do not use `window.confirm`, `window.alert`, or `window.prompt` in application code.
 - Prefer small feature components that compose `ConfirmDialog` (for example a delete flow wrapper) over hand-rolled `Dialog` footers that duplicate the same cancel + confirm pattern.
 - Storybook reference: **Components → ConfirmDialog** (`pnpm --filter @job-tracker/ui storybook`).
+- Avoid mixing block and inline elements in sibling content slots. Inline elements (`<span>`, `inline-flex`) create a different formatting context than block elements (`<p>`, `<div>`), causing inconsistent heights and alignments even when font size and line-height are identical. Always use the same display type across equivalent slots.
 
 ## TypeScript
 

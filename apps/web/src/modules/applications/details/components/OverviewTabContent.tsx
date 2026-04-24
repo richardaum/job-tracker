@@ -359,7 +359,11 @@ export function OverviewTabContent({
           label="Job URL"
           content={
             application.url ? (
-              <Link href={application.url} variant="default" className="block">
+              <Link
+                href={application.url}
+                variant="default"
+                className="block leading-normal"
+              >
                 View posting
               </Link>
             ) : (
@@ -382,9 +386,7 @@ export function OverviewTabContent({
           label="Compensation"
           content={
             compLine ? (
-              <Text as="span" size="sm">
-                {compLine}
-              </Text>
+              <Text size="sm">{compLine}</Text>
             ) : (
               <Text size="sm" color="secondary">
                 Not set
