@@ -197,7 +197,7 @@ export function NotesPanel({ applicationId }: { applicationId: string }) {
                     <Stack gap="xs">
                       <div
                         className={cn(
-                          "text-sm whitespace-pre-wrap wrap-break-word [&_p]:m-0 [&_p+p]:mt-2 [&_ul]:my-2 [&_ul]:pl-5 [&_ol]:my-2 [&_ol]:pl-5 [&_a]:text-text-brand [&_a]:underline",
+                          "text-sm whitespace-pre-wrap wrap-break-word [&_p]:m-0 [&_p+p]:mt-2 [&_ul]:my-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:my-2 [&_ol]:list-decimal [&_ol]:pl-5 [&_a]:text-text-brand [&_a]:underline",
                         )}
                       >
                         {renderNoteContent(note.content)}
