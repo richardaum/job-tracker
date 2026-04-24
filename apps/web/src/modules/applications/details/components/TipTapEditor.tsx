@@ -3,7 +3,7 @@
 import React from "react";
 import Placeholder from "@tiptap/extension-placeholder";
 import StarterKit from "@tiptap/starter-kit";
-import { EditorContent, useEditor } from "@tiptap/react";
+import { EditorContent, useEditor, useEditorState } from "@tiptap/react";
 import { cn } from "@job-tracker/ui";
 import { useHasVerticalOverflow } from "@/modules/applications/shared/hooks/useHasVerticalOverflow";
 import {
@@ -127,6 +127,15 @@ export function TipTapEditor({
     }
   }, [editor, value, disabled]);
 
+  const editorState = useEditorState({
+    editor,
+    selector: ({ editor: e }) => ({
+      isBold: e?.isActive("bold"),
+      isItalic: e?.isActive("italic"),
+      isBulletList: e?.isActive("bulletList"),
+    }),
+  });
+
   const { clearDocument } = useTipTapEditorHandle({
     ref,
     editor,
@@ -171,19 +180,19 @@ export function TipTapEditor({
       >
         <ToolbarButton
           label="B"
-          active={editor.isActive("bold")}
+          active={editorState?.isBold}
           onClick={() => editor.chain().focus().toggleBold().run()}
           disabled={disabled}
         />
         <ToolbarButton
           label="I"
-          active={editor.isActive("italic")}
+          active={editorState?.isItalic}
           onClick={() => editor.chain().focus().toggleItalic().run()}
           disabled={disabled}
         />
         <ToolbarButton
           label="List"
-          active={editor.isActive("bulletList")}
+          active={editorState?.isBulletList}
           onClick={() => editor.chain().focus().toggleBulletList().run()}
           disabled={disabled}
         />
