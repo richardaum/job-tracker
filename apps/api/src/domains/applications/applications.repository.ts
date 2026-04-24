@@ -12,6 +12,7 @@ import {
   NewApplicationStageEvent,
 } from "./application-stage-events.schema";
 import { Note, NewNote } from "./application-notes.schema";
+import { ApplicationQuickFilterEnum } from "./application-quick-filter.enum";
 
 type CreateDto = Pick<
   NewApplication,
@@ -50,11 +51,54 @@ export class ApplicationRepository {
     private readonly notesRepo: Repository<ApplicationNoteEntity>,
   ) {}
 
-  async findAllByUserId(userId: string): Promise<Application[]> {
-    return this.applicationsRepo.find({
-      where: { userId },
-      order: { createdAt: "ASC" },
-    });
+  async findAllByUserId(
+    userId: string,
+    filter?: ApplicationQuickFilterEnum,
+  ): Promise<Application[]> {
+    const qb = this.applicationsRepo
+      .createQueryBuilder("a")
+      .where("a.user_id = :userId", { userId })
+      .orderBy(
+        `(
+          SELECT COALESCE(e.schedule_at, e.created_at)
+          FROM application_stage_events e
+          WHERE e.application_id = a.id AND e.user_id = :userId
+          ORDER BY COALESCE(e.schedule_at, e.created_at) DESC, e.created_at DESC, e.id DESC
+          LIMIT 1
+        )`,
+        "DESC",
+        "NULLS LAST",
+      );
+
+    if (!filter) {
+      return qb.getMany();
+    }
+
+    const latestStageSub = `(
+      SELECT e.to_stage FROM application_stage_events e
+      WHERE e.application_id = a.id AND e.user_id = :userId
+      ORDER BY COALESCE(e.schedule_at, e.created_at) DESC, e.created_at DESC, e.id DESC
+      LIMIT 1
+    )`;
+
+    if (filter === ApplicationQuickFilterEnum.NEW) {
+      qb.andWhere(`${latestStageSub} = 'new'`, { userId });
+    } else if (filter === ApplicationQuickFilterEnum.APPLIED) {
+      qb.andWhere(`${latestStageSub} = 'applied'`, { userId });
+    } else if (filter === ApplicationQuickFilterEnum.ACTIVE) {
+      qb.andWhere(`${latestStageSub} NOT IN ('new', 'rejected')`, { userId });
+    } else if (filter === ApplicationQuickFilterEnum.INCOMING) {
+      qb.andWhere(`${latestStageSub} != 'rejected'`, { userId }).andWhere(
+        `EXISTS (
+          SELECT 1 FROM application_stage_events e
+          WHERE e.application_id = a.id AND e.user_id = :userId
+          AND e.schedule_at >= :today
+        )`,
+        { userId, today: new Date(new Date().setHours(0, 0, 0, 0)) },
+      );
+    }
+
+    return qb.getMany();
   }
 
   async findOneByIdAndUserId(

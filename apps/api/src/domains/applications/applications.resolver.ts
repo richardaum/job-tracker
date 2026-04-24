@@ -1,4 +1,5 @@
 import { Resolver, Query, Mutation, Args, ID } from "@nestjs/graphql";
+import { ApplicationQuickFilterEnum } from "./application-quick-filter.enum";
 import { UseGuards } from "@nestjs/common";
 import { JwtAuthGuard } from "@api/domains/auth/jwt-auth.guard";
 import { RolesGuard } from "@api/domains/auth/roles.guard";
@@ -24,8 +25,10 @@ export class ApplicationResolver {
   @Query(() => [ApplicationType])
   applications(
     @CurrentUser() user: { userId: string },
+    @Args("filter", { type: () => ApplicationQuickFilterEnum, nullable: true })
+    filter?: ApplicationQuickFilterEnum,
   ): Promise<ApplicationType[]> {
-    return this.service.findAll(user.userId);
+    return this.service.findAll(user.userId, filter);
   }
 
   @Query(() => ApplicationType)
@@ -51,6 +54,15 @@ export class ApplicationResolver {
     @CurrentUser() user: { userId: string },
   ): Promise<ApplicationType> {
     return this.service.update(id, user.userId, input);
+  }
+
+  @Mutation(() => ApplicationType)
+  removeApplicationTag(
+    @Args("id", { type: () => ID }) id: string,
+    @Args("tag") tag: string,
+    @CurrentUser() user: { userId: string },
+  ): Promise<ApplicationType> {
+    return this.service.removeTag(id, user.userId, tag);
   }
 
   @Mutation(() => Boolean)

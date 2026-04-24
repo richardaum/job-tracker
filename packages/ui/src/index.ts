@@ -3,6 +3,8 @@ export { Alert } from "./components/Alert/Alert";
 export type { AlertIntent, AlertProps } from "./components/Alert/Alert";
 export { Badge } from "./components/Badge/Badge";
 export type { BadgeIntent, BadgeProps } from "./components/Badge/Badge";
+export { FilterChip } from "./components/FilterChip/FilterChip";
+export type { FilterChipProps } from "./components/FilterChip/FilterChip";
 export { Button } from "./components/Button/Button";
 export type {
   ButtonIntent,

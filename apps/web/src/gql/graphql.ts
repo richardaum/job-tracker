@@ -42,6 +42,13 @@ export type ApplicationNoteType = {
   userId: Scalars["String"]["output"];
 };
 
+export enum ApplicationQuickFilter {
+  Active = "ACTIVE",
+  Applied = "APPLIED",
+  Incoming = "INCOMING",
+  New = "NEW",
+}
+
 export enum ApplicationStage {
   Applied = "APPLIED",
   New = "NEW",
@@ -111,6 +118,7 @@ export type Mutation = {
   createApplicationStageEvent: ApplicationStageEventType;
   deleteApplication: Scalars["Boolean"]["output"];
   deleteApplicationNote: Scalars["Boolean"]["output"];
+  removeApplicationTag: ApplicationType;
   updateApplication: ApplicationType;
   updateApplicationNote: ApplicationNoteType;
   updateApplicationStageEvent: ApplicationStageEventType;
@@ -134,6 +142,11 @@ export type MutationDeleteApplicationArgs = {
 
 export type MutationDeleteApplicationNoteArgs = {
   id: Scalars["ID"]["input"];
+};
+
+export type MutationRemoveApplicationTagArgs = {
+  id: Scalars["ID"]["input"];
+  tag: Scalars["String"]["input"];
 };
 
 export type MutationUpdateApplicationArgs = {
@@ -170,6 +183,10 @@ export type QueryApplicationNotesArgs = {
 
 export type QueryApplicationStageEventsArgs = {
   applicationId: Scalars["ID"]["input"];
+};
+
+export type QueryApplicationsArgs = {
+  filter?: InputMaybe<ApplicationQuickFilter>;
 };
 
 export enum SalaryPeriod {
@@ -209,7 +226,9 @@ export type UserType = {
   role: Scalars["String"]["output"];
 };
 
-export type ApplicationsQueryVariables = Exact<{ [key: string]: never }>;
+export type ApplicationsQueryVariables = Exact<{
+  filter?: InputMaybe<ApplicationQuickFilter>;
+}>;
 
 export type ApplicationsQuery = {
   __typename?: "Query";
@@ -293,6 +312,20 @@ export type UpdateApplicationMutation = {
     salaryPeriod?: SalaryPeriod | null;
     tags: Array<string>;
     createdAt: any;
+  };
+};
+
+export type RemoveApplicationTagMutationVariables = Exact<{
+  id: Scalars["ID"]["input"];
+  tag: Scalars["String"]["input"];
+}>;
+
+export type RemoveApplicationTagMutation = {
+  __typename?: "Mutation";
+  removeApplicationTag: {
+    __typename?: "ApplicationType";
+    id: string;
+    tags: Array<string>;
   };
 };
 
@@ -442,12 +475,35 @@ export const ApplicationsDocument = {
       kind: "OperationDefinition",
       operation: "query",
       name: { kind: "Name", value: "Applications" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "filter" },
+          },
+          type: {
+            kind: "NamedType",
+            name: { kind: "Name", value: "ApplicationQuickFilter" },
+          },
+        },
+      ],
       selectionSet: {
         kind: "SelectionSet",
         selections: [
           {
             kind: "Field",
             name: { kind: "Name", value: "applications" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "filter" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "filter" },
+                },
+              },
+            ],
             selectionSet: {
               kind: "SelectionSet",
               selections: [
@@ -716,6 +772,74 @@ export const UpdateApplicationDocument = {
 } as unknown as DocumentNode<
   UpdateApplicationMutation,
   UpdateApplicationMutationVariables
+>;
+export const RemoveApplicationTagDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "RemoveApplicationTag" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "id" } },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "tag" } },
+          type: {
+            kind: "NonNullType",
+            type: {
+              kind: "NamedType",
+              name: { kind: "Name", value: "String" },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "removeApplicationTag" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "id" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "id" },
+                },
+              },
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "tag" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "tag" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                { kind: "Field", name: { kind: "Name", value: "tags" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  RemoveApplicationTagMutation,
+  RemoveApplicationTagMutationVariables
 >;
 export const DeleteApplicationDocument = {
   kind: "Document",

@@ -26,6 +26,7 @@ import {
   useApplicationStageEventsQuery,
   useApplicationsQuery,
 } from "@/gql/hooks";
+import { useQuickFilter } from "@/modules/applications/list/hooks/useQuickFilter";
 import { ApplicationQuickEditModal } from "@/modules/applications/list/components/ApplicationQuickEditModal";
 import { ApplicationTrackingPanel } from "@/modules/applications/list/components/ApplicationTrackingPanel";
 import { DeleteApplicationDialog } from "@/modules/applications/list/components/DeleteApplicationDialog";
@@ -35,11 +36,13 @@ import {
 } from "@/modules/applications/shared/components/StatusBadge";
 import { StageTimeline } from "@/modules/applications/shared/components/StageTimeline";
 import { tipTapToPlainText } from "@/modules/applications/shared/utils/tiptap";
-import { CompensationChipsRow } from "@/modules/applications/shared/utils/CompensationChipsRow";
+import { CompensationRow } from "@/modules/applications/shared/utils/CompensationRow";
+import { ApplicationTags } from "@/modules/applications/shared/utils/ApplicationTags";
 import {
   formatCompensationLine,
   hasCompensationOnCard,
 } from "@/modules/applications/shared/utils/compensationFormat";
+import { QuickFilters } from "@/modules/applications/list/components/QuickFilters";
 
 interface ToastState {
   open: boolean;
@@ -197,8 +200,11 @@ function ApplicationsListEmpty() {
 }
 
 export default function ApplicationsPage() {
+  const activeFilter = useQuickFilter();
+
   const { data, loading, error } = useApplicationsQuery({
     fetchPolicy: "cache-and-network",
+    variables: { filter: activeFilter },
   });
 
   const [toast, setToast] = useState<ToastState>({
@@ -265,6 +271,9 @@ export default function ApplicationsPage() {
           />
         </div>
       </div>
+
+      {/* Quick filters */}
+      <QuickFilters />
 
       {/* Content */}
       <div className={cn("flex-1 overflow-auto p-4 sm:p-6")}>
@@ -413,12 +422,14 @@ export default function ApplicationsPage() {
                                   {compLine}
                                 </Text>
                               ) : null}
-                              <CompensationChipsRow
+                              <CompensationRow
                                 currency={compLine ? null : app.salaryCurrency}
                                 period={compLine ? null : app.salaryPeriod}
+                                omitPeriodCurrency={Boolean(compLine)}
+                              />
+                              <ApplicationTags
                                 tags={compTags}
                                 maxTagChips={3}
-                                omitPeriodCurrency={Boolean(compLine)}
                               />
                             </span>
                           </>

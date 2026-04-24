@@ -15,6 +15,7 @@ import {
   normalizeCreateCompensation,
   normalizeTags,
 } from "./application-compensation.util";
+import { ApplicationQuickFilterEnum } from "./application-quick-filter.enum";
 
 type CreateDto = {
   title: string;
@@ -64,8 +65,11 @@ function isValidTipTapDescription(value: string): boolean {
 export class ApplicationService {
   constructor(private readonly repo: ApplicationRepository) {}
 
-  findAll(userId: string): Promise<Application[]> {
-    return this.repo.findAllByUserId(userId);
+  findAll(
+    userId: string,
+    filter?: ApplicationQuickFilterEnum,
+  ): Promise<Application[]> {
+    return this.repo.findAllByUserId(userId, filter);
   }
 
   async findOne(id: string, userId: string): Promise<Application> {
@@ -256,6 +260,20 @@ export class ApplicationService {
       );
     }
 
+    return updated;
+  }
+
+  async removeTag(
+    id: string,
+    userId: string,
+    tag: string,
+  ): Promise<Application> {
+    const existing = await this.findOne(id, userId);
+    const tags = (existing.tags ?? []).filter(
+      (t) => t.toLowerCase() !== tag.toLowerCase(),
+    );
+    const updated = await this.repo.update(id, userId, { tags });
+    if (!updated) throw new NotFoundException(`Application ${id} not found`);
     return updated;
   }
 

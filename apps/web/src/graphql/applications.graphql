@@ -1,5 +1,5 @@
-query Applications {
-  applications {
+query Applications($filter: ApplicationQuickFilter) {
+  applications(filter: $filter) {
     id
     title
     company
@@ -59,6 +59,13 @@ mutation UpdateApplication($id: ID!, $input: UpdateApplicationInput!) {
     salaryPeriod
     tags
     createdAt
+  }
+}
+
+mutation RemoveApplicationTag($id: ID!, $tag: String!) {
+  removeApplicationTag(id: $id, tag: $tag) {
+    id
+    tags
   }
 }
 

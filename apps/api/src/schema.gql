@@ -69,15 +69,23 @@ type ApplicationNoteType {
 
 type Query {
   me: UserType!
-  applications: [ApplicationType!]!
+  applications(filter: ApplicationQuickFilter): [ApplicationType!]!
   application(id: ID!): ApplicationType!
   applicationStageEvents(applicationId: ID!): [ApplicationStageEventType!]!
   applicationNotes(applicationId: ID!): [ApplicationNoteType!]!
 }
 
+enum ApplicationQuickFilter {
+  ACTIVE
+  INCOMING
+  APPLIED
+  NEW
+}
+
 type Mutation {
   createApplication(input: CreateApplicationInput!): ApplicationType!
   updateApplication(id: ID!, input: UpdateApplicationInput!): ApplicationType!
+  removeApplicationTag(id: ID!, tag: String!): ApplicationType!
   deleteApplication(id: ID!): Boolean!
   createApplicationStageEvent(input: CreateApplicationStageEventInput!): ApplicationStageEventType!
   updateApplicationStageEvent(id: ID!, input: UpdateApplicationStageEventInput!): ApplicationStageEventType!

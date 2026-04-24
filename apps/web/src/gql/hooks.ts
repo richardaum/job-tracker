@@ -44,6 +44,13 @@ export type ApplicationNoteType = {
   userId: Scalars["String"]["output"];
 };
 
+export enum ApplicationQuickFilter {
+  Active = "ACTIVE",
+  Applied = "APPLIED",
+  Incoming = "INCOMING",
+  New = "NEW",
+}
+
 export enum ApplicationStage {
   Applied = "APPLIED",
   New = "NEW",
@@ -113,6 +120,7 @@ export type Mutation = {
   createApplicationStageEvent: ApplicationStageEventType;
   deleteApplication: Scalars["Boolean"]["output"];
   deleteApplicationNote: Scalars["Boolean"]["output"];
+  removeApplicationTag: ApplicationType;
   updateApplication: ApplicationType;
   updateApplicationNote: ApplicationNoteType;
   updateApplicationStageEvent: ApplicationStageEventType;
@@ -136,6 +144,11 @@ export type MutationDeleteApplicationArgs = {
 
 export type MutationDeleteApplicationNoteArgs = {
   id: Scalars["ID"]["input"];
+};
+
+export type MutationRemoveApplicationTagArgs = {
+  id: Scalars["ID"]["input"];
+  tag: Scalars["String"]["input"];
 };
 
 export type MutationUpdateApplicationArgs = {
@@ -172,6 +185,10 @@ export type QueryApplicationNotesArgs = {
 
 export type QueryApplicationStageEventsArgs = {
   applicationId: Scalars["ID"]["input"];
+};
+
+export type QueryApplicationsArgs = {
+  filter?: InputMaybe<ApplicationQuickFilter>;
 };
 
 export enum SalaryPeriod {
@@ -211,7 +228,9 @@ export type UserType = {
   role: Scalars["String"]["output"];
 };
 
-export type ApplicationsQueryVariables = Exact<{ [key: string]: never }>;
+export type ApplicationsQueryVariables = Exact<{
+  filter?: InputMaybe<ApplicationQuickFilter>;
+}>;
 
 export type ApplicationsQuery = {
   __typename?: "Query";
@@ -295,6 +314,20 @@ export type UpdateApplicationMutation = {
     salaryPeriod?: SalaryPeriod | null;
     tags: Array<string>;
     createdAt: any;
+  };
+};
+
+export type RemoveApplicationTagMutationVariables = Exact<{
+  id: Scalars["ID"]["input"];
+  tag: Scalars["String"]["input"];
+}>;
+
+export type RemoveApplicationTagMutation = {
+  __typename?: "Mutation";
+  removeApplicationTag: {
+    __typename?: "ApplicationType";
+    id: string;
+    tags: Array<string>;
   };
 };
 
@@ -438,8 +471,8 @@ export type MeQuery = {
 };
 
 export const ApplicationsDocument = gql`
-  query Applications {
-    applications {
+  query Applications($filter: ApplicationQuickFilter) {
+    applications(filter: $filter) {
       id
       title
       company
@@ -467,6 +500,7 @@ export const ApplicationsDocument = gql`
  * @example
  * const { data, loading, error } = useApplicationsQuery({
  *   variables: {
+ *      filter: // value for 'filter'
  *   },
  * });
  */
@@ -665,6 +699,46 @@ export function useUpdateApplicationMutation(
     UpdateApplicationMutation,
     UpdateApplicationMutationVariables
   >(UpdateApplicationDocument, options);
+}
+
+export const RemoveApplicationTagDocument = gql`
+  mutation RemoveApplicationTag($id: ID!, $tag: String!) {
+    removeApplicationTag(id: $id, tag: $tag) {
+      id
+      tags
+    }
+  }
+`;
+
+/**
+ * __useRemoveApplicationTagMutation__
+ *
+ * To run a mutation, you first call `useRemoveApplicationTagMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRemoveApplicationTagMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [removeApplicationTagMutation, { data, loading, error }] = useRemoveApplicationTagMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      tag: // value for 'tag'
+ *   },
+ * });
+ */
+export function useRemoveApplicationTagMutation(
+  baseOptions?: ApolloReactHooks.MutationHookOptions<
+    RemoveApplicationTagMutation,
+    RemoveApplicationTagMutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useMutation<
+    RemoveApplicationTagMutation,
+    RemoveApplicationTagMutationVariables
+  >(RemoveApplicationTagDocument, options);
 }
 
 export const DeleteApplicationDocument = gql`
