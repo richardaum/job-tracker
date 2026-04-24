@@ -4,6 +4,8 @@
 
 @source "../../../../packages/ui/src/**/*.{ts,tsx}";
 
+@variant hover (&:hover);
+
 html,
 body {
   min-height: 100%;
