@@ -21,7 +21,6 @@ import {
 import {
   centsToMajorInput,
   majorToCents,
-  parseTagInput,
   SALARY_PERIODS,
 } from "@/modules/applications/shared/utils/compensationFormat";
 import { FieldEditTriggerButton } from "./HoverEditableFieldRow";
@@ -49,7 +48,6 @@ export function CompensationEditDialog({
     salaryMax: "",
     salaryCurrency: "",
     salaryPeriod: "",
-    salaryTags: "",
   });
   const [error, setError] = useState<string | undefined>();
 
@@ -68,7 +66,6 @@ export function CompensationEditDialog({
       salaryPeriod: application.salaryPeriod
         ? String(application.salaryPeriod)
         : "",
-      salaryTags: (application.salaryTags ?? []).join(", "),
     });
     setError(undefined);
   }
@@ -115,7 +112,6 @@ export function CompensationEditDialog({
     const periodVal = form.salaryPeriod
       ? (form.salaryPeriod as SalaryPeriod)
       : null;
-    const tagList = parseTagInput(form.salaryTags);
     const hasAmount = minC != null || maxC != null;
     try {
       await update({
@@ -126,7 +122,6 @@ export function CompensationEditDialog({
             salaryMaxCents: hasAmount ? maxC : null,
             salaryCurrency: hasAmount && cur ? cur : null,
             salaryPeriod: hasAmount && periodVal ? periodVal : null,
-            salaryTags: tagList,
           },
         },
       });
@@ -148,7 +143,7 @@ export function CompensationEditDialog({
     >
       <Stack gap="sm">
         <Text size="sm" color="secondary">
-          Optional salary range, currency, pay period, and free-form tags.
+          Optional salary range, currency, and pay period.
         </Text>
         <div className={cn("grid grid-cols-1 gap-2 sm:grid-cols-2")}>
           <FormField
@@ -183,7 +178,12 @@ export function CompensationEditDialog({
           </FormField>
         </div>
         <div className={cn("grid grid-cols-1 gap-2 sm:grid-cols-2")}>
-          <FormField label="Currency" htmlFor="ov-sal-cur" hint="ISO 4217">
+          <FormField
+            label="Currency"
+            htmlFor="ov-sal-cur"
+            hint="ISO 4217"
+            error={error}
+          >
             <Input
               id="ov-sal-cur"
               value={form.salaryCurrency}
@@ -214,21 +214,6 @@ export function CompensationEditDialog({
             />
           </FormField>
         </div>
-        <FormField
-          label="Tags"
-          htmlFor="ov-sal-tags"
-          hint="Comma-separated"
-          error={error}
-        >
-          <Input
-            id="ov-sal-tags"
-            value={form.salaryTags}
-            onChange={(e) =>
-              setForm((f) => ({ ...f, salaryTags: e.target.value }))
-            }
-            disabled={saving}
-          />
-        </FormField>
         <div className={cn("flex justify-end")}>
           <Button
             intent="primary"

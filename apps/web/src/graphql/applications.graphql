@@ -9,7 +9,7 @@ query Applications {
     salaryMaxCents
     salaryCurrency
     salaryPeriod
-    salaryTags
+    tags
     createdAt
   }
 }
@@ -25,7 +25,7 @@ query Application($id: ID!) {
     salaryMaxCents
     salaryCurrency
     salaryPeriod
-    salaryTags
+    tags
     createdAt
   }
 }
@@ -41,7 +41,7 @@ mutation CreateApplication($input: CreateApplicationInput!) {
     salaryMaxCents
     salaryCurrency
     salaryPeriod
-    salaryTags
+    tags
     createdAt
   }
 }
@@ -57,7 +57,7 @@ mutation UpdateApplication($id: ID!, $input: UpdateApplicationInput!) {
     salaryMaxCents
     salaryCurrency
     salaryPeriod
-    salaryTags
+    tags
     createdAt
   }
 }

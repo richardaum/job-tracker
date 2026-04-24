@@ -25,7 +25,7 @@ import { CompensationEditDialog } from "./CompensationEditDialog";
 import { CompensationChipsRow } from "@/modules/applications/shared/utils/CompensationChipsRow";
 import {
   formatCompensationLine,
-  hasCompensationOnCard,
+  parseTagInput,
 } from "@/modules/applications/shared/utils/compensationFormat";
 
 function TextFieldEditDialog({
@@ -172,6 +172,84 @@ function UrlFieldEditDialog({
   );
 }
 
+function TagsEditDialog({
+  applicationId,
+  tags,
+  onSuccess,
+  onError,
+}: {
+  applicationId: string;
+  tags: string[];
+  onSuccess?: (message: string) => void;
+  onError?: (message: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [draft, setDraft] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  const [update] = useUpdateApplicationMutation({
+    refetchQueries: [
+      { query: ApplicationDocument, variables: { id: applicationId } },
+      { query: ApplicationsDocument },
+    ],
+  });
+
+  function handleOpenChange(next: boolean) {
+    setOpen(next);
+    if (next) setDraft(tags.join(", "));
+  }
+
+  async function handleSave() {
+    setSaving(true);
+    try {
+      await update({
+        variables: {
+          id: applicationId,
+          input: { tags: parseTagInput(draft) },
+        },
+      });
+      onSuccess?.("Tags updated.");
+      setOpen(false);
+    } catch {
+      onError?.("Could not update tags.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <Dialog
+      title="Edit tags"
+      open={open}
+      onOpenChange={handleOpenChange}
+      trigger={<FieldEditTriggerButton label="Edit tags" />}
+    >
+      <Stack gap="sm">
+        <FormField label="Tags" htmlFor="ov-tags" hint="Comma-separated">
+          <Input
+            id="ov-tags"
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            placeholder="e.g. remote, senior, react"
+            disabled={saving}
+          />
+        </FormField>
+        <div className={cn("flex justify-end")}>
+          <Button
+            intent="primary"
+            size="sm"
+            onClick={() => void handleSave()}
+            state={saving ? "loading" : "default"}
+            disabled={saving}
+          >
+            Save
+          </Button>
+        </div>
+      </Stack>
+    </Dialog>
+  );
+}
+
 export function OverviewTabContent({
   application,
   onSuccess,
@@ -220,6 +298,18 @@ export function OverviewTabContent({
       onError?.("Could not update job URL.");
     }
   }
+
+  const compLine = formatCompensationLine({
+    salaryMinCents: application.salaryMinCents,
+    salaryMaxCents: application.salaryMaxCents,
+    salaryCurrency: application.salaryCurrency,
+    salaryPeriod: application.salaryPeriod,
+  });
+  const hasCompensation = compLine != null && compLine.length > 0;
+  const hasSalaryChips =
+    !hasCompensation &&
+    (application.salaryCurrency != null || application.salaryPeriod != null);
+  const tags = application.tags ?? [];
 
   return (
     <div className={cn("flex flex-wrap items-start gap-x-8 gap-y-4")}>
@@ -279,26 +369,8 @@ export function OverviewTabContent({
       <div className={cn("max-w-full sm:col-span-2")}>
         <HoverEditableFieldRow
           label="Compensation"
-          content={(() => {
-            const compLine = formatCompensationLine({
-              salaryMinCents: application.salaryMinCents,
-              salaryMaxCents: application.salaryMaxCents,
-              salaryCurrency: application.salaryCurrency,
-              salaryPeriod: application.salaryPeriod,
-            });
-            const compTags = application.salaryTags ?? [];
-            const has = hasCompensationOnCard({
-              line: compLine,
-              tags: compTags,
-            });
-            if (!has) {
-              return (
-                <Text size="sm" color="secondary">
-                  Not set
-                </Text>
-              );
-            }
-            return (
+          content={
+            hasCompensation || hasSalaryChips ? (
               <div
                 className={cn(
                   "flex min-w-0 flex-col gap-1 sm:flex-row sm:flex-wrap sm:items-center sm:gap-2",
@@ -309,18 +381,46 @@ export function OverviewTabContent({
                     {compLine}
                   </Text>
                 ) : null}
-                <CompensationChipsRow
-                  currency={compLine ? null : application.salaryCurrency}
-                  period={compLine ? null : application.salaryPeriod}
-                  tags={compTags}
-                  omitPeriodCurrency={Boolean(compLine)}
-                />
+                {hasSalaryChips ? (
+                  <CompensationChipsRow
+                    currency={application.salaryCurrency}
+                    period={application.salaryPeriod}
+                    tags={[]}
+                  />
+                ) : null}
               </div>
-            );
-          })()}
+            ) : (
+              <Text size="sm" color="secondary">
+                Not set
+              </Text>
+            )
+          }
           editControl={
             <CompensationEditDialog
               application={application}
+              onSuccess={onSuccess}
+              onError={onError}
+            />
+          }
+        />
+      </div>
+
+      <div className={cn("max-w-full sm:col-span-2")}>
+        <HoverEditableFieldRow
+          label="Tags"
+          content={
+            tags.length > 0 ? (
+              <CompensationChipsRow currency={null} period={null} tags={tags} />
+            ) : (
+              <Text size="sm" color="secondary">
+                No tags
+              </Text>
+            )
+          }
+          editControl={
+            <TagsEditDialog
+              applicationId={application.id}
+              tags={tags}
               onSuccess={onSuccess}
               onError={onError}
             />

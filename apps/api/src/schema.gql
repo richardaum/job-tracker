@@ -21,7 +21,7 @@ type ApplicationType {
   salaryMaxCents: Int
   salaryCurrency: String
   salaryPeriod: SalaryPeriod
-  salaryTags: [String!]!
+  tags: [String!]!
   createdAt: DateTime!
   updatedAt: DateTime!
 }
@@ -95,7 +95,7 @@ input CreateApplicationInput {
   salaryMaxCents: Int
   salaryCurrency: String
   salaryPeriod: SalaryPeriod
-  salaryTags: [String!]
+  tags: [String!]
 }
 
 input UpdateApplicationInput {
@@ -107,7 +107,7 @@ input UpdateApplicationInput {
   salaryMaxCents: Int
   salaryCurrency: String
   salaryPeriod: SalaryPeriod
-  salaryTags: [String!]
+  tags: [String!]
 }
 
 input CreateApplicationStageEventInput {

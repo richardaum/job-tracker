@@ -34,7 +34,7 @@ export class ApplicationType {
   salaryPeriod?: string | null;
 
   @Field(() => [String])
-  salaryTags!: string[];
+  tags!: string[];
 
   @Field()
   createdAt!: Date;

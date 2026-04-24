@@ -10,7 +10,7 @@ export interface ApplicationDetailsValues {
   salaryMaxCents?: number | null;
   salaryCurrency?: string | null;
   salaryPeriod?: SalaryPeriod | null;
-  salaryTags?: string[];
+  tags?: string[];
 }
 
 export function formatStage(value: ApplicationStage) {

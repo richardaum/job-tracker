@@ -28,5 +28,5 @@ export class UpdateApplicationInput {
   salaryPeriod?: SalaryPeriodEnum | null;
 
   @Field(() => [String], { nullable: true })
-  salaryTags?: string[] | null;
+  tags?: string[] | null;
 }

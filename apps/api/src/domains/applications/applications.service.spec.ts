@@ -18,7 +18,7 @@ const makeApp = (overrides: Partial<Application> = {}): Application => ({
   salaryMaxCents: null,
   salaryCurrency: null,
   salaryPeriod: null,
-  salaryTags: [],
+  tags: [],
   createdAt: new Date(),
   updatedAt: new Date(),
   ...overrides,

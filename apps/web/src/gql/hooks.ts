@@ -75,7 +75,7 @@ export type ApplicationType = {
   salaryMaxCents?: Maybe<Scalars["Int"]["output"]>;
   salaryMinCents?: Maybe<Scalars["Int"]["output"]>;
   salaryPeriod?: Maybe<SalaryPeriod>;
-  salaryTags: Array<Scalars["String"]["output"]>;
+  tags: Array<Scalars["String"]["output"]>;
   title: Scalars["String"]["output"];
   updatedAt: Scalars["DateTime"]["output"];
   url?: Maybe<Scalars["String"]["output"]>;
@@ -89,7 +89,7 @@ export type CreateApplicationInput = {
   salaryMaxCents?: InputMaybe<Scalars["Int"]["input"]>;
   salaryMinCents?: InputMaybe<Scalars["Int"]["input"]>;
   salaryPeriod?: InputMaybe<SalaryPeriod>;
-  salaryTags?: InputMaybe<Array<Scalars["String"]["input"]>>;
+  tags?: InputMaybe<Array<Scalars["String"]["input"]>>;
   title: Scalars["String"]["input"];
   url?: InputMaybe<Scalars["String"]["input"]>;
 };
@@ -187,7 +187,7 @@ export type UpdateApplicationInput = {
   salaryMaxCents?: InputMaybe<Scalars["Int"]["input"]>;
   salaryMinCents?: InputMaybe<Scalars["Int"]["input"]>;
   salaryPeriod?: InputMaybe<SalaryPeriod>;
-  salaryTags?: InputMaybe<Array<Scalars["String"]["input"]>>;
+  tags?: InputMaybe<Array<Scalars["String"]["input"]>>;
   title?: InputMaybe<Scalars["String"]["input"]>;
   url?: InputMaybe<Scalars["String"]["input"]>;
 };
@@ -226,7 +226,7 @@ export type ApplicationsQuery = {
     salaryMaxCents?: number | null;
     salaryCurrency?: string | null;
     salaryPeriod?: SalaryPeriod | null;
-    salaryTags: Array<string>;
+    tags: Array<string>;
     createdAt: any;
   }>;
 };
@@ -248,7 +248,7 @@ export type ApplicationQuery = {
     salaryMaxCents?: number | null;
     salaryCurrency?: string | null;
     salaryPeriod?: SalaryPeriod | null;
-    salaryTags: Array<string>;
+    tags: Array<string>;
     createdAt: any;
   };
 };
@@ -270,7 +270,7 @@ export type CreateApplicationMutation = {
     salaryMaxCents?: number | null;
     salaryCurrency?: string | null;
     salaryPeriod?: SalaryPeriod | null;
-    salaryTags: Array<string>;
+    tags: Array<string>;
     createdAt: any;
   };
 };
@@ -293,7 +293,7 @@ export type UpdateApplicationMutation = {
     salaryMaxCents?: number | null;
     salaryCurrency?: string | null;
     salaryPeriod?: SalaryPeriod | null;
-    salaryTags: Array<string>;
+    tags: Array<string>;
     createdAt: any;
   };
 };
@@ -449,7 +449,7 @@ export const ApplicationsDocument = gql`
       salaryMaxCents
       salaryCurrency
       salaryPeriod
-      salaryTags
+      tags
       createdAt
     }
   }
@@ -514,7 +514,7 @@ export const ApplicationDocument = gql`
       salaryMaxCents
       salaryCurrency
       salaryPeriod
-      salaryTags
+      tags
       createdAt
     }
   }
@@ -582,7 +582,7 @@ export const CreateApplicationDocument = gql`
       salaryMaxCents
       salaryCurrency
       salaryPeriod
-      salaryTags
+      tags
       createdAt
     }
   }
@@ -630,7 +630,7 @@ export const UpdateApplicationDocument = gql`
       salaryMaxCents
       salaryCurrency
       salaryPeriod
-      salaryTags
+      tags
       createdAt
     }
   }

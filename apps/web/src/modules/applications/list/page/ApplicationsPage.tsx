@@ -284,7 +284,7 @@ export default function ApplicationsPage() {
                 salaryCurrency: app.salaryCurrency,
                 salaryPeriod: app.salaryPeriod,
               });
-              const compTags = app.salaryTags ?? [];
+              const compTags = app.tags ?? [];
               const showComp = hasCompensationOnCard({
                 line: compLine,
                 tags: compTags,

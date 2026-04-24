@@ -25,7 +25,7 @@ const mockApp: Application = {
   salaryMaxCents: null,
   salaryCurrency: null,
   salaryPeriod: null,
-  salaryTags: [],
+  tags: [],
   createdAt: new Date("2026-01-01T00:00:00.000Z"),
   updatedAt: new Date("2026-01-01T00:00:00.000Z"),
 };
