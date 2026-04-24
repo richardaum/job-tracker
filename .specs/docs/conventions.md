@@ -17,14 +17,19 @@
 
 ## Web UI
 
+- **Hydration & Component Nesting**: Use the `asChild` pattern (via `@radix-ui/react-slot`) in UI components that render interactive elements (like `button` or `a`) when they might need to wrap other interactive elements or custom links (like `NextLink`). This prevents invalid HTML nesting (e.g., `<button>` inside `<button>`) which causes hydration errors.
+- **Button Component**: Use the `state` prop (`"default" | "loading"`) instead of a boolean `loading` prop. The component automatically handles the disabled state and accessibility attributes when in the `"loading"` state.
+- **Flexible Dialogs**: The `Dialog` component uses a flexbox layout. Use `childrenClassName="flex flex-col"` and `flex-1 min-h-0` on children that need to fill the modal height and provide internal scrolling (like `NotesPanel`).
 - Use `ConfirmDialog` from `@job-tracker/ui` for user confirmations, especially destructive or irreversible actions; do not use `window.confirm`, `window.alert`, or `window.prompt` in application code.
 - Prefer small feature components that compose `ConfirmDialog` (for example a delete flow wrapper) over hand-rolled `Dialog` footers that duplicate the same cancel + confirm pattern.
 - Storybook reference: **Components → ConfirmDialog** (`pnpm --filter @job-tracker/ui storybook`).
 - Avoid mixing block and inline elements in sibling content slots. Inline elements (`<span>`, `inline-flex`) create a different formatting context than block elements (`<p>`, `<div>`), causing inconsistent heights and alignments even when font size and line-height are identical. Always use the same display type across equivalent slots.
+- **TipTap Editors**: Support and use the `autofocus` prop to improve user experience in composers and edit dialogs. Use `autofocus="end"` when editing existing content to place the cursor at the end.
 
 ## TypeScript
 
 - Avoid inline type-only imports in type positions (for example `Foo<import("@/path").Bar>`). Prefer a normal top-of-file `import type { Bar } from "@/path"` (or `import { type Bar }`) and then `Foo<Bar>`. Inline `import("...")` types are harder to read, grep, and refactor.
+- **React 19 Refs**: Do not use `forwardRef`. React 19 allows passing `ref` as a standard prop. UI components should include `ref?: React.Ref<T>` in their props interface and apply it directly to the underlying element.
 
 ## Process
 
