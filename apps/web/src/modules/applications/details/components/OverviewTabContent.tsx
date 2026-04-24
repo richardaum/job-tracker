@@ -14,6 +14,7 @@ import {
 import {
   ApplicationDocument,
   ApplicationsDocument,
+  useRemoveApplicationTagMutation,
   useUpdateApplicationMutation,
 } from "@/gql/hooks";
 import type { ApplicationDetailsValues } from "@/modules/applications/details/utils/application-details.shared";
@@ -22,7 +23,8 @@ import {
   HoverEditableFieldRow,
 } from "./HoverEditableFieldRow";
 import { CompensationEditDialog } from "./CompensationEditDialog";
-import { CompensationChipsRow } from "@/modules/applications/shared/utils/CompensationChipsRow";
+import { CompensationRow } from "@/modules/applications/shared/utils/CompensationRow";
+import { ApplicationTags } from "@/modules/applications/shared/utils/ApplicationTags";
 import {
   formatCompensationLine,
   parseTagInput,
@@ -266,6 +268,22 @@ export function OverviewTabContent({
     ],
   });
 
+  const [removeApplicationTag] = useRemoveApplicationTagMutation({
+    refetchQueries: [
+      { query: ApplicationDocument, variables: { id: application.id } },
+      { query: ApplicationsDocument },
+    ],
+  });
+
+  async function handleRemoveTag(tag: string) {
+    try {
+      await removeApplicationTag({ variables: { id: application.id, tag } });
+      onSuccess?.("Tag removed.");
+    } catch {
+      onError?.("Could not remove tag.");
+    }
+  }
+
   async function handleSaveTitle(nextValue: string) {
     try {
       await updateApplication({
@@ -348,7 +366,7 @@ export function OverviewTabContent({
           label="Job URL"
           content={
             application.url ? (
-              <Link href={application.url} variant="default">
+              <Link href={application.url} variant="default" className="block">
                 View posting
               </Link>
             ) : (
@@ -382,10 +400,9 @@ export function OverviewTabContent({
                   </Text>
                 ) : null}
                 {hasSalaryChips ? (
-                  <CompensationChipsRow
+                  <CompensationRow
                     currency={application.salaryCurrency}
                     period={application.salaryPeriod}
-                    tags={[]}
                   />
                 ) : null}
               </div>
@@ -410,7 +427,7 @@ export function OverviewTabContent({
           label="Tags"
           content={
             tags.length > 0 ? (
-              <CompensationChipsRow currency={null} period={null} tags={tags} />
+              <ApplicationTags tags={tags} onRemoveTag={handleRemoveTag} />
             ) : (
               <Text size="sm" color="secondary">
                 No tags
