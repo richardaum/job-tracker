@@ -43,7 +43,7 @@ export default defineConfig(
       parserOptions: { ecmaFeatures: { jsx: true } },
     },
     plugins: {
-      "react-hooks": reactHooks,
+      "react-hooks": reactHooks as Record<string, unknown>,
     },
     rules: {
       ...reactHooks.configs.recommended.rules,
@@ -76,7 +76,7 @@ export default defineConfig(
   },
   {
     plugins: {
-      "@next/next": nextPlugin,
+      "@next/next": nextPlugin as Record<string, unknown>,
     },
     rules: {
       ...nextPlugin.configs.recommended.rules,
