@@ -273,6 +273,7 @@ export function NotesPanel({
               onChange={(nextValue) =>
                 setDraftNote(nextValue || EMPTY_TIPTAP_DOC)
               }
+              onHardEnter={canSend ? () => void handleSendNote() : undefined}
               placeholder="Write a note..."
               disabled={creatingNote}
               contentClassName={cn(

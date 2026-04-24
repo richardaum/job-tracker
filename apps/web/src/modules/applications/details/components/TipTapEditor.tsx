@@ -23,6 +23,7 @@ interface TipTapEditorProps {
   id?: string;
   value: string | null | undefined;
   onChange: (nextValue: string) => void;
+  onHardEnter?: () => void;
   placeholder?: string;
   disabled?: boolean;
   fillHeight?: boolean;
@@ -63,11 +64,17 @@ export function TipTapEditor({
   id,
   value,
   onChange,
+  onHardEnter,
   placeholder = "Write...",
   disabled = false,
   fillHeight = false,
   contentClassName,
 }: TipTapEditorProps) {
+  const onHardEnterRef = React.useRef(onHardEnter);
+  React.useLayoutEffect(() => {
+    onHardEnterRef.current = onHardEnter;
+  });
+
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -80,6 +87,15 @@ export function TipTapEditor({
     content: parseTipTapDocument(value),
     editable: !disabled,
     immediatelyRender: false,
+    editorProps: {
+      handleKeyDown(_view, event) {
+        if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
+          onHardEnterRef.current?.();
+          return true;
+        }
+        return false;
+      },
+    },
     onUpdate({ editor: nextEditor }) {
       onChange(JSON.stringify(nextEditor.getJSON()));
     },

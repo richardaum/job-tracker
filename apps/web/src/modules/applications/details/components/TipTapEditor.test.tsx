@@ -1,7 +1,7 @@
 import React, { createRef, useState } from "react";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { Button, cn } from "@job-tracker/ui";
 import { TipTapEditor, type TipTapEditorHandle } from "./TipTapEditor";
 import {
@@ -37,6 +37,7 @@ function NotesComposerLikeFixture({
           id="application-note-composer-test"
           value={draftNote}
           onChange={(nextValue) => setDraftNote(nextValue || EMPTY_TIPTAP_DOC)}
+          onHardEnter={canSend ? handleSendNote : undefined}
           placeholder="Write a note..."
           disabled={creatingNote}
           contentClassName={cn(
@@ -88,5 +89,49 @@ describe("TipTapEditor (integration)", () => {
     });
 
     expect(screen.getByRole("textbox")).toHaveTextContent("");
+  });
+
+  it("triggers onHardEnter and clears editor on Ctrl+Enter when canSend is true", async () => {
+    const user = userEvent.setup();
+    const message = "Send with keyboard";
+    const composerRef = createRef<TipTapEditorHandle>();
+
+    render(<NotesComposerLikeFixture composerRef={composerRef} />);
+
+    const editor = await screen.findByRole("textbox");
+    await user.click(editor);
+    await user.type(editor, message);
+
+    await waitFor(() => {
+      expect(screen.getByText(message)).toBeVisible();
+    });
+
+    await user.keyboard("{Control>}{Enter}{/Control}");
+
+    await waitFor(() => {
+      expect(screen.queryByText(message)).not.toBeInTheDocument();
+    });
+
+    expect(screen.getByRole("textbox")).toHaveTextContent("");
+  });
+
+  it("calls onHardEnter callback on Ctrl+Enter", async () => {
+    const user = userEvent.setup();
+    const onHardEnter = vi.fn();
+
+    render(
+      <TipTapEditor
+        value=""
+        onChange={() => {}}
+        onHardEnter={onHardEnter}
+        placeholder="Write a note..."
+      />,
+    );
+
+    const editor = await screen.findByRole("textbox");
+    await user.click(editor);
+    await user.keyboard("{Control>}{Enter}{/Control}");
+
+    expect(onHardEnter).toHaveBeenCalledOnce();
   });
 });
