@@ -149,12 +149,7 @@ function ApplicationQuickEditModalForm({
             />
           </FormField>
 
-          <FormField
-            label="Job URL"
-            htmlFor="app-url"
-            error={errors.url}
-            hint="Optional — link to the job posting"
-          >
+          <FormField label="Job URL" htmlFor="app-url" error={errors.url}>
             <Input
               id="app-url"
               type="url"
