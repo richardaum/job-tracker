@@ -31,9 +31,23 @@ export type Scalars = {
   DateTime: { input: any; output: any };
 };
 
-export type AiExtractionTagInput = {
+export type AiExtractionFieldInput = {
   label: Scalars["String"]["input"];
   metadata?: InputMaybe<Scalars["String"]["input"]>;
+};
+
+export type ApplicationAiDraftType = {
+  __typename?: "ApplicationAiDraftType";
+  company: Scalars["String"]["output"];
+  description?: Maybe<Scalars["String"]["output"]>;
+  noteContents: Array<Scalars["String"]["output"]>;
+  salaryCurrency?: Maybe<Scalars["String"]["output"]>;
+  salaryMaxCents?: Maybe<Scalars["Int"]["output"]>;
+  salaryMinCents?: Maybe<Scalars["Int"]["output"]>;
+  salaryPeriod?: Maybe<SalaryPeriod>;
+  tags: Array<Scalars["String"]["output"]>;
+  title: Scalars["String"]["output"];
+  url?: Maybe<Scalars["String"]["output"]>;
 };
 
 export type ApplicationNoteType = {
@@ -131,8 +145,8 @@ export type CreateApplicationStageEventInput = {
 };
 
 export type CreateApplicationWithAiInput = {
+  fields?: InputMaybe<Array<AiExtractionFieldInput>>;
   prompt: Scalars["String"]["input"];
-  tags?: InputMaybe<Array<AiExtractionTagInput>>;
 };
 
 export type Mutation = {
@@ -143,6 +157,7 @@ export type Mutation = {
   createApplicationWithAI: ApplicationType;
   deleteApplication: Scalars["Boolean"]["output"];
   deleteApplicationNote: Scalars["Boolean"]["output"];
+  generateApplicationDraftWithAI: ApplicationAiDraftType;
   removeApplicationTag: ApplicationType;
   updateApplication: ApplicationType;
   updateApplicationNote: ApplicationNoteType;
@@ -172,6 +187,10 @@ export type MutationDeleteApplicationArgs = {
 
 export type MutationDeleteApplicationNoteArgs = {
   id: Scalars["ID"]["input"];
+};
+
+export type MutationGenerateApplicationDraftWithAiArgs = {
+  input: CreateApplicationWithAiInput;
 };
 
 export type MutationRemoveApplicationTagArgs = {
@@ -378,6 +397,27 @@ export type CreateApplicationWithAiMutation = {
       name: string;
       description?: string | null;
     };
+  };
+};
+
+export type GenerateApplicationDraftWithAiMutationVariables = Exact<{
+  input: CreateApplicationWithAiInput;
+}>;
+
+export type GenerateApplicationDraftWithAiMutation = {
+  __typename?: "Mutation";
+  generateApplicationDraftWithAI: {
+    __typename?: "ApplicationAiDraftType";
+    title: string;
+    company: string;
+    description?: string | null;
+    url?: string | null;
+    salaryMinCents?: number | null;
+    salaryMaxCents?: number | null;
+    salaryCurrency?: string | null;
+    salaryPeriod?: SalaryPeriod | null;
+    tags: Array<string>;
+    noteContents: Array<string>;
   };
 };
 
@@ -941,6 +981,84 @@ export const CreateApplicationWithAiDocument = {
 } as unknown as DocumentNode<
   CreateApplicationWithAiMutation,
   CreateApplicationWithAiMutationVariables
+>;
+export const GenerateApplicationDraftWithAiDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "GenerateApplicationDraftWithAi" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "input" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: {
+              kind: "NamedType",
+              name: { kind: "Name", value: "CreateApplicationWithAIInput" },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "generateApplicationDraftWithAI" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "input" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "input" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "title" } },
+                { kind: "Field", name: { kind: "Name", value: "company" } },
+                { kind: "Field", name: { kind: "Name", value: "description" } },
+                { kind: "Field", name: { kind: "Name", value: "url" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "salaryMinCents" },
+                },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "salaryMaxCents" },
+                },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "salaryCurrency" },
+                },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "salaryPeriod" },
+                },
+                { kind: "Field", name: { kind: "Name", value: "tags" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "noteContents" },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  GenerateApplicationDraftWithAiMutation,
+  GenerateApplicationDraftWithAiMutationVariables
 >;
 export const UpdateApplicationDocument = {
   kind: "Document",

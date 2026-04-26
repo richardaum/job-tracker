@@ -78,6 +78,19 @@ type ApplicationNoteType {
   updatedAt: DateTime!
 }
 
+type ApplicationAiDraftType {
+  title: String!
+  company: String!
+  description: String
+  url: String
+  salaryMinCents: Int
+  salaryMaxCents: Int
+  salaryCurrency: String
+  salaryPeriod: SalaryPeriod
+  tags: [String!]!
+  noteContents: [String!]!
+}
+
 type Query {
   me: UserType!
   applications(filter: ApplicationQuickFilter): [ApplicationType!]!
@@ -97,6 +110,7 @@ enum ApplicationQuickFilter {
 type Mutation {
   createApplication(input: CreateApplicationInput!): ApplicationType!
   createApplicationWithAI(input: CreateApplicationWithAIInput!): ApplicationType!
+  generateApplicationDraftWithAI(input: CreateApplicationWithAIInput!): ApplicationAiDraftType!
   updateApplication(id: ID!, input: UpdateApplicationInput!): ApplicationType!
   removeApplicationTag(id: ID!, tag: String!): ApplicationType!
   deleteApplication(id: ID!): Boolean!
@@ -123,10 +137,10 @@ input CreateApplicationInput {
 
 input CreateApplicationWithAIInput {
   prompt: String!
-  tags: [AiExtractionTagInput!]
+  fields: [AiExtractionFieldInput!]
 }
 
-input AiExtractionTagInput {
+input AiExtractionFieldInput {
   label: String!
   metadata: String
 }

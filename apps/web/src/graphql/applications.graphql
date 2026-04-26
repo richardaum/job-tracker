@@ -82,6 +82,21 @@ mutation CreateApplicationWithAi($input: CreateApplicationWithAIInput!) {
   }
 }
 
+mutation GenerateApplicationDraftWithAi($input: CreateApplicationWithAIInput!) {
+  generateApplicationDraftWithAI(input: $input) {
+    title
+    company
+    description
+    url
+    salaryMinCents
+    salaryMaxCents
+    salaryCurrency
+    salaryPeriod
+    tags
+    noteContents
+  }
+}
+
 mutation UpdateApplication($id: ID!, $input: UpdateApplicationInput!) {
   updateApplication(id: $id, input: $input) {
     id
@@ -127,7 +142,9 @@ query ApplicationStageEvents($applicationId: ID!) {
   }
 }
 
-mutation CreateApplicationStageEvent($input: CreateApplicationStageEventInput!) {
+mutation CreateApplicationStageEvent(
+  $input: CreateApplicationStageEventInput!
+) {
   createApplicationStageEvent(input: $input) {
     id
     applicationId
@@ -140,7 +157,10 @@ mutation CreateApplicationStageEvent($input: CreateApplicationStageEventInput!) 
   }
 }
 
-mutation UpdateApplicationStageEvent($id: ID!, $input: UpdateApplicationStageEventInput!) {
+mutation UpdateApplicationStageEvent(
+  $id: ID!
+  $input: UpdateApplicationStageEventInput!
+) {
   updateApplicationStageEvent(id: $id, input: $input) {
     id
     applicationId

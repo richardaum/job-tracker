@@ -218,13 +218,13 @@ describe("ApplicationService", () => {
 
     const result = await service.createWithAI("user-1", {
       prompt: "Senior React Engineer",
-      tags: [{ label: "Title", metadata: "as field value" }],
+      fields: [{ label: "Title", metadata: "as field value" }],
     });
 
     expect(result.id).toBe("app-1");
     expect(applicationAiService.generateDraft).toHaveBeenCalledWith({
       prompt: "Senior React Engineer",
-      tags: [{ label: "Title", metadata: "as field value" }],
+      fields: [{ label: "Title", metadata: "as field value" }],
     });
     expect(repo.createNote).toHaveBeenCalledTimes(2);
   });

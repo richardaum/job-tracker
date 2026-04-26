@@ -1,71 +1,52 @@
 import { describe, expect, it, vi } from "vitest";
-import { GraphQLError } from "graphql";
+import { SalaryPeriodEnum } from "@api/domains/applications/salary-period.enum";
 import { ApplicationAiService } from "./application-ai.service";
+import { OpenAIService } from "./openai.service";
 
 describe("ApplicationAiService", () => {
-  function fieldOutput(value: unknown) {
-    return { output_text: JSON.stringify({ value }) };
-  }
-
-  it("parses JSON output into a normalized draft", async () => {
-    const service = new ApplicationAiService();
-    const create = vi
-      .fn()
-      .mockResolvedValueOnce(fieldOutput("Senior Engineer"))
-      .mockResolvedValueOnce(fieldOutput("Acme"))
-      .mockResolvedValueOnce(fieldOutput("https://acme.com/jobs/1"))
-      .mockResolvedValueOnce(fieldOutput("Great role"))
-      .mockResolvedValueOnce(fieldOutput("USD"))
-      .mockResolvedValueOnce(fieldOutput(12000000))
-      .mockResolvedValueOnce(fieldOutput(15000000))
-      .mockResolvedValueOnce(fieldOutput("year"))
-      .mockResolvedValueOnce(fieldOutput(["React", "TypeScript"]))
-      .mockResolvedValueOnce(fieldOutput(["Fully remote in LATAM."]));
-
-    (service as unknown as { client: unknown }).client = {
-      responses: { create },
-    };
+  it("builds a strict prompt and parses draft output", async () => {
+    const create = vi.fn().mockResolvedValue({
+      output_text: JSON.stringify({
+        title: "Senior Engineer",
+        company: "Acme",
+        description: "Original job post text",
+        url: "https://acme.com/jobs/1",
+        salaryMinCents: 10000000,
+        salaryMaxCents: 12000000,
+        salaryCurrency: "USD",
+        salaryPeriod: "year",
+        tags: ["Remote"],
+        noteContents: ["Great benefits"],
+      }),
+    });
+    const openAIService = {
+      getClient: vi.fn().mockReturnValue({
+        responses: { create },
+      }),
+    } as unknown as OpenAIService;
+    const service = new ApplicationAiService(openAIService);
 
     const draft = await service.generateDraft({
       prompt: "Senior engineer role",
-      tags: [{ label: "Title", metadata: "as field value" }],
+      fields: [{ label: "Title", metadata: "as field value" }],
     });
 
-    expect(draft.title).toBe("Senior Engineer");
-    expect(draft.company).toBe("Acme");
-    expect(draft.salaryCurrency).toBe("USD");
-    expect(draft.tags).toEqual(["React", "TypeScript"]);
-    expect(draft.description).toContain('"type":"doc"');
-    expect(draft.noteContents).toHaveLength(1);
-    expect(draft.noteContents[0]).toContain('"type":"doc"');
-    expect(create).toHaveBeenCalledTimes(10);
-  });
-
-  it("throws when title or company is missing", async () => {
-    const service = new ApplicationAiService();
-    const create = vi
-      .fn()
-      .mockResolvedValueOnce(fieldOutput(""))
-      .mockResolvedValueOnce(fieldOutput("Acme"))
-      .mockResolvedValueOnce(fieldOutput(null))
-      .mockResolvedValueOnce(fieldOutput("No title"))
-      .mockResolvedValueOnce(fieldOutput(null))
-      .mockResolvedValueOnce(fieldOutput(null))
-      .mockResolvedValueOnce(fieldOutput(null))
-      .mockResolvedValueOnce(fieldOutput(null))
-      .mockResolvedValueOnce(fieldOutput([]))
-      .mockResolvedValueOnce(fieldOutput([]));
-    (service as unknown as { client: unknown }).client = {
-      responses: {
-        create,
-      },
-    };
-
-    await expect(
-      service.generateDraft({
-        prompt: "Role without title",
-        tags: [],
-      }),
-    ).rejects.toThrow(GraphQLError);
+    expect(openAIService.getClient).toHaveBeenCalledOnce();
+    expect(create).toHaveBeenCalledOnce();
+    expect(create.mock.calls[0]?.[0]?.input?.[0]?.content?.[0]?.text).toContain(
+      "Return ONLY valid JSON and strictly follow this exact structure:",
+    );
+    expect(draft).toEqual({
+      title: "Senior Engineer",
+      company: "Acme",
+      description: "Original job post text",
+      url: "https://acme.com/jobs/1",
+      salaryMinCents: 10000000,
+      salaryMaxCents: 12000000,
+      salaryCurrency: "USD",
+      salaryPeriod: SalaryPeriodEnum.YEAR,
+      tags: ["Remote"],
+      noteContents: ["Great benefits"],
+    });
   });
 });

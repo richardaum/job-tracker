@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Button,
   Dialog,
@@ -32,16 +32,50 @@ const periodOptions: SelectOption[] = [
   ...SALARY_PERIODS.map((o) => ({ value: o.value, label: o.label })),
 ];
 
-export function CompensationEditDialog({
-  application,
-  onSuccess,
-  onError,
-}: {
+type DraftCompensation = {
+  salaryMinCents: number | null;
+  salaryMaxCents: number | null;
+  salaryCurrency: string;
+  salaryPeriod: SalaryPeriod | null;
+};
+
+type CompensationEditDialogApplicationProps = {
   application: ApplicationDetailsValues;
   onSuccess?: (message: string) => void;
   onError?: (message: string) => void;
-}) {
-  const [open, setOpen] = useState(false);
+};
+
+type CompensationEditDialogDraftProps = {
+  mode: "draft";
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  /** Hidden trigger when opened programmatically; defaults to a hidden span. */
+  trigger?: React.ReactElement;
+  compensation: DraftCompensation;
+  onCompensationSave: (next: {
+    salaryMinCents: number | null;
+    salaryMaxCents: number | null;
+    salaryCurrency: string | null;
+    salaryPeriod: SalaryPeriod | null;
+  }) => void;
+  onError?: (message: string) => void;
+  disabled?: boolean;
+  idPrefix?: string;
+};
+
+export type CompensationEditDialogProps =
+  | CompensationEditDialogApplicationProps
+  | CompensationEditDialogDraftProps;
+
+function isDraftProps(
+  p: CompensationEditDialogProps,
+): p is CompensationEditDialogDraftProps {
+  return "mode" in p && p.mode === "draft";
+}
+
+export function CompensationEditDialog(props: CompensationEditDialogProps) {
+  const isDraft = isDraftProps(props);
+  const [applicationOpen, setApplicationOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({
     salaryMin: "",
@@ -52,13 +86,25 @@ export function CompensationEditDialog({
   const [error, setError] = useState<string | undefined>();
 
   const [update] = useUpdateApplicationMutation({
-    refetchQueries: [
-      { query: ApplicationDocument, variables: { id: application.id } },
-      { query: ApplicationsDocument },
-    ],
+    refetchQueries: isDraft
+      ? []
+      : [
+          {
+            query: ApplicationDocument,
+            variables: {
+              id: (props as CompensationEditDialogApplicationProps).application
+                .id,
+            },
+          },
+          { query: ApplicationsDocument },
+        ],
   });
 
-  function syncFromApp() {
+  const open = isDraft ? props.open : applicationOpen;
+  const disabledInputs = isDraft ? Boolean(props.disabled) : false;
+  const idPrefix = isDraft ? (props.idPrefix ?? "ai-draft-sal") : "ov-sal";
+
+  function syncFromApplication(application: ApplicationDetailsValues) {
     setForm({
       salaryMin: centsToMajorInput(application.salaryMinCents),
       salaryMax: centsToMajorInput(application.salaryMaxCents),
@@ -70,9 +116,37 @@ export function CompensationEditDialog({
     setError(undefined);
   }
 
+  function syncFromDraft(c: DraftCompensation) {
+    setForm({
+      salaryMin: centsToMajorInput(c.salaryMinCents),
+      salaryMax: centsToMajorInput(c.salaryMaxCents),
+      salaryCurrency: c.salaryCurrency ?? "",
+      salaryPeriod: c.salaryPeriod ? String(c.salaryPeriod) : "",
+    });
+    setError(undefined);
+  }
+
+  const wasDraftDialogOpen = useRef(false);
+  useEffect(() => {
+    if (!isDraftProps(props)) {
+      wasDraftDialogOpen.current = false;
+      return;
+    }
+    if (props.open && !wasDraftDialogOpen.current) {
+      syncFromDraft(props.compensation);
+    }
+    wasDraftDialogOpen.current = props.open;
+  });
+
   function handleOpenChange(next: boolean) {
-    setOpen(next);
-    if (next) syncFromApp();
+    if (isDraft) {
+      props.onOpenChange(next);
+    } else {
+      setApplicationOpen(next);
+      if (next) {
+        syncFromApplication(props.application);
+      }
+    }
   }
 
   function validate(): boolean {
@@ -113,22 +187,40 @@ export function CompensationEditDialog({
       ? (form.salaryPeriod as SalaryPeriod)
       : null;
     const hasAmount = minC != null || maxC != null;
+    const payload = {
+      salaryMinCents: hasAmount ? minC : null,
+      salaryMaxCents: hasAmount ? maxC : null,
+      salaryCurrency: hasAmount && cur ? cur : null,
+      salaryPeriod: hasAmount && periodVal ? periodVal : null,
+    };
+
     try {
+      if (isDraft) {
+        props.onCompensationSave(payload);
+        props.onOpenChange(false);
+        return;
+      }
       await update({
         variables: {
-          id: application.id,
+          id: props.application.id,
           input: {
-            salaryMinCents: hasAmount ? minC : null,
-            salaryMaxCents: hasAmount ? maxC : null,
-            salaryCurrency: hasAmount && cur ? cur : null,
-            salaryPeriod: hasAmount && periodVal ? periodVal : null,
+            salaryMinCents: payload.salaryMinCents,
+            salaryMaxCents: payload.salaryMaxCents,
+            salaryCurrency: payload.salaryCurrency,
+            salaryPeriod: payload.salaryPeriod,
           },
         },
       });
-      onSuccess?.("Compensation updated.");
-      setOpen(false);
+      props.onSuccess?.("Compensation updated.");
+      setApplicationOpen(false);
     } catch {
-      onError?.("Could not update compensation.");
+      if (isDraft) {
+        props.onError?.("Could not update compensation.");
+      } else {
+        (props as CompensationEditDialogApplicationProps).onError?.(
+          "Could not update compensation.",
+        );
+      }
     } finally {
       setSaving(false);
     }
@@ -139,7 +231,13 @@ export function CompensationEditDialog({
       title="Edit compensation"
       open={open}
       onOpenChange={handleOpenChange}
-      trigger={<FieldEditTriggerButton label="Edit compensation" />}
+      trigger={
+        isDraft ? (
+          (props.trigger ?? <span aria-hidden style={{ display: "none" }} />)
+        ) : (
+          <FieldEditTriggerButton label="Edit compensation" />
+        )
+      }
     >
       <Stack gap="sm">
         <Text size="sm" color="secondary">
@@ -148,44 +246,44 @@ export function CompensationEditDialog({
         <div className={cn("grid grid-cols-1 gap-2 sm:grid-cols-2")}>
           <FormField
             label="Min (major units)"
-            htmlFor="ov-sal-min"
+            htmlFor={`${idPrefix}-min`}
             hint="e.g. 100000.50"
           >
             <Input
-              id="ov-sal-min"
+              id={`${idPrefix}-min`}
               inputMode="decimal"
               value={form.salaryMin}
               onChange={(e) =>
                 setForm((f) => ({ ...f, salaryMin: e.target.value }))
               }
-              disabled={saving}
+              disabled={saving || disabledInputs}
             />
           </FormField>
           <FormField
             label="Max (major units)"
-            htmlFor="ov-sal-max"
+            htmlFor={`${idPrefix}-max`}
             hint="Optional upper bound"
           >
             <Input
-              id="ov-sal-max"
+              id={`${idPrefix}-max`}
               inputMode="decimal"
               value={form.salaryMax}
               onChange={(e) =>
                 setForm((f) => ({ ...f, salaryMax: e.target.value }))
               }
-              disabled={saving}
+              disabled={saving || disabledInputs}
             />
           </FormField>
         </div>
         <div className={cn("grid grid-cols-1 gap-2 sm:grid-cols-2")}>
           <FormField
             label="Currency"
-            htmlFor="ov-sal-cur"
+            htmlFor={`${idPrefix}-cur`}
             hint="ISO 4217"
             error={error}
           >
             <Input
-              id="ov-sal-cur"
+              id={`${idPrefix}-cur`}
               value={form.salaryCurrency}
               onChange={(e) =>
                 setForm((f) => ({
@@ -194,13 +292,13 @@ export function CompensationEditDialog({
                 }))
               }
               maxLength={3}
-              disabled={saving}
+              disabled={saving || disabledInputs}
               placeholder="BRL"
             />
           </FormField>
-          <FormField label="Pay period" htmlFor="ov-sal-period">
+          <FormField label="Pay period" htmlFor={`${idPrefix}-period`}>
             <Select
-              name="ov-sal-period"
+              name={`${idPrefix}-period`}
               options={periodOptions}
               value={form.salaryPeriod ? form.salaryPeriod : periodNone}
               onValueChange={(v) =>
@@ -209,7 +307,7 @@ export function CompensationEditDialog({
                   salaryPeriod: v === periodNone ? "" : v,
                 }))
               }
-              disabled={saving}
+              disabled={saving || disabledInputs}
               size="md"
             />
           </FormField>
@@ -220,6 +318,7 @@ export function CompensationEditDialog({
             size="sm"
             onClick={() => void handleSave()}
             state={saving ? "loading" : "default"}
+            disabled={disabledInputs}
           >
             Save
           </Button>

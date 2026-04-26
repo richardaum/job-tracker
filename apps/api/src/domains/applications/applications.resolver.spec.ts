@@ -145,7 +145,7 @@ describe("ApplicationResolver (integration)", () => {
           createApplicationWithAI(
             input: {
               prompt: "Senior React Engineer at Acme"
-              tags: [{ label: "Title", metadata: "as field value" }]
+              fields: [{ label: "Title", metadata: "as field value" }]
             }
           ) {
             id

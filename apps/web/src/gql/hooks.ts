@@ -33,9 +33,23 @@ export type Scalars = {
   DateTime: { input: any; output: any };
 };
 
-export type AiExtractionTagInput = {
+export type AiExtractionFieldInput = {
   label: Scalars["String"]["input"];
   metadata?: InputMaybe<Scalars["String"]["input"]>;
+};
+
+export type ApplicationAiDraftType = {
+  __typename?: "ApplicationAiDraftType";
+  company: Scalars["String"]["output"];
+  description?: Maybe<Scalars["String"]["output"]>;
+  noteContents: Array<Scalars["String"]["output"]>;
+  salaryCurrency?: Maybe<Scalars["String"]["output"]>;
+  salaryMaxCents?: Maybe<Scalars["Int"]["output"]>;
+  salaryMinCents?: Maybe<Scalars["Int"]["output"]>;
+  salaryPeriod?: Maybe<SalaryPeriod>;
+  tags: Array<Scalars["String"]["output"]>;
+  title: Scalars["String"]["output"];
+  url?: Maybe<Scalars["String"]["output"]>;
 };
 
 export type ApplicationNoteType = {
@@ -133,8 +147,8 @@ export type CreateApplicationStageEventInput = {
 };
 
 export type CreateApplicationWithAiInput = {
+  fields?: InputMaybe<Array<AiExtractionFieldInput>>;
   prompt: Scalars["String"]["input"];
-  tags?: InputMaybe<Array<AiExtractionTagInput>>;
 };
 
 export type Mutation = {
@@ -145,6 +159,7 @@ export type Mutation = {
   createApplicationWithAI: ApplicationType;
   deleteApplication: Scalars["Boolean"]["output"];
   deleteApplicationNote: Scalars["Boolean"]["output"];
+  generateApplicationDraftWithAI: ApplicationAiDraftType;
   removeApplicationTag: ApplicationType;
   updateApplication: ApplicationType;
   updateApplicationNote: ApplicationNoteType;
@@ -174,6 +189,10 @@ export type MutationDeleteApplicationArgs = {
 
 export type MutationDeleteApplicationNoteArgs = {
   id: Scalars["ID"]["input"];
+};
+
+export type MutationGenerateApplicationDraftWithAiArgs = {
+  input: CreateApplicationWithAiInput;
 };
 
 export type MutationRemoveApplicationTagArgs = {
@@ -380,6 +399,27 @@ export type CreateApplicationWithAiMutation = {
       name: string;
       description?: string | null;
     };
+  };
+};
+
+export type GenerateApplicationDraftWithAiMutationVariables = Exact<{
+  input: CreateApplicationWithAiInput;
+}>;
+
+export type GenerateApplicationDraftWithAiMutation = {
+  __typename?: "Mutation";
+  generateApplicationDraftWithAI: {
+    __typename?: "ApplicationAiDraftType";
+    title: string;
+    company: string;
+    description?: string | null;
+    url?: string | null;
+    salaryMinCents?: number | null;
+    salaryMaxCents?: number | null;
+    salaryCurrency?: string | null;
+    salaryPeriod?: SalaryPeriod | null;
+    tags: Array<string>;
+    noteContents: Array<string>;
   };
 };
 
@@ -843,6 +883,55 @@ export function useCreateApplicationWithAiMutation(
     CreateApplicationWithAiMutation,
     CreateApplicationWithAiMutationVariables
   >(CreateApplicationWithAiDocument, options);
+}
+
+export const GenerateApplicationDraftWithAiDocument = gql`
+  mutation GenerateApplicationDraftWithAi(
+    $input: CreateApplicationWithAIInput!
+  ) {
+    generateApplicationDraftWithAI(input: $input) {
+      title
+      company
+      description
+      url
+      salaryMinCents
+      salaryMaxCents
+      salaryCurrency
+      salaryPeriod
+      tags
+      noteContents
+    }
+  }
+`;
+
+/**
+ * __useGenerateApplicationDraftWithAiMutation__
+ *
+ * To run a mutation, you first call `useGenerateApplicationDraftWithAiMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useGenerateApplicationDraftWithAiMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [generateApplicationDraftWithAiMutation, { data, loading, error }] = useGenerateApplicationDraftWithAiMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useGenerateApplicationDraftWithAiMutation(
+  baseOptions?: ApolloReactHooks.MutationHookOptions<
+    GenerateApplicationDraftWithAiMutation,
+    GenerateApplicationDraftWithAiMutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useMutation<
+    GenerateApplicationDraftWithAiMutation,
+    GenerateApplicationDraftWithAiMutationVariables
+  >(GenerateApplicationDraftWithAiDocument, options);
 }
 
 export const UpdateApplicationDocument = gql`

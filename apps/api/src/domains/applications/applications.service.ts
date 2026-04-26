@@ -19,7 +19,7 @@ import { SalaryPeriodEnum } from "./salary-period.enum";
 import { TagService } from "./tag.service";
 import { CompanyService } from "@api/domains/companies/companies.service";
 import {
-  type AiExtractionTagInput,
+  type AiExtractionFieldInput,
   type CreateApplicationWithAIInput,
 } from "./create-application-with-ai.input";
 import { ApplicationAiService } from "@api/domains/application-ai/application-ai.service";
@@ -59,7 +59,7 @@ type UpdateNoteDto = {
 };
 type CreateWithAIDto = {
   prompt: string;
-  tags?: AiExtractionTagInput[] | null;
+  fields?: AiExtractionFieldInput[] | null;
 };
 
 function isValidTipTapDocument(value: string): boolean {
@@ -147,7 +147,7 @@ export class ApplicationService {
   ): Promise<Application> {
     const draft = await this.applicationAiService.generateDraft({
       prompt: dto.prompt,
-      tags: dto.tags ?? [],
+      fields: dto.fields ?? [],
     });
 
     const created = await this.create(userId, {
@@ -170,6 +170,13 @@ export class ApplicationService {
     }
 
     return this.findOne(created.id, userId);
+  }
+
+  generateDraftWithAI(dto: CreateWithAIDto | CreateApplicationWithAIInput) {
+    return this.applicationAiService.generateDraft({
+      prompt: dto.prompt,
+      fields: dto.fields ?? [],
+    });
   }
 
   async update(

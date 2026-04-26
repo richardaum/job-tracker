@@ -1,7 +1,7 @@
 import { Field, InputType } from "@nestjs/graphql";
 
 @InputType()
-export class AiExtractionTagInput {
+export class AiExtractionFieldInput {
   @Field()
   label!: string;
 
@@ -14,6 +14,6 @@ export class CreateApplicationWithAIInput {
   @Field()
   prompt!: string;
 
-  @Field(() => [AiExtractionTagInput], { nullable: true })
-  tags?: AiExtractionTagInput[] | null;
+  @Field(() => [AiExtractionFieldInput], { nullable: true })
+  fields?: AiExtractionFieldInput[] | null;
 }

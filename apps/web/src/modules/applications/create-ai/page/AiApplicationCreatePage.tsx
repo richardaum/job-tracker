@@ -1,12 +1,14 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { SparkleIcon } from "@phosphor-icons/react";
+import { SparkleIcon, FloppyDiskBackIcon } from "@phosphor-icons/react";
 import {
   Button,
   Card,
   FormField,
+  IconButton,
+  Input,
   Textarea,
   Text,
   Toast,
@@ -16,52 +18,37 @@ import {
   TagsInput,
   type TagWithMetadata,
 } from "@/modules/applications/shared/components/TagsInput";
+import { DEFAULT_FIELDS } from "./default-fields";
 import {
   ApplicationsDocument,
-  useCreateApplicationWithAiMutation,
+  useCreateApplicationMutation,
+  useCreateApplicationNoteMutation,
+  useGenerateApplicationDraftWithAiMutation,
 } from "@/gql/hooks";
-
-const DEFAULT_TAGS: TagWithMetadata[] = [
-  { label: "Title", metadata: "as field value" },
-  { label: "Company", metadata: "as field value" },
-  { label: "Salary range", metadata: "currency, min, max" },
-  { label: "Bonus", metadata: "as tags, bonus, stock options, etc." },
-  { label: "Employment benefits", metadata: "PTO, etc." },
-  { label: "Job description", metadata: "plain-text format" },
-  { label: "Interview process", metadata: "as application note" },
-  { label: "Timezone", metadata: "UTC-3, EST, PST, etc., unclear" },
-  { label: "Location", metadata: "city, country, etc., unclear" },
-  { label: "Tech stack", metadata: "as tags, e.g. React, Node.js, etc." },
-  {
-    label: "Skillset",
-    metadata: "as tags, e.g. frontend heavy, backend heavy, full stack, etc.",
-  },
-  {
-    label: "Work authorization",
-    metadata: "as tags, US-only, LATAM, Brazil, anywhere, etc., unclear",
-  },
-  {
-    label: "Work time",
-    metadata:
-      "as tag, remote-first, fully remote, onsite, hybrid, etc., unclear",
-  },
-];
+import {
+  formatGeneratedDraftToFormState,
+  parseCreateApplicationInput,
+  parseDraftNoteContents,
+  toTipTapDocument,
+  type AiDraftFormState,
+} from "./draft-parser";
+import { HoverEditableFieldRow } from "@/modules/applications/details/components/HoverEditableFieldRow";
+import { CompensationEditDialog } from "@/modules/applications/details/components/CompensationEditDialog";
+import { TipTapEditor } from "@/modules/applications/details/components/TipTapEditor";
+import { formatCompensationLine } from "@/modules/applications/shared/utils/compensationFormat";
 
 export default function AiApplicationCreatePage() {
-  const mountedRef = useRef(true);
   const router = useRouter();
 
   const [prompt, setPrompt] = useState("");
   const [error, setError] = useState<string | undefined>();
-  const [tags, setTags] = useState<TagWithMetadata[]>(DEFAULT_TAGS);
-  const [thinkingLog, setThinkingLog] = useState<string[]>([]);
-  const [responseStream, setResponseStream] = useState("");
-  const [requestStatus, setRequestStatus] = useState<
-    "idle" | "running" | "success" | "error"
-  >("idle");
+  const [fields, setFields] = useState<TagWithMetadata[]>(DEFAULT_FIELDS);
+  const [requestStatus, setRequestStatus] = useState<"idle" | "error">("idle");
   const [createdApplicationId, setCreatedApplicationId] = useState<
     string | null
   >(null);
+  const [draft, setDraft] = useState<AiDraftFormState | null>(null);
+  const [salaryDialogOpen, setSalaryDialogOpen] = useState(false);
   const [toast, setToast] = useState<{
     open: boolean;
     message: string;
@@ -73,16 +60,12 @@ export default function AiApplicationCreatePage() {
   });
 
   const refetchQueries = [{ query: ApplicationsDocument }];
-  const [createApplicationWithAi, { loading }] =
-    useCreateApplicationWithAiMutation({
-      refetchQueries,
-    });
-
-  useEffect(() => {
-    return () => {
-      mountedRef.current = false;
-    };
-  }, []);
+  const [generateDraftWithAi, { loading: generating }] =
+    useGenerateApplicationDraftWithAiMutation();
+  const [createApplication, { loading: creating }] =
+    useCreateApplicationMutation({ refetchQueries });
+  const [createApplicationNote] = useCreateApplicationNoteMutation();
+  const loading = generating || creating;
 
   function showToast(message: string, intent: "success" | "error") {
     setToast({ open: true, message, intent });
@@ -93,204 +76,106 @@ export default function AiApplicationCreatePage() {
     if (error) setError(undefined);
   }
 
-  function toSerializableErrorPayload(caughtError: unknown) {
-    if (!caughtError || typeof caughtError !== "object") {
-      return { status: "error", raw: String(caughtError) };
-    }
-
-    const apolloLike = caughtError as {
-      message?: unknown;
-      graphQLErrors?: Array<{
-        message?: unknown;
-        path?: unknown;
-        extensions?: unknown;
-      }>;
-      networkError?: unknown;
-      cause?: unknown;
-    };
-
-    const graphQLErrorsFromApollo = Array.isArray(apolloLike.graphQLErrors)
-      ? apolloLike.graphQLErrors.map((gqlError) => ({
-          message: String(gqlError?.message ?? ""),
-          path: gqlError?.path ?? null,
-          extensions: gqlError?.extensions ?? null,
-        }))
-      : [];
-    const graphQLErrorsFromRaw =
-      Array.isArray((caughtError as { errors?: unknown[] }).errors) &&
-      (caughtError as { errors?: unknown[] }).errors.length > 0
-        ? ((caughtError as { errors: unknown[] }).errors
-            .filter((errorItem) => !!errorItem && typeof errorItem === "object")
-            .map((errorItem) => {
-              const typed = errorItem as {
-                message?: unknown;
-                path?: unknown;
-                extensions?: unknown;
-              };
-              return {
-                message: String(typed.message ?? ""),
-                path: typed.path ?? null,
-                extensions: typed.extensions ?? null,
-              };
-            }) ?? [])
-        : [];
-    const graphQLErrors =
-      graphQLErrorsFromApollo.length > 0
-        ? graphQLErrorsFromApollo
-        : graphQLErrorsFromRaw;
-
-    const firstExtensions = graphQLErrors[0]?.extensions as
-      | {
-          aiOutputRaw?: unknown;
-          aiOutputNormalized?: unknown;
-          originalError?: {
-            aiOutputRaw?: unknown;
-            aiOutputNormalized?: unknown;
-            response?: {
-              aiOutputRaw?: unknown;
-              aiOutputNormalized?: unknown;
-            };
-          };
-        }
-      | undefined;
-    const aiOutputRaw =
-      typeof firstExtensions?.aiOutputRaw === "string"
-        ? firstExtensions.aiOutputRaw
-        : typeof firstExtensions?.originalError?.aiOutputRaw === "string"
-          ? firstExtensions.originalError.aiOutputRaw
-          : typeof firstExtensions?.originalError?.response?.aiOutputRaw ===
-              "string"
-            ? firstExtensions.originalError.response.aiOutputRaw
-            : null;
-    const aiOutputNormalized =
-      typeof firstExtensions?.aiOutputNormalized === "string"
-        ? firstExtensions.aiOutputNormalized
-        : typeof firstExtensions?.originalError?.aiOutputNormalized === "string"
-          ? firstExtensions.originalError.aiOutputNormalized
-          : typeof firstExtensions?.originalError?.response
-                ?.aiOutputNormalized === "string"
-            ? firstExtensions.originalError.response.aiOutputNormalized
-            : null;
-
-    return {
-      status: "error",
-      message:
-        typeof apolloLike.message === "string"
-          ? apolloLike.message
-          : "Unknown error while generating application.",
-      graphQLErrors,
-      networkError: apolloLike.networkError ?? null,
-      cause: apolloLike.cause ?? null,
-      aiOutputRaw,
-      aiOutputNormalized,
-      // Keep a best-effort raw snapshot for debugging exact upstream output.
-      raw: caughtError,
-    };
-  }
-
-  async function streamResponseText(text: string) {
-    setResponseStream("");
-    for (let index = 0; index < text.length; index += 24) {
-      if (!mountedRef.current) return;
-      setResponseStream((prev) => prev + text.slice(index, index + 24));
-      await new Promise((resolve) => setTimeout(resolve, 25));
-    }
-  }
-
-  async function handleSubmit(e: React.SyntheticEvent) {
-    e.preventDefault();
-    if (!prompt.trim()) {
-      setError("Please enter a prompt or paste a job description.");
-      return;
-    }
-
-    setRequestStatus("running");
-    setCreatedApplicationId(null);
-    setThinkingLog([
-      "Queued request to AI service...",
-      "Preparing async field extraction requests...",
-    ]);
-    setResponseStream("");
-    const progressMessages = [
-      "Running async extraction for: title",
-      "Running async extraction for: company",
-      "Running async extraction for: url",
-      "Running async extraction for: description",
-      "Running async extraction for: salaryCurrency, salaryMinCents, salaryMaxCents, salaryPeriod",
-      "Running async extraction for: tags and noteBlocks",
-      "Merging extracted fields into final application draft",
-    ];
-    let progressIndex = 0;
-    const thinkingInterval = window.setInterval(() => {
-      setThinkingLog((prev) => [
-        ...prev,
-        `${progressMessages[progressIndex % progressMessages.length]} (${new Date().toLocaleTimeString()})`,
-      ]);
-      progressIndex += 1;
-    }, 1200);
-
+  async function runDraftGeneration(customPrompt?: string) {
     try {
-      const result = await createApplicationWithAi({
+      const result = await generateDraftWithAi({
         variables: {
           input: {
-            prompt: prompt.trim(),
-            tags:
-              tags.length > 0
-                ? tags.map((tag) => ({
-                    label: tag.label,
-                    metadata: tag.metadata ?? null,
+            prompt: (customPrompt ?? prompt).trim(),
+            fields:
+              fields.length > 0
+                ? fields.map((field) => ({
+                    label: field.label,
+                    metadata: field.metadata ?? null,
                   }))
                 : null,
           },
         },
       });
-      window.clearInterval(thinkingInterval);
-      const application = result.data?.createApplicationWithAI;
-      setCreatedApplicationId(application?.id ?? null);
-      const responsePayload = JSON.stringify(
-        {
-          status: "created",
-          application: application
-            ? {
-                id: application.id,
-                title: application.title,
-                company: application.company.name,
-                tags: application.tags,
-                description: application.description,
-              }
-            : null,
-        },
-        null,
-        2,
-      );
-      await streamResponseText(responsePayload);
-      setThinkingLog((prev) => [
-        ...prev,
-        "No explicit thinking field was returned by API.",
-        "Application created successfully.",
-      ]);
-      setRequestStatus("success");
-      showToast("Application created from prompt.", "success");
-    } catch (caughtError) {
-      window.clearInterval(thinkingInterval);
+      const generated = result.data?.generateApplicationDraftWithAI;
+      if (!generated) throw new Error("No draft generated.");
+      setDraft(formatGeneratedDraftToFormState(generated));
+      setRequestStatus("idle");
+      showToast("Draft generated. Review and confirm.", "success");
+    } catch {
       setRequestStatus("error");
-      setThinkingLog((prev) => [
-        ...prev,
-        "Failed to parse or persist response.",
-      ]);
-      const errorPayloadObject = toSerializableErrorPayload(caughtError);
-      const errorPayload = JSON.stringify(errorPayloadObject, null, 2);
-      if (
-        typeof errorPayloadObject.aiOutputRaw === "string" &&
-        errorPayloadObject.aiOutputRaw.trim().length > 0
-      ) {
-        await streamResponseText(errorPayloadObject.aiOutputRaw);
-      } else {
-        await streamResponseText(errorPayload);
-      }
       showToast("Something went wrong. Please try again.", "error");
     }
   }
+
+  async function handleGenerate(e: React.SyntheticEvent) {
+    e.preventDefault();
+    if (!prompt.trim()) {
+      setError("Please enter a prompt or paste a job description.");
+      return;
+    }
+    setCreatedApplicationId(null);
+    await runDraftGeneration();
+  }
+
+  async function handleReworkField(field: string) {
+    if (!draft) return;
+    const reworkPrompt = [
+      prompt,
+      "",
+      `Current draft snapshot: ${JSON.stringify(draft)}`,
+      `Rework only the field "${field}". Keep all other fields consistent with the current draft.`,
+    ].join("\n");
+    await runDraftGeneration(reworkPrompt);
+  }
+
+  async function handleCreateApplication() {
+    if (!draft) return;
+    if (!draft.title.trim() || !draft.company.trim()) {
+      showToast("Title and company are required.", "error");
+      return;
+    }
+
+    try {
+      const created = await createApplication({
+        variables: {
+          input: parseCreateApplicationInput(draft),
+        },
+      });
+
+      const applicationId = created.data?.createApplication.id;
+      if (!applicationId) throw new Error("Failed to create application");
+
+      const notes = parseDraftNoteContents(draft);
+
+      for (const note of notes) {
+        await createApplicationNote({
+          variables: {
+            input: {
+              applicationId,
+              content: toTipTapDocument(note),
+            },
+          },
+        });
+      }
+
+      setCreatedApplicationId(applicationId);
+      showToast("Application created from reviewed draft.", "success");
+    } catch {
+      showToast(
+        "Failed to create application. Check the draft fields.",
+        "error",
+      );
+    }
+  }
+
+  const compensationLine = draft
+    ? formatCompensationLine({
+        salaryMinCents: draft.salaryMinCents.trim()
+          ? Number.parseInt(draft.salaryMinCents.trim(), 10)
+          : null,
+        salaryMaxCents: draft.salaryMaxCents.trim()
+          ? Number.parseInt(draft.salaryMaxCents.trim(), 10)
+          : null,
+        salaryCurrency: draft.salaryCurrency.trim() || null,
+        salaryPeriod: draft.salaryPeriod === "none" ? null : draft.salaryPeriod,
+      })
+    : null;
 
   return (
     <div className={cn("flex h-full flex-col")}>
@@ -313,14 +198,14 @@ export default function AiApplicationCreatePage() {
             disabled={loading}
           >
             <SparkleIcon size={16} weight="bold" className={cn("mr-2")} />
-            Generate with AI
+            Generate draft
           </Button>
         </div>
       </div>
 
       <div className={cn("flex-1 overflow-auto p-4 sm:p-6")}>
         <div className={cn("grid grid-cols-1 gap-4 lg:grid-cols-2")}>
-          <form id="ai-application-form" onSubmit={handleSubmit}>
+          <form id="ai-application-form" onSubmit={handleGenerate}>
             <FormField
               label="Job description or pasted job ad text"
               htmlFor="app-prompt"
@@ -341,12 +226,12 @@ export default function AiApplicationCreatePage() {
 
             <div className="mt-4">
               <span className="text-sm text-text-secondary mb-2 block">
-                Tags
+                Extraction fields
               </span>
               <TagsInput
                 id="prompt-tags"
-                value={tags}
-                onChange={setTags}
+                value={fields}
+                onChange={setFields}
                 disabled={loading}
               />
             </div>
@@ -355,51 +240,282 @@ export default function AiApplicationCreatePage() {
           <div className="space-y-3">
             <Card variant="outlined" padding="sm">
               <Text size="sm" weight="medium">
-                Thinking
+                AI draft review
               </Text>
-              <div className="mt-2 max-h-44 overflow-y-auto rounded-md bg-bg-surface-hover p-2">
-                {thinkingLog.length > 0 ? (
-                  <ul className="space-y-1 text-xs text-text-secondary">
-                    {thinkingLog.map((entry, index) => (
-                      <li key={`${entry}-${index}`}>{entry}</li>
-                    ))}
-                  </ul>
-                ) : (
-                  <Text size="xs" color="muted">
-                    Submit a prompt to start streaming progress...
-                  </Text>
-                )}
-              </div>
-            </Card>
+              {draft ? (
+                <div className="mt-3 space-y-3">
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <HoverEditableFieldRow
+                      label="title"
+                      editControl={
+                        <IconButton
+                          intent="ghost"
+                          size="sm"
+                          label="Rework title"
+                          tooltip="Rework title with AI"
+                          icon={<SparkleIcon size={14} weight="regular" />}
+                          className={cn(
+                            "h-7 w-7 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100",
+                          )}
+                          onClick={() => handleReworkField("title")}
+                          disabled={loading}
+                        />
+                      }
+                      content={
+                        <Input
+                          id="draft-title"
+                          value={draft.title}
+                          onChange={(event) =>
+                            setDraft((prev) =>
+                              prev
+                                ? { ...prev, title: event.target.value }
+                                : prev,
+                            )
+                          }
+                          disabled={loading}
+                        />
+                      }
+                    />
+                    <HoverEditableFieldRow
+                      label="company"
+                      editControl={
+                        <IconButton
+                          intent="ghost"
+                          size="sm"
+                          label="Rework company"
+                          tooltip="Rework company with AI"
+                          icon={<SparkleIcon size={14} weight="regular" />}
+                          className={cn(
+                            "h-7 w-7 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100",
+                          )}
+                          onClick={() => handleReworkField("company")}
+                          disabled={loading}
+                        />
+                      }
+                      content={
+                        <Input
+                          id="draft-company"
+                          value={draft.company}
+                          onChange={(event) =>
+                            setDraft((prev) =>
+                              prev
+                                ? { ...prev, company: event.target.value }
+                                : prev,
+                            )
+                          }
+                          disabled={loading}
+                        />
+                      }
+                    />
+                  </div>
 
-            <Card variant="outlined" padding="sm">
-              <Text size="sm" weight="medium">
-                Response stream
-              </Text>
-              <pre
-                className={cn(
-                  "mt-2 max-h-52 overflow-auto rounded-md bg-bg-surface-hover p-3 text-xs text-text-primary whitespace-pre-wrap wrap-break-word",
-                )}
-              >
-                {responseStream || "No response streamed yet."}
-              </pre>
+                  <HoverEditableFieldRow
+                    label="description"
+                    editControl={
+                      <IconButton
+                        intent="ghost"
+                        size="sm"
+                        label="Rework description"
+                        tooltip="Rework description with AI"
+                        icon={<SparkleIcon size={14} weight="regular" />}
+                        className={cn(
+                          "h-7 w-7 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100",
+                        )}
+                        onClick={() => handleReworkField("description")}
+                        disabled={loading}
+                      />
+                    }
+                    content={
+                      <TipTapEditor
+                        id="draft-description"
+                        value={draft.description}
+                        onChange={(nextValue) =>
+                          setDraft((prev) =>
+                            prev ? { ...prev, description: nextValue } : prev,
+                          )
+                        }
+                        disabled={loading}
+                        placeholder="Job description…"
+                      />
+                    }
+                  />
+
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <HoverEditableFieldRow
+                      label="url"
+                      editControl={
+                        <IconButton
+                          intent="ghost"
+                          size="sm"
+                          label="Rework url"
+                          tooltip="Rework url with AI"
+                          icon={<SparkleIcon size={14} weight="regular" />}
+                          className={cn(
+                            "h-7 w-7 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100",
+                          )}
+                          onClick={() => handleReworkField("url")}
+                          disabled={loading}
+                        />
+                      }
+                      content={
+                        <Input
+                          id="draft-url"
+                          value={draft.url}
+                          onChange={(event) =>
+                            setDraft((prev) =>
+                              prev
+                                ? { ...prev, url: event.target.value }
+                                : prev,
+                            )
+                          }
+                          disabled={loading}
+                        />
+                      }
+                    />
+                    <HoverEditableFieldRow
+                      label="compensation"
+                      editControl={
+                        <div className={cn("flex items-center gap-1")}>
+                          <IconButton
+                            intent="ghost"
+                            size="sm"
+                            label="Rework compensation"
+                            tooltip="Rework compensation with AI"
+                            icon={<SparkleIcon size={14} weight="regular" />}
+                            className={cn(
+                              "h-7 w-7 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100",
+                            )}
+                            onClick={() =>
+                              handleReworkField(
+                                "salaryMinCents, salaryMaxCents, salaryCurrency, salaryPeriod",
+                              )
+                            }
+                            disabled={loading}
+                          />
+                          <Button
+                            type="button"
+                            size="sm"
+                            intent="outlined"
+                            className={cn(
+                              "h-7 px-2 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100",
+                            )}
+                            onClick={() => setSalaryDialogOpen(true)}
+                            disabled={loading}
+                          >
+                            Edit
+                          </Button>
+                        </div>
+                      }
+                      content={
+                        <Text size="sm" color="secondary">
+                          {compensationLine ?? "Not set"}
+                        </Text>
+                      }
+                    />
+                  </div>
+
+                  <HoverEditableFieldRow
+                    label="tags (comma-separated)"
+                    editControl={
+                      <IconButton
+                        intent="ghost"
+                        size="sm"
+                        label="Rework tags"
+                        tooltip="Rework tags with AI"
+                        icon={<SparkleIcon size={14} weight="regular" />}
+                        className={cn(
+                          "h-7 w-7 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100",
+                        )}
+                        onClick={() => handleReworkField("tags")}
+                        disabled={loading}
+                      />
+                    }
+                    content={
+                      <Textarea
+                        id="draft-tags"
+                        rows={2}
+                        value={draft.tagsText}
+                        onChange={(event) =>
+                          setDraft((prev) =>
+                            prev
+                              ? { ...prev, tagsText: event.target.value }
+                              : prev,
+                          )
+                        }
+                        disabled={loading}
+                      />
+                    }
+                  />
+
+                  <HoverEditableFieldRow
+                    label="noteContents (one line per note)"
+                    editControl={
+                      <IconButton
+                        intent="ghost"
+                        size="sm"
+                        label="Rework noteContents"
+                        tooltip="Rework noteContents with AI"
+                        icon={<SparkleIcon size={14} weight="regular" />}
+                        className={cn(
+                          "h-7 w-7 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100",
+                        )}
+                        onClick={() => handleReworkField("noteContents")}
+                        disabled={loading}
+                      />
+                    }
+                    content={
+                      <Textarea
+                        id="draft-notes"
+                        rows={4}
+                        value={draft.noteContentsText}
+                        onChange={(event) =>
+                          setDraft((prev) =>
+                            prev
+                              ? {
+                                  ...prev,
+                                  noteContentsText: event.target.value,
+                                }
+                              : prev,
+                          )
+                        }
+                        disabled={loading}
+                      />
+                    }
+                  />
+                </div>
+              ) : (
+                <Text size="xs" color="muted">
+                  Generate a draft first, then review and edit before creating.
+                </Text>
+              )}
             </Card>
 
             {requestStatus === "error" ? (
               <Text size="sm" color="error">
-                Request failed. Update the prompt and try again.
+                Request failed. Update prompt/fields and try again.
               </Text>
             ) : null}
-            {requestStatus === "success" ? (
+            {draft ? (
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  type="button"
+                  intent="primary"
+                  size="sm"
+                  onClick={handleCreateApplication}
+                  disabled={loading}
+                  state={creating ? "loading" : "default"}
+                >
+                  <FloppyDiskBackIcon size={16} className={cn("mr-2")} />
+                  Confirm and create application
+                </Button>
+              </div>
+            ) : null}
+            {createdApplicationId ? (
               <Button
                 intent="primary"
                 size="sm"
                 onClick={() => {
-                  if (createdApplicationId) {
-                    router.push(`/applications/${createdApplicationId}`);
-                    return;
-                  }
-                  router.push("/applications");
+                  router.push(`/applications/${createdApplicationId}`);
                 }}
               >
                 Open created application
@@ -408,6 +524,45 @@ export default function AiApplicationCreatePage() {
           </div>
         </div>
       </div>
+
+      {draft ? (
+        <CompensationEditDialog
+          mode="draft"
+          open={salaryDialogOpen}
+          onOpenChange={setSalaryDialogOpen}
+          compensation={{
+            salaryMinCents: draft.salaryMinCents.trim()
+              ? Number.parseInt(draft.salaryMinCents.trim(), 10)
+              : null,
+            salaryMaxCents: draft.salaryMaxCents.trim()
+              ? Number.parseInt(draft.salaryMaxCents.trim(), 10)
+              : null,
+            salaryCurrency: draft.salaryCurrency,
+            salaryPeriod:
+              draft.salaryPeriod === "none" ? null : draft.salaryPeriod,
+          }}
+          onCompensationSave={(next) => {
+            setDraft((prev) =>
+              prev
+                ? {
+                    ...prev,
+                    salaryMinCents:
+                      next.salaryMinCents != null
+                        ? String(next.salaryMinCents)
+                        : "",
+                    salaryMaxCents:
+                      next.salaryMaxCents != null
+                        ? String(next.salaryMaxCents)
+                        : "",
+                    salaryCurrency: next.salaryCurrency ?? "",
+                    salaryPeriod: next.salaryPeriod ?? "none",
+                  }
+                : null,
+            );
+          }}
+          disabled={loading}
+        />
+      ) : null}
 
       <Toast
         trigger={<span aria-hidden style={{ display: "none" }} />}
