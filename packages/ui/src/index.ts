@@ -58,6 +58,8 @@ export { Select } from "./components/Select/Select";
 export type { SelectOption, SelectProps } from "./components/Select/Select";
 export { Separator } from "./components/Separator/Separator";
 export type { SeparatorProps } from "./components/Separator/Separator";
+export { DropdownButton } from "./components/DropdownButton/DropdownButton";
+export type { DropdownButtonProps } from "./components/DropdownButton/DropdownButton";
 export { Skeleton } from "./components/Skeleton/Skeleton";
 export type {
   SkeletonProps,
