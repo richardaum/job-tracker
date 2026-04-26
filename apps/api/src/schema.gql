@@ -54,6 +54,7 @@ type ApplicationStageEventType {
   fromStage: ApplicationStage
   toStage: ApplicationStage!
   source: String!
+  reason: String
   scheduledAt: DateTime
   createdAt: DateTime!
 }
@@ -95,6 +96,7 @@ enum ApplicationQuickFilter {
 
 type Mutation {
   createApplication(input: CreateApplicationInput!): ApplicationType!
+  createApplicationWithAI(input: CreateApplicationWithAIInput!): ApplicationType!
   updateApplication(id: ID!, input: UpdateApplicationInput!): ApplicationType!
   removeApplicationTag(id: ID!, tag: String!): ApplicationType!
   deleteApplication(id: ID!): Boolean!
@@ -119,6 +121,16 @@ input CreateApplicationInput {
   tags: [String!]
 }
 
+input CreateApplicationWithAIInput {
+  prompt: String!
+  tags: [AiExtractionTagInput!]
+}
+
+input AiExtractionTagInput {
+  label: String!
+  metadata: String
+}
+
 input UpdateApplicationInput {
   title: String
   company: String
@@ -136,12 +148,14 @@ input CreateApplicationStageEventInput {
   applicationId: String!
   toStage: ApplicationStage!
   source: String
+  reason: String
   scheduledAt: DateTime
 }
 
 input UpdateApplicationStageEventInput {
   toStage: ApplicationStage
   scheduledAt: DateTime
+  reason: String
 }
 
 input CreateApplicationNoteInput {

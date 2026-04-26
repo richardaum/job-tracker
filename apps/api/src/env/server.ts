@@ -18,6 +18,8 @@ const serverEnvSchema = z.object({
   JWT_ACCESS_SECRET: z.string(),
   JWT_REFRESH_SECRET: z.string(),
   WEB_URL: z.url().default("http://localhost:3100"),
+  OPENAI_API_KEY: z.string().optional(),
+  OPENAI_MODEL: z.string().default("gpt-4.1-mini"),
 });
 
 const validated = serverEnvSchema
@@ -42,4 +44,6 @@ export const {
   JWT_ACCESS_SECRET,
   JWT_REFRESH_SECRET,
   WEB_URL,
+  OPENAI_API_KEY,
+  OPENAI_MODEL,
 } = validated;

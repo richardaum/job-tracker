@@ -15,6 +15,7 @@ import { ApplicationNoteType } from "./application-note.type";
 import { CreateApplicationNoteInput } from "./create-application-note.input";
 import { UpdateApplicationNoteInput } from "./update-application-note.input";
 import { UpdateApplicationStageEventInput } from "./update-application-stage-event.input";
+import { CreateApplicationWithAIInput } from "./create-application-with-ai.input";
 
 @Resolver(() => ApplicationType)
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -45,6 +46,14 @@ export class ApplicationResolver {
     @CurrentUser() user: { userId: string },
   ): Promise<ApplicationType> {
     return this.service.create(user.userId, input);
+  }
+
+  @Mutation(() => ApplicationType)
+  createApplicationWithAI(
+    @Args("input") input: CreateApplicationWithAIInput,
+    @CurrentUser() user: { userId: string },
+  ): Promise<ApplicationType> {
+    return this.service.createWithAI(user.userId, input);
   }
 
   @Mutation(() => ApplicationType)

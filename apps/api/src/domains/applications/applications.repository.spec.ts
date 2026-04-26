@@ -9,6 +9,7 @@ import { UserEntity } from "@api/database/entities/user.entity";
 import { resetPublicSchemaAndMigrate } from "@api/database/test-db";
 
 import { ApplicationRepository } from "./applications.repository";
+import { ApplicationQuickFilterEnum } from "./application-quick-filter.enum";
 
 const DATABASE_URL = process.env.DATABASE_URL;
 const hasDb = !!DATABASE_URL;
@@ -163,6 +164,42 @@ describe.skipIf(!hasDb)("ApplicationRepository (integration)", () => {
     expect(events[1].id).toBe(second.id);
     expect(events[1].fromStage).toBe("applied");
     expect(events[1].toStage).toBe("technical");
+  });
+
+  it("active quick filter excludes applied stage", async () => {
+    const company = await createTestCompany(userId, "Quick Filter Corp");
+
+    const appliedApp = await repo.create(userId, {
+      title: "Applied App",
+      companyId: company.id,
+      url: null,
+    });
+    await repo.createStageEvent(userId, appliedApp.id, {
+      fromStage: null,
+      toStage: "applied",
+      source: "manual",
+      scheduledAt: null,
+    });
+
+    const activeApp = await repo.create(userId, {
+      title: "Active App",
+      companyId: company.id,
+      url: null,
+    });
+    await repo.createStageEvent(userId, activeApp.id, {
+      fromStage: "applied",
+      toStage: "technical",
+      source: "manual",
+      scheduledAt: null,
+    });
+
+    const active = await repo.findAllByUserId(
+      userId,
+      ApplicationQuickFilterEnum.ACTIVE,
+    );
+
+    expect(active.map((app) => app.id)).toContain(activeApp.id);
+    expect(active.map((app) => app.id)).not.toContain(appliedApp.id);
   });
 
   it("enforces note revision checks on update", async () => {

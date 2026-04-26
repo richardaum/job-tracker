@@ -9,6 +9,7 @@ import { ApplicationStageEnum } from "./application-stage.enum";
 import { CompanyService } from "@api/domains/companies/companies.service";
 import { CompensationService } from "./compensation.service";
 import { TagService } from "./tag.service";
+import { ApplicationAiService } from "@api/domains/application-ai/application-ai.service";
 
 const makeApp = (overrides: Partial<Application> = {}): Application =>
   ({
@@ -46,6 +47,7 @@ const makeEvent = (
     fromStage: null,
     toStage: "new",
     source: "manual",
+    reason: null,
     createdAt: new Date("2026-01-02"),
     ...overrides,
     scheduledAt: overrides.scheduledAt ?? null,
@@ -68,6 +70,7 @@ describe("ApplicationService", () => {
   let companyService: CompanyService;
   let compensationService: CompensationService;
   let tagService: TagService;
+  let applicationAiService: ApplicationAiService;
 
   beforeEach(() => {
     repo = {
@@ -96,12 +99,16 @@ describe("ApplicationService", () => {
 
     compensationService = new CompensationService();
     tagService = new TagService();
+    applicationAiService = {
+      generateDraft: vi.fn(),
+    } as unknown as ApplicationAiService;
 
     service = new ApplicationService(
       repo,
       companyService,
       compensationService,
       tagService,
+      applicationAiService,
     );
   });
 
@@ -154,6 +161,7 @@ describe("ApplicationService", () => {
       fromStage: null,
       toStage: "new",
       source: "system",
+      reason: null,
       scheduledAt: null,
     });
   });
@@ -173,6 +181,52 @@ describe("ApplicationService", () => {
         description: "plain text",
       }),
     ).rejects.toThrow("description must be valid TipTap document JSON");
+  });
+
+  it("createWithAI persists application and note from generated draft", async () => {
+    const app = makeApp();
+    vi.mocked(applicationAiService.generateDraft).mockResolvedValue({
+      title: "Engineer",
+      company: "Acme",
+      description: JSON.stringify({ type: "doc", content: [] }),
+      url: "https://acme.com/jobs/1",
+      salaryMinCents: null,
+      salaryMaxCents: null,
+      salaryCurrency: null,
+      salaryPeriod: null,
+      tags: ["React"],
+      noteContents: [
+        JSON.stringify({ type: "doc", content: [] }),
+        JSON.stringify({
+          type: "doc",
+          content: [
+            {
+              type: "paragraph",
+              content: [{ type: "text", text: "Second note" }],
+            },
+          ],
+        }),
+      ],
+    });
+    vi.mocked(companyService.findOrCreateByName).mockResolvedValue(app.company);
+    vi.mocked(repo.create).mockResolvedValue(app);
+    vi.mocked(repo.createStageEvent).mockResolvedValue(
+      makeEvent({ toStage: "new", source: "system" }),
+    );
+    vi.mocked(repo.findOneByIdAndUserId).mockResolvedValue(app);
+    vi.mocked(repo.createNote).mockResolvedValue(makeNote());
+
+    const result = await service.createWithAI("user-1", {
+      prompt: "Senior React Engineer",
+      tags: [{ label: "Title", metadata: "as field value" }],
+    });
+
+    expect(result.id).toBe("app-1");
+    expect(applicationAiService.generateDraft).toHaveBeenCalledWith({
+      prompt: "Senior React Engineer",
+      tags: [{ label: "Title", metadata: "as field value" }],
+    });
+    expect(repo.createNote).toHaveBeenCalledTimes(2);
   });
 
   it("update throws for invalid TipTap description JSON", async () => {
@@ -233,6 +287,7 @@ describe("ApplicationService", () => {
       fromStage: "technical",
       toStage: "offer",
       source: "manual",
+      reason: null,
       scheduledAt: null,
     });
   });
@@ -251,6 +306,7 @@ describe("ApplicationService", () => {
     expect(updated.toStage).toBe("technical");
     expect(repo.updateStageEvent).toHaveBeenCalledWith("event-1", "user-1", {
       toStage: "technical",
+      reason: undefined,
       scheduledAt: null,
     });
   });

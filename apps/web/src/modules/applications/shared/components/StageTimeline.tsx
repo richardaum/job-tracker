@@ -17,6 +17,7 @@ interface StageTimelineItem {
   id: string;
   fromStage?: ApplicationStage | null;
   toStage: ApplicationStage;
+  reason?: string | null;
   dateLabel: string;
 }
 

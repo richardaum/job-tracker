@@ -9,4 +9,7 @@ export class UpdateApplicationStageEventInput {
 
   @Field(() => Date, { nullable: true })
   scheduledAt?: Date | null;
+
+  @Field(() => String, { nullable: true })
+  reason?: string | null;
 }

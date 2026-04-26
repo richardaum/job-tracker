@@ -1,12 +1,17 @@
 "use client";
 
 import React, { useRef, useState } from "react";
-import { cn } from "@job-tracker/ui";
+import { Tooltip, cn } from "@job-tracker/ui";
 import { XIcon } from "@phosphor-icons/react";
 
+export interface TagWithMetadata {
+  label: string;
+  metadata?: string;
+}
+
 interface TagsInputProps {
-  value: string[];
-  onChange: (tags: string[]) => void;
+  value: TagWithMetadata[];
+  onChange: (tags: TagWithMetadata[]) => void;
   disabled?: boolean;
   id?: string;
 }
@@ -16,9 +21,12 @@ export function TagsInput({ value, onChange, disabled, id }: TagsInputProps) {
   const inputRef = useRef<HTMLInputElement>(null);
 
   function commit(raw: string) {
-    const tag = raw.trim();
-    if (tag && !value.some((t) => t.toLowerCase() === tag.toLowerCase())) {
-      onChange([...value, tag]);
+    const tagLabel = raw.trim();
+    if (
+      tagLabel &&
+      !value.some((t) => t.label.toLowerCase() === tagLabel.toLowerCase())
+    ) {
+      onChange([...value, { label: tagLabel }]);
     }
     setDraft("");
   }
@@ -36,8 +44,12 @@ export function TagsInput({ value, onChange, disabled, id }: TagsInputProps) {
     if (draft.trim()) commit(draft);
   }
 
-  function remove(tag: string) {
-    onChange(value.filter((t) => t !== tag));
+  function remove(tagLabel: string) {
+    onChange(value.filter((t) => t.label !== tagLabel));
+  }
+
+  function metadataText(tag: TagWithMetadata) {
+    return tag.metadata?.trim() || undefined;
   }
 
   return (
@@ -49,30 +61,47 @@ export function TagsInput({ value, onChange, disabled, id }: TagsInputProps) {
       )}
       onClick={() => inputRef.current?.focus()}
     >
-      {value.map((tag) => (
-        <span
-          key={tag}
-          className={cn(
-            "inline-flex items-center gap-1 rounded border border-border-subtle bg-bg-surface-hover py-0.5 pl-1.5 pr-0.5 text-xs text-text-secondary",
-          )}
-        >
-          <span className="max-w-40 truncate">{tag}</span>
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              remove(tag);
-            }}
-            disabled={disabled}
-            aria-label={`Remove tag ${tag}`}
-            className={cn(
-              "flex size-4 shrink-0 items-center justify-center rounded hover:bg-black/15 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-border-brand",
-            )}
+      {value.map((tag) => {
+        const tooltipContent = metadataText(tag);
+        return (
+          <Tooltip
+            key={tag.label}
+            content={tooltipContent}
+            side="top"
+            enabled={Boolean(tooltipContent)}
           >
-            <XIcon size={10} weight="bold" />
-          </button>
-        </span>
-      ))}
+            <span
+              className={cn(
+                "inline-flex items-center gap-1 rounded border border-border-subtle bg-bg-surface-hover py-0.5 pl-1.5 pr-0.5 text-xs text-text-secondary",
+              )}
+            >
+              {tooltipContent ? (
+                <span
+                  aria-hidden
+                  className={cn(
+                    "size-1.5 shrink-0 rounded-full bg-text-muted/70",
+                  )}
+                />
+              ) : null}
+              <span className="max-w-40 truncate">{tag.label}</span>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  remove(tag.label);
+                }}
+                disabled={disabled}
+                aria-label={`Remove tag ${tag.label}`}
+                className={cn(
+                  "flex size-4 shrink-0 items-center justify-center rounded hover:bg-black/15 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-border-brand",
+                )}
+              >
+                <XIcon size={10} weight="bold" />
+              </button>
+            </span>
+          </Tooltip>
+        );
+      })}
       <input
         ref={inputRef}
         id={id}

@@ -13,6 +13,7 @@ import { ApplicationResolver } from "./applications.resolver";
 import { CompaniesModule } from "@api/domains/companies/companies.module";
 import { CompensationService } from "./compensation.service";
 import { TagService } from "./tag.service";
+import { ApplicationAiModule } from "@api/domains/application-ai/application-ai.module";
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { TagService } from "./tag.service";
     ]),
     AuthModule,
     CompaniesModule,
+    ApplicationAiModule,
   ],
   providers: [
     ApplicationRepository,

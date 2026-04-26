@@ -29,13 +29,13 @@ export type CreateApplicationRepoDto = Pick<
 export type UpdateApplicationRepoDto = Partial<CreateApplicationRepoDto>;
 type CreateStageEventDto = Pick<
   NewApplicationStageEvent,
-  "toStage" | "source" | "scheduledAt"
+  "toStage" | "source" | "reason" | "scheduledAt"
 > & {
   fromStage?: NewApplicationStageEvent["fromStage"];
 };
 type UpdateStageEventDto = Pick<
   NewApplicationStageEvent,
-  "toStage" | "scheduledAt"
+  "toStage" | "reason" | "scheduledAt"
 >;
 type CreateNoteDto = Pick<NewNote, "applicationId" | "content">;
 type UpdateNoteDto = Pick<NewNote, "content">;
@@ -87,7 +87,9 @@ export class ApplicationRepository {
     } else if (filter === ApplicationQuickFilterEnum.APPLIED) {
       qb.andWhere(`${latestStageSub} = 'applied'`, { userId });
     } else if (filter === ApplicationQuickFilterEnum.ACTIVE) {
-      qb.andWhere(`${latestStageSub} NOT IN ('new', 'rejected')`, { userId });
+      qb.andWhere(`${latestStageSub} NOT IN ('new', 'applied', 'rejected')`, {
+        userId,
+      });
     } else if (filter === ApplicationQuickFilterEnum.INCOMING) {
       qb.andWhere(`${latestStageSub} != 'rejected'`, { userId }).andWhere(
         `EXISTS (
@@ -191,6 +193,7 @@ export class ApplicationRepository {
       fromStage: dto.fromStage ?? null,
       toStage: dto.toStage,
       source: dto.source ?? "manual",
+      reason: dto.reason ?? null,
       scheduledAt: dto.scheduledAt ?? null,
     });
     return this.stageEventsRepo.save(row);
@@ -212,6 +215,9 @@ export class ApplicationRepository {
     }
     if (dto.scheduledAt !== undefined) {
       existing.scheduledAt = dto.scheduledAt;
+    }
+    if (dto.reason !== undefined) {
+      existing.reason = dto.reason;
     }
     return this.stageEventsRepo.save(existing);
   }

@@ -31,6 +31,11 @@ export type Scalars = {
   DateTime: { input: any; output: any };
 };
 
+export type AiExtractionTagInput = {
+  label: Scalars["String"]["input"];
+  metadata?: InputMaybe<Scalars["String"]["input"]>;
+};
+
 export type ApplicationNoteType = {
   __typename?: "ApplicationNoteType";
   applicationId?: Maybe<Scalars["String"]["output"]>;
@@ -64,6 +69,7 @@ export type ApplicationStageEventType = {
   createdAt: Scalars["DateTime"]["output"];
   fromStage?: Maybe<ApplicationStage>;
   id: Scalars["ID"]["output"];
+  reason?: Maybe<Scalars["String"]["output"]>;
   scheduledAt?: Maybe<Scalars["DateTime"]["output"]>;
   source: Scalars["String"]["output"];
   toStage: ApplicationStage;
@@ -118,9 +124,15 @@ export type CreateApplicationNoteInput = {
 
 export type CreateApplicationStageEventInput = {
   applicationId: Scalars["String"]["input"];
+  reason?: InputMaybe<Scalars["String"]["input"]>;
   scheduledAt?: InputMaybe<Scalars["DateTime"]["input"]>;
   source?: InputMaybe<Scalars["String"]["input"]>;
   toStage: ApplicationStage;
+};
+
+export type CreateApplicationWithAiInput = {
+  prompt: Scalars["String"]["input"];
+  tags?: InputMaybe<Array<AiExtractionTagInput>>;
 };
 
 export type Mutation = {
@@ -128,6 +140,7 @@ export type Mutation = {
   createApplication: ApplicationType;
   createApplicationNote: ApplicationNoteType;
   createApplicationStageEvent: ApplicationStageEventType;
+  createApplicationWithAI: ApplicationType;
   deleteApplication: Scalars["Boolean"]["output"];
   deleteApplicationNote: Scalars["Boolean"]["output"];
   removeApplicationTag: ApplicationType;
@@ -147,6 +160,10 @@ export type MutationCreateApplicationNoteArgs = {
 
 export type MutationCreateApplicationStageEventArgs = {
   input: CreateApplicationStageEventInput;
+};
+
+export type MutationCreateApplicationWithAiArgs = {
+  input: CreateApplicationWithAiInput;
 };
 
 export type MutationDeleteApplicationArgs = {
@@ -233,6 +250,7 @@ export type UpdateApplicationNoteInput = {
 };
 
 export type UpdateApplicationStageEventInput = {
+  reason?: InputMaybe<Scalars["String"]["input"]>;
   scheduledAt?: InputMaybe<Scalars["DateTime"]["input"]>;
   toStage?: InputMaybe<ApplicationStage>;
 };
@@ -335,6 +353,34 @@ export type CreateApplicationMutation = {
   };
 };
 
+export type CreateApplicationWithAiMutationVariables = Exact<{
+  input: CreateApplicationWithAiInput;
+}>;
+
+export type CreateApplicationWithAiMutation = {
+  __typename?: "Mutation";
+  createApplicationWithAI: {
+    __typename?: "ApplicationType";
+    id: string;
+    title: string;
+    companyId: string;
+    description?: string | null;
+    url?: string | null;
+    salaryMinCents?: number | null;
+    salaryMaxCents?: number | null;
+    salaryCurrency?: string | null;
+    salaryPeriod?: SalaryPeriod | null;
+    tags: Array<string>;
+    createdAt: any;
+    company: {
+      __typename?: "CompanyType";
+      id: string;
+      name: string;
+      description?: string | null;
+    };
+  };
+};
+
 export type UpdateApplicationMutationVariables = Exact<{
   id: Scalars["ID"]["input"];
   input: UpdateApplicationInput;
@@ -400,6 +446,7 @@ export type ApplicationStageEventsQuery = {
     fromStage?: ApplicationStage | null;
     toStage: ApplicationStage;
     source: string;
+    reason?: string | null;
     scheduledAt?: any | null;
     createdAt: any;
   }>;
@@ -418,6 +465,7 @@ export type CreateApplicationStageEventMutation = {
     fromStage?: ApplicationStage | null;
     toStage: ApplicationStage;
     source: string;
+    reason?: string | null;
     scheduledAt?: any | null;
     createdAt: any;
   };
@@ -437,6 +485,7 @@ export type UpdateApplicationStageEventMutation = {
     fromStage?: ApplicationStage | null;
     toStage: ApplicationStage;
     source: string;
+    reason?: string | null;
     scheduledAt?: any | null;
     createdAt: any;
   };
@@ -802,6 +851,97 @@ export const CreateApplicationDocument = {
   CreateApplicationMutation,
   CreateApplicationMutationVariables
 >;
+export const CreateApplicationWithAiDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "CreateApplicationWithAi" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "input" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: {
+              kind: "NamedType",
+              name: { kind: "Name", value: "CreateApplicationWithAIInput" },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "createApplicationWithAI" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "input" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "input" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                { kind: "Field", name: { kind: "Name", value: "title" } },
+                { kind: "Field", name: { kind: "Name", value: "companyId" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "company" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      { kind: "Field", name: { kind: "Name", value: "id" } },
+                      { kind: "Field", name: { kind: "Name", value: "name" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "description" },
+                      },
+                    ],
+                  },
+                },
+                { kind: "Field", name: { kind: "Name", value: "description" } },
+                { kind: "Field", name: { kind: "Name", value: "url" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "salaryMinCents" },
+                },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "salaryMaxCents" },
+                },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "salaryCurrency" },
+                },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "salaryPeriod" },
+                },
+                { kind: "Field", name: { kind: "Name", value: "tags" } },
+                { kind: "Field", name: { kind: "Name", value: "createdAt" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  CreateApplicationWithAiMutation,
+  CreateApplicationWithAiMutationVariables
+>;
 export const UpdateApplicationDocument = {
   kind: "Document",
   definitions: [
@@ -1066,6 +1206,7 @@ export const ApplicationStageEventsDocument = {
                 { kind: "Field", name: { kind: "Name", value: "fromStage" } },
                 { kind: "Field", name: { kind: "Name", value: "toStage" } },
                 { kind: "Field", name: { kind: "Name", value: "source" } },
+                { kind: "Field", name: { kind: "Name", value: "reason" } },
                 { kind: "Field", name: { kind: "Name", value: "scheduledAt" } },
                 { kind: "Field", name: { kind: "Name", value: "createdAt" } },
               ],
@@ -1129,6 +1270,7 @@ export const CreateApplicationStageEventDocument = {
                 { kind: "Field", name: { kind: "Name", value: "fromStage" } },
                 { kind: "Field", name: { kind: "Name", value: "toStage" } },
                 { kind: "Field", name: { kind: "Name", value: "source" } },
+                { kind: "Field", name: { kind: "Name", value: "reason" } },
                 { kind: "Field", name: { kind: "Name", value: "scheduledAt" } },
                 { kind: "Field", name: { kind: "Name", value: "createdAt" } },
               ],
@@ -1208,6 +1350,7 @@ export const UpdateApplicationStageEventDocument = {
                 { kind: "Field", name: { kind: "Name", value: "fromStage" } },
                 { kind: "Field", name: { kind: "Name", value: "toStage" } },
                 { kind: "Field", name: { kind: "Name", value: "source" } },
+                { kind: "Field", name: { kind: "Name", value: "reason" } },
                 { kind: "Field", name: { kind: "Name", value: "scheduledAt" } },
                 { kind: "Field", name: { kind: "Name", value: "createdAt" } },
               ],

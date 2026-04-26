@@ -5,6 +5,7 @@ import { ApplicationCard } from "@/modules/applications/list/components/Applicat
 import { ApplicationQuickEditModal } from "@/modules/applications/list/components/ApplicationQuickEditModal";
 import { QuickFilters } from "@/modules/applications/list/components/QuickFilters";
 import { useQuickFilter } from "@/modules/applications/list/hooks/useQuickFilter";
+import { useRouter } from "next/navigation";
 import {
   Card,
   DropdownButton,
@@ -95,6 +96,7 @@ function ApplicationsListEmpty() {
 }
 
 export default function ApplicationsPage() {
+  const router = useRouter();
   const activeFilter = useQuickFilter();
 
   const { data, loading, error } = useApplicationsQuery({
@@ -171,6 +173,7 @@ export default function ApplicationsPage() {
                 Manual application
               </DropdownMenuItem>
             }
+            onClick={() => router.push("/applications/new/ai")}
           >
             <SparkleIcon size={16} weight="bold" className={cn("mr-3")} />
             New application

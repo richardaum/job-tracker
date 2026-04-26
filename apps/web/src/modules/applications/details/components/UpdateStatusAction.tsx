@@ -59,6 +59,7 @@ export function UpdateStatusAction({
     ApplicationStage | undefined
   >(undefined);
   const [scheduledAtDraft, setScheduledAtDraft] = useState("");
+  const [reasonDraft, setReasonDraft] = useState("");
 
   const [createStageEvent, { loading: stageSaving }] =
     useCreateApplicationStageEventMutation({
@@ -87,6 +88,7 @@ export function UpdateStatusAction({
     if (nextOpen) {
       setSelectedStage(undefined);
       setScheduledAtDraft("");
+      setReasonDraft("");
     }
   }
 
@@ -101,6 +103,7 @@ export function UpdateStatusAction({
             toStage: selectedStage,
             scheduledAt: buildScheduledAtWithBrowserTimezone(scheduledAtValue),
             source: "manual",
+            reason: reasonDraft.trim() || null,
           },
         },
       });
@@ -168,6 +171,20 @@ export function UpdateStatusAction({
               })}
             </div>
           </Stack>
+        </FormField>
+        <FormField
+          label="Reason (optional)"
+          htmlFor={`history-reason-${applicationId}`}
+        >
+          <Input
+            id={`history-reason-${applicationId}`}
+            type="text"
+            size="sm"
+            value={reasonDraft}
+            onChange={(event) => setReasonDraft(event.target.value)}
+            disabled={saving}
+            placeholder="Brief explanation for this status change"
+          />
         </FormField>
         <div className={cn("flex justify-end")}>
           <Button

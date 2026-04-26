@@ -62,6 +62,8 @@ export default function ApplicationDetailsPage({ params }: PageProps) {
   const application = data?.application as ApplicationDetailsValues | undefined;
   const currentStage =
     stageEventsData?.applicationStageEvents[0]?.toStage ?? ApplicationStage.New;
+  const currentStageReason =
+    stageEventsData?.applicationStageEvents[0]?.reason ?? null;
   const isDesktop = useBreakpoint("(min-width: 1024px)");
 
   function showToast(message: string, intent: "success" | "error") {
@@ -177,6 +179,7 @@ export default function ApplicationDetailsPage({ params }: PageProps) {
             <span>{application?.title ?? "Application details"}</span>{" "}
             <StatusBadge
               stage={currentStage}
+              reason={currentStageReason}
               className={cn("align-middle whitespace-nowrap")}
             />
           </Heading>

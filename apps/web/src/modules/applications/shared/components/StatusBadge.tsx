@@ -1,8 +1,9 @@
 "use client";
 
 import React from "react";
-import { Badge, cn } from "@job-tracker/ui";
+import { Badge, Tooltip, cn } from "@job-tracker/ui";
 import { ApplicationStage } from "@/gql/hooks";
+import { InfoIcon } from "@phosphor-icons/react";
 
 function getStageBadgeIntent(stage: ApplicationStage) {
   switch (stage) {
@@ -29,20 +30,36 @@ export function formatStage(value: ApplicationStage) {
 
 export function StatusBadge({
   stage,
+  reason,
   className,
 }: {
   stage: ApplicationStage;
+  reason?: string | null;
   className?: string;
 }) {
   return (
-    <Badge
-      intent={getStageBadgeIntent(stage)}
-      className={cn(
-        "rounded border border-current/20 px-1.5 py-0.5 text-[11px] font-normal leading-4",
-        className,
-      )}
-    >
-      {formatStage(stage)}
-    </Badge>
+    <span className={cn("inline-flex items-center gap-1")}>
+      <Badge
+        intent={getStageBadgeIntent(stage)}
+        className={cn(
+          "rounded border border-current/20 px-1.5 py-0.5 text-[11px] font-normal leading-4",
+          className,
+        )}
+      >
+        {formatStage(stage)}
+      </Badge>
+      {reason ? (
+        <Tooltip content={reason} side="top">
+          <span
+            className={cn(
+              "inline-flex cursor-help text-text-muted hover:text-text-secondary",
+            )}
+            aria-label="Status reason"
+          >
+            <InfoIcon size={12} weight="regular" />
+          </span>
+        </Tooltip>
+      ) : null}
+    </span>
   );
 }

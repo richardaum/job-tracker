@@ -120,4 +120,10 @@ export type {
   TextSize,
   TextWeight,
 } from "./components/Typography/Text";
+export { Wizard, WizardMain, WizardSidebar } from "./components/Wizard/Wizard";
+export type {
+  WizardProps,
+  WizardSidebarProps,
+  WizardStep,
+} from "./components/Wizard/Wizard";
 export { cn } from "./lib/cn";

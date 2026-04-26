@@ -33,6 +33,11 @@ export type Scalars = {
   DateTime: { input: any; output: any };
 };
 
+export type AiExtractionTagInput = {
+  label: Scalars["String"]["input"];
+  metadata?: InputMaybe<Scalars["String"]["input"]>;
+};
+
 export type ApplicationNoteType = {
   __typename?: "ApplicationNoteType";
   applicationId?: Maybe<Scalars["String"]["output"]>;
@@ -66,6 +71,7 @@ export type ApplicationStageEventType = {
   createdAt: Scalars["DateTime"]["output"];
   fromStage?: Maybe<ApplicationStage>;
   id: Scalars["ID"]["output"];
+  reason?: Maybe<Scalars["String"]["output"]>;
   scheduledAt?: Maybe<Scalars["DateTime"]["output"]>;
   source: Scalars["String"]["output"];
   toStage: ApplicationStage;
@@ -120,9 +126,15 @@ export type CreateApplicationNoteInput = {
 
 export type CreateApplicationStageEventInput = {
   applicationId: Scalars["String"]["input"];
+  reason?: InputMaybe<Scalars["String"]["input"]>;
   scheduledAt?: InputMaybe<Scalars["DateTime"]["input"]>;
   source?: InputMaybe<Scalars["String"]["input"]>;
   toStage: ApplicationStage;
+};
+
+export type CreateApplicationWithAiInput = {
+  prompt: Scalars["String"]["input"];
+  tags?: InputMaybe<Array<AiExtractionTagInput>>;
 };
 
 export type Mutation = {
@@ -130,6 +142,7 @@ export type Mutation = {
   createApplication: ApplicationType;
   createApplicationNote: ApplicationNoteType;
   createApplicationStageEvent: ApplicationStageEventType;
+  createApplicationWithAI: ApplicationType;
   deleteApplication: Scalars["Boolean"]["output"];
   deleteApplicationNote: Scalars["Boolean"]["output"];
   removeApplicationTag: ApplicationType;
@@ -149,6 +162,10 @@ export type MutationCreateApplicationNoteArgs = {
 
 export type MutationCreateApplicationStageEventArgs = {
   input: CreateApplicationStageEventInput;
+};
+
+export type MutationCreateApplicationWithAiArgs = {
+  input: CreateApplicationWithAiInput;
 };
 
 export type MutationDeleteApplicationArgs = {
@@ -235,6 +252,7 @@ export type UpdateApplicationNoteInput = {
 };
 
 export type UpdateApplicationStageEventInput = {
+  reason?: InputMaybe<Scalars["String"]["input"]>;
   scheduledAt?: InputMaybe<Scalars["DateTime"]["input"]>;
   toStage?: InputMaybe<ApplicationStage>;
 };
@@ -337,6 +355,34 @@ export type CreateApplicationMutation = {
   };
 };
 
+export type CreateApplicationWithAiMutationVariables = Exact<{
+  input: CreateApplicationWithAiInput;
+}>;
+
+export type CreateApplicationWithAiMutation = {
+  __typename?: "Mutation";
+  createApplicationWithAI: {
+    __typename?: "ApplicationType";
+    id: string;
+    title: string;
+    companyId: string;
+    description?: string | null;
+    url?: string | null;
+    salaryMinCents?: number | null;
+    salaryMaxCents?: number | null;
+    salaryCurrency?: string | null;
+    salaryPeriod?: SalaryPeriod | null;
+    tags: Array<string>;
+    createdAt: any;
+    company: {
+      __typename?: "CompanyType";
+      id: string;
+      name: string;
+      description?: string | null;
+    };
+  };
+};
+
 export type UpdateApplicationMutationVariables = Exact<{
   id: Scalars["ID"]["input"];
   input: UpdateApplicationInput;
@@ -402,6 +448,7 @@ export type ApplicationStageEventsQuery = {
     fromStage?: ApplicationStage | null;
     toStage: ApplicationStage;
     source: string;
+    reason?: string | null;
     scheduledAt?: any | null;
     createdAt: any;
   }>;
@@ -420,6 +467,7 @@ export type CreateApplicationStageEventMutation = {
     fromStage?: ApplicationStage | null;
     toStage: ApplicationStage;
     source: string;
+    reason?: string | null;
     scheduledAt?: any | null;
     createdAt: any;
   };
@@ -439,6 +487,7 @@ export type UpdateApplicationStageEventMutation = {
     fromStage?: ApplicationStage | null;
     toStage: ApplicationStage;
     source: string;
+    reason?: string | null;
     scheduledAt?: any | null;
     createdAt: any;
   };
@@ -743,6 +792,59 @@ export function useCreateApplicationMutation(
   >(CreateApplicationDocument, options);
 }
 
+export const CreateApplicationWithAiDocument = gql`
+  mutation CreateApplicationWithAi($input: CreateApplicationWithAIInput!) {
+    createApplicationWithAI(input: $input) {
+      id
+      title
+      companyId
+      company {
+        id
+        name
+        description
+      }
+      description
+      url
+      salaryMinCents
+      salaryMaxCents
+      salaryCurrency
+      salaryPeriod
+      tags
+      createdAt
+    }
+  }
+`;
+
+/**
+ * __useCreateApplicationWithAiMutation__
+ *
+ * To run a mutation, you first call `useCreateApplicationWithAiMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateApplicationWithAiMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createApplicationWithAiMutation, { data, loading, error }] = useCreateApplicationWithAiMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateApplicationWithAiMutation(
+  baseOptions?: ApolloReactHooks.MutationHookOptions<
+    CreateApplicationWithAiMutation,
+    CreateApplicationWithAiMutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useMutation<
+    CreateApplicationWithAiMutation,
+    CreateApplicationWithAiMutationVariables
+  >(CreateApplicationWithAiDocument, options);
+}
+
 export const UpdateApplicationDocument = gql`
   mutation UpdateApplication($id: ID!, $input: UpdateApplicationInput!) {
     updateApplication(id: $id, input: $input) {
@@ -881,6 +983,7 @@ export const ApplicationStageEventsDocument = gql`
       fromStage
       toStage
       source
+      reason
       scheduledAt
       createdAt
     }
@@ -949,6 +1052,7 @@ export const CreateApplicationStageEventDocument = gql`
       fromStage
       toStage
       source
+      reason
       scheduledAt
       createdAt
     }
@@ -996,6 +1100,7 @@ export const UpdateApplicationStageEventDocument = gql`
       fromStage
       toStage
       source
+      reason
       scheduledAt
       createdAt
     }

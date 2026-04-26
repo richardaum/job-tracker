@@ -86,6 +86,7 @@ export function ApplicationTrackingPanel({
   const [selectedStageDraft, setSelectedStageDraft] =
     useState<ApplicationStage | null>(null);
   const [scheduledAtDraft, setScheduledAtDraft] = useState<string | null>(null);
+  const [reasonDraft, setReasonDraft] = useState("");
 
   const currentStage = latestEvent?.toStage ?? ApplicationStage.New;
   const selectedStage = selectedStageDraft ?? undefined;
@@ -104,11 +105,13 @@ export function ApplicationTrackingPanel({
             toStage: selectedStageDraft,
             scheduledAt: buildScheduledAtWithBrowserTimezone(scheduledAtValue),
             source: "manual",
+            reason: reasonDraft.trim() || null,
           },
         },
       });
       setScheduledAtDraft(null);
       setSelectedStageDraft(null);
+      setReasonDraft("");
       onSuccess("Status update saved.");
     } catch {
       onError("Could not save status update.");
@@ -187,6 +190,20 @@ export function ApplicationTrackingPanel({
                     })}
                   </div>
                 </Stack>
+              </FormField>
+              <FormField
+                label="Reason (optional)"
+                htmlFor={`stage-reason-${applicationId}`}
+              >
+                <Input
+                  id={`stage-reason-${applicationId}`}
+                  type="text"
+                  size="sm"
+                  value={reasonDraft}
+                  onChange={(event) => setReasonDraft(event.target.value)}
+                  disabled={statusSaving}
+                  placeholder="Brief explanation for status change"
+                />
               </FormField>
             </>
           ) : (

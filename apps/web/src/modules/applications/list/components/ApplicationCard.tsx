@@ -70,10 +70,12 @@ function CurrentStageBadge({ applicationId }: { applicationId: string }) {
   });
   const events = data?.applicationStageEvents ?? [];
   const latestStage = events[0]?.toStage ?? ApplicationStage.New;
+  const latestReason = events[0]?.reason ?? null;
   const timelineItems = events.map((event) => ({
     id: event.id,
     fromStage: event.fromStage,
     toStage: event.toStage,
+    reason: event.reason ?? null,
     dateLabel: new Date(event.scheduledAt ?? event.createdAt).toLocaleString(
       "en-US",
       {
@@ -99,6 +101,7 @@ function CurrentStageBadge({ applicationId }: { applicationId: string }) {
         >
           <StatusBadge
             stage={latestStage}
+            reason={latestReason}
             className={cn("transition-all hover:brightness-95")}
           />
         </button>

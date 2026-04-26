@@ -13,6 +13,9 @@ export class CreateApplicationStageEventInput {
   @Field({ nullable: true })
   source?: string;
 
+  @Field(() => String, { nullable: true })
+  reason?: string;
+
   @Field({ nullable: true })
   scheduledAt?: Date;
 }

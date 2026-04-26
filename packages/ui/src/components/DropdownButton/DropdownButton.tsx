@@ -72,7 +72,7 @@ export function DropdownButton({
           type="button"
           onClick={onClick}
           className={cn(
-            "inline-flex items-center cursor-pointer rounded-l-md font-medium transition-colors hover:bg-bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-brand focus-visible:ring-inset focus-visible:ring-offset-0",
+            "inline-flex items-center cursor-pointer rounded-l-md font-medium whitespace-nowrap transition-colors hover:bg-bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-brand focus-visible:ring-inset focus-visible:ring-offset-0",
             intentClasses[intent],
             sizeClasses[size],
             (intent === "outlined" ||

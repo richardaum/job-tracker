@@ -73,6 +73,7 @@ export function HistoryPanel({
     ApplicationStage | undefined
   >();
   const [scheduledAtDraft, setScheduledAtDraft] = React.useState("");
+  const [reasonDraft, setReasonDraft] = React.useState("");
 
   const { data: eventsData } = useApplicationStageEventsQuery({
     variables: { applicationId },
@@ -101,12 +102,14 @@ export function HistoryPanel({
     setEditingEventId(event.id);
     setSelectedStage(event.toStage);
     setScheduledAtDraft(toDateInputValue(event.scheduledAt));
+    setReasonDraft(event.reason ?? "");
   }
 
   function closeEditDialog() {
     setEditingEventId(null);
     setSelectedStage(undefined);
     setScheduledAtDraft("");
+    setReasonDraft("");
   }
 
   async function handleSaveEdit() {
@@ -121,6 +124,7 @@ export function HistoryPanel({
             scheduledAt: buildScheduledAtWithBrowserTimezone(
               scheduledAtDraft.trim(),
             ),
+            reason: reasonDraft.trim() || null,
           },
         },
       });
@@ -159,6 +163,7 @@ export function HistoryPanel({
               id: event.id,
               fromStage: event.fromStage,
               toStage: event.toStage,
+              reason: event.reason ?? null,
               dateLabel: event.scheduledAt
                 ? formatDate(event.scheduledAt)
                 : formatDateTime(event.createdAt),
@@ -238,6 +243,20 @@ export function HistoryPanel({
                 })}
               </div>
             </Stack>
+          </FormField>
+          <FormField
+            label="Reason (optional)"
+            htmlFor={`edit-history-reason-${applicationId}`}
+          >
+            <Input
+              id={`edit-history-reason-${applicationId}`}
+              type="text"
+              size="sm"
+              value={reasonDraft}
+              onChange={(event) => setReasonDraft(event.target.value)}
+              disabled={updatingStageEvent}
+              placeholder="Brief explanation for status change"
+            />
           </FormField>
           <div className={cn("flex justify-end")}>
             <Button

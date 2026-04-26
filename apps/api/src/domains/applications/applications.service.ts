@@ -18,6 +18,11 @@ import { CompensationService } from "./compensation.service";
 import { SalaryPeriodEnum } from "./salary-period.enum";
 import { TagService } from "./tag.service";
 import { CompanyService } from "@api/domains/companies/companies.service";
+import {
+  type AiExtractionTagInput,
+  type CreateApplicationWithAIInput,
+} from "./create-application-with-ai.input";
+import { ApplicationAiService } from "@api/domains/application-ai/application-ai.service";
 
 type CreateDto = {
   title: string;
@@ -36,10 +41,12 @@ type CreateStageEventDto = {
   applicationId: string;
   toStage: ApplicationStageEnum;
   source?: string;
+  reason?: string | null;
   scheduledAt?: Date;
 };
 type UpdateStageEventDto = {
   toStage?: ApplicationStageEnum;
+  reason?: string | null;
   scheduledAt?: Date | null;
 };
 type CreateNoteDto = {
@@ -49,6 +56,10 @@ type CreateNoteDto = {
 type UpdateNoteDto = {
   content?: string;
   expectedRevision: number;
+};
+type CreateWithAIDto = {
+  prompt: string;
+  tags?: AiExtractionTagInput[] | null;
 };
 
 function isValidTipTapDocument(value: string): boolean {
@@ -71,6 +82,7 @@ export class ApplicationService {
     private readonly companyService: CompanyService,
     private readonly compensationService: CompensationService,
     private readonly tagService: TagService,
+    private readonly applicationAiService: ApplicationAiService,
   ) {}
 
   findAll(
@@ -123,9 +135,41 @@ export class ApplicationService {
       fromStage: null,
       toStage: ApplicationStageEnum.NEW,
       source: "system",
+      reason: null,
       scheduledAt: null,
     });
     return application;
+  }
+
+  async createWithAI(
+    userId: string,
+    dto: CreateWithAIDto | CreateApplicationWithAIInput,
+  ): Promise<Application> {
+    const draft = await this.applicationAiService.generateDraft({
+      prompt: dto.prompt,
+      tags: dto.tags ?? [],
+    });
+
+    const created = await this.create(userId, {
+      title: draft.title,
+      company: draft.company,
+      description: draft.description,
+      url: draft.url,
+      salaryMinCents: draft.salaryMinCents,
+      salaryMaxCents: draft.salaryMaxCents,
+      salaryCurrency: draft.salaryCurrency,
+      salaryPeriod: draft.salaryPeriod,
+      tags: draft.tags,
+    });
+
+    for (const noteContent of draft.noteContents) {
+      await this.createNote(userId, {
+        applicationId: created.id,
+        content: noteContent,
+      });
+    }
+
+    return this.findOne(created.id, userId);
   }
 
   async update(
@@ -225,6 +269,7 @@ export class ApplicationService {
       fromStage: latest?.toStage ?? null,
       toStage: dto.toStage,
       source: dto.source ?? "manual",
+      reason: dto.reason ?? null,
       scheduledAt: dto.scheduledAt ?? null,
     });
   }
@@ -244,6 +289,7 @@ export class ApplicationService {
 
     const updated = await this.repo.updateStageEvent(stageEventId, userId, {
       toStage: dto.toStage,
+      reason: dto.reason,
       scheduledAt: dto.scheduledAt,
     });
     if (!updated) {

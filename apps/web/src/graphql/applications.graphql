@@ -61,6 +61,27 @@ mutation CreateApplication($input: CreateApplicationInput!) {
   }
 }
 
+mutation CreateApplicationWithAi($input: CreateApplicationWithAIInput!) {
+  createApplicationWithAI(input: $input) {
+    id
+    title
+    companyId
+    company {
+      id
+      name
+      description
+    }
+    description
+    url
+    salaryMinCents
+    salaryMaxCents
+    salaryCurrency
+    salaryPeriod
+    tags
+    createdAt
+  }
+}
+
 mutation UpdateApplication($id: ID!, $input: UpdateApplicationInput!) {
   updateApplication(id: $id, input: $input) {
     id
@@ -100,6 +121,7 @@ query ApplicationStageEvents($applicationId: ID!) {
     fromStage
     toStage
     source
+    reason
     scheduledAt
     createdAt
   }
@@ -112,6 +134,7 @@ mutation CreateApplicationStageEvent($input: CreateApplicationStageEventInput!) 
     fromStage
     toStage
     source
+    reason
     scheduledAt
     createdAt
   }
@@ -124,6 +147,7 @@ mutation UpdateApplicationStageEvent($id: ID!, $input: UpdateApplicationStageEve
     fromStage
     toStage
     source
+    reason
     scheduledAt
     createdAt
   }

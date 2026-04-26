@@ -7,5 +7,6 @@ export type NewApplicationStageEvent = Pick<
   "applicationId" | "userId" | "fromStage" | "toStage"
 > & {
   source?: string;
+  reason?: string | null;
   scheduledAt?: Date | null;
 };

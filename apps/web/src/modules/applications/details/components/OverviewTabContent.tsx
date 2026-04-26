@@ -11,7 +11,10 @@ import {
   Text,
   cn,
 } from "@job-tracker/ui";
-import { TagsInput } from "@/modules/applications/shared/components/TagsInput";
+import {
+  TagsInput,
+  type TagWithMetadata,
+} from "@/modules/applications/shared/components/TagsInput";
 import {
   ApplicationDocument,
   ApplicationsDocument,
@@ -333,7 +336,7 @@ function TagsEditDialog({
   onError?: (message: string) => void;
 }) {
   const [open, setOpen] = useState(false);
-  const [draft, setDraft] = useState<string[]>([]);
+  const [draft, setDraft] = useState<TagWithMetadata[]>([]);
   const [saving, setSaving] = useState(false);
 
   const [update] = useUpdateApplicationMutation({
@@ -345,14 +348,23 @@ function TagsEditDialog({
 
   function handleOpenChange(next: boolean) {
     setOpen(next);
-    if (next) setDraft(tags);
+    if (next) {
+      setDraft(tags.map((tag) => ({ label: tag })));
+    }
   }
 
   async function handleSave() {
     setSaving(true);
     try {
       await update({
-        variables: { id: applicationId, input: { tags: draft } },
+        variables: {
+          id: applicationId,
+          input: {
+            tags: draft
+              .map((tag) => tag.label.trim())
+              .filter((tag) => tag.length > 0),
+          },
+        },
       });
       onSuccess?.("Tags updated.");
       setOpen(false);

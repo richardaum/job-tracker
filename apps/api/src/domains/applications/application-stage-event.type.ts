@@ -23,6 +23,9 @@ export class ApplicationStageEventType {
   @Field()
   source!: string;
 
+  @Field(() => String, { nullable: true })
+  reason!: string | null;
+
   @Field(() => Date, { nullable: true })
   scheduledAt!: Date | null;
 
