@@ -15,6 +15,7 @@ export interface DropdownMenuItemProps {
   onSelect?: () => void;
   disabled?: boolean;
   destructive?: boolean;
+  icon?: React.ReactNode;
 }
 
 export function DropdownMenu({
@@ -47,16 +48,18 @@ export function DropdownMenuItem({
   onSelect,
   disabled = false,
   destructive = false,
+  icon,
 }: DropdownMenuItemProps) {
   return (
     <RadixDropdownMenu.Item
       onSelect={onSelect}
       disabled={disabled}
       className={cn(
-        `flex cursor-pointer select-none items-center rounded-sm px-5 py-2 text-sm outline-none transition-colors data-disabled:cursor-not-allowed data-disabled:opacity-50 ${destructive ? "text-text-error hover:bg-bg-error-subtle focus:bg-bg-error-subtle" : "text-text-primary hover:bg-bg-surface-hover focus:bg-bg-surface-hover"}`,
+        `flex cursor-pointer select-none items-center gap-2 rounded-sm px-2 py-2 text-sm outline-none transition-colors data-disabled:cursor-not-allowed data-disabled:opacity-50 ${destructive ? "text-text-error hover:bg-bg-error-subtle focus:bg-bg-error-subtle" : "text-text-primary hover:bg-bg-surface-hover focus:bg-bg-surface-hover"}`,
       )}
     >
-      {children}
+      {icon && <span aria-hidden>{icon}</span>}
+      <span>{children}</span>
     </RadixDropdownMenu.Item>
   );
 }

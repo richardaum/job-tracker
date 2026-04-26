@@ -1,21 +1,26 @@
 "use client";
 
-import React, { useState } from "react";
+import { useApplicationsQuery } from "@/gql/hooks";
+import { ApplicationCard } from "@/modules/applications/list/components/ApplicationCard";
+import { ApplicationQuickEditModal } from "@/modules/applications/list/components/ApplicationQuickEditModal";
+import { QuickFilters } from "@/modules/applications/list/components/QuickFilters";
+import { useQuickFilter } from "@/modules/applications/list/hooks/useQuickFilter";
 import {
-  Button,
   Card,
+  DropdownButton,
+  DropdownMenuItem,
   Skeleton,
   Stack,
   Text,
   Toast,
   cn,
 } from "@job-tracker/ui";
-import { MagnifyingGlassIcon, PlusIcon } from "@phosphor-icons/react";
-import { useApplicationsQuery } from "@/gql/hooks";
-import { useQuickFilter } from "@/modules/applications/list/hooks/useQuickFilter";
-import { ApplicationQuickEditModal } from "@/modules/applications/list/components/ApplicationQuickEditModal";
-import { ApplicationCard } from "@/modules/applications/list/components/ApplicationCard";
-import { QuickFilters } from "@/modules/applications/list/components/QuickFilters";
+import {
+  MagnifyingGlassIcon,
+  PlusIcon,
+  SparkleIcon,
+} from "@phosphor-icons/react";
+import { useState } from "react";
 
 interface ToastState {
   open: boolean;
@@ -103,6 +108,8 @@ export default function ApplicationsPage() {
     intent: "success",
   });
 
+  const [openModal, setOpenModal] = useState(false);
+
   function showToast(message: string, intent: "success" | "error") {
     setToast({ open: true, message, intent });
   }
@@ -146,19 +153,28 @@ export default function ApplicationsPage() {
 
         <div className={cn("w-full sm:w-auto")}>
           <ApplicationQuickEditModal
-            trigger={
-              <Button
-                intent="primary"
-                size="sm"
-                leftIcon={<PlusIcon size={16} weight="bold" />}
-                className={cn("w-full sm:w-auto")}
-              >
-                New application
-              </Button>
-            }
+            open={openModal}
+            onOpenChange={(open) => {
+              if (open !== undefined) setOpenModal(open);
+            }}
             onSuccess={(msg) => showToast(msg, "success")}
             onError={(msg) => showToast(msg, "error")}
           />
+          <DropdownButton
+            intent="primary"
+            size="sm"
+            content={
+              <DropdownMenuItem
+                onSelect={() => setOpenModal(true)}
+                icon={<PlusIcon size={16} weight="bold" />}
+              >
+                Manual application
+              </DropdownMenuItem>
+            }
+          >
+            <SparkleIcon size={16} weight="bold" className={cn("mr-3")} />
+            New application
+          </DropdownButton>
         </div>
       </div>
 

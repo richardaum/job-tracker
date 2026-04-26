@@ -187,7 +187,9 @@ function ApplicationQuickEditModalForm({
 }
 
 export interface ApplicationQuickEditModalProps {
-  trigger: React.ReactElement;
+  trigger?: React.ReactElement;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
   application?: ApplicationValues;
   onSuccess?: (message: string) => void;
   onError?: (message: string) => void;
@@ -195,19 +197,27 @@ export interface ApplicationQuickEditModalProps {
 
 export function ApplicationQuickEditModal({
   trigger,
+  open: externalOpen,
+  onOpenChange: externalOnOpenChange,
   application,
   onSuccess,
   onError,
 }: ApplicationQuickEditModalProps) {
   const isEdit = Boolean(application);
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = externalOpen ?? internalOpen;
+
+  function handleOpenChange(open: boolean) {
+    setInternalOpen(open);
+    externalOnOpenChange?.(open);
+  }
 
   return (
     <Dialog
-      trigger={trigger}
+      trigger={trigger ?? <button type="button" className="hidden" />}
       title={isEdit ? "Edit application" : "New application"}
       open={open}
-      onOpenChange={setOpen}
+      onOpenChange={handleOpenChange}
     >
       {open ? (
         <ApplicationQuickEditModalForm
@@ -215,7 +225,7 @@ export function ApplicationQuickEditModal({
           application={application}
           onSuccess={onSuccess}
           onError={onError}
-          onClose={() => setOpen(false)}
+          onClose={() => handleOpenChange(false)}
         />
       ) : null}
     </Dialog>
