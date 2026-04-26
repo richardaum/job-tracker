@@ -40,5 +40,19 @@ module.exports = {
       watch: ["apps/web/src", "apps/web/next.config.ts"],
       ignore_watch: ["node_modules", ".git", ".next"],
     },
+    {
+      name: "storybook",
+      namespace: "job-tracker",
+      cwd: path.join(root, "packages/ui"),
+      script: "pnpm",
+      args: "run dev",
+      interpreter: "none",
+      env: {
+        NODE_ENV: "development",
+        CI: "true",
+      },
+      watch: ["packages/ui/src", "packages/ui/.storybook"],
+      ignore_watch: ["node_modules", ".git", "dist", "storybook-static"],
+    },
   ],
 };
