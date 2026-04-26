@@ -95,6 +95,9 @@ export type ApplicationType = {
   company: CompanyType;
   companyId: Scalars["ID"]["output"];
   createdAt: Scalars["DateTime"]["output"];
+  currentStage: ApplicationStage;
+  currentStageAt: Scalars["DateTime"]["output"];
+  currentStageReason?: Maybe<Scalars["String"]["output"]>;
   description?: Maybe<Scalars["String"]["output"]>;
   id: Scalars["ID"]["output"];
   salaryCurrency?: Maybe<Scalars["String"]["output"]>;
@@ -306,6 +309,9 @@ export type ApplicationsQuery = {
     salaryCurrency?: string | null;
     salaryPeriod?: SalaryPeriod | null;
     tags: Array<string>;
+    currentStage: ApplicationStage;
+    currentStageReason?: string | null;
+    currentStageAt: any;
     createdAt: any;
     company: {
       __typename?: "CompanyType";
@@ -334,6 +340,9 @@ export type ApplicationQuery = {
     salaryCurrency?: string | null;
     salaryPeriod?: SalaryPeriod | null;
     tags: Array<string>;
+    currentStage: ApplicationStage;
+    currentStageReason?: string | null;
+    currentStageAt: any;
     createdAt: any;
     company: {
       __typename?: "CompanyType";
@@ -709,6 +718,18 @@ export const ApplicationsDocument = {
                   name: { kind: "Name", value: "salaryPeriod" },
                 },
                 { kind: "Field", name: { kind: "Name", value: "tags" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "currentStage" },
+                },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "currentStageReason" },
+                },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "currentStageAt" },
+                },
                 { kind: "Field", name: { kind: "Name", value: "createdAt" } },
               ],
             },
@@ -791,6 +812,18 @@ export const ApplicationDocument = {
                   name: { kind: "Name", value: "salaryPeriod" },
                 },
                 { kind: "Field", name: { kind: "Name", value: "tags" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "currentStage" },
+                },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "currentStageReason" },
+                },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "currentStageAt" },
+                },
                 { kind: "Field", name: { kind: "Name", value: "createdAt" } },
               ],
             },

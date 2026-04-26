@@ -37,6 +37,9 @@ type ApplicationType {
   salaryCurrency: String
   salaryPeriod: SalaryPeriod
   tags: [String!]!
+  currentStage: ApplicationStage!
+  currentStageReason: String
+  currentStageAt: DateTime!
   createdAt: DateTime!
   updatedAt: DateTime!
 }
@@ -45,6 +48,15 @@ enum SalaryPeriod {
   YEAR
   MONTH
   HOUR
+}
+
+enum ApplicationStage {
+  NEW
+  APPLIED
+  RECRUITER_SCREEN
+  TECHNICAL
+  OFFER
+  REJECTED
 }
 
 type ApplicationStageEventType {
@@ -57,15 +69,6 @@ type ApplicationStageEventType {
   reason: String
   scheduledAt: DateTime
   createdAt: DateTime!
-}
-
-enum ApplicationStage {
-  NEW
-  APPLIED
-  RECRUITER_SCREEN
-  TECHNICAL
-  OFFER
-  REJECTED
 }
 
 type ApplicationNoteType {

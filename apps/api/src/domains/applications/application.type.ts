@@ -1,5 +1,6 @@
 import { ObjectType, Field, ID, Int } from "@nestjs/graphql";
 import { CompanyType } from "@api/domains/companies/company.type";
+import { ApplicationStageEnum } from "./application-stage.enum";
 import { SalaryPeriodEnum } from "./salary-period.enum";
 
 @ObjectType()
@@ -39,6 +40,21 @@ export class ApplicationType {
 
   @Field(() => [String])
   tags!: string[];
+
+  /** Latest pipeline stage, derived from the most recent stage event. */
+  @Field(() => ApplicationStageEnum)
+  currentStage!: ApplicationStageEnum;
+
+  /** Optional note on the most recent status transition. */
+  @Field(() => String, { nullable: true })
+  currentStageReason!: string | null;
+
+  /**
+   * Display date for current status: `COALESCE(latestEvent.scheduledAt, latestEvent.createdAt)`,
+   * or `createdAt` when the application has no events.
+   */
+  @Field()
+  currentStageAt!: Date;
 
   @Field()
   createdAt!: Date;

@@ -76,6 +76,9 @@ describe("ApplicationService", () => {
     repo = {
       findAllByUserId: vi.fn(),
       findOneByIdAndUserId: vi.fn(),
+      findLatestStageSummariesByApplicationIds: vi
+        .fn()
+        .mockResolvedValue(new Map()),
       create: vi.fn(),
       update: vi.fn(),
       delete: vi.fn(),
@@ -112,17 +115,26 @@ describe("ApplicationService", () => {
     );
   });
 
-  it("findAll delegates to repo", async () => {
-    vi.mocked(repo.findAllByUserId).mockResolvedValue([makeApp()]);
+  it("findAll delegates to repo and attaches current stage", async () => {
+    const app = makeApp();
+    vi.mocked(repo.findAllByUserId).mockResolvedValue([app]);
     const result = await service.findAll("user-1");
     expect(result).toHaveLength(1);
     expect(repo.findAllByUserId).toHaveBeenCalledWith("user-1", undefined);
+    expect(
+      vi.mocked(repo.findLatestStageSummariesByApplicationIds),
+    ).toHaveBeenCalledWith("user-1", [app.id]);
+    expect(result[0]?.currentStage).toBe(ApplicationStageEnum.NEW);
   });
 
   it("findOne returns application when found", async () => {
     vi.mocked(repo.findOneByIdAndUserId).mockResolvedValue(makeApp());
     const result = await service.findOne("app-1", "user-1");
     expect(result.id).toBe("app-1");
+    expect(
+      vi.mocked(repo.findLatestStageSummariesByApplicationIds),
+    ).toHaveBeenCalledWith("user-1", ["app-1"]);
+    expect(result.currentStage).toBe(ApplicationStageEnum.NEW);
   });
 
   it("findOne throws NotFoundException when not found", async () => {
@@ -152,7 +164,13 @@ describe("ApplicationService", () => {
         ],
       }),
     });
-    expect(result).toBe(app);
+    expect(result).toEqual(
+      expect.objectContaining({
+        id: app.id,
+        currentStage: ApplicationStageEnum.NEW,
+        currentStageReason: null,
+      }),
+    );
     expect(companyService.findOrCreateByName).toHaveBeenCalledWith(
       "user-1",
       "Acme",

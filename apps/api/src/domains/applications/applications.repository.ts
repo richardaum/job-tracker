@@ -173,6 +173,57 @@ export class ApplicationRepository {
     });
   }
 
+  /**
+   * Latest event per application (order: COALESCE(schedule_at, created_at) desc),
+   * one round-trip. Used to expose current stage on `Application` without N+1.
+   */
+  async findLatestStageSummariesByApplicationIds(
+    userId: string,
+    applicationIds: string[],
+  ): Promise<
+    Map<
+      string,
+      {
+        toStage: NewApplicationStageEvent["toStage"];
+        reason: string | null;
+        statusAt: Date;
+      }
+    >
+  > {
+    const result = new Map<
+      string,
+      {
+        toStage: NewApplicationStageEvent["toStage"];
+        reason: string | null;
+        statusAt: Date;
+      }
+    >();
+    if (applicationIds.length === 0) {
+      return result;
+    }
+    const events = await this.stageEventsRepo
+      .createQueryBuilder("e")
+      .where("e.user_id = :userId", { userId })
+      .andWhere("e.application_id IN (:...ids)", { ids: applicationIds })
+      .orderBy("e.application_id", "ASC")
+      .addOrderBy("COALESCE(e.schedule_at, e.created_at)", "DESC")
+      .addOrderBy("e.created_at", "DESC")
+      .addOrderBy("e.id", "DESC")
+      .getMany();
+
+    for (const ev of events) {
+      if (result.has(ev.applicationId)) {
+        continue;
+      }
+      result.set(ev.applicationId, {
+        toStage: ev.toStage,
+        reason: ev.reason,
+        statusAt: ev.scheduledAt ?? ev.createdAt,
+      });
+    }
+    return result;
+  }
+
   async findStageEventByIdAndUserId(
     stageEventId: string,
     userId: string,

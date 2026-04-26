@@ -66,12 +66,23 @@ vi.mock("../components/ApplicationTrackingPanel", () => ({
 }));
 
 describe("ApplicationsPage", () => {
-  it("renders current stage badge when stage events exist", () => {
-    useApplicationStageEventsQueryMock.mockReturnValue({
-      data: {
-        applicationStageEvents: [{ id: "event-1", toStage: "technical" }],
+  it("renders current stage from application when list includes currentStage", () => {
+    useApplicationStageEventsQueryMock.mockImplementation(
+      (
+        options: { variables?: { applicationId: string }; skip?: boolean } = {},
+      ) => {
+        if (options.skip) {
+          return { data: undefined, loading: false, error: undefined };
+        }
+        return {
+          data: {
+            applicationStageEvents: [{ id: "event-1", toStage: "technical" }],
+          },
+          loading: false,
+          error: undefined,
+        };
       },
-    });
+    );
     useCurrentUserMock.mockReturnValue({
       user: {
         id: "user-1",
@@ -94,6 +105,9 @@ describe("ApplicationsPage", () => {
             description: null,
             url: "https://example.com",
             createdAt: "2026-04-20T00:00:00.000Z",
+            currentStage: "technical",
+            currentStageReason: null,
+            currentStageAt: "2026-04-20T00:00:00.000Z",
             salaryMinCents: null,
             salaryMaxCents: null,
             salaryCurrency: null,
@@ -110,16 +124,32 @@ describe("ApplicationsPage", () => {
 
     expect(screen.getByText("Frontend Engineer")).toBeInTheDocument();
     expect(screen.getByText("Acme")).toBeInTheDocument();
-    expect(screen.getByText("Technical")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /view posting/i })).toBeVisible();
+    expect(screen.getAllByText("Technical").length).toBeGreaterThan(0);
+    expect(
+      screen.getByRole("button", {
+        name: /open status history for technical/i,
+      }),
+    ).toBeInTheDocument();
   });
 
   it("renders applications list from query data", () => {
-    useApplicationStageEventsQueryMock.mockReturnValue({
-      data: {
-        applicationStageEvents: [],
+    useApplicationStageEventsQueryMock.mockImplementation(
+      (
+        options: { variables?: { applicationId: string }; skip?: boolean } = {},
+      ) => {
+        if (options.skip) {
+          return { data: undefined, loading: false, error: undefined };
+        }
+        return {
+          data: {
+            applicationStageEvents: [],
+          },
+          loading: false,
+          error: undefined,
+        };
       },
-    });
+    );
     useCurrentUserMock.mockReturnValue({
       user: {
         id: "user-1",
@@ -142,6 +172,9 @@ describe("ApplicationsPage", () => {
             description: null,
             url: "https://example.com",
             createdAt: "2026-04-20T00:00:00.000Z",
+            currentStage: "new",
+            currentStageReason: null,
+            currentStageAt: "2026-04-20T00:00:00.000Z",
             salaryMinCents: null,
             salaryMaxCents: null,
             salaryCurrency: null,

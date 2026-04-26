@@ -14,8 +14,8 @@ import {
 } from "@job-tracker/ui";
 import {
   ApplicationStage,
+  type ApplicationStageEventsQuery,
   ApplicationStageEventsDocument,
-  useApplicationStageEventsQuery,
   useCreateApplicationStageEventMutation,
 } from "@/gql/hooks";
 import {
@@ -39,6 +39,10 @@ const quickScheduleOptions = [
   { label: "+3d", offsetDays: 3 },
 ] as const;
 
+type ApplicationStageEventRow = NonNullable<
+  ApplicationStageEventsQuery["applicationStageEvents"]
+>[number];
+
 function formatStage(value: string) {
   return value
     .toLowerCase()
@@ -49,6 +53,8 @@ function formatStage(value: string) {
 
 interface ApplicationTrackingPanelProps {
   applicationId: string;
+  applicationStageEvents: Array<ApplicationStageEventRow>;
+  onRequestStageEvents: () => void;
   /** When true, only the popover trigger is rendered (e.g. inline with other row actions). */
   inline?: boolean;
   triggerIcon?: React.ReactNode;
@@ -58,16 +64,13 @@ interface ApplicationTrackingPanelProps {
 
 export function ApplicationTrackingPanel({
   applicationId,
+  applicationStageEvents: stageEvents,
+  onRequestStageEvents,
   inline = false,
   triggerIcon,
   onSuccess,
   onError,
 }: ApplicationTrackingPanelProps) {
-  const { data: stageData } = useApplicationStageEventsQuery({
-    variables: { applicationId },
-    fetchPolicy: "cache-and-network",
-  });
-
   const [createStageEvent, { loading: stageSaving }] =
     useCreateApplicationStageEventMutation({
       refetchQueries: [
@@ -78,11 +81,7 @@ export function ApplicationTrackingPanel({
       ],
     });
 
-  const stageEvents = useMemo(
-    () => stageData?.applicationStageEvents ?? [],
-    [stageData?.applicationStageEvents],
-  );
-  const latestEvent = stageEvents.at(-1);
+  const latestEvent = useMemo(() => stageEvents[0] ?? null, [stageEvents]);
   const [selectedStageDraft, setSelectedStageDraft] =
     useState<ApplicationStage | null>(null);
   const [scheduledAtDraft, setScheduledAtDraft] = useState<string | null>(null);
@@ -120,6 +119,9 @@ export function ApplicationTrackingPanel({
 
   const popover = (
     <Popover
+      onOpenChange={(open) => {
+        if (open) onRequestStageEvents();
+      }}
       trigger={
         <IconButton
           intent="ghost"

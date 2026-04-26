@@ -62,6 +62,12 @@ type CreateWithAIDto = {
   fields?: AiExtractionFieldInput[] | null;
 };
 
+type ApplicationWithCurrentStage = Application & {
+  currentStage: ApplicationStageEnum;
+  currentStageReason: string | null;
+  currentStageAt: Date;
+};
+
 function isValidTipTapDocument(value: string): boolean {
   try {
     const parsed = JSON.parse(value) as { type?: unknown; content?: unknown };
@@ -85,20 +91,50 @@ export class ApplicationService {
     private readonly applicationAiService: ApplicationAiService,
   ) {}
 
-  findAll(
+  async findAll(
     userId: string,
     filter?: ApplicationQuickFilterEnum,
-  ): Promise<Application[]> {
-    return this.repo.findAllByUserId(userId, filter);
+  ): Promise<ApplicationWithCurrentStage[]> {
+    const apps = await this.repo.findAllByUserId(userId, filter);
+    return this.attachCurrentStage(userId, apps);
   }
 
-  async findOne(id: string, userId: string): Promise<Application> {
+  async findOne(
+    id: string,
+    userId: string,
+  ): Promise<ApplicationWithCurrentStage> {
     const app = await this.repo.findOneByIdAndUserId(id, userId);
     if (!app) throw new NotFoundException(`Application ${id} not found`);
-    return app;
+    return (await this.attachCurrentStage(userId, [app]))[0]!;
   }
 
-  async create(userId: string, dto: CreateDto): Promise<Application> {
+  private async attachCurrentStage(
+    userId: string,
+    apps: Application[],
+  ): Promise<ApplicationWithCurrentStage[]> {
+    if (apps.length === 0) {
+      return [];
+    }
+    const byId = await this.repo.findLatestStageSummariesByApplicationIds(
+      userId,
+      apps.map((a) => a.id),
+    );
+    return apps.map((app) => {
+      const s = byId.get(app.id);
+      return {
+        ...app,
+        currentStage: (s?.toStage ??
+          ApplicationStageEnum.NEW) as ApplicationStageEnum,
+        currentStageReason: s?.reason ?? null,
+        currentStageAt: s?.statusAt ?? app.createdAt,
+      };
+    });
+  }
+
+  async create(
+    userId: string,
+    dto: CreateDto,
+  ): Promise<ApplicationWithCurrentStage> {
     if (
       dto.description !== undefined &&
       dto.description !== null &&
@@ -138,13 +174,13 @@ export class ApplicationService {
       reason: null,
       scheduledAt: null,
     });
-    return application;
+    return (await this.attachCurrentStage(userId, [application]))[0]!;
   }
 
   async createWithAI(
     userId: string,
     dto: CreateWithAIDto | CreateApplicationWithAIInput,
-  ): Promise<Application> {
+  ): Promise<ApplicationWithCurrentStage> {
     const draft = await this.applicationAiService.generateDraft({
       prompt: dto.prompt,
       fields: dto.fields ?? [],
@@ -183,7 +219,7 @@ export class ApplicationService {
     id: string,
     userId: string,
     dto: UpdateDto,
-  ): Promise<Application> {
+  ): Promise<ApplicationWithCurrentStage> {
     const existing = await this.findOne(id, userId);
     if (
       dto.description !== undefined &&
@@ -223,7 +259,7 @@ export class ApplicationService {
     const updated = await this.repo.update(id, userId, repoDto);
 
     if (!updated) throw new NotFoundException(`Application ${id} not found`);
-    return updated;
+    return (await this.attachCurrentStage(userId, [updated]))[0]!;
   }
 
   private async resolveCompanyId(
@@ -245,11 +281,14 @@ export class ApplicationService {
     return undefined;
   }
 
-  async remove(id: string, userId: string): Promise<Application> {
+  async remove(
+    id: string,
+    userId: string,
+  ): Promise<ApplicationWithCurrentStage> {
     await this.findOne(id, userId);
     const deleted = await this.repo.delete(id, userId);
     if (!deleted) throw new NotFoundException(`Application ${id} not found`);
-    return deleted;
+    return (await this.attachCurrentStage(userId, [deleted]))[0]!;
   }
 
   async listStageEvents(
@@ -361,14 +400,14 @@ export class ApplicationService {
     id: string,
     userId: string,
     tag: string,
-  ): Promise<Application> {
+  ): Promise<ApplicationWithCurrentStage> {
     const existing = await this.findOne(id, userId);
     const tags = (existing.tags ?? []).filter(
       (t) => t.toLowerCase() !== tag.toLowerCase(),
     );
     const updated = await this.repo.update(id, userId, { tags });
     if (!updated) throw new NotFoundException(`Application ${id} not found`);
-    return updated;
+    return (await this.attachCurrentStage(userId, [updated]))[0]!;
   }
 
   async removeNote(noteId: string, userId: string): Promise<Note> {

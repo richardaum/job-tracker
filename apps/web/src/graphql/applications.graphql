@@ -15,6 +15,9 @@ query Applications($filter: ApplicationQuickFilter) {
     salaryCurrency
     salaryPeriod
     tags
+    currentStage
+    currentStageReason
+    currentStageAt
     createdAt
   }
 }
@@ -36,6 +39,9 @@ query Application($id: ID!) {
     salaryCurrency
     salaryPeriod
     tags
+    currentStage
+    currentStageReason
+    currentStageAt
     createdAt
   }
 }

@@ -18,6 +18,7 @@ import {
 } from "@phosphor-icons/react";
 import {
   ApplicationStage,
+  type ApplicationStageEventsQuery,
   SalaryPeriod,
   useApplicationStageEventsQuery,
 } from "@/gql/hooks";
@@ -54,8 +55,15 @@ export interface ApplicationCardApplication {
   salaryCurrency?: string | null;
   salaryPeriod?: SalaryPeriod | null;
   tags: Array<string>;
+  currentStage: ApplicationStage;
+  currentStageReason?: string | null;
+  currentStageAt: string;
   createdAt: string;
 }
+
+type ApplicationStageEventRow = NonNullable<
+  ApplicationStageEventsQuery["applicationStageEvents"]
+>[number];
 
 interface ApplicationCardProps {
   application: ApplicationCardApplication;
@@ -63,14 +71,23 @@ interface ApplicationCardProps {
   onError: (message: string) => void;
 }
 
-function CurrentStageBadge({ applicationId }: { applicationId: string }) {
-  const { data } = useApplicationStageEventsQuery({
-    variables: { applicationId },
-    fetchPolicy: "cache-first",
-  });
-  const events = data?.applicationStageEvents ?? [];
-  const latestStage = events[0]?.toStage ?? ApplicationStage.New;
-  const latestReason = events[0]?.reason ?? null;
+function CurrentStageBadge({
+  listStage,
+  listReason,
+  applicationStageEvents,
+  historyLoading,
+  onRequestStageEvents,
+}: {
+  listStage: ApplicationStage;
+  listReason: string | null;
+  applicationStageEvents: Array<ApplicationStageEventRow>;
+  historyLoading: boolean;
+  onRequestStageEvents: () => void;
+}) {
+  const events = applicationStageEvents;
+  const latestFromApi = events[0] ?? null;
+  const displayStage = latestFromApi?.toStage ?? listStage;
+  const displayReason = latestFromApi?.reason ?? listReason;
   const timelineItems = events.map((event) => ({
     id: event.id,
     fromStage: event.fromStage,
@@ -91,17 +108,20 @@ function CurrentStageBadge({ applicationId }: { applicationId: string }) {
   return (
     <DropdownMenu
       align="start"
+      onOpenChange={(open) => {
+        if (open) onRequestStageEvents();
+      }}
       trigger={
         <button
           type="button"
           className={cn(
             "inline-flex items-center rounded-full border-0 bg-transparent p-0 leading-none cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-brand focus-visible:ring-offset-0",
           )}
-          aria-label={`Open status history for ${formatStage(latestStage)}`}
+          aria-label={`Open status history for ${formatStage(displayStage)}`}
         >
           <StatusBadge
-            stage={latestStage}
-            reason={latestReason}
+            stage={displayStage}
+            reason={displayReason}
             className={cn("transition-all hover:brightness-95")}
           />
         </button>
@@ -112,7 +132,13 @@ function CurrentStageBadge({ applicationId }: { applicationId: string }) {
           <Text size="sm" weight="semibold">
             Status history
           </Text>
-          <StageTimeline items={timelineItems} variant="compact" />
+          {historyLoading && events.length === 0 ? (
+            <Text size="sm" color="secondary">
+              Loading…
+            </Text>
+          ) : (
+            <StageTimeline items={timelineItems} variant="compact" />
+          )}
         </Stack>
       </div>
     </DropdownMenu>
@@ -120,27 +146,39 @@ function CurrentStageBadge({ applicationId }: { applicationId: string }) {
 }
 
 function CurrentStageDateText({
-  applicationId,
-  fallbackCreatedAt,
+  listStage,
+  listStatusAt,
+  applicationStageEvents,
+  stageEventsRequested,
 }: {
-  applicationId: string;
-  fallbackCreatedAt: string;
+  listStage: ApplicationStage;
+  listStatusAt: string;
+  applicationStageEvents: Array<ApplicationStageEventRow>;
+  stageEventsRequested: boolean;
 }) {
-  const { data } = useApplicationStageEventsQuery({
-    variables: { applicationId },
-    fetchPolicy: "cache-first",
-  });
-  const events = data?.applicationStageEvents ?? [];
-  const currentStageEvent = events[0] ?? null;
-  const currentStage = currentStageEvent?.toStage ?? ApplicationStage.New;
-  const statusAt =
-    currentStageEvent?.scheduledAt ??
-    currentStageEvent?.createdAt ??
-    fallbackCreatedAt;
+  if (stageEventsRequested && applicationStageEvents.length > 0) {
+    const currentStageEvent = applicationStageEvents[0] ?? null;
+    const currentStage = currentStageEvent?.toStage ?? ApplicationStage.New;
+    const statusAt =
+      currentStageEvent?.scheduledAt ??
+      currentStageEvent?.createdAt ??
+      listStatusAt;
+    return (
+      <Text as="span" size="sm" color="secondary">
+        {formatStage(currentStage)}{" "}
+        {new Date(statusAt).toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+        })}
+      </Text>
+    );
+  }
+
   return (
     <Text as="span" size="sm" color="secondary">
-      {formatStage(currentStage)}{" "}
-      {new Date(statusAt).toLocaleDateString("en-US", {
+      {formatStage(listStage)}{" "}
+      {new Date(listStatusAt).toLocaleDateString("en-US", {
         year: "numeric",
         month: "short",
         day: "numeric",
@@ -154,6 +192,18 @@ export function ApplicationCard({
   onSuccess,
   onError,
 }: ApplicationCardProps) {
+  const [stageEventsRequested, setStageEventsRequested] = React.useState(false);
+  const { data: stageEventsData, loading: stageEventsLoading } =
+    useApplicationStageEventsQuery({
+      variables: { applicationId: app.id },
+      skip: !stageEventsRequested,
+      fetchPolicy: "cache-first",
+    });
+  const applicationStageEvents = stageEventsData?.applicationStageEvents ?? [];
+  const requestStageEvents = React.useCallback(() => {
+    setStageEventsRequested(true);
+  }, []);
+
   const descriptionPreview = tipTapToPlainText(app.description);
   const compLine = formatCompensationLine({
     salaryMinCents: app.salaryMinCents,
@@ -182,7 +232,13 @@ export function ApplicationCard({
               {app.title}
             </NextLink>
             <div className={cn("flex items-center gap-1")}>
-              <CurrentStageBadge applicationId={app.id} />
+              <CurrentStageBadge
+                listStage={app.currentStage}
+                listReason={app.currentStageReason ?? null}
+                applicationStageEvents={applicationStageEvents}
+                historyLoading={stageEventsLoading}
+                onRequestStageEvents={requestStageEvents}
+              />
               <ApplicationQuickEditModal
                 trigger={
                   <IconButton
@@ -226,6 +282,8 @@ export function ApplicationCard({
               <ApplicationTrackingPanel
                 inline
                 applicationId={app.id}
+                applicationStageEvents={applicationStageEvents}
+                onRequestStageEvents={requestStageEvents}
                 triggerIcon={
                   <ArrowSquareRightIcon size={13} weight="regular" />
                 }
@@ -243,8 +301,10 @@ export function ApplicationCard({
               ·
             </span>
             <CurrentStageDateText
-              applicationId={app.id}
-              fallbackCreatedAt={app.createdAt}
+              listStage={app.currentStage}
+              listStatusAt={app.currentStageAt}
+              applicationStageEvents={applicationStageEvents}
+              stageEventsRequested={stageEventsRequested}
             />
             {app.url ? (
               <>
