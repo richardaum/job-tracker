@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "pnpm run db:migrate && nest start --watch",
+    "dev:debug": "nest start --watch --debug",
     "db:migrate": "tsx --tsconfig tsconfig.json src/database/run-migrations.ts",
     "db:migrate:mark-applied": "tsx --tsconfig tsconfig.json src/database/mark-migrations-applied.ts",
     "db:migrate:watch": "node ./scripts/watch-migrations.mjs",
