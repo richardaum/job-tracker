@@ -14,7 +14,7 @@ export class DatabasePoolHookService implements OnModuleInit {
 
   onModuleInit(): void {
     const master = (this.dataSource.driver as PostgresDriver).master;
-    if (master && typeof (master as Pool).query === "function") {
+    if (master && typeof (master as Pool).connect === "function") {
       this.databasePoolInterceptor.install(master as Pool);
     }
   }
