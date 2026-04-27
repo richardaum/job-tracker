@@ -1,6 +1,14 @@
 "use client";
 
 import React from "react";
+import {
+  SparkleIcon,
+  TextBolderIcon,
+  TextItalicIcon,
+  ListBulletsIcon,
+  BroomIcon,
+  CircleNotchIcon,
+} from "@phosphor-icons/react";
 import Placeholder from "@tiptap/extension-placeholder";
 import StarterKit from "@tiptap/starter-kit";
 import { EditorContent, useEditor, useEditorState } from "@tiptap/react";
@@ -29,15 +37,24 @@ interface TipTapEditorProps {
   fillHeight?: boolean;
   autofocus?: boolean | "start" | "end" | "all" | number | null;
   contentClassName?: string;
+  aiContentGeneration?: {
+    onGenerateContent: () => Promise<string | null | undefined>;
+    isGenerating?: boolean;
+    disabled?: boolean;
+    buttonLabel?: string;
+    onError?: () => void;
+  };
 }
 
 function ToolbarButton({
   label,
+  ariaLabel,
   active,
   onClick,
   disabled,
 }: {
-  label: string;
+  label: React.ReactNode;
+  ariaLabel?: string;
   active?: boolean;
   onClick: () => void;
   disabled?: boolean;
@@ -47,6 +64,8 @@ function ToolbarButton({
       type="button"
       onClick={onClick}
       disabled={disabled}
+      aria-label={ariaLabel}
+      title={ariaLabel}
       className={cn(
         "rounded px-2 py-1 text-xs transition-colors border",
         active
@@ -93,8 +112,11 @@ export function TipTapEditor({
   fillHeight = false,
   autofocus = false,
   contentClassName,
+  aiContentGeneration,
 }: TipTapEditorProps) {
   const onHardEnterRef = React.useRef(onHardEnter);
+  const [isGeneratingAiLocally, setIsGeneratingAiLocally] =
+    React.useState(false);
   React.useLayoutEffect(() => {
     onHardEnterRef.current = onHardEnter;
   });
@@ -191,6 +213,36 @@ export function TipTapEditor({
     );
   }
 
+  const aiGenerationDisabled =
+    disabled ||
+    aiContentGeneration?.disabled ||
+    aiContentGeneration?.isGenerating;
+  const aiGenerationLoading =
+    Boolean(aiContentGeneration?.isGenerating) || isGeneratingAiLocally;
+
+  async function handleGenerateAiContent() {
+    if (!editor || !aiContentGeneration || aiGenerationLoading) {
+      return;
+    }
+
+    setIsGeneratingAiLocally(true);
+    try {
+      const nextValue = await aiContentGeneration.onGenerateContent();
+      if (nextValue == null) {
+        return;
+      }
+      const normalizedValue = normalizeTipTapDocument(nextValue);
+      editor.commands.setContent(parseTipTapDocument(normalizedValue), {
+        emitUpdate: false,
+      });
+      onChange(normalizedValue);
+    } catch {
+      aiContentGeneration.onError?.();
+    } finally {
+      setIsGeneratingAiLocally(false);
+    }
+  }
+
   return (
     <div
       className={cn(
@@ -204,30 +256,57 @@ export function TipTapEditor({
         )}
       >
         <ToolbarButton
-          label="B"
+          label={<TextBolderIcon size={14} weight="bold" />}
+          ariaLabel="Bold"
           active={editorState?.isBold}
           onClick={() => editor.chain().focus().toggleBold().run()}
           disabled={disabled}
         />
         <ToolbarButton
-          label="I"
+          label={<TextItalicIcon size={14} weight="bold" />}
+          ariaLabel="Italic"
           active={editorState?.isItalic}
           onClick={() => editor.chain().focus().toggleItalic().run()}
           disabled={disabled}
         />
         <ToolbarButton
-          label="List"
+          label={<ListBulletsIcon size={14} weight="bold" />}
+          ariaLabel="Bullet list"
           active={editorState?.isBulletList}
           onClick={() => editor.chain().focus().toggleBulletList().run()}
           disabled={disabled}
         />
         <ToolbarButton
-          label="Clear"
+          label={<BroomIcon size={14} weight="bold" />}
+          ariaLabel="Clear formatting and content"
           onClick={() => {
             clearDocument(true);
           }}
           disabled={disabled}
         />
+        {aiContentGeneration ? (
+          <ToolbarButton
+            label={
+              aiGenerationLoading ? (
+                <span className={cn("inline-flex items-center gap-1")}>
+                  <CircleNotchIcon
+                    size={12}
+                    weight="bold"
+                    className={cn("animate-spin")}
+                  />
+                  {(aiContentGeneration.buttonLabel ?? "AI") + "..."}
+                </span>
+              ) : (
+                <span className={cn("inline-flex items-center gap-1")}>
+                  <SparkleIcon size={12} weight="fill" />
+                  {aiContentGeneration.buttonLabel ?? "AI"}
+                </span>
+              )
+            }
+            onClick={() => void handleGenerateAiContent()}
+            disabled={aiGenerationDisabled}
+          />
+        ) : null}
       </div>
       <EditorContent
         editor={editor}

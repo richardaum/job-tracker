@@ -5,15 +5,7 @@ import {
 } from "@nestjs/common";
 import { CompanyRepository } from "./companies.repository";
 import { Company, NewCompany } from "./companies.schema";
-
-function isValidTipTapDocument(value: string): boolean {
-  try {
-    const parsed = JSON.parse(value) as { type?: unknown; content?: unknown };
-    return parsed.type === "doc" && Array.isArray(parsed.content);
-  } catch {
-    return false;
-  }
-}
+import { isTipTapDocumentString } from "@api/domains/shared/tiptap.util";
 
 @Injectable()
 export class CompanyService {
@@ -43,7 +35,7 @@ export class CompanyService {
     if (
       dto.description !== undefined &&
       dto.description !== null &&
-      !isValidTipTapDocument(dto.description)
+      !isTipTapDocumentString(dto.description)
     ) {
       throw new BadRequestException(
         "description must be valid TipTap document JSON",

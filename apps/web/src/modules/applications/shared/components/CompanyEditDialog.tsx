@@ -5,6 +5,7 @@ import { Button, Dialog, FormField, Input, Stack, cn } from "@job-tracker/ui";
 import {
   ApplicationDocument,
   ApplicationsDocument,
+  useGenerateCompanyDescriptionMutation,
   useUpdateApplicationMutation,
   useUpdateCompanyMutation,
 } from "@/gql/hooks";
@@ -49,6 +50,7 @@ export function CompanyEditDialog({
     normalizeTipTapDocument(application.company.description),
   );
   const [saving, setSaving] = useState(false);
+  const [generatingDescription, setGeneratingDescription] = useState(false);
 
   const [updateApplication] = useUpdateApplicationMutation({
     refetchQueries: [
@@ -63,6 +65,8 @@ export function CompanyEditDialog({
       { query: ApplicationsDocument },
     ],
   });
+
+  const [generateCompanyDescription] = useGenerateCompanyDescriptionMutation();
 
   async function handleSave() {
     const nextName = nameDraft.trim();
@@ -151,6 +155,28 @@ export function CompanyEditDialog({
               setDescriptionDraft(nextValue || EMPTY_TIPTAP_DOC)
             }
             autofocus="end"
+            disabled={saving}
+            aiContentGeneration={{
+              buttonLabel: "AI",
+              isGenerating: generatingDescription,
+              disabled: !nameDraft.trim() || saving,
+              onGenerateContent: async () => {
+                setGeneratingDescription(true);
+                try {
+                  const result = await generateCompanyDescription({
+                    variables: { companyName: nameDraft.trim() },
+                  });
+                  return result.data?.generateCompanyDescription ?? "";
+                } finally {
+                  setGeneratingDescription(false);
+                }
+              },
+              onError: () => {
+                onError?.(
+                  "Could not generate company description. Please try again.",
+                );
+              },
+            }}
           />
         </FormField>
         <div className={cn("flex justify-end")}>

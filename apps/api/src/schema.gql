@@ -114,6 +114,7 @@ type Mutation {
   createApplication(input: CreateApplicationInput!): ApplicationType!
   createApplicationWithAI(input: CreateApplicationWithAIInput!): ApplicationType!
   generateApplicationDraftWithAI(input: CreateApplicationWithAIInput!): ApplicationAiDraftType!
+  generateCompanyDescription(companyName: String!): String!
   updateApplication(id: ID!, input: UpdateApplicationInput!): ApplicationType!
   removeApplicationTag(id: ID!, tag: String!): ApplicationType!
   deleteApplication(id: ID!): Boolean!

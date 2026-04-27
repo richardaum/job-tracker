@@ -103,6 +103,10 @@ mutation GenerateApplicationDraftWithAi($input: CreateApplicationWithAIInput!) {
   }
 }
 
+mutation GenerateCompanyDescription($companyName: String!) {
+  generateCompanyDescription(companyName: $companyName)
+}
+
 mutation UpdateApplication($id: ID!, $input: UpdateApplicationInput!) {
   updateApplication(id: $id, input: $input) {
     id

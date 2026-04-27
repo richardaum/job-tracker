@@ -23,6 +23,8 @@ import {
   type CreateApplicationWithAIInput,
 } from "./create-application-with-ai.input";
 import { ApplicationAiService } from "@api/domains/application-ai/application-ai.service";
+import { CompanyAiService } from "@api/domains/company-ai/company-ai.service";
+import { isTipTapDocumentString } from "@api/domains/shared/tiptap.util";
 
 type CreateDto = {
   title: string;
@@ -61,25 +63,15 @@ type CreateWithAIDto = {
   prompt: string;
   fields?: AiExtractionFieldInput[] | null;
 };
+type GenerateCompanyDescriptionDto = {
+  companyName: string;
+};
 
 type ApplicationWithCurrentStage = Application & {
   currentStage: ApplicationStageEnum;
   currentStageReason: string | null;
   currentStageAt: Date;
 };
-
-function isValidTipTapDocument(value: string): boolean {
-  try {
-    const parsed = JSON.parse(value) as { type?: unknown; content?: unknown };
-    return parsed.type === "doc" && Array.isArray(parsed.content);
-  } catch {
-    return false;
-  }
-}
-
-function isValidTipTapDescription(value: string): boolean {
-  return isValidTipTapDocument(value);
-}
 
 @Injectable()
 export class ApplicationService {
@@ -89,6 +81,7 @@ export class ApplicationService {
     private readonly compensationService: CompensationService,
     private readonly tagService: TagService,
     private readonly applicationAiService: ApplicationAiService,
+    private readonly companyAiService: CompanyAiService,
   ) {}
 
   async findAll(
@@ -138,7 +131,7 @@ export class ApplicationService {
     if (
       dto.description !== undefined &&
       dto.description !== null &&
-      !isValidTipTapDescription(dto.description)
+      !isTipTapDocumentString(dto.description)
     ) {
       throw new BadRequestException(
         "description must be valid TipTap document JSON",
@@ -215,6 +208,10 @@ export class ApplicationService {
     });
   }
 
+  generateCompanyDescription(dto: GenerateCompanyDescriptionDto) {
+    return this.companyAiService.generateCompanyDescription(dto);
+  }
+
   async update(
     id: string,
     userId: string,
@@ -224,7 +221,7 @@ export class ApplicationService {
     if (
       dto.description !== undefined &&
       dto.description !== null &&
-      !isValidTipTapDescription(dto.description)
+      !isTipTapDocumentString(dto.description)
     ) {
       throw new BadRequestException(
         "description must be valid TipTap document JSON",
@@ -350,7 +347,7 @@ export class ApplicationService {
   }
 
   async createNote(userId: string, dto: CreateNoteDto): Promise<Note> {
-    if (!isValidTipTapDocument(dto.content)) {
+    if (!isTipTapDocumentString(dto.content)) {
       throw new BadRequestException(
         "content must be valid TipTap document JSON",
       );
@@ -372,7 +369,7 @@ export class ApplicationService {
     if (!note)
       throw new NotFoundException(`Application note ${noteId} not found`);
     const nextContent = dto.content ?? note.content;
-    if (!isValidTipTapDocument(nextContent)) {
+    if (!isTipTapDocumentString(nextContent)) {
       throw new BadRequestException(
         "content must be valid TipTap document JSON",
       );

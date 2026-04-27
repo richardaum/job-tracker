@@ -163,6 +163,7 @@ export type Mutation = {
   deleteApplication: Scalars["Boolean"]["output"];
   deleteApplicationNote: Scalars["Boolean"]["output"];
   generateApplicationDraftWithAI: ApplicationAiDraftType;
+  generateCompanyDescription: Scalars["String"]["output"];
   removeApplicationTag: ApplicationType;
   updateApplication: ApplicationType;
   updateApplicationNote: ApplicationNoteType;
@@ -196,6 +197,10 @@ export type MutationDeleteApplicationNoteArgs = {
 
 export type MutationGenerateApplicationDraftWithAiArgs = {
   input: CreateApplicationWithAiInput;
+};
+
+export type MutationGenerateCompanyDescriptionArgs = {
+  companyName: Scalars["String"]["input"];
 };
 
 export type MutationRemoveApplicationTagArgs = {
@@ -430,6 +435,15 @@ export type GenerateApplicationDraftWithAiMutation = {
     tags: Array<string>;
     noteContents: Array<string>;
   };
+};
+
+export type GenerateCompanyDescriptionMutationVariables = Exact<{
+  companyName: Scalars["String"]["input"];
+}>;
+
+export type GenerateCompanyDescriptionMutation = {
+  __typename?: "Mutation";
+  generateCompanyDescription: string;
 };
 
 export type UpdateApplicationMutationVariables = Exact<{
@@ -947,6 +961,42 @@ export function useGenerateApplicationDraftWithAiMutation(
     GenerateApplicationDraftWithAiMutation,
     GenerateApplicationDraftWithAiMutationVariables
   >(GenerateApplicationDraftWithAiDocument, options);
+}
+
+export const GenerateCompanyDescriptionDocument = gql`
+  mutation GenerateCompanyDescription($companyName: String!) {
+    generateCompanyDescription(companyName: $companyName)
+  }
+`;
+
+/**
+ * __useGenerateCompanyDescriptionMutation__
+ *
+ * To run a mutation, you first call `useGenerateCompanyDescriptionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useGenerateCompanyDescriptionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [generateCompanyDescriptionMutation, { data, loading, error }] = useGenerateCompanyDescriptionMutation({
+ *   variables: {
+ *      companyName: // value for 'companyName'
+ *   },
+ * });
+ */
+export function useGenerateCompanyDescriptionMutation(
+  baseOptions?: ApolloReactHooks.MutationHookOptions<
+    GenerateCompanyDescriptionMutation,
+    GenerateCompanyDescriptionMutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useMutation<
+    GenerateCompanyDescriptionMutation,
+    GenerateCompanyDescriptionMutationVariables
+  >(GenerateCompanyDescriptionDocument, options);
 }
 
 export const UpdateApplicationDocument = gql`

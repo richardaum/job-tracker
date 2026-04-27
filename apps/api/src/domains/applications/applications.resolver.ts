@@ -64,6 +64,11 @@ export class ApplicationResolver {
     return this.service.generateDraftWithAI(input);
   }
 
+  @Mutation(() => String)
+  generateCompanyDescription(@Args("companyName") companyName: string) {
+    return this.service.generateCompanyDescription({ companyName });
+  }
+
   @Mutation(() => ApplicationType)
   updateApplication(
     @Args("id", { type: () => ID }) id: string,

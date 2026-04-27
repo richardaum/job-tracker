@@ -10,6 +10,7 @@ import { CompanyService } from "@api/domains/companies/companies.service";
 import { CompensationService } from "./compensation.service";
 import { TagService } from "./tag.service";
 import { ApplicationAiService } from "@api/domains/application-ai/application-ai.service";
+import { CompanyAiService } from "@api/domains/company-ai/company-ai.service";
 
 const makeApp = (overrides: Partial<Application> = {}): Application =>
   ({
@@ -71,6 +72,7 @@ describe("ApplicationService", () => {
   let compensationService: CompensationService;
   let tagService: TagService;
   let applicationAiService: ApplicationAiService;
+  let companyAiService: CompanyAiService;
 
   beforeEach(() => {
     repo = {
@@ -105,6 +107,9 @@ describe("ApplicationService", () => {
     applicationAiService = {
       generateDraft: vi.fn(),
     } as unknown as ApplicationAiService;
+    companyAiService = {
+      generateCompanyDescription: vi.fn(),
+    } as unknown as CompanyAiService;
 
     service = new ApplicationService(
       repo,
@@ -112,6 +117,7 @@ describe("ApplicationService", () => {
       compensationService,
       tagService,
       applicationAiService,
+      companyAiService,
     );
   });
 

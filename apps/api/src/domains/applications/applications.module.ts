@@ -14,6 +14,7 @@ import { CompaniesModule } from "@api/domains/companies/companies.module";
 import { CompensationService } from "./compensation.service";
 import { TagService } from "./tag.service";
 import { ApplicationAiModule } from "@api/domains/application-ai/application-ai.module";
+import { CompanyAiModule } from "@api/domains/company-ai/company-ai.module";
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { ApplicationAiModule } from "@api/domains/application-ai/application-ai.
     AuthModule,
     CompaniesModule,
     ApplicationAiModule,
+    CompanyAiModule,
   ],
   providers: [
     ApplicationRepository,

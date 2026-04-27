@@ -161,6 +161,7 @@ export type Mutation = {
   deleteApplication: Scalars["Boolean"]["output"];
   deleteApplicationNote: Scalars["Boolean"]["output"];
   generateApplicationDraftWithAI: ApplicationAiDraftType;
+  generateCompanyDescription: Scalars["String"]["output"];
   removeApplicationTag: ApplicationType;
   updateApplication: ApplicationType;
   updateApplicationNote: ApplicationNoteType;
@@ -194,6 +195,10 @@ export type MutationDeleteApplicationNoteArgs = {
 
 export type MutationGenerateApplicationDraftWithAiArgs = {
   input: CreateApplicationWithAiInput;
+};
+
+export type MutationGenerateCompanyDescriptionArgs = {
+  companyName: Scalars["String"]["input"];
 };
 
 export type MutationRemoveApplicationTagArgs = {
@@ -428,6 +433,15 @@ export type GenerateApplicationDraftWithAiMutation = {
     tags: Array<string>;
     noteContents: Array<string>;
   };
+};
+
+export type GenerateCompanyDescriptionMutationVariables = Exact<{
+  companyName: Scalars["String"]["input"];
+}>;
+
+export type GenerateCompanyDescriptionMutation = {
+  __typename?: "Mutation";
+  generateCompanyDescription: string;
 };
 
 export type UpdateApplicationMutationVariables = Exact<{
@@ -1092,6 +1106,54 @@ export const GenerateApplicationDraftWithAiDocument = {
 } as unknown as DocumentNode<
   GenerateApplicationDraftWithAiMutation,
   GenerateApplicationDraftWithAiMutationVariables
+>;
+export const GenerateCompanyDescriptionDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "GenerateCompanyDescription" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "companyName" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: {
+              kind: "NamedType",
+              name: { kind: "Name", value: "String" },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "generateCompanyDescription" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "companyName" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "companyName" },
+                },
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  GenerateCompanyDescriptionMutation,
+  GenerateCompanyDescriptionMutationVariables
 >;
 export const UpdateApplicationDocument = {
   kind: "Document",
