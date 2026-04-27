@@ -50,17 +50,6 @@ export type ApplicationAiDraftType = {
   url?: Maybe<Scalars["String"]["output"]>;
 };
 
-export type ApplicationNoteType = {
-  __typename?: "ApplicationNoteType";
-  applicationId?: Maybe<Scalars["String"]["output"]>;
-  content: Scalars["String"]["output"];
-  createdAt: Scalars["DateTime"]["output"];
-  id: Scalars["ID"]["output"];
-  revision: Scalars["Int"]["output"];
-  updatedAt: Scalars["DateTime"]["output"];
-  userId: Scalars["String"]["output"];
-};
-
 export enum ApplicationQuickFilter {
   Active = "ACTIVE",
   Applied = "APPLIED",
@@ -134,11 +123,6 @@ export type CreateApplicationInput = {
   url?: InputMaybe<Scalars["String"]["input"]>;
 };
 
-export type CreateApplicationNoteInput = {
-  applicationId: Scalars["String"]["input"];
-  content: Scalars["String"]["input"];
-};
-
 export type CreateApplicationStageEventInput = {
   applicationId: Scalars["String"]["input"];
   reason?: InputMaybe<Scalars["String"]["input"]>;
@@ -152,19 +136,25 @@ export type CreateApplicationWithAiInput = {
   prompt: Scalars["String"]["input"];
 };
 
+export type CreateNoteInput = {
+  applicationId: Scalars["String"]["input"];
+  content: Scalars["String"]["input"];
+};
+
 export type Mutation = {
   __typename?: "Mutation";
   createApplication: ApplicationType;
-  createApplicationNote: ApplicationNoteType;
+  createApplicationNote: NoteType;
   createApplicationStageEvent: ApplicationStageEventType;
   createApplicationWithAI: ApplicationType;
   deleteApplication: Scalars["Boolean"]["output"];
   deleteApplicationNote: Scalars["Boolean"]["output"];
   generateApplicationDraftWithAI: ApplicationAiDraftType;
+  generateApplicationNoteWithAI: Scalars["String"]["output"];
   generateCompanyDescription: Scalars["String"]["output"];
   removeApplicationTag: ApplicationType;
   updateApplication: ApplicationType;
-  updateApplicationNote: ApplicationNoteType;
+  updateApplicationNote: NoteType;
   updateApplicationStageEvent: ApplicationStageEventType;
   updateCompany: CompanyType;
 };
@@ -174,7 +164,7 @@ export type MutationCreateApplicationArgs = {
 };
 
 export type MutationCreateApplicationNoteArgs = {
-  input: CreateApplicationNoteInput;
+  input: CreateNoteInput;
 };
 
 export type MutationCreateApplicationStageEventArgs = {
@@ -197,6 +187,11 @@ export type MutationGenerateApplicationDraftWithAiArgs = {
   input: CreateApplicationWithAiInput;
 };
 
+export type MutationGenerateApplicationNoteWithAiArgs = {
+  applicationId: Scalars["ID"]["input"];
+  note: Scalars["String"]["input"];
+};
+
 export type MutationGenerateCompanyDescriptionArgs = {
   companyName: Scalars["String"]["input"];
 };
@@ -213,7 +208,7 @@ export type MutationUpdateApplicationArgs = {
 
 export type MutationUpdateApplicationNoteArgs = {
   id: Scalars["ID"]["input"];
-  input: UpdateApplicationNoteInput;
+  input: UpdateNoteInput;
 };
 
 export type MutationUpdateApplicationStageEventArgs = {
@@ -226,10 +221,21 @@ export type MutationUpdateCompanyArgs = {
   input: UpdateCompanyInput;
 };
 
+export type NoteType = {
+  __typename?: "NoteType";
+  applicationId?: Maybe<Scalars["String"]["output"]>;
+  content: Scalars["String"]["output"];
+  createdAt: Scalars["DateTime"]["output"];
+  id: Scalars["ID"]["output"];
+  revision: Scalars["Int"]["output"];
+  updatedAt: Scalars["DateTime"]["output"];
+  userId: Scalars["String"]["output"];
+};
+
 export type Query = {
   __typename?: "Query";
   application: ApplicationType;
-  applicationNotes: Array<ApplicationNoteType>;
+  applicationNotes: Array<NoteType>;
   applicationStageEvents: Array<ApplicationStageEventType>;
   applications: Array<ApplicationType>;
   companies: Array<CompanyType>;
@@ -271,11 +277,6 @@ export type UpdateApplicationInput = {
   url?: InputMaybe<Scalars["String"]["input"]>;
 };
 
-export type UpdateApplicationNoteInput = {
-  content?: InputMaybe<Scalars["String"]["input"]>;
-  expectedRevision: Scalars["Int"]["input"];
-};
-
 export type UpdateApplicationStageEventInput = {
   reason?: InputMaybe<Scalars["String"]["input"]>;
   scheduledAt?: InputMaybe<Scalars["DateTime"]["input"]>;
@@ -285,6 +286,11 @@ export type UpdateApplicationStageEventInput = {
 export type UpdateCompanyInput = {
   description?: InputMaybe<Scalars["String"]["input"]>;
   name?: InputMaybe<Scalars["String"]["input"]>;
+};
+
+export type UpdateNoteInput = {
+  content?: InputMaybe<Scalars["String"]["input"]>;
+  expectedRevision: Scalars["Int"]["input"];
 };
 
 export type UserType = {
@@ -561,7 +567,7 @@ export type ApplicationNotesQueryVariables = Exact<{
 export type ApplicationNotesQuery = {
   __typename?: "Query";
   applicationNotes: Array<{
-    __typename?: "ApplicationNoteType";
+    __typename?: "NoteType";
     id: string;
     applicationId?: string | null;
     content: string;
@@ -572,13 +578,13 @@ export type ApplicationNotesQuery = {
 };
 
 export type CreateApplicationNoteMutationVariables = Exact<{
-  input: CreateApplicationNoteInput;
+  input: CreateNoteInput;
 }>;
 
 export type CreateApplicationNoteMutation = {
   __typename?: "Mutation";
   createApplicationNote: {
-    __typename?: "ApplicationNoteType";
+    __typename?: "NoteType";
     id: string;
     applicationId?: string | null;
     content: string;
@@ -590,13 +596,13 @@ export type CreateApplicationNoteMutation = {
 
 export type UpdateApplicationNoteMutationVariables = Exact<{
   id: Scalars["ID"]["input"];
-  input: UpdateApplicationNoteInput;
+  input: UpdateNoteInput;
 }>;
 
 export type UpdateApplicationNoteMutation = {
   __typename?: "Mutation";
   updateApplicationNote: {
-    __typename?: "ApplicationNoteType";
+    __typename?: "NoteType";
     id: string;
     applicationId?: string | null;
     content: string;
@@ -613,6 +619,16 @@ export type DeleteApplicationNoteMutationVariables = Exact<{
 export type DeleteApplicationNoteMutation = {
   __typename?: "Mutation";
   deleteApplicationNote: boolean;
+};
+
+export type GenerateApplicationNoteWithAiMutationVariables = Exact<{
+  applicationId: Scalars["ID"]["input"];
+  note: Scalars["String"]["input"];
+}>;
+
+export type GenerateApplicationNoteWithAiMutation = {
+  __typename?: "Mutation";
+  generateApplicationNoteWithAI: string;
 };
 
 export type UpdateCompanyMutationVariables = Exact<{
@@ -1654,7 +1670,7 @@ export const CreateApplicationNoteDocument = {
             kind: "NonNullType",
             type: {
               kind: "NamedType",
-              name: { kind: "Name", value: "CreateApplicationNoteInput" },
+              name: { kind: "Name", value: "CreateNoteInput" },
             },
           },
         },
@@ -1724,7 +1740,7 @@ export const UpdateApplicationNoteDocument = {
             kind: "NonNullType",
             type: {
               kind: "NamedType",
-              name: { kind: "Name", value: "UpdateApplicationNoteInput" },
+              name: { kind: "Name", value: "UpdateNoteInput" },
             },
           },
         },
@@ -1817,6 +1833,70 @@ export const DeleteApplicationNoteDocument = {
 } as unknown as DocumentNode<
   DeleteApplicationNoteMutation,
   DeleteApplicationNoteMutationVariables
+>;
+export const GenerateApplicationNoteWithAiDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "GenerateApplicationNoteWithAi" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "applicationId" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "note" } },
+          type: {
+            kind: "NonNullType",
+            type: {
+              kind: "NamedType",
+              name: { kind: "Name", value: "String" },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "generateApplicationNoteWithAI" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "applicationId" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "applicationId" },
+                },
+              },
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "note" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "note" },
+                },
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  GenerateApplicationNoteWithAiMutation,
+  GenerateApplicationNoteWithAiMutationVariables
 >;
 export const UpdateCompanyDocument = {
   kind: "Document",

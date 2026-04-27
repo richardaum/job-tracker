@@ -3,7 +3,6 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 
 import { ApplicationEntity } from "@api/database/entities/application.entity";
-import { ApplicationNoteEntity } from "@api/database/entities/application-note.entity";
 import { ApplicationStageEventEntity } from "@api/database/entities/application-stage-event.entity";
 
 import { Application, NewApplication } from "./applications.schema";
@@ -11,7 +10,6 @@ import {
   ApplicationStageEvent,
   NewApplicationStageEvent,
 } from "./application-stage-events.schema";
-import { Note, NewNote } from "./application-notes.schema";
 import { ApplicationQuickFilterEnum } from "./application-quick-filter.enum";
 
 export type CreateApplicationRepoDto = Pick<
@@ -37,8 +35,6 @@ type UpdateStageEventDto = Pick<
   NewApplicationStageEvent,
   "toStage" | "reason" | "scheduledAt"
 >;
-type CreateNoteDto = Pick<NewNote, "applicationId" | "content">;
-type UpdateNoteDto = Pick<NewNote, "content">;
 
 @Injectable()
 export class ApplicationRepository {
@@ -47,8 +43,6 @@ export class ApplicationRepository {
     private readonly applicationsRepo: Repository<ApplicationEntity>,
     @InjectRepository(ApplicationStageEventEntity)
     private readonly stageEventsRepo: Repository<ApplicationStageEventEntity>,
-    @InjectRepository(ApplicationNoteEntity)
-    private readonly notesRepo: Repository<ApplicationNoteEntity>,
   ) {}
 
   async findAllByUserId(
@@ -271,60 +265,5 @@ export class ApplicationRepository {
       existing.reason = dto.reason;
     }
     return this.stageEventsRepo.save(existing);
-  }
-
-  async findNotesByApplicationIdAndUserId(
-    applicationId: string,
-    userId: string,
-  ): Promise<Note[]> {
-    return this.notesRepo.find({
-      where: { applicationId, userId },
-      order: { createdAt: "DESC", id: "DESC" },
-    });
-  }
-
-  async findNoteByIdAndUserId(
-    noteId: string,
-    userId: string,
-  ): Promise<Note | null> {
-    return this.notesRepo.findOne({ where: { id: noteId, userId } });
-  }
-
-  async createNote(userId: string, dto: CreateNoteDto): Promise<Note> {
-    const row = this.notesRepo.create({
-      userId,
-      applicationId: dto.applicationId!,
-      content: dto.content,
-    });
-    return this.notesRepo.save(row);
-  }
-
-  async updateNoteWithRevision(
-    noteId: string,
-    userId: string,
-    expectedRevision: number,
-    dto: UpdateNoteDto,
-  ): Promise<Note | null> {
-    const result = await this.notesRepo.update(
-      { id: noteId, userId, revision: expectedRevision },
-      {
-        content: dto.content,
-        revision: expectedRevision + 1,
-        updatedAt: new Date(),
-      },
-    );
-    if (!result.affected) {
-      return null;
-    }
-    return this.findNoteByIdAndUserId(noteId, userId);
-  }
-
-  async deleteNote(noteId: string, userId: string): Promise<Note | null> {
-    const existing = await this.findNoteByIdAndUserId(noteId, userId);
-    if (!existing) {
-      return null;
-    }
-    await this.notesRepo.delete({ id: noteId, userId });
-    return existing;
   }
 }

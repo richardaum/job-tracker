@@ -1,10 +1,8 @@
 import {
   BadRequestException,
-  ConflictException,
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
-import { Note } from "./application-notes.schema";
 import { ApplicationQuickFilterEnum } from "./application-quick-filter.enum";
 import { ApplicationStageEvent } from "./application-stage-events.schema";
 import { ApplicationStageEnum } from "./application-stage.enum";
@@ -25,6 +23,7 @@ import {
 import { ApplicationAiService } from "@api/domains/application-ai/application-ai.service";
 import { CompanyAiService } from "@api/domains/company-ai/company-ai.service";
 import { isTipTapDocumentString } from "@api/domains/shared/tiptap.util";
+import { NoteService } from "@api/domains/notes/notes.service";
 
 type CreateDto = {
   title: string;
@@ -51,14 +50,6 @@ type UpdateStageEventDto = {
   reason?: string | null;
   scheduledAt?: Date | null;
 };
-type CreateNoteDto = {
-  applicationId: string;
-  content: string;
-};
-type UpdateNoteDto = {
-  content?: string;
-  expectedRevision: number;
-};
 type CreateWithAIDto = {
   prompt: string;
   fields?: AiExtractionFieldInput[] | null;
@@ -82,6 +73,7 @@ export class ApplicationService {
     private readonly tagService: TagService,
     private readonly applicationAiService: ApplicationAiService,
     private readonly companyAiService: CompanyAiService,
+    private readonly noteService: NoteService,
   ) {}
 
   async findAll(
@@ -192,7 +184,7 @@ export class ApplicationService {
     });
 
     for (const noteContent of draft.noteContents) {
-      await this.createNote(userId, {
+      await this.noteService.createNote(userId, {
         applicationId: created.id,
         content: noteContent,
       });
@@ -341,58 +333,6 @@ export class ApplicationService {
     return updated;
   }
 
-  async listNotes(applicationId: string, userId: string): Promise<Note[]> {
-    await this.findOne(applicationId, userId);
-    return this.repo.findNotesByApplicationIdAndUserId(applicationId, userId);
-  }
-
-  async createNote(userId: string, dto: CreateNoteDto): Promise<Note> {
-    if (!isTipTapDocumentString(dto.content)) {
-      throw new BadRequestException(
-        "content must be valid TipTap document JSON",
-      );
-    }
-    await this.findOne(dto.applicationId, userId);
-
-    return this.repo.createNote(userId, {
-      applicationId: dto.applicationId,
-      content: dto.content,
-    });
-  }
-
-  async updateNote(
-    noteId: string,
-    userId: string,
-    dto: UpdateNoteDto,
-  ): Promise<Note> {
-    const note = await this.repo.findNoteByIdAndUserId(noteId, userId);
-    if (!note)
-      throw new NotFoundException(`Application note ${noteId} not found`);
-    const nextContent = dto.content ?? note.content;
-    if (!isTipTapDocumentString(nextContent)) {
-      throw new BadRequestException(
-        "content must be valid TipTap document JSON",
-      );
-    }
-
-    const updated = await this.repo.updateNoteWithRevision(
-      noteId,
-      userId,
-      dto.expectedRevision,
-      {
-        content: nextContent,
-      },
-    );
-
-    if (!updated) {
-      throw new ConflictException(
-        `Application note ${noteId} revision mismatch`,
-      );
-    }
-
-    return updated;
-  }
-
   async removeTag(
     id: string,
     userId: string,
@@ -405,16 +345,5 @@ export class ApplicationService {
     const updated = await this.repo.update(id, userId, { tags });
     if (!updated) throw new NotFoundException(`Application ${id} not found`);
     return (await this.attachCurrentStage(userId, [updated]))[0]!;
-  }
-
-  async removeNote(noteId: string, userId: string): Promise<Note> {
-    const note = await this.repo.findNoteByIdAndUserId(noteId, userId);
-    if (!note)
-      throw new NotFoundException(`Application note ${noteId} not found`);
-
-    const deleted = await this.repo.deleteNote(noteId, userId);
-    if (!deleted)
-      throw new NotFoundException(`Application note ${noteId} not found`);
-    return deleted;
   }
 }

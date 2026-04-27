@@ -194,7 +194,7 @@ query ApplicationNotes($applicationId: ID!) {
   }
 }
 
-mutation CreateApplicationNote($input: CreateApplicationNoteInput!) {
+mutation CreateApplicationNote($input: CreateNoteInput!) {
   createApplicationNote(input: $input) {
     id
     applicationId
@@ -205,7 +205,7 @@ mutation CreateApplicationNote($input: CreateApplicationNoteInput!) {
   }
 }
 
-mutation UpdateApplicationNote($id: ID!, $input: UpdateApplicationNoteInput!) {
+mutation UpdateApplicationNote($id: ID!, $input: UpdateNoteInput!) {
   updateApplicationNote(id: $id, input: $input) {
     id
     applicationId
@@ -218,4 +218,8 @@ mutation UpdateApplicationNote($id: ID!, $input: UpdateApplicationNoteInput!) {
 
 mutation DeleteApplicationNote($id: ID!) {
   deleteApplicationNote(id: $id)
+}
+
+mutation GenerateApplicationNoteWithAi($applicationId: ID!, $note: String!) {
+  generateApplicationNoteWithAI(applicationId: $applicationId, note: $note)
 }

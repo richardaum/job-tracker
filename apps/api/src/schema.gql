@@ -71,16 +71,6 @@ type ApplicationStageEventType {
   createdAt: DateTime!
 }
 
-type ApplicationNoteType {
-  id: ID!
-  applicationId: String
-  userId: String!
-  content: String!
-  revision: Int!
-  createdAt: DateTime!
-  updatedAt: DateTime!
-}
-
 type ApplicationAiDraftType {
   title: String!
   company: String!
@@ -94,13 +84,23 @@ type ApplicationAiDraftType {
   noteContents: [String!]!
 }
 
+type NoteType {
+  id: ID!
+  applicationId: String
+  userId: String!
+  content: String!
+  revision: Int!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
 type Query {
   me: UserType!
   applications(filter: ApplicationQuickFilter): [ApplicationType!]!
   application(id: ID!): ApplicationType!
   applicationStageEvents(applicationId: ID!): [ApplicationStageEventType!]!
-  applicationNotes(applicationId: ID!): [ApplicationNoteType!]!
   companies: [CompanyType!]!
+  applicationNotes(applicationId: ID!): [NoteType!]!
 }
 
 enum ApplicationQuickFilter {
@@ -120,10 +120,11 @@ type Mutation {
   deleteApplication(id: ID!): Boolean!
   createApplicationStageEvent(input: CreateApplicationStageEventInput!): ApplicationStageEventType!
   updateApplicationStageEvent(id: ID!, input: UpdateApplicationStageEventInput!): ApplicationStageEventType!
-  createApplicationNote(input: CreateApplicationNoteInput!): ApplicationNoteType!
-  updateApplicationNote(id: ID!, input: UpdateApplicationNoteInput!): ApplicationNoteType!
-  deleteApplicationNote(id: ID!): Boolean!
   updateCompany(id: ID!, input: UpdateCompanyInput!): CompanyType!
+  createApplicationNote(input: CreateNoteInput!): NoteType!
+  updateApplicationNote(id: ID!, input: UpdateNoteInput!): NoteType!
+  deleteApplicationNote(id: ID!): Boolean!
+  generateApplicationNoteWithAI(applicationId: ID!, note: String!): String!
 }
 
 input CreateApplicationInput {
@@ -176,17 +177,17 @@ input UpdateApplicationStageEventInput {
   reason: String
 }
 
-input CreateApplicationNoteInput {
+input UpdateCompanyInput {
+  name: String
+  description: String
+}
+
+input CreateNoteInput {
   applicationId: String!
   content: String!
 }
 
-input UpdateApplicationNoteInput {
+input UpdateNoteInput {
   content: String
   expectedRevision: Int!
-}
-
-input UpdateCompanyInput {
-  name: String
-  description: String
 }

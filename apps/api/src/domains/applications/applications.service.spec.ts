@@ -1,9 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { ConflictException, NotFoundException } from "@nestjs/common";
+import { NotFoundException } from "@nestjs/common";
 import { ApplicationService } from "./applications.service";
 import { ApplicationRepository } from "./applications.repository";
 import { Application } from "./applications.schema";
-import { Note } from "./application-notes.schema";
 import { ApplicationStageEvent } from "./application-stage-events.schema";
 import { ApplicationStageEnum } from "./application-stage.enum";
 import { CompanyService } from "@api/domains/companies/companies.service";
@@ -11,6 +10,7 @@ import { CompensationService } from "./compensation.service";
 import { TagService } from "./tag.service";
 import { ApplicationAiService } from "@api/domains/application-ai/application-ai.service";
 import { CompanyAiService } from "@api/domains/company-ai/company-ai.service";
+import { NoteService } from "@api/domains/notes/notes.service";
 
 const makeApp = (overrides: Partial<Application> = {}): Application =>
   ({
@@ -54,17 +54,6 @@ const makeEvent = (
     scheduledAt: overrides.scheduledAt ?? null,
   }) as unknown as ApplicationStageEvent;
 
-const makeNote = (overrides: Partial<Note> = {}): Note => ({
-  id: "note-1",
-  applicationId: "app-1",
-  userId: "user-1",
-  content: JSON.stringify({ type: "doc", content: [{ type: "paragraph" }] }),
-  revision: 1,
-  createdAt: new Date("2026-01-02"),
-  updatedAt: new Date("2026-01-02"),
-  ...overrides,
-});
-
 describe("ApplicationService", () => {
   let service: ApplicationService;
   let repo: ApplicationRepository;
@@ -73,6 +62,7 @@ describe("ApplicationService", () => {
   let tagService: TagService;
   let applicationAiService: ApplicationAiService;
   let companyAiService: CompanyAiService;
+  let noteService: NoteService;
 
   beforeEach(() => {
     repo = {
@@ -89,11 +79,6 @@ describe("ApplicationService", () => {
       findStageEventByIdAndUserId: vi.fn(),
       createStageEvent: vi.fn(),
       updateStageEvent: vi.fn(),
-      findNotesByApplicationIdAndUserId: vi.fn(),
-      findNoteByIdAndUserId: vi.fn(),
-      createNote: vi.fn(),
-      updateNoteWithRevision: vi.fn(),
-      deleteNote: vi.fn(),
     } as unknown as ApplicationRepository;
 
     companyService = {
@@ -110,6 +95,9 @@ describe("ApplicationService", () => {
     companyAiService = {
       generateCompanyDescription: vi.fn(),
     } as unknown as CompanyAiService;
+    noteService = {
+      createNote: vi.fn(),
+    } as unknown as NoteService;
 
     service = new ApplicationService(
       repo,
@@ -118,6 +106,7 @@ describe("ApplicationService", () => {
       tagService,
       applicationAiService,
       companyAiService,
+      noteService,
     );
   });
 
@@ -238,7 +227,9 @@ describe("ApplicationService", () => {
       makeEvent({ toStage: "new", source: "system" }),
     );
     vi.mocked(repo.findOneByIdAndUserId).mockResolvedValue(app);
-    vi.mocked(repo.createNote).mockResolvedValue(makeNote());
+    vi.mocked(noteService.createNote).mockResolvedValue({
+      id: "note-1",
+    } as never);
 
     const result = await service.createWithAI("user-1", {
       prompt: "Senior React Engineer",
@@ -250,7 +241,7 @@ describe("ApplicationService", () => {
       prompt: "Senior React Engineer",
       fields: [{ label: "Title", metadata: "as field value" }],
     });
-    expect(repo.createNote).toHaveBeenCalledTimes(2);
+    expect(noteService.createNote).toHaveBeenCalledTimes(2);
   });
 
   it("update throws for invalid TipTap description JSON", async () => {
@@ -261,17 +252,6 @@ describe("ApplicationService", () => {
         description: "plain text",
       }),
     ).rejects.toThrow("description must be valid TipTap document JSON");
-  });
-
-  it("createNote throws for invalid TipTap note JSON", async () => {
-    vi.mocked(repo.findOneByIdAndUserId).mockResolvedValue(makeApp());
-
-    await expect(
-      service.createNote("user-1", {
-        applicationId: "app-1",
-        content: "plain text",
-      }),
-    ).rejects.toThrow("content must be valid TipTap document JSON");
   });
 
   it("remove throws NotFoundException when application not found", async () => {
@@ -333,86 +313,6 @@ describe("ApplicationService", () => {
       reason: undefined,
       scheduledAt: null,
     });
-  });
-
-  it("updateNote throws ConflictException for stale revision", async () => {
-    vi.mocked(repo.findNoteByIdAndUserId).mockResolvedValue(makeNote());
-    vi.mocked(repo.updateNoteWithRevision).mockResolvedValue(null);
-
-    await expect(
-      service.updateNote("note-1", "user-1", {
-        content: JSON.stringify({
-          type: "doc",
-          content: [{ type: "paragraph" }],
-        }),
-        expectedRevision: 1,
-      }),
-    ).rejects.toThrow(ConflictException);
-  });
-
-  it("createNote throws when application is not found", async () => {
-    vi.mocked(repo.findOneByIdAndUserId).mockResolvedValue(null);
-
-    await expect(
-      service.createNote("user-1", {
-        applicationId: "app-1",
-        content: JSON.stringify({
-          type: "doc",
-          content: [{ type: "paragraph" }],
-        }),
-      }),
-    ).rejects.toThrow(NotFoundException);
-  });
-
-  it("removeNote throws NotFoundException when note is not found", async () => {
-    vi.mocked(repo.findNoteByIdAndUserId).mockResolvedValue(null);
-
-    await expect(service.removeNote("note-1", "user-1")).rejects.toThrow(
-      NotFoundException,
-    );
-  });
-
-  it("removeNote deletes an existing note", async () => {
-    vi.mocked(repo.findNoteByIdAndUserId).mockResolvedValue(makeNote());
-    vi.mocked(repo.deleteNote).mockResolvedValue(makeNote());
-
-    const deleted = await service.removeNote("note-1", "user-1");
-    expect(deleted.id).toBe("note-1");
-    expect(repo.deleteNote).toHaveBeenCalledWith("note-1", "user-1");
-  });
-
-  it("removeNote throws NotFoundException when deleteNote returns null", async () => {
-    vi.mocked(repo.findNoteByIdAndUserId).mockResolvedValue(makeNote());
-    vi.mocked(repo.deleteNote).mockResolvedValue(null);
-
-    await expect(service.removeNote("note-1", "user-1")).rejects.toThrow(
-      NotFoundException,
-    );
-  });
-
-  it("updateNote throws BadRequestException for invalid TipTap content", async () => {
-    vi.mocked(repo.findNoteByIdAndUserId).mockResolvedValue(makeNote());
-
-    await expect(
-      service.updateNote("note-1", "user-1", {
-        content: "plain text",
-        expectedRevision: 1,
-      }),
-    ).rejects.toThrow("content must be valid TipTap document JSON");
-  });
-
-  it("updateNote returns updated note on success", async () => {
-    const updated = makeNote({
-      content: JSON.stringify({ type: "doc", content: [] }),
-    });
-    vi.mocked(repo.findNoteByIdAndUserId).mockResolvedValue(makeNote());
-    vi.mocked(repo.updateNoteWithRevision).mockResolvedValue(updated);
-
-    const result = await service.updateNote("note-1", "user-1", {
-      content: JSON.stringify({ type: "doc", content: [] }),
-      expectedRevision: 1,
-    });
-    expect(result.id).toBe("note-1");
   });
 
   it("removeTag removes matching tag and updates application", async () => {

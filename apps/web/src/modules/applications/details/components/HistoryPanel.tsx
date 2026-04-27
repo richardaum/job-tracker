@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { PencilSimpleIcon } from "@phosphor-icons/react";
+import { ChatCircleTextIcon, PencilSimpleIcon } from "@phosphor-icons/react";
 import {
   Button,
   Dialog,
@@ -22,12 +22,10 @@ import {
 } from "@/gql/hooks";
 import {
   buildScheduledAtWithBrowserTimezone,
-  getDateInputValueFromToday,
+  getDateTimeInputValueFromIso,
+  getDateTimeInputValueFromNow,
 } from "@/modules/applications/details/utils/scheduled-at";
-import {
-  formatDate,
-  formatDateTime,
-} from "@/modules/applications/details/utils/application-details.shared";
+import { formatDateTime } from "@/modules/applications/details/utils/application-details.shared";
 import { StageTimeline } from "@/modules/applications/shared/components/StageTimeline";
 import { UpdateStatusAction } from "./UpdateStatusAction";
 
@@ -41,21 +39,11 @@ const stageOptions: Array<{ value: ApplicationStage; label: string }> = [
 ];
 
 const quickScheduleOptions = [
-  { label: "Today", offsetDays: 0 },
+  { label: "Now", offsetDays: 0 },
   { label: "Tomorrow", offsetDays: 1 },
   { label: "+2d", offsetDays: 2 },
   { label: "+3d", offsetDays: 3 },
 ] as const;
-
-function toDateInputValue(value?: string | null): string {
-  if (!value) return "";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "";
-  const year = date.getFullYear();
-  const month = `${date.getMonth() + 1}`.padStart(2, "0");
-  const day = `${date.getDate()}`.padStart(2, "0");
-  return `${year}-${month}-${day}`;
-}
 
 export function HistoryPanel({
   applicationId,
@@ -99,9 +87,13 @@ export function HistoryPanel({
   function openEditDialog(eventId: string) {
     const event = stageEvents.find((candidate) => candidate.id === eventId);
     if (!event) return;
+    const fallbackIsoValue = event.scheduledAt ?? event.createdAt ?? null;
+    const nextScheduledAtDraft =
+      getDateTimeInputValueFromIso(fallbackIsoValue) ||
+      getDateTimeInputValueFromNow();
     setEditingEventId(event.id);
     setSelectedStage(event.toStage);
-    setScheduledAtDraft(toDateInputValue(event.scheduledAt));
+    setScheduledAtDraft(nextScheduledAtDraft);
     setReasonDraft(event.reason ?? "");
   }
 
@@ -165,20 +157,32 @@ export function HistoryPanel({
               toStage: event.toStage,
               reason: event.reason ?? null,
               dateLabel: event.scheduledAt
-                ? formatDate(event.scheduledAt)
+                ? formatDateTime(event.scheduledAt)
                 : formatDateTime(event.createdAt),
             }))}
             renderItemAction={(item) => (
-              <IconButton
-                intent="ghost"
-                size="sm"
-                label="Edit history item"
-                tooltip="Edit history item"
-                icon={<PencilSimpleIcon size={14} weight="regular" />}
-                className={cn("h-6 w-6 text-text-muted")}
-                onClick={() => openEditDialog(item.id)}
-                disabled={updatingStageEvent}
-              />
+              <div className={cn("flex items-center")}>
+                {item.reason ? (
+                  <IconButton
+                    intent="ghost"
+                    size="sm"
+                    label="History reason"
+                    tooltip={item.reason}
+                    icon={<ChatCircleTextIcon size={14} weight="regular" />}
+                    className={cn("h-6 w-6 text-text-muted")}
+                  />
+                ) : null}
+                <IconButton
+                  intent="ghost"
+                  size="sm"
+                  label="Edit history item"
+                  tooltip="Edit history item"
+                  icon={<PencilSimpleIcon size={14} weight="regular" />}
+                  className={cn("h-6 w-6 text-text-muted")}
+                  onClick={() => openEditDialog(item.id)}
+                  disabled={updatingStageEvent}
+                />
+              </div>
             )}
           />
         )}
@@ -212,7 +216,7 @@ export function HistoryPanel({
             <Stack gap="xs">
               <Input
                 id={`edit-history-scheduled-at-${applicationId}`}
-                type="date"
+                type="datetime-local"
                 size="sm"
                 value={scheduledAtDraft}
                 onChange={(event) => setScheduledAtDraft(event.target.value)}
@@ -220,7 +224,7 @@ export function HistoryPanel({
               />
               <div className={cn("flex flex-wrap gap-1")}>
                 {quickScheduleOptions.map((option) => {
-                  const optionValue = getDateInputValueFromToday(
+                  const optionValue = getDateTimeInputValueFromNow(
                     option.offsetDays,
                   );
                   return (

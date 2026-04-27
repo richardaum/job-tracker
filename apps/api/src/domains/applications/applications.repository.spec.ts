@@ -2,7 +2,6 @@ import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import type { DataSource } from "typeorm";
 
 import { ApplicationEntity } from "@api/database/entities/application.entity";
-import { ApplicationNoteEntity } from "@api/database/entities/application-note.entity";
 import { ApplicationStageEventEntity } from "@api/database/entities/application-stage-event.entity";
 import { CompanyEntity } from "@api/database/entities/company.entity";
 import { UserEntity } from "@api/database/entities/user.entity";
@@ -24,7 +23,6 @@ describe.skipIf(!hasDb)("ApplicationRepository (integration)", () => {
     repo = new ApplicationRepository(
       dataSource.getRepository(ApplicationEntity),
       dataSource.getRepository(ApplicationStageEventEntity),
-      dataSource.getRepository(ApplicationNoteEntity),
     );
 
     const userRepo = dataSource.getRepository(UserEntity);
@@ -200,105 +198,5 @@ describe.skipIf(!hasDb)("ApplicationRepository (integration)", () => {
 
     expect(active.map((app) => app.id)).toContain(activeApp.id);
     expect(active.map((app) => app.id)).not.toContain(appliedApp.id);
-  });
-
-  it("enforces note revision checks on update", async () => {
-    const company = await createTestCompany(userId, "Revision Corp");
-    const app = await repo.create(userId, {
-      title: "Backend Engineer",
-      companyId: company.id,
-      url: null,
-    });
-
-    const note = await repo.createNote(userId, {
-      applicationId: app.id,
-      content: JSON.stringify({
-        type: "doc",
-        content: [{ type: "paragraph" }],
-      }),
-    });
-
-    const staleUpdate = await repo.updateNoteWithRevision(
-      note.id,
-      userId,
-      note.revision + 1,
-      {
-        content: "Outdated write",
-      },
-    );
-    expect(staleUpdate).toBeNull();
-
-    const validUpdate = await repo.updateNoteWithRevision(
-      note.id,
-      userId,
-      note.revision,
-      {
-        content: "Updated with valid revision",
-      },
-    );
-    expect(validUpdate).not.toBeNull();
-    expect(validUpdate?.revision).toBe(note.revision + 1);
-    expect(validUpdate?.content).toBe("Updated with valid revision");
-    expect(validUpdate?.applicationId).toBe(app.id);
-  });
-
-  it("returns application notes in desc order", async () => {
-    const company = await createTestCompany(userId, "Order Corp");
-    const app = await repo.create(userId, {
-      title: "Notes Timeline",
-      companyId: company.id,
-      url: null,
-    });
-
-    const notesRepo = dataSource.getRepository(ApplicationNoteEntity);
-    await notesRepo.save(
-      notesRepo.create({
-        applicationId: app.id,
-        userId,
-        content: JSON.stringify({
-          type: "doc",
-          content: [
-            { type: "paragraph", content: [{ type: "text", text: "older" }] },
-          ],
-        }),
-        createdAt: new Date("2030-01-01T09:00:00.000Z"),
-        updatedAt: new Date("2030-01-01T09:00:00.000Z"),
-      }),
-    );
-    await notesRepo.save(
-      notesRepo.create({
-        applicationId: app.id,
-        userId,
-        content: JSON.stringify({
-          type: "doc",
-          content: [
-            { type: "paragraph", content: [{ type: "text", text: "newer" }] },
-          ],
-        }),
-        createdAt: new Date("2030-01-01T10:00:00.000Z"),
-        updatedAt: new Date("2030-01-01T10:00:00.000Z"),
-      }),
-    );
-
-    const ordered = await repo.findNotesByApplicationIdAndUserId(
-      app.id,
-      userId,
-    );
-
-    expect(ordered).toHaveLength(2);
-    expect(ordered.map((n) => n.content)).toEqual([
-      JSON.stringify({
-        type: "doc",
-        content: [
-          { type: "paragraph", content: [{ type: "text", text: "newer" }] },
-        ],
-      }),
-      JSON.stringify({
-        type: "doc",
-        content: [
-          { type: "paragraph", content: [{ type: "text", text: "older" }] },
-        ],
-      }),
-    ]);
   });
 });

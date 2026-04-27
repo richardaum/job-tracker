@@ -17,7 +17,7 @@ import {
 } from "@/gql/hooks";
 import {
   buildScheduledAtWithBrowserTimezone,
-  getDateInputValueFromToday,
+  getDateTimeInputValueFromNow,
 } from "@/modules/applications/details/utils/scheduled-at";
 import { formatStage } from "@/modules/applications/details/utils/application-details.shared";
 
@@ -31,7 +31,7 @@ const stageOptions: Array<{ value: ApplicationStage; label: string }> = [
 ];
 
 const quickScheduleOptions = [
-  { label: "Today", offsetDays: 0 },
+  { label: "Now", offsetDays: 0 },
   { label: "Tomorrow", offsetDays: 1 },
   { label: "+2d", offsetDays: 2 },
   { label: "+3d", offsetDays: 3 },
@@ -87,7 +87,9 @@ export function UpdateStatusAction({
     onOpenChange?.(nextOpen);
     if (nextOpen) {
       setSelectedStage(undefined);
-      setScheduledAtDraft("");
+      setScheduledAtDraft(
+        (current) => current || getDateTimeInputValueFromNow(),
+      );
       setReasonDraft("");
     }
   }
@@ -140,7 +142,7 @@ export function UpdateStatusAction({
           <Stack gap="xs">
             <Input
               id={`history-scheduled-at-${applicationId}`}
-              type="date"
+              type="datetime-local"
               size="sm"
               value={scheduledAtDraft}
               onChange={(event) => setScheduledAtDraft(event.target.value)}
@@ -148,7 +150,7 @@ export function UpdateStatusAction({
             />
             <div className={cn("flex flex-wrap gap-1")}>
               {quickScheduleOptions.map((option) => {
-                const optionValue = getDateInputValueFromToday(
+                const optionValue = getDateTimeInputValueFromNow(
                   option.offsetDays,
                 );
                 return (

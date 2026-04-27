@@ -5,7 +5,6 @@ import { Button, Dialog, FormField, Input, Stack, cn } from "@job-tracker/ui";
 import {
   ApplicationDocument,
   ApplicationsDocument,
-  useGenerateCompanyDescriptionMutation,
   useUpdateApplicationMutation,
   useUpdateCompanyMutation,
 } from "@/gql/hooks";
@@ -16,6 +15,7 @@ import {
   normalizeTipTapDocument,
   tipTapToPlainText,
 } from "@/modules/applications/shared/utils/tiptap";
+import { useCompanyDescriptionAiContentGeneration } from "@/modules/applications/shared/hooks/useCompanyDescriptionAiContentGeneration";
 
 export interface CompanyEditDialogApplication {
   id: string;
@@ -50,7 +50,6 @@ export function CompanyEditDialog({
     normalizeTipTapDocument(application.company.description),
   );
   const [saving, setSaving] = useState(false);
-  const [generatingDescription, setGeneratingDescription] = useState(false);
 
   const [updateApplication] = useUpdateApplicationMutation({
     refetchQueries: [
@@ -66,7 +65,11 @@ export function CompanyEditDialog({
     ],
   });
 
-  const [generateCompanyDescription] = useGenerateCompanyDescriptionMutation();
+  const aiContentGeneration = useCompanyDescriptionAiContentGeneration({
+    companyName: nameDraft,
+    disabled: saving,
+    onError,
+  });
 
   async function handleSave() {
     const nextName = nameDraft.trim();
@@ -156,27 +159,7 @@ export function CompanyEditDialog({
             }
             autofocus="end"
             disabled={saving}
-            aiContentGeneration={{
-              buttonLabel: "AI",
-              isGenerating: generatingDescription,
-              disabled: !nameDraft.trim() || saving,
-              onGenerateContent: async () => {
-                setGeneratingDescription(true);
-                try {
-                  const result = await generateCompanyDescription({
-                    variables: { companyName: nameDraft.trim() },
-                  });
-                  return result.data?.generateCompanyDescription ?? "";
-                } finally {
-                  setGeneratingDescription(false);
-                }
-              },
-              onError: () => {
-                onError?.(
-                  "Could not generate company description. Please try again.",
-                );
-              },
-            }}
+            aiContentGeneration={aiContentGeneration}
           />
         </FormField>
         <div className={cn("flex justify-end")}>

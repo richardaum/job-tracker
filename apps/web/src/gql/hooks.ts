@@ -52,17 +52,6 @@ export type ApplicationAiDraftType = {
   url?: Maybe<Scalars["String"]["output"]>;
 };
 
-export type ApplicationNoteType = {
-  __typename?: "ApplicationNoteType";
-  applicationId?: Maybe<Scalars["String"]["output"]>;
-  content: Scalars["String"]["output"];
-  createdAt: Scalars["DateTime"]["output"];
-  id: Scalars["ID"]["output"];
-  revision: Scalars["Int"]["output"];
-  updatedAt: Scalars["DateTime"]["output"];
-  userId: Scalars["String"]["output"];
-};
-
 export enum ApplicationQuickFilter {
   Active = "ACTIVE",
   Applied = "APPLIED",
@@ -136,11 +125,6 @@ export type CreateApplicationInput = {
   url?: InputMaybe<Scalars["String"]["input"]>;
 };
 
-export type CreateApplicationNoteInput = {
-  applicationId: Scalars["String"]["input"];
-  content: Scalars["String"]["input"];
-};
-
 export type CreateApplicationStageEventInput = {
   applicationId: Scalars["String"]["input"];
   reason?: InputMaybe<Scalars["String"]["input"]>;
@@ -154,19 +138,25 @@ export type CreateApplicationWithAiInput = {
   prompt: Scalars["String"]["input"];
 };
 
+export type CreateNoteInput = {
+  applicationId: Scalars["String"]["input"];
+  content: Scalars["String"]["input"];
+};
+
 export type Mutation = {
   __typename?: "Mutation";
   createApplication: ApplicationType;
-  createApplicationNote: ApplicationNoteType;
+  createApplicationNote: NoteType;
   createApplicationStageEvent: ApplicationStageEventType;
   createApplicationWithAI: ApplicationType;
   deleteApplication: Scalars["Boolean"]["output"];
   deleteApplicationNote: Scalars["Boolean"]["output"];
   generateApplicationDraftWithAI: ApplicationAiDraftType;
+  generateApplicationNoteWithAI: Scalars["String"]["output"];
   generateCompanyDescription: Scalars["String"]["output"];
   removeApplicationTag: ApplicationType;
   updateApplication: ApplicationType;
-  updateApplicationNote: ApplicationNoteType;
+  updateApplicationNote: NoteType;
   updateApplicationStageEvent: ApplicationStageEventType;
   updateCompany: CompanyType;
 };
@@ -176,7 +166,7 @@ export type MutationCreateApplicationArgs = {
 };
 
 export type MutationCreateApplicationNoteArgs = {
-  input: CreateApplicationNoteInput;
+  input: CreateNoteInput;
 };
 
 export type MutationCreateApplicationStageEventArgs = {
@@ -199,6 +189,11 @@ export type MutationGenerateApplicationDraftWithAiArgs = {
   input: CreateApplicationWithAiInput;
 };
 
+export type MutationGenerateApplicationNoteWithAiArgs = {
+  applicationId: Scalars["ID"]["input"];
+  note: Scalars["String"]["input"];
+};
+
 export type MutationGenerateCompanyDescriptionArgs = {
   companyName: Scalars["String"]["input"];
 };
@@ -215,7 +210,7 @@ export type MutationUpdateApplicationArgs = {
 
 export type MutationUpdateApplicationNoteArgs = {
   id: Scalars["ID"]["input"];
-  input: UpdateApplicationNoteInput;
+  input: UpdateNoteInput;
 };
 
 export type MutationUpdateApplicationStageEventArgs = {
@@ -228,10 +223,21 @@ export type MutationUpdateCompanyArgs = {
   input: UpdateCompanyInput;
 };
 
+export type NoteType = {
+  __typename?: "NoteType";
+  applicationId?: Maybe<Scalars["String"]["output"]>;
+  content: Scalars["String"]["output"];
+  createdAt: Scalars["DateTime"]["output"];
+  id: Scalars["ID"]["output"];
+  revision: Scalars["Int"]["output"];
+  updatedAt: Scalars["DateTime"]["output"];
+  userId: Scalars["String"]["output"];
+};
+
 export type Query = {
   __typename?: "Query";
   application: ApplicationType;
-  applicationNotes: Array<ApplicationNoteType>;
+  applicationNotes: Array<NoteType>;
   applicationStageEvents: Array<ApplicationStageEventType>;
   applications: Array<ApplicationType>;
   companies: Array<CompanyType>;
@@ -273,11 +279,6 @@ export type UpdateApplicationInput = {
   url?: InputMaybe<Scalars["String"]["input"]>;
 };
 
-export type UpdateApplicationNoteInput = {
-  content?: InputMaybe<Scalars["String"]["input"]>;
-  expectedRevision: Scalars["Int"]["input"];
-};
-
 export type UpdateApplicationStageEventInput = {
   reason?: InputMaybe<Scalars["String"]["input"]>;
   scheduledAt?: InputMaybe<Scalars["DateTime"]["input"]>;
@@ -287,6 +288,11 @@ export type UpdateApplicationStageEventInput = {
 export type UpdateCompanyInput = {
   description?: InputMaybe<Scalars["String"]["input"]>;
   name?: InputMaybe<Scalars["String"]["input"]>;
+};
+
+export type UpdateNoteInput = {
+  content?: InputMaybe<Scalars["String"]["input"]>;
+  expectedRevision: Scalars["Int"]["input"];
 };
 
 export type UserType = {
@@ -563,7 +569,7 @@ export type ApplicationNotesQueryVariables = Exact<{
 export type ApplicationNotesQuery = {
   __typename?: "Query";
   applicationNotes: Array<{
-    __typename?: "ApplicationNoteType";
+    __typename?: "NoteType";
     id: string;
     applicationId?: string | null;
     content: string;
@@ -574,13 +580,13 @@ export type ApplicationNotesQuery = {
 };
 
 export type CreateApplicationNoteMutationVariables = Exact<{
-  input: CreateApplicationNoteInput;
+  input: CreateNoteInput;
 }>;
 
 export type CreateApplicationNoteMutation = {
   __typename?: "Mutation";
   createApplicationNote: {
-    __typename?: "ApplicationNoteType";
+    __typename?: "NoteType";
     id: string;
     applicationId?: string | null;
     content: string;
@@ -592,13 +598,13 @@ export type CreateApplicationNoteMutation = {
 
 export type UpdateApplicationNoteMutationVariables = Exact<{
   id: Scalars["ID"]["input"];
-  input: UpdateApplicationNoteInput;
+  input: UpdateNoteInput;
 }>;
 
 export type UpdateApplicationNoteMutation = {
   __typename?: "Mutation";
   updateApplicationNote: {
-    __typename?: "ApplicationNoteType";
+    __typename?: "NoteType";
     id: string;
     applicationId?: string | null;
     content: string;
@@ -615,6 +621,16 @@ export type DeleteApplicationNoteMutationVariables = Exact<{
 export type DeleteApplicationNoteMutation = {
   __typename?: "Mutation";
   deleteApplicationNote: boolean;
+};
+
+export type GenerateApplicationNoteWithAiMutationVariables = Exact<{
+  applicationId: Scalars["ID"]["input"];
+  note: Scalars["String"]["input"];
+}>;
+
+export type GenerateApplicationNoteWithAiMutation = {
+  __typename?: "Mutation";
+  generateApplicationNoteWithAI: string;
 };
 
 export type UpdateCompanyMutationVariables = Exact<{
@@ -1358,7 +1374,7 @@ export type ApplicationNotesLazyQueryHookResult = ReturnType<
 >;
 
 export const CreateApplicationNoteDocument = gql`
-  mutation CreateApplicationNote($input: CreateApplicationNoteInput!) {
+  mutation CreateApplicationNote($input: CreateNoteInput!) {
     createApplicationNote(input: $input) {
       id
       applicationId
@@ -1401,10 +1417,7 @@ export function useCreateApplicationNoteMutation(
 }
 
 export const UpdateApplicationNoteDocument = gql`
-  mutation UpdateApplicationNote(
-    $id: ID!
-    $input: UpdateApplicationNoteInput!
-  ) {
+  mutation UpdateApplicationNote($id: ID!, $input: UpdateNoteInput!) {
     updateApplicationNote(id: $id, input: $input) {
       id
       applicationId
@@ -1481,6 +1494,43 @@ export function useDeleteApplicationNoteMutation(
     DeleteApplicationNoteMutation,
     DeleteApplicationNoteMutationVariables
   >(DeleteApplicationNoteDocument, options);
+}
+
+export const GenerateApplicationNoteWithAiDocument = gql`
+  mutation GenerateApplicationNoteWithAi($applicationId: ID!, $note: String!) {
+    generateApplicationNoteWithAI(applicationId: $applicationId, note: $note)
+  }
+`;
+
+/**
+ * __useGenerateApplicationNoteWithAiMutation__
+ *
+ * To run a mutation, you first call `useGenerateApplicationNoteWithAiMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useGenerateApplicationNoteWithAiMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [generateApplicationNoteWithAiMutation, { data, loading, error }] = useGenerateApplicationNoteWithAiMutation({
+ *   variables: {
+ *      applicationId: // value for 'applicationId'
+ *      note: // value for 'note'
+ *   },
+ * });
+ */
+export function useGenerateApplicationNoteWithAiMutation(
+  baseOptions?: ApolloReactHooks.MutationHookOptions<
+    GenerateApplicationNoteWithAiMutation,
+    GenerateApplicationNoteWithAiMutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useMutation<
+    GenerateApplicationNoteWithAiMutation,
+    GenerateApplicationNoteWithAiMutationVariables
+  >(GenerateApplicationNoteWithAiDocument, options);
 }
 
 export const UpdateCompanyDocument = gql`

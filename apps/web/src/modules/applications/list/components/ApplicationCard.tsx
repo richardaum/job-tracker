@@ -38,6 +38,7 @@ import {
   formatCompensationLine,
   hasCompensationOnCard,
 } from "@/modules/applications/shared/utils/compensationFormat";
+import { formatDateTime } from "@/modules/applications/details/utils/application-details.shared";
 
 export interface ApplicationCardApplication {
   id: string;
@@ -93,16 +94,7 @@ function CurrentStageBadge({
     fromStage: event.fromStage,
     toStage: event.toStage,
     reason: event.reason ?? null,
-    dateLabel: new Date(event.scheduledAt ?? event.createdAt).toLocaleString(
-      "en-US",
-      {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-      },
-    ),
+    dateLabel: formatDateTime(event.scheduledAt ?? event.createdAt),
   }));
 
   return (

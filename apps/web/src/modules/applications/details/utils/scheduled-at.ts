@@ -1,33 +1,42 @@
+function toDateTimeLocalValue(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
+}
+
 export function buildScheduledAtWithBrowserTimezone(
-  dateValue: string,
+  dateTimeLocalValue: string,
 ): string | null {
-  if (!dateValue) return null;
+  if (!dateTimeLocalValue) return null;
 
-  const [yearRaw, monthRaw, dayRaw] = dateValue.split("-");
-  const year = Number(yearRaw);
-  const month = Number(monthRaw);
-  const day = Number(dayRaw);
+  const parsedDate = new Date(dateTimeLocalValue);
+  if (Number.isNaN(parsedDate.getTime())) return null;
 
-  if (!year || !month || !day) return null;
-
-  // Use local date to capture the browser offset for that specific day (DST-safe).
-  const localDate = new Date(year, month - 1, day, 0, 0, 0);
-  const offsetMinutes = -localDate.getTimezoneOffset();
+  const offsetMinutes = -parsedDate.getTimezoneOffset();
   const sign = offsetMinutes >= 0 ? "+" : "-";
   const absoluteOffset = Math.abs(offsetMinutes);
   const offsetHours = String(Math.floor(absoluteOffset / 60)).padStart(2, "0");
   const offsetRemainderMinutes = String(absoluteOffset % 60).padStart(2, "0");
 
-  return `${dateValue}T00:00:00${sign}${offsetHours}:${offsetRemainderMinutes}`;
+  return `${dateTimeLocalValue}:00${sign}${offsetHours}:${offsetRemainderMinutes}`;
 }
 
-export function getDateInputValueFromToday(offsetDays: number): string {
+export function getDateTimeInputValueFromNow(offsetDays = 0): string {
   const date = new Date();
-  date.setHours(0, 0, 0, 0);
+  date.setSeconds(0, 0);
   date.setDate(date.getDate() + offsetDays);
+  return toDateTimeLocalValue(date);
+}
 
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
+export function getDateTimeInputValueFromIso(
+  isoDateTimeValue?: string | null,
+): string {
+  if (!isoDateTimeValue) return "";
+
+  const date = new Date(isoDateTimeValue);
+  if (Number.isNaN(date.getTime())) return "";
+  return toDateTimeLocalValue(date);
 }

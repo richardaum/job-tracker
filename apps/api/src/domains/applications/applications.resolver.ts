@@ -11,9 +11,6 @@ import { CreateApplicationInput } from "./create-application.input";
 import { UpdateApplicationInput } from "./update-application.input";
 import { ApplicationStageEventType } from "./application-stage-event.type";
 import { CreateApplicationStageEventInput } from "./create-application-stage-event.input";
-import { ApplicationNoteType } from "./application-note.type";
-import { CreateApplicationNoteInput } from "./create-application-note.input";
-import { UpdateApplicationNoteInput } from "./update-application-note.input";
 import { UpdateApplicationStageEventInput } from "./update-application-stage-event.input";
 import { CreateApplicationWithAIInput } from "./create-application-with-ai.input";
 import { ApplicationAiDraftType } from "@api/domains/application-ai/application-ai-draft.type";
@@ -119,39 +116,5 @@ export class ApplicationResolver {
     @CurrentUser() user: { userId: string },
   ): Promise<ApplicationStageEventType> {
     return this.service.updateStageEvent(id, user.userId, input);
-  }
-
-  @Query(() => [ApplicationNoteType])
-  applicationNotes(
-    @Args("applicationId", { type: () => ID }) applicationId: string,
-    @CurrentUser() user: { userId: string },
-  ): Promise<ApplicationNoteType[]> {
-    return this.service.listNotes(applicationId, user.userId);
-  }
-
-  @Mutation(() => ApplicationNoteType)
-  createApplicationNote(
-    @Args("input") input: CreateApplicationNoteInput,
-    @CurrentUser() user: { userId: string },
-  ): Promise<ApplicationNoteType> {
-    return this.service.createNote(user.userId, input);
-  }
-
-  @Mutation(() => ApplicationNoteType)
-  updateApplicationNote(
-    @Args("id", { type: () => ID }) id: string,
-    @Args("input") input: UpdateApplicationNoteInput,
-    @CurrentUser() user: { userId: string },
-  ): Promise<ApplicationNoteType> {
-    return this.service.updateNote(id, user.userId, input);
-  }
-
-  @Mutation(() => Boolean)
-  async deleteApplicationNote(
-    @Args("id", { type: () => ID }) id: string,
-    @CurrentUser() user: { userId: string },
-  ): Promise<boolean> {
-    await this.service.removeNote(id, user.userId);
-    return true;
   }
 }

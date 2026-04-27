@@ -27,6 +27,7 @@ import {
 } from "@/modules/applications/shared/utils/tiptap";
 import { formatDateTime } from "@/modules/applications/details/utils/application-details.shared";
 import { useNotesComposerBehavior } from "@/modules/applications/details/hooks/useNotesComposerBehavior";
+import { useNotesAiContentGeneration } from "@/modules/applications/details/hooks/useNotesAiContentGeneration";
 
 export function NotesPanel({
   applicationId,
@@ -100,6 +101,16 @@ export function NotesPanel({
     !!editingNote &&
     tipTapToPlainText(editingNoteContent).trim().length > 0 &&
     !updatingNote;
+  const aiContentGeneration = useNotesAiContentGeneration({
+    applicationId,
+    noteContent: draftNote,
+    disabled: !canSend,
+  });
+  const editAiContentGeneration = useNotesAiContentGeneration({
+    applicationId,
+    noteContent: editingNoteContent,
+    disabled: !editingNote || updatingNote || deletingNote,
+  });
 
   const { notesEndRef, handleNoteSent } = useNotesComposerBehavior({
     hasLoadedMessages: Boolean(notesData),
@@ -262,6 +273,7 @@ export function NotesPanel({
               contentClassName={cn(
                 "min-h-0 [&_.ProseMirror]:min-h-5 [&_.ProseMirror]:max-h-40 [&_.ProseMirror]:overflow-y-auto",
               )}
+              aiContentGeneration={aiContentGeneration}
             />
             <div className={cn("flex justify-end")}>
               <Button
@@ -309,6 +321,7 @@ export function NotesPanel({
               disabled={updatingNote}
               autofocus="end"
               fillHeight
+              aiContentGeneration={editAiContentGeneration}
             />
           </div>
           <div className={cn("flex items-center justify-end gap-2")}>

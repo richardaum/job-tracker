@@ -20,7 +20,7 @@ import {
 } from "@/gql/hooks";
 import {
   buildScheduledAtWithBrowserTimezone,
-  getDateInputValueFromToday,
+  getDateTimeInputValueFromNow,
 } from "@/modules/applications/details/utils/scheduled-at";
 
 const stageOptions: Array<{ value: ApplicationStage; label: string }> = [
@@ -33,7 +33,7 @@ const stageOptions: Array<{ value: ApplicationStage; label: string }> = [
 ];
 
 const quickScheduleOptions = [
-  { label: "Today", offsetDays: 0 },
+  { label: "Now", offsetDays: 0 },
   { label: "Tomorrow", offsetDays: 1 },
   { label: "+2d", offsetDays: 2 },
   { label: "+3d", offsetDays: 3 },
@@ -142,9 +142,12 @@ export function ApplicationTrackingPanel({
           <FormField label="Status" htmlFor={`status-${applicationId}`}>
             <Select
               value={selectedStage}
-              onValueChange={(value) =>
-                setSelectedStageDraft(value as ApplicationStage)
-              }
+              onValueChange={(value) => {
+                setSelectedStageDraft(value as ApplicationStage);
+                setScheduledAtDraft(
+                  (current) => current ?? getDateTimeInputValueFromNow(),
+                );
+              }}
               options={stageOptions}
               placeholder={`Current: ${formatStage(currentStage)}`}
               size="sm"
@@ -159,7 +162,7 @@ export function ApplicationTrackingPanel({
                 <Stack gap="xs">
                   <Input
                     id={`scheduled-at-${applicationId}`}
-                    type="date"
+                    type="datetime-local"
                     size="sm"
                     value={scheduledAtValue}
                     onChange={(event) =>
@@ -169,7 +172,7 @@ export function ApplicationTrackingPanel({
                   />
                   <div className={cn("flex flex-wrap gap-1")}>
                     {quickScheduleOptions.map((option) => {
-                      const optionValue = getDateInputValueFromToday(
+                      const optionValue = getDateTimeInputValueFromNow(
                         option.offsetDays,
                       );
                       return (
