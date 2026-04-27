@@ -37,6 +37,7 @@ export function NotesPanel({
   isModalInstance?: boolean;
 }) {
   const [draftNote, setDraftNote] = useState(EMPTY_TIPTAP_DOC);
+  const [isComposerExpanded, setIsComposerExpanded] = useState(false);
   const composerEditorRef = useRef<TipTapEditorHandle>(null);
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
   const [editingNoteContent, setEditingNoteContent] =
@@ -274,6 +275,9 @@ export function NotesPanel({
                 "min-h-0 [&_.ProseMirror]:min-h-5 [&_.ProseMirror]:max-h-40 [&_.ProseMirror]:overflow-y-auto",
               )}
               aiContentGeneration={aiContentGeneration}
+              showExpandButton
+              expandButtonAriaLabel="Expand note composer"
+              onExpandClick={() => setIsComposerExpanded(true)}
             />
             <div className={cn("flex justify-end")}>
               <Button
@@ -300,6 +304,46 @@ export function NotesPanel({
         }}
         onConfirm={confirmDeleteNote}
       />
+      <Dialog
+        title="New note"
+        open={isComposerExpanded}
+        onOpenChange={setIsComposerExpanded}
+        trigger={<span aria-hidden style={{ display: "none" }} />}
+        contentClassName={cn("h-[90vh] w-[90vw] max-w-none p-4")}
+        childrenClassName={cn("flex min-h-0 flex-col")}
+      >
+        <Stack gap="sm" className={cn("flex-1 min-h-0")}>
+          <div className={cn("flex-1 min-h-0")}>
+            <TipTapEditor
+              id={`application-note-composer-expanded-${applicationId}${isModalInstance ? "-modal" : ""}`}
+              value={draftNote}
+              onChange={(nextValue) =>
+                setDraftNote(nextValue || EMPTY_TIPTAP_DOC)
+              }
+              onHardEnter={canSend ? () => void handleSendNote() : undefined}
+              placeholder="Write a note..."
+              disabled={creatingNote}
+              autofocus="end"
+              fillHeight
+              aiContentGeneration={aiContentGeneration}
+              showExpandButton
+              expandButtonAriaLabel="Close expanded note composer"
+              onExpandClick={() => setIsComposerExpanded(false)}
+            />
+          </div>
+          <div className={cn("flex justify-end")}>
+            <Button
+              size="sm"
+              intent="primary"
+              onClick={() => void handleSendNote()}
+              disabled={!canSend}
+              state={creatingNote ? "loading" : "default"}
+            >
+              Send
+            </Button>
+          </div>
+        </Stack>
+      </Dialog>
       <Dialog
         title="Edit note"
         open={Boolean(editingNote)}

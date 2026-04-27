@@ -12,8 +12,9 @@ import {
   parseTipTapDocument,
   tipTapToPlainText,
 } from "@/modules/applications/shared/utils/tiptap";
-import { DropdownMenu, DropdownMenuItem, cn } from "@job-tracker/ui";
+import { DropdownMenu, DropdownMenuItem, Tooltip, cn } from "@job-tracker/ui";
 import {
+  ArrowsOutSimpleIcon,
   BroomIcon,
   CaretDownIcon,
   CheckIcon,
@@ -53,6 +54,10 @@ interface TipTapEditorProps {
     buttonLabel?: string;
     onError?: () => void;
   };
+  onExpandClick?: () => void;
+  showExpandButton?: boolean;
+  expandButtonAriaLabel?: string;
+  expandButtonDisabled?: boolean;
 }
 
 function AiSuggestionSegmentedControl({
@@ -163,6 +168,10 @@ export function TipTapEditor({
   autofocus = false,
   contentClassName,
   aiContentGeneration,
+  onExpandClick,
+  showExpandButton = false,
+  expandButtonAriaLabel = "Expand editor",
+  expandButtonDisabled,
 }: TipTapEditorProps) {
   const onHardEnterRef = React.useRef(onHardEnter);
   const [isGeneratingAiLocally, setIsGeneratingAiLocally] =
@@ -334,111 +343,124 @@ export function TipTapEditor({
     >
       <div
         className={cn(
-          "flex flex-wrap gap-1 rounded-t-md border border-border-subtle p-2",
+          "flex items-start justify-between gap-2 rounded-t-md border border-border-subtle p-2",
         )}
       >
-        <ToolbarButton
-          label={<TextBolderIcon size={14} weight="bold" />}
-          ariaLabel="Bold"
-          active={editorState?.isBold}
-          onClick={() => editor.chain().focus().toggleBold().run()}
-          disabled={disabled}
-        />
-        <ToolbarButton
-          label={<TextItalicIcon size={14} weight="bold" />}
-          ariaLabel="Italic"
-          active={editorState?.isItalic}
-          onClick={() => editor.chain().focus().toggleItalic().run()}
-          disabled={disabled}
-        />
-        <DropdownMenu
-          trigger={
-            <button
-              type="button"
-              disabled={disabled}
-              aria-label={`Text style: ${activeBlockAriaLabel}`}
-              className={cn(
-                "inline-flex items-center justify-center gap-1 rounded border px-2 py-1 text-xs transition-colors",
-                hasActiveHeading
-                  ? "border-border-brand bg-bg-brand-subtle text-text-brand"
-                  : "border-border-subtle bg-bg-surface text-text-secondary hover:bg-bg-surface-hover",
-                disabled && "cursor-not-allowed opacity-50",
-              )}
+        <div className={cn("flex flex-1 flex-wrap gap-1")}>
+          <ToolbarButton
+            label={<TextBolderIcon size={14} weight="bold" />}
+            ariaLabel="Bold"
+            active={editorState?.isBold}
+            onClick={() => editor.chain().focus().toggleBold().run()}
+            disabled={disabled}
+          />
+          <ToolbarButton
+            label={<TextItalicIcon size={14} weight="bold" />}
+            ariaLabel="Italic"
+            active={editorState?.isItalic}
+            onClick={() => editor.chain().focus().toggleItalic().run()}
+            disabled={disabled}
+          />
+          <DropdownMenu
+            trigger={
+              <Tooltip content={`Text style: ${activeBlockAriaLabel}`}>
+                <button
+                  type="button"
+                  disabled={disabled}
+                  aria-label={`Text style: ${activeBlockAriaLabel}`}
+                  className={cn(
+                    "inline-flex items-center justify-center gap-1 rounded border px-2 py-1 text-xs transition-colors",
+                    hasActiveHeading
+                      ? "border-border-brand bg-bg-brand-subtle text-text-brand"
+                      : "border-border-subtle bg-bg-surface text-text-secondary hover:bg-bg-surface-hover",
+                    disabled && "cursor-not-allowed opacity-50",
+                  )}
+                >
+                  {editorState?.isHeadingLevel1 ? (
+                    <TextHOneIcon size={14} weight="bold" />
+                  ) : editorState?.isHeadingLevel2 ? (
+                    <TextHTwoIcon size={14} weight="bold" />
+                  ) : editorState?.isHeadingLevel3 ? (
+                    <TextHThreeIcon size={14} weight="bold" />
+                  ) : (
+                    <TextTIcon size={14} weight="bold" />
+                  )}
+                  <CaretDownIcon size={12} weight="bold" />
+                </button>
+              </Tooltip>
+            }
+            align="start"
+          >
+            <DropdownMenuItem
+              icon={<TextTIcon size={14} weight="bold" />}
+              onSelect={() => editor.chain().focus().setParagraph().run()}
             >
-              {editorState?.isHeadingLevel1 ? (
-                <TextHOneIcon size={14} weight="bold" />
-              ) : editorState?.isHeadingLevel2 ? (
-                <TextHTwoIcon size={14} weight="bold" />
-              ) : editorState?.isHeadingLevel3 ? (
-                <TextHThreeIcon size={14} weight="bold" />
-              ) : (
-                <TextTIcon size={14} weight="bold" />
-              )}
-              <CaretDownIcon size={12} weight="bold" />
-            </button>
-          }
-          align="start"
-        >
-          <DropdownMenuItem
-            icon={<TextTIcon size={14} weight="bold" />}
-            onSelect={() => editor.chain().focus().setParagraph().run()}
-          >
-            Paragraph
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            icon={<TextHOneIcon size={14} weight="bold" />}
-            onSelect={() =>
-              editor.chain().focus().setHeading({ level: 1 }).run()
-            }
-          >
-            Heading 1
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            icon={<TextHTwoIcon size={14} weight="bold" />}
-            onSelect={() =>
-              editor.chain().focus().setHeading({ level: 2 }).run()
-            }
-          >
-            Heading 2
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            icon={<TextHThreeIcon size={14} weight="bold" />}
-            onSelect={() =>
-              editor.chain().focus().setHeading({ level: 3 }).run()
-            }
-          >
-            Heading 3
-          </DropdownMenuItem>
-        </DropdownMenu>
-        <ToolbarButton
-          label={<ListBulletsIcon size={14} weight="bold" />}
-          ariaLabel="Bullet list"
-          active={editorState?.isBulletList}
-          onClick={() => editor.chain().focus().toggleBulletList().run()}
-          disabled={disabled}
-        />
-        <ToolbarButton
-          label={<BroomIcon size={14} weight="bold" />}
-          ariaLabel="Clear formatting and content"
-          onClick={() => {
-            clearDocument(true);
-          }}
-          disabled={disabled}
-        />
-        {aiContentGeneration ? (
-          <AiSuggestionSegmentedControl
-            aiGenerationLoading={aiGenerationLoading}
-            aiButtonLabel={aiContentGeneration.buttonLabel}
-            isGenerateDisabled={
-              disabled ||
-              aiContentGeneration.disabled ||
-              Boolean(aiContentGeneration.isGenerating)
-            }
-            isApproveDisabled={disabled || pendingAiOriginalContent === null}
-            isRejectDisabled={disabled || pendingAiOriginalContent === null}
-            onGenerate={() => void handleGenerateAiContent()}
-            onApprove={handleApproveAiContent}
-            onReject={handleRejectAiContent}
+              Paragraph
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              icon={<TextHOneIcon size={14} weight="bold" />}
+              onSelect={() =>
+                editor.chain().focus().setHeading({ level: 1 }).run()
+              }
+            >
+              Heading 1
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              icon={<TextHTwoIcon size={14} weight="bold" />}
+              onSelect={() =>
+                editor.chain().focus().setHeading({ level: 2 }).run()
+              }
+            >
+              Heading 2
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              icon={<TextHThreeIcon size={14} weight="bold" />}
+              onSelect={() =>
+                editor.chain().focus().setHeading({ level: 3 }).run()
+              }
+            >
+              Heading 3
+            </DropdownMenuItem>
+          </DropdownMenu>
+          <ToolbarButton
+            label={<ListBulletsIcon size={14} weight="bold" />}
+            ariaLabel="Bullet list"
+            active={editorState?.isBulletList}
+            onClick={() => editor.chain().focus().toggleBulletList().run()}
+            disabled={disabled}
+          />
+          <ToolbarButton
+            label={<BroomIcon size={14} weight="bold" />}
+            ariaLabel="Clear formatting and content"
+            onClick={() => {
+              clearDocument(true);
+            }}
+            disabled={disabled}
+          />
+          {aiContentGeneration ? (
+            <AiSuggestionSegmentedControl
+              aiGenerationLoading={aiGenerationLoading}
+              aiButtonLabel={aiContentGeneration.buttonLabel}
+              isGenerateDisabled={
+                disabled ||
+                aiContentGeneration.disabled ||
+                Boolean(aiContentGeneration.isGenerating)
+              }
+              isApproveDisabled={disabled || pendingAiOriginalContent === null}
+              isRejectDisabled={disabled || pendingAiOriginalContent === null}
+              onGenerate={() => void handleGenerateAiContent()}
+              onApprove={handleApproveAiContent}
+              onReject={handleRejectAiContent}
+            />
+          ) : null}
+        </div>
+        {showExpandButton ? (
+          <ToolbarButton
+            label={<ArrowsOutSimpleIcon size={14} weight="bold" />}
+            ariaLabel={expandButtonAriaLabel}
+            onClick={() => onExpandClick?.()}
+            disabled={Boolean(disabled || expandButtonDisabled)}
+            className={cn("ml-auto")}
           />
         ) : null}
       </div>
