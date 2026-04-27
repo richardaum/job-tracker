@@ -294,8 +294,9 @@ export function ApplicationCard({
           </div>
           <div className={cn("flex flex-wrap items-center gap-2")}>
             <CompanyNameWithPopover
-              name={app.company.name}
-              description={app.company.description}
+              application={app}
+              onSuccess={onSuccess}
+              onError={onError}
             />
             <span className={cn("text-text-muted")} aria-hidden>
               ·

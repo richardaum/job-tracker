@@ -4,20 +4,27 @@ import React from "react";
 import { Popover, Text, cn } from "@job-tracker/ui";
 import { FieldEditTriggerButton } from "@/modules/applications/details/components/HoverEditableFieldRow";
 import { TipTapContent } from "./TipTapContent";
+import {
+  CompanyEditDialog,
+  type CompanyEditDialogApplication,
+} from "@/modules/applications/shared/components/CompanyEditDialog";
 
 interface CompanyNameWithPopoverProps {
-  name: string;
-  description?: string | null;
+  application: CompanyEditDialogApplication;
   className?: string;
-  onEditDescription?: () => void;
+  onSuccess?: (message: string) => void;
+  onError?: (message: string) => void;
 }
 
 export function CompanyNameWithPopover({
-  name,
-  description,
+  application,
   className,
-  onEditDescription,
+  onSuccess,
+  onError,
 }: CompanyNameWithPopoverProps) {
+  const [editCompanyOpen, setEditCompanyOpen] = React.useState(false);
+  const name = application.company.name;
+  const description = application.company.description;
   const hasDescription = Boolean(description);
 
   return (
@@ -48,16 +55,14 @@ export function CompanyNameWithPopover({
           >
             About the company
           </Text>
-          {onEditDescription && (
-            <FieldEditTriggerButton
-              label={hasDescription ? "Edit description" : "Add description"}
-              onClick={(e) => {
-                e.stopPropagation();
-                onEditDescription();
-              }}
-              className="h-6 w-6 opacity-100"
-            />
-          )}
+          <FieldEditTriggerButton
+            label={hasDescription ? "Edit description" : "Add description"}
+            onClick={(e) => {
+              e.stopPropagation();
+              setEditCompanyOpen(true);
+            }}
+            className="h-6 w-6 opacity-100"
+          />
         </div>
         {hasDescription ? (
           <TipTapContent
@@ -70,6 +75,13 @@ export function CompanyNameWithPopover({
           </Text>
         )}
       </div>
+      <CompanyEditDialog
+        open={editCompanyOpen}
+        onOpenChange={setEditCompanyOpen}
+        application={application}
+        onSuccess={onSuccess}
+        onError={onError}
+      />
     </Popover>
   );
 }
