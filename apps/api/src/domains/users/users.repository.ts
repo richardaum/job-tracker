@@ -35,20 +35,27 @@ export class UserRepository {
       avatarUrl: profile.avatarUrl,
     };
 
-    await this.users.upsert(
-      {
-        id: randomUUID(),
+    const existing = await this.findByGoogleId(values.googleId);
+    if (existing) {
+      await this.users.save({
+        id: existing.id,
+        googleId: existing.googleId,
+        email: values.email,
+        name: values.name,
+        avatarUrl: values.avatarUrl,
+        role: existing.role,
+      });
+    } else {
+      const newId = randomUUID();
+      await this.users.insert({
+        id: newId,
         googleId: values.googleId,
         email: values.email,
         name: values.name,
         avatarUrl: values.avatarUrl,
         role: "user",
-      },
-      {
-        conflictPaths: ["googleId"],
-        skipUpdateIfNoValuesChanged: false,
-      },
-    );
+      });
+    }
 
     const user = await this.findByGoogleId(profile.googleId);
     if (!user) {
