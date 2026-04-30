@@ -1,6 +1,6 @@
 import {
   type CreateApplicationInput,
-  type GenerateApplicationDraftWithAiMutation,
+  type GenerateApplicationDraftWithAiQuery,
   type SalaryPeriod,
 } from "@/gql/hooks";
 
@@ -18,7 +18,7 @@ export type AiDraftFormState = {
 };
 
 type GeneratedDraft =
-  GenerateApplicationDraftWithAiMutation["generateApplicationDraftWithAI"];
+  GenerateApplicationDraftWithAiQuery["generateApplicationDraftWithAI"];
 
 export function formatGeneratedDraftToFormState(
   generated: GeneratedDraft,

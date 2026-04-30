@@ -23,7 +23,7 @@ import {
   ApplicationsDocument,
   useCreateApplicationMutation,
   useCreateApplicationNoteMutation,
-  useGenerateApplicationDraftWithAiMutation,
+  useGenerateApplicationDraftWithAiLazyQuery,
 } from "@/gql/hooks";
 import {
   formatGeneratedDraftToFormState,
@@ -61,7 +61,9 @@ export default function AiApplicationCreatePage() {
 
   const refetchQueries = [{ query: ApplicationsDocument }];
   const [generateDraftWithAi, { loading: generating }] =
-    useGenerateApplicationDraftWithAiMutation();
+    useGenerateApplicationDraftWithAiLazyQuery({
+      fetchPolicy: "no-cache",
+    });
   const [createApplication, { loading: creating }] =
     useCreateApplicationMutation({ refetchQueries });
   const [createApplicationNote] = useCreateApplicationNoteMutation();

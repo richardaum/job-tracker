@@ -7,7 +7,7 @@ import { TipTapContent } from "./TipTapContent";
 import {
   CompanyEditDialog,
   type CompanyEditDialogApplication,
-} from "@/modules/applications/shared/components/CompanyEditDialog";
+} from "@/modules/companies/shared/components/CompanyEditDialog";
 
 interface CompanyNameWithPopoverProps {
   application: CompanyEditDialogApplication;

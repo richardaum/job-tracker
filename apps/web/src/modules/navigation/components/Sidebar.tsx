@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
+  BuildingsIcon,
   BriefcaseIcon,
   GearIcon,
   MagnifyingGlassIcon,
@@ -20,6 +21,7 @@ const API_URL = NEXT_PUBLIC_API_URL ?? "http://localhost:3101";
 
 const navItems = [
   { href: "/applications", label: "Applications", icon: BriefcaseIcon },
+  { href: "/companies", label: "Companies", icon: BuildingsIcon },
 ];
 
 const bottomItems = [
