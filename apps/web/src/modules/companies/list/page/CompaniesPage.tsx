@@ -2,8 +2,8 @@
 
 import { MagnifyingGlassIcon } from "@phosphor-icons/react";
 import { Card, Input, Skeleton, Stack, Text, Toast, cn } from "@job-tracker/ui";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useMemo, useState } from "react";
 import { useCompaniesQuery } from "@/gql/hooks";
 import { normalizeTipTapDocument } from "@/modules/applications/shared/utils/tiptap";
 import { CompanyCard } from "@/modules/companies/list/components/CompanyCard";
@@ -39,10 +39,7 @@ function CompaniesListSkeleton({ count = 4 }: { count?: number }) {
 
 export default function CompaniesPage() {
   const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
   const [query, setQuery] = useState("");
-  const [focusedCompanyId, setFocusedCompanyId] = useState<string | null>(null);
   const [editingCompany, setEditingCompany] = useState<EditingCompany | null>(
     null,
   );
@@ -63,32 +60,6 @@ export default function CompaniesPage() {
       company.name.toLowerCase().includes(normalizedSearch),
     );
   }, [companies, query]);
-
-  useEffect(() => {
-    const nextFocusCompanyId = searchParams.get("focusCompanyId");
-    if (!nextFocusCompanyId) return;
-    if (!companies.some((company) => company.id === nextFocusCompanyId)) return;
-
-    requestAnimationFrame(() => {
-      setFocusedCompanyId(nextFocusCompanyId);
-      const element = document.getElementById(`company-${nextFocusCompanyId}`);
-      element?.scrollIntoView({ behavior: "smooth", block: "center" });
-    });
-
-    const timeout = window.setTimeout(() => {
-      setFocusedCompanyId((current) =>
-        current === nextFocusCompanyId ? null : current,
-      );
-      const params = new URLSearchParams(searchParams.toString());
-      params.delete("focusCompanyId");
-      const nextQuery = params.toString();
-      router.replace(nextQuery ? `${pathname}?${nextQuery}` : pathname, {
-        scroll: false,
-      });
-    }, 3000);
-
-    return () => window.clearTimeout(timeout);
-  }, [companies, pathname, router, searchParams]);
 
   function openEditModal(company: EditingCompany) {
     setEditingCompany(company);
@@ -160,8 +131,6 @@ export default function CompaniesPage() {
                   name: company.name,
                   description: company.description ?? null,
                 }}
-                containerId={`company-${company.id}`}
-                isFocused={focusedCompanyId === company.id}
                 onEdit={openEditModal}
                 onViewJobs={(companyName) =>
                   router.push(

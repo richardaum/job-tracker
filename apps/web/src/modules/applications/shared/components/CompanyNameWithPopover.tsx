@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { ArrowSquareOutIcon, ListBulletsIcon } from "@phosphor-icons/react";
+import { ArrowSquareOutIcon } from "@phosphor-icons/react";
 import { IconButton, Popover, Text, cn } from "@job-tracker/ui";
 import { useRouter } from "next/navigation";
 import { FieldEditTriggerButton } from "@/modules/applications/details/components/HoverEditableFieldRow";
@@ -77,20 +77,6 @@ export function CompanyNameWithPopover({
               e.stopPropagation();
               router.push(
                 `/companies/${encodeURIComponent(application.company.id)}`,
-              );
-            }}
-          />
-          <IconButton
-            intent="ghost"
-            size="sm"
-            label={`View ${name} in companies list`}
-            tooltip="View in companies list"
-            icon={<ListBulletsIcon size={14} weight="regular" />}
-            className="h-6 w-6 opacity-100"
-            onClick={(e) => {
-              e.stopPropagation();
-              router.push(
-                `/companies?focusCompanyId=${encodeURIComponent(application.company.id)}`,
               );
             }}
           />
