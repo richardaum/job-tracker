@@ -16,9 +16,7 @@ export function useGenerateCompanyDescriptionAiAction({
   onError,
 }: UseGenerateCompanyDescriptionAiActionArgs): TipTapAiAction {
   const [generateCompanyDescription, { loading }] =
-    useGenerateCompanyDescriptionLazyQuery({
-      fetchPolicy: "no-cache",
-    });
+    useGenerateCompanyDescriptionLazyQuery({ fetchPolicy: "no-cache" });
 
   return useMemo(
     () => ({

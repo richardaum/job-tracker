@@ -27,9 +27,7 @@ export default defineConfig(
   ...tseslint.configs.recommended,
   {
     files: ["**/*.{js,mjs,cjs,ts,tsx}"],
-    languageOptions: {
-      globals: { ...globals.node },
-    },
+    languageOptions: { globals: { ...globals.node } },
   },
   {
     files: [
@@ -42,9 +40,7 @@ export default defineConfig(
       globals: { ...globals.browser, ...globals.node },
       parserOptions: { ecmaFeatures: { jsx: true } },
     },
-    plugins: {
-      "react-hooks": reactHooks as Record<string, unknown>,
-    },
+    plugins: { "react-hooks": reactHooks as Record<string, unknown> },
     rules: {
       ...reactHooks.configs.recommended.rules,
       "no-restricted-syntax": [
@@ -70,14 +66,10 @@ export default defineConfig(
         },
       ],
     },
-    settings: {
-      react: { version: "detect" },
-    },
+    settings: { react: { version: "detect" } },
   },
   {
-    plugins: {
-      "@next/next": nextPlugin as Record<string, unknown>,
-    },
+    plugins: { "@next/next": nextPlugin as Record<string, unknown> },
     rules: {
       ...nextPlugin.configs.recommended.rules,
       ...nextPlugin.configs["core-web-vitals"].rules,
@@ -130,14 +122,8 @@ export default defineConfig(
       "**/*.{test,spec}.{ts,tsx}",
       "apps/web/src/gql/**",
     ],
-    languageOptions: {
-      parserOptions: {
-        projectService: true,
-      },
-    },
-    rules: {
-      "@typescript-eslint/no-deprecated": "error",
-    },
+    languageOptions: { parserOptions: { projectService: true } },
+    rules: { "@typescript-eslint/no-deprecated": "error" },
   },
   eslintConfigPrettier,
 );

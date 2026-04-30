@@ -4,9 +4,7 @@ import { Select } from "./Select";
 const meta: Meta<typeof Select> = {
   title: "Components/Select",
   component: Select,
-  parameters: {
-    layout: "centered",
-  },
+  parameters: { layout: "centered" },
   tags: ["autodocs"],
 };
 
@@ -20,16 +18,9 @@ const options = [
 ];
 
 export const Default: Story = {
-  args: {
-    placeholder: "Select stage",
-    options,
-  },
+  args: { placeholder: "Select stage", options },
 };
 
 export const Error: Story = {
-  args: {
-    placeholder: "Select stage",
-    options,
-    state: "error",
-  },
+  args: { placeholder: "Select stage", options, state: "error" },
 };

@@ -31,10 +31,7 @@ export class ApplicationNoteEntity {
   @Column({ name: "user_id", type: "text" })
   userId!: string;
 
-  @Column({
-    type: "text",
-    default: EMPTY_TIPTAP_DOC,
-  })
+  @Column({ type: "text", default: EMPTY_TIPTAP_DOC })
   content!: string;
 
   @Column({ type: "int", default: 1 })

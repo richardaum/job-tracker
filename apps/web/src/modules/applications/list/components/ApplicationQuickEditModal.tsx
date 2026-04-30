@@ -96,9 +96,7 @@ function ApplicationQuickEditModalForm({
 
     try {
       if (isEdit && application) {
-        await updateApplication({
-          variables: { id: application.id, input },
-        });
+        await updateApplication({ variables: { id: application.id, input } });
         onSuccess?.("Application updated.");
       } else {
         await createApplication({ variables: { input } });

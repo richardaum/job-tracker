@@ -4,9 +4,7 @@ import { Alert } from "./Alert";
 const meta: Meta<typeof Alert> = {
   title: "Components/Alert",
   component: Alert,
-  parameters: {
-    layout: "centered",
-  },
+  parameters: { layout: "centered" },
   tags: ["autodocs"],
 };
 

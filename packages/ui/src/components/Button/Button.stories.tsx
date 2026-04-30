@@ -5,40 +5,25 @@ import { Button } from "./Button";
 const meta: Meta<typeof Button> = {
   title: "Components/Button",
   component: Button,
-  parameters: {
-    layout: "centered",
-  },
+  parameters: { layout: "centered" },
   tags: ["autodocs"],
 };
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = {
-  args: {
-    children: "Click me",
-  },
-};
+export const Default: Story = { args: { children: "Click me" } };
 
 export const Secondary: Story = {
-  args: {
-    children: "Secondary",
-    intent: "secondary",
-  },
+  args: { children: "Secondary", intent: "secondary" },
 };
 
 export const Outlined: Story = {
-  args: {
-    children: "Outlined",
-    intent: "outlined",
-  },
+  args: { children: "Outlined", intent: "outlined" },
 };
 
 export const Destructive: Story = {
-  args: {
-    children: "Delete",
-    intent: "destructive",
-  },
+  args: { children: "Delete", intent: "destructive" },
 };
 
 export const Loading: Story = {

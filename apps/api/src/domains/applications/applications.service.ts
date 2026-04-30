@@ -54,9 +54,7 @@ type CreateWithAIDto = {
   prompt: string;
   fields?: AiExtractionFieldInput[] | null;
 };
-type GenerateCompanyDescriptionDto = {
-  companyName: string;
-};
+type GenerateCompanyDescriptionDto = { companyName: string };
 
 type ApplicationWithCurrentStage = Application & {
   currentStage: ApplicationStageEnum;

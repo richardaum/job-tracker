@@ -6,9 +6,7 @@ import { cn } from "@ui/lib/cn";
 const meta: Meta<typeof FormField> = {
   title: "Components/FormField",
   component: FormField,
-  parameters: {
-    layout: "centered",
-  },
+  parameters: { layout: "centered" },
   tags: ["autodocs"],
 };
 

@@ -5,9 +5,7 @@ import { cn } from "@ui/lib/cn";
 const meta: Meta<typeof Container> = {
   title: "Components/Container",
   component: Container,
-  parameters: {
-    layout: "fullscreen",
-  },
+  parameters: { layout: "fullscreen" },
   tags: ["autodocs"],
 };
 

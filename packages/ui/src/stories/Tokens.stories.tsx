@@ -2,10 +2,7 @@ import React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
 import { cn } from "@ui/lib/cn";
 
-type ColorToken = {
-  name: string;
-  cssVar: string;
-};
+type ColorToken = { name: string; cssVar: string };
 
 const primitiveColors: ColorToken[] = [
   { name: "brand-50", cssVar: "--primitive-color-brand-50" },
@@ -109,9 +106,7 @@ function TokensShowcase() {
 const meta: Meta<typeof TokensShowcase> = {
   title: "Foundations/Tokens",
   component: TokensShowcase,
-  parameters: {
-    layout: "fullscreen",
-  },
+  parameters: { layout: "fullscreen" },
   tags: ["autodocs"],
 };
 

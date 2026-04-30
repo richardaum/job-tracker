@@ -6,9 +6,7 @@ import {
   plainTextToTipTap,
 } from "@api/domains/shared/tiptap.util";
 
-type GenerateCompanyDescriptionInput = {
-  companyName: string;
-};
+type GenerateCompanyDescriptionInput = { companyName: string };
 
 @Injectable()
 export class CompanyAiService {
@@ -57,10 +55,7 @@ export class CompanyAiService {
         {
           role: "user",
           content: [
-            {
-              type: "input_text",
-              text: `Company name: ${companyName}`,
-            },
+            { type: "input_text", text: `Company name: ${companyName}` },
           ],
         },
       ],
@@ -72,9 +67,7 @@ export class CompanyAiService {
           schema: {
             type: "object",
             additionalProperties: false,
-            properties: {
-              description: { type: "string" },
-            },
+            properties: { description: { type: "string" } },
             required: ["description"],
           },
         },

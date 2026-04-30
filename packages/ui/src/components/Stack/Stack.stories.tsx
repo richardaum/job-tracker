@@ -5,9 +5,7 @@ import { cn } from "@ui/lib/cn";
 const meta: Meta<typeof Stack> = {
   title: "Components/Stack",
   component: Stack,
-  parameters: {
-    layout: "padded",
-  },
+  parameters: { layout: "padded" },
   tags: ["autodocs"],
 };
 

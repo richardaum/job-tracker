@@ -6,9 +6,7 @@ import { UserService } from "@api/domains/users/users.service";
 import { RolesGuard } from "./roles.guard";
 
 function makeContext(userId: string | undefined): ExecutionContext {
-  const request = {
-    user: userId !== undefined ? { userId } : undefined,
-  };
+  const request = { user: userId !== undefined ? { userId } : undefined };
   const gqlContext = { req: request };
   const args = [{}, {}, gqlContext, {}];
 
@@ -49,9 +47,7 @@ describe("RolesGuard", () => {
     const reflector = {
       getAllAndOverride: vi.fn().mockReturnValue(undefined),
     } as unknown as Reflector;
-    const userService = {
-      findById: vi.fn(),
-    } as unknown as UserService;
+    const userService = { findById: vi.fn() } as unknown as UserService;
     const guard = new RolesGuard(reflector, userService);
     expect(await guard.canActivate(makeContext(undefined))).toBe(true);
     expect(userService.findById).not.toHaveBeenCalled();

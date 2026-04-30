@@ -4,9 +4,7 @@ import { GoogleLoginButton } from "./GoogleLoginButton";
 const meta: Meta<typeof GoogleLoginButton> = {
   title: "Components/GoogleLoginButton",
   component: GoogleLoginButton,
-  parameters: {
-    layout: "centered",
-  },
+  parameters: { layout: "centered" },
   tags: ["autodocs"],
 };
 

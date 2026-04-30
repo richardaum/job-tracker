@@ -28,9 +28,7 @@ export type UpdateApplicationRepoDto = Partial<CreateApplicationRepoDto>;
 type CreateStageEventDto = Pick<
   NewApplicationStageEvent,
   "toStage" | "source" | "reason" | "scheduledAt"
-> & {
-  fromStage?: NewApplicationStageEvent["fromStage"];
-};
+> & { fromStage?: NewApplicationStageEvent["fromStage"] };
 type UpdateStageEventDto = Pick<
   NewApplicationStageEvent,
   "toStage" | "reason" | "scheduledAt"
@@ -120,10 +118,7 @@ export class ApplicationRepository {
     userId: string,
     dto: CreateApplicationRepoDto,
   ): Promise<Application> {
-    const row = this.applicationsRepo.create({
-      userId,
-      ...dto,
-    });
+    const row = this.applicationsRepo.create({ userId, ...dto });
     return this.applicationsRepo.save(row);
   }
 

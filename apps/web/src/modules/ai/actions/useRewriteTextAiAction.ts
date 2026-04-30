@@ -14,9 +14,7 @@ export function useRewriteTextAiAction({
   disabled = false,
 }: UseRewriteTextAiActionArgs): TipTapAiAction {
   const [rewriteApplicationTextWithAi, { loading }] =
-    useRewriteApplicationTextWithAiLazyQuery({
-      fetchPolicy: "no-cache",
-    });
+    useRewriteApplicationTextWithAiLazyQuery({ fetchPolicy: "no-cache" });
 
   return useMemo(
     () => ({

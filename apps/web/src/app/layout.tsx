@@ -13,10 +13,7 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: {
-    default: APP_TITLE,
-    template: TITLE_TEMPLATE,
-  },
+  title: { default: APP_TITLE, template: TITLE_TEMPLATE },
   description: APP_DESCRIPTION,
 };
 

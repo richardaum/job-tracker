@@ -39,9 +39,7 @@ export function NoteEditDialog({
   onSave,
 }: NoteEditDialogProps) {
   const { generateNote, isLoading: isGeneratingNoteWithAi } =
-    useApplicationNoteAiGenerator({
-      applicationId,
-    });
+    useApplicationNoteAiGenerator({ applicationId });
   const editImproveNoteAction = useImproveApplicationNoteAiAction({
     disabled: !note || updatingNote || deletingNote,
     isLoading: isGeneratingNoteWithAi,

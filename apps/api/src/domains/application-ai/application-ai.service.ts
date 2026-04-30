@@ -4,10 +4,7 @@ import { type AiExtractionFieldInput } from "@api/domains/applications/create-ap
 import { OPENAI_MODEL } from "@api/env/server";
 import { OpenAIService } from "./openai.service";
 
-type GenerateDraftInput = {
-  prompt: string;
-  fields: AiExtractionFieldInput[];
-};
+type GenerateDraftInput = { prompt: string; fields: AiExtractionFieldInput[] };
 
 type GenerateDraftResponse = {
   title: string;
@@ -135,14 +132,8 @@ export class ApplicationAiService {
                 type: ["string", "null"],
                 enum: ["year", "month", "hour", null],
               },
-              tags: {
-                type: "array",
-                items: { type: "string" },
-              },
-              noteContents: {
-                type: "array",
-                items: { type: "string" },
-              },
+              tags: { type: "array", items: { type: "string" } },
+              noteContents: { type: "array", items: { type: "string" } },
             },
             required: [
               "title",

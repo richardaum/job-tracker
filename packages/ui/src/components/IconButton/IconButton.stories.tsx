@@ -5,9 +5,7 @@ import { IconButton } from "./IconButton";
 const meta: Meta<typeof IconButton> = {
   title: "Components/IconButton",
   component: IconButton,
-  parameters: {
-    layout: "centered",
-  },
+  parameters: { layout: "centered" },
   tags: ["autodocs"],
 };
 

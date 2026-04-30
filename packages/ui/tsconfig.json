@@ -9,9 +9,7 @@
     "declaration": true,
     "outDir": "./dist",
     "baseUrl": ".",
-    "paths": {
-      "@ui/*": ["./src/*"]
-    }
+    "paths": { "@ui/*": ["./src/*"] }
   },
   "include": ["src/**/*", "vitest.setup.ts"],
   "exclude": ["node_modules", "dist"]

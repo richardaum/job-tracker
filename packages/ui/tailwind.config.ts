@@ -6,9 +6,4 @@
  * compatibility and documents the content paths used by the package.
  */
 
-export default {
-  content: ["./src/**/*.{ts,tsx}"],
-  theme: {
-    extend: {},
-  },
-};
+export default { content: ["./src/**/*.{ts,tsx}"], theme: { extend: {} } };

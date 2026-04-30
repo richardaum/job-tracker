@@ -37,9 +37,7 @@ describe("NoteService", () => {
       delete: vi.fn(),
     } as unknown as NoteRepository;
 
-    noteAiService = {
-      generateNote: vi.fn(),
-    } as unknown as NoteAiService;
+    noteAiService = { generateNote: vi.fn() } as unknown as NoteAiService;
     service = new NoteService(repo, noteAiService);
   });
 
@@ -104,9 +102,7 @@ describe("NoteService", () => {
     vi.mocked(repo.findByIdAndUserId).mockResolvedValue(null);
 
     await expect(
-      service.updateNote("note-1", "user-1", {
-        expectedRevision: 1,
-      }),
+      service.updateNote("note-1", "user-1", { expectedRevision: 1 }),
     ).rejects.toThrow(NotFoundException);
   });
 

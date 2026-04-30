@@ -7,6 +7,4 @@ export enum SalaryPeriodEnum {
   HOUR = "hour",
 }
 
-registerEnumType(SalaryPeriodEnum, {
-  name: "SalaryPeriod",
-});
+registerEnumType(SalaryPeriodEnum, { name: "SalaryPeriod" });

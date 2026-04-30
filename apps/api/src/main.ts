@@ -11,19 +11,13 @@ import { setupFileLogger } from "@job-tracker/logger";
 
 setupFileLogger({ filename: "api.log" });
 
-Sentry.init({
-  dsn: SENTRY_DSN,
-  tracesSampleRate: 1.0,
-});
+Sentry.init({ dsn: SENTRY_DSN, tracesSampleRate: 1.0 });
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   app.use(cookieParser());
   app.use(passport.initialize());
-  app.enableCors({
-    origin: true,
-    credentials: true,
-  });
+  app.enableCors({ origin: true, credentials: true });
   await app.listen(PORT, "0.0.0.0");
 }
 

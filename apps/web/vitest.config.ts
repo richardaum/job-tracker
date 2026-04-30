@@ -18,9 +18,7 @@ export default defineConfig({
         "src/lib/apollo-client.ts",
       ],
       exclude: ["**/*.test.{ts,tsx}"],
-      thresholds: {
-        lines: 80,
-      },
+      thresholds: { lines: 80 },
     },
   },
   resolve: {

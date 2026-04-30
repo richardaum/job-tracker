@@ -9,18 +9,11 @@ const dirname = path.dirname(fileURLToPath(import.meta.url));
 const config: StorybookConfig = {
   stories: ["../src/**/*.stories.@(js|jsx|mjs|ts|tsx)"],
   addons: [],
-  framework: {
-    name: "@storybook/react-vite",
-    options: {},
-  },
+  framework: { name: "@storybook/react-vite", options: {} },
   async viteFinal(baseConfig) {
     return mergeConfig(baseConfig, {
       plugins: [tailwindcss()],
-      resolve: {
-        alias: {
-          "@ui": path.resolve(dirname, "../src"),
-        },
-      },
+      resolve: { alias: { "@ui": path.resolve(dirname, "../src") } },
     });
   },
 };

@@ -12,9 +12,7 @@ import { cn } from "@ui/lib/cn";
 export type ToastIntent = "info" | "success" | "warning" | "error";
 
 export interface ToastProps {
-  trigger: React.ReactElement<{
-    onClick?: React.MouseEventHandler;
-  }>;
+  trigger: React.ReactElement<{ onClick?: React.MouseEventHandler }>;
   title: string;
   description?: string;
   intent?: ToastIntent;

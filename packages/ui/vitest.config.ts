@@ -2,11 +2,7 @@ import path from "path";
 import { defineConfig } from "vitest/config";
 
 export default defineConfig({
-  resolve: {
-    alias: {
-      "@ui": path.resolve(__dirname, "src"),
-    },
-  },
+  resolve: { alias: { "@ui": path.resolve(__dirname, "src") } },
   test: {
     environment: "jsdom",
     globals: true,
@@ -19,9 +15,7 @@ export default defineConfig({
         "src/components/**/*.test.{ts,tsx}",
         "src/components/**/*.stories.{ts,tsx}",
       ],
-      thresholds: {
-        lines: 80,
-      },
+      thresholds: { lines: 80 },
     },
   },
 });

@@ -8,9 +8,7 @@ const config: CodegenConfig = {
   schema: join(here, "../api/src/schema.gql"),
   documents: ["src/graphql/**/*.graphql"],
   generates: {
-    "src/gql/": {
-      preset: "client",
-    },
+    "src/gql/": { preset: "client" },
     "src/gql/hooks.ts": {
       plugins: [
         "typescript",

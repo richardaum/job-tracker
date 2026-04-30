@@ -10,15 +10,9 @@ import {
 } from "../shared/tiptap.util";
 import { NOTE_AI_STRUCTURED_RESPONSE_SCHEMA } from "../shared/tiptap.schema";
 
-type GenerateNoteInput = {
-  description: string;
-  note: string;
-};
+type GenerateNoteInput = { description: string; note: string };
 
-type RewriteTextInput = {
-  description: string;
-  text: string;
-};
+type RewriteTextInput = { description: string; text: string };
 
 @Injectable()
 export class NoteAiService {

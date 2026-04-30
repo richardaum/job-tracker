@@ -16,9 +16,7 @@ export function useApplicationNoteAiGenerator({
   applicationId,
 }: UseApplicationNoteAiGeneratorArgs): UseApplicationNoteAiGeneratorResult {
   const [generateApplicationNoteWithAi, { loading }] =
-    useGenerateApplicationNoteWithAiLazyQuery({
-      fetchPolicy: "no-cache",
-    });
+    useGenerateApplicationNoteWithAiLazyQuery({ fetchPolicy: "no-cache" });
 
   const generateNote = useCallback(
     async (source: string): Promise<string> => {
@@ -32,8 +30,5 @@ export function useApplicationNoteAiGenerator({
     [applicationId, generateApplicationNoteWithAi],
   );
 
-  return {
-    isLoading: loading,
-    generateNote,
-  };
+  return { isLoading: loading, generateNote };
 }

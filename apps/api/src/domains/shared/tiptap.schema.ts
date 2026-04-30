@@ -12,11 +12,7 @@ export const NOTE_AI_STRUCTURED_RESPONSE_SCHEMA: JsonSchema = {
         additionalProperties: false,
         properties: {
           heading: { type: "string" },
-          bullets: {
-            type: "array",
-            minItems: 1,
-            items: { type: "string" },
-          },
+          bullets: { type: "array", minItems: 1, items: { type: "string" } },
         },
         required: ["heading", "bullets"],
       },

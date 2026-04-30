@@ -8,10 +8,7 @@ import { RequestMetricsInterceptor } from "./request-metrics.interceptor";
   providers: [
     RequestMetricsContext,
     DatabasePoolInterceptor,
-    {
-      provide: APP_INTERCEPTOR,
-      useClass: RequestMetricsInterceptor,
-    },
+    { provide: APP_INTERCEPTOR, useClass: RequestMetricsInterceptor },
   ],
   exports: [RequestMetricsContext, DatabasePoolInterceptor],
 })

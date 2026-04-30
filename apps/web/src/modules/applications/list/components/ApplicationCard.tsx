@@ -44,11 +44,7 @@ export interface ApplicationCardApplication {
   id: string;
   title: string;
   companyId: string;
-  company: {
-    id: string;
-    name: string;
-    description?: string | null;
-  };
+  company: { id: string; name: string; description?: string | null };
   description?: string | null;
   url?: string | null;
   salaryMinCents?: number | null;

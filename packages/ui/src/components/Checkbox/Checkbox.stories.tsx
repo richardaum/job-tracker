@@ -5,9 +5,7 @@ import { cn } from "@ui/lib/cn";
 const meta: Meta<typeof Checkbox> = {
   title: "Components/Checkbox",
   component: Checkbox,
-  parameters: {
-    layout: "centered",
-  },
+  parameters: { layout: "centered" },
   tags: ["autodocs"],
 };
 
@@ -25,8 +23,4 @@ export const Default: Story = {
   ),
 };
 
-export const Error: Story = {
-  args: {
-    state: "error",
-  },
-};
+export const Error: Story = { args: { state: "error" } };

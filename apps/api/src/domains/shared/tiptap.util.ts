@@ -34,14 +34,9 @@ export function normalizeTipTapDocument(input: string): string {
 
 export type TipTapDocument = Record<string, unknown>;
 
-export type StructuredNoteSection = {
-  heading: string;
-  bullets: string[];
-};
+export type StructuredNoteSection = { heading: string; bullets: string[] };
 
-export type StructuredNoteOutput = {
-  sections: StructuredNoteSection[];
-};
+export type StructuredNoteOutput = { sections: StructuredNoteSection[] };
 
 export function normalizeGeneratedTipTapDocument(
   note: TipTapDocument,
@@ -122,10 +117,7 @@ export function structuredNoteToTipTapDocument(
         content: bullets.map((bullet) => ({
           type: "listItem",
           content: [
-            {
-              type: "paragraph",
-              content: [{ type: "text", text: bullet }],
-            },
+            { type: "paragraph", content: [{ type: "text", text: bullet }] },
           ],
         })),
       });

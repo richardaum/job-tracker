@@ -10,10 +10,7 @@ const nextConfig: NextConfig = {
   distDir: process.env.NODE_ENV === "development" ? ".next-dev" : ".next",
   images: {
     remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "lh3.googleusercontent.com",
-      },
+      { protocol: "https", hostname: "lh3.googleusercontent.com" },
     ],
   },
   webpack: (config) => {
@@ -27,9 +24,7 @@ const nextConfig: NextConfig = {
     config.plugins.push(
       new RsdoctorWebpackPlugin({
         disableClientServer: true,
-        output: {
-          reportDir: `./.rsdoctor/${targetName}`,
-        },
+        output: { reportDir: `./.rsdoctor/${targetName}` },
       }),
     );
 
@@ -37,7 +32,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default withSentryConfig(nextConfig, {
-  silent: true,
-  telemetry: false,
-});
+export default withSentryConfig(nextConfig, { silent: true, telemetry: false });

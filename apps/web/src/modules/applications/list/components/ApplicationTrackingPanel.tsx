@@ -74,10 +74,7 @@ export function ApplicationTrackingPanel({
   const [createStageEvent, { loading: stageSaving }] =
     useCreateApplicationStageEventMutation({
       refetchQueries: [
-        {
-          query: ApplicationStageEventsDocument,
-          variables: { applicationId },
-        },
+        { query: ApplicationStageEventsDocument, variables: { applicationId } },
       ],
     });
 

@@ -50,10 +50,7 @@ export class EnsureCompanyDescriptionTiptap1750000000000 implements MigrationInt
       }));
 
     if (paragraphs.length === 0) {
-      return JSON.stringify({
-        type: "doc",
-        content: [{ type: "paragraph" }],
-      });
+      return JSON.stringify({ type: "doc", content: [{ type: "paragraph" }] });
     }
 
     return JSON.stringify({ type: "doc", content: paragraphs });

@@ -39,8 +39,5 @@ export function useNotesComposerBehavior({
     // Scroll is handled when notesCount updates.
   }, []);
 
-  return {
-    notesEndRef,
-    handleNoteSent,
-  };
+  return { notesEndRef, handleNoteSent };
 }

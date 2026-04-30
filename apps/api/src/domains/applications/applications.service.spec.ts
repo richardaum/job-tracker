@@ -95,9 +95,7 @@ describe("ApplicationService", () => {
     companyAiService = {
       generateCompanyDescription: vi.fn(),
     } as unknown as CompanyAiService;
-    noteService = {
-      createNote: vi.fn(),
-    } as unknown as NoteService;
+    noteService = { createNote: vi.fn() } as unknown as NoteService;
 
     service = new ApplicationService(
       repo,
@@ -252,9 +250,7 @@ describe("ApplicationService", () => {
     vi.mocked(repo.findOneByIdAndUserId).mockResolvedValue(makeApp());
 
     await expect(
-      service.update("app-1", "user-1", {
-        description: "plain text",
-      }),
+      service.update("app-1", "user-1", { description: "plain text" }),
     ).rejects.toThrow("description must be valid TipTap document JSON");
   });
 

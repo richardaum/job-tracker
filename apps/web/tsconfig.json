@@ -7,15 +7,8 @@
     "moduleResolution": "bundler",
     "jsx": "preserve",
     "incremental": true,
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ],
-    "paths": {
-      "@/*": ["./src/*"],
-      "@ui/*": ["../../packages/ui/src/*"]
-    },
+    "plugins": [{ "name": "next" }],
+    "paths": { "@/*": ["./src/*"], "@ui/*": ["../../packages/ui/src/*"] },
     "allowJs": true,
     "noEmit": true
   },

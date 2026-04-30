@@ -9,6 +9,4 @@ export enum ApplicationStageEnum {
   REJECTED = "rejected",
 }
 
-registerEnumType(ApplicationStageEnum, {
-  name: "ApplicationStage",
-});
+registerEnumType(ApplicationStageEnum, { name: "ApplicationStage" });

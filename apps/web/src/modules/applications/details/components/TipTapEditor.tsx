@@ -211,10 +211,7 @@ export function TipTapEditor({
 
   const editor = useEditor({
     extensions: [
-      StarterKit.configure({
-        codeBlock: false,
-        horizontalRule: false,
-      }),
+      StarterKit.configure({ codeBlock: false, horizontalRule: false }),
       Placeholder.configure({ placeholder }),
     ],
     content: parseTipTapDocument(value),
@@ -273,11 +270,7 @@ export function TipTapEditor({
     }),
   });
 
-  const { clearDocument } = useTipTapEditorHandle({
-    ref,
-    editor,
-    onChange,
-  });
+  const { clearDocument } = useTipTapEditorHandle({ ref, editor, onChange });
 
   const hasVerticalOverflow = useHasVerticalOverflow(
     (editor?.view.dom as HTMLElement | undefined) ?? null,
@@ -340,10 +333,7 @@ export function TipTapEditor({
           return;
         }
 
-        const rewrittenValue = await action.run({
-          sourceText,
-          documentText,
-        });
+        const rewrittenValue = await action.run({ sourceText, documentText });
         if (rewrittenValue == null) {
           return;
         }

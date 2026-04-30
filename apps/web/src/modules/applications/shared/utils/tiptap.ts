@@ -3,11 +3,7 @@ export const EMPTY_TIPTAP_DOC = JSON.stringify({
   content: [{ type: "paragraph" }],
 });
 
-type TipTapNode = {
-  type?: string;
-  text?: string;
-  content?: TipTapNode[];
-};
+type TipTapNode = { type?: string; text?: string; content?: TipTapNode[] };
 
 function collectText(node: TipTapNode): string {
   if (node.type === "text" && typeof node.text === "string") {
@@ -75,10 +71,7 @@ export function plainTextToTipTap(input: string): string {
   return JSON.stringify({ type: "doc", content: paragraphs });
 }
 
-type TipTapDocument = {
-  type: "doc";
-  content: TipTapNode[];
-};
+type TipTapDocument = { type: "doc"; content: TipTapNode[] };
 
 function isTipTapDocument(value: unknown): value is TipTapDocument {
   if (!value || typeof value !== "object") return false;

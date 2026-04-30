@@ -53,17 +53,11 @@ export default function AiApplicationCreatePage() {
     open: boolean;
     message: string;
     intent: "success" | "error";
-  }>({
-    open: false,
-    message: "",
-    intent: "success",
-  });
+  }>({ open: false, message: "", intent: "success" });
 
   const refetchQueries = [{ query: ApplicationsDocument }];
   const [generateDraftWithAi, { loading: generating }] =
-    useGenerateApplicationDraftWithAiLazyQuery({
-      fetchPolicy: "no-cache",
-    });
+    useGenerateApplicationDraftWithAiLazyQuery({ fetchPolicy: "no-cache" });
   const [createApplication, { loading: creating }] =
     useCreateApplicationMutation({ refetchQueries });
   const [createApplicationNote] = useCreateApplicationNoteMutation();
@@ -135,9 +129,7 @@ export default function AiApplicationCreatePage() {
 
     try {
       const created = await createApplication({
-        variables: {
-          input: parseCreateApplicationInput(draft),
-        },
+        variables: { input: parseCreateApplicationInput(draft) },
       });
 
       const applicationId = created.data?.createApplication.id;
@@ -148,10 +140,7 @@ export default function AiApplicationCreatePage() {
       for (const note of notes) {
         await createApplicationNote({
           variables: {
-            input: {
-              applicationId,
-              content: toTipTapDocument(note),
-            },
+            input: { applicationId, content: toTipTapDocument(note) },
           },
         });
       }

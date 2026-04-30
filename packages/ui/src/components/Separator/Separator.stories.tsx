@@ -5,9 +5,7 @@ import { cn } from "@ui/lib/cn";
 const meta: Meta<typeof Separator> = {
   title: "Components/Separator",
   component: Separator,
-  parameters: {
-    layout: "centered",
-  },
+  parameters: { layout: "centered" },
   tags: ["autodocs"],
 };
 

@@ -32,12 +32,7 @@ export class UserEntity {
   @Column({ name: "avatar_url", type: "text", nullable: true })
   avatarUrl!: string | null;
 
-  @Column({
-    type: "enum",
-    enum: ["user"],
-    enumName: "role",
-    default: "user",
-  })
+  @Column({ type: "enum", enum: ["user"], enumName: "role", default: "user" })
   role!: "user";
 
   @CreateDateColumn({ name: "created_at", type: "timestamp" })

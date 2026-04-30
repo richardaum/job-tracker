@@ -70,10 +70,7 @@ export function HistoryPanel({
   const [updateStageEvent, { loading: updatingStageEvent }] =
     useUpdateApplicationStageEventMutation({
       refetchQueries: [
-        {
-          query: ApplicationStageEventsDocument,
-          variables: { applicationId },
-        },
+        { query: ApplicationStageEventsDocument, variables: { applicationId } },
       ],
     });
 

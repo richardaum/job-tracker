@@ -16,9 +16,7 @@ function makeHttpContext(): ExecutionContext {
     getType: () => "http",
     getHandler: () => function handler() {},
     getClass: () => class TestController {},
-    switchToHttp: () => ({
-      getRequest: () => ({}),
-    }),
+    switchToHttp: () => ({ getRequest: () => ({}) }),
   } as unknown as ExecutionContext;
 }
 

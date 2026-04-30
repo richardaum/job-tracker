@@ -5,9 +5,7 @@ import { IconButton, Text, cn } from "@job-tracker/ui";
 type FieldEditTriggerButtonProps = Omit<
   React.ComponentProps<typeof IconButton>,
   "icon" | "intent" | "size" | "tooltip"
-> & {
-  label: string;
-};
+> & { label: string };
 
 export function FieldEditTriggerButton({
   label,

@@ -9,15 +9,9 @@ import { NoteRepository } from "./notes.repository";
 import { Note } from "./notes.schema";
 import { NoteAiService } from "@api/domains/note-ai/note-ai.service";
 
-type CreateNoteDto = {
-  applicationId: string;
-  content: string;
-};
+type CreateNoteDto = { applicationId: string; content: string };
 
-type UpdateNoteDto = {
-  content?: string;
-  expectedRevision: number;
-};
+type UpdateNoteDto = { content?: string; expectedRevision: number };
 
 @Injectable()
 export class NoteService {

@@ -96,14 +96,9 @@ type NoteType {
 
 type Query {
   me: UserType!
-  applications(
-    filter: ApplicationQuickFilter
-    company: String
-  ): [ApplicationType!]!
+  applications(filter: ApplicationQuickFilter, company: String): [ApplicationType!]!
   application(id: ID!): ApplicationType!
-  generateApplicationDraftWithAI(
-    input: CreateApplicationWithAIInput!
-  ): ApplicationAiDraftType!
+  generateApplicationDraftWithAI(input: CreateApplicationWithAIInput!): ApplicationAiDraftType!
   generateCompanyDescription(companyName: String!): String!
   applicationStageEvents(applicationId: ID!): [ApplicationStageEventType!]!
   companies: [CompanyType!]!
@@ -131,19 +126,12 @@ input AiExtractionFieldInput {
 
 type Mutation {
   createApplication(input: CreateApplicationInput!): ApplicationType!
-  createApplicationWithAI(
-    input: CreateApplicationWithAIInput!
-  ): ApplicationType!
+  createApplicationWithAI(input: CreateApplicationWithAIInput!): ApplicationType!
   updateApplication(id: ID!, input: UpdateApplicationInput!): ApplicationType!
   removeApplicationTag(id: ID!, tag: String!): ApplicationType!
   deleteApplication(id: ID!): Boolean!
-  createApplicationStageEvent(
-    input: CreateApplicationStageEventInput!
-  ): ApplicationStageEventType!
-  updateApplicationStageEvent(
-    id: ID!
-    input: UpdateApplicationStageEventInput!
-  ): ApplicationStageEventType!
+  createApplicationStageEvent(input: CreateApplicationStageEventInput!): ApplicationStageEventType!
+  updateApplicationStageEvent(id: ID!, input: UpdateApplicationStageEventInput!): ApplicationStageEventType!
   updateCompany(id: ID!, input: UpdateCompanyInput!): CompanyType!
   createApplicationNote(input: CreateNoteInput!): NoteType!
   updateApplicationNote(id: ID!, input: UpdateNoteInput!): NoteType!

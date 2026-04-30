@@ -158,13 +158,9 @@ export type Mutation = {
   updateCompany: CompanyType;
 };
 
-export type MutationCreateApplicationArgs = {
-  input: CreateApplicationInput;
-};
+export type MutationCreateApplicationArgs = { input: CreateApplicationInput };
 
-export type MutationCreateApplicationNoteArgs = {
-  input: CreateNoteInput;
-};
+export type MutationCreateApplicationNoteArgs = { input: CreateNoteInput };
 
 export type MutationCreateApplicationStageEventArgs = {
   input: CreateApplicationStageEventInput;
@@ -174,13 +170,9 @@ export type MutationCreateApplicationWithAiArgs = {
   input: CreateApplicationWithAiInput;
 };
 
-export type MutationDeleteApplicationArgs = {
-  id: Scalars["ID"]["input"];
-};
+export type MutationDeleteApplicationArgs = { id: Scalars["ID"]["input"] };
 
-export type MutationDeleteApplicationNoteArgs = {
-  id: Scalars["ID"]["input"];
-};
+export type MutationDeleteApplicationNoteArgs = { id: Scalars["ID"]["input"] };
 
 export type MutationRemoveApplicationTagArgs = {
   id: Scalars["ID"]["input"];
@@ -232,9 +224,7 @@ export type Query = {
   rewriteApplicationTextWithAI: Scalars["String"]["output"];
 };
 
-export type QueryApplicationArgs = {
-  id: Scalars["ID"]["input"];
-};
+export type QueryApplicationArgs = { id: Scalars["ID"]["input"] };
 
 export type QueryApplicationNotesArgs = {
   applicationId: Scalars["ID"]["input"];
@@ -343,9 +333,7 @@ export type ApplicationsQuery = {
   }>;
 };
 
-export type ApplicationQueryVariables = Exact<{
-  id: Scalars["ID"]["input"];
-}>;
+export type ApplicationQueryVariables = Exact<{ id: Scalars["ID"]["input"] }>;
 
 export type ApplicationQuery = {
   __typename?: "Query";

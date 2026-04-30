@@ -5,9 +5,7 @@ import { Toast } from "./Toast";
 const meta: Meta<typeof Toast> = {
   title: "Components/Toast",
   component: Toast,
-  parameters: {
-    layout: "centered",
-  },
+  parameters: { layout: "centered" },
   tags: ["autodocs"],
 };
 

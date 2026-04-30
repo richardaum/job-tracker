@@ -56,28 +56,19 @@ export function NotesPanel({
   const [createApplicationNote, { loading: creatingNote }] =
     useCreateApplicationNoteMutation({
       refetchQueries: [
-        {
-          query: ApplicationNotesDocument,
-          variables: { applicationId },
-        },
+        { query: ApplicationNotesDocument, variables: { applicationId } },
       ],
     });
   const [updateApplicationNote, { loading: updatingNote }] =
     useUpdateApplicationNoteMutation({
       refetchQueries: [
-        {
-          query: ApplicationNotesDocument,
-          variables: { applicationId },
-        },
+        { query: ApplicationNotesDocument, variables: { applicationId } },
       ],
     });
   const [deleteApplicationNote, { loading: deletingNote }] =
     useDeleteApplicationNoteMutation({
       refetchQueries: [
-        {
-          query: ApplicationNotesDocument,
-          variables: { applicationId },
-        },
+        { query: ApplicationNotesDocument, variables: { applicationId } },
       ],
     });
 
@@ -102,9 +93,7 @@ export function NotesPanel({
     [applicationNotes, editingNoteId],
   );
   const { generateNote, isLoading: isGeneratingNoteWithAi } =
-    useApplicationNoteAiGenerator({
-      applicationId,
-    });
+    useApplicationNoteAiGenerator({ applicationId });
   const composerImproveNoteAction = useImproveApplicationNoteAiAction({
     disabled: !canSend,
     isLoading: isGeneratingNoteWithAi,
@@ -131,12 +120,7 @@ export function NotesPanel({
 
     try {
       await createApplicationNote({
-        variables: {
-          input: {
-            applicationId,
-            content: noteContent,
-          },
-        },
+        variables: { input: { applicationId, content: noteContent } },
       });
       handleNoteSent();
     } catch {
@@ -182,9 +166,7 @@ export function NotesPanel({
       throw new Error("No note selected for delete");
     }
     const noteId = noteIdPendingDelete;
-    await deleteApplicationNote({
-      variables: { id: noteId },
-    });
+    await deleteApplicationNote({ variables: { id: noteId } });
     if (editingNoteId === noteId) {
       handleCancelEditNote();
     }
@@ -324,10 +306,7 @@ export function NotesPanel({
         applicationId={applicationId}
         note={
           editingNote
-            ? {
-                id: editingNote.id,
-                revision: editingNote.revision,
-              }
+            ? { id: editingNote.id, revision: editingNote.revision }
             : null
         }
         editingNoteContent={editingNoteContent}

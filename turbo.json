@@ -10,21 +10,10 @@
       "dependsOn": ["^build"],
       "outputs": [".next/**", "!.next/cache/**", "dist/**"]
     },
-    "dev": {
-      "cache": false,
-      "persistent": true
-    },
-    "db:migrate:watch": {
-      "cache": false,
-      "persistent": true
-    },
-    "test": {
-      "dependsOn": ["^build"],
-      "outputs": ["coverage/**"]
-    },
+    "dev": { "cache": false, "persistent": true },
+    "db:migrate:watch": { "cache": false, "persistent": true },
+    "test": { "dependsOn": ["^build"], "outputs": ["coverage/**"] },
     "lint": {},
-    "typecheck": {
-      "dependsOn": ["^build"]
-    }
+    "typecheck": { "dependsOn": ["^build"] }
   }
 }

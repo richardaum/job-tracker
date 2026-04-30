@@ -20,22 +20,14 @@ import { useControllableState } from "@/modules/applications/shared/hooks/useCon
 
 export interface CompanyEditDialogApplication {
   id: string;
-  company: {
-    id: string;
-    name: string;
-    description?: string | null;
-  };
+  company: { id: string; name: string; description?: string | null };
 }
 
 interface CompanyEditDialogProps {
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   application?: CompanyEditDialogApplication;
-  company?: {
-    id: string;
-    name: string;
-    description?: string | null;
-  };
+  company?: { id: string; name: string; description?: string | null };
   refetchCompanies?: boolean;
   onSuccess?: (message: string) => void;
   onError?: (message: string) => void;

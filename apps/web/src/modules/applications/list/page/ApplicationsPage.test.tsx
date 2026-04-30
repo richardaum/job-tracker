@@ -34,11 +34,7 @@ vi.mock("@/gql/hooks", () => ({
     Offer: "offer",
     Rejected: "rejected",
   },
-  SalaryPeriod: {
-    Year: "YEAR",
-    Month: "MONTH",
-    Hour: "HOUR",
-  },
+  SalaryPeriod: { Year: "YEAR", Month: "MONTH", Hour: "HOUR" },
   useApplicationsQuery: (...args: unknown[]) =>
     useApplicationsQueryMock(...args),
   useApplicationStageEventsQuery: (...args: unknown[]) =>
@@ -98,10 +94,7 @@ describe("ApplicationsPage", () => {
             id: "app-1",
             title: "Frontend Engineer",
             companyId: "company-1",
-            company: {
-              id: "company-1",
-              name: "Acme",
-            },
+            company: { id: "company-1", name: "Acme" },
             description: null,
             url: "https://example.com",
             createdAt: "2026-04-20T00:00:00.000Z",
@@ -142,9 +135,7 @@ describe("ApplicationsPage", () => {
           return { data: undefined, loading: false, error: undefined };
         }
         return {
-          data: {
-            applicationStageEvents: [],
-          },
+          data: { applicationStageEvents: [] },
           loading: false,
           error: undefined,
         };
@@ -165,10 +156,7 @@ describe("ApplicationsPage", () => {
             id: "app-1",
             title: "Frontend Engineer",
             companyId: "company-1",
-            company: {
-              id: "company-1",
-              name: "Acme",
-            },
+            company: { id: "company-1", name: "Acme" },
             description: null,
             url: "https://example.com",
             createdAt: "2026-04-20T00:00:00.000Z",
@@ -197,9 +185,7 @@ describe("ApplicationsPage", () => {
 
   it("renders empty state when user has no applications", () => {
     useApplicationStageEventsQueryMock.mockReturnValue({
-      data: {
-        applicationStageEvents: [],
-      },
+      data: { applicationStageEvents: [] },
     });
     useCurrentUserMock.mockReturnValue({
       user: {

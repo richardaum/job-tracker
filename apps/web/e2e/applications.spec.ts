@@ -49,11 +49,7 @@ test("authenticated user can create, edit, and delete an application", async ({
 
     if (operationName === "CreateApplication") {
       const input = body.variables?.input as
-        | {
-            title: string;
-            company: string;
-            url?: string | null;
-          }
+        | { title: string; company: string; url?: string | null }
         | undefined;
 
       if (!input) {
@@ -72,11 +68,7 @@ test("authenticated user can create, edit, and delete an application", async ({
       await route.fulfill({
         status: 200,
         contentType: "application/json",
-        body: JSON.stringify({
-          data: {
-            createApplication: created,
-          },
-        }),
+        body: JSON.stringify({ data: { createApplication: created } }),
       });
       return;
     }
@@ -84,11 +76,7 @@ test("authenticated user can create, edit, and delete an application", async ({
     if (operationName === "UpdateApplication") {
       const id = String(body.variables?.id ?? "");
       const input = body.variables?.input as
-        | {
-            title?: string;
-            company?: string;
-            url?: string | null;
-          }
+        | { title?: string; company?: string; url?: string | null }
         | undefined;
 
       const idx = applications.findIndex((app) => app.id === id);
@@ -107,9 +95,7 @@ test("authenticated user can create, edit, and delete an application", async ({
         status: 200,
         contentType: "application/json",
         body: JSON.stringify({
-          data: {
-            updateApplication: applications[idx],
-          },
+          data: { updateApplication: applications[idx] },
         }),
       });
       return;
@@ -125,11 +111,7 @@ test("authenticated user can create, edit, and delete an application", async ({
       await route.fulfill({
         status: 200,
         contentType: "application/json",
-        body: JSON.stringify({
-          data: {
-            deleteApplication: true,
-          },
-        }),
+        body: JSON.stringify({ data: { deleteApplication: true } }),
       });
       return;
     }

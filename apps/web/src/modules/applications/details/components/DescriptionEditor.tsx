@@ -46,9 +46,7 @@ export function DescriptionEditor({
       await updateApplication({
         variables: {
           id: applicationId,
-          input: {
-            description: nextDescription,
-          },
+          input: { description: nextDescription },
         },
       });
       onSuccess();

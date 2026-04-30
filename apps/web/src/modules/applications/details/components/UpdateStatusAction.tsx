@@ -64,10 +64,7 @@ export function UpdateStatusAction({
   const [createStageEvent, { loading: stageSaving }] =
     useCreateApplicationStageEventMutation({
       refetchQueries: [
-        {
-          query: ApplicationStageEventsDocument,
-          variables: { applicationId },
-        },
+        { query: ApplicationStageEventsDocument, variables: { applicationId } },
       ],
     });
   const saving = stageSaving;

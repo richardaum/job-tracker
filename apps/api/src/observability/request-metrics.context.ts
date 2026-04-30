@@ -1,9 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { AsyncLocalStorage } from "node:async_hooks";
 
-type RequestMetricsStore = {
-  queryCount: number;
-};
+type RequestMetricsStore = { queryCount: number };
 
 @Injectable()
 export class RequestMetricsContext {
