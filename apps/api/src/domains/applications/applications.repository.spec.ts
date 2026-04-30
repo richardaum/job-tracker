@@ -199,4 +199,24 @@ describe.skipIf(!hasDb)("ApplicationRepository (integration)", () => {
     expect(active.map((app) => app.id)).toContain(activeApp.id);
     expect(active.map((app) => app.id)).not.toContain(appliedApp.id);
   });
+
+  it("filters applications by company name", async () => {
+    const acme = await createTestCompany(userId, "Acme Filter Corp");
+    const beta = await createTestCompany(userId, "Beta Filter Corp");
+
+    const acmeApp = await repo.create(userId, {
+      title: "Acme Role",
+      companyId: acme.id,
+      url: null,
+    });
+    await repo.create(userId, {
+      title: "Beta Role",
+      companyId: beta.id,
+      url: null,
+    });
+
+    const filtered = await repo.findAllByUserId(userId, undefined, acme.name);
+    expect(filtered.map((app) => app.id)).toContain(acmeApp.id);
+    expect(filtered.every((app) => app.company.name === acme.name)).toBe(true);
+  });
 });

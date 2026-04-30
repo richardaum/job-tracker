@@ -79,8 +79,9 @@ export class ApplicationService {
   async findAll(
     userId: string,
     filter?: ApplicationQuickFilterEnum,
+    company?: string,
   ): Promise<ApplicationWithCurrentStage[]> {
-    const apps = await this.repo.findAllByUserId(userId, filter);
+    const apps = await this.repo.findAllByUserId(userId, filter, company);
     return this.attachCurrentStage(userId, apps);
   }
 

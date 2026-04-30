@@ -115,7 +115,11 @@ describe("ApplicationService", () => {
     vi.mocked(repo.findAllByUserId).mockResolvedValue([app]);
     const result = await service.findAll("user-1");
     expect(result).toHaveLength(1);
-    expect(repo.findAllByUserId).toHaveBeenCalledWith("user-1", undefined);
+    expect(repo.findAllByUserId).toHaveBeenCalledWith(
+      "user-1",
+      undefined,
+      undefined,
+    );
     expect(
       vi.mocked(repo.findLatestStageSummariesByApplicationIds),
     ).toHaveBeenCalledWith("user-1", [app.id]);

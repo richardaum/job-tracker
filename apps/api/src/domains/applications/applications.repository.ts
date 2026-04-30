@@ -48,6 +48,7 @@ export class ApplicationRepository {
   async findAllByUserId(
     userId: string,
     filter?: ApplicationQuickFilterEnum,
+    company?: string,
   ): Promise<Application[]> {
     const qb = this.applicationsRepo
       .createQueryBuilder("a")
@@ -64,6 +65,13 @@ export class ApplicationRepository {
         "DESC",
         "NULLS LAST",
       );
+
+    const normalizedCompany = company?.trim();
+    if (normalizedCompany) {
+      qb.andWhere("LOWER(company.name) = LOWER(:company)", {
+        company: normalizedCompany,
+      });
+    }
 
     if (!filter) {
       return qb.getMany();

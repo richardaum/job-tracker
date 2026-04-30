@@ -107,6 +107,24 @@ describe("ApplicationResolver (integration)", () => {
     expect(res.body.data.applications[0].company.name).toBe("Acme Corp");
   });
 
+  it("applications query accepts company argument", async () => {
+    const res = await request(app.getHttpServer())
+      .post("/graphql")
+      .set(auth)
+      .send({
+        query:
+          '{ applications(company: "Acme Corp") { id title company { name } } }',
+      });
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body.data.applications).toHaveLength(1);
+    expect(service.findAll).toHaveBeenCalledWith(
+      "user-1",
+      undefined,
+      "Acme Corp",
+    );
+  });
+
   it("application query returns one by id", async () => {
     const res = await request(app.getHttpServer())
       .post("/graphql")

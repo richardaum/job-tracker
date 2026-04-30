@@ -26,8 +26,9 @@ export class ApplicationResolver {
     @CurrentUser() user: { userId: string },
     @Args("filter", { type: () => ApplicationQuickFilterEnum, nullable: true })
     filter?: ApplicationQuickFilterEnum,
+    @Args("company", { type: () => String, nullable: true }) company?: string,
   ): Promise<ApplicationType[]> {
-    return this.service.findAll(user.userId, filter);
+    return this.service.findAll(user.userId, filter, company);
   }
 
   @Query(() => ApplicationType)
@@ -54,14 +55,14 @@ export class ApplicationResolver {
     return this.service.createWithAI(user.userId, input);
   }
 
-  @Mutation(() => ApplicationAiDraftType)
+  @Query(() => ApplicationAiDraftType)
   generateApplicationDraftWithAI(
     @Args("input") input: CreateApplicationWithAIInput,
   ): Promise<ApplicationAiDraftType> {
     return this.service.generateDraftWithAI(input);
   }
 
-  @Mutation(() => String)
+  @Query(() => String)
   generateCompanyDescription(@Args("companyName") companyName: string) {
     return this.service.generateCompanyDescription({ companyName });
   }
