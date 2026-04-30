@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { CompanyEntity } from "@api/database/entities/company.entity";
+import { ApplicationEntity } from "@api/database/entities/application.entity";
 import { Company, NewCompany } from "./companies.schema";
 
 @Injectable()
@@ -9,6 +10,8 @@ export class CompanyRepository {
   constructor(
     @InjectRepository(CompanyEntity)
     private readonly repo: Repository<CompanyEntity>,
+    @InjectRepository(ApplicationEntity)
+    private readonly applicationsRepo: Repository<ApplicationEntity>,
   ) {}
 
   async findOneById(id: string, userId: string): Promise<Company | null> {
@@ -48,5 +51,14 @@ export class CompanyRepository {
 
   async findAllByUserId(userId: string): Promise<Company[]> {
     return this.repo.find({ where: { userId }, order: { name: "ASC" } });
+  }
+
+  async countApplications(id: string, userId: string): Promise<number> {
+    return this.applicationsRepo.count({ where: { companyId: id, userId } });
+  }
+
+  async delete(id: string, userId: string): Promise<boolean> {
+    const result = await this.repo.delete({ id, userId });
+    return (result.affected ?? 0) > 0;
   }
 }

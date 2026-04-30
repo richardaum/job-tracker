@@ -6,6 +6,14 @@ mutation UpdateCompany($id: ID!, $input: UpdateCompanyInput!) {
   }
 }
 
+mutation DeleteCompany($id: ID!) {
+  deleteCompany(id: $id)
+}
+
+query CompanyApplicationsCount($id: ID!) {
+  companyApplicationsCount(id: $id)
+}
+
 query Companies {
   companies {
     id

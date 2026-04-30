@@ -137,6 +137,12 @@ export default function CompaniesPage() {
                     `/applications?company=${encodeURIComponent(companyName)}`,
                   )
                 }
+                onDeleteSuccess={(message) =>
+                  setToast({ open: true, message, intent: "success" })
+                }
+                onDeleteError={(message) =>
+                  setToast({ open: true, message, intent: "error" })
+                }
               />
             ))}
           </Stack>

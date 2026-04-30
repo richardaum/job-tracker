@@ -48,4 +48,18 @@ export class CompanyService {
     }
     return updated;
   }
+
+  async applicationsCount(id: string, userId: string): Promise<number> {
+    await this.findOne(id, userId);
+    return this.repo.countApplications(id, userId);
+  }
+
+  async remove(id: string, userId: string): Promise<void> {
+    await this.findOne(id, userId);
+
+    const deleted = await this.repo.delete(id, userId);
+    if (!deleted) {
+      throw new NotFoundException(`Company ${id} not found`);
+    }
+  }
 }

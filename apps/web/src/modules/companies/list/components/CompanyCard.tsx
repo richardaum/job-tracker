@@ -1,9 +1,13 @@
 "use client";
 
-import { PencilSimpleIcon } from "@phosphor-icons/react";
-import { ArrowSquareOutIcon } from "@phosphor-icons/react";
+import {
+  ArrowSquareOutIcon,
+  PencilSimpleIcon,
+  TrashIcon,
+} from "@phosphor-icons/react";
 import { Card, IconButton, Text, cn } from "@job-tracker/ui";
 import { TipTapContent } from "@/modules/applications/shared/components/TipTapContent";
+import { DeleteCompanyDialog } from "./DeleteCompanyDialog";
 
 export interface CompanyCardData {
   id: string;
@@ -15,9 +19,17 @@ interface CompanyCardProps {
   company: CompanyCardData;
   onEdit: (company: CompanyCardData) => void;
   onViewJobs: (companyName: string) => void;
+  onDeleteSuccess?: (message: string) => void;
+  onDeleteError?: (message: string) => void;
 }
 
-export function CompanyCard({ company, onEdit, onViewJobs }: CompanyCardProps) {
+export function CompanyCard({
+  company,
+  onEdit,
+  onViewJobs,
+  onDeleteSuccess,
+  onDeleteError,
+}: CompanyCardProps) {
   return (
     <Card padding="sm">
       <div className={cn("min-w-0 space-y-2")}>
@@ -49,6 +61,24 @@ export function CompanyCard({ company, onEdit, onViewJobs }: CompanyCardProps) {
               className={cn("h-6 w-6 text-text-muted/80 hover:text-text-muted")}
               icon={<PencilSimpleIcon size={13} weight="regular" />}
               onClick={() => onEdit(company)}
+            />
+            <DeleteCompanyDialog
+              trigger={
+                <IconButton
+                  intent="ghost"
+                  size="sm"
+                  label={`Delete ${company.name}`}
+                  tooltip="Delete"
+                  className={cn(
+                    "h-6 w-6 text-text-muted/80 hover:text-text-muted",
+                  )}
+                  icon={<TrashIcon size={13} weight="regular" />}
+                />
+              }
+              companyId={company.id}
+              companyName={company.name}
+              onSuccess={onDeleteSuccess}
+              onError={onDeleteError}
             />
           </div>
         </div>
