@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { Button, Dialog, FormField, Input, Stack, cn } from "@job-tracker/ui";
 import {
   ApplicationDocument,
@@ -16,6 +16,7 @@ import {
   tipTapToPlainText,
 } from "@/modules/applications/shared/utils/tiptap";
 import { useGenerateCompanyDescriptionAiAction } from "@/modules/ai/actions/useGenerateCompanyDescriptionAiAction";
+import { useRewriteTextAiAction } from "@/modules/ai/actions/useRewriteTextAiAction";
 import { useControllableState } from "@/modules/applications/shared/hooks/useControllableState";
 
 export interface CompanyEditDialogApplication {
@@ -79,6 +80,13 @@ export function CompanyEditDialog({
       disabled: saving,
       onError,
     });
+  const rewriteCompanyDescriptionAction = useRewriteTextAiAction({
+    disabled: saving,
+  });
+  const companyDescriptionAiActions = useMemo(
+    () => [generateCompanyDescriptionAction, rewriteCompanyDescriptionAction],
+    [generateCompanyDescriptionAction, rewriteCompanyDescriptionAction],
+  );
 
   async function handleSave() {
     if (!sourceCompany) {
@@ -132,6 +140,7 @@ export function CompanyEditDialog({
   return (
     <Dialog
       title="Edit company"
+      description="Update the company name and description used across your applications."
       size="2xl"
       open={open}
       onOpenChange={(next) => {
@@ -170,7 +179,7 @@ export function CompanyEditDialog({
             }
             autofocus="end"
             disabled={saving}
-            aiActions={[generateCompanyDescriptionAction]}
+            aiActions={companyDescriptionAiActions}
           />
         </FormField>
         <div className={cn("flex justify-end")}>

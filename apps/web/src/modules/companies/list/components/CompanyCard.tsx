@@ -20,42 +20,48 @@ interface CompanyCardProps {
 export function CompanyCard({ company, onEdit, onViewJobs }: CompanyCardProps) {
   return (
     <Card padding="sm">
-      <div className={cn("flex items-start justify-between gap-6")}>
-        <div className={cn("min-w-0 flex-1 space-y-2")}>
-          <Text size="base" weight="semibold" className={cn("wrap-break-word")}>
-            {company.name}
-          </Text>
-          {company.description ? (
-            <TipTapContent
-              content={company.description}
-              className={cn("text-text-secondary")}
-            />
-          ) : (
-            <Text size="sm" color="muted" className={cn("italic")}>
-              No description available.
+      <div className={cn("min-w-0 space-y-2")}>
+        <div className={cn("flex items-start gap-1")}>
+          <div className={cn("min-w-0")}>
+            <Text
+              size="base"
+              weight="semibold"
+              className={cn("wrap-break-word")}
+            >
+              {company.name}
             </Text>
-          )}
+          </div>
+          <div className={cn("flex shrink-0 items-center")}>
+            <IconButton
+              intent="ghost"
+              size="sm"
+              label={`View jobs from ${company.name}`}
+              tooltip="View jobs"
+              className={cn("h-6 w-6 text-text-muted/80 hover:text-text-muted")}
+              icon={<ArrowSquareOutIcon size={13} weight="regular" />}
+              onClick={() => onViewJobs(company.name)}
+            />
+            <IconButton
+              intent="ghost"
+              size="sm"
+              label={`Edit ${company.name}`}
+              tooltip="Edit"
+              className={cn("h-6 w-6 text-text-muted/80 hover:text-text-muted")}
+              icon={<PencilSimpleIcon size={13} weight="regular" />}
+              onClick={() => onEdit(company)}
+            />
+          </div>
         </div>
-        <div className={cn("mt-0.5 flex shrink-0 items-center gap-1")}>
-          <IconButton
-            intent="ghost"
-            size="sm"
-            label={`View jobs from ${company.name}`}
-            tooltip="View jobs"
-            className={cn("h-6 w-6 text-text-muted/80 hover:text-text-muted")}
-            icon={<ArrowSquareOutIcon size={13} weight="regular" />}
-            onClick={() => onViewJobs(company.name)}
+        {company.description ? (
+          <TipTapContent
+            content={company.description}
+            className={cn("text-text-secondary")}
           />
-          <IconButton
-            intent="ghost"
-            size="sm"
-            label={`Edit ${company.name}`}
-            tooltip="Edit"
-            className={cn("h-6 w-6 text-text-muted/80 hover:text-text-muted")}
-            icon={<PencilSimpleIcon size={13} weight="regular" />}
-            onClick={() => onEdit(company)}
-          />
-        </div>
+        ) : (
+          <Text size="sm" color="muted" className={cn("italic")}>
+            No description available.
+          </Text>
+        )}
       </div>
     </Card>
   );
