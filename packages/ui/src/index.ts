@@ -52,6 +52,14 @@ export type {
   ComboboxOption,
   ComboboxProps,
 } from "./components/Combobox/Combobox";
+export {
+  CurrencyCombobox,
+  MAIN_MARKET_CURRENCY_PRESETS,
+} from "./components/CurrencyCombobox/CurrencyCombobox";
+export type {
+  CurrencyComboboxProps,
+  CurrencyPreset,
+} from "./components/CurrencyCombobox/CurrencyCombobox";
 export { Link } from "./components/Link/Link";
 export type { LinkProps, LinkVariant } from "./components/Link/Link";
 export { Select } from "./components/Select/Select";

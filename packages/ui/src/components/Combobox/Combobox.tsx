@@ -1,9 +1,8 @@
-import React, { useState, useMemo } from "react";
-import * as Popover from "@radix-ui/react-popover";
-import { Input } from "../Input/Input";
-import { Stack } from "../Stack/Stack";
-import { Text } from "../Typography/Text";
+import React, { useMemo } from "react";
+
 import { cn } from "@ui/lib/cn";
+import { Text } from "../Typography/Text";
+import { AnchoredCombobox } from "./AnchoredCombobox";
 
 export interface ComboboxOption {
   label: string;
@@ -33,9 +32,6 @@ export function Combobox({
   id,
   autoComplete = "one-time-code",
 }: ComboboxProps) {
-  const [open, setOpen] = useState(false);
-  const inputRef = React.useRef<HTMLInputElement>(null);
-
   const filteredOptions = useMemo(() => {
     if (!value) return options;
     return options.filter((option) =>
@@ -43,65 +39,40 @@ export function Combobox({
     );
   }, [options, value]);
 
-  const hasOptions = filteredOptions.length > 0;
-
   return (
-    <Popover.Root open={open && hasOptions} onOpenChange={setOpen}>
-      <Popover.Anchor asChild>
-        <Input
-          id={id}
-          ref={inputRef}
-          value={value}
-          onChange={(e) => {
-            onValueChange(e.target.value);
-            if (!open) setOpen(true);
-          }}
-          onFocus={() => {
-            if (hasOptions) setOpen(true);
-          }}
-          onClick={() => {
-            if (hasOptions && !open) setOpen(true);
-          }}
-          placeholder={placeholder}
-          disabled={disabled}
-          size={size}
-          state={state}
-          autoComplete={autoComplete}
-        />
-      </Popover.Anchor>
-      <Popover.Portal>
-        <Popover.Content
-          align="start"
-          sideOffset={4}
-          onOpenAutoFocus={(e) => e.preventDefault()}
-          onInteractOutside={(e) => {
-            if (e.target === inputRef.current) {
-              e.preventDefault();
-            }
-          }}
-          className={cn(
-            "z-50 min-w-(--radix-popover-anchor-width) max-h-60 overflow-auto rounded-md border border-border-subtle bg-bg-surface p-1 shadow-md",
-          )}
-        >
-          <Stack gap="xs">
+    <AnchoredCombobox.Root
+      value={value}
+      onValueChange={onValueChange}
+      hasItems={filteredOptions.length > 0}
+      disabled={disabled}
+    >
+      <AnchoredCombobox.Input
+        placeholder={placeholder}
+        size={size}
+        state={state}
+        id={id}
+        autoComplete={autoComplete}
+      />
+      <AnchoredCombobox.Portal>
+        <AnchoredCombobox.Content className={cn("z-50 p-1")}>
+          <AnchoredCombobox.List className={cn("gap-2")}>
             {filteredOptions.map((option) => (
-              <button
+              <AnchoredCombobox.Item
                 key={option.value}
-                type="button"
-                onClick={() => {
+                textValue={option.label}
+                onSelect={() => {
                   onValueChange(option.label);
-                  setOpen(false);
                 }}
                 className={cn(
-                  "flex w-full cursor-pointer items-center rounded-sm px-3 py-2 text-left text-sm text-text-primary outline-none hover:bg-bg-surface-hover focus:bg-bg-surface-hover",
+                  "flex w-full cursor-pointer items-center rounded-sm px-3 py-2 text-left outline-none hover:bg-bg-surface-hover data-highlighted:bg-bg-surface-hover",
                 )}
               >
                 <Text size="sm">{option.label}</Text>
-              </button>
+              </AnchoredCombobox.Item>
             ))}
-          </Stack>
-        </Popover.Content>
-      </Popover.Portal>
-    </Popover.Root>
+          </AnchoredCombobox.List>
+        </AnchoredCombobox.Content>
+      </AnchoredCombobox.Portal>
+    </AnchoredCombobox.Root>
   );
 }
