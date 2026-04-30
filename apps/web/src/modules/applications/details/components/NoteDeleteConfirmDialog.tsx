@@ -1,0 +1,28 @@
+"use client";
+
+import React from "react";
+import { ConfirmDialog } from "@job-tracker/ui";
+
+interface NoteDeleteConfirmDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onConfirm: () => Promise<void>;
+}
+
+export function NoteDeleteConfirmDialog({
+  open,
+  onOpenChange,
+  onConfirm,
+}: NoteDeleteConfirmDialogProps) {
+  return (
+    <ConfirmDialog
+      trigger={<span aria-hidden style={{ display: "none" }} />}
+      title="Delete note"
+      description="Delete this note? This action cannot be undone."
+      confirmLabel="Delete"
+      open={open}
+      onOpenChange={onOpenChange}
+      onConfirm={onConfirm}
+    />
+  );
+}

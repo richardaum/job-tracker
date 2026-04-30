@@ -4,8 +4,6 @@ import React, { useMemo, useRef, useState } from "react";
 import { PencilSimpleIcon, TrashIcon } from "@phosphor-icons/react";
 import {
   Button,
-  ConfirmDialog,
-  Dialog,
   IconButton,
   Stack,
   TabsContent,
@@ -27,7 +25,12 @@ import {
 } from "@/modules/applications/shared/utils/tiptap";
 import { formatDateTime } from "@/modules/applications/details/utils/application-details.shared";
 import { useNotesComposerBehavior } from "@/modules/applications/details/hooks/useNotesComposerBehavior";
-import { useNotesAiContentGeneration } from "@/modules/applications/details/hooks/useNotesAiContentGeneration";
+import { useApplicationNoteAiGenerator } from "@/modules/ai/actions/useApplicationNoteAiGenerator";
+import { useImproveApplicationNoteAiAction } from "@/modules/ai/actions/useImproveApplicationNoteAiAction";
+import { useRewriteTextAiAction } from "@/modules/ai/actions/useRewriteTextAiAction";
+import { NoteDeleteConfirmDialog } from "./NoteDeleteConfirmDialog";
+import { NoteComposerExpandedDialog } from "./NoteComposerExpandedDialog";
+import { NoteEditDialog } from "./NoteEditDialog";
 
 export function NotesPanel({
   applicationId,
@@ -98,20 +101,23 @@ export function NotesPanel({
     () => applicationNotes.find((note) => note.id === editingNoteId) ?? null,
     [applicationNotes, editingNoteId],
   );
-  const canSaveEdit =
-    !!editingNote &&
-    tipTapToPlainText(editingNoteContent).trim().length > 0 &&
-    !updatingNote;
-  const aiContentGeneration = useNotesAiContentGeneration({
+  const { generateNote, isLoading: isGeneratingNoteWithAi } =
+    useApplicationNoteAiGenerator({
+      applicationId,
+    });
+  const composerImproveNoteAction = useImproveApplicationNoteAiAction({
+    disabled: !canSend,
+    isLoading: isGeneratingNoteWithAi,
+    generateNote,
+  });
+  const composerRewriteTextAction = useRewriteTextAiAction({
     applicationId,
-    noteContent: draftNote,
     disabled: !canSend,
   });
-  const editAiContentGeneration = useNotesAiContentGeneration({
-    applicationId,
-    noteContent: editingNoteContent,
-    disabled: !editingNote || updatingNote || deletingNote,
-  });
+  const composerAiActions = useMemo(
+    () => [composerImproveNoteAction, composerRewriteTextAction],
+    [composerImproveNoteAction, composerRewriteTextAction],
+  );
 
   const { notesEndRef, handleNoteSent } = useNotesComposerBehavior({
     hasLoadedMessages: Boolean(notesData),
@@ -139,9 +145,10 @@ export function NotesPanel({
     }
   }
 
-  function handleStartEditNote(noteId: string, content: string) {
+  function handleStartEditNote(noteId: string) {
     setEditingNoteId(noteId);
-    setEditingNoteContent(content || EMPTY_TIPTAP_DOC);
+    const selectedNote = applicationNotes.find((note) => note.id === noteId);
+    setEditingNoteContent(selectedNote?.content || EMPTY_TIPTAP_DOC);
   }
 
   function handleCancelEditNote() {
@@ -149,16 +156,18 @@ export function NotesPanel({
     setEditingNoteContent(EMPTY_TIPTAP_DOC);
   }
 
-  async function handleSaveEditNote() {
-    if (!editingNote || !canSaveEdit) return;
-
+  async function handleSaveEditNote(payload: {
+    noteId: string;
+    content: string;
+    expectedRevision: number;
+  }) {
     try {
       await updateApplicationNote({
         variables: {
-          id: editingNote.id,
+          id: payload.noteId,
           input: {
-            content: editingNoteContent,
-            expectedRevision: editingNote.revision,
+            content: payload.content,
+            expectedRevision: payload.expectedRevision,
           },
         },
       });
@@ -226,9 +235,7 @@ export function NotesPanel({
                             className={cn(
                               "h-6 w-6 text-text-muted/80 hover:text-text-muted",
                             )}
-                            onClick={() =>
-                              handleStartEditNote(note.id, note.content)
-                            }
+                            onClick={() => handleStartEditNote(note.id)}
                             disabled={
                               creatingNote || updatingNote || deletingNote
                             }
@@ -274,7 +281,7 @@ export function NotesPanel({
               contentClassName={cn(
                 "min-h-0 [&_.ProseMirror]:min-h-5 [&_.ProseMirror]:max-h-40 [&_.ProseMirror]:overflow-y-auto",
               )}
-              aiContentGeneration={aiContentGeneration}
+              aiActions={composerAiActions}
               showExpandButton
               expandButtonAriaLabel="Expand note composer"
               onExpandClick={() => setIsComposerExpanded(true)}
@@ -293,102 +300,45 @@ export function NotesPanel({
           </Stack>
         </div>
       </div>
-      <ConfirmDialog
-        trigger={<span aria-hidden style={{ display: "none" }} />}
-        title="Delete note"
-        description="Delete this note? This action cannot be undone."
-        confirmLabel="Delete"
+      <NoteDeleteConfirmDialog
         open={noteIdPendingDelete !== null}
         onOpenChange={(next) => {
           if (!next) setNoteIdPendingDelete(null);
         }}
         onConfirm={confirmDeleteNote}
       />
-      <Dialog
-        title="New note"
+      <NoteComposerExpandedDialog
         open={isComposerExpanded}
         onOpenChange={setIsComposerExpanded}
-        trigger={<span aria-hidden style={{ display: "none" }} />}
-        contentClassName={cn("h-[90vh] w-[90vw] max-w-none p-4")}
-        childrenClassName={cn("flex min-h-0 flex-col")}
-      >
-        <Stack gap="sm" className={cn("flex-1 min-h-0")}>
-          <div className={cn("flex-1 min-h-0")}>
-            <TipTapEditor
-              id={`application-note-composer-expanded-${applicationId}${isModalInstance ? "-modal" : ""}`}
-              value={draftNote}
-              onChange={(nextValue) =>
-                setDraftNote(nextValue || EMPTY_TIPTAP_DOC)
+        applicationId={applicationId}
+        isModalInstance={isModalInstance}
+        draftNote={draftNote}
+        onDraftNoteChange={setDraftNote}
+        canSend={canSend}
+        creatingNote={creatingNote}
+        onSendNote={handleSendNote}
+        composerAiActions={composerAiActions}
+        onCollapse={() => setIsComposerExpanded(false)}
+      />
+      <NoteEditDialog
+        applicationId={applicationId}
+        note={
+          editingNote
+            ? {
+                id: editingNote.id,
+                revision: editingNote.revision,
               }
-              onHardEnter={canSend ? () => void handleSendNote() : undefined}
-              placeholder="Write a note..."
-              disabled={creatingNote}
-              autofocus="end"
-              fillHeight
-              aiContentGeneration={aiContentGeneration}
-              showExpandButton
-              expandButtonAriaLabel="Close expanded note composer"
-              onExpandClick={() => setIsComposerExpanded(false)}
-            />
-          </div>
-          <div className={cn("flex justify-end")}>
-            <Button
-              size="sm"
-              intent="primary"
-              onClick={() => void handleSendNote()}
-              disabled={!canSend}
-              state={creatingNote ? "loading" : "default"}
-            >
-              Send
-            </Button>
-          </div>
-        </Stack>
-      </Dialog>
-      <Dialog
-        title="Edit note"
-        open={Boolean(editingNote)}
-        onOpenChange={(open) => {
-          if (!open) handleCancelEditNote();
-        }}
-        trigger={<span aria-hidden style={{ display: "none" }} />}
-        contentClassName={cn("max-w-3xl")}
-      >
-        <Stack gap="sm">
-          <div className={cn("h-[55vh] min-h-[360px] w-full min-w-[320px]")}>
-            <TipTapEditor
-              id={`application-note-editor-${editingNoteId ?? "none"}`}
-              value={editingNoteContent}
-              onChange={(nextValue) =>
-                setEditingNoteContent(nextValue || EMPTY_TIPTAP_DOC)
-              }
-              placeholder="Edit note..."
-              disabled={updatingNote}
-              autofocus="end"
-              fillHeight
-              aiContentGeneration={editAiContentGeneration}
-            />
-          </div>
-          <div className={cn("flex items-center justify-end gap-2")}>
-            <Button
-              size="sm"
-              intent="ghost"
-              onClick={handleCancelEditNote}
-              disabled={updatingNote || deletingNote}
-            >
-              Cancel
-            </Button>
-            <Button
-              size="sm"
-              intent="primary"
-              onClick={() => void handleSaveEditNote()}
-              disabled={!canSaveEdit || deletingNote}
-              state={updatingNote ? "loading" : "default"}
-            >
-              Save
-            </Button>
-          </div>
-        </Stack>
-      </Dialog>
+            : null
+        }
+        editingNoteContent={editingNoteContent}
+        onEditingNoteContentChange={(nextValue) =>
+          setEditingNoteContent(nextValue || EMPTY_TIPTAP_DOC)
+        }
+        updatingNote={updatingNote}
+        deletingNote={deletingNote}
+        onClose={handleCancelEditNote}
+        onSave={handleSaveEditNote}
+      />
     </>
   );
 }
