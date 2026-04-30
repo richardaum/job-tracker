@@ -1,20 +1,19 @@
 "use client";
 
 import { useMemo } from "react";
-import { useRewriteApplicationTextWithAiLazyQuery } from "@/gql/hooks";
+import { useRewriteTextWithAiLazyQuery } from "@/gql/hooks";
 import { type TipTapAiAction } from "@/modules/ai/editor/tiptap-ai-actions";
 
 interface UseRewriteTextAiActionArgs {
-  applicationId: string;
   disabled?: boolean;
 }
 
 export function useRewriteTextAiAction({
-  applicationId,
   disabled = false,
 }: UseRewriteTextAiActionArgs): TipTapAiAction {
-  const [rewriteApplicationTextWithAi, { loading }] =
-    useRewriteApplicationTextWithAiLazyQuery({ fetchPolicy: "no-cache" });
+  const [rewriteTextWithAi, { loading }] = useRewriteTextWithAiLazyQuery({
+    fetchPolicy: "no-cache",
+  });
 
   return useMemo(
     () => ({
@@ -26,12 +25,10 @@ export function useRewriteTextAiAction({
       isLoading: loading,
       run: async ({ sourceText }) => {
         const text = sourceText.trim();
-        const result = await rewriteApplicationTextWithAi({
-          variables: { applicationId, text },
-        });
-        return result.data?.rewriteApplicationTextWithAI ?? text;
+        const result = await rewriteTextWithAi({ variables: { text } });
+        return result.data?.rewriteTextWithAI ?? text;
       },
     }),
-    [applicationId, disabled, loading, rewriteApplicationTextWithAi],
+    [disabled, loading, rewriteTextWithAi],
   );
 }

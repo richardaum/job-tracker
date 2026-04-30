@@ -219,7 +219,7 @@ export type Query = {
   generateApplicationNoteWithAI: Scalars["String"]["output"];
   generateCompanyDescription: Scalars["String"]["output"];
   me: UserType;
-  rewriteApplicationTextWithAI: Scalars["String"]["output"];
+  rewriteTextWithAI: Scalars["String"]["output"];
 };
 
 export type QueryApplicationArgs = { id: Scalars["ID"]["input"] };
@@ -250,10 +250,7 @@ export type QueryGenerateCompanyDescriptionArgs = {
   companyName: Scalars["String"]["input"];
 };
 
-export type QueryRewriteApplicationTextWithAiArgs = {
-  applicationId: Scalars["ID"]["input"];
-  text: Scalars["String"]["input"];
-};
+export type QueryRewriteTextWithAiArgs = { text: Scalars["String"]["input"] };
 
 export enum SalaryPeriod {
   Hour = "HOUR",
@@ -627,14 +624,13 @@ export type GenerateApplicationNoteWithAiQuery = {
   generateApplicationNoteWithAI: string;
 };
 
-export type RewriteApplicationTextWithAiQueryVariables = Exact<{
-  applicationId: Scalars["ID"]["input"];
+export type RewriteTextWithAiQueryVariables = Exact<{
   text: Scalars["String"]["input"];
 }>;
 
-export type RewriteApplicationTextWithAiQuery = {
+export type RewriteTextWithAiQuery = {
   __typename?: "Query";
-  rewriteApplicationTextWithAI: string;
+  rewriteTextWithAI: string;
 };
 
 export type UpdateCompanyMutationVariables = Exact<{
@@ -1920,25 +1916,14 @@ export const GenerateApplicationNoteWithAiDocument = {
   GenerateApplicationNoteWithAiQuery,
   GenerateApplicationNoteWithAiQueryVariables
 >;
-export const RewriteApplicationTextWithAiDocument = {
+export const RewriteTextWithAiDocument = {
   kind: "Document",
   definitions: [
     {
       kind: "OperationDefinition",
       operation: "query",
-      name: { kind: "Name", value: "RewriteApplicationTextWithAi" },
+      name: { kind: "Name", value: "RewriteTextWithAi" },
       variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "applicationId" },
-          },
-          type: {
-            kind: "NonNullType",
-            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
-          },
-        },
         {
           kind: "VariableDefinition",
           variable: { kind: "Variable", name: { kind: "Name", value: "text" } },
@@ -1956,16 +1941,8 @@ export const RewriteApplicationTextWithAiDocument = {
         selections: [
           {
             kind: "Field",
-            name: { kind: "Name", value: "rewriteApplicationTextWithAI" },
+            name: { kind: "Name", value: "rewriteTextWithAI" },
             arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "applicationId" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "applicationId" },
-                },
-              },
               {
                 kind: "Argument",
                 name: { kind: "Name", value: "text" },
@@ -1981,8 +1958,8 @@ export const RewriteApplicationTextWithAiDocument = {
     },
   ],
 } as unknown as DocumentNode<
-  RewriteApplicationTextWithAiQuery,
-  RewriteApplicationTextWithAiQueryVariables
+  RewriteTextWithAiQuery,
+  RewriteTextWithAiQueryVariables
 >;
 export const UpdateCompanyDocument = {
   kind: "Document",

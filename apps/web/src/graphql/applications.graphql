@@ -224,6 +224,6 @@ query GenerateApplicationNoteWithAi($applicationId: ID!, $note: String!) {
   generateApplicationNoteWithAI(applicationId: $applicationId, note: $note)
 }
 
-query RewriteApplicationTextWithAi($applicationId: ID!, $text: String!) {
-  rewriteApplicationTextWithAI(applicationId: $applicationId, text: $text)
+query RewriteTextWithAi($text: String!) {
+  rewriteTextWithAI(text: $text)
 }

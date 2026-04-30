@@ -2,18 +2,21 @@
 
 import { useMemo } from "react";
 import { type TipTapAiAction } from "@/modules/ai/editor/tiptap-ai-actions";
+import { useApplicationNoteAiGenerator } from "@/modules/ai/actions/useApplicationNoteAiGenerator";
 
 interface UseImproveApplicationNoteAiActionArgs {
+  applicationId: string;
   disabled?: boolean;
-  isLoading: boolean;
-  generateNote: (source: string) => Promise<string>;
 }
 
 export function useImproveApplicationNoteAiAction({
+  applicationId,
   disabled = false,
-  isLoading,
-  generateNote,
 }: UseImproveApplicationNoteAiActionArgs): TipTapAiAction {
+  const { generateNote, isLoading } = useApplicationNoteAiGenerator({
+    applicationId,
+  });
+
   return useMemo(
     () => ({
       id: "improveNote",

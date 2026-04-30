@@ -221,7 +221,7 @@ export type Query = {
   generateApplicationNoteWithAI: Scalars["String"]["output"];
   generateCompanyDescription: Scalars["String"]["output"];
   me: UserType;
-  rewriteApplicationTextWithAI: Scalars["String"]["output"];
+  rewriteTextWithAI: Scalars["String"]["output"];
 };
 
 export type QueryApplicationArgs = { id: Scalars["ID"]["input"] };
@@ -252,10 +252,7 @@ export type QueryGenerateCompanyDescriptionArgs = {
   companyName: Scalars["String"]["input"];
 };
 
-export type QueryRewriteApplicationTextWithAiArgs = {
-  applicationId: Scalars["ID"]["input"];
-  text: Scalars["String"]["input"];
-};
+export type QueryRewriteTextWithAiArgs = { text: Scalars["String"]["input"] };
 
 export enum SalaryPeriod {
   Hour = "HOUR",
@@ -629,14 +626,13 @@ export type GenerateApplicationNoteWithAiQuery = {
   generateApplicationNoteWithAI: string;
 };
 
-export type RewriteApplicationTextWithAiQueryVariables = Exact<{
-  applicationId: Scalars["ID"]["input"];
+export type RewriteTextWithAiQueryVariables = Exact<{
   text: Scalars["String"]["input"];
 }>;
 
-export type RewriteApplicationTextWithAiQuery = {
+export type RewriteTextWithAiQuery = {
   __typename?: "Query";
-  rewriteApplicationTextWithAI: string;
+  rewriteTextWithAI: string;
 };
 
 export type UpdateCompanyMutationVariables = Exact<{
@@ -1610,66 +1606,62 @@ export type GenerateApplicationNoteWithAiLazyQueryHookResult = ReturnType<
   typeof useGenerateApplicationNoteWithAiLazyQuery
 >;
 
-export const RewriteApplicationTextWithAiDocument = gql`
-  query RewriteApplicationTextWithAi($applicationId: ID!, $text: String!) {
-    rewriteApplicationTextWithAI(applicationId: $applicationId, text: $text)
+export const RewriteTextWithAiDocument = gql`
+  query RewriteTextWithAi($text: String!) {
+    rewriteTextWithAI(text: $text)
   }
 `;
 
 /**
- * __useRewriteApplicationTextWithAiQuery__
+ * __useRewriteTextWithAiQuery__
  *
- * To run a query within a React component, call `useRewriteApplicationTextWithAiQuery` and pass it any options that fit your needs.
- * When your component renders, `useRewriteApplicationTextWithAiQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useRewriteTextWithAiQuery` and pass it any options that fit your needs.
+ * When your component renders, `useRewriteTextWithAiQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useRewriteApplicationTextWithAiQuery({
+ * const { data, loading, error } = useRewriteTextWithAiQuery({
  *   variables: {
- *      applicationId: // value for 'applicationId'
  *      text: // value for 'text'
  *   },
  * });
  */
-export function useRewriteApplicationTextWithAiQuery(
+export function useRewriteTextWithAiQuery(
   baseOptions: ApolloReactHooks.QueryHookOptions<
-    RewriteApplicationTextWithAiQuery,
-    RewriteApplicationTextWithAiQueryVariables
+    RewriteTextWithAiQuery,
+    RewriteTextWithAiQueryVariables
   > &
     (
-      | {
-          variables: RewriteApplicationTextWithAiQueryVariables;
-          skip?: boolean;
-        }
+      | { variables: RewriteTextWithAiQueryVariables; skip?: boolean }
       | { skip: boolean }
     ),
 ) {
   const options = { ...defaultOptions, ...baseOptions };
   return ApolloReactHooks.useQuery<
-    RewriteApplicationTextWithAiQuery,
-    RewriteApplicationTextWithAiQueryVariables
-  >(RewriteApplicationTextWithAiDocument, options);
+    RewriteTextWithAiQuery,
+    RewriteTextWithAiQueryVariables
+  >(RewriteTextWithAiDocument, options);
 }
-export function useRewriteApplicationTextWithAiLazyQuery(
+export function useRewriteTextWithAiLazyQuery(
   baseOptions?: ApolloReactHooks.LazyQueryHookOptions<
-    RewriteApplicationTextWithAiQuery,
-    RewriteApplicationTextWithAiQueryVariables
+    RewriteTextWithAiQuery,
+    RewriteTextWithAiQueryVariables
   >,
 ) {
   const options = { ...defaultOptions, ...baseOptions };
   return ApolloReactHooks.useLazyQuery<
-    RewriteApplicationTextWithAiQuery,
-    RewriteApplicationTextWithAiQueryVariables
-  >(RewriteApplicationTextWithAiDocument, options);
+    RewriteTextWithAiQuery,
+    RewriteTextWithAiQueryVariables
+  >(RewriteTextWithAiDocument, options);
 }
 
-export type RewriteApplicationTextWithAiQueryHookResult = ReturnType<
-  typeof useRewriteApplicationTextWithAiQuery
+export type RewriteTextWithAiQueryHookResult = ReturnType<
+  typeof useRewriteTextWithAiQuery
 >;
-export type RewriteApplicationTextWithAiLazyQueryHookResult = ReturnType<
-  typeof useRewriteApplicationTextWithAiLazyQuery
+export type RewriteTextWithAiLazyQueryHookResult = ReturnType<
+  typeof useRewriteTextWithAiLazyQuery
 >;
 
 export const UpdateCompanyDocument = gql`
