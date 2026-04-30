@@ -95,7 +95,8 @@
   --primitive-radius-xl: 20px;
   --primitive-radius-full: 9999px;
   --primitive-shadow-none: none;
-  --primitive-shadow-sm: 0 1px 3px rgb(0 0 0 / 0.06), 0 1px 2px rgb(0 0 0 / 0.04);
+  --primitive-shadow-sm:
+    0 1px 3px rgb(0 0 0 / 0.06), 0 1px 2px rgb(0 0 0 / 0.04);
   --primitive-shadow-md: 0 4px 12px rgb(0 0 0 / 0.08);
   --primitive-shadow-lg: 0 8px 24px rgb(0 0 0 / 0.12);
 
@@ -124,5 +125,4 @@
   --semantic-color-border-success: var(--primitive-color-green-500);
   --semantic-color-border-error: var(--primitive-color-red-500);
   --semantic-color-overlay-backdrop: rgb(17 24 39 / 0.4);
-
 }

@@ -2,14 +2,8 @@
 
 import React from "react";
 import Link from "next/link";
-import {
-  Heading,
-  Text,
-  cn,
-} from "@job-tracker/ui";
-import {
-  useApplicationQuery,
-} from "@/gql/hooks";
+import { Heading, Text, cn } from "@job-tracker/ui";
+import { useApplicationQuery } from "@/gql/hooks";
 import { type ApplicationDetailsValues } from "@/modules/applications/details/utils/application-details.shared";
 import { NotesPanel } from "@/modules/applications/details/components/NotesPanel";
 
@@ -46,7 +40,11 @@ export default function ApplicationNotesPage({ params }: PageProps) {
         </div>
         <div className={cn("flex items-start gap-3")}>
           <Heading as="h1" size="2xl" className={cn("min-w-0 flex-1")}>
-            <span>{application?.title ? `${application.title} — Notes` : "Application notes"}</span>
+            <span>
+              {application?.title
+                ? `${application.title} — Notes`
+                : "Application notes"}
+            </span>
           </Heading>
         </div>
       </div>
@@ -66,7 +64,7 @@ export default function ApplicationNotesPage({ params }: PageProps) {
           </Text>
         ) : (
           <div className={cn("h-full max-w-5xl mx-auto flex flex-col")}>
-             <NotesPanel applicationId={id} />
+            <NotesPanel applicationId={id} />
           </div>
         )}
       </div>
