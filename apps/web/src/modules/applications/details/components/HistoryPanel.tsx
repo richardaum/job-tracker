@@ -10,6 +10,7 @@ import {
 } from "@phosphor-icons/react";
 import {
   Button,
+  ConfirmDialog,
   Dialog,
   FormField,
   IconButton,
@@ -147,10 +148,6 @@ export function HistoryPanel({
 
   async function handleDeleteEvent(eventId: string) {
     if (isMutatingStageEvent) return;
-    const shouldDelete = window.confirm(
-      "Delete this history event? This action cannot be undone.",
-    );
-    if (!shouldDelete) return;
 
     try {
       await deleteStageEvent({ variables: { id: eventId } });
@@ -160,6 +157,7 @@ export function HistoryPanel({
       onSuccess?.("History item removed.");
     } catch {
       onError?.("Could not remove history item.");
+      throw new Error("Could not remove history item.");
     }
   }
 
@@ -218,15 +216,22 @@ export function HistoryPanel({
                   onClick={() => openEditDialog(item.id)}
                   disabled={isMutatingStageEvent}
                 />
-                <IconButton
-                  intent="ghost"
-                  size="sm"
-                  label="Delete history item"
-                  tooltip="Delete history item"
-                  icon={<TrashIcon size={14} weight="regular" />}
-                  className={cn("h-6 w-6 text-text-muted")}
-                  onClick={() => void handleDeleteEvent(item.id)}
-                  disabled={isMutatingStageEvent}
+                <ConfirmDialog
+                  title="Delete history event?"
+                  description="This action cannot be undone."
+                  confirmLabel="Delete"
+                  onConfirm={() => handleDeleteEvent(item.id)}
+                  trigger={
+                    <IconButton
+                      intent="ghost"
+                      size="sm"
+                      label="Delete history item"
+                      tooltip="Delete history item"
+                      icon={<TrashIcon size={14} weight="regular" />}
+                      className={cn("h-6 w-6 text-text-muted")}
+                      disabled={isMutatingStageEvent}
+                    />
+                  }
                 />
               </div>
             )}

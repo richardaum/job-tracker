@@ -3,8 +3,9 @@
 import { MagnifyingGlassIcon } from "@phosphor-icons/react";
 import { Card, Input, Skeleton, Stack, Text, Toast, cn } from "@job-tracker/ui";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useCompaniesQuery } from "@/gql/hooks";
+import { useScrollRestoration } from "@/hooks/useScrollRestoration";
 import { normalizeTipTapDocument } from "@/modules/applications/shared/utils/tiptap";
 import { CompanyCard } from "@/modules/companies/list/components/CompanyCard";
 import { CompanyEditDialog } from "@/modules/companies/shared/components/CompanyEditDialog";
@@ -39,6 +40,7 @@ function CompaniesListSkeleton({ count = 4 }: { count?: number }) {
 
 export default function CompaniesPage() {
   const router = useRouter();
+  const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const [query, setQuery] = useState("");
   const [editingCompany, setEditingCompany] = useState<EditingCompany | null>(
     null,
@@ -60,6 +62,16 @@ export default function CompaniesPage() {
       company.name.toLowerCase().includes(normalizedSearch),
     );
   }, [companies, query]);
+  const scrollKey = useMemo(
+    () => `companies-list:${query.trim().toLowerCase()}`,
+    [query],
+  );
+
+  useScrollRestoration({
+    key: scrollKey,
+    containerRef: scrollContainerRef,
+    ready: !loading,
+  });
 
   function openEditModal(company: EditingCompany) {
     setEditingCompany(company);
@@ -104,7 +116,10 @@ export default function CompaniesPage() {
         </Text>
       </div>
 
-      <div className={cn("flex-1 overflow-auto p-4 sm:p-6")}>
+      <div
+        ref={scrollContainerRef}
+        className={cn("flex-1 overflow-auto p-4 sm:p-6")}
+      >
         {loading && !data ? (
           <CompaniesListSkeleton />
         ) : error ? (
