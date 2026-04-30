@@ -28,6 +28,7 @@ export function DeleteApplicationDialog({
 }: DeleteApplicationDialogProps) {
   const [deleteApplication] = useDeleteApplicationMutation({
     refetchQueries: [{ query: ApplicationsDocument }],
+    awaitRefetchQueries: true,
   });
 
   return (

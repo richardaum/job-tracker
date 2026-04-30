@@ -59,7 +59,7 @@ export default function AiApplicationCreatePage() {
   const [generateDraftWithAi, { loading: generating }] =
     useGenerateApplicationDraftWithAiLazyQuery({ fetchPolicy: "no-cache" });
   const [createApplication, { loading: creating }] =
-    useCreateApplicationMutation({ refetchQueries });
+    useCreateApplicationMutation({ refetchQueries, awaitRefetchQueries: true });
   const [createApplicationNote] = useCreateApplicationNoteMutation();
   const loading = generating || creating;
 

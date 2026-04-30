@@ -165,6 +165,9 @@ export default function ApplicationsPage() {
             }}
             onSuccess={(msg) => showToast(msg, "success")}
             onError={(msg) => showToast(msg, "error")}
+            onCreated={(applicationId) => {
+              router.push(`/applications/${applicationId}`);
+            }}
           />
           <DropdownButton
             intent="primary"

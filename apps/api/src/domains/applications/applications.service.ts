@@ -134,6 +134,7 @@ export class ApplicationService {
       dto.company,
       dto.companyId,
     );
+
     if (!companyId) {
       throw new BadRequestException("Company could not be resolved");
     }
@@ -158,7 +159,8 @@ export class ApplicationService {
       reason: null,
       scheduledAt: null,
     });
-    return (await this.attachCurrentStage(userId, [application]))[0]!;
+    const hydrated = await this.findOne(application.id, userId);
+    return hydrated;
   }
 
   async createWithAI(

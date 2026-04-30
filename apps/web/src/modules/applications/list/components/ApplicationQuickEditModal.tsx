@@ -35,6 +35,7 @@ interface ApplicationQuickEditModalFormProps {
   application?: ApplicationValues;
   onSuccess?: (message: string) => void;
   onError?: (message: string) => void;
+  onCreated?: (applicationId: string) => void;
   onClose: () => void;
 }
 
@@ -43,6 +44,7 @@ function ApplicationQuickEditModalForm({
   application,
   onSuccess,
   onError,
+  onCreated,
   onClose,
 }: ApplicationQuickEditModalFormProps) {
   const [form, setForm] = useState<FormState>({
@@ -54,9 +56,9 @@ function ApplicationQuickEditModalForm({
 
   const refetchQueries = [{ query: ApplicationsDocument }];
   const [createApplication, { loading: creating }] =
-    useCreateApplicationMutation({ refetchQueries });
+    useCreateApplicationMutation({ refetchQueries, awaitRefetchQueries: true });
   const [updateApplication, { loading: updating }] =
-    useUpdateApplicationMutation({ refetchQueries });
+    useUpdateApplicationMutation({ refetchQueries, awaitRefetchQueries: true });
   const loading = creating || updating;
 
   const { data: companiesData } = useCompaniesQuery();
@@ -99,8 +101,12 @@ function ApplicationQuickEditModalForm({
         await updateApplication({ variables: { id: application.id, input } });
         onSuccess?.("Application updated.");
       } else {
-        await createApplication({ variables: { input } });
+        const result = await createApplication({ variables: { input } });
+        const createdApplicationId = result.data?.createApplication.id;
         onSuccess?.("Application created.");
+        if (createdApplicationId) {
+          onCreated?.(createdApplicationId);
+        }
       }
       onClose();
     } catch {
@@ -191,6 +197,7 @@ export interface ApplicationQuickEditModalProps {
   application?: ApplicationValues;
   onSuccess?: (message: string) => void;
   onError?: (message: string) => void;
+  onCreated?: (applicationId: string) => void;
 }
 
 export function ApplicationQuickEditModal({
@@ -200,6 +207,7 @@ export function ApplicationQuickEditModal({
   application,
   onSuccess,
   onError,
+  onCreated,
 }: ApplicationQuickEditModalProps) {
   const isEdit = Boolean(application);
   const [internalOpen, setInternalOpen] = useState(false);
@@ -228,6 +236,7 @@ export function ApplicationQuickEditModal({
           application={application}
           onSuccess={onSuccess}
           onError={onError}
+          onCreated={onCreated}
           onClose={() => handleOpenChange(false)}
         />
       ) : null}
