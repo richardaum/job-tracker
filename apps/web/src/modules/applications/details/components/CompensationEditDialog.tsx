@@ -1,14 +1,15 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
+import { NumericFormat } from "react-number-format";
 import {
   Button,
+  CurrencyCombobox,
   Dialog,
   FormField,
   Input,
   Select,
   Stack,
-  Text,
   type SelectOption,
   cn,
 } from "@job-tracker/ui";
@@ -20,11 +21,14 @@ import {
 } from "@/gql/hooks";
 import {
   centsToMajorInput,
+  iso4217MaxFractionDigits,
   majorToCents,
   SALARY_PERIODS,
 } from "@/modules/applications/shared/utils/compensationFormat";
 import { FieldEditTriggerButton } from "./HoverEditableFieldRow";
 import type { ApplicationDetailsValues } from "@/modules/applications/details/utils/application-details.shared";
+
+const defaultSalaryCurrency = "USD";
 
 const periodNone = "__comp_none__";
 const periodOptions: SelectOption[] = [
@@ -41,6 +45,7 @@ type DraftCompensation = {
 
 type CompensationEditDialogApplicationProps = {
   application: ApplicationDetailsValues;
+  trigger?: React.ReactElement;
   onSuccess?: (message: string) => void;
   onError?: (message: string) => void;
 };
@@ -80,7 +85,7 @@ export function CompensationEditDialog(props: CompensationEditDialogProps) {
   const [form, setForm] = useState({
     salaryMin: "",
     salaryMax: "",
-    salaryCurrency: "",
+    salaryCurrency: defaultSalaryCurrency,
     salaryPeriod: "",
   });
   const [error, setError] = useState<string | undefined>();
@@ -103,12 +108,15 @@ export function CompensationEditDialog(props: CompensationEditDialogProps) {
   const open = isDraft ? props.open : applicationOpen;
   const disabledInputs = isDraft ? Boolean(props.disabled) : false;
   const idPrefix = isDraft ? (props.idPrefix ?? "ai-draft-sal") : "ov-sal";
+  const amountDecimalScale = iso4217MaxFractionDigits(form.salaryCurrency);
 
   function syncFromApplication(application: ApplicationDetailsValues) {
+    const cur =
+      application.salaryCurrency?.trim().toUpperCase() || defaultSalaryCurrency;
     setForm({
       salaryMin: centsToMajorInput(application.salaryMinCents),
       salaryMax: centsToMajorInput(application.salaryMaxCents),
-      salaryCurrency: application.salaryCurrency ?? "",
+      salaryCurrency: cur,
       salaryPeriod: application.salaryPeriod
         ? String(application.salaryPeriod)
         : "",
@@ -117,10 +125,11 @@ export function CompensationEditDialog(props: CompensationEditDialogProps) {
   }
 
   function syncFromDraft(c: DraftCompensation) {
+    const cur = c.salaryCurrency?.trim().toUpperCase() || defaultSalaryCurrency;
     setForm({
       salaryMin: centsToMajorInput(c.salaryMinCents),
       salaryMax: centsToMajorInput(c.salaryMaxCents),
-      salaryCurrency: c.salaryCurrency ?? "",
+      salaryCurrency: cur,
       salaryPeriod: c.salaryPeriod ? String(c.salaryPeriod) : "",
     });
     setError(undefined);
@@ -152,9 +161,10 @@ export function CompensationEditDialog(props: CompensationEditDialogProps) {
   function validate(): boolean {
     const minC = majorToCents(form.salaryMin);
     const maxC = majorToCents(form.salaryMax);
-    const cur = form.salaryCurrency.trim().toUpperCase();
+    const rawCur = form.salaryCurrency.trim().toUpperCase();
     const hasAmount = minC != null || maxC != null;
     if (hasAmount) {
+      const cur = /^[A-Z]{3}$/.test(rawCur) ? rawCur : defaultSalaryCurrency;
       if (!/^[A-Z]{3}$/.test(cur)) {
         setError("Use a 3-letter currency code (e.g. BRL, USD).");
         return false;
@@ -167,10 +177,8 @@ export function CompensationEditDialog(props: CompensationEditDialogProps) {
         setError("Minimum must be less than or equal to maximum.");
         return false;
       }
-    } else if (cur.length > 0 || form.salaryPeriod.length > 0) {
-      setError(
-        "Remove currency and period, or add a min/max amount in major units.",
-      );
+    } else if (rawCur.length > 0 || form.salaryPeriod.length > 0) {
+      setError("Remove currency and period, or add a min/max amount.");
       return false;
     }
     setError(undefined);
@@ -182,15 +190,20 @@ export function CompensationEditDialog(props: CompensationEditDialogProps) {
     setSaving(true);
     const minC = majorToCents(form.salaryMin);
     const maxC = majorToCents(form.salaryMax);
-    const cur = form.salaryCurrency.trim().toUpperCase();
+    const rawCur = form.salaryCurrency.trim().toUpperCase();
     const periodVal = form.salaryPeriod
       ? (form.salaryPeriod as SalaryPeriod)
       : null;
     const hasAmount = minC != null || maxC != null;
+    const salaryCurrency = !hasAmount
+      ? null
+      : /^[A-Z]{3}$/.test(rawCur)
+        ? rawCur
+        : defaultSalaryCurrency;
     const payload = {
       salaryMinCents: hasAmount ? minC : null,
       salaryMaxCents: hasAmount ? maxC : null,
-      salaryCurrency: hasAmount && cur ? cur : null,
+      salaryCurrency,
       salaryPeriod: hasAmount && periodVal ? periodVal : null,
     };
 
@@ -229,48 +242,50 @@ export function CompensationEditDialog(props: CompensationEditDialogProps) {
   return (
     <Dialog
       title="Edit compensation"
-      description="Update salary range, currency, and pay period details for this application."
       open={open}
       onOpenChange={handleOpenChange}
       trigger={
-        isDraft ? (
-          (props.trigger ?? <span aria-hidden style={{ display: "none" }} />)
-        ) : (
-          <FieldEditTriggerButton label="Edit compensation" />
-        )
+        isDraft
+          ? (props.trigger ?? <span aria-hidden style={{ display: "none" }} />)
+          : (props.trigger ?? (
+              <FieldEditTriggerButton label="Edit compensation" />
+            ))
       }
     >
       <Stack gap="sm">
-        <Text size="sm" color="secondary">
-          Optional salary range, currency, and pay period.
-        </Text>
         <div className={cn("grid grid-cols-1 gap-2 sm:grid-cols-2")}>
-          <FormField
-            label="Min (major units)"
-            htmlFor={`${idPrefix}-min`}
-            hint="e.g. 100000.50"
-          >
-            <Input
+          <FormField label="Minimum" htmlFor={`${idPrefix}-min`}>
+            <NumericFormat
+              customInput={Input}
               id={`${idPrefix}-min`}
               inputMode="decimal"
+              allowNegative={false}
+              thousandSeparator=","
+              decimalSeparator="."
+              decimalScale={amountDecimalScale}
+              fixedDecimalScale={false}
               value={form.salaryMin}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, salaryMin: e.target.value }))
+              valueIsNumericString
+              onValueChange={(vals) =>
+                setForm((f) => ({ ...f, salaryMin: vals.value }))
               }
               disabled={saving || disabledInputs}
             />
           </FormField>
-          <FormField
-            label="Max (major units)"
-            htmlFor={`${idPrefix}-max`}
-            hint="Optional upper bound"
-          >
-            <Input
+          <FormField label="Maximum" htmlFor={`${idPrefix}-max`}>
+            <NumericFormat
+              customInput={Input}
               id={`${idPrefix}-max`}
               inputMode="decimal"
+              allowNegative={false}
+              thousandSeparator=","
+              decimalSeparator="."
+              decimalScale={amountDecimalScale}
+              fixedDecimalScale={false}
               value={form.salaryMax}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, salaryMax: e.target.value }))
+              valueIsNumericString
+              onValueChange={(vals) =>
+                setForm((f) => ({ ...f, salaryMax: vals.value }))
               }
               disabled={saving || disabledInputs}
             />
@@ -280,24 +295,20 @@ export function CompensationEditDialog(props: CompensationEditDialogProps) {
           <FormField
             label="Currency"
             htmlFor={`${idPrefix}-cur`}
-            hint="ISO 4217"
+            required
             error={error}
           >
-            <Input
+            <CurrencyCombobox
               id={`${idPrefix}-cur`}
               value={form.salaryCurrency}
-              onChange={(e) =>
-                setForm((f) => ({
-                  ...f,
-                  salaryCurrency: e.target.value.toUpperCase().slice(0, 3),
-                }))
+              onValueChange={(salaryCurrency) =>
+                setForm((f) => ({ ...f, salaryCurrency }))
               }
-              maxLength={3}
               disabled={saving || disabledInputs}
-              placeholder="BRL"
+              placeholder={defaultSalaryCurrency}
             />
           </FormField>
-          <FormField label="Pay period" htmlFor={`${idPrefix}-period`}>
+          <FormField label="Pay period" htmlFor={`${idPrefix}-period`} required>
             <Select
               name={`${idPrefix}-period`}
               options={periodOptions}

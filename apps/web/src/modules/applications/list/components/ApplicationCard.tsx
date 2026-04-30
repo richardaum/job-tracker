@@ -13,6 +13,7 @@ import {
 } from "@job-tracker/ui";
 import {
   ArrowSquareRightIcon,
+  CurrencyDollarIcon,
   PencilSimpleIcon,
   TrashIcon,
 } from "@phosphor-icons/react";
@@ -25,6 +26,7 @@ import {
 import { ApplicationQuickEditModal } from "@/modules/applications/list/components/ApplicationQuickEditModal";
 import { DeleteApplicationDialog } from "@/modules/applications/list/components/DeleteApplicationDialog";
 import { ApplicationTrackingPanel } from "@/modules/applications/list/components/ApplicationTrackingPanel";
+import { CompensationEditDialog } from "@/modules/applications/details/components/CompensationEditDialog";
 import {
   StatusBadge,
   formatStage,
@@ -201,6 +203,12 @@ export function ApplicationCard({
   });
   const compTags = app.tags ?? [];
   const showComp = hasCompensationOnCard({ line: compLine, tags: compTags });
+  const compensationActionLabel = compLine
+    ? `Edit compensation for ${app.title}`
+    : `Add compensation for ${app.title}`;
+  const compensationActionTooltip = compLine
+    ? "Edit compensation"
+    : "Add salary";
 
   return (
     <Card padding="sm">
@@ -246,6 +254,23 @@ export function ApplicationCard({
                   company: app.company.name,
                   url: app.url,
                 }}
+                onSuccess={onSuccess}
+                onError={onError}
+              />
+              <CompensationEditDialog
+                trigger={
+                  <IconButton
+                    intent="ghost"
+                    size="sm"
+                    label={compensationActionLabel}
+                    tooltip={compensationActionTooltip}
+                    className={cn(
+                      "h-6 w-6 text-text-muted/80 hover:text-text-muted",
+                    )}
+                    icon={<CurrencyDollarIcon size={13} weight="regular" />}
+                  />
+                }
+                application={app}
                 onSuccess={onSuccess}
                 onError={onError}
               />

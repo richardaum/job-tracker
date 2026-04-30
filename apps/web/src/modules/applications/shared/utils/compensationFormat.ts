@@ -63,8 +63,17 @@ export function formatCompensationLine(params: {
   return null;
 }
 
+/** Normalize typed major-unit strings (strips grouping commas / spaces). */
+export function normalizeMajorUnitsString(raw: string): string {
+  return raw
+    .replace(/,/g, "")
+    .replace(/\u202f|\u00a0/g, " ")
+    .replace(/\s+/g, "")
+    .trim();
+}
+
 export function majorToCents(major: string): number | null {
-  const t = major.trim();
+  const t = normalizeMajorUnitsString(major);
   if (!t) return null;
   const n = Number.parseFloat(t);
   if (Number.isNaN(n) || n < 0) return null;
@@ -74,6 +83,23 @@ export function majorToCents(major: string): number | null {
 export function centsToMajorInput(cents: number | null | undefined): string {
   if (cents == null) return "";
   return (cents / 100).toFixed(2).replace(/\.?0+$/, "");
+}
+
+/** Max fractional digits for a currency code (Intl / ISO 4217), for masked inputs. */
+export function iso4217MaxFractionDigits(
+  currencyCode: string | null | undefined,
+): number {
+  const currency = (currencyCode?.trim() || "USD").toUpperCase();
+  try {
+    return (
+      new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency,
+      }).resolvedOptions().maximumFractionDigits ?? 2
+    );
+  } catch {
+    return 2;
+  }
 }
 
 export function parseTagInput(s: string): string[] {
