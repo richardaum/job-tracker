@@ -1,33 +1,59 @@
 # Conventions
 
-## Component Architecture
+## Architecture
 
-### 1) Controllable component state
+- Keep `apps/web` as UI-only and `apps/api` as backend API service; avoid introducing API routes or server actions in web.
+- Consume OpenAI capabilities through an internal API service facade instead of direct frontend usage.
+- Keep cross-directory imports on workspace aliases where configured (`@api/*`, `@ui/*`, `@/*`).
+- Route environment access through typed env modules, not direct `process.env` in application code.
 
-Use `apps/web/src/modules/applications/shared/hooks/useControllableState.ts` whenever a component can be used in both controlled and uncontrolled modes (i.e., it supports `value` + `onChange` and also a local `defaultValue` fallback).
+## TypeScript
 
-### 2) Dialogs in dedicated files
+- Avoid inline type-only imports in type positions (for example `Foo<import("@/path").Bar>`). Prefer a normal top-of-file `import type { Bar } from "@/path"` (or `import { type Bar }`) and then `Foo<Bar>`. Inline `import("...")` types are harder to read, grep, and refactor.
+- **React 19 refs**: Do not use `forwardRef`. React 19 allows passing `ref` as a standard prop. UI components should include `ref?: React.Ref<T>` in their props interface and apply it directly to the underlying element. ESLint blocks importing `forwardRef` from `react` and calling `forwardRef` / `React.forwardRef` in `apps/web` and `packages/ui`.
 
-Implement dialogs in dedicated component files instead of inline definitions inside page/panel components. This keeps dialog context isolated and allows reuse when the same flow is needed in other screens.
+## UI
 
-### 3) `aiActions` should be inline literals
+### Composition and hydration
 
-When passing `aiActions` to `TipTapEditor`, prefer a literal array directly in props (for example, `aiActions={[actionA, actionB]}`) instead of creating a separate `const` variable used only for that prop.
+- **Hydration & component nesting**: Use the `asChild` pattern (via `@radix-ui/react-slot`) in UI components that render interactive elements (like `button` or `a`) when they might need to wrap other interactive elements or custom links (like `NextLink`). This prevents invalid HTML nesting (e.g., `<button>` inside `<button>`) which causes hydration errors.
+- Avoid mixing block and inline elements in sibling content slots. Inline elements (`<span>`, `inline-flex`) create a different formatting context than block elements (`<p>`, `<div>`), causing inconsistent heights and alignments even when font size and line-height are identical. Always use the same display type across equivalent slots.
 
-### 4) Isolate clear-scope implementations
+### Buttons
 
-If an implementation has a clear and specific objective, it should be attempted in isolation. Prefer extracting this logic into a dedicated hook (when using React hooks) or a dedicated function, ideally in a separate file.
+- Use the `state` prop (`"default" | "loading"`) instead of a boolean `loading` prop. The component automatically handles the disabled state and accessibility attributes when in the `"loading"` state.
 
-## Data Consistency
+### Dialogs and confirmations
 
-### 5) Refresh list views after create/delete mutations
+- **Flexible dialogs**: The `Dialog` component uses a flexbox layout. Use `childrenClassName="flex flex-col"` and `flex-1 min-h-0` on children that need to fill the modal height and provide internal scrolling (like `NotesPanel`).
+- Use `ConfirmDialog` from `@job-tracker/ui` for user confirmations, especially destructive or irreversible actions; do not use `window.confirm`, `window.alert`, or `window.prompt` in application code.
+- Prefer small feature components that compose `ConfirmDialog` (for example a delete flow wrapper) over hand-rolled `Dialog` footers that duplicate the same cancel + confirm pattern.
+- Storybook reference: **Components → ConfirmDialog** (`pnpm --filter @job-tracker/ui storybook`).
 
-When a mutation creates or deletes list-backed entities (for example, applications or companies), always refetch the corresponding list query and set `awaitRefetchQueries: true` so the list is updated before success flows continue (toast, dialog close, or redirect).
+### Editors (TipTap)
 
-## Development Environment
+- Support and use the `autofocus` prop to improve user experience in composers and edit dialogs. Use `autofocus="end"` when editing existing content to place the cursor at the end.
 
-### 6) Mobile debug mode networking (Cursor)
+## Application patterns
 
-When debugging web flows from a mobile device (for example Android/iOS via ngrok), avoid direct client calls to `127.0.0.1` for debug ingestion. In this scenario, mobile browsers cannot reach the local loopback of the development machine, and HTTPS pages may block mixed-content requests to local HTTP endpoints.
+- **Controllable component state**: Use `apps/web/src/modules/applications/shared/hooks/useControllableState.ts` whenever a component can be used in both controlled and uncontrolled modes (i.e., it supports `value` + `onChange` and also a local `defaultValue` fallback).
+- **Dialogs in dedicated files**: Implement dialogs in dedicated component files instead of inline definitions inside page/panel components. This keeps dialog context isolated and allows reuse when the same flow is needed on other screens.
+- **`aiActions` as inline literals**: When passing `aiActions` to `TipTapEditor`, prefer a literal array directly in props (for example, `aiActions={[actionA, actionB]}`) instead of creating a separate `const` variable used only for that prop.
+- **Isolate clear-scope implementations**: When an objective is narrow and well defined, extract it into a dedicated hook (or a dedicated function), ideally in a separate file.
 
-Use a same-origin debug route in `apps/web` (for example `"/__debug_ingest"`) that is proxied/re-written by Next.js only in development. Configure the rewrite destination from environment-derived host information (project allowlisted env vars) instead of hardcoding production behavior. Keep debug ingestion disabled when the destination cannot be resolved.
+## Data consistency
+
+- **List views after mutations**: When a mutation creates or deletes list-backed entities (for example applications or companies), always refetch the corresponding list query and set `awaitRefetchQueries: true` so the list is updated before success flows continue (toast, dialog close, or redirect).
+
+## Development environment
+
+- **Mobile debug networking (Cursor)**: When debugging web flows from a mobile device (for example Android/iOS via ngrok), avoid direct client calls to `127.0.0.1` for debug ingestion—mobile browsers cannot reach the machine’s loopback and HTTPS pages may block mixed-content requests.
+
+  Use a same-origin debug route in `apps/web` (for example `"/__debug_ingest"`) that is proxied or rewritten by Next.js only in development. Configure the rewrite destination from environment-derived host information (project allowlisted env vars) instead of hardcoding production behavior. Keep debug ingestion disabled when the destination cannot be resolved.
+
+## Quality gates
+
+- Run lint, format, and typecheck gates before merge-ready changes.
+- Run unit/integration, e2e, and Storybook gates according to impacted layers.
+- Keep coverage thresholds enforced in CI and maintain story coverage for exported UI components.
+- Validate environment schemas and runtime boot paths after config-related changes.
