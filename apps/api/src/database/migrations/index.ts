@@ -4,6 +4,7 @@ import { RenameSalaryTagsToTags1748000000000 } from "./1748000000000-rename-sala
 import { CreateCompanies1749000000000 } from "./1749000000000-create-companies";
 import { EnsureCompanyDescriptionTiptap1750000000000 } from "./1750000000000-ensure-company-description-tiptap";
 import { AddStageEventReason1751000000000 } from "./1751000000000-add-stage-event-reason";
+import { UseTimestamptzForStageEvents1752000000000 } from "./1752000000000-use-timestamptz-for-stage-events";
 
 export const migrations = [
   Baseline1746009600000,
@@ -12,4 +13,5 @@ export const migrations = [
   CreateCompanies1749000000000,
   EnsureCompanyDescriptionTiptap1750000000000,
   AddStageEventReason1751000000000,
+  UseTimestamptzForStageEvents1752000000000,
 ];

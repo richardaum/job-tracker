@@ -75,9 +75,9 @@ export class ApplicationStageEventEntity {
   @Column({ type: "text", nullable: true })
   reason!: string | null;
 
-  @Column({ name: "schedule_at", type: "timestamp", nullable: true })
+  @Column({ name: "schedule_at", type: "timestamptz", nullable: true })
   scheduledAt!: Date | null;
 
-  @CreateDateColumn({ name: "created_at", type: "timestamp" })
+  @CreateDateColumn({ name: "created_at", type: "timestamptz" })
   createdAt!: Date;
 }
