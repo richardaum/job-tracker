@@ -8,16 +8,7 @@ Node 22+, pnpm 10.8+. Lockfile enforced in CI (`pnpm install --frozen-lockfile`)
 
 ## Commands
 
-```bash
-pnpm dev              # turbo dev + db:migrate:watch
-pnpm build            # turbo build
-pnpm test             # turbo test (vitest)
-pnpm lint             # turbo lint (eslint --max-warnings=0)
-pnpm typecheck        # turbo typecheck
-pnpm ci:local         # full CI: specs:validate → lint → typecheck → test (80% cov) → build
-pnpm e2e              # build web, then Playwright (port 3100, set E2E_PORT to override)
-pnpm specs:validate   # validate .specs/ structure
-```
+See root `package.json` `scripts` for the canonical command list (for example: `dev`, `build`, `test`, `lint`, `typecheck`, `ci:local`, `e2e`, `specs:validate`).
 
 ## Architecture notes
 
@@ -44,6 +35,7 @@ pnpm specs:validate   # validate .specs/ structure
 - **Turbo pipeline**: `test` and `typecheck` depend on `^build`. `dev` and `db:migrate:watch` are persistent (no cache).
 - **Docker API build**: must use repository-root context: `docker build -f apps/api/Dockerfile -t job-tracker-api:local .`
 - **Migrations**: TypeORM in `apps/api/src/database/`. Watch mode: `node scripts/watch-migrations.mjs`. Squash: `pnpm db:migrate:squash`.
+- **PM2 logs**: default location is `~/.pm2/logs/` (for both `*-out.log` and `*-error.log`).
 
 ## CI
 
