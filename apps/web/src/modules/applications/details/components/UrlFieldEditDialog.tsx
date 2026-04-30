@@ -40,6 +40,7 @@ export function UrlFieldEditDialog({ value, onSave }: UrlFieldEditDialogProps) {
   return (
     <Dialog
       title="Edit job URL"
+      description="Update the source URL for this application posting."
       open={open}
       onOpenChange={handleOpenChange}
       trigger={<FieldEditTriggerButton label="Edit job URL" />}

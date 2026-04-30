@@ -36,6 +36,7 @@ export function NoteComposerExpandedDialog({
   return (
     <Dialog
       title="New note"
+      description="Compose a detailed note for this application in an expanded editor."
       open={open}
       onOpenChange={onOpenChange}
       trigger={<span aria-hidden style={{ display: "none" }} />}

@@ -25,7 +25,6 @@ import {
 } from "@/modules/applications/shared/utils/tiptap";
 import { formatDateTime } from "@/modules/applications/details/utils/application-details.shared";
 import { useNotesComposerBehavior } from "@/modules/applications/details/hooks/useNotesComposerBehavior";
-import { useApplicationNoteAiGenerator } from "@/modules/ai/actions/useApplicationNoteAiGenerator";
 import { useImproveApplicationNoteAiAction } from "@/modules/ai/actions/useImproveApplicationNoteAiAction";
 import { useRewriteTextAiAction } from "@/modules/ai/actions/useRewriteTextAiAction";
 import { NoteDeleteConfirmDialog } from "./NoteDeleteConfirmDialog";
@@ -92,15 +91,11 @@ export function NotesPanel({
     () => applicationNotes.find((note) => note.id === editingNoteId) ?? null,
     [applicationNotes, editingNoteId],
   );
-  const { generateNote, isLoading: isGeneratingNoteWithAi } =
-    useApplicationNoteAiGenerator({ applicationId });
   const composerImproveNoteAction = useImproveApplicationNoteAiAction({
+    applicationId,
     disabled: !canSend,
-    isLoading: isGeneratingNoteWithAi,
-    generateNote,
   });
   const composerRewriteTextAction = useRewriteTextAiAction({
-    applicationId,
     disabled: !canSend,
   });
   const composerAiActions = useMemo(

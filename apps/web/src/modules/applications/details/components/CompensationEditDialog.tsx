@@ -229,6 +229,7 @@ export function CompensationEditDialog(props: CompensationEditDialogProps) {
   return (
     <Dialog
       title="Edit compensation"
+      description="Update salary range, currency, and pay period details for this application."
       open={open}
       onOpenChange={handleOpenChange}
       trigger={

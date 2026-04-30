@@ -135,7 +135,7 @@ function AiSuggestionSegmentedControl({
           onClick={onApprove}
           disabled={isApproveDisabled}
           className={cn(
-            "rounded-none border-0 border-r border-border-subtle text-text-success",
+            "rounded-none border-0 border-l border-border-subtle text-text-success",
           )}
         />
       ) : null}
@@ -145,7 +145,9 @@ function AiSuggestionSegmentedControl({
           ariaLabel="Reject AI suggestion"
           onClick={onReject}
           disabled={isRejectDisabled}
-          className={cn("rounded-none border-0 text-text-error")}
+          className={cn(
+            "rounded-none border-0 border-l border-border-subtle text-text-error",
+          )}
         />
       ) : null}
     </div>

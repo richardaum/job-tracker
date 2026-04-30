@@ -43,6 +43,7 @@ export function TextFieldEditDialog({
   return (
     <Dialog
       title={`Edit ${label.toLowerCase()}`}
+      description={`Update the ${label.toLowerCase()} value for this application.`}
       open={open}
       onOpenChange={handleOpenChange}
       trigger={<FieldEditTriggerButton label={`Edit ${label}`} />}

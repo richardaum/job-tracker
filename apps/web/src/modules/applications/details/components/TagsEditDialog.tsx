@@ -69,6 +69,7 @@ export function TagsEditDialog({
   return (
     <Dialog
       title="Edit tags"
+      description="Add, remove, or rename tags used to organize this application."
       open={open}
       onOpenChange={handleOpenChange}
       trigger={<FieldEditTriggerButton label="Edit tags" />}

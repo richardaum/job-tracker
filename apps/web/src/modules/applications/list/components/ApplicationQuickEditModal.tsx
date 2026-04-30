@@ -214,6 +214,11 @@ export function ApplicationQuickEditModal({
     <Dialog
       trigger={trigger ?? <button type="button" className="hidden" />}
       title={isEdit ? "Edit application" : "New application"}
+      description={
+        isEdit
+          ? "Update the core application details like title, company, and URL."
+          : "Add a new application with a title, company, and optional URL."
+      }
       open={open}
       onOpenChange={handleOpenChange}
     >

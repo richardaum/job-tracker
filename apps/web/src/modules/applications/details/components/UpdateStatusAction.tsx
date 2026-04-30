@@ -116,6 +116,7 @@ export function UpdateStatusAction({
   return (
     <Dialog
       title="Update status"
+      description="Set the next application stage and optionally schedule when it should take effect."
       open={resolvedOpen}
       onOpenChange={handleOpenChange}
       trigger={trigger ?? <span aria-hidden style={{ display: "none" }} />}

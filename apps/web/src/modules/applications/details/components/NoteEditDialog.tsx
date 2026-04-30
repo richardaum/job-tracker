@@ -2,7 +2,6 @@
 
 import React, { useMemo } from "react";
 import { Button, Dialog, Stack, cn } from "@job-tracker/ui";
-import { useApplicationNoteAiGenerator } from "@/modules/ai/actions/useApplicationNoteAiGenerator";
 import { useImproveApplicationNoteAiAction } from "@/modules/ai/actions/useImproveApplicationNoteAiAction";
 import { useRewriteTextAiAction } from "@/modules/ai/actions/useRewriteTextAiAction";
 import { tipTapToPlainText } from "@/modules/applications/shared/utils/tiptap";
@@ -38,15 +37,11 @@ export function NoteEditDialog({
   onClose,
   onSave,
 }: NoteEditDialogProps) {
-  const { generateNote, isLoading: isGeneratingNoteWithAi } =
-    useApplicationNoteAiGenerator({ applicationId });
   const editImproveNoteAction = useImproveApplicationNoteAiAction({
+    applicationId,
     disabled: !note || updatingNote || deletingNote,
-    isLoading: isGeneratingNoteWithAi,
-    generateNote,
   });
   const editRewriteTextAction = useRewriteTextAiAction({
-    applicationId,
     disabled: !note || updatingNote || deletingNote,
   });
   const editAiActions = useMemo(
@@ -70,6 +65,7 @@ export function NoteEditDialog({
   return (
     <Dialog
       title="Edit note"
+      description="Revise this note content before saving your changes."
       open={Boolean(note)}
       onOpenChange={(open) => {
         if (!open) onClose();

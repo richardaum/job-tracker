@@ -186,6 +186,7 @@ export function HistoryPanel({
       </div>
       <Dialog
         title="Edit history item"
+        description="Adjust the stage event details, including status, schedule, and reason."
         open={Boolean(editingEvent)}
         onOpenChange={(open) => {
           if (!open) closeEditDialog();
