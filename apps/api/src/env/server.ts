@@ -20,6 +20,8 @@ const serverEnvSchema = z.object({
   WEB_URL: z.url().default("http://localhost:3100"),
   OPENAI_API_KEY: z.string().optional(),
   OPENAI_MODEL: z.string().default("gpt-4.1-mini"),
+  AUTH_BYPASS_ENABLED: z.coerce.boolean().default(false),
+  DEV_AUTH_BYPASS_EMAIL: z.email().default("richard.lopes92@gmail.com"),
 });
 
 const validated = serverEnvSchema
@@ -46,4 +48,6 @@ export const {
   WEB_URL,
   OPENAI_API_KEY,
   OPENAI_MODEL,
+  AUTH_BYPASS_ENABLED,
+  DEV_AUTH_BYPASS_EMAIL,
 } = validated;

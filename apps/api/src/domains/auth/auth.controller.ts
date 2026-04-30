@@ -8,51 +8,44 @@ import {
   UnauthorizedException,
   UseGuards,
 } from "@nestjs/common";
-import { AuthGuard } from "@nestjs/passport";
 import type { Request, Response } from "express";
 import { AuthService } from "./auth.service";
 import type { User } from "@api/domains/users/users.schema";
 import { WEB_URL } from "@api/env/server";
 import { GoogleAuthGuard } from "@api/domains/auth/google-auth.guard";
 import { getSafeReturnTo } from "@api/domains/auth/auth-return-to.util";
+import { DevAuthBypassService } from "./dev-auth-bypass.service";
 
 const COOKIE_BASE = { httpOnly: true, sameSite: "lax" as const, path: "/" };
 const DEFAULT_AFTER_LOGIN_PATH = "/login";
 
 @Controller("auth")
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly devAuthBypassService: DevAuthBypassService,
+  ) {}
 
   @Get("google")
   @UseGuards(GoogleAuthGuard)
-  googleLogin() {}
-
-  @Get("google/callback")
-  @UseGuards(AuthGuard("google"))
-  googleCallback(
-    @Req() req: Request & { user: User },
+  googleLogin(
+    @Req() req: Request & { user?: Pick<User, "id"> },
     @Res() res: Response,
   ): void {
-    const accessToken = this.authService.generateAccessToken(req.user);
-    const refreshToken = this.authService.generateRefreshToken(req.user);
-
-    res.cookie("access_token", accessToken, {
-      ...COOKIE_BASE,
-      maxAge: 15 * 60 * 1000,
-    });
-    res.cookie("refresh_token", refreshToken, {
-      ...COOKIE_BASE,
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
-
-    const returnTo = getSafeReturnTo(req.query.state);
-    const redirectUrl = new URL(DEFAULT_AFTER_LOGIN_PATH, WEB_URL);
-
-    if (returnTo) {
-      redirectUrl.searchParams.set("returnTo", returnTo);
+    if (!this.devAuthBypassService.isEnabled() || !req.user) {
+      return;
     }
 
-    res.redirect(302, redirectUrl.toString());
+    this.finishLogin(req.user, req.query.returnTo, req, res);
+  }
+
+  @Get("google/callback")
+  @UseGuards(GoogleAuthGuard)
+  googleCallback(
+    @Req() req: Request & { user: Pick<User, "id"> },
+    @Res() res: Response,
+  ): void {
+    this.finishLogin(req.user, req.query.state, req, res);
   }
 
   @Post("logout")
@@ -83,5 +76,46 @@ export class AuthController {
     } catch {
       throw new UnauthorizedException();
     }
+  }
+
+  private finishLogin(
+    user: Pick<User, "id">,
+    returnToQueryValue: Request["query"][string],
+    req: Request,
+    res: Response,
+  ): void {
+    const accessToken = this.authService.generateAccessToken(user);
+    const refreshToken = this.authService.generateRefreshToken(user);
+
+    res.cookie("access_token", accessToken, {
+      ...COOKIE_BASE,
+      maxAge: 15 * 60 * 1000,
+    });
+    res.cookie("refresh_token", refreshToken, {
+      ...COOKIE_BASE,
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    const returnTo = getSafeReturnTo(returnToQueryValue);
+    const originHeader = req.headers.origin;
+    const forwardedHostHeader = req.headers["x-forwarded-host"];
+    const forwardedHost = Array.isArray(forwardedHostHeader)
+      ? forwardedHostHeader[0]
+      : forwardedHostHeader;
+    const host = forwardedHost ?? req.headers.host;
+    const forwardedProto = req.headers["x-forwarded-proto"];
+    const protocol = Array.isArray(forwardedProto)
+      ? forwardedProto[0]
+      : (forwardedProto ?? req.protocol);
+    const runtimeWebUrl =
+      (originHeader && originHeader.trim()) ||
+      (host ? `${protocol}://${host}` : WEB_URL);
+    const redirectUrl = new URL(DEFAULT_AFTER_LOGIN_PATH, runtimeWebUrl);
+
+    if (returnTo) {
+      redirectUrl.searchParams.set("returnTo", returnTo);
+    }
+
+    res.redirect(302, redirectUrl.toString());
   }
 }

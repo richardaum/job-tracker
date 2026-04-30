@@ -22,6 +22,10 @@ export class UserRepository {
     return this.users.findOne({ where: { googleId } });
   }
 
+  async findByEmail(email: string): Promise<User | null> {
+    return this.users.findOne({ where: { email } });
+  }
+
   async upsert(profile: {
     googleId: string;
     email: string;

@@ -10,6 +10,10 @@ export class UserService {
     return this.userRepository.findById(id);
   }
 
+  async findByEmail(email: string): Promise<User | null> {
+    return this.userRepository.findByEmail(email);
+  }
+
   async findOrCreateFromGoogle(profile: {
     googleId: string;
     email: string;

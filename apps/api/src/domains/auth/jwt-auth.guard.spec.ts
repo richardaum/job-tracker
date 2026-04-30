@@ -9,7 +9,10 @@ describe("JwtAuthGuard", () => {
   });
 
   it("can be instantiated", () => {
-    const guard = new JwtAuthGuard();
+    const guard = new JwtAuthGuard({
+      isEnabled: () => false,
+      getBypassUser: async () => ({ id: "user-1" }),
+    } as never);
     expect(guard).toBeDefined();
   });
 });

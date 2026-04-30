@@ -10,6 +10,7 @@ import { AuthService } from "./auth.service";
 import { AuthController } from "./auth.controller";
 import { AuthResolver } from "./auth.resolver";
 import { GoogleAuthGuard } from "@api/domains/auth/google-auth.guard";
+import { DevAuthBypassService } from "./dev-auth-bypass.service";
 
 @Module({
   imports: [
@@ -24,9 +25,10 @@ import { GoogleAuthGuard } from "@api/domains/auth/google-auth.guard";
     GoogleAuthGuard,
     RolesGuard,
     AuthService,
+    DevAuthBypassService,
     AuthResolver,
   ],
   controllers: [AuthController],
-  exports: [JwtAuthGuard, RolesGuard, UsersModule],
+  exports: [JwtAuthGuard, RolesGuard, DevAuthBypassService, UsersModule],
 })
 export class AuthModule {}

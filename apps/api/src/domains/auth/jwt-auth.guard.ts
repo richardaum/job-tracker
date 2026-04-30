@@ -1,9 +1,25 @@
 import { Injectable, ExecutionContext } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
 import { GqlExecutionContext } from "@nestjs/graphql";
+import { DevAuthBypassService } from "./dev-auth-bypass.service";
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard("jwt") {
+  constructor(private readonly devAuthBypassService: DevAuthBypassService) {
+    super();
+  }
+
+  override async canActivate(context: ExecutionContext): Promise<boolean> {
+    if (this.devAuthBypassService.isEnabled()) {
+      const request = this.getRequest(context) as { user?: { userId: string } };
+      const user = await this.devAuthBypassService.getBypassUser();
+      request.user = { userId: user.id };
+      return true;
+    }
+
+    return (await super.canActivate(context)) as boolean;
+  }
+
   getRequest(context: ExecutionContext) {
     const ctx = GqlExecutionContext.create(context);
     return ctx.getContext().req ?? context.switchToHttp().getRequest();
