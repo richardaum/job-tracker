@@ -269,4 +269,15 @@ export class ApplicationRepository {
     }
     return this.stageEventsRepo.save(existing);
   }
+
+  async deleteStageEvent(
+    stageEventId: string,
+    userId: string,
+  ): Promise<boolean> {
+    const result = await this.stageEventsRepo.delete({
+      id: stageEventId,
+      userId,
+    });
+    return (result.affected ?? 0) > 0;
+  }
 }

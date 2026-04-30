@@ -79,6 +79,7 @@ describe("ApplicationService", () => {
       findStageEventByIdAndUserId: vi.fn(),
       createStageEvent: vi.fn(),
       updateStageEvent: vi.fn(),
+      deleteStageEvent: vi.fn(),
     } as unknown as ApplicationRepository;
 
     companyService = {
@@ -313,6 +314,15 @@ describe("ApplicationService", () => {
       reason: undefined,
       scheduledAt: null,
     });
+  });
+
+  it("removeStageEvent deletes existing event", async () => {
+    vi.mocked(repo.deleteStageEvent).mockResolvedValue(true);
+
+    await expect(
+      service.removeStageEvent("event-1", "user-1"),
+    ).resolves.toBeUndefined();
+    expect(repo.deleteStageEvent).toHaveBeenCalledWith("event-1", "user-1");
   });
 
   it("removeTag removes matching tag and updates application", async () => {

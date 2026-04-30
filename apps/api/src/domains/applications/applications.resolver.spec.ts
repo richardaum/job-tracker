@@ -47,6 +47,7 @@ describe("ApplicationResolver (integration)", () => {
     createWithAI: ReturnType<typeof vi.fn>;
     update: ReturnType<typeof vi.fn>;
     remove: ReturnType<typeof vi.fn>;
+    removeStageEvent: ReturnType<typeof vi.fn>;
   };
 
   beforeAll(async () => {
@@ -57,6 +58,7 @@ describe("ApplicationResolver (integration)", () => {
       createWithAI: vi.fn().mockResolvedValue(mockApp),
       update: vi.fn().mockResolvedValue(mockApp),
       remove: vi.fn().mockResolvedValue(mockApp),
+      removeStageEvent: vi.fn().mockResolvedValue(undefined),
     };
 
     const moduleRef = await Test.createTestingModule({
@@ -198,5 +200,17 @@ describe("ApplicationResolver (integration)", () => {
 
     expect(res.statusCode).toBe(200);
     expect(res.body.data.deleteApplication).toBe(true);
+  });
+
+  it("deleteApplicationStageEvent mutation returns true", async () => {
+    const res = await request(app.getHttpServer())
+      .post("/graphql")
+      .set(auth)
+      .send({
+        query: `mutation { deleteApplicationStageEvent(id: "event-1") }`,
+      });
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body.data.deleteApplicationStageEvent).toBe(true);
   });
 });

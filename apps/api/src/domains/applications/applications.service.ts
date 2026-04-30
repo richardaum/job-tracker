@@ -334,6 +334,13 @@ export class ApplicationService {
     return updated;
   }
 
+  async removeStageEvent(stageEventId: string, userId: string): Promise<void> {
+    const deleted = await this.repo.deleteStageEvent(stageEventId, userId);
+    if (!deleted) {
+      throw new NotFoundException(`Stage event ${stageEventId} not found`);
+    }
+  }
+
   async removeTag(
     id: string,
     userId: string,

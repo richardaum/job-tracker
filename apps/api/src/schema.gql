@@ -133,6 +133,7 @@ type Mutation {
   deleteApplication(id: ID!): Boolean!
   createApplicationStageEvent(input: CreateApplicationStageEventInput!): ApplicationStageEventType!
   updateApplicationStageEvent(id: ID!, input: UpdateApplicationStageEventInput!): ApplicationStageEventType!
+  deleteApplicationStageEvent(id: ID!): Boolean!
   updateCompany(id: ID!, input: UpdateCompanyInput!): CompanyType!
   deleteCompany(id: ID!): Boolean!
   createApplicationNote(input: CreateNoteInput!): NoteType!

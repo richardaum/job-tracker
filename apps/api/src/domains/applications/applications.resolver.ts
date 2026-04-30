@@ -118,4 +118,13 @@ export class ApplicationResolver {
   ): Promise<ApplicationStageEventType> {
     return this.service.updateStageEvent(id, user.userId, input);
   }
+
+  @Mutation(() => Boolean)
+  async deleteApplicationStageEvent(
+    @Args("id", { type: () => ID }) id: string,
+    @CurrentUser() user: { userId: string },
+  ): Promise<boolean> {
+    await this.service.removeStageEvent(id, user.userId);
+    return true;
+  }
 }

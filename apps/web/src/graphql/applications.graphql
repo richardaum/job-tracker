@@ -183,6 +183,10 @@ mutation UpdateApplicationStageEvent(
   }
 }
 
+mutation DeleteApplicationStageEvent($id: ID!) {
+  deleteApplicationStageEvent(id: $id)
+}
+
 query ApplicationNotes($applicationId: ID!) {
   applicationNotes(applicationId: $applicationId) {
     id

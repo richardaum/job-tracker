@@ -1,7 +1,13 @@
 "use client";
 
 import React from "react";
-import { ChatCircleTextIcon, PencilSimpleIcon } from "@phosphor-icons/react";
+import { gql } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
+import {
+  ChatCircleTextIcon,
+  PencilSimpleIcon,
+  TrashIcon,
+} from "@phosphor-icons/react";
 import {
   Button,
   Dialog,
@@ -45,6 +51,12 @@ const quickScheduleOptions = [
   { label: "+3d", offsetDays: 3 },
 ] as const;
 
+const DeleteApplicationStageEventDocument = gql`
+  mutation DeleteApplicationStageEvent($id: ID!) {
+    deleteApplicationStageEvent(id: $id)
+  }
+`;
+
 export function HistoryPanel({
   applicationId,
   onSuccess,
@@ -73,12 +85,21 @@ export function HistoryPanel({
         { query: ApplicationStageEventsDocument, variables: { applicationId } },
       ],
     });
+  const [deleteStageEvent, { loading: deletingStageEvent }] = useMutation(
+    DeleteApplicationStageEventDocument,
+    {
+      refetchQueries: [
+        { query: ApplicationStageEventsDocument, variables: { applicationId } },
+      ],
+    },
+  );
 
   const stageEvents = eventsData?.applicationStageEvents ?? [];
   const currentStage = stageEvents[0]?.toStage ?? ApplicationStage.New;
   const editingEvent = stageEvents.find((event) => event.id === editingEventId);
+  const isMutatingStageEvent = updatingStageEvent || deletingStageEvent;
   const canSaveEdit = Boolean(
-    editingEvent && selectedStage && !updatingStageEvent,
+    editingEvent && selectedStage && !isMutatingStageEvent,
   );
 
   function openEditDialog(eventId: string) {
@@ -121,6 +142,24 @@ export function HistoryPanel({
       onSuccess?.("History item updated.");
     } catch {
       onError?.("Could not update history item.");
+    }
+  }
+
+  async function handleDeleteEvent(eventId: string) {
+    if (isMutatingStageEvent) return;
+    const shouldDelete = window.confirm(
+      "Delete this history event? This action cannot be undone.",
+    );
+    if (!shouldDelete) return;
+
+    try {
+      await deleteStageEvent({ variables: { id: eventId } });
+      if (editingEventId === eventId) {
+        closeEditDialog();
+      }
+      onSuccess?.("History item removed.");
+    } catch {
+      onError?.("Could not remove history item.");
     }
   }
 
@@ -177,7 +216,17 @@ export function HistoryPanel({
                   icon={<PencilSimpleIcon size={14} weight="regular" />}
                   className={cn("h-6 w-6 text-text-muted")}
                   onClick={() => openEditDialog(item.id)}
-                  disabled={updatingStageEvent}
+                  disabled={isMutatingStageEvent}
+                />
+                <IconButton
+                  intent="ghost"
+                  size="sm"
+                  label="Delete history item"
+                  tooltip="Delete history item"
+                  icon={<TrashIcon size={14} weight="regular" />}
+                  className={cn("h-6 w-6 text-text-muted")}
+                  onClick={() => void handleDeleteEvent(item.id)}
+                  disabled={isMutatingStageEvent}
                 />
               </div>
             )}
@@ -218,7 +267,7 @@ export function HistoryPanel({
                 size="sm"
                 value={scheduledAtDraft}
                 onChange={(event) => setScheduledAtDraft(event.target.value)}
-                disabled={updatingStageEvent}
+                disabled={isMutatingStageEvent}
               />
               <div className={cn("flex flex-wrap gap-1")}>
                 {quickScheduleOptions.map((option) => {
@@ -237,7 +286,7 @@ export function HistoryPanel({
                           "border-border-brand bg-bg-brand-subtle text-text-brand hover:bg-bg-brand-subtle",
                       )}
                       onClick={() => setScheduledAtDraft(optionValue)}
-                      disabled={updatingStageEvent}
+                      disabled={isMutatingStageEvent}
                     >
                       {option.label}
                     </Button>
@@ -256,7 +305,7 @@ export function HistoryPanel({
               size="sm"
               value={reasonDraft}
               onChange={(event) => setReasonDraft(event.target.value)}
-              disabled={updatingStageEvent}
+              disabled={isMutatingStageEvent}
               placeholder="Brief explanation for status change"
             />
           </FormField>
