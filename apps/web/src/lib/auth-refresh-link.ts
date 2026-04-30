@@ -1,15 +1,13 @@
 import { ErrorLink } from "@apollo/client/link/error";
 import { CombinedGraphQLErrors } from "@apollo/client/errors";
 import { Observable } from "@apollo/client/core";
-import { NEXT_PUBLIC_API_URL } from "@/env/client";
-
-const API_URL = NEXT_PUBLIC_API_URL ?? "http://localhost:3101";
+import { getApiBaseUrl } from "./api-endpoints";
 
 let refreshPromise: Promise<boolean> | null = null;
 
 async function refreshAccessToken(): Promise<boolean> {
   try {
-    const response = await fetch(`${API_URL}/auth/refresh`, {
+    const response = await fetch(`${getApiBaseUrl()}/auth/refresh`, {
       method: "POST",
       credentials: "include",
     });

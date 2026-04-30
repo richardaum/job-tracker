@@ -17,7 +17,11 @@ import { NEXT_PUBLIC_API_URL } from "@/env/client";
 import type { CurrentUser } from "@/hooks/useCurrentUser";
 import { ObfuscatedText } from "@/modules/navigation/components/ObfuscatedText";
 
-const API_URL = NEXT_PUBLIC_API_URL ?? "http://localhost:3101";
+function getDefaultApiUrl(): string {
+  return "";
+}
+
+const API_URL = NEXT_PUBLIC_API_URL ?? getDefaultApiUrl();
 
 const navItems = [
   { href: "/applications", label: "Applications", icon: BriefcaseIcon },

@@ -1,13 +1,16 @@
 import { ApolloClient, HttpLink, InMemoryCache } from "@apollo/client";
-import { NEXT_PUBLIC_API_GRAPHQL_URL } from "@/env/client";
 import { authRefreshLink } from "./auth-refresh-link";
+import { getApiGraphqlUrl } from "./api-endpoints";
 
-export const APOLLO_GRAPHQL_URI =
-  NEXT_PUBLIC_API_GRAPHQL_URL ?? "http://localhost:3101/graphql";
+function getApolloGraphqlUri(): string {
+  return getApiGraphqlUrl();
+}
+
+export const APOLLO_GRAPHQL_URI = getApolloGraphqlUri();
 
 export function createApolloClient() {
   const httpLink = new HttpLink({
-    uri: APOLLO_GRAPHQL_URI,
+    uri: getApolloGraphqlUri,
     credentials: "include",
   });
 

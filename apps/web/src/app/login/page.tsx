@@ -3,11 +3,9 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { GoogleLoginButton } from "@job-tracker/ui";
-import { NEXT_PUBLIC_API_URL } from "@/env/client";
 import { useAuthReturnTo } from "@/hooks/useAuthReturnTo";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
-
-const API_URL = NEXT_PUBLIC_API_URL ?? "http://localhost:3101";
+import { getApiBaseUrl } from "@/lib/api-endpoints";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -22,7 +20,7 @@ export default function LoginPage() {
 
   const handleGoogleLogin = () => {
     window.location.assign(
-      `${API_URL}/auth/google?returnTo=${encodeURIComponent(safeReturnTo)}`,
+      `${getApiBaseUrl()}/auth/google?returnTo=${encodeURIComponent(safeReturnTo)}`,
     );
   };
 

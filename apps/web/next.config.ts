@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 import { withSentryConfig } from "@sentry/nextjs";
 import { RsdoctorWebpackPlugin } from "@rsdoctor/webpack-plugin";
+import { getAllowedDevOrigins } from "./config/dev-network";
 
 const isRsdoctorEnabled = false;
 
@@ -12,6 +13,16 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       { protocol: "https", hostname: "lh3.googleusercontent.com" },
     ],
+  },
+  allowedDevOrigins: getAllowedDevOrigins(),
+  async rewrites() {
+    return [
+      { source: "/graphql", destination: "http://127.0.0.1:3101/graphql" },
+      {
+        source: "/auth/:path*",
+        destination: "http://127.0.0.1:3101/auth/:path*",
+      },
+    ];
   },
   webpack: (config) => {
     if (!isRsdoctorEnabled) {
