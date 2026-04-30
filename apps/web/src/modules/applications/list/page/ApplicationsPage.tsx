@@ -4,7 +4,10 @@ import { useApplicationsQuery } from "@/gql/hooks";
 import { ApplicationCard } from "@/modules/applications/list/components/ApplicationCard";
 import { ApplicationQuickEditModal } from "@/modules/applications/list/components/ApplicationQuickEditModal";
 import { QuickFilters } from "@/modules/applications/list/components/QuickFilters";
-import { useQuickFilter } from "@/modules/applications/list/hooks/useQuickFilter";
+import {
+  useCompanyFilter,
+  useQuickFilter,
+} from "@/modules/applications/list/hooks/useQuickFilter";
 import { useRouter } from "next/navigation";
 import {
   Card,
@@ -98,10 +101,11 @@ function ApplicationsListEmpty() {
 export default function ApplicationsPage() {
   const router = useRouter();
   const activeFilter = useQuickFilter();
+  const companyFilter = useCompanyFilter();
 
   const { data, loading, error } = useApplicationsQuery({
     fetchPolicy: "cache-and-network",
-    variables: { filter: activeFilter },
+    variables: { filter: activeFilter, company: companyFilter },
   });
 
   const [toast, setToast] = useState<ToastState>({
@@ -183,6 +187,16 @@ export default function ApplicationsPage() {
 
       {/* Quick filters */}
       <QuickFilters />
+      {companyFilter ? (
+        <div className={cn("border-b border-border-subtle px-4 py-2 sm:px-6")}>
+          <Text size="sm" color="secondary">
+            Filtering by company:{" "}
+            <Text as="span" weight="semibold">
+              {companyFilter}
+            </Text>
+          </Text>
+        </div>
+      ) : null}
 
       {/* Content */}
       <div className={cn("flex-1 overflow-auto p-4 sm:p-6")}>

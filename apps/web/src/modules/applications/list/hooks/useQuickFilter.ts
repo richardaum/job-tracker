@@ -12,3 +12,9 @@ export function useQuickFilter(): ApplicationQuickFilter | null {
   const searchParams = useSearchParams();
   return PARAM_TO_FILTER[searchParams.get("q") ?? ""] ?? null;
 }
+
+export function useCompanyFilter(): string | null {
+  const searchParams = useSearchParams();
+  const company = searchParams.get("company")?.trim();
+  return company ? company : null;
+}
