@@ -3,7 +3,7 @@
 import { MagnifyingGlassIcon } from "@phosphor-icons/react";
 import { Card, Input, Skeleton, Stack, Text, Toast, cn } from "@job-tracker/ui";
 import { useRouter } from "next/navigation";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useCompaniesQuery } from "@/gql/hooks";
 import { useScrollRestoration } from "@/hooks/useScrollRestoration";
 import { normalizeTipTapDocument } from "@/modules/applications/shared/utils/tiptap";
@@ -42,6 +42,9 @@ export default function CompaniesPage() {
   const router = useRouter();
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const [query, setQuery] = useState("");
+  const [recentlyVisitedCompanyId, setRecentlyVisitedCompanyId] = useState<
+    string | null
+  >(null);
   const [editingCompany, setEditingCompany] = useState<EditingCompany | null>(
     null,
   );
@@ -66,12 +69,42 @@ export default function CompaniesPage() {
     () => `companies-list:${query.trim().toLowerCase()}`,
     [query],
   );
+  const recentlyVisitedCompanyStorageKey = useMemo(
+    () => `companies-list:recently-visited:${query.trim().toLowerCase()}`,
+    [query],
+  );
 
   useScrollRestoration({
     key: scrollKey,
     containerRef: scrollContainerRef,
     ready: !loading,
   });
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (loading) return;
+
+    const storedCompanyId = window.sessionStorage.getItem(
+      recentlyVisitedCompanyStorageKey,
+    );
+    if (!storedCompanyId) return;
+
+    const companyExistsInCurrentList = filteredCompanies.some(
+      (company) => company.id === storedCompanyId,
+    );
+    if (!companyExistsInCurrentList) return;
+
+    const highlightFrameId = window.requestAnimationFrame(() => {
+      setRecentlyVisitedCompanyId(storedCompanyId);
+    });
+    window.sessionStorage.removeItem(recentlyVisitedCompanyStorageKey);
+    return () => window.cancelAnimationFrame(highlightFrameId);
+  }, [filteredCompanies, loading, recentlyVisitedCompanyStorageKey]);
+
+  function handleOpenCompanyDetails(companyId: string) {
+    if (typeof window === "undefined") return;
+    window.sessionStorage.setItem(recentlyVisitedCompanyStorageKey, companyId);
+  }
 
   function openEditModal(company: EditingCompany) {
     setEditingCompany(company);
@@ -147,6 +180,13 @@ export default function CompaniesPage() {
                   description: company.description ?? null,
                 }}
                 onEdit={openEditModal}
+                onOpenDetails={handleOpenCompanyDetails}
+                isRecentlyVisited={recentlyVisitedCompanyId === company.id}
+                onRecentlyVisitedAnimationEnd={() =>
+                  setRecentlyVisitedCompanyId((currentId) =>
+                    currentId === company.id ? null : currentId,
+                  )
+                }
                 onViewJobs={(companyName) =>
                   router.push(
                     `/applications?company=${encodeURIComponent(companyName)}`,

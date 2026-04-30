@@ -44,6 +44,16 @@ function writeSnapshot(key: string, snapshot: ScrollSnapshot) {
   }
 }
 
+function clearSnapshot(key: string) {
+  if (typeof window === "undefined") return;
+
+  try {
+    window.sessionStorage.removeItem(getStorageKey(key));
+  } catch {
+    // Ignore storage errors (private mode, quota, etc).
+  }
+}
+
 export function useScrollRestoration({
   key,
   containerRef,
@@ -51,6 +61,8 @@ export function useScrollRestoration({
   ready = true,
 }: UseScrollRestorationOptions) {
   const didRestoreRef = useRef(false);
+  const lastSavedTopRef = useRef(0);
+  const suppressNextScrollPersistRef = useRef(false);
 
   useEffect(() => {
     didRestoreRef.current = false;
@@ -65,13 +77,19 @@ export function useScrollRestoration({
     let frameId: number | null = null;
 
     function persistScrollPosition() {
+      if (suppressNextScrollPersistRef.current) {
+        suppressNextScrollPersistRef.current = false;
+        return;
+      }
+
       if (frameId !== null) return;
 
       frameId = window.requestAnimationFrame(() => {
         frameId = null;
         const currentContainer = containerRef.current;
         if (!currentContainer) return;
-        writeSnapshot(key, { top: currentContainer.scrollTop });
+        lastSavedTopRef.current = currentContainer.scrollTop;
+        writeSnapshot(key, { top: lastSavedTopRef.current });
       });
     }
 
@@ -85,7 +103,20 @@ export function useScrollRestoration({
         window.cancelAnimationFrame(frameId);
       }
 
-      writeSnapshot(key, { top: container.scrollTop });
+      const cleanupTop =
+        lastSavedTopRef.current > 0
+          ? lastSavedTopRef.current
+          : container.scrollTop;
+      const existingSnapshot = readSnapshot(key);
+      const shouldPreserveExistingSnapshot =
+        cleanupTop === 0 &&
+        typeof existingSnapshot?.top === "number" &&
+        existingSnapshot.top > 0;
+      const finalTop = shouldPreserveExistingSnapshot
+        ? existingSnapshot.top
+        : cleanupTop;
+
+      writeSnapshot(key, { top: finalTop });
     };
   }, [containerRef, enabled, key]);
 
@@ -101,9 +132,14 @@ export function useScrollRestoration({
       return;
     }
 
+    // If this list becomes virtualized in the future, revisit this restoration flow:
+    // pixel-only restore may be inaccurate. A more robust strategy is hybrid:
+    // restore by px when possible and also locate/anchor the previously visited item.
     if (container.scrollHeight <= container.clientHeight) return;
 
+    suppressNextScrollPersistRef.current = true;
     container.scrollTop = snapshot.top;
+    clearSnapshot(key);
     didRestoreRef.current = true;
   }, [containerRef, enabled, key, ready]);
 }
