@@ -200,6 +200,42 @@ describe.skipIf(!hasDb)("ApplicationRepository (integration)", () => {
     expect(active.map((app) => app.id)).not.toContain(appliedApp.id);
   });
 
+  it("incoming quick filter excludes applied stage even with future events", async () => {
+    const company = await createTestCompany(userId, "Incoming Filter Corp");
+
+    const appliedAppWithEvent = await repo.create(userId, {
+      title: "Applied App With Event",
+      companyId: company.id,
+      url: null,
+    });
+    await repo.createStageEvent(userId, appliedAppWithEvent.id, {
+      fromStage: null,
+      toStage: "applied",
+      source: "manual",
+      scheduledAt: new Date(Date.now() + 86400000), // Tomorrow
+    });
+
+    const recruiterScreenApp = await repo.create(userId, {
+      title: "Recruiter Screen App",
+      companyId: company.id,
+      url: null,
+    });
+    await repo.createStageEvent(userId, recruiterScreenApp.id, {
+      fromStage: "applied",
+      toStage: "recruiter_screen",
+      source: "manual",
+      scheduledAt: new Date(Date.now() + 86400000), // Tomorrow
+    });
+
+    const incoming = await repo.findAllByUserId(
+      userId,
+      ApplicationQuickFilterEnum.INCOMING,
+    );
+
+    expect(incoming.map((app) => app.id)).toContain(recruiterScreenApp.id);
+    expect(incoming.map((app) => app.id)).not.toContain(appliedAppWithEvent.id);
+  });
+
   it("filters applications by company name", async () => {
     const acme = await createTestCompany(userId, "Acme Filter Corp");
     const beta = await createTestCompany(userId, "Beta Filter Corp");

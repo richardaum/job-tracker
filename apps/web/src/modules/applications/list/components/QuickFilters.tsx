@@ -4,11 +4,16 @@ import { FilterChip, Tooltip, cn } from "@job-tracker/ui";
 import { useRouter, useSearchParams } from "next/navigation";
 
 const QUICK_FILTERS = [
-  { key: "active", label: "Active", tooltip: "Not new and not rejected" },
+  {
+    key: "active",
+    label: "Active",
+    tooltip: "In-progress applications (not new, applied, or rejected)",
+  },
   {
     key: "incoming",
     label: "Incoming",
-    tooltip: "Non-rejected with interviews scheduled from today onwards",
+    tooltip:
+      "Non-rejected and non-applied with interviews scheduled from today onwards",
   },
   {
     key: "applied",

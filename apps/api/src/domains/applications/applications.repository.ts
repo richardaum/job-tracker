@@ -91,7 +91,9 @@ export class ApplicationRepository {
         userId,
       });
     } else if (filter === ApplicationQuickFilterEnum.INCOMING) {
-      qb.andWhere(`${latestStageSub} != 'rejected'`, { userId }).andWhere(
+      qb.andWhere(`${latestStageSub} NOT IN ('applied', 'rejected')`, {
+        userId,
+      }).andWhere(
         `EXISTS (
           SELECT 1 FROM application_stage_events e
           WHERE e.application_id = a.id AND e.user_id = :userId
