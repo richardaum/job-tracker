@@ -22,5 +22,6 @@ logs/
 .agents/
 .claude/
 .cursor/
+.gemini/
 .windsurf/
 .worktrees/
