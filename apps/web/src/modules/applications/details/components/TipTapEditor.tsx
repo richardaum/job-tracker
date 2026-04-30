@@ -286,6 +286,19 @@ export function TipTapEditor({
     },
   );
 
+  const activeBlockAriaLabel = editorState?.isHeadingLevel1
+    ? "Heading 1"
+    : editorState?.isHeadingLevel2
+      ? "Heading 2"
+      : editorState?.isHeadingLevel3
+        ? "Heading 3"
+        : "Paragraph";
+  const hasActiveHeading = Boolean(
+    editorState?.isHeadingLevel1 ||
+    editorState?.isHeadingLevel2 ||
+    editorState?.isHeadingLevel3,
+  );
+
   if (!editor) {
     return (
       <div
@@ -301,18 +314,6 @@ export function TipTapEditor({
   const aiGenerationLoading = Boolean(
     isGeneratingAiLocally ||
     aiActions?.some((action) => Boolean(action.isLoading)),
-  );
-  const activeBlockAriaLabel = editorState?.isHeadingLevel1
-    ? "Heading 1"
-    : editorState?.isHeadingLevel2
-      ? "Heading 2"
-      : editorState?.isHeadingLevel3
-        ? "Heading 3"
-        : "Paragraph";
-  const hasActiveHeading = Boolean(
-    editorState?.isHeadingLevel1 ||
-    editorState?.isHeadingLevel2 ||
-    editorState?.isHeadingLevel3,
   );
 
   async function handleAiAction(action: TipTapAiAction) {
@@ -429,31 +430,33 @@ export function TipTapEditor({
           />
           <DropdownMenu
             trigger={
-              <Tooltip content={`Text style: ${activeBlockAriaLabel}`}>
-                <button
-                  type="button"
-                  disabled={disabled}
-                  aria-label={`Text style: ${activeBlockAriaLabel}`}
-                  className={cn(
-                    "inline-flex items-center justify-center gap-1 rounded border px-2 py-1 text-xs transition-colors",
-                    hasActiveHeading
-                      ? "border-border-brand bg-bg-brand-subtle text-text-brand"
-                      : "border-border-subtle bg-bg-surface text-text-secondary hover:bg-bg-surface-hover",
-                    disabled && "cursor-not-allowed opacity-50",
-                  )}
-                >
-                  {editorState?.isHeadingLevel1 ? (
-                    <TextHOneIcon size={14} weight="bold" />
-                  ) : editorState?.isHeadingLevel2 ? (
-                    <TextHTwoIcon size={14} weight="bold" />
-                  ) : editorState?.isHeadingLevel3 ? (
-                    <TextHThreeIcon size={14} weight="bold" />
-                  ) : (
-                    <TextTIcon size={14} weight="bold" />
-                  )}
-                  <CaretDownIcon size={12} weight="bold" />
-                </button>
-              </Tooltip>
+              <div>
+                <Tooltip content={`Text style: ${activeBlockAriaLabel}`}>
+                  <button
+                    type="button"
+                    disabled={disabled}
+                    aria-label={`Text style: ${activeBlockAriaLabel}`}
+                    className={cn(
+                      "inline-flex items-center justify-center gap-1 rounded border px-2 py-1 text-xs transition-colors",
+                      hasActiveHeading
+                        ? "border-border-brand bg-bg-brand-subtle text-text-brand"
+                        : "border-border-subtle bg-bg-surface text-text-secondary hover:bg-bg-surface-hover",
+                      disabled && "cursor-not-allowed opacity-50",
+                    )}
+                  >
+                    {editorState?.isHeadingLevel1 ? (
+                      <TextHOneIcon size={14} weight="bold" />
+                    ) : editorState?.isHeadingLevel2 ? (
+                      <TextHTwoIcon size={14} weight="bold" />
+                    ) : editorState?.isHeadingLevel3 ? (
+                      <TextHThreeIcon size={14} weight="bold" />
+                    ) : (
+                      <TextTIcon size={14} weight="bold" />
+                    )}
+                    <CaretDownIcon size={12} weight="bold" />
+                  </button>
+                </Tooltip>
+              </div>
             }
             align="start"
           >

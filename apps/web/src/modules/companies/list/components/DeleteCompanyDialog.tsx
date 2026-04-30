@@ -12,6 +12,8 @@ interface DeleteCompanyDialogProps {
   trigger: React.ReactElement;
   companyId: string;
   companyName: string;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
   onSuccess?: (message: string) => void;
   onError?: (message: string) => void;
 }
@@ -20,13 +22,23 @@ export function DeleteCompanyDialog({
   trigger,
   companyId,
   companyName,
+  open,
+  onOpenChange,
   onSuccess,
   onError,
 }: DeleteCompanyDialogProps) {
-  const [open, setOpen] = React.useState(false);
+  const [internalOpen, setInternalOpen] = React.useState(false);
   const [step, setStep] = React.useState<"initial" | "cascade">("initial");
   const [associatedJobsCount, setAssociatedJobsCount] = React.useState(0);
   const [submitting, setSubmitting] = React.useState(false);
+  const dialogOpen = open ?? internalOpen;
+
+  function handleOpenChange(nextOpen: boolean) {
+    if (open === undefined) {
+      setInternalOpen(nextOpen);
+    }
+    onOpenChange?.(nextOpen);
+  }
 
   const [fetchApplicationsCount] = useCompanyApplicationsCountLazyQuery();
   const [deleteCompany] = useDeleteCompanyMutation({
@@ -50,7 +62,7 @@ export function DeleteCompanyDialog({
 
       await deleteCompany({ variables: { id: companyId } });
       onSuccess?.(`"${companyName}" was deleted.`);
-      setOpen(false);
+      handleOpenChange(false);
     } catch {
       onError?.("Could not delete company.");
       throw new Error("Failed to delete company");
@@ -66,7 +78,7 @@ export function DeleteCompanyDialog({
       onSuccess?.(
         `"${companyName}" and ${associatedJobsCount} associated ${associatedJobsCount === 1 ? "job" : "jobs"} were deleted.`,
       );
-      setOpen(false);
+      handleOpenChange(false);
     } catch {
       onError?.("Could not delete company.");
       throw new Error("Failed to delete company");
@@ -84,9 +96,9 @@ export function DeleteCompanyDialog({
           ? `Are you sure you want to delete "${companyName}"? This cannot be undone.`
           : `"${companyName}" has ${associatedJobsCount} associated ${associatedJobsCount === 1 ? "job" : "jobs"}. Deleting this company will also remove ${associatedJobsCount === 1 ? "that job" : "those jobs"}. Do you want to continue?`
       }
-      open={open}
+      open={dialogOpen}
       onOpenChange={(nextOpen) => {
-        setOpen(nextOpen);
+        handleOpenChange(nextOpen);
         if (!nextOpen) {
           setStep("initial");
           setAssociatedJobsCount(0);
@@ -97,7 +109,7 @@ export function DeleteCompanyDialog({
           <Button
             intent="secondary"
             size="sm"
-            onClick={() => setOpen(false)}
+            onClick={() => handleOpenChange(false)}
             disabled={submitting}
           >
             Cancel

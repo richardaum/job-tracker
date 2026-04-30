@@ -1,7 +1,9 @@
 "use client";
 
 import React from "react";
-import { Popover, Text, cn } from "@job-tracker/ui";
+import { ArrowSquareOutIcon, ListBulletsIcon } from "@phosphor-icons/react";
+import { IconButton, Popover, Text, cn } from "@job-tracker/ui";
+import { useRouter } from "next/navigation";
 import { FieldEditTriggerButton } from "@/modules/applications/details/components/HoverEditableFieldRow";
 import { TipTapContent } from "./TipTapContent";
 import {
@@ -22,6 +24,7 @@ export function CompanyNameWithPopover({
   onSuccess,
   onError,
 }: CompanyNameWithPopoverProps) {
+  const router = useRouter();
   const [editCompanyOpen, setEditCompanyOpen] = React.useState(false);
   const name = application.company.name;
   const description = application.company.description;
@@ -62,6 +65,34 @@ export function CompanyNameWithPopover({
               setEditCompanyOpen(true);
             }}
             className="h-6 w-6 opacity-100"
+          />
+          <IconButton
+            intent="ghost"
+            size="sm"
+            label={`Open ${name} details`}
+            tooltip="Open details"
+            icon={<ArrowSquareOutIcon size={14} weight="regular" />}
+            className="h-6 w-6 opacity-100"
+            onClick={(e) => {
+              e.stopPropagation();
+              router.push(
+                `/companies/${encodeURIComponent(application.company.id)}`,
+              );
+            }}
+          />
+          <IconButton
+            intent="ghost"
+            size="sm"
+            label={`View ${name} in companies list`}
+            tooltip="View in companies list"
+            icon={<ListBulletsIcon size={14} weight="regular" />}
+            className="h-6 w-6 opacity-100"
+            onClick={(e) => {
+              e.stopPropagation();
+              router.push(
+                `/companies?focusCompanyId=${encodeURIComponent(application.company.id)}`,
+              );
+            }}
           />
         </div>
         {hasDescription ? (
