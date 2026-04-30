@@ -48,3 +48,7 @@ pnpm specs:validate   # validate .specs/ structure
 ## CI
 
 GitHub Actions: `ci` (Postgres 16-alpine service, Node 22, pnpm 10.8.1), `e2e` (Playwright Chromium), `docker-api`.
+
+## Conventions
+
+Project coding conventions live in `docs/CONVENTIONS.md`.
