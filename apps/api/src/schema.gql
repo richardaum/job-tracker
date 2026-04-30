@@ -102,6 +102,7 @@ type Query {
   generateCompanyDescription(companyName: String!): String!
   applicationStageEvents(applicationId: ID!): [ApplicationStageEventType!]!
   companies: [CompanyType!]!
+  companyApplicationsCount(id: ID!): Int!
   applicationNotes(applicationId: ID!): [NoteType!]!
   generateApplicationNoteWithAI(applicationId: ID!, note: String!): String!
   rewriteTextWithAI(text: String!): String!
@@ -133,6 +134,7 @@ type Mutation {
   createApplicationStageEvent(input: CreateApplicationStageEventInput!): ApplicationStageEventType!
   updateApplicationStageEvent(id: ID!, input: UpdateApplicationStageEventInput!): ApplicationStageEventType!
   updateCompany(id: ID!, input: UpdateCompanyInput!): CompanyType!
+  deleteCompany(id: ID!): Boolean!
   createApplicationNote(input: CreateNoteInput!): NoteType!
   updateApplicationNote(id: ID!, input: UpdateNoteInput!): NoteType!
   deleteApplicationNote(id: ID!): Boolean!

@@ -151,6 +151,7 @@ export type Mutation = {
   createApplicationWithAI: ApplicationType;
   deleteApplication: Scalars["Boolean"]["output"];
   deleteApplicationNote: Scalars["Boolean"]["output"];
+  deleteCompany: Scalars["Boolean"]["output"];
   removeApplicationTag: ApplicationType;
   updateApplication: ApplicationType;
   updateApplicationNote: NoteType;
@@ -173,6 +174,8 @@ export type MutationCreateApplicationWithAiArgs = {
 export type MutationDeleteApplicationArgs = { id: Scalars["ID"]["input"] };
 
 export type MutationDeleteApplicationNoteArgs = { id: Scalars["ID"]["input"] };
+
+export type MutationDeleteCompanyArgs = { id: Scalars["ID"]["input"] };
 
 export type MutationRemoveApplicationTagArgs = {
   id: Scalars["ID"]["input"];
@@ -217,6 +220,7 @@ export type Query = {
   applicationStageEvents: Array<ApplicationStageEventType>;
   applications: Array<ApplicationType>;
   companies: Array<CompanyType>;
+  companyApplicationsCount: Scalars["Int"]["output"];
   generateApplicationDraftWithAI: ApplicationAiDraftType;
   generateApplicationNoteWithAI: Scalars["String"]["output"];
   generateCompanyDescription: Scalars["String"]["output"];
@@ -238,6 +242,8 @@ export type QueryApplicationsArgs = {
   company?: InputMaybe<Scalars["String"]["input"]>;
   filter?: InputMaybe<ApplicationQuickFilter>;
 };
+
+export type QueryCompanyApplicationsCountArgs = { id: Scalars["ID"]["input"] };
 
 export type QueryGenerateApplicationDraftWithAiArgs = {
   input: CreateApplicationWithAiInput;
@@ -648,6 +654,24 @@ export type UpdateCompanyMutation = {
     name: string;
     description?: string | null;
   };
+};
+
+export type DeleteCompanyMutationVariables = Exact<{
+  id: Scalars["ID"]["input"];
+}>;
+
+export type DeleteCompanyMutation = {
+  __typename?: "Mutation";
+  deleteCompany: boolean;
+};
+
+export type CompanyApplicationsCountQueryVariables = Exact<{
+  id: Scalars["ID"]["input"];
+}>;
+
+export type CompanyApplicationsCountQuery = {
+  __typename?: "Query";
+  companyApplicationsCount: number;
 };
 
 export type CompaniesQueryVariables = Exact<{ [key: string]: never }>;
@@ -1704,6 +1728,100 @@ export function useUpdateCompanyMutation(
     UpdateCompanyMutationVariables
   >(UpdateCompanyDocument, options);
 }
+
+export const DeleteCompanyDocument = gql`
+  mutation DeleteCompany($id: ID!) {
+    deleteCompany(id: $id)
+  }
+`;
+
+/**
+ * __useDeleteCompanyMutation__
+ *
+ * To run a mutation, you first call `useDeleteCompanyMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteCompanyMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteCompanyMutation, { data, loading, error }] = useDeleteCompanyMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteCompanyMutation(
+  baseOptions?: ApolloReactHooks.MutationHookOptions<
+    DeleteCompanyMutation,
+    DeleteCompanyMutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useMutation<
+    DeleteCompanyMutation,
+    DeleteCompanyMutationVariables
+  >(DeleteCompanyDocument, options);
+}
+
+export const CompanyApplicationsCountDocument = gql`
+  query CompanyApplicationsCount($id: ID!) {
+    companyApplicationsCount(id: $id)
+  }
+`;
+
+/**
+ * __useCompanyApplicationsCountQuery__
+ *
+ * To run a query within a React component, call `useCompanyApplicationsCountQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCompanyApplicationsCountQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCompanyApplicationsCountQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useCompanyApplicationsCountQuery(
+  baseOptions: ApolloReactHooks.QueryHookOptions<
+    CompanyApplicationsCountQuery,
+    CompanyApplicationsCountQueryVariables
+  > &
+    (
+      | { variables: CompanyApplicationsCountQueryVariables; skip?: boolean }
+      | { skip: boolean }
+    ),
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useQuery<
+    CompanyApplicationsCountQuery,
+    CompanyApplicationsCountQueryVariables
+  >(CompanyApplicationsCountDocument, options);
+}
+export function useCompanyApplicationsCountLazyQuery(
+  baseOptions?: ApolloReactHooks.LazyQueryHookOptions<
+    CompanyApplicationsCountQuery,
+    CompanyApplicationsCountQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useLazyQuery<
+    CompanyApplicationsCountQuery,
+    CompanyApplicationsCountQueryVariables
+  >(CompanyApplicationsCountDocument, options);
+}
+
+export type CompanyApplicationsCountQueryHookResult = ReturnType<
+  typeof useCompanyApplicationsCountQuery
+>;
+export type CompanyApplicationsCountLazyQueryHookResult = ReturnType<
+  typeof useCompanyApplicationsCountLazyQuery
+>;
 
 export const CompaniesDocument = gql`
   query Companies {

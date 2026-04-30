@@ -149,6 +149,7 @@ export type Mutation = {
   createApplicationWithAI: ApplicationType;
   deleteApplication: Scalars["Boolean"]["output"];
   deleteApplicationNote: Scalars["Boolean"]["output"];
+  deleteCompany: Scalars["Boolean"]["output"];
   removeApplicationTag: ApplicationType;
   updateApplication: ApplicationType;
   updateApplicationNote: NoteType;
@@ -171,6 +172,8 @@ export type MutationCreateApplicationWithAiArgs = {
 export type MutationDeleteApplicationArgs = { id: Scalars["ID"]["input"] };
 
 export type MutationDeleteApplicationNoteArgs = { id: Scalars["ID"]["input"] };
+
+export type MutationDeleteCompanyArgs = { id: Scalars["ID"]["input"] };
 
 export type MutationRemoveApplicationTagArgs = {
   id: Scalars["ID"]["input"];
@@ -215,6 +218,7 @@ export type Query = {
   applicationStageEvents: Array<ApplicationStageEventType>;
   applications: Array<ApplicationType>;
   companies: Array<CompanyType>;
+  companyApplicationsCount: Scalars["Int"]["output"];
   generateApplicationDraftWithAI: ApplicationAiDraftType;
   generateApplicationNoteWithAI: Scalars["String"]["output"];
   generateCompanyDescription: Scalars["String"]["output"];
@@ -236,6 +240,8 @@ export type QueryApplicationsArgs = {
   company?: InputMaybe<Scalars["String"]["input"]>;
   filter?: InputMaybe<ApplicationQuickFilter>;
 };
+
+export type QueryCompanyApplicationsCountArgs = { id: Scalars["ID"]["input"] };
 
 export type QueryGenerateApplicationDraftWithAiArgs = {
   input: CreateApplicationWithAiInput;
@@ -646,6 +652,24 @@ export type UpdateCompanyMutation = {
     name: string;
     description?: string | null;
   };
+};
+
+export type DeleteCompanyMutationVariables = Exact<{
+  id: Scalars["ID"]["input"];
+}>;
+
+export type DeleteCompanyMutation = {
+  __typename?: "Mutation";
+  deleteCompany: boolean;
+};
+
+export type CompanyApplicationsCountQueryVariables = Exact<{
+  id: Scalars["ID"]["input"];
+}>;
+
+export type CompanyApplicationsCountQuery = {
+  __typename?: "Query";
+  companyApplicationsCount: number;
 };
 
 export type CompaniesQueryVariables = Exact<{ [key: string]: never }>;
@@ -2032,6 +2056,90 @@ export const UpdateCompanyDocument = {
 } as unknown as DocumentNode<
   UpdateCompanyMutation,
   UpdateCompanyMutationVariables
+>;
+export const DeleteCompanyDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "DeleteCompany" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "id" } },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "deleteCompany" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "id" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "id" },
+                },
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  DeleteCompanyMutation,
+  DeleteCompanyMutationVariables
+>;
+export const CompanyApplicationsCountDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "query",
+      name: { kind: "Name", value: "CompanyApplicationsCount" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "id" } },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "companyApplicationsCount" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "id" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "id" },
+                },
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  CompanyApplicationsCountQuery,
+  CompanyApplicationsCountQueryVariables
 >;
 export const CompaniesDocument = {
   kind: "Document",
