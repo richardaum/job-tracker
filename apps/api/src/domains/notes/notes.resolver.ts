@@ -50,12 +50,21 @@ export class NoteResolver {
     return true;
   }
 
-  @Mutation(() => String)
+  @Query(() => String)
   generateApplicationNoteWithAI(
     @Args("applicationId", { type: () => ID }) applicationId: string,
     @Args("note") note: string,
     @CurrentUser() user: { userId: string },
   ): Promise<string> {
     return this.service.generateNoteWithAI(user.userId, applicationId, note);
+  }
+
+  @Query(() => String)
+  rewriteApplicationTextWithAI(
+    @Args("applicationId", { type: () => ID }) applicationId: string,
+    @Args("text") text: string,
+    @CurrentUser() user: { userId: string },
+  ): Promise<string> {
+    return this.service.rewriteTextWithAI(user.userId, applicationId, text);
   }
 }

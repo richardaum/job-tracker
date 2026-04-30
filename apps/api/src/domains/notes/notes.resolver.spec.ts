@@ -135,12 +135,12 @@ describe("NoteResolver (integration)", () => {
     expect(res.body.data.deleteApplicationNote).toBe(true);
   });
 
-  it("generateApplicationNoteWithAI mutation returns generated content", async () => {
+  it("generateApplicationNoteWithAI query returns generated content", async () => {
     const res = await request(app.getHttpServer())
       .post("/graphql")
       .set(auth)
       .send({
-        query: `mutation {
+        query: `query {
           generateApplicationNoteWithAI(applicationId: "app-1", note: "follow up with recruiter") 
         }`,
       });

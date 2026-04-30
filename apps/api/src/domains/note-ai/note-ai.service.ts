@@ -15,6 +15,11 @@ type GenerateNoteInput = {
   note: string;
 };
 
+type RewriteTextInput = {
+  description: string;
+  text: string;
+};
+
 @Injectable()
 export class NoteAiService {
   constructor(private readonly openAIService: OpenAIService) {}
@@ -68,5 +73,36 @@ export class NoteAiService {
     }
 
     return parseTipTapDocument(noteString);
+  }
+
+  async rewriteTextAsSingleParagraph(input: RewriteTextInput): Promise<string> {
+    const client = this.openAIService.getClient();
+
+    const response = await client.responses.create({
+      model: OPENAI_MODEL,
+      temperature: 0.1,
+      input: [
+        {
+          role: "system",
+          content: [
+            "Rewrite the provided text in English as a single paragraph.",
+            "Preserve 100% of the original meaning.",
+            "Do not add new facts, assumptions, or details.",
+            "Use the job context only to improve clarity and wording.",
+            "Return plain text only.",
+          ].join("\n"),
+        },
+        {
+          role: "user",
+          content: [
+            "Job description (light context only): " + input.description,
+            "Original text to rewrite: " + input.text,
+          ].join("\n"),
+        },
+      ],
+    });
+
+    const rewritten = response.output_text?.trim() ?? "";
+    return rewritten.length > 0 ? rewritten : input.text.trim();
   }
 }
