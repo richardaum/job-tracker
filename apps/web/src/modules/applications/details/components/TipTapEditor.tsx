@@ -6,6 +6,7 @@ import {
   useTipTapEditorHandle,
   type TipTapEditorHandle,
 } from "@/modules/applications/details/hooks/useTipTapEditorHandle";
+import { useVoiceToText } from "@/modules/applications/details/hooks/useVoiceToText";
 import { useHasVerticalOverflow } from "@/modules/applications/shared/hooks/useHasVerticalOverflow";
 import {
   normalizeTipTapDocument,
@@ -20,6 +21,7 @@ import {
   CheckIcon,
   CircleNotchIcon,
   ListBulletsIcon,
+  MicrophoneIcon,
   PencilSimpleIcon,
   SparkleIcon,
   TextBolderIcon,
@@ -53,6 +55,8 @@ interface TipTapEditorProps {
   showExpandButton?: boolean;
   expandButtonAriaLabel?: string;
   expandButtonDisabled?: boolean;
+  enableVoiceToText?: boolean;
+  voiceToTextLanguage?: string;
 }
 
 function AiSuggestionSegmentedControl({
@@ -201,6 +205,8 @@ export function TipTapEditor({
   showExpandButton = false,
   expandButtonAriaLabel = "Expand editor",
   expandButtonDisabled,
+  enableVoiceToText = true,
+  voiceToTextLanguage = "en-US",
 }: TipTapEditorProps) {
   const onHardEnterRef = React.useRef(onHardEnter);
   const [isGeneratingAiLocally, setIsGeneratingAiLocally] =
@@ -298,6 +304,25 @@ export function TipTapEditor({
     editorState?.isHeadingLevel2 ||
     editorState?.isHeadingLevel3,
   );
+  const {
+    isListening: isListeningVoiceToText,
+    isSupported: voiceToTextSupported,
+    toggle: toggleVoiceToText,
+  } = useVoiceToText({
+    enabled: enableVoiceToText,
+    disabled,
+    language: voiceToTextLanguage,
+    getCurrentText: () =>
+      editor ? tipTapToPlainText(JSON.stringify(editor.getJSON())).trim() : "",
+    onTranscriptChange: (nextText) => {
+      if (!editor) return;
+      const normalizedValue = normalizeTipTapDocument(nextText);
+      editor.commands.setContent(parseTipTapDocument(normalizedValue), {
+        emitUpdate: false,
+      });
+      onChange(normalizedValue);
+    },
+  });
 
   if (!editor) {
     return (
@@ -506,6 +531,28 @@ export function TipTapEditor({
             }}
             disabled={disabled}
           />
+          {enableVoiceToText ? (
+            <ToolbarButton
+              label={
+                isListeningVoiceToText ? (
+                  <MicrophoneIcon
+                    size={14}
+                    weight="fill"
+                    className={cn("text-text-error")}
+                  />
+                ) : (
+                  <MicrophoneIcon size={14} weight="bold" />
+                )
+              }
+              ariaLabel={
+                isListeningVoiceToText
+                  ? "Stop voice to text"
+                  : "Start voice to text"
+              }
+              onClick={toggleVoiceToText}
+              disabled={disabled || !voiceToTextSupported}
+            />
+          ) : null}
           {aiActions && aiActions.length > 0 ? (
             <AiSuggestionSegmentedControl
               aiGenerationLoading={aiGenerationLoading}

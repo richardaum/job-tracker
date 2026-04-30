@@ -36,11 +36,15 @@ import { HoverEditableFieldRow } from "@/modules/applications/details/components
 import { CompensationEditDialog } from "@/modules/applications/details/components/CompensationEditDialog";
 import { TipTapEditor } from "@/modules/applications/details/components/TipTapEditor";
 import { formatCompensationLine } from "@/modules/applications/shared/utils/compensationFormat";
+import {
+  EMPTY_TIPTAP_DOC,
+  tipTapToPlainText,
+} from "@/modules/applications/shared/utils/tiptap";
 
 export default function AiApplicationCreatePage() {
   const router = useRouter();
 
-  const [prompt, setPrompt] = useState("");
+  const [prompt, setPrompt] = useState(EMPTY_TIPTAP_DOC);
   const [error, setError] = useState<string | undefined>();
   const [fields, setFields] = useState<TagWithMetadata[]>(DEFAULT_FIELDS);
   const [requestStatus, setRequestStatus] = useState<"idle" | "error">("idle");
@@ -67,17 +71,14 @@ export default function AiApplicationCreatePage() {
     setToast({ open: true, message, intent });
   }
 
-  function handlePromptChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
-    setPrompt(e.target.value);
-    if (error) setError(undefined);
-  }
+  const promptText = tipTapToPlainText(prompt).trim();
 
   async function runDraftGeneration(customPrompt?: string) {
     try {
       const result = await generateDraftWithAi({
         variables: {
           input: {
-            prompt: (customPrompt ?? prompt).trim(),
+            prompt: (customPrompt ?? promptText).trim(),
             fields:
               fields.length > 0
                 ? fields.map((field) => ({
@@ -101,7 +102,7 @@ export default function AiApplicationCreatePage() {
 
   async function handleGenerate(e: React.SyntheticEvent) {
     e.preventDefault();
-    if (!prompt.trim()) {
+    if (!promptText) {
       setError("Please enter a prompt or paste a job description.");
       return;
     }
@@ -112,7 +113,7 @@ export default function AiApplicationCreatePage() {
   async function handleReworkField(field: string) {
     if (!draft) return;
     const reworkPrompt = [
-      prompt,
+      promptText,
       "",
       `Current draft snapshot: ${JSON.stringify(draft)}`,
       `Rework only the field "${field}". Keep all other fields consistent with the current draft.`,
@@ -171,7 +172,11 @@ export default function AiApplicationCreatePage() {
   return (
     <div className={cn("flex h-full flex-col")}>
       <div className={cn("border-b border-border-subtle px-4 py-4 sm:px-6")}>
-        <div className={cn("flex items-start justify-between gap-3")}>
+        <div
+          className={cn(
+            "flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between",
+          )}
+        >
           <div>
             <Text size="lg" weight="semibold">
               New application with AI
@@ -187,6 +192,7 @@ export default function AiApplicationCreatePage() {
             size="sm"
             state={loading ? "loading" : "default"}
             disabled={loading}
+            className={cn("w-full sm:w-auto")}
           >
             <SparkleIcon size={16} weight="bold" className={cn("mr-2")} />
             Generate draft
@@ -203,15 +209,18 @@ export default function AiApplicationCreatePage() {
               required
               error={error}
             >
-              <Textarea
+              <TipTapEditor
                 id="app-prompt"
                 value={prompt}
-                onChange={handlePromptChange}
+                onChange={(nextValue) => {
+                  setPrompt(nextValue);
+                  if (error) setError(undefined);
+                }}
                 placeholder="Paste the job description or any copied text from the job ad page. It does not need to be perfect."
-                rows={14}
-                state={error ? "error" : "default"}
                 disabled={loading}
-                className="resize-y min-h-[260px]"
+                enableVoiceToText
+                voiceToTextLanguage="en-US"
+                contentClassName={cn("min-h-[260px]")}
               />
             </FormField>
 
