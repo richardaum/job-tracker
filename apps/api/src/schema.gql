@@ -104,7 +104,7 @@ type Query {
   companies: [CompanyType!]!
   applicationNotes(applicationId: ID!): [NoteType!]!
   generateApplicationNoteWithAI(applicationId: ID!, note: String!): String!
-  rewriteApplicationTextWithAI(applicationId: ID!, text: String!): String!
+  rewriteTextWithAI(text: String!): String!
 }
 
 enum ApplicationQuickFilter {

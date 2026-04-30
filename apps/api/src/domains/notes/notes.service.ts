@@ -118,26 +118,4 @@ export class NoteService {
     });
     return JSON.stringify(generated);
   }
-
-  async rewriteTextWithAI(
-    userId: string,
-    applicationId: string,
-    text: string,
-  ): Promise<string> {
-    const application = await this.repo.findApplicationByIdAndUserId(
-      applicationId,
-      userId,
-    );
-    if (!application) {
-      throw new NotFoundException(`Application ${applicationId} not found`);
-    }
-
-    const description = application.description?.trim() ?? "";
-    const context = `Title: ${application.title}\nCompany: ${application.company.name}\nDescription: ${description}`;
-
-    return this.noteAiService.rewriteTextAsSingleParagraph({
-      description: context,
-      text,
-    });
-  }
 }

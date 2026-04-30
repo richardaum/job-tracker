@@ -9,6 +9,7 @@ import { AuthModule } from "./domains/auth/auth.module";
 import { ApplicationModule } from "./domains/applications/applications.module";
 import { CompaniesModule } from "./domains/companies/companies.module";
 import { NotesModule } from "./domains/notes/notes.module";
+import { AiModule } from "./domains/ai/ai.module";
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { NotesModule } from "./domains/notes/notes.module";
     ApplicationModule,
     CompaniesModule,
     NotesModule,
+    AiModule,
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       autoSchemaFile: join(process.cwd(), "src/schema.gql"),
