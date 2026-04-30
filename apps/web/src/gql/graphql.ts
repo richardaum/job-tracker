@@ -149,9 +149,6 @@ export type Mutation = {
   createApplicationWithAI: ApplicationType;
   deleteApplication: Scalars["Boolean"]["output"];
   deleteApplicationNote: Scalars["Boolean"]["output"];
-  generateApplicationDraftWithAI: ApplicationAiDraftType;
-  generateApplicationNoteWithAI: Scalars["String"]["output"];
-  generateCompanyDescription: Scalars["String"]["output"];
   removeApplicationTag: ApplicationType;
   updateApplication: ApplicationType;
   updateApplicationNote: NoteType;
@@ -181,19 +178,6 @@ export type MutationDeleteApplicationArgs = {
 
 export type MutationDeleteApplicationNoteArgs = {
   id: Scalars["ID"]["input"];
-};
-
-export type MutationGenerateApplicationDraftWithAiArgs = {
-  input: CreateApplicationWithAiInput;
-};
-
-export type MutationGenerateApplicationNoteWithAiArgs = {
-  applicationId: Scalars["ID"]["input"];
-  note: Scalars["String"]["input"];
-};
-
-export type MutationGenerateCompanyDescriptionArgs = {
-  companyName: Scalars["String"]["input"];
 };
 
 export type MutationRemoveApplicationTagArgs = {
@@ -239,7 +223,11 @@ export type Query = {
   applicationStageEvents: Array<ApplicationStageEventType>;
   applications: Array<ApplicationType>;
   companies: Array<CompanyType>;
+  generateApplicationDraftWithAI: ApplicationAiDraftType;
+  generateApplicationNoteWithAI: Scalars["String"]["output"];
+  generateCompanyDescription: Scalars["String"]["output"];
   me: UserType;
+  rewriteApplicationTextWithAI: Scalars["String"]["output"];
 };
 
 export type QueryApplicationArgs = {
@@ -255,7 +243,26 @@ export type QueryApplicationStageEventsArgs = {
 };
 
 export type QueryApplicationsArgs = {
+  company?: InputMaybe<Scalars["String"]["input"]>;
   filter?: InputMaybe<ApplicationQuickFilter>;
+};
+
+export type QueryGenerateApplicationDraftWithAiArgs = {
+  input: CreateApplicationWithAiInput;
+};
+
+export type QueryGenerateApplicationNoteWithAiArgs = {
+  applicationId: Scalars["ID"]["input"];
+  note: Scalars["String"]["input"];
+};
+
+export type QueryGenerateCompanyDescriptionArgs = {
+  companyName: Scalars["String"]["input"];
+};
+
+export type QueryRewriteApplicationTextWithAiArgs = {
+  applicationId: Scalars["ID"]["input"];
+  text: Scalars["String"]["input"];
 };
 
 export enum SalaryPeriod {
@@ -304,6 +311,7 @@ export type UserType = {
 
 export type ApplicationsQueryVariables = Exact<{
   filter?: InputMaybe<ApplicationQuickFilter>;
+  company?: InputMaybe<Scalars["String"]["input"]>;
 }>;
 
 export type ApplicationsQuery = {
@@ -420,12 +428,12 @@ export type CreateApplicationWithAiMutation = {
   };
 };
 
-export type GenerateApplicationDraftWithAiMutationVariables = Exact<{
+export type GenerateApplicationDraftWithAiQueryVariables = Exact<{
   input: CreateApplicationWithAiInput;
 }>;
 
-export type GenerateApplicationDraftWithAiMutation = {
-  __typename?: "Mutation";
+export type GenerateApplicationDraftWithAiQuery = {
+  __typename?: "Query";
   generateApplicationDraftWithAI: {
     __typename?: "ApplicationAiDraftType";
     title: string;
@@ -441,12 +449,12 @@ export type GenerateApplicationDraftWithAiMutation = {
   };
 };
 
-export type GenerateCompanyDescriptionMutationVariables = Exact<{
+export type GenerateCompanyDescriptionQueryVariables = Exact<{
   companyName: Scalars["String"]["input"];
 }>;
 
-export type GenerateCompanyDescriptionMutation = {
-  __typename?: "Mutation";
+export type GenerateCompanyDescriptionQuery = {
+  __typename?: "Query";
   generateCompanyDescription: string;
 };
 
@@ -621,14 +629,24 @@ export type DeleteApplicationNoteMutation = {
   deleteApplicationNote: boolean;
 };
 
-export type GenerateApplicationNoteWithAiMutationVariables = Exact<{
+export type GenerateApplicationNoteWithAiQueryVariables = Exact<{
   applicationId: Scalars["ID"]["input"];
   note: Scalars["String"]["input"];
 }>;
 
-export type GenerateApplicationNoteWithAiMutation = {
-  __typename?: "Mutation";
+export type GenerateApplicationNoteWithAiQuery = {
+  __typename?: "Query";
   generateApplicationNoteWithAI: string;
+};
+
+export type RewriteApplicationTextWithAiQueryVariables = Exact<{
+  applicationId: Scalars["ID"]["input"];
+  text: Scalars["String"]["input"];
+}>;
+
+export type RewriteApplicationTextWithAiQuery = {
+  __typename?: "Query";
+  rewriteApplicationTextWithAI: string;
 };
 
 export type UpdateCompanyMutationVariables = Exact<{
@@ -691,6 +709,14 @@ export const ApplicationsDocument = {
             name: { kind: "Name", value: "ApplicationQuickFilter" },
           },
         },
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "company" },
+          },
+          type: { kind: "NamedType", name: { kind: "Name", value: "String" } },
+        },
       ],
       selectionSet: {
         kind: "SelectionSet",
@@ -705,6 +731,14 @@ export const ApplicationsDocument = {
                 value: {
                   kind: "Variable",
                   name: { kind: "Name", value: "filter" },
+                },
+              },
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "company" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "company" },
                 },
               },
             ],
@@ -1050,7 +1084,7 @@ export const GenerateApplicationDraftWithAiDocument = {
   definitions: [
     {
       kind: "OperationDefinition",
-      operation: "mutation",
+      operation: "query",
       name: { kind: "Name", value: "GenerateApplicationDraftWithAi" },
       variableDefinitions: [
         {
@@ -1120,15 +1154,15 @@ export const GenerateApplicationDraftWithAiDocument = {
     },
   ],
 } as unknown as DocumentNode<
-  GenerateApplicationDraftWithAiMutation,
-  GenerateApplicationDraftWithAiMutationVariables
+  GenerateApplicationDraftWithAiQuery,
+  GenerateApplicationDraftWithAiQueryVariables
 >;
 export const GenerateCompanyDescriptionDocument = {
   kind: "Document",
   definitions: [
     {
       kind: "OperationDefinition",
-      operation: "mutation",
+      operation: "query",
       name: { kind: "Name", value: "GenerateCompanyDescription" },
       variableDefinitions: [
         {
@@ -1168,8 +1202,8 @@ export const GenerateCompanyDescriptionDocument = {
     },
   ],
 } as unknown as DocumentNode<
-  GenerateCompanyDescriptionMutation,
-  GenerateCompanyDescriptionMutationVariables
+  GenerateCompanyDescriptionQuery,
+  GenerateCompanyDescriptionQueryVariables
 >;
 export const UpdateApplicationDocument = {
   kind: "Document",
@@ -1839,7 +1873,7 @@ export const GenerateApplicationNoteWithAiDocument = {
   definitions: [
     {
       kind: "OperationDefinition",
-      operation: "mutation",
+      operation: "query",
       name: { kind: "Name", value: "GenerateApplicationNoteWithAi" },
       variableDefinitions: [
         {
@@ -1895,8 +1929,72 @@ export const GenerateApplicationNoteWithAiDocument = {
     },
   ],
 } as unknown as DocumentNode<
-  GenerateApplicationNoteWithAiMutation,
-  GenerateApplicationNoteWithAiMutationVariables
+  GenerateApplicationNoteWithAiQuery,
+  GenerateApplicationNoteWithAiQueryVariables
+>;
+export const RewriteApplicationTextWithAiDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "query",
+      name: { kind: "Name", value: "RewriteApplicationTextWithAi" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "applicationId" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "text" } },
+          type: {
+            kind: "NonNullType",
+            type: {
+              kind: "NamedType",
+              name: { kind: "Name", value: "String" },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "rewriteApplicationTextWithAI" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "applicationId" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "applicationId" },
+                },
+              },
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "text" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "text" },
+                },
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  RewriteApplicationTextWithAiQuery,
+  RewriteApplicationTextWithAiQueryVariables
 >;
 export const UpdateCompanyDocument = {
   kind: "Document",

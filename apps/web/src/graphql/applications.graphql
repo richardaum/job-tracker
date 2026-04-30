@@ -1,5 +1,5 @@
-query Applications($filter: ApplicationQuickFilter) {
-  applications(filter: $filter) {
+query Applications($filter: ApplicationQuickFilter, $company: String) {
+  applications(filter: $filter, company: $company) {
     id
     title
     companyId
@@ -88,7 +88,7 @@ mutation CreateApplicationWithAi($input: CreateApplicationWithAIInput!) {
   }
 }
 
-mutation GenerateApplicationDraftWithAi($input: CreateApplicationWithAIInput!) {
+query GenerateApplicationDraftWithAi($input: CreateApplicationWithAIInput!) {
   generateApplicationDraftWithAI(input: $input) {
     title
     company
@@ -103,7 +103,7 @@ mutation GenerateApplicationDraftWithAi($input: CreateApplicationWithAIInput!) {
   }
 }
 
-mutation GenerateCompanyDescription($companyName: String!) {
+query GenerateCompanyDescription($companyName: String!) {
   generateCompanyDescription(companyName: $companyName)
 }
 
@@ -220,6 +220,10 @@ mutation DeleteApplicationNote($id: ID!) {
   deleteApplicationNote(id: $id)
 }
 
-mutation GenerateApplicationNoteWithAi($applicationId: ID!, $note: String!) {
+query GenerateApplicationNoteWithAi($applicationId: ID!, $note: String!) {
   generateApplicationNoteWithAI(applicationId: $applicationId, note: $note)
+}
+
+query RewriteApplicationTextWithAi($applicationId: ID!, $text: String!) {
+  rewriteApplicationTextWithAI(applicationId: $applicationId, text: $text)
 }

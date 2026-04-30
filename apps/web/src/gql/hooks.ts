@@ -151,9 +151,6 @@ export type Mutation = {
   createApplicationWithAI: ApplicationType;
   deleteApplication: Scalars["Boolean"]["output"];
   deleteApplicationNote: Scalars["Boolean"]["output"];
-  generateApplicationDraftWithAI: ApplicationAiDraftType;
-  generateApplicationNoteWithAI: Scalars["String"]["output"];
-  generateCompanyDescription: Scalars["String"]["output"];
   removeApplicationTag: ApplicationType;
   updateApplication: ApplicationType;
   updateApplicationNote: NoteType;
@@ -183,19 +180,6 @@ export type MutationDeleteApplicationArgs = {
 
 export type MutationDeleteApplicationNoteArgs = {
   id: Scalars["ID"]["input"];
-};
-
-export type MutationGenerateApplicationDraftWithAiArgs = {
-  input: CreateApplicationWithAiInput;
-};
-
-export type MutationGenerateApplicationNoteWithAiArgs = {
-  applicationId: Scalars["ID"]["input"];
-  note: Scalars["String"]["input"];
-};
-
-export type MutationGenerateCompanyDescriptionArgs = {
-  companyName: Scalars["String"]["input"];
 };
 
 export type MutationRemoveApplicationTagArgs = {
@@ -241,7 +225,11 @@ export type Query = {
   applicationStageEvents: Array<ApplicationStageEventType>;
   applications: Array<ApplicationType>;
   companies: Array<CompanyType>;
+  generateApplicationDraftWithAI: ApplicationAiDraftType;
+  generateApplicationNoteWithAI: Scalars["String"]["output"];
+  generateCompanyDescription: Scalars["String"]["output"];
   me: UserType;
+  rewriteApplicationTextWithAI: Scalars["String"]["output"];
 };
 
 export type QueryApplicationArgs = {
@@ -257,7 +245,26 @@ export type QueryApplicationStageEventsArgs = {
 };
 
 export type QueryApplicationsArgs = {
+  company?: InputMaybe<Scalars["String"]["input"]>;
   filter?: InputMaybe<ApplicationQuickFilter>;
+};
+
+export type QueryGenerateApplicationDraftWithAiArgs = {
+  input: CreateApplicationWithAiInput;
+};
+
+export type QueryGenerateApplicationNoteWithAiArgs = {
+  applicationId: Scalars["ID"]["input"];
+  note: Scalars["String"]["input"];
+};
+
+export type QueryGenerateCompanyDescriptionArgs = {
+  companyName: Scalars["String"]["input"];
+};
+
+export type QueryRewriteApplicationTextWithAiArgs = {
+  applicationId: Scalars["ID"]["input"];
+  text: Scalars["String"]["input"];
 };
 
 export enum SalaryPeriod {
@@ -306,6 +313,7 @@ export type UserType = {
 
 export type ApplicationsQueryVariables = Exact<{
   filter?: InputMaybe<ApplicationQuickFilter>;
+  company?: InputMaybe<Scalars["String"]["input"]>;
 }>;
 
 export type ApplicationsQuery = {
@@ -422,12 +430,12 @@ export type CreateApplicationWithAiMutation = {
   };
 };
 
-export type GenerateApplicationDraftWithAiMutationVariables = Exact<{
+export type GenerateApplicationDraftWithAiQueryVariables = Exact<{
   input: CreateApplicationWithAiInput;
 }>;
 
-export type GenerateApplicationDraftWithAiMutation = {
-  __typename?: "Mutation";
+export type GenerateApplicationDraftWithAiQuery = {
+  __typename?: "Query";
   generateApplicationDraftWithAI: {
     __typename?: "ApplicationAiDraftType";
     title: string;
@@ -443,12 +451,12 @@ export type GenerateApplicationDraftWithAiMutation = {
   };
 };
 
-export type GenerateCompanyDescriptionMutationVariables = Exact<{
+export type GenerateCompanyDescriptionQueryVariables = Exact<{
   companyName: Scalars["String"]["input"];
 }>;
 
-export type GenerateCompanyDescriptionMutation = {
-  __typename?: "Mutation";
+export type GenerateCompanyDescriptionQuery = {
+  __typename?: "Query";
   generateCompanyDescription: string;
 };
 
@@ -623,14 +631,24 @@ export type DeleteApplicationNoteMutation = {
   deleteApplicationNote: boolean;
 };
 
-export type GenerateApplicationNoteWithAiMutationVariables = Exact<{
+export type GenerateApplicationNoteWithAiQueryVariables = Exact<{
   applicationId: Scalars["ID"]["input"];
   note: Scalars["String"]["input"];
 }>;
 
-export type GenerateApplicationNoteWithAiMutation = {
-  __typename?: "Mutation";
+export type GenerateApplicationNoteWithAiQuery = {
+  __typename?: "Query";
   generateApplicationNoteWithAI: string;
+};
+
+export type RewriteApplicationTextWithAiQueryVariables = Exact<{
+  applicationId: Scalars["ID"]["input"];
+  text: Scalars["String"]["input"];
+}>;
+
+export type RewriteApplicationTextWithAiQuery = {
+  __typename?: "Query";
+  rewriteApplicationTextWithAI: string;
 };
 
 export type UpdateCompanyMutationVariables = Exact<{
@@ -675,8 +693,8 @@ export type MeQuery = {
 };
 
 export const ApplicationsDocument = gql`
-  query Applications($filter: ApplicationQuickFilter) {
-    applications(filter: $filter) {
+  query Applications($filter: ApplicationQuickFilter, $company: String) {
+    applications(filter: $filter, company: $company) {
       id
       title
       companyId
@@ -713,6 +731,7 @@ export const ApplicationsDocument = gql`
  * const { data, loading, error } = useApplicationsQuery({
  *   variables: {
  *      filter: // value for 'filter'
+ *      company: // value for 'company'
  *   },
  * });
  */
@@ -931,9 +950,7 @@ export function useCreateApplicationWithAiMutation(
 }
 
 export const GenerateApplicationDraftWithAiDocument = gql`
-  mutation GenerateApplicationDraftWithAi(
-    $input: CreateApplicationWithAIInput!
-  ) {
+  query GenerateApplicationDraftWithAi($input: CreateApplicationWithAIInput!) {
     generateApplicationDraftWithAI(input: $input) {
       title
       company
@@ -950,70 +967,117 @@ export const GenerateApplicationDraftWithAiDocument = gql`
 `;
 
 /**
- * __useGenerateApplicationDraftWithAiMutation__
+ * __useGenerateApplicationDraftWithAiQuery__
  *
- * To run a mutation, you first call `useGenerateApplicationDraftWithAiMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useGenerateApplicationDraftWithAiMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
+ * To run a query within a React component, call `useGenerateApplicationDraftWithAiQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGenerateApplicationDraftWithAiQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
  *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const [generateApplicationDraftWithAiMutation, { data, loading, error }] = useGenerateApplicationDraftWithAiMutation({
+ * const { data, loading, error } = useGenerateApplicationDraftWithAiQuery({
  *   variables: {
  *      input: // value for 'input'
  *   },
  * });
  */
-export function useGenerateApplicationDraftWithAiMutation(
-  baseOptions?: ApolloReactHooks.MutationHookOptions<
-    GenerateApplicationDraftWithAiMutation,
-    GenerateApplicationDraftWithAiMutationVariables
+export function useGenerateApplicationDraftWithAiQuery(
+  baseOptions: ApolloReactHooks.QueryHookOptions<
+    GenerateApplicationDraftWithAiQuery,
+    GenerateApplicationDraftWithAiQueryVariables
+  > &
+    (
+      | {
+          variables: GenerateApplicationDraftWithAiQueryVariables;
+          skip?: boolean;
+        }
+      | { skip: boolean }
+    ),
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useQuery<
+    GenerateApplicationDraftWithAiQuery,
+    GenerateApplicationDraftWithAiQueryVariables
+  >(GenerateApplicationDraftWithAiDocument, options);
+}
+export function useGenerateApplicationDraftWithAiLazyQuery(
+  baseOptions?: ApolloReactHooks.LazyQueryHookOptions<
+    GenerateApplicationDraftWithAiQuery,
+    GenerateApplicationDraftWithAiQueryVariables
   >,
 ) {
   const options = { ...defaultOptions, ...baseOptions };
-  return ApolloReactHooks.useMutation<
-    GenerateApplicationDraftWithAiMutation,
-    GenerateApplicationDraftWithAiMutationVariables
+  return ApolloReactHooks.useLazyQuery<
+    GenerateApplicationDraftWithAiQuery,
+    GenerateApplicationDraftWithAiQueryVariables
   >(GenerateApplicationDraftWithAiDocument, options);
 }
 
+export type GenerateApplicationDraftWithAiQueryHookResult = ReturnType<
+  typeof useGenerateApplicationDraftWithAiQuery
+>;
+export type GenerateApplicationDraftWithAiLazyQueryHookResult = ReturnType<
+  typeof useGenerateApplicationDraftWithAiLazyQuery
+>;
+
 export const GenerateCompanyDescriptionDocument = gql`
-  mutation GenerateCompanyDescription($companyName: String!) {
+  query GenerateCompanyDescription($companyName: String!) {
     generateCompanyDescription(companyName: $companyName)
   }
 `;
 
 /**
- * __useGenerateCompanyDescriptionMutation__
+ * __useGenerateCompanyDescriptionQuery__
  *
- * To run a mutation, you first call `useGenerateCompanyDescriptionMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useGenerateCompanyDescriptionMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
+ * To run a query within a React component, call `useGenerateCompanyDescriptionQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGenerateCompanyDescriptionQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
  *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const [generateCompanyDescriptionMutation, { data, loading, error }] = useGenerateCompanyDescriptionMutation({
+ * const { data, loading, error } = useGenerateCompanyDescriptionQuery({
  *   variables: {
  *      companyName: // value for 'companyName'
  *   },
  * });
  */
-export function useGenerateCompanyDescriptionMutation(
-  baseOptions?: ApolloReactHooks.MutationHookOptions<
-    GenerateCompanyDescriptionMutation,
-    GenerateCompanyDescriptionMutationVariables
+export function useGenerateCompanyDescriptionQuery(
+  baseOptions: ApolloReactHooks.QueryHookOptions<
+    GenerateCompanyDescriptionQuery,
+    GenerateCompanyDescriptionQueryVariables
+  > &
+    (
+      | { variables: GenerateCompanyDescriptionQueryVariables; skip?: boolean }
+      | { skip: boolean }
+    ),
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useQuery<
+    GenerateCompanyDescriptionQuery,
+    GenerateCompanyDescriptionQueryVariables
+  >(GenerateCompanyDescriptionDocument, options);
+}
+export function useGenerateCompanyDescriptionLazyQuery(
+  baseOptions?: ApolloReactHooks.LazyQueryHookOptions<
+    GenerateCompanyDescriptionQuery,
+    GenerateCompanyDescriptionQueryVariables
   >,
 ) {
   const options = { ...defaultOptions, ...baseOptions };
-  return ApolloReactHooks.useMutation<
-    GenerateCompanyDescriptionMutation,
-    GenerateCompanyDescriptionMutationVariables
+  return ApolloReactHooks.useLazyQuery<
+    GenerateCompanyDescriptionQuery,
+    GenerateCompanyDescriptionQueryVariables
   >(GenerateCompanyDescriptionDocument, options);
 }
+
+export type GenerateCompanyDescriptionQueryHookResult = ReturnType<
+  typeof useGenerateCompanyDescriptionQuery
+>;
+export type GenerateCompanyDescriptionLazyQueryHookResult = ReturnType<
+  typeof useGenerateCompanyDescriptionLazyQuery
+>;
 
 export const UpdateApplicationDocument = gql`
   mutation UpdateApplication($id: ID!, $input: UpdateApplicationInput!) {
@@ -1497,41 +1561,128 @@ export function useDeleteApplicationNoteMutation(
 }
 
 export const GenerateApplicationNoteWithAiDocument = gql`
-  mutation GenerateApplicationNoteWithAi($applicationId: ID!, $note: String!) {
+  query GenerateApplicationNoteWithAi($applicationId: ID!, $note: String!) {
     generateApplicationNoteWithAI(applicationId: $applicationId, note: $note)
   }
 `;
 
 /**
- * __useGenerateApplicationNoteWithAiMutation__
+ * __useGenerateApplicationNoteWithAiQuery__
  *
- * To run a mutation, you first call `useGenerateApplicationNoteWithAiMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useGenerateApplicationNoteWithAiMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
+ * To run a query within a React component, call `useGenerateApplicationNoteWithAiQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGenerateApplicationNoteWithAiQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
  *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const [generateApplicationNoteWithAiMutation, { data, loading, error }] = useGenerateApplicationNoteWithAiMutation({
+ * const { data, loading, error } = useGenerateApplicationNoteWithAiQuery({
  *   variables: {
  *      applicationId: // value for 'applicationId'
  *      note: // value for 'note'
  *   },
  * });
  */
-export function useGenerateApplicationNoteWithAiMutation(
-  baseOptions?: ApolloReactHooks.MutationHookOptions<
-    GenerateApplicationNoteWithAiMutation,
-    GenerateApplicationNoteWithAiMutationVariables
+export function useGenerateApplicationNoteWithAiQuery(
+  baseOptions: ApolloReactHooks.QueryHookOptions<
+    GenerateApplicationNoteWithAiQuery,
+    GenerateApplicationNoteWithAiQueryVariables
+  > &
+    (
+      | {
+          variables: GenerateApplicationNoteWithAiQueryVariables;
+          skip?: boolean;
+        }
+      | { skip: boolean }
+    ),
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useQuery<
+    GenerateApplicationNoteWithAiQuery,
+    GenerateApplicationNoteWithAiQueryVariables
+  >(GenerateApplicationNoteWithAiDocument, options);
+}
+export function useGenerateApplicationNoteWithAiLazyQuery(
+  baseOptions?: ApolloReactHooks.LazyQueryHookOptions<
+    GenerateApplicationNoteWithAiQuery,
+    GenerateApplicationNoteWithAiQueryVariables
   >,
 ) {
   const options = { ...defaultOptions, ...baseOptions };
-  return ApolloReactHooks.useMutation<
-    GenerateApplicationNoteWithAiMutation,
-    GenerateApplicationNoteWithAiMutationVariables
+  return ApolloReactHooks.useLazyQuery<
+    GenerateApplicationNoteWithAiQuery,
+    GenerateApplicationNoteWithAiQueryVariables
   >(GenerateApplicationNoteWithAiDocument, options);
 }
+
+export type GenerateApplicationNoteWithAiQueryHookResult = ReturnType<
+  typeof useGenerateApplicationNoteWithAiQuery
+>;
+export type GenerateApplicationNoteWithAiLazyQueryHookResult = ReturnType<
+  typeof useGenerateApplicationNoteWithAiLazyQuery
+>;
+
+export const RewriteApplicationTextWithAiDocument = gql`
+  query RewriteApplicationTextWithAi($applicationId: ID!, $text: String!) {
+    rewriteApplicationTextWithAI(applicationId: $applicationId, text: $text)
+  }
+`;
+
+/**
+ * __useRewriteApplicationTextWithAiQuery__
+ *
+ * To run a query within a React component, call `useRewriteApplicationTextWithAiQuery` and pass it any options that fit your needs.
+ * When your component renders, `useRewriteApplicationTextWithAiQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useRewriteApplicationTextWithAiQuery({
+ *   variables: {
+ *      applicationId: // value for 'applicationId'
+ *      text: // value for 'text'
+ *   },
+ * });
+ */
+export function useRewriteApplicationTextWithAiQuery(
+  baseOptions: ApolloReactHooks.QueryHookOptions<
+    RewriteApplicationTextWithAiQuery,
+    RewriteApplicationTextWithAiQueryVariables
+  > &
+    (
+      | {
+          variables: RewriteApplicationTextWithAiQueryVariables;
+          skip?: boolean;
+        }
+      | { skip: boolean }
+    ),
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useQuery<
+    RewriteApplicationTextWithAiQuery,
+    RewriteApplicationTextWithAiQueryVariables
+  >(RewriteApplicationTextWithAiDocument, options);
+}
+export function useRewriteApplicationTextWithAiLazyQuery(
+  baseOptions?: ApolloReactHooks.LazyQueryHookOptions<
+    RewriteApplicationTextWithAiQuery,
+    RewriteApplicationTextWithAiQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useLazyQuery<
+    RewriteApplicationTextWithAiQuery,
+    RewriteApplicationTextWithAiQueryVariables
+  >(RewriteApplicationTextWithAiDocument, options);
+}
+
+export type RewriteApplicationTextWithAiQueryHookResult = ReturnType<
+  typeof useRewriteApplicationTextWithAiQuery
+>;
+export type RewriteApplicationTextWithAiLazyQueryHookResult = ReturnType<
+  typeof useRewriteApplicationTextWithAiLazyQuery
+>;
 
 export const UpdateCompanyDocument = gql`
   mutation UpdateCompany($id: ID!, $input: UpdateCompanyInput!) {
