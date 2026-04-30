@@ -98,10 +98,6 @@ export function NotesPanel({
   const composerRewriteTextAction = useRewriteTextAiAction({
     disabled: !canSend,
   });
-  const composerAiActions = useMemo(
-    () => [composerImproveNoteAction, composerRewriteTextAction],
-    [composerImproveNoteAction, composerRewriteTextAction],
-  );
 
   const { notesEndRef, handleNoteSent } = useNotesComposerBehavior({
     hasLoadedMessages: Boolean(notesData),
@@ -258,7 +254,7 @@ export function NotesPanel({
               contentClassName={cn(
                 "min-h-0 [&_.ProseMirror]:min-h-5 [&_.ProseMirror]:max-h-40 [&_.ProseMirror]:overflow-y-auto",
               )}
-              aiActions={composerAiActions}
+              aiActions={[composerImproveNoteAction, composerRewriteTextAction]}
               showExpandButton
               expandButtonAriaLabel="Expand note composer"
               onExpandClick={() => setIsComposerExpanded(true)}
@@ -294,8 +290,6 @@ export function NotesPanel({
         canSend={canSend}
         creatingNote={creatingNote}
         onSendNote={handleSendNote}
-        composerAiActions={composerAiActions}
-        onCollapse={() => setIsComposerExpanded(false)}
       />
       <NoteEditDialog
         applicationId={applicationId}

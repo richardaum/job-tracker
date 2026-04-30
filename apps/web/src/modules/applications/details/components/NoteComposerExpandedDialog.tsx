@@ -2,7 +2,8 @@
 
 import React from "react";
 import { Button, Dialog, Stack, cn } from "@job-tracker/ui";
-import type { TipTapAiAction } from "@/modules/ai/editor/tiptap-ai-actions";
+import { useImproveApplicationNoteAiAction } from "@/modules/ai/actions/useImproveApplicationNoteAiAction";
+import { useRewriteTextAiAction } from "@/modules/ai/actions/useRewriteTextAiAction";
 import { EMPTY_TIPTAP_DOC } from "@/modules/applications/shared/utils/tiptap";
 import { TipTapEditor } from "./TipTapEditor";
 
@@ -16,8 +17,6 @@ interface NoteComposerExpandedDialogProps {
   canSend: boolean;
   creatingNote: boolean;
   onSendNote: () => Promise<void>;
-  composerAiActions: TipTapAiAction[];
-  onCollapse: () => void;
 }
 
 export function NoteComposerExpandedDialog({
@@ -30,9 +29,13 @@ export function NoteComposerExpandedDialog({
   canSend,
   creatingNote,
   onSendNote,
-  composerAiActions,
-  onCollapse,
 }: NoteComposerExpandedDialogProps) {
+  const improveNoteAction = useImproveApplicationNoteAiAction({
+    applicationId,
+    disabled: !canSend,
+  });
+  const rewriteTextAction = useRewriteTextAiAction({ disabled: !canSend });
+
   return (
     <Dialog
       title="New note"
@@ -56,10 +59,10 @@ export function NoteComposerExpandedDialog({
             disabled={creatingNote}
             autofocus="end"
             fillHeight
-            aiActions={composerAiActions}
+            aiActions={[improveNoteAction, rewriteTextAction]}
             showExpandButton
             expandButtonAriaLabel="Close expanded note composer"
-            onExpandClick={onCollapse}
+            onExpandClick={() => onOpenChange(false)}
           />
         </div>
         <div className={cn("flex justify-end")}>
