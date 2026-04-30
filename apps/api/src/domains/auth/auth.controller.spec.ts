@@ -24,6 +24,7 @@ const mockUser: User = {
 
 describe("AuthController (integration)", () => {
   let app: INestApplication;
+  const loginUrl = new URL("/login", WEB_URL).toString();
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -56,11 +57,11 @@ describe("AuthController (integration)", () => {
 
   afterAll(() => app.close());
 
-  it("GET /auth/google/callback sets cookies and redirects to WEB_URL", async () => {
+  it("GET /auth/google/callback sets cookies and redirects to login", async () => {
     const res = await request(app.getHttpServer()).get("/auth/google/callback");
 
     expect(res.statusCode).toBe(302);
-    expect(res.headers.location).toBe(WEB_URL);
+    expect(res.headers.location).toBe(loginUrl);
 
     const cookies = ([] as string[]).concat(res.headers["set-cookie"] ?? []);
     expect(cookies.some((c) => c.startsWith("access_token="))).toBe(true);
@@ -71,6 +72,26 @@ describe("AuthController (integration)", () => {
           c.toLowerCase().includes("httponly"),
       ),
     ).toBe(true);
+  });
+
+  it("GET /auth/google/callback preserves safe returnTo from oauth state", async () => {
+    const res = await request(app.getHttpServer()).get(
+      "/auth/google/callback?state=%2Fapplications%2F123",
+    );
+
+    expect(res.statusCode).toBe(302);
+    expect(res.headers.location).toBe(
+      `${loginUrl}?returnTo=%2Fapplications%2F123`,
+    );
+  });
+
+  it("GET /auth/google/callback ignores unsafe oauth state", async () => {
+    const res = await request(app.getHttpServer()).get(
+      "/auth/google/callback?state=https%3A%2F%2Fevil.example",
+    );
+
+    expect(res.statusCode).toBe(302);
+    expect(res.headers.location).toBe(loginUrl);
   });
 
   it("POST /auth/logout clears auth cookies", async () => {

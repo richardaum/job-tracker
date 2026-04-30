@@ -8,6 +8,7 @@ const useCurrentUserMock = vi.fn();
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ replace: replaceMock }),
   usePathname: () => "/applications",
+  useSearchParams: () => new URLSearchParams("status=OPEN"),
 }));
 
 vi.mock("@/hooks/useCurrentUser", () => ({
@@ -15,7 +16,7 @@ vi.mock("@/hooks/useCurrentUser", () => ({
 }));
 
 describe("ProtectedLayout", () => {
-  it("redirects unauthenticated users to /login", () => {
+  it("redirects unauthenticated users to /login with returnTo", () => {
     useCurrentUserMock.mockReturnValue({
       user: null,
       loading: false,
@@ -28,7 +29,9 @@ describe("ProtectedLayout", () => {
       </ProtectedLayout>,
     );
 
-    expect(replaceMock).toHaveBeenCalledWith("/login");
+    expect(replaceMock).toHaveBeenCalledWith(
+      "/login?returnTo=%2Fapplications%3Fstatus%3DOPEN",
+    );
   });
 
   it("renders children when authenticated", () => {

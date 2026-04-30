@@ -4,9 +4,13 @@ import LoginPage from "./page";
 
 const replaceMock = vi.fn();
 const useCurrentUserMock = vi.fn();
+const usePathnameMock = vi.fn();
+const useSearchParamsMock = vi.fn();
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ replace: replaceMock }),
+  usePathname: () => usePathnameMock(),
+  useSearchParams: () => useSearchParamsMock(),
 }));
 
 vi.mock("@/hooks/useCurrentUser", () => ({
@@ -15,6 +19,10 @@ vi.mock("@/hooks/useCurrentUser", () => ({
 
 describe("LoginPage", () => {
   it("renders Google login button", () => {
+    usePathnameMock.mockReturnValue("/login");
+    useSearchParamsMock.mockReturnValue(
+      new URLSearchParams("returnTo=%2Fapplications%2F123"),
+    );
     useCurrentUserMock.mockReturnValue({
       user: null,
       loading: false,
@@ -28,7 +36,27 @@ describe("LoginPage", () => {
     ).toBeInTheDocument();
   });
 
-  it("redirects authenticated users away from /login", () => {
+  it("redirects authenticated users to returnTo from query param", () => {
+    usePathnameMock.mockReturnValue("/login");
+    useSearchParamsMock.mockReturnValue(
+      new URLSearchParams("returnTo=%2Fapplications%2F123"),
+    );
+    useCurrentUserMock.mockReturnValue({
+      user: { id: "user-1" },
+      loading: false,
+      error: undefined,
+    });
+
+    render(<LoginPage />);
+
+    expect(replaceMock).toHaveBeenCalledWith("/applications/123");
+  });
+
+  it("falls back to home for unsafe returnTo", () => {
+    usePathnameMock.mockReturnValue("/login");
+    useSearchParamsMock.mockReturnValue(
+      new URLSearchParams("returnTo=https%3A%2F%2Fevil.example"),
+    );
     useCurrentUserMock.mockReturnValue({
       user: { id: "user-1" },
       loading: false,

@@ -3,19 +3,21 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { Text, cn } from "@job-tracker/ui";
+import { useAuthReturnTo } from "@/hooks/useAuthReturnTo";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { Sidebar } from "@/modules/navigation/components/Sidebar";
 
 export default function ProtectedLayout({ children }: { children: ReactNode }) {
   const router = useRouter();
   const { user, loading } = useCurrentUser();
+  const { loginRedirectUrl } = useAuthReturnTo();
   const [isNavOpen, setIsNavOpen] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) {
-      router.replace("/login");
+      router.replace(loginRedirectUrl);
     }
-  }, [loading, router, user]);
+  }, [loading, loginRedirectUrl, router, user]);
 
   if (loading) {
     return (

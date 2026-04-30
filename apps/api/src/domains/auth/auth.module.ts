@@ -9,6 +9,7 @@ import { RolesGuard } from "./roles.guard";
 import { AuthService } from "./auth.service";
 import { AuthController } from "./auth.controller";
 import { AuthResolver } from "./auth.resolver";
+import { GoogleAuthGuard } from "@api/domains/auth/google-auth.guard";
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { AuthResolver } from "./auth.resolver";
     GoogleStrategy,
     JwtStrategy,
     JwtAuthGuard,
+    GoogleAuthGuard,
     RolesGuard,
     AuthService,
     AuthResolver,

@@ -13,15 +13,18 @@ import type { Request, Response } from "express";
 import { AuthService } from "./auth.service";
 import type { User } from "@api/domains/users/users.schema";
 import { WEB_URL } from "@api/env/server";
+import { GoogleAuthGuard } from "@api/domains/auth/google-auth.guard";
+import { getSafeReturnTo } from "@api/domains/auth/auth-return-to.util";
 
 const COOKIE_BASE = { httpOnly: true, sameSite: "lax" as const, path: "/" };
+const DEFAULT_AFTER_LOGIN_PATH = "/login";
 
 @Controller("auth")
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Get("google")
-  @UseGuards(AuthGuard("google"))
+  @UseGuards(GoogleAuthGuard)
   googleLogin() {}
 
   @Get("google/callback")
@@ -42,7 +45,14 @@ export class AuthController {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    res.redirect(302, WEB_URL);
+    const returnTo = getSafeReturnTo(req.query.state);
+    const redirectUrl = new URL(DEFAULT_AFTER_LOGIN_PATH, WEB_URL);
+
+    if (returnTo) {
+      redirectUrl.searchParams.set("returnTo", returnTo);
+    }
+
+    res.redirect(302, redirectUrl.toString());
   }
 
   @Post("logout")
