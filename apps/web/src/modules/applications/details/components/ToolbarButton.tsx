@@ -7,7 +7,7 @@ export interface ToolbarButtonProps {
   label: React.ReactNode;
   ariaLabel?: string;
   active?: boolean;
-  onClick: () => void;
+  onClick?: () => void;
   disabled?: boolean;
   className?: string;
 }

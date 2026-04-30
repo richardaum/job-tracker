@@ -1,7 +1,7 @@
 "use client";
 
-import { SegmentedToolbarControl } from "@/modules/applications/details/components/SegmentedToolbarControl";
 import { ToolbarButton } from "@/modules/applications/details/components/ToolbarButton";
+import { type TipTapAiAction } from "@/modules/ai/editor/tiptap-ai-actions";
 import {
   useTipTapEditorHandle,
   type TipTapEditorHandle,
@@ -20,6 +20,7 @@ import {
   CheckIcon,
   CircleNotchIcon,
   ListBulletsIcon,
+  PencilSimpleIcon,
   SparkleIcon,
   TextBolderIcon,
   TextHOneIcon,
@@ -47,13 +48,7 @@ interface TipTapEditorProps {
   fillHeight?: boolean;
   autofocus?: boolean | "start" | "end" | "all" | number | null;
   contentClassName?: string;
-  aiContentGeneration?: {
-    onGenerateContent: () => Promise<string | null | undefined>;
-    isGenerating?: boolean;
-    disabled?: boolean;
-    buttonLabel?: string;
-    onError?: () => void;
-  };
+  aiActions?: TipTapAiAction[];
   onExpandClick?: () => void;
   showExpandButton?: boolean;
   expandButtonAriaLabel?: string;
@@ -62,54 +57,86 @@ interface TipTapEditorProps {
 
 function AiSuggestionSegmentedControl({
   aiGenerationLoading,
-  aiButtonLabel,
-  isGenerateDisabled,
+  actions,
+  isActionDisabled,
   isApproveDisabled,
   isRejectDisabled,
-  onGenerate,
+  onActionSelect,
   onApprove,
   onReject,
 }: {
   aiGenerationLoading: boolean;
-  aiButtonLabel?: string;
-  isGenerateDisabled: boolean;
+  actions: TipTapAiAction[];
+  isActionDisabled: (action: TipTapAiAction) => boolean;
   isApproveDisabled: boolean;
   isRejectDisabled: boolean;
-  onGenerate: () => void;
+  onActionSelect: (action: TipTapAiAction) => void;
   onApprove: () => void;
   onReject: () => void;
 }) {
   return (
-    <SegmentedToolbarControl>
-      <ToolbarButton
-        label={
-          aiGenerationLoading ? (
-            <span className={cn("inline-flex items-center gap-1")}>
-              <CircleNotchIcon
-                size={12}
-                weight="bold"
-                className={cn("animate-spin")}
-              />
-              {(aiButtonLabel ?? "AI") + "..."}
-            </span>
-          ) : (
-            <span className={cn("inline-flex items-center gap-1")}>
-              <SparkleIcon size={12} weight="fill" />
-              {aiButtonLabel ?? "AI"}
-            </span>
-          )
+    <div
+      className={cn(
+        "inline-flex overflow-hidden rounded border border-border-subtle",
+      )}
+    >
+      <DropdownMenu
+        align="start"
+        trigger={
+          <div>
+            <ToolbarButton
+              label={
+                aiGenerationLoading ? (
+                  <span className={cn("inline-flex items-center gap-1")}>
+                    <CircleNotchIcon
+                      size={12}
+                      weight="bold"
+                      className={cn("animate-spin")}
+                    />
+                    {"AI..."}
+                    <CaretDownIcon size={12} weight="bold" />
+                  </span>
+                ) : (
+                  <span className={cn("inline-flex items-center gap-1")}>
+                    <SparkleIcon size={12} weight="fill" />
+                    AI
+                    <CaretDownIcon size={12} weight="bold" />
+                  </span>
+                )
+              }
+              ariaLabel="Open AI actions"
+              disabled={actions.every((action) => isActionDisabled(action))}
+              className={cn("rounded-none border-0")}
+            />
+          </div>
         }
-        ariaLabel="Generate AI suggestion"
-        onClick={onGenerate}
-        disabled={isGenerateDisabled}
-      />
+      >
+        {actions.map((action) => (
+          <DropdownMenuItem
+            key={action.id}
+            icon={
+              action.kind === "rewrite" ? (
+                <PencilSimpleIcon size={14} weight="bold" />
+              ) : (
+                <SparkleIcon size={14} weight="fill" />
+              )
+            }
+            onSelect={() => onActionSelect(action)}
+            disabled={isActionDisabled(action)}
+          >
+            {action.label}
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenu>
       {!isApproveDisabled ? (
         <ToolbarButton
           label={<CheckIcon size={14} weight="bold" />}
           ariaLabel="Approve AI suggestion"
           onClick={onApprove}
           disabled={isApproveDisabled}
-          className="text-text-success"
+          className={cn(
+            "rounded-none border-0 border-r border-border-subtle text-text-success",
+          )}
         />
       ) : null}
       {!isRejectDisabled ? (
@@ -118,10 +145,10 @@ function AiSuggestionSegmentedControl({
           ariaLabel="Reject AI suggestion"
           onClick={onReject}
           disabled={isRejectDisabled}
-          className="text-text-error"
+          className={cn("rounded-none border-0 text-text-error")}
         />
       ) : null}
-    </SegmentedToolbarControl>
+    </div>
   );
 }
 
@@ -167,7 +194,7 @@ export function TipTapEditor({
   fillHeight = false,
   autofocus = false,
   contentClassName,
-  aiContentGeneration,
+  aiActions,
   onExpandClick,
   showExpandButton = false,
   expandButtonAriaLabel = "Expand editor",
@@ -276,8 +303,10 @@ export function TipTapEditor({
     );
   }
 
-  const aiGenerationLoading =
-    Boolean(aiContentGeneration?.isGenerating) || isGeneratingAiLocally;
+  const aiGenerationLoading = Boolean(
+    isGeneratingAiLocally ||
+    aiActions?.some((action) => Boolean(action.isLoading)),
+  );
   const activeBlockAriaLabel = editorState?.isHeadingLevel1
     ? "Heading 1"
     : editorState?.isHeadingLevel2
@@ -291,26 +320,71 @@ export function TipTapEditor({
     editorState?.isHeadingLevel3,
   );
 
-  async function handleGenerateAiContent() {
-    if (!editor || !aiContentGeneration || aiGenerationLoading) {
+  async function handleAiAction(action: TipTapAiAction) {
+    if (!editor || aiGenerationLoading || action.disabled) {
       return;
     }
 
+    const currentValue = JSON.stringify(editor.getJSON());
+    const documentText = tipTapToPlainText(currentValue).trim();
     setIsGeneratingAiLocally(true);
     try {
-      const nextValue = await aiContentGeneration.onGenerateContent();
+      if (action.kind === "rewrite") {
+        const { from, to } = editor.state.selection;
+        const selectedText = editor.state.doc
+          .textBetween(from, to, "\n\n")
+          .trim();
+        const hasSelection = from !== to && selectedText.length > 0;
+        const sourceText = hasSelection ? selectedText : documentText;
+        if (!sourceText.trim()) {
+          return;
+        }
+
+        const rewrittenValue = await action.run({
+          sourceText,
+          documentText,
+        });
+        if (rewrittenValue == null) {
+          return;
+        }
+
+        const rewrittenText = rewrittenValue.trim();
+        if (!rewrittenText) {
+          return;
+        }
+
+        setPendingAiOriginalContent(currentValue);
+        if (hasSelection) {
+          editor
+            .chain()
+            .focus()
+            .insertContentAt({ from, to }, rewrittenText)
+            .run();
+        } else {
+          const normalizedValue = normalizeTipTapDocument(rewrittenText);
+          editor.commands.setContent(parseTipTapDocument(normalizedValue), {
+            emitUpdate: false,
+          });
+          onChange(normalizedValue);
+        }
+        return;
+      }
+
+      const nextValue = await action.run({
+        sourceText: documentText,
+        documentText,
+      });
       if (nextValue == null) {
         return;
       }
       const normalizedValue = normalizeTipTapDocument(nextValue);
-      const currentValue = JSON.stringify(editor.getJSON());
       setPendingAiOriginalContent(currentValue);
       editor.commands.setContent(parseTipTapDocument(normalizedValue), {
         emitUpdate: false,
       });
       onChange(normalizedValue);
     } catch {
-      aiContentGeneration.onError?.();
+      action.onError?.();
     } finally {
       setIsGeneratingAiLocally(false);
     }
@@ -437,18 +511,32 @@ export function TipTapEditor({
             }}
             disabled={disabled}
           />
-          {aiContentGeneration ? (
+          {aiActions && aiActions.length > 0 ? (
             <AiSuggestionSegmentedControl
               aiGenerationLoading={aiGenerationLoading}
-              aiButtonLabel={aiContentGeneration.buttonLabel}
-              isGenerateDisabled={
-                disabled ||
-                aiContentGeneration.disabled ||
-                Boolean(aiContentGeneration.isGenerating)
-              }
+              actions={aiActions}
+              isActionDisabled={(action) => {
+                if (disabled || action.disabled || action.isLoading) {
+                  return true;
+                }
+                if (action.requiresSourceText || action.kind === "rewrite") {
+                  const selectedText = editor.state.doc
+                    .textBetween(
+                      editor.state.selection.from,
+                      editor.state.selection.to,
+                      "\n\n",
+                    )
+                    .trim();
+                  const documentText = tipTapToPlainText(
+                    JSON.stringify(editor.getJSON()),
+                  ).trim();
+                  return !selectedText && !documentText;
+                }
+                return false;
+              }}
               isApproveDisabled={disabled || pendingAiOriginalContent === null}
               isRejectDisabled={disabled || pendingAiOriginalContent === null}
-              onGenerate={() => void handleGenerateAiContent()}
+              onActionSelect={(action) => void handleAiAction(action)}
               onApprove={handleApproveAiContent}
               onReject={handleRejectAiContent}
             />
