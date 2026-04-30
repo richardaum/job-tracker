@@ -231,3 +231,7 @@ query GenerateApplicationNoteWithAi($applicationId: ID!, $note: String!) {
 query RewriteTextWithAi($text: String!) {
   rewriteTextWithAI(text: $text)
 }
+
+query RestructureJobDescriptionWithAi($text: String!) {
+  restructureJobDescriptionWithAI(text: $text)
+}

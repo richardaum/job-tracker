@@ -151,6 +151,7 @@ export type Mutation = {
   createApplicationWithAI: ApplicationType;
   deleteApplication: Scalars["Boolean"]["output"];
   deleteApplicationNote: Scalars["Boolean"]["output"];
+  deleteApplicationStageEvent: Scalars["Boolean"]["output"];
   deleteCompany: Scalars["Boolean"]["output"];
   removeApplicationTag: ApplicationType;
   updateApplication: ApplicationType;
@@ -174,6 +175,10 @@ export type MutationCreateApplicationWithAiArgs = {
 export type MutationDeleteApplicationArgs = { id: Scalars["ID"]["input"] };
 
 export type MutationDeleteApplicationNoteArgs = { id: Scalars["ID"]["input"] };
+
+export type MutationDeleteApplicationStageEventArgs = {
+  id: Scalars["ID"]["input"];
+};
 
 export type MutationDeleteCompanyArgs = { id: Scalars["ID"]["input"] };
 
@@ -225,6 +230,7 @@ export type Query = {
   generateApplicationNoteWithAI: Scalars["String"]["output"];
   generateCompanyDescription: Scalars["String"]["output"];
   me: UserType;
+  restructureJobDescriptionWithAI: Scalars["String"]["output"];
   rewriteTextWithAI: Scalars["String"]["output"];
 };
 
@@ -256,6 +262,10 @@ export type QueryGenerateApplicationNoteWithAiArgs = {
 
 export type QueryGenerateCompanyDescriptionArgs = {
   companyName: Scalars["String"]["input"];
+};
+
+export type QueryRestructureJobDescriptionWithAiArgs = {
+  text: Scalars["String"]["input"];
 };
 
 export type QueryRewriteTextWithAiArgs = { text: Scalars["String"]["input"] };
@@ -561,6 +571,15 @@ export type UpdateApplicationStageEventMutation = {
   };
 };
 
+export type DeleteApplicationStageEventMutationVariables = Exact<{
+  id: Scalars["ID"]["input"];
+}>;
+
+export type DeleteApplicationStageEventMutation = {
+  __typename?: "Mutation";
+  deleteApplicationStageEvent: boolean;
+};
+
 export type ApplicationNotesQueryVariables = Exact<{
   applicationId: Scalars["ID"]["input"];
 }>;
@@ -639,6 +658,15 @@ export type RewriteTextWithAiQueryVariables = Exact<{
 export type RewriteTextWithAiQuery = {
   __typename?: "Query";
   rewriteTextWithAI: string;
+};
+
+export type RestructureJobDescriptionWithAiQueryVariables = Exact<{
+  text: Scalars["String"]["input"];
+}>;
+
+export type RestructureJobDescriptionWithAiQuery = {
+  __typename?: "Query";
+  restructureJobDescriptionWithAI: string;
 };
 
 export type UpdateCompanyMutationVariables = Exact<{
@@ -1380,6 +1408,42 @@ export function useUpdateApplicationStageEventMutation(
   >(UpdateApplicationStageEventDocument, options);
 }
 
+export const DeleteApplicationStageEventDocument = gql`
+  mutation DeleteApplicationStageEvent($id: ID!) {
+    deleteApplicationStageEvent(id: $id)
+  }
+`;
+
+/**
+ * __useDeleteApplicationStageEventMutation__
+ *
+ * To run a mutation, you first call `useDeleteApplicationStageEventMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteApplicationStageEventMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteApplicationStageEventMutation, { data, loading, error }] = useDeleteApplicationStageEventMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteApplicationStageEventMutation(
+  baseOptions?: ApolloReactHooks.MutationHookOptions<
+    DeleteApplicationStageEventMutation,
+    DeleteApplicationStageEventMutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useMutation<
+    DeleteApplicationStageEventMutation,
+    DeleteApplicationStageEventMutationVariables
+  >(DeleteApplicationStageEventDocument, options);
+}
+
 export const ApplicationNotesDocument = gql`
   query ApplicationNotes($applicationId: ID!) {
     applicationNotes(applicationId: $applicationId) {
@@ -1686,6 +1750,67 @@ export type RewriteTextWithAiQueryHookResult = ReturnType<
 >;
 export type RewriteTextWithAiLazyQueryHookResult = ReturnType<
   typeof useRewriteTextWithAiLazyQuery
+>;
+
+export const RestructureJobDescriptionWithAiDocument = gql`
+  query RestructureJobDescriptionWithAi($text: String!) {
+    restructureJobDescriptionWithAI(text: $text)
+  }
+`;
+
+/**
+ * __useRestructureJobDescriptionWithAiQuery__
+ *
+ * To run a query within a React component, call `useRestructureJobDescriptionWithAiQuery` and pass it any options that fit your needs.
+ * When your component renders, `useRestructureJobDescriptionWithAiQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useRestructureJobDescriptionWithAiQuery({
+ *   variables: {
+ *      text: // value for 'text'
+ *   },
+ * });
+ */
+export function useRestructureJobDescriptionWithAiQuery(
+  baseOptions: ApolloReactHooks.QueryHookOptions<
+    RestructureJobDescriptionWithAiQuery,
+    RestructureJobDescriptionWithAiQueryVariables
+  > &
+    (
+      | {
+          variables: RestructureJobDescriptionWithAiQueryVariables;
+          skip?: boolean;
+        }
+      | { skip: boolean }
+    ),
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useQuery<
+    RestructureJobDescriptionWithAiQuery,
+    RestructureJobDescriptionWithAiQueryVariables
+  >(RestructureJobDescriptionWithAiDocument, options);
+}
+export function useRestructureJobDescriptionWithAiLazyQuery(
+  baseOptions?: ApolloReactHooks.LazyQueryHookOptions<
+    RestructureJobDescriptionWithAiQuery,
+    RestructureJobDescriptionWithAiQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useLazyQuery<
+    RestructureJobDescriptionWithAiQuery,
+    RestructureJobDescriptionWithAiQueryVariables
+  >(RestructureJobDescriptionWithAiDocument, options);
+}
+
+export type RestructureJobDescriptionWithAiQueryHookResult = ReturnType<
+  typeof useRestructureJobDescriptionWithAiQuery
+>;
+export type RestructureJobDescriptionWithAiLazyQueryHookResult = ReturnType<
+  typeof useRestructureJobDescriptionWithAiLazyQuery
 >;
 
 export const UpdateCompanyDocument = gql`

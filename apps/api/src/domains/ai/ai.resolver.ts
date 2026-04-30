@@ -15,4 +15,9 @@ export class AiResolver {
   rewriteTextWithAI(@Args("text") text: string): Promise<string> {
     return this.service.rewriteTextAsSingleParagraph(text);
   }
+
+  @Query(() => String)
+  restructureJobDescriptionWithAI(@Args("text") text: string): Promise<string> {
+    return this.service.restructureJobDescription(text);
+  }
 }

@@ -13,6 +13,7 @@ import {
   normalizeTipTapDocument,
   tipTapToPlainText,
 } from "@/modules/applications/shared/utils/tiptap";
+import { useRestructureJobDescriptionAiAction } from "@/modules/ai/actions/useRestructureJobDescriptionAiAction";
 
 export function DescriptionEditor({
   applicationId,
@@ -28,6 +29,7 @@ export function DescriptionEditor({
   const [description, setDescription] = useState<string>(
     normalizeTipTapDocument(initialDescription),
   );
+  const restructureDescriptionAction = useRestructureJobDescriptionAiAction();
 
   const [updateApplication, { loading: saving }] = useUpdateApplicationMutation(
     {
@@ -68,6 +70,7 @@ export function DescriptionEditor({
           disabled={saving}
           autofocus="end"
           fillHeight
+          aiActions={[restructureDescriptionAction]}
         />
       </div>
       <div className={cn("flex justify-end")}>

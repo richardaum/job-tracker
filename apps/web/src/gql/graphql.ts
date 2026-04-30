@@ -149,6 +149,7 @@ export type Mutation = {
   createApplicationWithAI: ApplicationType;
   deleteApplication: Scalars["Boolean"]["output"];
   deleteApplicationNote: Scalars["Boolean"]["output"];
+  deleteApplicationStageEvent: Scalars["Boolean"]["output"];
   deleteCompany: Scalars["Boolean"]["output"];
   removeApplicationTag: ApplicationType;
   updateApplication: ApplicationType;
@@ -172,6 +173,10 @@ export type MutationCreateApplicationWithAiArgs = {
 export type MutationDeleteApplicationArgs = { id: Scalars["ID"]["input"] };
 
 export type MutationDeleteApplicationNoteArgs = { id: Scalars["ID"]["input"] };
+
+export type MutationDeleteApplicationStageEventArgs = {
+  id: Scalars["ID"]["input"];
+};
 
 export type MutationDeleteCompanyArgs = { id: Scalars["ID"]["input"] };
 
@@ -223,6 +228,7 @@ export type Query = {
   generateApplicationNoteWithAI: Scalars["String"]["output"];
   generateCompanyDescription: Scalars["String"]["output"];
   me: UserType;
+  restructureJobDescriptionWithAI: Scalars["String"]["output"];
   rewriteTextWithAI: Scalars["String"]["output"];
 };
 
@@ -254,6 +260,10 @@ export type QueryGenerateApplicationNoteWithAiArgs = {
 
 export type QueryGenerateCompanyDescriptionArgs = {
   companyName: Scalars["String"]["input"];
+};
+
+export type QueryRestructureJobDescriptionWithAiArgs = {
+  text: Scalars["String"]["input"];
 };
 
 export type QueryRewriteTextWithAiArgs = { text: Scalars["String"]["input"] };
@@ -559,6 +569,15 @@ export type UpdateApplicationStageEventMutation = {
   };
 };
 
+export type DeleteApplicationStageEventMutationVariables = Exact<{
+  id: Scalars["ID"]["input"];
+}>;
+
+export type DeleteApplicationStageEventMutation = {
+  __typename?: "Mutation";
+  deleteApplicationStageEvent: boolean;
+};
+
 export type ApplicationNotesQueryVariables = Exact<{
   applicationId: Scalars["ID"]["input"];
 }>;
@@ -637,6 +656,15 @@ export type RewriteTextWithAiQueryVariables = Exact<{
 export type RewriteTextWithAiQuery = {
   __typename?: "Query";
   rewriteTextWithAI: string;
+};
+
+export type RestructureJobDescriptionWithAiQueryVariables = Exact<{
+  text: Scalars["String"]["input"];
+}>;
+
+export type RestructureJobDescriptionWithAiQuery = {
+  __typename?: "Query";
+  restructureJobDescriptionWithAI: string;
 };
 
 export type UpdateCompanyMutationVariables = Exact<{
@@ -1635,6 +1663,48 @@ export const UpdateApplicationStageEventDocument = {
   UpdateApplicationStageEventMutation,
   UpdateApplicationStageEventMutationVariables
 >;
+export const DeleteApplicationStageEventDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "DeleteApplicationStageEvent" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "id" } },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "deleteApplicationStageEvent" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "id" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "id" },
+                },
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  DeleteApplicationStageEventMutation,
+  DeleteApplicationStageEventMutationVariables
+>;
 export const ApplicationNotesDocument = {
   kind: "Document",
   definitions: [
@@ -1984,6 +2054,51 @@ export const RewriteTextWithAiDocument = {
 } as unknown as DocumentNode<
   RewriteTextWithAiQuery,
   RewriteTextWithAiQueryVariables
+>;
+export const RestructureJobDescriptionWithAiDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "query",
+      name: { kind: "Name", value: "RestructureJobDescriptionWithAi" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "text" } },
+          type: {
+            kind: "NonNullType",
+            type: {
+              kind: "NamedType",
+              name: { kind: "Name", value: "String" },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "restructureJobDescriptionWithAI" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "text" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "text" },
+                },
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  RestructureJobDescriptionWithAiQuery,
+  RestructureJobDescriptionWithAiQueryVariables
 >;
 export const UpdateCompanyDocument = {
   kind: "Document",

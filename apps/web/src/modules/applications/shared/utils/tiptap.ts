@@ -5,6 +5,27 @@ export const EMPTY_TIPTAP_DOC = JSON.stringify({
 
 type TipTapNode = { type?: string; text?: string; content?: TipTapNode[] };
 
+type PlainTextListMatch =
+  | { listType: "bulletList"; itemText: string }
+  | { listType: "orderedList"; itemText: string };
+
+function parsePlainTextListItem(line: string): PlainTextListMatch | null {
+  const trimmed = line.trim();
+  if (!trimmed) return null;
+
+  const bulletMatch = trimmed.match(/^[-*]\s+(.+)$/);
+  if (bulletMatch) {
+    return { listType: "bulletList", itemText: bulletMatch[1] };
+  }
+
+  const orderedMatch = trimmed.match(/^\d+[.)]\s+(.+)$/);
+  if (orderedMatch) {
+    return { listType: "orderedList", itemText: orderedMatch[1] };
+  }
+
+  return null;
+}
+
 function collectText(node: TipTapNode): string {
   if (node.type === "text" && typeof node.text === "string") {
     return node.text;
@@ -55,20 +76,58 @@ export function tipTapToPlainText(input: string | null | undefined): string {
 }
 
 export function plainTextToTipTap(input: string): string {
-  const paragraphs = input
-    .split("\n")
-    .map((line) => line.trimEnd())
-    .filter((line) => line.length > 0)
-    .map((line) => ({
+  const content: TipTapNode[] = [];
+  let openList: {
+    type: "bulletList" | "orderedList";
+    items: TipTapNode[];
+  } | null = null;
+
+  function flushOpenList() {
+    if (!openList || openList.items.length === 0) return;
+    content.push({ type: openList.type, content: openList.items });
+    openList = null;
+  }
+
+  for (const rawLine of input.split("\n")) {
+    const line = rawLine.trimEnd();
+    if (line.trim().length === 0) {
+      flushOpenList();
+      continue;
+    }
+
+    const parsedListItem = parsePlainTextListItem(line);
+    if (parsedListItem) {
+      if (!openList || openList.type !== parsedListItem.listType) {
+        flushOpenList();
+        openList = { type: parsedListItem.listType, items: [] };
+      }
+
+      openList.items.push({
+        type: "listItem",
+        content: [
+          {
+            type: "paragraph",
+            content: [{ type: "text", text: parsedListItem.itemText }],
+          },
+        ],
+      });
+      continue;
+    }
+
+    flushOpenList();
+    content.push({
       type: "paragraph",
       content: [{ type: "text", text: line }],
-    }));
+    });
+  }
 
-  if (paragraphs.length === 0) {
+  flushOpenList();
+
+  if (content.length === 0) {
     return EMPTY_TIPTAP_DOC;
   }
 
-  return JSON.stringify({ type: "doc", content: paragraphs });
+  return JSON.stringify({ type: "doc", content });
 }
 
 type TipTapDocument = { type: "doc"; content: TipTapNode[] };
