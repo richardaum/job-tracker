@@ -335,6 +335,7 @@ export type ApplicationsQuery = {
     companyId: string;
     description?: string | null;
     url?: string | null;
+    source?: ApplicationSource | null;
     salaryMinCents?: number | null;
     salaryMaxCents?: number | null;
     salaryCurrency?: string | null;
@@ -364,6 +365,7 @@ export type ApplicationQuery = {
     companyId: string;
     description?: string | null;
     url?: string | null;
+    source?: ApplicationSource | null;
     salaryMinCents?: number | null;
     salaryMaxCents?: number | null;
     salaryCurrency?: string | null;
@@ -395,6 +397,7 @@ export type CreateApplicationMutation = {
     companyId: string;
     description?: string | null;
     url?: string | null;
+    source?: ApplicationSource | null;
     salaryMinCents?: number | null;
     salaryMaxCents?: number | null;
     salaryCurrency?: string | null;
@@ -423,6 +426,7 @@ export type CreateApplicationWithAiMutation = {
     companyId: string;
     description?: string | null;
     url?: string | null;
+    source?: ApplicationSource | null;
     salaryMinCents?: number | null;
     salaryMaxCents?: number | null;
     salaryCurrency?: string | null;
@@ -482,6 +486,7 @@ export type UpdateApplicationMutation = {
     companyId: string;
     description?: string | null;
     url?: string | null;
+    source?: ApplicationSource | null;
     salaryMinCents?: number | null;
     salaryMaxCents?: number | null;
     salaryCurrency?: string | null;
@@ -810,6 +815,7 @@ export const ApplicationsDocument = {
                 },
                 { kind: "Field", name: { kind: "Name", value: "description" } },
                 { kind: "Field", name: { kind: "Name", value: "url" } },
+                { kind: "Field", name: { kind: "Name", value: "source" } },
                 {
                   kind: "Field",
                   name: { kind: "Name", value: "salaryMinCents" },
@@ -904,6 +910,7 @@ export const ApplicationDocument = {
                 },
                 { kind: "Field", name: { kind: "Name", value: "description" } },
                 { kind: "Field", name: { kind: "Name", value: "url" } },
+                { kind: "Field", name: { kind: "Name", value: "source" } },
                 {
                   kind: "Field",
                   name: { kind: "Name", value: "salaryMinCents" },
@@ -1004,6 +1011,7 @@ export const CreateApplicationDocument = {
                 },
                 { kind: "Field", name: { kind: "Name", value: "description" } },
                 { kind: "Field", name: { kind: "Name", value: "url" } },
+                { kind: "Field", name: { kind: "Name", value: "source" } },
                 {
                   kind: "Field",
                   name: { kind: "Name", value: "salaryMinCents" },
@@ -1095,6 +1103,7 @@ export const CreateApplicationWithAiDocument = {
                 },
                 { kind: "Field", name: { kind: "Name", value: "description" } },
                 { kind: "Field", name: { kind: "Name", value: "url" } },
+                { kind: "Field", name: { kind: "Name", value: "source" } },
                 {
                   kind: "Field",
                   name: { kind: "Name", value: "salaryMinCents" },
@@ -1328,6 +1337,7 @@ export const UpdateApplicationDocument = {
                 },
                 { kind: "Field", name: { kind: "Name", value: "description" } },
                 { kind: "Field", name: { kind: "Name", value: "url" } },
+                { kind: "Field", name: { kind: "Name", value: "source" } },
                 {
                   kind: "Field",
                   name: { kind: "Name", value: "salaryMinCents" },

@@ -337,6 +337,7 @@ export type ApplicationsQuery = {
     companyId: string;
     description?: string | null;
     url?: string | null;
+    source?: ApplicationSource | null;
     salaryMinCents?: number | null;
     salaryMaxCents?: number | null;
     salaryCurrency?: string | null;
@@ -366,6 +367,7 @@ export type ApplicationQuery = {
     companyId: string;
     description?: string | null;
     url?: string | null;
+    source?: ApplicationSource | null;
     salaryMinCents?: number | null;
     salaryMaxCents?: number | null;
     salaryCurrency?: string | null;
@@ -397,6 +399,7 @@ export type CreateApplicationMutation = {
     companyId: string;
     description?: string | null;
     url?: string | null;
+    source?: ApplicationSource | null;
     salaryMinCents?: number | null;
     salaryMaxCents?: number | null;
     salaryCurrency?: string | null;
@@ -425,6 +428,7 @@ export type CreateApplicationWithAiMutation = {
     companyId: string;
     description?: string | null;
     url?: string | null;
+    source?: ApplicationSource | null;
     salaryMinCents?: number | null;
     salaryMaxCents?: number | null;
     salaryCurrency?: string | null;
@@ -484,6 +488,7 @@ export type UpdateApplicationMutation = {
     companyId: string;
     description?: string | null;
     url?: string | null;
+    source?: ApplicationSource | null;
     salaryMinCents?: number | null;
     salaryMaxCents?: number | null;
     salaryCurrency?: string | null;
@@ -750,6 +755,7 @@ export const ApplicationsDocument = gql`
       }
       description
       url
+      source
       salaryMinCents
       salaryMaxCents
       salaryCurrency
@@ -825,6 +831,7 @@ export const ApplicationDocument = gql`
       }
       description
       url
+      source
       salaryMinCents
       salaryMaxCents
       salaryCurrency
@@ -901,6 +908,7 @@ export const CreateApplicationDocument = gql`
       }
       description
       url
+      source
       salaryMinCents
       salaryMaxCents
       salaryCurrency
@@ -954,6 +962,7 @@ export const CreateApplicationWithAiDocument = gql`
       }
       description
       url
+      source
       salaryMinCents
       salaryMaxCents
       salaryCurrency
@@ -1137,6 +1146,7 @@ export const UpdateApplicationDocument = gql`
       }
       description
       url
+      source
       salaryMinCents
       salaryMaxCents
       salaryCurrency

@@ -19,6 +19,7 @@ import NextLink from "next/link";
 import React from "react";
 
 import {
+  ApplicationSource,
   ApplicationStage,
   type ApplicationStageEventsQuery,
   SalaryPeriod,
@@ -35,6 +36,7 @@ import {
   formatStage,
   StatusBadge,
 } from "@/modules/applications/shared/components/StatusBadge";
+import { formatApplicationSourceLabel } from "@/modules/applications/shared/utils/applicationSourceLabel";
 import { ApplicationTags } from "@/modules/applications/shared/utils/ApplicationTags";
 import {
   formatCompensationLine,
@@ -50,6 +52,7 @@ export interface ApplicationCardApplication {
   company: { id: string; name: string; description?: string | null };
   description?: string | null;
   url?: string | null;
+  source?: ApplicationSource | null;
   salaryMinCents?: number | null;
   salaryMaxCents?: number | null;
   salaryCurrency?: string | null;
@@ -321,6 +324,16 @@ export function ApplicationCard({
               applicationStageEvents={applicationStageEvents}
               stageEventsRequested={stageEventsRequested}
             />
+            {app.source ? (
+              <>
+                <span className={cn("text-text-muted")} aria-hidden>
+                  ·
+                </span>
+                <Text as="span" size="sm" color="secondary">
+                  {formatApplicationSourceLabel(app.source)}
+                </Text>
+              </>
+            ) : null}
             {app.url ? (
               <>
                 <span className={cn("text-text-muted")} aria-hidden>

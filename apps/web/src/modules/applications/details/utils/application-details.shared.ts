@@ -1,4 +1,8 @@
-import { ApplicationStage, type SalaryPeriod } from "@/gql/hooks";
+import {
+  ApplicationSource,
+  ApplicationStage,
+  type SalaryPeriod,
+} from "@/gql/hooks";
 
 export interface ApplicationDetailsValues {
   id: string;
@@ -7,6 +11,7 @@ export interface ApplicationDetailsValues {
   company: { id: string; name: string; description?: string | null };
   description?: string | null;
   url?: string | null;
+  source?: ApplicationSource | null;
   salaryMinCents?: number | null;
   salaryMaxCents?: number | null;
   salaryCurrency?: string | null;

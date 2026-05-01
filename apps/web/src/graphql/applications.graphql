@@ -10,6 +10,7 @@ query Applications($filter: ApplicationQuickFilter, $company: String) {
     }
     description
     url
+    source
     salaryMinCents
     salaryMaxCents
     salaryCurrency
@@ -34,6 +35,7 @@ query Application($id: ID!) {
     }
     description
     url
+    source
     salaryMinCents
     salaryMaxCents
     salaryCurrency
@@ -58,6 +60,7 @@ mutation CreateApplication($input: CreateApplicationInput!) {
     }
     description
     url
+    source
     salaryMinCents
     salaryMaxCents
     salaryCurrency
@@ -79,6 +82,7 @@ mutation CreateApplicationWithAi($input: CreateApplicationWithAIInput!) {
     }
     description
     url
+    source
     salaryMinCents
     salaryMaxCents
     salaryCurrency
@@ -119,6 +123,7 @@ mutation UpdateApplication($id: ID!, $input: UpdateApplicationInput!) {
     }
     description
     url
+    source
     salaryMinCents
     salaryMaxCents
     salaryCurrency

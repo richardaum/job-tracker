@@ -6,17 +6,20 @@ import React from "react";
 import {
   ApplicationDocument,
   ApplicationsDocument,
+  ApplicationSource,
   useRemoveApplicationTagMutation,
   useUpdateApplicationMutation,
 } from "@/gql/hooks";
 import type { ApplicationDetailsValues } from "@/modules/applications/details/utils/application-details.shared";
 import { CompanyNameWithPopover } from "@/modules/applications/shared/components/CompanyNameWithPopover";
+import { formatApplicationSourceLabel } from "@/modules/applications/shared/utils/applicationSourceLabel";
 import { ApplicationTags } from "@/modules/applications/shared/utils/ApplicationTags";
 import { formatCompensationLine } from "@/modules/applications/shared/utils/compensationFormat";
 import { CompanyEditDialog } from "@/modules/companies/shared/components/CompanyEditDialog";
 
 import { CompensationEditDialog } from "./CompensationEditDialog";
 import { HoverEditableFieldRow } from "./HoverEditableFieldRow";
+import { SourceEditDialog } from "./SourceEditDialog";
 import { TagsEditDialog } from "./TagsEditDialog";
 import { TextFieldEditDialog } from "./TextFieldEditDialog";
 import { UrlFieldEditDialog } from "./UrlFieldEditDialog";
@@ -72,6 +75,17 @@ export function OverviewTabContent({
       onSuccess?.("Job URL updated.");
     } catch {
       onError?.("Could not update job URL.");
+    }
+  }
+
+  async function handleSaveSource(nextValue: ApplicationSource | null) {
+    try {
+      await updateApplication({
+        variables: { id: application.id, input: { source: nextValue } },
+      });
+      onSuccess?.("Source updated.");
+    } catch {
+      onError?.("Could not update source.");
     }
   }
 
@@ -142,6 +156,29 @@ export function OverviewTabContent({
             <UrlFieldEditDialog
               value={application.url}
               onSave={handleSaveUrl}
+            />
+          }
+        />
+      </div>
+
+      <div className={cn("max-w-full")}>
+        <HoverEditableFieldRow
+          label="Source"
+          content={
+            application.source ? (
+              <Text size="sm">
+                {formatApplicationSourceLabel(application.source)}
+              </Text>
+            ) : (
+              <Text size="sm" color="secondary">
+                Not set
+              </Text>
+            )
+          }
+          editControl={
+            <SourceEditDialog
+              value={application.source}
+              onSave={handleSaveSource}
             />
           }
         />
