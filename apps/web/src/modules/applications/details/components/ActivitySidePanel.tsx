@@ -1,16 +1,17 @@
-import React from "react";
-import NextLink from "next/link";
 import {
+  cn,
   Link,
   Tabs,
   TabsList,
   TabsTrigger,
   Tooltip,
-  cn,
 } from "@job-tracker/ui";
+import { ArrowSquareOutIcon } from "@phosphor-icons/react";
+import NextLink from "next/link";
+import React from "react";
+
 import { HistoryPanelTabsContent } from "./HistoryPanel";
 import { NotesPanelTabsContent } from "./NotesPanel";
-import { ArrowSquareOutIcon } from "@phosphor-icons/react";
 
 export function ActivitySidePanel({
   applicationId,

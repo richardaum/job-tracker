@@ -1,8 +1,9 @@
 "use client";
 
 import { useMemo } from "react";
-import { type TipTapAiAction } from "@/modules/ai/editor/tiptap-ai-actions";
+
 import { useApplicationNoteAiGenerator } from "@/modules/ai/actions/useApplicationNoteAiGenerator";
+import { type TipTapAiAction } from "@/modules/ai/editor/tiptap-ai-actions";
 
 interface UseImproveApplicationNoteAiActionArgs {
   applicationId: string;

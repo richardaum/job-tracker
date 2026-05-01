@@ -1,5 +1,6 @@
-import type { MigrationInterface, QueryRunner } from "typeorm";
 import { randomUUID } from "node:crypto";
+
+import type { MigrationInterface, QueryRunner } from "typeorm";
 
 export class CreateCompanies1749000000000 implements MigrationInterface {
   name = "CreateCompanies1749000000000";

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+
 import { mergeFinalWithInterimSegments } from "./useMergedTranscriptSegments";
 import { useSpeechRecognitionAutoRestart } from "./useSpeechRecognitionAutoRestart";
 

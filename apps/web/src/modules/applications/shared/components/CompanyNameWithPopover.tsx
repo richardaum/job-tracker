@@ -1,15 +1,17 @@
 "use client";
 
-import React from "react";
+import { cn, IconButton, Popover, Text } from "@job-tracker/ui";
 import { ArrowSquareOutIcon } from "@phosphor-icons/react";
-import { IconButton, Popover, Text, cn } from "@job-tracker/ui";
 import { useRouter } from "next/navigation";
+import React from "react";
+
 import { FieldEditTriggerButton } from "@/modules/applications/details/components/HoverEditableFieldRow";
-import { TipTapContent } from "./TipTapContent";
 import {
   CompanyEditDialog,
   type CompanyEditDialogApplication,
 } from "@/modules/companies/shared/components/CompanyEditDialog";
+
+import { TipTapContent } from "./TipTapContent";
 
 interface CompanyNameWithPopoverProps {
   application: CompanyEditDialogApplication;

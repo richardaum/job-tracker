@@ -1,9 +1,8 @@
-import { Injectable, OnModuleInit } from "@nestjs/common";
-import { DataSource } from "typeorm";
-import type { Pool } from "pg";
-import type { PostgresDriver } from "typeorm/driver/postgres/PostgresDriver";
-
 import { DatabasePoolInterceptor } from "@api/observability/database-pool.interceptor";
+import { Injectable, OnModuleInit } from "@nestjs/common";
+import type { Pool } from "pg";
+import { DataSource } from "typeorm";
+import type { PostgresDriver } from "typeorm/driver/postgres/PostgresDriver";
 
 @Injectable()
 export class DatabasePoolHookService implements OnModuleInit {

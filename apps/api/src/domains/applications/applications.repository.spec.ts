@@ -1,14 +1,13 @@
-import { describe, it, expect, beforeAll, afterAll } from "vitest";
-import type { DataSource } from "typeorm";
-
 import { ApplicationEntity } from "@api/database/entities/application.entity";
 import { ApplicationStageEventEntity } from "@api/database/entities/application-stage-event.entity";
 import { CompanyEntity } from "@api/database/entities/company.entity";
 import { UserEntity } from "@api/database/entities/user.entity";
 import { resetPublicSchemaAndMigrate } from "@api/database/test-db";
+import type { DataSource } from "typeorm";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
-import { ApplicationRepository } from "./applications.repository";
 import { ApplicationQuickFilterEnum } from "./application-quick-filter.enum";
+import { ApplicationRepository } from "./applications.repository";
 
 const DATABASE_URL = process.env.DATABASE_URL;
 const hasDb = !!DATABASE_URL;

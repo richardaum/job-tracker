@@ -1,4 +1,5 @@
 import { useSearchParams } from "next/navigation";
+
 import { ApplicationQuickFilter } from "@/gql/hooks";
 
 const PARAM_TO_FILTER: Record<string, ApplicationQuickFilter> = {

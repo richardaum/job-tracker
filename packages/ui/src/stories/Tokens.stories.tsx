@@ -1,6 +1,6 @@
-import React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
 import { cn } from "@ui/lib/cn";
+import React from "react";
 
 type ColorToken = { name: string; cssVar: string };
 

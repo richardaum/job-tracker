@@ -1,7 +1,7 @@
 "use client";
 
-import React from "react";
 import { ConfirmDialog } from "@job-tracker/ui";
+import React from "react";
 
 interface NoteDeleteConfirmDialogProps {
   open: boolean;

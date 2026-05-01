@@ -1,11 +1,11 @@
-import { describe, it, expect, beforeAll, afterAll } from "vitest";
-import type { DataSource } from "typeorm";
-
 import { ApplicationEntity } from "@api/database/entities/application.entity";
 import { ApplicationNoteEntity } from "@api/database/entities/application-note.entity";
 import { CompanyEntity } from "@api/database/entities/company.entity";
 import { UserEntity } from "@api/database/entities/user.entity";
 import { resetPublicSchemaAndMigrate } from "@api/database/test-db";
+import type { DataSource } from "typeorm";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
+
 import { NoteRepository } from "./notes.repository";
 
 const DATABASE_URL = process.env.DATABASE_URL;

@@ -1,7 +1,9 @@
 import "reflect-metadata";
-import { describe, it, expect } from "vitest";
-import { JwtAuthGuard } from "./jwt-auth.guard";
+
+import { describe, expect, it } from "vitest";
+
 import { JwtStrategy } from "./jwt.strategy";
+import { JwtAuthGuard } from "./jwt-auth.guard";
 
 describe("JwtAuthGuard", () => {
   it("is defined", () => {

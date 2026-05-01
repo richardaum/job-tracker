@@ -1,20 +1,21 @@
 "use client";
 
-import React, { useState } from "react";
 import {
   Button,
+  cn,
   Combobox,
   Dialog,
   FormField,
   Input,
   Stack,
-  cn,
 } from "@job-tracker/ui";
+import React, { useState } from "react";
+
 import {
+  ApplicationsDocument,
+  useCompaniesQuery,
   useCreateApplicationMutation,
   useUpdateApplicationMutation,
-  useCompaniesQuery,
-  ApplicationsDocument,
 } from "@/gql/hooks";
 
 interface ApplicationValues {

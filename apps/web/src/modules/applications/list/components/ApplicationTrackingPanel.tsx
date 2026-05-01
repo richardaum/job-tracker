@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
 import {
   Button,
+  cn,
   FormField,
   IconButton,
   Input,
@@ -10,12 +10,13 @@ import {
   Select,
   Stack,
   Text,
-  cn,
 } from "@job-tracker/ui";
+import React, { useMemo, useState } from "react";
+
 import {
   ApplicationStage,
-  type ApplicationStageEventsQuery,
   ApplicationStageEventsDocument,
+  type ApplicationStageEventsQuery,
   useCreateApplicationStageEventMutation,
 } from "@/gql/hooks";
 import {

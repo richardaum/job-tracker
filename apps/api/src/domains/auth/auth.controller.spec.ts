@@ -1,15 +1,17 @@
 import "reflect-metadata";
-import { describe, it, expect, beforeAll, afterAll } from "vitest";
-import { Test } from "@nestjs/testing";
-import type { INestApplication, ExecutionContext } from "@nestjs/common";
+
+import type { User } from "@api/domains/users/users.schema";
+import { UserService } from "@api/domains/users/users.service";
+import { WEB_URL } from "@api/env/server";
+import type { ExecutionContext, INestApplication } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
+import { Test } from "@nestjs/testing";
 import cookieParser from "cookie-parser";
 import request from "supertest";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
+
 import { AuthController } from "./auth.controller";
 import { AuthService } from "./auth.service";
-import { UserService } from "@api/domains/users/users.service";
-import type { User } from "@api/domains/users/users.schema";
-import { WEB_URL } from "@api/env/server";
 
 const mockUser: User = {
   id: "user-1",

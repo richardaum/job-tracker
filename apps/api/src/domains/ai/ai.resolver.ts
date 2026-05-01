@@ -1,8 +1,9 @@
-import { UseGuards } from "@nestjs/common";
-import { Args, Query, Resolver } from "@nestjs/graphql";
 import { JwtAuthGuard } from "@api/domains/auth/jwt-auth.guard";
 import { Roles } from "@api/domains/auth/roles.decorator";
 import { RolesGuard } from "@api/domains/auth/roles.guard";
+import { UseGuards } from "@nestjs/common";
+import { Args, Query, Resolver } from "@nestjs/graphql";
+
 import { AiService } from "./ai.service";
 
 @Resolver()

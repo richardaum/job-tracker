@@ -1,4 +1,4 @@
-import { useMeQuery, type MeQuery } from "@/gql/hooks";
+import { type MeQuery, useMeQuery } from "@/gql/hooks";
 
 export type CurrentUser = NonNullable<MeQuery["me"]>;
 

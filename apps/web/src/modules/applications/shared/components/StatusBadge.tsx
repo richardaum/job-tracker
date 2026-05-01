@@ -1,9 +1,10 @@
 "use client";
 
-import React from "react";
-import { Badge, Tooltip, cn } from "@job-tracker/ui";
-import { ApplicationStage } from "@/gql/hooks";
+import { Badge, cn, Tooltip } from "@job-tracker/ui";
 import { InfoIcon } from "@phosphor-icons/react";
+import React from "react";
+
+import { ApplicationStage } from "@/gql/hooks";
 
 function getStageBadgeIntent(stage: ApplicationStage) {
   switch (stage) {

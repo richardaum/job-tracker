@@ -1,9 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react";
+import { cn } from "@ui/lib/cn";
+
 import { Button } from "../Button/Button";
-import { Dialog } from "./Dialog";
 import { Stack } from "../Stack/Stack";
 import { Text } from "../Typography/Text";
-import { cn } from "@ui/lib/cn";
+import { Dialog } from "./Dialog";
 
 const meta: Meta<typeof Dialog> = {
   title: "Components/Dialog",

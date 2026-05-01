@@ -1,5 +1,3 @@
-import React from "react";
-import * as RadixToast from "@radix-ui/react-toast";
 import {
   CheckCircleIcon,
   InfoIcon,
@@ -7,7 +5,9 @@ import {
   XCircleIcon,
   XIcon,
 } from "@phosphor-icons/react";
+import * as RadixToast from "@radix-ui/react-toast";
 import { cn } from "@ui/lib/cn";
+import React from "react";
 
 export type ToastIntent = "info" | "success" | "warning" | "error";
 

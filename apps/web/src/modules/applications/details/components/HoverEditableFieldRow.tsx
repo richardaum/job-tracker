@@ -1,6 +1,6 @@
-import React from "react";
+import { cn, IconButton, Text } from "@job-tracker/ui";
 import { PencilSimpleIcon } from "@phosphor-icons/react";
-import { IconButton, Text, cn } from "@job-tracker/ui";
+import React from "react";
 
 type FieldEditTriggerButtonProps = Omit<
   React.ComponentProps<typeof IconButton>,

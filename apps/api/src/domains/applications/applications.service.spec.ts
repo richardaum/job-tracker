@@ -1,16 +1,17 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { NotFoundException } from "@nestjs/common";
-import { ApplicationService } from "./applications.service";
-import { ApplicationRepository } from "./applications.repository";
-import { Application } from "./applications.schema";
-import { ApplicationStageEvent } from "./application-stage-events.schema";
-import { ApplicationStageEnum } from "./application-stage.enum";
-import { CompanyService } from "@api/domains/companies/companies.service";
-import { CompensationService } from "./compensation.service";
-import { TagService } from "./tag.service";
 import { ApplicationAiService } from "@api/domains/application-ai/application-ai.service";
+import { CompanyService } from "@api/domains/companies/companies.service";
 import { CompanyAiService } from "@api/domains/company-ai/company-ai.service";
 import { NoteService } from "@api/domains/notes/notes.service";
+import { NotFoundException } from "@nestjs/common";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+import { ApplicationStageEnum } from "./application-stage.enum";
+import { ApplicationStageEvent } from "./application-stage-events.schema";
+import { ApplicationRepository } from "./applications.repository";
+import { Application } from "./applications.schema";
+import { ApplicationService } from "./applications.service";
+import { CompensationService } from "./compensation.service";
+import { TagService } from "./tag.service";
 
 const makeApp = (overrides: Partial<Application> = {}): Application =>
   ({

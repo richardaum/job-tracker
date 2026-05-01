@@ -1,19 +1,6 @@
 "use client";
 
-import { ToolbarButton } from "@/modules/applications/details/components/ToolbarButton";
-import { type TipTapAiAction } from "@/modules/ai/editor/tiptap-ai-actions";
-import {
-  useTipTapEditorHandle,
-  type TipTapEditorHandle,
-} from "@/modules/applications/details/hooks/useTipTapEditorHandle";
-import { useVoiceToText } from "@/modules/applications/details/hooks/useVoiceToText";
-import { useHasVerticalOverflow } from "@/modules/applications/shared/hooks/useHasVerticalOverflow";
-import {
-  normalizeTipTapDocument,
-  parseTipTapDocument,
-  tipTapToPlainText,
-} from "@/modules/applications/shared/utils/tiptap";
-import { DropdownMenu, DropdownMenuItem, Tooltip, cn } from "@job-tracker/ui";
+import { cn, DropdownMenu, DropdownMenuItem, Tooltip } from "@job-tracker/ui";
 import {
   ArrowsOutSimpleIcon,
   BroomIcon,
@@ -36,6 +23,20 @@ import Placeholder from "@tiptap/extension-placeholder";
 import { EditorContent, useEditor, useEditorState } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import React from "react";
+
+import { type TipTapAiAction } from "@/modules/ai/editor/tiptap-ai-actions";
+import { ToolbarButton } from "@/modules/applications/details/components/ToolbarButton";
+import {
+  type TipTapEditorHandle,
+  useTipTapEditorHandle,
+} from "@/modules/applications/details/hooks/useTipTapEditorHandle";
+import { useVoiceToText } from "@/modules/applications/details/hooks/useVoiceToText";
+import { useHasVerticalOverflow } from "@/modules/applications/shared/hooks/useHasVerticalOverflow";
+import {
+  normalizeTipTapDocument,
+  parseTipTapDocument,
+  tipTapToPlainText,
+} from "@/modules/applications/shared/utils/tiptap";
 
 export type { TipTapEditorHandle } from "@/modules/applications/details/hooks/useTipTapEditorHandle";
 

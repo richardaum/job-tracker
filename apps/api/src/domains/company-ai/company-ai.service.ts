@@ -1,10 +1,10 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
-import { OPENAI_MODEL } from "@api/env/server";
 import { OpenAIService } from "@api/domains/application-ai/openai.service";
 import {
   isTipTapDocumentString,
   plainTextToTipTap,
 } from "@api/domains/shared/tiptap.util";
+import { OPENAI_MODEL } from "@api/env/server";
+import { BadRequestException, Injectable } from "@nestjs/common";
 
 type GenerateCompanyDescriptionInput = { companyName: string };
 

@@ -1,11 +1,12 @@
+import { isTipTapDocumentString } from "@api/domains/shared/tiptap.util";
 import {
   BadRequestException,
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
+
 import { CompanyRepository } from "./companies.repository";
 import { Company, NewCompany } from "./companies.schema";
-import { isTipTapDocumentString } from "@api/domains/shared/tiptap.util";
 
 @Injectable()
 export class CompanyService {

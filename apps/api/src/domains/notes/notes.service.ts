@@ -1,13 +1,14 @@
+import { NoteAiService } from "@api/domains/note-ai/note-ai.service";
+import { isTipTapDocumentString } from "@api/domains/shared/tiptap.util";
 import {
   BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
-import { isTipTapDocumentString } from "@api/domains/shared/tiptap.util";
+
 import { NoteRepository } from "./notes.repository";
 import { Note } from "./notes.schema";
-import { NoteAiService } from "@api/domains/note-ai/note-ai.service";
 
 type CreateNoteDto = { applicationId: string; content: string };
 

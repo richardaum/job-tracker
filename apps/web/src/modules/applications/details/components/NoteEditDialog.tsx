@@ -1,10 +1,12 @@
 "use client";
 
+import { Button, cn, Dialog, Stack } from "@job-tracker/ui";
 import React, { useMemo } from "react";
-import { Button, Dialog, Stack, cn } from "@job-tracker/ui";
+
 import { useImproveApplicationNoteAiAction } from "@/modules/ai/actions/useImproveApplicationNoteAiAction";
 import { useRewriteTextAiAction } from "@/modules/ai/actions/useRewriteTextAiAction";
 import { tipTapToPlainText } from "@/modules/applications/shared/utils/tiptap";
+
 import { TipTapEditor } from "./TipTapEditor";
 
 interface EditableNote {

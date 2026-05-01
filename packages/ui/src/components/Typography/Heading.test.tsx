@@ -1,8 +1,9 @@
-import React from "react";
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
-import { Heading } from "./Heading";
 import { cn } from "@ui/lib/cn";
+import React from "react";
+import { describe, expect, it } from "vitest";
+
+import { Heading } from "./Heading";
 
 describe("Heading", () => {
   it("renders as h2 by default", () => {

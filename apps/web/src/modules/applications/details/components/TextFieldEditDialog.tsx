@@ -1,7 +1,8 @@
 "use client";
 
+import { Button, cn, Dialog, FormField, Input, Stack } from "@job-tracker/ui";
 import React, { useState } from "react";
-import { Button, Dialog, FormField, Input, Stack, cn } from "@job-tracker/ui";
+
 import { FieldEditTriggerButton } from "./HoverEditableFieldRow";
 
 interface TextFieldEditDialogProps {

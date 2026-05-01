@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { readdirSync, statSync, existsSync } from "node:fs";
+import { existsSync, readdirSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 
 const root = process.cwd();

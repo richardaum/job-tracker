@@ -1,7 +1,7 @@
 "use client";
 
-import { useMemo } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
+import { useMemo } from "react";
 
 function sanitizeReturnTo(value: string | null): string {
   if (!value || !value.startsWith("/")) {

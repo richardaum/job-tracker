@@ -1,5 +1,6 @@
-import type { Meta, StoryObj } from "@storybook/react";
 import { DotsThreeOutlineVertical } from "@phosphor-icons/react";
+import type { Meta, StoryObj } from "@storybook/react";
+
 import { IconButton } from "../IconButton/IconButton";
 import {
   DropdownMenu,

@@ -1,9 +1,10 @@
-import { describe, it, expect, beforeEach } from "vitest";
 import { BadRequestException } from "@nestjs/common";
-import { CompensationService } from "./compensation.service";
-import { TagService } from "./tag.service";
-import { SalaryPeriodEnum } from "./salary-period.enum";
+import { beforeEach, describe, expect, it } from "vitest";
+
 import { Application } from "./applications.schema";
+import { CompensationService } from "./compensation.service";
+import { SalaryPeriodEnum } from "./salary-period.enum";
+import { TagService } from "./tag.service";
 
 describe("Compensation and Tag logic", () => {
   let compensationService: CompensationService;

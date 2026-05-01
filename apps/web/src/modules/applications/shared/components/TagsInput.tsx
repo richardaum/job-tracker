@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useRef, useState } from "react";
-import { Tooltip, cn } from "@job-tracker/ui";
+import { cn, Tooltip } from "@job-tracker/ui";
 import { XIcon } from "@phosphor-icons/react";
+import React, { useRef, useState } from "react";
 
 export interface TagWithMetadata {
   label: string;

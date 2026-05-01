@@ -1,4 +1,4 @@
-import { mkdir, rm, symlink, lstat } from "node:fs/promises";
+import { lstat, mkdir, rm, symlink } from "node:fs/promises";
 import path from "node:path";
 
 const repoRoot = process.cwd();

@@ -1,13 +1,14 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { NoteAiService } from "@api/domains/note-ai/note-ai.service";
 import {
   BadRequestException,
   ConflictException,
   NotFoundException,
 } from "@nestjs/common";
-import { NoteService } from "./notes.service";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
 import { NoteRepository } from "./notes.repository";
 import type { Note } from "./notes.schema";
-import { NoteAiService } from "@api/domains/note-ai/note-ai.service";
+import { NoteService } from "./notes.service";
 
 const makeNote = (overrides: Partial<Note> = {}): Note =>
   ({

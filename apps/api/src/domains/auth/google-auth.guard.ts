@@ -1,7 +1,8 @@
+import { getSafeReturnTo } from "@api/domains/auth/auth-return-to.util";
 import { ExecutionContext, Injectable } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
 import type { Request } from "express";
-import { getSafeReturnTo } from "@api/domains/auth/auth-return-to.util";
+
 import { DevAuthBypassService } from "./dev-auth-bypass.service";
 
 @Injectable()

@@ -1,4 +1,5 @@
-import { Injectable, BadRequestException } from "@nestjs/common";
+import { BadRequestException, Injectable } from "@nestjs/common";
+
 import { Application, NewApplication } from "./applications.schema";
 import { SalaryPeriodEnum } from "./salary-period.enum";
 

@@ -1,5 +1,6 @@
 import { renderHook } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
+
 import { useAuthReturnTo } from "./useAuthReturnTo";
 
 const usePathnameMock = vi.fn();

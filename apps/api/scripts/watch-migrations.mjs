@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
+import { spawn } from "node:child_process";
 import { watch } from "node:fs";
 import { resolve } from "node:path";
-import { spawn } from "node:child_process";
 
 const migrationsDir = resolve(process.cwd(), "src/database/migrations");
 

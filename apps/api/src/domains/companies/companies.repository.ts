@@ -1,8 +1,9 @@
+import { ApplicationEntity } from "@api/database/entities/application.entity";
+import { CompanyEntity } from "@api/database/entities/company.entity";
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { CompanyEntity } from "@api/database/entities/company.entity";
-import { ApplicationEntity } from "@api/database/entities/application.entity";
+
 import { Company, NewCompany } from "./companies.schema";
 
 @Injectable()

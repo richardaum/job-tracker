@@ -1,9 +1,9 @@
 import { randomUUID } from "node:crypto";
+
+import { UserEntity } from "@api/database/entities/user.entity";
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-
-import { UserEntity } from "@api/database/entities/user.entity";
 
 import type { NewUser, User } from "./users.schema";
 

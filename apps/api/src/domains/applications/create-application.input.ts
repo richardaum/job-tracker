@@ -1,4 +1,5 @@
-import { InputType, Field, Int, ID } from "@nestjs/graphql";
+import { Field, ID, InputType, Int } from "@nestjs/graphql";
+
 import { SalaryPeriodEnum } from "./salary-period.enum";
 
 @InputType()

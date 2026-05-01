@@ -1,6 +1,7 @@
-import React from "react";
-import { Label } from "../Label/Label";
 import { cn } from "@ui/lib/cn";
+import React from "react";
+
+import { Label } from "../Label/Label";
 
 export interface FormFieldProps {
   label: string;

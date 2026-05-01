@@ -1,7 +1,7 @@
-import React from "react";
 import { CaretDownIcon } from "@phosphor-icons/react";
 import * as RadixSelect from "@radix-ui/react-select";
 import { cn } from "@ui/lib/cn";
+import React from "react";
 
 export interface SelectOption {
   label: string;

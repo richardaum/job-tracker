@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
-import { Button } from "../Button/Button";
+
 import type { ButtonIntent } from "../Button/Button";
+import { Button } from "../Button/Button";
 import { Dialog } from "../Dialog/Dialog";
 import { Stack } from "../Stack/Stack";
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+
 import { useRewriteTextWithAiLazyQuery } from "@/gql/hooks";
 import { type TipTapAiAction } from "@/modules/ai/editor/tiptap-ai-actions";
 

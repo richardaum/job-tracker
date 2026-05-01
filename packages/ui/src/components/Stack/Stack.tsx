@@ -1,5 +1,5 @@
-import React from "react";
 import { cn } from "@ui/lib/cn";
+import React from "react";
 
 type Direction = "row" | "column";
 type Gap = "xs" | "sm" | "md" | "lg";

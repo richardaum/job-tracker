@@ -1,6 +1,7 @@
+import { fireEvent, render, screen } from "@testing-library/react";
 import React from "react";
-import { render, screen, fireEvent } from "@testing-library/react";
-import { describe, expect, it, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
+
 import { ThemeProvider, useTheme } from "./ThemeProvider";
 
 function ThemeDisplay() {

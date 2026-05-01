@@ -1,11 +1,11 @@
 import type { DataSourceOptions } from "typeorm";
 
-import { migrations } from "./migrations";
 import { ApplicationEntity } from "./entities/application.entity";
 import { ApplicationNoteEntity } from "./entities/application-note.entity";
 import { ApplicationStageEventEntity } from "./entities/application-stage-event.entity";
-import { UserEntity } from "./entities/user.entity";
 import { CompanyEntity } from "./entities/company.entity";
+import { UserEntity } from "./entities/user.entity";
+import { migrations } from "./migrations";
 
 export const apiEntities = [
   UserEntity,

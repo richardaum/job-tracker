@@ -1,7 +1,7 @@
-import { Injectable, Logger } from "@nestjs/common";
+import type { User } from "@api/domains/users/users.schema";
 import { UserService } from "@api/domains/users/users.service";
 import { AUTH_BYPASS_ENABLED, DEV_AUTH_BYPASS_EMAIL } from "@api/env/server";
-import type { User } from "@api/domains/users/users.schema";
+import { Injectable, Logger } from "@nestjs/common";
 
 @Injectable()
 export class DevAuthBypassService {

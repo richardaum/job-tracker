@@ -1,5 +1,5 @@
-import React from "react";
 import { cn } from "@ui/lib/cn";
+import React from "react";
 
 export type HeadingLevel = "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
 export type HeadingSize = "4xl" | "3xl" | "2xl" | "xl" | "lg" | "base";

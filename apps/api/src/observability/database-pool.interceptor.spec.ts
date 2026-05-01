@@ -1,6 +1,7 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { Logger } from "@nestjs/common";
 import type { Pool, PoolClient } from "pg";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
 import { DatabasePoolInterceptor } from "./database-pool.interceptor";
 import { DATABASE_POOL_SLOW_QUERY_WARN_MS } from "./request-metrics.constants";
 import { RequestMetricsContext } from "./request-metrics.context";

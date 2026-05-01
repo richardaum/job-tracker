@@ -1,6 +1,6 @@
+import { cn } from "@ui/lib/cn";
 import React, { useMemo } from "react";
 
-import { cn } from "@ui/lib/cn";
 import { AnchoredCombobox } from "../Combobox/AnchoredCombobox";
 import { Text } from "../Typography/Text";
 

@@ -1,4 +1,3 @@
-import React from "react";
 import {
   CheckCircleIcon,
   InfoIcon,
@@ -6,6 +5,7 @@ import {
   XCircleIcon,
 } from "@phosphor-icons/react";
 import { cn } from "@ui/lib/cn";
+import React from "react";
 
 export type AlertIntent = "info" | "success" | "warning" | "error";
 

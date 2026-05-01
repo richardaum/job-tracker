@@ -1,8 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/react";
+import { cn } from "@ui/lib/cn";
 import React from "react";
+
 import { Heading } from "./Heading";
 import { Text } from "./Text";
-import { cn } from "@ui/lib/cn";
 
 const meta: Meta = {
   title: "Foundations/Typography",

@@ -1,5 +1,7 @@
 import React from "react";
+
 import type { ApplicationDetailsValues } from "@/modules/applications/details/utils/application-details.shared";
+
 import { DescriptionEditor } from "./DescriptionEditor";
 
 export function DescriptionTabContent({

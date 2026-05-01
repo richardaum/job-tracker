@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
+
 import { staticPageMetadata } from "@/app/metadata";
 import { serverEnv } from "@/env/server";
 

@@ -1,10 +1,11 @@
 "use client";
 
-import React from "react";
 import { ConfirmDialog } from "@job-tracker/ui";
+import React from "react";
+
 import {
-  useDeleteApplicationMutation,
   ApplicationsDocument,
+  useDeleteApplicationMutation,
 } from "@/gql/hooks";
 
 interface DeleteApplicationDialogProps {

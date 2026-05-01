@@ -1,10 +1,9 @@
-import { describe, it, expect, beforeAll, afterAll } from "vitest";
-
+import { UserEntity } from "@api/database/entities/user.entity";
 import { resetPublicSchemaAndMigrate } from "@api/database/test-db";
 import type { DataSource } from "typeorm";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { UserRepository } from "./users.repository";
-import { UserEntity } from "@api/database/entities/user.entity";
 
 const DATABASE_URL = process.env.DATABASE_URL;
 const hasDb = !!DATABASE_URL;

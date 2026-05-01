@@ -1,8 +1,9 @@
-import React from "react";
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
-import { Text } from "./Text";
 import { cn } from "@ui/lib/cn";
+import React from "react";
+import { describe, expect, it } from "vitest";
+
+import { Text } from "./Text";
 
 describe("Text", () => {
   it("renders as p by default", () => {

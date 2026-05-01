@@ -1,5 +1,7 @@
-import { type SalaryPeriod } from "@/gql/hooks";
 import { cn } from "@job-tracker/ui";
+
+import { type SalaryPeriod } from "@/gql/hooks";
+
 import { formatSalaryPeriodChip } from "./compensationFormat";
 
 export function CompensationRow({

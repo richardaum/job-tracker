@@ -1,3 +1,7 @@
+import { getSafeReturnTo } from "@api/domains/auth/auth-return-to.util";
+import { GoogleAuthGuard } from "@api/domains/auth/google-auth.guard";
+import type { User } from "@api/domains/users/users.schema";
+import { WEB_URL } from "@api/env/server";
 import {
   Controller,
   Get,
@@ -9,11 +13,8 @@ import {
   UseGuards,
 } from "@nestjs/common";
 import type { Request, Response } from "express";
+
 import { AuthService } from "./auth.service";
-import type { User } from "@api/domains/users/users.schema";
-import { WEB_URL } from "@api/env/server";
-import { GoogleAuthGuard } from "@api/domains/auth/google-auth.guard";
-import { getSafeReturnTo } from "@api/domains/auth/auth-return-to.util";
 import { DevAuthBypassService } from "./dev-auth-bypass.service";
 
 const COOKIE_BASE = { httpOnly: true, sameSite: "lax" as const, path: "/" };

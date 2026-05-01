@@ -1,7 +1,7 @@
 "use client";
 
+import { cn, Tooltip } from "@job-tracker/ui";
 import React from "react";
-import { Tooltip, cn } from "@job-tracker/ui";
 
 export interface ToolbarButtonProps {
   label: React.ReactNode;

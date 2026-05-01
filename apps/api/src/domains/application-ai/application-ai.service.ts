@@ -1,7 +1,8 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
-import { SalaryPeriodEnum } from "@api/domains/applications/salary-period.enum";
 import { type AiExtractionFieldInput } from "@api/domains/applications/create-application-with-ai.input";
+import { SalaryPeriodEnum } from "@api/domains/applications/salary-period.enum";
 import { OPENAI_MODEL } from "@api/env/server";
+import { BadRequestException, Injectable } from "@nestjs/common";
+
 import { OpenAIService } from "./openai.service";
 
 type GenerateDraftInput = { prompt: string; fields: AiExtractionFieldInput[] };

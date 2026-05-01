@@ -1,11 +1,12 @@
-import { Query, Resolver } from "@nestjs/graphql";
-import { UseGuards, UnauthorizedException } from "@nestjs/common";
-import { JwtAuthGuard } from "./jwt-auth.guard";
-import { RolesGuard } from "./roles.guard";
-import { Roles } from "./roles.decorator";
-import { CurrentUser } from "./current-user.decorator";
-import { UserService } from "@api/domains/users/users.service";
 import { UserType } from "@api/domains/users/user.type";
+import { UserService } from "@api/domains/users/users.service";
+import { UnauthorizedException, UseGuards } from "@nestjs/common";
+import { Query, Resolver } from "@nestjs/graphql";
+
+import { CurrentUser } from "./current-user.decorator";
+import { JwtAuthGuard } from "./jwt-auth.guard";
+import { Roles } from "./roles.decorator";
+import { RolesGuard } from "./roles.guard";
 
 @Resolver()
 export class AuthResolver {

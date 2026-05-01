@@ -1,8 +1,8 @@
 import type { StorybookConfig } from "@storybook/react-vite";
-import { mergeConfig } from "vite";
 import tailwindcss from "@tailwindcss/vite";
 import path from "path";
 import { fileURLToPath } from "url";
+import { mergeConfig } from "vite";
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 

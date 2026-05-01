@@ -1,9 +1,11 @@
 import "reflect-metadata";
-import { describe, it, expect, beforeEach } from "vitest";
+
+import type { User } from "@api/domains/users/users.schema";
 import { JwtService } from "@nestjs/jwt";
 import * as jwt from "jsonwebtoken";
+import { beforeEach, describe, expect, it } from "vitest";
+
 import { AuthService } from "./auth.service";
-import type { User } from "@api/domains/users/users.schema";
 
 const mockUser: User = {
   id: "user-123",

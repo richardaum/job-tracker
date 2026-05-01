@@ -1,19 +1,20 @@
+import * as Menu from "@radix-ui/react-menu";
+import { cn } from "@ui/lib/cn";
+import { returnComboboxFocusToInputOnFirstItemArrowUp } from "@ui/lib/focusRadixMenuItem";
+import { useMenuAnchoredCombobox } from "@ui/lib/menuAnchoredCombobox";
 import React, {
   createContext,
-  useCallback,
-  useContext,
-  useMemo,
-  useState,
   type Dispatch,
   type KeyboardEvent,
   type ReactNode,
   type RefObject,
   type SetStateAction,
+  useCallback,
+  useContext,
+  useMemo,
+  useState,
 } from "react";
-import * as Menu from "@radix-ui/react-menu";
-import { cn } from "@ui/lib/cn";
-import { returnComboboxFocusToInputOnFirstItemArrowUp } from "@ui/lib/focusRadixMenuItem";
-import { useMenuAnchoredCombobox } from "@ui/lib/menuAnchoredCombobox";
+
 import type { InputProps } from "../Input/Input";
 import { Input as TextInput } from "../Input/Input";
 

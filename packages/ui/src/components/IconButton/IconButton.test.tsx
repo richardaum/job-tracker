@@ -1,7 +1,8 @@
-import React from "react";
 import { Bell } from "@phosphor-icons/react";
 import { fireEvent, render, screen } from "@testing-library/react";
+import React from "react";
 import { describe, expect, it, vi } from "vitest";
+
 import { IconButton } from "./IconButton";
 
 describe("IconButton", () => {

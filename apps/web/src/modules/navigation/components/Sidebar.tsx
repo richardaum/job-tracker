@@ -1,18 +1,19 @@
 "use client";
 
-import React, { useState } from "react";
-import Image from "next/image";
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { Button, cn, Text } from "@job-tracker/ui";
 import {
-  BuildingsIcon,
   BriefcaseIcon,
+  BuildingsIcon,
   GearIcon,
   MagnifyingGlassIcon,
   QuestionIcon,
   SignOutIcon,
 } from "@phosphor-icons/react";
-import { Button, Text, cn } from "@job-tracker/ui";
+import Image from "next/image";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import React, { useState } from "react";
+
 import { NEXT_PUBLIC_API_URL } from "@/env/client";
 import type { CurrentUser } from "@/hooks/useCurrentUser";
 import { ObfuscatedText } from "@/modules/navigation/components/ObfuscatedText";

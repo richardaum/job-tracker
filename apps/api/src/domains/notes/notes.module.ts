@@ -1,14 +1,14 @@
-import { Module } from "@nestjs/common";
-import { TypeOrmModule } from "@nestjs/typeorm";
-
+import { DatabaseModule } from "@api/database/database.module";
 import { ApplicationEntity } from "@api/database/entities/application.entity";
 import { ApplicationNoteEntity } from "@api/database/entities/application-note.entity";
 import { AuthModule } from "@api/domains/auth/auth.module";
-import { DatabaseModule } from "@api/database/database.module";
+import { NoteAiModule } from "@api/domains/note-ai/note-ai.module";
+import { Module } from "@nestjs/common";
+import { TypeOrmModule } from "@nestjs/typeorm";
+
 import { NoteRepository } from "./notes.repository";
 import { NoteResolver } from "./notes.resolver";
 import { NoteService } from "./notes.service";
-import { NoteAiModule } from "@api/domains/note-ai/note-ai.module";
 
 @Module({
   imports: [

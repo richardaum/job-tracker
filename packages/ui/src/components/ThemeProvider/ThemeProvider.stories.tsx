@@ -1,7 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import React from "react";
-import { ThemeProvider, useTheme } from "./ThemeProvider";
 import { cn } from "@ui/lib/cn";
+import React from "react";
+
+import { ThemeProvider, useTheme } from "./ThemeProvider";
 
 function ThemeToggleDemo() {
   const { theme, toggleTheme } = useTheme();

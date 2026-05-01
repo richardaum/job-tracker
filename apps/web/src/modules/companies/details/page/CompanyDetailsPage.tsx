@@ -1,11 +1,8 @@
 "use client";
 
-import React from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { CaretDownIcon } from "@phosphor-icons/react";
 import {
   Button,
+  cn,
   DropdownMenu,
   DropdownMenuItem,
   DropdownMenuSeparator,
@@ -15,25 +12,29 @@ import {
   TabsList,
   TabsTrigger,
   Text,
-  cn,
 } from "@job-tracker/ui";
+import { CaretDownIcon } from "@phosphor-icons/react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import React from "react";
+
 import {
-  CompaniesDocument,
   type ApplicationsQuery,
+  CompaniesDocument,
   useApplicationsQuery,
   useCompaniesQuery,
   useUpdateCompanyMutation,
 } from "@/gql/hooks";
-import { ApplicationCard } from "@/modules/applications/list/components/ApplicationCard";
-import { TipTapEditor } from "@/modules/applications/details/components/TipTapEditor";
-import { DeleteCompanyDialog } from "@/modules/companies/list/components/DeleteCompanyDialog";
 import { useGenerateCompanyDescriptionAiAction } from "@/modules/ai/actions/useGenerateCompanyDescriptionAiAction";
 import { useRewriteTextAiAction } from "@/modules/ai/actions/useRewriteTextAiAction";
+import { TipTapEditor } from "@/modules/applications/details/components/TipTapEditor";
+import { ApplicationCard } from "@/modules/applications/list/components/ApplicationCard";
 import {
   EMPTY_TIPTAP_DOC,
   normalizeTipTapDocument,
   tipTapToPlainText,
 } from "@/modules/applications/shared/utils/tiptap";
+import { DeleteCompanyDialog } from "@/modules/companies/list/components/DeleteCompanyDialog";
 
 interface PageProps {
   params: Promise<{ id: string }>;

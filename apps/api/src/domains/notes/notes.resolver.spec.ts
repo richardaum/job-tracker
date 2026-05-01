@@ -1,18 +1,20 @@
 import "reflect-metadata";
-import { describe, it, expect, beforeAll, afterAll, vi } from "vitest";
-import { Test } from "@nestjs/testing";
-import type { INestApplication, ExecutionContext } from "@nestjs/common";
-import { GraphQLModule } from "@nestjs/graphql";
-import { ApolloDriver } from "@nestjs/apollo";
-import type { ApolloDriverConfig } from "@nestjs/apollo";
-import { GqlExecutionContext } from "@nestjs/graphql";
-import { UnauthorizedException } from "@nestjs/common";
-import request from "supertest";
+
 import { JwtAuthGuard } from "@api/domains/auth/jwt-auth.guard";
 import { RolesGuard } from "@api/domains/auth/roles.guard";
+import type { ApolloDriverConfig } from "@nestjs/apollo";
+import { ApolloDriver } from "@nestjs/apollo";
+import type { ExecutionContext, INestApplication } from "@nestjs/common";
+import { UnauthorizedException } from "@nestjs/common";
+import { GraphQLModule } from "@nestjs/graphql";
+import { GqlExecutionContext } from "@nestjs/graphql";
+import { Test } from "@nestjs/testing";
+import request from "supertest";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
+
 import { NoteResolver } from "./notes.resolver";
-import { NoteService } from "./notes.service";
 import type { Note } from "./notes.schema";
+import { NoteService } from "./notes.service";
 
 const mockNote: Note = {
   id: "note-1",

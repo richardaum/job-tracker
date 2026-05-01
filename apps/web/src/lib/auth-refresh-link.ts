@@ -1,6 +1,7 @@
-import { ErrorLink } from "@apollo/client/link/error";
-import { CombinedGraphQLErrors } from "@apollo/client/errors";
 import { Observable } from "@apollo/client/core";
+import { CombinedGraphQLErrors } from "@apollo/client/errors";
+import { ErrorLink } from "@apollo/client/link/error";
+
 import { getApiBaseUrl } from "./api-endpoints";
 
 let refreshPromise: Promise<boolean> | null = null;

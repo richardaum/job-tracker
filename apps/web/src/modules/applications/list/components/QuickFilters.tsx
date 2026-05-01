@@ -1,6 +1,6 @@
 "use client";
 
-import { FilterChip, Tooltip, cn } from "@job-tracker/ui";
+import { cn, FilterChip, Tooltip } from "@job-tracker/ui";
 import { useRouter, useSearchParams } from "next/navigation";
 
 const QUICK_FILTERS = [

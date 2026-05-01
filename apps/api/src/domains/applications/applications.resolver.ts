@@ -1,19 +1,20 @@
-import { Resolver, Query, Mutation, Args, ID } from "@nestjs/graphql";
-import { ApplicationQuickFilterEnum } from "./application-quick-filter.enum";
-import { UseGuards } from "@nestjs/common";
-import { JwtAuthGuard } from "@api/domains/auth/jwt-auth.guard";
-import { RolesGuard } from "@api/domains/auth/roles.guard";
-import { Roles } from "@api/domains/auth/roles.decorator";
-import { CurrentUser } from "@api/domains/auth/current-user.decorator";
-import { ApplicationService } from "./applications.service";
-import { ApplicationType } from "./application.type";
-import { CreateApplicationInput } from "./create-application.input";
-import { UpdateApplicationInput } from "./update-application.input";
-import { ApplicationStageEventType } from "./application-stage-event.type";
-import { CreateApplicationStageEventInput } from "./create-application-stage-event.input";
-import { UpdateApplicationStageEventInput } from "./update-application-stage-event.input";
-import { CreateApplicationWithAIInput } from "./create-application-with-ai.input";
 import { ApplicationAiDraftType } from "@api/domains/application-ai/application-ai-draft.type";
+import { CurrentUser } from "@api/domains/auth/current-user.decorator";
+import { JwtAuthGuard } from "@api/domains/auth/jwt-auth.guard";
+import { Roles } from "@api/domains/auth/roles.decorator";
+import { RolesGuard } from "@api/domains/auth/roles.guard";
+import { UseGuards } from "@nestjs/common";
+import { Args, ID, Mutation, Query, Resolver } from "@nestjs/graphql";
+
+import { ApplicationType } from "./application.type";
+import { ApplicationQuickFilterEnum } from "./application-quick-filter.enum";
+import { ApplicationStageEventType } from "./application-stage-event.type";
+import { ApplicationService } from "./applications.service";
+import { CreateApplicationInput } from "./create-application.input";
+import { CreateApplicationStageEventInput } from "./create-application-stage-event.input";
+import { CreateApplicationWithAIInput } from "./create-application-with-ai.input";
+import { UpdateApplicationInput } from "./update-application.input";
+import { UpdateApplicationStageEventInput } from "./update-application-stage-event.input";
 
 @Resolver(() => ApplicationType)
 @UseGuards(JwtAuthGuard, RolesGuard)

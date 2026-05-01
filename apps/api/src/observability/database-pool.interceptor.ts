@@ -1,5 +1,6 @@
 import { Injectable, Logger } from "@nestjs/common";
-import type { QueryConfig, Pool, PoolClient } from "pg";
+import type { Pool, PoolClient, QueryConfig } from "pg";
+
 import { DATABASE_POOL_SLOW_QUERY_WARN_MS } from "./request-metrics.constants";
 import { RequestMetricsContext } from "./request-metrics.context";
 

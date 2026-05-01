@@ -1,6 +1,6 @@
-import React from "react";
 import * as RadixTooltip from "@radix-ui/react-tooltip";
 import { cn } from "@ui/lib/cn";
+import React from "react";
 
 export interface TooltipProps {
   content: React.ReactNode;

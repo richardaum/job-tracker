@@ -1,4 +1,4 @@
-import { Suspense, type ReactNode } from "react";
+import { type ReactNode, Suspense } from "react";
 
 import AuthenticatedLayout from "@/modules/navigation/layouts/AuthenticatedLayout";
 

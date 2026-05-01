@@ -1,9 +1,10 @@
-import { Resolver, Query, Mutation, Args, ID, Int } from "@nestjs/graphql";
-import { UseGuards } from "@nestjs/common";
-import { JwtAuthGuard } from "@api/domains/auth/jwt-auth.guard";
-import { RolesGuard } from "@api/domains/auth/roles.guard";
-import { Roles } from "@api/domains/auth/roles.decorator";
 import { CurrentUser } from "@api/domains/auth/current-user.decorator";
+import { JwtAuthGuard } from "@api/domains/auth/jwt-auth.guard";
+import { Roles } from "@api/domains/auth/roles.decorator";
+import { RolesGuard } from "@api/domains/auth/roles.guard";
+import { UseGuards } from "@nestjs/common";
+import { Args, ID, Int, Mutation, Query, Resolver } from "@nestjs/graphql";
+
 import { CompanyService } from "./companies.service";
 import { CompanyType } from "./company.type";
 import { UpdateCompanyInput } from "./update-company.input";

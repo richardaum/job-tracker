@@ -1,4 +1,4 @@
-import { IconButton, Tooltip, cn } from "@job-tracker/ui";
+import { cn, IconButton, Tooltip } from "@job-tracker/ui";
 import { XIcon } from "@phosphor-icons/react";
 
 function OverflowChip({ children }: { children: React.ReactNode }) {

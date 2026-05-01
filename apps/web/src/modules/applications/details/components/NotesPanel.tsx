@@ -1,35 +1,37 @@
 "use client";
 
-import React, { useMemo, useRef, useState } from "react";
-import { PencilSimpleIcon, TrashIcon } from "@phosphor-icons/react";
 import {
   Button,
+  cn,
   IconButton,
   Stack,
   TabsContent,
   Text,
-  cn,
 } from "@job-tracker/ui";
+import { PencilSimpleIcon, TrashIcon } from "@phosphor-icons/react";
+import React, { useMemo, useRef, useState } from "react";
+
 import {
   ApplicationNotesDocument,
-  useDeleteApplicationNoteMutation,
-  useCreateApplicationNoteMutation,
   useApplicationNotesQuery,
+  useCreateApplicationNoteMutation,
+  useDeleteApplicationNoteMutation,
   useUpdateApplicationNoteMutation,
 } from "@/gql/hooks";
-import { TipTapEditor, type TipTapEditorHandle } from "./TipTapEditor";
+import { useImproveApplicationNoteAiAction } from "@/modules/ai/actions/useImproveApplicationNoteAiAction";
+import { useRewriteTextAiAction } from "@/modules/ai/actions/useRewriteTextAiAction";
+import { useNotesComposerBehavior } from "@/modules/applications/details/hooks/useNotesComposerBehavior";
+import { formatDateTime } from "@/modules/applications/details/utils/application-details.shared";
 import { TipTapContent } from "@/modules/applications/shared/components/TipTapContent";
 import {
   EMPTY_TIPTAP_DOC,
   tipTapToPlainText,
 } from "@/modules/applications/shared/utils/tiptap";
-import { formatDateTime } from "@/modules/applications/details/utils/application-details.shared";
-import { useNotesComposerBehavior } from "@/modules/applications/details/hooks/useNotesComposerBehavior";
-import { useImproveApplicationNoteAiAction } from "@/modules/ai/actions/useImproveApplicationNoteAiAction";
-import { useRewriteTextAiAction } from "@/modules/ai/actions/useRewriteTextAiAction";
-import { NoteDeleteConfirmDialog } from "./NoteDeleteConfirmDialog";
+
 import { NoteComposerExpandedDialog } from "./NoteComposerExpandedDialog";
+import { NoteDeleteConfirmDialog } from "./NoteDeleteConfirmDialog";
 import { NoteEditDialog } from "./NoteEditDialog";
+import { TipTapEditor, type TipTapEditorHandle } from "./TipTapEditor";
 
 export function NotesPanel({
   applicationId,

@@ -1,5 +1,5 @@
-import React from "react";
 import { cn } from "@ui/lib/cn";
+import React from "react";
 
 export interface FilterChipProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   active?: boolean;

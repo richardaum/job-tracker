@@ -1,8 +1,10 @@
 import "reflect-metadata";
-import { describe, it, expect, vi } from "vitest";
+
+import { UserService } from "@api/domains/users/users.service";
 import { ExecutionContext } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
-import { UserService } from "@api/domains/users/users.service";
+import { describe, expect, it, vi } from "vitest";
+
 import { RolesGuard } from "./roles.guard";
 
 function makeContext(userId: string | undefined): ExecutionContext {

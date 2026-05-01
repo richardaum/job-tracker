@@ -1,5 +1,5 @@
-import React from "react";
 import { cn } from "@ui/lib/cn";
+import React from "react";
 
 export type TextSize = "xs" | "sm" | "base" | "md" | "lg";
 export type TextWeight = "regular" | "medium" | "semibold" | "bold";

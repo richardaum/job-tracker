@@ -1,19 +1,21 @@
 "use client";
 
+import { Button, cn, Stack } from "@job-tracker/ui";
+import { useState } from "react";
+
 import {
   ApplicationDocument,
   ApplicationsDocument,
   useUpdateApplicationMutation,
 } from "@/gql/hooks";
-import { Button, Stack, cn } from "@job-tracker/ui";
-import { useState } from "react";
-import { TipTapEditor } from "./TipTapEditor";
+import { useRestructureJobDescriptionAiAction } from "@/modules/ai/actions/useRestructureJobDescriptionAiAction";
 import {
   EMPTY_TIPTAP_DOC,
   normalizeTipTapDocument,
   tipTapToPlainText,
 } from "@/modules/applications/shared/utils/tiptap";
-import { useRestructureJobDescriptionAiAction } from "@/modules/ai/actions/useRestructureJobDescriptionAiAction";
+
+import { TipTapEditor } from "./TipTapEditor";
 
 export function DescriptionEditor({
   applicationId,

@@ -1,10 +1,12 @@
 import "../env/server";
-import type { ReactNode } from "react";
+import "./globals.css";
+
 import type { Metadata } from "next";
 import { Outfit } from "next/font/google";
+import type { ReactNode } from "react";
+
 import { APP_DESCRIPTION, APP_TITLE, TITLE_TEMPLATE } from "@/app/metadata";
 import { AppProviders } from "@/modules/core/providers/AppProviders";
-import "./globals.css";
 
 const outfit = Outfit({
   subsets: ["latin"],

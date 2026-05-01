@@ -1,16 +1,15 @@
+import { ApplicationEntity } from "@api/database/entities/application.entity";
+import { ApplicationStageEventEntity } from "@api/database/entities/application-stage-event.entity";
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 
-import { ApplicationEntity } from "@api/database/entities/application.entity";
-import { ApplicationStageEventEntity } from "@api/database/entities/application-stage-event.entity";
-
-import { Application, NewApplication } from "./applications.schema";
+import { ApplicationQuickFilterEnum } from "./application-quick-filter.enum";
 import {
   ApplicationStageEvent,
   NewApplicationStageEvent,
 } from "./application-stage-events.schema";
-import { ApplicationQuickFilterEnum } from "./application-quick-filter.enum";
+import { Application, NewApplication } from "./applications.schema";
 
 export type CreateApplicationRepoDto = Pick<
   NewApplication,

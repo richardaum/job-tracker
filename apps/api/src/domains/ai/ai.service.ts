@@ -1,6 +1,6 @@
-import { Injectable } from "@nestjs/common";
-import { OPENAI_MODEL } from "@api/env/server";
 import { OpenAIService } from "@api/domains/application-ai/openai.service";
+import { OPENAI_MODEL } from "@api/env/server";
+import { Injectable } from "@nestjs/common";
 
 @Injectable()
 export class AiService {

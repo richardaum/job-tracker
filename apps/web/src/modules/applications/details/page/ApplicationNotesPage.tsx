@@ -1,11 +1,12 @@
 "use client";
 
-import React from "react";
+import { cn, Heading, Text } from "@job-tracker/ui";
 import Link from "next/link";
-import { Heading, Text, cn } from "@job-tracker/ui";
+import React from "react";
+
 import { useApplicationQuery } from "@/gql/hooks";
-import { type ApplicationDetailsValues } from "@/modules/applications/details/utils/application-details.shared";
 import { NotesPanel } from "@/modules/applications/details/components/NotesPanel";
+import { type ApplicationDetailsValues } from "@/modules/applications/details/utils/application-details.shared";
 
 interface PageProps {
   params: Promise<{ id: string }>;

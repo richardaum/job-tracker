@@ -1,45 +1,47 @@
 "use client";
 
-import React, { useState } from "react";
-import { useRouter } from "next/navigation";
-import { SparkleIcon, FloppyDiskBackIcon } from "@phosphor-icons/react";
 import {
   Button,
   Card,
+  cn,
   FormField,
   IconButton,
   Input,
-  Textarea,
   Text,
+  Textarea,
   Toast,
-  cn,
 } from "@job-tracker/ui";
-import {
-  TagsInput,
-  type TagWithMetadata,
-} from "@/modules/applications/shared/components/TagsInput";
-import { DEFAULT_FIELDS } from "./default-fields";
+import { FloppyDiskBackIcon, SparkleIcon } from "@phosphor-icons/react";
+import { useRouter } from "next/navigation";
+import React, { useState } from "react";
+
 import {
   ApplicationsDocument,
   useCreateApplicationMutation,
   useCreateApplicationNoteMutation,
   useGenerateApplicationDraftWithAiLazyQuery,
 } from "@/gql/hooks";
-import {
-  formatGeneratedDraftToFormState,
-  parseCreateApplicationInput,
-  parseDraftNoteContents,
-  toTipTapDocument,
-  type AiDraftFormState,
-} from "./draft-parser";
-import { HoverEditableFieldRow } from "@/modules/applications/details/components/HoverEditableFieldRow";
 import { CompensationEditDialog } from "@/modules/applications/details/components/CompensationEditDialog";
+import { HoverEditableFieldRow } from "@/modules/applications/details/components/HoverEditableFieldRow";
 import { TipTapEditor } from "@/modules/applications/details/components/TipTapEditor";
+import {
+  TagsInput,
+  type TagWithMetadata,
+} from "@/modules/applications/shared/components/TagsInput";
 import { formatCompensationLine } from "@/modules/applications/shared/utils/compensationFormat";
 import {
   EMPTY_TIPTAP_DOC,
   tipTapToPlainText,
 } from "@/modules/applications/shared/utils/tiptap";
+
+import { DEFAULT_FIELDS } from "./default-fields";
+import {
+  type AiDraftFormState,
+  formatGeneratedDraftToFormState,
+  parseCreateApplicationInput,
+  parseDraftNoteContents,
+  toTipTapDocument,
+} from "./draft-parser";
 
 export default function AiApplicationCreatePage() {
   const router = useRouter();

@@ -1,5 +1,6 @@
-import { ObjectType, Field, ID, Int } from "@nestjs/graphql";
 import { CompanyType } from "@api/domains/companies/company.type";
+import { Field, ID, Int, ObjectType } from "@nestjs/graphql";
+
 import { ApplicationStageEnum } from "./application-stage.enum";
 import { SalaryPeriodEnum } from "./salary-period.enum";
 

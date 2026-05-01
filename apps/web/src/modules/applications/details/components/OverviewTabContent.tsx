@@ -1,7 +1,8 @@
 "use client";
 
+import { cn, Link, Text } from "@job-tracker/ui";
 import React from "react";
-import { Link, Text, cn } from "@job-tracker/ui";
+
 import {
   ApplicationDocument,
   ApplicationsDocument,
@@ -9,12 +10,13 @@ import {
   useUpdateApplicationMutation,
 } from "@/gql/hooks";
 import type { ApplicationDetailsValues } from "@/modules/applications/details/utils/application-details.shared";
-import { HoverEditableFieldRow } from "./HoverEditableFieldRow";
-import { CompensationEditDialog } from "./CompensationEditDialog";
+import { CompanyNameWithPopover } from "@/modules/applications/shared/components/CompanyNameWithPopover";
 import { ApplicationTags } from "@/modules/applications/shared/utils/ApplicationTags";
 import { formatCompensationLine } from "@/modules/applications/shared/utils/compensationFormat";
 import { CompanyEditDialog } from "@/modules/companies/shared/components/CompanyEditDialog";
-import { CompanyNameWithPopover } from "@/modules/applications/shared/components/CompanyNameWithPopover";
+
+import { CompensationEditDialog } from "./CompensationEditDialog";
+import { HoverEditableFieldRow } from "./HoverEditableFieldRow";
 import { TagsEditDialog } from "./TagsEditDialog";
 import { TextFieldEditDialog } from "./TextFieldEditDialog";
 import { UrlFieldEditDialog } from "./UrlFieldEditDialog";

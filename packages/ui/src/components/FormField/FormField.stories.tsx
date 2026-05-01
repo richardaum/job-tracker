@@ -1,7 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { FormField } from "./FormField";
-import { Input } from "../Input/Input";
 import { cn } from "@ui/lib/cn";
+
+import { Input } from "../Input/Input";
+import { FormField } from "./FormField";
 
 const meta: Meta<typeof FormField> = {
   title: "Components/FormField",

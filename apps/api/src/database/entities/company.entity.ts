@@ -1,13 +1,15 @@
 import { randomUUID } from "node:crypto";
+
 import {
   BeforeInsert,
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   PrimaryColumn,
   UpdateDateColumn,
-  OneToMany,
 } from "typeorm";
+
 import { ApplicationEntity } from "./application.entity";
 
 @Entity({ name: "companies" })

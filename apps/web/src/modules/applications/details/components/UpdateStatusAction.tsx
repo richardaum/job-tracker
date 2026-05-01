@@ -1,25 +1,26 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
 import {
   Button,
+  cn,
   Dialog,
   FormField,
   Input,
   Select,
   Stack,
-  cn,
 } from "@job-tracker/ui";
+import React, { useMemo, useState } from "react";
+
 import {
   ApplicationStage,
   ApplicationStageEventsDocument,
   useCreateApplicationStageEventMutation,
 } from "@/gql/hooks";
+import { formatStage } from "@/modules/applications/details/utils/application-details.shared";
 import {
   buildScheduledAtWithBrowserTimezone,
   getDateTimeInputValueFromNow,
 } from "@/modules/applications/details/utils/scheduled-at";
-import { formatStage } from "@/modules/applications/details/utils/application-details.shared";
 
 const stageOptions: Array<{ value: ApplicationStage; label: string }> = [
   { value: ApplicationStage.New, label: "New" },

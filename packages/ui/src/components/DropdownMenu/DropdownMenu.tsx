@@ -1,6 +1,6 @@
-import React from "react";
 import * as RadixDropdownMenu from "@radix-ui/react-dropdown-menu";
 import { cn } from "@ui/lib/cn";
+import React from "react";
 
 export interface DropdownMenuProps {
   trigger: React.ReactElement;

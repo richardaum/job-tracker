@@ -1,9 +1,10 @@
 "use client";
 
+import { Card, cn, Input, Skeleton, Stack, Text, Toast } from "@job-tracker/ui";
 import { MagnifyingGlassIcon } from "@phosphor-icons/react";
-import { Card, Input, Skeleton, Stack, Text, Toast, cn } from "@job-tracker/ui";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
+
 import { useCompaniesQuery } from "@/gql/hooks";
 import { useScrollRestoration } from "@/hooks/useScrollRestoration";
 import { normalizeTipTapDocument } from "@/modules/applications/shared/utils/tiptap";

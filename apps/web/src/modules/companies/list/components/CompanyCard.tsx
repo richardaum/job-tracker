@@ -1,14 +1,16 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
+import { Card, cn, IconButton, Text } from "@job-tracker/ui";
 import {
   ArrowSquareOutIcon,
   PencilSimpleIcon,
   TrashIcon,
 } from "@phosphor-icons/react";
-import { Card, IconButton, Text, cn } from "@job-tracker/ui";
+import Link from "next/link";
+import { useState } from "react";
+
 import { TipTapContent } from "@/modules/applications/shared/components/TipTapContent";
+
 import { DeleteCompanyDialog } from "./DeleteCompanyDialog";
 
 export interface CompanyCardData {

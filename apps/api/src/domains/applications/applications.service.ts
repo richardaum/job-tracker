@@ -1,11 +1,17 @@
+import { ApplicationAiService } from "@api/domains/application-ai/application-ai.service";
+import { CompanyService } from "@api/domains/companies/companies.service";
+import { CompanyAiService } from "@api/domains/company-ai/company-ai.service";
+import { NoteService } from "@api/domains/notes/notes.service";
+import { isTipTapDocumentString } from "@api/domains/shared/tiptap.util";
 import {
   BadRequestException,
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
+
 import { ApplicationQuickFilterEnum } from "./application-quick-filter.enum";
-import { ApplicationStageEvent } from "./application-stage-events.schema";
 import { ApplicationStageEnum } from "./application-stage.enum";
+import { ApplicationStageEvent } from "./application-stage-events.schema";
 import {
   ApplicationRepository,
   CreateApplicationRepoDto,
@@ -13,17 +19,12 @@ import {
 } from "./applications.repository";
 import { Application } from "./applications.schema";
 import { CompensationService } from "./compensation.service";
-import { SalaryPeriodEnum } from "./salary-period.enum";
-import { TagService } from "./tag.service";
-import { CompanyService } from "@api/domains/companies/companies.service";
 import {
   type AiExtractionFieldInput,
   type CreateApplicationWithAIInput,
 } from "./create-application-with-ai.input";
-import { ApplicationAiService } from "@api/domains/application-ai/application-ai.service";
-import { CompanyAiService } from "@api/domains/company-ai/company-ai.service";
-import { isTipTapDocumentString } from "@api/domains/shared/tiptap.util";
-import { NoteService } from "@api/domains/notes/notes.service";
+import { SalaryPeriodEnum } from "./salary-period.enum";
+import { TagService } from "./tag.service";
 
 type CreateDto = {
   title: string;

@@ -1,7 +1,8 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
-import { UserService } from "./users.service";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
 import { UserRepository } from "./users.repository";
 import { User } from "./users.schema";
+import { UserService } from "./users.service";
 
 const mockUser: User = {
   id: "uuid-1",

@@ -1,7 +1,8 @@
 "use client";
 
-import React from "react";
 import { Button, Dialog, Stack } from "@job-tracker/ui";
+import React from "react";
+
 import {
   CompaniesDocument,
   useCompanyApplicationsCountLazyQuery,

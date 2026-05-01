@@ -1,7 +1,8 @@
 "use client";
 
+import { Button, cn, Dialog, FormField, Stack } from "@job-tracker/ui";
 import React, { useState } from "react";
-import { Button, Dialog, FormField, Stack, cn } from "@job-tracker/ui";
+
 import {
   ApplicationDocument,
   ApplicationsDocument,
@@ -11,6 +12,7 @@ import {
   TagsInput,
   type TagWithMetadata,
 } from "@/modules/applications/shared/components/TagsInput";
+
 import { FieldEditTriggerButton } from "./HoverEditableFieldRow";
 
 interface TagsEditDialogProps {

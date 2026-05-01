@@ -1,6 +1,6 @@
 // integration
-import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { DataSource } from "typeorm";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { buildDataSourceOptions } from "./data-source-options";
 

@@ -1,5 +1,6 @@
-import { describe, expect, it, vi } from "vitest";
 import { SalaryPeriodEnum } from "@api/domains/applications/salary-period.enum";
+import { describe, expect, it, vi } from "vitest";
+
 import { ApplicationAiService } from "./application-ai.service";
 import { OpenAIService } from "./openai.service";
 

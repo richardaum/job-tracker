@@ -3,8 +3,10 @@
  * Use only when the database schema already matches the migration files (for example after manual DDL or a restore).
  */
 import "reflect-metadata";
-import { config } from "dotenv";
+
 import { resolve } from "node:path";
+
+import { config } from "dotenv";
 import { DataSource } from "typeorm";
 
 import { buildDataSourceOptions } from "./data-source-options";

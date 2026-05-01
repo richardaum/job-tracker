@@ -1,10 +1,10 @@
+import { ApplicationEntity } from "@api/database/entities/application.entity";
+import { ApplicationNoteEntity } from "@api/database/entities/application-note.entity";
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 
-import { ApplicationEntity } from "@api/database/entities/application.entity";
-import { ApplicationNoteEntity } from "@api/database/entities/application-note.entity";
-import { Note, NewNote } from "./notes.schema";
+import { NewNote, Note } from "./notes.schema";
 
 type CreateNoteDto = Pick<NewNote, "applicationId" | "content">;
 type UpdateNoteDto = Pick<NewNote, "content">;

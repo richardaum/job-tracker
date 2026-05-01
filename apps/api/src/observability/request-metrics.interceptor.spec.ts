@@ -1,9 +1,11 @@
 import "reflect-metadata";
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+
 import type { ExecutionContext } from "@nestjs/common";
 import type { CallHandler } from "@nestjs/common";
 import { firstValueFrom, of } from "rxjs";
 import { tap } from "rxjs/operators";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
 import {
   QUERY_WARN_THRESHOLD,
   REQUEST_WARN_THRESHOLD_MS,

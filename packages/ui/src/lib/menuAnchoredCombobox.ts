@@ -1,7 +1,6 @@
+import { focusRadixMenuItemEdge } from "@ui/lib/focusRadixMenuItem";
 import type { Dispatch, KeyboardEvent, RefObject, SetStateAction } from "react";
 import { useCallback, useMemo, useRef } from "react";
-
-import { focusRadixMenuItemEdge } from "@ui/lib/focusRadixMenuItem";
 
 type OutsideEvent = {
   readonly detail: {

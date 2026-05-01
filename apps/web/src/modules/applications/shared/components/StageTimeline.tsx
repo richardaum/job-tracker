@@ -1,16 +1,18 @@
 "use client";
 
-import type { ReactNode } from "react";
-import { ArrowRightIcon } from "@phosphor-icons/react";
-import { ApplicationStage } from "@/gql/hooks";
 import {
+  cn,
   Text,
   Timeline,
   TimelineContent,
   TimelineItem,
   TimelineMarker,
-  cn,
 } from "@job-tracker/ui";
+import { ArrowRightIcon } from "@phosphor-icons/react";
+import type { ReactNode } from "react";
+
+import { ApplicationStage } from "@/gql/hooks";
+
 import { formatStage } from "./StatusBadge";
 
 interface StageTimelineItem {

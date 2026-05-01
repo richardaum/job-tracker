@@ -1,18 +1,20 @@
 import "reflect-metadata";
-import { describe, it, expect, beforeAll, afterAll, vi } from "vitest";
-import { Test } from "@nestjs/testing";
-import type { INestApplication, ExecutionContext } from "@nestjs/common";
+
+import type { User } from "@api/domains/users/users.schema";
+import { UserService } from "@api/domains/users/users.service";
+import type { ApolloDriverConfig } from "@nestjs/apollo";
+import { ApolloDriver } from "@nestjs/apollo";
+import type { ExecutionContext, INestApplication } from "@nestjs/common";
 import { UnauthorizedException } from "@nestjs/common";
 import { GraphQLModule } from "@nestjs/graphql";
-import { ApolloDriver } from "@nestjs/apollo";
-import type { ApolloDriverConfig } from "@nestjs/apollo";
 import { GqlExecutionContext } from "@nestjs/graphql";
+import { Test } from "@nestjs/testing";
 import request from "supertest";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
+
 import { AuthResolver } from "./auth.resolver";
 import { JwtAuthGuard } from "./jwt-auth.guard";
 import { RolesGuard } from "./roles.guard";
-import { UserService } from "@api/domains/users/users.service";
-import type { User } from "@api/domains/users/users.schema";
 
 const mockUser: User = {
   id: "user-1",

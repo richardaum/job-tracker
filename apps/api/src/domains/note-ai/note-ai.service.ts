@@ -1,14 +1,15 @@
-import { OpenAIService } from "../application-ai/openai.service";
 import { OPENAI_MODEL } from "@api/env/server";
 import { Injectable } from "@nestjs/common";
+
+import { OpenAIService } from "../application-ai/openai.service";
+import { NOTE_AI_STRUCTURED_RESPONSE_SCHEMA } from "../shared/tiptap.schema";
 import {
   isTipTapDocumentString,
   parseTipTapDocument,
-  structuredNoteToTipTapDocument,
   StructuredNoteOutput,
+  structuredNoteToTipTapDocument,
   TipTapDocument,
 } from "../shared/tiptap.util";
-import { NOTE_AI_STRUCTURED_RESPONSE_SCHEMA } from "../shared/tiptap.schema";
 
 type GenerateNoteInput = { description: string; note: string };
 

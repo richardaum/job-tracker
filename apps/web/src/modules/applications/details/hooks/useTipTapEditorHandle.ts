@@ -1,7 +1,8 @@
 "use client";
 
 import type { Editor } from "@tiptap/react";
-import { useCallback, useImperativeHandle, type Ref } from "react";
+import { type Ref, useCallback, useImperativeHandle } from "react";
+
 import { EMPTY_TIPTAP_DOC } from "@/modules/applications/shared/utils/tiptap";
 
 export type TipTapEditorHandle = {

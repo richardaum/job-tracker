@@ -1,8 +1,8 @@
+import { DatabaseModule } from "@api/database/database.module";
+import { UserEntity } from "@api/database/entities/user.entity";
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 
-import { UserEntity } from "@api/database/entities/user.entity";
-import { DatabaseModule } from "@api/database/database.module";
 import { UserRepository } from "./users.repository";
 import { UserService } from "./users.service";
 

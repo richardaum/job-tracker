@@ -1,32 +1,34 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
-import { NumericFormat } from "react-number-format";
 import {
   Button,
+  cn,
   CurrencyCombobox,
   Dialog,
   FormField,
   Input,
   Select,
-  Stack,
   type SelectOption,
-  cn,
+  Stack,
 } from "@job-tracker/ui";
+import React, { useEffect, useRef, useState } from "react";
+import { NumericFormat } from "react-number-format";
+
 import {
   ApplicationDocument,
   ApplicationsDocument,
   SalaryPeriod,
   useUpdateApplicationMutation,
 } from "@/gql/hooks";
+import type { ApplicationDetailsValues } from "@/modules/applications/details/utils/application-details.shared";
 import {
   centsToMajorInput,
   iso4217MaxFractionDigits,
   majorToCents,
   SALARY_PERIODS,
 } from "@/modules/applications/shared/utils/compensationFormat";
+
 import { FieldEditTriggerButton } from "./HoverEditableFieldRow";
-import type { ApplicationDetailsValues } from "@/modules/applications/details/utils/application-details.shared";
 
 const defaultSalaryCurrency = "USD";
 

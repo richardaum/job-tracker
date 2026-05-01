@@ -1,16 +1,17 @@
-import { Module } from "@nestjs/common";
-import { PassportModule } from "@nestjs/passport";
-import { JwtModule } from "@nestjs/jwt";
+import { GoogleAuthGuard } from "@api/domains/auth/google-auth.guard";
 import { UsersModule } from "@api/domains/users/users.module";
+import { Module } from "@nestjs/common";
+import { JwtModule } from "@nestjs/jwt";
+import { PassportModule } from "@nestjs/passport";
+
+import { AuthController } from "./auth.controller";
+import { AuthResolver } from "./auth.resolver";
+import { AuthService } from "./auth.service";
+import { DevAuthBypassService } from "./dev-auth-bypass.service";
 import { GoogleStrategy } from "./google.strategy";
 import { JwtStrategy } from "./jwt.strategy";
 import { JwtAuthGuard } from "./jwt-auth.guard";
 import { RolesGuard } from "./roles.guard";
-import { AuthService } from "./auth.service";
-import { AuthController } from "./auth.controller";
-import { AuthResolver } from "./auth.resolver";
-import { GoogleAuthGuard } from "@api/domains/auth/google-auth.guard";
-import { DevAuthBypassService } from "./dev-auth-bypass.service";
 
 @Module({
   imports: [

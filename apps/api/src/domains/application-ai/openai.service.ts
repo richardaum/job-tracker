@@ -1,6 +1,6 @@
+import { OPENAI_API_KEY } from "@api/env/server";
 import { BadRequestException, Injectable } from "@nestjs/common";
 import OpenAI from "openai";
-import { OPENAI_API_KEY } from "@api/env/server";
 
 @Injectable()
 export class OpenAIService {

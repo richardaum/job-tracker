@@ -1,13 +1,15 @@
 import "tsconfig-paths/register";
 import "reflect-metadata";
-import { SENTRY_DSN, PORT } from "./env/server";
-import * as Sentry from "@sentry/node";
+
+import { setupFileLogger } from "@job-tracker/logger";
 import { NestFactory } from "@nestjs/core";
 import type { NestExpressApplication } from "@nestjs/platform-express";
+import * as Sentry from "@sentry/node";
 import cookieParser from "cookie-parser";
 import passport from "passport";
+
 import { AppModule } from "./app.module";
-import { setupFileLogger } from "@job-tracker/logger";
+import { PORT, SENTRY_DSN } from "./env/server";
 
 setupFileLogger({ filename: "api.log" });
 

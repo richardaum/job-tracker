@@ -1,15 +1,10 @@
 "use client";
 
-import React from "react";
 import { gql } from "@apollo/client";
 import { useMutation } from "@apollo/client/react";
 import {
-  ChatCircleTextIcon,
-  PencilSimpleIcon,
-  TrashIcon,
-} from "@phosphor-icons/react";
-import {
   Button,
+  cn,
   ConfirmDialog,
   Dialog,
   FormField,
@@ -19,21 +14,28 @@ import {
   Stack,
   TabsContent,
   Text,
-  cn,
 } from "@job-tracker/ui";
+import {
+  ChatCircleTextIcon,
+  PencilSimpleIcon,
+  TrashIcon,
+} from "@phosphor-icons/react";
+import React from "react";
+
 import {
   ApplicationStage,
   ApplicationStageEventsDocument,
   useApplicationStageEventsQuery,
   useUpdateApplicationStageEventMutation,
 } from "@/gql/hooks";
+import { formatDateTime } from "@/modules/applications/details/utils/application-details.shared";
 import {
   buildScheduledAtWithBrowserTimezone,
   getDateTimeInputValueFromIso,
   getDateTimeInputValueFromNow,
 } from "@/modules/applications/details/utils/scheduled-at";
-import { formatDateTime } from "@/modules/applications/details/utils/application-details.shared";
 import { StageTimeline } from "@/modules/applications/shared/components/StageTimeline";
+
 import { UpdateStatusAction } from "./UpdateStatusAction";
 
 const stageOptions: Array<{ value: ApplicationStage; label: string }> = [

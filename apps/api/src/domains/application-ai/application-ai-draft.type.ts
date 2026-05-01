@@ -1,5 +1,5 @@
-import { Field, Int, ObjectType } from "@nestjs/graphql";
 import { SalaryPeriodEnum } from "@api/domains/applications/salary-period.enum";
+import { Field, Int, ObjectType } from "@nestjs/graphql";
 
 @ObjectType()
 export class ApplicationAiDraftType {

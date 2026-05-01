@@ -1,6 +1,6 @@
-import React from "react";
 import * as RadixPopover from "@radix-ui/react-popover";
 import { cn } from "@ui/lib/cn";
+import React from "react";
 
 export interface PopoverProps {
   trigger: React.ReactElement;

@@ -1,9 +1,10 @@
 "use client";
 
-import React from "react";
+import { cn } from "@job-tracker/ui";
 import StarterKit from "@tiptap/starter-kit";
 import { renderToReactElement } from "@tiptap/static-renderer/pm/react";
-import { cn } from "@job-tracker/ui";
+import React from "react";
+
 import {
   parseTipTapDocument,
   tipTapToPlainText,

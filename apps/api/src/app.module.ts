@@ -1,15 +1,16 @@
-import { join } from "path";
+import type { ApolloDriverConfig } from "@nestjs/apollo";
+import { ApolloDriver } from "@nestjs/apollo";
 import { Module } from "@nestjs/common";
 import { GraphQLModule } from "@nestjs/graphql";
-import { ApolloDriver } from "@nestjs/apollo";
-import type { ApolloDriverConfig } from "@nestjs/apollo";
+import { join } from "path";
+
 import { AppController } from "./app.controller";
 import { DatabaseModule } from "./database/database.module";
-import { AuthModule } from "./domains/auth/auth.module";
+import { AiModule } from "./domains/ai/ai.module";
 import { ApplicationModule } from "./domains/applications/applications.module";
+import { AuthModule } from "./domains/auth/auth.module";
 import { CompaniesModule } from "./domains/companies/companies.module";
 import { NotesModule } from "./domains/notes/notes.module";
-import { AiModule } from "./domains/ai/ai.module";
 
 @Module({
   imports: [

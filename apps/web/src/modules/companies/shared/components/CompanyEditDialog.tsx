@@ -1,23 +1,24 @@
 "use client";
 
+import { Button, cn, Dialog, FormField, Input, Stack } from "@job-tracker/ui";
 import React, { useMemo, useState } from "react";
-import { Button, Dialog, FormField, Input, Stack, cn } from "@job-tracker/ui";
+
 import {
   ApplicationDocument,
   ApplicationsDocument,
   CompaniesDocument,
   useUpdateCompanyMutation,
 } from "@/gql/hooks";
+import { useGenerateCompanyDescriptionAiAction } from "@/modules/ai/actions/useGenerateCompanyDescriptionAiAction";
+import { useRewriteTextAiAction } from "@/modules/ai/actions/useRewriteTextAiAction";
 import { FieldEditTriggerButton } from "@/modules/applications/details/components/HoverEditableFieldRow";
 import { TipTapEditor } from "@/modules/applications/details/components/TipTapEditor";
+import { useControllableState } from "@/modules/applications/shared/hooks/useControllableState";
 import {
   EMPTY_TIPTAP_DOC,
   normalizeTipTapDocument,
   tipTapToPlainText,
 } from "@/modules/applications/shared/utils/tiptap";
-import { useGenerateCompanyDescriptionAiAction } from "@/modules/ai/actions/useGenerateCompanyDescriptionAiAction";
-import { useRewriteTextAiAction } from "@/modules/ai/actions/useRewriteTextAiAction";
-import { useControllableState } from "@/modules/applications/shared/hooks/useControllableState";
 
 export interface CompanyEditDialogApplication {
   id: string;

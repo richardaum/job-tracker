@@ -1,15 +1,13 @@
 "use client";
 
-import React from "react";
-import NextLink from "next/link";
 import {
   Card,
+  cn,
   DropdownMenu,
   IconButton,
   Link,
   Stack,
   Text,
-  cn,
 } from "@job-tracker/ui";
 import {
   ArrowSquareRightIcon,
@@ -17,30 +15,33 @@ import {
   PencilSimpleIcon,
   TrashIcon,
 } from "@phosphor-icons/react";
+import NextLink from "next/link";
+import React from "react";
+
 import {
   ApplicationStage,
   type ApplicationStageEventsQuery,
   SalaryPeriod,
   useApplicationStageEventsQuery,
 } from "@/gql/hooks";
-import { ApplicationQuickEditModal } from "@/modules/applications/list/components/ApplicationQuickEditModal";
-import { DeleteApplicationDialog } from "@/modules/applications/list/components/DeleteApplicationDialog";
-import { ApplicationTrackingPanel } from "@/modules/applications/list/components/ApplicationTrackingPanel";
 import { CompensationEditDialog } from "@/modules/applications/details/components/CompensationEditDialog";
-import {
-  StatusBadge,
-  formatStage,
-} from "@/modules/applications/shared/components/StatusBadge";
-import { StageTimeline } from "@/modules/applications/shared/components/StageTimeline";
+import { formatDateTime } from "@/modules/applications/details/utils/application-details.shared";
+import { ApplicationQuickEditModal } from "@/modules/applications/list/components/ApplicationQuickEditModal";
+import { ApplicationTrackingPanel } from "@/modules/applications/list/components/ApplicationTrackingPanel";
+import { DeleteApplicationDialog } from "@/modules/applications/list/components/DeleteApplicationDialog";
 import { CompanyNameWithPopover } from "@/modules/applications/shared/components/CompanyNameWithPopover";
-import { tipTapToPlainText } from "@/modules/applications/shared/utils/tiptap";
-import { CompensationRow } from "@/modules/applications/shared/utils/CompensationRow";
+import { StageTimeline } from "@/modules/applications/shared/components/StageTimeline";
+import {
+  formatStage,
+  StatusBadge,
+} from "@/modules/applications/shared/components/StatusBadge";
 import { ApplicationTags } from "@/modules/applications/shared/utils/ApplicationTags";
 import {
   formatCompensationLine,
   hasCompensationOnCard,
 } from "@/modules/applications/shared/utils/compensationFormat";
-import { formatDateTime } from "@/modules/applications/details/utils/application-details.shared";
+import { CompensationRow } from "@/modules/applications/shared/utils/CompensationRow";
+import { tipTapToPlainText } from "@/modules/applications/shared/utils/tiptap";
 
 export interface ApplicationCardApplication {
   id: string;
