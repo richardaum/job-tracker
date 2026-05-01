@@ -1,6 +1,7 @@
 import { CompanyType } from "@api/domains/companies/company.type";
 import { Field, ID, Int, ObjectType } from "@nestjs/graphql";
 
+import { ApplicationSource } from "./application-source.enum";
 import { ApplicationStageEnum } from "./application-stage.enum";
 import { SalaryPeriodEnum } from "./salary-period.enum";
 
@@ -26,6 +27,9 @@ export class ApplicationType {
 
   @Field(() => String, { nullable: true })
   url!: string | null;
+
+  @Field(() => ApplicationSource, { nullable: true })
+  source!: ApplicationSource | null;
 
   @Field(() => Int, { nullable: true })
   salaryMinCents?: number | null;

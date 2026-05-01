@@ -10,6 +10,8 @@ import {
 } from "@nestjs/common";
 
 import { ApplicationQuickFilterEnum } from "./application-quick-filter.enum";
+import { ApplicationSource } from "./application-source.enum";
+import { inferApplicationSourceFromUrl } from "./application-source.util";
 import { ApplicationStageEnum } from "./application-stage.enum";
 import { ApplicationStageEvent } from "./application-stage-events.schema";
 import {
@@ -32,6 +34,7 @@ type CreateDto = {
   companyId?: string | null;
   description?: string | null;
   url?: string | null;
+  source?: ApplicationSource | null;
   salaryMinCents?: number | null;
   salaryMaxCents?: number | null;
   salaryCurrency?: string | null;
@@ -147,6 +150,10 @@ export class ApplicationService {
       companyId,
       description: dto.description ?? null,
       url: dto.url ?? null,
+      source:
+        dto.source !== undefined
+          ? dto.source
+          : inferApplicationSourceFromUrl(dto.url),
       tags,
       ...compensation,
     };
@@ -243,6 +250,11 @@ export class ApplicationService {
         ? { description: dto.description }
         : {}),
       ...(dto.url !== undefined ? { url: dto.url } : {}),
+      ...(dto.source !== undefined
+        ? { source: dto.source }
+        : dto.url !== undefined
+          ? { source: inferApplicationSourceFromUrl(dto.url) }
+          : {}),
       ...(tags !== undefined ? { tags } : {}),
       ...(compensation ?? {}),
     };

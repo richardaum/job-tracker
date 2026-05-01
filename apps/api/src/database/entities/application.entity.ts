@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 
+import { ApplicationSource } from "@api/domains/applications/application-source.enum";
 import {
   BeforeInsert,
   Column,
@@ -43,6 +44,14 @@ export class ApplicationEntity {
 
   @Column({ type: "text", nullable: true })
   url!: string | null;
+
+  @Column({
+    type: "enum",
+    enum: ApplicationSource,
+    enumName: "application_source",
+    nullable: true,
+  })
+  source!: ApplicationSource | null;
 
   @Column({ name: "salary_min_cents", type: "integer", nullable: true })
   salaryMinCents!: number | null;

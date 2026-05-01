@@ -31,6 +31,7 @@ const mockApp: Application = {
   },
   description: "Frontend role with React",
   url: "https://acme.com",
+  source: null,
   salaryMinCents: null,
   salaryMaxCents: null,
   salaryCurrency: null,

@@ -29,6 +29,7 @@ const makeApp = (overrides: Partial<Application> = {}): Application =>
     },
     description: null,
     url: null,
+    source: null,
     salaryMinCents: null,
     salaryMaxCents: null,
     salaryCurrency: null,
@@ -147,6 +148,7 @@ describe("ApplicationService", () => {
     const app = makeApp();
     vi.mocked(companyService.findOrCreateByName).mockResolvedValue(app.company);
     vi.mocked(repo.create).mockResolvedValue(app);
+    vi.mocked(repo.findOneByIdAndUserId).mockResolvedValue(app);
     vi.mocked(repo.createStageEvent).mockResolvedValue(
       makeEvent({ toStage: "new", source: "system" }),
     );
