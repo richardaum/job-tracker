@@ -62,6 +62,11 @@ vi.mock("../components/ApplicationTrackingPanel", () => ({
   ApplicationTrackingPanel: () => <div>Tracking panel</div>,
 }));
 
+vi.mock(
+  "@/modules/applications/details/components/CompensationEditDialog",
+  () => ({ CompensationEditDialog: () => null }),
+);
+
 describe("ApplicationsPage", () => {
   it("renders current stage from application when list includes currentStage", () => {
     useApplicationStageEventsQueryMock.mockImplementation(

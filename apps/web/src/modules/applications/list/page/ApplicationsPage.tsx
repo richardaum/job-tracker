@@ -18,14 +18,10 @@ import {
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-import { useApplicationsQuery } from "@/gql/hooks";
 import { ApplicationCard } from "@/modules/applications/list/components/ApplicationCard";
 import { ApplicationQuickEditModal } from "@/modules/applications/list/components/ApplicationQuickEditModal";
 import { QuickFilters } from "@/modules/applications/list/components/QuickFilters";
-import {
-  useCompanyFilter,
-  useQuickFilter,
-} from "@/modules/applications/list/hooks/useQuickFilter";
+import { useApplicationsListViewModel } from "@/modules/applications/list/hooks/useApplicationsListViewModel";
 
 interface ToastState {
   open: boolean;
@@ -101,15 +97,8 @@ function ApplicationsListEmpty() {
 
 export default function ApplicationsPage() {
   const router = useRouter();
-  const activeFilter = useQuickFilter();
-  const companyFilter = useCompanyFilter();
-
-  const { data, loading, error } = useApplicationsQuery({
-    fetchPolicy: "cache-and-network",
-    variables: { filter: activeFilter, company: companyFilter },
-  });
-
-  const applications = data?.applications ?? [];
+  const { applications, companyFilter, error, showInitialLoading } =
+    useApplicationsListViewModel();
 
   const [toast, setToast] = useState<ToastState>({
     open: false,
@@ -204,7 +193,7 @@ export default function ApplicationsPage() {
 
       {/* Content */}
       <div className={cn("flex-1 overflow-auto p-4 sm:p-6")}>
-        {loading && !data ? (
+        {showInitialLoading ? (
           <ApplicationsListSkeleton />
         ) : error ? (
           <ApplicationsListError />
