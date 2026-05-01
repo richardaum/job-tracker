@@ -60,7 +60,7 @@ export default defineConfig(
               name: "react",
               importNames: ["forwardRef"],
               message:
-                "Use ref as a standard component prop (React 19), not forwardRef. See docs/CONVENTIONS.md (TypeScript).",
+                "Use ref as a standard component prop (React 19), not forwardRef. See docs/CONVENTIONS.mdx (TypeScript).",
             },
           ],
         },
@@ -70,13 +70,13 @@ export default defineConfig(
         {
           selector: "CallExpression[callee.name='forwardRef']",
           message:
-            "Do not use forwardRef; add ref to your props type and pass it to the DOM. See docs/CONVENTIONS.md (TypeScript).",
+            "Do not use forwardRef; add ref to your props type and pass it to the DOM. See docs/CONVENTIONS.mdx (TypeScript).",
         },
         {
           selector:
             "CallExpression[callee.type='MemberExpression'][callee.property.type='Identifier'][callee.property.name='forwardRef']",
           message:
-            "Do not use forwardRef; add ref to your props type and pass it to the DOM. See docs/CONVENTIONS.md (TypeScript).",
+            "Do not use forwardRef; add ref to your props type and pass it to the DOM. See docs/CONVENTIONS.mdx (TypeScript).",
         },
         {
           selector: "JSXAttribute[name.name='className'] > Literal",
