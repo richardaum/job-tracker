@@ -19,11 +19,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 
-import {
-  ApplicationStage,
-  useApplicationQuery,
-  useApplicationStageEventsQuery,
-} from "@/gql/hooks";
 import { useBreakpoint } from "@/hooks/useBreakpoint";
 import { ActivitySidePanel } from "@/modules/applications/details/components/ActivitySidePanel";
 import { DescriptionTabContent } from "@/modules/applications/details/components/DescriptionTabContent";
@@ -31,6 +26,7 @@ import { HistoryPanelTabsContent } from "@/modules/applications/details/componen
 import { NotesPanelTabsContent } from "@/modules/applications/details/components/NotesPanel";
 import { OverviewTabContent } from "@/modules/applications/details/components/OverviewTabContent";
 import { UpdateStatusAction } from "@/modules/applications/details/components/UpdateStatusAction";
+import { useApplicationDetailsViewModel } from "@/modules/applications/details/hooks/useApplicationDetailsViewModel";
 import { type ApplicationDetailsValues } from "@/modules/applications/details/utils/application-details.shared";
 import { DeleteApplicationDialog } from "@/modules/applications/list/components/DeleteApplicationDialog";
 import { StatusBadge } from "@/modules/applications/shared/components/StatusBadge";
@@ -51,21 +47,13 @@ export default function ApplicationDetailsPage({ params }: PageProps) {
     "success",
   );
 
-  const { data, loading, error } = useApplicationQuery({
-    variables: { id },
-    fetchPolicy: "cache-and-network",
-  });
-
-  const { data: stageEventsData } = useApplicationStageEventsQuery({
-    variables: { applicationId: id },
-    fetchPolicy: "cache-and-network",
-  });
-
-  const application = data?.application as ApplicationDetailsValues | undefined;
-  const currentStage =
-    stageEventsData?.applicationStageEvents[0]?.toStage ?? ApplicationStage.New;
-  const currentStageReason =
-    stageEventsData?.applicationStageEvents[0]?.reason ?? null;
+  const {
+    application,
+    currentStage,
+    currentStageReason,
+    error,
+    showInitialLoading,
+  } = useApplicationDetailsViewModel(id);
   const isDesktop = useBreakpoint("(min-width: 1024px)");
 
   function showToast(message: string, intent: "success" | "error") {
@@ -210,7 +198,7 @@ export default function ApplicationDetailsPage({ params }: PageProps) {
       </div>
 
       <div className={cn("flex-1 min-h-0 overflow-hidden p-4 sm:p-6")}>
-        {loading && !data ? (
+        {showInitialLoading ? (
           <Text size="sm" color="secondary">
             Loading application...
           </Text>

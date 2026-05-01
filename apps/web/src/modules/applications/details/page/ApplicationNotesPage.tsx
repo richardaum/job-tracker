@@ -4,9 +4,8 @@ import { cn, Heading, Text } from "@job-tracker/ui";
 import Link from "next/link";
 import React from "react";
 
-import { useApplicationQuery } from "@/gql/hooks";
 import { NotesPanel } from "@/modules/applications/details/components/NotesPanel";
-import { type ApplicationDetailsValues } from "@/modules/applications/details/utils/application-details.shared";
+import { useApplicationDetailsViewModel } from "@/modules/applications/details/hooks/useApplicationDetailsViewModel";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -15,12 +14,8 @@ interface PageProps {
 export default function ApplicationNotesPage({ params }: PageProps) {
   const { id } = React.use(params);
 
-  const { data, loading, error } = useApplicationQuery({
-    variables: { id },
-    fetchPolicy: "cache-and-network",
-  });
-
-  const application = data?.application as ApplicationDetailsValues | undefined;
+  const { application, error, showInitialLoading } =
+    useApplicationDetailsViewModel(id, { includeStageEvents: false });
 
   return (
     <div className={cn("flex h-full min-h-0 flex-col")}>
@@ -51,7 +46,7 @@ export default function ApplicationNotesPage({ params }: PageProps) {
       </div>
 
       <div className={cn("flex-1 min-h-0 overflow-hidden p-4 sm:p-6")}>
-        {loading && !data ? (
+        {showInitialLoading ? (
           <Text size="sm" color="secondary">
             Loading notes...
           </Text>
