@@ -4,7 +4,6 @@ import type { User } from "@api/domains/users/users.schema";
 import { UserService } from "@api/domains/users/users.service";
 import { WEB_URL } from "@api/env/server";
 import type { ExecutionContext, INestApplication } from "@nestjs/common";
-import { AuthGuard } from "@nestjs/passport";
 import { Test } from "@nestjs/testing";
 import cookieParser from "cookie-parser";
 import request from "supertest";
@@ -12,6 +11,8 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { AuthController } from "./auth.controller";
 import { AuthService } from "./auth.service";
+import { DevAuthBypassService } from "./dev-auth-bypass.service";
+import { GoogleAuthGuard } from "./google-auth.guard";
 
 const mockUser: User = {
   id: "user-1",
@@ -41,9 +42,10 @@ describe("AuthController (integration)", () => {
           },
         },
         { provide: UserService, useValue: {} },
+        { provide: DevAuthBypassService, useValue: { isEnabled: () => false } },
       ],
     })
-      .overrideGuard(AuthGuard("google"))
+      .overrideGuard(GoogleAuthGuard)
       .useValue({
         canActivate: (ctx: ExecutionContext) => {
           ctx.switchToHttp().getRequest().user = mockUser;
@@ -57,10 +59,14 @@ describe("AuthController (integration)", () => {
     await app.init();
   });
 
-  afterAll(() => app.close());
+  afterAll(async () => {
+    await app?.close();
+  });
 
   it("GET /auth/google/callback sets cookies and redirects to login", async () => {
-    const res = await request(app.getHttpServer()).get("/auth/google/callback");
+    const res = await request(app.getHttpServer())
+      .get("/auth/google/callback")
+      .set("Host", "localhost:3100");
 
     expect(res.statusCode).toBe(302);
     expect(res.headers.location).toBe(loginUrl);
@@ -77,9 +83,9 @@ describe("AuthController (integration)", () => {
   });
 
   it("GET /auth/google/callback preserves safe returnTo from oauth state", async () => {
-    const res = await request(app.getHttpServer()).get(
-      "/auth/google/callback?state=%2Fapplications%2F123",
-    );
+    const res = await request(app.getHttpServer())
+      .get("/auth/google/callback?state=%2Fapplications%2F123")
+      .set("Host", "localhost:3100");
 
     expect(res.statusCode).toBe(302);
     expect(res.headers.location).toBe(
@@ -88,9 +94,9 @@ describe("AuthController (integration)", () => {
   });
 
   it("GET /auth/google/callback ignores unsafe oauth state", async () => {
-    const res = await request(app.getHttpServer()).get(
-      "/auth/google/callback?state=https%3A%2F%2Fevil.example",
-    );
+    const res = await request(app.getHttpServer())
+      .get("/auth/google/callback?state=https%3A%2F%2Fevil.example")
+      .set("Host", "localhost:3100");
 
     expect(res.statusCode).toBe(302);
     expect(res.headers.location).toBe(loginUrl);
