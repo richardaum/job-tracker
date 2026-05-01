@@ -3,12 +3,12 @@
 import { Card, cn, Input, Skeleton, Stack, Text, Toast } from "@job-tracker/ui";
 import { MagnifyingGlassIcon } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
-import { useCompaniesQuery } from "@/gql/hooks";
 import { useScrollRestoration } from "@/hooks/useScrollRestoration";
 import { normalizeTipTapDocument } from "@/modules/applications/shared/utils/tiptap";
 import { CompanyCard } from "@/modules/companies/list/components/CompanyCard";
+import { useCompaniesListViewModel } from "@/modules/companies/list/hooks/useCompaniesListViewModel";
 import { CompanyEditDialog } from "@/modules/companies/shared/components/CompanyEditDialog";
 
 interface ToastState {
@@ -55,25 +55,15 @@ export default function CompaniesPage() {
     intent: "success",
   });
 
-  const { data, loading, error } = useCompaniesQuery({
-    fetchPolicy: "cache-and-network",
-  });
-  const companies = useMemo(() => data?.companies ?? [], [data]);
-  const filteredCompanies = useMemo(() => {
-    const normalizedSearch = query.trim().toLowerCase();
-    if (!normalizedSearch) return companies;
-    return companies.filter((company) =>
-      company.name.toLowerCase().includes(normalizedSearch),
-    );
-  }, [companies, query]);
-  const scrollKey = useMemo(
-    () => `companies-list:${query.trim().toLowerCase()}`,
-    [query],
-  );
-  const recentlyVisitedCompanyStorageKey = useMemo(
-    () => `companies-list:recently-visited:${query.trim().toLowerCase()}`,
-    [query],
-  );
+  const {
+    companies,
+    filteredCompanies,
+    loading,
+    error,
+    showInitialLoading,
+    scrollKey,
+    recentlyVisitedCompanyStorageKey,
+  } = useCompaniesListViewModel(query);
 
   useScrollRestoration({
     key: scrollKey,
@@ -154,7 +144,7 @@ export default function CompaniesPage() {
         ref={scrollContainerRef}
         className={cn("flex-1 overflow-auto p-4 sm:p-6")}
       >
-        {loading && !data ? (
+        {showInitialLoading ? (
           <CompaniesListSkeleton />
         ) : error ? (
           <Text size="sm" color="error">
