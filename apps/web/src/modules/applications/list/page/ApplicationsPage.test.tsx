@@ -27,6 +27,11 @@ vi.mock("@/gql/hooks", () => ({
     Incoming: "INCOMING",
     New: "NEW",
   },
+  ApplicationSource: {
+    Jack: "JACK",
+    Linkedin: "LINKEDIN",
+    Wellfound: "WELLFOUND",
+  },
   ApplicationStage: {
     New: "new",
     Applied: "applied",

@@ -53,6 +53,7 @@ export default function ApplicationDetailsPage({ params }: PageProps) {
     currentStageReason,
     error,
     showInitialLoading,
+    sourcePrimaryText,
   } = useApplicationDetailsViewModel(id);
   const isDesktop = useBreakpoint("(min-width: 1024px)");
 
@@ -83,16 +84,19 @@ export default function ApplicationDetailsPage({ params }: PageProps) {
     currentApplication,
     overviewClassName,
     descriptionClassName,
+    overviewSourcePrimaryText,
   }: {
     currentApplication: ApplicationDetailsValues;
     overviewClassName: string;
     descriptionClassName: string;
+    overviewSourcePrimaryText: string | null;
   }) {
     return (
       <>
         <TabsContent value="overview" className={cn(overviewClassName)}>
           <OverviewTabContent
             application={currentApplication}
+            sourcePrimaryText={overviewSourcePrimaryText}
             onSuccess={handleEntitySuccess}
             onError={handleEntityError}
           />
@@ -225,6 +229,7 @@ export default function ApplicationDetailsPage({ params }: PageProps) {
               currentApplication: application,
               overviewClassName: "mt-3 flex-1 min-h-0 overflow-auto px-2",
               descriptionClassName: "mt-3 flex-1 min-h-0 overflow-auto",
+              overviewSourcePrimaryText: sourcePrimaryText,
             })}
 
             <NotesPanelTabsContent
@@ -254,6 +259,7 @@ export default function ApplicationDetailsPage({ params }: PageProps) {
                 currentApplication: application,
                 overviewClassName: "mt-3 flex-1 min-h-0 overflow-auto px-2",
                 descriptionClassName: "mt-3 flex-1 min-h-0 overflow-auto",
+                overviewSourcePrimaryText: sourcePrimaryText,
               })}
             </Tabs>
 

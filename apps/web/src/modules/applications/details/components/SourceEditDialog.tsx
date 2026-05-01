@@ -4,16 +4,17 @@ import {
   Button,
   cn,
   Combobox,
+  type ComboboxOption,
   Dialog,
   FormField,
   Stack,
 } from "@job-tracker/ui";
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 
 import type { ApplicationSource } from "@/gql/hooks";
 import {
+  APPLICATION_SOURCE_COMBO_OPTIONS,
   applicationSourceToComboLabel,
-  getApplicationSourceComboOptions,
   parseApplicationSourceComboLabel,
 } from "@/modules/applications/shared/utils/applicationSourceLabel";
 
@@ -33,8 +34,6 @@ export function SourceEditDialog({
     applicationSourceToComboLabel(value),
   );
   const [saving, setSaving] = useState(false);
-
-  const options = useMemo(() => getApplicationSourceComboOptions(), []);
 
   const parsed = parseApplicationSourceComboLabel(draft);
   const isValid = parsed !== "invalid";
@@ -75,7 +74,7 @@ export function SourceEditDialog({
             id={fieldId}
             value={draft}
             onValueChange={setDraft}
-            options={options}
+            options={APPLICATION_SOURCE_COMBO_OPTIONS as ComboboxOption[]}
             placeholder="Search or pick a source"
             disabled={saving}
             state={!isValid && draft.trim() !== "" ? "error" : "default"}

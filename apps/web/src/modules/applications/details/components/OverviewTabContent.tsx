@@ -12,7 +12,6 @@ import {
 } from "@/gql/hooks";
 import type { ApplicationDetailsValues } from "@/modules/applications/details/utils/application-details.shared";
 import { CompanyNameWithPopover } from "@/modules/applications/shared/components/CompanyNameWithPopover";
-import { formatApplicationSourceLabel } from "@/modules/applications/shared/utils/applicationSourceLabel";
 import { ApplicationTags } from "@/modules/applications/shared/utils/ApplicationTags";
 import { formatCompensationLine } from "@/modules/applications/shared/utils/compensationFormat";
 import { CompanyEditDialog } from "@/modules/companies/shared/components/CompanyEditDialog";
@@ -26,10 +25,13 @@ import { UrlFieldEditDialog } from "./UrlFieldEditDialog";
 
 export function OverviewTabContent({
   application,
+  sourcePrimaryText,
   onSuccess,
   onError,
 }: {
   application: ApplicationDetailsValues;
+  /** From `useApplicationDetailsViewModel`: primary line for Source, or null → “Not set”. */
+  sourcePrimaryText: string | null;
   onSuccess?: (message: string) => void;
   onError?: (message: string) => void;
 }) {
@@ -165,10 +167,8 @@ export function OverviewTabContent({
         <HoverEditableFieldRow
           label="Source"
           content={
-            application.source ? (
-              <Text size="sm">
-                {formatApplicationSourceLabel(application.source)}
-              </Text>
+            sourcePrimaryText ? (
+              <Text size="sm">{sourcePrimaryText}</Text>
             ) : (
               <Text size="sm" color="secondary">
                 Not set

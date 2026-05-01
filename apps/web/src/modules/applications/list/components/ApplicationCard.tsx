@@ -16,20 +16,18 @@ import {
   TrashIcon,
 } from "@phosphor-icons/react";
 import NextLink from "next/link";
-import React from "react";
 
-import {
-  ApplicationSource,
-  ApplicationStage,
-  type ApplicationStageEventsQuery,
-  SalaryPeriod,
-  useApplicationStageEventsQuery,
-} from "@/gql/hooks";
+import { ApplicationStage } from "@/gql/hooks";
 import { CompensationEditDialog } from "@/modules/applications/details/components/CompensationEditDialog";
 import { formatDateTime } from "@/modules/applications/details/utils/application-details.shared";
 import { ApplicationQuickEditModal } from "@/modules/applications/list/components/ApplicationQuickEditModal";
 import { ApplicationTrackingPanel } from "@/modules/applications/list/components/ApplicationTrackingPanel";
 import { DeleteApplicationDialog } from "@/modules/applications/list/components/DeleteApplicationDialog";
+import {
+  type ApplicationCardApplication,
+  type ApplicationCardStageEventRow,
+  useApplicationCardViewModel,
+} from "@/modules/applications/list/hooks/useApplicationCardViewModel";
 import { CompanyNameWithPopover } from "@/modules/applications/shared/components/CompanyNameWithPopover";
 import { StageTimeline } from "@/modules/applications/shared/components/StageTimeline";
 import {
@@ -38,35 +36,9 @@ import {
 } from "@/modules/applications/shared/components/StatusBadge";
 import { formatApplicationSourceLabel } from "@/modules/applications/shared/utils/applicationSourceLabel";
 import { ApplicationTags } from "@/modules/applications/shared/utils/ApplicationTags";
-import {
-  formatCompensationLine,
-  hasCompensationOnCard,
-} from "@/modules/applications/shared/utils/compensationFormat";
 import { CompensationRow } from "@/modules/applications/shared/utils/CompensationRow";
-import { tipTapToPlainText } from "@/modules/applications/shared/utils/tiptap";
 
-export interface ApplicationCardApplication {
-  id: string;
-  title: string;
-  companyId: string;
-  company: { id: string; name: string; description?: string | null };
-  description?: string | null;
-  url?: string | null;
-  source?: ApplicationSource | null;
-  salaryMinCents?: number | null;
-  salaryMaxCents?: number | null;
-  salaryCurrency?: string | null;
-  salaryPeriod?: SalaryPeriod | null;
-  tags: Array<string>;
-  currentStage: ApplicationStage;
-  currentStageReason?: string | null;
-  currentStageAt: string;
-  createdAt: string;
-}
-
-type ApplicationStageEventRow = NonNullable<
-  ApplicationStageEventsQuery["applicationStageEvents"]
->[number];
+export type { ApplicationCardApplication } from "@/modules/applications/list/hooks/useApplicationCardViewModel";
 
 interface ApplicationCardProps {
   application: ApplicationCardApplication;
@@ -83,7 +55,7 @@ function CurrentStageBadge({
 }: {
   listStage: ApplicationStage;
   listReason: string | null;
-  applicationStageEvents: Array<ApplicationStageEventRow>;
+  applicationStageEvents: Array<ApplicationCardStageEventRow>;
   historyLoading: boolean;
   onRequestStageEvents: () => void;
 }) {
@@ -147,7 +119,7 @@ function CurrentStageDateText({
 }: {
   listStage: ApplicationStage;
   listStatusAt: string;
-  applicationStageEvents: Array<ApplicationStageEventRow>;
+  applicationStageEvents: Array<ApplicationCardStageEventRow>;
   stageEventsRequested: boolean;
 }) {
   if (stageEventsRequested && applicationStageEvents.length > 0) {
@@ -186,33 +158,18 @@ export function ApplicationCard({
   onSuccess,
   onError,
 }: ApplicationCardProps) {
-  const [stageEventsRequested, setStageEventsRequested] = React.useState(false);
-  const { data: stageEventsData, loading: stageEventsLoading } =
-    useApplicationStageEventsQuery({
-      variables: { applicationId: app.id },
-      skip: !stageEventsRequested,
-      fetchPolicy: "cache-first",
-    });
-  const applicationStageEvents = stageEventsData?.applicationStageEvents ?? [];
-  const requestStageEvents = React.useCallback(() => {
-    setStageEventsRequested(true);
-  }, []);
-
-  const descriptionPreview = tipTapToPlainText(app.description);
-  const compLine = formatCompensationLine({
-    salaryMinCents: app.salaryMinCents,
-    salaryMaxCents: app.salaryMaxCents,
-    salaryCurrency: app.salaryCurrency,
-    salaryPeriod: app.salaryPeriod,
-  });
-  const compTags = app.tags ?? [];
-  const showComp = hasCompensationOnCard({ line: compLine, tags: compTags });
-  const compensationActionLabel = compLine
-    ? `Edit compensation for ${app.title}`
-    : `Add compensation for ${app.title}`;
-  const compensationActionTooltip = compLine
-    ? "Edit compensation"
-    : "Add salary";
+  const {
+    applicationStageEvents,
+    stageEventsLoading,
+    stageEventsRequested,
+    requestStageEvents,
+    descriptionPreview,
+    compLine,
+    compTags,
+    showComp,
+    compensationActionLabel,
+    compensationActionTooltip,
+  } = useApplicationCardViewModel(app);
 
   return (
     <Card padding="sm">

@@ -33,17 +33,23 @@ export function applicationSourceToComboLabel(
   );
 }
 
+/** Stable list for comboboxes (GraphQL enum + “Not set”). Built once for stable reference. */
+export const APPLICATION_SOURCE_COMBO_OPTIONS: ReadonlyArray<{
+  value: string;
+  label: string;
+}> = [
+  { value: "__none__", label: APPLICATION_SOURCE_NOT_SET_LABEL },
+  ...Object.values(ApplicationSource).map((s) => ({
+    value: s,
+    label: formatApplicationSourceLabel(s)!,
+  })),
+];
+
 export function getApplicationSourceComboOptions(): Array<{
   value: string;
   label: string;
 }> {
-  return [
-    { value: "__none__", label: APPLICATION_SOURCE_NOT_SET_LABEL },
-    ...Object.values(ApplicationSource).map((s) => ({
-      value: s,
-      label: formatApplicationSourceLabel(s)!,
-    })),
-  ];
+  return [...APPLICATION_SOURCE_COMBO_OPTIONS];
 }
 
 /**

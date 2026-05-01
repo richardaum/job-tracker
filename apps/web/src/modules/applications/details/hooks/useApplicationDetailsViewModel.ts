@@ -6,6 +6,7 @@ import {
   useApplicationStageEventsQuery,
 } from "@/gql/hooks";
 import { type ApplicationDetailsValues } from "@/modules/applications/details/utils/application-details.shared";
+import { formatApplicationSourceLabel } from "@/modules/applications/shared/utils/applicationSourceLabel";
 
 export interface UseApplicationDetailsViewModelOptions {
   /**
@@ -38,6 +39,8 @@ export function useApplicationDetailsViewModel(
   const currentStageReason =
     stageEventsData?.applicationStageEvents[0]?.reason ?? null;
 
+  const sourcePrimaryText = formatApplicationSourceLabel(application?.source);
+
   return {
     application,
     currentStage,
@@ -45,5 +48,6 @@ export function useApplicationDetailsViewModel(
     loading,
     error,
     showInitialLoading: loading && !data,
+    sourcePrimaryText,
   };
 }
