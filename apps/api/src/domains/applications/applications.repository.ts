@@ -1,5 +1,6 @@
 import { ApplicationEntity } from "@api/database/entities/application.entity";
 import { ApplicationStageEventEntity } from "@api/database/entities/application-stage-event.entity";
+import { tipTapDocumentToPlainText } from "@api/domains/shared/tiptap.util";
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
@@ -25,6 +26,11 @@ export type CreateApplicationRepoDto = Pick<
   | "tags"
 >;
 export type UpdateApplicationRepoDto = Partial<CreateApplicationRepoDto>;
+
+export type JobPostingContextSnippet = {
+  title: string;
+  plainTextDescription: string;
+};
 type CreateStageEventDto = Pick<
   NewApplicationStageEvent,
   "toStage" | "source" | "reason" | "scheduledAt"
@@ -104,6 +110,52 @@ export class ApplicationRepository {
     }
 
     return qb.getMany();
+  }
+
+  /**
+   * Up to two recent applications for this user whose company matches (case-insensitive, trimmed),
+   * with non-empty plaintext extracted from TipTap descriptions.
+   */
+  async findUpToTwoJobPostingContextsByCompanyName(
+    userId: string,
+    companyName: string,
+  ): Promise<JobPostingContextSnippet[]> {
+    const normalized = companyName.trim();
+    if (!normalized) {
+      return [];
+    }
+
+    const rows = await this.applicationsRepo
+      .createQueryBuilder("a")
+      .innerJoin("a.company", "c")
+      .where("a.user_id = :userId", { userId })
+      .andWhere("LOWER(TRIM(c.name)) = LOWER(TRIM(:company))", {
+        company: normalized,
+      })
+      .andWhere("a.description IS NOT NULL")
+      .orderBy("a.updatedAt", "DESC")
+      .take(25)
+      .getMany();
+
+    const contexts: JobPostingContextSnippet[] = [];
+    for (const row of rows) {
+      const raw = row.description;
+      if (raw === null || raw.trim().length === 0) {
+        continue;
+      }
+      const plain = tipTapDocumentToPlainText(raw);
+      if (!plain.trim()) {
+        continue;
+      }
+      const title =
+        row.title.trim().length > 0 ? row.title.trim() : "(no title)";
+      contexts.push({ title, plainTextDescription: plain });
+      if (contexts.length >= 2) {
+        break;
+      }
+    }
+
+    return contexts;
   }
 
   async findOneByIdAndUserId(

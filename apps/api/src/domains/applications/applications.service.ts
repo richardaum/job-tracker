@@ -209,8 +209,20 @@ export class ApplicationService {
     });
   }
 
-  generateCompanyDescription(dto: GenerateCompanyDescriptionDto) {
-    return this.companyAiService.generateCompanyDescription(dto);
+  async generateCompanyDescription(
+    userId: string,
+    dto: GenerateCompanyDescriptionDto,
+  ) {
+    const jobPostingContexts =
+      await this.repo.findUpToTwoJobPostingContextsByCompanyName(
+        userId,
+        dto.companyName,
+      );
+
+    return this.companyAiService.generateCompanyDescription({
+      companyName: dto.companyName,
+      jobPostingContexts,
+    });
   }
 
   async update(

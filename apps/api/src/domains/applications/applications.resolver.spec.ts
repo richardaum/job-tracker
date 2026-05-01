@@ -51,6 +51,7 @@ describe("ApplicationResolver (integration)", () => {
     update: ReturnType<typeof vi.fn>;
     remove: ReturnType<typeof vi.fn>;
     removeStageEvent: ReturnType<typeof vi.fn>;
+    generateCompanyDescription: ReturnType<typeof vi.fn>;
   };
 
   beforeAll(async () => {
@@ -62,6 +63,9 @@ describe("ApplicationResolver (integration)", () => {
       update: vi.fn().mockResolvedValue(mockApp),
       remove: vi.fn().mockResolvedValue(mockApp),
       removeStageEvent: vi.fn().mockResolvedValue(undefined),
+      generateCompanyDescription: vi
+        .fn()
+        .mockResolvedValue(JSON.stringify({ type: "doc", content: [] })),
     };
 
     const moduleRef = await Test.createTestingModule({
@@ -193,6 +197,23 @@ describe("ApplicationResolver (integration)", () => {
 
     expect(res.statusCode).toBe(200);
     expect(res.body.data.updateApplication.id).toBe("app-1");
+  });
+
+  it("generateCompanyDescription forwards user id and trimmed company name", async () => {
+    const res = await request(app.getHttpServer())
+      .post("/graphql")
+      .set(auth)
+      .send({
+        query:
+          "query ($name: String!) { generateCompanyDescription(companyName: $name) }",
+        variables: { name: "  Acme  " },
+      });
+
+    expect(res.statusCode).toBe(200);
+    expect(service.generateCompanyDescription).toHaveBeenCalledWith(
+      "user-1",
+      expect.objectContaining({ companyName: "  Acme  " }),
+    );
   });
 
   it("deleteApplication mutation returns true", async () => {

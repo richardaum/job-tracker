@@ -64,8 +64,13 @@ export class ApplicationResolver {
   }
 
   @Query(() => String)
-  generateCompanyDescription(@Args("companyName") companyName: string) {
-    return this.service.generateCompanyDescription({ companyName });
+  generateCompanyDescription(
+    @Args("companyName") companyName: string,
+    @CurrentUser() user: { userId: string },
+  ) {
+    return this.service.generateCompanyDescription(user.userId, {
+      companyName,
+    });
   }
 
   @Mutation(() => ApplicationType)

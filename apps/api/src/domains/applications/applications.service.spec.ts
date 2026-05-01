@@ -82,6 +82,7 @@ describe("ApplicationService", () => {
       createStageEvent: vi.fn(),
       updateStageEvent: vi.fn(),
       deleteStageEvent: vi.fn(),
+      findUpToTwoJobPostingContextsByCompanyName: vi.fn().mockResolvedValue([]),
     } as unknown as ApplicationRepository;
 
     companyService = {
@@ -200,6 +201,32 @@ describe("ApplicationService", () => {
         description: "plain text",
       }),
     ).rejects.toThrow("description must be valid TipTap document JSON");
+  });
+
+  it("generateCompanyDescription loads postings and forwards to company AI", async () => {
+    const snippets = [
+      { title: "Engineer", plainTextDescription: "Product analytics team" },
+    ];
+    vi.mocked(
+      repo.findUpToTwoJobPostingContextsByCompanyName,
+    ).mockResolvedValue(snippets);
+    vi.mocked(companyAiService.generateCompanyDescription).mockResolvedValue(
+      "{}",
+    );
+
+    await service.generateCompanyDescription("user-1", {
+      companyName: "  Acme  ",
+    });
+
+    expect(
+      repo.findUpToTwoJobPostingContextsByCompanyName,
+    ).toHaveBeenCalledWith("user-1", "  Acme  ");
+    expect(
+      vi.mocked(companyAiService.generateCompanyDescription),
+    ).toHaveBeenCalledWith({
+      companyName: "  Acme  ",
+      jobPostingContexts: snippets,
+    });
   });
 
   it("createWithAI persists application and note from generated draft", async () => {

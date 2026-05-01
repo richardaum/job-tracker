@@ -3,6 +3,7 @@ import { ApplicationStageEventEntity } from "@api/database/entities/application-
 import { CompanyEntity } from "@api/database/entities/company.entity";
 import { UserEntity } from "@api/database/entities/user.entity";
 import { resetPublicSchemaAndMigrate } from "@api/database/test-db";
+import { CompanyRepository } from "@api/domains/companies/companies.repository";
 import type { DataSource } from "typeorm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
@@ -253,5 +254,64 @@ describe.skipIf(!hasDb)("ApplicationRepository (integration)", () => {
     const filtered = await repo.findAllByUserId(userId, undefined, acme.name);
     expect(filtered.map((app) => app.id)).toContain(acmeApp.id);
     expect(filtered.every((app) => app.company.name === acme.name)).toBe(true);
+  });
+
+  it("findUpToTwoJobPostingContextsByCompanyName returns up to two recent descriptions", async () => {
+    const company = await createTestCompany(userId, "Posting Snippet Co");
+    const desc = JSON.stringify({
+      type: "doc",
+      content: [
+        {
+          type: "paragraph",
+          content: [{ type: "text", text: "Reliability tooling" }],
+        },
+      ],
+    });
+
+    const oldest = await repo.create(userId, {
+      title: "Role Three",
+      companyId: company.id,
+      description: desc,
+      url: null,
+    });
+    await repo.create(userId, {
+      title: "Role Two",
+      companyId: company.id,
+      description: desc,
+      url: null,
+    });
+    await repo.update(oldest.id, userId, { title: "Role Three bumped" });
+    await repo.create(userId, {
+      title: "Role One Empty",
+      companyId: company.id,
+      description: JSON.stringify({
+        type: "doc",
+        content: [{ type: "paragraph" }],
+      }),
+      url: null,
+    });
+
+    const result = await repo.findUpToTwoJobPostingContextsByCompanyName(
+      userId,
+      "  posting snippet co ",
+    );
+    expect(result).toHaveLength(2);
+    expect(result[0]?.title).toBe("Role Three bumped");
+    expect(result[1]?.title).toBe("Role Two");
+    expect(result.every((r) => r.plainTextDescription)).toBe(true);
+  });
+
+  it("findOrCreateByName resolves case-insensitive matches under unique constraint", async () => {
+    const companyRepo = new CompanyRepository(
+      dataSource.getRepository(CompanyEntity),
+      dataSource.getRepository(ApplicationEntity),
+    );
+    const first = await companyRepo.findOrCreateByName(userId, "UniqueCo Intl");
+    const second = await companyRepo.findOrCreateByName(
+      userId,
+      " UNIQUECO INTL ",
+    );
+
+    expect(second.id).toBe(first.id);
   });
 });
