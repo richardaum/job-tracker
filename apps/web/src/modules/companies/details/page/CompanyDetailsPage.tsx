@@ -18,13 +18,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React from "react";
 
-import {
-  type ApplicationsQuery,
-  CompaniesDocument,
-  useApplicationsQuery,
-  useCompaniesQuery,
-  useUpdateCompanyMutation,
-} from "@/gql/hooks";
+import { CompaniesDocument, useUpdateCompanyMutation } from "@/gql/hooks";
 import { useGenerateCompanyDescriptionAiAction } from "@/modules/ai/actions/useGenerateCompanyDescriptionAiAction";
 import { useRewriteTextAiAction } from "@/modules/ai/actions/useRewriteTextAiAction";
 import { TipTapEditor } from "@/modules/applications/details/components/TipTapEditor";
@@ -34,6 +28,7 @@ import {
   normalizeTipTapDocument,
   tipTapToPlainText,
 } from "@/modules/applications/shared/utils/tiptap";
+import { useCompanyDetailsViewModel } from "@/modules/companies/details/hooks/useCompanyDetailsViewModel";
 import { DeleteCompanyDialog } from "@/modules/companies/list/components/DeleteCompanyDialog";
 
 interface PageProps {
@@ -45,22 +40,14 @@ export default function CompanyDetailsPage({ params }: PageProps) {
   const router = useRouter();
   const [actionsMenuOpen, setActionsMenuOpen] = React.useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
-  const { data, loading, error } = useCompaniesQuery({
-    fetchPolicy: "cache-and-network",
-  });
-  const company = React.useMemo(
-    () => data?.companies.find((item) => item.id === id),
-    [data, id],
-  );
   const {
-    data: applicationsData,
-    loading: applicationsLoading,
-    error: applicationsError,
-  } = useApplicationsQuery({
-    variables: { company: company?.name ?? "" },
-    skip: !company,
-    fetchPolicy: "cache-and-network",
-  });
+    company,
+    companyApplications,
+    applicationsError,
+    companiesError,
+    showCompaniesInitialLoading,
+    showApplicationsInitialLoading,
+  } = useCompanyDetailsViewModel(id);
   const [descriptionDraftState, setDescriptionDraftState] = React.useState<{
     companyId: string | null;
     value: string;
@@ -88,14 +75,6 @@ export default function CompanyDetailsPage({ params }: PageProps) {
       ? descriptionDraftState.value
       : currentDescription;
   const descriptionChanged = descriptionDraft !== currentDescription;
-  const companyApplications = React.useMemo(
-    () =>
-      (applicationsData?.applications ?? []).filter(
-        (application) => application.companyId === company?.id,
-      ) as ApplicationsQuery["applications"],
-    [applicationsData?.applications, company?.id],
-  );
-
   async function handleSaveDescription() {
     if (!company || !descriptionChanged) {
       return;
@@ -197,11 +176,11 @@ export default function CompanyDetailsPage({ params }: PageProps) {
       </div>
 
       <div className={cn("flex-1 min-h-0 overflow-hidden p-4 sm:p-6")}>
-        {loading && !data ? (
+        {showCompaniesInitialLoading ? (
           <Text size="sm" color="secondary">
             Loading company...
           </Text>
-        ) : error ? (
+        ) : companiesError ? (
           <Text size="sm" color="error">
             Failed to load company details.
           </Text>
@@ -219,7 +198,7 @@ export default function CompanyDetailsPage({ params }: PageProps) {
             </TabsList>
 
             <TabsContent value="jobs" className={cn("mt-3 overflow-auto")}>
-              {applicationsLoading && !applicationsData ? (
+              {showApplicationsInitialLoading ? (
                 <Text size="sm" color="secondary">
                   Loading jobs...
                 </Text>
