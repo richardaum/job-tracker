@@ -1,6 +1,7 @@
 import { isTipTapDocumentString } from "@api/domains/shared/tiptap.util";
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
@@ -43,7 +44,25 @@ export class CompanyService {
       );
     }
 
-    const updated = await this.repo.update(id, userId, dto);
+    let patch = dto;
+    if (dto.name !== undefined) {
+      const trimmed = dto.name.trim();
+      if (!trimmed) {
+        throw new BadRequestException("Company name cannot be empty.");
+      }
+      const clash = await this.repo.findOneByNameInsensitiveTrimmed(
+        userId,
+        trimmed,
+      );
+      if (clash && clash.id !== id) {
+        throw new ConflictException(
+          "Another company already uses this name (case-insensitive).",
+        );
+      }
+      patch = { ...dto, name: trimmed };
+    }
+
+    const updated = await this.repo.update(id, userId, patch);
     if (!updated) {
       throw new NotFoundException(`Company ${id} not found`);
     }

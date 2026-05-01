@@ -2,7 +2,7 @@ import { ApplicationEntity } from "@api/database/entities/application.entity";
 import { CompanyEntity } from "@api/database/entities/company.entity";
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import { QueryFailedError, Repository } from "typeorm";
 
 import { Company, NewCompany } from "./companies.schema";
 
@@ -19,17 +19,50 @@ export class CompanyRepository {
     return this.repo.findOne({ where: { id, userId } });
   }
 
-  async findOneByName(name: string, userId: string): Promise<Company | null> {
-    return this.repo.findOne({ where: { name, userId } });
+  async findOneByNameInsensitiveTrimmed(
+    userId: string,
+    name: string,
+  ): Promise<Company | null> {
+    const trimmed = name.trim();
+    if (!trimmed) {
+      return null;
+    }
+
+    return this.repo
+      .createQueryBuilder("c")
+      .where("c.user_id = :userId", { userId })
+      .andWhere("LOWER(TRIM(c.name)) = LOWER(TRIM(:name))", { name: trimmed })
+      .getOne();
   }
 
   async findOrCreateByName(userId: string, name: string): Promise<Company> {
-    const existing = await this.findOneByName(name, userId);
+    const trimmed = name.trim();
+    const existing = await this.findOneByNameInsensitiveTrimmed(
+      userId,
+      trimmed,
+    );
     if (existing) {
       return existing;
     }
-    const company = this.repo.create({ userId, name });
-    return this.repo.save(company);
+
+    try {
+      const company = this.repo.create({ userId, name: trimmed });
+      return await this.repo.save(company);
+    } catch (e: unknown) {
+      if (
+        e instanceof QueryFailedError &&
+        (e.driverError as { code?: string } | undefined)?.code === "23505"
+      ) {
+        const afterRace = await this.findOneByNameInsensitiveTrimmed(
+          userId,
+          trimmed,
+        );
+        if (afterRace) {
+          return afterRace;
+        }
+      }
+      throw e;
+    }
   }
 
   async create(dto: NewCompany): Promise<Company> {

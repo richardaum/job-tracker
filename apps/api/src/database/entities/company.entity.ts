@@ -7,12 +7,15 @@ import {
   Entity,
   OneToMany,
   PrimaryColumn,
+  Unique,
   UpdateDateColumn,
 } from "typeorm";
 
 import { ApplicationEntity } from "./application.entity";
 
+/** DB enforces case- and whitespace-insensitive uniqueness via `UQ_companies_user_lower_name` (see migrations). */
 @Entity({ name: "companies" })
+@Unique(["userId", "name"])
 export class CompanyEntity {
   @PrimaryColumn({ type: "text" })
   id!: string;
