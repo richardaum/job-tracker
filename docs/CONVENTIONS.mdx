@@ -1,4 +1,4 @@
-import { Meta } from '@storybook/addon-docs/blocks';
+import { Meta } from "@storybook/addon-docs/blocks";
 
 <Meta title="Documentation/Conventions" />
 
@@ -22,6 +22,7 @@ GraphQL-backed screens in `apps/web` should keep **rendering thin**: move API-to
 - **Dependencies:** View-model hooks may use Apollo and pure helpers; they **must not** import from `app/` (direction stays `app → modules`).
 - **Types:** Prefer generated GraphQL types; avoid `any`.
 - **React Compiler:** Prefer plain `const` derivations inside the hook. Do **not** add `useMemo` / `useCallback` by default when extracting a view model—use them only for expensive work, a documented reference-stability contract, or eslint/compiler requirements.
+- Always consider that new hooks can be created to avoid duplicating logic or too large existing VM hooks (i.e. split by concern if the hook is too large), considering where it will be used and how it will be used.
 
 Full technical notes (inventory, rollout, risks): `.specs/technical/view-model-web-layer.md`.
 
