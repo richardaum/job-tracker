@@ -59,6 +59,12 @@ export enum ApplicationQuickFilter {
   New = "NEW",
 }
 
+export enum ApplicationSource {
+  Jack = "JACK",
+  Linkedin = "LINKEDIN",
+  Wellfound = "WELLFOUND",
+}
+
 export enum ApplicationStage {
   Applied = "APPLIED",
   New = "NEW",
@@ -95,6 +101,7 @@ export type ApplicationType = {
   salaryMaxCents?: Maybe<Scalars["Int"]["output"]>;
   salaryMinCents?: Maybe<Scalars["Int"]["output"]>;
   salaryPeriod?: Maybe<SalaryPeriod>;
+  source?: Maybe<ApplicationSource>;
   tags: Array<Scalars["String"]["output"]>;
   title: Scalars["String"]["output"];
   updatedAt: Scalars["DateTime"]["output"];
@@ -120,6 +127,7 @@ export type CreateApplicationInput = {
   salaryMaxCents?: InputMaybe<Scalars["Int"]["input"]>;
   salaryMinCents?: InputMaybe<Scalars["Int"]["input"]>;
   salaryPeriod?: InputMaybe<SalaryPeriod>;
+  source?: InputMaybe<ApplicationSource>;
   tags?: InputMaybe<Array<Scalars["String"]["input"]>>;
   title: Scalars["String"]["input"];
   url?: InputMaybe<Scalars["String"]["input"]>;
@@ -284,6 +292,7 @@ export type UpdateApplicationInput = {
   salaryMaxCents?: InputMaybe<Scalars["Int"]["input"]>;
   salaryMinCents?: InputMaybe<Scalars["Int"]["input"]>;
   salaryPeriod?: InputMaybe<SalaryPeriod>;
+  source?: InputMaybe<ApplicationSource>;
   tags?: InputMaybe<Array<Scalars["String"]["input"]>>;
   title?: InputMaybe<Scalars["String"]["input"]>;
   url?: InputMaybe<Scalars["String"]["input"]>;
