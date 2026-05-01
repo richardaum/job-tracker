@@ -1,11 +1,25 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { cn, Text } from "@job-tracker/ui";
 import { useRouter } from "next/navigation";
-import { Text, cn } from "@job-tracker/ui";
+import { type ReactNode, useEffect, useState } from "react";
+
 import { useAuthReturnTo } from "@/hooks/useAuthReturnTo";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { Sidebar } from "@/modules/navigation/components/Sidebar";
+
+function AuthenticatedFullscreenLoadingScreen() {
+  return (
+    <div
+      className={cn("flex h-screen items-center justify-center")}
+      style={{ backgroundColor: "var(--primitive-color-neutral-100)" }}
+    >
+      <Text as="span" size="sm" color="secondary">
+        Loading…
+      </Text>
+    </div>
+  );
+}
 
 export default function ProtectedLayout({ children }: { children: ReactNode }) {
   const router = useRouter();
@@ -20,16 +34,7 @@ export default function ProtectedLayout({ children }: { children: ReactNode }) {
   }, [loading, loginRedirectUrl, router, user]);
 
   if (loading) {
-    return (
-      <div
-        className={cn("flex h-screen items-center justify-center")}
-        style={{ backgroundColor: "var(--primitive-color-neutral-100)" }}
-      >
-        <Text as="span" size="sm" color="secondary">
-          Loading…
-        </Text>
-      </div>
-    );
+    return <AuthenticatedFullscreenLoadingScreen />;
   }
 
   if (!user) {
@@ -41,14 +46,12 @@ export default function ProtectedLayout({ children }: { children: ReactNode }) {
       className={cn("flex h-screen")}
       style={{ backgroundColor: "var(--primitive-color-neutral-100)" }}
     >
-      {/* Sidebar sits flat on the gray background (desktop + mobile drawer) */}
       <Sidebar
         user={user}
         open={isNavOpen}
         onClose={() => setIsNavOpen(false)}
       />
 
-      {/* Content panel: white card elevated above the gray */}
       <div className={cn("flex flex-1 overflow-hidden p-2 md:pl-0")}>
         <div
           className={cn(

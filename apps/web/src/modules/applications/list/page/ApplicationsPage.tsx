@@ -1,5 +1,23 @@
 "use client";
 
+import {
+  Card,
+  cn,
+  DropdownButton,
+  DropdownMenuItem,
+  Skeleton,
+  Stack,
+  Text,
+  Toast,
+} from "@job-tracker/ui";
+import {
+  MagnifyingGlassIcon,
+  PlusIcon,
+  SparkleIcon,
+} from "@phosphor-icons/react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+
 import { useApplicationsQuery } from "@/gql/hooks";
 import { ApplicationCard } from "@/modules/applications/list/components/ApplicationCard";
 import { ApplicationQuickEditModal } from "@/modules/applications/list/components/ApplicationQuickEditModal";
@@ -8,23 +26,6 @@ import {
   useCompanyFilter,
   useQuickFilter,
 } from "@/modules/applications/list/hooks/useQuickFilter";
-import { useRouter } from "next/navigation";
-import {
-  Card,
-  DropdownButton,
-  DropdownMenuItem,
-  Skeleton,
-  Stack,
-  Text,
-  Toast,
-  cn,
-} from "@job-tracker/ui";
-import {
-  MagnifyingGlassIcon,
-  PlusIcon,
-  SparkleIcon,
-} from "@phosphor-icons/react";
-import { useState } from "react";
 
 interface ToastState {
   open: boolean;
@@ -108,6 +109,8 @@ export default function ApplicationsPage() {
     variables: { filter: activeFilter, company: companyFilter },
   });
 
+  const applications = data?.applications ?? [];
+
   const [toast, setToast] = useState<ToastState>({
     open: false,
     message: "",
@@ -119,8 +122,6 @@ export default function ApplicationsPage() {
   function showToast(message: string, intent: "success" | "error") {
     setToast({ open: true, message, intent });
   }
-
-  const applications = data?.applications ?? [];
 
   return (
     <div className={cn("flex h-full flex-col")}>

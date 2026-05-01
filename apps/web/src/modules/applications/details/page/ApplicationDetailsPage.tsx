@@ -1,10 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
 import {
   Button,
+  cn,
   DropdownMenu,
   DropdownMenuItem,
   DropdownMenuSeparator,
@@ -15,24 +13,27 @@ import {
   TabsTrigger,
   Text,
   Toast,
-  cn,
 } from "@job-tracker/ui";
+import { CaretDownIcon } from "@phosphor-icons/react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import React, { useState } from "react";
+
 import {
   ApplicationStage,
   useApplicationQuery,
   useApplicationStageEventsQuery,
 } from "@/gql/hooks";
-import { CaretDownIcon } from "@phosphor-icons/react";
 import { useBreakpoint } from "@/hooks/useBreakpoint";
-import { type ApplicationDetailsValues } from "@/modules/applications/details/utils/application-details.shared";
-import { StatusBadge } from "@/modules/applications/shared/components/StatusBadge";
-import { OverviewTabContent } from "@/modules/applications/details/components/OverviewTabContent";
-import { DescriptionTabContent } from "@/modules/applications/details/components/DescriptionTabContent";
-import { NotesPanelTabsContent } from "@/modules/applications/details/components/NotesPanel";
-import { HistoryPanelTabsContent } from "@/modules/applications/details/components/HistoryPanel";
 import { ActivitySidePanel } from "@/modules/applications/details/components/ActivitySidePanel";
+import { DescriptionTabContent } from "@/modules/applications/details/components/DescriptionTabContent";
+import { HistoryPanelTabsContent } from "@/modules/applications/details/components/HistoryPanel";
+import { NotesPanelTabsContent } from "@/modules/applications/details/components/NotesPanel";
+import { OverviewTabContent } from "@/modules/applications/details/components/OverviewTabContent";
 import { UpdateStatusAction } from "@/modules/applications/details/components/UpdateStatusAction";
+import { type ApplicationDetailsValues } from "@/modules/applications/details/utils/application-details.shared";
 import { DeleteApplicationDialog } from "@/modules/applications/list/components/DeleteApplicationDialog";
+import { StatusBadge } from "@/modules/applications/shared/components/StatusBadge";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -54,6 +55,7 @@ export default function ApplicationDetailsPage({ params }: PageProps) {
     variables: { id },
     fetchPolicy: "cache-and-network",
   });
+
   const { data: stageEventsData } = useApplicationStageEventsQuery({
     variables: { applicationId: id },
     fetchPolicy: "cache-and-network",

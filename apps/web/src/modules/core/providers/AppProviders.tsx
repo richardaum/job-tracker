@@ -1,7 +1,8 @@
 "use client";
 
-import type { ReactNode } from "react";
 import { ApolloProvider } from "@apollo/client/react";
+import type { ReactNode } from "react";
+
 import { apolloClient } from "@/lib/apollo-client";
 
 export function AppProviders({ children }: { children: ReactNode }) {

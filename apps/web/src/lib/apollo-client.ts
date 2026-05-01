@@ -1,6 +1,7 @@
 import { ApolloClient, HttpLink, InMemoryCache } from "@apollo/client";
-import { authRefreshLink } from "./auth-refresh-link";
+
 import { getApiGraphqlUrl } from "./api-endpoints";
+import { authRefreshLink } from "./auth-refresh-link";
 
 function getApolloGraphqlUri(): string {
   return getApiGraphqlUrl();
