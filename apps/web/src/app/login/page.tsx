@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { GoogleLoginButton } from "@job-tracker/ui";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+
 import { useAuthReturnTo } from "@/hooks/useAuthReturnTo";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { getApiBaseUrl } from "@/lib/api-endpoints";
@@ -19,6 +20,8 @@ export default function LoginPage() {
   }, [loading, router, safeReturnTo, user]);
 
   const handleGoogleLogin = () => {
+    // Full navigation to API origin for OAuth (not an in-app Next route).
+    // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- cross-origin auth redirect
     window.location.assign(
       `${getApiBaseUrl()}/auth/google?returnTo=${encodeURIComponent(safeReturnTo)}`,
     );
