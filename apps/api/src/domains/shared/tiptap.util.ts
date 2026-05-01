@@ -7,6 +7,42 @@ export function isTipTapDocumentString(input: string): boolean {
   }
 }
 
+function collectTipTapInlineText(nodes: unknown[] | undefined): string[] {
+  if (!nodes || !Array.isArray(nodes)) {
+    return [];
+  }
+  const chunks: string[] = [];
+  for (const raw of nodes) {
+    const node = raw as Record<string, unknown>;
+    if (!node || typeof node !== "object") {
+      continue;
+    }
+    if (
+      node.type === "text" &&
+      typeof node.text === "string" &&
+      node.text.trim().length > 0
+    ) {
+      chunks.push(node.text);
+    }
+    if (Array.isArray(node.content)) {
+      chunks.push(...collectTipTapInlineText(node.content as unknown[]));
+    }
+  }
+  return chunks;
+}
+
+/** Best-effort plain text extraction from a TipTap document JSON string. */
+export function tipTapDocumentToPlainText(docJson: string): string {
+  if (!isTipTapDocumentString(docJson)) {
+    return docJson.trim();
+  }
+  const parsed = JSON.parse(docJson) as { content?: unknown[] };
+  return collectTipTapInlineText(parsed.content)
+    .join(" ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 export function plainTextToTipTap(input: string): string {
   const paragraphs = input
     .split("\n")
