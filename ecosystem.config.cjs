@@ -3,6 +3,8 @@ const path = require("path");
 
 const root = path.resolve(__dirname);
 
+const namespace = "job-tracker";
+
 /**
  * PM2 ecosystem — dev processes for this monorepo.
  *
@@ -15,7 +17,7 @@ module.exports = {
   apps: [
     {
       name: "api",
-      namespace: "job-tracker",
+      namespace,
       cwd: path.join(root, "apps/api"),
       script: "pnpm",
       args: "run dev:stable",
@@ -26,7 +28,7 @@ module.exports = {
     },
     {
       name: "web",
-      namespace: "job-tracker",
+      namespace,
       cwd: path.join(root, "apps/web"),
       script: "pnpm",
       args: "run dev",
@@ -37,7 +39,7 @@ module.exports = {
     },
     {
       name: "storybook",
-      namespace: "job-tracker",
+      namespace,
       cwd: path.join(root, "packages/ui"),
       script: "pnpm",
       args: "run dev",
