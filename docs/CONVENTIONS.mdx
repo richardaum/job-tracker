@@ -11,6 +11,20 @@ import { Meta } from '@storybook/addon-docs/blocks';
 - Keep cross-directory imports on workspace aliases where configured (`@api/*`, `@ui/*`, `@/*`).
 - Route environment access through typed env modules, not direct `process.env` in application code.
 
+## Web view models
+
+GraphQL-backed screens in `apps/web` should keep **rendering thin**: move API-to-display shaping (derived lists, formatted fields, empty/loading/error flags, props built from query results) into **view-model hooks**, not large page or panel components.
+
+- **Naming:** `useApplicationDetailsViewModel`, `useCompaniesListViewModel`, etc. (`use<Feature><Screen>ViewModel` or feature-scoped names like `useNotesPanelViewModel` for a major panel).
+- **Location:** `apps/web/src/modules/<domain>/<area>/hooks/use<Name>ViewModel.ts` (stay consistent within a module).
+- **Return:** One object with named fields (lists, formatted strings, booleans). Avoid exposing raw `data` unless the view still needs it for mutations. Pure, reusable formatters stay in `utils/` or `*.shared.ts`; the hook **calls** them.
+- **Queries:** `useQuery` / `skip` / variables live in the view-model hook (or a thin `useXxxQueries` if needed). **UI-only** state (modals, drafts, scroll keys) may stay on the page or in a separate `useXxxUiState` when that clarifies boundaries.
+- **Dependencies:** View-model hooks may use Apollo and pure helpers; they **must not** import from `app/` (direction stays `app → modules`).
+- **Types:** Prefer generated GraphQL types; avoid `any`.
+- **React Compiler:** Prefer plain `const` derivations inside the hook. Do **not** add `useMemo` / `useCallback` by default when extracting a view model—use them only for expensive work, a documented reference-stability contract, or eslint/compiler requirements.
+
+Full technical notes (inventory, rollout, risks): `.specs/technical/view-model-web-layer.md`.
+
 ## TypeScript
 
 - Avoid inline type-only imports in type positions (for example `Foo<import("@/path").Bar>`). Prefer a normal top-of-file `import type { Bar } from "@/path"` (or `import { type Bar }`) and then `Foo<Bar>`. Inline `import("...")` types are harder to read, grep, and refactor.
@@ -43,7 +57,7 @@ import { Meta } from '@storybook/addon-docs/blocks';
 - **Controllable component state**: Use `apps/web/src/modules/applications/shared/hooks/useControllableState.ts` whenever a component can be used in both controlled and uncontrolled modes (i.e., it supports `value` + `onChange` and also a local `defaultValue` fallback).
 - **Dialogs in dedicated files**: Implement dialogs in dedicated component files instead of inline definitions inside page/panel components. This keeps dialog context isolated and allows reuse when the same flow is needed on other screens.
 - **`aiActions` as inline literals**: When passing `aiActions` to `TipTapEditor`, prefer a literal array directly in props (for example, `aiActions={[actionA, actionB]}`) instead of creating a separate `const` variable used only for that prop.
-- **Isolate clear-scope implementations**: When an objective is narrow and well defined, extract it into a dedicated hook (or a dedicated function), ideally in a separate file.
+- **Other narrow logic**: For behavior that is not a screen-level view model, still extract a dedicated hook or pure function in its own file when the scope is clear (see **Web view models** for GraphQL screens).
 
 ## Data consistency
 
