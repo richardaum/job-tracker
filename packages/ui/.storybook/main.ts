@@ -8,7 +8,7 @@ import remarkGfm from "remark-gfm";
 import { fileURLToPath } from "url";
 import { mergeConfig } from "vite";
 
-import { rewriteSpecMarkdownForStorybook } from "../src/stories/spec-markdown-resolve.ts";
+import { storybookDocsRewritePlugin } from "./vite-plugin-storybook-docs-rewrite.ts";
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(dirname, "../../..");
@@ -33,24 +33,13 @@ const config: StorybookConfig = {
   ],
   framework: { name: "@storybook/react-vite", options: {} },
   async viteFinal(baseConfig) {
-    const docsLocalMdLinks = {
-      name: "storybook-docs-local-md-links",
-      enforce: "pre" as const,
-      transform(src: string, id: string) {
-        const cleanId = id.split("?")[0];
-        if (!cleanId.endsWith(".mdx")) return null;
-        const rel = path.relative(repoRoot, cleanId).replace(/\\/g, "/");
-        if (!rel.startsWith("docs/")) return null;
-        if (typeof src !== "string") return null;
-        const next = rewriteSpecMarkdownForStorybook(src, rel);
-        if (next === src) return null;
-        return { code: next, map: null };
-      },
-    };
     return mergeConfig(
       {
         ...baseConfig,
-        plugins: [docsLocalMdLinks, ...(baseConfig.plugins ?? [])],
+        plugins: [
+          storybookDocsRewritePlugin(repoRoot),
+          ...(baseConfig.plugins ?? []),
+        ],
       },
       {
         plugins: [tailwindcss()],
