@@ -6,9 +6,6 @@ yarn-debug.log*
 yarn-error.log*
 .turbo/
 
-# Legacy SDD tree (replaced by specs/ + LeanSpec)
-.specs/
-
 # TypeScript (all workspaces)
 *.tsbuildinfo
 
