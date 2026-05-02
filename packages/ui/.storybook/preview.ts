@@ -1,6 +1,7 @@
 import "../src/globals.css";
 
 import type { Preview } from "@storybook/react";
+import { Mermaid } from "mdx-mermaid/Mermaid";
 
 const preview: Preview = {
   parameters: {
@@ -8,6 +9,7 @@ const preview: Preview = {
     options: {
       storySort: { order: ["Documentation", ["Project", "Conventions"], "*"] },
     },
+    docs: { components: { mermaid: Mermaid, Mermaid } },
   },
 };
 

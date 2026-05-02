@@ -2,6 +2,7 @@ import { createRequire } from "node:module";
 
 import type { StorybookConfig } from "@storybook/react-vite";
 import tailwindcss from "@tailwindcss/vite";
+import mdxMermaid from "mdx-mermaid";
 import path from "path";
 import remarkGfm from "remark-gfm";
 import { fileURLToPath } from "url";
@@ -20,7 +21,9 @@ const config: StorybookConfig = {
     {
       name: "@storybook/addon-docs",
       options: {
-        mdxPluginOptions: { mdxCompileOptions: { remarkPlugins: [remarkGfm] } },
+        mdxPluginOptions: {
+          mdxCompileOptions: { remarkPlugins: [remarkGfm, mdxMermaid] },
+        },
       },
     },
     "@storybook/addon-vitest",
