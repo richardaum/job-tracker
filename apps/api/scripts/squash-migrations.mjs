@@ -9,7 +9,7 @@
  *    against a scratch database that matches production).
  * 2. Remove superseded migration files and keep chronological `timestamp-name.ts` ordering.
  * 3. For databases that already executed older TypeORM migrations, use manual baselining
- *    (insert into `typeorm_migrations`) — see `.specs/technical/typeorm-data-layer.md`.
+ *    (insert into `typeorm_migrations`) — see `specs/021-technical-typeorm-data-layer/README.md`.
  */
 
 console.log(
