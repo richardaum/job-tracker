@@ -8,11 +8,11 @@ export interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
 }
 
 const intentClasses: Record<BadgeIntent, string> = {
-  default: "bg-bg-surface text-text-secondary border-border-default",
-  success: "bg-bg-success-subtle text-text-success border-border-default",
-  warning: "bg-bg-warning-subtle text-text-warning border-border-default",
-  error: "bg-bg-error-subtle text-text-error border-border-error",
-  info: "bg-bg-info-subtle text-text-brand border-border-brand",
+  default: "bg-bg-surface text-text-secondary",
+  success: "bg-bg-success-subtle text-text-success",
+  warning: "bg-bg-warning-subtle text-text-warning",
+  error: "bg-bg-error-subtle text-text-error",
+  info: "bg-bg-info-subtle text-text-brand",
 };
 
 export function Badge({
@@ -22,7 +22,7 @@ export function Badge({
   ...props
 }: BadgeProps) {
   const classes = cn(
-    "inline-flex items-center rounded-full border px-3 py-1 text-sm font-medium",
+    "inline-flex items-center rounded border border-current/20 px-1.5 py-0.5 text-[11px] font-normal leading-4",
     intentClasses[intent],
     className,
   );

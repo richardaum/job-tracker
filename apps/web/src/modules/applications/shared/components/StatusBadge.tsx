@@ -40,13 +40,7 @@ export function StatusBadge({
 }) {
   return (
     <span className={cn("inline-flex items-center gap-1")}>
-      <Badge
-        intent={getStageBadgeIntent(stage)}
-        className={cn(
-          "rounded border border-current/20 px-1.5 py-0.5 text-[11px] font-normal leading-4",
-          className,
-        )}
-      >
+      <Badge intent={getStageBadgeIntent(stage)} className={className}>
         {formatStage(stage)}
       </Badge>
       {reason ? (
