@@ -2,12 +2,12 @@ import { lstat, mkdir, rm, symlink } from "node:fs/promises";
 import path from "node:path";
 
 const repoRoot = process.cwd();
-const sharedCommandFile = path.join(repoRoot, ".ai", "commands", "commit.md");
+const sharedCommandFile = path.join(repoRoot, ".ai", "commands", "COMMIT.md");
 
 const links = [
-  path.join(repoRoot, ".cursor", "commands", "commit.md"),
-  path.join(repoRoot, ".claude", "commands", "commit.md"),
-  path.join(repoRoot, ".gemini", "commands", "commit.md"),
+  path.join(repoRoot, ".cursor", "commands", "COMMIT.md"),
+  path.join(repoRoot, ".claude", "commands", "COMMIT.md"),
+  path.join(repoRoot, ".gemini", "commands", "COMMIT.md"),
 ];
 
 async function ensureSymlink(linkPath) {
