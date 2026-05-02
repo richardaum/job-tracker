@@ -47,6 +47,7 @@
     ],
     "host_permissions": [
       "http://127.0.0.1:3101/*",
+      "http://127.0.0.1:7276/*",
       "http://localhost:3101/*",
       "https://remoteyeah.com/*"
     ]

@@ -81,7 +81,16 @@ export function computeManifestHostPermissions(rawApiBase) {
       ? String(rawApiBase).trim()
       : getApiBaseUrlForManifest();
   const apiPatterns = computeExtensionHostPatterns(base);
-  return [...new Set([...apiPatterns, ...IMPORT_SITE_HOST_PERMISSIONS])].sort(
-    (a, b) => a.localeCompare(b),
-  );
+  /** Cursor debug NDJSON ingest (side panel fetch); gated so prod stays minimal. */
+  const debugIngest =
+    process.env.JOB_TRACKER_EXTENSION_DEBUG_INGEST === "1"
+      ? ["http://127.0.0.1:7276/*"]
+      : [];
+  return [
+    ...new Set([
+      ...apiPatterns,
+      ...IMPORT_SITE_HOST_PERMISSIONS,
+      ...debugIngest,
+    ]),
+  ].sort((a, b) => a.localeCompare(b));
 }

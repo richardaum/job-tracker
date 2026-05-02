@@ -71,7 +71,7 @@ module.exports = {
       script: "pnpm",
       args: "run dev",
       interpreter: "none",
-      env: { NODE_ENV: "development" },
+      env: { NODE_ENV: "development", JOB_TRACKER_EXTENSION_DEBUG_INGEST: "1" },
       watch: ["src", "scripts"],
       ignore_watch: ["node_modules", ".git", "build", ".plasmo"],
     },
