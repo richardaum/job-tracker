@@ -49,8 +49,14 @@ jobs:
       - name: Validate LeanSpec (specs/)
         run: pnpm leanspec:validate
 
+      - name: Spec indices synced
+        run: pnpm leanspec:sync-spec-indices -- --check
+
       - name: Lint
         run: pnpm turbo lint
+
+      - name: Assert clean tree after lint (no uncommitted autofix drift)
+        run: git diff --exit-code
 
       - name: Typecheck
         run: pnpm turbo typecheck

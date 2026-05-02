@@ -8,34 +8,47 @@ Guidelines for **application and package code**, **LeanSpec** (`specs/`), and St
 
 ## Documentation MDX (`docs/`)
 
+- **Language**: All **documentation** in this repository is written in **English** — including `docs/**/*.mdx`, LeanSpec under `specs/`, root and package **README** files, Storybook documentation (this page and related MDX), agent skills, and other in-repo technical prose. User-facing UI strings may follow product or localization decisions separately; the documentation layer stays English for a single shared baseline.
 - **Format**: All files under `docs/` are **`.mdx`**. Do not add plain Markdown (`.md`) here — MDX is required so Storybook picks them up (`packages/ui/.storybook/main.ts` includes `docs/**/*.mdx`) and tooling stays consistent.
 - **No `---` before headings**: Do not place a thematic break (`---`, horizontal rule) on the line directly above any Markdown heading (`#` through `######`). It adds noise in Storybook and weakens heading hierarchy visually. Use blank lines only, or restructure sections (lists, paragraphs) instead of separating with a rule right before a title.
 
-- **Uppercase `*.md` / `*.mdx` stems (repository-wide)**: The filename **before** `.md` or `.mdx` must use **uppercase ASCII letters** (hyphens between segments are fine; **no lowercase** in the basename). Examples: **`README.md`**, **`PROJECT.mdx`**, **`COSTS.mdx`**, **`COMMIT.md`**. When renaming, update links, scripts, globs, and agent skills that reference the path.
+- **Uppercase `*.md` / `*.mdx` stems (repository-wide)**: The filename **before** `.md` or `.mdx` must use **uppercase ASCII letters** (hyphens between segments are fine; **no lowercase** in the basename). Examples: **`README.md`**, **`PROJECT.mdx`**, **`COSTS.mdx`**. **Exception:** slash-command sources under **`.ai/commands/`** use **lowercase** basenames (e.g. **`commit.md`**) so they match **`/commit`** invocations in editors. When renaming, update links, scripts, globs, and agent skills that reference the path.
 
 ## LeanSpec (`specs/`)
 
-Numbered folders: `specs/<NNN-slug>/` with primary **`README.md`** (optional companions, e.g. **`HISTORY.md`** in **`docs-history`**). Overview: **`specs/README.md`**. Config: **`.lean-spec/config.json`**.
+Numbered folders: `specs/<NNN-slug>/` with primary **`README.md`** (optional companions at spec root too). Chronicle: **`specs/HISTORY.md`** next to **`specs/README.md`**, linked from **`008-docs-history`**. Overview: **`specs/README.md`**. Config: **`.lean-spec/config.json`**.
 
 ### Structure bands (this repository)
 
-| Range | Role |
-|--------|------|
-| `001-*` … `006-*` | Archived earlier-phase snapshots (`status: archived` in frontmatter). |
+| Range             | Role                                                                   |
+| ----------------- | ---------------------------------------------------------------------- |
+| `001-*` … `006-*` | Archived earlier-phase snapshots (`status: archived` in frontmatter).  |
 | `007-*` … `011-*` | **`docs-*`** governance: definition, history, project, roadmap, state. |
-| `012-*` … `023-*` | Active **product** and **technical** scopes for current work. |
+| `012-*` … `023-*` | Active **product** and **technical** scopes for current work.          |
 
 ### Naming and prose
 
 - Directory slugs under `specs/`: lowercase **kebab-case**.
-- Spec prose: **English**.
 - **One primary outcome** per spec; keep terminology aligned across roadmap, project, product, and technical docs.
+
+### Traceability IDs (`[P-XXX]`, `[T-XXX]`, …)
+
+- **Always attach stable bracketed IDs** to anything that other specs, history, or roadmap entries should cite: product-facing bullets and outcomes use **`[P-NNN]`**; technical work items use **`[T-NNN]`**; also **`[R-NNN]`** (roadmap), **`[H-NNN]`** (history entries), and other prefixes already used in **`specs/HISTORY.md`** and active product READMEs.
+- **Reuse the same ID** across `specs/`, `docs-roadmap`, `docs-history`, and cross-spec references—do not rephrase the same requirement under a new number.
+- When splitting or superseding scope, **record the mapping** in history (which `[P-XXX]` / `[T-XXX]` moved or replaced) so grep and changelog lines stay unambiguous.
 
 ### Workflow
 
 - Prefer **`pnpm exec lean-spec`** for `create`, `update`, `validate`, `board`, and **`rel`** (dependencies), not only ad-hoc tree edits.
-- Meaningful increments: update **`docs-roadmap`**, **`docs-state`**, and **`docs-history`** (prepend to **`HISTORY.md`** in the history spec).
+- Meaningful increments: update **`docs-roadmap`**, **`docs-state`**, and **`docs-history`** (prepend to **`specs/HISTORY.md`**).
 - Merge-ready: code and tests green; **`pnpm leanspec:validate`** (CI and pre-commit).
+
+### Spec indices (`specs/`)
+
+- **`specs/README.md`** only **links** to **`specs/INDEX.md`** — no embedded grids.
+- **`specs/INDEX.md`** (generated) — minimal **YAML frontmatter** only: **`specCount`** (numbered folders with **`README.md`**), **`requirementIdCount`** (distinct bracket IDs **`[P-NNN]`**, **`[T-NNN]`**, … scanned from **`specs/`** Markdown, excluding **`specs/README.md`** and **`specs/INDEX.md`**), and **`historyCount`** (list lines `- [H-NNN]` in **`specs/HISTORY.md`**). Also **`formatVersion`** and **`generator`** — no timestamps so **`--check`** stays deterministic. No embedded **`specs`** or **`refs`** lists in the file.
+- **Mandatory:** after **creating** a new numbered spec folder, editing **`status:`** or the primary **`#`** title, or **adding or editing** any **`[P-NNN]`** / **`[T-NNN]`** (etc.) reference in LeanSpec Markdown under **`specs/`**, run **`pnpm leanspec:sync-spec-indices`** in the same change set. Do **not** hand-edit **`specs/INDEX.md`** — regenerate with the script.
+- CI and **`pnpm ci:local`** run **`pnpm leanspec:sync-spec-indices -- --check`** so a stale **`specs/INDEX.md`** fails the gate. **`specs/INDEX.md`** is listed in **`.prettierignore`** so Prettier leaves generated YAML intact.
 
 ### Further reading
 
@@ -53,16 +66,16 @@ Numbered folders: `specs/<NNN-slug>/` with primary **`README.md`** (optional com
 
 GraphQL screens should keep **rendering thin**: put API-to-display shaping (derived lists, formatted fields, empty/loading/error flags, props from query results) in **view-model hooks**, not large page or panel components.
 
-| Topic | Rule |
-|--------|------|
-| **Naming** | `useApplicationDetailsViewModel`, `useCompaniesListViewModel`, etc. (`use<Feature><Screen>ViewModel` or feature-scoped names like `useNotesPanelViewModel`). |
-| **Location** | `apps/web/src/modules/<domain>/<area>/hooks/use<Name>ViewModel.ts` (consistent within a module). |
-| **Return** | One object with named fields. Avoid exposing raw `data` unless mutations still need it. Pure formatters live in `utils/` or `*.shared.ts`; the hook **calls** them. |
-| **Queries** | `useQuery` / `skip` / variables live in the view-model hook (or a thin `useXxxQueries`). UI-only state (modals, drafts, scroll keys) may stay on the page or in `useXxxUiState` when that clarifies boundaries. |
-| **Dependencies** | Apollo and pure helpers allowed; **must not** import from `app/` (`app → modules` only). |
-| **Types** | Prefer generated GraphQL types; avoid `any`. |
-| **React Compiler** | Prefer plain `const` derivations. Do **not** add `useMemo` / `useCallback` by default—only for expensive work, a documented reference-stability need, or eslint/compiler requirements. |
-| **Size** | Split large hooks by concern; place new hooks where reuse and call sites stay clear. |
+| Topic              | Rule                                                                                                                                                                                                            |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Naming**         | `useApplicationDetailsViewModel`, `useCompaniesListViewModel`, etc. (`use<Feature><Screen>ViewModel` or feature-scoped names like `useNotesPanelViewModel`).                                                    |
+| **Location**       | `apps/web/src/modules/<domain>/<area>/hooks/use<Name>ViewModel.ts` (consistent within a module).                                                                                                                |
+| **Return**         | One object with named fields. Avoid exposing raw `data` unless mutations still need it. Pure formatters live in `utils/` or `*.shared.ts`; the hook **calls** them.                                             |
+| **Queries**        | `useQuery` / `skip` / variables live in the view-model hook (or a thin `useXxxQueries`). UI-only state (modals, drafts, scroll keys) may stay on the page or in `useXxxUiState` when that clarifies boundaries. |
+| **Dependencies**   | Apollo and pure helpers allowed; **must not** import from `app/` (`app → modules` only).                                                                                                                        |
+| **Types**          | Prefer generated GraphQL types; avoid `any`.                                                                                                                                                                    |
+| **React Compiler** | Prefer plain `const` derivations. Do **not** add `useMemo` / `useCallback` by default—only for expensive work, a documented reference-stability need, or eslint/compiler requirements.                          |
+| **Size**           | Split large hooks by concern; place new hooks where reuse and call sites stay clear.                                                                                                                            |
 
 Full technical notes: `specs/022-technical-view-model-web-layer/README.md`.
 

@@ -40,3 +40,5 @@ priority: medium
 ## Notes
 
 <!-- Optional: Research findings, alternatives considered, open questions -->
+
+<!-- After `lean-spec create`, or when you change frontmatter `status:`, the first `#` heading, traceability brackets like `[P-NNN]`, or prepend to `specs/HISTORY.md`: run `pnpm leanspec:sync-spec-indices` so `specs/INDEX.md` counts (`specCount`, `requirementIdCount`, `historyCount`) stay accurate. -->

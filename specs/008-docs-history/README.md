@@ -6,8 +6,8 @@ tags:
   - migrated
 ---
 
-The full chronological list lives in [HISTORY.md](./HISTORY.md) (split for LeanSpec size limits).
+The full chronological list lives in [HISTORY.md](../HISTORY.md) (split out of this folder for LeanSpec size limits).
 
 # History
 
-Append new entries at the **top** of [HISTORY.md](./HISTORY.md) using the existing `[H-n]` format.
+Append new entries at the **top** of [HISTORY.md](../HISTORY.md) using the existing `[H-n]` format.

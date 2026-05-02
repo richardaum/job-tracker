@@ -8,7 +8,7 @@ tags:
 
 # Product Scope: import-and-onboarding-expansion
 
-Chrome extension-assisted listing capture lives in **`specs/023-product-chrome-extension/README.md`** ([P-53], [P-109]–[P-113]; [T-132]–[T-134]).
+The **Chrome extension** is **out of scope** for this spec; it is defined only in **`specs/023-product-chrome-extension/README.md`**.
 
 ## Objective
 
@@ -31,7 +31,7 @@ Chrome extension-assisted listing capture lives in **`specs/023-product-chrome-e
 
 ## Acceptance Criteria
 
-- [P-59] A user can import a supported job listing via URL or paste-oriented guided paths into a draft and confirm mapped fields before persistence (extension path: [P-110]).
+- [P-59] A user can import a supported job listing via URL or paste-oriented guided paths into a draft and confirm mapped fields before persistence.
 - [P-60] A guest can create temporary tracking data and later migrate it into an authenticated account.
 - [P-61] Import failures provide actionable guidance and never overwrite existing owned records without confirmation.
 - [P-83] Import mapping accuracy, migration integrity, and failure recovery behavior are validated through automated scenario coverage.

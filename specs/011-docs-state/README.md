@@ -22,6 +22,6 @@ Folded from the duplicate legacy **state** spec when **Beta1** closure was recor
 - Status: complete
 - Active scope: none
 - Current step: none
-- Next action (at that time): start new work from product priorities; append the **docs-history** spec’s **`HISTORY.md`** when closing meaningful increments.
+- Next action (at that time): start new work from product priorities; prepend **`specs/HISTORY.md`** when closing meaningful increments (see **`008-docs-history`** README).
 - Blockers: none
 - Last update: 2026-04-22T22:30:00Z
