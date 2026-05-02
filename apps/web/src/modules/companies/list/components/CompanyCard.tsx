@@ -74,10 +74,12 @@ export function CompanyCard({
                 href={`/companies/${encodeURIComponent(company.id)}`}
                 onClick={() => onOpenDetails?.(company.id)}
                 className={cn(
-                  "text-text-primary underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-brand focus-visible:ring-offset-2",
+                  "inline-block max-w-full rounded-sm text-text-primary underline-offset-2 hover:underline",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-border-brand",
                 )}
               >
                 <Text
+                  as="span"
                   size="base"
                   weight="semibold"
                   className={cn("wrap-break-word")}
