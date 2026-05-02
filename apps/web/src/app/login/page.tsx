@@ -1,12 +1,13 @@
 "use client";
 
-import { GoogleLoginButton } from "@job-tracker/ui";
+import { cn, GoogleLoginButton } from "@job-tracker/ui";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 import { useAuthReturnTo } from "@/hooks/useAuthReturnTo";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { getApiBaseUrl } from "@/lib/api-endpoints";
+import { AppBrandMark } from "@/modules/navigation/components/AppBrandMark";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -29,7 +30,10 @@ export default function LoginPage() {
 
   return (
     <main>
-      <h1>Login</h1>
+      <div className={cn("mb-8 flex items-center gap-3")}>
+        <AppBrandMark size={36} />
+        <h1 className={cn("m-0 text-2xl font-semibold")}>Login</h1>
+      </div>
       <GoogleLoginButton onClick={handleGoogleLogin} />
     </main>
   );

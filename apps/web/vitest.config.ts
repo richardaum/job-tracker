@@ -22,9 +22,19 @@ export default defineConfig({
     },
   },
   resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "./src"),
-      "@ui": path.resolve(__dirname, "../../packages/ui/src"),
-    },
+    alias: [
+      {
+        find: "@/app/icon.svg",
+        replacement: path.resolve(
+          __dirname,
+          "./src/test/stubs/jobTrackerAppIcon.stub.ts",
+        ),
+      },
+      { find: "@", replacement: path.resolve(__dirname, "./src") },
+      {
+        find: "@ui",
+        replacement: path.resolve(__dirname, "../../packages/ui/src"),
+      },
+    ],
   },
 });

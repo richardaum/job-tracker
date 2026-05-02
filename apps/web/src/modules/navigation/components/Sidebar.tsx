@@ -16,6 +16,7 @@ import React, { useState } from "react";
 
 import { NEXT_PUBLIC_API_URL } from "@/env/client";
 import type { CurrentUser } from "@/hooks/useCurrentUser";
+import { AppBrandMark } from "@/modules/navigation/components/AppBrandMark";
 import { ObfuscatedText } from "@/modules/navigation/components/ObfuscatedText";
 
 function getDefaultApiUrl(): string {
@@ -80,13 +81,9 @@ export function Sidebar({ open = false, onClose, user }: SidebarProps) {
 
   const navContent = (
     <>
-      {/* Logo */}
+      {/* Logo — same graphic as favicon (`src/app/icon.svg`) */}
       <div className={cn("flex items-center gap-2 px-5 py-5")}>
-        <BriefcaseIcon
-          size={22}
-          weight="fill"
-          className={cn("text-text-brand")}
-        />
+        <AppBrandMark size={22} />
         <Text as="span" size="base" weight="bold">
           Job Tracker
         </Text>
