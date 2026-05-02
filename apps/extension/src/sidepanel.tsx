@@ -7,6 +7,7 @@ import { useEffect } from "react";
 import { ApiConnectivityDot } from "@/components/api-connectivity/ApiConnectivityDot";
 import { ApiConnectivityIssueMessage } from "@/components/api-connectivity/ApiConnectivityIssueMessage";
 import { reconnectExtensionChannel } from "@/components/api-connectivity/reconnect-extension-channel";
+import { clearExtensionChannelSseLog } from "@/extension-channel/sse-event-log";
 import { useExtensionChannelSseLog } from "@/extension-channel/use-extension-channel-sse-log";
 import { useExtensionChannelState } from "@/extension-channel/use-extension-channel-state";
 import { useImportQueueUiState } from "@/import-runs/use-import-queue-ui-state";
@@ -34,7 +35,7 @@ function SidePanel(): JSX.Element {
 
   const apiChannel = useExtensionChannelState();
   const importQueue = useImportQueueUiState();
-  const sseLog = useExtensionChannelSseLog();
+  const { entries: sseLog, hasStoredEntries } = useExtensionChannelSseLog();
 
   return (
     <main
@@ -88,14 +89,34 @@ function SidePanel(): JSX.Element {
         </Text>
         <ApiConnectivityIssueMessage channel={apiChannel} />
         <Stack align="stretch" direction="column" gap="xs">
-          <Text
-            as="p"
-            size="xs"
-            weight="semibold"
-            className={cn("m-0 tracking-tight text-text-secondary")}
+          <Stack
+            align="center"
+            className={cn("w-full")}
+            direction="row"
+            gap="xs"
+            justify="between"
           >
-            SSE log
-          </Text>
+            <Text
+              as="p"
+              size="xs"
+              weight="semibold"
+              className={cn("m-0 tracking-tight text-text-secondary")}
+            >
+              SSE log
+            </Text>
+            <Button
+              type="button"
+              intent="secondary"
+              size="sm"
+              disabled={!hasStoredEntries}
+              className={cn("shrink-0 text-[12px]")}
+              onClick={() => {
+                void clearExtensionChannelSseLog();
+              }}
+            >
+              Clear log
+            </Button>
+          </Stack>
           <div
             className={cn(
               "max-h-44 overflow-y-auto rounded border border-default bg-bg-surface p-2",
@@ -105,7 +126,9 @@ function SidePanel(): JSX.Element {
           >
             {sseLog.length === 0 ? (
               <Text as="p" size="xs" color="muted" className={cn("m-0")}>
-                No payloads yet — connect and wait for extension channel events.
+                {hasStoredEntries
+                  ? "Only heartbeat payloads in the log right now (hidden). Non-heartbeat channel events will appear here."
+                  : "No payloads yet — connect and wait for extension channel events."}
               </Text>
             ) : (
               <ul className={cn("m-0 list-none space-y-2.5 p-0")}>

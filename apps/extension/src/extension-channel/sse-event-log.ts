@@ -9,6 +9,12 @@ export type ExtensionChannelSseLogEntry = {
   payloadSnippet: string;
 };
 
+export async function clearExtensionChannelSseLog(): Promise<void> {
+  await chrome.storage.local.set({
+    [EXTENSION_CHANNEL_SSE_LOG_STORAGE_KEY]: [],
+  });
+}
+
 export async function appendExtensionChannelSseLogEntry(
   kind: string,
   payloadJson: string | null | undefined,
