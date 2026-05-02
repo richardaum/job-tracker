@@ -13,7 +13,6 @@ import {
   Select,
   Stack,
   TabsContent,
-  Text,
 } from "@job-tracker/ui";
 import {
   ChatCircleTextIcon,
@@ -22,6 +21,7 @@ import {
 } from "@phosphor-icons/react";
 import React from "react";
 
+import { EmptyState } from "@/components/empty-state";
 import {
   ApplicationStage,
   ApplicationStageEventsDocument,
@@ -182,9 +182,7 @@ export function HistoryPanel({
         </div>
 
         {stageEvents.length === 0 ? (
-          <Text size="sm" color="muted">
-            No stage events yet.
-          </Text>
+          <EmptyState variant="panel" message="No stage events yet." />
         ) : (
           <StageTimeline
             items={stageEvents.map((event) => ({

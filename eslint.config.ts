@@ -66,6 +66,16 @@ export default defineConfig(
                 "Use ref as a standard component prop (React 19), not forwardRef. See docs/CONVENTIONS.mdx (TypeScript).",
             },
           ],
+          patterns: [
+            {
+              group: [
+                "@/components/empty-state/internals",
+                "@/components/empty-state/internals/**",
+              ],
+              message:
+                "Import `EmptyState` from `@/components/empty-state` only; do not import empty-state internals.",
+            },
+          ],
         },
       ],
       "no-restricted-syntax": [

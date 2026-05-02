@@ -11,6 +11,7 @@ import {
 import { ArrowRightIcon } from "@phosphor-icons/react";
 import type { ReactNode } from "react";
 
+import { EmptyState } from "@/components/empty-state";
 import { ApplicationStage } from "@/gql/hooks";
 
 import { formatStage } from "./StatusBadge";
@@ -38,9 +39,11 @@ export function StageTimeline({
 
   if (items.length === 0) {
     return (
-      <Text size={isCompact ? "xs" : "sm"} color="muted">
-        No status history yet.
-      </Text>
+      <EmptyState
+        variant="panel"
+        message="No status history yet."
+        size={isCompact ? "xs" : "sm"}
+      />
     );
   }
 

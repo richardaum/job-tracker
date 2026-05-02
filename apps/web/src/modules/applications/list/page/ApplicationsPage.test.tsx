@@ -214,8 +214,9 @@ describe("ApplicationsPage", () => {
 
     render(<ApplicationsPage />);
 
+    expect(screen.getByText(/no applications yet/i)).toBeInTheDocument();
     expect(
-      screen.getByText(/no applications yet\. add your first one!/i),
+      screen.getByText(/add your first one to start tracking/i),
     ).toBeInTheDocument();
   });
 });

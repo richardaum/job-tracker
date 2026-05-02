@@ -11,6 +11,7 @@ import {
 import { PencilSimpleIcon, TrashIcon } from "@phosphor-icons/react";
 import React, { useMemo, useRef, useState } from "react";
 
+import { EmptyState } from "@/components/empty-state";
 import {
   ApplicationNotesDocument,
   useApplicationNotesQuery,
@@ -170,9 +171,7 @@ export function NotesPanel({
       <div className={cn("flex h-full min-h-0 flex-col")}>
         <div className={cn("min-h-0 flex-1 overflow-auto")}>
           {applicationNotes.length === 0 ? (
-            <Text size="sm" color="muted">
-              No application notes yet.
-            </Text>
+            <EmptyState variant="panel" message="No application notes yet." />
           ) : (
             <Stack gap="xs">
               {applicationNotes.map((note) => (

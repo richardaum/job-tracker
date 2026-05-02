@@ -5,6 +5,7 @@ import { MagnifyingGlassIcon } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
+import { EmptyState } from "@/components/empty-state";
 import { useScrollRestoration } from "@/hooks/useScrollRestoration";
 import { normalizeTipTapDocument } from "@/modules/applications/shared/utils/tiptap";
 import { CompanyCard } from "@/modules/companies/list/components/CompanyCard";
@@ -142,7 +143,7 @@ export default function CompaniesPage() {
 
       <div
         ref={scrollContainerRef}
-        className={cn("flex-1 overflow-auto p-4 sm:p-6")}
+        className={cn("flex min-h-0 flex-1 flex-col overflow-auto p-4 sm:p-6")}
       >
         {showInitialLoading ? (
           <CompaniesListSkeleton />
@@ -151,15 +152,14 @@ export default function CompaniesPage() {
             Failed to load companies. Please refresh the page.
           </Text>
         ) : filteredCompanies.length === 0 ? (
-          <Card variant="outlined">
-            <Stack align="center" justify="center" gap="sm">
-              <Text size="sm" color="secondary">
-                {query.trim()
-                  ? "No companies match your search."
-                  : "No companies found yet."}
-              </Text>
-            </Stack>
-          </Card>
+          <EmptyState
+            variant="filtered"
+            hasActiveFilter={query.trim().length > 0}
+            noMatchMessage="No companies match your search."
+            emptyListMessage="No companies found yet."
+            noMatchDetail="Try a different name or clear the search box."
+            emptyListDetail="When you add companies, they will appear in this list."
+          />
         ) : (
           <Stack gap="sm">
             {filteredCompanies.map((company) => (

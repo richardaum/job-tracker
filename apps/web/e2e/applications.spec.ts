@@ -160,8 +160,9 @@ test("authenticated user can create, edit, and delete an application", async ({
     .click();
   await page.getByRole("button", { name: "Delete" }).click();
 
+  await expect(page.getByText("No applications yet.")).toBeVisible();
   await expect(
-    page.getByText("No applications yet. Add your first one!"),
+    page.getByText("Add your first one to start tracking."),
   ).toBeVisible();
   await expect(
     page

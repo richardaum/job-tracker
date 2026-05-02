@@ -18,6 +18,7 @@ import {
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+import { EmptyState } from "@/components/empty-state";
 import { ApplicationCard } from "@/modules/applications/list/components/ApplicationCard";
 import { ApplicationQuickEditModal } from "@/modules/applications/list/components/ApplicationQuickEditModal";
 import { QuickFilters } from "@/modules/applications/list/components/QuickFilters";
@@ -80,18 +81,6 @@ function ApplicationsListError() {
     <Text size="sm" color="error">
       Failed to load applications. Please refresh the page.
     </Text>
-  );
-}
-
-function ApplicationsListEmpty() {
-  return (
-    <Card variant="outlined">
-      <Stack align="center" justify="center" gap="sm">
-        <Text size="sm" color="secondary">
-          No applications yet. Add your first one!
-        </Text>
-      </Stack>
-    </Card>
   );
 }
 
@@ -192,13 +181,19 @@ export default function ApplicationsPage() {
       ) : null}
 
       {/* Content */}
-      <div className={cn("flex-1 overflow-auto p-4 sm:p-6")}>
+      <div
+        className={cn("flex min-h-0 flex-1 flex-col overflow-auto p-4 sm:p-6")}
+      >
         {showInitialLoading ? (
           <ApplicationsListSkeleton />
         ) : error ? (
           <ApplicationsListError />
         ) : applications.length === 0 ? (
-          <ApplicationsListEmpty />
+          <EmptyState
+            variant="default"
+            message="No applications yet."
+            detail="Add your first one to start tracking."
+          />
         ) : (
           <Stack gap="sm">
             {applications.map((app) => (
