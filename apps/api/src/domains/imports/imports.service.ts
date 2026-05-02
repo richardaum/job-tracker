@@ -1,0 +1,131 @@
+import { ImportRunEntity } from "@api/database/entities/import-run.entity";
+import { ExtensionChannelStreamService } from "@api/domains/extension-channel/extension-channel.stream.service";
+import { EXTENSION_CHANNEL_KIND_IMPORT_RUN_CREATED } from "@api/domains/extension-channel/extension-channel-kinds";
+import { ImportRunType } from "@api/domains/imports/import-run.type";
+import { ImportRunStatusEnum } from "@api/domains/imports/import-run-status.enum";
+import { resolveImporter } from "@api/domains/imports/importers.registry";
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
+
+function extensionMayTransitionStatus(
+  from: ImportRunStatusEnum,
+  to: ImportRunStatusEnum,
+): boolean {
+  if (from === to) {
+    return true;
+  }
+  if (
+    from === ImportRunStatusEnum.RUNNING &&
+    to === ImportRunStatusEnum.IN_PROGRESS
+  ) {
+    return true;
+  }
+  if (
+    from === ImportRunStatusEnum.IN_PROGRESS &&
+    (to === ImportRunStatusEnum.COMPLETED || to === ImportRunStatusEnum.FAILED)
+  ) {
+    return true;
+  }
+  if (
+    from === ImportRunStatusEnum.RUNNING &&
+    to === ImportRunStatusEnum.FAILED
+  ) {
+    return true;
+  }
+  return false;
+}
+
+import { ImportsRepository } from "./imports.repository";
+
+@Injectable()
+export class ImportsService {
+  constructor(
+    private readonly repo: ImportsRepository,
+    private readonly extensionChannelStream: ExtensionChannelStreamService,
+  ) {}
+
+  async listImportRuns(userId: string): Promise<ImportRunType[]> {
+    const rows = await this.repo.listByUserId(userId);
+    return rows.map((row) => this.toGql(row));
+  }
+
+  async createImportRun(
+    userId: string,
+    importerId: string,
+  ): Promise<ImportRunType> {
+    const resolved = resolveImporter(importerId);
+    if (!resolved) {
+      throw new BadRequestException(`Unknown importer: ${importerId}`);
+    }
+    const startedAt = new Date();
+    const row = await this.repo.create({
+      userId,
+      importerId: importerId.trim().toLowerCase(),
+      importerName: resolved.name,
+      entryUrl: resolved.entryUrl,
+      status: ImportRunStatusEnum.RUNNING,
+      startedAt,
+    });
+
+    this.extensionChannelStream.pushEvent(userId, {
+      kind: EXTENSION_CHANNEL_KIND_IMPORT_RUN_CREATED,
+      payloadJson: JSON.stringify({
+        importRunId: row.id,
+        entryUrl: row.entryUrl,
+        importerId: row.importerId,
+        importerName: row.importerName,
+      }),
+    });
+
+    return this.toGql(row);
+  }
+
+  async deleteImportRun(userId: string, id: string): Promise<void> {
+    const deleted = await this.repo.deleteByUser({ id, userId });
+    if (!deleted) {
+      throw new NotFoundException(`Import run ${id} not found`);
+    }
+  }
+
+  async updateImportRunStatus(
+    userId: string,
+    id: string,
+    status: ImportRunStatusEnum,
+  ): Promise<ImportRunType> {
+    const row = await this.repo.findByUserAndId({ id, userId });
+    if (!row) {
+      throw new NotFoundException(`Import run ${id} not found`);
+    }
+    if (!extensionMayTransitionStatus(row.status, status)) {
+      throw new BadRequestException(
+        `Invalid import run transition: ${row.status} -> ${status}`,
+      );
+    }
+    if (row.status === status) {
+      return this.toGql(row);
+    }
+
+    await this.repo.updateStatus({ id, userId, status });
+
+    const next = await this.repo.findByUserAndId({ id, userId });
+    if (!next) {
+      throw new NotFoundException(`Import run ${id} not found`);
+    }
+    return this.toGql(next);
+  }
+
+  private toGql(row: ImportRunEntity): ImportRunType {
+    return {
+      id: row.id,
+      importerId: row.importerId,
+      importerName: row.importerName,
+      entryUrl: row.entryUrl,
+      status: row.status,
+      startedAt: row.startedAt,
+      importerSource: "database",
+    };
+  }
+}

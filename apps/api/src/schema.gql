@@ -101,6 +101,28 @@ type ApplicationStageEventType {
   createdAt: DateTime!
 }
 
+type ExtensionChannelEventType {
+  kind: String!
+  payloadJson: String
+}
+
+type ImportRunType {
+  id: ID!
+  importerId: String!
+  importerName: String!
+  entryUrl: String!
+  status: ImportRunStatus!
+  startedAt: DateTime!
+  importerSource: String!
+}
+
+enum ImportRunStatus {
+  RUNNING
+  IN_PROGRESS
+  COMPLETED
+  FAILED
+}
+
 type Query {
   me: UserType!
   applications(filter: ApplicationQuickFilter, company: String): [ApplicationType!]!
@@ -112,6 +134,7 @@ type Query {
   companyApplicationsCount(id: ID!): Int!
   applicationNotes(applicationId: ID!): [NoteType!]!
   generateApplicationNoteWithAI(applicationId: ID!, note: String!): String!
+  importRuns: [ImportRunType!]!
   rewriteTextWithAI(text: String!): String!
   restructureJobDescriptionWithAI(text: String!): String!
 }
@@ -147,6 +170,9 @@ type Mutation {
   createApplicationNote(input: CreateNoteInput!): NoteType!
   updateApplicationNote(id: ID!, input: UpdateNoteInput!): NoteType!
   deleteApplicationNote(id: ID!): Boolean!
+  createImportRun(input: CreateImportRunInput!): ImportRunType!
+  deleteImportRun(id: ID!): Boolean!
+  updateImportRunStatus(id: ID!, status: ImportRunStatus!): ImportRunType!
 }
 
 input CreateApplicationInput {
@@ -204,4 +230,12 @@ input CreateNoteInput {
 input UpdateNoteInput {
   content: String
   expectedRevision: Int!
+}
+
+input CreateImportRunInput {
+  importerId: String!
+}
+
+type Subscription {
+  extensionChannel: ExtensionChannelEventType!
 }

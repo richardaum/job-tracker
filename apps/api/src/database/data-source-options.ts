@@ -4,6 +4,7 @@ import { ApplicationEntity } from "./entities/application.entity";
 import { ApplicationNoteEntity } from "./entities/application-note.entity";
 import { ApplicationStageEventEntity } from "./entities/application-stage-event.entity";
 import { CompanyEntity } from "./entities/company.entity";
+import { ImportRunEntity } from "./entities/import-run.entity";
 import { UserEntity } from "./entities/user.entity";
 import { migrations } from "./migrations";
 
@@ -13,6 +14,7 @@ export const apiEntities = [
   ApplicationStageEventEntity,
   ApplicationNoteEntity,
   CompanyEntity,
+  ImportRunEntity,
 ];
 
 export const apiMigrations = migrations;

@@ -7,6 +7,8 @@ import { AddStageEventReason1751000000000 } from "./1751000000000-add-stage-even
 import { UseTimestamptzForStageEvents1752000000000 } from "./1752000000000-use-timestamptz-for-stage-events";
 import { AddApplicationSource1753000000000 } from "./1753000000000-add-application-source";
 import { CompaniesUserLowerNameUnique1754000000000 } from "./1754000000000-companies-user-lower-name-unique";
+import { CreateImportRuns1755000000000 } from "./1755000000000-create-import-runs";
+import { ImportRunStatusInProgress1755100000000 } from "./1755100000000-import-run-status-in-progress";
 
 export const migrations = [
   Baseline1746009600000,
@@ -18,4 +20,6 @@ export const migrations = [
   UseTimestamptzForStageEvents1752000000000,
   AddApplicationSource1753000000000,
   CompaniesUserLowerNameUnique1754000000000,
+  CreateImportRuns1755000000000,
+  ImportRunStatusInProgress1755100000000,
 ];
