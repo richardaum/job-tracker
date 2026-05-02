@@ -46,8 +46,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Validate SDD specs
-        run: pnpm specs:validate
+      - name: Validate LeanSpec (specs/)
+        run: pnpm leanspec:validate
 
       - name: Lint
         run: pnpm turbo lint

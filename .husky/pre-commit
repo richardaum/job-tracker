@@ -1,2 +1,2 @@
-pnpm specs:validate
+pnpm leanspec:validate
 pnpm lint-staged

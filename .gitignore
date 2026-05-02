@@ -1,27 +1,67 @@
+# Repository root — pnpm workspace, Turbo
 node_modules/
-dist/
-.next/
-.next-dev/
-apps/web/.rsdoctor/
-apps/web/next-env.d.ts
+.pnpm-debug.log*
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 .turbo/
+
+# Legacy SDD tree (replaced by specs/ + LeanSpec)
+.specs/
+
+# TypeScript (all workspaces)
+*.tsbuildinfo
+
+# Secrets — any workspace or root (typical in monorepos)
 .env
 .env.local
 .env.*.local
-*.tsbuildinfo
 
-# Build artifacts
+# apps/web — Next.js 16, Vitest, Playwright (e2e)
+apps/web/.next/
+apps/web/.next-dev/
+apps/web/out/
+apps/web/.rsdoctor/
+apps/web/next-env.d.ts
+apps/web/.vercel
+
+# apps/api — NestJS (nest build → dist), Vitest
+# (apps/web has no dist/; use apps/*/dist/ if a future app compiles to dist)
+
+# packages/ui — tsc → dist/, Storybook static build
+# packages/logger — no build script today; dist/ ignored for consistency
+
+apps/*/coverage/
+apps/*/dist/
+packages/*/coverage/
+packages/*/dist/
+
+# Playwright & Vitest browser — outputs live next to the package that runs tests
+# (apps/web e2e, packages/ui Storybook + Vitest browser)
+**/test-results/
+**/playwright-report/
+**/blob-report/
+
+# Storybook — `build-storybook` default output (packages/ui)
 storybook-static/
-test-results/
-coverage/
 
-# Logs
+# Logs & tool caches
 logs/
+*.log
+.eslintcache
+.prettiercache
 
-# Editor tooling
+# Editor / agent tooling
 .agents/
 .claude/
 .cursor/
 .gemini/
 .windsurf/
 .worktrees/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Vercel — root or linked app (web often uses apps/web)
+.vercel
