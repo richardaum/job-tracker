@@ -21,7 +21,7 @@ Run the stack in development (Turborepo):
 pnpm dev
 ```
 
-Match CI locally (SDD specs validation, lint, typecheck, tests with coverage, production build):
+Match CI locally (LeanSpec validation, lint, typecheck, tests with coverage, production build):
 
 ```bash
 pnpm ci:local
