@@ -27,7 +27,8 @@ module.exports = {
       interpreter: "none",
       env: { NODE_ENV: "development" },
       watch: ["src"],
-      ignore_watch: ["node_modules", ".git", "dist"],
+      // Nest writes `src/schema.gql` on boot (GraphQL autoSchemaFile); ignore so PM2 does not restart in a loop.
+      ignore_watch: ["node_modules", ".git", "dist", "src/schema.gql"],
     },
     {
       name: "web",
