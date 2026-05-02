@@ -56,4 +56,10 @@ describe("AuthService", () => {
     const payload = service.verifyRefreshToken(token);
     expect(payload.userId).toBe(mockUser.id);
   });
+
+  it("verifyAccessToken returns user id from access token sub", () => {
+    const token = service.generateAccessToken(mockUser);
+    const payload = service.verifyAccessToken(token);
+    expect(payload.userId).toBe(mockUser.id);
+  });
 });

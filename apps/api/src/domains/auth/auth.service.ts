@@ -29,4 +29,11 @@ export class AuthService {
     });
     return { userId: payload.sub };
   }
+
+  verifyAccessToken(token: string): { userId: string } {
+    const payload = this.jwtService.verify<{ sub: string }>(token, {
+      secret: JWT_ACCESS_SECRET,
+    });
+    return { userId: payload.sub };
+  }
 }
