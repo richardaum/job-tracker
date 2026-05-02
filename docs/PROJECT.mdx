@@ -1,0 +1,71 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Documentation/Project" />
+
+# Job Tracker — Project definition
+
+A consolidated view of the product, requirements, and architecture. For coding conventions and LeanSpec, see [CONVENTIONS.mdx](./CONVENTIONS.mdx).
+
+## Overview
+
+**Job Tracker** is an application for tracking job applications: funnel stages, notes (interviews, follow-ups), dashboard metrics, and search. It supports **English** and **Brazilian Portuguese**, **AI** enrichment (insights and draft notes), and **importing** opportunities (browser extension flows and generic board URLs). Users can **try the product as a guest** before creating an account. Optionally, each application can store **structured compensation** (ranges, currency, pay period, tags).
+
+The codebase lives in a **pnpm monorepo** (`apps/web`, `apps/api`, `packages/ui`, and related packages): the front end is **Next.js** UI-only; **NestJS + GraphQL** owns business logic and **PostgreSQL** access via **TypeORM**, while asynchronous work (AI, import) sits behind observable internal boundaries.
+
+## Product outcomes
+
+### Applications and workflows
+
+- Track each application through **explicit stages**, with **history** and **interview-oriented notes**.
+- **Dashboard** for pipeline health: per-stage metrics, **filters**, and **text search**.
+- **Optional compensation** per application: minimum and/or maximum amounts (in currency minor units), **ISO 4217** currency code, pay period (year, month, or hour), and a bounded list of free-form **tags**; normalization and caps run in the **API** so the web client cannot bypass storage rules.
+
+### Multilingual experience and AI
+
+- Consistent experience in **English** and **Brazilian Portuguese**.
+- **AI**: job insights and help structuring notes **before** persisting updates.
+
+### Import and onboarding
+
+- Import opportunities from **extension** flows and **generic board URLs** without retyping everything.
+- **Guest onboarding** to explore the product before signing in.
+
+### Account and data (inherited baseline / Beta1)
+
+- **Google OAuth** for protected areas.
+- CRUD on **owned** applications; **per-user isolation** (no cross-user access).
+
+## Quality and performance
+
+- **API**: target **p95 under 500 ms** on primary CRUD and dashboard paths (after Beta2-era changes).
+- **AI**: first response on enrichment requests within **~10 s** at p95 for successful calls.
+- **Accessibility**: **WCAG 2.1 Level A** on user-facing flows across supported locales.
+- **Tests**: **≥ 80%** line coverage in CI for impacted areas and new modules.
+- **Provenance**: fields from import or AI must retain **metadata** for review and audit.
+- **Web (legacy reference)**: LCP targets on core pages; locally, cold compile for `/login` via `pnpm perf:web:login-compile` as a performance sanity check.
+
+## High-level architecture
+
+- **Monorepo** with `apps/web`, `apps/api`, `packages/ui` (optional extension workspace).
+- **`apps/web`**: **Next.js** client consuming **GraphQL**; **no** embedded board-automation logic.
+- **`apps/api`**: orchestrates stages, notes, AI enrichment, import, and guest-to-user migration; **TypeORM** for PostgreSQL (not Drizzle).
+- **Async workloads** (AI, import): isolated behind internal APIs with **observable** job execution.
+- **Compensation**: first-class columns on `applications`, exposed through the same GraphQL read/write paths as applications.
+- **Shared UI** and visual standards in `packages/ui` (e.g. Storybook); **telemetry** on front and backend where applicable.
+
+## Out of scope and rules
+
+- **No** autonomous submission to third-party job boards in Beta2, even when import is available.
+- **AI** suggestions persist only after **explicit user confirmation**.
+- Avoid vendor **lock-in** and preserve a migration path from low traffic to scaled operation.
+- Integration tests that need real services: **explicit environment preconditions** and deterministic fallback behaviour.
+- **Compensation slice**: no company-wide or market-wide salary analytics, payroll integrations, or third-party pay APIs.
+- **Relational data**: TypeORM integrated with NestJS, preserving ownership, revision, and timeline rules.
+- **Migrations**: ship as reviewed TypeORM migration classes; **forbidden** to run TypeORM **`synchronize`** against shared or production-like databases.
+- **Security baseline**: HTTPS, validated inputs, safe token handling; avoid exposing sensitive tokens in **localStorage** for refresh/session flows.
+
+## Historical context (Beta1 and legacy IDs)
+
+Older requirements (**F-1**–**F-21**) describe the same product line (OAuth, CRUD, monorepo, latency and coverage targets). Where the API was described with **Drizzle**, the current stack is **TypeORM** — **current specs and code win**.
+
+*Human-readable overview. LeanSpec anchor for this scope: `specs/009-docs-project/README.md`. Per-requirement **F-** IDs live across `specs/` (roadmap, history, product/technical READMEs), not as a checklist in that file.*

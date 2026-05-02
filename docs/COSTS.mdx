@@ -1,6 +1,8 @@
-# Costs
+import { Meta } from "@storybook/addon-docs/blocks";
 
----
+<Meta title="Documentation/Costs" />
+
+# Costs
 
 ## Glossary
 
@@ -19,8 +21,6 @@
 | Redis       | Remote Dictionary Server                        | In-memory key-value store used for caching and session storage   |
 | Multi-AZ    | Multi Availability Zone                         | Runs DB replicas in multiple data centers for high availability  |
 | CDN         | Content Delivery Network                        | Network of edge servers that cache content close to users        |
-
----
 
 ## IP1 — Initial (Low Traffic)
 
@@ -57,8 +57,6 @@ flowchart LR
 - Vercel free tier: 100 GB bandwidth, 100K function invocations/mo — sufficient for low traffic
 - Single EC2 instance — no redundancy, full outage if it goes down
 
----
-
 ## IP2 — Scale (Higher Traffic)
 
 > NestJS EC2 showing sustained pressure (CPU/memory >70%), or Vercel approaching free tier limits — typically beyond ~1K active users/month. Next.js migrates from Vercel to ECS Fargate in this phase.
@@ -94,8 +92,6 @@ flowchart LR
 - Single AWS region — no global distribution
 - RDS Multi-AZ covers failover but not read scaling (add read replicas if needed)
 - ECS Fargate has no free tier — cost starts from day one
-
----
 
 ## Cost Guardrails (IP1+)
 

@@ -4,75 +4,115 @@ import { Meta } from "@storybook/addon-docs/blocks";
 
 # Conventions
 
-## Architecture
+Guidelines for **application and package code**, **LeanSpec** (`specs/`), and Storybook (**Documentation → Project** then **Documentation → Conventions**). Product overview: **[PROJECT.mdx](./PROJECT.mdx)**.
 
-- Keep `apps/web` as UI-only and `apps/api` as backend API service; avoid introducing API routes or server actions in web.
-- Consume OpenAI capabilities through an internal API service facade instead of direct frontend usage.
-- Keep cross-directory imports on workspace aliases where configured (`@api/*`, `@ui/*`, `@/*`).
-- Route environment access through typed env modules, not direct `process.env` in application code.
+## Documentation MDX (`docs/`)
+
+- **Format**: All files under `docs/` are **`.mdx`**. Do not add plain Markdown (`.md`) here — MDX is required so Storybook picks them up (`packages/ui/.storybook/main.ts` includes `docs/**/*.mdx`) and tooling stays consistent.
+- **No `---` before headings**: Do not place a thematic break (`---`, horizontal rule) on the line directly above any Markdown heading (`#` through `######`). It adds noise in Storybook and weakens heading hierarchy visually. Use blank lines only, or restructure sections (lists, paragraphs) instead of separating with a rule right before a title.
+
+- **Uppercase `*.md` / `*.mdx` stems (repository-wide)**: The filename **before** `.md` or `.mdx` must use **uppercase ASCII letters** (hyphens between segments are fine; **no lowercase** in the basename). Examples: **`README.md`**, **`PROJECT.mdx`**, **`COSTS.mdx`**, **`COMMIT.md`**. When renaming, update links, scripts, globs, and agent skills that reference the path.
+
+## LeanSpec (`specs/`)
+
+Numbered folders: `specs/<NNN-slug>/` with primary **`README.md`** (optional companions, e.g. **`HISTORY.md`** in **`docs-history`**). Overview: **`specs/README.md`**. Config: **`.lean-spec/config.json`**.
+
+### Structure bands (this repository)
+
+| Range | Role |
+|--------|------|
+| `001-*` … `006-*` | Archived earlier-phase snapshots (`status: archived` in frontmatter). |
+| `007-*` … `011-*` | **`docs-*`** governance: definition, history, project, roadmap, state. |
+| `012-*` … `022-*` | Active **product** and **technical** scopes for current work. |
+
+### Naming and prose
+
+- Directory slugs under `specs/`: lowercase **kebab-case**.
+- Spec prose: **English**.
+- **One primary outcome** per spec; keep terminology aligned across roadmap, project, product, and technical docs.
+
+### Workflow
+
+- Prefer **`pnpm exec lean-spec`** for `create`, `update`, `validate`, `board`, and **`rel`** (dependencies), not only ad-hoc tree edits.
+- Meaningful increments: update **`docs-roadmap`**, **`docs-state`**, and **`docs-history`** (prepend to **`HISTORY.md`** in the history spec).
+- Merge-ready: code and tests green; **`pnpm leanspec:validate`** (CI and pre-commit).
+
+### Further reading
+
+- [leanspec.dev](https://leanspec.dev)
+- Pointer: **`specs/007-docs-definition/README.md`** — detailed rules also in **`specs/README.md`** and this page.
+
+## Repository architecture
+
+- **`apps/web`**: UI only. **`apps/api`**: backend API. Do not add API routes or server actions in web.
+- OpenAI: use an internal API facade, not direct frontend calls.
+- Cross-package imports: workspace aliases where configured (`@api/*`, `@ui/*`, `@/*`).
+- Environment: typed env modules only — no raw `process.env` in application code.
 
 ## Web view models
 
-GraphQL-backed screens in `apps/web` should keep **rendering thin**: move API-to-display shaping (derived lists, formatted fields, empty/loading/error flags, props built from query results) into **view-model hooks**, not large page or panel components.
+GraphQL screens should keep **rendering thin**: put API-to-display shaping (derived lists, formatted fields, empty/loading/error flags, props from query results) in **view-model hooks**, not large page or panel components.
 
-- **Naming:** `useApplicationDetailsViewModel`, `useCompaniesListViewModel`, etc. (`use<Feature><Screen>ViewModel` or feature-scoped names like `useNotesPanelViewModel` for a major panel).
-- **Location:** `apps/web/src/modules/<domain>/<area>/hooks/use<Name>ViewModel.ts` (stay consistent within a module).
-- **Return:** One object with named fields (lists, formatted strings, booleans). Avoid exposing raw `data` unless the view still needs it for mutations. Pure, reusable formatters stay in `utils/` or `*.shared.ts`; the hook **calls** them.
-- **Queries:** `useQuery` / `skip` / variables live in the view-model hook (or a thin `useXxxQueries` if needed). **UI-only** state (modals, drafts, scroll keys) may stay on the page or in a separate `useXxxUiState` when that clarifies boundaries.
-- **Dependencies:** View-model hooks may use Apollo and pure helpers; they **must not** import from `app/` (direction stays `app → modules`).
-- **Types:** Prefer generated GraphQL types; avoid `any`.
-- **React Compiler:** Prefer plain `const` derivations inside the hook. Do **not** add `useMemo` / `useCallback` by default when extracting a view model—use them only for expensive work, a documented reference-stability contract, or eslint/compiler requirements.
-- Always consider that new hooks can be created to avoid duplicating logic or too large existing VM hooks (i.e. split by concern if the hook is too large), considering where it will be used and how it will be used.
+| Topic | Rule |
+|--------|------|
+| **Naming** | `useApplicationDetailsViewModel`, `useCompaniesListViewModel`, etc. (`use<Feature><Screen>ViewModel` or feature-scoped names like `useNotesPanelViewModel`). |
+| **Location** | `apps/web/src/modules/<domain>/<area>/hooks/use<Name>ViewModel.ts` (consistent within a module). |
+| **Return** | One object with named fields. Avoid exposing raw `data` unless mutations still need it. Pure formatters live in `utils/` or `*.shared.ts`; the hook **calls** them. |
+| **Queries** | `useQuery` / `skip` / variables live in the view-model hook (or a thin `useXxxQueries`). UI-only state (modals, drafts, scroll keys) may stay on the page or in `useXxxUiState` when that clarifies boundaries. |
+| **Dependencies** | Apollo and pure helpers allowed; **must not** import from `app/` (`app → modules` only). |
+| **Types** | Prefer generated GraphQL types; avoid `any`. |
+| **React Compiler** | Prefer plain `const` derivations. Do **not** add `useMemo` / `useCallback` by default—only for expensive work, a documented reference-stability need, or eslint/compiler requirements. |
+| **Size** | Split large hooks by concern; place new hooks where reuse and call sites stay clear. |
 
-Full technical notes (inventory, rollout, risks): `.specs/technical/view-model-web-layer.md`.
+Full technical notes: `specs/022-technical-view-model-web-layer/README.md`.
 
-## TypeScript
+## TypeScript and React
 
-- Avoid inline type-only imports in type positions (for example `Foo<import("@/path").Bar>`). Prefer a normal top-of-file `import type { Bar } from "@/path"` (or `import { type Bar }`) and then `Foo<Bar>`. Inline `import("...")` types are harder to read, grep, and refactor.
-- **React 19 refs**: Do not use `forwardRef`. React 19 allows passing `ref` as a standard prop. UI components should include `ref?: React.Ref<T>` in their props interface and apply it directly to the underlying element. ESLint blocks importing `forwardRef` from `react` and calling `forwardRef` / `React.forwardRef` in `apps/web` and `packages/ui`.
+- **Imports**: Avoid inline type-only imports like `Foo<import("@/path").Bar>`. Use a top-of-file `import type { Bar } from "@/path"` (or `import { type Bar }`) and `Foo<Bar>`. Inline `import("...")` types are harder to read, grep, and refactor.
+- **React 19 refs**: Do not use `forwardRef`. Pass `ref` as a normal prop; UI components use `ref?: React.Ref<T>` on the props type and attach it to the underlying element. ESLint blocks `forwardRef` / `React.forwardRef` in `apps/web` and `packages/ui`.
 
-## UI
+## UI: composition, layout, and components
 
 ### Composition and hydration
 
-- **Hydration & component nesting**: Use the `asChild` pattern (via `@radix-ui/react-slot`) in UI components that render interactive elements (like `button` or `a`) when they might need to wrap other interactive elements or custom links (like `NextLink`). This prevents invalid HTML nesting (e.g., `<button>` inside `<button>`) which causes hydration errors.
-- Avoid mixing block and inline elements in sibling content slots. Inline elements (`<span>`, `inline-flex`) create a different formatting context than block elements (`<p>`, `<div>`), causing inconsistent heights and alignments even when font size and line-height are identical. Always use the same display type across equivalent slots.
+- **`asChild`** (`@radix-ui/react-slot`) for interactive UI (e.g. `button`, `a`) when wrapping other interactives or `NextLink` — avoids invalid nesting (`<button>` in `<button>`) and hydration errors.
+- Do not mix block and inline in sibling slots; use the same display type across equivalent slots so height and alignment stay consistent.
 
 ### Buttons
 
-- Use the `state` prop (`"default" | "loading"`) instead of a boolean `loading` prop. The component automatically handles the disabled state and accessibility attributes when in the `"loading"` state.
+- Use `state` (`"default" | "loading"`), not a boolean `loading` prop. Loading disables the control and sets a11y attributes.
 
 ### Dialogs and confirmations
 
-- **Flexible dialogs**: The `Dialog` component uses a flexbox layout. Use `childrenClassName="flex flex-col"` and `flex-1 min-h-0` on children that need to fill the modal height and provide internal scrolling (like `NotesPanel`).
-- Use `ConfirmDialog` from `@job-tracker/ui` for user confirmations, especially destructive or irreversible actions; do not use `window.confirm`, `window.alert`, or `window.prompt` in application code.
-- Prefer small feature components that compose `ConfirmDialog` (for example a delete flow wrapper) over hand-rolled `Dialog` footers that duplicate the same cancel + confirm pattern.
-- Storybook reference: **Components → ConfirmDialog** (`pnpm --filter @job-tracker/ui storybook`).
+- **`Dialog`**: flex layout — use `childrenClassName="flex flex-col"` and `flex-1 min-h-0` on children that should fill height and scroll internally (e.g. `NotesPanel`).
+- **`ConfirmDialog`** (`@job-tracker/ui`) for confirmations, especially destructive actions — not `window.confirm` / `alert` / `prompt` in app code.
+- Prefer small feature components wrapping `ConfirmDialog` over duplicating cancel + confirm footers.
+- Storybook: **Components → ConfirmDialog** (`pnpm --filter @job-tracker/ui storybook`).
 
 ### Editors (TipTap)
 
-- Support and use the `autofocus` prop to improve user experience in composers and edit dialogs. Use `autofocus="end"` when editing existing content to place the cursor at the end.
+- Use **`autofocus`** in composers and edit dialogs; `autofocus="end"` when editing existing content (cursor at end).
 
-## Application patterns
+## Web application patterns
 
-- **Controllable component state**: Use `apps/web/src/modules/applications/shared/hooks/useControllableState.ts` whenever a component can be used in both controlled and uncontrolled modes (i.e., it supports `value` + `onChange` and also a local `defaultValue` fallback).
-- **Dialogs in dedicated files**: Implement dialogs in dedicated component files instead of inline definitions inside page/panel components. This keeps dialog context isolated and allows reuse when the same flow is needed on other screens.
-- **`aiActions` as inline literals**: When passing `aiActions` to `TipTapEditor`, prefer a literal array directly in props (for example, `aiActions={[actionA, actionB]}`) instead of creating a separate `const` variable used only for that prop.
-- **Other narrow logic**: For behavior that is not a screen-level view model, still extract a dedicated hook or pure function in its own file when the scope is clear (see **Web view models** for GraphQL screens).
+- **Controllable state**: `apps/web/src/modules/applications/shared/hooks/useControllableState.ts` when a component supports controlled (`value` + `onChange`) and uncontrolled (`defaultValue`) modes.
+- **Dialogs**: Implement in dedicated files, not inline in page/panel components — clearer context and reuse.
+- **`TipTapEditor` / `aiActions`**: Prefer an inline literal array in props (e.g. `aiActions={[actionA, actionB]}`) over a `const` used only for that prop.
+- **Other logic**: For non–screen-level behavior, use a dedicated hook or pure function in its own file when scope is clear (see **Web view models** for GraphQL screens).
 
-## Data consistency
+## GraphQL list consistency
 
-- **List views after mutations**: When a mutation creates or deletes list-backed entities (for example applications or companies), always refetch the corresponding list query and set `awaitRefetchQueries: true` so the list is updated before success flows continue (toast, dialog close, or redirect).
+After mutations that create or delete list-backed entities (e.g. applications or companies), refetch the list query with **`awaitRefetchQueries: true`** so the list updates before success UI (toast, close, redirect).
 
-## Development environment
+## Development: mobile debug (Cursor)
 
-- **Mobile debug networking (Cursor)**: When debugging web flows from a mobile device (for example Android/iOS via ngrok), avoid direct client calls to `127.0.0.1` for debug ingestion—mobile browsers cannot reach the machine’s loopback and HTTPS pages may block mixed-content requests.
+When debugging web from a phone (e.g. via ngrok), do not point the client at `127.0.0.1` for debug ingestion — mobile cannot reach host loopback; HTTPS may block mixed content.
 
-  Use a same-origin debug route in `apps/web` (for example `"/__debug_ingest"`) that is proxied or rewritten by Next.js only in development. Configure the rewrite destination from environment-derived host information (project allowlisted env vars) instead of hardcoding production behavior. Keep debug ingestion disabled when the destination cannot be resolved.
+Use a same-origin dev route in `apps/web` (e.g. `"/__debug_ingest"`) proxied/rewritten by Next.js in development only. Derive the target from allowlisted env vars, not hardcoded production behavior. Disable ingestion when the destination cannot be resolved.
 
 ## Quality gates
 
-- Run lint, format, and typecheck gates before merge-ready changes.
-- Run unit/integration, e2e, and Storybook gates according to impacted layers.
-- Keep coverage thresholds enforced in CI and maintain story coverage for exported UI components.
-- Validate environment schemas and runtime boot paths after config-related changes.
+- Lint, format, and typecheck before merge-ready changes.
+- Run unit/integration, e2e, and Storybook tests for impacted layers.
+- Keep CI coverage thresholds and story coverage for exported UI components.
+- After config changes, validate env schemas and runtime boot paths.
