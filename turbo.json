@@ -8,7 +8,7 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": [".next/**", "!.next/cache/**", "dist/**"]
+      "outputs": [".next/**", "!.next/cache/**", "dist/**", "build/**"]
     },
     "dev": { "cache": false, "persistent": true },
     "db:migrate:watch": { "cache": false, "persistent": true },

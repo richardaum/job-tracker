@@ -7,6 +7,8 @@ playwright-report
 test-results
 pnpm-lock.yaml
 .turbo
+apps/extension/build
+apps/extension/.plasmo
 .agents
 .claude/skills
 .cursor/skills

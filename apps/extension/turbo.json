@@ -1,0 +1,12 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "build": {
+      "cache": false,
+      "dependsOn": ["^build"],
+      "inputs": ["$TURBO_DEFAULT$", "../web/src/app/icon.svg"]
+    },
+    "test": { "outputs": [], "dependsOn": ["^build"] }
+  }
+}

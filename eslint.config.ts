@@ -20,6 +20,8 @@ export default defineConfig(
       "**/coverage/**",
       "**/playwright-report/**",
       "**/test-results/**",
+      "apps/extension/build/**",
+      "apps/extension/.plasmo/**",
       "apps/web/next-env.d.ts",
       "apps/web/src/gql/**",
     ],
@@ -40,6 +42,7 @@ export default defineConfig(
   },
   {
     files: [
+      "apps/extension/**/*.{js,jsx,ts,tsx,mjs,cjs}",
       "apps/web/**/*.{js,jsx,ts,tsx,mjs,cjs}",
       "packages/ui/**/*.{js,jsx,ts,tsx,mjs,cjs}",
     ],
@@ -102,6 +105,7 @@ export default defineConfig(
     settings: { react: { version: "detect" } },
   },
   {
+    files: ["apps/web/**/*.{js,jsx,ts,tsx,mjs,cjs}"],
     plugins: { "@next/next": nextPlugin as Record<string, unknown> },
     rules: {
       ...nextPlugin.configs.recommended.rules,
@@ -143,6 +147,7 @@ export default defineConfig(
   },
   {
     files: [
+      "apps/extension/**/*.{test,spec}.{js,jsx,ts,tsx,mjs,cjs}",
       "apps/web/src/**/*.{test,spec}.{js,jsx,ts,tsx,mjs,cjs}",
       "packages/ui/**/*.{test,spec}.{js,jsx,ts,tsx,mjs,cjs}",
     ],

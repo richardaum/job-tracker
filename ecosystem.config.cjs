@@ -23,7 +23,7 @@ module.exports = {
       args: "run dev:stable",
       interpreter: "none",
       env: { NODE_ENV: "development" },
-      watch: false,
+      watch: ["src"],
       ignore_watch: ["node_modules", ".git", "dist"],
     },
     {
@@ -34,7 +34,7 @@ module.exports = {
       args: "run dev",
       interpreter: "none",
       env: { NODE_ENV: "development", CI: "true" },
-      watch: ["apps/web/src", "apps/web/next.config.ts"],
+      watch: ["src", "next.config.ts"],
       ignore_watch: ["node_modules", ".git", ".next"],
     },
     {
@@ -45,8 +45,19 @@ module.exports = {
       args: "run dev",
       interpreter: "none",
       env: { NODE_ENV: "development", CI: "true" },
-      watch: ["packages/ui/src", "packages/ui/.storybook"],
+      watch: ["src", ".storybook"],
       ignore_watch: ["node_modules", ".git", "dist", "storybook-static"],
+    },
+    {
+      name: "extension",
+      namespace,
+      cwd: path.join(root, "apps/extension"),
+      script: "pnpm",
+      args: "run dev",
+      interpreter: "none",
+      env: { NODE_ENV: "development" },
+      watch: ["src", "scripts"],
+      ignore_watch: ["node_modules", ".git", "build", ".plasmo"],
     },
   ],
 };

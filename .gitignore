@@ -30,6 +30,8 @@ apps/web/.vercel
 
 apps/*/coverage/
 apps/*/dist/
+apps/extension/build/
+apps/extension/.plasmo/
 packages/*/coverage/
 packages/*/dist/
 
