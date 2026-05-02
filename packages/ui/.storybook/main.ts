@@ -3,6 +3,7 @@ import { createRequire } from "node:module";
 import type { StorybookConfig } from "@storybook/react-vite";
 import tailwindcss from "@tailwindcss/vite";
 import path from "path";
+import remarkGfm from "remark-gfm";
 import { fileURLToPath } from "url";
 import { mergeConfig } from "vite";
 
@@ -15,7 +16,15 @@ const config: StorybookConfig = {
     "../src/**/*.stories.@(js|jsx|mjs|ts|tsx)",
     "../../../docs/**/*.mdx",
   ],
-  addons: ["@storybook/addon-docs", "@storybook/addon-vitest"],
+  addons: [
+    {
+      name: "@storybook/addon-docs",
+      options: {
+        mdxPluginOptions: { mdxCompileOptions: { remarkPlugins: [remarkGfm] } },
+      },
+    },
+    "@storybook/addon-vitest",
+  ],
   framework: { name: "@storybook/react-vite", options: {} },
   async viteFinal(baseConfig) {
     return mergeConfig(baseConfig, {
