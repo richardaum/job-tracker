@@ -11,9 +11,9 @@ const namespace = "job-tracker";
  * **storybook** watches `specs/` and `scripts/generate-specs-storybook.mjs`; on change PM2 restarts
  * the dev server, which runs `sync-specs-docs` then Storybook (regenerates gitignored `docs/specs/*.mdx`).
  *
- * Start:  yarn pm2:start
- * Stop:   yarn pm2:stop
- * Restart with refreshed env: yarn pm2:restart
+ * Start:  pnpm pm2:start
+ * Stop:   pnpm pm2:stop
+ * Restart with refreshed env: pnpm pm2:restart
  *        → runs: pm2 restart ecosystem.config.cjs --update-env
  */
 module.exports = {

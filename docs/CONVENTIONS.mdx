@@ -30,7 +30,7 @@ Numbered folders: `specs/<NNN-slug>/` with primary **`README.md`** (optional com
 | ----------------- | ---------------------------------------------------------------------- |
 | `001-*` … `006-*` | Archived earlier-phase snapshots (`status: archived` in frontmatter).  |
 | `007-*` … `011-*` | **`docs-*`** governance: definition, history, project, roadmap, state. |
-| `012-*` … `023-*` | Active **product** and **technical** scopes for current work.          |
+| `012-*` … `024-*` | Active **product** and **technical** scopes for current work.          |
 
 ### Naming and prose
 
@@ -42,6 +42,7 @@ Numbered folders: `specs/<NNN-slug>/` with primary **`README.md`** (optional com
 - **Always attach stable bracketed IDs** to anything that other specs, history, or roadmap entries should cite: product-facing bullets and outcomes use **`[P-NNN]`**; technical work items use **`[T-NNN]`**; also **`[R-NNN]`** (roadmap), **`[H-NNN]`** (history entries), and other prefixes already used in **`specs/HISTORY.md`** and active product READMEs.
 - **Reuse the same ID** across `specs/`, `docs-roadmap`, `docs-history`, and cross-spec references—do not rephrase the same requirement under a new number.
 - When splitting or superseding scope, **record the mapping** in history (which `[P-XXX]` / `[T-XXX]` moved or replaced) so grep and changelog lines stay unambiguous.
+- **Application and package source (outside LeanSpec Markdown):** Do not embed traceability tokens (`[P-NNN]`, `[T-NNN]`, `[D-NNN]`, …) in executable code—no string literals, identifiers, user-visible copy, or logs that carry those IDs. **Comments** may cite a token **only** alongside a **very short** explanatory phrase (what behavior, boundary, or spec scope the note refers to); bare ID lists or parenthetical IDs without that context are not allowed. Exempt: tooling and tests whose purpose is to parse, link, or exemplify those tokens (e.g. Storybook spec markdown helpers and their fixtures).
 
 ### Workflow
 
@@ -67,7 +68,14 @@ Numbered folders: `specs/<NNN-slug>/` with primary **`README.md`** (optional com
 - **`apps/web`**: UI only. **`apps/api`**: backend API. Do not add API routes or server actions in web.
 - OpenAI: use an internal API facade, not direct frontend calls.
 - Cross-package imports: workspace aliases where configured (`@api/*`, `@ui/*`, `@/*`).
+- Within an app’s **`src/`**, prefer **absolute imports via the app’s root alias** (e.g. `@/module/file` → `src/module/file` in `apps/web` and `apps/extension`) instead of **`../`** parent chains. Same-directory **`./`** imports are fine for co-located files.
 - Environment: typed env modules only — no raw `process.env` in application code.
+
+### Local development: PM2
+
+- **Requirement:** Long-running app processes in this repo (**`api`**, **`web`**, **`storybook`**, **`extension`**) are managed **only** via **PM2** and root **`ecosystem.config.cjs`** — use PM2 for **start**, **stop**, **restart**, and **teardown** (`pm2 delete`, **`pm2 kill`** when you intend to stop the PM2 daemon entirely). Do **not** keep parallel ad-hoc **`pnpm --filter … run dev`** terminals for those same roles during normal local work.
+- **Root scripts:** **`pnpm pm2:start`**, **`pnpm pm2:stop`**, **`pnpm pm2:restart`** (refreshes env with **`--update-env`**). Logs: **`~/.pm2/logs/`** (`*-out.log`, `*-error.log`). Process list: **`pm2 list`** (namespace **`job-tracker`**).
+- **Out of scope:** CI and other automation; one-off commands that are not long-lived servers (tests, lint, **`pnpm codegen`**, migrations without a watch daemon, builds); anything explicitly documented to run without PM2.
 
 ## Web view models
 
@@ -78,17 +86,22 @@ GraphQL screens should keep **rendering thin**: put API-to-display shaping (deri
 | **Naming**         | `useApplicationDetailsViewModel`, `useCompaniesListViewModel`, etc. (`use<Feature><Screen>ViewModel` or feature-scoped names like `useNotesPanelViewModel`).                                                    |
 | **Location**       | `apps/web/src/modules/<domain>/<area>/hooks/use<Name>ViewModel.ts` (consistent within a module).                                                                                                                |
 | **Return**         | One object with named fields. Avoid exposing raw `data` unless mutations still need it. Pure formatters live in `utils/` or `*.shared.ts`; the hook **calls** them.                                             |
-| **Queries**        | `useQuery` / `skip` / variables live in the view-model hook (or a thin `useXxxQueries`). UI-only state (modals, drafts, scroll keys) may stay on the page or in `useXxxUiState` when that clarifies boundaries. |
+| **Queries**        | Prefer generated hooks from **`@/gql/hooks`** over Apollo **`useQuery(Document)`** / **`useMutation(Document)`** (see **GraphQL client** below). `skip`, variables, and result handling live in the view-model hook (or a thin `useXxxQueries`). UI-only state (modals, drafts, scroll keys) may stay on the page or in `useXxxUiState` when that clarifies boundaries. |
 | **Dependencies**   | Apollo and pure helpers allowed; **must not** import from `app/` (`app → modules` only).                                                                                                                        |
 | **Types**          | Prefer generated GraphQL types; avoid `any`.                                                                                                                                                                    |
 | **React Compiler** | Prefer plain `const` derivations. Do **not** add `useMemo` / `useCallback` by default—only for expensive work, a documented reference-stability need, or eslint/compiler requirements.                          |
 | **Size**           | Split large hooks by concern; place new hooks where reuse and call sites stay clear.                                                                                                                            |
 
+### GraphQL client (`apps/web`)
+
+- Prefer **generated** query and mutation hooks from **`@/gql/hooks`** (e.g. `useApplicationsQuery`, `useCreateApplicationMutation`) over calling Apollo Client **`useQuery`**, **`useMutation`**, or **`useLazyQuery`** with a **document** argument (e.g. `useQuery(SomeDocument)`). Codegen keeps operations, variables, and result types aligned with **`apps/api/src/schema.gql`**.
+
 Full technical notes: `specs/022-technical-view-model-web-layer/README.md`.
 
 ## TypeScript and React
 
-- **Imports**: Avoid inline type-only imports like `Foo<import("@/path").Bar>`. Use a top-of-file `import type { Bar } from "@/path"` (or `import { type Bar }`) and `Foo<Bar>`. Inline `import("...")` types are harder to read, grep, and refactor.
+- **Imports**: Prefer **`@/…`** (or the package’s configured alias to `src/`) over **`../`** traversals. Avoid inline type-only imports like `Foo<import("@/path").Bar>`. Use a top-of-file `import type { Bar } from "@/path"` (or `import { type Bar }`) and `Foo<Bar>`. Inline `import("...")` types are harder to read, grep, and refactor.
+- **Named types**: Prefer a top-level `type` or `interface` over inline anonymous shapes in parameters, props, return types, and generic arguments when the object or union is non-trivial or reused. Keeps signatures readable and searchable. Fine to keep primitives, simple utilities (`Record<string, string>`), or one-off literals inline when a name adds no clarity.
 - **React 19 refs**: Do not use `forwardRef`. Pass `ref` as a normal prop; UI components use `ref?: React.Ref<T>` on the props type and attach it to the underlying element. ESLint blocks `forwardRef` / `React.forwardRef` in `apps/web` and `packages/ui`.
 
 ## UI: composition, layout, and components
@@ -112,6 +125,24 @@ Full technical notes: `specs/022-technical-view-model-web-layer/README.md`.
 ### Editors (TipTap)
 
 - Use **`autofocus`** in composers and edit dialogs; `autofocus="end"` when editing existing content (cursor at end).
+
+### List and detail page layout
+
+Screens that pair an **index list** with an **item detail** route (same product area) should follow one coherent shell. Canonical reference: **`/applications`** and **`/applications/[id]`** (`ApplicationsPage`, `ApplicationDetailsPage`).
+
+#### List (index)
+
+- **Primary “New” action**: Place creation (or equivalent primary entry) in the **top tool row** of the list view, not inside the scrollable card stack. From **`sm`** upward, lay out that row as a horizontal band with **`justify-between`**: list-level controls (search, filters, scope hints) on the **start** side, the primary button or split button on the **end** (`sm:w-auto` on the actions cluster so it does not stretch full width). On smaller viewports, stack the row with a consistent vertical gap.
+- **List body**: Render entities as a **vertical stack of cards** (`Stack` with a small gap, e.g. `gap="sm"`), in a **`flex-1 overflow-auto`** (or equivalent) region so the tool row stays pinned and the list scrolls.
+- **Card component**: Implement **one card component per entity type in its own file** (e.g. `ApplicationCard.tsx`). The page imports and maps over data; it should not inline large card markup.
+- **Title and actions on each card**: On the **first row** of a card, group the **entity title** (link to detail when applicable) and **inline actions** (status, icon buttons, overflow menus) in a **single flex row** with **`items-center`** and a **tight gap** (e.g. `gap-2`). Do not separate title and actions with a large vertical spacer or a second “toolbar” strip— they read as one header line. Secondary metadata (company, dates, tags) belongs on following rows.
+
+#### Detail (item)
+
+- **Header**: The detail shell has a **title** at the top (`Heading` or equivalent) and a compact **Actions** control (e.g. `Button` + `DropdownMenu` labeled “Actions” for destructive or secondary operations). Pages may add a **back** link row above the title; keep the actions control **aligned with that top band** (e.g. back on one side, Actions on the other) so the title block stays uncluttered. Loading, error, and empty states stay in the content area below the header.
+- **Main and optional side column**: **Primary content** lives in the **main column** (left in LTR). **Optional supplementary UI** (activity, chat, timeline— **not** the primary form) may sit in a **secondary column** to the right on wide layouts. Use a **CSS Grid** with a fixed or max width for the side column (e.g. `lg:grid-cols-[minmax(0,1fr)_360px]`), **`min-h-0`** on both tracks, and **`overflow`** / **`border-l`** on the side panel so nested scroll regions work.
+- **Responsive integration**: Below the **`lg`** (or chosen) breakpoint, **collapse to one column**: fold the side column into the same flow as the main column—typically by **adding its content as extra tabs** on the same `TabsList` so nothing is only reachable on desktop. The reference detail page uses **one tab strip** on small screens (overview, description, notes, history) and **splits** overview/description tabs from the activity side panel on **`lg+`**.
+- **Tabs (optional)**: When the main area has multiple subviews (e.g. overview vs. long-form body), use **`Tabs`** for the **main column** first. Add more triggers only when the side column is merged for small breakpoints, so navigation stays consistent.
 
 ## Web application patterns
 
@@ -145,6 +176,7 @@ Use a same-origin dev route in `apps/web` (e.g. `"/__debug_ingest"`) proxied/rew
 
 ## Quality gates
 
+- **Lint and Prettier (human or AI)**: When ESLint or Prettier reports an issue, **fix it via the project CLI first** — for example root or package **`pnpm lint`** (with autofix where configured), **`eslint --fix`**, or **`prettier --write`** on the affected files or scopes. Prefer that over hand-editing many lines in an editor or chat: the tools apply consistent, repo-configured rules and use fewer tokens than manual patch-by-patch fixes.
 - Lint, format, and typecheck before merge-ready changes.
 - Run unit/integration, e2e, and Storybook tests for impacted layers.
 - Keep CI coverage thresholds and story coverage for exported UI components.

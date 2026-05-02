@@ -23,13 +23,13 @@ Node 22+, pnpm 10.8+.
 
 ## Packages
 
-| Package       | Notes                                                                                                                                                           |
-| ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **api**       | Apollo GraphQL; schema `apps/api/src/schema.gql`; TypeORM + PostgreSQL. Dev: `pnpm --filter @job-tracker/api run dev` (migrations + watch).                     |
-| **web**       | Apollo Client; codegen: `pnpm --filter @job-tracker/web run codegen` → `src/gql/` (ESLint ignore).                                                              |
-| **ui**        | Radix + Tailwind; Storybook on port 6006.                                                                                                                       |
-| **logger**    | Typed logger; no tests.                                                                                                                                         |
-| **extension** | Plasmo + React; scaffold `specs/023-*` ([T-137]): dev `pnpm --filter @job-tracker/extension run dev`; smoke: load `build/chrome-mv3-prod` unpacked in Chromium. |
+| Package       | Notes                                                                                                                                       |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| **api**       | Apollo GraphQL; schema `apps/api/src/schema.gql`; TypeORM + PostgreSQL. Local dev server: PM2 **`api`** (`ecosystem.config.cjs`).           |
+| **web**       | Apollo Client; codegen: `pnpm --filter @job-tracker/web run codegen` → `src/gql/` (ESLint ignore). Local dev: PM2 **`web`**.                |
+| **ui**        | Radix + Tailwind; Storybook on port 6006 — local dev via PM2 **`storybook`**.                                                               |
+| **logger**    | Typed logger; no tests.                                                                                                                     |
+| **extension** | Plasmo + React; scaffold `specs/023-*` ([T-137]); local dev: PM2 **`extension`**; smoke: load `build/chrome-mv3-prod` unpacked in Chromium. |
 
 ## Tests
 
@@ -45,7 +45,7 @@ Node 22+, pnpm 10.8+.
 
 ## ESLint
 
-`className` via `cn()` only; no raw `process.env` in `apps/web/src/` — use `src/env/`; in config/codegen only: `CI`, `E2E_PORT`, `API_GRAPHQL_URL`, `NODE_ENV`. Package `lint` scripts and pre-commit lint-staged use **`eslint --fix --max-warnings=0 --no-warn-ignored`** (then `tsc --noEmit` where applicable); fix anything **not** autofixable before push.
+`className` via `cn()` only; no raw `process.env` in `apps/web/src/` — use `src/env/`; in config/codegen only: `CI`, `E2E_PORT`, `API_GRAPHQL_URL`, `NODE_ENV`. Package `lint` scripts and pre-commit lint-staged use **`eslint --fix --max-warnings=0 --no-warn-ignored`** (then `tsc --noEmit` where applicable); fix anything **not** autofixable before push. Prefer **`pnpm lint`** / **`eslint --fix`** / **`prettier --write`** on affected paths before hand-editing many lines (see **Quality gates** in **`docs/CONVENTIONS.mdx`**).
 
 ## Turbo
 
@@ -61,7 +61,7 @@ Build from repo root: `docker build -f apps/api/Dockerfile -t job-tracker-api:lo
 
 ## PM2
 
-Logs under `~/.pm2/logs/` (`*-out.log`, `*-error.log`).
+Long-running apps (**`api`**, **`web`**, **`storybook`**, **`extension`**) — start/stop/restart/teardown via PM2 only (**`pnpm pm2:start`** / **`pm2:stop`** / **`pm2:restart`**, **`pm2 delete`**, **`pm2 kill`** as needed); see **`docs/CONVENTIONS.mdx`** (**Local development: PM2**). Logs: **`~/.pm2/logs/`** (`*-out.log`, `*-error.log`).
 
 ## CI
 

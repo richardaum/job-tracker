@@ -1,6 +1,6 @@
 # Specs (LeanSpec)
 
-Numbered folders **`specs/NNN-slug/`**, primary file **`README.md`**. Bands: **`001-*`…`006-*`** archived; **`007-*`…`011-*`** docs governance; **`012-*`…`023-*`** current product / technical scope.
+Numbered folders **`specs/NNN-slug/`**, primary file **`README.md`**. Bands: **`001-*`…`006-*`** archived; **`007-*`…`011-*`** docs governance; **`012-*`…`024-*`** current product / technical scope.
 
 ## Generated index (`INDEX.md`)
 
