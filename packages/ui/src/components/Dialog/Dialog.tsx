@@ -51,6 +51,8 @@ export function Dialog({
   childrenClassName,
   size = "lg",
 }: DialogProps) {
+  const hasDescription = Boolean(description?.trim());
+
   return (
     <RadixDialog.Root
       open={open}
@@ -70,6 +72,7 @@ export function Dialog({
             sizeClasses[size],
             contentClassName,
           )}
+          {...(!hasDescription ? { "aria-describedby": undefined } : {})}
         >
           <div
             className={cn(
@@ -82,7 +85,7 @@ export function Dialog({
               >
                 {title}
               </RadixDialog.Title>
-              {description ? (
+              {hasDescription ? (
                 <RadixDialog.Description
                   className={cn("text-sm text-text-secondary")}
                 >
