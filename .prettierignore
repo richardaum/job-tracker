@@ -2,6 +2,7 @@ node_modules
 .next
 dist
 storybook-static
+docs/specs
 coverage
 playwright-report
 test-results

@@ -8,6 +8,9 @@ const namespace = "job-tracker";
 /**
  * PM2 ecosystem — dev processes for this monorepo.
  *
+ * **storybook** watches `specs/` and `scripts/generate-specs-storybook.mjs`; on change PM2 restarts
+ * the dev server, which runs `sync-specs-docs` then Storybook (regenerates gitignored `docs/specs/*.mdx`).
+ *
  * Start:  yarn pm2:start
  * Stop:   yarn pm2:stop
  * Restart with refreshed env: yarn pm2:restart
@@ -45,8 +48,20 @@ module.exports = {
       args: "run dev",
       interpreter: "none",
       env: { NODE_ENV: "development", CI: "true" },
-      watch: ["src", ".storybook"],
-      ignore_watch: ["node_modules", ".git", "dist", "storybook-static"],
+      // Regenerate `docs/specs/*.mdx` on each restart; watch LeanSpec sources + generator only (not `docs/specs/` — avoids a restart loop when the script writes output).
+      watch: [
+        "src",
+        ".storybook",
+        path.join(root, "specs"),
+        path.join(root, "scripts", "generate-specs-storybook.mjs"),
+      ],
+      ignore_watch: [
+        "node_modules",
+        ".git",
+        "dist",
+        "storybook-static",
+        path.join(root, "docs", "specs"),
+      ],
     },
     {
       name: "extension",

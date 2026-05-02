@@ -4,19 +4,25 @@ import { Meta } from "@storybook/addon-docs/blocks";
 
 # Conventions
 
-Guidelines for **application and package code**, **LeanSpec** (`specs/`), and Storybook (**Documentation → Project** then **Documentation → Conventions**). Product overview: **[PROJECT.mdx](./PROJECT.mdx)**.
+Guidelines for **application and package code**, **LeanSpec** (`specs/`), and Storybook (**Documentation → Project**, **Conventions**, **Specs**). Product overview: **[PROJECT.mdx](./PROJECT.mdx)**.
 
 ## Documentation MDX (`docs/`)
 
 - **Language**: All **documentation** in this repository is written in **English** — including `docs/**/*.mdx`, LeanSpec under `specs/`, root and package **README** files, Storybook documentation (this page and related MDX), agent skills, and other in-repo technical prose. User-facing UI strings may follow product or localization decisions separately; the documentation layer stays English for a single shared baseline.
 - **Format**: All files under `docs/` are **`.mdx`**. Do not add plain Markdown (`.md`) here — MDX is required so Storybook picks them up (`packages/ui/.storybook/main.ts` includes `docs/**/*.mdx`) and tooling stays consistent.
+- **LeanSpec in Storybook (`docs/specs/`)**: **`docs/specs/*.mdx`** is **generated** from `specs/**` markdown (`README.md`, `HISTORY.md`, `INDEX.md`, and each numbered spec’s `README.md`) so the sidebar shows the same content as LeanSpec with the same Markdown rendering as other docs pages. Output is **gitignored**; it is written before **`pnpm --filter @job-tracker/ui run dev`** / **`build-storybook`** (see **`packages/ui`** `sync-specs-docs`) and by **`pnpm storybook:sync-specs`** at the repo root. Under **PM2** (`ecosystem.config.cjs`), the **storybook** app watches **`specs/`** and the generator script so restarts refresh docs. Do not edit generated files by hand.
 - **No `---` before headings**: Do not place a thematic break (`---`, horizontal rule) on the line directly above any Markdown heading (`#` through `######`). It adds noise in Storybook and weakens heading hierarchy visually. Use blank lines only, or restructure sections (lists, paragraphs) instead of separating with a rule right before a title.
 
-- **Uppercase `*.md` / `*.mdx` stems (repository-wide)**: The filename **before** `.md` or `.mdx` must use **uppercase ASCII letters** (hyphens between segments are fine; **no lowercase** in the basename). Examples: **`README.md`**, **`PROJECT.mdx`**, **`COSTS.mdx`**. **Exception:** slash-command sources under **`.ai/commands/`** use **lowercase** basenames (e.g. **`commit.md`**) so they match **`/commit`** invocations in editors. When renaming, update links, scripts, globs, and agent skills that reference the path.
+- **Uppercase `*.md` / `*.mdx` stems (repository-wide)**: The filename **before** `.md` or `.mdx` must use **uppercase ASCII letters** (hyphens between segments are fine; **no lowercase** in the basename). Examples: **`README.md`**, **`PROJECT.mdx`**, **`COSTS.mdx`**. **Exceptions:** (1) slash-command sources under **`.ai/commands/`** use **lowercase** basenames (e.g. **`commit.md`**) so they match **`/commit`** invocations in editors; (2) generated **`docs/specs/<NNN-slug>.mdx`** use the same **lowercase kebab-case** stem as the matching **`specs/<NNN-slug>/`** folder. When renaming, update links, scripts, globs, and agent skills that reference the path.
 
 ## LeanSpec (`specs/`)
 
 Numbered folders: `specs/<NNN-slug>/` with primary **`README.md`** (optional companions at spec root too). Chronicle: **`specs/HISTORY.md`** next to **`specs/README.md`**, linked from **`008-docs-history`**. Overview: **`specs/README.md`**. Config: **`.lean-spec/config.json`**.
+
+### Source of truth and alignment with code
+
+- The primary **`README.md`** for a numbered spec is the **source of truth** for what that scope commits to: requirements, outcomes, and high-level design (flows, boundaries, ownership).
+- **High-level alignment is mandatory:** when implementation adds, removes, or changes that committed story, **update the spec in the same change set** so docs and code stay aligned. **Code and tests** remain authoritative for line-by-line behavior; the spec does not need to mirror every file, but it **must not** drift into contradiction with shipped intent that guides product or engineering decisions.
 
 ### Structure bands (this repository)
 
@@ -41,6 +47,7 @@ Numbered folders: `specs/<NNN-slug>/` with primary **`README.md`** (optional com
 
 - Prefer **`pnpm exec lean-spec`** for `create`, `update`, `validate`, `board`, and **`rel`** (dependencies), not only ad-hoc tree edits.
 - Meaningful increments: update **`docs-roadmap`**, **`docs-state`**, and **`docs-history`** (prepend to **`specs/HISTORY.md`**).
+- When new requirements or acceptance criteria arise for scope already owned by a numbered spec (**`specs/<NNN-slug>/README.md`**), **update that spec** in the same change set (stable **`[P-NNN]`** / **`[T-NNN]`** IDs per **Traceability IDs** above), then **`pnpm leanspec:sync-spec-indices`** when references or metadata change. See **Source of truth and alignment with code** above.
 - Merge-ready: code and tests green; **`pnpm leanspec:validate`** (CI and pre-commit).
 
 ### Spec indices (`specs/`)

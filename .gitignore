@@ -44,6 +44,9 @@ packages/*/dist/
 # Storybook — `build-storybook` default output (packages/ui)
 storybook-static/
 
+# Storybook — generated LeanSpec doc pages (`pnpm`/UI dev & build run `scripts/generate-specs-storybook.mjs`)
+docs/specs/
+
 # Logs & tool caches
 logs/
 *.log
