@@ -146,9 +146,35 @@ export type CreateApplicationWithAiInput = {
   prompt: Scalars["String"]["input"];
 };
 
+export type CreateImportRunInput = { importerId: Scalars["String"]["input"] };
+
 export type CreateNoteInput = {
   applicationId: Scalars["String"]["input"];
   content: Scalars["String"]["input"];
+};
+
+export type ExtensionChannelEventType = {
+  __typename?: "ExtensionChannelEventType";
+  kind: Scalars["String"]["output"];
+  payloadJson?: Maybe<Scalars["String"]["output"]>;
+};
+
+export enum ImportRunStatus {
+  Completed = "COMPLETED",
+  Failed = "FAILED",
+  InProgress = "IN_PROGRESS",
+  Running = "RUNNING",
+}
+
+export type ImportRunType = {
+  __typename?: "ImportRunType";
+  entryUrl: Scalars["String"]["output"];
+  id: Scalars["ID"]["output"];
+  importerId: Scalars["String"]["output"];
+  importerName: Scalars["String"]["output"];
+  importerSource: Scalars["String"]["output"];
+  startedAt: Scalars["DateTime"]["output"];
+  status: ImportRunStatus;
 };
 
 export type Mutation = {
@@ -157,15 +183,18 @@ export type Mutation = {
   createApplicationNote: NoteType;
   createApplicationStageEvent: ApplicationStageEventType;
   createApplicationWithAI: ApplicationType;
+  createImportRun: ImportRunType;
   deleteApplication: Scalars["Boolean"]["output"];
   deleteApplicationNote: Scalars["Boolean"]["output"];
   deleteApplicationStageEvent: Scalars["Boolean"]["output"];
   deleteCompany: Scalars["Boolean"]["output"];
+  deleteImportRun: Scalars["Boolean"]["output"];
   removeApplicationTag: ApplicationType;
   updateApplication: ApplicationType;
   updateApplicationNote: NoteType;
   updateApplicationStageEvent: ApplicationStageEventType;
   updateCompany: CompanyType;
+  updateImportRunStatus: ImportRunType;
 };
 
 export type MutationCreateApplicationArgs = { input: CreateApplicationInput };
@@ -180,6 +209,8 @@ export type MutationCreateApplicationWithAiArgs = {
   input: CreateApplicationWithAiInput;
 };
 
+export type MutationCreateImportRunArgs = { input: CreateImportRunInput };
+
 export type MutationDeleteApplicationArgs = { id: Scalars["ID"]["input"] };
 
 export type MutationDeleteApplicationNoteArgs = { id: Scalars["ID"]["input"] };
@@ -189,6 +220,8 @@ export type MutationDeleteApplicationStageEventArgs = {
 };
 
 export type MutationDeleteCompanyArgs = { id: Scalars["ID"]["input"] };
+
+export type MutationDeleteImportRunArgs = { id: Scalars["ID"]["input"] };
 
 export type MutationRemoveApplicationTagArgs = {
   id: Scalars["ID"]["input"];
@@ -215,6 +248,11 @@ export type MutationUpdateCompanyArgs = {
   input: UpdateCompanyInput;
 };
 
+export type MutationUpdateImportRunStatusArgs = {
+  id: Scalars["ID"]["input"];
+  status: ImportRunStatus;
+};
+
 export type NoteType = {
   __typename?: "NoteType";
   applicationId?: Maybe<Scalars["String"]["output"]>;
@@ -237,6 +275,7 @@ export type Query = {
   generateApplicationDraftWithAI: ApplicationAiDraftType;
   generateApplicationNoteWithAI: Scalars["String"]["output"];
   generateCompanyDescription: Scalars["String"]["output"];
+  importRuns: Array<ImportRunType>;
   me: UserType;
   restructureJobDescriptionWithAI: Scalars["String"]["output"];
   rewriteTextWithAI: Scalars["String"]["output"];
@@ -283,6 +322,11 @@ export enum SalaryPeriod {
   Month = "MONTH",
   Year = "YEAR",
 }
+
+export type Subscription = {
+  __typename?: "Subscription";
+  extensionChannel: ExtensionChannelEventType;
+};
 
 export type UpdateApplicationInput = {
   company?: InputMaybe<Scalars["String"]["input"]>;
@@ -726,6 +770,63 @@ export type CompaniesQuery = {
     name: string;
     description?: string | null;
   }>;
+};
+
+export type ImportRunsQueryVariables = Exact<{ [key: string]: never }>;
+
+export type ImportRunsQuery = {
+  __typename?: "Query";
+  importRuns: Array<{
+    __typename?: "ImportRunType";
+    id: string;
+    importerId: string;
+    importerName: string;
+    entryUrl: string;
+    status: ImportRunStatus;
+    startedAt: any;
+    importerSource: string;
+  }>;
+};
+
+export type CreateImportRunMutationVariables = Exact<{
+  input: CreateImportRunInput;
+}>;
+
+export type CreateImportRunMutation = {
+  __typename?: "Mutation";
+  createImportRun: {
+    __typename?: "ImportRunType";
+    id: string;
+    importerId: string;
+    importerName: string;
+    entryUrl: string;
+    status: ImportRunStatus;
+    startedAt: any;
+    importerSource: string;
+  };
+};
+
+export type DeleteImportRunMutationVariables = Exact<{
+  id: Scalars["ID"]["input"];
+}>;
+
+export type DeleteImportRunMutation = {
+  __typename?: "Mutation";
+  deleteImportRun: boolean;
+};
+
+export type UpdateImportRunStatusMutationVariables = Exact<{
+  id: Scalars["ID"]["input"];
+  status: ImportRunStatus;
+}>;
+
+export type UpdateImportRunStatusMutation = {
+  __typename?: "Mutation";
+  updateImportRunStatus: {
+    __typename?: "ImportRunType";
+    id: string;
+    status: ImportRunStatus;
+  };
 };
 
 export type MeQueryVariables = Exact<{ [key: string]: never }>;
@@ -2021,6 +2122,185 @@ export type CompaniesQueryHookResult = ReturnType<typeof useCompaniesQuery>;
 export type CompaniesLazyQueryHookResult = ReturnType<
   typeof useCompaniesLazyQuery
 >;
+
+export const ImportRunsDocument = gql`
+  query ImportRuns {
+    importRuns {
+      id
+      importerId
+      importerName
+      entryUrl
+      status
+      startedAt
+      importerSource
+    }
+  }
+`;
+
+/**
+ * __useImportRunsQuery__
+ *
+ * To run a query within a React component, call `useImportRunsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useImportRunsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useImportRunsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useImportRunsQuery(
+  baseOptions?: ApolloReactHooks.QueryHookOptions<
+    ImportRunsQuery,
+    ImportRunsQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useQuery<ImportRunsQuery, ImportRunsQueryVariables>(
+    ImportRunsDocument,
+    options,
+  );
+}
+export function useImportRunsLazyQuery(
+  baseOptions?: ApolloReactHooks.LazyQueryHookOptions<
+    ImportRunsQuery,
+    ImportRunsQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useLazyQuery<
+    ImportRunsQuery,
+    ImportRunsQueryVariables
+  >(ImportRunsDocument, options);
+}
+
+export type ImportRunsQueryHookResult = ReturnType<typeof useImportRunsQuery>;
+export type ImportRunsLazyQueryHookResult = ReturnType<
+  typeof useImportRunsLazyQuery
+>;
+
+export const CreateImportRunDocument = gql`
+  mutation CreateImportRun($input: CreateImportRunInput!) {
+    createImportRun(input: $input) {
+      id
+      importerId
+      importerName
+      entryUrl
+      status
+      startedAt
+      importerSource
+    }
+  }
+`;
+
+/**
+ * __useCreateImportRunMutation__
+ *
+ * To run a mutation, you first call `useCreateImportRunMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateImportRunMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createImportRunMutation, { data, loading, error }] = useCreateImportRunMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateImportRunMutation(
+  baseOptions?: ApolloReactHooks.MutationHookOptions<
+    CreateImportRunMutation,
+    CreateImportRunMutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useMutation<
+    CreateImportRunMutation,
+    CreateImportRunMutationVariables
+  >(CreateImportRunDocument, options);
+}
+
+export const DeleteImportRunDocument = gql`
+  mutation DeleteImportRun($id: ID!) {
+    deleteImportRun(id: $id)
+  }
+`;
+
+/**
+ * __useDeleteImportRunMutation__
+ *
+ * To run a mutation, you first call `useDeleteImportRunMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteImportRunMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteImportRunMutation, { data, loading, error }] = useDeleteImportRunMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteImportRunMutation(
+  baseOptions?: ApolloReactHooks.MutationHookOptions<
+    DeleteImportRunMutation,
+    DeleteImportRunMutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useMutation<
+    DeleteImportRunMutation,
+    DeleteImportRunMutationVariables
+  >(DeleteImportRunDocument, options);
+}
+
+export const UpdateImportRunStatusDocument = gql`
+  mutation UpdateImportRunStatus($id: ID!, $status: ImportRunStatus!) {
+    updateImportRunStatus(id: $id, status: $status) {
+      id
+      status
+    }
+  }
+`;
+
+/**
+ * __useUpdateImportRunStatusMutation__
+ *
+ * To run a mutation, you first call `useUpdateImportRunStatusMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateImportRunStatusMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateImportRunStatusMutation, { data, loading, error }] = useUpdateImportRunStatusMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      status: // value for 'status'
+ *   },
+ * });
+ */
+export function useUpdateImportRunStatusMutation(
+  baseOptions?: ApolloReactHooks.MutationHookOptions<
+    UpdateImportRunStatusMutation,
+    UpdateImportRunStatusMutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useMutation<
+    UpdateImportRunStatusMutation,
+    UpdateImportRunStatusMutationVariables
+  >(UpdateImportRunStatusDocument, options);
+}
 
 export const MeDocument = gql`
   query Me {

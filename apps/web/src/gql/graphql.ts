@@ -144,9 +144,35 @@ export type CreateApplicationWithAiInput = {
   prompt: Scalars["String"]["input"];
 };
 
+export type CreateImportRunInput = { importerId: Scalars["String"]["input"] };
+
 export type CreateNoteInput = {
   applicationId: Scalars["String"]["input"];
   content: Scalars["String"]["input"];
+};
+
+export type ExtensionChannelEventType = {
+  __typename?: "ExtensionChannelEventType";
+  kind: Scalars["String"]["output"];
+  payloadJson?: Maybe<Scalars["String"]["output"]>;
+};
+
+export enum ImportRunStatus {
+  Completed = "COMPLETED",
+  Failed = "FAILED",
+  InProgress = "IN_PROGRESS",
+  Running = "RUNNING",
+}
+
+export type ImportRunType = {
+  __typename?: "ImportRunType";
+  entryUrl: Scalars["String"]["output"];
+  id: Scalars["ID"]["output"];
+  importerId: Scalars["String"]["output"];
+  importerName: Scalars["String"]["output"];
+  importerSource: Scalars["String"]["output"];
+  startedAt: Scalars["DateTime"]["output"];
+  status: ImportRunStatus;
 };
 
 export type Mutation = {
@@ -155,15 +181,18 @@ export type Mutation = {
   createApplicationNote: NoteType;
   createApplicationStageEvent: ApplicationStageEventType;
   createApplicationWithAI: ApplicationType;
+  createImportRun: ImportRunType;
   deleteApplication: Scalars["Boolean"]["output"];
   deleteApplicationNote: Scalars["Boolean"]["output"];
   deleteApplicationStageEvent: Scalars["Boolean"]["output"];
   deleteCompany: Scalars["Boolean"]["output"];
+  deleteImportRun: Scalars["Boolean"]["output"];
   removeApplicationTag: ApplicationType;
   updateApplication: ApplicationType;
   updateApplicationNote: NoteType;
   updateApplicationStageEvent: ApplicationStageEventType;
   updateCompany: CompanyType;
+  updateImportRunStatus: ImportRunType;
 };
 
 export type MutationCreateApplicationArgs = { input: CreateApplicationInput };
@@ -178,6 +207,8 @@ export type MutationCreateApplicationWithAiArgs = {
   input: CreateApplicationWithAiInput;
 };
 
+export type MutationCreateImportRunArgs = { input: CreateImportRunInput };
+
 export type MutationDeleteApplicationArgs = { id: Scalars["ID"]["input"] };
 
 export type MutationDeleteApplicationNoteArgs = { id: Scalars["ID"]["input"] };
@@ -187,6 +218,8 @@ export type MutationDeleteApplicationStageEventArgs = {
 };
 
 export type MutationDeleteCompanyArgs = { id: Scalars["ID"]["input"] };
+
+export type MutationDeleteImportRunArgs = { id: Scalars["ID"]["input"] };
 
 export type MutationRemoveApplicationTagArgs = {
   id: Scalars["ID"]["input"];
@@ -213,6 +246,11 @@ export type MutationUpdateCompanyArgs = {
   input: UpdateCompanyInput;
 };
 
+export type MutationUpdateImportRunStatusArgs = {
+  id: Scalars["ID"]["input"];
+  status: ImportRunStatus;
+};
+
 export type NoteType = {
   __typename?: "NoteType";
   applicationId?: Maybe<Scalars["String"]["output"]>;
@@ -235,6 +273,7 @@ export type Query = {
   generateApplicationDraftWithAI: ApplicationAiDraftType;
   generateApplicationNoteWithAI: Scalars["String"]["output"];
   generateCompanyDescription: Scalars["String"]["output"];
+  importRuns: Array<ImportRunType>;
   me: UserType;
   restructureJobDescriptionWithAI: Scalars["String"]["output"];
   rewriteTextWithAI: Scalars["String"]["output"];
@@ -281,6 +320,11 @@ export enum SalaryPeriod {
   Month = "MONTH",
   Year = "YEAR",
 }
+
+export type Subscription = {
+  __typename?: "Subscription";
+  extensionChannel: ExtensionChannelEventType;
+};
 
 export type UpdateApplicationInput = {
   company?: InputMaybe<Scalars["String"]["input"]>;
@@ -724,6 +768,63 @@ export type CompaniesQuery = {
     name: string;
     description?: string | null;
   }>;
+};
+
+export type ImportRunsQueryVariables = Exact<{ [key: string]: never }>;
+
+export type ImportRunsQuery = {
+  __typename?: "Query";
+  importRuns: Array<{
+    __typename?: "ImportRunType";
+    id: string;
+    importerId: string;
+    importerName: string;
+    entryUrl: string;
+    status: ImportRunStatus;
+    startedAt: any;
+    importerSource: string;
+  }>;
+};
+
+export type CreateImportRunMutationVariables = Exact<{
+  input: CreateImportRunInput;
+}>;
+
+export type CreateImportRunMutation = {
+  __typename?: "Mutation";
+  createImportRun: {
+    __typename?: "ImportRunType";
+    id: string;
+    importerId: string;
+    importerName: string;
+    entryUrl: string;
+    status: ImportRunStatus;
+    startedAt: any;
+    importerSource: string;
+  };
+};
+
+export type DeleteImportRunMutationVariables = Exact<{
+  id: Scalars["ID"]["input"];
+}>;
+
+export type DeleteImportRunMutation = {
+  __typename?: "Mutation";
+  deleteImportRun: boolean;
+};
+
+export type UpdateImportRunStatusMutationVariables = Exact<{
+  id: Scalars["ID"]["input"];
+  status: ImportRunStatus;
+}>;
+
+export type UpdateImportRunStatusMutation = {
+  __typename?: "Mutation";
+  updateImportRunStatus: {
+    __typename?: "ImportRunType";
+    id: string;
+    status: ImportRunStatus;
+  };
 };
 
 export type MeQueryVariables = Exact<{ [key: string]: never }>;
@@ -2302,6 +2403,222 @@ export const CompaniesDocument = {
     },
   ],
 } as unknown as DocumentNode<CompaniesQuery, CompaniesQueryVariables>;
+export const ImportRunsDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "query",
+      name: { kind: "Name", value: "ImportRuns" },
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "importRuns" },
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                { kind: "Field", name: { kind: "Name", value: "importerId" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "importerName" },
+                },
+                { kind: "Field", name: { kind: "Name", value: "entryUrl" } },
+                { kind: "Field", name: { kind: "Name", value: "status" } },
+                { kind: "Field", name: { kind: "Name", value: "startedAt" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "importerSource" },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ImportRunsQuery, ImportRunsQueryVariables>;
+export const CreateImportRunDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "CreateImportRun" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "input" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: {
+              kind: "NamedType",
+              name: { kind: "Name", value: "CreateImportRunInput" },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "createImportRun" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "input" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "input" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                { kind: "Field", name: { kind: "Name", value: "importerId" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "importerName" },
+                },
+                { kind: "Field", name: { kind: "Name", value: "entryUrl" } },
+                { kind: "Field", name: { kind: "Name", value: "status" } },
+                { kind: "Field", name: { kind: "Name", value: "startedAt" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "importerSource" },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  CreateImportRunMutation,
+  CreateImportRunMutationVariables
+>;
+export const DeleteImportRunDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "DeleteImportRun" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "id" } },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "deleteImportRun" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "id" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "id" },
+                },
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  DeleteImportRunMutation,
+  DeleteImportRunMutationVariables
+>;
+export const UpdateImportRunStatusDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "UpdateImportRunStatus" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "id" } },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "status" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: {
+              kind: "NamedType",
+              name: { kind: "Name", value: "ImportRunStatus" },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "updateImportRunStatus" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "id" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "id" },
+                },
+              },
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "status" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "status" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                { kind: "Field", name: { kind: "Name", value: "status" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  UpdateImportRunStatusMutation,
+  UpdateImportRunStatusMutationVariables
+>;
 export const MeDocument = {
   kind: "Document",
   definitions: [

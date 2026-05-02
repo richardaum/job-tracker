@@ -4,6 +4,7 @@ import { Button, cn, Text } from "@job-tracker/ui";
 import {
   BriefcaseIcon,
   BuildingsIcon,
+  DownloadSimpleIcon,
   GearIcon,
   MagnifyingGlassIcon,
   QuestionIcon,
@@ -16,6 +17,7 @@ import React, { useState } from "react";
 
 import { NEXT_PUBLIC_API_URL } from "@/env/client";
 import type { CurrentUser } from "@/hooks/useCurrentUser";
+import { apolloClient } from "@/lib/apollo-client";
 import { AppBrandMark } from "@/modules/navigation/components/AppBrandMark";
 import { ObfuscatedText } from "@/modules/navigation/components/ObfuscatedText";
 
@@ -27,6 +29,7 @@ const API_URL = NEXT_PUBLIC_API_URL ?? getDefaultApiUrl();
 
 const navItems = [
   { href: "/applications", label: "Applications", icon: BriefcaseIcon },
+  { href: "/imports", label: "Imports", icon: DownloadSimpleIcon },
   { href: "/companies", label: "Companies", icon: BuildingsIcon },
 ];
 
@@ -72,6 +75,7 @@ export function Sidebar({ open = false, onClose, user }: SidebarProps) {
         method: "POST",
         credentials: "include",
       });
+      await apolloClient.clearStore();
       onClose?.();
       router.replace("/login");
     } finally {

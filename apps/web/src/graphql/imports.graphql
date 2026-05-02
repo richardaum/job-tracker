@@ -1,0 +1,34 @@
+query ImportRuns {
+  importRuns {
+    id
+    importerId
+    importerName
+    entryUrl
+    status
+    startedAt
+    importerSource
+  }
+}
+
+mutation CreateImportRun($input: CreateImportRunInput!) {
+  createImportRun(input: $input) {
+    id
+    importerId
+    importerName
+    entryUrl
+    status
+    startedAt
+    importerSource
+  }
+}
+
+mutation DeleteImportRun($id: ID!) {
+  deleteImportRun(id: $id)
+}
+
+mutation UpdateImportRunStatus($id: ID!, $status: ImportRunStatus!) {
+  updateImportRunStatus(id: $id, status: $status) {
+    id
+    status
+  }
+}

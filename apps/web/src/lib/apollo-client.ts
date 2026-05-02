@@ -1,3 +1,5 @@
+"use client";
+
 import { ApolloClient, HttpLink, InMemoryCache } from "@apollo/client";
 
 import { getApiGraphqlUrl } from "./api-endpoints";
