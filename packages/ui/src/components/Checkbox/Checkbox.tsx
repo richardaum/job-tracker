@@ -56,7 +56,7 @@ export function Checkbox({
       disabled={disabled}
       required={required}
       className={cn(
-        `inline-flex items-center justify-center rounded-sm border bg-bg-surface text-text-inverted shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-brand focus-visible:ring-inset focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-60 ${sizeClasses[size]} ${stateClasses[state]}`,
+        `inline-flex cursor-pointer items-center justify-center rounded-sm border bg-bg-surface text-text-inverted shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-brand focus-visible:ring-inset focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-60 ${sizeClasses[size]} ${stateClasses[state]}`,
       )}
     >
       <RadixCheckbox.Indicator

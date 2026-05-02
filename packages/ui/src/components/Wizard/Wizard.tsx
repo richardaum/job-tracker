@@ -70,7 +70,7 @@ export function WizardSidebar({ className }: WizardSidebarProps) {
               type="button"
               onClick={() => onStepChange?.(index)}
               className={cn(
-                "w-full rounded-md border px-3 py-2 text-left transition-colors",
+                "w-full cursor-pointer rounded-md border px-3 py-2 text-left transition-colors",
                 isActive
                   ? "border-border-brand bg-bg-brand-subtle"
                   : "border-border-subtle bg-bg-surface hover:bg-bg-surface-hover",

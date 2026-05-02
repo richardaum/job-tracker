@@ -71,7 +71,7 @@ export function TabsTrigger({
       value={value}
       asChild={asChild}
       className={cn(
-        "inline-flex h-8 items-center justify-center rounded-sm px-3 text-sm font-medium text-text-secondary transition-colors hover:bg-bg-surface-hover hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-brand focus-visible:ring-offset-0 data-[state=active]:bg-bg-brand-subtle data-[state=active]:text-text-brand",
+        "inline-flex h-8 cursor-pointer items-center justify-center rounded-sm px-3 text-sm font-medium text-text-secondary transition-colors hover:bg-bg-surface-hover hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-brand focus-visible:ring-offset-0 data-[state=active]:bg-bg-brand-subtle data-[state=active]:text-text-brand",
         className,
       )}
     >

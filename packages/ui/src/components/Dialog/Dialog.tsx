@@ -73,7 +73,7 @@ export function Dialog({
         >
           <div
             className={cn(
-              "mb-3 flex shrink-0 items-start justify-between gap-2",
+              "mb-3 flex shrink-0 items-center justify-between gap-2",
             )}
           >
             <div className={cn("space-y-1")}>
@@ -93,7 +93,7 @@ export function Dialog({
             <RadixDialog.Close
               aria-label="Close dialog"
               className={cn(
-                "inline-flex size-8 items-center justify-center rounded-md text-text-secondary transition-colors hover:bg-bg-surface-hover hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-brand focus-visible:ring-inset focus-visible:ring-offset-0",
+                "inline-flex size-8 cursor-pointer items-center justify-center rounded-md text-text-secondary transition-colors hover:bg-bg-surface-hover hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-brand focus-visible:ring-inset focus-visible:ring-offset-0",
               )}
             >
               <XIcon size={16} weight="regular" />

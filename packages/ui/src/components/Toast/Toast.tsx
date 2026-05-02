@@ -99,7 +99,7 @@ export function Toast({
                 type="button"
                 onClick={onAction}
                 className={cn(
-                  "mt-2 rounded-sm border border-border-subtle bg-bg-surface px-5 py-2 text-sm font-medium text-text-primary transition-colors hover:bg-bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-brand focus-visible:ring-inset focus-visible:ring-offset-0",
+                  "mt-2 cursor-pointer rounded-sm border border-border-subtle bg-bg-surface px-5 py-2 text-sm font-medium text-text-primary transition-colors hover:bg-bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-brand focus-visible:ring-inset focus-visible:ring-offset-0",
                 )}
               >
                 {actionLabel}
@@ -110,7 +110,7 @@ export function Toast({
         <RadixToast.Close
           aria-label="Close toast"
           className={cn(
-            "inline-flex size-7 items-center justify-center rounded-sm text-current/80 transition-colors hover:bg-current/10 hover:text-current focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-brand focus-visible:ring-inset focus-visible:ring-offset-0",
+            "inline-flex size-7 cursor-pointer items-center justify-center rounded-sm text-current/80 transition-colors hover:bg-current/10 hover:text-current focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-brand focus-visible:ring-inset focus-visible:ring-offset-0",
           )}
         >
           <XIcon size={14} weight="regular" />
