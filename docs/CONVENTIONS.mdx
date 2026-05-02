@@ -104,6 +104,19 @@ Full technical notes: `specs/022-technical-view-model-web-layer/README.md`.
 
 After mutations that create or delete list-backed entities (e.g. applications or companies), refetch the list query with **`awaitRefetchQueries: true`** so the list updates before success UI (toast, close, redirect).
 
+## Agent skill: `job-tracker-api` (GraphQL)
+
+The skill **`.ai/skills/job-tracker-api/SKILL.md`** is the **canonical** copy in this repo. **`pnpm setup-ai`** mirrors **`.ai/skills`** into **`.cursor/skills`**, **`.claude/skills`**, **`.agents/skills`**, and **`.gemini/skills`** (see **`scripts/setup-ai-symlinks.mjs`**). Edit only under **`.ai/skills`**, not the mirror trees.
+
+**Keep the skill aligned with the live GraphQL contract whenever application-related API capabilities change.**
+
+- **Source of truth for types and operations:** **`apps/api/src/schema.gql`** (generated; do not hand-edit the schema file to “fix” docs — change resolvers/entities and regenerate).
+- **Update the skill in the same change set** as the API change when practical (or in an immediate follow-up PR) so agents and humans are not guided by stale operation names, inputs, enums, field lists, or behavior notes.
+- **Typical triggers:** new or removed queries/mutations/types, renamed fields, `CreateApplicationInput` / `UpdateApplicationInput` / related input shapes, enum members, validation or merge rules (e.g. compensation), auth or error behavior that the skill documents, and any narrative that quotes the schema (tables, examples, command-to-operation mapping).
+- **What to refresh in `SKILL.md`:** the frontmatter `description` if scope changes; operation inventories; input/field lists; examples and cross-references to resolver or util files when those rules move; pitfalls that contradict the previous schema.
+
+If the schema changed for **`apps/web`**, run **`pnpm --filter @job-tracker/web run codegen`** as usual — the skill is documentation for agents alongside that generated client, not a replacement for codegen.
+
 ## Development: mobile debug (Cursor)
 
 When debugging web from a phone (e.g. via ngrok), do not point the client at `127.0.0.1` for debug ingestion — mobile cannot reach host loopback; HTTPS may block mixed content.
