@@ -7,6 +7,7 @@
  *   node scripts/sync-spec-indices.mjs --check
  */
 
+import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
@@ -20,6 +21,10 @@ const specsDir = path.join(repoRoot, "specs");
 
 const SCRIPT = "scripts/sync-spec-indices.mjs";
 const CMD = "pnpm leanspec:sync-spec-indices";
+const REQ_MAP_SCRIPT = path.join(
+  repoRoot,
+  "scripts/generate-requirement-id-map.mjs",
+);
 const OUTPUT = "specs/INDEX.md";
 const HISTORY_FILE = "specs/HISTORY.md";
 
@@ -157,6 +162,10 @@ function main() {
         process.exit(1);
       }
     }
+    execFileSync(process.execPath, [REQ_MAP_SCRIPT, CHECK_FLAG], {
+      cwd: repoRoot,
+      stdio: "inherit",
+    });
     process.exit(0);
   }
 
@@ -166,6 +175,11 @@ function main() {
     fs.writeFileSync(abs, content, "utf8");
     console.warn(`Updated ${OUTPUT}`);
   }
+
+  execFileSync(process.execPath, [REQ_MAP_SCRIPT], {
+    cwd: repoRoot,
+    stdio: "inherit",
+  });
 }
 
 main();
