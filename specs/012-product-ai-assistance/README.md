@@ -6,8 +6,6 @@ tags:
   - migrated
 ---
 
-> **Migrated** from `.specs/product/AI-ASSISTANCE.md`. Links in the body may still reference `.specs/`; update them to this tree under `specs/` when editing.
-
 # Product Scope: ai-assistance
 
 ## Objective

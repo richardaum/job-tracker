@@ -6,8 +6,6 @@ tags:
   - migrated
 ---
 
-> **Migrated** from `.specs/beta1/technical/DESIGN-SYSTEM-AND-VISUAL-IDENTITY.md`. Links in the body may still reference `.specs/`; update them to this tree under `specs/` when editing.
-
 # Technical Scope: design-system-and-visual-identity
 
 ## Architecture Impact
@@ -19,7 +17,7 @@ tags:
 
 - [T-3] Use Tailwind token mapping and CSS variables as the source-of-truth interface for component styling consistency.
 - [T-4] Implement light and dark mode through token remapping so components stay unchanged when themes switch.
-- [T-5] Keep a shared component library (`packages/ui`) as the single design-system distribution channel for web and future extension surfaces.
+- [T-5] Keep a shared component library (`packages/ui`) as the single design-system distribution channel for web surfaces; extension alignment is specified under **`specs/023-product-chrome-extension/README.md`** ([T-133]).
 
 ## Risks and Mitigations
 

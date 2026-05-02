@@ -6,8 +6,6 @@ tags:
   - migrated
 ---
 
-> **Migrated** from `.specs/docs/STATE.md`. Links in the body may still reference `.specs/`; update them to this tree under `specs/` when editing.
-
 # State
 
 - Status: in-progress

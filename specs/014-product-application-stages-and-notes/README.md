@@ -6,8 +6,6 @@ tags:
   - migrated
 ---
 
-> **Migrated** from `.specs/product/APPLICATION-STAGES-AND-NOTES.md`. Links in the body may still reference `.specs/`; update them to this tree under `specs/` when editing.
-
 # Product Scope: application-stages-and-notes
 
 ## Objective

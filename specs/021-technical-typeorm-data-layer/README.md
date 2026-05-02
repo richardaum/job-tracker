@@ -6,8 +6,6 @@ tags:
   - migrated
 ---
 
-> **Migrated** from `.specs/technical/TYPEORM-DATA-LAYER.md`. Links in the body may still reference `.specs/`; update them to this tree under `specs/` when editing.
-
 # Technical Scope: typeorm-data-layer
 
 Scope id: `typeorm-data-layer` (technical-only spec; product traceability via [P-94]–[P-100] below).

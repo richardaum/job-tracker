@@ -6,8 +6,6 @@ tags:
   - migrated
 ---
 
-> **Migrated** from `.specs/technical/APPLICATION-COMPENSATION.md`. Links in the body may still reference `.specs/`; update them to this tree under `specs/` when editing.
-
 # Technical Scope: application-compensation
 
 ## Architecture Impact

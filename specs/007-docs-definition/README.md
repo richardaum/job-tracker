@@ -12,4 +12,4 @@ LeanSpec **governance pointer** for this repository. All **conventions** for the
 
 ## Legacy
 
-The historic flat `.specs/` tree was migrated into **`specs/`** in May 2026; older docs may still mention `.specs/` paths until revised.
+An older flat layout under **`specs/`** was reorganized into numbered LeanSpec folders in May 2026.

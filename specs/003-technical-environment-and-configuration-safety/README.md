@@ -6,8 +6,6 @@ tags:
   - migrated
 ---
 
-> **Migrated** from `.specs/beta1/technical/ENVIRONMENT-AND-CONFIGURATION-SAFETY.md`. Links in the body may still reference `.specs/`; update them to this tree under `specs/` when editing.
-
 # Technical Scope: environment-and-configuration-safety
 
 ## Architecture Impact

@@ -6,8 +6,6 @@ tags:
   - migrated
 ---
 
-> **Migrated** from `.specs/product/DASHBOARD-AND-SEARCH.md`. Links in the body may still reference `.specs/`; update them to this tree under `specs/` when editing.
-
 # Product Scope: dashboard-and-search
 
 ## Objective

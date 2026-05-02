@@ -6,8 +6,6 @@ tags:
   - migrated
 ---
 
-> **Migrated** from `.specs/technical/TRACKING-DATA-MODEL-AND-WORKFLOWS.md`. Links in the body may still reference `.specs/`; update them to this tree under `specs/` when editing.
-
 # Technical Scope: tracking-data-model-and-workflows
 
 ## Architecture Impact

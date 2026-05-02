@@ -6,8 +6,6 @@ tags:
   - migrated
 ---
 
-> **Migrated** from `.specs/beta1/technical/TOOLING-AND-DEVELOPER-EXPERIENCE.md`. Links in the body may still reference `.specs/`; update them to this tree under `specs/` when editing.
-
 # Technical Scope: tooling-and-developer-experience
 
 ## Architecture Impact

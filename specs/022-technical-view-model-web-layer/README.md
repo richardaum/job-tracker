@@ -6,8 +6,6 @@ tags:
   - migrated
 ---
 
-> **Migrated** from `.specs/technical/VIEW-MODEL-WEB-LAYER.md`. Links in the body may still reference `.specs/`; update them to this tree under `specs/` when editing.
-
 # View Model Hooks (Web) — Technical Plan
 
 Scope id: `view-model-web-layer` (technical-only spec; product traceability via [P-101]–[P-108] below).

@@ -6,9 +6,9 @@ tags:
   - migrated
 ---
 
-> **Migrated** from `.specs/product/IMPORT-AND-ONBOARDING-EXPANSION.md`. Links in the body may still reference `.specs/`; update them to this tree under `specs/` when editing.
-
 # Product Scope: import-and-onboarding-expansion
+
+Chrome extension-assisted listing capture lives in **`specs/023-product-chrome-extension/README.md`** ([P-53], [P-109]–[P-113]; [T-132]–[T-134]).
 
 ## Objective
 
@@ -16,7 +16,6 @@ tags:
 
 ## In Scope
 
-- [P-53] Support extension-assisted application capture from selected job boards into draft records.
 - [P-54] Support generic board import by URL parsing and normalized field extraction into user-review drafts.
 - [P-55] Provide a guest onboarding mode that allows temporary exploration of tracking workflows.
 - [P-56] Convert guest data into owned records after sign-in with explicit user consent.
@@ -32,7 +31,7 @@ tags:
 
 ## Acceptance Criteria
 
-- [P-59] A user can import a supported job listing into a draft and confirm mapped fields before persistence.
+- [P-59] A user can import a supported job listing via URL or paste-oriented guided paths into a draft and confirm mapped fields before persistence (extension path: [P-110]).
 - [P-60] A guest can create temporary tracking data and later migrate it into an authenticated account.
 - [P-61] Import failures provide actionable guidance and never overwrite existing owned records without confirmation.
 - [P-83] Import mapping accuracy, migration integrity, and failure recovery behavior are validated through automated scenario coverage.

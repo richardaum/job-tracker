@@ -6,8 +6,6 @@ tags:
   - migrated
 ---
 
-> **Migrated** from `.specs/beta1/technical/PLATFORM-RELIABILITY-AND-OBSERVABILITY.md`. Links in the body may still reference `.specs/`; update them to this tree under `specs/` when editing.
-
 # Technical Scope: platform-reliability-and-observability
 
 ## Architecture Impact

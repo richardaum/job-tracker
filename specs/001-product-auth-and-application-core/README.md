@@ -6,8 +6,6 @@ tags:
   - migrated
 ---
 
-> **Migrated** from `.specs/beta1/product/AUTH-AND-APPLICATION-CORE.md`. Links in the body may still reference `.specs/`; update them to this tree under `specs/` when editing.
-
 # Product Scope: auth-and-application-core
 
 ## Objective
@@ -24,7 +22,7 @@ tags:
 
 ## Out of Scope
 
-- [P-7] Import applications automatically from external job boards or browser extensions.
+- [P-7] Automatic import from external job boards or browser-assisted capture outside the core authenticated CRUD flows (see **`specs/016-product-import-and-onboarding-expansion/README.md`** and **`specs/023-product-chrome-extension/README.md`**).
 - [P-8] Guided auto-apply flows or autonomous job submission.
 - [P-9] Design system implementation details, build tooling, and infrastructure topology decisions.
 
