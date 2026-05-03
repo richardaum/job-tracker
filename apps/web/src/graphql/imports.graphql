@@ -7,7 +7,6 @@ query ImportRuns {
     status
     startedAt
     importerSource
-    executorPlanJson
   }
 }
 
@@ -20,7 +19,6 @@ mutation CreateImportRun($input: CreateImportRunInput!) {
     status
     startedAt
     importerSource
-    executorPlanJson
   }
 }
 

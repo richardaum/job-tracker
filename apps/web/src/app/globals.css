@@ -1,18 +1,1 @@
-@import "tailwindcss";
-@import "@job-tracker/ui/src/tokens.css";
-@import "@job-tracker/ui/src/theme.css";
-
-@source "../../../../packages/ui/src/**/*.{ts,tsx}";
-
-@variant hover (&:hover);
-
-html,
-body {
-  min-height: 100%;
-}
-
-body {
-  margin: 0;
-  background-color: var(--primitive-color-neutral-100);
-  color: var(--semantic-color-text-primary);
-}
+@import "@job-tracker/ui/src/tailwind-base.css";

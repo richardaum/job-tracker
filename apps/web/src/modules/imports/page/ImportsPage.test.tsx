@@ -26,8 +26,6 @@ const createdRun = {
   status: ImportRunStatus.Running,
   startedAt: "2026-05-02T12:00:00.000Z",
   importerSource: "database",
-  executorPlanJson:
-    '{"steps":[{"action":"tab.open","url":"https://example.invalid"}]}',
 };
 
 function renderImportsPage(mocks: ReadonlyArray<MockLink.MockedResponse>) {

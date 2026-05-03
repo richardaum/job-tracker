@@ -151,12 +151,6 @@ export type CreateNoteInput = {
   content: Scalars["String"]["input"];
 };
 
-export type ExtensionChannelEventType = {
-  __typename?: "ExtensionChannelEventType";
-  kind: Scalars["String"]["output"];
-  payloadJson?: Maybe<Scalars["String"]["output"]>;
-};
-
 export enum ImportRunStatus {
   Completed = "COMPLETED",
   Failed = "FAILED",
@@ -167,7 +161,6 @@ export enum ImportRunStatus {
 export type ImportRunType = {
   __typename?: "ImportRunType";
   entryUrl: Scalars["String"]["output"];
-  executorPlanJson?: Maybe<Scalars["String"]["output"]>;
   id: Scalars["ID"]["output"];
   importerId: Scalars["String"]["output"];
   importerName: Scalars["String"]["output"];
@@ -322,11 +315,6 @@ export enum SalaryPeriod {
   Month = "MONTH",
   Year = "YEAR",
 }
-
-export type Subscription = {
-  __typename?: "Subscription";
-  extensionChannel: ExtensionChannelEventType;
-};
 
 export type UpdateApplicationInput = {
   company?: InputMaybe<Scalars["String"]["input"]>;
@@ -785,7 +773,6 @@ export type ImportRunsQuery = {
     status: ImportRunStatus;
     startedAt: any;
     importerSource: string;
-    executorPlanJson?: string | null;
   }>;
 };
 
@@ -804,7 +791,6 @@ export type CreateImportRunMutation = {
     status: ImportRunStatus;
     startedAt: any;
     importerSource: string;
-    executorPlanJson?: string | null;
   };
 };
 
@@ -2443,10 +2429,6 @@ export const ImportRunsDocument = {
                   kind: "Field",
                   name: { kind: "Name", value: "importerSource" },
                 },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "executorPlanJson" },
-                },
               ],
             },
           },
@@ -2509,10 +2491,6 @@ export const CreateImportRunDocument = {
                 {
                   kind: "Field",
                   name: { kind: "Name", value: "importerSource" },
-                },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "executorPlanJson" },
                 },
               ],
             },
