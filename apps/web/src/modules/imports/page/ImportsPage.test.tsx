@@ -6,6 +6,7 @@ import { describe, expect, it } from "vitest";
 
 import { ImportRunStatus } from "@/gql/graphql";
 import {
+  ClearImportRunsDocument,
   CreateImportRunDocument,
   DeleteImportRunDocument,
   ImportRunsDocument,
@@ -25,6 +26,8 @@ const createdRun = {
   status: ImportRunStatus.Running,
   startedAt: "2026-05-02T12:00:00.000Z",
   importerSource: "database",
+  executorPlanJson:
+    '{"steps":[{"action":"tab.open","url":"https://example.invalid"}]}',
 };
 
 function renderImportsPage(mocks: ReadonlyArray<MockLink.MockedResponse>) {
@@ -85,6 +88,30 @@ describe("ImportsPage", () => {
     ).toBeGreaterThanOrEqual(1);
     expect(screen.getByText(/^Importer$/i)).toBeInTheDocument();
     expect(screen.getAllByText(/^running$/i).length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("clears all runs after confirming clear imports", async () => {
+    const user = userEvent.setup();
+    renderImportsPage([
+      {
+        request: { query: ImportRunsDocument },
+        result: { data: { importRuns: [createdRun] } },
+      },
+      {
+        request: { query: ClearImportRunsDocument },
+        result: { data: { clearImportRuns: true } },
+      },
+      {
+        request: { query: ImportRunsDocument },
+        result: { data: { importRuns: [] } },
+      },
+    ]);
+
+    await screen.findByRole("button", { name: /RemoteYeah/i });
+    await user.click(screen.getByRole("button", { name: /clear imports/i }));
+    await user.click(screen.getByRole("button", { name: /^Clear all$/i }));
+
+    expect(await screen.findByText(/no import runs yet/i)).toBeInTheDocument();
   });
 
   it("removes a run after confirming delete", async () => {

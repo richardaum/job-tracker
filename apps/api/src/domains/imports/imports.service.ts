@@ -61,11 +61,15 @@ export class ImportsService {
       throw new BadRequestException(`Unknown importer: ${importerId}`);
     }
     const startedAt = new Date();
+    const importerKey = importerId.trim().toLowerCase();
+    const executorPlanJson = JSON.stringify(resolved.executorPlan);
+
     const row = await this.repo.create({
       userId,
-      importerId: importerId.trim().toLowerCase(),
+      importerId: importerKey,
       importerName: resolved.name,
       entryUrl: resolved.entryUrl,
+      executorPlanJson,
       status: ImportRunStatusEnum.RUNNING,
       startedAt,
     });
@@ -77,6 +81,7 @@ export class ImportsService {
         entryUrl: row.entryUrl,
         importerId: row.importerId,
         importerName: row.importerName,
+        executorPlanJson,
       }),
     });
 
@@ -88,6 +93,10 @@ export class ImportsService {
     if (!deleted) {
       throw new NotFoundException(`Import run ${id} not found`);
     }
+  }
+
+  async clearImportRuns(userId: string): Promise<void> {
+    await this.repo.deleteAllByUserId(userId);
   }
 
   async updateImportRunStatus(
@@ -126,6 +135,7 @@ export class ImportsService {
       status: row.status,
       startedAt: row.startedAt,
       importerSource: "database",
+      executorPlanJson: row.executorPlanJson,
     };
   }
 }

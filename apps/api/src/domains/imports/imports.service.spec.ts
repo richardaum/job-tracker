@@ -2,6 +2,7 @@ import { ImportRunEntity } from "@api/database/entities/import-run.entity";
 import { ExtensionChannelStreamService } from "@api/domains/extension-channel/extension-channel.stream.service";
 import { EXTENSION_CHANNEL_KIND_IMPORT_RUN_CREATED } from "@api/domains/extension-channel/extension-channel-kinds";
 import { ImportRunStatusEnum } from "@api/domains/imports/import-run-status.enum";
+import { resolveImporter } from "@api/domains/imports/importers.registry";
 import { ImportsRepository } from "@api/domains/imports/imports.repository";
 import { ImportsService } from "@api/domains/imports/imports.service";
 import { BadRequestException, NotFoundException } from "@nestjs/common";
@@ -13,12 +14,14 @@ describe("ImportsService", () => {
     | "listByUserId"
     | "create"
     | "deleteByUser"
+    | "deleteAllByUserId"
     | "findByUserAndId"
     | "updateStatus"
   > = {
     listByUserId: vi.fn(),
     create: vi.fn(),
     deleteByUser: vi.fn(),
+    deleteAllByUserId: vi.fn(),
     findByUserAndId: vi.fn(),
     updateStatus: vi.fn(),
   };
@@ -39,6 +42,9 @@ describe("ImportsService", () => {
 
   it("createImportRun persists RemoteYeah entry URL", async () => {
     const startedAt = new Date("2026-05-01T12:00:00.000Z");
+    const planJson = JSON.stringify(
+      resolveImporter("remoteyeah")!.executorPlan,
+    );
     vi.mocked(repo.create).mockResolvedValue({
       id: "run-1",
       userId: "user-1",
@@ -46,6 +52,7 @@ describe("ImportsService", () => {
       importerName: "RemoteYeah",
       entryUrl:
         "https://remoteyeah.com/remote-frontend-engineer+reactjs-jobs-in-brazil+latin-america+worldwide#jobs",
+      executorPlanJson: planJson,
       status: ImportRunStatusEnum.RUNNING,
       startedAt,
     } as ImportRunEntity);
@@ -59,6 +66,7 @@ describe("ImportsService", () => {
         importerName: "RemoteYeah",
         entryUrl:
           "https://remoteyeah.com/remote-frontend-engineer+reactjs-jobs-in-brazil+latin-america+worldwide#jobs",
+        executorPlanJson: planJson,
         status: ImportRunStatusEnum.RUNNING,
       }),
     );
@@ -71,6 +79,10 @@ describe("ImportsService", () => {
         payloadJson: expect.stringContaining("run-1"),
       }),
     );
+    const [[, ev]] = vi.mocked(extensionChannelStream.pushEvent).mock.calls;
+    const outer = JSON.parse(ev.payloadJson!);
+    expect(outer.executorPlanJson).toBe(planJson);
+    expect(outer.executorPlanJson).toContain('"iterate.rows"');
   });
 
   it("createImportRun rejects unknown importer", async () => {
@@ -99,6 +111,12 @@ describe("ImportsService", () => {
     );
   });
 
+  it("clearImportRuns deletes all runs for the user", async () => {
+    vi.mocked(repo.deleteAllByUserId).mockResolvedValue(3);
+    await expect(service.clearImportRuns("user-1")).resolves.toBeUndefined();
+    expect(repo.deleteAllByUserId).toHaveBeenCalledWith("user-1");
+  });
+
   it("updateImportRunStatus RUNNING → IN_PROGRESS", async () => {
     const row = {
       id: "run-1",
@@ -106,6 +124,7 @@ describe("ImportsService", () => {
       importerId: "remoteyeah",
       importerName: "RemoteYeah",
       entryUrl: "https://remoteyeah.com/board",
+      executorPlanJson: null,
       status: ImportRunStatusEnum.RUNNING,
       startedAt: new Date("2026-05-01T12:00:00.000Z"),
     };
@@ -138,6 +157,7 @@ describe("ImportsService", () => {
       importerId: "remoteyeah",
       importerName: "RemoteYeah",
       entryUrl: "https://remoteyeah.com/board",
+      executorPlanJson: null,
       status: ImportRunStatusEnum.IN_PROGRESS,
       startedAt: new Date("2026-05-01T12:00:00.000Z"),
     };
@@ -160,6 +180,7 @@ describe("ImportsService", () => {
       importerId: "remoteyeah",
       importerName: "RemoteYeah",
       entryUrl: "https://remoteyeah.com/board",
+      executorPlanJson: null,
       status: ImportRunStatusEnum.RUNNING,
       startedAt: new Date("2026-05-01T12:00:00.000Z"),
     } as ImportRunEntity);

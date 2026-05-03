@@ -169,6 +169,7 @@ export enum ImportRunStatus {
 export type ImportRunType = {
   __typename?: "ImportRunType";
   entryUrl: Scalars["String"]["output"];
+  executorPlanJson?: Maybe<Scalars["String"]["output"]>;
   id: Scalars["ID"]["output"];
   importerId: Scalars["String"]["output"];
   importerName: Scalars["String"]["output"];
@@ -179,6 +180,7 @@ export type ImportRunType = {
 
 export type Mutation = {
   __typename?: "Mutation";
+  clearImportRuns: Scalars["Boolean"]["output"];
   createApplication: ApplicationType;
   createApplicationNote: NoteType;
   createApplicationStageEvent: ApplicationStageEventType;
@@ -785,6 +787,7 @@ export type ImportRunsQuery = {
     status: ImportRunStatus;
     startedAt: any;
     importerSource: string;
+    executorPlanJson?: string | null;
   }>;
 };
 
@@ -803,6 +806,7 @@ export type CreateImportRunMutation = {
     status: ImportRunStatus;
     startedAt: any;
     importerSource: string;
+    executorPlanJson?: string | null;
   };
 };
 
@@ -813,6 +817,13 @@ export type DeleteImportRunMutationVariables = Exact<{
 export type DeleteImportRunMutation = {
   __typename?: "Mutation";
   deleteImportRun: boolean;
+};
+
+export type ClearImportRunsMutationVariables = Exact<{ [key: string]: never }>;
+
+export type ClearImportRunsMutation = {
+  __typename?: "Mutation";
+  clearImportRuns: boolean;
 };
 
 export type UpdateImportRunStatusMutationVariables = Exact<{
@@ -2133,6 +2144,7 @@ export const ImportRunsDocument = gql`
       status
       startedAt
       importerSource
+      executorPlanJson
     }
   }
 `;
@@ -2192,6 +2204,7 @@ export const CreateImportRunDocument = gql`
       status
       startedAt
       importerSource
+      executorPlanJson
     }
   }
 `;
@@ -2260,6 +2273,41 @@ export function useDeleteImportRunMutation(
     DeleteImportRunMutation,
     DeleteImportRunMutationVariables
   >(DeleteImportRunDocument, options);
+}
+
+export const ClearImportRunsDocument = gql`
+  mutation ClearImportRuns {
+    clearImportRuns
+  }
+`;
+
+/**
+ * __useClearImportRunsMutation__
+ *
+ * To run a mutation, you first call `useClearImportRunsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useClearImportRunsMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [clearImportRunsMutation, { data, loading, error }] = useClearImportRunsMutation({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useClearImportRunsMutation(
+  baseOptions?: ApolloReactHooks.MutationHookOptions<
+    ClearImportRunsMutation,
+    ClearImportRunsMutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useMutation<
+    ClearImportRunsMutation,
+    ClearImportRunsMutationVariables
+  >(ClearImportRunsDocument, options);
 }
 
 export const UpdateImportRunStatusDocument = gql`

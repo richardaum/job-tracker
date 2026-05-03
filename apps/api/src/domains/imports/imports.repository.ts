@@ -23,6 +23,7 @@ export class ImportsRepository {
     importerId: string;
     importerName: string;
     entryUrl: string;
+    executorPlanJson?: string | null;
     status: ImportRunStatusEnum;
     startedAt: Date;
   }): Promise<ImportRunEntity> {
@@ -31,6 +32,7 @@ export class ImportsRepository {
       importerId: params.importerId,
       importerName: params.importerName,
       entryUrl: params.entryUrl,
+      executorPlanJson: params.executorPlanJson ?? null,
       status: params.status,
       startedAt: params.startedAt,
     });
@@ -43,6 +45,11 @@ export class ImportsRepository {
       userId: params.userId,
     });
     return (result.affected ?? 0) > 0;
+  }
+
+  async deleteAllByUserId(userId: string): Promise<number> {
+    const result = await this.runsRepo.delete({ userId });
+    return result.affected ?? 0;
   }
 
   async findByUserAndId(params: {

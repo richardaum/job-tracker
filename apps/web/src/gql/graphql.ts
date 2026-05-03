@@ -167,6 +167,7 @@ export enum ImportRunStatus {
 export type ImportRunType = {
   __typename?: "ImportRunType";
   entryUrl: Scalars["String"]["output"];
+  executorPlanJson?: Maybe<Scalars["String"]["output"]>;
   id: Scalars["ID"]["output"];
   importerId: Scalars["String"]["output"];
   importerName: Scalars["String"]["output"];
@@ -177,6 +178,7 @@ export type ImportRunType = {
 
 export type Mutation = {
   __typename?: "Mutation";
+  clearImportRuns: Scalars["Boolean"]["output"];
   createApplication: ApplicationType;
   createApplicationNote: NoteType;
   createApplicationStageEvent: ApplicationStageEventType;
@@ -783,6 +785,7 @@ export type ImportRunsQuery = {
     status: ImportRunStatus;
     startedAt: any;
     importerSource: string;
+    executorPlanJson?: string | null;
   }>;
 };
 
@@ -801,6 +804,7 @@ export type CreateImportRunMutation = {
     status: ImportRunStatus;
     startedAt: any;
     importerSource: string;
+    executorPlanJson?: string | null;
   };
 };
 
@@ -811,6 +815,13 @@ export type DeleteImportRunMutationVariables = Exact<{
 export type DeleteImportRunMutation = {
   __typename?: "Mutation";
   deleteImportRun: boolean;
+};
+
+export type ClearImportRunsMutationVariables = Exact<{ [key: string]: never }>;
+
+export type ClearImportRunsMutation = {
+  __typename?: "Mutation";
+  clearImportRuns: boolean;
 };
 
 export type UpdateImportRunStatusMutationVariables = Exact<{
@@ -2432,6 +2443,10 @@ export const ImportRunsDocument = {
                   kind: "Field",
                   name: { kind: "Name", value: "importerSource" },
                 },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "executorPlanJson" },
+                },
               ],
             },
           },
@@ -2495,6 +2510,10 @@ export const CreateImportRunDocument = {
                   kind: "Field",
                   name: { kind: "Name", value: "importerSource" },
                 },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "executorPlanJson" },
+                },
               ],
             },
           },
@@ -2547,6 +2566,25 @@ export const DeleteImportRunDocument = {
 } as unknown as DocumentNode<
   DeleteImportRunMutation,
   DeleteImportRunMutationVariables
+>;
+export const ClearImportRunsDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "ClearImportRuns" },
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          { kind: "Field", name: { kind: "Name", value: "clearImportRuns" } },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  ClearImportRunsMutation,
+  ClearImportRunsMutationVariables
 >;
 export const UpdateImportRunStatusDocument = {
   kind: "Document",

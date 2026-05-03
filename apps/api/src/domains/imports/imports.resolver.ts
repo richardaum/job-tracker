@@ -40,6 +40,14 @@ export class ImportsResolver {
     return true;
   }
 
+  @Mutation(() => Boolean)
+  async clearImportRuns(
+    @CurrentUser() user: { userId: string },
+  ): Promise<boolean> {
+    await this.service.clearImportRuns(user.userId);
+    return true;
+  }
+
   @Mutation(() => ImportRunType)
   updateImportRunStatus(
     @Args("id", { type: () => ID }) id: string,

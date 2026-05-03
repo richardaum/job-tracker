@@ -114,6 +114,7 @@ type ImportRunType {
   status: ImportRunStatus!
   startedAt: DateTime!
   importerSource: String!
+  executorPlanJson: String
 }
 
 enum ImportRunStatus {
@@ -172,6 +173,7 @@ type Mutation {
   deleteApplicationNote(id: ID!): Boolean!
   createImportRun(input: CreateImportRunInput!): ImportRunType!
   deleteImportRun(id: ID!): Boolean!
+  clearImportRuns: Boolean!
   updateImportRunStatus(id: ID!, status: ImportRunStatus!): ImportRunType!
 }
 

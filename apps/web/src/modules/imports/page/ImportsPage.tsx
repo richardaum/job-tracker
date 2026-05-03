@@ -5,17 +5,19 @@ import {
   cn,
   Combobox,
   type ComboboxOption,
+  ConfirmDialog,
   Dialog,
   Heading,
   Stack,
   Text,
 } from "@job-tracker/ui";
-import { PlusIcon } from "@phosphor-icons/react";
+import { PlusIcon, TrashSimpleIcon } from "@phosphor-icons/react";
 import { useCallback, useMemo, useState } from "react";
 
 import { EmptyState } from "@/components/empty-state";
 import {
   ImportRunsDocument,
+  useClearImportRunsMutation,
   useCreateImportRunMutation,
   useImportRunsQuery,
 } from "@/gql/hooks";
@@ -38,6 +40,10 @@ export default function ImportsPage() {
       refetchQueries: [{ query: ImportRunsDocument }],
       awaitRefetchQueries: true,
     });
+  const [clearImportRuns] = useClearImportRunsMutation({
+    refetchQueries: [{ query: ImportRunsDocument }],
+    awaitRefetchQueries: true,
+  });
 
   const runs: ImportRun[] = useMemo(
     () =>
@@ -94,6 +100,11 @@ export default function ImportsPage() {
     handleOpenChange(false);
   }, [createImportRun, handleOpenChange, selectedHardcoded]);
 
+  const handleClearAllImports = useCallback(async () => {
+    await clearImportRuns();
+    setSelectedRunId(null);
+  }, [clearImportRuns]);
+
   const listEmpty = !loadingRuns && runs.length === 0;
 
   return (
@@ -106,53 +117,72 @@ export default function ImportsPage() {
         <Heading as="h1" size="xl">
           Imports
         </Heading>
-        <Dialog
-          open={newRunOpen}
-          onOpenChange={handleOpenChange}
-          title="New run"
-          size="sm"
-          trigger={
-            <Button
-              intent="primary"
-              size="sm"
-              leftIcon={<PlusIcon size={16} weight="bold" />}
-              type="button"
-            >
-              New run
-            </Button>
-          }
-          footer={
-            <div className={cn("flex w-full justify-end gap-2")}>
+        <div className={cn("flex flex-wrap items-center gap-2")}>
+          <ConfirmDialog
+            title="Clear import runs"
+            description="Remove every import run from your history for this account. This cannot be undone. You can start new runs afterward."
+            confirmLabel="Clear all"
+            trigger={
               <Button
-                intent="secondary"
+                intent="destructive"
                 size="sm"
                 type="button"
-                onClick={() => handleOpenChange(false)}
+                disabled={runs.length === 0}
+                leftIcon={<TrashSimpleIcon size={16} weight="regular" />}
               >
-                Cancel
+                Clear imports
               </Button>
+            }
+            onConfirm={handleClearAllImports}
+          />
+          <Dialog
+            open={newRunOpen}
+            onOpenChange={handleOpenChange}
+            title="New run"
+            size="sm"
+            trigger={
               <Button
                 intent="primary"
                 size="sm"
+                leftIcon={<PlusIcon size={16} weight="bold" />}
                 type="button"
-                disabled={!selectedHardcoded || creatingRun}
-                onClick={() => void handleStartRun()}
               >
-                Start
+                New run
               </Button>
-            </div>
-          }
-        >
-          <Combobox
-            id={IMPORTER_COMBO_ID}
-            value={importerComboValue}
-            onValueChange={setImporterComboValue}
-            options={IMPORTER_COMBO_OPTIONS}
-            placeholder="Choose importer"
-            size="sm"
-            autoComplete="off"
-          />
-        </Dialog>
+            }
+            footer={
+              <div className={cn("flex w-full justify-end gap-2")}>
+                <Button
+                  intent="secondary"
+                  size="sm"
+                  type="button"
+                  onClick={() => handleOpenChange(false)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  intent="primary"
+                  size="sm"
+                  type="button"
+                  disabled={!selectedHardcoded || creatingRun}
+                  onClick={() => void handleStartRun()}
+                >
+                  Start
+                </Button>
+              </div>
+            }
+          >
+            <Combobox
+              id={IMPORTER_COMBO_ID}
+              value={importerComboValue}
+              onValueChange={setImporterComboValue}
+              options={IMPORTER_COMBO_OPTIONS}
+              placeholder="Choose importer"
+              size="sm"
+              autoComplete="off"
+            />
+          </Dialog>
+        </div>
       </div>
 
       <div className={cn("flex min-h-0 flex-1 flex-col md:flex-row")}>
