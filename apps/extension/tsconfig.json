@@ -2,15 +2,21 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "baseUrl": ".",
-    "paths": { "@/*": ["./src/*"], "@ui/*": ["../../packages/ui/src/*"] },
+    "paths": { "@/*": ["src/*"] },
+    "jsx": "react-jsx",
     "lib": ["DOM", "DOM.Iterable", "ES2023"],
     "target": "ES2022",
     "module": "ESNext",
     "moduleResolution": "bundler",
-    "jsx": "react-jsx",
     "noEmit": true,
     "types": ["chrome"]
   },
-  "include": [".plasmo/index.d.ts", "src/**/*", "vitest.config.ts"],
-  "exclude": ["node_modules", "build", ".plasmo"]
+  "include": [
+    ".wxt/wxt.d.ts",
+    "entrypoints/**/*",
+    "src/**/*",
+    "wxt.config.ts",
+    "vitest.config.ts"
+  ],
+  "exclude": ["node_modules", "build"]
 }

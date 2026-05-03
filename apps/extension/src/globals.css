@@ -1,5 +1,4 @@
-@import "@job-tracker/ui/src/tokens.css";
+@import "@job-tracker/ui/src/tailwind-base.css";
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@source "./**/*.{ts,tsx}";
+@source "../entrypoints/**/*.{ts,tsx}";
