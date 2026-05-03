@@ -2,7 +2,7 @@
 
 ## Monorepo
 
-Turbo + pnpm workspace: `apps/web` (Next.js 16), `apps/api` (NestJS 11 + GraphQL), `apps/extension` (Chrome MV3 / Plasmo), `packages/ui`, `packages/logger`.
+Turbo + pnpm workspace: `apps/web` (Next.js 16), `apps/api` (NestJS 11 + GraphQL), `apps/extension` (Chrome MV3 / WXT), `packages/ui`, `packages/logger`.
 
 ## Toolchain
 
@@ -23,13 +23,13 @@ Node 22+, pnpm 10.8+.
 
 ## Packages
 
-| Package       | Notes                                                                                                                                       |
-| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| **api**       | Apollo GraphQL; schema `apps/api/src/schema.gql`; TypeORM + PostgreSQL. Local dev server: PM2 **`api`** (`ecosystem.config.cjs`).           |
-| **web**       | Apollo Client; codegen: `pnpm --filter @job-tracker/web run codegen` → `src/gql/` (ESLint ignore). Local dev: PM2 **`web`**.                |
-| **ui**        | Radix + Tailwind; Storybook on port 6006 — local dev via PM2 **`storybook`**.                                                               |
-| **logger**    | Typed logger; no tests.                                                                                                                     |
-| **extension** | Plasmo + React; scaffold `specs/023-*` ([T-137]); local dev: PM2 **`extension`**; smoke: load `build/chrome-mv3-prod` unpacked in Chromium. |
+| Package       | Notes                                                                                                                                      |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| **api**       | Apollo GraphQL; schema `apps/api/src/schema.gql`; TypeORM + PostgreSQL. Local dev server: PM2 **`api`** (`ecosystem.config.cjs`).          |
+| **web**       | Apollo Client; codegen: `pnpm --filter @job-tracker/web run codegen` → `src/gql/` (ESLint ignore). Local dev: PM2 **`web`**.               |
+| **ui**        | Radix + Tailwind; Storybook on port 6006 — local dev via PM2 **`storybook`**.                                                              |
+| **logger**    | Typed logger; no tests.                                                                                                                    |
+| **extension** | WXT + Vite + React; scaffold `specs/023-*` ([T-137]); local dev: PM2 **`extension`**; smoke: load `build/chrome-mv3` unpacked in Chromium. |
 
 ## Tests
 

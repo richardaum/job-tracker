@@ -11,6 +11,8 @@ tags:
 
 **Retroactive spec:** behaviour below is already implemented in **`apps/api`**; this document records intent and boundaries for ongoing maintenance.
 
+**023 alignment:** The Chrome extension and GraphQL-over-SSE client (**`specs/023-product-chrome-extension`**) are being built **from scratch**. End-to-end verification of **[T-141]** (JWT-only guards; logout clears **`access_token`** for GraphQL and SSE) against **`AUTH_BYPASS_ENABLED`** **must** be re-validated as part of that work—not assumed from earlier integration attempts.
+
 ## TL;DR
 
 - **`AUTH_BYPASS_ENABLED`** (**[T-139]**) on the API (**`apps/api`**) skips the interactive **Google OAuth** dance for **`GET /auth/google`** / **`GET /auth/google/callback`** by resolving a fixed **development user** keyed by **`DEV_AUTH_BYPASS_EMAIL`** (**[T-140]**).
@@ -62,5 +64,6 @@ Previously, widening bypass to JWT-protected surfaces broke **logout**: the web 
 
 - Bypass **off**: unchanged Google OAuth + JWT behavior.
 - Bypass **on**: **`GET /auth/google`** issues cookies via **`finishLogin`** without Google UI; **`POST /auth/logout`** removes cookies and subsequent **`me`** (and SSE using only cookie auth) behaves as **unauthenticated** until login repeats.
+- **With 023 greenfield:** Repeat the **logout / anonymous `me` / SSE** checks when the new extension (or any new SSE client) is wired so **[T-141]** is confirmed for the **current** stack, not only historical web sessions.
 
 Traceability: **[P-125]**, **[T-139]**, **[T-140]**, **[T-141]**.
