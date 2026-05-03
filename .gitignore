@@ -31,7 +31,7 @@ apps/web/.vercel
 apps/*/coverage/
 apps/*/dist/
 apps/extension/build/
-apps/extension/.plasmo/
+apps/extension/.wxt/
 packages/*/coverage/
 packages/*/dist/
 

@@ -21,7 +21,7 @@ export default defineConfig(
       "**/playwright-report/**",
       "**/test-results/**",
       "apps/extension/build/**",
-      "apps/extension/.plasmo/**",
+      "apps/extension/.wxt/**",
       "apps/web/next-env.d.ts",
       "apps/web/src/gql/**",
     ],
