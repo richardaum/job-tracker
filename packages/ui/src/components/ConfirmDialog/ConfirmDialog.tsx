@@ -1,11 +1,10 @@
 "use client";
 
+import type { ButtonIntent } from "@ui/components/Button/Button";
+import { Button } from "@ui/components/Button/Button";
+import { Dialog } from "@ui/components/Dialog/Dialog";
+import { Stack } from "@ui/components/Stack/Stack";
 import React, { useState } from "react";
-
-import type { ButtonIntent } from "../Button/Button";
-import { Button } from "../Button/Button";
-import { Dialog } from "../Dialog/Dialog";
-import { Stack } from "../Stack/Stack";
 
 export interface ConfirmDialogProps {
   trigger: React.ReactElement;

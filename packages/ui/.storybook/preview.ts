@@ -1,4 +1,4 @@
-import "../src/globals.css";
+import "@ui/globals.css";
 
 import type { Preview } from "@storybook/react";
 import { Mermaid } from "mdx-mermaid/Mermaid";

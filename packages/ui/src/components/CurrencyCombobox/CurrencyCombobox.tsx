@@ -1,8 +1,7 @@
+import { AnchoredCombobox } from "@ui/components/Combobox/AnchoredCombobox";
+import { Text } from "@ui/components/Typography/Text";
 import { cn } from "@ui/lib/cn";
 import React, { useMemo } from "react";
-
-import { AnchoredCombobox } from "../Combobox/AnchoredCombobox";
-import { Text } from "../Typography/Text";
 
 export type CurrencyPreset = {
   /** ISO 4217 code */

@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
+import { Text } from "@ui/components/Typography/Text";
+import { cn } from "@ui/lib/cn";
 
-import { cn } from "../../lib/cn";
-import { Text } from "../Typography/Text";
 import {
   Timeline,
   TimelineContent,

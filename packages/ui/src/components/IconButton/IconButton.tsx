@@ -1,8 +1,7 @@
 import { Slot } from "@radix-ui/react-slot";
+import { Tooltip } from "@ui/components/Tooltip/Tooltip";
 import { cn } from "@ui/lib/cn";
 import React from "react";
-
-import { Tooltip } from "../Tooltip/Tooltip";
 
 export type IconButtonIntent =
   | "primary"

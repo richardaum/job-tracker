@@ -1,10 +1,10 @@
 import { Plus } from "@phosphor-icons/react";
 import type { Meta, StoryObj } from "@storybook/react";
-
 import {
   DropdownMenuItem,
   DropdownMenuSeparator,
-} from "../DropdownMenu/DropdownMenu";
+} from "@ui/components/DropdownMenu/DropdownMenu";
+
 import { DropdownButton } from "./DropdownButton";
 
 const meta: Meta<typeof DropdownButton> = {

@@ -1,6 +1,5 @@
+import { cn } from "@ui/lib/cn";
 import React from "react";
-
-import { cn } from "../../lib/cn";
 
 export interface TimelineProps {
   children: React.ReactNode;

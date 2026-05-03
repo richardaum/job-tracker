@@ -1,9 +1,8 @@
 import { CaretDownIcon } from "@phosphor-icons/react";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
+import { ButtonIntent, ButtonSize } from "@ui/components/Button/Button";
 import { cn } from "@ui/lib/cn";
 import React from "react";
-
-import { ButtonIntent, ButtonSize } from "../Button/Button";
 
 export interface DropdownButtonProps {
   children: React.ReactNode;

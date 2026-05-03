@@ -1,4 +1,4 @@
-import "../env/server";
+import "@/env/server";
 import "./globals.css";
 
 import type { Metadata } from "next";

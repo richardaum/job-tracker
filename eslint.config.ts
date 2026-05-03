@@ -9,6 +9,10 @@ import testingLibrary from "eslint-plugin-testing-library";
 import globals from "globals";
 import tseslint from "typescript-eslint";
 
+/** Matches import specifiers that reference a parent path segment (`..`). Disallowed under docs/CONVENTIONS.mdx (Imports); `./` sibling imports remain allowed. */
+const parentRelativeImportSourcePattern =
+  "(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$)" as const;
+
 export default defineConfig(
   {
     ignores: [
@@ -42,6 +46,29 @@ export default defineConfig(
   },
   {
     files: [
+      "apps/api/**/*.{js,mjs,cjs,ts,tsx}",
+      "packages/logger/**/*.{js,mjs,cjs,ts,tsx}",
+      "*.config.{js,ts,mjs,cjs}",
+      "scripts/**/*.{js,mjs,cjs,ts,tsx}",
+      "turbo/**/*.{js,mjs,cjs,ts,tsx}",
+    ],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              regex: parentRelativeImportSourcePattern,
+              message:
+                "Do not import via paths that traverse to a parent directory (..). Prefer workspace/package aliases from tsconfig paths. Same-directory ./ imports are fine. docs/CONVENTIONS.mdx (Imports).",
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    files: [
       "apps/extension/**/*.{js,jsx,ts,tsx,mjs,cjs}",
       "apps/web/**/*.{js,jsx,ts,tsx,mjs,cjs}",
       "packages/ui/**/*.{js,jsx,ts,tsx,mjs,cjs}",
@@ -67,6 +94,11 @@ export default defineConfig(
             },
           ],
           patterns: [
+            {
+              regex: parentRelativeImportSourcePattern,
+              message:
+                "Do not import via paths that traverse to a parent directory (..). Use the app/package root alias (e.g. @/…) instead. Same-directory ./ imports are fine. docs/CONVENTIONS.mdx (Imports).",
+            },
             {
               group: [
                 "@/components/empty-state/internals",

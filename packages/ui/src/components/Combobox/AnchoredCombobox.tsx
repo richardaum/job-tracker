@@ -1,4 +1,6 @@
 import * as Menu from "@radix-ui/react-menu";
+import type { InputProps } from "@ui/components/Input/Input";
+import { Input as TextInput } from "@ui/components/Input/Input";
 import { cn } from "@ui/lib/cn";
 import { returnComboboxFocusToInputOnFirstItemArrowUp } from "@ui/lib/focusRadixMenuItem";
 import { useMenuAnchoredCombobox } from "@ui/lib/menuAnchoredCombobox";
@@ -14,9 +16,6 @@ import React, {
   useMemo,
   useState,
 } from "react";
-
-import type { InputProps } from "../Input/Input";
-import { Input as TextInput } from "../Input/Input";
 
 const MENU_CONTENT_BASE = cn(
   "min-w-(--radix-popper-anchor-width) max-h-60 overflow-auto rounded-md border border-border-subtle bg-bg-surface shadow-md",

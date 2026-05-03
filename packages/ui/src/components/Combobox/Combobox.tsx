@@ -1,7 +1,7 @@
+import { Text } from "@ui/components/Typography/Text";
 import { cn } from "@ui/lib/cn";
 import React, { useMemo } from "react";
 
-import { Text } from "../Typography/Text";
 import { AnchoredCombobox } from "./AnchoredCombobox";
 
 export interface ComboboxOption {
