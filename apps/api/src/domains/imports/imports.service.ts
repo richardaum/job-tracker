@@ -1,6 +1,4 @@
 import { ImportRunEntity } from "@api/database/entities/import-run.entity";
-import { ExtensionChannelStreamService } from "@api/domains/extension-channel/extension-channel.stream.service";
-import { EXTENSION_CHANNEL_KIND_IMPORT_RUN_CREATED } from "@api/domains/extension-channel/extension-channel-kinds";
 import { ImportRunType } from "@api/domains/imports/import-run.type";
 import { ImportRunStatusEnum } from "@api/domains/imports/import-run-status.enum";
 import { resolveImporter } from "@api/domains/imports/importers.registry";
@@ -42,10 +40,7 @@ import { ImportsRepository } from "./imports.repository";
 
 @Injectable()
 export class ImportsService {
-  constructor(
-    private readonly repo: ImportsRepository,
-    private readonly extensionChannelStream: ExtensionChannelStreamService,
-  ) {}
+  constructor(private readonly repo: ImportsRepository) {}
 
   async listImportRuns(userId: string): Promise<ImportRunType[]> {
     const rows = await this.repo.listByUserId(userId);
@@ -62,27 +57,14 @@ export class ImportsService {
     }
     const startedAt = new Date();
     const importerKey = importerId.trim().toLowerCase();
-    const executorPlanJson = JSON.stringify(resolved.executorPlan);
 
     const row = await this.repo.create({
       userId,
       importerId: importerKey,
       importerName: resolved.name,
       entryUrl: resolved.entryUrl,
-      executorPlanJson,
       status: ImportRunStatusEnum.RUNNING,
       startedAt,
-    });
-
-    this.extensionChannelStream.pushEvent(userId, {
-      kind: EXTENSION_CHANNEL_KIND_IMPORT_RUN_CREATED,
-      payloadJson: JSON.stringify({
-        importRunId: row.id,
-        entryUrl: row.entryUrl,
-        importerId: row.importerId,
-        importerName: row.importerName,
-        executorPlanJson,
-      }),
     });
 
     return this.toGql(row);
@@ -135,7 +117,6 @@ export class ImportsService {
       status: row.status,
       startedAt: row.startedAt,
       importerSource: "database",
-      executorPlanJson: row.executorPlanJson,
     };
   }
 }

@@ -101,11 +101,6 @@ type ApplicationStageEventType {
   createdAt: DateTime!
 }
 
-type ExtensionChannelEventType {
-  kind: String!
-  payloadJson: String
-}
-
 type ImportRunType {
   id: ID!
   importerId: String!
@@ -114,7 +109,6 @@ type ImportRunType {
   status: ImportRunStatus!
   startedAt: DateTime!
   importerSource: String!
-  executorPlanJson: String
 }
 
 enum ImportRunStatus {
@@ -236,8 +230,4 @@ input UpdateNoteInput {
 
 input CreateImportRunInput {
   importerId: String!
-}
-
-type Subscription {
-  extensionChannel: ExtensionChannelEventType!
 }

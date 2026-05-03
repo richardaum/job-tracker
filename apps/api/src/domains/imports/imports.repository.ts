@@ -23,7 +23,6 @@ export class ImportsRepository {
     importerId: string;
     importerName: string;
     entryUrl: string;
-    executorPlanJson?: string | null;
     status: ImportRunStatusEnum;
     startedAt: Date;
   }): Promise<ImportRunEntity> {
@@ -32,7 +31,6 @@ export class ImportsRepository {
       importerId: params.importerId,
       importerName: params.importerName,
       entryUrl: params.entryUrl,
-      executorPlanJson: params.executorPlanJson ?? null,
       status: params.status,
       startedAt: params.startedAt,
     });

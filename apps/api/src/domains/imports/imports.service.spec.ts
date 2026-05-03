@@ -1,8 +1,5 @@
 import { ImportRunEntity } from "@api/database/entities/import-run.entity";
-import { ExtensionChannelStreamService } from "@api/domains/extension-channel/extension-channel.stream.service";
-import { EXTENSION_CHANNEL_KIND_IMPORT_RUN_CREATED } from "@api/domains/extension-channel/extension-channel-kinds";
 import { ImportRunStatusEnum } from "@api/domains/imports/import-run-status.enum";
-import { resolveImporter } from "@api/domains/imports/importers.registry";
 import { ImportsRepository } from "@api/domains/imports/imports.repository";
 import { ImportsService } from "@api/domains/imports/imports.service";
 import { BadRequestException, NotFoundException } from "@nestjs/common";
@@ -26,15 +23,7 @@ describe("ImportsService", () => {
     updateStatus: vi.fn(),
   };
 
-  const extensionChannelStream: Pick<
-    ExtensionChannelStreamService,
-    "pushEvent"
-  > = { pushEvent: vi.fn() };
-
-  const service = new ImportsService(
-    repo as ImportsRepository,
-    extensionChannelStream as ExtensionChannelStreamService,
-  );
+  const service = new ImportsService(repo as ImportsRepository);
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -42,9 +31,6 @@ describe("ImportsService", () => {
 
   it("createImportRun persists RemoteYeah entry URL", async () => {
     const startedAt = new Date("2026-05-01T12:00:00.000Z");
-    const planJson = JSON.stringify(
-      resolveImporter("remoteyeah")!.executorPlan,
-    );
     vi.mocked(repo.create).mockResolvedValue({
       id: "run-1",
       userId: "user-1",
@@ -52,7 +38,6 @@ describe("ImportsService", () => {
       importerName: "RemoteYeah",
       entryUrl:
         "https://remoteyeah.com/remote-frontend-engineer+reactjs-jobs-in-brazil+latin-america+worldwide#jobs",
-      executorPlanJson: planJson,
       status: ImportRunStatusEnum.RUNNING,
       startedAt,
     } as ImportRunEntity);
@@ -66,23 +51,11 @@ describe("ImportsService", () => {
         importerName: "RemoteYeah",
         entryUrl:
           "https://remoteyeah.com/remote-frontend-engineer+reactjs-jobs-in-brazil+latin-america+worldwide#jobs",
-        executorPlanJson: planJson,
         status: ImportRunStatusEnum.RUNNING,
       }),
     );
     expect(result.entryUrl).toContain("remoteyeah.com");
     expect(result.importerSource).toBe("database");
-    expect(extensionChannelStream.pushEvent).toHaveBeenCalledWith(
-      "user-1",
-      expect.objectContaining({
-        kind: EXTENSION_CHANNEL_KIND_IMPORT_RUN_CREATED,
-        payloadJson: expect.stringContaining("run-1"),
-      }),
-    );
-    const [[, ev]] = vi.mocked(extensionChannelStream.pushEvent).mock.calls;
-    const outer = JSON.parse(ev.payloadJson!);
-    expect(outer.executorPlanJson).toBe(planJson);
-    expect(outer.executorPlanJson).toContain('"iterate.rows"');
   });
 
   it("createImportRun rejects unknown importer", async () => {
@@ -90,7 +63,6 @@ describe("ImportsService", () => {
       BadRequestException,
     );
     expect(repo.create).not.toHaveBeenCalled();
-    expect(extensionChannelStream.pushEvent).not.toHaveBeenCalled();
   });
 
   it("deleteImportRun removes run owned by user", async () => {
@@ -124,7 +96,6 @@ describe("ImportsService", () => {
       importerId: "remoteyeah",
       importerName: "RemoteYeah",
       entryUrl: "https://remoteyeah.com/board",
-      executorPlanJson: null,
       status: ImportRunStatusEnum.RUNNING,
       startedAt: new Date("2026-05-01T12:00:00.000Z"),
     };
@@ -157,7 +128,6 @@ describe("ImportsService", () => {
       importerId: "remoteyeah",
       importerName: "RemoteYeah",
       entryUrl: "https://remoteyeah.com/board",
-      executorPlanJson: null,
       status: ImportRunStatusEnum.IN_PROGRESS,
       startedAt: new Date("2026-05-01T12:00:00.000Z"),
     };
@@ -180,7 +150,6 @@ describe("ImportsService", () => {
       importerId: "remoteyeah",
       importerName: "RemoteYeah",
       entryUrl: "https://remoteyeah.com/board",
-      executorPlanJson: null,
       status: ImportRunStatusEnum.RUNNING,
       startedAt: new Date("2026-05-01T12:00:00.000Z"),
     } as ImportRunEntity);

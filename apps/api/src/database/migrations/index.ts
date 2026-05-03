@@ -9,6 +9,7 @@ import { AddApplicationSource1753000000000 } from "./1753000000000-add-applicati
 import { CompaniesUserLowerNameUnique1754000000000 } from "./1754000000000-companies-user-lower-name-unique";
 import { CreateImportRuns1755000000000 } from "./1755000000000-create-import-runs";
 import { ImportRunStatusInProgress1755100000000 } from "./1755100000000-import-run-status-in-progress";
+import { DropImportRunsExecutorPlanJson1755200000000 } from "./1755200000000-drop-import-runs-executor-plan-json";
 
 export const migrations = [
   Baseline1746009600000,
@@ -22,4 +23,5 @@ export const migrations = [
   CompaniesUserLowerNameUnique1754000000000,
   CreateImportRuns1755000000000,
   ImportRunStatusInProgress1755100000000,
+  DropImportRunsExecutorPlanJson1755200000000,
 ];
