@@ -6,6 +6,8 @@ export interface TooltipProps {
   content: React.ReactNode;
   children: React.ReactElement;
   side?: "top" | "right" | "bottom" | "left";
+  /** Radix: along which edge of the trigger the content is anchored when `side` is top/bottom (start = left in LTR). */
+  align?: "start" | "center" | "end";
   open?: boolean;
   defaultOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
@@ -16,6 +18,7 @@ export function Tooltip({
   content,
   children,
   side = "top",
+  align = "center",
   open,
   defaultOpen,
   onOpenChange,
@@ -36,6 +39,7 @@ export function Tooltip({
         <RadixTooltip.Portal>
           <RadixTooltip.Content
             side={side}
+            align={align}
             sideOffset={6}
             className={cn(
               "z-50 rounded-sm bg-black px-2 py-1.5 text-xs text-white shadow-sm",
