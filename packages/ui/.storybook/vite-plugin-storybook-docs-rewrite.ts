@@ -1,7 +1,8 @@
 import path from "node:path";
 
-import { rewriteSpecMarkdownForStorybook } from "@ui/stories/spec-markdown-resolve";
 import type { Plugin } from "vite";
+
+import { rewriteSpecMarkdownForStorybook } from "#ui/stories/spec-markdown-resolve.ts";
 
 /**
  * Runs before MDX compile: rewrites LeanSpec traceability tokens and relative
