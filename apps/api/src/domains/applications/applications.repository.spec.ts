@@ -62,7 +62,7 @@ describe.skipIf(!hasDb)("ApplicationRepository (integration)", () => {
     const app = await repo.create(userId, {
       title: "Software Engineer",
       companyId: company.id,
-      url: "https://acme.com/jobs/1",
+      urls: ["https://acme.com/jobs/1"],
     });
     expect(app.id).toBeDefined();
     expect(app.userId).toBe(userId);
@@ -124,7 +124,7 @@ describe.skipIf(!hasDb)("ApplicationRepository (integration)", () => {
     await repo.create(otherUser.id, {
       title: "Other User's Job",
       companyId: otherCompany.id,
-      url: null,
+      urls: [],
     });
 
     const result = await repo.findAllByUserId(userId);
@@ -136,7 +136,7 @@ describe.skipIf(!hasDb)("ApplicationRepository (integration)", () => {
     const app = await repo.create(userId, {
       title: "Platform Engineer",
       companyId: company.id,
-      url: null,
+      urls: [],
     });
 
     const first = await repo.createStageEvent(userId, app.id, {
@@ -170,7 +170,7 @@ describe.skipIf(!hasDb)("ApplicationRepository (integration)", () => {
     const appliedApp = await repo.create(userId, {
       title: "Applied App",
       companyId: company.id,
-      url: null,
+      urls: [],
     });
     await repo.createStageEvent(userId, appliedApp.id, {
       fromStage: null,
@@ -182,7 +182,7 @@ describe.skipIf(!hasDb)("ApplicationRepository (integration)", () => {
     const activeApp = await repo.create(userId, {
       title: "Active App",
       companyId: company.id,
-      url: null,
+      urls: [],
     });
     await repo.createStageEvent(userId, activeApp.id, {
       fromStage: "applied",
@@ -206,7 +206,7 @@ describe.skipIf(!hasDb)("ApplicationRepository (integration)", () => {
     const appliedAppWithEvent = await repo.create(userId, {
       title: "Applied App With Event",
       companyId: company.id,
-      url: null,
+      urls: [],
     });
     await repo.createStageEvent(userId, appliedAppWithEvent.id, {
       fromStage: null,
@@ -218,7 +218,7 @@ describe.skipIf(!hasDb)("ApplicationRepository (integration)", () => {
     const recruiterScreenApp = await repo.create(userId, {
       title: "Recruiter Screen App",
       companyId: company.id,
-      url: null,
+      urls: [],
     });
     await repo.createStageEvent(userId, recruiterScreenApp.id, {
       fromStage: "applied",
@@ -243,12 +243,12 @@ describe.skipIf(!hasDb)("ApplicationRepository (integration)", () => {
     const acmeApp = await repo.create(userId, {
       title: "Acme Role",
       companyId: acme.id,
-      url: null,
+      urls: [],
     });
     await repo.create(userId, {
       title: "Beta Role",
       companyId: beta.id,
-      url: null,
+      urls: [],
     });
 
     const filtered = await repo.findAllByUserId(userId, undefined, acme.name);
@@ -272,13 +272,13 @@ describe.skipIf(!hasDb)("ApplicationRepository (integration)", () => {
       title: "Role Three",
       companyId: company.id,
       description: desc,
-      url: null,
+      urls: [],
     });
     await repo.create(userId, {
       title: "Role Two",
       companyId: company.id,
       description: desc,
-      url: null,
+      urls: [],
     });
     await repo.update(oldest.id, userId, { title: "Role Three bumped" });
     await repo.create(userId, {
@@ -288,7 +288,7 @@ describe.skipIf(!hasDb)("ApplicationRepository (integration)", () => {
         type: "doc",
         content: [{ type: "paragraph" }],
       }),
-      url: null,
+      urls: [],
     });
 
     const result = await repo.findUpToTwoJobPostingContextsByCompanyName(

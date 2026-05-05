@@ -103,7 +103,7 @@ export type ApplicationType = {
   tags: Array<Scalars["String"]["output"]>;
   title: Scalars["String"]["output"];
   updatedAt: Scalars["DateTime"]["output"];
-  url?: Maybe<Scalars["String"]["output"]>;
+  urls: Array<Scalars["String"]["output"]>;
   userId: Scalars["String"]["output"];
 };
 
@@ -128,7 +128,7 @@ export type CreateApplicationInput = {
   source?: InputMaybe<ApplicationSource>;
   tags?: InputMaybe<Array<Scalars["String"]["input"]>>;
   title: Scalars["String"]["input"];
-  url?: InputMaybe<Scalars["String"]["input"]>;
+  urls?: InputMaybe<Array<Scalars["String"]["input"]>>;
 };
 
 export type CreateApplicationStageEventInput = {
@@ -327,7 +327,7 @@ export type UpdateApplicationInput = {
   source?: InputMaybe<ApplicationSource>;
   tags?: InputMaybe<Array<Scalars["String"]["input"]>>;
   title?: InputMaybe<Scalars["String"]["input"]>;
-  url?: InputMaybe<Scalars["String"]["input"]>;
+  urls?: InputMaybe<Array<Scalars["String"]["input"]>>;
 };
 
 export type UpdateApplicationStageEventInput = {
@@ -368,7 +368,7 @@ export type ApplicationsQuery = {
     title: string;
     companyId: string;
     description?: string | null;
-    url?: string | null;
+    urls: Array<string>;
     source?: ApplicationSource | null;
     salaryMinCents?: number | null;
     salaryMaxCents?: number | null;
@@ -398,7 +398,7 @@ export type ApplicationQuery = {
     title: string;
     companyId: string;
     description?: string | null;
-    url?: string | null;
+    urls: Array<string>;
     source?: ApplicationSource | null;
     salaryMinCents?: number | null;
     salaryMaxCents?: number | null;
@@ -430,7 +430,7 @@ export type CreateApplicationMutation = {
     title: string;
     companyId: string;
     description?: string | null;
-    url?: string | null;
+    urls: Array<string>;
     source?: ApplicationSource | null;
     salaryMinCents?: number | null;
     salaryMaxCents?: number | null;
@@ -459,7 +459,7 @@ export type CreateApplicationWithAiMutation = {
     title: string;
     companyId: string;
     description?: string | null;
-    url?: string | null;
+    urls: Array<string>;
     source?: ApplicationSource | null;
     salaryMinCents?: number | null;
     salaryMaxCents?: number | null;
@@ -519,7 +519,7 @@ export type UpdateApplicationMutation = {
     title: string;
     companyId: string;
     description?: string | null;
-    url?: string | null;
+    urls: Array<string>;
     source?: ApplicationSource | null;
     salaryMinCents?: number | null;
     salaryMaxCents?: number | null;
@@ -912,7 +912,7 @@ export const ApplicationsDocument = {
                   },
                 },
                 { kind: "Field", name: { kind: "Name", value: "description" } },
-                { kind: "Field", name: { kind: "Name", value: "url" } },
+                { kind: "Field", name: { kind: "Name", value: "urls" } },
                 { kind: "Field", name: { kind: "Name", value: "source" } },
                 {
                   kind: "Field",
@@ -1007,7 +1007,7 @@ export const ApplicationDocument = {
                   },
                 },
                 { kind: "Field", name: { kind: "Name", value: "description" } },
-                { kind: "Field", name: { kind: "Name", value: "url" } },
+                { kind: "Field", name: { kind: "Name", value: "urls" } },
                 { kind: "Field", name: { kind: "Name", value: "source" } },
                 {
                   kind: "Field",
@@ -1108,7 +1108,7 @@ export const CreateApplicationDocument = {
                   },
                 },
                 { kind: "Field", name: { kind: "Name", value: "description" } },
-                { kind: "Field", name: { kind: "Name", value: "url" } },
+                { kind: "Field", name: { kind: "Name", value: "urls" } },
                 { kind: "Field", name: { kind: "Name", value: "source" } },
                 {
                   kind: "Field",
@@ -1200,7 +1200,7 @@ export const CreateApplicationWithAiDocument = {
                   },
                 },
                 { kind: "Field", name: { kind: "Name", value: "description" } },
-                { kind: "Field", name: { kind: "Name", value: "url" } },
+                { kind: "Field", name: { kind: "Name", value: "urls" } },
                 { kind: "Field", name: { kind: "Name", value: "source" } },
                 {
                   kind: "Field",
@@ -1434,7 +1434,7 @@ export const UpdateApplicationDocument = {
                   },
                 },
                 { kind: "Field", name: { kind: "Name", value: "description" } },
-                { kind: "Field", name: { kind: "Name", value: "url" } },
+                { kind: "Field", name: { kind: "Name", value: "urls" } },
                 { kind: "Field", name: { kind: "Name", value: "source" } },
                 {
                   kind: "Field",

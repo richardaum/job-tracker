@@ -30,7 +30,7 @@ const mockApp: Application = {
     updatedAt: new Date("2026-01-01T00:00:00.000Z"),
   },
   description: "Frontend role with React",
-  url: "https://acme.com",
+  urls: ["https://acme.com"],
   source: null,
   salaryMinCents: null,
   salaryMaxCents: null,

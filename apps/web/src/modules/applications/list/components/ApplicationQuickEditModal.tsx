@@ -22,13 +22,13 @@ interface ApplicationValues {
   id: string;
   title: string;
   company: string;
-  url?: string | null;
+  urls: string[];
 }
 
 interface FormState {
   title: string;
   company: string;
-  url: string;
+  urlsText: string;
 }
 
 interface ApplicationQuickEditModalFormProps {
@@ -51,7 +51,7 @@ function ApplicationQuickEditModalForm({
   const [form, setForm] = useState<FormState>({
     title: application?.title ?? "",
     company: application?.company ?? "",
-    url: application?.url ?? "",
+    urlsText: (application?.urls ?? []).join("\n"),
   });
   const [errors, setErrors] = useState<Partial<FormState>>({});
 
@@ -81,8 +81,13 @@ function ApplicationQuickEditModalForm({
     const next: Partial<FormState> = {};
     if (!form.title.trim()) next.title = "Title is required.";
     if (!form.company.trim()) next.company = "Company is required.";
-    if (form.url && !/^https?:\/\/.+/.test(form.url))
-      next.url = "URL must start with http:// or https://";
+    const urls = form.urlsText
+      .split("\n")
+      .map((item) => item.trim())
+      .filter(Boolean);
+    if (urls.some((url) => !/^https?:\/\/.+/.test(url))) {
+      next.urlsText = "Each URL must start with http:// or https://";
+    }
     setErrors(next);
     return Object.keys(next).length === 0;
   }
@@ -94,7 +99,10 @@ function ApplicationQuickEditModalForm({
     const input = {
       title: form.title.trim(),
       company: form.company.trim(),
-      url: form.url.trim() || null,
+      urls: form.urlsText
+        .split("\n")
+        .map((item) => item.trim())
+        .filter(Boolean),
     };
 
     try {
@@ -154,14 +162,19 @@ function ApplicationQuickEditModalForm({
             />
           </FormField>
 
-          <FormField label="Job URL" htmlFor="app-url" error={errors.url}>
+          <FormField
+            label="Job URLs"
+            htmlFor="app-urls"
+            error={errors.urlsText}
+          >
             <Input
-              id="app-url"
-              type="url"
-              value={form.url}
-              onChange={set("url")}
-              placeholder="https://example.com/jobs/123"
-              state={errors.url ? "error" : "default"}
+              id="app-urls"
+              value={form.urlsText}
+              onChange={set("urlsText")}
+              placeholder={
+                "https://example.com/jobs/123\nhttps://company.com/careers/role"
+              }
+              state={errors.urlsText ? "error" : "default"}
               disabled={loading}
             />
           </FormField>
@@ -225,8 +238,8 @@ export function ApplicationQuickEditModal({
       title={isEdit ? "Edit application" : "New application"}
       description={
         isEdit
-          ? "Update the core application details like title, company, and URL."
-          : "Add a new application with a title, company, and optional URL."
+          ? "Update core application details like title, company, and URLs."
+          : "Add a new application with a title, company, and optional URLs."
       }
       open={open}
       onOpenChange={handleOpenChange}

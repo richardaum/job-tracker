@@ -17,7 +17,7 @@ export type CreateApplicationRepoDto = Pick<
   | "title"
   | "companyId"
   | "description"
-  | "url"
+  | "urls"
   | "source"
   | "salaryMinCents"
   | "salaryMaxCents"

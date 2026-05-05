@@ -28,7 +28,7 @@ const makeApp = (overrides: Partial<Application> = {}): Application =>
       updatedAt: new Date(),
     },
     description: null,
-    url: null,
+    urls: [],
     source: null,
     salaryMinCents: null,
     salaryMaxCents: null,

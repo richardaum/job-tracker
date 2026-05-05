@@ -56,7 +56,7 @@ describe.skipIf(!hasDb)("NoteRepository (integration)", () => {
         userId: uId,
         title: "Backend Engineer",
         companyId: company.id,
-        url: null,
+        urls: [],
       }),
     );
   }

@@ -60,7 +60,7 @@ type ApplicationType {
   companyId: ID!
   company: CompanyType!
   description: String
-  url: String
+  urls: [String!]!
   source: ApplicationSource
   salaryMinCents: Int
   salaryMaxCents: Int
@@ -176,7 +176,7 @@ input CreateApplicationInput {
   company: String!
   companyId: ID
   description: String
-  url: String
+  urls: [String!]
   source: ApplicationSource
   salaryMinCents: Int
   salaryMaxCents: Int
@@ -190,7 +190,7 @@ input UpdateApplicationInput {
   company: String
   companyId: ID
   description: String
-  url: String
+  urls: [String!]
   source: ApplicationSource
   salaryMinCents: Int
   salaryMaxCents: Int

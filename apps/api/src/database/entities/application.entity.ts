@@ -42,8 +42,13 @@ export class ApplicationEntity {
   @Column({ type: "text", nullable: true })
   description!: string | null;
 
-  @Column({ type: "text", nullable: true })
-  url!: string | null;
+  @Column({
+    name: "urls",
+    type: "text",
+    array: true,
+    default: () => "ARRAY[]::text[]",
+  })
+  urls!: string[];
 
   @Column({
     type: "enum",

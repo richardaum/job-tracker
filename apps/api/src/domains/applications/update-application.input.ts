@@ -17,8 +17,8 @@ export class UpdateApplicationInput {
   @Field(() => String, { nullable: true })
   description?: string | null;
 
-  @Field(() => String, { nullable: true })
-  url?: string | null;
+  @Field(() => [String], { nullable: true })
+  urls?: string[] | null;
 
   @Field(() => ApplicationSource, { nullable: true })
   source?: ApplicationSource | null;

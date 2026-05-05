@@ -11,7 +11,7 @@ import {
 
 import { ApplicationQuickFilterEnum } from "./application-quick-filter.enum";
 import { ApplicationSource } from "./application-source.enum";
-import { inferApplicationSourceFromUrl } from "./application-source.util";
+import { inferApplicationSourceFromUrls } from "./application-source.util";
 import { ApplicationStageEnum } from "./application-stage.enum";
 import { ApplicationStageEvent } from "./application-stage-events.schema";
 import {
@@ -33,7 +33,7 @@ type CreateDto = {
   company: string;
   companyId?: string | null;
   description?: string | null;
-  url?: string | null;
+  urls?: string[] | null;
   source?: ApplicationSource | null;
   salaryMinCents?: number | null;
   salaryMaxCents?: number | null;
@@ -84,7 +84,10 @@ export class ApplicationService {
     company?: string,
   ): Promise<ApplicationWithCurrentStage[]> {
     const apps = await this.repo.findAllByUserId(userId, filter, company);
-    return this.attachCurrentStage(userId, apps);
+    return this.attachCurrentStage(
+      userId,
+      apps.map((app) => ({ ...app, urls: app.urls ?? [] })),
+    );
   }
 
   async findOne(
@@ -93,7 +96,24 @@ export class ApplicationService {
   ): Promise<ApplicationWithCurrentStage> {
     const app = await this.repo.findOneByIdAndUserId(id, userId);
     if (!app) throw new NotFoundException(`Application ${id} not found`);
-    return (await this.attachCurrentStage(userId, [app]))[0]!;
+    return (
+      await this.attachCurrentStage(userId, [{ ...app, urls: app.urls ?? [] }])
+    )[0]!;
+  }
+
+  private normalizeUrls(urls: string[] | null | undefined): string[] {
+    if (!urls) {
+      return [];
+    }
+    const deduped = new Set<string>();
+    for (const url of urls) {
+      const trimmed = url.trim();
+      if (!trimmed) {
+        continue;
+      }
+      deduped.add(trimmed);
+    }
+    return Array.from(deduped);
   }
 
   private async attachCurrentStage(
@@ -144,16 +164,17 @@ export class ApplicationService {
     }
     const compensation = this.compensationService.getCreateCompensation(dto);
     const tags = this.tagService.normalizeTags(dto.tags);
+    const normalizedUrls = this.normalizeUrls(dto.urls);
 
     const repoDto: CreateApplicationRepoDto = {
       title: dto.title,
       companyId,
       description: dto.description ?? null,
-      url: dto.url ?? null,
+      urls: normalizedUrls,
       source:
         dto.source !== undefined
           ? dto.source
-          : inferApplicationSourceFromUrl(dto.url),
+          : inferApplicationSourceFromUrls(normalizedUrls),
       tags,
       ...compensation,
     };
@@ -184,7 +205,7 @@ export class ApplicationService {
       title: draft.title,
       company: draft.company,
       description: draft.description,
-      url: draft.url,
+      urls: draft.url ? [draft.url] : [],
       salaryMinCents: draft.salaryMinCents,
       salaryMaxCents: draft.salaryMaxCents,
       salaryCurrency: draft.salaryCurrency,
@@ -254,6 +275,8 @@ export class ApplicationService {
       dto.tags !== undefined
         ? this.tagService.normalizeTags(dto.tags)
         : undefined;
+    const normalizedUrls =
+      dto.urls !== undefined ? this.normalizeUrls(dto.urls) : undefined;
 
     const repoDto: UpdateApplicationRepoDto = {
       ...(dto.title !== undefined ? { title: dto.title } : {}),
@@ -261,11 +284,11 @@ export class ApplicationService {
       ...(dto.description !== undefined
         ? { description: dto.description }
         : {}),
-      ...(dto.url !== undefined ? { url: dto.url } : {}),
+      ...(normalizedUrls !== undefined ? { urls: normalizedUrls } : {}),
       ...(dto.source !== undefined
         ? { source: dto.source }
-        : dto.url !== undefined
-          ? { source: inferApplicationSourceFromUrl(dto.url) }
+        : normalizedUrls !== undefined
+          ? { source: inferApplicationSourceFromUrls(normalizedUrls) }
           : {}),
       ...(tags !== undefined ? { tags } : {}),
       ...(compensation ?? {}),

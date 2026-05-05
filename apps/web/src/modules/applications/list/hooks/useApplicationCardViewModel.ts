@@ -21,7 +21,7 @@ export interface ApplicationCardApplication {
   companyId: string;
   company: { id: string; name: string; description?: string | null };
   description?: string | null;
-  url?: string | null;
+  urls: string[];
   source?: ApplicationSource | null;
   salaryMinCents?: number | null;
   salaryMaxCents?: number | null;

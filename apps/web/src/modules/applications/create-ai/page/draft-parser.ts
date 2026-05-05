@@ -77,7 +77,7 @@ export function parseCreateApplicationInput(
     title: draft.title.trim(),
     company: draft.company.trim(),
     description: normalizeDraftDescriptionToTipTap(draft.description),
-    url: draft.url.trim() || null,
+    urls: draft.url.trim() ? [draft.url.trim()] : [],
     salaryMinCents: draft.salaryMinCents.trim()
       ? Number.parseInt(draft.salaryMinCents.trim(), 10)
       : null,

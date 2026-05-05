@@ -105,7 +105,7 @@ export type ApplicationType = {
   tags: Array<Scalars["String"]["output"]>;
   title: Scalars["String"]["output"];
   updatedAt: Scalars["DateTime"]["output"];
-  url?: Maybe<Scalars["String"]["output"]>;
+  urls: Array<Scalars["String"]["output"]>;
   userId: Scalars["String"]["output"];
 };
 
@@ -130,7 +130,7 @@ export type CreateApplicationInput = {
   source?: InputMaybe<ApplicationSource>;
   tags?: InputMaybe<Array<Scalars["String"]["input"]>>;
   title: Scalars["String"]["input"];
-  url?: InputMaybe<Scalars["String"]["input"]>;
+  urls?: InputMaybe<Array<Scalars["String"]["input"]>>;
 };
 
 export type CreateApplicationStageEventInput = {
@@ -329,7 +329,7 @@ export type UpdateApplicationInput = {
   source?: InputMaybe<ApplicationSource>;
   tags?: InputMaybe<Array<Scalars["String"]["input"]>>;
   title?: InputMaybe<Scalars["String"]["input"]>;
-  url?: InputMaybe<Scalars["String"]["input"]>;
+  urls?: InputMaybe<Array<Scalars["String"]["input"]>>;
 };
 
 export type UpdateApplicationStageEventInput = {
@@ -370,7 +370,7 @@ export type ApplicationsQuery = {
     title: string;
     companyId: string;
     description?: string | null;
-    url?: string | null;
+    urls: Array<string>;
     source?: ApplicationSource | null;
     salaryMinCents?: number | null;
     salaryMaxCents?: number | null;
@@ -400,7 +400,7 @@ export type ApplicationQuery = {
     title: string;
     companyId: string;
     description?: string | null;
-    url?: string | null;
+    urls: Array<string>;
     source?: ApplicationSource | null;
     salaryMinCents?: number | null;
     salaryMaxCents?: number | null;
@@ -432,7 +432,7 @@ export type CreateApplicationMutation = {
     title: string;
     companyId: string;
     description?: string | null;
-    url?: string | null;
+    urls: Array<string>;
     source?: ApplicationSource | null;
     salaryMinCents?: number | null;
     salaryMaxCents?: number | null;
@@ -461,7 +461,7 @@ export type CreateApplicationWithAiMutation = {
     title: string;
     companyId: string;
     description?: string | null;
-    url?: string | null;
+    urls: Array<string>;
     source?: ApplicationSource | null;
     salaryMinCents?: number | null;
     salaryMaxCents?: number | null;
@@ -521,7 +521,7 @@ export type UpdateApplicationMutation = {
     title: string;
     companyId: string;
     description?: string | null;
-    url?: string | null;
+    urls: Array<string>;
     source?: ApplicationSource | null;
     salaryMinCents?: number | null;
     salaryMaxCents?: number | null;
@@ -852,7 +852,7 @@ export const ApplicationsDocument = gql`
         description
       }
       description
-      url
+      urls
       source
       salaryMinCents
       salaryMaxCents
@@ -928,7 +928,7 @@ export const ApplicationDocument = gql`
         description
       }
       description
-      url
+      urls
       source
       salaryMinCents
       salaryMaxCents
@@ -1005,7 +1005,7 @@ export const CreateApplicationDocument = gql`
         description
       }
       description
-      url
+      urls
       source
       salaryMinCents
       salaryMaxCents
@@ -1059,7 +1059,7 @@ export const CreateApplicationWithAiDocument = gql`
         description
       }
       description
-      url
+      urls
       source
       salaryMinCents
       salaryMaxCents
@@ -1243,7 +1243,7 @@ export const UpdateApplicationDocument = gql`
         description
       }
       description
-      url
+      urls
       source
       salaryMinCents
       salaryMaxCents
