@@ -1,5 +1,9 @@
 # AGENTS.md — Job Tracker
 
+## Reply modes (`[v]` / `[s]`)
+
+**`[v]`** or **`[s]`** anywhere in the prompt sets mode: **`[v]`** = verbose (extra reasoning, edges, trade-offs, on-topic context); **`[s]`** = short (minimal prose; skip optional background unless needed for correctness). If both appear, **last** wins.
+
 ## Monorepo
 
 Turbo + pnpm workspace: `apps/web` (Next.js 16), `apps/api` (NestJS 11 + GraphQL), `apps/extension` (Chrome MV3 / WXT), `packages/ui`, `packages/logger`.
