@@ -1,3 +1,4 @@
+import { createDefaultFieldFormatStrategyPicker } from "@/domains/dom/field-format.strategy";
 import type {
   PlanStepCollectJobsDetailsField,
   PlanStepCollectJobsSurfaceField,
@@ -16,11 +17,16 @@ type CollectFieldElement = {
 };
 
 export class FieldValueService {
+  constructor(
+    private readonly formatStrategies = createDefaultFieldFormatStrategyPicker(),
+  ) {}
+
   getFieldValue(element: CollectFieldElement, field: CollectField) {
     const value = this.getRawFieldValue(element, field);
     this.assertValidationRegex(value, field);
 
-    return value;
+    const strategy = this.formatStrategies.pick(field);
+    return strategy.apply(value, field);
   }
 
   private getRawFieldValue(element: CollectFieldElement, field: CollectField) {

@@ -50,6 +50,7 @@
               "selector": "div.prose.dark\\:prose-invert",
               "type": "property",
               "value": "innerHTML",
+              "format": "tiptap",
               "validationRegex": {
                 "pattern": "Description:|Requirements:|Benefits:",
                 "flags": "i"
