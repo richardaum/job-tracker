@@ -107,7 +107,7 @@ describe("ApplicationsPage", () => {
             companyId: "company-1",
             company: { id: "company-1", name: "Acme" },
             description: null,
-            url: "https://example.com",
+            urls: ["https://example.com"],
             createdAt: "2026-04-20T00:00:00.000Z",
             currentStage: "technical",
             currentStageReason: null,
@@ -128,7 +128,9 @@ describe("ApplicationsPage", () => {
 
     expect(screen.getByText("Frontend Engineer")).toBeInTheDocument();
     expect(screen.getByText("Acme")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /view posting/i })).toBeVisible();
+    const postingLink = screen.getByRole("link", { name: /view posting/i });
+    expect(postingLink).toBeVisible();
+    expect(postingLink).toHaveAttribute("target", "_blank");
     expect(screen.getAllByText("Technical").length).toBeGreaterThan(0);
     expect(
       screen.getByRole("button", {
@@ -169,7 +171,7 @@ describe("ApplicationsPage", () => {
             companyId: "company-1",
             company: { id: "company-1", name: "Acme" },
             description: null,
-            url: "https://example.com",
+            urls: ["https://example.com"],
             createdAt: "2026-04-20T00:00:00.000Z",
             currentStage: "new",
             currentStageReason: null,
@@ -191,7 +193,9 @@ describe("ApplicationsPage", () => {
     expect(screen.getByText("Frontend Engineer")).toBeInTheDocument();
     expect(screen.getByText("Acme")).toBeInTheDocument();
     expect(screen.getAllByText("New").length).toBeGreaterThan(0);
-    expect(screen.getByRole("link", { name: /view posting/i })).toBeVisible();
+    const postingLink = screen.getByRole("link", { name: /view posting/i });
+    expect(postingLink).toBeVisible();
+    expect(postingLink).toHaveAttribute("target", "_blank");
   });
 
   it("renders empty state when user has no applications", () => {

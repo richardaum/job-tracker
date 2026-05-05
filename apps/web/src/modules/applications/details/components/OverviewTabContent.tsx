@@ -1,7 +1,6 @@
 "use client";
 
-import { cn, Link, Text } from "@job-tracker/ui";
-import React from "react";
+import { cn, Text } from "@job-tracker/ui";
 
 import {
   ApplicationDocument,
@@ -12,6 +11,7 @@ import {
 } from "@/gql/hooks";
 import type { ApplicationDetailsValues } from "@/modules/applications/details/utils/application-details.shared";
 import { CompanyNameWithPopover } from "@/modules/applications/shared/components/CompanyNameWithPopover";
+import { JobUrls } from "@/modules/applications/shared/components/JobUrls";
 import { ApplicationTags } from "@/modules/applications/shared/utils/ApplicationTags";
 import { formatCompensationLine } from "@/modules/applications/shared/utils/compensationFormat";
 import { CompanyEditDialog } from "@/modules/companies/shared/components/CompanyEditDialog";
@@ -69,12 +69,12 @@ export function OverviewTabContent({
     }
   }
 
-  async function handleSaveUrl(nextValue: string | null) {
+  async function handleSaveUrl(nextValue: string[]) {
     try {
       await updateApplication({
-        variables: { id: application.id, input: { url: nextValue } },
+        variables: { id: application.id, input: { urls: nextValue } },
       });
-      onSuccess?.("Job URL updated.");
+      onSuccess?.("Job URLs updated.");
     } catch {
       onError?.("Could not update job URL.");
     }
@@ -138,25 +138,17 @@ export function OverviewTabContent({
 
       <div className={cn("max-w-full")}>
         <HoverEditableFieldRow
-          label="Job URL"
+          label="Job URLs"
           content={
-            application.url ? (
-              <Link
-                href={application.url}
-                variant="default"
-                className="block leading-normal"
-              >
-                View posting
-              </Link>
-            ) : (
-              <Text size="sm" color="secondary">
-                Not set
-              </Text>
-            )
+            <JobUrls
+              urls={application.urls}
+              linkClassName="block leading-normal"
+              emptyLabel="Not set"
+            />
           }
           editControl={
             <UrlFieldEditDialog
-              value={application.url}
+              value={application.urls}
               onSave={handleSaveUrl}
             />
           }

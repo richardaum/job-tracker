@@ -5,7 +5,6 @@ import {
   cn,
   DropdownMenu,
   IconButton,
-  Link,
   Stack,
   Text,
 } from "@job-tracker/ui";
@@ -29,6 +28,11 @@ import {
   useApplicationCardViewModel,
 } from "@/modules/applications/list/hooks/useApplicationCardViewModel";
 import { CompanyNameWithPopover } from "@/modules/applications/shared/components/CompanyNameWithPopover";
+import { InlineMetaDot } from "@/modules/applications/shared/components/InlineMetaDot";
+import {
+  JobUrls,
+  normalizeJobUrls,
+} from "@/modules/applications/shared/components/JobUrls";
 import { StageTimeline } from "@/modules/applications/shared/components/StageTimeline";
 import {
   formatStage,
@@ -171,6 +175,8 @@ export function ApplicationCard({
     compensationActionTooltip,
   } = useApplicationCardViewModel(app);
 
+  const hasJobUrls = normalizeJobUrls(app.urls).length > 0;
+
   return (
     <Card padding="sm">
       <div
@@ -213,7 +219,7 @@ export function ApplicationCard({
                   id: app.id,
                   title: app.title,
                   company: app.company.name,
-                  url: app.url,
+                  urls: app.urls,
                 }}
                 onSuccess={onSuccess}
                 onError={onError}
@@ -272,9 +278,7 @@ export function ApplicationCard({
               onSuccess={onSuccess}
               onError={onError}
             />
-            <span className={cn("text-text-muted")} aria-hidden>
-              ·
-            </span>
+            <InlineMetaDot />
             <CurrentStageDateText
               listStage={app.currentStage}
               listStatusAt={app.currentStageAt}
@@ -283,29 +287,21 @@ export function ApplicationCard({
             />
             {app.source ? (
               <>
-                <span className={cn("text-text-muted")} aria-hidden>
-                  ·
-                </span>
+                <InlineMetaDot />
                 <Text as="span" size="sm" color="secondary">
                   {formatApplicationSourceLabel(app.source)}
                 </Text>
               </>
             ) : null}
-            {app.url ? (
+            {hasJobUrls ? (
               <>
-                <span className={cn("text-text-muted")} aria-hidden>
-                  ·
-                </span>
-                <Link href={app.url} variant="default">
-                  View posting
-                </Link>
+                <InlineMetaDot />
+                <JobUrls urls={app.urls} />
               </>
             ) : null}
             {showComp ? (
               <>
-                <span className={cn("text-text-muted")} aria-hidden>
-                  ·
-                </span>
+                <InlineMetaDot />
                 <span
                   className={cn(
                     "inline-flex min-w-0 max-w-full flex-wrap items-center gap-2",
