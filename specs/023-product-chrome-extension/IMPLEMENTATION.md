@@ -9,244 +9,185 @@ tags: []
 
 **Primary spec:** `README.md` in this folder (product scope, **Product decisions**).
 
-This file holds **implementation details**, **acceptance criteria**, **validation**, and the **change log** table so the primary README stays under LeanSpec size limits.
+This file records **what the current `apps/extension` tree actually does**, **how it is structured**, **validation / quality gates**, and a **change log**. Product intent and IDs stay in the primary README.
 
-**Greenfield:** Implementation is **not** carried forward from earlier experiments. **[T-137]** is the **first** shippable slice on the current tree; deferrals below apply until that slice is **done** on **`main`** (or the agreed integration branch), not “already satisfied” by legacy work.
+**Greenfield baseline:** Prior experiments do not count toward **[T-137]** / **[T-138]** until acceptance here matches the **current** repo.
 
-## Implementation details
+## Current implementation snapshot (`apps/extension`)
 
-### Milestone — minimal testable scaffold (**[T-137]**)
+### Package and tooling
 
-**Intent:** Land **`apps/extension`** with **automated gates** plus a **manual smoke** path **before** importers, cookie bridge (**[P-119]**), or **GraphQL import** flows (**[T-138]** / **[P-124]**). Treat the repo as **starting here** until the **Acceptance criteria** · **[T-137]** checklist is satisfied end-to-end.
+- **Name:** `@job-tracker/extension` (WXT **0.20.x**, Vite, React **19**, TypeScript strict).
+- **Scripts:** `dev` / `build` / `package` (zip), `lint` (ESLint **+** `tsc --noEmit`), `typecheck`, `test` (Vitest **node**).
+- **Dependencies:** `@job-tracker/ui`, `zod`, `p-limit`, `@tiptap/html` + `@tiptap/starter-kit` (used for **`format: "tiptap"`** on scraped fields — see **Field extraction**).
+- **Turbo:** `apps/extension/turbo.json` — `build` has **`cache: false`** and depends on `^build`; build **inputs** include `apps/web/src/app/icon.svg` (icons are rasterized at build time via `sharp` in `wxt.config.ts`).
 
-- **Workspace:** **`apps/extension`** (**[T-135]**, WXT + Vite) listed in **`pnpm-workspace`**; **Turbo** tasks wired (`build`, `lint`, `typecheck`; **`test`** once Vitest—or agreed equivalent—is added) so **`ci:local`/CI** can run the extension package alongside existing apps—**parity with monorepo conventions**, not a stray folder.
-- **Surfaces:** **MV3 manifest** + **popup** (placeholder **`packages/ui`** or bare React OK); **service worker / background** entry **present** (**empty or ping OK**)—proof of lifecycle; **minimal** **`host_permissions`** only if needed for hello-world (avoid blanket **network**/`all_urls` grants).
-- **Quality bar:** **`eslint --fix --max-warnings=0 --no-warn-ignored`** (same as root **`lint`** / lint-staged; or documented package carve-out **only if** unavoidable); **TypeScript strict** aligns with **`apps/web`** norms unless the extension template forces scoped exceptions (**document deltas**).
-- **Automation:** ≥**1 non-flaky** unit/integration test (**Vitest** suggested)—e.g. pure **URL modality helper** stub, manifest JSON shape sanity, or build-time guard (**no Playwright prerequisite**).
-- **Explicitly defer:** **`[P-53]` routers**, **`[P-119]`**, API **`fetch`**, **graphql-sse** wiring (**[T-138]**), side panel wizard—**after** **[T-137]** is green. **`/imports`** shell in **`apps/web`** may ship earlier (**list + detail + New run modal**, hardcoded importers); **GraphQL runs + subscriptions** (**[T-136]**) wire up when API is ready.
+### Manifest and permissions (`wxt.config.ts`)
 
-### Dev workflow — rebuild & extension reload
+- **MV3**; `outDir` **`build`**, folder pattern **`chrome-mv3`** (prod) / **`chrome-mv3-dev`** (dev).
+- **Permissions:** `sidePanel`, `scripting`.
+- **`host_permissions`:** **`serve` (dev):** `<all_urls>` — convenient for local iteration. **`build` (prod-like):** `https://remoteyeah.com/*`, `https://*.remoteyeah.com/*` only — not yet the full **[P-53]** LinkedIn/Jack allowlist set from the primary README.
 
-MV3 still often needs a **full extension reload** when the service worker or manifest graph changes; popup/side-panel **HMR** covers many edits but not everything.
+### Entrypoints (what ships today)
 
-| Mode                | Command / action                                                                                         | Output folder              | Reload behaviour                                                                                                                                                                                     |
-| ------------------- | -------------------------------------------------------------------------------------------------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Dev (canonical)** | `pnpm --filter @job-tracker/extension run dev` (**WXT** `wxt`)                                           | **`build/chrome-mv3-dev`** | WXT + Vite **watch + extension reload + React HMR**; load **unpacked once** from **`build/chrome-mv3-dev`**. Optional: `--host` / `--port` ([WXT CLI](https://wxt.dev/guide/essentials/config/cli)). |
-| **Prod-like / CI**  | `pnpm --filter @job-tracker/extension run build`                                                         | **`build/chrome-mv3`**     | Production bundle (no dev HMR). Reload the unpacked extension after **`build`** when testing prod output. Turbo **`cache: false`** on extension **`build`** keeps CI bundles fresh.                  |
-| **Manual fallback** | `chrome://extensions` → **Reload**                                                                       | —                          | Use when dev reload misses (**new** entry files, some manifest changes, odd service-worker state).                                                                                                   |
-| **Optional extras** | Third-party “extension reloader” extensions; scripted Chromium `--load-extension`; **web-ext** (Firefox) | —                          | Not part of the default Job Tracker workflow (**Chromium MV3** first); document here only so engineers know alternatives exist.                                                                      |
+| Entry                            | Role                                                                                                                                                                                                                                                                                                                       |
+| -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`entrypoints/background.ts`**  | Service worker: wires **`MessagingService`**, **`PlanService`** + **`CollectJobsService`** (+ tab helper, template service, parsers). Registers **`chrome.action.onClicked`** → parses bundled **`remoteyeah.plan.json`** and **`planService.execute(plan)`**. Subscribes to **`log.event`** from pages for debug logging. |
+| **`entrypoints/dom.content.ts`** | Content script: matches **`*://remoteyeah.com/*`** and **`*://*.remoteyeah.com/*`**. Registers handlers for **`jobs.list`**, **`job.details`**, **`navigate.next.page`**, **`can.navigate.next.page`**. Runs **`DomListenerService`** (list / details / pagination).                                                       |
+| **`entrypoints/sidepanel/`**     | React shell loading **`SidePanel`** — component currently **`return null`** (placeholder UI only).                                                                                                                                                                                                                         |
 
-### Web · `/imports` (partial — `apps/web`)
+**No dedicated popup entrypoint** is present; the toolbar **action** runs the RemoteYeah collector on click (`chrome.action.onClicked`). There is no separate “popup identity / version badge” UI yet — **see [T-137] alignment** below.
 
-- **No tabs:** Single page — **import runs** list + **detail** when a run is selected; **New run** opens a **modal** to choose an importer.
-- **Importers (v1 stub):** **Hardcoded** registry in the web app (starts with an **empty** placeholder importer **`RemoteYeah`**). **New run** uses a **combobox** to pick a built-in importer only. **Database**-stored per-user importers (**[P-122]**) are **not wired yet** — no separate “account importers” block in the modal until the API exists.
-- **Runs:** Until GraphQL + **[T-136]** land, runs may be **client-held** for UX; replace with persisted rounds and **live** updates when the backend is ready.
+### Plan JSON and parsing
 
-### Extension ↔ API transport (**[P-124]**, **[T-138]**)
+- **Schema:** Zod definitions in **`src/domains/plan/model/schema.ts`**, wired to **`LIMITS`** in **`constants.ts`** (max selectors, field counts, `parallelDetailsTabs` cap **16**, regex pattern size, etc.).
+- **Steps:** **`Plan`** = `{ id: uuid, steps[] }` with **`PlanStep`** = `{ id, action }`.
+- **Only supported `action.kind`:** **`collect.jobs`** — listing scrape + optional per-row detail tabs + optional **next-button** pagination.
+- **Parser:** **`parsePlan` / `parseSerializedPlan`** in **`src/domains/plan/parse/parser.ts`** (`PlanSchema.parse`).
+- **Fixture in use:** **`src/domains/plan/fixtures/remoteyeah.plan.json`** (imported statically from the background worker). Companion expected surface rows live in **`remoteyeah.expected.json`** (for offline HTML tests / expectations, not automatically run in CI unless extended).
 
-- **Protocol:** **[graphql-sse](https://github.com/enisdenjo/graphql-sse)** — server streams; extension runs **[D-9]** actions and replies on the same contract (no parallel ad-hoc SSE for the same job).
-- **Roles:** **Backend** orchestrates (scrape timing, tabs, sequencing, **[P-115]**). **Extension** = DOM + tabs **executor** only.
-- **Web:** **`/imports`** live UI stays **subscriptions** (**[T-136]**, **D-5**) unless product explicitly unifies transports.
+### End-to-end `collect.jobs` flow
 
-### DOM serialization boundary (extension executor)
+1. User clicks the extension action on a supported host; background runs **`PlanService.execute`**.
+2. **`CollectJobsService`** (`src/domains/plan/services/collect-jobs.service.ts`):
+   - Resolves the **surface `tabId`** via **`WxtTabService.getCurrentTab()`** (active tab in the current window) — **`input.surfaceUrl` is not yet used to open a dedicated tab** (see **TODO** in source: replace with explicit `openTab`).
+   - Loops **up to `MAX_PAGES` (50)** list pages:
+     - **`jobs.list`** message to **content** on the surface tab → returns **`Job[]`** rows (plain serializable **`Record<string, unknown>`**).
+     - For each row, concurrently opens **detail tabs** capped by **`p-limit(min(parallelDetailsTabs, MAX_TABS))`** (**`MAX_TABS` = 20** in code; schema also caps at **16** — effective limit is **`min(plan, 16, 20)` = 16** from schema).
+     - If **`detailsFields`** is empty, skips detail navigation; else reads **`detailUrl`** from **`job[detailsUrlField]`** — if missing, keeps surface row only.
+     - Opens tab with **`tabManager.openTab(detailUrl)`**, **`job.details`** on that **`tabId`**, merges payloads, **`closeTab`**.
+   - Dedup key: optional **`input.key`** string template (**`{{field}}`** substitutions via **`StringTemplateService`**); else falls back to trimmed detail URL else JSON stringify of row.
+   - Pagination: **`can.navigate.next.page`** then **`navigate.next.page`** (content-side **next-button** strategy), **`waitUntilTabComplete`** between pages.
+   - Returns a **`Map<string, Job>`** of merged jobs.
+3. **`PlanService`** keeps **step outputs in memory**; steps with **`action.scope === "public"`** are exposed in the object returned from **`execute`**.
 
-This section defines the extension-side implementation direction for `dom` used by the plan flows (`list.map.surface`, `list.map.details`).
+Cross-boundary payloads are **`chrome.runtime`** / **`chrome.tabs`** messages only — **`MessagingService`** envelopes (`id`, `mode`, `from` / `to`, optional `tabId`, `timestamp`, **`payload`**). Parsed with **Zod** per request kind. **`Element`** / **`Node`** exist only inside the content script implementations.
 
-- **No DOM object across boundaries:** Service communication across `plan`, `dom`, `tab`, `timer`, and `tiptap` MUST exchange only serializable payloads. `Element` / `HTMLElement` / `Node` are internal implementation details inside the executor runtime and MUST NOT be part of public service contracts.
-- **No persisted DOM context:** Public `dom` contracts MUST NOT expose or persist mutable DOM root handles across calls (no `root`/`queryRoot` push-pop API). Per-call execution context MUST be represented by serializable identifiers only (for example `tabId`, optional `frameId`).
-- **`field` ownership in `plan`:** Field mapping/normalization belongs to `plan` (for example `FieldMappingService` under plan services/mappers), not `dom`. `dom` is responsible only for runtime page interaction/extraction execution.
-- **No finder fallback:** `@medv/finder` is explicitly out of scope for v1 execution design (including fallback). The architecture MUST NOT rely on generated selectors to re-identify nodes between calls.
-- **Batch execution model:** `dom` executes each plan step in one high-level command ("surface batch", "details batch"), instead of exposing micro-operations (query/wait/pick field) as cross-service calls.
-- **Service flow (high-level):**
-  - `PlanService` orchestrates steps and stores step outputs.
-  - `PlanStepRunner` dispatches step action kind.
-  - `ListMapSurfaceService` requests one surface batch from `DomExecutorService`, then delegates mapped output shaping to a plan-owned field mapper.
-  - `ListMapDetailsService` opens detail tab(s), requests one details batch per item URL, delegates mapped output shaping to a plan-owned field mapper, merges when configured, then closes tab(s).
-  - `DomExecutorService` is the sole boundary into runtime DOM access (`direct` or `chrome.scripting` implementation hidden behind the same interface).
-  - `FieldMappingService` (owned by `plan`) and `TiptapService` transform already-serialized extraction results (including rich text conversion where requested).
-- **Tab context handling:** `tab` integration remains explicit (`openTab`, `closeTab`), and context crossing service boundaries is represented only as serializable execution context identifiers (for example `tabId`), never DOM roots.
-- **Error and observability contract:** Batch responses SHOULD include structured failure and telemetry signals (`selector miss`, timeout, quotas/limits, counts, duration, payload size), aligned with [P-126]–[P-130].
+### Content script DOM services
 
-#### Acceptance addendum — DOM serialization boundary
+| Service                                           | Responsibility                                                                                                                                                                                                                                                                                                                               |
+| ------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`DomListenerService`**                          | Routes **`ContentActionMessage`** by `kind`.                                                                                                                                                                                                                                                                                                 |
+| **`JobsListService`**                             | `querySelector(container)` → `querySelectorAll(item)`; per row, **`scrollIntoView`**, optional delay, per-field **`querySelector`** inside row — **throws** if container/items/element missing or **`validationRegex`** fails on string fields. Populates **`Job`**. **`skipDelay`** on the action skips small timer delays around row work. |
+| **`JobDetailsService`**                           | **`document.querySelector`** per detail field — **skips missing elements** and **silently skips** fields that **`getFieldValue` rejects** (`try/catch` per field).                                                                                                                                                                           |
+| **`PaginationService`** + **`NextButtonService`** | **Next-button** pagination: locate container + button by partial visible text match, click-or-throw for navigate; visibility check for **`can`** path.                                                                                                                                                                                       |
+| **`FieldValueService`**                           | Reads **attribute** or **property** (`innerText`, `textContent`, `value`, **`innerHTML`** on details-only property fields); optional **`validationRegex`** (`RegExp` at parse + runtime); then **`FieldFormatStrategyPicker`** (**passthrough** vs **`tiptap`**) → see below.                                                                |
+| **`DefaultTimerService`**                         | Short delays around DOM interactions where not skipped.                                                                                                                                                                                                                                                                                      |
+| **`PopupLogService`**                             | Publishes **`log.event`** (**debug**) to **background** (name is legacy; usable from any `"content"` surface without a popup).                                                                                                                                                                                                               |
 
-- Public service contracts used by plan execution contain no raw DOM object references.
-- `list.map.surface` runs as one batch DOM command and returns serializable row payloads.
-- `list.map.details` runs as one batch DOM command per detail URL and returns serializable payloads (merged with source row when configured).
-- The extension execution path does not use `@medv/finder`.
-- Regression tests cover selector miss/timeout and missing detail URL behavior in this batched architecture.
+Rich-text formatting is implemented in **`field-format.strategy.ts`**: **`TiptapFieldFormatStrategy`** calls **`generateJSON`** from **`@tiptap/html`** with **`StarterKit`** — aligned with the web editor story; **`PassthroughFieldFormatStrategy`** keeps raw strings. There is **no** separate `tiptap.service.ts`; logic lives next to **`FieldValueService`**.
 
-#### Operational rollout checklist (phased)
+### Tab abstraction
 
-The rollout below is progressive by design. Automated tests are intentionally deferred to the final phase; until then, keep build/typecheck/lint green and preserve runtime behavior.
+- **`WxtTabService`** implements **`TabService`** (`types.ts`): **`getCurrentTab`**, **`openTab`**, **`closeTab`**, **`waitUntilTabComplete`** (**60s** timeout + `tabs.onUpdated` + poll).
 
-**Phase 0 — Preparation and guardrails**
+---
 
-- [ ] Add/confirm migration notes in extension domain services to indicate dual-path transition (legacy DOM API -> batch executor API).
-- [ ] Confirm that `023` implementation direction is the active source of truth for this migration.
-- [ ] Keep current flow functional while introducing new boundary.
+## Developer workflow — rebuild and reload
 
-**Done when**
+MV3 often needs a **full extension reload** when the manifest or worker graph changes; content changes may hot-reload depending on WXT/Vite behavior.
 
-- [ ] Team can identify old vs new execution path without ambiguity.
-- [ ] No runtime behavior changed yet; only migration scaffolding/documentation guardrails are in place.
+| Mode                | Command                                          | Output folder              | Notes                                                 |
+| ------------------- | ------------------------------------------------ | -------------------------- | ----------------------------------------------------- |
+| **Dev**             | `pnpm --filter @job-tracker/extension run dev`   | **`build/chrome-mv3-dev`** | Load unpacked once; WXT watches and reloads.          |
+| **Prod-like / CI**  | `pnpm --filter @job-tracker/extension run build` | **`build/chrome-mv3`**     | No HMR; reload extension after changing build output. |
+| **Manual fallback** | `chrome://extensions` → Reload                   | —                          | Worker stuck, new entrypoints, manifest oddities.     |
 
-**Phase 1 — Serializable `dom` boundary (new public contract)**
+Optional third-party reloaders / scripted **`--load-extension`** are outside the default workflow (**Chromium MV3 first**).
 
-- [ ] Introduce a new high-level `dom` executor contract for step batches (surface/details) and tab context attachment.
-- [ ] Remove persisted root APIs from public contracts (`setQueryRoot`, `clearQueryRoot`, and equivalents).
-- [ ] Keep legacy `dom` contract temporarily available for compatibility during migration.
-- [ ] Ensure the new contract exposes only serializable inputs/outputs.
+---
 
-**Done when**
+## Web · `/imports` (`apps/web`) — unchanged intent
 
-- [ ] New `dom` contract is callable from plan-layer services.
-- [ ] Public contract surface exports no `Element` / `HTMLElement` / `Node`.
-- [ ] Public contract surface exposes no persisted DOM root/query-root handle API.
-- [ ] No consumer is forced to migrate in the same commit (dual-path period active).
+Still as in the primary README: single-page runs list + detail + **New run** modal; hardcoded importer seed **RemoteYeah**; **[T-136]** subscriptions when backend is ready. This companion does not re-verify web code on each edit — treat **`README.md`** · **Implementation companion** pointer as authoritative for product wording.
 
-**Phase 2 — `direct-dom` implementation on the new contract**
+---
 
-- [ ] Implement the new batch-oriented executor in `direct-dom`.
-- [ ] Keep `chrome-scripting-dom` aligned with the same new contract shape (stub/minimal behavior accepted at this stage).
-- [ ] Keep internals free to use DOM objects inside implementation only.
+## Extension ↔ API transport (**[P-124]**, **[T-138]**)
 
-**Done when**
+**Not implemented in-tree yet.** Planned direction unchanged: **`graphql-sse`**, backend-orchestrated actions, extension as executor-only. Current extension runs a **local static plan** triggered by **`chrome.action`**, not SSE.
 
-- [ ] `direct-dom` can execute high-level surface/details commands through the new boundary.
-- [ ] `chrome-scripting-dom` compiles against the same contract.
-- [ ] No DOM object escapes implementation internals.
+---
 
-**Phase 3 — Migrate `list.map.surface` flow**
+## Security — server-driven executor plan (**[P-126]**–**[P-130]**)
 
-- [ ] Refactor `ListMapSurfaceService` to call one surface batch command.
-- [ ] Replace per-field DOM picking calls with serialized batch result mapping.
-- [ ] Keep output shape compatible with existing step memory expectations.
+Still the **target** once plans stream from the backend. Today’s hazards are narrower (fixed fixture, localhost vs prod **`host_permissions`**, no authenticated `fetch` from the extension worker yet) — but **HTML scraping**, **innerHTML**, and **`tiptap` JSON generation** paths should eventually satisfy **[P-129]** (sanitize/size limits before persistence).
 
-**Done when**
+---
 
-- [ ] Surface flow no longer depends on `querySelector`/`querySelectorAll` across service boundaries.
-- [ ] Surface result remains consumable by downstream steps without extra adapters.
-- [ ] Manual validation confirms expected row extraction behavior remains stable.
+## DOM / messaging architecture vs earlier draft
 
-**Phase 4 — Migrate `list.map.details` flow**
+The previous long **phased migration** checklist described a transition from an older “DOM root / micro-op” design. The **current** code already follows the **serializable** pattern in practice:
 
-- [ ] Refactor `ListMapDetailsService` to call one details batch command per detail URL.
-- [ ] Preserve existing semantics for missing URL and `mergeWithItem`.
-- [ ] Remove public reliance on query-scope push/pop semantics tied to DOM roots; pass only serializable execution context identifiers to `dom` calls.
+- **Background** never holds DOM handles; it passes **`tabId`** + **Zod-parsed actions**.
+- **Content** owns **`document`** queries.
+- **`collect.jobs`** is the first real **step** implementation (analogous to product “surface + details batches”).
 
-**Done when**
+Remaining product gaps are mostly **capabilities** (more action kinds), **opening the surface URL explicitly**, **graphql-sse**, **parity host allowlists**, and **structured error/telemetry envelopes** (**[P-126]**–**[P-130]**) rather than renaming services to match the old scaffolding doc.
 
-- [ ] Details flow no longer passes DOM roots/objects through service boundaries.
-- [ ] Details flow no longer depends on `TabManager.getTabRoot` or equivalent DOM-root handoff.
-- [ ] Merge and empty-row behavior match previous functional expectations.
-- [ ] Manual validation confirms detail extraction + merge behavior across representative pages.
+---
 
-**Phase 5 — plan-owned field mapping + legacy cleanup**
+## Integration checklist (forward-looking)
 
-- [ ] Move/define field mapping as a `plan` concern (service or mapper), replacing the old DOM-picking role.
-- [ ] Keep field mapping operating on serialized batch results only (including TipTap conversion handling).
-- [ ] Remove direct `field -> dom` dependency from public flow.
-- [ ] Remove legacy DOM-oriented methods from `dom` public contract once all consumers are migrated.
+- **GraphQL over SSE** (**[T-138]**); **[P-119]** cookie bridge for SW `fetch`.
+- **URL router (Type L / J)** per **[P-53]** and documented **[P-115]** concurrency per importer.
+- **Popup / side panel UX** per **D-2** / **D-6** (today: **action click** + **empty side panel**).
+- **Idempotency** and duplicate pipeline (**[D-8]**); web wizard remains web-only.
 
-**Done when**
+---
 
-- [ ] Field mapping is owned by `plan` and operates on serialized extraction payloads only.
-- [ ] Plan execution path has no dependency on DOM-oriented legacy methods.
-- [ ] Public extension execution path (`plan` orchestrates mapping; `dom` executes extraction) is fully serializable end-to-end.
+## Acceptance criteria (**[T-137]** alignment)
 
-**Phase 6 — Observability and failure semantics**
+What is **true today:**
 
-- [ ] Add structured batch metadata and failure signaling (`selector miss`, timeout, quota/limit hit, counts, duration).
-- [ ] Standardize error envelopes consumed by plan-layer services.
-- [ ] Keep telemetry aligned with [P-126]–[P-130] enforcement intent.
+- **Loads unpacked** on Chromium MV3 from **`build/chrome-mv3-dev`** / **`chrome-mv3`** without manifest or registration errors (**subject to fixing any local Chromium policy issues**).
+- **Background worker** runs (`defineBackground`), installs **`onInstalled`** log line, **`CollectJobsService` + messaging** exercised when the user triggers the flow.
+- **CI / monorepo gates:** `lint`, `typecheck`, `test`, `build` are defined on the extension package and participate in **`pnpm`/Turbo** like other apps.
 
-**Done when**
+**Gaps vs written [T-137] scaffold bullet list:**
 
-- [ ] Surface/details failures are diagnosable without raw DOM object logging.
-- [ ] Plan-layer services can branch on structured failures predictably.
-- [ ] Basic operator visibility exists for runtime troubleshooting.
+- **Popup smoke with package name / version**: **not implemented** — there is **no popup entrypoint**; version is visible via **Chrome extension details** or **`manifest.version`** (`package.json` **0.0.3**) but **not** in a toolbar popup UI.
 
-**Phase 7 — Tests (final phase by decision)**
+Track either a small **toolbar popup React entry** or redefine [T-137] smoke as **sidebar + console / extension management** — until then treat popup UI as **outstanding**.
 
-- [ ] Add/refresh tests for migrated surface/details flows in batched architecture.
-- [ ] Cover at minimum: selector miss, timeout, missing detail URL, merge on/off, serialized output guarantees.
-- [ ] Remove any temporary migration-only shims not required post-migration.
+Broader README criteria (**[P-110]** onward): still future; depend on API, routing, and SSE.
 
-**Done when**
-
-- [ ] Test suite assertions validate batched serializable contract behavior.
-- [ ] No production execution path depends on temporary migration shims.
-- [ ] Migration can be considered complete for `dom` boundary objectives in this spec.
-
-### Security — server-driven executor plan (**[P-124]**)
-
-Backend-orchestrated steps (selectors, **`tab.open`**, loops, **`$tiptap`** formatters, **GraphQL-over-SSE** payloads) widen **trust**, **navigator**, **DoS**, and **data-handling** risk unless bounded. Track as:
-
-- **[P-126]** **Navigation governance:** Resolved URLs for **`tab.open`** / templated opens MUST align with importer **allowlists** (**[P-53]** / host permissions)—deny **`javascript:`**, **`blob:`**, **`data:*html`**, **`file:`**, and other non‑HTTP(S) navigations suitable for phishing or drive‑bys unless explicitly out-of-scope and documented; normalize/validate (**origin + path prefixes**) before execution.
-- **[P-127]** **Plan trust & shape:** Executable plans MUST be emitted only from trusted server paths (**authZ’d roles**, audited templates); refuse unknown **`action`** kinds and invalid payloads (**JSON Schema** or equivalent); **version** (`v` / `planVersion`) and **pin** importer capability sets so incompatible extension builds reject or no-op—not silent partial execution.
-- **[P-128]** **Executor quotas:** HARD caps per run on **opened tabs**, **loop iterations**, **DOM queries**, **timeouts**, **selector result counts**, and **report payload size**—defaults documented; overrun ⇒ fail the run loudly (never unbounded churn).
-- **[P-129]** **Captured content hygiene:** Outputs from **`innerHTML`** / **`$tiptap`** MUST pass through documented **sanitize / schema validation / size limits** before persistence or user-visible replay—no unchecked rich text or oversized blobs in **`New`** payloads.
-- **[P-130]** **Observability & abuse:** Emit structured failure signals (**selector miss**, quota hit, denied URL) tied to **`importRunId`** server-side for support and anomaly detection—without logging raw **JD** bulk by default.
-
-### Technical ([T-*])
-
-- [T-132] **MV3**; `cookies`; least `host_permissions` (API/app + enumerated board URLs); parity GraphQL (**[P-80]**).
-- [T-133] Reuse **`packages/ui`** aligned with **`specs/002-technical-design-system-and-visual-identity`** ([T-1]–[T-4]).
-- [T-135] **`apps/extension`**, WXT + Vite.
-- [T-136] **Subscriptions** powering **`/imports` live updates** (**D-5**) in **`apps/web`**—schema evolves with backend.
-- [T-138] **graphql-sse** server + extension client; schema for **actions** / **results** (API work TBD).
-
-### Integration checklist
-
-- **GraphQL over SSE** (**[T-138]**): authenticated SW stream; **[D-9]** round-trip; align **[P-119]** **`fetch`**.
-- Implement **URL router** (Type **L** vs **J**) per **[P-53]** using shared tables (tests for sample LinkedIn list vs view URLs); document each importer’s **parallel vs serialized** behaviour per **[P-115]** (default: user may overlap rounds).
-- Validate **cookie + CORS + `SameSite`** across environments resembling prod.
-- Enforce **`idempotencyKey`** on import creates; publish server **replay window**/storage policy; for **Type L** document whether each row gets its own key vs batch semantics.
-- Treat extension `fetch` as first-class authenticated client (align CSRF / cookie policy docs).
-- Store **`Source`/importer** metadata (**D-7**) and persist **job description** (or equivalent) for **`D-8` diff UI**.
-
-### Duplicate pipeline (**D-8**) — engineer-facing
-
-- Write-through **insert** (`New` row always). Link / flag duplicate candidates immediately after or atomically via transaction—pick in data modelling.
-- **Normalize** title + company (trim, lowercase, collapse whitespace) for candidate edges.
-- **Web-only** comparison wizard; extension never hosts merge UI in v1.
-- **[P-119] rejects:** documented token-bridge (**B**) and hybrid (**C**) paths for archive only—**no prod secrets inside bundle**, minimal sensitive `chrome.storage`.
-
-## Acceptance criteria
-
-- **[T-137] Scaffold (first milestone) is DONE when:**
-  - **Loads unpacked:** Extension installs via **Chrome → Extensions → Load unpacked** on supported Chromium (**MV3**) **without manifest or SW registration errors**.
-  - **Popup smoke:** Opening the **popup** shows a **stable** identity string (package name **or** **`package.json`** version / build id)—proof the UI bundle runs.
-  - **Background present:** **`manifest`** references a **service worker / background script** matching WXT output; **cold start** does not throw (**manual devtools check** documented in PR **or** covered by trivial messaging/ping test **if** already wired).
-  - **CI gates:** From clean checkout, **`pnpm`/Turbo** tasks for **`apps/extension`** (**lint**, **typecheck**, **test**, **build**) are **wired** (`package.json` + **`turbo`**) and pass—**no orphaned package**.
-
-- [P-110] **`New`** import succeeds for both **Type L** and **Type J** flows even when likely duplicate flagged (**[D-8]**); [P-79] payloads follow API rules.
-- [P-113]; [P-61] actionable failures; **never** overwrite owned records without confirmation.
-- [P-115], [T-136], [T-138], [P-121], [P-123], [P-119], [P-124], [P-126]–[P-130] as stipulated above.
+---
 
 ## Validation
 
-- [T-137] Scaffold: ≥**1 automated test** (**Vitest**/non-flaky) + **turbo-visible** **`lint`/`typecheck`/`test`/`build`** for **`apps/extension`**.
-- [T-134] After scaffold: automated tests for happy-path creates (**Type L** batch + **Type J** single) + malformed/unsigned rejection aligning with **[P-83]** and **[P-80]**.
+- **Vitest:** `src/**/*.test.ts` (node). Current coverage includes **`field-value.service.test.ts`** (passthrough vs **`tiptap`** JSON, unknown format error).
+- **`passWithNoTests: true`** on the package — add tests as flows stabilize (collect loop, messaging, pagination).
+
+---
+
+## Technical ([T-*]) — reminder
+
+- [T-132] MV3; cookies; least `host_permissions` — **partially** (RemoteYeah-only in prod build config).
+- [T-135] `apps/extension` WXT + Vite — **done**.
+- [T-136] Web subscriptions for `/imports` — **web/API**.
+- [T-138] graphql-sse — **not started** in extension.
+
+---
 
 ## Log
 
-Canonical product narrative = **`README.md`** (**Product decisions**). Engineer-facing execution detail = this file.
+Canonical product narrative = **`README.md`**. Engineer-facing **current-behaviour** detail = **this file**.
 
-| Date       | Theme                  | Capsule                                                                                                                                                                                   |
-| ---------- | ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 2026-05-02 | Core                   | **`New`** apps; **[P-119]** cookie auth; **[P-80]** parity; **[P-120]**/`016` separation; security stance                                                                                 |
-| 2026-05-02 | Web surface            | **`/imports`** single-page runs list + detail + New run modal; subs **[T-136]** when API ready; importer admin **[P-122]**; **[P-115]** runs                                              |
-| 2026-05-02 | Web `/imports` UI      | Hardcoded importer seed **RemoteYeah**; DB importers stubbed; no Live/History/Importers **tabs**                                                                                          |
-| 2026-05-02 | Extension chrome       | **Popup** vs **wizard side panel** (**D-2**/ **D-6**); **[P-116]** stance                                                                                                                 |
-| 2026-05-02 | Boards + provenance    | **D-1** seeds; **`Source`/importer** (**D-7**); **Type L vs J** URL routing (**[P-53]**)                                                                                                  |
-| 2026-05-02 | Duplicate policy       | **D-8** persist → **mark** → wizard diff (**JD**) → **user resolves**                                                                                                                     |
-| 2026-05-02 | Concurrency            | **Parallel import rounds** (mixed L/J) allowed; **per-source** limits when needed; **user** chooses overlap otherwise (**[P-115]**)                                                       |
-| 2026-05-02 | Scaffold               | **[T-137]** minimal **MV3** extension package + turbo/CI gates + smoke load—**before** importers/**[P-119]**/**GraphQL**                                                                  |
-| 2026-05-02 | Dev UX                 | **Dev workflow — rebuild & extension reload:** **`dev`** vs prod **`build`**; HMR limits; manual Reload; optional third-party / scripted reload                                           |
-| 2026-05-02 | Transport + roles      | **[D-9] / [P-124] / [T-138]:** backend orchestrates; extension **executor**; **graphql-sse**; web **`/imports`** **[T-136]** unless unified                                               |
-| 2026-05-02 | Plan security          | **[P-126]–[P-130]:** URL/allowlist, plan validation & trust, quotas, `$tiptap`/HTML hygiene, observability                                                                                |
-| 2026-05-02 | Executor               | Import-plan + low-level action **`dom.scrollIntoView`** (optional **`scrollIntoView`** options → **`Element.scrollIntoView`**)                                                            |
-| 2026-05-02 | Greenfield baseline    | Extension **`apps/extension`** and tied integration are **implemented from scratch**; **[T-137]** onward must be re-earned on the current codebase (see primary **`README.md`** · TL;DR). |
-| 2026-05-04 | Plan mapping ownership | Field mapping/normalization is explicitly a **`plan`** responsibility (plan-owned mapper/service), while **`dom`** is restricted to runtime page execution/extraction only.               |
-| 2026-05-04 | DOM runtime messaging  | `WxtDomService` now sends typed DOM batch commands to a dedicated content-script runtime (`dom.content.ts`), replacing direct `executeScript` batch execution in the service layer.       |
+| Date       | Theme                    | Capsule                                                                                                                                                                             |
+| ---------- | ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2026-05-02 | Core                     | **`New`** apps; **[P-119]** cookie auth; **[P-80]** parity; **[P-120]**/`016` separation; security stance                                                                           |
+| 2026-05-02 | Web surface              | **`/imports`** single-page runs list + detail + New run modal; subs **[T-136]** when API ready; importer admin **[P-122]**                                                          |
+| 2026-05-02 | Web `/imports` UI        | Hardcoded importer seed **RemoteYeah**; no Live/History/Importers **tabs**                                                                                                          |
+| 2026-05-02 | Extension chrome         | **Popup** vs **wizard side panel** (**D-2**/ **D-6**); **[P-116]** stance                                                                                                           |
+| 2026-05-02 | Boards + provenance      | **D-1** seeds; **`Source`/importer** (**D-7**); **Type L vs J** URL routing (**[P-53]**)                                                                                            |
+| 2026-05-02 | Duplicate policy         | **D-8** persist → **mark** → wizard diff (**JD**) → **user resolves**                                                                                                               |
+| 2026-05-02 | Concurrency              | **Parallel import rounds** (**[P-115]**)                                                                                                                                            |
+| 2026-05-02 | Scaffold                 | **[T-137]** minimal **MV3** package + turbo/CI gates — **before** full boards / **[P-119]** / GraphQL                                                                               |
+| 2026-05-02 | Dev UX                   | **Dev** vs **`build`**; HMR limits; manual Reload                                                                                                                                   |
+| 2026-05-02 | Transport + roles        | **[D-9] / [P-124] / [T-138]:** backend orchestrates; extension executor; **graphql-sse**                                                                                            |
+| 2026-05-02 | Plan security            | **[P-126]**–**[P-130]:** URL/allowlist, plan validation, quotas, HTML hygiene, observability                                                                                        |
+| 2026-05-02 | Greenfield baseline      | Extension **`apps/extension`** implemented from scratch on this tree; **[T-137]** must match **current** checkout                                                                   |
+| 2026-05-04 | Plan mapping ownership   | Field mapping stays in plan-shaped config; DOM execution in content script                                                                                                          |
+| 2026-05-04 | DOM runtime messaging    | Typed requests to **`dom.content.ts`** instead of `executeScript` batching in the service layer                                                                                     |
+| 2026-05-05 | Implementation companion | Rewrote **`IMPLEMENTATION.md`** to describe **actual** architecture: **`collect.jobs`**, messaging, tab limits, **TipTap** format module, **no popup**; **[T-137]** gaps called out |
