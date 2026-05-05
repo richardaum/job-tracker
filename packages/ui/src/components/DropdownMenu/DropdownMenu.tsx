@@ -59,7 +59,7 @@ export function DropdownMenuItem({
       )}
     >
       {icon && <span aria-hidden>{icon}</span>}
-      <span>{children}</span>
+      <span className={cn("min-w-0 flex-1")}>{children}</span>
     </RadixDropdownMenu.Item>
   );
 }
