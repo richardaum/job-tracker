@@ -14,24 +14,61 @@ export function SaveAsPdfButton({
   editor,
   disabled = false,
 }: SaveAsPdfButtonProps) {
-  async function handleExportPdf() {
-    const plainDocumentText = editor.getText().trim();
-    const htmlContent = editor.getHTML();
-
-    if (!plainDocumentText) {
-      return;
-    }
-
+  function getExportFileName() {
     const dateSuffix = new Date().toISOString().slice(0, 10);
-    const printWindow = window.open("", "_blank", "noopener,noreferrer");
-    if (!printWindow) {
-      return;
+    const pageTitle = window.document.title
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+
+    if (!pageTitle) {
+      return `document-export-${dateSuffix}`;
     }
 
-    const { document: printDocument } = printWindow;
-    printDocument.title = `application-notes-${dateSuffix}`;
-    const style = printDocument.createElement("style");
-    style.textContent = `
+    return `${pageTitle}-${dateSuffix}`;
+  }
+
+  async function handleExportPdf() {
+    try {
+      const plainDocumentText = editor.getText().trim();
+      const htmlContent = editor.getHTML();
+
+      if (!plainDocumentText) {
+        return;
+      }
+
+      const exportFileName = getExportFileName();
+      const printWindow = window.open("about:blank", "_blank");
+      if (!printWindow) {
+        return;
+      }
+      printWindow.opener = null;
+
+      const { document: printDocument } = printWindow;
+      let hasTriggeredPrint = false;
+      let hasClosedWindow = false;
+      const closePrintWindow = (source: string) => {
+        if (hasClosedWindow) {
+          return;
+        }
+        hasClosedWindow = true;
+        void source;
+        printWindow.close();
+      };
+
+      const printMediaQuery = printWindow.matchMedia("print");
+      printWindow.addEventListener("afterprint", () => {
+        closePrintWindow("afterprint");
+      });
+      printMediaQuery.addEventListener("change", (event) => {
+        if (hasTriggeredPrint && !event.matches) {
+          closePrintWindow("matchMedia-change-false");
+        }
+      });
+      printDocument.title = exportFileName;
+      const style = printDocument.createElement("style");
+      style.textContent = `
       body {
         margin: 32px;
         font-family: Inter, Arial, sans-serif;
@@ -41,10 +78,14 @@ export function SaveAsPdfButton({
         overflow-wrap: break-word;
       }
     `;
-    printDocument.head.appendChild(style);
-    printDocument.body.innerHTML = htmlContent;
-    printWindow.focus();
-    printWindow.print();
+      printDocument.head.appendChild(style);
+      printDocument.body.innerHTML = htmlContent;
+      printWindow.focus();
+      hasTriggeredPrint = true;
+      printWindow.print();
+    } catch (error) {
+      console.error("Failed to export PDF", error);
+    }
   }
 
   return (
