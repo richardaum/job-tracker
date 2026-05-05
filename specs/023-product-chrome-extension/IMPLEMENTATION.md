@@ -48,6 +48,136 @@ MV3 still often needs a **full extension reload** when the service worker or man
 - **Roles:** **Backend** orchestrates (scrape timing, tabs, sequencing, **[P-115]**). **Extension** = DOM + tabs **executor** only.
 - **Web:** **`/imports`** live UI stays **subscriptions** (**[T-136]**, **D-5**) unless product explicitly unifies transports.
 
+### DOM serialization boundary (extension executor)
+
+This section defines the extension-side implementation direction for `dom` used by the plan flows (`list.map.surface`, `list.map.details`).
+
+- **No DOM object across boundaries:** Service communication across `plan`, `dom`, `tab`, `timer`, and `tiptap` MUST exchange only serializable payloads. `Element` / `HTMLElement` / `Node` are internal implementation details inside the executor runtime and MUST NOT be part of public service contracts.
+- **No persisted DOM context:** Public `dom` contracts MUST NOT expose or persist mutable DOM root handles across calls (no `root`/`queryRoot` push-pop API). Per-call execution context MUST be represented by serializable identifiers only (for example `tabId`, optional `frameId`).
+- **`field` ownership in `plan`:** Field mapping/normalization belongs to `plan` (for example `FieldMappingService` under plan services/mappers), not `dom`. `dom` is responsible only for runtime page interaction/extraction execution.
+- **No finder fallback:** `@medv/finder` is explicitly out of scope for v1 execution design (including fallback). The architecture MUST NOT rely on generated selectors to re-identify nodes between calls.
+- **Batch execution model:** `dom` executes each plan step in one high-level command ("surface batch", "details batch"), instead of exposing micro-operations (query/wait/pick field) as cross-service calls.
+- **Service flow (high-level):**
+  - `PlanService` orchestrates steps and stores step outputs.
+  - `PlanStepRunner` dispatches step action kind.
+  - `ListMapSurfaceService` requests one surface batch from `DomExecutorService`, then delegates mapped output shaping to a plan-owned field mapper.
+  - `ListMapDetailsService` opens detail tab(s), requests one details batch per item URL, delegates mapped output shaping to a plan-owned field mapper, merges when configured, then closes tab(s).
+  - `DomExecutorService` is the sole boundary into runtime DOM access (`direct` or `chrome.scripting` implementation hidden behind the same interface).
+  - `FieldMappingService` (owned by `plan`) and `TiptapService` transform already-serialized extraction results (including rich text conversion where requested).
+- **Tab context handling:** `tab` integration remains explicit (`openTab`, `closeTab`), and context crossing service boundaries is represented only as serializable execution context identifiers (for example `tabId`), never DOM roots.
+- **Error and observability contract:** Batch responses SHOULD include structured failure and telemetry signals (`selector miss`, timeout, quotas/limits, counts, duration, payload size), aligned with [P-126]–[P-130].
+
+#### Acceptance addendum — DOM serialization boundary
+
+- Public service contracts used by plan execution contain no raw DOM object references.
+- `list.map.surface` runs as one batch DOM command and returns serializable row payloads.
+- `list.map.details` runs as one batch DOM command per detail URL and returns serializable payloads (merged with source row when configured).
+- The extension execution path does not use `@medv/finder`.
+- Regression tests cover selector miss/timeout and missing detail URL behavior in this batched architecture.
+
+#### Operational rollout checklist (phased)
+
+The rollout below is progressive by design. Automated tests are intentionally deferred to the final phase; until then, keep build/typecheck/lint green and preserve runtime behavior.
+
+**Phase 0 — Preparation and guardrails**
+
+- [ ] Add/confirm migration notes in extension domain services to indicate dual-path transition (legacy DOM API -> batch executor API).
+- [ ] Confirm that `023` implementation direction is the active source of truth for this migration.
+- [ ] Keep current flow functional while introducing new boundary.
+
+**Done when**
+
+- [ ] Team can identify old vs new execution path without ambiguity.
+- [ ] No runtime behavior changed yet; only migration scaffolding/documentation guardrails are in place.
+
+**Phase 1 — Serializable `dom` boundary (new public contract)**
+
+- [ ] Introduce a new high-level `dom` executor contract for step batches (surface/details) and tab context attachment.
+- [ ] Remove persisted root APIs from public contracts (`setQueryRoot`, `clearQueryRoot`, and equivalents).
+- [ ] Keep legacy `dom` contract temporarily available for compatibility during migration.
+- [ ] Ensure the new contract exposes only serializable inputs/outputs.
+
+**Done when**
+
+- [ ] New `dom` contract is callable from plan-layer services.
+- [ ] Public contract surface exports no `Element` / `HTMLElement` / `Node`.
+- [ ] Public contract surface exposes no persisted DOM root/query-root handle API.
+- [ ] No consumer is forced to migrate in the same commit (dual-path period active).
+
+**Phase 2 — `direct-dom` implementation on the new contract**
+
+- [ ] Implement the new batch-oriented executor in `direct-dom`.
+- [ ] Keep `chrome-scripting-dom` aligned with the same new contract shape (stub/minimal behavior accepted at this stage).
+- [ ] Keep internals free to use DOM objects inside implementation only.
+
+**Done when**
+
+- [ ] `direct-dom` can execute high-level surface/details commands through the new boundary.
+- [ ] `chrome-scripting-dom` compiles against the same contract.
+- [ ] No DOM object escapes implementation internals.
+
+**Phase 3 — Migrate `list.map.surface` flow**
+
+- [ ] Refactor `ListMapSurfaceService` to call one surface batch command.
+- [ ] Replace per-field DOM picking calls with serialized batch result mapping.
+- [ ] Keep output shape compatible with existing step memory expectations.
+
+**Done when**
+
+- [ ] Surface flow no longer depends on `querySelector`/`querySelectorAll` across service boundaries.
+- [ ] Surface result remains consumable by downstream steps without extra adapters.
+- [ ] Manual validation confirms expected row extraction behavior remains stable.
+
+**Phase 4 — Migrate `list.map.details` flow**
+
+- [ ] Refactor `ListMapDetailsService` to call one details batch command per detail URL.
+- [ ] Preserve existing semantics for missing URL and `mergeWithItem`.
+- [ ] Remove public reliance on query-scope push/pop semantics tied to DOM roots; pass only serializable execution context identifiers to `dom` calls.
+
+**Done when**
+
+- [ ] Details flow no longer passes DOM roots/objects through service boundaries.
+- [ ] Details flow no longer depends on `TabManager.getTabRoot` or equivalent DOM-root handoff.
+- [ ] Merge and empty-row behavior match previous functional expectations.
+- [ ] Manual validation confirms detail extraction + merge behavior across representative pages.
+
+**Phase 5 — plan-owned field mapping + legacy cleanup**
+
+- [ ] Move/define field mapping as a `plan` concern (service or mapper), replacing the old DOM-picking role.
+- [ ] Keep field mapping operating on serialized batch results only (including TipTap conversion handling).
+- [ ] Remove direct `field -> dom` dependency from public flow.
+- [ ] Remove legacy DOM-oriented methods from `dom` public contract once all consumers are migrated.
+
+**Done when**
+
+- [ ] Field mapping is owned by `plan` and operates on serialized extraction payloads only.
+- [ ] Plan execution path has no dependency on DOM-oriented legacy methods.
+- [ ] Public extension execution path (`plan` orchestrates mapping; `dom` executes extraction) is fully serializable end-to-end.
+
+**Phase 6 — Observability and failure semantics**
+
+- [ ] Add structured batch metadata and failure signaling (`selector miss`, timeout, quota/limit hit, counts, duration).
+- [ ] Standardize error envelopes consumed by plan-layer services.
+- [ ] Keep telemetry aligned with [P-126]–[P-130] enforcement intent.
+
+**Done when**
+
+- [ ] Surface/details failures are diagnosable without raw DOM object logging.
+- [ ] Plan-layer services can branch on structured failures predictably.
+- [ ] Basic operator visibility exists for runtime troubleshooting.
+
+**Phase 7 — Tests (final phase by decision)**
+
+- [ ] Add/refresh tests for migrated surface/details flows in batched architecture.
+- [ ] Cover at minimum: selector miss, timeout, missing detail URL, merge on/off, serialized output guarantees.
+- [ ] Remove any temporary migration-only shims not required post-migration.
+
+**Done when**
+
+- [ ] Test suite assertions validate batched serializable contract behavior.
+- [ ] No production execution path depends on temporary migration shims.
+- [ ] Migration can be considered complete for `dom` boundary objectives in this spec.
+
 ### Security — server-driven executor plan (**[P-124]**)
 
 Backend-orchestrated steps (selectors, **`tab.open`**, loops, **`$tiptap`** formatters, **GraphQL-over-SSE** payloads) widen **trust**, **navigator**, **DoS**, and **data-handling** risk unless bounded. Track as:
@@ -103,18 +233,20 @@ Backend-orchestrated steps (selectors, **`tab.open`**, loops, **`$tiptap`** form
 
 Canonical product narrative = **`README.md`** (**Product decisions**). Engineer-facing execution detail = this file.
 
-| Date       | Theme               | Capsule                                                                                                                                                                                   |
-| ---------- | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 2026-05-02 | Core                | **`New`** apps; **[P-119]** cookie auth; **[P-80]** parity; **[P-120]**/`016` separation; security stance                                                                                 |
-| 2026-05-02 | Web surface         | **`/imports`** single-page runs list + detail + New run modal; subs **[T-136]** when API ready; importer admin **[P-122]**; **[P-115]** runs                                              |
-| 2026-05-02 | Web `/imports` UI   | Hardcoded importer seed **RemoteYeah**; DB importers stubbed; no Live/History/Importers **tabs**                                                                                          |
-| 2026-05-02 | Extension chrome    | **Popup** vs **wizard side panel** (**D-2**/ **D-6**); **[P-116]** stance                                                                                                                 |
-| 2026-05-02 | Boards + provenance | **D-1** seeds; **`Source`/importer** (**D-7**); **Type L vs J** URL routing (**[P-53]**)                                                                                                  |
-| 2026-05-02 | Duplicate policy    | **D-8** persist → **mark** → wizard diff (**JD**) → **user resolves**                                                                                                                     |
-| 2026-05-02 | Concurrency         | **Parallel import rounds** (mixed L/J) allowed; **per-source** limits when needed; **user** chooses overlap otherwise (**[P-115]**)                                                       |
-| 2026-05-02 | Scaffold            | **[T-137]** minimal **MV3** extension package + turbo/CI gates + smoke load—**before** importers/**[P-119]**/**GraphQL**                                                                  |
-| 2026-05-02 | Dev UX              | **Dev workflow — rebuild & extension reload:** **`dev`** vs prod **`build`**; HMR limits; manual Reload; optional third-party / scripted reload                                           |
-| 2026-05-02 | Transport + roles   | **[D-9] / [P-124] / [T-138]:** backend orchestrates; extension **executor**; **graphql-sse**; web **`/imports`** **[T-136]** unless unified                                               |
-| 2026-05-02 | Plan security       | **[P-126]–[P-130]:** URL/allowlist, plan validation & trust, quotas, `$tiptap`/HTML hygiene, observability                                                                                |
-| 2026-05-02 | Executor            | Import-plan + low-level action **`dom.scrollIntoView`** (optional **`scrollIntoView`** options → **`Element.scrollIntoView`**)                                                            |
-| 2026-05-02 | Greenfield baseline | Extension **`apps/extension`** and tied integration are **implemented from scratch**; **[T-137]** onward must be re-earned on the current codebase (see primary **`README.md`** · TL;DR). |
+| Date       | Theme                  | Capsule                                                                                                                                                                                   |
+| ---------- | ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2026-05-02 | Core                   | **`New`** apps; **[P-119]** cookie auth; **[P-80]** parity; **[P-120]**/`016` separation; security stance                                                                                 |
+| 2026-05-02 | Web surface            | **`/imports`** single-page runs list + detail + New run modal; subs **[T-136]** when API ready; importer admin **[P-122]**; **[P-115]** runs                                              |
+| 2026-05-02 | Web `/imports` UI      | Hardcoded importer seed **RemoteYeah**; DB importers stubbed; no Live/History/Importers **tabs**                                                                                          |
+| 2026-05-02 | Extension chrome       | **Popup** vs **wizard side panel** (**D-2**/ **D-6**); **[P-116]** stance                                                                                                                 |
+| 2026-05-02 | Boards + provenance    | **D-1** seeds; **`Source`/importer** (**D-7**); **Type L vs J** URL routing (**[P-53]**)                                                                                                  |
+| 2026-05-02 | Duplicate policy       | **D-8** persist → **mark** → wizard diff (**JD**) → **user resolves**                                                                                                                     |
+| 2026-05-02 | Concurrency            | **Parallel import rounds** (mixed L/J) allowed; **per-source** limits when needed; **user** chooses overlap otherwise (**[P-115]**)                                                       |
+| 2026-05-02 | Scaffold               | **[T-137]** minimal **MV3** extension package + turbo/CI gates + smoke load—**before** importers/**[P-119]**/**GraphQL**                                                                  |
+| 2026-05-02 | Dev UX                 | **Dev workflow — rebuild & extension reload:** **`dev`** vs prod **`build`**; HMR limits; manual Reload; optional third-party / scripted reload                                           |
+| 2026-05-02 | Transport + roles      | **[D-9] / [P-124] / [T-138]:** backend orchestrates; extension **executor**; **graphql-sse**; web **`/imports`** **[T-136]** unless unified                                               |
+| 2026-05-02 | Plan security          | **[P-126]–[P-130]:** URL/allowlist, plan validation & trust, quotas, `$tiptap`/HTML hygiene, observability                                                                                |
+| 2026-05-02 | Executor               | Import-plan + low-level action **`dom.scrollIntoView`** (optional **`scrollIntoView`** options → **`Element.scrollIntoView`**)                                                            |
+| 2026-05-02 | Greenfield baseline    | Extension **`apps/extension`** and tied integration are **implemented from scratch**; **[T-137]** onward must be re-earned on the current codebase (see primary **`README.md`** · TL;DR). |
+| 2026-05-04 | Plan mapping ownership | Field mapping/normalization is explicitly a **`plan`** responsibility (plan-owned mapper/service), while **`dom`** is restricted to runtime page execution/extraction only.               |
+| 2026-05-04 | DOM runtime messaging  | `WxtDomService` now sends typed DOM batch commands to a dedicated content-script runtime (`dom.content.ts`), replacing direct `executeScript` batch execution in the service layer.       |
