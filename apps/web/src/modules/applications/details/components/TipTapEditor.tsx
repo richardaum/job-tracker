@@ -25,6 +25,7 @@ import StarterKit from "@tiptap/starter-kit";
 import React from "react";
 
 import { type TipTapAiAction } from "@/modules/ai/editor/tiptap-ai-actions";
+import { SaveAsPdfButton } from "@/modules/applications/details/components/SaveAsPdfButton";
 import { ToolbarButton } from "@/modules/applications/details/components/ToolbarButton";
 import {
   type TipTapEditorHandle,
@@ -532,6 +533,7 @@ export function TipTapEditor({
             }}
             disabled={disabled}
           />
+          <SaveAsPdfButton editor={editor} disabled={disabled} />
           {enableVoiceToText ? (
             <ToolbarButton
               label={
