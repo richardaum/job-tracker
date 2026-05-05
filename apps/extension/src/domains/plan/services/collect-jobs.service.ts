@@ -1,0 +1,120 @@
+import pLimit from "p-limit";
+
+import type { Job } from "@/domains/dom/types";
+import { JobDetailsMessagingService } from "@/domains/job-details/job-details-messaging.service";
+import { JobsListMessagingService } from "@/domains/jobs-list/jobs-list-messaging.service";
+import { LogService } from "@/domains/log/log.service";
+import { PaginationMessagingService } from "@/domains/pagination/pagination-messaging.service";
+import type { PlanStepAction } from "@/domains/plan/model/types";
+import { TabService } from "@/domains/tab/types";
+
+import { StringTemplateService } from "./string-template.service";
+
+const logService = new LogService({
+  prefix: "CollectJobsService",
+  level: "debug",
+});
+
+/**
+ * A maximum number of pages to collect jobs from.
+ * Prevent infinite loops in case the pagination is not working correctly.
+ */
+const MAX_PAGES = 50;
+
+/**
+ * A maximum number of detail tabs to open concurrently.
+ */
+const MAX_TABS = 20;
+
+/**
+ * Collect jobs from a surface page and fetch details for each job.
+ *
+ * Flow:
+ *   - open the surface tab
+ *   - list jobs (fetch fields according to surfaceFields)
+ *   - for each job, open the detail tab
+ *   - fetch details (fetch fields according to detailsFields)
+ *   - close the detail tab
+ *   - return the jobs
+ */
+export class CollectJobsService {
+  constructor(
+    private readonly jobsListMessaging: JobsListMessagingService,
+    private readonly jobDetailsMessaging: JobDetailsMessagingService,
+    private readonly paginationMessaging: PaginationMessagingService,
+    private readonly tabManager: TabService,
+    private readonly stringTemplateService: StringTemplateService,
+  ) {}
+
+  async execute(action: PlanStepAction) {
+    // TODO replace with openTab
+    const tabId = await this.tabManager.getCurrentTab();
+
+    const jobs: Map<string, Job> = new Map();
+
+    const limitDetailTabs = pLimit(
+      Math.min(action.input.parallelDetailsTabs, MAX_TABS),
+    );
+
+    for (let iteration = 1; iteration <= MAX_PAGES; iteration += 1) {
+      const list = await this.jobsListMessaging.listJobs(action, tabId);
+
+      await Promise.all(
+        list.map((job) =>
+          limitDetailTabs(async () => {
+            const jobWithDetails = await this.collectJobDetails(action, job);
+            jobs.set(
+              this.generateJobKey(action, jobWithDetails),
+              jobWithDetails,
+            );
+          }),
+        ),
+      );
+
+      const canNavigate = await this.paginationMessaging.canNavigateToNextPage(
+        action,
+        tabId,
+      );
+      if (!canNavigate) break;
+
+      await this.paginationMessaging.navigateToNextPage(action, tabId);
+      await this.tabManager.waitUntilTabComplete(tabId);
+    }
+
+    return jobs;
+  }
+
+  private async collectJobDetails(action: PlanStepAction, job: Job) {
+    if (action.input.detailsFields.length === 0) return job;
+
+    const detailUrl = job[action.input.detailsUrlField] as string;
+    if (detailUrl == null) return job;
+
+    const detailTabId = await this.tabManager.openTab(detailUrl);
+    const details = await this.jobDetailsMessaging.getJobDetails(
+      action,
+      detailTabId,
+    );
+
+    logService.debug("Job details collected", { details });
+
+    const jobWithDetails = { ...job, ...details };
+    await this.tabManager.closeTab(detailTabId);
+    return jobWithDetails;
+  }
+
+  private generateJobKey(action: PlanStepAction, job: Job): string {
+    const keyTemplate = action.input.key;
+    if (keyTemplate != null && keyTemplate.trim().length > 0) {
+      const parsedKey = this.stringTemplateService.parse(keyTemplate, job);
+      if (parsedKey.length > 0) return parsedKey;
+    }
+
+    const detailUrl = job[action.input.detailsUrlField];
+    if (typeof detailUrl === "string" && detailUrl.trim().length > 0) {
+      return detailUrl.trim();
+    }
+
+    return JSON.stringify(job);
+  }
+}

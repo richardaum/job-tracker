@@ -3,7 +3,7 @@ import "@/globals.css";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 
-import { SidePanel } from "@/sidepanel/SidePanel";
+import { SidePanel } from "@/components/sidepanel/SidePanel";
 
 const rootEl = document.getElementById("root");
 if (!rootEl) {

@@ -1,0 +1,79 @@
+{
+  "id": "8f3c2a10-4b5d-4c9e-9f1a-2d7e6c8b0a91",
+  "steps": [
+    {
+      "id": "step-remoteyeah-job-cards",
+      "action": {
+        "scope": "public",
+        "kind": "collect.jobs",
+        "input": {
+          "surfaceUrl": "https://remoteyeah.com/remote-frontend-engineer+reactjs-jobs-in-brazil+latin-america+worldwide",
+          "containerSector": ".section__content div:has(> article.job-card)",
+          "itemSelector": "article.job-card",
+          "detailsUrlField": "detailUrl",
+          "key": "{{company}}-{{title}}",
+          "parallelDetailsTabs": 10,
+          "pagination": {
+            "kind": "next-button",
+            "containerSelector": ".pagination",
+            "nextButtonPartialMatch": "Next"
+          },
+          "surfaceFields": [
+            {
+              "key": "title",
+              "selector": ".job-card-title-text",
+              "type": "property",
+              "value": "innerText"
+            },
+            {
+              "key": "company",
+              "selector": ".job-card-company",
+              "type": "property",
+              "value": "innerText"
+            },
+            {
+              "key": "detailUrl",
+              "selector": "a.job-card-title",
+              "type": "attribute",
+              "value": "href"
+            },
+            {
+              "key": "publishedAt",
+              "selector": "time.job-card-published",
+              "type": "attribute",
+              "value": "datetime"
+            }
+          ],
+          "detailsFields": [
+            {
+              "key": "description",
+              "selector": "div.prose.dark\\:prose-invert",
+              "type": "property",
+              "value": "innerHTML",
+              "validationRegex": {
+                "pattern": "Description:|Requirements:|Benefits:",
+                "flags": "i"
+              }
+            },
+            {
+              "key": "salary",
+              "selector": "div.flex.flex-col.gap-2 > p.badge-success span",
+              "type": "property",
+              "value": "innerText",
+              "validationRegex": {
+                "pattern": "\\$\\s?\\d[\\d,.]*\\s*\\p{Pd}\\s*\\$?\\s?\\d[\\d,.]*\\s*/\\s*(year|month|hour)",
+                "flags": "iu"
+              }
+            },
+            {
+              "key": "locationRequirements",
+              "selector": "div.flex.flex-col.gap-2 > div.badges:has(> a[href*=\"/remote-jobs-in-\"])",
+              "type": "property",
+              "value": "innerText"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
