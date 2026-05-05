@@ -33,6 +33,21 @@ export default defineConfig(
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
   {
+    files: ["**/*.{ts,tsx,mts,cts}"],
+    rules: {
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        {
+          argsIgnorePattern: "^_",
+          varsIgnorePattern: "^_",
+          caughtErrorsIgnorePattern: "^_",
+          destructuredArrayIgnorePattern: "^_",
+          ignoreRestSiblings: true,
+        },
+      ],
+    },
+  },
+  {
     files: ["**/*.{js,mjs,cjs,ts,tsx}"],
     languageOptions: { globals: { ...globals.node } },
   },
