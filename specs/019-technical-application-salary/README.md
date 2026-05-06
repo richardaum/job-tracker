@@ -6,7 +6,7 @@ tags:
   - migrated
 ---
 
-# Technical Scope: application-compensation
+# Technical Scope: application-salary
 
 ## Architecture Impact
 
@@ -16,7 +16,7 @@ tags:
 
 ## Design Decisions
 
-- [T-115] Store money as integer minor units to avoid float drift, require `salary_currency` and `salary_period` when either amount is set, and treat a cleared compensation write as `NULL` amounts with empty `salary_tags` in one transaction. -> Keeps invariants testable and matches GraphQL nullability.
+- [T-115] Store money as integer minor units to avoid float drift, require `salary_currency` and `salary_period` when either amount is set, and treat a cleared salary write as `NULL` amounts with empty `salary_tags` in one transaction. -> Keeps invariants testable and matches GraphQL nullability.
 - [T-116] Derive a single user-visible range string (including single-value and min–max) from stored cents, currency, and period, and keep free-form `salary_tags` as chip-only content separate from the numeric string. -> Preserves scannable list layout and avoids overloading one text field.
 - [T-117] Normalize `salary_tags` by trimming, case-folding for deduplication, enforcing a max length per tag, max tag count, and dropping empties. -> Prevents unbounded array growth and UI overflow.
 

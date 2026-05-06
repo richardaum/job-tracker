@@ -23,7 +23,7 @@ Scope id: `view-model-web-layer` (technical-only spec; product traceability via 
 
 **Out of scope**
 
-- [P-104] Changing GraphQL schema, server behavior, or product rules for applications, companies, or compensation.
+- [P-104] Changing GraphQL schema, server behavior, or product rules for applications, companies, or salary.
 - [P-105] Introducing a global state library or cross-route client stores solely for view models.
 
 **Acceptance criteria**
@@ -34,7 +34,7 @@ Scope id: `view-model-web-layer` (technical-only spec; product traceability via 
 
 ## Context
 
-Screens in `apps/web` combine Apollo query results with inline derivation: `find`/`filter`/`map`/`sort`, formatting helpers (`formatCompensationLine`, `tipTapToPlainText`, stage labels), and UI flags. That logic is harder to test and reuse when it lives inside large page or panel components.
+Screens in `apps/web` combine Apollo query results with inline derivation: `find`/`filter`/`map`/`sort`, formatting helpers (`formatSalary`, `tipTapToPlainText`, stage labels), and UI flags. That logic is harder to test and reuse when it lives inside large page or panel components.
 
 The app targets **React Compiler** (automatic memoization of valid React components and hooks). That reduces the need for manual `useMemo` used only to avoid redundant child re-renders or stabilize object identity for referentially sensitive children.
 

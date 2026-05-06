@@ -24,7 +24,7 @@ Scope id: `typeorm-data-layer` (technical-only spec; product traceability via [P
 
 **Out of scope**
 
-- [P-98] Changing GraphQL shapes, business rules for compensation, or stage and note semantics beyond what is required to preserve parity with the previous implementation.
+- [P-98] Changing GraphQL shapes, business rules for salary, or stage and note semantics beyond what is required to preserve parity with the previous implementation.
 
 **Acceptance criteria**
 

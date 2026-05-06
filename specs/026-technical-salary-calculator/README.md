@@ -24,7 +24,7 @@ updated_at: 2026-05-06T14:18:07.339055Z
 
 - [T-9] Exchange rate API calls move to the backend (`apps/api`) to avoid CORS issues, centralize caching, and hide API details. The frontend queries `exchangeRates(base, currencies)` via GraphQL.
 - [T-10] Backend uses `frankfurter.app` as primary (no key required) with `exchangerate-api.com` as fallback for unsupported currencies. In-memory LRU cache with 1-hour TTL per base currency.
-- [T-11] Cadence math stays client-side: yearly = hourly _ 40 _ 52, monthly = yearly / 12, hourly = yearly / (40 \* 52); all results rounded to 2 decimal places for display.
+- [T-11] Salary period conversion math stays client-side: yearly = hourly _ 40 _ 52, monthly = yearly / 12, hourly = yearly / (40 \* 52); all results rounded to 2 decimal places for display.
 - [T-12] Currency combobox reuses existing `CurrencyCombobox` from `@job-tracker/ui`.
 
 ## Risks and Mitigations
@@ -35,6 +35,6 @@ updated_at: 2026-05-06T14:18:07.339055Z
 
 ## Validation
 
-- [T-16] Unit tests for cadence conversion math (hourly<->monthly<->yearly) covering edge cases (zero, negative, large numbers).
+- [T-16] Unit tests for salary period conversion math (hourly<->monthly<->yearly) covering edge cases (zero, negative, large numbers).
 - [T-17] Integration test mocking the exchange rate API to verify loading, success, and error states in the GraphQL resolver.
 - [T-18] Manual smoke test: load page at `/tools/salary-calculator`, enter 100 USD/hr, verify yearly shows ~208,000 USD, convert to EUR/GBP/BRL/CHF with plausible rates.

@@ -11,7 +11,7 @@ tags:
 - Status: in-progress
 - Active scope: salary-calculator
 - Current step: [R-33]
-- Next action: Implement salary calculator page at `/tools/salary-calculator` with cadence conversion and currency converter components.
+- Next action: Implement salary calculator page at `/tools/salary-calculator` with salary period conversion and currency converter components.
 - Blockers: none
 - Last update: 2026-05-06T12:00:00Z
 
