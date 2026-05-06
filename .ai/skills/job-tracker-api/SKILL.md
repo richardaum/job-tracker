@@ -13,7 +13,7 @@ description: >-
 - **Treat `apps/api/src/schema.gql` as authoritative.** If skill and schema diverge, follow the schema.
 - **Use GraphQL only** — never query Postgres or TypeORM repositories from agents.
 - **Select company as nested object**: `company { id name }`, not `company` as scalar (there is none on `ApplicationType`).
-- **Salary logic questions:** answer from **`application-compensation.util.ts`** and this file’s **Compensation** section without calling the API unless the user asks for live data.
+- **Salary logic questions:** answer from **`salary.service.ts`** and this file’s **Salary fields** section without calling the API unless the user asks for live data.
 
 ## Maintain this skill
 
@@ -95,10 +95,10 @@ query List($f: ApplicationQuickFilter, $c: String) {
 
 Must be JSON stringifiable document: **`{ "type": "doc", "content": [] }`** or richer TipTap blocks. Minimum: `"{\"type\":\"doc\",\"content\":[]}"`.
 
-### Compensation (`application-compensation.util.ts`)
+### Salary fields (`salary.service.ts`)
 
-- **Create:** missing salary amounts → null; **`tags`** normalized (≤8 labels, ≤32 chars each after trim/dedupe).
-- **Update:** **`mergeCompensationForUpdate`** runs only when **any** of `salaryMinCents`, `salaryMaxCents`, `salaryCurrency`, `salaryPeriod`, **`tags`** is **`!== undefined`**. Omit **all five** keys to skip the merge entirely (persisted salary + tags untouched).
+- **Create:** `SalaryService.getCreateSalary` — missing salary amounts → null columns; **`tags`** normalized elsewhere (≤8 labels, ≤32 chars each after trim/dedupe).
+- **Update:** `SalaryService.getUpdateSalary` runs only when **any** of `salaryMinCents`, `salaryMaxCents`, `salaryCurrency`, `salaryPeriod` is **`!== undefined`**. **`tags`** are updated separately when the tag key is present on the DTO.
 
 **Validity:**
 
@@ -266,4 +266,4 @@ mutation N($input: CreateNoteInput!) {
 
 ## Source files for deeper dives
 
-`applications.resolver.ts`, `applications.service.ts`, `applications.repository.ts`, `application-compensation.util.ts`, `notes.resolver.ts`, `companies.resolver.ts`, `ai.resolver.ts`.
+`applications.resolver.ts`, `applications.service.ts`, `applications.repository.ts`, `salary.service.ts`, `notes.resolver.ts`, `companies.resolver.ts`, `ai.resolver.ts`.
