@@ -1,7 +1,7 @@
 import { AnchoredCombobox } from "@ui/components/Combobox/AnchoredCombobox";
 import { Text } from "@ui/components/Typography/Text";
 import { cn } from "@ui/lib/cn";
-import React, { useMemo } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 
 export type CurrencyPreset = {
   /** ISO 4217 code */
@@ -24,6 +24,8 @@ export const MAIN_MARKET_CURRENCY_PRESETS: CurrencyPreset[] = [
 export interface CurrencyComboboxProps {
   value: string;
   onValueChange: (value: string) => void;
+  onBlur?: React.FocusEventHandler<HTMLInputElement>;
+  onOpenChange?: (open: boolean) => void;
   presets?: CurrencyPreset[];
   placeholder?: string;
   disabled?: boolean;
@@ -37,6 +39,8 @@ export interface CurrencyComboboxProps {
 export function CurrencyCombobox({
   value,
   onValueChange,
+  onBlur,
+  onOpenChange,
   presets = MAIN_MARKET_CURRENCY_PRESETS,
   placeholder,
   disabled,
@@ -47,20 +51,49 @@ export function CurrencyCombobox({
   maxLength = 3,
 }: CurrencyComboboxProps) {
   const normalizedQuery = value.trim().toLowerCase();
+  const lastValidValueRef = useRef<string>(value);
 
-  const filteredPresets = useMemo(() => {
-    if (!normalizedQuery) return presets;
-    return presets.filter(
-      (p) =>
-        p.code.toLowerCase().includes(normalizedQuery) ||
-        p.name.toLowerCase().includes(normalizedQuery),
-    );
-  }, [presets, normalizedQuery]);
+  const filteredPresets = !normalizedQuery
+    ? presets
+    : presets.filter(
+        (preset) =>
+          preset.code.toLowerCase().includes(normalizedQuery) ||
+          preset.name.toLowerCase().includes(normalizedQuery),
+      );
+  const isValidCode = useCallback(
+    (candidate: string): boolean =>
+      presets.some((preset) => preset.code === candidate),
+    [presets],
+  );
+
+  useEffect(() => {
+    if (isValidCode(value)) {
+      lastValidValueRef.current = value;
+    }
+  }, [isValidCode, value]);
+
+  const handleInputBlur: React.FocusEventHandler<HTMLInputElement> = (
+    event,
+  ) => {
+    if (!isValidCode(value)) {
+      onValueChange(lastValidValueRef.current);
+    }
+
+    onBlur?.(event);
+  };
+
+  const handleRootOpenChange = (open: boolean) => {
+    onOpenChange?.(open);
+    if (!open && !isValidCode(value)) {
+      onValueChange(lastValidValueRef.current);
+    }
+  };
 
   return (
     <AnchoredCombobox.Root
       value={value}
       onValueChange={onValueChange}
+      onOpenChange={handleRootOpenChange}
       hasItems={filteredPresets.length > 0}
       disabled={disabled}
       normalizeInput={(raw) => raw.toUpperCase().slice(0, maxLength)}
@@ -70,6 +103,8 @@ export function CurrencyCombobox({
         size={size}
         state={state}
         id={id}
+        ignoreBlurWithinMenu
+        onBlur={handleInputBlur}
         autoComplete={autoComplete}
         maxLength={maxLength}
         spellCheck={false}

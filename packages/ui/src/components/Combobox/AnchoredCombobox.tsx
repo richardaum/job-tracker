@@ -57,6 +57,7 @@ export type AnchoredComboboxRootProps = {
   children: ReactNode;
   value: string;
   onValueChange: (value: string) => void;
+  onOpenChange?: (open: boolean) => void;
   hasItems: boolean;
   disabled?: boolean;
   normalizeInput?: (raw: string) => string;
@@ -66,6 +67,7 @@ function Root({
   children,
   value,
   onValueChange,
+  onOpenChange,
   hasItems,
   disabled,
   normalizeInput = (raw: string): string => raw,
@@ -112,7 +114,14 @@ function Root({
 
   return (
     <AnchoredComboboxContext.Provider value={contextValue}>
-      <Menu.Root modal={false} open={menuOpen} onOpenChange={setOpen}>
+      <Menu.Root
+        modal={false}
+        open={menuOpen}
+        onOpenChange={(nextOpen) => {
+          setOpen(nextOpen);
+          onOpenChange?.(nextOpen);
+        }}
+      >
         {children}
       </Menu.Root>
     </AnchoredComboboxContext.Provider>
@@ -128,10 +137,11 @@ export type AnchoredComboboxInputProps = Omit<
   | "onClick"
   | "ref"
   | "disabled"
->;
+> & { ignoreBlurWithinMenu?: boolean };
 
 /** Anchors the input under `Menu.Root` and wires menu open + keyboard routing. */
 function ComboInput(props: AnchoredComboboxInputProps): React.ReactElement {
+  const { ignoreBlurWithinMenu = false, onBlur, ...inputProps } = props;
   const {
     value,
     onValueChange,
@@ -156,7 +166,7 @@ function ComboInput(props: AnchoredComboboxInputProps): React.ReactElement {
   return (
     <Menu.Anchor asChild>
       <TextInput
-        {...props}
+        {...inputProps}
         ref={inputRef}
         value={value}
         onChange={(e) => {
@@ -167,6 +177,18 @@ function ComboInput(props: AnchoredComboboxInputProps): React.ReactElement {
           if (hasItems && !open) setOpen(true);
         }}
         onKeyDown={onInputKeyDown}
+        onBlur={(event) => {
+          if (ignoreBlurWithinMenu) {
+            const relatedRole =
+              (event.relatedTarget as HTMLElement | null)?.getAttribute(
+                "role",
+              ) ?? null;
+            if (relatedRole === "menuitem" || relatedRole === "menu") {
+              return;
+            }
+          }
+          onBlur?.(event);
+        }}
         disabled={disabled}
       />
     </Menu.Anchor>
