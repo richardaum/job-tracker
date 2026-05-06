@@ -1,7 +1,7 @@
 import type { MigrationInterface, QueryRunner } from "typeorm";
 
 /**
- * Older databases may predate compensation columns on `applications`.
+ * Older databases may predate salary columns on `applications`.
  * This migration is idempotent (IF NOT EXISTS / guarded DO blocks).
  */
 export class AddApplicationSalaryColumns1747000000000 implements MigrationInterface {

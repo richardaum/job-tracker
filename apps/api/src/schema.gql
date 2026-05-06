@@ -62,16 +62,13 @@ type ApplicationType {
   description: String
   urls: [String!]!
   source: ApplicationSource
-  salaryMinCents: Int
-  salaryMaxCents: Int
-  salaryCurrency: String
-  salaryPeriod: SalaryPeriod
   tags: [String!]!
   currentStage: ApplicationStage!
   currentStageReason: String
   currentStageAt: DateTime!
   createdAt: DateTime!
   updatedAt: DateTime!
+  salary: ApplicationSalary!
 }
 
 enum ApplicationSource {
@@ -87,6 +84,13 @@ enum ApplicationStage {
   TECHNICAL
   OFFER
   REJECTED
+}
+
+type ApplicationSalary {
+  minCents: Int
+  maxCents: Int
+  currency: String
+  period: SalaryPeriod
 }
 
 type ApplicationStageEventType {

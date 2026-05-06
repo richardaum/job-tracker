@@ -13,7 +13,7 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { ApplicationRepository } from "./applications.repository";
 import { ApplicationResolver } from "./applications.resolver";
 import { ApplicationService } from "./applications.service";
-import { CompensationService } from "./compensation.service";
+import { SalaryService } from "./salary.service";
 import { TagService } from "./tag.service";
 
 @Module({
@@ -34,7 +34,7 @@ import { TagService } from "./tag.service";
     ApplicationRepository,
     ApplicationService,
     ApplicationResolver,
-    CompensationService,
+    SalaryService,
     TagService,
   ],
   exports: [ApplicationService],

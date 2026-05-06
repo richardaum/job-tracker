@@ -20,11 +20,11 @@ import {
   UpdateApplicationRepoDto,
 } from "./applications.repository";
 import { Application } from "./applications.schema";
-import { CompensationService } from "./compensation.service";
 import {
   type AiExtractionFieldInput,
   type CreateApplicationWithAIInput,
 } from "./create-application-with-ai.input";
+import { SalaryService } from "./salary.service";
 import { SalaryPeriodEnum } from "./salary-period.enum";
 import { TagService } from "./tag.service";
 
@@ -71,7 +71,7 @@ export class ApplicationService {
   constructor(
     private readonly repo: ApplicationRepository,
     private readonly companyService: CompanyService,
-    private readonly compensationService: CompensationService,
+    private readonly salaryService: SalaryService,
     private readonly tagService: TagService,
     private readonly applicationAiService: ApplicationAiService,
     private readonly companyAiService: CompanyAiService,
@@ -162,7 +162,7 @@ export class ApplicationService {
     if (!companyId) {
       throw new BadRequestException("Company could not be resolved");
     }
-    const compensation = this.compensationService.getCreateCompensation(dto);
+    const salaryColumns = this.salaryService.getCreateSalary(dto);
     const tags = this.tagService.normalizeTags(dto.tags);
     const normalizedUrls = this.normalizeUrls(dto.urls);
 
@@ -176,7 +176,7 @@ export class ApplicationService {
           ? dto.source
           : inferApplicationSourceFromUrls(normalizedUrls),
       tags,
-      ...compensation,
+      ...salaryColumns,
     };
 
     const application = await this.repo.create(userId, repoDto);
@@ -267,10 +267,7 @@ export class ApplicationService {
       dto.company,
       dto.companyId,
     );
-    const compensation = this.compensationService.getUpdateCompensation(
-      existing,
-      dto,
-    );
+    const salaryColumns = this.salaryService.getUpdateSalary(existing, dto);
     const tags =
       dto.tags !== undefined
         ? this.tagService.normalizeTags(dto.tags)
@@ -291,7 +288,7 @@ export class ApplicationService {
           ? { source: inferApplicationSourceFromUrls(normalizedUrls) }
           : {}),
       ...(tags !== undefined ? { tags } : {}),
-      ...(compensation ?? {}),
+      ...(salaryColumns ?? {}),
     };
 
     const updated = await this.repo.update(id, userId, repoDto);

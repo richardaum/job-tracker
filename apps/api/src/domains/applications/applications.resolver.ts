@@ -4,15 +4,26 @@ import { JwtAuthGuard } from "@api/domains/auth/jwt-auth.guard";
 import { Roles } from "@api/domains/auth/roles.decorator";
 import { RolesGuard } from "@api/domains/auth/roles.guard";
 import { UseGuards } from "@nestjs/common";
-import { Args, ID, Mutation, Query, Resolver } from "@nestjs/graphql";
+import {
+  Args,
+  ID,
+  Mutation,
+  Parent,
+  Query,
+  ResolveField,
+  Resolver,
+} from "@nestjs/graphql";
 
 import { ApplicationType } from "./application.type";
 import { ApplicationQuickFilterEnum } from "./application-quick-filter.enum";
+import { ApplicationSalaryType } from "./application-salary.type";
 import { ApplicationStageEventType } from "./application-stage-event.type";
+import type { Application } from "./applications.schema";
 import { ApplicationService } from "./applications.service";
 import { CreateApplicationInput } from "./create-application.input";
 import { CreateApplicationStageEventInput } from "./create-application-stage-event.input";
 import { CreateApplicationWithAIInput } from "./create-application-with-ai.input";
+import { SalaryPeriodEnum } from "./salary-period.enum";
 import { UpdateApplicationInput } from "./update-application.input";
 import { UpdateApplicationStageEventInput } from "./update-application-stage-event.input";
 
@@ -21,6 +32,19 @@ import { UpdateApplicationStageEventInput } from "./update-application-stage-eve
 @Roles("user")
 export class ApplicationResolver {
   constructor(private readonly service: ApplicationService) {}
+
+  @ResolveField(() => ApplicationSalaryType)
+  salary(@Parent() app: Application): ApplicationSalaryType {
+    return {
+      minCents: app.salaryMinCents ?? null,
+      maxCents: app.salaryMaxCents ?? null,
+      currency: app.salaryCurrency ?? null,
+      period:
+        app.salaryPeriod != null
+          ? (app.salaryPeriod as SalaryPeriodEnum)
+          : null,
+    };
+  }
 
   @Query(() => [ApplicationType])
   applications(

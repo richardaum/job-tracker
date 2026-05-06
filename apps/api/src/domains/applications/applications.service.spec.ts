@@ -10,7 +10,7 @@ import { ApplicationStageEvent } from "./application-stage-events.schema";
 import { ApplicationRepository } from "./applications.repository";
 import { Application } from "./applications.schema";
 import { ApplicationService } from "./applications.service";
-import { CompensationService } from "./compensation.service";
+import { SalaryService } from "./salary.service";
 import { TagService } from "./tag.service";
 
 const makeApp = (overrides: Partial<Application> = {}): Application =>
@@ -60,7 +60,7 @@ describe("ApplicationService", () => {
   let service: ApplicationService;
   let repo: ApplicationRepository;
   let companyService: CompanyService;
-  let compensationService: CompensationService;
+  let salaryService: SalaryService;
   let tagService: TagService;
   let applicationAiService: ApplicationAiService;
   let companyAiService: CompanyAiService;
@@ -91,7 +91,7 @@ describe("ApplicationService", () => {
       update: vi.fn(),
     } as unknown as CompanyService;
 
-    compensationService = new CompensationService();
+    salaryService = new SalaryService();
     tagService = new TagService();
     applicationAiService = {
       generateDraft: vi.fn(),
@@ -104,7 +104,7 @@ describe("ApplicationService", () => {
     service = new ApplicationService(
       repo,
       companyService,
-      compensationService,
+      salaryService,
       tagService,
       applicationAiService,
       companyAiService,

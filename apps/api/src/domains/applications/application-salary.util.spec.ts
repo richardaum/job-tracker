@@ -2,16 +2,16 @@ import { BadRequestException } from "@nestjs/common";
 import { beforeEach, describe, expect, it } from "vitest";
 
 import { Application } from "./applications.schema";
-import { CompensationService } from "./compensation.service";
+import { SalaryService } from "./salary.service";
 import { SalaryPeriodEnum } from "./salary-period.enum";
 import { TagService } from "./tag.service";
 
-describe("Compensation and Tag logic", () => {
-  let compensationService: CompensationService;
+describe("Salary and tag logic", () => {
+  let salaryService: SalaryService;
   let tagService: TagService;
 
   beforeEach(() => {
-    compensationService = new CompensationService();
+    salaryService = new SalaryService();
     tagService = new TagService();
   });
 
@@ -37,21 +37,21 @@ describe("Compensation and Tag logic", () => {
     });
   });
 
-  describe("CompensationService.getCreateCompensation", () => {
+  describe("SalaryService.getCreateSalary", () => {
     it("returns null values when no amount is provided", () => {
-      const result = compensationService.getCreateCompensation({});
+      const result = salaryService.getCreateSalary({});
       expect(result.salaryMinCents).toBeNull();
       expect(result.salaryCurrency).toBeNull();
     });
 
     it("throws if amount is provided without currency or period", () => {
       expect(() =>
-        compensationService.getCreateCompensation({ salaryMinCents: 100 }),
+        salaryService.getCreateSalary({ salaryMinCents: 100 }),
       ).toThrow(BadRequestException);
     });
 
     it("normalizes currency to uppercase", () => {
-      const result = compensationService.getCreateCompensation({
+      const result = salaryService.getCreateSalary({
         salaryMinCents: 100,
         salaryCurrency: "usd",
         salaryPeriod: SalaryPeriodEnum.MONTH,
@@ -61,7 +61,7 @@ describe("Compensation and Tag logic", () => {
 
     it("validates non-negative amounts and min <= max", () => {
       expect(() =>
-        compensationService.getCreateCompensation({
+        salaryService.getCreateSalary({
           salaryMinCents: -1,
           salaryCurrency: "USD",
           salaryPeriod: SalaryPeriodEnum.MONTH,
@@ -69,7 +69,7 @@ describe("Compensation and Tag logic", () => {
       ).toThrow(BadRequestException);
 
       expect(() =>
-        compensationService.getCreateCompensation({
+        salaryService.getCreateSalary({
           salaryMinCents: 200,
           salaryMaxCents: 100,
           salaryCurrency: "USD",
@@ -79,7 +79,7 @@ describe("Compensation and Tag logic", () => {
     });
   });
 
-  describe("CompensationService.getUpdateCompensation", () => {
+  describe("SalaryService.getUpdateSalary", () => {
     const current = {
       salaryMinCents: 5000,
       salaryMaxCents: 7000,
@@ -87,12 +87,12 @@ describe("Compensation and Tag logic", () => {
       salaryPeriod: SalaryPeriodEnum.MONTH,
     } as unknown as Application;
 
-    it("returns null if no compensation keys are in input", () => {
-      expect(compensationService.getUpdateCompensation(current, {})).toBeNull();
+    it("returns null if no salary keys are in input", () => {
+      expect(salaryService.getUpdateSalary(current, {})).toBeNull();
     });
 
     it("merges with current values", () => {
-      const result = compensationService.getUpdateCompensation(current, {
+      const result = salaryService.getUpdateSalary(current, {
         salaryMinCents: 6000,
       });
       expect(result?.salaryMinCents).toBe(6000);
@@ -100,7 +100,7 @@ describe("Compensation and Tag logic", () => {
     });
 
     it("allows clearing salary range", () => {
-      const result = compensationService.getUpdateCompensation(current, {
+      const result = salaryService.getUpdateSalary(current, {
         salaryMinCents: null,
         salaryMaxCents: null,
       });

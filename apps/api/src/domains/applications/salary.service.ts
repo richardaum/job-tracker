@@ -3,19 +3,19 @@ import { BadRequestException, Injectable } from "@nestjs/common";
 import { Application, NewApplication } from "./applications.schema";
 import { SalaryPeriodEnum } from "./salary-period.enum";
 
-export type CompensationInput = {
+export type SalaryInput = {
   salaryMinCents?: number | null;
   salaryMaxCents?: number | null;
   salaryCurrency?: string | null;
   salaryPeriod?: SalaryPeriodEnum | null;
 };
 
-export type CompensationColumns = Pick<
+export type SalaryColumns = Pick<
   NewApplication,
   "salaryMinCents" | "salaryMaxCents" | "salaryCurrency" | "salaryPeriod"
 >;
 
-type CompensationShape = {
+type SalaryShape = {
   salaryMinCents: number | null;
   salaryMaxCents: number | null;
   salaryCurrency: string | null;
@@ -25,9 +25,9 @@ type CompensationShape = {
 const CURRENCY_RE = /^[A-Z]{3}$/;
 
 @Injectable()
-export class CompensationService {
-  getCreateCompensation(input: CompensationInput): CompensationColumns {
-    const c: CompensationShape = {
+export class SalaryService {
+  getCreateSalary(input: SalaryInput): SalaryColumns {
+    const c: SalaryShape = {
       salaryMinCents: input.salaryMinCents ?? null,
       salaryMaxCents: input.salaryMaxCents ?? null,
       salaryCurrency: input.salaryCurrency?.trim()
@@ -35,14 +35,14 @@ export class CompensationService {
         : null,
       salaryPeriod: input.salaryPeriod ?? null,
     };
-    this.assertValidCompensationState(c);
+    this.assertValidSalaryState(c);
     return this.rowAfterValidation(c);
   }
 
-  getUpdateCompensation(
+  getUpdateSalary(
     current: Application,
-    input: CompensationInput,
-  ): CompensationColumns | null {
+    input: SalaryInput,
+  ): SalaryColumns | null {
     const anyKey =
       input.salaryMinCents !== undefined ||
       input.salaryMaxCents !== undefined ||
@@ -69,17 +69,17 @@ export class CompensationService {
         ? (current.salaryPeriod as SalaryPeriodEnum | null)
         : input.salaryPeriod;
 
-    const c: CompensationShape = {
+    const c: SalaryShape = {
       salaryMinCents: min,
       salaryMaxCents: max,
       salaryCurrency: currency,
       salaryPeriod: period,
     };
-    this.assertValidCompensationState(c);
+    this.assertValidSalaryState(c);
     return this.rowAfterValidation(c);
   }
 
-  private assertValidCompensationState(c: CompensationShape): void {
+  private assertValidSalaryState(c: SalaryShape): void {
     const hasMin = c.salaryMinCents != null;
     const hasMax = c.salaryMaxCents != null;
     const hasAmount = hasMin || hasMax;
@@ -113,7 +113,7 @@ export class CompensationService {
     }
   }
 
-  private rowAfterValidation(c: CompensationShape): CompensationColumns {
+  private rowAfterValidation(c: SalaryShape): SalaryColumns {
     const hasAmount = c.salaryMinCents != null || c.salaryMaxCents != null;
     if (!hasAmount) {
       return {
@@ -128,7 +128,7 @@ export class CompensationService {
       salaryMaxCents: c.salaryMaxCents,
       salaryCurrency: c.salaryCurrency,
       salaryPeriod: c.salaryPeriod as NonNullable<
-        CompensationColumns["salaryPeriod"]
+        SalaryColumns["salaryPeriod"]
       >,
     };
   }
