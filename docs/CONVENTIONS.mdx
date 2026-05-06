@@ -94,7 +94,7 @@ GraphQL screens should keep **rendering thin**: put API-to-display shaping (deri
 | **Queries**        | Prefer generated hooks from **`@/gql/hooks`** over Apollo **`useQuery(Document)`** / **`useMutation(Document)`** (see **GraphQL client** below). `skip`, variables, and result handling live in the view-model hook (or a thin `useXxxQueries`). UI-only state (modals, drafts, scroll keys) may stay on the page or in `useXxxUiState` when that clarifies boundaries. |
 | **Dependencies**   | Apollo and pure helpers allowed; **must not** import from `app/` (`app → modules` only).                                                                                                                        |
 | **Types**          | Prefer generated GraphQL types; avoid `any`.                                                                                                                                                                    |
-| **React Compiler** | Prefer plain `const` derivations. Do **not** add `useMemo` / `useCallback` by default—only for expensive work, a documented reference-stability need, or eslint/compiler requirements.                          |
+| **React 19/Compiler** | Follow **React 19 and React Compiler** below (prefer plain derivations; avoid default memoization; refs as props).                                                                                           |
 | **Size**           | Split large hooks by concern; place new hooks where reuse and call sites stay clear.                                                                                                                            |
 
 ### GraphQL client (`apps/web`)
@@ -107,7 +107,11 @@ Full technical notes: `specs/022-technical-view-model-web-layer/README.md`.
 
 - **Imports**: Prefer **`@/…`** (or the package’s configured alias to `src/`) over **`../`** traversals. Avoid inline type-only imports like `Foo<import("@/path").Bar>`. Use a top-of-file `import type { Bar } from "@/path"` (or `import { type Bar }`) and `Foo<Bar>`. Inline `import("...")` types are harder to read, grep, and refactor.
 - **Named types**: Prefer a top-level `type` or `interface` over inline anonymous shapes in parameters, props, return types, and generic arguments when the object or union is non-trivial or reused. Keeps signatures readable and searchable. Fine to keep primitives, simple utilities (`Record<string, string>`), or one-off literals inline when a name adds no clarity.
-- **React 19 refs**: Do not use `forwardRef`. Pass `ref` as a normal prop; UI components use `ref?: React.Ref<T>` on the props type and attach it to the underlying element. ESLint blocks `forwardRef` / `React.forwardRef` in `apps/web` and `packages/ui`.
+
+## React 19 and React Compiler
+
+- **Memoization defaults**: Avoid unnecessary `useMemo` and `useCallback`. Prefer plain `const` derivations and direct closures; add memoization only for expensive work, a documented reference-stability contract, or a lint/compiler requirement.
+- **Refs**: Do not use `forwardRef`. Pass `ref` as a normal prop; UI components use `ref?: React.Ref<T>` on the props type and attach it to the underlying element. ESLint blocks `forwardRef` / `React.forwardRef` in `apps/web` and `packages/ui`.
 
 ## UI: composition, layout, and components
 

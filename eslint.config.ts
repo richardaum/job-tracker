@@ -3,6 +3,7 @@ import nextPlugin from "@next/eslint-plugin-next";
 import { defineConfig } from "eslint/config";
 import eslintConfigPrettier from "eslint-config-prettier";
 import react from "eslint-plugin-react";
+import reactCompiler from "eslint-plugin-react-compiler";
 import reactHooks from "eslint-plugin-react-hooks";
 import simpleImportSort from "eslint-plugin-simple-import-sort";
 import testingLibrary from "eslint-plugin-testing-library";
@@ -94,8 +95,12 @@ export default defineConfig(
       globals: { ...globals.browser, ...globals.node },
       parserOptions: { ecmaFeatures: { jsx: true } },
     },
-    plugins: { "react-hooks": reactHooks as Record<string, unknown> },
+    plugins: {
+      "react-compiler": reactCompiler as Record<string, unknown>,
+      "react-hooks": reactHooks as Record<string, unknown>,
+    },
     rules: {
+      "react-compiler/react-compiler": "error",
       ...reactHooks.configs.recommended.rules,
       "no-restricted-imports": [
         "error",
