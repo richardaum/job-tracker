@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  convertCadence,
+  convertSalaryRateBetweenPeriods,
+  formatConvertedSalaryRangeLine,
   formatCurrency,
+  formatCurrencyWhole,
   hourlyToMonthly,
   hourlyToYearly,
   monthlyToHourly,
@@ -61,23 +63,35 @@ describe("conversion", () => {
     });
   });
 
-  describe("convertCadence", () => {
+  describe("convertSalaryRateBetweenPeriods", () => {
     it("returns same value when from === to", () => {
-      expect(convertCadence(100, "hourly", "hourly")).toBe(100);
-      expect(convertCadence(100, "monthly", "monthly")).toBe(100);
-      expect(convertCadence(100, "yearly", "yearly")).toBe(100);
+      expect(convertSalaryRateBetweenPeriods(100, "hourly", "hourly")).toBe(
+        100,
+      );
+      expect(convertSalaryRateBetweenPeriods(100, "monthly", "monthly")).toBe(
+        100,
+      );
+      expect(convertSalaryRateBetweenPeriods(100, "yearly", "yearly")).toBe(
+        100,
+      );
     });
 
     it("converts hourly to yearly", () => {
-      expect(convertCadence(50, "hourly", "yearly")).toBeCloseTo(104000, 2);
+      expect(
+        convertSalaryRateBetweenPeriods(50, "hourly", "yearly"),
+      ).toBeCloseTo(104000, 2);
     });
 
     it("converts yearly to monthly", () => {
-      expect(convertCadence(120000, "yearly", "monthly")).toBe(10000);
+      expect(convertSalaryRateBetweenPeriods(120000, "yearly", "monthly")).toBe(
+        10000,
+      );
     });
 
     it("converts monthly to hourly", () => {
-      expect(convertCadence(8666.67, "monthly", "hourly")).toBeCloseTo(50, 2);
+      expect(
+        convertSalaryRateBetweenPeriods(8666.67, "monthly", "hourly"),
+      ).toBeCloseTo(50, 2);
     });
   });
 
@@ -109,6 +123,34 @@ describe("conversion", () => {
 
     it("handles large numbers", () => {
       expect(formatCurrency(208000, "USD")).toBe("$208,000.00");
+    });
+  });
+
+  describe("formatCurrencyWhole", () => {
+    it("formats without fraction digits", () => {
+      expect(formatCurrencyWhole(1234.56, "USD")).toBe("$1,235");
+      expect(formatCurrencyWhole(0, "USD")).toBe("$0");
+      expect(formatCurrencyWhole(8666.67, "USD")).toBe("$8,667");
+    });
+  });
+
+  describe("formatConvertedSalaryRangeLine", () => {
+    it("formats a range converted to yearly", () => {
+      expect(
+        formatConvertedSalaryRangeLine(
+          8333.33,
+          8333.33,
+          "monthly",
+          "yearly",
+          "USD",
+        ),
+      ).toBe("$100,000");
+    });
+
+    it("returns Up to when only max is set", () => {
+      expect(
+        formatConvertedSalaryRangeLine(null, 50, "hourly", "hourly", "USD"),
+      ).toBe("Up to $50");
     });
   });
 });

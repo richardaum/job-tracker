@@ -21,25 +21,19 @@ import { NumericFormat } from "react-number-format";
 
 import { useExchangeRates } from "@/modules/tools/salary-calculator/hooks/useExchangeRates";
 import {
-  convertCadence,
+  convertSalaryRateBetweenPeriods,
   formatCurrency,
+  SALARY_RATE_PERIOD_BASES,
+  SALARY_RATE_PERIOD_LABELS,
+  type SalaryRatePeriodBasis,
 } from "@/modules/tools/salary-calculator/lib/conversion";
-
-const CADENCES = ["hourly", "monthly", "yearly"] as const;
-type Cadence = (typeof CADENCES)[number];
 
 const CURRENCIES = ["USD", "EUR", "BRL", "GBP", "CHF"] as const;
 type Currency = (typeof CURRENCIES)[number];
 
-const CADENCE_LABELS: Record<Cadence, string> = {
-  hourly: "Hourly",
-  monthly: "Monthly",
-  yearly: "Yearly",
-};
-
-const CADENCE_OPTIONS = CADENCES.map((cadence) => ({
-  value: cadence,
-  label: CADENCE_LABELS[cadence],
+const RATE_PERIOD_OPTIONS = SALARY_RATE_PERIOD_BASES.map((period) => ({
+  value: period,
+  label: SALARY_RATE_PERIOD_LABELS[period],
 }));
 
 const CURRENCY_OPTIONS = CURRENCIES.map((currency) => ({
@@ -64,7 +58,8 @@ function formatStaleTime(lastUpdated: Date | null): string {
 
 export function SalaryCalculatorPage() {
   const [inputValue, setInputValue] = useState("8000");
-  const [sourceCadence, setSourceCadence] = useState<Cadence>("monthly");
+  const [sourcePeriod, setSourcePeriod] =
+    useState<SalaryRatePeriodBasis>("monthly");
   const [sourceCurrency, setSourceCurrency] = useState<Currency>("USD");
 
   const numericValue = parseFloat(inputValue) || 0;
@@ -81,7 +76,7 @@ export function SalaryCalculatorPage() {
 
   const conversions = buildConversions({
     numericValue,
-    sourceCadence,
+    sourcePeriod,
     sourceCurrency,
     rates,
   });
@@ -133,12 +128,14 @@ export function SalaryCalculatorPage() {
 
               <div>
                 <Text size="sm" weight="medium" className={cn("mb-1.5 block")}>
-                  Cadence
+                  Period
                 </Text>
                 <Select
-                  options={CADENCE_OPTIONS}
-                  value={sourceCadence}
-                  onValueChange={(value) => setSourceCadence(value as Cadence)}
+                  options={RATE_PERIOD_OPTIONS}
+                  value={sourcePeriod}
+                  onValueChange={(value) =>
+                    setSourcePeriod(value as SalaryRatePeriodBasis)
+                  }
                 />
               </div>
 
@@ -225,12 +222,12 @@ export function SalaryCalculatorPage() {
               </Heading>
 
               <div className={cn("grid grid-cols-1 gap-4 md:grid-cols-3")}>
-                {CADENCES.map((cadence) => (
+                {SALARY_RATE_PERIOD_BASES.map((period) => (
                   <Card
-                    key={cadence}
+                    key={period}
                     padding="md"
                     className={cn(
-                      cadence === sourceCadence
+                      period === sourcePeriod
                         ? "border-border-brand"
                         : "border-border-subtle",
                     )}
@@ -241,16 +238,16 @@ export function SalaryCalculatorPage() {
                         weight="semibold"
                         className={cn(
                           "uppercase tracking-wide",
-                          cadence === sourceCadence
+                          period === sourcePeriod
                             ? "text-text-brand"
                             : "text-text-muted",
                         )}
                       >
-                        {CADENCE_LABELS[cadence]}
+                        {SALARY_RATE_PERIOD_LABELS[period]}
                       </Text>
 
                       {CURRENCIES.map((currency) => {
-                        const value = conversions[cadence][currency];
+                        const value = conversions[period][currency];
                         if (value === undefined) return null;
                         return (
                           <div
@@ -296,26 +293,30 @@ function getFlag(currency: string): string {
 
 function buildConversions({
   numericValue,
-  sourceCadence,
+  sourcePeriod,
   sourceCurrency,
   rates,
 }: {
   numericValue: number;
-  sourceCadence: Cadence;
+  sourcePeriod: SalaryRatePeriodBasis;
   sourceCurrency: Currency;
   rates: Record<string, number> | null;
-}): Record<Cadence, Record<string, number>> | null {
+}): Record<SalaryRatePeriodBasis, Record<string, number>> | null {
   if (numericValue === 0) return null;
 
-  const results: Record<Cadence, Record<string, number>> = {
+  const results: Record<SalaryRatePeriodBasis, Record<string, number>> = {
     hourly: {},
     monthly: {},
     yearly: {},
   };
 
-  for (const cadence of CADENCES) {
-    const baseValue = convertCadence(numericValue, sourceCadence, cadence);
-    results[cadence][sourceCurrency] = baseValue;
+  for (const period of SALARY_RATE_PERIOD_BASES) {
+    const baseValue = convertSalaryRateBetweenPeriods(
+      numericValue,
+      sourcePeriod,
+      period,
+    );
+    results[period][sourceCurrency] = baseValue;
 
     if (!rates) continue;
 
@@ -323,7 +324,7 @@ function buildConversions({
       if (currency === sourceCurrency) continue;
       const rate = rates[currency];
       if (rate !== undefined) {
-        results[cadence][currency] = baseValue * rate;
+        results[period][currency] = baseValue * rate;
       }
     }
   }
