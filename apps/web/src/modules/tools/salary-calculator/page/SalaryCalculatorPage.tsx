@@ -5,7 +5,6 @@ import {
   Button,
   Card,
   cn,
-  CurrencyCombobox,
   Heading,
   Input,
   Select,
@@ -17,7 +16,8 @@ import {
   ArrowCounterClockwiseIcon,
   CalculatorIcon,
 } from "@phosphor-icons/react";
-import { useMemo, useState } from "react";
+import { useState } from "react";
+import { NumericFormat } from "react-number-format";
 
 import { useExchangeRates } from "@/modules/tools/salary-calculator/hooks/useExchangeRates";
 import {
@@ -42,6 +42,11 @@ const CADENCE_OPTIONS = CADENCES.map((cadence) => ({
   label: CADENCE_LABELS[cadence],
 }));
 
+const CURRENCY_OPTIONS = CURRENCIES.map((currency) => ({
+  value: currency,
+  label: `${getFlag(currency)} ${currency}`,
+}));
+
 function isStale(lastUpdated: Date | null): boolean {
   if (!lastUpdated) return true;
   return Date.now() - lastUpdated.getTime() > 60 * 60 * 1000;
@@ -62,20 +67,11 @@ export function SalaryCalculatorPage() {
   const [sourceCadence, setSourceCadence] = useState<Cadence>("monthly");
   const [sourceCurrency, setSourceCurrency] = useState<Currency>("USD");
 
-  const handleSourceCurrencyChange = (nextValue: string) => {
-    if (CURRENCIES.includes(nextValue as Currency)) {
-      setSourceCurrency(nextValue as Currency);
-    }
-  };
-
   const numericValue = parseFloat(inputValue) || 0;
 
-  const targetCurrencies = useMemo(
-    () =>
-      CURRENCIES.filter(
-        (c): c is (typeof CURRENCIES)[number] => c !== sourceCurrency,
-      ),
-    [sourceCurrency],
+  const targetCurrencies = CURRENCIES.filter(
+    (currency): currency is (typeof CURRENCIES)[number] =>
+      currency !== sourceCurrency,
   );
 
   const { rates, loading, error, lastUpdated, fetchRates } = useExchangeRates(
@@ -83,32 +79,12 @@ export function SalaryCalculatorPage() {
     targetCurrencies,
   );
 
-  const conversions = useMemo(() => {
-    if (numericValue === 0) return null;
-
-    const results: Record<Cadence, Record<string, number>> = {
-      hourly: {},
-      monthly: {},
-      yearly: {},
-    };
-
-    for (const cadence of CADENCES) {
-      const baseValue = convertCadence(numericValue, sourceCadence, cadence);
-      results[cadence][sourceCurrency] = baseValue;
-
-      if (rates) {
-        for (const currency of CURRENCIES) {
-          if (currency === sourceCurrency) continue;
-          const rate = rates[currency];
-          if (rate !== undefined) {
-            results[cadence][currency] = baseValue * rate;
-          }
-        }
-      }
-    }
-
-    return results;
-  }, [numericValue, sourceCadence, sourceCurrency, rates]);
+  const conversions = buildConversions({
+    numericValue,
+    sourceCadence,
+    sourceCurrency,
+    rates,
+  });
 
   return (
     <div className={cn("mx-auto max-w-4xl px-4 py-8")}>
@@ -140,13 +116,18 @@ export function SalaryCalculatorPage() {
                 <Text size="sm" weight="medium" className={cn("mb-1.5 block")}>
                   Amount
                 </Text>
-                <Input
-                  type="number"
+                <NumericFormat
+                  customInput={Input}
+                  inputMode="decimal"
+                  allowNegative={false}
+                  thousandSeparator=","
+                  decimalSeparator="."
+                  decimalScale={2}
+                  fixedDecimalScale={false}
                   value={inputValue}
-                  onChange={(e) => setInputValue(e.target.value)}
+                  valueIsNumericString
+                  onValueChange={(values) => setInputValue(values.value)}
                   placeholder="0.00"
-                  min="0"
-                  step="any"
                 />
               </div>
 
@@ -165,15 +146,12 @@ export function SalaryCalculatorPage() {
                 <Text size="sm" weight="medium" className={cn("mb-1.5 block")}>
                   Base Currency
                 </Text>
-                <CurrencyCombobox
+                <Select
+                  options={CURRENCY_OPTIONS}
                   value={sourceCurrency}
-                  onValueChange={handleSourceCurrencyChange}
-                  presets={CURRENCIES.map((code) => ({
-                    code,
-                    name: code,
-                    flag: getFlag(code),
-                  }))}
-                  size="md"
+                  onValueChange={(value) =>
+                    setSourceCurrency(value as Currency)
+                  }
                 />
               </div>
             </div>
@@ -314,4 +292,41 @@ function getFlag(currency: string): string {
     CHF: "🇨🇭",
   };
   return flags[currency] ?? "";
+}
+
+function buildConversions({
+  numericValue,
+  sourceCadence,
+  sourceCurrency,
+  rates,
+}: {
+  numericValue: number;
+  sourceCadence: Cadence;
+  sourceCurrency: Currency;
+  rates: Record<string, number> | null;
+}): Record<Cadence, Record<string, number>> | null {
+  if (numericValue === 0) return null;
+
+  const results: Record<Cadence, Record<string, number>> = {
+    hourly: {},
+    monthly: {},
+    yearly: {},
+  };
+
+  for (const cadence of CADENCES) {
+    const baseValue = convertCadence(numericValue, sourceCadence, cadence);
+    results[cadence][sourceCurrency] = baseValue;
+
+    if (!rates) continue;
+
+    for (const currency of CURRENCIES) {
+      if (currency === sourceCurrency) continue;
+      const rate = rates[currency];
+      if (rate !== undefined) {
+        results[cadence][currency] = baseValue * rate;
+      }
+    }
+  }
+
+  return results;
 }
