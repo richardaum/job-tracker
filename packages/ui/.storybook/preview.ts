@@ -1,6 +1,6 @@
 import "@ui/globals.css";
 
-import type { Preview } from "@storybook/react";
+import type { Preview } from "@storybook/react-vite";
 import { Mermaid } from "mdx-mermaid/Mermaid";
 
 const preview: Preview = {

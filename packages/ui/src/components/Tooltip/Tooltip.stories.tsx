@@ -1,5 +1,5 @@
 import { Info } from "@phosphor-icons/react";
-import type { Meta, StoryObj } from "@storybook/react";
+import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Button } from "@ui/components/Button/Button";
 import { IconButton } from "@ui/components/IconButton/IconButton";
 

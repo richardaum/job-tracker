@@ -1,3 +1,4 @@
+// This file has been automatically migrated to valid ESM format by Storybook.
 import { createRequire } from "node:module";
 
 import type { StorybookConfig } from "@storybook/react-vite";
@@ -10,8 +11,8 @@ import { mergeConfig } from "vite";
 
 import { storybookDocsRewritePlugin } from "./vite-plugin-storybook-docs-rewrite.ts";
 
-const dirname = path.dirname(fileURLToPath(import.meta.url));
-const repoRoot = path.resolve(dirname, "../../..");
+const currentDir = path.dirname(fileURLToPath(import.meta.url));
+const repoRoot = path.resolve(currentDir, "../../..");
 const require = createRequire(import.meta.url);
 const addonDocsBlocks = require.resolve("@storybook/addon-docs/blocks");
 
@@ -22,16 +23,16 @@ const config: StorybookConfig = {
   ],
   addons: [
     {
-      name: "@storybook/addon-docs",
+      name: getAbsolutePath("@storybook/addon-docs"),
       options: {
         mdxPluginOptions: {
           mdxCompileOptions: { remarkPlugins: [remarkGfm, mdxMermaid] },
         },
       },
     },
-    "@storybook/addon-vitest",
+    getAbsolutePath("@storybook/addon-vitest"),
   ],
-  framework: { name: "@storybook/react-vite", options: {} },
+  framework: { name: getAbsolutePath("@storybook/react-vite"), options: {} },
   async viteFinal(baseConfig) {
     return mergeConfig(
       {
@@ -45,7 +46,7 @@ const config: StorybookConfig = {
         plugins: [tailwindcss()],
         resolve: {
           alias: {
-            "@ui": path.resolve(dirname, "../src"),
+            "@ui": path.resolve(currentDir, "../src"),
             // MDX under repo `docs/` must resolve UI devDependencies (pnpm layout).
             "@storybook/addon-docs/blocks": addonDocsBlocks,
           },
@@ -56,3 +57,9 @@ const config: StorybookConfig = {
 };
 
 export default config;
+
+function getAbsolutePath(value: string): string {
+  return path.dirname(
+    fileURLToPath(import.meta.resolve(`${value}/package.json`)),
+  );
+}
