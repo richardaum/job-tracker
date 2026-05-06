@@ -10,6 +10,7 @@ import { AiModule } from "./domains/ai/ai.module";
 import { ApplicationModule } from "./domains/applications/applications.module";
 import { AuthModule } from "./domains/auth/auth.module";
 import { CompaniesModule } from "./domains/companies/companies.module";
+import { CurrencyConverterModule } from "./domains/currency-converter/currency-converter.module";
 import { ImportsModule } from "./domains/imports/imports.module";
 import { NotesModule } from "./domains/notes/notes.module";
 
@@ -19,6 +20,7 @@ import { NotesModule } from "./domains/notes/notes.module";
     AuthModule,
     ApplicationModule,
     CompaniesModule,
+    CurrencyConverterModule,
     ImportsModule,
     NotesModule,
     AiModule,

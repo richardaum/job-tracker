@@ -151,6 +151,18 @@ export type CreateNoteInput = {
   content: Scalars["String"]["input"];
 };
 
+export type CurrencyRates = {
+  __typename?: "CurrencyRates";
+  base: Scalars["String"]["output"];
+  rates: Array<ExchangeRate>;
+};
+
+export type ExchangeRate = {
+  __typename?: "ExchangeRate";
+  currency: Scalars["String"]["output"];
+  rate: Scalars["Float"]["output"];
+};
+
 export enum ImportRunStatus {
   Completed = "COMPLETED",
   Failed = "FAILED",
@@ -265,6 +277,7 @@ export type Query = {
   applications: Array<ApplicationType>;
   companies: Array<CompanyType>;
   companyApplicationsCount: Scalars["Int"]["output"];
+  exchangeRates: CurrencyRates;
   generateApplicationDraftWithAI: ApplicationAiDraftType;
   generateApplicationNoteWithAI: Scalars["String"]["output"];
   generateCompanyDescription: Scalars["String"]["output"];
@@ -290,6 +303,11 @@ export type QueryApplicationsArgs = {
 };
 
 export type QueryCompanyApplicationsCountArgs = { id: Scalars["ID"]["input"] };
+
+export type QueryExchangeRatesArgs = {
+  base: Scalars["String"]["input"];
+  currencies: Array<Scalars["String"]["input"]>;
+};
 
 export type QueryGenerateApplicationDraftWithAiArgs = {
   input: CreateApplicationWithAiInput;
@@ -758,6 +776,24 @@ export type CompaniesQuery = {
     name: string;
     description?: string | null;
   }>;
+};
+
+export type ExchangeRatesQueryVariables = Exact<{
+  base: Scalars["String"]["input"];
+  currencies: Array<Scalars["String"]["input"]> | Scalars["String"]["input"];
+}>;
+
+export type ExchangeRatesQuery = {
+  __typename?: "Query";
+  exchangeRates: {
+    __typename?: "CurrencyRates";
+    base: string;
+    rates: Array<{
+      __typename?: "ExchangeRate";
+      currency: string;
+      rate: number;
+    }>;
+  };
 };
 
 export type ImportRunsQueryVariables = Exact<{ [key: string]: never }>;
@@ -2400,6 +2436,96 @@ export const CompaniesDocument = {
     },
   ],
 } as unknown as DocumentNode<CompaniesQuery, CompaniesQueryVariables>;
+export const ExchangeRatesDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "query",
+      name: { kind: "Name", value: "ExchangeRates" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "base" } },
+          type: {
+            kind: "NonNullType",
+            type: {
+              kind: "NamedType",
+              name: { kind: "Name", value: "String" },
+            },
+          },
+        },
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "currencies" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: {
+              kind: "ListType",
+              type: {
+                kind: "NonNullType",
+                type: {
+                  kind: "NamedType",
+                  name: { kind: "Name", value: "String" },
+                },
+              },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "exchangeRates" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "base" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "base" },
+                },
+              },
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "currencies" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "currencies" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "base" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "rates" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "currency" },
+                      },
+                      { kind: "Field", name: { kind: "Name", value: "rate" } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ExchangeRatesQuery, ExchangeRatesQueryVariables>;
 export const ImportRunsDocument = {
   kind: "Document",
   definitions: [

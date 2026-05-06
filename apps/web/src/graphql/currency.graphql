@@ -1,0 +1,9 @@
+query ExchangeRates($base: String!, $currencies: [String!]!) {
+  exchangeRates(base: $base, currencies: $currencies) {
+    base
+    rates {
+      currency
+      rate
+    }
+  }
+}

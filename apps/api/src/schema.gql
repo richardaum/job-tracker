@@ -101,6 +101,16 @@ type ApplicationStageEventType {
   createdAt: DateTime!
 }
 
+type ExchangeRate {
+  currency: String!
+  rate: Float!
+}
+
+type CurrencyRates {
+  base: String!
+  rates: [ExchangeRate!]!
+}
+
 type ImportRunType {
   id: ID!
   importerId: String!
@@ -129,6 +139,7 @@ type Query {
   companyApplicationsCount(id: ID!): Int!
   applicationNotes(applicationId: ID!): [NoteType!]!
   generateApplicationNoteWithAI(applicationId: ID!, note: String!): String!
+  exchangeRates(base: String!, currencies: [String!]!): CurrencyRates!
   importRuns: [ImportRunType!]!
   rewriteTextWithAI(text: String!): String!
   restructureJobDescriptionWithAI(text: String!): String!

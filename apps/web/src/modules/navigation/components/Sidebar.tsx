@@ -4,6 +4,7 @@ import { Button, cn, Text } from "@job-tracker/ui";
 import {
   BriefcaseIcon,
   BuildingsIcon,
+  CalculatorIcon,
   DownloadSimpleIcon,
   GearIcon,
   MagnifyingGlassIcon,
@@ -31,6 +32,11 @@ const navItems = [
   { href: "/applications", label: "Applications", icon: BriefcaseIcon },
   { href: "/imports", label: "Imports", icon: DownloadSimpleIcon },
   { href: "/companies", label: "Companies", icon: BuildingsIcon },
+  {
+    href: "/tools/salary-calculator",
+    label: "Salary Calculator",
+    icon: CalculatorIcon,
+  },
 ];
 
 const bottomItems = [

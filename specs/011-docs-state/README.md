@@ -9,11 +9,11 @@ tags:
 # State
 
 - Status: in-progress
-- Active scope: dashboard-and-search
-- Current step: [R-17]
-- Next action: Continue implementing discovery and search features (dashboard metrics, filtering, search) now that the TypeORM migration [R-31] and company baseline are complete.
+- Active scope: salary-calculator
+- Current step: [R-33]
+- Next action: Implement salary calculator page at `/tools/salary-calculator` with cadence conversion and currency converter components.
 - Blockers: none
-- Last update: 2026-04-24T22:00:00Z
+- Last update: 2026-05-06T12:00:00Z
 
 ## Prior phase state snapshot (2026-04-22)
 

@@ -30,7 +30,7 @@ Numbered folders: `specs/<NNN-slug>/` with primary **`README.md`** (optional com
 | ----------------- | ---------------------------------------------------------------------- |
 | `001-*` … `006-*` | Archived earlier-phase snapshots (`status: archived` in frontmatter).  |
 | `007-*` … `011-*` | **`docs-*`** governance: definition, history, project, roadmap, state. |
-| `012-*` … `024-*` | Active **product** and **technical** scopes for current work.          |
+| `012-*` … `026-*` | Active **product** and **technical** scopes for current work.          |
 
 ### Naming and prose
 
@@ -68,8 +68,13 @@ Numbered folders: `specs/<NNN-slug>/` with primary **`README.md`** (optional com
 - **`apps/web`**: UI only. **`apps/api`**: backend API. Do not add API routes or server actions in web.
 - OpenAI: use an internal API facade, not direct frontend calls.
 - Cross-package imports: workspace aliases where configured (`@api/*`, `@ui/*`, `@/*`).
-- Within an app’s **`src/`**, prefer **absolute imports via the app’s root alias** (e.g. `@/module/file` → `src/module/file` in `apps/web` and `apps/extension`) instead of **`../`** parent chains. Same-directory **`./`** imports are fine for co-located files.
+- Within an app's **`src/`**, prefer **absolute imports via the app's root alias** (e.g. `@/module/file` → `src/module/file` in `apps/web` and `apps/extension`) instead of **`../`** parent chains. Same-directory **`./`** imports are fine for co-located files.
 - Environment: typed env modules only — no raw `process.env` in application code.
+
+### NestJS modules and guards
+
+- **AuthModule dependency:** Any NestJS module that defines resolvers decorated with **`@UseGuards(JwtAuthGuard, RolesGuard)`** (or similar guards) **must import `AuthModule`**. Guards like `RolesGuard` depend on `Reflector` and `UserService` which are provided through `AuthModule`. Omitting this import causes `UnknownDependenciesException` at startup.
+- **Import pattern:** Add `AuthModule` to the module's `imports` array, matching the pattern used by `CompaniesModule`, `ApplicationModule`, and other authenticated domains.
 
 ### Local development: PM2
 

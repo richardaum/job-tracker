@@ -18,6 +18,7 @@ tags:
 - [R-20] Deliver `import-and-onboarding-expansion` as the canonical import scope, including connector safeguards and guest migration integrity; Chrome extension-assisted capture is tracked in **`specs/023-product-chrome-extension/README.md`** alongside that scope.
 - [R-18] Deliver `multilingual-experience` as the canonical i18n scope, including locale routing, dictionary governance, and EN/PT-BR quality checks.
 - [R-28] Deliver `application-compensation` as the optional structured pay and tags scope on the canonical application record, including list and details UI parity.
+- [R-33] Deliver `salary-calculator` as a standalone tools page with hourly/monthly/yearly rate conversion and multi-currency support (USD, EUR, BRL, GBP, CHF) using a free public exchange rate API.
 
 ## Dependencies
 

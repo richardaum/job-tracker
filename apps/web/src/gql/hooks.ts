@@ -153,6 +153,18 @@ export type CreateNoteInput = {
   content: Scalars["String"]["input"];
 };
 
+export type CurrencyRates = {
+  __typename?: "CurrencyRates";
+  base: Scalars["String"]["output"];
+  rates: Array<ExchangeRate>;
+};
+
+export type ExchangeRate = {
+  __typename?: "ExchangeRate";
+  currency: Scalars["String"]["output"];
+  rate: Scalars["Float"]["output"];
+};
+
 export enum ImportRunStatus {
   Completed = "COMPLETED",
   Failed = "FAILED",
@@ -267,6 +279,7 @@ export type Query = {
   applications: Array<ApplicationType>;
   companies: Array<CompanyType>;
   companyApplicationsCount: Scalars["Int"]["output"];
+  exchangeRates: CurrencyRates;
   generateApplicationDraftWithAI: ApplicationAiDraftType;
   generateApplicationNoteWithAI: Scalars["String"]["output"];
   generateCompanyDescription: Scalars["String"]["output"];
@@ -292,6 +305,11 @@ export type QueryApplicationsArgs = {
 };
 
 export type QueryCompanyApplicationsCountArgs = { id: Scalars["ID"]["input"] };
+
+export type QueryExchangeRatesArgs = {
+  base: Scalars["String"]["input"];
+  currencies: Array<Scalars["String"]["input"]>;
+};
 
 export type QueryGenerateApplicationDraftWithAiArgs = {
   input: CreateApplicationWithAiInput;
@@ -760,6 +778,24 @@ export type CompaniesQuery = {
     name: string;
     description?: string | null;
   }>;
+};
+
+export type ExchangeRatesQueryVariables = Exact<{
+  base: Scalars["String"]["input"];
+  currencies: Array<Scalars["String"]["input"]> | Scalars["String"]["input"];
+}>;
+
+export type ExchangeRatesQuery = {
+  __typename?: "Query";
+  exchangeRates: {
+    __typename?: "CurrencyRates";
+    base: string;
+    rates: Array<{
+      __typename?: "ExchangeRate";
+      currency: string;
+      rate: number;
+    }>;
+  };
 };
 
 export type ImportRunsQueryVariables = Exact<{ [key: string]: never }>;
@@ -2118,6 +2154,71 @@ export function useCompaniesLazyQuery(
 export type CompaniesQueryHookResult = ReturnType<typeof useCompaniesQuery>;
 export type CompaniesLazyQueryHookResult = ReturnType<
   typeof useCompaniesLazyQuery
+>;
+
+export const ExchangeRatesDocument = gql`
+  query ExchangeRates($base: String!, $currencies: [String!]!) {
+    exchangeRates(base: $base, currencies: $currencies) {
+      base
+      rates {
+        currency
+        rate
+      }
+    }
+  }
+`;
+
+/**
+ * __useExchangeRatesQuery__
+ *
+ * To run a query within a React component, call `useExchangeRatesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useExchangeRatesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useExchangeRatesQuery({
+ *   variables: {
+ *      base: // value for 'base'
+ *      currencies: // value for 'currencies'
+ *   },
+ * });
+ */
+export function useExchangeRatesQuery(
+  baseOptions: ApolloReactHooks.QueryHookOptions<
+    ExchangeRatesQuery,
+    ExchangeRatesQueryVariables
+  > &
+    (
+      | { variables: ExchangeRatesQueryVariables; skip?: boolean }
+      | { skip: boolean }
+    ),
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useQuery<
+    ExchangeRatesQuery,
+    ExchangeRatesQueryVariables
+  >(ExchangeRatesDocument, options);
+}
+export function useExchangeRatesLazyQuery(
+  baseOptions?: ApolloReactHooks.LazyQueryHookOptions<
+    ExchangeRatesQuery,
+    ExchangeRatesQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useLazyQuery<
+    ExchangeRatesQuery,
+    ExchangeRatesQueryVariables
+  >(ExchangeRatesDocument, options);
+}
+
+export type ExchangeRatesQueryHookResult = ReturnType<
+  typeof useExchangeRatesQuery
+>;
+export type ExchangeRatesLazyQueryHookResult = ReturnType<
+  typeof useExchangeRatesLazyQuery
 >;
 
 export const ImportRunsDocument = gql`
