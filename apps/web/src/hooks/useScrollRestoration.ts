@@ -138,7 +138,7 @@ export function useScrollRestoration({
     if (container.scrollHeight <= container.clientHeight) return;
 
     suppressNextScrollPersistRef.current = true;
-    container.scrollTop = snapshot.top;
+    container.scrollTo({ top: snapshot.top });
     clearSnapshot(key);
     didRestoreRef.current = true;
   }, [containerRef, enabled, key, ready]);
