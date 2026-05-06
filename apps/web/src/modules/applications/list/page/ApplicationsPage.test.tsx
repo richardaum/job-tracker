@@ -67,10 +67,9 @@ vi.mock("../components/ApplicationTrackingPanel", () => ({
   ApplicationTrackingPanel: () => <div>Tracking panel</div>,
 }));
 
-vi.mock(
-  "@/modules/applications/details/components/CompensationEditDialog",
-  () => ({ CompensationEditDialog: () => null }),
-);
+vi.mock("@/modules/applications/details/components/SalaryEditDialog", () => ({
+  SalaryEditDialog: () => null,
+}));
 
 describe("ApplicationsPage", () => {
   it("renders current stage from application when list includes currentStage", () => {
@@ -112,10 +111,12 @@ describe("ApplicationsPage", () => {
             currentStage: "technical",
             currentStageReason: null,
             currentStageAt: "2026-04-20T00:00:00.000Z",
-            salaryMinCents: null,
-            salaryMaxCents: null,
-            salaryCurrency: null,
-            salaryPeriod: null,
+            salary: {
+              minCents: null,
+              maxCents: null,
+              currency: null,
+              period: null,
+            },
             tags: [],
           },
         ],
@@ -176,10 +177,12 @@ describe("ApplicationsPage", () => {
             currentStage: "new",
             currentStageReason: null,
             currentStageAt: "2026-04-20T00:00:00.000Z",
-            salaryMinCents: null,
-            salaryMaxCents: null,
-            salaryCurrency: null,
-            salaryPeriod: null,
+            salary: {
+              minCents: null,
+              maxCents: null,
+              currency: null,
+              period: null,
+            },
             tags: [],
           },
         ],

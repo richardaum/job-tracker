@@ -21,14 +21,14 @@ import {
   useCreateApplicationNoteMutation,
   useGenerateApplicationDraftWithAiLazyQuery,
 } from "@/gql/hooks";
-import { CompensationEditDialog } from "@/modules/applications/details/components/CompensationEditDialog";
 import { HoverEditableFieldRow } from "@/modules/applications/details/components/HoverEditableFieldRow";
+import { SalaryEditDialog } from "@/modules/applications/details/components/SalaryEditDialog";
 import { TipTapEditor } from "@/modules/applications/details/components/TipTapEditor";
 import {
   TagsInput,
   type TagWithMetadata,
 } from "@/modules/applications/shared/components/TagsInput";
-import { formatCompensationLine } from "@/modules/applications/shared/utils/compensationFormat";
+import { formatSalary } from "@/modules/applications/shared/utils/salaryFormat";
 import {
   EMPTY_TIPTAP_DOC,
   tipTapToPlainText,
@@ -158,16 +158,16 @@ export default function AiApplicationCreatePage() {
     }
   }
 
-  const compensationLine = draft
-    ? formatCompensationLine({
-        salaryMinCents: draft.salaryMinCents.trim()
+  const salaryLine = draft
+    ? formatSalary({
+        minCents: draft.salaryMinCents.trim()
           ? Number.parseInt(draft.salaryMinCents.trim(), 10)
           : null,
-        salaryMaxCents: draft.salaryMaxCents.trim()
+        maxCents: draft.salaryMaxCents.trim()
           ? Number.parseInt(draft.salaryMaxCents.trim(), 10)
           : null,
-        salaryCurrency: draft.salaryCurrency.trim() || null,
-        salaryPeriod: draft.salaryPeriod === "none" ? null : draft.salaryPeriod,
+        currency: draft.salaryCurrency.trim() || null,
+        period: draft.salaryPeriod === "none" ? null : draft.salaryPeriod,
       })
     : null;
 
@@ -375,21 +375,21 @@ export default function AiApplicationCreatePage() {
                       }
                     />
                     <HoverEditableFieldRow
-                      label="compensation"
+                      label="salary"
                       editControl={
                         <div className={cn("flex items-center gap-1")}>
                           <IconButton
                             intent="ghost"
                             size="sm"
-                            label="Rework compensation"
-                            tooltip="Rework compensation with AI"
+                            label="Rework salary"
+                            tooltip="Rework salary with AI"
                             icon={<SparkleIcon size={14} weight="regular" />}
                             className={cn(
                               "h-7 w-7 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100",
                             )}
                             onClick={() =>
                               handleReworkField(
-                                "salaryMinCents, salaryMaxCents, salaryCurrency, salaryPeriod",
+                                "minCents, maxCents, currency, period",
                               )
                             }
                             disabled={loading}
@@ -410,7 +410,7 @@ export default function AiApplicationCreatePage() {
                       }
                       content={
                         <Text size="sm" color="secondary">
-                          {compensationLine ?? "Not set"}
+                          {salaryLine ?? "Not set"}
                         </Text>
                       }
                     />
@@ -528,11 +528,11 @@ export default function AiApplicationCreatePage() {
       </div>
 
       {draft ? (
-        <CompensationEditDialog
+        <SalaryEditDialog
           mode="draft"
           open={salaryDialogOpen}
           onOpenChange={setSalaryDialogOpen}
-          compensation={{
+          salaryDraft={{
             salaryMinCents: draft.salaryMinCents.trim()
               ? Number.parseInt(draft.salaryMinCents.trim(), 10)
               : null,
@@ -543,7 +543,7 @@ export default function AiApplicationCreatePage() {
             salaryPeriod:
               draft.salaryPeriod === "none" ? null : draft.salaryPeriod,
           }}
-          onCompensationSave={(next) => {
+          onSalarySave={(next) => {
             setDraft((prev) =>
               prev
                 ? {

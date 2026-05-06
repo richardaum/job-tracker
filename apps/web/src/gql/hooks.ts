@@ -59,6 +59,14 @@ export enum ApplicationQuickFilter {
   New = "NEW",
 }
 
+export type ApplicationSalary = {
+  __typename?: "ApplicationSalary";
+  currency?: Maybe<Scalars["String"]["output"]>;
+  maxCents?: Maybe<Scalars["Int"]["output"]>;
+  minCents?: Maybe<Scalars["Int"]["output"]>;
+  period?: Maybe<SalaryPeriod>;
+};
+
 export enum ApplicationSource {
   Jack = "JACK",
   Linkedin = "LINKEDIN",
@@ -97,10 +105,7 @@ export type ApplicationType = {
   currentStageReason?: Maybe<Scalars["String"]["output"]>;
   description?: Maybe<Scalars["String"]["output"]>;
   id: Scalars["ID"]["output"];
-  salaryCurrency?: Maybe<Scalars["String"]["output"]>;
-  salaryMaxCents?: Maybe<Scalars["Int"]["output"]>;
-  salaryMinCents?: Maybe<Scalars["Int"]["output"]>;
-  salaryPeriod?: Maybe<SalaryPeriod>;
+  salary: ApplicationSalary;
   source?: Maybe<ApplicationSource>;
   tags: Array<Scalars["String"]["output"]>;
   title: Scalars["String"]["output"];
@@ -375,6 +380,17 @@ export type UserType = {
   role: Scalars["String"]["output"];
 };
 
+export type ApplicationSalarySelectionFragment = {
+  __typename?: "ApplicationType";
+  salary: {
+    __typename?: "ApplicationSalary";
+    minCents?: number | null;
+    maxCents?: number | null;
+    currency?: string | null;
+    period?: SalaryPeriod | null;
+  };
+};
+
 export type ApplicationsQueryVariables = Exact<{
   filter?: InputMaybe<ApplicationQuickFilter>;
   company?: InputMaybe<Scalars["String"]["input"]>;
@@ -390,10 +406,6 @@ export type ApplicationsQuery = {
     description?: string | null;
     urls: Array<string>;
     source?: ApplicationSource | null;
-    salaryMinCents?: number | null;
-    salaryMaxCents?: number | null;
-    salaryCurrency?: string | null;
-    salaryPeriod?: SalaryPeriod | null;
     tags: Array<string>;
     currentStage: ApplicationStage;
     currentStageReason?: string | null;
@@ -404,6 +416,13 @@ export type ApplicationsQuery = {
       id: string;
       name: string;
       description?: string | null;
+    };
+    salary: {
+      __typename?: "ApplicationSalary";
+      minCents?: number | null;
+      maxCents?: number | null;
+      currency?: string | null;
+      period?: SalaryPeriod | null;
     };
   }>;
 };
@@ -420,10 +439,6 @@ export type ApplicationQuery = {
     description?: string | null;
     urls: Array<string>;
     source?: ApplicationSource | null;
-    salaryMinCents?: number | null;
-    salaryMaxCents?: number | null;
-    salaryCurrency?: string | null;
-    salaryPeriod?: SalaryPeriod | null;
     tags: Array<string>;
     currentStage: ApplicationStage;
     currentStageReason?: string | null;
@@ -434,6 +449,13 @@ export type ApplicationQuery = {
       id: string;
       name: string;
       description?: string | null;
+    };
+    salary: {
+      __typename?: "ApplicationSalary";
+      minCents?: number | null;
+      maxCents?: number | null;
+      currency?: string | null;
+      period?: SalaryPeriod | null;
     };
   };
 };
@@ -452,10 +474,6 @@ export type CreateApplicationMutation = {
     description?: string | null;
     urls: Array<string>;
     source?: ApplicationSource | null;
-    salaryMinCents?: number | null;
-    salaryMaxCents?: number | null;
-    salaryCurrency?: string | null;
-    salaryPeriod?: SalaryPeriod | null;
     tags: Array<string>;
     createdAt: any;
     company: {
@@ -463,6 +481,13 @@ export type CreateApplicationMutation = {
       id: string;
       name: string;
       description?: string | null;
+    };
+    salary: {
+      __typename?: "ApplicationSalary";
+      minCents?: number | null;
+      maxCents?: number | null;
+      currency?: string | null;
+      period?: SalaryPeriod | null;
     };
   };
 };
@@ -481,10 +506,6 @@ export type CreateApplicationWithAiMutation = {
     description?: string | null;
     urls: Array<string>;
     source?: ApplicationSource | null;
-    salaryMinCents?: number | null;
-    salaryMaxCents?: number | null;
-    salaryCurrency?: string | null;
-    salaryPeriod?: SalaryPeriod | null;
     tags: Array<string>;
     createdAt: any;
     company: {
@@ -492,6 +513,13 @@ export type CreateApplicationWithAiMutation = {
       id: string;
       name: string;
       description?: string | null;
+    };
+    salary: {
+      __typename?: "ApplicationSalary";
+      minCents?: number | null;
+      maxCents?: number | null;
+      currency?: string | null;
+      period?: SalaryPeriod | null;
     };
   };
 };
@@ -541,10 +569,6 @@ export type UpdateApplicationMutation = {
     description?: string | null;
     urls: Array<string>;
     source?: ApplicationSource | null;
-    salaryMinCents?: number | null;
-    salaryMaxCents?: number | null;
-    salaryCurrency?: string | null;
-    salaryPeriod?: SalaryPeriod | null;
     tags: Array<string>;
     createdAt: any;
     company: {
@@ -552,6 +576,13 @@ export type UpdateApplicationMutation = {
       id: string;
       name: string;
       description?: string | null;
+    };
+    salary: {
+      __typename?: "ApplicationSalary";
+      minCents?: number | null;
+      maxCents?: number | null;
+      currency?: string | null;
+      period?: SalaryPeriod | null;
     };
   };
 };
@@ -876,6 +907,16 @@ export type MeQuery = {
   };
 };
 
+export const ApplicationSalarySelectionFragmentDoc = gql`
+  fragment ApplicationSalarySelection on ApplicationType {
+    salary {
+      minCents
+      maxCents
+      currency
+      period
+    }
+  }
+`;
 export const ApplicationsDocument = gql`
   query Applications($filter: ApplicationQuickFilter, $company: String) {
     applications(filter: $filter, company: $company) {
@@ -890,10 +931,7 @@ export const ApplicationsDocument = gql`
       description
       urls
       source
-      salaryMinCents
-      salaryMaxCents
-      salaryCurrency
-      salaryPeriod
+      ...ApplicationSalarySelection
       tags
       currentStage
       currentStageReason
@@ -901,6 +939,7 @@ export const ApplicationsDocument = gql`
       createdAt
     }
   }
+  ${ApplicationSalarySelectionFragmentDoc}
 `;
 
 /**
@@ -966,10 +1005,7 @@ export const ApplicationDocument = gql`
       description
       urls
       source
-      salaryMinCents
-      salaryMaxCents
-      salaryCurrency
-      salaryPeriod
+      ...ApplicationSalarySelection
       tags
       currentStage
       currentStageReason
@@ -977,6 +1013,7 @@ export const ApplicationDocument = gql`
       createdAt
     }
   }
+  ${ApplicationSalarySelectionFragmentDoc}
 `;
 
 /**
@@ -1043,14 +1080,12 @@ export const CreateApplicationDocument = gql`
       description
       urls
       source
-      salaryMinCents
-      salaryMaxCents
-      salaryCurrency
-      salaryPeriod
+      ...ApplicationSalarySelection
       tags
       createdAt
     }
   }
+  ${ApplicationSalarySelectionFragmentDoc}
 `;
 
 /**
@@ -1097,14 +1132,12 @@ export const CreateApplicationWithAiDocument = gql`
       description
       urls
       source
-      salaryMinCents
-      salaryMaxCents
-      salaryCurrency
-      salaryPeriod
+      ...ApplicationSalarySelection
       tags
       createdAt
     }
   }
+  ${ApplicationSalarySelectionFragmentDoc}
 `;
 
 /**
@@ -1281,14 +1314,12 @@ export const UpdateApplicationDocument = gql`
       description
       urls
       source
-      salaryMinCents
-      salaryMaxCents
-      salaryCurrency
-      salaryPeriod
+      ...ApplicationSalarySelection
       tags
       createdAt
     }
   }
+  ${ApplicationSalarySelectionFragmentDoc}
 `;
 
 /**

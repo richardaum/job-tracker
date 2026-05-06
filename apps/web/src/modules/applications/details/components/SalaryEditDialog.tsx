@@ -26,40 +26,40 @@ import {
   iso4217MaxFractionDigits,
   majorToCents,
   SALARY_PERIODS,
-} from "@/modules/applications/shared/utils/compensationFormat";
+} from "@/modules/applications/shared/utils/salaryFormat";
 
 import { FieldEditTriggerButton } from "./HoverEditableFieldRow";
 
 const defaultSalaryCurrency = "USD";
 
-const periodNone = "__comp_none__";
+const periodNone = "__salary_none__";
 const periodOptions: SelectOption[] = [
   { value: periodNone, label: "Not set" },
   ...SALARY_PERIODS.map((o) => ({ value: o.value, label: o.label })),
 ];
 
-type DraftCompensation = {
+type DraftSalary = {
   salaryMinCents: number | null;
   salaryMaxCents: number | null;
   salaryCurrency: string;
   salaryPeriod: SalaryPeriod | null;
 };
 
-type CompensationEditDialogApplicationProps = {
+type SalaryEditDialogApplicationProps = {
   application: ApplicationDetailsValues;
   trigger?: React.ReactElement;
   onSuccess?: (message: string) => void;
   onError?: (message: string) => void;
 };
 
-type CompensationEditDialogDraftProps = {
+type SalaryEditDialogDraftProps = {
   mode: "draft";
   open: boolean;
   onOpenChange: (open: boolean) => void;
   /** Hidden trigger when opened programmatically; defaults to a hidden span. */
   trigger?: React.ReactElement;
-  compensation: DraftCompensation;
-  onCompensationSave: (next: {
+  salaryDraft: DraftSalary;
+  onSalarySave: (next: {
     salaryMinCents: number | null;
     salaryMaxCents: number | null;
     salaryCurrency: string | null;
@@ -70,17 +70,17 @@ type CompensationEditDialogDraftProps = {
   idPrefix?: string;
 };
 
-export type CompensationEditDialogProps =
-  | CompensationEditDialogApplicationProps
-  | CompensationEditDialogDraftProps;
+export type SalaryEditDialogProps =
+  | SalaryEditDialogApplicationProps
+  | SalaryEditDialogDraftProps;
 
 function isDraftProps(
-  p: CompensationEditDialogProps,
-): p is CompensationEditDialogDraftProps {
+  p: SalaryEditDialogProps,
+): p is SalaryEditDialogDraftProps {
   return "mode" in p && p.mode === "draft";
 }
 
-export function CompensationEditDialog(props: CompensationEditDialogProps) {
+export function SalaryEditDialog(props: SalaryEditDialogProps) {
   const isDraft = isDraftProps(props);
   const [applicationOpen, setApplicationOpen] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -99,8 +99,7 @@ export function CompensationEditDialog(props: CompensationEditDialogProps) {
           {
             query: ApplicationDocument,
             variables: {
-              id: (props as CompensationEditDialogApplicationProps).application
-                .id,
+              id: (props as SalaryEditDialogApplicationProps).application.id,
             },
           },
           { query: ApplicationsDocument },
@@ -113,20 +112,18 @@ export function CompensationEditDialog(props: CompensationEditDialogProps) {
   const amountDecimalScale = iso4217MaxFractionDigits(form.salaryCurrency);
 
   function syncFromApplication(application: ApplicationDetailsValues) {
-    const cur =
-      application.salaryCurrency?.trim().toUpperCase() || defaultSalaryCurrency;
+    const s = application.salary;
+    const cur = s.currency?.trim().toUpperCase() || defaultSalaryCurrency;
     setForm({
-      salaryMin: centsToMajorInput(application.salaryMinCents),
-      salaryMax: centsToMajorInput(application.salaryMaxCents),
+      salaryMin: centsToMajorInput(s.minCents),
+      salaryMax: centsToMajorInput(s.maxCents),
       salaryCurrency: cur,
-      salaryPeriod: application.salaryPeriod
-        ? String(application.salaryPeriod)
-        : "",
+      salaryPeriod: s.period ? String(s.period) : "",
     });
     setError(undefined);
   }
 
-  function syncFromDraft(c: DraftCompensation) {
+  function syncFromDraft(c: DraftSalary) {
     const cur = c.salaryCurrency?.trim().toUpperCase() || defaultSalaryCurrency;
     setForm({
       salaryMin: centsToMajorInput(c.salaryMinCents),
@@ -144,7 +141,7 @@ export function CompensationEditDialog(props: CompensationEditDialogProps) {
       return;
     }
     if (props.open && !wasDraftDialogOpen.current) {
-      syncFromDraft(props.compensation);
+      syncFromDraft(props.salaryDraft);
     }
     wasDraftDialogOpen.current = props.open;
   });
@@ -211,7 +208,7 @@ export function CompensationEditDialog(props: CompensationEditDialogProps) {
 
     try {
       if (isDraft) {
-        props.onCompensationSave(payload);
+        props.onSalarySave(payload);
         props.onOpenChange(false);
         return;
       }
@@ -226,14 +223,14 @@ export function CompensationEditDialog(props: CompensationEditDialogProps) {
           },
         },
       });
-      props.onSuccess?.("Compensation updated.");
+      props.onSuccess?.("Salary updated.");
       setApplicationOpen(false);
     } catch {
       if (isDraft) {
-        props.onError?.("Could not update compensation.");
+        props.onError?.("Could not update salary.");
       } else {
-        (props as CompensationEditDialogApplicationProps).onError?.(
-          "Could not update compensation.",
+        (props as SalaryEditDialogApplicationProps).onError?.(
+          "Could not update salary.",
         );
       }
     } finally {
@@ -243,15 +240,13 @@ export function CompensationEditDialog(props: CompensationEditDialogProps) {
 
   return (
     <Dialog
-      title="Edit compensation"
+      title="Edit salary"
       open={open}
       onOpenChange={handleOpenChange}
       trigger={
         isDraft
           ? (props.trigger ?? <span aria-hidden style={{ display: "none" }} />)
-          : (props.trigger ?? (
-              <FieldEditTriggerButton label="Edit compensation" />
-            ))
+          : (props.trigger ?? <FieldEditTriggerButton label="Edit salary" />)
       }
     >
       <Stack gap="sm">

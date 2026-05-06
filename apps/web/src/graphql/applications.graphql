@@ -1,3 +1,12 @@
+fragment ApplicationSalarySelection on ApplicationType {
+  salary {
+    minCents
+    maxCents
+    currency
+    period
+  }
+}
+
 query Applications($filter: ApplicationQuickFilter, $company: String) {
   applications(filter: $filter, company: $company) {
     id
@@ -11,10 +20,7 @@ query Applications($filter: ApplicationQuickFilter, $company: String) {
     description
     urls
     source
-    salaryMinCents
-    salaryMaxCents
-    salaryCurrency
-    salaryPeriod
+    ...ApplicationSalarySelection
     tags
     currentStage
     currentStageReason
@@ -36,10 +42,7 @@ query Application($id: ID!) {
     description
     urls
     source
-    salaryMinCents
-    salaryMaxCents
-    salaryCurrency
-    salaryPeriod
+    ...ApplicationSalarySelection
     tags
     currentStage
     currentStageReason
@@ -61,10 +64,7 @@ mutation CreateApplication($input: CreateApplicationInput!) {
     description
     urls
     source
-    salaryMinCents
-    salaryMaxCents
-    salaryCurrency
-    salaryPeriod
+    ...ApplicationSalarySelection
     tags
     createdAt
   }
@@ -83,10 +83,7 @@ mutation CreateApplicationWithAi($input: CreateApplicationWithAIInput!) {
     description
     urls
     source
-    salaryMinCents
-    salaryMaxCents
-    salaryCurrency
-    salaryPeriod
+    ...ApplicationSalarySelection
     tags
     createdAt
   }
@@ -124,10 +121,7 @@ mutation UpdateApplication($id: ID!, $input: UpdateApplicationInput!) {
     description
     urls
     source
-    salaryMinCents
-    salaryMaxCents
-    salaryCurrency
-    salaryPeriod
+    ...ApplicationSalarySelection
     tags
     createdAt
   }

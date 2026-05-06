@@ -17,7 +17,7 @@ import {
 import NextLink from "next/link";
 
 import { ApplicationStage } from "@/gql/hooks";
-import { CompensationEditDialog } from "@/modules/applications/details/components/CompensationEditDialog";
+import { SalaryEditDialog } from "@/modules/applications/details/components/SalaryEditDialog";
 import { formatDateTime } from "@/modules/applications/details/utils/application-details.shared";
 import { ApplicationQuickEditModal } from "@/modules/applications/list/components/ApplicationQuickEditModal";
 import { ApplicationTrackingPanel } from "@/modules/applications/list/components/ApplicationTrackingPanel";
@@ -27,20 +27,21 @@ import {
   type ApplicationCardStageEventRow,
   useApplicationCardViewModel,
 } from "@/modules/applications/list/hooks/useApplicationCardViewModel";
+import { ApplicationTags } from "@/modules/applications/shared/components/ApplicationTags";
 import { CompanyNameWithPopover } from "@/modules/applications/shared/components/CompanyNameWithPopover";
 import { InlineMetaDot } from "@/modules/applications/shared/components/InlineMetaDot";
 import {
   JobUrls,
   normalizeJobUrls,
 } from "@/modules/applications/shared/components/JobUrls";
+import { SalaryPeriodTooltip } from "@/modules/applications/shared/components/SalaryPeriodTooltip";
+import { SalaryView } from "@/modules/applications/shared/components/SalaryView";
 import { StageTimeline } from "@/modules/applications/shared/components/StageTimeline";
 import {
   formatStage,
   StatusBadge,
 } from "@/modules/applications/shared/components/StatusBadge";
 import { formatApplicationSourceLabel } from "@/modules/applications/shared/utils/applicationSourceLabel";
-import { ApplicationTags } from "@/modules/applications/shared/utils/ApplicationTags";
-import { CompensationRow } from "@/modules/applications/shared/utils/CompensationRow";
 
 export type { ApplicationCardApplication } from "@/modules/applications/list/hooks/useApplicationCardViewModel";
 
@@ -168,11 +169,11 @@ export function ApplicationCard({
     stageEventsRequested,
     requestStageEvents,
     descriptionPreview,
-    compLine,
-    compTags,
-    showComp,
-    compensationActionLabel,
-    compensationActionTooltip,
+    salary,
+    formattedSalary,
+    tags,
+    showSalary,
+    salaryActionLabel,
   } = useApplicationCardViewModel(app);
 
   const hasJobUrls = normalizeJobUrls(app.urls).length > 0;
@@ -224,13 +225,13 @@ export function ApplicationCard({
                 onSuccess={onSuccess}
                 onError={onError}
               />
-              <CompensationEditDialog
+              <SalaryEditDialog
                 trigger={
                   <IconButton
                     intent="ghost"
                     size="sm"
-                    label={compensationActionLabel}
-                    tooltip={compensationActionTooltip}
+                    label={salaryActionLabel}
+                    tooltip={salaryActionLabel}
                     className={cn(
                       "h-6 w-6 text-text-muted/80 hover:text-text-muted",
                     )}
@@ -299,7 +300,7 @@ export function ApplicationCard({
                 <JobUrls urls={app.urls} />
               </>
             ) : null}
-            {showComp ? (
+            {showSalary ? (
               <>
                 <InlineMetaDot />
                 <span
@@ -307,22 +308,12 @@ export function ApplicationCard({
                     "inline-flex min-w-0 max-w-full flex-wrap items-center gap-2",
                   )}
                 >
-                  {compLine ? (
-                    <Text
-                      as="span"
-                      size="sm"
-                      color="success"
-                      className={cn("min-w-0")}
-                    >
-                      {compLine}
-                    </Text>
+                  {formattedSalary ? (
+                    <SalaryPeriodTooltip salary={salary}>
+                      <SalaryView salary={formattedSalary} />
+                    </SalaryPeriodTooltip>
                   ) : null}
-                  <CompensationRow
-                    currency={compLine ? null : app.salaryCurrency}
-                    period={compLine ? null : app.salaryPeriod}
-                    omitPeriodCurrency={Boolean(compLine)}
-                  />
-                  <ApplicationTags tags={compTags} maxTagChips={3} />
+                  <ApplicationTags tags={tags} maxTagChips={3} />
                 </span>
               </>
             ) : null}

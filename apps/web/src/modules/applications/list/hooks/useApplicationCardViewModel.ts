@@ -3,36 +3,18 @@
 import React from "react";
 
 import type {
-  ApplicationSource,
-  ApplicationStage,
+  ApplicationsQuery,
   ApplicationStageEventsQuery,
-  SalaryPeriod,
 } from "@/gql/hooks";
 import { useApplicationStageEventsQuery } from "@/gql/hooks";
 import {
-  formatCompensationLine,
-  hasCompensationOnCard,
-} from "@/modules/applications/shared/utils/compensationFormat";
+  formatSalary,
+  hasSalaryOnCard,
+} from "@/modules/applications/shared/utils/salaryFormat";
 import { tipTapToPlainText } from "@/modules/applications/shared/utils/tiptap";
 
-export interface ApplicationCardApplication {
-  id: string;
-  title: string;
-  companyId: string;
-  company: { id: string; name: string; description?: string | null };
-  description?: string | null;
-  urls: string[];
-  source?: ApplicationSource | null;
-  salaryMinCents?: number | null;
-  salaryMaxCents?: number | null;
-  salaryCurrency?: string | null;
-  salaryPeriod?: SalaryPeriod | null;
-  tags: Array<string>;
-  currentStage: ApplicationStage;
-  currentStageReason?: string | null;
-  currentStageAt: string;
-  createdAt: string;
-}
+export type ApplicationCardApplication =
+  ApplicationsQuery["applications"][number];
 
 export type ApplicationCardStageEventRow = NonNullable<
   ApplicationStageEventsQuery["applicationStageEvents"]
@@ -56,20 +38,10 @@ export function useApplicationCardViewModel(
   }
 
   const descriptionPreview = tipTapToPlainText(application.description);
-  const compLine = formatCompensationLine({
-    salaryMinCents: application.salaryMinCents,
-    salaryMaxCents: application.salaryMaxCents,
-    salaryCurrency: application.salaryCurrency,
-    salaryPeriod: application.salaryPeriod,
-  });
-  const compTags = application.tags ?? [];
-  const showComp = hasCompensationOnCard({ line: compLine, tags: compTags });
-  const compensationActionLabel = compLine
-    ? `Edit compensation for ${application.title}`
-    : `Add compensation for ${application.title}`;
-  const compensationActionTooltip = compLine
-    ? "Edit compensation"
-    : "Add salary";
+  const formattedSalary = formatSalary(application.salary);
+  const tags = application.tags ?? [];
+  const showSalary = hasSalaryOnCard({ line: formattedSalary, tags });
+  const salaryActionLabel = formattedSalary ? "Edit salary" : "Add salary";
 
   return {
     applicationStageEvents,
@@ -77,10 +49,10 @@ export function useApplicationCardViewModel(
     stageEventsRequested,
     requestStageEvents,
     descriptionPreview,
-    compLine,
-    compTags,
-    showComp,
-    compensationActionLabel,
-    compensationActionTooltip,
+    salary: application.salary,
+    formattedSalary,
+    tags,
+    showSalary,
+    salaryActionLabel,
   };
 }

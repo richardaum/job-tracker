@@ -57,6 +57,14 @@ export enum ApplicationQuickFilter {
   New = "NEW",
 }
 
+export type ApplicationSalary = {
+  __typename?: "ApplicationSalary";
+  currency?: Maybe<Scalars["String"]["output"]>;
+  maxCents?: Maybe<Scalars["Int"]["output"]>;
+  minCents?: Maybe<Scalars["Int"]["output"]>;
+  period?: Maybe<SalaryPeriod>;
+};
+
 export enum ApplicationSource {
   Jack = "JACK",
   Linkedin = "LINKEDIN",
@@ -95,10 +103,7 @@ export type ApplicationType = {
   currentStageReason?: Maybe<Scalars["String"]["output"]>;
   description?: Maybe<Scalars["String"]["output"]>;
   id: Scalars["ID"]["output"];
-  salaryCurrency?: Maybe<Scalars["String"]["output"]>;
-  salaryMaxCents?: Maybe<Scalars["Int"]["output"]>;
-  salaryMinCents?: Maybe<Scalars["Int"]["output"]>;
-  salaryPeriod?: Maybe<SalaryPeriod>;
+  salary: ApplicationSalary;
   source?: Maybe<ApplicationSource>;
   tags: Array<Scalars["String"]["output"]>;
   title: Scalars["String"]["output"];
@@ -373,6 +378,17 @@ export type UserType = {
   role: Scalars["String"]["output"];
 };
 
+export type ApplicationSalarySelectionFragment = {
+  __typename?: "ApplicationType";
+  salary: {
+    __typename?: "ApplicationSalary";
+    minCents?: number | null;
+    maxCents?: number | null;
+    currency?: string | null;
+    period?: SalaryPeriod | null;
+  };
+} & { " $fragmentName"?: "ApplicationSalarySelectionFragment" };
+
 export type ApplicationsQueryVariables = Exact<{
   filter?: InputMaybe<ApplicationQuickFilter>;
   company?: InputMaybe<Scalars["String"]["input"]>;
@@ -380,30 +396,32 @@ export type ApplicationsQueryVariables = Exact<{
 
 export type ApplicationsQuery = {
   __typename?: "Query";
-  applications: Array<{
-    __typename?: "ApplicationType";
-    id: string;
-    title: string;
-    companyId: string;
-    description?: string | null;
-    urls: Array<string>;
-    source?: ApplicationSource | null;
-    salaryMinCents?: number | null;
-    salaryMaxCents?: number | null;
-    salaryCurrency?: string | null;
-    salaryPeriod?: SalaryPeriod | null;
-    tags: Array<string>;
-    currentStage: ApplicationStage;
-    currentStageReason?: string | null;
-    currentStageAt: any;
-    createdAt: any;
-    company: {
-      __typename?: "CompanyType";
+  applications: Array<
+    {
+      __typename?: "ApplicationType";
       id: string;
-      name: string;
+      title: string;
+      companyId: string;
       description?: string | null;
-    };
-  }>;
+      urls: Array<string>;
+      source?: ApplicationSource | null;
+      tags: Array<string>;
+      currentStage: ApplicationStage;
+      currentStageReason?: string | null;
+      currentStageAt: any;
+      createdAt: any;
+      company: {
+        __typename?: "CompanyType";
+        id: string;
+        name: string;
+        description?: string | null;
+      };
+    } & {
+      " $fragmentRefs"?: {
+        ApplicationSalarySelectionFragment: ApplicationSalarySelectionFragment;
+      };
+    }
+  >;
 };
 
 export type ApplicationQueryVariables = Exact<{ id: Scalars["ID"]["input"] }>;
@@ -418,10 +436,6 @@ export type ApplicationQuery = {
     description?: string | null;
     urls: Array<string>;
     source?: ApplicationSource | null;
-    salaryMinCents?: number | null;
-    salaryMaxCents?: number | null;
-    salaryCurrency?: string | null;
-    salaryPeriod?: SalaryPeriod | null;
     tags: Array<string>;
     currentStage: ApplicationStage;
     currentStageReason?: string | null;
@@ -432,6 +446,10 @@ export type ApplicationQuery = {
       id: string;
       name: string;
       description?: string | null;
+    };
+  } & {
+    " $fragmentRefs"?: {
+      ApplicationSalarySelectionFragment: ApplicationSalarySelectionFragment;
     };
   };
 };
@@ -450,10 +468,6 @@ export type CreateApplicationMutation = {
     description?: string | null;
     urls: Array<string>;
     source?: ApplicationSource | null;
-    salaryMinCents?: number | null;
-    salaryMaxCents?: number | null;
-    salaryCurrency?: string | null;
-    salaryPeriod?: SalaryPeriod | null;
     tags: Array<string>;
     createdAt: any;
     company: {
@@ -461,6 +475,10 @@ export type CreateApplicationMutation = {
       id: string;
       name: string;
       description?: string | null;
+    };
+  } & {
+    " $fragmentRefs"?: {
+      ApplicationSalarySelectionFragment: ApplicationSalarySelectionFragment;
     };
   };
 };
@@ -479,10 +497,6 @@ export type CreateApplicationWithAiMutation = {
     description?: string | null;
     urls: Array<string>;
     source?: ApplicationSource | null;
-    salaryMinCents?: number | null;
-    salaryMaxCents?: number | null;
-    salaryCurrency?: string | null;
-    salaryPeriod?: SalaryPeriod | null;
     tags: Array<string>;
     createdAt: any;
     company: {
@@ -490,6 +504,10 @@ export type CreateApplicationWithAiMutation = {
       id: string;
       name: string;
       description?: string | null;
+    };
+  } & {
+    " $fragmentRefs"?: {
+      ApplicationSalarySelectionFragment: ApplicationSalarySelectionFragment;
     };
   };
 };
@@ -539,10 +557,6 @@ export type UpdateApplicationMutation = {
     description?: string | null;
     urls: Array<string>;
     source?: ApplicationSource | null;
-    salaryMinCents?: number | null;
-    salaryMaxCents?: number | null;
-    salaryCurrency?: string | null;
-    salaryPeriod?: SalaryPeriod | null;
     tags: Array<string>;
     createdAt: any;
     company: {
@@ -550,6 +564,10 @@ export type UpdateApplicationMutation = {
       id: string;
       name: string;
       description?: string | null;
+    };
+  } & {
+    " $fragmentRefs"?: {
+      ApplicationSalarySelectionFragment: ApplicationSalarySelectionFragment;
     };
   };
 };
@@ -874,6 +892,37 @@ export type MeQuery = {
   };
 };
 
+export const ApplicationSalarySelectionFragmentDoc = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "FragmentDefinition",
+      name: { kind: "Name", value: "ApplicationSalarySelection" },
+      typeCondition: {
+        kind: "NamedType",
+        name: { kind: "Name", value: "ApplicationType" },
+      },
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "salary" },
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "minCents" } },
+                { kind: "Field", name: { kind: "Name", value: "maxCents" } },
+                { kind: "Field", name: { kind: "Name", value: "currency" } },
+                { kind: "Field", name: { kind: "Name", value: "period" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ApplicationSalarySelectionFragment, unknown>;
 export const ApplicationsDocument = {
   kind: "Document",
   definitions: [
@@ -951,20 +1000,8 @@ export const ApplicationsDocument = {
                 { kind: "Field", name: { kind: "Name", value: "urls" } },
                 { kind: "Field", name: { kind: "Name", value: "source" } },
                 {
-                  kind: "Field",
-                  name: { kind: "Name", value: "salaryMinCents" },
-                },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "salaryMaxCents" },
-                },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "salaryCurrency" },
-                },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "salaryPeriod" },
+                  kind: "FragmentSpread",
+                  name: { kind: "Name", value: "ApplicationSalarySelection" },
                 },
                 { kind: "Field", name: { kind: "Name", value: "tags" } },
                 {
@@ -980,6 +1017,32 @@ export const ApplicationsDocument = {
                   name: { kind: "Name", value: "currentStageAt" },
                 },
                 { kind: "Field", name: { kind: "Name", value: "createdAt" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+    {
+      kind: "FragmentDefinition",
+      name: { kind: "Name", value: "ApplicationSalarySelection" },
+      typeCondition: {
+        kind: "NamedType",
+        name: { kind: "Name", value: "ApplicationType" },
+      },
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "salary" },
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "minCents" } },
+                { kind: "Field", name: { kind: "Name", value: "maxCents" } },
+                { kind: "Field", name: { kind: "Name", value: "currency" } },
+                { kind: "Field", name: { kind: "Name", value: "period" } },
               ],
             },
           },
@@ -1046,20 +1109,8 @@ export const ApplicationDocument = {
                 { kind: "Field", name: { kind: "Name", value: "urls" } },
                 { kind: "Field", name: { kind: "Name", value: "source" } },
                 {
-                  kind: "Field",
-                  name: { kind: "Name", value: "salaryMinCents" },
-                },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "salaryMaxCents" },
-                },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "salaryCurrency" },
-                },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "salaryPeriod" },
+                  kind: "FragmentSpread",
+                  name: { kind: "Name", value: "ApplicationSalarySelection" },
                 },
                 { kind: "Field", name: { kind: "Name", value: "tags" } },
                 {
@@ -1075,6 +1126,32 @@ export const ApplicationDocument = {
                   name: { kind: "Name", value: "currentStageAt" },
                 },
                 { kind: "Field", name: { kind: "Name", value: "createdAt" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+    {
+      kind: "FragmentDefinition",
+      name: { kind: "Name", value: "ApplicationSalarySelection" },
+      typeCondition: {
+        kind: "NamedType",
+        name: { kind: "Name", value: "ApplicationType" },
+      },
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "salary" },
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "minCents" } },
+                { kind: "Field", name: { kind: "Name", value: "maxCents" } },
+                { kind: "Field", name: { kind: "Name", value: "currency" } },
+                { kind: "Field", name: { kind: "Name", value: "period" } },
               ],
             },
           },
@@ -1147,23 +1224,37 @@ export const CreateApplicationDocument = {
                 { kind: "Field", name: { kind: "Name", value: "urls" } },
                 { kind: "Field", name: { kind: "Name", value: "source" } },
                 {
-                  kind: "Field",
-                  name: { kind: "Name", value: "salaryMinCents" },
-                },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "salaryMaxCents" },
-                },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "salaryCurrency" },
-                },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "salaryPeriod" },
+                  kind: "FragmentSpread",
+                  name: { kind: "Name", value: "ApplicationSalarySelection" },
                 },
                 { kind: "Field", name: { kind: "Name", value: "tags" } },
                 { kind: "Field", name: { kind: "Name", value: "createdAt" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+    {
+      kind: "FragmentDefinition",
+      name: { kind: "Name", value: "ApplicationSalarySelection" },
+      typeCondition: {
+        kind: "NamedType",
+        name: { kind: "Name", value: "ApplicationType" },
+      },
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "salary" },
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "minCents" } },
+                { kind: "Field", name: { kind: "Name", value: "maxCents" } },
+                { kind: "Field", name: { kind: "Name", value: "currency" } },
+                { kind: "Field", name: { kind: "Name", value: "period" } },
               ],
             },
           },
@@ -1239,23 +1330,37 @@ export const CreateApplicationWithAiDocument = {
                 { kind: "Field", name: { kind: "Name", value: "urls" } },
                 { kind: "Field", name: { kind: "Name", value: "source" } },
                 {
-                  kind: "Field",
-                  name: { kind: "Name", value: "salaryMinCents" },
-                },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "salaryMaxCents" },
-                },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "salaryCurrency" },
-                },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "salaryPeriod" },
+                  kind: "FragmentSpread",
+                  name: { kind: "Name", value: "ApplicationSalarySelection" },
                 },
                 { kind: "Field", name: { kind: "Name", value: "tags" } },
                 { kind: "Field", name: { kind: "Name", value: "createdAt" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+    {
+      kind: "FragmentDefinition",
+      name: { kind: "Name", value: "ApplicationSalarySelection" },
+      typeCondition: {
+        kind: "NamedType",
+        name: { kind: "Name", value: "ApplicationType" },
+      },
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "salary" },
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "minCents" } },
+                { kind: "Field", name: { kind: "Name", value: "maxCents" } },
+                { kind: "Field", name: { kind: "Name", value: "currency" } },
+                { kind: "Field", name: { kind: "Name", value: "period" } },
               ],
             },
           },
@@ -1473,23 +1578,37 @@ export const UpdateApplicationDocument = {
                 { kind: "Field", name: { kind: "Name", value: "urls" } },
                 { kind: "Field", name: { kind: "Name", value: "source" } },
                 {
-                  kind: "Field",
-                  name: { kind: "Name", value: "salaryMinCents" },
-                },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "salaryMaxCents" },
-                },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "salaryCurrency" },
-                },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "salaryPeriod" },
+                  kind: "FragmentSpread",
+                  name: { kind: "Name", value: "ApplicationSalarySelection" },
                 },
                 { kind: "Field", name: { kind: "Name", value: "tags" } },
                 { kind: "Field", name: { kind: "Name", value: "createdAt" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+    {
+      kind: "FragmentDefinition",
+      name: { kind: "Name", value: "ApplicationSalarySelection" },
+      typeCondition: {
+        kind: "NamedType",
+        name: { kind: "Name", value: "ApplicationType" },
+      },
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "salary" },
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "minCents" } },
+                { kind: "Field", name: { kind: "Name", value: "maxCents" } },
+                { kind: "Field", name: { kind: "Name", value: "currency" } },
+                { kind: "Field", name: { kind: "Name", value: "period" } },
               ],
             },
           },

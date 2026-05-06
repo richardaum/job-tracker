@@ -1,23 +1,6 @@
-import {
-  ApplicationSource,
-  ApplicationStage,
-  type SalaryPeriod,
-} from "@/gql/hooks";
+import { type ApplicationQuery, ApplicationStage } from "@/gql/hooks";
 
-export interface ApplicationDetailsValues {
-  id: string;
-  title: string;
-  companyId: string;
-  company: { id: string; name: string; description?: string | null };
-  description?: string | null;
-  urls: string[];
-  source?: ApplicationSource | null;
-  salaryMinCents?: number | null;
-  salaryMaxCents?: number | null;
-  salaryCurrency?: string | null;
-  salaryPeriod?: SalaryPeriod | null;
-  tags?: string[];
-}
+export type ApplicationDetailsValues = ApplicationQuery["application"];
 
 export function formatStage(value: ApplicationStage) {
   return value

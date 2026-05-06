@@ -10,14 +10,14 @@ import {
   useUpdateApplicationMutation,
 } from "@/gql/hooks";
 import type { ApplicationDetailsValues } from "@/modules/applications/details/utils/application-details.shared";
+import { ApplicationTags } from "@/modules/applications/shared/components/ApplicationTags";
 import { CompanyNameWithPopover } from "@/modules/applications/shared/components/CompanyNameWithPopover";
 import { JobUrls } from "@/modules/applications/shared/components/JobUrls";
-import { ApplicationTags } from "@/modules/applications/shared/utils/ApplicationTags";
-import { formatCompensationLine } from "@/modules/applications/shared/utils/compensationFormat";
+import { formatSalary } from "@/modules/applications/shared/utils/salaryFormat";
 import { CompanyEditDialog } from "@/modules/companies/shared/components/CompanyEditDialog";
 
-import { CompensationEditDialog } from "./CompensationEditDialog";
 import { HoverEditableFieldRow } from "./HoverEditableFieldRow";
+import { SalaryEditDialog } from "./SalaryEditDialog";
 import { SourceEditDialog } from "./SourceEditDialog";
 import { TagsEditDialog } from "./TagsEditDialog";
 import { TextFieldEditDialog } from "./TextFieldEditDialog";
@@ -91,12 +91,7 @@ export function OverviewTabContent({
     }
   }
 
-  const compLine = formatCompensationLine({
-    salaryMinCents: application.salaryMinCents,
-    salaryMaxCents: application.salaryMaxCents,
-    salaryCurrency: application.salaryCurrency,
-    salaryPeriod: application.salaryPeriod,
-  });
+  const salary = formatSalary(application.salary);
   const tags = application.tags ?? [];
 
   return (
@@ -178,10 +173,10 @@ export function OverviewTabContent({
 
       <div className={cn("max-w-full sm:col-span-2")}>
         <HoverEditableFieldRow
-          label="Compensation"
+          label="Salary"
           content={
-            compLine ? (
-              <Text size="sm">{compLine}</Text>
+            salary ? (
+              <Text size="sm">{salary}</Text>
             ) : (
               <Text size="sm" color="secondary">
                 Not set
@@ -189,7 +184,7 @@ export function OverviewTabContent({
             )
           }
           editControl={
-            <CompensationEditDialog
+            <SalaryEditDialog
               application={application}
               onSuccess={onSuccess}
               onError={onError}

@@ -1,13 +1,29 @@
+/**
+ * GraphQL/application salary presentation: nested `application.salary` (min/max cents,
+ * currency, period), card suffixes. Rate math lives in `tools/salary-calculator/lib/conversion.ts`.
+ */
+
+import type { ApplicationSalary } from "@/gql/graphql";
 import { SalaryPeriod } from "@/gql/hooks";
+import {
+  formatCurrencyWhole,
+  type SalaryRatePeriodBasis,
+} from "@/modules/tools/salary-calculator/lib/conversion";
 
 export const SALARY_PERIODS: Array<{
   value: SalaryPeriod;
   label: string;
   short: string;
+  basis: SalaryRatePeriodBasis;
 }> = [
-  { value: SalaryPeriod.Year, label: "Per year", short: "yr" },
-  { value: SalaryPeriod.Month, label: "Per month", short: "mo" },
-  { value: SalaryPeriod.Hour, label: "Per hour", short: "hr" },
+  { value: SalaryPeriod.Year, label: "Per year", short: "yr", basis: "yearly" },
+  {
+    value: SalaryPeriod.Month,
+    label: "Per month",
+    short: "mo",
+    basis: "monthly",
+  },
+  { value: SalaryPeriod.Hour, label: "Per hour", short: "hr", basis: "hourly" },
 ];
 
 const PERIOD_TO_SUFFIX: Record<string, string> = {
@@ -16,44 +32,36 @@ const PERIOD_TO_SUFFIX: Record<string, string> = {
   HOUR: "/hr",
 };
 
-export function formatSalaryPeriodChip(
+export function salaryPeriodToRateBasis(
   period: SalaryPeriod | null | undefined,
-) {
-  if (period == null) return null;
-  if (period === SalaryPeriod.Year) return "Year";
-  if (period === SalaryPeriod.Month) return "Month";
-  if (period === SalaryPeriod.Hour) return "Hour";
-  return String(period);
+): SalaryRatePeriodBasis | undefined {
+  if (period == null) return undefined;
+  return SALARY_PERIODS.find((p) => p.value === period)?.basis;
 }
 
-export function formatCompensationLine(params: {
-  salaryMinCents: number | null | undefined;
-  salaryMaxCents: number | null | undefined;
-  salaryCurrency: string | null | undefined;
-  salaryPeriod: SalaryPeriod | null | undefined;
-}): string | null {
+/** Non-negative stored cents → major units for display/math; invalid → null. */
+export function majorFromCents(
+  cents: number | null | undefined,
+): number | null {
+  if (cents == null || cents < 0) return null;
+  return cents / 100;
+}
+
+export function formatSalary(salary: ApplicationSalary): string | null {
   const has =
-    (params.salaryMinCents != null && params.salaryMinCents >= 0) ||
-    (params.salaryMaxCents != null && params.salaryMaxCents >= 0);
-  if (!has || !params.salaryCurrency || !params.salaryPeriod) {
+    (salary.minCents != null && salary.minCents >= 0) ||
+    (salary.maxCents != null && salary.maxCents >= 0);
+  if (!has || !salary.currency || !salary.period) {
     return null;
   }
-  const currency = params.salaryCurrency;
-  const fmt = new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency,
-    maximumFractionDigits: 0,
-    minimumFractionDigits: 0,
-  });
+  const currency = salary.currency;
+  const minMajor = majorFromCents(salary.minCents);
+  const maxMajor = majorFromCents(salary.maxCents);
   const minS =
-    params.salaryMinCents != null
-      ? fmt.format(params.salaryMinCents / 100)
-      : null;
+    minMajor != null ? formatCurrencyWhole(minMajor, currency) : null;
   const maxS =
-    params.salaryMaxCents != null
-      ? fmt.format(params.salaryMaxCents / 100)
-      : null;
-  const p = String(params.salaryPeriod);
+    maxMajor != null ? formatCurrencyWhole(maxMajor, currency) : null;
+  const p = String(salary.period);
   const per = PERIOD_TO_SUFFIX[p] ?? "";
   if (minS && maxS && minS !== maxS) {
     return `${minS} – ${maxS}${per}`;
@@ -109,7 +117,7 @@ export function parseTagInput(s: string): string[] {
     .filter(Boolean);
 }
 
-export function hasCompensationOnCard(params: {
+export function hasSalaryOnCard(params: {
   line: string | null;
   tags: string[];
 }): boolean {
