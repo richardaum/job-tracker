@@ -27,6 +27,7 @@ export default defineConfig(
       "**/test-results/**",
       "apps/extension/build/**",
       "apps/extension/.wxt/**",
+      "apps/extension/codegen.ts",
       "apps/web/next-env.d.ts",
       "apps/web/src/gql/**",
     ],
@@ -216,10 +217,14 @@ export default defineConfig(
     ...testingLibrary.configs["flat/react"],
   },
   {
-    files: ["apps/web/src/**/*.{ts,tsx}", "packages/ui/src/**/*.{ts,tsx}"],
+    files: ["**/*.{ts,tsx}"],
     ignores: [
+      "*.config.ts",
+      "eslint.config.ts",
       "**/*.stories.{ts,tsx}",
       "**/*.{test,spec}.{ts,tsx}",
+      "apps/extension/codegen.ts",
+      "apps/web/codegen.ts",
       "apps/web/src/gql/**",
     ],
     languageOptions: { parserOptions: { projectService: true } },
