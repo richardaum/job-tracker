@@ -9,5 +9,8 @@ export class DraftApplicationType {
   url!: string;
 
   @Field()
+  title!: string;
+
+  @Field()
   htmlContent!: string;
 }

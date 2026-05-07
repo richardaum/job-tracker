@@ -6,5 +6,8 @@ export class CreateDraftApplicationInput {
   url!: string;
 
   @Field()
+  title!: string;
+
+  @Field()
   htmlContent!: string;
 }

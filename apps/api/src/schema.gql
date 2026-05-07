@@ -118,6 +118,7 @@ type CurrencyRates {
 type DraftApplicationType {
   id: ID!
   url: String!
+  title: String!
   htmlContent: String!
 }
 
@@ -259,5 +260,6 @@ input CreateImportRunInput {
 
 input CreateDraftApplicationInput {
   url: String!
+  title: String!
   htmlContent: String!
 }

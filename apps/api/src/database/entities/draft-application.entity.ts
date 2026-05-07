@@ -10,6 +10,9 @@ export class DraftApplicationEntity {
   @Column({ type: "text" })
   url!: string;
 
+  @Column({ type: "text" })
+  title!: string;
+
   @Column({ name: "html_content", type: "text" })
   htmlContent!: string;
 }

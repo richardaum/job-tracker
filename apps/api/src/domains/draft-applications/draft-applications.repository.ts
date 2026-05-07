@@ -20,10 +20,12 @@ export class DraftApplicationsRepository {
 
   async create(params: {
     url: string;
+    title: string;
     htmlContent: string;
   }): Promise<DraftApplicationEntity> {
     const row = this.draftApplicationsRepo.create({
       url: params.url,
+      title: params.title,
       htmlContent: params.htmlContent,
     });
 

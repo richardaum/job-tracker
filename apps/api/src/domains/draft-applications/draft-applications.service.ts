@@ -13,6 +13,7 @@ export class DraftApplicationsService {
     return rows.map((row) => ({
       id: row.id,
       url: row.url,
+      title: row.title,
       htmlContent: row.htmlContent,
     }));
   }
@@ -23,7 +24,12 @@ export class DraftApplicationsService {
       throw new NotFoundException(`Draft application ${id} not found`);
     }
 
-    return { id: row.id, url: row.url, htmlContent: row.htmlContent };
+    return {
+      id: row.id,
+      url: row.url,
+      title: row.title,
+      htmlContent: row.htmlContent,
+    };
   }
 
   async delete(id: string): Promise<void> {
@@ -36,9 +42,15 @@ export class DraftApplicationsService {
   ): Promise<DraftApplicationType> {
     const row = await this.repo.create({
       url: input.url,
+      title: input.title,
       htmlContent: input.htmlContent,
     });
 
-    return { id: row.id, url: row.url, htmlContent: row.htmlContent };
+    return {
+      id: row.id,
+      url: row.url,
+      title: row.title,
+      htmlContent: row.htmlContent,
+    };
   }
 }

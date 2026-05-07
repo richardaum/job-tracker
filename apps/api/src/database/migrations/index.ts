@@ -14,6 +14,7 @@ import { AddApplicationUrls1756000000000 } from "./1756000000000-add-application
 import { DropApplicationUrl1756000001000 } from "./1756000001000-drop-application-url";
 import { CreateExchangeRateCache1757000000000 } from "./1757000000000-create-exchange-rate-cache";
 import { CreateDraftApplications1758000000000 } from "./1758000000000-create-draft-applications";
+import { AddTitleToDraftApplications1762440000000 } from "./1762440000000-add-title-to-draft-applications";
 
 export const migrations = [
   Baseline1746009600000,
@@ -32,4 +33,5 @@ export const migrations = [
   DropApplicationUrl1756000001000,
   CreateExchangeRateCache1757000000000,
   CreateDraftApplications1758000000000,
+  AddTitleToDraftApplications1762440000000,
 ];
