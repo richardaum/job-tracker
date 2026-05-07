@@ -160,6 +160,25 @@ Screens that pair an **index list** with an **item detail** route (same product 
 - **`TipTapEditor` / `aiActions`**: Prefer an inline literal array in props (e.g. `aiActions={[actionA, actionB]}`) over a `const` used only for that prop.
 - **Other logic**: For non–screen-level behavior, use a dedicated hook or pure function in its own file when scope is clear (see **Web view models** for GraphQL screens).
 
+### New implementation extraction M.O.
+
+When introducing or refactoring a feature, use this extraction-oriented Modus Operandi to keep implementation scalable and testable across domains.
+
+- **Choose extraction granularity intentionally:** pick one or combine multiple levels based on file complexity and reuse potential:
+  - **Contextual (coarse):** isolate vertical slices and domain boundaries.
+  - **Functional (medium):** extract orchestration into hooks/services and separate domain logic from rendering.
+  - **Atomic (fine):** extract pure utilities and business-agnostic primitives.
+- **Group by context, not technical bucket:** co-locate components, hooks, and types in the feature/domain area instead of generic global folders (`/hooks`, `/utils`) when scope is local.
+- **Prefer low coupling:** remove hidden global dependencies where practical; use dependency injection and generic typing (`<T>`) when that improves reuse or testing.
+- **Apply SRP pragmatically:** each extracted unit has one clear responsibility and high cohesion, but avoid abstraction that does not reduce cognitive load or improve testability.
+- **Keep orchestration and primitives separate:** high-level modules express declarative business flow; low-level modules stay infrastructure-oriented and domain-agnostic.
+
+Before finalizing an extraction, document or validate these points in the PR/spec context:
+
+- **Name + contract:** clear exported name and TypeScript signature.
+- **Rationale:** why extraction improves maintainability, readability, or testability for this feature.
+- **Level classification:** whether the module is high-level (domain orchestration/rules) or low-level (utilities/infrastructure) and why.
+
 ## GraphQL list consistency
 
 After mutations that create or delete list-backed entities (e.g. applications or companies), refetch the list query with **`awaitRefetchQueries: true`** so the list updates before success UI (toast, close, redirect).
