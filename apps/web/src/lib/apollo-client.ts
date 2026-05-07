@@ -1,15 +1,18 @@
 "use client";
 
 import { ApolloClient, HttpLink, InMemoryCache } from "@apollo/client";
+import { createAuthRefreshLink } from "@job-tracker/auth";
 
-import { getApiGraphqlUrl } from "./api-endpoints";
-import { authRefreshLink } from "./auth-refresh-link";
+import { getApiBaseUrl, getApiGraphqlUrl } from "./api-endpoints";
 
 function getApolloGraphqlUri(): string {
   return getApiGraphqlUrl();
 }
 
 export const APOLLO_GRAPHQL_URI = getApolloGraphqlUri();
+const authRefreshLink = createAuthRefreshLink(
+  () => `${getApiBaseUrl()}/auth/refresh`,
+);
 
 export function createApolloClient() {
   const httpLink = new HttpLink({

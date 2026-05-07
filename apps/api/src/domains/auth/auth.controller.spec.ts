@@ -73,6 +73,10 @@ describe("AuthController (integration)", () => {
 
     const cookies = ([] as string[]).concat(res.headers["set-cookie"] ?? []);
     expect(cookies.some((c) => c.startsWith("access_token="))).toBe(true);
+    expect(cookies.some((c) => c.toLowerCase().includes("samesite=none"))).toBe(
+      true,
+    );
+    expect(cookies.some((c) => c.toLowerCase().includes("secure"))).toBe(true);
     expect(
       cookies.some(
         (c) =>

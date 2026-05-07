@@ -17,7 +17,14 @@ import type { Request, Response } from "express";
 import { AuthService } from "./auth.service";
 import { DevAuthBypassService } from "./dev-auth-bypass.service";
 
-const COOKIE_BASE = { httpOnly: true, sameSite: "lax" as const, path: "/" };
+const cookieBase = {
+  httpOnly: true,
+  // Extension requests come from `chrome-extension://` and are cross-site.
+  // `SameSite=None; Secure` is required so auth cookies are sent on GraphQL fetches.
+  sameSite: "none" as const,
+  secure: true,
+  path: "/",
+};
 const DEFAULT_AFTER_LOGIN_PATH = "/login";
 
 @Controller("auth")
@@ -70,7 +77,7 @@ export class AuthController {
       const accessToken = this.authService.generateAccessToken({ id: userId });
 
       res.cookie("access_token", accessToken, {
-        ...COOKIE_BASE,
+        ...cookieBase,
         maxAge: 15 * 60 * 1000,
       });
       res.json({ ok: true });
@@ -89,11 +96,11 @@ export class AuthController {
     const refreshToken = this.authService.generateRefreshToken(user);
 
     res.cookie("access_token", accessToken, {
-      ...COOKIE_BASE,
+      ...cookieBase,
       maxAge: 15 * 60 * 1000,
     });
     res.cookie("refresh_token", refreshToken, {
-      ...COOKIE_BASE,
+      ...cookieBase,
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 

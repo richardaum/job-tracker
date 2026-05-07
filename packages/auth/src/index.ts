@@ -2,13 +2,13 @@ import { Observable } from "@apollo/client/core";
 import { CombinedGraphQLErrors } from "@apollo/client/errors";
 import { ErrorLink } from "@apollo/client/link/error";
 
-import { getApiBaseUrl } from "./api-endpoints";
+type RefreshUrlProvider = () => string;
 
 let refreshPromise: Promise<boolean> | null = null;
 
-async function refreshAccessToken(): Promise<boolean> {
+async function refreshAccessToken(refreshUrl: string): Promise<boolean> {
   try {
-    const response = await fetch(`${getApiBaseUrl()}/auth/refresh`, {
+    const response = await fetch(refreshUrl, {
       method: "POST",
       credentials: "include",
     });
@@ -42,15 +42,15 @@ function isUnauthorizedError(error: unknown): boolean {
   return statusCode === 401;
 }
 
-export const authRefreshLink = new ErrorLink(
-  ({ error, operation, forward }) => {
+export function createAuthRefreshLink(getRefreshUrl: RefreshUrlProvider) {
+  return new ErrorLink(({ error, operation, forward }) => {
     const alreadyRetried = operation.getContext().didRefreshRetry === true;
     if (alreadyRetried || !isUnauthorizedError(error)) {
       return;
     }
 
     if (!refreshPromise) {
-      refreshPromise = refreshAccessToken().finally(() => {
+      refreshPromise = refreshAccessToken(getRefreshUrl()).finally(() => {
         refreshPromise = null;
       });
     }
@@ -85,5 +85,5 @@ export const authRefreshLink = new ErrorLink(
         subscription?.unsubscribe();
       };
     });
-  },
-);
+  });
+}
