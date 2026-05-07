@@ -37,4 +37,13 @@ export class DraftApplicationsResolver {
   ): Promise<DraftApplicationType> {
     return this.service.create(input);
   }
+
+  @Mutation(() => Boolean)
+  async deleteDraftApplication(
+    @Args("id", { type: () => ID }) id: string,
+    @CurrentUser() _user: { userId: string },
+  ): Promise<boolean> {
+    await this.service.delete(id);
+    return true;
+  }
 }

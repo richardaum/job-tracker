@@ -26,6 +26,11 @@ export class DraftApplicationsService {
     return { id: row.id, url: row.url, htmlContent: row.htmlContent };
   }
 
+  async delete(id: string): Promise<void> {
+    await this.findOne(id);
+    await this.repo.deleteById(id);
+  }
+
   async create(
     input: CreateDraftApplicationInput,
   ): Promise<DraftApplicationType> {

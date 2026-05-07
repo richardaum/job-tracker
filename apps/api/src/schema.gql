@@ -193,6 +193,7 @@ type Mutation {
   clearImportRuns: Boolean!
   updateImportRunStatus(id: ID!, status: ImportRunStatus!): ImportRunType!
   createDraftApplication(input: CreateDraftApplicationInput!): DraftApplicationType!
+  deleteDraftApplication(id: ID!): Boolean!
 }
 
 input CreateApplicationInput {

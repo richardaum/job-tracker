@@ -29,4 +29,8 @@ export class DraftApplicationsRepository {
 
     return this.draftApplicationsRepo.save(row);
   }
+
+  async deleteById(id: string): Promise<void> {
+    await this.draftApplicationsRepo.delete({ id });
+  }
 }
