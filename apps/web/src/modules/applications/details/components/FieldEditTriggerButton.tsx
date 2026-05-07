@@ -1,4 +1,4 @@
-import { cn, IconButton, Text } from "@job-tracker/ui";
+import { cn, IconButton } from "@job-tracker/ui";
 import { PencilSimpleIcon } from "@phosphor-icons/react";
 import React from "react";
 
@@ -25,27 +25,5 @@ export function FieldEditTriggerButton({
       )}
       {...props}
     />
-  );
-}
-
-export function HoverEditableFieldRow({
-  label,
-  content,
-  editControl,
-}: {
-  label: string;
-  content: React.ReactNode;
-  editControl: React.ReactNode;
-}) {
-  return (
-    <div className={cn("group")}>
-      <div className={cn("flex items-center gap-1")}>
-        <Text size="xs" color="muted">
-          {label}
-        </Text>
-        <div className={cn("shrink-0")}>{editControl}</div>
-      </div>
-      <div className={cn("mt-1 min-w-0")}>{content}</div>
-    </div>
   );
 }

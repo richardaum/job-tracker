@@ -13,7 +13,7 @@ import {
   type TagWithMetadata,
 } from "@/modules/applications/shared/components/TagsInput";
 
-import { FieldEditTriggerButton } from "./HoverEditableFieldRow";
+import { FieldEditTriggerButton } from "./FieldEditTriggerButton";
 
 interface TagsEditDialogProps {
   applicationId: string;

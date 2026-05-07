@@ -18,7 +18,7 @@ import {
   parseApplicationSourceComboLabel,
 } from "@/modules/applications/shared/utils/applicationSourceLabel";
 
-import { FieldEditTriggerButton } from "./HoverEditableFieldRow";
+import { FieldEditTriggerButton } from "./FieldEditTriggerButton";
 
 const fieldId = "edit-application-source";
 

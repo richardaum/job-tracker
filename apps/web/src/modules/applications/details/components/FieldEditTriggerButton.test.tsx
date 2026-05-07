@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import { FieldEditTriggerButton } from "./HoverEditableFieldRow";
+import { FieldEditTriggerButton } from "./FieldEditTriggerButton";
 
 describe("FieldEditTriggerButton", () => {
   it("forwards click handlers to the button element", () => {

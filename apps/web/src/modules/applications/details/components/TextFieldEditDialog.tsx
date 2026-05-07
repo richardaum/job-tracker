@@ -3,7 +3,7 @@
 import { Button, cn, Dialog, FormField, Input, Stack } from "@job-tracker/ui";
 import React, { useState } from "react";
 
-import { FieldEditTriggerButton } from "./HoverEditableFieldRow";
+import { FieldEditTriggerButton } from "./FieldEditTriggerButton";
 
 interface TextFieldEditDialogProps {
   label: string;

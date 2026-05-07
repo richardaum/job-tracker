@@ -4,6 +4,7 @@ import {
   Button,
   Card,
   cn,
+  FieldWithLabelAction,
   FormField,
   IconButton,
   Input,
@@ -22,7 +23,6 @@ import {
   useCreateApplicationStageEventMutation,
   useGenerateApplicationDraftWithAiLazyQuery,
 } from "@/gql/hooks";
-import { HoverEditableFieldRow } from "@/modules/applications/details/components/HoverEditableFieldRow";
 import { SalaryEditDialog } from "@/modules/applications/details/components/SalaryEditDialog";
 import { TipTapEditor } from "@/modules/applications/details/components/TipTapEditor";
 import {
@@ -266,9 +266,9 @@ export default function AiApplicationCreatePage() {
               {draft ? (
                 <div className="mt-3 space-y-3">
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                    <HoverEditableFieldRow
+                    <FieldWithLabelAction
                       label="title"
-                      editControl={
+                      actions={
                         <IconButton
                           intent="ghost"
                           size="sm"
@@ -297,9 +297,9 @@ export default function AiApplicationCreatePage() {
                         />
                       }
                     />
-                    <HoverEditableFieldRow
+                    <FieldWithLabelAction
                       label="company"
-                      editControl={
+                      actions={
                         <IconButton
                           intent="ghost"
                           size="sm"
@@ -330,9 +330,9 @@ export default function AiApplicationCreatePage() {
                     />
                   </div>
 
-                  <HoverEditableFieldRow
+                  <FieldWithLabelAction
                     label="description"
-                    editControl={
+                    actions={
                       <IconButton
                         intent="ghost"
                         size="sm"
@@ -362,9 +362,9 @@ export default function AiApplicationCreatePage() {
                   />
 
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                    <HoverEditableFieldRow
+                    <FieldWithLabelAction
                       label="url"
-                      editControl={
+                      actions={
                         <IconButton
                           intent="ghost"
                           size="sm"
@@ -393,40 +393,40 @@ export default function AiApplicationCreatePage() {
                         />
                       }
                     />
-                    <HoverEditableFieldRow
+                    <FieldWithLabelAction
                       label="salary"
-                      editControl={
-                        <div className={cn("flex items-center gap-1")}>
-                          <IconButton
-                            intent="ghost"
-                            size="sm"
-                            label="Rework salary"
-                            tooltip="Rework salary with AI"
-                            icon={<SparkleIcon size={14} weight="regular" />}
-                            className={cn(
-                              "h-7 w-7 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100",
-                            )}
-                            onClick={() =>
-                              handleReworkField(
-                                "minCents, maxCents, currency, period",
-                              )
-                            }
-                            disabled={loading}
-                          />
-                          <Button
-                            type="button"
-                            size="sm"
-                            intent="outlined"
-                            className={cn(
-                              "h-7 px-2 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100",
-                            )}
-                            onClick={() => setSalaryDialogOpen(true)}
-                            disabled={loading}
-                          >
-                            Edit
-                          </Button>
-                        </div>
-                      }
+                      actions={[
+                        <IconButton
+                          key="salary-rework"
+                          intent="ghost"
+                          size="sm"
+                          label="Rework salary"
+                          tooltip="Rework salary with AI"
+                          icon={<SparkleIcon size={14} weight="regular" />}
+                          className={cn(
+                            "h-7 w-7 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100",
+                          )}
+                          onClick={() =>
+                            handleReworkField(
+                              "minCents, maxCents, currency, period",
+                            )
+                          }
+                          disabled={loading}
+                        />,
+                        <Button
+                          key="salary-edit"
+                          type="button"
+                          size="sm"
+                          intent="outlined"
+                          className={cn(
+                            "h-7 px-2 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100",
+                          )}
+                          onClick={() => setSalaryDialogOpen(true)}
+                          disabled={loading}
+                        >
+                          Edit
+                        </Button>,
+                      ]}
                       content={
                         <Text size="sm" color="secondary">
                           {salaryLine ?? "Not set"}
@@ -435,9 +435,9 @@ export default function AiApplicationCreatePage() {
                     />
                   </div>
 
-                  <HoverEditableFieldRow
+                  <FieldWithLabelAction
                     label="tags (comma-separated)"
-                    editControl={
+                    actions={
                       <IconButton
                         intent="ghost"
                         size="sm"
@@ -468,9 +468,9 @@ export default function AiApplicationCreatePage() {
                     }
                   />
 
-                  <HoverEditableFieldRow
+                  <FieldWithLabelAction
                     label="noteContents (one line per note)"
-                    editControl={
+                    actions={
                       <IconButton
                         intent="ghost"
                         size="sm"

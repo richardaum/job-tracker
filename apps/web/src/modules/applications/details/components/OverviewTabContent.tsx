@@ -1,6 +1,6 @@
 "use client";
 
-import { cn, Text } from "@job-tracker/ui";
+import { FieldWithLabelAction, OverviewSection, Text } from "@job-tracker/ui";
 
 import {
   ApplicationDocument,
@@ -16,7 +16,6 @@ import { JobUrls } from "@/modules/applications/shared/components/JobUrls";
 import { formatSalary } from "@/modules/applications/shared/utils/salaryFormat";
 import { CompanyEditDialog } from "@/modules/companies/shared/components/CompanyEditDialog";
 
-import { HoverEditableFieldRow } from "./HoverEditableFieldRow";
 import { SalaryEditDialog } from "./SalaryEditDialog";
 import { SourceEditDialog } from "./SourceEditDialog";
 import { TagsEditDialog } from "./TagsEditDialog";
@@ -95,12 +94,12 @@ export function OverviewTabContent({
   const tags = application.tags ?? [];
 
   return (
-    <div className={cn("flex flex-wrap items-start gap-x-8 gap-y-4")}>
-      <div className={cn("max-w-full")}>
-        <HoverEditableFieldRow
+    <OverviewSection>
+      <div className="max-w-full">
+        <FieldWithLabelAction
           label="Job title"
           content={<Text size="sm">{application.title}</Text>}
-          editControl={
+          actions={
             <TextFieldEditDialog
               label="Job title"
               value={application.title}
@@ -111,8 +110,8 @@ export function OverviewTabContent({
         />
       </div>
 
-      <div className={cn("max-w-full")}>
-        <HoverEditableFieldRow
+      <div className="max-w-full">
+        <FieldWithLabelAction
           label="Company"
           content={
             <CompanyNameWithPopover
@@ -121,7 +120,7 @@ export function OverviewTabContent({
               onError={onError}
             />
           }
-          editControl={
+          actions={
             <CompanyEditDialog
               application={application}
               onSuccess={onSuccess}
@@ -131,8 +130,8 @@ export function OverviewTabContent({
         />
       </div>
 
-      <div className={cn("max-w-full")}>
-        <HoverEditableFieldRow
+      <div className="max-w-full">
+        <FieldWithLabelAction
           label="Job URLs"
           content={
             <JobUrls
@@ -141,7 +140,7 @@ export function OverviewTabContent({
               emptyLabel="Not set"
             />
           }
-          editControl={
+          actions={
             <UrlFieldEditDialog
               value={application.urls}
               onSave={handleSaveUrl}
@@ -150,8 +149,8 @@ export function OverviewTabContent({
         />
       </div>
 
-      <div className={cn("max-w-full")}>
-        <HoverEditableFieldRow
+      <div className="max-w-full">
+        <FieldWithLabelAction
           label="Source"
           content={
             sourcePrimaryText ? (
@@ -162,7 +161,7 @@ export function OverviewTabContent({
               </Text>
             )
           }
-          editControl={
+          actions={
             <SourceEditDialog
               value={application.source}
               onSave={handleSaveSource}
@@ -171,8 +170,8 @@ export function OverviewTabContent({
         />
       </div>
 
-      <div className={cn("max-w-full sm:col-span-2")}>
-        <HoverEditableFieldRow
+      <div className="max-w-full">
+        <FieldWithLabelAction
           label="Salary"
           content={
             salary ? (
@@ -183,7 +182,7 @@ export function OverviewTabContent({
               </Text>
             )
           }
-          editControl={
+          actions={
             <SalaryEditDialog
               application={application}
               onSuccess={onSuccess}
@@ -193,8 +192,8 @@ export function OverviewTabContent({
         />
       </div>
 
-      <div className={cn("max-w-full sm:col-span-2")}>
-        <HoverEditableFieldRow
+      <div className="max-w-full">
+        <FieldWithLabelAction
           label="Tags"
           content={
             tags.length > 0 ? (
@@ -205,7 +204,7 @@ export function OverviewTabContent({
               </Text>
             )
           }
-          editControl={
+          actions={
             <TagsEditDialog
               applicationId={application.id}
               tags={tags}
@@ -215,6 +214,6 @@ export function OverviewTabContent({
           }
         />
       </div>
-    </div>
+    </OverviewSection>
   );
 }

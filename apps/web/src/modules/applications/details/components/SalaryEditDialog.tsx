@@ -28,7 +28,7 @@ import {
   SALARY_PERIODS,
 } from "@/modules/applications/shared/utils/salaryFormat";
 
-import { FieldEditTriggerButton } from "./HoverEditableFieldRow";
+import { FieldEditTriggerButton } from "./FieldEditTriggerButton";
 
 const defaultSalaryCurrency = "USD";
 
