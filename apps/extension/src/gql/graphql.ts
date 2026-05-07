@@ -151,6 +151,7 @@ export type CreateApplicationWithAiInput = {
 
 export type CreateDraftApplicationInput = {
   htmlContent: Scalars["String"]["input"];
+  title: Scalars["String"]["input"];
   url: Scalars["String"]["input"];
 };
 
@@ -171,6 +172,7 @@ export type DraftApplicationType = {
   __typename?: "DraftApplicationType";
   htmlContent: Scalars["String"]["output"];
   id: Scalars["ID"]["output"];
+  title: Scalars["String"]["output"];
   url: Scalars["String"]["output"];
 };
 
@@ -211,6 +213,7 @@ export type Mutation = {
   deleteApplicationNote: Scalars["Boolean"]["output"];
   deleteApplicationStageEvent: Scalars["Boolean"]["output"];
   deleteCompany: Scalars["Boolean"]["output"];
+  deleteDraftApplication: Scalars["Boolean"]["output"];
   deleteImportRun: Scalars["Boolean"]["output"];
   removeApplicationTag: ApplicationType;
   updateApplication: ApplicationType;
@@ -247,6 +250,8 @@ export type MutationDeleteApplicationStageEventArgs = {
 };
 
 export type MutationDeleteCompanyArgs = { id: Scalars["ID"]["input"] };
+
+export type MutationDeleteDraftApplicationArgs = { id: Scalars["ID"]["input"] };
 
 export type MutationDeleteImportRunArgs = { id: Scalars["ID"]["input"] };
 
@@ -409,6 +414,7 @@ export type CreateDraftApplicationMutation = {
     __typename?: "DraftApplicationType";
     id: string;
     url: string;
+    title: string;
   };
 };
 
@@ -456,6 +462,7 @@ export const CreateDraftApplicationDocument = {
               selections: [
                 { kind: "Field", name: { kind: "Name", value: "id" } },
                 { kind: "Field", name: { kind: "Name", value: "url" } },
+                { kind: "Field", name: { kind: "Name", value: "title" } },
               ],
             },
           },

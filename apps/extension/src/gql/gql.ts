@@ -14,10 +14,10 @@ import { TypedDocumentNode as DocumentNode } from "@graphql-typed-document-node/
  * Learn more about it here: https://the-guild.dev/graphql/codegen/plugins/presets/preset-client#reducing-bundle-size
  */
 type Documents = {
-  "mutation CreateDraftApplication($input: CreateDraftApplicationInput!) {\n  createDraftApplication(input: $input) {\n    id\n    url\n  }\n}": typeof types.CreateDraftApplicationDocument;
+  "mutation CreateDraftApplication($input: CreateDraftApplicationInput!) {\n  createDraftApplication(input: $input) {\n    id\n    url\n    title\n  }\n}": typeof types.CreateDraftApplicationDocument;
 };
 const documents: Documents = {
-  "mutation CreateDraftApplication($input: CreateDraftApplicationInput!) {\n  createDraftApplication(input: $input) {\n    id\n    url\n  }\n}":
+  "mutation CreateDraftApplication($input: CreateDraftApplicationInput!) {\n  createDraftApplication(input: $input) {\n    id\n    url\n    title\n  }\n}":
     types.CreateDraftApplicationDocument,
 };
 
@@ -39,8 +39,8 @@ export function graphql(source: string): unknown;
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: "mutation CreateDraftApplication($input: CreateDraftApplicationInput!) {\n  createDraftApplication(input: $input) {\n    id\n    url\n  }\n}",
-): (typeof documents)["mutation CreateDraftApplication($input: CreateDraftApplicationInput!) {\n  createDraftApplication(input: $input) {\n    id\n    url\n  }\n}"];
+  source: "mutation CreateDraftApplication($input: CreateDraftApplicationInput!) {\n  createDraftApplication(input: $input) {\n    id\n    url\n    title\n  }\n}",
+): (typeof documents)["mutation CreateDraftApplication($input: CreateDraftApplicationInput!) {\n  createDraftApplication(input: $input) {\n    id\n    url\n    title\n  }\n}"];
 
 export function graphql(source: string) {
   return (documents as any)[source] ?? {};

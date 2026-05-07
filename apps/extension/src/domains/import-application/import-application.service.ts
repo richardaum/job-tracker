@@ -25,6 +25,7 @@ export class ImportApplicationService {
     try {
       const { data } = await this.apiService.createDraftApplication({
         url: snapshot.url,
+        title: snapshot.title,
         htmlContent: snapshot.innerHTML,
       });
 

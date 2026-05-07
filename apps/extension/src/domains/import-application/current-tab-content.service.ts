@@ -3,48 +3,56 @@ import {
   CONTEXT_MENU_IMPORT_SELECTION_TITLE,
 } from "./import-application-labels";
 
-export type DraftApplicationSnapshot = { url: string; innerHTML: string };
+export type DraftApplicationSnapshot = {
+  url: string;
+  title: string;
+  innerHTML: string;
+};
 
 export class CurrentTabContentService {
   execute(): DraftApplicationSnapshot {
-    const selectedContent = this.getSelectedContent();
-    if (selectedContent != null) {
-      return { url: window.location.href, innerHTML: selectedContent };
-    }
-
-    const bodyClone = document.body.cloneNode(true) as HTMLBodyElement;
-    this.removeNonContentElements(bodyClone);
-
-    return { url: window.location.href, innerHTML: bodyClone.innerHTML };
+    const title = document.title;
+    const url = window.location.href;
+    const root = this.buildImportRoot();
+    this.removeNonContentElements(root);
+    return { url, title, innerHTML: root.innerHTML };
   }
 
   getImportMenuLabel(): string {
-    return this.getSelectedContent() == null
-      ? CONTEXT_MENU_IMPORT_PAGE_TITLE
-      : CONTEXT_MENU_IMPORT_SELECTION_TITLE;
+    return this.hasTextSelection()
+      ? CONTEXT_MENU_IMPORT_SELECTION_TITLE
+      : CONTEXT_MENU_IMPORT_PAGE_TITLE;
   }
 
-  private getSelectedContent(): string | null {
+  /** Full page (`body` clone) or wrapper around the current text selection. */
+  private buildImportRoot(): HTMLElement {
+    const selection = window.getSelection();
+    if (
+      selection != null &&
+      !selection.isCollapsed &&
+      selection.rangeCount > 0 &&
+      selection.toString().trim().length > 0
+    ) {
+      const selectedContainer = document.createElement("div");
+      for (let i = 0; i < selection.rangeCount; i += 1) {
+        selectedContainer.append(selection.getRangeAt(i).cloneContents());
+      }
+      return selectedContainer;
+    }
+
+    return document.body.cloneNode(true) as HTMLBodyElement;
+  }
+
+  private hasTextSelection(): boolean {
     const selection = window.getSelection();
     if (
       selection == null ||
       selection.isCollapsed ||
       selection.rangeCount === 0
     ) {
-      return null;
+      return false;
     }
-
-    if (selection.toString().trim().length === 0) {
-      return null;
-    }
-
-    const selectedContainer = document.createElement("div");
-    for (let i = 0; i < selection.rangeCount; i += 1) {
-      selectedContainer.append(selection.getRangeAt(i).cloneContents());
-    }
-
-    this.removeNonContentElements(selectedContainer);
-    return selectedContainer.innerHTML;
+    return selection.toString().trim().length > 0;
   }
 
   private removeNonContentElements(parent: ParentNode): void {
@@ -52,6 +60,13 @@ export class CurrentTabContentService {
       "script,style,noscript,template,canvas,svg,img,video,button,iframe";
     for (const element of parent.querySelectorAll(nonContentSelector)) {
       element.remove();
+    }
+
+    if (parent instanceof Element) {
+      parent.removeAttribute("style");
+    }
+    for (const element of parent.querySelectorAll("[style]")) {
+      element.removeAttribute("style");
     }
   }
 }
