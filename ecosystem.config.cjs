@@ -29,6 +29,8 @@ module.exports = {
       args: "run dev",
       interpreter: "none",
       env: { NODE_ENV: "development" },
+      watch: true,
+      ignore_watch: ["node_modules", ".git", ".next"],
     },
     {
       name: "web",
@@ -38,8 +40,7 @@ module.exports = {
       args: "run dev",
       interpreter: "none",
       env: { NODE_ENV: "development", CI: "true" },
-      watch: ["src", "next.config.ts"],
-      ignore_watch: ["node_modules", ".git", ".next"],
+      watch: false,
     },
     {
       name: "storybook",
@@ -49,7 +50,6 @@ module.exports = {
       args: "run dev",
       interpreter: "none",
       env: { NODE_ENV: "development", CI: "true" },
-      // Regenerate `docs/specs/*.mdx` on each restart; watch LeanSpec sources + generator only (not `docs/specs/` — avoids a restart loop when the script writes output).
       watch: [
         "src",
         ".storybook",
