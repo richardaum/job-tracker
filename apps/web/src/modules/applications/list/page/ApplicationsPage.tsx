@@ -162,7 +162,7 @@ export default function ApplicationsPage() {
             onClick={() => router.push("/applications/new/ai")}
           >
             <SparkleIcon size={16} weight="bold" className={cn("mr-3")} />
-            New application
+            New application (beta)
           </DropdownButton>
         </div>
       </div>

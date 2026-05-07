@@ -5,14 +5,12 @@ import {
   BriefcaseIcon,
   BuildingsIcon,
   CalculatorIcon,
-  ClipboardTextIcon,
   DownloadSimpleIcon,
   GearIcon,
   MagnifyingGlassIcon,
   NotePencilIcon,
   QuestionIcon,
   SignOutIcon,
-  SparkleIcon,
 } from "@phosphor-icons/react";
 import Image from "next/image";
 import Link from "next/link";
@@ -31,38 +29,8 @@ function getDefaultApiUrl(): string {
 
 const API_URL = NEXT_PUBLIC_API_URL ?? getDefaultApiUrl();
 
-type NavItem = {
-  href: string;
-  label: string;
-  icon: typeof BriefcaseIcon;
-  /** Default: prefix match (`href` or `href/*`). Use `exact` when a shorter `href` must not match sibling routes. */
-  activeMatch?: "exact" | "prefix";
-};
-
-function isNavActive(
-  pathname: string,
-  href: string,
-  activeMatch: NavItem["activeMatch"],
-) {
-  if (activeMatch === "exact") {
-    return pathname === href;
-  }
-  return pathname === href || pathname.startsWith(`${href}/`);
-}
-
-const navItems: NavItem[] = [
+const navItems = [
   { href: "/applications", label: "Applications", icon: BriefcaseIcon },
-  {
-    href: "/applications/new/ai",
-    label: "New AI application",
-    icon: ClipboardTextIcon,
-    activeMatch: "exact",
-  },
-  {
-    href: "/applications/new/ai/v1",
-    label: "New AI application — classic",
-    icon: SparkleIcon,
-  },
   {
     href: "/draft-applications",
     label: "Draft applications",
@@ -172,8 +140,8 @@ export function Sidebar({ open = false, onClose, user }: SidebarProps) {
           Menu
         </Text>
         <div className={cn("flex flex-col gap-0.5")}>
-          {navItems.map(({ href, label, icon: Icon, activeMatch }) => {
-            const isActive = isNavActive(pathname, href, activeMatch);
+          {navItems.map(({ href, label, icon: Icon }) => {
+            const isActive = pathname.startsWith(href);
             return (
               <Link
                 key={href}
