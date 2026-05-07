@@ -39,6 +39,15 @@ function draftPrimaryTitle(url: string): string {
   }
 }
 
+function draftHeadingTitle(title: string, url: string): string {
+  const trimmedTitle = title.trim();
+  if (trimmedTitle.length > 0) {
+    return trimmedTitle;
+  }
+
+  return draftPrimaryTitle(url);
+}
+
 export default function DraftApplicationDetailsPage({ params }: PageProps) {
   const { id } = React.use(params);
   const router = useRouter();
@@ -88,6 +97,14 @@ export default function DraftApplicationDetailsPage({ params }: PageProps) {
     if (!draft) return null;
     return (
       <OverviewSection layout="grid">
+        <FieldWithLabelAction
+          label="Page title"
+          content={
+            <Text size="sm" className={cn("break-words")}>
+              {draft.title.trim() || "Untitled page"}
+            </Text>
+          }
+        />
         <FieldWithLabelAction
           label="Source URL"
           content={
@@ -160,7 +177,9 @@ export default function DraftApplicationDetailsPage({ params }: PageProps) {
         <div className={cn("flex items-start gap-3")}>
           <Heading as="h1" size="2xl" className={cn("min-w-0 flex-1")}>
             <span>
-              {draft ? draftPrimaryTitle(draft.url) : "Draft application"}
+              {draft
+                ? draftHeadingTitle(draft.title, draft.url)
+                : "Draft application"}
             </span>{" "}
             <span
               className={cn(
@@ -175,7 +194,7 @@ export default function DraftApplicationDetailsPage({ params }: PageProps) {
           <DeleteDraftApplicationDialog
             trigger={<span aria-hidden style={{ display: "none" }} />}
             draftId={draft.id}
-            draftSummary={draftPrimaryTitle(draft.url)}
+            draftSummary={draftHeadingTitle(draft.title, draft.url)}
             open={deleteDialogOpen}
             onOpenChange={setDeleteDialogOpen}
             onSuccess={(msg) => {

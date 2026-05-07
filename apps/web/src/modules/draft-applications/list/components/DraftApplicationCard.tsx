@@ -32,7 +32,7 @@ export function DraftApplicationCard({
   onSuccess,
   onError,
 }: DraftApplicationCardProps) {
-  const label = draftDisplayUrl(draft.url);
+  const label = draft.title.trim() || draftDisplayUrl(draft.url);
   const title = (
     <NextLink
       href={`/draft-applications/${draft.id}`}

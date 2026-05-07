@@ -23,6 +23,7 @@ async function getDraftTitle(id: string) {
             draftApplication(id: $id) {
               id
               url
+              title
             }
           }
         `,
@@ -36,12 +37,22 @@ async function getDraftTitle(id: string) {
     }
 
     const payload = (await response.json()) as {
-      data?: { draftApplication?: { url?: string | null } | null };
+      data?: {
+        draftApplication?: {
+          url?: string | null;
+          title?: string | null;
+        } | null;
+      };
       errors?: unknown;
     };
     if (payload.errors) {
       return null;
     }
+    const title = payload.data?.draftApplication?.title?.trim() ?? "";
+    if (title.length > 0) {
+      return title.slice(0, 80);
+    }
+
     const url = payload.data?.draftApplication?.url ?? null;
     if (!url) return null;
     try {

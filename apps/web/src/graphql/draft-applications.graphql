@@ -2,6 +2,7 @@ query DraftApplicationsList {
   draftApplications {
     id
     url
+    title
   }
 }
 
@@ -9,6 +10,7 @@ query DraftApplicationDetail($id: ID!) {
   draftApplication(id: $id) {
     id
     url
+    title
     htmlContent
   }
 }
