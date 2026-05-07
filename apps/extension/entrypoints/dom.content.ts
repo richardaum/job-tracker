@@ -13,7 +13,11 @@ import { PaginationService } from "@/domains/pagination/pagination.service";
 import { DefaultTimerService } from "@/domains/timer/timer.service";
 
 export default defineContentScript({
-  matches: ["*://*.remoteyeah.com/*", "https://jobs.ashbyhq.com/*"],
+  matches: [
+    "https://jobs.ashbyhq.com/*",
+    "https://jobs.lever.co/*",
+    "*://*.remoteyeah.com/*",
+  ],
   main() {
     const messagingService = new MessagingService("content");
     const popupLogService = new PopupLogService(messagingService);
