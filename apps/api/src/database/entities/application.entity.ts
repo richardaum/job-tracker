@@ -1,8 +1,6 @@
-import { randomUUID } from "node:crypto";
-
+import { WithGeneratedId } from "@api/database/decorators/with-generated-id.decorator";
 import { ApplicationSource } from "@api/domains/applications/application-source.enum";
 import {
-  BeforeInsert,
   Column,
   CreateDateColumn,
   Entity,
@@ -14,17 +12,11 @@ import {
 
 import { CompanyEntity } from "./company.entity";
 
+@WithGeneratedId()
 @Entity({ name: "applications" })
 export class ApplicationEntity {
   @PrimaryColumn({ type: "text" })
   id!: string;
-
-  @BeforeInsert()
-  setId(): void {
-    if (!this.id) {
-      this.id = randomUUID();
-    }
-  }
 
   @Column({ name: "user_id", type: "text" })
   userId!: string;

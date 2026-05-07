@@ -1,7 +1,5 @@
-import { randomUUID } from "node:crypto";
-
+import { WithGeneratedId } from "@api/database/decorators/with-generated-id.decorator";
 import {
-  BeforeInsert,
   Column,
   CreateDateColumn,
   Entity,
@@ -14,17 +12,11 @@ const EMPTY_TIPTAP_DOC = JSON.stringify({
   content: [{ type: "paragraph" }],
 });
 
+@WithGeneratedId()
 @Entity({ name: "application_notes" })
 export class ApplicationNoteEntity {
   @PrimaryColumn({ type: "text" })
   id!: string;
-
-  @BeforeInsert()
-  setId(): void {
-    if (!this.id) {
-      this.id = randomUUID();
-    }
-  }
 
   @Column({ name: "application_id", type: "text" })
   applicationId!: string;

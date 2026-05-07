@@ -1,7 +1,5 @@
-import { randomUUID } from "node:crypto";
-
+import { WithGeneratedId } from "@api/database/decorators/with-generated-id.decorator";
 import {
-  BeforeInsert,
   Column,
   CreateDateColumn,
   Entity,
@@ -14,18 +12,12 @@ import {
 import { ApplicationEntity } from "./application.entity";
 
 /** DB enforces case- and whitespace-insensitive uniqueness via `UQ_companies_user_lower_name` (see migrations). */
+@WithGeneratedId()
 @Entity({ name: "companies" })
 @Unique(["userId", "name"])
 export class CompanyEntity {
   @PrimaryColumn({ type: "text" })
   id!: string;
-
-  @BeforeInsert()
-  setId(): void {
-    if (!this.id) {
-      this.id = randomUUID();
-    }
-  }
 
   @Column({ name: "user_id", type: "text" })
   userId!: string;

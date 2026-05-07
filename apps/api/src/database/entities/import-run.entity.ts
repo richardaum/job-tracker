@@ -1,19 +1,12 @@
-import { randomUUID } from "node:crypto";
-
+import { WithGeneratedId } from "@api/database/decorators/with-generated-id.decorator";
 import { ImportRunStatusEnum } from "@api/domains/imports/import-run-status.enum";
-import { BeforeInsert, Column, Entity, PrimaryColumn } from "typeorm";
+import { Column, Entity, PrimaryColumn } from "typeorm";
 
+@WithGeneratedId()
 @Entity({ name: "import_runs" })
 export class ImportRunEntity {
   @PrimaryColumn({ type: "text" })
   id!: string;
-
-  @BeforeInsert()
-  setId(): void {
-    if (!this.id) {
-      this.id = randomUUID();
-    }
-  }
 
   @Column({ name: "user_id", type: "text" })
   userId!: string;

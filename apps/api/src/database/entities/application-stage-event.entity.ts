@@ -1,24 +1,11 @@
-import { randomUUID } from "node:crypto";
+import { WithGeneratedId } from "@api/database/decorators/with-generated-id.decorator";
+import { Column, CreateDateColumn, Entity, PrimaryColumn } from "typeorm";
 
-import {
-  BeforeInsert,
-  Column,
-  CreateDateColumn,
-  Entity,
-  PrimaryColumn,
-} from "typeorm";
-
+@WithGeneratedId()
 @Entity({ name: "application_stage_events" })
 export class ApplicationStageEventEntity {
   @PrimaryColumn({ type: "text" })
   id!: string;
-
-  @BeforeInsert()
-  setId(): void {
-    if (!this.id) {
-      this.id = randomUUID();
-    }
-  }
 
   @Column({ name: "application_id", type: "text" })
   applicationId!: string;
