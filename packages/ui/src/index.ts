@@ -44,6 +44,8 @@ export {
   DropdownMenuItem,
   DropdownMenuSeparator,
 } from "./components/DropdownMenu/DropdownMenu";
+export type { FieldWithLabelActionProps } from "./components/FieldWithLabelAction/FieldWithLabelAction";
+export { FieldWithLabelAction } from "./components/FieldWithLabelAction/FieldWithLabelAction";
 export type { FilterChipProps } from "./components/FilterChip/FilterChip";
 export { FilterChip } from "./components/FilterChip/FilterChip";
 export type { FormFieldProps } from "./components/FormField/FormField";
@@ -62,6 +64,13 @@ export type { LabelProps } from "./components/Label/Label";
 export { Label } from "./components/Label/Label";
 export type { LinkProps, LinkVariant } from "./components/Link/Link";
 export { Link } from "./components/Link/Link";
+export type { ListItemCardProps } from "./components/ListItemCard/ListItemCard";
+export { ListItemCard } from "./components/ListItemCard/ListItemCard";
+export type {
+  OverviewSectionLayout,
+  OverviewSectionProps,
+} from "./components/OverviewSection/OverviewSection";
+export { OverviewSection } from "./components/OverviewSection/OverviewSection";
 export type { PopoverProps } from "./components/Popover/Popover";
 export { Popover } from "./components/Popover/Popover";
 export type { SelectOption, SelectProps } from "./components/Select/Select";

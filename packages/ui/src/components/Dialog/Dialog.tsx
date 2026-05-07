@@ -74,11 +74,7 @@ export function Dialog({
           )}
           {...(!hasDescription ? { "aria-describedby": undefined } : {})}
         >
-          <div
-            className={cn(
-              "mb-3 flex shrink-0 items-center justify-between gap-2",
-            )}
-          >
+          <div className={cn("mb-3 shrink-0 pr-10")}>
             <div className={cn("space-y-1")}>
               <RadixDialog.Title
                 className={cn("text-md font-semibold text-text-primary")}
@@ -93,15 +89,15 @@ export function Dialog({
                 </RadixDialog.Description>
               ) : null}
             </div>
-            <RadixDialog.Close
-              aria-label="Close dialog"
-              className={cn(
-                "inline-flex size-8 cursor-pointer items-center justify-center rounded-md text-text-secondary transition-colors hover:bg-bg-surface-hover hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-brand focus-visible:ring-inset focus-visible:ring-offset-0",
-              )}
-            >
-              <XIcon size={16} weight="regular" />
-            </RadixDialog.Close>
           </div>
+          <RadixDialog.Close
+            aria-label="Close dialog"
+            className={cn(
+              "absolute right-5 top-5 inline-flex size-8 cursor-pointer items-center justify-center rounded-md text-text-secondary transition-colors hover:bg-bg-surface-hover hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-brand focus-visible:ring-inset focus-visible:ring-offset-0",
+            )}
+          >
+            <XIcon size={16} weight="regular" />
+          </RadixDialog.Close>
           <div className={cn("flex-1 min-h-0", childrenClassName)}>
             {children}
           </div>
