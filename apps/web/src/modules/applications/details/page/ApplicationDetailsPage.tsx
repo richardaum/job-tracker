@@ -12,7 +12,6 @@ import {
   TabsList,
   TabsTrigger,
   Text,
-  Toast,
 } from "@job-tracker/ui";
 import { CaretDownIcon } from "@phosphor-icons/react";
 import Link from "next/link";
@@ -30,6 +29,7 @@ import { useApplicationDetailsViewModel } from "@/modules/applications/details/h
 import { type ApplicationDetailsValues } from "@/modules/applications/details/utils/application-details.shared";
 import { DeleteApplicationDialog } from "@/modules/applications/list/components/DeleteApplicationDialog";
 import { StatusBadge } from "@/modules/applications/shared/components/StatusBadge";
+import { useToastQueue } from "@/modules/applications/shared/hooks/useToastQueue";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -41,11 +41,7 @@ export default function ApplicationDetailsPage({ params }: PageProps) {
   const [actionsMenuOpen, setActionsMenuOpen] = useState(false);
   const [actionsOpen, setActionsOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [toastOpen, setToastOpen] = useState(false);
-  const [toastMessage, setToastMessage] = useState("");
-  const [toastIntent, setToastIntent] = useState<"success" | "error">(
-    "success",
-  );
+  const { enqueueToast } = useToastQueue();
 
   const {
     application,
@@ -58,9 +54,7 @@ export default function ApplicationDetailsPage({ params }: PageProps) {
   const isDesktop = useBreakpoint("(min-width: 1024px)");
 
   function showToast(message: string, intent: "success" | "error") {
-    setToastMessage(message);
-    setToastIntent(intent);
-    setToastOpen(true);
+    enqueueToast({ title: message, intent });
   }
 
   const handleEntitySuccess = (message: string) =>
@@ -277,14 +271,6 @@ export default function ApplicationDetailsPage({ params }: PageProps) {
           </div>
         )}
       </div>
-
-      <Toast
-        trigger={<span aria-hidden style={{ display: "none" }} />}
-        open={toastOpen}
-        onOpenChange={setToastOpen}
-        title={toastMessage}
-        intent={toastIntent}
-      />
     </div>
   );
 }

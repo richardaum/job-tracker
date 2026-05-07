@@ -1,22 +1,17 @@
 "use client";
 
-import { Card, cn, Input, Skeleton, Stack, Text, Toast } from "@job-tracker/ui";
+import { Card, cn, Input, Skeleton, Stack, Text } from "@job-tracker/ui";
 import { MagnifyingGlassIcon } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 import { EmptyState } from "@/components/empty-state";
 import { useScrollRestoration } from "@/hooks/useScrollRestoration";
+import { useToastQueue } from "@/modules/applications/shared/hooks/useToastQueue";
 import { normalizeTipTapDocument } from "@/modules/applications/shared/utils/tiptap";
 import { CompanyCard } from "@/modules/companies/list/components/CompanyCard";
 import { useCompaniesListViewModel } from "@/modules/companies/list/hooks/useCompaniesListViewModel";
 import { CompanyEditDialog } from "@/modules/companies/shared/components/CompanyEditDialog";
-
-interface ToastState {
-  open: boolean;
-  message: string;
-  intent: "success" | "error";
-}
 
 interface EditingCompany {
   id: string;
@@ -50,11 +45,7 @@ export default function CompaniesPage() {
   const [editingCompany, setEditingCompany] = useState<EditingCompany | null>(
     null,
   );
-  const [toast, setToast] = useState<ToastState>({
-    open: false,
-    message: "",
-    intent: "success",
-  });
+  const { enqueueToast } = useToastQueue();
 
   const {
     companies,
@@ -189,10 +180,10 @@ export default function CompaniesPage() {
                   )
                 }
                 onDeleteSuccess={(message) =>
-                  setToast({ open: true, message, intent: "success" })
+                  enqueueToast({ title: message, intent: "success" })
                 }
                 onDeleteError={(message) =>
-                  setToast({ open: true, message, intent: "error" })
+                  enqueueToast({ title: message, intent: "error" })
                 }
               />
             ))}
@@ -215,22 +206,14 @@ export default function CompaniesPage() {
           }}
           refetchCompanies={true}
           onSuccess={(message) => {
-            setToast({ open: true, message, intent: "success" });
+            enqueueToast({ title: message, intent: "success" });
             closeEditModal();
           }}
           onError={(message) => {
-            setToast({ open: true, message, intent: "error" });
+            enqueueToast({ title: message, intent: "error" });
           }}
         />
       ) : null}
-
-      <Toast
-        trigger={<span aria-hidden style={{ display: "none" }} />}
-        open={toast.open}
-        onOpenChange={(open) => setToast((prev) => ({ ...prev, open }))}
-        title={toast.message}
-        intent={toast.intent}
-      />
     </div>
   );
 }

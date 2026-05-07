@@ -11,9 +11,19 @@ import React from "react";
 
 export type ToastIntent = "info" | "success" | "warning" | "error";
 
-export interface ToastProps {
-  trigger: React.ReactElement<{ onClick?: React.MouseEventHandler }>;
+export interface ToastItem {
+  id: string;
   title: string;
+  description?: string;
+  intent?: ToastIntent;
+  actionLabel?: string;
+  onAction?: () => void;
+  open?: boolean;
+}
+
+export interface ToastProps {
+  trigger?: React.ReactElement<{ onClick?: React.MouseEventHandler }>;
+  title?: string;
   description?: string;
   intent?: ToastIntent;
   actionLabel?: string;
@@ -21,13 +31,23 @@ export interface ToastProps {
   open?: boolean;
   defaultOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
+  durationMs?: number;
+  toasts?: ToastItem[];
+  onToastOpenChange?: (id: string, open: boolean) => void;
 }
 
 const intentClasses: Record<ToastIntent, string> = {
-  info: "border-border-brand bg-bg-brand-subtle text-text-brand",
-  success: "border-border-default bg-bg-success-subtle text-text-success",
-  warning: "border-border-default bg-bg-warning-subtle text-text-warning",
-  error: "border-border-error bg-bg-error-subtle text-text-error",
+  info: "text-text-primary",
+  success: "text-text-primary",
+  warning: "text-text-primary",
+  error: "text-text-primary",
+};
+
+const intentIconClasses: Record<ToastIntent, string> = {
+  info: "text-text-brand",
+  success: "text-text-success",
+  warning: "text-text-warning",
+  error: "text-text-error",
 };
 
 const intentIcons: Record<ToastIntent, React.ReactNode> = {
@@ -36,6 +56,33 @@ const intentIcons: Record<ToastIntent, React.ReactNode> = {
   warning: <WarningCircleIcon size={18} weight="regular" />,
   error: <XCircleIcon size={18} weight="regular" />,
 };
+
+function ToastProgress({ durationMs }: { durationMs: number }) {
+  const [collapsed, setCollapsed] = React.useState(false);
+
+  React.useEffect(() => {
+    const frameId = window.requestAnimationFrame(() => {
+      setCollapsed(true);
+    });
+
+    return () => {
+      window.cancelAnimationFrame(frameId);
+    };
+  }, []);
+
+  return (
+    <div
+      aria-hidden
+      className={cn(
+        "pointer-events-none absolute inset-x-0 bottom-0 h-1 origin-left bg-border-brand/40 transition-transform ease-linear",
+      )}
+      style={{
+        transform: collapsed ? "scaleX(0)" : "scaleX(1)",
+        transitionDuration: `${durationMs}ms`,
+      }}
+    />
+  );
+}
 
 export function Toast({
   trigger,
@@ -47,6 +94,9 @@ export function Toast({
   open,
   defaultOpen,
   onOpenChange,
+  durationMs = 4500,
+  toasts,
+  onToastOpenChange,
 }: ToastProps) {
   const [internalOpen, setInternalOpen] = React.useState(defaultOpen ?? false);
   const isControlled = open !== undefined;
@@ -60,67 +110,103 @@ export function Toast({
     onOpenChange?.(nextOpen);
   }
 
-  const triggerElement = React.cloneElement(trigger, {
-    onClick: (event: React.MouseEvent) => {
-      trigger.props.onClick?.(event);
-      handleOpenChange(true);
-    },
-  });
+  const triggerElement = trigger
+    ? React.cloneElement(trigger, {
+        onClick: (event: React.MouseEvent) => {
+          trigger.props.onClick?.(event);
+          handleOpenChange(true);
+        },
+      })
+    : null;
+
+  const queue = toasts?.length
+    ? toasts
+    : title
+      ? [
+          {
+            id: "single",
+            title,
+            description,
+            intent,
+            actionLabel,
+            onAction,
+            open: currentOpen,
+          } satisfies ToastItem,
+        ]
+      : [];
 
   return (
     <RadixToast.Provider swipeDirection="right">
-      <RadixToast.Root
-        open={currentOpen}
-        onOpenChange={handleOpenChange}
-        className={cn(
-          "grid min-w-72 grid-cols-[auto_1fr_auto] items-start gap-2 rounded-md border p-6 shadow-md",
-          intentClasses[intent],
-        )}
-      >
-        <span aria-hidden className={cn("pt-0.5")}>
-          {intentIcons[intent]}
-        </span>
-        <div>
-          <RadixToast.Title
-            className={cn("text-sm font-semibold text-current")}
+      {queue.map((toastItem) => {
+        const currentIntent = toastItem.intent ?? "info";
+
+        return (
+          <RadixToast.Root
+            key={toastItem.id}
+            open={toastItem.open ?? true}
+            duration={durationMs}
+            onOpenChange={(nextOpen) => {
+              if (toastItem.id === "single") {
+                handleOpenChange(nextOpen);
+              }
+              onToastOpenChange?.(toastItem.id, nextOpen);
+            }}
+            className={cn(
+              "relative overflow-hidden",
+              "grid min-w-72 grid-cols-[auto_1fr_auto] items-start gap-2 rounded-md border border-border-subtle bg-bg-surface px-4 py-3 shadow-md",
+              intentClasses[currentIntent],
+            )}
           >
-            {title}
-          </RadixToast.Title>
-          {description ? (
-            <RadixToast.Description
-              className={cn("mt-1 text-sm text-current/90")}
+            <span
+              aria-hidden
+              className={cn("pt-0.5", intentIconClasses[currentIntent])}
             >
-              {description}
-            </RadixToast.Description>
-          ) : null}
-          {actionLabel ? (
-            <RadixToast.Action asChild altText={actionLabel}>
-              <button
-                type="button"
-                onClick={onAction}
-                className={cn(
-                  "mt-2 cursor-pointer rounded-sm border border-border-subtle bg-bg-surface px-5 py-2 text-sm font-medium text-text-primary transition-colors hover:bg-bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-brand focus-visible:ring-inset focus-visible:ring-offset-0",
-                )}
+              {intentIcons[currentIntent]}
+            </span>
+            <div>
+              <RadixToast.Title
+                className={cn("text-sm font-semibold text-text-primary")}
               >
-                {actionLabel}
-              </button>
-            </RadixToast.Action>
-          ) : null}
-        </div>
-        <RadixToast.Close
-          aria-label="Close toast"
-          className={cn(
-            "inline-flex size-7 cursor-pointer items-center justify-center rounded-sm text-current/80 transition-colors hover:bg-current/10 hover:text-current focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-brand focus-visible:ring-inset focus-visible:ring-offset-0",
-          )}
-        >
-          <XIcon size={14} weight="regular" />
-        </RadixToast.Close>
-      </RadixToast.Root>
+                {toastItem.title}
+              </RadixToast.Title>
+              {toastItem.description ? (
+                <RadixToast.Description
+                  className={cn("mt-1 text-sm text-text-secondary")}
+                >
+                  {toastItem.description}
+                </RadixToast.Description>
+              ) : null}
+              {toastItem.actionLabel ? (
+                <RadixToast.Action asChild altText={toastItem.actionLabel}>
+                  <button
+                    type="button"
+                    onClick={toastItem.onAction}
+                    className={cn(
+                      "mt-2 cursor-pointer rounded-sm border border-border-subtle bg-bg-surface px-3 py-1.5 text-sm font-medium text-text-primary transition-colors hover:bg-bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-brand focus-visible:ring-inset focus-visible:ring-offset-0",
+                    )}
+                  >
+                    {toastItem.actionLabel}
+                  </button>
+                </RadixToast.Action>
+              ) : null}
+            </div>
+            <RadixToast.Close
+              aria-label="Close toast"
+              className={cn(
+                "inline-flex size-5 self-start cursor-pointer items-center justify-center rounded-sm pt-0.5 text-text-muted transition-colors hover:bg-bg-surface-hover hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-brand focus-visible:ring-inset focus-visible:ring-offset-0",
+              )}
+            >
+              <XIcon size={14} weight="regular" />
+            </RadixToast.Close>
+            <ToastProgress durationMs={durationMs} />
+          </RadixToast.Root>
+        );
+      })}
 
       {triggerElement}
       <RadixToast.Viewport
         className={cn(
-          "fixed bottom-4 right-4 z-50 flex max-w-sm flex-col gap-2 outline-none",
+          "fixed right-4 top-4 z-50 flex max-w-sm flex-col gap-2 outline-none",
         )}
       />
     </RadixToast.Provider>

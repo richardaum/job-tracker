@@ -8,7 +8,6 @@ import {
   Skeleton,
   Stack,
   Text,
-  Toast,
 } from "@job-tracker/ui";
 import {
   MagnifyingGlassIcon,
@@ -23,12 +22,7 @@ import { ApplicationCard } from "@/modules/applications/list/components/Applicat
 import { ApplicationQuickEditModal } from "@/modules/applications/list/components/ApplicationQuickEditModal";
 import { QuickFilters } from "@/modules/applications/list/components/QuickFilters";
 import { useApplicationsListViewModel } from "@/modules/applications/list/hooks/useApplicationsListViewModel";
-
-interface ToastState {
-  open: boolean;
-  message: string;
-  intent: "success" | "error";
-}
+import { useToastQueue } from "@/modules/applications/shared/hooks/useToastQueue";
 
 function ApplicationListCardSkeleton() {
   return (
@@ -89,16 +83,12 @@ export default function ApplicationsPage() {
   const { applications, companyFilter, error, showInitialLoading } =
     useApplicationsListViewModel();
 
-  const [toast, setToast] = useState<ToastState>({
-    open: false,
-    message: "",
-    intent: "success",
-  });
+  const { enqueueToast } = useToastQueue();
 
   const [openModal, setOpenModal] = useState(false);
 
   function showToast(message: string, intent: "success" | "error") {
-    setToast({ open: true, message, intent });
+    enqueueToast({ title: message, intent });
   }
 
   return (
@@ -207,14 +197,6 @@ export default function ApplicationsPage() {
           </Stack>
         )}
       </div>
-
-      <Toast
-        trigger={<span aria-hidden style={{ display: "none" }} />}
-        open={toast.open}
-        onOpenChange={(open) => setToast((t) => ({ ...t, open }))}
-        title={toast.message}
-        intent={toast.intent}
-      />
     </div>
   );
 }

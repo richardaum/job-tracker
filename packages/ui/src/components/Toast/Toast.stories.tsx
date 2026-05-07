@@ -22,3 +22,17 @@ export const Success: Story = {
     actionLabel: "Undo",
   },
 };
+
+export const Queue: Story = {
+  args: {
+    toasts: [
+      { id: "a", intent: "info", title: "Import running" },
+      {
+        id: "b",
+        intent: "success",
+        title: "Application saved",
+        description: "The item is now available in your list.",
+      },
+    ],
+  },
+};

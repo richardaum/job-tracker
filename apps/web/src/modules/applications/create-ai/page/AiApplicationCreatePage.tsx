@@ -9,7 +9,6 @@ import {
   Input,
   Text,
   Textarea,
-  Toast,
 } from "@job-tracker/ui";
 import { FloppyDiskBackIcon, SparkleIcon } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
@@ -30,6 +29,7 @@ import {
   TagsInput,
   type TagWithMetadata,
 } from "@/modules/applications/shared/components/TagsInput";
+import { useToastQueue } from "@/modules/applications/shared/hooks/useToastQueue";
 import { formatSalary } from "@/modules/applications/shared/utils/salaryFormat";
 import {
   EMPTY_TIPTAP_DOC,
@@ -57,11 +57,7 @@ export default function AiApplicationCreatePage() {
   >(null);
   const [draft, setDraft] = useState<AiDraftFormState | null>(null);
   const [salaryDialogOpen, setSalaryDialogOpen] = useState(false);
-  const [toast, setToast] = useState<{
-    open: boolean;
-    message: string;
-    intent: "success" | "error";
-  }>({ open: false, message: "", intent: "success" });
+  const { enqueueToast } = useToastQueue();
 
   const refetchQueries = [{ query: ApplicationsDocument }];
   const [generateDraftWithAi, { loading: generating }] =
@@ -74,7 +70,7 @@ export default function AiApplicationCreatePage() {
   const loading = generating || creating || creatingStageEvent;
 
   function showToast(message: string, intent: "success" | "error") {
-    setToast({ open: true, message, intent });
+    enqueueToast({ title: message, intent });
   }
 
   const promptText = tipTapToPlainText(prompt).trim();
@@ -588,14 +584,6 @@ export default function AiApplicationCreatePage() {
           disabled={loading}
         />
       ) : null}
-
-      <Toast
-        trigger={<span aria-hidden style={{ display: "none" }} />}
-        open={toast.open}
-        onOpenChange={(open) => setToast((prev) => ({ ...prev, open }))}
-        title={toast.message}
-        intent={toast.intent}
-      />
     </div>
   );
 }

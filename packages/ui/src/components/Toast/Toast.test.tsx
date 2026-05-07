@@ -39,4 +39,18 @@ describe("Toast", () => {
     fireEvent.click(screen.getByRole("button", { name: /undo/i }));
     expect(onAction).toHaveBeenCalledTimes(1);
   });
+
+  it("renders multiple stacked toasts from queue input", () => {
+    render(
+      <Toast
+        toasts={[
+          { id: "1", title: "First message", intent: "info" },
+          { id: "2", title: "Second message", intent: "success" },
+        ]}
+      />,
+    );
+
+    expect(screen.getByText("First message")).toBeInTheDocument();
+    expect(screen.getByText("Second message")).toBeInTheDocument();
+  });
 });

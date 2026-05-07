@@ -111,7 +111,11 @@ export {
   TimelineItem,
   TimelineMarker,
 } from "./components/Timeline/Timeline";
-export type { ToastIntent, ToastProps } from "./components/Toast/Toast";
+export type {
+  ToastIntent,
+  ToastItem,
+  ToastProps,
+} from "./components/Toast/Toast";
 export { Toast } from "./components/Toast/Toast";
 export type { TooltipProps } from "./components/Tooltip/Tooltip";
 export { Tooltip } from "./components/Tooltip/Tooltip";
