@@ -1,0 +1,18 @@
+query DraftApplicationsList {
+  draftApplications {
+    id
+    url
+  }
+}
+
+query DraftApplicationDetail($id: ID!) {
+  draftApplication(id: $id) {
+    id
+    url
+    htmlContent
+  }
+}
+
+mutation DeleteDraftApplication($id: ID!) {
+  deleteDraftApplication(id: $id)
+}

@@ -8,6 +8,7 @@ import {
   DownloadSimpleIcon,
   GearIcon,
   MagnifyingGlassIcon,
+  NotePencilIcon,
   QuestionIcon,
   SignOutIcon,
 } from "@phosphor-icons/react";
@@ -30,6 +31,11 @@ const API_URL = NEXT_PUBLIC_API_URL ?? getDefaultApiUrl();
 
 const navItems = [
   { href: "/applications", label: "Applications", icon: BriefcaseIcon },
+  {
+    href: "/draft-applications",
+    label: "Draft applications",
+    icon: NotePencilIcon,
+  },
   { href: "/imports", label: "Imports", icon: DownloadSimpleIcon },
   { href: "/companies", label: "Companies", icon: BuildingsIcon },
   {

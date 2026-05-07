@@ -149,6 +149,11 @@ export type CreateApplicationWithAiInput = {
   prompt: Scalars["String"]["input"];
 };
 
+export type CreateDraftApplicationInput = {
+  htmlContent: Scalars["String"]["input"];
+  url: Scalars["String"]["input"];
+};
+
 export type CreateImportRunInput = { importerId: Scalars["String"]["input"] };
 
 export type CreateNoteInput = {
@@ -160,6 +165,13 @@ export type CurrencyRates = {
   __typename?: "CurrencyRates";
   base: Scalars["String"]["output"];
   rates: Array<ExchangeRate>;
+};
+
+export type DraftApplicationType = {
+  __typename?: "DraftApplicationType";
+  htmlContent: Scalars["String"]["output"];
+  id: Scalars["ID"]["output"];
+  url: Scalars["String"]["output"];
 };
 
 export type ExchangeRate = {
@@ -193,11 +205,13 @@ export type Mutation = {
   createApplicationNote: NoteType;
   createApplicationStageEvent: ApplicationStageEventType;
   createApplicationWithAI: ApplicationType;
+  createDraftApplication: DraftApplicationType;
   createImportRun: ImportRunType;
   deleteApplication: Scalars["Boolean"]["output"];
   deleteApplicationNote: Scalars["Boolean"]["output"];
   deleteApplicationStageEvent: Scalars["Boolean"]["output"];
   deleteCompany: Scalars["Boolean"]["output"];
+  deleteDraftApplication: Scalars["Boolean"]["output"];
   deleteImportRun: Scalars["Boolean"]["output"];
   removeApplicationTag: ApplicationType;
   updateApplication: ApplicationType;
@@ -219,6 +233,10 @@ export type MutationCreateApplicationWithAiArgs = {
   input: CreateApplicationWithAiInput;
 };
 
+export type MutationCreateDraftApplicationArgs = {
+  input: CreateDraftApplicationInput;
+};
+
 export type MutationCreateImportRunArgs = { input: CreateImportRunInput };
 
 export type MutationDeleteApplicationArgs = { id: Scalars["ID"]["input"] };
@@ -230,6 +248,8 @@ export type MutationDeleteApplicationStageEventArgs = {
 };
 
 export type MutationDeleteCompanyArgs = { id: Scalars["ID"]["input"] };
+
+export type MutationDeleteDraftApplicationArgs = { id: Scalars["ID"]["input"] };
 
 export type MutationDeleteImportRunArgs = { id: Scalars["ID"]["input"] };
 
@@ -282,6 +302,8 @@ export type Query = {
   applications: Array<ApplicationType>;
   companies: Array<CompanyType>;
   companyApplicationsCount: Scalars["Int"]["output"];
+  draftApplication: DraftApplicationType;
+  draftApplications: Array<DraftApplicationType>;
   exchangeRates: CurrencyRates;
   generateApplicationDraftWithAI: ApplicationAiDraftType;
   generateApplicationNoteWithAI: Scalars["String"]["output"];
@@ -308,6 +330,8 @@ export type QueryApplicationsArgs = {
 };
 
 export type QueryCompanyApplicationsCountArgs = { id: Scalars["ID"]["input"] };
+
+export type QueryDraftApplicationArgs = { id: Scalars["ID"]["input"] };
 
 export type QueryExchangeRatesArgs = {
   base: Scalars["String"]["input"];
@@ -812,6 +836,42 @@ export type ExchangeRatesQuery = {
       rate: number;
     }>;
   };
+};
+
+export type DraftApplicationsListQueryVariables = Exact<{
+  [key: string]: never;
+}>;
+
+export type DraftApplicationsListQuery = {
+  __typename?: "Query";
+  draftApplications: Array<{
+    __typename?: "DraftApplicationType";
+    id: string;
+    url: string;
+  }>;
+};
+
+export type DraftApplicationDetailQueryVariables = Exact<{
+  id: Scalars["ID"]["input"];
+}>;
+
+export type DraftApplicationDetailQuery = {
+  __typename?: "Query";
+  draftApplication: {
+    __typename?: "DraftApplicationType";
+    id: string;
+    url: string;
+    htmlContent: string;
+  };
+};
+
+export type DeleteDraftApplicationMutationVariables = Exact<{
+  id: Scalars["ID"]["input"];
+}>;
+
+export type DeleteDraftApplicationMutation = {
+  __typename?: "Mutation";
+  deleteDraftApplication: boolean;
 };
 
 export type ImportRunsQueryVariables = Exact<{ [key: string]: never }>;
@@ -2645,6 +2705,127 @@ export const ExchangeRatesDocument = {
     },
   ],
 } as unknown as DocumentNode<ExchangeRatesQuery, ExchangeRatesQueryVariables>;
+export const DraftApplicationsListDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "query",
+      name: { kind: "Name", value: "DraftApplicationsList" },
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "draftApplications" },
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                { kind: "Field", name: { kind: "Name", value: "url" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  DraftApplicationsListQuery,
+  DraftApplicationsListQueryVariables
+>;
+export const DraftApplicationDetailDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "query",
+      name: { kind: "Name", value: "DraftApplicationDetail" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "id" } },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "draftApplication" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "id" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "id" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                { kind: "Field", name: { kind: "Name", value: "url" } },
+                { kind: "Field", name: { kind: "Name", value: "htmlContent" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  DraftApplicationDetailQuery,
+  DraftApplicationDetailQueryVariables
+>;
+export const DeleteDraftApplicationDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "DeleteDraftApplication" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "id" } },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "deleteDraftApplication" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "id" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "id" },
+                },
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  DeleteDraftApplicationMutation,
+  DeleteDraftApplicationMutationVariables
+>;
 export const ImportRunsDocument = {
   kind: "Document",
   definitions: [

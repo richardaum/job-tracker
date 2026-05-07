@@ -48,7 +48,8 @@ export class CurrentTabContentService {
   }
 
   private removeNonContentElements(parent: ParentNode): void {
-    const nonContentSelector = "script,style,noscript,template,canvas,svg";
+    const nonContentSelector =
+      "script,style,noscript,template,canvas,svg,img,video,button,iframe";
     for (const element of parent.querySelectorAll(nonContentSelector)) {
       element.remove();
     }

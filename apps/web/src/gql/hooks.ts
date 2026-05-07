@@ -151,6 +151,11 @@ export type CreateApplicationWithAiInput = {
   prompt: Scalars["String"]["input"];
 };
 
+export type CreateDraftApplicationInput = {
+  htmlContent: Scalars["String"]["input"];
+  url: Scalars["String"]["input"];
+};
+
 export type CreateImportRunInput = { importerId: Scalars["String"]["input"] };
 
 export type CreateNoteInput = {
@@ -162,6 +167,13 @@ export type CurrencyRates = {
   __typename?: "CurrencyRates";
   base: Scalars["String"]["output"];
   rates: Array<ExchangeRate>;
+};
+
+export type DraftApplicationType = {
+  __typename?: "DraftApplicationType";
+  htmlContent: Scalars["String"]["output"];
+  id: Scalars["ID"]["output"];
+  url: Scalars["String"]["output"];
 };
 
 export type ExchangeRate = {
@@ -195,11 +207,13 @@ export type Mutation = {
   createApplicationNote: NoteType;
   createApplicationStageEvent: ApplicationStageEventType;
   createApplicationWithAI: ApplicationType;
+  createDraftApplication: DraftApplicationType;
   createImportRun: ImportRunType;
   deleteApplication: Scalars["Boolean"]["output"];
   deleteApplicationNote: Scalars["Boolean"]["output"];
   deleteApplicationStageEvent: Scalars["Boolean"]["output"];
   deleteCompany: Scalars["Boolean"]["output"];
+  deleteDraftApplication: Scalars["Boolean"]["output"];
   deleteImportRun: Scalars["Boolean"]["output"];
   removeApplicationTag: ApplicationType;
   updateApplication: ApplicationType;
@@ -221,6 +235,10 @@ export type MutationCreateApplicationWithAiArgs = {
   input: CreateApplicationWithAiInput;
 };
 
+export type MutationCreateDraftApplicationArgs = {
+  input: CreateDraftApplicationInput;
+};
+
 export type MutationCreateImportRunArgs = { input: CreateImportRunInput };
 
 export type MutationDeleteApplicationArgs = { id: Scalars["ID"]["input"] };
@@ -232,6 +250,8 @@ export type MutationDeleteApplicationStageEventArgs = {
 };
 
 export type MutationDeleteCompanyArgs = { id: Scalars["ID"]["input"] };
+
+export type MutationDeleteDraftApplicationArgs = { id: Scalars["ID"]["input"] };
 
 export type MutationDeleteImportRunArgs = { id: Scalars["ID"]["input"] };
 
@@ -284,6 +304,8 @@ export type Query = {
   applications: Array<ApplicationType>;
   companies: Array<CompanyType>;
   companyApplicationsCount: Scalars["Int"]["output"];
+  draftApplication: DraftApplicationType;
+  draftApplications: Array<DraftApplicationType>;
   exchangeRates: CurrencyRates;
   generateApplicationDraftWithAI: ApplicationAiDraftType;
   generateApplicationNoteWithAI: Scalars["String"]["output"];
@@ -310,6 +332,8 @@ export type QueryApplicationsArgs = {
 };
 
 export type QueryCompanyApplicationsCountArgs = { id: Scalars["ID"]["input"] };
+
+export type QueryDraftApplicationArgs = { id: Scalars["ID"]["input"] };
 
 export type QueryExchangeRatesArgs = {
   base: Scalars["String"]["input"];
@@ -827,6 +851,42 @@ export type ExchangeRatesQuery = {
       rate: number;
     }>;
   };
+};
+
+export type DraftApplicationsListQueryVariables = Exact<{
+  [key: string]: never;
+}>;
+
+export type DraftApplicationsListQuery = {
+  __typename?: "Query";
+  draftApplications: Array<{
+    __typename?: "DraftApplicationType";
+    id: string;
+    url: string;
+  }>;
+};
+
+export type DraftApplicationDetailQueryVariables = Exact<{
+  id: Scalars["ID"]["input"];
+}>;
+
+export type DraftApplicationDetailQuery = {
+  __typename?: "Query";
+  draftApplication: {
+    __typename?: "DraftApplicationType";
+    id: string;
+    url: string;
+    htmlContent: string;
+  };
+};
+
+export type DeleteDraftApplicationMutationVariables = Exact<{
+  id: Scalars["ID"]["input"];
+}>;
+
+export type DeleteDraftApplicationMutation = {
+  __typename?: "Mutation";
+  deleteDraftApplication: boolean;
 };
 
 export type ImportRunsQueryVariables = Exact<{ [key: string]: never }>;
@@ -2251,6 +2311,160 @@ export type ExchangeRatesQueryHookResult = ReturnType<
 export type ExchangeRatesLazyQueryHookResult = ReturnType<
   typeof useExchangeRatesLazyQuery
 >;
+
+export const DraftApplicationsListDocument = gql`
+  query DraftApplicationsList {
+    draftApplications {
+      id
+      url
+    }
+  }
+`;
+
+/**
+ * __useDraftApplicationsListQuery__
+ *
+ * To run a query within a React component, call `useDraftApplicationsListQuery` and pass it any options that fit your needs.
+ * When your component renders, `useDraftApplicationsListQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useDraftApplicationsListQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useDraftApplicationsListQuery(
+  baseOptions?: ApolloReactHooks.QueryHookOptions<
+    DraftApplicationsListQuery,
+    DraftApplicationsListQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useQuery<
+    DraftApplicationsListQuery,
+    DraftApplicationsListQueryVariables
+  >(DraftApplicationsListDocument, options);
+}
+export function useDraftApplicationsListLazyQuery(
+  baseOptions?: ApolloReactHooks.LazyQueryHookOptions<
+    DraftApplicationsListQuery,
+    DraftApplicationsListQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useLazyQuery<
+    DraftApplicationsListQuery,
+    DraftApplicationsListQueryVariables
+  >(DraftApplicationsListDocument, options);
+}
+
+export type DraftApplicationsListQueryHookResult = ReturnType<
+  typeof useDraftApplicationsListQuery
+>;
+export type DraftApplicationsListLazyQueryHookResult = ReturnType<
+  typeof useDraftApplicationsListLazyQuery
+>;
+
+export const DraftApplicationDetailDocument = gql`
+  query DraftApplicationDetail($id: ID!) {
+    draftApplication(id: $id) {
+      id
+      url
+      htmlContent
+    }
+  }
+`;
+
+/**
+ * __useDraftApplicationDetailQuery__
+ *
+ * To run a query within a React component, call `useDraftApplicationDetailQuery` and pass it any options that fit your needs.
+ * When your component renders, `useDraftApplicationDetailQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useDraftApplicationDetailQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDraftApplicationDetailQuery(
+  baseOptions: ApolloReactHooks.QueryHookOptions<
+    DraftApplicationDetailQuery,
+    DraftApplicationDetailQueryVariables
+  > &
+    (
+      | { variables: DraftApplicationDetailQueryVariables; skip?: boolean }
+      | { skip: boolean }
+    ),
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useQuery<
+    DraftApplicationDetailQuery,
+    DraftApplicationDetailQueryVariables
+  >(DraftApplicationDetailDocument, options);
+}
+export function useDraftApplicationDetailLazyQuery(
+  baseOptions?: ApolloReactHooks.LazyQueryHookOptions<
+    DraftApplicationDetailQuery,
+    DraftApplicationDetailQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useLazyQuery<
+    DraftApplicationDetailQuery,
+    DraftApplicationDetailQueryVariables
+  >(DraftApplicationDetailDocument, options);
+}
+
+export type DraftApplicationDetailQueryHookResult = ReturnType<
+  typeof useDraftApplicationDetailQuery
+>;
+export type DraftApplicationDetailLazyQueryHookResult = ReturnType<
+  typeof useDraftApplicationDetailLazyQuery
+>;
+
+export const DeleteDraftApplicationDocument = gql`
+  mutation DeleteDraftApplication($id: ID!) {
+    deleteDraftApplication(id: $id)
+  }
+`;
+
+/**
+ * __useDeleteDraftApplicationMutation__
+ *
+ * To run a mutation, you first call `useDeleteDraftApplicationMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteDraftApplicationMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteDraftApplicationMutation, { data, loading, error }] = useDeleteDraftApplicationMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteDraftApplicationMutation(
+  baseOptions?: ApolloReactHooks.MutationHookOptions<
+    DeleteDraftApplicationMutation,
+    DeleteDraftApplicationMutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useMutation<
+    DeleteDraftApplicationMutation,
+    DeleteDraftApplicationMutationVariables
+  >(DeleteDraftApplicationDocument, options);
+}
 
 export const ImportRunsDocument = gql`
   query ImportRuns {
