@@ -11,6 +11,7 @@ import { ApplicationModule } from "./domains/applications/applications.module";
 import { AuthModule } from "./domains/auth/auth.module";
 import { CompaniesModule } from "./domains/companies/companies.module";
 import { CurrencyConverterModule } from "./domains/currency-converter/currency-converter.module";
+import { DraftApplicationsModule } from "./domains/draft-applications/draft-applications.module";
 import { ImportsModule } from "./domains/imports/imports.module";
 import { NotesModule } from "./domains/notes/notes.module";
 
@@ -22,6 +23,7 @@ import { NotesModule } from "./domains/notes/notes.module";
     CompaniesModule,
     CurrencyConverterModule,
     ImportsModule,
+    DraftApplicationsModule,
     NotesModule,
     AiModule,
     GraphQLModule.forRoot<ApolloDriverConfig>({

@@ -2,8 +2,8 @@ import { WithGeneratedId } from "@api/database/decorators/with-generated-id.deco
 import { Column, Entity, PrimaryColumn } from "typeorm";
 
 @WithGeneratedId()
-@Entity({ name: "imported_applications" })
-export class ImportedApplicationEntity {
+@Entity({ name: "draft_applications" })
+export class DraftApplicationEntity {
   @PrimaryColumn({ type: "text" })
   id!: string;
 

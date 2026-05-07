@@ -115,6 +115,12 @@ type CurrencyRates {
   rates: [ExchangeRate!]!
 }
 
+type DraftApplicationType {
+  id: ID!
+  url: String!
+  htmlContent: String!
+}
+
 type ImportRunType {
   id: ID!
   importerId: String!
@@ -145,6 +151,8 @@ type Query {
   generateApplicationNoteWithAI(applicationId: ID!, note: String!): String!
   exchangeRates(base: String!, currencies: [String!]!): CurrencyRates!
   importRuns: [ImportRunType!]!
+  draftApplications: [DraftApplicationType!]!
+  draftApplication(id: ID!): DraftApplicationType!
   rewriteTextWithAI(text: String!): String!
   restructureJobDescriptionWithAI(text: String!): String!
 }
@@ -184,6 +192,7 @@ type Mutation {
   deleteImportRun(id: ID!): Boolean!
   clearImportRuns: Boolean!
   updateImportRunStatus(id: ID!, status: ImportRunStatus!): ImportRunType!
+  createDraftApplication(input: CreateDraftApplicationInput!): DraftApplicationType!
 }
 
 input CreateApplicationInput {
@@ -245,4 +254,9 @@ input UpdateNoteInput {
 
 input CreateImportRunInput {
   importerId: String!
+}
+
+input CreateDraftApplicationInput {
+  url: String!
+  htmlContent: String!
 }
