@@ -18,24 +18,9 @@ const namespace = "job-tracker";
  * Restart with refreshed env: pnpm pm2:restart
  *        → runs: pm2 restart ecosystem.config.cjs --update-env
  *
- * **database-migration** runs `db:migrate`; PM2 watch on `src/database/migrations` re-runs it when migration sources change.
- * PM2 does not serialize apps; if the API fails with `EADDRINUSE` on cold start, run `pm2 restart api` after migrations finish.
  */
 module.exports = {
   apps: [
-    {
-      name: "database-migration",
-      namespace,
-      cwd: path.join(root, "apps/api"),
-      script: "pnpm",
-      args: "run db:migrate",
-      interpreter: "none",
-      env: { NODE_ENV: "development" },
-      // One-shot migrate exits 0; default PM2 autorestart would loop forever.
-      autorestart: false,
-      watch: ["src/database/migrations"],
-      ignore_watch: ["node_modules", ".git", "dist"],
-    },
     {
       name: "api",
       namespace,
@@ -87,8 +72,7 @@ module.exports = {
       args: "run dev",
       interpreter: "none",
       env: { NODE_ENV: "development" },
-      watch: ["src", "entrypoints", "public", "wxt.config.ts"],
-      ignore_watch: ["node_modules", ".git", "build", ".wxt"],
+      watch: false,
     },
   ],
 };

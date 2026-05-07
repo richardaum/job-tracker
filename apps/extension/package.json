@@ -9,21 +9,28 @@
     "prepare": "wxt prepare",
     "dev": "wxt",
     "build": "wxt build",
+    "codegen": "graphql-codegen --config codegen.ts",
     "package": "wxt zip",
     "lint": "eslint . --fix --max-warnings=0 --no-warn-ignored && tsc --noEmit",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },
   "dependencies": {
+    "@apollo/client": "^4.1.7",
+    "@graphql-typed-document-node/core": "^3.2.0",
+    "@job-tracker/auth": "workspace:*",
     "@job-tracker/ui": "workspace:*",
     "@tiptap/html": "^3.22.4",
     "@tiptap/starter-kit": "^3.22.4",
+    "graphql": "^16.13.2",
     "p-limit": "^7.3.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@graphql-codegen/cli": "^6.3.1",
+    "@graphql-codegen/client-preset": "^5.3.0",
     "@tailwindcss/postcss": "^4.2.4",
     "@types/chrome": "^0.0.326",
     "@types/react": "^19.1.2",

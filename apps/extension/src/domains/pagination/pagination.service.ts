@@ -2,10 +2,15 @@ import type { ContentActionMessage } from "@/domains/message/types";
 
 import { NextButtonService } from "./next-button.service";
 
+type PaginationActionMessage = Extract<
+  ContentActionMessage,
+  { kind: "navigate.next.page" | "can.navigate.next.page" }
+>;
+
 export class PaginationService {
   constructor(private readonly nextButtonService: NextButtonService) {}
 
-  async navigateToNextPage(message: ContentActionMessage) {
+  async navigateToNextPage(message: PaginationActionMessage) {
     const pagination = message.action.input.pagination;
     if (!pagination) return;
 
@@ -15,7 +20,7 @@ export class PaginationService {
     }
   }
 
-  async canNavigateToNextPage(message: ContentActionMessage) {
+  async canNavigateToNextPage(message: PaginationActionMessage) {
     const pagination = message.action.input.pagination;
     if (!pagination) return false;
 

@@ -2,3 +2,9 @@
 
 @source "./**/*.{ts,tsx}";
 @source "../entrypoints/**/*.{ts,tsx}";
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}

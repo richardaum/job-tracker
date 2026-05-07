@@ -6,6 +6,7 @@ import sharp from "sharp";
 import { defineConfig } from "wxt";
 
 const repoRoot = path.resolve(import.meta.dirname, "../..");
+const DEFAULT_API_GRAPHQL_URL = "http://localhost:3101/graphql";
 
 export default defineConfig({
   srcDir: "src",
@@ -13,14 +14,28 @@ export default defineConfig({
   outDir: "build",
   outDirTemplate: "{{browser}}-mv{{manifestVersion}}{{modeSuffix}}",
   webExt: { disabled: true },
+  dev: { server: { port: 3001 } },
   manifest: (env) => ({
     name: "Job Tracker",
     description: "Job Tracker browser extension (MV3).",
-    permissions: ["sidePanel", "scripting"],
+    permissions: ["cookies", "sidePanel", "scripting", "contextMenus"],
     host_permissions:
       env.command === "serve"
         ? ["<all_urls>"]
-        : ["https://remoteyeah.com/*", "https://*.remoteyeah.com/*"],
+        : [
+            "https://remoteyeah.com/*",
+            "https://*.remoteyeah.com/*",
+            toGraphqlHostPermissionPattern(
+              process.env.WXT_PUBLIC_API_GRAPHQL_URL ?? DEFAULT_API_GRAPHQL_URL,
+            ),
+          ],
+    content_security_policy:
+      env.command === "serve"
+        ? {
+            extension_pages:
+              "script-src 'self' 'wasm-unsafe-eval' http://localhost:3001; object-src 'self'",
+          }
+        : undefined,
     icons: {
       16: "assets/icon16.png",
       32: "assets/icon32.png",
@@ -30,6 +45,7 @@ export default defineConfig({
       512: "assets/icon512.png",
     },
     action: {
+      default_popup: "popup.html",
       default_icon: {
         16: "assets/icon16.png",
         32: "assets/icon32.png",
@@ -71,5 +87,13 @@ async function renderIcons(extRoot: string): Promise<void> {
       .resize(size, size)
       .png()
       .toFile(path.join(outDir, `icon${size}.png`));
+  }
+}
+
+function toGraphqlHostPermissionPattern(graphqlUrl: string): string {
+  try {
+    return `${new URL(graphqlUrl).origin}/*`;
+  } catch {
+    return `${new URL(DEFAULT_API_GRAPHQL_URL).origin}/*`;
   }
 }

@@ -1,3 +1,4 @@
+import { CurrentTabContentService } from "@/domains/import-application/current-tab-content.service";
 import { JobDetailsService } from "@/domains/job-details/job-details.service";
 import { JobsListService } from "@/domains/jobs-list/jobs-list.service";
 import { PopupLogService } from "@/domains/log/popup-log.service";
@@ -9,6 +10,7 @@ export class DomListenerService {
     private readonly jobsListService: JobsListService,
     private readonly jobDetailsService: JobDetailsService,
     private readonly paginationService: PaginationService,
+    private readonly currentTabContentService: CurrentTabContentService,
     private readonly popupLogService: PopupLogService,
   ) {}
 
@@ -27,6 +29,10 @@ export class DomListenerService {
         return await this.paginationService.navigateToNextPage(message);
       case "can.navigate.next.page":
         return await this.paginationService.canNavigateToNextPage(message);
+      case "import.application":
+        return this.currentTabContentService.execute();
+      case "import.application.menu-label":
+        return { label: this.currentTabContentService.getImportMenuLabel() };
     }
   }
 }

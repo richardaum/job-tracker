@@ -1,7 +1,12 @@
 import type { ContentActionMessage } from "@/domains/message/types";
 
+type PaginationActionMessage = Extract<
+  ContentActionMessage,
+  { kind: "navigate.next.page" | "can.navigate.next.page" }
+>;
+
 export class NextButtonService {
-  async execute(message: ContentActionMessage) {
+  async execute(message: PaginationActionMessage) {
     const nextButton = this.getNextButton(message);
     if (!nextButton) {
       return {
@@ -29,13 +34,13 @@ export class NextButtonService {
     };
   }
 
-  async canNavigateToNextPage(message: ContentActionMessage) {
+  async canNavigateToNextPage(message: PaginationActionMessage) {
     const nextButton = this.getNextButton(message);
     if (!nextButton) return false;
     return true;
   }
 
-  private getNextButton(message: ContentActionMessage) {
+  private getNextButton(message: PaginationActionMessage) {
     const pagination = message.action.input.pagination;
     if (!pagination) return;
 

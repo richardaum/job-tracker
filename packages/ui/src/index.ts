@@ -138,4 +138,5 @@ export type {
   WizardStep,
 } from "./components/Wizard/Wizard";
 export { Wizard, WizardMain, WizardSidebar } from "./components/Wizard/Wizard";
+export { useAsyncEffect } from "./hooks/useAsyncEffect";
 export { cn } from "./lib/cn";

@@ -4,7 +4,6 @@ import {
   RequestPayloadSchemas,
 } from "./schema";
 import type {
-  ContentActionMessage,
   EventPayloadByType,
   EventType,
   RequestPayloadByType,
@@ -13,7 +12,7 @@ import type {
 } from "./types";
 
 type RequestHandler = (
-  payload: ContentActionMessage,
+  payload: RequestPayloadByType[RequestType],
 ) => Promise<unknown> | unknown;
 type EventHandler<K extends EventType> = (
   payload: EventPayloadByType[K],

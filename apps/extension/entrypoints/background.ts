@@ -1,9 +1,13 @@
 import { defineBackground } from "wxt/utils/define-background";
 
+import { ApiService } from "@/domains/api/api.service";
+import { ContextMenuService } from "@/domains/context-menu/context-menu.service";
+import { ImportApplicationService } from "@/domains/import-application/import-application.service";
 import { JobDetailsMessagingService } from "@/domains/job-details/job-details-messaging.service";
 import { JobsListMessagingService } from "@/domains/jobs-list/jobs-list-messaging.service";
 import { LogService } from "@/domains/log/log.service";
 import { MessagingService } from "@/domains/message/messaging.service";
+import { registerMessageListenerByKind } from "@/domains/message/runtime-message-listener";
 import { PaginationMessagingService } from "@/domains/pagination/pagination-messaging.service";
 import remoteyeahPlan from "@/domains/plan/fixtures/remoteyeah.plan.json";
 import { parsePlan } from "@/domains/plan/parse/parser";
@@ -38,16 +42,36 @@ export default defineBackground(() => {
     logService,
   );
 
+  const importApplicationService = new ImportApplicationService(
+    messagingService,
+    new WxtTabService(),
+    new ApiService(),
+  );
+
+  const contextMenuService = new ContextMenuService(importApplicationService);
+  void contextMenuService.setup();
+  contextMenuService.bindListeners();
+
   chrome.runtime.onInstalled.addListener((details) => {
     console.info(
       "[job-tracker] extension installed:",
       details.reason,
       "v" + chrome.runtime.getManifest().version,
     );
+
+    void contextMenuService.setup();
   });
 
-  chrome.action.onClicked.addListener(() => {
-    const plan = parsePlan(remoteyeahPlan);
-    void planService.execute(plan);
+  registerMessageListenerByKind({
+    "popup.get-import-menu-label": async () => {
+      const label = await importApplicationService.getImportMenuLabel();
+      return { label };
+    },
+    "popup.trigger-plan-service": () => {
+      void planService.execute(parsePlan(remoteyeahPlan));
+    },
+    "popup.import-application": () => {
+      void importApplicationService.execute();
+    },
   });
 });
