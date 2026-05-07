@@ -128,7 +128,8 @@ test("authenticated user can create, edit, and delete an application", async ({
     page.getByRole("heading", { name: "Applications", level: 1 }),
   ).toBeVisible();
 
-  await page.getByRole("button", { name: "New application" }).click();
+  await page.getByRole("button", { name: "Open menu" }).click();
+  await page.getByRole("menuitem", { name: "Manual application" }).click();
   await page.getByLabel("Job title").fill("Senior Frontend Engineer");
   await page.getByLabel("Company").fill("Acme Corp");
   await page.getByLabel("Job URL").fill("https://example.com/jobs/123");

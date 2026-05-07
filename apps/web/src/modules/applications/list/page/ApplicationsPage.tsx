@@ -5,6 +5,7 @@ import {
   cn,
   DropdownButton,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   Skeleton,
   Stack,
   Text,
@@ -142,12 +143,21 @@ export default function ApplicationsPage() {
             intent="primary"
             size="sm"
             content={
-              <DropdownMenuItem
-                onSelect={() => setOpenModal(true)}
-                icon={<PlusIcon size={16} weight="bold" />}
-              >
-                Manual application
-              </DropdownMenuItem>
+              <>
+                <DropdownMenuItem
+                  onSelect={() => setOpenModal(true)}
+                  icon={<PlusIcon size={16} weight="bold" />}
+                >
+                  Manual application
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onSelect={() => router.push("/applications/new/ai/v1")}
+                  icon={<SparkleIcon size={16} weight="bold" />}
+                >
+                  New application with AI (v1)
+                </DropdownMenuItem>
+              </>
             }
             onClick={() => router.push("/applications/new/ai")}
           >
