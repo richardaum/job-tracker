@@ -17,8 +17,10 @@ import React, { useState } from "react";
 
 import {
   ApplicationsDocument,
+  ApplicationStage,
   useCreateApplicationMutation,
   useCreateApplicationNoteMutation,
+  useCreateApplicationStageEventMutation,
   useGenerateApplicationDraftWithAiLazyQuery,
 } from "@/gql/hooks";
 import { HoverEditableFieldRow } from "@/modules/applications/details/components/HoverEditableFieldRow";
@@ -67,7 +69,9 @@ export default function AiApplicationCreatePage() {
   const [createApplication, { loading: creating }] =
     useCreateApplicationMutation({ refetchQueries, awaitRefetchQueries: true });
   const [createApplicationNote] = useCreateApplicationNoteMutation();
-  const loading = generating || creating;
+  const [createApplicationStageEvent, { loading: creatingStageEvent }] =
+    useCreateApplicationStageEventMutation();
+  const loading = generating || creating || creatingStageEvent;
 
   function showToast(message: string, intent: "success" | "error") {
     setToast({ open: true, message, intent });
@@ -123,7 +127,9 @@ export default function AiApplicationCreatePage() {
     await runDraftGeneration(reworkPrompt);
   }
 
-  async function handleCreateApplication() {
+  async function handleCreateApplication(
+    statusOnCreate: "new" | "applied" = "new",
+  ) {
     if (!draft) return;
     if (!draft.title.trim() || !draft.company.trim()) {
       showToast("Title and company are required.", "error");
@@ -148,8 +154,25 @@ export default function AiApplicationCreatePage() {
         });
       }
 
+      if (statusOnCreate === "applied") {
+        await createApplicationStageEvent({
+          variables: {
+            input: {
+              applicationId,
+              toStage: ApplicationStage.Applied,
+              source: "ai-draft-review",
+            },
+          },
+        });
+      }
+
       setCreatedApplicationId(applicationId);
-      showToast("Application created from reviewed draft.", "success");
+      showToast(
+        statusOnCreate === "applied"
+          ? "Application created from reviewed draft with status applied."
+          : "Application created from reviewed draft.",
+        "success",
+      );
     } catch {
       showToast(
         "Failed to create application. Check the draft fields.",
@@ -503,7 +526,7 @@ export default function AiApplicationCreatePage() {
                   type="button"
                   intent="primary"
                   size="sm"
-                  onClick={handleCreateApplication}
+                  onClick={() => handleCreateApplication("new")}
                   disabled={loading}
                   state={creating ? "loading" : "default"}
                 >
