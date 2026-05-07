@@ -1,10 +1,10 @@
 "use client";
 
 import {
-  Card,
   cn,
   DropdownMenu,
   IconButton,
+  ListItemCard,
   Stack,
   Text,
 } from "@job-tracker/ui";
@@ -179,152 +179,145 @@ export function ApplicationCard({
   const hasJobUrls = normalizeJobUrls(app.urls).length > 0;
 
   return (
-    <Card padding="sm">
-      <div
-        className={cn(
-          "flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between",
-        )}
-      >
-        <div className={cn("flex min-w-0 flex-col gap-1")}>
-          <div className={cn("flex min-w-0 flex-wrap items-center gap-2")}>
-            <NextLink
-              href={`/applications/${app.id}`}
-              className={cn(
-                "text-base font-medium text-text-primary underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-brand focus-visible:ring-offset-0 rounded-sm",
-              )}
-            >
-              {app.title}
-            </NextLink>
-            <div className={cn("flex items-center gap-1")}>
-              <CurrentStageBadge
-                listStage={app.currentStage}
-                listReason={app.currentStageReason ?? null}
-                applicationStageEvents={applicationStageEvents}
-                historyLoading={stageEventsLoading}
-                onRequestStageEvents={requestStageEvents}
-              />
-              <ApplicationQuickEditModal
-                trigger={
-                  <IconButton
-                    intent="ghost"
-                    size="sm"
-                    label={`Quick edit ${app.title}`}
-                    tooltip="Quick edit"
-                    className={cn(
-                      "h-6 w-6 text-text-muted/80 hover:text-text-muted",
-                    )}
-                    icon={<PencilSimpleIcon size={13} weight="regular" />}
-                  />
-                }
-                application={{
-                  id: app.id,
-                  title: app.title,
-                  company: app.company.name,
-                  urls: app.urls,
-                }}
-                onSuccess={onSuccess}
-                onError={onError}
-              />
-              <SalaryEditDialog
-                trigger={
-                  <IconButton
-                    intent="ghost"
-                    size="sm"
-                    label={salaryActionLabel}
-                    tooltip={salaryActionLabel}
-                    className={cn(
-                      "h-6 w-6 text-text-muted/80 hover:text-text-muted",
-                    )}
-                    icon={<CurrencyDollarIcon size={13} weight="regular" />}
-                  />
-                }
-                application={app}
-                onSuccess={onSuccess}
-                onError={onError}
-              />
-              <DeleteApplicationDialog
-                trigger={
-                  <IconButton
-                    intent="ghost"
-                    size="sm"
-                    label={`Delete ${app.title}`}
-                    tooltip="Delete"
-                    className={cn(
-                      "h-6 w-6 text-text-muted/80 hover:text-text-muted",
-                    )}
-                    icon={<TrashIcon size={13} weight="regular" />}
-                  />
-                }
-                applicationId={app.id}
-                applicationTitle={app.title}
-                onSuccess={onSuccess}
-                onError={onError}
-              />
-              <ApplicationTrackingPanel
-                inline
-                applicationId={app.id}
-                applicationStageEvents={applicationStageEvents}
-                onRequestStageEvents={requestStageEvents}
-                triggerIcon={
-                  <ArrowSquareRightIcon size={13} weight="regular" />
-                }
-                onSuccess={onSuccess}
-                onError={onError}
-              />
-            </div>
-          </div>
-          <div className={cn("flex flex-wrap items-center gap-2")}>
-            <CompanyNameWithPopover
-              application={app}
-              onSuccess={onSuccess}
-              onError={onError}
+    <ListItemCard
+      title={
+        <NextLink
+          href={`/applications/${app.id}`}
+          className={cn(
+            "text-base font-medium text-text-primary underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-brand focus-visible:ring-offset-0 rounded-sm",
+          )}
+        >
+          {app.title}
+        </NextLink>
+      }
+      actions={[
+        <CurrentStageBadge
+          key="stage-badge"
+          listStage={app.currentStage}
+          listReason={app.currentStageReason ?? null}
+          applicationStageEvents={applicationStageEvents}
+          historyLoading={stageEventsLoading}
+          onRequestStageEvents={requestStageEvents}
+        />,
+        <ApplicationQuickEditModal
+          key="quick-edit"
+          trigger={
+            <IconButton
+              intent="ghost"
+              size="sm"
+              label={`Quick edit ${app.title}`}
+              tooltip="Quick edit"
+              className={cn("h-6 w-6 text-text-muted/80 hover:text-text-muted")}
+              icon={<PencilSimpleIcon size={13} weight="regular" />}
             />
-            <InlineMetaDot />
-            <CurrentStageDateText
-              listStage={app.currentStage}
-              listStatusAt={app.currentStageAt}
-              applicationStageEvents={applicationStageEvents}
-              stageEventsRequested={stageEventsRequested}
+          }
+          application={{
+            id: app.id,
+            title: app.title,
+            company: app.company.name,
+            urls: app.urls,
+          }}
+          onSuccess={onSuccess}
+          onError={onError}
+        />,
+        <SalaryEditDialog
+          key="salary-edit"
+          trigger={
+            <IconButton
+              intent="ghost"
+              size="sm"
+              label={salaryActionLabel}
+              tooltip={salaryActionLabel}
+              className={cn("h-6 w-6 text-text-muted/80 hover:text-text-muted")}
+              icon={<CurrencyDollarIcon size={13} weight="regular" />}
             />
-            {app.source ? (
-              <>
-                <InlineMetaDot />
-                <Text as="span" size="sm" color="secondary">
-                  {formatApplicationSourceLabel(app.source)}
-                </Text>
-              </>
-            ) : null}
-            {hasJobUrls ? (
-              <>
-                <InlineMetaDot />
-                <JobUrls urls={app.urls} />
-              </>
-            ) : null}
-            {showSalary ? (
-              <>
-                <InlineMetaDot />
-                <span
-                  className={cn(
-                    "inline-flex min-w-0 max-w-full flex-wrap items-center gap-2",
-                  )}
-                >
-                  {formattedSalary ? (
-                    <SalaryPeriodTooltip salary={salary}>
-                      <SalaryView salary={formattedSalary} />
-                    </SalaryPeriodTooltip>
-                  ) : null}
-                  <ApplicationTags tags={tags} maxTagChips={3} />
-                </span>
-              </>
-            ) : null}
-          </div>
-          {descriptionPreview ? (
-            <Text size="sm" color="muted" className={cn("line-clamp-2")}>
-              {descriptionPreview}
-            </Text>
+          }
+          application={app}
+          onSuccess={onSuccess}
+          onError={onError}
+        />,
+        <DeleteApplicationDialog
+          key="delete"
+          trigger={
+            <IconButton
+              intent="ghost"
+              size="sm"
+              label={`Delete ${app.title}`}
+              tooltip="Delete"
+              className={cn("h-6 w-6 text-text-muted/80 hover:text-text-muted")}
+              icon={<TrashIcon size={13} weight="regular" />}
+            />
+          }
+          applicationId={app.id}
+          applicationTitle={app.title}
+          onSuccess={onSuccess}
+          onError={onError}
+        />,
+        <ApplicationTrackingPanel
+          key="tracking"
+          inline
+          applicationId={app.id}
+          applicationStageEvents={applicationStageEvents}
+          onRequestStageEvents={requestStageEvents}
+          triggerIcon={<ArrowSquareRightIcon size={13} weight="regular" />}
+          onSuccess={onSuccess}
+          onError={onError}
+        />,
+      ]}
+      meta={
+        <>
+          <CompanyNameWithPopover
+            application={app}
+            onSuccess={onSuccess}
+            onError={onError}
+          />
+          <InlineMetaDot />
+          <CurrentStageDateText
+            listStage={app.currentStage}
+            listStatusAt={app.currentStageAt}
+            applicationStageEvents={applicationStageEvents}
+            stageEventsRequested={stageEventsRequested}
+          />
+          {app.source ? (
+            <>
+              <InlineMetaDot />
+              <Text as="span" size="sm" color="secondary">
+                {formatApplicationSourceLabel(app.source)}
+              </Text>
+            </>
           ) : null}
-        </div>
-      </div>
-    </Card>
+          {hasJobUrls ? (
+            <>
+              <InlineMetaDot />
+              <JobUrls urls={app.urls} />
+            </>
+          ) : null}
+          {showSalary ? (
+            <>
+              <InlineMetaDot />
+              <span
+                className={cn(
+                  "inline-flex min-w-0 max-w-full flex-wrap items-center gap-2",
+                )}
+              >
+                {formattedSalary ? (
+                  <SalaryPeriodTooltip salary={salary}>
+                    <SalaryView salary={formattedSalary} />
+                  </SalaryPeriodTooltip>
+                ) : null}
+                <ApplicationTags tags={tags} maxTagChips={3} />
+              </span>
+            </>
+          ) : null}
+        </>
+      }
+      description={
+        descriptionPreview ? (
+          <Text size="sm" color="muted" className={cn("line-clamp-2")}>
+            {descriptionPreview}
+          </Text>
+        ) : null
+      }
+    />
   );
 }

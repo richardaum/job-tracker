@@ -5,7 +5,7 @@ import { ArrowSquareOutIcon } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
 import React from "react";
 
-import { FieldEditTriggerButton } from "@/modules/applications/details/components/HoverEditableFieldRow";
+import { FieldEditTriggerButton } from "@/modules/applications/details/components/FieldEditTriggerButton";
 import {
   CompanyEditDialog,
   type CompanyEditDialogApplication,

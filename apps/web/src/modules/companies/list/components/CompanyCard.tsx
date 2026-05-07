@@ -1,6 +1,6 @@
 "use client";
 
-import { Card, cn, IconButton, Text } from "@job-tracker/ui";
+import { cn, IconButton, ListItemCard, Text } from "@job-tracker/ui";
 import {
   ArrowSquareOutIcon,
   PencilSimpleIcon,
@@ -66,72 +66,69 @@ export function CompanyCard({
         onRecentlyVisitedAnimationEnd?.();
       }}
     >
-      <Card padding="sm">
-        <div className={cn("min-w-0 space-y-2")}>
-          <div className={cn("flex items-start gap-1")}>
-            <div className={cn("min-w-0")}>
-              <Link
-                href={`/companies/${encodeURIComponent(company.id)}`}
-                onClick={() => onOpenDetails?.(company.id)}
-                className={cn(
-                  "inline-block max-w-full rounded-sm text-text-primary underline-offset-2 hover:underline",
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-border-brand",
-                )}
-              >
-                <Text
-                  as="span"
-                  size="base"
-                  weight="semibold"
-                  className={cn("wrap-break-word")}
-                >
-                  {company.name}
-                </Text>
-              </Link>
-            </div>
-            <div className={cn("flex shrink-0 items-center")}>
+      <ListItemCard
+        title={
+          <Link
+            href={`/companies/${encodeURIComponent(company.id)}`}
+            onClick={() => onOpenDetails?.(company.id)}
+            className={cn(
+              "inline-block max-w-full rounded-sm text-text-primary underline-offset-2 hover:underline",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-border-brand",
+            )}
+          >
+            <Text
+              as="span"
+              size="base"
+              weight="semibold"
+              className={cn("wrap-break-word")}
+            >
+              {company.name}
+            </Text>
+          </Link>
+        }
+        actions={[
+          <IconButton
+            key="view-jobs"
+            intent="ghost"
+            size="sm"
+            label={`View jobs from ${company.name}`}
+            tooltip="View jobs"
+            className={cn("h-6 w-6 text-text-muted/80 hover:text-text-muted")}
+            icon={<ArrowSquareOutIcon size={13} weight="regular" />}
+            onClick={() => onViewJobs(company.name)}
+          />,
+          <IconButton
+            key="edit"
+            intent="ghost"
+            size="sm"
+            label={`Edit ${company.name}`}
+            tooltip="Edit"
+            className={cn("h-6 w-6 text-text-muted/80 hover:text-text-muted")}
+            icon={<PencilSimpleIcon size={13} weight="regular" />}
+            onClick={() => onEdit(company)}
+          />,
+          <DeleteCompanyDialog
+            key="delete"
+            trigger={
               <IconButton
                 intent="ghost"
                 size="sm"
-                label={`View jobs from ${company.name}`}
-                tooltip="View jobs"
+                label={`Delete ${company.name}`}
+                tooltip="Delete"
                 className={cn(
                   "h-6 w-6 text-text-muted/80 hover:text-text-muted",
                 )}
-                icon={<ArrowSquareOutIcon size={13} weight="regular" />}
-                onClick={() => onViewJobs(company.name)}
+                icon={<TrashIcon size={13} weight="regular" />}
               />
-              <IconButton
-                intent="ghost"
-                size="sm"
-                label={`Edit ${company.name}`}
-                tooltip="Edit"
-                className={cn(
-                  "h-6 w-6 text-text-muted/80 hover:text-text-muted",
-                )}
-                icon={<PencilSimpleIcon size={13} weight="regular" />}
-                onClick={() => onEdit(company)}
-              />
-              <DeleteCompanyDialog
-                trigger={
-                  <IconButton
-                    intent="ghost"
-                    size="sm"
-                    label={`Delete ${company.name}`}
-                    tooltip="Delete"
-                    className={cn(
-                      "h-6 w-6 text-text-muted/80 hover:text-text-muted",
-                    )}
-                    icon={<TrashIcon size={13} weight="regular" />}
-                  />
-                }
-                companyId={company.id}
-                companyName={company.name}
-                onSuccess={onDeleteSuccess}
-                onError={onDeleteError}
-              />
-            </div>
-          </div>
-          {company.description ? (
+            }
+            companyId={company.id}
+            companyName={company.name}
+            onSuccess={onDeleteSuccess}
+            onError={onDeleteError}
+          />,
+        ]}
+        description={
+          company.description ? (
             <TipTapContent
               content={company.description}
               className={cn("text-text-secondary")}
@@ -140,9 +137,9 @@ export function CompanyCard({
             <Text size="sm" color="muted" className={cn("italic")}>
               No description available.
             </Text>
-          )}
-        </div>
-      </Card>
+          )
+        }
+      />
     </div>
   );
 }

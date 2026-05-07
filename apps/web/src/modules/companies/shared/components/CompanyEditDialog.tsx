@@ -11,7 +11,7 @@ import {
 } from "@/gql/hooks";
 import { useGenerateCompanyDescriptionAiAction } from "@/modules/ai/actions/useGenerateCompanyDescriptionAiAction";
 import { useRewriteTextAiAction } from "@/modules/ai/actions/useRewriteTextAiAction";
-import { FieldEditTriggerButton } from "@/modules/applications/details/components/HoverEditableFieldRow";
+import { FieldEditTriggerButton } from "@/modules/applications/details/components/FieldEditTriggerButton";
 import { TipTapEditor } from "@/modules/applications/details/components/TipTapEditor";
 import { useControllableState } from "@/modules/applications/shared/hooks/useControllableState";
 import {
