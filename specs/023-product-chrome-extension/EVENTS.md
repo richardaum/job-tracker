@@ -61,6 +61,8 @@ Goal: deliver import-run event streaming to the extension with single-consumer c
     - Update status `IN_PROGRESS -> COMPLETED|FAILED`
   - Ignore unknown events safely (forward compatible).
   - **Verify:** local run with two extension instances shows one claimant executes.
+  - **Verify (automated):** extension tests/typecheck/build pass with claim + status transition + unknown-event coverage.
+  - **Verify (manual):** two-instance local claimant check pending.
   - **Resync:** review status transitions and failure handling.
 
 - [x] **Step 7 - Recovery behavior (minimal viable)**
@@ -70,15 +72,31 @@ Goal: deliver import-run event streaming to the extension with single-consumer c
   - **Verify:** startup recovery picks available runs once.
   - **Resync:** decide if stale `IN_PROGRESS` policy is needed next.
 
-- [ ] **Step 8 - End-to-end validation and cleanup**
+- [x] **Step 8 - End-to-end validation and cleanup**
   - Run targeted API tests + extension checks.
   - Ensure schema/codegen outputs are committed and consistent.
   - Document final behavior and known limits in spec docs if needed.
   - **Verify:** all checks green for touched areas.
   - **Resync:** publish final follow-up TODOs (if any).
+  - Final behavior (verified): API claim CAS + user-scoped event subscription + stale recovery paths are green in targeted tests; extension event routing/recovery, claim gating, and status transitions are green in targeted automated checks (`test`, `typecheck`, `build`).
+  - Known limits: two-instance claimant verification remains manual and has not been automated in this step.
+  - Follow-up TODOs:
+    - Add automated integration coverage for two-extension-instance claimant contention.
+    - Evaluate heartbeat/lease policy for long-running `IN_PROGRESS` executions (still intentionally out of scope).
 
 ## Explicitly out of scope (for now)
 
 - Global cross-domain event bus.
 - External brokers (Redis/Kafka/SQS).
 - Complex delivery guarantees (retries, dedup stores, leasing system).
+
+## Step Commit Map
+
+- Step 1: `071338f` - `feat(api): define import run events contract`
+- Step 2: `fe68d70` - `feat(api): add imports event publisher abstraction`
+- Step 3: `25f50b8` - `feat(imports): verify user-scoped run events`
+- Step 4: `16b7a5d` - `feat(api): implement atomic claim for import runs`
+- Step 5: `46e6930` - `feat(api): integrate GraphQL SSE for import run events`
+- Step 6: `c5f889c` - `feat(extension): route import run events`
+- Step 7: `f3c220c` (API stale-run recovery) + `6f6a206` (extension startup recovery)
+- Step 8: pending commit (validation/cleanup updates in current working tree)
