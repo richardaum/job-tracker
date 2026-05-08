@@ -5,8 +5,10 @@ import React from "react";
 
 import {
   ApplicationsDocument,
+  DeleteApplicationDocument,
   useDeleteApplicationMutation,
 } from "@/gql/hooks";
+import { removeDeletedEntityFromListCache } from "@/modules/applications/shared/utils/apolloDeleteCache";
 
 interface DeleteApplicationDialogProps {
   trigger: React.ReactElement;
@@ -28,8 +30,13 @@ export function DeleteApplicationDialog({
   onError,
 }: DeleteApplicationDialogProps) {
   const [deleteApplication] = useDeleteApplicationMutation({
-    refetchQueries: [{ query: ApplicationsDocument }],
-    awaitRefetchQueries: true,
+    update(cache, { data }) {
+      removeDeletedEntityFromListCache(cache, {
+        mutationData: data,
+        mutation: DeleteApplicationDocument,
+        query: ApplicationsDocument,
+      });
+    },
   });
 
   return (

@@ -170,8 +170,24 @@ export type CurrencyRates = {
   rates: Array<ExchangeRate>;
 };
 
+export type DeleteMutationPayloadType = {
+  __typename?: "DeleteMutationPayloadType";
+  deletedId: Scalars["ID"]["output"];
+  success: Scalars["Boolean"]["output"];
+};
+
+export enum DraftApplicationConversionStatus {
+  Failed = "FAILED",
+  Idle = "IDLE",
+  Processing = "PROCESSING",
+  Succeeded = "SUCCEEDED",
+}
+
 export type DraftApplicationType = {
   __typename?: "DraftApplicationType";
+  applicationId?: Maybe<Scalars["String"]["output"]>;
+  conversionError?: Maybe<Scalars["String"]["output"]>;
+  conversionStatus: DraftApplicationConversionStatus;
   htmlContent: Scalars["String"]["output"];
   id: Scalars["ID"]["output"];
   title: Scalars["String"]["output"];
@@ -208,15 +224,17 @@ export type Mutation = {
   createApplication: ApplicationType;
   createApplicationNote: NoteType;
   createApplicationStageEvent: ApplicationStageEventType;
+  /** @deprecated Use createApplicationWithAIV2 with a draft application captured from the browser extension. */
   createApplicationWithAI: ApplicationType;
+  createApplicationWithAIV2: DraftApplicationType;
   createDraftApplication: DraftApplicationType;
   createImportRun: ImportRunType;
-  deleteApplication: Scalars["Boolean"]["output"];
-  deleteApplicationNote: Scalars["Boolean"]["output"];
-  deleteApplicationStageEvent: Scalars["Boolean"]["output"];
-  deleteCompany: Scalars["Boolean"]["output"];
-  deleteDraftApplication: Scalars["Boolean"]["output"];
-  deleteImportRun: Scalars["Boolean"]["output"];
+  deleteApplication: DeleteMutationPayloadType;
+  deleteApplicationNote: DeleteMutationPayloadType;
+  deleteApplicationStageEvent: DeleteMutationPayloadType;
+  deleteCompany: DeleteMutationPayloadType;
+  deleteDraftApplication: DeleteMutationPayloadType;
+  deleteImportRun: DeleteMutationPayloadType;
   removeApplicationTag: ApplicationType;
   updateApplication: ApplicationType;
   updateApplicationNote: NoteType;
@@ -235,6 +253,10 @@ export type MutationCreateApplicationStageEventArgs = {
 
 export type MutationCreateApplicationWithAiArgs = {
   input: CreateApplicationWithAiInput;
+};
+
+export type MutationCreateApplicationWithAiv2Args = {
+  draftId: Scalars["ID"]["input"];
 };
 
 export type MutationCreateDraftApplicationArgs = {
@@ -633,7 +655,11 @@ export type DeleteApplicationMutationVariables = Exact<{
 
 export type DeleteApplicationMutation = {
   __typename?: "Mutation";
-  deleteApplication: boolean;
+  deleteApplication: {
+    __typename?: "DeleteMutationPayloadType";
+    success: boolean;
+    deletedId: string;
+  };
 };
 
 export type ApplicationStageEventsQueryVariables = Exact<{
@@ -700,7 +726,11 @@ export type DeleteApplicationStageEventMutationVariables = Exact<{
 
 export type DeleteApplicationStageEventMutation = {
   __typename?: "Mutation";
-  deleteApplicationStageEvent: boolean;
+  deleteApplicationStageEvent: {
+    __typename?: "DeleteMutationPayloadType";
+    success: boolean;
+    deletedId: string;
+  };
 };
 
 export type ApplicationNotesQueryVariables = Exact<{
@@ -761,7 +791,11 @@ export type DeleteApplicationNoteMutationVariables = Exact<{
 
 export type DeleteApplicationNoteMutation = {
   __typename?: "Mutation";
-  deleteApplicationNote: boolean;
+  deleteApplicationNote: {
+    __typename?: "DeleteMutationPayloadType";
+    success: boolean;
+    deletedId: string;
+  };
 };
 
 export type GenerateApplicationNoteWithAiQueryVariables = Exact<{
@@ -813,7 +847,11 @@ export type DeleteCompanyMutationVariables = Exact<{
 
 export type DeleteCompanyMutation = {
   __typename?: "Mutation";
-  deleteCompany: boolean;
+  deleteCompany: {
+    __typename?: "DeleteMutationPayloadType";
+    success: boolean;
+    deletedId: string;
+  };
 };
 
 export type CompanyApplicationsCountQueryVariables = Exact<{
@@ -864,8 +902,11 @@ export type DraftApplicationsListQuery = {
   draftApplications: Array<{
     __typename?: "DraftApplicationType";
     id: string;
+    applicationId?: string | null;
     url: string;
     title: string;
+    conversionStatus: DraftApplicationConversionStatus;
+    conversionError?: string | null;
   }>;
 };
 
@@ -878,9 +919,12 @@ export type DraftApplicationDetailQuery = {
   draftApplication: {
     __typename?: "DraftApplicationType";
     id: string;
+    applicationId?: string | null;
     url: string;
     title: string;
     htmlContent: string;
+    conversionStatus: DraftApplicationConversionStatus;
+    conversionError?: string | null;
   };
 };
 
@@ -890,7 +934,26 @@ export type DeleteDraftApplicationMutationVariables = Exact<{
 
 export type DeleteDraftApplicationMutation = {
   __typename?: "Mutation";
-  deleteDraftApplication: boolean;
+  deleteDraftApplication: {
+    __typename?: "DeleteMutationPayloadType";
+    success: boolean;
+    deletedId: string;
+  };
+};
+
+export type CreateApplicationWithAiV2MutationVariables = Exact<{
+  draftId: Scalars["ID"]["input"];
+}>;
+
+export type CreateApplicationWithAiV2Mutation = {
+  __typename?: "Mutation";
+  createApplicationWithAIV2: {
+    __typename?: "DraftApplicationType";
+    id: string;
+    title: string;
+    conversionStatus: DraftApplicationConversionStatus;
+    conversionError?: string | null;
+  };
 };
 
 export type ImportRunsQueryVariables = Exact<{ [key: string]: never }>;
@@ -933,7 +996,11 @@ export type DeleteImportRunMutationVariables = Exact<{
 
 export type DeleteImportRunMutation = {
   __typename?: "Mutation";
-  deleteImportRun: boolean;
+  deleteImportRun: {
+    __typename?: "DeleteMutationPayloadType";
+    success: boolean;
+    deletedId: string;
+  };
 };
 
 export type ClearImportRunsMutationVariables = Exact<{ [key: string]: never }>;
@@ -1459,7 +1526,10 @@ export function useRemoveApplicationTagMutation(
 
 export const DeleteApplicationDocument = gql`
   mutation DeleteApplication($id: ID!) {
-    deleteApplication(id: $id)
+    deleteApplication(id: $id) {
+      success
+      deletedId
+    }
   }
 `;
 
@@ -1658,7 +1728,10 @@ export function useUpdateApplicationStageEventMutation(
 
 export const DeleteApplicationStageEventDocument = gql`
   mutation DeleteApplicationStageEvent($id: ID!) {
-    deleteApplicationStageEvent(id: $id)
+    deleteApplicationStageEvent(id: $id) {
+      success
+      deletedId
+    }
   }
 `;
 
@@ -1846,7 +1919,10 @@ export function useUpdateApplicationNoteMutation(
 
 export const DeleteApplicationNoteDocument = gql`
   mutation DeleteApplicationNote($id: ID!) {
-    deleteApplicationNote(id: $id)
+    deleteApplicationNote(id: $id) {
+      success
+      deletedId
+    }
   }
 `;
 
@@ -2104,7 +2180,10 @@ export function useUpdateCompanyMutation(
 
 export const DeleteCompanyDocument = gql`
   mutation DeleteCompany($id: ID!) {
-    deleteCompany(id: $id)
+    deleteCompany(id: $id) {
+      success
+      deletedId
+    }
   }
 `;
 
@@ -2320,8 +2399,11 @@ export const DraftApplicationsListDocument = gql`
   query DraftApplicationsList {
     draftApplications {
       id
+      applicationId
       url
       title
+      conversionStatus
+      conversionError
     }
   }
 `;
@@ -2377,9 +2459,12 @@ export const DraftApplicationDetailDocument = gql`
   query DraftApplicationDetail($id: ID!) {
     draftApplication(id: $id) {
       id
+      applicationId
       url
       title
       htmlContent
+      conversionStatus
+      conversionError
     }
   }
 `;
@@ -2438,7 +2523,10 @@ export type DraftApplicationDetailLazyQueryHookResult = ReturnType<
 
 export const DeleteDraftApplicationDocument = gql`
   mutation DeleteDraftApplication($id: ID!) {
-    deleteDraftApplication(id: $id)
+    deleteDraftApplication(id: $id) {
+      success
+      deletedId
+    }
   }
 `;
 
@@ -2470,6 +2558,47 @@ export function useDeleteDraftApplicationMutation(
     DeleteDraftApplicationMutation,
     DeleteDraftApplicationMutationVariables
   >(DeleteDraftApplicationDocument, options);
+}
+
+export const CreateApplicationWithAiV2Document = gql`
+  mutation CreateApplicationWithAiV2($draftId: ID!) {
+    createApplicationWithAIV2(draftId: $draftId) {
+      id
+      title
+      conversionStatus
+      conversionError
+    }
+  }
+`;
+
+/**
+ * __useCreateApplicationWithAiV2Mutation__
+ *
+ * To run a mutation, you first call `useCreateApplicationWithAiV2Mutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateApplicationWithAiV2Mutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createApplicationWithAiV2Mutation, { data, loading, error }] = useCreateApplicationWithAiV2Mutation({
+ *   variables: {
+ *      draftId: // value for 'draftId'
+ *   },
+ * });
+ */
+export function useCreateApplicationWithAiV2Mutation(
+  baseOptions?: ApolloReactHooks.MutationHookOptions<
+    CreateApplicationWithAiV2Mutation,
+    CreateApplicationWithAiV2MutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useMutation<
+    CreateApplicationWithAiV2Mutation,
+    CreateApplicationWithAiV2MutationVariables
+  >(CreateApplicationWithAiV2Document, options);
 }
 
 export const ImportRunsDocument = gql`
@@ -2577,7 +2706,10 @@ export function useCreateImportRunMutation(
 
 export const DeleteImportRunDocument = gql`
   mutation DeleteImportRun($id: ID!) {
-    deleteImportRun(id: $id)
+    deleteImportRun(id: $id) {
+      success
+      deletedId
+    }
   }
 `;
 

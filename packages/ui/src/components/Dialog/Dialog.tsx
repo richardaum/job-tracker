@@ -17,7 +17,7 @@ export interface DialogProps {
   trigger: React.ReactElement;
   title: string;
   children?: React.ReactNode;
-  description?: string;
+  description?: React.ReactNode;
   footer?: React.ReactNode;
   open?: boolean;
   defaultOpen?: boolean;
@@ -51,7 +51,10 @@ export function Dialog({
   childrenClassName,
   size = "lg",
 }: DialogProps) {
-  const hasDescription = Boolean(description?.trim());
+  const hasDescription =
+    typeof description === "string"
+      ? Boolean(description.trim())
+      : Boolean(description);
 
   return (
     <RadixDialog.Root

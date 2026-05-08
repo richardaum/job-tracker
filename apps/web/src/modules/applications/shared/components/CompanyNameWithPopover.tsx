@@ -56,7 +56,7 @@ export function CompanyNameWithPopover({
             size="xs"
             weight="semibold"
             color="muted"
-            className="block uppercase tracking-wider"
+            className={cn("block uppercase tracking-wider")}
           >
             About the company
           </Text>
@@ -66,7 +66,7 @@ export function CompanyNameWithPopover({
               e.stopPropagation();
               setEditCompanyOpen(true);
             }}
-            className="size-6  opacity-100"
+            className={cn("size-6 opacity-100")}
           />
           <IconButton
             intent="ghost"
@@ -74,7 +74,7 @@ export function CompanyNameWithPopover({
             label={`Open ${name} details`}
             tooltip="Open details"
             icon={<ArrowSquareOutIcon size={14} weight="regular" />}
-            className="size-6  opacity-100"
+            className={cn("size-6 opacity-100")}
             onClick={(e) => {
               e.stopPropagation();
               router.push(
@@ -86,10 +86,10 @@ export function CompanyNameWithPopover({
         {hasDescription ? (
           <TipTapContent
             content={description}
-            className="text-xs/relaxed text-text-secondary "
+            className={cn("text-xs/relaxed text-text-secondary")}
           />
         ) : (
-          <Text size="xs" color="muted" className="italic">
+          <Text size="xs" color="muted" className={cn("italic")}>
             No description available.
           </Text>
         )}

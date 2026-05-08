@@ -1,7 +1,7 @@
 import "@/env/server";
 import "./globals.css";
 
-import { cn } from "@job-tracker/ui";
+import { cn } from "@ui/lib/cn";
 import type { Metadata } from "next";
 import { Outfit } from "next/font/google";
 import type { ReactNode } from "react";

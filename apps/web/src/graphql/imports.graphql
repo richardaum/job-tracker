@@ -23,7 +23,10 @@ mutation CreateImportRun($input: CreateImportRunInput!) {
 }
 
 mutation DeleteImportRun($id: ID!) {
-  deleteImportRun(id: $id)
+  deleteImportRun(id: $id) {
+    success
+    deletedId
+  }
 }
 
 mutation ClearImportRuns {

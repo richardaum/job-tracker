@@ -1,25 +1,35 @@
 "use client";
 
+import { to } from "@job-tracker/async";
 import {
+  Badge,
   Button,
   cn,
   DropdownMenu,
   DropdownMenuItem,
   FieldWithLabelAction,
   Heading,
+  IconButton,
   OverviewSection,
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
   Text,
+  Tooltip,
 } from "@job-tracker/ui";
-import { CaretDownIcon } from "@phosphor-icons/react";
+import { CaretDownIcon, CopyIcon } from "@phosphor-icons/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
+import {
+  useApplicationQuery,
+  useCreateApplicationWithAiV2Mutation,
+} from "@/gql/hooks";
 import { useToastQueue } from "@/modules/applications/shared/hooks/useToastQueue";
+import { ConvertDraftConfirmationDialog } from "@/modules/draft-applications/details/components/ConvertDraftConfirmationDialog";
+import { ConvertDraftConflictDialog } from "@/modules/draft-applications/details/components/ConvertDraftConflictDialog";
 import { useDraftApplicationDetailsViewModel } from "@/modules/draft-applications/details/hooks/useDraftApplicationDetailsViewModel";
 import { DeleteDraftApplicationDialog } from "@/modules/draft-applications/list/components/DeleteDraftApplicationDialog";
 
@@ -48,24 +58,139 @@ function draftHeadingTitle(title: string, url: string): string {
   return draftPrimaryTitle(url);
 }
 
+function formatConversionStatus(status: string): string {
+  const normalized = status.toLowerCase();
+  if (normalized === "processing") return "Processing";
+  if (normalized === "succeeded") return "Succeeded";
+  if (normalized === "failed") return "Failed";
+  return "Idle";
+}
+
+function conversionStatusBadgeIntent(status: string) {
+  const normalized = status.toLowerCase();
+  if (normalized === "processing") return "warning" as const;
+  if (normalized === "succeeded") return "success" as const;
+  if (normalized === "failed") return "error" as const;
+  return "default" as const;
+}
+
+function truncateText(value: string, maxLength: number): string {
+  if (value.length <= maxLength) {
+    return value;
+  }
+  return `${value.slice(0, maxLength - 1)}…`;
+}
+
+function truncateMiddle(
+  value: string,
+  prefixLength: number,
+  suffixLength: number,
+) {
+  if (value.length <= prefixLength + suffixLength + 1) {
+    return value;
+  }
+  return `${value.slice(0, prefixLength)}…${value.slice(-suffixLength)}`;
+}
+
 export default function DraftApplicationDetailsPage({ params }: PageProps) {
   const { id } = React.use(params);
   const router = useRouter();
   const [actionsMenuOpen, setActionsMenuOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [convertConfirmDialogOpen, setConvertConfirmDialogOpen] =
+    useState(false);
+  const [convertConflictDialogOpen, setConvertConflictDialogOpen] =
+    useState(false);
+  const [createApplicationWithAiV2] = useCreateApplicationWithAiV2Mutation();
   const { enqueueToast } = useToastQueue();
 
-  const { draft, error, showInitialLoading } =
+  const { draft, error, refetch, showInitialLoading } =
     useDraftApplicationDetailsViewModel(id);
+  const { data: applicationData } = useApplicationQuery({
+    variables: { id: draft?.applicationId ?? "" },
+    skip: !draft?.applicationId,
+    fetchPolicy: "cache-first",
+  });
+
+  useEffect(() => {
+    if (!draft) return;
+  }, [draft]);
 
   function showToast(message: string, intent: "success" | "error") {
     enqueueToast({ title: message, intent });
   }
 
+  async function handleCopyDraftId(draftId: string) {
+    try {
+      await navigator.clipboard.writeText(draftId);
+      showToast("Draft ID copied.", "success");
+    } catch {
+      showToast("Could not copy draft ID.", "error");
+    }
+  }
+
+  async function handleConvertToApplication() {
+    if (!draft) return;
+
+    if (draft.applicationId) {
+      setConvertConflictDialogOpen(true);
+      return;
+    }
+
+    const [error] = await to(
+      createApplicationWithAiV2({ variables: { draftId: draft.id } }),
+    );
+
+    if (error) {
+      enqueueToast({
+        title: error.message || "Failed to start draft conversion.",
+        intent: "error",
+      });
+      return;
+    }
+
+    enqueueToast({
+      title: "Conversion started in background.",
+      intent: "success",
+    });
+    void refetch();
+  }
+
   function renderOverviewBody() {
     if (!draft) return null;
+    const truncatedUrl = truncateText(draft.url, 80);
+    const isUrlTruncated = truncatedUrl !== draft.url;
+    const linkedApplication = applicationData?.application ?? null;
+    const linkedApplicationLabel = linkedApplication
+      ? `${linkedApplication.title} @ ${linkedApplication.company.name}`
+      : null;
+    const truncatedDraftId = truncateMiddle(draft.id, 8, 4);
+
     return (
       <OverviewSection layout="grid">
+        <FieldWithLabelAction
+          label="Draft id"
+          actions={
+            <IconButton
+              size="sm"
+              intent="ghost"
+              label="Copy draft id"
+              tooltip="Copy draft id"
+              icon={<CopyIcon size={14} weight="bold" />}
+              className={cn(
+                "size-7 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100",
+              )}
+              onClick={() => {
+                void handleCopyDraftId(draft.id);
+              }}
+            />
+          }
+          content={
+            <span className={cn("block max-w-full truncate font-mono text-sm")}>
+              {truncatedDraftId}
+            </span>
+          }
+        />
         <FieldWithLabelAction
           label="Page title"
           content={
@@ -77,26 +202,40 @@ export default function DraftApplicationDetailsPage({ params }: PageProps) {
         <FieldWithLabelAction
           label="Source URL"
           content={
-            <a
-              href={draft.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={cn(
-                "block break-all text-sm text-text-brand underline-offset-2 hover:underline",
-              )}
+            <Tooltip
+              content={isUrlTruncated ? draft.url : undefined}
+              side="top"
+              enabled={isUrlTruncated}
             >
-              {draft.url}
-            </a>
+              <a
+                href={draft.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={cn(
+                  "block max-w-88 truncate text-sm text-text-brand underline-offset-2 hover:underline",
+                )}
+              >
+                {truncatedUrl}
+              </a>
+            </Tooltip>
           }
         />
-        <FieldWithLabelAction
-          label="Draft id"
-          content={
-            <Text size="sm" className={cn("break-all font-mono")}>
-              {draft.id}
-            </Text>
-          }
-        />
+        {draft.applicationId && linkedApplication && linkedApplicationLabel ? (
+          <FieldWithLabelAction
+            label="Current application"
+            content={
+              <Link
+                href={`/applications/${draft.applicationId}`}
+                className={cn(
+                  "block max-w-full truncate text-sm text-text-brand underline-offset-2 hover:underline",
+                )}
+                title={linkedApplicationLabel}
+              >
+                {linkedApplicationLabel}
+              </Link>
+            }
+          />
+        ) : null}
       </OverviewSection>
     );
   }
@@ -167,7 +306,22 @@ export default function DraftApplicationDetailsPage({ params }: PageProps) {
                     }
                     align="end"
                   >
-                    <DropdownMenuItem>Convert to application</DropdownMenuItem>
+                    {draft.applicationId ? (
+                      <DropdownMenuItem
+                        onSelect={() =>
+                          router.push(`/applications/${draft.applicationId}`)
+                        }
+                      >
+                        Open application
+                      </DropdownMenuItem>
+                    ) : null}
+                    <DropdownMenuItem
+                      onSelect={() => {
+                        setConvertConfirmDialogOpen(true);
+                      }}
+                    >
+                      Convert to application
+                    </DropdownMenuItem>
                     <DropdownMenuItem
                       destructive
                       onSelect={() => setDeleteDialogOpen(true)}
@@ -187,13 +341,14 @@ export default function DraftApplicationDetailsPage({ params }: PageProps) {
                 ? draftHeadingTitle(draft.title, draft.url)
                 : "Draft application"}
             </span>{" "}
-            <span
-              className={cn(
-                "ml-2 inline-flex align-middle whitespace-nowrap rounded-full border border-border-subtle bg-bg-surface-hover px-2.5 py-0.5 text-xs font-medium text-text-secondary",
-              )}
-            >
-              Draft
-            </span>
+            {draft ? (
+              <Badge
+                intent={conversionStatusBadgeIntent(draft.conversionStatus)}
+                className={cn("ml-2 align-middle whitespace-nowrap")}
+              >
+                {formatConversionStatus(draft.conversionStatus)}
+              </Badge>
+            ) : null}
           </Heading>
         </div>
         {draft ? (
@@ -210,6 +365,36 @@ export default function DraftApplicationDetailsPage({ params }: PageProps) {
             onError={(msg) => showToast(msg, "error")}
           />
         ) : null}
+        <ConvertDraftConflictDialog
+          open={convertConflictDialogOpen}
+          draftId={draft?.id}
+          previousApplicationId={draft?.applicationId ?? null}
+          onOpenChange={setConvertConflictDialogOpen}
+          onDeletePreviousSuccess={() => {
+            enqueueToast({
+              title: "Previous application deleted.",
+              intent: "success",
+            });
+          }}
+          onConversionSuccess={() => {
+            enqueueToast({
+              title: "Conversion started in background.",
+              intent: "success",
+            });
+            void refetch();
+          }}
+          onError={(message) => {
+            enqueueToast({ title: message, intent: "error" });
+          }}
+        />
+        <ConvertDraftConfirmationDialog
+          open={convertConfirmDialogOpen}
+          draftSummary={
+            draft ? draftHeadingTitle(draft.title, draft.url) : "this draft"
+          }
+          onOpenChange={setConvertConfirmDialogOpen}
+          onConfirm={handleConvertToApplication}
+        />
       </div>
 
       <div className={cn("min-h-0 flex-1 overflow-hidden p-4 sm:p-6")}>

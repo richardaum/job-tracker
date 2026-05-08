@@ -1,20 +1,38 @@
 query DraftApplicationsList {
   draftApplications {
     id
+    applicationId
     url
     title
+    conversionStatus
+    conversionError
   }
 }
 
 query DraftApplicationDetail($id: ID!) {
   draftApplication(id: $id) {
     id
+    applicationId
     url
     title
     htmlContent
+    conversionStatus
+    conversionError
   }
 }
 
 mutation DeleteDraftApplication($id: ID!) {
-  deleteDraftApplication(id: $id)
+  deleteDraftApplication(id: $id) {
+    success
+    deletedId
+  }
+}
+
+mutation CreateApplicationWithAiV2($draftId: ID!) {
+  createApplicationWithAIV2(draftId: $draftId) {
+    id
+    title
+    conversionStatus
+    conversionError
+  }
 }

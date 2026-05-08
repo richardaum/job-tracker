@@ -135,7 +135,10 @@ mutation RemoveApplicationTag($id: ID!, $tag: String!) {
 }
 
 mutation DeleteApplication($id: ID!) {
-  deleteApplication(id: $id)
+  deleteApplication(id: $id) {
+    success
+    deletedId
+  }
 }
 
 query ApplicationStageEvents($applicationId: ID!) {
@@ -183,7 +186,10 @@ mutation UpdateApplicationStageEvent(
 }
 
 mutation DeleteApplicationStageEvent($id: ID!) {
-  deleteApplicationStageEvent(id: $id)
+  deleteApplicationStageEvent(id: $id) {
+    success
+    deletedId
+  }
 }
 
 query ApplicationNotes($applicationId: ID!) {
@@ -220,7 +226,10 @@ mutation UpdateApplicationNote($id: ID!, $input: UpdateNoteInput!) {
 }
 
 mutation DeleteApplicationNote($id: ID!) {
-  deleteApplicationNote(id: $id)
+  deleteApplicationNote(id: $id) {
+    success
+    deletedId
+  }
 }
 
 query GenerateApplicationNoteWithAi($applicationId: ID!, $note: String!) {

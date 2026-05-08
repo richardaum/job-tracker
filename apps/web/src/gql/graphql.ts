@@ -168,8 +168,24 @@ export type CurrencyRates = {
   rates: Array<ExchangeRate>;
 };
 
+export type DeleteMutationPayloadType = {
+  __typename?: "DeleteMutationPayloadType";
+  deletedId: Scalars["ID"]["output"];
+  success: Scalars["Boolean"]["output"];
+};
+
+export enum DraftApplicationConversionStatus {
+  Failed = "FAILED",
+  Idle = "IDLE",
+  Processing = "PROCESSING",
+  Succeeded = "SUCCEEDED",
+}
+
 export type DraftApplicationType = {
   __typename?: "DraftApplicationType";
+  applicationId?: Maybe<Scalars["String"]["output"]>;
+  conversionError?: Maybe<Scalars["String"]["output"]>;
+  conversionStatus: DraftApplicationConversionStatus;
   htmlContent: Scalars["String"]["output"];
   id: Scalars["ID"]["output"];
   title: Scalars["String"]["output"];
@@ -206,15 +222,17 @@ export type Mutation = {
   createApplication: ApplicationType;
   createApplicationNote: NoteType;
   createApplicationStageEvent: ApplicationStageEventType;
+  /** @deprecated Use createApplicationWithAIV2 with a draft application captured from the browser extension. */
   createApplicationWithAI: ApplicationType;
+  createApplicationWithAIV2: DraftApplicationType;
   createDraftApplication: DraftApplicationType;
   createImportRun: ImportRunType;
-  deleteApplication: Scalars["Boolean"]["output"];
-  deleteApplicationNote: Scalars["Boolean"]["output"];
-  deleteApplicationStageEvent: Scalars["Boolean"]["output"];
-  deleteCompany: Scalars["Boolean"]["output"];
-  deleteDraftApplication: Scalars["Boolean"]["output"];
-  deleteImportRun: Scalars["Boolean"]["output"];
+  deleteApplication: DeleteMutationPayloadType;
+  deleteApplicationNote: DeleteMutationPayloadType;
+  deleteApplicationStageEvent: DeleteMutationPayloadType;
+  deleteCompany: DeleteMutationPayloadType;
+  deleteDraftApplication: DeleteMutationPayloadType;
+  deleteImportRun: DeleteMutationPayloadType;
   removeApplicationTag: ApplicationType;
   updateApplication: ApplicationType;
   updateApplicationNote: NoteType;
@@ -233,6 +251,10 @@ export type MutationCreateApplicationStageEventArgs = {
 
 export type MutationCreateApplicationWithAiArgs = {
   input: CreateApplicationWithAiInput;
+};
+
+export type MutationCreateApplicationWithAiv2Args = {
+  draftId: Scalars["ID"]["input"];
 };
 
 export type MutationCreateDraftApplicationArgs = {
@@ -618,7 +640,11 @@ export type DeleteApplicationMutationVariables = Exact<{
 
 export type DeleteApplicationMutation = {
   __typename?: "Mutation";
-  deleteApplication: boolean;
+  deleteApplication: {
+    __typename?: "DeleteMutationPayloadType";
+    success: boolean;
+    deletedId: string;
+  };
 };
 
 export type ApplicationStageEventsQueryVariables = Exact<{
@@ -685,7 +711,11 @@ export type DeleteApplicationStageEventMutationVariables = Exact<{
 
 export type DeleteApplicationStageEventMutation = {
   __typename?: "Mutation";
-  deleteApplicationStageEvent: boolean;
+  deleteApplicationStageEvent: {
+    __typename?: "DeleteMutationPayloadType";
+    success: boolean;
+    deletedId: string;
+  };
 };
 
 export type ApplicationNotesQueryVariables = Exact<{
@@ -746,7 +776,11 @@ export type DeleteApplicationNoteMutationVariables = Exact<{
 
 export type DeleteApplicationNoteMutation = {
   __typename?: "Mutation";
-  deleteApplicationNote: boolean;
+  deleteApplicationNote: {
+    __typename?: "DeleteMutationPayloadType";
+    success: boolean;
+    deletedId: string;
+  };
 };
 
 export type GenerateApplicationNoteWithAiQueryVariables = Exact<{
@@ -798,7 +832,11 @@ export type DeleteCompanyMutationVariables = Exact<{
 
 export type DeleteCompanyMutation = {
   __typename?: "Mutation";
-  deleteCompany: boolean;
+  deleteCompany: {
+    __typename?: "DeleteMutationPayloadType";
+    success: boolean;
+    deletedId: string;
+  };
 };
 
 export type CompanyApplicationsCountQueryVariables = Exact<{
@@ -849,8 +887,11 @@ export type DraftApplicationsListQuery = {
   draftApplications: Array<{
     __typename?: "DraftApplicationType";
     id: string;
+    applicationId?: string | null;
     url: string;
     title: string;
+    conversionStatus: DraftApplicationConversionStatus;
+    conversionError?: string | null;
   }>;
 };
 
@@ -863,9 +904,12 @@ export type DraftApplicationDetailQuery = {
   draftApplication: {
     __typename?: "DraftApplicationType";
     id: string;
+    applicationId?: string | null;
     url: string;
     title: string;
     htmlContent: string;
+    conversionStatus: DraftApplicationConversionStatus;
+    conversionError?: string | null;
   };
 };
 
@@ -875,7 +919,26 @@ export type DeleteDraftApplicationMutationVariables = Exact<{
 
 export type DeleteDraftApplicationMutation = {
   __typename?: "Mutation";
-  deleteDraftApplication: boolean;
+  deleteDraftApplication: {
+    __typename?: "DeleteMutationPayloadType";
+    success: boolean;
+    deletedId: string;
+  };
+};
+
+export type CreateApplicationWithAiV2MutationVariables = Exact<{
+  draftId: Scalars["ID"]["input"];
+}>;
+
+export type CreateApplicationWithAiV2Mutation = {
+  __typename?: "Mutation";
+  createApplicationWithAIV2: {
+    __typename?: "DraftApplicationType";
+    id: string;
+    title: string;
+    conversionStatus: DraftApplicationConversionStatus;
+    conversionError?: string | null;
+  };
 };
 
 export type ImportRunsQueryVariables = Exact<{ [key: string]: never }>;
@@ -918,7 +981,11 @@ export type DeleteImportRunMutationVariables = Exact<{
 
 export type DeleteImportRunMutation = {
   __typename?: "Mutation";
-  deleteImportRun: boolean;
+  deleteImportRun: {
+    __typename?: "DeleteMutationPayloadType";
+    success: boolean;
+    deletedId: string;
+  };
 };
 
 export type ClearImportRunsMutationVariables = Exact<{ [key: string]: never }>;
@@ -1785,6 +1852,13 @@ export const DeleteApplicationDocument = {
                 },
               },
             ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "success" } },
+                { kind: "Field", name: { kind: "Name", value: "deletedId" } },
+              ],
+            },
           },
         ],
       },
@@ -2032,6 +2106,13 @@ export const DeleteApplicationStageEventDocument = {
                 },
               },
             ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "success" } },
+                { kind: "Field", name: { kind: "Name", value: "deletedId" } },
+              ],
+            },
           },
         ],
       },
@@ -2273,6 +2354,13 @@ export const DeleteApplicationNoteDocument = {
                 },
               },
             ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "success" } },
+                { kind: "Field", name: { kind: "Name", value: "deletedId" } },
+              ],
+            },
           },
         ],
       },
@@ -2541,6 +2629,13 @@ export const DeleteCompanyDocument = {
                 },
               },
             ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "success" } },
+                { kind: "Field", name: { kind: "Name", value: "deletedId" } },
+              ],
+            },
           },
         ],
       },
@@ -2726,8 +2821,20 @@ export const DraftApplicationsListDocument = {
               kind: "SelectionSet",
               selections: [
                 { kind: "Field", name: { kind: "Name", value: "id" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "applicationId" },
+                },
                 { kind: "Field", name: { kind: "Name", value: "url" } },
                 { kind: "Field", name: { kind: "Name", value: "title" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "conversionStatus" },
+                },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "conversionError" },
+                },
               ],
             },
           },
@@ -2776,9 +2883,21 @@ export const DraftApplicationDetailDocument = {
               kind: "SelectionSet",
               selections: [
                 { kind: "Field", name: { kind: "Name", value: "id" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "applicationId" },
+                },
                 { kind: "Field", name: { kind: "Name", value: "url" } },
                 { kind: "Field", name: { kind: "Name", value: "title" } },
                 { kind: "Field", name: { kind: "Name", value: "htmlContent" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "conversionStatus" },
+                },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "conversionError" },
+                },
               ],
             },
           },
@@ -2823,6 +2942,13 @@ export const DeleteDraftApplicationDocument = {
                 },
               },
             ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "success" } },
+                { kind: "Field", name: { kind: "Name", value: "deletedId" } },
+              ],
+            },
           },
         ],
       },
@@ -2831,6 +2957,66 @@ export const DeleteDraftApplicationDocument = {
 } as unknown as DocumentNode<
   DeleteDraftApplicationMutation,
   DeleteDraftApplicationMutationVariables
+>;
+export const CreateApplicationWithAiV2Document = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "CreateApplicationWithAiV2" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "draftId" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "createApplicationWithAIV2" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "draftId" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "draftId" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                { kind: "Field", name: { kind: "Name", value: "title" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "conversionStatus" },
+                },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "conversionError" },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  CreateApplicationWithAiV2Mutation,
+  CreateApplicationWithAiV2MutationVariables
 >;
 export const ImportRunsDocument = {
   kind: "Document",
@@ -2968,6 +3154,13 @@ export const DeleteImportRunDocument = {
                 },
               },
             ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "success" } },
+                { kind: "Field", name: { kind: "Name", value: "deletedId" } },
+              ],
+            },
           },
         ],
       },

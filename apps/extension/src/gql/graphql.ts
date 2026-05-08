@@ -206,7 +206,9 @@ export type Mutation = {
   createApplication: ApplicationType;
   createApplicationNote: NoteType;
   createApplicationStageEvent: ApplicationStageEventType;
+  /** @deprecated Use createApplicationWithAIV2 with a draft application captured from the browser extension. */
   createApplicationWithAI: ApplicationType;
+  createApplicationWithAIV2: ApplicationType;
   createDraftApplication: DraftApplicationType;
   createImportRun: ImportRunType;
   deleteApplication: Scalars["Boolean"]["output"];
@@ -233,6 +235,10 @@ export type MutationCreateApplicationStageEventArgs = {
 
 export type MutationCreateApplicationWithAiArgs = {
   input: CreateApplicationWithAiInput;
+};
+
+export type MutationCreateApplicationWithAiv2Args = {
+  draftId: Scalars["ID"]["input"];
 };
 
 export type MutationCreateDraftApplicationArgs = {

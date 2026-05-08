@@ -33,7 +33,9 @@ export function Tooltip({
       <RadixTooltip.Root
         open={open}
         defaultOpen={defaultOpen}
-        onOpenChange={onOpenChange}
+        onOpenChange={(nextOpen) => {
+          onOpenChange?.(nextOpen);
+        }}
       >
         <RadixTooltip.Trigger asChild>{children}</RadixTooltip.Trigger>
         <RadixTooltip.Portal>
