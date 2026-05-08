@@ -16,6 +16,7 @@ export default defineContentScript({
   matches: [
     "https://jobs.ashbyhq.com/*",
     "https://jobs.lever.co/*",
+    "https://www.linkedin.com/*",
     "*://*.remoteyeah.com/*",
   ],
   main() {
