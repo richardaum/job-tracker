@@ -1,3 +1,5 @@
+import { captureSync } from "@job-tracker/async";
+
 export const EMPTY_TIPTAP_DOC = JSON.stringify({
   type: "doc",
   content: [{ type: "paragraph" }],
@@ -39,12 +41,13 @@ function collectText(node: TipTapNode): string {
 }
 
 export function isTipTapDocumentString(input: string): boolean {
-  try {
-    const parsed = JSON.parse(input) as { type?: unknown; content?: unknown };
-    return parsed.type === "doc" && Array.isArray(parsed.content);
-  } catch {
+  const [err, parsed] = captureSync(
+    () => JSON.parse(input) as { type?: unknown; content?: unknown },
+  );
+  if (err) {
     return false;
   }
+  return parsed.type === "doc" && Array.isArray(parsed.content);
 }
 
 export function normalizeTipTapDocument(
@@ -61,18 +64,14 @@ export function tipTapToPlainText(input: string | null | undefined): string {
   if (!input) return "";
   if (!isTipTapDocumentString(input)) return input;
 
-  try {
-    const parsed = JSON.parse(input) as TipTapNode;
-    if (!Array.isArray(parsed.content)) return "";
+  const [err, parsed] = captureSync(() => JSON.parse(input) as TipTapNode);
+  if (err || !parsed || !Array.isArray(parsed.content)) return "";
 
-    return parsed.content
-      .map((block) => collectText(block))
-      .map((line) => line.trim())
-      .filter((line) => line.length > 0)
-      .join("\n");
-  } catch {
-    return "";
-  }
+  return parsed.content
+    .map((block) => collectText(block))
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0)
+    .join("\n");
 }
 
 function escapeHtml(value: string): string {
@@ -156,13 +155,12 @@ function renderBlock(node: TipTapNode): string {
 export function tipTapToHtml(input: string | null | undefined): string {
   const normalized = normalizeTipTapDocument(input);
 
-  try {
-    const parsed = JSON.parse(normalized) as TipTapNode;
-    const blocks = Array.isArray(parsed.content) ? parsed.content : [];
-    return blocks.map(renderBlock).join("");
-  } catch {
+  const [err, parsed] = captureSync(() => JSON.parse(normalized) as TipTapNode);
+  if (err || !parsed) {
     return "";
   }
+  const blocks = Array.isArray(parsed.content) ? parsed.content : [];
+  return blocks.map(renderBlock).join("");
 }
 
 export function plainTextToTipTap(input: string): string {
@@ -233,13 +231,9 @@ export function parseTipTapDocument(
 ): TipTapDocument {
   const normalized = normalizeTipTapDocument(input);
 
-  try {
-    const parsed = JSON.parse(normalized);
-    if (isTipTapDocument(parsed)) {
-      return parsed;
-    }
-  } catch {
-    // Fall through to empty doc.
+  const [parseErr, parsed] = captureSync(() => JSON.parse(normalized));
+  if (!parseErr && isTipTapDocument(parsed)) {
+    return parsed;
   }
 
   return JSON.parse(EMPTY_TIPTAP_DOC) as TipTapDocument;

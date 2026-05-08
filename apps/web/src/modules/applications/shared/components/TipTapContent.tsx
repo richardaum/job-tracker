@@ -1,5 +1,6 @@
 "use client";
 
+import { captureSync } from "@job-tracker/async";
 import { cn } from "@job-tracker/ui";
 import StarterKit from "@tiptap/starter-kit";
 import { renderToReactElement } from "@tiptap/static-renderer/pm/react";
@@ -36,15 +37,18 @@ export function TipTapContent({ content, className }: TipTapContentProps) {
   let rendered: React.ReactNode;
   let isError = false;
 
-  try {
+  const [renderErr, node] = captureSync(() => {
     const doc = parseTipTapDocument(content);
-    rendered = renderToReactElement({
+    return renderToReactElement({
       extensions: RENDER_EXTENSIONS,
       content: doc,
     });
-  } catch {
+  });
+  if (renderErr) {
     rendered = tipTapToPlainText(content);
     isError = true;
+  } else {
+    rendered = node;
   }
 
   if (isError) {

@@ -1,6 +1,6 @@
 "use client";
 
-import { to } from "@job-tracker/async";
+import { captureSync, to } from "@job-tracker/async";
 import { Card, cn, Skeleton, Stack, Text } from "@job-tracker/ui";
 import { useCallback, useEffect, useState } from "react";
 
@@ -74,12 +74,11 @@ export default function DraftApplicationsPage() {
   }
 
   function titleFromUrl(url: string) {
-    try {
-      const parsed = new URL(url);
+    const [err, parsed] = captureSync(() => new URL(url));
+    if (!err) {
       return parsed.hostname;
-    } catch {
-      return "Imported draft";
     }
+    return "Imported draft";
   }
 
   const handlePasteCapture = useCallback((event: ClipboardEvent) => {

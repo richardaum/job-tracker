@@ -1,6 +1,6 @@
 "use client";
 
-import { to } from "@job-tracker/async";
+import { captureSync, to } from "@job-tracker/async";
 import {
   Badge,
   Button,
@@ -41,15 +41,17 @@ interface PageProps {
 }
 
 function draftPrimaryTitle(url: string): string {
-  try {
+  const [err, title] = captureSync(() => {
     const u = new URL(url);
     const host = u.hostname.replace(/^www\./, "");
     const path = u.pathname === "/" ? "" : u.pathname;
     const combined = `${host}${path}`;
     return combined.length > 120 ? `${combined.slice(0, 117)}…` : combined;
-  } catch {
-    return url.length > 120 ? `${url.slice(0, 117)}…` : url;
+  });
+  if (!err) {
+    return title;
   }
+  return url.length > 120 ? `${url.slice(0, 117)}…` : url;
 }
 
 function draftHeadingTitle(title: string, url: string): string {

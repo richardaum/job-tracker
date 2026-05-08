@@ -1,15 +1,19 @@
+import { captureSync } from "@job-tracker/async";
+
 import { ImportRunStatus } from "@/gql/graphql";
 import type { ImportRun } from "@/modules/imports/types/importRun";
 
 export function formatImportRunStartedAt(iso: string): string {
-  try {
-    return new Intl.DateTimeFormat(undefined, {
+  const [err, formatted] = captureSync(() =>
+    new Intl.DateTimeFormat(undefined, {
       dateStyle: "medium",
       timeStyle: "short",
-    }).format(new Date(iso));
-  } catch {
-    return iso;
+    }).format(new Date(iso)),
+  );
+  if (!err) {
+    return formatted;
   }
+  return iso;
 }
 
 export function importRunStatusBadgeIntent(

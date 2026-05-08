@@ -9,6 +9,8 @@
  *   human card line + `/mo`/`/yr`/`/hr` suffixes, form/tag helpers — imports this module only.
  */
 
+import { captureSync } from "@job-tracker/async";
+
 const HOURS_PER_WEEK = 40;
 const WEEKS_PER_YEAR = 52;
 const MONTHS_PER_YEAR = 12;
@@ -32,19 +34,21 @@ function formatCurrencyIntl(
   maximumFractionDigits: number,
   locale: string,
 ): string {
-  try {
-    return new Intl.NumberFormat(locale, {
+  const [err, formatted] = captureSync(() =>
+    new Intl.NumberFormat(locale, {
       style: "currency",
       currency,
       minimumFractionDigits,
       maximumFractionDigits,
-    }).format(value);
-  } catch {
-    if (maximumFractionDigits === 0) {
-      return `${currency} ${Math.round(value)}`;
-    }
-    return `${currency} ${value.toFixed(2)}`;
+    }).format(value),
+  );
+  if (!err) {
+    return formatted;
   }
+  if (maximumFractionDigits === 0) {
+    return `${currency} ${Math.round(value)}`;
+  }
+  return `${currency} ${value.toFixed(2)}`;
 }
 
 /** Currency with fractional cents (salary calculator, FX outputs). */

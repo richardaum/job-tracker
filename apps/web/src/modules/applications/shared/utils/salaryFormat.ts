@@ -3,6 +3,8 @@
  * currency, period), card suffixes. Rate math lives in `tools/salary-calculator/lib/conversion.ts`.
  */
 
+import { captureSync } from "@job-tracker/async";
+
 import type { ApplicationSalary } from "@/gql/graphql";
 import { SalaryPeriod } from "@/gql/hooks";
 import {
@@ -98,16 +100,17 @@ export function iso4217MaxFractionDigits(
   currencyCode: string | null | undefined,
 ): number {
   const currency = (currencyCode?.trim() || "USD").toUpperCase();
-  try {
-    return (
+  const [intlErr, digits] = captureSync(
+    () =>
       new Intl.NumberFormat("en-US", {
         style: "currency",
         currency,
-      }).resolvedOptions().maximumFractionDigits ?? 2
-    );
-  } catch {
+      }).resolvedOptions().maximumFractionDigits,
+  );
+  if (intlErr) {
     return 2;
   }
+  return digits ?? 2;
 }
 
 export function parseTagInput(s: string): string[] {

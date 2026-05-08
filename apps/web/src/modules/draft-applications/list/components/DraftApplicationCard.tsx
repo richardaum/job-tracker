@@ -1,6 +1,6 @@
 "use client";
 
-import { to } from "@job-tracker/async";
+import { captureSync, to } from "@job-tracker/async";
 import { Badge, cn, IconButton, ListItemCard, Text } from "@job-tracker/ui";
 import { ArrowsClockwiseIcon, TrashIcon } from "@phosphor-icons/react";
 import NextLink from "next/link";
@@ -34,14 +34,16 @@ function conversionStatusBadgeIntent(status: string) {
 }
 
 function draftDisplayUrl(url: string): string {
-  try {
+  const [err, joined] = captureSync(() => {
     const u = new URL(url);
     const path = u.pathname.length > 1 ? u.pathname : "";
-    const joined = `${u.hostname}${path}`;
-    return joined.length > 96 ? `${joined.slice(0, 93)}…` : joined;
-  } catch {
-    return url.length > 96 ? `${url.slice(0, 93)}…` : url;
+    const j = `${u.hostname}${path}`;
+    return j.length > 96 ? `${j.slice(0, 93)}…` : j;
+  });
+  if (!err) {
+    return joined;
   }
+  return url.length > 96 ? `${url.slice(0, 93)}…` : url;
 }
 
 interface DraftApplicationCardProps {
