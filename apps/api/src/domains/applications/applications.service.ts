@@ -1,11 +1,18 @@
+import { DraftApplicationConversionStatus } from "@api/database/entities/draft-application.entity";
 import { ApplicationAiService } from "@api/domains/application-ai/application-ai.service";
+import { ApplicationAiV2Service } from "@api/domains/application-ai-v2/application-ai-v2.service";
+import { DraftExtractionNormalizationService } from "@api/domains/application-ai-v2/draft-extraction-normalization.service";
 import { CompanyService } from "@api/domains/companies/companies.service";
 import { CompanyAiService } from "@api/domains/company-ai/company-ai.service";
+import { DraftApplicationType } from "@api/domains/draft-applications/draft-application.type";
+import { DraftApplicationsService } from "@api/domains/draft-applications/draft-applications.service";
 import { NoteService } from "@api/domains/notes/notes.service";
 import { isTipTapDocumentString } from "@api/domains/shared/tiptap.util";
+import { to } from "@job-tracker/async";
 import {
   BadRequestException,
   Injectable,
+  Logger,
   NotFoundException,
 } from "@nestjs/common";
 
@@ -40,6 +47,7 @@ type CreateDto = {
   salaryCurrency?: string | null;
   salaryPeriod?: SalaryPeriodEnum | null;
   tags?: string[] | null;
+  draftApplicationId?: string | null;
 };
 type UpdateDto = Partial<CreateDto>;
 type CreateStageEventDto = {
@@ -68,6 +76,8 @@ type ApplicationWithCurrentStage = Application & {
 
 @Injectable()
 export class ApplicationService {
+  private readonly logger = new Logger(ApplicationService.name);
+
   constructor(
     private readonly repo: ApplicationRepository,
     private readonly companyService: CompanyService,
@@ -76,6 +86,9 @@ export class ApplicationService {
     private readonly applicationAiService: ApplicationAiService,
     private readonly companyAiService: CompanyAiService,
     private readonly noteService: NoteService,
+    private readonly draftApplicationsService: DraftApplicationsService,
+    private readonly applicationAiV2Service: ApplicationAiV2Service,
+    private readonly draftExtractionNormalizationService: DraftExtractionNormalizationService,
   ) {}
 
   async findAll(
@@ -176,6 +189,7 @@ export class ApplicationService {
           ? dto.source
           : inferApplicationSourceFromUrls(normalizedUrls),
       tags,
+      draftApplicationId: dto.draftApplicationId ?? null,
       ...salaryColumns,
     };
 
@@ -221,6 +235,110 @@ export class ApplicationService {
     }
 
     return this.findOne(created.id, userId);
+  }
+
+  async createApplicationWithAIV2(
+    userId: string,
+    draftId: string,
+  ): Promise<DraftApplicationType> {
+    const draft = await this.draftApplicationsService.findOne(draftId);
+    if (
+      draft.conversionStatus === DraftApplicationConversionStatus.PROCESSING
+    ) {
+      throw new BadRequestException("Draft conversion is already in progress.");
+    }
+
+    const queuedDraft = await this.draftApplicationsService.update(draftId, {
+      conversionStatus: DraftApplicationConversionStatus.PROCESSING,
+      conversionError: null,
+    });
+
+    // TODO: use another approach (e.g. a queue) to have a more reliable background task.
+    void this.convertDraftInBackground(userId, draftId);
+
+    return queuedDraft;
+  }
+
+  private async convertDraftInBackground(
+    userId: string,
+    draftId: string,
+  ): Promise<void> {
+    const draft = await this.draftApplicationsService.findOne(draftId);
+
+    const [extractError, raw] = await to(
+      this.applicationAiV2Service.extractFromDraft({
+        title: draft.title,
+        url: draft.url,
+        htmlContent: draft.htmlContent,
+      }),
+    );
+
+    if (extractError) {
+      this.logger.error(
+        `Draft conversion failed for ${draftId}: ${extractError.message}`,
+        extractError.stack,
+      );
+      await this.draftApplicationsService.update(draftId, {
+        conversionStatus: DraftApplicationConversionStatus.FAILED,
+        conversionError: extractError.message,
+      });
+      return;
+    }
+
+    const normalized =
+      this.draftExtractionNormalizationService.normalizeExtraction(raw);
+
+    const [createError, created] = await to(
+      this.create(userId, {
+        title: normalized.title,
+        company: normalized.company,
+        description: normalized.description,
+        urls: draft.url.trim() ? [draft.url.trim()] : [],
+        salaryMinCents: normalized.salaryMinCents,
+        salaryMaxCents: normalized.salaryMaxCents,
+        salaryCurrency: normalized.salaryCurrency,
+        salaryPeriod: normalized.salaryPeriod,
+        tags: normalized.tags,
+        draftApplicationId: draftId,
+      }),
+    );
+
+    if (createError) {
+      this.logger.error(
+        `Draft conversion failed for ${draftId}: ${createError.message}`,
+        createError.stack,
+      );
+      await this.draftApplicationsService.update(draftId, {
+        conversionStatus: DraftApplicationConversionStatus.FAILED,
+        conversionError: createError.message,
+      });
+      return;
+    }
+
+    const [appliedError] = await to(
+      this.createStageEvent(userId, {
+        applicationId: created.id,
+        toStage: ApplicationStageEnum.APPLIED,
+        source: "system",
+      }),
+    );
+
+    if (appliedError) {
+      this.logger.error(
+        `Draft conversion failed for ${draftId}: ${appliedError.message}`,
+        appliedError.stack,
+      );
+      await this.draftApplicationsService.update(draftId, {
+        conversionStatus: DraftApplicationConversionStatus.FAILED,
+        conversionError: appliedError.message,
+      });
+      return;
+    }
+
+    await this.draftApplicationsService.update(draftId, {
+      conversionStatus: DraftApplicationConversionStatus.SUCCEEDED,
+      conversionError: null,
+    });
   }
 
   generateDraftWithAI(dto: CreateWithAIDto | CreateApplicationWithAIInput) {

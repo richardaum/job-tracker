@@ -2,6 +2,7 @@ import { CurrentUser } from "@api/domains/auth/current-user.decorator";
 import { JwtAuthGuard } from "@api/domains/auth/jwt-auth.guard";
 import { Roles } from "@api/domains/auth/roles.decorator";
 import { RolesGuard } from "@api/domains/auth/roles.guard";
+import { DeleteMutationPayloadType } from "@api/domains/shared/delete-mutation-payload.type";
 import { UseGuards } from "@nestjs/common";
 import { Args, ID, Mutation, Query, Resolver } from "@nestjs/graphql";
 
@@ -31,13 +32,13 @@ export class ImportsResolver {
     return this.service.createImportRun(user.userId, input.importerId);
   }
 
-  @Mutation(() => Boolean)
+  @Mutation(() => DeleteMutationPayloadType)
   async deleteImportRun(
     @Args("id", { type: () => ID }) id: string,
     @CurrentUser() user: { userId: string },
-  ): Promise<boolean> {
+  ): Promise<DeleteMutationPayloadType> {
     await this.service.deleteImportRun(user.userId, id);
-    return true;
+    return { success: true, deletedId: id };
   }
 
   @Mutation(() => Boolean)

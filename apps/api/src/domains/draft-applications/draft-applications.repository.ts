@@ -1,3 +1,4 @@
+import { ApplicationEntity } from "@api/database/entities/application.entity";
 import { DraftApplicationEntity } from "@api/database/entities/draft-application.entity";
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
@@ -8,6 +9,8 @@ export class DraftApplicationsRepository {
   constructor(
     @InjectRepository(DraftApplicationEntity)
     private readonly draftApplicationsRepo: Repository<DraftApplicationEntity>,
+    @InjectRepository(ApplicationEntity)
+    private readonly applicationsRepo: Repository<ApplicationEntity>,
   ) {}
 
   async findAll(): Promise<DraftApplicationEntity[]> {
@@ -18,17 +21,55 @@ export class DraftApplicationsRepository {
     return this.draftApplicationsRepo.findOne({ where: { id } });
   }
 
+  async findLatestApplicationIdByDraftId(
+    draftId: string,
+  ): Promise<string | null> {
+    const row = await this.applicationsRepo.findOne({
+      where: { draftApplicationId: draftId },
+      select: { id: true },
+      order: { createdAt: "DESC" },
+    });
+
+    return row?.id ?? null;
+  }
+
   async create(params: {
     url: string;
     title: string;
     htmlContent: string;
+    conversionStatus?: DraftApplicationEntity["conversionStatus"];
+    conversionError?: string | null;
   }): Promise<DraftApplicationEntity> {
     const row = this.draftApplicationsRepo.create({
       url: params.url,
       title: params.title,
       htmlContent: params.htmlContent,
+      conversionStatus: params.conversionStatus,
+      conversionError: params.conversionError ?? null,
     });
 
+    return this.draftApplicationsRepo.save(row);
+  }
+
+  async save(row: DraftApplicationEntity): Promise<DraftApplicationEntity> {
+    return this.draftApplicationsRepo.save(row);
+  }
+
+  async updateById(
+    id: string,
+    patch: Partial<
+      Pick<
+        DraftApplicationEntity,
+        "url" | "title" | "htmlContent" | "conversionStatus" | "conversionError"
+      >
+    >,
+  ): Promise<DraftApplicationEntity | null> {
+    const row = await this.findOne(id);
+    if (!row) {
+      return null;
+    }
+
+    Object.assign(row, patch);
     return this.draftApplicationsRepo.save(row);
   }
 

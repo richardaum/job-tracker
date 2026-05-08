@@ -1,6 +1,13 @@
 import { WithGeneratedId } from "@api/database/decorators/with-generated-id.decorator";
 import { Column, Entity, PrimaryColumn } from "typeorm";
 
+export enum DraftApplicationConversionStatus {
+  IDLE = "idle",
+  PROCESSING = "processing",
+  SUCCEEDED = "succeeded",
+  FAILED = "failed",
+}
+
 @WithGeneratedId()
 @Entity({ name: "draft_applications" })
 export class DraftApplicationEntity {
@@ -15,4 +22,16 @@ export class DraftApplicationEntity {
 
   @Column({ name: "html_content", type: "text" })
   htmlContent!: string;
+
+  @Column({
+    name: "conversion_status",
+    type: "enum",
+    enum: DraftApplicationConversionStatus,
+    enumName: "draft_application_conversion_status",
+    default: DraftApplicationConversionStatus.IDLE,
+  })
+  conversionStatus!: DraftApplicationConversionStatus;
+
+  @Column({ name: "conversion_error", type: "text", nullable: true })
+  conversionError!: string | null;
 }

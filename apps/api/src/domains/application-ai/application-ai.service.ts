@@ -1,5 +1,6 @@
 import { type AiExtractionFieldInput } from "@api/domains/applications/create-application-with-ai.input";
 import { SalaryPeriodEnum } from "@api/domains/applications/salary-period.enum";
+import { asSalaryPeriod } from "@api/domains/shared/salary-period.util";
 import { OPENAI_MODEL } from "@api/env/server";
 import { BadRequestException, Injectable } from "@nestjs/common";
 
@@ -88,6 +89,9 @@ function buildUserPrompt(input: GenerateDraftInput): string {
   ].join("\n");
 }
 
+/**
+ * Legacy prompt-based extraction for `createApplicationWithAI` / `generateApplicationDraftWithAI`.
+ */
 @Injectable()
 export class ApplicationAiService {
   constructor(private readonly openAIService: OpenAIService) {}
@@ -158,16 +162,6 @@ export class ApplicationAiService {
       response.output_text ?? "{}",
     ) as GenerateDraftResponse;
 
-    return {
-      ...parsed,
-      salaryPeriod:
-        parsed.salaryPeriod === "year"
-          ? SalaryPeriodEnum.YEAR
-          : parsed.salaryPeriod === "month"
-            ? SalaryPeriodEnum.MONTH
-            : parsed.salaryPeriod === "hour"
-              ? SalaryPeriodEnum.HOUR
-              : null,
-    };
+    return { ...parsed, salaryPeriod: asSalaryPeriod(parsed.salaryPeriod) };
   }
 }

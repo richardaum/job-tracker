@@ -76,6 +76,9 @@ export class ApplicationEntity {
   })
   tags!: string[];
 
+  @Column({ name: "draft_application_id", type: "text", nullable: true })
+  draftApplicationId!: string | null;
+
   @CreateDateColumn({ name: "created_at", type: "timestamp" })
   createdAt!: Date;
 

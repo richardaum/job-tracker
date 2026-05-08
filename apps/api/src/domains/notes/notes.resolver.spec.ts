@@ -127,14 +127,20 @@ describe("NoteResolver (integration)", () => {
     expect(res.body.data.updateApplicationNote.revision).toBe(2);
   });
 
-  it("deleteApplicationNote mutation returns true", async () => {
+  it("deleteApplicationNote mutation returns payload", async () => {
     const res = await request(app.getHttpServer())
       .post("/graphql")
       .set(auth)
-      .send({ query: `mutation { deleteApplicationNote(id: "note-1") }` });
+      .send({
+        query:
+          'mutation { deleteApplicationNote(id: "note-1") { success deletedId } }',
+      });
 
     expect(res.statusCode).toBe(200);
-    expect(res.body.data.deleteApplicationNote).toBe(true);
+    expect(res.body.data.deleteApplicationNote).toEqual({
+      success: true,
+      deletedId: "note-1",
+    });
   });
 
   it("generateApplicationNoteWithAI query returns generated content", async () => {

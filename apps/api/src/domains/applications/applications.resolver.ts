@@ -3,6 +3,8 @@ import { CurrentUser } from "@api/domains/auth/current-user.decorator";
 import { JwtAuthGuard } from "@api/domains/auth/jwt-auth.guard";
 import { Roles } from "@api/domains/auth/roles.decorator";
 import { RolesGuard } from "@api/domains/auth/roles.guard";
+import { DraftApplicationType } from "@api/domains/draft-applications/draft-application.type";
+import { DeleteMutationPayloadType } from "@api/domains/shared/delete-mutation-payload.type";
 import { UseGuards } from "@nestjs/common";
 import {
   Args,
@@ -72,12 +74,23 @@ export class ApplicationResolver {
     return this.service.create(user.userId, input);
   }
 
-  @Mutation(() => ApplicationType)
+  @Mutation(() => ApplicationType, {
+    deprecationReason:
+      "Use createApplicationWithAIV2 with a draft application captured from the browser extension.",
+  })
   createApplicationWithAI(
     @Args("input") input: CreateApplicationWithAIInput,
     @CurrentUser() user: { userId: string },
   ): Promise<ApplicationType> {
     return this.service.createWithAI(user.userId, input);
+  }
+
+  @Mutation(() => DraftApplicationType)
+  async createApplicationWithAIV2(
+    @Args("draftId", { type: () => ID }) draftId: string,
+    @CurrentUser() user: { userId: string },
+  ): Promise<DraftApplicationType> {
+    return this.service.createApplicationWithAIV2(user.userId, draftId);
   }
 
   @Query(() => ApplicationAiDraftType)
@@ -115,13 +128,13 @@ export class ApplicationResolver {
     return this.service.removeTag(id, user.userId, tag);
   }
 
-  @Mutation(() => Boolean)
+  @Mutation(() => DeleteMutationPayloadType)
   async deleteApplication(
     @Args("id", { type: () => ID }) id: string,
     @CurrentUser() user: { userId: string },
-  ): Promise<boolean> {
+  ): Promise<DeleteMutationPayloadType> {
     await this.service.remove(id, user.userId);
-    return true;
+    return { success: true, deletedId: id };
   }
 
   @Query(() => [ApplicationStageEventType])
@@ -149,12 +162,12 @@ export class ApplicationResolver {
     return this.service.updateStageEvent(id, user.userId, input);
   }
 
-  @Mutation(() => Boolean)
+  @Mutation(() => DeleteMutationPayloadType)
   async deleteApplicationStageEvent(
     @Args("id", { type: () => ID }) id: string,
     @CurrentUser() user: { userId: string },
-  ): Promise<boolean> {
+  ): Promise<DeleteMutationPayloadType> {
     await this.service.removeStageEvent(id, user.userId);
-    return true;
+    return { success: true, deletedId: id };
   }
 }

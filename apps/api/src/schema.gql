@@ -10,6 +10,11 @@ type UserType {
   role: String!
 }
 
+type DeleteMutationPayloadType {
+  success: Boolean!
+  deletedId: ID!
+}
+
 type CompanyType {
   id: ID!
   userId: String!
@@ -23,6 +28,23 @@ type CompanyType {
 A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
 """
 scalar DateTime
+
+type DraftApplicationType {
+  id: ID!
+  url: String!
+  title: String!
+  htmlContent: String!
+  applicationId: String
+  conversionStatus: DraftApplicationConversionStatus!
+  conversionError: String
+}
+
+enum DraftApplicationConversionStatus {
+  IDLE
+  PROCESSING
+  SUCCEEDED
+  FAILED
+}
 
 type NoteType {
   id: ID!
@@ -115,13 +137,6 @@ type CurrencyRates {
   rates: [ExchangeRate!]!
 }
 
-type DraftApplicationType {
-  id: ID!
-  url: String!
-  title: String!
-  htmlContent: String!
-}
-
 type ImportRunType {
   id: ID!
   importerId: String!
@@ -150,10 +165,10 @@ type Query {
   companyApplicationsCount(id: ID!): Int!
   applicationNotes(applicationId: ID!): [NoteType!]!
   generateApplicationNoteWithAI(applicationId: ID!, note: String!): String!
-  exchangeRates(base: String!, currencies: [String!]!): CurrencyRates!
-  importRuns: [ImportRunType!]!
   draftApplications: [DraftApplicationType!]!
   draftApplication(id: ID!): DraftApplicationType!
+  exchangeRates(base: String!, currencies: [String!]!): CurrencyRates!
+  importRuns: [ImportRunType!]!
   rewriteTextWithAI(text: String!): String!
   restructureJobDescriptionWithAI(text: String!): String!
 }
@@ -177,24 +192,25 @@ input AiExtractionFieldInput {
 
 type Mutation {
   createApplication(input: CreateApplicationInput!): ApplicationType!
-  createApplicationWithAI(input: CreateApplicationWithAIInput!): ApplicationType!
+  createApplicationWithAI(input: CreateApplicationWithAIInput!): ApplicationType! @deprecated(reason: "Use createApplicationWithAIV2 with a draft application captured from the browser extension.")
+  createApplicationWithAIV2(draftId: ID!): DraftApplicationType!
   updateApplication(id: ID!, input: UpdateApplicationInput!): ApplicationType!
   removeApplicationTag(id: ID!, tag: String!): ApplicationType!
-  deleteApplication(id: ID!): Boolean!
+  deleteApplication(id: ID!): DeleteMutationPayloadType!
   createApplicationStageEvent(input: CreateApplicationStageEventInput!): ApplicationStageEventType!
   updateApplicationStageEvent(id: ID!, input: UpdateApplicationStageEventInput!): ApplicationStageEventType!
-  deleteApplicationStageEvent(id: ID!): Boolean!
+  deleteApplicationStageEvent(id: ID!): DeleteMutationPayloadType!
   updateCompany(id: ID!, input: UpdateCompanyInput!): CompanyType!
-  deleteCompany(id: ID!): Boolean!
+  deleteCompany(id: ID!): DeleteMutationPayloadType!
   createApplicationNote(input: CreateNoteInput!): NoteType!
   updateApplicationNote(id: ID!, input: UpdateNoteInput!): NoteType!
-  deleteApplicationNote(id: ID!): Boolean!
+  deleteApplicationNote(id: ID!): DeleteMutationPayloadType!
+  createDraftApplication(input: CreateDraftApplicationInput!): DraftApplicationType!
+  deleteDraftApplication(id: ID!): DeleteMutationPayloadType!
   createImportRun(input: CreateImportRunInput!): ImportRunType!
-  deleteImportRun(id: ID!): Boolean!
+  deleteImportRun(id: ID!): DeleteMutationPayloadType!
   clearImportRuns: Boolean!
   updateImportRunStatus(id: ID!, status: ImportRunStatus!): ImportRunType!
-  createDraftApplication(input: CreateDraftApplicationInput!): DraftApplicationType!
-  deleteDraftApplication(id: ID!): Boolean!
 }
 
 input CreateApplicationInput {
@@ -254,12 +270,12 @@ input UpdateNoteInput {
   expectedRevision: Int!
 }
 
-input CreateImportRunInput {
-  importerId: String!
-}
-
 input CreateDraftApplicationInput {
   url: String!
   title: String!
   htmlContent: String!
+}
+
+input CreateImportRunInput {
+  importerId: String!
 }

@@ -1,4 +1,5 @@
 import { DatabaseModule } from "@api/database/database.module";
+import { ApplicationEntity } from "@api/database/entities/application.entity";
 import { DraftApplicationEntity } from "@api/database/entities/draft-application.entity";
 import { AuthModule } from "@api/domains/auth/auth.module";
 import { Module } from "@nestjs/common";
@@ -11,7 +12,7 @@ import { DraftApplicationsService } from "./draft-applications.service";
 @Module({
   imports: [
     DatabaseModule,
-    TypeOrmModule.forFeature([DraftApplicationEntity]),
+    TypeOrmModule.forFeature([DraftApplicationEntity, ApplicationEntity]),
     AuthModule,
   ],
   providers: [
@@ -19,6 +20,6 @@ import { DraftApplicationsService } from "./draft-applications.service";
     DraftApplicationsService,
     DraftApplicationsResolver,
   ],
-  exports: [DraftApplicationsService],
+  exports: [DraftApplicationsService, DraftApplicationsRepository],
 })
 export class DraftApplicationsModule {}

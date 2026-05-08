@@ -1,6 +1,10 @@
+import { DraftApplicationConversionStatus } from "@api/database/entities/draft-application.entity";
 import { ApplicationAiService } from "@api/domains/application-ai/application-ai.service";
+import { ApplicationAiV2Service } from "@api/domains/application-ai-v2/application-ai-v2.service";
+import { DraftExtractionNormalizationService } from "@api/domains/application-ai-v2/draft-extraction-normalization.service";
 import { CompanyService } from "@api/domains/companies/companies.service";
 import { CompanyAiService } from "@api/domains/company-ai/company-ai.service";
+import { DraftApplicationsService } from "@api/domains/draft-applications/draft-applications.service";
 import { NoteService } from "@api/domains/notes/notes.service";
 import { NotFoundException } from "@nestjs/common";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -65,6 +69,9 @@ describe("ApplicationService", () => {
   let applicationAiService: ApplicationAiService;
   let companyAiService: CompanyAiService;
   let noteService: NoteService;
+  let draftApplicationsService: DraftApplicationsService;
+  let applicationAiV2Service: ApplicationAiV2Service;
+  let draftExtractionNormalizationService: DraftExtractionNormalizationService;
 
   beforeEach(() => {
     repo = {
@@ -100,6 +107,16 @@ describe("ApplicationService", () => {
       generateCompanyDescription: vi.fn(),
     } as unknown as CompanyAiService;
     noteService = { createNote: vi.fn() } as unknown as NoteService;
+    draftApplicationsService = {
+      findOne: vi.fn(),
+      update: vi.fn(),
+    } as unknown as DraftApplicationsService;
+    applicationAiV2Service = {
+      extractFromDraft: vi.fn(),
+    } as unknown as ApplicationAiV2Service;
+    draftExtractionNormalizationService = {
+      normalizeExtraction: vi.fn(),
+    } as unknown as DraftExtractionNormalizationService;
 
     service = new ApplicationService(
       repo,
@@ -109,6 +126,9 @@ describe("ApplicationService", () => {
       applicationAiService,
       companyAiService,
       noteService,
+      draftApplicationsService,
+      applicationAiV2Service,
+      draftExtractionNormalizationService,
     );
   });
 
@@ -275,6 +295,128 @@ describe("ApplicationService", () => {
       fields: [{ label: "Title", metadata: "as field value" }],
     });
     expect(noteService.createNote).toHaveBeenCalledTimes(2);
+  });
+
+  it("createApplicationWithAIV2 marks draft as processing and returns immediately", async () => {
+    vi.mocked(draftApplicationsService.findOne).mockResolvedValue({
+      id: "draft-1",
+      applicationId: null,
+      title: "Page title",
+      url: "https://jobs.example.com/x",
+      htmlContent: "<p>Posting</p>",
+      conversionStatus: DraftApplicationConversionStatus.IDLE,
+      conversionError: null,
+    });
+    vi.mocked(draftApplicationsService.update).mockImplementation(
+      async (_id, patch) =>
+        ({
+          id: "draft-1",
+          applicationId: null,
+          title: "Page title",
+          url: "https://jobs.example.com/x",
+          htmlContent: "<p>Posting</p>",
+          conversionStatus:
+            patch?.conversionStatus ?? DraftApplicationConversionStatus.IDLE,
+          conversionError: patch?.conversionError ?? null,
+        }) as never,
+    );
+    vi.mocked(applicationAiV2Service.extractFromDraft).mockRejectedValue(
+      new Error("openai down"),
+    );
+
+    const result = await service.createApplicationWithAIV2("user-1", "draft-1");
+
+    expect(result.conversionStatus).toBe(
+      DraftApplicationConversionStatus.PROCESSING,
+    );
+    expect(draftApplicationsService.update).toHaveBeenCalledWith("draft-1", {
+      conversionStatus: DraftApplicationConversionStatus.PROCESSING,
+      conversionError: null,
+    });
+  });
+
+  it("createApplicationWithAIV2 background conversion records Applied after New", async () => {
+    const app = makeApp();
+    const draft = {
+      id: "draft-1",
+      applicationId: null,
+      title: "Page title",
+      url: "https://jobs.example.com/x",
+      htmlContent: "<p>Posting</p>",
+      conversionStatus: DraftApplicationConversionStatus.IDLE,
+      conversionError: null,
+    };
+    vi.mocked(draftApplicationsService.findOne).mockResolvedValue(
+      draft as never,
+    );
+    vi.mocked(draftApplicationsService.update).mockImplementation(
+      async (_id, patch) =>
+        ({
+          ...draft,
+          conversionStatus:
+            patch?.conversionStatus ?? DraftApplicationConversionStatus.IDLE,
+          conversionError: patch?.conversionError ?? null,
+        }) as never,
+    );
+    vi.mocked(applicationAiV2Service.extractFromDraft).mockResolvedValue({
+      title: "Senior Engineer",
+      company: "Acme",
+    });
+    vi.mocked(
+      draftExtractionNormalizationService.normalizeExtraction,
+    ).mockReturnValue({
+      title: "Senior Engineer",
+      company: "Acme",
+      description: null,
+      salaryMinCents: null,
+      salaryMaxCents: null,
+      salaryCurrency: null,
+      salaryPeriod: null,
+      tags: [],
+    });
+    vi.mocked(companyService.findOrCreateByName).mockResolvedValue(app.company);
+    vi.mocked(repo.create).mockResolvedValue(app);
+    vi.mocked(repo.findOneByIdAndUserId).mockResolvedValue(app);
+    vi.mocked(repo.createStageEvent)
+      .mockResolvedValueOnce(makeEvent({ toStage: "new", source: "system" }))
+      .mockResolvedValueOnce(
+        makeEvent({ fromStage: "new", toStage: "applied", source: "system" }),
+      );
+    vi.mocked(
+      repo.findLatestStageEventByApplicationIdAndUserId,
+    ).mockResolvedValue(makeEvent({ toStage: "new", source: "system" }));
+
+    await service.createApplicationWithAIV2("user-1", "draft-1");
+
+    await vi.waitFor(() => {
+      expect(draftApplicationsService.update).toHaveBeenCalledWith(
+        "draft-1",
+        expect.objectContaining({
+          conversionStatus: DraftApplicationConversionStatus.SUCCEEDED,
+        }),
+      );
+    });
+
+    expect(repo.createStageEvent).toHaveBeenNthCalledWith(
+      1,
+      "user-1",
+      app.id,
+      expect.objectContaining({
+        fromStage: null,
+        toStage: "new",
+        source: "system",
+      }),
+    );
+    expect(repo.createStageEvent).toHaveBeenNthCalledWith(
+      2,
+      "user-1",
+      app.id,
+      expect.objectContaining({
+        fromStage: "new",
+        toStage: "applied",
+        source: "system",
+      }),
+    );
   });
 
   it("update throws for invalid TipTap description JSON", async () => {

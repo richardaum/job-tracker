@@ -1,5 +1,6 @@
 import "reflect-metadata";
 
+import { DraftApplicationConversionStatus } from "@api/database/entities/draft-application.entity";
 import { JwtAuthGuard } from "@api/domains/auth/jwt-auth.guard";
 import { RolesGuard } from "@api/domains/auth/roles.guard";
 import type { ApolloDriverConfig } from "@nestjs/apollo";
@@ -41,6 +42,15 @@ const mockApp: Application = {
   updatedAt: new Date("2026-01-01T00:00:00.000Z"),
 } as unknown as Application;
 
+const mockDraft = {
+  id: "draft-1",
+  url: "https://example.com/jobs/1",
+  title: "Draft title",
+  htmlContent: "<p>Posting</p>",
+  conversionStatus: DraftApplicationConversionStatus.PROCESSING,
+  conversionError: null,
+};
+
 describe("ApplicationResolver (integration)", () => {
   let app: INestApplication;
   let service: {
@@ -48,6 +58,7 @@ describe("ApplicationResolver (integration)", () => {
     findOne: ReturnType<typeof vi.fn>;
     create: ReturnType<typeof vi.fn>;
     createWithAI: ReturnType<typeof vi.fn>;
+    createApplicationWithAIV2: ReturnType<typeof vi.fn>;
     update: ReturnType<typeof vi.fn>;
     remove: ReturnType<typeof vi.fn>;
     removeStageEvent: ReturnType<typeof vi.fn>;
@@ -60,6 +71,7 @@ describe("ApplicationResolver (integration)", () => {
       findOne: vi.fn().mockResolvedValue(mockApp),
       create: vi.fn().mockResolvedValue(mockApp),
       createWithAI: vi.fn().mockResolvedValue(mockApp),
+      createApplicationWithAIV2: vi.fn().mockResolvedValue(mockDraft),
       update: vi.fn().mockResolvedValue(mockApp),
       remove: vi.fn().mockResolvedValue(mockApp),
       removeStageEvent: vi.fn().mockResolvedValue(undefined),
@@ -183,6 +195,30 @@ describe("ApplicationResolver (integration)", () => {
     expect(res.body.data.createApplicationWithAI.id).toBe("app-1");
   });
 
+  it("createApplicationWithAIV2 mutation queues conversion and returns draft", async () => {
+    const res = await request(app.getHttpServer())
+      .post("/graphql")
+      .set(auth)
+      .send({
+        query: `mutation {
+          createApplicationWithAIV2(draftId: "draft-1") {
+            id
+            conversionStatus
+          }
+        }`,
+      });
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body.data.createApplicationWithAIV2.id).toBe("draft-1");
+    expect(res.body.data.createApplicationWithAIV2.conversionStatus).toBe(
+      "PROCESSING",
+    );
+    expect(service.createApplicationWithAIV2).toHaveBeenCalledWith(
+      "user-1",
+      "draft-1",
+    );
+  });
+
   it("updateApplication mutation updates and returns application", async () => {
     const res = await request(app.getHttpServer())
       .post("/graphql")
@@ -216,25 +252,35 @@ describe("ApplicationResolver (integration)", () => {
     );
   });
 
-  it("deleteApplication mutation returns true", async () => {
-    const res = await request(app.getHttpServer())
-      .post("/graphql")
-      .set(auth)
-      .send({ query: `mutation { deleteApplication(id: "app-1") }` });
-
-    expect(res.statusCode).toBe(200);
-    expect(res.body.data.deleteApplication).toBe(true);
-  });
-
-  it("deleteApplicationStageEvent mutation returns true", async () => {
+  it("deleteApplication mutation returns payload", async () => {
     const res = await request(app.getHttpServer())
       .post("/graphql")
       .set(auth)
       .send({
-        query: `mutation { deleteApplicationStageEvent(id: "event-1") }`,
+        query:
+          'mutation { deleteApplication(id: "app-1") { success deletedId } }',
       });
 
     expect(res.statusCode).toBe(200);
-    expect(res.body.data.deleteApplicationStageEvent).toBe(true);
+    expect(res.body.data.deleteApplication).toEqual({
+      success: true,
+      deletedId: "app-1",
+    });
+  });
+
+  it("deleteApplicationStageEvent mutation returns payload", async () => {
+    const res = await request(app.getHttpServer())
+      .post("/graphql")
+      .set(auth)
+      .send({
+        query:
+          'mutation { deleteApplicationStageEvent(id: "event-1") { success deletedId } }',
+      });
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body.data.deleteApplicationStageEvent).toEqual({
+      success: true,
+      deletedId: "event-1",
+    });
   });
 });

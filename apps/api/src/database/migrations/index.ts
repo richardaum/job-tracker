@@ -15,6 +15,9 @@ import { DropApplicationUrl1756000001000 } from "./1756000001000-drop-applicatio
 import { CreateExchangeRateCache1757000000000 } from "./1757000000000-create-exchange-rate-cache";
 import { CreateDraftApplications1758000000000 } from "./1758000000000-create-draft-applications";
 import { AddTitleToDraftApplications1762440000000 } from "./1762440000000-add-title-to-draft-applications";
+import { DraftAiGeneratedFieldsAndApplicationLink1763000000000 } from "./1763000000000-draft-ai-generated-fields-and-application-link";
+import { DropDraftApplicationsAiGeneratedFields1763000000001 } from "./1763000000001-drop-draft-applications-ai-generated-fields";
+import { AddDraftApplicationConversionStatus1763200000000 } from "./1763200000000-add-draft-application-conversion-status";
 
 export const migrations = [
   Baseline1746009600000,
@@ -34,4 +37,7 @@ export const migrations = [
   CreateExchangeRateCache1757000000000,
   CreateDraftApplications1758000000000,
   AddTitleToDraftApplications1762440000000,
+  DraftAiGeneratedFieldsAndApplicationLink1763000000000,
+  DropDraftApplicationsAiGeneratedFields1763000000001,
+  AddDraftApplicationConversionStatus1763200000000,
 ];

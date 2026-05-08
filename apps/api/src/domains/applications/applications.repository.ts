@@ -24,6 +24,7 @@ export type CreateApplicationRepoDto = Pick<
   | "salaryCurrency"
   | "salaryPeriod"
   | "tags"
+  | "draftApplicationId"
 >;
 export type UpdateApplicationRepoDto = Partial<CreateApplicationRepoDto>;
 
