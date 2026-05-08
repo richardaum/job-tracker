@@ -54,6 +54,7 @@ export default defineBackground(() => {
   const importRunEventsService = new ImportRunEventsService(
     apiService,
     logService,
+    importApplicationService,
   );
   importRunEventsService.start();
 
