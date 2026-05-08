@@ -27,3 +27,17 @@ export async function to<T>(
     return [normalizeError(error), null];
   }
 }
+
+/**
+ * Runs {@link fn} and returns the same tuple shape as {@link to}:
+ * `[null, result]` on success, or `[Error, null]` if `fn` throws.
+ */
+export function captureSync<T>(
+  fn: () => T,
+): [error: null, data: T] | [error: Error, data: null] {
+  try {
+    return [null, fn()];
+  } catch (error) {
+    return [normalizeError(error), null];
+  }
+}
