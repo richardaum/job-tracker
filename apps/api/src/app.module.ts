@@ -1,3 +1,4 @@
+import { apolloGraphOsPlugins } from "@api/graphql/apollo-graphos-plugins";
 import type { ApolloDriverConfig } from "@nestjs/apollo";
 import { ApolloDriver } from "@nestjs/apollo";
 import { Module } from "@nestjs/common";
@@ -29,7 +30,8 @@ import { NotesModule } from "./domains/notes/notes.module";
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       autoSchemaFile: join(process.cwd(), "src/schema.gql"),
-      playground: false,
+      playground: true,
+      plugins: apolloGraphOsPlugins(),
     }),
   ],
   controllers: [AppController],

@@ -26,7 +26,7 @@ module.exports = {
       namespace,
       cwd: path.join(root, "apps/api"),
       script: "pnpm",
-      args: "run dev",
+      args: "run dev:debug",
       interpreter: "none",
       env: { NODE_ENV: "development" },
       watch: true,
