@@ -1,4 +1,3 @@
-import { OpenAIService } from "@api/domains/application-ai/openai.service";
 import { htmlToPlainText } from "@api/domains/shared/html-plain-text.util";
 import { TemplateService } from "@api/domains/shared/template/template.service";
 import { OPENAI_MODEL } from "@api/env/server";
@@ -17,6 +16,7 @@ import {
   DRAFT_EXTRACTION_USER_TEMPLATE,
 } from "./draft-extraction.templates";
 import type { DraftExtractionModel } from "./draft-extraction.types";
+import { OpenAIService } from "./openai.service";
 
 @Injectable()
 export class ApplicationAiService {

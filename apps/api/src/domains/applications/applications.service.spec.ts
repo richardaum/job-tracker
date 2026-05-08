@@ -1,6 +1,6 @@
 import { DraftApplicationConversionStatus } from "@api/database/entities/draft-application.entity";
-import { ApplicationAiService } from "@api/domains/application-ai-v2/application-ai.service";
-import { DraftExtractionNormalizationService } from "@api/domains/application-ai-v2/draft-extraction-normalization.service";
+import { ApplicationAiService } from "@api/domains/application-ai/application-ai.service";
+import { DraftExtractionNormalizationService } from "@api/domains/application-ai/draft-extraction-normalization.service";
 import { CompanyService } from "@api/domains/companies/companies.service";
 import { CompanyAiService } from "@api/domains/company-ai/company-ai.service";
 import { DraftApplicationsService } from "@api/domains/draft-applications/draft-applications.service";

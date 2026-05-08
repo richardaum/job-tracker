@@ -1,8 +1,8 @@
-import { OpenAIService } from "@api/domains/application-ai/openai.service";
 import { TemplateService } from "@api/domains/shared/template/template.service";
 import { describe, expect, it, vi } from "vitest";
 
 import { ApplicationAiService } from "./application-ai.service";
+import { OpenAIService } from "./openai.service";
 
 function createService(openAIService: OpenAIService) {
   return new ApplicationAiService(openAIService, new TemplateService());
