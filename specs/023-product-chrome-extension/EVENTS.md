@@ -36,7 +36,7 @@ Goal: deliver import-run event streaming to the extension with single-consumer c
   - **Verify:** resolver tests confirm user scoping and payload shape.
   - **Resync:** confirmed `IMPORT_RUN_CREATED` naming and user-scoped filtering at subscription path.
 
-- [ ] **Step 4 - Atomic claim implementation**
+- [x] **Step 4 - Atomic claim implementation**
   - Add repository compare-and-swap update:
     - Claim only when `status = RUNNING` (single statement with return value).
   - Implement service + resolver `claimImportRun`.

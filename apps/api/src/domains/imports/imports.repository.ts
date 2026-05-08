@@ -82,4 +82,40 @@ export class ImportsRepository {
 
     return result.affected ?? 0;
   }
+
+  /**
+   * Atomic compare-and-swap claim: transitions a run from RUNNING -> IN_PROGRESS
+   * in a single SQL statement (UPDATE ... WHERE status = 'running' RETURNING *).
+   * Returns the updated entity on win, or null on contention / wrong status / missing row.
+   */
+  async claimRunning(params: {
+    id: string;
+    userId: string;
+  }): Promise<ImportRunEntity | null> {
+    const result = await this.runsRepo
+      .createQueryBuilder()
+      .update(ImportRunEntity)
+      .set({ status: ImportRunStatusEnum.IN_PROGRESS })
+      .where("id = :id AND user_id = :userId AND status = :runningStatus", {
+        id: params.id,
+        userId: params.userId,
+        runningStatus: ImportRunStatusEnum.RUNNING,
+      })
+      .returning("*")
+      .execute();
+
+    const raw = (result.raw as Record<string, unknown>[] | undefined)?.[0];
+    if (!raw) {
+      return null;
+    }
+    return {
+      id: raw.id as string,
+      userId: raw.user_id as string,
+      importerId: raw.importer_id as string,
+      importerName: raw.importer_name as string,
+      entryUrl: raw.entry_url as string,
+      status: raw.status as ImportRunStatusEnum,
+      startedAt: new Date(raw.started_at as string | Date),
+    };
+  }
 }

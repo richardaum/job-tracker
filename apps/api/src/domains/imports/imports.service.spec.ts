@@ -17,6 +17,7 @@ describe("ImportsService", () => {
     | "findByUserAndId"
     | "updateStatus"
     | "resetStaleInProgressRuns"
+    | "claimRunning"
   > = {
     listByUserId: vi.fn(),
     create: vi.fn(),
@@ -25,6 +26,7 @@ describe("ImportsService", () => {
     findByUserAndId: vi.fn(),
     updateStatus: vi.fn(),
     resetStaleInProgressRuns: vi.fn(),
+    claimRunning: vi.fn(),
   };
 
   const eventsPublisher: ImportsEventsPublisher = {
@@ -208,6 +210,17 @@ describe("ImportsService", () => {
 
   it("claimImportRun reclaims stale in-progress run", async () => {
     const staleStartedAt = new Date(Date.now() - 11 * 60 * 1000);
+    vi.mocked(repo.claimRunning)
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce({
+        id: "run-1",
+        userId: "user-1",
+        importerId: "remoteyeah",
+        importerName: "RemoteYeah",
+        entryUrl: "https://remoteyeah.com/board",
+        status: ImportRunStatusEnum.IN_PROGRESS,
+        startedAt: staleStartedAt,
+      } as ImportRunEntity);
     vi.mocked(repo.findByUserAndId)
       .mockResolvedValueOnce({
         id: "run-1",
@@ -237,9 +250,81 @@ describe("ImportsService", () => {
       userId: "user-1",
       status: ImportRunStatusEnum.RUNNING,
     });
-    expect(repo.updateStatus).toHaveBeenNthCalledWith(2, {
+    expect(repo.claimRunning).toHaveBeenNthCalledWith(2, {
       id: "run-1",
       userId: "user-1",
+    });
+  });
+
+  it("claimImportRun returns the run when CAS wins (RUNNING -> IN_PROGRESS)", async () => {
+    const claimed: ImportRunEntity = {
+      id: "run-1",
+      userId: "user-1",
+      importerId: "remoteyeah",
+      importerName: "RemoteYeah",
+      entryUrl: "https://remoteyeah.com/board",
+      status: ImportRunStatusEnum.IN_PROGRESS,
+      startedAt: new Date("2026-05-01T12:00:00.000Z"),
+    } as ImportRunEntity;
+    vi.mocked(repo.claimRunning).mockResolvedValue(claimed);
+
+    const out = await service.claimImportRun("user-1", "run-1");
+
+    expect(repo.claimRunning).toHaveBeenCalledWith({
+      id: "run-1",
+      userId: "user-1",
+    });
+    expect(out).toMatchObject({
+      id: "run-1",
+      status: ImportRunStatusEnum.IN_PROGRESS,
+      importerSource: "database",
+    });
+  });
+
+  it("claimImportRun returns null on contention (CAS no row)", async () => {
+    vi.mocked(repo.claimRunning).mockResolvedValue(null);
+
+    const out = await service.claimImportRun("user-1", "run-1");
+
+    expect(out).toBeNull();
+  });
+
+  it("claimImportRun does not throw when run is missing or not RUNNING", async () => {
+    vi.mocked(repo.claimRunning).mockResolvedValue(null);
+
+    await expect(
+      service.claimImportRun("user-1", "missing"),
+    ).resolves.toBeNull();
+  });
+
+  it("claimImportRun: only one winner under concurrent claims", async () => {
+    let claimedOnce = false;
+    vi.mocked(repo.claimRunning).mockImplementation(async () => {
+      if (claimedOnce) {
+        return null;
+      }
+      claimedOnce = true;
+      return {
+        id: "run-1",
+        userId: "user-1",
+        importerId: "remoteyeah",
+        importerName: "RemoteYeah",
+        entryUrl: "https://remoteyeah.com/board",
+        status: ImportRunStatusEnum.IN_PROGRESS,
+        startedAt: new Date("2026-05-01T12:00:00.000Z"),
+      } as ImportRunEntity;
+    });
+
+    const results = await Promise.all([
+      service.claimImportRun("user-1", "run-1"),
+      service.claimImportRun("user-1", "run-1"),
+      service.claimImportRun("user-1", "run-1"),
+    ]);
+
+    const winners = results.filter((r) => r !== null);
+    expect(winners).toHaveLength(1);
+    expect(winners[0]).toMatchObject({
+      id: "run-1",
       status: ImportRunStatusEnum.IN_PROGRESS,
     });
   });

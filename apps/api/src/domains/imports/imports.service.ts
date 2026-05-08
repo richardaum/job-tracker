@@ -145,14 +145,25 @@ export class ImportsService implements OnModuleInit {
     return this.toGql(next);
   }
 
+  /**
+   * Attempts to atomically claim a RUNNING import run for execution.
+   * Returns the claimed run on success, or null on normal contention (already
+   * claimed, wrong status, or run does not belong to user). Never throws on
+   * normal contention so callers can race safely.
+   */
   async claimImportRun(
     userId: string,
     id: string,
   ): Promise<ImportRunType | null> {
+    const claimed = await this.repo.claimRunning({ id, userId });
+    if (claimed) {
+      return this.toGql(claimed);
+    }
+
     const now = new Date();
     const row = await this.repo.findByUserAndId({ id, userId });
     if (!row) {
-      throw new NotFoundException(`Import run ${id} not found`);
+      return null;
     }
     if (
       row.status === ImportRunStatusEnum.IN_PROGRESS &&
@@ -163,22 +174,15 @@ export class ImportsService implements OnModuleInit {
         userId,
         status: ImportRunStatusEnum.RUNNING,
       });
+      const reclaimed = await this.repo.claimRunning({ id, userId });
+      if (reclaimed) {
+        return this.toGql(reclaimed);
+      }
     } else if (row.status !== ImportRunStatusEnum.RUNNING) {
       return null;
     }
 
-    await this.repo.updateStatus({
-      id,
-      userId,
-      status: ImportRunStatusEnum.IN_PROGRESS,
-    });
-
-    const next = await this.repo.findByUserAndId({ id, userId });
-    if (!next || next.status !== ImportRunStatusEnum.IN_PROGRESS) {
-      return null;
-    }
-
-    return this.toGql(next);
+    return null;
   }
 
   async *importRunEvents(userId: string): AsyncIterable<ImportRunEvent> {
