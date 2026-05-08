@@ -1,13 +1,29 @@
 import { DraftApplicationEntity } from "@api/database/entities/draft-application.entity";
 import { DraftApplicationType } from "@api/domains/draft-applications/draft-application.type";
-import { Injectable, NotFoundException } from "@nestjs/common";
+import {
+  Injectable,
+  Logger,
+  NotFoundException,
+  OnModuleInit,
+} from "@nestjs/common";
 
 import { CreateDraftApplicationInput } from "./create-draft-application.input";
 import { DraftApplicationsRepository } from "./draft-applications.repository";
 
 @Injectable()
-export class DraftApplicationsService {
+export class DraftApplicationsService implements OnModuleInit {
+  private readonly logger = new Logger(DraftApplicationsService.name);
+
   constructor(private readonly repo: DraftApplicationsRepository) {}
+
+  async onModuleInit(): Promise<void> {
+    const recovered = await this.repo.resetStaleProcessingDrafts();
+    if (recovered > 0) {
+      this.logger.warn(
+        `Recovered ${recovered} stale draft conversion(s) back to idle`,
+      );
+    }
+  }
 
   private async toType(
     row: DraftApplicationEntity,

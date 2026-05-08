@@ -1,5 +1,8 @@
 import { ApplicationEntity } from "@api/database/entities/application.entity";
-import { DraftApplicationEntity } from "@api/database/entities/draft-application.entity";
+import {
+  DraftApplicationConversionStatus,
+  DraftApplicationEntity,
+} from "@api/database/entities/draft-application.entity";
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
@@ -82,5 +85,18 @@ export class DraftApplicationsRepository {
 
   async deleteById(id: string): Promise<void> {
     await this.draftApplicationsRepo.delete({ id });
+  }
+
+  async resetStaleProcessingDrafts(): Promise<number> {
+    const result = await this.draftApplicationsRepo.update(
+      { conversionStatus: DraftApplicationConversionStatus.PROCESSING },
+      {
+        conversionStatus: DraftApplicationConversionStatus.IDLE,
+        conversionError:
+          "Conversion interrupted and reset to idle after server restart.",
+      },
+    );
+
+    return result.affected ?? 0;
   }
 }
