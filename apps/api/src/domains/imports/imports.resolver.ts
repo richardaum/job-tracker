@@ -4,10 +4,18 @@ import { Roles } from "@api/domains/auth/roles.decorator";
 import { RolesGuard } from "@api/domains/auth/roles.guard";
 import { DeleteMutationPayloadType } from "@api/domains/shared/delete-mutation-payload.type";
 import { UseGuards } from "@nestjs/common";
-import { Args, ID, Mutation, Query, Resolver } from "@nestjs/graphql";
+import {
+  Args,
+  ID,
+  Mutation,
+  Query,
+  Resolver,
+  Subscription,
+} from "@nestjs/graphql";
 
 import { CreateImportRunInput } from "./create-import-run.input";
 import { ImportRunType } from "./import-run.type";
+import { ImportRunEvent } from "./import-run-event.type";
 import { ImportRunStatusEnum } from "./import-run-status.enum";
 import { ImportsService } from "./imports.service";
 
@@ -57,5 +65,20 @@ export class ImportsResolver {
     @CurrentUser() user: { userId: string },
   ): Promise<ImportRunType> {
     return this.service.updateImportRunStatus(user.userId, id, status);
+  }
+
+  @Mutation(() => ImportRunType, { nullable: true })
+  claimImportRun(
+    @Args("id", { type: () => ID }) id: string,
+    @CurrentUser() user: { userId: string },
+  ): Promise<ImportRunType | null> {
+    return this.service.claimImportRun(user.userId, id);
+  }
+
+  @Subscription(() => ImportRunEvent)
+  importRunEvents(
+    @CurrentUser() user: { userId: string },
+  ): AsyncIterable<ImportRunEvent> {
+    return this.service.importRunEvents(user.userId);
   }
 }

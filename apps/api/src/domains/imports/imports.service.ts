@@ -8,6 +8,9 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 
+import { ImportRunEvent } from "./import-run-event.type";
+import { ImportsRepository } from "./imports.repository";
+
 function extensionMayTransitionStatus(
   from: ImportRunStatusEnum,
   to: ImportRunStatusEnum,
@@ -35,8 +38,6 @@ function extensionMayTransitionStatus(
   }
   return false;
 }
-
-import { ImportsRepository } from "./imports.repository";
 
 @Injectable()
 export class ImportsService {
@@ -106,6 +107,44 @@ export class ImportsService {
       throw new NotFoundException(`Import run ${id} not found`);
     }
     return this.toGql(next);
+  }
+
+  async claimImportRun(
+    userId: string,
+    id: string,
+  ): Promise<ImportRunType | null> {
+    const row = await this.repo.findByUserAndId({ id, userId });
+    if (!row) {
+      throw new NotFoundException(`Import run ${id} not found`);
+    }
+    if (row.status !== ImportRunStatusEnum.RUNNING) {
+      return null;
+    }
+
+    await this.repo.updateStatus({
+      id,
+      userId,
+      status: ImportRunStatusEnum.IN_PROGRESS,
+    });
+
+    const next = await this.repo.findByUserAndId({ id, userId });
+    if (!next || next.status !== ImportRunStatusEnum.IN_PROGRESS) {
+      return null;
+    }
+
+    return this.toGql(next);
+  }
+
+  importRunEvents(_userId: string): AsyncIterable<ImportRunEvent> {
+    return {
+      [Symbol.asyncIterator](): AsyncIterator<ImportRunEvent> {
+        return {
+          async next(): Promise<IteratorResult<ImportRunEvent>> {
+            return new Promise<IteratorResult<ImportRunEvent>>(() => {});
+          },
+        };
+      },
+    };
   }
 
   private toGql(row: ImportRunEntity): ImportRunType {

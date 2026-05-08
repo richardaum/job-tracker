@@ -131,6 +131,16 @@ enum ImportRunStatus {
   FAILED
 }
 
+type ImportRunEvent {
+  type: ImportRunEventType!
+  occurredAt: DateTime!
+  run: ImportRunType!
+}
+
+enum ImportRunEventType {
+  IMPORT_RUN_CREATED
+}
+
 type NoteType {
   id: ID!
   applicationId: String
@@ -184,6 +194,7 @@ type Mutation {
   deleteImportRun(id: ID!): DeleteMutationPayloadType!
   clearImportRuns: Boolean!
   updateImportRunStatus(id: ID!, status: ImportRunStatus!): ImportRunType!
+  claimImportRun(id: ID!): ImportRunType
   createApplicationNote(input: CreateNoteInput!): NoteType!
   updateApplicationNote(id: ID!, input: UpdateNoteInput!): NoteType!
   deleteApplicationNote(id: ID!): DeleteMutationPayloadType!
@@ -258,4 +269,8 @@ input CreateNoteInput {
 input UpdateNoteInput {
   content: String
   expectedRevision: Int!
+}
+
+type Subscription {
+  importRunEvents: ImportRunEvent!
 }
