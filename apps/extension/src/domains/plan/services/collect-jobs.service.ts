@@ -47,8 +47,7 @@ export class CollectJobsService {
   ) {}
 
   async execute(action: PlanStepAction) {
-    // TODO replace with openTab
-    const tabId = await this.tabManager.getCurrentTab();
+    const tabId = await this.tabManager.openTab(action.input.surfaceUrl);
 
     const jobs: Map<string, Job> = new Map();
 

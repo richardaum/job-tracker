@@ -29,12 +29,12 @@ Goal: deliver import-run event streaming to the extension with single-consumer c
   - **Verify:** imports service tests pass and publish path is covered.
   - **Resync:** include `userId` in the internal domain event envelope for subscription filtering; keep GraphQL payload unchanged.
 
-- [ ] **Step 3 - API subscription resolver**
+- [x] **Step 3 - API subscription resolver**
   - Implement `importRunEvents` subscription resolver.
   - Scope events by authenticated `userId`.
   - Emit `IMPORT_RUN_CREATED` from `createImportRun` after persistence.
   - **Verify:** resolver tests confirm user scoping and payload shape.
-  - **Resync:** confirm event names and filtering behavior.
+  - **Resync:** confirmed `IMPORT_RUN_CREATED` naming and user-scoped filtering at subscription path.
 
 - [ ] **Step 4 - Atomic claim implementation**
   - Add repository compare-and-swap update:

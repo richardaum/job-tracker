@@ -82,6 +82,9 @@ describe("ImportsService", () => {
         }),
       }),
     );
+    expect(repo.create).toHaveBeenCalledBefore(
+      vi.mocked(eventsPublisher.publish),
+    );
   });
 
   it("createImportRun rejects unknown importer", async () => {
@@ -188,5 +191,67 @@ describe("ImportsService", () => {
       ),
     ).rejects.toThrow(BadRequestException);
     expect(repo.updateStatus).not.toHaveBeenCalled();
+  });
+
+  it("importRunEvents yields only events from the current user", async () => {
+    vi.mocked(eventsPublisher.subscribe).mockReturnValue({
+      [Symbol.asyncIterator]: () => {
+        let index = 0;
+        const events = [
+          {
+            userId: "other-user",
+            payload: {
+              type: ImportRunEventTypeEnum.IMPORT_RUN_CREATED,
+              occurredAt: new Date("2026-05-01T12:00:00.000Z"),
+              run: {
+                id: "run-other",
+                importerId: "remoteyeah",
+                importerName: "RemoteYeah",
+                entryUrl: "https://remoteyeah.com/board",
+                status: ImportRunStatusEnum.RUNNING,
+                startedAt: new Date("2026-05-01T12:00:00.000Z"),
+                importerSource: "database",
+              },
+            },
+          },
+          {
+            userId: "user-1",
+            payload: {
+              type: ImportRunEventTypeEnum.IMPORT_RUN_CREATED,
+              occurredAt: new Date("2026-05-01T12:00:01.000Z"),
+              run: {
+                id: "run-1",
+                importerId: "remoteyeah",
+                importerName: "RemoteYeah",
+                entryUrl: "https://remoteyeah.com/board",
+                status: ImportRunStatusEnum.RUNNING,
+                startedAt: new Date("2026-05-01T12:00:01.000Z"),
+                importerSource: "database",
+              },
+            },
+          },
+        ];
+
+        return {
+          next: async () => {
+            if (index >= events.length) {
+              return { value: undefined, done: true };
+            }
+            const value = events[index];
+            index += 1;
+            return { value, done: false };
+          },
+        };
+      },
+    });
+
+    const iterator = service.importRunEvents("user-1")[Symbol.asyncIterator]();
+    const first = await iterator.next();
+
+    expect(first.done).toBe(false);
+    expect(first.value).toMatchObject({
+      type: ImportRunEventTypeEnum.IMPORT_RUN_CREATED,
+      run: { id: "run-1", importerId: "remoteyeah" },
+    });
   });
 });
