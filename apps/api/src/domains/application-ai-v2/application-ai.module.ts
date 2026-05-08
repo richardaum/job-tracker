@@ -2,12 +2,12 @@ import { ApplicationAiModule } from "@api/domains/application-ai/application-ai.
 import { TemplateModule } from "@api/domains/shared/template/template.module";
 import { Module } from "@nestjs/common";
 
-import { ApplicationAiV2Service } from "./application-ai-v2.service";
+import { ApplicationAiService } from "./application-ai.service";
 import { DraftExtractionNormalizationService } from "./draft-extraction-normalization.service";
 
 @Module({
   imports: [ApplicationAiModule, TemplateModule],
-  providers: [DraftExtractionNormalizationService, ApplicationAiV2Service],
-  exports: [DraftExtractionNormalizationService, ApplicationAiV2Service],
+  providers: [DraftExtractionNormalizationService, ApplicationAiService],
+  exports: [DraftExtractionNormalizationService, ApplicationAiService],
 })
 export class ApplicationAiV2Module {}

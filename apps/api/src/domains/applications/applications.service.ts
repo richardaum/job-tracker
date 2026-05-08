@@ -1,5 +1,5 @@
 import { DraftApplicationConversionStatus } from "@api/database/entities/draft-application.entity";
-import { ApplicationAiV2Service } from "@api/domains/application-ai-v2/application-ai-v2.service";
+import { ApplicationAiService } from "@api/domains/application-ai-v2/application-ai.service";
 import { DraftExtractionNormalizationService } from "@api/domains/application-ai-v2/draft-extraction-normalization.service";
 import { CompanyService } from "@api/domains/companies/companies.service";
 import { CompanyAiService } from "@api/domains/company-ai/company-ai.service";
@@ -75,7 +75,7 @@ export class ApplicationService {
     private readonly tagService: TagService,
     private readonly companyAiService: CompanyAiService,
     private readonly draftApplicationsService: DraftApplicationsService,
-    private readonly applicationAiV2Service: ApplicationAiV2Service,
+    private readonly applicationAiService: ApplicationAiService,
     private readonly draftExtractionNormalizationService: DraftExtractionNormalizationService,
   ) {}
 
@@ -223,7 +223,7 @@ export class ApplicationService {
     const draft = await this.draftApplicationsService.findOne(draftId);
 
     const [extractError, raw] = await to(
-      this.applicationAiV2Service.extractFromDraft({
+      this.applicationAiService.extractFromDraft({
         title: draft.title,
         url: draft.url,
         htmlContent: draft.htmlContent,

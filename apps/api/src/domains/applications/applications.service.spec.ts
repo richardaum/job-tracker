@@ -1,5 +1,5 @@
 import { DraftApplicationConversionStatus } from "@api/database/entities/draft-application.entity";
-import { ApplicationAiV2Service } from "@api/domains/application-ai-v2/application-ai-v2.service";
+import { ApplicationAiService } from "@api/domains/application-ai-v2/application-ai.service";
 import { DraftExtractionNormalizationService } from "@api/domains/application-ai-v2/draft-extraction-normalization.service";
 import { CompanyService } from "@api/domains/companies/companies.service";
 import { CompanyAiService } from "@api/domains/company-ai/company-ai.service";
@@ -66,7 +66,7 @@ describe("ApplicationService", () => {
   let tagService: TagService;
   let companyAiService: CompanyAiService;
   let draftApplicationsService: DraftApplicationsService;
-  let applicationAiV2Service: ApplicationAiV2Service;
+  let applicationAiService: ApplicationAiService;
   let draftExtractionNormalizationService: DraftExtractionNormalizationService;
 
   beforeEach(() => {
@@ -103,9 +103,9 @@ describe("ApplicationService", () => {
       findOne: vi.fn(),
       update: vi.fn(),
     } as unknown as DraftApplicationsService;
-    applicationAiV2Service = {
+    applicationAiService = {
       extractFromDraft: vi.fn(),
-    } as unknown as ApplicationAiV2Service;
+    } as unknown as ApplicationAiService;
     draftExtractionNormalizationService = {
       normalizeExtraction: vi.fn(),
     } as unknown as DraftExtractionNormalizationService;
@@ -117,7 +117,7 @@ describe("ApplicationService", () => {
       tagService,
       companyAiService,
       draftApplicationsService,
-      applicationAiV2Service,
+      applicationAiService,
       draftExtractionNormalizationService,
     );
   });
@@ -262,7 +262,7 @@ describe("ApplicationService", () => {
           conversionError: patch?.conversionError ?? null,
         }) as never,
     );
-    vi.mocked(applicationAiV2Service.extractFromDraft).mockRejectedValue(
+    vi.mocked(applicationAiService.extractFromDraft).mockRejectedValue(
       new Error("openai down"),
     );
 
@@ -300,7 +300,7 @@ describe("ApplicationService", () => {
           conversionError: patch?.conversionError ?? null,
         }) as never,
     );
-    vi.mocked(applicationAiV2Service.extractFromDraft).mockResolvedValue({
+    vi.mocked(applicationAiService.extractFromDraft).mockResolvedValue({
       title: "Senior Engineer",
       company: "Acme",
       url: "https://jobs.example.com/x",

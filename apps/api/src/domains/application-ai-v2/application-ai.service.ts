@@ -19,7 +19,7 @@ import {
 import type { DraftExtractionModel } from "./draft-extraction.types";
 
 @Injectable()
-export class ApplicationAiV2Service {
+export class ApplicationAiService {
   constructor(
     private readonly openAIService: OpenAIService,
     private readonly templateService: TemplateService,

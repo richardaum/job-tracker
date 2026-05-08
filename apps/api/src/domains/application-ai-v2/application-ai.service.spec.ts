@@ -2,13 +2,13 @@ import { OpenAIService } from "@api/domains/application-ai/openai.service";
 import { TemplateService } from "@api/domains/shared/template/template.service";
 import { describe, expect, it, vi } from "vitest";
 
-import { ApplicationAiV2Service } from "./application-ai-v2.service";
+import { ApplicationAiService } from "./application-ai.service";
 
 function createService(openAIService: OpenAIService) {
-  return new ApplicationAiV2Service(openAIService, new TemplateService());
+  return new ApplicationAiService(openAIService, new TemplateService());
 }
 
-describe("ApplicationAiV2Service", () => {
+describe("ApplicationAiService", () => {
   it("extractFromDraft returns parsed JSON from the model", async () => {
     const parsed = {
       title: "Senior Engineer",
