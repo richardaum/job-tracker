@@ -30,6 +30,7 @@ import {
 import { useToastQueue } from "@/modules/applications/shared/hooks/useToastQueue";
 import { ConvertDraftConfirmationDialog } from "@/modules/draft-applications/details/components/ConvertDraftConfirmationDialog";
 import { ConvertDraftConflictDialog } from "@/modules/draft-applications/details/components/ConvertDraftConflictDialog";
+import { DraftCurrentApplicationField } from "@/modules/draft-applications/details/components/DraftCurrentApplicationField";
 import { useDraftApplicationDetailsViewModel } from "@/modules/draft-applications/details/hooks/useDraftApplicationDetailsViewModel";
 import { DeleteDraftApplicationDialog } from "@/modules/draft-applications/list/components/DeleteDraftApplicationDialog";
 
@@ -161,9 +162,6 @@ export default function DraftApplicationDetailsPage({ params }: PageProps) {
     const truncatedUrl = truncateText(draft.url, 80);
     const isUrlTruncated = truncatedUrl !== draft.url;
     const linkedApplication = applicationData?.application ?? null;
-    const linkedApplicationLabel = linkedApplication
-      ? `${linkedApplication.title} @ ${linkedApplication.company.name}`
-      : null;
     const truncatedDraftId = truncateMiddle(draft.id, 8, 4);
 
     return (
@@ -220,22 +218,7 @@ export default function DraftApplicationDetailsPage({ params }: PageProps) {
             </Tooltip>
           }
         />
-        {draft.applicationId && linkedApplication && linkedApplicationLabel ? (
-          <FieldWithLabelAction
-            label="Current application"
-            content={
-              <Link
-                href={`/applications/${draft.applicationId}`}
-                className={cn(
-                  "block max-w-full truncate text-sm text-text-brand underline-offset-2 hover:underline",
-                )}
-                title={linkedApplicationLabel}
-              >
-                {linkedApplicationLabel}
-              </Link>
-            }
-          />
-        ) : null}
+        <DraftCurrentApplicationField application={linkedApplication} />
       </OverviewSection>
     );
   }
