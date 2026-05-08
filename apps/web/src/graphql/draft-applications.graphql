@@ -21,8 +21,11 @@ query DraftApplicationDetail($id: ID!) {
   }
 }
 
-mutation DeleteDraftApplication($id: ID!) {
-  deleteDraftApplication(id: $id) {
+mutation DeleteDraftApplication($id: ID!, $deleteLinkedApplication: Boolean) {
+  deleteDraftApplication(
+    id: $id
+    deleteLinkedApplication: $deleteLinkedApplication
+  ) {
     success
     deletedId
   }
@@ -48,7 +51,10 @@ mutation CreateDraftApplication($input: CreateDraftApplicationInput!) {
   }
 }
 
-mutation UpdateDraftApplication($id: ID!, $input: UpdateDraftApplicationInput!) {
+mutation UpdateDraftApplication(
+  $id: ID!
+  $input: UpdateDraftApplicationInput!
+) {
   updateDraftApplication(id: $id, input: $input) {
     id
     applicationId

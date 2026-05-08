@@ -33,6 +33,13 @@ export class DraftApplicationsRepository {
     return row?.id ?? null;
   }
 
+  async deleteApplicationsByDraftId(
+    draftId: string,
+    userId: string,
+  ): Promise<void> {
+    await this.applicationsRepo.delete({ draftApplicationId: draftId, userId });
+  }
+
   async create(params: {
     url: string;
     title: string;

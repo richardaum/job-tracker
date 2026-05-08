@@ -362,6 +362,7 @@ export default function DraftApplicationDetailsPage({ params }: PageProps) {
             trigger={<span aria-hidden style={{ display: "none" }} />}
             draftId={draft.id}
             draftSummary={draftHeadingTitle(draft.title, draft.url)}
+            hasLinkedApplication={Boolean(draft.applicationId)}
             open={deleteDialogOpen}
             onOpenChange={setDeleteDialogOpen}
             onSuccess={(msg) => {

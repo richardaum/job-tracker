@@ -10,6 +10,7 @@ export interface ConfirmDialogProps {
   trigger: React.ReactElement;
   title: string;
   description: string;
+  children?: React.ReactNode;
   /** Primary action label (default: "Delete"). */
   confirmLabel?: string;
   cancelLabel?: string;
@@ -30,6 +31,7 @@ export function ConfirmDialog({
   trigger,
   title,
   description,
+  children,
   confirmLabel = "Delete",
   cancelLabel = "Cancel",
   confirmIntent = "destructive",
@@ -87,6 +89,7 @@ export function ConfirmDialog({
       trigger={trigger}
       title={title}
       description={description}
+      children={children}
       footer={footer}
       open={open}
       onOpenChange={handleOpenChange}

@@ -56,8 +56,14 @@ export class DraftApplicationsService {
     return await this.toType(row);
   }
 
-  async delete(id: string): Promise<void> {
+  async delete(
+    id: string,
+    options?: { deleteLinkedApplication?: boolean; userId?: string },
+  ): Promise<void> {
     await this.findOne(id);
+    if (options?.deleteLinkedApplication && options.userId) {
+      await this.repo.deleteApplicationsByDraftId(id, options.userId);
+    }
     await this.repo.deleteById(id);
   }
 

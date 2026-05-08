@@ -244,7 +244,10 @@ export type MutationDeleteApplicationStageEventArgs = {
 
 export type MutationDeleteCompanyArgs = { id: Scalars["ID"]["input"] };
 
-export type MutationDeleteDraftApplicationArgs = { id: Scalars["ID"]["input"] };
+export type MutationDeleteDraftApplicationArgs = {
+  deleteLinkedApplication?: InputMaybe<Scalars["Boolean"]["input"]>;
+  id: Scalars["ID"]["input"];
+};
 
 export type MutationDeleteImportRunArgs = { id: Scalars["ID"]["input"] };
 
@@ -838,6 +841,7 @@ export type DraftApplicationDetailQuery = {
 
 export type DeleteDraftApplicationMutationVariables = Exact<{
   id: Scalars["ID"]["input"];
+  deleteLinkedApplication?: InputMaybe<Scalars["Boolean"]["input"]>;
 }>;
 
 export type DeleteDraftApplicationMutation = {
@@ -2699,6 +2703,14 @@ export const DeleteDraftApplicationDocument = {
             type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
           },
         },
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "deleteLinkedApplication" },
+          },
+          type: { kind: "NamedType", name: { kind: "Name", value: "Boolean" } },
+        },
       ],
       selectionSet: {
         kind: "SelectionSet",
@@ -2713,6 +2725,14 @@ export const DeleteDraftApplicationDocument = {
                 value: {
                   kind: "Variable",
                   name: { kind: "Name", value: "id" },
+                },
+              },
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "deleteLinkedApplication" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "deleteLinkedApplication" },
                 },
               },
             ],

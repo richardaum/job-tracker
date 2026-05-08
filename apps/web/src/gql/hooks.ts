@@ -246,7 +246,10 @@ export type MutationDeleteApplicationStageEventArgs = {
 
 export type MutationDeleteCompanyArgs = { id: Scalars["ID"]["input"] };
 
-export type MutationDeleteDraftApplicationArgs = { id: Scalars["ID"]["input"] };
+export type MutationDeleteDraftApplicationArgs = {
+  deleteLinkedApplication?: InputMaybe<Scalars["Boolean"]["input"]>;
+  id: Scalars["ID"]["input"];
+};
 
 export type MutationDeleteImportRunArgs = { id: Scalars["ID"]["input"] };
 
@@ -850,6 +853,7 @@ export type DraftApplicationDetailQuery = {
 
 export type DeleteDraftApplicationMutationVariables = Exact<{
   id: Scalars["ID"]["input"];
+  deleteLinkedApplication?: InputMaybe<Scalars["Boolean"]["input"]>;
 }>;
 
 export type DeleteDraftApplicationMutation = {
@@ -2353,8 +2357,11 @@ export type DraftApplicationDetailLazyQueryHookResult = ReturnType<
 >;
 
 export const DeleteDraftApplicationDocument = gql`
-  mutation DeleteDraftApplication($id: ID!) {
-    deleteDraftApplication(id: $id) {
+  mutation DeleteDraftApplication($id: ID!, $deleteLinkedApplication: Boolean) {
+    deleteDraftApplication(
+      id: $id
+      deleteLinkedApplication: $deleteLinkedApplication
+    ) {
       success
       deletedId
     }
@@ -2375,6 +2382,7 @@ export const DeleteDraftApplicationDocument = gql`
  * const [deleteDraftApplicationMutation, { data, loading, error }] = useDeleteDraftApplicationMutation({
  *   variables: {
  *      id: // value for 'id'
+ *      deleteLinkedApplication: // value for 'deleteLinkedApplication'
  *   },
  * });
  */

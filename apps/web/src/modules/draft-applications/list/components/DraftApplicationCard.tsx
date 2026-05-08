@@ -122,6 +122,7 @@ export function DraftApplicationCard({
         }
         draftId={draft.id}
         draftSummary={label}
+        hasLinkedApplication={Boolean(draft.applicationId)}
         onSuccess={onSuccess}
         onError={onError}
       />
