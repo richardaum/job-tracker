@@ -1,3 +1,4 @@
+import { captureSync } from "@job-tracker/async";
 import { z } from "zod";
 
 import { LIMITS } from "./constants";
@@ -16,10 +17,10 @@ const FieldValidationRegexSchema = z
   })
   .strict()
   .superRefine(({ pattern, flags }, ctx) => {
-    try {
-      // Validate regex syntax at plan parse time.
-      new RegExp(pattern, flags);
-    } catch {
+    const [regErr] = captureSync(() => {
+      void new RegExp(pattern, flags);
+    });
+    if (regErr) {
       ctx.addIssue({
         code: "custom",
         message: "Invalid validationRegex: pattern or flags are not valid",

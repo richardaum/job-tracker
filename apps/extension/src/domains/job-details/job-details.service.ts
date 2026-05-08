@@ -1,3 +1,5 @@
+import { captureSync } from "@job-tracker/async";
+
 import { FieldValueService } from "@/domains/dom/field-value.service";
 import type { Job } from "@/domains/dom/types";
 import type { ContentActionMessage } from "@/domains/message/types";
@@ -24,13 +26,11 @@ export class JobDetailsService {
         continue;
       }
 
-      try {
-        result[field.key] = this.fieldValueService.getFieldValue(
-          element,
-          field,
-        );
-      } catch {
-        continue;
+      const [fieldErr, value] = captureSync(() =>
+        this.fieldValueService.getFieldValue(element, field),
+      );
+      if (!fieldErr) {
+        result[field.key] = value;
       }
     }
 

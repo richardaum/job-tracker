@@ -1,4 +1,4 @@
-import { to } from "@job-tracker/async";
+import { captureSync, to } from "@job-tracker/async";
 
 import type {
   ApiService,
@@ -45,10 +45,11 @@ export class ImportRunEventsService {
         });
         void this.routeEvent(event);
         for (const handler of this.handlers) {
-          try {
-            handler(event);
-          } catch (error) {
-            this.logService.debug("import-run-events:handler-error", { error });
+          const [handlerErr] = captureSync(() => handler(event));
+          if (handlerErr) {
+            this.logService.debug("import-run-events:handler-error", {
+              error: handlerErr,
+            });
           }
         }
       },
