@@ -1,4 +1,3 @@
-import { ApplicationAiDraftType } from "@api/domains/application-ai/application-ai-draft.type";
 import { CurrentUser } from "@api/domains/auth/current-user.decorator";
 import { JwtAuthGuard } from "@api/domains/auth/jwt-auth.guard";
 import { Roles } from "@api/domains/auth/roles.decorator";
@@ -24,7 +23,6 @@ import type { Application } from "./applications.schema";
 import { ApplicationService } from "./applications.service";
 import { CreateApplicationInput } from "./create-application.input";
 import { CreateApplicationStageEventInput } from "./create-application-stage-event.input";
-import { CreateApplicationWithAIInput } from "./create-application-with-ai.input";
 import { SalaryPeriodEnum } from "./salary-period.enum";
 import { UpdateApplicationInput } from "./update-application.input";
 import { UpdateApplicationStageEventInput } from "./update-application-stage-event.input";
@@ -74,30 +72,12 @@ export class ApplicationResolver {
     return this.service.create(user.userId, input);
   }
 
-  @Mutation(() => ApplicationType, {
-    deprecationReason:
-      "Use createApplicationWithAIV2 with a draft application captured from the browser extension.",
-  })
-  createApplicationWithAI(
-    @Args("input") input: CreateApplicationWithAIInput,
-    @CurrentUser() user: { userId: string },
-  ): Promise<ApplicationType> {
-    return this.service.createWithAI(user.userId, input);
-  }
-
   @Mutation(() => DraftApplicationType)
   async createApplicationWithAIV2(
     @Args("draftId", { type: () => ID }) draftId: string,
     @CurrentUser() user: { userId: string },
   ): Promise<DraftApplicationType> {
     return this.service.createApplicationWithAIV2(user.userId, draftId);
-  }
-
-  @Query(() => ApplicationAiDraftType)
-  generateApplicationDraftWithAI(
-    @Args("input") input: CreateApplicationWithAIInput,
-  ): Promise<ApplicationAiDraftType> {
-    return this.service.generateDraftWithAI(input);
   }
 
   @Query(() => String)

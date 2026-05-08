@@ -46,35 +46,6 @@ enum DraftApplicationConversionStatus {
   FAILED
 }
 
-type NoteType {
-  id: ID!
-  applicationId: String
-  userId: String!
-  content: String!
-  revision: Int!
-  createdAt: DateTime!
-  updatedAt: DateTime!
-}
-
-type ApplicationAiDraftType {
-  title: String!
-  company: String!
-  description: String
-  url: String
-  salaryMinCents: Int
-  salaryMaxCents: Int
-  salaryCurrency: String
-  salaryPeriod: SalaryPeriod
-  tags: [String!]!
-  noteContents: [String!]!
-}
-
-enum SalaryPeriod {
-  YEAR
-  MONTH
-  HOUR
-}
-
 type ApplicationType {
   id: ID!
   userId: String!
@@ -113,6 +84,12 @@ type ApplicationSalary {
   maxCents: Int
   currency: String
   period: SalaryPeriod
+}
+
+enum SalaryPeriod {
+  YEAR
+  MONTH
+  HOUR
 }
 
 type ApplicationStageEventType {
@@ -154,21 +131,30 @@ enum ImportRunStatus {
   FAILED
 }
 
+type NoteType {
+  id: ID!
+  applicationId: String
+  userId: String!
+  content: String!
+  revision: Int!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
 type Query {
   me: UserType!
   applications(filter: ApplicationQuickFilter, company: String): [ApplicationType!]!
   application(id: ID!): ApplicationType!
-  generateApplicationDraftWithAI(input: CreateApplicationWithAIInput!): ApplicationAiDraftType!
   generateCompanyDescription(companyName: String!): String!
   applicationStageEvents(applicationId: ID!): [ApplicationStageEventType!]!
   companies: [CompanyType!]!
   companyApplicationsCount(id: ID!): Int!
-  applicationNotes(applicationId: ID!): [NoteType!]!
-  generateApplicationNoteWithAI(applicationId: ID!, note: String!): String!
   draftApplications: [DraftApplicationType!]!
   draftApplication(id: ID!): DraftApplicationType!
   exchangeRates(base: String!, currencies: [String!]!): CurrencyRates!
   importRuns: [ImportRunType!]!
+  applicationNotes(applicationId: ID!): [NoteType!]!
+  generateApplicationNoteWithAI(applicationId: ID!, note: String!): String!
   rewriteTextWithAI(text: String!): String!
   restructureJobDescriptionWithAI(text: String!): String!
 }
@@ -180,19 +166,8 @@ enum ApplicationQuickFilter {
   NEW
 }
 
-input CreateApplicationWithAIInput {
-  prompt: String!
-  fields: [AiExtractionFieldInput!]
-}
-
-input AiExtractionFieldInput {
-  label: String!
-  metadata: String
-}
-
 type Mutation {
   createApplication(input: CreateApplicationInput!): ApplicationType!
-  createApplicationWithAI(input: CreateApplicationWithAIInput!): ApplicationType! @deprecated(reason: "Use createApplicationWithAIV2 with a draft application captured from the browser extension.")
   createApplicationWithAIV2(draftId: ID!): DraftApplicationType!
   updateApplication(id: ID!, input: UpdateApplicationInput!): ApplicationType!
   removeApplicationTag(id: ID!, tag: String!): ApplicationType!
@@ -202,15 +177,15 @@ type Mutation {
   deleteApplicationStageEvent(id: ID!): DeleteMutationPayloadType!
   updateCompany(id: ID!, input: UpdateCompanyInput!): CompanyType!
   deleteCompany(id: ID!): DeleteMutationPayloadType!
-  createApplicationNote(input: CreateNoteInput!): NoteType!
-  updateApplicationNote(id: ID!, input: UpdateNoteInput!): NoteType!
-  deleteApplicationNote(id: ID!): DeleteMutationPayloadType!
   createDraftApplication(input: CreateDraftApplicationInput!): DraftApplicationType!
   deleteDraftApplication(id: ID!): DeleteMutationPayloadType!
   createImportRun(input: CreateImportRunInput!): ImportRunType!
   deleteImportRun(id: ID!): DeleteMutationPayloadType!
   clearImportRuns: Boolean!
   updateImportRunStatus(id: ID!, status: ImportRunStatus!): ImportRunType!
+  createApplicationNote(input: CreateNoteInput!): NoteType!
+  updateApplicationNote(id: ID!, input: UpdateNoteInput!): NoteType!
+  deleteApplicationNote(id: ID!): DeleteMutationPayloadType!
 }
 
 input CreateApplicationInput {
@@ -260,16 +235,6 @@ input UpdateCompanyInput {
   description: String
 }
 
-input CreateNoteInput {
-  applicationId: String!
-  content: String!
-}
-
-input UpdateNoteInput {
-  content: String
-  expectedRevision: Int!
-}
-
 input CreateDraftApplicationInput {
   url: String!
   title: String!
@@ -278,4 +243,14 @@ input CreateDraftApplicationInput {
 
 input CreateImportRunInput {
   importerId: String!
+}
+
+input CreateNoteInput {
+  applicationId: String!
+  content: String!
+}
+
+input UpdateNoteInput {
+  content: String
+  expectedRevision: Int!
 }

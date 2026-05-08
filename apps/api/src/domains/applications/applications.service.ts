@@ -1,12 +1,10 @@
 import { DraftApplicationConversionStatus } from "@api/database/entities/draft-application.entity";
-import { ApplicationAiService } from "@api/domains/application-ai/application-ai.service";
 import { ApplicationAiV2Service } from "@api/domains/application-ai-v2/application-ai-v2.service";
 import { DraftExtractionNormalizationService } from "@api/domains/application-ai-v2/draft-extraction-normalization.service";
 import { CompanyService } from "@api/domains/companies/companies.service";
 import { CompanyAiService } from "@api/domains/company-ai/company-ai.service";
 import { DraftApplicationType } from "@api/domains/draft-applications/draft-application.type";
 import { DraftApplicationsService } from "@api/domains/draft-applications/draft-applications.service";
-import { NoteService } from "@api/domains/notes/notes.service";
 import { isTipTapDocumentString } from "@api/domains/shared/tiptap.util";
 import { to } from "@job-tracker/async";
 import {
@@ -27,10 +25,6 @@ import {
   UpdateApplicationRepoDto,
 } from "./applications.repository";
 import { Application } from "./applications.schema";
-import {
-  type AiExtractionFieldInput,
-  type CreateApplicationWithAIInput,
-} from "./create-application-with-ai.input";
 import { SalaryService } from "./salary.service";
 import { SalaryPeriodEnum } from "./salary-period.enum";
 import { TagService } from "./tag.service";
@@ -62,10 +56,6 @@ type UpdateStageEventDto = {
   reason?: string | null;
   scheduledAt?: Date | null;
 };
-type CreateWithAIDto = {
-  prompt: string;
-  fields?: AiExtractionFieldInput[] | null;
-};
 type GenerateCompanyDescriptionDto = { companyName: string };
 
 type ApplicationWithCurrentStage = Application & {
@@ -83,9 +73,7 @@ export class ApplicationService {
     private readonly companyService: CompanyService,
     private readonly salaryService: SalaryService,
     private readonly tagService: TagService,
-    private readonly applicationAiService: ApplicationAiService,
     private readonly companyAiService: CompanyAiService,
-    private readonly noteService: NoteService,
     private readonly draftApplicationsService: DraftApplicationsService,
     private readonly applicationAiV2Service: ApplicationAiV2Service,
     private readonly draftExtractionNormalizationService: DraftExtractionNormalizationService,
@@ -206,37 +194,6 @@ export class ApplicationService {
     return hydrated;
   }
 
-  async createWithAI(
-    userId: string,
-    dto: CreateWithAIDto | CreateApplicationWithAIInput,
-  ): Promise<ApplicationWithCurrentStage> {
-    const draft = await this.applicationAiService.generateDraft({
-      prompt: dto.prompt,
-      fields: dto.fields ?? [],
-    });
-
-    const created = await this.create(userId, {
-      title: draft.title,
-      company: draft.company,
-      description: draft.description,
-      urls: draft.url ? [draft.url] : [],
-      salaryMinCents: draft.salaryMinCents,
-      salaryMaxCents: draft.salaryMaxCents,
-      salaryCurrency: draft.salaryCurrency,
-      salaryPeriod: draft.salaryPeriod,
-      tags: draft.tags,
-    });
-
-    for (const noteContent of draft.noteContents) {
-      await this.noteService.createNote(userId, {
-        applicationId: created.id,
-        content: noteContent,
-      });
-    }
-
-    return this.findOne(created.id, userId);
-  }
-
   async createApplicationWithAIV2(
     userId: string,
     draftId: string,
@@ -338,13 +295,6 @@ export class ApplicationService {
     await this.draftApplicationsService.update(draftId, {
       conversionStatus: DraftApplicationConversionStatus.SUCCEEDED,
       conversionError: null,
-    });
-  }
-
-  generateDraftWithAI(dto: CreateWithAIDto | CreateApplicationWithAIInput) {
-    return this.applicationAiService.generateDraft({
-      prompt: dto.prompt,
-      fields: dto.fields ?? [],
     });
   }
 

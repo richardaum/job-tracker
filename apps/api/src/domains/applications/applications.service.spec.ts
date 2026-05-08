@@ -1,11 +1,9 @@
 import { DraftApplicationConversionStatus } from "@api/database/entities/draft-application.entity";
-import { ApplicationAiService } from "@api/domains/application-ai/application-ai.service";
 import { ApplicationAiV2Service } from "@api/domains/application-ai-v2/application-ai-v2.service";
 import { DraftExtractionNormalizationService } from "@api/domains/application-ai-v2/draft-extraction-normalization.service";
 import { CompanyService } from "@api/domains/companies/companies.service";
 import { CompanyAiService } from "@api/domains/company-ai/company-ai.service";
 import { DraftApplicationsService } from "@api/domains/draft-applications/draft-applications.service";
-import { NoteService } from "@api/domains/notes/notes.service";
 import { NotFoundException } from "@nestjs/common";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -66,9 +64,7 @@ describe("ApplicationService", () => {
   let companyService: CompanyService;
   let salaryService: SalaryService;
   let tagService: TagService;
-  let applicationAiService: ApplicationAiService;
   let companyAiService: CompanyAiService;
-  let noteService: NoteService;
   let draftApplicationsService: DraftApplicationsService;
   let applicationAiV2Service: ApplicationAiV2Service;
   let draftExtractionNormalizationService: DraftExtractionNormalizationService;
@@ -100,13 +96,9 @@ describe("ApplicationService", () => {
 
     salaryService = new SalaryService();
     tagService = new TagService();
-    applicationAiService = {
-      generateDraft: vi.fn(),
-    } as unknown as ApplicationAiService;
     companyAiService = {
       generateCompanyDescription: vi.fn(),
     } as unknown as CompanyAiService;
-    noteService = { createNote: vi.fn() } as unknown as NoteService;
     draftApplicationsService = {
       findOne: vi.fn(),
       update: vi.fn(),
@@ -123,9 +115,7 @@ describe("ApplicationService", () => {
       companyService,
       salaryService,
       tagService,
-      applicationAiService,
       companyAiService,
-      noteService,
       draftApplicationsService,
       applicationAiV2Service,
       draftExtractionNormalizationService,
@@ -249,54 +239,6 @@ describe("ApplicationService", () => {
     });
   });
 
-  it("createWithAI persists application and note from generated draft", async () => {
-    const app = makeApp();
-    vi.mocked(applicationAiService.generateDraft).mockResolvedValue({
-      title: "Engineer",
-      company: "Acme",
-      description: JSON.stringify({ type: "doc", content: [] }),
-      url: "https://acme.com/jobs/1",
-      salaryMinCents: null,
-      salaryMaxCents: null,
-      salaryCurrency: null,
-      salaryPeriod: null,
-      tags: ["React"],
-      noteContents: [
-        JSON.stringify({ type: "doc", content: [] }),
-        JSON.stringify({
-          type: "doc",
-          content: [
-            {
-              type: "paragraph",
-              content: [{ type: "text", text: "Second note" }],
-            },
-          ],
-        }),
-      ],
-    });
-    vi.mocked(companyService.findOrCreateByName).mockResolvedValue(app.company);
-    vi.mocked(repo.create).mockResolvedValue(app);
-    vi.mocked(repo.createStageEvent).mockResolvedValue(
-      makeEvent({ toStage: "new", source: "system" }),
-    );
-    vi.mocked(repo.findOneByIdAndUserId).mockResolvedValue(app);
-    vi.mocked(noteService.createNote).mockResolvedValue({
-      id: "note-1",
-    } as never);
-
-    const result = await service.createWithAI("user-1", {
-      prompt: "Senior React Engineer",
-      fields: [{ label: "Title", metadata: "as field value" }],
-    });
-
-    expect(result.id).toBe("app-1");
-    expect(applicationAiService.generateDraft).toHaveBeenCalledWith({
-      prompt: "Senior React Engineer",
-      fields: [{ label: "Title", metadata: "as field value" }],
-    });
-    expect(noteService.createNote).toHaveBeenCalledTimes(2);
-  });
-
   it("createApplicationWithAIV2 marks draft as processing and returns immediately", async () => {
     vi.mocked(draftApplicationsService.findOne).mockResolvedValue({
       id: "draft-1",
@@ -361,6 +303,10 @@ describe("ApplicationService", () => {
     vi.mocked(applicationAiV2Service.extractFromDraft).mockResolvedValue({
       title: "Senior Engineer",
       company: "Acme",
+      url: "https://jobs.example.com/x",
+      description: "Job description",
+      salary: { min: null, max: null, currency: null, period: null },
+      tags: [],
     });
     vi.mocked(
       draftExtractionNormalizationService.normalizeExtraction,

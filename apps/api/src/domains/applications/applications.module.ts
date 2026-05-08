@@ -2,13 +2,11 @@ import { DatabaseModule } from "@api/database/database.module";
 import { ApplicationEntity } from "@api/database/entities/application.entity";
 import { ApplicationStageEventEntity } from "@api/database/entities/application-stage-event.entity";
 import { CompanyEntity } from "@api/database/entities/company.entity";
-import { ApplicationAiModule } from "@api/domains/application-ai/application-ai.module";
 import { ApplicationAiV2Module } from "@api/domains/application-ai-v2/application-ai-v2.module";
 import { AuthModule } from "@api/domains/auth/auth.module";
 import { CompaniesModule } from "@api/domains/companies/companies.module";
 import { CompanyAiModule } from "@api/domains/company-ai/company-ai.module";
 import { DraftApplicationsModule } from "@api/domains/draft-applications/draft-applications.module";
-import { NotesModule } from "@api/domains/notes/notes.module";
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 
@@ -28,10 +26,8 @@ import { TagService } from "./tag.service";
     ]),
     AuthModule,
     CompaniesModule,
-    ApplicationAiModule,
     ApplicationAiV2Module,
     CompanyAiModule,
-    NotesModule,
     DraftApplicationsModule,
   ],
   providers: [

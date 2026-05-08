@@ -1,20 +1,7 @@
 "use client";
 
-import {
-  Card,
-  cn,
-  DropdownButton,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  Skeleton,
-  Stack,
-  Text,
-} from "@job-tracker/ui";
-import {
-  MagnifyingGlassIcon,
-  PlusIcon,
-  SparkleIcon,
-} from "@phosphor-icons/react";
+import { Button, Card, cn, Skeleton, Stack, Text } from "@job-tracker/ui";
+import { MagnifyingGlassIcon, PlusIcon } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -139,31 +126,10 @@ export default function ApplicationsPage() {
               router.push(`/applications/${applicationId}`);
             }}
           />
-          <DropdownButton
-            intent="primary"
-            size="sm"
-            content={
-              <>
-                <DropdownMenuItem
-                  onSelect={() => setOpenModal(true)}
-                  icon={<PlusIcon size={16} weight="bold" />}
-                >
-                  Manual application
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  onSelect={() => router.push("/applications/new/ai/v1")}
-                  icon={<SparkleIcon size={16} weight="bold" />}
-                >
-                  New application with AI (v1)
-                </DropdownMenuItem>
-              </>
-            }
-            onClick={() => router.push("/applications/new/ai")}
-          >
-            <SparkleIcon size={16} weight="bold" className={cn("mr-3")} />
-            New application (beta)
-          </DropdownButton>
+          <Button intent="primary" size="sm" onClick={() => setOpenModal(true)}>
+            <PlusIcon size={16} weight="bold" className={cn("mr-2")} />
+            New application
+          </Button>
         </div>
       </div>
 

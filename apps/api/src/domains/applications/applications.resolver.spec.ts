@@ -57,7 +57,6 @@ describe("ApplicationResolver (integration)", () => {
     findAll: ReturnType<typeof vi.fn>;
     findOne: ReturnType<typeof vi.fn>;
     create: ReturnType<typeof vi.fn>;
-    createWithAI: ReturnType<typeof vi.fn>;
     createApplicationWithAIV2: ReturnType<typeof vi.fn>;
     update: ReturnType<typeof vi.fn>;
     remove: ReturnType<typeof vi.fn>;
@@ -70,7 +69,6 @@ describe("ApplicationResolver (integration)", () => {
       findAll: vi.fn().mockResolvedValue([mockApp]),
       findOne: vi.fn().mockResolvedValue(mockApp),
       create: vi.fn().mockResolvedValue(mockApp),
-      createWithAI: vi.fn().mockResolvedValue(mockApp),
       createApplicationWithAIV2: vi.fn().mockResolvedValue(mockDraft),
       update: vi.fn().mockResolvedValue(mockApp),
       remove: vi.fn().mockResolvedValue(mockApp),
@@ -171,28 +169,6 @@ describe("ApplicationResolver (integration)", () => {
     expect(res.statusCode).toBe(200);
     expect(res.body.data.createApplication.id).toBe("app-1");
     expect(res.body.data.createApplication.company.name).toBe("Acme Corp");
-  });
-
-  it("createApplicationWithAI mutation creates and returns application", async () => {
-    const res = await request(app.getHttpServer())
-      .post("/graphql")
-      .set(auth)
-      .send({
-        query: `mutation {
-          createApplicationWithAI(
-            input: {
-              prompt: "Senior React Engineer at Acme"
-              fields: [{ label: "Title", metadata: "as field value" }]
-            }
-          ) {
-            id
-            title
-          }
-        }`,
-      });
-
-    expect(res.statusCode).toBe(200);
-    expect(res.body.data.createApplicationWithAI.id).toBe("app-1");
   });
 
   it("createApplicationWithAIV2 mutation queues conversion and returns draft", async () => {

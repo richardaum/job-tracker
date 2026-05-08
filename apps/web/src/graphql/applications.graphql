@@ -70,40 +70,6 @@ mutation CreateApplication($input: CreateApplicationInput!) {
   }
 }
 
-mutation CreateApplicationWithAi($input: CreateApplicationWithAIInput!) {
-  createApplicationWithAI(input: $input) {
-    id
-    title
-    companyId
-    company {
-      id
-      name
-      description
-    }
-    description
-    urls
-    source
-    ...ApplicationSalarySelection
-    tags
-    createdAt
-  }
-}
-
-query GenerateApplicationDraftWithAi($input: CreateApplicationWithAIInput!) {
-  generateApplicationDraftWithAI(input: $input) {
-    title
-    company
-    description
-    url
-    salaryMinCents
-    salaryMaxCents
-    salaryCurrency
-    salaryPeriod
-    tags
-    noteContents
-  }
-}
-
 query GenerateCompanyDescription($companyName: String!) {
   generateCompanyDescription(companyName: $companyName)
 }

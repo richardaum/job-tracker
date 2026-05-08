@@ -31,25 +31,6 @@ export type Scalars = {
   DateTime: { input: any; output: any };
 };
 
-export type AiExtractionFieldInput = {
-  label: Scalars["String"]["input"];
-  metadata?: InputMaybe<Scalars["String"]["input"]>;
-};
-
-export type ApplicationAiDraftType = {
-  __typename?: "ApplicationAiDraftType";
-  company: Scalars["String"]["output"];
-  description?: Maybe<Scalars["String"]["output"]>;
-  noteContents: Array<Scalars["String"]["output"]>;
-  salaryCurrency?: Maybe<Scalars["String"]["output"]>;
-  salaryMaxCents?: Maybe<Scalars["Int"]["output"]>;
-  salaryMinCents?: Maybe<Scalars["Int"]["output"]>;
-  salaryPeriod?: Maybe<SalaryPeriod>;
-  tags: Array<Scalars["String"]["output"]>;
-  title: Scalars["String"]["output"];
-  url?: Maybe<Scalars["String"]["output"]>;
-};
-
 export enum ApplicationQuickFilter {
   Active = "ACTIVE",
   Applied = "APPLIED",
@@ -144,11 +125,6 @@ export type CreateApplicationStageEventInput = {
   toStage: ApplicationStage;
 };
 
-export type CreateApplicationWithAiInput = {
-  fields?: InputMaybe<Array<AiExtractionFieldInput>>;
-  prompt: Scalars["String"]["input"];
-};
-
 export type CreateDraftApplicationInput = {
   htmlContent: Scalars["String"]["input"];
   title: Scalars["String"]["input"];
@@ -168,8 +144,24 @@ export type CurrencyRates = {
   rates: Array<ExchangeRate>;
 };
 
+export type DeleteMutationPayloadType = {
+  __typename?: "DeleteMutationPayloadType";
+  deletedId: Scalars["ID"]["output"];
+  success: Scalars["Boolean"]["output"];
+};
+
+export enum DraftApplicationConversionStatus {
+  Failed = "FAILED",
+  Idle = "IDLE",
+  Processing = "PROCESSING",
+  Succeeded = "SUCCEEDED",
+}
+
 export type DraftApplicationType = {
   __typename?: "DraftApplicationType";
+  applicationId?: Maybe<Scalars["String"]["output"]>;
+  conversionError?: Maybe<Scalars["String"]["output"]>;
+  conversionStatus: DraftApplicationConversionStatus;
   htmlContent: Scalars["String"]["output"];
   id: Scalars["ID"]["output"];
   title: Scalars["String"]["output"];
@@ -206,17 +198,15 @@ export type Mutation = {
   createApplication: ApplicationType;
   createApplicationNote: NoteType;
   createApplicationStageEvent: ApplicationStageEventType;
-  /** @deprecated Use createApplicationWithAIV2 with a draft application captured from the browser extension. */
-  createApplicationWithAI: ApplicationType;
-  createApplicationWithAIV2: ApplicationType;
+  createApplicationWithAIV2: DraftApplicationType;
   createDraftApplication: DraftApplicationType;
   createImportRun: ImportRunType;
-  deleteApplication: Scalars["Boolean"]["output"];
-  deleteApplicationNote: Scalars["Boolean"]["output"];
-  deleteApplicationStageEvent: Scalars["Boolean"]["output"];
-  deleteCompany: Scalars["Boolean"]["output"];
-  deleteDraftApplication: Scalars["Boolean"]["output"];
-  deleteImportRun: Scalars["Boolean"]["output"];
+  deleteApplication: DeleteMutationPayloadType;
+  deleteApplicationNote: DeleteMutationPayloadType;
+  deleteApplicationStageEvent: DeleteMutationPayloadType;
+  deleteCompany: DeleteMutationPayloadType;
+  deleteDraftApplication: DeleteMutationPayloadType;
+  deleteImportRun: DeleteMutationPayloadType;
   removeApplicationTag: ApplicationType;
   updateApplication: ApplicationType;
   updateApplicationNote: NoteType;
@@ -231,10 +221,6 @@ export type MutationCreateApplicationNoteArgs = { input: CreateNoteInput };
 
 export type MutationCreateApplicationStageEventArgs = {
   input: CreateApplicationStageEventInput;
-};
-
-export type MutationCreateApplicationWithAiArgs = {
-  input: CreateApplicationWithAiInput;
 };
 
 export type MutationCreateApplicationWithAiv2Args = {
@@ -313,7 +299,6 @@ export type Query = {
   draftApplication: DraftApplicationType;
   draftApplications: Array<DraftApplicationType>;
   exchangeRates: CurrencyRates;
-  generateApplicationDraftWithAI: ApplicationAiDraftType;
   generateApplicationNoteWithAI: Scalars["String"]["output"];
   generateCompanyDescription: Scalars["String"]["output"];
   importRuns: Array<ImportRunType>;
@@ -344,10 +329,6 @@ export type QueryDraftApplicationArgs = { id: Scalars["ID"]["input"] };
 export type QueryExchangeRatesArgs = {
   base: Scalars["String"]["input"];
   currencies: Array<Scalars["String"]["input"]>;
-};
-
-export type QueryGenerateApplicationDraftWithAiArgs = {
-  input: CreateApplicationWithAiInput;
 };
 
 export type QueryGenerateApplicationNoteWithAiArgs = {

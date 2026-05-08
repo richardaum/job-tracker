@@ -33,25 +33,6 @@ export type Scalars = {
   DateTime: { input: any; output: any };
 };
 
-export type AiExtractionFieldInput = {
-  label: Scalars["String"]["input"];
-  metadata?: InputMaybe<Scalars["String"]["input"]>;
-};
-
-export type ApplicationAiDraftType = {
-  __typename?: "ApplicationAiDraftType";
-  company: Scalars["String"]["output"];
-  description?: Maybe<Scalars["String"]["output"]>;
-  noteContents: Array<Scalars["String"]["output"]>;
-  salaryCurrency?: Maybe<Scalars["String"]["output"]>;
-  salaryMaxCents?: Maybe<Scalars["Int"]["output"]>;
-  salaryMinCents?: Maybe<Scalars["Int"]["output"]>;
-  salaryPeriod?: Maybe<SalaryPeriod>;
-  tags: Array<Scalars["String"]["output"]>;
-  title: Scalars["String"]["output"];
-  url?: Maybe<Scalars["String"]["output"]>;
-};
-
 export enum ApplicationQuickFilter {
   Active = "ACTIVE",
   Applied = "APPLIED",
@@ -146,11 +127,6 @@ export type CreateApplicationStageEventInput = {
   toStage: ApplicationStage;
 };
 
-export type CreateApplicationWithAiInput = {
-  fields?: InputMaybe<Array<AiExtractionFieldInput>>;
-  prompt: Scalars["String"]["input"];
-};
-
 export type CreateDraftApplicationInput = {
   htmlContent: Scalars["String"]["input"];
   title: Scalars["String"]["input"];
@@ -224,8 +200,6 @@ export type Mutation = {
   createApplication: ApplicationType;
   createApplicationNote: NoteType;
   createApplicationStageEvent: ApplicationStageEventType;
-  /** @deprecated Use createApplicationWithAIV2 with a draft application captured from the browser extension. */
-  createApplicationWithAI: ApplicationType;
   createApplicationWithAIV2: DraftApplicationType;
   createDraftApplication: DraftApplicationType;
   createImportRun: ImportRunType;
@@ -249,10 +223,6 @@ export type MutationCreateApplicationNoteArgs = { input: CreateNoteInput };
 
 export type MutationCreateApplicationStageEventArgs = {
   input: CreateApplicationStageEventInput;
-};
-
-export type MutationCreateApplicationWithAiArgs = {
-  input: CreateApplicationWithAiInput;
 };
 
 export type MutationCreateApplicationWithAiv2Args = {
@@ -331,7 +301,6 @@ export type Query = {
   draftApplication: DraftApplicationType;
   draftApplications: Array<DraftApplicationType>;
   exchangeRates: CurrencyRates;
-  generateApplicationDraftWithAI: ApplicationAiDraftType;
   generateApplicationNoteWithAI: Scalars["String"]["output"];
   generateCompanyDescription: Scalars["String"]["output"];
   importRuns: Array<ImportRunType>;
@@ -362,10 +331,6 @@ export type QueryDraftApplicationArgs = { id: Scalars["ID"]["input"] };
 export type QueryExchangeRatesArgs = {
   base: Scalars["String"]["input"];
   currencies: Array<Scalars["String"]["input"]>;
-};
-
-export type QueryGenerateApplicationDraftWithAiArgs = {
-  input: CreateApplicationWithAiInput;
 };
 
 export type QueryGenerateApplicationNoteWithAiArgs = {
@@ -537,59 +502,6 @@ export type CreateApplicationMutation = {
       currency?: string | null;
       period?: SalaryPeriod | null;
     };
-  };
-};
-
-export type CreateApplicationWithAiMutationVariables = Exact<{
-  input: CreateApplicationWithAiInput;
-}>;
-
-export type CreateApplicationWithAiMutation = {
-  __typename?: "Mutation";
-  createApplicationWithAI: {
-    __typename?: "ApplicationType";
-    id: string;
-    title: string;
-    companyId: string;
-    description?: string | null;
-    urls: Array<string>;
-    source?: ApplicationSource | null;
-    tags: Array<string>;
-    createdAt: any;
-    company: {
-      __typename?: "CompanyType";
-      id: string;
-      name: string;
-      description?: string | null;
-    };
-    salary: {
-      __typename?: "ApplicationSalary";
-      minCents?: number | null;
-      maxCents?: number | null;
-      currency?: string | null;
-      period?: SalaryPeriod | null;
-    };
-  };
-};
-
-export type GenerateApplicationDraftWithAiQueryVariables = Exact<{
-  input: CreateApplicationWithAiInput;
-}>;
-
-export type GenerateApplicationDraftWithAiQuery = {
-  __typename?: "Query";
-  generateApplicationDraftWithAI: {
-    __typename?: "ApplicationAiDraftType";
-    title: string;
-    company: string;
-    description?: string | null;
-    url?: string | null;
-    salaryMinCents?: number | null;
-    salaryMaxCents?: number | null;
-    salaryCurrency?: string | null;
-    salaryPeriod?: SalaryPeriod | null;
-    tags: Array<string>;
-    noteContents: Array<string>;
   };
 };
 
@@ -1248,130 +1160,6 @@ export function useCreateApplicationMutation(
     CreateApplicationMutationVariables
   >(CreateApplicationDocument, options);
 }
-
-export const CreateApplicationWithAiDocument = gql`
-  mutation CreateApplicationWithAi($input: CreateApplicationWithAIInput!) {
-    createApplicationWithAI(input: $input) {
-      id
-      title
-      companyId
-      company {
-        id
-        name
-        description
-      }
-      description
-      urls
-      source
-      ...ApplicationSalarySelection
-      tags
-      createdAt
-    }
-  }
-  ${ApplicationSalarySelectionFragmentDoc}
-`;
-
-/**
- * __useCreateApplicationWithAiMutation__
- *
- * To run a mutation, you first call `useCreateApplicationWithAiMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useCreateApplicationWithAiMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [createApplicationWithAiMutation, { data, loading, error }] = useCreateApplicationWithAiMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useCreateApplicationWithAiMutation(
-  baseOptions?: ApolloReactHooks.MutationHookOptions<
-    CreateApplicationWithAiMutation,
-    CreateApplicationWithAiMutationVariables
-  >,
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return ApolloReactHooks.useMutation<
-    CreateApplicationWithAiMutation,
-    CreateApplicationWithAiMutationVariables
-  >(CreateApplicationWithAiDocument, options);
-}
-
-export const GenerateApplicationDraftWithAiDocument = gql`
-  query GenerateApplicationDraftWithAi($input: CreateApplicationWithAIInput!) {
-    generateApplicationDraftWithAI(input: $input) {
-      title
-      company
-      description
-      url
-      salaryMinCents
-      salaryMaxCents
-      salaryCurrency
-      salaryPeriod
-      tags
-      noteContents
-    }
-  }
-`;
-
-/**
- * __useGenerateApplicationDraftWithAiQuery__
- *
- * To run a query within a React component, call `useGenerateApplicationDraftWithAiQuery` and pass it any options that fit your needs.
- * When your component renders, `useGenerateApplicationDraftWithAiQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGenerateApplicationDraftWithAiQuery({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useGenerateApplicationDraftWithAiQuery(
-  baseOptions: ApolloReactHooks.QueryHookOptions<
-    GenerateApplicationDraftWithAiQuery,
-    GenerateApplicationDraftWithAiQueryVariables
-  > &
-    (
-      | {
-          variables: GenerateApplicationDraftWithAiQueryVariables;
-          skip?: boolean;
-        }
-      | { skip: boolean }
-    ),
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return ApolloReactHooks.useQuery<
-    GenerateApplicationDraftWithAiQuery,
-    GenerateApplicationDraftWithAiQueryVariables
-  >(GenerateApplicationDraftWithAiDocument, options);
-}
-export function useGenerateApplicationDraftWithAiLazyQuery(
-  baseOptions?: ApolloReactHooks.LazyQueryHookOptions<
-    GenerateApplicationDraftWithAiQuery,
-    GenerateApplicationDraftWithAiQueryVariables
-  >,
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return ApolloReactHooks.useLazyQuery<
-    GenerateApplicationDraftWithAiQuery,
-    GenerateApplicationDraftWithAiQueryVariables
-  >(GenerateApplicationDraftWithAiDocument, options);
-}
-
-export type GenerateApplicationDraftWithAiQueryHookResult = ReturnType<
-  typeof useGenerateApplicationDraftWithAiQuery
->;
-export type GenerateApplicationDraftWithAiLazyQueryHookResult = ReturnType<
-  typeof useGenerateApplicationDraftWithAiLazyQuery
->;
 
 export const GenerateCompanyDescriptionDocument = gql`
   query GenerateCompanyDescription($companyName: String!) {
