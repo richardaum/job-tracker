@@ -1,7 +1,7 @@
 "use client";
 
 import { Button, Card, cn, Skeleton, Stack, Text } from "@job-tracker/ui";
-import { MagnifyingGlassIcon, PlusIcon } from "@phosphor-icons/react";
+import { PlusIcon } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -10,6 +10,7 @@ import { ApplicationCard } from "@/modules/applications/list/components/Applicat
 import { ApplicationQuickEditModal } from "@/modules/applications/list/components/ApplicationQuickEditModal";
 import { QuickFilters } from "@/modules/applications/list/components/QuickFilters";
 import { useApplicationsListViewModel } from "@/modules/applications/list/hooks/useApplicationsListViewModel";
+import { SearchInput } from "@/modules/applications/shared/components/SearchInput";
 import { useToastQueue } from "@/modules/applications/shared/hooks/useToastQueue";
 
 function ApplicationListCardSkeleton() {
@@ -87,32 +88,7 @@ export default function ApplicationsPage() {
           "flex flex-col gap-3 border-b border-border-subtle p-4  sm:flex-row sm:items-center sm:justify-between sm:px-6",
         )}
       >
-        <div
-          className={cn(
-            "flex w-full items-center gap-2 rounded-md border border-border-subtle bg-bg-surface-hover px-3 py-2 sm:max-w-sm",
-          )}
-        >
-          <MagnifyingGlassIcon
-            size={14}
-            weight="regular"
-            className={cn("shrink-0 text-text-muted")}
-          />
-          <Text
-            as="span"
-            size="sm"
-            color="muted"
-            className={cn("min-w-0 flex-1")}
-          >
-            Search applications...
-          </Text>
-          <span
-            className={cn(
-              "rounded border border-border-subtle px-1.5 py-0.5 text-xs text-text-muted",
-            )}
-          >
-            ⌘/
-          </span>
-        </div>
+        <SearchInput placeholder="Search applications..." shortcutHint="⌘/" />
 
         <div className={cn("w-full sm:w-auto")}>
           <ApplicationQuickEditModal

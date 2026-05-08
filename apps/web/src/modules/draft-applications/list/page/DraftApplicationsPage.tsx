@@ -1,9 +1,9 @@
 "use client";
 
 import { Card, cn, Skeleton, Stack, Text } from "@job-tracker/ui";
-import { MagnifyingGlassIcon } from "@phosphor-icons/react";
 
 import { EmptyState } from "@/components/empty-state";
+import { SearchInput } from "@/modules/applications/shared/components/SearchInput";
 import { useToastQueue } from "@/modules/applications/shared/hooks/useToastQueue";
 import { DraftApplicationCard } from "@/modules/draft-applications/list/components/DraftApplicationCard";
 import { useDraftApplicationsListViewModel } from "@/modules/draft-applications/list/hooks/useDraftApplicationsListViewModel";
@@ -67,32 +67,7 @@ export default function DraftApplicationsPage() {
           "flex flex-col gap-3 border-b border-border-subtle p-4  sm:flex-row sm:items-center sm:justify-between sm:px-6",
         )}
       >
-        <div
-          className={cn(
-            "flex w-full items-center gap-2 rounded-md border border-border-subtle bg-bg-surface-hover px-3 py-2 sm:max-w-sm",
-          )}
-        >
-          <MagnifyingGlassIcon
-            size={14}
-            weight="regular"
-            className={cn("shrink-0 text-text-muted")}
-          />
-          <Text
-            as="span"
-            size="sm"
-            color="muted"
-            className={cn("min-w-0 flex-1")}
-          >
-            Search drafts...
-          </Text>
-          <span
-            className={cn(
-              "rounded border border-border-subtle px-1.5 py-0.5 text-xs text-text-muted",
-            )}
-          >
-            ⌘/
-          </span>
-        </div>
+        <SearchInput placeholder="Search drafts..." shortcutHint="⌘/" />
 
         <div className={cn("w-full sm:w-auto")} />
       </div>

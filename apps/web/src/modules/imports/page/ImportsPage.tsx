@@ -7,7 +7,6 @@ import {
   type ComboboxOption,
   ConfirmDialog,
   Dialog,
-  Heading,
   Stack,
   Text,
 } from "@job-tracker/ui";
@@ -21,6 +20,7 @@ import {
   useCreateImportRunMutation,
   useImportRunsQuery,
 } from "@/gql/hooks";
+import { SearchInput } from "@/modules/applications/shared/components/SearchInput";
 import { HARDCODED_IMPORTERS } from "@/modules/imports/constants/hardcodedImporters";
 import { ImportRunCard } from "@/modules/imports/list/components/ImportRunCard";
 import type { ImportRun } from "@/modules/imports/types/importRun";
@@ -65,6 +65,7 @@ export default function ImportsPage() {
   const [selectedRunId, setSelectedRunId] = useState<string | null>(null);
   const [newRunOpen, setNewRunOpen] = useState(false);
   const [importerComboValue, setImporterComboValue] = useState("");
+  const [query, setQuery] = useState("");
 
   const selectedHardcoded = useMemo(
     () =>
@@ -80,6 +81,25 @@ export default function ImportsPage() {
     () => runs.find((r) => r.id === selectedRunId) ?? null,
     [runs, selectedRunId],
   );
+
+  const normalizedQuery = query.trim().toLowerCase();
+
+  const filteredRuns = useMemo(() => {
+    if (normalizedQuery.length === 0) return runs;
+
+    return runs.filter((run) => {
+      const haystack = [
+        run.importerName,
+        run.importerSource,
+        run.importerId,
+        run.status,
+        run.entryUrl ?? "",
+      ]
+        .join(" ")
+        .toLowerCase();
+      return haystack.includes(normalizedQuery);
+    });
+  }, [normalizedQuery, runs]);
 
   const handleOpenChange = useCallback((open: boolean) => {
     setNewRunOpen(open);
@@ -105,7 +125,7 @@ export default function ImportsPage() {
     setSelectedRunId(null);
   }, [clearImportRuns]);
 
-  const listEmpty = !loadingRuns && runs.length === 0;
+  const listEmpty = !loadingRuns && filteredRuns.length === 0;
 
   return (
     <div className={cn("flex h-full min-h-0 flex-col")}>
@@ -114,9 +134,14 @@ export default function ImportsPage() {
           "flex shrink-0 flex-col gap-3 border-b border-border-subtle p-4  sm:flex-row sm:items-center sm:justify-between sm:px-6",
         )}
       >
-        <Heading as="h1" size="xl">
-          Imports
-        </Heading>
+        <div className={cn("flex w-full flex-col gap-2 sm:max-w-sm")}>
+          <SearchInput
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Search import runs..."
+            ariaLabel="Search import runs"
+          />
+        </div>
         <div className={cn("flex flex-wrap items-center gap-2")}>
           <ConfirmDialog
             title="Clear import runs"
@@ -212,7 +237,7 @@ export default function ImportsPage() {
               />
             ) : (
               <Stack gap="xs">
-                {runs.map((run) => (
+                {filteredRuns.map((run) => (
                   <ImportRunCard
                     key={run.id}
                     run={run}

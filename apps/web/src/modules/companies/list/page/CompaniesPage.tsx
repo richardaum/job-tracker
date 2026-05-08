@@ -1,12 +1,12 @@
 "use client";
 
-import { Card, cn, Input, Skeleton, Stack, Text } from "@job-tracker/ui";
-import { MagnifyingGlassIcon } from "@phosphor-icons/react";
+import { Card, cn, Skeleton, Stack, Text } from "@job-tracker/ui";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 import { EmptyState } from "@/components/empty-state";
 import { useScrollRestoration } from "@/hooks/useScrollRestoration";
+import { SearchInput } from "@/modules/applications/shared/components/SearchInput";
 import { useToastQueue } from "@/modules/applications/shared/hooks/useToastQueue";
 import { normalizeTipTapDocument } from "@/modules/applications/shared/utils/tiptap";
 import { CompanyCard } from "@/modules/companies/list/components/CompanyCard";
@@ -104,29 +104,12 @@ export default function CompaniesPage() {
           "flex flex-col gap-3 border-b border-border-subtle p-4  sm:flex-row sm:items-center sm:justify-between sm:px-6",
         )}
       >
-        <div
-          className={cn(
-            "flex w-full items-center gap-2 rounded-md border border-border-subtle bg-bg-surface-hover px-3 py-2 transition-colors sm:max-w-sm",
-            "focus-within:border-border-brand focus-within:ring-2 focus-within:ring-inset focus-within:ring-border-brand",
-          )}
-        >
-          <MagnifyingGlassIcon
-            size={14}
-            weight="regular"
-            className={cn("shrink-0 text-text-muted")}
-            aria-hidden
-          />
-          <Input
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search companies..."
-            aria-label="Search companies"
-            className={cn(
-              "border-none bg-transparent p-0  shadow-none",
-              "focus-visible:ring-0 focus-visible:border-transparent",
-            )}
-          />
-        </div>
+        <SearchInput
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          placeholder="Search companies..."
+          ariaLabel="Search companies"
+        />
 
         <Text
           size="sm"
