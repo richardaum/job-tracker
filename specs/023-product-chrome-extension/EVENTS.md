@@ -44,7 +44,7 @@ Goal: deliver import-run event streaming to the extension with single-consumer c
   - **Verify:** concurrent claim test proves exactly one winner.
   - **Resync:** validate API response shape for extension ergonomics.
 
-- [ ] **Step 5 - Extension GraphQL operations + client wiring**
+- [x] **Step 5 - Extension GraphQL operations + client wiring**
   - Add extension GraphQL docs for:
     - `importRunEvents` subscription
     - `claimImportRun` mutation

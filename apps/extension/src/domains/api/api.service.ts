@@ -1,30 +1,67 @@
-import { ApolloClient, HttpLink, InMemoryCache } from "@apollo/client/core";
+import {
+  ApolloClient,
+  ApolloLink,
+  HttpLink,
+  InMemoryCache,
+} from "@apollo/client/core";
+import { getMainDefinition } from "@apollo/client/utilities";
 import { createAuthRefreshLink } from "@job-tracker/auth";
 
 import { createExtensionAuthLink } from "@/domains/api/create-extension-auth-link";
 import {
+  createExtensionSSELink,
+  ExtensionSSELink,
+} from "@/domains/api/create-extension-sse-link";
+import {
+  ClaimImportRunDocument,
   CreateDraftApplicationDocument,
   type CreateDraftApplicationInput,
+  ImportRunEventsDocument,
+  type ImportRunEventsSubscription,
+  ImportRunStatus,
+  UpdateImportRunStatusDocument,
 } from "@/gql/graphql";
 
 const GRAPHQL_URL =
   import.meta.env.WXT_PUBLIC_API_GRAPHQL_URL ?? "http://localhost:3101/graphql";
 
+const GRAPHQL_SSE_URL =
+  import.meta.env.WXT_PUBLIC_API_GRAPHQL_SSE_URL ??
+  defaultSseUrlFromGraphqlUrl(GRAPHQL_URL);
+
+export type ImportRunEventHandler = (
+  event: ImportRunEventsSubscription["importRunEvents"],
+) => void;
+
+type SubscriptionHandle = { unsubscribe: () => void };
+
 export class ApiService {
   private readonly client: ApolloClient;
+  private readonly sseLink: ExtensionSSELink;
 
   constructor() {
     const authLink = createExtensionAuthLink(GRAPHQL_URL);
     const authRefreshLink = createAuthRefreshLink(() =>
       getAuthRefreshUrl(GRAPHQL_URL),
     );
+    const httpLink = new HttpLink({ uri: GRAPHQL_URL, credentials: "include" });
+
+    this.sseLink = createExtensionSSELink(GRAPHQL_SSE_URL);
+
+    const transportLink = ApolloLink.split(
+      ({ query }) => {
+        const definition = getMainDefinition(query);
+        return (
+          definition.kind === "OperationDefinition" &&
+          definition.operation === "subscription"
+        );
+      },
+      this.sseLink,
+      ApolloLink.from([authLink, httpLink]),
+    );
 
     this.client = new ApolloClient({
-      link: authRefreshLink.concat(
-        authLink.concat(
-          new HttpLink({ uri: GRAPHQL_URL, credentials: "include" }),
-        ),
-      ),
+      link: ApolloLink.from([authRefreshLink, transportLink]),
       cache: new InMemoryCache(),
     });
   }
@@ -35,6 +72,47 @@ export class ApiService {
       variables: { input },
     });
   }
+
+  async claimImportRun(id: string) {
+    return await this.client.mutate({
+      mutation: ClaimImportRunDocument,
+      variables: { id },
+    });
+  }
+
+  async updateImportRunStatus(id: string, status: ImportRunStatus) {
+    return await this.client.mutate({
+      mutation: UpdateImportRunStatusDocument,
+      variables: { id, status },
+    });
+  }
+
+  subscribeToImportRunEvents(
+    onEvent: ImportRunEventHandler,
+    onError?: (error: unknown) => void,
+  ): SubscriptionHandle {
+    const observable = this.client.subscribe({
+      query: ImportRunEventsDocument,
+    });
+
+    const subscription = observable.subscribe({
+      next: ({ data }) => {
+        if (data?.importRunEvents) {
+          onEvent(data.importRunEvents);
+        }
+      },
+      error: (error) => {
+        onError?.(error);
+      },
+    });
+
+    return { unsubscribe: () => subscription.unsubscribe() };
+  }
+
+  dispose(): void {
+    this.sseLink.dispose();
+    void this.client.stop();
+  }
 }
 
 function getAuthRefreshUrl(graphqlUrl: string): string {
@@ -43,4 +121,16 @@ function getAuthRefreshUrl(graphqlUrl: string): string {
   url.search = "";
   url.hash = "";
   return url.toString();
+}
+
+function defaultSseUrlFromGraphqlUrl(graphqlUrl: string): string {
+  try {
+    const url = new URL(graphqlUrl);
+    url.pathname = url.pathname.replace(/\/?$/, "") + "/stream";
+    url.search = "";
+    url.hash = "";
+    return url.toString();
+  } catch {
+    return graphqlUrl + "/stream";
+  }
 }

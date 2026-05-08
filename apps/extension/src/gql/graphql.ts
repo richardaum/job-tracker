@@ -174,6 +174,17 @@ export type ExchangeRate = {
   rate: Scalars["Float"]["output"];
 };
 
+export type ImportRunEvent = {
+  __typename?: "ImportRunEvent";
+  occurredAt: Scalars["DateTime"]["output"];
+  run: ImportRunType;
+  type: ImportRunEventType;
+};
+
+export enum ImportRunEventType {
+  ImportRunCreated = "IMPORT_RUN_CREATED",
+}
+
 export enum ImportRunStatus {
   Completed = "COMPLETED",
   Failed = "FAILED",
@@ -194,6 +205,7 @@ export type ImportRunType = {
 
 export type Mutation = {
   __typename?: "Mutation";
+  claimImportRun?: Maybe<ImportRunType>;
   clearImportRuns: Scalars["Boolean"]["output"];
   createApplication: ApplicationType;
   createApplicationNote: NoteType;
@@ -212,8 +224,11 @@ export type Mutation = {
   updateApplicationNote: NoteType;
   updateApplicationStageEvent: ApplicationStageEventType;
   updateCompany: CompanyType;
+  updateDraftApplication: DraftApplicationType;
   updateImportRunStatus: ImportRunType;
 };
+
+export type MutationClaimImportRunArgs = { id: Scalars["ID"]["input"] };
 
 export type MutationCreateApplicationArgs = { input: CreateApplicationInput };
 
@@ -243,7 +258,10 @@ export type MutationDeleteApplicationStageEventArgs = {
 
 export type MutationDeleteCompanyArgs = { id: Scalars["ID"]["input"] };
 
-export type MutationDeleteDraftApplicationArgs = { id: Scalars["ID"]["input"] };
+export type MutationDeleteDraftApplicationArgs = {
+  deleteLinkedApplication?: InputMaybe<Scalars["Boolean"]["input"]>;
+  id: Scalars["ID"]["input"];
+};
 
 export type MutationDeleteImportRunArgs = { id: Scalars["ID"]["input"] };
 
@@ -270,6 +288,11 @@ export type MutationUpdateApplicationStageEventArgs = {
 export type MutationUpdateCompanyArgs = {
   id: Scalars["ID"]["input"];
   input: UpdateCompanyInput;
+};
+
+export type MutationUpdateDraftApplicationArgs = {
+  id: Scalars["ID"]["input"];
+  input: UpdateDraftApplicationInput;
 };
 
 export type MutationUpdateImportRunStatusArgs = {
@@ -352,6 +375,11 @@ export enum SalaryPeriod {
   Year = "YEAR",
 }
 
+export type Subscription = {
+  __typename?: "Subscription";
+  importRunEvents: ImportRunEvent;
+};
+
 export type UpdateApplicationInput = {
   company?: InputMaybe<Scalars["String"]["input"]>;
   companyId?: InputMaybe<Scalars["ID"]["input"]>;
@@ -377,6 +405,8 @@ export type UpdateCompanyInput = {
   name?: InputMaybe<Scalars["String"]["input"]>;
 };
 
+export type UpdateDraftApplicationInput = { title: Scalars["String"]["input"] };
+
 export type UpdateNoteInput = {
   content?: InputMaybe<Scalars["String"]["input"]>;
   expectedRevision: Scalars["Int"]["input"];
@@ -389,6 +419,24 @@ export type UserType = {
   id: Scalars["ID"]["output"];
   name: Scalars["String"]["output"];
   role: Scalars["String"]["output"];
+};
+
+export type ClaimImportRunMutationVariables = Exact<{
+  id: Scalars["ID"]["input"];
+}>;
+
+export type ClaimImportRunMutation = {
+  __typename?: "Mutation";
+  claimImportRun?: {
+    __typename?: "ImportRunType";
+    id: string;
+    importerId: string;
+    importerName: string;
+    entryUrl: string;
+    status: ImportRunStatus;
+    startedAt: any;
+    importerSource: string;
+  } | null;
 };
 
 export type CreateDraftApplicationMutationVariables = Exact<{
@@ -405,6 +453,89 @@ export type CreateDraftApplicationMutation = {
   };
 };
 
+export type ImportRunEventsSubscriptionVariables = Exact<{
+  [key: string]: never;
+}>;
+
+export type ImportRunEventsSubscription = {
+  __typename?: "Subscription";
+  importRunEvents: {
+    __typename?: "ImportRunEvent";
+    type: ImportRunEventType;
+    occurredAt: any;
+    run: {
+      __typename?: "ImportRunType";
+      id: string;
+      importerId: string;
+      importerName: string;
+      entryUrl: string;
+      status: ImportRunStatus;
+      startedAt: any;
+      importerSource: string;
+    };
+  };
+};
+
+export const ClaimImportRunDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "ClaimImportRun" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "id" } },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "claimImportRun" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "id" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "id" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                { kind: "Field", name: { kind: "Name", value: "importerId" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "importerName" },
+                },
+                { kind: "Field", name: { kind: "Name", value: "entryUrl" } },
+                { kind: "Field", name: { kind: "Name", value: "status" } },
+                { kind: "Field", name: { kind: "Name", value: "startedAt" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "importerSource" },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  ClaimImportRunMutation,
+  ClaimImportRunMutationVariables
+>;
 export const CreateDraftApplicationDocument = {
   kind: "Document",
   definitions: [
@@ -460,4 +591,67 @@ export const CreateDraftApplicationDocument = {
 } as unknown as DocumentNode<
   CreateDraftApplicationMutation,
   CreateDraftApplicationMutationVariables
+>;
+export const ImportRunEventsDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "subscription",
+      name: { kind: "Name", value: "ImportRunEvents" },
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "importRunEvents" },
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "type" } },
+                { kind: "Field", name: { kind: "Name", value: "occurredAt" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "run" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      { kind: "Field", name: { kind: "Name", value: "id" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "importerId" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "importerName" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "entryUrl" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "status" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "startedAt" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "importerSource" },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  ImportRunEventsSubscription,
+  ImportRunEventsSubscriptionVariables
 >;

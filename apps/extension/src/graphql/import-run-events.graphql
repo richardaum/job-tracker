@@ -1,0 +1,15 @@
+subscription ImportRunEvents {
+  importRunEvents {
+    type
+    occurredAt
+    run {
+      id
+      importerId
+      importerName
+      entryUrl
+      status
+      startedAt
+      importerSource
+    }
+  }
+}

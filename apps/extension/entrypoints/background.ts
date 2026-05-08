@@ -3,6 +3,7 @@ import { defineBackground } from "wxt/utils/define-background";
 import { ApiService } from "@/domains/api/api.service";
 import { ContextMenuService } from "@/domains/context-menu/context-menu.service";
 import { ImportApplicationService } from "@/domains/import-application/import-application.service";
+import { ImportRunEventsService } from "@/domains/imports/import-run-events.service";
 import { JobDetailsMessagingService } from "@/domains/job-details/job-details-messaging.service";
 import { JobsListMessagingService } from "@/domains/jobs-list/jobs-list-messaging.service";
 import { LogService } from "@/domains/log/log.service";
@@ -42,15 +43,28 @@ export default defineBackground(() => {
     logService,
   );
 
+  const apiService = new ApiService();
+
   const importApplicationService = new ImportApplicationService(
     messagingService,
     new WxtTabService(),
-    new ApiService(),
+    apiService,
   );
+
+  const importRunEventsService = new ImportRunEventsService(
+    apiService,
+    logService,
+  );
+  importRunEventsService.start();
 
   const contextMenuService = new ContextMenuService(importApplicationService);
   void contextMenuService.setup();
   contextMenuService.bindListeners();
+
+  chrome.runtime.onSuspend.addListener(() => {
+    importRunEventsService.stop();
+    apiService.dispose();
+  });
 
   chrome.runtime.onInstalled.addListener((details) => {
     console.info(
