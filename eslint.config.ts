@@ -9,6 +9,7 @@ import betterTailwindCss from "eslint-plugin-better-tailwindcss";
 import react from "eslint-plugin-react";
 import reactCompiler from "eslint-plugin-react-compiler";
 import reactHooks from "eslint-plugin-react-hooks";
+import reactRefresh from "eslint-plugin-react-refresh";
 import simpleImportSort from "eslint-plugin-simple-import-sort";
 import testingLibrary from "eslint-plugin-testing-library";
 import globals from "globals";
@@ -218,11 +219,32 @@ export default defineConfig(
   },
   {
     files: ["apps/web/**/*.{js,jsx,ts,tsx,mjs,cjs}"],
-    plugins: { "@next/next": nextPlugin as Record<string, unknown> },
+    plugins: {
+      "@next/next": nextPlugin as Record<string, unknown>,
+      "react-refresh": reactRefresh as Record<string, unknown>,
+    },
     rules: {
       ...nextPlugin.configs.recommended.rules,
       ...nextPlugin.configs["core-web-vitals"].rules,
       "@next/next/no-html-link-for-pages": "off",
+      "react-refresh/only-export-components": [
+        "error",
+        {
+          allowExportNames: [
+            "metadata",
+            "generateMetadata",
+            "revalidate",
+            "dynamic",
+            "dynamicParams",
+            "fetchCache",
+            "runtime",
+            "preferredRegion",
+            "maxDuration",
+            "viewport",
+            "generateViewport",
+          ],
+        },
+      ],
     },
   },
   {
