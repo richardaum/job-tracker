@@ -63,9 +63,10 @@ Goal: deliver import-run event streaming to the extension with single-consumer c
   - **Verify:** local run with two extension instances shows one claimant executes.
   - **Resync:** review status transitions and failure handling.
 
-- [ ] **Step 7 - Recovery behavior (minimal viable)**
+- [x] **Step 7 - Recovery behavior (minimal viable)**
   - On extension startup, query outstanding `RUNNING` runs and attempt claim.
-  - Keep lease/heartbeat/stale-run recovery out of scope for now.
+  - Keep lease/heartbeat recovery out of scope for now.
+  - API safety net: stale `IN_PROGRESS` runs are automatically reset to `RUNNING` on API startup, and stale `IN_PROGRESS` can be reclaimed by `claimImportRun`.
   - **Verify:** startup recovery picks available runs once.
   - **Resync:** decide if stale `IN_PROGRESS` policy is needed next.
 

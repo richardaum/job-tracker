@@ -6,7 +6,9 @@ import {
   BadRequestException,
   Inject,
   Injectable,
+  Logger,
   NotFoundException,
+  OnModuleInit,
 } from "@nestjs/common";
 
 import { ImportRunEvent } from "./import-run-event.type";
@@ -46,12 +48,26 @@ function extensionMayTransitionStatus(
 }
 
 @Injectable()
-export class ImportsService {
+export class ImportsService implements OnModuleInit {
+  private static readonly STALE_IN_PROGRESS_TIMEOUT_MS = 10 * 60 * 1000;
+  private readonly logger = new Logger(ImportsService.name);
+
   constructor(
     private readonly repo: ImportsRepository,
     @Inject(IMPORTS_EVENTS_PUBLISHER)
     private readonly eventsPublisher: ImportsEventsPublisher,
   ) {}
+
+  async onModuleInit(): Promise<void> {
+    const recovered = await this.repo.resetStaleInProgressRuns(
+      this.getStaleCutoff(new Date()),
+    );
+    if (recovered > 0) {
+      this.logger.warn(
+        `Recovered ${recovered} stale import run(s) back to running`,
+      );
+    }
+  }
 
   async listImportRuns(userId: string): Promise<ImportRunType[]> {
     const rows = await this.repo.listByUserId(userId);
@@ -133,11 +149,21 @@ export class ImportsService {
     userId: string,
     id: string,
   ): Promise<ImportRunType | null> {
+    const now = new Date();
     const row = await this.repo.findByUserAndId({ id, userId });
     if (!row) {
       throw new NotFoundException(`Import run ${id} not found`);
     }
-    if (row.status !== ImportRunStatusEnum.RUNNING) {
+    if (
+      row.status === ImportRunStatusEnum.IN_PROGRESS &&
+      this.isStaleInProgress(row.startedAt, now)
+    ) {
+      await this.repo.updateStatus({
+        id,
+        userId,
+        status: ImportRunStatusEnum.RUNNING,
+      });
+    } else if (row.status !== ImportRunStatusEnum.RUNNING) {
       return null;
     }
 
@@ -174,5 +200,15 @@ export class ImportsService {
       startedAt: row.startedAt,
       importerSource: "database",
     };
+  }
+
+  private getStaleCutoff(now: Date): Date {
+    return new Date(
+      now.getTime() - ImportsService.STALE_IN_PROGRESS_TIMEOUT_MS,
+    );
+  }
+
+  private isStaleInProgress(startedAt: Date, now: Date): boolean {
+    return startedAt.getTime() < this.getStaleCutoff(now).getTime();
   }
 }

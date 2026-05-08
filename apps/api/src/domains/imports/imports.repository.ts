@@ -70,4 +70,16 @@ export class ImportsRepository {
     );
     return (result.affected ?? 0) > 0;
   }
+
+  async resetStaleInProgressRuns(cutoff: Date): Promise<number> {
+    const result = await this.runsRepo
+      .createQueryBuilder()
+      .update(ImportRunEntity)
+      .set({ status: ImportRunStatusEnum.RUNNING })
+      .where("status = :status", { status: ImportRunStatusEnum.IN_PROGRESS })
+      .andWhere("started_at < :cutoff", { cutoff: cutoff.toISOString() })
+      .execute();
+
+    return result.affected ?? 0;
+  }
 }

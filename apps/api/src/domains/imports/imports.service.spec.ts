@@ -16,6 +16,7 @@ describe("ImportsService", () => {
     | "deleteAllByUserId"
     | "findByUserAndId"
     | "updateStatus"
+    | "resetStaleInProgressRuns"
   > = {
     listByUserId: vi.fn(),
     create: vi.fn(),
@@ -23,6 +24,7 @@ describe("ImportsService", () => {
     deleteAllByUserId: vi.fn(),
     findByUserAndId: vi.fn(),
     updateStatus: vi.fn(),
+    resetStaleInProgressRuns: vi.fn(),
   };
 
   const eventsPublisher: ImportsEventsPublisher = {
@@ -191,6 +193,55 @@ describe("ImportsService", () => {
       ),
     ).rejects.toThrow(BadRequestException);
     expect(repo.updateStatus).not.toHaveBeenCalled();
+  });
+
+  it("onModuleInit recovers stale in-progress runs", async () => {
+    vi.mocked(repo.resetStaleInProgressRuns).mockResolvedValue(2);
+
+    await expect(service.onModuleInit()).resolves.toBeUndefined();
+
+    expect(repo.resetStaleInProgressRuns).toHaveBeenCalledOnce();
+    expect(repo.resetStaleInProgressRuns).toHaveBeenCalledWith(
+      expect.any(Date),
+    );
+  });
+
+  it("claimImportRun reclaims stale in-progress run", async () => {
+    const staleStartedAt = new Date(Date.now() - 11 * 60 * 1000);
+    vi.mocked(repo.findByUserAndId)
+      .mockResolvedValueOnce({
+        id: "run-1",
+        userId: "user-1",
+        importerId: "remoteyeah",
+        importerName: "RemoteYeah",
+        entryUrl: "https://remoteyeah.com/board",
+        status: ImportRunStatusEnum.IN_PROGRESS,
+        startedAt: staleStartedAt,
+      } as ImportRunEntity)
+      .mockResolvedValueOnce({
+        id: "run-1",
+        userId: "user-1",
+        importerId: "remoteyeah",
+        importerName: "RemoteYeah",
+        entryUrl: "https://remoteyeah.com/board",
+        status: ImportRunStatusEnum.IN_PROGRESS,
+        startedAt: staleStartedAt,
+      } as ImportRunEntity);
+    vi.mocked(repo.updateStatus).mockResolvedValue(true);
+
+    const out = await service.claimImportRun("user-1", "run-1");
+
+    expect(out?.status).toBe(ImportRunStatusEnum.IN_PROGRESS);
+    expect(repo.updateStatus).toHaveBeenNthCalledWith(1, {
+      id: "run-1",
+      userId: "user-1",
+      status: ImportRunStatusEnum.RUNNING,
+    });
+    expect(repo.updateStatus).toHaveBeenNthCalledWith(2, {
+      id: "run-1",
+      userId: "user-1",
+      status: ImportRunStatusEnum.IN_PROGRESS,
+    });
   });
 
   it("importRunEvents yields only events from the current user", async () => {
