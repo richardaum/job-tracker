@@ -36,3 +36,25 @@ mutation CreateApplicationWithAiV2($draftId: ID!) {
     conversionError
   }
 }
+
+mutation CreateDraftApplication($input: CreateDraftApplicationInput!) {
+  createDraftApplication(input: $input) {
+    id
+    applicationId
+    url
+    title
+    conversionStatus
+    conversionError
+  }
+}
+
+mutation UpdateDraftApplication($id: ID!, $input: UpdateDraftApplicationInput!) {
+  updateDraftApplication(id: $id, input: $input) {
+    id
+    applicationId
+    url
+    title
+    conversionStatus
+    conversionError
+  }
+}

@@ -9,6 +9,7 @@ import { Args, ID, Mutation, Query, Resolver } from "@nestjs/graphql";
 import { CreateDraftApplicationInput } from "./create-draft-application.input";
 import { DraftApplicationType } from "./draft-application.type";
 import { DraftApplicationsService } from "./draft-applications.service";
+import { UpdateDraftApplicationInput } from "./update-draft-application.input";
 
 @Resolver(() => DraftApplicationType)
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -46,5 +47,14 @@ export class DraftApplicationsResolver {
   ): Promise<DeleteMutationPayloadType> {
     await this.service.delete(id);
     return { success: true, deletedId: id };
+  }
+
+  @Mutation(() => DraftApplicationType)
+  updateDraftApplication(
+    @Args("id", { type: () => ID }) id: string,
+    @Args("input") input: UpdateDraftApplicationInput,
+    @CurrentUser() _user: { userId: string },
+  ): Promise<DraftApplicationType> {
+    return this.service.update(id, { title: input.title });
   }
 }

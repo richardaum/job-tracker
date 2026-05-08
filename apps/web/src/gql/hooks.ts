@@ -214,6 +214,7 @@ export type Mutation = {
   updateApplicationNote: NoteType;
   updateApplicationStageEvent: ApplicationStageEventType;
   updateCompany: CompanyType;
+  updateDraftApplication: DraftApplicationType;
   updateImportRunStatus: ImportRunType;
 };
 
@@ -272,6 +273,11 @@ export type MutationUpdateApplicationStageEventArgs = {
 export type MutationUpdateCompanyArgs = {
   id: Scalars["ID"]["input"];
   input: UpdateCompanyInput;
+};
+
+export type MutationUpdateDraftApplicationArgs = {
+  id: Scalars["ID"]["input"];
+  input: UpdateDraftApplicationInput;
 };
 
 export type MutationUpdateImportRunStatusArgs = {
@@ -378,6 +384,8 @@ export type UpdateCompanyInput = {
   description?: InputMaybe<Scalars["String"]["input"]>;
   name?: InputMaybe<Scalars["String"]["input"]>;
 };
+
+export type UpdateDraftApplicationInput = { title: Scalars["String"]["input"] };
 
 export type UpdateNoteInput = {
   content?: InputMaybe<Scalars["String"]["input"]>;
@@ -862,6 +870,41 @@ export type CreateApplicationWithAiV2Mutation = {
   createApplicationWithAIV2: {
     __typename?: "DraftApplicationType";
     id: string;
+    title: string;
+    conversionStatus: DraftApplicationConversionStatus;
+    conversionError?: string | null;
+  };
+};
+
+export type CreateDraftApplicationMutationVariables = Exact<{
+  input: CreateDraftApplicationInput;
+}>;
+
+export type CreateDraftApplicationMutation = {
+  __typename?: "Mutation";
+  createDraftApplication: {
+    __typename?: "DraftApplicationType";
+    id: string;
+    applicationId?: string | null;
+    url: string;
+    title: string;
+    conversionStatus: DraftApplicationConversionStatus;
+    conversionError?: string | null;
+  };
+};
+
+export type UpdateDraftApplicationMutationVariables = Exact<{
+  id: Scalars["ID"]["input"];
+  input: UpdateDraftApplicationInput;
+}>;
+
+export type UpdateDraftApplicationMutation = {
+  __typename?: "Mutation";
+  updateDraftApplication: {
+    __typename?: "DraftApplicationType";
+    id: string;
+    applicationId?: string | null;
+    url: string;
     title: string;
     conversionStatus: DraftApplicationConversionStatus;
     conversionError?: string | null;
@@ -2387,6 +2430,96 @@ export function useCreateApplicationWithAiV2Mutation(
     CreateApplicationWithAiV2Mutation,
     CreateApplicationWithAiV2MutationVariables
   >(CreateApplicationWithAiV2Document, options);
+}
+
+export const CreateDraftApplicationDocument = gql`
+  mutation CreateDraftApplication($input: CreateDraftApplicationInput!) {
+    createDraftApplication(input: $input) {
+      id
+      applicationId
+      url
+      title
+      conversionStatus
+      conversionError
+    }
+  }
+`;
+
+/**
+ * __useCreateDraftApplicationMutation__
+ *
+ * To run a mutation, you first call `useCreateDraftApplicationMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateDraftApplicationMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createDraftApplicationMutation, { data, loading, error }] = useCreateDraftApplicationMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateDraftApplicationMutation(
+  baseOptions?: ApolloReactHooks.MutationHookOptions<
+    CreateDraftApplicationMutation,
+    CreateDraftApplicationMutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useMutation<
+    CreateDraftApplicationMutation,
+    CreateDraftApplicationMutationVariables
+  >(CreateDraftApplicationDocument, options);
+}
+
+export const UpdateDraftApplicationDocument = gql`
+  mutation UpdateDraftApplication(
+    $id: ID!
+    $input: UpdateDraftApplicationInput!
+  ) {
+    updateDraftApplication(id: $id, input: $input) {
+      id
+      applicationId
+      url
+      title
+      conversionStatus
+      conversionError
+    }
+  }
+`;
+
+/**
+ * __useUpdateDraftApplicationMutation__
+ *
+ * To run a mutation, you first call `useUpdateDraftApplicationMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateDraftApplicationMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateDraftApplicationMutation, { data, loading, error }] = useUpdateDraftApplicationMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateDraftApplicationMutation(
+  baseOptions?: ApolloReactHooks.MutationHookOptions<
+    UpdateDraftApplicationMutation,
+    UpdateDraftApplicationMutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useMutation<
+    UpdateDraftApplicationMutation,
+    UpdateDraftApplicationMutationVariables
+  >(UpdateDraftApplicationDocument, options);
 }
 
 export const ImportRunsDocument = gql`

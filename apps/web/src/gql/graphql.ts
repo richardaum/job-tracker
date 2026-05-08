@@ -212,6 +212,7 @@ export type Mutation = {
   updateApplicationNote: NoteType;
   updateApplicationStageEvent: ApplicationStageEventType;
   updateCompany: CompanyType;
+  updateDraftApplication: DraftApplicationType;
   updateImportRunStatus: ImportRunType;
 };
 
@@ -270,6 +271,11 @@ export type MutationUpdateApplicationStageEventArgs = {
 export type MutationUpdateCompanyArgs = {
   id: Scalars["ID"]["input"];
   input: UpdateCompanyInput;
+};
+
+export type MutationUpdateDraftApplicationArgs = {
+  id: Scalars["ID"]["input"];
+  input: UpdateDraftApplicationInput;
 };
 
 export type MutationUpdateImportRunStatusArgs = {
@@ -376,6 +382,8 @@ export type UpdateCompanyInput = {
   description?: InputMaybe<Scalars["String"]["input"]>;
   name?: InputMaybe<Scalars["String"]["input"]>;
 };
+
+export type UpdateDraftApplicationInput = { title: Scalars["String"]["input"] };
 
 export type UpdateNoteInput = {
   content?: InputMaybe<Scalars["String"]["input"]>;
@@ -850,6 +858,41 @@ export type CreateApplicationWithAiV2Mutation = {
   createApplicationWithAIV2: {
     __typename?: "DraftApplicationType";
     id: string;
+    title: string;
+    conversionStatus: DraftApplicationConversionStatus;
+    conversionError?: string | null;
+  };
+};
+
+export type CreateDraftApplicationMutationVariables = Exact<{
+  input: CreateDraftApplicationInput;
+}>;
+
+export type CreateDraftApplicationMutation = {
+  __typename?: "Mutation";
+  createDraftApplication: {
+    __typename?: "DraftApplicationType";
+    id: string;
+    applicationId?: string | null;
+    url: string;
+    title: string;
+    conversionStatus: DraftApplicationConversionStatus;
+    conversionError?: string | null;
+  };
+};
+
+export type UpdateDraftApplicationMutationVariables = Exact<{
+  id: Scalars["ID"]["input"];
+  input: UpdateDraftApplicationInput;
+}>;
+
+export type UpdateDraftApplicationMutation = {
+  __typename?: "Mutation";
+  updateDraftApplication: {
+    __typename?: "DraftApplicationType";
+    id: string;
+    applicationId?: string | null;
+    url: string;
     title: string;
     conversionStatus: DraftApplicationConversionStatus;
     conversionError?: string | null;
@@ -2748,6 +2791,158 @@ export const CreateApplicationWithAiV2Document = {
 } as unknown as DocumentNode<
   CreateApplicationWithAiV2Mutation,
   CreateApplicationWithAiV2MutationVariables
+>;
+export const CreateDraftApplicationDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "CreateDraftApplication" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "input" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: {
+              kind: "NamedType",
+              name: { kind: "Name", value: "CreateDraftApplicationInput" },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "createDraftApplication" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "input" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "input" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "applicationId" },
+                },
+                { kind: "Field", name: { kind: "Name", value: "url" } },
+                { kind: "Field", name: { kind: "Name", value: "title" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "conversionStatus" },
+                },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "conversionError" },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  CreateDraftApplicationMutation,
+  CreateDraftApplicationMutationVariables
+>;
+export const UpdateDraftApplicationDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "UpdateDraftApplication" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "id" } },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "input" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: {
+              kind: "NamedType",
+              name: { kind: "Name", value: "UpdateDraftApplicationInput" },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "updateDraftApplication" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "id" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "id" },
+                },
+              },
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "input" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "input" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "applicationId" },
+                },
+                { kind: "Field", name: { kind: "Name", value: "url" } },
+                { kind: "Field", name: { kind: "Name", value: "title" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "conversionStatus" },
+                },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "conversionError" },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  UpdateDraftApplicationMutation,
+  UpdateDraftApplicationMutationVariables
 >;
 export const ImportRunsDocument = {
   kind: "Document",

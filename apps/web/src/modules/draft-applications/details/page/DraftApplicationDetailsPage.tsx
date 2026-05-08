@@ -21,16 +21,18 @@ import {
 import { CaretDownIcon, CopyIcon } from "@phosphor-icons/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 
 import {
   useApplicationQuery,
   useCreateApplicationWithAiV2Mutation,
+  useUpdateDraftApplicationMutation,
 } from "@/gql/hooks";
 import { useToastQueue } from "@/modules/applications/shared/hooks/useToastQueue";
 import { ConvertDraftConfirmationDialog } from "@/modules/draft-applications/details/components/ConvertDraftConfirmationDialog";
 import { ConvertDraftConflictDialog } from "@/modules/draft-applications/details/components/ConvertDraftConflictDialog";
 import { DraftCurrentApplicationField } from "@/modules/draft-applications/details/components/DraftCurrentApplicationField";
+import { DraftTitleEditDialog } from "@/modules/draft-applications/details/components/DraftTitleEditDialog";
 import { useDraftApplicationDetailsViewModel } from "@/modules/draft-applications/details/hooks/useDraftApplicationDetailsViewModel";
 import { DeleteDraftApplicationDialog } from "@/modules/draft-applications/list/components/DeleteDraftApplicationDialog";
 
@@ -103,6 +105,7 @@ export default function DraftApplicationDetailsPage({ params }: PageProps) {
   const [convertConflictDialogOpen, setConvertConflictDialogOpen] =
     useState(false);
   const [createApplicationWithAiV2] = useCreateApplicationWithAiV2Mutation();
+  const [updateDraftApplication] = useUpdateDraftApplicationMutation();
   const { enqueueToast } = useToastQueue();
 
   const { draft, error, refetch, showInitialLoading } =
@@ -112,10 +115,6 @@ export default function DraftApplicationDetailsPage({ params }: PageProps) {
     skip: !draft?.applicationId,
     fetchPolicy: "cache-first",
   });
-
-  useEffect(() => {
-    if (!draft) return;
-  }, [draft]);
 
   function showToast(message: string, intent: "success" | "error") {
     enqueueToast({ title: message, intent });
@@ -157,6 +156,24 @@ export default function DraftApplicationDetailsPage({ params }: PageProps) {
     void refetch();
   }
 
+  async function handleSaveTitle(nextValue: string) {
+    if (!draft) return;
+    const [mutationError] = await to(
+      updateDraftApplication({
+        variables: { id: draft.id, input: { title: nextValue } },
+      }),
+    );
+    if (mutationError) {
+      showToast(
+        mutationError.message || "Could not update draft title.",
+        "error",
+      );
+      return;
+    }
+    showToast("Draft title updated.", "success");
+    void refetch();
+  }
+
   function renderOverviewBody() {
     if (!draft) return null;
     const truncatedUrl = truncateText(draft.url, 80);
@@ -191,6 +208,12 @@ export default function DraftApplicationDetailsPage({ params }: PageProps) {
         />
         <FieldWithLabelAction
           label="Page title"
+          actions={
+            <DraftTitleEditDialog
+              value={draft.title}
+              onSave={handleSaveTitle}
+            />
+          }
           content={
             <Text size="sm" className={cn("wrap-break-word")}>
               {draft.title.trim() || "Untitled page"}
@@ -271,7 +294,7 @@ export default function DraftApplicationDetailsPage({ params }: PageProps) {
                     trigger={
                       <Button
                         intent="secondary"
-                        size="sm"
+                        size="md"
                         rightIcon={
                           <CaretDownIcon
                             size={12}

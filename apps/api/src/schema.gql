@@ -179,6 +179,7 @@ type Mutation {
   deleteCompany(id: ID!): DeleteMutationPayloadType!
   createDraftApplication(input: CreateDraftApplicationInput!): DraftApplicationType!
   deleteDraftApplication(id: ID!): DeleteMutationPayloadType!
+  updateDraftApplication(id: ID!, input: UpdateDraftApplicationInput!): DraftApplicationType!
   createImportRun(input: CreateImportRunInput!): ImportRunType!
   deleteImportRun(id: ID!): DeleteMutationPayloadType!
   clearImportRuns: Boolean!
@@ -239,6 +240,10 @@ input CreateDraftApplicationInput {
   url: String!
   title: String!
   htmlContent: String!
+}
+
+input UpdateDraftApplicationInput {
+  title: String!
 }
 
 input CreateImportRunInput {
