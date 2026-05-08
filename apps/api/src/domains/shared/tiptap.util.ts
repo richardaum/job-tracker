@@ -1,10 +1,13 @@
+import { captureSync } from "@job-tracker/async";
+
 export function isTipTapDocumentString(input: string): boolean {
-  try {
-    const parsed = JSON.parse(input) as { type?: unknown; content?: unknown };
-    return parsed.type === "doc" && Array.isArray(parsed.content);
-  } catch {
+  const [err, parsed] = captureSync(
+    () => JSON.parse(input) as { type?: unknown; content?: unknown },
+  );
+  if (err) {
     return false;
   }
+  return parsed.type === "doc" && Array.isArray(parsed.content);
 }
 
 function collectTipTapInlineText(nodes: unknown[] | undefined): string[] {

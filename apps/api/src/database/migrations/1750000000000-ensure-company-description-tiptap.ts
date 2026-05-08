@@ -1,3 +1,4 @@
+import { isTipTapDocumentString } from "@api/domains/shared/tiptap.util";
 import type { MigrationInterface, QueryRunner } from "typeorm";
 
 /**
@@ -15,7 +16,7 @@ export class EnsureCompanyDescriptionTiptap1750000000000 implements MigrationInt
     for (const company of companies) {
       const { id, description } = company;
 
-      if (!this.isTipTapDocumentString(description)) {
+      if (!isTipTapDocumentString(description)) {
         const tiptapDoc = this.plainTextToTipTap(description);
         await queryRunner.query(
           `UPDATE "companies" SET description = $1 WHERE id = $2`,
@@ -28,15 +29,6 @@ export class EnsureCompanyDescriptionTiptap1750000000000 implements MigrationInt
   public async down(): Promise<void> {
     // Migration is one-way as converting TipTap back to plain text is lossy
     // and not strictly required for a "down" operation in this context.
-  }
-
-  private isTipTapDocumentString(input: string): boolean {
-    try {
-      const parsed = JSON.parse(input) as { type?: unknown; content?: unknown };
-      return parsed.type === "doc" && Array.isArray(parsed.content);
-    } catch {
-      return false;
-    }
   }
 
   private plainTextToTipTap(input: string): string {

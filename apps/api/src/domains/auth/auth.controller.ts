@@ -2,6 +2,7 @@ import { getSafeReturnTo } from "@api/domains/auth/auth-return-to.util";
 import { GoogleAuthGuard } from "@api/domains/auth/google-auth.guard";
 import type { User } from "@api/domains/users/users.schema";
 import { WEB_URL } from "@api/env/server";
+import { captureSync } from "@job-tracker/async";
 import {
   Controller,
   Get,
@@ -72,7 +73,7 @@ export class AuthController {
       throw new UnauthorizedException();
     }
 
-    try {
+    const [refreshErr] = captureSync(() => {
       const { userId } = this.authService.verifyRefreshToken(refreshToken);
       const accessToken = this.authService.generateAccessToken({ id: userId });
 
@@ -81,7 +82,8 @@ export class AuthController {
         maxAge: 15 * 60 * 1000,
       });
       res.json({ ok: true });
-    } catch {
+    });
+    if (refreshErr) {
       throw new UnauthorizedException();
     }
   }
