@@ -7,6 +7,8 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { ImportsRepository } from "./imports.repository";
 import { ImportsResolver } from "./imports.resolver";
 import { ImportsService } from "./imports.service";
+import { IMPORTS_EVENTS_PUBLISHER } from "./imports-events.publisher";
+import { InMemoryImportsEventsPublisher } from "./in-memory-imports-events.publisher";
 
 @Module({
   imports: [
@@ -14,7 +16,16 @@ import { ImportsService } from "./imports.service";
     TypeOrmModule.forFeature([ImportRunEntity]),
     AuthModule,
   ],
-  providers: [ImportsRepository, ImportsService, ImportsResolver],
+  providers: [
+    ImportsRepository,
+    ImportsService,
+    ImportsResolver,
+    InMemoryImportsEventsPublisher,
+    {
+      provide: IMPORTS_EVENTS_PUBLISHER,
+      useExisting: InMemoryImportsEventsPublisher,
+    },
+  ],
   exports: [ImportsService],
 })
 export class ImportsModule {}

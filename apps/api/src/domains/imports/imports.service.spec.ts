@@ -1,7 +1,9 @@
 import { ImportRunEntity } from "@api/database/entities/import-run.entity";
+import { ImportRunEventTypeEnum } from "@api/domains/imports/import-run-event-type.enum";
 import { ImportRunStatusEnum } from "@api/domains/imports/import-run-status.enum";
 import { ImportsRepository } from "@api/domains/imports/imports.repository";
 import { ImportsService } from "@api/domains/imports/imports.service";
+import { ImportsEventsPublisher } from "@api/domains/imports/imports-events.publisher";
 import { BadRequestException, NotFoundException } from "@nestjs/common";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -23,7 +25,19 @@ describe("ImportsService", () => {
     updateStatus: vi.fn(),
   };
 
-  const service = new ImportsService(repo as ImportsRepository);
+  const eventsPublisher: ImportsEventsPublisher = {
+    publish: vi.fn(),
+    subscribe: vi.fn(() => ({
+      [Symbol.asyncIterator]: (): AsyncIterator<never> => ({
+        next: async () => ({ value: undefined, done: true }),
+      }),
+    })),
+  };
+
+  const service = new ImportsService(
+    repo as ImportsRepository,
+    eventsPublisher,
+  );
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -56,6 +70,18 @@ describe("ImportsService", () => {
     );
     expect(result.entryUrl).toContain("remoteyeah.com");
     expect(result.importerSource).toBe("database");
+    expect(eventsPublisher.publish).toHaveBeenCalledWith(
+      expect.objectContaining({
+        userId: "user-1",
+        payload: expect.objectContaining({
+          type: ImportRunEventTypeEnum.IMPORT_RUN_CREATED,
+          run: expect.objectContaining({
+            id: "run-1",
+            importerId: "remoteyeah",
+          }),
+        }),
+      }),
+    );
   });
 
   it("createImportRun rejects unknown importer", async () => {

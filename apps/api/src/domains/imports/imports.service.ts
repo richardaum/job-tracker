@@ -4,12 +4,18 @@ import { ImportRunStatusEnum } from "@api/domains/imports/import-run-status.enum
 import { resolveImporter } from "@api/domains/imports/importers.registry";
 import {
   BadRequestException,
+  Inject,
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
 
 import { ImportRunEvent } from "./import-run-event.type";
+import { ImportRunEventTypeEnum } from "./import-run-event-type.enum";
 import { ImportsRepository } from "./imports.repository";
+import {
+  IMPORTS_EVENTS_PUBLISHER,
+  ImportsEventsPublisher,
+} from "./imports-events.publisher";
 
 function extensionMayTransitionStatus(
   from: ImportRunStatusEnum,
@@ -41,7 +47,11 @@ function extensionMayTransitionStatus(
 
 @Injectable()
 export class ImportsService {
-  constructor(private readonly repo: ImportsRepository) {}
+  constructor(
+    private readonly repo: ImportsRepository,
+    @Inject(IMPORTS_EVENTS_PUBLISHER)
+    private readonly eventsPublisher: ImportsEventsPublisher,
+  ) {}
 
   async listImportRuns(userId: string): Promise<ImportRunType[]> {
     const rows = await this.repo.listByUserId(userId);
@@ -68,7 +78,17 @@ export class ImportsService {
       startedAt,
     });
 
-    return this.toGql(row);
+    const run = this.toGql(row);
+    await this.eventsPublisher.publish({
+      userId,
+      payload: {
+        type: ImportRunEventTypeEnum.IMPORT_RUN_CREATED,
+        occurredAt: new Date(),
+        run,
+      },
+    });
+
+    return run;
   }
 
   async deleteImportRun(userId: string, id: string): Promise<void> {
@@ -135,16 +155,13 @@ export class ImportsService {
     return this.toGql(next);
   }
 
-  importRunEvents(_userId: string): AsyncIterable<ImportRunEvent> {
-    return {
-      [Symbol.asyncIterator](): AsyncIterator<ImportRunEvent> {
-        return {
-          async next(): Promise<IteratorResult<ImportRunEvent>> {
-            return new Promise<IteratorResult<ImportRunEvent>>(() => {});
-          },
-        };
-      },
-    };
+  async *importRunEvents(userId: string): AsyncIterable<ImportRunEvent> {
+    for await (const event of this.eventsPublisher.subscribe()) {
+      if (event.userId !== userId) {
+        continue;
+      }
+      yield event.payload;
+    }
   }
 
   private toGql(row: ImportRunEntity): ImportRunType {

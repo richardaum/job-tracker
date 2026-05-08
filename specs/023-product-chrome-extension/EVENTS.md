@@ -22,12 +22,12 @@ Goal: deliver import-run event streaming to the extension with single-consumer c
   - **Verify:** schema compiles and generated `apps/api/src/schema.gql` contains new types/fields.
   - **Resync:** confirm naming before implementation.
 
-- [ ] **Step 2 - API event publisher abstraction (minimal)**
+- [x] **Step 2 - API event publisher abstraction (minimal)**
   - Add a tiny imports-domain publisher interface (`publish(event)`).
   - Provide one concrete implementation backed by in-memory pub/sub.
   - Update imports service to publish via abstraction (not direct pub/sub calls).
   - **Verify:** imports service tests pass and publish path is covered.
-  - **Resync:** decide if event payload needs additional metadata.
+  - **Resync:** include `userId` in the internal domain event envelope for subscription filtering; keep GraphQL payload unchanged.
 
 - [ ] **Step 3 - API subscription resolver**
   - Implement `importRunEvents` subscription resolver.
