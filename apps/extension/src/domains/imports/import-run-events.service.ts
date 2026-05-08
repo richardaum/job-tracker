@@ -1,9 +1,12 @@
+import { to } from "@job-tracker/async";
+
 import type {
   ApiService,
   ImportRunEventHandler,
 } from "@/domains/api/api.service";
-import type { ImportApplicationService } from "@/domains/import-application/import-application.service";
+import { planForImportRun } from "@/domains/imports/import-run-plan";
 import type { LogService } from "@/domains/log/log.service";
+import type { PlanService } from "@/domains/plan/services/plan.service";
 import {
   type ImportRunEventsSubscription,
   ImportRunEventType,
@@ -20,7 +23,7 @@ export class ImportRunEventsService {
   constructor(
     private readonly apiService: ApiService,
     private readonly logService: LogService,
-    private readonly importApplicationService: ImportApplicationService,
+    private readonly planService: PlanService,
   ) {}
 
   on(handler: ImportRunEventHandler): () => void {
@@ -56,22 +59,23 @@ export class ImportRunEventsService {
   }
 
   private async recoverOutstandingRuns(): Promise<void> {
-    try {
-      const response = await this.apiService.importRuns();
-      const runningRuns =
-        response.data?.importRuns?.filter(
-          (run) => run.status === ImportRunStatus.Running,
-        ) ?? [];
+    const [err, response] = await to(this.apiService.importRuns());
+    if (err) {
+      this.logService.debug("import-run-events:recovery-error", { error: err });
+      return;
+    }
 
-      for (const run of runningRuns) {
-        await this.handleImportRunCreated({
-          type: ImportRunEventType.ImportRunCreated,
-          occurredAt: new Date().toISOString(),
-          run,
-        });
-      }
-    } catch (error) {
-      this.logService.debug("import-run-events:recovery-error", { error });
+    const runningRuns =
+      response.data?.importRuns?.filter(
+        (run) => run.status === ImportRunStatus.Running,
+      ) ?? [];
+
+    for (const run of runningRuns) {
+      await this.handleImportRunCreated({
+        type: ImportRunEventType.ImportRunCreated,
+        occurredAt: new Date().toISOString(),
+        run,
+      });
     }
   }
 
@@ -100,20 +104,30 @@ export class ImportRunEventsService {
       runId,
       ImportRunStatus.InProgress,
     );
-    try {
-      await this.importApplicationService.execute();
-      await this.apiService.updateImportRunStatus(
-        runId,
-        ImportRunStatus.Completed,
-      );
-    } catch (error) {
+
+    const plan = planForImportRun({
+      importerId: event.run.importerId,
+      entryUrl: event.run.entryUrl,
+    });
+
+    const [runErr] = await to(
+      (async () => {
+        await this.planService.execute(plan);
+        await this.apiService.updateImportRunStatus(
+          runId,
+          ImportRunStatus.Completed,
+        );
+      })(),
+    );
+
+    if (runErr) {
       await this.apiService.updateImportRunStatus(
         runId,
         ImportRunStatus.Failed,
       );
       this.logService.debug("import-run-events:execution-failed", {
         runId,
-        error,
+        error: runErr,
       });
     }
   }

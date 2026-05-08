@@ -1,3 +1,5 @@
+import { to } from "@job-tracker/async";
+
 import { ApiService } from "@/domains/api/api.service";
 import { MessagingService } from "@/domains/message/messaging.service";
 import { WxtTabService } from "@/domains/tab/wxt-tab.service";
@@ -22,39 +24,47 @@ export class ImportApplicationService {
       DraftApplicationSnapshot
     >({ to: "content", payload: { kind: "import.application" }, tabId });
 
-    try {
-      const { data } = await this.apiService.createDraftApplication({
+    const [error, result] = await to(
+      this.apiService.createDraftApplication({
         url: snapshot.url,
         title: snapshot.title,
         htmlContent: snapshot.innerHTML,
-      });
+      }),
+    );
 
-      const id = data?.createDraftApplication.id;
-      if (!id) throw new Error("Failed to create draft application");
-
-      await this.tabService.openTab(`${WEB_URL}/draft-applications/${id}`, {
-        focus: true,
-      });
-    } catch (error) {
+    if (error) {
       throw new Error("Failed to create draft application", { cause: error });
     }
+
+    const id = result?.data?.createDraftApplication.id;
+    if (!id) throw new Error("Failed to create draft application");
+
+    await this.tabService.openTab(`${WEB_URL}/draft-applications/${id}`, {
+      focus: true,
+    });
   }
 
   async getImportMenuLabel(): Promise<string> {
-    try {
-      const tabId = await this.tabService.getCurrentTab();
-      const response = await this.messagingService.request<
+    const [tabErr, tabId] = await to(this.tabService.getCurrentTab());
+    if (tabErr) {
+      return CONTEXT_MENU_IMPORT_PAGE_TITLE;
+    }
+
+    const [msgErr, response] = await to(
+      this.messagingService.request<
         "import.application.menu-label",
         { label: string }
       >({
         to: "content",
         payload: { kind: "import.application.menu-label" },
         tabId,
-      });
+      }),
+    );
 
-      return response.label;
-    } catch {
+    if (msgErr) {
       return CONTEXT_MENU_IMPORT_PAGE_TITLE;
     }
+
+    return response.label;
   }
 }

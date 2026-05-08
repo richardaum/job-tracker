@@ -1,5 +1,6 @@
 "use client";
 
+import { to } from "@job-tracker/async";
 import {
   Button,
   cn,
@@ -94,8 +95,8 @@ export function ApplicationTrackingPanel({
 
   async function handleSaveStageUpdate() {
     if (!selectedStageDraft) return;
-    try {
-      await createStageEvent({
+    const [error] = await to(
+      createStageEvent({
         variables: {
           input: {
             applicationId,
@@ -105,14 +106,16 @@ export function ApplicationTrackingPanel({
             reason: reasonDraft.trim() || null,
           },
         },
-      });
-      setScheduledAtDraft(null);
-      setSelectedStageDraft(null);
-      setReasonDraft("");
-      onSuccess("Status update saved.");
-    } catch {
+      }),
+    );
+    if (error) {
       onError("Could not save status update.");
+      return;
     }
+    setScheduledAtDraft(null);
+    setSelectedStageDraft(null);
+    setReasonDraft("");
+    onSuccess("Status update saved.");
   }
 
   const popover = (

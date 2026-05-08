@@ -1,5 +1,6 @@
 "use client";
 
+import { to } from "@job-tracker/async";
 import { Button, cn, Stack } from "@job-tracker/ui";
 import { useState } from "react";
 
@@ -46,17 +47,19 @@ export function DescriptionEditor({
     const nextDescription =
       tipTapToPlainText(description).trim().length > 0 ? description : null;
 
-    try {
-      await updateApplication({
+    const [error] = await to(
+      updateApplication({
         variables: {
           id: applicationId,
           input: { description: nextDescription },
         },
-      });
-      onSuccess();
-    } catch {
+      }),
+    );
+    if (error) {
       onError();
+      return;
     }
+    onSuccess();
   }
 
   return (

@@ -1,5 +1,6 @@
 "use client";
 
+import { to } from "@job-tracker/async";
 import {
   Button,
   cn,
@@ -17,13 +18,13 @@ export function DraftOriginalSection({ sourceUrl }: { sourceUrl: string }) {
   const [copiedUrl, setCopiedUrl] = useState(false);
 
   const copyUrl = useCallback(async () => {
-    try {
-      await navigator.clipboard.writeText(sourceUrl);
-      setCopiedUrl(true);
-      window.setTimeout(() => setCopiedUrl(false), 2000);
-    } catch {
+    const [error] = await to(navigator.clipboard.writeText(sourceUrl));
+    if (error) {
       setCopiedUrl(false);
+      return;
     }
+    setCopiedUrl(true);
+    window.setTimeout(() => setCopiedUrl(false), 2000);
   }, [sourceUrl]);
 
   return (
@@ -59,13 +60,13 @@ export function DraftMetaSection({ draftId }: { draftId: string }) {
   const [copiedId, setCopiedId] = useState(false);
 
   const copyId = useCallback(async () => {
-    try {
-      await navigator.clipboard.writeText(draftId);
-      setCopiedId(true);
-      window.setTimeout(() => setCopiedId(false), 2000);
-    } catch {
+    const [error] = await to(navigator.clipboard.writeText(draftId));
+    if (error) {
       setCopiedId(false);
+      return;
     }
+    setCopiedId(true);
+    window.setTimeout(() => setCopiedId(false), 2000);
   }, [draftId]);
 
   return (

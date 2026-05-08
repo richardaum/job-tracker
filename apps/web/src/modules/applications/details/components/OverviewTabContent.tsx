@@ -1,5 +1,6 @@
 "use client";
 
+import { to } from "@job-tracker/async";
 import {
   cn,
   FieldWithLabelAction,
@@ -54,45 +55,53 @@ export function OverviewTabContent({
   });
 
   async function handleRemoveTag(tag: string) {
-    try {
-      await removeApplicationTag({ variables: { id: application.id, tag } });
-      onSuccess?.("Tag removed.");
-    } catch {
+    const [error] = await to(
+      removeApplicationTag({ variables: { id: application.id, tag } }),
+    );
+    if (error) {
       onError?.("Could not remove tag.");
+      return;
     }
+    onSuccess?.("Tag removed.");
   }
 
   async function handleSaveTitle(nextValue: string) {
-    try {
-      await updateApplication({
+    const [error] = await to(
+      updateApplication({
         variables: { id: application.id, input: { title: nextValue } },
-      });
-      onSuccess?.("Title updated.");
-    } catch {
+      }),
+    );
+    if (error) {
       onError?.("Could not update title.");
+      return;
     }
+    onSuccess?.("Title updated.");
   }
 
   async function handleSaveUrl(nextValue: string[]) {
-    try {
-      await updateApplication({
+    const [error] = await to(
+      updateApplication({
         variables: { id: application.id, input: { urls: nextValue } },
-      });
-      onSuccess?.("Job URLs updated.");
-    } catch {
+      }),
+    );
+    if (error) {
       onError?.("Could not update job URL.");
+      return;
     }
+    onSuccess?.("Job URLs updated.");
   }
 
   async function handleSaveSource(nextValue: ApplicationSource | null) {
-    try {
-      await updateApplication({
+    const [error] = await to(
+      updateApplication({
         variables: { id: application.id, input: { source: nextValue } },
-      });
-      onSuccess?.("Source updated.");
-    } catch {
+      }),
+    );
+    if (error) {
       onError?.("Could not update source.");
+      return;
     }
+    onSuccess?.("Source updated.");
   }
 
   const salary = formatSalary(application.salary);

@@ -8,7 +8,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@apollo/client": "^4.1.7"
+    "@apollo/client": "^4.1.7",
+    "@job-tracker/async": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^5.8.3"

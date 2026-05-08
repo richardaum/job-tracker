@@ -1,5 +1,6 @@
 "use client";
 
+import { to } from "@job-tracker/async";
 import {
   Button,
   cn,
@@ -105,22 +106,32 @@ function ApplicationQuickEditModalForm({
         .filter(Boolean),
     };
 
-    try {
-      if (isEdit && application) {
-        await updateApplication({ variables: { id: application.id, input } });
-        onSuccess?.("Application updated.");
-      } else {
-        const result = await createApplication({ variables: { input } });
-        const createdApplicationId = result.data?.createApplication.id;
-        onSuccess?.("Application created.");
-        if (createdApplicationId) {
-          onCreated?.(createdApplicationId);
-        }
+    if (isEdit && application) {
+      const [error] = await to(
+        updateApplication({ variables: { id: application.id, input } }),
+      );
+      if (error) {
+        onError?.("Something went wrong. Please try again.");
+        return;
       }
+      onSuccess?.("Application updated.");
       onClose();
-    } catch {
-      onError?.("Something went wrong. Please try again.");
+      return;
     }
+
+    const [error, result] = await to(
+      createApplication({ variables: { input } }),
+    );
+    if (error) {
+      onError?.("Something went wrong. Please try again.");
+      return;
+    }
+    const createdApplicationId = result.data?.createApplication.id;
+    onSuccess?.("Application created.");
+    if (createdApplicationId) {
+      onCreated?.(createdApplicationId);
+    }
+    onClose();
   }
 
   const formId = "application-quick-edit-modal-form";

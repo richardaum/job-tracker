@@ -1,5 +1,6 @@
 "use client";
 
+import { to } from "@job-tracker/async";
 import { Checkbox, cn, ConfirmDialog, Text } from "@job-tracker/ui";
 import React, { useState } from "react";
 
@@ -49,15 +50,16 @@ export function DeleteDraftApplicationDialog({
         onOpenChange?.(nextOpen);
       }}
       onConfirm={async () => {
-        try {
-          await deleteDraftApplication({
+        const [err] = await to(
+          deleteDraftApplication({
             variables: { id: draftId, deleteLinkedApplication },
-          });
-          onSuccess?.("Draft was deleted.");
-        } catch (err) {
+          }),
+        );
+        if (err) {
           onError?.("Could not delete the draft. Please try again.");
           throw err;
         }
+        onSuccess?.("Draft was deleted.");
       }}
     >
       {hasLinkedApplication ? (

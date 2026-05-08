@@ -1,5 +1,6 @@
 "use client";
 
+import { to } from "@job-tracker/async";
 import { Card, cn, Skeleton, Stack, Text } from "@job-tracker/ui";
 import { useCallback, useEffect, useState } from "react";
 
@@ -108,18 +109,20 @@ export default function DraftApplicationsPage() {
   }, [handlePasteCapture]);
 
   async function handleConfirmPasteImport(url: string) {
-    try {
-      await createDraftApplication({
+    const [error] = await to(
+      createDraftApplication({
         variables: {
           input: { url, title: titleFromUrl(url), htmlContent: pastedContent },
         },
-      });
-      setImportDialogOpen(false);
-      setPastedContent("");
-      showToast("Draft imported from pasted content.", "success");
-    } catch {
+      }),
+    );
+    if (error) {
       showToast("Could not create draft from pasted content.", "error");
+      return;
     }
+    setImportDialogOpen(false);
+    setPastedContent("");
+    showToast("Draft imported from pasted content.", "success");
   }
 
   return (

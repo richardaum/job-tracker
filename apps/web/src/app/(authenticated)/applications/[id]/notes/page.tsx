@@ -1,3 +1,4 @@
+import { to } from "@job-tracker/async";
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
 
@@ -8,10 +9,19 @@ const GRAPHQL_URL =
   serverEnv.NEXT_PUBLIC_API_GRAPHQL_URL ?? "http://localhost:3101/graphql";
 
 async function getApplicationTitle(id: string) {
-  try {
-    const cookieStore = await cookies();
-    const cookieHeader = cookieStore.toString();
-    const response = await fetch(GRAPHQL_URL, {
+  const [cookieErr, cookieStore] = await to(cookies());
+  if (cookieErr) {
+    return null;
+  }
+
+  const cookieHeader = cookieStore.toString();
+
+  type ApplicationPayload = {
+    data?: { application?: { title?: string | null } | null };
+  };
+
+  const [fetchErr, response] = await to(
+    fetch(GRAPHQL_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -29,19 +39,21 @@ async function getApplicationTitle(id: string) {
         variables: { id },
       }),
       cache: "no-store",
-    });
+    }),
+  );
 
-    if (!response.ok) {
-      return null;
-    }
-
-    const payload = (await response.json()) as {
-      data?: { application?: { title?: string | null } | null };
-    };
-    return payload.data?.application?.title ?? null;
-  } catch {
+  if (fetchErr || !response.ok) {
     return null;
   }
+
+  const [jsonErr, payload] = await to(
+    response.json() as Promise<ApplicationPayload>,
+  );
+  if (jsonErr) {
+    return null;
+  }
+
+  return payload.data?.application?.title ?? null;
 }
 
 export async function generateMetadata({

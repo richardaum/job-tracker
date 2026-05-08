@@ -1,21 +1,20 @@
 import { Observable } from "@apollo/client/core";
 import { CombinedGraphQLErrors } from "@apollo/client/errors";
 import { ErrorLink } from "@apollo/client/link/error";
+import { to } from "@job-tracker/async";
 
 type RefreshUrlProvider = () => string;
 
 let refreshPromise: Promise<boolean> | null = null;
 
 async function refreshAccessToken(refreshUrl: string): Promise<boolean> {
-  try {
-    const response = await fetch(refreshUrl, {
-      method: "POST",
-      credentials: "include",
-    });
-    return response.ok;
-  } catch {
+  const [err, response] = await to(
+    fetch(refreshUrl, { method: "POST", credentials: "include" }),
+  );
+  if (err) {
     return false;
   }
+  return response.ok;
 }
 
 function isUnauthorizedError(error: unknown): boolean {

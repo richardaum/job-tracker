@@ -1,5 +1,6 @@
 "use client";
 
+import { to } from "@job-tracker/async";
 import { ConfirmDialog } from "@job-tracker/ui";
 import React from "react";
 
@@ -48,13 +49,14 @@ export function DeleteApplicationDialog({
       open={open}
       onOpenChange={onOpenChange}
       onConfirm={async () => {
-        try {
-          await deleteApplication({ variables: { id: applicationId } });
-          onSuccess?.(`"${applicationTitle}" was deleted.`);
-        } catch (err) {
+        const [err] = await to(
+          deleteApplication({ variables: { id: applicationId } }),
+        );
+        if (err) {
           onError?.("Could not delete the application. Please try again.");
           throw err;
         }
+        onSuccess?.(`"${applicationTitle}" was deleted.`);
       }}
     />
   );

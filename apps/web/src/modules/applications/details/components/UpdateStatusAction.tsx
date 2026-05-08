@@ -1,5 +1,6 @@
 "use client";
 
+import { to } from "@job-tracker/async";
 import {
   Button,
   cn,
@@ -95,8 +96,8 @@ export function UpdateStatusAction({
   async function handleSaveStatusUpdate() {
     if (!selectedStage) return;
 
-    try {
-      await createStageEvent({
+    const [error] = await to(
+      createStageEvent({
         variables: {
           input: {
             applicationId,
@@ -106,12 +107,14 @@ export function UpdateStatusAction({
             reason: reasonDraft.trim() || null,
           },
         },
-      });
-      handleOpenChange(false);
-      onSuccess?.("Status update saved.");
-    } catch {
+      }),
+    );
+    if (error) {
       onError?.("Could not save status update.");
+      return;
     }
+    handleOpenChange(false);
+    onSuccess?.("Status update saved.");
   }
 
   return (

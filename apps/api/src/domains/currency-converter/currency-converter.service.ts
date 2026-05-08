@@ -1,3 +1,4 @@
+import { to } from "@job-tracker/async";
 import { Injectable, Logger, OnModuleInit } from "@nestjs/common";
 
 import { ExchangeRateCacheService } from "./exchange-rate-cache.service";
@@ -61,24 +62,26 @@ export class CurrencyConverterService implements OnModuleInit {
       return this.filterRates(cached.rates, targets, base);
     }
 
-    let fetchedRates: Record<string, number> | null = null;
-    let fetchError: Error | null = null;
-    try {
-      fetchedRates =
-        (await this.fetchFromPrimary(base)) ??
-        (await this.fetchFromFallback(base));
-      if (!fetchedRates) {
-        throw new Error("Failed to fetch exchange rates from all sources");
-      }
+    const fetchedRates: Record<string, number> | null =
+      (await this.fetchFromPrimary(base)) ??
+      (await this.fetchFromFallback(base));
 
-      await this.cacheService.set(base, fetchedRates, ttlSeconds);
-      return this.filterRates(fetchedRates, targets, base);
-    } catch (error) {
-      fetchError = error instanceof Error ? error : new Error(String(error));
-      this.logger.error(`Failed to fetch rates for ${base}`, error);
+    if (!fetchedRates) {
+      const err = new Error("Failed to fetch exchange rates from all sources");
+      this.logger.error(`Failed to fetch rates for ${base}`, err);
+      throw err;
     }
 
-    throw fetchError ?? new Error("Failed to fetch exchange rates");
+    const [cacheErr] = await to(
+      this.cacheService.set(base, fetchedRates, ttlSeconds),
+    );
+
+    if (cacheErr) {
+      this.logger.error(`Failed to fetch rates for ${base}`, cacheErr);
+      throw cacheErr;
+    }
+
+    return this.filterRates(fetchedRates, targets, base);
   }
 
   async refreshRates(
@@ -97,27 +100,29 @@ export class CurrencyConverterService implements OnModuleInit {
       return null;
     }
 
-    try {
-      const response = await fetch(`${CURRENCY_API_BASE}/latest?from=${base}`);
-      if (!response.ok) return null;
-      const data = (await response.json()) as { rates: Record<string, number> };
-      return data.rates;
-    } catch {
-      return null;
-    }
+    const [fetchErr, response] = await to(
+      fetch(`${CURRENCY_API_BASE}/latest?from=${base}`),
+    );
+    if (fetchErr || !response.ok) return null;
+    const [jsonErr, data] = await to(
+      response.json() as Promise<{ rates: Record<string, number> }>,
+    );
+    if (jsonErr) return null;
+    return data.rates;
   }
 
   private async fetchFromFallback(
     base: string,
   ): Promise<Record<string, number> | null> {
-    try {
-      const response = await fetch(`${FALLBACK_API_BASE}/${base}`);
-      if (!response.ok) return null;
-      const data = (await response.json()) as { rates: Record<string, number> };
-      return data.rates;
-    } catch {
-      return null;
-    }
+    const [fetchErr, response] = await to(
+      fetch(`${FALLBACK_API_BASE}/${base}`),
+    );
+    if (fetchErr || !response.ok) return null;
+    const [jsonErr, data] = await to(
+      response.json() as Promise<{ rates: Record<string, number> }>,
+    );
+    if (jsonErr) return null;
+    return data.rates;
   }
 
   private filterRates(

@@ -2,6 +2,7 @@
 
 import { gql } from "@apollo/client";
 import { useMutation } from "@apollo/client/react";
+import { to } from "@job-tracker/async";
 import {
   Button,
   cn,
@@ -128,8 +129,8 @@ export function HistoryPanel({
   async function handleSaveEdit() {
     if (!editingEventId || !selectedStage) return;
 
-    try {
-      await updateStageEvent({
+    const [error] = await to(
+      updateStageEvent({
         variables: {
           id: editingEventId,
           input: {
@@ -140,27 +141,28 @@ export function HistoryPanel({
             reason: reasonDraft.trim() || null,
           },
         },
-      });
-      closeEditDialog();
-      onSuccess?.("History item updated.");
-    } catch {
+      }),
+    );
+    if (error) {
       onError?.("Could not update history item.");
+      return;
     }
+    closeEditDialog();
+    onSuccess?.("History item updated.");
   }
 
   async function handleDeleteEvent(eventId: string) {
     if (isMutatingStageEvent) return;
 
-    try {
-      await deleteStageEvent({ variables: { id: eventId } });
-      if (editingEventId === eventId) {
-        closeEditDialog();
-      }
-      onSuccess?.("History item removed.");
-    } catch {
+    const [error] = await to(deleteStageEvent({ variables: { id: eventId } }));
+    if (error) {
       onError?.("Could not remove history item.");
       throw new Error("Could not remove history item.");
     }
+    if (editingEventId === eventId) {
+      closeEditDialog();
+    }
+    onSuccess?.("History item removed.");
   }
 
   return (

@@ -15,48 +15,14 @@ import testingLibrary from "eslint-plugin-testing-library";
 import globals from "globals";
 import tseslint from "typescript-eslint";
 
+import jobTrackerEslintPlugin from "./eslint-plugins/job-tracker/index.js";
+
 /** ESLint resolves `better-tailwindcss` `cwd` from process cwd unless we pass an absolute package root. */
 const repoRootDir = dirname(fileURLToPath(import.meta.url));
 
 /** Matches import specifiers that reference a parent path segment (`..`). Disallowed under docs/CONVENTIONS.mdx (Imports); `./` sibling imports remain allowed. */
 const parentRelativeImportSourcePattern =
   "(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$)" as const;
-
-const noForwardRefSyntaxRestrictions = [
-  {
-    selector: "CallExpression[callee.name='forwardRef']",
-    message:
-      "Do not use forwardRef; add ref to your props type and pass it to the DOM. See docs/CONVENTIONS.mdx (TypeScript).",
-  },
-  {
-    selector:
-      "CallExpression[callee.type='MemberExpression'][callee.property.type='Identifier'][callee.property.name='forwardRef']",
-    message:
-      "Do not use forwardRef; add ref to your props type and pass it to the DOM. See docs/CONVENTIONS.mdx (TypeScript).",
-  },
-] as const;
-
-const classNameMustUseCnRestrictions = [
-  {
-    selector: "JSXAttribute[name.name='className'] > Literal",
-    message: "Use className={cn(...)} instead of string literals.",
-  },
-  {
-    selector:
-      "JSXAttribute[name.name='className'] JSXExpressionContainer > Literal",
-    message: "Use className={cn(...)} instead of string literals.",
-  },
-  {
-    selector:
-      "JSXAttribute[name.name='className'] JSXExpressionContainer > TemplateLiteral",
-    message: "Use className={cn(...)} instead of template literals.",
-  },
-  {
-    selector:
-      "JSXAttribute[name.name='className'] JSXExpressionContainer > ArrayExpression",
-    message: "Use className={cn(...)} instead of array join patterns.",
-  },
-] as const;
 
 export default defineConfig(
   {
@@ -95,7 +61,7 @@ export default defineConfig(
   },
   {
     files: ["**/*.{js,mjs,cjs,ts,tsx}"],
-    languageOptions: { globals: { ...globals.node } },
+    languageOptions: { globals: globals.node },
   },
   {
     files: ["**/*.{js,mjs,cjs,ts,tsx}"],
@@ -177,8 +143,36 @@ export default defineConfig(
       ],
       "no-restricted-syntax": [
         "error",
-        ...noForwardRefSyntaxRestrictions,
-        ...classNameMustUseCnRestrictions,
+        {
+          selector: "CallExpression[callee.name='forwardRef']",
+          message:
+            "Do not use forwardRef; add ref to your props type and pass it to the DOM. See docs/CONVENTIONS.mdx (TypeScript).",
+        },
+        {
+          selector:
+            "CallExpression[callee.type='MemberExpression'][callee.property.type='Identifier'][callee.property.name='forwardRef']",
+          message:
+            "Do not use forwardRef; add ref to your props type and pass it to the DOM. See docs/CONVENTIONS.mdx (TypeScript).",
+        },
+        {
+          selector: "JSXAttribute[name.name='className'] > Literal",
+          message: "Use className={cn(...)} instead of string literals.",
+        },
+        {
+          selector:
+            "JSXAttribute[name.name='className'] JSXExpressionContainer > Literal",
+          message: "Use className={cn(...)} instead of string literals.",
+        },
+        {
+          selector:
+            "JSXAttribute[name.name='className'] JSXExpressionContainer > TemplateLiteral",
+          message: "Use className={cn(...)} instead of template literals.",
+        },
+        {
+          selector:
+            "JSXAttribute[name.name='className'] JSXExpressionContainer > ArrayExpression",
+          message: "Use className={cn(...)} instead of array join patterns.",
+        },
       ],
     },
     settings: { react: { version: "detect" } },
@@ -286,6 +280,24 @@ export default defineConfig(
       "packages/ui/**/*.{test,spec}.{js,jsx,ts,tsx,mjs,cjs}",
     ],
     ...testingLibrary.configs["flat/react"],
+  },
+  {
+    files: ["**/*.{ts,tsx}"],
+    ignores: [
+      "**/*.config.{ts,tsx}",
+      "eslint.config.ts",
+      "**/.storybook/**/*.{ts,tsx}",
+      "**/tailwind.config.ts",
+      "**/vitest.shims.d.ts",
+      "**/*.stories.{ts,tsx}",
+      "**/*.{test,spec}.{ts,tsx}",
+      "apps/extension/codegen.ts",
+      "apps/web/codegen.ts",
+      "apps/web/src/gql/**",
+      "packages/async/**",
+    ],
+    plugins: { "job-tracker": jobTrackerEslintPlugin },
+    rules: { "job-tracker/prefer-to-over-async-try-catch": "warn" },
   },
   {
     files: ["**/*.{ts,tsx}"],

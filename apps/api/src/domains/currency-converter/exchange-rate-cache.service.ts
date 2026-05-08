@@ -1,4 +1,5 @@
 import { ExchangeRateCacheEntity } from "@api/database/entities/exchange-rate-cache.entity";
+import { to } from "@job-tracker/async";
 import { Injectable, Logger } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
@@ -20,27 +21,31 @@ export class ExchangeRateCacheService {
   ) {}
 
   async get(baseCurrency: string): Promise<CachedExchangeRates | null> {
-    try {
-      const entry = await this.repo.findOne({ where: { baseCurrency } });
-
-      if (!entry) return null;
-
-      if (entry.expiresAt < new Date()) {
-        await this.repo.delete({ id: entry.id });
-        this.logger.debug(`Cache expired for ${baseCurrency}, deleted entry`);
-        return null;
-      }
-
-      return {
-        baseCurrency: entry.baseCurrency,
-        rates: entry.ratesJson,
-        expiresAt: entry.expiresAt,
-        ttlSeconds: entry.ttlSeconds,
-      };
-    } catch (error) {
-      this.logger.error(`Failed to read cache for ${baseCurrency}`, error);
+    const [findErr, entry] = await to(
+      this.repo.findOne({ where: { baseCurrency } }),
+    );
+    if (findErr) {
+      this.logger.error(`Failed to read cache for ${baseCurrency}`, findErr);
       return null;
     }
+    if (!entry) return null;
+
+    if (entry.expiresAt < new Date()) {
+      const [delErr] = await to(this.repo.delete({ id: entry.id }));
+      if (delErr) {
+        this.logger.error(`Failed to read cache for ${baseCurrency}`, delErr);
+        return null;
+      }
+      this.logger.debug(`Cache expired for ${baseCurrency}, deleted entry`);
+      return null;
+    }
+
+    return {
+      baseCurrency: entry.baseCurrency,
+      rates: entry.ratesJson,
+      expiresAt: entry.expiresAt,
+      ttlSeconds: entry.ttlSeconds,
+    };
   }
 
   async set(
@@ -48,42 +53,45 @@ export class ExchangeRateCacheService {
     rates: Record<string, number>,
     ttlSeconds: number,
   ): Promise<void> {
-    try {
-      const expiresAt = new Date(Date.now() + ttlSeconds * 1000);
+    const expiresAt = new Date(Date.now() + ttlSeconds * 1000);
 
-      await this.repo.upsert(
+    const [upsertErr] = await to(
+      this.repo.upsert(
         { baseCurrency, ratesJson: rates, ttlSeconds, expiresAt },
         ["baseCurrency"],
-      );
+      ),
+    );
 
-      this.logger.debug(
-        `Cached rates for ${baseCurrency} (TTL: ${ttlSeconds}s)`,
-      );
-    } catch (error) {
-      this.logger.error(`Failed to cache rates for ${baseCurrency}`, error);
+    if (upsertErr) {
+      this.logger.error(`Failed to cache rates for ${baseCurrency}`, upsertErr);
+      return;
     }
+
+    this.logger.debug(`Cached rates for ${baseCurrency} (TTL: ${ttlSeconds}s)`);
   }
 
   async delete(baseCurrency: string): Promise<void> {
-    try {
-      await this.repo.delete({ baseCurrency });
-      this.logger.debug(`Deleted cache for ${baseCurrency}`);
-    } catch (error) {
-      this.logger.error(`Failed to delete cache for ${baseCurrency}`, error);
+    const [delErr] = await to(this.repo.delete({ baseCurrency }));
+    if (delErr) {
+      this.logger.error(`Failed to delete cache for ${baseCurrency}`, delErr);
+      return;
     }
+    this.logger.debug(`Deleted cache for ${baseCurrency}`);
   }
 
   async cleanExpired(): Promise<number> {
-    try {
-      const result = await this.repo.delete({ expiresAt: new Date() });
-      const deleted = result.affected ?? 0;
-      if (deleted > 0) {
-        this.logger.log(`Cleaned ${deleted} expired cache entries`);
-      }
-      return deleted;
-    } catch (error) {
-      this.logger.error("Failed to clean expired cache entries", error);
+    const [cleanErr, result] = await to(
+      this.repo.delete({ expiresAt: new Date() }),
+    );
+    if (cleanErr) {
+      this.logger.error("Failed to clean expired cache entries", cleanErr);
       return 0;
     }
+
+    const deleted = result.affected ?? 0;
+    if (deleted > 0) {
+      this.logger.log(`Cleaned ${deleted} expired cache entries`);
+    }
+    return deleted;
   }
 }

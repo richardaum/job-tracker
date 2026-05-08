@@ -121,12 +121,12 @@ export default function DraftApplicationDetailsPage({ params }: PageProps) {
   }
 
   async function handleCopyDraftId(draftId: string) {
-    try {
-      await navigator.clipboard.writeText(draftId);
-      showToast("Draft ID copied.", "success");
-    } catch {
+    const [error] = await to(navigator.clipboard.writeText(draftId));
+    if (error) {
       showToast("Could not copy draft ID.", "error");
+      return;
     }
+    showToast("Draft ID copied.", "success");
   }
 
   async function handleConvertToApplication() {

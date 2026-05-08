@@ -1,5 +1,6 @@
 "use client";
 
+import { to } from "@job-tracker/async";
 import {
   Button,
   cn,
@@ -112,14 +113,16 @@ export function NotesPanel({
     const noteContent = draftNote;
     composerEditorRef.current?.clear();
 
-    try {
-      await createApplicationNote({
+    const [error] = await to(
+      createApplicationNote({
         variables: { input: { applicationId, content: noteContent } },
-      });
-      handleNoteSent();
-    } catch {
+      }),
+    );
+    if (error) {
       // Restore draft so user can retry.
       setDraftNote(noteContent);
+    } else {
+      handleNoteSent();
     }
   }
 
@@ -139,8 +142,8 @@ export function NotesPanel({
     content: string;
     expectedRevision: number;
   }) {
-    try {
-      await updateApplicationNote({
+    const [error] = await to(
+      updateApplicationNote({
         variables: {
           id: payload.noteId,
           input: {
@@ -148,11 +151,13 @@ export function NotesPanel({
             expectedRevision: payload.expectedRevision,
           },
         },
-      });
-      handleCancelEditNote();
-    } catch {
+      }),
+    );
+    if (error) {
       // Keep draft in place so user can retry.
+      return;
     }
+    handleCancelEditNote();
   }
 
   async function confirmDeleteNote() {

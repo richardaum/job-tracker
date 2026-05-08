@@ -6,6 +6,18 @@ function normalizeError(error: unknown): Error {
   return new Error(typeof error === "string" ? error : "Unknown error");
 }
 
+/**
+ * Awaits {@link promise} and returns a typed tuple: `[null, data]` on success,
+ * or `[error, null]` on failure. Thrown values that are not `Error` instances
+ * are normalized via {@link normalizeError}.
+ *
+ * Prefer this over `try`/`catch` around awaited code: errors become values you
+ * branch on, and callers should use `to()` whenever this pattern fits.
+ *
+ * @typeParam T Resolved value type of the promise.
+ * @param promise The promise to await.
+ * @returns A discriminated tuple: either `[null, T]` or `[Error, null]`.
+ */
 export async function to<T>(
   promise: Promise<T>,
 ): Promise<[error: Error, data: null] | [error: null, data: T]> {
