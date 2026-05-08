@@ -54,7 +54,7 @@ describe("ImportsResolver", () => {
               return { value: undefined, done: true };
             }
             yielded = true;
-            return { value: payload, done: false };
+            return { value: { importRunEvents: payload }, done: false };
           },
         };
       },
@@ -66,11 +66,13 @@ describe("ImportsResolver", () => {
     const first = await iterator.next();
 
     expect(first.value).toMatchObject({
-      type: ImportRunEventTypeEnum.IMPORT_RUN_CREATED,
-      run: {
-        id: "run-1",
-        importerId: "remoteyeah",
-        status: ImportRunStatusEnum.RUNNING,
+      importRunEvents: {
+        type: ImportRunEventTypeEnum.IMPORT_RUN_CREATED,
+        run: {
+          id: "run-1",
+          importerId: "remoteyeah",
+          status: ImportRunStatusEnum.RUNNING,
+        },
       },
     });
   });

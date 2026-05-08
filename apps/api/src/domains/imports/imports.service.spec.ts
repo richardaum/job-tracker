@@ -386,8 +386,10 @@ describe("ImportsService", () => {
 
     expect(first.done).toBe(false);
     expect(first.value).toMatchObject({
-      type: ImportRunEventTypeEnum.IMPORT_RUN_CREATED,
-      run: { id: "run-1", importerId: "remoteyeah" },
+      importRunEvents: {
+        type: ImportRunEventTypeEnum.IMPORT_RUN_CREATED,
+        run: { id: "run-1", importerId: "remoteyeah" },
+      },
     });
   });
 });

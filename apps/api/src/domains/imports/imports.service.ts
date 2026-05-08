@@ -19,6 +19,14 @@ import {
   ImportsEventsPublisher,
 } from "./imports-events.publisher";
 
+/**
+ * Each streamed subscription execution uses this object as graphql `rootValue`
+ * so the default resolver can read {@link ImportRunEventsSubscriptionRoot.importRunEvents}.
+ */
+export type ImportRunEventsSubscriptionRoot = {
+  importRunEvents: ImportRunEvent;
+};
+
 function extensionMayTransitionStatus(
   from: ImportRunStatusEnum,
   to: ImportRunStatusEnum,
@@ -185,12 +193,14 @@ export class ImportsService implements OnModuleInit {
     return null;
   }
 
-  async *importRunEvents(userId: string): AsyncIterable<ImportRunEvent> {
+  async *importRunEvents(
+    userId: string,
+  ): AsyncIterable<ImportRunEventsSubscriptionRoot> {
     for await (const event of this.eventsPublisher.subscribe()) {
       if (event.userId !== userId) {
         continue;
       }
-      yield event.payload;
+      yield { importRunEvents: event.payload };
     }
   }
 

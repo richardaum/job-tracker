@@ -17,7 +17,10 @@ import { CreateImportRunInput } from "./create-import-run.input";
 import { ImportRunType } from "./import-run.type";
 import { ImportRunEvent } from "./import-run-event.type";
 import { ImportRunStatusEnum } from "./import-run-status.enum";
-import { ImportsService } from "./imports.service";
+import {
+  type ImportRunEventsSubscriptionRoot,
+  ImportsService,
+} from "./imports.service";
 
 @Resolver(() => ImportRunType)
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -78,7 +81,7 @@ export class ImportsResolver {
   @Subscription(() => ImportRunEvent)
   importRunEvents(
     @CurrentUser() user: { userId: string },
-  ): AsyncIterable<ImportRunEvent> {
+  ): AsyncIterable<ImportRunEventsSubscriptionRoot> {
     return this.service.importRunEvents(user.userId);
   }
 }
