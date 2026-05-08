@@ -245,8 +245,8 @@ export default function AiApplicationCreatePage() {
               />
             </FormField>
 
-            <div className="mt-4">
-              <span className="text-sm text-text-secondary mb-2 block">
+            <div className={cn("mt-4")}>
+              <span className={cn("mb-2 block text-sm text-text-secondary")}>
                 Extraction fields
               </span>
               <TagsInput
@@ -258,14 +258,14 @@ export default function AiApplicationCreatePage() {
             </div>
           </form>
 
-          <div className="space-y-3">
+          <div className={cn("space-y-3")}>
             <Card variant="outlined" padding="sm">
               <Text size="sm" weight="medium">
                 AI draft review
               </Text>
               {draft ? (
-                <div className="mt-3 space-y-3">
-                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <div className={cn("mt-3 space-y-3")}>
+                  <div className={cn("grid grid-cols-1 gap-3 sm:grid-cols-2")}>
                     <FieldWithLabelAction
                       label="title"
                       actions={
@@ -361,7 +361,7 @@ export default function AiApplicationCreatePage() {
                     }
                   />
 
-                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  <div className={cn("grid grid-cols-1 gap-3 sm:grid-cols-2")}>
                     <FieldWithLabelAction
                       label="url"
                       actions={
@@ -517,7 +517,7 @@ export default function AiApplicationCreatePage() {
               </Text>
             ) : null}
             {draft ? (
-              <div className="flex flex-wrap gap-2">
+              <div className={cn("flex flex-wrap gap-2")}>
                 <Button
                   type="button"
                   intent="primary"

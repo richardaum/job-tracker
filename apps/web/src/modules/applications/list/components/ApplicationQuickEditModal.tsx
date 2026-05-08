@@ -234,7 +234,7 @@ export function ApplicationQuickEditModal({
 
   return (
     <Dialog
-      trigger={trigger ?? <button type="button" className="hidden" />}
+      trigger={trigger ?? <button type="button" className={cn("hidden")} />}
       title={isEdit ? "Edit application" : "New application"}
       description={
         isEdit

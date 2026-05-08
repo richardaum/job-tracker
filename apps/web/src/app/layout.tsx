@@ -1,6 +1,7 @@
 import "@/env/server";
 import "./globals.css";
 
+import { cn } from "@job-tracker/ui";
 import type { Metadata } from "next";
 import { Outfit } from "next/font/google";
 import type { ReactNode } from "react";
@@ -22,7 +23,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
-      <body className={`${outfit.variable} font-sans`}>
+      <body className={cn(outfit.variable, "font-sans")}>
         <AppProviders>{children}</AppProviders>
       </body>
     </html>

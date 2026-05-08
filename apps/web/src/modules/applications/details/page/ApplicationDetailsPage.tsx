@@ -221,18 +221,18 @@ export default function ApplicationDetailsPage({ params }: PageProps) {
 
             {renderPrimaryTabContents({
               currentApplication: application,
-              overviewClassName: "mt-3 flex-1 min-h-0 overflow-auto px-2",
-              descriptionClassName: "mt-3 flex-1 min-h-0 overflow-auto",
+              overviewClassName: cn("mt-3 flex-1 min-h-0 overflow-auto px-2"),
+              descriptionClassName: cn("mt-3 flex-1 min-h-0 overflow-auto"),
               overviewSourcePrimaryText: sourcePrimaryText,
             })}
 
             <NotesPanelTabsContent
               applicationId={application.id}
-              className="mt-3"
+              className={cn("mt-3")}
             />
             <HistoryPanelTabsContent
               applicationId={application.id}
-              className="mt-3"
+              className={cn("mt-3")}
               onSuccess={handleEntitySuccess}
               onError={handleEntityError}
             />
@@ -251,8 +251,8 @@ export default function ApplicationDetailsPage({ params }: PageProps) {
 
               {renderPrimaryTabContents({
                 currentApplication: application,
-                overviewClassName: "mt-3 flex-1 min-h-0 overflow-auto px-2",
-                descriptionClassName: "mt-3 flex-1 min-h-0 overflow-auto",
+                overviewClassName: cn("mt-3 flex-1 min-h-0 overflow-auto px-2"),
+                descriptionClassName: cn("mt-3 flex-1 min-h-0 overflow-auto"),
                 overviewSourcePrimaryText: sourcePrimaryText,
               })}
             </Tabs>

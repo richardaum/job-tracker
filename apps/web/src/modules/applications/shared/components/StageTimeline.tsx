@@ -86,7 +86,9 @@ export function StageTimeline({
                     {formatStage(item.fromStage)}{" "}
                     <ArrowRightIcon
                       aria-hidden
-                      className="inline-block shrink-0 align-[-0.125em] text-current"
+                      className={cn(
+                        "inline-block shrink-0 align-[-0.125em] text-current",
+                      )}
                       size={isCompact ? 12 : 14}
                       weight="bold"
                     />{" "}

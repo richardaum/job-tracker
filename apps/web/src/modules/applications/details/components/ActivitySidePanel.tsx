@@ -57,10 +57,13 @@ export function ActivitySidePanel({
         </TabsTrigger>
       </TabsList>
 
-      <NotesPanelTabsContent applicationId={applicationId} className="pt-3" />
+      <NotesPanelTabsContent
+        applicationId={applicationId}
+        className={cn("pt-3")}
+      />
       <HistoryPanelTabsContent
         applicationId={applicationId}
-        className="pt-3"
+        className={cn("pt-3")}
         onSuccess={onSuccess}
         onError={onError}
       />

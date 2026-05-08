@@ -7,7 +7,7 @@ export function useAsyncEffect(
   effect: AsyncEffect,
   deps: DependencyList,
 ): void {
-  const cleanupRef = useRef<AsyncEffectCleanup>();
+  const cleanupRef = useRef<AsyncEffectCleanup>(undefined);
   const depsRef = useRef<DependencyList | undefined>(undefined);
 
   useEffect(() => {

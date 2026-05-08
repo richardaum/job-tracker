@@ -1,6 +1,11 @@
 "use client";
 
-import { FieldWithLabelAction, OverviewSection, Text } from "@job-tracker/ui";
+import {
+  cn,
+  FieldWithLabelAction,
+  OverviewSection,
+  Text,
+} from "@job-tracker/ui";
 
 import {
   ApplicationDocument,
@@ -95,7 +100,7 @@ export function OverviewTabContent({
 
   return (
     <OverviewSection>
-      <div className="max-w-full">
+      <div className={cn("max-w-full")}>
         <FieldWithLabelAction
           label="Job title"
           content={<Text size="sm">{application.title}</Text>}
@@ -110,7 +115,7 @@ export function OverviewTabContent({
         />
       </div>
 
-      <div className="max-w-full">
+      <div className={cn("max-w-full")}>
         <FieldWithLabelAction
           label="Company"
           content={
@@ -130,7 +135,7 @@ export function OverviewTabContent({
         />
       </div>
 
-      <div className="max-w-full">
+      <div className={cn("max-w-full")}>
         <FieldWithLabelAction
           label="Job URLs"
           content={
@@ -149,7 +154,7 @@ export function OverviewTabContent({
         />
       </div>
 
-      <div className="max-w-full">
+      <div className={cn("max-w-full")}>
         <FieldWithLabelAction
           label="Source"
           content={
@@ -170,7 +175,7 @@ export function OverviewTabContent({
         />
       </div>
 
-      <div className="max-w-full">
+      <div className={cn("max-w-full")}>
         <FieldWithLabelAction
           label="Salary"
           content={
@@ -192,7 +197,7 @@ export function OverviewTabContent({
         />
       </div>
 
-      <div className="max-w-full">
+      <div className={cn("max-w-full")}>
         <FieldWithLabelAction
           label="Tags"
           content={

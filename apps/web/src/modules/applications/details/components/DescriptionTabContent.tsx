@@ -1,3 +1,4 @@
+import { cn } from "@job-tracker/ui";
 import React from "react";
 
 import type { ApplicationDetailsValues } from "@/modules/applications/details/utils/application-details.shared";
@@ -14,7 +15,7 @@ export function DescriptionTabContent({
   onError: () => void;
 }) {
   return (
-    <div className="h-full min-h-0">
+    <div className={cn("h-full min-h-0")}>
       <DescriptionEditor
         key={application.id}
         applicationId={application.id}

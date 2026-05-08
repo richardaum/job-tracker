@@ -21,6 +21,42 @@ const repoRootDir = dirname(fileURLToPath(import.meta.url));
 const parentRelativeImportSourcePattern =
   "(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$)" as const;
 
+const noForwardRefSyntaxRestrictions = [
+  {
+    selector: "CallExpression[callee.name='forwardRef']",
+    message:
+      "Do not use forwardRef; add ref to your props type and pass it to the DOM. See docs/CONVENTIONS.mdx (TypeScript).",
+  },
+  {
+    selector:
+      "CallExpression[callee.type='MemberExpression'][callee.property.type='Identifier'][callee.property.name='forwardRef']",
+    message:
+      "Do not use forwardRef; add ref to your props type and pass it to the DOM. See docs/CONVENTIONS.mdx (TypeScript).",
+  },
+] as const;
+
+const classNameMustUseCnRestrictions = [
+  {
+    selector: "JSXAttribute[name.name='className'] > Literal",
+    message: "Use className={cn(...)} instead of string literals.",
+  },
+  {
+    selector:
+      "JSXAttribute[name.name='className'] JSXExpressionContainer > Literal",
+    message: "Use className={cn(...)} instead of string literals.",
+  },
+  {
+    selector:
+      "JSXAttribute[name.name='className'] JSXExpressionContainer > TemplateLiteral",
+    message: "Use className={cn(...)} instead of template literals.",
+  },
+  {
+    selector:
+      "JSXAttribute[name.name='className'] JSXExpressionContainer > ArrayExpression",
+    message: "Use className={cn(...)} instead of array join patterns.",
+  },
+] as const;
+
 export default defineConfig(
   {
     ignores: [
@@ -140,36 +176,8 @@ export default defineConfig(
       ],
       "no-restricted-syntax": [
         "error",
-        {
-          selector: "CallExpression[callee.name='forwardRef']",
-          message:
-            "Do not use forwardRef; add ref to your props type and pass it to the DOM. See docs/CONVENTIONS.mdx (TypeScript).",
-        },
-        {
-          selector:
-            "CallExpression[callee.type='MemberExpression'][callee.property.type='Identifier'][callee.property.name='forwardRef']",
-          message:
-            "Do not use forwardRef; add ref to your props type and pass it to the DOM. See docs/CONVENTIONS.mdx (TypeScript).",
-        },
-        {
-          selector: "JSXAttribute[name.name='className'] > Literal",
-          message: "Use className={cn(...)} instead of string literals.",
-        },
-        {
-          selector:
-            "JSXAttribute[name.name='className'] JSXExpressionContainer > Literal",
-          message: "Use className={cn(...)} instead of string literals.",
-        },
-        {
-          selector:
-            "JSXAttribute[name.name='className'] JSXExpressionContainer > TemplateLiteral",
-          message: "Use className={cn(...)} instead of template literals.",
-        },
-        {
-          selector:
-            "JSXAttribute[name.name='className'] JSXExpressionContainer > ArrayExpression",
-          message: "Use className={cn(...)} instead of array join patterns.",
-        },
+        ...noForwardRefSyntaxRestrictions,
+        ...classNameMustUseCnRestrictions,
       ],
     },
     settings: { react: { version: "detect" } },
@@ -224,11 +232,11 @@ export default defineConfig(
       "apps/web/src/instrumentation.ts",
     ],
     rules: {
-      "no-restricted-syntax": [
+      "no-restricted-properties": [
         "warn",
         {
-          selector:
-            "MemberExpression[object.name='process'][property.name='env']",
+          object: "process",
+          property: "env",
           message:
             "Avoid direct process.env access in apps/web source. Use typed env modules from src/env instead.",
         },
@@ -260,8 +268,11 @@ export default defineConfig(
   {
     files: ["**/*.{ts,tsx}"],
     ignores: [
-      "*.config.ts",
+      "**/*.config.ts",
       "eslint.config.ts",
+      "**/.storybook/**/*.{ts,tsx}",
+      "**/tailwind.config.ts",
+      "**/vitest.shims.d.ts",
       "**/*.stories.{ts,tsx}",
       "**/*.{test,spec}.{ts,tsx}",
       "apps/extension/codegen.ts",

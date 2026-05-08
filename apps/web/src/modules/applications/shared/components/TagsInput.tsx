@@ -83,7 +83,7 @@ export function TagsInput({ value, onChange, disabled, id }: TagsInputProps) {
                   )}
                 />
               ) : null}
-              <span className="max-w-40 truncate">{tag.label}</span>
+              <span className={cn("max-w-40 truncate")}>{tag.label}</span>
               <button
                 type="button"
                 onClick={(e) => {

@@ -41,7 +41,7 @@ export function ApplicationTags({
           )}
           title={t}
         >
-          <span className="truncate">{t}</span>
+          <span className={cn("truncate")}>{t}</span>
           {onRemoveTag ? (
             <IconButton
               intent="ghost"
@@ -49,7 +49,9 @@ export function ApplicationTags({
               label={`Remove tag ${t}`}
               tooltip={`Remove tag ${t}`}
               onClick={() => onRemoveTag(t)}
-              className="size-4 shrink-0 rounded shadow-none hover:bg-black/15"
+              className={cn(
+                "size-4 shrink-0 rounded shadow-none hover:bg-black/15",
+              )}
             />
           ) : null}
         </span>
