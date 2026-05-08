@@ -1,6 +1,6 @@
 "use client";
 
-import { Badge, cn, Text } from "@job-tracker/ui";
+import { Badge, cn, ListItemCard, Text } from "@job-tracker/ui";
 
 import type { ImportRun } from "@/modules/imports/types/importRun";
 import {
@@ -23,23 +23,33 @@ export function ImportRunCard({
       type="button"
       onClick={onSelect}
       className={cn(
-        "w-full rounded-lg border p-3 text-left transition-colors",
-        selected
-          ? "border-border-brand bg-bg-brand-subtle"
-          : "border-border-subtle bg-bg-surface hover:bg-bg-surface-hover",
+        "w-full cursor-pointer border-0 bg-transparent p-0 text-left",
+        "rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-brand focus-visible:ring-offset-2",
       )}
     >
-      <div className={cn("flex items-start justify-between gap-2")}>
-        <Text size="sm" weight="semibold" className={cn("min-w-0 truncate")}>
-          {run.importerName}
-        </Text>
-        <Badge intent={importRunStatusBadgeIntent(run.status)}>
-          {formatImportRunStatusLabel(run.status)}
-        </Badge>
-      </div>
-      <Text size="xs" color="muted" className={cn("mt-1")}>
-        {formatImportRunStartedAt(run.startedAt)}
-      </Text>
+      <ListItemCard
+        className={cn(
+          "transition-colors",
+          selected
+            ? "border-border-brand bg-bg-brand-subtle"
+            : "hover:bg-bg-surface-hover",
+        )}
+        title={
+          <Text size="sm" weight="semibold" className={cn("min-w-0 truncate")}>
+            {run.importerName}
+          </Text>
+        }
+        actions={
+          <Badge intent={importRunStatusBadgeIntent(run.status)}>
+            {formatImportRunStatusLabel(run.status)}
+          </Badge>
+        }
+        meta={
+          <Text size="xs" color="muted">
+            {formatImportRunStartedAt(run.startedAt)}
+          </Text>
+        }
+      />
     </button>
   );
 }
