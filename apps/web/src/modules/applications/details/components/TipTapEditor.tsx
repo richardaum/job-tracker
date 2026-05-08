@@ -173,9 +173,9 @@ const editorContentClasses = {
     "[&_.ProseMirror_ol]:my-2 [&_.ProseMirror_ol]:list-decimal [&_.ProseMirror_ol]:pl-5",
   ),
   heading: cn(
-    "[&_.ProseMirror_h1]:my-2 [&_.ProseMirror_h1]:text-lg [&_.ProseMirror_h1]:font-semibold [&_.ProseMirror_h1]:leading-tight",
-    "[&_.ProseMirror_h2]:my-2 [&_.ProseMirror_h2]:text-lg [&_.ProseMirror_h2]:font-medium [&_.ProseMirror_h2]:leading-tight",
-    "[&_.ProseMirror_h3]:my-2 [&_.ProseMirror_h3]:text-lg [&_.ProseMirror_h3]:font-normal [&_.ProseMirror_h3]:leading-tight",
+    "[&_.ProseMirror_h1]:my-2 [&_.ProseMirror_h1]:text-lg/tight [&_.ProseMirror_h1]:font-semibold ",
+    "[&_.ProseMirror_h2]:my-2 [&_.ProseMirror_h2]:text-lg/tight [&_.ProseMirror_h2]:font-medium ",
+    "[&_.ProseMirror_h3]:my-2 [&_.ProseMirror_h3]:text-lg/tight [&_.ProseMirror_h3]:font-normal ",
   ),
   link: cn("[&_.ProseMirror_a]:text-text-brand [&_.ProseMirror_a]:underline"),
   placeholder: cn(

@@ -106,7 +106,7 @@ export function DraftApplicationSidePanel({
   return (
     <Tabs
       defaultValue="original"
-      className={cn("flex h-full min-h-0 w-full flex-col")}
+      className={cn("flex size-full min-h-0  flex-col")}
     >
       <TabsList className={cn("w-full shrink-0")}>
         <TabsTrigger value="original" className={cn("flex-1")}>

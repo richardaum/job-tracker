@@ -97,7 +97,7 @@ export default function ApplicationsPage() {
       {/* Action bar */}
       <div
         className={cn(
-          "flex flex-col gap-3 border-b border-border-subtle px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6",
+          "flex flex-col gap-3 border-b border-border-subtle p-4  sm:flex-row sm:items-center sm:justify-between sm:px-6",
         )}
       >
         <div

@@ -98,7 +98,7 @@ export function Sidebar({ open = false, onClose, user }: SidebarProps) {
   const navContent = (
     <>
       {/* Logo — same graphic as favicon (`src/app/icon.svg`) */}
-      <div className={cn("flex items-center gap-2 px-5 py-5")}>
+      <div className={cn("flex items-center gap-2 p-5 ")}>
         <AppBrandMark size={22} />
         <Text as="span" size="base" weight="bold">
           Job Tracker
@@ -163,7 +163,7 @@ export function Sidebar({ open = false, onClose, user }: SidebarProps) {
       </nav>
 
       {/* Bottom items */}
-      <div className={cn("flex flex-col gap-0 px-3 py-3")}>
+      <div className={cn("flex flex-col gap-0 p-3 ")}>
         <div className={cn("mx-1 mb-1 border-t border-border-subtle")} />
         <div
           className={cn(
@@ -176,12 +176,12 @@ export function Sidebar({ open = false, onClose, user }: SidebarProps) {
               alt={user.name}
               width={36}
               height={36}
-              className={cn("h-9 w-9 shrink-0 rounded-full object-cover")}
+              className={cn("size-9  shrink-0 rounded-full object-cover")}
             />
           ) : (
             <div
               className={cn(
-                "flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-bg-brand-subtle text-sm font-semibold text-text-brand",
+                "flex size-9  shrink-0 items-center justify-center rounded-full bg-bg-brand-subtle text-sm font-semibold text-text-brand",
               )}
             >
               {initials}

@@ -62,37 +62,6 @@ export default function DraftApplicationDetailsPage({ params }: PageProps) {
     enqueueToast({ title: message, intent });
   }
 
-  const actionsMenu = draft ? (
-    <DropdownMenu
-      open={actionsMenuOpen}
-      onOpenChange={setActionsMenuOpen}
-      trigger={
-        <Button
-          intent="secondary"
-          size="sm"
-          rightIcon={
-            <CaretDownIcon
-              size={12}
-              weight="bold"
-              className={cn(
-                "transition-transform duration-200",
-                actionsMenuOpen ? "rotate-180" : "rotate-0",
-              )}
-            />
-          }
-          className={cn("h-8 px-2.5 text-xs")}
-        >
-          Actions
-        </Button>
-      }
-      align="end"
-    >
-      <DropdownMenuItem destructive onSelect={() => setDeleteDialogOpen(true)}>
-        Remove
-      </DropdownMenuItem>
-    </DropdownMenu>
-  ) : null;
-
   function renderOverviewBody() {
     if (!draft) return null;
     return (
@@ -100,7 +69,7 @@ export default function DraftApplicationDetailsPage({ params }: PageProps) {
         <FieldWithLabelAction
           label="Page title"
           content={
-            <Text size="sm" className={cn("break-words")}>
+            <Text size="sm" className={cn("wrap-break-word")}>
               {draft.title.trim() || "Untitled page"}
             </Text>
           }
@@ -137,7 +106,7 @@ export default function DraftApplicationDetailsPage({ params }: PageProps) {
     return (
       <div
         className={cn(
-          "flex h-full min-h-0 w-full flex-col overflow-hidden rounded-md border border-border-subtle bg-bg-surface",
+          "flex size-full min-h-0  flex-col overflow-hidden rounded-md border border-border-subtle bg-bg-surface",
         )}
       >
         <iframe
@@ -154,7 +123,7 @@ export default function DraftApplicationDetailsPage({ params }: PageProps) {
     <div className={cn("flex h-full min-h-0 flex-col")}>
       <div
         className={cn(
-          "flex flex-col gap-2 border-b border-border-subtle px-4 py-4 sm:px-6 sm:py-5",
+          "flex flex-col gap-2 border-b border-border-subtle p-4  sm:px-6 sm:py-5",
         )}
       >
         <div className={cn("flex items-center justify-between gap-3")}>
@@ -171,7 +140,44 @@ export default function DraftApplicationDetailsPage({ params }: PageProps) {
               "flex shrink-0 flex-wrap items-center justify-end gap-2",
             )}
           >
-            {draft ? <>{actionsMenu}</> : null}
+            {draft ? (
+              <>
+                {draft ? (
+                  <DropdownMenu
+                    open={actionsMenuOpen}
+                    onOpenChange={setActionsMenuOpen}
+                    trigger={
+                      <Button
+                        intent="secondary"
+                        size="sm"
+                        rightIcon={
+                          <CaretDownIcon
+                            size={12}
+                            weight="bold"
+                            className={cn(
+                              "transition-transform duration-200",
+                              actionsMenuOpen ? "rotate-180" : "rotate-0",
+                            )}
+                          />
+                        }
+                        className={cn("h-8 px-2.5 text-xs")}
+                      >
+                        Actions
+                      </Button>
+                    }
+                    align="end"
+                  >
+                    <DropdownMenuItem>Convert to application</DropdownMenuItem>
+                    <DropdownMenuItem
+                      destructive
+                      onSelect={() => setDeleteDialogOpen(true)}
+                    >
+                      Remove
+                    </DropdownMenuItem>
+                  </DropdownMenu>
+                ) : null}
+              </>
+            ) : null}
           </div>
         </div>
         <div className={cn("flex items-start gap-3")}>
@@ -222,7 +228,7 @@ export default function DraftApplicationDetailsPage({ params }: PageProps) {
         ) : (
           <Tabs
             defaultValue="overview"
-            className={cn("flex h-full min-h-0 w-full flex-col")}
+            className={cn("flex size-full min-h-0  flex-col")}
           >
             <TabsList className={cn("w-full shrink-0 flex-wrap")}>
               <TabsTrigger value="overview">Overview</TabsTrigger>

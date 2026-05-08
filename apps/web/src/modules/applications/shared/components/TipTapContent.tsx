@@ -23,9 +23,9 @@ const tipTapContentClasses = {
   bulletList: cn("[&_ul]:my-2 [&_ul]:list-disc [&_ul]:pl-5"),
   orderedList: cn("[&_ol]:my-2 [&_ol]:list-decimal [&_ol]:pl-5"),
   heading: cn(
-    "[&_h1]:my-2 [&_h1]:text-lg [&_h1]:font-semibold [&_h1]:leading-tight",
-    "[&_h2]:my-2 [&_h2]:text-lg [&_h2]:font-medium [&_h2]:leading-tight",
-    "[&_h3]:my-2 [&_h3]:text-lg [&_h3]:font-normal [&_h3]:leading-tight",
+    "[&_h1]:my-2 [&_h1]:text-lg/tight [&_h1]:font-semibold ",
+    "[&_h2]:my-2 [&_h2]:text-lg/tight [&_h2]:font-medium ",
+    "[&_h3]:my-2 [&_h3]:text-lg/tight [&_h3]:font-normal ",
   ),
   link: cn("[&_a]:text-text-brand [&_a]:underline"),
 };

@@ -146,7 +146,7 @@ export default function ApplicationDetailsPage({ params }: PageProps) {
     <div className={cn("flex h-full min-h-0 flex-col")}>
       <div
         className={cn(
-          "flex flex-col gap-2 border-b border-border-subtle px-4 py-4 sm:px-6 sm:py-5",
+          "flex flex-col gap-2 border-b border-border-subtle p-4  sm:px-6 sm:py-5",
         )}
       >
         <div className={cn("flex items-center justify-between gap-3")}>
@@ -211,7 +211,7 @@ export default function ApplicationDetailsPage({ params }: PageProps) {
         ) : !isDesktop ? (
           <Tabs
             defaultValue="overview"
-            className={cn("flex h-full min-h-0 w-full flex-col")}
+            className={cn("flex size-full min-h-0  flex-col")}
           >
             <TabsList className={cn("w-full shrink-0 flex-wrap")}>
               {renderPrimaryTabTriggers()}
@@ -245,7 +245,7 @@ export default function ApplicationDetailsPage({ params }: PageProps) {
           >
             <Tabs
               defaultValue="overview"
-              className={cn("flex h-full min-h-0 w-full flex-col")}
+              className={cn("flex size-full min-h-0  flex-col")}
             >
               <TabsList>{renderPrimaryTabTriggers()}</TabsList>
 

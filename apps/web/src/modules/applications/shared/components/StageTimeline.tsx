@@ -61,7 +61,7 @@ export function StageTimeline({
             showTopConnector={index > 0}
             showBottomConnector={index < items.length - 1}
             dotClassName={cn(
-              isCompact ? "h-1.5 w-1.5" : "h-2.5 w-2.5",
+              isCompact ? "size-1.5 " : "size-2.5 ",
               getStageTimelineDotColor(item.toStage),
             )}
             topConnectorClassName={cn(
@@ -76,7 +76,7 @@ export function StageTimeline({
           <TimelineContent
             className={cn(
               "min-w-0",
-              isCompact ? "border-0 bg-transparent px-0 py-0" : "",
+              isCompact ? "border-0 bg-transparent p-0 " : "",
             )}
           >
             <div className={cn("inline-flex items-center gap-1.5")}>

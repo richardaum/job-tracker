@@ -52,7 +52,7 @@ export function DraftApplicationCard({
           size="sm"
           label={`Delete draft ${label}`}
           tooltip="Delete draft"
-          className={cn("h-6 w-6 text-text-muted/80 hover:text-text-error")}
+          className={cn("size-6  text-text-muted/80 hover:text-text-error")}
           icon={<TrashIcon size={13} weight="regular" />}
         />
       }

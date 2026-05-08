@@ -128,7 +128,7 @@ export function ApplicationTrackingPanel({
           tooltip="Update status"
           className={cn(
             "text-text-muted/80 hover:text-text-muted",
-            inline ? "h-6 w-6" : "h-7 w-7",
+            inline ? "size-6 " : "size-7 ",
           )}
           icon={triggerIcon}
         />

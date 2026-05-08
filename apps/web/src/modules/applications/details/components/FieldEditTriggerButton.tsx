@@ -20,7 +20,7 @@ export function FieldEditTriggerButton({
       tooltip={label}
       icon={<PencilSimpleIcon size={14} weight="regular" />}
       className={cn(
-        "h-7 w-7 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100",
+        "size-7  opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100",
         className,
       )}
       {...props}

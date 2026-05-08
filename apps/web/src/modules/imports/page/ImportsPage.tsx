@@ -111,7 +111,7 @@ export default function ImportsPage() {
     <div className={cn("flex h-full min-h-0 flex-col")}>
       <div
         className={cn(
-          "flex shrink-0 flex-col gap-3 border-b border-border-subtle px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6",
+          "flex shrink-0 flex-col gap-3 border-b border-border-subtle p-4  sm:flex-row sm:items-center sm:justify-between sm:px-6",
         )}
       >
         <Heading as="h1" size="xl">

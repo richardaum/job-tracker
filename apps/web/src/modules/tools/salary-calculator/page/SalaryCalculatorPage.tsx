@@ -161,7 +161,7 @@ export function SalaryCalculatorPage() {
                   )}
                 >
                   <div className={cn("min-w-0 space-y-1")}>
-                    <p className={cn("text-sm leading-6")}>
+                    <p className={cn("text-sm/6 ")}>
                       We could not refresh exchange rates right now.
                     </p>
                     <p className={cn("text-xs text-text-error/80")}>{error}</p>

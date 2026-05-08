@@ -21,7 +21,7 @@ export default function ApplicationNotesPage({ params }: PageProps) {
     <div className={cn("flex h-full min-h-0 flex-col")}>
       <div
         className={cn(
-          "flex flex-col gap-2 border-b border-border-subtle px-4 py-4 sm:px-6 sm:py-5 shrink-0",
+          "flex flex-col gap-2 border-b border-border-subtle p-4  sm:px-6 sm:py-5 shrink-0",
         )}
       >
         <div className={cn("flex items-center justify-between gap-3")}>

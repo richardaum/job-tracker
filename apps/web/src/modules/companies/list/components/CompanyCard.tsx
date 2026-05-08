@@ -93,7 +93,7 @@ export function CompanyCard({
             size="sm"
             label={`View jobs from ${company.name}`}
             tooltip="View jobs"
-            className={cn("h-6 w-6 text-text-muted/80 hover:text-text-muted")}
+            className={cn("size-6  text-text-muted/80 hover:text-text-muted")}
             icon={<ArrowSquareOutIcon size={13} weight="regular" />}
             onClick={() => onViewJobs(company.name)}
           />,
@@ -103,7 +103,7 @@ export function CompanyCard({
             size="sm"
             label={`Edit ${company.name}`}
             tooltip="Edit"
-            className={cn("h-6 w-6 text-text-muted/80 hover:text-text-muted")}
+            className={cn("size-6  text-text-muted/80 hover:text-text-muted")}
             icon={<PencilSimpleIcon size={13} weight="regular" />}
             onClick={() => onEdit(company)}
           />,
@@ -116,7 +116,7 @@ export function CompanyCard({
                 label={`Delete ${company.name}`}
                 tooltip="Delete"
                 className={cn(
-                  "h-6 w-6 text-text-muted/80 hover:text-text-muted",
+                  "size-6  text-text-muted/80 hover:text-text-muted",
                 )}
                 icon={<TrashIcon size={13} weight="regular" />}
               />

@@ -25,7 +25,7 @@ export function ActivitySidePanel({
   return (
     <Tabs
       defaultValue="notes"
-      className={cn("flex h-full min-h-0 w-full flex-col")}
+      className={cn("flex size-full min-h-0  flex-col")}
     >
       <TabsList className={cn("w-full")}>
         <TabsTrigger

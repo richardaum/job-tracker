@@ -101,7 +101,7 @@ export default function CompaniesPage() {
     <div className={cn("flex h-full flex-col")}>
       <div
         className={cn(
-          "flex flex-col gap-3 border-b border-border-subtle px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6",
+          "flex flex-col gap-3 border-b border-border-subtle p-4  sm:flex-row sm:items-center sm:justify-between sm:px-6",
         )}
       >
         <div
@@ -122,7 +122,7 @@ export default function CompaniesPage() {
             placeholder="Search companies..."
             aria-label="Search companies"
             className={cn(
-              "border-none bg-transparent px-0 py-0 shadow-none",
+              "border-none bg-transparent p-0  shadow-none",
               "focus-visible:ring-0 focus-visible:border-transparent",
             )}
           />

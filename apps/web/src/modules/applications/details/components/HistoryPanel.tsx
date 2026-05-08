@@ -203,7 +203,7 @@ export function HistoryPanel({
                     label="History reason"
                     tooltip={item.reason}
                     icon={<ChatCircleTextIcon size={14} weight="regular" />}
-                    className={cn("h-6 w-6 text-text-muted")}
+                    className={cn("size-6  text-text-muted")}
                   />
                 ) : null}
                 <IconButton
@@ -212,7 +212,7 @@ export function HistoryPanel({
                   label="Edit history item"
                   tooltip="Edit history item"
                   icon={<PencilSimpleIcon size={14} weight="regular" />}
-                  className={cn("h-6 w-6 text-text-muted")}
+                  className={cn("size-6  text-text-muted")}
                   onClick={() => openEditDialog(item.id)}
                   disabled={isMutatingStageEvent}
                 />
@@ -228,7 +228,7 @@ export function HistoryPanel({
                       label="Delete history item"
                       tooltip="Delete history item"
                       icon={<TrashIcon size={14} weight="regular" />}
-                      className={cn("h-6 w-6 text-text-muted")}
+                      className={cn("size-6  text-text-muted")}
                       disabled={isMutatingStageEvent}
                     />
                   }

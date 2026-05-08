@@ -1,7 +1,11 @@
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+
 import eslint from "@eslint/js";
 import nextPlugin from "@next/eslint-plugin-next";
 import { defineConfig } from "eslint/config";
 import eslintConfigPrettier from "eslint-config-prettier";
+import betterTailwindCss from "eslint-plugin-better-tailwindcss";
 import react from "eslint-plugin-react";
 import reactCompiler from "eslint-plugin-react-compiler";
 import reactHooks from "eslint-plugin-react-hooks";
@@ -9,6 +13,9 @@ import simpleImportSort from "eslint-plugin-simple-import-sort";
 import testingLibrary from "eslint-plugin-testing-library";
 import globals from "globals";
 import tseslint from "typescript-eslint";
+
+/** ESLint resolves `better-tailwindcss` `cwd` from process cwd unless we pass an absolute package root. */
+const repoRootDir = dirname(fileURLToPath(import.meta.url));
 
 /** Matches import specifiers that reference a parent path segment (`..`). Disallowed under docs/CONVENTIONS.mdx (Imports); `./` sibling imports remain allowed. */
 const parentRelativeImportSourcePattern =
@@ -166,6 +173,40 @@ export default defineConfig(
       ],
     },
     settings: { react: { version: "detect" } },
+  },
+  /** Tailwind v4 canonical class suggestions (`suggestCanonicalClasses`) via eslint-plugin-better-tailwindcss. */
+  {
+    files: ["apps/web/**/*.{js,jsx,ts,tsx,mjs,cjs}"],
+    plugins: { "better-tailwindcss": betterTailwindCss },
+    settings: {
+      "better-tailwindcss": {
+        cwd: join(repoRootDir, "apps/web"),
+        entryPoint: "src/app/globals.css",
+      },
+    },
+    rules: { "better-tailwindcss/enforce-canonical-classes": "warn" },
+  },
+  {
+    files: ["apps/extension/**/*.{js,jsx,ts,tsx,mjs,cjs}"],
+    plugins: { "better-tailwindcss": betterTailwindCss },
+    settings: {
+      "better-tailwindcss": {
+        cwd: join(repoRootDir, "apps/extension"),
+        entryPoint: "src/globals.css",
+      },
+    },
+    rules: { "better-tailwindcss/enforce-canonical-classes": "warn" },
+  },
+  {
+    files: ["packages/ui/**/*.{js,jsx,ts,tsx,mjs,cjs}"],
+    plugins: { "better-tailwindcss": betterTailwindCss },
+    settings: {
+      "better-tailwindcss": {
+        cwd: join(repoRootDir, "packages/ui"),
+        entryPoint: "src/globals.css",
+      },
+    },
+    rules: { "better-tailwindcss/enforce-canonical-classes": "warn" },
   },
   {
     files: ["apps/web/**/*.{js,jsx,ts,tsx,mjs,cjs}"],

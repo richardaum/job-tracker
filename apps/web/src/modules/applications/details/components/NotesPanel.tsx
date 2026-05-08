@@ -207,7 +207,7 @@ export function NotesPanel({
                               <PencilSimpleIcon size={13} weight="regular" />
                             }
                             className={cn(
-                              "h-6 w-6 text-text-muted/80 hover:text-text-muted",
+                              "size-6  text-text-muted/80 hover:text-text-muted",
                             )}
                             onClick={() => handleStartEditNote(note.id)}
                             disabled={
@@ -221,7 +221,7 @@ export function NotesPanel({
                             tooltip="Delete note"
                             icon={<TrashIcon size={13} weight="regular" />}
                             className={cn(
-                              "h-6 w-6 text-text-muted/80 hover:text-text-muted",
+                              "size-6  text-text-muted/80 hover:text-text-muted",
                             )}
                             onClick={() => setNoteIdPendingDelete(note.id)}
                             disabled={

@@ -192,7 +192,7 @@ export default function AiApplicationCreatePage() {
 
   return (
     <div className={cn("flex h-full flex-col")}>
-      <div className={cn("border-b border-border-subtle px-4 py-4 sm:px-6")}>
+      <div className={cn("border-b border-border-subtle p-4  sm:px-6")}>
         <div
           className={cn(
             "flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between",
@@ -276,7 +276,7 @@ export default function AiApplicationCreatePage() {
                           tooltip="Rework title with AI"
                           icon={<SparkleIcon size={14} weight="regular" />}
                           className={cn(
-                            "h-7 w-7 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100",
+                            "size-7  opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100",
                           )}
                           onClick={() => handleReworkField("title")}
                           disabled={loading}
@@ -307,7 +307,7 @@ export default function AiApplicationCreatePage() {
                           tooltip="Rework company with AI"
                           icon={<SparkleIcon size={14} weight="regular" />}
                           className={cn(
-                            "h-7 w-7 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100",
+                            "size-7  opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100",
                           )}
                           onClick={() => handleReworkField("company")}
                           disabled={loading}
@@ -340,7 +340,7 @@ export default function AiApplicationCreatePage() {
                         tooltip="Rework description with AI"
                         icon={<SparkleIcon size={14} weight="regular" />}
                         className={cn(
-                          "h-7 w-7 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100",
+                          "size-7  opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100",
                         )}
                         onClick={() => handleReworkField("description")}
                         disabled={loading}
@@ -372,7 +372,7 @@ export default function AiApplicationCreatePage() {
                           tooltip="Rework url with AI"
                           icon={<SparkleIcon size={14} weight="regular" />}
                           className={cn(
-                            "h-7 w-7 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100",
+                            "size-7  opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100",
                           )}
                           onClick={() => handleReworkField("url")}
                           disabled={loading}
@@ -404,7 +404,7 @@ export default function AiApplicationCreatePage() {
                           tooltip="Rework salary with AI"
                           icon={<SparkleIcon size={14} weight="regular" />}
                           className={cn(
-                            "h-7 w-7 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100",
+                            "size-7  opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100",
                           )}
                           onClick={() =>
                             handleReworkField(
@@ -445,7 +445,7 @@ export default function AiApplicationCreatePage() {
                         tooltip="Rework tags with AI"
                         icon={<SparkleIcon size={14} weight="regular" />}
                         className={cn(
-                          "h-7 w-7 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100",
+                          "size-7  opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100",
                         )}
                         onClick={() => handleReworkField("tags")}
                         disabled={loading}
@@ -478,7 +478,7 @@ export default function AiApplicationCreatePage() {
                         tooltip="Rework noteContents with AI"
                         icon={<SparkleIcon size={14} weight="regular" />}
                         className={cn(
-                          "h-7 w-7 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100",
+                          "size-7  opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100",
                         )}
                         onClick={() => handleReworkField("noteContents")}
                         disabled={loading}

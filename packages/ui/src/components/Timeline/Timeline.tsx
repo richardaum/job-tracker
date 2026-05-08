@@ -54,7 +54,7 @@ export function TimelineMarker({
       ) : null}
       <span
         className={cn(
-          "block h-2.5 w-2.5 shrink-0 rounded-full bg-current",
+          "block size-2.5  shrink-0 rounded-full bg-current",
           dotClassName,
         )}
       />

@@ -68,7 +68,7 @@ export function Dialog({
         />
         <RadixDialog.Content
           className={cn(
-            "fixed left-1/2 top-1/2 z-50 flex w-[calc(100vw-(var(--primitive-space-6)*2))] -translate-x-1/2 -translate-y-1/2 flex-col rounded-lg border border-border-subtle bg-bg-surface p-6 shadow-md focus:outline-none",
+            "fixed left-1/2 top-1/2 z-50 flex w-[calc(100vw-(var(--primitive-space-6)*2))] -translate-1/2  flex-col rounded-lg border border-border-subtle bg-bg-surface p-6 shadow-md focus:outline-none",
             sizeClasses[size],
             contentClassName,
           )}

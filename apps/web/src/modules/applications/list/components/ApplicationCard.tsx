@@ -207,7 +207,7 @@ export function ApplicationCard({
               size="sm"
               label={`Quick edit ${app.title}`}
               tooltip="Quick edit"
-              className={cn("h-6 w-6 text-text-muted/80 hover:text-text-muted")}
+              className={cn("size-6  text-text-muted/80 hover:text-text-muted")}
               icon={<PencilSimpleIcon size={13} weight="regular" />}
             />
           }
@@ -228,7 +228,7 @@ export function ApplicationCard({
               size="sm"
               label={salaryActionLabel}
               tooltip={salaryActionLabel}
-              className={cn("h-6 w-6 text-text-muted/80 hover:text-text-muted")}
+              className={cn("size-6  text-text-muted/80 hover:text-text-muted")}
               icon={<CurrencyDollarIcon size={13} weight="regular" />}
             />
           }
@@ -244,7 +244,7 @@ export function ApplicationCard({
               size="sm"
               label={`Delete ${app.title}`}
               tooltip="Delete"
-              className={cn("h-6 w-6 text-text-muted/80 hover:text-text-muted")}
+              className={cn("size-6  text-text-muted/80 hover:text-text-muted")}
               icon={<TrashIcon size={13} weight="regular" />}
             />
           }
