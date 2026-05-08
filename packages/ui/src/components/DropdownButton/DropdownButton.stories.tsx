@@ -17,7 +17,7 @@ const meta: Meta<typeof DropdownButton> = {
       control: "select",
       options: ["primary", "secondary", "ghost", "outlined", "destructive"],
     },
-    size: { control: "select", options: ["xs", "sm", "md"] },
+    size: { control: "select", options: ["xs", "sm", "md", "lg"] },
     align: { control: "select", options: ["start", "center", "end"] },
   },
 };
@@ -59,9 +59,9 @@ export const WithIcon: Story = {
 };
 
 export const Small: Story = {
-  args: { children: "Small", content: menuContent, size: "sm" },
+  args: { children: "Small", content: menuContent, size: "lg" },
 };
 
 export const ExtraSmall: Story = {
-  args: { children: "XS", content: menuContent, size: "xs" },
+  args: { children: "XS", content: menuContent, size: "md" },
 };

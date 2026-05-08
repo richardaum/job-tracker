@@ -215,7 +215,7 @@ export function Sidebar({ open = false, onClose, user }: SidebarProps) {
         ))}
         <Button
           intent="ghost"
-          size="sm"
+          size="md"
           onClick={() => void handleLogout()}
           state={loggingOut ? "loading" : "default"}
           className={cn(

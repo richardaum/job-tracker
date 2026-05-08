@@ -23,7 +23,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    trigger: <Button size="sm">Delete something</Button>,
+    trigger: <Button>Delete something</Button>,
     title: "Delete application",
     description:
       'Are you sure you want to delete "Senior engineer"? This cannot be undone.',
@@ -35,7 +35,7 @@ export const Default: Story = {
 
 export const PrimaryConfirm: Story = {
   args: {
-    trigger: <Button size="sm">Proceed</Button>,
+    trigger: <Button>Proceed</Button>,
     title: "Submit responses?",
     description: "You will not be able to edit answers after submitting.",
     confirmLabel: "Submit",

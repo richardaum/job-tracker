@@ -177,7 +177,7 @@ export function ApplicationTrackingPanel({
                         <Button
                           key={option.label}
                           type="button"
-                          size="sm"
+                          size="md"
                           intent="outlined"
                           className={cn(
                             "h-7 px-2 text-xs",
@@ -216,7 +216,7 @@ export function ApplicationTrackingPanel({
           )}
           <Button
             intent="secondary"
-            size="sm"
+            size="md"
             onClick={handleSaveStageUpdate}
             disabled={!canSaveStageUpdate}
             state={statusSaving ? "loading" : "default"}

@@ -33,7 +33,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    trigger: <Button size="sm">Open dialog</Button>,
+    trigger: <Button>Open dialog</Button>,
     title: "Delete application",
     description:
       "This action cannot be undone. You will permanently remove this application.",
@@ -42,12 +42,8 @@ export const Default: Story = {
     ),
     footer: (
       <div className={cn("flex justify-end gap-2")}>
-        <Button size="sm" intent="secondary">
-          Cancel
-        </Button>
-        <Button size="sm" intent="destructive">
-          Delete
-        </Button>
+        <Button intent="secondary">Cancel</Button>
+        <Button intent="destructive">Delete</Button>
       </div>
     ),
   },
@@ -61,7 +57,7 @@ export const Sizes: Story = {
           <Dialog
             key={size}
             size={size}
-            trigger={<Button size="sm">Open {size} dialog</Button>}
+            trigger={<Button>Open {size} dialog</Button>}
             title={`${size.toUpperCase()} Dialog`}
           >
             <div className={cn("py-10 text-center")}>

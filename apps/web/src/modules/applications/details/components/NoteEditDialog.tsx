@@ -90,7 +90,6 @@ export function NoteEditDialog({
         </div>
         <div className={cn("flex items-center justify-end gap-2")}>
           <Button
-            size="sm"
             intent="ghost"
             onClick={onClose}
             disabled={updatingNote || deletingNote}
@@ -98,7 +97,6 @@ export function NoteEditDialog({
             Cancel
           </Button>
           <Button
-            size="sm"
             intent="primary"
             onClick={() => void handleSave()}
             disabled={!canSaveEdit || deletingNote}

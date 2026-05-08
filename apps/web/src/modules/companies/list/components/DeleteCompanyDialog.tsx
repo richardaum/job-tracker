@@ -109,7 +109,6 @@ export function DeleteCompanyDialog({
         <Stack direction="row" gap="xs" justify="end">
           <Button
             intent="secondary"
-            size="sm"
             onClick={() => handleOpenChange(false)}
             disabled={submitting}
           >
@@ -117,7 +116,6 @@ export function DeleteCompanyDialog({
           </Button>
           <Button
             intent="destructive"
-            size="sm"
             state={submitting ? "loading" : "default"}
             disabled={submitting}
             onClick={() =>

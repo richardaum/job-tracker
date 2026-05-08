@@ -102,7 +102,7 @@ export default function ApplicationsPage() {
               router.push(`/applications/${applicationId}`);
             }}
           />
-          <Button intent="primary" size="sm" onClick={() => setOpenModal(true)}>
+          <Button intent="primary" size="md" onClick={() => setOpenModal(true)}>
             <PlusIcon size={16} weight="bold" className={cn("mr-2")} />
             New application
           </Button>

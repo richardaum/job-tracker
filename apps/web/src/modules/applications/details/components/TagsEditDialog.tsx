@@ -92,7 +92,6 @@ export function TagsEditDialog({
         <div className={cn("flex justify-end")}>
           <Button
             intent="primary"
-            size="sm"
             onClick={() => void handleSave()}
             state={saving ? "loading" : "default"}
             disabled={saving}

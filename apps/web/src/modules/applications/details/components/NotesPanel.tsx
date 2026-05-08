@@ -262,7 +262,7 @@ export function NotesPanel({
             />
             <div className={cn("flex justify-end")}>
               <Button
-                size="sm"
+                size="md"
                 intent="primary"
                 onClick={() => void handleSendNote()}
                 disabled={!canSend}

@@ -186,7 +186,6 @@ export function CompanyEditDialog({
         <div className={cn("flex justify-end")}>
           <Button
             intent="primary"
-            size="sm"
             onClick={() => void handleSave()}
             disabled={!nameDraft.trim() || saving}
             state={saving ? "loading" : "default"}

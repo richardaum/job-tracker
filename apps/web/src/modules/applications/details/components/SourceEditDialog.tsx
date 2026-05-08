@@ -83,7 +83,6 @@ export function SourceEditDialog({
         <div className={cn("flex justify-end")}>
           <Button
             intent="primary"
-            size="sm"
             onClick={() => void handleSave()}
             disabled={!canSave}
             state={saving ? "loading" : "default"}

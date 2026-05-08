@@ -173,7 +173,7 @@ export function HistoryPanel({
             onSuccess={onSuccess}
             onError={onError}
             trigger={
-              <Button intent="secondary" size="sm" className={cn("w-full")}>
+              <Button intent="secondary" size="md" className={cn("w-full")}>
                 Update status
               </Button>
             }
@@ -283,7 +283,7 @@ export function HistoryPanel({
                     <Button
                       key={option.label}
                       type="button"
-                      size="sm"
+                      size="md"
                       intent="outlined"
                       className={cn(
                         "h-7 px-2 text-xs",
@@ -317,7 +317,7 @@ export function HistoryPanel({
           <div className={cn("flex justify-end")}>
             <Button
               intent="primary"
-              size="sm"
+              size="md"
               onClick={() => void handleSaveEdit()}
               disabled={!canSaveEdit}
               state={updatingStageEvent ? "loading" : "default"}

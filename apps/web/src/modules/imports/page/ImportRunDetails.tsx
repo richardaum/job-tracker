@@ -94,7 +94,7 @@ export function ImportRunDetails({ run, onDeleted }: ImportRunDetailsProps) {
             trigger={
               <Button
                 intent="destructive"
-                size="sm"
+                size="md"
                 type="button"
                 leftIcon={<TrashIcon size={16} weight="regular" />}
               >

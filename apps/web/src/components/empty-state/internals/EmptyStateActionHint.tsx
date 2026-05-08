@@ -55,7 +55,7 @@ export function EmptyStateActionHint({
         </Stack>
         <Button
           intent="primary"
-          size="xs"
+          size="sm"
           type="button"
           leftIcon={<PlusIcon size={14} weight="bold" />}
           onClick={onAction}

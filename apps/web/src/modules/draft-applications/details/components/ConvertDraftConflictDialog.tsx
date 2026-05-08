@@ -119,7 +119,6 @@ export function ConvertDraftConflictDialog({
         >
           <Button
             intent="ghost"
-            size="sm"
             className={cn("text-text-primary hover:bg-bg-surface-hover")}
             disabled={isSubmitting}
             onClick={() => onOpenChange(false)}
@@ -129,7 +128,6 @@ export function ConvertDraftConflictDialog({
           <div className={cn("flex items-center gap-2")}>
             <Button
               intent="secondary"
-              size="sm"
               state={action === "create-duplicate" ? "loading" : "default"}
               disabled={isSubmitting}
               onClick={() => void handleDuplicate()}
@@ -138,7 +136,6 @@ export function ConvertDraftConflictDialog({
             </Button>
             <Button
               intent="destructive"
-              size="sm"
               state={action === "delete-previous" ? "loading" : "default"}
               disabled={isSubmitting}
               onClick={() => void handleReplace()}

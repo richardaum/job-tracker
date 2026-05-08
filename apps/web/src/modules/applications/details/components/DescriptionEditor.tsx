@@ -78,7 +78,7 @@ export function DescriptionEditor({
       <div className={cn("flex justify-end")}>
         <Button
           intent="primary"
-          size="sm"
+          size="md"
           onClick={handleSaveDescription}
           state={saving ? "loading" : "default"}
         >

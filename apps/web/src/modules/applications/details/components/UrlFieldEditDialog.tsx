@@ -92,7 +92,6 @@ export function UrlFieldEditDialog({ value, onSave }: UrlFieldEditDialogProps) {
                 />
                 <Button
                   intent="ghost"
-                  size="sm"
                   onClick={() => handleRemoveAt(index)}
                   disabled={saving}
                 >
@@ -105,7 +104,6 @@ export function UrlFieldEditDialog({ value, onSave }: UrlFieldEditDialogProps) {
         <div className={cn("flex items-center justify-between")}>
           <Button
             intent="secondary"
-            size="sm"
             onClick={handleAddUrl}
             disabled={saving || hasEmptyInput}
           >
@@ -120,7 +118,6 @@ export function UrlFieldEditDialog({ value, onSave }: UrlFieldEditDialogProps) {
         <div className={cn("flex justify-end")}>
           <Button
             intent="primary"
-            size="sm"
             onClick={() => void handleSave()}
             disabled={hasErrors || parsedUrls.join("\n") === normalized}
             state={saving ? "loading" : "default"}

@@ -69,7 +69,6 @@ export function NoteComposerExpandedDialog({
         </div>
         <div className={cn("flex justify-end")}>
           <Button
-            size="sm"
             intent="primary"
             onClick={() => void onSendNote()}
             disabled={!canSend}

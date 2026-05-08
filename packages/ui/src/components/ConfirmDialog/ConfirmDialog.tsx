@@ -67,7 +67,6 @@ export function ConfirmDialog({
     <Stack direction="row" gap="xs" justify="end">
       <Button
         intent="secondary"
-        size="sm"
         onClick={() => handleOpenChange(false)}
         disabled={submitting}
       >
@@ -75,7 +74,6 @@ export function ConfirmDialog({
       </Button>
       <Button
         intent={confirmIntent}
-        size="sm"
         state={submitting ? "loading" : "default"}
         onClick={() => void handleConfirm()}
       >

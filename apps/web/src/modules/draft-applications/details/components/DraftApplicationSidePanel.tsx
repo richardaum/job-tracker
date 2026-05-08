@@ -44,7 +44,7 @@ export function DraftOriginalSection({ sourceUrl }: { sourceUrl: string }) {
       </a>
       <Button
         intent="secondary"
-        size="sm"
+        size="md"
         type="button"
         onClick={() => void copyUrl()}
         leftIcon={<CopyIcon size={16} weight="bold" />}
@@ -85,7 +85,7 @@ export function DraftMetaSection({ draftId }: { draftId: string }) {
       </div>
       <Button
         intent="secondary"
-        size="sm"
+        size="md"
         type="button"
         onClick={() => void copyId()}
         leftIcon={<CopyIcon size={16} weight="bold" />}

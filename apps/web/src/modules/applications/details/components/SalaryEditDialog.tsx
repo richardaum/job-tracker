@@ -324,7 +324,6 @@ export function SalaryEditDialog(props: SalaryEditDialogProps) {
         <div className={cn("flex justify-end")}>
           <Button
             intent="primary"
-            size="sm"
             onClick={() => void handleSave()}
             state={saving ? "loading" : "default"}
             disabled={disabledInputs}

@@ -184,7 +184,7 @@ function ApplicationQuickEditModalForm({
       <Stack direction="row" gap="xs" justify="end" className={cn("mt-4")}>
         <Button
           intent="secondary"
-          size="sm"
+          size="md"
           onClick={onClose}
           disabled={loading}
         >
@@ -194,7 +194,7 @@ function ApplicationQuickEditModalForm({
           type="submit"
           form={formId}
           intent="primary"
-          size="sm"
+          size="md"
           state={loading ? "loading" : "default"}
         >
           {isEdit ? "Save changes" : "Create"}

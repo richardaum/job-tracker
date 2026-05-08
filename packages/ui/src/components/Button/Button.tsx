@@ -8,7 +8,7 @@ export type ButtonIntent =
   | "ghost"
   | "outlined"
   | "destructive";
-export type ButtonSize = "xs" | "sm" | "md";
+export type ButtonSize = "xs" | "sm" | "md" | "lg";
 export type ButtonState = "default" | "loading";
 
 export interface ButtonProps extends Omit<
@@ -36,9 +36,10 @@ const intentClasses: Record<ButtonIntent, string> = {
 };
 
 const sizeClasses: Record<ButtonSize, string> = {
-  xs: "px-2 py-1 text-xs",
-  sm: "px-5 py-2 text-sm",
-  md: "px-5 py-3 text-base",
+  xs: "px-5 py-2 text-sm",
+  sm: "px-5 py-3 text-base",
+  md: "px-6 py-3 text-lg",
+  lg: "px-6 py-3 text-lg",
 };
 
 export function Button({

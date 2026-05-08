@@ -150,7 +150,7 @@ export default function ImportsPage() {
             trigger={
               <Button
                 intent="destructive"
-                size="sm"
+                size="md"
                 type="button"
                 disabled={runs.length === 0}
                 leftIcon={<TrashSimpleIcon size={16} weight="regular" />}
@@ -168,7 +168,7 @@ export default function ImportsPage() {
             trigger={
               <Button
                 intent="primary"
-                size="sm"
+                size="md"
                 leftIcon={<PlusIcon size={16} weight="bold" />}
                 type="button"
               >
@@ -179,7 +179,7 @@ export default function ImportsPage() {
               <div className={cn("flex w-full justify-end gap-2")}>
                 <Button
                   intent="secondary"
-                  size="sm"
+                  size="md"
                   type="button"
                   onClick={() => handleOpenChange(false)}
                 >
@@ -187,7 +187,7 @@ export default function ImportsPage() {
                 </Button>
                 <Button
                   intent="primary"
-                  size="sm"
+                  size="md"
                   type="button"
                   disabled={!selectedHardcoded || creatingRun}
                   onClick={() => void handleStartRun()}

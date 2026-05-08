@@ -43,9 +43,10 @@ const dropdownIntentClasses: Record<ButtonIntent, string> = {
 };
 
 const sizeClasses: Record<ButtonSize, string> = {
-  xs: "px-2 py-[6px] text-xs",
-  sm: "px-5 py-[9px] text-sm",
-  md: "px-5 py-[14px] text-base",
+  xs: "px-5 py-[9px] text-sm",
+  sm: "px-5 py-[14px] text-base",
+  md: "px-6 py-[14px] text-lg",
+  lg: "px-6 py-[14px] text-lg",
 };
 
 export function DropdownButton({

@@ -156,7 +156,7 @@ export function UpdateStatusAction({
                   <Button
                     key={option.label}
                     type="button"
-                    size="sm"
+                    size="md"
                     intent="outlined"
                     className={cn(
                       "h-7 px-2 text-xs",
@@ -190,7 +190,7 @@ export function UpdateStatusAction({
         <div className={cn("flex justify-end")}>
           <Button
             intent="primary"
-            size="sm"
+            size="md"
             onClick={() => void handleSaveStatusUpdate()}
             disabled={!canSave}
             state={saving ? "loading" : "default"}

@@ -48,7 +48,7 @@ function NotesComposerLikeFixture({
         />
         <div className={cn("flex justify-end")}>
           <Button
-            size="sm"
+            size="md"
             intent="primary"
             type="button"
             onClick={() => {

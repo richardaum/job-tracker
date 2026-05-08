@@ -169,7 +169,7 @@ export function SalaryCalculatorPage() {
                   <div className={cn("w-full sm:w-auto sm:shrink-0")}>
                     <Button
                       intent="secondary"
-                      size="sm"
+                      size="md"
                       onClick={fetchRates}
                       className={cn("w-full sm:w-auto")}
                     >
@@ -190,7 +190,7 @@ export function SalaryCalculatorPage() {
                 <span>Rates updated: {formatStaleTime(lastUpdated)}</span>
                 <Button
                   intent="ghost"
-                  size="sm"
+                  size="md"
                   onClick={fetchRates}
                   state={loading ? "loading" : "default"}
                   leftIcon={

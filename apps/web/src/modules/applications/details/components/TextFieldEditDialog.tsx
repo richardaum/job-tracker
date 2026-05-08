@@ -65,7 +65,6 @@ export function TextFieldEditDialog({
         <div className={cn("flex justify-end")}>
           <Button
             intent="primary"
-            size="sm"
             onClick={() => void handleSave()}
             disabled={!draft.trim() || draft.trim() === value}
             state={saving ? "loading" : "default"}

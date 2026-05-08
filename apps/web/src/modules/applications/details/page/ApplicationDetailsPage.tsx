@@ -114,7 +114,7 @@ export default function ApplicationDetailsPage({ params }: PageProps) {
       trigger={
         <Button
           intent="secondary"
-          size="sm"
+          size="md"
           rightIcon={
             <CaretDownIcon
               size={12}

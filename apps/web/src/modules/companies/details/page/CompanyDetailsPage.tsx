@@ -105,7 +105,7 @@ export default function CompanyDetailsPage({ params }: PageProps) {
       trigger={
         <Button
           intent="secondary"
-          size="sm"
+          size="md"
           rightIcon={
             <CaretDownIcon
               size={12}
@@ -249,7 +249,7 @@ export default function CompanyDetailsPage({ params }: PageProps) {
                 <div className={cn("flex justify-end")}>
                   <Button
                     intent="primary"
-                    size="sm"
+                    size="md"
                     onClick={() => void handleSaveDescription()}
                     disabled={!descriptionChanged || savingDescription}
                     state={savingDescription ? "loading" : "default"}
