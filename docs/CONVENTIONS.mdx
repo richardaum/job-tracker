@@ -106,6 +106,8 @@ Full technical notes: `specs/022-technical-view-model-web-layer/README.md`.
 ## TypeScript and React
 
 - **Imports**: Prefer **`@/…`** (or the package’s configured alias to `src/`) over **`../`** traversals. Avoid inline type-only imports like `Foo<import("@/path").Bar>`. Use a top-of-file `import type { Bar } from "@/path"` (or `import { type Bar }`) and `Foo<Bar>`. Inline `import("...")` types are harder to read, grep, and refactor.
+- **Async errors**: Prefer **`to(...)`** from **`@job-tracker/async`** for promise error handling (`const [error, data] = await to(promise)`) instead of wrapping async flows in `try/catch` when behavior is equivalent. Keep `try/catch` where language-level control flow is required (for example, `finally`, synchronous exceptions, or framework boundaries that rely on thrown errors in a specific block).
+- **Reexports**: Avoid files that only forward symbols (`export { x } from './x'`, barrels created just to shorten paths). Import from the module that declares the export so jumps, refactors, and tooling stay truthful. **Exception:** deliberate **public entrypoints** — e.g. a workspace package **`index.ts`**, or a module boundary documented as the stable façade for that slice.
 - **Named types**: Prefer a top-level `type` or `interface` over inline anonymous shapes in parameters, props, return types, and generic arguments when the object or union is non-trivial or reused. Keeps signatures readable and searchable. Fine to keep primitives, simple utilities (`Record<string, string>`), or one-off literals inline when a name adds no clarity.
 
 ## React 19 and React Compiler
@@ -181,7 +183,20 @@ Before finalizing an extraction, document or validate these points in the PR/spe
 
 ## GraphQL list consistency
 
-After mutations that create or delete list-backed entities (e.g. applications or companies), refetch the list query with **`awaitRefetchQueries: true`** so the list updates before success UI (toast, close, redirect).
+For delete mutations on list-backed entities in `apps/web`, prefer cache-first list consistency with **`removeDeletedEntityFromListCache`** from `apps/web/src/modules/applications/shared/utils/apolloDeleteCache.ts` instead of defaulting to `refetchQueries`.
+
+- In the mutation `update(cache, { data })`, call `removeDeletedEntityFromListCache(cache, { mutationData: data, mutation: DeleteXDocument, query: ListXDocument })`.
+- Pass generated GraphQL documents from `@/gql/hooks` (`DeleteXDocument` + list query document). Do not hardcode list field names, typenames, or manual `deletedId` parsing in the component.
+- Keep refetch as a fallback only when list consistency depends on server-side derivations that the local cache update cannot represent safely.
+
+### Delete mutations payload standard
+
+- Do not model delete mutations as bare **`Boolean`** returns.
+- For delete-by-id operations, return a payload object with at least:
+  - **`success: Boolean!`**
+  - **`deletedId: ID!`**
+- Keep mutation names explicit (`deleteApplication`, `deleteCompany`, etc.) and use the payload in client operations to preserve a typed, extensible contract.
+- When expanding behavior later (soft delete metadata, cascade stats, audit IDs), extend the payload object instead of changing a scalar contract.
 
 ## Agent skill: `job-tracker-api` (GraphQL)
 

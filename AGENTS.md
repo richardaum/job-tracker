@@ -61,7 +61,7 @@ Build from repo root: `docker build -f apps/api/Dockerfile -t job-tracker-api:lo
 
 ## Database migrations
 
-`apps/api/src/database/`; watch `node scripts/watch-migrations.mjs`; squash `pnpm db:migrate:squash`.
+`apps/api/src/database/`; watch `node scripts/watch-migrations.mjs`.
 
 ## PM2
 
@@ -73,4 +73,4 @@ GitHub Actions: `ci` (Postgres 16-alpine, Node 22, pnpm 10.8.1), `e2e`, `docker-
 
 ## Conventions
 
-Code, LeanSpec (`specs/`), Storybook: **`docs/CONVENTIONS.mdx`** (Storybook → Documentation → Conventions).
+Code, LeanSpec (`specs/`), and Storybook: consulting and following **`docs/CONVENTIONS.mdx`** is **mandatory** (Storybook -> Documentation -> Conventions). For every task, you must also proactively search for relevant keywords related to the work being performed to ensure full adherence to the project guides.
