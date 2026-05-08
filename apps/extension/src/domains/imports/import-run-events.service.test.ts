@@ -1,11 +1,14 @@
 import { describe, expect, it, vi } from "vitest";
 
 import type { ApiService } from "@/domains/api/api.service";
-import type { ImportApplicationService } from "@/domains/import-application/import-application.service";
 import type { LogService } from "@/domains/log/log.service";
+import type { PlanService } from "@/domains/plan/services/plan.service";
 import { ImportRunEventType, ImportRunStatus } from "@/gql/graphql";
 
 import { ImportRunEventsService } from "./import-run-events.service";
+
+const TEST_ENTRY_URL =
+  "https://remoteyeah.com/remote-frontend-engineer+reactjs-jobs-in-brazil+latin-america+worldwide#jobs";
 
 describe("ImportRunEventsService", () => {
   it("attempts startup recovery for RUNNING runs", async () => {
@@ -24,7 +27,7 @@ describe("ImportRunEventsService", () => {
     const service = new ImportRunEventsService(
       setup.apiService,
       setup.logService,
-      setup.importApplicationService,
+      setup.planService,
     );
     service.start();
 
@@ -32,7 +35,11 @@ describe("ImportRunEventsService", () => {
       expect(setup.claimImportRun).toHaveBeenCalledWith("run-1");
     });
     expect(setup.claimImportRun).not.toHaveBeenCalledWith("run-2");
-    expect(setup.executeImportRun).toHaveBeenCalledTimes(1);
+    expect(setup.executePlan).toHaveBeenCalledTimes(1);
+    const calledPlan = setup.executePlan.mock.calls[0]?.[0] as {
+      steps: Array<{ action: { input: { surfaceUrl: string } } }>;
+    };
+    expect(calledPlan.steps[0].action.input.surfaceUrl).toBe(TEST_ENTRY_URL);
   });
 
   it("does not fail startup when recovery query fails", async () => {
@@ -43,7 +50,7 @@ describe("ImportRunEventsService", () => {
     const service = new ImportRunEventsService(
       setup.apiService,
       setup.logService,
-      setup.importApplicationService,
+      setup.planService,
     );
 
     expect(() => service.start()).not.toThrow();
@@ -64,7 +71,7 @@ describe("ImportRunEventsService", () => {
     const service = new ImportRunEventsService(
       setup.apiService,
       setup.logService,
-      setup.importApplicationService,
+      setup.planService,
     );
     service.start();
 
@@ -81,7 +88,11 @@ describe("ImportRunEventsService", () => {
         ImportRunStatus.Completed,
       );
     });
-    expect(setup.executeImportRun).toHaveBeenCalledTimes(1);
+    expect(setup.executePlan).toHaveBeenCalledTimes(1);
+    const calledPlan = setup.executePlan.mock.calls[0]?.[0] as {
+      steps: Array<{ action: { input: { surfaceUrl: string } } }>;
+    };
+    expect(calledPlan.steps[0].action.input.surfaceUrl).toBe(TEST_ENTRY_URL);
   });
 
   it("skips execution when claim fails", async () => {
@@ -93,7 +104,7 @@ describe("ImportRunEventsService", () => {
     const service = new ImportRunEventsService(
       setup.apiService,
       setup.logService,
-      setup.importApplicationService,
+      setup.planService,
     );
     service.start();
 
@@ -102,20 +113,20 @@ describe("ImportRunEventsService", () => {
       expect(setup.claimImportRun).toHaveBeenCalledWith("run-1");
     });
     expect(setup.updateImportRunStatus).not.toHaveBeenCalled();
-    expect(setup.executeImportRun).not.toHaveBeenCalled();
+    expect(setup.executePlan).not.toHaveBeenCalled();
   });
 
   it("marks run failed when execution throws", async () => {
     const setup = createSetup({
       claimValue: { data: { claimImportRun: { id: "run-1" } } },
-      executeImportRunError: new Error("boom"),
+      executePlanError: new Error("boom"),
       importRunsValue: { data: { importRuns: [] } },
     });
 
     const service = new ImportRunEventsService(
       setup.apiService,
       setup.logService,
-      setup.importApplicationService,
+      setup.planService,
     );
     service.start();
 
@@ -142,7 +153,7 @@ describe("ImportRunEventsService", () => {
     const service = new ImportRunEventsService(
       setup.apiService,
       setup.logService,
-      setup.importApplicationService,
+      setup.planService,
     );
     service.start();
 
@@ -183,10 +194,10 @@ describe("ImportRunEventsService", () => {
 
     const serviceA = new ImportRunEventsService(apiService, logA, {
       execute: executeA,
-    } as unknown as ImportApplicationService);
+    } as unknown as PlanService);
     const serviceB = new ImportRunEventsService(apiService, logB, {
       execute: executeB,
-    } as unknown as ImportApplicationService);
+    } as unknown as PlanService);
 
     serviceA.start();
     serviceB.start();
@@ -218,11 +229,11 @@ describe("ImportRunEventsService", () => {
 
 function createSetup({
   claimValue,
-  executeImportRunError,
+  executePlanError,
   importRunsValue,
 }: {
   claimValue: { data: { claimImportRun: null | { id: string } } };
-  executeImportRunError?: Error;
+  executePlanError?: Error;
   importRunsValue:
     | { data: { importRuns: Array<ReturnType<typeof createRun>> } }
     | Promise<never>;
@@ -244,23 +255,21 @@ function createSetup({
     updateImportRunStatus,
     subscribeToImportRunEvents,
   } as unknown as ApiService;
-  const executeImportRun = vi.fn();
-  if (executeImportRunError) {
-    executeImportRun.mockRejectedValue(executeImportRunError);
+  const executePlan = vi.fn();
+  if (executePlanError) {
+    executePlan.mockRejectedValue(executePlanError);
   } else {
-    executeImportRun.mockResolvedValue(undefined);
+    executePlan.mockResolvedValue(undefined);
   }
-  const importApplicationService = {
-    execute: executeImportRun,
-  } as unknown as ImportApplicationService;
+  const planService = { execute: executePlan } as unknown as PlanService;
   const logService = { debug: vi.fn() } as unknown as LogService;
 
   return {
     apiService,
-    importApplicationService,
+    planService,
     logService,
     claimImportRun,
-    executeImportRun,
+    executePlan,
     updateImportRunStatus,
     emitEvent(event: ReturnType<typeof createEvent>) {
       const maybeHandler = subscribeToImportRunEvents.mock.calls[0]?.[0];
@@ -283,9 +292,9 @@ function createEvent(type: ImportRunEventType | string) {
 function createRun({ id, status }: { id: string; status: ImportRunStatus }) {
   return {
     id,
-    importerId: "imp-1",
-    importerName: "Importer",
-    entryUrl: "https://example.com/jobs",
+    importerId: "remoteyeah",
+    importerName: "RemoteYeah",
+    entryUrl: TEST_ENTRY_URL,
     status,
     startedAt: new Date().toISOString(),
     importerSource: "test",
