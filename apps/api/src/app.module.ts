@@ -1,7 +1,12 @@
 import { apolloGraphOsPlugins } from "@api/graphql/apollo-graphos-plugins";
 import type { ApolloDriverConfig } from "@nestjs/apollo";
 import { ApolloDriver } from "@nestjs/apollo";
-import { Module } from "@nestjs/common";
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  RequestMethod,
+} from "@nestjs/common";
 import { GraphQLModule } from "@nestjs/graphql";
 import { join } from "path";
 
@@ -15,6 +20,7 @@ import { CurrencyConverterModule } from "./domains/currency-converter/currency-c
 import { DraftApplicationsModule } from "./domains/draft-applications/draft-applications.module";
 import { ImportsModule } from "./domains/imports/imports.module";
 import { NotesModule } from "./domains/notes/notes.module";
+import { GraphqlSseMiddleware } from "./graphql/graphql-sse.middleware";
 
 @Module({
   imports: [
@@ -35,5 +41,12 @@ import { NotesModule } from "./domains/notes/notes.module";
     }),
   ],
   controllers: [AppController],
+  providers: [GraphqlSseMiddleware],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer): void {
+    consumer
+      .apply(GraphqlSseMiddleware)
+      .forRoutes({ path: "graphql-sse/stream", method: RequestMethod.ALL });
+  }
+}
