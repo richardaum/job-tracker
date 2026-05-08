@@ -476,6 +476,36 @@ export type ImportRunEventsSubscription = {
   };
 };
 
+export type ImportRunsQueryVariables = Exact<{ [key: string]: never }>;
+
+export type ImportRunsQuery = {
+  __typename?: "Query";
+  importRuns: Array<{
+    __typename?: "ImportRunType";
+    id: string;
+    importerId: string;
+    importerName: string;
+    entryUrl: string;
+    status: ImportRunStatus;
+    startedAt: any;
+    importerSource: string;
+  }>;
+};
+
+export type UpdateImportRunStatusMutationVariables = Exact<{
+  id: Scalars["ID"]["input"];
+  status: ImportRunStatus;
+}>;
+
+export type UpdateImportRunStatusMutation = {
+  __typename?: "Mutation";
+  updateImportRunStatus: {
+    __typename?: "ImportRunType";
+    id: string;
+    status: ImportRunStatus;
+  };
+};
+
 export const ClaimImportRunDocument = {
   kind: "Document",
   definitions: [
@@ -654,4 +684,112 @@ export const ImportRunEventsDocument = {
 } as unknown as DocumentNode<
   ImportRunEventsSubscription,
   ImportRunEventsSubscriptionVariables
+>;
+export const ImportRunsDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "query",
+      name: { kind: "Name", value: "ImportRuns" },
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "importRuns" },
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                { kind: "Field", name: { kind: "Name", value: "importerId" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "importerName" },
+                },
+                { kind: "Field", name: { kind: "Name", value: "entryUrl" } },
+                { kind: "Field", name: { kind: "Name", value: "status" } },
+                { kind: "Field", name: { kind: "Name", value: "startedAt" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "importerSource" },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ImportRunsQuery, ImportRunsQueryVariables>;
+export const UpdateImportRunStatusDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "UpdateImportRunStatus" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "id" } },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "status" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: {
+              kind: "NamedType",
+              name: { kind: "Name", value: "ImportRunStatus" },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "updateImportRunStatus" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "id" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "id" },
+                },
+              },
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "status" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "status" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                { kind: "Field", name: { kind: "Name", value: "status" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  UpdateImportRunStatusMutation,
+  UpdateImportRunStatusMutationVariables
 >;

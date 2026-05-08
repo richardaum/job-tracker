@@ -17,6 +17,8 @@ type Documents = {
   "mutation ClaimImportRun($id: ID!) {\n  claimImportRun(id: $id) {\n    id\n    importerId\n    importerName\n    entryUrl\n    status\n    startedAt\n    importerSource\n  }\n}": typeof types.ClaimImportRunDocument;
   "mutation CreateDraftApplication($input: CreateDraftApplicationInput!) {\n  createDraftApplication(input: $input) {\n    id\n    url\n    title\n  }\n}": typeof types.CreateDraftApplicationDocument;
   "subscription ImportRunEvents {\n  importRunEvents {\n    type\n    occurredAt\n    run {\n      id\n      importerId\n      importerName\n      entryUrl\n      status\n      startedAt\n      importerSource\n    }\n  }\n}": typeof types.ImportRunEventsDocument;
+  "query ImportRuns {\n  importRuns {\n    id\n    importerId\n    importerName\n    entryUrl\n    status\n    startedAt\n    importerSource\n  }\n}": typeof types.ImportRunsDocument;
+  "mutation UpdateImportRunStatus($id: ID!, $status: ImportRunStatus!) {\n  updateImportRunStatus(id: $id, status: $status) {\n    id\n    status\n  }\n}": typeof types.UpdateImportRunStatusDocument;
 };
 const documents: Documents = {
   "mutation ClaimImportRun($id: ID!) {\n  claimImportRun(id: $id) {\n    id\n    importerId\n    importerName\n    entryUrl\n    status\n    startedAt\n    importerSource\n  }\n}":
@@ -25,6 +27,10 @@ const documents: Documents = {
     types.CreateDraftApplicationDocument,
   "subscription ImportRunEvents {\n  importRunEvents {\n    type\n    occurredAt\n    run {\n      id\n      importerId\n      importerName\n      entryUrl\n      status\n      startedAt\n      importerSource\n    }\n  }\n}":
     types.ImportRunEventsDocument,
+  "query ImportRuns {\n  importRuns {\n    id\n    importerId\n    importerName\n    entryUrl\n    status\n    startedAt\n    importerSource\n  }\n}":
+    types.ImportRunsDocument,
+  "mutation UpdateImportRunStatus($id: ID!, $status: ImportRunStatus!) {\n  updateImportRunStatus(id: $id, status: $status) {\n    id\n    status\n  }\n}":
+    types.UpdateImportRunStatusDocument,
 };
 
 /**
@@ -59,6 +65,18 @@ export function graphql(
 export function graphql(
   source: "subscription ImportRunEvents {\n  importRunEvents {\n    type\n    occurredAt\n    run {\n      id\n      importerId\n      importerName\n      entryUrl\n      status\n      startedAt\n      importerSource\n    }\n  }\n}",
 ): (typeof documents)["subscription ImportRunEvents {\n  importRunEvents {\n    type\n    occurredAt\n    run {\n      id\n      importerId\n      importerName\n      entryUrl\n      status\n      startedAt\n      importerSource\n    }\n  }\n}"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: "query ImportRuns {\n  importRuns {\n    id\n    importerId\n    importerName\n    entryUrl\n    status\n    startedAt\n    importerSource\n  }\n}",
+): (typeof documents)["query ImportRuns {\n  importRuns {\n    id\n    importerId\n    importerName\n    entryUrl\n    status\n    startedAt\n    importerSource\n  }\n}"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: "mutation UpdateImportRunStatus($id: ID!, $status: ImportRunStatus!) {\n  updateImportRunStatus(id: $id, status: $status) {\n    id\n    status\n  }\n}",
+): (typeof documents)["mutation UpdateImportRunStatus($id: ID!, $status: ImportRunStatus!) {\n  updateImportRunStatus(id: $id, status: $status) {\n    id\n    status\n  }\n}"];
 
 export function graphql(source: string) {
   return (documents as any)[source] ?? {};

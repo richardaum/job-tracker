@@ -1,0 +1,11 @@
+query ImportRuns {
+  importRuns {
+    id
+    importerId
+    importerName
+    entryUrl
+    status
+    startedAt
+    importerSource
+  }
+}

@@ -8,9 +8,57 @@ import { ImportRunEventType, ImportRunStatus } from "@/gql/graphql";
 import { ImportRunEventsService } from "./import-run-events.service";
 
 describe("ImportRunEventsService", () => {
+  it("attempts startup recovery for RUNNING runs", async () => {
+    const setup = createSetup({
+      claimValue: { data: { claimImportRun: { id: "run-1" } } },
+      importRunsValue: {
+        data: {
+          importRuns: [
+            createRun({ id: "run-1", status: ImportRunStatus.Running }),
+            createRun({ id: "run-2", status: ImportRunStatus.Completed }),
+          ],
+        },
+      },
+    });
+
+    const service = new ImportRunEventsService(
+      setup.apiService,
+      setup.logService,
+      setup.importApplicationService,
+    );
+    service.start();
+
+    await vi.waitFor(() => {
+      expect(setup.claimImportRun).toHaveBeenCalledWith("run-1");
+    });
+    expect(setup.claimImportRun).not.toHaveBeenCalledWith("run-2");
+    expect(setup.executeImportRun).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not fail startup when recovery query fails", async () => {
+    const setup = createSetup({
+      claimValue: { data: { claimImportRun: null } },
+      importRunsValue: Promise.reject(new Error("network")),
+    });
+    const service = new ImportRunEventsService(
+      setup.apiService,
+      setup.logService,
+      setup.importApplicationService,
+    );
+
+    expect(() => service.start()).not.toThrow();
+    await vi.waitFor(() => {
+      expect(setup.logService.debug).toHaveBeenCalledWith(
+        "import-run-events:recovery-error",
+        expect.any(Object),
+      );
+    });
+  });
+
   it("claims and runs created events with status transitions", async () => {
     const setup = createSetup({
       claimValue: { data: { claimImportRun: { id: "run-1" } } },
+      importRunsValue: { data: { importRuns: [] } },
     });
 
     const service = new ImportRunEventsService(
@@ -39,6 +87,7 @@ describe("ImportRunEventsService", () => {
   it("skips execution when claim fails", async () => {
     const setup = createSetup({
       claimValue: { data: { claimImportRun: null } },
+      importRunsValue: { data: { importRuns: [] } },
     });
 
     const service = new ImportRunEventsService(
@@ -60,6 +109,7 @@ describe("ImportRunEventsService", () => {
     const setup = createSetup({
       claimValue: { data: { claimImportRun: { id: "run-1" } } },
       executeImportRunError: new Error("boom"),
+      importRunsValue: { data: { importRuns: [] } },
     });
 
     const service = new ImportRunEventsService(
@@ -87,6 +137,7 @@ describe("ImportRunEventsService", () => {
   it("ignores unknown events safely", async () => {
     const setup = createSetup({
       claimValue: { data: { claimImportRun: null } },
+      importRunsValue: { data: { importRuns: [] } },
     });
     const service = new ImportRunEventsService(
       setup.apiService,
@@ -106,11 +157,18 @@ describe("ImportRunEventsService", () => {
 function createSetup({
   claimValue,
   executeImportRunError,
+  importRunsValue,
 }: {
   claimValue: { data: { claimImportRun: null | { id: string } } };
   executeImportRunError?: Error;
+  importRunsValue:
+    | { data: { importRuns: Array<ReturnType<typeof createRun>> } }
+    | Promise<never>;
 }) {
   const claimImportRun = vi.fn().mockResolvedValue(claimValue);
+  const importRuns = vi.fn().mockImplementation(async () => {
+    return await importRunsValue;
+  });
   const updateImportRunStatus = vi.fn().mockResolvedValue({});
   const subscribeToImportRunEvents = vi.fn(
     (handler: (event: ReturnType<typeof createEvent>) => void) => {
@@ -120,6 +178,7 @@ function createSetup({
   );
   const apiService = {
     claimImportRun,
+    importRuns,
     updateImportRunStatus,
     subscribeToImportRunEvents,
   } as unknown as ApiService;

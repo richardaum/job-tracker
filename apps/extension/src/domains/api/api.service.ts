@@ -18,6 +18,7 @@ import {
   type CreateDraftApplicationInput,
   ImportRunEventsDocument,
   type ImportRunEventsSubscription,
+  ImportRunsDocument,
   ImportRunStatus,
   UpdateImportRunStatusDocument,
 } from "@/gql/graphql";
@@ -84,6 +85,13 @@ export class ApiService {
     return await this.client.mutate({
       mutation: UpdateImportRunStatusDocument,
       variables: { id, status },
+    });
+  }
+
+  async importRuns() {
+    return await this.client.query({
+      query: ImportRunsDocument,
+      fetchPolicy: "network-only",
     });
   }
 

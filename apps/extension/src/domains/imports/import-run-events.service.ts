@@ -33,6 +33,7 @@ export class ImportRunEventsService {
       return;
     }
     this.logService.debug("import-run-events:start");
+    void this.recoverOutstandingRuns();
     this.subscription = this.apiService.subscribeToImportRunEvents(
       (event) => {
         this.logService.debug("import-run-events:event", {
@@ -52,6 +53,26 @@ export class ImportRunEventsService {
         this.logService.debug("import-run-events:error", { error });
       },
     );
+  }
+
+  private async recoverOutstandingRuns(): Promise<void> {
+    try {
+      const response = await this.apiService.importRuns();
+      const runningRuns =
+        response.data?.importRuns?.filter(
+          (run) => run.status === ImportRunStatus.Running,
+        ) ?? [];
+
+      for (const run of runningRuns) {
+        await this.handleImportRunCreated({
+          type: ImportRunEventType.ImportRunCreated,
+          occurredAt: new Date().toISOString(),
+          run,
+        });
+      }
+    } catch (error) {
+      this.logService.debug("import-run-events:recovery-error", { error });
+    }
   }
 
   private async routeEvent(event: ImportRunEvent): Promise<void> {
