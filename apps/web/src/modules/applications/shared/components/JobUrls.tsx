@@ -10,11 +10,7 @@ import {
 } from "@job-tracker/ui";
 import React from "react";
 
-export function normalizeJobUrls(
-  urls: readonly string[] | null | undefined,
-): string[] {
-  return (urls ?? []).map((url) => url.trim()).filter((url) => url.length > 0);
-}
+import { normalizeJobUrls } from "./job-urls.utils";
 
 export function JobUrls({
   urls,

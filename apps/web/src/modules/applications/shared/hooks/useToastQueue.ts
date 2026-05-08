@@ -1,7 +1,7 @@
 import { type ToastIntent, type ToastProps } from "@job-tracker/ui";
 import { useMemo, useState } from "react";
 
-import { useOptionalToastQueueContext } from "./ToastQueueProvider";
+import { useOptionalToastQueueContext } from "./useToastQueueContext";
 
 interface UseToastQueueReturn {
   toastProps: Pick<ToastProps, "toasts" | "onToastOpenChange">;

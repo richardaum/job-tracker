@@ -1,31 +1,9 @@
 "use client";
 
-import {
-  Toast,
-  type ToastIntent,
-  type ToastItem,
-  type ToastProps,
-} from "@job-tracker/ui";
-import {
-  createContext,
-  type ReactNode,
-  useCallback,
-  useContext,
-  useMemo,
-  useState,
-} from "react";
+import { Toast, type ToastIntent, type ToastItem } from "@job-tracker/ui";
+import { type ReactNode, useCallback, useMemo, useState } from "react";
 
-interface ToastQueueContextValue {
-  toastProps: Pick<ToastProps, "toasts" | "onToastOpenChange">;
-  enqueueToast: (input: {
-    title: string;
-    intent?: ToastIntent;
-    description?: string;
-  }) => void;
-  dismissToast: (id: string, open: boolean) => void;
-}
-
-const ToastQueueContext = createContext<ToastQueueContextValue | null>(null);
+import { ToastQueueContext } from "./toast-queue.context";
 
 export function ToastQueueProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<ToastItem[]>([]);
@@ -69,18 +47,4 @@ export function ToastQueueProvider({ children }: { children: ReactNode }) {
       <Toast {...toastProps} />
     </ToastQueueContext.Provider>
   );
-}
-
-export function useToastQueueContext() {
-  const context = useContext(ToastQueueContext);
-
-  if (!context) {
-    throw new Error("useToastQueue must be used within ToastQueueProvider");
-  }
-
-  return context;
-}
-
-export function useOptionalToastQueueContext() {
-  return useContext(ToastQueueContext);
 }

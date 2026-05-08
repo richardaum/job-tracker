@@ -13,8 +13,7 @@ import type { ReactNode } from "react";
 
 import { EmptyState } from "@/components/empty-state";
 import { ApplicationStage } from "@/gql/hooks";
-
-import { formatStage } from "./StatusBadge";
+import { formatStage } from "@/modules/applications/shared/components/status-badge.utils";
 
 interface StageTimelineItem {
   id: string;

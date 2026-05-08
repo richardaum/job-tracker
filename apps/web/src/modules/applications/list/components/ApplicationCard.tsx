@@ -30,17 +30,13 @@ import {
 import { ApplicationTags } from "@/modules/applications/shared/components/ApplicationTags";
 import { CompanyNameWithPopover } from "@/modules/applications/shared/components/CompanyNameWithPopover";
 import { InlineMetaDot } from "@/modules/applications/shared/components/InlineMetaDot";
-import {
-  JobUrls,
-  normalizeJobUrls,
-} from "@/modules/applications/shared/components/JobUrls";
+import { normalizeJobUrls } from "@/modules/applications/shared/components/job-urls.utils";
+import { JobUrls } from "@/modules/applications/shared/components/JobUrls";
 import { SalaryPeriodTooltip } from "@/modules/applications/shared/components/SalaryPeriodTooltip";
 import { SalaryView } from "@/modules/applications/shared/components/SalaryView";
 import { StageTimeline } from "@/modules/applications/shared/components/StageTimeline";
-import {
-  formatStage,
-  StatusBadge,
-} from "@/modules/applications/shared/components/StatusBadge";
+import { formatStage } from "@/modules/applications/shared/components/status-badge.utils";
+import { StatusBadge } from "@/modules/applications/shared/components/StatusBadge";
 import { formatApplicationSourceLabel } from "@/modules/applications/shared/utils/applicationSourceLabel";
 
 export type { ApplicationCardApplication } from "@/modules/applications/list/hooks/useApplicationCardViewModel";
