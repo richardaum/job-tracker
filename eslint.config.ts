@@ -2,6 +2,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import eslint from "@eslint/js";
+import jobTrackerEslintPlugin from "@job-tracker/eslint-plugin";
 import nextPlugin from "@next/eslint-plugin-next";
 import { defineConfig } from "eslint/config";
 import eslintConfigPrettier from "eslint-config-prettier";
@@ -14,8 +15,6 @@ import simpleImportSort from "eslint-plugin-simple-import-sort";
 import testingLibrary from "eslint-plugin-testing-library";
 import globals from "globals";
 import tseslint from "typescript-eslint";
-
-import jobTrackerEslintPlugin from "./eslint-plugins/job-tracker/index.js";
 
 /** ESLint resolves `better-tailwindcss` `cwd` from process cwd unless we pass an absolute package root. */
 const repoRootDir = dirname(fileURLToPath(import.meta.url));
@@ -297,7 +296,7 @@ export default defineConfig(
       "packages/async/**",
     ],
     plugins: { "job-tracker": jobTrackerEslintPlugin },
-    rules: { "job-tracker/prefer-to-over-async-try-catch": "warn" },
+    rules: { "job-tracker/prefer-to-over-try-catch": "warn" },
   },
   {
     files: ["**/*.{ts,tsx}"],

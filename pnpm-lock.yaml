@@ -11,6 +11,9 @@ importers:
       '@eslint/js':
         specifier: ^9.39.4
         version: 9.39.4
+      '@job-tracker/eslint-plugin':
+        specifier: workspace:*
+        version: link:packages/eslint-plugin
       '@next/eslint-plugin-next':
         specifier: 16.3.0-canary.6
         version: 16.3.0-canary.6
@@ -125,6 +128,9 @@ importers:
       graphql:
         specifier: ^16.13.2
         version: 16.13.2
+      graphql-sse:
+        specifier: ^2.6.0
+        version: 2.6.0(graphql@16.13.2)
       jsonwebtoken:
         specifier: ^9.0.3
         version: 9.0.3
@@ -444,6 +450,21 @@ importers:
         specifier: workspace:*
         version: link:../async
     devDependencies:
+      typescript:
+        specifier: ^5.8.3
+        version: 5.9.3
+
+  packages/eslint-plugin:
+    devDependencies:
+      '@types/estree':
+        specifier: ^1.0.8
+        version: 1.0.8
+      '@types/node':
+        specifier: ^22.15.3
+        version: 22.19.17
+      eslint:
+        specifier: ^9.39.4
+        version: 9.39.4(jiti@2.6.1)
       typescript:
         specifier: ^5.8.3
         version: 5.9.3
