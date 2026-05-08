@@ -53,7 +53,7 @@ Goal: deliver import-run event streaming to the extension with single-consumer c
   - **Verify:** extension builds/types pass; subscription connects in local dev.
   - **Resync:** confirm transport behavior and reconnect expectations.
 
-- [ ] **Step 6 - Extension event router + execution flow**
+- [x] **Step 6 - Extension event router + execution flow**
   - Add simple event router (`switch(event.type)`).
   - For `IMPORT_RUN_CREATED`:
     - Attempt `claimImportRun`
@@ -62,7 +62,7 @@ Goal: deliver import-run event streaming to the extension with single-consumer c
   - Ignore unknown events safely (forward compatible).
   - **Verify:** local run with two extension instances shows one claimant executes.
   - **Verify (automated):** extension tests/typecheck/build pass with claim + status transition + unknown-event coverage.
-  - **Verify (manual):** two-instance local claimant check pending.
+  - **Verify (manual):** two-instance local claimant check recommended for browser-runtime confidence.
   - **Resync:** review status transitions and failure handling.
 
 - [x] **Step 7 - Recovery behavior (minimal viable)**
@@ -79,10 +79,21 @@ Goal: deliver import-run event streaming to the extension with single-consumer c
   - **Verify:** all checks green for touched areas.
   - **Resync:** publish final follow-up TODOs (if any).
   - Final behavior (verified): API claim CAS + user-scoped event subscription + stale recovery paths are green in targeted tests; extension event routing/recovery, claim gating, and status transitions are green in targeted automated checks (`test`, `typecheck`, `build`).
-  - Known limits: two-instance claimant verification remains manual and has not been automated in this step.
+  - Known limits: manual two-instance smoke validation is still recommended for real-browser confidence.
   - Follow-up TODOs:
-    - Add automated integration coverage for two-extension-instance claimant contention.
-    - Evaluate heartbeat/lease policy for long-running `IN_PROGRESS` executions (still intentionally out of scope).
+    - Add browser-level (load unpacked twice) contention smoke in CI-capable environment when available.
+    - Revisit lease TTL once importer workload profile changes materially.
+
+## Follow-up outcomes (May 2026)
+
+- Automated contention coverage was added at the extension service layer: two `ImportRunEventsService` instances receive the same `IMPORT_RUN_CREATED` event, both try `claimImportRun`, and only one executes while status transitions occur once (`IN_PROGRESS -> COMPLETED`).
+- Heartbeat/lease policy for long `IN_PROGRESS` runs remains intentionally out of scope for now.
+  - Current safety model is:
+    - atomic claim CAS in API,
+    - startup recovery for stale `IN_PROGRESS` in API,
+    - extension startup recovery for `RUNNING` runs.
+  - Decision: keep **no heartbeat** until we have proven long-running importers that exceed expected execution windows.
+  - Trigger to revisit: repeated legitimate long jobs or false stale resets in production-like telemetry.
 
 ## Explicitly out of scope (for now)
 

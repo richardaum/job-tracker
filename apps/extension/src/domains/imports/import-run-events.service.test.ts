@@ -152,6 +152,68 @@ describe("ImportRunEventsService", () => {
     expect(setup.claimImportRun).not.toHaveBeenCalled();
     expect(setup.updateImportRunStatus).not.toHaveBeenCalled();
   });
+
+  it("ensures only one extension instance executes claimed run", async () => {
+    const claimImportRun = vi
+      .fn()
+      .mockResolvedValueOnce({ data: { claimImportRun: { id: "run-1" } } })
+      .mockResolvedValueOnce({ data: { claimImportRun: null } });
+    const importRuns = vi.fn().mockResolvedValue({ data: { importRuns: [] } });
+    const updateImportRunStatus = vi.fn().mockResolvedValue({});
+
+    const handlers: Array<(event: ReturnType<typeof createEvent>) => void> = [];
+    const subscribeToImportRunEvents = vi.fn(
+      (handler: (event: ReturnType<typeof createEvent>) => void) => {
+        handlers.push(handler);
+        return { unsubscribe: vi.fn() };
+      },
+    );
+
+    const apiService = {
+      claimImportRun,
+      importRuns,
+      updateImportRunStatus,
+      subscribeToImportRunEvents,
+    } as unknown as ApiService;
+
+    const executeA = vi.fn().mockResolvedValue(undefined);
+    const executeB = vi.fn().mockResolvedValue(undefined);
+    const logA = { debug: vi.fn() } as unknown as LogService;
+    const logB = { debug: vi.fn() } as unknown as LogService;
+
+    const serviceA = new ImportRunEventsService(apiService, logA, {
+      execute: executeA,
+    } as unknown as ImportApplicationService);
+    const serviceB = new ImportRunEventsService(apiService, logB, {
+      execute: executeB,
+    } as unknown as ImportApplicationService);
+
+    serviceA.start();
+    serviceB.start();
+
+    const event = createEvent(ImportRunEventType.ImportRunCreated);
+    handlers[0]?.(event);
+    handlers[1]?.(event);
+
+    await vi.waitFor(() => {
+      expect(claimImportRun).toHaveBeenCalledTimes(2);
+    });
+    await vi.waitFor(() => {
+      expect(updateImportRunStatus).toHaveBeenNthCalledWith(
+        1,
+        "run-1",
+        ImportRunStatus.InProgress,
+      );
+      expect(updateImportRunStatus).toHaveBeenNthCalledWith(
+        2,
+        "run-1",
+        ImportRunStatus.Completed,
+      );
+    });
+
+    expect(executeA.mock.calls.length + executeB.mock.calls.length).toBe(1);
+    expect(updateImportRunStatus).toHaveBeenCalledTimes(2);
+  });
 });
 
 function createSetup({
