@@ -292,7 +292,11 @@ export class ApplicationService {
       return;
     }
 
+    const normalizedDraftTitle =
+      `${created.title} @ ${normalized.company}`.trim();
+
     await this.draftApplicationsService.update(draftId, {
+      title: normalizedDraftTitle,
       conversionStatus: DraftApplicationConversionStatus.SUCCEEDED,
       conversionError: null,
     });
