@@ -23,6 +23,7 @@ export class ApplicationStageEventEntity {
       "technical",
       "offer",
       "rejected",
+      "duplicated",
     ],
     enumName: "application_stage",
     nullable: true,
@@ -34,6 +35,7 @@ export class ApplicationStageEventEntity {
     | "technical"
     | "offer"
     | "rejected"
+    | "duplicated"
     | null;
 
   @Column({
@@ -46,6 +48,7 @@ export class ApplicationStageEventEntity {
       "technical",
       "offer",
       "rejected",
+      "duplicated",
     ],
     enumName: "application_stage",
   })
@@ -55,7 +58,8 @@ export class ApplicationStageEventEntity {
     | "recruiter_screen"
     | "technical"
     | "offer"
-    | "rejected";
+    | "rejected"
+    | "duplicated";
 
   @Column({ type: "text", default: "manual" })
   source!: string;

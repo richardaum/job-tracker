@@ -4,6 +4,7 @@ import { ImportRunStatusEnum } from "@api/domains/imports/import-run-status.enum
 import { ImportsRepository } from "@api/domains/imports/imports.repository";
 import { ImportsService } from "@api/domains/imports/imports.service";
 import { ImportsEventsPublisher } from "@api/domains/imports/imports-events.publisher";
+import { PlanRegistryService } from "@api/domains/imports/plan-registry.service";
 import { BadRequestException, NotFoundException } from "@nestjs/common";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -38,8 +39,11 @@ describe("ImportsService", () => {
     })),
   };
 
+  const planRegistry = new PlanRegistryService();
+
   const service = new ImportsService(
     repo as ImportsRepository,
+    planRegistry,
     eventsPublisher,
   );
 
@@ -47,15 +51,12 @@ describe("ImportsService", () => {
     vi.clearAllMocks();
   });
 
-  it("createImportRun persists RemoteYeah entry URL", async () => {
+  it("createImportRun persists importer metadata", async () => {
     const startedAt = new Date("2026-05-01T12:00:00.000Z");
     vi.mocked(repo.create).mockResolvedValue({
       id: "run-1",
       userId: "user-1",
       importerId: "remoteyeah",
-      importerName: "RemoteYeah",
-      entryUrl:
-        "https://remoteyeah.com/remote-frontend-engineer+reactjs-jobs-in-brazil+latin-america+worldwide#jobs",
       status: ImportRunStatusEnum.RUNNING,
       startedAt,
     } as ImportRunEntity);
@@ -66,13 +67,9 @@ describe("ImportsService", () => {
       expect.objectContaining({
         userId: "user-1",
         importerId: "remoteyeah",
-        importerName: "RemoteYeah",
-        entryUrl:
-          "https://remoteyeah.com/remote-frontend-engineer+reactjs-jobs-in-brazil+latin-america+worldwide#jobs",
         status: ImportRunStatusEnum.RUNNING,
       }),
     );
-    expect(result.entryUrl).toContain("remoteyeah.com");
     expect(result.importerSource).toBe("database");
     expect(eventsPublisher.publish).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -127,8 +124,6 @@ describe("ImportsService", () => {
       id: "run-1",
       userId: "user-1",
       importerId: "remoteyeah",
-      importerName: "RemoteYeah",
-      entryUrl: "https://remoteyeah.com/board",
       status: ImportRunStatusEnum.RUNNING,
       startedAt: new Date("2026-05-01T12:00:00.000Z"),
     };
@@ -159,8 +154,6 @@ describe("ImportsService", () => {
       id: "run-1",
       userId: "user-1",
       importerId: "remoteyeah",
-      importerName: "RemoteYeah",
-      entryUrl: "https://remoteyeah.com/board",
       status: ImportRunStatusEnum.IN_PROGRESS,
       startedAt: new Date("2026-05-01T12:00:00.000Z"),
     };
@@ -181,8 +174,6 @@ describe("ImportsService", () => {
       id: "run-1",
       userId: "user-1",
       importerId: "remoteyeah",
-      importerName: "RemoteYeah",
-      entryUrl: "https://remoteyeah.com/board",
       status: ImportRunStatusEnum.RUNNING,
       startedAt: new Date("2026-05-01T12:00:00.000Z"),
     } as ImportRunEntity);
@@ -216,8 +207,6 @@ describe("ImportsService", () => {
         id: "run-1",
         userId: "user-1",
         importerId: "remoteyeah",
-        importerName: "RemoteYeah",
-        entryUrl: "https://remoteyeah.com/board",
         status: ImportRunStatusEnum.IN_PROGRESS,
         startedAt: staleStartedAt,
       } as ImportRunEntity);
@@ -226,8 +215,6 @@ describe("ImportsService", () => {
         id: "run-1",
         userId: "user-1",
         importerId: "remoteyeah",
-        importerName: "RemoteYeah",
-        entryUrl: "https://remoteyeah.com/board",
         status: ImportRunStatusEnum.IN_PROGRESS,
         startedAt: staleStartedAt,
       } as ImportRunEntity)
@@ -235,8 +222,6 @@ describe("ImportsService", () => {
         id: "run-1",
         userId: "user-1",
         importerId: "remoteyeah",
-        importerName: "RemoteYeah",
-        entryUrl: "https://remoteyeah.com/board",
         status: ImportRunStatusEnum.IN_PROGRESS,
         startedAt: staleStartedAt,
       } as ImportRunEntity);
@@ -261,8 +246,6 @@ describe("ImportsService", () => {
       id: "run-1",
       userId: "user-1",
       importerId: "remoteyeah",
-      importerName: "RemoteYeah",
-      entryUrl: "https://remoteyeah.com/board",
       status: ImportRunStatusEnum.IN_PROGRESS,
       startedAt: new Date("2026-05-01T12:00:00.000Z"),
     } as ImportRunEntity;
@@ -308,8 +291,6 @@ describe("ImportsService", () => {
         id: "run-1",
         userId: "user-1",
         importerId: "remoteyeah",
-        importerName: "RemoteYeah",
-        entryUrl: "https://remoteyeah.com/board",
         status: ImportRunStatusEnum.IN_PROGRESS,
         startedAt: new Date("2026-05-01T12:00:00.000Z"),
       } as ImportRunEntity;
@@ -342,8 +323,6 @@ describe("ImportsService", () => {
               run: {
                 id: "run-other",
                 importerId: "remoteyeah",
-                importerName: "RemoteYeah",
-                entryUrl: "https://remoteyeah.com/board",
                 status: ImportRunStatusEnum.RUNNING,
                 startedAt: new Date("2026-05-01T12:00:00.000Z"),
                 importerSource: "database",
@@ -358,8 +337,6 @@ describe("ImportsService", () => {
               run: {
                 id: "run-1",
                 importerId: "remoteyeah",
-                importerName: "RemoteYeah",
-                entryUrl: "https://remoteyeah.com/board",
                 status: ImportRunStatusEnum.RUNNING,
                 startedAt: new Date("2026-05-01T12:00:01.000Z"),
                 importerSource: "database",

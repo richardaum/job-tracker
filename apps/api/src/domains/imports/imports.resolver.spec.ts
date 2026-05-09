@@ -1,5 +1,6 @@
 import { ImportRunEventTypeEnum } from "@api/domains/imports/import-run-event-type.enum";
 import { ImportRunStatusEnum } from "@api/domains/imports/import-run-status.enum";
+import { PlanRegistryService } from "@api/domains/imports/plan-registry.service";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ImportsResolver } from "./imports.resolver";
@@ -10,10 +11,18 @@ describe("ImportsResolver", () => {
     importRunEvents: vi.fn(),
   };
 
-  const resolver = new ImportsResolver(service as ImportsService);
+  const planRegistry = new PlanRegistryService();
+
+  const resolver = new ImportsResolver(service as ImportsService, planRegistry);
 
   beforeEach(() => {
     vi.clearAllMocks();
+  });
+
+  it("builtInImporters returns registered importer rows", () => {
+    expect(resolver.builtInImporters()).toEqual([
+      { importerId: "remoteyeah", name: "RemoteYeah" },
+    ]);
   });
 
   it("importRunEvents scopes subscription by authenticated user", () => {
@@ -37,8 +46,6 @@ describe("ImportsResolver", () => {
       run: {
         id: "run-1",
         importerId: "remoteyeah",
-        importerName: "RemoteYeah",
-        entryUrl: "https://remoteyeah.com/board",
         status: ImportRunStatusEnum.RUNNING,
         startedAt: new Date("2026-05-01T12:00:00.000Z"),
         importerSource: "database" as const,

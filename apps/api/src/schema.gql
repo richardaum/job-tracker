@@ -68,6 +68,7 @@ enum ApplicationSource {
   LINKEDIN
   JACK
   WELLFOUND
+  REMOTE_YEAH
 }
 
 enum ApplicationStage {
@@ -77,6 +78,7 @@ enum ApplicationStage {
   TECHNICAL
   OFFER
   REJECTED
+  DUPLICATED
 }
 
 type ApplicationSalary {
@@ -114,14 +116,18 @@ type CurrencyRates {
   rates: [ExchangeRate!]!
 }
 
+type BuiltInImporterType {
+  importerId: String!
+  name: String!
+}
+
 type ImportRunType {
   id: ID!
   importerId: String!
-  importerName: String!
-  entryUrl: String!
   status: ImportRunStatus!
   startedAt: DateTime!
   importerSource: String!
+  entryUrl: String!
 }
 
 enum ImportRunStatus {
@@ -163,6 +169,7 @@ type Query {
   draftApplication(id: ID!): DraftApplicationType!
   exchangeRates(base: String!, currencies: [String!]!): CurrencyRates!
   importRuns: [ImportRunType!]!
+  builtInImporters: [BuiltInImporterType!]!
   applicationNotes(applicationId: ID!): [NoteType!]!
   generateApplicationNoteWithAI(applicationId: ID!, note: String!): String!
   rewriteTextWithAI(text: String!): String!

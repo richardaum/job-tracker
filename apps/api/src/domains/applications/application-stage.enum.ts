@@ -7,6 +7,7 @@ export enum ApplicationStageEnum {
   TECHNICAL = "technical",
   OFFER = "offer",
   REJECTED = "rejected",
+  DUPLICATED = "duplicated",
 }
 
 registerEnumType(ApplicationStageEnum, { name: "ApplicationStage" });

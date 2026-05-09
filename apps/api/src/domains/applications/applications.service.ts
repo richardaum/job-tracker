@@ -14,6 +14,7 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 
+import { APPLICATION_DUPLICATE_PAIRING_WINDOW_MS } from "./application-duplicate.constants";
 import { ApplicationQuickFilterEnum } from "./application-quick-filter.enum";
 import { ApplicationSource } from "./application-source.enum";
 import { inferApplicationSourceFromUrls } from "./application-source.util";
@@ -183,9 +184,24 @@ export class ApplicationService {
 
     const application = await this.repo.create(userId, repoDto);
 
+    const duplicateLookbackMs = APPLICATION_DUPLICATE_PAIRING_WINDOW_MS;
+    const referenceTime = new Date();
+    const isDuplicate = await this.repo.hasRecentDuplicateSameRoleAndCompany(
+      userId,
+      application.id,
+      companyId,
+      dto.title,
+      referenceTime,
+      duplicateLookbackMs,
+    );
+
+    const initialStage = isDuplicate
+      ? ApplicationStageEnum.DUPLICATED
+      : ApplicationStageEnum.NEW;
+
     await this.repo.createStageEvent(userId, application.id, {
       fromStage: null,
-      toStage: ApplicationStageEnum.NEW,
+      toStage: initialStage,
       source: "system",
       reason: null,
       scheduledAt: null,
@@ -272,24 +288,26 @@ export class ApplicationService {
       return;
     }
 
-    const [appliedError] = await to(
-      this.createStageEvent(userId, {
-        applicationId: created.id,
-        toStage: ApplicationStageEnum.APPLIED,
-        source: "system",
-      }),
-    );
-
-    if (appliedError) {
-      this.logger.error(
-        `Draft conversion failed for ${draftId}: ${appliedError.message}`,
-        appliedError.stack,
+    if (created.currentStage !== ApplicationStageEnum.DUPLICATED) {
+      const [appliedError] = await to(
+        this.createStageEvent(userId, {
+          applicationId: created.id,
+          toStage: ApplicationStageEnum.APPLIED,
+          source: "system",
+        }),
       );
-      await this.draftApplicationsService.update(draftId, {
-        conversionStatus: DraftApplicationConversionStatus.FAILED,
-        conversionError: appliedError.message,
-      });
-      return;
+
+      if (appliedError) {
+        this.logger.error(
+          `Draft conversion failed for ${draftId}: ${appliedError.message}`,
+          appliedError.stack,
+        );
+        await this.draftApplicationsService.update(draftId, {
+          conversionStatus: DraftApplicationConversionStatus.FAILED,
+          conversionError: appliedError.message,
+        });
+        return;
+      }
     }
 
     const normalizedDraftTitle =

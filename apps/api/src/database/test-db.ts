@@ -12,6 +12,6 @@ export async function resetPublicSchemaAndMigrate(
   await dataSource.initialize();
   await dataSource.query("DROP SCHEMA IF EXISTS public CASCADE");
   await dataSource.query("CREATE SCHEMA public");
-  await dataSource.runMigrations({ transaction: "all" });
+  await dataSource.runMigrations({ transaction: "each" });
   return dataSource;
 }

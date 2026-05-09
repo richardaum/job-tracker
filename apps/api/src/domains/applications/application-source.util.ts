@@ -11,12 +11,15 @@ function inferSourceFromSingleUrl(url: string): ApplicationSource | null {
   if (lower.includes("wellfound")) {
     return ApplicationSource.WELLFOUND;
   }
+  if (lower.includes("remoteyeah")) {
+    return ApplicationSource.REMOTE_YEAH;
+  }
   return null;
 }
 
 /**
  * Infers job-board source from one or many URLs (case-insensitive substring match).
- * Order: Linkedin → Jack → Wellfound (first match wins).
+ * Order: Linkedin → Jack → Wellfound → RemoteYeah (first match wins).
  */
 export function inferApplicationSourceFromUrls(
   urls: string[] | null | undefined,

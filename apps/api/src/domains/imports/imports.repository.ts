@@ -21,16 +21,12 @@ export class ImportsRepository {
   async create(params: {
     userId: string;
     importerId: string;
-    importerName: string;
-    entryUrl: string;
     status: ImportRunStatusEnum;
     startedAt: Date;
   }): Promise<ImportRunEntity> {
     const row = this.runsRepo.create({
       userId: params.userId,
       importerId: params.importerId,
-      importerName: params.importerName,
-      entryUrl: params.entryUrl,
       status: params.status,
       startedAt: params.startedAt,
     });
@@ -112,8 +108,6 @@ export class ImportsRepository {
       id: raw.id as string,
       userId: raw.user_id as string,
       importerId: raw.importer_id as string,
-      importerName: raw.importer_name as string,
-      entryUrl: raw.entry_url as string,
       status: raw.status as ImportRunStatusEnum,
       startedAt: new Date(raw.started_at as string | Date),
     };

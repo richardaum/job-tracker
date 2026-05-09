@@ -76,6 +76,7 @@ describe("ApplicationService", () => {
       findLatestStageSummariesByApplicationIds: vi
         .fn()
         .mockResolvedValue(new Map()),
+      hasRecentDuplicateSameRoleAndCompany: vi.fn().mockResolvedValue(false),
       create: vi.fn(),
       update: vi.fn(),
       delete: vi.fn(),
@@ -190,6 +191,48 @@ describe("ApplicationService", () => {
     expect(repo.createStageEvent).toHaveBeenCalledWith("user-1", app.id, {
       fromStage: null,
       toStage: "new",
+      source: "system",
+      reason: null,
+      scheduledAt: null,
+    });
+    expect(repo.hasRecentDuplicateSameRoleAndCompany).toHaveBeenCalledWith(
+      "user-1",
+      app.id,
+      app.company.id,
+      "Engineer",
+      expect.any(Date),
+      expect.any(Number),
+    );
+  });
+
+  it("create uses Duplicated initial stage when matching application exists in lookback window", async () => {
+    const app = makeApp();
+    vi.mocked(companyService.findOrCreateByName).mockResolvedValue(app.company);
+    vi.mocked(repo.create).mockResolvedValue(app);
+    vi.mocked(repo.findOneByIdAndUserId).mockResolvedValue(app);
+    vi.mocked(repo.hasRecentDuplicateSameRoleAndCompany).mockResolvedValue(
+      true,
+    );
+    vi.mocked(repo.findLatestStageSummariesByApplicationIds).mockResolvedValue(
+      new Map([
+        [app.id, { toStage: "duplicated", reason: null, statusAt: new Date() }],
+      ]),
+    );
+    vi.mocked(repo.createStageEvent).mockResolvedValue(
+      makeEvent({ toStage: "duplicated", source: "system" }),
+    );
+    const result = await service.create("user-1", {
+      title: "Engineer",
+      company: "Acme",
+      description: JSON.stringify({
+        type: "doc",
+        content: [{ type: "paragraph", content: [] }],
+      }),
+    });
+    expect(result.currentStage).toBe(ApplicationStageEnum.DUPLICATED);
+    expect(repo.createStageEvent).toHaveBeenCalledWith("user-1", app.id, {
+      fromStage: null,
+      toStage: "duplicated",
       source: "system",
       reason: null,
       scheduledAt: null,
@@ -360,6 +403,87 @@ describe("ApplicationService", () => {
       expect.objectContaining({
         fromStage: "new",
         toStage: "applied",
+        source: "system",
+      }),
+    );
+  });
+
+  it("createApplicationWithAIV2 does not emit Applied when create detects duplicate", async () => {
+    const app = makeApp();
+    const draft = {
+      id: "draft-1",
+      applicationId: null,
+      title: "Page title",
+      url: "https://jobs.example.com/x",
+      htmlContent: "<p>Posting</p>",
+      conversionStatus: DraftApplicationConversionStatus.IDLE,
+      conversionError: null,
+    };
+    vi.mocked(draftApplicationsService.findOne).mockResolvedValue(
+      draft as never,
+    );
+    vi.mocked(draftApplicationsService.update).mockImplementation(
+      async (_id, patch) =>
+        ({
+          ...draft,
+          conversionStatus:
+            patch?.conversionStatus ?? DraftApplicationConversionStatus.IDLE,
+          conversionError: patch?.conversionError ?? null,
+        }) as never,
+    );
+    vi.mocked(applicationAiService.extractFromDraft).mockResolvedValue({
+      title: "Senior Engineer",
+      company: "Acme",
+      url: "https://jobs.example.com/x",
+      description: "Job description",
+      salary: { min: null, max: null, currency: null, period: null },
+      tags: [],
+    });
+    vi.mocked(
+      draftExtractionNormalizationService.normalizeExtraction,
+    ).mockReturnValue({
+      title: "Senior Engineer",
+      company: "Acme",
+      description: null,
+      salaryMinCents: null,
+      salaryMaxCents: null,
+      salaryCurrency: null,
+      salaryPeriod: null,
+      tags: [],
+    });
+    vi.mocked(companyService.findOrCreateByName).mockResolvedValue(app.company);
+    vi.mocked(repo.hasRecentDuplicateSameRoleAndCompany).mockResolvedValue(
+      true,
+    );
+    vi.mocked(repo.create).mockResolvedValue(app);
+    vi.mocked(repo.findOneByIdAndUserId).mockResolvedValue(app);
+    vi.mocked(repo.findLatestStageSummariesByApplicationIds).mockResolvedValue(
+      new Map([
+        [app.id, { toStage: "duplicated", reason: null, statusAt: new Date() }],
+      ]),
+    );
+    vi.mocked(repo.createStageEvent).mockResolvedValue(
+      makeEvent({ toStage: "duplicated", source: "system" }),
+    );
+
+    await service.createApplicationWithAIV2("user-1", "draft-1");
+
+    await vi.waitFor(() => {
+      expect(draftApplicationsService.update).toHaveBeenCalledWith(
+        "draft-1",
+        expect.objectContaining({
+          conversionStatus: DraftApplicationConversionStatus.SUCCEEDED,
+        }),
+      );
+    });
+
+    expect(repo.createStageEvent).toHaveBeenCalledTimes(1);
+    expect(repo.createStageEvent).toHaveBeenCalledWith(
+      "user-1",
+      app.id,
+      expect.objectContaining({
+        fromStage: null,
+        toStage: "duplicated",
         source: "system",
       }),
     );

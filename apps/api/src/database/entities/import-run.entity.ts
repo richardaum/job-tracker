@@ -14,12 +14,6 @@ export class ImportRunEntity {
   @Column({ name: "importer_id", type: "text" })
   importerId!: string;
 
-  @Column({ name: "importer_name", type: "text" })
-  importerName!: string;
-
-  @Column({ name: "entry_url", type: "text" })
-  entryUrl!: string;
-
   @Column({
     type: "enum",
     enum: ImportRunStatusEnum,

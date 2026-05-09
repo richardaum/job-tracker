@@ -18,6 +18,11 @@ import { AddTitleToDraftApplications1762440000000 } from "./1762440000000-add-ti
 import { DraftAiGeneratedFieldsAndApplicationLink1763000000000 } from "./1763000000000-draft-ai-generated-fields-and-application-link";
 import { DropDraftApplicationsAiGeneratedFields1763000000001 } from "./1763000000001-drop-draft-applications-ai-generated-fields";
 import { AddDraftApplicationConversionStatus1763200000000 } from "./1763200000000-add-draft-application-conversion-status";
+import { AddApplicationStageDuplicated1763300000000 } from "./1763300000000-add-application-stage-duplicated";
+import { AddApplicationSourceRemoteyeah1763400000000 } from "./1763400000000-add-application-source-remoteyeah";
+import { BackfillApplicationSourceRemoteyeah1763400000001 } from "./1763400000001-backfill-application-source-remoteyeah";
+import { DropImportRunsEntryUrl1763500000000 } from "./1763500000000-drop-import-runs-entry-url";
+import { DropImportRunsImporterName1763600000000 } from "./1763600000000-drop-import-runs-importer-name";
 
 export const migrations = [
   Baseline1746009600000,
@@ -40,4 +45,9 @@ export const migrations = [
   DraftAiGeneratedFieldsAndApplicationLink1763000000000,
   DropDraftApplicationsAiGeneratedFields1763000000001,
   AddDraftApplicationConversionStatus1763200000000,
+  AddApplicationStageDuplicated1763300000000,
+  AddApplicationSourceRemoteyeah1763400000000,
+  BackfillApplicationSourceRemoteyeah1763400000001,
+  DropImportRunsEntryUrl1763500000000,
+  DropImportRunsImporterName1763600000000,
 ];

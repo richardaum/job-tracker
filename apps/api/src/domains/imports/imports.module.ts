@@ -1,6 +1,7 @@
 import { DatabaseModule } from "@api/database/database.module";
 import { ImportRunEntity } from "@api/database/entities/import-run.entity";
 import { AuthModule } from "@api/domains/auth/auth.module";
+import { PlanRegistryService } from "@api/domains/imports/plan-registry.service";
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 
@@ -17,6 +18,7 @@ import { InMemoryImportsEventsPublisher } from "./in-memory-imports-events.publi
     AuthModule,
   ],
   providers: [
+    PlanRegistryService,
     ImportsRepository,
     ImportsService,
     ImportsResolver,

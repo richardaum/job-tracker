@@ -10,13 +10,6 @@ export class ImportRunType {
   @Field()
   importerId!: string;
 
-  @Field()
-  importerName!: string;
-
-  /** Where the importer run begins (e.g. RemoteYeah job board URL). */
-  @Field()
-  entryUrl!: string;
-
   @Field(() => ImportRunStatusEnum)
   status!: ImportRunStatusEnum;
 

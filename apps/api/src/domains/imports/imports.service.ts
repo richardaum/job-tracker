@@ -1,7 +1,7 @@
 import { ImportRunEntity } from "@api/database/entities/import-run.entity";
 import { ImportRunType } from "@api/domains/imports/import-run.type";
 import { ImportRunStatusEnum } from "@api/domains/imports/import-run-status.enum";
-import { resolveImporter } from "@api/domains/imports/importers.registry";
+import { PlanRegistryService } from "@api/domains/imports/plan-registry.service";
 import {
   BadRequestException,
   Inject,
@@ -62,6 +62,7 @@ export class ImportsService implements OnModuleInit {
 
   constructor(
     private readonly repo: ImportsRepository,
+    private readonly planRegistry: PlanRegistryService,
     @Inject(IMPORTS_EVENTS_PUBLISHER)
     private readonly eventsPublisher: ImportsEventsPublisher,
   ) {}
@@ -86,18 +87,15 @@ export class ImportsService implements OnModuleInit {
     userId: string,
     importerId: string,
   ): Promise<ImportRunType> {
-    const resolved = resolveImporter(importerId);
-    if (!resolved) {
+    const importerKey = this.planRegistry.normalizeImporterKey(importerId);
+    if (this.planRegistry.plan(importerKey) === undefined) {
       throw new BadRequestException(`Unknown importer: ${importerId}`);
     }
     const startedAt = new Date();
-    const importerKey = importerId.trim().toLowerCase();
 
     const row = await this.repo.create({
       userId,
       importerId: importerKey,
-      importerName: resolved.name,
-      entryUrl: resolved.entryUrl,
       status: ImportRunStatusEnum.RUNNING,
       startedAt,
     });
@@ -208,8 +206,6 @@ export class ImportsService implements OnModuleInit {
     return {
       id: row.id,
       importerId: row.importerId,
-      importerName: row.importerName,
-      entryUrl: row.entryUrl,
       status: row.status,
       startedAt: row.startedAt,
       importerSource: "database",

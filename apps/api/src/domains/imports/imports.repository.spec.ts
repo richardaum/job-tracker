@@ -46,8 +46,6 @@ describe.skipIf(!hasDb)("ImportsRepository (integration)", () => {
     return repo.create({
       userId,
       importerId: "remoteyeah",
-      importerName: "RemoteYeah",
-      entryUrl: "https://remoteyeah.com/board",
       status: ImportRunStatusEnum.RUNNING,
       startedAt: new Date("2026-05-01T12:00:00.000Z"),
     });

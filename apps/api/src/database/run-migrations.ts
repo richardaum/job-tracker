@@ -17,7 +17,7 @@ async function main(): Promise<void> {
   }
   const dataSource = new DataSource(buildDataSourceOptions(url));
   await dataSource.initialize();
-  const executed = await dataSource.runMigrations({ transaction: "all" });
+  const executed = await dataSource.runMigrations({ transaction: "each" });
   for (const m of executed) {
     console.log(`Ran migration: ${m.name}`);
   }

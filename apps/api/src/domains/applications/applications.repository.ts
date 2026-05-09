@@ -90,17 +90,19 @@ export class ApplicationRepository {
     )`;
 
     if (filter === ApplicationQuickFilterEnum.NEW) {
-      qb.andWhere(`${latestStageSub} = 'new'`, { userId });
+      qb.andWhere(`${latestStageSub} IN ('new', 'duplicated')`, { userId });
     } else if (filter === ApplicationQuickFilterEnum.APPLIED) {
       qb.andWhere(`${latestStageSub} = 'applied'`, { userId });
     } else if (filter === ApplicationQuickFilterEnum.ACTIVE) {
-      qb.andWhere(`${latestStageSub} NOT IN ('new', 'applied', 'rejected')`, {
-        userId,
-      });
+      qb.andWhere(
+        `${latestStageSub} NOT IN ('new', 'applied', 'rejected', 'duplicated')`,
+        { userId },
+      );
     } else if (filter === ApplicationQuickFilterEnum.INCOMING) {
-      qb.andWhere(`${latestStageSub} NOT IN ('applied', 'rejected')`, {
-        userId,
-      }).andWhere(
+      qb.andWhere(
+        `${latestStageSub} NOT IN ('applied', 'rejected', 'duplicated')`,
+        { userId },
+      ).andWhere(
         `EXISTS (
           SELECT 1 FROM application_stage_events e
           WHERE e.application_id = a.id AND e.user_id = :userId
@@ -157,6 +159,36 @@ export class ApplicationRepository {
     }
 
     return contexts;
+  }
+
+  /**
+   * Another application (same user, same company, same trimmed title, case-insensitive)
+   * created on or after `referenceTime - lookbackMs`.
+   */
+  async hasRecentDuplicateSameRoleAndCompany(
+    userId: string,
+    excludeApplicationId: string,
+    companyId: string,
+    title: string,
+    referenceTime: Date,
+    lookbackMs: number,
+  ): Promise<boolean> {
+    const trimmedTitle = title.trim();
+    if (!trimmedTitle) {
+      return false;
+    }
+    const cutoff = new Date(referenceTime.getTime() - lookbackMs);
+    const count = await this.applicationsRepo
+      .createQueryBuilder("a")
+      .where("a.user_id = :userId", { userId })
+      .andWhere("a.id != :excludeApplicationId", { excludeApplicationId })
+      .andWhere("a.company_id = :companyId", { companyId })
+      .andWhere("LOWER(TRIM(a.title)) = LOWER(:titleNorm)", {
+        titleNorm: trimmedTitle,
+      })
+      .andWhere("a.created_at >= :cutoff", { cutoff })
+      .getCount();
+    return count > 0;
   }
 
   async findOneByIdAndUserId(
