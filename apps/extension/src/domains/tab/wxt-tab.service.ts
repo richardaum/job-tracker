@@ -1,6 +1,8 @@
+import { tryRun } from "@job-tracker/try-run";
+
 import { LogService } from "@/domains/log/log.service";
 
-import type { OpenTabOptions, TabService } from "./types";
+import type { OpenTabOptions, OpenWindowOptions, TabService } from "./types";
 
 const logService = new LogService({ prefix: "WxtTabService", level: "debug" });
 
@@ -13,6 +15,19 @@ export class WxtTabService implements TabService {
     if (!tab?.id) throw new Error("Unable to get current tab");
     await this.waitUntilTabComplete(tab.id);
     return tab.id;
+  }
+
+  async openWindow(url: string, options?: OpenWindowOptions): Promise<number> {
+    const window = await chrome.windows.create({
+      url,
+      focused: options?.focus ?? false,
+    });
+    const tabId = window.tabs?.[0]?.id;
+    if (tabId == null) {
+      throw new Error("Unable to open window tab: missing tab id");
+    }
+    await this.waitUntilTabComplete(tabId);
+    return tabId;
   }
 
   async openTab(url: string, options?: OpenTabOptions): Promise<number> {
@@ -103,5 +118,13 @@ export class WxtTabService implements TabService {
     if (!isTabOpen) return;
 
     await chrome.tabs.remove(tabId);
+  }
+
+  async closeWindow(surfaceTabId: number): Promise<void> {
+    const [getErr, tab] = await tryRun(chrome.tabs.get(surfaceTabId));
+    if (getErr !== null || tab == null) {
+      return;
+    }
+    await tryRun(chrome.windows.remove(tab.windowId));
   }
 }

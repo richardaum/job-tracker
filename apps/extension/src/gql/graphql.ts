@@ -34,6 +34,7 @@ export type Scalars = {
 export enum ApplicationQuickFilter {
   Active = "ACTIVE",
   Applied = "APPLIED",
+  Duplicated = "DUPLICATED",
   Incoming = "INCOMING",
   New = "NEW",
 }

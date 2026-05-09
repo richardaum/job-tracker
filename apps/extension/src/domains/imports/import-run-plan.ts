@@ -6,7 +6,8 @@ import { parsePlan } from "@/domains/plan/parse/parser";
  * Build the executable collect-jobs plan for an API import run.
  * **`surfaceUrl`** is taken from **`remoteyeah.plan.json`** (not from the API run row).
  *
- * `surfaceUrl` matches {@link CollectJobsService.execute} (`openTab(surfaceUrl, { focus: true })`).
+ * `surfaceUrl` matches {@link CollectJobsService.execute}
+ * (`openWindow(surfaceUrl, { focus: true })`; detail URLs use `openTab`).
  */
 export function planForImportRun(params: { importerId: string }): Plan {
   const id = params.importerId.trim().toLowerCase();

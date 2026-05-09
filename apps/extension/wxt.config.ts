@@ -18,7 +18,13 @@ export default defineConfig({
   manifest: (env) => ({
     name: "Job Tracker",
     description: "Job Tracker browser extension (MV3).",
-    permissions: ["cookies", "sidePanel", "scripting", "contextMenus"],
+    permissions: [
+      "cookies",
+      "sidePanel",
+      "scripting",
+      "contextMenus",
+      "windows",
+    ],
     host_permissions:
       env.command === "serve"
         ? ["<all_urls>"]

@@ -31,11 +31,12 @@ const MAX_TABS = 20;
  * Collect jobs from a surface page and fetch details for each job.
  *
  * Flow:
- *   - open the surface tab
+ *   - open the surface in a new window
  *   - list jobs (fetch fields according to surfaceFields)
  *   - for each job, open the detail tab
  *   - fetch details (fetch fields according to detailsFields)
  *   - close the detail tab
+ *   - close the surface window
  *   - return the jobs
  */
 export class CollectJobsService {
@@ -48,43 +49,45 @@ export class CollectJobsService {
   ) {}
 
   async execute(action: PlanStepAction, options?: PlanExecuteOptions) {
-    const tabId = await this.tabManager.openTab(action.input.surfaceUrl, {
+    const tabId = await this.tabManager.openWindow(action.input.surfaceUrl, {
       focus: true,
     });
 
     const jobs: Map<string, Job> = new Map();
 
-    const limitDetailTabs = pLimit(
-      Math.min(action.input.parallelDetailsTabs, MAX_TABS),
-    );
-
-    for (let iteration = 1; iteration <= MAX_PAGES; iteration += 1) {
-      const list = await this.jobsListMessaging.listJobs(action, tabId);
-
-      await Promise.all(
-        list.map((job) =>
-          limitDetailTabs(async () => {
-            const jobWithDetails = await this.collectJobDetails(action, job);
-            await options?.onJobCollected?.(jobWithDetails);
-            jobs.set(
-              this.generateJobKey(action, jobWithDetails),
-              jobWithDetails,
-            );
-          }),
-        ),
+    try {
+      const limitDetailTabs = pLimit(
+        Math.min(action.input.parallelDetailsTabs, MAX_TABS),
       );
 
-      const canNavigate = await this.paginationMessaging.canNavigateToNextPage(
-        action,
-        tabId,
-      );
-      if (!canNavigate) break;
+      for (let iteration = 1; iteration <= MAX_PAGES; iteration += 1) {
+        const list = await this.jobsListMessaging.listJobs(action, tabId);
 
-      await this.paginationMessaging.navigateToNextPage(action, tabId);
-      await this.tabManager.waitUntilTabComplete(tabId);
+        await Promise.all(
+          list.map((job) =>
+            limitDetailTabs(async () => {
+              const jobWithDetails = await this.collectJobDetails(action, job);
+              await options?.onJobCollected?.(jobWithDetails);
+              jobs.set(
+                this.generateJobKey(action, jobWithDetails),
+                jobWithDetails,
+              );
+            }),
+          ),
+        );
+
+        const canNavigate =
+          await this.paginationMessaging.canNavigateToNextPage(action, tabId);
+        if (!canNavigate) break;
+
+        await this.paginationMessaging.navigateToNextPage(action, tabId);
+        await this.tabManager.waitUntilTabComplete(tabId);
+      }
+
+      return jobs;
+    } finally {
+      await this.tabManager.closeWindow(tabId);
     }
-
-    return jobs;
   }
 
   private async collectJobDetails(action: PlanStepAction, job: Job) {

@@ -1,6 +1,6 @@
 import { Window } from "happy-dom";
 
-import type { OpenTabOptions, TabService } from "./types";
+import type { OpenTabOptions, OpenWindowOptions, TabService } from "./types";
 
 export function loadHtmlWindow(html: string, pageUrl: string): Window {
   const w = new Window({ url: pageUrl });
@@ -26,6 +26,10 @@ export class MockedTabManager implements TabService {
   }) {
     this.listingWindow = options.listingWindow;
     this.pagesByUrl = options.pagesByUrl;
+  }
+
+  async openWindow(url: string, options?: OpenWindowOptions): Promise<number> {
+    return this.openTab(url, options);
   }
 
   async openTab(url: string, options?: OpenTabOptions): Promise<number> {
@@ -56,5 +60,9 @@ export class MockedTabManager implements TabService {
     globalThis.window = this
       .listingWindow as unknown as typeof globalThis.window;
     globalThis.document = this.listingWindow.document as unknown as Document;
+  }
+
+  async closeWindow(surfaceTabId: number): Promise<void> {
+    await this.closeTab(surfaceTabId);
   }
 }

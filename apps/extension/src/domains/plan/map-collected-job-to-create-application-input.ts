@@ -17,18 +17,21 @@ function str(v: unknown): string | undefined {
  * | title, company     | title, company          | Required; fallbacks if missing. |
  * | description        | description             | Detail HTML; truncated. |
  * | urls               | detailUrl               | Single listing URL. |
- * | tags               | locationRequirements    | Split on comma / middot / pipe. |
+ * | tags               | locationRequirements    | Split on newline / comma / middot / pipe / semicolon. |
  * | salary*            | salary                  | `format: "salary"` → parsed payload for input. |
  * | source             | detailUrl               | Inferred via URL substrings (same as API: Linkedin, Jack, Wellfound, RemoteYeah). |
  * | companyId          | —                       | Not on job; needs company lookup / resolver. |
  *
  * Also on job but unused here: `publishedAt` (could become metadata if API gains a field).
  */
+/** Delimiters between location badges (RemoteYeah uses newlines in `innerText`). */
+const LOCATION_TAG_SPLIT = /[\r\n,\u00B7|;]+/u;
+
 function tagsFromLocationRequirements(raw: unknown): string[] | undefined {
   const s = str(raw);
   if (s == null) return undefined;
   const parts = s
-    .split(/[,·|]/u)
+    .split(LOCATION_TAG_SPLIT)
     .map((t) => t.trim())
     .filter((t) => t.length > 0);
   return parts.length > 0 ? parts : undefined;
