@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Job Tracker">
-  <!-- Brand-600 background + white glyph (tokens: primitive-color-brand-600) -->
-  <rect width="256" height="256" fill="#4f46e5"/>
+  <!-- Cerulean (brand mid — lighter & more saturated than yale) + white glyph -->
+  <rect width="256" height="256" fill="#37718e"/>
   <g transform="translate(128 128) scale(0.68) translate(-128 -128)">
     <path
       fill="#ffffff"
