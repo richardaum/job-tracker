@@ -8,6 +8,8 @@ import { useState } from "react";
 import { EmptyState } from "@/components/empty-state";
 import { ApplicationCard } from "@/modules/applications/list/components/ApplicationCard";
 import { ApplicationQuickEditModal } from "@/modules/applications/list/components/ApplicationQuickEditModal";
+import { ApplicationsCompanyFilterBanner } from "@/modules/applications/list/components/ApplicationsCompanyFilterBanner";
+import { ApplicationsImportRunFilterBanner } from "@/modules/applications/list/components/ApplicationsImportRunFilterBanner";
 import { QuickFilters } from "@/modules/applications/list/components/QuickFilters";
 import { useApplicationsListViewModel } from "@/modules/applications/list/hooks/useApplicationsListViewModel";
 import { SearchInput } from "@/modules/applications/shared/components/SearchInput";
@@ -69,8 +71,13 @@ function ApplicationsListError() {
 
 export default function ApplicationsPage() {
   const router = useRouter();
-  const { applications, companyFilter, error, showInitialLoading } =
-    useApplicationsListViewModel();
+  const {
+    applications,
+    companyFilter,
+    error,
+    runIdFilter,
+    showInitialLoading,
+  } = useApplicationsListViewModel();
 
   const { enqueueToast } = useToastQueue();
 
@@ -111,16 +118,13 @@ export default function ApplicationsPage() {
 
       {/* Quick filters */}
       <QuickFilters />
-      {companyFilter ? (
-        <div className={cn("border-b border-border-subtle px-4 py-2 sm:px-6")}>
-          <Text size="sm" color="secondary">
-            Filtering by company:{" "}
-            <Text as="span" weight="semibold">
-              {companyFilter}
-            </Text>
-          </Text>
-        </div>
-      ) : null}
+      <ApplicationsCompanyFilterBanner companyName={companyFilter} />
+      <ApplicationsImportRunFilterBanner
+        runId={runIdFilter}
+        onClear={() => {
+          router.push("/applications");
+        }}
+      />
 
       {/* Content */}
       <div
