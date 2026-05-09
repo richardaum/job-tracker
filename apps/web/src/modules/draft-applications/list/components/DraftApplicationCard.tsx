@@ -83,29 +83,29 @@ export function DraftApplicationCard({
   }
 
   const title = (
-    <NextLink
-      href={`/draft-applications/${draft.id}`}
-      className={cn(
-        "text-sm font-semibold text-text-primary underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-brand focus-visible:ring-offset-0 rounded-sm",
-      )}
-    >
-      <span className={cn("inline-flex items-center gap-2")}>
-        <span>{label}</span>
-        <Badge intent={conversionStatusBadgeIntent(draft.conversionStatus)}>
-          {formatConversionStatus(draft.conversionStatus)}
-        </Badge>
-      </span>
-    </NextLink>
+    <ListItemCard.Title asChild size="sm" className={cn("font-semibold")}>
+      <NextLink href={`/draft-applications/${draft.id}`}>
+        <span className={cn("inline-flex items-center gap-2")}>
+          <span>{label}</span>
+          <Badge intent={conversionStatusBadgeIntent(draft.conversionStatus)}>
+            {formatConversionStatus(draft.conversionStatus)}
+          </Badge>
+        </span>
+      </NextLink>
+    </ListItemCard.Title>
   );
 
   const actions = (
-    <div className={cn("flex items-center gap-1")}>
+    <ListItemCard.Actions>
       <IconButton
         intent="ghost"
         size="sm"
         label={`Convert draft ${label} to application`}
         tooltip="Convert to application"
-        className={cn("size-6 text-text-muted/80 hover:text-text-brand")}
+        className={cn(
+          ListItemCard.actionIconButtonClassName,
+          "hover:text-text-brand",
+        )}
         icon={<ArrowsClockwiseIcon size={13} weight="regular" />}
         onClick={() => {
           setConvertConfirmDialogOpen(true);
@@ -118,7 +118,10 @@ export function DraftApplicationCard({
             size="sm"
             label={`Delete draft ${label}`}
             tooltip="Delete draft"
-            className={cn("size-6 text-text-muted/80 hover:text-text-error")}
+            className={cn(
+              ListItemCard.actionIconButtonClassName,
+              "hover:text-text-error",
+            )}
             icon={<TrashIcon size={13} weight="regular" />}
           />
         }
@@ -149,7 +152,7 @@ export function DraftApplicationCard({
         onOpenChange={setConvertConfirmDialogOpen}
         onConfirm={handleConvertToApplication}
       />
-    </div>
+    </ListItemCard.Actions>
   );
 
   const meta = (

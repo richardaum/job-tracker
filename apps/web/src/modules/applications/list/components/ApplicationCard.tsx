@@ -177,89 +177,81 @@ export function ApplicationCard({
   return (
     <ListItemCard
       title={
-        <NextLink
-          href={`/applications/${app.id}`}
-          className={cn(
-            "text-base font-medium text-text-primary underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-brand focus-visible:ring-offset-0 rounded-sm",
-          )}
-        >
-          {app.title}
-        </NextLink>
+        <ListItemCard.Title asChild>
+          <NextLink href={`/applications/${app.id}`}>{app.title}</NextLink>
+        </ListItemCard.Title>
       }
-      actions={[
-        <CurrentStageBadge
-          key="stage-badge"
-          listStage={app.currentStage}
-          listReason={app.currentStageReason ?? null}
-          applicationStageEvents={applicationStageEvents}
-          historyLoading={stageEventsLoading}
-          onRequestStageEvents={requestStageEvents}
-        />,
-        <ApplicationQuickEditModal
-          key="quick-edit"
-          trigger={
-            <IconButton
-              intent="ghost"
-              size="sm"
-              label={`Quick edit ${app.title}`}
-              tooltip="Quick edit"
-              className={cn("size-6  text-text-muted/80 hover:text-text-muted")}
-              icon={<PencilSimpleIcon size={13} weight="regular" />}
-            />
-          }
-          application={{
-            id: app.id,
-            title: app.title,
-            company: app.company.name,
-            urls: app.urls,
-          }}
-          onSuccess={onSuccess}
-          onError={onError}
-        />,
-        <SalaryEditDialog
-          key="salary-edit"
-          trigger={
-            <IconButton
-              intent="ghost"
-              size="sm"
-              label={salaryActionLabel}
-              tooltip={salaryActionLabel}
-              className={cn("size-6  text-text-muted/80 hover:text-text-muted")}
-              icon={<CurrencyDollarIcon size={13} weight="regular" />}
-            />
-          }
-          application={app}
-          onSuccess={onSuccess}
-          onError={onError}
-        />,
-        <DeleteApplicationDialog
-          key="delete"
-          trigger={
-            <IconButton
-              intent="ghost"
-              size="sm"
-              label={`Delete ${app.title}`}
-              tooltip="Delete"
-              className={cn("size-6  text-text-muted/80 hover:text-text-muted")}
-              icon={<TrashIcon size={13} weight="regular" />}
-            />
-          }
-          applicationId={app.id}
-          applicationTitle={app.title}
-          onSuccess={onSuccess}
-          onError={onError}
-        />,
-        <ApplicationTrackingPanel
-          key="tracking"
-          inline
-          applicationId={app.id}
-          applicationStageEvents={applicationStageEvents}
-          onRequestStageEvents={requestStageEvents}
-          triggerIcon={<ArrowSquareRightIcon size={13} weight="regular" />}
-          onSuccess={onSuccess}
-          onError={onError}
-        />,
-      ]}
+      actions={
+        <ListItemCard.Actions>
+          <CurrentStageBadge
+            listStage={app.currentStage}
+            listReason={app.currentStageReason ?? null}
+            applicationStageEvents={applicationStageEvents}
+            historyLoading={stageEventsLoading}
+            onRequestStageEvents={requestStageEvents}
+          />
+          <ApplicationQuickEditModal
+            trigger={
+              <IconButton
+                intent="ghost"
+                size="sm"
+                label={`Quick edit ${app.title}`}
+                tooltip="Quick edit"
+                className={cn(ListItemCard.actionIconButtonClassName)}
+                icon={<PencilSimpleIcon size={13} weight="regular" />}
+              />
+            }
+            application={{
+              id: app.id,
+              title: app.title,
+              company: app.company.name,
+              urls: app.urls,
+            }}
+            onSuccess={onSuccess}
+            onError={onError}
+          />
+          <SalaryEditDialog
+            trigger={
+              <IconButton
+                intent="ghost"
+                size="sm"
+                label={salaryActionLabel}
+                tooltip={salaryActionLabel}
+                className={cn(ListItemCard.actionIconButtonClassName)}
+                icon={<CurrencyDollarIcon size={13} weight="regular" />}
+              />
+            }
+            application={app}
+            onSuccess={onSuccess}
+            onError={onError}
+          />
+          <DeleteApplicationDialog
+            trigger={
+              <IconButton
+                intent="ghost"
+                size="sm"
+                label={`Delete ${app.title}`}
+                tooltip="Delete"
+                className={cn(ListItemCard.actionIconButtonClassName)}
+                icon={<TrashIcon size={13} weight="regular" />}
+              />
+            }
+            applicationId={app.id}
+            applicationTitle={app.title}
+            onSuccess={onSuccess}
+            onError={onError}
+          />
+          <ApplicationTrackingPanel
+            inline
+            applicationId={app.id}
+            applicationStageEvents={applicationStageEvents}
+            onRequestStageEvents={requestStageEvents}
+            triggerIcon={<ArrowSquareRightIcon size={13} weight="regular" />}
+            onSuccess={onSuccess}
+            onError={onError}
+          />
+        </ListItemCard.Actions>
+      }
       meta={
         <>
           <CompanyNameWithPopover

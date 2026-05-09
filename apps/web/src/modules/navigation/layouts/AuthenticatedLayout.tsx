@@ -11,8 +11,7 @@ import { Sidebar } from "@/modules/navigation/components/Sidebar";
 function AuthenticatedFullscreenLoadingScreen() {
   return (
     <div
-      className={cn("flex h-screen items-center justify-center")}
-      style={{ backgroundColor: "var(--primitive-color-neutral-100)" }}
+      className={cn("flex h-screen items-center justify-center bg-bg-shell")}
     >
       <Text as="span" size="sm" color="secondary">
         Loading…
@@ -42,10 +41,7 @@ export default function ProtectedLayout({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div
-      className={cn("flex h-screen")}
-      style={{ backgroundColor: "var(--primitive-color-neutral-100)" }}
-    >
+    <div className={cn("flex h-screen bg-bg-shell")}>
       <Sidebar
         user={user}
         open={isNavOpen}

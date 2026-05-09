@@ -68,65 +68,65 @@ export function CompanyCard({
     >
       <ListItemCard
         title={
-          <Link
-            href={`/companies/${encodeURIComponent(company.id)}`}
-            onClick={() => onOpenDetails?.(company.id)}
+          <ListItemCard.Title
+            asChild
             className={cn(
-              "inline-block max-w-full rounded-sm text-text-primary underline-offset-2 hover:underline",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-border-brand",
+              "inline-block max-w-full font-semibold focus-visible:ring-inset",
             )}
           >
-            <Text
-              as="span"
-              size="base"
-              weight="semibold"
-              className={cn("wrap-break-word")}
+            <Link
+              href={`/companies/${encodeURIComponent(company.id)}`}
+              onClick={() => onOpenDetails?.(company.id)}
             >
-              {company.name}
-            </Text>
-          </Link>
+              <Text
+                as="span"
+                size="base"
+                weight="semibold"
+                className={cn("wrap-break-word")}
+              >
+                {company.name}
+              </Text>
+            </Link>
+          </ListItemCard.Title>
         }
-        actions={[
-          <IconButton
-            key="view-jobs"
-            intent="ghost"
-            size="sm"
-            label={`View jobs from ${company.name}`}
-            tooltip="View jobs"
-            className={cn("size-6  text-text-muted/80 hover:text-text-muted")}
-            icon={<ArrowSquareOutIcon size={13} weight="regular" />}
-            onClick={() => onViewJobs(company.name)}
-          />,
-          <IconButton
-            key="edit"
-            intent="ghost"
-            size="sm"
-            label={`Edit ${company.name}`}
-            tooltip="Edit"
-            className={cn("size-6  text-text-muted/80 hover:text-text-muted")}
-            icon={<PencilSimpleIcon size={13} weight="regular" />}
-            onClick={() => onEdit(company)}
-          />,
-          <DeleteCompanyDialog
-            key="delete"
-            trigger={
-              <IconButton
-                intent="ghost"
-                size="sm"
-                label={`Delete ${company.name}`}
-                tooltip="Delete"
-                className={cn(
-                  "size-6  text-text-muted/80 hover:text-text-muted",
-                )}
-                icon={<TrashIcon size={13} weight="regular" />}
-              />
-            }
-            companyId={company.id}
-            companyName={company.name}
-            onSuccess={onDeleteSuccess}
-            onError={onDeleteError}
-          />,
-        ]}
+        actions={
+          <ListItemCard.Actions>
+            <IconButton
+              intent="ghost"
+              size="sm"
+              label={`View jobs from ${company.name}`}
+              tooltip="View jobs"
+              className={cn(ListItemCard.actionIconButtonClassName)}
+              icon={<ArrowSquareOutIcon size={13} weight="regular" />}
+              onClick={() => onViewJobs(company.name)}
+            />
+            <IconButton
+              intent="ghost"
+              size="sm"
+              label={`Edit ${company.name}`}
+              tooltip="Edit"
+              className={cn(ListItemCard.actionIconButtonClassName)}
+              icon={<PencilSimpleIcon size={13} weight="regular" />}
+              onClick={() => onEdit(company)}
+            />
+            <DeleteCompanyDialog
+              trigger={
+                <IconButton
+                  intent="ghost"
+                  size="sm"
+                  label={`Delete ${company.name}`}
+                  tooltip="Delete"
+                  className={cn(ListItemCard.actionIconButtonClassName)}
+                  icon={<TrashIcon size={13} weight="regular" />}
+                />
+              }
+              companyId={company.id}
+              companyName={company.name}
+              onSuccess={onDeleteSuccess}
+              onError={onDeleteError}
+            />
+          </ListItemCard.Actions>
+        }
         description={
           company.description ? (
             <TipTapContent
