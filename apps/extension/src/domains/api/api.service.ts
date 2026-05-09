@@ -23,6 +23,7 @@ import {
   type ImportRunEventsSubscription,
   ImportRunsDocument,
   ImportRunStatus,
+  UpdateImportRunDocument,
   UpdateImportRunStatusDocument,
 } from "@/gql/graphql";
 
@@ -95,6 +96,13 @@ export class ApiService {
     return await this.client.mutate({
       mutation: UpdateImportRunStatusDocument,
       variables: { id, status },
+    });
+  }
+
+  async updateImportRunSurfaceUrl(id: string, surfaceUrl: string) {
+    return await this.client.mutate({
+      mutation: UpdateImportRunDocument,
+      variables: { id, input: { surfaceUrl } },
     });
   }
 

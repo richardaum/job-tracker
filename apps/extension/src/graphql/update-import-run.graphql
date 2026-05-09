@@ -1,0 +1,6 @@
+mutation UpdateImportRun($id: ID!, $input: UpdateImportRunInput!) {
+  updateImportRun(id: $id, input: $input) {
+    id
+    surfaceUrl
+  }
+}

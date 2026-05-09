@@ -4,7 +4,9 @@ subscription ImportRunEvents {
     occurredAt
     run {
       id
+      templateId
       importerId
+      surfaceUrl
       status
       startedAt
       importerSource

@@ -4,7 +4,10 @@ import type {
   ApiService,
   ImportRunEventHandler,
 } from "@/domains/api/api.service";
-import { planForImportRun } from "@/domains/imports/import-run-plan";
+import {
+  planForImportRun,
+  surfaceUrlFromPlan,
+} from "@/domains/imports/import-run-plan";
 import type { LogService } from "@/domains/log/log.service";
 import { mapCollectedJobToCreateApplicationInput } from "@/domains/plan/map-collected-job-to-create-application-input";
 import type { PlanService } from "@/domains/plan/services/plan.service";
@@ -109,11 +112,27 @@ export class ImportRunEventsService {
 
     const plan = planForImportRun({ importerId: event.run.importerId });
 
+    const surfaceUrl = surfaceUrlFromPlan(plan);
+    if (surfaceUrl) {
+      const [surfErr] = await tryRun(
+        this.apiService.updateImportRunSurfaceUrl(runId, surfaceUrl),
+      );
+      if (surfErr) {
+        this.logService.debug("import-run-events:surface-url-failed", {
+          runId,
+          error: surfErr,
+        });
+      }
+    }
+
     const [runErr] = await tryRun(
       (async () => {
         await this.planService.execute(plan, {
           onJobCollected: async (job) => {
-            const input = mapCollectedJobToCreateApplicationInput(job);
+            const input = {
+              ...mapCollectedJobToCreateApplicationInput(job),
+              importRunId: runId,
+            };
             const [createErr] = await tryRun(
               this.apiService.createApplication(input),
             );

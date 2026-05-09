@@ -1,7 +1,9 @@
 query ImportRuns {
   importRuns {
     id
+    templateId
     importerId
+    surfaceUrl
     status
     startedAt
     importerSource
