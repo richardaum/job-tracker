@@ -7,8 +7,12 @@ fragment ApplicationSalarySelection on ApplicationType {
   }
 }
 
-query Applications($filter: ApplicationQuickFilter, $company: String) {
-  applications(filter: $filter, company: $company) {
+query Applications(
+  $filter: ApplicationQuickFilter
+  $company: String
+  $runId: ID
+) {
+  applications(filter: $filter, company: $company, runId: $runId) {
     id
     title
     companyId
@@ -22,6 +26,7 @@ query Applications($filter: ApplicationQuickFilter, $company: String) {
     source
     ...ApplicationSalarySelection
     tags
+    importRunId
     currentStage
     currentStageReason
     currentStageAt
@@ -44,6 +49,7 @@ query Application($id: ID!) {
     source
     ...ApplicationSalarySelection
     tags
+    importRunId
     currentStage
     currentStageReason
     currentStageAt

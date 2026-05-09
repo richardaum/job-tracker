@@ -61,6 +61,7 @@ type ApplicationType {
   currentStageAt: DateTime!
   createdAt: DateTime!
   updatedAt: DateTime!
+  importRunId: ID
   salary: ApplicationSalary!
 }
 
@@ -116,18 +117,14 @@ type CurrencyRates {
   rates: [ExchangeRate!]!
 }
 
-type BuiltInImporterType {
-  importerId: String!
-  name: String!
-}
-
 type ImportRunType {
   id: ID!
+  templateId: ID!
   importerId: String!
+  surfaceUrl: String!
   status: ImportRunStatus!
   startedAt: DateTime!
   importerSource: String!
-  entryUrl: String!
 }
 
 enum ImportRunStatus {
@@ -147,6 +144,22 @@ enum ImportRunEventType {
   IMPORT_RUN_CREATED
 }
 
+type ImportTemplateType {
+  id: ID!
+  importerId: String!
+  scheduleCron: String
+  scheduleEnabled: Boolean!
+  surfaceUrl: String!
+  createdAt: DateTime!
+  runs: [ImportRunType!]!
+}
+
+type ImporterDescriptorType {
+  importerId: String!
+  name: String!
+  templates: [ImportTemplateType!]!
+}
+
 type NoteType {
   id: ID!
   applicationId: String
@@ -159,7 +172,7 @@ type NoteType {
 
 type Query {
   me: UserType!
-  applications(filter: ApplicationQuickFilter, company: String): [ApplicationType!]!
+  applications(filter: ApplicationQuickFilter, company: String, runId: ID): [ApplicationType!]!
   application(id: ID!): ApplicationType!
   generateCompanyDescription(companyName: String!): String!
   applicationStageEvents(applicationId: ID!): [ApplicationStageEventType!]!
@@ -169,7 +182,9 @@ type Query {
   draftApplication(id: ID!): DraftApplicationType!
   exchangeRates(base: String!, currencies: [String!]!): CurrencyRates!
   importRuns: [ImportRunType!]!
-  builtInImporters: [BuiltInImporterType!]!
+  importTemplates: [ImportTemplateType!]!
+  importTemplatesForImporter(importerId: String!): [ImportTemplateType!]!
+  importers(onlyWithImportTemplate: Boolean = false): [ImporterDescriptorType!]!
   applicationNotes(applicationId: ID!): [NoteType!]!
   generateApplicationNoteWithAI(applicationId: ID!, note: String!): String!
   rewriteTextWithAI(text: String!): String!
@@ -200,6 +215,12 @@ type Mutation {
   deleteDraftApplication(id: ID!, deleteLinkedApplication: Boolean = false): DeleteMutationPayloadType!
   updateDraftApplication(id: ID!, input: UpdateDraftApplicationInput!): DraftApplicationType!
   createImportRun(input: CreateImportRunInput!): ImportRunType!
+  createImportTemplate(input: CreateImportTemplateInput!): ImportTemplateType!
+  rerunImportTemplate(templateId: ID!): ImportRunType!
+  updateImportTemplate(id: ID!, input: UpdateImportTemplateInput!): ImportTemplateType!
+  deleteImportTemplate(id: ID!): DeleteMutationPayloadType!
+  updateImportRun(id: ID!, input: UpdateImportRunInput!): ImportRunType!
+  detachApplicationsFromImportRun(importRunId: ID!): Int!
   deleteImportRun(id: ID!): DeleteMutationPayloadType!
   clearImportRuns: Boolean!
   updateImportRunStatus(id: ID!, status: ImportRunStatus!): ImportRunType!
@@ -221,6 +242,7 @@ input CreateApplicationInput {
   salaryCurrency: String
   salaryPeriod: SalaryPeriod
   tags: [String!]
+  importRunId: ID
 }
 
 input UpdateApplicationInput {
@@ -268,6 +290,21 @@ input UpdateDraftApplicationInput {
 
 input CreateImportRunInput {
   importerId: String!
+}
+
+input CreateImportTemplateInput {
+  importerId: String!
+  surfaceUrl: String!
+}
+
+input UpdateImportTemplateInput {
+  scheduleCron: String
+  scheduleEnabled: Boolean
+  surfaceUrl: String
+}
+
+input UpdateImportRunInput {
+  surfaceUrl: String!
 }
 
 input CreateNoteInput {

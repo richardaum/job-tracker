@@ -89,6 +89,7 @@ export type ApplicationType = {
   currentStageReason?: Maybe<Scalars["String"]["output"]>;
   description?: Maybe<Scalars["String"]["output"]>;
   id: Scalars["ID"]["output"];
+  importRunId?: Maybe<Scalars["ID"]["output"]>;
   salary: ApplicationSalary;
   source?: Maybe<ApplicationSource>;
   tags: Array<Scalars["String"]["output"]>;
@@ -96,12 +97,6 @@ export type ApplicationType = {
   updatedAt: Scalars["DateTime"]["output"];
   urls: Array<Scalars["String"]["output"]>;
   userId: Scalars["String"]["output"];
-};
-
-export type BuiltInImporterType = {
-  __typename?: "BuiltInImporterType";
-  importerId: Scalars["String"]["output"];
-  name: Scalars["String"]["output"];
 };
 
 export type CompanyType = {
@@ -118,6 +113,7 @@ export type CreateApplicationInput = {
   company: Scalars["String"]["input"];
   companyId?: InputMaybe<Scalars["ID"]["input"]>;
   description?: InputMaybe<Scalars["String"]["input"]>;
+  importRunId?: InputMaybe<Scalars["ID"]["input"]>;
   salaryCurrency?: InputMaybe<Scalars["String"]["input"]>;
   salaryMaxCents?: InputMaybe<Scalars["Int"]["input"]>;
   salaryMinCents?: InputMaybe<Scalars["Int"]["input"]>;
@@ -143,6 +139,11 @@ export type CreateDraftApplicationInput = {
 };
 
 export type CreateImportRunInput = { importerId: Scalars["String"]["input"] };
+
+export type CreateImportTemplateInput = {
+  importerId: Scalars["String"]["input"];
+  surfaceUrl: Scalars["String"]["input"];
+};
 
 export type CreateNoteInput = {
   applicationId: Scalars["String"]["input"];
@@ -205,12 +206,31 @@ export enum ImportRunStatus {
 
 export type ImportRunType = {
   __typename?: "ImportRunType";
-  entryUrl: Scalars["String"]["output"];
   id: Scalars["ID"]["output"];
   importerId: Scalars["String"]["output"];
   importerSource: Scalars["String"]["output"];
   startedAt: Scalars["DateTime"]["output"];
   status: ImportRunStatus;
+  surfaceUrl: Scalars["String"]["output"];
+  templateId: Scalars["ID"]["output"];
+};
+
+export type ImportTemplateType = {
+  __typename?: "ImportTemplateType";
+  createdAt: Scalars["DateTime"]["output"];
+  id: Scalars["ID"]["output"];
+  importerId: Scalars["String"]["output"];
+  runs: Array<ImportRunType>;
+  scheduleCron?: Maybe<Scalars["String"]["output"]>;
+  scheduleEnabled: Scalars["Boolean"]["output"];
+  surfaceUrl: Scalars["String"]["output"];
+};
+
+export type ImporterDescriptorType = {
+  __typename?: "ImporterDescriptorType";
+  importerId: Scalars["String"]["output"];
+  name: Scalars["String"]["output"];
+  templates: Array<ImportTemplateType>;
 };
 
 export type Mutation = {
@@ -223,6 +243,7 @@ export type Mutation = {
   createApplicationWithAIV2: DraftApplicationType;
   createDraftApplication: DraftApplicationType;
   createImportRun: ImportRunType;
+  createImportTemplate: ImportTemplateType;
   deleteApplication: DeleteMutationPayloadType;
   deleteApplicationNote: DeleteMutationPayloadType;
   deleteApplicationStageEvent: DeleteMutationPayloadType;
@@ -230,13 +251,18 @@ export type Mutation = {
   deleteCompany: DeleteMutationPayloadType;
   deleteDraftApplication: DeleteMutationPayloadType;
   deleteImportRun: DeleteMutationPayloadType;
+  deleteImportTemplate: DeleteMutationPayloadType;
+  detachApplicationsFromImportRun: Scalars["Int"]["output"];
   removeApplicationTag: ApplicationType;
+  rerunImportTemplate: ImportRunType;
   updateApplication: ApplicationType;
   updateApplicationNote: NoteType;
   updateApplicationStageEvent: ApplicationStageEventType;
   updateCompany: CompanyType;
   updateDraftApplication: DraftApplicationType;
+  updateImportRun: ImportRunType;
   updateImportRunStatus: ImportRunType;
+  updateImportTemplate: ImportTemplateType;
 };
 
 export type MutationClaimImportRunArgs = { id: Scalars["ID"]["input"] };
@@ -259,6 +285,10 @@ export type MutationCreateDraftApplicationArgs = {
 
 export type MutationCreateImportRunArgs = { input: CreateImportRunInput };
 
+export type MutationCreateImportTemplateArgs = {
+  input: CreateImportTemplateInput;
+};
+
 export type MutationDeleteApplicationArgs = { id: Scalars["ID"]["input"] };
 
 export type MutationDeleteApplicationNoteArgs = { id: Scalars["ID"]["input"] };
@@ -280,9 +310,19 @@ export type MutationDeleteDraftApplicationArgs = {
 
 export type MutationDeleteImportRunArgs = { id: Scalars["ID"]["input"] };
 
+export type MutationDeleteImportTemplateArgs = { id: Scalars["ID"]["input"] };
+
+export type MutationDetachApplicationsFromImportRunArgs = {
+  importRunId: Scalars["ID"]["input"];
+};
+
 export type MutationRemoveApplicationTagArgs = {
   id: Scalars["ID"]["input"];
   tag: Scalars["String"]["input"];
+};
+
+export type MutationRerunImportTemplateArgs = {
+  templateId: Scalars["ID"]["input"];
 };
 
 export type MutationUpdateApplicationArgs = {
@@ -310,9 +350,19 @@ export type MutationUpdateDraftApplicationArgs = {
   input: UpdateDraftApplicationInput;
 };
 
+export type MutationUpdateImportRunArgs = {
+  id: Scalars["ID"]["input"];
+  input: UpdateImportRunInput;
+};
+
 export type MutationUpdateImportRunStatusArgs = {
   id: Scalars["ID"]["input"];
   status: ImportRunStatus;
+};
+
+export type MutationUpdateImportTemplateArgs = {
+  id: Scalars["ID"]["input"];
+  input: UpdateImportTemplateInput;
 };
 
 export type NoteType = {
@@ -332,7 +382,6 @@ export type Query = {
   applicationNotes: Array<NoteType>;
   applicationStageEvents: Array<ApplicationStageEventType>;
   applications: Array<ApplicationType>;
-  builtInImporters: Array<BuiltInImporterType>;
   companies: Array<CompanyType>;
   companyApplicationsCount: Scalars["Int"]["output"];
   draftApplication: DraftApplicationType;
@@ -341,6 +390,9 @@ export type Query = {
   generateApplicationNoteWithAI: Scalars["String"]["output"];
   generateCompanyDescription: Scalars["String"]["output"];
   importRuns: Array<ImportRunType>;
+  importTemplates: Array<ImportTemplateType>;
+  importTemplatesForImporter: Array<ImportTemplateType>;
+  importers: Array<ImporterDescriptorType>;
   me: UserType;
   restructureJobDescriptionWithAI: Scalars["String"]["output"];
   rewriteTextWithAI: Scalars["String"]["output"];
@@ -359,6 +411,7 @@ export type QueryApplicationStageEventsArgs = {
 export type QueryApplicationsArgs = {
   company?: InputMaybe<Scalars["String"]["input"]>;
   filter?: InputMaybe<ApplicationQuickFilter>;
+  runId?: InputMaybe<Scalars["ID"]["input"]>;
 };
 
 export type QueryCompanyApplicationsCountArgs = { id: Scalars["ID"]["input"] };
@@ -377,6 +430,14 @@ export type QueryGenerateApplicationNoteWithAiArgs = {
 
 export type QueryGenerateCompanyDescriptionArgs = {
   companyName: Scalars["String"]["input"];
+};
+
+export type QueryImportTemplatesForImporterArgs = {
+  importerId: Scalars["String"]["input"];
+};
+
+export type QueryImportersArgs = {
+  onlyWithImportTemplate?: InputMaybe<Scalars["Boolean"]["input"]>;
 };
 
 export type QueryRestructureJobDescriptionWithAiArgs = {
@@ -423,6 +484,14 @@ export type UpdateCompanyInput = {
 
 export type UpdateDraftApplicationInput = { title: Scalars["String"]["input"] };
 
+export type UpdateImportRunInput = { surfaceUrl: Scalars["String"]["input"] };
+
+export type UpdateImportTemplateInput = {
+  scheduleCron?: InputMaybe<Scalars["String"]["input"]>;
+  scheduleEnabled?: InputMaybe<Scalars["Boolean"]["input"]>;
+  surfaceUrl?: InputMaybe<Scalars["String"]["input"]>;
+};
+
 export type UpdateNoteInput = {
   content?: InputMaybe<Scalars["String"]["input"]>;
   expectedRevision: Scalars["Int"]["input"];
@@ -451,6 +520,7 @@ export type ApplicationSalarySelectionFragment = {
 export type ApplicationsQueryVariables = Exact<{
   filter?: InputMaybe<ApplicationQuickFilter>;
   company?: InputMaybe<Scalars["String"]["input"]>;
+  runId?: InputMaybe<Scalars["ID"]["input"]>;
 }>;
 
 export type ApplicationsQuery = {
@@ -464,6 +534,7 @@ export type ApplicationsQuery = {
     urls: Array<string>;
     source?: ApplicationSource | null;
     tags: Array<string>;
+    importRunId?: string | null;
     currentStage: ApplicationStage;
     currentStageReason?: string | null;
     currentStageAt: any;
@@ -497,6 +568,7 @@ export type ApplicationQuery = {
     urls: Array<string>;
     source?: ApplicationSource | null;
     tags: Array<string>;
+    importRunId?: string | null;
     currentStage: ApplicationStage;
     currentStageReason?: string | null;
     currentStageAt: any;
@@ -961,80 +1033,104 @@ export type UpdateDraftApplicationMutation = {
   };
 };
 
-export type BuiltInImportersQueryVariables = Exact<{ [key: string]: never }>;
+export type ImportersListQueryVariables = Exact<{ [key: string]: never }>;
 
-export type BuiltInImportersQuery = {
+export type ImportersListQuery = {
   __typename?: "Query";
-  builtInImporters: Array<{
-    __typename?: "BuiltInImporterType";
+  importers: Array<{
+    __typename?: "ImporterDescriptorType";
     importerId: string;
     name: string;
   }>;
 };
 
-export type ImportRunsQueryVariables = Exact<{ [key: string]: never }>;
+export type ImportersForNewImportTemplatePickerQueryVariables = Exact<{
+  [key: string]: never;
+}>;
 
-export type ImportRunsQuery = {
+export type ImportersForNewImportTemplatePickerQuery = {
   __typename?: "Query";
-  importRuns: Array<{
-    __typename?: "ImportRunType";
-    id: string;
+  importers: Array<{
+    __typename?: "ImporterDescriptorType";
     importerId: string;
-    entryUrl: string;
-    status: ImportRunStatus;
-    startedAt: any;
-    importerSource: string;
+    name: string;
   }>;
 };
 
-export type CreateImportRunMutationVariables = Exact<{
-  input: CreateImportRunInput;
+export type ImportTemplatesForImporterQueryVariables = Exact<{
+  importerId: Scalars["String"]["input"];
 }>;
 
-export type CreateImportRunMutation = {
-  __typename?: "Mutation";
-  createImportRun: {
-    __typename?: "ImportRunType";
+export type ImportTemplatesForImporterQuery = {
+  __typename?: "Query";
+  importTemplatesForImporter: Array<{
+    __typename?: "ImportTemplateType";
     id: string;
     importerId: string;
-    entryUrl: string;
-    status: ImportRunStatus;
-    startedAt: any;
-    importerSource: string;
+    scheduleCron?: string | null;
+    scheduleEnabled: boolean;
+    surfaceUrl: string;
+    createdAt: any;
+    runs: Array<{
+      __typename?: "ImportRunType";
+      id: string;
+      status: ImportRunStatus;
+      startedAt: any;
+    }>;
+  }>;
+};
+
+export type UpdateImportTemplateMutationVariables = Exact<{
+  id: Scalars["ID"]["input"];
+  input: UpdateImportTemplateInput;
+}>;
+
+export type UpdateImportTemplateMutation = {
+  __typename?: "Mutation";
+  updateImportTemplate: {
+    __typename?: "ImportTemplateType";
+    id: string;
+    importerId: string;
+    scheduleCron?: string | null;
+    scheduleEnabled: boolean;
+    surfaceUrl: string;
+    createdAt: any;
+    runs: Array<{
+      __typename?: "ImportRunType";
+      id: string;
+      status: ImportRunStatus;
+      startedAt: any;
+    }>;
   };
 };
 
-export type DeleteImportRunMutationVariables = Exact<{
+export type DeleteImportTemplateMutationVariables = Exact<{
   id: Scalars["ID"]["input"];
 }>;
 
-export type DeleteImportRunMutation = {
+export type DeleteImportTemplateMutation = {
   __typename?: "Mutation";
-  deleteImportRun: {
+  deleteImportTemplate: {
     __typename?: "DeleteMutationPayloadType";
     success: boolean;
     deletedId: string;
   };
 };
 
-export type ClearImportRunsMutationVariables = Exact<{ [key: string]: never }>;
-
-export type ClearImportRunsMutation = {
-  __typename?: "Mutation";
-  clearImportRuns: boolean;
-};
-
-export type UpdateImportRunStatusMutationVariables = Exact<{
-  id: Scalars["ID"]["input"];
-  status: ImportRunStatus;
+export type CreateImportTemplateMutationVariables = Exact<{
+  input: CreateImportTemplateInput;
 }>;
 
-export type UpdateImportRunStatusMutation = {
+export type CreateImportTemplateMutation = {
   __typename?: "Mutation";
-  updateImportRunStatus: {
-    __typename?: "ImportRunType";
+  createImportTemplate: {
+    __typename?: "ImportTemplateType";
     id: string;
-    status: ImportRunStatus;
+    importerId: string;
+    surfaceUrl: string;
+    scheduleCron?: string | null;
+    scheduleEnabled: boolean;
+    createdAt: any;
   };
 };
 
@@ -1063,8 +1159,12 @@ export const ApplicationSalarySelectionFragmentDoc = gql`
   }
 `;
 export const ApplicationsDocument = gql`
-  query Applications($filter: ApplicationQuickFilter, $company: String) {
-    applications(filter: $filter, company: $company) {
+  query Applications(
+    $filter: ApplicationQuickFilter
+    $company: String
+    $runId: ID
+  ) {
+    applications(filter: $filter, company: $company, runId: $runId) {
       id
       title
       companyId
@@ -1078,6 +1178,7 @@ export const ApplicationsDocument = gql`
       source
       ...ApplicationSalarySelection
       tags
+      importRunId
       currentStage
       currentStageReason
       currentStageAt
@@ -1101,6 +1202,7 @@ export const ApplicationsDocument = gql`
  *   variables: {
  *      filter: // value for 'filter'
  *      company: // value for 'company'
+ *      runId: // value for 'runId'
  *   },
  * });
  */
@@ -1152,6 +1254,7 @@ export const ApplicationDocument = gql`
       source
       ...ApplicationSalarySelection
       tags
+      importRunId
       currentStage
       currentStageReason
       currentStageAt
@@ -2624,9 +2727,9 @@ export function useUpdateDraftApplicationMutation(
   >(UpdateDraftApplicationDocument, options);
 }
 
-export const BuiltInImportersDocument = gql`
-  query BuiltInImporters {
-    builtInImporters {
+export const ImportersListDocument = gql`
+  query ImportersList {
+    importers(onlyWithImportTemplate: true) {
       importerId
       name
     }
@@ -2634,156 +2737,230 @@ export const BuiltInImportersDocument = gql`
 `;
 
 /**
- * __useBuiltInImportersQuery__
+ * __useImportersListQuery__
  *
- * To run a query within a React component, call `useBuiltInImportersQuery` and pass it any options that fit your needs.
- * When your component renders, `useBuiltInImportersQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useImportersListQuery` and pass it any options that fit your needs.
+ * When your component renders, `useImportersListQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useBuiltInImportersQuery({
+ * const { data, loading, error } = useImportersListQuery({
  *   variables: {
  *   },
  * });
  */
-export function useBuiltInImportersQuery(
+export function useImportersListQuery(
   baseOptions?: ApolloReactHooks.QueryHookOptions<
-    BuiltInImportersQuery,
-    BuiltInImportersQueryVariables
+    ImportersListQuery,
+    ImportersListQueryVariables
   >,
 ) {
   const options = { ...defaultOptions, ...baseOptions };
   return ApolloReactHooks.useQuery<
-    BuiltInImportersQuery,
-    BuiltInImportersQueryVariables
-  >(BuiltInImportersDocument, options);
+    ImportersListQuery,
+    ImportersListQueryVariables
+  >(ImportersListDocument, options);
 }
-export function useBuiltInImportersLazyQuery(
+export function useImportersListLazyQuery(
   baseOptions?: ApolloReactHooks.LazyQueryHookOptions<
-    BuiltInImportersQuery,
-    BuiltInImportersQueryVariables
+    ImportersListQuery,
+    ImportersListQueryVariables
   >,
 ) {
   const options = { ...defaultOptions, ...baseOptions };
   return ApolloReactHooks.useLazyQuery<
-    BuiltInImportersQuery,
-    BuiltInImportersQueryVariables
-  >(BuiltInImportersDocument, options);
+    ImportersListQuery,
+    ImportersListQueryVariables
+  >(ImportersListDocument, options);
 }
 
-export type BuiltInImportersQueryHookResult = ReturnType<
-  typeof useBuiltInImportersQuery
+export type ImportersListQueryHookResult = ReturnType<
+  typeof useImportersListQuery
 >;
-export type BuiltInImportersLazyQueryHookResult = ReturnType<
-  typeof useBuiltInImportersLazyQuery
+export type ImportersListLazyQueryHookResult = ReturnType<
+  typeof useImportersListLazyQuery
 >;
 
-export const ImportRunsDocument = gql`
-  query ImportRuns {
-    importRuns {
-      id
+export const ImportersForNewImportTemplatePickerDocument = gql`
+  query ImportersForNewImportTemplatePicker {
+    importers(onlyWithImportTemplate: false) {
       importerId
-      entryUrl
-      status
-      startedAt
-      importerSource
+      name
     }
   }
 `;
 
 /**
- * __useImportRunsQuery__
+ * __useImportersForNewImportTemplatePickerQuery__
  *
- * To run a query within a React component, call `useImportRunsQuery` and pass it any options that fit your needs.
- * When your component renders, `useImportRunsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useImportersForNewImportTemplatePickerQuery` and pass it any options that fit your needs.
+ * When your component renders, `useImportersForNewImportTemplatePickerQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useImportRunsQuery({
+ * const { data, loading, error } = useImportersForNewImportTemplatePickerQuery({
  *   variables: {
  *   },
  * });
  */
-export function useImportRunsQuery(
+export function useImportersForNewImportTemplatePickerQuery(
   baseOptions?: ApolloReactHooks.QueryHookOptions<
-    ImportRunsQuery,
-    ImportRunsQueryVariables
+    ImportersForNewImportTemplatePickerQuery,
+    ImportersForNewImportTemplatePickerQueryVariables
   >,
 ) {
   const options = { ...defaultOptions, ...baseOptions };
-  return ApolloReactHooks.useQuery<ImportRunsQuery, ImportRunsQueryVariables>(
-    ImportRunsDocument,
-    options,
-  );
+  return ApolloReactHooks.useQuery<
+    ImportersForNewImportTemplatePickerQuery,
+    ImportersForNewImportTemplatePickerQueryVariables
+  >(ImportersForNewImportTemplatePickerDocument, options);
 }
-export function useImportRunsLazyQuery(
+export function useImportersForNewImportTemplatePickerLazyQuery(
   baseOptions?: ApolloReactHooks.LazyQueryHookOptions<
-    ImportRunsQuery,
-    ImportRunsQueryVariables
+    ImportersForNewImportTemplatePickerQuery,
+    ImportersForNewImportTemplatePickerQueryVariables
   >,
 ) {
   const options = { ...defaultOptions, ...baseOptions };
   return ApolloReactHooks.useLazyQuery<
-    ImportRunsQuery,
-    ImportRunsQueryVariables
-  >(ImportRunsDocument, options);
+    ImportersForNewImportTemplatePickerQuery,
+    ImportersForNewImportTemplatePickerQueryVariables
+  >(ImportersForNewImportTemplatePickerDocument, options);
 }
 
-export type ImportRunsQueryHookResult = ReturnType<typeof useImportRunsQuery>;
-export type ImportRunsLazyQueryHookResult = ReturnType<
-  typeof useImportRunsLazyQuery
+export type ImportersForNewImportTemplatePickerQueryHookResult = ReturnType<
+  typeof useImportersForNewImportTemplatePickerQuery
+>;
+export type ImportersForNewImportTemplatePickerLazyQueryHookResult = ReturnType<
+  typeof useImportersForNewImportTemplatePickerLazyQuery
 >;
 
-export const CreateImportRunDocument = gql`
-  mutation CreateImportRun($input: CreateImportRunInput!) {
-    createImportRun(input: $input) {
+export const ImportTemplatesForImporterDocument = gql`
+  query ImportTemplatesForImporter($importerId: String!) {
+    importTemplatesForImporter(importerId: $importerId) {
       id
       importerId
-      entryUrl
-      status
-      startedAt
-      importerSource
+      scheduleCron
+      scheduleEnabled
+      surfaceUrl
+      createdAt
+      runs {
+        id
+        status
+        startedAt
+      }
     }
   }
 `;
 
 /**
- * __useCreateImportRunMutation__
+ * __useImportTemplatesForImporterQuery__
  *
- * To run a mutation, you first call `useCreateImportRunMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useCreateImportRunMutation` returns a tuple that includes:
+ * To run a query within a React component, call `useImportTemplatesForImporterQuery` and pass it any options that fit your needs.
+ * When your component renders, `useImportTemplatesForImporterQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useImportTemplatesForImporterQuery({
+ *   variables: {
+ *      importerId: // value for 'importerId'
+ *   },
+ * });
+ */
+export function useImportTemplatesForImporterQuery(
+  baseOptions: ApolloReactHooks.QueryHookOptions<
+    ImportTemplatesForImporterQuery,
+    ImportTemplatesForImporterQueryVariables
+  > &
+    (
+      | { variables: ImportTemplatesForImporterQueryVariables; skip?: boolean }
+      | { skip: boolean }
+    ),
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useQuery<
+    ImportTemplatesForImporterQuery,
+    ImportTemplatesForImporterQueryVariables
+  >(ImportTemplatesForImporterDocument, options);
+}
+export function useImportTemplatesForImporterLazyQuery(
+  baseOptions?: ApolloReactHooks.LazyQueryHookOptions<
+    ImportTemplatesForImporterQuery,
+    ImportTemplatesForImporterQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useLazyQuery<
+    ImportTemplatesForImporterQuery,
+    ImportTemplatesForImporterQueryVariables
+  >(ImportTemplatesForImporterDocument, options);
+}
+
+export type ImportTemplatesForImporterQueryHookResult = ReturnType<
+  typeof useImportTemplatesForImporterQuery
+>;
+export type ImportTemplatesForImporterLazyQueryHookResult = ReturnType<
+  typeof useImportTemplatesForImporterLazyQuery
+>;
+
+export const UpdateImportTemplateDocument = gql`
+  mutation UpdateImportTemplate($id: ID!, $input: UpdateImportTemplateInput!) {
+    updateImportTemplate(id: $id, input: $input) {
+      id
+      importerId
+      scheduleCron
+      scheduleEnabled
+      surfaceUrl
+      createdAt
+      runs {
+        id
+        status
+        startedAt
+      }
+    }
+  }
+`;
+
+/**
+ * __useUpdateImportTemplateMutation__
+ *
+ * To run a mutation, you first call `useUpdateImportTemplateMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateImportTemplateMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [createImportRunMutation, { data, loading, error }] = useCreateImportRunMutation({
+ * const [updateImportTemplateMutation, { data, loading, error }] = useUpdateImportTemplateMutation({
  *   variables: {
+ *      id: // value for 'id'
  *      input: // value for 'input'
  *   },
  * });
  */
-export function useCreateImportRunMutation(
+export function useUpdateImportTemplateMutation(
   baseOptions?: ApolloReactHooks.MutationHookOptions<
-    CreateImportRunMutation,
-    CreateImportRunMutationVariables
+    UpdateImportTemplateMutation,
+    UpdateImportTemplateMutationVariables
   >,
 ) {
   const options = { ...defaultOptions, ...baseOptions };
   return ApolloReactHooks.useMutation<
-    CreateImportRunMutation,
-    CreateImportRunMutationVariables
-  >(CreateImportRunDocument, options);
+    UpdateImportTemplateMutation,
+    UpdateImportTemplateMutationVariables
+  >(UpdateImportTemplateDocument, options);
 }
 
-export const DeleteImportRunDocument = gql`
-  mutation DeleteImportRun($id: ID!) {
-    deleteImportRun(id: $id) {
+export const DeleteImportTemplateDocument = gql`
+  mutation DeleteImportTemplate($id: ID!) {
+    deleteImportTemplate(id: $id) {
       success
       deletedId
     }
@@ -2791,108 +2968,76 @@ export const DeleteImportRunDocument = gql`
 `;
 
 /**
- * __useDeleteImportRunMutation__
+ * __useDeleteImportTemplateMutation__
  *
- * To run a mutation, you first call `useDeleteImportRunMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useDeleteImportRunMutation` returns a tuple that includes:
+ * To run a mutation, you first call `useDeleteImportTemplateMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteImportTemplateMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [deleteImportRunMutation, { data, loading, error }] = useDeleteImportRunMutation({
+ * const [deleteImportTemplateMutation, { data, loading, error }] = useDeleteImportTemplateMutation({
  *   variables: {
  *      id: // value for 'id'
  *   },
  * });
  */
-export function useDeleteImportRunMutation(
+export function useDeleteImportTemplateMutation(
   baseOptions?: ApolloReactHooks.MutationHookOptions<
-    DeleteImportRunMutation,
-    DeleteImportRunMutationVariables
+    DeleteImportTemplateMutation,
+    DeleteImportTemplateMutationVariables
   >,
 ) {
   const options = { ...defaultOptions, ...baseOptions };
   return ApolloReactHooks.useMutation<
-    DeleteImportRunMutation,
-    DeleteImportRunMutationVariables
-  >(DeleteImportRunDocument, options);
+    DeleteImportTemplateMutation,
+    DeleteImportTemplateMutationVariables
+  >(DeleteImportTemplateDocument, options);
 }
 
-export const ClearImportRunsDocument = gql`
-  mutation ClearImportRuns {
-    clearImportRuns
-  }
-`;
-
-/**
- * __useClearImportRunsMutation__
- *
- * To run a mutation, you first call `useClearImportRunsMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useClearImportRunsMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [clearImportRunsMutation, { data, loading, error }] = useClearImportRunsMutation({
- *   variables: {
- *   },
- * });
- */
-export function useClearImportRunsMutation(
-  baseOptions?: ApolloReactHooks.MutationHookOptions<
-    ClearImportRunsMutation,
-    ClearImportRunsMutationVariables
-  >,
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return ApolloReactHooks.useMutation<
-    ClearImportRunsMutation,
-    ClearImportRunsMutationVariables
-  >(ClearImportRunsDocument, options);
-}
-
-export const UpdateImportRunStatusDocument = gql`
-  mutation UpdateImportRunStatus($id: ID!, $status: ImportRunStatus!) {
-    updateImportRunStatus(id: $id, status: $status) {
+export const CreateImportTemplateDocument = gql`
+  mutation CreateImportTemplate($input: CreateImportTemplateInput!) {
+    createImportTemplate(input: $input) {
       id
-      status
+      importerId
+      surfaceUrl
+      scheduleCron
+      scheduleEnabled
+      createdAt
     }
   }
 `;
 
 /**
- * __useUpdateImportRunStatusMutation__
+ * __useCreateImportTemplateMutation__
  *
- * To run a mutation, you first call `useUpdateImportRunStatusMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateImportRunStatusMutation` returns a tuple that includes:
+ * To run a mutation, you first call `useCreateImportTemplateMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateImportTemplateMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [updateImportRunStatusMutation, { data, loading, error }] = useUpdateImportRunStatusMutation({
+ * const [createImportTemplateMutation, { data, loading, error }] = useCreateImportTemplateMutation({
  *   variables: {
- *      id: // value for 'id'
- *      status: // value for 'status'
+ *      input: // value for 'input'
  *   },
  * });
  */
-export function useUpdateImportRunStatusMutation(
+export function useCreateImportTemplateMutation(
   baseOptions?: ApolloReactHooks.MutationHookOptions<
-    UpdateImportRunStatusMutation,
-    UpdateImportRunStatusMutationVariables
+    CreateImportTemplateMutation,
+    CreateImportTemplateMutationVariables
   >,
 ) {
   const options = { ...defaultOptions, ...baseOptions };
   return ApolloReactHooks.useMutation<
-    UpdateImportRunStatusMutation,
-    UpdateImportRunStatusMutationVariables
-  >(UpdateImportRunStatusDocument, options);
+    CreateImportTemplateMutation,
+    CreateImportTemplateMutationVariables
+  >(CreateImportTemplateDocument, options);
 }
 
 export const MeDocument = gql`

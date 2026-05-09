@@ -1,46 +1,63 @@
-query BuiltInImporters {
-  builtInImporters {
+query ImportersList {
+  importers(onlyWithImportTemplate: true) {
     importerId
     name
   }
 }
 
-query ImportRuns {
-  importRuns {
-    id
+query ImportersForNewImportTemplatePicker {
+  importers(onlyWithImportTemplate: false) {
     importerId
-    entryUrl
-    status
-    startedAt
-    importerSource
+    name
   }
 }
 
-mutation CreateImportRun($input: CreateImportRunInput!) {
-  createImportRun(input: $input) {
+query ImportTemplatesForImporter($importerId: String!) {
+  importTemplatesForImporter(importerId: $importerId) {
     id
     importerId
-    entryUrl
-    status
-    startedAt
-    importerSource
+    scheduleCron
+    scheduleEnabled
+    surfaceUrl
+    createdAt
+    runs {
+      id
+      status
+      startedAt
+    }
   }
 }
 
-mutation DeleteImportRun($id: ID!) {
-  deleteImportRun(id: $id) {
+mutation UpdateImportTemplate($id: ID!, $input: UpdateImportTemplateInput!) {
+  updateImportTemplate(id: $id, input: $input) {
+    id
+    importerId
+    scheduleCron
+    scheduleEnabled
+    surfaceUrl
+    createdAt
+    runs {
+      id
+      status
+      startedAt
+    }
+  }
+}
+
+mutation DeleteImportTemplate($id: ID!) {
+  deleteImportTemplate(id: $id) {
     success
     deletedId
   }
 }
 
-mutation ClearImportRuns {
-  clearImportRuns
-}
-
-mutation UpdateImportRunStatus($id: ID!, $status: ImportRunStatus!) {
-  updateImportRunStatus(id: $id, status: $status) {
+mutation CreateImportTemplate($input: CreateImportTemplateInput!) {
+  createImportTemplate(input: $input) {
     id
-    status
+    importerId
+    surfaceUrl
+    scheduleCron
+    scheduleEnabled
+    createdAt
   }
 }

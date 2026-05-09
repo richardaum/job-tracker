@@ -87,6 +87,7 @@ export type ApplicationType = {
   currentStageReason?: Maybe<Scalars["String"]["output"]>;
   description?: Maybe<Scalars["String"]["output"]>;
   id: Scalars["ID"]["output"];
+  importRunId?: Maybe<Scalars["ID"]["output"]>;
   salary: ApplicationSalary;
   source?: Maybe<ApplicationSource>;
   tags: Array<Scalars["String"]["output"]>;
@@ -94,12 +95,6 @@ export type ApplicationType = {
   updatedAt: Scalars["DateTime"]["output"];
   urls: Array<Scalars["String"]["output"]>;
   userId: Scalars["String"]["output"];
-};
-
-export type BuiltInImporterType = {
-  __typename?: "BuiltInImporterType";
-  importerId: Scalars["String"]["output"];
-  name: Scalars["String"]["output"];
 };
 
 export type CompanyType = {
@@ -116,6 +111,7 @@ export type CreateApplicationInput = {
   company: Scalars["String"]["input"];
   companyId?: InputMaybe<Scalars["ID"]["input"]>;
   description?: InputMaybe<Scalars["String"]["input"]>;
+  importRunId?: InputMaybe<Scalars["ID"]["input"]>;
   salaryCurrency?: InputMaybe<Scalars["String"]["input"]>;
   salaryMaxCents?: InputMaybe<Scalars["Int"]["input"]>;
   salaryMinCents?: InputMaybe<Scalars["Int"]["input"]>;
@@ -141,6 +137,11 @@ export type CreateDraftApplicationInput = {
 };
 
 export type CreateImportRunInput = { importerId: Scalars["String"]["input"] };
+
+export type CreateImportTemplateInput = {
+  importerId: Scalars["String"]["input"];
+  surfaceUrl: Scalars["String"]["input"];
+};
 
 export type CreateNoteInput = {
   applicationId: Scalars["String"]["input"];
@@ -203,12 +204,31 @@ export enum ImportRunStatus {
 
 export type ImportRunType = {
   __typename?: "ImportRunType";
-  entryUrl: Scalars["String"]["output"];
   id: Scalars["ID"]["output"];
   importerId: Scalars["String"]["output"];
   importerSource: Scalars["String"]["output"];
   startedAt: Scalars["DateTime"]["output"];
   status: ImportRunStatus;
+  surfaceUrl: Scalars["String"]["output"];
+  templateId: Scalars["ID"]["output"];
+};
+
+export type ImportTemplateType = {
+  __typename?: "ImportTemplateType";
+  createdAt: Scalars["DateTime"]["output"];
+  id: Scalars["ID"]["output"];
+  importerId: Scalars["String"]["output"];
+  runs: Array<ImportRunType>;
+  scheduleCron?: Maybe<Scalars["String"]["output"]>;
+  scheduleEnabled: Scalars["Boolean"]["output"];
+  surfaceUrl: Scalars["String"]["output"];
+};
+
+export type ImporterDescriptorType = {
+  __typename?: "ImporterDescriptorType";
+  importerId: Scalars["String"]["output"];
+  name: Scalars["String"]["output"];
+  templates: Array<ImportTemplateType>;
 };
 
 export type Mutation = {
@@ -221,6 +241,7 @@ export type Mutation = {
   createApplicationWithAIV2: DraftApplicationType;
   createDraftApplication: DraftApplicationType;
   createImportRun: ImportRunType;
+  createImportTemplate: ImportTemplateType;
   deleteApplication: DeleteMutationPayloadType;
   deleteApplicationNote: DeleteMutationPayloadType;
   deleteApplicationStageEvent: DeleteMutationPayloadType;
@@ -228,13 +249,18 @@ export type Mutation = {
   deleteCompany: DeleteMutationPayloadType;
   deleteDraftApplication: DeleteMutationPayloadType;
   deleteImportRun: DeleteMutationPayloadType;
+  deleteImportTemplate: DeleteMutationPayloadType;
+  detachApplicationsFromImportRun: Scalars["Int"]["output"];
   removeApplicationTag: ApplicationType;
+  rerunImportTemplate: ImportRunType;
   updateApplication: ApplicationType;
   updateApplicationNote: NoteType;
   updateApplicationStageEvent: ApplicationStageEventType;
   updateCompany: CompanyType;
   updateDraftApplication: DraftApplicationType;
+  updateImportRun: ImportRunType;
   updateImportRunStatus: ImportRunType;
+  updateImportTemplate: ImportTemplateType;
 };
 
 export type MutationClaimImportRunArgs = { id: Scalars["ID"]["input"] };
@@ -257,6 +283,10 @@ export type MutationCreateDraftApplicationArgs = {
 
 export type MutationCreateImportRunArgs = { input: CreateImportRunInput };
 
+export type MutationCreateImportTemplateArgs = {
+  input: CreateImportTemplateInput;
+};
+
 export type MutationDeleteApplicationArgs = { id: Scalars["ID"]["input"] };
 
 export type MutationDeleteApplicationNoteArgs = { id: Scalars["ID"]["input"] };
@@ -278,9 +308,19 @@ export type MutationDeleteDraftApplicationArgs = {
 
 export type MutationDeleteImportRunArgs = { id: Scalars["ID"]["input"] };
 
+export type MutationDeleteImportTemplateArgs = { id: Scalars["ID"]["input"] };
+
+export type MutationDetachApplicationsFromImportRunArgs = {
+  importRunId: Scalars["ID"]["input"];
+};
+
 export type MutationRemoveApplicationTagArgs = {
   id: Scalars["ID"]["input"];
   tag: Scalars["String"]["input"];
+};
+
+export type MutationRerunImportTemplateArgs = {
+  templateId: Scalars["ID"]["input"];
 };
 
 export type MutationUpdateApplicationArgs = {
@@ -308,9 +348,19 @@ export type MutationUpdateDraftApplicationArgs = {
   input: UpdateDraftApplicationInput;
 };
 
+export type MutationUpdateImportRunArgs = {
+  id: Scalars["ID"]["input"];
+  input: UpdateImportRunInput;
+};
+
 export type MutationUpdateImportRunStatusArgs = {
   id: Scalars["ID"]["input"];
   status: ImportRunStatus;
+};
+
+export type MutationUpdateImportTemplateArgs = {
+  id: Scalars["ID"]["input"];
+  input: UpdateImportTemplateInput;
 };
 
 export type NoteType = {
@@ -330,7 +380,6 @@ export type Query = {
   applicationNotes: Array<NoteType>;
   applicationStageEvents: Array<ApplicationStageEventType>;
   applications: Array<ApplicationType>;
-  builtInImporters: Array<BuiltInImporterType>;
   companies: Array<CompanyType>;
   companyApplicationsCount: Scalars["Int"]["output"];
   draftApplication: DraftApplicationType;
@@ -339,6 +388,9 @@ export type Query = {
   generateApplicationNoteWithAI: Scalars["String"]["output"];
   generateCompanyDescription: Scalars["String"]["output"];
   importRuns: Array<ImportRunType>;
+  importTemplates: Array<ImportTemplateType>;
+  importTemplatesForImporter: Array<ImportTemplateType>;
+  importers: Array<ImporterDescriptorType>;
   me: UserType;
   restructureJobDescriptionWithAI: Scalars["String"]["output"];
   rewriteTextWithAI: Scalars["String"]["output"];
@@ -357,6 +409,7 @@ export type QueryApplicationStageEventsArgs = {
 export type QueryApplicationsArgs = {
   company?: InputMaybe<Scalars["String"]["input"]>;
   filter?: InputMaybe<ApplicationQuickFilter>;
+  runId?: InputMaybe<Scalars["ID"]["input"]>;
 };
 
 export type QueryCompanyApplicationsCountArgs = { id: Scalars["ID"]["input"] };
@@ -375,6 +428,14 @@ export type QueryGenerateApplicationNoteWithAiArgs = {
 
 export type QueryGenerateCompanyDescriptionArgs = {
   companyName: Scalars["String"]["input"];
+};
+
+export type QueryImportTemplatesForImporterArgs = {
+  importerId: Scalars["String"]["input"];
+};
+
+export type QueryImportersArgs = {
+  onlyWithImportTemplate?: InputMaybe<Scalars["Boolean"]["input"]>;
 };
 
 export type QueryRestructureJobDescriptionWithAiArgs = {
@@ -421,6 +482,14 @@ export type UpdateCompanyInput = {
 
 export type UpdateDraftApplicationInput = { title: Scalars["String"]["input"] };
 
+export type UpdateImportRunInput = { surfaceUrl: Scalars["String"]["input"] };
+
+export type UpdateImportTemplateInput = {
+  scheduleCron?: InputMaybe<Scalars["String"]["input"]>;
+  scheduleEnabled?: InputMaybe<Scalars["Boolean"]["input"]>;
+  surfaceUrl?: InputMaybe<Scalars["String"]["input"]>;
+};
+
 export type UpdateNoteInput = {
   content?: InputMaybe<Scalars["String"]["input"]>;
   expectedRevision: Scalars["Int"]["input"];
@@ -449,6 +518,7 @@ export type ApplicationSalarySelectionFragment = {
 export type ApplicationsQueryVariables = Exact<{
   filter?: InputMaybe<ApplicationQuickFilter>;
   company?: InputMaybe<Scalars["String"]["input"]>;
+  runId?: InputMaybe<Scalars["ID"]["input"]>;
 }>;
 
 export type ApplicationsQuery = {
@@ -463,6 +533,7 @@ export type ApplicationsQuery = {
       urls: Array<string>;
       source?: ApplicationSource | null;
       tags: Array<string>;
+      importRunId?: string | null;
       currentStage: ApplicationStage;
       currentStageReason?: string | null;
       currentStageAt: any;
@@ -494,6 +565,7 @@ export type ApplicationQuery = {
     urls: Array<string>;
     source?: ApplicationSource | null;
     tags: Array<string>;
+    importRunId?: string | null;
     currentStage: ApplicationStage;
     currentStageReason?: string | null;
     currentStageAt: any;
@@ -949,80 +1021,104 @@ export type UpdateDraftApplicationMutation = {
   };
 };
 
-export type BuiltInImportersQueryVariables = Exact<{ [key: string]: never }>;
+export type ImportersListQueryVariables = Exact<{ [key: string]: never }>;
 
-export type BuiltInImportersQuery = {
+export type ImportersListQuery = {
   __typename?: "Query";
-  builtInImporters: Array<{
-    __typename?: "BuiltInImporterType";
+  importers: Array<{
+    __typename?: "ImporterDescriptorType";
     importerId: string;
     name: string;
   }>;
 };
 
-export type ImportRunsQueryVariables = Exact<{ [key: string]: never }>;
+export type ImportersForNewImportTemplatePickerQueryVariables = Exact<{
+  [key: string]: never;
+}>;
 
-export type ImportRunsQuery = {
+export type ImportersForNewImportTemplatePickerQuery = {
   __typename?: "Query";
-  importRuns: Array<{
-    __typename?: "ImportRunType";
-    id: string;
+  importers: Array<{
+    __typename?: "ImporterDescriptorType";
     importerId: string;
-    entryUrl: string;
-    status: ImportRunStatus;
-    startedAt: any;
-    importerSource: string;
+    name: string;
   }>;
 };
 
-export type CreateImportRunMutationVariables = Exact<{
-  input: CreateImportRunInput;
+export type ImportTemplatesForImporterQueryVariables = Exact<{
+  importerId: Scalars["String"]["input"];
 }>;
 
-export type CreateImportRunMutation = {
-  __typename?: "Mutation";
-  createImportRun: {
-    __typename?: "ImportRunType";
+export type ImportTemplatesForImporterQuery = {
+  __typename?: "Query";
+  importTemplatesForImporter: Array<{
+    __typename?: "ImportTemplateType";
     id: string;
     importerId: string;
-    entryUrl: string;
-    status: ImportRunStatus;
-    startedAt: any;
-    importerSource: string;
+    scheduleCron?: string | null;
+    scheduleEnabled: boolean;
+    surfaceUrl: string;
+    createdAt: any;
+    runs: Array<{
+      __typename?: "ImportRunType";
+      id: string;
+      status: ImportRunStatus;
+      startedAt: any;
+    }>;
+  }>;
+};
+
+export type UpdateImportTemplateMutationVariables = Exact<{
+  id: Scalars["ID"]["input"];
+  input: UpdateImportTemplateInput;
+}>;
+
+export type UpdateImportTemplateMutation = {
+  __typename?: "Mutation";
+  updateImportTemplate: {
+    __typename?: "ImportTemplateType";
+    id: string;
+    importerId: string;
+    scheduleCron?: string | null;
+    scheduleEnabled: boolean;
+    surfaceUrl: string;
+    createdAt: any;
+    runs: Array<{
+      __typename?: "ImportRunType";
+      id: string;
+      status: ImportRunStatus;
+      startedAt: any;
+    }>;
   };
 };
 
-export type DeleteImportRunMutationVariables = Exact<{
+export type DeleteImportTemplateMutationVariables = Exact<{
   id: Scalars["ID"]["input"];
 }>;
 
-export type DeleteImportRunMutation = {
+export type DeleteImportTemplateMutation = {
   __typename?: "Mutation";
-  deleteImportRun: {
+  deleteImportTemplate: {
     __typename?: "DeleteMutationPayloadType";
     success: boolean;
     deletedId: string;
   };
 };
 
-export type ClearImportRunsMutationVariables = Exact<{ [key: string]: never }>;
-
-export type ClearImportRunsMutation = {
-  __typename?: "Mutation";
-  clearImportRuns: boolean;
-};
-
-export type UpdateImportRunStatusMutationVariables = Exact<{
-  id: Scalars["ID"]["input"];
-  status: ImportRunStatus;
+export type CreateImportTemplateMutationVariables = Exact<{
+  input: CreateImportTemplateInput;
 }>;
 
-export type UpdateImportRunStatusMutation = {
+export type CreateImportTemplateMutation = {
   __typename?: "Mutation";
-  updateImportRunStatus: {
-    __typename?: "ImportRunType";
+  createImportTemplate: {
+    __typename?: "ImportTemplateType";
     id: string;
-    status: ImportRunStatus;
+    importerId: string;
+    surfaceUrl: string;
+    scheduleCron?: string | null;
+    scheduleEnabled: boolean;
+    createdAt: any;
   };
 };
 
@@ -1098,6 +1194,14 @@ export const ApplicationsDocument = {
           },
           type: { kind: "NamedType", name: { kind: "Name", value: "String" } },
         },
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "runId" },
+          },
+          type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+        },
       ],
       selectionSet: {
         kind: "SelectionSet",
@@ -1120,6 +1224,14 @@ export const ApplicationsDocument = {
                 value: {
                   kind: "Variable",
                   name: { kind: "Name", value: "company" },
+                },
+              },
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "runId" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "runId" },
                 },
               },
             ],
@@ -1152,6 +1264,7 @@ export const ApplicationsDocument = {
                   name: { kind: "Name", value: "ApplicationSalarySelection" },
                 },
                 { kind: "Field", name: { kind: "Name", value: "tags" } },
+                { kind: "Field", name: { kind: "Name", value: "importRunId" } },
                 {
                   kind: "Field",
                   name: { kind: "Name", value: "currentStage" },
@@ -1261,6 +1374,7 @@ export const ApplicationDocument = {
                   name: { kind: "Name", value: "ApplicationSalarySelection" },
                 },
                 { kind: "Field", name: { kind: "Name", value: "tags" } },
+                { kind: "Field", name: { kind: "Name", value: "importRunId" } },
                 {
                   kind: "Field",
                   name: { kind: "Name", value: "currentStage" },
@@ -3071,19 +3185,59 @@ export const UpdateDraftApplicationDocument = {
   UpdateDraftApplicationMutation,
   UpdateDraftApplicationMutationVariables
 >;
-export const BuiltInImportersDocument = {
+export const ImportersListDocument = {
   kind: "Document",
   definitions: [
     {
       kind: "OperationDefinition",
       operation: "query",
-      name: { kind: "Name", value: "BuiltInImporters" },
+      name: { kind: "Name", value: "ImportersList" },
       selectionSet: {
         kind: "SelectionSet",
         selections: [
           {
             kind: "Field",
-            name: { kind: "Name", value: "builtInImporters" },
+            name: { kind: "Name", value: "importers" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "onlyWithImportTemplate" },
+                value: { kind: "BooleanValue", value: true },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "importerId" } },
+                { kind: "Field", name: { kind: "Name", value: "name" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ImportersListQuery, ImportersListQueryVariables>;
+export const ImportersForNewImportTemplatePickerDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "query",
+      name: { kind: "Name", value: "ImportersForNewImportTemplatePicker" },
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "importers" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "onlyWithImportTemplate" },
+                value: { kind: "BooleanValue", value: false },
+              },
+            ],
             selectionSet: {
               kind: "SelectionSet",
               selections: [
@@ -3097,33 +3251,80 @@ export const BuiltInImportersDocument = {
     },
   ],
 } as unknown as DocumentNode<
-  BuiltInImportersQuery,
-  BuiltInImportersQueryVariables
+  ImportersForNewImportTemplatePickerQuery,
+  ImportersForNewImportTemplatePickerQueryVariables
 >;
-export const ImportRunsDocument = {
+export const ImportTemplatesForImporterDocument = {
   kind: "Document",
   definitions: [
     {
       kind: "OperationDefinition",
       operation: "query",
-      name: { kind: "Name", value: "ImportRuns" },
+      name: { kind: "Name", value: "ImportTemplatesForImporter" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "importerId" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: {
+              kind: "NamedType",
+              name: { kind: "Name", value: "String" },
+            },
+          },
+        },
+      ],
       selectionSet: {
         kind: "SelectionSet",
         selections: [
           {
             kind: "Field",
-            name: { kind: "Name", value: "importRuns" },
+            name: { kind: "Name", value: "importTemplatesForImporter" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "importerId" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "importerId" },
+                },
+              },
+            ],
             selectionSet: {
               kind: "SelectionSet",
               selections: [
                 { kind: "Field", name: { kind: "Name", value: "id" } },
                 { kind: "Field", name: { kind: "Name", value: "importerId" } },
-                { kind: "Field", name: { kind: "Name", value: "entryUrl" } },
-                { kind: "Field", name: { kind: "Name", value: "status" } },
-                { kind: "Field", name: { kind: "Name", value: "startedAt" } },
                 {
                   kind: "Field",
-                  name: { kind: "Name", value: "importerSource" },
+                  name: { kind: "Name", value: "scheduleCron" },
+                },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "scheduleEnabled" },
+                },
+                { kind: "Field", name: { kind: "Name", value: "surfaceUrl" } },
+                { kind: "Field", name: { kind: "Name", value: "createdAt" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "runs" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      { kind: "Field", name: { kind: "Name", value: "id" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "status" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "startedAt" },
+                      },
+                    ],
+                  },
                 },
               ],
             },
@@ -3132,15 +3333,26 @@ export const ImportRunsDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<ImportRunsQuery, ImportRunsQueryVariables>;
-export const CreateImportRunDocument = {
+} as unknown as DocumentNode<
+  ImportTemplatesForImporterQuery,
+  ImportTemplatesForImporterQueryVariables
+>;
+export const UpdateImportTemplateDocument = {
   kind: "Document",
   definitions: [
     {
       kind: "OperationDefinition",
       operation: "mutation",
-      name: { kind: "Name", value: "CreateImportRun" },
+      name: { kind: "Name", value: "UpdateImportTemplate" },
       variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "id" } },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
         {
           kind: "VariableDefinition",
           variable: {
@@ -3151,7 +3363,7 @@ export const CreateImportRunDocument = {
             kind: "NonNullType",
             type: {
               kind: "NamedType",
-              name: { kind: "Name", value: "CreateImportRunInput" },
+              name: { kind: "Name", value: "UpdateImportTemplateInput" },
             },
           },
         },
@@ -3161,8 +3373,16 @@ export const CreateImportRunDocument = {
         selections: [
           {
             kind: "Field",
-            name: { kind: "Name", value: "createImportRun" },
+            name: { kind: "Name", value: "updateImportTemplate" },
             arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "id" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "id" },
+                },
+              },
               {
                 kind: "Argument",
                 name: { kind: "Name", value: "input" },
@@ -3177,12 +3397,33 @@ export const CreateImportRunDocument = {
               selections: [
                 { kind: "Field", name: { kind: "Name", value: "id" } },
                 { kind: "Field", name: { kind: "Name", value: "importerId" } },
-                { kind: "Field", name: { kind: "Name", value: "entryUrl" } },
-                { kind: "Field", name: { kind: "Name", value: "status" } },
-                { kind: "Field", name: { kind: "Name", value: "startedAt" } },
                 {
                   kind: "Field",
-                  name: { kind: "Name", value: "importerSource" },
+                  name: { kind: "Name", value: "scheduleCron" },
+                },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "scheduleEnabled" },
+                },
+                { kind: "Field", name: { kind: "Name", value: "surfaceUrl" } },
+                { kind: "Field", name: { kind: "Name", value: "createdAt" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "runs" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      { kind: "Field", name: { kind: "Name", value: "id" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "status" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "startedAt" },
+                      },
+                    ],
+                  },
                 },
               ],
             },
@@ -3192,16 +3433,16 @@ export const CreateImportRunDocument = {
     },
   ],
 } as unknown as DocumentNode<
-  CreateImportRunMutation,
-  CreateImportRunMutationVariables
+  UpdateImportTemplateMutation,
+  UpdateImportTemplateMutationVariables
 >;
-export const DeleteImportRunDocument = {
+export const DeleteImportTemplateDocument = {
   kind: "Document",
   definitions: [
     {
       kind: "OperationDefinition",
       operation: "mutation",
-      name: { kind: "Name", value: "DeleteImportRun" },
+      name: { kind: "Name", value: "DeleteImportTemplate" },
       variableDefinitions: [
         {
           kind: "VariableDefinition",
@@ -3217,7 +3458,7 @@ export const DeleteImportRunDocument = {
         selections: [
           {
             kind: "Field",
-            name: { kind: "Name", value: "deleteImportRun" },
+            name: { kind: "Name", value: "deleteImportTemplate" },
             arguments: [
               {
                 kind: "Argument",
@@ -3241,55 +3482,28 @@ export const DeleteImportRunDocument = {
     },
   ],
 } as unknown as DocumentNode<
-  DeleteImportRunMutation,
-  DeleteImportRunMutationVariables
+  DeleteImportTemplateMutation,
+  DeleteImportTemplateMutationVariables
 >;
-export const ClearImportRunsDocument = {
+export const CreateImportTemplateDocument = {
   kind: "Document",
   definitions: [
     {
       kind: "OperationDefinition",
       operation: "mutation",
-      name: { kind: "Name", value: "ClearImportRuns" },
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          { kind: "Field", name: { kind: "Name", value: "clearImportRuns" } },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  ClearImportRunsMutation,
-  ClearImportRunsMutationVariables
->;
-export const UpdateImportRunStatusDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "mutation",
-      name: { kind: "Name", value: "UpdateImportRunStatus" },
+      name: { kind: "Name", value: "CreateImportTemplate" },
       variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: { kind: "Variable", name: { kind: "Name", value: "id" } },
-          type: {
-            kind: "NonNullType",
-            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
-          },
-        },
         {
           kind: "VariableDefinition",
           variable: {
             kind: "Variable",
-            name: { kind: "Name", value: "status" },
+            name: { kind: "Name", value: "input" },
           },
           type: {
             kind: "NonNullType",
             type: {
               kind: "NamedType",
-              name: { kind: "Name", value: "ImportRunStatus" },
+              name: { kind: "Name", value: "CreateImportTemplateInput" },
             },
           },
         },
@@ -3299,22 +3513,14 @@ export const UpdateImportRunStatusDocument = {
         selections: [
           {
             kind: "Field",
-            name: { kind: "Name", value: "updateImportRunStatus" },
+            name: { kind: "Name", value: "createImportTemplate" },
             arguments: [
               {
                 kind: "Argument",
-                name: { kind: "Name", value: "id" },
+                name: { kind: "Name", value: "input" },
                 value: {
                   kind: "Variable",
-                  name: { kind: "Name", value: "id" },
-                },
-              },
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "status" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "status" },
+                  name: { kind: "Name", value: "input" },
                 },
               },
             ],
@@ -3322,7 +3528,17 @@ export const UpdateImportRunStatusDocument = {
               kind: "SelectionSet",
               selections: [
                 { kind: "Field", name: { kind: "Name", value: "id" } },
-                { kind: "Field", name: { kind: "Name", value: "status" } },
+                { kind: "Field", name: { kind: "Name", value: "importerId" } },
+                { kind: "Field", name: { kind: "Name", value: "surfaceUrl" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "scheduleCron" },
+                },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "scheduleEnabled" },
+                },
+                { kind: "Field", name: { kind: "Name", value: "createdAt" } },
               ],
             },
           },
@@ -3331,8 +3547,8 @@ export const UpdateImportRunStatusDocument = {
     },
   ],
 } as unknown as DocumentNode<
-  UpdateImportRunStatusMutation,
-  UpdateImportRunStatusMutationVariables
+  CreateImportTemplateMutation,
+  CreateImportTemplateMutationVariables
 >;
 export const MeDocument = {
   kind: "Document",
