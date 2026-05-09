@@ -1,10 +1,12 @@
 import { DraftApplicationConversionStatus } from "@api/database/entities/draft-application.entity";
+import { ImportRunEntity } from "@api/database/entities/import-run.entity";
 import { ApplicationAiService } from "@api/domains/application-ai/application-ai.service";
 import { DraftExtractionNormalizationService } from "@api/domains/application-ai/draft-extraction-normalization.service";
 import { CompanyService } from "@api/domains/companies/companies.service";
 import { CompanyAiService } from "@api/domains/company-ai/company-ai.service";
 import { DraftApplicationsService } from "@api/domains/draft-applications/draft-applications.service";
 import { NotFoundException } from "@nestjs/common";
+import type { Repository } from "typeorm";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ApplicationStageEnum } from "./application-stage.enum";
@@ -39,6 +41,7 @@ const makeApp = (overrides: Partial<Application> = {}): Application =>
     tags: [],
     createdAt: new Date(),
     updatedAt: new Date(),
+    importRunId: null,
     ...overrides,
   }) as unknown as Application;
 
@@ -60,6 +63,7 @@ const makeEvent = (
 
 describe("ApplicationService", () => {
   let service: ApplicationService;
+  let importRunsRepo: Pick<Repository<ImportRunEntity>, "findOne">;
   let repo: ApplicationRepository;
   let companyService: CompanyService;
   let salaryService: SalaryService;
@@ -70,6 +74,8 @@ describe("ApplicationService", () => {
   let draftExtractionNormalizationService: DraftExtractionNormalizationService;
 
   beforeEach(() => {
+    importRunsRepo = { findOne: vi.fn().mockResolvedValue(null) };
+
     repo = {
       findAllByUserId: vi.fn(),
       findOneByIdAndUserId: vi.fn(),
@@ -112,6 +118,7 @@ describe("ApplicationService", () => {
     } as unknown as DraftExtractionNormalizationService;
 
     service = new ApplicationService(
+      importRunsRepo as unknown as Repository<ImportRunEntity>,
       repo,
       companyService,
       salaryService,
@@ -130,6 +137,7 @@ describe("ApplicationService", () => {
     expect(result).toHaveLength(1);
     expect(repo.findAllByUserId).toHaveBeenCalledWith(
       "user-1",
+      undefined,
       undefined,
       undefined,
     );

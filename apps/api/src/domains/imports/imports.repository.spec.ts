@@ -1,4 +1,5 @@
 import { ImportRunEntity } from "@api/database/entities/import-run.entity";
+import { ImportTemplateEntity } from "@api/database/entities/import-template.entity";
 import { UserEntity } from "@api/database/entities/user.entity";
 import { resetPublicSchemaAndMigrate } from "@api/database/test-db";
 import { ImportRunStatusEnum } from "@api/domains/imports/import-run-status.enum";
@@ -16,7 +17,10 @@ describe.skipIf(!hasDb)("ImportsRepository (integration)", () => {
 
   beforeAll(async () => {
     dataSource = await resetPublicSchemaAndMigrate(DATABASE_URL as string);
-    repo = new ImportsRepository(dataSource.getRepository(ImportRunEntity));
+    repo = new ImportsRepository(
+      dataSource.getRepository(ImportRunEntity),
+      dataSource.getRepository(ImportTemplateEntity),
+    );
 
     const userRepo = dataSource.getRepository(UserEntity);
     const user = await userRepo.save(
@@ -33,21 +37,33 @@ describe.skipIf(!hasDb)("ImportsRepository (integration)", () => {
 
   afterAll(async () => {
     if (dataSource?.isInitialized) {
-      await dataSource.query("TRUNCATE import_runs, users CASCADE");
+      await dataSource.query(
+        "TRUNCATE import_runs, import_templates, users CASCADE",
+      );
       await dataSource.destroy();
     }
   });
 
   beforeEach(async () => {
-    await dataSource.query("TRUNCATE import_runs CASCADE");
+    await dataSource.query("TRUNCATE import_runs, import_templates CASCADE");
   });
 
   async function seedRunningRun(): Promise<ImportRunEntity> {
-    return repo.create({
+    const templates = dataSource.getRepository(ImportTemplateEntity);
+    const template = await templates.save(
+      templates.create({
+        userId,
+        importerId: "remoteyeah",
+        scheduleEnabled: false,
+        scheduleCron: null,
+      }),
+    );
+    return repo.createRun({
       userId,
-      importerId: "remoteyeah",
+      templateId: template.id,
       status: ImportRunStatusEnum.RUNNING,
       startedAt: new Date("2026-05-01T12:00:00.000Z"),
+      surfaceUrl: "https://example.com/listing",
     });
   }
 
@@ -116,5 +132,39 @@ describe.skipIf(!hasDb)("ImportsRepository (integration)", () => {
 
     const reloaded = await repo.findByUserAndId({ id: seeded.id, userId });
     expect(reloaded?.status).toBe(ImportRunStatusEnum.IN_PROGRESS);
+  });
+
+  it("findRunsForTemplate returns runs newest-started first", async () => {
+    const templates = dataSource.getRepository(ImportTemplateEntity);
+    const template = await templates.save(
+      templates.create({
+        userId,
+        importerId: "remoteyeah",
+        scheduleEnabled: false,
+        scheduleCron: null,
+      }),
+    );
+
+    const older = await repo.createRun({
+      userId,
+      templateId: template.id,
+      status: ImportRunStatusEnum.COMPLETED,
+      startedAt: new Date("2026-05-01T10:00:00.000Z"),
+      surfaceUrl: "https://example.com/surface",
+    });
+    const newer = await repo.createRun({
+      userId,
+      templateId: template.id,
+      status: ImportRunStatusEnum.COMPLETED,
+      startedAt: new Date("2026-05-02T10:00:00.000Z"),
+      surfaceUrl: "https://example.com/surface",
+    });
+
+    const runs = await repo.findRunsForTemplate({
+      userId,
+      templateId: template.id,
+    });
+
+    expect(runs.map((r) => r.id)).toEqual([newer.id, older.id]);
   });
 });

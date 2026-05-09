@@ -1,4 +1,6 @@
 import { ImportRunEntity } from "@api/database/entities/import-run.entity";
+import { ImportTemplateEntity } from "@api/database/entities/import-template.entity";
+import { ApplicationRepository } from "@api/domains/applications/applications.repository";
 import { ImportRunEventTypeEnum } from "@api/domains/imports/import-run-event-type.enum";
 import { ImportRunStatusEnum } from "@api/domains/imports/import-run-status.enum";
 import { ImportsRepository } from "@api/domains/imports/imports.repository";
@@ -8,27 +10,58 @@ import { PlanRegistryService } from "@api/domains/imports/plan-registry.service"
 import { BadRequestException, NotFoundException } from "@nestjs/common";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+function runWithTemplate(importerId: string): ImportRunEntity {
+  const template = {
+    id: "tmpl-1",
+    userId: "user-1",
+    importerId,
+    scheduleCron: null,
+    scheduleEnabled: false,
+    createdAt: new Date("2026-05-01T12:00:00.000Z"),
+  } as ImportTemplateEntity;
+  return {
+    id: "run-1",
+    userId: "user-1",
+    templateId: template.id,
+    template,
+    surfaceUrl: "https://remoteyeah.com/surface",
+    status: ImportRunStatusEnum.RUNNING,
+    startedAt: new Date("2026-05-01T12:00:00.000Z"),
+  };
+}
+
 describe("ImportsService", () => {
   const repo: Pick<
     ImportsRepository,
     | "listByUserId"
-    | "create"
+    | "findOrCreateTemplate"
+    | "createRun"
     | "deleteByUser"
-    | "deleteAllByUserId"
+    | "deleteTemplatesByUserId"
     | "findByUserAndId"
+    | "findRunsForTemplate"
     | "updateStatus"
     | "resetStaleInProgressRuns"
     | "claimRunning"
+    | "listTemplatesByUserAndImporterId"
   > = {
     listByUserId: vi.fn(),
-    create: vi.fn(),
+    findOrCreateTemplate: vi.fn(),
+    createRun: vi.fn(),
     deleteByUser: vi.fn(),
-    deleteAllByUserId: vi.fn(),
+    deleteTemplatesByUserId: vi.fn(),
     findByUserAndId: vi.fn(),
+    findRunsForTemplate: vi.fn(),
     updateStatus: vi.fn(),
     resetStaleInProgressRuns: vi.fn(),
     claimRunning: vi.fn(),
+    listTemplatesByUserAndImporterId: vi.fn(),
   };
+
+  const applicationRepo: Pick<
+    ApplicationRepository,
+    "detachApplicationsImportRun"
+  > = { detachApplicationsImportRun: vi.fn() };
 
   const eventsPublisher: ImportsEventsPublisher = {
     publish: vi.fn(),
@@ -44,6 +77,7 @@ describe("ImportsService", () => {
   const service = new ImportsService(
     repo as ImportsRepository,
     planRegistry,
+    applicationRepo as ApplicationRepository,
     eventsPublisher,
   );
 
@@ -51,26 +85,44 @@ describe("ImportsService", () => {
     vi.clearAllMocks();
   });
 
-  it("createImportRun persists importer metadata", async () => {
-    const startedAt = new Date("2026-05-01T12:00:00.000Z");
-    vi.mocked(repo.create).mockResolvedValue({
-      id: "run-1",
+  it("createImportRun creates template and run", async () => {
+    const template = {
+      id: "tmpl-1",
       userId: "user-1",
       importerId: "remoteyeah",
+      scheduleCron: null,
+      scheduleEnabled: false,
+      createdAt: new Date("2026-05-01T12:00:00.000Z"),
+    } as ImportTemplateEntity;
+    vi.mocked(repo.findOrCreateTemplate).mockResolvedValue(template);
+    vi.mocked(repo.createRun).mockResolvedValue({
+      id: "run-1",
+      userId: "user-1",
+      templateId: "tmpl-1",
+      surfaceUrl: "https://remoteyeah.com/surface",
       status: ImportRunStatusEnum.RUNNING,
-      startedAt,
+      startedAt: new Date("2026-05-01T12:00:00.000Z"),
     } as ImportRunEntity);
+    vi.mocked(repo.findByUserAndId).mockResolvedValue(
+      runWithTemplate("remoteyeah"),
+    );
 
     const result = await service.createImportRun("user-1", "remoteyeah");
 
-    expect(repo.create).toHaveBeenCalledWith(
+    expect(repo.findOrCreateTemplate).toHaveBeenCalledWith({
+      userId: "user-1",
+      importerId: "remoteyeah",
+    });
+    expect(repo.createRun).toHaveBeenCalledWith(
       expect.objectContaining({
         userId: "user-1",
-        importerId: "remoteyeah",
+        templateId: "tmpl-1",
         status: ImportRunStatusEnum.RUNNING,
+        surfaceUrl: expect.stringContaining("remoteyeah.com"),
       }),
     );
     expect(result.importerSource).toBe("database");
+    expect(result.templateId).toBe("tmpl-1");
     expect(eventsPublisher.publish).toHaveBeenCalledWith(
       expect.objectContaining({
         userId: "user-1",
@@ -83,7 +135,7 @@ describe("ImportsService", () => {
         }),
       }),
     );
-    expect(repo.create).toHaveBeenCalledBefore(
+    expect(repo.createRun).toHaveBeenCalledBefore(
       vi.mocked(eventsPublisher.publish),
     );
   });
@@ -92,7 +144,76 @@ describe("ImportsService", () => {
     await expect(service.createImportRun("user-1", "nope")).rejects.toThrow(
       BadRequestException,
     );
-    expect(repo.create).not.toHaveBeenCalled();
+    expect(repo.findOrCreateTemplate).not.toHaveBeenCalled();
+  });
+
+  it("createImportTemplate ensures template without creating a run", async () => {
+    const template = {
+      id: "tmpl-1",
+      userId: "user-1",
+      importerId: "remoteyeah",
+      scheduleCron: null,
+      scheduleEnabled: false,
+      createdAt: new Date("2026-05-01T12:00:00.000Z"),
+    } as ImportTemplateEntity;
+    vi.mocked(repo.findOrCreateTemplate).mockResolvedValue(template);
+    vi.mocked(repo.findRunsForTemplate).mockResolvedValue([]);
+
+    const result = await service.createImportTemplate("user-1", {
+      importerId: "remoteyeah",
+      surfaceUrl: "https://example.com",
+    });
+
+    expect(repo.findOrCreateTemplate).toHaveBeenCalledWith({
+      userId: "user-1",
+      importerId: "remoteyeah",
+      surfaceUrl: "https://example.com",
+    });
+    expect(repo.createRun).not.toHaveBeenCalled();
+    expect(eventsPublisher.publish).not.toHaveBeenCalled();
+    expect(result.id).toBe("tmpl-1");
+    expect(result.runs).toEqual([]);
+  });
+
+  it("createImportTemplate rejects unknown importer", async () => {
+    await expect(
+      service.createImportTemplate("user-1", {
+        importerId: "nope",
+        surfaceUrl: "https://example.com",
+      }),
+    ).rejects.toThrow(BadRequestException);
+    expect(repo.findOrCreateTemplate).not.toHaveBeenCalled();
+  });
+
+  it("listImportTemplatesForImporter scopes templates by normalized importer", async () => {
+    vi.mocked(repo.listTemplatesByUserAndImporterId).mockResolvedValue([
+      {
+        id: "tmpl-1",
+        userId: "user-1",
+        importerId: "remoteyeah",
+        scheduleCron: null,
+        scheduleEnabled: false,
+        createdAt: new Date("2026-05-01T12:00:00.000Z"),
+      } as ImportTemplateEntity,
+    ]);
+    vi.mocked(repo.findRunsForTemplate).mockResolvedValue([]);
+
+    const result = await service.listImportTemplatesForImporter(
+      "user-1",
+      "RemoteYeah",
+    );
+
+    expect(repo.listTemplatesByUserAndImporterId).toHaveBeenCalledWith({
+      userId: "user-1",
+      importerId: "remoteyeah",
+    });
+    expect(result).toEqual([
+      expect.objectContaining({
+        id: "tmpl-1",
+        importerId: "remoteyeah",
+        runs: [],
+      }),
+    ]);
   });
 
   it("deleteImportRun removes run owned by user", async () => {
@@ -113,26 +234,19 @@ describe("ImportsService", () => {
     );
   });
 
-  it("clearImportRuns deletes all runs for the user", async () => {
-    vi.mocked(repo.deleteAllByUserId).mockResolvedValue(3);
+  it("clearImportRuns deletes templates for the user", async () => {
     await expect(service.clearImportRuns("user-1")).resolves.toBeUndefined();
-    expect(repo.deleteAllByUserId).toHaveBeenCalledWith("user-1");
+    expect(repo.deleteTemplatesByUserId).toHaveBeenCalledWith("user-1");
   });
 
   it("updateImportRunStatus RUNNING → IN_PROGRESS", async () => {
-    const row = {
-      id: "run-1",
-      userId: "user-1",
-      importerId: "remoteyeah",
-      status: ImportRunStatusEnum.RUNNING,
-      startedAt: new Date("2026-05-01T12:00:00.000Z"),
-    };
+    const row = runWithTemplate("remoteyeah");
     vi.mocked(repo.findByUserAndId)
-      .mockResolvedValueOnce(row as ImportRunEntity)
+      .mockResolvedValueOnce(row)
       .mockResolvedValueOnce({
         ...row,
         status: ImportRunStatusEnum.IN_PROGRESS,
-      } as ImportRunEntity);
+      });
     vi.mocked(repo.updateStatus).mockResolvedValue(true);
 
     const out = await service.updateImportRunStatus(
@@ -151,13 +265,10 @@ describe("ImportsService", () => {
 
   it("updateImportRunStatus idempotent when status unchanged", async () => {
     const row = {
-      id: "run-1",
-      userId: "user-1",
-      importerId: "remoteyeah",
+      ...runWithTemplate("remoteyeah"),
       status: ImportRunStatusEnum.IN_PROGRESS,
-      startedAt: new Date("2026-05-01T12:00:00.000Z"),
     };
-    vi.mocked(repo.findByUserAndId).mockResolvedValue(row as ImportRunEntity);
+    vi.mocked(repo.findByUserAndId).mockResolvedValue(row);
 
     const out = await service.updateImportRunStatus(
       "user-1",
@@ -170,13 +281,9 @@ describe("ImportsService", () => {
   });
 
   it("updateImportRunStatus rejects invalid transition", async () => {
-    vi.mocked(repo.findByUserAndId).mockResolvedValue({
-      id: "run-1",
-      userId: "user-1",
-      importerId: "remoteyeah",
-      status: ImportRunStatusEnum.RUNNING,
-      startedAt: new Date("2026-05-01T12:00:00.000Z"),
-    } as ImportRunEntity);
+    vi.mocked(repo.findByUserAndId).mockResolvedValue(
+      runWithTemplate("remoteyeah"),
+    );
 
     await expect(
       service.updateImportRunStatus(
@@ -201,30 +308,17 @@ describe("ImportsService", () => {
 
   it("claimImportRun reclaims stale in-progress run", async () => {
     const staleStartedAt = new Date(Date.now() - 11 * 60 * 1000);
+    const staleRow = {
+      ...runWithTemplate("remoteyeah"),
+      status: ImportRunStatusEnum.IN_PROGRESS,
+      startedAt: staleStartedAt,
+    };
     vi.mocked(repo.claimRunning)
       .mockResolvedValueOnce(null)
-      .mockResolvedValueOnce({
-        id: "run-1",
-        userId: "user-1",
-        importerId: "remoteyeah",
-        status: ImportRunStatusEnum.IN_PROGRESS,
-        startedAt: staleStartedAt,
-      } as ImportRunEntity);
+      .mockResolvedValueOnce(staleRow);
     vi.mocked(repo.findByUserAndId)
-      .mockResolvedValueOnce({
-        id: "run-1",
-        userId: "user-1",
-        importerId: "remoteyeah",
-        status: ImportRunStatusEnum.IN_PROGRESS,
-        startedAt: staleStartedAt,
-      } as ImportRunEntity)
-      .mockResolvedValueOnce({
-        id: "run-1",
-        userId: "user-1",
-        importerId: "remoteyeah",
-        status: ImportRunStatusEnum.IN_PROGRESS,
-        startedAt: staleStartedAt,
-      } as ImportRunEntity);
+      .mockResolvedValueOnce(staleRow)
+      .mockResolvedValueOnce(staleRow);
     vi.mocked(repo.updateStatus).mockResolvedValue(true);
 
     const out = await service.claimImportRun("user-1", "run-1");
@@ -242,13 +336,10 @@ describe("ImportsService", () => {
   });
 
   it("claimImportRun returns the run when CAS wins (RUNNING -> IN_PROGRESS)", async () => {
-    const claimed: ImportRunEntity = {
-      id: "run-1",
-      userId: "user-1",
-      importerId: "remoteyeah",
+    const claimed = {
+      ...runWithTemplate("remoteyeah"),
       status: ImportRunStatusEnum.IN_PROGRESS,
-      startedAt: new Date("2026-05-01T12:00:00.000Z"),
-    } as ImportRunEntity;
+    };
     vi.mocked(repo.claimRunning).mockResolvedValue(claimed);
 
     const out = await service.claimImportRun("user-1", "run-1");
@@ -288,12 +379,9 @@ describe("ImportsService", () => {
       }
       claimedOnce = true;
       return {
-        id: "run-1",
-        userId: "user-1",
-        importerId: "remoteyeah",
+        ...runWithTemplate("remoteyeah"),
         status: ImportRunStatusEnum.IN_PROGRESS,
-        startedAt: new Date("2026-05-01T12:00:00.000Z"),
-      } as ImportRunEntity;
+      };
     });
 
     const results = await Promise.all([
@@ -322,10 +410,12 @@ describe("ImportsService", () => {
               occurredAt: new Date("2026-05-01T12:00:00.000Z"),
               run: {
                 id: "run-other",
+                templateId: "t2",
                 importerId: "remoteyeah",
+                surfaceUrl: "https://example.com",
                 status: ImportRunStatusEnum.RUNNING,
                 startedAt: new Date("2026-05-01T12:00:00.000Z"),
-                importerSource: "database",
+                importerSource: "database" as const,
               },
             },
           },
@@ -336,10 +426,12 @@ describe("ImportsService", () => {
               occurredAt: new Date("2026-05-01T12:00:01.000Z"),
               run: {
                 id: "run-1",
+                templateId: "t1",
                 importerId: "remoteyeah",
+                surfaceUrl: "https://example.com",
                 status: ImportRunStatusEnum.RUNNING,
                 startedAt: new Date("2026-05-01T12:00:01.000Z"),
-                importerSource: "database",
+                importerSource: "database" as const,
               },
             },
           },
@@ -368,5 +460,20 @@ describe("ImportsService", () => {
         run: { id: "run-1", importerId: "remoteyeah" },
       },
     });
+  });
+
+  it("detachApplicationsFromImportRun delegates to application repository", async () => {
+    vi.mocked(repo.findByUserAndId).mockResolvedValue(
+      runWithTemplate("remoteyeah"),
+    );
+    vi.mocked(applicationRepo.detachApplicationsImportRun).mockResolvedValue(3);
+
+    const n = await service.detachApplicationsFromImportRun("user-1", "run-1");
+
+    expect(n).toBe(3);
+    expect(applicationRepo.detachApplicationsImportRun).toHaveBeenCalledWith(
+      "run-1",
+      "user-1",
+    );
   });
 });

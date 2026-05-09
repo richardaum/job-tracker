@@ -137,10 +137,11 @@ describe("ApplicationResolver (integration)", () => {
 
     expect(res.statusCode).toBe(200);
     expect(res.body.data.applications).toHaveLength(1);
-    expect(service.findAll).toHaveBeenCalledWith(
+    expect(service.findAll).toHaveBeenLastCalledWith(
       "user-1",
       undefined,
       "Acme Corp",
+      undefined,
     );
   });
 
