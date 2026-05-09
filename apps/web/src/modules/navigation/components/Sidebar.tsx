@@ -109,7 +109,7 @@ export function Sidebar({ open = false, onClose, user }: SidebarProps) {
       <div className={cn("px-3 pb-4")}>
         <div
           className={cn(
-            "flex items-center gap-2 rounded-md border border-border-subtle bg-bg-surface px-3 py-2",
+            "flex items-center gap-2 rounded-md border border-border-default bg-bg-surface px-3 py-2 shadow-sm",
           )}
         >
           <MagnifyingGlassIcon
@@ -164,7 +164,7 @@ export function Sidebar({ open = false, onClose, user }: SidebarProps) {
 
       {/* Bottom items */}
       <div className={cn("flex flex-col gap-0 p-3 ")}>
-        <div className={cn("mx-1 mb-1 border-t border-border-subtle")} />
+        <div className={cn("mx-1 mb-1 border-t border-border-default")} />
         <div
           className={cn(
             "mb-1 flex min-w-0 items-center gap-3 rounded-md px-4 py-2",
@@ -199,7 +199,7 @@ export function Sidebar({ open = false, onClose, user }: SidebarProps) {
             </Text>
           </div>
         </div>
-        <div className={cn("mx-1 mb-1 border-t border-border-subtle")} />
+        <div className={cn("mx-1 mb-1 border-t border-border-default")} />
         {bottomItems.map(({ href, label, icon: Icon }) => (
           <Link
             key={label}
@@ -266,7 +266,7 @@ export function Sidebar({ open = false, onClose, user }: SidebarProps) {
               aria-label="Close navigation"
               onClick={() => onClose?.()}
               className={cn(
-                "rounded-md border border-border-subtle px-2 py-1 text-xs text-text-secondary hover:bg-bg-surface-hover",
+                "rounded-md border border-border-default px-2 py-1 text-xs text-text-secondary hover:bg-bg-surface-hover",
               )}
             >
               Close
