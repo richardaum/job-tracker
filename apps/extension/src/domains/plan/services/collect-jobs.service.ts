@@ -6,6 +6,7 @@ import { JobsListMessagingService } from "@/domains/jobs-list/jobs-list-messagin
 import { LogService } from "@/domains/log/log.service";
 import { PaginationMessagingService } from "@/domains/pagination/pagination-messaging.service";
 import type { PlanStepAction } from "@/domains/plan/model/types";
+import type { PlanExecuteOptions } from "@/domains/plan/plan-execute-options";
 import { TabService } from "@/domains/tab/types";
 
 import { StringTemplateService } from "./string-template.service";
@@ -46,7 +47,7 @@ export class CollectJobsService {
     private readonly stringTemplateService: StringTemplateService,
   ) {}
 
-  async execute(action: PlanStepAction) {
+  async execute(action: PlanStepAction, options?: PlanExecuteOptions) {
     const tabId = await this.tabManager.openTab(action.input.surfaceUrl, {
       focus: true,
     });
@@ -64,6 +65,7 @@ export class CollectJobsService {
         list.map((job) =>
           limitDetailTabs(async () => {
             const jobWithDetails = await this.collectJobDetails(action, job);
+            await options?.onJobCollected?.(jobWithDetails);
             jobs.set(
               this.generateJobKey(action, jobWithDetails),
               jobWithDetails,

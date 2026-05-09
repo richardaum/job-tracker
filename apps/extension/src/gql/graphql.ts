@@ -49,11 +49,13 @@ export type ApplicationSalary = {
 export enum ApplicationSource {
   Jack = "JACK",
   Linkedin = "LINKEDIN",
+  RemoteYeah = "REMOTE_YEAH",
   Wellfound = "WELLFOUND",
 }
 
 export enum ApplicationStage {
   Applied = "APPLIED",
+  Duplicated = "DUPLICATED",
   New = "NEW",
   Offer = "OFFER",
   RecruiterScreen = "RECRUITER_SCREEN",
@@ -91,6 +93,12 @@ export type ApplicationType = {
   updatedAt: Scalars["DateTime"]["output"];
   urls: Array<Scalars["String"]["output"]>;
   userId: Scalars["String"]["output"];
+};
+
+export type BuiltInImporterType = {
+  __typename?: "BuiltInImporterType";
+  importerId: Scalars["String"]["output"];
+  name: Scalars["String"]["output"];
 };
 
 export type CompanyType = {
@@ -197,7 +205,6 @@ export type ImportRunType = {
   entryUrl: Scalars["String"]["output"];
   id: Scalars["ID"]["output"];
   importerId: Scalars["String"]["output"];
-  importerName: Scalars["String"]["output"];
   importerSource: Scalars["String"]["output"];
   startedAt: Scalars["DateTime"]["output"];
   status: ImportRunStatus;
@@ -317,6 +324,7 @@ export type Query = {
   applicationNotes: Array<NoteType>;
   applicationStageEvents: Array<ApplicationStageEventType>;
   applications: Array<ApplicationType>;
+  builtInImporters: Array<BuiltInImporterType>;
   companies: Array<CompanyType>;
   companyApplicationsCount: Scalars["Int"]["output"];
   draftApplication: DraftApplicationType;
@@ -431,12 +439,23 @@ export type ClaimImportRunMutation = {
     __typename?: "ImportRunType";
     id: string;
     importerId: string;
-    importerName: string;
-    entryUrl: string;
     status: ImportRunStatus;
     startedAt: any;
     importerSource: string;
   } | null;
+};
+
+export type CreateApplicationMutationVariables = Exact<{
+  input: CreateApplicationInput;
+}>;
+
+export type CreateApplicationMutation = {
+  __typename?: "Mutation";
+  createApplication: {
+    __typename?: "ApplicationType";
+    id: string;
+    title: string;
+  };
 };
 
 export type CreateDraftApplicationMutationVariables = Exact<{
@@ -467,8 +486,6 @@ export type ImportRunEventsSubscription = {
       __typename?: "ImportRunType";
       id: string;
       importerId: string;
-      importerName: string;
-      entryUrl: string;
       status: ImportRunStatus;
       startedAt: any;
       importerSource: string;
@@ -484,8 +501,6 @@ export type ImportRunsQuery = {
     __typename?: "ImportRunType";
     id: string;
     importerId: string;
-    importerName: string;
-    entryUrl: string;
     status: ImportRunStatus;
     startedAt: any;
     importerSource: string;
@@ -544,11 +559,6 @@ export const ClaimImportRunDocument = {
               selections: [
                 { kind: "Field", name: { kind: "Name", value: "id" } },
                 { kind: "Field", name: { kind: "Name", value: "importerId" } },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "importerName" },
-                },
-                { kind: "Field", name: { kind: "Name", value: "entryUrl" } },
                 { kind: "Field", name: { kind: "Name", value: "status" } },
                 { kind: "Field", name: { kind: "Name", value: "startedAt" } },
                 {
@@ -565,6 +575,61 @@ export const ClaimImportRunDocument = {
 } as unknown as DocumentNode<
   ClaimImportRunMutation,
   ClaimImportRunMutationVariables
+>;
+export const CreateApplicationDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "CreateApplication" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "input" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: {
+              kind: "NamedType",
+              name: { kind: "Name", value: "CreateApplicationInput" },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "createApplication" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "input" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "input" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                { kind: "Field", name: { kind: "Name", value: "title" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  CreateApplicationMutation,
+  CreateApplicationMutationVariables
 >;
 export const CreateDraftApplicationDocument = {
   kind: "Document",
@@ -653,14 +718,6 @@ export const ImportRunEventsDocument = {
                       },
                       {
                         kind: "Field",
-                        name: { kind: "Name", value: "importerName" },
-                      },
-                      {
-                        kind: "Field",
-                        name: { kind: "Name", value: "entryUrl" },
-                      },
-                      {
-                        kind: "Field",
                         name: { kind: "Name", value: "status" },
                       },
                       {
@@ -703,11 +760,6 @@ export const ImportRunsDocument = {
               selections: [
                 { kind: "Field", name: { kind: "Name", value: "id" } },
                 { kind: "Field", name: { kind: "Name", value: "importerId" } },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "importerName" },
-                },
-                { kind: "Field", name: { kind: "Name", value: "entryUrl" } },
                 { kind: "Field", name: { kind: "Name", value: "status" } },
                 { kind: "Field", name: { kind: "Name", value: "startedAt" } },
                 {

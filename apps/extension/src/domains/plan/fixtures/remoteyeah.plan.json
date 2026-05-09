@@ -61,8 +61,9 @@
               "selector": "div.flex.flex-col.gap-2 > p.badge-success span",
               "type": "property",
               "value": "innerText",
+              "format": "salary",
               "validationRegex": {
-                "pattern": "\\$\\s?\\d[\\d,.]*\\s*\\p{Pd}\\s*\\$?\\s?\\d[\\d,.]*\\s*/\\s*(year|month|hour)",
+                "pattern": "(?:BRL\\s+|R\\s*\\$|\\$)\\s?\\d[\\d,.]*\\s*\\p{Pd}\\s*(?:R\\s*\\$|\\$)?\\s?\\d[\\d,.]*\\s*/\\s*(year|month|hour)",
                 "flags": "iu"
               }
             },

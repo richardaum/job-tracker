@@ -1,6 +1,7 @@
 import { generateJSON } from "@tiptap/html";
 import StarterKit from "@tiptap/starter-kit";
 
+import { parseSalaryInnerTextForCreateApplication } from "@/domains/dom/parse-salary-inner-text-for-application";
 import type {
   PlanStepCollectJobsDetailsField,
   PlanStepCollectJobsSurfaceField,
@@ -36,6 +37,16 @@ export class TiptapFieldFormatStrategy implements FieldFormatStrategy {
   }
 }
 
+/** Parsed salary line → object matching {@link CreateApplicationInput} salary fields. */
+export class SalaryFieldFormatStrategy implements FieldFormatStrategy {
+  apply(value: string | null | undefined, _field: CollectField): unknown {
+    if (value == null || typeof value !== "string" || value.trim() === "") {
+      return null;
+    }
+    return parseSalaryInnerTextForCreateApplication(value);
+  }
+}
+
 /** Resolves the plan `format` hint to a strategy; missing format uses passthrough. */
 export class FieldFormatStrategyPicker {
   constructor(
@@ -61,5 +72,6 @@ export function createDefaultFieldFormatStrategyPicker() {
   const passthrough = new PassthroughFieldFormatStrategy();
   return new FieldFormatStrategyPicker(passthrough, {
     tiptap: new TiptapFieldFormatStrategy(),
+    salary: new SalaryFieldFormatStrategy(),
   });
 }

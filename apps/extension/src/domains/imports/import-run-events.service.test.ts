@@ -7,8 +7,8 @@ import { ImportRunEventType, ImportRunStatus } from "@/gql/graphql";
 
 import { ImportRunEventsService } from "./import-run-events.service";
 
-const TEST_ENTRY_URL =
-  "https://remoteyeah.com/remote-frontend-engineer+reactjs-jobs-in-brazil+latin-america+worldwide#jobs";
+const REMOTEYEAH_SURFACE_URL_FROM_PLAN =
+  "https://remoteyeah.com/remote-frontend-engineer+reactjs-jobs-in-brazil+latin-america+worldwide";
 
 describe("ImportRunEventsService", () => {
   it("attempts startup recovery for RUNNING runs", async () => {
@@ -39,7 +39,9 @@ describe("ImportRunEventsService", () => {
     const calledPlan = setup.executePlan.mock.calls[0]?.[0] as {
       steps: Array<{ action: { input: { surfaceUrl: string } } }>;
     };
-    expect(calledPlan.steps[0].action.input.surfaceUrl).toBe(TEST_ENTRY_URL);
+    expect(calledPlan.steps[0].action.input.surfaceUrl).toBe(
+      REMOTEYEAH_SURFACE_URL_FROM_PLAN,
+    );
   });
 
   it("does not fail startup when recovery query fails", async () => {
@@ -92,7 +94,9 @@ describe("ImportRunEventsService", () => {
     const calledPlan = setup.executePlan.mock.calls[0]?.[0] as {
       steps: Array<{ action: { input: { surfaceUrl: string } } }>;
     };
-    expect(calledPlan.steps[0].action.input.surfaceUrl).toBe(TEST_ENTRY_URL);
+    expect(calledPlan.steps[0].action.input.surfaceUrl).toBe(
+      REMOTEYEAH_SURFACE_URL_FROM_PLAN,
+    );
   });
 
   it("skips execution when claim fails", async () => {
@@ -293,8 +297,6 @@ function createRun({ id, status }: { id: string; status: ImportRunStatus }) {
   return {
     id,
     importerId: "remoteyeah",
-    importerName: "RemoteYeah",
-    entryUrl: TEST_ENTRY_URL,
     status,
     startedAt: new Date().toISOString(),
     importerSource: "test",

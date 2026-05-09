@@ -15,6 +15,8 @@ import {
 } from "@/domains/api/create-extension-sse-link";
 import {
   ClaimImportRunDocument,
+  CreateApplicationDocument,
+  type CreateApplicationInput,
   CreateDraftApplicationDocument,
   type CreateDraftApplicationInput,
   ImportRunEventsDocument,
@@ -65,6 +67,13 @@ export class ApiService {
     this.client = new ApolloClient({
       link: ApolloLink.from([authRefreshLink, transportLink]),
       cache: new InMemoryCache(),
+    });
+  }
+
+  async createApplication(input: CreateApplicationInput) {
+    return await this.client.mutate({
+      mutation: CreateApplicationDocument,
+      variables: { input },
     });
   }
 

@@ -69,7 +69,7 @@ export const PlanStepCollectJobsDetailsFieldSchema = z
         selector: CssSelectorSchema,
         type: z.literal("property"),
         value: z.enum(["innerText", "textContent", "value", "innerHTML"]),
-        format: z.literal("tiptap").optional(),
+        format: z.enum(["tiptap", "salary"]).optional(),
         validationRegex: FieldValidationRegexSchema.optional(),
       })
       .strict(),

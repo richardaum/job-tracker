@@ -1,5 +1,6 @@
 import { LogService } from "@/domains/log/log.service";
 import type { Plan, PlanStep } from "@/domains/plan/model/types";
+import type { PlanExecuteOptions } from "@/domains/plan/plan-execute-options";
 
 import { CollectJobsService } from "./collect-jobs.service";
 
@@ -13,25 +14,28 @@ export class PlanService {
     this.logService.debug("PlanService initialized");
   }
 
-  async execute(plan: Plan) {
+  async execute(plan: Plan, options?: PlanExecuteOptions) {
     this.logService.debug("Executing plan", { plan });
-    const output = await this.runPlanSteps(plan.steps);
+    const output = await this.runPlanSteps(plan.steps, options);
     this.logService.debug("Plan executed", { output });
     return output;
   }
 
-  private async runPlanSteps(steps: Plan["steps"]) {
+  private async runPlanSteps(
+    steps: Plan["steps"],
+    options?: PlanExecuteOptions,
+  ) {
     for (const step of steps) {
-      const stepResult = await this.runPlanStep(step);
+      const stepResult = await this.runPlanStep(step, options);
       this.memory.set(step.id, stepResult);
     }
     return this.filterPublicOutput(steps);
   }
 
-  private async runPlanStep(step: PlanStep) {
+  private async runPlanStep(step: PlanStep, options?: PlanExecuteOptions) {
     switch (step.action.kind) {
       case "collect.jobs":
-        return await this.collectJobsService.execute(step.action);
+        return await this.collectJobsService.execute(step.action, options);
     }
   }
 

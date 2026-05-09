@@ -5,8 +5,6 @@ subscription ImportRunEvents {
     run {
       id
       importerId
-      importerName
-      entryUrl
       status
       startedAt
       importerSource

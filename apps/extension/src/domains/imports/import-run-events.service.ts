@@ -6,6 +6,7 @@ import type {
 } from "@/domains/api/api.service";
 import { planForImportRun } from "@/domains/imports/import-run-plan";
 import type { LogService } from "@/domains/log/log.service";
+import { mapCollectedJobToCreateApplicationInput } from "@/domains/plan/map-collected-job-to-create-application-input";
 import type { PlanService } from "@/domains/plan/services/plan.service";
 import {
   type ImportRunEventsSubscription,
@@ -106,14 +107,24 @@ export class ImportRunEventsService {
       ImportRunStatus.InProgress,
     );
 
-    const plan = planForImportRun({
-      importerId: event.run.importerId,
-      entryUrl: event.run.entryUrl,
-    });
+    const plan = planForImportRun({ importerId: event.run.importerId });
 
     const [runErr] = await to(
       (async () => {
-        await this.planService.execute(plan);
+        await this.planService.execute(plan, {
+          onJobCollected: async (job) => {
+            const input = mapCollectedJobToCreateApplicationInput(job);
+            const [createErr] = await to(
+              this.apiService.createApplication(input),
+            );
+            if (createErr) {
+              this.logService.debug(
+                "import-run-events:create-application-failed",
+                { runId, error: createErr, title: job.title },
+              );
+            }
+          },
+        });
         await this.apiService.updateImportRunStatus(
           runId,
           ImportRunStatus.Completed,
