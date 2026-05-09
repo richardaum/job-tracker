@@ -124,7 +124,8 @@ export default function ImportsPage() {
             open={newRunOpen}
             onOpenChange={handleOpenChange}
             importerComboValue={importerComboValue}
-            onImporterComboValueChange={setImporterComboValue}
+            onImporterInputChange={setImporterComboValue}
+            onImporterSelect={(opt) => setImporterComboValue(opt.value)}
             canStart={Boolean(selectedImporter)}
             creatingRun={creatingRun}
             onStart={handleStartRun}

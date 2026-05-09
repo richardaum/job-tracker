@@ -12,7 +12,10 @@ export interface ComboboxOption {
 export interface ComboboxProps {
   options: ComboboxOption[];
   value: string;
-  onValueChange: (value: string) => void;
+  /** User typing in the input (filter / free text). */
+  onInputValueChange: (text: string) => void;
+  /** Picking an option from the dropdown. */
+  onValueChange: (option: ComboboxOption) => void;
   placeholder?: string;
   disabled?: boolean;
   size?: "sm" | "md";
@@ -24,6 +27,7 @@ export interface ComboboxProps {
 export function Combobox({
   options,
   value,
+  onInputValueChange,
   onValueChange,
   placeholder,
   disabled,
@@ -32,17 +36,22 @@ export function Combobox({
   id,
   autoComplete = "one-time-code",
 }: ComboboxProps) {
+  const selectedByStableValue = options.find(
+    (option) => option.value === value,
+  );
+  const inputDisplayValue = selectedByStableValue?.label ?? value;
+
   const filteredOptions = useMemo(() => {
-    if (!value) return options;
+    if (!inputDisplayValue) return options;
     return options.filter((option) =>
-      option.label.toLowerCase().includes(value.toLowerCase()),
+      option.label.toLowerCase().includes(inputDisplayValue.toLowerCase()),
     );
-  }, [options, value]);
+  }, [options, inputDisplayValue]);
 
   return (
     <AnchoredCombobox.Root
-      value={value}
-      onValueChange={onValueChange}
+      value={inputDisplayValue}
+      onValueChange={onInputValueChange}
       hasItems={filteredOptions.length > 0}
       disabled={disabled}
     >
@@ -61,7 +70,7 @@ export function Combobox({
                 key={option.value}
                 textValue={option.label}
                 onSelect={() => {
-                  onValueChange(option.label);
+                  onValueChange(option);
                 }}
                 className={cn(
                   "flex w-full cursor-pointer items-center rounded-sm px-3 py-2 text-left outline-none hover:bg-bg-surface-hover data-highlighted:bg-bg-surface-hover",

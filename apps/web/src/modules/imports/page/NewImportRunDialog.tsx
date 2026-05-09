@@ -18,7 +18,8 @@ export type NewImportRunDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   importerComboValue: string;
-  onImporterComboValueChange: (value: string) => void;
+  onImporterInputChange: (text: string) => void;
+  onImporterSelect: (option: ComboboxOption) => void;
   canStart: boolean;
   creatingRun: boolean;
   onStart: () => void | Promise<void>;
@@ -28,7 +29,8 @@ export function NewImportRunDialog({
   open,
   onOpenChange,
   importerComboValue,
-  onImporterComboValueChange,
+  onImporterInputChange,
+  onImporterSelect,
   canStart,
   creatingRun,
   onStart,
@@ -86,7 +88,8 @@ export function NewImportRunDialog({
       <Combobox
         id={IMPORTER_COMBO_ID}
         value={importerComboValue}
-        onValueChange={onImporterComboValueChange}
+        onInputValueChange={onImporterInputChange}
+        onValueChange={onImporterSelect}
         options={importerComboOptions}
         placeholder={builtInsLoading ? "Loading importers…" : "Choose importer"}
         size="sm"

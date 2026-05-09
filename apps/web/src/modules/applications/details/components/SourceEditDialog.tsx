@@ -73,7 +73,8 @@ export function SourceEditDialog({
           <Combobox
             id={fieldId}
             value={draft}
-            onValueChange={setDraft}
+            onInputValueChange={setDraft}
+            onValueChange={(option) => setDraft(option.label)}
             options={APPLICATION_SOURCE_COMBO_OPTIONS as ComboboxOption[]}
             placeholder="Search or pick a source"
             disabled={saving}

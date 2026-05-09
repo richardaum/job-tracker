@@ -74,10 +74,6 @@ function ApplicationQuickEditModalForm({
       setForm((f) => ({ ...f, [field]: e.target.value }));
   }
 
-  function setCompany(value: string) {
-    setForm((f) => ({ ...f, company: value }));
-  }
-
   function validate(): boolean {
     const next: Partial<FormState> = {};
     if (!form.title.trim()) next.title = "Title is required.";
@@ -165,7 +161,12 @@ function ApplicationQuickEditModalForm({
             <Combobox
               id="app-company"
               value={form.company}
-              onValueChange={setCompany}
+              onInputValueChange={(text) =>
+                setForm((f) => ({ ...f, company: text }))
+              }
+              onValueChange={(option) =>
+                setForm((f) => ({ ...f, company: option.label }))
+              }
               options={companyOptions}
               placeholder="e.g. Acme Corp"
               state={errors.company ? "error" : "default"}
