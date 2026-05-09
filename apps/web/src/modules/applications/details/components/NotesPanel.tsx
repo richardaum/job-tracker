@@ -1,6 +1,6 @@
 "use client";
 
-import { to } from "@job-tracker/async";
+import { tryRun } from "@job-tracker/try-run";
 import {
   Button,
   cn,
@@ -113,7 +113,7 @@ export function NotesPanel({
     const noteContent = draftNote;
     composerEditorRef.current?.clear();
 
-    const [error] = await to(
+    const [error] = await tryRun(
       createApplicationNote({
         variables: { input: { applicationId, content: noteContent } },
       }),
@@ -142,7 +142,7 @@ export function NotesPanel({
     content: string;
     expectedRevision: number;
   }) {
-    const [error] = await to(
+    const [error] = await tryRun(
       updateApplicationNote({
         variables: {
           id: payload.noteId,

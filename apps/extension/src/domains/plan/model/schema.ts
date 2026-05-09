@@ -1,4 +1,4 @@
-import { captureSync } from "@job-tracker/async";
+import { tryRun } from "@job-tracker/try-run";
 import { z } from "zod";
 
 import { LIMITS } from "./constants";
@@ -17,7 +17,7 @@ const FieldValidationRegexSchema = z
   })
   .strict()
   .superRefine(({ pattern, flags }, ctx) => {
-    const [regErr] = captureSync(() => {
+    const [regErr] = tryRun(() => {
       void new RegExp(pattern, flags);
     });
     if (regErr) {

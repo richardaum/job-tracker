@@ -1,4 +1,4 @@
-import { captureSync, to } from "@job-tracker/async";
+import { tryRun } from "@job-tracker/try-run";
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
 
@@ -9,7 +9,7 @@ const GRAPHQL_URL =
   serverEnv.NEXT_PUBLIC_API_GRAPHQL_URL ?? "http://localhost:3101/graphql";
 
 async function getDraftTitle(id: string) {
-  const [cookieErr, cookieStore] = await to(cookies());
+  const [cookieErr, cookieStore] = await tryRun(cookies());
   if (cookieErr) {
     return null;
   }
@@ -23,7 +23,7 @@ async function getDraftTitle(id: string) {
     errors?: unknown;
   };
 
-  const [fetchErr, response] = await to(
+  const [fetchErr, response] = await tryRun(
     fetch(GRAPHQL_URL, {
       method: "POST",
       headers: {
@@ -50,7 +50,9 @@ async function getDraftTitle(id: string) {
     return null;
   }
 
-  const [jsonErr, payload] = await to(response.json() as Promise<DraftPayload>);
+  const [jsonErr, payload] = await tryRun(
+    response.json() as Promise<DraftPayload>,
+  );
   if (jsonErr) {
     return null;
   }
@@ -66,7 +68,7 @@ async function getDraftTitle(id: string) {
 
   const url = payload.data?.draftApplication?.url ?? null;
   if (!url) return null;
-  const [urlErr, combined] = captureSync(() => {
+  const [urlErr, combined] = tryRun(() => {
     const u = new URL(url);
     const host = u.hostname.replace(/^www\./, "");
     const path = u.pathname === "/" ? "" : u.pathname;

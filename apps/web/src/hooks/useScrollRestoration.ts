@@ -1,6 +1,6 @@
 "use client";
 
-import { captureSync } from "@job-tracker/async";
+import { tryRun } from "@job-tracker/try-run";
 import { RefObject, useEffect, useLayoutEffect, useRef } from "react";
 
 interface UseScrollRestorationOptions {
@@ -26,7 +26,7 @@ function readSnapshot(key: string): ScrollSnapshot | null {
   const rawValue = window.sessionStorage.getItem(getStorageKey(key));
   if (!rawValue) return null;
 
-  const [err, parsedValue] = captureSync(
+  const [err, parsedValue] = tryRun(
     () => JSON.parse(rawValue) as Partial<ScrollSnapshot>,
   );
   if (err || typeof parsedValue.top !== "number") return null;
@@ -36,7 +36,7 @@ function readSnapshot(key: string): ScrollSnapshot | null {
 function writeSnapshot(key: string, snapshot: ScrollSnapshot) {
   if (typeof window === "undefined") return;
 
-  captureSync(() => {
+  tryRun(() => {
     window.sessionStorage.setItem(getStorageKey(key), JSON.stringify(snapshot));
   });
 }
@@ -44,7 +44,7 @@ function writeSnapshot(key: string, snapshot: ScrollSnapshot) {
 function clearSnapshot(key: string) {
   if (typeof window === "undefined") return;
 
-  captureSync(() => {
+  tryRun(() => {
     window.sessionStorage.removeItem(getStorageKey(key));
   });
 }

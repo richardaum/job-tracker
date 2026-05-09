@@ -1,6 +1,6 @@
 "use client";
 
-import { to } from "@job-tracker/async";
+import { tryRun } from "@job-tracker/try-run";
 import { Button, cn, Dialog } from "@job-tracker/ui";
 import Link from "next/link";
 import React, { useState } from "react";
@@ -46,7 +46,7 @@ export function ConvertDraftConflictDialog({
       return false;
     }
 
-    const [createError] = await to(
+    const [createError] = await tryRun(
       createApplicationWithAiV2({ variables: { draftId } }),
     );
 
@@ -70,7 +70,7 @@ export function ConvertDraftConflictDialog({
     setAction("delete-previous");
 
     if (previousApplicationId) {
-      const [deleteError] = await to(
+      const [deleteError] = await tryRun(
         deleteApplication({ variables: { id: previousApplicationId } }),
       );
 

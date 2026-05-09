@@ -5,8 +5,8 @@ import {
   InMemoryCache,
 } from "@apollo/client/core";
 import { getMainDefinition } from "@apollo/client/utilities";
-import { captureSync } from "@job-tracker/async";
 import { createAuthRefreshLink } from "@job-tracker/auth";
+import { tryRun } from "@job-tracker/try-run";
 
 import { createExtensionAuthLink } from "@/domains/api/create-extension-auth-link";
 import {
@@ -142,7 +142,7 @@ function getAuthRefreshUrl(graphqlUrl: string): string {
 }
 
 function defaultSseUrlFromGraphqlUrl(graphqlUrl: string): string {
-  const [err, url] = captureSync(() => {
+  const [err, url] = tryRun(() => {
     const base = new URL(graphqlUrl);
     base.pathname = base.pathname.replace(/\/$/, "");
     const sse = new URL("./graphql-sse/stream", base.href);

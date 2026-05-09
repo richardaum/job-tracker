@@ -1,4 +1,4 @@
-import { captureSync } from "@job-tracker/async";
+import { tryRun } from "@job-tracker/try-run";
 
 import { FieldValueService } from "@/domains/dom/field-value.service";
 import type { Job } from "@/domains/dom/types";
@@ -26,7 +26,7 @@ export class JobDetailsService {
         continue;
       }
 
-      const [fieldErr, value] = captureSync(() =>
+      const [fieldErr, value] = tryRun(() =>
         this.fieldValueService.getFieldValue(element, field),
       );
       if (!fieldErr) {

@@ -45,8 +45,8 @@ export class CompanyRepository {
       return existing;
     }
 
-    // `to()` normalizes errors; we need `instanceof QueryFailedError` for race duplicates.
-    /* eslint-disable-next-line job-tracker/prefer-to-over-try-catch */
+    // `tryRun()` normalizes errors; we need `instanceof QueryFailedError` for race duplicates.
+    /* eslint-disable-next-line job-tracker/prefer-try-run-over-try-catch */
     try {
       const company = this.repo.create({ userId, name: trimmed });
       return await this.repo.save(company);

@@ -1,4 +1,4 @@
-import { to } from "@job-tracker/async";
+import { tryRun } from "@job-tracker/try-run";
 import { Injectable, Logger, OnModuleInit } from "@nestjs/common";
 
 import { ExchangeRateCacheService } from "./exchange-rate-cache.service";
@@ -72,7 +72,7 @@ export class CurrencyConverterService implements OnModuleInit {
       throw err;
     }
 
-    const [cacheErr] = await to(
+    const [cacheErr] = await tryRun(
       this.cacheService.set(base, fetchedRates, ttlSeconds),
     );
 
@@ -100,11 +100,11 @@ export class CurrencyConverterService implements OnModuleInit {
       return null;
     }
 
-    const [fetchErr, response] = await to(
+    const [fetchErr, response] = await tryRun(
       fetch(`${CURRENCY_API_BASE}/latest?from=${base}`),
     );
     if (fetchErr || !response.ok) return null;
-    const [jsonErr, data] = await to(
+    const [jsonErr, data] = await tryRun(
       response.json() as Promise<{ rates: Record<string, number> }>,
     );
     if (jsonErr) return null;
@@ -114,11 +114,11 @@ export class CurrencyConverterService implements OnModuleInit {
   private async fetchFromFallback(
     base: string,
   ): Promise<Record<string, number> | null> {
-    const [fetchErr, response] = await to(
+    const [fetchErr, response] = await tryRun(
       fetch(`${FALLBACK_API_BASE}/${base}`),
     );
     if (fetchErr || !response.ok) return null;
-    const [jsonErr, data] = await to(
+    const [jsonErr, data] = await tryRun(
       response.json() as Promise<{ rates: Record<string, number> }>,
     );
     if (jsonErr) return null;

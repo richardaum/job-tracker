@@ -1,6 +1,6 @@
 "use client";
 
-import { captureSync } from "@job-tracker/async";
+import { tryRun } from "@job-tracker/try-run";
 import { Button, cn, Dialog, Input, Text } from "@job-tracker/ui";
 import React, { useMemo, useState } from "react";
 
@@ -38,7 +38,7 @@ export function ImportDraftFromPasteDialog({
       return;
     }
 
-    const [urlErr] = captureSync(() => {
+    const [urlErr] = tryRun(() => {
       void new URL(normalized);
     });
     if (urlErr) {

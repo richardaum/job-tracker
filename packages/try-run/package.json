@@ -1,5 +1,5 @@
 {
-  "name": "@job-tracker/async",
+  "name": "@job-tracker/try-run",
   "version": "0.0.1",
   "private": true,
   "main": "./src/index.ts",

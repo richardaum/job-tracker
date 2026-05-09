@@ -293,10 +293,10 @@ export default defineConfig(
       "apps/extension/codegen.ts",
       "apps/web/codegen.ts",
       "apps/web/src/gql/**",
-      "packages/async/**",
+      "packages/try-run/**",
     ],
     plugins: { "job-tracker": jobTrackerEslintPlugin },
-    rules: { "job-tracker/prefer-to-over-try-catch": "warn" },
+    rules: { "job-tracker/prefer-try-run-over-try-catch": "warn" },
   },
   {
     files: ["**/*.{ts,tsx}"],

@@ -1,6 +1,6 @@
 "use client";
 
-import { to } from "@job-tracker/async";
+import { tryRun } from "@job-tracker/try-run";
 import {
   Button,
   cn,
@@ -96,7 +96,7 @@ export function ApplicationTrackingPanel({
 
   async function handleSaveStageUpdate() {
     if (!selectedStageDraft) return;
-    const [error] = await to(
+    const [error] = await tryRun(
       createStageEvent({
         variables: {
           input: {

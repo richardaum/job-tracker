@@ -1,14 +1,14 @@
 import { Observable } from "@apollo/client/core";
 import { CombinedGraphQLErrors } from "@apollo/client/errors";
 import { ErrorLink } from "@apollo/client/link/error";
-import { to } from "@job-tracker/async";
+import { tryRun } from "@job-tracker/try-run";
 
 type RefreshUrlProvider = () => string;
 
 let refreshPromise: Promise<boolean> | null = null;
 
 async function refreshAccessToken(refreshUrl: string): Promise<boolean> {
-  const [err, response] = await to(
+  const [err, response] = await tryRun(
     fetch(refreshUrl, { method: "POST", credentials: "include" }),
   );
   if (err) {

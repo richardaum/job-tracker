@@ -1,7 +1,7 @@
 import { htmlToPlainText } from "@api/domains/shared/html-plain-text.util";
 import { TemplateService } from "@api/domains/shared/template/template.service";
 import { OPENAI_MODEL } from "@api/env/server";
-import { to } from "@job-tracker/async";
+import { tryRun } from "@job-tracker/try-run";
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { zodResponseFormat } from "openai/helpers/zod";
 
@@ -40,7 +40,7 @@ export class ApplicationAiService {
 
     const client = this.openAIService.getClient();
 
-    const [responseError, response] = await to(
+    const [responseError, response] = await tryRun(
       client.chat.completions.parse({
         model: OPENAI_MODEL,
         messages: [

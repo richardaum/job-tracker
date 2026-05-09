@@ -9,7 +9,7 @@
  *   human card line + `/mo`/`/yr`/`/hr` suffixes, form/tag helpers — imports this module only.
  */
 
-import { captureSync } from "@job-tracker/async";
+import { tryRun } from "@job-tracker/try-run";
 
 const HOURS_PER_WEEK = 40;
 const WEEKS_PER_YEAR = 52;
@@ -34,7 +34,7 @@ function formatCurrencyIntl(
   maximumFractionDigits: number,
   locale: string,
 ): string {
-  const [err, formatted] = captureSync(() =>
+  const [err, formatted] = tryRun(() =>
     new Intl.NumberFormat(locale, {
       style: "currency",
       currency,

@@ -1,6 +1,6 @@
 "use client";
 
-import { captureSync } from "@job-tracker/async";
+import { tryRun } from "@job-tracker/try-run";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { mergeFinalWithInterimSegments } from "./useMergedTranscriptSegments";
@@ -213,7 +213,7 @@ export function useVoiceToText({
       controllerRef.current.recognition = recognition;
       setIsListening(true);
 
-      const [startErr] = captureSync(() => recognition.start());
+      const [startErr] = tryRun(() => recognition.start());
       if (startErr) {
         controllerRef.current.autoRestart?.handleSessionError();
         controllerRef.current.recognition = null;

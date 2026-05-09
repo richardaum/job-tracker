@@ -1,5 +1,5 @@
 import { UserService } from "@api/domains/users/users.service";
-import { to } from "@job-tracker/async";
+import { tryRun } from "@job-tracker/try-run";
 import { Injectable, NestMiddleware } from "@nestjs/common";
 import { GraphQLSchemaHost } from "@nestjs/graphql";
 import type { NextFunction, Request, Response } from "express";
@@ -30,7 +30,7 @@ export class GraphqlSseMiddleware implements NestMiddleware {
             return;
           }
 
-          const [dbErr, dbUser] = await to(
+          const [dbErr, dbUser] = await tryRun(
             this.userService.findById(user.userId),
           );
           if (dbErr) {
@@ -64,7 +64,7 @@ export class GraphqlSseMiddleware implements NestMiddleware {
             });
           }
 
-          const [handlerErr] = await to(this.handler(req, res));
+          const [handlerErr] = await tryRun(this.handler(req, res));
           if (handlerErr) {
             next(handlerErr);
           }

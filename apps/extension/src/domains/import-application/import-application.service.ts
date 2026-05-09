@@ -1,4 +1,4 @@
-import { to } from "@job-tracker/async";
+import { tryRun } from "@job-tracker/try-run";
 
 import { ApiService } from "@/domains/api/api.service";
 import { MessagingService } from "@/domains/message/messaging.service";
@@ -24,7 +24,7 @@ export class ImportApplicationService {
       DraftApplicationSnapshot
     >({ to: "content", payload: { kind: "import.application" }, tabId });
 
-    const [error, result] = await to(
+    const [error, result] = await tryRun(
       this.apiService.createDraftApplication({
         url: snapshot.url,
         title: snapshot.title,
@@ -45,12 +45,12 @@ export class ImportApplicationService {
   }
 
   async getImportMenuLabel(): Promise<string> {
-    const [tabErr, tabId] = await to(this.tabService.getCurrentTab());
+    const [tabErr, tabId] = await tryRun(this.tabService.getCurrentTab());
     if (tabErr) {
       return CONTEXT_MENU_IMPORT_PAGE_TITLE;
     }
 
-    const [msgErr, response] = await to(
+    const [msgErr, response] = await tryRun(
       this.messagingService.request<
         "import.application.menu-label",
         { label: string }

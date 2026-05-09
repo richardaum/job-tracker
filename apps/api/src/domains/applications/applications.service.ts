@@ -6,7 +6,7 @@ import { CompanyAiService } from "@api/domains/company-ai/company-ai.service";
 import { DraftApplicationType } from "@api/domains/draft-applications/draft-application.type";
 import { DraftApplicationsService } from "@api/domains/draft-applications/draft-applications.service";
 import { isTipTapDocumentString } from "@api/domains/shared/tiptap.util";
-import { to } from "@job-tracker/async";
+import { tryRun } from "@job-tracker/try-run";
 import {
   BadRequestException,
   Injectable,
@@ -238,7 +238,7 @@ export class ApplicationService {
   ): Promise<void> {
     const draft = await this.draftApplicationsService.findOne(draftId);
 
-    const [extractError, raw] = await to(
+    const [extractError, raw] = await tryRun(
       this.applicationAiService.extractFromDraft({
         title: draft.title,
         url: draft.url,
@@ -261,7 +261,7 @@ export class ApplicationService {
     const normalized =
       this.draftExtractionNormalizationService.normalizeExtraction(raw);
 
-    const [createError, created] = await to(
+    const [createError, created] = await tryRun(
       this.create(userId, {
         title: normalized.title,
         company: normalized.company,
@@ -289,7 +289,7 @@ export class ApplicationService {
     }
 
     if (created.currentStage !== ApplicationStageEnum.DUPLICATED) {
-      const [appliedError] = await to(
+      const [appliedError] = await tryRun(
         this.createStageEvent(userId, {
           applicationId: created.id,
           toStage: ApplicationStageEnum.APPLIED,

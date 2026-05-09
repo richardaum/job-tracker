@@ -1,6 +1,6 @@
 "use client";
 
-import { captureSync, to } from "@job-tracker/async";
+import { tryRun } from "@job-tracker/try-run";
 import { Badge, cn, IconButton, ListItemCard, Text } from "@job-tracker/ui";
 import { ArrowsClockwiseIcon, TrashIcon } from "@phosphor-icons/react";
 import NextLink from "next/link";
@@ -34,7 +34,7 @@ function conversionStatusBadgeIntent(status: string) {
 }
 
 function draftDisplayUrl(url: string): string {
-  const [err, joined] = captureSync(() => {
+  const [err, joined] = tryRun(() => {
     const u = new URL(url);
     const path = u.pathname.length > 1 ? u.pathname : "";
     const j = `${u.hostname}${path}`;
@@ -70,7 +70,7 @@ export function DraftApplicationCard({
       return;
     }
 
-    const [error] = await to(
+    const [error] = await tryRun(
       createApplicationWithAiV2({ variables: { draftId: draft.id } }),
     );
 

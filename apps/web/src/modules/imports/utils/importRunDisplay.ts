@@ -1,10 +1,10 @@
-import { captureSync } from "@job-tracker/async";
+import { tryRun } from "@job-tracker/try-run";
 
 import { ImportRunStatus } from "@/gql/graphql";
 import type { ImportRun } from "@/modules/imports/types/importRun";
 
 export function formatImportRunStartedAt(iso: string): string {
-  const [err, formatted] = captureSync(() =>
+  const [err, formatted] = tryRun(() =>
     new Intl.DateTimeFormat(undefined, {
       dateStyle: "medium",
       timeStyle: "short",

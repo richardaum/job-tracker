@@ -1,6 +1,6 @@
 "use client";
 
-import { to } from "@job-tracker/async";
+import { tryRun } from "@job-tracker/try-run";
 import {
   cn,
   FieldWithLabelAction,
@@ -55,7 +55,7 @@ export function OverviewTabContent({
   });
 
   async function handleRemoveTag(tag: string) {
-    const [error] = await to(
+    const [error] = await tryRun(
       removeApplicationTag({ variables: { id: application.id, tag } }),
     );
     if (error) {
@@ -66,7 +66,7 @@ export function OverviewTabContent({
   }
 
   async function handleSaveTitle(nextValue: string) {
-    const [error] = await to(
+    const [error] = await tryRun(
       updateApplication({
         variables: { id: application.id, input: { title: nextValue } },
       }),
@@ -79,7 +79,7 @@ export function OverviewTabContent({
   }
 
   async function handleSaveUrl(nextValue: string[]) {
-    const [error] = await to(
+    const [error] = await tryRun(
       updateApplication({
         variables: { id: application.id, input: { urls: nextValue } },
       }),
@@ -92,7 +92,7 @@ export function OverviewTabContent({
   }
 
   async function handleSaveSource(nextValue: ApplicationSource | null) {
-    const [error] = await to(
+    const [error] = await tryRun(
       updateApplication({
         variables: { id: application.id, input: { source: nextValue } },
       }),

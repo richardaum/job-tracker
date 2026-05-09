@@ -1,6 +1,6 @@
 "use client";
 
-import { to } from "@job-tracker/async";
+import { tryRun } from "@job-tracker/try-run";
 import {
   Button,
   cn,
@@ -103,7 +103,7 @@ function ApplicationQuickEditModalForm({
     };
 
     if (isEdit && application) {
-      const [error] = await to(
+      const [error] = await tryRun(
         updateApplication({ variables: { id: application.id, input } }),
       );
       if (error) {
@@ -115,7 +115,7 @@ function ApplicationQuickEditModalForm({
       return;
     }
 
-    const [error, result] = await to(
+    const [error, result] = await tryRun(
       createApplication({ variables: { input } }),
     );
     if (error) {

@@ -1,6 +1,6 @@
 "use client";
 
-import { captureSync } from "@job-tracker/async";
+import { tryRun } from "@job-tracker/try-run";
 import { cn } from "@job-tracker/ui";
 import StarterKit from "@tiptap/starter-kit";
 import { renderToReactElement } from "@tiptap/static-renderer/pm/react";
@@ -37,7 +37,7 @@ export function TipTapContent({ content, className }: TipTapContentProps) {
   let rendered: React.ReactNode;
   let isError = false;
 
-  const [renderErr, node] = captureSync(() => {
+  const [renderErr, node] = tryRun(() => {
     const doc = parseTipTapDocument(content);
     return renderToReactElement({
       extensions: RENDER_EXTENSIONS,

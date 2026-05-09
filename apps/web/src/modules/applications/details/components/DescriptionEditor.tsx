@@ -1,6 +1,6 @@
 "use client";
 
-import { to } from "@job-tracker/async";
+import { tryRun } from "@job-tracker/try-run";
 import { Button, cn, Stack } from "@job-tracker/ui";
 import { useState } from "react";
 
@@ -47,7 +47,7 @@ export function DescriptionEditor({
     const nextDescription =
       tipTapToPlainText(description).trim().length > 0 ? description : null;
 
-    const [error] = await to(
+    const [error] = await tryRun(
       updateApplication({
         variables: {
           id: applicationId,

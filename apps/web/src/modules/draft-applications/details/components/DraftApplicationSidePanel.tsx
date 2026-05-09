@@ -1,6 +1,6 @@
 "use client";
 
-import { to } from "@job-tracker/async";
+import { tryRun } from "@job-tracker/try-run";
 import {
   Button,
   cn,
@@ -18,7 +18,7 @@ export function DraftOriginalSection({ sourceUrl }: { sourceUrl: string }) {
   const [copiedUrl, setCopiedUrl] = useState(false);
 
   const copyUrl = useCallback(async () => {
-    const [error] = await to(navigator.clipboard.writeText(sourceUrl));
+    const [error] = await tryRun(navigator.clipboard.writeText(sourceUrl));
     if (error) {
       setCopiedUrl(false);
       return;
@@ -60,7 +60,7 @@ export function DraftMetaSection({ draftId }: { draftId: string }) {
   const [copiedId, setCopiedId] = useState(false);
 
   const copyId = useCallback(async () => {
-    const [error] = await to(navigator.clipboard.writeText(draftId));
+    const [error] = await tryRun(navigator.clipboard.writeText(draftId));
     if (error) {
       setCopiedId(false);
       return;

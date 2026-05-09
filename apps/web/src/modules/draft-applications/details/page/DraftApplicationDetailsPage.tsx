@@ -1,6 +1,6 @@
 "use client";
 
-import { captureSync, to } from "@job-tracker/async";
+import { tryRun } from "@job-tracker/try-run";
 import {
   Badge,
   Button,
@@ -41,7 +41,7 @@ interface PageProps {
 }
 
 function draftPrimaryTitle(url: string): string {
-  const [err, title] = captureSync(() => {
+  const [err, title] = tryRun(() => {
     const u = new URL(url);
     const host = u.hostname.replace(/^www\./, "");
     const path = u.pathname === "/" ? "" : u.pathname;
@@ -123,7 +123,7 @@ export default function DraftApplicationDetailsPage({ params }: PageProps) {
   }
 
   async function handleCopyDraftId(draftId: string) {
-    const [error] = await to(navigator.clipboard.writeText(draftId));
+    const [error] = await tryRun(navigator.clipboard.writeText(draftId));
     if (error) {
       showToast("Could not copy draft ID.", "error");
       return;
@@ -139,7 +139,7 @@ export default function DraftApplicationDetailsPage({ params }: PageProps) {
       return;
     }
 
-    const [error] = await to(
+    const [error] = await tryRun(
       createApplicationWithAiV2({ variables: { draftId: draft.id } }),
     );
 
@@ -160,7 +160,7 @@ export default function DraftApplicationDetailsPage({ params }: PageProps) {
 
   async function handleSaveTitle(nextValue: string) {
     if (!draft) return;
-    const [mutationError] = await to(
+    const [mutationError] = await tryRun(
       updateDraftApplication({
         variables: { id: draft.id, input: { title: nextValue } },
       }),

@@ -1,5 +1,5 @@
 import { ExchangeRateCacheEntity } from "@api/database/entities/exchange-rate-cache.entity";
-import { to } from "@job-tracker/async";
+import { tryRun } from "@job-tracker/try-run";
 import { Injectable, Logger } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
@@ -21,7 +21,7 @@ export class ExchangeRateCacheService {
   ) {}
 
   async get(baseCurrency: string): Promise<CachedExchangeRates | null> {
-    const [findErr, entry] = await to(
+    const [findErr, entry] = await tryRun(
       this.repo.findOne({ where: { baseCurrency } }),
     );
     if (findErr) {
@@ -31,7 +31,7 @@ export class ExchangeRateCacheService {
     if (!entry) return null;
 
     if (entry.expiresAt < new Date()) {
-      const [delErr] = await to(this.repo.delete({ id: entry.id }));
+      const [delErr] = await tryRun(this.repo.delete({ id: entry.id }));
       if (delErr) {
         this.logger.error(`Failed to read cache for ${baseCurrency}`, delErr);
         return null;
@@ -55,7 +55,7 @@ export class ExchangeRateCacheService {
   ): Promise<void> {
     const expiresAt = new Date(Date.now() + ttlSeconds * 1000);
 
-    const [upsertErr] = await to(
+    const [upsertErr] = await tryRun(
       this.repo.upsert(
         { baseCurrency, ratesJson: rates, ttlSeconds, expiresAt },
         ["baseCurrency"],
@@ -71,7 +71,7 @@ export class ExchangeRateCacheService {
   }
 
   async delete(baseCurrency: string): Promise<void> {
-    const [delErr] = await to(this.repo.delete({ baseCurrency }));
+    const [delErr] = await tryRun(this.repo.delete({ baseCurrency }));
     if (delErr) {
       this.logger.error(`Failed to delete cache for ${baseCurrency}`, delErr);
       return;
@@ -80,7 +80,7 @@ export class ExchangeRateCacheService {
   }
 
   async cleanExpired(): Promise<number> {
-    const [cleanErr, result] = await to(
+    const [cleanErr, result] = await tryRun(
       this.repo.delete({ expiresAt: new Date() }),
     );
     if (cleanErr) {

@@ -1,4 +1,4 @@
-import { captureSync, to } from "@job-tracker/async";
+import { tryRun } from "@job-tracker/try-run";
 
 import type {
   ApiService,
@@ -46,7 +46,7 @@ export class ImportRunEventsService {
         });
         void this.routeEvent(event);
         for (const handler of this.handlers) {
-          const [handlerErr] = captureSync(() => handler(event));
+          const [handlerErr] = tryRun(() => handler(event));
           if (handlerErr) {
             this.logService.debug("import-run-events:handler-error", {
               error: handlerErr,
@@ -61,7 +61,7 @@ export class ImportRunEventsService {
   }
 
   private async recoverOutstandingRuns(): Promise<void> {
-    const [err, response] = await to(this.apiService.importRuns());
+    const [err, response] = await tryRun(this.apiService.importRuns());
     if (err) {
       this.logService.debug("import-run-events:recovery-error", { error: err });
       return;
@@ -109,12 +109,12 @@ export class ImportRunEventsService {
 
     const plan = planForImportRun({ importerId: event.run.importerId });
 
-    const [runErr] = await to(
+    const [runErr] = await tryRun(
       (async () => {
         await this.planService.execute(plan, {
           onJobCollected: async (job) => {
             const input = mapCollectedJobToCreateApplicationInput(job);
-            const [createErr] = await to(
+            const [createErr] = await tryRun(
               this.apiService.createApplication(input),
             );
             if (createErr) {

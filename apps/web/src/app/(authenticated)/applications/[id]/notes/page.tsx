@@ -1,4 +1,4 @@
-import { to } from "@job-tracker/async";
+import { tryRun } from "@job-tracker/try-run";
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
 
@@ -9,7 +9,7 @@ const GRAPHQL_URL =
   serverEnv.NEXT_PUBLIC_API_GRAPHQL_URL ?? "http://localhost:3101/graphql";
 
 async function getApplicationTitle(id: string) {
-  const [cookieErr, cookieStore] = await to(cookies());
+  const [cookieErr, cookieStore] = await tryRun(cookies());
   if (cookieErr) {
     return null;
   }
@@ -20,7 +20,7 @@ async function getApplicationTitle(id: string) {
     data?: { application?: { title?: string | null } | null };
   };
 
-  const [fetchErr, response] = await to(
+  const [fetchErr, response] = await tryRun(
     fetch(GRAPHQL_URL, {
       method: "POST",
       headers: {
@@ -46,7 +46,7 @@ async function getApplicationTitle(id: string) {
     return null;
   }
 
-  const [jsonErr, payload] = await to(
+  const [jsonErr, payload] = await tryRun(
     response.json() as Promise<ApplicationPayload>,
   );
   if (jsonErr) {

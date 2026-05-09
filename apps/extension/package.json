@@ -18,7 +18,7 @@
   "dependencies": {
     "@apollo/client": "^4.1.7",
     "@graphql-typed-document-node/core": "^3.2.0",
-    "@job-tracker/async": "workspace:*",
+    "@job-tracker/try-run": "workspace:*",
     "@job-tracker/auth": "workspace:*",
     "@job-tracker/ui": "workspace:*",
     "@tiptap/html": "^3.22.4",

@@ -86,12 +86,12 @@ importers:
       '@as-integrations/express5':
         specifier: ^1.1.2
         version: 1.1.2(@apollo/server@5.5.0(graphql@16.13.2))(express@5.2.1)
-      '@job-tracker/async':
-        specifier: workspace:*
-        version: link:../../packages/async
       '@job-tracker/logger':
         specifier: workspace:*
         version: link:../../packages/logger
+      '@job-tracker/try-run':
+        specifier: workspace:*
+        version: link:../../packages/try-run
       '@nestjs/apollo':
         specifier: ^13.2.5
         version: 13.2.5(@apollo/server@5.5.0(graphql@16.13.2))(@as-integrations/express5@1.1.2(@apollo/server@5.5.0(graphql@16.13.2))(express@5.2.1))(@nestjs/common@11.1.19(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.19)(@nestjs/graphql@13.2.5(@nestjs/common@11.1.19(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.19)(graphql@16.13.2)(reflect-metadata@0.2.2))(graphql@16.13.2)
@@ -237,12 +237,12 @@ importers:
       '@graphql-typed-document-node/core':
         specifier: ^3.2.0
         version: 3.2.0(graphql@16.13.2)
-      '@job-tracker/async':
-        specifier: workspace:*
-        version: link:../../packages/async
       '@job-tracker/auth':
         specifier: workspace:*
         version: link:../../packages/auth
+      '@job-tracker/try-run':
+        specifier: workspace:*
+        version: link:../../packages/try-run
       '@job-tracker/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -322,12 +322,12 @@ importers:
       '@graphql-typed-document-node/core':
         specifier: ^3.2.0
         version: 3.2.0(graphql@16.13.2)
-      '@job-tracker/async':
-        specifier: workspace:*
-        version: link:../../packages/async
       '@job-tracker/auth':
         specifier: workspace:*
         version: link:../../packages/auth
+      '@job-tracker/try-run':
+        specifier: workspace:*
+        version: link:../../packages/try-run
       '@job-tracker/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -435,20 +435,14 @@ importers:
         specifier: ^4.1.5
         version: 4.1.5(@opentelemetry/api@1.9.1)(@types/node@22.19.17)(@vitest/browser-playwright@4.1.5)(@vitest/coverage-v8@4.1.5)(happy-dom@20.9.0)(jsdom@29.0.2(@noble/hashes@1.8.0))(vite@8.0.9(@types/node@22.19.17)(esbuild@0.27.7)(jiti@2.6.1)(less@4.6.4)(sass@1.99.0)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))
 
-  packages/async:
-    devDependencies:
-      typescript:
-        specifier: ^5.8.3
-        version: 5.9.3
-
   packages/auth:
     dependencies:
       '@apollo/client':
         specifier: ^4.1.7
         version: 4.1.7(graphql-ws@6.0.8(graphql@16.13.2)(ws@8.20.0))(graphql@16.13.2)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(rxjs@7.8.2)(subscriptions-transport-ws@0.11.0(graphql@16.13.2))
-      '@job-tracker/async':
+      '@job-tracker/try-run':
         specifier: workspace:*
-        version: link:../async
+        version: link:../try-run
     devDependencies:
       typescript:
         specifier: ^5.8.3
@@ -474,6 +468,12 @@ importers:
       '@types/node':
         specifier: ^22.15.3
         version: 22.19.17
+      typescript:
+        specifier: ^5.8.3
+        version: 5.9.3
+
+  packages/try-run:
+    devDependencies:
       typescript:
         specifier: ^5.8.3
         version: 5.9.3

@@ -1,6 +1,6 @@
 "use client";
 
-import { to } from "@job-tracker/async";
+import { tryRun } from "@job-tracker/try-run";
 import { FilePdfIcon } from "@phosphor-icons/react";
 import type { Editor } from "@tiptap/react";
 
@@ -31,7 +31,7 @@ export function SaveAsPdfButton({
   }
 
   async function handleExportPdf() {
-    const [error] = await to(
+    const [error] = await tryRun(
       (async () => {
         const plainDocumentText = editor.getText().trim();
         const htmlContent = editor.getHTML();
