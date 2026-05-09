@@ -5,6 +5,7 @@ export enum ApplicationQuickFilterEnum {
   INCOMING = "incoming",
   APPLIED = "applied",
   NEW = "new",
+  DUPLICATED = "duplicated",
 }
 
 registerEnumType(ApplicationQuickFilterEnum, {

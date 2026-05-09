@@ -21,6 +21,11 @@ const QUICK_FILTERS = [
     tooltip: "Submitted applications awaiting response",
   },
   { key: "new", label: "New", tooltip: "Recently added, not yet acted on" },
+  {
+    key: "duplicated",
+    label: "Duplicated",
+    tooltip: "Marked as duplicate of another application",
+  },
 ] as const;
 
 type QuickFilterKey = (typeof QUICK_FILTERS)[number]["key"];

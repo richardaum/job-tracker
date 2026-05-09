@@ -236,6 +236,54 @@ describe.skipIf(!hasDb)("ApplicationRepository (integration)", () => {
     expect(incoming.map((app) => app.id)).not.toContain(appliedAppWithEvent.id);
   });
 
+  it("new quick filter excludes duplicated latest stage", async () => {
+    const company = await createTestCompany(userId, "New Vs Dup Corp");
+
+    const newLatest = await repo.create(userId, {
+      title: "New Latest",
+      companyId: company.id,
+      urls: [],
+    });
+    await repo.createStageEvent(userId, newLatest.id, {
+      fromStage: null,
+      toStage: "new",
+      source: "manual",
+      scheduledAt: null,
+    });
+
+    const dupLatest = await repo.create(userId, {
+      title: "Dup Latest",
+      companyId: company.id,
+      urls: [],
+    });
+    await repo.createStageEvent(userId, dupLatest.id, {
+      fromStage: null,
+      toStage: "new",
+      source: "manual",
+      scheduledAt: null,
+    });
+    await repo.createStageEvent(userId, dupLatest.id, {
+      fromStage: "new",
+      toStage: "duplicated",
+      source: "system",
+      scheduledAt: null,
+    });
+
+    const newFiltered = await repo.findAllByUserId(
+      userId,
+      ApplicationQuickFilterEnum.NEW,
+    );
+    const dupFiltered = await repo.findAllByUserId(
+      userId,
+      ApplicationQuickFilterEnum.DUPLICATED,
+    );
+
+    expect(newFiltered.map((a) => a.id)).toContain(newLatest.id);
+    expect(newFiltered.map((a) => a.id)).not.toContain(dupLatest.id);
+    expect(dupFiltered.map((a) => a.id)).toContain(dupLatest.id);
+    expect(dupFiltered.map((a) => a.id)).not.toContain(newLatest.id);
+  });
+
   it("filters applications by company name", async () => {
     const acme = await createTestCompany(userId, "Acme Filter Corp");
     const beta = await createTestCompany(userId, "Beta Filter Corp");

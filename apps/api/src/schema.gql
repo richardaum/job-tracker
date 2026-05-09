@@ -181,6 +181,7 @@ enum ApplicationQuickFilter {
   INCOMING
   APPLIED
   NEW
+  DUPLICATED
 }
 
 type Mutation {

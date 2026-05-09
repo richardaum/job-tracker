@@ -7,6 +7,7 @@ const PARAM_TO_FILTER: Record<string, ApplicationQuickFilter> = {
   incoming: ApplicationQuickFilter.Incoming,
   applied: ApplicationQuickFilter.Applied,
   new: ApplicationQuickFilter.New,
+  duplicated: ApplicationQuickFilter.Duplicated,
 };
 
 export function useQuickFilter(): ApplicationQuickFilter | null {

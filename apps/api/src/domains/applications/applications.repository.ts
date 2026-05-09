@@ -90,7 +90,9 @@ export class ApplicationRepository {
     )`;
 
     if (filter === ApplicationQuickFilterEnum.NEW) {
-      qb.andWhere(`${latestStageSub} IN ('new', 'duplicated')`, { userId });
+      qb.andWhere(`${latestStageSub} = 'new'`, { userId });
+    } else if (filter === ApplicationQuickFilterEnum.DUPLICATED) {
+      qb.andWhere(`${latestStageSub} = 'duplicated'`, { userId });
     } else if (filter === ApplicationQuickFilterEnum.APPLIED) {
       qb.andWhere(`${latestStageSub} = 'applied'`, { userId });
     } else if (filter === ApplicationQuickFilterEnum.ACTIVE) {
