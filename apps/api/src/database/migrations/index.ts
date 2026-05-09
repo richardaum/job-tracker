@@ -23,6 +23,8 @@ import { AddApplicationSourceRemoteyeah1763400000000 } from "./1763400000000-add
 import { BackfillApplicationSourceRemoteyeah1763400000001 } from "./1763400000001-backfill-application-source-remoteyeah";
 import { DropImportRunsEntryUrl1763500000000 } from "./1763500000000-drop-import-runs-entry-url";
 import { DropImportRunsImporterName1763600000000 } from "./1763600000000-drop-import-runs-importer-name";
+import { MoveDraftApplicationFkToDraft1763700000000 } from "./1763700000000-move-draft-application-fk-to-draft-table";
+import { ApplicationsDraftManyToOne1763800000000 } from "./1763800000000-applications-draft-many-to-one";
 
 export const migrations = [
   Baseline1746009600000,
@@ -50,4 +52,6 @@ export const migrations = [
   BackfillApplicationSourceRemoteyeah1763400000001,
   DropImportRunsEntryUrl1763500000000,
   DropImportRunsImporterName1763600000000,
+  MoveDraftApplicationFkToDraft1763700000000,
+  ApplicationsDraftManyToOne1763800000000,
 ];

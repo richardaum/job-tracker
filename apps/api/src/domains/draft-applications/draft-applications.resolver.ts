@@ -41,6 +41,15 @@ export class DraftApplicationsResolver {
   }
 
   @Mutation(() => DeleteMutationPayloadType)
+  async deleteApplicationsForDraft(
+    @Args("draftId", { type: () => ID }) draftId: string,
+    @CurrentUser() user: { userId: string },
+  ): Promise<DeleteMutationPayloadType> {
+    await this.service.deleteAllLinkedApplications(draftId, user.userId);
+    return { success: true, deletedId: draftId };
+  }
+
+  @Mutation(() => DeleteMutationPayloadType)
   async deleteDraftApplication(
     @Args("id", { type: () => ID }) id: string,
     @Args("deleteLinkedApplication", {

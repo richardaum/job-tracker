@@ -1,5 +1,7 @@
 import { WithGeneratedId } from "@api/database/decorators/with-generated-id.decorator";
-import { Column, Entity, PrimaryColumn } from "typeorm";
+import { Column, Entity, OneToMany, PrimaryColumn } from "typeorm";
+
+import { ApplicationEntity } from "./application.entity";
 
 export enum DraftApplicationConversionStatus {
   IDLE = "idle",
@@ -34,4 +36,10 @@ export class DraftApplicationEntity {
 
   @Column({ name: "conversion_error", type: "text", nullable: true })
   conversionError!: string | null;
+
+  @OneToMany(
+    () => ApplicationEntity,
+    (application) => application.draftApplication,
+  )
+  applications!: ApplicationEntity[];
 }

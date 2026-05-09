@@ -27,11 +27,12 @@ export class DraftApplicationsRepository {
   async findLatestApplicationIdByDraftId(
     draftId: string,
   ): Promise<string | null> {
-    const row = await this.applicationsRepo.findOne({
-      where: { draftApplicationId: draftId },
-      select: { id: true },
-      order: { createdAt: "DESC" },
-    });
+    const row = await this.applicationsRepo
+      .createQueryBuilder("a")
+      .select("a.id", "id")
+      .where("a.draft_application_id = :draftId", { draftId })
+      .orderBy("a.created_at", "DESC")
+      .getRawOne<{ id: string }>();
 
     return row?.id ?? null;
   }
@@ -40,7 +41,15 @@ export class DraftApplicationsRepository {
     draftId: string,
     userId: string,
   ): Promise<void> {
-    await this.applicationsRepo.delete({ draftApplicationId: draftId, userId });
+    await this.applicationsRepo
+      .createQueryBuilder()
+      .delete()
+      .from(ApplicationEntity)
+      .where("draft_application_id = :draftId AND user_id = :userId", {
+        draftId,
+        userId,
+      })
+      .execute();
   }
 
   async create(params: {

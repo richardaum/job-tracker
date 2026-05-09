@@ -386,6 +386,11 @@ describe("ApplicationService", () => {
       );
     });
 
+    expect(repo.create).toHaveBeenCalledWith(
+      "user-1",
+      expect.objectContaining({ draftApplicationId: "draft-1" }),
+    );
+
     expect(repo.createStageEvent).toHaveBeenNthCalledWith(
       1,
       "user-1",
@@ -476,6 +481,11 @@ describe("ApplicationService", () => {
         }),
       );
     });
+
+    expect(repo.create).toHaveBeenCalledWith(
+      "user-1",
+      expect.objectContaining({ draftApplicationId: "draft-1" }),
+    );
 
     expect(repo.createStageEvent).toHaveBeenCalledTimes(1);
     expect(repo.createStageEvent).toHaveBeenCalledWith(

@@ -25,6 +25,13 @@ export class DraftApplicationsService implements OnModuleInit {
     }
   }
 
+  async deleteAllLinkedApplications(
+    draftId: string,
+    userId: string,
+  ): Promise<void> {
+    await this.repo.deleteApplicationsByDraftId(draftId, userId);
+  }
+
   private async toType(
     row: DraftApplicationEntity,
   ): Promise<DraftApplicationType> {

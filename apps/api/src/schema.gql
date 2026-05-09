@@ -196,6 +196,7 @@ type Mutation {
   updateCompany(id: ID!, input: UpdateCompanyInput!): CompanyType!
   deleteCompany(id: ID!): DeleteMutationPayloadType!
   createDraftApplication(input: CreateDraftApplicationInput!): DraftApplicationType!
+  deleteApplicationsForDraft(draftId: ID!): DeleteMutationPayloadType!
   deleteDraftApplication(id: ID!, deleteLinkedApplication: Boolean = false): DeleteMutationPayloadType!
   updateDraftApplication(id: ID!, input: UpdateDraftApplicationInput!): DraftApplicationType!
   createImportRun(input: CreateImportRunInput!): ImportRunType!

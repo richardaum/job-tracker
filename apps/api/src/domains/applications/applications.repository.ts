@@ -1,5 +1,6 @@
 import { ApplicationEntity } from "@api/database/entities/application.entity";
 import { ApplicationStageEventEntity } from "@api/database/entities/application-stage-event.entity";
+import { DraftApplicationEntity } from "@api/database/entities/draft-application.entity";
 import { tipTapDocumentToPlainText } from "@api/domains/shared/tiptap.util";
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
@@ -24,8 +25,7 @@ export type CreateApplicationRepoDto = Pick<
   | "salaryCurrency"
   | "salaryPeriod"
   | "tags"
-  | "draftApplicationId"
->;
+> & { draftApplicationId?: string | null };
 export type UpdateApplicationRepoDto = Partial<CreateApplicationRepoDto>;
 
 export type JobPostingContextSnippet = {
@@ -207,7 +207,14 @@ export class ApplicationRepository {
     userId: string,
     dto: CreateApplicationRepoDto,
   ): Promise<Application> {
-    const row = this.applicationsRepo.create({ userId, ...dto });
+    const { draftApplicationId, ...rest } = dto;
+    const row = this.applicationsRepo.create({
+      userId,
+      ...rest,
+      draftApplication: draftApplicationId
+        ? ({ id: draftApplicationId } as DraftApplicationEntity)
+        : undefined,
+    });
     return this.applicationsRepo.save(row);
   }
 

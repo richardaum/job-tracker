@@ -11,6 +11,7 @@ import {
 } from "typeorm";
 
 import { CompanyEntity } from "./company.entity";
+import { DraftApplicationEntity } from "./draft-application.entity";
 
 @WithGeneratedId()
 @Entity({ name: "applications" })
@@ -76,8 +77,12 @@ export class ApplicationEntity {
   })
   tags!: string[];
 
-  @Column({ name: "draft_application_id", type: "text", nullable: true })
-  draftApplicationId!: string | null;
+  @ManyToOne(() => DraftApplicationEntity, (draft) => draft.applications, {
+    nullable: true,
+    onDelete: "SET NULL",
+  })
+  @JoinColumn({ name: "draft_application_id" })
+  draftApplication?: DraftApplicationEntity | null;
 
   @CreateDateColumn({ name: "created_at", type: "timestamp" })
   createdAt!: Date;
