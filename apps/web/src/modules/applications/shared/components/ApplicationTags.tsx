@@ -1,17 +1,5 @@
-import { cn, IconButton, Tooltip } from "@job-tracker/ui";
+import { Badge, cn, IconButton, Tooltip } from "@job-tracker/ui";
 import { XIcon } from "@phosphor-icons/react";
-
-function OverflowChip({ children }: { children: React.ReactNode }) {
-  return (
-    <span
-      className={cn(
-        "inline-flex rounded border border-border-subtle px-1.5 py-0.5 text-xs text-text-muted",
-      )}
-    >
-      {children}
-    </span>
-  );
-}
 
 export function ApplicationTags({
   tags,
@@ -33,11 +21,11 @@ export function ApplicationTags({
       className={cn("inline-flex flex-wrap items-center gap-1.5", className)}
     >
       {shown.map((t) => (
-        <span
+        <Badge
           key={t}
           className={cn(
-            "inline-flex max-w-40 items-center gap-1 rounded border border-border-subtle bg-bg-surface-hover py-0.5 text-xs text-text-secondary",
-            onRemoveTag ? "pl-1.5 pr-0.5" : "px-1.5",
+            "max-w-40 gap-1",
+            onRemoveTag ? "pl-1.5 pr-0.5" : undefined,
           )}
           title={t}
         >
@@ -46,22 +34,22 @@ export function ApplicationTags({
             <IconButton
               intent="ghost"
               icon={<XIcon size={10} weight="bold" />}
-              label={`Remove tag ${t}`}
-              tooltip={`Remove tag ${t}`}
+              label="Remove tag"
+              tooltip="Remove tag"
               onClick={() => onRemoveTag(t)}
               className={cn(
                 "size-4 shrink-0 rounded shadow-none hover:bg-black/15",
               )}
             />
           ) : null}
-        </span>
+        </Badge>
       ))}
       {rest > 0 ? (
         <Tooltip
           content={`${rest} more ${rest === 1 ? "tag" : "tags"}: ${hidden.join(", ")}`}
         >
           <span className={cn("inline-flex")}>
-            <OverflowChip>+{rest}</OverflowChip>
+            <Badge>+{rest}</Badge>
           </span>
         </Tooltip>
       ) : null}
