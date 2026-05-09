@@ -4,7 +4,7 @@ import { useState } from "react";
 import { SearchInput } from "./SearchInput";
 
 const meta: Meta<typeof SearchInput> = {
-  title: "Web/Applications/SearchInput",
+  title: "Components/SearchInput",
   component: SearchInput,
   parameters: { layout: "centered" },
   tags: ["autodocs"],
