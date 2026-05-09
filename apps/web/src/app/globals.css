@@ -1,1 +1,17 @@
 @import "@job-tracker/ui/src/tailwind-base.css";
+
+/* Login shell (**[T-166]**): primitives only via CSS vars — no literals in JSX. */
+@utility jt-login-shell-backdrop {
+  background:
+    radial-gradient(
+      ellipse 120% 90% at 16% 20%,
+      color-mix(in srgb, var(--palette-frosted-blue) 48%, transparent) 0%,
+      transparent 58%
+    ),
+    radial-gradient(
+      ellipse 88% 72% at 86% 78%,
+      color-mix(in srgb, var(--palette-yale-blue) 58%, transparent) 0%,
+      transparent 55%
+    ),
+    var(--primitive-color-neutral-900);
+}
