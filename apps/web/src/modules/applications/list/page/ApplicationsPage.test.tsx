@@ -30,15 +30,17 @@ vi.mock("@/gql/hooks", () => ({
   ApplicationSource: {
     Jack: "JACK",
     Linkedin: "LINKEDIN",
+    RemoteYeah: "REMOTE_YEAH",
     Wellfound: "WELLFOUND",
   },
   ApplicationStage: {
-    New: "new",
-    Applied: "applied",
-    RecruiterScreen: "recruiter_screen",
-    Technical: "technical",
-    Offer: "offer",
-    Rejected: "rejected",
+    New: "NEW",
+    Duplicated: "DUPLICATED",
+    Applied: "APPLIED",
+    RecruiterScreen: "RECRUITER_SCREEN",
+    Technical: "TECHNICAL",
+    Offer: "OFFER",
+    Rejected: "REJECTED",
   },
   SalaryPeriod: { Year: "YEAR", Month: "MONTH", Hour: "HOUR" },
   useApplicationsQuery: (...args: unknown[]) =>

@@ -6,6 +6,7 @@ import { describe, expect, it } from "vitest";
 
 import { ImportRunStatus } from "@/gql/graphql";
 import {
+  BuiltInImportersDocument,
   ClearImportRunsDocument,
   CreateImportRunDocument,
   DeleteImportRunDocument,
@@ -14,6 +15,22 @@ import {
 
 import ImportsPage from "./ImportsPage";
 
+const builtInImportersSuccess: MockLink.MockedResponse = {
+  maxUsageCount: 10,
+  request: { query: BuiltInImportersDocument },
+  result: {
+    data: {
+      builtInImporters: [
+        {
+          __typename: "BuiltInImporterType",
+          importerId: "remoteyeah",
+          name: "RemoteYeah",
+        },
+      ],
+    },
+  },
+};
+
 const REMOTEYEAH_ENTRY =
   "https://remoteyeah.com/remote-frontend-engineer+reactjs-jobs-in-brazil+latin-america+worldwide#jobs";
 
@@ -21,7 +38,6 @@ const createdRun = {
   __typename: "ImportRunType" as const,
   id: "run-1",
   importerId: "remoteyeah",
-  importerName: "RemoteYeah",
   entryUrl: REMOTEYEAH_ENTRY,
   status: ImportRunStatus.Running,
   startedAt: "2026-05-02T12:00:00.000Z",
@@ -37,16 +53,15 @@ function renderImportsPage(mocks: ReadonlyArray<MockLink.MockedResponse>) {
 }
 
 describe("ImportsPage", () => {
-  it("renders heading and New run control", () => {
+  it("renders empty state and New run control", async () => {
     renderImportsPage([
+      builtInImportersSuccess,
       {
         request: { query: ImportRunsDocument },
         result: { data: { importRuns: [] } },
       },
     ]);
-    expect(
-      screen.getByRole("heading", { name: /^Imports$/i }),
-    ).toBeInTheDocument();
+    expect(await screen.findByText(/no import runs yet/i)).toBeInTheDocument();
     expect(
       screen.getAllByRole("button", { name: /new run/i }).length,
     ).toBeGreaterThanOrEqual(1);
@@ -55,6 +70,7 @@ describe("ImportsPage", () => {
   it("adds a run when starting from built-in RemoteYeah importer", async () => {
     const user = userEvent.setup();
     renderImportsPage([
+      builtInImportersSuccess,
       {
         request: { query: ImportRunsDocument },
         result: { data: { importRuns: [] } },
@@ -91,6 +107,7 @@ describe("ImportsPage", () => {
   it("clears all runs after confirming clear imports", async () => {
     const user = userEvent.setup();
     renderImportsPage([
+      builtInImportersSuccess,
       {
         request: { query: ImportRunsDocument },
         result: { data: { importRuns: [createdRun] } },
@@ -115,6 +132,7 @@ describe("ImportsPage", () => {
   it("removes a run after confirming delete", async () => {
     const user = userEvent.setup();
     renderImportsPage([
+      builtInImportersSuccess,
       {
         request: { query: ImportRunsDocument },
         result: { data: { importRuns: [createdRun] } },

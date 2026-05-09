@@ -17,6 +17,8 @@ function getStageBadgeIntent(stage: ApplicationStage) {
       return "info" as const;
     case ApplicationStage.RecruiterScreen:
       return "warning" as const;
+    case ApplicationStage.Duplicated:
+      return "warning" as const;
     default:
       return "default" as const;
   }

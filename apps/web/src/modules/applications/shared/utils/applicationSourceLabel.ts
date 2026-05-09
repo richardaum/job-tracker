@@ -16,6 +16,8 @@ export function formatApplicationSourceLabel(
       return "Jack";
     case ApplicationSource.Wellfound:
       return "Wellfound";
+    case ApplicationSource.RemoteYeah:
+      return "RemoteYeah";
     default:
       return null;
   }

@@ -24,6 +24,17 @@ export function importRunStatusBadgeIntent(
   return "default";
 }
 
+/** Text blob used to match the import runs search box. */
+export function importRunSearchHaystack(run: ImportRun): string {
+  return [
+    run.importerName,
+    run.importerSource,
+    run.importerId,
+    run.status,
+    run.entryUrl ?? "",
+  ].join(" ");
+}
+
 export function formatImportRunStatusLabel(status: ImportRunStatus): string {
   switch (status) {
     case ImportRunStatus.Completed:

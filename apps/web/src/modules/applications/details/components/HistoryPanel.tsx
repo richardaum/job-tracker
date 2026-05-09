@@ -41,6 +41,7 @@ import { UpdateStatusAction } from "./UpdateStatusAction";
 
 const stageOptions: Array<{ value: ApplicationStage; label: string }> = [
   { value: ApplicationStage.New, label: "New" },
+  { value: ApplicationStage.Duplicated, label: "Duplicated" },
   { value: ApplicationStage.Applied, label: "Applied" },
   { value: ApplicationStage.RecruiterScreen, label: "Recruiter Screen" },
   { value: ApplicationStage.Technical, label: "Technical" },

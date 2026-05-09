@@ -1,8 +1,14 @@
+query BuiltInImporters {
+  builtInImporters {
+    importerId
+    name
+  }
+}
+
 query ImportRuns {
   importRuns {
     id
     importerId
-    importerName
     entryUrl
     status
     startedAt
@@ -14,7 +20,6 @@ mutation CreateImportRun($input: CreateImportRunInput!) {
   createImportRun(input: $input) {
     id
     importerId
-    importerName
     entryUrl
     status
     startedAt

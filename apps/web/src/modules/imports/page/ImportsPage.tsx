@@ -1,39 +1,29 @@
 "use client";
 
-import {
-  Button,
-  cn,
-  Combobox,
-  type ComboboxOption,
-  ConfirmDialog,
-  Dialog,
-  Stack,
-  Text,
-} from "@job-tracker/ui";
-import { PlusIcon, TrashSimpleIcon } from "@phosphor-icons/react";
+import { Button, cn, ConfirmDialog, Stack, Text } from "@job-tracker/ui";
+import { TrashSimpleIcon } from "@phosphor-icons/react";
 import { useCallback, useMemo, useState } from "react";
 
 import { EmptyState } from "@/components/empty-state";
 import {
   ImportRunsDocument,
+  useBuiltInImportersQuery,
   useClearImportRunsMutation,
   useCreateImportRunMutation,
   useImportRunsQuery,
 } from "@/gql/hooks";
+import { useFilteredResults } from "@/hooks/useFilteredResults";
+import { useMapFromArray } from "@/hooks/useMapFromArray";
 import { SearchInput } from "@/modules/applications/shared/components/SearchInput";
-import { HARDCODED_IMPORTERS } from "@/modules/imports/constants/hardcodedImporters";
+import { useImportRunsModel } from "@/modules/imports/hooks/useImportRunsModel";
 import { ImportRunCard } from "@/modules/imports/list/components/ImportRunCard";
-import type { ImportRun } from "@/modules/imports/types/importRun";
+import { importRunSearchHaystack } from "@/modules/imports/utils/importRunDisplay";
 
 import { ImportRunDetails } from "./ImportRunDetails";
-
-const IMPORTER_COMBO_ID = "imports-new-run-importer";
-
-const IMPORTER_COMBO_OPTIONS: ComboboxOption[] = HARDCODED_IMPORTERS.map(
-  (imp) => ({ value: imp.id, label: imp.name }),
-);
+import { NewImportRunDialog } from "./NewImportRunDialog";
 
 export default function ImportsPage() {
+  const { data: builtInData } = useBuiltInImportersQuery();
   const { data, loading: loadingRuns } = useImportRunsQuery();
   const [createImportRun, { loading: creatingRun }] =
     useCreateImportRunMutation({
@@ -45,61 +35,31 @@ export default function ImportsPage() {
     awaitRefetchQueries: true,
   });
 
-  const runs: ImportRun[] = useMemo(
-    () =>
-      (data?.importRuns ?? []).map((r) => ({
-        id: r.id,
-        importerId: r.importerId,
-        importerName: r.importerName,
-        importerSource: r.importerSource,
-        status: r.status,
-        startedAt:
-          typeof r.startedAt === "string"
-            ? r.startedAt
-            : new Date(r.startedAt as unknown as Date).toISOString(),
-        entryUrl: r.entryUrl,
-      })),
-    [data?.importRuns],
+  const builtInImporterById = useMapFromArray(
+    builtInData?.builtInImporters,
+    builtInImporterKey,
   );
+
+  const runs = useImportRunsModel(data?.importRuns, builtInImporterById);
 
   const [selectedRunId, setSelectedRunId] = useState<string | null>(null);
   const [newRunOpen, setNewRunOpen] = useState(false);
   const [importerComboValue, setImporterComboValue] = useState("");
   const [query, setQuery] = useState("");
 
-  const selectedHardcoded = useMemo(
-    () =>
-      HARDCODED_IMPORTERS.find(
-        (i) =>
-          i.id === importerComboValue.trim() ||
-          i.name === importerComboValue.trim(),
-      ) ?? null,
-    [importerComboValue],
-  );
+  const selectedImporter =
+    builtInImporterById.get(importerComboValue.trim()) ?? null;
 
   const selectedRun = useMemo(
     () => runs.find((r) => r.id === selectedRunId) ?? null,
     [runs, selectedRunId],
   );
 
-  const normalizedQuery = query.trim().toLowerCase();
-
-  const filteredRuns = useMemo(() => {
-    if (normalizedQuery.length === 0) return runs;
-
-    return runs.filter((run) => {
-      const haystack = [
-        run.importerName,
-        run.importerSource,
-        run.importerId,
-        run.status,
-        run.entryUrl ?? "",
-      ]
-        .join(" ")
-        .toLowerCase();
-      return haystack.includes(normalizedQuery);
-    });
-  }, [normalizedQuery, runs]);
+  const filteredRuns = useFilteredResults({
+    items: runs,
+    search: query,
+    getSearchableText: importRunSearchHaystack,
+  });
 
   const handleOpenChange = useCallback((open: boolean) => {
     setNewRunOpen(open);
@@ -109,16 +69,16 @@ export default function ImportsPage() {
   }, []);
 
   const handleStartRun = useCallback(async () => {
-    if (!selectedHardcoded) return;
+    if (!selectedImporter) return;
     const res = await createImportRun({
-      variables: { input: { importerId: selectedHardcoded.id } },
+      variables: { input: { importerId: selectedImporter.importerId } },
     });
     const created = res.data?.createImportRun;
     if (created) {
       setSelectedRunId(created.id);
     }
     handleOpenChange(false);
-  }, [createImportRun, handleOpenChange, selectedHardcoded]);
+  }, [createImportRun, handleOpenChange, selectedImporter]);
 
   const handleClearAllImports = useCallback(async () => {
     await clearImportRuns();
@@ -160,53 +120,15 @@ export default function ImportsPage() {
             }
             onConfirm={handleClearAllImports}
           />
-          <Dialog
+          <NewImportRunDialog
             open={newRunOpen}
             onOpenChange={handleOpenChange}
-            title="New run"
-            size="sm"
-            trigger={
-              <Button
-                intent="primary"
-                size="md"
-                leftIcon={<PlusIcon size={16} weight="bold" />}
-                type="button"
-              >
-                New run
-              </Button>
-            }
-            footer={
-              <div className={cn("flex w-full justify-end gap-2")}>
-                <Button
-                  intent="secondary"
-                  size="md"
-                  type="button"
-                  onClick={() => handleOpenChange(false)}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  intent="primary"
-                  size="md"
-                  type="button"
-                  disabled={!selectedHardcoded || creatingRun}
-                  onClick={() => void handleStartRun()}
-                >
-                  Start
-                </Button>
-              </div>
-            }
-          >
-            <Combobox
-              id={IMPORTER_COMBO_ID}
-              value={importerComboValue}
-              onValueChange={setImporterComboValue}
-              options={IMPORTER_COMBO_OPTIONS}
-              placeholder="Choose importer"
-              size="sm"
-              autoComplete="off"
-            />
-          </Dialog>
+            importerComboValue={importerComboValue}
+            onImporterComboValueChange={setImporterComboValue}
+            canStart={Boolean(selectedImporter)}
+            creatingRun={creatingRun}
+            onStart={handleStartRun}
+          />
         </div>
       </div>
 
@@ -259,4 +181,8 @@ export default function ImportsPage() {
       </div>
     </div>
   );
+}
+
+function builtInImporterKey(row: { importerId: string }) {
+  return row.importerId;
 }

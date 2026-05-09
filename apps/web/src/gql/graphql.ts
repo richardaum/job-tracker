@@ -49,11 +49,13 @@ export type ApplicationSalary = {
 export enum ApplicationSource {
   Jack = "JACK",
   Linkedin = "LINKEDIN",
+  RemoteYeah = "REMOTE_YEAH",
   Wellfound = "WELLFOUND",
 }
 
 export enum ApplicationStage {
   Applied = "APPLIED",
+  Duplicated = "DUPLICATED",
   New = "NEW",
   Offer = "OFFER",
   RecruiterScreen = "RECRUITER_SCREEN",
@@ -91,6 +93,12 @@ export type ApplicationType = {
   updatedAt: Scalars["DateTime"]["output"];
   urls: Array<Scalars["String"]["output"]>;
   userId: Scalars["String"]["output"];
+};
+
+export type BuiltInImporterType = {
+  __typename?: "BuiltInImporterType";
+  importerId: Scalars["String"]["output"];
+  name: Scalars["String"]["output"];
 };
 
 export type CompanyType = {
@@ -174,6 +182,17 @@ export type ExchangeRate = {
   rate: Scalars["Float"]["output"];
 };
 
+export type ImportRunEvent = {
+  __typename?: "ImportRunEvent";
+  occurredAt: Scalars["DateTime"]["output"];
+  run: ImportRunType;
+  type: ImportRunEventType;
+};
+
+export enum ImportRunEventType {
+  ImportRunCreated = "IMPORT_RUN_CREATED",
+}
+
 export enum ImportRunStatus {
   Completed = "COMPLETED",
   Failed = "FAILED",
@@ -186,7 +205,6 @@ export type ImportRunType = {
   entryUrl: Scalars["String"]["output"];
   id: Scalars["ID"]["output"];
   importerId: Scalars["String"]["output"];
-  importerName: Scalars["String"]["output"];
   importerSource: Scalars["String"]["output"];
   startedAt: Scalars["DateTime"]["output"];
   status: ImportRunStatus;
@@ -194,6 +212,7 @@ export type ImportRunType = {
 
 export type Mutation = {
   __typename?: "Mutation";
+  claimImportRun?: Maybe<ImportRunType>;
   clearImportRuns: Scalars["Boolean"]["output"];
   createApplication: ApplicationType;
   createApplicationNote: NoteType;
@@ -215,6 +234,8 @@ export type Mutation = {
   updateDraftApplication: DraftApplicationType;
   updateImportRunStatus: ImportRunType;
 };
+
+export type MutationClaimImportRunArgs = { id: Scalars["ID"]["input"] };
 
 export type MutationCreateApplicationArgs = { input: CreateApplicationInput };
 
@@ -303,6 +324,7 @@ export type Query = {
   applicationNotes: Array<NoteType>;
   applicationStageEvents: Array<ApplicationStageEventType>;
   applications: Array<ApplicationType>;
+  builtInImporters: Array<BuiltInImporterType>;
   companies: Array<CompanyType>;
   companyApplicationsCount: Scalars["Int"]["output"];
   draftApplication: DraftApplicationType;
@@ -360,6 +382,11 @@ export enum SalaryPeriod {
   Month = "MONTH",
   Year = "YEAR",
 }
+
+export type Subscription = {
+  __typename?: "Subscription";
+  importRunEvents: ImportRunEvent;
+};
 
 export type UpdateApplicationInput = {
   company?: InputMaybe<Scalars["String"]["input"]>;
@@ -903,6 +930,17 @@ export type UpdateDraftApplicationMutation = {
   };
 };
 
+export type BuiltInImportersQueryVariables = Exact<{ [key: string]: never }>;
+
+export type BuiltInImportersQuery = {
+  __typename?: "Query";
+  builtInImporters: Array<{
+    __typename?: "BuiltInImporterType";
+    importerId: string;
+    name: string;
+  }>;
+};
+
 export type ImportRunsQueryVariables = Exact<{ [key: string]: never }>;
 
 export type ImportRunsQuery = {
@@ -911,7 +949,6 @@ export type ImportRunsQuery = {
     __typename?: "ImportRunType";
     id: string;
     importerId: string;
-    importerName: string;
     entryUrl: string;
     status: ImportRunStatus;
     startedAt: any;
@@ -929,7 +966,6 @@ export type CreateImportRunMutation = {
     __typename?: "ImportRunType";
     id: string;
     importerId: string;
-    importerName: string;
     entryUrl: string;
     status: ImportRunStatus;
     startedAt: any;
@@ -2964,6 +3000,35 @@ export const UpdateDraftApplicationDocument = {
   UpdateDraftApplicationMutation,
   UpdateDraftApplicationMutationVariables
 >;
+export const BuiltInImportersDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "query",
+      name: { kind: "Name", value: "BuiltInImporters" },
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "builtInImporters" },
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "importerId" } },
+                { kind: "Field", name: { kind: "Name", value: "name" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  BuiltInImportersQuery,
+  BuiltInImportersQueryVariables
+>;
 export const ImportRunsDocument = {
   kind: "Document",
   definitions: [
@@ -2982,10 +3047,6 @@ export const ImportRunsDocument = {
               selections: [
                 { kind: "Field", name: { kind: "Name", value: "id" } },
                 { kind: "Field", name: { kind: "Name", value: "importerId" } },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "importerName" },
-                },
                 { kind: "Field", name: { kind: "Name", value: "entryUrl" } },
                 { kind: "Field", name: { kind: "Name", value: "status" } },
                 { kind: "Field", name: { kind: "Name", value: "startedAt" } },
@@ -3045,10 +3106,6 @@ export const CreateImportRunDocument = {
               selections: [
                 { kind: "Field", name: { kind: "Name", value: "id" } },
                 { kind: "Field", name: { kind: "Name", value: "importerId" } },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "importerName" },
-                },
                 { kind: "Field", name: { kind: "Name", value: "entryUrl" } },
                 { kind: "Field", name: { kind: "Name", value: "status" } },
                 { kind: "Field", name: { kind: "Name", value: "startedAt" } },
