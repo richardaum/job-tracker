@@ -96,36 +96,35 @@ export function ConvertDraftConflictDialog({
   return (
     <Dialog
       trigger={<span aria-hidden style={{ display: "none" }} />}
-      title="Applications already linked"
+      title="This draft was already converted"
       description={
-        <div className={cn("space-y-2")}>
+        <div className={cn("space-y-3")}>
           <Text size="sm" color="secondary">
-            Many applications may point to one draft (
-            <span className={cn("text-text-primary")}>many-to-one</span>
-            ). Each AI run adds another application linked here; we highlight
-            the newest.
-          </Text>
-          <div>
+            Every time you run AI on this draft, we add another job entry and
+            show which one is newest.
             {previousApplicationId ? (
-              <Link
-                href={`/applications/${previousApplicationId}`}
-                className={cn(
-                  "text-sm text-text-brand underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-brand focus-visible:ring-inset",
-                )}
-              >
-                Latest linked application
-              </Link>
+              <>
+                {" "}
+                <Link
+                  href={`/applications/${previousApplicationId}`}
+                  className={cn(
+                    "font-medium text-text-brand underline underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-brand focus-visible:ring-inset",
+                  )}
+                >
+                  Open that job
+                </Link>{" "}
+                to review it.
+              </>
             ) : (
-              <Text size="sm" color="secondary">
-                A linked application exists.
-              </Text>
+              <> One is already saved from earlier.</>
             )}
-          </div>
+          </Text>
           <Text size="sm" color="secondary">
-            <span className={cn("text-text-primary")}>Duplicate</span> keeps any
-            prior applications and queues another AI conversion.&nbsp;
-            <span className={cn("text-text-primary")}>Replace all</span> removes
-            every application linked to this draft, then converts again.
+            <span className={cn("text-text-primary")}>Duplicate</span> keeps
+            what you already have and runs AI again for a new entry.&nbsp;
+            <span className={cn("text-text-primary")}>Replace all</span> clears
+            every job we created from this draft, then runs AI again from
+            scratch.
           </Text>
         </div>
       }
