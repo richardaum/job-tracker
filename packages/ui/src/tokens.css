@@ -1,28 +1,67 @@
 :root {
-  /* Primitive colors - brand */
-  --primitive-color-brand-50: #eef2ff;
-  --primitive-color-brand-100: #e0e7ff;
-  --primitive-color-brand-200: #c7d2fe;
-  --primitive-color-brand-300: #a5b4fc;
-  --primitive-color-brand-400: #818cf8;
-  --primitive-color-brand-500: #6366f1;
-  --primitive-color-brand-600: #4f46e5;
-  --primitive-color-brand-700: #4338ca;
-  --primitive-color-brand-800: #3730a3;
-  --primitive-color-brand-900: #312e81;
+  /* Coolors palette aliases (exported) */
+  --palette-rosewood: #c33c54;
+  --palette-yale-blue: #254e70;
+  --palette-cerulean: #37718e;
+  --palette-frosted-blue: #8ee3ef;
+  --palette-icy-aqua: #aef3e7;
 
-  /* Primitive colors - neutral */
+  /* Primitive colors - brand (ramp: icy-aqua → frosted-blue → cerulean → yale-blue) */
+  --primitive-color-brand-50: color-mix(
+    in srgb,
+    var(--palette-icy-aqua) 18%,
+    white
+  );
+  --primitive-color-brand-100: color-mix(
+    in srgb,
+    var(--palette-icy-aqua) 36%,
+    white
+  );
+  --primitive-color-brand-200: color-mix(
+    in srgb,
+    var(--palette-frosted-blue) 38%,
+    white
+  );
+  --primitive-color-brand-300: color-mix(
+    in srgb,
+    var(--palette-cerulean) 48%,
+    white
+  );
+  --primitive-color-brand-400: color-mix(
+    in srgb,
+    var(--palette-cerulean) 68%,
+    white
+  );
+  --primitive-color-brand-500: var(--palette-cerulean);
+  --primitive-color-brand-600: color-mix(
+    in srgb,
+    var(--palette-cerulean) 55%,
+    var(--palette-yale-blue)
+  );
+  --primitive-color-brand-700: var(--palette-yale-blue);
+  --primitive-color-brand-800: color-mix(
+    in srgb,
+    var(--palette-yale-blue) 82%,
+    black
+  );
+  --primitive-color-brand-900: color-mix(
+    in srgb,
+    var(--palette-yale-blue) 62%,
+    black
+  );
+
+  /* Primitive colors - neutral (cool slate, pairs with yale-blue text) */
   --primitive-color-neutral-0: #ffffff;
-  --primitive-color-neutral-50: #f9fafb;
-  --primitive-color-neutral-100: #f3f4f6;
-  --primitive-color-neutral-200: #e5e7eb;
-  --primitive-color-neutral-300: #d1d5db;
-  --primitive-color-neutral-400: #9ca3af;
-  --primitive-color-neutral-500: #6b7280;
-  --primitive-color-neutral-600: #4b5563;
-  --primitive-color-neutral-700: #374151;
-  --primitive-color-neutral-800: #1f2937;
-  --primitive-color-neutral-900: #111827;
+  --primitive-color-neutral-50: #f5f7fa;
+  --primitive-color-neutral-100: #e9eef3;
+  --primitive-color-neutral-200: #d6dde6;
+  --primitive-color-neutral-300: #b8c4d1;
+  --primitive-color-neutral-400: #8899aa;
+  --primitive-color-neutral-500: #64748b;
+  --primitive-color-neutral-600: #475569;
+  --primitive-color-neutral-700: #334155;
+  --primitive-color-neutral-800: #1e293b;
+  --primitive-color-neutral-900: #0f172a;
 
   /* Primitive colors - feedback */
   --primitive-color-green-50: #f0fdf4;
@@ -30,22 +69,47 @@
   --primitive-color-green-500: #22c55e;
   --primitive-color-green-600: #16a34a;
   --primitive-color-green-700: #15803d;
-  --primitive-color-red-50: #fff1f2;
-  --primitive-color-red-100: #fee2e2;
-  --primitive-color-red-500: #ef4444;
-  --primitive-color-red-600: #dc2626;
-  --primitive-color-red-700: #b91c1c;
+  --primitive-color-red-50: color-mix(
+    in srgb,
+    var(--palette-rosewood) 12%,
+    white
+  );
+  --primitive-color-red-100: color-mix(
+    in srgb,
+    var(--palette-rosewood) 22%,
+    white
+  );
+  --primitive-color-red-500: var(--palette-rosewood);
+  --primitive-color-red-600: color-mix(
+    in srgb,
+    var(--palette-rosewood) 88%,
+    black
+  );
+  --primitive-color-red-700: color-mix(
+    in srgb,
+    var(--palette-rosewood) 72%,
+    black
+  );
   --primitive-color-yellow-50: #fefce8;
   --primitive-color-yellow-100: #fef9c3;
   --primitive-color-yellow-500: #eab308;
   --primitive-color-yellow-600: #ca8a04;
+  --primitive-color-yellow-950: #422006;
   --primitive-color-orange-50: #fff7ed;
   --primitive-color-orange-100: #ffedd5;
-  --primitive-color-orange-400: #fb923c;
-  --primitive-color-orange-500: #f97316;
-  --primitive-color-orange-600: #ea580c;
-  --primitive-color-blue-100: #dbeafe;
-  --primitive-color-blue-400: #60a5fa;
+  --primitive-color-orange-400: #f99d66;
+  --primitive-color-orange-500: #ea580c;
+  --primitive-color-orange-600: #c2410c;
+  --primitive-color-blue-100: color-mix(
+    in srgb,
+    var(--palette-frosted-blue) 26%,
+    white
+  );
+  --primitive-color-blue-400: color-mix(
+    in srgb,
+    var(--palette-cerulean) 52%,
+    white
+  );
   --primitive-color-blue-500: #4b6cf7;
   --primitive-color-blue-600: #3b5fe0;
   --primitive-color-purple-400: #c084fc;
@@ -101,28 +165,64 @@
   --primitive-shadow-lg: 0 8px 24px rgb(0 0 0 / 0.12);
 
   /* Semantic color tokens */
-  --semantic-color-text-primary: var(--primitive-color-neutral-900);
-  --semantic-color-text-secondary: var(--primitive-color-neutral-500);
-  --semantic-color-text-muted: var(--primitive-color-neutral-400);
+  --semantic-color-text-primary: var(--palette-yale-blue);
+  --semantic-color-text-secondary: var(--palette-cerulean);
+  --semantic-color-text-muted: var(--primitive-color-neutral-500);
   --semantic-color-text-inverted: var(--primitive-color-neutral-0);
-  --semantic-color-text-brand: var(--primitive-color-brand-600);
+  --semantic-color-text-brand: var(--palette-cerulean);
   --semantic-color-text-success: var(--primitive-color-green-600);
   --semantic-color-text-error: var(--primitive-color-red-600);
   --semantic-color-text-warning: var(--primitive-color-yellow-600);
+  /* Rendering contexts (contraste sempre em relação a uma destas superfícies) */
+  --semantic-color-bg-shell: color-mix(
+    in srgb,
+    var(--palette-icy-aqua) 22%,
+    var(--primitive-color-neutral-100)
+  );
   --semantic-color-bg-surface: var(--primitive-color-neutral-0);
-  --semantic-color-bg-surface-hover: var(--primitive-color-neutral-50);
-  --semantic-color-bg-brand: var(--primitive-color-brand-600);
+  /* Tooltip = overlay invertido (~preto/near-black), texto sempre claro (`text-text-inverted`) */
+  --semantic-color-bg-tooltip: #171717;
+  --semantic-color-bg-surface-hover: color-mix(
+    in srgb,
+    var(--palette-icy-aqua) 22%,
+    white
+  );
+  /* Solid brand fills use deep yale so `text-text-inverted` (white) meets AA vs mid cerulean */
+  --semantic-color-bg-brand: var(--primitive-color-brand-800);
   --semantic-color-bg-brand-subtle: var(--primitive-color-brand-50);
-  --semantic-color-bg-brand-hover: var(--primitive-color-brand-700);
+  --semantic-color-bg-brand-hover: var(--primitive-color-brand-900);
+  /* Inverted foreground on brand (filled chips/toggles) */
+  --semantic-color-bg-brand-strong: var(--primitive-color-brand-900);
   --semantic-color-bg-success-subtle: var(--primitive-color-green-100);
   --semantic-color-bg-error-subtle: var(--primitive-color-red-100);
   --semantic-color-bg-warning-subtle: var(--primitive-color-yellow-100);
-  --semantic-color-bg-info-subtle: var(--primitive-color-blue-100);
-  --semantic-color-border-subtle: var(--primitive-color-neutral-200);
+  --semantic-color-bg-info-subtle: color-mix(
+    in srgb,
+    var(--palette-frosted-blue) 26%,
+    white
+  );
+  /* Form controls: don’t reuse surface-hover (list hovers); keep distinct from body + disabled */
+  --semantic-color-bg-field: var(--primitive-color-neutral-50);
+  --semantic-color-bg-field-disabled: color-mix(
+    in srgb,
+    var(--primitive-color-neutral-500) 9%,
+    var(--primitive-color-neutral-50)
+  );
+  --semantic-color-border-subtle: color-mix(
+    in srgb,
+    var(--palette-yale-blue) 18%,
+    white
+  );
+  /* Hairlines on `bg-shell` (tinted): darker than `border-subtle` so WCAG 1.4.11 non-text ≥ ~3:1 vs shell */
+  --semantic-color-border-shell: color-mix(
+    in srgb,
+    var(--palette-yale-blue) 75%,
+    white
+  );
   --semantic-color-border-default: var(--primitive-color-neutral-300);
-  --semantic-color-border-strong: var(--primitive-color-neutral-400);
-  --semantic-color-border-brand: var(--primitive-color-brand-600);
+  --semantic-color-border-strong: var(--primitive-color-neutral-500);
+  --semantic-color-border-brand: var(--primitive-color-brand-500);
   --semantic-color-border-success: var(--primitive-color-green-500);
   --semantic-color-border-error: var(--primitive-color-red-500);
-  --semantic-color-overlay-backdrop: rgb(17 24 39 / 0.4);
+  --semantic-color-overlay-backdrop: rgb(37 78 112 / 0.45);
 }
