@@ -85,10 +85,10 @@ export function Dialog({
                 {title}
               </RadixDialog.Title>
               {hasDescription ? (
-                <RadixDialog.Description
-                  className={cn("text-sm text-text-secondary")}
-                >
-                  {description}
+                <RadixDialog.Description asChild>
+                  <div className={cn("text-sm text-text-secondary")}>
+                    {description}
+                  </div>
                 </RadixDialog.Description>
               ) : null}
             </div>
