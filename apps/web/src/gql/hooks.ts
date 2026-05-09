@@ -226,6 +226,7 @@ export type Mutation = {
   deleteApplication: DeleteMutationPayloadType;
   deleteApplicationNote: DeleteMutationPayloadType;
   deleteApplicationStageEvent: DeleteMutationPayloadType;
+  deleteApplicationsForDraft: DeleteMutationPayloadType;
   deleteCompany: DeleteMutationPayloadType;
   deleteDraftApplication: DeleteMutationPayloadType;
   deleteImportRun: DeleteMutationPayloadType;
@@ -264,6 +265,10 @@ export type MutationDeleteApplicationNoteArgs = { id: Scalars["ID"]["input"] };
 
 export type MutationDeleteApplicationStageEventArgs = {
   id: Scalars["ID"]["input"];
+};
+
+export type MutationDeleteApplicationsForDraftArgs = {
+  draftId: Scalars["ID"]["input"];
 };
 
 export type MutationDeleteCompanyArgs = { id: Scalars["ID"]["input"] };
@@ -887,6 +892,19 @@ export type DeleteDraftApplicationMutationVariables = Exact<{
 export type DeleteDraftApplicationMutation = {
   __typename?: "Mutation";
   deleteDraftApplication: {
+    __typename?: "DeleteMutationPayloadType";
+    success: boolean;
+    deletedId: string;
+  };
+};
+
+export type DeleteApplicationsForDraftMutationVariables = Exact<{
+  draftId: Scalars["ID"]["input"];
+}>;
+
+export type DeleteApplicationsForDraftMutation = {
+  __typename?: "Mutation";
+  deleteApplicationsForDraft: {
     __typename?: "DeleteMutationPayloadType";
     success: boolean;
     deletedId: string;
@@ -2434,6 +2452,45 @@ export function useDeleteDraftApplicationMutation(
     DeleteDraftApplicationMutation,
     DeleteDraftApplicationMutationVariables
   >(DeleteDraftApplicationDocument, options);
+}
+
+export const DeleteApplicationsForDraftDocument = gql`
+  mutation DeleteApplicationsForDraft($draftId: ID!) {
+    deleteApplicationsForDraft(draftId: $draftId) {
+      success
+      deletedId
+    }
+  }
+`;
+
+/**
+ * __useDeleteApplicationsForDraftMutation__
+ *
+ * To run a mutation, you first call `useDeleteApplicationsForDraftMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteApplicationsForDraftMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteApplicationsForDraftMutation, { data, loading, error }] = useDeleteApplicationsForDraftMutation({
+ *   variables: {
+ *      draftId: // value for 'draftId'
+ *   },
+ * });
+ */
+export function useDeleteApplicationsForDraftMutation(
+  baseOptions?: ApolloReactHooks.MutationHookOptions<
+    DeleteApplicationsForDraftMutation,
+    DeleteApplicationsForDraftMutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useMutation<
+    DeleteApplicationsForDraftMutation,
+    DeleteApplicationsForDraftMutationVariables
+  >(DeleteApplicationsForDraftDocument, options);
 }
 
 export const CreateApplicationWithAiV2Document = gql`

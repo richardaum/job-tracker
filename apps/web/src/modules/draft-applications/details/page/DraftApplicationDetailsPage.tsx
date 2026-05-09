@@ -381,7 +381,7 @@ export default function DraftApplicationDetailsPage({ params }: PageProps) {
           onOpenChange={setConvertConflictDialogOpen}
           onDeletePreviousSuccess={() => {
             enqueueToast({
-              title: "Previous application deleted.",
+              title: "Linked applications removed for this draft.",
               intent: "success",
             });
           }}

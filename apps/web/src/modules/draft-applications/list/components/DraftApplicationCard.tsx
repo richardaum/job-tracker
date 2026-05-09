@@ -134,7 +134,7 @@ export function DraftApplicationCard({
         previousApplicationId={draft.applicationId ?? null}
         onOpenChange={setConvertConflictDialogOpen}
         onDeletePreviousSuccess={() => {
-          onSuccess?.("Previous application deleted.");
+          onSuccess?.("Linked applications removed for this draft.");
         }}
         onConversionSuccess={() => {
           onSuccess?.("Conversion started in background.");

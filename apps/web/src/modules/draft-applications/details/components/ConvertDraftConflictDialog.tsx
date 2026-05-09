@@ -1,14 +1,14 @@
 "use client";
 
 import { tryRun } from "@job-tracker/try-run";
-import { Button, cn, Dialog } from "@job-tracker/ui";
+import { Button, cn, Dialog, Text } from "@job-tracker/ui";
 import Link from "next/link";
 import React, { useState } from "react";
 
 import {
   ApplicationsDocument,
   useCreateApplicationWithAiV2Mutation,
-  useDeleteApplicationMutation,
+  useDeleteApplicationsForDraftMutation,
 } from "@/gql/hooks";
 
 interface ConvertDraftConflictDialogProps {
@@ -31,10 +31,10 @@ export function ConvertDraftConflictDialog({
   onError,
 }: ConvertDraftConflictDialogProps) {
   const [action, setAction] = useState<
-    "delete-previous" | "create-duplicate" | null
+    "replace-all" | "create-duplicate" | null
   >(null);
   const [createApplicationWithAiV2] = useCreateApplicationWithAiV2Mutation();
-  const [deleteApplication] = useDeleteApplicationMutation({
+  const [deleteApplicationsForDraft] = useDeleteApplicationsForDraftMutation({
     refetchQueries: [{ query: ApplicationsDocument }],
     awaitRefetchQueries: true,
   });
@@ -66,24 +66,28 @@ export function ConvertDraftConflictDialog({
     setAction(null);
   }
 
-  async function handleReplace() {
-    setAction("delete-previous");
+  async function handleReplaceAll() {
+    setAction("replace-all");
 
-    if (previousApplicationId) {
-      const [deleteError] = await tryRun(
-        deleteApplication({ variables: { id: previousApplicationId } }),
-      );
-
-      if (deleteError) {
-        onError?.(
-          deleteError.message || "Failed to delete previous application.",
-        );
-        setAction(null);
-        return;
-      }
-
-      onDeletePreviousSuccess?.();
+    if (!draftId) {
+      onError?.("Missing draft id for conversion.");
+      setAction(null);
+      return;
     }
+
+    const [purgeError] = await tryRun(
+      deleteApplicationsForDraft({ variables: { draftId } }),
+    );
+
+    if (purgeError) {
+      onError?.(
+        purgeError.message || "Failed to delete applications for this draft.",
+      );
+      setAction(null);
+      return;
+    }
+
+    onDeletePreviousSuccess?.();
 
     await createFromDraft();
     setAction(null);
@@ -92,24 +96,38 @@ export function ConvertDraftConflictDialog({
   return (
     <Dialog
       trigger={<span aria-hidden style={{ display: "none" }} />}
-      title="Application already exists"
+      title="Applications already linked"
       description={
-        <>
-          This draft already has{" "}
-          {previousApplicationId ? (
-            <Link
-              href={`/applications/${previousApplicationId}`}
-              className={cn(
-                "text-text-brand underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-brand focus-visible:ring-inset",
-              )}
-            >
-              a created application
-            </Link>
-          ) : (
-            "a created application"
-          )}
-          . Choose whether to delete the previous one or create a duplicate.
-        </>
+        <div className={cn("space-y-2")}>
+          <Text size="sm" color="secondary">
+            Many applications may point to one draft (
+            <span className={cn("text-text-primary")}>many-to-one</span>
+            ). Each AI run adds another application linked here; we highlight
+            the newest.
+          </Text>
+          <div>
+            {previousApplicationId ? (
+              <Link
+                href={`/applications/${previousApplicationId}`}
+                className={cn(
+                  "text-sm text-text-brand underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-brand focus-visible:ring-inset",
+                )}
+              >
+                Latest linked application
+              </Link>
+            ) : (
+              <Text size="sm" color="secondary">
+                A linked application exists.
+              </Text>
+            )}
+          </div>
+          <Text size="sm" color="secondary">
+            <span className={cn("text-text-primary")}>Duplicate</span> keeps any
+            prior applications and queues another AI conversion.&nbsp;
+            <span className={cn("text-text-primary")}>Replace all</span> removes
+            every application linked to this draft, then converts again.
+          </Text>
+        </div>
       }
       open={open}
       onOpenChange={onOpenChange}
@@ -136,11 +154,11 @@ export function ConvertDraftConflictDialog({
             </Button>
             <Button
               intent="destructive"
-              state={action === "delete-previous" ? "loading" : "default"}
+              state={action === "replace-all" ? "loading" : "default"}
               disabled={isSubmitting}
-              onClick={() => void handleReplace()}
+              onClick={() => void handleReplaceAll()}
             >
-              Replace
+              Replace all
             </Button>
           </div>
         </div>

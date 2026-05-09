@@ -224,6 +224,7 @@ export type Mutation = {
   deleteApplication: DeleteMutationPayloadType;
   deleteApplicationNote: DeleteMutationPayloadType;
   deleteApplicationStageEvent: DeleteMutationPayloadType;
+  deleteApplicationsForDraft: DeleteMutationPayloadType;
   deleteCompany: DeleteMutationPayloadType;
   deleteDraftApplication: DeleteMutationPayloadType;
   deleteImportRun: DeleteMutationPayloadType;
@@ -262,6 +263,10 @@ export type MutationDeleteApplicationNoteArgs = { id: Scalars["ID"]["input"] };
 
 export type MutationDeleteApplicationStageEventArgs = {
   id: Scalars["ID"]["input"];
+};
+
+export type MutationDeleteApplicationsForDraftArgs = {
+  draftId: Scalars["ID"]["input"];
 };
 
 export type MutationDeleteCompanyArgs = { id: Scalars["ID"]["input"] };
@@ -875,6 +880,19 @@ export type DeleteDraftApplicationMutationVariables = Exact<{
 export type DeleteDraftApplicationMutation = {
   __typename?: "Mutation";
   deleteDraftApplication: {
+    __typename?: "DeleteMutationPayloadType";
+    success: boolean;
+    deletedId: string;
+  };
+};
+
+export type DeleteApplicationsForDraftMutationVariables = Exact<{
+  draftId: Scalars["ID"]["input"];
+}>;
+
+export type DeleteApplicationsForDraftMutation = {
+  __typename?: "Mutation";
+  deleteApplicationsForDraft: {
     __typename?: "DeleteMutationPayloadType";
     success: boolean;
     deletedId: string;
@@ -2788,6 +2806,58 @@ export const DeleteDraftApplicationDocument = {
 } as unknown as DocumentNode<
   DeleteDraftApplicationMutation,
   DeleteDraftApplicationMutationVariables
+>;
+export const DeleteApplicationsForDraftDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "DeleteApplicationsForDraft" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "draftId" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "deleteApplicationsForDraft" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "draftId" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "draftId" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "success" } },
+                { kind: "Field", name: { kind: "Name", value: "deletedId" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  DeleteApplicationsForDraftMutation,
+  DeleteApplicationsForDraftMutationVariables
 >;
 export const CreateApplicationWithAiV2Document = {
   kind: "Document",
