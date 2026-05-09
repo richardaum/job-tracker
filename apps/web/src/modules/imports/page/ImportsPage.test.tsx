@@ -1,158 +1,120 @@
-import type { MockLink } from "@apollo/client/testing";
-import { MockedProvider } from "@apollo/client/testing/react";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it } from "vitest";
-
-import { ImportRunStatus } from "@/gql/graphql";
-import {
-  BuiltInImportersDocument,
-  ClearImportRunsDocument,
-  CreateImportRunDocument,
-  DeleteImportRunDocument,
-  ImportRunsDocument,
-} from "@/gql/hooks";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import ImportsPage from "./ImportsPage";
 
-const builtInImportersSuccess: MockLink.MockedResponse = {
-  maxUsageCount: 10,
-  request: { query: BuiltInImportersDocument },
-  result: {
-    data: {
-      builtInImporters: [
-        {
-          __typename: "BuiltInImporterType",
-          importerId: "remoteyeah",
-          name: "RemoteYeah",
-        },
-      ],
-    },
-  },
-};
+const useImportersListViewModelMock = vi.fn();
+const useImportTemplatesForImporterQueryMock = vi.fn();
 
-const REMOTEYEAH_ENTRY =
-  "https://remoteyeah.com/remote-frontend-engineer+reactjs-jobs-in-brazil+latin-america+worldwide#jobs";
+vi.mock("@/gql/hooks", async () => {
+  const actual =
+    await vi.importActual<typeof import("@/gql/hooks")>("@/gql/hooks");
+  return {
+    ...actual,
+    useImportTemplatesForImporterQuery: (...args: unknown[]) =>
+      useImportTemplatesForImporterQueryMock(...args),
+    useImportersForNewImportTemplatePickerQuery: () => ({
+      loading: false,
+      error: undefined,
+      data: { __typename: "Query", importers: [] },
+      refetch: vi.fn(),
+    }),
+    useCreateImportTemplateMutation: () => [vi.fn(), {}] as const,
+    useUpdateImportTemplateMutation: () => [vi.fn(), {}] as const,
+    useDeleteImportTemplateMutation: () => [vi.fn(), {}] as const,
+  };
+});
 
-const createdRun = {
-  __typename: "ImportRunType" as const,
-  id: "run-1",
-  importerId: "remoteyeah",
-  entryUrl: REMOTEYEAH_ENTRY,
-  status: ImportRunStatus.Running,
-  startedAt: "2026-05-02T12:00:00.000Z",
-  importerSource: "database",
-};
+vi.mock("@/modules/imports/hooks/useImportersListViewModel", () => ({
+  useImportersListViewModel: () => useImportersListViewModelMock(),
+}));
 
-function renderImportsPage(mocks: ReadonlyArray<MockLink.MockedResponse>) {
-  return render(
-    <MockedProvider mocks={mocks}>
-      <ImportsPage />
-    </MockedProvider>,
-  );
+function defaultViewModel() {
+  return {
+    importers: [{ importerId: "linkedin", name: "LinkedIn" }],
+    searchQuery: "",
+    setSearchQuery: vi.fn(),
+    error: undefined,
+    showInitialLoading: false,
+  };
 }
 
 describe("ImportsPage", () => {
-  it("renders empty state and New run control", async () => {
-    renderImportsPage([
-      builtInImportersSuccess,
-      {
-        request: { query: ImportRunsDocument },
-        result: { data: { importRuns: [] } },
+  beforeEach(() => {
+    vi.clearAllMocks();
+    useImportTemplatesForImporterQueryMock.mockReturnValue({
+      loading: false,
+      error: undefined,
+      data: {
+        __typename: "Query",
+        importTemplatesForImporter: [
+          {
+            __typename: "ImportTemplateType" as const,
+            id: "template-uuid-1",
+            importerId: "linkedin",
+            scheduleCron: null,
+            scheduleEnabled: false,
+            surfaceUrl: "https://example.com/surface",
+            createdAt: "2026-03-01T12:00:00.000Z",
+            runs: [],
+          },
+        ],
       },
-    ]);
-    expect(await screen.findByText(/no import runs yet/i)).toBeInTheDocument();
+    });
+  });
+
+  it("lists importers from the view model", () => {
+    useImportersListViewModelMock.mockReturnValue(defaultViewModel());
+
+    render(<ImportsPage />);
+
+    expect(screen.getByLabelText(/search importers/i)).toBeInTheDocument();
     expect(
-      screen.getAllByRole("button", { name: /new run/i }).length,
-    ).toBeGreaterThanOrEqual(1);
+      screen.getByRole("button", { name: /new import template/i }),
+    ).toBeEnabled();
+    expect(screen.getByText("LinkedIn")).toBeInTheDocument();
+    expect(screen.getByText("linkedin")).toBeInTheDocument();
   });
 
-  it("adds a run when starting from built-in RemoteYeah importer", async () => {
-    const user = userEvent.setup();
-    renderImportsPage([
-      builtInImportersSuccess,
-      {
-        request: { query: ImportRunsDocument },
-        result: { data: { importRuns: [] } },
-      },
-      {
-        request: {
-          query: CreateImportRunDocument,
-          variables: { input: { importerId: "remoteyeah" } },
-        },
-        result: { data: { createImportRun: createdRun } },
-      },
-      {
-        request: { query: ImportRunsDocument },
-        result: { data: { importRuns: [createdRun] } },
-      },
-    ]);
+  it("delegates search input to setSearchQuery", async () => {
+    const setSearchQuery = vi.fn();
+    useImportersListViewModelMock.mockReturnValue({
+      ...defaultViewModel(),
+      searchQuery: "",
+      setSearchQuery,
+    });
 
-    await screen.findByText(/no import runs yet/i);
+    render(<ImportsPage />);
+    await userEvent.type(screen.getByLabelText(/search importers/i), "li");
 
-    await user.click(screen.getAllByRole("button", { name: /new run/i })[0]);
-    const combo = screen.getByPlaceholderText(/choose importer/i);
-    await user.click(combo);
-    await user.type(combo, "RemoteYeah");
-    await user.click(screen.getByRole("menuitem", { name: /^RemoteYeah$/ }));
-    await user.click(screen.getByRole("button", { name: /^Start$/i }));
+    expect(setSearchQuery).toHaveBeenCalled();
+  });
+
+  it("opens SideDetails listing import templates when an importer row is activated", async () => {
+    useImportersListViewModelMock.mockReturnValue(defaultViewModel());
+
+    render(<ImportsPage />);
+
+    await userEvent.click(screen.getByRole("button", { name: /^LinkedIn$/ }));
 
     expect(
-      (await screen.findAllByText("RemoteYeah")).length,
-    ).toBeGreaterThanOrEqual(1);
-    expect(screen.getByText(/^Importer$/i)).toBeInTheDocument();
-    expect(screen.getAllByText(/^running$/i).length).toBeGreaterThanOrEqual(1);
+      screen.getByRole("complementary", { name: /templates · LinkedIn/i }),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/^Template 1$/)).toBeInTheDocument();
+    expect(screen.getByText(/^Schedule off$/)).toBeInTheDocument();
   });
 
-  it("clears all runs after confirming clear imports", async () => {
-    const user = userEvent.setup();
-    renderImportsPage([
-      builtInImportersSuccess,
-      {
-        request: { query: ImportRunsDocument },
-        result: { data: { importRuns: [createdRun] } },
-      },
-      {
-        request: { query: ClearImportRunsDocument },
-        result: { data: { clearImportRuns: true } },
-      },
-      {
-        request: { query: ImportRunsDocument },
-        result: { data: { importRuns: [] } },
-      },
-    ]);
+  it("shows empty state when API returns no importers with a template", () => {
+    useImportersListViewModelMock.mockReturnValue({
+      ...defaultViewModel(),
+      importers: [],
+    });
 
-    await screen.findByRole("button", { name: /RemoteYeah/i });
-    await user.click(screen.getByRole("button", { name: /clear imports/i }));
-    await user.click(screen.getByRole("button", { name: /^Clear all$/i }));
+    render(<ImportsPage />);
 
-    expect(await screen.findByText(/no import runs yet/i)).toBeInTheDocument();
-  });
-
-  it("removes a run after confirming delete", async () => {
-    const user = userEvent.setup();
-    renderImportsPage([
-      builtInImportersSuccess,
-      {
-        request: { query: ImportRunsDocument },
-        result: { data: { importRuns: [createdRun] } },
-      },
-      {
-        request: { query: DeleteImportRunDocument, variables: { id: "run-1" } },
-        result: { data: { deleteImportRun: true } },
-      },
-      {
-        request: { query: ImportRunsDocument },
-        result: { data: { importRuns: [] } },
-      },
-    ]);
-
-    await user.click(
-      await screen.findByRole("button", { name: /RemoteYeah/i }),
-    );
-    await user.click(screen.getByRole("button", { name: /remove run/i }));
-    await user.click(screen.getByRole("button", { name: /^Remove$/ }));
-
-    expect(await screen.findByText(/no import runs yet/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/no importers with a template yet/i),
+    ).toBeInTheDocument();
   });
 });
