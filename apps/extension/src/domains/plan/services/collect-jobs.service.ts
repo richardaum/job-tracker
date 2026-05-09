@@ -38,6 +38,9 @@ const MAX_TABS = 20;
  *   - close the detail tab
  *   - close the surface window
  *   - return the jobs
+ *
+ * `PlanExecuteOptions.onJobCollected` runs at most once per {@link CollectJobsService.generateJobKey},
+ * aligned with deduplication in the returned {@link Map}.
  */
 export class CollectJobsService {
   constructor(
@@ -67,11 +70,12 @@ export class CollectJobsService {
           list.map((job) =>
             limitDetailTabs(async () => {
               const jobWithDetails = await this.collectJobDetails(action, job);
-              await options?.onJobCollected?.(jobWithDetails);
-              jobs.set(
-                this.generateJobKey(action, jobWithDetails),
-                jobWithDetails,
-              );
+              const key = this.generateJobKey(action, jobWithDetails);
+              const firstVisit = !jobs.has(key);
+              jobs.set(key, jobWithDetails);
+              if (firstVisit) {
+                await options?.onJobCollected?.(jobWithDetails);
+              }
             }),
           ),
         );
