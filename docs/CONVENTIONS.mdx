@@ -110,6 +110,10 @@ Full technical notes: `specs/022-technical-view-model-web-layer/README.md`.
 - **Reexports**: Avoid files that only forward symbols (`export { x } from './x'`, barrels created just to shorten paths). Import from the module that declares the export so jumps, refactors, and tooling stay truthful. **Exception:** deliberate **public entrypoints** — e.g. a workspace package **`index.ts`**, or a module boundary documented as the stable façade for that slice.
 - **Named types**: Prefer a top-level `type` or `interface` over inline anonymous shapes in parameters, props, return types, and generic arguments when the object or union is non-trivial or reused. Keeps signatures readable and searchable. Fine to keep primitives, simple utilities (`Record<string, string>`), or one-off literals inline when a name adds no clarity.
 
+### Nova convention
+
+- **Module-level regular functions**: **`function`** declarations at module scope (helpers, parsers, predicates, small pure utilities—not nested inside another function or class) belong in the **lower part** of the file: **below** imports, top-level types, constants, and the primary exported surface (React components/hooks, classes, schemas, routes, etc.). Excludes nested functions and class/object methods.
+
 ## React 19 and React Compiler
 
 - **Memoization defaults**: Avoid unnecessary `useMemo` and `useCallback`. Prefer plain `const` derivations and direct closures; add memoization only for expensive work, a documented reference-stability contract, or a lint/compiler requirement.
