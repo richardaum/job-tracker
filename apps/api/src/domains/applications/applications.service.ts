@@ -1,4 +1,5 @@
 import { DraftApplicationConversionStatus } from "@api/database/entities/draft-application.entity";
+import { ImportRunEntity } from "@api/database/entities/import-run.entity";
 import { ApplicationAiService } from "@api/domains/application-ai/application-ai.service";
 import { DraftExtractionNormalizationService } from "@api/domains/application-ai/draft-extraction-normalization.service";
 import { CompanyService } from "@api/domains/companies/companies.service";
@@ -13,6 +14,8 @@ import {
   Logger,
   NotFoundException,
 } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
 
 import { APPLICATION_DUPLICATE_PAIRING_WINDOW_MS } from "./application-duplicate.constants";
 import { ApplicationQuickFilterEnum } from "./application-quick-filter.enum";
@@ -43,6 +46,7 @@ type CreateDto = {
   salaryPeriod?: SalaryPeriodEnum | null;
   tags?: string[] | null;
   draftApplicationId?: string | null;
+  importRunId?: string | null;
 };
 type UpdateDto = Partial<CreateDto>;
 type CreateStageEventDto = {
@@ -70,6 +74,8 @@ export class ApplicationService {
   private readonly logger = new Logger(ApplicationService.name);
 
   constructor(
+    @InjectRepository(ImportRunEntity)
+    private readonly importRunsRepo: Repository<ImportRunEntity>,
     private readonly repo: ApplicationRepository,
     private readonly companyService: CompanyService,
     private readonly salaryService: SalaryService,
@@ -84,8 +90,14 @@ export class ApplicationService {
     userId: string,
     filter?: ApplicationQuickFilterEnum,
     company?: string,
+    runId?: string,
   ): Promise<ApplicationWithCurrentStage[]> {
-    const apps = await this.repo.findAllByUserId(userId, filter, company);
+    const apps = await this.repo.findAllByUserId(
+      userId,
+      filter,
+      company,
+      runId,
+    );
     return this.attachCurrentStage(
       userId,
       apps.map((app) => ({ ...app, urls: app.urls ?? [] })),
@@ -155,6 +167,17 @@ export class ApplicationService {
       );
     }
 
+    if (dto.importRunId) {
+      const run = await this.importRunsRepo.findOne({
+        where: { id: dto.importRunId, userId },
+      });
+      if (!run) {
+        throw new BadRequestException(
+          `Import run ${dto.importRunId} not found`,
+        );
+      }
+    }
+
     const companyId = await this.resolveCompanyId(
       userId,
       dto.company,
@@ -179,6 +202,7 @@ export class ApplicationService {
           : inferApplicationSourceFromUrls(normalizedUrls),
       tags,
       draftApplicationId: dto.draftApplicationId ?? null,
+      importRunId: dto.importRunId ?? null,
       ...salaryColumns,
     };
 

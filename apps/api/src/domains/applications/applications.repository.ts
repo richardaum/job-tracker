@@ -25,7 +25,7 @@ export type CreateApplicationRepoDto = Pick<
   | "salaryCurrency"
   | "salaryPeriod"
   | "tags"
-> & { draftApplicationId?: string | null };
+> & { draftApplicationId?: string | null; importRunId?: string | null };
 export type UpdateApplicationRepoDto = Partial<CreateApplicationRepoDto>;
 
 export type JobPostingContextSnippet = {
@@ -54,6 +54,7 @@ export class ApplicationRepository {
     userId: string,
     filter?: ApplicationQuickFilterEnum,
     company?: string,
+    runId?: string,
   ): Promise<Application[]> {
     const qb = this.applicationsRepo
       .createQueryBuilder("a")
@@ -76,6 +77,11 @@ export class ApplicationRepository {
       qb.andWhere("LOWER(company.name) = LOWER(:company)", {
         company: normalizedCompany,
       });
+    }
+
+    const normalizedRunId = runId?.trim();
+    if (normalizedRunId) {
+      qb.andWhere("a.import_run_id = :runId", { runId: normalizedRunId });
     }
 
     if (!filter) {
@@ -207,15 +213,27 @@ export class ApplicationRepository {
     userId: string,
     dto: CreateApplicationRepoDto,
   ): Promise<Application> {
-    const { draftApplicationId, ...rest } = dto;
+    const { draftApplicationId, importRunId, ...rest } = dto;
     const row = this.applicationsRepo.create({
       userId,
       ...rest,
+      importRunId: importRunId ?? null,
       draftApplication: draftApplicationId
         ? ({ id: draftApplicationId } as DraftApplicationEntity)
         : undefined,
     });
     return this.applicationsRepo.save(row);
+  }
+
+  async detachApplicationsImportRun(
+    importRunId: string,
+    userId: string,
+  ): Promise<number> {
+    const result = await this.applicationsRepo.update(
+      { userId, importRunId },
+      { importRunId: null },
+    );
+    return result.affected ?? 0;
   }
 
   async update(

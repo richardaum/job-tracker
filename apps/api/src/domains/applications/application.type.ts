@@ -53,4 +53,7 @@ export class ApplicationType {
 
   @Field()
   updatedAt!: Date;
+
+  @Field(() => ID, { nullable: true })
+  importRunId!: string | null;
 }

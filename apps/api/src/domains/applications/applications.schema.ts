@@ -8,4 +8,5 @@ export type NewApplication = Partial<
     "id" | "createdAt" | "updatedAt" | "setId" | "company"
   >
 > &
-  Pick<ApplicationEntity, "title" | "companyId">;
+  Pick<ApplicationEntity, "title" | "companyId"> &
+  Partial<Pick<ApplicationEntity, "importRunId">>;

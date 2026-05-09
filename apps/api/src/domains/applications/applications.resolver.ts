@@ -52,8 +52,9 @@ export class ApplicationResolver {
     @Args("filter", { type: () => ApplicationQuickFilterEnum, nullable: true })
     filter?: ApplicationQuickFilterEnum,
     @Args("company", { type: () => String, nullable: true }) company?: string,
+    @Args("runId", { type: () => ID, nullable: true }) runId?: string,
   ): Promise<ApplicationType[]> {
-    return this.service.findAll(user.userId, filter, company);
+    return this.service.findAll(user.userId, filter, company, runId);
   }
 
   @Query(() => ApplicationType)

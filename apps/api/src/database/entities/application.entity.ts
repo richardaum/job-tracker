@@ -12,6 +12,7 @@ import {
 
 import { CompanyEntity } from "./company.entity";
 import { DraftApplicationEntity } from "./draft-application.entity";
+import { ImportRunEntity } from "./import-run.entity";
 
 @WithGeneratedId()
 @Entity({ name: "applications" })
@@ -83,6 +84,13 @@ export class ApplicationEntity {
   })
   @JoinColumn({ name: "draft_application_id" })
   draftApplication?: DraftApplicationEntity | null;
+
+  @Column({ name: "import_run_id", type: "text", nullable: true })
+  importRunId!: string | null;
+
+  @ManyToOne(() => ImportRunEntity, { nullable: true, onDelete: "SET NULL" })
+  @JoinColumn({ name: "import_run_id" })
+  importRun?: ImportRunEntity | null;
 
   @CreateDateColumn({ name: "created_at", type: "timestamp" })
   createdAt!: Date;
