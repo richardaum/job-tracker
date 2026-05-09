@@ -25,6 +25,9 @@ import { DropImportRunsEntryUrl1763500000000 } from "./1763500000000-drop-import
 import { DropImportRunsImporterName1763600000000 } from "./1763600000000-drop-import-runs-importer-name";
 import { MoveDraftApplicationFkToDraft1763700000000 } from "./1763700000000-move-draft-application-fk-to-draft-table";
 import { ApplicationsDraftManyToOne1763800000000 } from "./1763800000000-applications-draft-many-to-one";
+import { ImportTemplatesAndRunSurfaceUrl1763900000000 } from "./1763900000000-import-templates-and-run-surface-url";
+import { ImportTemplateDefaultSurfaceUrl1763910000000 } from "./1763910000000-import-template-default-surface-url";
+import { MakeSurfaceUrlMandatory1764000000000 } from "./1764000000000-make-surface-url-mandatory";
 
 export const migrations = [
   Baseline1746009600000,
@@ -54,4 +57,7 @@ export const migrations = [
   DropImportRunsImporterName1763600000000,
   MoveDraftApplicationFkToDraft1763700000000,
   ApplicationsDraftManyToOne1763800000000,
+  ImportTemplatesAndRunSurfaceUrl1763900000000,
+  ImportTemplateDefaultSurfaceUrl1763910000000,
+  MakeSurfaceUrlMandatory1764000000000,
 ];

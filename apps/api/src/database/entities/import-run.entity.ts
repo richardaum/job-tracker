@@ -1,6 +1,8 @@
 import { WithGeneratedId } from "@api/database/decorators/with-generated-id.decorator";
 import { ImportRunStatusEnum } from "@api/domains/imports/import-run-status.enum";
-import { Column, Entity, PrimaryColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from "typeorm";
+
+import { ImportTemplateEntity } from "./import-template.entity";
 
 @WithGeneratedId()
 @Entity({ name: "import_runs" })
@@ -11,8 +13,15 @@ export class ImportRunEntity {
   @Column({ name: "user_id", type: "text" })
   userId!: string;
 
-  @Column({ name: "importer_id", type: "text" })
-  importerId!: string;
+  @Column({ name: "template_id", type: "text" })
+  templateId!: string;
+
+  @ManyToOne(() => ImportTemplateEntity, { onDelete: "CASCADE" })
+  @JoinColumn({ name: "template_id" })
+  template!: ImportTemplateEntity;
+
+  @Column({ name: "surface_url", type: "text", nullable: false })
+  surfaceUrl!: string;
 
   @Column({
     type: "enum",
