@@ -1,5 +1,7 @@
 import { DatabaseModule } from "@api/database/database.module";
 import { ImportRunEntity } from "@api/database/entities/import-run.entity";
+import { ImportTemplateEntity } from "@api/database/entities/import-template.entity";
+import { ApplicationModule } from "@api/domains/applications/applications.module";
 import { AuthModule } from "@api/domains/auth/auth.module";
 import { PlanRegistryService } from "@api/domains/imports/plan-registry.service";
 import { Module } from "@nestjs/common";
@@ -14,7 +16,8 @@ import { InMemoryImportsEventsPublisher } from "./in-memory-imports-events.publi
 @Module({
   imports: [
     DatabaseModule,
-    TypeOrmModule.forFeature([ImportRunEntity]),
+    TypeOrmModule.forFeature([ImportRunEntity, ImportTemplateEntity]),
+    ApplicationModule,
     AuthModule,
   ],
   providers: [

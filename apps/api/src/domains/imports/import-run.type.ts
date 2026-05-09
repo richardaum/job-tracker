@@ -7,8 +7,15 @@ export class ImportRunType {
   @Field(() => ID)
   id!: string;
 
+  @Field(() => ID)
+  templateId!: string;
+
   @Field()
   importerId!: string;
+
+  /** Surface/listing URL for this execution (persisted). */
+  @Field(() => String)
+  surfaceUrl!: string;
 
   @Field(() => ImportRunStatusEnum)
   status!: ImportRunStatusEnum;

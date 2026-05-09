@@ -11,8 +11,11 @@ const IMPORTER_DISPLAY_NAME: Readonly<Record<string, string>> = Object.freeze({
 const PLAN_BY_IMPORTER_ID: Readonly<Record<string, ExecutorPlanDocument>> =
   Object.freeze({ remoteyeah: remoteyeahExecutorPlan });
 
-/** Row shape aligned with GraphQL `BuiltInImporterType`; single source on the API. */
-export type BuiltInImporterRow = Readonly<{ importerId: string; name: string }>;
+/** Row shape aligned with GraphQL `ImporterDescriptorType`; single source on the API. */
+export type ImporterDescriptorRow = Readonly<{
+  importerId: string;
+  name: string;
+}>;
 
 @Injectable()
 export class PlanRegistryService {
@@ -24,15 +27,15 @@ export class PlanRegistryService {
     return PLAN_BY_IMPORTER_ID[normalizedImporterId];
   }
 
-  /** Built-ins that have an executor plan; labels for dashboard / extension parity. */
-  listBuiltInImporters(): BuiltInImporterRow[] {
+  /** Importers that have an executor plan; labels for dashboard / extension parity. */
+  listImporterDescriptors(): ImporterDescriptorRow[] {
     const rows = Object.keys(PLAN_BY_IMPORTER_ID).map((importerId) => ({
       importerId,
       name:
         IMPORTER_DISPLAY_NAME[importerId] ??
         (() => {
           throw new Error(
-            `Missing display name for built-in importer "${importerId}"`,
+            `Missing display name for registry importer "${importerId}"`,
           );
         })(),
     }));

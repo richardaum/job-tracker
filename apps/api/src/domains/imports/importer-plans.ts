@@ -1,5 +1,5 @@
 /**
- * Frozen executor documents for built-in importers (must match extension collect-jobs shape where used).
+ * Frozen executor documents for registry importers (must match extension collect-jobs shape where used).
  *
  * Fixture copy: keep in sync with
  * **`apps/extension/src/domains/plan/fixtures/remoteyeah.plan.json`**.
