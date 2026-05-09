@@ -19,7 +19,7 @@ export interface DropdownButtonProps {
 
 const intentClasses: Record<ButtonIntent, string> = {
   primary:
-    "border-r border-[#cac8f7] bg-bg-brand text-text-inverted hover:bg-bg-brand-hover",
+    "border-r border-white/20 bg-bg-brand text-text-inverted hover:bg-bg-brand-hover",
   secondary:
     "border-l border-t border-b border-border-default bg-bg-surface text-text-primary hover:bg-bg-surface-hover",
   ghost:

@@ -64,8 +64,20 @@ export type { LabelProps } from "./components/Label/Label";
 export { Label } from "./components/Label/Label";
 export type { LinkProps, LinkVariant } from "./components/Link/Link";
 export { Link } from "./components/Link/Link";
-export type { ListItemCardProps } from "./components/ListItemCard/ListItemCard";
-export { ListItemCard } from "./components/ListItemCard/ListItemCard";
+export type {
+  ListItemCardActionProps,
+  ListItemCardActionsProps,
+  ListItemCardProps,
+  ListItemCardTitleProps,
+  ListItemCardTitleSize,
+} from "./components/ListItemCard/ListItemCard";
+export {
+  ListItemCard,
+  ListItemCardAction,
+  listItemCardActionIconButtonClassName,
+  ListItemCardActions,
+  ListItemCardTitle,
+} from "./components/ListItemCard/ListItemCard";
 export type {
   OverviewSectionLayout,
   OverviewSectionProps,
@@ -73,10 +85,18 @@ export type {
 export { OverviewSection } from "./components/OverviewSection/OverviewSection";
 export type { PopoverProps } from "./components/Popover/Popover";
 export { Popover } from "./components/Popover/Popover";
+export type { SearchInputProps } from "./components/SearchInput/SearchInput";
+export { SearchInput } from "./components/SearchInput/SearchInput";
 export type { SelectOption, SelectProps } from "./components/Select/Select";
 export { Select } from "./components/Select/Select";
 export type { SeparatorProps } from "./components/Separator/Separator";
 export { Separator } from "./components/Separator/Separator";
+export type {
+  SideDetailsLayout,
+  SideDetailsProps,
+  SideDetailsSide,
+} from "./components/SideDetails/SideDetails";
+export { SideDetails } from "./components/SideDetails/SideDetails";
 export type {
   SkeletonProps,
   SkeletonVariant,

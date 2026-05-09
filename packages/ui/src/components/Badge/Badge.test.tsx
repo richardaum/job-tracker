@@ -12,6 +12,8 @@ describe("Badge", () => {
 
   it("applies success intent styles", () => {
     render(<Badge intent="success">Accepted</Badge>);
-    expect(screen.getByText(/accepted/i)).toHaveClass("text-text-success");
+    const el = screen.getByText(/accepted/i);
+    expect(el.className).toContain("bg-bg-success-subtle");
+    expect(el.className).toContain("primitive-color-green-700");
   });
 });

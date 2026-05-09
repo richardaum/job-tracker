@@ -7,12 +7,19 @@ export interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
   intent?: BadgeIntent;
 }
 
+/**
+ * AA light (~11px). On white `surface`: default chips use a slim neutral outline;
+ * tinted intents skip grey rims so pastels aren’t edged with “dirty” neutral.
+ */
 const intentClasses: Record<BadgeIntent, string> = {
-  default: "bg-bg-surface text-text-secondary",
-  success: "bg-bg-success-subtle text-text-success",
-  warning: "bg-bg-warning-subtle text-text-warning",
-  error: "bg-bg-error-subtle text-text-error",
-  info: "bg-bg-info-subtle text-text-brand",
+  default: "border-border-default bg-bg-field text-text-secondary",
+  success:
+    "border-transparent bg-bg-success-subtle text-[color:var(--primitive-color-green-700)]",
+  warning:
+    "border-transparent bg-bg-warning-subtle text-[color:var(--primitive-color-yellow-950)]",
+  error:
+    "border-transparent bg-bg-error-subtle text-[color:var(--primitive-color-red-700)]",
+  info: "border-transparent bg-bg-info-subtle text-text-primary",
 };
 
 export function Badge({
@@ -22,7 +29,7 @@ export function Badge({
   ...props
 }: BadgeProps) {
   const classes = cn(
-    "inline-flex items-center rounded border border-current/20 px-1.5 py-0.5 text-[11px]/4 font-normal ",
+    "inline-flex items-center rounded border px-1.5 py-0.5 text-[11px]/4 font-normal",
     intentClasses[intent],
     className,
   );

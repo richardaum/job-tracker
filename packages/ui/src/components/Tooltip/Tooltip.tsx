@@ -44,11 +44,11 @@ export function Tooltip({
             align={align}
             sideOffset={6}
             className={cn(
-              "z-50 rounded-sm bg-black px-2 py-1.5 text-xs text-white shadow-sm",
+              "z-50 rounded-sm bg-tooltip px-2 py-1.5 text-xs text-text-inverted shadow-sm",
             )}
           >
             {content}
-            <RadixTooltip.Arrow className={cn("fill-black")} />
+            <RadixTooltip.Arrow className={cn("fill-tooltip")} />
           </RadixTooltip.Content>
         </RadixTooltip.Portal>
       </RadixTooltip.Root>

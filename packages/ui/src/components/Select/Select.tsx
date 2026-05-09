@@ -57,7 +57,7 @@ export function Select({
       <RadixSelect.Trigger
         aria-label={placeholder}
         className={cn(
-          `inline-flex w-full cursor-pointer items-center justify-between rounded-md border bg-bg-surface text-left text-text-primary shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:bg-bg-surface-hover ${sizeClasses[size]} ${stateClasses[state]}`,
+          `inline-flex w-full cursor-pointer items-center justify-between rounded-md border bg-bg-field text-left text-text-primary shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:bg-bg-field-disabled disabled:text-text-muted disabled:opacity-75 ${sizeClasses[size]} ${stateClasses[state]}`,
         )}
       >
         <RadixSelect.Value placeholder={placeholder} />
