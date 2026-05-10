@@ -20,11 +20,16 @@ import {
   XIcon,
 } from "@phosphor-icons/react";
 import Placeholder from "@tiptap/extension-placeholder";
+import { Slice } from "@tiptap/pm/model";
 import { EditorContent, useEditor, useEditorState } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import React from "react";
 
 import { type TipTapAiAction } from "@/modules/ai/editor/tiptap-ai-actions";
+import {
+  isInHeading,
+  transformPastedHeadingBold,
+} from "@/modules/applications/details/components/no-bold-in-headings";
 import { SaveAsPdfButton } from "@/modules/applications/details/components/SaveAsPdfButton";
 import { ToolbarButton } from "@/modules/applications/details/components/ToolbarButton";
 import {
@@ -234,7 +239,16 @@ export function TipTapEditor({
           onHardEnterRef.current?.();
           return true;
         }
+        if ((event.ctrlKey || event.metaKey) && event.key === "b") {
+          if (isInHeading(editor)) {
+            event.preventDefault();
+            return true;
+          }
+        }
         return false;
+      },
+      transformPasted(slice): Slice {
+        return transformPastedHeadingBold(slice, editor);
       },
     },
     onUpdate({ editor: nextEditor }) {
@@ -446,7 +460,7 @@ export function TipTapEditor({
             ariaLabel="Bold"
             active={editorState?.isBold}
             onClick={() => editor.chain().focus().toggleBold().run()}
-            disabled={disabled}
+            disabled={disabled || hasActiveHeading}
           />
           <ToolbarButton
             label={<TextItalicIcon size={14} weight="bold" />}

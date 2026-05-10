@@ -16,8 +16,8 @@
   "dependencies": {
     "@apollo/client": "^4.1.7",
     "@graphql-typed-document-node/core": "^3.2.0",
-    "@job-tracker/try-run": "workspace:*",
     "@job-tracker/auth": "workspace:*",
+    "@job-tracker/try-run": "workspace:*",
     "@job-tracker/ui": "workspace:*",
     "@phosphor-icons/react": "^2.1.10",
     "@sentry/nextjs": "^10.49.0",
@@ -46,6 +46,8 @@
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",
+    "@tiptap/core": "^3.23.1",
+    "@tiptap/pm": "^3.23.1",
     "@types/node": "^22.15.3",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
