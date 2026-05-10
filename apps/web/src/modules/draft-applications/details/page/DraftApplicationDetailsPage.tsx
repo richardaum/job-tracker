@@ -2,7 +2,6 @@
 
 import { tryRun } from "@job-tracker/try-run";
 import {
-  Badge,
   Button,
   cn,
   DropdownMenu,
@@ -36,6 +35,7 @@ import { DraftTitleEditDialog } from "@/modules/draft-applications/details/compo
 import { useDraftApplicationDetailsViewModel } from "@/modules/draft-applications/details/hooks/useDraftApplicationDetailsViewModel";
 import { useDraftAutoConversion } from "@/modules/draft-applications/details/hooks/useDraftAutoConversion";
 import { DeleteDraftApplicationDialog } from "@/modules/draft-applications/list/components/DeleteDraftApplicationDialog";
+import { ConversionStatusBadge } from "@/modules/draft-applications/shared/components/ConversionStatusBadge";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -62,22 +62,6 @@ function draftHeadingTitle(title: string, url: string): string {
   }
 
   return draftPrimaryTitle(url);
-}
-
-function formatConversionStatus(status: string): string {
-  const normalized = status.toLowerCase();
-  if (normalized === "processing") return "Processing";
-  if (normalized === "succeeded") return "Succeeded";
-  if (normalized === "failed") return "Failed";
-  return "Idle";
-}
-
-function conversionStatusBadgeIntent(status: string) {
-  const normalized = status.toLowerCase();
-  if (normalized === "processing") return "warning" as const;
-  if (normalized === "succeeded") return "success" as const;
-  if (normalized === "failed") return "error" as const;
-  return "default" as const;
 }
 
 function truncateText(value: string, maxLength: number): string {
@@ -118,10 +102,6 @@ export default function DraftApplicationDetailsPage({ params }: PageProps) {
     skip: !draft?.applicationId,
     fetchPolicy: "cache-first",
   });
-
-  const conversionStatus = draft?.conversionStatus.toLowerCase();
-  const isConversionFailed = conversionStatus === "failed";
-  const conversionError = isConversionFailed ? draft?.conversionError : null;
 
   const showToast = useCallback(
     (message: string, intent: "success" | "error") => {
@@ -194,17 +174,6 @@ export default function DraftApplicationDetailsPage({ params }: PageProps) {
     },
     [draft, updateDraftApplication, showToast, refetch],
   );
-
-  const statusBadge = draft ? (
-    <Tooltip content={conversionError ?? undefined} enabled={!!conversionError}>
-      <Badge
-        intent={conversionStatusBadgeIntent(draft.conversionStatus)}
-        className={cn("ml-2 align-middle whitespace-nowrap")}
-      >
-        {formatConversionStatus(draft.conversionStatus)}
-      </Badge>
-    </Tooltip>
-  ) : null;
 
   function renderOverviewBody() {
     if (!draft) return null;
@@ -379,7 +348,16 @@ export default function DraftApplicationDetailsPage({ params }: PageProps) {
                 ? draftHeadingTitle(draft.title, draft.url)
                 : "Draft application"}
             </span>{" "}
-            {statusBadge}
+            {draft ? (
+              <ConversionStatusBadge
+                conversionStatus={draft.conversionStatus}
+                conversionError={draft.conversionError}
+                showSpinner={
+                  draft.conversionStatus.toLowerCase() === "processing"
+                }
+                className={cn("ml-2 align-middle")}
+              />
+            ) : null}
           </Heading>
         </div>
         {draft ? (

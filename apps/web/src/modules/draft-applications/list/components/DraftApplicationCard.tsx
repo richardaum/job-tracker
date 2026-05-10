@@ -1,7 +1,7 @@
 "use client";
 
 import { tryRun } from "@job-tracker/try-run";
-import { Badge, cn, IconButton, ListItemCard, Text } from "@job-tracker/ui";
+import { cn, IconButton, ListItemCard, Text } from "@job-tracker/ui";
 import { ArrowsClockwiseIcon, TrashIcon } from "@phosphor-icons/react";
 import NextLink from "next/link";
 import { useState } from "react";
@@ -13,25 +13,10 @@ import {
 import { ConvertDraftConfirmationDialog } from "@/modules/draft-applications/details/components/ConvertDraftConfirmationDialog";
 import { ConvertDraftConflictDialog } from "@/modules/draft-applications/details/components/ConvertDraftConflictDialog";
 import { DeleteDraftApplicationDialog } from "@/modules/draft-applications/list/components/DeleteDraftApplicationDialog";
+import { ConversionStatusBadge } from "@/modules/draft-applications/shared/components/ConversionStatusBadge";
 
 export type DraftListItem =
   DraftApplicationsListQuery["draftApplications"][number];
-
-function formatConversionStatus(status: string): string {
-  const normalized = status.toLowerCase();
-  if (normalized === "processing") return "Processing";
-  if (normalized === "succeeded") return "Succeeded";
-  if (normalized === "failed") return "Failed";
-  return "Idle";
-}
-
-function conversionStatusBadgeIntent(status: string) {
-  const normalized = status.toLowerCase();
-  if (normalized === "processing") return "warning" as const;
-  if (normalized === "succeeded") return "success" as const;
-  if (normalized === "failed") return "error" as const;
-  return "default" as const;
-}
 
 function draftDisplayUrl(url: string): string {
   const [err, joined] = tryRun(() => {
@@ -87,9 +72,10 @@ export function DraftApplicationCard({
       <NextLink href={`/draft-applications/${draft.id}`}>
         <span className={cn("inline-flex items-center gap-2")}>
           <span>{label}</span>
-          <Badge intent={conversionStatusBadgeIntent(draft.conversionStatus)}>
-            {formatConversionStatus(draft.conversionStatus)}
-          </Badge>
+          <ConversionStatusBadge
+            conversionStatus={draft.conversionStatus}
+            conversionError={draft.conversionError}
+          />
         </span>
       </NextLink>
     </ListItemCard.Title>
