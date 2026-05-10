@@ -64,6 +64,15 @@ export function SalaryCalculatorPage() {
 
   const numericValue = parseFloat(inputValue) || 0;
 
+  const handleCardClick = (period: SalaryRatePeriodBasis) => {
+    if (period === sourcePeriod || !conversions) return;
+    const value = conversions[period][sourceCurrency];
+    if (value !== undefined) {
+      setInputValue(String(value));
+      setSourcePeriod(period);
+    }
+  };
+
   const targetCurrencies = CURRENCIES.filter(
     (currency): currency is (typeof CURRENCIES)[number] =>
       currency !== sourceCurrency,
@@ -226,6 +235,7 @@ export function SalaryCalculatorPage() {
                   <Card
                     key={period}
                     padding="md"
+                    onClick={() => handleCardClick(period)}
                     className={cn(
                       period === sourcePeriod
                         ? "border-border-brand"
