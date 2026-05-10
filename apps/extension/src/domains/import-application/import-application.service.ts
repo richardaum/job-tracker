@@ -39,9 +39,10 @@ export class ImportApplicationService {
     const id = result?.data?.createDraftApplication.id;
     if (!id) throw new Error("Failed to create draft application");
 
-    await this.tabService.openTab(`${WEB_URL}/draft-applications/${id}`, {
-      focus: true,
-    });
+    await this.tabService.openTab(
+      `${WEB_URL}/draft-applications/${id}?autoConvert=true`,
+      { focus: true },
+    );
   }
 
   async getImportMenuLabel(): Promise<string> {

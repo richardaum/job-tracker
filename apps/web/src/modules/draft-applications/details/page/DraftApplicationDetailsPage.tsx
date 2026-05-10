@@ -21,7 +21,7 @@ import {
 import { CaretDownIcon, CopyIcon } from "@phosphor-icons/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 
 import {
   useApplicationQuery,
@@ -34,6 +34,7 @@ import { ConvertDraftConflictDialog } from "@/modules/draft-applications/details
 import { DraftCurrentApplicationField } from "@/modules/draft-applications/details/components/DraftCurrentApplicationField";
 import { DraftTitleEditDialog } from "@/modules/draft-applications/details/components/DraftTitleEditDialog";
 import { useDraftApplicationDetailsViewModel } from "@/modules/draft-applications/details/hooks/useDraftApplicationDetailsViewModel";
+import { useDraftAutoConversion } from "@/modules/draft-applications/details/hooks/useDraftAutoConversion";
 import { DeleteDraftApplicationDialog } from "@/modules/draft-applications/list/components/DeleteDraftApplicationDialog";
 
 interface PageProps {
@@ -118,20 +119,30 @@ export default function DraftApplicationDetailsPage({ params }: PageProps) {
     fetchPolicy: "cache-first",
   });
 
-  function showToast(message: string, intent: "success" | "error") {
-    enqueueToast({ title: message, intent });
-  }
+  const conversionStatus = draft?.conversionStatus.toLowerCase();
+  const isConversionFailed = conversionStatus === "failed";
+  const conversionError = isConversionFailed ? draft?.conversionError : null;
 
-  async function handleCopyDraftId(draftId: string) {
-    const [error] = await tryRun(navigator.clipboard.writeText(draftId));
-    if (error) {
-      showToast("Could not copy draft ID.", "error");
-      return;
-    }
-    showToast("Draft ID copied.", "success");
-  }
+  const showToast = useCallback(
+    (message: string, intent: "success" | "error") => {
+      enqueueToast({ title: message, intent });
+    },
+    [enqueueToast],
+  );
 
-  async function handleConvertToApplication() {
+  const handleCopyDraftId = useCallback(
+    async (draftId: string) => {
+      const [error] = await tryRun(navigator.clipboard.writeText(draftId));
+      if (error) {
+        showToast("Could not copy draft ID.", "error");
+        return;
+      }
+      showToast("Draft ID copied.", "success");
+    },
+    [showToast],
+  );
+
+  const handleConvertToApplication = useCallback(async () => {
     if (!draft) return;
 
     if (draft.applicationId) {
@@ -156,25 +167,44 @@ export default function DraftApplicationDetailsPage({ params }: PageProps) {
       intent: "success",
     });
     void refetch();
-  }
+  }, [draft, createApplicationWithAiV2, enqueueToast, refetch]);
 
-  async function handleSaveTitle(nextValue: string) {
-    if (!draft) return;
-    const [mutationError] = await tryRun(
-      updateDraftApplication({
-        variables: { id: draft.id, input: { title: nextValue } },
-      }),
-    );
-    if (mutationError) {
-      showToast(
-        mutationError.message || "Could not update draft title.",
-        "error",
+  useDraftAutoConversion({
+    draftLoaded: !showInitialLoading && !!draft,
+    onConvert: handleConvertToApplication,
+  });
+
+  const handleSaveTitle = useCallback(
+    async (nextValue: string) => {
+      if (!draft) return;
+      const [mutationError] = await tryRun(
+        updateDraftApplication({
+          variables: { id: draft.id, input: { title: nextValue } },
+        }),
       );
-      return;
-    }
-    showToast("Draft title updated.", "success");
-    void refetch();
-  }
+      if (mutationError) {
+        showToast(
+          mutationError.message || "Could not update draft title.",
+          "error",
+        );
+        return;
+      }
+      showToast("Draft title updated.", "success");
+      void refetch();
+    },
+    [draft, updateDraftApplication, showToast, refetch],
+  );
+
+  const statusBadge = draft ? (
+    <Tooltip content={conversionError ?? undefined} enabled={!!conversionError}>
+      <Badge
+        intent={conversionStatusBadgeIntent(draft.conversionStatus)}
+        className={cn("ml-2 align-middle whitespace-nowrap")}
+      >
+        {formatConversionStatus(draft.conversionStatus)}
+      </Badge>
+    </Tooltip>
+  ) : null;
 
   function renderOverviewBody() {
     if (!draft) return null;
@@ -349,14 +379,7 @@ export default function DraftApplicationDetailsPage({ params }: PageProps) {
                 ? draftHeadingTitle(draft.title, draft.url)
                 : "Draft application"}
             </span>{" "}
-            {draft ? (
-              <Badge
-                intent={conversionStatusBadgeIntent(draft.conversionStatus)}
-                className={cn("ml-2 align-middle whitespace-nowrap")}
-              >
-                {formatConversionStatus(draft.conversionStatus)}
-              </Badge>
-            ) : null}
+            {statusBadge}
           </Heading>
         </div>
         {draft ? (
