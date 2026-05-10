@@ -181,7 +181,7 @@
   );
   --semantic-color-bg-surface: var(--primitive-color-neutral-0);
   /* Tooltip = overlay invertido (~preto/near-black), texto sempre claro (`text-text-inverted`) */
-  --semantic-color-bg-tooltip: #171717;
+  --semantic-color-bg-tooltip: var(--primitive-color-brand-800);
   --semantic-color-bg-surface-hover: color-mix(
     in srgb,
     var(--palette-icy-aqua) 22%,
