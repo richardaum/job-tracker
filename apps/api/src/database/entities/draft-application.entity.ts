@@ -1,5 +1,12 @@
 import { WithGeneratedId } from "@api/database/decorators/with-generated-id.decorator";
-import { Column, Entity, OneToMany, PrimaryColumn } from "typeorm";
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  OneToMany,
+  PrimaryColumn,
+  UpdateDateColumn,
+} from "typeorm";
 
 import { ApplicationEntity } from "./application.entity";
 
@@ -36,6 +43,12 @@ export class DraftApplicationEntity {
 
   @Column({ name: "conversion_error", type: "text", nullable: true })
   conversionError!: string | null;
+
+  @CreateDateColumn({ name: "created_at", type: "timestamp" })
+  createdAt!: Date;
+
+  @UpdateDateColumn({ name: "updated_at", type: "timestamp" })
+  updatedAt!: Date;
 
   @OneToMany(
     () => ApplicationEntity,

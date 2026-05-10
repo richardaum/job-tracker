@@ -17,7 +17,7 @@ export class DraftApplicationsRepository {
   ) {}
 
   async findAll(): Promise<DraftApplicationEntity[]> {
-    return this.draftApplicationsRepo.find({ order: { id: "DESC" } });
+    return this.draftApplicationsRepo.find({ order: { updatedAt: "DESC" } });
   }
 
   async findOne(id: string): Promise<DraftApplicationEntity | null> {

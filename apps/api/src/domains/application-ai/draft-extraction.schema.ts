@@ -36,7 +36,7 @@ export const draftExtractionFieldDefs = {
     }),
     required: true,
     kind: '{ min: number|null, max: number|null, currency: string|null, period: "year"|"month"|"hour"|null }',
-    hint: "Numbers as in the posting (e.g. 5000.00). Use null for unknown scalar fields. Do not recalculate.",
+    hint: "Numbers as in the posting. If min or max is provided, currency (3-letter ISO, e.g. USD) and period ('year'|'month'|'hour') are MANDATORY. Infer currency from symbols (e.g. '$' -> 'USD'). Map terms like '/hour', 'hourly', '/hr' to 'hour'. If any mandatory field is missing, set all salary fields (min, max, currency, period) to null.",
   },
   tags: {
     schema: z.array(z.string()).default([]),
