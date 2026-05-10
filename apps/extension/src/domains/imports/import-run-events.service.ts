@@ -51,14 +51,14 @@ export class ImportRunEventsService {
         for (const handler of this.handlers) {
           const [handlerErr] = tryRun(() => handler(event));
           if (handlerErr) {
-            this.logService.debug("import-run-events:handler-error", {
+            this.logService.error("import-run-events:handler-error", {
               error: handlerErr,
             });
           }
         }
       },
       (error) => {
-        this.logService.debug("import-run-events:error", { error });
+        this.logService.error("import-run-events:error", { error });
       },
     );
   }
@@ -66,7 +66,7 @@ export class ImportRunEventsService {
   private async recoverOutstandingRuns(): Promise<void> {
     const [err, response] = await tryRun(this.apiService.importRuns());
     if (err) {
-      this.logService.debug("import-run-events:recovery-error", { error: err });
+      this.logService.error("import-run-events:recovery-error", { error: err });
       return;
     }
 
@@ -118,7 +118,7 @@ export class ImportRunEventsService {
         this.apiService.updateImportRunSurfaceUrl(runId, surfaceUrl),
       );
       if (surfErr) {
-        this.logService.debug("import-run-events:surface-url-failed", {
+        this.logService.error("import-run-events:surface-url-failed", {
           runId,
           error: surfErr,
         });
@@ -137,7 +137,7 @@ export class ImportRunEventsService {
               this.apiService.createApplication(input),
             );
             if (createErr) {
-              this.logService.debug(
+              this.logService.error(
                 "import-run-events:create-application-failed",
                 { runId, error: createErr, title: job.title },
               );
@@ -156,7 +156,7 @@ export class ImportRunEventsService {
         runId,
         ImportRunStatus.Failed,
       );
-      this.logService.debug("import-run-events:execution-failed", {
+      this.logService.error("import-run-events:execution-failed", {
         runId,
         error: runErr,
       });

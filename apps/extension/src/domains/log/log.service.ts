@@ -21,4 +21,11 @@ export class LogService {
       console.log(...args);
     }
   }
+
+  error(message: string, ...data: unknown[]) {
+    if (this.isEnabled("error")) {
+      const args = [this.getPrefix(), message, ...data].filter(Boolean);
+      console.error(...args);
+    }
+  }
 }

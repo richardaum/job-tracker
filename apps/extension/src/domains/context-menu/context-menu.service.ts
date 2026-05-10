@@ -27,6 +27,8 @@ export class ContextMenuService {
   }
 
   bindListeners(): void {
+    if (chrome.contextMenus.onClicked.hasListeners()) return;
+
     chrome.contextMenus.onClicked.addListener((info) => {
       if (!this.isImportMenuItem(info.menuItemId)) return;
       void this.importApplicationService.execute();
