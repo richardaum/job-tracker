@@ -140,6 +140,7 @@ export type CreateImportRunInput = { importerId: Scalars["String"]["input"] };
 
 export type CreateImportTemplateInput = {
   importerId: Scalars["String"]["input"];
+  surfaceUrl: Scalars["String"]["input"];
 };
 
 export type CreateNoteInput = {
@@ -208,7 +209,7 @@ export type ImportRunType = {
   importerSource: Scalars["String"]["output"];
   startedAt: Scalars["DateTime"]["output"];
   status: ImportRunStatus;
-  surfaceUrl?: Maybe<Scalars["String"]["output"]>;
+  surfaceUrl: Scalars["String"]["output"];
   templateId: Scalars["ID"]["output"];
 };
 
@@ -220,6 +221,7 @@ export type ImportTemplateType = {
   runs: Array<ImportRunType>;
   scheduleCron?: Maybe<Scalars["String"]["output"]>;
   scheduleEnabled: Scalars["Boolean"]["output"];
+  surfaceUrl: Scalars["String"]["output"];
 };
 
 export type ImporterDescriptorType = {
@@ -247,6 +249,7 @@ export type Mutation = {
   deleteCompany: DeleteMutationPayloadType;
   deleteDraftApplication: DeleteMutationPayloadType;
   deleteImportRun: DeleteMutationPayloadType;
+  deleteImportTemplate: DeleteMutationPayloadType;
   detachApplicationsFromImportRun: Scalars["Int"]["output"];
   removeApplicationTag: ApplicationType;
   rerunImportTemplate: ImportRunType;
@@ -304,6 +307,8 @@ export type MutationDeleteDraftApplicationArgs = {
 };
 
 export type MutationDeleteImportRunArgs = { id: Scalars["ID"]["input"] };
+
+export type MutationDeleteImportTemplateArgs = { id: Scalars["ID"]["input"] };
 
 export type MutationDetachApplicationsFromImportRunArgs = {
   importRunId: Scalars["ID"]["input"];
@@ -384,6 +389,7 @@ export type Query = {
   generateCompanyDescription: Scalars["String"]["output"];
   importRuns: Array<ImportRunType>;
   importTemplates: Array<ImportTemplateType>;
+  importTemplatesForImporter: Array<ImportTemplateType>;
   importers: Array<ImporterDescriptorType>;
   me: UserType;
   restructureJobDescriptionWithAI: Scalars["String"]["output"];
@@ -422,6 +428,10 @@ export type QueryGenerateApplicationNoteWithAiArgs = {
 
 export type QueryGenerateCompanyDescriptionArgs = {
   companyName: Scalars["String"]["input"];
+};
+
+export type QueryImportTemplatesForImporterArgs = {
+  importerId: Scalars["String"]["input"];
 };
 
 export type QueryImportersArgs = {
@@ -472,13 +482,12 @@ export type UpdateCompanyInput = {
 
 export type UpdateDraftApplicationInput = { title: Scalars["String"]["input"] };
 
-export type UpdateImportRunInput = {
-  surfaceUrl?: InputMaybe<Scalars["String"]["input"]>;
-};
+export type UpdateImportRunInput = { surfaceUrl: Scalars["String"]["input"] };
 
 export type UpdateImportTemplateInput = {
   scheduleCron?: InputMaybe<Scalars["String"]["input"]>;
   scheduleEnabled?: InputMaybe<Scalars["Boolean"]["input"]>;
+  surfaceUrl?: InputMaybe<Scalars["String"]["input"]>;
 };
 
 export type UpdateNoteInput = {
@@ -553,7 +562,7 @@ export type ImportRunEventsSubscription = {
       id: string;
       templateId: string;
       importerId: string;
-      surfaceUrl?: string | null;
+      surfaceUrl: string;
       status: ImportRunStatus;
       startedAt: any;
       importerSource: string;
@@ -570,7 +579,7 @@ export type ImportRunsQuery = {
     id: string;
     templateId: string;
     importerId: string;
-    surfaceUrl?: string | null;
+    surfaceUrl: string;
     status: ImportRunStatus;
     startedAt: any;
     importerSource: string;
@@ -601,7 +610,7 @@ export type UpdateImportRunMutation = {
   updateImportRun: {
     __typename?: "ImportRunType";
     id: string;
-    surfaceUrl?: string | null;
+    surfaceUrl: string;
   };
 };
 
