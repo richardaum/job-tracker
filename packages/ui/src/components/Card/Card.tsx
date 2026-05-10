@@ -6,6 +6,7 @@ export interface CardProps {
   variant?: "default" | "outlined";
   padding?: "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl" | "5xl";
   className?: string;
+  onClick?: () => void;
 }
 
 const variantClasses: Record<NonNullable<CardProps["variant"]>, string> = {
@@ -30,15 +31,21 @@ export function Card({
   variant = "default",
   padding = "md",
   className,
+  onClick,
 }: CardProps) {
+  const Tag = onClick ? "div" : "article";
   return (
-    <article
+    <Tag
       className={cn(
-        `rounded-lg border bg-bg-surface ${variantClasses[variant]} ${paddingClasses[padding]}`,
+        "rounded-lg border bg-bg-surface",
+        variantClasses[variant],
+        paddingClasses[padding],
+        onClick && "cursor-pointer hover:bg-bg-surface-hover",
         className,
       )}
+      {...(onClick ? { onClick, role: "button", tabIndex: 0 } : {})}
     >
       {children}
-    </article>
+    </Tag>
   );
 }
