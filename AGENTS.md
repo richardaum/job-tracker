@@ -16,6 +16,10 @@ Node 22+, pnpm 10.8+.
 
 `dev`, `build`, `test`, `lint`, `typecheck`, `ci:local`, `e2e`, `leanspec:validate`, `leanspec:sync-spec-indices` (canonical list in root `package.json`).
 
+## Subagents & Parallelism
+
+When supported by the agent, high-volume tasks like `lint`, `test`, and `typecheck` (tsc) can be executed separately and in parallel using subagents to optimize context usage and speed up validation.
+
 ## LeanSpec
 
 Canonical reference: **`docs/CONVENTIONS.mdx`** → LeanSpec. Validate: `pnpm leanspec:validate`.
