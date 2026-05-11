@@ -20,6 +20,8 @@ import { CurrencyConverterModule } from "./domains/currency-converter/currency-c
 import { DraftApplicationsModule } from "./domains/draft-applications/draft-applications.module";
 import { ImportsModule } from "./domains/imports/imports.module";
 import { NotesModule } from "./domains/notes/notes.module";
+import { ResumesModule } from "./domains/resumes/resumes.module";
+import { UserPreferencesModule } from "./domains/user-preferences/user-preferences.module";
 import { GraphqlSseMiddleware } from "./graphql/graphql-sse.middleware";
 
 @Module({
@@ -32,6 +34,8 @@ import { GraphqlSseMiddleware } from "./graphql/graphql-sse.middleware";
     ImportsModule,
     DraftApplicationsModule,
     NotesModule,
+    ResumesModule,
+    UserPreferencesModule,
     AiModule,
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,

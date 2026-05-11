@@ -8,7 +8,9 @@ import { DraftApplicationEntity } from "./entities/draft-application.entity";
 import { ExchangeRateCacheEntity } from "./entities/exchange-rate-cache.entity";
 import { ImportRunEntity } from "./entities/import-run.entity";
 import { ImportTemplateEntity } from "./entities/import-template.entity";
+import { ResumeEntity } from "./entities/resume.entity";
 import { UserEntity } from "./entities/user.entity";
+import { UserPreferencesEntity } from "./entities/user-preferences.entity";
 import { migrations } from "./migrations";
 
 export const apiEntities = [
@@ -19,8 +21,10 @@ export const apiEntities = [
   CompanyEntity,
   ImportRunEntity,
   ImportTemplateEntity,
+  ResumeEntity,
   DraftApplicationEntity,
   ExchangeRateCacheEntity,
+  UserPreferencesEntity,
 ];
 
 export const apiMigrations = migrations;

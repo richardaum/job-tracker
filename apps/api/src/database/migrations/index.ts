@@ -29,6 +29,8 @@ import { ApplicationsDraftManyToOne1763800000000 } from "./1763800000000-applica
 import { ImportTemplatesAndRunSurfaceUrl1763900000000 } from "./1763900000000-import-templates-and-run-surface-url";
 import { ImportTemplateDefaultSurfaceUrl1763910000000 } from "./1763910000000-import-template-default-surface-url";
 import { MakeSurfaceUrlMandatory1764000000000 } from "./1764000000000-make-surface-url-mandatory";
+import { CreateResumes1764100000000 } from "./1764100000000-create-resumes";
+import { CreateUserPreferences1764200000000 } from "./1764200000000-create-user-preferences";
 
 export const migrations = [
   Baseline1746009600000,
@@ -62,4 +64,6 @@ export const migrations = [
   ImportTemplatesAndRunSurfaceUrl1763900000000,
   ImportTemplateDefaultSurfaceUrl1763910000000,
   MakeSurfaceUrlMandatory1764000000000,
+  CreateResumes1764100000000,
+  CreateUserPreferences1764200000000,
 ];
