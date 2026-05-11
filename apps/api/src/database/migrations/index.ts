@@ -19,6 +19,7 @@ import { DraftAiGeneratedFieldsAndApplicationLink1763000000000 } from "./1763000
 import { DropDraftApplicationsAiGeneratedFields1763000000001 } from "./1763000000001-drop-draft-applications-ai-generated-fields";
 import { AddDraftApplicationConversionStatus1763200000000 } from "./1763200000000-add-draft-application-conversion-status";
 import { AddApplicationStageDuplicated1763300000000 } from "./1763300000000-add-application-stage-duplicated";
+import { AddApplicationStageCulturalFit1763300001000 } from "./1763300001000-add-application-stage-cultural-fit";
 import { AddApplicationSourceRemoteyeah1763400000000 } from "./1763400000000-add-application-source-remoteyeah";
 import { BackfillApplicationSourceRemoteyeah1763400000001 } from "./1763400000001-backfill-application-source-remoteyeah";
 import { DropImportRunsEntryUrl1763500000000 } from "./1763500000000-drop-import-runs-entry-url";
@@ -51,6 +52,7 @@ export const migrations = [
   DropDraftApplicationsAiGeneratedFields1763000000001,
   AddDraftApplicationConversionStatus1763200000000,
   AddApplicationStageDuplicated1763300000000,
+  AddApplicationStageCulturalFit1763300001000,
   AddApplicationSourceRemoteyeah1763400000000,
   BackfillApplicationSourceRemoteyeah1763400000001,
   DropImportRunsEntryUrl1763500000000,

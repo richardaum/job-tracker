@@ -5,6 +5,7 @@ export enum ApplicationStageEnum {
   APPLIED = "applied",
   RECRUITER_SCREEN = "recruiter_screen",
   TECHNICAL = "technical",
+  CULTURAL_FIT = "cultural_fit",
   OFFER = "offer",
   REJECTED = "rejected",
   DUPLICATED = "duplicated",

@@ -21,6 +21,7 @@ export class ApplicationStageEventEntity {
       "applied",
       "recruiter_screen",
       "technical",
+      "cultural_fit",
       "offer",
       "rejected",
       "duplicated",
@@ -33,6 +34,7 @@ export class ApplicationStageEventEntity {
     | "applied"
     | "recruiter_screen"
     | "technical"
+    | "cultural_fit"
     | "offer"
     | "rejected"
     | "duplicated"
@@ -46,6 +48,7 @@ export class ApplicationStageEventEntity {
       "applied",
       "recruiter_screen",
       "technical",
+      "cultural_fit",
       "offer",
       "rejected",
       "duplicated",
@@ -57,6 +60,7 @@ export class ApplicationStageEventEntity {
     | "applied"
     | "recruiter_screen"
     | "technical"
+    | "cultural_fit"
     | "offer"
     | "rejected"
     | "duplicated";
