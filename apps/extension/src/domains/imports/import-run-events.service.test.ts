@@ -57,7 +57,7 @@ describe("ImportRunEventsService", () => {
 
     expect(() => service.start()).not.toThrow();
     await vi.waitFor(() => {
-      expect(setup.logService.debug).toHaveBeenCalledWith(
+      expect(setup.logService.error).toHaveBeenCalledWith(
         "import-run-events:recovery-error",
         expect.any(Object),
       );
@@ -188,13 +188,14 @@ describe("ImportRunEventsService", () => {
       claimImportRun,
       importRuns,
       updateImportRunStatus,
+      updateImportRunSurfaceUrl: vi.fn().mockResolvedValue({}),
       subscribeToImportRunEvents,
     } as unknown as ApiService;
 
     const executeA = vi.fn().mockResolvedValue(undefined);
     const executeB = vi.fn().mockResolvedValue(undefined);
-    const logA = { debug: vi.fn() } as unknown as LogService;
-    const logB = { debug: vi.fn() } as unknown as LogService;
+    const logA = { debug: vi.fn(), error: vi.fn() } as unknown as LogService;
+    const logB = { debug: vi.fn(), error: vi.fn() } as unknown as LogService;
 
     const serviceA = new ImportRunEventsService(apiService, logA, {
       execute: executeA,
@@ -257,6 +258,7 @@ function createSetup({
     claimImportRun,
     importRuns,
     updateImportRunStatus,
+    updateImportRunSurfaceUrl: vi.fn().mockResolvedValue({}),
     subscribeToImportRunEvents,
   } as unknown as ApiService;
   const executePlan = vi.fn();
@@ -266,7 +268,10 @@ function createSetup({
     executePlan.mockResolvedValue(undefined);
   }
   const planService = { execute: executePlan } as unknown as PlanService;
-  const logService = { debug: vi.fn() } as unknown as LogService;
+  const logService = {
+    debug: vi.fn(),
+    error: vi.fn(),
+  } as unknown as LogService;
 
   return {
     apiService,
