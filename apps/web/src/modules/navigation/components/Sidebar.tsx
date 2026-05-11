@@ -6,6 +6,7 @@ import {
   BuildingsIcon,
   CalculatorIcon,
   DownloadSimpleIcon,
+  FilesIcon,
   GearIcon,
   MagnifyingGlassIcon,
   NotePencilIcon,
@@ -36,6 +37,7 @@ const navItems = [
     label: "Draft applications",
     icon: NotePencilIcon,
   },
+  { href: "/resumes", label: "Resumes", icon: FilesIcon },
   { href: "/imports", label: "Imports", icon: DownloadSimpleIcon },
   { href: "/companies", label: "Companies", icon: BuildingsIcon },
   {
