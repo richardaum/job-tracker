@@ -1,17 +1,21 @@
 "use client";
 
+import { tryRun } from "@job-tracker/try-run";
 import { Button, cn, Skeleton, Stack, Text } from "@job-tracker/ui";
 import { GearIcon, PlusIcon } from "@phosphor-icons/react";
 import { useState } from "react";
 
 import { EmptyState } from "@/components/empty-state";
+import {
+  ResumesDocument,
+  useDeleteResumeMutation,
+  useResumesQuery,
+} from "@/gql/hooks";
 import { SearchInput } from "@/modules/applications/shared/components/SearchInput";
 import { useToastQueue } from "@/modules/applications/shared/hooks/useToastQueue";
-import { PreferencesModal } from "@/modules/resumes/list/components/PreferencesModal";
+import { AddResumeDialog } from "@/modules/resumes/list/components/AddResumeDialog";
+import { PreferencesDialog } from "@/modules/resumes/list/components/PreferencesDialog";
 import { ResumeCard } from "@/modules/resumes/list/components/ResumeCard";
-/* MOCK DATA: replace useMockResumes with a real ViewModel hook
-   that queries GraphQL (T-176 / T-180). */
-import { useMockResumes } from "@/modules/resumes/list/hooks/useMockResumes";
 
 function ResumesListCardSkeleton() {
   return (
@@ -57,21 +61,33 @@ function ResumesListError() {
   );
 }
 
-/* MOCK DATA: the entire ResumesPage will use real queries+mutations
-   when T-176 and T-180 land. The structure (action bar, skeleton,
-   empty state, list) stays the same — only data sourcing changes. */
 export default function ResumesPage() {
-  /* MOCK DATA: destructure from a real view-model hook later:
-       const { resumes, loading, error, showInitialLoading } = useResumesListViewModel();
-  */
-  const { resumes, error, showInitialLoading } = useMockResumes();
+  const { data, loading, error } = useResumesQuery({
+    fetchPolicy: "cache-and-network",
+  });
+  const [deleteResume] = useDeleteResumeMutation({
+    refetchQueries: [{ query: ResumesDocument }],
+    awaitRefetchQueries: true,
+  });
 
   const { enqueueToast } = useToastQueue();
   const [preferencesOpen, setPreferencesOpen] = useState(false);
-  const [_addDialogOpen, setAddDialogOpen] = useState(false);
+  const [addDialogOpen, setAddDialogOpen] = useState(false);
+
+  const resumes = data?.resumes ?? [];
+  const showInitialLoading = loading && !data;
 
   function showToast(message: string, intent: "success" | "error") {
     enqueueToast({ title: message, intent });
+  }
+
+  async function handleDelete(id: string, title: string) {
+    const [err] = await tryRun(deleteResume({ variables: { id } }));
+    if (err) {
+      showToast(`Failed to delete "${title}".`, "error");
+      return;
+    }
+    showToast(`"${title}" deleted.`, "success");
   }
 
   return (
@@ -96,17 +112,10 @@ export default function ResumesPage() {
             Preferences
           </Button>
 
-          {/* MOCK DATA: replace with real navigation or dialog (T-179) */}
           <Button
             intent="primary"
             size="md"
-            onClick={() => {
-              setAddDialogOpen(true);
-              showToast(
-                "Add resume dialog — handler pending (T-179)",
-                "success",
-              );
-            }}
+            onClick={() => setAddDialogOpen(true)}
           >
             <PlusIcon size={16} weight="bold" className={cn("mr-2")} />
             Add resume
@@ -134,17 +143,19 @@ export default function ResumesPage() {
               <ResumeCard
                 key={resume.id}
                 resume={resume}
-                onSuccess={(msg) => showToast(msg, "success")}
+                onDelete={(id, title) => void handleDelete(id, title)}
               />
             ))}
           </Stack>
         )}
       </div>
 
-      <PreferencesModal
+      <PreferencesDialog
         open={preferencesOpen}
         onOpenChange={setPreferencesOpen}
       />
+
+      <AddResumeDialog open={addDialogOpen} onOpenChange={setAddDialogOpen} />
     </div>
   );
 }

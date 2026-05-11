@@ -1,22 +1,40 @@
 "use client";
 
+import { tryRun } from "@job-tracker/try-run";
 import { Button, cn, Heading, Input, Text } from "@job-tracker/ui";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React from "react";
 
+import {
+  ResumeDocument,
+  ResumesDocument,
+  useDeleteResumeMutation,
+  useResumeQuery,
+  useUpdateResumeMutation,
+} from "@/gql/hooks";
 import { TipTapEditor } from "@/modules/applications/details/components/TipTapEditor";
 import { useToastQueue } from "@/modules/applications/shared/hooks/useToastQueue";
 import {
   EMPTY_TIPTAP_DOC,
   normalizeTipTapDocument,
 } from "@/modules/applications/shared/utils/tiptap";
-/* MOCK DATA: replace with real ViewModel when T-176/180 ready */
-import { useMockResume } from "@/modules/resumes/list/hooks/useMockResumes";
+import { DeleteResumeDialog } from "@/modules/resumes/list/components/DeleteResumeDialog";
 
-/* MOCK DATA: replace with real mutations + Apollo refetchQueries (T-180) */
 function useResumeEditorState(resumeId: string, onSaved: () => void) {
-  const { resume, notFound, showInitialLoading } = useMockResume(resumeId);
+  const { data, loading, error } = useResumeQuery({
+    variables: { id: resumeId },
+    fetchPolicy: "cache-and-network",
+  });
+  const [updateResume] = useUpdateResumeMutation({
+    refetchQueries: [
+      { query: ResumesDocument },
+      { query: ResumeDocument, variables: { id: resumeId } },
+    ],
+    awaitRefetchQueries: true,
+  });
+
+  const resume = data?.resume ?? null;
 
   const [draftState, setDraftState] = React.useState<{
     resumeId: string | null;
@@ -27,7 +45,9 @@ function useResumeEditorState(resumeId: string, onSaved: () => void) {
   const [saving, setSaving] = React.useState(false);
 
   const currentTitle = resume?.title ?? "";
-  const currentContent = normalizeTipTapDocument(resume?.content);
+  const currentContent = normalizeTipTapDocument(
+    resume?.content ?? EMPTY_TIPTAP_DOC,
+  );
 
   const titleDraft =
     draftState.resumeId === resume?.id ? draftState.title : currentTitle;
@@ -42,17 +62,26 @@ function useResumeEditorState(resumeId: string, onSaved: () => void) {
   }
 
   async function handleSave() {
-    /* MOCK DATA: replace with real updateResume mutation */
+    if (!resume) return;
     setSaving(true);
-    await new Promise((r) => setTimeout(r, 300));
-    setSaving(false);
-    onSaved();
+    try {
+      await updateResume({
+        variables: {
+          id: resume.id,
+          input: { title: titleDraft, content: contentDraft },
+        },
+      });
+      setDraftState({ resumeId: null, title: "", content: EMPTY_TIPTAP_DOC });
+      onSaved();
+    } finally {
+      setSaving(false);
+    }
   }
 
   return {
     resume,
-    notFound,
-    showInitialLoading,
+    notFound: !loading && !error && !resume,
+    showInitialLoading: loading && !data,
     titleDraft,
     setTitleDraft: (title: string) => commitDraft(title, contentDraft),
     contentDraft,
@@ -71,6 +100,10 @@ export default function ResumeDetailsPage({ params }: PageProps) {
   const { id } = React.use(params);
   const router = useRouter();
   const { enqueueToast } = useToastQueue();
+  const [deleteResume] = useDeleteResumeMutation({
+    refetchQueries: [{ query: ResumesDocument }],
+    awaitRefetchQueries: true,
+  });
 
   const {
     resume,
@@ -87,12 +120,18 @@ export default function ResumeDetailsPage({ params }: PageProps) {
     enqueueToast({ title: "Resume saved.", intent: "success" }),
   );
 
-  /* MOCK DATA: replace with real delete mutation + confirmation dialog */
-  function _handleDelete() {
-    const ok = window.confirm(`Delete "${titleDraft}"?`);
-    if (ok) {
-      router.push("/resumes");
+  async function handleDelete() {
+    if (!resume) return;
+    const [err] = await tryRun(deleteResume({ variables: { id: resume.id } }));
+    if (err) {
+      enqueueToast({
+        title: `Failed to delete "${titleDraft}".`,
+        intent: "error",
+      });
+      return;
     }
+    enqueueToast({ title: `"${titleDraft}" deleted.`, intent: "success" });
+    router.push("/resumes");
   }
 
   return (
@@ -113,6 +152,16 @@ export default function ResumeDetailsPage({ params }: PageProps) {
             Back to resumes
           </Link>
           <div className={cn("flex items-center gap-2")}>
+            <DeleteResumeDialog
+              resumeId={id}
+              resumeTitle={titleDraft}
+              onConfirm={() => void handleDelete()}
+              trigger={
+                <Button intent="destructive" size="md">
+                  Delete
+                </Button>
+              }
+            />
             <Button
               intent="primary"
               size="md"
@@ -122,7 +171,6 @@ export default function ResumeDetailsPage({ params }: PageProps) {
             >
               Save
             </Button>
-            {/* MOCK DATA: Actions dropdown (delete) when T-180 ready */}
           </div>
         </div>
 
