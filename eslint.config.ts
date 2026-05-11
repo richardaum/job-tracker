@@ -39,6 +39,7 @@ export default defineConfig(
       "apps/extension/codegen.ts",
       "apps/web/next-env.d.ts",
       "apps/web/src/gql/**",
+      "apps/web/public/**",
     ],
   },
   eslint.configs.recommended,

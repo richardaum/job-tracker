@@ -1,6 +1,7 @@
 "use client";
 
 import { cn, Tooltip } from "@job-tracker/ui";
+import { CircleNotchIcon } from "@phosphor-icons/react";
 import React from "react";
 
 export interface ToolbarButtonProps {
@@ -9,6 +10,7 @@ export interface ToolbarButtonProps {
   active?: boolean;
   onClick?: () => void;
   disabled?: boolean;
+  loading?: boolean;
   className?: string;
 }
 
@@ -18,6 +20,7 @@ export function ToolbarButton({
   active,
   onClick,
   disabled,
+  loading = false,
   className,
 }: ToolbarButtonProps) {
   const button = (
@@ -35,7 +38,15 @@ export function ToolbarButton({
         disabled && "cursor-not-allowed opacity-50",
       )}
     >
-      {label}
+      {loading ? (
+        <CircleNotchIcon
+          size={14}
+          weight="bold"
+          className={cn("animate-spin")}
+        />
+      ) : (
+        label
+      )}
     </button>
   );
 

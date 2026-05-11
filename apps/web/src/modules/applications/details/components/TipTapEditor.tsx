@@ -1,6 +1,12 @@
 "use client";
 
-import { cn, DropdownMenu, DropdownMenuItem, Tooltip } from "@job-tracker/ui";
+import {
+  cn,
+  ConfirmDialog,
+  DropdownMenu,
+  DropdownMenuItem,
+  Tooltip,
+} from "@job-tracker/ui";
 import {
   ArrowsOutSimpleIcon,
   BroomIcon,
@@ -17,6 +23,7 @@ import {
   TextHTwoIcon,
   TextItalicIcon,
   TextTIcon,
+  UploadSimpleIcon,
   XIcon,
 } from "@phosphor-icons/react";
 import Placeholder from "@tiptap/extension-placeholder";
@@ -64,6 +71,7 @@ interface TipTapEditorProps {
   expandButtonDisabled?: boolean;
   enableVoiceToText?: boolean;
   voiceToTextLanguage?: string;
+  enableImport?: boolean;
 }
 
 function AiSuggestionSegmentedControl({
@@ -214,12 +222,15 @@ export function TipTapEditor({
   expandButtonDisabled,
   enableVoiceToText = true,
   voiceToTextLanguage = "en-US",
+  enableImport = false,
 }: TipTapEditorProps) {
   const onHardEnterRef = React.useRef(onHardEnter);
   const [isGeneratingAiLocally, setIsGeneratingAiLocally] =
     React.useState(false);
   const [pendingAiOriginalContent, setPendingAiOriginalContent] =
     React.useState<string | null>(null);
+  const [showImportConfirm, setShowImportConfirm] = React.useState(false);
+  const [isImporting, setIsImporting] = React.useState(false);
   React.useLayoutEffect(() => {
     onHardEnterRef.current = onHardEnter;
   });
@@ -295,6 +306,84 @@ export function TipTapEditor({
   });
 
   const { clearDocument } = useTipTapEditorHandle({ ref, editor, onChange });
+
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  const handleImportFile = React.useCallback(
+    async (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      if (!file) return;
+      if (!editor) return;
+
+      setIsImporting(true);
+      try {
+        let text: string;
+
+        if (file.type === "application/pdf" || file.name.endsWith(".pdf")) {
+          const arrayBuffer = await file.arrayBuffer();
+          const pdfjs = await import("pdfjs-dist");
+          pdfjs.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.mjs";
+          const pdf = await pdfjs.getDocument({ data: arrayBuffer }).promise;
+          const textParts: string[] = [];
+          for (let i = 1; i <= pdf.numPages; i++) {
+            const page = await pdf.getPage(i);
+            const content = await page.getTextContent();
+            const pageText = content.items
+              .map((item) => ("str" in item ? (item.str ?? "") : ""))
+              .join(" ");
+            textParts.push(pageText);
+          }
+          text = textParts.join("\n\n");
+          const normalizedValue = normalizeTipTapDocument(text);
+          editor.commands.setContent(parseTipTapDocument(normalizedValue), {
+            emitUpdate: false,
+          });
+          onChange(normalizedValue);
+        } else if (file.name.endsWith(".html") || file.type === "text/html") {
+          const html = await file.text();
+          editor.commands.setContent(html, { emitUpdate: false });
+          onChange(JSON.stringify(editor.getJSON()));
+        } else if (file.name.endsWith(".md") || file.type === "text/markdown") {
+          const md = await file.text();
+          const { marked } = await import("marked");
+          const html = await marked.parse(md);
+          editor.commands.setContent(html, { emitUpdate: false });
+          onChange(JSON.stringify(editor.getJSON()));
+        } else {
+          text = await file.text();
+          const normalizedValue = normalizeTipTapDocument(text);
+          editor.commands.setContent(parseTipTapDocument(normalizedValue), {
+            emitUpdate: false,
+          });
+          onChange(normalizedValue);
+        }
+      } catch (err) {
+        console.error("Failed to import file:", err);
+      } finally {
+        setIsImporting(false);
+      }
+
+      event.target.value = "";
+    },
+    [editor, onChange],
+  );
+
+  const handleImportClick = React.useCallback(() => {
+    if (!editor) return;
+    const currentContent = tipTapToPlainText(
+      JSON.stringify(editor.getJSON()),
+    ).trim();
+    if (currentContent) {
+      setShowImportConfirm(true);
+    } else {
+      fileInputRef.current?.click();
+    }
+  }, [editor]);
+
+  const handleConfirmImport = React.useCallback(() => {
+    setShowImportConfirm(false);
+    fileInputRef.current?.click();
+  }, []);
 
   const hasVerticalOverflow = useHasVerticalOverflow(
     (editor?.view.dom as HTMLElement | undefined) ?? null,
@@ -548,6 +637,35 @@ export function TipTapEditor({
             disabled={disabled}
           />
           <SaveAsPdfButton editor={editor} disabled={disabled} />
+          {enableImport ? (
+            <>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".txt,.md,.html,.json,.pdf"
+                className={cn("hidden")}
+                onChange={handleImportFile}
+                aria-hidden
+              />
+              <ToolbarButton
+                label={<UploadSimpleIcon size={14} weight="bold" />}
+                ariaLabel="Import from file"
+                onClick={handleImportClick}
+                disabled={disabled}
+                loading={isImporting}
+              />
+              <ConfirmDialog
+                trigger={<span className={cn("hidden")} />}
+                open={showImportConfirm}
+                onOpenChange={setShowImportConfirm}
+                title="Import file"
+                description="Importing will replace the current editor content. Continue?"
+                confirmLabel="Import"
+                confirmIntent="primary"
+                onConfirm={handleConfirmImport}
+              />
+            </>
+          ) : null}
           {enableVoiceToText ? (
             <ToolbarButton
               label={

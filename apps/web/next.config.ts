@@ -26,7 +26,12 @@ const nextConfig: NextConfig = {
     ];
     return rewrites;
   },
-  webpack: (config) => {
+  serverExternalPackages: ["pdfjs-dist"],
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      config.resolve.fallback = { ...config.resolve.fallback, canvas: false };
+    }
+
     if (!isRsdoctorEnabled) {
       return config;
     }
