@@ -76,12 +76,6 @@ Numbered folders: `specs/<NNN-slug>/` with primary **`README.md`** (optional com
 - **AuthModule dependency:** Any NestJS module that defines resolvers decorated with **`@UseGuards(JwtAuthGuard, RolesGuard)`** (or similar guards) **must import `AuthModule`**. Guards like `RolesGuard` depend on `Reflector` and `UserService` which are provided through `AuthModule`. Omitting this import causes `UnknownDependenciesException` at startup.
 - **Import pattern:** Add `AuthModule` to the module's `imports` array, matching the pattern used by `CompaniesModule`, `ApplicationModule`, and other authenticated domains.
 
-### Local development: PM2
-
-- **Requirement:** Long-running app processes in this repo (**`api`**, **`web`**, **`storybook`**, **`extension`**) are managed **only** via **PM2** and root **`ecosystem.config.cjs`** — use PM2 for **start**, **stop**, **restart**, and **teardown** (`pm2 delete`, **`pm2 kill`** when you intend to stop the PM2 daemon entirely). Do **not** keep parallel ad-hoc **`pnpm --filter … run dev`** terminals for those same roles during normal local work.
-- **Root scripts:** **`pnpm pm2:start`**, **`pnpm pm2:stop`**, **`pnpm pm2:restart`** (refreshes env with **`--update-env`**). Logs: **`~/.pm2/logs/`** (`*-out.log`, `*-error.log`). Process list: **`pm2 list`** (namespace **`job-tracker`**).
-- **Out of scope:** CI and other automation; one-off commands that are not long-lived servers (tests, lint, **`pnpm codegen`**, migrations without a watch daemon, builds); anything explicitly documented to run without PM2.
-
 ## Web view models
 
 GraphQL screens should keep **rendering thin**: put API-to-display shaping (derived lists, formatted fields, empty/loading/error flags, props from query results) in **view-model hooks**, not large page or panel components.

@@ -18,29 +18,23 @@ Node 22+, pnpm 10.8+.
 
 ## LeanSpec
 
-- **Source of truth:** the owning **`specs/<NNN-slug>/README.md`** is the written source of truth for that scope. Keep it **aligned with the code at high level** (intent, outcomes, major flows and boundaries)—when shipped behavior or scope shifts, update the spec in the same change set. Code and tests are authoritative for exact behavior; the spec must not silently contradict intent that matters for product or engineering decisions.
-- **`specs/`:** folders `specs/<NNN-slug>/` with `README.md` (workspace chronicle at `specs/HISTORY.md`; optional per-spec companions). Generated index summary: **`specs/INDEX.md`** (**`specCount`**, **`requirementIdCount`**, **`historyCount`**). Config: `.lean-spec/config.json`. Quick pointer: `specs/007-docs-definition/README.md`.
-- **CLI:** `pnpm exec lean-spec` (`create`, `list`, `board`, `validate`, `rel`, …). Help: `pnpm exec lean-spec --help`.
-- **Validate:** `pnpm leanspec:validate`.
-- **Spec indices:** after creating or retitling a spec, changing **`status:`**, or adding or moving **`[P-NNN]`** / **`[T-NNN]`** (etc.) references, run **`pnpm leanspec:sync-spec-indices`**. See **`docs/CONVENTIONS.mdx`** → **Spec indices**.
-- **Requirements (sync back):** when new scope or acceptance criteria emerge for work tied to an existing numbered spec, **record them in that spec's `README.md`** (with bracketed IDs **`[P-NNN]`** / **`[T-NNN]`** as elsewhere), then run **`pnpm leanspec:sync-spec-indices`** if IDs or spec metadata changed. Do not rely on chat or code alone as the lasting record while the governing spec stays stale.
+Canonical reference: **`docs/CONVENTIONS.mdx`** → LeanSpec. Validate: `pnpm leanspec:validate`.
 
 ## Packages
 
-| Package       | Notes                                                                                                                                      |
-| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| **api**       | Apollo GraphQL; schema `apps/api/src/schema.gql`; TypeORM + PostgreSQL. Local dev server: PM2 **`api`** (`ecosystem.config.cjs`).          |
-| **web**       | Apollo Client; codegen: `pnpm --filter @job-tracker/web run codegen` → `src/gql/` (ESLint ignore). Local dev: PM2 **`web`**.               |
-| **ui**        | Radix + Tailwind; Storybook on port 6006 — local dev via PM2 **`storybook`**.                                                              |
-| **logger**    | Typed logger; no tests.                                                                                                                    |
-| **extension** | WXT + Vite + React; scaffold `specs/023-*` ([T-137]); local dev: PM2 **`extension`**; smoke: load `build/chrome-mv3` unpacked in Chromium. |
+| Path               | Domain                                                  |
+| ------------------ | ------------------------------------------------------- |
+| `apps/api`         | NestJS 11, GraphQL, TypeORM, PostgreSQL, Docker         |
+| `apps/web`         | Next.js 16, Apollo Client, view-models, generated hooks |
+| `apps/extension`   | WXT + Vite + React, Chrome MV3                          |
+| `packages/ui`      | Radix + Tailwind, Storybook                             |
+| `packages/logger`  | Typed logger                                            |
+| `packages/try-run` | `tryRun` utility                                        |
 
 ## Tests
 
-- **API**: Vitest, `src/**/*.spec.ts`, Node, `fileParallelism: false`; needs `DATABASE_URL` (see `.env.example`).
-- **Web**: Vitest, `src/**/*.test.{ts,tsx}`, jsdom; 80% coverage on `src/app/page.tsx`, `src/hooks/**`, `src/env/client.ts`, `src/lib/apollo-client.ts`.
-- **UI**: Vitest, jsdom.
-- **Extension**: Vitest, node; Chrome load-unpacked smoke for popup / background (see **`specs/023-*`**).
+Per-package configs in respective `apps/*/AGENTS.md` and `packages/*/AGENTS.md`.
+
 - **E2E**: Playwright in `apps/web/e2e/`, Chromium; web server on `E2E_PORT` (default 3100).
 
 ## GraphQL codegen
@@ -65,7 +59,7 @@ Build from repo root: `docker build -f apps/api/Dockerfile -t job-tracker-api:lo
 
 ## PM2
 
-Long-running apps (**`api`**, **`web`**, **`storybook`**, **`extension`**) — start/stop/restart/teardown via PM2 only (**`pnpm pm2:start`** / **`pm2:stop`** / **`pm2:restart`**, **`pm2 delete`**, **`pm2 kill`** as needed); see **`docs/CONVENTIONS.mdx`** (**Local development: PM2**). Logs: **`~/.pm2/logs/`** (`*-out.log`, `*-error.log`).
+Long-running apps (**`api`**, **`web`**, **`storybook`**, **`extension`**) — start/stop/restart/teardown via PM2 only (**`pnpm pm2:start`** / **`pnpm pm2:stop`** / **`pnpm pm2:restart`**, **`pm2 delete`**, **`pm2 kill`** as needed). Logs: **`~/.pm2/logs/`** (`*-out.log`, `*-error.log`).
 
 ## CI
 
