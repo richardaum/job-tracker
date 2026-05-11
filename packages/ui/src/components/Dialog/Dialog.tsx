@@ -101,7 +101,10 @@ export function Dialog({
           >
             <XIcon size={16} weight="regular" />
           </RadixDialog.Close>
-          <div data-debug-children className={cn("flex-1 min-h-0", childrenClassName)}>
+          <div
+            data-debug-children
+            className={cn("flex-1 min-h-0", childrenClassName)}
+          >
             {children}
           </div>
           {footer ? <div className={cn("mt-4 shrink-0")}>{footer}</div> : null}
