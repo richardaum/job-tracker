@@ -14,7 +14,7 @@ export type DialogSize =
   | "4xl";
 
 export interface DialogProps {
-  trigger: React.ReactElement;
+  trigger?: React.ReactElement;
   title: string;
   children?: React.ReactNode;
   description?: React.ReactNode;
@@ -62,7 +62,9 @@ export function Dialog({
       defaultOpen={defaultOpen}
       onOpenChange={onOpenChange}
     >
-      <RadixDialog.Trigger asChild>{trigger}</RadixDialog.Trigger>
+      {trigger ? (
+        <RadixDialog.Trigger asChild>{trigger}</RadixDialog.Trigger>
+      ) : null}
       <RadixDialog.Portal>
         <RadixDialog.Overlay
           className={cn(
