@@ -56,6 +56,7 @@ export enum ApplicationSource {
 
 export enum ApplicationStage {
   Applied = "APPLIED",
+  CulturalFit = "CULTURAL_FIT",
   Duplicated = "DUPLICATED",
   New = "NEW",
   Offer = "OFFER",
