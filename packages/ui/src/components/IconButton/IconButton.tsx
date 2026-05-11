@@ -26,7 +26,7 @@ const intentClasses: Record<IconButtonIntent, string> = {
   primary:
     "border-transparent bg-bg-brand text-text-inverted hover:bg-bg-brand-hover data-[state=open]:bg-bg-brand-hover",
   secondary:
-    "border-border-default bg-bg-surface text-text-primary hover:bg-bg-surface-hover data-[state=open]:bg-bg-surface-hover",
+    "border-[1.5px] border-border-default bg-bg-surface text-text-primary hover:bg-bg-surface-hover data-[state=open]:bg-bg-surface-hover",
   ghost:
     "border-transparent bg-transparent text-text-brand shadow-none hover:bg-bg-brand-subtle data-[state=open]:bg-bg-brand-subtle",
   destructive:

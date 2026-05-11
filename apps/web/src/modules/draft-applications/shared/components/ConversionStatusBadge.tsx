@@ -39,13 +39,15 @@ export function ConversionStatusBadge({
       content={conversionError ?? undefined}
       enabled={Boolean(conversionError)}
     >
-      <Badge
-        intent={conversionStatusBadgeIntent(conversionStatus)}
-        className={cn("whitespace-nowrap", className)}
-      >
-        {formatConversionStatus(conversionStatus)}
-      </Badge>
-      {showSpinner ? <Spinner size="sm" className={cn("ml-1.5")} /> : null}
+      <span className={cn("inline-flex items-center")}>
+        <Badge
+          intent={conversionStatusBadgeIntent(conversionStatus)}
+          className={cn("whitespace-nowrap", className)}
+        >
+          {formatConversionStatus(conversionStatus)}
+        </Badge>
+        {showSpinner ? <Spinner size="sm" className={cn("ml-1.5")} /> : null}
+      </span>
     </Tooltip>
   );
 }

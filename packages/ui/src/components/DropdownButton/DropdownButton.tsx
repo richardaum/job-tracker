@@ -21,7 +21,7 @@ const intentClasses: Record<ButtonIntent, string> = {
   primary:
     "border-r border-white/20 bg-bg-brand text-text-inverted hover:bg-bg-brand-hover",
   secondary:
-    "border-l border-t border-b border-border-default bg-bg-surface text-text-primary hover:bg-bg-surface-hover",
+    "border-l-[1.5px] border-t-[1.5px] border-b-[1.5px] border-border-default bg-bg-surface text-text-primary hover:bg-bg-surface-hover",
   ghost:
     "border-transparent bg-transparent text-text-brand shadow-none hover:bg-bg-brand-subtle",
   outlined:
@@ -34,7 +34,7 @@ const dropdownIntentClasses: Record<ButtonIntent, string> = {
   primary:
     "bg-bg-brand text-text-inverted hover:bg-bg-brand-hover rounded-r-md",
   secondary:
-    "border border-border-default bg-bg-surface text-text-primary hover:bg-bg-surface-hover rounded-r-md",
+    "border-[1.5px] border-border-default bg-bg-surface text-text-primary hover:bg-bg-surface-hover rounded-r-md",
   ghost: "bg-transparent text-text-brand hover:bg-bg-brand-subtle rounded-r-md",
   outlined:
     "border border-border-default bg-transparent text-text-primary hover:bg-bg-surface-hover rounded-r-md",
