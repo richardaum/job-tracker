@@ -7,7 +7,7 @@ import { useState } from "react";
 
 import { EmptyState } from "@/components/empty-state";
 import { ApplicationCard } from "@/modules/applications/list/components/ApplicationCard";
-import { ApplicationQuickEditModal } from "@/modules/applications/list/components/ApplicationQuickEditModal";
+import { ApplicationQuickEditDialog } from "@/modules/applications/list/components/ApplicationQuickEditDialog";
 import { ApplicationsCompanyFilterBanner } from "@/modules/applications/list/components/ApplicationsCompanyFilterBanner";
 import { ApplicationsImportRunFilterBanner } from "@/modules/applications/list/components/ApplicationsImportRunFilterBanner";
 import { QuickFilters } from "@/modules/applications/list/components/QuickFilters";
@@ -81,7 +81,7 @@ export default function ApplicationsPage() {
 
   const { enqueueToast } = useToastQueue();
 
-  const [openModal, setOpenModal] = useState(false);
+  const [openDialog, setOpenDialog] = useState(false);
 
   function showToast(message: string, intent: "success" | "error") {
     enqueueToast({ title: message, intent });
@@ -98,10 +98,10 @@ export default function ApplicationsPage() {
         <SearchInput placeholder="Search applications..." shortcutHint="⌘/" />
 
         <div className={cn("w-full sm:w-auto")}>
-          <ApplicationQuickEditModal
-            open={openModal}
+          <ApplicationQuickEditDialog
+            open={openDialog}
             onOpenChange={(open) => {
-              if (open !== undefined) setOpenModal(open);
+              if (open !== undefined) setOpenDialog(open);
             }}
             onSuccess={(msg) => showToast(msg, "success")}
             onError={(msg) => showToast(msg, "error")}
@@ -109,7 +109,11 @@ export default function ApplicationsPage() {
               router.push(`/applications/${applicationId}`);
             }}
           />
-          <Button intent="primary" size="md" onClick={() => setOpenModal(true)}>
+          <Button
+            intent="primary"
+            size="md"
+            onClick={() => setOpenDialog(true)}
+          >
             <PlusIcon size={16} weight="bold" className={cn("mr-2")} />
             New application
           </Button>

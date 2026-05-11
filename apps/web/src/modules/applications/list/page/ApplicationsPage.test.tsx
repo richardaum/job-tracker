@@ -54,8 +54,8 @@ vi.mock("@/hooks/useCurrentUser", () => ({
   useCurrentUser: () => useCurrentUserMock(),
 }));
 
-vi.mock("../components/ApplicationQuickEditModal", () => ({
-  ApplicationQuickEditModal: ({ trigger }: { trigger: React.ReactNode }) => (
+vi.mock("../components/ApplicationQuickEditDialog", () => ({
+  ApplicationQuickEditDialog: ({ trigger }: { trigger: React.ReactNode }) => (
     <div>{trigger}</div>
   ),
 }));

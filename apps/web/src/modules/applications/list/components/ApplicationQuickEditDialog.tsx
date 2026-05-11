@@ -32,7 +32,7 @@ interface FormState {
   urlsText: string;
 }
 
-interface ApplicationQuickEditModalFormProps {
+interface ApplicationQuickEditDialogFormProps {
   isEdit: boolean;
   application?: ApplicationValues;
   onSuccess?: (message: string) => void;
@@ -41,14 +41,14 @@ interface ApplicationQuickEditModalFormProps {
   onClose: () => void;
 }
 
-function ApplicationQuickEditModalForm({
+function ApplicationQuickEditDialogForm({
   isEdit,
   application,
   onSuccess,
   onError,
   onCreated,
   onClose,
-}: ApplicationQuickEditModalFormProps) {
+}: ApplicationQuickEditDialogFormProps) {
   const [form, setForm] = useState<FormState>({
     title: application?.title ?? "",
     company: application?.company ?? "",
@@ -130,7 +130,7 @@ function ApplicationQuickEditModalForm({
     onClose();
   }
 
-  const formId = "application-quick-edit-modal-form";
+  const formId = "application-quick-edit-dialog-form";
 
   return (
     <>
@@ -216,7 +216,7 @@ function ApplicationQuickEditModalForm({
   );
 }
 
-export interface ApplicationQuickEditModalProps {
+export interface ApplicationQuickEditDialogProps {
   trigger?: React.ReactElement;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
@@ -226,7 +226,7 @@ export interface ApplicationQuickEditModalProps {
   onCreated?: (applicationId: string) => void;
 }
 
-export function ApplicationQuickEditModal({
+export function ApplicationQuickEditDialog({
   trigger,
   open: externalOpen,
   onOpenChange: externalOnOpenChange,
@@ -234,7 +234,7 @@ export function ApplicationQuickEditModal({
   onSuccess,
   onError,
   onCreated,
-}: ApplicationQuickEditModalProps) {
+}: ApplicationQuickEditDialogProps) {
   const isEdit = Boolean(application);
   const [internalOpen, setInternalOpen] = useState(false);
   const open = externalOpen ?? internalOpen;
@@ -257,7 +257,7 @@ export function ApplicationQuickEditModal({
       onOpenChange={handleOpenChange}
     >
       {open ? (
-        <ApplicationQuickEditModalForm
+        <ApplicationQuickEditDialogForm
           isEdit={isEdit}
           application={application}
           onSuccess={onSuccess}

@@ -34,7 +34,7 @@ This spec builds the foundation incrementally:
 1. Persist user resumes (1:n) in the database.
 2. Provide a UI for creating/editing resumes (manual text via TiptapEditor).
 3. Surface a dedicated **Resume & Preferences** page (route `/resumes`), accessible from the sidebar, listing all resumes (layout follows `ApplicationsPage`), each rendered as a card via `ListItemCard`.
-4. Define the fit model and a modal to run analysis: pick a job (via its JD/description), pick a resume (default: most recent), run point-by-point comparison, view fits, gaps, unclear items, and an overall **final score**. The result is **persisted** — each application can have one latest fit analysis; regenerating replaces it.
+4. Define the fit model and a dialog to run analysis: pick a job (via its JD/description), pick a resume (default: most recent), run point-by-point comparison, view fits, gaps, unclear items, and an overall **final score**. The result is **persisted** — each application can have one latest fit analysis; regenerating replaces it.
 5. Compute a **final score** that classifies the match as **positive** (green, strong fit), **negative** (red, weak fit), or **neutral** (gray, inconclusive), based on a weighted ratio of fits vs gaps.
 
 Future iterations (out of scope here) will add AI-powered analysis, aggregate fit scoring, and per-job comparison pages. The fit data model and resume infrastructure here is a prerequisite for **[P-44]** (AI-generated job insight cards with candidate fit signal and skills gaps — see `specs/012-product-ai-assistance/README.md`).
@@ -164,10 +164,10 @@ Each fit analysis is persisted to the database:
 - **[P-156]** The user can run a fit analysis between an application's JD/description and their most recent resume (or a selected one).
 - **[P-157]** Each FitItem shows a verdict (`fit`, `gap`, or `unclear`), a source label (`resume` or `preference`), a literal **JD quote**, and matching **source quote(s)** — no paraphrasing.
 - **[P-158]** The user can add user-level preferences (not per-resume), each with a free‑text description and a **weight** (`high` or `low`).
-- **[P-159]** Preferences are analysed alongside resume content in the fit modal, each producing their own FitItems with fit/gap/unclear verdicts.
+- **[P-159]** Preferences are analysed alongside resume content in the fit dialog, each producing their own FitItems with fit/gap/unclear verdicts.
 - **[P-160]** Each preference FitItem displays its weight, and the summary bar supports filtering/grouping by weight.
-- **[P-161]** The fit modal shows an overall **final score** — a badge with classification (positive/green, negative/red, neutral/gray) based on a weighted ratio of fits vs gaps, using the defined thresholds.
-- **[P-162]** The user can regenerate a fit analysis from the fit modal; each regeneration replaces the previous result for that application.
+- **[P-161]** The fit dialog shows an overall **final score** — a badge with classification (positive/green, negative/red, neutral/gray) based on a weighted ratio of fits vs gaps, using the defined thresholds.
+- **[P-162]** The user can regenerate a fit analysis from the fit dialog; each regeneration replaces the previous result for that application.
 
 ## Technical plan
 
@@ -180,16 +180,16 @@ Each fit analysis is persisted to the database:
 | **[T-179]** | Build **Resume editor** (page at `/resumes/[id]`) with title input, PDF import, `TipTapEditor` for manual editing.                                                                                                                                        |
 | **[T-180]** | Wire GraphQL hooks for list/create/update/delete operations.                                                                                                                                                                                              |
 | **[T-181]** | Unit tests: API resolver + service, web page render, card rendering, editor interactions (PDF import path, TipTap content).                                                                                                                               |
-| **[T-182]** | Build **FitModal** component — opened from the application detail page, with resume selector dropdown, "Generate" / "Regenerate" button, and fit results area. Empty state when no fit exists yet.                                                        |
+| **[T-182]** | Build **FitDialog** component — opened from the application detail page, with resume selector dropdown, "Generate" / "Regenerate" button, and fit results area. Empty state when no fit exists yet.                                                       |
 | **[T-183]** | Add **`Mutation.generateApplicationFit(applicationId: UUID!, resumeId: UUID): FitAnalysis!`** (runs analysis, persists, returns the result) and **`Query.applicationFit(applicationId: UUID!): FitAnalysis`** (returns the latest persisted fit or null). |
-| **[T-184]** | Wire GraphQL hooks for the fit modal (query + mutation).                                                                                                                                                                                                  |
-| **[T-185]** | Unit tests for fit modal, FitItem rendering (fit/gap/unclear badges, source badge, JD quote, source quotes, suggestion), resume selector, generate/regenerate flow.                                                                                       |
+| **[T-184]** | Wire GraphQL hooks for the fit dialog (query + mutation).                                                                                                                                                                                                 |
+| **[T-185]** | Unit tests for fit dialog, FitItem rendering (fit/gap/unclear badges, source badge, JD quote, source quotes, suggestion), resume selector, generate/regenerate flow.                                                                                      |
 | **[T-186]** | Add `UserPreferences` entity + migration (`userId` unique, `items` jsonb `[{text, weight}]`) + GraphQL `Query.userPreferences` and `Mutation.updateUserPreferences`.                                                                                      |
-| **[T-187]** | Build **Preferences modal** on the resumes list page: bullet‑list with add/remove, single‑scope text input, and weight toggle (`high`/`low`) per item.                                                                                                    |
-| **[T-188]** | Unit tests for preferences CRUD and rendering in the preferences modal (including weight toggle).                                                                                                                                                         |
-| **[T-189]** | Display weight badge on preference FitItems in the fit modal; add weight filter to the source filter pills.                                                                                                                                               |
+| **[T-187]** | Build **Preferences dialog** on the resumes list page: bullet‑list with add/remove, single‑scope text input, and weight toggle (`high`/`low`) per item.                                                                                                   |
+| **[T-188]** | Unit tests for preferences CRUD and rendering in the preferences dialog (including weight toggle).                                                                                                                                                        |
+| **[T-189]** | Display weight badge on preference FitItems in the fit dialog; add weight filter to the source filter pills.                                                                                                                                              |
 | **[T-190]** | Implement scoring logic: point system, score ratio, classification with 65%/35% thresholds, unclear‑majority override.                                                                                                                                    |
-| **[T-191]** | Build **final score badge** component at the top of the fit modal — color‑coded, shows classification label + score percentage + item counts.                                                                                                             |
+| **[T-191]** | Build **final score badge** component at the top of the fit dialog — color‑coded, shows classification label + score percentage + item counts.                                                                                                            |
 | **[T-192]** | Create **`FitAnalysis`** TypeORM entity + migration (`id`, `applicationId` unique, `resumeId`, `scoreRatio`, `classification`, `fitCount`, `gapCount`, `unclearCount`, `items` jsonb `[FitItem]`, timestamps).                                            |
 
 ## Acceptance checklist
@@ -197,13 +197,13 @@ Each fit analysis is persisted to the database:
 - [ ] User can CRUD resumes via API.
 - [ ] `/resumes` page renders a list of ResumeCards with empty state and loading skeleton.
 - [ ] Resume editor (page at `/resumes/[id]`) supports TipTap manual editing.
-- [ ] Preferences modal accessible from the resumes list page via "Preferences" button in the action bar, with bullet‑list (add/remove, single‑scope text, weight toggle high/low per item).
-- [ ] Fit modal opens from the application detail page with resume selector (default: most recent), "Generate" / "Regenerate" button, and fit results area.
-- [ ] Fit modal shows empty state when no analysis exists yet; "Generate" triggers computation and persists the result.
+- [ ] Preferences dialog accessible from the resumes list page via "Preferences" button in the action bar, with bullet‑list (add/remove, single‑scope text, weight toggle high/low per item).
+- [ ] Fit dialog opens from the application detail page with resume selector (default: most recent), "Generate" / "Regenerate" button, and fit results area.
+- [ ] Fit dialog shows empty state when no analysis exists yet; "Generate" triggers computation and persists the result.
 - [ ] Each FitItem shows: verdict badge (`fit`/`gap`/`unclear`), source badge (`resume`/`preference`), literal **JD quote** as blockquote, literal **source quote(s)** as blockquote.
 - [ ] Gaps show no source quotes; unclear items show the vague passage.
 - [ ] Preferences items are separate FitItems with `source = preference`, interleaved or filterable in the list.
 - [ ] Summary bar shows fit/gap/unclear counts, with optional grouping by weight.
 - [ ] Source filter toggle (all / resume‑only / preference‑only), plus weight filter (`high` / `low` / all).
-- [ ] Final score badge visible at the top of the fit modal, color‑coded (green/gray/red), with classification label, percentage, and item counts.
+- [ ] Final score badge visible at the top of the fit dialog, color‑coded (green/gray/red), with classification label, percentage, and item counts.
 - [ ] Score respects preference weights and unclear‑majority override.

@@ -19,7 +19,7 @@ import NextLink from "next/link";
 import { ApplicationStage } from "@/gql/hooks";
 import { SalaryEditDialog } from "@/modules/applications/details/components/SalaryEditDialog";
 import { formatDateTime } from "@/modules/applications/details/utils/application-details.shared";
-import { ApplicationQuickEditModal } from "@/modules/applications/list/components/ApplicationQuickEditModal";
+import { ApplicationQuickEditDialog } from "@/modules/applications/list/components/ApplicationQuickEditDialog";
 import { ApplicationTrackingPanel } from "@/modules/applications/list/components/ApplicationTrackingPanel";
 import { DeleteApplicationDialog } from "@/modules/applications/list/components/DeleteApplicationDialog";
 import {
@@ -190,7 +190,7 @@ export function ApplicationCard({
             historyLoading={stageEventsLoading}
             onRequestStageEvents={requestStageEvents}
           />
-          <ApplicationQuickEditModal
+          <ApplicationQuickEditDialog
             trigger={
               <IconButton
                 intent="ghost"

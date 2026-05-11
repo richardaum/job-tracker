@@ -13,7 +13,7 @@ interface NoteComposerExpandedDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   applicationId: string;
-  isModalInstance: boolean;
+  isDialogInstance: boolean;
   draftNote: string;
   onDraftNoteChange: (nextValue: string) => void;
   canSend: boolean;
@@ -25,7 +25,7 @@ export function NoteComposerExpandedDialog({
   open,
   onOpenChange,
   applicationId,
-  isModalInstance,
+  isDialogInstance,
   draftNote,
   onDraftNoteChange,
   canSend,
@@ -51,7 +51,7 @@ export function NoteComposerExpandedDialog({
       <Stack gap="sm" className={cn("flex-1 min-h-0")}>
         <div className={cn("flex-1 min-h-0")}>
           <TipTapEditor
-            id={`application-note-composer-expanded-${applicationId}${isModalInstance ? "-modal" : ""}`}
+            id={`application-note-composer-expanded-${applicationId}${isDialogInstance ? "-dialog" : ""}`}
             value={draftNote}
             onChange={(nextValue) =>
               onDraftNoteChange(nextValue || EMPTY_TIPTAP_DOC)

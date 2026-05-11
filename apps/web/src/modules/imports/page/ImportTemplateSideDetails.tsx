@@ -50,11 +50,11 @@ export function ImportTemplateSideDetails({
   onOpenChange,
 }: ImportTemplateSideDetailsProps) {
   const importerId = importer?.importerId ?? "";
-  const [runsModalTemplate, setRunsModalTemplate] =
+  const [runsDialogTemplate, setRunsDialogTemplate] =
     useState<ImportTemplateListItem | null>(null);
-  const [surfaceModalTemplate, setSurfaceModalTemplate] =
+  const [surfaceDialogTemplate, setSurfaceDialogTemplate] =
     useState<ImportTemplateListItem | null>(null);
-  const [scheduleModalTemplate, setScheduleModalTemplate] =
+  const [scheduleDialogTemplate, setScheduleDialogTemplate] =
     useState<ImportTemplateListItem | null>(null);
 
   const { data, loading, error } = useImportTemplatesForImporterQuery({
@@ -67,14 +67,14 @@ export function ImportTemplateSideDetails({
   const showSkeleton = importer !== null && loading && !data;
 
   const clearDialogsForTemplate = useCallback((templateId: string) => {
-    setRunsModalTemplate((t) => (t?.id === templateId ? null : t));
-    setSurfaceModalTemplate((t) => (t?.id === templateId ? null : t));
-    setScheduleModalTemplate((t) => (t?.id === templateId ? null : t));
+    setRunsDialogTemplate((t) => (t?.id === templateId ? null : t));
+    setSurfaceDialogTemplate((t) => (t?.id === templateId ? null : t));
+    setScheduleDialogTemplate((t) => (t?.id === templateId ? null : t));
   }, []);
 
-  const patchRunsModalIfSame = useCallback(
+  const patchRunsDialogIfSame = useCallback(
     (id: string, patch: Partial<ImportTemplateListItem>) => {
-      setRunsModalTemplate((t) => (t?.id === id ? { ...t, ...patch } : t));
+      setRunsDialogTemplate((t) => (t?.id === id ? { ...t, ...patch } : t));
     },
     [],
   );
@@ -128,7 +128,7 @@ export function ImportTemplateSideDetails({
                   <button
                     type="button"
                     title="View runs for this template"
-                    onClick={() => setRunsModalTemplate(template)}
+                    onClick={() => setRunsDialogTemplate(template)}
                   >
                     Template {templateIndex + 1}
                   </button>
@@ -143,7 +143,7 @@ export function ImportTemplateSideDetails({
                     tooltip="Edit surface URL"
                     className={cn(ListItemCard.actionIconButtonClassName)}
                     icon={<LinkSimpleIcon size={13} weight="regular" />}
-                    onClick={() => setSurfaceModalTemplate(template)}
+                    onClick={() => setSurfaceDialogTemplate(template)}
                   />
                   <IconButton
                     intent="ghost"
@@ -152,7 +152,7 @@ export function ImportTemplateSideDetails({
                     tooltip="Edit schedule"
                     className={cn(ListItemCard.actionIconButtonClassName)}
                     icon={<ClockIcon size={13} weight="regular" />}
-                    onClick={() => setScheduleModalTemplate(template)}
+                    onClick={() => setScheduleDialogTemplate(template)}
                   />
                   <DeleteImportTemplateDialog
                     trigger={
@@ -188,28 +188,28 @@ export function ImportTemplateSideDetails({
         </Stack>
       )}
       <ImportTemplateRunsDialog
-        template={runsModalTemplate}
+        template={runsDialogTemplate}
         onOpenChange={(open) => {
-          if (!open) setRunsModalTemplate(null);
+          if (!open) setRunsDialogTemplate(null);
         }}
       />
       <ImportTemplateSurfaceUrlDialog
         importerId={importerId}
-        template={surfaceModalTemplate}
+        template={surfaceDialogTemplate}
         onOpenChange={(open) => {
-          if (!open) setSurfaceModalTemplate(null);
+          if (!open) setSurfaceDialogTemplate(null);
         }}
         onSurfaceSaved={(id, surfaceUrl) =>
-          patchRunsModalIfSame(id, { surfaceUrl })
+          patchRunsDialogIfSame(id, { surfaceUrl })
         }
       />
       <ImportTemplateScheduleDialog
         importerId={importerId}
-        template={scheduleModalTemplate}
+        template={scheduleDialogTemplate}
         onOpenChange={(open) => {
-          if (!open) setScheduleModalTemplate(null);
+          if (!open) setScheduleDialogTemplate(null);
         }}
-        onScheduleSaved={(id, patch) => patchRunsModalIfSame(id, patch)}
+        onScheduleSaved={(id, patch) => patchRunsDialogIfSame(id, patch)}
       />
     </SideDetails>
   );

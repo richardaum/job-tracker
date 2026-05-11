@@ -37,10 +37,10 @@ import { TipTapEditor, type TipTapEditorHandle } from "./TipTapEditor";
 
 export function NotesPanel({
   applicationId,
-  isModalInstance = false,
+  isDialogInstance = false,
 }: {
   applicationId: string;
-  isModalInstance?: boolean;
+  isDialogInstance?: boolean;
 }) {
   const [draftNote, setDraftNote] = useState(EMPTY_TIPTAP_DOC);
   const [isComposerExpanded, setIsComposerExpanded] = useState(false);
@@ -248,7 +248,7 @@ export function NotesPanel({
           <Stack gap="xs">
             <TipTapEditor
               ref={composerEditorRef}
-              id={`application-note-composer-${applicationId}${isModalInstance ? "-modal" : ""}`}
+              id={`application-note-composer-${applicationId}${isDialogInstance ? "-dialog" : ""}`}
               value={draftNote}
               onChange={(nextValue) =>
                 setDraftNote(nextValue || EMPTY_TIPTAP_DOC)
@@ -290,7 +290,7 @@ export function NotesPanel({
         open={isComposerExpanded}
         onOpenChange={setIsComposerExpanded}
         applicationId={applicationId}
-        isModalInstance={isModalInstance}
+        isDialogInstance={isDialogInstance}
         draftNote={draftNote}
         onDraftNoteChange={setDraftNote}
         canSend={canSend}

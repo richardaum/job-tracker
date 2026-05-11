@@ -89,11 +89,11 @@ export default function CompaniesPage() {
     window.sessionStorage.setItem(recentlyVisitedCompanyStorageKey, companyId);
   }
 
-  function openEditModal(company: EditingCompany) {
+  function openEditDialog(company: EditingCompany) {
     setEditingCompany(company);
   }
 
-  function closeEditModal() {
+  function closeEditDialog() {
     setEditingCompany(null);
   }
 
@@ -149,7 +149,7 @@ export default function CompaniesPage() {
                   name: company.name,
                   description: company.description ?? null,
                 }}
-                onEdit={openEditModal}
+                onEdit={openEditDialog}
                 onOpenDetails={handleOpenCompanyDetails}
                 isRecentlyVisited={recentlyVisitedCompanyId === company.id}
                 onRecentlyVisitedAnimationEnd={() =>
@@ -179,7 +179,7 @@ export default function CompaniesPage() {
           open={Boolean(editingCompany)}
           onOpenChange={(open) => {
             if (!open) {
-              closeEditModal();
+              closeEditDialog();
             }
           }}
           company={{
@@ -190,7 +190,7 @@ export default function CompaniesPage() {
           refetchCompanies={true}
           onSuccess={(message) => {
             enqueueToast({ title: message, intent: "success" });
-            closeEditModal();
+            closeEditDialog();
           }}
           onError={(message) => {
             enqueueToast({ title: message, intent: "error" });
