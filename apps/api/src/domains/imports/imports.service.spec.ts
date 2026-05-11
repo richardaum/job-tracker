@@ -15,6 +15,7 @@ function runWithTemplate(importerId: string): ImportRunEntity {
     id: "tmpl-1",
     userId: "user-1",
     importerId,
+    surfaceUrl: "https://example.com/surface",
     scheduleCron: null,
     scheduleEnabled: false,
     createdAt: new Date("2026-05-01T12:00:00.000Z"),
@@ -90,6 +91,7 @@ describe("ImportsService", () => {
       id: "tmpl-1",
       userId: "user-1",
       importerId: "remoteyeah",
+      surfaceUrl: "https://example.com/surface",
       scheduleCron: null,
       scheduleEnabled: false,
       createdAt: new Date("2026-05-01T12:00:00.000Z"),
@@ -109,16 +111,15 @@ describe("ImportsService", () => {
 
     const result = await service.createImportRun("user-1", "remoteyeah");
 
-    expect(repo.findOrCreateTemplate).toHaveBeenCalledWith({
-      userId: "user-1",
-      importerId: "remoteyeah",
-    });
+    expect(repo.findOrCreateTemplate).toHaveBeenCalledWith(
+      expect.objectContaining({ userId: "user-1", importerId: "remoteyeah" }),
+    );
     expect(repo.createRun).toHaveBeenCalledWith(
       expect.objectContaining({
         userId: "user-1",
         templateId: "tmpl-1",
         status: ImportRunStatusEnum.RUNNING,
-        surfaceUrl: expect.stringContaining("remoteyeah.com"),
+        surfaceUrl: "https://example.com/surface",
       }),
     );
     expect(result.importerSource).toBe("database");
@@ -152,6 +153,7 @@ describe("ImportsService", () => {
       id: "tmpl-1",
       userId: "user-1",
       importerId: "remoteyeah",
+      surfaceUrl: "https://example.com/surface",
       scheduleCron: null,
       scheduleEnabled: false,
       createdAt: new Date("2026-05-01T12:00:00.000Z"),

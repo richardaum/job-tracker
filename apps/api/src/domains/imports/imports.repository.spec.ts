@@ -54,6 +54,7 @@ describe.skipIf(!hasDb)("ImportsRepository (integration)", () => {
       templates.create({
         userId,
         importerId: "remoteyeah",
+        surfaceUrl: "https://example.com/initial",
         scheduleEnabled: false,
         scheduleCron: null,
       }),
@@ -140,6 +141,7 @@ describe.skipIf(!hasDb)("ImportsRepository (integration)", () => {
       templates.create({
         userId,
         importerId: "remoteyeah",
+        surfaceUrl: "https://example.com/initial",
         scheduleEnabled: false,
         scheduleCron: null,
       }),
