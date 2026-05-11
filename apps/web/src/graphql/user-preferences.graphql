@@ -1,0 +1,13 @@
+query UserPreferences {
+  userPreferences {
+    text
+    weight
+  }
+}
+
+mutation UpdateUserPreferences($items: [PreferenceInput!]!) {
+  updateUserPreferences(items: $items) {
+    text
+    weight
+  }
+}

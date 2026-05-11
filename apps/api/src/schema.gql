@@ -171,6 +171,25 @@ type NoteType {
   updatedAt: DateTime!
 }
 
+type ResumeType {
+  id: ID!
+  userId: String!
+  title: String!
+  content: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type PreferenceType {
+  text: String!
+  weight: WeightEnum!
+}
+
+enum WeightEnum {
+  HIGH
+  LOW
+}
+
 type Query {
   me: UserType!
   applications(filter: ApplicationQuickFilter, company: String, runId: ID): [ApplicationType!]!
@@ -188,6 +207,9 @@ type Query {
   importers(onlyWithImportTemplate: Boolean = false): [ImporterDescriptorType!]!
   applicationNotes(applicationId: ID!): [NoteType!]!
   generateApplicationNoteWithAI(applicationId: ID!, note: String!): String!
+  resumes: [ResumeType!]!
+  resume(id: ID!): ResumeType!
+  userPreferences: [PreferenceType!]!
   rewriteTextWithAI(text: String!): String!
   restructureJobDescriptionWithAI(text: String!): String!
 }
@@ -229,6 +251,10 @@ type Mutation {
   createApplicationNote(input: CreateNoteInput!): NoteType!
   updateApplicationNote(id: ID!, input: UpdateNoteInput!): NoteType!
   deleteApplicationNote(id: ID!): DeleteMutationPayloadType!
+  createResume(input: CreateResumeInput!): ResumeType!
+  updateResume(id: ID!, input: UpdateResumeInput!): ResumeType!
+  deleteResume(id: ID!): DeleteMutationPayloadType!
+  updateUserPreferences(items: [PreferenceInput!]!): [PreferenceType!]!
 }
 
 input CreateApplicationInput {
@@ -316,6 +342,21 @@ input CreateNoteInput {
 input UpdateNoteInput {
   content: String
   expectedRevision: Int!
+}
+
+input CreateResumeInput {
+  title: String!
+  content: String!
+}
+
+input UpdateResumeInput {
+  title: String
+  content: String
+}
+
+input PreferenceInput {
+  text: String!
+  weight: WeightEnum!
 }
 
 type Subscription {

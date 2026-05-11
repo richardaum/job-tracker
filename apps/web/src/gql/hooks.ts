@@ -272,6 +272,7 @@ export type Mutation = {
   updateImportRunStatus: ImportRunType;
   updateImportTemplate: ImportTemplateType;
   updateResume: ResumeType;
+  updateUserPreferences: Array<PreferenceType>;
 };
 
 export type MutationClaimImportRunArgs = { id: Scalars["ID"]["input"] };
@@ -383,6 +384,10 @@ export type MutationUpdateResumeArgs = {
   input: UpdateResumeInput;
 };
 
+export type MutationUpdateUserPreferencesArgs = {
+  items: Array<PreferenceInput>;
+};
+
 export type NoteType = {
   __typename?: "NoteType";
   applicationId?: Maybe<Scalars["String"]["output"]>;
@@ -392,6 +397,17 @@ export type NoteType = {
   revision: Scalars["Int"]["output"];
   updatedAt: Scalars["DateTime"]["output"];
   userId: Scalars["String"]["output"];
+};
+
+export type PreferenceInput = {
+  text: Scalars["String"]["input"];
+  weight: WeightEnum;
+};
+
+export type PreferenceType = {
+  __typename?: "PreferenceType";
+  text: Scalars["String"]["output"];
+  weight: WeightEnum;
 };
 
 export type Query = {
@@ -416,6 +432,7 @@ export type Query = {
   resume: ResumeType;
   resumes: Array<ResumeType>;
   rewriteTextWithAI: Scalars["String"]["output"];
+  userPreferences: Array<PreferenceType>;
 };
 
 export type QueryApplicationArgs = { id: Scalars["ID"]["input"] };
@@ -542,6 +559,11 @@ export type UserType = {
   name: Scalars["String"]["output"];
   role: Scalars["String"]["output"];
 };
+
+export enum WeightEnum {
+  High = "HIGH",
+  Low = "LOW",
+}
 
 export type ApplicationSalarySelectionFragment = {
   __typename?: "ApplicationType";
@@ -1256,6 +1278,30 @@ export type DeleteResumeMutation = {
     success: boolean;
     deletedId: string;
   };
+};
+
+export type UserPreferencesQueryVariables = Exact<{ [key: string]: never }>;
+
+export type UserPreferencesQuery = {
+  __typename?: "Query";
+  userPreferences: Array<{
+    __typename?: "PreferenceType";
+    text: string;
+    weight: WeightEnum;
+  }>;
+};
+
+export type UpdateUserPreferencesMutationVariables = Exact<{
+  items: Array<PreferenceInput> | PreferenceInput;
+}>;
+
+export type UpdateUserPreferencesMutation = {
+  __typename?: "Mutation";
+  updateUserPreferences: Array<{
+    __typename?: "PreferenceType";
+    text: string;
+    weight: WeightEnum;
+  }>;
 };
 
 export const ApplicationSalarySelectionFragmentDoc = gql`
@@ -3437,4 +3483,99 @@ export function useDeleteResumeMutation(
     DeleteResumeMutation,
     DeleteResumeMutationVariables
   >(DeleteResumeDocument, options);
+}
+
+export const UserPreferencesDocument = gql`
+  query UserPreferences {
+    userPreferences {
+      text
+      weight
+    }
+  }
+`;
+
+/**
+ * __useUserPreferencesQuery__
+ *
+ * To run a query within a React component, call `useUserPreferencesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useUserPreferencesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useUserPreferencesQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useUserPreferencesQuery(
+  baseOptions?: ApolloReactHooks.QueryHookOptions<
+    UserPreferencesQuery,
+    UserPreferencesQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useQuery<
+    UserPreferencesQuery,
+    UserPreferencesQueryVariables
+  >(UserPreferencesDocument, options);
+}
+export function useUserPreferencesLazyQuery(
+  baseOptions?: ApolloReactHooks.LazyQueryHookOptions<
+    UserPreferencesQuery,
+    UserPreferencesQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useLazyQuery<
+    UserPreferencesQuery,
+    UserPreferencesQueryVariables
+  >(UserPreferencesDocument, options);
+}
+
+export type UserPreferencesQueryHookResult = ReturnType<
+  typeof useUserPreferencesQuery
+>;
+export type UserPreferencesLazyQueryHookResult = ReturnType<
+  typeof useUserPreferencesLazyQuery
+>;
+
+export const UpdateUserPreferencesDocument = gql`
+  mutation UpdateUserPreferences($items: [PreferenceInput!]!) {
+    updateUserPreferences(items: $items) {
+      text
+      weight
+    }
+  }
+`;
+
+/**
+ * __useUpdateUserPreferencesMutation__
+ *
+ * To run a mutation, you first call `useUpdateUserPreferencesMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateUserPreferencesMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateUserPreferencesMutation, { data, loading, error }] = useUpdateUserPreferencesMutation({
+ *   variables: {
+ *      items: // value for 'items'
+ *   },
+ * });
+ */
+export function useUpdateUserPreferencesMutation(
+  baseOptions?: ApolloReactHooks.MutationHookOptions<
+    UpdateUserPreferencesMutation,
+    UpdateUserPreferencesMutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useMutation<
+    UpdateUserPreferencesMutation,
+    UpdateUserPreferencesMutationVariables
+  >(UpdateUserPreferencesDocument, options);
 }

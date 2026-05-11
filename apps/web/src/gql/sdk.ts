@@ -271,6 +271,7 @@ export type Mutation = {
   updateImportRunStatus: ImportRunType;
   updateImportTemplate: ImportTemplateType;
   updateResume: ResumeType;
+  updateUserPreferences: Array<PreferenceType>;
 };
 
 export type MutationClaimImportRunArgs = { id: Scalars["ID"]["input"] };
@@ -382,6 +383,10 @@ export type MutationUpdateResumeArgs = {
   input: UpdateResumeInput;
 };
 
+export type MutationUpdateUserPreferencesArgs = {
+  items: Array<PreferenceInput>;
+};
+
 export type NoteType = {
   __typename?: "NoteType";
   applicationId?: Maybe<Scalars["String"]["output"]>;
@@ -391,6 +396,17 @@ export type NoteType = {
   revision: Scalars["Int"]["output"];
   updatedAt: Scalars["DateTime"]["output"];
   userId: Scalars["String"]["output"];
+};
+
+export type PreferenceInput = {
+  text: Scalars["String"]["input"];
+  weight: WeightEnum;
+};
+
+export type PreferenceType = {
+  __typename?: "PreferenceType";
+  text: Scalars["String"]["output"];
+  weight: WeightEnum;
 };
 
 export type Query = {
@@ -415,6 +431,7 @@ export type Query = {
   resume: ResumeType;
   resumes: Array<ResumeType>;
   rewriteTextWithAI: Scalars["String"]["output"];
+  userPreferences: Array<PreferenceType>;
 };
 
 export type QueryApplicationArgs = { id: Scalars["ID"]["input"] };
@@ -541,6 +558,11 @@ export type UserType = {
   name: Scalars["String"]["output"];
   role: Scalars["String"]["output"];
 };
+
+export enum WeightEnum {
+  High = "HIGH",
+  Low = "LOW",
+}
 
 export type ApplicationSalarySelectionFragment = {
   __typename?: "ApplicationType";
@@ -1257,6 +1279,30 @@ export type DeleteResumeMutation = {
   };
 };
 
+export type UserPreferencesQueryVariables = Exact<{ [key: string]: never }>;
+
+export type UserPreferencesQuery = {
+  __typename?: "Query";
+  userPreferences: Array<{
+    __typename?: "PreferenceType";
+    text: string;
+    weight: WeightEnum;
+  }>;
+};
+
+export type UpdateUserPreferencesMutationVariables = Exact<{
+  items: Array<PreferenceInput> | PreferenceInput;
+}>;
+
+export type UpdateUserPreferencesMutation = {
+  __typename?: "Mutation";
+  updateUserPreferences: Array<{
+    __typename?: "PreferenceType";
+    text: string;
+    weight: WeightEnum;
+  }>;
+};
+
 export const ApplicationSalarySelectionFragmentDoc = gql`
   fragment ApplicationSalarySelection on ApplicationType {
     salary {
@@ -1752,6 +1798,22 @@ export const DeleteResumeDocument = gql`
     deleteResume(id: $id) {
       success
       deletedId
+    }
+  }
+`;
+export const UserPreferencesDocument = gql`
+  query UserPreferences {
+    userPreferences {
+      text
+      weight
+    }
+  }
+`;
+export const UpdateUserPreferencesDocument = gql`
+  mutation UpdateUserPreferences($items: [PreferenceInput!]!) {
+    updateUserPreferences(items: $items) {
+      text
+      weight
     }
   }
 `;
@@ -2527,6 +2589,42 @@ export function getSdk(
             signal,
           }),
         "DeleteResume",
+        "mutation",
+        variables,
+      );
+    },
+    UserPreferences(
+      variables?: UserPreferencesQueryVariables,
+      requestHeaders?: GraphQLClientRequestHeaders,
+      signal?: RequestInit["signal"],
+    ): Promise<UserPreferencesQuery> {
+      return withWrapper(
+        (wrappedRequestHeaders) =>
+          client.request<UserPreferencesQuery>({
+            document: UserPreferencesDocument,
+            variables,
+            requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
+            signal,
+          }),
+        "UserPreferences",
+        "query",
+        variables,
+      );
+    },
+    UpdateUserPreferences(
+      variables: UpdateUserPreferencesMutationVariables,
+      requestHeaders?: GraphQLClientRequestHeaders,
+      signal?: RequestInit["signal"],
+    ): Promise<UpdateUserPreferencesMutation> {
+      return withWrapper(
+        (wrappedRequestHeaders) =>
+          client.request<UpdateUserPreferencesMutation>({
+            document: UpdateUserPreferencesDocument,
+            variables,
+            requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
+            signal,
+          }),
+        "UpdateUserPreferences",
         "mutation",
         variables,
       );

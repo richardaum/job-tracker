@@ -1,0 +1,47 @@
+query Resumes {
+  resumes {
+    id
+    title
+    content
+    createdAt
+    updatedAt
+  }
+}
+
+query Resume($id: ID!) {
+  resume(id: $id) {
+    id
+    userId
+    title
+    content
+    createdAt
+    updatedAt
+  }
+}
+
+mutation CreateResume($input: CreateResumeInput!) {
+  createResume(input: $input) {
+    id
+    title
+    content
+    createdAt
+    updatedAt
+  }
+}
+
+mutation UpdateResume($id: ID!, $input: UpdateResumeInput!) {
+  updateResume(id: $id, input: $input) {
+    id
+    title
+    content
+    createdAt
+    updatedAt
+  }
+}
+
+mutation DeleteResume($id: ID!) {
+  deleteResume(id: $id) {
+    success
+    deletedId
+  }
+}

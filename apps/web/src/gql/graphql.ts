@@ -270,6 +270,7 @@ export type Mutation = {
   updateImportRunStatus: ImportRunType;
   updateImportTemplate: ImportTemplateType;
   updateResume: ResumeType;
+  updateUserPreferences: Array<PreferenceType>;
 };
 
 export type MutationClaimImportRunArgs = { id: Scalars["ID"]["input"] };
@@ -381,6 +382,10 @@ export type MutationUpdateResumeArgs = {
   input: UpdateResumeInput;
 };
 
+export type MutationUpdateUserPreferencesArgs = {
+  items: Array<PreferenceInput>;
+};
+
 export type NoteType = {
   __typename?: "NoteType";
   applicationId?: Maybe<Scalars["String"]["output"]>;
@@ -390,6 +395,17 @@ export type NoteType = {
   revision: Scalars["Int"]["output"];
   updatedAt: Scalars["DateTime"]["output"];
   userId: Scalars["String"]["output"];
+};
+
+export type PreferenceInput = {
+  text: Scalars["String"]["input"];
+  weight: WeightEnum;
+};
+
+export type PreferenceType = {
+  __typename?: "PreferenceType";
+  text: Scalars["String"]["output"];
+  weight: WeightEnum;
 };
 
 export type Query = {
@@ -414,6 +430,7 @@ export type Query = {
   resume: ResumeType;
   resumes: Array<ResumeType>;
   rewriteTextWithAI: Scalars["String"]["output"];
+  userPreferences: Array<PreferenceType>;
 };
 
 export type QueryApplicationArgs = { id: Scalars["ID"]["input"] };
@@ -540,6 +557,11 @@ export type UserType = {
   name: Scalars["String"]["output"];
   role: Scalars["String"]["output"];
 };
+
+export enum WeightEnum {
+  High = "HIGH",
+  Low = "LOW",
+}
 
 export type ApplicationSalarySelectionFragment = {
   __typename?: "ApplicationType";
@@ -1244,6 +1266,30 @@ export type DeleteResumeMutation = {
     success: boolean;
     deletedId: string;
   };
+};
+
+export type UserPreferencesQueryVariables = Exact<{ [key: string]: never }>;
+
+export type UserPreferencesQuery = {
+  __typename?: "Query";
+  userPreferences: Array<{
+    __typename?: "PreferenceType";
+    text: string;
+    weight: WeightEnum;
+  }>;
+};
+
+export type UpdateUserPreferencesMutationVariables = Exact<{
+  items: Array<PreferenceInput> | PreferenceInput;
+}>;
+
+export type UpdateUserPreferencesMutation = {
+  __typename?: "Mutation";
+  updateUserPreferences: Array<{
+    __typename?: "PreferenceType";
+    text: string;
+    weight: WeightEnum;
+  }>;
 };
 
 export const ApplicationSalarySelectionFragmentDoc = {
@@ -3948,4 +3994,94 @@ export const DeleteResumeDocument = {
 } as unknown as DocumentNode<
   DeleteResumeMutation,
   DeleteResumeMutationVariables
+>;
+export const UserPreferencesDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "query",
+      name: { kind: "Name", value: "UserPreferences" },
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "userPreferences" },
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "text" } },
+                { kind: "Field", name: { kind: "Name", value: "weight" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  UserPreferencesQuery,
+  UserPreferencesQueryVariables
+>;
+export const UpdateUserPreferencesDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "UpdateUserPreferences" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "items" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: {
+              kind: "ListType",
+              type: {
+                kind: "NonNullType",
+                type: {
+                  kind: "NamedType",
+                  name: { kind: "Name", value: "PreferenceInput" },
+                },
+              },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "updateUserPreferences" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "items" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "items" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "text" } },
+                { kind: "Field", name: { kind: "Name", value: "weight" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  UpdateUserPreferencesMutation,
+  UpdateUserPreferencesMutationVariables
 >;
