@@ -4,56 +4,36 @@ import { cookies } from "next/headers";
 
 import { staticPageMetadata } from "@/app/metadata";
 import { serverEnv } from "@/env/server";
+import { createServerSdk } from "@/lib/server-graphql";
 
 const GRAPHQL_URL =
   serverEnv.NEXT_PUBLIC_API_GRAPHQL_URL ?? "http://localhost:3101/graphql";
 
-async function getApplicationTitle(id: string) {
+async function getApplicationMeta(id: string) {
   const [cookieErr, cookieStore] = await tryRun(cookies());
   if (cookieErr) {
     return null;
   }
 
-  const cookieHeader = cookieStore.toString();
-
-  type ApplicationPayload = {
-    data?: { application?: { title?: string | null } | null };
-  };
-
-  const [fetchErr, response] = await tryRun(
-    fetch(GRAPHQL_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        ...(cookieHeader ? { Cookie: cookieHeader } : {}),
-      },
-      body: JSON.stringify({
-        query: `
-          query ApplicationMeta($id: ID!) {
-            application(id: $id) {
-              id
-              title
-            }
-          }
-        `,
-        variables: { id },
-      }),
-      cache: "no-store",
-    }),
-  );
-
-  if (fetchErr || !response.ok) {
+  const sdk = createServerSdk(GRAPHQL_URL, cookieStore.toString());
+  const [err, data] = await tryRun(sdk.Application({ id }));
+  if (err) {
     return null;
   }
 
-  const [jsonErr, payload] = await tryRun(
-    response.json() as Promise<ApplicationPayload>,
-  );
-  if (jsonErr) {
-    return null;
-  }
+  return data.application ?? null;
+}
 
-  return payload.data?.application?.title ?? null;
+function formatAppTitle(
+  meta: {
+    title?: string | null;
+    company?: { name?: string | null } | null;
+  } | null,
+  fallback: string,
+): string {
+  if (!meta?.title) return fallback;
+  if (meta.company?.name) return `${meta.title} @ ${meta.company.name}`;
+  return meta.title;
 }
 
 export async function generateMetadata({
@@ -62,9 +42,10 @@ export async function generateMetadata({
   params: Promise<{ id: string }>;
 }): Promise<Metadata> {
   const { id } = await params;
-  const title = await getApplicationTitle(id);
+  const meta = await getApplicationMeta(id);
+  const base = formatAppTitle(meta, "Application notes");
 
-  return staticPageMetadata(title ? `${title} — Notes` : "Application notes");
+  return staticPageMetadata(`${base} — Notes`);
 }
 
 export { default } from "@/modules/applications/details/page/ApplicationNotesPage";

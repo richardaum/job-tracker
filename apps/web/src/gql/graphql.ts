@@ -149,6 +149,11 @@ export type CreateNoteInput = {
   content: Scalars["String"]["input"];
 };
 
+export type CreateResumeInput = {
+  content: Scalars["String"]["input"];
+  title: Scalars["String"]["input"];
+};
+
 export type CurrencyRates = {
   __typename?: "CurrencyRates";
   base: Scalars["String"]["output"];
@@ -243,6 +248,7 @@ export type Mutation = {
   createDraftApplication: DraftApplicationType;
   createImportRun: ImportRunType;
   createImportTemplate: ImportTemplateType;
+  createResume: ResumeType;
   deleteApplication: DeleteMutationPayloadType;
   deleteApplicationNote: DeleteMutationPayloadType;
   deleteApplicationStageEvent: DeleteMutationPayloadType;
@@ -251,6 +257,7 @@ export type Mutation = {
   deleteDraftApplication: DeleteMutationPayloadType;
   deleteImportRun: DeleteMutationPayloadType;
   deleteImportTemplate: DeleteMutationPayloadType;
+  deleteResume: DeleteMutationPayloadType;
   detachApplicationsFromImportRun: Scalars["Int"]["output"];
   removeApplicationTag: ApplicationType;
   rerunImportTemplate: ImportRunType;
@@ -262,6 +269,7 @@ export type Mutation = {
   updateImportRun: ImportRunType;
   updateImportRunStatus: ImportRunType;
   updateImportTemplate: ImportTemplateType;
+  updateResume: ResumeType;
 };
 
 export type MutationClaimImportRunArgs = { id: Scalars["ID"]["input"] };
@@ -288,6 +296,8 @@ export type MutationCreateImportTemplateArgs = {
   input: CreateImportTemplateInput;
 };
 
+export type MutationCreateResumeArgs = { input: CreateResumeInput };
+
 export type MutationDeleteApplicationArgs = { id: Scalars["ID"]["input"] };
 
 export type MutationDeleteApplicationNoteArgs = { id: Scalars["ID"]["input"] };
@@ -310,6 +320,8 @@ export type MutationDeleteDraftApplicationArgs = {
 export type MutationDeleteImportRunArgs = { id: Scalars["ID"]["input"] };
 
 export type MutationDeleteImportTemplateArgs = { id: Scalars["ID"]["input"] };
+
+export type MutationDeleteResumeArgs = { id: Scalars["ID"]["input"] };
 
 export type MutationDetachApplicationsFromImportRunArgs = {
   importRunId: Scalars["ID"]["input"];
@@ -364,6 +376,11 @@ export type MutationUpdateImportTemplateArgs = {
   input: UpdateImportTemplateInput;
 };
 
+export type MutationUpdateResumeArgs = {
+  id: Scalars["ID"]["input"];
+  input: UpdateResumeInput;
+};
+
 export type NoteType = {
   __typename?: "NoteType";
   applicationId?: Maybe<Scalars["String"]["output"]>;
@@ -394,6 +411,8 @@ export type Query = {
   importers: Array<ImporterDescriptorType>;
   me: UserType;
   restructureJobDescriptionWithAI: Scalars["String"]["output"];
+  resume: ResumeType;
+  resumes: Array<ResumeType>;
   rewriteTextWithAI: Scalars["String"]["output"];
 };
 
@@ -443,7 +462,19 @@ export type QueryRestructureJobDescriptionWithAiArgs = {
   text: Scalars["String"]["input"];
 };
 
+export type QueryResumeArgs = { id: Scalars["ID"]["input"] };
+
 export type QueryRewriteTextWithAiArgs = { text: Scalars["String"]["input"] };
+
+export type ResumeType = {
+  __typename?: "ResumeType";
+  content: Scalars["String"]["output"];
+  createdAt: Scalars["DateTime"]["output"];
+  id: Scalars["ID"]["output"];
+  title: Scalars["String"]["output"];
+  updatedAt: Scalars["DateTime"]["output"];
+  userId: Scalars["String"]["output"];
+};
 
 export enum SalaryPeriod {
   Hour = "HOUR",
@@ -494,6 +525,11 @@ export type UpdateImportTemplateInput = {
 export type UpdateNoteInput = {
   content?: InputMaybe<Scalars["String"]["input"]>;
   expectedRevision: Scalars["Int"]["input"];
+};
+
+export type UpdateResumeInput = {
+  content?: InputMaybe<Scalars["String"]["input"]>;
+  title?: InputMaybe<Scalars["String"]["input"]>;
 };
 
 export type UserType = {
@@ -1134,6 +1170,79 @@ export type MeQuery = {
     name: string;
     role: string;
     avatarUrl?: string | null;
+  };
+};
+
+export type ResumesQueryVariables = Exact<{ [key: string]: never }>;
+
+export type ResumesQuery = {
+  __typename?: "Query";
+  resumes: Array<{
+    __typename?: "ResumeType";
+    id: string;
+    title: string;
+    content: string;
+    createdAt: any;
+    updatedAt: any;
+  }>;
+};
+
+export type ResumeQueryVariables = Exact<{ id: Scalars["ID"]["input"] }>;
+
+export type ResumeQuery = {
+  __typename?: "Query";
+  resume: {
+    __typename?: "ResumeType";
+    id: string;
+    userId: string;
+    title: string;
+    content: string;
+    createdAt: any;
+    updatedAt: any;
+  };
+};
+
+export type CreateResumeMutationVariables = Exact<{ input: CreateResumeInput }>;
+
+export type CreateResumeMutation = {
+  __typename?: "Mutation";
+  createResume: {
+    __typename?: "ResumeType";
+    id: string;
+    title: string;
+    content: string;
+    createdAt: any;
+    updatedAt: any;
+  };
+};
+
+export type UpdateResumeMutationVariables = Exact<{
+  id: Scalars["ID"]["input"];
+  input: UpdateResumeInput;
+}>;
+
+export type UpdateResumeMutation = {
+  __typename?: "Mutation";
+  updateResume: {
+    __typename?: "ResumeType";
+    id: string;
+    title: string;
+    content: string;
+    createdAt: any;
+    updatedAt: any;
+  };
+};
+
+export type DeleteResumeMutationVariables = Exact<{
+  id: Scalars["ID"]["input"];
+}>;
+
+export type DeleteResumeMutation = {
+  __typename?: "Mutation";
+  deleteResume: {
+    __typename?: "DeleteMutationPayloadType";
+    success: boolean;
+    deletedId: string;
   };
 };
 
@@ -3580,3 +3689,263 @@ export const MeDocument = {
     },
   ],
 } as unknown as DocumentNode<MeQuery, MeQueryVariables>;
+export const ResumesDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "query",
+      name: { kind: "Name", value: "Resumes" },
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "resumes" },
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                { kind: "Field", name: { kind: "Name", value: "title" } },
+                { kind: "Field", name: { kind: "Name", value: "content" } },
+                { kind: "Field", name: { kind: "Name", value: "createdAt" } },
+                { kind: "Field", name: { kind: "Name", value: "updatedAt" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ResumesQuery, ResumesQueryVariables>;
+export const ResumeDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "query",
+      name: { kind: "Name", value: "Resume" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "id" } },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "resume" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "id" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "id" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                { kind: "Field", name: { kind: "Name", value: "userId" } },
+                { kind: "Field", name: { kind: "Name", value: "title" } },
+                { kind: "Field", name: { kind: "Name", value: "content" } },
+                { kind: "Field", name: { kind: "Name", value: "createdAt" } },
+                { kind: "Field", name: { kind: "Name", value: "updatedAt" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ResumeQuery, ResumeQueryVariables>;
+export const CreateResumeDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "CreateResume" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "input" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: {
+              kind: "NamedType",
+              name: { kind: "Name", value: "CreateResumeInput" },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "createResume" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "input" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "input" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                { kind: "Field", name: { kind: "Name", value: "title" } },
+                { kind: "Field", name: { kind: "Name", value: "content" } },
+                { kind: "Field", name: { kind: "Name", value: "createdAt" } },
+                { kind: "Field", name: { kind: "Name", value: "updatedAt" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  CreateResumeMutation,
+  CreateResumeMutationVariables
+>;
+export const UpdateResumeDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "UpdateResume" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "id" } },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "input" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: {
+              kind: "NamedType",
+              name: { kind: "Name", value: "UpdateResumeInput" },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "updateResume" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "id" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "id" },
+                },
+              },
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "input" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "input" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                { kind: "Field", name: { kind: "Name", value: "title" } },
+                { kind: "Field", name: { kind: "Name", value: "content" } },
+                { kind: "Field", name: { kind: "Name", value: "createdAt" } },
+                { kind: "Field", name: { kind: "Name", value: "updatedAt" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  UpdateResumeMutation,
+  UpdateResumeMutationVariables
+>;
+export const DeleteResumeDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "DeleteResume" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "id" } },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "deleteResume" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "id" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "id" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "success" } },
+                { kind: "Field", name: { kind: "Name", value: "deletedId" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  DeleteResumeMutation,
+  DeleteResumeMutationVariables
+>;

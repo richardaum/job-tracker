@@ -151,6 +151,11 @@ export type CreateNoteInput = {
   content: Scalars["String"]["input"];
 };
 
+export type CreateResumeInput = {
+  content: Scalars["String"]["input"];
+  title: Scalars["String"]["input"];
+};
+
 export type CurrencyRates = {
   __typename?: "CurrencyRates";
   base: Scalars["String"]["output"];
@@ -245,6 +250,7 @@ export type Mutation = {
   createDraftApplication: DraftApplicationType;
   createImportRun: ImportRunType;
   createImportTemplate: ImportTemplateType;
+  createResume: ResumeType;
   deleteApplication: DeleteMutationPayloadType;
   deleteApplicationNote: DeleteMutationPayloadType;
   deleteApplicationStageEvent: DeleteMutationPayloadType;
@@ -253,6 +259,7 @@ export type Mutation = {
   deleteDraftApplication: DeleteMutationPayloadType;
   deleteImportRun: DeleteMutationPayloadType;
   deleteImportTemplate: DeleteMutationPayloadType;
+  deleteResume: DeleteMutationPayloadType;
   detachApplicationsFromImportRun: Scalars["Int"]["output"];
   removeApplicationTag: ApplicationType;
   rerunImportTemplate: ImportRunType;
@@ -264,6 +271,7 @@ export type Mutation = {
   updateImportRun: ImportRunType;
   updateImportRunStatus: ImportRunType;
   updateImportTemplate: ImportTemplateType;
+  updateResume: ResumeType;
 };
 
 export type MutationClaimImportRunArgs = { id: Scalars["ID"]["input"] };
@@ -290,6 +298,8 @@ export type MutationCreateImportTemplateArgs = {
   input: CreateImportTemplateInput;
 };
 
+export type MutationCreateResumeArgs = { input: CreateResumeInput };
+
 export type MutationDeleteApplicationArgs = { id: Scalars["ID"]["input"] };
 
 export type MutationDeleteApplicationNoteArgs = { id: Scalars["ID"]["input"] };
@@ -312,6 +322,8 @@ export type MutationDeleteDraftApplicationArgs = {
 export type MutationDeleteImportRunArgs = { id: Scalars["ID"]["input"] };
 
 export type MutationDeleteImportTemplateArgs = { id: Scalars["ID"]["input"] };
+
+export type MutationDeleteResumeArgs = { id: Scalars["ID"]["input"] };
 
 export type MutationDetachApplicationsFromImportRunArgs = {
   importRunId: Scalars["ID"]["input"];
@@ -366,6 +378,11 @@ export type MutationUpdateImportTemplateArgs = {
   input: UpdateImportTemplateInput;
 };
 
+export type MutationUpdateResumeArgs = {
+  id: Scalars["ID"]["input"];
+  input: UpdateResumeInput;
+};
+
 export type NoteType = {
   __typename?: "NoteType";
   applicationId?: Maybe<Scalars["String"]["output"]>;
@@ -396,6 +413,8 @@ export type Query = {
   importers: Array<ImporterDescriptorType>;
   me: UserType;
   restructureJobDescriptionWithAI: Scalars["String"]["output"];
+  resume: ResumeType;
+  resumes: Array<ResumeType>;
   rewriteTextWithAI: Scalars["String"]["output"];
 };
 
@@ -445,7 +464,19 @@ export type QueryRestructureJobDescriptionWithAiArgs = {
   text: Scalars["String"]["input"];
 };
 
+export type QueryResumeArgs = { id: Scalars["ID"]["input"] };
+
 export type QueryRewriteTextWithAiArgs = { text: Scalars["String"]["input"] };
+
+export type ResumeType = {
+  __typename?: "ResumeType";
+  content: Scalars["String"]["output"];
+  createdAt: Scalars["DateTime"]["output"];
+  id: Scalars["ID"]["output"];
+  title: Scalars["String"]["output"];
+  updatedAt: Scalars["DateTime"]["output"];
+  userId: Scalars["String"]["output"];
+};
 
 export enum SalaryPeriod {
   Hour = "HOUR",
@@ -496,6 +527,11 @@ export type UpdateImportTemplateInput = {
 export type UpdateNoteInput = {
   content?: InputMaybe<Scalars["String"]["input"]>;
   expectedRevision: Scalars["Int"]["input"];
+};
+
+export type UpdateResumeInput = {
+  content?: InputMaybe<Scalars["String"]["input"]>;
+  title?: InputMaybe<Scalars["String"]["input"]>;
 };
 
 export type UserType = {
@@ -1146,6 +1182,79 @@ export type MeQuery = {
     name: string;
     role: string;
     avatarUrl?: string | null;
+  };
+};
+
+export type ResumesQueryVariables = Exact<{ [key: string]: never }>;
+
+export type ResumesQuery = {
+  __typename?: "Query";
+  resumes: Array<{
+    __typename?: "ResumeType";
+    id: string;
+    title: string;
+    content: string;
+    createdAt: any;
+    updatedAt: any;
+  }>;
+};
+
+export type ResumeQueryVariables = Exact<{ id: Scalars["ID"]["input"] }>;
+
+export type ResumeQuery = {
+  __typename?: "Query";
+  resume: {
+    __typename?: "ResumeType";
+    id: string;
+    userId: string;
+    title: string;
+    content: string;
+    createdAt: any;
+    updatedAt: any;
+  };
+};
+
+export type CreateResumeMutationVariables = Exact<{ input: CreateResumeInput }>;
+
+export type CreateResumeMutation = {
+  __typename?: "Mutation";
+  createResume: {
+    __typename?: "ResumeType";
+    id: string;
+    title: string;
+    content: string;
+    createdAt: any;
+    updatedAt: any;
+  };
+};
+
+export type UpdateResumeMutationVariables = Exact<{
+  id: Scalars["ID"]["input"];
+  input: UpdateResumeInput;
+}>;
+
+export type UpdateResumeMutation = {
+  __typename?: "Mutation";
+  updateResume: {
+    __typename?: "ResumeType";
+    id: string;
+    title: string;
+    content: string;
+    createdAt: any;
+    updatedAt: any;
+  };
+};
+
+export type DeleteResumeMutationVariables = Exact<{
+  id: Scalars["ID"]["input"];
+}>;
+
+export type DeleteResumeMutation = {
+  __typename?: "Mutation";
+  deleteResume: {
+    __typename?: "DeleteMutationPayloadType";
+    success: boolean;
+    deletedId: string;
   };
 };
 
@@ -3092,3 +3201,240 @@ export function useMeLazyQuery(
 
 export type MeQueryHookResult = ReturnType<typeof useMeQuery>;
 export type MeLazyQueryHookResult = ReturnType<typeof useMeLazyQuery>;
+
+export const ResumesDocument = gql`
+  query Resumes {
+    resumes {
+      id
+      title
+      content
+      createdAt
+      updatedAt
+    }
+  }
+`;
+
+/**
+ * __useResumesQuery__
+ *
+ * To run a query within a React component, call `useResumesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useResumesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useResumesQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useResumesQuery(
+  baseOptions?: ApolloReactHooks.QueryHookOptions<
+    ResumesQuery,
+    ResumesQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useQuery<ResumesQuery, ResumesQueryVariables>(
+    ResumesDocument,
+    options,
+  );
+}
+export function useResumesLazyQuery(
+  baseOptions?: ApolloReactHooks.LazyQueryHookOptions<
+    ResumesQuery,
+    ResumesQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useLazyQuery<ResumesQuery, ResumesQueryVariables>(
+    ResumesDocument,
+    options,
+  );
+}
+
+export type ResumesQueryHookResult = ReturnType<typeof useResumesQuery>;
+export type ResumesLazyQueryHookResult = ReturnType<typeof useResumesLazyQuery>;
+
+export const ResumeDocument = gql`
+  query Resume($id: ID!) {
+    resume(id: $id) {
+      id
+      userId
+      title
+      content
+      createdAt
+      updatedAt
+    }
+  }
+`;
+
+/**
+ * __useResumeQuery__
+ *
+ * To run a query within a React component, call `useResumeQuery` and pass it any options that fit your needs.
+ * When your component renders, `useResumeQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useResumeQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useResumeQuery(
+  baseOptions: ApolloReactHooks.QueryHookOptions<
+    ResumeQuery,
+    ResumeQueryVariables
+  > &
+    ({ variables: ResumeQueryVariables; skip?: boolean } | { skip: boolean }),
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useQuery<ResumeQuery, ResumeQueryVariables>(
+    ResumeDocument,
+    options,
+  );
+}
+export function useResumeLazyQuery(
+  baseOptions?: ApolloReactHooks.LazyQueryHookOptions<
+    ResumeQuery,
+    ResumeQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useLazyQuery<ResumeQuery, ResumeQueryVariables>(
+    ResumeDocument,
+    options,
+  );
+}
+
+export type ResumeQueryHookResult = ReturnType<typeof useResumeQuery>;
+export type ResumeLazyQueryHookResult = ReturnType<typeof useResumeLazyQuery>;
+
+export const CreateResumeDocument = gql`
+  mutation CreateResume($input: CreateResumeInput!) {
+    createResume(input: $input) {
+      id
+      title
+      content
+      createdAt
+      updatedAt
+    }
+  }
+`;
+
+/**
+ * __useCreateResumeMutation__
+ *
+ * To run a mutation, you first call `useCreateResumeMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateResumeMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createResumeMutation, { data, loading, error }] = useCreateResumeMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateResumeMutation(
+  baseOptions?: ApolloReactHooks.MutationHookOptions<
+    CreateResumeMutation,
+    CreateResumeMutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useMutation<
+    CreateResumeMutation,
+    CreateResumeMutationVariables
+  >(CreateResumeDocument, options);
+}
+
+export const UpdateResumeDocument = gql`
+  mutation UpdateResume($id: ID!, $input: UpdateResumeInput!) {
+    updateResume(id: $id, input: $input) {
+      id
+      title
+      content
+      createdAt
+      updatedAt
+    }
+  }
+`;
+
+/**
+ * __useUpdateResumeMutation__
+ *
+ * To run a mutation, you first call `useUpdateResumeMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateResumeMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateResumeMutation, { data, loading, error }] = useUpdateResumeMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateResumeMutation(
+  baseOptions?: ApolloReactHooks.MutationHookOptions<
+    UpdateResumeMutation,
+    UpdateResumeMutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useMutation<
+    UpdateResumeMutation,
+    UpdateResumeMutationVariables
+  >(UpdateResumeDocument, options);
+}
+
+export const DeleteResumeDocument = gql`
+  mutation DeleteResume($id: ID!) {
+    deleteResume(id: $id) {
+      success
+      deletedId
+    }
+  }
+`;
+
+/**
+ * __useDeleteResumeMutation__
+ *
+ * To run a mutation, you first call `useDeleteResumeMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteResumeMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteResumeMutation, { data, loading, error }] = useDeleteResumeMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteResumeMutation(
+  baseOptions?: ApolloReactHooks.MutationHookOptions<
+    DeleteResumeMutation,
+    DeleteResumeMutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useMutation<
+    DeleteResumeMutation,
+    DeleteResumeMutationVariables
+  >(DeleteResumeDocument, options);
+}

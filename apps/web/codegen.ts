@@ -26,6 +26,14 @@ const config: CodegenConfig = {
         useTypeImports: true,
       },
     },
+    "src/gql/sdk.ts": {
+      plugins: [
+        "typescript",
+        "typescript-operations",
+        "typescript-graphql-request",
+      ],
+      config: { useTypeImports: true, rawRequest: false },
+    },
   },
   ignoreNoDocuments: false,
 };
