@@ -20,6 +20,8 @@ export function getStageTimelineDotColor(stage: ApplicationStage) {
       return "text-text-warning";
     case ApplicationStage.Technical:
       return "text-text-brand";
+    case ApplicationStage.CulturalFit:
+      return "text-text-brand";
     case ApplicationStage.Duplicated:
       return "text-text-warning";
     default:

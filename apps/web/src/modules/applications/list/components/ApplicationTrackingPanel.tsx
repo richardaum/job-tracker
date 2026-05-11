@@ -31,6 +31,7 @@ const stageOptions: Array<{ value: ApplicationStage; label: string }> = [
   { value: ApplicationStage.Applied, label: "Applied" },
   { value: ApplicationStage.RecruiterScreen, label: "Recruiter Screen" },
   { value: ApplicationStage.Technical, label: "Technical" },
+  { value: ApplicationStage.CulturalFit, label: "Cultural Fit" },
   { value: ApplicationStage.Offer, label: "Offer" },
   { value: ApplicationStage.Rejected, label: "Rejected" },
 ];

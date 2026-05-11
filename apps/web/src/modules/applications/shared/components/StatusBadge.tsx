@@ -15,6 +15,8 @@ function getStageBadgeIntent(stage: ApplicationStage) {
       return "error" as const;
     case ApplicationStage.Technical:
       return "info" as const;
+    case ApplicationStage.CulturalFit:
+      return "info" as const;
     case ApplicationStage.RecruiterScreen:
       return "warning" as const;
     case ApplicationStage.Duplicated:
