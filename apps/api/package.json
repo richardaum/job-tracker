@@ -12,7 +12,8 @@
     "db:migrate:squash": "node ./scripts/squash-migrations.mjs",
     "build": "nest build && tsc-alias -p tsconfig.build.json",
     "start": "node dist/main",
-    "lint": "eslint . --fix --max-warnings=0 --no-warn-ignored && tsc --noEmit",
+    "lint": "eslint . --max-warnings=0 --no-warn-ignored && tsc --noEmit",
+    "lint:fix": "eslint . --fix --max-warnings=0 --no-warn-ignored && tsc --noEmit",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },

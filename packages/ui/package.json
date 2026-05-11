@@ -15,7 +15,8 @@
     "build-storybook": "pnpm run sync-specs-docs && storybook build",
     "pretest-storybook": "pnpm run sync-specs-docs",
     "test-storybook": "vitest run --project=storybook",
-    "lint": "eslint . --fix --max-warnings=0 --no-warn-ignored && tsc --noEmit",
+    "lint": "eslint . --max-warnings=0 --no-warn-ignored && tsc --noEmit",
+    "lint:fix": "eslint . --fix --max-warnings=0 --no-warn-ignored && tsc --noEmit",
     "typecheck": "tsc --noEmit",
     "test": "vitest run --project=unit",
     "test:coverage": "vitest run --coverage --project=unit"
