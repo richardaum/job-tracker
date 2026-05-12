@@ -11,8 +11,8 @@ export class DraftApplicationType {
   @Field(() => ID)
   id!: string;
 
-  @Field()
-  url!: string;
+  @Field(() => String, { nullable: true })
+  url!: string | null;
 
   @Field()
   title!: string;

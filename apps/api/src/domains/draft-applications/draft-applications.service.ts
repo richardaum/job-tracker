@@ -94,7 +94,7 @@ export class DraftApplicationsService implements OnModuleInit {
     input: CreateDraftApplicationInput,
   ): Promise<DraftApplicationType> {
     const row = await this.repo.create({
-      url: input.url,
+      url: input.url ?? null,
       title: input.title,
       htmlContent: input.htmlContent,
     });

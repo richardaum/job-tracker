@@ -33,17 +33,15 @@ export function ImportDraftFromPasteDialog({
 
   async function handleConfirm() {
     const normalized = url.trim();
-    if (!normalized) {
-      setUrlError("URL is required.");
-      return;
-    }
 
-    const [urlErr] = tryRun(() => {
-      void new URL(normalized);
-    });
-    if (urlErr) {
-      setUrlError("Enter a valid URL including protocol (https://...).");
-      return;
+    if (normalized) {
+      const [urlErr] = tryRun(() => {
+        void new URL(normalized);
+      });
+      if (urlErr) {
+        setUrlError("Enter a valid URL including protocol (https://...).");
+        return;
+      }
     }
 
     setUrlError(null);
@@ -55,7 +53,7 @@ export function ImportDraftFromPasteDialog({
     <Dialog
       trigger={<span aria-hidden style={{ display: "none" }} />}
       title="Import pasted content"
-      description="Provide the source URL and confirm to create a new draft."
+      description="Optionally provide the source URL and confirm to create a new draft."
       size="xl"
       open={open}
       onOpenChange={(nextOpen) => {
@@ -88,7 +86,7 @@ export function ImportDraftFromPasteDialog({
       <div className={cn("space-y-4")}>
         <label className={cn("block space-y-1.5")}>
           <Text size="sm" weight="medium">
-            URL
+            URL <span className={cn("text-text-muted")}>(optional)</span>
           </Text>
           <Input
             type="url"

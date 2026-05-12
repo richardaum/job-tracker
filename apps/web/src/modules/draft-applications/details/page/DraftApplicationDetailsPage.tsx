@@ -41,7 +41,8 @@ interface PageProps {
   params: Promise<{ id: string }>;
 }
 
-function draftPrimaryTitle(url: string): string {
+function draftPrimaryTitle(url: string | null | undefined): string {
+  if (!url) return "Untitled draft";
   const [err, title] = tryRun(() => {
     const u = new URL(url);
     const host = u.hostname.replace(/^www\./, "");
@@ -55,7 +56,10 @@ function draftPrimaryTitle(url: string): string {
   return url.length > 120 ? `${url.slice(0, 117)}…` : url;
 }
 
-function draftHeadingTitle(title: string, url: string): string {
+function draftHeadingTitle(
+  title: string,
+  url: string | null | undefined,
+): string {
   const trimmedTitle = title.trim();
   if (trimmedTitle.length > 0) {
     return trimmedTitle;
@@ -177,13 +181,45 @@ export default function DraftApplicationDetailsPage({ params }: PageProps) {
 
   function renderOverviewBody() {
     if (!draft) return null;
-    const truncatedUrl = truncateText(draft.url, 80);
+    const truncatedUrl = draft.url ? truncateText(draft.url, 80) : null;
     const isUrlTruncated = truncatedUrl !== draft.url;
     const linkedApplication = applicationData?.application ?? null;
     const truncatedDraftId = truncateMiddle(draft.id, 8, 4);
 
     return (
       <OverviewSection layout="grid">
+        {draft.url ? (
+          <FieldWithLabelAction
+            label="Source URL"
+            content={
+              <Tooltip
+                content={isUrlTruncated ? draft.url : undefined}
+                side="top"
+                enabled={isUrlTruncated}
+              >
+                <a
+                  href={draft.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={cn(
+                    "block max-w-88 truncate text-sm text-text-brand underline-offset-2 hover:underline",
+                  )}
+                >
+                  {truncatedUrl}
+                </a>
+              </Tooltip>
+            }
+          />
+        ) : (
+          <FieldWithLabelAction
+            label="Source URL"
+            content={
+              <Text size="sm" color="muted">
+                Not provided
+              </Text>
+            }
+          />
+        )}
         <FieldWithLabelAction
           label="Draft id"
           actions={
@@ -219,27 +255,6 @@ export default function DraftApplicationDetailsPage({ params }: PageProps) {
             <Text size="sm" className={cn("wrap-break-word")}>
               {draft.title.trim() || "Untitled page"}
             </Text>
-          }
-        />
-        <FieldWithLabelAction
-          label="Source URL"
-          content={
-            <Tooltip
-              content={isUrlTruncated ? draft.url : undefined}
-              side="top"
-              enabled={isUrlTruncated}
-            >
-              <a
-                href={draft.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={cn(
-                  "block max-w-88 truncate text-sm text-text-brand underline-offset-2 hover:underline",
-                )}
-              >
-                {truncatedUrl}
-              </a>
-            </Tooltip>
           }
         />
         <DraftCurrentApplicationField application={linkedApplication} />

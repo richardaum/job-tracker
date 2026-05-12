@@ -134,7 +134,7 @@ export type CreateApplicationStageEventInput = {
 export type CreateDraftApplicationInput = {
   htmlContent: Scalars["String"]["input"];
   title: Scalars["String"]["input"];
-  url: Scalars["String"]["input"];
+  url?: InputMaybe<Scalars["String"]["input"]>;
 };
 
 export type CreateImportRunInput = { importerId: Scalars["String"]["input"] };
@@ -181,7 +181,7 @@ export type DraftApplicationType = {
   htmlContent: Scalars["String"]["output"];
   id: Scalars["ID"]["output"];
   title: Scalars["String"]["output"];
-  url: Scalars["String"]["output"];
+  url?: Maybe<Scalars["String"]["output"]>;
 };
 
 export type ExchangeRate = {
@@ -978,7 +978,7 @@ export type DraftApplicationsListQuery = {
     __typename?: "DraftApplicationType";
     id: string;
     applicationId?: string | null;
-    url: string;
+    url?: string | null;
     title: string;
     conversionStatus: DraftApplicationConversionStatus;
     conversionError?: string | null;
@@ -995,7 +995,7 @@ export type DraftApplicationDetailQuery = {
     __typename?: "DraftApplicationType";
     id: string;
     applicationId?: string | null;
-    url: string;
+    url?: string | null;
     title: string;
     htmlContent: string;
     conversionStatus: DraftApplicationConversionStatus;
@@ -1055,7 +1055,7 @@ export type CreateDraftApplicationMutation = {
     __typename?: "DraftApplicationType";
     id: string;
     applicationId?: string | null;
-    url: string;
+    url?: string | null;
     title: string;
     conversionStatus: DraftApplicationConversionStatus;
     conversionError?: string | null;
@@ -1073,7 +1073,7 @@ export type UpdateDraftApplicationMutation = {
     __typename?: "DraftApplicationType";
     id: string;
     applicationId?: string | null;
-    url: string;
+    url?: string | null;
     title: string;
     conversionStatus: DraftApplicationConversionStatus;
     conversionError?: string | null;

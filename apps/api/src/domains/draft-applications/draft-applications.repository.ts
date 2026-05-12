@@ -53,7 +53,7 @@ export class DraftApplicationsRepository {
   }
 
   async create(params: {
-    url: string;
+    url: string | null;
     title: string;
     htmlContent: string;
     conversionStatus?: DraftApplicationEntity["conversionStatus"];

@@ -18,7 +18,8 @@ import { ConversionStatusBadge } from "@/modules/draft-applications/shared/compo
 export type DraftListItem =
   DraftApplicationsListQuery["draftApplications"][number];
 
-function draftDisplayUrl(url: string): string {
+function draftDisplayUrl(url: string | null | undefined): string {
+  if (!url) return "—";
   const [err, joined] = tryRun(() => {
     const u = new URL(url);
     const path = u.pathname.length > 1 ? u.pathname : "";

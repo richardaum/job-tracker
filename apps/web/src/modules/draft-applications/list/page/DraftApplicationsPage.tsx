@@ -74,6 +74,7 @@ export default function DraftApplicationsPage() {
   }
 
   function titleFromUrl(url: string) {
+    if (!url) return "Imported draft";
     const [err, parsed] = tryRun(() => new URL(url));
     if (!err) {
       return parsed.hostname;
@@ -111,7 +112,11 @@ export default function DraftApplicationsPage() {
     const [error] = await tryRun(
       createDraftApplication({
         variables: {
-          input: { url, title: titleFromUrl(url), htmlContent: pastedContent },
+          input: {
+            url: url || null,
+            title: titleFromUrl(url),
+            htmlContent: pastedContent,
+          },
         },
       }),
     );

@@ -30,11 +30,11 @@ export class ApplicationAiService {
    */
   async extractFromDraft(input: {
     title: string;
-    url: string;
+    url: string | null;
     htmlContent: string;
   }): Promise<DraftExtractionModel> {
     const postingPlainText = htmlToPlainText(input.htmlContent);
-    if (!postingPlainText.trim() && !input.title.trim() && !input.url.trim()) {
+    if (!postingPlainText.trim() && !input.title.trim() && !input.url?.trim()) {
       throw new BadRequestException("Draft has no usable content to extract.");
     }
 

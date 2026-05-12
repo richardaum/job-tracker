@@ -23,8 +23,8 @@ export class DraftApplicationEntity {
   @PrimaryColumn({ type: "text" })
   id!: string;
 
-  @Column({ type: "text" })
-  url!: string;
+  @Column({ type: "text", nullable: true })
+  url!: string | null;
 
   @Column({ type: "text" })
   title!: string;

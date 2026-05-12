@@ -265,7 +265,7 @@ export class ApplicationService {
     const [extractError, raw] = await tryRun(
       this.applicationAiService.extractFromDraft({
         title: draft.title,
-        url: draft.url,
+        url: draft.url ?? null,
         htmlContent: draft.htmlContent,
       }),
     );
@@ -290,7 +290,7 @@ export class ApplicationService {
         title: normalized.title,
         company: normalized.company,
         description: normalized.description,
-        urls: draft.url.trim() ? [draft.url.trim()] : [],
+        urls: draft.url?.trim() ? [draft.url.trim()] : [],
         salaryMinCents: normalized.salaryMinCents,
         salaryMaxCents: normalized.salaryMaxCents,
         salaryCurrency: normalized.salaryCurrency,

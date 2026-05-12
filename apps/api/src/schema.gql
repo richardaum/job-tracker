@@ -31,7 +31,7 @@ scalar DateTime
 
 type DraftApplicationType {
   id: ID!
-  url: String!
+  url: String
   title: String!
   htmlContent: String!
   applicationId: String
@@ -306,7 +306,7 @@ input UpdateCompanyInput {
 }
 
 input CreateDraftApplicationInput {
-  url: String!
+  url: String
   title: String!
   htmlContent: String!
 }
