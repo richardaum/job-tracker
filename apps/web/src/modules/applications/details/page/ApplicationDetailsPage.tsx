@@ -135,6 +135,11 @@ export default function ApplicationDetailsPage({ params }: PageProps) {
       <DropdownMenuItem onSelect={() => setActionsOpen(true)}>
         Update status
       </DropdownMenuItem>
+      <DropdownMenuItem
+        onSelect={() => router.push(`/applications/${application.id}/fit`)}
+      >
+        Fit analysis
+      </DropdownMenuItem>
       <DropdownMenuSeparator />
       <DropdownMenuItem destructive onSelect={() => setDeleteDialogOpen(true)}>
         Remove
