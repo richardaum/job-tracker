@@ -88,6 +88,7 @@ export type ApplicationType = {
   currentStageAt: Scalars["DateTime"]["output"];
   currentStageReason?: Maybe<Scalars["String"]["output"]>;
   description?: Maybe<Scalars["String"]["output"]>;
+  fit?: Maybe<FitAnalysisType>;
   id: Scalars["ID"]["output"];
   importRunId?: Maybe<Scalars["ID"]["output"]>;
   salary: ApplicationSalary;
@@ -191,6 +192,45 @@ export type ExchangeRate = {
   rate: Scalars["Float"]["output"];
 };
 
+export enum FitAnalysisStatus {
+  Completed = "COMPLETED",
+  Failed = "FAILED",
+  Processing = "PROCESSING",
+}
+
+export type FitAnalysisType = {
+  __typename?: "FitAnalysisType";
+  applicationId: Scalars["ID"]["output"];
+  classification?: Maybe<Scalars["String"]["output"]>;
+  createdAt: Scalars["DateTime"]["output"];
+  error?: Maybe<Scalars["String"]["output"]>;
+  fitCount: Scalars["Int"]["output"];
+  gapCount: Scalars["Int"]["output"];
+  id: Scalars["ID"]["output"];
+  items: Array<FitItemType>;
+  resumeId: Scalars["ID"]["output"];
+  scoreRatio?: Maybe<Scalars["Float"]["output"]>;
+  status: FitAnalysisStatus;
+  unclearCount: Scalars["Int"]["output"];
+  updatedAt: Scalars["DateTime"]["output"];
+};
+
+export type FitItemType = {
+  __typename?: "FitItemType";
+  jdQuote: Scalars["String"]["output"];
+  requirement: Scalars["String"]["output"];
+  source: Scalars["String"]["output"];
+  sourceQuotes: Array<Scalars["String"]["output"]>;
+  suggestion?: Maybe<Scalars["String"]["output"]>;
+  verdict: Scalars["String"]["output"];
+  weight?: Maybe<Scalars["String"]["output"]>;
+};
+
+export type GenerateFitInput = {
+  applicationId: Scalars["ID"]["input"];
+  resumeId: Scalars["ID"]["input"];
+};
+
 export type ImportRunEvent = {
   __typename?: "ImportRunEvent";
   occurredAt: Scalars["DateTime"]["output"];
@@ -260,6 +300,7 @@ export type Mutation = {
   deleteImportTemplate: DeleteMutationPayloadType;
   deleteResume: DeleteMutationPayloadType;
   detachApplicationsFromImportRun: Scalars["Int"]["output"];
+  generateApplicationFit: FitAnalysisType;
   removeApplicationTag: ApplicationType;
   rerunImportTemplate: ImportRunType;
   updateApplication: ApplicationType;
@@ -328,6 +369,8 @@ export type MutationDeleteResumeArgs = { id: Scalars["ID"]["input"] };
 export type MutationDetachApplicationsFromImportRunArgs = {
   importRunId: Scalars["ID"]["input"];
 };
+
+export type MutationGenerateApplicationFitArgs = { input: GenerateFitInput };
 
 export type MutationRemoveApplicationTagArgs = {
   id: Scalars["ID"]["input"];
@@ -412,6 +455,7 @@ export type PreferenceType = {
 export type Query = {
   __typename?: "Query";
   application: ApplicationType;
+  applicationFit?: Maybe<FitAnalysisType>;
   applicationNotes: Array<NoteType>;
   applicationStageEvents: Array<ApplicationStageEventType>;
   applications: Array<ApplicationType>;
@@ -435,6 +479,8 @@ export type Query = {
 };
 
 export type QueryApplicationArgs = { id: Scalars["ID"]["input"] };
+
+export type QueryApplicationFitArgs = { applicationId: Scalars["ID"]["input"] };
 
 export type QueryApplicationNotesArgs = {
   applicationId: Scalars["ID"]["input"];
@@ -603,6 +649,14 @@ export type ApplicationsQuery = {
       name: string;
       description?: string | null;
     };
+    fit?: {
+      __typename?: "FitAnalysisType";
+      scoreRatio?: number | null;
+      classification?: string | null;
+      fitCount: number;
+      gapCount: number;
+      unclearCount: number;
+    } | null;
     salary: {
       __typename?: "ApplicationSalary";
       minCents?: number | null;
@@ -637,6 +691,14 @@ export type ApplicationQuery = {
       name: string;
       description?: string | null;
     };
+    fit?: {
+      __typename?: "FitAnalysisType";
+      scoreRatio?: number | null;
+      classification?: string | null;
+      fitCount: number;
+      gapCount: number;
+      unclearCount: number;
+    } | null;
     salary: {
       __typename?: "ApplicationSalary";
       minCents?: number | null;
@@ -1091,6 +1153,70 @@ export type UpdateDraftApplicationMutation = {
   };
 };
 
+export type ApplicationFitQueryVariables = Exact<{
+  applicationId: Scalars["ID"]["input"];
+}>;
+
+export type ApplicationFitQuery = {
+  __typename?: "Query";
+  applicationFit?: {
+    __typename?: "FitAnalysisType";
+    id: string;
+    applicationId: string;
+    resumeId: string;
+    status: FitAnalysisStatus;
+    error?: string | null;
+    scoreRatio?: number | null;
+    classification?: string | null;
+    fitCount: number;
+    gapCount: number;
+    unclearCount: number;
+    createdAt: any;
+    items: Array<{
+      __typename?: "FitItemType";
+      requirement: string;
+      source: string;
+      weight?: string | null;
+      verdict: string;
+      jdQuote: string;
+      sourceQuotes: Array<string>;
+      suggestion?: string | null;
+    }>;
+  } | null;
+};
+
+export type GenerateApplicationFitMutationVariables = Exact<{
+  input: GenerateFitInput;
+}>;
+
+export type GenerateApplicationFitMutation = {
+  __typename?: "Mutation";
+  generateApplicationFit: {
+    __typename?: "FitAnalysisType";
+    id: string;
+    applicationId: string;
+    resumeId: string;
+    status: FitAnalysisStatus;
+    error?: string | null;
+    scoreRatio?: number | null;
+    classification?: string | null;
+    fitCount: number;
+    gapCount: number;
+    unclearCount: number;
+    createdAt: any;
+    items: Array<{
+      __typename?: "FitItemType";
+      requirement: string;
+      source: string;
+      weight?: string | null;
+      verdict: string;
+      jdQuote: string;
+      sourceQuotes: Array<string>;
+      suggestion?: string | null;
+    }>;
+  };
+};
+
 export type ImportersListQueryVariables = Exact<{ [key: string]: never }>;
 
 export type ImportersListQuery = {
@@ -1338,6 +1464,13 @@ export const ApplicationsDocument = gql`
       currentStageReason
       currentStageAt
       createdAt
+      fit {
+        scoreRatio
+        classification
+        fitCount
+        gapCount
+        unclearCount
+      }
     }
   }
   ${ApplicationSalarySelectionFragmentDoc}
@@ -1363,6 +1496,13 @@ export const ApplicationDocument = gql`
       currentStageReason
       currentStageAt
       createdAt
+      fit {
+        scoreRatio
+        classification
+        fitCount
+        gapCount
+        unclearCount
+      }
     }
   }
   ${ApplicationSalarySelectionFragmentDoc}
@@ -1664,6 +1804,58 @@ export const UpdateDraftApplicationDocument = gql`
       title
       conversionStatus
       conversionError
+    }
+  }
+`;
+export const ApplicationFitDocument = gql`
+  query ApplicationFit($applicationId: ID!) {
+    applicationFit(applicationId: $applicationId) {
+      id
+      applicationId
+      resumeId
+      status
+      error
+      scoreRatio
+      classification
+      fitCount
+      gapCount
+      unclearCount
+      items {
+        requirement
+        source
+        weight
+        verdict
+        jdQuote
+        sourceQuotes
+        suggestion
+      }
+      createdAt
+    }
+  }
+`;
+export const GenerateApplicationFitDocument = gql`
+  mutation GenerateApplicationFit($input: GenerateFitInput!) {
+    generateApplicationFit(input: $input) {
+      id
+      applicationId
+      resumeId
+      status
+      error
+      scoreRatio
+      classification
+      fitCount
+      gapCount
+      unclearCount
+      items {
+        requirement
+        source
+        weight
+        verdict
+        jdQuote
+        sourceQuotes
+        suggestion
+      }
+      createdAt
     }
   }
 `;
@@ -2373,6 +2565,42 @@ export function getSdk(
             signal,
           }),
         "UpdateDraftApplication",
+        "mutation",
+        variables,
+      );
+    },
+    ApplicationFit(
+      variables: ApplicationFitQueryVariables,
+      requestHeaders?: GraphQLClientRequestHeaders,
+      signal?: RequestInit["signal"],
+    ): Promise<ApplicationFitQuery> {
+      return withWrapper(
+        (wrappedRequestHeaders) =>
+          client.request<ApplicationFitQuery>({
+            document: ApplicationFitDocument,
+            variables,
+            requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
+            signal,
+          }),
+        "ApplicationFit",
+        "query",
+        variables,
+      );
+    },
+    GenerateApplicationFit(
+      variables: GenerateApplicationFitMutationVariables,
+      requestHeaders?: GraphQLClientRequestHeaders,
+      signal?: RequestInit["signal"],
+    ): Promise<GenerateApplicationFitMutation> {
+      return withWrapper(
+        (wrappedRequestHeaders) =>
+          client.request<GenerateApplicationFitMutation>({
+            document: GenerateApplicationFitDocument,
+            variables,
+            requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
+            signal,
+          }),
+        "GenerateApplicationFit",
         "mutation",
         variables,
       );

@@ -1,4 +1,5 @@
 import { CompanyType } from "@api/domains/companies/company.type";
+import { FitAnalysisType } from "@api/domains/fit-analysis/fit-analysis.type";
 import { Field, ID, ObjectType } from "@nestjs/graphql";
 
 import { ApplicationSource } from "./application-source.enum";
@@ -56,4 +57,7 @@ export class ApplicationType {
 
   @Field(() => ID, { nullable: true })
   importRunId!: string | null;
+
+  @Field(() => FitAnalysisType, { nullable: true })
+  fit?: FitAnalysisType;
 }

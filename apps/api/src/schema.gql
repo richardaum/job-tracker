@@ -46,6 +46,39 @@ enum DraftApplicationConversionStatus {
   FAILED
 }
 
+type FitItemType {
+  requirement: String!
+  source: String!
+  weight: String
+  type: String!
+  verdict: String!
+  jdQuote: String!
+  sourceQuotes: [String!]!
+  suggestion: String
+}
+
+type FitAnalysisType {
+  id: ID!
+  applicationId: ID!
+  resumeId: ID!
+  status: FitAnalysisStatus!
+  error: String
+  scoreRatio: Float
+  classification: String
+  fitCount: Int!
+  gapCount: Int!
+  unclearCount: Int!
+  items: [FitItemType!]!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+enum FitAnalysisStatus {
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
 type ApplicationType {
   id: ID!
   userId: String!
@@ -62,6 +95,7 @@ type ApplicationType {
   createdAt: DateTime!
   updatedAt: DateTime!
   importRunId: ID
+  fit: FitAnalysisType
   salary: ApplicationSalary!
 }
 
@@ -210,6 +244,7 @@ type Query {
   resumes: [ResumeType!]!
   resume(id: ID!): ResumeType!
   userPreferences: [PreferenceType!]!
+  applicationFit(applicationId: ID!): FitAnalysisType
   rewriteTextWithAI(text: String!): String!
   restructureJobDescriptionWithAI(text: String!): String!
 }
@@ -255,6 +290,7 @@ type Mutation {
   updateResume(id: ID!, input: UpdateResumeInput!): ResumeType!
   deleteResume(id: ID!): DeleteMutationPayloadType!
   updateUserPreferences(items: [PreferenceInput!]!): [PreferenceType!]!
+  generateApplicationFit(input: GenerateFitInput!): FitAnalysisType!
 }
 
 input CreateApplicationInput {
@@ -357,6 +393,11 @@ input UpdateResumeInput {
 input PreferenceInput {
   text: String!
   weight: WeightEnum!
+}
+
+input GenerateFitInput {
+  applicationId: ID!
+  resumeId: ID!
 }
 
 type Subscription {

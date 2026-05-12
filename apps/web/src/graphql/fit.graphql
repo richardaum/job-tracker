@@ -1,0 +1,49 @@
+query ApplicationFit($applicationId: ID!) {
+  applicationFit(applicationId: $applicationId) {
+    id
+    applicationId
+    resumeId
+    status
+    error
+    scoreRatio
+    classification
+    fitCount
+    gapCount
+    unclearCount
+    items {
+      requirement
+      source
+      weight
+      verdict
+      jdQuote
+      sourceQuotes
+      suggestion
+    }
+    createdAt
+  }
+}
+
+mutation GenerateApplicationFit($input: GenerateFitInput!) {
+  generateApplicationFit(input: $input) {
+    id
+    applicationId
+    resumeId
+    status
+    error
+    scoreRatio
+    classification
+    fitCount
+    gapCount
+    unclearCount
+    items {
+      requirement
+      source
+      weight
+      verdict
+      jdQuote
+      sourceQuotes
+      suggestion
+    }
+    createdAt
+  }
+}

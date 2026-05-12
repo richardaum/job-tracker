@@ -31,6 +31,13 @@ query Applications(
     currentStageReason
     currentStageAt
     createdAt
+    fit {
+      scoreRatio
+      classification
+      fitCount
+      gapCount
+      unclearCount
+    }
   }
 }
 
@@ -54,6 +61,13 @@ query Application($id: ID!) {
     currentStageReason
     currentStageAt
     createdAt
+    fit {
+      scoreRatio
+      classification
+      fitCount
+      gapCount
+      unclearCount
+    }
   }
 }
 
