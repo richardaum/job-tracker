@@ -27,7 +27,7 @@ export function ApplicationsCompanyFilterBanner({
         type="button"
         onClick={onClear}
         className={cn(
-          "text-xs text-text-brand underline-offset-2 hover:underline",
+          "cursor-pointer text-xs text-text-brand underline-offset-2 hover:underline",
         )}
       >
         Clear
