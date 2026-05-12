@@ -32,6 +32,8 @@ import { MakeSurfaceUrlMandatory1764000000000 } from "./1764000000000-make-surfa
 import { CreateResumes1764100000000 } from "./1764100000000-create-resumes";
 import { CreateUserPreferences1764200000000 } from "./1764200000000-create-user-preferences";
 import { MakeDraftApplicationUrlNullable1764300000000 } from "./1764300000000-make-draft-application-url-nullable";
+import { CreateFitAnalysis1764400000000 } from "./1764400000000-create-fit-analysis";
+import { AddFitAnalysisStatus1764500000000 } from "./1764500000000-add-fit-analysis-status";
 
 export const migrations = [
   Baseline1746009600000,
@@ -68,4 +70,6 @@ export const migrations = [
   CreateResumes1764100000000,
   CreateUserPreferences1764200000000,
   MakeDraftApplicationUrlNullable1764300000000,
+  CreateFitAnalysis1764400000000,
+  AddFitAnalysisStatus1764500000000,
 ];

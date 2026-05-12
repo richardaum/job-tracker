@@ -6,6 +6,7 @@ import { ApplicationStageEventEntity } from "./entities/application-stage-event.
 import { CompanyEntity } from "./entities/company.entity";
 import { DraftApplicationEntity } from "./entities/draft-application.entity";
 import { ExchangeRateCacheEntity } from "./entities/exchange-rate-cache.entity";
+import { FitAnalysisEntity } from "./entities/fit-analysis.entity";
 import { ImportRunEntity } from "./entities/import-run.entity";
 import { ImportTemplateEntity } from "./entities/import-template.entity";
 import { ResumeEntity } from "./entities/resume.entity";
@@ -24,6 +25,7 @@ export const apiEntities = [
   ResumeEntity,
   DraftApplicationEntity,
   ExchangeRateCacheEntity,
+  FitAnalysisEntity,
   UserPreferencesEntity,
 ];
 
