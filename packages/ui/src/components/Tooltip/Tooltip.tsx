@@ -11,6 +11,7 @@ export interface TooltipProps {
   open?: boolean;
   defaultOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
+  /** Whether the tooltip is active. If `false`, the tooltip will not be rendered and children will be returned directly. Defaults to `true`. */
   enabled?: boolean;
 }
 

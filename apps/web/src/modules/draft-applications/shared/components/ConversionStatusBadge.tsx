@@ -42,11 +42,11 @@ export function ConversionStatusBadge({
       <span className={cn("inline-flex items-center")}>
         <Badge
           intent={conversionStatusBadgeIntent(conversionStatus)}
-          className={cn("whitespace-nowrap", className)}
+          className={cn("whitespace-nowrap gap-1.5", className)}
         >
           {formatConversionStatus(conversionStatus)}
+          {showSpinner ? <Spinner size="sm" /> : null}
         </Badge>
-        {showSpinner ? <Spinner size="sm" className={cn("ml-1.5")} /> : null}
       </span>
     </Tooltip>
   );
