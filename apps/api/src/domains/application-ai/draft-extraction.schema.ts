@@ -7,7 +7,7 @@ export const draftExtractionFieldDefs = {
     schema: z.string(),
     required: true,
     kind: "string",
-    hint: "Job or role title (plain text).",
+    hint: "Job or role title (plain text). Synthesize if too long, e.g. 'Senior Node.js Engineer' instead of 'Senior Node.js Engineer (Remote, Full-time, $150k-$200k)'.",
   },
   company: {
     schema: z.string(),
@@ -42,7 +42,7 @@ export const draftExtractionFieldDefs = {
     schema: z.array(z.string()).default([]),
     required: false,
     kind: "string[]",
-    hint: "Skills, stack, seniority labels. Omit or use [] when none.",
+    hint: "Skills, stack, seniority labels (e.g., ['React', 'TypeScript', 'Senior']). Use ultra-short tags where possible.",
   },
 } as const;
 

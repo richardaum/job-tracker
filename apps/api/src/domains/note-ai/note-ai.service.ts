@@ -32,7 +32,7 @@ export class NoteAiService {
             "Do not add new facts, assumptions, or details that are not present in the original note.",
             "Use the job description only as light context to improve wording/alignment, not as a source of new content.",
             "Return structured JSON only with sections and bullets.",
-            "Each section must have a concise heading and short bullet lines in plain text.",
+            "Each section must have an ultra-short, synthesized heading (max 2-3 words) and short bullet lines in plain text.",
             "Do not use markdown, TipTap JSON, or rich text marks.",
           ].join("\n"),
         },
