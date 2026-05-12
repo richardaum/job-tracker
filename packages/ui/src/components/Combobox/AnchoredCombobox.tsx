@@ -8,6 +8,7 @@ import React, {
   createContext,
   type Dispatch,
   type KeyboardEvent,
+  type ReactElement,
   type ReactNode,
   type RefObject,
   type SetStateAction,
@@ -137,11 +138,16 @@ export type AnchoredComboboxInputProps = Omit<
   | "onClick"
   | "ref"
   | "disabled"
-> & { ignoreBlurWithinMenu?: boolean };
+> & { ignoreBlurWithinMenu?: boolean; leading?: ReactElement };
 
 /** Anchors the input under `Menu.Root` and wires menu open + keyboard routing. */
 function ComboInput(props: AnchoredComboboxInputProps): React.ReactElement {
-  const { ignoreBlurWithinMenu = false, onBlur, ...inputProps } = props;
+  const {
+    ignoreBlurWithinMenu = false,
+    leading,
+    onBlur,
+    ...inputProps
+  } = props;
   const {
     value,
     onValueChange,
@@ -165,32 +171,44 @@ function ComboInput(props: AnchoredComboboxInputProps): React.ReactElement {
 
   return (
     <Menu.Anchor asChild>
-      <TextInput
-        {...inputProps}
-        ref={inputRef}
-        value={value}
-        onChange={(e) => {
-          onValueChange(normalizeInput(e.target.value));
-          if (!open) setOpen(true);
-        }}
-        onClick={() => {
-          if (hasItems && !open) setOpen(true);
-        }}
-        onKeyDown={onInputKeyDown}
-        onBlur={(event) => {
-          if (ignoreBlurWithinMenu) {
-            const relatedRole =
-              (event.relatedTarget as HTMLElement | null)?.getAttribute(
-                "role",
-              ) ?? null;
-            if (relatedRole === "menuitem" || relatedRole === "menu") {
-              return;
+      <div className={cn("relative")}>
+        {leading ? (
+          <span
+            className={cn(
+              "pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 shrink-0 text-base leading-none",
+            )}
+          >
+            {leading}
+          </span>
+        ) : null}
+        <TextInput
+          {...inputProps}
+          ref={inputRef}
+          value={value}
+          onChange={(e) => {
+            onValueChange(normalizeInput(e.target.value));
+            if (!open) setOpen(true);
+          }}
+          onClick={() => {
+            if (hasItems && !open) setOpen(true);
+          }}
+          onKeyDown={onInputKeyDown}
+          onBlur={(event) => {
+            if (ignoreBlurWithinMenu) {
+              const relatedRole =
+                (event.relatedTarget as HTMLElement | null)?.getAttribute(
+                  "role",
+                ) ?? null;
+              if (relatedRole === "menuitem" || relatedRole === "menu") {
+                return;
+              }
             }
-          }
-          onBlur?.(event);
-        }}
-        disabled={disabled}
-      />
+            onBlur?.(event);
+          }}
+          disabled={disabled}
+          className={cn(inputProps.className, leading && "pl-9")}
+        />
+      </div>
     </Menu.Anchor>
   );
 }

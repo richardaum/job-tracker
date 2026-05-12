@@ -19,6 +19,7 @@ export const MAIN_MARKET_CURRENCY_PRESETS: CurrencyPreset[] = [
   { code: "JPY", name: "Japanese Yen", flag: "🇯🇵" },
   { code: "CNY", name: "Chinese Yuan", flag: "🇨🇳" },
   { code: "BRL", name: "Brazilian Real", flag: "🇧🇷" },
+  { code: "CAD", name: "Canadian Dollar", flag: "🇨🇦" },
 ];
 
 export interface CurrencyComboboxProps {
@@ -50,6 +51,7 @@ export function CurrencyCombobox({
   autoComplete = "one-time-code",
   maxLength = 3,
 }: CurrencyComboboxProps) {
+  const currentFlag = presets.find((p) => p.code === value)?.flag;
   const normalizedQuery = value.trim().toLowerCase();
   const lastValidValueRef = useRef<string>(value);
 
@@ -108,6 +110,9 @@ export function CurrencyCombobox({
         autoComplete={autoComplete}
         maxLength={maxLength}
         spellCheck={false}
+        leading={
+          currentFlag ? <span aria-hidden>{currentFlag}</span> : undefined
+        }
       />
       <AnchoredCombobox.Portal>
         <AnchoredCombobox.Content className={cn("z-100 p-0.5")}>

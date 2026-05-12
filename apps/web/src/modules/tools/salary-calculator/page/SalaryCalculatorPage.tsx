@@ -28,7 +28,7 @@ import {
   type SalaryRatePeriodBasis,
 } from "@/modules/tools/salary-calculator/lib/conversion";
 
-const CURRENCIES = ["USD", "EUR", "BRL", "GBP", "CHF"] as const;
+const CURRENCIES = ["USD", "EUR", "BRL", "GBP", "CHF", "CAD"] as const;
 type Currency = (typeof CURRENCIES)[number];
 
 const RATE_PERIOD_OPTIONS = SALARY_RATE_PERIOD_BASES.map((period) => ({
@@ -297,6 +297,7 @@ function getFlag(currency: string): string {
     BRL: "🇧🇷",
     GBP: "🇬🇧",
     CHF: "🇨🇭",
+    CAD: "🇨🇦",
   };
   return flags[currency] ?? "";
 }
