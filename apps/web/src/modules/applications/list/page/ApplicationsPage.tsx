@@ -122,7 +122,10 @@ export default function ApplicationsPage() {
 
       {/* Quick filters */}
       <QuickFilters />
-      <ApplicationsCompanyFilterBanner companyName={companyFilter} />
+      <ApplicationsCompanyFilterBanner
+        companyName={companyFilter}
+        onClear={() => router.push("/applications")}
+      />
       <ApplicationsImportRunFilterBanner
         runId={runIdFilter}
         onClear={() => {
