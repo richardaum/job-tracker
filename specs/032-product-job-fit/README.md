@@ -52,10 +52,15 @@ The fit analysis compares the **JD** against **two sources** from the user:
 
 Each requirement from the JD is compared against **both** sources. A given item can be a **fit** for one source and a **gap** for another.
 
+> **1:n mapping principle**: one quoted aspect from the JD may map to **one or more** quoted aspects from the resume or preferences. A single JD requirement ("strong full-stack experience") can match multiple resume lines (React + Node + DB). The `sourceQuotes` array captures all supporting excerpts — never just the first match.
+
 ```
 JD (reference)                       User profile (two sources)
 ─────────────────────                ─────────────────────────────
-Requirement A  ─── resume ──▶  matches? → Fit
+Requirement A  ─── resume ──▶  matches? → Fit   (1:n — one JD
+                   resume ──▶  matches? → Fit    aspect can match
+                   resume ──▶  matches? → Fit    multiple resume
+                                               lines)
 Requirement B  ─── resume ──▶  missing?  → Gap
 Requirement C  ─── resume ──▶  vague?    → Unclear
 Requirement D  ─── pref  ──▶  matches?  → Fit  (e.g. "remote")
@@ -64,7 +69,7 @@ Requirement E  ─── pref  ──▶  missing?  → Gap  (e.g. "no on‑call
 
 - The **JD** is decomposed into individual requirements/qualifications (tech stack, years of experience, soft skills, education, domain knowledge).
 - Each requirement is compared against **resume content** and **preferences** separately.
-- **Fit** — the source addresses the requirement acceptably.
+- **Fit** — the source addresses the requirement acceptably. One JD aspect may produce **multiple FitItems** (one per matching source aspect) or a **single FitItem** with multiple `sourceQuotes`.
 - **Gap** — the source does not address it, underdelivers, or is silent on it.
 - **Unclear** — the JD is ambiguous, the source is vague, or there's insufficient signal to decide.
 
@@ -72,15 +77,15 @@ Requirement E  ─── pref  ──▶  missing?  → Gap  (e.g. "no on‑call
 
 Each comparison result is a **FitItem**. Every verdict is anchored in **real quotes** — no paraphrasing.
 
-| Field          | Type      | Notes                                                                                                                                                                                 |
-| -------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `requirement`  | `text`    | High‑level label for what the JD asks ("5+ years React")                                                                                                                              |
-| `source`       | `enum`    | `resume` or `preference`                                                                                                                                                              |
-| `weight`       | `enum?`   | `high` or `low` — only present when `source = preference`. Signals how much this item influences the aggregate score.                                                                 |
-| `verdict`      | `enum`    | `fit`, `gap`, or `unclear`                                                                                                                                                            |
-| `jdQuote`      | `text`    | **Literal excerpt** from the JD that states this requirement. Always present — the ground truth.                                                                                      |
-| `sourceQuotes` | `[text!]` | **Literal excerpt(s)** from the resume or preference that support the verdict. Empty for gaps (nothing to quote). For fits: the line(s) that matched. For unclear: the vague passage. |
-| `suggestion`   | `text?`   | How to fill a gap or clarify an unclear item                                                                                                                                          |
+| Field          | Type      | Notes                                                                                                                                                                                                                                                                                                               |
+| -------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `requirement`  | `text`    | High‑level label for what the JD asks ("5+ years React")                                                                                                                                                                                                                                                            |
+| `source`       | `enum`    | `resume` or `preference`                                                                                                                                                                                                                                                                                            |
+| `weight`       | `enum?`   | `high` or `low` — only present when `source = preference`. Signals how much this item influences the aggregate score.                                                                                                                                                                                               |
+| `verdict`      | `enum`    | `fit`, `gap`, or `unclear`                                                                                                                                                                                                                                                                                          |
+| `jdQuote`      | `text`    | **Literal excerpt** from the JD that states this requirement. Always present — the ground truth.                                                                                                                                                                                                                    |
+| `sourceQuotes` | `[text!]` | **Literal excerpt(s)** from the resume or preference that support the verdict. **1:n** — one JD quote may map to multiple source quotes (e.g. "full-stack" JD aspect triggers quotes for React + Node + DB). Empty for gaps (nothing to quote). For fits: the line(s) that matched. For unclear: the vague passage. |
+| `suggestion`   | `text?`   | How to fill a gap or clarify an unclear item                                                                                                                                                                                                                                                                        |
 
 > **Why real quotes?** The user needs to see _exactly_ what text triggered the match. Summaries hide detail. Quotes make the analysis auditable: the user can verify "yes, my resume really says that" or "the JD really requires this".
 
@@ -109,9 +114,9 @@ Each FitItem contributes points toward the total:
 | Preference gap (weight: high) | −2     |
 | Unclear (any source)          | 0      |
 
-**Score ratio** = `total points / max possible points` × 100, where max possible points assumes all items are high‑weight fits.
+**Max possible points** = sum of each item's individual ceiling — resume items and low‑weight preference items cap at 1, high‑weight preference items cap at 2. This ensures 100% is only achievable when every item is a fit and items with higher scoring ceilings (high‑weight preferences) are also satisfied.
 
-Alternatively, when no preference items exist, the max is simply the item count. This normalises the score to a percentage regardless of list size.
+**Score ratio** = `total points / max possible points` × 100.
 
 #### Classification thresholds
 

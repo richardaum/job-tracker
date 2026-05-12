@@ -12,7 +12,7 @@ T-177  /resumes page shell                                —
 T-178  ResumeCard component                               —
 T-179  Resume editor (TipTap)                             —
 T-187  Preferences editor (bullet list, weight toggle)     —
-T-182  FitModal (generate button, empty state, results)    —
+T-182  Fit analysis page (generate button, empty state, results)    —
 
 T-176  GraphQL resume CRUD                                → T-175
 T-186  Verify preferences column                          → T-175 (merged into T-176)
@@ -61,13 +61,13 @@ Tasks on the same line or grouped with `→ —` are fully parallel (no dependen
 
 ### Phase 3 — Web: Fit analysis UI
 
-| Batch | Tasks                                                                | Deps         | Est. |
-| ----- | -------------------------------------------------------------------- | ------------ | ---- |
-| 3a    | **T-182** — FitModal (Dialog, empty state, generate button, results) | —            | 1.5d |
-| 3b    | **T-184** — Wire GraphQL hooks (fit)                                 | T-183, T-182 | 1.5d |
-| 3c    | **T-191** — Final score badge                                        | T-190, T-183 | 1d   |
-| 3d    | **T-189** — Weight badge + filters                                   | T-184, T-187 | 1d   |
-| 3e    | **T-185** — Tests: fit modal                                         | T-184        | 2d   |
+| Batch | Tasks                                                    | Deps         | Est. |
+| ----- | -------------------------------------------------------- | ------------ | ---- |
+| 3a    | **T-182** — Fit analysis page (`/applications/[id]/fit`) | —            | 1.5d |
+| 3b    | **T-184** — Wire GraphQL hooks (fit)                     | T-183, T-182 | 1.5d |
+| 3c    | **T-191** — Final score badge                            | T-190, T-183 | 1d   |
+| 3d    | **T-189** — Weight badge + filters                       | T-184, T-187 | 1d   |
+| 3e    | **T-185** — Tests: fit page                              | T-184        | 2d   |
 
 3a independent — can start alongside Phase 2.
 3c ⇄ 3d — parallel once T-183 + T-190 are done.
@@ -98,6 +98,7 @@ T-192 → T-183 → T-184 → T-185       (Fit analysis)
 | **Preferences são user-level, não per-resume**    | Faz mais sentido — preferências são do usuário, não variam por versão de currículo.               |
 | **Preferences modal na list page, não no editor** | Button "Preferences" na action bar da list page. Abre Dialog com o editor de bullet list.         |
 | **T-186 vira UserPreferences entity**             | Deixa de ser coluna no Resume; vira entidade separada 1:1 com User.                               |
+| **Fit analysis como página, não modal**           | Mais espaço para os cards de fit/gap/unclear + filtros. Consistente com notes sub-page pattern.   |
 
 ## Integration points
 

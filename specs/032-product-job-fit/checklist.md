@@ -7,11 +7,11 @@
 | Task  | Description                                 | Deps                      | Status                                        |
 | ----- | ------------------------------------------- | ------------------------- | --------------------------------------------- |
 | T-175 | Resume entity + migration                   | —                         | ✅ _(merged into T-176)_                      |
-| T-192 | FitAnalysis entity + migration              | —                         | ⬜                                            |
+| T-192 | FitAnalysis entity + migration              | —                         | ✅                                            |
 | T-190 | Scoring logic (pure functions)              | —                         | ⬜                                            |
 | T-176 | GraphQL resume CRUD                         | T-175                     | ✅                                            |
 | T-186 | Verify preferences column                   | T-175 (merged into T-176) | ✅ _(no-op, preferences moved to user-level)_ |
-| T-183 | `generateApplicationFit` + `applicationFit` | T-192, T-175              | ⬜                                            |
+| T-183 | `generateApplicationFit` + `applicationFit` | T-192, T-175              | ✅                                            |
 
 ## Phase 2 — Web: Resume CRUD UI
 
@@ -25,22 +25,22 @@
 | T-179c    | TipTapEditor for resume content (fill height)                 | —            | ✅                       |
 | T-179d    | Save button in header + draft state management                | —            | ✅                       |
 | T-179e    | Delete action from details page                               | —            | ✅                       |
-| **T-186** | **UserPreferences entity + GraphQL (1:1 with User)**          | —            | **⬜**                   |
-| **T-187** | **Preferences modal (list page, Dialog, bullet list editor)** | —            | **✅ _(mock data)_**     |
-| T-187a    | Preference item: text input + weight dropdown + remove        | —            | ✅ _(mock data)_         |
-| T-187b    | "Add preference" button                                       | —            | ✅ _(mock data)_         |
-| T-187c    | Save button in modal                                          | —            | ✅ _(mock data)_         |
+| **T-186** | **UserPreferences entity + GraphQL (1:1 with User)**          | —            | **✅**                   |
+| **T-187** | **Preferences modal (list page, Dialog, bullet list editor)** | —            | **✅**                   |
+| T-187a    | Preference item: text input + weight dropdown + remove        | —            | ✅                       |
+| T-187b    | "Add preference" button                                       | —            | ✅                       |
+| T-187c    | Save button in modal                                          | —            | ✅                       |
 | T-188     | Tests: preferences                                            | T-186, T-187 | ⬜                       |
 
 ## Phase 3 — Web: Fit analysis UI
 
-| Task  | Description                                 | Deps         | Status |
-| ----- | ------------------------------------------- | ------------ | ------ |
-| T-182 | FitModal (Dialog, empty, generate, results) | —            | ⬜     |
-| T-184 | Wire GraphQL hooks (fit)                    | T-183, T-182 | ⬜     |
-| T-191 | Final score badge component                 | T-190, T-183 | ⬜     |
-| T-189 | Weight badge + source/weight filters        | T-184, T-187 | ⬜     |
-| T-185 | Tests: fit modal                            | T-184        | ⬜     |
+| Task  | Description                                  | Deps         | Status |
+| ----- | -------------------------------------------- | ------------ | ------ |
+| T-182 | Fit analysis page (`/applications/[id]/fit`) | —            | ✅     |
+| T-184 | Wire GraphQL hooks (fit)                     | T-183, T-182 | ✅     |
+| T-191 | Final score badge component                  | T-190, T-183 | ✅     |
+| T-189 | Weight badge + source/weight filters         | T-184, T-187 | ✅     |
+| T-185 | Tests: fit page                              | T-184        | ⬜     |
 
 ## Notes
 
@@ -50,4 +50,5 @@
 - T-175 merged into T-176: entity + migration + GraphQL CRUD done on API side. Schema auto-generated at `apps/api/src/schema.gql`.
 - T-177/T-178 merged: list page shell + `ResumeCard` connected to real GraphQL query (`useResumesQuery`) and delete mutation (`useDeleteResumeMutation`). `useMockResumes.ts` deleted.
 - T-179 implemented: detail page `/resumes/[id]` with real query (`useResumeQuery`), update mutation (`useUpdateResumeMutation`), and delete mutation (`useDeleteResumeMutation`). All mock data removed.
-- Preferences are **user-level**: T-186 (entity) + T-187 (modal on list page). Not started yet (T-186). Modal UI done with mock data (T-187).
+- Preferences are **user-level**: T-186 (entity) + T-187 (modal on list page). Both implemented with real GraphQL hooks.
+- T-192 done:\*\* `FitAnalysisEntity` in `apps/api/src/database/entities/fit-analysis.entity.ts` + migration `1764400000000-create-fit-analysis`.

@@ -65,15 +65,15 @@ A **FitAnalysis** belongs to one application. Each application has at most one l
 
 Stored in the `items` array:
 
-| Field          | Type       | Notes                                           |
-| -------------- | ---------- | ----------------------------------------------- |
-| `requirement`  | `string`   | Label for what the JD asks                      |
-| `source`       | `string`   | `"resume"` or `"preference"`                    |
-| `weight`       | `string?`  | `"high"` or `"low"` — only for preference items |
-| `verdict`      | `string`   | `"fit"`, `"gap"`, or `"unclear"`                |
-| `jdQuote`      | `string`   | Literal excerpt from the JD                     |
-| `sourceQuotes` | `string[]` | Literal excerpt(s) from resume/preference       |
-| `suggestion`   | `string?`  | How to fill a gap or clarify an unclear item    |
+| Field          | Type       | Notes                                                                                              |
+| -------------- | ---------- | -------------------------------------------------------------------------------------------------- |
+| `requirement`  | `string`   | Label for what the JD asks                                                                         |
+| `source`       | `string`   | `"resume"` or `"preference"`                                                                       |
+| `weight`       | `string?`  | `"high"` or `"low"` — only for preference items                                                    |
+| `verdict`      | `string`   | `"fit"`, `"gap"`, or `"unclear"`                                                                   |
+| `jdQuote`      | `string`   | Literal excerpt from the JD                                                                        |
+| `sourceQuotes` | `string[]` | Literal excerpt(s) from resume/preference **1:n** — one JD quote may map to multiple source quotes |
+| `suggestion`   | `string?`  | How to fill a gap or clarify an unclear item                                                       |
 
 ### API
 
