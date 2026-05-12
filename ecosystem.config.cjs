@@ -29,8 +29,7 @@ module.exports = {
       args: "run dev:debug",
       interpreter: "none",
       env: { NODE_ENV: "development" },
-      watch: true,
-      ignore_watch: ["node_modules", ".git", ".next"],
+      watch: false,
     },
     {
       name: "web",

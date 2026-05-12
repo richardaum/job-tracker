@@ -1,10 +1,7 @@
-import { RsdoctorWebpackPlugin } from "@rsdoctor/webpack-plugin";
 import { withSentryConfig } from "@sentry/nextjs";
 import type { NextConfig } from "next";
 
 import { getAllowedDevOrigins } from "./config/dev-network";
-
-const isRsdoctorEnabled = false;
 
 const nextConfig: NextConfig = {
   // Keep separate dist dirs so `next build` does not conflict with a running `next dev`.
@@ -31,20 +28,6 @@ const nextConfig: NextConfig = {
     if (!isServer) {
       config.resolve.fallback = { ...config.resolve.fallback, canvas: false };
     }
-
-    if (!isRsdoctorEnabled) {
-      return config;
-    }
-
-    const targetName = typeof config.name === "string" ? config.name : "client";
-
-    config.plugins ??= [];
-    config.plugins.push(
-      new RsdoctorWebpackPlugin({
-        disableClientServer: true,
-        output: { reportDir: `./.rsdoctor/${targetName}` },
-      }),
-    );
 
     return config;
   },
