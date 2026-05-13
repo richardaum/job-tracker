@@ -305,6 +305,9 @@ describe("ApplicationService", () => {
       htmlContent: "<p>Posting</p>",
       conversionStatus: DraftApplicationConversionStatus.IDLE,
       conversionError: null,
+      convertedAt: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
     });
     vi.mocked(draftApplicationsService.update).mockImplementation(
       async (_id, patch) =>
@@ -317,6 +320,9 @@ describe("ApplicationService", () => {
           conversionStatus:
             patch?.conversionStatus ?? DraftApplicationConversionStatus.IDLE,
           conversionError: patch?.conversionError ?? null,
+          convertedAt: patch?.convertedAt ?? null,
+          createdAt: new Date(),
+          updatedAt: new Date(),
         }) as never,
     );
     vi.mocked(applicationAiService.extractFromDraft).mockRejectedValue(
@@ -344,6 +350,9 @@ describe("ApplicationService", () => {
       htmlContent: "<p>Posting</p>",
       conversionStatus: DraftApplicationConversionStatus.IDLE,
       conversionError: null,
+      convertedAt: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
     };
     vi.mocked(draftApplicationsService.findOne).mockResolvedValue(
       draft as never,
@@ -355,6 +364,7 @@ describe("ApplicationService", () => {
           conversionStatus:
             patch?.conversionStatus ?? DraftApplicationConversionStatus.IDLE,
           conversionError: patch?.conversionError ?? null,
+          convertedAt: patch?.convertedAt ?? null,
         }) as never,
     );
     vi.mocked(applicationAiService.extractFromDraft).mockResolvedValue({
@@ -437,6 +447,9 @@ describe("ApplicationService", () => {
       htmlContent: "<p>Posting</p>",
       conversionStatus: DraftApplicationConversionStatus.IDLE,
       conversionError: null,
+      convertedAt: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
     };
     vi.mocked(draftApplicationsService.findOne).mockResolvedValue(
       draft as never,

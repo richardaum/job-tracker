@@ -46,6 +46,9 @@ export class DraftApplicationsService implements OnModuleInit {
       applicationId,
       conversionStatus: row.conversionStatus,
       conversionError: row.conversionError,
+      convertedAt: row.convertedAt,
+      createdAt: row.createdAt,
+      updatedAt: row.updatedAt,
     };
   }
 
@@ -68,7 +71,12 @@ export class DraftApplicationsService implements OnModuleInit {
     patch: Partial<
       Pick<
         DraftApplicationEntity,
-        "url" | "title" | "htmlContent" | "conversionStatus" | "conversionError"
+        | "url"
+        | "title"
+        | "htmlContent"
+        | "conversionStatus"
+        | "conversionError"
+        | "convertedAt"
       >
     >,
   ): Promise<DraftApplicationType> {

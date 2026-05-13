@@ -348,6 +348,7 @@ export class ApplicationService {
       title: normalizedDraftTitle,
       conversionStatus: DraftApplicationConversionStatus.SUCCEEDED,
       conversionError: null,
+      convertedAt: new Date(),
     });
   }
 

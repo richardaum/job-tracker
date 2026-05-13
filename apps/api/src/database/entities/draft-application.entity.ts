@@ -44,6 +44,9 @@ export class DraftApplicationEntity {
   @Column({ name: "conversion_error", type: "text", nullable: true })
   conversionError!: string | null;
 
+  @Column({ name: "converted_at", type: "timestamp", nullable: true })
+  convertedAt!: Date | null;
+
   @CreateDateColumn({ name: "created_at", type: "timestamp" })
   createdAt!: Date;
 

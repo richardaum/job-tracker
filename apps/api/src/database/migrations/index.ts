@@ -35,6 +35,7 @@ import { MakeDraftApplicationUrlNullable1764300000000 } from "./1764300000000-ma
 import { CreateFitAnalysis1764400000000 } from "./1764400000000-create-fit-analysis";
 import { AddFitAnalysisStatus1764500000000 } from "./1764500000000-add-fit-analysis-status";
 import { AddResumeIsDefault1764600000000 } from "./1764600000000-add-resume-is-default";
+import { AddDraftConvertedAt1764700000000 } from "./1764700000000-add-draft-converted-at";
 
 export const migrations = [
   Baseline1746009600000,
@@ -74,4 +75,5 @@ export const migrations = [
   CreateFitAnalysis1764400000000,
   AddFitAnalysisStatus1764500000000,
   AddResumeIsDefault1764600000000,
+  AddDraftConvertedAt1764700000000,
 ];

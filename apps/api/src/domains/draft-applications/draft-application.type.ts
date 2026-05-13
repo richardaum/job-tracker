@@ -1,6 +1,5 @@
 import { DraftApplicationConversionStatus } from "@api/database/entities/draft-application.entity";
-import { Field, ID, ObjectType } from "@nestjs/graphql";
-import { registerEnumType } from "@nestjs/graphql";
+import { Field, ID, ObjectType, registerEnumType } from "@nestjs/graphql";
 
 registerEnumType(DraftApplicationConversionStatus, {
   name: "DraftApplicationConversionStatus",
@@ -28,4 +27,13 @@ export class DraftApplicationType {
 
   @Field(() => String, { nullable: true })
   conversionError!: string | null;
+
+  @Field(() => Date, { nullable: true })
+  convertedAt!: Date | null;
+
+  @Field()
+  createdAt!: Date;
+
+  @Field()
+  updatedAt!: Date;
 }

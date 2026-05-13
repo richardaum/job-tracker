@@ -1,7 +1,7 @@
 "use client";
 
 import { tryRun } from "@job-tracker/try-run";
-import { cn, IconButton, ListItemCard, Text } from "@job-tracker/ui";
+import { cn, IconButton, ListItemCard } from "@job-tracker/ui";
 import { ArrowsClockwiseIcon, TrashIcon } from "@phosphor-icons/react";
 import NextLink from "next/link";
 import { useState } from "react";
@@ -17,6 +17,16 @@ import { ConversionStatusBadge } from "@/modules/draft-applications/shared/compo
 
 export type DraftListItem =
   DraftApplicationsListQuery["draftApplications"][number];
+
+const dateFormatter = new Intl.DateTimeFormat("en-US", {
+  month: "short",
+  day: "numeric",
+  year: "numeric",
+});
+
+function formatDate(date: string): string {
+  return dateFormatter.format(new Date(date));
+}
 
 function draftDisplayUrl(url: string | null | undefined): string {
   if (!url) return "—";
@@ -142,15 +152,13 @@ export function DraftApplicationCard({
     </ListItemCard.Actions>
   );
 
+  const displayDate = draft.convertedAt ?? draft.createdAt;
+  const dateLabel = draft.convertedAt ? "Converted" : "Created";
+
   const meta = (
-    <Text
-      as="span"
-      size="xs"
-      color="muted"
-      className={cn("min-w-0 truncate font-mono")}
-    >
-      {draft.id}
-    </Text>
+    <span className={cn("text-text-muted text-xs")}>
+      {dateLabel} {formatDate(displayDate)}
+    </span>
   );
 
   return <ListItemCard title={title} actions={actions} meta={meta} />;

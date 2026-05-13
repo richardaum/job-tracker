@@ -6,6 +6,8 @@ query DraftApplicationsList {
     title
     conversionStatus
     conversionError
+    convertedAt
+    createdAt
   }
 }
 

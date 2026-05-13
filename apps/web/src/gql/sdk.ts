@@ -181,9 +181,12 @@ export type DraftApplicationType = {
   applicationId?: Maybe<Scalars["String"]["output"]>;
   conversionError?: Maybe<Scalars["String"]["output"]>;
   conversionStatus: DraftApplicationConversionStatus;
+  convertedAt?: Maybe<Scalars["DateTime"]["output"]>;
+  createdAt: Scalars["DateTime"]["output"];
   htmlContent: Scalars["String"]["output"];
   id: Scalars["ID"]["output"];
   title: Scalars["String"]["output"];
+  updatedAt: Scalars["DateTime"]["output"];
   url?: Maybe<Scalars["String"]["output"]>;
 };
 
@@ -1063,6 +1066,8 @@ export type DraftApplicationsListQuery = {
     title: string;
     conversionStatus: DraftApplicationConversionStatus;
     conversionError?: string | null;
+    convertedAt?: any | null;
+    createdAt: any;
   }>;
 };
 
@@ -1753,6 +1758,8 @@ export const DraftApplicationsListDocument = gql`
       title
       conversionStatus
       conversionError
+      convertedAt
+      createdAt
     }
   }
 `;

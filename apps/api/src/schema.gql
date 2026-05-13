@@ -37,6 +37,9 @@ type DraftApplicationType {
   applicationId: String
   conversionStatus: DraftApplicationConversionStatus!
   conversionError: String
+  convertedAt: DateTime
+  createdAt: DateTime!
+  updatedAt: DateTime!
 }
 
 enum DraftApplicationConversionStatus {
