@@ -1,14 +1,12 @@
 "use client";
 
 import {
-  Badge,
   cn,
   DropdownMenu,
   IconButton,
   ListItemCard,
   Stack,
   Text,
-  Tooltip,
 } from "@job-tracker/ui";
 import {
   ArrowSquareRightIcon,
@@ -24,6 +22,7 @@ import { formatDateTime } from "@/modules/applications/details/utils/application
 import { ApplicationQuickEditDialog } from "@/modules/applications/list/components/ApplicationQuickEditDialog";
 import { ApplicationTrackingPanel } from "@/modules/applications/list/components/ApplicationTrackingPanel";
 import { DeleteApplicationDialog } from "@/modules/applications/list/components/DeleteApplicationDialog";
+import { FitBadge } from "@/modules/applications/list/components/FitBadge";
 import {
   type ApplicationCardApplication,
   type ApplicationCardStageEventRow,
@@ -153,63 +152,6 @@ function CurrentStageDateText({
         day: "numeric",
       })}
     </Text>
-  );
-}
-
-function FitBadge({
-  application,
-}: {
-  application: ApplicationCardApplication;
-}) {
-  const fit = application.fit;
-  if (!fit || fit.scoreRatio == null) return null;
-
-  const scorePercent = Math.round(fit.scoreRatio);
-  const intent =
-    fit.classification === "positive"
-      ? "success"
-      : fit.classification === "negative"
-        ? "error"
-        : "info";
-
-  const tooltipContent = (
-    <Stack gap="xs" className={cn("py-0.5 text-text-inverted")}>
-      <div className={cn("text-xs font-semibold capitalize")}>
-        {fit.classification ?? "neutral"} fit
-      </div>
-      <div className={cn("grid grid-cols-[1fr_auto] gap-x-4 gap-y-0.5")}>
-        <span className={cn("text-xs opacity-70")}>Fits</span>
-        <span className={cn("text-xs font-medium tabular-nums")}>
-          {fit.fitCount}
-        </span>
-        <span className={cn("text-xs opacity-70")}>Gaps</span>
-        <span className={cn("text-xs font-medium tabular-nums")}>
-          {fit.gapCount}
-        </span>
-        <span className={cn("text-xs opacity-70")}>Unclear</span>
-        <span className={cn("text-xs font-medium tabular-nums")}>
-          {fit.unclearCount}
-        </span>
-      </div>
-    </Stack>
-  );
-
-  return (
-    <Tooltip content={tooltipContent} side="bottom">
-      <NextLink
-        href={`/applications/${application.id}/fit`}
-        className={cn("no-underline focus-visible:outline-none")}
-      >
-        <Badge
-          intent={intent}
-          className={cn(
-            "cursor-pointer font-medium transition-all hover:brightness-95",
-          )}
-        >
-          {scorePercent}% Fit
-        </Badge>
-      </NextLink>
-    </Tooltip>
   );
 }
 

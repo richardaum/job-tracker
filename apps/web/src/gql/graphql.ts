@@ -221,6 +221,7 @@ export type FitItemType = {
   source: Scalars["String"]["output"];
   sourceQuotes: Array<Scalars["String"]["output"]>;
   suggestion?: Maybe<Scalars["String"]["output"]>;
+  type: Scalars["String"]["output"];
   verdict: Scalars["String"]["output"];
   weight?: Maybe<Scalars["String"]["output"]>;
 };
@@ -656,6 +657,8 @@ export type ApplicationsQuery = {
         fitCount: number;
         gapCount: number;
         unclearCount: number;
+        status: FitAnalysisStatus;
+        error?: string | null;
       } | null;
     } & {
       " $fragmentRefs"?: {
@@ -696,6 +699,8 @@ export type ApplicationQuery = {
       fitCount: number;
       gapCount: number;
       unclearCount: number;
+      status: FitAnalysisStatus;
+      error?: string | null;
     } | null;
   } & {
     " $fragmentRefs"?: {
@@ -1586,6 +1591,11 @@ export const ApplicationsDocument = {
                         kind: "Field",
                         name: { kind: "Name", value: "unclearCount" },
                       },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "status" },
+                      },
+                      { kind: "Field", name: { kind: "Name", value: "error" } },
                     ],
                   },
                 },
@@ -1725,6 +1735,11 @@ export const ApplicationDocument = {
                         kind: "Field",
                         name: { kind: "Name", value: "unclearCount" },
                       },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "status" },
+                      },
+                      { kind: "Field", name: { kind: "Name", value: "error" } },
                     ],
                   },
                 },

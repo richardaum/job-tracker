@@ -22,6 +22,7 @@ import { JobUrls } from "@/modules/applications/shared/components/JobUrls";
 import { formatSalary } from "@/modules/applications/shared/utils/salaryFormat";
 import { CompanyEditDialog } from "@/modules/companies/shared/components/CompanyEditDialog";
 
+import { FitAnalysisField } from "./FitAnalysisField";
 import { SalaryEditDialog } from "./SalaryEditDialog";
 import { SourceEditDialog } from "./SourceEditDialog";
 import { TagsEditDialog } from "./TagsEditDialog";
@@ -228,6 +229,8 @@ export function OverviewTabContent({
           }
         />
       </div>
+
+      <FitAnalysisField fit={application.fit} />
     </OverviewSection>
   );
 }

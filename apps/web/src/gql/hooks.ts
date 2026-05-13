@@ -223,6 +223,7 @@ export type FitItemType = {
   source: Scalars["String"]["output"];
   sourceQuotes: Array<Scalars["String"]["output"]>;
   suggestion?: Maybe<Scalars["String"]["output"]>;
+  type: Scalars["String"]["output"];
   verdict: Scalars["String"]["output"];
   weight?: Maybe<Scalars["String"]["output"]>;
 };
@@ -657,6 +658,8 @@ export type ApplicationsQuery = {
       fitCount: number;
       gapCount: number;
       unclearCount: number;
+      status: FitAnalysisStatus;
+      error?: string | null;
     } | null;
     salary: {
       __typename?: "ApplicationSalary";
@@ -699,6 +702,8 @@ export type ApplicationQuery = {
       fitCount: number;
       gapCount: number;
       unclearCount: number;
+      status: FitAnalysisStatus;
+      error?: string | null;
     } | null;
     salary: {
       __typename?: "ApplicationSalary";
@@ -1471,6 +1476,8 @@ export const ApplicationsDocument = gql`
         fitCount
         gapCount
         unclearCount
+        status
+        error
       }
     }
   }
@@ -1554,6 +1561,8 @@ export const ApplicationDocument = gql`
         fitCount
         gapCount
         unclearCount
+        status
+        error
       }
     }
   }
