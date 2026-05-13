@@ -184,9 +184,7 @@ function ApplicationQuickEditDialogForm({
               id="app-urls"
               value={form.urlsText}
               onChange={set("urlsText")}
-              placeholder={
-                "https://example.com/jobs/123\nhttps://company.com/careers/role"
-              }
+              placeholder="https://example.com/jobs/123"
               state={errors.urlsText ? "error" : "default"}
               disabled={loading}
             />
