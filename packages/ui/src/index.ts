@@ -48,12 +48,12 @@ export type {
   FieldWithLabelActionIconActionButtonProps,
   FieldWithLabelActionProps,
   FieldWithLabelActionTooltipProps,
-} from "./components/FieldWithLabelAction/FieldWithLabelAction";
+} from "./components/FieldWithLabelAction";
 export {
   FieldWithLabelAction,
   FieldWithLabelActionIconActionButton,
   FieldWithLabelActionTooltip,
-} from "./components/FieldWithLabelAction/FieldWithLabelAction";
+} from "./components/FieldWithLabelAction";
 export type { FilterChipProps } from "./components/FilterChip/FilterChip";
 export { FilterChip } from "./components/FilterChip/FilterChip";
 export type { FormFieldProps } from "./components/FormField/FormField";
