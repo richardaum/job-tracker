@@ -24,6 +24,7 @@ import { FitStatusBadge } from "@/modules/applications/details/components/FitSta
 import { FitWizardDialog } from "@/modules/applications/details/components/FitWizardDialog";
 import { ScoreBadge } from "@/modules/applications/details/components/ScoreBadge";
 import { useToastQueue } from "@/modules/applications/shared/hooks/useToastQueue";
+import { PreferencesDialog } from "@/modules/resumes/list/components/PreferencesDialog";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -33,6 +34,7 @@ export default function FitAnalysisPage({ params }: PageProps) {
   const { id } = React.use(params);
   const { enqueueToast } = useToastQueue();
   const [wizardOpen, setWizardOpen] = React.useState(false);
+  const [prefsOpen, setPrefsOpen] = React.useState(false);
 
   const {
     data: fitData,
@@ -186,7 +188,12 @@ export default function FitAnalysisPage({ params }: PageProps) {
                 )}
               >
                 {filteredItems.map((item, i) => (
-                  <FitItemCard key={i} item={item} />
+                  <FitItemCard
+                    key={i}
+                    item={item}
+                    resumeId={fit?.resumeId ?? undefined}
+                    onPreferenceClick={() => setPrefsOpen(true)}
+                  />
                 ))}
               </div>
             </>
@@ -200,6 +207,12 @@ export default function FitAnalysisPage({ params }: PageProps) {
         onGenerate={handleGenerate}
         generating={generating}
         hasExistingFit={hasFit}
+      />
+
+      <PreferencesDialog
+        open={prefsOpen}
+        onOpenChange={setPrefsOpen}
+        readOnly
       />
     </div>
   );
