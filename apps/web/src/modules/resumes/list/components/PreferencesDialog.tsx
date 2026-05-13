@@ -51,6 +51,7 @@ function PreferencesEditor({
   onUpdate,
   onRemove,
   focusedId,
+  readOnly = false,
 }: {
   preferences: LocalPreference[];
   onUpdate: (
@@ -59,6 +60,7 @@ function PreferencesEditor({
   ) => void;
   onRemove: (id: string) => void;
   focusedId: string | null;
+  readOnly?: boolean;
 }) {
   return (
     <div className={cn("flex flex-col gap-3")}>
@@ -68,15 +70,41 @@ function PreferencesEditor({
         </Text>
       ) : (
         <div className={cn("flex flex-col gap-2")}>
-          {preferences.map((pref) => (
-            <PreferenceRow
-              key={pref.id}
-              pref={pref}
-              onUpdate={onUpdate}
-              onRemove={onRemove}
-              shouldFocus={focusedId === pref.id}
-            />
-          ))}
+          {preferences.map((pref) =>
+            readOnly ? (
+              <div
+                key={pref.id}
+                className={cn(
+                  "flex items-center gap-2 rounded-lg border border-border-default bg-bg-field px-3 py-2.5",
+                )}
+              >
+                <Text size="sm">{pref.text}</Text>
+                <div className={cn("ml-auto shrink-0")}>
+                  {pref.weight === WeightEnum.High ? (
+                    <ArrowUpIcon
+                      size={14}
+                      weight="bold"
+                      className={cn("text-green-500")}
+                    />
+                  ) : (
+                    <ArrowDownIcon
+                      size={14}
+                      weight="bold"
+                      className={cn("text-text-muted")}
+                    />
+                  )}
+                </div>
+              </div>
+            ) : (
+              <PreferenceRow
+                key={pref.id}
+                pref={pref}
+                onUpdate={onUpdate}
+                onRemove={onRemove}
+                shouldFocus={focusedId === pref.id}
+              />
+            ),
+          )}
         </div>
       )}
     </div>
@@ -180,11 +208,13 @@ function PreferenceRow({
 interface PreferencesDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  readOnly?: boolean;
 }
 
 export function PreferencesDialog({
   open,
   onOpenChange,
+  readOnly = false,
 }: PreferencesDialogProps) {
   const { data, loading } = useUserPreferencesQuery({
     fetchPolicy: "cache-and-network",
@@ -265,37 +295,38 @@ export function PreferencesDialog({
       onOpenChange={onOpenChange}
       title="Preferences"
       description="What matters to you in a job? These preferences are used to evaluate fit against job descriptions."
-      trigger={<span />}
       childrenClassName="overflow-auto"
       footer={
-        <div className={cn("flex items-center justify-between gap-0")}>
-          <Button
-            intent="secondary"
-            size="md"
-            onClick={addPreference}
-            disabled={localItems.some((p) => p.text.trim().length === 0)}
-          >
-            <PlusIcon size={14} weight="bold" className={cn("mr-1.5")} />
-            Add preference
-          </Button>
-          <div className={cn("flex gap-2")}>
+        readOnly ? undefined : (
+          <div className={cn("flex items-center justify-between gap-0")}>
             <Button
-              intent="ghost"
+              intent="secondary"
               size="md"
-              onClick={() => onOpenChange(false)}
+              onClick={addPreference}
+              disabled={localItems.some((p) => p.text.trim().length === 0)}
             >
-              Cancel
+              <PlusIcon size={14} weight="bold" className={cn("mr-1.5")} />
+              Add preference
             </Button>
-            <Button
-              intent="primary"
-              size="md"
-              onClick={() => void handleSave()}
-              state={saving ? "loading" : "default"}
-            >
-              Save
-            </Button>
+            <div className={cn("flex gap-2")}>
+              <Button
+                intent="ghost"
+                size="md"
+                onClick={() => onOpenChange(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                intent="primary"
+                size="md"
+                onClick={() => void handleSave()}
+                state={saving ? "loading" : "default"}
+              >
+                Save
+              </Button>
+            </div>
           </div>
-        </div>
+        )
       }
     >
       {loading && !isLoaded ? (
@@ -308,6 +339,7 @@ export function PreferencesDialog({
           onUpdate={updatePreference}
           onRemove={removePreference}
           focusedId={focusedId}
+          readOnly={readOnly}
         />
       )}
     </Dialog>

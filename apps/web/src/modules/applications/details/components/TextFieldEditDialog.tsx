@@ -1,11 +1,11 @@
 "use client";
 
 import { Button, cn, Dialog, FormField, Input, Stack } from "@job-tracker/ui";
+import { type DialogControl } from "@job-tracker/ui";
 import React, { useState } from "react";
 
-import { FieldEditTriggerButton } from "./FieldEditTriggerButton";
-
 interface TextFieldEditDialogProps {
+  control: DialogControl;
   label: string;
   value: string;
   placeholder: string;
@@ -13,12 +13,12 @@ interface TextFieldEditDialogProps {
 }
 
 export function TextFieldEditDialog({
+  control,
   label,
   value,
   placeholder,
   onSave,
 }: TextFieldEditDialogProps) {
-  const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState(value);
   const [saving, setSaving] = useState(false);
 
@@ -28,14 +28,14 @@ export function TextFieldEditDialog({
     setSaving(true);
     try {
       await onSave(next);
-      setOpen(false);
+      control.close();
     } finally {
       setSaving(false);
     }
   }
 
   function handleOpenChange(nextOpen: boolean) {
-    setOpen(nextOpen);
+    control.onOpenChange(nextOpen);
     if (nextOpen) {
       setDraft(value);
     }
@@ -45,9 +45,8 @@ export function TextFieldEditDialog({
     <Dialog
       title={`Edit ${label.toLowerCase()}`}
       description={`Update the ${label.toLowerCase()} value for this application.`}
-      open={open}
+      open={control.isOpen}
       onOpenChange={handleOpenChange}
-      trigger={<FieldEditTriggerButton label={`Edit ${label}`} />}
     >
       <Stack gap="sm">
         <FormField

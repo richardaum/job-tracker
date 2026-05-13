@@ -18,7 +18,6 @@ export function ConvertDraftConfirmationDialog({
 }: ConvertDraftConfirmationDialogProps) {
   return (
     <ConfirmDialog
-      trigger={<span aria-hidden style={{ display: "none" }} />}
       title="Convert draft to application"
       description={`Do you want to convert "${draftSummary}" to an application?`}
       confirmLabel="Convert"

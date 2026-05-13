@@ -1,6 +1,7 @@
 "use client";
 
 import { Button, cn, Dialog, FormField, Stack } from "@job-tracker/ui";
+import { type DialogControl } from "@job-tracker/ui";
 import React, { useState } from "react";
 
 import {
@@ -13,9 +14,8 @@ import {
   type TagWithMetadata,
 } from "@/modules/applications/shared/components/TagsInput";
 
-import { FieldEditTriggerButton } from "./FieldEditTriggerButton";
-
 interface TagsEditDialogProps {
+  control: DialogControl;
   applicationId: string;
   tags: string[];
   onSuccess?: (message: string) => void;
@@ -23,12 +23,12 @@ interface TagsEditDialogProps {
 }
 
 export function TagsEditDialog({
+  control,
   applicationId,
   tags,
   onSuccess,
   onError,
 }: TagsEditDialogProps) {
-  const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState<TagWithMetadata[]>([]);
   const [saving, setSaving] = useState(false);
 
@@ -40,7 +40,7 @@ export function TagsEditDialog({
   });
 
   function handleOpenChange(next: boolean) {
-    setOpen(next);
+    control.onOpenChange(next);
     if (next) {
       setDraft(tags.map((tag) => ({ label: tag })));
     }
@@ -60,7 +60,7 @@ export function TagsEditDialog({
         },
       });
       onSuccess?.("Tags updated.");
-      setOpen(false);
+      control.close();
     } catch {
       onError?.("Could not update tags.");
     } finally {
@@ -72,9 +72,8 @@ export function TagsEditDialog({
     <Dialog
       title="Edit tags"
       description="Add, remove, or rename tags used to organize this application."
-      open={open}
+      open={control.isOpen}
       onOpenChange={handleOpenChange}
-      trigger={<FieldEditTriggerButton label="Edit tags" />}
     >
       <Stack gap="sm">
         <FormField

@@ -1,11 +1,17 @@
 "use client";
 
-import { cn, IconButton, Popover, Text } from "@job-tracker/ui";
+import {
+  cn,
+  FieldWithLabelAction,
+  IconButton,
+  Popover,
+  Text,
+  useDialog,
+} from "@job-tracker/ui";
 import { ArrowSquareOutIcon } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
 import React from "react";
 
-import { FieldEditTriggerButton } from "@/modules/applications/details/components/FieldEditTriggerButton";
 import {
   CompanyEditDialog,
   type CompanyEditDialogApplication,
@@ -27,7 +33,7 @@ export function CompanyNameWithPopover({
   onError,
 }: CompanyNameWithPopoverProps) {
   const router = useRouter();
-  const [editCompanyOpen, setEditCompanyOpen] = React.useState(false);
+  const editCompany = useDialog();
   const name = application.company.name;
   const description = application.company.description;
   const hasDescription = Boolean(description);
@@ -60,11 +66,11 @@ export function CompanyNameWithPopover({
           >
             About the company
           </Text>
-          <FieldEditTriggerButton
+          <FieldWithLabelAction.IconActionButton
             label={hasDescription ? "Edit description" : "Add description"}
             onClick={(e) => {
               e.stopPropagation();
-              setEditCompanyOpen(true);
+              editCompany.open();
             }}
             className={cn("size-6 opacity-100")}
           />
@@ -95,8 +101,7 @@ export function CompanyNameWithPopover({
         )}
       </div>
       <CompanyEditDialog
-        open={editCompanyOpen}
-        onOpenChange={setEditCompanyOpen}
+        control={editCompany}
         application={application}
         onSuccess={onSuccess}
         onError={onError}

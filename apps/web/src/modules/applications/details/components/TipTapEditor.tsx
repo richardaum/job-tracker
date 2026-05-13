@@ -655,7 +655,6 @@ export function TipTapEditor({
                 loading={isImporting}
               />
               <ConfirmDialog
-                trigger={<span className={cn("hidden")} />}
                 open={showImportConfirm}
                 onOpenChange={setShowImportConfirm}
                 title="Import file"

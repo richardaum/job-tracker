@@ -32,10 +32,6 @@ function useImporterTemplateMutationOptions(importerId: string) {
     : {};
 }
 
-const hiddenDialogTrigger = (
-  <button type="button" className={cn("hidden")} aria-hidden />
-);
-
 type ImportTemplateScheduleFormInnerProps = {
   template: ImportTemplateListItem;
   importerId: string;
@@ -154,7 +150,6 @@ export function ImportTemplateScheduleDialog({
     <Dialog
       open={open}
       onOpenChange={onOpenChange}
-      trigger={hiddenDialogTrigger}
       size="md"
       title="Schedule"
       description={

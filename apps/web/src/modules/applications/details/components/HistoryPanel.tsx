@@ -251,7 +251,6 @@ export function HistoryPanel({
         onOpenChange={(open) => {
           if (!open) closeEditDialog();
         }}
-        trigger={<span aria-hidden style={{ display: "none" }} />}
       >
         <Stack gap="sm">
           <FormField

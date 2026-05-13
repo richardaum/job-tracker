@@ -22,10 +22,6 @@ function statusBadgeIntent(
   }
 }
 
-const hiddenDialogTrigger = (
-  <button type="button" className={cn("hidden")} aria-hidden />
-);
-
 type ImportTemplateRunsDialogProps = {
   template: ImportTemplateListItem | null;
   onOpenChange: (open: boolean) => void;
@@ -41,7 +37,6 @@ export function ImportTemplateRunsDialog({
     <Dialog
       open={open}
       onOpenChange={onOpenChange}
-      trigger={hiddenDialogTrigger}
       size="md"
       title="Import runs"
       description={

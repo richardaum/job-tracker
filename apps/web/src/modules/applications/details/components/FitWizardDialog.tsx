@@ -309,7 +309,6 @@ export function FitWizardDialog({
         hasExistingFit ? "Regenerate fit analysis" : "Generate fit analysis"
       }
       description="Choose a resume and update your preferences before generating."
-      trigger={<span />}
       size="lg"
       childrenClassName="overflow-auto"
       footer={

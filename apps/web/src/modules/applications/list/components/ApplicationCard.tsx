@@ -7,6 +7,7 @@ import {
   ListItemCard,
   Stack,
   Text,
+  useDialog,
 } from "@job-tracker/ui";
 import {
   ArrowSquareRightIcon,
@@ -173,6 +174,8 @@ export function ApplicationCard({
     salaryActionLabel,
   } = useApplicationCardViewModel(app);
 
+  const quickEditDialog = useDialog();
+  const salaryDialog = useDialog();
   const hasJobUrls = normalizeJobUrls(app.urls).length > 0;
 
   return (
@@ -192,17 +195,26 @@ export function ApplicationCard({
             historyLoading={stageEventsLoading}
             onRequestStageEvents={requestStageEvents}
           />
+          <IconButton
+            intent="ghost"
+            size="sm"
+            label={`Quick edit ${app.title}`}
+            tooltip="Quick edit"
+            className={cn(ListItemCard.actionIconButtonClassName)}
+            icon={<PencilSimpleIcon size={13} weight="regular" />}
+            onClick={quickEditDialog.open}
+          />
+          <IconButton
+            intent="ghost"
+            size="sm"
+            label={salaryActionLabel}
+            tooltip={salaryActionLabel}
+            className={cn(ListItemCard.actionIconButtonClassName)}
+            icon={<CurrencyDollarIcon size={13} weight="regular" />}
+            onClick={salaryDialog.open}
+          />
           <ApplicationQuickEditDialog
-            trigger={
-              <IconButton
-                intent="ghost"
-                size="sm"
-                label={`Quick edit ${app.title}`}
-                tooltip="Quick edit"
-                className={cn(ListItemCard.actionIconButtonClassName)}
-                icon={<PencilSimpleIcon size={13} weight="regular" />}
-              />
-            }
+            control={quickEditDialog}
             application={{
               id: app.id,
               title: app.title,
@@ -213,16 +225,7 @@ export function ApplicationCard({
             onError={onError}
           />
           <SalaryEditDialog
-            trigger={
-              <IconButton
-                intent="ghost"
-                size="sm"
-                label={salaryActionLabel}
-                tooltip={salaryActionLabel}
-                className={cn(ListItemCard.actionIconButtonClassName)}
-                icon={<CurrencyDollarIcon size={13} weight="regular" />}
-              />
-            }
+            control={salaryDialog}
             application={app}
             onSuccess={onSuccess}
             onError={onError}

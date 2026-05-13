@@ -1,20 +1,20 @@
 "use client";
 
 import { Button, cn, Dialog, FormField, Input, Stack } from "@job-tracker/ui";
+import { type DialogControl } from "@job-tracker/ui";
 import React, { useState } from "react";
 
-import { FieldEditTriggerButton } from "@/modules/applications/details/components/FieldEditTriggerButton";
-
 interface DraftTitleEditDialogProps {
+  control: DialogControl;
   value: string;
   onSave: (nextValue: string) => Promise<void>;
 }
 
 export function DraftTitleEditDialog({
+  control,
   value,
   onSave,
 }: DraftTitleEditDialogProps) {
-  const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState(value);
   const [saving, setSaving] = useState(false);
 
@@ -24,14 +24,14 @@ export function DraftTitleEditDialog({
     setSaving(true);
     try {
       await onSave(next);
-      setOpen(false);
+      control.close();
     } finally {
       setSaving(false);
     }
   }
 
   function handleOpenChange(nextOpen: boolean) {
-    setOpen(nextOpen);
+    control.onOpenChange(nextOpen);
     if (nextOpen) {
       setDraft(value);
     }
@@ -41,9 +41,8 @@ export function DraftTitleEditDialog({
     <Dialog
       title="Edit page title"
       description="Update the page title for this draft."
-      open={open}
+      open={control.isOpen}
       onOpenChange={handleOpenChange}
-      trigger={<FieldEditTriggerButton label="Edit page title" />}
     >
       <Stack gap="sm">
         <FormField label="Page title" htmlFor="edit-draft-page-title">

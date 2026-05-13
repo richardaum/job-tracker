@@ -1,6 +1,7 @@
 "use client";
 
 import { Button, cn, Dialog, FormField, Input, Stack } from "@job-tracker/ui";
+import { type DialogControl } from "@job-tracker/ui";
 import React, { useMemo, useState } from "react";
 
 import {
@@ -11,9 +12,7 @@ import {
 } from "@/gql/hooks";
 import { useGenerateCompanyDescriptionAiAction } from "@/modules/ai/actions/useGenerateCompanyDescriptionAiAction";
 import { useRewriteTextAiAction } from "@/modules/ai/actions/useRewriteTextAiAction";
-import { FieldEditTriggerButton } from "@/modules/applications/details/components/FieldEditTriggerButton";
 import { TipTapEditor } from "@/modules/applications/details/components/TipTapEditor";
-import { useControllableState } from "@/modules/applications/shared/hooks/useControllableState";
 import {
   EMPTY_TIPTAP_DOC,
   normalizeTipTapDocument,
@@ -26,8 +25,7 @@ export interface CompanyEditDialogApplication {
 }
 
 interface CompanyEditDialogProps {
-  open?: boolean;
-  onOpenChange?: (open: boolean) => void;
+  control: DialogControl;
   application?: CompanyEditDialogApplication;
   company?: { id: string; name: string; description?: string | null };
   refetchCompanies?: boolean;
@@ -36,8 +34,7 @@ interface CompanyEditDialogProps {
 }
 
 export function CompanyEditDialog({
-  open: controlledOpen,
-  onOpenChange: controlledOnOpenChange,
+  control: _control,
   application,
   company,
   refetchCompanies = false,
@@ -50,12 +47,6 @@ export function CompanyEditDialog({
     name: "",
     description: null,
   };
-
-  const [open, onOpenChange] = useControllableState<boolean>({
-    value: controlledOpen,
-    defaultValue: false,
-    onChange: controlledOnOpenChange,
-  });
 
   const [nameDraft, setNameDraft] = useState(editingCompany.name);
   const [descriptionDraft, setDescriptionDraft] = useState(
@@ -91,7 +82,7 @@ export function CompanyEditDialog({
 
   async function handleSave() {
     if (!sourceCompany) {
-      onOpenChange(false);
+      _control.close();
       return;
     }
 
@@ -107,7 +98,7 @@ export function CompanyEditDialog({
       normalizeTipTapDocument(editingCompany.description);
 
     if (!nextName || (!nameChanged && !descriptionChanged)) {
-      onOpenChange(false);
+      _control.close();
       return;
     }
 
@@ -126,7 +117,7 @@ export function CompanyEditDialog({
       }
 
       onSuccess?.("Company updated.");
-      onOpenChange(false);
+      _control.close();
     } catch {
       onError?.("Could not update company.");
     } finally {
@@ -143,9 +134,9 @@ export function CompanyEditDialog({
       title="Edit company"
       description="Update the company name and description used across your applications."
       size="2xl"
-      open={open}
+      open={_control.isOpen}
       onOpenChange={(next) => {
-        onOpenChange(next);
+        _control.onOpenChange(next);
         if (next && sourceCompany) {
           setNameDraft(editingCompany.name);
           setDescriptionDraft(
@@ -153,13 +144,6 @@ export function CompanyEditDialog({
           );
         }
       }}
-      trigger={
-        controlledOpen !== undefined ? (
-          <span aria-hidden style={{ display: "none" }} />
-        ) : (
-          <FieldEditTriggerButton label="Edit company" />
-        )
-      }
     >
       <Stack gap="sm">
         <FormField label="Company name" htmlFor="edit-company-name">

@@ -51,7 +51,6 @@ export function ImportDraftFromPasteDialog({
 
   return (
     <Dialog
-      trigger={<span aria-hidden style={{ display: "none" }} />}
       title="Import pasted content"
       description="Optionally provide the source URL and confirm to create a new draft."
       size="xl"

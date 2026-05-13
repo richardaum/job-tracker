@@ -11,6 +11,7 @@ import {
   type SelectOption,
   Stack,
 } from "@job-tracker/ui";
+import { type DialogControl } from "@job-tracker/ui";
 import React, { useEffect, useRef, useState } from "react";
 import { NumericFormat } from "react-number-format";
 
@@ -28,8 +29,6 @@ import {
   SALARY_PERIODS,
 } from "@/modules/applications/shared/utils/salaryFormat";
 
-import { FieldEditTriggerButton } from "./FieldEditTriggerButton";
-
 const defaultSalaryCurrency = "USD";
 
 const periodNone = "__salary_none__";
@@ -46,18 +45,15 @@ type DraftSalary = {
 };
 
 type SalaryEditDialogApplicationProps = {
+  control: DialogControl;
   application: ApplicationDetailsValues;
-  trigger?: React.ReactElement;
   onSuccess?: (message: string) => void;
   onError?: (message: string) => void;
 };
 
 type SalaryEditDialogDraftProps = {
+  control: DialogControl;
   mode: "draft";
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  /** Hidden trigger when opened programmatically; defaults to a hidden span. */
-  trigger?: React.ReactElement;
   salaryDraft: DraftSalary;
   onSalarySave: (next: {
     salaryMinCents: number | null;
@@ -82,7 +78,6 @@ function isDraftProps(
 
 export function SalaryEditDialog(props: SalaryEditDialogProps) {
   const isDraft = isDraftProps(props);
-  const [applicationOpen, setApplicationOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({
     salaryMin: "",
@@ -106,7 +101,7 @@ export function SalaryEditDialog(props: SalaryEditDialogProps) {
         ],
   });
 
-  const open = isDraft ? props.open : applicationOpen;
+  const { control } = props;
   const disabledInputs = isDraft ? Boolean(props.disabled) : false;
   const idPrefix = isDraft ? (props.idPrefix ?? "ai-draft-sal") : "ov-sal";
   const amountDecimalScale = iso4217MaxFractionDigits(form.salaryCurrency);
@@ -140,20 +135,16 @@ export function SalaryEditDialog(props: SalaryEditDialogProps) {
       wasDraftDialogOpen.current = false;
       return;
     }
-    if (props.open && !wasDraftDialogOpen.current) {
+    if (control.isOpen && !wasDraftDialogOpen.current) {
       syncFromDraft(props.salaryDraft);
     }
-    wasDraftDialogOpen.current = props.open;
+    wasDraftDialogOpen.current = control.isOpen;
   });
 
   function handleOpenChange(next: boolean) {
-    if (isDraft) {
-      props.onOpenChange(next);
-    } else {
-      setApplicationOpen(next);
-      if (next) {
-        syncFromApplication(props.application);
-      }
+    control.onOpenChange(next);
+    if (!isDraft && next) {
+      syncFromApplication(props.application);
     }
   }
 
@@ -209,7 +200,7 @@ export function SalaryEditDialog(props: SalaryEditDialogProps) {
     try {
       if (isDraft) {
         props.onSalarySave(payload);
-        props.onOpenChange(false);
+        control.close();
         return;
       }
       await update({
@@ -224,7 +215,7 @@ export function SalaryEditDialog(props: SalaryEditDialogProps) {
         },
       });
       props.onSuccess?.("Salary updated.");
-      setApplicationOpen(false);
+      control.close();
     } catch {
       if (isDraft) {
         props.onError?.("Could not update salary.");
@@ -241,13 +232,8 @@ export function SalaryEditDialog(props: SalaryEditDialogProps) {
   return (
     <Dialog
       title="Edit salary"
-      open={open}
+      open={control.isOpen}
       onOpenChange={handleOpenChange}
-      trigger={
-        isDraft
-          ? (props.trigger ?? <span aria-hidden style={{ display: "none" }} />)
-          : (props.trigger ?? <FieldEditTriggerButton label="Edit salary" />)
-      }
     >
       <Stack gap="sm">
         <div className={cn("grid grid-cols-1 gap-2 sm:grid-cols-2")}>

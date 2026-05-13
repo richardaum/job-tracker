@@ -22,10 +22,6 @@ import {
   useImportersForNewImportTemplatePickerQuery,
 } from "@/gql/hooks";
 
-const hiddenDialogTrigger = (
-  <button type="button" className={cn("hidden")} aria-hidden />
-);
-
 export type NewImportTemplateDialogImporterRef = {
   importerId: string;
   name: string;
@@ -132,7 +128,6 @@ export function NewImportTemplateDialog({
     <Dialog
       open={open}
       onOpenChange={notifyOpenChange}
-      trigger={hiddenDialogTrigger}
       size="md"
       title="New import template"
       description={

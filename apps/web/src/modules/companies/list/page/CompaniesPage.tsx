@@ -1,6 +1,6 @@
 "use client";
 
-import { Card, cn, Skeleton, Stack, Text } from "@job-tracker/ui";
+import { Card, cn, Skeleton, Stack, Text, useDialog } from "@job-tracker/ui";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
@@ -42,6 +42,7 @@ export default function CompaniesPage() {
   const [recentlyVisitedCompanyId, setRecentlyVisitedCompanyId] = useState<
     string | null
   >(null);
+  const editCompany = useDialog();
   const [editingCompany, setEditingCompany] = useState<EditingCompany | null>(
     null,
   );
@@ -91,10 +92,12 @@ export default function CompaniesPage() {
 
   function openEditDialog(company: EditingCompany) {
     setEditingCompany(company);
+    editCompany.open();
   }
 
   function closeEditDialog() {
     setEditingCompany(null);
+    editCompany.close();
   }
 
   return (
@@ -176,12 +179,7 @@ export default function CompaniesPage() {
 
       {editingCompany ? (
         <CompanyEditDialog
-          open={Boolean(editingCompany)}
-          onOpenChange={(open) => {
-            if (!open) {
-              closeEditDialog();
-            }
-          }}
+          control={editCompany}
           company={{
             id: editingCompany.id,
             name: editingCompany.name,

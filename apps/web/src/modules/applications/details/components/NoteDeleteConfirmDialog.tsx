@@ -16,7 +16,6 @@ export function NoteDeleteConfirmDialog({
 }: NoteDeleteConfirmDialogProps) {
   return (
     <ConfirmDialog
-      trigger={<span aria-hidden style={{ display: "none" }} />}
       title="Delete note"
       description="Delete this note? This action cannot be undone."
       confirmLabel="Delete"

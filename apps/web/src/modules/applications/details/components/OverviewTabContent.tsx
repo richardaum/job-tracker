@@ -6,6 +6,7 @@ import {
   FieldWithLabelAction,
   OverviewSection,
   Text,
+  useDialog,
 } from "@job-tracker/ui";
 
 import {
@@ -41,6 +42,13 @@ export function OverviewTabContent({
   onSuccess?: (message: string) => void;
   onError?: (message: string) => void;
 }) {
+  const titleDialog = useDialog();
+  const urlDialog = useDialog();
+  const sourceDialog = useDialog();
+  const tagsDialog = useDialog();
+  const companyDialog = useDialog();
+  const salaryDialog = useDialog();
+
   const [updateApplication] = useUpdateApplicationMutation({
     refetchQueries: [
       { query: ApplicationDocument, variables: { id: application.id } },
@@ -115,13 +123,18 @@ export function OverviewTabContent({
           label="Job title"
           content={<Text size="sm">{application.title}</Text>}
           actions={
-            <TextFieldEditDialog
-              label="Job title"
-              value={application.title}
-              placeholder="e.g. Senior Frontend Engineer"
-              onSave={handleSaveTitle}
+            <FieldWithLabelAction.IconActionButton
+              label="Edit job title"
+              onClick={titleDialog.open}
             />
           }
+        />
+        <TextFieldEditDialog
+          control={titleDialog}
+          label="Job title"
+          value={application.title}
+          placeholder="e.g. Senior Frontend Engineer"
+          onSave={handleSaveTitle}
         />
       </div>
 
@@ -136,12 +149,17 @@ export function OverviewTabContent({
             />
           }
           actions={
-            <CompanyEditDialog
-              application={application}
-              onSuccess={onSuccess}
-              onError={onError}
+            <FieldWithLabelAction.IconActionButton
+              label="Edit company"
+              onClick={companyDialog.open}
             />
           }
+        />
+        <CompanyEditDialog
+          control={companyDialog}
+          application={application}
+          onSuccess={onSuccess}
+          onError={onError}
         />
       </div>
 
@@ -156,11 +174,16 @@ export function OverviewTabContent({
             />
           }
           actions={
-            <UrlFieldEditDialog
-              value={application.urls}
-              onSave={handleSaveUrl}
+            <FieldWithLabelAction.IconActionButton
+              label="Edit job URL"
+              onClick={urlDialog.open}
             />
           }
+        />
+        <UrlFieldEditDialog
+          control={urlDialog}
+          value={application.urls}
+          onSave={handleSaveUrl}
         />
       </div>
 
@@ -177,11 +200,16 @@ export function OverviewTabContent({
             )
           }
           actions={
-            <SourceEditDialog
-              value={application.source}
-              onSave={handleSaveSource}
+            <FieldWithLabelAction.IconActionButton
+              label="Edit source"
+              onClick={sourceDialog.open}
             />
           }
+        />
+        <SourceEditDialog
+          control={sourceDialog}
+          value={application.source}
+          onSave={handleSaveSource}
         />
       </div>
 
@@ -198,12 +226,17 @@ export function OverviewTabContent({
             )
           }
           actions={
-            <SalaryEditDialog
-              application={application}
-              onSuccess={onSuccess}
-              onError={onError}
+            <FieldWithLabelAction.IconActionButton
+              label="Edit salary"
+              onClick={salaryDialog.open}
             />
           }
+        />
+        <SalaryEditDialog
+          control={salaryDialog}
+          application={application}
+          onSuccess={onSuccess}
+          onError={onError}
         />
       </div>
 
@@ -220,13 +253,18 @@ export function OverviewTabContent({
             )
           }
           actions={
-            <TagsEditDialog
-              applicationId={application.id}
-              tags={tags}
-              onSuccess={onSuccess}
-              onError={onError}
+            <FieldWithLabelAction.IconActionButton
+              label="Edit tags"
+              onClick={tagsDialog.open}
             />
           }
+        />
+        <TagsEditDialog
+          control={tagsDialog}
+          applicationId={application.id}
+          tags={tags}
+          onSuccess={onSuccess}
+          onError={onError}
         />
       </div>
 

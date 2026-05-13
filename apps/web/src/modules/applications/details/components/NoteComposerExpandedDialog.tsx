@@ -44,7 +44,6 @@ export function NoteComposerExpandedDialog({
       description="Compose a detailed note for this application in an expanded editor."
       open={open}
       onOpenChange={onOpenChange}
-      trigger={<span aria-hidden style={{ display: "none" }} />}
       contentClassName={cn("h-[90vh] w-[90vw] max-w-none p-4")}
       childrenClassName={cn("flex min-h-0 flex-col")}
     >

@@ -95,7 +95,6 @@ export function ConvertDraftConflictDialog({
 
   return (
     <Dialog
-      trigger={<span aria-hidden style={{ display: "none" }} />}
       title="This draft was already converted"
       description={
         <div className={cn("space-y-3")}>

@@ -1,17 +1,20 @@
 "use client";
 
 import { Button, cn, Dialog, FormField, Input, Stack } from "@job-tracker/ui";
+import { type DialogControl } from "@job-tracker/ui";
 import React, { useState } from "react";
 
-import { FieldEditTriggerButton } from "./FieldEditTriggerButton";
-
 interface UrlFieldEditDialogProps {
+  control: DialogControl;
   value: string[];
   onSave: (nextValue: string[]) => Promise<void>;
 }
 
-export function UrlFieldEditDialog({ value, onSave }: UrlFieldEditDialogProps) {
-  const [open, setOpen] = useState(false);
+export function UrlFieldEditDialog({
+  control,
+  value,
+  onSave,
+}: UrlFieldEditDialogProps) {
   const [draft, setDraft] = useState<string[]>(value.length > 0 ? value : [""]);
   const [saving, setSaving] = useState(false);
   const normalized = value.join("\n");
@@ -27,14 +30,14 @@ export function UrlFieldEditDialog({ value, onSave }: UrlFieldEditDialogProps) {
     setSaving(true);
     try {
       await onSave(next);
-      setOpen(false);
+      control.close();
     } finally {
       setSaving(false);
     }
   }
 
   function handleOpenChange(nextOpen: boolean) {
-    setOpen(nextOpen);
+    control.onOpenChange(nextOpen);
     if (nextOpen) {
       setDraft(value.length > 0 ? value : [""]);
     }
@@ -59,9 +62,8 @@ export function UrlFieldEditDialog({ value, onSave }: UrlFieldEditDialogProps) {
     <Dialog
       title="Edit job URLs"
       description="Update the source URLs for this application posting."
-      open={open}
+      open={control.isOpen}
       onOpenChange={handleOpenChange}
-      trigger={<FieldEditTriggerButton label="Edit job URL" />}
     >
       <Stack gap="sm">
         {draft.map((item, index) => {

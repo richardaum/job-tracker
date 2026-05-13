@@ -15,6 +15,7 @@ import {
   TabsList,
   TabsTrigger,
   Text,
+  useDialog,
 } from "@job-tracker/ui";
 import { CaretDownIcon, CopyIcon } from "@phosphor-icons/react";
 import Link from "next/link";
@@ -88,6 +89,7 @@ function truncateMiddle(
 export default function DraftApplicationDetailsPage({ params }: PageProps) {
   const { id } = React.use(params);
   const router = useRouter();
+  const titleDialog = useDialog();
   const [actionsMenuOpen, setActionsMenuOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [convertConfirmDialogOpen, setConvertConfirmDialogOpen] =
@@ -244,9 +246,9 @@ export default function DraftApplicationDetailsPage({ params }: PageProps) {
         <FieldWithLabelAction
           label="Page title"
           actions={
-            <DraftTitleEditDialog
-              value={draft.title}
-              onSave={handleSaveTitle}
+            <FieldWithLabelAction.IconActionButton
+              label="Edit page title"
+              onClick={titleDialog.open}
             />
           }
           content={
@@ -254,6 +256,11 @@ export default function DraftApplicationDetailsPage({ params }: PageProps) {
               {draft.title.trim() || "Untitled page"}
             </Text>
           }
+        />
+        <DraftTitleEditDialog
+          control={titleDialog}
+          value={draft.title}
+          onSave={handleSaveTitle}
         />
         <DraftCurrentApplicationField application={linkedApplication} />
       </OverviewSection>
@@ -375,7 +382,6 @@ export default function DraftApplicationDetailsPage({ params }: PageProps) {
         </div>
         {draft ? (
           <DeleteDraftApplicationDialog
-            trigger={<span aria-hidden style={{ display: "none" }} />}
             draftId={draft.id}
             draftSummary={draftHeadingTitle(draft.title, draft.url)}
             hasLinkedApplication={Boolean(draft.applicationId)}

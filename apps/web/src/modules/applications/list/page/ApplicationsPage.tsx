@@ -1,9 +1,16 @@
 "use client";
 
-import { Button, Card, cn, Skeleton, Stack, Text } from "@job-tracker/ui";
+import {
+  Button,
+  Card,
+  cn,
+  Skeleton,
+  Stack,
+  Text,
+  useDialog,
+} from "@job-tracker/ui";
 import { PlusIcon } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 
 import { EmptyState } from "@/components/empty-state";
 import { ApplicationCard } from "@/modules/applications/list/components/ApplicationCard";
@@ -81,7 +88,7 @@ export default function ApplicationsPage() {
 
   const { enqueueToast } = useToastQueue();
 
-  const [openDialog, setOpenDialog] = useState(false);
+  const newApplication = useDialog();
 
   function showToast(message: string, intent: "success" | "error") {
     enqueueToast({ title: message, intent });
@@ -99,21 +106,14 @@ export default function ApplicationsPage() {
 
         <div className={cn("w-full sm:w-auto")}>
           <ApplicationQuickEditDialog
-            open={openDialog}
-            onOpenChange={(open) => {
-              if (open !== undefined) setOpenDialog(open);
-            }}
+            control={newApplication}
             onSuccess={(msg) => showToast(msg, "success")}
             onError={(msg) => showToast(msg, "error")}
             onCreated={(applicationId) => {
               router.push(`/applications/${applicationId}`);
             }}
           />
-          <Button
-            intent="primary"
-            size="md"
-            onClick={() => setOpenDialog(true)}
-          >
+          <Button intent="primary" size="md" onClick={newApplication.open}>
             <PlusIcon size={16} weight="bold" className={cn("mr-2")} />
             New application
           </Button>

@@ -9,6 +9,7 @@ import {
   FormField,
   Stack,
 } from "@job-tracker/ui";
+import { type DialogControl } from "@job-tracker/ui";
 import React, { useState } from "react";
 
 import type { ApplicationSource } from "@/gql/hooks";
@@ -18,18 +19,17 @@ import {
   parseApplicationSourceComboLabel,
 } from "@/modules/applications/shared/utils/applicationSourceLabel";
 
-import { FieldEditTriggerButton } from "./FieldEditTriggerButton";
-
 const fieldId = "edit-application-source";
 
 export function SourceEditDialog({
+  control,
   value,
   onSave,
 }: {
+  control: DialogControl;
   value: ApplicationSource | null | undefined;
   onSave: (next: ApplicationSource | null) => Promise<void>;
 }) {
-  const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState(() =>
     applicationSourceToComboLabel(value),
   );
@@ -47,14 +47,14 @@ export function SourceEditDialog({
       const next = parseApplicationSourceComboLabel(draft);
       if (next === "invalid") return;
       await onSave(next);
-      setOpen(false);
+      control.close();
     } finally {
       setSaving(false);
     }
   }
 
   function handleOpenChange(nextOpen: boolean) {
-    setOpen(nextOpen);
+    control.onOpenChange(nextOpen);
     if (nextOpen) {
       setDraft(applicationSourceToComboLabel(value));
     }
@@ -64,9 +64,8 @@ export function SourceEditDialog({
     <Dialog
       title="Edit source"
       description="Choose where this application came from."
-      open={open}
+      open={control.isOpen}
       onOpenChange={handleOpenChange}
-      trigger={<FieldEditTriggerButton label="Edit source" />}
     >
       <Stack gap="sm">
         <FormField label="Source" htmlFor={fieldId}>

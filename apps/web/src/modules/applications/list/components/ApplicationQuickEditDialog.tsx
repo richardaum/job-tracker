@@ -10,6 +10,7 @@ import {
   Input,
   Stack,
 } from "@job-tracker/ui";
+import { type DialogControl } from "@job-tracker/ui";
 import React, { useState } from "react";
 
 import {
@@ -217,9 +218,7 @@ function ApplicationQuickEditDialogForm({
 }
 
 export interface ApplicationQuickEditDialogProps {
-  trigger?: React.ReactElement;
-  open?: boolean;
-  onOpenChange?: (open: boolean) => void;
+  control: DialogControl;
   application?: ApplicationValues;
   onSuccess?: (message: string) => void;
   onError?: (message: string) => void;
@@ -227,43 +226,33 @@ export interface ApplicationQuickEditDialogProps {
 }
 
 export function ApplicationQuickEditDialog({
-  trigger,
-  open: externalOpen,
-  onOpenChange: externalOnOpenChange,
+  control,
   application,
   onSuccess,
   onError,
   onCreated,
 }: ApplicationQuickEditDialogProps) {
   const isEdit = Boolean(application);
-  const [internalOpen, setInternalOpen] = useState(false);
-  const open = externalOpen ?? internalOpen;
-
-  function handleOpenChange(open: boolean) {
-    setInternalOpen(open);
-    externalOnOpenChange?.(open);
-  }
 
   return (
     <Dialog
-      trigger={trigger ?? <button type="button" className={cn("hidden")} />}
       title={isEdit ? "Edit application" : "New application"}
       description={
         isEdit
           ? "Update core application details like title, company, and URLs."
           : "Add a new application with a title, company, and optional URLs."
       }
-      open={open}
-      onOpenChange={handleOpenChange}
+      open={control.isOpen}
+      onOpenChange={control.onOpenChange}
     >
-      {open ? (
+      {control.isOpen ? (
         <ApplicationQuickEditDialogForm
           isEdit={isEdit}
           application={application}
           onSuccess={onSuccess}
           onError={onError}
           onCreated={onCreated}
-          onClose={() => handleOpenChange(false)}
+          onClose={() => control.onOpenChange(false)}
         />
       ) : null}
     </Dialog>

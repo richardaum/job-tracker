@@ -72,7 +72,6 @@ export function NoteEditDialog({
       onOpenChange={(open) => {
         if (!open) onClose();
       }}
-      trigger={<span aria-hidden style={{ display: "none" }} />}
       contentClassName={cn("max-w-3xl")}
     >
       <Stack gap="sm">

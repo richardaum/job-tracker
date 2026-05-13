@@ -31,10 +31,6 @@ function useImporterTemplateMutationOptions(importerId: string) {
     : {};
 }
 
-const hiddenDialogTrigger = (
-  <button type="button" className={cn("hidden")} aria-hidden />
-);
-
 type ImportTemplateSurfaceUrlFormInnerProps = {
   template: ImportTemplateListItem;
   importerId: string;
@@ -136,7 +132,6 @@ export function ImportTemplateSurfaceUrlDialog({
     <Dialog
       open={open}
       onOpenChange={onOpenChange}
-      trigger={hiddenDialogTrigger}
       size="md"
       title="Surface URL"
       description={

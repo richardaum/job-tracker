@@ -10,7 +10,7 @@ import {
 } from "@/gql/hooks";
 
 interface DeleteDraftApplicationDialogProps {
-  trigger: React.ReactElement;
+  trigger?: React.ReactElement;
   draftId: string;
   draftSummary: string;
   hasLinkedApplication?: boolean;

@@ -13,6 +13,7 @@ import {
 import { FitItemCard } from "@/modules/applications/details/components/FitItemCard";
 import { ScoreBadge } from "@/modules/applications/details/components/ScoreBadge";
 import { useToastQueue } from "@/modules/applications/shared/hooks/useToastQueue";
+import { PreferencesDialog } from "@/modules/resumes/list/components/PreferencesDialog";
 
 interface FitModalProps {
   applicationId: string;
@@ -44,6 +45,7 @@ export function FitModal({ applicationId, open, onOpenChange }: FitModalProps) {
   const [weightFilter, setWeightFilter] = React.useState<
     "all" | "high" | "low"
   >("all");
+  const [prefsOpen, setPrefsOpen] = React.useState(false);
   const hasFit = !!fitData?.applicationFit;
 
   const resumeId = (selectedResumeId || resumesData?.resumes?.[0]?.id) ?? "";
@@ -88,7 +90,6 @@ export function FitModal({ applicationId, open, onOpenChange }: FitModalProps) {
       title="Fit Analysis"
       size="2xl"
       childrenClassName="overflow-auto"
-      trigger={<span />}
       footer={
         <div className={cn("flex items-center justify-between gap-2")}>
           <div className={cn("flex items-center gap-2")}>
@@ -197,13 +198,24 @@ export function FitModal({ applicationId, open, onOpenChange }: FitModalProps) {
 
               <div className={cn("flex flex-col gap-2")}>
                 {filteredItems.map((item, i) => (
-                  <FitItemCard key={i} item={item} />
+                  <FitItemCard
+                    key={i}
+                    item={item}
+                    resumeId={fitData?.applicationFit?.resumeId ?? undefined}
+                    onPreferenceClick={() => setPrefsOpen(true)}
+                  />
                 ))}
               </div>
             </>
           )}
         </div>
       )}
+
+      <PreferencesDialog
+        open={prefsOpen}
+        onOpenChange={setPrefsOpen}
+        readOnly
+      />
     </Dialog>
   );
 }
