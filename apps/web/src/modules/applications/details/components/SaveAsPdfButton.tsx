@@ -4,6 +4,7 @@ import { tryRun } from "@job-tracker/try-run";
 import { FilePdfIcon } from "@phosphor-icons/react";
 import type { Editor } from "@tiptap/react";
 
+import { getApiBaseUrl } from "@/lib/api-endpoints";
 import { ToolbarButton } from "@/modules/applications/details/components/ToolbarButton";
 
 interface SaveAsPdfButtonProps {
@@ -15,21 +16,6 @@ export function SaveAsPdfButton({
   editor,
   disabled = false,
 }: SaveAsPdfButtonProps) {
-  function getExportFileName() {
-    const dateSuffix = new Date().toISOString().slice(0, 10);
-    const pageTitle = window.document.title
-      .trim()
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-+|-+$/g, "");
-
-    if (!pageTitle) {
-      return `document-export-${dateSuffix}`;
-    }
-
-    return `${pageTitle}-${dateSuffix}`;
-  }
-
   async function handleExportPdf() {
     const [error] = await tryRun(
       (async () => {
@@ -40,51 +26,24 @@ export function SaveAsPdfButton({
           return;
         }
 
-        const exportFileName = getExportFileName();
-        const printWindow = window.open("about:blank", "_blank");
-        if (!printWindow) {
-          return;
+        const response = await fetch(`${getApiBaseUrl()}/pdf/export`, {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ html: htmlContent }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`PDF export failed: ${response.status}`);
         }
-        printWindow.opener = null;
 
-        const { document: printDocument } = printWindow;
-        let hasTriggeredPrint = false;
-        let hasClosedWindow = false;
-        const closePrintWindow = (source: string) => {
-          if (hasClosedWindow) {
-            return;
-          }
-          hasClosedWindow = true;
-          void source;
-          printWindow.close();
-        };
-
-        const printMediaQuery = printWindow.matchMedia("print");
-        printWindow.addEventListener("afterprint", () => {
-          closePrintWindow("afterprint");
-        });
-        printMediaQuery.addEventListener("change", (event) => {
-          if (hasTriggeredPrint && !event.matches) {
-            closePrintWindow("matchMedia-change-false");
-          }
-        });
-        printDocument.title = exportFileName;
-        const style = printDocument.createElement("style");
-        style.textContent = `
-      body {
-        margin: 32px;
-        font-family: Inter, Arial, sans-serif;
-        font-size: 12pt;
-        line-height: 1.5;
-        white-space: pre-wrap;
-        overflow-wrap: break-word;
-      }
-    `;
-        printDocument.head.appendChild(style);
-        printDocument.body.innerHTML = htmlContent;
-        printWindow.focus();
-        hasTriggeredPrint = true;
-        printWindow.print();
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        const a = window.document.createElement("a");
+        a.href = url;
+        a.download = "export.pdf";
+        a.click();
+        URL.revokeObjectURL(url);
       })(),
     );
     if (error) {
