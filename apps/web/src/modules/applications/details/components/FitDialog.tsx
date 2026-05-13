@@ -15,13 +15,17 @@ import { ScoreBadge } from "@/modules/applications/details/components/ScoreBadge
 import { useToastQueue } from "@/modules/applications/shared/hooks/useToastQueue";
 import { PreferencesDialog } from "@/modules/resumes/list/components/PreferencesDialog";
 
-interface FitModalProps {
+interface FitDialogProps {
   applicationId: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-export function FitModal({ applicationId, open, onOpenChange }: FitModalProps) {
+export function FitDialog({
+  applicationId,
+  open,
+  onOpenChange,
+}: FitDialogProps) {
   const { enqueueToast } = useToastQueue();
 
   const { data: fitData, loading: fitLoading } = useApplicationFitQuery({
