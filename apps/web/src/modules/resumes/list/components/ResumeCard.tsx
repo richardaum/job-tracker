@@ -2,7 +2,7 @@
 
 import { tryRun } from "@job-tracker/try-run";
 import { cn, IconButton, ListItemCard, Text } from "@job-tracker/ui";
-import { TrashIcon } from "@phosphor-icons/react";
+import { StarIcon, TrashIcon } from "@phosphor-icons/react";
 import NextLink from "next/link";
 
 import type { ResumeType } from "@/gql/hooks";
@@ -22,11 +22,19 @@ function formatDate(iso: string): string {
 }
 
 interface ResumeCardProps {
-  resume: Pick<ResumeType, "id" | "title" | "content" | "updatedAt">;
+  resume: Pick<
+    ResumeType,
+    "id" | "title" | "content" | "updatedAt" | "isDefault"
+  >;
   onDelete?: (id: string, title: string) => void;
+  onSetAsDefault?: (id: string) => void;
 }
 
-export function ResumeCard({ resume, onDelete }: ResumeCardProps) {
+export function ResumeCard({
+  resume,
+  onDelete,
+  onSetAsDefault,
+}: ResumeCardProps) {
   const descriptionPreview = tipTapToPlainText(resume.content).slice(0, 120);
 
   const title = (
@@ -39,6 +47,22 @@ export function ResumeCard({ resume, onDelete }: ResumeCardProps) {
 
   const actions = (
     <ListItemCard.Actions>
+      {resume.isDefault ? (
+        <Text size="xs" color="muted" className={cn("flex items-center gap-1")}>
+          <StarIcon size={12} weight="fill" className={cn("text-yellow-500")} />
+          Default
+        </Text>
+      ) : (
+        <IconButton
+          intent="ghost"
+          size="sm"
+          label={`Set "${resume.title}" as default resume`}
+          tooltip="Set as default"
+          className={cn(ListItemCard.actionIconButtonClassName)}
+          icon={<StarIcon size={13} weight="regular" />}
+          onClick={() => onSetAsDefault?.(resume.id)}
+        />
+      )}
       <DeleteResumeDialog
         resumeId={resume.id}
         resumeTitle={resume.title}

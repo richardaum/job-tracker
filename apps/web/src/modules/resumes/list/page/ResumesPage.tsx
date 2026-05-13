@@ -10,6 +10,7 @@ import {
   ResumesDocument,
   useDeleteResumeMutation,
   useResumesQuery,
+  useUpdateResumeMutation,
 } from "@/gql/hooks";
 import { SearchInput } from "@/modules/applications/shared/components/SearchInput";
 import { useToastQueue } from "@/modules/applications/shared/hooks/useToastQueue";
@@ -69,6 +70,10 @@ export default function ResumesPage() {
     refetchQueries: [{ query: ResumesDocument }],
     awaitRefetchQueries: true,
   });
+  const [updateResume] = useUpdateResumeMutation({
+    refetchQueries: [{ query: ResumesDocument }],
+    awaitRefetchQueries: true,
+  });
 
   const { enqueueToast } = useToastQueue();
   const [preferencesOpen, setPreferencesOpen] = useState(false);
@@ -81,10 +86,21 @@ export default function ResumesPage() {
     enqueueToast({ title: message, intent });
   }
 
+  async function handleSetAsDefault(id: string) {
+    const [err] = await tryRun(
+      updateResume({ variables: { id, input: { isDefault: true } } }),
+    );
+    if (err) {
+      showToast(err.message, "error");
+      return;
+    }
+    showToast("Default resume updated.", "success");
+  }
+
   async function handleDelete(id: string, title: string) {
     const [err] = await tryRun(deleteResume({ variables: { id } }));
     if (err) {
-      showToast(`Failed to delete "${title}".`, "error");
+      showToast(err.message, "error");
       return;
     }
     showToast(`"${title}" deleted.`, "success");
@@ -144,6 +160,7 @@ export default function ResumesPage() {
                 key={resume.id}
                 resume={resume}
                 onDelete={(id, title) => void handleDelete(id, title)}
+                onSetAsDefault={(id) => void handleSetAsDefault(id)}
               />
             ))}
           </Stack>

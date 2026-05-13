@@ -154,6 +154,7 @@ export type CreateNoteInput = {
 
 export type CreateResumeInput = {
   content: Scalars["String"]["input"];
+  isDefault?: Scalars["Boolean"]["input"];
   title: Scalars["String"]["input"];
 };
 
@@ -537,6 +538,7 @@ export type ResumeType = {
   content: Scalars["String"]["output"];
   createdAt: Scalars["DateTime"]["output"];
   id: Scalars["ID"]["output"];
+  isDefault: Scalars["Boolean"]["output"];
   title: Scalars["String"]["output"];
   updatedAt: Scalars["DateTime"]["output"];
   userId: Scalars["String"]["output"];
@@ -595,6 +597,7 @@ export type UpdateNoteInput = {
 
 export type UpdateResumeInput = {
   content?: InputMaybe<Scalars["String"]["input"]>;
+  isDefault?: InputMaybe<Scalars["Boolean"]["input"]>;
   title?: InputMaybe<Scalars["String"]["input"]>;
 };
 
@@ -1347,6 +1350,7 @@ export type ResumesQuery = {
     id: string;
     title: string;
     content: string;
+    isDefault: boolean;
     createdAt: any;
     updatedAt: any;
   }>;
@@ -1362,6 +1366,7 @@ export type ResumeQuery = {
     userId: string;
     title: string;
     content: string;
+    isDefault: boolean;
     createdAt: any;
     updatedAt: any;
   };
@@ -1376,6 +1381,7 @@ export type CreateResumeMutation = {
     id: string;
     title: string;
     content: string;
+    isDefault: boolean;
     createdAt: any;
     updatedAt: any;
   };
@@ -1393,6 +1399,7 @@ export type UpdateResumeMutation = {
     id: string;
     title: string;
     content: string;
+    isDefault: boolean;
     createdAt: any;
     updatedAt: any;
   };
@@ -3539,6 +3546,7 @@ export const ResumesDocument = gql`
       id
       title
       content
+      isDefault
       createdAt
       updatedAt
     }
@@ -3595,6 +3603,7 @@ export const ResumeDocument = gql`
       userId
       title
       content
+      isDefault
       createdAt
       updatedAt
     }
@@ -3652,6 +3661,7 @@ export const CreateResumeDocument = gql`
       id
       title
       content
+      isDefault
       createdAt
       updatedAt
     }
@@ -3694,6 +3704,7 @@ export const UpdateResumeDocument = gql`
       id
       title
       content
+      isDefault
       createdAt
       updatedAt
     }
