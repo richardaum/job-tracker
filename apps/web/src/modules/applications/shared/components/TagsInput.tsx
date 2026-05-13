@@ -67,7 +67,7 @@ export function TagsInput({ value, onChange, disabled, id }: TagsInputProps) {
           <Tooltip
             key={tag.label}
             content={tooltipContent}
-            side="top"
+            side="bottom"
             enabled={Boolean(tooltipContent)}
           >
             <span

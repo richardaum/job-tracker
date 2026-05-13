@@ -31,7 +31,7 @@ export function FitStatusBadge({
 
   return (
     <span className={cn("inline-flex items-center gap-1.5", className)}>
-      <Tooltip content={error ?? ""} side="top" enabled={hasError}>
+      <Tooltip content={error ?? ""} side="bottom" enabled={hasError}>
         <Badge
           intent={STATUS_INTENT[status] ?? "default"}
           className={cn("gap-1.5")}

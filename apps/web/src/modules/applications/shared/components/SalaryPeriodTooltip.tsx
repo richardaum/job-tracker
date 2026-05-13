@@ -78,7 +78,7 @@ export function SalaryPeriodTooltip({
           ))}
         </div>
       }
-      side="top"
+      side="bottom"
       align="start"
     >
       <span

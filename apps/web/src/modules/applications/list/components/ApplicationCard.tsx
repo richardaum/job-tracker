@@ -195,7 +195,7 @@ function FitBadge({
   );
 
   return (
-    <Tooltip content={tooltipContent}>
+    <Tooltip content={tooltipContent} side="bottom">
       <NextLink
         href={`/applications/${application.id}/fit`}
         className={cn("no-underline focus-visible:outline-none")}

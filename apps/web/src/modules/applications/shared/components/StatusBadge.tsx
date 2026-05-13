@@ -41,7 +41,7 @@ export function StatusBadge({
         {formatStage(stage)}
       </Badge>
       {reason ? (
-        <Tooltip content={reason} side="top">
+        <Tooltip content={reason} side="bottom">
           <span
             className={cn(
               "inline-flex cursor-help text-text-muted hover:text-text-secondary",

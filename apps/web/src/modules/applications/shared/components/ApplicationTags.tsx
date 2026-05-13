@@ -47,6 +47,7 @@ export function ApplicationTags({
       {rest > 0 ? (
         <Tooltip
           content={`${rest} more ${rest === 1 ? "tag" : "tags"}: ${hidden.join(", ")}`}
+          side="bottom"
         >
           <span className={cn("inline-flex")}>
             <Badge>+{rest}</Badge>
