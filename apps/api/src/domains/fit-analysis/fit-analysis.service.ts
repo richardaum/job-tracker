@@ -148,10 +148,8 @@ export class FitAnalysisService implements OnModuleInit {
             suggestion: i.suggestion ?? undefined,
           }),
         ),
-        ...preferenceFitItems.map((i): FitItem => {
-          const original = preferenceItems.find(
-            (p) => p.text === i.requirement,
-          );
+        ...preferenceFitItems.map((i, index): FitItem => {
+          const original = preferenceItems[index];
           return {
             requirement: i.requirement,
             source: "preference",
