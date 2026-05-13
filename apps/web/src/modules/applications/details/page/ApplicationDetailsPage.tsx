@@ -1,5 +1,6 @@
 "use client";
 
+import { tryRun } from "@job-tracker/try-run";
 import {
   Button,
   cn,
@@ -13,14 +14,16 @@ import {
   TabsTrigger,
   Text,
 } from "@job-tracker/ui";
-import { CaretDownIcon } from "@phosphor-icons/react";
+import { CaretDownIcon, SparkleIcon } from "@phosphor-icons/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 
+import { useGenerateApplicationFitMutation } from "@/gql/hooks";
 import { useBreakpoint } from "@/hooks/useBreakpoint";
 import { ActivitySidePanel } from "@/modules/applications/details/components/ActivitySidePanel";
 import { DescriptionTabContent } from "@/modules/applications/details/components/DescriptionTabContent";
+import { FitWizardDialog } from "@/modules/applications/details/components/FitWizardDialog";
 import { HistoryPanelTabsContent } from "@/modules/applications/details/components/HistoryPanel";
 import { NotesPanelTabsContent } from "@/modules/applications/details/components/NotesPanel";
 import { OverviewTabContent } from "@/modules/applications/details/components/OverviewTabContent";
@@ -41,6 +44,9 @@ export default function ApplicationDetailsPage({ params }: PageProps) {
   const [actionsMenuOpen, setActionsMenuOpen] = useState(false);
   const [actionsOpen, setActionsOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [fitWizardOpen, setFitWizardOpen] = useState(false);
+  const [generateApplicationFit, { loading: generatingFit }] =
+    useGenerateApplicationFitMutation();
   const { enqueueToast } = useToastQueue();
 
   const {
@@ -56,6 +62,35 @@ export default function ApplicationDetailsPage({ params }: PageProps) {
   function showToast(message: string, intent: "success" | "error") {
     enqueueToast({ title: message, intent });
   }
+
+  const handleGenerateFit = React.useCallback(
+    async (resumeId: string) => {
+      if (!application) return;
+      const [error, result] = await tryRun(
+        generateApplicationFit({
+          variables: { input: { applicationId: application.id, resumeId } },
+        }),
+      );
+      if (error) {
+        enqueueToast({
+          title:
+            error instanceof Error
+              ? error.message.replace("Bad Request Exception: ", "")
+              : "Failed to generate fit analysis.",
+          intent: "error",
+        });
+        return;
+      }
+      enqueueToast({
+        title: "Fit analysis generation started.",
+        intent: "success",
+      });
+      if (result?.data?.generateApplicationFit?.id) {
+        router.push(`/fit/${result.data.generateApplicationFit.id}`);
+      }
+    },
+    [application, generateApplicationFit, enqueueToast, router],
+  );
 
   const handleEntitySuccess = (message: string) =>
     showToast(message, "success");
@@ -136,7 +171,14 @@ export default function ApplicationDetailsPage({ params }: PageProps) {
         Update status
       </DropdownMenuItem>
       <DropdownMenuItem
-        onSelect={() => router.push(`/applications/${application.id}/fit`)}
+        onSelect={() => {
+          if (application?.fit?.id) {
+            router.push(`/fit/${application.fit.id}`);
+          } else {
+            setFitWizardOpen(true);
+          }
+        }}
+        icon={<SparkleIcon size={14} weight="regular" />}
       >
         Fit analysis
       </DropdownMenuItem>
@@ -276,6 +318,13 @@ export default function ApplicationDetailsPage({ params }: PageProps) {
           </div>
         )}
       </div>
+      <FitWizardDialog
+        open={fitWizardOpen}
+        onOpenChange={setFitWizardOpen}
+        onGenerate={handleGenerateFit}
+        generating={generatingFit}
+        hasExistingFit={!!application?.fit}
+      />
     </div>
   );
 }

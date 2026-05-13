@@ -61,7 +61,7 @@ export function FitBadge({
   return (
     <Tooltip content={tooltipContent} side="bottom">
       <NextLink
-        href={`/applications/${application.id}/fit`}
+        href={`/fit/${fit.id}`}
         className={cn("no-underline focus-visible:outline-none")}
       >
         <Badge

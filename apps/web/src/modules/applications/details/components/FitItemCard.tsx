@@ -1,11 +1,10 @@
 "use client";
 
-import { Card, cn, Text, Tooltip } from "@job-tracker/ui";
-import { ArrowDownIcon, ArrowUpIcon } from "@phosphor-icons/react";
+import { Card, cn, Text } from "@job-tracker/ui";
 import React from "react";
 
+import { RelevanceIcon } from "@/modules/applications/details/components/RelevanceIcon";
 import { SourceBadge } from "@/modules/applications/details/components/SourceBadge";
-import { TypeBadge } from "@/modules/applications/details/components/TypeBadge";
 import { VerdictBadge } from "@/modules/applications/details/components/VerdictBadge";
 
 export interface FitItem {
@@ -39,36 +38,16 @@ export function FitItemCard({
 
   return (
     <Card className={cn("flex flex-col gap-2")} padding="sm">
-      <div className={cn("flex items-center gap-2")}>
+      <div className={cn("flex items-center gap-1")}>
         <VerdictBadge verdict={item.verdict} />
-        <SourceBadge
-          source={item.source}
-          resumeId={resumeId}
-          onPreferenceClick={onPreferenceClick}
-        />
-        {item.weight === "high" && (
-          <Tooltip content="High priority">
-            <ArrowUpIcon
-              size={16}
-              weight="bold"
-              className={cn("text-green-500 shrink-0")}
-            />
-          </Tooltip>
-        )}
-        {item.weight === "low" && (
-          <Tooltip content="Low priority">
-            <ArrowDownIcon
-              size={16}
-              weight="bold"
-              className={cn("text-text-muted shrink-0")}
-            />
-          </Tooltip>
-        )}
-        {item.weight && item.weight !== "high" && item.weight !== "low" && (
-          <Text size="sm" color="muted">
-            {item.weight}
-          </Text>
-        )}
+        <div className={cn("ml-auto flex items-center gap-2")}>
+          <SourceBadge
+            source={item.source}
+            resumeId={resumeId}
+            onPreferenceClick={onPreferenceClick}
+          />
+          <RelevanceIcon weight={item.weight} type={item.type} />
+        </div>
       </div>
 
       <Text size="sm" weight="medium">
@@ -106,8 +85,6 @@ export function FitItemCard({
           Suggestion: {item.suggestion}
         </Text>
       )}
-
-      {item.type && item.source === "resume" && <TypeBadge type={item.type} />}
     </Card>
   );
 }

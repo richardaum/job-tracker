@@ -18,37 +18,29 @@ export function VerdictBadge({ verdict }: { verdict: string }) {
         <CheckCircleIcon
           size={16}
           weight="fill"
-          className={cn("text-green-500 shrink-0")}
+          className={cn("text-text-success shrink-0")}
         />
       )}
       {isGap && (
         <XCircleIcon
           size={16}
           weight="fill"
-          className={cn("text-red-500 shrink-0")}
+          className={cn("text-text-error shrink-0")}
         />
       )}
       {!isFit && !isGap && (
         <MinusCircleIcon
           size={16}
           weight="fill"
-          className={cn("text-yellow-500 shrink-0")}
+          className={cn("text-text-warning shrink-0")}
         />
       )}
-      <Badge
-        intent="default"
-        className={cn(
-          "border-0",
-          isFit && "bg-bg-success-subtle",
-          isGap && "bg-bg-error-subtle",
-          !isFit && !isGap && "bg-bg-warning-subtle",
-        )}
-      >
+      <Badge intent="default" className={cn("border-0 bg-neutral-100")}>
         <span
           className={cn(
-            isFit && "text-green-600",
-            isGap && "text-red-600",
-            !isFit && !isGap && "text-yellow-700",
+            isFit && "text-text-success",
+            isGap && "text-text-error",
+            !isFit && !isGap && "text-text-warning",
           )}
         >
           {verdict.charAt(0).toUpperCase() + verdict.slice(1)}

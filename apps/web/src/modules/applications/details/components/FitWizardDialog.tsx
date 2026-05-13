@@ -344,7 +344,7 @@ export function FitWizardDialog({
       <Tabs defaultValue="resume" className={cn("flex flex-col gap-4")}>
         <TabsList>
           <TabsTrigger value="resume">Resume</TabsTrigger>
-          <TabsTrigger value="preferences">Preferences</TabsTrigger>
+          <TabsTrigger value="preferences">Work Preferences</TabsTrigger>
         </TabsList>
 
         <TabsContent value="resume" className={cn("flex flex-col gap-2")}>

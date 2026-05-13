@@ -17,7 +17,7 @@ interface FitAnalysisFieldProps {
 }
 
 export function FitAnalysisField({
-  applicationId,
+  applicationId: _applicationId,
   fit,
 }: FitAnalysisFieldProps) {
   const router = useRouter();
@@ -72,7 +72,7 @@ export function FitAnalysisField({
           <FieldWithLabelAction.IconActionButton
             label="View full fit analysis"
             icon={<ArrowRightIcon size={14} weight="regular" />}
-            onClick={() => router.push(`/applications/${applicationId}/fit`)}
+            onClick={() => fit?.id && router.push(`/fit/${fit.id}`)}
           />
         }
         content={

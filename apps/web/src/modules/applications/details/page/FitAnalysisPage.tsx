@@ -4,21 +4,34 @@ import { tryRun } from "@job-tracker/try-run";
 import {
   Button,
   cn,
+  ConfirmDialog,
+  DropdownMenu,
+  DropdownMenuItem,
   Heading,
   Tabs,
   TabsList,
   TabsTrigger,
   Text,
 } from "@job-tracker/ui";
+import {
+  BriefcaseIcon,
+  CaretDownIcon,
+  NotePencilIcon,
+  TrashIcon,
+} from "@phosphor-icons/react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import React from "react";
 
 import { EmptyState } from "@/components/empty-state";
 import {
   FitAnalysisStatus,
-  useApplicationFitQuery,
+  useDeleteFitAnalysisMutation,
+  useFitQuery,
   useGenerateApplicationFitMutation,
+  useGenerateDraftApplicationFitMutation,
 } from "@/gql/hooks";
+import { usePoll } from "@/hooks/usePoll";
 import { FitItemCard } from "@/modules/applications/details/components/FitItemCard";
 import { FitStatusBadge } from "@/modules/applications/details/components/FitStatusBadge";
 import { FitWizardDialog } from "@/modules/applications/details/components/FitWizardDialog";
@@ -31,42 +44,54 @@ interface PageProps {
 }
 
 export default function FitAnalysisPage({ params }: PageProps) {
-  const { id } = React.use(params);
+  const { id: fitId } = React.use(params);
+  const router = useRouter();
   const { enqueueToast } = useToastQueue();
   const [wizardOpen, setWizardOpen] = React.useState(false);
   const [prefsOpen, setPrefsOpen] = React.useState(false);
+  const [actionsMenuOpen, setActionsMenuOpen] = React.useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
+
+  const [deleteFitAnalysis] = useDeleteFitAnalysisMutation();
 
   const {
     data: fitData,
     loading: fitLoading,
-    startPolling,
-    stopPolling,
-  } = useApplicationFitQuery({
-    variables: { applicationId: id },
+    startPolling: spFit,
+    stopPolling: stpFit,
+  } = useFitQuery({
+    variables: { id: fitId },
     fetchPolicy: "cache-and-network",
   });
 
-  const [generateFit, { loading: generating }] =
+  const [generateApplicationFit, { loading: generatingApp }] =
     useGenerateApplicationFitMutation();
+  const [generateDraftFit, { loading: generatingDraft }] =
+    useGenerateDraftApplicationFitMutation();
 
   const [fitFilterTab, setFitFilterTab] = React.useState<
     "all" | "resume" | "preference" | "high" | "low"
   >("all");
 
-  const fit = fitData?.applicationFit;
+  const fit = fitData?.fit;
   const status = fit?.status;
   const isProcessing = status === FitAnalysisStatus.Processing;
   const isFailed = status === FitAnalysisStatus.Failed;
   const isCompleted = status === FitAnalysisStatus.Completed;
   const hasFit = !!fit && !isProcessing && !isFailed;
+  const generating = generatingApp || generatingDraft;
 
-  React.useEffect(() => {
-    if (isProcessing) {
-      startPolling(3000);
-      return () => stopPolling();
-    }
-    stopPolling();
-  }, [isProcessing, startPolling, stopPolling]);
+  const belongsToApplication = !!fit?.applicationId;
+  const belongsToDraft = !!fit?.draftApplicationId;
+
+  const parentLabel = belongsToApplication ? "application" : "draft";
+  const parentHref = belongsToApplication
+    ? `/applications/${fit!.applicationId}`
+    : belongsToDraft
+      ? `/draft-applications/${fit!.draftApplicationId}`
+      : "#";
+
+  usePoll({ startPolling: spFit, stopPolling: stpFit }, isProcessing, 3000);
 
   const filteredItems = React.useMemo(() => {
     const items = fit?.items ?? [];
@@ -80,21 +105,105 @@ export default function FitAnalysisPage({ params }: PageProps) {
   }, [fit, fitFilterTab]);
 
   async function handleGenerate(resumeId: string) {
-    const [error] = await tryRun(
-      generateFit({
-        variables: { input: { applicationId: id, resumeId } },
-        refetchQueries: ["ApplicationFit"],
-      }),
-    );
-    if (error) {
-      const message =
-        error instanceof Error
-          ? error.message.replace("Bad Request Exception: ", "")
-          : "Failed to generate fit analysis.";
-      enqueueToast({ title: message, intent: "error" });
-      return;
+    if (belongsToApplication && fit.applicationId) {
+      const [error] = await tryRun(
+        generateApplicationFit({
+          variables: { input: { applicationId: fit.applicationId, resumeId } },
+          refetchQueries: ["Fit"],
+        }),
+      );
+      if (error) {
+        const message =
+          error instanceof Error
+            ? error.message.replace("Bad Request Exception: ", "")
+            : "Failed to generate fit analysis.";
+        enqueueToast({ title: message, intent: "error" });
+        return;
+      }
+    } else if (belongsToDraft && fit.draftApplicationId) {
+      const [error] = await tryRun(
+        generateDraftFit({
+          variables: {
+            input: { draftApplicationId: fit.draftApplicationId, resumeId },
+          },
+          refetchQueries: ["Fit"],
+        }),
+      );
+      if (error) {
+        const message =
+          error instanceof Error
+            ? error.message.replace("Bad Request Exception: ", "")
+            : "Failed to generate fit analysis.";
+        enqueueToast({ title: message, intent: "error" });
+        return;
+      }
+    } else {
+      enqueueToast({
+        title: "Fit is not linked to an application or draft.",
+        intent: "error",
+      });
     }
   }
+
+  async function handleDelete() {
+    const [error] = await tryRun(
+      deleteFitAnalysis({ variables: { id: fitId } }),
+    );
+    if (error) {
+      enqueueToast({
+        title: "Could not delete the fit analysis.",
+        intent: "error",
+      });
+      return;
+    }
+    router.push("/fits");
+  }
+
+  const actionsMenu = fit ? (
+    <DropdownMenu
+      open={actionsMenuOpen}
+      onOpenChange={setActionsMenuOpen}
+      trigger={
+        <Button
+          intent="secondary"
+          size="md"
+          rightIcon={
+            <CaretDownIcon
+              size={12}
+              weight="bold"
+              className={cn(
+                "transition-transform duration-200",
+                actionsMenuOpen ? "rotate-180" : "rotate-0",
+              )}
+            />
+          }
+        >
+          Actions
+        </Button>
+      }
+      align="end"
+    >
+      <DropdownMenuItem
+        onSelect={() => router.push(`/resumes/${fit.resumeId}`)}
+        icon={<NotePencilIcon size={14} weight="regular" />}
+      >
+        View resume
+      </DropdownMenuItem>
+      <DropdownMenuItem
+        onSelect={() => setPrefsOpen(true)}
+        icon={<BriefcaseIcon size={14} weight="regular" />}
+      >
+        Work Preferences
+      </DropdownMenuItem>
+      <DropdownMenuItem
+        destructive
+        onSelect={() => setDeleteDialogOpen(true)}
+        icon={<TrashIcon size={14} weight="regular" />}
+      >
+        Remove
+      </DropdownMenuItem>
+    </DropdownMenu>
+  ) : null;
 
   return (
     <div className={cn("flex h-full min-h-0 flex-col")}>
@@ -105,21 +214,26 @@ export default function FitAnalysisPage({ params }: PageProps) {
       >
         <div className={cn("flex items-center justify-between gap-3")}>
           <Link
-            href={`/applications/${id}`}
+            href={parentHref}
             className={cn(
               "text-sm text-text-secondary underline-offset-2 hover:underline",
             )}
           >
-            Back to application
+            Back to {parentLabel}
           </Link>
-          <Button
-            intent="primary"
-            size="md"
-            onClick={() => setWizardOpen(true)}
-            state={isProcessing ? "loading" : "default"}
-          >
-            {hasFit ? "Regenerate" : "Generate"}
-          </Button>
+          <div className={cn("flex items-center gap-2")}>
+            {actionsMenu ? (
+              <div className={cn("shrink-0")}>{actionsMenu}</div>
+            ) : null}
+            <Button
+              intent="primary"
+              size="md"
+              onClick={() => setWizardOpen(true)}
+              state={isProcessing ? "loading" : "default"}
+            >
+              {hasFit ? "Regenerate" : "Generate"}
+            </Button>
+          </div>
         </div>
         <div className={cn("flex items-start gap-3")}>
           <Heading as="h1" size="2xl" className={cn("min-w-0 flex-1")}>
@@ -213,6 +327,15 @@ export default function FitAnalysisPage({ params }: PageProps) {
         open={prefsOpen}
         onOpenChange={setPrefsOpen}
         readOnly
+      />
+
+      <ConfirmDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        title="Delete fit analysis"
+        description="Are you sure you want to delete this fit analysis? This cannot be undone."
+        confirmLabel="Delete"
+        onConfirm={handleDelete}
       />
     </div>
   );
