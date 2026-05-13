@@ -21,3 +21,10 @@ export function formatFitLabel(
   const score = formatFitScore(scoreRatio);
   return score ? `${label} - ${score}` : label;
 }
+
+export function formatRequirementType(type: string | null | undefined): string {
+  if (type === "must_have") return "Required";
+  if (type === "nice_to_have") return "Plus";
+  if (type === "soft_skill") return "Soft Skill";
+  return type ?? "";
+}

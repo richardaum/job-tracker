@@ -1,73 +1,51 @@
 "use client";
 
-import { Badge, cn, Text, Tooltip } from "@job-tracker/ui";
-import {
-  ArrowDownIcon,
-  ArrowUpIcon,
-  CheckCircleIcon,
-  MinusCircleIcon,
-  XCircleIcon,
-} from "@phosphor-icons/react";
+import { Card, cn, Text, Tooltip } from "@job-tracker/ui";
+import { ArrowDownIcon, ArrowUpIcon } from "@phosphor-icons/react";
 import React from "react";
+
+import { SourceBadge } from "@/modules/applications/details/components/SourceBadge";
+import { TypeBadge } from "@/modules/applications/details/components/TypeBadge";
+import { VerdictBadge } from "@/modules/applications/details/components/VerdictBadge";
 
 export interface FitItem {
   verdict: string;
   source: string;
   weight?: string | null;
+  type?: string | null;
   requirement: string;
   jdQuote: string;
   sourceQuotes: string[];
   suggestion?: string | null;
 }
 
-export function FitItemCard({ item }: { item: FitItem }) {
+export function FitItemCard({
+  item,
+  resumeId,
+  onPreferenceClick,
+}: {
+  item: FitItem;
+  resumeId?: string;
+  onPreferenceClick?: () => void;
+}) {
   const isFit = item.verdict === "fit";
   const isGap = item.verdict === "gap";
   const isUnclear = item.verdict === "unclear";
 
-  // Filter out quotes that are identical to the requirement title to avoid visual duplication
-  // as a safety measure for existing/AI data.
   const displayQuotes = item.sourceQuotes.filter(
     (quote) =>
       quote.trim().toLowerCase() !== item.requirement.trim().toLowerCase(),
   );
 
   return (
-    <div
-      className={cn(
-        "flex flex-col gap-2 rounded-lg border p-3",
-        isFit && "border-green-200",
-        isGap && "border-red-200",
-        isUnclear && "border-yellow-200",
-      )}
-    >
+    <Card className={cn("flex flex-col gap-2")} padding="sm">
       <div className={cn("flex items-center gap-2")}>
-        {isFit && (
-          <CheckCircleIcon
-            size={16}
-            weight="fill"
-            className={cn("text-green-500 shrink-0")}
-          />
-        )}
-        {isGap && (
-          <XCircleIcon
-            size={16}
-            weight="fill"
-            className={cn("text-red-500 shrink-0")}
-          />
-        )}
-        {isUnclear && (
-          <MinusCircleIcon
-            size={16}
-            weight="fill"
-            className={cn("text-yellow-500 shrink-0")}
-          />
-        )}
-        <Badge intent={isFit ? "success" : isGap ? "error" : "warning"}>
-          {item.verdict}
-        </Badge>
-        <Badge intent="default">{item.source}</Badge>
-
+        <VerdictBadge verdict={item.verdict} />
+        <SourceBadge
+          source={item.source}
+          resumeId={resumeId}
+          onPreferenceClick={onPreferenceClick}
+        />
         {item.weight === "high" && (
           <Tooltip content="High priority">
             <ArrowUpIcon
@@ -87,7 +65,9 @@ export function FitItemCard({ item }: { item: FitItem }) {
           </Tooltip>
         )}
         {item.weight && item.weight !== "high" && item.weight !== "low" && (
-          <Badge intent="default">{item.weight}</Badge>
+          <Text size="sm" color="muted">
+            {item.weight}
+          </Text>
         )}
       </div>
 
@@ -126,6 +106,8 @@ export function FitItemCard({ item }: { item: FitItem }) {
           Suggestion: {item.suggestion}
         </Text>
       )}
-    </div>
+
+      {item.type && item.source === "resume" && <TypeBadge type={item.type} />}
+    </Card>
   );
 }
