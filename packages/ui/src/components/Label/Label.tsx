@@ -30,7 +30,7 @@ export function Label({
     <label
       htmlFor={htmlFor}
       className={cn(
-        `inline-flex items-center gap-2 font-medium ${sizeClasses[size]} ${stateClasses[state]}`,
+        `inline-flex items-center gap-0.5 font-medium ${sizeClasses[size]} ${stateClasses[state]}`,
         htmlFor && "cursor-pointer",
       )}
     >
