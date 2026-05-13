@@ -44,8 +44,14 @@ export {
   DropdownMenuItem,
   DropdownMenuSeparator,
 } from "./components/DropdownMenu/DropdownMenu";
-export type { FieldWithLabelActionProps } from "./components/FieldWithLabelAction/FieldWithLabelAction";
-export { FieldWithLabelAction } from "./components/FieldWithLabelAction/FieldWithLabelAction";
+export type {
+  FieldWithLabelActionProps,
+  FieldWithLabelActionTooltipProps,
+} from "./components/FieldWithLabelAction/FieldWithLabelAction";
+export {
+  FieldWithLabelAction,
+  FieldWithLabelActionTooltip,
+} from "./components/FieldWithLabelAction/FieldWithLabelAction";
 export type { FilterChipProps } from "./components/FilterChip/FilterChip";
 export { FilterChip } from "./components/FilterChip/FilterChip";
 export type { FormFieldProps } from "./components/FormField/FormField";

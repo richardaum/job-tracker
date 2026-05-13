@@ -1,3 +1,4 @@
+import { Tooltip, TooltipProps } from "@ui/components/Tooltip/Tooltip";
 import { Text } from "@ui/components/Typography/Text";
 import { cn } from "@ui/lib/cn";
 import React from "react";
@@ -38,3 +39,14 @@ export function FieldWithLabelAction({
     </div>
   );
 }
+
+export type FieldWithLabelActionTooltipProps = TooltipProps;
+
+export function FieldWithLabelActionTooltip({
+  side = "bottom",
+  ...props
+}: FieldWithLabelActionTooltipProps) {
+  return <Tooltip side={side} {...props} />;
+}
+
+FieldWithLabelAction.Tooltip = FieldWithLabelActionTooltip;
