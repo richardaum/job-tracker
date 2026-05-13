@@ -8,7 +8,7 @@ import {
   Text,
   useDialog,
 } from "@job-tracker/ui";
-import { ArrowSquareOutIcon } from "@phosphor-icons/react";
+import { ArrowSquareOutIcon, PencilSimpleIcon } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
 import React from "react";
 
@@ -68,6 +68,7 @@ export function CompanyNameWithPopover({
           </Text>
           <FieldWithLabelAction.IconActionButton
             label={hasDescription ? "Edit description" : "Add description"}
+            icon={<PencilSimpleIcon size={14} weight="regular" />}
             onClick={(e) => {
               e.stopPropagation();
               editCompany.open();

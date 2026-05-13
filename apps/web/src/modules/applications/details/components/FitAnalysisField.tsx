@@ -1,7 +1,8 @@
 "use client";
 
 import { cn, FieldWithLabelAction, Text } from "@job-tracker/ui";
-import { InfoIcon } from "@phosphor-icons/react";
+import { ArrowRightIcon } from "@phosphor-icons/react";
+import { useRouter } from "next/navigation";
 
 import { FitAnalysisStatus } from "@/gql/hooks";
 import type { ApplicationDetailsValues } from "@/modules/applications/details/utils/application-details.shared";
@@ -11,10 +12,15 @@ import {
 } from "@/modules/applications/shared/utils/fitFormat";
 
 interface FitAnalysisFieldProps {
+  applicationId: string;
   fit: ApplicationDetailsValues["fit"];
 }
 
-export function FitAnalysisField({ fit }: FitAnalysisFieldProps) {
+export function FitAnalysisField({
+  applicationId,
+  fit,
+}: FitAnalysisFieldProps) {
+  const router = useRouter();
   const fitColor =
     fit?.status === FitAnalysisStatus.Completed
       ? fit.classification === "positive"
@@ -62,6 +68,13 @@ export function FitAnalysisField({ fit }: FitAnalysisFieldProps) {
     <div className={cn("max-w-full")}>
       <FieldWithLabelAction
         label="Fit analysis"
+        actions={
+          <FieldWithLabelAction.IconActionButton
+            label="View full fit analysis"
+            icon={<ArrowRightIcon size={14} weight="regular" />}
+            onClick={() => router.push(`/applications/${applicationId}/fit`)}
+          />
+        }
         content={
           !fit ? (
             <Text size="sm" color="secondary">
@@ -80,21 +93,12 @@ export function FitAnalysisField({ fit }: FitAnalysisFieldProps) {
               </Text>
             </FieldWithLabelAction.Tooltip>
           ) : (
-            <Text size="sm" color={fitColor}>
-              {formatFitLabel(fit.classification, fit.scoreRatio)}
-            </Text>
-          )
-        }
-        actions={
-          fit?.status === FitAnalysisStatus.Completed ? (
             <FieldWithLabelAction.Tooltip content={tooltipContent}>
-              <InfoIcon
-                size={14}
-                weight="regular"
-                className={cn("cursor-help text-text-muted")}
-              />
+              <Text size="sm" color={fitColor}>
+                {formatFitLabel(fit.classification, fit.scoreRatio)}
+              </Text>
             </FieldWithLabelAction.Tooltip>
-          ) : null
+          )
         }
       />
     </div>

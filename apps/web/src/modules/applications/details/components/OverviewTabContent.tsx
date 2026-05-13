@@ -8,6 +8,7 @@ import {
   Text,
   useDialog,
 } from "@job-tracker/ui";
+import { PencilSimpleIcon } from "@phosphor-icons/react";
 
 import {
   ApplicationDocument,
@@ -125,6 +126,7 @@ export function OverviewTabContent({
           actions={
             <FieldWithLabelAction.IconActionButton
               label="Edit job title"
+              icon={<PencilSimpleIcon size={14} weight="regular" />}
               onClick={titleDialog.open}
             />
           }
@@ -151,6 +153,7 @@ export function OverviewTabContent({
           actions={
             <FieldWithLabelAction.IconActionButton
               label="Edit company"
+              icon={<PencilSimpleIcon size={14} weight="regular" />}
               onClick={companyDialog.open}
             />
           }
@@ -176,6 +179,7 @@ export function OverviewTabContent({
           actions={
             <FieldWithLabelAction.IconActionButton
               label="Edit job URL"
+              icon={<PencilSimpleIcon size={14} weight="regular" />}
               onClick={urlDialog.open}
             />
           }
@@ -202,6 +206,7 @@ export function OverviewTabContent({
           actions={
             <FieldWithLabelAction.IconActionButton
               label="Edit source"
+              icon={<PencilSimpleIcon size={14} weight="regular" />}
               onClick={sourceDialog.open}
             />
           }
@@ -228,6 +233,7 @@ export function OverviewTabContent({
           actions={
             <FieldWithLabelAction.IconActionButton
               label="Edit salary"
+              icon={<PencilSimpleIcon size={14} weight="regular" />}
               onClick={salaryDialog.open}
             />
           }
@@ -255,6 +261,7 @@ export function OverviewTabContent({
           actions={
             <FieldWithLabelAction.IconActionButton
               label="Edit tags"
+              icon={<PencilSimpleIcon size={14} weight="regular" />}
               onClick={tagsDialog.open}
             />
           }
@@ -268,7 +275,7 @@ export function OverviewTabContent({
         />
       </div>
 
-      <FitAnalysisField fit={application.fit} />
+      <FitAnalysisField applicationId={application.id} fit={application.fit} />
     </OverviewSection>
   );
 }

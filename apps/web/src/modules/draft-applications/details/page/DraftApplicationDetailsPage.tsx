@@ -17,7 +17,11 @@ import {
   Text,
   useDialog,
 } from "@job-tracker/ui";
-import { CaretDownIcon, CopyIcon } from "@phosphor-icons/react";
+import {
+  CaretDownIcon,
+  CopyIcon,
+  PencilSimpleIcon,
+} from "@phosphor-icons/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useCallback, useState } from "react";
@@ -248,6 +252,7 @@ export default function DraftApplicationDetailsPage({ params }: PageProps) {
           actions={
             <FieldWithLabelAction.IconActionButton
               label="Edit page title"
+              icon={<PencilSimpleIcon size={14} weight="regular" />}
               onClick={titleDialog.open}
             />
           }
