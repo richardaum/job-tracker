@@ -11,6 +11,7 @@ import { DraftApplicationsModule } from "@api/domains/draft-applications/draft-a
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 
+import { ApplicationEventBus } from "./application-event.bus";
 import { ApplicationRepository } from "./applications.repository";
 import { ApplicationResolver } from "./applications.resolver";
 import { ApplicationService } from "./applications.service";
@@ -33,12 +34,13 @@ import { TagService } from "./tag.service";
     DraftApplicationsModule,
   ],
   providers: [
+    ApplicationEventBus,
     ApplicationRepository,
     ApplicationService,
     ApplicationResolver,
     SalaryService,
     TagService,
   ],
-  exports: [ApplicationService, ApplicationRepository],
+  exports: [ApplicationService, ApplicationRepository, ApplicationEventBus],
 })
 export class ApplicationModule {}

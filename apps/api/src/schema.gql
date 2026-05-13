@@ -152,6 +152,16 @@ type CurrencyRates {
   rates: [ExchangeRate!]!
 }
 
+type ResumeType {
+  id: ID!
+  userId: String!
+  title: String!
+  content: String!
+  isDefault: Boolean!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
 type ImportRunType {
   id: ID!
   templateId: ID!
@@ -201,15 +211,6 @@ type NoteType {
   userId: String!
   content: String!
   revision: Int!
-  createdAt: DateTime!
-  updatedAt: DateTime!
-}
-
-type ResumeType {
-  id: ID!
-  userId: String!
-  title: String!
-  content: String!
   createdAt: DateTime!
   updatedAt: DateTime!
 }
@@ -383,11 +384,13 @@ input UpdateNoteInput {
 input CreateResumeInput {
   title: String!
   content: String!
+  isDefault: Boolean! = false
 }
 
 input UpdateResumeInput {
   title: String
   content: String
+  isDefault: Boolean
 }
 
 input PreferenceInput {

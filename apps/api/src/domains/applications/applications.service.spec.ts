@@ -9,6 +9,7 @@ import { NotFoundException } from "@nestjs/common";
 import type { Repository } from "typeorm";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { ApplicationEventBus } from "./application-event.bus";
 import { ApplicationStageEnum } from "./application-stage.enum";
 import { ApplicationStageEvent } from "./application-stage-events.schema";
 import { ApplicationRepository } from "./applications.repository";
@@ -117,6 +118,10 @@ describe("ApplicationService", () => {
       normalizeExtraction: vi.fn(),
     } as unknown as DraftExtractionNormalizationService;
 
+    const eventBus = {
+      emitApplicationCreated: vi.fn(),
+    } as unknown as ApplicationEventBus;
+
     service = new ApplicationService(
       importRunsRepo as unknown as Repository<ImportRunEntity>,
       repo,
@@ -127,6 +132,7 @@ describe("ApplicationService", () => {
       draftApplicationsService,
       applicationAiService,
       draftExtractionNormalizationService,
+      eventBus,
     );
   });
 

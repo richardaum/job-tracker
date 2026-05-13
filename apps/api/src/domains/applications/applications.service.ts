@@ -18,6 +18,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 
 import { APPLICATION_DUPLICATE_PAIRING_WINDOW_MS } from "./application-duplicate.constants";
+import { ApplicationEventBus } from "./application-event.bus";
 import { ApplicationQuickFilterEnum } from "./application-quick-filter.enum";
 import { ApplicationSource } from "./application-source.enum";
 import { inferApplicationSourceFromUrls } from "./application-source.util";
@@ -84,6 +85,7 @@ export class ApplicationService {
     private readonly draftApplicationsService: DraftApplicationsService,
     private readonly applicationAiService: ApplicationAiService,
     private readonly draftExtractionNormalizationService: DraftExtractionNormalizationService,
+    private readonly eventBus: ApplicationEventBus,
   ) {}
 
   async findAll(
@@ -231,6 +233,11 @@ export class ApplicationService {
       scheduledAt: null,
     });
     const hydrated = await this.findOne(application.id, userId);
+
+    if (dto.draftApplicationId ?? dto.importRunId) {
+      this.eventBus.emitApplicationCreated(application.id, userId);
+    }
+
     return hydrated;
   }
 
