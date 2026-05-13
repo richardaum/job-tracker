@@ -2,6 +2,7 @@ import {
   FitAnalysisEntity,
   FitAnalysisStatus,
   type FitItem,
+  RequirementType,
 } from "@api/database/entities/fit-analysis.entity";
 import { ResumeEntity } from "@api/database/entities/resume.entity";
 import { UserPreferencesEntity } from "@api/database/entities/user-preferences.entity";
@@ -140,7 +141,7 @@ export class FitAnalysisService implements OnModuleInit {
           (i): FitItem => ({
             requirement: i.requirement,
             source: "resume",
-            type: i.type,
+            type: i.type as RequirementType,
             verdict: i.verdict,
             jdQuote: i.jdQuote,
             sourceQuotes: i.sourceQuotes,
@@ -155,7 +156,7 @@ export class FitAnalysisService implements OnModuleInit {
             requirement: i.requirement,
             source: "preference",
             weight: original?.weight,
-            type: i.type,
+            type: i.type as RequirementType,
             verdict: i.verdict,
             jdQuote: i.jdQuote,
             sourceQuotes: [],
