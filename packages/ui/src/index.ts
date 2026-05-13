@@ -45,11 +45,13 @@ export {
   DropdownMenuSeparator,
 } from "./components/DropdownMenu/DropdownMenu";
 export type {
+  FieldWithLabelActionIconActionButtonProps,
   FieldWithLabelActionProps,
   FieldWithLabelActionTooltipProps,
 } from "./components/FieldWithLabelAction/FieldWithLabelAction";
 export {
   FieldWithLabelAction,
+  FieldWithLabelActionIconActionButton,
   FieldWithLabelActionTooltip,
 } from "./components/FieldWithLabelAction/FieldWithLabelAction";
 export type { FilterChipProps } from "./components/FilterChip/FilterChip";
@@ -174,4 +176,6 @@ export type {
 } from "./components/Wizard/Wizard";
 export { Wizard, WizardMain, WizardSidebar } from "./components/Wizard/Wizard";
 export { useAsyncEffect } from "./hooks/useAsyncEffect";
+export type { DialogControl } from "./hooks/useDialog";
+export { useDialog } from "./hooks/useDialog";
 export { cn } from "./lib/cn";

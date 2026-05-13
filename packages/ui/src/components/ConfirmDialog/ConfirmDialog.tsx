@@ -7,7 +7,7 @@ import { Stack } from "@ui/components/Stack/Stack";
 import React, { useState } from "react";
 
 export interface ConfirmDialogProps {
-  trigger: React.ReactElement;
+  trigger?: React.ReactElement;
   title: string;
   description: string;
   children?: React.ReactNode;
