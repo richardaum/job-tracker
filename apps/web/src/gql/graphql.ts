@@ -1174,6 +1174,7 @@ export type ApplicationFitQuery = {
       requirement: string;
       source: string;
       weight?: string | null;
+      type: string;
       verdict: string;
       jdQuote: string;
       sourceQuotes: Array<string>;
@@ -1206,6 +1207,7 @@ export type GenerateApplicationFitMutation = {
       requirement: string;
       source: string;
       weight?: string | null;
+      type: string;
       verdict: string;
       jdQuote: string;
       sourceQuotes: Array<string>;
@@ -3623,6 +3625,7 @@ export const ApplicationFitDocument = {
                         kind: "Field",
                         name: { kind: "Name", value: "weight" },
                       },
+                      { kind: "Field", name: { kind: "Name", value: "type" } },
                       {
                         kind: "Field",
                         name: { kind: "Name", value: "verdict" },
@@ -3730,6 +3733,7 @@ export const GenerateApplicationFitDocument = {
                         kind: "Field",
                         name: { kind: "Name", value: "weight" },
                       },
+                      { kind: "Field", name: { kind: "Name", value: "type" } },
                       {
                         kind: "Field",
                         name: { kind: "Name", value: "verdict" },

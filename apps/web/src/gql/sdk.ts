@@ -1185,6 +1185,7 @@ export type ApplicationFitQuery = {
       requirement: string;
       source: string;
       weight?: string | null;
+      type: string;
       verdict: string;
       jdQuote: string;
       sourceQuotes: Array<string>;
@@ -1217,6 +1218,7 @@ export type GenerateApplicationFitMutation = {
       requirement: string;
       source: string;
       weight?: string | null;
+      type: string;
       verdict: string;
       jdQuote: string;
       sourceQuotes: Array<string>;
@@ -1840,6 +1842,7 @@ export const ApplicationFitDocument = gql`
         requirement
         source
         weight
+        type
         verdict
         jdQuote
         sourceQuotes
@@ -1866,6 +1869,7 @@ export const GenerateApplicationFitDocument = gql`
         requirement
         source
         weight
+        type
         verdict
         jdQuote
         sourceQuotes
