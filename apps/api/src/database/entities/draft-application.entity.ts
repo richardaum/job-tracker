@@ -29,6 +29,9 @@ export class DraftApplicationEntity {
   @Column({ type: "text" })
   title!: string;
 
+  @Column({ name: "user_id", type: "text" })
+  userId!: string;
+
   @Column({ name: "html_content", type: "text" })
   htmlContent!: string;
 

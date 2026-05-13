@@ -16,12 +16,18 @@ export class DraftApplicationsRepository {
     private readonly applicationsRepo: Repository<ApplicationEntity>,
   ) {}
 
-  async findAll(): Promise<DraftApplicationEntity[]> {
-    return this.draftApplicationsRepo.find({ order: { updatedAt: "DESC" } });
+  async findAll(userId: string): Promise<DraftApplicationEntity[]> {
+    return this.draftApplicationsRepo.find({
+      where: { userId },
+      order: { updatedAt: "DESC" },
+    });
   }
 
-  async findOne(id: string): Promise<DraftApplicationEntity | null> {
-    return this.draftApplicationsRepo.findOne({ where: { id } });
+  async findOne(
+    id: string,
+    userId: string,
+  ): Promise<DraftApplicationEntity | null> {
+    return this.draftApplicationsRepo.findOne({ where: { id, userId } });
   }
 
   async findLatestApplicationIdByDraftId(
@@ -56,6 +62,7 @@ export class DraftApplicationsRepository {
     url: string | null;
     title: string;
     htmlContent: string;
+    userId: string;
     conversionStatus?: DraftApplicationEntity["conversionStatus"];
     conversionError?: string | null;
   }): Promise<DraftApplicationEntity> {
@@ -63,6 +70,7 @@ export class DraftApplicationsRepository {
       url: params.url,
       title: params.title,
       htmlContent: params.htmlContent,
+      userId: params.userId,
       conversionStatus: params.conversionStatus,
       conversionError: params.conversionError ?? null,
     });
@@ -76,6 +84,7 @@ export class DraftApplicationsRepository {
 
   async updateById(
     id: string,
+    userId: string,
     patch: Partial<
       Pick<
         DraftApplicationEntity,
@@ -88,7 +97,7 @@ export class DraftApplicationsRepository {
       >
     >,
   ): Promise<DraftApplicationEntity | null> {
-    const row = await this.findOne(id);
+    const row = await this.findOne(id, userId);
     if (!row) {
       return null;
     }
@@ -97,8 +106,8 @@ export class DraftApplicationsRepository {
     return this.draftApplicationsRepo.save(row);
   }
 
-  async deleteById(id: string): Promise<void> {
-    await this.draftApplicationsRepo.delete({ id });
+  async deleteById(id: string, userId: string): Promise<void> {
+    await this.draftApplicationsRepo.delete({ id, userId });
   }
 
   async resetStaleProcessingDrafts(): Promise<number> {

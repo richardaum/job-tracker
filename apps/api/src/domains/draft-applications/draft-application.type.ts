@@ -1,4 +1,5 @@
 import { DraftApplicationConversionStatus } from "@api/database/entities/draft-application.entity";
+import { FitAnalysisType } from "@api/domains/fit-analysis/fit-analysis.type";
 import { Field, ID, ObjectType, registerEnumType } from "@nestjs/graphql";
 
 registerEnumType(DraftApplicationConversionStatus, {
@@ -36,4 +37,7 @@ export class DraftApplicationType {
 
   @Field()
   updatedAt!: Date;
+
+  @Field(() => FitAnalysisType, { nullable: true })
+  fit?: FitAnalysisType;
 }

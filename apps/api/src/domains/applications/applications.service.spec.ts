@@ -1,4 +1,5 @@
 import { DraftApplicationConversionStatus } from "@api/database/entities/draft-application.entity";
+import { FitAnalysisEntity } from "@api/database/entities/fit-analysis.entity";
 import { ImportRunEntity } from "@api/database/entities/import-run.entity";
 import { ApplicationAiService } from "@api/domains/application-ai/application-ai.service";
 import { DraftExtractionNormalizationService } from "@api/domains/application-ai/draft-extraction-normalization.service";
@@ -124,6 +125,9 @@ describe("ApplicationService", () => {
 
     service = new ApplicationService(
       importRunsRepo as unknown as Repository<ImportRunEntity>,
+      {
+        update: vi.fn().mockResolvedValue({ affected: 1 }),
+      } as unknown as Repository<FitAnalysisEntity>,
       repo,
       companyService,
       salaryService,
@@ -310,7 +314,7 @@ describe("ApplicationService", () => {
       updatedAt: new Date(),
     });
     vi.mocked(draftApplicationsService.update).mockImplementation(
-      async (_id, patch) =>
+      async (_id, _userId, patch) =>
         ({
           id: "draft-1",
           applicationId: null,
@@ -320,7 +324,7 @@ describe("ApplicationService", () => {
           conversionStatus:
             patch?.conversionStatus ?? DraftApplicationConversionStatus.IDLE,
           conversionError: patch?.conversionError ?? null,
-          convertedAt: patch?.convertedAt ?? null,
+          convertedAt: null,
           createdAt: new Date(),
           updatedAt: new Date(),
         }) as never,
@@ -334,10 +338,14 @@ describe("ApplicationService", () => {
     expect(result.conversionStatus).toBe(
       DraftApplicationConversionStatus.PROCESSING,
     );
-    expect(draftApplicationsService.update).toHaveBeenCalledWith("draft-1", {
-      conversionStatus: DraftApplicationConversionStatus.PROCESSING,
-      conversionError: null,
-    });
+    expect(draftApplicationsService.update).toHaveBeenCalledWith(
+      "draft-1",
+      "user-1",
+      {
+        conversionStatus: DraftApplicationConversionStatus.PROCESSING,
+        conversionError: null,
+      },
+    );
   });
 
   it("createApplicationWithAIV2 background conversion records Applied after New", async () => {
@@ -358,7 +366,7 @@ describe("ApplicationService", () => {
       draft as never,
     );
     vi.mocked(draftApplicationsService.update).mockImplementation(
-      async (_id, patch) =>
+      async (_id, _userId, patch) =>
         ({
           ...draft,
           conversionStatus:
@@ -404,6 +412,7 @@ describe("ApplicationService", () => {
     await vi.waitFor(() => {
       expect(draftApplicationsService.update).toHaveBeenCalledWith(
         "draft-1",
+        "user-1",
         expect.objectContaining({
           conversionStatus: DraftApplicationConversionStatus.SUCCEEDED,
         }),
@@ -455,7 +464,7 @@ describe("ApplicationService", () => {
       draft as never,
     );
     vi.mocked(draftApplicationsService.update).mockImplementation(
-      async (_id, patch) =>
+      async (_id, _userId, patch) =>
         ({
           ...draft,
           conversionStatus:
@@ -503,6 +512,7 @@ describe("ApplicationService", () => {
     await vi.waitFor(() => {
       expect(draftApplicationsService.update).toHaveBeenCalledWith(
         "draft-1",
+        "user-1",
         expect.objectContaining({
           conversionStatus: DraftApplicationConversionStatus.SUCCEEDED,
         }),

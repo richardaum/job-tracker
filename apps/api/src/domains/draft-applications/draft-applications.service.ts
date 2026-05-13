@@ -52,13 +52,13 @@ export class DraftApplicationsService implements OnModuleInit {
     };
   }
 
-  async findAll(): Promise<DraftApplicationType[]> {
-    const rows = await this.repo.findAll();
+  async findAll(userId: string): Promise<DraftApplicationType[]> {
+    const rows = await this.repo.findAll(userId);
     return Promise.all(rows.map((row) => this.toType(row)));
   }
 
-  async findOne(id: string): Promise<DraftApplicationType> {
-    const row = await this.repo.findOne(id);
+  async findOne(id: string, userId: string): Promise<DraftApplicationType> {
+    const row = await this.repo.findOne(id, userId);
     if (!row) {
       throw new NotFoundException(`Draft application ${id} not found`);
     }
@@ -68,6 +68,7 @@ export class DraftApplicationsService implements OnModuleInit {
 
   async update(
     id: string,
+    userId: string,
     patch: Partial<
       Pick<
         DraftApplicationEntity,
@@ -80,7 +81,7 @@ export class DraftApplicationsService implements OnModuleInit {
       >
     >,
   ): Promise<DraftApplicationType> {
-    const row = await this.repo.updateById(id, patch);
+    const row = await this.repo.updateById(id, userId, patch);
     if (!row) {
       throw new NotFoundException(`Draft application ${id} not found`);
     }
@@ -91,20 +92,26 @@ export class DraftApplicationsService implements OnModuleInit {
     id: string,
     options?: { deleteLinkedApplication?: boolean; userId?: string },
   ): Promise<void> {
-    await this.findOne(id);
-    if (options?.deleteLinkedApplication && options.userId) {
-      await this.repo.deleteApplicationsByDraftId(id, options.userId);
+    const userId = options?.userId;
+    if (!userId) {
+      throw new NotFoundException(`User ID is required to delete a draft`);
     }
-    await this.repo.deleteById(id);
+    await this.findOne(id, userId);
+    if (options?.deleteLinkedApplication) {
+      await this.repo.deleteApplicationsByDraftId(id, userId);
+    }
+    await this.repo.deleteById(id, userId);
   }
 
   async create(
     input: CreateDraftApplicationInput,
+    userId: string,
   ): Promise<DraftApplicationType> {
     const row = await this.repo.create({
       url: input.url ?? null,
       title: input.title,
       htmlContent: input.htmlContent,
+      userId,
     });
 
     return await this.toType(row);

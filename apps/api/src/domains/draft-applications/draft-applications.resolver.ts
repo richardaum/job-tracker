@@ -19,25 +19,25 @@ export class DraftApplicationsResolver {
 
   @Query(() => [DraftApplicationType])
   draftApplications(
-    @CurrentUser() _user: { userId: string },
+    @CurrentUser() user: { userId: string },
   ): Promise<DraftApplicationType[]> {
-    return this.service.findAll();
+    return this.service.findAll(user.userId);
   }
 
   @Query(() => DraftApplicationType)
   draftApplication(
     @Args("id", { type: () => ID }) id: string,
-    @CurrentUser() _user: { userId: string },
+    @CurrentUser() user: { userId: string },
   ): Promise<DraftApplicationType> {
-    return this.service.findOne(id);
+    return this.service.findOne(id, user.userId);
   }
 
   @Mutation(() => DraftApplicationType)
   createDraftApplication(
     @Args("input") input: CreateDraftApplicationInput,
-    @CurrentUser() _user: { userId: string },
+    @CurrentUser() user: { userId: string },
   ): Promise<DraftApplicationType> {
-    return this.service.create(input);
+    return this.service.create(input, user.userId);
   }
 
   @Mutation(() => DeleteMutationPayloadType)
@@ -71,8 +71,8 @@ export class DraftApplicationsResolver {
   updateDraftApplication(
     @Args("id", { type: () => ID }) id: string,
     @Args("input") input: UpdateDraftApplicationInput,
-    @CurrentUser() _user: { userId: string },
+    @CurrentUser() user: { userId: string },
   ): Promise<DraftApplicationType> {
-    return this.service.update(id, { title: input.title });
+    return this.service.update(id, user.userId, { title: input.title });
   }
 }

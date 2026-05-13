@@ -29,26 +29,6 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
-type DraftApplicationType {
-  id: ID!
-  url: String
-  title: String!
-  htmlContent: String!
-  applicationId: String
-  conversionStatus: DraftApplicationConversionStatus!
-  conversionError: String
-  convertedAt: DateTime
-  createdAt: DateTime!
-  updatedAt: DateTime!
-}
-
-enum DraftApplicationConversionStatus {
-  IDLE
-  PROCESSING
-  SUCCEEDED
-  FAILED
-}
-
 type FitItemType {
   requirement: String!
   source: String!
@@ -62,7 +42,8 @@ type FitItemType {
 
 type FitAnalysisType {
   id: ID!
-  applicationId: ID!
+  applicationId: ID
+  draftApplicationId: ID
   resumeId: ID!
   status: FitAnalysisStatus!
   error: String
@@ -74,11 +55,34 @@ type FitAnalysisType {
   items: [FitItemType!]!
   createdAt: DateTime!
   updatedAt: DateTime!
+  application: ApplicationType
+  draftApplication: DraftApplicationType
 }
 
 enum FitAnalysisStatus {
   PROCESSING
   COMPLETED
+  FAILED
+}
+
+type DraftApplicationType {
+  id: ID!
+  url: String
+  title: String!
+  htmlContent: String!
+  applicationId: String
+  conversionStatus: DraftApplicationConversionStatus!
+  conversionError: String
+  convertedAt: DateTime
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  fit: FitAnalysisType
+}
+
+enum DraftApplicationConversionStatus {
+  IDLE
+  PROCESSING
+  SUCCEEDED
   FAILED
 }
 
@@ -248,7 +252,10 @@ type Query {
   resumes: [ResumeType!]!
   resume(id: ID!): ResumeType!
   userPreferences: [PreferenceType!]!
+  fitAnalyses: [FitAnalysisType!]!
+  fit(id: ID!): FitAnalysisType
   applicationFit(applicationId: ID!): FitAnalysisType
+  draftApplicationFit(draftApplicationId: ID!): FitAnalysisType
   rewriteTextWithAI(text: String!): String!
   restructureJobDescriptionWithAI(text: String!): String!
 }
@@ -295,6 +302,8 @@ type Mutation {
   deleteResume(id: ID!): DeleteMutationPayloadType!
   updateUserPreferences(items: [PreferenceInput!]!): [PreferenceType!]!
   generateApplicationFit(input: GenerateFitInput!): FitAnalysisType!
+  deleteFitAnalysis(id: ID!): DeleteMutationPayloadType!
+  generateDraftApplicationFit(input: GenerateDraftFitInput!): FitAnalysisType!
 }
 
 input CreateApplicationInput {
@@ -403,6 +412,11 @@ input PreferenceInput {
 
 input GenerateFitInput {
   applicationId: ID!
+  resumeId: ID!
+}
+
+input GenerateDraftFitInput {
+  draftApplicationId: ID!
   resumeId: ID!
 }
 

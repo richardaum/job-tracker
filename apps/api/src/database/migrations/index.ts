@@ -37,6 +37,9 @@ import { AddFitAnalysisStatus1764500000000 } from "./1764500000000-add-fit-analy
 import { AddResumeIsDefault1764600000000 } from "./1764600000000-add-resume-is-default";
 import { AddDraftConvertedAt1764700000000 } from "./1764700000000-add-draft-converted-at";
 import { BackfillDraftConvertedAt1764800000000 } from "./1764800000000-backfill-draft-converted-at";
+import { AddFitDraftSupport1764900000000 } from "./1764900000000-add-fit-draft-support";
+import { AddFitAnalysisUserId1765000000000 } from "./1765000000000-add-fit-analysis-user-id";
+import { AddDraftUserId1765100000000 } from "./1765100000000-add-draft-user-id";
 
 export const migrations = [
   Baseline1746009600000,
@@ -78,4 +81,7 @@ export const migrations = [
   AddResumeIsDefault1764600000000,
   AddDraftConvertedAt1764700000000,
   BackfillDraftConvertedAt1764800000000,
+  AddFitDraftSupport1764900000000,
+  AddFitAnalysisUserId1765000000000,
+  AddDraftUserId1765100000000,
 ];

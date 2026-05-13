@@ -5,6 +5,7 @@ import { resolve } from "node:path";
 import { buildDataSourceOptions } from "@api/database/data-source-options";
 import { ApplicationEntity } from "@api/database/entities/application.entity";
 import { ApplicationStageEventEntity } from "@api/database/entities/application-stage-event.entity";
+import { DraftApplicationEntity } from "@api/database/entities/draft-application.entity";
 import {
   FitAnalysisEntity,
   FitAnalysisStatus,
@@ -15,6 +16,7 @@ import { UserPreferencesEntity } from "@api/database/entities/user-preferences.e
 import { OpenAIService } from "@api/domains/application-ai/openai.service";
 import { ApplicationQuickFilterEnum } from "@api/domains/applications/application-quick-filter.enum";
 import { ApplicationRepository } from "@api/domains/applications/applications.repository";
+import { DraftApplicationsRepository } from "@api/domains/draft-applications/draft-applications.repository";
 import { FitAnalysisRepository } from "@api/domains/fit-analysis/fit-analysis.repository";
 import { FitAnalysisService } from "@api/domains/fit-analysis/fit-analysis.service";
 import { FitAnalysisAiService } from "@api/domains/fit-analysis/fit-analysis-ai.service";
@@ -153,6 +155,10 @@ async function main() {
   );
 
   const fitRepo = new FitAnalysisRepository(fitEntityRepo);
+  const draftRepo = new DraftApplicationsRepository(
+    dataSource.getRepository(DraftApplicationEntity),
+    applicationOrmRepo,
+  );
 
   const openAIService = new OpenAIService();
   const templateService = new TemplateService();
@@ -162,6 +168,7 @@ async function main() {
     fitRepo,
     fitAiService,
     applicationRepo,
+    draftRepo,
     resumeEntityRepo,
     preferencesRepo,
   );

@@ -1,4 +1,5 @@
 import { DraftApplicationConversionStatus } from "@api/database/entities/draft-application.entity";
+import { FitAnalysisEntity } from "@api/database/entities/fit-analysis.entity";
 import { ImportRunEntity } from "@api/database/entities/import-run.entity";
 import { ApplicationAiService } from "@api/domains/application-ai/application-ai.service";
 import { DraftExtractionNormalizationService } from "@api/domains/application-ai/draft-extraction-normalization.service";
@@ -77,6 +78,8 @@ export class ApplicationService {
   constructor(
     @InjectRepository(ImportRunEntity)
     private readonly importRunsRepo: Repository<ImportRunEntity>,
+    @InjectRepository(FitAnalysisEntity)
+    private readonly fitAnalysisRepo: Repository<FitAnalysisEntity>,
     private readonly repo: ApplicationRepository,
     private readonly companyService: CompanyService,
     private readonly salaryService: SalaryService,
@@ -245,17 +248,21 @@ export class ApplicationService {
     userId: string,
     draftId: string,
   ): Promise<DraftApplicationType> {
-    const draft = await this.draftApplicationsService.findOne(draftId);
+    const draft = await this.draftApplicationsService.findOne(draftId, userId);
     if (
       draft.conversionStatus === DraftApplicationConversionStatus.PROCESSING
     ) {
       throw new BadRequestException("Draft conversion is already in progress.");
     }
 
-    const queuedDraft = await this.draftApplicationsService.update(draftId, {
-      conversionStatus: DraftApplicationConversionStatus.PROCESSING,
-      conversionError: null,
-    });
+    const queuedDraft = await this.draftApplicationsService.update(
+      draftId,
+      userId,
+      {
+        conversionStatus: DraftApplicationConversionStatus.PROCESSING,
+        conversionError: null,
+      },
+    );
 
     // TODO: use another approach (e.g. a queue) to have a more reliable background task.
     void this.convertDraftInBackground(userId, draftId);
@@ -267,7 +274,7 @@ export class ApplicationService {
     userId: string,
     draftId: string,
   ): Promise<void> {
-    const draft = await this.draftApplicationsService.findOne(draftId);
+    const draft = await this.draftApplicationsService.findOne(draftId, userId);
 
     const [extractError, raw] = await tryRun(
       this.applicationAiService.extractFromDraft({
@@ -282,7 +289,7 @@ export class ApplicationService {
         `Draft conversion failed for ${draftId}: ${extractError.message}`,
         extractError.stack,
       );
-      await this.draftApplicationsService.update(draftId, {
+      await this.draftApplicationsService.update(draftId, userId, {
         conversionStatus: DraftApplicationConversionStatus.FAILED,
         conversionError: extractError.message,
       });
@@ -312,12 +319,17 @@ export class ApplicationService {
         `Draft conversion failed for ${draftId}: ${createError.message}`,
         createError.stack,
       );
-      await this.draftApplicationsService.update(draftId, {
+      await this.draftApplicationsService.update(draftId, userId, {
         conversionStatus: DraftApplicationConversionStatus.FAILED,
         conversionError: createError.message,
       });
       return;
     }
+
+    await this.fitAnalysisRepo.update(
+      { draftApplicationId: draftId },
+      { applicationId: created.id },
+    );
 
     if (created.currentStage !== ApplicationStageEnum.DUPLICATED) {
       const [appliedError] = await tryRun(
@@ -333,7 +345,7 @@ export class ApplicationService {
           `Draft conversion failed for ${draftId}: ${appliedError.message}`,
           appliedError.stack,
         );
-        await this.draftApplicationsService.update(draftId, {
+        await this.draftApplicationsService.update(draftId, userId, {
           conversionStatus: DraftApplicationConversionStatus.FAILED,
           conversionError: appliedError.message,
         });
@@ -344,7 +356,7 @@ export class ApplicationService {
     const normalizedDraftTitle =
       `${created.title} @ ${normalized.company}`.trim();
 
-    await this.draftApplicationsService.update(draftId, {
+    await this.draftApplicationsService.update(draftId, userId, {
       title: normalizedDraftTitle,
       conversionStatus: DraftApplicationConversionStatus.SUCCEEDED,
       conversionError: null,
