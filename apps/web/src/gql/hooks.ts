@@ -184,6 +184,7 @@ export type DraftApplicationType = {
   conversionStatus: DraftApplicationConversionStatus;
   convertedAt?: Maybe<Scalars["DateTime"]["output"]>;
   createdAt: Scalars["DateTime"]["output"];
+  fit?: Maybe<FitAnalysisType>;
   htmlContent: Scalars["String"]["output"];
   id: Scalars["ID"]["output"];
   title: Scalars["String"]["output"];
@@ -205,9 +206,12 @@ export enum FitAnalysisStatus {
 
 export type FitAnalysisType = {
   __typename?: "FitAnalysisType";
-  applicationId: Scalars["ID"]["output"];
+  application?: Maybe<ApplicationType>;
+  applicationId?: Maybe<Scalars["ID"]["output"]>;
   classification?: Maybe<Scalars["String"]["output"]>;
   createdAt: Scalars["DateTime"]["output"];
+  draftApplication?: Maybe<DraftApplicationType>;
+  draftApplicationId?: Maybe<Scalars["ID"]["output"]>;
   error?: Maybe<Scalars["String"]["output"]>;
   fitCount: Scalars["Int"]["output"];
   gapCount: Scalars["Int"]["output"];
@@ -230,6 +234,11 @@ export type FitItemType = {
   type: Scalars["String"]["output"];
   verdict: Scalars["String"]["output"];
   weight?: Maybe<Scalars["String"]["output"]>;
+};
+
+export type GenerateDraftFitInput = {
+  draftApplicationId: Scalars["ID"]["input"];
+  resumeId: Scalars["ID"]["input"];
 };
 
 export type GenerateFitInput = {
@@ -302,11 +311,13 @@ export type Mutation = {
   deleteApplicationsForDraft: DeleteMutationPayloadType;
   deleteCompany: DeleteMutationPayloadType;
   deleteDraftApplication: DeleteMutationPayloadType;
+  deleteFitAnalysis: DeleteMutationPayloadType;
   deleteImportRun: DeleteMutationPayloadType;
   deleteImportTemplate: DeleteMutationPayloadType;
   deleteResume: DeleteMutationPayloadType;
   detachApplicationsFromImportRun: Scalars["Int"]["output"];
   generateApplicationFit: FitAnalysisType;
+  generateDraftApplicationFit: FitAnalysisType;
   removeApplicationTag: ApplicationType;
   rerunImportTemplate: ImportRunType;
   updateApplication: ApplicationType;
@@ -366,6 +377,8 @@ export type MutationDeleteDraftApplicationArgs = {
   id: Scalars["ID"]["input"];
 };
 
+export type MutationDeleteFitAnalysisArgs = { id: Scalars["ID"]["input"] };
+
 export type MutationDeleteImportRunArgs = { id: Scalars["ID"]["input"] };
 
 export type MutationDeleteImportTemplateArgs = { id: Scalars["ID"]["input"] };
@@ -377,6 +390,10 @@ export type MutationDetachApplicationsFromImportRunArgs = {
 };
 
 export type MutationGenerateApplicationFitArgs = { input: GenerateFitInput };
+
+export type MutationGenerateDraftApplicationFitArgs = {
+  input: GenerateDraftFitInput;
+};
 
 export type MutationRemoveApplicationTagArgs = {
   id: Scalars["ID"]["input"];
@@ -468,8 +485,11 @@ export type Query = {
   companies: Array<CompanyType>;
   companyApplicationsCount: Scalars["Int"]["output"];
   draftApplication: DraftApplicationType;
+  draftApplicationFit?: Maybe<FitAnalysisType>;
   draftApplications: Array<DraftApplicationType>;
   exchangeRates: CurrencyRates;
+  fit?: Maybe<FitAnalysisType>;
+  fitAnalyses: Array<FitAnalysisType>;
   generateApplicationNoteWithAI: Scalars["String"]["output"];
   generateCompanyDescription: Scalars["String"]["output"];
   importRuns: Array<ImportRunType>;
@@ -506,10 +526,16 @@ export type QueryCompanyApplicationsCountArgs = { id: Scalars["ID"]["input"] };
 
 export type QueryDraftApplicationArgs = { id: Scalars["ID"]["input"] };
 
+export type QueryDraftApplicationFitArgs = {
+  draftApplicationId: Scalars["ID"]["input"];
+};
+
 export type QueryExchangeRatesArgs = {
   base: Scalars["String"]["input"];
   currencies: Array<Scalars["String"]["input"]>;
 };
+
+export type QueryFitArgs = { id: Scalars["ID"]["input"] };
 
 export type QueryGenerateApplicationNoteWithAiArgs = {
   applicationId: Scalars["ID"]["input"];
@@ -659,6 +685,7 @@ export type ApplicationsQuery = {
     };
     fit?: {
       __typename?: "FitAnalysisType";
+      id: string;
       scoreRatio?: number | null;
       classification?: string | null;
       fitCount: number;
@@ -703,6 +730,7 @@ export type ApplicationQuery = {
     };
     fit?: {
       __typename?: "FitAnalysisType";
+      id: string;
       scoreRatio?: number | null;
       classification?: string | null;
       fitCount: number;
@@ -1087,6 +1115,23 @@ export type DraftApplicationDetailQuery = {
     htmlContent: string;
     conversionStatus: DraftApplicationConversionStatus;
     conversionError?: string | null;
+    convertedAt?: any | null;
+    createdAt: any;
+    fit?: {
+      __typename?: "FitAnalysisType";
+      id: string;
+      applicationId?: string | null;
+      draftApplicationId?: string | null;
+      resumeId: string;
+      status: FitAnalysisStatus;
+      error?: string | null;
+      scoreRatio?: number | null;
+      classification?: string | null;
+      fitCount: number;
+      gapCount: number;
+      unclearCount: number;
+      createdAt: any;
+    } | null;
   };
 };
 
@@ -1167,6 +1212,71 @@ export type UpdateDraftApplicationMutation = {
   };
 };
 
+export type FitAnalysesListQueryVariables = Exact<{ [key: string]: never }>;
+
+export type FitAnalysesListQuery = {
+  __typename?: "Query";
+  fitAnalyses: Array<{
+    __typename?: "FitAnalysisType";
+    id: string;
+    applicationId?: string | null;
+    draftApplicationId?: string | null;
+    resumeId: string;
+    status: FitAnalysisStatus;
+    error?: string | null;
+    scoreRatio?: number | null;
+    classification?: string | null;
+    fitCount: number;
+    gapCount: number;
+    unclearCount: number;
+    createdAt: any;
+    updatedAt: any;
+    application?: {
+      __typename?: "ApplicationType";
+      id: string;
+      title: string;
+      company: { __typename?: "CompanyType"; id: string; name: string };
+    } | null;
+    draftApplication?: {
+      __typename?: "DraftApplicationType";
+      id: string;
+      title: string;
+    } | null;
+  }>;
+};
+
+export type FitQueryVariables = Exact<{ id: Scalars["ID"]["input"] }>;
+
+export type FitQuery = {
+  __typename?: "Query";
+  fit?: {
+    __typename?: "FitAnalysisType";
+    id: string;
+    applicationId?: string | null;
+    draftApplicationId?: string | null;
+    resumeId: string;
+    status: FitAnalysisStatus;
+    error?: string | null;
+    scoreRatio?: number | null;
+    classification?: string | null;
+    fitCount: number;
+    gapCount: number;
+    unclearCount: number;
+    createdAt: any;
+    items: Array<{
+      __typename?: "FitItemType";
+      requirement: string;
+      source: string;
+      weight?: string | null;
+      type: string;
+      verdict: string;
+      jdQuote: string;
+      sourceQuotes: Array<string>;
+      suggestion?: string | null;
+    }>;
+  } | null;
+};
+
 export type ApplicationFitQueryVariables = Exact<{
   applicationId: Scalars["ID"]["input"];
 }>;
@@ -1176,7 +1286,42 @@ export type ApplicationFitQuery = {
   applicationFit?: {
     __typename?: "FitAnalysisType";
     id: string;
-    applicationId: string;
+    applicationId?: string | null;
+    draftApplicationId?: string | null;
+    resumeId: string;
+    status: FitAnalysisStatus;
+    error?: string | null;
+    scoreRatio?: number | null;
+    classification?: string | null;
+    fitCount: number;
+    gapCount: number;
+    unclearCount: number;
+    createdAt: any;
+    items: Array<{
+      __typename?: "FitItemType";
+      requirement: string;
+      source: string;
+      weight?: string | null;
+      type: string;
+      verdict: string;
+      jdQuote: string;
+      sourceQuotes: Array<string>;
+      suggestion?: string | null;
+    }>;
+  } | null;
+};
+
+export type DraftApplicationFitQueryVariables = Exact<{
+  draftApplicationId: Scalars["ID"]["input"];
+}>;
+
+export type DraftApplicationFitQuery = {
+  __typename?: "Query";
+  draftApplicationFit?: {
+    __typename?: "FitAnalysisType";
+    id: string;
+    applicationId?: string | null;
+    draftApplicationId?: string | null;
     resumeId: string;
     status: FitAnalysisStatus;
     error?: string | null;
@@ -1209,7 +1354,55 @@ export type GenerateApplicationFitMutation = {
   generateApplicationFit: {
     __typename?: "FitAnalysisType";
     id: string;
-    applicationId: string;
+    applicationId?: string | null;
+    draftApplicationId?: string | null;
+    resumeId: string;
+    status: FitAnalysisStatus;
+    error?: string | null;
+    scoreRatio?: number | null;
+    classification?: string | null;
+    fitCount: number;
+    gapCount: number;
+    unclearCount: number;
+    createdAt: any;
+    items: Array<{
+      __typename?: "FitItemType";
+      requirement: string;
+      source: string;
+      weight?: string | null;
+      type: string;
+      verdict: string;
+      jdQuote: string;
+      sourceQuotes: Array<string>;
+      suggestion?: string | null;
+    }>;
+  };
+};
+
+export type DeleteFitAnalysisMutationVariables = Exact<{
+  id: Scalars["ID"]["input"];
+}>;
+
+export type DeleteFitAnalysisMutation = {
+  __typename?: "Mutation";
+  deleteFitAnalysis: {
+    __typename?: "DeleteMutationPayloadType";
+    success: boolean;
+    deletedId: string;
+  };
+};
+
+export type GenerateDraftApplicationFitMutationVariables = Exact<{
+  input: GenerateDraftFitInput;
+}>;
+
+export type GenerateDraftApplicationFitMutation = {
+  __typename?: "Mutation";
+  generateDraftApplicationFit: {
+    __typename?: "FitAnalysisType";
+    id: string;
+    applicationId?: string | null;
+    draftApplicationId?: string | null;
     resumeId: string;
     status: FitAnalysisStatus;
     error?: string | null;
@@ -1485,6 +1678,7 @@ export const ApplicationsDocument = gql`
       currentStageAt
       createdAt
       fit {
+        id
         scoreRatio
         classification
         fitCount
@@ -1570,6 +1764,7 @@ export const ApplicationDocument = gql`
       currentStageAt
       createdAt
       fit {
+        id
         scoreRatio
         classification
         fitCount
@@ -2779,6 +2974,22 @@ export const DraftApplicationDetailDocument = gql`
       htmlContent
       conversionStatus
       conversionError
+      convertedAt
+      createdAt
+      fit {
+        id
+        applicationId
+        draftApplicationId
+        resumeId
+        status
+        error
+        scoreRatio
+        classification
+        fitCount
+        gapCount
+        unclearCount
+        createdAt
+      }
     }
   }
 `;
@@ -3048,11 +3259,162 @@ export function useUpdateDraftApplicationMutation(
   >(UpdateDraftApplicationDocument, options);
 }
 
+export const FitAnalysesListDocument = gql`
+  query FitAnalysesList {
+    fitAnalyses {
+      id
+      applicationId
+      draftApplicationId
+      resumeId
+      status
+      error
+      scoreRatio
+      classification
+      fitCount
+      gapCount
+      unclearCount
+      createdAt
+      updatedAt
+      application {
+        id
+        title
+        company {
+          id
+          name
+        }
+      }
+      draftApplication {
+        id
+        title
+      }
+    }
+  }
+`;
+
+/**
+ * __useFitAnalysesListQuery__
+ *
+ * To run a query within a React component, call `useFitAnalysesListQuery` and pass it any options that fit your needs.
+ * When your component renders, `useFitAnalysesListQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useFitAnalysesListQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useFitAnalysesListQuery(
+  baseOptions?: ApolloReactHooks.QueryHookOptions<
+    FitAnalysesListQuery,
+    FitAnalysesListQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useQuery<
+    FitAnalysesListQuery,
+    FitAnalysesListQueryVariables
+  >(FitAnalysesListDocument, options);
+}
+export function useFitAnalysesListLazyQuery(
+  baseOptions?: ApolloReactHooks.LazyQueryHookOptions<
+    FitAnalysesListQuery,
+    FitAnalysesListQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useLazyQuery<
+    FitAnalysesListQuery,
+    FitAnalysesListQueryVariables
+  >(FitAnalysesListDocument, options);
+}
+
+export type FitAnalysesListQueryHookResult = ReturnType<
+  typeof useFitAnalysesListQuery
+>;
+export type FitAnalysesListLazyQueryHookResult = ReturnType<
+  typeof useFitAnalysesListLazyQuery
+>;
+
+export const FitDocument = gql`
+  query Fit($id: ID!) {
+    fit(id: $id) {
+      id
+      applicationId
+      draftApplicationId
+      resumeId
+      status
+      error
+      scoreRatio
+      classification
+      fitCount
+      gapCount
+      unclearCount
+      items {
+        requirement
+        source
+        weight
+        type
+        verdict
+        jdQuote
+        sourceQuotes
+        suggestion
+      }
+      createdAt
+    }
+  }
+`;
+
+/**
+ * __useFitQuery__
+ *
+ * To run a query within a React component, call `useFitQuery` and pass it any options that fit your needs.
+ * When your component renders, `useFitQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useFitQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useFitQuery(
+  baseOptions: ApolloReactHooks.QueryHookOptions<FitQuery, FitQueryVariables> &
+    ({ variables: FitQueryVariables; skip?: boolean } | { skip: boolean }),
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useQuery<FitQuery, FitQueryVariables>(
+    FitDocument,
+    options,
+  );
+}
+export function useFitLazyQuery(
+  baseOptions?: ApolloReactHooks.LazyQueryHookOptions<
+    FitQuery,
+    FitQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useLazyQuery<FitQuery, FitQueryVariables>(
+    FitDocument,
+    options,
+  );
+}
+
+export type FitQueryHookResult = ReturnType<typeof useFitQuery>;
+export type FitLazyQueryHookResult = ReturnType<typeof useFitLazyQuery>;
+
 export const ApplicationFitDocument = gql`
   query ApplicationFit($applicationId: ID!) {
     applicationFit(applicationId: $applicationId) {
       id
       applicationId
+      draftApplicationId
       resumeId
       status
       error
@@ -3128,11 +3490,93 @@ export type ApplicationFitLazyQueryHookResult = ReturnType<
   typeof useApplicationFitLazyQuery
 >;
 
+export const DraftApplicationFitDocument = gql`
+  query DraftApplicationFit($draftApplicationId: ID!) {
+    draftApplicationFit(draftApplicationId: $draftApplicationId) {
+      id
+      applicationId
+      draftApplicationId
+      resumeId
+      status
+      error
+      scoreRatio
+      classification
+      fitCount
+      gapCount
+      unclearCount
+      items {
+        requirement
+        source
+        weight
+        type
+        verdict
+        jdQuote
+        sourceQuotes
+        suggestion
+      }
+      createdAt
+    }
+  }
+`;
+
+/**
+ * __useDraftApplicationFitQuery__
+ *
+ * To run a query within a React component, call `useDraftApplicationFitQuery` and pass it any options that fit your needs.
+ * When your component renders, `useDraftApplicationFitQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useDraftApplicationFitQuery({
+ *   variables: {
+ *      draftApplicationId: // value for 'draftApplicationId'
+ *   },
+ * });
+ */
+export function useDraftApplicationFitQuery(
+  baseOptions: ApolloReactHooks.QueryHookOptions<
+    DraftApplicationFitQuery,
+    DraftApplicationFitQueryVariables
+  > &
+    (
+      | { variables: DraftApplicationFitQueryVariables; skip?: boolean }
+      | { skip: boolean }
+    ),
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useQuery<
+    DraftApplicationFitQuery,
+    DraftApplicationFitQueryVariables
+  >(DraftApplicationFitDocument, options);
+}
+export function useDraftApplicationFitLazyQuery(
+  baseOptions?: ApolloReactHooks.LazyQueryHookOptions<
+    DraftApplicationFitQuery,
+    DraftApplicationFitQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useLazyQuery<
+    DraftApplicationFitQuery,
+    DraftApplicationFitQueryVariables
+  >(DraftApplicationFitDocument, options);
+}
+
+export type DraftApplicationFitQueryHookResult = ReturnType<
+  typeof useDraftApplicationFitQuery
+>;
+export type DraftApplicationFitLazyQueryHookResult = ReturnType<
+  typeof useDraftApplicationFitLazyQuery
+>;
+
 export const GenerateApplicationFitDocument = gql`
   mutation GenerateApplicationFit($input: GenerateFitInput!) {
     generateApplicationFit(input: $input) {
       id
       applicationId
+      draftApplicationId
       resumeId
       status
       error
@@ -3184,6 +3628,104 @@ export function useGenerateApplicationFitMutation(
     GenerateApplicationFitMutation,
     GenerateApplicationFitMutationVariables
   >(GenerateApplicationFitDocument, options);
+}
+
+export const DeleteFitAnalysisDocument = gql`
+  mutation DeleteFitAnalysis($id: ID!) {
+    deleteFitAnalysis(id: $id) {
+      success
+      deletedId
+    }
+  }
+`;
+
+/**
+ * __useDeleteFitAnalysisMutation__
+ *
+ * To run a mutation, you first call `useDeleteFitAnalysisMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteFitAnalysisMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteFitAnalysisMutation, { data, loading, error }] = useDeleteFitAnalysisMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteFitAnalysisMutation(
+  baseOptions?: ApolloReactHooks.MutationHookOptions<
+    DeleteFitAnalysisMutation,
+    DeleteFitAnalysisMutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useMutation<
+    DeleteFitAnalysisMutation,
+    DeleteFitAnalysisMutationVariables
+  >(DeleteFitAnalysisDocument, options);
+}
+
+export const GenerateDraftApplicationFitDocument = gql`
+  mutation GenerateDraftApplicationFit($input: GenerateDraftFitInput!) {
+    generateDraftApplicationFit(input: $input) {
+      id
+      applicationId
+      draftApplicationId
+      resumeId
+      status
+      error
+      scoreRatio
+      classification
+      fitCount
+      gapCount
+      unclearCount
+      items {
+        requirement
+        source
+        weight
+        type
+        verdict
+        jdQuote
+        sourceQuotes
+        suggestion
+      }
+      createdAt
+    }
+  }
+`;
+
+/**
+ * __useGenerateDraftApplicationFitMutation__
+ *
+ * To run a mutation, you first call `useGenerateDraftApplicationFitMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useGenerateDraftApplicationFitMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [generateDraftApplicationFitMutation, { data, loading, error }] = useGenerateDraftApplicationFitMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useGenerateDraftApplicationFitMutation(
+  baseOptions?: ApolloReactHooks.MutationHookOptions<
+    GenerateDraftApplicationFitMutation,
+    GenerateDraftApplicationFitMutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useMutation<
+    GenerateDraftApplicationFitMutation,
+    GenerateDraftApplicationFitMutationVariables
+  >(GenerateDraftApplicationFitDocument, options);
 }
 
 export const ImportersListDocument = gql`

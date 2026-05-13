@@ -20,6 +20,22 @@ query DraftApplicationDetail($id: ID!) {
     htmlContent
     conversionStatus
     conversionError
+    convertedAt
+    createdAt
+    fit {
+      id
+      applicationId
+      draftApplicationId
+      resumeId
+      status
+      error
+      scoreRatio
+      classification
+      fitCount
+      gapCount
+      unclearCount
+      createdAt
+    }
   }
 }
 

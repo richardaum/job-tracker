@@ -1,7 +1,92 @@
+query FitAnalysesList {
+  fitAnalyses {
+    id
+    applicationId
+    draftApplicationId
+    resumeId
+    status
+    error
+    scoreRatio
+    classification
+    fitCount
+    gapCount
+    unclearCount
+    createdAt
+    updatedAt
+    application {
+      id
+      title
+      company {
+        id
+        name
+      }
+    }
+    draftApplication {
+      id
+      title
+    }
+  }
+}
+
+query Fit($id: ID!) {
+  fit(id: $id) {
+    id
+    applicationId
+    draftApplicationId
+    resumeId
+    status
+    error
+    scoreRatio
+    classification
+    fitCount
+    gapCount
+    unclearCount
+    items {
+      requirement
+      source
+      weight
+      type
+      verdict
+      jdQuote
+      sourceQuotes
+      suggestion
+    }
+    createdAt
+  }
+}
+
 query ApplicationFit($applicationId: ID!) {
   applicationFit(applicationId: $applicationId) {
     id
     applicationId
+    draftApplicationId
+    resumeId
+    status
+    error
+    scoreRatio
+    classification
+    fitCount
+    gapCount
+    unclearCount
+    items {
+      requirement
+      source
+      weight
+      type
+      verdict
+      jdQuote
+      sourceQuotes
+      suggestion
+    }
+    createdAt
+  }
+}
+
+query DraftApplicationFit($draftApplicationId: ID!) {
+  draftApplicationFit(draftApplicationId: $draftApplicationId) {
+    id
+    applicationId
+    draftApplicationId
     resumeId
     status
     error
@@ -28,6 +113,41 @@ mutation GenerateApplicationFit($input: GenerateFitInput!) {
   generateApplicationFit(input: $input) {
     id
     applicationId
+    draftApplicationId
+    resumeId
+    status
+    error
+    scoreRatio
+    classification
+    fitCount
+    gapCount
+    unclearCount
+    items {
+      requirement
+      source
+      weight
+      type
+      verdict
+      jdQuote
+      sourceQuotes
+      suggestion
+    }
+    createdAt
+  }
+}
+
+mutation DeleteFitAnalysis($id: ID!) {
+  deleteFitAnalysis(id: $id) {
+    success
+    deletedId
+  }
+}
+
+mutation GenerateDraftApplicationFit($input: GenerateDraftFitInput!) {
+  generateDraftApplicationFit(input: $input) {
+    id
+    applicationId
+    draftApplicationId
     resumeId
     status
     error

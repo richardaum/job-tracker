@@ -182,6 +182,7 @@ export type DraftApplicationType = {
   conversionStatus: DraftApplicationConversionStatus;
   convertedAt?: Maybe<Scalars["DateTime"]["output"]>;
   createdAt: Scalars["DateTime"]["output"];
+  fit?: Maybe<FitAnalysisType>;
   htmlContent: Scalars["String"]["output"];
   id: Scalars["ID"]["output"];
   title: Scalars["String"]["output"];
@@ -203,9 +204,12 @@ export enum FitAnalysisStatus {
 
 export type FitAnalysisType = {
   __typename?: "FitAnalysisType";
-  applicationId: Scalars["ID"]["output"];
+  application?: Maybe<ApplicationType>;
+  applicationId?: Maybe<Scalars["ID"]["output"]>;
   classification?: Maybe<Scalars["String"]["output"]>;
   createdAt: Scalars["DateTime"]["output"];
+  draftApplication?: Maybe<DraftApplicationType>;
+  draftApplicationId?: Maybe<Scalars["ID"]["output"]>;
   error?: Maybe<Scalars["String"]["output"]>;
   fitCount: Scalars["Int"]["output"];
   gapCount: Scalars["Int"]["output"];
@@ -228,6 +232,11 @@ export type FitItemType = {
   type: Scalars["String"]["output"];
   verdict: Scalars["String"]["output"];
   weight?: Maybe<Scalars["String"]["output"]>;
+};
+
+export type GenerateDraftFitInput = {
+  draftApplicationId: Scalars["ID"]["input"];
+  resumeId: Scalars["ID"]["input"];
 };
 
 export type GenerateFitInput = {
@@ -300,11 +309,13 @@ export type Mutation = {
   deleteApplicationsForDraft: DeleteMutationPayloadType;
   deleteCompany: DeleteMutationPayloadType;
   deleteDraftApplication: DeleteMutationPayloadType;
+  deleteFitAnalysis: DeleteMutationPayloadType;
   deleteImportRun: DeleteMutationPayloadType;
   deleteImportTemplate: DeleteMutationPayloadType;
   deleteResume: DeleteMutationPayloadType;
   detachApplicationsFromImportRun: Scalars["Int"]["output"];
   generateApplicationFit: FitAnalysisType;
+  generateDraftApplicationFit: FitAnalysisType;
   removeApplicationTag: ApplicationType;
   rerunImportTemplate: ImportRunType;
   updateApplication: ApplicationType;
@@ -364,6 +375,8 @@ export type MutationDeleteDraftApplicationArgs = {
   id: Scalars["ID"]["input"];
 };
 
+export type MutationDeleteFitAnalysisArgs = { id: Scalars["ID"]["input"] };
+
 export type MutationDeleteImportRunArgs = { id: Scalars["ID"]["input"] };
 
 export type MutationDeleteImportTemplateArgs = { id: Scalars["ID"]["input"] };
@@ -375,6 +388,10 @@ export type MutationDetachApplicationsFromImportRunArgs = {
 };
 
 export type MutationGenerateApplicationFitArgs = { input: GenerateFitInput };
+
+export type MutationGenerateDraftApplicationFitArgs = {
+  input: GenerateDraftFitInput;
+};
 
 export type MutationRemoveApplicationTagArgs = {
   id: Scalars["ID"]["input"];
@@ -466,8 +483,11 @@ export type Query = {
   companies: Array<CompanyType>;
   companyApplicationsCount: Scalars["Int"]["output"];
   draftApplication: DraftApplicationType;
+  draftApplicationFit?: Maybe<FitAnalysisType>;
   draftApplications: Array<DraftApplicationType>;
   exchangeRates: CurrencyRates;
+  fit?: Maybe<FitAnalysisType>;
+  fitAnalyses: Array<FitAnalysisType>;
   generateApplicationNoteWithAI: Scalars["String"]["output"];
   generateCompanyDescription: Scalars["String"]["output"];
   importRuns: Array<ImportRunType>;
@@ -504,10 +524,16 @@ export type QueryCompanyApplicationsCountArgs = { id: Scalars["ID"]["input"] };
 
 export type QueryDraftApplicationArgs = { id: Scalars["ID"]["input"] };
 
+export type QueryDraftApplicationFitArgs = {
+  draftApplicationId: Scalars["ID"]["input"];
+};
+
 export type QueryExchangeRatesArgs = {
   base: Scalars["String"]["input"];
   currencies: Array<Scalars["String"]["input"]>;
 };
+
+export type QueryFitArgs = { id: Scalars["ID"]["input"] };
 
 export type QueryGenerateApplicationNoteWithAiArgs = {
   applicationId: Scalars["ID"]["input"];
@@ -658,6 +684,7 @@ export type ApplicationsQuery = {
       };
       fit?: {
         __typename?: "FitAnalysisType";
+        id: string;
         scoreRatio?: number | null;
         classification?: string | null;
         fitCount: number;
@@ -700,6 +727,7 @@ export type ApplicationQuery = {
     };
     fit?: {
       __typename?: "FitAnalysisType";
+      id: string;
       scoreRatio?: number | null;
       classification?: string | null;
       fitCount: number;
@@ -1075,6 +1103,23 @@ export type DraftApplicationDetailQuery = {
     htmlContent: string;
     conversionStatus: DraftApplicationConversionStatus;
     conversionError?: string | null;
+    convertedAt?: any | null;
+    createdAt: any;
+    fit?: {
+      __typename?: "FitAnalysisType";
+      id: string;
+      applicationId?: string | null;
+      draftApplicationId?: string | null;
+      resumeId: string;
+      status: FitAnalysisStatus;
+      error?: string | null;
+      scoreRatio?: number | null;
+      classification?: string | null;
+      fitCount: number;
+      gapCount: number;
+      unclearCount: number;
+      createdAt: any;
+    } | null;
   };
 };
 
@@ -1155,6 +1200,71 @@ export type UpdateDraftApplicationMutation = {
   };
 };
 
+export type FitAnalysesListQueryVariables = Exact<{ [key: string]: never }>;
+
+export type FitAnalysesListQuery = {
+  __typename?: "Query";
+  fitAnalyses: Array<{
+    __typename?: "FitAnalysisType";
+    id: string;
+    applicationId?: string | null;
+    draftApplicationId?: string | null;
+    resumeId: string;
+    status: FitAnalysisStatus;
+    error?: string | null;
+    scoreRatio?: number | null;
+    classification?: string | null;
+    fitCount: number;
+    gapCount: number;
+    unclearCount: number;
+    createdAt: any;
+    updatedAt: any;
+    application?: {
+      __typename?: "ApplicationType";
+      id: string;
+      title: string;
+      company: { __typename?: "CompanyType"; id: string; name: string };
+    } | null;
+    draftApplication?: {
+      __typename?: "DraftApplicationType";
+      id: string;
+      title: string;
+    } | null;
+  }>;
+};
+
+export type FitQueryVariables = Exact<{ id: Scalars["ID"]["input"] }>;
+
+export type FitQuery = {
+  __typename?: "Query";
+  fit?: {
+    __typename?: "FitAnalysisType";
+    id: string;
+    applicationId?: string | null;
+    draftApplicationId?: string | null;
+    resumeId: string;
+    status: FitAnalysisStatus;
+    error?: string | null;
+    scoreRatio?: number | null;
+    classification?: string | null;
+    fitCount: number;
+    gapCount: number;
+    unclearCount: number;
+    createdAt: any;
+    items: Array<{
+      __typename?: "FitItemType";
+      requirement: string;
+      source: string;
+      weight?: string | null;
+      type: string;
+      verdict: string;
+      jdQuote: string;
+      sourceQuotes: Array<string>;
+      suggestion?: string | null;
+    }>;
+  } | null;
+};
+
 export type ApplicationFitQueryVariables = Exact<{
   applicationId: Scalars["ID"]["input"];
 }>;
@@ -1164,7 +1274,42 @@ export type ApplicationFitQuery = {
   applicationFit?: {
     __typename?: "FitAnalysisType";
     id: string;
-    applicationId: string;
+    applicationId?: string | null;
+    draftApplicationId?: string | null;
+    resumeId: string;
+    status: FitAnalysisStatus;
+    error?: string | null;
+    scoreRatio?: number | null;
+    classification?: string | null;
+    fitCount: number;
+    gapCount: number;
+    unclearCount: number;
+    createdAt: any;
+    items: Array<{
+      __typename?: "FitItemType";
+      requirement: string;
+      source: string;
+      weight?: string | null;
+      type: string;
+      verdict: string;
+      jdQuote: string;
+      sourceQuotes: Array<string>;
+      suggestion?: string | null;
+    }>;
+  } | null;
+};
+
+export type DraftApplicationFitQueryVariables = Exact<{
+  draftApplicationId: Scalars["ID"]["input"];
+}>;
+
+export type DraftApplicationFitQuery = {
+  __typename?: "Query";
+  draftApplicationFit?: {
+    __typename?: "FitAnalysisType";
+    id: string;
+    applicationId?: string | null;
+    draftApplicationId?: string | null;
     resumeId: string;
     status: FitAnalysisStatus;
     error?: string | null;
@@ -1197,7 +1342,55 @@ export type GenerateApplicationFitMutation = {
   generateApplicationFit: {
     __typename?: "FitAnalysisType";
     id: string;
-    applicationId: string;
+    applicationId?: string | null;
+    draftApplicationId?: string | null;
+    resumeId: string;
+    status: FitAnalysisStatus;
+    error?: string | null;
+    scoreRatio?: number | null;
+    classification?: string | null;
+    fitCount: number;
+    gapCount: number;
+    unclearCount: number;
+    createdAt: any;
+    items: Array<{
+      __typename?: "FitItemType";
+      requirement: string;
+      source: string;
+      weight?: string | null;
+      type: string;
+      verdict: string;
+      jdQuote: string;
+      sourceQuotes: Array<string>;
+      suggestion?: string | null;
+    }>;
+  };
+};
+
+export type DeleteFitAnalysisMutationVariables = Exact<{
+  id: Scalars["ID"]["input"];
+}>;
+
+export type DeleteFitAnalysisMutation = {
+  __typename?: "Mutation";
+  deleteFitAnalysis: {
+    __typename?: "DeleteMutationPayloadType";
+    success: boolean;
+    deletedId: string;
+  };
+};
+
+export type GenerateDraftApplicationFitMutationVariables = Exact<{
+  input: GenerateDraftFitInput;
+}>;
+
+export type GenerateDraftApplicationFitMutation = {
+  __typename?: "Mutation";
+  generateDraftApplicationFit: {
+    __typename?: "FitAnalysisType";
+    id: string;
+    applicationId?: string | null;
+    draftApplicationId?: string | null;
     resumeId: string;
     status: FitAnalysisStatus;
     error?: string | null;
@@ -1585,6 +1778,7 @@ export const ApplicationsDocument = {
                   selectionSet: {
                     kind: "SelectionSet",
                     selections: [
+                      { kind: "Field", name: { kind: "Name", value: "id" } },
                       {
                         kind: "Field",
                         name: { kind: "Name", value: "scoreRatio" },
@@ -1729,6 +1923,7 @@ export const ApplicationDocument = {
                   selectionSet: {
                     kind: "SelectionSet",
                     selections: [
+                      { kind: "Field", name: { kind: "Name", value: "id" } },
                       {
                         kind: "Field",
                         name: { kind: "Name", value: "scoreRatio" },
@@ -3216,6 +3411,59 @@ export const DraftApplicationDetailDocument = {
                   kind: "Field",
                   name: { kind: "Name", value: "conversionError" },
                 },
+                { kind: "Field", name: { kind: "Name", value: "convertedAt" } },
+                { kind: "Field", name: { kind: "Name", value: "createdAt" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "fit" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      { kind: "Field", name: { kind: "Name", value: "id" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "applicationId" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "draftApplicationId" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "resumeId" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "status" },
+                      },
+                      { kind: "Field", name: { kind: "Name", value: "error" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "scoreRatio" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "classification" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "fitCount" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "gapCount" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "unclearCount" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "createdAt" },
+                      },
+                    ],
+                  },
+                },
               ],
             },
           },
@@ -3556,6 +3804,203 @@ export const UpdateDraftApplicationDocument = {
   UpdateDraftApplicationMutation,
   UpdateDraftApplicationMutationVariables
 >;
+export const FitAnalysesListDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "query",
+      name: { kind: "Name", value: "FitAnalysesList" },
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "fitAnalyses" },
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "applicationId" },
+                },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "draftApplicationId" },
+                },
+                { kind: "Field", name: { kind: "Name", value: "resumeId" } },
+                { kind: "Field", name: { kind: "Name", value: "status" } },
+                { kind: "Field", name: { kind: "Name", value: "error" } },
+                { kind: "Field", name: { kind: "Name", value: "scoreRatio" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "classification" },
+                },
+                { kind: "Field", name: { kind: "Name", value: "fitCount" } },
+                { kind: "Field", name: { kind: "Name", value: "gapCount" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "unclearCount" },
+                },
+                { kind: "Field", name: { kind: "Name", value: "createdAt" } },
+                { kind: "Field", name: { kind: "Name", value: "updatedAt" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "application" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      { kind: "Field", name: { kind: "Name", value: "id" } },
+                      { kind: "Field", name: { kind: "Name", value: "title" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "company" },
+                        selectionSet: {
+                          kind: "SelectionSet",
+                          selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "id" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "name" },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "draftApplication" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      { kind: "Field", name: { kind: "Name", value: "id" } },
+                      { kind: "Field", name: { kind: "Name", value: "title" } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  FitAnalysesListQuery,
+  FitAnalysesListQueryVariables
+>;
+export const FitDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "query",
+      name: { kind: "Name", value: "Fit" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "id" } },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "fit" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "id" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "id" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "applicationId" },
+                },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "draftApplicationId" },
+                },
+                { kind: "Field", name: { kind: "Name", value: "resumeId" } },
+                { kind: "Field", name: { kind: "Name", value: "status" } },
+                { kind: "Field", name: { kind: "Name", value: "error" } },
+                { kind: "Field", name: { kind: "Name", value: "scoreRatio" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "classification" },
+                },
+                { kind: "Field", name: { kind: "Name", value: "fitCount" } },
+                { kind: "Field", name: { kind: "Name", value: "gapCount" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "unclearCount" },
+                },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "items" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "requirement" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "source" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "weight" },
+                      },
+                      { kind: "Field", name: { kind: "Name", value: "type" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "verdict" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "jdQuote" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "sourceQuotes" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "suggestion" },
+                      },
+                    ],
+                  },
+                },
+                { kind: "Field", name: { kind: "Name", value: "createdAt" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<FitQuery, FitQueryVariables>;
 export const ApplicationFitDocument = {
   kind: "Document",
   definitions: [
@@ -3599,6 +4044,10 @@ export const ApplicationFitDocument = {
                 {
                   kind: "Field",
                   name: { kind: "Name", value: "applicationId" },
+                },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "draftApplicationId" },
                 },
                 { kind: "Field", name: { kind: "Name", value: "resumeId" } },
                 { kind: "Field", name: { kind: "Name", value: "status" } },
@@ -3661,6 +4110,118 @@ export const ApplicationFitDocument = {
     },
   ],
 } as unknown as DocumentNode<ApplicationFitQuery, ApplicationFitQueryVariables>;
+export const DraftApplicationFitDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "query",
+      name: { kind: "Name", value: "DraftApplicationFit" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "draftApplicationId" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "draftApplicationFit" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "draftApplicationId" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "draftApplicationId" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "applicationId" },
+                },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "draftApplicationId" },
+                },
+                { kind: "Field", name: { kind: "Name", value: "resumeId" } },
+                { kind: "Field", name: { kind: "Name", value: "status" } },
+                { kind: "Field", name: { kind: "Name", value: "error" } },
+                { kind: "Field", name: { kind: "Name", value: "scoreRatio" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "classification" },
+                },
+                { kind: "Field", name: { kind: "Name", value: "fitCount" } },
+                { kind: "Field", name: { kind: "Name", value: "gapCount" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "unclearCount" },
+                },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "items" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "requirement" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "source" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "weight" },
+                      },
+                      { kind: "Field", name: { kind: "Name", value: "type" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "verdict" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "jdQuote" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "sourceQuotes" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "suggestion" },
+                      },
+                    ],
+                  },
+                },
+                { kind: "Field", name: { kind: "Name", value: "createdAt" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  DraftApplicationFitQuery,
+  DraftApplicationFitQueryVariables
+>;
 export const GenerateApplicationFitDocument = {
   kind: "Document",
   definitions: [
@@ -3707,6 +4268,10 @@ export const GenerateApplicationFitDocument = {
                 {
                   kind: "Field",
                   name: { kind: "Name", value: "applicationId" },
+                },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "draftApplicationId" },
                 },
                 { kind: "Field", name: { kind: "Name", value: "resumeId" } },
                 { kind: "Field", name: { kind: "Name", value: "status" } },
@@ -3771,6 +4336,170 @@ export const GenerateApplicationFitDocument = {
 } as unknown as DocumentNode<
   GenerateApplicationFitMutation,
   GenerateApplicationFitMutationVariables
+>;
+export const DeleteFitAnalysisDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "DeleteFitAnalysis" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "id" } },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "deleteFitAnalysis" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "id" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "id" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "success" } },
+                { kind: "Field", name: { kind: "Name", value: "deletedId" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  DeleteFitAnalysisMutation,
+  DeleteFitAnalysisMutationVariables
+>;
+export const GenerateDraftApplicationFitDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "GenerateDraftApplicationFit" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "input" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: {
+              kind: "NamedType",
+              name: { kind: "Name", value: "GenerateDraftFitInput" },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "generateDraftApplicationFit" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "input" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "input" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "applicationId" },
+                },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "draftApplicationId" },
+                },
+                { kind: "Field", name: { kind: "Name", value: "resumeId" } },
+                { kind: "Field", name: { kind: "Name", value: "status" } },
+                { kind: "Field", name: { kind: "Name", value: "error" } },
+                { kind: "Field", name: { kind: "Name", value: "scoreRatio" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "classification" },
+                },
+                { kind: "Field", name: { kind: "Name", value: "fitCount" } },
+                { kind: "Field", name: { kind: "Name", value: "gapCount" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "unclearCount" },
+                },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "items" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "requirement" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "source" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "weight" },
+                      },
+                      { kind: "Field", name: { kind: "Name", value: "type" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "verdict" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "jdQuote" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "sourceQuotes" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "suggestion" },
+                      },
+                    ],
+                  },
+                },
+                { kind: "Field", name: { kind: "Name", value: "createdAt" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  GenerateDraftApplicationFitMutation,
+  GenerateDraftApplicationFitMutationVariables
 >;
 export const ImportersListDocument = {
   kind: "Document",

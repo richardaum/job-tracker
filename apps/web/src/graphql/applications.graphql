@@ -32,6 +32,7 @@ query Applications(
     currentStageAt
     createdAt
     fit {
+      id
       scoreRatio
       classification
       fitCount
@@ -64,6 +65,7 @@ query Application($id: ID!) {
     currentStageAt
     createdAt
     fit {
+      id
       scoreRatio
       classification
       fitCount
