@@ -13,7 +13,22 @@ export class ResumeRepository {
   ) {}
 
   async findAllByUserId(userId: string): Promise<Resume[]> {
-    return this.repo.find({ where: { userId }, order: { updatedAt: "DESC" } });
+    return this.repo.find({
+      where: { userId },
+      order: { isDefault: "DESC", updatedAt: "DESC" },
+    });
+  }
+
+  async findDefaultByUserId(userId: string): Promise<Resume | null> {
+    return this.repo.findOne({ where: { userId, isDefault: true } });
+  }
+
+  async unsetDefaultByUserId(userId: string): Promise<void> {
+    await this.repo.update({ userId, isDefault: true }, { isDefault: false });
+  }
+
+  async countByUserId(userId: string): Promise<number> {
+    return this.repo.count({ where: { userId } });
   }
 
   async findOneById(id: string, userId: string): Promise<Resume | null> {

@@ -34,6 +34,7 @@ import { CreateUserPreferences1764200000000 } from "./1764200000000-create-user-
 import { MakeDraftApplicationUrlNullable1764300000000 } from "./1764300000000-make-draft-application-url-nullable";
 import { CreateFitAnalysis1764400000000 } from "./1764400000000-create-fit-analysis";
 import { AddFitAnalysisStatus1764500000000 } from "./1764500000000-add-fit-analysis-status";
+import { AddResumeIsDefault1764600000000 } from "./1764600000000-add-resume-is-default";
 
 export const migrations = [
   Baseline1746009600000,
@@ -72,4 +73,5 @@ export const migrations = [
   MakeDraftApplicationUrlNullable1764300000000,
   CreateFitAnalysis1764400000000,
   AddFitAnalysisStatus1764500000000,
+  AddResumeIsDefault1764600000000,
 ];

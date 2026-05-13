@@ -7,4 +7,7 @@ export class CreateResumeInput {
 
   @Field()
   content!: string;
+
+  @Field({ defaultValue: false })
+  isDefault?: boolean;
 }

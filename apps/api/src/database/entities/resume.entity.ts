@@ -30,6 +30,9 @@ export class ResumeEntity {
   @CreateDateColumn({ name: "created_at", type: "timestamp" })
   createdAt!: Date;
 
+  @Column({ name: "is_default", type: "boolean", default: false })
+  isDefault!: boolean;
+
   @UpdateDateColumn({ name: "updated_at", type: "timestamp" })
   updatedAt!: Date;
 }

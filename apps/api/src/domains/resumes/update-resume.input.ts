@@ -7,4 +7,7 @@ export class UpdateResumeInput {
 
   @Field({ nullable: true })
   content?: string;
+
+  @Field({ nullable: true })
+  isDefault?: boolean;
 }

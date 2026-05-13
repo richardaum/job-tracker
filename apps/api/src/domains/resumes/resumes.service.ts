@@ -24,6 +24,10 @@ export class ResumeService {
     return resume;
   }
 
+  async findDefault(userId: string): Promise<Resume | null> {
+    return this.repo.findDefaultByUserId(userId);
+  }
+
   async create(userId: string, dto: NewResume): Promise<Resume> {
     if (dto.content && !isTipTapDocumentString(dto.content)) {
       throw new BadRequestException(
@@ -31,7 +35,14 @@ export class ResumeService {
       );
     }
 
-    return this.repo.create({ ...dto, userId });
+    const isFirstResume = (await this.repo.countByUserId(userId)) === 0;
+    const shouldBeDefault = dto.isDefault === true || isFirstResume;
+
+    if (shouldBeDefault) {
+      await this.repo.unsetDefaultByUserId(userId);
+    }
+
+    return this.repo.create({ ...dto, userId, isDefault: shouldBeDefault });
   }
 
   async update(
@@ -45,6 +56,10 @@ export class ResumeService {
       );
     }
 
+    if (dto.isDefault === true) {
+      await this.repo.unsetDefaultByUserId(userId);
+    }
+
     const updated = await this.repo.update(id, userId, dto);
     if (!updated) {
       throw new NotFoundException(`Resume ${id} not found`);
@@ -53,7 +68,13 @@ export class ResumeService {
   }
 
   async remove(id: string, userId: string): Promise<void> {
-    await this.findOne(id, userId);
+    const resume = await this.findOne(id, userId);
+
+    if (resume.isDefault) {
+      throw new BadRequestException(
+        "Cannot delete the default resume. Set another resume as default first.",
+      );
+    }
 
     const deleted = await this.repo.delete(id, userId);
     if (!deleted) {

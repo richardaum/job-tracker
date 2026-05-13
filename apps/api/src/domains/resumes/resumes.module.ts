@@ -10,5 +10,6 @@ import { ResumeService } from "./resumes.service";
 @Module({
   imports: [TypeOrmModule.forFeature([ResumeEntity]), AuthModule],
   providers: [ResumeRepository, ResumeService, ResumeResolver],
+  exports: [ResumeRepository, ResumeService],
 })
 export class ResumesModule {}

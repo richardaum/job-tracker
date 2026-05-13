@@ -15,6 +15,9 @@ export class ResumeType {
   content!: string;
 
   @Field()
+  isDefault!: boolean;
+
+  @Field()
   createdAt!: Date;
 
   @Field()
