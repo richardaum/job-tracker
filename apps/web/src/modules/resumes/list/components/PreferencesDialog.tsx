@@ -293,7 +293,7 @@ export function PreferencesDialog({
     <Dialog
       open={open}
       onOpenChange={onOpenChange}
-      title="Preferences"
+      title="Work Preferences"
       description="What matters to you in a job? These preferences are used to evaluate fit against job descriptions."
       childrenClassName="overflow-auto"
       footer={

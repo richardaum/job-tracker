@@ -12,6 +12,7 @@ import {
   NotePencilIcon,
   QuestionIcon,
   SignOutIcon,
+  SparkleIcon,
 } from "@phosphor-icons/react";
 import Image from "next/image";
 import Link from "next/link";
@@ -38,6 +39,7 @@ const navItems = [
     icon: NotePencilIcon,
   },
   { href: "/resumes", label: "Resumes", icon: FilesIcon },
+  { href: "/fits", label: "Fits", icon: SparkleIcon },
   { href: "/imports", label: "Imports", icon: DownloadSimpleIcon },
   { href: "/companies", label: "Companies", icon: BuildingsIcon },
   {

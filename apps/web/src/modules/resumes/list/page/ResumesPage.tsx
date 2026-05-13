@@ -125,7 +125,7 @@ export default function ResumesPage() {
             onClick={() => setPreferencesOpen(true)}
           >
             <GearIcon size={14} weight="regular" className={cn("mr-1.5")} />
-            Preferences
+            Work Preferences
           </Button>
 
           <Button
