@@ -20,8 +20,11 @@ export class FitAnalysisType {
   @Field(() => ID)
   id!: string;
 
-  @Field(() => ID)
-  applicationId!: string;
+  @Field(() => ID, { nullable: true })
+  applicationId!: string | null;
+
+  @Field(() => ID, { nullable: true })
+  draftApplicationId!: string | null;
 
   @Field(() => ID)
   resumeId!: string;

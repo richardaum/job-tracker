@@ -13,14 +13,48 @@ export class FitAnalysisRepository {
     private readonly repo: Repository<FitAnalysisEntity>,
   ) {}
 
+  async findById(
+    id: string,
+    userId?: string,
+  ): Promise<FitAnalysisEntity | null> {
+    return this.repo.findOne({ where: { id, ...(userId ? { userId } : {}) } });
+  }
+
   async findByApplicationId(
     applicationId: string,
+    userId?: string,
   ): Promise<FitAnalysisEntity | null> {
-    return this.repo.findOne({ where: { applicationId } });
+    return this.repo.findOne({
+      where: { applicationId, ...(userId ? { userId } : {}) },
+    });
+  }
+
+  async findByDraftApplicationId(
+    draftApplicationId: string,
+    userId?: string,
+  ): Promise<FitAnalysisEntity | null> {
+    return this.repo.findOne({
+      where: { draftApplicationId, ...(userId ? { userId } : {}) },
+    });
+  }
+
+  async findAllByUserId(userId: string): Promise<FitAnalysisEntity[]> {
+    return this.repo.find({ where: { userId }, order: { updatedAt: "DESC" } });
   }
 
   async upsert(entity: FitAnalysisEntity): Promise<FitAnalysisEntity> {
-    const existing = await this.findByApplicationId(entity.applicationId);
+    const existing = entity.applicationId
+      ? await this.findByApplicationId(
+          entity.applicationId,
+          entity.userId ?? undefined,
+        )
+      : entity.draftApplicationId
+        ? await this.findByDraftApplicationId(
+            entity.draftApplicationId,
+            entity.userId ?? undefined,
+          )
+        : null;
+
     if (existing) {
       entity.id = existing.id;
       entity.createdAt = existing.createdAt;
@@ -29,8 +63,30 @@ export class FitAnalysisRepository {
     return this.repo.save(entity);
   }
 
-  async deleteByApplicationId(applicationId: string): Promise<boolean> {
-    const result = await this.repo.delete({ applicationId });
+  async deleteById(id: string, userId: string): Promise<boolean> {
+    const result = await this.repo.delete({ id, userId });
+    return (result.affected ?? 0) > 0;
+  }
+
+  async deleteByApplicationId(
+    applicationId: string,
+    userId?: string,
+  ): Promise<boolean> {
+    const result = await this.repo.delete({
+      applicationId,
+      ...(userId ? { userId } : {}),
+    });
+    return (result.affected ?? 0) > 0;
+  }
+
+  async deleteByDraftApplicationId(
+    draftApplicationId: string,
+    userId?: string,
+  ): Promise<boolean> {
+    const result = await this.repo.delete({
+      draftApplicationId,
+      ...(userId ? { userId } : {}),
+    });
     return (result.affected ?? 0) > 0;
   }
 
@@ -42,6 +98,43 @@ export class FitAnalysisRepository {
     const result = await this.repo.update(
       { applicationId, status: expectedStatus },
       patch,
+    );
+    return (result.affected ?? 0) > 0;
+  }
+
+  async updateStatusByDraftId(
+    draftApplicationId: string,
+    expectedStatus: FitAnalysisStatus,
+    patch: Partial<FitAnalysisEntity>,
+  ): Promise<boolean> {
+    const result = await this.repo.update(
+      { draftApplicationId, status: expectedStatus },
+      patch,
+    );
+    return (result.affected ?? 0) > 0;
+  }
+
+  async updateStatusById(
+    id: string,
+    expectedStatus: FitAnalysisStatus,
+    patch: Partial<FitAnalysisEntity>,
+    userId?: string,
+  ): Promise<boolean> {
+    const result = await this.repo.update(
+      { id, status: expectedStatus, ...(userId ? { userId } : {}) },
+      patch,
+    );
+    return (result.affected ?? 0) > 0;
+  }
+
+  async setApplicationId(
+    id: string,
+    applicationId: string,
+    userId?: string,
+  ): Promise<boolean> {
+    const result = await this.repo.update(
+      { id, ...(userId ? { userId } : {}) },
+      { applicationId },
     );
     return (result.affected ?? 0) > 0;
   }

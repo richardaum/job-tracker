@@ -1,6 +1,7 @@
 import { ResumeEntity } from "@api/database/entities/resume.entity";
 import { UserPreferencesEntity } from "@api/database/entities/user-preferences.entity";
 import { ApplicationRepository } from "@api/domains/applications/applications.repository";
+import { DraftApplicationsRepository } from "@api/domains/draft-applications/draft-applications.repository";
 import { Logger } from "@nestjs/common";
 import { Repository } from "typeorm";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -19,12 +20,16 @@ describe("FitAnalysisService", () => {
       findByApplicationId: vi.fn(),
       upsert: vi.fn(),
       updateStatus: vi.fn(),
+      findById: vi.fn(),
+      findByDraftApplicationId: vi.fn(),
+      updateStatusById: vi.fn(),
     } as unknown as FitAnalysisRepository;
 
     service = new FitAnalysisService(
       repo,
       {} as FitAnalysisAiService,
       {} as ApplicationRepository,
+      {} as DraftApplicationsRepository,
       {} as Repository<ResumeEntity>,
       {} as Repository<UserPreferencesEntity>,
     );

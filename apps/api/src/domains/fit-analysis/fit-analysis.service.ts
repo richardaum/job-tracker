@@ -1,3 +1,4 @@
+import { DraftApplicationEntity } from "@api/database/entities/draft-application.entity";
 import {
   FitAnalysisEntity,
   FitAnalysisStatus,
@@ -7,6 +8,9 @@ import {
 import { ResumeEntity } from "@api/database/entities/resume.entity";
 import { UserPreferencesEntity } from "@api/database/entities/user-preferences.entity";
 import { ApplicationRepository } from "@api/domains/applications/applications.repository";
+import type { Application } from "@api/domains/applications/applications.schema";
+import { DraftApplicationsRepository } from "@api/domains/draft-applications/draft-applications.repository";
+import { htmlToPlainText } from "@api/domains/shared/html-plain-text.util";
 import { tipTapDocumentToPlainText } from "@api/domains/shared/tiptap.util";
 import { tryRun } from "@job-tracker/try-run";
 import {
@@ -31,6 +35,7 @@ export class FitAnalysisService implements OnModuleInit {
     private readonly repo: FitAnalysisRepository,
     private readonly aiService: FitAnalysisAiService,
     private readonly applicationRepo: ApplicationRepository,
+    private readonly draftRepo: DraftApplicationsRepository,
     @InjectRepository(ResumeEntity)
     private readonly resumeRepo: Repository<ResumeEntity>,
     @InjectRepository(UserPreferencesEntity)
@@ -46,11 +51,49 @@ export class FitAnalysisService implements OnModuleInit {
     }
   }
 
+  async findById(id: string, userId: string): Promise<FitAnalysis | null> {
+    return this.repo.findById(id, userId);
+  }
+
   async findForApplication(
     applicationId: string,
-    _userId: string,
+    userId: string,
   ): Promise<FitAnalysis | null> {
-    return this.repo.findByApplicationId(applicationId);
+    return this.repo.findByApplicationId(applicationId, userId);
+  }
+
+  async findForDraftApplication(
+    draftApplicationId: string,
+    userId: string,
+  ): Promise<FitAnalysis | null> {
+    const draft = await this.draftRepo.findOne(draftApplicationId, userId);
+    if (!draft) return null;
+    return this.repo.findByDraftApplicationId(draftApplicationId, userId);
+  }
+
+  async remove(id: string, userId: string): Promise<void> {
+    const deleted = await this.repo.deleteById(id, userId);
+    if (!deleted) {
+      throw new BadRequestException("Fit analysis not found.");
+    }
+  }
+
+  async findAll(userId: string): Promise<FitAnalysis[]> {
+    return this.repo.findAllByUserId(userId);
+  }
+
+  async findApplicationById(
+    id: string,
+    userId: string,
+  ): Promise<Application | null> {
+    return this.applicationRepo.findOneByIdAndUserId(id, userId);
+  }
+
+  async findDraftApplicationById(
+    id: string,
+    userId: string,
+  ): Promise<DraftApplicationEntity | null> {
+    return this.draftRepo.findOne(id, userId);
   }
 
   async generate(
@@ -86,6 +129,8 @@ export class FitAnalysisService implements OnModuleInit {
       entity.createdAt = existing.createdAt;
     }
     entity.applicationId = applicationId;
+    entity.draftApplicationId = existing?.draftApplicationId ?? null;
+    entity.userId = userId;
     entity.resumeId = resumeId;
     entity.status = FitAnalysisStatus.PROCESSING;
     entity.error = null;
@@ -98,32 +143,98 @@ export class FitAnalysisService implements OnModuleInit {
 
     const saved = await this.repo.upsert(entity);
 
-    void this.generateInBackground(applicationId, resumeId, userId);
+    void this.generateInBackground(saved.id, userId, { applicationId });
+
+    return saved;
+  }
+
+  async generateForDraft(
+    draftApplicationId: string,
+    resumeId: string,
+    userId: string,
+  ): Promise<FitAnalysis> {
+    const draft = await this.draftRepo.findOne(draftApplicationId, userId);
+    if (!draft) {
+      throw new BadRequestException("Draft application not found.");
+    }
+    if (!draft.htmlContent?.trim()) {
+      throw new BadRequestException("Draft has no content to analyze.");
+    }
+
+    const resume = await this.resumeRepo.findOne({
+      where: { id: resumeId, userId },
+    });
+    if (!resume) {
+      throw new BadRequestException("Resume not found.");
+    }
+
+    const existing =
+      await this.repo.findByDraftApplicationId(draftApplicationId);
+
+    const entity = new FitAnalysisEntity();
+    if (existing) {
+      entity.id = existing.id;
+      entity.createdAt = existing.createdAt;
+    }
+    entity.applicationId = existing?.applicationId ?? null;
+    entity.draftApplicationId = draftApplicationId;
+    entity.userId = userId;
+    entity.resumeId = resumeId;
+    entity.status = FitAnalysisStatus.PROCESSING;
+    entity.error = null;
+    entity.items = [];
+    entity.scoreRatio = null;
+    entity.classification = null;
+    entity.fitCount = 0;
+    entity.gapCount = 0;
+    entity.unclearCount = 0;
+
+    const saved = await this.repo.upsert(entity);
+
+    void this.generateInBackground(saved.id, userId, { draftApplicationId });
 
     return saved;
   }
 
   private async generateInBackground(
-    applicationId: string,
-    resumeId: string,
+    fitId: string,
     userId: string,
+    source: { applicationId?: string; draftApplicationId?: string },
   ): Promise<void> {
     const [err] = await tryRun(async () => {
       const preferences = await this.preferencesRepo.findOne({
         where: { userId },
       });
 
-      const application = await this.applicationRepo.findOneByIdAndUserId(
-        applicationId,
-        userId,
-      );
-      const resume = await this.resumeRepo.findOne({
-        where: { id: resumeId, userId },
-      });
-      if (!application?.description || !resume) return;
+      let jdText: string;
 
-      const jdText = application.description;
-      const resumeText = tipTapDocumentToPlainText(resume.content);
+      if (source.applicationId) {
+        const application = await this.applicationRepo.findOneByIdAndUserId(
+          source.applicationId,
+          userId,
+        );
+        if (!application?.description) return;
+        jdText = application.description;
+      } else if (source.draftApplicationId) {
+        const draft = await this.draftRepo.findOne(
+          source.draftApplicationId,
+          userId,
+        );
+        if (!draft?.htmlContent) return;
+        jdText = htmlToPlainText(draft.htmlContent);
+      } else {
+        return;
+      }
+
+      const resume = await this.repo.findById(fitId, userId);
+      if (!resume?.resumeId) return;
+
+      const resumeEntity = await this.resumeRepo.findOne({
+        where: { id: resume.resumeId, userId },
+      });
+      if (!resumeEntity) return;
+
+      const resumeText = tipTapDocumentToPlainText(resumeEntity.content);
 
       const resumeFitItems = await this.aiService.extractResumeFitItems(
         jdText,
@@ -165,12 +276,12 @@ export class FitAnalysisService implements OnModuleInit {
 
       const score = computeScore(items);
 
-      const success = await this.repo.updateStatus(
-        applicationId,
+      const success = await this.repo.updateStatusById(
+        fitId,
         FitAnalysisStatus.PROCESSING,
         {
           status: FitAnalysisStatus.COMPLETED,
-          resumeId,
+          resumeId: resume.resumeId,
           items,
           scoreRatio: score.scoreRatio,
           classification: score.classification,
@@ -179,28 +290,30 @@ export class FitAnalysisService implements OnModuleInit {
           unclearCount: score.unclearCount,
           error: null,
         },
+        userId,
       );
 
       if (!success) {
         this.logger.warn(
-          `Fit analysis for application ${applicationId} was already updated or reset. Skipping background save.`,
+          `Fit analysis ${fitId} was already updated or reset. Skipping background save.`,
         );
       }
     });
 
     if (err) {
       this.logger.error(
-        `[FitAnalysis] Background generation failed for application ${applicationId}:`,
+        `[FitAnalysis] Background generation failed for fit ${fitId}:`,
         err instanceof Error ? err.stack : err,
       );
 
-      await this.repo.updateStatus(
-        applicationId,
+      await this.repo.updateStatusById(
+        fitId,
         FitAnalysisStatus.PROCESSING,
         {
           status: FitAnalysisStatus.FAILED,
           error: err instanceof Error ? err.message : "Unknown error",
         },
+        userId,
       );
     }
   }

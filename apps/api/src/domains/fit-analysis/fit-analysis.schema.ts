@@ -5,4 +5,7 @@ export type FitAnalysis = Omit<FitAnalysisEntity, "setId">;
 export type NewFitAnalysis = Partial<
   Omit<FitAnalysisEntity, "id" | "createdAt" | "updatedAt" | "setId">
 > &
-  Pick<FitAnalysisEntity, "applicationId" | "resumeId">;
+  Pick<
+    Partial<FitAnalysisEntity>,
+    "applicationId" | "draftApplicationId" | "resumeId"
+  >;

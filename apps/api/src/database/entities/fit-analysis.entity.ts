@@ -3,9 +3,13 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
+  ManyToOne,
   PrimaryColumn,
   UpdateDateColumn,
 } from "typeorm";
+
+import { DraftApplicationEntity } from "./draft-application.entity";
 
 export enum RequirementType {
   MUST_HAVE = "must_have",
@@ -38,8 +42,21 @@ export class FitAnalysisEntity {
   @PrimaryColumn({ type: "text" })
   id!: string;
 
-  @Column({ name: "application_id", type: "text", unique: true })
-  applicationId!: string;
+  @Column({ name: "application_id", type: "text", nullable: true })
+  applicationId!: string | null;
+
+  @Column({ name: "draft_application_id", type: "text", nullable: true })
+  draftApplicationId!: string | null;
+
+  @Column({ name: "user_id", type: "text", nullable: true })
+  userId!: string | null;
+
+  @ManyToOne(() => DraftApplicationEntity, {
+    nullable: true,
+    onDelete: "CASCADE",
+  })
+  @JoinColumn({ name: "draft_application_id" })
+  draftApplication?: DraftApplicationEntity | null;
 
   @Column({ name: "resume_id", type: "text" })
   resumeId!: string;

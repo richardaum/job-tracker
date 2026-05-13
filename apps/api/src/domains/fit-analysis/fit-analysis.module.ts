@@ -4,6 +4,7 @@ import { UserPreferencesEntity } from "@api/database/entities/user-preferences.e
 import { ApplicationAiModule } from "@api/domains/application-ai/application-ai.module";
 import { ApplicationModule } from "@api/domains/applications/applications.module";
 import { AuthModule } from "@api/domains/auth/auth.module";
+import { DraftApplicationsModule } from "@api/domains/draft-applications/draft-applications.module";
 import { ResumesModule } from "@api/domains/resumes/resumes.module";
 import { TemplateModule } from "@api/domains/shared/template/template.module";
 import { Module } from "@nestjs/common";
@@ -12,6 +13,7 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { FitAnalysisRepository } from "./fit-analysis.repository";
 import {
   ApplicationFitResolver,
+  DraftApplicationFitResolver,
   FitAnalysisResolver,
 } from "./fit-analysis.resolver";
 import { FitAnalysisService } from "./fit-analysis.service";
@@ -30,14 +32,17 @@ import { FitAnalysisEventHandler } from "./fit-analysis-event.handler";
     TemplateModule,
     ApplicationModule,
     ResumesModule,
+    DraftApplicationsModule,
   ],
   providers: [
     FitAnalysisRepository,
     FitAnalysisService,
     FitAnalysisResolver,
     ApplicationFitResolver,
+    DraftApplicationFitResolver,
     FitAnalysisAiService,
     FitAnalysisEventHandler,
   ],
+  exports: [FitAnalysisService, FitAnalysisRepository],
 })
 export class FitAnalysisModule {}
