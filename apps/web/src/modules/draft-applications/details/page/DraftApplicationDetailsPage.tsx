@@ -15,7 +15,6 @@ import {
   TabsList,
   TabsTrigger,
   Text,
-  Tooltip,
 } from "@job-tracker/ui";
 import { CaretDownIcon, CopyIcon } from "@phosphor-icons/react";
 import Link from "next/link";
@@ -192,9 +191,8 @@ export default function DraftApplicationDetailsPage({ params }: PageProps) {
           <FieldWithLabelAction
             label="Source URL"
             content={
-              <Tooltip
+              <FieldWithLabelAction.Tooltip
                 content={isUrlTruncated ? draft.url : undefined}
-                side="top"
                 enabled={isUrlTruncated}
               >
                 <a
@@ -207,7 +205,7 @@ export default function DraftApplicationDetailsPage({ params }: PageProps) {
                 >
                   {truncatedUrl}
                 </a>
-              </Tooltip>
+              </FieldWithLabelAction.Tooltip>
             }
           />
         ) : (
