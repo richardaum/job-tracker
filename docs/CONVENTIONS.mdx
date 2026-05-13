@@ -131,6 +131,10 @@ Full technical notes: `specs/022-technical-view-model-web-layer/README.md`.
 - Prefer small feature components wrapping `ConfirmDialog` over duplicating cancel + confirm footers.
 - Storybook: **Components → ConfirmDialog** (`pnpm --filter @job-tracker/ui storybook`).
 
+### FieldWithLabelAction Tooltips
+
+- When a tooltip is required within the `content` (body) of a **`FieldWithLabelAction`**, always use the **`FieldWithLabelAction.Tooltip`** compound component. This ensures consistent positioning (defaulting to `side="bottom"`) and maintains the compound component pattern established for this control.
+
 ### Editors (TipTap)
 
 - Use **`autofocus`** in composers and edit dialogs; `autofocus="end"` when editing existing content (cursor at end).
