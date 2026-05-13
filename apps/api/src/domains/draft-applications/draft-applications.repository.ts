@@ -79,7 +79,12 @@ export class DraftApplicationsRepository {
     patch: Partial<
       Pick<
         DraftApplicationEntity,
-        "url" | "title" | "htmlContent" | "conversionStatus" | "conversionError"
+        | "url"
+        | "title"
+        | "htmlContent"
+        | "conversionStatus"
+        | "conversionError"
+        | "convertedAt"
       >
     >,
   ): Promise<DraftApplicationEntity | null> {

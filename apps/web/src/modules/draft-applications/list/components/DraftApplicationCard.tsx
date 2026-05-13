@@ -153,7 +153,7 @@ export function DraftApplicationCard({
   );
 
   const displayDate = draft.convertedAt ?? draft.createdAt;
-  const dateLabel = draft.convertedAt ? "Converted" : "Created";
+  const dateLabel = draft.convertedAt ? "Converted at" : "Created at";
 
   const meta = (
     <span className={cn("text-text-muted text-xs")}>
