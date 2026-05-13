@@ -50,7 +50,6 @@ export function ResumeCard({
       {resume.isDefault ? (
         <Text size="xs" color="muted" className={cn("flex items-center gap-1")}>
           <StarIcon size={12} weight="fill" className={cn("text-yellow-500")} />
-          Default
         </Text>
       ) : (
         <IconButton
