@@ -21,6 +21,7 @@ import {
   CaretDownIcon,
   CopyIcon,
   PencilSimpleIcon,
+  SparkleIcon,
 } from "@phosphor-icons/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -29,8 +30,10 @@ import React, { useCallback, useState } from "react";
 import {
   useApplicationQuery,
   useCreateApplicationWithAiV2Mutation,
+  useGenerateDraftApplicationFitMutation,
   useUpdateDraftApplicationMutation,
 } from "@/gql/hooks";
+import { FitWizardDialog } from "@/modules/applications/details/components/FitWizardDialog";
 import { useToastQueue } from "@/modules/applications/shared/hooks/useToastQueue";
 import { ConvertDraftConfirmationDialog } from "@/modules/draft-applications/details/components/ConvertDraftConfirmationDialog";
 import { ConvertDraftConflictDialog } from "@/modules/draft-applications/details/components/ConvertDraftConflictDialog";
@@ -72,6 +75,16 @@ function draftHeadingTitle(
   return draftPrimaryTitle(url);
 }
 
+const dateFormatter = new Intl.DateTimeFormat("en-US", {
+  month: "short",
+  day: "numeric",
+  year: "numeric",
+});
+
+function formatDate(date: string): string {
+  return dateFormatter.format(new Date(date));
+}
+
 function truncateText(value: string, maxLength: number): string {
   if (value.length <= maxLength) {
     return value;
@@ -100,8 +113,11 @@ export default function DraftApplicationDetailsPage({ params }: PageProps) {
     useState(false);
   const [convertConflictDialogOpen, setConvertConflictDialogOpen] =
     useState(false);
+  const [fitWizardOpen, setFitWizardOpen] = useState(false);
   const [createApplicationWithAiV2] = useCreateApplicationWithAiV2Mutation();
   const [updateDraftApplication] = useUpdateDraftApplicationMutation();
+  const [generateDraftFit, { loading: generatingFit }] =
+    useGenerateDraftApplicationFitMutation();
   const { enqueueToast } = useToastQueue();
 
   const { draft, error, refetch, showInitialLoading } =
@@ -182,6 +198,36 @@ export default function DraftApplicationDetailsPage({ params }: PageProps) {
       void refetch();
     },
     [draft, updateDraftApplication, showToast, refetch],
+  );
+
+  const handleGenerateFit = useCallback(
+    async (resumeId: string) => {
+      if (!draft) return;
+      const [error, result] = await tryRun(
+        generateDraftFit({
+          variables: { input: { draftApplicationId: draft.id, resumeId } },
+        }),
+      );
+      if (error) {
+        enqueueToast({
+          title:
+            error instanceof Error
+              ? error.message.replace("Bad Request Exception: ", "")
+              : "Failed to generate fit analysis.",
+          intent: "error",
+        });
+        return;
+      }
+      enqueueToast({
+        title: "Fit analysis generation started.",
+        intent: "success",
+      });
+      void refetch();
+      if (result?.data?.generateDraftApplicationFit?.id) {
+        router.push(`/fit/${result.data.generateDraftApplicationFit.id}`);
+      }
+    },
+    [draft, generateDraftFit, enqueueToast, refetch, router],
   );
 
   function renderOverviewBody() {
@@ -347,6 +393,21 @@ export default function DraftApplicationDetailsPage({ params }: PageProps) {
                         Open application
                       </DropdownMenuItem>
                     ) : null}
+                    {draft.fit?.id ? (
+                      <DropdownMenuItem
+                        onSelect={() => router.push(`/fit/${draft.fit!.id}`)}
+                        icon={<SparkleIcon size={14} weight="regular" />}
+                      >
+                        Fit analysis
+                      </DropdownMenuItem>
+                    ) : (
+                      <DropdownMenuItem
+                        onSelect={() => setFitWizardOpen(true)}
+                        icon={<SparkleIcon size={14} weight="regular" />}
+                      >
+                        Fit analysis
+                      </DropdownMenuItem>
+                    )}
                     <DropdownMenuItem
                       onSelect={() => {
                         setConvertConfirmDialogOpen(true);
@@ -366,8 +427,8 @@ export default function DraftApplicationDetailsPage({ params }: PageProps) {
             ) : null}
           </div>
         </div>
-        <div className={cn("flex items-start gap-3")}>
-          <Heading as="h1" size="2xl" className={cn("min-w-0 flex-1")}>
+        <div className={cn("flex items-start justify-between gap-3")}>
+          <Heading as="h1" size="2xl" className={cn("min-w-0 flex-1 truncate")}>
             <span>
               {draft
                 ? draftHeadingTitle(draft.title, draft.url)
@@ -384,6 +445,13 @@ export default function DraftApplicationDetailsPage({ params }: PageProps) {
               />
             ) : null}
           </Heading>
+          {draft ? (
+            <span className={cn("shrink-0 pt-1 text-xs text-text-muted")}>
+              {draft.convertedAt
+                ? `Converted at ${formatDate(draft.convertedAt)}`
+                : `Created at ${formatDate(draft.createdAt)}`}
+            </span>
+          ) : null}
         </div>
         {draft ? (
           <DeleteDraftApplicationDialog
@@ -428,6 +496,13 @@ export default function DraftApplicationDetailsPage({ params }: PageProps) {
           }
           onOpenChange={setConvertConfirmDialogOpen}
           onConfirm={handleConvertToApplication}
+        />
+        <FitWizardDialog
+          open={fitWizardOpen}
+          onOpenChange={setFitWizardOpen}
+          onGenerate={handleGenerateFit}
+          generating={generatingFit}
+          hasExistingFit={!!draft?.fit}
         />
       </div>
 

@@ -1,27 +1,30 @@
 "use client";
 
-import { useEffect } from "react";
-
 import { useDraftApplicationDetailQuery } from "@/gql/hooks";
+import { usePoll } from "@/hooks/usePoll";
 
 export function useDraftApplicationDetailsViewModel(id: string) {
-  const { data, loading, error, refetch, startPolling, stopPolling } =
-    useDraftApplicationDetailQuery({
-      variables: { id },
-      fetchPolicy: "cache-and-network",
-      skip: !id,
-    });
+  const {
+    data,
+    loading,
+    error,
+    refetch,
+    startPolling: spDraft,
+    stopPolling: stpDraft,
+  } = useDraftApplicationDetailQuery({
+    variables: { id },
+    fetchPolicy: "cache-and-network",
+    skip: !id,
+  });
 
   const draft = data?.draftApplication ?? null;
   const normalizedConversionStatus = draft?.conversionStatus?.toLowerCase();
 
-  useEffect(() => {
-    if (normalizedConversionStatus === "processing") {
-      startPolling(2000);
-      return () => stopPolling();
-    }
-    stopPolling();
-  }, [normalizedConversionStatus, startPolling, stopPolling]);
+  usePoll(
+    { startPolling: spDraft, stopPolling: stpDraft },
+    normalizedConversionStatus === "processing",
+    2000,
+  );
 
   return { draft, error, refetch, showInitialLoading: loading && !data };
 }
