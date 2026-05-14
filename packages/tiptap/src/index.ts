@@ -1,4 +1,4 @@
-export { fixTipTapNode, normalizeAITipTapDocument } from "./ai.js";
+export { fixTipTapNode, normalizeAITipTapDocument } from "./ai";
 export { isTipTapDocumentString } from "./detection";
 export { normalizeGeneratedTipTapDocument } from "./generated";
 export { tipTapToHtml } from "./html";

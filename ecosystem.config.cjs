@@ -28,7 +28,10 @@ module.exports = {
       script: "pnpm",
       args: "run dev:debug",
       interpreter: "none",
-      env: { NODE_ENV: "development" },
+      env: {
+        NODE_ENV: "development",
+        NODE_OPTIONS: `--import ${path.join(root, "apps/api/node_modules/tsx/dist/loader.mjs")}`,
+      },
       watch: false,
     },
     {
