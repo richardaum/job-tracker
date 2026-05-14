@@ -7,7 +7,7 @@ import { CompanyService } from "@api/domains/companies/companies.service";
 import { CompanyAiService } from "@api/domains/company-ai/company-ai.service";
 import { DraftApplicationType } from "@api/domains/draft-applications/draft-application.type";
 import { DraftApplicationsService } from "@api/domains/draft-applications/draft-applications.service";
-import { isTipTapDocumentString } from "@job-tracker/tiptap";
+import { isTipTapDocumentString, tipTapToPlainText } from "@job-tracker/tiptap";
 import { tryRun } from "@job-tracker/try-run";
 import {
   BadRequestException,
@@ -47,6 +47,8 @@ type CreateDto = {
   salaryCurrency?: string | null;
   salaryPeriod?: SalaryPeriodEnum | null;
   tags?: string[] | null;
+  location?: string | null;
+  workRegion?: string | null;
   draftApplicationId?: string | null;
   sourceRunId?: string | null;
 };
@@ -206,6 +208,8 @@ export class ApplicationService {
           ? dto.source
           : inferApplicationSourceFromUrls(normalizedUrls),
       tags,
+      location: dto.location ?? null,
+      workRegion: dto.workRegion ?? null,
       draftApplicationId: dto.draftApplicationId ?? null,
       sourceRunId: dto.sourceRunId ?? null,
       ...salaryColumns,
@@ -307,6 +311,8 @@ export class ApplicationService {
         salaryCurrency: normalized.salaryCurrency,
         salaryPeriod: normalized.salaryPeriod,
         tags: normalized.tags,
+        location: normalized.location,
+        workRegion: normalized.workRegion,
         draftApplicationId: draftId,
       }),
     );
@@ -360,6 +366,24 @@ export class ApplicationService {
       conversionError: null,
       convertedAt: new Date(),
     });
+  }
+
+  async inferApplicationLocation(
+    userId: string,
+    applicationId: string,
+  ): Promise<string | null> {
+    const app = await this.findOne(applicationId, userId);
+    const plainText = tipTapToPlainText(app.description);
+    return this.applicationAiService.inferLocationFromDescription(plainText);
+  }
+
+  async inferApplicationWorkRegion(
+    userId: string,
+    applicationId: string,
+  ): Promise<string | null> {
+    const app = await this.findOne(applicationId, userId);
+    const plainText = tipTapToPlainText(app.description);
+    return this.applicationAiService.inferWorkRegionFromDescription(plainText);
   }
 
   async generateCompanyDescription(
@@ -420,6 +444,8 @@ export class ApplicationService {
           ? { source: inferApplicationSourceFromUrls(normalizedUrls) }
           : {}),
       ...(tags !== undefined ? { tags } : {}),
+      ...(dto.location !== undefined ? { location: dto.location } : {}),
+      ...(dto.workRegion !== undefined ? { workRegion: dto.workRegion } : {}),
       ...(salaryColumns ?? {}),
     };
 

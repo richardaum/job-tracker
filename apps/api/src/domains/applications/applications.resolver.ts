@@ -81,6 +81,22 @@ export class ApplicationResolver {
     return this.service.createApplicationWithAI(user.userId, draftId);
   }
 
+  @Query(() => String, { nullable: true })
+  generateApplicationLocationWithAI(
+    @Args("applicationId", { type: () => ID }) applicationId: string,
+    @CurrentUser() user: { userId: string },
+  ): Promise<string | null> {
+    return this.service.inferApplicationLocation(user.userId, applicationId);
+  }
+
+  @Query(() => String, { nullable: true })
+  generateApplicationWorkRegionWithAI(
+    @Args("applicationId", { type: () => ID }) applicationId: string,
+    @CurrentUser() user: { userId: string },
+  ): Promise<string | null> {
+    return this.service.inferApplicationWorkRegion(user.userId, applicationId);
+  }
+
   @Query(() => String)
   generateCompanyDescription(
     @Args("companyName") companyName: string,

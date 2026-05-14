@@ -96,6 +96,8 @@ type ApplicationType {
   urls: [String!]!
   source: ApplicationSource
   tags: [String!]!
+  location: String
+  workRegion: String
   currentStage: ApplicationStage!
   currentStageReason: String
   currentStageAt: DateTime!
@@ -236,6 +238,8 @@ type Query {
   me: UserType!
   applications(filter: ApplicationQuickFilter, company: String, runId: ID): [ApplicationType!]!
   application(id: ID!): ApplicationType!
+  generateApplicationLocationWithAI(applicationId: ID!): String
+  generateApplicationWorkRegionWithAI(applicationId: ID!): String
   generateCompanyDescription(companyName: String!): String!
   applicationStageEvents(applicationId: ID!): [ApplicationStageEventType!]!
   companies: [CompanyType!]!
@@ -318,6 +322,8 @@ input CreateApplicationInput {
   salaryCurrency: String
   salaryPeriod: SalaryPeriod
   tags: [String!]
+  location: String
+  workRegion: String
   sourceRunId: ID
 }
 
@@ -333,6 +339,8 @@ input UpdateApplicationInput {
   salaryCurrency: String
   salaryPeriod: SalaryPeriod
   tags: [String!]
+  location: String
+  workRegion: String
 }
 
 input CreateApplicationStageEventInput {

@@ -37,4 +37,10 @@ export class UpdateApplicationInput {
 
   @Field(() => [String], { nullable: true })
   tags?: string[] | null;
+
+  @Field(() => String, { nullable: true })
+  location?: string | null;
+
+  @Field(() => String, { nullable: true })
+  workRegion?: string | null;
 }

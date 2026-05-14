@@ -25,6 +25,8 @@ export type CreateApplicationRepoDto = Pick<
   | "salaryCurrency"
   | "salaryPeriod"
   | "tags"
+  | "location"
+  | "workRegion"
 > & { draftApplicationId?: string | null; sourceRunId?: string | null };
 export type UpdateApplicationRepoDto = Partial<CreateApplicationRepoDto>;
 
@@ -150,11 +152,7 @@ export class ApplicationRepository {
 
     const contexts: JobPostingContextSnippet[] = [];
     for (const row of rows) {
-      const raw = row.description;
-      if (raw === null || raw.trim().length === 0) {
-        continue;
-      }
-      const plain = tipTapToPlainText(raw);
+      const plain = tipTapToPlainText(row.description);
       if (!plain.trim()) {
         continue;
       }

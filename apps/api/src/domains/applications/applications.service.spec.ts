@@ -382,6 +382,8 @@ describe("ApplicationService", () => {
       description: "Job description",
       salary: { min: null, max: null, currency: null, period: null },
       tags: [],
+      location: null,
+      workRegion: null,
     });
     vi.mocked(
       draftExtractionNormalizationService.normalizeExtraction,
@@ -394,6 +396,47 @@ describe("ApplicationService", () => {
       salaryCurrency: null,
       salaryPeriod: null,
       tags: [],
+      location: null,
+      workRegion: null,
+    });
+    vi.mocked(companyService.findOrCreateByName).mockResolvedValue(app.company);
+    vi.mocked(repo.create).mockResolvedValue(app);
+    vi.mocked(repo.hasRecentDuplicateSameRoleAndCompany).mockResolvedValue(
+      false,
+    );
+    vi.mocked(draftApplicationsService.update).mockImplementation(
+      async (_id, _userId, patch) =>
+        ({
+          ...draft,
+          conversionStatus:
+            patch?.conversionStatus ?? DraftApplicationConversionStatus.IDLE,
+          conversionError: patch?.conversionError ?? null,
+          convertedAt: patch?.convertedAt ?? null,
+        }) as never,
+    );
+    vi.mocked(applicationAiService.extractFromDraft).mockResolvedValue({
+      title: "Senior Engineer",
+      company: "Acme",
+      url: "https://jobs.example.com/x",
+      description: "Job description",
+      salary: { min: null, max: null, currency: null, period: null },
+      tags: [],
+      location: null,
+      workRegion: null,
+    });
+    vi.mocked(
+      draftExtractionNormalizationService.normalizeExtraction,
+    ).mockReturnValue({
+      title: "Senior Engineer",
+      company: "Acme",
+      description: null,
+      salaryMinCents: null,
+      salaryMaxCents: null,
+      salaryCurrency: null,
+      salaryPeriod: null,
+      tags: [],
+      location: null,
+      workRegion: null,
     });
     vi.mocked(companyService.findOrCreateByName).mockResolvedValue(app.company);
     vi.mocked(repo.create).mockResolvedValue(app);
@@ -479,6 +522,8 @@ describe("ApplicationService", () => {
       description: "Job description",
       salary: { min: null, max: null, currency: null, period: null },
       tags: [],
+      location: null,
+      workRegion: null,
     });
     vi.mocked(
       draftExtractionNormalizationService.normalizeExtraction,
@@ -491,6 +536,8 @@ describe("ApplicationService", () => {
       salaryCurrency: null,
       salaryPeriod: null,
       tags: [],
+      location: null,
+      workRegion: null,
     });
     vi.mocked(companyService.findOrCreateByName).mockResolvedValue(app.company);
     vi.mocked(repo.hasRecentDuplicateSameRoleAndCompany).mockResolvedValue(

@@ -38,6 +38,12 @@ export class CreateApplicationInput {
   @Field(() => [String], { nullable: true })
   tags?: string[] | null;
 
+  @Field(() => String, { nullable: true })
+  location?: string | null;
+
+  @Field(() => String, { nullable: true })
+  workRegion?: string | null;
+
   @Field(() => ID, { nullable: true })
   sourceRunId?: string | null;
 }

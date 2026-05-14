@@ -34,6 +34,12 @@ export class ApplicationType {
   @Field(() => [String])
   tags!: string[];
 
+  @Field(() => String, { nullable: true })
+  location!: string | null;
+
+  @Field(() => String, { nullable: true })
+  workRegion!: string | null;
+
   /** Latest pipeline stage, derived from the most recent stage event. */
   @Field(() => ApplicationStageEnum)
   currentStage!: ApplicationStageEnum;
