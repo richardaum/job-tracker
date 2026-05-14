@@ -2,7 +2,7 @@
 
 import { tryRun } from "@job-tracker/try-run";
 import { Button, cn, Skeleton, Stack, Text } from "@job-tracker/ui";
-import { GearIcon, PlusIcon } from "@phosphor-icons/react";
+import { BriefcaseIcon, PlusIcon } from "@phosphor-icons/react";
 import { useState } from "react";
 
 import { EmptyState } from "@/components/empty-state";
@@ -124,7 +124,11 @@ export default function ResumesPage() {
             size="md"
             onClick={() => setPreferencesOpen(true)}
           >
-            <GearIcon size={14} weight="regular" className={cn("mr-1.5")} />
+            <BriefcaseIcon
+              size={14}
+              weight="regular"
+              className={cn("mr-1.5")}
+            />
             Work Preferences
           </Button>
 
