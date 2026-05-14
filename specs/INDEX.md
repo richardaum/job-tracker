@@ -1,8 +1,8 @@
 ---
 formatVersion: 1
 generator: "scripts/sync-spec-indices.mjs"
-specCount: 34
-requirementIdCount: 481
+specCount: 35
+requirementIdCount: 496
 historyCount: 77
 ---
 
