@@ -1,9 +1,6 @@
 import { OpenAIService } from "@api/domains/application-ai/openai.service";
-import {
-  isTipTapDocumentString,
-  plainTextToTipTap,
-} from "@api/domains/shared/tiptap.util";
 import { OPENAI_MODEL } from "@api/env/server";
+import { isTipTapDocumentString, plainTextToTipTap } from "@job-tracker/tiptap";
 import { BadRequestException, Injectable } from "@nestjs/common";
 
 type JobPostingContextSnippet = { title: string; plainTextDescription: string };

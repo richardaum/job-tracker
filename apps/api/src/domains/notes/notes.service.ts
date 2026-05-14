@@ -1,5 +1,5 @@
 import { NoteAiService } from "@api/domains/note-ai/note-ai.service";
-import { isTipTapDocumentString } from "@api/domains/shared/tiptap.util";
+import { isTipTapDocumentString } from "@job-tracker/tiptap";
 import {
   BadRequestException,
   ConflictException,

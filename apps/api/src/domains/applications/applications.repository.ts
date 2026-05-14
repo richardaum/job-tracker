@@ -1,7 +1,7 @@
 import { ApplicationEntity } from "@api/database/entities/application.entity";
 import { ApplicationStageEventEntity } from "@api/database/entities/application-stage-event.entity";
 import { DraftApplicationEntity } from "@api/database/entities/draft-application.entity";
-import { tipTapDocumentToPlainText } from "@api/domains/shared/tiptap.util";
+import { tipTapToPlainText } from "@job-tracker/tiptap";
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
@@ -154,7 +154,7 @@ export class ApplicationRepository {
       if (raw === null || raw.trim().length === 0) {
         continue;
       }
-      const plain = tipTapDocumentToPlainText(raw);
+      const plain = tipTapToPlainText(raw);
       if (!plain.trim()) {
         continue;
       }

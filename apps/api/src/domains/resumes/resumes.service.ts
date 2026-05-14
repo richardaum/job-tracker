@@ -1,4 +1,4 @@
-import { isTipTapDocumentString } from "@api/domains/shared/tiptap.util";
+import { isTipTapDocumentString } from "@job-tracker/tiptap";
 import {
   BadRequestException,
   Injectable,

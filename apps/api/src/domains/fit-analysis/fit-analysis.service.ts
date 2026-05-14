@@ -11,7 +11,7 @@ import { ApplicationRepository } from "@api/domains/applications/applications.re
 import type { Application } from "@api/domains/applications/applications.schema";
 import { DraftApplicationsRepository } from "@api/domains/draft-applications/draft-applications.repository";
 import { htmlToPlainText } from "@api/domains/shared/html-plain-text.util";
-import { tipTapDocumentToPlainText } from "@api/domains/shared/tiptap.util";
+import { tipTapToPlainText } from "@job-tracker/tiptap";
 import { tryRun } from "@job-tracker/try-run";
 import {
   BadRequestException,
@@ -234,7 +234,7 @@ export class FitAnalysisService implements OnModuleInit {
       });
       if (!resumeEntity) return;
 
-      const resumeText = tipTapDocumentToPlainText(resumeEntity.content);
+      const resumeText = tipTapToPlainText(resumeEntity.content);
 
       const resumeFitItems = await this.aiService.extractResumeFitItems(
         jdText,

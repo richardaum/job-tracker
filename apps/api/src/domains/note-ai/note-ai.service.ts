@@ -1,13 +1,12 @@
 import { OpenAIService } from "@api/domains/application-ai/openai.service";
 import { NOTE_AI_STRUCTURED_RESPONSE_SCHEMA } from "@api/domains/shared/tiptap.schema";
+import { OPENAI_MODEL } from "@api/env/server";
+import type { StructuredNoteOutput, TipTapDocument } from "@job-tracker/tiptap";
 import {
   isTipTapDocumentString,
   parseTipTapDocument,
-  StructuredNoteOutput,
   structuredNoteToTipTapDocument,
-  TipTapDocument,
-} from "@api/domains/shared/tiptap.util";
-import { OPENAI_MODEL } from "@api/env/server";
+} from "@job-tracker/tiptap";
 import { Injectable } from "@nestjs/common";
 
 type GenerateNoteInput = { description: string; note: string };

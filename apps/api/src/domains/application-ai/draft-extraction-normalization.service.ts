@@ -1,9 +1,11 @@
 import { SalaryPeriodEnum } from "@api/domains/applications/salary-period.enum";
 import { asSalaryPeriod } from "@api/domains/shared/salary-period.util";
+import type { TipTapDocument } from "@job-tracker/tiptap";
 import {
   isTipTapDocumentString,
+  normalizeAITipTapDocument,
   plainTextToTipTap,
-} from "@api/domains/shared/tiptap.util";
+} from "@job-tracker/tiptap";
 import { Injectable } from "@nestjs/common";
 
 export type NormalizedDraftExtraction = {
@@ -89,7 +91,11 @@ export class DraftExtractionNormalizationService {
     const descRaw = raw.description;
     if (typeof descRaw !== "string" || !descRaw.trim()) return null;
     const d = descRaw.trim();
-    return isTipTapDocumentString(d) ? d : plainTextToTipTap(d);
+    if (!isTipTapDocumentString(d)) return plainTextToTipTap(d);
+
+    const parsed = JSON.parse(d) as TipTapDocument;
+    const normalized = normalizeAITipTapDocument(parsed);
+    return JSON.stringify(normalized);
   }
 
   private normalizeDraftSalaryFields(

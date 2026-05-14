@@ -7,7 +7,7 @@ import { CompanyService } from "@api/domains/companies/companies.service";
 import { CompanyAiService } from "@api/domains/company-ai/company-ai.service";
 import { DraftApplicationType } from "@api/domains/draft-applications/draft-application.type";
 import { DraftApplicationsService } from "@api/domains/draft-applications/draft-applications.service";
-import { isTipTapDocumentString } from "@api/domains/shared/tiptap.util";
+import { isTipTapDocumentString } from "@job-tracker/tiptap";
 import { tryRun } from "@job-tracker/try-run";
 import {
   BadRequestException,
@@ -237,7 +237,7 @@ export class ApplicationService {
     });
     const hydrated = await this.findOne(application.id, userId);
 
-    if (dto.draftApplicationId ?? dto.importRunId) {
+    if (dto.importRunId) {
       this.eventBus.emitApplicationCreated(application.id, userId);
     }
 
@@ -326,10 +326,14 @@ export class ApplicationService {
       return;
     }
 
-    await this.fitAnalysisRepo.update(
+    const fitTransferResult = await this.fitAnalysisRepo.update(
       { draftApplicationId: draftId },
       { applicationId: created.id },
     );
+
+    if ((fitTransferResult.affected ?? 0) === 0) {
+      this.eventBus.emitApplicationCreated(created.id, userId);
+    }
 
     if (created.currentStage !== ApplicationStageEnum.DUPLICATED) {
       const [appliedError] = await tryRun(
