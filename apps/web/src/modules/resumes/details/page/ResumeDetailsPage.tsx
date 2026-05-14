@@ -1,5 +1,6 @@
 "use client";
 
+import { EMPTY_TIPTAP_DOC, normalizeTipTapDocument } from "@job-tracker/tiptap";
 import { tryRun } from "@job-tracker/try-run";
 import { Button, cn, Heading, Input, Text } from "@job-tracker/ui";
 import Link from "next/link";
@@ -15,10 +16,6 @@ import {
 } from "@/gql/hooks";
 import { TipTapEditor } from "@/modules/applications/details/components/TipTapEditor";
 import { useToastQueue } from "@/modules/applications/shared/hooks/useToastQueue";
-import {
-  EMPTY_TIPTAP_DOC,
-  normalizeTipTapDocument,
-} from "@/modules/applications/shared/utils/tiptap";
 import { DeleteResumeDialog } from "@/modules/resumes/list/components/DeleteResumeDialog";
 
 function useResumeEditorState(resumeId: string, onSaved: () => void) {
@@ -210,6 +207,7 @@ export default function ResumeDetailsPage({ params }: PageProps) {
                 disabled={saving}
                 fillHeight
                 enableImport
+                pdfExportConfig={{ getFileName: () => `resume` }}
               />
             </div>
           </div>

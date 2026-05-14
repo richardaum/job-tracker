@@ -1,6 +1,11 @@
 "use client";
 
 import {
+  normalizeTipTapDocument,
+  parseTipTapDocument,
+  tipTapToPlainText,
+} from "@job-tracker/tiptap";
+import {
   cn,
   ConfirmDialog,
   DropdownMenu,
@@ -32,6 +37,7 @@ import { EditorContent, useEditor, useEditorState } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import React from "react";
 
+import type { PdfExportConfig } from "@/lib/pdf-export-config";
 import { type TipTapAiAction } from "@/modules/ai/editor/tiptap-ai-actions";
 import {
   isInHeading,
@@ -39,17 +45,13 @@ import {
 } from "@/modules/applications/details/components/no-bold-in-headings";
 import { SaveAsPdfButton } from "@/modules/applications/details/components/SaveAsPdfButton";
 import { ToolbarButton } from "@/modules/applications/details/components/ToolbarButton";
+import { useFileImport } from "@/modules/applications/details/hooks/useFileImport";
 import {
   type TipTapEditorHandle,
   useTipTapEditorHandle,
 } from "@/modules/applications/details/hooks/useTipTapEditorHandle";
 import { useVoiceToText } from "@/modules/applications/details/hooks/useVoiceToText";
 import { useHasVerticalOverflow } from "@/modules/applications/shared/hooks/useHasVerticalOverflow";
-import {
-  normalizeTipTapDocument,
-  parseTipTapDocument,
-  tipTapToPlainText,
-} from "@/modules/applications/shared/utils/tiptap";
 
 export type { TipTapEditorHandle } from "@/modules/applications/details/hooks/useTipTapEditorHandle";
 
@@ -72,6 +74,7 @@ interface TipTapEditorProps {
   enableVoiceToText?: boolean;
   voiceToTextLanguage?: string;
   enableImport?: boolean;
+  pdfExportConfig?: PdfExportConfig;
 }
 
 function AiSuggestionSegmentedControl({
@@ -223,14 +226,13 @@ export function TipTapEditor({
   enableVoiceToText = true,
   voiceToTextLanguage = "en-US",
   enableImport = false,
+  pdfExportConfig,
 }: TipTapEditorProps) {
   const onHardEnterRef = React.useRef(onHardEnter);
   const [isGeneratingAiLocally, setIsGeneratingAiLocally] =
     React.useState(false);
   const [pendingAiOriginalContent, setPendingAiOriginalContent] =
     React.useState<string | null>(null);
-  const [showImportConfirm, setShowImportConfirm] = React.useState(false);
-  const [isImporting, setIsImporting] = React.useState(false);
   React.useLayoutEffect(() => {
     onHardEnterRef.current = onHardEnter;
   });
@@ -307,83 +309,15 @@ export function TipTapEditor({
 
   const { clearDocument } = useTipTapEditorHandle({ ref, editor, onChange });
 
-  const fileInputRef = React.useRef<HTMLInputElement>(null);
-
-  const handleImportFile = React.useCallback(
-    async (event: React.ChangeEvent<HTMLInputElement>) => {
-      const file = event.target.files?.[0];
-      if (!file) return;
-      if (!editor) return;
-
-      setIsImporting(true);
-      try {
-        let text: string;
-
-        if (file.type === "application/pdf" || file.name.endsWith(".pdf")) {
-          const arrayBuffer = await file.arrayBuffer();
-          const pdfjs = await import("pdfjs-dist");
-          pdfjs.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.mjs";
-          const pdf = await pdfjs.getDocument({ data: arrayBuffer }).promise;
-          const textParts: string[] = [];
-          for (let i = 1; i <= pdf.numPages; i++) {
-            const page = await pdf.getPage(i);
-            const content = await page.getTextContent();
-            const pageText = content.items
-              .map((item) => ("str" in item ? (item.str ?? "") : ""))
-              .join(" ");
-            textParts.push(pageText);
-          }
-          text = textParts.join("\n\n");
-          const normalizedValue = normalizeTipTapDocument(text);
-          editor.commands.setContent(parseTipTapDocument(normalizedValue), {
-            emitUpdate: false,
-          });
-          onChange(normalizedValue);
-        } else if (file.name.endsWith(".html") || file.type === "text/html") {
-          const html = await file.text();
-          editor.commands.setContent(html, { emitUpdate: false });
-          onChange(JSON.stringify(editor.getJSON()));
-        } else if (file.name.endsWith(".md") || file.type === "text/markdown") {
-          const md = await file.text();
-          const { marked } = await import("marked");
-          const html = await marked.parse(md);
-          editor.commands.setContent(html, { emitUpdate: false });
-          onChange(JSON.stringify(editor.getJSON()));
-        } else {
-          text = await file.text();
-          const normalizedValue = normalizeTipTapDocument(text);
-          editor.commands.setContent(parseTipTapDocument(normalizedValue), {
-            emitUpdate: false,
-          });
-          onChange(normalizedValue);
-        }
-      } catch (err) {
-        console.error("Failed to import file:", err);
-      } finally {
-        setIsImporting(false);
-      }
-
-      event.target.value = "";
-    },
-    [editor, onChange],
-  );
-
-  const handleImportClick = React.useCallback(() => {
-    if (!editor) return;
-    const currentContent = tipTapToPlainText(
-      JSON.stringify(editor.getJSON()),
-    ).trim();
-    if (currentContent) {
-      setShowImportConfirm(true);
-    } else {
-      fileInputRef.current?.click();
-    }
-  }, [editor]);
-
-  const handleConfirmImport = React.useCallback(() => {
-    setShowImportConfirm(false);
-    fileInputRef.current?.click();
-  }, []);
+  const {
+    fileInputRef,
+    isImporting,
+    showImportConfirm,
+    setShowImportConfirm,
+    handleImportFile,
+    handleImportClick,
+    handleConfirmImport,
+  } = useFileImport({ editor, onChange });
 
   const hasVerticalOverflow = useHasVerticalOverflow(
     (editor?.view.dom as HTMLElement | undefined) ?? null,
@@ -636,7 +570,11 @@ export function TipTapEditor({
             }}
             disabled={disabled}
           />
-          <SaveAsPdfButton editor={editor} disabled={disabled} />
+          <SaveAsPdfButton
+            editor={editor}
+            disabled={disabled}
+            pdfExportConfig={pdfExportConfig}
+          />
           {enableImport ? (
             <>
               <input
