@@ -40,6 +40,7 @@ import { BackfillDraftConvertedAt1764800000000 } from "./1764800000000-backfill-
 import { AddFitDraftSupport1764900000000 } from "./1764900000000-add-fit-draft-support";
 import { AddFitAnalysisUserId1765000000000 } from "./1765000000000-add-fit-analysis-user-id";
 import { AddDraftUserId1765100000000 } from "./1765100000000-add-draft-user-id";
+import { UseTimestamptzForDraftsAndResumes1765200000000 } from "./1765200000000-use-timestamptz-for-drafts-and-resumes";
 
 export const migrations = [
   Baseline1746009600000,
@@ -84,4 +85,5 @@ export const migrations = [
   AddFitDraftSupport1764900000000,
   AddFitAnalysisUserId1765000000000,
   AddDraftUserId1765100000000,
+  UseTimestamptzForDraftsAndResumes1765200000000,
 ];

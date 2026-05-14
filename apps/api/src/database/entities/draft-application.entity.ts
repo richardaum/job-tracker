@@ -47,13 +47,13 @@ export class DraftApplicationEntity {
   @Column({ name: "conversion_error", type: "text", nullable: true })
   conversionError!: string | null;
 
-  @Column({ name: "converted_at", type: "timestamp", nullable: true })
+  @Column({ name: "converted_at", type: "timestamptz", nullable: true })
   convertedAt!: Date | null;
 
-  @CreateDateColumn({ name: "created_at", type: "timestamp" })
+  @CreateDateColumn({ name: "created_at", type: "timestamptz" })
   createdAt!: Date;
 
-  @UpdateDateColumn({ name: "updated_at", type: "timestamp" })
+  @UpdateDateColumn({ name: "updated_at", type: "timestamptz" })
   updatedAt!: Date;
 
   @OneToMany(

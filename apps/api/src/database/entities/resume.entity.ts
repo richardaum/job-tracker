@@ -27,12 +27,12 @@ export class ResumeEntity {
   @Column({ type: "text", default: EMPTY_TIPTAP_DOC })
   content!: string;
 
-  @CreateDateColumn({ name: "created_at", type: "timestamp" })
+  @CreateDateColumn({ name: "created_at", type: "timestamptz" })
   createdAt!: Date;
 
   @Column({ name: "is_default", type: "boolean", default: false })
   isDefault!: boolean;
 
-  @UpdateDateColumn({ name: "updated_at", type: "timestamp" })
+  @UpdateDateColumn({ name: "updated_at", type: "timestamptz" })
   updatedAt!: Date;
 }
