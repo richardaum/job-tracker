@@ -32,11 +32,11 @@ import {
   useGenerateDraftApplicationFitMutation,
 } from "@/gql/hooks";
 import { usePoll } from "@/hooks/usePoll";
-import { FitItemCard } from "@/modules/applications/details/components/FitItemCard";
-import { FitStatusBadge } from "@/modules/applications/details/components/FitStatusBadge";
-import { FitWizardDialog } from "@/modules/applications/details/components/FitWizardDialog";
-import { ScoreBadge } from "@/modules/applications/details/components/ScoreBadge";
 import { useToastQueue } from "@/modules/applications/shared/hooks/useToastQueue";
+import { FitItemCard } from "@/modules/fit-analyses/details/components/FitItemCard";
+import { FitStatusBadge } from "@/modules/fit-analyses/details/components/FitStatusBadge";
+import { FitWizardDialog } from "@/modules/fit-analyses/details/components/FitWizardDialog";
+import { ScoreBadge } from "@/modules/fit-analyses/details/components/ScoreBadge";
 import { PreferencesDialog } from "@/modules/resumes/list/components/PreferencesDialog";
 
 interface PageProps {
@@ -70,7 +70,7 @@ export default function FitAnalysisPage({ params }: PageProps) {
     useGenerateDraftApplicationFitMutation();
 
   const [fitFilterTab, setFitFilterTab] = React.useState<
-    "all" | "resume" | "preference" | "high" | "low"
+    "all" | "fit" | "gap" | "unclear"
   >("all");
 
   const fit = fitData?.fit;
@@ -96,10 +96,9 @@ export default function FitAnalysisPage({ params }: PageProps) {
   const filteredItems = React.useMemo(() => {
     const items = fit?.items ?? [];
     return items.filter((item) => {
-      if (fitFilterTab === "resume") return item.source === "resume";
-      if (fitFilterTab === "preference") return item.source === "preference";
-      if (fitFilterTab === "high") return item.weight === "high";
-      if (fitFilterTab === "low") return item.weight === "low";
+      if (fitFilterTab === "fit") return item.verdict === "fit";
+      if (fitFilterTab === "gap") return item.verdict === "gap";
+      if (fitFilterTab === "unclear") return item.verdict === "unclear";
       return true;
     });
   }, [fit, fitFilterTab]);
@@ -275,26 +274,29 @@ export default function FitAnalysisPage({ params }: PageProps) {
             />
           ) : isCompleted ? (
             <>
-              <ScoreBadge
-                classification={fit.classification ?? null}
-                scoreRatio={fit.scoreRatio ?? null}
-                fitCount={fit.fitCount}
-                gapCount={fit.gapCount}
-                unclearCount={fit.unclearCount}
-              />
+              <div className={cn("flex items-start justify-between gap-4")}>
+                <Tabs
+                  value={fitFilterTab}
+                  onValueChange={(v) =>
+                    setFitFilterTab(v as typeof fitFilterTab)
+                  }
+                >
+                  <TabsList>
+                    <TabsTrigger value="all">All</TabsTrigger>
+                    <TabsTrigger value="fit">Fits</TabsTrigger>
+                    <TabsTrigger value="gap">Gaps</TabsTrigger>
+                    <TabsTrigger value="unclear">Unclear</TabsTrigger>
+                  </TabsList>
+                </Tabs>
 
-              <Tabs
-                value={fitFilterTab}
-                onValueChange={(v) => setFitFilterTab(v as typeof fitFilterTab)}
-              >
-                <TabsList>
-                  <TabsTrigger value="all">All</TabsTrigger>
-                  <TabsTrigger value="resume">Resume</TabsTrigger>
-                  <TabsTrigger value="preference">Pref</TabsTrigger>
-                  <TabsTrigger value="high">High</TabsTrigger>
-                  <TabsTrigger value="low">Low</TabsTrigger>
-                </TabsList>
-              </Tabs>
+                <ScoreBadge
+                  classification={fit.classification ?? null}
+                  scoreRatio={fit.scoreRatio ?? null}
+                  fitCount={fit.fitCount}
+                  gapCount={fit.gapCount}
+                  unclearCount={fit.unclearCount}
+                />
+              </div>
 
               <div
                 className={cn(

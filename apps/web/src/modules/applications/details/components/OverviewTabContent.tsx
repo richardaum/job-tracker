@@ -246,6 +246,8 @@ export function OverviewTabContent({
         />
       </div>
 
+      <FitAnalysisField applicationId={application.id} fit={application.fit} />
+
       <div className={cn("max-w-full")}>
         <FieldWithLabelAction
           label="Tags"
@@ -274,8 +276,6 @@ export function OverviewTabContent({
           onError={onError}
         />
       </div>
-
-      <FitAnalysisField applicationId={application.id} fit={application.fit} />
     </OverviewSection>
   );
 }

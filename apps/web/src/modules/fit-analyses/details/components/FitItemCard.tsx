@@ -3,9 +3,9 @@
 import { Card, cn, Text } from "@job-tracker/ui";
 import React from "react";
 
-import { RelevanceIcon } from "@/modules/applications/details/components/RelevanceIcon";
-import { SourceBadge } from "@/modules/applications/details/components/SourceBadge";
-import { VerdictBadge } from "@/modules/applications/details/components/VerdictBadge";
+import { RelevanceIcon } from "./RelevanceIcon";
+import { SourceBadge } from "./SourceBadge";
+import { VerdictBadge } from "./VerdictBadge";
 
 export interface FitItem {
   verdict: string;

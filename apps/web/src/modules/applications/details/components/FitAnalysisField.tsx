@@ -72,7 +72,7 @@ export function FitAnalysisField({
           <FieldWithLabelAction.IconActionButton
             label="View full fit analysis"
             icon={<ArrowRightIcon size={14} weight="regular" />}
-            onClick={() => fit?.id && router.push(`/fit/${fit.id}`)}
+            onClick={() => fit?.id && router.push(`/fits/${fit.id}`)}
           />
         }
         content={

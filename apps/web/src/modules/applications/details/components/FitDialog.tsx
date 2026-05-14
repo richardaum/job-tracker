@@ -10,9 +10,9 @@ import {
   useGenerateApplicationFitMutation,
   useResumesQuery,
 } from "@/gql/hooks";
-import { FitItemCard } from "@/modules/applications/details/components/FitItemCard";
-import { ScoreBadge } from "@/modules/applications/details/components/ScoreBadge";
 import { useToastQueue } from "@/modules/applications/shared/hooks/useToastQueue";
+import { FitItemCard } from "@/modules/fit-analyses/details/components/FitItemCard";
+import { ScoreBadge } from "@/modules/fit-analyses/details/components/ScoreBadge";
 import { PreferencesDialog } from "@/modules/resumes/list/components/PreferencesDialog";
 
 interface FitDialogProps {

@@ -23,7 +23,6 @@ import { useGenerateApplicationFitMutation } from "@/gql/hooks";
 import { useBreakpoint } from "@/hooks/useBreakpoint";
 import { ActivitySidePanel } from "@/modules/applications/details/components/ActivitySidePanel";
 import { DescriptionTabContent } from "@/modules/applications/details/components/DescriptionTabContent";
-import { FitWizardDialog } from "@/modules/applications/details/components/FitWizardDialog";
 import { HistoryPanelTabsContent } from "@/modules/applications/details/components/HistoryPanel";
 import { NotesPanelTabsContent } from "@/modules/applications/details/components/NotesPanel";
 import { OverviewTabContent } from "@/modules/applications/details/components/OverviewTabContent";
@@ -33,6 +32,7 @@ import { type ApplicationDetailsValues } from "@/modules/applications/details/ut
 import { DeleteApplicationDialog } from "@/modules/applications/list/components/DeleteApplicationDialog";
 import { StatusBadge } from "@/modules/applications/shared/components/StatusBadge";
 import { useToastQueue } from "@/modules/applications/shared/hooks/useToastQueue";
+import { FitWizardDialog } from "@/modules/fit-analyses/details/components/FitWizardDialog";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -86,7 +86,7 @@ export default function ApplicationDetailsPage({ params }: PageProps) {
         intent: "success",
       });
       if (result?.data?.generateApplicationFit?.id) {
-        router.push(`/fit/${result.data.generateApplicationFit.id}`);
+        router.push(`/fits/${result.data.generateApplicationFit.id}`);
       }
     },
     [application, generateApplicationFit, enqueueToast, router],
@@ -160,7 +160,6 @@ export default function ApplicationDetailsPage({ params }: PageProps) {
               )}
             />
           }
-          className={cn("h-8 px-2.5 text-xs")}
         >
           Actions
         </Button>
@@ -173,7 +172,7 @@ export default function ApplicationDetailsPage({ params }: PageProps) {
       <DropdownMenuItem
         onSelect={() => {
           if (application?.fit?.id) {
-            router.push(`/fit/${application.fit.id}`);
+            router.push(`/fits/${application.fit.id}`);
           } else {
             setFitWizardOpen(true);
           }

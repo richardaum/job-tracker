@@ -31,7 +31,7 @@ export function FitAnalysisListCard({ fit }: FitAnalysisListCardProps) {
 
   const title = (
     <ListItemCard.Title asChild size="sm" className={cn("font-semibold")}>
-      <NextLink href={`/fit/${fit.id}`}>
+      <NextLink href={`/fits/${fit.id}`}>
         <span className={cn("inline-flex items-center gap-2")}>
           <span>{parentLabel}</span>
           {fit.scoreRatio != null && (

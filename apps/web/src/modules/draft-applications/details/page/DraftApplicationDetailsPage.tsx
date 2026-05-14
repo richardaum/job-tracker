@@ -33,7 +33,6 @@ import {
   useGenerateDraftApplicationFitMutation,
   useUpdateDraftApplicationMutation,
 } from "@/gql/hooks";
-import { FitWizardDialog } from "@/modules/applications/details/components/FitWizardDialog";
 import { useToastQueue } from "@/modules/applications/shared/hooks/useToastQueue";
 import { ConvertDraftConfirmationDialog } from "@/modules/draft-applications/details/components/ConvertDraftConfirmationDialog";
 import { ConvertDraftConflictDialog } from "@/modules/draft-applications/details/components/ConvertDraftConflictDialog";
@@ -43,6 +42,7 @@ import { useDraftApplicationDetailsViewModel } from "@/modules/draft-application
 import { useDraftAutoConversion } from "@/modules/draft-applications/details/hooks/useDraftAutoConversion";
 import { DeleteDraftApplicationDialog } from "@/modules/draft-applications/list/components/DeleteDraftApplicationDialog";
 import { ConversionStatusBadge } from "@/modules/draft-applications/shared/components/ConversionStatusBadge";
+import { FitWizardDialog } from "@/modules/fit-analyses/details/components/FitWizardDialog";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -224,7 +224,7 @@ export default function DraftApplicationDetailsPage({ params }: PageProps) {
       });
       void refetch();
       if (result?.data?.generateDraftApplicationFit?.id) {
-        router.push(`/fit/${result.data.generateDraftApplicationFit.id}`);
+        router.push(`/fits/${result.data.generateDraftApplicationFit.id}`);
       }
     },
     [draft, generateDraftFit, enqueueToast, refetch, router],
@@ -377,7 +377,6 @@ export default function DraftApplicationDetailsPage({ params }: PageProps) {
                             )}
                           />
                         }
-                        className={cn("h-8 px-2.5 text-xs")}
                       >
                         Actions
                       </Button>
@@ -395,7 +394,7 @@ export default function DraftApplicationDetailsPage({ params }: PageProps) {
                     ) : null}
                     {draft.fit?.id ? (
                       <DropdownMenuItem
-                        onSelect={() => router.push(`/fit/${draft.fit!.id}`)}
+                        onSelect={() => router.push(`/fits/${draft.fit!.id}`)}
                         icon={<SparkleIcon size={14} weight="regular" />}
                       >
                         Fit analysis
