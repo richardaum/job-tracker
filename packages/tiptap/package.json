@@ -1,0 +1,17 @@
+{
+  "name": "@job-tracker/tiptap",
+  "version": "0.0.1",
+  "private": true,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@job-tracker/try-run": "workspace:*",
+    "typescript": "^5.8.3"
+  },
+  "peerDependencies": {
+    "@job-tracker/try-run": "workspace:*"
+  }
+}

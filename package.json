@@ -14,7 +14,8 @@
     "ci:local": "pnpm leanspec:validate && pnpm leanspec:sync-spec-indices -- --check && pnpm turbo lint && pnpm turbo typecheck && pnpm turbo test -- --coverage --coverage.thresholds.lines=80 && pnpm turbo build",
     "e2e": "pnpm turbo build --filter=@job-tracker/web && pnpm --filter @job-tracker/web run e2e",
     "lint": "turbo lint",
-    "lint:fix": "turbo lint:fix",
+    "fix:imports": "node scripts/fix-imports.mjs",
+    "test:scripts": "node --test scripts/fix-imports.test.mjs",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint-staged": "lint-staged",
@@ -30,6 +31,7 @@
   },
   "lint-staged": {
     "*.{js,jsx,mjs,cjs,ts,tsx}": [
+      "node scripts/fix-imports.mjs",
       "eslint --fix --max-warnings=0 --no-warn-ignored",
       "prettier --write"
     ],
