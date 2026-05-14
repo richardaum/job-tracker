@@ -25,12 +25,16 @@ interface ApplicationValues {
   title: string;
   company: string;
   urls: string[];
+  location?: string | null;
+  workRegion?: string | null;
 }
 
 interface FormState {
   title: string;
   company: string;
   urlsText: string;
+  location: string;
+  workRegion: string;
 }
 
 interface ApplicationQuickEditDialogFormProps {
@@ -54,6 +58,8 @@ function ApplicationQuickEditDialogForm({
     title: application?.title ?? "",
     company: application?.company ?? "",
     urlsText: (application?.urls ?? []).join("\n"),
+    location: application?.location ?? "",
+    workRegion: application?.workRegion ?? "",
   });
   const [errors, setErrors] = useState<Partial<FormState>>({});
 
@@ -101,6 +107,8 @@ function ApplicationQuickEditDialogForm({
         .split("\n")
         .map((item) => item.trim())
         .filter(Boolean),
+      location: form.location.trim() || null,
+      workRegion: form.workRegion.trim() || null,
     };
 
     if (isEdit && application) {
@@ -186,6 +194,26 @@ function ApplicationQuickEditDialogForm({
               onChange={set("urlsText")}
               placeholder="https://example.com/jobs/123"
               state={errors.urlsText ? "error" : "default"}
+              disabled={loading}
+            />
+          </FormField>
+
+          <FormField label="Location" htmlFor="app-location">
+            <Input
+              id="app-location"
+              value={form.location}
+              onChange={set("location")}
+              placeholder="e.g. São Paulo, SP"
+              disabled={loading}
+            />
+          </FormField>
+
+          <FormField label="Work region" htmlFor="app-work-region">
+            <Input
+              id="app-work-region"
+              value={form.workRegion}
+              onChange={set("workRegion")}
+              placeholder="e.g. Brazil, Latam, Anywhere"
               disabled={loading}
             />
           </FormField>

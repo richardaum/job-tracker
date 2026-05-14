@@ -26,6 +26,8 @@ query Applications(
     source
     ...ApplicationSalarySelection
     tags
+    location
+    workRegion
     sourceRunId
     currentStage
     currentStageReason
@@ -59,6 +61,8 @@ query Application($id: ID!) {
     source
     ...ApplicationSalarySelection
     tags
+    location
+    workRegion
     sourceRunId
     currentStage
     currentStageReason
@@ -92,6 +96,8 @@ mutation CreateApplication($input: CreateApplicationInput!) {
     source
     ...ApplicationSalarySelection
     tags
+    location
+    workRegion
     createdAt
   }
 }
@@ -115,6 +121,8 @@ mutation UpdateApplication($id: ID!, $input: UpdateApplicationInput!) {
     source
     ...ApplicationSalarySelection
     tags
+    location
+    workRegion
     createdAt
   }
 }
@@ -234,4 +242,12 @@ query RewriteTextWithAi($text: String!) {
 
 query RestructureJobDescriptionWithAi($text: String!) {
   restructureJobDescriptionWithAI(text: $text)
+}
+
+query GenerateApplicationLocationWithAi($applicationId: ID!) {
+  generateApplicationLocationWithAI(applicationId: $applicationId)
+}
+
+query GenerateApplicationWorkRegionWithAi($applicationId: ID!) {
+  generateApplicationWorkRegionWithAI(applicationId: $applicationId)
 }

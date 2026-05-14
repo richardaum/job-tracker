@@ -220,6 +220,8 @@ export function ApplicationCard({
               title: app.title,
               company: app.company.name,
               urls: app.urls,
+              location: app.location,
+              workRegion: app.workRegion,
             }}
             onSuccess={onSuccess}
             onError={onError}
@@ -276,6 +278,22 @@ export function ApplicationCard({
               <InlineMetaDot />
               <Text as="span" size="sm" color="secondary">
                 {formatApplicationSourceLabel(app.source)}
+              </Text>
+            </>
+          ) : null}
+          {app.location ? (
+            <>
+              <InlineMetaDot />
+              <Text as="span" size="sm" color="secondary">
+                {app.location}
+              </Text>
+            </>
+          ) : null}
+          {app.workRegion ? (
+            <>
+              <InlineMetaDot />
+              <Text as="span" size="sm" color="secondary">
+                {app.workRegion}
               </Text>
             </>
           ) : null}

@@ -17,6 +17,10 @@ import {
   useRemoveApplicationTagMutation,
   useUpdateApplicationMutation,
 } from "@/gql/hooks";
+import {
+  useGenerateApplicationLocationWithAiLazyQuery,
+  useGenerateApplicationWorkRegionWithAiLazyQuery,
+} from "@/gql/hooks";
 import type { ApplicationDetailsValues } from "@/modules/applications/details/utils/application-details.shared";
 import { ApplicationTags } from "@/modules/applications/shared/components/ApplicationTags";
 import { CompanyNameWithPopover } from "@/modules/applications/shared/components/CompanyNameWithPopover";
@@ -38,7 +42,6 @@ export function OverviewTabContent({
   onError,
 }: {
   application: ApplicationDetailsValues;
-  /** From `useApplicationDetailsViewModel`: primary line for Source, or null → “Not set”. */
   sourcePrimaryText: string | null;
   onSuccess?: (message: string) => void;
   onError?: (message: string) => void;
@@ -49,6 +52,8 @@ export function OverviewTabContent({
   const tagsDialog = useDialog();
   const companyDialog = useDialog();
   const salaryDialog = useDialog();
+  const locationDialog = useDialog();
+  const workRegionDialog = useDialog();
 
   const [updateApplication] = useUpdateApplicationMutation({
     refetchQueries: [
@@ -63,6 +68,9 @@ export function OverviewTabContent({
       { query: ApplicationsDocument },
     ],
   });
+
+  const [inferLocation] = useGenerateApplicationLocationWithAiLazyQuery();
+  const [inferWorkRegion] = useGenerateApplicationWorkRegionWithAiLazyQuery();
 
   async function handleRemoveTag(tag: string) {
     const [error] = await tryRun(
@@ -112,6 +120,70 @@ export function OverviewTabContent({
       return;
     }
     onSuccess?.("Source updated.");
+  }
+
+  async function handleSaveLocation(nextValue: string) {
+    const [error] = await tryRun(
+      updateApplication({
+        variables: {
+          id: application.id,
+          input: { location: nextValue || null },
+        },
+      }),
+    );
+    if (error) {
+      onError?.("Could not update location.");
+      return;
+    }
+    onSuccess?.("Location updated.");
+  }
+
+  async function handleSaveWorkRegion(nextValue: string) {
+    const [error] = await tryRun(
+      updateApplication({
+        variables: {
+          id: application.id,
+          input: { workRegion: nextValue || null },
+        },
+      }),
+    );
+    if (error) {
+      onError?.("Could not update work region.");
+      return;
+    }
+    onSuccess?.("Work region updated.");
+  }
+
+  async function handleInferLocation(): Promise<string | null> {
+    const { data, error: queryError } = await inferLocation({
+      variables: { applicationId: application.id },
+    });
+    if (queryError) {
+      onError?.("Could not infer location.");
+      return null;
+    }
+    const value = data?.generateApplicationLocationWithAI;
+    if (!value) {
+      onError?.("Could not infer location from description.");
+      return null;
+    }
+    return value;
+  }
+
+  async function handleInferWorkRegion(): Promise<string | null> {
+    const { data, error: queryError } = await inferWorkRegion({
+      variables: { applicationId: application.id },
+    });
+    if (queryError) {
+      onError?.("Could not infer work region.");
+      return null;
+    }
+    const value = data?.generateApplicationWorkRegionWithAI;
+    if (!value) {
+      onError?.("Could not infer work region from description.");
+      return null;
+    }
+    return value;
   }
 
   const salary = formatSalary(application.salary);
@@ -215,6 +287,66 @@ export function OverviewTabContent({
           control={sourceDialog}
           value={application.source}
           onSave={handleSaveSource}
+        />
+      </div>
+
+      <div className={cn("max-w-full")}>
+        <FieldWithLabelAction
+          label="Location"
+          content={
+            application.location ? (
+              <Text size="sm">{application.location}</Text>
+            ) : (
+              <Text size="sm" color="secondary">
+                Not set
+              </Text>
+            )
+          }
+          actions={
+            <FieldWithLabelAction.IconActionButton
+              label="Edit location"
+              icon={<PencilSimpleIcon size={14} weight="regular" />}
+              onClick={locationDialog.open}
+            />
+          }
+        />
+        <TextFieldEditDialog
+          control={locationDialog}
+          label="Location"
+          value={application.location ?? ""}
+          placeholder="e.g. São Paulo, SP"
+          onSave={handleSaveLocation}
+          onAiFill={handleInferLocation}
+        />
+      </div>
+
+      <div className={cn("max-w-full")}>
+        <FieldWithLabelAction
+          label="Work region"
+          content={
+            application.workRegion ? (
+              <Text size="sm">{application.workRegion}</Text>
+            ) : (
+              <Text size="sm" color="secondary">
+                Not set
+              </Text>
+            )
+          }
+          actions={
+            <FieldWithLabelAction.IconActionButton
+              label="Edit work region"
+              icon={<PencilSimpleIcon size={14} weight="regular" />}
+              onClick={workRegionDialog.open}
+            />
+          }
+        />
+        <TextFieldEditDialog
+          control={workRegionDialog}
+          label="Work region"
+          value={application.workRegion ?? ""}
+          placeholder="e.g. Brazil, Latam, Anywhere"
+          onSave={handleSaveWorkRegion}
+          onAiFill={handleInferWorkRegion}
         />
       </div>
 
