@@ -1,0 +1,6 @@
+mutation UpdateSourceRun($id: ID!, $input: UpdateSourceRunInput!) {
+  updateSourceRun(id: $id, input: $input) {
+    id
+    surfaceUrl
+  }
+}

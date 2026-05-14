@@ -97,9 +97,9 @@ Optional third-party reloaders / scripted **`--load-extension`** are outside the
 
 ---
 
-## Web · `/imports` (`apps/web`) — template-first surface
+## Web · `/sources` (`apps/web`) — template-first surface
 
-**Level 1** = import **templates grouped by importer** (section header per importer; **tap any template row** opens that importer in the panel). **Level 2** = **side panel** (**importer-scoped template list** on `md+`; stacked / short column on narrow viewports): each row — **See runs** (opens modal), **Actions** (**Run again**, **Schedule…** — cron + schedule-enabled stored only until server schedules). **Level 3** = **runs modal** for the chosen template (accordions, applications link, unlink, delete run). Creating the first template/run from **New template** selects that importer (**level 2** panel opens when applicable). **RemoteYeah** seed; **[T-136]** subscriptions when backend is ready. This companion does not re-verify web code on each edit — treat **`README.md`** · **Implementation companion** pointer as authoritative for product wording.
+**Level 1** = source **templates grouped by importer** (section header per importer; **tap any template row** opens that importer in the panel). **Level 2** = **side panel** (**importer-scoped template list** on `md+`; stacked / short column on narrow viewports): each row — **See runs** (opens modal), **Actions** (**Run again**, **Schedule…** — cron + schedule-enabled stored only until server schedules). **Level 3** = **runs modal** for the chosen template (accordions, applications link, unlink, delete run). Creating the first template/run from **New template** selects that importer (**level 2** panel opens when applicable). **RemoteYeah** seed; **[T-136]** subscriptions when backend is ready. This companion does not re-verify web code on each edit — treat **`README.md`** · **Implementation companion** pointer as authoritative for product wording.
 
 ---
 
@@ -165,7 +165,7 @@ Broader README criteria (**[P-110]** onward): still future; depend on API, routi
 
 - [T-132] MV3; cookies; least `host_permissions` — **partially** (RemoteYeah-only in prod build config).
 - [T-135] `apps/extension` WXT + Vite — **done**.
-- [T-136] Web subscriptions for `/imports` — **web/API**.
+- [T-136] Web subscriptions for `/sources` — **web/API**.
 - [T-138] graphql-sse — **not started** in extension.
 
 ---
@@ -177,13 +177,13 @@ Canonical product narrative = **`README.md`**. Engineer-facing **current-behavio
 | Date       | Theme                    | Capsule                                                                                                                                                                             |
 | ---------- | ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 2026-05-02 | Core                     | **`New`** apps; **[P-119]** cookie auth; **[P-80]** parity; **[P-120]**/`016` separation; security stance                                                                           |
-| 2026-05-09 | Web `/imports` UX        | **New template** CTA; template **Actions** menu; schedule in modal; list without duplicate importer headings                                                                        |
-| 2026-05-02 | Web surface              | **`/imports`** single-page runs list + detail + New run modal; subs **[T-136]** when API ready; importer admin **[P-122]**                                                          |
-| 2026-05-02 | Web `/imports` UI        | Hardcoded importer seed **RemoteYeah**; no Live/History/Importers **tabs**                                                                                                          |
+| 2026-05-09 | Web `/sources` UX        | **New template** CTA; template **Actions** menu; schedule in modal; list without duplicate importer headings                                                                        |
+| 2026-05-02 | Web surface              | **`/sources`** single-page runs list + detail + New run modal; subs **[T-136]** when API ready; importer admin **[P-122]**                                                          |
+| 2026-05-02 | Web `/sources` UI        | Hardcoded importer seed **RemoteYeah**; no Live/History/Importers **tabs**                                                                                                          |
 | 2026-05-02 | Extension chrome         | **Popup** vs **wizard side panel** (**D-2**/ **D-6**); **[P-116]** stance                                                                                                           |
 | 2026-05-02 | Boards + provenance      | **D-1** seeds; **`Source`/importer** (**D-7**); **Type L vs J** URL routing (**[P-53]**)                                                                                            |
 | 2026-05-02 | Duplicate policy         | **D-8** persist → **mark** → wizard diff (**JD**) → **user resolves**                                                                                                               |
-| 2026-05-02 | Concurrency              | **Parallel import rounds** (**[P-115]**)                                                                                                                                            |
+| 2026-05-02 | Concurrency              | **Parallel source rounds** (**[P-115]**)                                                                                                                                            |
 | 2026-05-02 | Scaffold                 | **[T-137]** minimal **MV3** package + turbo/CI gates — **before** full boards / **[P-119]** / GraphQL                                                                               |
 | 2026-05-02 | Dev UX                   | **Dev** vs **`build`**; HMR limits; manual Reload                                                                                                                                   |
 | 2026-05-02 | Transport + roles        | **[D-9] / [P-124] / [T-138]:** backend orchestrates; extension executor; **graphql-sse**                                                                                            |

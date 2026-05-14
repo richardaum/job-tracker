@@ -1,4 +1,4 @@
-# Extension Import Events Plan (TODO)
+# Extension Source Events Plan (TODO)
 
 Goal: deliver import-run event streaming to the extension with single-consumer claiming, while keeping the design small and extensible.
 
@@ -12,7 +12,7 @@ Goal: deliver import-run event streaming to the extension with single-consumer c
 ## TODO Checklist
 
 - [x] **Step 1 - Define contract (schema-first)**
-  - Add import event envelope in GraphQL (import-domain scoped):
+  - Add source event envelope in GraphQL (sources-domain scoped):
     - `ImportRunEventType` (e.g. `IMPORT_RUN_CREATED`)
     - `ImportRunEvent` payload: `type`, `occurredAt`, `run`
     - `importRunEvents` subscription
@@ -23,10 +23,10 @@ Goal: deliver import-run event streaming to the extension with single-consumer c
   - **Resync:** confirm naming before implementation.
 
 - [x] **Step 2 - API event publisher abstraction (minimal)**
-  - Add a tiny imports-domain publisher interface (`publish(event)`).
+  - Add a tiny sources-domain publisher interface (`publish(event)`).
   - Provide one concrete implementation backed by in-memory pub/sub.
-  - Update imports service to publish via abstraction (not direct pub/sub calls).
-  - **Verify:** imports service tests pass and publish path is covered.
+  - Update sources service to publish via abstraction (not direct pub/sub calls).
+  - **Verify:** sources service tests pass and publish path is covered.
   - **Resync:** include `userId` in the internal domain event envelope for subscription filtering; keep GraphQL payload unchanged.
 
 - [x] **Step 3 - API subscription resolver**

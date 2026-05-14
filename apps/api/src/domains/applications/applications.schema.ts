@@ -9,4 +9,4 @@ export type NewApplication = Partial<
   >
 > &
   Pick<ApplicationEntity, "title" | "companyId"> &
-  Partial<Pick<ApplicationEntity, "importRunId">>;
+  Partial<Pick<ApplicationEntity, "sourceRunId">>;

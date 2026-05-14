@@ -3,7 +3,6 @@ import { defineBackground } from "wxt/utils/define-background";
 import { ApiService } from "@/domains/api/api.service";
 import { ContextMenuService } from "@/domains/context-menu/context-menu.service";
 import { ImportApplicationService } from "@/domains/import-application/import-application.service";
-import { ImportRunEventsService } from "@/domains/imports/import-run-events.service";
 import { JobDetailsMessagingService } from "@/domains/job-details/job-details-messaging.service";
 import { JobsListMessagingService } from "@/domains/jobs-list/jobs-list-messaging.service";
 import { LogService } from "@/domains/log/log.service";
@@ -15,6 +14,7 @@ import { parsePlan } from "@/domains/plan/parse/parser";
 import { CollectJobsService } from "@/domains/plan/services/collect-jobs.service";
 import { PlanService } from "@/domains/plan/services/plan.service";
 import { StringTemplateService } from "@/domains/plan/services/string-template.service";
+import { SourceRunEventsService } from "@/domains/sources/source-run-events.service";
 import { WxtTabService } from "@/domains/tab/wxt-tab.service";
 
 export default defineBackground(() => {
@@ -51,19 +51,19 @@ export default defineBackground(() => {
     apiService,
   );
 
-  const importRunEventsService = new ImportRunEventsService(
+  const sourceRunEventsService = new SourceRunEventsService(
     apiService,
     logService,
     planService,
   );
-  importRunEventsService.start();
+  sourceRunEventsService.start();
 
   const contextMenuService = new ContextMenuService(importApplicationService);
   void contextMenuService.setup();
   contextMenuService.bindListeners();
 
   chrome.runtime.onSuspend.addListener(() => {
-    importRunEventsService.stop();
+    sourceRunEventsService.stop();
     apiService.dispose();
   });
 

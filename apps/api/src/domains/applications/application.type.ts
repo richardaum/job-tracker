@@ -56,7 +56,7 @@ export class ApplicationType {
   updatedAt!: Date;
 
   @Field(() => ID, { nullable: true })
-  importRunId!: string | null;
+  sourceRunId!: string | null;
 
   @Field(() => FitAnalysisType, { nullable: true })
   fit?: FitAnalysisType;

@@ -10,7 +10,7 @@ tags:
 
 > **Status**: planned · **Priority**: medium · **Created**: 2026-05-02
 
-Import requirements migrated to **`specs/035-product-import/README.md`**.
+Source requirements migrated to **`specs/035-product-sources/README.md`**.
 
 ## Objective
 

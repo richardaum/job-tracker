@@ -1,6 +1,6 @@
 import { DraftApplicationConversionStatus } from "@api/database/entities/draft-application.entity";
 import { FitAnalysisEntity } from "@api/database/entities/fit-analysis.entity";
-import { ImportRunEntity } from "@api/database/entities/import-run.entity";
+import { SourceRunEntity } from "@api/database/entities/source-run.entity";
 import { ApplicationAiService } from "@api/domains/application-ai/application-ai.service";
 import { DraftExtractionNormalizationService } from "@api/domains/application-ai/draft-extraction-normalization.service";
 import { CompanyService } from "@api/domains/companies/companies.service";
@@ -48,7 +48,7 @@ type CreateDto = {
   salaryPeriod?: SalaryPeriodEnum | null;
   tags?: string[] | null;
   draftApplicationId?: string | null;
-  importRunId?: string | null;
+  sourceRunId?: string | null;
 };
 type UpdateDto = Partial<CreateDto>;
 type CreateStageEventDto = {
@@ -76,8 +76,8 @@ export class ApplicationService {
   private readonly logger = new Logger(ApplicationService.name);
 
   constructor(
-    @InjectRepository(ImportRunEntity)
-    private readonly importRunsRepo: Repository<ImportRunEntity>,
+    @InjectRepository(SourceRunEntity)
+    private readonly sourceRunsRepo: Repository<SourceRunEntity>,
     @InjectRepository(FitAnalysisEntity)
     private readonly fitAnalysisRepo: Repository<FitAnalysisEntity>,
     private readonly repo: ApplicationRepository,
@@ -172,13 +172,13 @@ export class ApplicationService {
       );
     }
 
-    if (dto.importRunId) {
-      const run = await this.importRunsRepo.findOne({
-        where: { id: dto.importRunId, userId },
+    if (dto.sourceRunId) {
+      const run = await this.sourceRunsRepo.findOne({
+        where: { id: dto.sourceRunId, userId },
       });
       if (!run) {
         throw new BadRequestException(
-          `Import run ${dto.importRunId} not found`,
+          `Source run ${dto.sourceRunId} not found`,
         );
       }
     }
@@ -207,7 +207,7 @@ export class ApplicationService {
           : inferApplicationSourceFromUrls(normalizedUrls),
       tags,
       draftApplicationId: dto.draftApplicationId ?? null,
-      importRunId: dto.importRunId ?? null,
+      sourceRunId: dto.sourceRunId ?? null,
       ...salaryColumns,
     };
 
@@ -237,7 +237,7 @@ export class ApplicationService {
     });
     const hydrated = await this.findOne(application.id, userId);
 
-    if (dto.importRunId) {
+    if (dto.sourceRunId) {
       this.eventBus.emitApplicationCreated(application.id, userId);
     }
 

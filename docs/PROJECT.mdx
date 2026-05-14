@@ -10,7 +10,7 @@ A consolidated view of the product, requirements, and architecture. For coding c
 
 **Job Tracker** is an application for tracking job applications: funnel stages, notes (interviews, follow-ups), dashboard metrics, and search. It supports **English** and **Brazilian Portuguese**, **AI** enrichment (insights and draft notes), and **importing** opportunities (browser extension flows and generic board URLs). Users can **try the product as a guest** before creating an account. Optionally, each application can store **structured compensation** (ranges, currency, pay period, tags).
 
-The codebase lives in a **pnpm monorepo** (`apps/web`, `apps/api`, `packages/ui`, and related packages): the front end is **Next.js** UI-only; **NestJS + GraphQL** owns business logic and **PostgreSQL** access via **TypeORM**, while asynchronous work (AI, import) sits behind observable internal boundaries.
+The codebase lives in a **pnpm monorepo** (`apps/web`, `apps/api`, `packages/ui`, and related packages): the front end is **Next.js** UI-only; **NestJS + GraphQL** owns business logic and **PostgreSQL** access via **TypeORM**, while asynchronous work (AI, sources) sits behind observable internal boundaries.
 
 ## Product outcomes
 
@@ -25,7 +25,7 @@ The codebase lives in a **pnpm monorepo** (`apps/web`, `apps/api`, `packages/ui`
 - Consistent experience in **English** and **Brazilian Portuguese**.
 - **AI**: job insights and help structuring notes **before** persisting updates.
 
-### Import and onboarding
+### Sources and onboarding
 
 - Import opportunities from **extension** flows and **generic board URLs** without retyping everything.
 - **Guest onboarding** to explore the product before signing in.
@@ -41,21 +41,21 @@ The codebase lives in a **pnpm monorepo** (`apps/web`, `apps/api`, `packages/ui`
 - **AI**: first response on enrichment requests within **~10 s** at p95 for successful calls.
 - **Accessibility**: **WCAG 2.1 Level A** on user-facing flows across supported locales.
 - **Tests**: **≥ 80%** line coverage in CI for impacted areas and new modules.
-- **Provenance**: fields from import or AI must retain **metadata** for review and audit.
+- **Provenance**: fields from sources or AI must retain **metadata** for review and audit.
 - **Web (legacy reference)**: LCP targets on core pages; locally, cold compile for `/login` via `pnpm perf:web:login-compile` as a performance sanity check.
 
 ## High-level architecture
 
 - **Monorepo** with `apps/web`, `apps/api`, `packages/ui` (optional extension workspace).
 - **`apps/web`**: **Next.js** client consuming **GraphQL**; **no** embedded board-automation logic.
-- **`apps/api`**: orchestrates stages, notes, AI enrichment, import, and guest-to-user migration; **TypeORM** for PostgreSQL (not Drizzle).
-- **Async workloads** (AI, import): isolated behind internal APIs with **observable** job execution.
+- **`apps/api`**: orchestrates stages, notes, AI enrichment, sources, and guest-to-user migration; **TypeORM** for PostgreSQL (not Drizzle).
+- **Async workloads** (AI, sources): isolated behind internal APIs with **observable** job execution.
 - **Compensation**: first-class columns on `applications`, exposed through the same GraphQL read/write paths as applications.
 - **Shared UI** and visual standards in `packages/ui` (e.g. Storybook); **telemetry** on front and backend where applicable.
 
 ## Out of scope and rules
 
-- **No** autonomous submission to third-party job boards in Beta2, even when import is available.
+- **No** autonomous submission to third-party job boards in Beta2, even when sources are available.
 - **AI** suggestions persist only after **explicit user confirmation**.
 - Avoid vendor **lock-in** and preserve a migration path from low traffic to scaled operation.
 - Integration tests that need real services: **explicit environment preconditions** and deterministic fallback behaviour.

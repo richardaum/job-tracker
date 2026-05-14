@@ -40,7 +40,7 @@ const navItems = [
   },
   { href: "/resumes", label: "Resumes", icon: FilesIcon },
   { href: "/fits", label: "Fits", icon: SparkleIcon },
-  { href: "/imports", label: "Imports", icon: DownloadSimpleIcon },
+  { href: "/sources", label: "Sources", icon: DownloadSimpleIcon },
   { href: "/companies", label: "Companies", icon: BuildingsIcon },
   {
     href: "/tools/salary-calculator",

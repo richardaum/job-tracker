@@ -41,6 +41,7 @@ import { AddFitDraftSupport1764900000000 } from "./1764900000000-add-fit-draft-s
 import { AddFitAnalysisUserId1765000000000 } from "./1765000000000-add-fit-analysis-user-id";
 import { AddDraftUserId1765100000000 } from "./1765100000000-add-draft-user-id";
 import { UseTimestamptzForDraftsAndResumes1765200000000 } from "./1765200000000-use-timestamptz-for-drafts-and-resumes";
+import { RenameImportToSource1765400000000 } from "./1765400000000-rename-import-to-source";
 
 export const migrations = [
   Baseline1746009600000,
@@ -86,4 +87,5 @@ export const migrations = [
   AddFitAnalysisUserId1765000000000,
   AddDraftUserId1765100000000,
   UseTimestamptzForDraftsAndResumes1765200000000,
+  RenameImportToSource1765400000000,
 ];

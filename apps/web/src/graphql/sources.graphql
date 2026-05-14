@@ -1,0 +1,63 @@
+query SourceProfilesList {
+  sourceProfiles(onlyWithSourceTemplate: true) {
+    sourceProfileId
+    name
+  }
+}
+
+query SourceProfilesForNewSourcePicker {
+  sourceProfiles(onlyWithSourceTemplate: false) {
+    sourceProfileId
+    name
+  }
+}
+
+query SourcesForSourceProfile($sourceProfileId: String!) {
+  sourcesForSourceProfile(sourceProfileId: $sourceProfileId) {
+    id
+    sourceProfileId
+    scheduleCron
+    scheduleEnabled
+    surfaceUrl
+    createdAt
+    runs {
+      id
+      status
+      startedAt
+    }
+  }
+}
+
+mutation UpdateSource($id: ID!, $input: UpdateSourceInput!) {
+  updateSource(id: $id, input: $input) {
+    id
+    sourceProfileId
+    scheduleCron
+    scheduleEnabled
+    surfaceUrl
+    createdAt
+    runs {
+      id
+      status
+      startedAt
+    }
+  }
+}
+
+mutation DeleteSource($id: ID!) {
+  deleteSource(id: $id) {
+    success
+    deletedId
+  }
+}
+
+mutation CreateSource($input: CreateSourceInput!) {
+  createSource(input: $input) {
+    id
+    sourceProfileId
+    surfaceUrl
+    scheduleCron
+    scheduleEnabled
+    createdAt
+  }
+}

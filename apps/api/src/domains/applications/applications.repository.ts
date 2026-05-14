@@ -25,7 +25,7 @@ export type CreateApplicationRepoDto = Pick<
   | "salaryCurrency"
   | "salaryPeriod"
   | "tags"
-> & { draftApplicationId?: string | null; importRunId?: string | null };
+> & { draftApplicationId?: string | null; sourceRunId?: string | null };
 export type UpdateApplicationRepoDto = Partial<CreateApplicationRepoDto>;
 
 export type JobPostingContextSnippet = {
@@ -81,7 +81,7 @@ export class ApplicationRepository {
 
     const normalizedRunId = runId?.trim();
     if (normalizedRunId) {
-      qb.andWhere("a.import_run_id = :runId", { runId: normalizedRunId });
+      qb.andWhere("a.source_run_id = :runId", { runId: normalizedRunId });
     }
 
     if (!filter) {
@@ -213,11 +213,11 @@ export class ApplicationRepository {
     userId: string,
     dto: CreateApplicationRepoDto,
   ): Promise<Application> {
-    const { draftApplicationId, importRunId, ...rest } = dto;
+    const { draftApplicationId, sourceRunId, ...rest } = dto;
     const row = this.applicationsRepo.create({
       userId,
       ...rest,
-      importRunId: importRunId ?? null,
+      sourceRunId: sourceRunId ?? null,
       draftApplication: draftApplicationId
         ? ({ id: draftApplicationId } as DraftApplicationEntity)
         : undefined,
@@ -225,13 +225,13 @@ export class ApplicationRepository {
     return this.applicationsRepo.save(row);
   }
 
-  async detachApplicationsImportRun(
-    importRunId: string,
+  async detachApplicationsSourceRun(
+    sourceRunId: string,
     userId: string,
   ): Promise<number> {
     const result = await this.applicationsRepo.update(
-      { userId, importRunId },
-      { importRunId: null },
+      { userId, sourceRunId },
+      { sourceRunId: null },
     );
     return result.affected ?? 0;
   }

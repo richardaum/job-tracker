@@ -3,7 +3,7 @@ import { ApplicationEntity } from "@api/database/entities/application.entity";
 import { ApplicationStageEventEntity } from "@api/database/entities/application-stage-event.entity";
 import { CompanyEntity } from "@api/database/entities/company.entity";
 import { FitAnalysisEntity } from "@api/database/entities/fit-analysis.entity";
-import { ImportRunEntity } from "@api/database/entities/import-run.entity";
+import { SourceRunEntity } from "@api/database/entities/source-run.entity";
 import { ApplicationAiModule } from "@api/domains/application-ai/application-ai.module";
 import { AuthModule } from "@api/domains/auth/auth.module";
 import { CompaniesModule } from "@api/domains/companies/companies.module";
@@ -27,7 +27,7 @@ import { TagService } from "./tag.service";
       ApplicationStageEventEntity,
       CompanyEntity,
       FitAnalysisEntity,
-      ImportRunEntity,
+      SourceRunEntity,
     ]),
     AuthModule,
     CompaniesModule,

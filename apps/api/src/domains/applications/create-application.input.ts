@@ -39,5 +39,5 @@ export class CreateApplicationInput {
   tags?: string[] | null;
 
   @Field(() => ID, { nullable: true })
-  importRunId?: string | null;
+  sourceRunId?: string | null;
 }

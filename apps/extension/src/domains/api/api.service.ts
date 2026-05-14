@@ -14,17 +14,17 @@ import {
   ExtensionSSELink,
 } from "@/domains/api/create-extension-sse-link";
 import {
-  ClaimImportRunDocument,
+  ClaimSourceRunDocument,
   CreateApplicationDocument,
   type CreateApplicationInput,
   CreateDraftApplicationDocument,
   type CreateDraftApplicationInput,
-  ImportRunEventsDocument,
-  type ImportRunEventsSubscription,
-  ImportRunsDocument,
-  ImportRunStatus,
-  UpdateImportRunDocument,
-  UpdateImportRunStatusDocument,
+  SourceRunEventsDocument,
+  type SourceRunEventsSubscription,
+  SourceRunsDocument,
+  SourceRunStatus,
+  UpdateSourceRunDocument,
+  UpdateSourceRunStatusDocument,
 } from "@/gql/graphql";
 
 const GRAPHQL_URL =
@@ -34,8 +34,8 @@ const GRAPHQL_SSE_URL =
   import.meta.env.WXT_PUBLIC_API_GRAPHQL_SSE_URL ??
   defaultSseUrlFromGraphqlUrl(GRAPHQL_URL);
 
-export type ImportRunEventHandler = (
-  event: ImportRunEventsSubscription["importRunEvents"],
+export type SourceRunEventHandler = (
+  event: SourceRunEventsSubscription["sourceRunEvents"],
 ) => void;
 
 type SubscriptionHandle = { unsubscribe: () => void };
@@ -85,46 +85,46 @@ export class ApiService {
     });
   }
 
-  async claimImportRun(id: string) {
+  async claimSourceRun(id: string) {
     return await this.client.mutate({
-      mutation: ClaimImportRunDocument,
+      mutation: ClaimSourceRunDocument,
       variables: { id },
     });
   }
 
-  async updateImportRunStatus(id: string, status: ImportRunStatus) {
+  async updateSourceRunStatus(id: string, status: SourceRunStatus) {
     return await this.client.mutate({
-      mutation: UpdateImportRunStatusDocument,
+      mutation: UpdateSourceRunStatusDocument,
       variables: { id, status },
     });
   }
 
-  async updateImportRunSurfaceUrl(id: string, surfaceUrl: string) {
+  async updateSourceRunSurfaceUrl(id: string, surfaceUrl: string) {
     return await this.client.mutate({
-      mutation: UpdateImportRunDocument,
+      mutation: UpdateSourceRunDocument,
       variables: { id, input: { surfaceUrl } },
     });
   }
 
-  async importRuns() {
+  async sourceRuns() {
     return await this.client.query({
-      query: ImportRunsDocument,
+      query: SourceRunsDocument,
       fetchPolicy: "network-only",
     });
   }
 
-  subscribeToImportRunEvents(
-    onEvent: ImportRunEventHandler,
+  subscribeToSourceRunEvents(
+    onEvent: SourceRunEventHandler,
     onError?: (error: unknown) => void,
   ): SubscriptionHandle {
     const observable = this.client.subscribe({
-      query: ImportRunEventsDocument,
+      query: SourceRunEventsDocument,
     });
 
     const subscription = observable.subscribe({
       next: ({ data }) => {
-        if (data?.importRunEvents) {
-          onEvent(data.importRunEvents);
+        if (data?.sourceRunEvents) {
+          onEvent(data.sourceRunEvents);
         }
       },
       error: (error) => {

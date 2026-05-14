@@ -1,6 +1,0 @@
-mutation UpdateImportRunStatus($id: ID!, $status: ImportRunStatus!) {
-  updateImportRunStatus(id: $id, status: $status) {
-    id
-    status
-  }
-}

@@ -1,0 +1,11 @@
+query SourceRuns {
+  sourceRuns {
+    id
+    templateId
+    sourceProfileId
+    surfaceUrl
+    status
+    startedAt
+    sourceProfileSource
+  }
+}

@@ -1,9 +1,0 @@
-mutation ClaimImportRun($id: ID!) {
-  claimImportRun(id: $id) {
-    id
-    importerId
-    status
-    startedAt
-    importerSource
-  }
-}

@@ -7,9 +7,9 @@ import { CompanyEntity } from "./entities/company.entity";
 import { DraftApplicationEntity } from "./entities/draft-application.entity";
 import { ExchangeRateCacheEntity } from "./entities/exchange-rate-cache.entity";
 import { FitAnalysisEntity } from "./entities/fit-analysis.entity";
-import { ImportRunEntity } from "./entities/import-run.entity";
-import { ImportTemplateEntity } from "./entities/import-template.entity";
 import { ResumeEntity } from "./entities/resume.entity";
+import { SourceRunEntity } from "./entities/source-run.entity";
+import { SourceTemplateEntity } from "./entities/source-template.entity";
 import { UserEntity } from "./entities/user.entity";
 import { UserPreferencesEntity } from "./entities/user-preferences.entity";
 import { migrations } from "./migrations";
@@ -20,8 +20,8 @@ export const apiEntities = [
   ApplicationStageEventEntity,
   ApplicationNoteEntity,
   CompanyEntity,
-  ImportRunEntity,
-  ImportTemplateEntity,
+  SourceRunEntity,
+  SourceTemplateEntity,
   ResumeEntity,
   DraftApplicationEntity,
   ExchangeRateCacheEntity,

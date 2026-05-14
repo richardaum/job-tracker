@@ -78,9 +78,9 @@ export type ApplicationType = {
   description?: Maybe<Scalars['String']['output']>;
   fit?: Maybe<FitAnalysisType>;
   id: Scalars['ID']['output'];
-  importRunId?: Maybe<Scalars['ID']['output']>;
   salary: ApplicationSalary;
   source?: Maybe<ApplicationSource>;
+  sourceRunId?: Maybe<Scalars['ID']['output']>;
   tags: Array<Scalars['String']['output']>;
   title: Scalars['String']['output'];
   updatedAt: Scalars['DateTime']['output'];
@@ -102,12 +102,12 @@ export type CreateApplicationInput = {
   company: Scalars['String']['input'];
   companyId?: InputMaybe<Scalars['ID']['input']>;
   description?: InputMaybe<Scalars['String']['input']>;
-  importRunId?: InputMaybe<Scalars['ID']['input']>;
   salaryCurrency?: InputMaybe<Scalars['String']['input']>;
   salaryMaxCents?: InputMaybe<Scalars['Int']['input']>;
   salaryMinCents?: InputMaybe<Scalars['Int']['input']>;
   salaryPeriod?: InputMaybe<SalaryPeriod>;
   source?: InputMaybe<ApplicationSource>;
+  sourceRunId?: InputMaybe<Scalars['ID']['input']>;
   tags?: InputMaybe<Array<Scalars['String']['input']>>;
   title: Scalars['String']['input'];
   urls?: InputMaybe<Array<Scalars['String']['input']>>;
@@ -127,15 +127,6 @@ export type CreateDraftApplicationInput = {
   url?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type CreateImportRunInput = {
-  importerId: Scalars['String']['input'];
-};
-
-export type CreateImportTemplateInput = {
-  importerId: Scalars['String']['input'];
-  surfaceUrl: Scalars['String']['input'];
-};
-
 export type CreateNoteInput = {
   applicationId: Scalars['String']['input'];
   content: Scalars['String']['input'];
@@ -145,6 +136,15 @@ export type CreateResumeInput = {
   content: Scalars['String']['input'];
   isDefault?: Scalars['Boolean']['input'];
   title: Scalars['String']['input'];
+};
+
+export type CreateSourceInput = {
+  sourceProfileId: Scalars['String']['input'];
+  surfaceUrl: Scalars['String']['input'];
+};
+
+export type CreateSourceRunInput = {
+  sourceProfileId: Scalars['String']['input'];
 };
 
 export type CurrencyRates = {
@@ -235,65 +235,18 @@ export type GenerateFitInput = {
   resumeId: Scalars['ID']['input'];
 };
 
-export type ImportRunEvent = {
-  __typename?: 'ImportRunEvent';
-  occurredAt: Scalars['DateTime']['output'];
-  run: ImportRunType;
-  type: ImportRunEventType;
-};
-
-export enum ImportRunEventType {
-  ImportRunCreated = 'IMPORT_RUN_CREATED'
-}
-
-export enum ImportRunStatus {
-  Completed = 'COMPLETED',
-  Failed = 'FAILED',
-  InProgress = 'IN_PROGRESS',
-  Running = 'RUNNING'
-}
-
-export type ImportRunType = {
-  __typename?: 'ImportRunType';
-  id: Scalars['ID']['output'];
-  importerId: Scalars['String']['output'];
-  importerSource: Scalars['String']['output'];
-  startedAt: Scalars['DateTime']['output'];
-  status: ImportRunStatus;
-  surfaceUrl: Scalars['String']['output'];
-  templateId: Scalars['ID']['output'];
-};
-
-export type ImportTemplateType = {
-  __typename?: 'ImportTemplateType';
-  createdAt: Scalars['DateTime']['output'];
-  id: Scalars['ID']['output'];
-  importerId: Scalars['String']['output'];
-  runs: Array<ImportRunType>;
-  scheduleCron?: Maybe<Scalars['String']['output']>;
-  scheduleEnabled: Scalars['Boolean']['output'];
-  surfaceUrl: Scalars['String']['output'];
-};
-
-export type ImporterDescriptorType = {
-  __typename?: 'ImporterDescriptorType';
-  importerId: Scalars['String']['output'];
-  name: Scalars['String']['output'];
-  templates: Array<ImportTemplateType>;
-};
-
 export type Mutation = {
   __typename?: 'Mutation';
-  claimImportRun?: Maybe<ImportRunType>;
-  clearImportRuns: Scalars['Boolean']['output'];
+  claimSourceRun?: Maybe<SourceRunType>;
+  clearSourceRuns: Scalars['Boolean']['output'];
   createApplication: ApplicationType;
   createApplicationNote: NoteType;
   createApplicationStageEvent: ApplicationStageEventType;
   createApplicationWithAIV2: DraftApplicationType;
   createDraftApplication: DraftApplicationType;
-  createImportRun: ImportRunType;
-  createImportTemplate: ImportTemplateType;
   createResume: ResumeType;
+  createSource: SourceTemplateType;
+  createSourceRun: SourceRunType;
   deleteApplication: DeleteMutationPayloadType;
   deleteApplicationNote: DeleteMutationPayloadType;
   deleteApplicationStageEvent: DeleteMutationPayloadType;
@@ -301,28 +254,28 @@ export type Mutation = {
   deleteCompany: DeleteMutationPayloadType;
   deleteDraftApplication: DeleteMutationPayloadType;
   deleteFitAnalysis: DeleteMutationPayloadType;
-  deleteImportRun: DeleteMutationPayloadType;
-  deleteImportTemplate: DeleteMutationPayloadType;
   deleteResume: DeleteMutationPayloadType;
-  detachApplicationsFromImportRun: Scalars['Int']['output'];
+  deleteSource: DeleteMutationPayloadType;
+  deleteSourceRun: DeleteMutationPayloadType;
+  detachApplicationsFromSourceRun: Scalars['Int']['output'];
   generateApplicationFit: FitAnalysisType;
   generateDraftApplicationFit: FitAnalysisType;
   removeApplicationTag: ApplicationType;
-  rerunImportTemplate: ImportRunType;
+  rerunSource: SourceRunType;
   updateApplication: ApplicationType;
   updateApplicationNote: NoteType;
   updateApplicationStageEvent: ApplicationStageEventType;
   updateCompany: CompanyType;
   updateDraftApplication: DraftApplicationType;
-  updateImportRun: ImportRunType;
-  updateImportRunStatus: ImportRunType;
-  updateImportTemplate: ImportTemplateType;
   updateResume: ResumeType;
+  updateSource: SourceTemplateType;
+  updateSourceRun: SourceRunType;
+  updateSourceRunStatus: SourceRunType;
   updateUserPreferences: Array<PreferenceType>;
 };
 
 
-export type MutationClaimImportRunArgs = {
+export type MutationClaimSourceRunArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -352,18 +305,18 @@ export type MutationCreateDraftApplicationArgs = {
 };
 
 
-export type MutationCreateImportRunArgs = {
-  input: CreateImportRunInput;
-};
-
-
-export type MutationCreateImportTemplateArgs = {
-  input: CreateImportTemplateInput;
-};
-
-
 export type MutationCreateResumeArgs = {
   input: CreateResumeInput;
+};
+
+
+export type MutationCreateSourceArgs = {
+  input: CreateSourceInput;
+};
+
+
+export type MutationCreateSourceRunArgs = {
+  input: CreateSourceRunInput;
 };
 
 
@@ -403,23 +356,23 @@ export type MutationDeleteFitAnalysisArgs = {
 };
 
 
-export type MutationDeleteImportRunArgs = {
-  id: Scalars['ID']['input'];
-};
-
-
-export type MutationDeleteImportTemplateArgs = {
-  id: Scalars['ID']['input'];
-};
-
-
 export type MutationDeleteResumeArgs = {
   id: Scalars['ID']['input'];
 };
 
 
-export type MutationDetachApplicationsFromImportRunArgs = {
-  importRunId: Scalars['ID']['input'];
+export type MutationDeleteSourceArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteSourceRunArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDetachApplicationsFromSourceRunArgs = {
+  sourceRunId: Scalars['ID']['input'];
 };
 
 
@@ -439,7 +392,7 @@ export type MutationRemoveApplicationTagArgs = {
 };
 
 
-export type MutationRerunImportTemplateArgs = {
+export type MutationRerunSourceArgs = {
   templateId: Scalars['ID']['input'];
 };
 
@@ -474,27 +427,27 @@ export type MutationUpdateDraftApplicationArgs = {
 };
 
 
-export type MutationUpdateImportRunArgs = {
-  id: Scalars['ID']['input'];
-  input: UpdateImportRunInput;
-};
-
-
-export type MutationUpdateImportRunStatusArgs = {
-  id: Scalars['ID']['input'];
-  status: ImportRunStatus;
-};
-
-
-export type MutationUpdateImportTemplateArgs = {
-  id: Scalars['ID']['input'];
-  input: UpdateImportTemplateInput;
-};
-
-
 export type MutationUpdateResumeArgs = {
   id: Scalars['ID']['input'];
   input: UpdateResumeInput;
+};
+
+
+export type MutationUpdateSourceArgs = {
+  id: Scalars['ID']['input'];
+  input: UpdateSourceInput;
+};
+
+
+export type MutationUpdateSourceRunArgs = {
+  id: Scalars['ID']['input'];
+  input: UpdateSourceRunInput;
+};
+
+
+export type MutationUpdateSourceRunStatusArgs = {
+  id: Scalars['ID']['input'];
+  status: SourceRunStatus;
 };
 
 
@@ -541,15 +494,15 @@ export type Query = {
   fitAnalyses: Array<FitAnalysisType>;
   generateApplicationNoteWithAI: Scalars['String']['output'];
   generateCompanyDescription: Scalars['String']['output'];
-  importRuns: Array<ImportRunType>;
-  importTemplates: Array<ImportTemplateType>;
-  importTemplatesForImporter: Array<ImportTemplateType>;
-  importers: Array<ImporterDescriptorType>;
   me: UserType;
   restructureJobDescriptionWithAI: Scalars['String']['output'];
   resume: ResumeType;
   resumes: Array<ResumeType>;
   rewriteTextWithAI: Scalars['String']['output'];
+  sourceProfiles: Array<SourceProfileType>;
+  sourceRuns: Array<SourceRunType>;
+  sources: Array<SourceTemplateType>;
+  sourcesForSourceProfile: Array<SourceTemplateType>;
   userPreferences: Array<PreferenceType>;
 };
 
@@ -618,16 +571,6 @@ export type QueryGenerateCompanyDescriptionArgs = {
 };
 
 
-export type QueryImportTemplatesForImporterArgs = {
-  importerId: Scalars['String']['input'];
-};
-
-
-export type QueryImportersArgs = {
-  onlyWithImportTemplate?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
 export type QueryRestructureJobDescriptionWithAiArgs = {
   text: Scalars['String']['input'];
 };
@@ -640,6 +583,16 @@ export type QueryResumeArgs = {
 
 export type QueryRewriteTextWithAiArgs = {
   text: Scalars['String']['input'];
+};
+
+
+export type QuerySourceProfilesArgs = {
+  onlyWithSourceTemplate?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type QuerySourcesForSourceProfileArgs = {
+  sourceProfileId: Scalars['String']['input'];
 };
 
 export type ResumeType = {
@@ -659,9 +612,56 @@ export enum SalaryPeriod {
   Year = 'YEAR'
 }
 
+export type SourceProfileType = {
+  __typename?: 'SourceProfileType';
+  name: Scalars['String']['output'];
+  sourceProfileId: Scalars['String']['output'];
+  templates: Array<SourceTemplateType>;
+};
+
+export type SourceRunEvent = {
+  __typename?: 'SourceRunEvent';
+  occurredAt: Scalars['DateTime']['output'];
+  run: SourceRunType;
+  type: SourceRunEventType;
+};
+
+export enum SourceRunEventType {
+  SourceRunCreated = 'SOURCE_RUN_CREATED'
+}
+
+export enum SourceRunStatus {
+  Completed = 'COMPLETED',
+  Failed = 'FAILED',
+  InProgress = 'IN_PROGRESS',
+  Running = 'RUNNING'
+}
+
+export type SourceRunType = {
+  __typename?: 'SourceRunType';
+  id: Scalars['ID']['output'];
+  sourceProfileId: Scalars['String']['output'];
+  sourceProfileSource: Scalars['String']['output'];
+  startedAt: Scalars['DateTime']['output'];
+  status: SourceRunStatus;
+  surfaceUrl: Scalars['String']['output'];
+  templateId: Scalars['ID']['output'];
+};
+
+export type SourceTemplateType = {
+  __typename?: 'SourceTemplateType';
+  createdAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  runs: Array<SourceRunType>;
+  scheduleCron?: Maybe<Scalars['String']['output']>;
+  scheduleEnabled: Scalars['Boolean']['output'];
+  sourceProfileId: Scalars['String']['output'];
+  surfaceUrl: Scalars['String']['output'];
+};
+
 export type Subscription = {
   __typename?: 'Subscription';
-  importRunEvents: ImportRunEvent;
+  sourceRunEvents: SourceRunEvent;
 };
 
 export type UpdateApplicationInput = {
@@ -693,16 +693,6 @@ export type UpdateDraftApplicationInput = {
   title: Scalars['String']['input'];
 };
 
-export type UpdateImportRunInput = {
-  surfaceUrl: Scalars['String']['input'];
-};
-
-export type UpdateImportTemplateInput = {
-  scheduleCron?: InputMaybe<Scalars['String']['input']>;
-  scheduleEnabled?: InputMaybe<Scalars['Boolean']['input']>;
-  surfaceUrl?: InputMaybe<Scalars['String']['input']>;
-};
-
 export type UpdateNoteInput = {
   content?: InputMaybe<Scalars['String']['input']>;
   expectedRevision: Scalars['Int']['input'];
@@ -712,6 +702,16 @@ export type UpdateResumeInput = {
   content?: InputMaybe<Scalars['String']['input']>;
   isDefault?: InputMaybe<Scalars['Boolean']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type UpdateSourceInput = {
+  scheduleCron?: InputMaybe<Scalars['String']['input']>;
+  scheduleEnabled?: InputMaybe<Scalars['Boolean']['input']>;
+  surfaceUrl?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type UpdateSourceRunInput = {
+  surfaceUrl: Scalars['String']['input'];
 };
 
 export type UserType = {
@@ -737,14 +737,14 @@ export type ApplicationsQueryVariables = Exact<{
 }>;
 
 
-export type ApplicationsQuery = { __typename?: 'Query', applications: Array<{ __typename?: 'ApplicationType', id: string, title: string, companyId: string, description?: string | null, urls: Array<string>, source?: ApplicationSource | null, tags: Array<string>, importRunId?: string | null, currentStage: ApplicationStage, currentStageReason?: string | null, currentStageAt: any, createdAt: any, company: { __typename?: 'CompanyType', id: string, name: string, description?: string | null }, fit?: { __typename?: 'FitAnalysisType', id: string, scoreRatio?: number | null, classification?: string | null, fitCount: number, gapCount: number, unclearCount: number, status: FitAnalysisStatus, error?: string | null } | null, salary: { __typename?: 'ApplicationSalary', minCents?: number | null, maxCents?: number | null, currency?: string | null, period?: SalaryPeriod | null } }> };
+export type ApplicationsQuery = { __typename?: 'Query', applications: Array<{ __typename?: 'ApplicationType', id: string, title: string, companyId: string, description?: string | null, urls: Array<string>, source?: ApplicationSource | null, tags: Array<string>, sourceRunId?: string | null, currentStage: ApplicationStage, currentStageReason?: string | null, currentStageAt: any, createdAt: any, company: { __typename?: 'CompanyType', id: string, name: string, description?: string | null }, fit?: { __typename?: 'FitAnalysisType', id: string, scoreRatio?: number | null, classification?: string | null, fitCount: number, gapCount: number, unclearCount: number, status: FitAnalysisStatus, error?: string | null } | null, salary: { __typename?: 'ApplicationSalary', minCents?: number | null, maxCents?: number | null, currency?: string | null, period?: SalaryPeriod | null } }> };
 
 export type ApplicationQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type ApplicationQuery = { __typename?: 'Query', application: { __typename?: 'ApplicationType', id: string, title: string, companyId: string, description?: string | null, urls: Array<string>, source?: ApplicationSource | null, tags: Array<string>, importRunId?: string | null, currentStage: ApplicationStage, currentStageReason?: string | null, currentStageAt: any, createdAt: any, company: { __typename?: 'CompanyType', id: string, name: string, description?: string | null }, fit?: { __typename?: 'FitAnalysisType', id: string, scoreRatio?: number | null, classification?: string | null, fitCount: number, gapCount: number, unclearCount: number, status: FitAnalysisStatus, error?: string | null } | null, salary: { __typename?: 'ApplicationSalary', minCents?: number | null, maxCents?: number | null, currency?: string | null, period?: SalaryPeriod | null } } };
+export type ApplicationQuery = { __typename?: 'Query', application: { __typename?: 'ApplicationType', id: string, title: string, companyId: string, description?: string | null, urls: Array<string>, source?: ApplicationSource | null, tags: Array<string>, sourceRunId?: string | null, currentStage: ApplicationStage, currentStageReason?: string | null, currentStageAt: any, createdAt: any, company: { __typename?: 'CompanyType', id: string, name: string, description?: string | null }, fit?: { __typename?: 'FitAnalysisType', id: string, scoreRatio?: number | null, classification?: string | null, fitCount: number, gapCount: number, unclearCount: number, status: FitAnalysisStatus, error?: string | null } | null, salary: { __typename?: 'ApplicationSalary', minCents?: number | null, maxCents?: number | null, currency?: string | null, period?: SalaryPeriod | null } } };
 
 export type CreateApplicationMutationVariables = Exact<{
   input: CreateApplicationInput;
@@ -994,45 +994,6 @@ export type GenerateDraftApplicationFitMutationVariables = Exact<{
 
 export type GenerateDraftApplicationFitMutation = { __typename?: 'Mutation', generateDraftApplicationFit: { __typename?: 'FitAnalysisType', id: string, applicationId?: string | null, draftApplicationId?: string | null, resumeId: string, status: FitAnalysisStatus, error?: string | null, scoreRatio?: number | null, classification?: string | null, fitCount: number, gapCount: number, unclearCount: number, createdAt: any, items: Array<{ __typename?: 'FitItemType', requirement: string, source: string, weight?: string | null, type: string, verdict: string, jdQuote: string, sourceQuotes: Array<string>, suggestion?: string | null }> } };
 
-export type ImportersListQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type ImportersListQuery = { __typename?: 'Query', importers: Array<{ __typename?: 'ImporterDescriptorType', importerId: string, name: string }> };
-
-export type ImportersForNewImportTemplatePickerQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type ImportersForNewImportTemplatePickerQuery = { __typename?: 'Query', importers: Array<{ __typename?: 'ImporterDescriptorType', importerId: string, name: string }> };
-
-export type ImportTemplatesForImporterQueryVariables = Exact<{
-  importerId: Scalars['String']['input'];
-}>;
-
-
-export type ImportTemplatesForImporterQuery = { __typename?: 'Query', importTemplatesForImporter: Array<{ __typename?: 'ImportTemplateType', id: string, importerId: string, scheduleCron?: string | null, scheduleEnabled: boolean, surfaceUrl: string, createdAt: any, runs: Array<{ __typename?: 'ImportRunType', id: string, status: ImportRunStatus, startedAt: any }> }> };
-
-export type UpdateImportTemplateMutationVariables = Exact<{
-  id: Scalars['ID']['input'];
-  input: UpdateImportTemplateInput;
-}>;
-
-
-export type UpdateImportTemplateMutation = { __typename?: 'Mutation', updateImportTemplate: { __typename?: 'ImportTemplateType', id: string, importerId: string, scheduleCron?: string | null, scheduleEnabled: boolean, surfaceUrl: string, createdAt: any, runs: Array<{ __typename?: 'ImportRunType', id: string, status: ImportRunStatus, startedAt: any }> } };
-
-export type DeleteImportTemplateMutationVariables = Exact<{
-  id: Scalars['ID']['input'];
-}>;
-
-
-export type DeleteImportTemplateMutation = { __typename?: 'Mutation', deleteImportTemplate: { __typename?: 'DeleteMutationPayloadType', success: boolean, deletedId: string } };
-
-export type CreateImportTemplateMutationVariables = Exact<{
-  input: CreateImportTemplateInput;
-}>;
-
-
-export type CreateImportTemplateMutation = { __typename?: 'Mutation', createImportTemplate: { __typename?: 'ImportTemplateType', id: string, importerId: string, surfaceUrl: string, scheduleCron?: string | null, scheduleEnabled: boolean, createdAt: any } };
-
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -1072,6 +1033,45 @@ export type DeleteResumeMutationVariables = Exact<{
 
 export type DeleteResumeMutation = { __typename?: 'Mutation', deleteResume: { __typename?: 'DeleteMutationPayloadType', success: boolean, deletedId: string } };
 
+export type SourceProfilesListQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type SourceProfilesListQuery = { __typename?: 'Query', sourceProfiles: Array<{ __typename?: 'SourceProfileType', sourceProfileId: string, name: string }> };
+
+export type SourceProfilesForNewSourcePickerQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type SourceProfilesForNewSourcePickerQuery = { __typename?: 'Query', sourceProfiles: Array<{ __typename?: 'SourceProfileType', sourceProfileId: string, name: string }> };
+
+export type SourcesForSourceProfileQueryVariables = Exact<{
+  sourceProfileId: Scalars['String']['input'];
+}>;
+
+
+export type SourcesForSourceProfileQuery = { __typename?: 'Query', sourcesForSourceProfile: Array<{ __typename?: 'SourceTemplateType', id: string, sourceProfileId: string, scheduleCron?: string | null, scheduleEnabled: boolean, surfaceUrl: string, createdAt: any, runs: Array<{ __typename?: 'SourceRunType', id: string, status: SourceRunStatus, startedAt: any }> }> };
+
+export type UpdateSourceMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  input: UpdateSourceInput;
+}>;
+
+
+export type UpdateSourceMutation = { __typename?: 'Mutation', updateSource: { __typename?: 'SourceTemplateType', id: string, sourceProfileId: string, scheduleCron?: string | null, scheduleEnabled: boolean, surfaceUrl: string, createdAt: any, runs: Array<{ __typename?: 'SourceRunType', id: string, status: SourceRunStatus, startedAt: any }> } };
+
+export type DeleteSourceMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteSourceMutation = { __typename?: 'Mutation', deleteSource: { __typename?: 'DeleteMutationPayloadType', success: boolean, deletedId: string } };
+
+export type CreateSourceMutationVariables = Exact<{
+  input: CreateSourceInput;
+}>;
+
+
+export type CreateSourceMutation = { __typename?: 'Mutation', createSource: { __typename?: 'SourceTemplateType', id: string, sourceProfileId: string, surfaceUrl: string, scheduleCron?: string | null, scheduleEnabled: boolean, createdAt: any } };
+
 export type UserPreferencesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -1110,7 +1110,7 @@ export const ApplicationsDocument = gql`
     source
     ...ApplicationSalarySelection
     tags
-    importRunId
+    sourceRunId
     currentStage
     currentStageReason
     currentStageAt
@@ -1175,7 +1175,7 @@ export const ApplicationDocument = gql`
     source
     ...ApplicationSalarySelection
     tags
-    importRunId
+    sourceRunId
     currentStage
     currentStageReason
     currentStageAt
@@ -2662,237 +2662,6 @@ export function useGenerateDraftApplicationFitMutation(baseOptions?: ApolloReact
       }
 
 
-export const ImportersListDocument = gql`
-    query ImportersList {
-  importers(onlyWithImportTemplate: true) {
-    importerId
-    name
-  }
-}
-    `;
-
-/**
- * __useImportersListQuery__
- *
- * To run a query within a React component, call `useImportersListQuery` and pass it any options that fit your needs.
- * When your component renders, `useImportersListQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useImportersListQuery({
- *   variables: {
- *   },
- * });
- */
-export function useImportersListQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<ImportersListQuery, ImportersListQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useQuery<ImportersListQuery, ImportersListQueryVariables>(ImportersListDocument, options);
-      }
-export function useImportersListLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ImportersListQuery, ImportersListQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return ApolloReactHooks.useLazyQuery<ImportersListQuery, ImportersListQueryVariables>(ImportersListDocument, options);
-        }
-
-export type ImportersListQueryHookResult = ReturnType<typeof useImportersListQuery>;
-export type ImportersListLazyQueryHookResult = ReturnType<typeof useImportersListLazyQuery>;
-
-export const ImportersForNewImportTemplatePickerDocument = gql`
-    query ImportersForNewImportTemplatePicker {
-  importers(onlyWithImportTemplate: false) {
-    importerId
-    name
-  }
-}
-    `;
-
-/**
- * __useImportersForNewImportTemplatePickerQuery__
- *
- * To run a query within a React component, call `useImportersForNewImportTemplatePickerQuery` and pass it any options that fit your needs.
- * When your component renders, `useImportersForNewImportTemplatePickerQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useImportersForNewImportTemplatePickerQuery({
- *   variables: {
- *   },
- * });
- */
-export function useImportersForNewImportTemplatePickerQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<ImportersForNewImportTemplatePickerQuery, ImportersForNewImportTemplatePickerQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useQuery<ImportersForNewImportTemplatePickerQuery, ImportersForNewImportTemplatePickerQueryVariables>(ImportersForNewImportTemplatePickerDocument, options);
-      }
-export function useImportersForNewImportTemplatePickerLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ImportersForNewImportTemplatePickerQuery, ImportersForNewImportTemplatePickerQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return ApolloReactHooks.useLazyQuery<ImportersForNewImportTemplatePickerQuery, ImportersForNewImportTemplatePickerQueryVariables>(ImportersForNewImportTemplatePickerDocument, options);
-        }
-
-export type ImportersForNewImportTemplatePickerQueryHookResult = ReturnType<typeof useImportersForNewImportTemplatePickerQuery>;
-export type ImportersForNewImportTemplatePickerLazyQueryHookResult = ReturnType<typeof useImportersForNewImportTemplatePickerLazyQuery>;
-
-export const ImportTemplatesForImporterDocument = gql`
-    query ImportTemplatesForImporter($importerId: String!) {
-  importTemplatesForImporter(importerId: $importerId) {
-    id
-    importerId
-    scheduleCron
-    scheduleEnabled
-    surfaceUrl
-    createdAt
-    runs {
-      id
-      status
-      startedAt
-    }
-  }
-}
-    `;
-
-/**
- * __useImportTemplatesForImporterQuery__
- *
- * To run a query within a React component, call `useImportTemplatesForImporterQuery` and pass it any options that fit your needs.
- * When your component renders, `useImportTemplatesForImporterQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useImportTemplatesForImporterQuery({
- *   variables: {
- *      importerId: // value for 'importerId'
- *   },
- * });
- */
-export function useImportTemplatesForImporterQuery(baseOptions: ApolloReactHooks.QueryHookOptions<ImportTemplatesForImporterQuery, ImportTemplatesForImporterQueryVariables> & ({ variables: ImportTemplatesForImporterQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
-        const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useQuery<ImportTemplatesForImporterQuery, ImportTemplatesForImporterQueryVariables>(ImportTemplatesForImporterDocument, options);
-      }
-export function useImportTemplatesForImporterLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ImportTemplatesForImporterQuery, ImportTemplatesForImporterQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return ApolloReactHooks.useLazyQuery<ImportTemplatesForImporterQuery, ImportTemplatesForImporterQueryVariables>(ImportTemplatesForImporterDocument, options);
-        }
-
-export type ImportTemplatesForImporterQueryHookResult = ReturnType<typeof useImportTemplatesForImporterQuery>;
-export type ImportTemplatesForImporterLazyQueryHookResult = ReturnType<typeof useImportTemplatesForImporterLazyQuery>;
-
-export const UpdateImportTemplateDocument = gql`
-    mutation UpdateImportTemplate($id: ID!, $input: UpdateImportTemplateInput!) {
-  updateImportTemplate(id: $id, input: $input) {
-    id
-    importerId
-    scheduleCron
-    scheduleEnabled
-    surfaceUrl
-    createdAt
-    runs {
-      id
-      status
-      startedAt
-    }
-  }
-}
-    `;
-
-
-/**
- * __useUpdateImportTemplateMutation__
- *
- * To run a mutation, you first call `useUpdateImportTemplateMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateImportTemplateMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [updateImportTemplateMutation, { data, loading, error }] = useUpdateImportTemplateMutation({
- *   variables: {
- *      id: // value for 'id'
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useUpdateImportTemplateMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<UpdateImportTemplateMutation, UpdateImportTemplateMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useMutation<UpdateImportTemplateMutation, UpdateImportTemplateMutationVariables>(UpdateImportTemplateDocument, options);
-      }
-
-
-export const DeleteImportTemplateDocument = gql`
-    mutation DeleteImportTemplate($id: ID!) {
-  deleteImportTemplate(id: $id) {
-    success
-    deletedId
-  }
-}
-    `;
-
-
-/**
- * __useDeleteImportTemplateMutation__
- *
- * To run a mutation, you first call `useDeleteImportTemplateMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useDeleteImportTemplateMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [deleteImportTemplateMutation, { data, loading, error }] = useDeleteImportTemplateMutation({
- *   variables: {
- *      id: // value for 'id'
- *   },
- * });
- */
-export function useDeleteImportTemplateMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DeleteImportTemplateMutation, DeleteImportTemplateMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useMutation<DeleteImportTemplateMutation, DeleteImportTemplateMutationVariables>(DeleteImportTemplateDocument, options);
-      }
-
-
-export const CreateImportTemplateDocument = gql`
-    mutation CreateImportTemplate($input: CreateImportTemplateInput!) {
-  createImportTemplate(input: $input) {
-    id
-    importerId
-    surfaceUrl
-    scheduleCron
-    scheduleEnabled
-    createdAt
-  }
-}
-    `;
-
-
-/**
- * __useCreateImportTemplateMutation__
- *
- * To run a mutation, you first call `useCreateImportTemplateMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useCreateImportTemplateMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [createImportTemplateMutation, { data, loading, error }] = useCreateImportTemplateMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useCreateImportTemplateMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<CreateImportTemplateMutation, CreateImportTemplateMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useMutation<CreateImportTemplateMutation, CreateImportTemplateMutationVariables>(CreateImportTemplateDocument, options);
-      }
-
-
 export const MeDocument = gql`
     query Me {
   me {
@@ -3119,6 +2888,237 @@ export const DeleteResumeDocument = gql`
 export function useDeleteResumeMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DeleteResumeMutation, DeleteResumeMutationVariables>) {
         const options = {...defaultOptions, ...baseOptions}
         return ApolloReactHooks.useMutation<DeleteResumeMutation, DeleteResumeMutationVariables>(DeleteResumeDocument, options);
+      }
+
+
+export const SourceProfilesListDocument = gql`
+    query SourceProfilesList {
+  sourceProfiles(onlyWithSourceTemplate: true) {
+    sourceProfileId
+    name
+  }
+}
+    `;
+
+/**
+ * __useSourceProfilesListQuery__
+ *
+ * To run a query within a React component, call `useSourceProfilesListQuery` and pass it any options that fit your needs.
+ * When your component renders, `useSourceProfilesListQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useSourceProfilesListQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useSourceProfilesListQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<SourceProfilesListQuery, SourceProfilesListQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<SourceProfilesListQuery, SourceProfilesListQueryVariables>(SourceProfilesListDocument, options);
+      }
+export function useSourceProfilesListLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<SourceProfilesListQuery, SourceProfilesListQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<SourceProfilesListQuery, SourceProfilesListQueryVariables>(SourceProfilesListDocument, options);
+        }
+
+export type SourceProfilesListQueryHookResult = ReturnType<typeof useSourceProfilesListQuery>;
+export type SourceProfilesListLazyQueryHookResult = ReturnType<typeof useSourceProfilesListLazyQuery>;
+
+export const SourceProfilesForNewSourcePickerDocument = gql`
+    query SourceProfilesForNewSourcePicker {
+  sourceProfiles(onlyWithSourceTemplate: false) {
+    sourceProfileId
+    name
+  }
+}
+    `;
+
+/**
+ * __useSourceProfilesForNewSourcePickerQuery__
+ *
+ * To run a query within a React component, call `useSourceProfilesForNewSourcePickerQuery` and pass it any options that fit your needs.
+ * When your component renders, `useSourceProfilesForNewSourcePickerQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useSourceProfilesForNewSourcePickerQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useSourceProfilesForNewSourcePickerQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<SourceProfilesForNewSourcePickerQuery, SourceProfilesForNewSourcePickerQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<SourceProfilesForNewSourcePickerQuery, SourceProfilesForNewSourcePickerQueryVariables>(SourceProfilesForNewSourcePickerDocument, options);
+      }
+export function useSourceProfilesForNewSourcePickerLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<SourceProfilesForNewSourcePickerQuery, SourceProfilesForNewSourcePickerQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<SourceProfilesForNewSourcePickerQuery, SourceProfilesForNewSourcePickerQueryVariables>(SourceProfilesForNewSourcePickerDocument, options);
+        }
+
+export type SourceProfilesForNewSourcePickerQueryHookResult = ReturnType<typeof useSourceProfilesForNewSourcePickerQuery>;
+export type SourceProfilesForNewSourcePickerLazyQueryHookResult = ReturnType<typeof useSourceProfilesForNewSourcePickerLazyQuery>;
+
+export const SourcesForSourceProfileDocument = gql`
+    query SourcesForSourceProfile($sourceProfileId: String!) {
+  sourcesForSourceProfile(sourceProfileId: $sourceProfileId) {
+    id
+    sourceProfileId
+    scheduleCron
+    scheduleEnabled
+    surfaceUrl
+    createdAt
+    runs {
+      id
+      status
+      startedAt
+    }
+  }
+}
+    `;
+
+/**
+ * __useSourcesForSourceProfileQuery__
+ *
+ * To run a query within a React component, call `useSourcesForSourceProfileQuery` and pass it any options that fit your needs.
+ * When your component renders, `useSourcesForSourceProfileQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useSourcesForSourceProfileQuery({
+ *   variables: {
+ *      sourceProfileId: // value for 'sourceProfileId'
+ *   },
+ * });
+ */
+export function useSourcesForSourceProfileQuery(baseOptions: ApolloReactHooks.QueryHookOptions<SourcesForSourceProfileQuery, SourcesForSourceProfileQueryVariables> & ({ variables: SourcesForSourceProfileQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<SourcesForSourceProfileQuery, SourcesForSourceProfileQueryVariables>(SourcesForSourceProfileDocument, options);
+      }
+export function useSourcesForSourceProfileLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<SourcesForSourceProfileQuery, SourcesForSourceProfileQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<SourcesForSourceProfileQuery, SourcesForSourceProfileQueryVariables>(SourcesForSourceProfileDocument, options);
+        }
+
+export type SourcesForSourceProfileQueryHookResult = ReturnType<typeof useSourcesForSourceProfileQuery>;
+export type SourcesForSourceProfileLazyQueryHookResult = ReturnType<typeof useSourcesForSourceProfileLazyQuery>;
+
+export const UpdateSourceDocument = gql`
+    mutation UpdateSource($id: ID!, $input: UpdateSourceInput!) {
+  updateSource(id: $id, input: $input) {
+    id
+    sourceProfileId
+    scheduleCron
+    scheduleEnabled
+    surfaceUrl
+    createdAt
+    runs {
+      id
+      status
+      startedAt
+    }
+  }
+}
+    `;
+
+
+/**
+ * __useUpdateSourceMutation__
+ *
+ * To run a mutation, you first call `useUpdateSourceMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateSourceMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateSourceMutation, { data, loading, error }] = useUpdateSourceMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateSourceMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<UpdateSourceMutation, UpdateSourceMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<UpdateSourceMutation, UpdateSourceMutationVariables>(UpdateSourceDocument, options);
+      }
+
+
+export const DeleteSourceDocument = gql`
+    mutation DeleteSource($id: ID!) {
+  deleteSource(id: $id) {
+    success
+    deletedId
+  }
+}
+    `;
+
+
+/**
+ * __useDeleteSourceMutation__
+ *
+ * To run a mutation, you first call `useDeleteSourceMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteSourceMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteSourceMutation, { data, loading, error }] = useDeleteSourceMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteSourceMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DeleteSourceMutation, DeleteSourceMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<DeleteSourceMutation, DeleteSourceMutationVariables>(DeleteSourceDocument, options);
+      }
+
+
+export const CreateSourceDocument = gql`
+    mutation CreateSource($input: CreateSourceInput!) {
+  createSource(input: $input) {
+    id
+    sourceProfileId
+    surfaceUrl
+    scheduleCron
+    scheduleEnabled
+    createdAt
+  }
+}
+    `;
+
+
+/**
+ * __useCreateSourceMutation__
+ *
+ * To run a mutation, you first call `useCreateSourceMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateSourceMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createSourceMutation, { data, loading, error }] = useCreateSourceMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateSourceMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<CreateSourceMutation, CreateSourceMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<CreateSourceMutation, CreateSourceMutationVariables>(CreateSourceDocument, options);
       }
 
 

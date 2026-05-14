@@ -1,0 +1,15 @@
+subscription SourceRunEvents {
+  sourceRunEvents {
+    type
+    occurredAt
+    run {
+      id
+      templateId
+      sourceProfileId
+      surfaceUrl
+      status
+      startedAt
+      sourceProfileSource
+    }
+  }
+}

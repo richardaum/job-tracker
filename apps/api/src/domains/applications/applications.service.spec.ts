@@ -1,6 +1,6 @@
 import { DraftApplicationConversionStatus } from "@api/database/entities/draft-application.entity";
 import { FitAnalysisEntity } from "@api/database/entities/fit-analysis.entity";
-import { ImportRunEntity } from "@api/database/entities/import-run.entity";
+import { SourceRunEntity } from "@api/database/entities/source-run.entity";
 import { ApplicationAiService } from "@api/domains/application-ai/application-ai.service";
 import { DraftExtractionNormalizationService } from "@api/domains/application-ai/draft-extraction-normalization.service";
 import { CompanyService } from "@api/domains/companies/companies.service";
@@ -43,7 +43,7 @@ const makeApp = (overrides: Partial<Application> = {}): Application =>
     tags: [],
     createdAt: new Date(),
     updatedAt: new Date(),
-    importRunId: null,
+    sourceRunId: null,
     ...overrides,
   }) as unknown as Application;
 
@@ -65,7 +65,7 @@ const makeEvent = (
 
 describe("ApplicationService", () => {
   let service: ApplicationService;
-  let importRunsRepo: Pick<Repository<ImportRunEntity>, "findOne">;
+  let sourceRunsRepo: Pick<Repository<SourceRunEntity>, "findOne">;
   let repo: ApplicationRepository;
   let companyService: CompanyService;
   let salaryService: SalaryService;
@@ -76,7 +76,7 @@ describe("ApplicationService", () => {
   let draftExtractionNormalizationService: DraftExtractionNormalizationService;
 
   beforeEach(() => {
-    importRunsRepo = { findOne: vi.fn().mockResolvedValue(null) };
+    sourceRunsRepo = { findOne: vi.fn().mockResolvedValue(null) };
 
     repo = {
       findAllByUserId: vi.fn(),
@@ -124,7 +124,7 @@ describe("ApplicationService", () => {
     } as unknown as ApplicationEventBus;
 
     service = new ApplicationService(
-      importRunsRepo as unknown as Repository<ImportRunEntity>,
+      sourceRunsRepo as unknown as Repository<SourceRunEntity>,
       {
         update: vi.fn().mockResolvedValue({ affected: 1 }),
       } as unknown as Repository<FitAnalysisEntity>,

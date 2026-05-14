@@ -1,0 +1,6 @@
+mutation UpdateSourceRunStatus($id: ID!, $status: SourceRunStatus!) {
+  updateSourceRunStatus(id: $id, status: $status) {
+    id
+    status
+  }
+}

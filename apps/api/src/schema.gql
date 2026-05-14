@@ -101,7 +101,7 @@ type ApplicationType {
   currentStageAt: DateTime!
   createdAt: DateTime!
   updatedAt: DateTime!
-  importRunId: ID
+  sourceRunId: ID
   fit: FitAnalysisType
   salary: ApplicationSalary!
 }
@@ -169,49 +169,6 @@ type ResumeType {
   updatedAt: DateTime!
 }
 
-type ImportRunType {
-  id: ID!
-  templateId: ID!
-  importerId: String!
-  surfaceUrl: String!
-  status: ImportRunStatus!
-  startedAt: DateTime!
-  importerSource: String!
-}
-
-enum ImportRunStatus {
-  RUNNING
-  IN_PROGRESS
-  COMPLETED
-  FAILED
-}
-
-type ImportRunEvent {
-  type: ImportRunEventType!
-  occurredAt: DateTime!
-  run: ImportRunType!
-}
-
-enum ImportRunEventType {
-  IMPORT_RUN_CREATED
-}
-
-type ImportTemplateType {
-  id: ID!
-  importerId: String!
-  scheduleCron: String
-  scheduleEnabled: Boolean!
-  surfaceUrl: String!
-  createdAt: DateTime!
-  runs: [ImportRunType!]!
-}
-
-type ImporterDescriptorType {
-  importerId: String!
-  name: String!
-  templates: [ImportTemplateType!]!
-}
-
 type NoteType {
   id: ID!
   applicationId: String
@@ -220,6 +177,49 @@ type NoteType {
   revision: Int!
   createdAt: DateTime!
   updatedAt: DateTime!
+}
+
+type SourceRunType {
+  id: ID!
+  templateId: ID!
+  sourceProfileId: String!
+  surfaceUrl: String!
+  status: SourceRunStatus!
+  startedAt: DateTime!
+  sourceProfile: String!
+}
+
+enum SourceRunStatus {
+  RUNNING
+  IN_PROGRESS
+  COMPLETED
+  FAILED
+}
+
+type SourceTemplateType {
+  id: ID!
+  sourceProfileId: String!
+  scheduleCron: String
+  scheduleEnabled: Boolean!
+  surfaceUrl: String!
+  createdAt: DateTime!
+  runs: [SourceRunType!]!
+}
+
+type SourceProfileType {
+  sourceProfileId: String!
+  name: String!
+  templates: [SourceTemplateType!]!
+}
+
+type SourceRunEvent {
+  type: SourceRunEventType!
+  occurredAt: DateTime!
+  run: SourceRunType!
+}
+
+enum SourceRunEventType {
+  SOURCE_RUN_CREATED
 }
 
 type PreferenceType {
@@ -243,10 +243,10 @@ type Query {
   draftApplications: [DraftApplicationType!]!
   draftApplication(id: ID!): DraftApplicationType!
   exchangeRates(base: String!, currencies: [String!]!): CurrencyRates!
-  importRuns: [ImportRunType!]!
-  importTemplates: [ImportTemplateType!]!
-  importTemplatesForImporter(importerId: String!): [ImportTemplateType!]!
-  importers(onlyWithImportTemplate: Boolean = false): [ImporterDescriptorType!]!
+  sourceRuns: [SourceRunType!]!
+  sourceTemplates: [SourceTemplateType!]!
+  sourceTemplatesForSourceProfile(sourceProfileId: String!): [SourceTemplateType!]!
+  sourceProfiles(onlyWithSourceTemplate: Boolean = false): [SourceProfileType!]!
   applicationNotes(applicationId: ID!): [NoteType!]!
   generateApplicationNoteWithAI(applicationId: ID!, note: String!): String!
   resumes: [ResumeType!]!
@@ -283,17 +283,17 @@ type Mutation {
   deleteApplicationsForDraft(draftId: ID!): DeleteMutationPayloadType!
   deleteDraftApplication(id: ID!, deleteLinkedApplication: Boolean = false): DeleteMutationPayloadType!
   updateDraftApplication(id: ID!, input: UpdateDraftApplicationInput!): DraftApplicationType!
-  createImportRun(input: CreateImportRunInput!): ImportRunType!
-  createImportTemplate(input: CreateImportTemplateInput!): ImportTemplateType!
-  rerunImportTemplate(templateId: ID!): ImportRunType!
-  updateImportTemplate(id: ID!, input: UpdateImportTemplateInput!): ImportTemplateType!
-  deleteImportTemplate(id: ID!): DeleteMutationPayloadType!
-  updateImportRun(id: ID!, input: UpdateImportRunInput!): ImportRunType!
-  detachApplicationsFromImportRun(importRunId: ID!): Int!
-  deleteImportRun(id: ID!): DeleteMutationPayloadType!
-  clearImportRuns: Boolean!
-  updateImportRunStatus(id: ID!, status: ImportRunStatus!): ImportRunType!
-  claimImportRun(id: ID!): ImportRunType
+  createSourceRun(input: CreateSourceRunInput!): SourceRunType!
+  createSourceTemplate(input: CreateSourceTemplateInput!): SourceTemplateType!
+  rerunSourceTemplate(templateId: ID!): SourceRunType!
+  updateSourceTemplate(id: ID!, input: UpdateSourceTemplateInput!): SourceTemplateType!
+  deleteSourceTemplate(id: ID!): DeleteMutationPayloadType!
+  updateSourceRun(id: ID!, input: UpdateSourceRunInput!): SourceRunType!
+  detachApplicationsFromSourceRun(sourceRunId: ID!): Int!
+  deleteSourceRun(id: ID!): DeleteMutationPayloadType!
+  clearSourceRuns: Boolean!
+  updateSourceRunStatus(id: ID!, status: SourceRunStatus!): SourceRunType!
+  claimSourceRun(id: ID!): SourceRunType
   createApplicationNote(input: CreateNoteInput!): NoteType!
   updateApplicationNote(id: ID!, input: UpdateNoteInput!): NoteType!
   deleteApplicationNote(id: ID!): DeleteMutationPayloadType!
@@ -318,7 +318,7 @@ input CreateApplicationInput {
   salaryCurrency: String
   salaryPeriod: SalaryPeriod
   tags: [String!]
-  importRunId: ID
+  sourceRunId: ID
 }
 
 input UpdateApplicationInput {
@@ -364,22 +364,22 @@ input UpdateDraftApplicationInput {
   title: String!
 }
 
-input CreateImportRunInput {
-  importerId: String!
+input CreateSourceRunInput {
+  sourceProfileId: String!
 }
 
-input CreateImportTemplateInput {
-  importerId: String!
+input CreateSourceTemplateInput {
+  sourceProfileId: String!
   surfaceUrl: String!
 }
 
-input UpdateImportTemplateInput {
+input UpdateSourceTemplateInput {
   scheduleCron: String
   scheduleEnabled: Boolean
   surfaceUrl: String
 }
 
-input UpdateImportRunInput {
+input UpdateSourceRunInput {
   surfaceUrl: String!
 }
 
@@ -421,5 +421,5 @@ input GenerateDraftFitInput {
 }
 
 type Subscription {
-  importRunEvents: ImportRunEvent!
+  sourceRunEvents: SourceRunEvent!
 }
