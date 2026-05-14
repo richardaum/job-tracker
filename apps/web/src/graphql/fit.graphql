@@ -52,6 +52,18 @@ query Fit($id: ID!) {
       suggestion
     }
     createdAt
+    application {
+      id
+      title
+      company {
+        id
+        name
+      }
+    }
+    draftApplication {
+      id
+      title
+    }
   }
 }
 
