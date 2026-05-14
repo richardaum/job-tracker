@@ -1,11 +1,11 @@
 "use client";
 
+import { tipTapToPlainText } from "@job-tracker/tiptap";
 import { Button, cn, Dialog, Stack } from "@job-tracker/ui";
 import React, { useMemo } from "react";
 
 import { useImproveApplicationNoteAiAction } from "@/modules/ai/actions/useImproveApplicationNoteAiAction";
 import { useRewriteTextAiAction } from "@/modules/ai/actions/useRewriteTextAiAction";
-import { tipTapToPlainText } from "@/modules/applications/shared/utils/tiptap";
 
 import { TipTapEditor } from "./TipTapEditor";
 

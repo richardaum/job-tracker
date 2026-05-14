@@ -1,15 +1,11 @@
 "use client";
 
+import { parseTipTapDocument, tipTapToPlainText } from "@job-tracker/tiptap";
 import { tryRun } from "@job-tracker/try-run";
 import { cn } from "@job-tracker/ui";
 import StarterKit from "@tiptap/starter-kit";
 import { renderToReactElement } from "@tiptap/static-renderer/pm/react";
 import React from "react";
-
-import {
-  parseTipTapDocument,
-  tipTapToPlainText,
-} from "@/modules/applications/shared/utils/tiptap";
 
 const RENDER_EXTENSIONS = [StarterKit];
 

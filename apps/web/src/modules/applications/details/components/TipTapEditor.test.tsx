@@ -1,13 +1,9 @@
+import { EMPTY_TIPTAP_DOC, tipTapToPlainText } from "@job-tracker/tiptap";
 import { Button, cn } from "@job-tracker/ui";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import React, { createRef, useState } from "react";
 import { describe, expect, it, vi } from "vitest";
-
-import {
-  EMPTY_TIPTAP_DOC,
-  tipTapToPlainText,
-} from "@/modules/applications/shared/utils/tiptap";
 
 import { TipTapEditor, type TipTapEditorHandle } from "./TipTapEditor";
 

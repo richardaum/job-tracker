@@ -1,9 +1,8 @@
 "use client";
 
+import { EMPTY_TIPTAP_DOC } from "@job-tracker/tiptap";
 import type { Editor } from "@tiptap/react";
 import { type Ref, useCallback, useImperativeHandle } from "react";
-
-import { EMPTY_TIPTAP_DOC } from "@/modules/applications/shared/utils/tiptap";
 
 export type TipTapEditorHandle = {
   /**

@@ -1,12 +1,12 @@
 "use client";
 
+import { tipTapToPlainText } from "@job-tracker/tiptap";
 import { tryRun } from "@job-tracker/try-run";
 import { cn, IconButton, ListItemCard, Text } from "@job-tracker/ui";
 import { StarIcon, TrashIcon } from "@phosphor-icons/react";
 import NextLink from "next/link";
 
 import type { ResumeType } from "@/gql/hooks";
-import { tipTapToPlainText } from "@/modules/applications/shared/utils/tiptap";
 import { DeleteResumeDialog } from "@/modules/resumes/list/components/DeleteResumeDialog";
 
 function formatDate(iso: string): string {

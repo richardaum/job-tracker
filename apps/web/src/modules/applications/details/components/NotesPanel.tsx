@@ -1,5 +1,6 @@
 "use client";
 
+import { EMPTY_TIPTAP_DOC, tipTapToPlainText } from "@job-tracker/tiptap";
 import { tryRun } from "@job-tracker/try-run";
 import {
   Button,
@@ -25,10 +26,6 @@ import { useRewriteTextAiAction } from "@/modules/ai/actions/useRewriteTextAiAct
 import { useNotesComposerBehavior } from "@/modules/applications/details/hooks/useNotesComposerBehavior";
 import { formatDateTime } from "@/modules/applications/details/utils/application-details.shared";
 import { TipTapContent } from "@/modules/applications/shared/components/TipTapContent";
-import {
-  EMPTY_TIPTAP_DOC,
-  tipTapToPlainText,
-} from "@/modules/applications/shared/utils/tiptap";
 
 import { NoteComposerExpandedDialog } from "./NoteComposerExpandedDialog";
 import { NoteDeleteConfirmDialog } from "./NoteDeleteConfirmDialog";

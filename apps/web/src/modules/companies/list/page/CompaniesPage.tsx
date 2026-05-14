@@ -1,5 +1,6 @@
 "use client";
 
+import { normalizeTipTapDocument } from "@job-tracker/tiptap";
 import { Card, cn, Skeleton, Stack, Text, useDialog } from "@job-tracker/ui";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -8,7 +9,6 @@ import { EmptyState } from "@/components/empty-state";
 import { useScrollRestoration } from "@/hooks/useScrollRestoration";
 import { SearchInput } from "@/modules/applications/shared/components/SearchInput";
 import { useToastQueue } from "@/modules/applications/shared/hooks/useToastQueue";
-import { normalizeTipTapDocument } from "@/modules/applications/shared/utils/tiptap";
 import { CompanyCard } from "@/modules/companies/list/components/CompanyCard";
 import { useCompaniesListViewModel } from "@/modules/companies/list/hooks/useCompaniesListViewModel";
 import { CompanyEditDialog } from "@/modules/companies/shared/components/CompanyEditDialog";

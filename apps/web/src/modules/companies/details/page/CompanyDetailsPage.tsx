@@ -1,6 +1,11 @@
 "use client";
 
 import {
+  EMPTY_TIPTAP_DOC,
+  normalizeTipTapDocument,
+  tipTapToPlainText,
+} from "@job-tracker/tiptap";
+import {
   Button,
   cn,
   DropdownMenu,
@@ -23,11 +28,6 @@ import { useGenerateCompanyDescriptionAiAction } from "@/modules/ai/actions/useG
 import { useRewriteTextAiAction } from "@/modules/ai/actions/useRewriteTextAiAction";
 import { TipTapEditor } from "@/modules/applications/details/components/TipTapEditor";
 import { ApplicationCard } from "@/modules/applications/list/components/ApplicationCard";
-import {
-  EMPTY_TIPTAP_DOC,
-  normalizeTipTapDocument,
-  tipTapToPlainText,
-} from "@/modules/applications/shared/utils/tiptap";
 import { useCompanyDetailsViewModel } from "@/modules/companies/details/hooks/useCompanyDetailsViewModel";
 import { DeleteCompanyDialog } from "@/modules/companies/list/components/DeleteCompanyDialog";
 
@@ -116,7 +116,6 @@ export default function CompanyDetailsPage({ params }: PageProps) {
               )}
             />
           }
-          className={cn("h-8 px-2.5 text-xs")}
         >
           Actions
         </Button>

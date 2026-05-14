@@ -1,5 +1,10 @@
 "use client";
 
+import {
+  EMPTY_TIPTAP_DOC,
+  normalizeTipTapDocument,
+  tipTapToPlainText,
+} from "@job-tracker/tiptap";
 import { tryRun } from "@job-tracker/try-run";
 import { Button, cn, Stack } from "@job-tracker/ui";
 import { useState } from "react";
@@ -10,11 +15,6 @@ import {
   useUpdateApplicationMutation,
 } from "@/gql/hooks";
 import { useRestructureJobDescriptionAiAction } from "@/modules/ai/actions/useRestructureJobDescriptionAiAction";
-import {
-  EMPTY_TIPTAP_DOC,
-  normalizeTipTapDocument,
-  tipTapToPlainText,
-} from "@/modules/applications/shared/utils/tiptap";
 
 import { TipTapEditor } from "./TipTapEditor";
 

@@ -1,5 +1,6 @@
 "use client";
 
+import { tipTapToPlainText } from "@job-tracker/tiptap";
 import React from "react";
 
 import type {
@@ -11,7 +12,6 @@ import {
   formatSalary,
   hasSalaryOnCard,
 } from "@/modules/applications/shared/utils/salaryFormat";
-import { tipTapToPlainText } from "@/modules/applications/shared/utils/tiptap";
 
 export type ApplicationCardApplication =
   ApplicationsQuery["applications"][number];

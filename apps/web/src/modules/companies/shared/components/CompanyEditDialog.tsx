@@ -1,5 +1,10 @@
 "use client";
 
+import {
+  EMPTY_TIPTAP_DOC,
+  normalizeTipTapDocument,
+  tipTapToPlainText,
+} from "@job-tracker/tiptap";
 import { Button, cn, Dialog, FormField, Input, Stack } from "@job-tracker/ui";
 import { type DialogControl } from "@job-tracker/ui";
 import React, { useMemo, useState } from "react";
@@ -13,11 +18,6 @@ import {
 import { useGenerateCompanyDescriptionAiAction } from "@/modules/ai/actions/useGenerateCompanyDescriptionAiAction";
 import { useRewriteTextAiAction } from "@/modules/ai/actions/useRewriteTextAiAction";
 import { TipTapEditor } from "@/modules/applications/details/components/TipTapEditor";
-import {
-  EMPTY_TIPTAP_DOC,
-  normalizeTipTapDocument,
-  tipTapToPlainText,
-} from "@/modules/applications/shared/utils/tiptap";
 
 export interface CompanyEditDialogApplication {
   id: string;

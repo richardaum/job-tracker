@@ -1,11 +1,11 @@
 "use client";
 
+import { EMPTY_TIPTAP_DOC } from "@job-tracker/tiptap";
 import { Button, cn, Dialog, Input } from "@job-tracker/ui";
 import { useRouter } from "next/navigation";
 import React from "react";
 
 import { ResumesDocument, useCreateResumeMutation } from "@/gql/hooks";
-import { EMPTY_TIPTAP_DOC } from "@/modules/applications/shared/utils/tiptap";
 
 interface AddResumeDialogProps {
   open: boolean;
