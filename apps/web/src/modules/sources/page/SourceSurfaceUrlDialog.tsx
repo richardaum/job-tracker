@@ -14,7 +14,7 @@ import React, { useCallback, useState } from "react";
 
 import {
   SourcesForSourceProfileDocument,
-  useUpdateSourceMutation,
+  useUpdateSourceTemplateMutation,
 } from "@/gql/hooks";
 import type { SourceListItem } from "@/modules/sources/page/source-template-list.shared";
 
@@ -45,8 +45,7 @@ function SourceSurfaceUrlFormInner({
   onSurfaceSaved,
 }: SourceSurfaceUrlFormInnerProps) {
   const refetchSources = useSourceMutationOptions(sourceProfileId);
-  const [updateSource] =
-    useUpdateSourceMutation(refetchSources);
+  const [updateSource] = useUpdateSourceTemplateMutation(refetchSources);
   const [draft, setDraft] = useState(() => template.surfaceUrl ?? "");
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);

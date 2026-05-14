@@ -20,9 +20,9 @@ vi.mock("@/gql/hooks", async () => {
       data: { __typename: "Query", sourceProfiles: [] },
       refetch: vi.fn(),
     }),
-    useCreateSourceMutation: () => [vi.fn(), {}] as const,
-    useUpdateSourceMutation: () => [vi.fn(), {}] as const,
-    useDeleteSourceMutation: () => [vi.fn(), {}] as const,
+    useCreateSourceTemplateMutation: () => [vi.fn(), {}] as const,
+    useUpdateSourceTemplateMutation: () => [vi.fn(), {}] as const,
+    useDeleteSourceTemplateMutation: () => [vi.fn(), {}] as const,
   };
 });
 
@@ -48,9 +48,9 @@ describe("SourcesPage", () => {
       error: undefined,
       data: {
         __typename: "Query",
-        sourcesForSourceProfile: [
+        sourceTemplatesForSourceProfile: [
           {
-            __typename: "SourceType" as const,
+            __typename: "SourceTemplateType" as const,
             id: "source-uuid-1",
             sourceProfileId: "linkedin",
             scheduleCron: null,
@@ -70,9 +70,7 @@ describe("SourcesPage", () => {
     render(<SourcesPage />);
 
     expect(screen.getByLabelText(/search sources/i)).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: /new source/i }),
-    ).toBeEnabled();
+    expect(screen.getByRole("button", { name: /new source/i })).toBeEnabled();
     expect(screen.getByText("LinkedIn")).toBeInTheDocument();
     expect(screen.getByText("linkedin")).toBeInTheDocument();
   });

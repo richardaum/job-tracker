@@ -15,7 +15,7 @@ import React, { useCallback, useState } from "react";
 
 import {
   SourcesForSourceProfileDocument,
-  useUpdateSourceMutation,
+  useUpdateSourceTemplateMutation,
 } from "@/gql/hooks";
 import type { SourceListItem } from "@/modules/sources/page/source-template-list.shared";
 
@@ -49,8 +49,7 @@ function SourceScheduleFormInner({
   onScheduleSaved,
 }: SourceScheduleFormInnerProps) {
   const refetchSources = useSourceMutationOptions(sourceProfileId);
-  const [updateSource] =
-    useUpdateSourceMutation(refetchSources);
+  const [updateSource] = useUpdateSourceTemplateMutation(refetchSources);
   const [enabledDraft, setEnabledDraft] = useState(
     () => template.scheduleEnabled,
   );

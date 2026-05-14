@@ -18,7 +18,7 @@ import React, { useCallback, useMemo, useState } from "react";
 import {
   SourceProfilesListDocument,
   SourcesForSourceProfileDocument,
-  useCreateSourceMutation,
+  useCreateSourceTemplateMutation,
   useSourceProfilesForNewSourcePickerQuery,
 } from "@/gql/hooks";
 
@@ -56,7 +56,7 @@ export function NewSourceDialog({
   );
   const close = useCallback(() => notifyOpenChange(false), [notifyOpenChange]);
 
-  const [createSource] = useCreateSourceMutation({
+  const [createSource] = useCreateSourceTemplateMutation({
     awaitRefetchQueries: true,
   });
 
@@ -102,7 +102,9 @@ export function NewSourceDialog({
     const sourceProfileId = selectedRow.sourceProfileId;
     const [err] = await tryRun(
       createSource({
-        variables: { input: { sourceProfileId, surfaceUrl: trimmedSurfaceUrl } },
+        variables: {
+          input: { sourceProfileId, surfaceUrl: trimmedSurfaceUrl },
+        },
         refetchQueries: [
           SourceProfilesListDocument,
           {
@@ -117,12 +119,16 @@ export function NewSourceDialog({
       setSubmitError("Could not create source. Try again.");
       return;
     }
-    onCreated?.({ sourceProfileId: selectedRow.sourceProfileId, name: selectedRow.name });
+    onCreated?.({
+      sourceProfileId: selectedRow.sourceProfileId,
+      name: selectedRow.name,
+    });
     close();
   }
 
   const pickerDisabled = loading || Boolean(loadError);
-  const showSkeleton = loading && sortedSourceProfiles.length === 0 && !loadError;
+  const showSkeleton =
+    loading && sortedSourceProfiles.length === 0 && !loadError;
 
   return (
     <Dialog
@@ -151,7 +157,9 @@ export function NewSourceDialog({
                 options={selectOptions}
                 placeholder="Choose source profile…"
                 value={
-                  selectedSourceProfileId === "" ? undefined : selectedSourceProfileId
+                  selectedSourceProfileId === ""
+                    ? undefined
+                    : selectedSourceProfileId
                 }
                 onValueChange={setSelectedSourceProfileId}
                 disabled={pickerDisabled}

@@ -1,7 +1,7 @@
 import type { SourcesForSourceProfileQuery } from "@/gql/graphql";
 
 export type SourceListItem =
-  SourcesForSourceProfileQuery["sourcesForSourceProfile"][number];
+  SourcesForSourceProfileQuery["sourceTemplatesForSourceProfile"][number];
 
 export function scheduleSummary(template: SourceListItem): string {
   if (!template.scheduleEnabled) return "Schedule off";

@@ -62,7 +62,7 @@ export function SourceSideDetails({
     variables: { sourceProfileId },
   });
 
-  const sources = data?.sourcesForSourceProfile ?? [];
+  const sources = data?.sourceTemplatesForSourceProfile ?? [];
 
   const showSkeleton = sourceProfile !== null && loading && !data;
 
@@ -89,9 +89,7 @@ export function SourceSideDetails({
       )}
       title={sourceProfile ? `Sources · ${sourceProfile.name}` : undefined}
       accessibilityTitle={
-        sourceProfile
-          ? `Sources for ${sourceProfile.name}`
-          : "Source details"
+        sourceProfile ? `Sources for ${sourceProfile.name}` : "Source details"
       }
       description={
         sourceProfile && !looksLikeUuid(sourceProfile.sourceProfileId) ? (

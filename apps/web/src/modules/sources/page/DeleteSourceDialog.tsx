@@ -6,7 +6,7 @@ import React from "react";
 
 import {
   SourcesForSourceProfileDocument,
-  useDeleteSourceMutation,
+  useDeleteSourceTemplateMutation,
 } from "@/gql/hooks";
 
 type DeleteSourceDialogProps = {
@@ -33,8 +33,7 @@ export function DeleteSourceDialog({
           ],
         }
       : {};
-  const [deleteSource] =
-    useDeleteSourceMutation(refetchSources);
+  const [deleteSource] = useDeleteSourceTemplateMutation(refetchSources);
 
   return (
     <ConfirmDialog
