@@ -44,6 +44,18 @@ export const draftExtractionFieldDefs = {
     kind: "string[]",
     hint: "Skills, stack, seniority labels (e.g., ['React', 'TypeScript', 'Senior']). Use ultra-short tags where possible.",
   },
+  location: {
+    schema: z.string().nullable(),
+    required: false,
+    kind: "string | null",
+    hint: "Job base location (city, state, country) as mentioned in the posting, e.g. 'São Paulo, SP' or 'San Francisco, CA'. Null if not specified.",
+  },
+  workRegion: {
+    schema: z.string().nullable(),
+    required: false,
+    kind: "string | null",
+    hint: "Geographic region where the candidate can work from, e.g. 'Brazil', 'Latam', 'Anywhere', 'EST timezone'. Null if not specified.",
+  },
 } as const;
 
 export const draftExtractionModelSchema = z.object({
@@ -53,4 +65,6 @@ export const draftExtractionModelSchema = z.object({
   description: draftExtractionFieldDefs.description.schema,
   salary: draftExtractionFieldDefs.salary.schema,
   tags: draftExtractionFieldDefs.tags.schema,
+  location: draftExtractionFieldDefs.location.schema,
+  workRegion: draftExtractionFieldDefs.workRegion.schema,
 });

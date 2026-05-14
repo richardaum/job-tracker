@@ -17,6 +17,8 @@ export type NormalizedDraftExtraction = {
   salaryCurrency: string | null;
   salaryPeriod: SalaryPeriodEnum | null;
   tags: string[];
+  location: string | null;
+  workRegion: string | null;
 };
 
 function asOptionalInt(value: unknown): number | null {
@@ -74,6 +76,8 @@ export class DraftExtractionNormalizationService {
       salaryCurrency: salary.salaryCurrency,
       salaryPeriod: salary.salaryPeriod,
       tags: this.normalizeDraftTags(raw),
+      location: this.normalizeDraftLocation(raw),
+      workRegion: this.normalizeDraftWorkRegion(raw),
     };
   }
 
@@ -127,5 +131,17 @@ export class DraftExtractionNormalizationService {
     return Array.isArray(tagsRaw)
       ? tagsRaw.filter((t): t is string => typeof t === "string")
       : [];
+  }
+
+  private normalizeDraftLocation(raw: Record<string, unknown>): string | null {
+    const v = raw.location;
+    return typeof v === "string" && v.trim() ? v.trim() : null;
+  }
+
+  private normalizeDraftWorkRegion(
+    raw: Record<string, unknown>,
+  ): string | null {
+    const v = raw.workRegion;
+    return typeof v === "string" && v.trim() ? v.trim() : null;
   }
 }
