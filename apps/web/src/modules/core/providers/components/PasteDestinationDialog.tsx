@@ -1,31 +1,44 @@
 "use client";
 
 import { tryRun } from "@job-tracker/try-run";
-import { Button, cn, Dialog, Input, Text } from "@job-tracker/ui";
-import React, { useMemo, useState } from "react";
+import { Button, Checkbox, cn, Dialog, Input, Text } from "@job-tracker/ui";
+import { useMemo, useState } from "react";
 
-interface ImportDraftFromPasteDialogProps {
+interface PasteDestinationDialogProps {
   open: boolean;
   pastedContent: string;
   submitting?: boolean;
   onOpenChange: (open: boolean) => void;
-  onConfirm: (url: string) => Promise<void>;
+  onConfirm: (url: string, autoConvert: boolean) => Promise<void>;
 }
+
+type PasteAction = "draft";
+
+const PASTE_ACTIONS: { id: PasteAction; label: string; description: string }[] =
+  [
+    {
+      id: "draft",
+      label: "Save as draft",
+      description: "Create a new draft application from the pasted content",
+    },
+  ];
 
 function truncatePreview(content: string, maxLength = 300) {
   if (content.length <= maxLength) return content;
   return `${content.slice(0, maxLength)}...`;
 }
 
-export function ImportDraftFromPasteDialog({
+export function PasteDestinationDialog({
   open,
   pastedContent,
   submitting = false,
   onOpenChange,
   onConfirm,
-}: ImportDraftFromPasteDialogProps) {
+}: PasteDestinationDialogProps) {
+  const [selectedAction, setSelectedAction] = useState<PasteAction>("draft");
   const [url, setUrl] = useState("");
   const [urlError, setUrlError] = useState<string | null>(null);
+  const [autoConvert, setAutoConvert] = useState(true);
   const preview = useMemo(
     () => truncatePreview(pastedContent),
     [pastedContent],
@@ -45,14 +58,14 @@ export function ImportDraftFromPasteDialog({
     }
 
     setUrlError(null);
-    await onConfirm(normalized);
+    await onConfirm(normalized, autoConvert);
     setUrl("");
   }
 
   return (
     <Dialog
-      title="Import pasted content"
-      description="Optionally provide the source URL and confirm to create a new draft."
+      title="Paste detected"
+      description="What do you want to do with the pasted content?"
       size="xl"
       open={open}
       onOpenChange={(nextOpen) => {
@@ -60,6 +73,7 @@ export function ImportDraftFromPasteDialog({
         if (!nextOpen) {
           setUrl("");
           setUrlError(null);
+          setAutoConvert(true);
         }
       }}
       footer={
@@ -77,12 +91,50 @@ export function ImportDraftFromPasteDialog({
             state={submitting ? "loading" : "default"}
             onClick={handleConfirm}
           >
-            Create draft
+            {selectedAction === "draft" ? "Create draft" : "Confirm"}
           </Button>
         </div>
       }
     >
       <div className={cn("space-y-4")}>
+        <div className={cn("space-y-2")}>
+          <Text size="sm" weight="medium">
+            Action
+          </Text>
+          <div className={cn("space-y-2")}>
+            {PASTE_ACTIONS.map((action) => (
+              <button
+                key={action.id}
+                type="button"
+                className={cn(
+                  "flex w-full items-start gap-3 rounded-md border p-3 text-left transition-colors",
+                  selectedAction === action.id
+                    ? "border-border-brand bg-bg-brand-subtle"
+                    : "border-border-default hover:bg-bg-surface-hover",
+                )}
+                onClick={() => setSelectedAction(action.id)}
+              >
+                <div
+                  className={cn(
+                    "mt-0.5 size-4 shrink-0 rounded-full border-2",
+                    selectedAction === action.id
+                      ? "border-border-brand bg-bg-brand"
+                      : "border-border-default",
+                  )}
+                />
+                <div>
+                  <Text size="sm" weight="medium">
+                    {action.label}
+                  </Text>
+                  <Text size="xs" color="muted">
+                    {action.description}
+                  </Text>
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+
         <label className={cn("block space-y-1.5")}>
           <Text size="sm" weight="medium">
             URL <span className={cn("text-text-muted")}>(optional)</span>
@@ -103,6 +155,15 @@ export function ImportDraftFromPasteDialog({
               {urlError}
             </Text>
           ) : null}
+        </label>
+
+        <label className={cn("flex items-center gap-2")}>
+          <Checkbox
+            checked={autoConvert}
+            onCheckedChange={setAutoConvert}
+            size="sm"
+          />
+          <Text size="sm">Convert to application automatically</Text>
         </label>
 
         <div className={cn("space-y-1.5")}>

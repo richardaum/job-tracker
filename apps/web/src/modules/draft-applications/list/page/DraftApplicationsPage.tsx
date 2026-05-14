@@ -1,18 +1,11 @@
 "use client";
 
-import { tryRun } from "@job-tracker/try-run";
 import { Card, cn, Skeleton, Stack, Text } from "@job-tracker/ui";
-import { useCallback, useEffect, useState } from "react";
 
 import { EmptyState } from "@/components/empty-state";
-import {
-  DraftApplicationsListDocument,
-  useCreateDraftApplicationMutation,
-} from "@/gql/hooks";
 import { SearchInput } from "@/modules/applications/shared/components/SearchInput";
 import { useToastQueue } from "@/modules/applications/shared/hooks/useToastQueue";
 import { DraftApplicationCard } from "@/modules/draft-applications/list/components/DraftApplicationCard";
-import { ImportDraftFromPasteDialog } from "@/modules/draft-applications/list/components/ImportDraftFromPasteDialog";
 import { useDraftApplicationsListViewModel } from "@/modules/draft-applications/list/hooks/useDraftApplicationsListViewModel";
 
 function DraftListCardSkeleton() {
@@ -61,72 +54,9 @@ export default function DraftApplicationsPage() {
   const { drafts, error, showInitialLoading } =
     useDraftApplicationsListViewModel();
   const { enqueueToast } = useToastQueue();
-  const [pastedContent, setPastedContent] = useState("");
-  const [importDialogOpen, setImportDialogOpen] = useState(false);
-  const [createDraftApplication, { loading: createDraftLoading }] =
-    useCreateDraftApplicationMutation({
-      refetchQueries: [{ query: DraftApplicationsListDocument }],
-      awaitRefetchQueries: true,
-    });
 
   function showToast(message: string, intent: "success" | "error") {
     enqueueToast({ title: message, intent });
-  }
-
-  function titleFromUrl(url: string) {
-    if (!url) return "Imported draft";
-    const [err, parsed] = tryRun(() => new URL(url));
-    if (!err) {
-      return parsed.hostname;
-    }
-    return "Imported draft";
-  }
-
-  const handlePasteCapture = useCallback((event: ClipboardEvent) => {
-    const target = event.target;
-    if (
-      target instanceof Element &&
-      target.closest("input, textarea, [contenteditable='true']")
-    ) {
-      return;
-    }
-
-    const plainText = event.clipboardData?.getData("text/plain").trim();
-    const htmlText = event.clipboardData?.getData("text/html").trim();
-    const normalized = plainText || htmlText;
-    if (!normalized) {
-      return;
-    }
-
-    event.preventDefault();
-    setPastedContent(normalized);
-    setImportDialogOpen(true);
-  }, []);
-
-  useEffect(() => {
-    window.addEventListener("paste", handlePasteCapture);
-    return () => window.removeEventListener("paste", handlePasteCapture);
-  }, [handlePasteCapture]);
-
-  async function handleConfirmPasteImport(url: string) {
-    const [error] = await tryRun(
-      createDraftApplication({
-        variables: {
-          input: {
-            url: url || null,
-            title: titleFromUrl(url),
-            htmlContent: pastedContent,
-          },
-        },
-      }),
-    );
-    if (error) {
-      showToast("Could not create draft from pasted content.", "error");
-      return;
-    }
-    setImportDialogOpen(false);
-    setPastedContent("");
-    showToast("Draft imported from pasted content.", "success");
   }
 
   return (
@@ -181,13 +111,6 @@ export default function DraftApplicationsPage() {
           </Stack>
         )}
       </div>
-      <ImportDraftFromPasteDialog
-        open={importDialogOpen}
-        pastedContent={pastedContent}
-        submitting={createDraftLoading}
-        onOpenChange={setImportDialogOpen}
-        onConfirm={handleConfirmPasteImport}
-      />
     </div>
   );
 }

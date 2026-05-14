@@ -5,11 +5,14 @@ import type { ReactNode } from "react";
 
 import { apolloClient } from "@/lib/apollo-client";
 import { ToastQueueProvider } from "@/modules/applications/shared/hooks/ToastQueueProvider";
+import { PasteListenerProvider } from "@/modules/core/providers/PasteListenerProvider";
 
 export function AppProviders({ children }: { children: ReactNode }) {
   return (
     <ApolloProvider client={apolloClient}>
-      <ToastQueueProvider>{children}</ToastQueueProvider>
+      <ToastQueueProvider>
+        <PasteListenerProvider>{children}</PasteListenerProvider>
+      </ToastQueueProvider>
     </ApolloProvider>
   );
 }
