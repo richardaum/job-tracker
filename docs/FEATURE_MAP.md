@@ -11,7 +11,7 @@
 ## 2. Applications
 
 - **Application CRUD** (`specs/001`) — built — Create, edit, list, and delete job applications with title, company, description, URLs, source, tags, and salary.
-  - **Quick filters** — built — Filter the list by ACTIVE, INCOMING, APPLIED, NEW, or DUPLICATED with one click.
+  - **Quick filters** — built — Filter the list by INCOMING, ACTIVE, APPLIED, NEW, or DUPLICATED with one click.
   - **Text search** — built — Search across all applications by any field.
   - **Filter by company or source run** — built — Scope the list to a specific company or a specific source batch.
   - **Inline editing** — built — Click any field (title, company, URLs, source, salary, tags, description) on the detail page to edit it in place.
