@@ -34,6 +34,7 @@ if (patterns.length === 0) {
 
 const eslint = new ESLint({
   fix: true,
+  warnIgnored: false,
   overrideConfigFile: true,
   overrideConfig: [
     { ignores: IGNORE_PATTERNS },
