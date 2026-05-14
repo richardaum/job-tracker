@@ -78,6 +78,12 @@ export class ApplicationEntity {
   })
   tags!: string[];
 
+  @Column({ type: "text", nullable: true })
+  location!: string | null;
+
+  @Column({ name: "work_region", type: "text", nullable: true })
+  workRegion!: string | null;
+
   @ManyToOne(() => DraftApplicationEntity, (draft) => draft.applications, {
     nullable: true,
     onDelete: "SET NULL",
