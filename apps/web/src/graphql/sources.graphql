@@ -13,7 +13,7 @@ query SourceProfilesForNewSourcePicker {
 }
 
 query SourcesForSourceProfile($sourceProfileId: String!) {
-  sourcesForSourceProfile(sourceProfileId: $sourceProfileId) {
+  sourceTemplatesForSourceProfile(sourceProfileId: $sourceProfileId) {
     id
     sourceProfileId
     scheduleCron
@@ -28,8 +28,8 @@ query SourcesForSourceProfile($sourceProfileId: String!) {
   }
 }
 
-mutation UpdateSource($id: ID!, $input: UpdateSourceInput!) {
-  updateSource(id: $id, input: $input) {
+mutation UpdateSourceTemplate($id: ID!, $input: UpdateSourceTemplateInput!) {
+  updateSourceTemplate(id: $id, input: $input) {
     id
     sourceProfileId
     scheduleCron
@@ -44,15 +44,15 @@ mutation UpdateSource($id: ID!, $input: UpdateSourceInput!) {
   }
 }
 
-mutation DeleteSource($id: ID!) {
-  deleteSource(id: $id) {
+mutation DeleteSourceTemplate($id: ID!) {
+  deleteSourceTemplate(id: $id) {
     success
     deletedId
   }
 }
 
-mutation CreateSource($input: CreateSourceInput!) {
-  createSource(input: $input) {
+mutation CreateSourceTemplate($input: CreateSourceTemplateInput!) {
+  createSourceTemplate(input: $input) {
     id
     sourceProfileId
     surfaceUrl

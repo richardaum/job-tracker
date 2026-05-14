@@ -1,252 +1,265 @@
-import { gql } from '@apollo/client';
-import type * as Apollo from '@apollo/client';
-import * as ApolloReactHooks from '@apollo/client/react';
+import { gql } from "@apollo/client";
+import type * as Apollo from "@apollo/client";
+import * as ApolloReactHooks from "@apollo/client/react";
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
-export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
-export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
-export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
-export type MakeEmpty<T extends { [key: string]: unknown }, K extends keyof T> = { [_ in K]?: never };
-export type Incremental<T> = T | { [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never };
+export type Exact<T extends { [key: string]: unknown }> = {
+  [K in keyof T]: T[K];
+};
+export type MakeOptional<T, K extends keyof T> = Omit<T, K> & {
+  [SubKey in K]?: Maybe<T[SubKey]>;
+};
+export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & {
+  [SubKey in K]: Maybe<T[SubKey]>;
+};
+export type MakeEmpty<
+  T extends { [key: string]: unknown },
+  K extends keyof T,
+> = { [_ in K]?: never };
+export type Incremental<T> =
+  | T
+  | {
+      [P in keyof T]?: P extends " $fragmentName" | "__typename" ? T[P] : never;
+    };
 const defaultOptions = {} as const;
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
-  ID: { input: string; output: string; }
-  String: { input: string; output: string; }
-  Boolean: { input: boolean; output: boolean; }
-  Int: { input: number; output: number; }
-  Float: { input: number; output: number; }
+  ID: { input: string; output: string };
+  String: { input: string; output: string };
+  Boolean: { input: boolean; output: boolean };
+  Int: { input: number; output: number };
+  Float: { input: number; output: number };
   /** A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format. */
-  DateTime: { input: any; output: any; }
+  DateTime: { input: any; output: any };
 };
 
 export enum ApplicationQuickFilter {
-  Active = 'ACTIVE',
-  Applied = 'APPLIED',
-  Duplicated = 'DUPLICATED',
-  Incoming = 'INCOMING',
-  New = 'NEW'
+  Active = "ACTIVE",
+  Applied = "APPLIED",
+  Duplicated = "DUPLICATED",
+  Incoming = "INCOMING",
+  New = "NEW",
 }
 
 export type ApplicationSalary = {
-  __typename?: 'ApplicationSalary';
-  currency?: Maybe<Scalars['String']['output']>;
-  maxCents?: Maybe<Scalars['Int']['output']>;
-  minCents?: Maybe<Scalars['Int']['output']>;
+  __typename?: "ApplicationSalary";
+  currency?: Maybe<Scalars["String"]["output"]>;
+  maxCents?: Maybe<Scalars["Int"]["output"]>;
+  minCents?: Maybe<Scalars["Int"]["output"]>;
   period?: Maybe<SalaryPeriod>;
 };
 
 export enum ApplicationSource {
-  Jack = 'JACK',
-  Linkedin = 'LINKEDIN',
-  RemoteYeah = 'REMOTE_YEAH',
-  Wellfound = 'WELLFOUND'
+  Jack = "JACK",
+  Linkedin = "LINKEDIN",
+  RemoteYeah = "REMOTE_YEAH",
+  Wellfound = "WELLFOUND",
 }
 
 export enum ApplicationStage {
-  Applied = 'APPLIED',
-  CulturalFit = 'CULTURAL_FIT',
-  Duplicated = 'DUPLICATED',
-  New = 'NEW',
-  Offer = 'OFFER',
-  RecruiterScreen = 'RECRUITER_SCREEN',
-  Rejected = 'REJECTED',
-  Technical = 'TECHNICAL'
+  Applied = "APPLIED",
+  CulturalFit = "CULTURAL_FIT",
+  Duplicated = "DUPLICATED",
+  New = "NEW",
+  Offer = "OFFER",
+  RecruiterScreen = "RECRUITER_SCREEN",
+  Rejected = "REJECTED",
+  Technical = "TECHNICAL",
 }
 
 export type ApplicationStageEventType = {
-  __typename?: 'ApplicationStageEventType';
-  applicationId: Scalars['String']['output'];
-  createdAt: Scalars['DateTime']['output'];
+  __typename?: "ApplicationStageEventType";
+  applicationId: Scalars["String"]["output"];
+  createdAt: Scalars["DateTime"]["output"];
   fromStage?: Maybe<ApplicationStage>;
-  id: Scalars['ID']['output'];
-  reason?: Maybe<Scalars['String']['output']>;
-  scheduledAt?: Maybe<Scalars['DateTime']['output']>;
-  source: Scalars['String']['output'];
+  id: Scalars["ID"]["output"];
+  reason?: Maybe<Scalars["String"]["output"]>;
+  scheduledAt?: Maybe<Scalars["DateTime"]["output"]>;
+  source: Scalars["String"]["output"];
   toStage: ApplicationStage;
-  userId: Scalars['String']['output'];
+  userId: Scalars["String"]["output"];
 };
 
 export type ApplicationType = {
-  __typename?: 'ApplicationType';
+  __typename?: "ApplicationType";
   company: CompanyType;
-  companyId: Scalars['ID']['output'];
-  createdAt: Scalars['DateTime']['output'];
+  companyId: Scalars["ID"]["output"];
+  createdAt: Scalars["DateTime"]["output"];
   currentStage: ApplicationStage;
-  currentStageAt: Scalars['DateTime']['output'];
-  currentStageReason?: Maybe<Scalars['String']['output']>;
-  description?: Maybe<Scalars['String']['output']>;
+  currentStageAt: Scalars["DateTime"]["output"];
+  currentStageReason?: Maybe<Scalars["String"]["output"]>;
+  description?: Maybe<Scalars["String"]["output"]>;
   fit?: Maybe<FitAnalysisType>;
-  id: Scalars['ID']['output'];
+  id: Scalars["ID"]["output"];
   salary: ApplicationSalary;
   source?: Maybe<ApplicationSource>;
-  sourceRunId?: Maybe<Scalars['ID']['output']>;
-  tags: Array<Scalars['String']['output']>;
-  title: Scalars['String']['output'];
-  updatedAt: Scalars['DateTime']['output'];
-  urls: Array<Scalars['String']['output']>;
-  userId: Scalars['String']['output'];
+  sourceRunId?: Maybe<Scalars["ID"]["output"]>;
+  tags: Array<Scalars["String"]["output"]>;
+  title: Scalars["String"]["output"];
+  updatedAt: Scalars["DateTime"]["output"];
+  urls: Array<Scalars["String"]["output"]>;
+  userId: Scalars["String"]["output"];
 };
 
 export type CompanyType = {
-  __typename?: 'CompanyType';
-  createdAt: Scalars['DateTime']['output'];
-  description?: Maybe<Scalars['String']['output']>;
-  id: Scalars['ID']['output'];
-  name: Scalars['String']['output'];
-  updatedAt: Scalars['DateTime']['output'];
-  userId: Scalars['String']['output'];
+  __typename?: "CompanyType";
+  createdAt: Scalars["DateTime"]["output"];
+  description?: Maybe<Scalars["String"]["output"]>;
+  id: Scalars["ID"]["output"];
+  name: Scalars["String"]["output"];
+  updatedAt: Scalars["DateTime"]["output"];
+  userId: Scalars["String"]["output"];
 };
 
 export type CreateApplicationInput = {
-  company: Scalars['String']['input'];
-  companyId?: InputMaybe<Scalars['ID']['input']>;
-  description?: InputMaybe<Scalars['String']['input']>;
-  salaryCurrency?: InputMaybe<Scalars['String']['input']>;
-  salaryMaxCents?: InputMaybe<Scalars['Int']['input']>;
-  salaryMinCents?: InputMaybe<Scalars['Int']['input']>;
+  company: Scalars["String"]["input"];
+  companyId?: InputMaybe<Scalars["ID"]["input"]>;
+  description?: InputMaybe<Scalars["String"]["input"]>;
+  salaryCurrency?: InputMaybe<Scalars["String"]["input"]>;
+  salaryMaxCents?: InputMaybe<Scalars["Int"]["input"]>;
+  salaryMinCents?: InputMaybe<Scalars["Int"]["input"]>;
   salaryPeriod?: InputMaybe<SalaryPeriod>;
   source?: InputMaybe<ApplicationSource>;
-  sourceRunId?: InputMaybe<Scalars['ID']['input']>;
-  tags?: InputMaybe<Array<Scalars['String']['input']>>;
-  title: Scalars['String']['input'];
-  urls?: InputMaybe<Array<Scalars['String']['input']>>;
+  sourceRunId?: InputMaybe<Scalars["ID"]["input"]>;
+  tags?: InputMaybe<Array<Scalars["String"]["input"]>>;
+  title: Scalars["String"]["input"];
+  urls?: InputMaybe<Array<Scalars["String"]["input"]>>;
 };
 
 export type CreateApplicationStageEventInput = {
-  applicationId: Scalars['String']['input'];
-  reason?: InputMaybe<Scalars['String']['input']>;
-  scheduledAt?: InputMaybe<Scalars['DateTime']['input']>;
-  source?: InputMaybe<Scalars['String']['input']>;
+  applicationId: Scalars["String"]["input"];
+  reason?: InputMaybe<Scalars["String"]["input"]>;
+  scheduledAt?: InputMaybe<Scalars["DateTime"]["input"]>;
+  source?: InputMaybe<Scalars["String"]["input"]>;
   toStage: ApplicationStage;
 };
 
 export type CreateDraftApplicationInput = {
-  htmlContent: Scalars['String']['input'];
-  title: Scalars['String']['input'];
-  url?: InputMaybe<Scalars['String']['input']>;
+  htmlContent: Scalars["String"]["input"];
+  title: Scalars["String"]["input"];
+  url?: InputMaybe<Scalars["String"]["input"]>;
 };
 
 export type CreateNoteInput = {
-  applicationId: Scalars['String']['input'];
-  content: Scalars['String']['input'];
+  applicationId: Scalars["String"]["input"];
+  content: Scalars["String"]["input"];
 };
 
 export type CreateResumeInput = {
-  content: Scalars['String']['input'];
-  isDefault?: Scalars['Boolean']['input'];
-  title: Scalars['String']['input'];
-};
-
-export type CreateSourceInput = {
-  sourceProfileId: Scalars['String']['input'];
-  surfaceUrl: Scalars['String']['input'];
+  content: Scalars["String"]["input"];
+  isDefault?: Scalars["Boolean"]["input"];
+  title: Scalars["String"]["input"];
 };
 
 export type CreateSourceRunInput = {
-  sourceProfileId: Scalars['String']['input'];
+  sourceProfileId: Scalars["String"]["input"];
+};
+
+export type CreateSourceTemplateInput = {
+  sourceProfileId: Scalars["String"]["input"];
+  surfaceUrl: Scalars["String"]["input"];
 };
 
 export type CurrencyRates = {
-  __typename?: 'CurrencyRates';
-  base: Scalars['String']['output'];
+  __typename?: "CurrencyRates";
+  base: Scalars["String"]["output"];
   rates: Array<ExchangeRate>;
 };
 
 export type DeleteMutationPayloadType = {
-  __typename?: 'DeleteMutationPayloadType';
-  deletedId: Scalars['ID']['output'];
-  success: Scalars['Boolean']['output'];
+  __typename?: "DeleteMutationPayloadType";
+  deletedId: Scalars["ID"]["output"];
+  success: Scalars["Boolean"]["output"];
 };
 
 export enum DraftApplicationConversionStatus {
-  Failed = 'FAILED',
-  Idle = 'IDLE',
-  Processing = 'PROCESSING',
-  Succeeded = 'SUCCEEDED'
+  Failed = "FAILED",
+  Idle = "IDLE",
+  Processing = "PROCESSING",
+  Succeeded = "SUCCEEDED",
 }
 
 export type DraftApplicationType = {
-  __typename?: 'DraftApplicationType';
-  applicationId?: Maybe<Scalars['String']['output']>;
-  conversionError?: Maybe<Scalars['String']['output']>;
+  __typename?: "DraftApplicationType";
+  applicationId?: Maybe<Scalars["String"]["output"]>;
+  conversionError?: Maybe<Scalars["String"]["output"]>;
   conversionStatus: DraftApplicationConversionStatus;
-  convertedAt?: Maybe<Scalars['DateTime']['output']>;
-  createdAt: Scalars['DateTime']['output'];
+  convertedAt?: Maybe<Scalars["DateTime"]["output"]>;
+  createdAt: Scalars["DateTime"]["output"];
   fit?: Maybe<FitAnalysisType>;
-  htmlContent: Scalars['String']['output'];
-  id: Scalars['ID']['output'];
-  title: Scalars['String']['output'];
-  updatedAt: Scalars['DateTime']['output'];
-  url?: Maybe<Scalars['String']['output']>;
+  htmlContent: Scalars["String"]["output"];
+  id: Scalars["ID"]["output"];
+  title: Scalars["String"]["output"];
+  updatedAt: Scalars["DateTime"]["output"];
+  url?: Maybe<Scalars["String"]["output"]>;
 };
 
 export type ExchangeRate = {
-  __typename?: 'ExchangeRate';
-  currency: Scalars['String']['output'];
-  rate: Scalars['Float']['output'];
+  __typename?: "ExchangeRate";
+  currency: Scalars["String"]["output"];
+  rate: Scalars["Float"]["output"];
 };
 
 export enum FitAnalysisStatus {
-  Completed = 'COMPLETED',
-  Failed = 'FAILED',
-  Processing = 'PROCESSING'
+  Completed = "COMPLETED",
+  Failed = "FAILED",
+  Processing = "PROCESSING",
 }
 
 export type FitAnalysisType = {
-  __typename?: 'FitAnalysisType';
+  __typename?: "FitAnalysisType";
   application?: Maybe<ApplicationType>;
-  applicationId?: Maybe<Scalars['ID']['output']>;
-  classification?: Maybe<Scalars['String']['output']>;
-  createdAt: Scalars['DateTime']['output'];
+  applicationId?: Maybe<Scalars["ID"]["output"]>;
+  classification?: Maybe<Scalars["String"]["output"]>;
+  createdAt: Scalars["DateTime"]["output"];
   draftApplication?: Maybe<DraftApplicationType>;
-  draftApplicationId?: Maybe<Scalars['ID']['output']>;
-  error?: Maybe<Scalars['String']['output']>;
-  fitCount: Scalars['Int']['output'];
-  gapCount: Scalars['Int']['output'];
-  id: Scalars['ID']['output'];
+  draftApplicationId?: Maybe<Scalars["ID"]["output"]>;
+  error?: Maybe<Scalars["String"]["output"]>;
+  fitCount: Scalars["Int"]["output"];
+  gapCount: Scalars["Int"]["output"];
+  id: Scalars["ID"]["output"];
   items: Array<FitItemType>;
-  resumeId: Scalars['ID']['output'];
-  scoreRatio?: Maybe<Scalars['Float']['output']>;
+  resumeId: Scalars["ID"]["output"];
+  scoreRatio?: Maybe<Scalars["Float"]["output"]>;
   status: FitAnalysisStatus;
-  unclearCount: Scalars['Int']['output'];
-  updatedAt: Scalars['DateTime']['output'];
+  unclearCount: Scalars["Int"]["output"];
+  updatedAt: Scalars["DateTime"]["output"];
 };
 
 export type FitItemType = {
-  __typename?: 'FitItemType';
-  jdQuote: Scalars['String']['output'];
-  requirement: Scalars['String']['output'];
-  source: Scalars['String']['output'];
-  sourceQuotes: Array<Scalars['String']['output']>;
-  suggestion?: Maybe<Scalars['String']['output']>;
-  type: Scalars['String']['output'];
-  verdict: Scalars['String']['output'];
-  weight?: Maybe<Scalars['String']['output']>;
+  __typename?: "FitItemType";
+  jdQuote: Scalars["String"]["output"];
+  requirement: Scalars["String"]["output"];
+  source: Scalars["String"]["output"];
+  sourceQuotes: Array<Scalars["String"]["output"]>;
+  suggestion?: Maybe<Scalars["String"]["output"]>;
+  type: Scalars["String"]["output"];
+  verdict: Scalars["String"]["output"];
+  weight?: Maybe<Scalars["String"]["output"]>;
 };
 
 export type GenerateDraftFitInput = {
-  draftApplicationId: Scalars['ID']['input'];
-  resumeId: Scalars['ID']['input'];
+  draftApplicationId: Scalars["ID"]["input"];
+  resumeId: Scalars["ID"]["input"];
 };
 
 export type GenerateFitInput = {
-  applicationId: Scalars['ID']['input'];
-  resumeId: Scalars['ID']['input'];
+  applicationId: Scalars["ID"]["input"];
+  resumeId: Scalars["ID"]["input"];
 };
 
 export type Mutation = {
-  __typename?: 'Mutation';
+  __typename?: "Mutation";
   claimSourceRun?: Maybe<SourceRunType>;
-  clearSourceRuns: Scalars['Boolean']['output'];
+  clearSourceRuns: Scalars["Boolean"]["output"];
   createApplication: ApplicationType;
   createApplicationNote: NoteType;
   createApplicationStageEvent: ApplicationStageEventType;
-  createApplicationWithAIV2: DraftApplicationType;
+  createApplicationWithAI: DraftApplicationType;
   createDraftApplication: DraftApplicationType;
   createResume: ResumeType;
-  createSource: SourceTemplateType;
   createSourceRun: SourceRunType;
+  createSourceTemplate: SourceTemplateType;
   deleteApplication: DeleteMutationPayloadType;
   deleteApplicationNote: DeleteMutationPayloadType;
   deleteApplicationStageEvent: DeleteMutationPayloadType;
@@ -255,879 +268,1442 @@ export type Mutation = {
   deleteDraftApplication: DeleteMutationPayloadType;
   deleteFitAnalysis: DeleteMutationPayloadType;
   deleteResume: DeleteMutationPayloadType;
-  deleteSource: DeleteMutationPayloadType;
   deleteSourceRun: DeleteMutationPayloadType;
-  detachApplicationsFromSourceRun: Scalars['Int']['output'];
+  deleteSourceTemplate: DeleteMutationPayloadType;
+  detachApplicationsFromSourceRun: Scalars["Int"]["output"];
   generateApplicationFit: FitAnalysisType;
   generateDraftApplicationFit: FitAnalysisType;
   removeApplicationTag: ApplicationType;
-  rerunSource: SourceRunType;
+  rerunSourceTemplate: SourceRunType;
   updateApplication: ApplicationType;
   updateApplicationNote: NoteType;
   updateApplicationStageEvent: ApplicationStageEventType;
   updateCompany: CompanyType;
   updateDraftApplication: DraftApplicationType;
   updateResume: ResumeType;
-  updateSource: SourceTemplateType;
   updateSourceRun: SourceRunType;
   updateSourceRunStatus: SourceRunType;
+  updateSourceTemplate: SourceTemplateType;
   updateUserPreferences: Array<PreferenceType>;
 };
 
+export type MutationClaimSourceRunArgs = { id: Scalars["ID"]["input"] };
 
-export type MutationClaimSourceRunArgs = {
-  id: Scalars['ID']['input'];
-};
+export type MutationCreateApplicationArgs = { input: CreateApplicationInput };
 
-
-export type MutationCreateApplicationArgs = {
-  input: CreateApplicationInput;
-};
-
-
-export type MutationCreateApplicationNoteArgs = {
-  input: CreateNoteInput;
-};
-
+export type MutationCreateApplicationNoteArgs = { input: CreateNoteInput };
 
 export type MutationCreateApplicationStageEventArgs = {
   input: CreateApplicationStageEventInput;
 };
 
-
-export type MutationCreateApplicationWithAiv2Args = {
-  draftId: Scalars['ID']['input'];
+export type MutationCreateApplicationWithAiArgs = {
+  draftId: Scalars["ID"]["input"];
 };
-
 
 export type MutationCreateDraftApplicationArgs = {
   input: CreateDraftApplicationInput;
 };
 
+export type MutationCreateResumeArgs = { input: CreateResumeInput };
 
-export type MutationCreateResumeArgs = {
-  input: CreateResumeInput;
+export type MutationCreateSourceRunArgs = { input: CreateSourceRunInput };
+
+export type MutationCreateSourceTemplateArgs = {
+  input: CreateSourceTemplateInput;
 };
 
+export type MutationDeleteApplicationArgs = { id: Scalars["ID"]["input"] };
 
-export type MutationCreateSourceArgs = {
-  input: CreateSourceInput;
-};
-
-
-export type MutationCreateSourceRunArgs = {
-  input: CreateSourceRunInput;
-};
-
-
-export type MutationDeleteApplicationArgs = {
-  id: Scalars['ID']['input'];
-};
-
-
-export type MutationDeleteApplicationNoteArgs = {
-  id: Scalars['ID']['input'];
-};
-
+export type MutationDeleteApplicationNoteArgs = { id: Scalars["ID"]["input"] };
 
 export type MutationDeleteApplicationStageEventArgs = {
-  id: Scalars['ID']['input'];
+  id: Scalars["ID"]["input"];
 };
-
 
 export type MutationDeleteApplicationsForDraftArgs = {
-  draftId: Scalars['ID']['input'];
+  draftId: Scalars["ID"]["input"];
 };
 
-
-export type MutationDeleteCompanyArgs = {
-  id: Scalars['ID']['input'];
-};
-
+export type MutationDeleteCompanyArgs = { id: Scalars["ID"]["input"] };
 
 export type MutationDeleteDraftApplicationArgs = {
-  deleteLinkedApplication?: InputMaybe<Scalars['Boolean']['input']>;
-  id: Scalars['ID']['input'];
+  deleteLinkedApplication?: InputMaybe<Scalars["Boolean"]["input"]>;
+  id: Scalars["ID"]["input"];
 };
 
+export type MutationDeleteFitAnalysisArgs = { id: Scalars["ID"]["input"] };
 
-export type MutationDeleteFitAnalysisArgs = {
-  id: Scalars['ID']['input'];
-};
+export type MutationDeleteResumeArgs = { id: Scalars["ID"]["input"] };
 
+export type MutationDeleteSourceRunArgs = { id: Scalars["ID"]["input"] };
 
-export type MutationDeleteResumeArgs = {
-  id: Scalars['ID']['input'];
-};
-
-
-export type MutationDeleteSourceArgs = {
-  id: Scalars['ID']['input'];
-};
-
-
-export type MutationDeleteSourceRunArgs = {
-  id: Scalars['ID']['input'];
-};
-
+export type MutationDeleteSourceTemplateArgs = { id: Scalars["ID"]["input"] };
 
 export type MutationDetachApplicationsFromSourceRunArgs = {
-  sourceRunId: Scalars['ID']['input'];
+  sourceRunId: Scalars["ID"]["input"];
 };
 
-
-export type MutationGenerateApplicationFitArgs = {
-  input: GenerateFitInput;
-};
-
+export type MutationGenerateApplicationFitArgs = { input: GenerateFitInput };
 
 export type MutationGenerateDraftApplicationFitArgs = {
   input: GenerateDraftFitInput;
 };
 
-
 export type MutationRemoveApplicationTagArgs = {
-  id: Scalars['ID']['input'];
-  tag: Scalars['String']['input'];
+  id: Scalars["ID"]["input"];
+  tag: Scalars["String"]["input"];
 };
 
-
-export type MutationRerunSourceArgs = {
-  templateId: Scalars['ID']['input'];
+export type MutationRerunSourceTemplateArgs = {
+  templateId: Scalars["ID"]["input"];
 };
-
 
 export type MutationUpdateApplicationArgs = {
-  id: Scalars['ID']['input'];
+  id: Scalars["ID"]["input"];
   input: UpdateApplicationInput;
 };
 
-
 export type MutationUpdateApplicationNoteArgs = {
-  id: Scalars['ID']['input'];
+  id: Scalars["ID"]["input"];
   input: UpdateNoteInput;
 };
 
-
 export type MutationUpdateApplicationStageEventArgs = {
-  id: Scalars['ID']['input'];
+  id: Scalars["ID"]["input"];
   input: UpdateApplicationStageEventInput;
 };
 
-
 export type MutationUpdateCompanyArgs = {
-  id: Scalars['ID']['input'];
+  id: Scalars["ID"]["input"];
   input: UpdateCompanyInput;
 };
 
-
 export type MutationUpdateDraftApplicationArgs = {
-  id: Scalars['ID']['input'];
+  id: Scalars["ID"]["input"];
   input: UpdateDraftApplicationInput;
 };
 
-
 export type MutationUpdateResumeArgs = {
-  id: Scalars['ID']['input'];
+  id: Scalars["ID"]["input"];
   input: UpdateResumeInput;
 };
 
-
-export type MutationUpdateSourceArgs = {
-  id: Scalars['ID']['input'];
-  input: UpdateSourceInput;
-};
-
-
 export type MutationUpdateSourceRunArgs = {
-  id: Scalars['ID']['input'];
+  id: Scalars["ID"]["input"];
   input: UpdateSourceRunInput;
 };
 
-
 export type MutationUpdateSourceRunStatusArgs = {
-  id: Scalars['ID']['input'];
+  id: Scalars["ID"]["input"];
   status: SourceRunStatus;
 };
 
+export type MutationUpdateSourceTemplateArgs = {
+  id: Scalars["ID"]["input"];
+  input: UpdateSourceTemplateInput;
+};
 
 export type MutationUpdateUserPreferencesArgs = {
   items: Array<PreferenceInput>;
 };
 
 export type NoteType = {
-  __typename?: 'NoteType';
-  applicationId?: Maybe<Scalars['String']['output']>;
-  content: Scalars['String']['output'];
-  createdAt: Scalars['DateTime']['output'];
-  id: Scalars['ID']['output'];
-  revision: Scalars['Int']['output'];
-  updatedAt: Scalars['DateTime']['output'];
-  userId: Scalars['String']['output'];
+  __typename?: "NoteType";
+  applicationId?: Maybe<Scalars["String"]["output"]>;
+  content: Scalars["String"]["output"];
+  createdAt: Scalars["DateTime"]["output"];
+  id: Scalars["ID"]["output"];
+  revision: Scalars["Int"]["output"];
+  updatedAt: Scalars["DateTime"]["output"];
+  userId: Scalars["String"]["output"];
 };
 
 export type PreferenceInput = {
-  text: Scalars['String']['input'];
+  text: Scalars["String"]["input"];
   weight: WeightEnum;
 };
 
 export type PreferenceType = {
-  __typename?: 'PreferenceType';
-  text: Scalars['String']['output'];
+  __typename?: "PreferenceType";
+  text: Scalars["String"]["output"];
   weight: WeightEnum;
 };
 
 export type Query = {
-  __typename?: 'Query';
+  __typename?: "Query";
   application: ApplicationType;
   applicationFit?: Maybe<FitAnalysisType>;
   applicationNotes: Array<NoteType>;
   applicationStageEvents: Array<ApplicationStageEventType>;
   applications: Array<ApplicationType>;
   companies: Array<CompanyType>;
-  companyApplicationsCount: Scalars['Int']['output'];
+  companyApplicationsCount: Scalars["Int"]["output"];
   draftApplication: DraftApplicationType;
   draftApplicationFit?: Maybe<FitAnalysisType>;
   draftApplications: Array<DraftApplicationType>;
   exchangeRates: CurrencyRates;
   fit?: Maybe<FitAnalysisType>;
   fitAnalyses: Array<FitAnalysisType>;
-  generateApplicationNoteWithAI: Scalars['String']['output'];
-  generateCompanyDescription: Scalars['String']['output'];
+  generateApplicationNoteWithAI: Scalars["String"]["output"];
+  generateCompanyDescription: Scalars["String"]["output"];
   me: UserType;
-  restructureJobDescriptionWithAI: Scalars['String']['output'];
+  restructureJobDescriptionWithAI: Scalars["String"]["output"];
   resume: ResumeType;
   resumes: Array<ResumeType>;
-  rewriteTextWithAI: Scalars['String']['output'];
+  rewriteTextWithAI: Scalars["String"]["output"];
   sourceProfiles: Array<SourceProfileType>;
   sourceRuns: Array<SourceRunType>;
-  sources: Array<SourceTemplateType>;
-  sourcesForSourceProfile: Array<SourceTemplateType>;
+  sourceTemplates: Array<SourceTemplateType>;
+  sourceTemplatesForSourceProfile: Array<SourceTemplateType>;
   userPreferences: Array<PreferenceType>;
 };
 
+export type QueryApplicationArgs = { id: Scalars["ID"]["input"] };
 
-export type QueryApplicationArgs = {
-  id: Scalars['ID']['input'];
-};
-
-
-export type QueryApplicationFitArgs = {
-  applicationId: Scalars['ID']['input'];
-};
-
+export type QueryApplicationFitArgs = { applicationId: Scalars["ID"]["input"] };
 
 export type QueryApplicationNotesArgs = {
-  applicationId: Scalars['ID']['input'];
+  applicationId: Scalars["ID"]["input"];
 };
-
 
 export type QueryApplicationStageEventsArgs = {
-  applicationId: Scalars['ID']['input'];
+  applicationId: Scalars["ID"]["input"];
 };
-
 
 export type QueryApplicationsArgs = {
-  company?: InputMaybe<Scalars['String']['input']>;
+  company?: InputMaybe<Scalars["String"]["input"]>;
   filter?: InputMaybe<ApplicationQuickFilter>;
-  runId?: InputMaybe<Scalars['ID']['input']>;
+  runId?: InputMaybe<Scalars["ID"]["input"]>;
 };
 
+export type QueryCompanyApplicationsCountArgs = { id: Scalars["ID"]["input"] };
 
-export type QueryCompanyApplicationsCountArgs = {
-  id: Scalars['ID']['input'];
-};
-
-
-export type QueryDraftApplicationArgs = {
-  id: Scalars['ID']['input'];
-};
-
+export type QueryDraftApplicationArgs = { id: Scalars["ID"]["input"] };
 
 export type QueryDraftApplicationFitArgs = {
-  draftApplicationId: Scalars['ID']['input'];
+  draftApplicationId: Scalars["ID"]["input"];
 };
-
 
 export type QueryExchangeRatesArgs = {
-  base: Scalars['String']['input'];
-  currencies: Array<Scalars['String']['input']>;
+  base: Scalars["String"]["input"];
+  currencies: Array<Scalars["String"]["input"]>;
 };
 
-
-export type QueryFitArgs = {
-  id: Scalars['ID']['input'];
-};
-
+export type QueryFitArgs = { id: Scalars["ID"]["input"] };
 
 export type QueryGenerateApplicationNoteWithAiArgs = {
-  applicationId: Scalars['ID']['input'];
-  note: Scalars['String']['input'];
+  applicationId: Scalars["ID"]["input"];
+  note: Scalars["String"]["input"];
 };
-
 
 export type QueryGenerateCompanyDescriptionArgs = {
-  companyName: Scalars['String']['input'];
+  companyName: Scalars["String"]["input"];
 };
-
 
 export type QueryRestructureJobDescriptionWithAiArgs = {
-  text: Scalars['String']['input'];
+  text: Scalars["String"]["input"];
 };
 
+export type QueryResumeArgs = { id: Scalars["ID"]["input"] };
 
-export type QueryResumeArgs = {
-  id: Scalars['ID']['input'];
-};
-
-
-export type QueryRewriteTextWithAiArgs = {
-  text: Scalars['String']['input'];
-};
-
+export type QueryRewriteTextWithAiArgs = { text: Scalars["String"]["input"] };
 
 export type QuerySourceProfilesArgs = {
-  onlyWithSourceTemplate?: InputMaybe<Scalars['Boolean']['input']>;
+  onlyWithSourceTemplate?: InputMaybe<Scalars["Boolean"]["input"]>;
 };
 
-
-export type QuerySourcesForSourceProfileArgs = {
-  sourceProfileId: Scalars['String']['input'];
+export type QuerySourceTemplatesForSourceProfileArgs = {
+  sourceProfileId: Scalars["String"]["input"];
 };
 
 export type ResumeType = {
-  __typename?: 'ResumeType';
-  content: Scalars['String']['output'];
-  createdAt: Scalars['DateTime']['output'];
-  id: Scalars['ID']['output'];
-  isDefault: Scalars['Boolean']['output'];
-  title: Scalars['String']['output'];
-  updatedAt: Scalars['DateTime']['output'];
-  userId: Scalars['String']['output'];
+  __typename?: "ResumeType";
+  content: Scalars["String"]["output"];
+  createdAt: Scalars["DateTime"]["output"];
+  id: Scalars["ID"]["output"];
+  isDefault: Scalars["Boolean"]["output"];
+  title: Scalars["String"]["output"];
+  updatedAt: Scalars["DateTime"]["output"];
+  userId: Scalars["String"]["output"];
 };
 
 export enum SalaryPeriod {
-  Hour = 'HOUR',
-  Month = 'MONTH',
-  Year = 'YEAR'
+  Hour = "HOUR",
+  Month = "MONTH",
+  Year = "YEAR",
 }
 
 export type SourceProfileType = {
-  __typename?: 'SourceProfileType';
-  name: Scalars['String']['output'];
-  sourceProfileId: Scalars['String']['output'];
+  __typename?: "SourceProfileType";
+  name: Scalars["String"]["output"];
+  sourceProfileId: Scalars["String"]["output"];
   templates: Array<SourceTemplateType>;
 };
 
 export type SourceRunEvent = {
-  __typename?: 'SourceRunEvent';
-  occurredAt: Scalars['DateTime']['output'];
+  __typename?: "SourceRunEvent";
+  occurredAt: Scalars["DateTime"]["output"];
   run: SourceRunType;
   type: SourceRunEventType;
 };
 
 export enum SourceRunEventType {
-  SourceRunCreated = 'SOURCE_RUN_CREATED'
+  SourceRunCreated = "SOURCE_RUN_CREATED",
 }
 
 export enum SourceRunStatus {
-  Completed = 'COMPLETED',
-  Failed = 'FAILED',
-  InProgress = 'IN_PROGRESS',
-  Running = 'RUNNING'
+  Completed = "COMPLETED",
+  Failed = "FAILED",
+  InProgress = "IN_PROGRESS",
+  Running = "RUNNING",
 }
 
 export type SourceRunType = {
-  __typename?: 'SourceRunType';
-  id: Scalars['ID']['output'];
-  sourceProfileId: Scalars['String']['output'];
-  sourceProfileSource: Scalars['String']['output'];
-  startedAt: Scalars['DateTime']['output'];
+  __typename?: "SourceRunType";
+  id: Scalars["ID"]["output"];
+  sourceProfile: Scalars["String"]["output"];
+  sourceProfileId: Scalars["String"]["output"];
+  startedAt: Scalars["DateTime"]["output"];
   status: SourceRunStatus;
-  surfaceUrl: Scalars['String']['output'];
-  templateId: Scalars['ID']['output'];
+  surfaceUrl: Scalars["String"]["output"];
+  templateId: Scalars["ID"]["output"];
 };
 
 export type SourceTemplateType = {
-  __typename?: 'SourceTemplateType';
-  createdAt: Scalars['DateTime']['output'];
-  id: Scalars['ID']['output'];
+  __typename?: "SourceTemplateType";
+  createdAt: Scalars["DateTime"]["output"];
+  id: Scalars["ID"]["output"];
   runs: Array<SourceRunType>;
-  scheduleCron?: Maybe<Scalars['String']['output']>;
-  scheduleEnabled: Scalars['Boolean']['output'];
-  sourceProfileId: Scalars['String']['output'];
-  surfaceUrl: Scalars['String']['output'];
+  scheduleCron?: Maybe<Scalars["String"]["output"]>;
+  scheduleEnabled: Scalars["Boolean"]["output"];
+  sourceProfileId: Scalars["String"]["output"];
+  surfaceUrl: Scalars["String"]["output"];
 };
 
 export type Subscription = {
-  __typename?: 'Subscription';
+  __typename?: "Subscription";
   sourceRunEvents: SourceRunEvent;
 };
 
 export type UpdateApplicationInput = {
-  company?: InputMaybe<Scalars['String']['input']>;
-  companyId?: InputMaybe<Scalars['ID']['input']>;
-  description?: InputMaybe<Scalars['String']['input']>;
-  salaryCurrency?: InputMaybe<Scalars['String']['input']>;
-  salaryMaxCents?: InputMaybe<Scalars['Int']['input']>;
-  salaryMinCents?: InputMaybe<Scalars['Int']['input']>;
+  company?: InputMaybe<Scalars["String"]["input"]>;
+  companyId?: InputMaybe<Scalars["ID"]["input"]>;
+  description?: InputMaybe<Scalars["String"]["input"]>;
+  salaryCurrency?: InputMaybe<Scalars["String"]["input"]>;
+  salaryMaxCents?: InputMaybe<Scalars["Int"]["input"]>;
+  salaryMinCents?: InputMaybe<Scalars["Int"]["input"]>;
   salaryPeriod?: InputMaybe<SalaryPeriod>;
   source?: InputMaybe<ApplicationSource>;
-  tags?: InputMaybe<Array<Scalars['String']['input']>>;
-  title?: InputMaybe<Scalars['String']['input']>;
-  urls?: InputMaybe<Array<Scalars['String']['input']>>;
+  tags?: InputMaybe<Array<Scalars["String"]["input"]>>;
+  title?: InputMaybe<Scalars["String"]["input"]>;
+  urls?: InputMaybe<Array<Scalars["String"]["input"]>>;
 };
 
 export type UpdateApplicationStageEventInput = {
-  reason?: InputMaybe<Scalars['String']['input']>;
-  scheduledAt?: InputMaybe<Scalars['DateTime']['input']>;
+  reason?: InputMaybe<Scalars["String"]["input"]>;
+  scheduledAt?: InputMaybe<Scalars["DateTime"]["input"]>;
   toStage?: InputMaybe<ApplicationStage>;
 };
 
 export type UpdateCompanyInput = {
-  description?: InputMaybe<Scalars['String']['input']>;
-  name?: InputMaybe<Scalars['String']['input']>;
+  description?: InputMaybe<Scalars["String"]["input"]>;
+  name?: InputMaybe<Scalars["String"]["input"]>;
 };
 
-export type UpdateDraftApplicationInput = {
-  title: Scalars['String']['input'];
-};
+export type UpdateDraftApplicationInput = { title: Scalars["String"]["input"] };
 
 export type UpdateNoteInput = {
-  content?: InputMaybe<Scalars['String']['input']>;
-  expectedRevision: Scalars['Int']['input'];
+  content?: InputMaybe<Scalars["String"]["input"]>;
+  expectedRevision: Scalars["Int"]["input"];
 };
 
 export type UpdateResumeInput = {
-  content?: InputMaybe<Scalars['String']['input']>;
-  isDefault?: InputMaybe<Scalars['Boolean']['input']>;
-  title?: InputMaybe<Scalars['String']['input']>;
+  content?: InputMaybe<Scalars["String"]["input"]>;
+  isDefault?: InputMaybe<Scalars["Boolean"]["input"]>;
+  title?: InputMaybe<Scalars["String"]["input"]>;
 };
 
-export type UpdateSourceInput = {
-  scheduleCron?: InputMaybe<Scalars['String']['input']>;
-  scheduleEnabled?: InputMaybe<Scalars['Boolean']['input']>;
-  surfaceUrl?: InputMaybe<Scalars['String']['input']>;
-};
+export type UpdateSourceRunInput = { surfaceUrl: Scalars["String"]["input"] };
 
-export type UpdateSourceRunInput = {
-  surfaceUrl: Scalars['String']['input'];
+export type UpdateSourceTemplateInput = {
+  scheduleCron?: InputMaybe<Scalars["String"]["input"]>;
+  scheduleEnabled?: InputMaybe<Scalars["Boolean"]["input"]>;
+  surfaceUrl?: InputMaybe<Scalars["String"]["input"]>;
 };
 
 export type UserType = {
-  __typename?: 'UserType';
-  avatarUrl?: Maybe<Scalars['String']['output']>;
-  email: Scalars['String']['output'];
-  id: Scalars['ID']['output'];
-  name: Scalars['String']['output'];
-  role: Scalars['String']['output'];
+  __typename?: "UserType";
+  avatarUrl?: Maybe<Scalars["String"]["output"]>;
+  email: Scalars["String"]["output"];
+  id: Scalars["ID"]["output"];
+  name: Scalars["String"]["output"];
+  role: Scalars["String"]["output"];
 };
 
 export enum WeightEnum {
-  High = 'HIGH',
-  Low = 'LOW'
+  High = "HIGH",
+  Low = "LOW",
 }
 
-export type ApplicationSalarySelectionFragment = { __typename?: 'ApplicationType', salary: { __typename?: 'ApplicationSalary', minCents?: number | null, maxCents?: number | null, currency?: string | null, period?: SalaryPeriod | null } };
+export type ApplicationSalarySelectionFragment = {
+  __typename?: "ApplicationType";
+  salary: {
+    __typename?: "ApplicationSalary";
+    minCents?: number | null;
+    maxCents?: number | null;
+    currency?: string | null;
+    period?: SalaryPeriod | null;
+  };
+};
 
 export type ApplicationsQueryVariables = Exact<{
   filter?: InputMaybe<ApplicationQuickFilter>;
-  company?: InputMaybe<Scalars['String']['input']>;
-  runId?: InputMaybe<Scalars['ID']['input']>;
+  company?: InputMaybe<Scalars["String"]["input"]>;
+  runId?: InputMaybe<Scalars["ID"]["input"]>;
 }>;
 
+export type ApplicationsQuery = {
+  __typename?: "Query";
+  applications: Array<{
+    __typename?: "ApplicationType";
+    id: string;
+    title: string;
+    companyId: string;
+    description?: string | null;
+    urls: Array<string>;
+    source?: ApplicationSource | null;
+    tags: Array<string>;
+    sourceRunId?: string | null;
+    currentStage: ApplicationStage;
+    currentStageReason?: string | null;
+    currentStageAt: any;
+    createdAt: any;
+    company: {
+      __typename?: "CompanyType";
+      id: string;
+      name: string;
+      description?: string | null;
+    };
+    fit?: {
+      __typename?: "FitAnalysisType";
+      id: string;
+      scoreRatio?: number | null;
+      classification?: string | null;
+      fitCount: number;
+      gapCount: number;
+      unclearCount: number;
+      status: FitAnalysisStatus;
+      error?: string | null;
+    } | null;
+    salary: {
+      __typename?: "ApplicationSalary";
+      minCents?: number | null;
+      maxCents?: number | null;
+      currency?: string | null;
+      period?: SalaryPeriod | null;
+    };
+  }>;
+};
 
-export type ApplicationsQuery = { __typename?: 'Query', applications: Array<{ __typename?: 'ApplicationType', id: string, title: string, companyId: string, description?: string | null, urls: Array<string>, source?: ApplicationSource | null, tags: Array<string>, sourceRunId?: string | null, currentStage: ApplicationStage, currentStageReason?: string | null, currentStageAt: any, createdAt: any, company: { __typename?: 'CompanyType', id: string, name: string, description?: string | null }, fit?: { __typename?: 'FitAnalysisType', id: string, scoreRatio?: number | null, classification?: string | null, fitCount: number, gapCount: number, unclearCount: number, status: FitAnalysisStatus, error?: string | null } | null, salary: { __typename?: 'ApplicationSalary', minCents?: number | null, maxCents?: number | null, currency?: string | null, period?: SalaryPeriod | null } }> };
+export type ApplicationQueryVariables = Exact<{ id: Scalars["ID"]["input"] }>;
 
-export type ApplicationQueryVariables = Exact<{
-  id: Scalars['ID']['input'];
-}>;
-
-
-export type ApplicationQuery = { __typename?: 'Query', application: { __typename?: 'ApplicationType', id: string, title: string, companyId: string, description?: string | null, urls: Array<string>, source?: ApplicationSource | null, tags: Array<string>, sourceRunId?: string | null, currentStage: ApplicationStage, currentStageReason?: string | null, currentStageAt: any, createdAt: any, company: { __typename?: 'CompanyType', id: string, name: string, description?: string | null }, fit?: { __typename?: 'FitAnalysisType', id: string, scoreRatio?: number | null, classification?: string | null, fitCount: number, gapCount: number, unclearCount: number, status: FitAnalysisStatus, error?: string | null } | null, salary: { __typename?: 'ApplicationSalary', minCents?: number | null, maxCents?: number | null, currency?: string | null, period?: SalaryPeriod | null } } };
+export type ApplicationQuery = {
+  __typename?: "Query";
+  application: {
+    __typename?: "ApplicationType";
+    id: string;
+    title: string;
+    companyId: string;
+    description?: string | null;
+    urls: Array<string>;
+    source?: ApplicationSource | null;
+    tags: Array<string>;
+    sourceRunId?: string | null;
+    currentStage: ApplicationStage;
+    currentStageReason?: string | null;
+    currentStageAt: any;
+    createdAt: any;
+    company: {
+      __typename?: "CompanyType";
+      id: string;
+      name: string;
+      description?: string | null;
+    };
+    fit?: {
+      __typename?: "FitAnalysisType";
+      id: string;
+      scoreRatio?: number | null;
+      classification?: string | null;
+      fitCount: number;
+      gapCount: number;
+      unclearCount: number;
+      status: FitAnalysisStatus;
+      error?: string | null;
+    } | null;
+    salary: {
+      __typename?: "ApplicationSalary";
+      minCents?: number | null;
+      maxCents?: number | null;
+      currency?: string | null;
+      period?: SalaryPeriod | null;
+    };
+  };
+};
 
 export type CreateApplicationMutationVariables = Exact<{
   input: CreateApplicationInput;
 }>;
 
-
-export type CreateApplicationMutation = { __typename?: 'Mutation', createApplication: { __typename?: 'ApplicationType', id: string, title: string, companyId: string, description?: string | null, urls: Array<string>, source?: ApplicationSource | null, tags: Array<string>, createdAt: any, company: { __typename?: 'CompanyType', id: string, name: string, description?: string | null }, salary: { __typename?: 'ApplicationSalary', minCents?: number | null, maxCents?: number | null, currency?: string | null, period?: SalaryPeriod | null } } };
+export type CreateApplicationMutation = {
+  __typename?: "Mutation";
+  createApplication: {
+    __typename?: "ApplicationType";
+    id: string;
+    title: string;
+    companyId: string;
+    description?: string | null;
+    urls: Array<string>;
+    source?: ApplicationSource | null;
+    tags: Array<string>;
+    createdAt: any;
+    company: {
+      __typename?: "CompanyType";
+      id: string;
+      name: string;
+      description?: string | null;
+    };
+    salary: {
+      __typename?: "ApplicationSalary";
+      minCents?: number | null;
+      maxCents?: number | null;
+      currency?: string | null;
+      period?: SalaryPeriod | null;
+    };
+  };
+};
 
 export type GenerateCompanyDescriptionQueryVariables = Exact<{
-  companyName: Scalars['String']['input'];
+  companyName: Scalars["String"]["input"];
 }>;
 
-
-export type GenerateCompanyDescriptionQuery = { __typename?: 'Query', generateCompanyDescription: string };
+export type GenerateCompanyDescriptionQuery = {
+  __typename?: "Query";
+  generateCompanyDescription: string;
+};
 
 export type UpdateApplicationMutationVariables = Exact<{
-  id: Scalars['ID']['input'];
+  id: Scalars["ID"]["input"];
   input: UpdateApplicationInput;
 }>;
 
-
-export type UpdateApplicationMutation = { __typename?: 'Mutation', updateApplication: { __typename?: 'ApplicationType', id: string, title: string, companyId: string, description?: string | null, urls: Array<string>, source?: ApplicationSource | null, tags: Array<string>, createdAt: any, company: { __typename?: 'CompanyType', id: string, name: string, description?: string | null }, salary: { __typename?: 'ApplicationSalary', minCents?: number | null, maxCents?: number | null, currency?: string | null, period?: SalaryPeriod | null } } };
+export type UpdateApplicationMutation = {
+  __typename?: "Mutation";
+  updateApplication: {
+    __typename?: "ApplicationType";
+    id: string;
+    title: string;
+    companyId: string;
+    description?: string | null;
+    urls: Array<string>;
+    source?: ApplicationSource | null;
+    tags: Array<string>;
+    createdAt: any;
+    company: {
+      __typename?: "CompanyType";
+      id: string;
+      name: string;
+      description?: string | null;
+    };
+    salary: {
+      __typename?: "ApplicationSalary";
+      minCents?: number | null;
+      maxCents?: number | null;
+      currency?: string | null;
+      period?: SalaryPeriod | null;
+    };
+  };
+};
 
 export type RemoveApplicationTagMutationVariables = Exact<{
-  id: Scalars['ID']['input'];
-  tag: Scalars['String']['input'];
+  id: Scalars["ID"]["input"];
+  tag: Scalars["String"]["input"];
 }>;
 
-
-export type RemoveApplicationTagMutation = { __typename?: 'Mutation', removeApplicationTag: { __typename?: 'ApplicationType', id: string, tags: Array<string> } };
+export type RemoveApplicationTagMutation = {
+  __typename?: "Mutation";
+  removeApplicationTag: {
+    __typename?: "ApplicationType";
+    id: string;
+    tags: Array<string>;
+  };
+};
 
 export type DeleteApplicationMutationVariables = Exact<{
-  id: Scalars['ID']['input'];
+  id: Scalars["ID"]["input"];
 }>;
 
-
-export type DeleteApplicationMutation = { __typename?: 'Mutation', deleteApplication: { __typename?: 'DeleteMutationPayloadType', success: boolean, deletedId: string } };
+export type DeleteApplicationMutation = {
+  __typename?: "Mutation";
+  deleteApplication: {
+    __typename?: "DeleteMutationPayloadType";
+    success: boolean;
+    deletedId: string;
+  };
+};
 
 export type ApplicationStageEventsQueryVariables = Exact<{
-  applicationId: Scalars['ID']['input'];
+  applicationId: Scalars["ID"]["input"];
 }>;
 
-
-export type ApplicationStageEventsQuery = { __typename?: 'Query', applicationStageEvents: Array<{ __typename?: 'ApplicationStageEventType', id: string, applicationId: string, fromStage?: ApplicationStage | null, toStage: ApplicationStage, source: string, reason?: string | null, scheduledAt?: any | null, createdAt: any }> };
+export type ApplicationStageEventsQuery = {
+  __typename?: "Query";
+  applicationStageEvents: Array<{
+    __typename?: "ApplicationStageEventType";
+    id: string;
+    applicationId: string;
+    fromStage?: ApplicationStage | null;
+    toStage: ApplicationStage;
+    source: string;
+    reason?: string | null;
+    scheduledAt?: any | null;
+    createdAt: any;
+  }>;
+};
 
 export type CreateApplicationStageEventMutationVariables = Exact<{
   input: CreateApplicationStageEventInput;
 }>;
 
-
-export type CreateApplicationStageEventMutation = { __typename?: 'Mutation', createApplicationStageEvent: { __typename?: 'ApplicationStageEventType', id: string, applicationId: string, fromStage?: ApplicationStage | null, toStage: ApplicationStage, source: string, reason?: string | null, scheduledAt?: any | null, createdAt: any } };
+export type CreateApplicationStageEventMutation = {
+  __typename?: "Mutation";
+  createApplicationStageEvent: {
+    __typename?: "ApplicationStageEventType";
+    id: string;
+    applicationId: string;
+    fromStage?: ApplicationStage | null;
+    toStage: ApplicationStage;
+    source: string;
+    reason?: string | null;
+    scheduledAt?: any | null;
+    createdAt: any;
+  };
+};
 
 export type UpdateApplicationStageEventMutationVariables = Exact<{
-  id: Scalars['ID']['input'];
+  id: Scalars["ID"]["input"];
   input: UpdateApplicationStageEventInput;
 }>;
 
-
-export type UpdateApplicationStageEventMutation = { __typename?: 'Mutation', updateApplicationStageEvent: { __typename?: 'ApplicationStageEventType', id: string, applicationId: string, fromStage?: ApplicationStage | null, toStage: ApplicationStage, source: string, reason?: string | null, scheduledAt?: any | null, createdAt: any } };
+export type UpdateApplicationStageEventMutation = {
+  __typename?: "Mutation";
+  updateApplicationStageEvent: {
+    __typename?: "ApplicationStageEventType";
+    id: string;
+    applicationId: string;
+    fromStage?: ApplicationStage | null;
+    toStage: ApplicationStage;
+    source: string;
+    reason?: string | null;
+    scheduledAt?: any | null;
+    createdAt: any;
+  };
+};
 
 export type DeleteApplicationStageEventMutationVariables = Exact<{
-  id: Scalars['ID']['input'];
+  id: Scalars["ID"]["input"];
 }>;
 
-
-export type DeleteApplicationStageEventMutation = { __typename?: 'Mutation', deleteApplicationStageEvent: { __typename?: 'DeleteMutationPayloadType', success: boolean, deletedId: string } };
+export type DeleteApplicationStageEventMutation = {
+  __typename?: "Mutation";
+  deleteApplicationStageEvent: {
+    __typename?: "DeleteMutationPayloadType";
+    success: boolean;
+    deletedId: string;
+  };
+};
 
 export type ApplicationNotesQueryVariables = Exact<{
-  applicationId: Scalars['ID']['input'];
+  applicationId: Scalars["ID"]["input"];
 }>;
 
-
-export type ApplicationNotesQuery = { __typename?: 'Query', applicationNotes: Array<{ __typename?: 'NoteType', id: string, applicationId?: string | null, content: string, revision: number, createdAt: any, updatedAt: any }> };
+export type ApplicationNotesQuery = {
+  __typename?: "Query";
+  applicationNotes: Array<{
+    __typename?: "NoteType";
+    id: string;
+    applicationId?: string | null;
+    content: string;
+    revision: number;
+    createdAt: any;
+    updatedAt: any;
+  }>;
+};
 
 export type CreateApplicationNoteMutationVariables = Exact<{
   input: CreateNoteInput;
 }>;
 
-
-export type CreateApplicationNoteMutation = { __typename?: 'Mutation', createApplicationNote: { __typename?: 'NoteType', id: string, applicationId?: string | null, content: string, revision: number, createdAt: any, updatedAt: any } };
+export type CreateApplicationNoteMutation = {
+  __typename?: "Mutation";
+  createApplicationNote: {
+    __typename?: "NoteType";
+    id: string;
+    applicationId?: string | null;
+    content: string;
+    revision: number;
+    createdAt: any;
+    updatedAt: any;
+  };
+};
 
 export type UpdateApplicationNoteMutationVariables = Exact<{
-  id: Scalars['ID']['input'];
+  id: Scalars["ID"]["input"];
   input: UpdateNoteInput;
 }>;
 
-
-export type UpdateApplicationNoteMutation = { __typename?: 'Mutation', updateApplicationNote: { __typename?: 'NoteType', id: string, applicationId?: string | null, content: string, revision: number, createdAt: any, updatedAt: any } };
+export type UpdateApplicationNoteMutation = {
+  __typename?: "Mutation";
+  updateApplicationNote: {
+    __typename?: "NoteType";
+    id: string;
+    applicationId?: string | null;
+    content: string;
+    revision: number;
+    createdAt: any;
+    updatedAt: any;
+  };
+};
 
 export type DeleteApplicationNoteMutationVariables = Exact<{
-  id: Scalars['ID']['input'];
+  id: Scalars["ID"]["input"];
 }>;
 
-
-export type DeleteApplicationNoteMutation = { __typename?: 'Mutation', deleteApplicationNote: { __typename?: 'DeleteMutationPayloadType', success: boolean, deletedId: string } };
+export type DeleteApplicationNoteMutation = {
+  __typename?: "Mutation";
+  deleteApplicationNote: {
+    __typename?: "DeleteMutationPayloadType";
+    success: boolean;
+    deletedId: string;
+  };
+};
 
 export type GenerateApplicationNoteWithAiQueryVariables = Exact<{
-  applicationId: Scalars['ID']['input'];
-  note: Scalars['String']['input'];
+  applicationId: Scalars["ID"]["input"];
+  note: Scalars["String"]["input"];
 }>;
 
-
-export type GenerateApplicationNoteWithAiQuery = { __typename?: 'Query', generateApplicationNoteWithAI: string };
+export type GenerateApplicationNoteWithAiQuery = {
+  __typename?: "Query";
+  generateApplicationNoteWithAI: string;
+};
 
 export type RewriteTextWithAiQueryVariables = Exact<{
-  text: Scalars['String']['input'];
+  text: Scalars["String"]["input"];
 }>;
 
-
-export type RewriteTextWithAiQuery = { __typename?: 'Query', rewriteTextWithAI: string };
+export type RewriteTextWithAiQuery = {
+  __typename?: "Query";
+  rewriteTextWithAI: string;
+};
 
 export type RestructureJobDescriptionWithAiQueryVariables = Exact<{
-  text: Scalars['String']['input'];
+  text: Scalars["String"]["input"];
 }>;
 
-
-export type RestructureJobDescriptionWithAiQuery = { __typename?: 'Query', restructureJobDescriptionWithAI: string };
+export type RestructureJobDescriptionWithAiQuery = {
+  __typename?: "Query";
+  restructureJobDescriptionWithAI: string;
+};
 
 export type UpdateCompanyMutationVariables = Exact<{
-  id: Scalars['ID']['input'];
+  id: Scalars["ID"]["input"];
   input: UpdateCompanyInput;
 }>;
 
-
-export type UpdateCompanyMutation = { __typename?: 'Mutation', updateCompany: { __typename?: 'CompanyType', id: string, name: string, description?: string | null } };
+export type UpdateCompanyMutation = {
+  __typename?: "Mutation";
+  updateCompany: {
+    __typename?: "CompanyType";
+    id: string;
+    name: string;
+    description?: string | null;
+  };
+};
 
 export type DeleteCompanyMutationVariables = Exact<{
-  id: Scalars['ID']['input'];
+  id: Scalars["ID"]["input"];
 }>;
 
-
-export type DeleteCompanyMutation = { __typename?: 'Mutation', deleteCompany: { __typename?: 'DeleteMutationPayloadType', success: boolean, deletedId: string } };
+export type DeleteCompanyMutation = {
+  __typename?: "Mutation";
+  deleteCompany: {
+    __typename?: "DeleteMutationPayloadType";
+    success: boolean;
+    deletedId: string;
+  };
+};
 
 export type CompanyApplicationsCountQueryVariables = Exact<{
-  id: Scalars['ID']['input'];
+  id: Scalars["ID"]["input"];
 }>;
 
+export type CompanyApplicationsCountQuery = {
+  __typename?: "Query";
+  companyApplicationsCount: number;
+};
 
-export type CompanyApplicationsCountQuery = { __typename?: 'Query', companyApplicationsCount: number };
+export type CompaniesQueryVariables = Exact<{ [key: string]: never }>;
 
-export type CompaniesQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type CompaniesQuery = { __typename?: 'Query', companies: Array<{ __typename?: 'CompanyType', id: string, name: string, description?: string | null }> };
+export type CompaniesQuery = {
+  __typename?: "Query";
+  companies: Array<{
+    __typename?: "CompanyType";
+    id: string;
+    name: string;
+    description?: string | null;
+  }>;
+};
 
 export type ExchangeRatesQueryVariables = Exact<{
-  base: Scalars['String']['input'];
-  currencies: Array<Scalars['String']['input']> | Scalars['String']['input'];
+  base: Scalars["String"]["input"];
+  currencies: Array<Scalars["String"]["input"]> | Scalars["String"]["input"];
 }>;
 
+export type ExchangeRatesQuery = {
+  __typename?: "Query";
+  exchangeRates: {
+    __typename?: "CurrencyRates";
+    base: string;
+    rates: Array<{
+      __typename?: "ExchangeRate";
+      currency: string;
+      rate: number;
+    }>;
+  };
+};
 
-export type ExchangeRatesQuery = { __typename?: 'Query', exchangeRates: { __typename?: 'CurrencyRates', base: string, rates: Array<{ __typename?: 'ExchangeRate', currency: string, rate: number }> } };
+export type DraftApplicationsListQueryVariables = Exact<{
+  [key: string]: never;
+}>;
 
-export type DraftApplicationsListQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type DraftApplicationsListQuery = { __typename?: 'Query', draftApplications: Array<{ __typename?: 'DraftApplicationType', id: string, applicationId?: string | null, url?: string | null, title: string, conversionStatus: DraftApplicationConversionStatus, conversionError?: string | null, convertedAt?: any | null, createdAt: any }> };
+export type DraftApplicationsListQuery = {
+  __typename?: "Query";
+  draftApplications: Array<{
+    __typename?: "DraftApplicationType";
+    id: string;
+    applicationId?: string | null;
+    url?: string | null;
+    title: string;
+    conversionStatus: DraftApplicationConversionStatus;
+    conversionError?: string | null;
+    convertedAt?: any | null;
+    createdAt: any;
+  }>;
+};
 
 export type DraftApplicationDetailQueryVariables = Exact<{
-  id: Scalars['ID']['input'];
+  id: Scalars["ID"]["input"];
 }>;
 
-
-export type DraftApplicationDetailQuery = { __typename?: 'Query', draftApplication: { __typename?: 'DraftApplicationType', id: string, applicationId?: string | null, url?: string | null, title: string, htmlContent: string, conversionStatus: DraftApplicationConversionStatus, conversionError?: string | null, convertedAt?: any | null, createdAt: any, fit?: { __typename?: 'FitAnalysisType', id: string, applicationId?: string | null, draftApplicationId?: string | null, resumeId: string, status: FitAnalysisStatus, error?: string | null, scoreRatio?: number | null, classification?: string | null, fitCount: number, gapCount: number, unclearCount: number, createdAt: any } | null } };
+export type DraftApplicationDetailQuery = {
+  __typename?: "Query";
+  draftApplication: {
+    __typename?: "DraftApplicationType";
+    id: string;
+    applicationId?: string | null;
+    url?: string | null;
+    title: string;
+    htmlContent: string;
+    conversionStatus: DraftApplicationConversionStatus;
+    conversionError?: string | null;
+    convertedAt?: any | null;
+    createdAt: any;
+    fit?: {
+      __typename?: "FitAnalysisType";
+      id: string;
+      applicationId?: string | null;
+      draftApplicationId?: string | null;
+      resumeId: string;
+      status: FitAnalysisStatus;
+      error?: string | null;
+      scoreRatio?: number | null;
+      classification?: string | null;
+      fitCount: number;
+      gapCount: number;
+      unclearCount: number;
+      createdAt: any;
+    } | null;
+  };
+};
 
 export type DeleteDraftApplicationMutationVariables = Exact<{
-  id: Scalars['ID']['input'];
-  deleteLinkedApplication?: InputMaybe<Scalars['Boolean']['input']>;
+  id: Scalars["ID"]["input"];
+  deleteLinkedApplication?: InputMaybe<Scalars["Boolean"]["input"]>;
 }>;
 
-
-export type DeleteDraftApplicationMutation = { __typename?: 'Mutation', deleteDraftApplication: { __typename?: 'DeleteMutationPayloadType', success: boolean, deletedId: string } };
+export type DeleteDraftApplicationMutation = {
+  __typename?: "Mutation";
+  deleteDraftApplication: {
+    __typename?: "DeleteMutationPayloadType";
+    success: boolean;
+    deletedId: string;
+  };
+};
 
 export type DeleteApplicationsForDraftMutationVariables = Exact<{
-  draftId: Scalars['ID']['input'];
+  draftId: Scalars["ID"]["input"];
 }>;
 
+export type DeleteApplicationsForDraftMutation = {
+  __typename?: "Mutation";
+  deleteApplicationsForDraft: {
+    __typename?: "DeleteMutationPayloadType";
+    success: boolean;
+    deletedId: string;
+  };
+};
 
-export type DeleteApplicationsForDraftMutation = { __typename?: 'Mutation', deleteApplicationsForDraft: { __typename?: 'DeleteMutationPayloadType', success: boolean, deletedId: string } };
-
-export type CreateApplicationWithAiV2MutationVariables = Exact<{
-  draftId: Scalars['ID']['input'];
+export type CreateApplicationWithAiMutationVariables = Exact<{
+  draftId: Scalars["ID"]["input"];
 }>;
 
-
-export type CreateApplicationWithAiV2Mutation = { __typename?: 'Mutation', createApplicationWithAIV2: { __typename?: 'DraftApplicationType', id: string, title: string, conversionStatus: DraftApplicationConversionStatus, conversionError?: string | null } };
+export type CreateApplicationWithAiMutation = {
+  __typename?: "Mutation";
+  createApplicationWithAI: {
+    __typename?: "DraftApplicationType";
+    id: string;
+    title: string;
+    conversionStatus: DraftApplicationConversionStatus;
+    conversionError?: string | null;
+  };
+};
 
 export type CreateDraftApplicationMutationVariables = Exact<{
   input: CreateDraftApplicationInput;
 }>;
 
-
-export type CreateDraftApplicationMutation = { __typename?: 'Mutation', createDraftApplication: { __typename?: 'DraftApplicationType', id: string, applicationId?: string | null, url?: string | null, title: string, conversionStatus: DraftApplicationConversionStatus, conversionError?: string | null } };
+export type CreateDraftApplicationMutation = {
+  __typename?: "Mutation";
+  createDraftApplication: {
+    __typename?: "DraftApplicationType";
+    id: string;
+    applicationId?: string | null;
+    url?: string | null;
+    title: string;
+    conversionStatus: DraftApplicationConversionStatus;
+    conversionError?: string | null;
+  };
+};
 
 export type UpdateDraftApplicationMutationVariables = Exact<{
-  id: Scalars['ID']['input'];
+  id: Scalars["ID"]["input"];
   input: UpdateDraftApplicationInput;
 }>;
 
+export type UpdateDraftApplicationMutation = {
+  __typename?: "Mutation";
+  updateDraftApplication: {
+    __typename?: "DraftApplicationType";
+    id: string;
+    applicationId?: string | null;
+    url?: string | null;
+    title: string;
+    conversionStatus: DraftApplicationConversionStatus;
+    conversionError?: string | null;
+  };
+};
 
-export type UpdateDraftApplicationMutation = { __typename?: 'Mutation', updateDraftApplication: { __typename?: 'DraftApplicationType', id: string, applicationId?: string | null, url?: string | null, title: string, conversionStatus: DraftApplicationConversionStatus, conversionError?: string | null } };
+export type FitAnalysesListQueryVariables = Exact<{ [key: string]: never }>;
 
-export type FitAnalysesListQueryVariables = Exact<{ [key: string]: never; }>;
+export type FitAnalysesListQuery = {
+  __typename?: "Query";
+  fitAnalyses: Array<{
+    __typename?: "FitAnalysisType";
+    id: string;
+    applicationId?: string | null;
+    draftApplicationId?: string | null;
+    resumeId: string;
+    status: FitAnalysisStatus;
+    error?: string | null;
+    scoreRatio?: number | null;
+    classification?: string | null;
+    fitCount: number;
+    gapCount: number;
+    unclearCount: number;
+    createdAt: any;
+    updatedAt: any;
+    application?: {
+      __typename?: "ApplicationType";
+      id: string;
+      title: string;
+      company: { __typename?: "CompanyType"; id: string; name: string };
+    } | null;
+    draftApplication?: {
+      __typename?: "DraftApplicationType";
+      id: string;
+      title: string;
+    } | null;
+  }>;
+};
 
+export type FitQueryVariables = Exact<{ id: Scalars["ID"]["input"] }>;
 
-export type FitAnalysesListQuery = { __typename?: 'Query', fitAnalyses: Array<{ __typename?: 'FitAnalysisType', id: string, applicationId?: string | null, draftApplicationId?: string | null, resumeId: string, status: FitAnalysisStatus, error?: string | null, scoreRatio?: number | null, classification?: string | null, fitCount: number, gapCount: number, unclearCount: number, createdAt: any, updatedAt: any, application?: { __typename?: 'ApplicationType', id: string, title: string, company: { __typename?: 'CompanyType', id: string, name: string } } | null, draftApplication?: { __typename?: 'DraftApplicationType', id: string, title: string } | null }> };
-
-export type FitQueryVariables = Exact<{
-  id: Scalars['ID']['input'];
-}>;
-
-
-export type FitQuery = { __typename?: 'Query', fit?: { __typename?: 'FitAnalysisType', id: string, applicationId?: string | null, draftApplicationId?: string | null, resumeId: string, status: FitAnalysisStatus, error?: string | null, scoreRatio?: number | null, classification?: string | null, fitCount: number, gapCount: number, unclearCount: number, createdAt: any, items: Array<{ __typename?: 'FitItemType', requirement: string, source: string, weight?: string | null, type: string, verdict: string, jdQuote: string, sourceQuotes: Array<string>, suggestion?: string | null }>, application?: { __typename?: 'ApplicationType', id: string, title: string, company: { __typename?: 'CompanyType', id: string, name: string } } | null, draftApplication?: { __typename?: 'DraftApplicationType', id: string, title: string } | null } | null };
+export type FitQuery = {
+  __typename?: "Query";
+  fit?: {
+    __typename?: "FitAnalysisType";
+    id: string;
+    applicationId?: string | null;
+    draftApplicationId?: string | null;
+    resumeId: string;
+    status: FitAnalysisStatus;
+    error?: string | null;
+    scoreRatio?: number | null;
+    classification?: string | null;
+    fitCount: number;
+    gapCount: number;
+    unclearCount: number;
+    createdAt: any;
+    items: Array<{
+      __typename?: "FitItemType";
+      requirement: string;
+      source: string;
+      weight?: string | null;
+      type: string;
+      verdict: string;
+      jdQuote: string;
+      sourceQuotes: Array<string>;
+      suggestion?: string | null;
+    }>;
+    application?: {
+      __typename?: "ApplicationType";
+      id: string;
+      title: string;
+      company: { __typename?: "CompanyType"; id: string; name: string };
+    } | null;
+    draftApplication?: {
+      __typename?: "DraftApplicationType";
+      id: string;
+      title: string;
+    } | null;
+  } | null;
+};
 
 export type ApplicationFitQueryVariables = Exact<{
-  applicationId: Scalars['ID']['input'];
+  applicationId: Scalars["ID"]["input"];
 }>;
 
-
-export type ApplicationFitQuery = { __typename?: 'Query', applicationFit?: { __typename?: 'FitAnalysisType', id: string, applicationId?: string | null, draftApplicationId?: string | null, resumeId: string, status: FitAnalysisStatus, error?: string | null, scoreRatio?: number | null, classification?: string | null, fitCount: number, gapCount: number, unclearCount: number, createdAt: any, items: Array<{ __typename?: 'FitItemType', requirement: string, source: string, weight?: string | null, type: string, verdict: string, jdQuote: string, sourceQuotes: Array<string>, suggestion?: string | null }> } | null };
+export type ApplicationFitQuery = {
+  __typename?: "Query";
+  applicationFit?: {
+    __typename?: "FitAnalysisType";
+    id: string;
+    applicationId?: string | null;
+    draftApplicationId?: string | null;
+    resumeId: string;
+    status: FitAnalysisStatus;
+    error?: string | null;
+    scoreRatio?: number | null;
+    classification?: string | null;
+    fitCount: number;
+    gapCount: number;
+    unclearCount: number;
+    createdAt: any;
+    items: Array<{
+      __typename?: "FitItemType";
+      requirement: string;
+      source: string;
+      weight?: string | null;
+      type: string;
+      verdict: string;
+      jdQuote: string;
+      sourceQuotes: Array<string>;
+      suggestion?: string | null;
+    }>;
+  } | null;
+};
 
 export type DraftApplicationFitQueryVariables = Exact<{
-  draftApplicationId: Scalars['ID']['input'];
+  draftApplicationId: Scalars["ID"]["input"];
 }>;
 
-
-export type DraftApplicationFitQuery = { __typename?: 'Query', draftApplicationFit?: { __typename?: 'FitAnalysisType', id: string, applicationId?: string | null, draftApplicationId?: string | null, resumeId: string, status: FitAnalysisStatus, error?: string | null, scoreRatio?: number | null, classification?: string | null, fitCount: number, gapCount: number, unclearCount: number, createdAt: any, items: Array<{ __typename?: 'FitItemType', requirement: string, source: string, weight?: string | null, type: string, verdict: string, jdQuote: string, sourceQuotes: Array<string>, suggestion?: string | null }> } | null };
+export type DraftApplicationFitQuery = {
+  __typename?: "Query";
+  draftApplicationFit?: {
+    __typename?: "FitAnalysisType";
+    id: string;
+    applicationId?: string | null;
+    draftApplicationId?: string | null;
+    resumeId: string;
+    status: FitAnalysisStatus;
+    error?: string | null;
+    scoreRatio?: number | null;
+    classification?: string | null;
+    fitCount: number;
+    gapCount: number;
+    unclearCount: number;
+    createdAt: any;
+    items: Array<{
+      __typename?: "FitItemType";
+      requirement: string;
+      source: string;
+      weight?: string | null;
+      type: string;
+      verdict: string;
+      jdQuote: string;
+      sourceQuotes: Array<string>;
+      suggestion?: string | null;
+    }>;
+  } | null;
+};
 
 export type GenerateApplicationFitMutationVariables = Exact<{
   input: GenerateFitInput;
 }>;
 
-
-export type GenerateApplicationFitMutation = { __typename?: 'Mutation', generateApplicationFit: { __typename?: 'FitAnalysisType', id: string, applicationId?: string | null, draftApplicationId?: string | null, resumeId: string, status: FitAnalysisStatus, error?: string | null, scoreRatio?: number | null, classification?: string | null, fitCount: number, gapCount: number, unclearCount: number, createdAt: any, items: Array<{ __typename?: 'FitItemType', requirement: string, source: string, weight?: string | null, type: string, verdict: string, jdQuote: string, sourceQuotes: Array<string>, suggestion?: string | null }> } };
+export type GenerateApplicationFitMutation = {
+  __typename?: "Mutation";
+  generateApplicationFit: {
+    __typename?: "FitAnalysisType";
+    id: string;
+    applicationId?: string | null;
+    draftApplicationId?: string | null;
+    resumeId: string;
+    status: FitAnalysisStatus;
+    error?: string | null;
+    scoreRatio?: number | null;
+    classification?: string | null;
+    fitCount: number;
+    gapCount: number;
+    unclearCount: number;
+    createdAt: any;
+    items: Array<{
+      __typename?: "FitItemType";
+      requirement: string;
+      source: string;
+      weight?: string | null;
+      type: string;
+      verdict: string;
+      jdQuote: string;
+      sourceQuotes: Array<string>;
+      suggestion?: string | null;
+    }>;
+  };
+};
 
 export type DeleteFitAnalysisMutationVariables = Exact<{
-  id: Scalars['ID']['input'];
+  id: Scalars["ID"]["input"];
 }>;
 
-
-export type DeleteFitAnalysisMutation = { __typename?: 'Mutation', deleteFitAnalysis: { __typename?: 'DeleteMutationPayloadType', success: boolean, deletedId: string } };
+export type DeleteFitAnalysisMutation = {
+  __typename?: "Mutation";
+  deleteFitAnalysis: {
+    __typename?: "DeleteMutationPayloadType";
+    success: boolean;
+    deletedId: string;
+  };
+};
 
 export type GenerateDraftApplicationFitMutationVariables = Exact<{
   input: GenerateDraftFitInput;
 }>;
 
+export type GenerateDraftApplicationFitMutation = {
+  __typename?: "Mutation";
+  generateDraftApplicationFit: {
+    __typename?: "FitAnalysisType";
+    id: string;
+    applicationId?: string | null;
+    draftApplicationId?: string | null;
+    resumeId: string;
+    status: FitAnalysisStatus;
+    error?: string | null;
+    scoreRatio?: number | null;
+    classification?: string | null;
+    fitCount: number;
+    gapCount: number;
+    unclearCount: number;
+    createdAt: any;
+    items: Array<{
+      __typename?: "FitItemType";
+      requirement: string;
+      source: string;
+      weight?: string | null;
+      type: string;
+      verdict: string;
+      jdQuote: string;
+      sourceQuotes: Array<string>;
+      suggestion?: string | null;
+    }>;
+  };
+};
 
-export type GenerateDraftApplicationFitMutation = { __typename?: 'Mutation', generateDraftApplicationFit: { __typename?: 'FitAnalysisType', id: string, applicationId?: string | null, draftApplicationId?: string | null, resumeId: string, status: FitAnalysisStatus, error?: string | null, scoreRatio?: number | null, classification?: string | null, fitCount: number, gapCount: number, unclearCount: number, createdAt: any, items: Array<{ __typename?: 'FitItemType', requirement: string, source: string, weight?: string | null, type: string, verdict: string, jdQuote: string, sourceQuotes: Array<string>, suggestion?: string | null }> } };
+export type MeQueryVariables = Exact<{ [key: string]: never }>;
 
-export type MeQueryVariables = Exact<{ [key: string]: never; }>;
+export type MeQuery = {
+  __typename?: "Query";
+  me: {
+    __typename?: "UserType";
+    id: string;
+    email: string;
+    name: string;
+    role: string;
+    avatarUrl?: string | null;
+  };
+};
 
+export type ResumesQueryVariables = Exact<{ [key: string]: never }>;
 
-export type MeQuery = { __typename?: 'Query', me: { __typename?: 'UserType', id: string, email: string, name: string, role: string, avatarUrl?: string | null } };
+export type ResumesQuery = {
+  __typename?: "Query";
+  resumes: Array<{
+    __typename?: "ResumeType";
+    id: string;
+    title: string;
+    content: string;
+    isDefault: boolean;
+    createdAt: any;
+    updatedAt: any;
+  }>;
+};
 
-export type ResumesQueryVariables = Exact<{ [key: string]: never; }>;
+export type ResumeQueryVariables = Exact<{ id: Scalars["ID"]["input"] }>;
 
+export type ResumeQuery = {
+  __typename?: "Query";
+  resume: {
+    __typename?: "ResumeType";
+    id: string;
+    userId: string;
+    title: string;
+    content: string;
+    isDefault: boolean;
+    createdAt: any;
+    updatedAt: any;
+  };
+};
 
-export type ResumesQuery = { __typename?: 'Query', resumes: Array<{ __typename?: 'ResumeType', id: string, title: string, content: string, isDefault: boolean, createdAt: any, updatedAt: any }> };
+export type CreateResumeMutationVariables = Exact<{ input: CreateResumeInput }>;
 
-export type ResumeQueryVariables = Exact<{
-  id: Scalars['ID']['input'];
-}>;
-
-
-export type ResumeQuery = { __typename?: 'Query', resume: { __typename?: 'ResumeType', id: string, userId: string, title: string, content: string, isDefault: boolean, createdAt: any, updatedAt: any } };
-
-export type CreateResumeMutationVariables = Exact<{
-  input: CreateResumeInput;
-}>;
-
-
-export type CreateResumeMutation = { __typename?: 'Mutation', createResume: { __typename?: 'ResumeType', id: string, title: string, content: string, isDefault: boolean, createdAt: any, updatedAt: any } };
+export type CreateResumeMutation = {
+  __typename?: "Mutation";
+  createResume: {
+    __typename?: "ResumeType";
+    id: string;
+    title: string;
+    content: string;
+    isDefault: boolean;
+    createdAt: any;
+    updatedAt: any;
+  };
+};
 
 export type UpdateResumeMutationVariables = Exact<{
-  id: Scalars['ID']['input'];
+  id: Scalars["ID"]["input"];
   input: UpdateResumeInput;
 }>;
 
-
-export type UpdateResumeMutation = { __typename?: 'Mutation', updateResume: { __typename?: 'ResumeType', id: string, title: string, content: string, isDefault: boolean, createdAt: any, updatedAt: any } };
+export type UpdateResumeMutation = {
+  __typename?: "Mutation";
+  updateResume: {
+    __typename?: "ResumeType";
+    id: string;
+    title: string;
+    content: string;
+    isDefault: boolean;
+    createdAt: any;
+    updatedAt: any;
+  };
+};
 
 export type DeleteResumeMutationVariables = Exact<{
-  id: Scalars['ID']['input'];
+  id: Scalars["ID"]["input"];
 }>;
 
+export type DeleteResumeMutation = {
+  __typename?: "Mutation";
+  deleteResume: {
+    __typename?: "DeleteMutationPayloadType";
+    success: boolean;
+    deletedId: string;
+  };
+};
 
-export type DeleteResumeMutation = { __typename?: 'Mutation', deleteResume: { __typename?: 'DeleteMutationPayloadType', success: boolean, deletedId: string } };
+export type SourceProfilesListQueryVariables = Exact<{ [key: string]: never }>;
 
-export type SourceProfilesListQueryVariables = Exact<{ [key: string]: never; }>;
+export type SourceProfilesListQuery = {
+  __typename?: "Query";
+  sourceProfiles: Array<{
+    __typename?: "SourceProfileType";
+    sourceProfileId: string;
+    name: string;
+  }>;
+};
 
+export type SourceProfilesForNewSourcePickerQueryVariables = Exact<{
+  [key: string]: never;
+}>;
 
-export type SourceProfilesListQuery = { __typename?: 'Query', sourceProfiles: Array<{ __typename?: 'SourceProfileType', sourceProfileId: string, name: string }> };
-
-export type SourceProfilesForNewSourcePickerQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type SourceProfilesForNewSourcePickerQuery = { __typename?: 'Query', sourceProfiles: Array<{ __typename?: 'SourceProfileType', sourceProfileId: string, name: string }> };
+export type SourceProfilesForNewSourcePickerQuery = {
+  __typename?: "Query";
+  sourceProfiles: Array<{
+    __typename?: "SourceProfileType";
+    sourceProfileId: string;
+    name: string;
+  }>;
+};
 
 export type SourcesForSourceProfileQueryVariables = Exact<{
-  sourceProfileId: Scalars['String']['input'];
+  sourceProfileId: Scalars["String"]["input"];
 }>;
 
+export type SourcesForSourceProfileQuery = {
+  __typename?: "Query";
+  sourceTemplatesForSourceProfile: Array<{
+    __typename?: "SourceTemplateType";
+    id: string;
+    sourceProfileId: string;
+    scheduleCron?: string | null;
+    scheduleEnabled: boolean;
+    surfaceUrl: string;
+    createdAt: any;
+    runs: Array<{
+      __typename?: "SourceRunType";
+      id: string;
+      status: SourceRunStatus;
+      startedAt: any;
+    }>;
+  }>;
+};
 
-export type SourcesForSourceProfileQuery = { __typename?: 'Query', sourcesForSourceProfile: Array<{ __typename?: 'SourceTemplateType', id: string, sourceProfileId: string, scheduleCron?: string | null, scheduleEnabled: boolean, surfaceUrl: string, createdAt: any, runs: Array<{ __typename?: 'SourceRunType', id: string, status: SourceRunStatus, startedAt: any }> }> };
-
-export type UpdateSourceMutationVariables = Exact<{
-  id: Scalars['ID']['input'];
-  input: UpdateSourceInput;
+export type UpdateSourceTemplateMutationVariables = Exact<{
+  id: Scalars["ID"]["input"];
+  input: UpdateSourceTemplateInput;
 }>;
 
+export type UpdateSourceTemplateMutation = {
+  __typename?: "Mutation";
+  updateSourceTemplate: {
+    __typename?: "SourceTemplateType";
+    id: string;
+    sourceProfileId: string;
+    scheduleCron?: string | null;
+    scheduleEnabled: boolean;
+    surfaceUrl: string;
+    createdAt: any;
+    runs: Array<{
+      __typename?: "SourceRunType";
+      id: string;
+      status: SourceRunStatus;
+      startedAt: any;
+    }>;
+  };
+};
 
-export type UpdateSourceMutation = { __typename?: 'Mutation', updateSource: { __typename?: 'SourceTemplateType', id: string, sourceProfileId: string, scheduleCron?: string | null, scheduleEnabled: boolean, surfaceUrl: string, createdAt: any, runs: Array<{ __typename?: 'SourceRunType', id: string, status: SourceRunStatus, startedAt: any }> } };
-
-export type DeleteSourceMutationVariables = Exact<{
-  id: Scalars['ID']['input'];
+export type DeleteSourceTemplateMutationVariables = Exact<{
+  id: Scalars["ID"]["input"];
 }>;
 
+export type DeleteSourceTemplateMutation = {
+  __typename?: "Mutation";
+  deleteSourceTemplate: {
+    __typename?: "DeleteMutationPayloadType";
+    success: boolean;
+    deletedId: string;
+  };
+};
 
-export type DeleteSourceMutation = { __typename?: 'Mutation', deleteSource: { __typename?: 'DeleteMutationPayloadType', success: boolean, deletedId: string } };
-
-export type CreateSourceMutationVariables = Exact<{
-  input: CreateSourceInput;
+export type CreateSourceTemplateMutationVariables = Exact<{
+  input: CreateSourceTemplateInput;
 }>;
 
+export type CreateSourceTemplateMutation = {
+  __typename?: "Mutation";
+  createSourceTemplate: {
+    __typename?: "SourceTemplateType";
+    id: string;
+    sourceProfileId: string;
+    surfaceUrl: string;
+    scheduleCron?: string | null;
+    scheduleEnabled: boolean;
+    createdAt: any;
+  };
+};
 
-export type CreateSourceMutation = { __typename?: 'Mutation', createSource: { __typename?: 'SourceTemplateType', id: string, sourceProfileId: string, surfaceUrl: string, scheduleCron?: string | null, scheduleEnabled: boolean, createdAt: any } };
+export type UserPreferencesQueryVariables = Exact<{ [key: string]: never }>;
 
-export type UserPreferencesQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type UserPreferencesQuery = { __typename?: 'Query', userPreferences: Array<{ __typename?: 'PreferenceType', text: string, weight: WeightEnum }> };
+export type UserPreferencesQuery = {
+  __typename?: "Query";
+  userPreferences: Array<{
+    __typename?: "PreferenceType";
+    text: string;
+    weight: WeightEnum;
+  }>;
+};
 
 export type UpdateUserPreferencesMutationVariables = Exact<{
   items: Array<PreferenceInput> | PreferenceInput;
 }>;
 
-
-export type UpdateUserPreferencesMutation = { __typename?: 'Mutation', updateUserPreferences: Array<{ __typename?: 'PreferenceType', text: string, weight: WeightEnum }> };
+export type UpdateUserPreferencesMutation = {
+  __typename?: "Mutation";
+  updateUserPreferences: Array<{
+    __typename?: "PreferenceType";
+    text: string;
+    weight: WeightEnum;
+  }>;
+};
 
 export const ApplicationSalarySelectionFragmentDoc = gql`
-    fragment ApplicationSalarySelection on ApplicationType {
-  salary {
-    minCents
-    maxCents
-    currency
-    period
+  fragment ApplicationSalarySelection on ApplicationType {
+    salary {
+      minCents
+      maxCents
+      currency
+      period
+    }
   }
-}
-    `;
+`;
 export const ApplicationsDocument = gql`
-    query Applications($filter: ApplicationQuickFilter, $company: String, $runId: ID) {
-  applications(filter: $filter, company: $company, runId: $runId) {
-    id
-    title
-    companyId
-    company {
+  query Applications(
+    $filter: ApplicationQuickFilter
+    $company: String
+    $runId: ID
+  ) {
+    applications(filter: $filter, company: $company, runId: $runId) {
       id
-      name
+      title
+      companyId
+      company {
+        id
+        name
+        description
+      }
       description
-    }
-    description
-    urls
-    source
-    ...ApplicationSalarySelection
-    tags
-    sourceRunId
-    currentStage
-    currentStageReason
-    currentStageAt
-    createdAt
-    fit {
-      id
-      scoreRatio
-      classification
-      fitCount
-      gapCount
-      unclearCount
-      status
-      error
+      urls
+      source
+      ...ApplicationSalarySelection
+      tags
+      sourceRunId
+      currentStage
+      currentStageReason
+      currentStageAt
+      createdAt
+      fit {
+        id
+        scoreRatio
+        classification
+        fitCount
+        gapCount
+        unclearCount
+        status
+        error
+      }
     }
   }
-}
-    ${ApplicationSalarySelectionFragmentDoc}`;
+  ${ApplicationSalarySelectionFragmentDoc}
+`;
 
 /**
  * __useApplicationsQuery__
@@ -1147,52 +1723,73 @@ export const ApplicationsDocument = gql`
  *   },
  * });
  */
-export function useApplicationsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<ApplicationsQuery, ApplicationsQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useQuery<ApplicationsQuery, ApplicationsQueryVariables>(ApplicationsDocument, options);
-      }
-export function useApplicationsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ApplicationsQuery, ApplicationsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return ApolloReactHooks.useLazyQuery<ApplicationsQuery, ApplicationsQueryVariables>(ApplicationsDocument, options);
-        }
+export function useApplicationsQuery(
+  baseOptions?: ApolloReactHooks.QueryHookOptions<
+    ApplicationsQuery,
+    ApplicationsQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useQuery<
+    ApplicationsQuery,
+    ApplicationsQueryVariables
+  >(ApplicationsDocument, options);
+}
+export function useApplicationsLazyQuery(
+  baseOptions?: ApolloReactHooks.LazyQueryHookOptions<
+    ApplicationsQuery,
+    ApplicationsQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useLazyQuery<
+    ApplicationsQuery,
+    ApplicationsQueryVariables
+  >(ApplicationsDocument, options);
+}
 
-export type ApplicationsQueryHookResult = ReturnType<typeof useApplicationsQuery>;
-export type ApplicationsLazyQueryHookResult = ReturnType<typeof useApplicationsLazyQuery>;
+export type ApplicationsQueryHookResult = ReturnType<
+  typeof useApplicationsQuery
+>;
+export type ApplicationsLazyQueryHookResult = ReturnType<
+  typeof useApplicationsLazyQuery
+>;
 
 export const ApplicationDocument = gql`
-    query Application($id: ID!) {
-  application(id: $id) {
-    id
-    title
-    companyId
-    company {
+  query Application($id: ID!) {
+    application(id: $id) {
       id
-      name
+      title
+      companyId
+      company {
+        id
+        name
+        description
+      }
       description
-    }
-    description
-    urls
-    source
-    ...ApplicationSalarySelection
-    tags
-    sourceRunId
-    currentStage
-    currentStageReason
-    currentStageAt
-    createdAt
-    fit {
-      id
-      scoreRatio
-      classification
-      fitCount
-      gapCount
-      unclearCount
-      status
-      error
+      urls
+      source
+      ...ApplicationSalarySelection
+      tags
+      sourceRunId
+      currentStage
+      currentStageReason
+      currentStageAt
+      createdAt
+      fit {
+        id
+        scoreRatio
+        classification
+        fitCount
+        gapCount
+        unclearCount
+        status
+        error
+      }
     }
   }
-}
-    ${ApplicationSalarySelectionFragmentDoc}`;
+  ${ApplicationSalarySelectionFragmentDoc}
+`;
 
 /**
  * __useApplicationQuery__
@@ -1210,39 +1807,61 @@ export const ApplicationDocument = gql`
  *   },
  * });
  */
-export function useApplicationQuery(baseOptions: ApolloReactHooks.QueryHookOptions<ApplicationQuery, ApplicationQueryVariables> & ({ variables: ApplicationQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
-        const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useQuery<ApplicationQuery, ApplicationQueryVariables>(ApplicationDocument, options);
-      }
-export function useApplicationLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ApplicationQuery, ApplicationQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return ApolloReactHooks.useLazyQuery<ApplicationQuery, ApplicationQueryVariables>(ApplicationDocument, options);
-        }
+export function useApplicationQuery(
+  baseOptions: ApolloReactHooks.QueryHookOptions<
+    ApplicationQuery,
+    ApplicationQueryVariables
+  > &
+    (
+      | { variables: ApplicationQueryVariables; skip?: boolean }
+      | { skip: boolean }
+    ),
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useQuery<ApplicationQuery, ApplicationQueryVariables>(
+    ApplicationDocument,
+    options,
+  );
+}
+export function useApplicationLazyQuery(
+  baseOptions?: ApolloReactHooks.LazyQueryHookOptions<
+    ApplicationQuery,
+    ApplicationQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useLazyQuery<
+    ApplicationQuery,
+    ApplicationQueryVariables
+  >(ApplicationDocument, options);
+}
 
 export type ApplicationQueryHookResult = ReturnType<typeof useApplicationQuery>;
-export type ApplicationLazyQueryHookResult = ReturnType<typeof useApplicationLazyQuery>;
+export type ApplicationLazyQueryHookResult = ReturnType<
+  typeof useApplicationLazyQuery
+>;
 
 export const CreateApplicationDocument = gql`
-    mutation CreateApplication($input: CreateApplicationInput!) {
-  createApplication(input: $input) {
-    id
-    title
-    companyId
-    company {
+  mutation CreateApplication($input: CreateApplicationInput!) {
+    createApplication(input: $input) {
       id
-      name
+      title
+      companyId
+      company {
+        id
+        name
+        description
+      }
       description
+      urls
+      source
+      ...ApplicationSalarySelection
+      tags
+      createdAt
     }
-    description
-    urls
-    source
-    ...ApplicationSalarySelection
-    tags
-    createdAt
   }
-}
-    ${ApplicationSalarySelectionFragmentDoc}`;
-
+  ${ApplicationSalarySelectionFragmentDoc}
+`;
 
 /**
  * __useCreateApplicationMutation__
@@ -1261,17 +1880,24 @@ export const CreateApplicationDocument = gql`
  *   },
  * });
  */
-export function useCreateApplicationMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<CreateApplicationMutation, CreateApplicationMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useMutation<CreateApplicationMutation, CreateApplicationMutationVariables>(CreateApplicationDocument, options);
-      }
-
+export function useCreateApplicationMutation(
+  baseOptions?: ApolloReactHooks.MutationHookOptions<
+    CreateApplicationMutation,
+    CreateApplicationMutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useMutation<
+    CreateApplicationMutation,
+    CreateApplicationMutationVariables
+  >(CreateApplicationDocument, options);
+}
 
 export const GenerateCompanyDescriptionDocument = gql`
-    query GenerateCompanyDescription($companyName: String!) {
-  generateCompanyDescription(companyName: $companyName)
-}
-    `;
+  query GenerateCompanyDescription($companyName: String!) {
+    generateCompanyDescription(companyName: $companyName)
+  }
+`;
 
 /**
  * __useGenerateCompanyDescriptionQuery__
@@ -1289,39 +1915,63 @@ export const GenerateCompanyDescriptionDocument = gql`
  *   },
  * });
  */
-export function useGenerateCompanyDescriptionQuery(baseOptions: ApolloReactHooks.QueryHookOptions<GenerateCompanyDescriptionQuery, GenerateCompanyDescriptionQueryVariables> & ({ variables: GenerateCompanyDescriptionQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
-        const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useQuery<GenerateCompanyDescriptionQuery, GenerateCompanyDescriptionQueryVariables>(GenerateCompanyDescriptionDocument, options);
-      }
-export function useGenerateCompanyDescriptionLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<GenerateCompanyDescriptionQuery, GenerateCompanyDescriptionQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return ApolloReactHooks.useLazyQuery<GenerateCompanyDescriptionQuery, GenerateCompanyDescriptionQueryVariables>(GenerateCompanyDescriptionDocument, options);
-        }
+export function useGenerateCompanyDescriptionQuery(
+  baseOptions: ApolloReactHooks.QueryHookOptions<
+    GenerateCompanyDescriptionQuery,
+    GenerateCompanyDescriptionQueryVariables
+  > &
+    (
+      | { variables: GenerateCompanyDescriptionQueryVariables; skip?: boolean }
+      | { skip: boolean }
+    ),
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useQuery<
+    GenerateCompanyDescriptionQuery,
+    GenerateCompanyDescriptionQueryVariables
+  >(GenerateCompanyDescriptionDocument, options);
+}
+export function useGenerateCompanyDescriptionLazyQuery(
+  baseOptions?: ApolloReactHooks.LazyQueryHookOptions<
+    GenerateCompanyDescriptionQuery,
+    GenerateCompanyDescriptionQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useLazyQuery<
+    GenerateCompanyDescriptionQuery,
+    GenerateCompanyDescriptionQueryVariables
+  >(GenerateCompanyDescriptionDocument, options);
+}
 
-export type GenerateCompanyDescriptionQueryHookResult = ReturnType<typeof useGenerateCompanyDescriptionQuery>;
-export type GenerateCompanyDescriptionLazyQueryHookResult = ReturnType<typeof useGenerateCompanyDescriptionLazyQuery>;
+export type GenerateCompanyDescriptionQueryHookResult = ReturnType<
+  typeof useGenerateCompanyDescriptionQuery
+>;
+export type GenerateCompanyDescriptionLazyQueryHookResult = ReturnType<
+  typeof useGenerateCompanyDescriptionLazyQuery
+>;
 
 export const UpdateApplicationDocument = gql`
-    mutation UpdateApplication($id: ID!, $input: UpdateApplicationInput!) {
-  updateApplication(id: $id, input: $input) {
-    id
-    title
-    companyId
-    company {
+  mutation UpdateApplication($id: ID!, $input: UpdateApplicationInput!) {
+    updateApplication(id: $id, input: $input) {
       id
-      name
+      title
+      companyId
+      company {
+        id
+        name
+        description
+      }
       description
+      urls
+      source
+      ...ApplicationSalarySelection
+      tags
+      createdAt
     }
-    description
-    urls
-    source
-    ...ApplicationSalarySelection
-    tags
-    createdAt
   }
-}
-    ${ApplicationSalarySelectionFragmentDoc}`;
-
+  ${ApplicationSalarySelectionFragmentDoc}
+`;
 
 /**
  * __useUpdateApplicationMutation__
@@ -1341,21 +1991,27 @@ export const UpdateApplicationDocument = gql`
  *   },
  * });
  */
-export function useUpdateApplicationMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<UpdateApplicationMutation, UpdateApplicationMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useMutation<UpdateApplicationMutation, UpdateApplicationMutationVariables>(UpdateApplicationDocument, options);
-      }
-
+export function useUpdateApplicationMutation(
+  baseOptions?: ApolloReactHooks.MutationHookOptions<
+    UpdateApplicationMutation,
+    UpdateApplicationMutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useMutation<
+    UpdateApplicationMutation,
+    UpdateApplicationMutationVariables
+  >(UpdateApplicationDocument, options);
+}
 
 export const RemoveApplicationTagDocument = gql`
-    mutation RemoveApplicationTag($id: ID!, $tag: String!) {
-  removeApplicationTag(id: $id, tag: $tag) {
-    id
-    tags
+  mutation RemoveApplicationTag($id: ID!, $tag: String!) {
+    removeApplicationTag(id: $id, tag: $tag) {
+      id
+      tags
+    }
   }
-}
-    `;
-
+`;
 
 /**
  * __useRemoveApplicationTagMutation__
@@ -1375,21 +2031,27 @@ export const RemoveApplicationTagDocument = gql`
  *   },
  * });
  */
-export function useRemoveApplicationTagMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<RemoveApplicationTagMutation, RemoveApplicationTagMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useMutation<RemoveApplicationTagMutation, RemoveApplicationTagMutationVariables>(RemoveApplicationTagDocument, options);
-      }
-
+export function useRemoveApplicationTagMutation(
+  baseOptions?: ApolloReactHooks.MutationHookOptions<
+    RemoveApplicationTagMutation,
+    RemoveApplicationTagMutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useMutation<
+    RemoveApplicationTagMutation,
+    RemoveApplicationTagMutationVariables
+  >(RemoveApplicationTagDocument, options);
+}
 
 export const DeleteApplicationDocument = gql`
-    mutation DeleteApplication($id: ID!) {
-  deleteApplication(id: $id) {
-    success
-    deletedId
+  mutation DeleteApplication($id: ID!) {
+    deleteApplication(id: $id) {
+      success
+      deletedId
+    }
   }
-}
-    `;
-
+`;
 
 /**
  * __useDeleteApplicationMutation__
@@ -1408,26 +2070,33 @@ export const DeleteApplicationDocument = gql`
  *   },
  * });
  */
-export function useDeleteApplicationMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DeleteApplicationMutation, DeleteApplicationMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useMutation<DeleteApplicationMutation, DeleteApplicationMutationVariables>(DeleteApplicationDocument, options);
-      }
-
+export function useDeleteApplicationMutation(
+  baseOptions?: ApolloReactHooks.MutationHookOptions<
+    DeleteApplicationMutation,
+    DeleteApplicationMutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useMutation<
+    DeleteApplicationMutation,
+    DeleteApplicationMutationVariables
+  >(DeleteApplicationDocument, options);
+}
 
 export const ApplicationStageEventsDocument = gql`
-    query ApplicationStageEvents($applicationId: ID!) {
-  applicationStageEvents(applicationId: $applicationId) {
-    id
-    applicationId
-    fromStage
-    toStage
-    source
-    reason
-    scheduledAt
-    createdAt
+  query ApplicationStageEvents($applicationId: ID!) {
+    applicationStageEvents(applicationId: $applicationId) {
+      id
+      applicationId
+      fromStage
+      toStage
+      source
+      reason
+      scheduledAt
+      createdAt
+    }
   }
-}
-    `;
+`;
 
 /**
  * __useApplicationStageEventsQuery__
@@ -1445,33 +2114,58 @@ export const ApplicationStageEventsDocument = gql`
  *   },
  * });
  */
-export function useApplicationStageEventsQuery(baseOptions: ApolloReactHooks.QueryHookOptions<ApplicationStageEventsQuery, ApplicationStageEventsQueryVariables> & ({ variables: ApplicationStageEventsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
-        const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useQuery<ApplicationStageEventsQuery, ApplicationStageEventsQueryVariables>(ApplicationStageEventsDocument, options);
-      }
-export function useApplicationStageEventsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ApplicationStageEventsQuery, ApplicationStageEventsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return ApolloReactHooks.useLazyQuery<ApplicationStageEventsQuery, ApplicationStageEventsQueryVariables>(ApplicationStageEventsDocument, options);
-        }
+export function useApplicationStageEventsQuery(
+  baseOptions: ApolloReactHooks.QueryHookOptions<
+    ApplicationStageEventsQuery,
+    ApplicationStageEventsQueryVariables
+  > &
+    (
+      | { variables: ApplicationStageEventsQueryVariables; skip?: boolean }
+      | { skip: boolean }
+    ),
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useQuery<
+    ApplicationStageEventsQuery,
+    ApplicationStageEventsQueryVariables
+  >(ApplicationStageEventsDocument, options);
+}
+export function useApplicationStageEventsLazyQuery(
+  baseOptions?: ApolloReactHooks.LazyQueryHookOptions<
+    ApplicationStageEventsQuery,
+    ApplicationStageEventsQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useLazyQuery<
+    ApplicationStageEventsQuery,
+    ApplicationStageEventsQueryVariables
+  >(ApplicationStageEventsDocument, options);
+}
 
-export type ApplicationStageEventsQueryHookResult = ReturnType<typeof useApplicationStageEventsQuery>;
-export type ApplicationStageEventsLazyQueryHookResult = ReturnType<typeof useApplicationStageEventsLazyQuery>;
+export type ApplicationStageEventsQueryHookResult = ReturnType<
+  typeof useApplicationStageEventsQuery
+>;
+export type ApplicationStageEventsLazyQueryHookResult = ReturnType<
+  typeof useApplicationStageEventsLazyQuery
+>;
 
 export const CreateApplicationStageEventDocument = gql`
-    mutation CreateApplicationStageEvent($input: CreateApplicationStageEventInput!) {
-  createApplicationStageEvent(input: $input) {
-    id
-    applicationId
-    fromStage
-    toStage
-    source
-    reason
-    scheduledAt
-    createdAt
+  mutation CreateApplicationStageEvent(
+    $input: CreateApplicationStageEventInput!
+  ) {
+    createApplicationStageEvent(input: $input) {
+      id
+      applicationId
+      fromStage
+      toStage
+      source
+      reason
+      scheduledAt
+      createdAt
+    }
   }
-}
-    `;
-
+`;
 
 /**
  * __useCreateApplicationStageEventMutation__
@@ -1490,27 +2184,36 @@ export const CreateApplicationStageEventDocument = gql`
  *   },
  * });
  */
-export function useCreateApplicationStageEventMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<CreateApplicationStageEventMutation, CreateApplicationStageEventMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useMutation<CreateApplicationStageEventMutation, CreateApplicationStageEventMutationVariables>(CreateApplicationStageEventDocument, options);
-      }
-
+export function useCreateApplicationStageEventMutation(
+  baseOptions?: ApolloReactHooks.MutationHookOptions<
+    CreateApplicationStageEventMutation,
+    CreateApplicationStageEventMutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useMutation<
+    CreateApplicationStageEventMutation,
+    CreateApplicationStageEventMutationVariables
+  >(CreateApplicationStageEventDocument, options);
+}
 
 export const UpdateApplicationStageEventDocument = gql`
-    mutation UpdateApplicationStageEvent($id: ID!, $input: UpdateApplicationStageEventInput!) {
-  updateApplicationStageEvent(id: $id, input: $input) {
-    id
-    applicationId
-    fromStage
-    toStage
-    source
-    reason
-    scheduledAt
-    createdAt
+  mutation UpdateApplicationStageEvent(
+    $id: ID!
+    $input: UpdateApplicationStageEventInput!
+  ) {
+    updateApplicationStageEvent(id: $id, input: $input) {
+      id
+      applicationId
+      fromStage
+      toStage
+      source
+      reason
+      scheduledAt
+      createdAt
+    }
   }
-}
-    `;
-
+`;
 
 /**
  * __useUpdateApplicationStageEventMutation__
@@ -1530,21 +2233,27 @@ export const UpdateApplicationStageEventDocument = gql`
  *   },
  * });
  */
-export function useUpdateApplicationStageEventMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<UpdateApplicationStageEventMutation, UpdateApplicationStageEventMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useMutation<UpdateApplicationStageEventMutation, UpdateApplicationStageEventMutationVariables>(UpdateApplicationStageEventDocument, options);
-      }
-
+export function useUpdateApplicationStageEventMutation(
+  baseOptions?: ApolloReactHooks.MutationHookOptions<
+    UpdateApplicationStageEventMutation,
+    UpdateApplicationStageEventMutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useMutation<
+    UpdateApplicationStageEventMutation,
+    UpdateApplicationStageEventMutationVariables
+  >(UpdateApplicationStageEventDocument, options);
+}
 
 export const DeleteApplicationStageEventDocument = gql`
-    mutation DeleteApplicationStageEvent($id: ID!) {
-  deleteApplicationStageEvent(id: $id) {
-    success
-    deletedId
+  mutation DeleteApplicationStageEvent($id: ID!) {
+    deleteApplicationStageEvent(id: $id) {
+      success
+      deletedId
+    }
   }
-}
-    `;
-
+`;
 
 /**
  * __useDeleteApplicationStageEventMutation__
@@ -1563,24 +2272,31 @@ export const DeleteApplicationStageEventDocument = gql`
  *   },
  * });
  */
-export function useDeleteApplicationStageEventMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DeleteApplicationStageEventMutation, DeleteApplicationStageEventMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useMutation<DeleteApplicationStageEventMutation, DeleteApplicationStageEventMutationVariables>(DeleteApplicationStageEventDocument, options);
-      }
-
+export function useDeleteApplicationStageEventMutation(
+  baseOptions?: ApolloReactHooks.MutationHookOptions<
+    DeleteApplicationStageEventMutation,
+    DeleteApplicationStageEventMutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useMutation<
+    DeleteApplicationStageEventMutation,
+    DeleteApplicationStageEventMutationVariables
+  >(DeleteApplicationStageEventDocument, options);
+}
 
 export const ApplicationNotesDocument = gql`
-    query ApplicationNotes($applicationId: ID!) {
-  applicationNotes(applicationId: $applicationId) {
-    id
-    applicationId
-    content
-    revision
-    createdAt
-    updatedAt
+  query ApplicationNotes($applicationId: ID!) {
+    applicationNotes(applicationId: $applicationId) {
+      id
+      applicationId
+      content
+      revision
+      createdAt
+      updatedAt
+    }
   }
-}
-    `;
+`;
 
 /**
  * __useApplicationNotesQuery__
@@ -1598,31 +2314,54 @@ export const ApplicationNotesDocument = gql`
  *   },
  * });
  */
-export function useApplicationNotesQuery(baseOptions: ApolloReactHooks.QueryHookOptions<ApplicationNotesQuery, ApplicationNotesQueryVariables> & ({ variables: ApplicationNotesQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
-        const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useQuery<ApplicationNotesQuery, ApplicationNotesQueryVariables>(ApplicationNotesDocument, options);
-      }
-export function useApplicationNotesLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ApplicationNotesQuery, ApplicationNotesQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return ApolloReactHooks.useLazyQuery<ApplicationNotesQuery, ApplicationNotesQueryVariables>(ApplicationNotesDocument, options);
-        }
+export function useApplicationNotesQuery(
+  baseOptions: ApolloReactHooks.QueryHookOptions<
+    ApplicationNotesQuery,
+    ApplicationNotesQueryVariables
+  > &
+    (
+      | { variables: ApplicationNotesQueryVariables; skip?: boolean }
+      | { skip: boolean }
+    ),
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useQuery<
+    ApplicationNotesQuery,
+    ApplicationNotesQueryVariables
+  >(ApplicationNotesDocument, options);
+}
+export function useApplicationNotesLazyQuery(
+  baseOptions?: ApolloReactHooks.LazyQueryHookOptions<
+    ApplicationNotesQuery,
+    ApplicationNotesQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useLazyQuery<
+    ApplicationNotesQuery,
+    ApplicationNotesQueryVariables
+  >(ApplicationNotesDocument, options);
+}
 
-export type ApplicationNotesQueryHookResult = ReturnType<typeof useApplicationNotesQuery>;
-export type ApplicationNotesLazyQueryHookResult = ReturnType<typeof useApplicationNotesLazyQuery>;
+export type ApplicationNotesQueryHookResult = ReturnType<
+  typeof useApplicationNotesQuery
+>;
+export type ApplicationNotesLazyQueryHookResult = ReturnType<
+  typeof useApplicationNotesLazyQuery
+>;
 
 export const CreateApplicationNoteDocument = gql`
-    mutation CreateApplicationNote($input: CreateNoteInput!) {
-  createApplicationNote(input: $input) {
-    id
-    applicationId
-    content
-    revision
-    createdAt
-    updatedAt
+  mutation CreateApplicationNote($input: CreateNoteInput!) {
+    createApplicationNote(input: $input) {
+      id
+      applicationId
+      content
+      revision
+      createdAt
+      updatedAt
+    }
   }
-}
-    `;
-
+`;
 
 /**
  * __useCreateApplicationNoteMutation__
@@ -1641,25 +2380,31 @@ export const CreateApplicationNoteDocument = gql`
  *   },
  * });
  */
-export function useCreateApplicationNoteMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<CreateApplicationNoteMutation, CreateApplicationNoteMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useMutation<CreateApplicationNoteMutation, CreateApplicationNoteMutationVariables>(CreateApplicationNoteDocument, options);
-      }
-
+export function useCreateApplicationNoteMutation(
+  baseOptions?: ApolloReactHooks.MutationHookOptions<
+    CreateApplicationNoteMutation,
+    CreateApplicationNoteMutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useMutation<
+    CreateApplicationNoteMutation,
+    CreateApplicationNoteMutationVariables
+  >(CreateApplicationNoteDocument, options);
+}
 
 export const UpdateApplicationNoteDocument = gql`
-    mutation UpdateApplicationNote($id: ID!, $input: UpdateNoteInput!) {
-  updateApplicationNote(id: $id, input: $input) {
-    id
-    applicationId
-    content
-    revision
-    createdAt
-    updatedAt
+  mutation UpdateApplicationNote($id: ID!, $input: UpdateNoteInput!) {
+    updateApplicationNote(id: $id, input: $input) {
+      id
+      applicationId
+      content
+      revision
+      createdAt
+      updatedAt
+    }
   }
-}
-    `;
-
+`;
 
 /**
  * __useUpdateApplicationNoteMutation__
@@ -1679,21 +2424,27 @@ export const UpdateApplicationNoteDocument = gql`
  *   },
  * });
  */
-export function useUpdateApplicationNoteMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<UpdateApplicationNoteMutation, UpdateApplicationNoteMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useMutation<UpdateApplicationNoteMutation, UpdateApplicationNoteMutationVariables>(UpdateApplicationNoteDocument, options);
-      }
-
+export function useUpdateApplicationNoteMutation(
+  baseOptions?: ApolloReactHooks.MutationHookOptions<
+    UpdateApplicationNoteMutation,
+    UpdateApplicationNoteMutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useMutation<
+    UpdateApplicationNoteMutation,
+    UpdateApplicationNoteMutationVariables
+  >(UpdateApplicationNoteDocument, options);
+}
 
 export const DeleteApplicationNoteDocument = gql`
-    mutation DeleteApplicationNote($id: ID!) {
-  deleteApplicationNote(id: $id) {
-    success
-    deletedId
+  mutation DeleteApplicationNote($id: ID!) {
+    deleteApplicationNote(id: $id) {
+      success
+      deletedId
+    }
   }
-}
-    `;
-
+`;
 
 /**
  * __useDeleteApplicationNoteMutation__
@@ -1712,17 +2463,24 @@ export const DeleteApplicationNoteDocument = gql`
  *   },
  * });
  */
-export function useDeleteApplicationNoteMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DeleteApplicationNoteMutation, DeleteApplicationNoteMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useMutation<DeleteApplicationNoteMutation, DeleteApplicationNoteMutationVariables>(DeleteApplicationNoteDocument, options);
-      }
-
+export function useDeleteApplicationNoteMutation(
+  baseOptions?: ApolloReactHooks.MutationHookOptions<
+    DeleteApplicationNoteMutation,
+    DeleteApplicationNoteMutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useMutation<
+    DeleteApplicationNoteMutation,
+    DeleteApplicationNoteMutationVariables
+  >(DeleteApplicationNoteDocument, options);
+}
 
 export const GenerateApplicationNoteWithAiDocument = gql`
-    query GenerateApplicationNoteWithAi($applicationId: ID!, $note: String!) {
-  generateApplicationNoteWithAI(applicationId: $applicationId, note: $note)
-}
-    `;
+  query GenerateApplicationNoteWithAi($applicationId: ID!, $note: String!) {
+    generateApplicationNoteWithAI(applicationId: $applicationId, note: $note)
+  }
+`;
 
 /**
  * __useGenerateApplicationNoteWithAiQuery__
@@ -1741,23 +2499,50 @@ export const GenerateApplicationNoteWithAiDocument = gql`
  *   },
  * });
  */
-export function useGenerateApplicationNoteWithAiQuery(baseOptions: ApolloReactHooks.QueryHookOptions<GenerateApplicationNoteWithAiQuery, GenerateApplicationNoteWithAiQueryVariables> & ({ variables: GenerateApplicationNoteWithAiQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
-        const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useQuery<GenerateApplicationNoteWithAiQuery, GenerateApplicationNoteWithAiQueryVariables>(GenerateApplicationNoteWithAiDocument, options);
-      }
-export function useGenerateApplicationNoteWithAiLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<GenerateApplicationNoteWithAiQuery, GenerateApplicationNoteWithAiQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return ApolloReactHooks.useLazyQuery<GenerateApplicationNoteWithAiQuery, GenerateApplicationNoteWithAiQueryVariables>(GenerateApplicationNoteWithAiDocument, options);
+export function useGenerateApplicationNoteWithAiQuery(
+  baseOptions: ApolloReactHooks.QueryHookOptions<
+    GenerateApplicationNoteWithAiQuery,
+    GenerateApplicationNoteWithAiQueryVariables
+  > &
+    (
+      | {
+          variables: GenerateApplicationNoteWithAiQueryVariables;
+          skip?: boolean;
         }
+      | { skip: boolean }
+    ),
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useQuery<
+    GenerateApplicationNoteWithAiQuery,
+    GenerateApplicationNoteWithAiQueryVariables
+  >(GenerateApplicationNoteWithAiDocument, options);
+}
+export function useGenerateApplicationNoteWithAiLazyQuery(
+  baseOptions?: ApolloReactHooks.LazyQueryHookOptions<
+    GenerateApplicationNoteWithAiQuery,
+    GenerateApplicationNoteWithAiQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useLazyQuery<
+    GenerateApplicationNoteWithAiQuery,
+    GenerateApplicationNoteWithAiQueryVariables
+  >(GenerateApplicationNoteWithAiDocument, options);
+}
 
-export type GenerateApplicationNoteWithAiQueryHookResult = ReturnType<typeof useGenerateApplicationNoteWithAiQuery>;
-export type GenerateApplicationNoteWithAiLazyQueryHookResult = ReturnType<typeof useGenerateApplicationNoteWithAiLazyQuery>;
+export type GenerateApplicationNoteWithAiQueryHookResult = ReturnType<
+  typeof useGenerateApplicationNoteWithAiQuery
+>;
+export type GenerateApplicationNoteWithAiLazyQueryHookResult = ReturnType<
+  typeof useGenerateApplicationNoteWithAiLazyQuery
+>;
 
 export const RewriteTextWithAiDocument = gql`
-    query RewriteTextWithAi($text: String!) {
-  rewriteTextWithAI(text: $text)
-}
-    `;
+  query RewriteTextWithAi($text: String!) {
+    rewriteTextWithAI(text: $text)
+  }
+`;
 
 /**
  * __useRewriteTextWithAiQuery__
@@ -1775,23 +2560,47 @@ export const RewriteTextWithAiDocument = gql`
  *   },
  * });
  */
-export function useRewriteTextWithAiQuery(baseOptions: ApolloReactHooks.QueryHookOptions<RewriteTextWithAiQuery, RewriteTextWithAiQueryVariables> & ({ variables: RewriteTextWithAiQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
-        const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useQuery<RewriteTextWithAiQuery, RewriteTextWithAiQueryVariables>(RewriteTextWithAiDocument, options);
-      }
-export function useRewriteTextWithAiLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<RewriteTextWithAiQuery, RewriteTextWithAiQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return ApolloReactHooks.useLazyQuery<RewriteTextWithAiQuery, RewriteTextWithAiQueryVariables>(RewriteTextWithAiDocument, options);
-        }
+export function useRewriteTextWithAiQuery(
+  baseOptions: ApolloReactHooks.QueryHookOptions<
+    RewriteTextWithAiQuery,
+    RewriteTextWithAiQueryVariables
+  > &
+    (
+      | { variables: RewriteTextWithAiQueryVariables; skip?: boolean }
+      | { skip: boolean }
+    ),
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useQuery<
+    RewriteTextWithAiQuery,
+    RewriteTextWithAiQueryVariables
+  >(RewriteTextWithAiDocument, options);
+}
+export function useRewriteTextWithAiLazyQuery(
+  baseOptions?: ApolloReactHooks.LazyQueryHookOptions<
+    RewriteTextWithAiQuery,
+    RewriteTextWithAiQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useLazyQuery<
+    RewriteTextWithAiQuery,
+    RewriteTextWithAiQueryVariables
+  >(RewriteTextWithAiDocument, options);
+}
 
-export type RewriteTextWithAiQueryHookResult = ReturnType<typeof useRewriteTextWithAiQuery>;
-export type RewriteTextWithAiLazyQueryHookResult = ReturnType<typeof useRewriteTextWithAiLazyQuery>;
+export type RewriteTextWithAiQueryHookResult = ReturnType<
+  typeof useRewriteTextWithAiQuery
+>;
+export type RewriteTextWithAiLazyQueryHookResult = ReturnType<
+  typeof useRewriteTextWithAiLazyQuery
+>;
 
 export const RestructureJobDescriptionWithAiDocument = gql`
-    query RestructureJobDescriptionWithAi($text: String!) {
-  restructureJobDescriptionWithAI(text: $text)
-}
-    `;
+  query RestructureJobDescriptionWithAi($text: String!) {
+    restructureJobDescriptionWithAI(text: $text)
+  }
+`;
 
 /**
  * __useRestructureJobDescriptionWithAiQuery__
@@ -1809,28 +2618,54 @@ export const RestructureJobDescriptionWithAiDocument = gql`
  *   },
  * });
  */
-export function useRestructureJobDescriptionWithAiQuery(baseOptions: ApolloReactHooks.QueryHookOptions<RestructureJobDescriptionWithAiQuery, RestructureJobDescriptionWithAiQueryVariables> & ({ variables: RestructureJobDescriptionWithAiQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
-        const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useQuery<RestructureJobDescriptionWithAiQuery, RestructureJobDescriptionWithAiQueryVariables>(RestructureJobDescriptionWithAiDocument, options);
-      }
-export function useRestructureJobDescriptionWithAiLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<RestructureJobDescriptionWithAiQuery, RestructureJobDescriptionWithAiQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return ApolloReactHooks.useLazyQuery<RestructureJobDescriptionWithAiQuery, RestructureJobDescriptionWithAiQueryVariables>(RestructureJobDescriptionWithAiDocument, options);
+export function useRestructureJobDescriptionWithAiQuery(
+  baseOptions: ApolloReactHooks.QueryHookOptions<
+    RestructureJobDescriptionWithAiQuery,
+    RestructureJobDescriptionWithAiQueryVariables
+  > &
+    (
+      | {
+          variables: RestructureJobDescriptionWithAiQueryVariables;
+          skip?: boolean;
         }
+      | { skip: boolean }
+    ),
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useQuery<
+    RestructureJobDescriptionWithAiQuery,
+    RestructureJobDescriptionWithAiQueryVariables
+  >(RestructureJobDescriptionWithAiDocument, options);
+}
+export function useRestructureJobDescriptionWithAiLazyQuery(
+  baseOptions?: ApolloReactHooks.LazyQueryHookOptions<
+    RestructureJobDescriptionWithAiQuery,
+    RestructureJobDescriptionWithAiQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useLazyQuery<
+    RestructureJobDescriptionWithAiQuery,
+    RestructureJobDescriptionWithAiQueryVariables
+  >(RestructureJobDescriptionWithAiDocument, options);
+}
 
-export type RestructureJobDescriptionWithAiQueryHookResult = ReturnType<typeof useRestructureJobDescriptionWithAiQuery>;
-export type RestructureJobDescriptionWithAiLazyQueryHookResult = ReturnType<typeof useRestructureJobDescriptionWithAiLazyQuery>;
+export type RestructureJobDescriptionWithAiQueryHookResult = ReturnType<
+  typeof useRestructureJobDescriptionWithAiQuery
+>;
+export type RestructureJobDescriptionWithAiLazyQueryHookResult = ReturnType<
+  typeof useRestructureJobDescriptionWithAiLazyQuery
+>;
 
 export const UpdateCompanyDocument = gql`
-    mutation UpdateCompany($id: ID!, $input: UpdateCompanyInput!) {
-  updateCompany(id: $id, input: $input) {
-    id
-    name
-    description
+  mutation UpdateCompany($id: ID!, $input: UpdateCompanyInput!) {
+    updateCompany(id: $id, input: $input) {
+      id
+      name
+      description
+    }
   }
-}
-    `;
-
+`;
 
 /**
  * __useUpdateCompanyMutation__
@@ -1850,21 +2685,27 @@ export const UpdateCompanyDocument = gql`
  *   },
  * });
  */
-export function useUpdateCompanyMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<UpdateCompanyMutation, UpdateCompanyMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useMutation<UpdateCompanyMutation, UpdateCompanyMutationVariables>(UpdateCompanyDocument, options);
-      }
-
+export function useUpdateCompanyMutation(
+  baseOptions?: ApolloReactHooks.MutationHookOptions<
+    UpdateCompanyMutation,
+    UpdateCompanyMutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useMutation<
+    UpdateCompanyMutation,
+    UpdateCompanyMutationVariables
+  >(UpdateCompanyDocument, options);
+}
 
 export const DeleteCompanyDocument = gql`
-    mutation DeleteCompany($id: ID!) {
-  deleteCompany(id: $id) {
-    success
-    deletedId
+  mutation DeleteCompany($id: ID!) {
+    deleteCompany(id: $id) {
+      success
+      deletedId
+    }
   }
-}
-    `;
-
+`;
 
 /**
  * __useDeleteCompanyMutation__
@@ -1883,17 +2724,24 @@ export const DeleteCompanyDocument = gql`
  *   },
  * });
  */
-export function useDeleteCompanyMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DeleteCompanyMutation, DeleteCompanyMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useMutation<DeleteCompanyMutation, DeleteCompanyMutationVariables>(DeleteCompanyDocument, options);
-      }
-
+export function useDeleteCompanyMutation(
+  baseOptions?: ApolloReactHooks.MutationHookOptions<
+    DeleteCompanyMutation,
+    DeleteCompanyMutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useMutation<
+    DeleteCompanyMutation,
+    DeleteCompanyMutationVariables
+  >(DeleteCompanyDocument, options);
+}
 
 export const CompanyApplicationsCountDocument = gql`
-    query CompanyApplicationsCount($id: ID!) {
-  companyApplicationsCount(id: $id)
-}
-    `;
+  query CompanyApplicationsCount($id: ID!) {
+    companyApplicationsCount(id: $id)
+  }
+`;
 
 /**
  * __useCompanyApplicationsCountQuery__
@@ -1911,27 +2759,51 @@ export const CompanyApplicationsCountDocument = gql`
  *   },
  * });
  */
-export function useCompanyApplicationsCountQuery(baseOptions: ApolloReactHooks.QueryHookOptions<CompanyApplicationsCountQuery, CompanyApplicationsCountQueryVariables> & ({ variables: CompanyApplicationsCountQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
-        const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useQuery<CompanyApplicationsCountQuery, CompanyApplicationsCountQueryVariables>(CompanyApplicationsCountDocument, options);
-      }
-export function useCompanyApplicationsCountLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<CompanyApplicationsCountQuery, CompanyApplicationsCountQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return ApolloReactHooks.useLazyQuery<CompanyApplicationsCountQuery, CompanyApplicationsCountQueryVariables>(CompanyApplicationsCountDocument, options);
-        }
+export function useCompanyApplicationsCountQuery(
+  baseOptions: ApolloReactHooks.QueryHookOptions<
+    CompanyApplicationsCountQuery,
+    CompanyApplicationsCountQueryVariables
+  > &
+    (
+      | { variables: CompanyApplicationsCountQueryVariables; skip?: boolean }
+      | { skip: boolean }
+    ),
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useQuery<
+    CompanyApplicationsCountQuery,
+    CompanyApplicationsCountQueryVariables
+  >(CompanyApplicationsCountDocument, options);
+}
+export function useCompanyApplicationsCountLazyQuery(
+  baseOptions?: ApolloReactHooks.LazyQueryHookOptions<
+    CompanyApplicationsCountQuery,
+    CompanyApplicationsCountQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useLazyQuery<
+    CompanyApplicationsCountQuery,
+    CompanyApplicationsCountQueryVariables
+  >(CompanyApplicationsCountDocument, options);
+}
 
-export type CompanyApplicationsCountQueryHookResult = ReturnType<typeof useCompanyApplicationsCountQuery>;
-export type CompanyApplicationsCountLazyQueryHookResult = ReturnType<typeof useCompanyApplicationsCountLazyQuery>;
+export type CompanyApplicationsCountQueryHookResult = ReturnType<
+  typeof useCompanyApplicationsCountQuery
+>;
+export type CompanyApplicationsCountLazyQueryHookResult = ReturnType<
+  typeof useCompanyApplicationsCountLazyQuery
+>;
 
 export const CompaniesDocument = gql`
-    query Companies {
-  companies {
-    id
-    name
-    description
+  query Companies {
+    companies {
+      id
+      name
+      description
+    }
   }
-}
-    `;
+`;
 
 /**
  * __useCompaniesQuery__
@@ -1948,29 +2820,47 @@ export const CompaniesDocument = gql`
  *   },
  * });
  */
-export function useCompaniesQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<CompaniesQuery, CompaniesQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useQuery<CompaniesQuery, CompaniesQueryVariables>(CompaniesDocument, options);
-      }
-export function useCompaniesLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<CompaniesQuery, CompaniesQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return ApolloReactHooks.useLazyQuery<CompaniesQuery, CompaniesQueryVariables>(CompaniesDocument, options);
-        }
+export function useCompaniesQuery(
+  baseOptions?: ApolloReactHooks.QueryHookOptions<
+    CompaniesQuery,
+    CompaniesQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useQuery<CompaniesQuery, CompaniesQueryVariables>(
+    CompaniesDocument,
+    options,
+  );
+}
+export function useCompaniesLazyQuery(
+  baseOptions?: ApolloReactHooks.LazyQueryHookOptions<
+    CompaniesQuery,
+    CompaniesQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useLazyQuery<CompaniesQuery, CompaniesQueryVariables>(
+    CompaniesDocument,
+    options,
+  );
+}
 
 export type CompaniesQueryHookResult = ReturnType<typeof useCompaniesQuery>;
-export type CompaniesLazyQueryHookResult = ReturnType<typeof useCompaniesLazyQuery>;
+export type CompaniesLazyQueryHookResult = ReturnType<
+  typeof useCompaniesLazyQuery
+>;
 
 export const ExchangeRatesDocument = gql`
-    query ExchangeRates($base: String!, $currencies: [String!]!) {
-  exchangeRates(base: $base, currencies: $currencies) {
-    base
-    rates {
-      currency
-      rate
+  query ExchangeRates($base: String!, $currencies: [String!]!) {
+    exchangeRates(base: $base, currencies: $currencies) {
+      base
+      rates {
+        currency
+        rate
+      }
     }
   }
-}
-    `;
+`;
 
 /**
  * __useExchangeRatesQuery__
@@ -1989,32 +2879,56 @@ export const ExchangeRatesDocument = gql`
  *   },
  * });
  */
-export function useExchangeRatesQuery(baseOptions: ApolloReactHooks.QueryHookOptions<ExchangeRatesQuery, ExchangeRatesQueryVariables> & ({ variables: ExchangeRatesQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
-        const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useQuery<ExchangeRatesQuery, ExchangeRatesQueryVariables>(ExchangeRatesDocument, options);
-      }
-export function useExchangeRatesLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ExchangeRatesQuery, ExchangeRatesQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return ApolloReactHooks.useLazyQuery<ExchangeRatesQuery, ExchangeRatesQueryVariables>(ExchangeRatesDocument, options);
-        }
+export function useExchangeRatesQuery(
+  baseOptions: ApolloReactHooks.QueryHookOptions<
+    ExchangeRatesQuery,
+    ExchangeRatesQueryVariables
+  > &
+    (
+      | { variables: ExchangeRatesQueryVariables; skip?: boolean }
+      | { skip: boolean }
+    ),
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useQuery<
+    ExchangeRatesQuery,
+    ExchangeRatesQueryVariables
+  >(ExchangeRatesDocument, options);
+}
+export function useExchangeRatesLazyQuery(
+  baseOptions?: ApolloReactHooks.LazyQueryHookOptions<
+    ExchangeRatesQuery,
+    ExchangeRatesQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useLazyQuery<
+    ExchangeRatesQuery,
+    ExchangeRatesQueryVariables
+  >(ExchangeRatesDocument, options);
+}
 
-export type ExchangeRatesQueryHookResult = ReturnType<typeof useExchangeRatesQuery>;
-export type ExchangeRatesLazyQueryHookResult = ReturnType<typeof useExchangeRatesLazyQuery>;
+export type ExchangeRatesQueryHookResult = ReturnType<
+  typeof useExchangeRatesQuery
+>;
+export type ExchangeRatesLazyQueryHookResult = ReturnType<
+  typeof useExchangeRatesLazyQuery
+>;
 
 export const DraftApplicationsListDocument = gql`
-    query DraftApplicationsList {
-  draftApplications {
-    id
-    applicationId
-    url
-    title
-    conversionStatus
-    conversionError
-    convertedAt
-    createdAt
+  query DraftApplicationsList {
+    draftApplications {
+      id
+      applicationId
+      url
+      title
+      conversionStatus
+      conversionError
+      convertedAt
+      createdAt
+    }
   }
-}
-    `;
+`;
 
 /**
  * __useDraftApplicationsListQuery__
@@ -2031,47 +2945,67 @@ export const DraftApplicationsListDocument = gql`
  *   },
  * });
  */
-export function useDraftApplicationsListQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<DraftApplicationsListQuery, DraftApplicationsListQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useQuery<DraftApplicationsListQuery, DraftApplicationsListQueryVariables>(DraftApplicationsListDocument, options);
-      }
-export function useDraftApplicationsListLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<DraftApplicationsListQuery, DraftApplicationsListQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return ApolloReactHooks.useLazyQuery<DraftApplicationsListQuery, DraftApplicationsListQueryVariables>(DraftApplicationsListDocument, options);
-        }
+export function useDraftApplicationsListQuery(
+  baseOptions?: ApolloReactHooks.QueryHookOptions<
+    DraftApplicationsListQuery,
+    DraftApplicationsListQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useQuery<
+    DraftApplicationsListQuery,
+    DraftApplicationsListQueryVariables
+  >(DraftApplicationsListDocument, options);
+}
+export function useDraftApplicationsListLazyQuery(
+  baseOptions?: ApolloReactHooks.LazyQueryHookOptions<
+    DraftApplicationsListQuery,
+    DraftApplicationsListQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useLazyQuery<
+    DraftApplicationsListQuery,
+    DraftApplicationsListQueryVariables
+  >(DraftApplicationsListDocument, options);
+}
 
-export type DraftApplicationsListQueryHookResult = ReturnType<typeof useDraftApplicationsListQuery>;
-export type DraftApplicationsListLazyQueryHookResult = ReturnType<typeof useDraftApplicationsListLazyQuery>;
+export type DraftApplicationsListQueryHookResult = ReturnType<
+  typeof useDraftApplicationsListQuery
+>;
+export type DraftApplicationsListLazyQueryHookResult = ReturnType<
+  typeof useDraftApplicationsListLazyQuery
+>;
 
 export const DraftApplicationDetailDocument = gql`
-    query DraftApplicationDetail($id: ID!) {
-  draftApplication(id: $id) {
-    id
-    applicationId
-    url
-    title
-    htmlContent
-    conversionStatus
-    conversionError
-    convertedAt
-    createdAt
-    fit {
+  query DraftApplicationDetail($id: ID!) {
+    draftApplication(id: $id) {
       id
       applicationId
-      draftApplicationId
-      resumeId
-      status
-      error
-      scoreRatio
-      classification
-      fitCount
-      gapCount
-      unclearCount
+      url
+      title
+      htmlContent
+      conversionStatus
+      conversionError
+      convertedAt
       createdAt
+      fit {
+        id
+        applicationId
+        draftApplicationId
+        resumeId
+        status
+        error
+        scoreRatio
+        classification
+        fitCount
+        gapCount
+        unclearCount
+        createdAt
+      }
     }
   }
-}
-    `;
+`;
 
 /**
  * __useDraftApplicationDetailQuery__
@@ -2089,30 +3023,53 @@ export const DraftApplicationDetailDocument = gql`
  *   },
  * });
  */
-export function useDraftApplicationDetailQuery(baseOptions: ApolloReactHooks.QueryHookOptions<DraftApplicationDetailQuery, DraftApplicationDetailQueryVariables> & ({ variables: DraftApplicationDetailQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
-        const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useQuery<DraftApplicationDetailQuery, DraftApplicationDetailQueryVariables>(DraftApplicationDetailDocument, options);
-      }
-export function useDraftApplicationDetailLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<DraftApplicationDetailQuery, DraftApplicationDetailQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return ApolloReactHooks.useLazyQuery<DraftApplicationDetailQuery, DraftApplicationDetailQueryVariables>(DraftApplicationDetailDocument, options);
-        }
+export function useDraftApplicationDetailQuery(
+  baseOptions: ApolloReactHooks.QueryHookOptions<
+    DraftApplicationDetailQuery,
+    DraftApplicationDetailQueryVariables
+  > &
+    (
+      | { variables: DraftApplicationDetailQueryVariables; skip?: boolean }
+      | { skip: boolean }
+    ),
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useQuery<
+    DraftApplicationDetailQuery,
+    DraftApplicationDetailQueryVariables
+  >(DraftApplicationDetailDocument, options);
+}
+export function useDraftApplicationDetailLazyQuery(
+  baseOptions?: ApolloReactHooks.LazyQueryHookOptions<
+    DraftApplicationDetailQuery,
+    DraftApplicationDetailQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useLazyQuery<
+    DraftApplicationDetailQuery,
+    DraftApplicationDetailQueryVariables
+  >(DraftApplicationDetailDocument, options);
+}
 
-export type DraftApplicationDetailQueryHookResult = ReturnType<typeof useDraftApplicationDetailQuery>;
-export type DraftApplicationDetailLazyQueryHookResult = ReturnType<typeof useDraftApplicationDetailLazyQuery>;
+export type DraftApplicationDetailQueryHookResult = ReturnType<
+  typeof useDraftApplicationDetailQuery
+>;
+export type DraftApplicationDetailLazyQueryHookResult = ReturnType<
+  typeof useDraftApplicationDetailLazyQuery
+>;
 
 export const DeleteDraftApplicationDocument = gql`
-    mutation DeleteDraftApplication($id: ID!, $deleteLinkedApplication: Boolean) {
-  deleteDraftApplication(
-    id: $id
-    deleteLinkedApplication: $deleteLinkedApplication
-  ) {
-    success
-    deletedId
+  mutation DeleteDraftApplication($id: ID!, $deleteLinkedApplication: Boolean) {
+    deleteDraftApplication(
+      id: $id
+      deleteLinkedApplication: $deleteLinkedApplication
+    ) {
+      success
+      deletedId
+    }
   }
-}
-    `;
-
+`;
 
 /**
  * __useDeleteDraftApplicationMutation__
@@ -2132,21 +3089,27 @@ export const DeleteDraftApplicationDocument = gql`
  *   },
  * });
  */
-export function useDeleteDraftApplicationMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DeleteDraftApplicationMutation, DeleteDraftApplicationMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useMutation<DeleteDraftApplicationMutation, DeleteDraftApplicationMutationVariables>(DeleteDraftApplicationDocument, options);
-      }
-
+export function useDeleteDraftApplicationMutation(
+  baseOptions?: ApolloReactHooks.MutationHookOptions<
+    DeleteDraftApplicationMutation,
+    DeleteDraftApplicationMutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useMutation<
+    DeleteDraftApplicationMutation,
+    DeleteDraftApplicationMutationVariables
+  >(DeleteDraftApplicationDocument, options);
+}
 
 export const DeleteApplicationsForDraftDocument = gql`
-    mutation DeleteApplicationsForDraft($draftId: ID!) {
-  deleteApplicationsForDraft(draftId: $draftId) {
-    success
-    deletedId
+  mutation DeleteApplicationsForDraft($draftId: ID!) {
+    deleteApplicationsForDraft(draftId: $draftId) {
+      success
+      deletedId
+    }
   }
-}
-    `;
-
+`;
 
 /**
  * __useDeleteApplicationsForDraftMutation__
@@ -2165,60 +3128,72 @@ export const DeleteApplicationsForDraftDocument = gql`
  *   },
  * });
  */
-export function useDeleteApplicationsForDraftMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DeleteApplicationsForDraftMutation, DeleteApplicationsForDraftMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useMutation<DeleteApplicationsForDraftMutation, DeleteApplicationsForDraftMutationVariables>(DeleteApplicationsForDraftDocument, options);
-      }
-
-
-export const CreateApplicationWithAiV2Document = gql`
-    mutation CreateApplicationWithAiV2($draftId: ID!) {
-  createApplicationWithAIV2(draftId: $draftId) {
-    id
-    title
-    conversionStatus
-    conversionError
-  }
+export function useDeleteApplicationsForDraftMutation(
+  baseOptions?: ApolloReactHooks.MutationHookOptions<
+    DeleteApplicationsForDraftMutation,
+    DeleteApplicationsForDraftMutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useMutation<
+    DeleteApplicationsForDraftMutation,
+    DeleteApplicationsForDraftMutationVariables
+  >(DeleteApplicationsForDraftDocument, options);
 }
-    `;
 
+export const CreateApplicationWithAiDocument = gql`
+  mutation CreateApplicationWithAI($draftId: ID!) {
+    createApplicationWithAI(draftId: $draftId) {
+      id
+      title
+      conversionStatus
+      conversionError
+    }
+  }
+`;
 
 /**
- * __useCreateApplicationWithAiV2Mutation__
+ * __useCreateApplicationWithAiMutation__
  *
- * To run a mutation, you first call `useCreateApplicationWithAiV2Mutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useCreateApplicationWithAiV2Mutation` returns a tuple that includes:
+ * To run a mutation, you first call `useCreateApplicationWithAiMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateApplicationWithAiMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [createApplicationWithAiV2Mutation, { data, loading, error }] = useCreateApplicationWithAiV2Mutation({
+ * const [createApplicationWithAiMutation, { data, loading, error }] = useCreateApplicationWithAiMutation({
  *   variables: {
  *      draftId: // value for 'draftId'
  *   },
  * });
  */
-export function useCreateApplicationWithAiV2Mutation(baseOptions?: ApolloReactHooks.MutationHookOptions<CreateApplicationWithAiV2Mutation, CreateApplicationWithAiV2MutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useMutation<CreateApplicationWithAiV2Mutation, CreateApplicationWithAiV2MutationVariables>(CreateApplicationWithAiV2Document, options);
-      }
-
+export function useCreateApplicationWithAiMutation(
+  baseOptions?: ApolloReactHooks.MutationHookOptions<
+    CreateApplicationWithAiMutation,
+    CreateApplicationWithAiMutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useMutation<
+    CreateApplicationWithAiMutation,
+    CreateApplicationWithAiMutationVariables
+  >(CreateApplicationWithAiDocument, options);
+}
 
 export const CreateDraftApplicationDocument = gql`
-    mutation CreateDraftApplication($input: CreateDraftApplicationInput!) {
-  createDraftApplication(input: $input) {
-    id
-    applicationId
-    url
-    title
-    conversionStatus
-    conversionError
+  mutation CreateDraftApplication($input: CreateDraftApplicationInput!) {
+    createDraftApplication(input: $input) {
+      id
+      applicationId
+      url
+      title
+      conversionStatus
+      conversionError
+    }
   }
-}
-    `;
-
+`;
 
 /**
  * __useCreateDraftApplicationMutation__
@@ -2237,25 +3212,34 @@ export const CreateDraftApplicationDocument = gql`
  *   },
  * });
  */
-export function useCreateDraftApplicationMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<CreateDraftApplicationMutation, CreateDraftApplicationMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useMutation<CreateDraftApplicationMutation, CreateDraftApplicationMutationVariables>(CreateDraftApplicationDocument, options);
-      }
-
+export function useCreateDraftApplicationMutation(
+  baseOptions?: ApolloReactHooks.MutationHookOptions<
+    CreateDraftApplicationMutation,
+    CreateDraftApplicationMutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useMutation<
+    CreateDraftApplicationMutation,
+    CreateDraftApplicationMutationVariables
+  >(CreateDraftApplicationDocument, options);
+}
 
 export const UpdateDraftApplicationDocument = gql`
-    mutation UpdateDraftApplication($id: ID!, $input: UpdateDraftApplicationInput!) {
-  updateDraftApplication(id: $id, input: $input) {
-    id
-    applicationId
-    url
-    title
-    conversionStatus
-    conversionError
+  mutation UpdateDraftApplication(
+    $id: ID!
+    $input: UpdateDraftApplicationInput!
+  ) {
+    updateDraftApplication(id: $id, input: $input) {
+      id
+      applicationId
+      url
+      title
+      conversionStatus
+      conversionError
+    }
   }
-}
-    `;
-
+`;
 
 /**
  * __useUpdateDraftApplicationMutation__
@@ -2275,43 +3259,50 @@ export const UpdateDraftApplicationDocument = gql`
  *   },
  * });
  */
-export function useUpdateDraftApplicationMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<UpdateDraftApplicationMutation, UpdateDraftApplicationMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useMutation<UpdateDraftApplicationMutation, UpdateDraftApplicationMutationVariables>(UpdateDraftApplicationDocument, options);
-      }
-
+export function useUpdateDraftApplicationMutation(
+  baseOptions?: ApolloReactHooks.MutationHookOptions<
+    UpdateDraftApplicationMutation,
+    UpdateDraftApplicationMutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useMutation<
+    UpdateDraftApplicationMutation,
+    UpdateDraftApplicationMutationVariables
+  >(UpdateDraftApplicationDocument, options);
+}
 
 export const FitAnalysesListDocument = gql`
-    query FitAnalysesList {
-  fitAnalyses {
-    id
-    applicationId
-    draftApplicationId
-    resumeId
-    status
-    error
-    scoreRatio
-    classification
-    fitCount
-    gapCount
-    unclearCount
-    createdAt
-    updatedAt
-    application {
+  query FitAnalysesList {
+    fitAnalyses {
       id
-      title
-      company {
+      applicationId
+      draftApplicationId
+      resumeId
+      status
+      error
+      scoreRatio
+      classification
+      fitCount
+      gapCount
+      unclearCount
+      createdAt
+      updatedAt
+      application {
         id
-        name
+        title
+        company {
+          id
+          name
+        }
+      }
+      draftApplication {
+        id
+        title
       }
     }
-    draftApplication {
-      id
-      title
-    }
   }
-}
-    `;
+`;
 
 /**
  * __useFitAnalysesListQuery__
@@ -2328,58 +3319,78 @@ export const FitAnalysesListDocument = gql`
  *   },
  * });
  */
-export function useFitAnalysesListQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<FitAnalysesListQuery, FitAnalysesListQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useQuery<FitAnalysesListQuery, FitAnalysesListQueryVariables>(FitAnalysesListDocument, options);
-      }
-export function useFitAnalysesListLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<FitAnalysesListQuery, FitAnalysesListQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return ApolloReactHooks.useLazyQuery<FitAnalysesListQuery, FitAnalysesListQueryVariables>(FitAnalysesListDocument, options);
-        }
+export function useFitAnalysesListQuery(
+  baseOptions?: ApolloReactHooks.QueryHookOptions<
+    FitAnalysesListQuery,
+    FitAnalysesListQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useQuery<
+    FitAnalysesListQuery,
+    FitAnalysesListQueryVariables
+  >(FitAnalysesListDocument, options);
+}
+export function useFitAnalysesListLazyQuery(
+  baseOptions?: ApolloReactHooks.LazyQueryHookOptions<
+    FitAnalysesListQuery,
+    FitAnalysesListQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useLazyQuery<
+    FitAnalysesListQuery,
+    FitAnalysesListQueryVariables
+  >(FitAnalysesListDocument, options);
+}
 
-export type FitAnalysesListQueryHookResult = ReturnType<typeof useFitAnalysesListQuery>;
-export type FitAnalysesListLazyQueryHookResult = ReturnType<typeof useFitAnalysesListLazyQuery>;
+export type FitAnalysesListQueryHookResult = ReturnType<
+  typeof useFitAnalysesListQuery
+>;
+export type FitAnalysesListLazyQueryHookResult = ReturnType<
+  typeof useFitAnalysesListLazyQuery
+>;
 
 export const FitDocument = gql`
-    query Fit($id: ID!) {
-  fit(id: $id) {
-    id
-    applicationId
-    draftApplicationId
-    resumeId
-    status
-    error
-    scoreRatio
-    classification
-    fitCount
-    gapCount
-    unclearCount
-    items {
-      requirement
-      source
-      weight
-      type
-      verdict
-      jdQuote
-      sourceQuotes
-      suggestion
-    }
-    createdAt
-    application {
+  query Fit($id: ID!) {
+    fit(id: $id) {
       id
-      title
-      company {
+      applicationId
+      draftApplicationId
+      resumeId
+      status
+      error
+      scoreRatio
+      classification
+      fitCount
+      gapCount
+      unclearCount
+      items {
+        requirement
+        source
+        weight
+        type
+        verdict
+        jdQuote
+        sourceQuotes
+        suggestion
+      }
+      createdAt
+      application {
         id
-        name
+        title
+        company {
+          id
+          name
+        }
+      }
+      draftApplication {
+        id
+        title
       }
     }
-    draftApplication {
-      id
-      title
-    }
   }
-}
-    `;
+`;
 
 /**
  * __useFitQuery__
@@ -2397,46 +3408,60 @@ export const FitDocument = gql`
  *   },
  * });
  */
-export function useFitQuery(baseOptions: ApolloReactHooks.QueryHookOptions<FitQuery, FitQueryVariables> & ({ variables: FitQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
-        const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useQuery<FitQuery, FitQueryVariables>(FitDocument, options);
-      }
-export function useFitLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<FitQuery, FitQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return ApolloReactHooks.useLazyQuery<FitQuery, FitQueryVariables>(FitDocument, options);
-        }
+export function useFitQuery(
+  baseOptions: ApolloReactHooks.QueryHookOptions<FitQuery, FitQueryVariables> &
+    ({ variables: FitQueryVariables; skip?: boolean } | { skip: boolean }),
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useQuery<FitQuery, FitQueryVariables>(
+    FitDocument,
+    options,
+  );
+}
+export function useFitLazyQuery(
+  baseOptions?: ApolloReactHooks.LazyQueryHookOptions<
+    FitQuery,
+    FitQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useLazyQuery<FitQuery, FitQueryVariables>(
+    FitDocument,
+    options,
+  );
+}
 
 export type FitQueryHookResult = ReturnType<typeof useFitQuery>;
 export type FitLazyQueryHookResult = ReturnType<typeof useFitLazyQuery>;
 
 export const ApplicationFitDocument = gql`
-    query ApplicationFit($applicationId: ID!) {
-  applicationFit(applicationId: $applicationId) {
-    id
-    applicationId
-    draftApplicationId
-    resumeId
-    status
-    error
-    scoreRatio
-    classification
-    fitCount
-    gapCount
-    unclearCount
-    items {
-      requirement
-      source
-      weight
-      type
-      verdict
-      jdQuote
-      sourceQuotes
-      suggestion
+  query ApplicationFit($applicationId: ID!) {
+    applicationFit(applicationId: $applicationId) {
+      id
+      applicationId
+      draftApplicationId
+      resumeId
+      status
+      error
+      scoreRatio
+      classification
+      fitCount
+      gapCount
+      unclearCount
+      items {
+        requirement
+        source
+        weight
+        type
+        verdict
+        jdQuote
+        sourceQuotes
+        suggestion
+      }
+      createdAt
     }
-    createdAt
   }
-}
-    `;
+`;
 
 /**
  * __useApplicationFitQuery__
@@ -2454,46 +3479,70 @@ export const ApplicationFitDocument = gql`
  *   },
  * });
  */
-export function useApplicationFitQuery(baseOptions: ApolloReactHooks.QueryHookOptions<ApplicationFitQuery, ApplicationFitQueryVariables> & ({ variables: ApplicationFitQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
-        const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useQuery<ApplicationFitQuery, ApplicationFitQueryVariables>(ApplicationFitDocument, options);
-      }
-export function useApplicationFitLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ApplicationFitQuery, ApplicationFitQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return ApolloReactHooks.useLazyQuery<ApplicationFitQuery, ApplicationFitQueryVariables>(ApplicationFitDocument, options);
-        }
+export function useApplicationFitQuery(
+  baseOptions: ApolloReactHooks.QueryHookOptions<
+    ApplicationFitQuery,
+    ApplicationFitQueryVariables
+  > &
+    (
+      | { variables: ApplicationFitQueryVariables; skip?: boolean }
+      | { skip: boolean }
+    ),
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useQuery<
+    ApplicationFitQuery,
+    ApplicationFitQueryVariables
+  >(ApplicationFitDocument, options);
+}
+export function useApplicationFitLazyQuery(
+  baseOptions?: ApolloReactHooks.LazyQueryHookOptions<
+    ApplicationFitQuery,
+    ApplicationFitQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useLazyQuery<
+    ApplicationFitQuery,
+    ApplicationFitQueryVariables
+  >(ApplicationFitDocument, options);
+}
 
-export type ApplicationFitQueryHookResult = ReturnType<typeof useApplicationFitQuery>;
-export type ApplicationFitLazyQueryHookResult = ReturnType<typeof useApplicationFitLazyQuery>;
+export type ApplicationFitQueryHookResult = ReturnType<
+  typeof useApplicationFitQuery
+>;
+export type ApplicationFitLazyQueryHookResult = ReturnType<
+  typeof useApplicationFitLazyQuery
+>;
 
 export const DraftApplicationFitDocument = gql`
-    query DraftApplicationFit($draftApplicationId: ID!) {
-  draftApplicationFit(draftApplicationId: $draftApplicationId) {
-    id
-    applicationId
-    draftApplicationId
-    resumeId
-    status
-    error
-    scoreRatio
-    classification
-    fitCount
-    gapCount
-    unclearCount
-    items {
-      requirement
-      source
-      weight
-      type
-      verdict
-      jdQuote
-      sourceQuotes
-      suggestion
+  query DraftApplicationFit($draftApplicationId: ID!) {
+    draftApplicationFit(draftApplicationId: $draftApplicationId) {
+      id
+      applicationId
+      draftApplicationId
+      resumeId
+      status
+      error
+      scoreRatio
+      classification
+      fitCount
+      gapCount
+      unclearCount
+      items {
+        requirement
+        source
+        weight
+        type
+        verdict
+        jdQuote
+        sourceQuotes
+        suggestion
+      }
+      createdAt
     }
-    createdAt
   }
-}
-    `;
+`;
 
 /**
  * __useDraftApplicationFitQuery__
@@ -2511,47 +3560,70 @@ export const DraftApplicationFitDocument = gql`
  *   },
  * });
  */
-export function useDraftApplicationFitQuery(baseOptions: ApolloReactHooks.QueryHookOptions<DraftApplicationFitQuery, DraftApplicationFitQueryVariables> & ({ variables: DraftApplicationFitQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
-        const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useQuery<DraftApplicationFitQuery, DraftApplicationFitQueryVariables>(DraftApplicationFitDocument, options);
-      }
-export function useDraftApplicationFitLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<DraftApplicationFitQuery, DraftApplicationFitQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return ApolloReactHooks.useLazyQuery<DraftApplicationFitQuery, DraftApplicationFitQueryVariables>(DraftApplicationFitDocument, options);
-        }
+export function useDraftApplicationFitQuery(
+  baseOptions: ApolloReactHooks.QueryHookOptions<
+    DraftApplicationFitQuery,
+    DraftApplicationFitQueryVariables
+  > &
+    (
+      | { variables: DraftApplicationFitQueryVariables; skip?: boolean }
+      | { skip: boolean }
+    ),
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useQuery<
+    DraftApplicationFitQuery,
+    DraftApplicationFitQueryVariables
+  >(DraftApplicationFitDocument, options);
+}
+export function useDraftApplicationFitLazyQuery(
+  baseOptions?: ApolloReactHooks.LazyQueryHookOptions<
+    DraftApplicationFitQuery,
+    DraftApplicationFitQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useLazyQuery<
+    DraftApplicationFitQuery,
+    DraftApplicationFitQueryVariables
+  >(DraftApplicationFitDocument, options);
+}
 
-export type DraftApplicationFitQueryHookResult = ReturnType<typeof useDraftApplicationFitQuery>;
-export type DraftApplicationFitLazyQueryHookResult = ReturnType<typeof useDraftApplicationFitLazyQuery>;
+export type DraftApplicationFitQueryHookResult = ReturnType<
+  typeof useDraftApplicationFitQuery
+>;
+export type DraftApplicationFitLazyQueryHookResult = ReturnType<
+  typeof useDraftApplicationFitLazyQuery
+>;
 
 export const GenerateApplicationFitDocument = gql`
-    mutation GenerateApplicationFit($input: GenerateFitInput!) {
-  generateApplicationFit(input: $input) {
-    id
-    applicationId
-    draftApplicationId
-    resumeId
-    status
-    error
-    scoreRatio
-    classification
-    fitCount
-    gapCount
-    unclearCount
-    items {
-      requirement
-      source
-      weight
-      type
-      verdict
-      jdQuote
-      sourceQuotes
-      suggestion
+  mutation GenerateApplicationFit($input: GenerateFitInput!) {
+    generateApplicationFit(input: $input) {
+      id
+      applicationId
+      draftApplicationId
+      resumeId
+      status
+      error
+      scoreRatio
+      classification
+      fitCount
+      gapCount
+      unclearCount
+      items {
+        requirement
+        source
+        weight
+        type
+        verdict
+        jdQuote
+        sourceQuotes
+        suggestion
+      }
+      createdAt
     }
-    createdAt
   }
-}
-    `;
-
+`;
 
 /**
  * __useGenerateApplicationFitMutation__
@@ -2570,21 +3642,27 @@ export const GenerateApplicationFitDocument = gql`
  *   },
  * });
  */
-export function useGenerateApplicationFitMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<GenerateApplicationFitMutation, GenerateApplicationFitMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useMutation<GenerateApplicationFitMutation, GenerateApplicationFitMutationVariables>(GenerateApplicationFitDocument, options);
-      }
-
+export function useGenerateApplicationFitMutation(
+  baseOptions?: ApolloReactHooks.MutationHookOptions<
+    GenerateApplicationFitMutation,
+    GenerateApplicationFitMutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useMutation<
+    GenerateApplicationFitMutation,
+    GenerateApplicationFitMutationVariables
+  >(GenerateApplicationFitDocument, options);
+}
 
 export const DeleteFitAnalysisDocument = gql`
-    mutation DeleteFitAnalysis($id: ID!) {
-  deleteFitAnalysis(id: $id) {
-    success
-    deletedId
+  mutation DeleteFitAnalysis($id: ID!) {
+    deleteFitAnalysis(id: $id) {
+      success
+      deletedId
+    }
   }
-}
-    `;
-
+`;
 
 /**
  * __useDeleteFitAnalysisMutation__
@@ -2603,41 +3681,47 @@ export const DeleteFitAnalysisDocument = gql`
  *   },
  * });
  */
-export function useDeleteFitAnalysisMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DeleteFitAnalysisMutation, DeleteFitAnalysisMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useMutation<DeleteFitAnalysisMutation, DeleteFitAnalysisMutationVariables>(DeleteFitAnalysisDocument, options);
-      }
-
+export function useDeleteFitAnalysisMutation(
+  baseOptions?: ApolloReactHooks.MutationHookOptions<
+    DeleteFitAnalysisMutation,
+    DeleteFitAnalysisMutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useMutation<
+    DeleteFitAnalysisMutation,
+    DeleteFitAnalysisMutationVariables
+  >(DeleteFitAnalysisDocument, options);
+}
 
 export const GenerateDraftApplicationFitDocument = gql`
-    mutation GenerateDraftApplicationFit($input: GenerateDraftFitInput!) {
-  generateDraftApplicationFit(input: $input) {
-    id
-    applicationId
-    draftApplicationId
-    resumeId
-    status
-    error
-    scoreRatio
-    classification
-    fitCount
-    gapCount
-    unclearCount
-    items {
-      requirement
-      source
-      weight
-      type
-      verdict
-      jdQuote
-      sourceQuotes
-      suggestion
+  mutation GenerateDraftApplicationFit($input: GenerateDraftFitInput!) {
+    generateDraftApplicationFit(input: $input) {
+      id
+      applicationId
+      draftApplicationId
+      resumeId
+      status
+      error
+      scoreRatio
+      classification
+      fitCount
+      gapCount
+      unclearCount
+      items {
+        requirement
+        source
+        weight
+        type
+        verdict
+        jdQuote
+        sourceQuotes
+        suggestion
+      }
+      createdAt
     }
-    createdAt
   }
-}
-    `;
-
+`;
 
 /**
  * __useGenerateDraftApplicationFitMutation__
@@ -2656,23 +3740,30 @@ export const GenerateDraftApplicationFitDocument = gql`
  *   },
  * });
  */
-export function useGenerateDraftApplicationFitMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<GenerateDraftApplicationFitMutation, GenerateDraftApplicationFitMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useMutation<GenerateDraftApplicationFitMutation, GenerateDraftApplicationFitMutationVariables>(GenerateDraftApplicationFitDocument, options);
-      }
-
+export function useGenerateDraftApplicationFitMutation(
+  baseOptions?: ApolloReactHooks.MutationHookOptions<
+    GenerateDraftApplicationFitMutation,
+    GenerateDraftApplicationFitMutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useMutation<
+    GenerateDraftApplicationFitMutation,
+    GenerateDraftApplicationFitMutationVariables
+  >(GenerateDraftApplicationFitDocument, options);
+}
 
 export const MeDocument = gql`
-    query Me {
-  me {
-    id
-    email
-    name
-    role
-    avatarUrl
+  query Me {
+    me {
+      id
+      email
+      name
+      role
+      avatarUrl
+    }
   }
-}
-    `;
+`;
 
 /**
  * __useMeQuery__
@@ -2689,30 +3780,43 @@ export const MeDocument = gql`
  *   },
  * });
  */
-export function useMeQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<MeQuery, MeQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useQuery<MeQuery, MeQueryVariables>(MeDocument, options);
-      }
-export function useMeLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<MeQuery, MeQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return ApolloReactHooks.useLazyQuery<MeQuery, MeQueryVariables>(MeDocument, options);
-        }
+export function useMeQuery(
+  baseOptions?: ApolloReactHooks.QueryHookOptions<MeQuery, MeQueryVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useQuery<MeQuery, MeQueryVariables>(
+    MeDocument,
+    options,
+  );
+}
+export function useMeLazyQuery(
+  baseOptions?: ApolloReactHooks.LazyQueryHookOptions<
+    MeQuery,
+    MeQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useLazyQuery<MeQuery, MeQueryVariables>(
+    MeDocument,
+    options,
+  );
+}
 
 export type MeQueryHookResult = ReturnType<typeof useMeQuery>;
 export type MeLazyQueryHookResult = ReturnType<typeof useMeLazyQuery>;
 
 export const ResumesDocument = gql`
-    query Resumes {
-  resumes {
-    id
-    title
-    content
-    isDefault
-    createdAt
-    updatedAt
+  query Resumes {
+    resumes {
+      id
+      title
+      content
+      isDefault
+      createdAt
+      updatedAt
+    }
   }
-}
-    `;
+`;
 
 /**
  * __useResumesQuery__
@@ -2729,31 +3833,47 @@ export const ResumesDocument = gql`
  *   },
  * });
  */
-export function useResumesQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<ResumesQuery, ResumesQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useQuery<ResumesQuery, ResumesQueryVariables>(ResumesDocument, options);
-      }
-export function useResumesLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ResumesQuery, ResumesQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return ApolloReactHooks.useLazyQuery<ResumesQuery, ResumesQueryVariables>(ResumesDocument, options);
-        }
+export function useResumesQuery(
+  baseOptions?: ApolloReactHooks.QueryHookOptions<
+    ResumesQuery,
+    ResumesQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useQuery<ResumesQuery, ResumesQueryVariables>(
+    ResumesDocument,
+    options,
+  );
+}
+export function useResumesLazyQuery(
+  baseOptions?: ApolloReactHooks.LazyQueryHookOptions<
+    ResumesQuery,
+    ResumesQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useLazyQuery<ResumesQuery, ResumesQueryVariables>(
+    ResumesDocument,
+    options,
+  );
+}
 
 export type ResumesQueryHookResult = ReturnType<typeof useResumesQuery>;
 export type ResumesLazyQueryHookResult = ReturnType<typeof useResumesLazyQuery>;
 
 export const ResumeDocument = gql`
-    query Resume($id: ID!) {
-  resume(id: $id) {
-    id
-    userId
-    title
-    content
-    isDefault
-    createdAt
-    updatedAt
+  query Resume($id: ID!) {
+    resume(id: $id) {
+      id
+      userId
+      title
+      content
+      isDefault
+      createdAt
+      updatedAt
+    }
   }
-}
-    `;
+`;
 
 /**
  * __useResumeQuery__
@@ -2771,31 +3891,47 @@ export const ResumeDocument = gql`
  *   },
  * });
  */
-export function useResumeQuery(baseOptions: ApolloReactHooks.QueryHookOptions<ResumeQuery, ResumeQueryVariables> & ({ variables: ResumeQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
-        const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useQuery<ResumeQuery, ResumeQueryVariables>(ResumeDocument, options);
-      }
-export function useResumeLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ResumeQuery, ResumeQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return ApolloReactHooks.useLazyQuery<ResumeQuery, ResumeQueryVariables>(ResumeDocument, options);
-        }
+export function useResumeQuery(
+  baseOptions: ApolloReactHooks.QueryHookOptions<
+    ResumeQuery,
+    ResumeQueryVariables
+  > &
+    ({ variables: ResumeQueryVariables; skip?: boolean } | { skip: boolean }),
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useQuery<ResumeQuery, ResumeQueryVariables>(
+    ResumeDocument,
+    options,
+  );
+}
+export function useResumeLazyQuery(
+  baseOptions?: ApolloReactHooks.LazyQueryHookOptions<
+    ResumeQuery,
+    ResumeQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useLazyQuery<ResumeQuery, ResumeQueryVariables>(
+    ResumeDocument,
+    options,
+  );
+}
 
 export type ResumeQueryHookResult = ReturnType<typeof useResumeQuery>;
 export type ResumeLazyQueryHookResult = ReturnType<typeof useResumeLazyQuery>;
 
 export const CreateResumeDocument = gql`
-    mutation CreateResume($input: CreateResumeInput!) {
-  createResume(input: $input) {
-    id
-    title
-    content
-    isDefault
-    createdAt
-    updatedAt
+  mutation CreateResume($input: CreateResumeInput!) {
+    createResume(input: $input) {
+      id
+      title
+      content
+      isDefault
+      createdAt
+      updatedAt
+    }
   }
-}
-    `;
-
+`;
 
 /**
  * __useCreateResumeMutation__
@@ -2814,25 +3950,31 @@ export const CreateResumeDocument = gql`
  *   },
  * });
  */
-export function useCreateResumeMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<CreateResumeMutation, CreateResumeMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useMutation<CreateResumeMutation, CreateResumeMutationVariables>(CreateResumeDocument, options);
-      }
-
+export function useCreateResumeMutation(
+  baseOptions?: ApolloReactHooks.MutationHookOptions<
+    CreateResumeMutation,
+    CreateResumeMutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useMutation<
+    CreateResumeMutation,
+    CreateResumeMutationVariables
+  >(CreateResumeDocument, options);
+}
 
 export const UpdateResumeDocument = gql`
-    mutation UpdateResume($id: ID!, $input: UpdateResumeInput!) {
-  updateResume(id: $id, input: $input) {
-    id
-    title
-    content
-    isDefault
-    createdAt
-    updatedAt
+  mutation UpdateResume($id: ID!, $input: UpdateResumeInput!) {
+    updateResume(id: $id, input: $input) {
+      id
+      title
+      content
+      isDefault
+      createdAt
+      updatedAt
+    }
   }
-}
-    `;
-
+`;
 
 /**
  * __useUpdateResumeMutation__
@@ -2852,21 +3994,27 @@ export const UpdateResumeDocument = gql`
  *   },
  * });
  */
-export function useUpdateResumeMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<UpdateResumeMutation, UpdateResumeMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useMutation<UpdateResumeMutation, UpdateResumeMutationVariables>(UpdateResumeDocument, options);
-      }
-
+export function useUpdateResumeMutation(
+  baseOptions?: ApolloReactHooks.MutationHookOptions<
+    UpdateResumeMutation,
+    UpdateResumeMutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useMutation<
+    UpdateResumeMutation,
+    UpdateResumeMutationVariables
+  >(UpdateResumeDocument, options);
+}
 
 export const DeleteResumeDocument = gql`
-    mutation DeleteResume($id: ID!) {
-  deleteResume(id: $id) {
-    success
-    deletedId
+  mutation DeleteResume($id: ID!) {
+    deleteResume(id: $id) {
+      success
+      deletedId
+    }
   }
-}
-    `;
-
+`;
 
 /**
  * __useDeleteResumeMutation__
@@ -2885,20 +4033,27 @@ export const DeleteResumeDocument = gql`
  *   },
  * });
  */
-export function useDeleteResumeMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DeleteResumeMutation, DeleteResumeMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useMutation<DeleteResumeMutation, DeleteResumeMutationVariables>(DeleteResumeDocument, options);
-      }
-
+export function useDeleteResumeMutation(
+  baseOptions?: ApolloReactHooks.MutationHookOptions<
+    DeleteResumeMutation,
+    DeleteResumeMutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useMutation<
+    DeleteResumeMutation,
+    DeleteResumeMutationVariables
+  >(DeleteResumeDocument, options);
+}
 
 export const SourceProfilesListDocument = gql`
-    query SourceProfilesList {
-  sourceProfiles(onlyWithSourceTemplate: true) {
-    sourceProfileId
-    name
+  query SourceProfilesList {
+    sourceProfiles(onlyWithSourceTemplate: true) {
+      sourceProfileId
+      name
+    }
   }
-}
-    `;
+`;
 
 /**
  * __useSourceProfilesListQuery__
@@ -2915,26 +4070,46 @@ export const SourceProfilesListDocument = gql`
  *   },
  * });
  */
-export function useSourceProfilesListQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<SourceProfilesListQuery, SourceProfilesListQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useQuery<SourceProfilesListQuery, SourceProfilesListQueryVariables>(SourceProfilesListDocument, options);
-      }
-export function useSourceProfilesListLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<SourceProfilesListQuery, SourceProfilesListQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return ApolloReactHooks.useLazyQuery<SourceProfilesListQuery, SourceProfilesListQueryVariables>(SourceProfilesListDocument, options);
-        }
+export function useSourceProfilesListQuery(
+  baseOptions?: ApolloReactHooks.QueryHookOptions<
+    SourceProfilesListQuery,
+    SourceProfilesListQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useQuery<
+    SourceProfilesListQuery,
+    SourceProfilesListQueryVariables
+  >(SourceProfilesListDocument, options);
+}
+export function useSourceProfilesListLazyQuery(
+  baseOptions?: ApolloReactHooks.LazyQueryHookOptions<
+    SourceProfilesListQuery,
+    SourceProfilesListQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useLazyQuery<
+    SourceProfilesListQuery,
+    SourceProfilesListQueryVariables
+  >(SourceProfilesListDocument, options);
+}
 
-export type SourceProfilesListQueryHookResult = ReturnType<typeof useSourceProfilesListQuery>;
-export type SourceProfilesListLazyQueryHookResult = ReturnType<typeof useSourceProfilesListLazyQuery>;
+export type SourceProfilesListQueryHookResult = ReturnType<
+  typeof useSourceProfilesListQuery
+>;
+export type SourceProfilesListLazyQueryHookResult = ReturnType<
+  typeof useSourceProfilesListLazyQuery
+>;
 
 export const SourceProfilesForNewSourcePickerDocument = gql`
-    query SourceProfilesForNewSourcePicker {
-  sourceProfiles(onlyWithSourceTemplate: false) {
-    sourceProfileId
-    name
+  query SourceProfilesForNewSourcePicker {
+    sourceProfiles(onlyWithSourceTemplate: false) {
+      sourceProfileId
+      name
+    }
   }
-}
-    `;
+`;
 
 /**
  * __useSourceProfilesForNewSourcePickerQuery__
@@ -2951,35 +4126,55 @@ export const SourceProfilesForNewSourcePickerDocument = gql`
  *   },
  * });
  */
-export function useSourceProfilesForNewSourcePickerQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<SourceProfilesForNewSourcePickerQuery, SourceProfilesForNewSourcePickerQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useQuery<SourceProfilesForNewSourcePickerQuery, SourceProfilesForNewSourcePickerQueryVariables>(SourceProfilesForNewSourcePickerDocument, options);
-      }
-export function useSourceProfilesForNewSourcePickerLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<SourceProfilesForNewSourcePickerQuery, SourceProfilesForNewSourcePickerQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return ApolloReactHooks.useLazyQuery<SourceProfilesForNewSourcePickerQuery, SourceProfilesForNewSourcePickerQueryVariables>(SourceProfilesForNewSourcePickerDocument, options);
-        }
+export function useSourceProfilesForNewSourcePickerQuery(
+  baseOptions?: ApolloReactHooks.QueryHookOptions<
+    SourceProfilesForNewSourcePickerQuery,
+    SourceProfilesForNewSourcePickerQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useQuery<
+    SourceProfilesForNewSourcePickerQuery,
+    SourceProfilesForNewSourcePickerQueryVariables
+  >(SourceProfilesForNewSourcePickerDocument, options);
+}
+export function useSourceProfilesForNewSourcePickerLazyQuery(
+  baseOptions?: ApolloReactHooks.LazyQueryHookOptions<
+    SourceProfilesForNewSourcePickerQuery,
+    SourceProfilesForNewSourcePickerQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useLazyQuery<
+    SourceProfilesForNewSourcePickerQuery,
+    SourceProfilesForNewSourcePickerQueryVariables
+  >(SourceProfilesForNewSourcePickerDocument, options);
+}
 
-export type SourceProfilesForNewSourcePickerQueryHookResult = ReturnType<typeof useSourceProfilesForNewSourcePickerQuery>;
-export type SourceProfilesForNewSourcePickerLazyQueryHookResult = ReturnType<typeof useSourceProfilesForNewSourcePickerLazyQuery>;
+export type SourceProfilesForNewSourcePickerQueryHookResult = ReturnType<
+  typeof useSourceProfilesForNewSourcePickerQuery
+>;
+export type SourceProfilesForNewSourcePickerLazyQueryHookResult = ReturnType<
+  typeof useSourceProfilesForNewSourcePickerLazyQuery
+>;
 
 export const SourcesForSourceProfileDocument = gql`
-    query SourcesForSourceProfile($sourceProfileId: String!) {
-  sourcesForSourceProfile(sourceProfileId: $sourceProfileId) {
-    id
-    sourceProfileId
-    scheduleCron
-    scheduleEnabled
-    surfaceUrl
-    createdAt
-    runs {
+  query SourcesForSourceProfile($sourceProfileId: String!) {
+    sourceTemplatesForSourceProfile(sourceProfileId: $sourceProfileId) {
       id
-      status
-      startedAt
+      sourceProfileId
+      scheduleCron
+      scheduleEnabled
+      surfaceUrl
+      createdAt
+      runs {
+        id
+        status
+        startedAt
+      }
     }
   }
-}
-    `;
+`;
 
 /**
  * __useSourcesForSourceProfileQuery__
@@ -2997,139 +4192,181 @@ export const SourcesForSourceProfileDocument = gql`
  *   },
  * });
  */
-export function useSourcesForSourceProfileQuery(baseOptions: ApolloReactHooks.QueryHookOptions<SourcesForSourceProfileQuery, SourcesForSourceProfileQueryVariables> & ({ variables: SourcesForSourceProfileQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
-        const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useQuery<SourcesForSourceProfileQuery, SourcesForSourceProfileQueryVariables>(SourcesForSourceProfileDocument, options);
-      }
-export function useSourcesForSourceProfileLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<SourcesForSourceProfileQuery, SourcesForSourceProfileQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return ApolloReactHooks.useLazyQuery<SourcesForSourceProfileQuery, SourcesForSourceProfileQueryVariables>(SourcesForSourceProfileDocument, options);
-        }
+export function useSourcesForSourceProfileQuery(
+  baseOptions: ApolloReactHooks.QueryHookOptions<
+    SourcesForSourceProfileQuery,
+    SourcesForSourceProfileQueryVariables
+  > &
+    (
+      | { variables: SourcesForSourceProfileQueryVariables; skip?: boolean }
+      | { skip: boolean }
+    ),
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useQuery<
+    SourcesForSourceProfileQuery,
+    SourcesForSourceProfileQueryVariables
+  >(SourcesForSourceProfileDocument, options);
+}
+export function useSourcesForSourceProfileLazyQuery(
+  baseOptions?: ApolloReactHooks.LazyQueryHookOptions<
+    SourcesForSourceProfileQuery,
+    SourcesForSourceProfileQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useLazyQuery<
+    SourcesForSourceProfileQuery,
+    SourcesForSourceProfileQueryVariables
+  >(SourcesForSourceProfileDocument, options);
+}
 
-export type SourcesForSourceProfileQueryHookResult = ReturnType<typeof useSourcesForSourceProfileQuery>;
-export type SourcesForSourceProfileLazyQueryHookResult = ReturnType<typeof useSourcesForSourceProfileLazyQuery>;
+export type SourcesForSourceProfileQueryHookResult = ReturnType<
+  typeof useSourcesForSourceProfileQuery
+>;
+export type SourcesForSourceProfileLazyQueryHookResult = ReturnType<
+  typeof useSourcesForSourceProfileLazyQuery
+>;
 
-export const UpdateSourceDocument = gql`
-    mutation UpdateSource($id: ID!, $input: UpdateSourceInput!) {
-  updateSource(id: $id, input: $input) {
-    id
-    sourceProfileId
-    scheduleCron
-    scheduleEnabled
-    surfaceUrl
-    createdAt
-    runs {
+export const UpdateSourceTemplateDocument = gql`
+  mutation UpdateSourceTemplate($id: ID!, $input: UpdateSourceTemplateInput!) {
+    updateSourceTemplate(id: $id, input: $input) {
       id
-      status
-      startedAt
+      sourceProfileId
+      scheduleCron
+      scheduleEnabled
+      surfaceUrl
+      createdAt
+      runs {
+        id
+        status
+        startedAt
+      }
     }
   }
-}
-    `;
-
+`;
 
 /**
- * __useUpdateSourceMutation__
+ * __useUpdateSourceTemplateMutation__
  *
- * To run a mutation, you first call `useUpdateSourceMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateSourceMutation` returns a tuple that includes:
+ * To run a mutation, you first call `useUpdateSourceTemplateMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateSourceTemplateMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [updateSourceMutation, { data, loading, error }] = useUpdateSourceMutation({
+ * const [updateSourceTemplateMutation, { data, loading, error }] = useUpdateSourceTemplateMutation({
  *   variables: {
  *      id: // value for 'id'
  *      input: // value for 'input'
  *   },
  * });
  */
-export function useUpdateSourceMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<UpdateSourceMutation, UpdateSourceMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useMutation<UpdateSourceMutation, UpdateSourceMutationVariables>(UpdateSourceDocument, options);
-      }
-
-
-export const DeleteSourceDocument = gql`
-    mutation DeleteSource($id: ID!) {
-  deleteSource(id: $id) {
-    success
-    deletedId
-  }
+export function useUpdateSourceTemplateMutation(
+  baseOptions?: ApolloReactHooks.MutationHookOptions<
+    UpdateSourceTemplateMutation,
+    UpdateSourceTemplateMutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useMutation<
+    UpdateSourceTemplateMutation,
+    UpdateSourceTemplateMutationVariables
+  >(UpdateSourceTemplateDocument, options);
 }
-    `;
 
+export const DeleteSourceTemplateDocument = gql`
+  mutation DeleteSourceTemplate($id: ID!) {
+    deleteSourceTemplate(id: $id) {
+      success
+      deletedId
+    }
+  }
+`;
 
 /**
- * __useDeleteSourceMutation__
+ * __useDeleteSourceTemplateMutation__
  *
- * To run a mutation, you first call `useDeleteSourceMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useDeleteSourceMutation` returns a tuple that includes:
+ * To run a mutation, you first call `useDeleteSourceTemplateMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteSourceTemplateMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [deleteSourceMutation, { data, loading, error }] = useDeleteSourceMutation({
+ * const [deleteSourceTemplateMutation, { data, loading, error }] = useDeleteSourceTemplateMutation({
  *   variables: {
  *      id: // value for 'id'
  *   },
  * });
  */
-export function useDeleteSourceMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DeleteSourceMutation, DeleteSourceMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useMutation<DeleteSourceMutation, DeleteSourceMutationVariables>(DeleteSourceDocument, options);
-      }
-
-
-export const CreateSourceDocument = gql`
-    mutation CreateSource($input: CreateSourceInput!) {
-  createSource(input: $input) {
-    id
-    sourceProfileId
-    surfaceUrl
-    scheduleCron
-    scheduleEnabled
-    createdAt
-  }
+export function useDeleteSourceTemplateMutation(
+  baseOptions?: ApolloReactHooks.MutationHookOptions<
+    DeleteSourceTemplateMutation,
+    DeleteSourceTemplateMutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useMutation<
+    DeleteSourceTemplateMutation,
+    DeleteSourceTemplateMutationVariables
+  >(DeleteSourceTemplateDocument, options);
 }
-    `;
 
+export const CreateSourceTemplateDocument = gql`
+  mutation CreateSourceTemplate($input: CreateSourceTemplateInput!) {
+    createSourceTemplate(input: $input) {
+      id
+      sourceProfileId
+      surfaceUrl
+      scheduleCron
+      scheduleEnabled
+      createdAt
+    }
+  }
+`;
 
 /**
- * __useCreateSourceMutation__
+ * __useCreateSourceTemplateMutation__
  *
- * To run a mutation, you first call `useCreateSourceMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useCreateSourceMutation` returns a tuple that includes:
+ * To run a mutation, you first call `useCreateSourceTemplateMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateSourceTemplateMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [createSourceMutation, { data, loading, error }] = useCreateSourceMutation({
+ * const [createSourceTemplateMutation, { data, loading, error }] = useCreateSourceTemplateMutation({
  *   variables: {
  *      input: // value for 'input'
  *   },
  * });
  */
-export function useCreateSourceMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<CreateSourceMutation, CreateSourceMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useMutation<CreateSourceMutation, CreateSourceMutationVariables>(CreateSourceDocument, options);
-      }
-
+export function useCreateSourceTemplateMutation(
+  baseOptions?: ApolloReactHooks.MutationHookOptions<
+    CreateSourceTemplateMutation,
+    CreateSourceTemplateMutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useMutation<
+    CreateSourceTemplateMutation,
+    CreateSourceTemplateMutationVariables
+  >(CreateSourceTemplateDocument, options);
+}
 
 export const UserPreferencesDocument = gql`
-    query UserPreferences {
-  userPreferences {
-    text
-    weight
+  query UserPreferences {
+    userPreferences {
+      text
+      weight
+    }
   }
-}
-    `;
+`;
 
 /**
  * __useUserPreferencesQuery__
@@ -3146,27 +4383,46 @@ export const UserPreferencesDocument = gql`
  *   },
  * });
  */
-export function useUserPreferencesQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<UserPreferencesQuery, UserPreferencesQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useQuery<UserPreferencesQuery, UserPreferencesQueryVariables>(UserPreferencesDocument, options);
-      }
-export function useUserPreferencesLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<UserPreferencesQuery, UserPreferencesQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return ApolloReactHooks.useLazyQuery<UserPreferencesQuery, UserPreferencesQueryVariables>(UserPreferencesDocument, options);
-        }
+export function useUserPreferencesQuery(
+  baseOptions?: ApolloReactHooks.QueryHookOptions<
+    UserPreferencesQuery,
+    UserPreferencesQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useQuery<
+    UserPreferencesQuery,
+    UserPreferencesQueryVariables
+  >(UserPreferencesDocument, options);
+}
+export function useUserPreferencesLazyQuery(
+  baseOptions?: ApolloReactHooks.LazyQueryHookOptions<
+    UserPreferencesQuery,
+    UserPreferencesQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useLazyQuery<
+    UserPreferencesQuery,
+    UserPreferencesQueryVariables
+  >(UserPreferencesDocument, options);
+}
 
-export type UserPreferencesQueryHookResult = ReturnType<typeof useUserPreferencesQuery>;
-export type UserPreferencesLazyQueryHookResult = ReturnType<typeof useUserPreferencesLazyQuery>;
+export type UserPreferencesQueryHookResult = ReturnType<
+  typeof useUserPreferencesQuery
+>;
+export type UserPreferencesLazyQueryHookResult = ReturnType<
+  typeof useUserPreferencesLazyQuery
+>;
 
 export const UpdateUserPreferencesDocument = gql`
-    mutation UpdateUserPreferences($items: [PreferenceInput!]!) {
-  updateUserPreferences(items: $items) {
-    text
-    weight
+  mutation UpdateUserPreferences($items: [PreferenceInput!]!) {
+    updateUserPreferences(items: $items) {
+      text
+      weight
+    }
   }
-}
-    `;
-
+`;
 
 /**
  * __useUpdateUserPreferencesMutation__
@@ -3185,8 +4441,15 @@ export const UpdateUserPreferencesDocument = gql`
  *   },
  * });
  */
-export function useUpdateUserPreferencesMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<UpdateUserPreferencesMutation, UpdateUserPreferencesMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useMutation<UpdateUserPreferencesMutation, UpdateUserPreferencesMutationVariables>(UpdateUserPreferencesDocument, options);
-      }
-
+export function useUpdateUserPreferencesMutation(
+  baseOptions?: ApolloReactHooks.MutationHookOptions<
+    UpdateUserPreferencesMutation,
+    UpdateUserPreferencesMutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useMutation<
+    UpdateUserPreferencesMutation,
+    UpdateUserPreferencesMutationVariables
+  >(UpdateUserPreferencesDocument, options);
+}
