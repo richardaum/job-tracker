@@ -244,7 +244,7 @@ export class ApplicationService {
     return hydrated;
   }
 
-  async createApplicationWithAIV2(
+  async createApplicationWithAI(
     userId: string,
     draftId: string,
   ): Promise<DraftApplicationType> {
@@ -289,10 +289,7 @@ export class ApplicationService {
         `Draft conversion failed for ${draftId}: ${extractError.message}`,
         extractError.stack,
       );
-      await this.draftApplicationsService.update(draftId, userId, {
-        conversionStatus: DraftApplicationConversionStatus.FAILED,
-        conversionError: extractError.message,
-      });
+      await this.safeUpdateDraftStatus(draftId, userId, extractError.message);
       return;
     }
 
@@ -319,10 +316,7 @@ export class ApplicationService {
         `Draft conversion failed for ${draftId}: ${createError.message}`,
         createError.stack,
       );
-      await this.draftApplicationsService.update(draftId, userId, {
-        conversionStatus: DraftApplicationConversionStatus.FAILED,
-        conversionError: createError.message,
-      });
+      await this.safeUpdateDraftStatus(draftId, userId, createError.message);
       return;
     }
 
@@ -536,5 +530,23 @@ export class ApplicationService {
     const updated = await this.repo.update(id, userId, { tags });
     if (!updated) throw new NotFoundException(`Application ${id} not found`);
     return (await this.attachCurrentStage(userId, [updated]))[0]!;
+  }
+
+  private async safeUpdateDraftStatus(
+    draftId: string,
+    userId: string,
+    errorMessage: string,
+  ): Promise<void> {
+    const [updateError] = await tryRun(
+      this.draftApplicationsService.update(draftId, userId, {
+        conversionStatus: DraftApplicationConversionStatus.FAILED,
+        conversionError: errorMessage,
+      }),
+    );
+    if (updateError) {
+      this.logger.warn(
+        `Failed to update draft ${draftId} status — draft may have been deleted`,
+      );
+    }
   }
 }

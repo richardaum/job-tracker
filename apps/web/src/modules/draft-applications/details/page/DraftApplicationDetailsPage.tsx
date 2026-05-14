@@ -29,7 +29,7 @@ import React, { useCallback, useState } from "react";
 
 import {
   useApplicationQuery,
-  useCreateApplicationWithAiV2Mutation,
+  useCreateApplicationWithAIMutation,
   useGenerateDraftApplicationFitMutation,
   useUpdateDraftApplicationMutation,
 } from "@/gql/hooks";
@@ -114,7 +114,7 @@ export default function DraftApplicationDetailsPage({ params }: PageProps) {
   const [convertConflictDialogOpen, setConvertConflictDialogOpen] =
     useState(false);
   const [fitWizardOpen, setFitWizardOpen] = useState(false);
-  const [createApplicationWithAiV2] = useCreateApplicationWithAiV2Mutation();
+  const [createApplicationWithAI] = useCreateApplicationWithAIMutation();
   const [updateDraftApplication] = useUpdateDraftApplicationMutation();
   const [generateDraftFit, { loading: generatingFit }] =
     useGenerateDraftApplicationFitMutation();
@@ -156,7 +156,7 @@ export default function DraftApplicationDetailsPage({ params }: PageProps) {
     }
 
     const [error] = await tryRun(
-      createApplicationWithAiV2({ variables: { draftId: draft.id } }),
+      createApplicationWithAI({ variables: { draftId: draft.id } }),
     );
 
     if (error) {
@@ -172,7 +172,7 @@ export default function DraftApplicationDetailsPage({ params }: PageProps) {
       intent: "success",
     });
     void refetch();
-  }, [draft, createApplicationWithAiV2, enqueueToast, refetch]);
+  }, [draft, createApplicationWithAI, enqueueToast, refetch]);
 
   useDraftAutoConversion({
     draftLoaded: !showInitialLoading && !!draft,

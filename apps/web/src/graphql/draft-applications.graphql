@@ -56,8 +56,8 @@ mutation DeleteApplicationsForDraft($draftId: ID!) {
   }
 }
 
-mutation CreateApplicationWithAiV2($draftId: ID!) {
-  createApplicationWithAIV2(draftId: $draftId) {
+mutation CreateApplicationWithAI($draftId: ID!) {
+  createApplicationWithAI(draftId: $draftId) {
     id
     title
     conversionStatus

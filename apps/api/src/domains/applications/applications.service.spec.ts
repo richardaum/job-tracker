@@ -300,7 +300,7 @@ describe("ApplicationService", () => {
     });
   });
 
-  it("createApplicationWithAIV2 marks draft as processing and returns immediately", async () => {
+  it("createApplicationWithAI marks draft as processing and returns immediately", async () => {
     vi.mocked(draftApplicationsService.findOne).mockResolvedValue({
       id: "draft-1",
       applicationId: null,
@@ -333,7 +333,7 @@ describe("ApplicationService", () => {
       new Error("openai down"),
     );
 
-    const result = await service.createApplicationWithAIV2("user-1", "draft-1");
+    const result = await service.createApplicationWithAI("user-1", "draft-1");
 
     expect(result.conversionStatus).toBe(
       DraftApplicationConversionStatus.PROCESSING,
@@ -348,7 +348,7 @@ describe("ApplicationService", () => {
     );
   });
 
-  it("createApplicationWithAIV2 background conversion records Applied after New", async () => {
+  it("createApplicationWithAI background conversion records Applied after New", async () => {
     const app = makeApp();
     const draft = {
       id: "draft-1",
@@ -407,7 +407,7 @@ describe("ApplicationService", () => {
       repo.findLatestStageEventByApplicationIdAndUserId,
     ).mockResolvedValue(makeEvent({ toStage: "new", source: "system" }));
 
-    await service.createApplicationWithAIV2("user-1", "draft-1");
+    await service.createApplicationWithAI("user-1", "draft-1");
 
     await vi.waitFor(() => {
       expect(draftApplicationsService.update).toHaveBeenCalledWith(
@@ -446,7 +446,7 @@ describe("ApplicationService", () => {
     );
   });
 
-  it("createApplicationWithAIV2 does not emit Applied when create detects duplicate", async () => {
+  it("createApplicationWithAI does not emit Applied when create detects duplicate", async () => {
     const app = makeApp();
     const draft = {
       id: "draft-1",
@@ -507,7 +507,7 @@ describe("ApplicationService", () => {
       makeEvent({ toStage: "duplicated", source: "system" }),
     );
 
-    await service.createApplicationWithAIV2("user-1", "draft-1");
+    await service.createApplicationWithAI("user-1", "draft-1");
 
     await vi.waitFor(() => {
       expect(draftApplicationsService.update).toHaveBeenCalledWith(

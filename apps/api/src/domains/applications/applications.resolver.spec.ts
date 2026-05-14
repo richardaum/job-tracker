@@ -57,7 +57,7 @@ describe("ApplicationResolver (integration)", () => {
     findAll: ReturnType<typeof vi.fn>;
     findOne: ReturnType<typeof vi.fn>;
     create: ReturnType<typeof vi.fn>;
-    createApplicationWithAIV2: ReturnType<typeof vi.fn>;
+    createApplicationWithAI: ReturnType<typeof vi.fn>;
     update: ReturnType<typeof vi.fn>;
     remove: ReturnType<typeof vi.fn>;
     removeStageEvent: ReturnType<typeof vi.fn>;
@@ -69,7 +69,7 @@ describe("ApplicationResolver (integration)", () => {
       findAll: vi.fn().mockResolvedValue([mockApp]),
       findOne: vi.fn().mockResolvedValue(mockApp),
       create: vi.fn().mockResolvedValue(mockApp),
-      createApplicationWithAIV2: vi.fn().mockResolvedValue(mockDraft),
+      createApplicationWithAI: vi.fn().mockResolvedValue(mockDraft),
       update: vi.fn().mockResolvedValue(mockApp),
       remove: vi.fn().mockResolvedValue(mockApp),
       removeStageEvent: vi.fn().mockResolvedValue(undefined),
@@ -172,13 +172,13 @@ describe("ApplicationResolver (integration)", () => {
     expect(res.body.data.createApplication.company.name).toBe("Acme Corp");
   });
 
-  it("createApplicationWithAIV2 mutation queues conversion and returns draft", async () => {
+  it("createApplicationWithAI mutation queues conversion and returns draft", async () => {
     const res = await request(app.getHttpServer())
       .post("/graphql")
       .set(auth)
       .send({
         query: `mutation {
-          createApplicationWithAIV2(draftId: "draft-1") {
+          createApplicationWithAI(draftId: "draft-1") {
             id
             conversionStatus
           }
@@ -186,11 +186,11 @@ describe("ApplicationResolver (integration)", () => {
       });
 
     expect(res.statusCode).toBe(200);
-    expect(res.body.data.createApplicationWithAIV2.id).toBe("draft-1");
-    expect(res.body.data.createApplicationWithAIV2.conversionStatus).toBe(
+    expect(res.body.data.createApplicationWithAI.id).toBe("draft-1");
+    expect(res.body.data.createApplicationWithAI.conversionStatus).toBe(
       "PROCESSING",
     );
-    expect(service.createApplicationWithAIV2).toHaveBeenCalledWith(
+    expect(service.createApplicationWithAI).toHaveBeenCalledWith(
       "user-1",
       "draft-1",
     );

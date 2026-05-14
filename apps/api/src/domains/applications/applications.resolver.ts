@@ -74,11 +74,11 @@ export class ApplicationResolver {
   }
 
   @Mutation(() => DraftApplicationType)
-  async createApplicationWithAIV2(
+  async createApplicationWithAI(
     @Args("draftId", { type: () => ID }) draftId: string,
     @CurrentUser() user: { userId: string },
   ): Promise<DraftApplicationType> {
-    return this.service.createApplicationWithAIV2(user.userId, draftId);
+    return this.service.createApplicationWithAI(user.userId, draftId);
   }
 
   @Query(() => String)

@@ -270,7 +270,7 @@ enum ApplicationQuickFilter {
 
 type Mutation {
   createApplication(input: CreateApplicationInput!): ApplicationType!
-  createApplicationWithAIV2(draftId: ID!): DraftApplicationType!
+  createApplicationWithAI(draftId: ID!): DraftApplicationType!
   updateApplication(id: ID!, input: UpdateApplicationInput!): ApplicationType!
   removeApplicationTag(id: ID!, tag: String!): ApplicationType!
   deleteApplication(id: ID!): DeleteMutationPayloadType!
