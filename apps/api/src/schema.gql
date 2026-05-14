@@ -261,8 +261,8 @@ type Query {
 }
 
 enum ApplicationQuickFilter {
-  ACTIVE
   INCOMING
+  ACTIVE
   APPLIED
   NEW
   DUPLICATED

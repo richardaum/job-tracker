@@ -1,8 +1,8 @@
 import { registerEnumType } from "@nestjs/graphql";
 
 export enum ApplicationQuickFilterEnum {
-  ACTIVE = "active",
   INCOMING = "incoming",
+  ACTIVE = "active",
   APPLIED = "applied",
   NEW = "new",
   DUPLICATED = "duplicated",
