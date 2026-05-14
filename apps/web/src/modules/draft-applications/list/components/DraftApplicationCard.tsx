@@ -8,7 +8,7 @@ import { useState } from "react";
 
 import {
   type DraftApplicationsListQuery,
-  useCreateApplicationWithAIMutation,
+  useCreateApplicationWithAiMutation,
 } from "@/gql/hooks";
 import { ConvertDraftConfirmationDialog } from "@/modules/draft-applications/details/components/ConvertDraftConfirmationDialog";
 import { ConvertDraftConflictDialog } from "@/modules/draft-applications/details/components/ConvertDraftConflictDialog";
@@ -57,7 +57,7 @@ export function DraftApplicationCard({
     useState(false);
   const [convertConflictDialogOpen, setConvertConflictDialogOpen] =
     useState(false);
-  const [createApplicationWithAI] = useCreateApplicationWithAIMutation();
+  const [createApplicationWithAI] = useCreateApplicationWithAiMutation();
   const label = draft.title.trim() || draftDisplayUrl(draft.url);
 
   async function handleConvertToApplication() {

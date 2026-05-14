@@ -29,7 +29,7 @@ import React, { useCallback, useState } from "react";
 
 import {
   useApplicationQuery,
-  useCreateApplicationWithAIMutation,
+  useCreateApplicationWithAiMutation,
   useGenerateDraftApplicationFitMutation,
   useUpdateDraftApplicationMutation,
 } from "@/gql/hooks";
@@ -114,7 +114,7 @@ export default function DraftApplicationDetailsPage({ params }: PageProps) {
   const [convertConflictDialogOpen, setConvertConflictDialogOpen] =
     useState(false);
   const [fitWizardOpen, setFitWizardOpen] = useState(false);
-  const [createApplicationWithAI] = useCreateApplicationWithAIMutation();
+  const [createApplicationWithAI] = useCreateApplicationWithAiMutation();
   const [updateDraftApplication] = useUpdateDraftApplicationMutation();
   const [generateDraftFit, { loading: generatingFit }] =
     useGenerateDraftApplicationFitMutation();

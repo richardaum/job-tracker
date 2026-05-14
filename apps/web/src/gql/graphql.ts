@@ -89,6 +89,7 @@ export type ApplicationType = {
   description?: Maybe<Scalars["String"]["output"]>;
   fit?: Maybe<FitAnalysisType>;
   id: Scalars["ID"]["output"];
+  location?: Maybe<Scalars["String"]["output"]>;
   salary: ApplicationSalary;
   source?: Maybe<ApplicationSource>;
   sourceRunId?: Maybe<Scalars["ID"]["output"]>;
@@ -97,6 +98,7 @@ export type ApplicationType = {
   updatedAt: Scalars["DateTime"]["output"];
   urls: Array<Scalars["String"]["output"]>;
   userId: Scalars["String"]["output"];
+  workRegion?: Maybe<Scalars["String"]["output"]>;
 };
 
 export type CompanyType = {
@@ -113,6 +115,7 @@ export type CreateApplicationInput = {
   company: Scalars["String"]["input"];
   companyId?: InputMaybe<Scalars["ID"]["input"]>;
   description?: InputMaybe<Scalars["String"]["input"]>;
+  location?: InputMaybe<Scalars["String"]["input"]>;
   salaryCurrency?: InputMaybe<Scalars["String"]["input"]>;
   salaryMaxCents?: InputMaybe<Scalars["Int"]["input"]>;
   salaryMinCents?: InputMaybe<Scalars["Int"]["input"]>;
@@ -122,6 +125,7 @@ export type CreateApplicationInput = {
   tags?: InputMaybe<Array<Scalars["String"]["input"]>>;
   title: Scalars["String"]["input"];
   urls?: InputMaybe<Array<Scalars["String"]["input"]>>;
+  workRegion?: InputMaybe<Scalars["String"]["input"]>;
 };
 
 export type CreateApplicationStageEventInput = {
@@ -443,7 +447,9 @@ export type Query = {
   exchangeRates: CurrencyRates;
   fit?: Maybe<FitAnalysisType>;
   fitAnalyses: Array<FitAnalysisType>;
+  generateApplicationLocationWithAI?: Maybe<Scalars["String"]["output"]>;
   generateApplicationNoteWithAI: Scalars["String"]["output"];
+  generateApplicationWorkRegionWithAI?: Maybe<Scalars["String"]["output"]>;
   generateCompanyDescription: Scalars["String"]["output"];
   me: UserType;
   restructureJobDescriptionWithAI: Scalars["String"]["output"];
@@ -490,9 +496,17 @@ export type QueryExchangeRatesArgs = {
 
 export type QueryFitArgs = { id: Scalars["ID"]["input"] };
 
+export type QueryGenerateApplicationLocationWithAiArgs = {
+  applicationId: Scalars["ID"]["input"];
+};
+
 export type QueryGenerateApplicationNoteWithAiArgs = {
   applicationId: Scalars["ID"]["input"];
   note: Scalars["String"]["input"];
+};
+
+export type QueryGenerateApplicationWorkRegionWithAiArgs = {
+  applicationId: Scalars["ID"]["input"];
 };
 
 export type QueryGenerateCompanyDescriptionArgs = {
@@ -588,6 +602,7 @@ export type UpdateApplicationInput = {
   company?: InputMaybe<Scalars["String"]["input"]>;
   companyId?: InputMaybe<Scalars["ID"]["input"]>;
   description?: InputMaybe<Scalars["String"]["input"]>;
+  location?: InputMaybe<Scalars["String"]["input"]>;
   salaryCurrency?: InputMaybe<Scalars["String"]["input"]>;
   salaryMaxCents?: InputMaybe<Scalars["Int"]["input"]>;
   salaryMinCents?: InputMaybe<Scalars["Int"]["input"]>;
@@ -596,6 +611,7 @@ export type UpdateApplicationInput = {
   tags?: InputMaybe<Array<Scalars["String"]["input"]>>;
   title?: InputMaybe<Scalars["String"]["input"]>;
   urls?: InputMaybe<Array<Scalars["String"]["input"]>>;
+  workRegion?: InputMaybe<Scalars["String"]["input"]>;
 };
 
 export type UpdateApplicationStageEventInput = {
@@ -673,6 +689,8 @@ export type ApplicationsQuery = {
       urls: Array<string>;
       source?: ApplicationSource | null;
       tags: Array<string>;
+      location?: string | null;
+      workRegion?: string | null;
       sourceRunId?: string | null;
       currentStage: ApplicationStage;
       currentStageReason?: string | null;
@@ -716,6 +734,8 @@ export type ApplicationQuery = {
     urls: Array<string>;
     source?: ApplicationSource | null;
     tags: Array<string>;
+    location?: string | null;
+    workRegion?: string | null;
     sourceRunId?: string | null;
     currentStage: ApplicationStage;
     currentStageReason?: string | null;
@@ -760,6 +780,8 @@ export type CreateApplicationMutation = {
     urls: Array<string>;
     source?: ApplicationSource | null;
     tags: Array<string>;
+    location?: string | null;
+    workRegion?: string | null;
     createdAt: any;
     company: {
       __typename?: "CompanyType";
@@ -799,6 +821,8 @@ export type UpdateApplicationMutation = {
     urls: Array<string>;
     source?: ApplicationSource | null;
     tags: Array<string>;
+    location?: string | null;
+    workRegion?: string | null;
     createdAt: any;
     company: {
       __typename?: "CompanyType";
@@ -1002,6 +1026,24 @@ export type RestructureJobDescriptionWithAiQueryVariables = Exact<{
 export type RestructureJobDescriptionWithAiQuery = {
   __typename?: "Query";
   restructureJobDescriptionWithAI: string;
+};
+
+export type GenerateApplicationLocationWithAiQueryVariables = Exact<{
+  applicationId: Scalars["ID"]["input"];
+}>;
+
+export type GenerateApplicationLocationWithAiQuery = {
+  __typename?: "Query";
+  generateApplicationLocationWithAI?: string | null;
+};
+
+export type GenerateApplicationWorkRegionWithAiQueryVariables = Exact<{
+  applicationId: Scalars["ID"]["input"];
+}>;
+
+export type GenerateApplicationWorkRegionWithAiQuery = {
+  __typename?: "Query";
+  generateApplicationWorkRegionWithAI?: string | null;
 };
 
 export type UpdateCompanyMutationVariables = Exact<{
@@ -1771,6 +1813,8 @@ export const ApplicationsDocument = {
                   name: { kind: "Name", value: "ApplicationSalarySelection" },
                 },
                 { kind: "Field", name: { kind: "Name", value: "tags" } },
+                { kind: "Field", name: { kind: "Name", value: "location" } },
+                { kind: "Field", name: { kind: "Name", value: "workRegion" } },
                 { kind: "Field", name: { kind: "Name", value: "sourceRunId" } },
                 {
                   kind: "Field",
@@ -1916,6 +1960,8 @@ export const ApplicationDocument = {
                   name: { kind: "Name", value: "ApplicationSalarySelection" },
                 },
                 { kind: "Field", name: { kind: "Name", value: "tags" } },
+                { kind: "Field", name: { kind: "Name", value: "location" } },
+                { kind: "Field", name: { kind: "Name", value: "workRegion" } },
                 { kind: "Field", name: { kind: "Name", value: "sourceRunId" } },
                 {
                   kind: "Field",
@@ -2067,6 +2113,8 @@ export const CreateApplicationDocument = {
                   name: { kind: "Name", value: "ApplicationSalarySelection" },
                 },
                 { kind: "Field", name: { kind: "Name", value: "tags" } },
+                { kind: "Field", name: { kind: "Name", value: "location" } },
+                { kind: "Field", name: { kind: "Name", value: "workRegion" } },
                 { kind: "Field", name: { kind: "Name", value: "createdAt" } },
               ],
             },
@@ -2237,6 +2285,8 @@ export const UpdateApplicationDocument = {
                   name: { kind: "Name", value: "ApplicationSalarySelection" },
                 },
                 { kind: "Field", name: { kind: "Name", value: "tags" } },
+                { kind: "Field", name: { kind: "Name", value: "location" } },
+                { kind: "Field", name: { kind: "Name", value: "workRegion" } },
                 { kind: "Field", name: { kind: "Name", value: "createdAt" } },
               ],
             },
@@ -3047,6 +3097,99 @@ export const RestructureJobDescriptionWithAiDocument = {
 } as unknown as DocumentNode<
   RestructureJobDescriptionWithAiQuery,
   RestructureJobDescriptionWithAiQueryVariables
+>;
+export const GenerateApplicationLocationWithAiDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "query",
+      name: { kind: "Name", value: "GenerateApplicationLocationWithAi" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "applicationId" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "generateApplicationLocationWithAI" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "applicationId" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "applicationId" },
+                },
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  GenerateApplicationLocationWithAiQuery,
+  GenerateApplicationLocationWithAiQueryVariables
+>;
+export const GenerateApplicationWorkRegionWithAiDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "query",
+      name: { kind: "Name", value: "GenerateApplicationWorkRegionWithAi" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "applicationId" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: {
+              kind: "Name",
+              value: "generateApplicationWorkRegionWithAI",
+            },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "applicationId" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "applicationId" },
+                },
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  GenerateApplicationWorkRegionWithAiQuery,
+  GenerateApplicationWorkRegionWithAiQueryVariables
 >;
 export const UpdateCompanyDocument = {
   kind: "Document",

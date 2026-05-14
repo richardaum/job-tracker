@@ -7,7 +7,7 @@ import React, { useState } from "react";
 
 import {
   ApplicationsDocument,
-  useCreateApplicationWithAIMutation,
+  useCreateApplicationWithAiMutation,
   useDeleteApplicationsForDraftMutation,
 } from "@/gql/hooks";
 
@@ -33,7 +33,7 @@ export function ConvertDraftConflictDialog({
   const [action, setAction] = useState<
     "replace-all" | "create-duplicate" | null
   >(null);
-  const [createApplicationWithAI] = useCreateApplicationWithAIMutation();
+  const [createApplicationWithAI] = useCreateApplicationWithAiMutation();
   const [deleteApplicationsForDraft] = useDeleteApplicationsForDraftMutation({
     refetchQueries: [{ query: ApplicationsDocument }],
     awaitRefetchQueries: true,

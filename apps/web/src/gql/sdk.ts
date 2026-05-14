@@ -90,6 +90,7 @@ export type ApplicationType = {
   description?: Maybe<Scalars["String"]["output"]>;
   fit?: Maybe<FitAnalysisType>;
   id: Scalars["ID"]["output"];
+  location?: Maybe<Scalars["String"]["output"]>;
   salary: ApplicationSalary;
   source?: Maybe<ApplicationSource>;
   sourceRunId?: Maybe<Scalars["ID"]["output"]>;
@@ -98,6 +99,7 @@ export type ApplicationType = {
   updatedAt: Scalars["DateTime"]["output"];
   urls: Array<Scalars["String"]["output"]>;
   userId: Scalars["String"]["output"];
+  workRegion?: Maybe<Scalars["String"]["output"]>;
 };
 
 export type CompanyType = {
@@ -114,6 +116,7 @@ export type CreateApplicationInput = {
   company: Scalars["String"]["input"];
   companyId?: InputMaybe<Scalars["ID"]["input"]>;
   description?: InputMaybe<Scalars["String"]["input"]>;
+  location?: InputMaybe<Scalars["String"]["input"]>;
   salaryCurrency?: InputMaybe<Scalars["String"]["input"]>;
   salaryMaxCents?: InputMaybe<Scalars["Int"]["input"]>;
   salaryMinCents?: InputMaybe<Scalars["Int"]["input"]>;
@@ -123,6 +126,7 @@ export type CreateApplicationInput = {
   tags?: InputMaybe<Array<Scalars["String"]["input"]>>;
   title: Scalars["String"]["input"];
   urls?: InputMaybe<Array<Scalars["String"]["input"]>>;
+  workRegion?: InputMaybe<Scalars["String"]["input"]>;
 };
 
 export type CreateApplicationStageEventInput = {
@@ -444,7 +448,9 @@ export type Query = {
   exchangeRates: CurrencyRates;
   fit?: Maybe<FitAnalysisType>;
   fitAnalyses: Array<FitAnalysisType>;
+  generateApplicationLocationWithAI?: Maybe<Scalars["String"]["output"]>;
   generateApplicationNoteWithAI: Scalars["String"]["output"];
+  generateApplicationWorkRegionWithAI?: Maybe<Scalars["String"]["output"]>;
   generateCompanyDescription: Scalars["String"]["output"];
   me: UserType;
   restructureJobDescriptionWithAI: Scalars["String"]["output"];
@@ -491,9 +497,17 @@ export type QueryExchangeRatesArgs = {
 
 export type QueryFitArgs = { id: Scalars["ID"]["input"] };
 
+export type QueryGenerateApplicationLocationWithAiArgs = {
+  applicationId: Scalars["ID"]["input"];
+};
+
 export type QueryGenerateApplicationNoteWithAiArgs = {
   applicationId: Scalars["ID"]["input"];
   note: Scalars["String"]["input"];
+};
+
+export type QueryGenerateApplicationWorkRegionWithAiArgs = {
+  applicationId: Scalars["ID"]["input"];
 };
 
 export type QueryGenerateCompanyDescriptionArgs = {
@@ -589,6 +603,7 @@ export type UpdateApplicationInput = {
   company?: InputMaybe<Scalars["String"]["input"]>;
   companyId?: InputMaybe<Scalars["ID"]["input"]>;
   description?: InputMaybe<Scalars["String"]["input"]>;
+  location?: InputMaybe<Scalars["String"]["input"]>;
   salaryCurrency?: InputMaybe<Scalars["String"]["input"]>;
   salaryMaxCents?: InputMaybe<Scalars["Int"]["input"]>;
   salaryMinCents?: InputMaybe<Scalars["Int"]["input"]>;
@@ -597,6 +612,7 @@ export type UpdateApplicationInput = {
   tags?: InputMaybe<Array<Scalars["String"]["input"]>>;
   title?: InputMaybe<Scalars["String"]["input"]>;
   urls?: InputMaybe<Array<Scalars["String"]["input"]>>;
+  workRegion?: InputMaybe<Scalars["String"]["input"]>;
 };
 
 export type UpdateApplicationStageEventInput = {
@@ -673,6 +689,8 @@ export type ApplicationsQuery = {
     urls: Array<string>;
     source?: ApplicationSource | null;
     tags: Array<string>;
+    location?: string | null;
+    workRegion?: string | null;
     sourceRunId?: string | null;
     currentStage: ApplicationStage;
     currentStageReason?: string | null;
@@ -718,6 +736,8 @@ export type ApplicationQuery = {
     urls: Array<string>;
     source?: ApplicationSource | null;
     tags: Array<string>;
+    location?: string | null;
+    workRegion?: string | null;
     sourceRunId?: string | null;
     currentStage: ApplicationStage;
     currentStageReason?: string | null;
@@ -765,6 +785,8 @@ export type CreateApplicationMutation = {
     urls: Array<string>;
     source?: ApplicationSource | null;
     tags: Array<string>;
+    location?: string | null;
+    workRegion?: string | null;
     createdAt: any;
     company: {
       __typename?: "CompanyType";
@@ -807,6 +829,8 @@ export type UpdateApplicationMutation = {
     urls: Array<string>;
     source?: ApplicationSource | null;
     tags: Array<string>;
+    location?: string | null;
+    workRegion?: string | null;
     createdAt: any;
     company: {
       __typename?: "CompanyType";
@@ -1013,6 +1037,24 @@ export type RestructureJobDescriptionWithAiQueryVariables = Exact<{
 export type RestructureJobDescriptionWithAiQuery = {
   __typename?: "Query";
   restructureJobDescriptionWithAI: string;
+};
+
+export type GenerateApplicationLocationWithAiQueryVariables = Exact<{
+  applicationId: Scalars["ID"]["input"];
+}>;
+
+export type GenerateApplicationLocationWithAiQuery = {
+  __typename?: "Query";
+  generateApplicationLocationWithAI?: string | null;
+};
+
+export type GenerateApplicationWorkRegionWithAiQueryVariables = Exact<{
+  applicationId: Scalars["ID"]["input"];
+}>;
+
+export type GenerateApplicationWorkRegionWithAiQuery = {
+  __typename?: "Query";
+  generateApplicationWorkRegionWithAI?: string | null;
 };
 
 export type UpdateCompanyMutationVariables = Exact<{
@@ -1684,6 +1726,8 @@ export const ApplicationsDocument = gql`
       source
       ...ApplicationSalarySelection
       tags
+      location
+      workRegion
       sourceRunId
       currentStage
       currentStageReason
@@ -1719,6 +1763,8 @@ export const ApplicationDocument = gql`
       source
       ...ApplicationSalarySelection
       tags
+      location
+      workRegion
       sourceRunId
       currentStage
       currentStageReason
@@ -1754,6 +1800,8 @@ export const CreateApplicationDocument = gql`
       source
       ...ApplicationSalarySelection
       tags
+      location
+      workRegion
       createdAt
     }
   }
@@ -1780,6 +1828,8 @@ export const UpdateApplicationDocument = gql`
       source
       ...ApplicationSalarySelection
       tags
+      location
+      workRegion
       createdAt
     }
   }
@@ -1913,6 +1963,16 @@ export const RewriteTextWithAiDocument = gql`
 export const RestructureJobDescriptionWithAiDocument = gql`
   query RestructureJobDescriptionWithAi($text: String!) {
     restructureJobDescriptionWithAI(text: $text)
+  }
+`;
+export const GenerateApplicationLocationWithAiDocument = gql`
+  query GenerateApplicationLocationWithAi($applicationId: ID!) {
+    generateApplicationLocationWithAI(applicationId: $applicationId)
+  }
+`;
+export const GenerateApplicationWorkRegionWithAiDocument = gql`
+  query GenerateApplicationWorkRegionWithAi($applicationId: ID!) {
+    generateApplicationWorkRegionWithAI(applicationId: $applicationId)
   }
 `;
 export const UpdateCompanyDocument = gql`
@@ -2741,6 +2801,42 @@ export function getSdk(
             signal,
           }),
         "RestructureJobDescriptionWithAi",
+        "query",
+        variables,
+      );
+    },
+    GenerateApplicationLocationWithAi(
+      variables: GenerateApplicationLocationWithAiQueryVariables,
+      requestHeaders?: GraphQLClientRequestHeaders,
+      signal?: RequestInit["signal"],
+    ): Promise<GenerateApplicationLocationWithAiQuery> {
+      return withWrapper(
+        (wrappedRequestHeaders) =>
+          client.request<GenerateApplicationLocationWithAiQuery>({
+            document: GenerateApplicationLocationWithAiDocument,
+            variables,
+            requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
+            signal,
+          }),
+        "GenerateApplicationLocationWithAi",
+        "query",
+        variables,
+      );
+    },
+    GenerateApplicationWorkRegionWithAi(
+      variables: GenerateApplicationWorkRegionWithAiQueryVariables,
+      requestHeaders?: GraphQLClientRequestHeaders,
+      signal?: RequestInit["signal"],
+    ): Promise<GenerateApplicationWorkRegionWithAiQuery> {
+      return withWrapper(
+        (wrappedRequestHeaders) =>
+          client.request<GenerateApplicationWorkRegionWithAiQuery>({
+            document: GenerateApplicationWorkRegionWithAiDocument,
+            variables,
+            requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
+            signal,
+          }),
+        "GenerateApplicationWorkRegionWithAi",
         "query",
         variables,
       );
