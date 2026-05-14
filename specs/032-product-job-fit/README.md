@@ -174,28 +174,7 @@ Each fit analysis is persisted to the database:
 - **[P-161]** The fit dialog shows an overall **final score** — a badge with classification (positive/green, negative/red, neutral/gray) based on a weighted ratio of fits vs gaps, using the defined thresholds.
 - **[P-162]** The user can regenerate a fit analysis from the fit dialog; each regeneration replaces the previous result for that application.
 
-## Technical plan
-
-| ID          | Deliverable                                                                                                                                                                                                                                               |
-| ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **[T-175]** | Create **`Resume`** TypeORM entity + migration (`id`, `userId`, `title`, `content` jsonb, timestamps). Preferences are handled separately (user-level).                                                                                                   |
-| **[T-176]** | Add GraphQL **`Query.resumes`**, **`Mutation.createResume`**, **`Mutation.updateResume`**, **`Mutation.deleteResume`** to the API. No preferences in resume mutations.                                                                                    |
-| **[T-177]** | Create **`/resumes`** page shell in **`apps/web`** following `ApplicationsPage` layout pattern.                                                                                                                                                           |
-| **[T-178]** | Build **`ResumeCard`** component using `ListItemCard` (title, actions, meta, description).                                                                                                                                                                |
-| **[T-179]** | Build **Resume editor** (page at `/resumes/[id]`) with title input, PDF import, `TipTapEditor` for manual editing.                                                                                                                                        |
-| **[T-180]** | Wire GraphQL hooks for list/create/update/delete operations.                                                                                                                                                                                              |
-| **[T-181]** | Unit tests: API resolver + service, web page render, card rendering, editor interactions (PDF import path, TipTap content).                                                                                                                               |
-| **[T-182]** | Build **FitDialog** component — opened from the application detail page, with resume selector dropdown, "Generate" / "Regenerate" button, and fit results area. Empty state when no fit exists yet.                                                       |
-| **[T-183]** | Add **`Mutation.generateApplicationFit(applicationId: UUID!, resumeId: UUID): FitAnalysis!`** (runs analysis, persists, returns the result) and **`Query.applicationFit(applicationId: UUID!): FitAnalysis`** (returns the latest persisted fit or null). |
-| **[T-184]** | Wire GraphQL hooks for the fit dialog (query + mutation).                                                                                                                                                                                                 |
-| **[T-185]** | Unit tests for fit dialog, FitItem rendering (fit/gap/unclear badges, source badge, JD quote, source quotes, suggestion), resume selector, generate/regenerate flow.                                                                                      |
-| **[T-186]** | Add `UserPreferences` entity + migration (`userId` unique, `items` jsonb `[{text, weight}]`) + GraphQL `Query.userPreferences` and `Mutation.updateUserPreferences`.                                                                                      |
-| **[T-187]** | Build **Preferences dialog** on the resumes list page: bullet‑list with add/remove, single‑scope text input, and weight toggle (`high`/`low`) per item.                                                                                                   |
-| **[T-188]** | Unit tests for preferences CRUD and rendering in the preferences dialog (including weight toggle).                                                                                                                                                        |
-| **[T-189]** | Display weight badge on preference FitItems in the fit dialog; add weight filter to the source filter pills.                                                                                                                                              |
-| **[T-190]** | Implement scoring logic: point system, score ratio, classification with 65%/35% thresholds, unclear‑majority override.                                                                                                                                    |
-| **[T-191]** | Build **final score badge** component at the top of the fit dialog — color‑coded, shows classification label + score percentage + item counts.                                                                                                            |
-| **[T-192]** | Create **`FitAnalysis`** TypeORM entity + migration (`id`, `applicationId` unique, `resumeId`, `scoreRatio`, `classification`, `fitCount`, `gapCount`, `unclearCount`, `items` jsonb `[FitItem]`, timestamps).                                            |
+See [`tasks.md`](./tasks.md) for the detailed execution plan and [`design.md`](./design.md) for the data model and API surface.
 
 ## Acceptance checklist
 
