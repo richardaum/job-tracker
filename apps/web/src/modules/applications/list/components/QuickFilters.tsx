@@ -4,16 +4,17 @@ import { cn, FilterChip, Tooltip } from "@job-tracker/ui";
 import { useRouter, useSearchParams } from "next/navigation";
 
 const QUICK_FILTERS = [
-  {
-    key: "active",
-    label: "Active",
-    tooltip: "In-progress applications (not new, applied, or rejected)",
-  },
+  { key: "all", label: "All", tooltip: "Show all applications" },
   {
     key: "incoming",
     label: "Incoming",
     tooltip:
       "Non-rejected and non-applied with interviews scheduled from today onwards",
+  },
+  {
+    key: "active",
+    label: "Active",
+    tooltip: "In-progress applications (not new, applied, or rejected)",
   },
   {
     key: "applied",
@@ -33,12 +34,15 @@ type QuickFilterKey = (typeof QUICK_FILTERS)[number]["key"];
 export function QuickFilters() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const activeFilter = searchParams.get("q") as QuickFilterKey | null;
+  const activeFilter =
+    (searchParams.get("q") as QuickFilterKey | null) ?? "incoming";
 
   function toggle(key: QuickFilterKey) {
     const params = new URLSearchParams(searchParams.toString());
     if (activeFilter === key) {
-      params.delete("q");
+      if (searchParams.has("q")) {
+        params.delete("q");
+      }
     } else {
       params.set("q", key);
     }

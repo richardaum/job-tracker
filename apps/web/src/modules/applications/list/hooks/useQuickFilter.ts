@@ -12,7 +12,9 @@ const PARAM_TO_FILTER: Record<string, ApplicationQuickFilter> = {
 
 export function useQuickFilter(): ApplicationQuickFilter | null {
   const searchParams = useSearchParams();
-  return PARAM_TO_FILTER[searchParams.get("q") ?? ""] ?? null;
+  const raw = searchParams.get("q");
+  if (!raw) return ApplicationQuickFilter.Incoming;
+  return PARAM_TO_FILTER[raw] ?? null;
 }
 
 export function useCompanyFilter(): string | null {
