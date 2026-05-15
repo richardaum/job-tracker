@@ -20,6 +20,10 @@ const nextConfig: NextConfig = {
         source: "/auth/:path*",
         destination: "http://127.0.0.1:3101/auth/:path*",
       },
+      {
+        source: "/applications/:id/stream",
+        destination: "http://127.0.0.1:3101/applications/:id/stream",
+      },
     ];
     return rewrites;
   },

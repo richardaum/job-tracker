@@ -56,6 +56,7 @@ export default function ApplicationDetailsPage({ params }: PageProps) {
     error,
     showInitialLoading,
     sourcePrimaryText,
+    refetch,
   } = useApplicationDetailsViewModel(id);
   const isDesktop = useBreakpoint("(min-width: 1024px)");
 
@@ -128,6 +129,7 @@ export default function ApplicationDetailsPage({ params }: PageProps) {
             sourcePrimaryText={overviewSourcePrimaryText}
             onSuccess={handleEntitySuccess}
             onError={handleEntityError}
+            refetch={refetch}
           />
         </TabsContent>
 

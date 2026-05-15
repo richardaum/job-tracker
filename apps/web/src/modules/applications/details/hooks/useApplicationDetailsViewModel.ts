@@ -22,7 +22,7 @@ export function useApplicationDetailsViewModel(
 ) {
   const includeStageEvents = options?.includeStageEvents ?? true;
 
-  const { data, loading, error } = useApplicationQuery({
+  const { data, loading, error, refetch } = useApplicationQuery({
     variables: { id: applicationId },
     fetchPolicy: "cache-and-network",
   });
@@ -49,5 +49,6 @@ export function useApplicationDetailsViewModel(
     error,
     showInitialLoading: loading && !data,
     sourcePrimaryText,
+    refetch,
   };
 }

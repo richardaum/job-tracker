@@ -14,6 +14,7 @@ import {
   ApplicationDocument,
   ApplicationsDocument,
   ApplicationSource,
+  useGenerateApplicationSummaryMutation,
   useRemoveApplicationTagMutation,
   useUpdateApplicationMutation,
 } from "@/gql/hooks";
@@ -21,6 +22,8 @@ import {
   useGenerateApplicationLocationWithAiLazyQuery,
   useGenerateApplicationWorkRegionWithAiLazyQuery,
 } from "@/gql/hooks";
+import { useEventSource } from "@/hooks/useEventSource";
+import { getApiBaseUrl } from "@/lib/api-endpoints";
 import type { ApplicationDetailsValues } from "@/modules/applications/details/utils/application-details.shared";
 import { ApplicationTags } from "@/modules/applications/shared/components/ApplicationTags";
 import { CompanyNameWithPopover } from "@/modules/applications/shared/components/CompanyNameWithPopover";
@@ -31,6 +34,7 @@ import { CompanyEditDialog } from "@/modules/companies/shared/components/Company
 import { FitAnalysisField } from "./FitAnalysisField";
 import { SalaryEditDialog } from "./SalaryEditDialog";
 import { SourceEditDialog } from "./SourceEditDialog";
+import { SummaryField } from "./SummaryField";
 import { TagsEditDialog } from "./TagsEditDialog";
 import { TextFieldEditDialog } from "./TextFieldEditDialog";
 import { UrlFieldEditDialog } from "./UrlFieldEditDialog";
@@ -40,11 +44,13 @@ export function OverviewTabContent({
   sourcePrimaryText,
   onSuccess,
   onError,
+  refetch,
 }: {
   application: ApplicationDetailsValues;
   sourcePrimaryText: string | null;
   onSuccess?: (message: string) => void;
   onError?: (message: string) => void;
+  refetch?: () => void;
 }) {
   const titleDialog = useDialog();
   const urlDialog = useDialog();
@@ -71,6 +77,21 @@ export function OverviewTabContent({
 
   const [inferLocation] = useGenerateApplicationLocationWithAiLazyQuery();
   const [inferWorkRegion] = useGenerateApplicationWorkRegionWithAiLazyQuery();
+  const [generateSummary] = useGenerateApplicationSummaryMutation();
+
+  const sseUrl = `${getApiBaseUrl()}/applications/${application.id}/stream`;
+  useEventSource<{ applicationId: string; status: string }>(
+    sseUrl,
+    "summary_status_changed",
+    (data) => {
+      if (
+        (data.status === "COMPLETED" || data.status === "FAILED") &&
+        refetch
+      ) {
+        refetch();
+      }
+    },
+  );
 
   async function handleRemoveTag(tag: string) {
     const [error] = await tryRun(
@@ -186,11 +207,35 @@ export function OverviewTabContent({
     return value;
   }
 
+  async function handleGenerateSummary() {
+    const [error] = await tryRun(
+      generateSummary({
+        variables: { applicationId: application.id },
+        refetchQueries: [
+          { query: ApplicationDocument, variables: { id: application.id } },
+        ],
+      }),
+    );
+    if (error) {
+      onError?.("Could not generate summary.");
+      return;
+    }
+    onSuccess?.("Summary generation started.");
+  }
+
   const salary = formatSalary(application.salary);
   const tags = application.tags ?? [];
 
   return (
     <OverviewSection>
+      <SummaryField
+        summary={application.summary}
+        summaryError={application.summaryError}
+        summaryGeneratedAt={application.summaryGeneratedAt}
+        summaryStatus={application.summaryStatus}
+        onGenerateSummary={handleGenerateSummary}
+      />
+
       <div className={cn("max-w-full")}>
         <FieldWithLabelAction
           label="Job title"

@@ -29,6 +29,10 @@ query Applications(
     location
     workRegion
     sourceRunId
+    summary
+    summaryStatus
+    summaryError
+    summaryGeneratedAt
     currentStage
     currentStageReason
     currentStageAt
@@ -64,6 +68,10 @@ query Application($id: ID!) {
     location
     workRegion
     sourceRunId
+    summary
+    summaryStatus
+    summaryError
+    summaryGeneratedAt
     currentStage
     currentStageReason
     currentStageAt
@@ -123,6 +131,10 @@ mutation UpdateApplication($id: ID!, $input: UpdateApplicationInput!) {
     tags
     location
     workRegion
+    summary
+    summaryStatus
+    summaryError
+    summaryGeneratedAt
     createdAt
   }
 }
@@ -250,4 +262,14 @@ query GenerateApplicationLocationWithAi($applicationId: ID!) {
 
 query GenerateApplicationWorkRegionWithAi($applicationId: ID!) {
   generateApplicationWorkRegionWithAI(applicationId: $applicationId)
+}
+
+mutation GenerateApplicationSummary($applicationId: ID!) {
+  generateApplicationSummary(applicationId: $applicationId) {
+    id
+    summary
+    summaryStatus
+    summaryError
+    summaryGeneratedAt
+  }
 }
