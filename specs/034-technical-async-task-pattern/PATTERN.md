@@ -4,7 +4,7 @@
 
 **Scope boundary**: `AsyncTaskMeta` carries **only** processing state — status, error, timestamp. The actual output/result (summary content, fit items, etc.) stays in its **own column** (text, jsonb, etc.). Never inline business data inside `AsyncTaskMeta`.
 
-**Field naming**: use `{prefix}Metadata` — e.g., `summaryMetadata`, `conversionMetadata`. For standalone entities, just `metadata`.
+**Field naming**: use `{action}Metadata` — e.g., `summaryMetadata`, `conversionMetadata`, `generationMetadata`. O prefixo descreve a **ação assíncrona** (summarizar, converter, gerar), não a entidade.
 
 ## [T-213] Type Definition
 
@@ -55,11 +55,11 @@ summaryMetadata!: AsyncTaskMeta | null; // null = never requested
 
 Column naming: `summary_metadata`, `conversion_metadata`.
 
-**B. Standalone entity** — no prefix, non-null with default:
+**B. Standalone entity** — use action prefix mesmo sem colisão:
 
 ```typescript
-@Column({ type: "jsonb", default: { status: "completed" } })
-metadata!: AsyncTaskMeta;
+@Column({ type: "jsonb", nullable: true })
+generationMetadata!: AsyncTaskMeta | null; // null = never requested
 ```
 
 Default `{ status: "completed" }` for backward compat with existing records.
@@ -68,8 +68,8 @@ Default `{ status: "completed" }` for backward compat with existing records.
 
 ```typescript
 entity.summaryMetadata = { status: "processing" };
-// or for standalone:
-entity.metadata = { status: "processing" };
+// or for standalone entities:
+entity.generationMetadata = { status: "processing" };
 await this.repo.save(entity);
 ```
 
@@ -82,7 +82,7 @@ async updateMetadata(
   where: { id: string; userId?: string },
   expectedStatus: TaskStatus,
   patch: Partial<AsyncTaskMeta>,
-  column: string = "metadata",
+  column: string = "generation_metadata",
 ): Promise<boolean> {
   const qb = this.repo
     .createQueryBuilder()
@@ -105,7 +105,7 @@ async updateMetadata(
 }
 ```
 
-For inline fields, pass column name: `updateMetadata({ id }, processing, patch, "summary_metadata")`.
+Pass the specific column name: `updateMetadata({ id }, processing, patch, "summary_metadata")`.
 
 ## [T-217] Service Pattern
 
@@ -176,15 +176,17 @@ export class MyService implements OnModuleInit {
 Repository:
 
 ```typescript
-async resetStaleProcessing(): Promise<number> {
+async resetStaleProcessing(
+  column: string = "generation_metadata",
+): Promise<number> {
   const result = await this.repo
     .createQueryBuilder()
     .update()
     .set({
-      metadata: () =>
+      [column]: () =>
         `'{"status": "failed", "error": "Interrupted by server restart"}'::jsonb`,
     })
-    .where(`"metadata"->>'status' = :processing`, {
+    .where(`"${column}"->>'status' = :processing`, {
       processing: "processing",
     })
     .execute();
@@ -192,12 +194,12 @@ async resetStaleProcessing(): Promise<number> {
 }
 ```
 
-For inline fields, replace `"metadata"` with the actual column name (e.g., `"summary_metadata"`).
+For inline fields, pass the column name: `repo.resetStaleProcessing("summary_metadata")`.
 
 ## [T-219] Guard: Skip Duplicate Processing
 
 ```typescript
-if (entity.metadata?.status === "processing") {
+if (entity.summaryMetadata?.status === "processing") {
   this.logger.warn(`Already processing, skipping`);
   return;
 }
@@ -214,14 +216,14 @@ type ApplicationType {
 }
 
 type FitAnalysisType {
-  metadata: AsyncTaskMeta!
+  generationMetadata: AsyncTaskMeta
   # ... domain fields ...
 }
 ```
 
-## [T-221] Frontend Polling
+## [T-221] Frontend Display
 
-Two display patterns:
+Two patterns:
 
 **A. Inline field** — display task status directly:
 
@@ -231,29 +233,19 @@ Failed     → red text + metadata.error
 Completed  → content + "Generated at [metadata.generatedAt]"
 ```
 
-**B. Detail page** — poll while processing:
+**B. Detail page** — subscribe via SSE while processing:
 
 ```typescript
-const metadata = data?.fit?.metadata;
-const isProcessing = metadata?.status === TaskStatus.Processing;
-
-usePoll({ startPolling, stopPolling }, isProcessing, 3000);
-```
-
-Base polling hook (`apps/web/src/hooks/usePoll.ts`):
-
-```typescript
-export function usePoll(
-  controls: PollControls | undefined,
-  shouldPoll: boolean,
-  intervalMs: number,
-) {
-  useEffect(() => {
-    if (shouldPoll && controls?.startPolling && controls?.stopPolling) {
-      controls.startPolling(intervalMs);
-      return () => controls.stopPolling!();
+const sseUrl = `${getApiBaseUrl()}/<domain>/<id>/stream`;
+useEventSource<{ domainId: string; status: string }>(
+  sseUrl,
+  "<domain>_status_changed",
+  (data) => {
+    if ((data.status === "completed" || data.status === "failed") && refetch) {
+      void refetch();
     }
-    controls?.stopPolling?.();
-  }, [shouldPoll, controls, intervalMs]);
-}
+  },
+);
 ```
+
+SSE endpoint is a `@Sse(':id/stream')` controller behind `JwtAuthGuard` that emits named events from the domain's event bus. See spec 038 for SSE infrastructure.
