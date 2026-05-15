@@ -1,6 +1,6 @@
 import { WithGeneratedId } from "@api/database/decorators/with-generated-id.decorator";
 import { ApplicationSource } from "@api/domains/applications/application-source.enum";
-import { ApplicationSummaryStatus } from "@api/domains/applications/summary/summary-status.enum";
+import type { AsyncTaskMeta } from "@api/domains/shared/async-task-meta.type";
 import {
   Column,
   CreateDateColumn,
@@ -95,14 +95,8 @@ export class ApplicationEntity {
   @Column({ type: "text", nullable: true })
   summary!: string | null;
 
-  @Column({ name: "summary_status", type: "text", default: "COMPLETED" })
-  summaryStatus!: ApplicationSummaryStatus;
-
-  @Column({ name: "summary_error", type: "text", nullable: true })
-  summaryError!: string | null;
-
-  @Column({ name: "summary_generated_at", type: "timestamp", nullable: true })
-  summaryGeneratedAt!: Date | null;
+  @Column({ name: "summary_metadata", type: "jsonb", nullable: true })
+  summaryMetadata!: AsyncTaskMeta | null;
 
   @Column({ name: "source_run_id", type: "text", nullable: true })
   sourceRunId!: string | null;

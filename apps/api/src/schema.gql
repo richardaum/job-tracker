@@ -86,6 +86,18 @@ enum DraftApplicationConversionStatus {
   FAILED
 }
 
+type AsyncTaskMetaType {
+  status: TaskStatus!
+  error: String
+  generatedAt: String
+}
+
+enum TaskStatus {
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
 type ApplicationType {
   id: ID!
   userId: String!
@@ -105,9 +117,7 @@ type ApplicationType {
   updatedAt: DateTime!
   sourceRunId: ID
   summary: String
-  summaryStatus: SummaryStatus!
-  summaryError: String
-  summaryGeneratedAt: DateTime
+  summaryMetadata: AsyncTaskMetaType
   fit: FitAnalysisType
   salary: ApplicationSalary!
 }
@@ -130,10 +140,16 @@ enum ApplicationStage {
   DUPLICATED
 }
 
-enum SummaryStatus {
-  PROCESSING
-  COMPLETED
-  FAILED
+type ApplicationStageEventType {
+  id: ID!
+  applicationId: String!
+  userId: String!
+  fromStage: ApplicationStage
+  toStage: ApplicationStage!
+  source: String!
+  reason: String
+  scheduledAt: DateTime
+  createdAt: DateTime!
 }
 
 type ApplicationSalary {
@@ -147,18 +163,6 @@ enum SalaryPeriod {
   YEAR
   MONTH
   HOUR
-}
-
-type ApplicationStageEventType {
-  id: ID!
-  applicationId: String!
-  userId: String!
-  fromStage: ApplicationStage
-  toStage: ApplicationStage!
-  source: String!
-  reason: String
-  scheduledAt: DateTime
-  createdAt: DateTime!
 }
 
 type ExchangeRate {

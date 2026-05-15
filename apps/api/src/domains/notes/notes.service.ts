@@ -1,3 +1,4 @@
+import { ApplicationUpdated } from "@api/domains/applications/application.events";
 import { ApplicationEventBus } from "@api/domains/applications/application-event.bus";
 import { isTipTapDocumentString } from "@job-tracker/tiptap";
 import {
@@ -54,7 +55,7 @@ export class NoteService {
       content: dto.content,
     });
 
-    this.eventBus.emitApplicationUpdated(dto.applicationId, userId);
+    this.eventBus.emit(new ApplicationUpdated(dto.applicationId, userId));
     return note;
   }
 
@@ -88,7 +89,7 @@ export class NoteService {
       );
     }
 
-    this.eventBus.emitApplicationUpdated(note.applicationId, userId);
+    this.eventBus.emit(new ApplicationUpdated(note.applicationId, userId));
     return updated;
   }
 
@@ -103,7 +104,7 @@ export class NoteService {
       throw new NotFoundException(`Application note ${noteId} not found`);
     }
 
-    this.eventBus.emitApplicationUpdated(note.applicationId, userId);
+    this.eventBus.emit(new ApplicationUpdated(note.applicationId, userId));
     return deleted;
   }
 

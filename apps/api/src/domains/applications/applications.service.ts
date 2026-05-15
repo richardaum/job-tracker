@@ -5,6 +5,10 @@ import { CompanyDescriptionService } from "@api/domains/companies/ai/company-des
 import { CompanyService } from "@api/domains/companies/companies.service";
 import { DraftExtractionService } from "@api/domains/draft-applications/ai/draft-extraction.service";
 import { DraftExtractionNormalizationService } from "@api/domains/draft-applications/ai/draft-extraction-normalization.service";
+import {
+  DraftConversionRequested,
+  DraftConversionStatusChanged,
+} from "@api/domains/draft-applications/draft-application.events";
 import { DraftApplicationType } from "@api/domains/draft-applications/draft-application.type";
 import { DraftApplicationEventBus } from "@api/domains/draft-applications/draft-application-event.bus";
 import { DraftApplicationsService } from "@api/domains/draft-applications/draft-applications.service";
@@ -20,6 +24,7 @@ import {
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 
+import { ApplicationCreated, ApplicationUpdated } from "./application.events";
 import { APPLICATION_DUPLICATE_PAIRING_WINDOW_MS } from "./application-duplicate.constants";
 import { ApplicationEventBus } from "./application-event.bus";
 import { ApplicationQuickFilterEnum } from "./application-quick-filter.enum";
@@ -246,7 +251,7 @@ export class ApplicationService {
     const hydrated = await this.findOne(application.id, userId);
 
     if (dto.sourceRunId) {
-      this.eventBus.emitApplicationCreated(application.id, userId);
+      this.eventBus.emit(new ApplicationCreated(application.id, userId));
     }
 
     return hydrated;
@@ -272,13 +277,15 @@ export class ApplicationService {
       },
     );
 
-    this.draftEventBus.emitDraftConversionStatusChanged(
-      draftId,
-      userId,
-      DraftApplicationConversionStatus.PROCESSING,
+    this.draftEventBus.emit(
+      new DraftConversionStatusChanged(
+        draftId,
+        userId,
+        DraftApplicationConversionStatus.PROCESSING,
+      ),
     );
 
-    this.draftEventBus.emitDraftConversionRequested(draftId, userId);
+    this.draftEventBus.emit(new DraftConversionRequested(draftId, userId));
 
     return queuedDraft;
   }
@@ -341,7 +348,7 @@ export class ApplicationService {
     );
 
     if ((fitTransferResult.affected ?? 0) === 0) {
-      this.eventBus.emitApplicationCreated(created.id, userId);
+      this.eventBus.emit(new ApplicationCreated(created.id, userId));
     }
 
     if (created.currentStage !== ApplicationStageEnum.DUPLICATED) {
@@ -362,10 +369,12 @@ export class ApplicationService {
           conversionStatus: DraftApplicationConversionStatus.FAILED,
           conversionError: appliedError.message,
         });
-        this.draftEventBus.emitDraftConversionStatusChanged(
-          draftId,
-          userId,
-          DraftApplicationConversionStatus.FAILED,
+        this.draftEventBus.emit(
+          new DraftConversionStatusChanged(
+            draftId,
+            userId,
+            DraftApplicationConversionStatus.FAILED,
+          ),
         );
         return;
       }
@@ -381,10 +390,12 @@ export class ApplicationService {
       convertedAt: new Date(),
     });
 
-    this.draftEventBus.emitDraftConversionStatusChanged(
-      draftId,
-      userId,
-      DraftApplicationConversionStatus.SUCCEEDED,
+    this.draftEventBus.emit(
+      new DraftConversionStatusChanged(
+        draftId,
+        userId,
+        DraftApplicationConversionStatus.SUCCEEDED,
+      ),
     );
   }
 
@@ -473,7 +484,7 @@ export class ApplicationService {
 
     if (!updated) throw new NotFoundException(`Application ${id} not found`);
 
-    this.eventBus.emitApplicationUpdated(id, userId);
+    this.eventBus.emit(new ApplicationUpdated(id, userId));
 
     return (await this.attachCurrentStage(userId, [updated]))[0]!;
   }
@@ -535,7 +546,7 @@ export class ApplicationService {
       scheduledAt: dto.scheduledAt ?? null,
     });
 
-    this.eventBus.emitApplicationUpdated(dto.applicationId, userId);
+    this.eventBus.emit(new ApplicationUpdated(dto.applicationId, userId));
     return event;
   }
 
@@ -561,7 +572,9 @@ export class ApplicationService {
       throw new NotFoundException(`Stage event ${stageEventId} not found`);
     }
 
-    this.eventBus.emitApplicationUpdated(stageEvent.applicationId, userId);
+    this.eventBus.emit(
+      new ApplicationUpdated(stageEvent.applicationId, userId),
+    );
     return updated;
   }
 
@@ -579,7 +592,9 @@ export class ApplicationService {
       throw new NotFoundException(`Stage event ${stageEventId} not found`);
     }
 
-    this.eventBus.emitApplicationUpdated(stageEvent.applicationId, userId);
+    this.eventBus.emit(
+      new ApplicationUpdated(stageEvent.applicationId, userId),
+    );
   }
 
   async removeTag(
@@ -613,10 +628,12 @@ export class ApplicationService {
       );
     }
 
-    this.draftEventBus.emitDraftConversionStatusChanged(
-      draftId,
-      userId,
-      DraftApplicationConversionStatus.FAILED,
+    this.draftEventBus.emit(
+      new DraftConversionStatusChanged(
+        draftId,
+        userId,
+        DraftApplicationConversionStatus.FAILED,
+      ),
     );
   }
 }

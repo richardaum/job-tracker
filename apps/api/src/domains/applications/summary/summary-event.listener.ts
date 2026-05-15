@@ -1,16 +1,12 @@
-import { ApplicationEntity } from "@api/database/entities/application.entity";
 import {
-  ApplicationEventBus,
-  ApplicationUpdatedEvent,
-  type SummaryGenerationRequestedEvent,
-} from "@api/domains/applications/application-event.bus";
-import { tryRun } from "@job-tracker/try-run";
+  ApplicationUpdated,
+  SummaryGenerationRequested,
+} from "@api/domains/applications/application.events";
+import { ApplicationEventBus } from "@api/domains/applications/application-event.bus";
+import { ApplicationRepository } from "@api/domains/applications/applications.repository";
 import { Injectable, Logger, OnModuleInit } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
 
 import { SummaryService } from "./summary.service";
-import { ApplicationSummaryStatus } from "./summary-status.enum";
 
 @Injectable()
 export class SummaryEventListener implements OnModuleInit {
@@ -19,12 +15,11 @@ export class SummaryEventListener implements OnModuleInit {
   constructor(
     private readonly eventBus: ApplicationEventBus,
     private readonly summaryService: SummaryService,
-    @InjectRepository(ApplicationEntity)
-    private readonly appRepo: Repository<ApplicationEntity>,
+    private readonly appRepo: ApplicationRepository,
   ) {}
 
   onModuleInit(): void {
-    this.eventBus.onApplicationUpdated((event) => {
+    this.eventBus.on(ApplicationUpdated, (event) => {
       this.handleApplicationUpdated(event).catch((err) =>
         this.logger.error(
           `SummaryEventListener error for ${event.applicationId}`,
@@ -33,7 +28,7 @@ export class SummaryEventListener implements OnModuleInit {
       );
     });
 
-    this.eventBus.onSummaryGenerationRequested((event) => {
+    this.eventBus.on(SummaryGenerationRequested, (event) => {
       void this.handleSummaryGenerationRequested(event);
     });
 
@@ -41,7 +36,7 @@ export class SummaryEventListener implements OnModuleInit {
   }
 
   private async handleApplicationUpdated(
-    event: ApplicationUpdatedEvent,
+    event: ApplicationUpdated,
   ): Promise<void> {
     await this.summaryService.generateSummary(
       event.applicationId,
@@ -50,56 +45,15 @@ export class SummaryEventListener implements OnModuleInit {
   }
 
   private async handleSummaryGenerationRequested(
-    event: SummaryGenerationRequestedEvent,
+    event: SummaryGenerationRequested,
   ): Promise<void> {
-    const { applicationId, userId } = event;
-    const [error] = await tryRun(
-      this.summaryService.doGenerate(applicationId, userId),
-    );
-    if (error) {
-      this.logger.error(
-        `Failed to generate summary for ${applicationId}`,
-        error instanceof Error ? error.message : String(error),
-      );
-      await this.appRepo.update(
-        { id: applicationId, userId },
-        {
-          summaryStatus: ApplicationSummaryStatus.FAILED,
-          summaryError:
-            error instanceof Error ? error.message : "Unknown error",
-        },
-      );
-      this.eventBus.emitSummaryStatusChanged(
-        applicationId,
-        userId,
-        ApplicationSummaryStatus.FAILED,
-      );
-      return;
-    }
-
-    this.eventBus.emitSummaryStatusChanged(
-      applicationId,
-      userId,
-      ApplicationSummaryStatus.COMPLETED,
-    );
+    await this.summaryService.doGenerate(event.applicationId, event.userId);
   }
 
   private async resetStuckProcessing(): Promise<void> {
-    const [err] = await tryRun(
-      this.appRepo
-        .createQueryBuilder()
-        .update()
-        .set({
-          summaryStatus: ApplicationSummaryStatus.FAILED,
-          summaryError: "Server restart",
-        })
-        .where("summary_status = :processing", {
-          processing: ApplicationSummaryStatus.PROCESSING,
-        })
-        .execute(),
-    );
-    if (err) {
-      this.logger.warn("Failed to reset stuck PROCESSING summaries");
+    const count = await this.appRepo.resetStaleSummaryProcessing();
+    if (count > 0) {
+      this.logger.warn(`Recovered ${count} stale PROCESSING summaries`);
     }
   }
 }

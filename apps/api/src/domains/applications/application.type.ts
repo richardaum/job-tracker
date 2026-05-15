@@ -1,10 +1,10 @@
 import { CompanyType } from "@api/domains/companies/company.type";
 import { FitAnalysisType } from "@api/domains/fit-analysis/fit-analysis.type";
+import { AsyncTaskMetaType } from "@api/domains/shared/async-task-meta.type";
 import { Field, ID, ObjectType } from "@nestjs/graphql";
 
 import { ApplicationSource } from "./application-source.enum";
 import { ApplicationStageEnum } from "./application-stage.enum";
-import { ApplicationSummaryStatus } from "./summary/summary-status.enum";
 
 @ObjectType()
 export class ApplicationType {
@@ -68,14 +68,8 @@ export class ApplicationType {
   @Field(() => String, { nullable: true })
   summary!: string | null;
 
-  @Field(() => ApplicationSummaryStatus)
-  summaryStatus!: ApplicationSummaryStatus;
-
-  @Field(() => String, { nullable: true })
-  summaryError!: string | null;
-
-  @Field(() => Date, { nullable: true })
-  summaryGeneratedAt!: Date | null;
+  @Field(() => AsyncTaskMetaType, { nullable: true })
+  summaryMetadata?: AsyncTaskMetaType | null;
 
   @Field(() => FitAnalysisType, { nullable: true })
   fit?: FitAnalysisType;

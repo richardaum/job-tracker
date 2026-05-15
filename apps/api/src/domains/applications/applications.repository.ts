@@ -1,7 +1,7 @@
 import { ApplicationEntity } from "@api/database/entities/application.entity";
 import { ApplicationStageEventEntity } from "@api/database/entities/application-stage-event.entity";
 import { DraftApplicationEntity } from "@api/database/entities/draft-application.entity";
-import { ApplicationSummaryStatus } from "@api/domains/applications/summary/summary-status.enum";
+import type { AsyncTaskMeta } from "@api/domains/shared/async-task-meta.type";
 import { tipTapToPlainText } from "@job-tracker/tiptap";
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
@@ -220,7 +220,6 @@ export class ApplicationRepository {
       draftApplication: draftApplicationId
         ? ({ id: draftApplicationId } as DraftApplicationEntity)
         : undefined,
-      summaryStatus: ApplicationSummaryStatus.COMPLETED,
     });
     return this.applicationsRepo.save(row);
   }
@@ -393,5 +392,74 @@ export class ApplicationRepository {
       userId,
     });
     return (result.affected ?? 0) > 0;
+  }
+
+  async updateSummaryMetadata(
+    applicationId: string,
+    expectedStatus: Pick<AsyncTaskMeta, "status"> | null,
+    patch: Partial<AsyncTaskMeta> & { status: AsyncTaskMeta["status"] },
+    userId?: string,
+  ): Promise<boolean> {
+    const where: Record<string, unknown> = { id: applicationId };
+    if (userId) where.userId = userId;
+
+    if (expectedStatus === null) {
+      where["summary_metadata"] = null;
+    } else {
+      where["summary_metadata->>status"] = expectedStatus.status;
+    }
+
+    const qb = this.applicationsRepo
+      .createQueryBuilder()
+      .update()
+      .set({
+        summaryMetadata: () =>
+          `"summary_metadata" || '${JSON.stringify(patch)}'::jsonb`,
+      });
+
+    if (expectedStatus === null) {
+      qb.where(`"id" = :id AND "summary_metadata" IS NULL`, {
+        id: applicationId,
+      });
+    } else {
+      qb.where(`"id" = :id AND "summary_metadata"->>'status' = :expected`, {
+        id: applicationId,
+        expected: expectedStatus.status,
+      });
+    }
+
+    if (userId) {
+      qb.andWhere(`"user_id" = :userId`, { userId });
+    }
+
+    const result = await qb.execute();
+    return (result.affected ?? 0) > 0;
+  }
+
+  async updateSummary(
+    applicationId: string,
+    summary: string,
+    userId: string,
+  ): Promise<boolean> {
+    const result = await this.applicationsRepo.update(
+      { id: applicationId, userId },
+      { summary },
+    );
+    return (result.affected ?? 0) > 0;
+  }
+
+  async resetStaleSummaryProcessing(): Promise<number> {
+    const result = await this.applicationsRepo
+      .createQueryBuilder()
+      .update()
+      .set({
+        summaryMetadata: () =>
+          `'{"status": "failed", "error": "Server restart"}'::jsonb`,
+      })
+      .where(`"summary_metadata"->>'status' = :processing`, {
+        processing: "processing",
+      })
+      .execute();
+    return result.affected ?? 0;
   }
 }

@@ -43,9 +43,7 @@ describe("NoteService", () => {
     noteAiService = {
       generateNote: vi.fn(),
     } as unknown as NoteGenerationService;
-    eventBus = {
-      emitApplicationUpdated: vi.fn(),
-    } as unknown as ApplicationEventBus;
+    eventBus = { emit: vi.fn() } as unknown as ApplicationEventBus;
     service = new NoteService(repo, noteAiService, eventBus);
   });
 
