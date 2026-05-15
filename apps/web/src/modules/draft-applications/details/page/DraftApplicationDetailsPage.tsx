@@ -33,6 +33,8 @@ import {
   useGenerateDraftApplicationFitMutation,
   useUpdateDraftApplicationMutation,
 } from "@/gql/hooks";
+import { useEventSource } from "@/hooks/useEventSource";
+import { getApiBaseUrl } from "@/lib/api-endpoints";
 import { useToastQueue } from "@/modules/applications/shared/hooks/useToastQueue";
 import { ConvertDraftConfirmationDialog } from "@/modules/draft-applications/details/components/ConvertDraftConfirmationDialog";
 import { ConvertDraftConflictDialog } from "@/modules/draft-applications/details/components/ConvertDraftConflictDialog";
@@ -122,6 +124,19 @@ export default function DraftApplicationDetailsPage({ params }: PageProps) {
 
   const { draft, error, refetch, showInitialLoading } =
     useDraftApplicationDetailsViewModel(id);
+  const sseUrl = `${getApiBaseUrl()}/draft-applications/${id}/stream`;
+  useEventSource<{ draftId: string; status: string }>(
+    sseUrl,
+    "draft_conversion_status_changed",
+    (data) => {
+      if (
+        (data.status === "succeeded" || data.status === "failed") &&
+        refetch
+      ) {
+        void refetch();
+      }
+    },
+  );
   const { data: applicationData } = useApplicationQuery({
     variables: { id: draft?.applicationId ?? "" },
     skip: !draft?.applicationId,

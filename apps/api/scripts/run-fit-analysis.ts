@@ -19,6 +19,7 @@ import { DraftApplicationsRepository } from "@api/domains/draft-applications/dra
 import { FitAnalysisRepository } from "@api/domains/fit-analysis/fit-analysis.repository";
 import { FitAnalysisService } from "@api/domains/fit-analysis/fit-analysis.service";
 import { FitAnalysisAiService } from "@api/domains/fit-analysis/fit-analysis-ai.service";
+import { FitAnalysisEventBus } from "@api/domains/fit-analysis/fit-analysis-event.bus";
 import { TemplateService } from "@api/domains/shared/template/template.service";
 import { OpenAIClient, PromptRendererService } from "@api/lib/ai";
 import { tryRun } from "@job-tracker/try-run";
@@ -173,6 +174,7 @@ async function main() {
     fitAiService,
     applicationRepo,
     draftRepo,
+    {} as FitAnalysisEventBus,
     resumeEntityRepo,
     preferencesRepo,
   );

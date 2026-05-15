@@ -31,7 +31,8 @@ import {
   useGenerateApplicationFitMutation,
   useGenerateDraftApplicationFitMutation,
 } from "@/gql/hooks";
-import { usePoll } from "@/hooks/usePoll";
+import { useEventSource } from "@/hooks/useEventSource";
+import { getApiBaseUrl } from "@/lib/api-endpoints";
 import { FitClassification } from "@/modules/applications/shared/components/FitClassification";
 import { useToastQueue } from "@/modules/applications/shared/hooks/useToastQueue";
 import { FitItemCard } from "@/modules/fit-analyses/details/components/FitItemCard";
@@ -57,8 +58,7 @@ export default function FitAnalysisPage({ params }: PageProps) {
   const {
     data: fitData,
     loading: fitLoading,
-    startPolling: spFit,
-    stopPolling: stpFit,
+    refetch: refetchFit,
   } = useFitQuery({
     variables: { id: fitId },
     fetchPolicy: "cache-and-network",
@@ -91,7 +91,19 @@ export default function FitAnalysisPage({ params }: PageProps) {
       ? `/draft-applications/${fit!.draftApplicationId}`
       : "#";
 
-  usePoll({ startPolling: spFit, stopPolling: stpFit }, isProcessing, 3000);
+  const sseUrl = `${getApiBaseUrl()}/fits/${fitId}/stream`;
+  useEventSource<{ fitId: string; status: string }>(
+    sseUrl,
+    "fit_status_changed",
+    (data) => {
+      if (
+        (data.status === "completed" || data.status === "failed") &&
+        refetchFit
+      ) {
+        void refetchFit();
+      }
+    },
+  );
 
   const filteredItems = React.useMemo(() => {
     const items = fit?.items ?? [];

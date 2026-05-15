@@ -18,7 +18,9 @@ import {
 } from "./fit-analysis.resolver";
 import { FitAnalysisService } from "./fit-analysis.service";
 import { FitAnalysisAiService } from "./fit-analysis-ai.service";
+import { FitAnalysisEventBus } from "./fit-analysis-event.bus";
 import { FitAnalysisEventListener } from "./fit-analysis-event.listener";
+import { FitAnalysisSseController } from "./fit-analysis-sse.controller";
 
 @Module({
   imports: [
@@ -34,7 +36,9 @@ import { FitAnalysisEventListener } from "./fit-analysis-event.listener";
     ResumesModule,
     DraftApplicationsModule,
   ],
+  controllers: [FitAnalysisSseController],
   providers: [
+    FitAnalysisEventBus,
     FitAnalysisRepository,
     FitAnalysisService,
     FitAnalysisResolver,
@@ -43,6 +47,6 @@ import { FitAnalysisEventListener } from "./fit-analysis-event.listener";
     FitAnalysisAiService,
     FitAnalysisEventListener,
   ],
-  exports: [FitAnalysisService, FitAnalysisRepository],
+  exports: [FitAnalysisService, FitAnalysisRepository, FitAnalysisEventBus],
 })
 export class FitAnalysisModule {}

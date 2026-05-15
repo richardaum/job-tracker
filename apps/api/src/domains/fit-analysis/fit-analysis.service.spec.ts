@@ -9,6 +9,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { FitAnalysisRepository } from "./fit-analysis.repository";
 import { FitAnalysisService } from "./fit-analysis.service";
 import { FitAnalysisAiService } from "./fit-analysis-ai.service";
+import { FitAnalysisEventBus } from "./fit-analysis-event.bus";
 
 describe("FitAnalysisService", () => {
   let service: FitAnalysisService;
@@ -30,6 +31,7 @@ describe("FitAnalysisService", () => {
       {} as FitAnalysisAiService,
       {} as ApplicationRepository,
       {} as DraftApplicationsRepository,
+      {} as FitAnalysisEventBus,
       {} as Repository<ResumeEntity>,
       {} as Repository<UserPreferencesEntity>,
     );

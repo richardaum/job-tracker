@@ -25,6 +25,7 @@ import { Repository } from "typeorm";
 import { FitAnalysisRepository } from "./fit-analysis.repository";
 import { FitAnalysis } from "./fit-analysis.schema";
 import { FitAnalysisAiService } from "./fit-analysis-ai.service";
+import { FitAnalysisEventBus } from "./fit-analysis-event.bus";
 import { computeScore } from "./scoring/scoring";
 
 @Injectable()
@@ -36,6 +37,7 @@ export class FitAnalysisService implements OnModuleInit {
     private readonly aiService: FitAnalysisAiService,
     private readonly applicationRepo: ApplicationRepository,
     private readonly draftRepo: DraftApplicationsRepository,
+    private readonly eventBus: FitAnalysisEventBus,
     @InjectRepository(ResumeEntity)
     private readonly resumeRepo: Repository<ResumeEntity>,
     @InjectRepository(UserPreferencesEntity)
@@ -143,6 +145,11 @@ export class FitAnalysisService implements OnModuleInit {
 
     const saved = await this.repo.upsert(entity);
 
+    this.eventBus.emitFitStatusChanged(
+      saved.id,
+      userId,
+      FitAnalysisStatus.PROCESSING,
+    );
     void this.generateInBackground(saved.id, userId, { applicationId });
 
     return saved;
@@ -191,6 +198,11 @@ export class FitAnalysisService implements OnModuleInit {
 
     const saved = await this.repo.upsert(entity);
 
+    this.eventBus.emitFitStatusChanged(
+      saved.id,
+      userId,
+      FitAnalysisStatus.PROCESSING,
+    );
     void this.generateInBackground(saved.id, userId, { draftApplicationId });
 
     return saved;
@@ -298,6 +310,12 @@ export class FitAnalysisService implements OnModuleInit {
           `Fit analysis ${fitId} was already updated or reset. Skipping background save.`,
         );
       }
+
+      this.eventBus.emitFitStatusChanged(
+        fitId,
+        userId,
+        FitAnalysisStatus.COMPLETED,
+      );
     });
 
     if (err) {
@@ -314,6 +332,12 @@ export class FitAnalysisService implements OnModuleInit {
           error: err instanceof Error ? err.message : "Unknown error",
         },
         userId,
+      );
+
+      this.eventBus.emitFitStatusChanged(
+        fitId,
+        userId,
+        FitAnalysisStatus.FAILED,
       );
     }
   }

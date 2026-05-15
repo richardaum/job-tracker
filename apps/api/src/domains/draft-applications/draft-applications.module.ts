@@ -8,9 +8,11 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 
 import { DraftExtractionService } from "./ai/draft-extraction.service";
 import { DraftExtractionNormalizationService } from "./ai/draft-extraction-normalization.service";
+import { DraftApplicationEventBus } from "./draft-application-event.bus";
 import { DraftApplicationsRepository } from "./draft-applications.repository";
 import { DraftApplicationsResolver } from "./draft-applications.resolver";
 import { DraftApplicationsService } from "./draft-applications.service";
+import { DraftApplicationsSseController } from "./draft-applications-sse.controller";
 
 @Module({
   imports: [
@@ -19,7 +21,9 @@ import { DraftApplicationsService } from "./draft-applications.service";
     AuthModule,
     LibAiModule,
   ],
+  controllers: [DraftApplicationsSseController],
   providers: [
+    DraftApplicationEventBus,
     DraftApplicationsRepository,
     DraftApplicationsService,
     DraftApplicationsResolver,
@@ -27,6 +31,7 @@ import { DraftApplicationsService } from "./draft-applications.service";
     DraftExtractionService,
   ],
   exports: [
+    DraftApplicationEventBus,
     DraftApplicationsService,
     DraftApplicationsRepository,
     DraftExtractionNormalizationService,

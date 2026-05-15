@@ -13,20 +13,6 @@ const nextConfig: NextConfig = {
     ],
   },
   allowedDevOrigins: getAllowedDevOrigins(),
-  async rewrites() {
-    const rewrites = [
-      { source: "/graphql", destination: "http://127.0.0.1:3101/graphql" },
-      {
-        source: "/auth/:path*",
-        destination: "http://127.0.0.1:3101/auth/:path*",
-      },
-      {
-        source: "/applications/:id/stream",
-        destination: "http://127.0.0.1:3101/applications/:id/stream",
-      },
-    ];
-    return rewrites;
-  },
   serverExternalPackages: ["pdfjs-dist"],
   webpack: (config, { isServer }) => {
     if (!isServer) {
