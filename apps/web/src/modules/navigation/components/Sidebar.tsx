@@ -19,7 +19,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import React, { useState } from "react";
 
-import { NEXT_PUBLIC_API_URL } from "@/env/client";
+import { clientEnv } from "@/env/client";
 import type { CurrentUser } from "@/hooks/useCurrentUser";
 import { apolloClient } from "@/lib/apollo-client";
 import { AppBrandMark } from "@/modules/navigation/components/AppBrandMark";
@@ -29,7 +29,7 @@ function getDefaultApiUrl(): string {
   return "";
 }
 
-const API_URL = NEXT_PUBLIC_API_URL ?? getDefaultApiUrl();
+const API_URL = clientEnv.NEXT_PUBLIC_API_URL ?? getDefaultApiUrl();
 
 const navItems = [
   { href: "/applications", label: "Applications", icon: BriefcaseIcon },

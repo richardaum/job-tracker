@@ -8,13 +8,13 @@ const serverEnvSchema = z.object({
     .enum(["development", "test", "production"])
     .default("development"),
   PORT: z.coerce.number().int().min(1).max(65535).default(3100),
-  /** Used by server-only fetches (e.g. generateMetadata) and shared with the client bundle. */
-  NEXT_PUBLIC_API_GRAPHQL_URL: z.url().optional(),
+  /** Used by server-only fetches (e.g. generateMetadata). */
+  NEXT_PUBLIC_API_URL: z.url().optional(),
 });
 
 export type ServerEnv = z.infer<typeof serverEnvSchema>;
 
-const validated = serverEnvSchema
+export const serverEnv = serverEnvSchema
   .refine(
     ({ NODE_ENV, PORT }) =>
       NODE_ENV === "production" || (PORT >= 3100 && PORT <= 3199),
@@ -23,5 +23,8 @@ const validated = serverEnvSchema
       path: ["PORT"],
     },
   )
-  .parse(process.env);
-export const serverEnv = validated;
+  .parse({
+    NODE_ENV: process.env.NODE_ENV,
+    PORT: process.env.PORT,
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
+  });

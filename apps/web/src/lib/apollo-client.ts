@@ -3,7 +3,7 @@
 import { ApolloClient, HttpLink, InMemoryCache } from "@apollo/client";
 import { createAuthRefreshLink } from "@job-tracker/auth";
 
-import { NODE_ENV } from "@/env/client";
+import { clientEnv } from "@/env/client";
 
 import { getApiBaseUrl, getApiGraphqlUrl } from "./api-endpoints";
 
@@ -32,7 +32,7 @@ export function createApolloClient() {
   return new ApolloClient({
     link: authRefreshLink.concat(httpLink),
     cache: new InMemoryCache(),
-    devtools: { enabled: NODE_ENV === "development" },
+    devtools: { enabled: clientEnv.NODE_ENV === "development" },
   });
 }
 
