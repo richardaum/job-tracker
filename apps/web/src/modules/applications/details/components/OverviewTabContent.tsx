@@ -230,9 +230,7 @@ export function OverviewTabContent({
     <OverviewSection>
       <SummaryField
         summary={application.summary}
-        summaryError={application.summaryError}
-        summaryGeneratedAt={application.summaryGeneratedAt}
-        summaryStatus={application.summaryStatus}
+        summaryMetadata={application.summaryMetadata}
         onGenerateSummary={handleGenerateSummary}
       />
 

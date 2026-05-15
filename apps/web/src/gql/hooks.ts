@@ -96,15 +96,20 @@ export type ApplicationType = {
   source?: Maybe<ApplicationSource>;
   sourceRunId?: Maybe<Scalars["ID"]["output"]>;
   summary?: Maybe<Scalars["String"]["output"]>;
-  summaryError?: Maybe<Scalars["String"]["output"]>;
-  summaryGeneratedAt?: Maybe<Scalars["DateTime"]["output"]>;
-  summaryStatus: SummaryStatus;
+  summaryMetadata?: Maybe<AsyncTaskMetaType>;
   tags: Array<Scalars["String"]["output"]>;
   title: Scalars["String"]["output"];
   updatedAt: Scalars["DateTime"]["output"];
   urls: Array<Scalars["String"]["output"]>;
   userId: Scalars["String"]["output"];
   workRegion?: Maybe<Scalars["String"]["output"]>;
+};
+
+export type AsyncTaskMetaType = {
+  __typename?: "AsyncTaskMetaType";
+  error?: Maybe<Scalars["String"]["output"]>;
+  generatedAt?: Maybe<Scalars["String"]["output"]>;
+  status: TaskStatus;
 };
 
 export type CompanyType = {
@@ -609,7 +614,7 @@ export type Subscription = {
   sourceRunEvents: SourceRunEvent;
 };
 
-export enum SummaryStatus {
+export enum TaskStatus {
   Completed = "COMPLETED",
   Failed = "FAILED",
   Processing = "PROCESSING",
@@ -709,9 +714,6 @@ export type ApplicationsQuery = {
     workRegion?: string | null;
     sourceRunId?: string | null;
     summary?: string | null;
-    summaryStatus: SummaryStatus;
-    summaryError?: string | null;
-    summaryGeneratedAt?: any | null;
     currentStage: ApplicationStage;
     currentStageReason?: string | null;
     currentStageAt: any;
@@ -722,6 +724,12 @@ export type ApplicationsQuery = {
       name: string;
       description?: string | null;
     };
+    summaryMetadata?: {
+      __typename?: "AsyncTaskMetaType";
+      status: TaskStatus;
+      error?: string | null;
+      generatedAt?: string | null;
+    } | null;
     fit?: {
       __typename?: "FitAnalysisType";
       id: string;
@@ -760,9 +768,6 @@ export type ApplicationQuery = {
     workRegion?: string | null;
     sourceRunId?: string | null;
     summary?: string | null;
-    summaryStatus: SummaryStatus;
-    summaryError?: string | null;
-    summaryGeneratedAt?: any | null;
     currentStage: ApplicationStage;
     currentStageReason?: string | null;
     currentStageAt: any;
@@ -773,6 +778,12 @@ export type ApplicationQuery = {
       name: string;
       description?: string | null;
     };
+    summaryMetadata?: {
+      __typename?: "AsyncTaskMetaType";
+      status: TaskStatus;
+      error?: string | null;
+      generatedAt?: string | null;
+    } | null;
     fit?: {
       __typename?: "FitAnalysisType";
       id: string;
@@ -856,9 +867,6 @@ export type UpdateApplicationMutation = {
     location?: string | null;
     workRegion?: string | null;
     summary?: string | null;
-    summaryStatus: SummaryStatus;
-    summaryError?: string | null;
-    summaryGeneratedAt?: any | null;
     createdAt: any;
     company: {
       __typename?: "CompanyType";
@@ -866,6 +874,12 @@ export type UpdateApplicationMutation = {
       name: string;
       description?: string | null;
     };
+    summaryMetadata?: {
+      __typename?: "AsyncTaskMetaType";
+      status: TaskStatus;
+      error?: string | null;
+      generatedAt?: string | null;
+    } | null;
     salary: {
       __typename?: "ApplicationSalary";
       minCents?: number | null;
@@ -1095,9 +1109,12 @@ export type GenerateApplicationSummaryMutation = {
     __typename?: "ApplicationType";
     id: string;
     summary?: string | null;
-    summaryStatus: SummaryStatus;
-    summaryError?: string | null;
-    summaryGeneratedAt?: any | null;
+    summaryMetadata?: {
+      __typename?: "AsyncTaskMetaType";
+      status: TaskStatus;
+      error?: string | null;
+      generatedAt?: string | null;
+    } | null;
   };
 };
 
@@ -1774,9 +1791,11 @@ export const ApplicationsDocument = gql`
       workRegion
       sourceRunId
       summary
-      summaryStatus
-      summaryError
-      summaryGeneratedAt
+      summaryMetadata {
+        status
+        error
+        generatedAt
+      }
       currentStage
       currentStageReason
       currentStageAt
@@ -1866,9 +1885,11 @@ export const ApplicationDocument = gql`
       workRegion
       sourceRunId
       summary
-      summaryStatus
-      summaryError
-      summaryGeneratedAt
+      summaryMetadata {
+        status
+        error
+        generatedAt
+      }
       currentStage
       currentStageReason
       currentStageAt
@@ -2069,9 +2090,11 @@ export const UpdateApplicationDocument = gql`
       location
       workRegion
       summary
-      summaryStatus
-      summaryError
-      summaryGeneratedAt
+      summaryMetadata {
+        status
+        error
+        generatedAt
+      }
       createdAt
     }
   }
@@ -2889,9 +2912,11 @@ export const GenerateApplicationSummaryDocument = gql`
     generateApplicationSummary(applicationId: $applicationId) {
       id
       summary
-      summaryStatus
-      summaryError
-      summaryGeneratedAt
+      summaryMetadata {
+        status
+        error
+        generatedAt
+      }
     }
   }
 `;

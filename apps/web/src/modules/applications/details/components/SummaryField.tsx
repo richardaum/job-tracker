@@ -3,26 +3,25 @@
 import { cn, FieldWithLabelAction, Text } from "@job-tracker/ui";
 import { ArrowsClockwiseIcon, SparkleIcon } from "@phosphor-icons/react";
 
-import { SummaryStatus } from "@/gql/hooks";
+import { TaskStatus } from "@/gql/hooks";
 import { TipTapContent } from "@/modules/applications/shared/components/TipTapContent";
 
 interface SummaryFieldProps {
   summary: string | null | undefined;
-  summaryError: string | null | undefined;
-  summaryGeneratedAt: string | null | undefined;
-  summaryStatus: SummaryStatus;
+  summaryMetadata:
+    | { status: TaskStatus; error?: string | null; generatedAt?: string | null }
+    | null
+    | undefined;
   onGenerateSummary: () => void;
 }
 
 export function SummaryField({
   summary,
-  summaryError,
-  summaryGeneratedAt,
-  summaryStatus,
+  summaryMetadata,
   onGenerateSummary,
 }: SummaryFieldProps) {
-  const isProcessing = summaryStatus === SummaryStatus.Processing;
-  const isFailed = summaryStatus === SummaryStatus.Failed;
+  const isProcessing = summaryMetadata?.status === TaskStatus.Processing;
+  const isFailed = summaryMetadata?.status === TaskStatus.Failed;
 
   return (
     <div className={cn("w-full")}>
@@ -54,18 +53,19 @@ export function SummaryField({
             <Text size="sm" color="error">
               Failed to generate summary.
             </Text>
-            {summaryError ? (
+            {summaryMetadata?.error ? (
               <Text size="xs" color="muted">
-                {summaryError}
+                {summaryMetadata.error}
               </Text>
             ) : null}
           </div>
         ) : summary ? (
           <div className={cn("flex flex-col gap-1")}>
             <TipTapContent content={summary} />
-            {summaryGeneratedAt ? (
+            {summaryMetadata?.generatedAt ? (
               <Text size="xs" color="muted">
-                Generated at {new Date(summaryGeneratedAt).toLocaleString()}
+                Generated at{" "}
+                {new Date(summaryMetadata.generatedAt).toLocaleString()}
               </Text>
             ) : null}
           </div>
