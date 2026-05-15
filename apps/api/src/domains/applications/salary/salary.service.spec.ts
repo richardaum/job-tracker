@@ -1,9 +1,9 @@
+import type { Application } from "@api/domains/applications/applications.schema";
 import { BadRequestException } from "@nestjs/common";
 import { beforeEach, describe, expect, it } from "vitest";
 
-import type { Application } from "../applications.schema";
-import { SalaryPeriodEnum } from "./salary-period.enum";
 import { SalaryService } from "./salary.service";
+import { SalaryPeriodEnum } from "./salary-period.enum";
 
 describe("SalaryService", () => {
   let salaryService: SalaryService;
