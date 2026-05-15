@@ -21,3 +21,7 @@ Resolvers with `@UseGuards(JwtAuthGuard, RolesGuard)` must `import AuthModule`.
 ## Mutations
 
 Delete mutations: return payload with `success: Boolean!` and `deletedId: ID!`.
+
+## Standalone Scripts
+
+See **`docs/STANDALONE_SCRIPTS.md`**.
