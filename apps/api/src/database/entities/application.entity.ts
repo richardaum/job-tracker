@@ -1,5 +1,6 @@
 import { WithGeneratedId } from "@api/database/decorators/with-generated-id.decorator";
 import { ApplicationSource } from "@api/domains/applications/application-source.enum";
+import { ApplicationSummaryStatus } from "@api/domains/applications/application-summary-status.enum";
 import {
   Column,
   CreateDateColumn,
@@ -90,6 +91,18 @@ export class ApplicationEntity {
   })
   @JoinColumn({ name: "draft_application_id" })
   draftApplication?: DraftApplicationEntity | null;
+
+  @Column({ type: "text", nullable: true })
+  summary!: string | null;
+
+  @Column({ name: "summary_status", type: "text", default: "completed" })
+  summaryStatus!: ApplicationSummaryStatus;
+
+  @Column({ name: "summary_error", type: "text", nullable: true })
+  summaryError!: string | null;
+
+  @Column({ name: "summary_generated_at", type: "timestamp", nullable: true })
+  summaryGeneratedAt!: Date | null;
 
   @Column({ name: "source_run_id", type: "text", nullable: true })
   sourceRunId!: string | null;
