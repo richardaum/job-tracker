@@ -94,6 +94,10 @@ export type ApplicationType = {
   salary: ApplicationSalary;
   source?: Maybe<ApplicationSource>;
   sourceRunId?: Maybe<Scalars["ID"]["output"]>;
+  summary?: Maybe<Scalars["String"]["output"]>;
+  summaryError?: Maybe<Scalars["String"]["output"]>;
+  summaryGeneratedAt?: Maybe<Scalars["DateTime"]["output"]>;
+  summaryStatus: SummaryStatus;
   tags: Array<Scalars["String"]["output"]>;
   title: Scalars["String"]["output"];
   updatedAt: Scalars["DateTime"]["output"];
@@ -275,6 +279,7 @@ export type Mutation = {
   deleteSourceTemplate: DeleteMutationPayloadType;
   detachApplicationsFromSourceRun: Scalars["Int"]["output"];
   generateApplicationFit: FitAnalysisType;
+  generateApplicationSummary: ApplicationType;
   generateDraftApplicationFit: FitAnalysisType;
   removeApplicationTag: ApplicationType;
   rerunSourceTemplate: SourceRunType;
@@ -348,6 +353,10 @@ export type MutationDetachApplicationsFromSourceRunArgs = {
 };
 
 export type MutationGenerateApplicationFitArgs = { input: GenerateFitInput };
+
+export type MutationGenerateApplicationSummaryArgs = {
+  applicationId: Scalars["ID"]["input"];
+};
 
 export type MutationGenerateDraftApplicationFitArgs = {
   input: GenerateDraftFitInput;
@@ -599,6 +608,12 @@ export type Subscription = {
   sourceRunEvents: SourceRunEvent;
 };
 
+export enum SummaryStatus {
+  Completed = "COMPLETED",
+  Failed = "FAILED",
+  Processing = "PROCESSING",
+}
+
 export type UpdateApplicationInput = {
   company?: InputMaybe<Scalars["String"]["input"]>;
   companyId?: InputMaybe<Scalars["ID"]["input"]>;
@@ -692,6 +707,10 @@ export type ApplicationsQuery = {
     location?: string | null;
     workRegion?: string | null;
     sourceRunId?: string | null;
+    summary?: string | null;
+    summaryStatus: SummaryStatus;
+    summaryError?: string | null;
+    summaryGeneratedAt?: any | null;
     currentStage: ApplicationStage;
     currentStageReason?: string | null;
     currentStageAt: any;
@@ -739,6 +758,10 @@ export type ApplicationQuery = {
     location?: string | null;
     workRegion?: string | null;
     sourceRunId?: string | null;
+    summary?: string | null;
+    summaryStatus: SummaryStatus;
+    summaryError?: string | null;
+    summaryGeneratedAt?: any | null;
     currentStage: ApplicationStage;
     currentStageReason?: string | null;
     currentStageAt: any;
@@ -831,6 +854,10 @@ export type UpdateApplicationMutation = {
     tags: Array<string>;
     location?: string | null;
     workRegion?: string | null;
+    summary?: string | null;
+    summaryStatus: SummaryStatus;
+    summaryError?: string | null;
+    summaryGeneratedAt?: any | null;
     createdAt: any;
     company: {
       __typename?: "CompanyType";
@@ -1055,6 +1082,22 @@ export type GenerateApplicationWorkRegionWithAiQueryVariables = Exact<{
 export type GenerateApplicationWorkRegionWithAiQuery = {
   __typename?: "Query";
   generateApplicationWorkRegionWithAI?: string | null;
+};
+
+export type GenerateApplicationSummaryMutationVariables = Exact<{
+  applicationId: Scalars["ID"]["input"];
+}>;
+
+export type GenerateApplicationSummaryMutation = {
+  __typename?: "Mutation";
+  generateApplicationSummary: {
+    __typename?: "ApplicationType";
+    id: string;
+    summary?: string | null;
+    summaryStatus: SummaryStatus;
+    summaryError?: string | null;
+    summaryGeneratedAt?: any | null;
+  };
 };
 
 export type UpdateCompanyMutationVariables = Exact<{
@@ -1729,6 +1772,10 @@ export const ApplicationsDocument = gql`
       location
       workRegion
       sourceRunId
+      summary
+      summaryStatus
+      summaryError
+      summaryGeneratedAt
       currentStage
       currentStageReason
       currentStageAt
@@ -1766,6 +1813,10 @@ export const ApplicationDocument = gql`
       location
       workRegion
       sourceRunId
+      summary
+      summaryStatus
+      summaryError
+      summaryGeneratedAt
       currentStage
       currentStageReason
       currentStageAt
@@ -1830,6 +1881,10 @@ export const UpdateApplicationDocument = gql`
       tags
       location
       workRegion
+      summary
+      summaryStatus
+      summaryError
+      summaryGeneratedAt
       createdAt
     }
   }
@@ -1973,6 +2028,17 @@ export const GenerateApplicationLocationWithAiDocument = gql`
 export const GenerateApplicationWorkRegionWithAiDocument = gql`
   query GenerateApplicationWorkRegionWithAi($applicationId: ID!) {
     generateApplicationWorkRegionWithAI(applicationId: $applicationId)
+  }
+`;
+export const GenerateApplicationSummaryDocument = gql`
+  mutation GenerateApplicationSummary($applicationId: ID!) {
+    generateApplicationSummary(applicationId: $applicationId) {
+      id
+      summary
+      summaryStatus
+      summaryError
+      summaryGeneratedAt
+    }
   }
 `;
 export const UpdateCompanyDocument = gql`
@@ -2838,6 +2904,24 @@ export function getSdk(
           }),
         "GenerateApplicationWorkRegionWithAi",
         "query",
+        variables,
+      );
+    },
+    GenerateApplicationSummary(
+      variables: GenerateApplicationSummaryMutationVariables,
+      requestHeaders?: GraphQLClientRequestHeaders,
+      signal?: RequestInit["signal"],
+    ): Promise<GenerateApplicationSummaryMutation> {
+      return withWrapper(
+        (wrappedRequestHeaders) =>
+          client.request<GenerateApplicationSummaryMutation>({
+            document: GenerateApplicationSummaryDocument,
+            variables,
+            requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
+            signal,
+          }),
+        "GenerateApplicationSummary",
+        "mutation",
         variables,
       );
     },

@@ -95,6 +95,10 @@ export type ApplicationType = {
   salary: ApplicationSalary;
   source?: Maybe<ApplicationSource>;
   sourceRunId?: Maybe<Scalars["ID"]["output"]>;
+  summary?: Maybe<Scalars["String"]["output"]>;
+  summaryError?: Maybe<Scalars["String"]["output"]>;
+  summaryGeneratedAt?: Maybe<Scalars["DateTime"]["output"]>;
+  summaryStatus: SummaryStatus;
   tags: Array<Scalars["String"]["output"]>;
   title: Scalars["String"]["output"];
   updatedAt: Scalars["DateTime"]["output"];
@@ -276,6 +280,7 @@ export type Mutation = {
   deleteSourceTemplate: DeleteMutationPayloadType;
   detachApplicationsFromSourceRun: Scalars["Int"]["output"];
   generateApplicationFit: FitAnalysisType;
+  generateApplicationSummary: ApplicationType;
   generateDraftApplicationFit: FitAnalysisType;
   removeApplicationTag: ApplicationType;
   rerunSourceTemplate: SourceRunType;
@@ -349,6 +354,10 @@ export type MutationDetachApplicationsFromSourceRunArgs = {
 };
 
 export type MutationGenerateApplicationFitArgs = { input: GenerateFitInput };
+
+export type MutationGenerateApplicationSummaryArgs = {
+  applicationId: Scalars["ID"]["input"];
+};
 
 export type MutationGenerateDraftApplicationFitArgs = {
   input: GenerateDraftFitInput;
@@ -600,6 +609,12 @@ export type Subscription = {
   sourceRunEvents: SourceRunEvent;
 };
 
+export enum SummaryStatus {
+  Completed = "COMPLETED",
+  Failed = "FAILED",
+  Processing = "PROCESSING",
+}
+
 export type UpdateApplicationInput = {
   company?: InputMaybe<Scalars["String"]["input"]>;
   companyId?: InputMaybe<Scalars["ID"]["input"]>;
@@ -693,6 +708,10 @@ export type ApplicationsQuery = {
     location?: string | null;
     workRegion?: string | null;
     sourceRunId?: string | null;
+    summary?: string | null;
+    summaryStatus: SummaryStatus;
+    summaryError?: string | null;
+    summaryGeneratedAt?: any | null;
     currentStage: ApplicationStage;
     currentStageReason?: string | null;
     currentStageAt: any;
@@ -740,6 +759,10 @@ export type ApplicationQuery = {
     location?: string | null;
     workRegion?: string | null;
     sourceRunId?: string | null;
+    summary?: string | null;
+    summaryStatus: SummaryStatus;
+    summaryError?: string | null;
+    summaryGeneratedAt?: any | null;
     currentStage: ApplicationStage;
     currentStageReason?: string | null;
     currentStageAt: any;
@@ -832,6 +855,10 @@ export type UpdateApplicationMutation = {
     tags: Array<string>;
     location?: string | null;
     workRegion?: string | null;
+    summary?: string | null;
+    summaryStatus: SummaryStatus;
+    summaryError?: string | null;
+    summaryGeneratedAt?: any | null;
     createdAt: any;
     company: {
       __typename?: "CompanyType";
@@ -1056,6 +1083,22 @@ export type GenerateApplicationWorkRegionWithAiQueryVariables = Exact<{
 export type GenerateApplicationWorkRegionWithAiQuery = {
   __typename?: "Query";
   generateApplicationWorkRegionWithAI?: string | null;
+};
+
+export type GenerateApplicationSummaryMutationVariables = Exact<{
+  applicationId: Scalars["ID"]["input"];
+}>;
+
+export type GenerateApplicationSummaryMutation = {
+  __typename?: "Mutation";
+  generateApplicationSummary: {
+    __typename?: "ApplicationType";
+    id: string;
+    summary?: string | null;
+    summaryStatus: SummaryStatus;
+    summaryError?: string | null;
+    summaryGeneratedAt?: any | null;
+  };
 };
 
 export type UpdateCompanyMutationVariables = Exact<{
@@ -1730,6 +1773,10 @@ export const ApplicationsDocument = gql`
       location
       workRegion
       sourceRunId
+      summary
+      summaryStatus
+      summaryError
+      summaryGeneratedAt
       currentStage
       currentStageReason
       currentStageAt
@@ -1791,57 +1838,14 @@ export function useApplicationsLazyQuery(
     ApplicationsQueryVariables
   >(ApplicationsDocument, options);
 }
-// @ts-ignore
-export function useApplicationsSuspenseQuery(
-  baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<
-    ApplicationsQuery,
-    ApplicationsQueryVariables
-  >,
-): ApolloReactHooks.UseSuspenseQueryResult<
-  ApplicationsQuery,
-  ApplicationsQueryVariables
->;
-export function useApplicationsSuspenseQuery(
-  baseOptions?:
-    | ApolloReactHooks.SkipToken
-    | ApolloReactHooks.SuspenseQueryHookOptions<
-        ApplicationsQuery,
-        ApplicationsQueryVariables
-      >,
-): ApolloReactHooks.UseSuspenseQueryResult<
-  ApplicationsQuery | undefined,
-  ApplicationsQueryVariables
->;
-export function useApplicationsSuspenseQuery(
-  baseOptions?:
-    | ApolloReactHooks.SkipToken
-    | ApolloReactHooks.SuspenseQueryHookOptions<
-        ApplicationsQuery,
-        ApplicationsQueryVariables
-      >,
-) {
-  const options =
-    baseOptions === ApolloReactHooks.skipToken
-      ? baseOptions
-      : { ...defaultOptions, ...baseOptions };
-  return ApolloReactHooks.useSuspenseQuery<
-    ApplicationsQuery,
-    ApplicationsQueryVariables
-  >(ApplicationsDocument, options);
-}
+
 export type ApplicationsQueryHookResult = ReturnType<
   typeof useApplicationsQuery
 >;
 export type ApplicationsLazyQueryHookResult = ReturnType<
   typeof useApplicationsLazyQuery
 >;
-export type ApplicationsSuspenseQueryHookResult = ReturnType<
-  typeof useApplicationsSuspenseQuery
->;
-export type ApplicationsQueryResult = Apollo.QueryResult<
-  ApplicationsQuery,
-  ApplicationsQueryVariables
->;
+
 export const ApplicationDocument = gql`
   query Application($id: ID!) {
     application(id: $id) {
@@ -1861,6 +1865,10 @@ export const ApplicationDocument = gql`
       location
       workRegion
       sourceRunId
+      summary
+      summaryStatus
+      summaryError
+      summaryGeneratedAt
       currentStage
       currentStageReason
       currentStageAt
@@ -1924,55 +1932,12 @@ export function useApplicationLazyQuery(
     ApplicationQueryVariables
   >(ApplicationDocument, options);
 }
-// @ts-ignore
-export function useApplicationSuspenseQuery(
-  baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<
-    ApplicationQuery,
-    ApplicationQueryVariables
-  >,
-): ApolloReactHooks.UseSuspenseQueryResult<
-  ApplicationQuery,
-  ApplicationQueryVariables
->;
-export function useApplicationSuspenseQuery(
-  baseOptions?:
-    | ApolloReactHooks.SkipToken
-    | ApolloReactHooks.SuspenseQueryHookOptions<
-        ApplicationQuery,
-        ApplicationQueryVariables
-      >,
-): ApolloReactHooks.UseSuspenseQueryResult<
-  ApplicationQuery | undefined,
-  ApplicationQueryVariables
->;
-export function useApplicationSuspenseQuery(
-  baseOptions?:
-    | ApolloReactHooks.SkipToken
-    | ApolloReactHooks.SuspenseQueryHookOptions<
-        ApplicationQuery,
-        ApplicationQueryVariables
-      >,
-) {
-  const options =
-    baseOptions === ApolloReactHooks.skipToken
-      ? baseOptions
-      : { ...defaultOptions, ...baseOptions };
-  return ApolloReactHooks.useSuspenseQuery<
-    ApplicationQuery,
-    ApplicationQueryVariables
-  >(ApplicationDocument, options);
-}
+
 export type ApplicationQueryHookResult = ReturnType<typeof useApplicationQuery>;
 export type ApplicationLazyQueryHookResult = ReturnType<
   typeof useApplicationLazyQuery
 >;
-export type ApplicationSuspenseQueryHookResult = ReturnType<
-  typeof useApplicationSuspenseQuery
->;
-export type ApplicationQueryResult = Apollo.QueryResult<
-  ApplicationQuery,
-  ApplicationQueryVariables
->;
+
 export const CreateApplicationDocument = gql`
   mutation CreateApplication($input: CreateApplicationInput!) {
     createApplication(input: $input) {
@@ -1996,10 +1961,6 @@ export const CreateApplicationDocument = gql`
   }
   ${ApplicationSalarySelectionFragmentDoc}
 `;
-export type CreateApplicationMutationFn = Apollo.MutationFunction<
-  CreateApplicationMutation,
-  CreateApplicationMutationVariables
->;
 
 /**
  * __useCreateApplicationMutation__
@@ -2030,15 +1991,7 @@ export function useCreateApplicationMutation(
     CreateApplicationMutationVariables
   >(CreateApplicationDocument, options);
 }
-export type CreateApplicationMutationHookResult = ReturnType<
-  typeof useCreateApplicationMutation
->;
-export type CreateApplicationMutationResult =
-  Apollo.MutationResult<CreateApplicationMutation>;
-export type CreateApplicationMutationOptions = Apollo.BaseMutationOptions<
-  CreateApplicationMutation,
-  CreateApplicationMutationVariables
->;
+
 export const GenerateCompanyDescriptionDocument = gql`
   query GenerateCompanyDescription($companyName: String!) {
     generateCompanyDescription(companyName: $companyName)
@@ -2089,57 +2042,14 @@ export function useGenerateCompanyDescriptionLazyQuery(
     GenerateCompanyDescriptionQueryVariables
   >(GenerateCompanyDescriptionDocument, options);
 }
-// @ts-ignore
-export function useGenerateCompanyDescriptionSuspenseQuery(
-  baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<
-    GenerateCompanyDescriptionQuery,
-    GenerateCompanyDescriptionQueryVariables
-  >,
-): ApolloReactHooks.UseSuspenseQueryResult<
-  GenerateCompanyDescriptionQuery,
-  GenerateCompanyDescriptionQueryVariables
->;
-export function useGenerateCompanyDescriptionSuspenseQuery(
-  baseOptions?:
-    | ApolloReactHooks.SkipToken
-    | ApolloReactHooks.SuspenseQueryHookOptions<
-        GenerateCompanyDescriptionQuery,
-        GenerateCompanyDescriptionQueryVariables
-      >,
-): ApolloReactHooks.UseSuspenseQueryResult<
-  GenerateCompanyDescriptionQuery | undefined,
-  GenerateCompanyDescriptionQueryVariables
->;
-export function useGenerateCompanyDescriptionSuspenseQuery(
-  baseOptions?:
-    | ApolloReactHooks.SkipToken
-    | ApolloReactHooks.SuspenseQueryHookOptions<
-        GenerateCompanyDescriptionQuery,
-        GenerateCompanyDescriptionQueryVariables
-      >,
-) {
-  const options =
-    baseOptions === ApolloReactHooks.skipToken
-      ? baseOptions
-      : { ...defaultOptions, ...baseOptions };
-  return ApolloReactHooks.useSuspenseQuery<
-    GenerateCompanyDescriptionQuery,
-    GenerateCompanyDescriptionQueryVariables
-  >(GenerateCompanyDescriptionDocument, options);
-}
+
 export type GenerateCompanyDescriptionQueryHookResult = ReturnType<
   typeof useGenerateCompanyDescriptionQuery
 >;
 export type GenerateCompanyDescriptionLazyQueryHookResult = ReturnType<
   typeof useGenerateCompanyDescriptionLazyQuery
 >;
-export type GenerateCompanyDescriptionSuspenseQueryHookResult = ReturnType<
-  typeof useGenerateCompanyDescriptionSuspenseQuery
->;
-export type GenerateCompanyDescriptionQueryResult = Apollo.QueryResult<
-  GenerateCompanyDescriptionQuery,
-  GenerateCompanyDescriptionQueryVariables
->;
+
 export const UpdateApplicationDocument = gql`
   mutation UpdateApplication($id: ID!, $input: UpdateApplicationInput!) {
     updateApplication(id: $id, input: $input) {
@@ -2158,15 +2068,15 @@ export const UpdateApplicationDocument = gql`
       tags
       location
       workRegion
+      summary
+      summaryStatus
+      summaryError
+      summaryGeneratedAt
       createdAt
     }
   }
   ${ApplicationSalarySelectionFragmentDoc}
 `;
-export type UpdateApplicationMutationFn = Apollo.MutationFunction<
-  UpdateApplicationMutation,
-  UpdateApplicationMutationVariables
->;
 
 /**
  * __useUpdateApplicationMutation__
@@ -2198,15 +2108,7 @@ export function useUpdateApplicationMutation(
     UpdateApplicationMutationVariables
   >(UpdateApplicationDocument, options);
 }
-export type UpdateApplicationMutationHookResult = ReturnType<
-  typeof useUpdateApplicationMutation
->;
-export type UpdateApplicationMutationResult =
-  Apollo.MutationResult<UpdateApplicationMutation>;
-export type UpdateApplicationMutationOptions = Apollo.BaseMutationOptions<
-  UpdateApplicationMutation,
-  UpdateApplicationMutationVariables
->;
+
 export const RemoveApplicationTagDocument = gql`
   mutation RemoveApplicationTag($id: ID!, $tag: String!) {
     removeApplicationTag(id: $id, tag: $tag) {
@@ -2215,10 +2117,6 @@ export const RemoveApplicationTagDocument = gql`
     }
   }
 `;
-export type RemoveApplicationTagMutationFn = Apollo.MutationFunction<
-  RemoveApplicationTagMutation,
-  RemoveApplicationTagMutationVariables
->;
 
 /**
  * __useRemoveApplicationTagMutation__
@@ -2250,15 +2148,7 @@ export function useRemoveApplicationTagMutation(
     RemoveApplicationTagMutationVariables
   >(RemoveApplicationTagDocument, options);
 }
-export type RemoveApplicationTagMutationHookResult = ReturnType<
-  typeof useRemoveApplicationTagMutation
->;
-export type RemoveApplicationTagMutationResult =
-  Apollo.MutationResult<RemoveApplicationTagMutation>;
-export type RemoveApplicationTagMutationOptions = Apollo.BaseMutationOptions<
-  RemoveApplicationTagMutation,
-  RemoveApplicationTagMutationVariables
->;
+
 export const DeleteApplicationDocument = gql`
   mutation DeleteApplication($id: ID!) {
     deleteApplication(id: $id) {
@@ -2267,10 +2157,6 @@ export const DeleteApplicationDocument = gql`
     }
   }
 `;
-export type DeleteApplicationMutationFn = Apollo.MutationFunction<
-  DeleteApplicationMutation,
-  DeleteApplicationMutationVariables
->;
 
 /**
  * __useDeleteApplicationMutation__
@@ -2301,15 +2187,7 @@ export function useDeleteApplicationMutation(
     DeleteApplicationMutationVariables
   >(DeleteApplicationDocument, options);
 }
-export type DeleteApplicationMutationHookResult = ReturnType<
-  typeof useDeleteApplicationMutation
->;
-export type DeleteApplicationMutationResult =
-  Apollo.MutationResult<DeleteApplicationMutation>;
-export type DeleteApplicationMutationOptions = Apollo.BaseMutationOptions<
-  DeleteApplicationMutation,
-  DeleteApplicationMutationVariables
->;
+
 export const ApplicationStageEventsDocument = gql`
   query ApplicationStageEvents($applicationId: ID!) {
     applicationStageEvents(applicationId: $applicationId) {
@@ -2369,57 +2247,14 @@ export function useApplicationStageEventsLazyQuery(
     ApplicationStageEventsQueryVariables
   >(ApplicationStageEventsDocument, options);
 }
-// @ts-ignore
-export function useApplicationStageEventsSuspenseQuery(
-  baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<
-    ApplicationStageEventsQuery,
-    ApplicationStageEventsQueryVariables
-  >,
-): ApolloReactHooks.UseSuspenseQueryResult<
-  ApplicationStageEventsQuery,
-  ApplicationStageEventsQueryVariables
->;
-export function useApplicationStageEventsSuspenseQuery(
-  baseOptions?:
-    | ApolloReactHooks.SkipToken
-    | ApolloReactHooks.SuspenseQueryHookOptions<
-        ApplicationStageEventsQuery,
-        ApplicationStageEventsQueryVariables
-      >,
-): ApolloReactHooks.UseSuspenseQueryResult<
-  ApplicationStageEventsQuery | undefined,
-  ApplicationStageEventsQueryVariables
->;
-export function useApplicationStageEventsSuspenseQuery(
-  baseOptions?:
-    | ApolloReactHooks.SkipToken
-    | ApolloReactHooks.SuspenseQueryHookOptions<
-        ApplicationStageEventsQuery,
-        ApplicationStageEventsQueryVariables
-      >,
-) {
-  const options =
-    baseOptions === ApolloReactHooks.skipToken
-      ? baseOptions
-      : { ...defaultOptions, ...baseOptions };
-  return ApolloReactHooks.useSuspenseQuery<
-    ApplicationStageEventsQuery,
-    ApplicationStageEventsQueryVariables
-  >(ApplicationStageEventsDocument, options);
-}
+
 export type ApplicationStageEventsQueryHookResult = ReturnType<
   typeof useApplicationStageEventsQuery
 >;
 export type ApplicationStageEventsLazyQueryHookResult = ReturnType<
   typeof useApplicationStageEventsLazyQuery
 >;
-export type ApplicationStageEventsSuspenseQueryHookResult = ReturnType<
-  typeof useApplicationStageEventsSuspenseQuery
->;
-export type ApplicationStageEventsQueryResult = Apollo.QueryResult<
-  ApplicationStageEventsQuery,
-  ApplicationStageEventsQueryVariables
->;
+
 export const CreateApplicationStageEventDocument = gql`
   mutation CreateApplicationStageEvent(
     $input: CreateApplicationStageEventInput!
@@ -2436,10 +2271,6 @@ export const CreateApplicationStageEventDocument = gql`
     }
   }
 `;
-export type CreateApplicationStageEventMutationFn = Apollo.MutationFunction<
-  CreateApplicationStageEventMutation,
-  CreateApplicationStageEventMutationVariables
->;
 
 /**
  * __useCreateApplicationStageEventMutation__
@@ -2470,16 +2301,7 @@ export function useCreateApplicationStageEventMutation(
     CreateApplicationStageEventMutationVariables
   >(CreateApplicationStageEventDocument, options);
 }
-export type CreateApplicationStageEventMutationHookResult = ReturnType<
-  typeof useCreateApplicationStageEventMutation
->;
-export type CreateApplicationStageEventMutationResult =
-  Apollo.MutationResult<CreateApplicationStageEventMutation>;
-export type CreateApplicationStageEventMutationOptions =
-  Apollo.BaseMutationOptions<
-    CreateApplicationStageEventMutation,
-    CreateApplicationStageEventMutationVariables
-  >;
+
 export const UpdateApplicationStageEventDocument = gql`
   mutation UpdateApplicationStageEvent(
     $id: ID!
@@ -2497,10 +2319,6 @@ export const UpdateApplicationStageEventDocument = gql`
     }
   }
 `;
-export type UpdateApplicationStageEventMutationFn = Apollo.MutationFunction<
-  UpdateApplicationStageEventMutation,
-  UpdateApplicationStageEventMutationVariables
->;
 
 /**
  * __useUpdateApplicationStageEventMutation__
@@ -2532,16 +2350,7 @@ export function useUpdateApplicationStageEventMutation(
     UpdateApplicationStageEventMutationVariables
   >(UpdateApplicationStageEventDocument, options);
 }
-export type UpdateApplicationStageEventMutationHookResult = ReturnType<
-  typeof useUpdateApplicationStageEventMutation
->;
-export type UpdateApplicationStageEventMutationResult =
-  Apollo.MutationResult<UpdateApplicationStageEventMutation>;
-export type UpdateApplicationStageEventMutationOptions =
-  Apollo.BaseMutationOptions<
-    UpdateApplicationStageEventMutation,
-    UpdateApplicationStageEventMutationVariables
-  >;
+
 export const DeleteApplicationStageEventDocument = gql`
   mutation DeleteApplicationStageEvent($id: ID!) {
     deleteApplicationStageEvent(id: $id) {
@@ -2550,10 +2359,6 @@ export const DeleteApplicationStageEventDocument = gql`
     }
   }
 `;
-export type DeleteApplicationStageEventMutationFn = Apollo.MutationFunction<
-  DeleteApplicationStageEventMutation,
-  DeleteApplicationStageEventMutationVariables
->;
 
 /**
  * __useDeleteApplicationStageEventMutation__
@@ -2584,16 +2389,7 @@ export function useDeleteApplicationStageEventMutation(
     DeleteApplicationStageEventMutationVariables
   >(DeleteApplicationStageEventDocument, options);
 }
-export type DeleteApplicationStageEventMutationHookResult = ReturnType<
-  typeof useDeleteApplicationStageEventMutation
->;
-export type DeleteApplicationStageEventMutationResult =
-  Apollo.MutationResult<DeleteApplicationStageEventMutation>;
-export type DeleteApplicationStageEventMutationOptions =
-  Apollo.BaseMutationOptions<
-    DeleteApplicationStageEventMutation,
-    DeleteApplicationStageEventMutationVariables
-  >;
+
 export const ApplicationNotesDocument = gql`
   query ApplicationNotes($applicationId: ID!) {
     applicationNotes(applicationId: $applicationId) {
@@ -2651,57 +2447,14 @@ export function useApplicationNotesLazyQuery(
     ApplicationNotesQueryVariables
   >(ApplicationNotesDocument, options);
 }
-// @ts-ignore
-export function useApplicationNotesSuspenseQuery(
-  baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<
-    ApplicationNotesQuery,
-    ApplicationNotesQueryVariables
-  >,
-): ApolloReactHooks.UseSuspenseQueryResult<
-  ApplicationNotesQuery,
-  ApplicationNotesQueryVariables
->;
-export function useApplicationNotesSuspenseQuery(
-  baseOptions?:
-    | ApolloReactHooks.SkipToken
-    | ApolloReactHooks.SuspenseQueryHookOptions<
-        ApplicationNotesQuery,
-        ApplicationNotesQueryVariables
-      >,
-): ApolloReactHooks.UseSuspenseQueryResult<
-  ApplicationNotesQuery | undefined,
-  ApplicationNotesQueryVariables
->;
-export function useApplicationNotesSuspenseQuery(
-  baseOptions?:
-    | ApolloReactHooks.SkipToken
-    | ApolloReactHooks.SuspenseQueryHookOptions<
-        ApplicationNotesQuery,
-        ApplicationNotesQueryVariables
-      >,
-) {
-  const options =
-    baseOptions === ApolloReactHooks.skipToken
-      ? baseOptions
-      : { ...defaultOptions, ...baseOptions };
-  return ApolloReactHooks.useSuspenseQuery<
-    ApplicationNotesQuery,
-    ApplicationNotesQueryVariables
-  >(ApplicationNotesDocument, options);
-}
+
 export type ApplicationNotesQueryHookResult = ReturnType<
   typeof useApplicationNotesQuery
 >;
 export type ApplicationNotesLazyQueryHookResult = ReturnType<
   typeof useApplicationNotesLazyQuery
 >;
-export type ApplicationNotesSuspenseQueryHookResult = ReturnType<
-  typeof useApplicationNotesSuspenseQuery
->;
-export type ApplicationNotesQueryResult = Apollo.QueryResult<
-  ApplicationNotesQuery,
-  ApplicationNotesQueryVariables
->;
+
 export const CreateApplicationNoteDocument = gql`
   mutation CreateApplicationNote($input: CreateNoteInput!) {
     createApplicationNote(input: $input) {
@@ -2714,10 +2467,6 @@ export const CreateApplicationNoteDocument = gql`
     }
   }
 `;
-export type CreateApplicationNoteMutationFn = Apollo.MutationFunction<
-  CreateApplicationNoteMutation,
-  CreateApplicationNoteMutationVariables
->;
 
 /**
  * __useCreateApplicationNoteMutation__
@@ -2748,15 +2497,7 @@ export function useCreateApplicationNoteMutation(
     CreateApplicationNoteMutationVariables
   >(CreateApplicationNoteDocument, options);
 }
-export type CreateApplicationNoteMutationHookResult = ReturnType<
-  typeof useCreateApplicationNoteMutation
->;
-export type CreateApplicationNoteMutationResult =
-  Apollo.MutationResult<CreateApplicationNoteMutation>;
-export type CreateApplicationNoteMutationOptions = Apollo.BaseMutationOptions<
-  CreateApplicationNoteMutation,
-  CreateApplicationNoteMutationVariables
->;
+
 export const UpdateApplicationNoteDocument = gql`
   mutation UpdateApplicationNote($id: ID!, $input: UpdateNoteInput!) {
     updateApplicationNote(id: $id, input: $input) {
@@ -2769,10 +2510,6 @@ export const UpdateApplicationNoteDocument = gql`
     }
   }
 `;
-export type UpdateApplicationNoteMutationFn = Apollo.MutationFunction<
-  UpdateApplicationNoteMutation,
-  UpdateApplicationNoteMutationVariables
->;
 
 /**
  * __useUpdateApplicationNoteMutation__
@@ -2804,15 +2541,7 @@ export function useUpdateApplicationNoteMutation(
     UpdateApplicationNoteMutationVariables
   >(UpdateApplicationNoteDocument, options);
 }
-export type UpdateApplicationNoteMutationHookResult = ReturnType<
-  typeof useUpdateApplicationNoteMutation
->;
-export type UpdateApplicationNoteMutationResult =
-  Apollo.MutationResult<UpdateApplicationNoteMutation>;
-export type UpdateApplicationNoteMutationOptions = Apollo.BaseMutationOptions<
-  UpdateApplicationNoteMutation,
-  UpdateApplicationNoteMutationVariables
->;
+
 export const DeleteApplicationNoteDocument = gql`
   mutation DeleteApplicationNote($id: ID!) {
     deleteApplicationNote(id: $id) {
@@ -2821,10 +2550,6 @@ export const DeleteApplicationNoteDocument = gql`
     }
   }
 `;
-export type DeleteApplicationNoteMutationFn = Apollo.MutationFunction<
-  DeleteApplicationNoteMutation,
-  DeleteApplicationNoteMutationVariables
->;
 
 /**
  * __useDeleteApplicationNoteMutation__
@@ -2855,15 +2580,7 @@ export function useDeleteApplicationNoteMutation(
     DeleteApplicationNoteMutationVariables
   >(DeleteApplicationNoteDocument, options);
 }
-export type DeleteApplicationNoteMutationHookResult = ReturnType<
-  typeof useDeleteApplicationNoteMutation
->;
-export type DeleteApplicationNoteMutationResult =
-  Apollo.MutationResult<DeleteApplicationNoteMutation>;
-export type DeleteApplicationNoteMutationOptions = Apollo.BaseMutationOptions<
-  DeleteApplicationNoteMutation,
-  DeleteApplicationNoteMutationVariables
->;
+
 export const GenerateApplicationNoteWithAiDocument = gql`
   query GenerateApplicationNoteWithAi($applicationId: ID!, $note: String!) {
     generateApplicationNoteWithAI(applicationId: $applicationId, note: $note)
@@ -2918,57 +2635,14 @@ export function useGenerateApplicationNoteWithAiLazyQuery(
     GenerateApplicationNoteWithAiQueryVariables
   >(GenerateApplicationNoteWithAiDocument, options);
 }
-// @ts-ignore
-export function useGenerateApplicationNoteWithAiSuspenseQuery(
-  baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<
-    GenerateApplicationNoteWithAiQuery,
-    GenerateApplicationNoteWithAiQueryVariables
-  >,
-): ApolloReactHooks.UseSuspenseQueryResult<
-  GenerateApplicationNoteWithAiQuery,
-  GenerateApplicationNoteWithAiQueryVariables
->;
-export function useGenerateApplicationNoteWithAiSuspenseQuery(
-  baseOptions?:
-    | ApolloReactHooks.SkipToken
-    | ApolloReactHooks.SuspenseQueryHookOptions<
-        GenerateApplicationNoteWithAiQuery,
-        GenerateApplicationNoteWithAiQueryVariables
-      >,
-): ApolloReactHooks.UseSuspenseQueryResult<
-  GenerateApplicationNoteWithAiQuery | undefined,
-  GenerateApplicationNoteWithAiQueryVariables
->;
-export function useGenerateApplicationNoteWithAiSuspenseQuery(
-  baseOptions?:
-    | ApolloReactHooks.SkipToken
-    | ApolloReactHooks.SuspenseQueryHookOptions<
-        GenerateApplicationNoteWithAiQuery,
-        GenerateApplicationNoteWithAiQueryVariables
-      >,
-) {
-  const options =
-    baseOptions === ApolloReactHooks.skipToken
-      ? baseOptions
-      : { ...defaultOptions, ...baseOptions };
-  return ApolloReactHooks.useSuspenseQuery<
-    GenerateApplicationNoteWithAiQuery,
-    GenerateApplicationNoteWithAiQueryVariables
-  >(GenerateApplicationNoteWithAiDocument, options);
-}
+
 export type GenerateApplicationNoteWithAiQueryHookResult = ReturnType<
   typeof useGenerateApplicationNoteWithAiQuery
 >;
 export type GenerateApplicationNoteWithAiLazyQueryHookResult = ReturnType<
   typeof useGenerateApplicationNoteWithAiLazyQuery
 >;
-export type GenerateApplicationNoteWithAiSuspenseQueryHookResult = ReturnType<
-  typeof useGenerateApplicationNoteWithAiSuspenseQuery
->;
-export type GenerateApplicationNoteWithAiQueryResult = Apollo.QueryResult<
-  GenerateApplicationNoteWithAiQuery,
-  GenerateApplicationNoteWithAiQueryVariables
->;
+
 export const RewriteTextWithAiDocument = gql`
   query RewriteTextWithAi($text: String!) {
     rewriteTextWithAI(text: $text)
@@ -3019,57 +2693,14 @@ export function useRewriteTextWithAiLazyQuery(
     RewriteTextWithAiQueryVariables
   >(RewriteTextWithAiDocument, options);
 }
-// @ts-ignore
-export function useRewriteTextWithAiSuspenseQuery(
-  baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<
-    RewriteTextWithAiQuery,
-    RewriteTextWithAiQueryVariables
-  >,
-): ApolloReactHooks.UseSuspenseQueryResult<
-  RewriteTextWithAiQuery,
-  RewriteTextWithAiQueryVariables
->;
-export function useRewriteTextWithAiSuspenseQuery(
-  baseOptions?:
-    | ApolloReactHooks.SkipToken
-    | ApolloReactHooks.SuspenseQueryHookOptions<
-        RewriteTextWithAiQuery,
-        RewriteTextWithAiQueryVariables
-      >,
-): ApolloReactHooks.UseSuspenseQueryResult<
-  RewriteTextWithAiQuery | undefined,
-  RewriteTextWithAiQueryVariables
->;
-export function useRewriteTextWithAiSuspenseQuery(
-  baseOptions?:
-    | ApolloReactHooks.SkipToken
-    | ApolloReactHooks.SuspenseQueryHookOptions<
-        RewriteTextWithAiQuery,
-        RewriteTextWithAiQueryVariables
-      >,
-) {
-  const options =
-    baseOptions === ApolloReactHooks.skipToken
-      ? baseOptions
-      : { ...defaultOptions, ...baseOptions };
-  return ApolloReactHooks.useSuspenseQuery<
-    RewriteTextWithAiQuery,
-    RewriteTextWithAiQueryVariables
-  >(RewriteTextWithAiDocument, options);
-}
+
 export type RewriteTextWithAiQueryHookResult = ReturnType<
   typeof useRewriteTextWithAiQuery
 >;
 export type RewriteTextWithAiLazyQueryHookResult = ReturnType<
   typeof useRewriteTextWithAiLazyQuery
 >;
-export type RewriteTextWithAiSuspenseQueryHookResult = ReturnType<
-  typeof useRewriteTextWithAiSuspenseQuery
->;
-export type RewriteTextWithAiQueryResult = Apollo.QueryResult<
-  RewriteTextWithAiQuery,
-  RewriteTextWithAiQueryVariables
->;
+
 export const RestructureJobDescriptionWithAiDocument = gql`
   query RestructureJobDescriptionWithAi($text: String!) {
     restructureJobDescriptionWithAI(text: $text)
@@ -3123,57 +2754,14 @@ export function useRestructureJobDescriptionWithAiLazyQuery(
     RestructureJobDescriptionWithAiQueryVariables
   >(RestructureJobDescriptionWithAiDocument, options);
 }
-// @ts-ignore
-export function useRestructureJobDescriptionWithAiSuspenseQuery(
-  baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<
-    RestructureJobDescriptionWithAiQuery,
-    RestructureJobDescriptionWithAiQueryVariables
-  >,
-): ApolloReactHooks.UseSuspenseQueryResult<
-  RestructureJobDescriptionWithAiQuery,
-  RestructureJobDescriptionWithAiQueryVariables
->;
-export function useRestructureJobDescriptionWithAiSuspenseQuery(
-  baseOptions?:
-    | ApolloReactHooks.SkipToken
-    | ApolloReactHooks.SuspenseQueryHookOptions<
-        RestructureJobDescriptionWithAiQuery,
-        RestructureJobDescriptionWithAiQueryVariables
-      >,
-): ApolloReactHooks.UseSuspenseQueryResult<
-  RestructureJobDescriptionWithAiQuery | undefined,
-  RestructureJobDescriptionWithAiQueryVariables
->;
-export function useRestructureJobDescriptionWithAiSuspenseQuery(
-  baseOptions?:
-    | ApolloReactHooks.SkipToken
-    | ApolloReactHooks.SuspenseQueryHookOptions<
-        RestructureJobDescriptionWithAiQuery,
-        RestructureJobDescriptionWithAiQueryVariables
-      >,
-) {
-  const options =
-    baseOptions === ApolloReactHooks.skipToken
-      ? baseOptions
-      : { ...defaultOptions, ...baseOptions };
-  return ApolloReactHooks.useSuspenseQuery<
-    RestructureJobDescriptionWithAiQuery,
-    RestructureJobDescriptionWithAiQueryVariables
-  >(RestructureJobDescriptionWithAiDocument, options);
-}
+
 export type RestructureJobDescriptionWithAiQueryHookResult = ReturnType<
   typeof useRestructureJobDescriptionWithAiQuery
 >;
 export type RestructureJobDescriptionWithAiLazyQueryHookResult = ReturnType<
   typeof useRestructureJobDescriptionWithAiLazyQuery
 >;
-export type RestructureJobDescriptionWithAiSuspenseQueryHookResult = ReturnType<
-  typeof useRestructureJobDescriptionWithAiSuspenseQuery
->;
-export type RestructureJobDescriptionWithAiQueryResult = Apollo.QueryResult<
-  RestructureJobDescriptionWithAiQuery,
-  RestructureJobDescriptionWithAiQueryVariables
->;
+
 export const GenerateApplicationLocationWithAiDocument = gql`
   query GenerateApplicationLocationWithAi($applicationId: ID!) {
     generateApplicationLocationWithAI(applicationId: $applicationId)
@@ -3227,56 +2815,14 @@ export function useGenerateApplicationLocationWithAiLazyQuery(
     GenerateApplicationLocationWithAiQueryVariables
   >(GenerateApplicationLocationWithAiDocument, options);
 }
-// @ts-ignore
-export function useGenerateApplicationLocationWithAiSuspenseQuery(
-  baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<
-    GenerateApplicationLocationWithAiQuery,
-    GenerateApplicationLocationWithAiQueryVariables
-  >,
-): ApolloReactHooks.UseSuspenseQueryResult<
-  GenerateApplicationLocationWithAiQuery,
-  GenerateApplicationLocationWithAiQueryVariables
->;
-export function useGenerateApplicationLocationWithAiSuspenseQuery(
-  baseOptions?:
-    | ApolloReactHooks.SkipToken
-    | ApolloReactHooks.SuspenseQueryHookOptions<
-        GenerateApplicationLocationWithAiQuery,
-        GenerateApplicationLocationWithAiQueryVariables
-      >,
-): ApolloReactHooks.UseSuspenseQueryResult<
-  GenerateApplicationLocationWithAiQuery | undefined,
-  GenerateApplicationLocationWithAiQueryVariables
->;
-export function useGenerateApplicationLocationWithAiSuspenseQuery(
-  baseOptions?:
-    | ApolloReactHooks.SkipToken
-    | ApolloReactHooks.SuspenseQueryHookOptions<
-        GenerateApplicationLocationWithAiQuery,
-        GenerateApplicationLocationWithAiQueryVariables
-      >,
-) {
-  const options =
-    baseOptions === ApolloReactHooks.skipToken
-      ? baseOptions
-      : { ...defaultOptions, ...baseOptions };
-  return ApolloReactHooks.useSuspenseQuery<
-    GenerateApplicationLocationWithAiQuery,
-    GenerateApplicationLocationWithAiQueryVariables
-  >(GenerateApplicationLocationWithAiDocument, options);
-}
+
 export type GenerateApplicationLocationWithAiQueryHookResult = ReturnType<
   typeof useGenerateApplicationLocationWithAiQuery
 >;
 export type GenerateApplicationLocationWithAiLazyQueryHookResult = ReturnType<
   typeof useGenerateApplicationLocationWithAiLazyQuery
 >;
-export type GenerateApplicationLocationWithAiSuspenseQueryHookResult =
-  ReturnType<typeof useGenerateApplicationLocationWithAiSuspenseQuery>;
-export type GenerateApplicationLocationWithAiQueryResult = Apollo.QueryResult<
-  GenerateApplicationLocationWithAiQuery,
-  GenerateApplicationLocationWithAiQueryVariables
->;
+
 export const GenerateApplicationWorkRegionWithAiDocument = gql`
   query GenerateApplicationWorkRegionWithAi($applicationId: ID!) {
     generateApplicationWorkRegionWithAI(applicationId: $applicationId)
@@ -3330,56 +2876,56 @@ export function useGenerateApplicationWorkRegionWithAiLazyQuery(
     GenerateApplicationWorkRegionWithAiQueryVariables
   >(GenerateApplicationWorkRegionWithAiDocument, options);
 }
-// @ts-ignore
-export function useGenerateApplicationWorkRegionWithAiSuspenseQuery(
-  baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<
-    GenerateApplicationWorkRegionWithAiQuery,
-    GenerateApplicationWorkRegionWithAiQueryVariables
-  >,
-): ApolloReactHooks.UseSuspenseQueryResult<
-  GenerateApplicationWorkRegionWithAiQuery,
-  GenerateApplicationWorkRegionWithAiQueryVariables
->;
-export function useGenerateApplicationWorkRegionWithAiSuspenseQuery(
-  baseOptions?:
-    | ApolloReactHooks.SkipToken
-    | ApolloReactHooks.SuspenseQueryHookOptions<
-        GenerateApplicationWorkRegionWithAiQuery,
-        GenerateApplicationWorkRegionWithAiQueryVariables
-      >,
-): ApolloReactHooks.UseSuspenseQueryResult<
-  GenerateApplicationWorkRegionWithAiQuery | undefined,
-  GenerateApplicationWorkRegionWithAiQueryVariables
->;
-export function useGenerateApplicationWorkRegionWithAiSuspenseQuery(
-  baseOptions?:
-    | ApolloReactHooks.SkipToken
-    | ApolloReactHooks.SuspenseQueryHookOptions<
-        GenerateApplicationWorkRegionWithAiQuery,
-        GenerateApplicationWorkRegionWithAiQueryVariables
-      >,
-) {
-  const options =
-    baseOptions === ApolloReactHooks.skipToken
-      ? baseOptions
-      : { ...defaultOptions, ...baseOptions };
-  return ApolloReactHooks.useSuspenseQuery<
-    GenerateApplicationWorkRegionWithAiQuery,
-    GenerateApplicationWorkRegionWithAiQueryVariables
-  >(GenerateApplicationWorkRegionWithAiDocument, options);
-}
+
 export type GenerateApplicationWorkRegionWithAiQueryHookResult = ReturnType<
   typeof useGenerateApplicationWorkRegionWithAiQuery
 >;
 export type GenerateApplicationWorkRegionWithAiLazyQueryHookResult = ReturnType<
   typeof useGenerateApplicationWorkRegionWithAiLazyQuery
 >;
-export type GenerateApplicationWorkRegionWithAiSuspenseQueryHookResult =
-  ReturnType<typeof useGenerateApplicationWorkRegionWithAiSuspenseQuery>;
-export type GenerateApplicationWorkRegionWithAiQueryResult = Apollo.QueryResult<
-  GenerateApplicationWorkRegionWithAiQuery,
-  GenerateApplicationWorkRegionWithAiQueryVariables
->;
+
+export const GenerateApplicationSummaryDocument = gql`
+  mutation GenerateApplicationSummary($applicationId: ID!) {
+    generateApplicationSummary(applicationId: $applicationId) {
+      id
+      summary
+      summaryStatus
+      summaryError
+      summaryGeneratedAt
+    }
+  }
+`;
+
+/**
+ * __useGenerateApplicationSummaryMutation__
+ *
+ * To run a mutation, you first call `useGenerateApplicationSummaryMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useGenerateApplicationSummaryMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [generateApplicationSummaryMutation, { data, loading, error }] = useGenerateApplicationSummaryMutation({
+ *   variables: {
+ *      applicationId: // value for 'applicationId'
+ *   },
+ * });
+ */
+export function useGenerateApplicationSummaryMutation(
+  baseOptions?: ApolloReactHooks.MutationHookOptions<
+    GenerateApplicationSummaryMutation,
+    GenerateApplicationSummaryMutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useMutation<
+    GenerateApplicationSummaryMutation,
+    GenerateApplicationSummaryMutationVariables
+  >(GenerateApplicationSummaryDocument, options);
+}
+
 export const UpdateCompanyDocument = gql`
   mutation UpdateCompany($id: ID!, $input: UpdateCompanyInput!) {
     updateCompany(id: $id, input: $input) {
@@ -3389,10 +2935,6 @@ export const UpdateCompanyDocument = gql`
     }
   }
 `;
-export type UpdateCompanyMutationFn = Apollo.MutationFunction<
-  UpdateCompanyMutation,
-  UpdateCompanyMutationVariables
->;
 
 /**
  * __useUpdateCompanyMutation__
@@ -3424,15 +2966,7 @@ export function useUpdateCompanyMutation(
     UpdateCompanyMutationVariables
   >(UpdateCompanyDocument, options);
 }
-export type UpdateCompanyMutationHookResult = ReturnType<
-  typeof useUpdateCompanyMutation
->;
-export type UpdateCompanyMutationResult =
-  Apollo.MutationResult<UpdateCompanyMutation>;
-export type UpdateCompanyMutationOptions = Apollo.BaseMutationOptions<
-  UpdateCompanyMutation,
-  UpdateCompanyMutationVariables
->;
+
 export const DeleteCompanyDocument = gql`
   mutation DeleteCompany($id: ID!) {
     deleteCompany(id: $id) {
@@ -3441,10 +2975,6 @@ export const DeleteCompanyDocument = gql`
     }
   }
 `;
-export type DeleteCompanyMutationFn = Apollo.MutationFunction<
-  DeleteCompanyMutation,
-  DeleteCompanyMutationVariables
->;
 
 /**
  * __useDeleteCompanyMutation__
@@ -3475,15 +3005,7 @@ export function useDeleteCompanyMutation(
     DeleteCompanyMutationVariables
   >(DeleteCompanyDocument, options);
 }
-export type DeleteCompanyMutationHookResult = ReturnType<
-  typeof useDeleteCompanyMutation
->;
-export type DeleteCompanyMutationResult =
-  Apollo.MutationResult<DeleteCompanyMutation>;
-export type DeleteCompanyMutationOptions = Apollo.BaseMutationOptions<
-  DeleteCompanyMutation,
-  DeleteCompanyMutationVariables
->;
+
 export const CompanyApplicationsCountDocument = gql`
   query CompanyApplicationsCount($id: ID!) {
     companyApplicationsCount(id: $id)
@@ -3534,57 +3056,14 @@ export function useCompanyApplicationsCountLazyQuery(
     CompanyApplicationsCountQueryVariables
   >(CompanyApplicationsCountDocument, options);
 }
-// @ts-ignore
-export function useCompanyApplicationsCountSuspenseQuery(
-  baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<
-    CompanyApplicationsCountQuery,
-    CompanyApplicationsCountQueryVariables
-  >,
-): ApolloReactHooks.UseSuspenseQueryResult<
-  CompanyApplicationsCountQuery,
-  CompanyApplicationsCountQueryVariables
->;
-export function useCompanyApplicationsCountSuspenseQuery(
-  baseOptions?:
-    | ApolloReactHooks.SkipToken
-    | ApolloReactHooks.SuspenseQueryHookOptions<
-        CompanyApplicationsCountQuery,
-        CompanyApplicationsCountQueryVariables
-      >,
-): ApolloReactHooks.UseSuspenseQueryResult<
-  CompanyApplicationsCountQuery | undefined,
-  CompanyApplicationsCountQueryVariables
->;
-export function useCompanyApplicationsCountSuspenseQuery(
-  baseOptions?:
-    | ApolloReactHooks.SkipToken
-    | ApolloReactHooks.SuspenseQueryHookOptions<
-        CompanyApplicationsCountQuery,
-        CompanyApplicationsCountQueryVariables
-      >,
-) {
-  const options =
-    baseOptions === ApolloReactHooks.skipToken
-      ? baseOptions
-      : { ...defaultOptions, ...baseOptions };
-  return ApolloReactHooks.useSuspenseQuery<
-    CompanyApplicationsCountQuery,
-    CompanyApplicationsCountQueryVariables
-  >(CompanyApplicationsCountDocument, options);
-}
+
 export type CompanyApplicationsCountQueryHookResult = ReturnType<
   typeof useCompanyApplicationsCountQuery
 >;
 export type CompanyApplicationsCountLazyQueryHookResult = ReturnType<
   typeof useCompanyApplicationsCountLazyQuery
 >;
-export type CompanyApplicationsCountSuspenseQueryHookResult = ReturnType<
-  typeof useCompanyApplicationsCountSuspenseQuery
->;
-export type CompanyApplicationsCountQueryResult = Apollo.QueryResult<
-  CompanyApplicationsCountQuery,
-  CompanyApplicationsCountQueryVariables
->;
+
 export const CompaniesDocument = gql`
   query Companies {
     companies {
@@ -3634,55 +3113,12 @@ export function useCompaniesLazyQuery(
     options,
   );
 }
-// @ts-ignore
-export function useCompaniesSuspenseQuery(
-  baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<
-    CompaniesQuery,
-    CompaniesQueryVariables
-  >,
-): ApolloReactHooks.UseSuspenseQueryResult<
-  CompaniesQuery,
-  CompaniesQueryVariables
->;
-export function useCompaniesSuspenseQuery(
-  baseOptions?:
-    | ApolloReactHooks.SkipToken
-    | ApolloReactHooks.SuspenseQueryHookOptions<
-        CompaniesQuery,
-        CompaniesQueryVariables
-      >,
-): ApolloReactHooks.UseSuspenseQueryResult<
-  CompaniesQuery | undefined,
-  CompaniesQueryVariables
->;
-export function useCompaniesSuspenseQuery(
-  baseOptions?:
-    | ApolloReactHooks.SkipToken
-    | ApolloReactHooks.SuspenseQueryHookOptions<
-        CompaniesQuery,
-        CompaniesQueryVariables
-      >,
-) {
-  const options =
-    baseOptions === ApolloReactHooks.skipToken
-      ? baseOptions
-      : { ...defaultOptions, ...baseOptions };
-  return ApolloReactHooks.useSuspenseQuery<
-    CompaniesQuery,
-    CompaniesQueryVariables
-  >(CompaniesDocument, options);
-}
+
 export type CompaniesQueryHookResult = ReturnType<typeof useCompaniesQuery>;
 export type CompaniesLazyQueryHookResult = ReturnType<
   typeof useCompaniesLazyQuery
 >;
-export type CompaniesSuspenseQueryHookResult = ReturnType<
-  typeof useCompaniesSuspenseQuery
->;
-export type CompaniesQueryResult = Apollo.QueryResult<
-  CompaniesQuery,
-  CompaniesQueryVariables
->;
+
 export const ExchangeRatesDocument = gql`
   query ExchangeRates($base: String!, $currencies: [String!]!) {
     exchangeRates(base: $base, currencies: $currencies) {
@@ -3740,57 +3176,14 @@ export function useExchangeRatesLazyQuery(
     ExchangeRatesQueryVariables
   >(ExchangeRatesDocument, options);
 }
-// @ts-ignore
-export function useExchangeRatesSuspenseQuery(
-  baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<
-    ExchangeRatesQuery,
-    ExchangeRatesQueryVariables
-  >,
-): ApolloReactHooks.UseSuspenseQueryResult<
-  ExchangeRatesQuery,
-  ExchangeRatesQueryVariables
->;
-export function useExchangeRatesSuspenseQuery(
-  baseOptions?:
-    | ApolloReactHooks.SkipToken
-    | ApolloReactHooks.SuspenseQueryHookOptions<
-        ExchangeRatesQuery,
-        ExchangeRatesQueryVariables
-      >,
-): ApolloReactHooks.UseSuspenseQueryResult<
-  ExchangeRatesQuery | undefined,
-  ExchangeRatesQueryVariables
->;
-export function useExchangeRatesSuspenseQuery(
-  baseOptions?:
-    | ApolloReactHooks.SkipToken
-    | ApolloReactHooks.SuspenseQueryHookOptions<
-        ExchangeRatesQuery,
-        ExchangeRatesQueryVariables
-      >,
-) {
-  const options =
-    baseOptions === ApolloReactHooks.skipToken
-      ? baseOptions
-      : { ...defaultOptions, ...baseOptions };
-  return ApolloReactHooks.useSuspenseQuery<
-    ExchangeRatesQuery,
-    ExchangeRatesQueryVariables
-  >(ExchangeRatesDocument, options);
-}
+
 export type ExchangeRatesQueryHookResult = ReturnType<
   typeof useExchangeRatesQuery
 >;
 export type ExchangeRatesLazyQueryHookResult = ReturnType<
   typeof useExchangeRatesLazyQuery
 >;
-export type ExchangeRatesSuspenseQueryHookResult = ReturnType<
-  typeof useExchangeRatesSuspenseQuery
->;
-export type ExchangeRatesQueryResult = Apollo.QueryResult<
-  ExchangeRatesQuery,
-  ExchangeRatesQueryVariables
->;
+
 export const DraftApplicationsListDocument = gql`
   query DraftApplicationsList {
     draftApplications {
@@ -3845,57 +3238,14 @@ export function useDraftApplicationsListLazyQuery(
     DraftApplicationsListQueryVariables
   >(DraftApplicationsListDocument, options);
 }
-// @ts-ignore
-export function useDraftApplicationsListSuspenseQuery(
-  baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<
-    DraftApplicationsListQuery,
-    DraftApplicationsListQueryVariables
-  >,
-): ApolloReactHooks.UseSuspenseQueryResult<
-  DraftApplicationsListQuery,
-  DraftApplicationsListQueryVariables
->;
-export function useDraftApplicationsListSuspenseQuery(
-  baseOptions?:
-    | ApolloReactHooks.SkipToken
-    | ApolloReactHooks.SuspenseQueryHookOptions<
-        DraftApplicationsListQuery,
-        DraftApplicationsListQueryVariables
-      >,
-): ApolloReactHooks.UseSuspenseQueryResult<
-  DraftApplicationsListQuery | undefined,
-  DraftApplicationsListQueryVariables
->;
-export function useDraftApplicationsListSuspenseQuery(
-  baseOptions?:
-    | ApolloReactHooks.SkipToken
-    | ApolloReactHooks.SuspenseQueryHookOptions<
-        DraftApplicationsListQuery,
-        DraftApplicationsListQueryVariables
-      >,
-) {
-  const options =
-    baseOptions === ApolloReactHooks.skipToken
-      ? baseOptions
-      : { ...defaultOptions, ...baseOptions };
-  return ApolloReactHooks.useSuspenseQuery<
-    DraftApplicationsListQuery,
-    DraftApplicationsListQueryVariables
-  >(DraftApplicationsListDocument, options);
-}
+
 export type DraftApplicationsListQueryHookResult = ReturnType<
   typeof useDraftApplicationsListQuery
 >;
 export type DraftApplicationsListLazyQueryHookResult = ReturnType<
   typeof useDraftApplicationsListLazyQuery
 >;
-export type DraftApplicationsListSuspenseQueryHookResult = ReturnType<
-  typeof useDraftApplicationsListSuspenseQuery
->;
-export type DraftApplicationsListQueryResult = Apollo.QueryResult<
-  DraftApplicationsListQuery,
-  DraftApplicationsListQueryVariables
->;
+
 export const DraftApplicationDetailDocument = gql`
   query DraftApplicationDetail($id: ID!) {
     draftApplication(id: $id) {
@@ -3970,57 +3320,14 @@ export function useDraftApplicationDetailLazyQuery(
     DraftApplicationDetailQueryVariables
   >(DraftApplicationDetailDocument, options);
 }
-// @ts-ignore
-export function useDraftApplicationDetailSuspenseQuery(
-  baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<
-    DraftApplicationDetailQuery,
-    DraftApplicationDetailQueryVariables
-  >,
-): ApolloReactHooks.UseSuspenseQueryResult<
-  DraftApplicationDetailQuery,
-  DraftApplicationDetailQueryVariables
->;
-export function useDraftApplicationDetailSuspenseQuery(
-  baseOptions?:
-    | ApolloReactHooks.SkipToken
-    | ApolloReactHooks.SuspenseQueryHookOptions<
-        DraftApplicationDetailQuery,
-        DraftApplicationDetailQueryVariables
-      >,
-): ApolloReactHooks.UseSuspenseQueryResult<
-  DraftApplicationDetailQuery | undefined,
-  DraftApplicationDetailQueryVariables
->;
-export function useDraftApplicationDetailSuspenseQuery(
-  baseOptions?:
-    | ApolloReactHooks.SkipToken
-    | ApolloReactHooks.SuspenseQueryHookOptions<
-        DraftApplicationDetailQuery,
-        DraftApplicationDetailQueryVariables
-      >,
-) {
-  const options =
-    baseOptions === ApolloReactHooks.skipToken
-      ? baseOptions
-      : { ...defaultOptions, ...baseOptions };
-  return ApolloReactHooks.useSuspenseQuery<
-    DraftApplicationDetailQuery,
-    DraftApplicationDetailQueryVariables
-  >(DraftApplicationDetailDocument, options);
-}
+
 export type DraftApplicationDetailQueryHookResult = ReturnType<
   typeof useDraftApplicationDetailQuery
 >;
 export type DraftApplicationDetailLazyQueryHookResult = ReturnType<
   typeof useDraftApplicationDetailLazyQuery
 >;
-export type DraftApplicationDetailSuspenseQueryHookResult = ReturnType<
-  typeof useDraftApplicationDetailSuspenseQuery
->;
-export type DraftApplicationDetailQueryResult = Apollo.QueryResult<
-  DraftApplicationDetailQuery,
-  DraftApplicationDetailQueryVariables
->;
+
 export const DeleteDraftApplicationDocument = gql`
   mutation DeleteDraftApplication($id: ID!, $deleteLinkedApplication: Boolean) {
     deleteDraftApplication(
@@ -4032,10 +3339,6 @@ export const DeleteDraftApplicationDocument = gql`
     }
   }
 `;
-export type DeleteDraftApplicationMutationFn = Apollo.MutationFunction<
-  DeleteDraftApplicationMutation,
-  DeleteDraftApplicationMutationVariables
->;
 
 /**
  * __useDeleteDraftApplicationMutation__
@@ -4067,15 +3370,7 @@ export function useDeleteDraftApplicationMutation(
     DeleteDraftApplicationMutationVariables
   >(DeleteDraftApplicationDocument, options);
 }
-export type DeleteDraftApplicationMutationHookResult = ReturnType<
-  typeof useDeleteDraftApplicationMutation
->;
-export type DeleteDraftApplicationMutationResult =
-  Apollo.MutationResult<DeleteDraftApplicationMutation>;
-export type DeleteDraftApplicationMutationOptions = Apollo.BaseMutationOptions<
-  DeleteDraftApplicationMutation,
-  DeleteDraftApplicationMutationVariables
->;
+
 export const DeleteApplicationsForDraftDocument = gql`
   mutation DeleteApplicationsForDraft($draftId: ID!) {
     deleteApplicationsForDraft(draftId: $draftId) {
@@ -4084,10 +3379,6 @@ export const DeleteApplicationsForDraftDocument = gql`
     }
   }
 `;
-export type DeleteApplicationsForDraftMutationFn = Apollo.MutationFunction<
-  DeleteApplicationsForDraftMutation,
-  DeleteApplicationsForDraftMutationVariables
->;
 
 /**
  * __useDeleteApplicationsForDraftMutation__
@@ -4118,16 +3409,7 @@ export function useDeleteApplicationsForDraftMutation(
     DeleteApplicationsForDraftMutationVariables
   >(DeleteApplicationsForDraftDocument, options);
 }
-export type DeleteApplicationsForDraftMutationHookResult = ReturnType<
-  typeof useDeleteApplicationsForDraftMutation
->;
-export type DeleteApplicationsForDraftMutationResult =
-  Apollo.MutationResult<DeleteApplicationsForDraftMutation>;
-export type DeleteApplicationsForDraftMutationOptions =
-  Apollo.BaseMutationOptions<
-    DeleteApplicationsForDraftMutation,
-    DeleteApplicationsForDraftMutationVariables
-  >;
+
 export const CreateApplicationWithAiDocument = gql`
   mutation CreateApplicationWithAI($draftId: ID!) {
     createApplicationWithAI(draftId: $draftId) {
@@ -4138,10 +3420,6 @@ export const CreateApplicationWithAiDocument = gql`
     }
   }
 `;
-export type CreateApplicationWithAiMutationFn = Apollo.MutationFunction<
-  CreateApplicationWithAiMutation,
-  CreateApplicationWithAiMutationVariables
->;
 
 /**
  * __useCreateApplicationWithAiMutation__
@@ -4172,15 +3450,7 @@ export function useCreateApplicationWithAiMutation(
     CreateApplicationWithAiMutationVariables
   >(CreateApplicationWithAiDocument, options);
 }
-export type CreateApplicationWithAiMutationHookResult = ReturnType<
-  typeof useCreateApplicationWithAiMutation
->;
-export type CreateApplicationWithAiMutationResult =
-  Apollo.MutationResult<CreateApplicationWithAiMutation>;
-export type CreateApplicationWithAiMutationOptions = Apollo.BaseMutationOptions<
-  CreateApplicationWithAiMutation,
-  CreateApplicationWithAiMutationVariables
->;
+
 export const CreateDraftApplicationDocument = gql`
   mutation CreateDraftApplication($input: CreateDraftApplicationInput!) {
     createDraftApplication(input: $input) {
@@ -4193,10 +3463,6 @@ export const CreateDraftApplicationDocument = gql`
     }
   }
 `;
-export type CreateDraftApplicationMutationFn = Apollo.MutationFunction<
-  CreateDraftApplicationMutation,
-  CreateDraftApplicationMutationVariables
->;
 
 /**
  * __useCreateDraftApplicationMutation__
@@ -4227,15 +3493,7 @@ export function useCreateDraftApplicationMutation(
     CreateDraftApplicationMutationVariables
   >(CreateDraftApplicationDocument, options);
 }
-export type CreateDraftApplicationMutationHookResult = ReturnType<
-  typeof useCreateDraftApplicationMutation
->;
-export type CreateDraftApplicationMutationResult =
-  Apollo.MutationResult<CreateDraftApplicationMutation>;
-export type CreateDraftApplicationMutationOptions = Apollo.BaseMutationOptions<
-  CreateDraftApplicationMutation,
-  CreateDraftApplicationMutationVariables
->;
+
 export const UpdateDraftApplicationDocument = gql`
   mutation UpdateDraftApplication(
     $id: ID!
@@ -4251,10 +3509,6 @@ export const UpdateDraftApplicationDocument = gql`
     }
   }
 `;
-export type UpdateDraftApplicationMutationFn = Apollo.MutationFunction<
-  UpdateDraftApplicationMutation,
-  UpdateDraftApplicationMutationVariables
->;
 
 /**
  * __useUpdateDraftApplicationMutation__
@@ -4286,15 +3540,7 @@ export function useUpdateDraftApplicationMutation(
     UpdateDraftApplicationMutationVariables
   >(UpdateDraftApplicationDocument, options);
 }
-export type UpdateDraftApplicationMutationHookResult = ReturnType<
-  typeof useUpdateDraftApplicationMutation
->;
-export type UpdateDraftApplicationMutationResult =
-  Apollo.MutationResult<UpdateDraftApplicationMutation>;
-export type UpdateDraftApplicationMutationOptions = Apollo.BaseMutationOptions<
-  UpdateDraftApplicationMutation,
-  UpdateDraftApplicationMutationVariables
->;
+
 export const FitAnalysesListDocument = gql`
   query FitAnalysesList {
     fitAnalyses {
@@ -4366,57 +3612,14 @@ export function useFitAnalysesListLazyQuery(
     FitAnalysesListQueryVariables
   >(FitAnalysesListDocument, options);
 }
-// @ts-ignore
-export function useFitAnalysesListSuspenseQuery(
-  baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<
-    FitAnalysesListQuery,
-    FitAnalysesListQueryVariables
-  >,
-): ApolloReactHooks.UseSuspenseQueryResult<
-  FitAnalysesListQuery,
-  FitAnalysesListQueryVariables
->;
-export function useFitAnalysesListSuspenseQuery(
-  baseOptions?:
-    | ApolloReactHooks.SkipToken
-    | ApolloReactHooks.SuspenseQueryHookOptions<
-        FitAnalysesListQuery,
-        FitAnalysesListQueryVariables
-      >,
-): ApolloReactHooks.UseSuspenseQueryResult<
-  FitAnalysesListQuery | undefined,
-  FitAnalysesListQueryVariables
->;
-export function useFitAnalysesListSuspenseQuery(
-  baseOptions?:
-    | ApolloReactHooks.SkipToken
-    | ApolloReactHooks.SuspenseQueryHookOptions<
-        FitAnalysesListQuery,
-        FitAnalysesListQueryVariables
-      >,
-) {
-  const options =
-    baseOptions === ApolloReactHooks.skipToken
-      ? baseOptions
-      : { ...defaultOptions, ...baseOptions };
-  return ApolloReactHooks.useSuspenseQuery<
-    FitAnalysesListQuery,
-    FitAnalysesListQueryVariables
-  >(FitAnalysesListDocument, options);
-}
+
 export type FitAnalysesListQueryHookResult = ReturnType<
   typeof useFitAnalysesListQuery
 >;
 export type FitAnalysesListLazyQueryHookResult = ReturnType<
   typeof useFitAnalysesListLazyQuery
 >;
-export type FitAnalysesListSuspenseQueryHookResult = ReturnType<
-  typeof useFitAnalysesListSuspenseQuery
->;
-export type FitAnalysesListQueryResult = Apollo.QueryResult<
-  FitAnalysesListQuery,
-  FitAnalysesListQueryVariables
->;
+
 export const FitDocument = gql`
   query Fit($id: ID!) {
     fit(id: $id) {
@@ -4496,39 +3699,10 @@ export function useFitLazyQuery(
     options,
   );
 }
-// @ts-ignore
-export function useFitSuspenseQuery(
-  baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<
-    FitQuery,
-    FitQueryVariables
-  >,
-): ApolloReactHooks.UseSuspenseQueryResult<FitQuery, FitQueryVariables>;
-export function useFitSuspenseQuery(
-  baseOptions?:
-    | ApolloReactHooks.SkipToken
-    | ApolloReactHooks.SuspenseQueryHookOptions<FitQuery, FitQueryVariables>,
-): ApolloReactHooks.UseSuspenseQueryResult<
-  FitQuery | undefined,
-  FitQueryVariables
->;
-export function useFitSuspenseQuery(
-  baseOptions?:
-    | ApolloReactHooks.SkipToken
-    | ApolloReactHooks.SuspenseQueryHookOptions<FitQuery, FitQueryVariables>,
-) {
-  const options =
-    baseOptions === ApolloReactHooks.skipToken
-      ? baseOptions
-      : { ...defaultOptions, ...baseOptions };
-  return ApolloReactHooks.useSuspenseQuery<FitQuery, FitQueryVariables>(
-    FitDocument,
-    options,
-  );
-}
+
 export type FitQueryHookResult = ReturnType<typeof useFitQuery>;
 export type FitLazyQueryHookResult = ReturnType<typeof useFitLazyQuery>;
-export type FitSuspenseQueryHookResult = ReturnType<typeof useFitSuspenseQuery>;
-export type FitQueryResult = Apollo.QueryResult<FitQuery, FitQueryVariables>;
+
 export const ApplicationFitDocument = gql`
   query ApplicationFit($applicationId: ID!) {
     applicationFit(applicationId: $applicationId) {
@@ -4602,57 +3776,14 @@ export function useApplicationFitLazyQuery(
     ApplicationFitQueryVariables
   >(ApplicationFitDocument, options);
 }
-// @ts-ignore
-export function useApplicationFitSuspenseQuery(
-  baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<
-    ApplicationFitQuery,
-    ApplicationFitQueryVariables
-  >,
-): ApolloReactHooks.UseSuspenseQueryResult<
-  ApplicationFitQuery,
-  ApplicationFitQueryVariables
->;
-export function useApplicationFitSuspenseQuery(
-  baseOptions?:
-    | ApolloReactHooks.SkipToken
-    | ApolloReactHooks.SuspenseQueryHookOptions<
-        ApplicationFitQuery,
-        ApplicationFitQueryVariables
-      >,
-): ApolloReactHooks.UseSuspenseQueryResult<
-  ApplicationFitQuery | undefined,
-  ApplicationFitQueryVariables
->;
-export function useApplicationFitSuspenseQuery(
-  baseOptions?:
-    | ApolloReactHooks.SkipToken
-    | ApolloReactHooks.SuspenseQueryHookOptions<
-        ApplicationFitQuery,
-        ApplicationFitQueryVariables
-      >,
-) {
-  const options =
-    baseOptions === ApolloReactHooks.skipToken
-      ? baseOptions
-      : { ...defaultOptions, ...baseOptions };
-  return ApolloReactHooks.useSuspenseQuery<
-    ApplicationFitQuery,
-    ApplicationFitQueryVariables
-  >(ApplicationFitDocument, options);
-}
+
 export type ApplicationFitQueryHookResult = ReturnType<
   typeof useApplicationFitQuery
 >;
 export type ApplicationFitLazyQueryHookResult = ReturnType<
   typeof useApplicationFitLazyQuery
 >;
-export type ApplicationFitSuspenseQueryHookResult = ReturnType<
-  typeof useApplicationFitSuspenseQuery
->;
-export type ApplicationFitQueryResult = Apollo.QueryResult<
-  ApplicationFitQuery,
-  ApplicationFitQueryVariables
->;
+
 export const DraftApplicationFitDocument = gql`
   query DraftApplicationFit($draftApplicationId: ID!) {
     draftApplicationFit(draftApplicationId: $draftApplicationId) {
@@ -4726,57 +3857,14 @@ export function useDraftApplicationFitLazyQuery(
     DraftApplicationFitQueryVariables
   >(DraftApplicationFitDocument, options);
 }
-// @ts-ignore
-export function useDraftApplicationFitSuspenseQuery(
-  baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<
-    DraftApplicationFitQuery,
-    DraftApplicationFitQueryVariables
-  >,
-): ApolloReactHooks.UseSuspenseQueryResult<
-  DraftApplicationFitQuery,
-  DraftApplicationFitQueryVariables
->;
-export function useDraftApplicationFitSuspenseQuery(
-  baseOptions?:
-    | ApolloReactHooks.SkipToken
-    | ApolloReactHooks.SuspenseQueryHookOptions<
-        DraftApplicationFitQuery,
-        DraftApplicationFitQueryVariables
-      >,
-): ApolloReactHooks.UseSuspenseQueryResult<
-  DraftApplicationFitQuery | undefined,
-  DraftApplicationFitQueryVariables
->;
-export function useDraftApplicationFitSuspenseQuery(
-  baseOptions?:
-    | ApolloReactHooks.SkipToken
-    | ApolloReactHooks.SuspenseQueryHookOptions<
-        DraftApplicationFitQuery,
-        DraftApplicationFitQueryVariables
-      >,
-) {
-  const options =
-    baseOptions === ApolloReactHooks.skipToken
-      ? baseOptions
-      : { ...defaultOptions, ...baseOptions };
-  return ApolloReactHooks.useSuspenseQuery<
-    DraftApplicationFitQuery,
-    DraftApplicationFitQueryVariables
-  >(DraftApplicationFitDocument, options);
-}
+
 export type DraftApplicationFitQueryHookResult = ReturnType<
   typeof useDraftApplicationFitQuery
 >;
 export type DraftApplicationFitLazyQueryHookResult = ReturnType<
   typeof useDraftApplicationFitLazyQuery
 >;
-export type DraftApplicationFitSuspenseQueryHookResult = ReturnType<
-  typeof useDraftApplicationFitSuspenseQuery
->;
-export type DraftApplicationFitQueryResult = Apollo.QueryResult<
-  DraftApplicationFitQuery,
-  DraftApplicationFitQueryVariables
->;
+
 export const GenerateApplicationFitDocument = gql`
   mutation GenerateApplicationFit($input: GenerateFitInput!) {
     generateApplicationFit(input: $input) {
@@ -4805,10 +3893,6 @@ export const GenerateApplicationFitDocument = gql`
     }
   }
 `;
-export type GenerateApplicationFitMutationFn = Apollo.MutationFunction<
-  GenerateApplicationFitMutation,
-  GenerateApplicationFitMutationVariables
->;
 
 /**
  * __useGenerateApplicationFitMutation__
@@ -4839,15 +3923,7 @@ export function useGenerateApplicationFitMutation(
     GenerateApplicationFitMutationVariables
   >(GenerateApplicationFitDocument, options);
 }
-export type GenerateApplicationFitMutationHookResult = ReturnType<
-  typeof useGenerateApplicationFitMutation
->;
-export type GenerateApplicationFitMutationResult =
-  Apollo.MutationResult<GenerateApplicationFitMutation>;
-export type GenerateApplicationFitMutationOptions = Apollo.BaseMutationOptions<
-  GenerateApplicationFitMutation,
-  GenerateApplicationFitMutationVariables
->;
+
 export const DeleteFitAnalysisDocument = gql`
   mutation DeleteFitAnalysis($id: ID!) {
     deleteFitAnalysis(id: $id) {
@@ -4856,10 +3932,6 @@ export const DeleteFitAnalysisDocument = gql`
     }
   }
 `;
-export type DeleteFitAnalysisMutationFn = Apollo.MutationFunction<
-  DeleteFitAnalysisMutation,
-  DeleteFitAnalysisMutationVariables
->;
 
 /**
  * __useDeleteFitAnalysisMutation__
@@ -4890,15 +3962,7 @@ export function useDeleteFitAnalysisMutation(
     DeleteFitAnalysisMutationVariables
   >(DeleteFitAnalysisDocument, options);
 }
-export type DeleteFitAnalysisMutationHookResult = ReturnType<
-  typeof useDeleteFitAnalysisMutation
->;
-export type DeleteFitAnalysisMutationResult =
-  Apollo.MutationResult<DeleteFitAnalysisMutation>;
-export type DeleteFitAnalysisMutationOptions = Apollo.BaseMutationOptions<
-  DeleteFitAnalysisMutation,
-  DeleteFitAnalysisMutationVariables
->;
+
 export const GenerateDraftApplicationFitDocument = gql`
   mutation GenerateDraftApplicationFit($input: GenerateDraftFitInput!) {
     generateDraftApplicationFit(input: $input) {
@@ -4927,10 +3991,6 @@ export const GenerateDraftApplicationFitDocument = gql`
     }
   }
 `;
-export type GenerateDraftApplicationFitMutationFn = Apollo.MutationFunction<
-  GenerateDraftApplicationFitMutation,
-  GenerateDraftApplicationFitMutationVariables
->;
 
 /**
  * __useGenerateDraftApplicationFitMutation__
@@ -4961,16 +4021,7 @@ export function useGenerateDraftApplicationFitMutation(
     GenerateDraftApplicationFitMutationVariables
   >(GenerateDraftApplicationFitDocument, options);
 }
-export type GenerateDraftApplicationFitMutationHookResult = ReturnType<
-  typeof useGenerateDraftApplicationFitMutation
->;
-export type GenerateDraftApplicationFitMutationResult =
-  Apollo.MutationResult<GenerateDraftApplicationFitMutation>;
-export type GenerateDraftApplicationFitMutationOptions =
-  Apollo.BaseMutationOptions<
-    GenerateDraftApplicationFitMutation,
-    GenerateDraftApplicationFitMutationVariables
-  >;
+
 export const MeDocument = gql`
   query Me {
     me {
@@ -5019,39 +4070,10 @@ export function useMeLazyQuery(
     options,
   );
 }
-// @ts-ignore
-export function useMeSuspenseQuery(
-  baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<
-    MeQuery,
-    MeQueryVariables
-  >,
-): ApolloReactHooks.UseSuspenseQueryResult<MeQuery, MeQueryVariables>;
-export function useMeSuspenseQuery(
-  baseOptions?:
-    | ApolloReactHooks.SkipToken
-    | ApolloReactHooks.SuspenseQueryHookOptions<MeQuery, MeQueryVariables>,
-): ApolloReactHooks.UseSuspenseQueryResult<
-  MeQuery | undefined,
-  MeQueryVariables
->;
-export function useMeSuspenseQuery(
-  baseOptions?:
-    | ApolloReactHooks.SkipToken
-    | ApolloReactHooks.SuspenseQueryHookOptions<MeQuery, MeQueryVariables>,
-) {
-  const options =
-    baseOptions === ApolloReactHooks.skipToken
-      ? baseOptions
-      : { ...defaultOptions, ...baseOptions };
-  return ApolloReactHooks.useSuspenseQuery<MeQuery, MeQueryVariables>(
-    MeDocument,
-    options,
-  );
-}
+
 export type MeQueryHookResult = ReturnType<typeof useMeQuery>;
 export type MeLazyQueryHookResult = ReturnType<typeof useMeLazyQuery>;
-export type MeSuspenseQueryHookResult = ReturnType<typeof useMeSuspenseQuery>;
-export type MeQueryResult = Apollo.QueryResult<MeQuery, MeQueryVariables>;
+
 export const ResumesDocument = gql`
   query Resumes {
     resumes {
@@ -5104,50 +4126,10 @@ export function useResumesLazyQuery(
     options,
   );
 }
-// @ts-ignore
-export function useResumesSuspenseQuery(
-  baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<
-    ResumesQuery,
-    ResumesQueryVariables
-  >,
-): ApolloReactHooks.UseSuspenseQueryResult<ResumesQuery, ResumesQueryVariables>;
-export function useResumesSuspenseQuery(
-  baseOptions?:
-    | ApolloReactHooks.SkipToken
-    | ApolloReactHooks.SuspenseQueryHookOptions<
-        ResumesQuery,
-        ResumesQueryVariables
-      >,
-): ApolloReactHooks.UseSuspenseQueryResult<
-  ResumesQuery | undefined,
-  ResumesQueryVariables
->;
-export function useResumesSuspenseQuery(
-  baseOptions?:
-    | ApolloReactHooks.SkipToken
-    | ApolloReactHooks.SuspenseQueryHookOptions<
-        ResumesQuery,
-        ResumesQueryVariables
-      >,
-) {
-  const options =
-    baseOptions === ApolloReactHooks.skipToken
-      ? baseOptions
-      : { ...defaultOptions, ...baseOptions };
-  return ApolloReactHooks.useSuspenseQuery<ResumesQuery, ResumesQueryVariables>(
-    ResumesDocument,
-    options,
-  );
-}
+
 export type ResumesQueryHookResult = ReturnType<typeof useResumesQuery>;
 export type ResumesLazyQueryHookResult = ReturnType<typeof useResumesLazyQuery>;
-export type ResumesSuspenseQueryHookResult = ReturnType<
-  typeof useResumesSuspenseQuery
->;
-export type ResumesQueryResult = Apollo.QueryResult<
-  ResumesQuery,
-  ResumesQueryVariables
->;
+
 export const ResumeDocument = gql`
   query Resume($id: ID!) {
     resume(id: $id) {
@@ -5203,50 +4185,10 @@ export function useResumeLazyQuery(
     options,
   );
 }
-// @ts-ignore
-export function useResumeSuspenseQuery(
-  baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<
-    ResumeQuery,
-    ResumeQueryVariables
-  >,
-): ApolloReactHooks.UseSuspenseQueryResult<ResumeQuery, ResumeQueryVariables>;
-export function useResumeSuspenseQuery(
-  baseOptions?:
-    | ApolloReactHooks.SkipToken
-    | ApolloReactHooks.SuspenseQueryHookOptions<
-        ResumeQuery,
-        ResumeQueryVariables
-      >,
-): ApolloReactHooks.UseSuspenseQueryResult<
-  ResumeQuery | undefined,
-  ResumeQueryVariables
->;
-export function useResumeSuspenseQuery(
-  baseOptions?:
-    | ApolloReactHooks.SkipToken
-    | ApolloReactHooks.SuspenseQueryHookOptions<
-        ResumeQuery,
-        ResumeQueryVariables
-      >,
-) {
-  const options =
-    baseOptions === ApolloReactHooks.skipToken
-      ? baseOptions
-      : { ...defaultOptions, ...baseOptions };
-  return ApolloReactHooks.useSuspenseQuery<ResumeQuery, ResumeQueryVariables>(
-    ResumeDocument,
-    options,
-  );
-}
+
 export type ResumeQueryHookResult = ReturnType<typeof useResumeQuery>;
 export type ResumeLazyQueryHookResult = ReturnType<typeof useResumeLazyQuery>;
-export type ResumeSuspenseQueryHookResult = ReturnType<
-  typeof useResumeSuspenseQuery
->;
-export type ResumeQueryResult = Apollo.QueryResult<
-  ResumeQuery,
-  ResumeQueryVariables
->;
+
 export const CreateResumeDocument = gql`
   mutation CreateResume($input: CreateResumeInput!) {
     createResume(input: $input) {
@@ -5259,10 +4201,6 @@ export const CreateResumeDocument = gql`
     }
   }
 `;
-export type CreateResumeMutationFn = Apollo.MutationFunction<
-  CreateResumeMutation,
-  CreateResumeMutationVariables
->;
 
 /**
  * __useCreateResumeMutation__
@@ -5293,15 +4231,7 @@ export function useCreateResumeMutation(
     CreateResumeMutationVariables
   >(CreateResumeDocument, options);
 }
-export type CreateResumeMutationHookResult = ReturnType<
-  typeof useCreateResumeMutation
->;
-export type CreateResumeMutationResult =
-  Apollo.MutationResult<CreateResumeMutation>;
-export type CreateResumeMutationOptions = Apollo.BaseMutationOptions<
-  CreateResumeMutation,
-  CreateResumeMutationVariables
->;
+
 export const UpdateResumeDocument = gql`
   mutation UpdateResume($id: ID!, $input: UpdateResumeInput!) {
     updateResume(id: $id, input: $input) {
@@ -5314,10 +4244,6 @@ export const UpdateResumeDocument = gql`
     }
   }
 `;
-export type UpdateResumeMutationFn = Apollo.MutationFunction<
-  UpdateResumeMutation,
-  UpdateResumeMutationVariables
->;
 
 /**
  * __useUpdateResumeMutation__
@@ -5349,15 +4275,7 @@ export function useUpdateResumeMutation(
     UpdateResumeMutationVariables
   >(UpdateResumeDocument, options);
 }
-export type UpdateResumeMutationHookResult = ReturnType<
-  typeof useUpdateResumeMutation
->;
-export type UpdateResumeMutationResult =
-  Apollo.MutationResult<UpdateResumeMutation>;
-export type UpdateResumeMutationOptions = Apollo.BaseMutationOptions<
-  UpdateResumeMutation,
-  UpdateResumeMutationVariables
->;
+
 export const DeleteResumeDocument = gql`
   mutation DeleteResume($id: ID!) {
     deleteResume(id: $id) {
@@ -5366,10 +4284,6 @@ export const DeleteResumeDocument = gql`
     }
   }
 `;
-export type DeleteResumeMutationFn = Apollo.MutationFunction<
-  DeleteResumeMutation,
-  DeleteResumeMutationVariables
->;
 
 /**
  * __useDeleteResumeMutation__
@@ -5400,15 +4314,7 @@ export function useDeleteResumeMutation(
     DeleteResumeMutationVariables
   >(DeleteResumeDocument, options);
 }
-export type DeleteResumeMutationHookResult = ReturnType<
-  typeof useDeleteResumeMutation
->;
-export type DeleteResumeMutationResult =
-  Apollo.MutationResult<DeleteResumeMutation>;
-export type DeleteResumeMutationOptions = Apollo.BaseMutationOptions<
-  DeleteResumeMutation,
-  DeleteResumeMutationVariables
->;
+
 export const SourceProfilesListDocument = gql`
   query SourceProfilesList {
     sourceProfiles(onlyWithSourceTemplate: true) {
@@ -5457,57 +4363,14 @@ export function useSourceProfilesListLazyQuery(
     SourceProfilesListQueryVariables
   >(SourceProfilesListDocument, options);
 }
-// @ts-ignore
-export function useSourceProfilesListSuspenseQuery(
-  baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<
-    SourceProfilesListQuery,
-    SourceProfilesListQueryVariables
-  >,
-): ApolloReactHooks.UseSuspenseQueryResult<
-  SourceProfilesListQuery,
-  SourceProfilesListQueryVariables
->;
-export function useSourceProfilesListSuspenseQuery(
-  baseOptions?:
-    | ApolloReactHooks.SkipToken
-    | ApolloReactHooks.SuspenseQueryHookOptions<
-        SourceProfilesListQuery,
-        SourceProfilesListQueryVariables
-      >,
-): ApolloReactHooks.UseSuspenseQueryResult<
-  SourceProfilesListQuery | undefined,
-  SourceProfilesListQueryVariables
->;
-export function useSourceProfilesListSuspenseQuery(
-  baseOptions?:
-    | ApolloReactHooks.SkipToken
-    | ApolloReactHooks.SuspenseQueryHookOptions<
-        SourceProfilesListQuery,
-        SourceProfilesListQueryVariables
-      >,
-) {
-  const options =
-    baseOptions === ApolloReactHooks.skipToken
-      ? baseOptions
-      : { ...defaultOptions, ...baseOptions };
-  return ApolloReactHooks.useSuspenseQuery<
-    SourceProfilesListQuery,
-    SourceProfilesListQueryVariables
-  >(SourceProfilesListDocument, options);
-}
+
 export type SourceProfilesListQueryHookResult = ReturnType<
   typeof useSourceProfilesListQuery
 >;
 export type SourceProfilesListLazyQueryHookResult = ReturnType<
   typeof useSourceProfilesListLazyQuery
 >;
-export type SourceProfilesListSuspenseQueryHookResult = ReturnType<
-  typeof useSourceProfilesListSuspenseQuery
->;
-export type SourceProfilesListQueryResult = Apollo.QueryResult<
-  SourceProfilesListQuery,
-  SourceProfilesListQueryVariables
->;
+
 export const SourceProfilesForNewSourcePickerDocument = gql`
   query SourceProfilesForNewSourcePicker {
     sourceProfiles(onlyWithSourceTemplate: false) {
@@ -5556,56 +4419,14 @@ export function useSourceProfilesForNewSourcePickerLazyQuery(
     SourceProfilesForNewSourcePickerQueryVariables
   >(SourceProfilesForNewSourcePickerDocument, options);
 }
-// @ts-ignore
-export function useSourceProfilesForNewSourcePickerSuspenseQuery(
-  baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<
-    SourceProfilesForNewSourcePickerQuery,
-    SourceProfilesForNewSourcePickerQueryVariables
-  >,
-): ApolloReactHooks.UseSuspenseQueryResult<
-  SourceProfilesForNewSourcePickerQuery,
-  SourceProfilesForNewSourcePickerQueryVariables
->;
-export function useSourceProfilesForNewSourcePickerSuspenseQuery(
-  baseOptions?:
-    | ApolloReactHooks.SkipToken
-    | ApolloReactHooks.SuspenseQueryHookOptions<
-        SourceProfilesForNewSourcePickerQuery,
-        SourceProfilesForNewSourcePickerQueryVariables
-      >,
-): ApolloReactHooks.UseSuspenseQueryResult<
-  SourceProfilesForNewSourcePickerQuery | undefined,
-  SourceProfilesForNewSourcePickerQueryVariables
->;
-export function useSourceProfilesForNewSourcePickerSuspenseQuery(
-  baseOptions?:
-    | ApolloReactHooks.SkipToken
-    | ApolloReactHooks.SuspenseQueryHookOptions<
-        SourceProfilesForNewSourcePickerQuery,
-        SourceProfilesForNewSourcePickerQueryVariables
-      >,
-) {
-  const options =
-    baseOptions === ApolloReactHooks.skipToken
-      ? baseOptions
-      : { ...defaultOptions, ...baseOptions };
-  return ApolloReactHooks.useSuspenseQuery<
-    SourceProfilesForNewSourcePickerQuery,
-    SourceProfilesForNewSourcePickerQueryVariables
-  >(SourceProfilesForNewSourcePickerDocument, options);
-}
+
 export type SourceProfilesForNewSourcePickerQueryHookResult = ReturnType<
   typeof useSourceProfilesForNewSourcePickerQuery
 >;
 export type SourceProfilesForNewSourcePickerLazyQueryHookResult = ReturnType<
   typeof useSourceProfilesForNewSourcePickerLazyQuery
 >;
-export type SourceProfilesForNewSourcePickerSuspenseQueryHookResult =
-  ReturnType<typeof useSourceProfilesForNewSourcePickerSuspenseQuery>;
-export type SourceProfilesForNewSourcePickerQueryResult = Apollo.QueryResult<
-  SourceProfilesForNewSourcePickerQuery,
-  SourceProfilesForNewSourcePickerQueryVariables
->;
+
 export const SourcesForSourceProfileDocument = gql`
   query SourcesForSourceProfile($sourceProfileId: String!) {
     sourceTemplatesForSourceProfile(sourceProfileId: $sourceProfileId) {
@@ -5668,57 +4489,14 @@ export function useSourcesForSourceProfileLazyQuery(
     SourcesForSourceProfileQueryVariables
   >(SourcesForSourceProfileDocument, options);
 }
-// @ts-ignore
-export function useSourcesForSourceProfileSuspenseQuery(
-  baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<
-    SourcesForSourceProfileQuery,
-    SourcesForSourceProfileQueryVariables
-  >,
-): ApolloReactHooks.UseSuspenseQueryResult<
-  SourcesForSourceProfileQuery,
-  SourcesForSourceProfileQueryVariables
->;
-export function useSourcesForSourceProfileSuspenseQuery(
-  baseOptions?:
-    | ApolloReactHooks.SkipToken
-    | ApolloReactHooks.SuspenseQueryHookOptions<
-        SourcesForSourceProfileQuery,
-        SourcesForSourceProfileQueryVariables
-      >,
-): ApolloReactHooks.UseSuspenseQueryResult<
-  SourcesForSourceProfileQuery | undefined,
-  SourcesForSourceProfileQueryVariables
->;
-export function useSourcesForSourceProfileSuspenseQuery(
-  baseOptions?:
-    | ApolloReactHooks.SkipToken
-    | ApolloReactHooks.SuspenseQueryHookOptions<
-        SourcesForSourceProfileQuery,
-        SourcesForSourceProfileQueryVariables
-      >,
-) {
-  const options =
-    baseOptions === ApolloReactHooks.skipToken
-      ? baseOptions
-      : { ...defaultOptions, ...baseOptions };
-  return ApolloReactHooks.useSuspenseQuery<
-    SourcesForSourceProfileQuery,
-    SourcesForSourceProfileQueryVariables
-  >(SourcesForSourceProfileDocument, options);
-}
+
 export type SourcesForSourceProfileQueryHookResult = ReturnType<
   typeof useSourcesForSourceProfileQuery
 >;
 export type SourcesForSourceProfileLazyQueryHookResult = ReturnType<
   typeof useSourcesForSourceProfileLazyQuery
 >;
-export type SourcesForSourceProfileSuspenseQueryHookResult = ReturnType<
-  typeof useSourcesForSourceProfileSuspenseQuery
->;
-export type SourcesForSourceProfileQueryResult = Apollo.QueryResult<
-  SourcesForSourceProfileQuery,
-  SourcesForSourceProfileQueryVariables
->;
+
 export const UpdateSourceTemplateDocument = gql`
   mutation UpdateSourceTemplate($id: ID!, $input: UpdateSourceTemplateInput!) {
     updateSourceTemplate(id: $id, input: $input) {
@@ -5736,10 +4514,6 @@ export const UpdateSourceTemplateDocument = gql`
     }
   }
 `;
-export type UpdateSourceTemplateMutationFn = Apollo.MutationFunction<
-  UpdateSourceTemplateMutation,
-  UpdateSourceTemplateMutationVariables
->;
 
 /**
  * __useUpdateSourceTemplateMutation__
@@ -5771,15 +4545,7 @@ export function useUpdateSourceTemplateMutation(
     UpdateSourceTemplateMutationVariables
   >(UpdateSourceTemplateDocument, options);
 }
-export type UpdateSourceTemplateMutationHookResult = ReturnType<
-  typeof useUpdateSourceTemplateMutation
->;
-export type UpdateSourceTemplateMutationResult =
-  Apollo.MutationResult<UpdateSourceTemplateMutation>;
-export type UpdateSourceTemplateMutationOptions = Apollo.BaseMutationOptions<
-  UpdateSourceTemplateMutation,
-  UpdateSourceTemplateMutationVariables
->;
+
 export const DeleteSourceTemplateDocument = gql`
   mutation DeleteSourceTemplate($id: ID!) {
     deleteSourceTemplate(id: $id) {
@@ -5788,10 +4554,6 @@ export const DeleteSourceTemplateDocument = gql`
     }
   }
 `;
-export type DeleteSourceTemplateMutationFn = Apollo.MutationFunction<
-  DeleteSourceTemplateMutation,
-  DeleteSourceTemplateMutationVariables
->;
 
 /**
  * __useDeleteSourceTemplateMutation__
@@ -5822,15 +4584,7 @@ export function useDeleteSourceTemplateMutation(
     DeleteSourceTemplateMutationVariables
   >(DeleteSourceTemplateDocument, options);
 }
-export type DeleteSourceTemplateMutationHookResult = ReturnType<
-  typeof useDeleteSourceTemplateMutation
->;
-export type DeleteSourceTemplateMutationResult =
-  Apollo.MutationResult<DeleteSourceTemplateMutation>;
-export type DeleteSourceTemplateMutationOptions = Apollo.BaseMutationOptions<
-  DeleteSourceTemplateMutation,
-  DeleteSourceTemplateMutationVariables
->;
+
 export const CreateSourceTemplateDocument = gql`
   mutation CreateSourceTemplate($input: CreateSourceTemplateInput!) {
     createSourceTemplate(input: $input) {
@@ -5843,10 +4597,6 @@ export const CreateSourceTemplateDocument = gql`
     }
   }
 `;
-export type CreateSourceTemplateMutationFn = Apollo.MutationFunction<
-  CreateSourceTemplateMutation,
-  CreateSourceTemplateMutationVariables
->;
 
 /**
  * __useCreateSourceTemplateMutation__
@@ -5877,15 +4627,7 @@ export function useCreateSourceTemplateMutation(
     CreateSourceTemplateMutationVariables
   >(CreateSourceTemplateDocument, options);
 }
-export type CreateSourceTemplateMutationHookResult = ReturnType<
-  typeof useCreateSourceTemplateMutation
->;
-export type CreateSourceTemplateMutationResult =
-  Apollo.MutationResult<CreateSourceTemplateMutation>;
-export type CreateSourceTemplateMutationOptions = Apollo.BaseMutationOptions<
-  CreateSourceTemplateMutation,
-  CreateSourceTemplateMutationVariables
->;
+
 export const UserPreferencesDocument = gql`
   query UserPreferences {
     userPreferences {
@@ -5934,57 +4676,14 @@ export function useUserPreferencesLazyQuery(
     UserPreferencesQueryVariables
   >(UserPreferencesDocument, options);
 }
-// @ts-ignore
-export function useUserPreferencesSuspenseQuery(
-  baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<
-    UserPreferencesQuery,
-    UserPreferencesQueryVariables
-  >,
-): ApolloReactHooks.UseSuspenseQueryResult<
-  UserPreferencesQuery,
-  UserPreferencesQueryVariables
->;
-export function useUserPreferencesSuspenseQuery(
-  baseOptions?:
-    | ApolloReactHooks.SkipToken
-    | ApolloReactHooks.SuspenseQueryHookOptions<
-        UserPreferencesQuery,
-        UserPreferencesQueryVariables
-      >,
-): ApolloReactHooks.UseSuspenseQueryResult<
-  UserPreferencesQuery | undefined,
-  UserPreferencesQueryVariables
->;
-export function useUserPreferencesSuspenseQuery(
-  baseOptions?:
-    | ApolloReactHooks.SkipToken
-    | ApolloReactHooks.SuspenseQueryHookOptions<
-        UserPreferencesQuery,
-        UserPreferencesQueryVariables
-      >,
-) {
-  const options =
-    baseOptions === ApolloReactHooks.skipToken
-      ? baseOptions
-      : { ...defaultOptions, ...baseOptions };
-  return ApolloReactHooks.useSuspenseQuery<
-    UserPreferencesQuery,
-    UserPreferencesQueryVariables
-  >(UserPreferencesDocument, options);
-}
+
 export type UserPreferencesQueryHookResult = ReturnType<
   typeof useUserPreferencesQuery
 >;
 export type UserPreferencesLazyQueryHookResult = ReturnType<
   typeof useUserPreferencesLazyQuery
 >;
-export type UserPreferencesSuspenseQueryHookResult = ReturnType<
-  typeof useUserPreferencesSuspenseQuery
->;
-export type UserPreferencesQueryResult = Apollo.QueryResult<
-  UserPreferencesQuery,
-  UserPreferencesQueryVariables
->;
+
 export const UpdateUserPreferencesDocument = gql`
   mutation UpdateUserPreferences($items: [PreferenceInput!]!) {
     updateUserPreferences(items: $items) {
@@ -5993,10 +4692,6 @@ export const UpdateUserPreferencesDocument = gql`
     }
   }
 `;
-export type UpdateUserPreferencesMutationFn = Apollo.MutationFunction<
-  UpdateUserPreferencesMutation,
-  UpdateUserPreferencesMutationVariables
->;
 
 /**
  * __useUpdateUserPreferencesMutation__
@@ -6027,12 +4722,3 @@ export function useUpdateUserPreferencesMutation(
     UpdateUserPreferencesMutationVariables
   >(UpdateUserPreferencesDocument, options);
 }
-export type UpdateUserPreferencesMutationHookResult = ReturnType<
-  typeof useUpdateUserPreferencesMutation
->;
-export type UpdateUserPreferencesMutationResult =
-  Apollo.MutationResult<UpdateUserPreferencesMutation>;
-export type UpdateUserPreferencesMutationOptions = Apollo.BaseMutationOptions<
-  UpdateUserPreferencesMutation,
-  UpdateUserPreferencesMutationVariables
->;
