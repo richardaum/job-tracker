@@ -10,9 +10,9 @@ import {
   useGenerateApplicationFitMutation,
   useResumesQuery,
 } from "@/gql/hooks";
+import { FitClassification } from "@/modules/applications/shared/components/FitClassification";
 import { useToastQueue } from "@/modules/applications/shared/hooks/useToastQueue";
 import { FitItemCard } from "@/modules/fit-analyses/details/components/FitItemCard";
-import { ScoreBadge } from "@/modules/fit-analyses/details/components/ScoreBadge";
 import { PreferencesDialog } from "@/modules/resumes/list/components/PreferencesDialog";
 
 interface FitDialogProps {
@@ -144,7 +144,8 @@ export function FitDialog({
         <div className={cn("flex flex-col gap-4")}>
           {fitData?.applicationFit && (
             <>
-              <ScoreBadge
+              <FitClassification
+                variant="detailed"
                 classification={fitData.applicationFit.classification ?? null}
                 scoreRatio={fitData.applicationFit.scoreRatio ?? null}
                 fitCount={fitData.applicationFit.fitCount}

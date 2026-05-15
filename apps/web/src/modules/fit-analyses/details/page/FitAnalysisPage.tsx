@@ -32,11 +32,11 @@ import {
   useGenerateDraftApplicationFitMutation,
 } from "@/gql/hooks";
 import { usePoll } from "@/hooks/usePoll";
+import { FitClassification } from "@/modules/applications/shared/components/FitClassification";
 import { useToastQueue } from "@/modules/applications/shared/hooks/useToastQueue";
 import { FitItemCard } from "@/modules/fit-analyses/details/components/FitItemCard";
 import { FitStatusBadge } from "@/modules/fit-analyses/details/components/FitStatusBadge";
 import { FitWizardDialog } from "@/modules/fit-analyses/details/components/FitWizardDialog";
-import { ScoreBadge } from "@/modules/fit-analyses/details/components/ScoreBadge";
 import { PreferencesDialog } from "@/modules/resumes/list/components/PreferencesDialog";
 
 interface PageProps {
@@ -289,7 +289,8 @@ export default function FitAnalysisPage({ params }: PageProps) {
                   </TabsList>
                 </Tabs>
 
-                <ScoreBadge
+                <FitClassification
+                  variant="detailed"
                   classification={fit.classification ?? null}
                   scoreRatio={fit.scoreRatio ?? null}
                   fitCount={fit.fitCount}

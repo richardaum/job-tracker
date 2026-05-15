@@ -23,7 +23,6 @@ import { formatDateTime } from "@/modules/applications/details/utils/application
 import { ApplicationQuickEditDialog } from "@/modules/applications/list/components/ApplicationQuickEditDialog";
 import { ApplicationTrackingPanel } from "@/modules/applications/list/components/ApplicationTrackingPanel";
 import { DeleteApplicationDialog } from "@/modules/applications/list/components/DeleteApplicationDialog";
-import { FitBadge } from "@/modules/applications/list/components/FitBadge";
 import {
   type ApplicationCardApplication,
   type ApplicationCardStageEventRow,
@@ -31,6 +30,7 @@ import {
 } from "@/modules/applications/list/hooks/useApplicationCardViewModel";
 import { ApplicationTags } from "@/modules/applications/shared/components/ApplicationTags";
 import { CompanyNameWithPopover } from "@/modules/applications/shared/components/CompanyNameWithPopover";
+import { FitClassification } from "@/modules/applications/shared/components/FitClassification";
 import { InlineMetaDot } from "@/modules/applications/shared/components/InlineMetaDot";
 import { normalizeJobUrls } from "@/modules/applications/shared/components/job-urls.utils";
 import { JobUrls } from "@/modules/applications/shared/components/JobUrls";
@@ -187,7 +187,17 @@ export function ApplicationCard({
       }
       actions={
         <ListItemCard.Actions>
-          <FitBadge application={app} />
+          {app.fit?.scoreRatio != null && (
+            <FitClassification
+              variant="badge"
+              fitId={app.fit.id}
+              classification={app.fit.classification ?? null}
+              scoreRatio={app.fit.scoreRatio}
+              fitCount={app.fit.fitCount}
+              gapCount={app.fit.gapCount}
+              unclearCount={app.fit.unclearCount}
+            />
+          )}
           <CurrentStageBadge
             listStage={app.currentStage}
             listReason={app.currentStageReason ?? null}
