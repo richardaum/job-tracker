@@ -1,3 +1,4 @@
+import { ApplicationEventBus } from "@api/domains/applications/application-event.bus";
 import { NoteAiService } from "@api/domains/note-ai/note-ai.service";
 import { isTipTapDocumentString } from "@job-tracker/tiptap";
 import {
@@ -19,6 +20,7 @@ export class NoteService {
   constructor(
     private readonly repo: NoteRepository,
     private readonly noteAiService: NoteAiService,
+    private readonly eventBus: ApplicationEventBus,
   ) {}
 
   async listNotes(applicationId: string, userId: string): Promise<Note[]> {
@@ -47,10 +49,13 @@ export class NoteService {
       throw new NotFoundException(`Application ${dto.applicationId} not found`);
     }
 
-    return this.repo.create(userId, {
+    const note = await this.repo.create(userId, {
       applicationId: dto.applicationId,
       content: dto.content,
     });
+
+    this.eventBus.emitApplicationUpdated(dto.applicationId, userId);
+    return note;
   }
 
   async updateNote(
@@ -83,6 +88,7 @@ export class NoteService {
       );
     }
 
+    this.eventBus.emitApplicationUpdated(note.applicationId, userId);
     return updated;
   }
 
@@ -96,6 +102,8 @@ export class NoteService {
     if (!deleted) {
       throw new NotFoundException(`Application note ${noteId} not found`);
     }
+
+    this.eventBus.emitApplicationUpdated(note.applicationId, userId);
     return deleted;
   }
 

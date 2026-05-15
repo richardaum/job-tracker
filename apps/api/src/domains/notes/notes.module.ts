@@ -1,6 +1,7 @@
 import { DatabaseModule } from "@api/database/database.module";
 import { ApplicationEntity } from "@api/database/entities/application.entity";
 import { ApplicationNoteEntity } from "@api/database/entities/application-note.entity";
+import { ApplicationModule } from "@api/domains/applications/applications.module";
 import { AuthModule } from "@api/domains/auth/auth.module";
 import { NoteAiModule } from "@api/domains/note-ai/note-ai.module";
 import { Module } from "@nestjs/common";
@@ -14,6 +15,7 @@ import { NoteService } from "./notes.service";
   imports: [
     DatabaseModule,
     TypeOrmModule.forFeature([ApplicationEntity, ApplicationNoteEntity]),
+    ApplicationModule,
     AuthModule,
     NoteAiModule,
   ],

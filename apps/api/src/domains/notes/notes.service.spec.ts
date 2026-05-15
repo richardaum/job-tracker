@@ -1,3 +1,4 @@
+import { ApplicationEventBus } from "@api/domains/applications/application-event.bus";
 import { NoteAiService } from "@api/domains/note-ai/note-ai.service";
 import {
   BadRequestException,
@@ -26,6 +27,7 @@ describe("NoteService", () => {
   let service: NoteService;
   let repo: NoteRepository;
   let noteAiService: NoteAiService;
+  let eventBus: ApplicationEventBus;
 
   beforeEach(() => {
     repo = {
@@ -39,7 +41,10 @@ describe("NoteService", () => {
     } as unknown as NoteRepository;
 
     noteAiService = { generateNote: vi.fn() } as unknown as NoteAiService;
-    service = new NoteService(repo, noteAiService);
+    eventBus = {
+      emitApplicationUpdated: vi.fn(),
+    } as unknown as ApplicationEventBus;
+    service = new NoteService(repo, noteAiService, eventBus);
   });
 
   it("listNotes throws when application is not found", async () => {
