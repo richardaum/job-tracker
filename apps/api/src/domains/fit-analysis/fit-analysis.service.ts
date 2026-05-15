@@ -22,6 +22,7 @@ import {
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 
+import { FitAnalysisRequested, FitStatusChanged } from "./fit-analysis.events";
 import { FitAnalysisRepository } from "./fit-analysis.repository";
 import { FitAnalysis } from "./fit-analysis.schema";
 import { FitAnalysisAiService } from "./fit-analysis-ai.service";
@@ -145,12 +146,12 @@ export class FitAnalysisService implements OnModuleInit {
 
     const saved = await this.repo.upsert(entity);
 
-    this.eventBus.emitFitStatusChanged(
-      saved.id,
-      userId,
-      FitAnalysisStatus.PROCESSING,
+    this.eventBus.emit(
+      new FitStatusChanged(saved.id, userId, FitAnalysisStatus.PROCESSING),
     );
-    this.eventBus.emitFitAnalysisRequested(saved.id, userId, { applicationId });
+    this.eventBus.emit(
+      new FitAnalysisRequested(saved.id, userId, { applicationId }),
+    );
 
     return saved;
   }
@@ -198,14 +199,12 @@ export class FitAnalysisService implements OnModuleInit {
 
     const saved = await this.repo.upsert(entity);
 
-    this.eventBus.emitFitStatusChanged(
-      saved.id,
-      userId,
-      FitAnalysisStatus.PROCESSING,
+    this.eventBus.emit(
+      new FitStatusChanged(saved.id, userId, FitAnalysisStatus.PROCESSING),
     );
-    this.eventBus.emitFitAnalysisRequested(saved.id, userId, {
-      draftApplicationId,
-    });
+    this.eventBus.emit(
+      new FitAnalysisRequested(saved.id, userId, { draftApplicationId }),
+    );
 
     return saved;
   }
@@ -313,10 +312,8 @@ export class FitAnalysisService implements OnModuleInit {
         );
       }
 
-      this.eventBus.emitFitStatusChanged(
-        fitId,
-        userId,
-        FitAnalysisStatus.COMPLETED,
+      this.eventBus.emit(
+        new FitStatusChanged(fitId, userId, FitAnalysisStatus.COMPLETED),
       );
     });
 
@@ -336,10 +333,8 @@ export class FitAnalysisService implements OnModuleInit {
         userId,
       );
 
-      this.eventBus.emitFitStatusChanged(
-        fitId,
-        userId,
-        FitAnalysisStatus.FAILED,
+      this.eventBus.emit(
+        new FitStatusChanged(fitId, userId, FitAnalysisStatus.FAILED),
       );
     }
   }

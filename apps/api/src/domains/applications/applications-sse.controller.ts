@@ -3,10 +3,8 @@ import { Controller, Param, Req, Sse, UseGuards } from "@nestjs/common";
 import type { Request } from "express";
 import { Observable } from "rxjs";
 
-import {
-  ApplicationEventBus,
-  type SummaryStatusChangedEvent,
-} from "./application-event.bus";
+import { SummaryStatusChanged } from "./application.events";
+import { ApplicationEventBus } from "./application-event.bus";
 
 type RequestWithUser = Request & { user?: { userId?: string } };
 
@@ -27,7 +25,7 @@ export class ApplicationsSseController {
       data: { applicationId: string; status: string };
       type: string;
     }>((observer) => {
-      const handler = (event: SummaryStatusChangedEvent) => {
+      const handler = (event: SummaryStatusChanged) => {
         if (event.applicationId !== id) return;
         if (event.userId !== req.user?.userId) return;
 
@@ -37,11 +35,7 @@ export class ApplicationsSseController {
         });
       };
 
-      this.eventBus.onSummaryStatusChanged(handler);
-
-      return () => {
-        this.eventBus.removeSummaryStatusChangedListener(handler);
-      };
+      return this.eventBus.on(SummaryStatusChanged, handler);
     });
   }
 }

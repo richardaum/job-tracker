@@ -3,10 +3,8 @@ import { Controller, Param, Req, Sse, UseGuards } from "@nestjs/common";
 import type { Request } from "express";
 import { Observable } from "rxjs";
 
-import {
-  FitAnalysisEventBus,
-  type FitStatusChangedEvent,
-} from "./fit-analysis-event.bus";
+import { FitStatusChanged } from "./fit-analysis.events";
+import { FitAnalysisEventBus } from "./fit-analysis-event.bus";
 
 type RequestWithUser = Request & { user?: { userId?: string } };
 
@@ -24,7 +22,7 @@ export class FitAnalysisSseController {
       data: { fitId: string; status: string };
       type: string;
     }>((observer) => {
-      const handler = (event: FitStatusChangedEvent) => {
+      const handler = (event: FitStatusChanged) => {
         if (event.fitId !== id) return;
         if (event.userId !== req.user?.userId) return;
 
@@ -34,11 +32,7 @@ export class FitAnalysisSseController {
         });
       };
 
-      this.eventBus.onFitStatusChanged(handler);
-
-      return () => {
-        this.eventBus.removeFitStatusChangedListener(handler);
-      };
+      return this.eventBus.on(FitStatusChanged, handler);
     });
   }
 }

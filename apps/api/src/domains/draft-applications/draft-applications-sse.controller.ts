@@ -3,10 +3,8 @@ import { Controller, Param, Req, Sse, UseGuards } from "@nestjs/common";
 import type { Request } from "express";
 import { Observable } from "rxjs";
 
-import {
-  DraftApplicationEventBus,
-  type DraftConversionStatusChangedEvent,
-} from "./draft-application-event.bus";
+import { DraftConversionStatusChanged } from "./draft-application.events";
+import { DraftApplicationEventBus } from "./draft-application-event.bus";
 
 type RequestWithUser = Request & { user?: { userId?: string } };
 
@@ -24,7 +22,7 @@ export class DraftApplicationsSseController {
       data: { draftId: string; status: string };
       type: string;
     }>((observer) => {
-      const handler = (event: DraftConversionStatusChangedEvent) => {
+      const handler = (event: DraftConversionStatusChanged) => {
         if (event.draftId !== id) return;
         if (event.userId !== req.user?.userId) return;
 
@@ -34,11 +32,7 @@ export class DraftApplicationsSseController {
         });
       };
 
-      this.eventBus.onDraftConversionStatusChanged(handler);
-
-      return () => {
-        this.eventBus.removeDraftConversionStatusChangedListener(handler);
-      };
+      return this.eventBus.on(DraftConversionStatusChanged, handler);
     });
   }
 }

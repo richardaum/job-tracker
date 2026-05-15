@@ -1,7 +1,5 @@
-import {
-  DraftApplicationEventBus,
-  type DraftConversionRequestedEvent,
-} from "@api/domains/draft-applications/draft-application-event.bus";
+import { DraftConversionRequested } from "@api/domains/draft-applications/draft-application.events";
+import { DraftApplicationEventBus } from "@api/domains/draft-applications/draft-application-event.bus";
 import { Injectable, Logger, OnModuleInit } from "@nestjs/common";
 
 import { ApplicationService } from "./applications.service";
@@ -16,14 +14,14 @@ export class DraftConversionEventListener implements OnModuleInit {
   ) {}
 
   onModuleInit(): void {
-    this.draftEventBus.onDraftConversionRequested((event) => {
+    this.draftEventBus.on(DraftConversionRequested, (event) => {
       void this.handleDraftConversionRequested(event);
     });
     this.logger.log("Listening for draft.conversion.requested events");
   }
 
   private async handleDraftConversionRequested(
-    event: DraftConversionRequestedEvent,
+    event: DraftConversionRequested,
   ): Promise<void> {
     await this.applicationService.convertDraftInBackground(
       event.userId,

@@ -1,17 +1,13 @@
-import {
-  type ApplicationCreatedEvent,
-  ApplicationEventBus,
-} from "@api/domains/applications/application-event.bus";
+import { ApplicationCreated } from "@api/domains/applications/application.events";
+import { ApplicationEventBus } from "@api/domains/applications/application-event.bus";
 import { ApplicationRepository } from "@api/domains/applications/applications.repository";
 import { ResumeRepository } from "@api/domains/resumes/resumes.repository";
 import { tryRun } from "@job-tracker/try-run";
 import { Injectable, Logger, OnModuleInit } from "@nestjs/common";
 
+import { FitAnalysisRequested } from "./fit-analysis.events";
 import { FitAnalysisService } from "./fit-analysis.service";
-import {
-  FitAnalysisEventBus,
-  type FitAnalysisRequestedEvent,
-} from "./fit-analysis-event.bus";
+import { FitAnalysisEventBus } from "./fit-analysis-event.bus";
 
 @Injectable()
 export class FitAnalysisEventListener implements OnModuleInit {
@@ -26,11 +22,11 @@ export class FitAnalysisEventListener implements OnModuleInit {
   ) {}
 
   onModuleInit(): void {
-    this.eventBus.onApplicationCreated((event) => {
+    this.eventBus.on(ApplicationCreated, (event) => {
       void this.handleApplicationCreated(event);
     });
 
-    this.fitEventBus.onFitAnalysisRequested((event) => {
+    this.fitEventBus.on(FitAnalysisRequested, (event) => {
       void this.handleFitAnalysisRequested(event);
     });
 
@@ -40,7 +36,7 @@ export class FitAnalysisEventListener implements OnModuleInit {
   }
 
   private async handleApplicationCreated(
-    event: ApplicationCreatedEvent,
+    event: ApplicationCreated,
   ): Promise<void> {
     const { applicationId, userId } = event;
 
@@ -85,7 +81,7 @@ export class FitAnalysisEventListener implements OnModuleInit {
   }
 
   private async handleFitAnalysisRequested(
-    event: FitAnalysisRequestedEvent,
+    event: FitAnalysisRequested,
   ): Promise<void> {
     await this.fitService.generateInBackground(
       event.fitId,
