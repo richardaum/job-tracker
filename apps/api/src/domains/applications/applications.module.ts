@@ -1,5 +1,6 @@
 import { DatabaseModule } from "@api/database/database.module";
 import { ApplicationEntity } from "@api/database/entities/application.entity";
+import { ApplicationNoteEntity } from "@api/database/entities/application-note.entity";
 import { ApplicationStageEventEntity } from "@api/database/entities/application-stage-event.entity";
 import { CompanyEntity } from "@api/database/entities/company.entity";
 import { FitAnalysisEntity } from "@api/database/entities/fit-analysis.entity";
@@ -16,7 +17,10 @@ import { ApplicationEventBus } from "./application-event.bus";
 import { ApplicationRepository } from "./applications.repository";
 import { ApplicationResolver } from "./applications.resolver";
 import { ApplicationService } from "./applications.service";
+import { ApplicationsSseController } from "./applications-sse.controller";
 import { SalaryService } from "./salary.service";
+import { SummaryService } from "./summary.service";
+import { SummaryEventListener } from "./summary-event.listener";
 import { TagService } from "./tag.service";
 
 @Module({
@@ -24,6 +28,7 @@ import { TagService } from "./tag.service";
     DatabaseModule,
     TypeOrmModule.forFeature([
       ApplicationEntity,
+      ApplicationNoteEntity,
       ApplicationStageEventEntity,
       CompanyEntity,
       FitAnalysisEntity,
@@ -35,12 +40,15 @@ import { TagService } from "./tag.service";
     CompanyAiModule,
     DraftApplicationsModule,
   ],
+  controllers: [ApplicationsSseController],
   providers: [
     ApplicationEventBus,
     ApplicationRepository,
     ApplicationService,
     ApplicationResolver,
     SalaryService,
+    SummaryEventListener,
+    SummaryService,
     TagService,
   ],
   exports: [ApplicationService, ApplicationRepository, ApplicationEventBus],

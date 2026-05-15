@@ -24,6 +24,7 @@ import { ApplicationService } from "./applications.service";
 import { CreateApplicationInput } from "./create-application.input";
 import { CreateApplicationStageEventInput } from "./create-application-stage-event.input";
 import { SalaryPeriodEnum } from "./salary-period.enum";
+import { SummaryService } from "./summary.service";
 import { UpdateApplicationInput } from "./update-application.input";
 import { UpdateApplicationStageEventInput } from "./update-application-stage-event.input";
 
@@ -31,7 +32,10 @@ import { UpdateApplicationStageEventInput } from "./update-application-stage-eve
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles("user")
 export class ApplicationResolver {
-  constructor(private readonly service: ApplicationService) {}
+  constructor(
+    private readonly service: ApplicationService,
+    private readonly summaryService: SummaryService,
+  ) {}
 
   @ResolveField(() => ApplicationSalaryType)
   salary(@Parent() app: Application): ApplicationSalaryType {
@@ -114,6 +118,15 @@ export class ApplicationResolver {
     @CurrentUser() user: { userId: string },
   ): Promise<ApplicationType> {
     return this.service.update(id, user.userId, input);
+  }
+
+  @Mutation(() => ApplicationType)
+  generateApplicationSummary(
+    @Args("applicationId", { type: () => ID }) applicationId: string,
+    @CurrentUser() user: { userId: string },
+  ): Promise<ApplicationType> {
+    void this.summaryService.generateSummary(applicationId, user.userId);
+    return this.service.findOne(applicationId, user.userId);
   }
 
   @Mutation(() => ApplicationType)

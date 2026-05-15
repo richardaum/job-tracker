@@ -4,6 +4,7 @@ import { Field, ID, ObjectType } from "@nestjs/graphql";
 
 import { ApplicationSource } from "./application-source.enum";
 import { ApplicationStageEnum } from "./application-stage.enum";
+import { ApplicationSummaryStatus } from "./application-summary-status.enum";
 
 @ObjectType()
 export class ApplicationType {
@@ -63,6 +64,18 @@ export class ApplicationType {
 
   @Field(() => ID, { nullable: true })
   sourceRunId!: string | null;
+
+  @Field(() => String, { nullable: true })
+  summary!: string | null;
+
+  @Field(() => ApplicationSummaryStatus)
+  summaryStatus!: ApplicationSummaryStatus;
+
+  @Field(() => String, { nullable: true })
+  summaryError!: string | null;
+
+  @Field(() => Date, { nullable: true })
+  summaryGeneratedAt!: Date | null;
 
   @Field(() => FitAnalysisType, { nullable: true })
   fit?: FitAnalysisType;

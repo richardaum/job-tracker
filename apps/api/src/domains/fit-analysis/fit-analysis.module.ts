@@ -18,7 +18,7 @@ import {
 } from "./fit-analysis.resolver";
 import { FitAnalysisService } from "./fit-analysis.service";
 import { FitAnalysisAiService } from "./fit-analysis-ai.service";
-import { FitAnalysisEventHandler } from "./fit-analysis-event.handler";
+import { FitAnalysisEventListener } from "./fit-analysis-event.listener";
 
 @Module({
   imports: [
@@ -41,7 +41,7 @@ import { FitAnalysisEventHandler } from "./fit-analysis-event.handler";
     ApplicationFitResolver,
     DraftApplicationFitResolver,
     FitAnalysisAiService,
-    FitAnalysisEventHandler,
+    FitAnalysisEventListener,
   ],
   exports: [FitAnalysisService, FitAnalysisRepository],
 })

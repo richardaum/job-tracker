@@ -104,6 +104,10 @@ type ApplicationType {
   createdAt: DateTime!
   updatedAt: DateTime!
   sourceRunId: ID
+  summary: String
+  summaryStatus: SummaryStatus!
+  summaryError: String
+  summaryGeneratedAt: DateTime
   fit: FitAnalysisType
   salary: ApplicationSalary!
 }
@@ -124,6 +128,12 @@ enum ApplicationStage {
   OFFER
   REJECTED
   DUPLICATED
+}
+
+enum SummaryStatus {
+  PROCESSING
+  COMPLETED
+  FAILED
 }
 
 type ApplicationSalary {
@@ -276,6 +286,7 @@ type Mutation {
   createApplication(input: CreateApplicationInput!): ApplicationType!
   createApplicationWithAI(draftId: ID!): DraftApplicationType!
   updateApplication(id: ID!, input: UpdateApplicationInput!): ApplicationType!
+  generateApplicationSummary(applicationId: ID!): ApplicationType!
   removeApplicationTag(id: ID!, tag: String!): ApplicationType!
   deleteApplication(id: ID!): DeleteMutationPayloadType!
   createApplicationStageEvent(input: CreateApplicationStageEventInput!): ApplicationStageEventType!

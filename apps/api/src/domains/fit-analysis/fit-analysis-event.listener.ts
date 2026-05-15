@@ -10,8 +10,8 @@ import { Injectable, Logger, OnModuleInit } from "@nestjs/common";
 import { FitAnalysisService } from "./fit-analysis.service";
 
 @Injectable()
-export class FitAnalysisEventHandler implements OnModuleInit {
-  private readonly logger = new Logger(FitAnalysisEventHandler.name);
+export class FitAnalysisEventListener implements OnModuleInit {
+  private readonly logger = new Logger(FitAnalysisEventListener.name);
 
   constructor(
     private readonly eventBus: ApplicationEventBus,

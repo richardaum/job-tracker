@@ -452,6 +452,9 @@ export class ApplicationService {
     const updated = await this.repo.update(id, userId, repoDto);
 
     if (!updated) throw new NotFoundException(`Application ${id} not found`);
+
+    this.eventBus.emitApplicationUpdated(id, userId);
+
     return (await this.attachCurrentStage(userId, [updated]))[0]!;
   }
 
@@ -504,13 +507,16 @@ export class ApplicationService {
       dto.applicationId,
       userId,
     );
-    return this.repo.createStageEvent(userId, dto.applicationId, {
+    const event = await this.repo.createStageEvent(userId, dto.applicationId, {
       fromStage: latest?.toStage ?? null,
       toStage: dto.toStage,
       source: dto.source ?? "manual",
       reason: dto.reason ?? null,
       scheduledAt: dto.scheduledAt ?? null,
     });
+
+    this.eventBus.emitApplicationUpdated(dto.applicationId, userId);
+    return event;
   }
 
   async updateStageEvent(
@@ -534,14 +540,26 @@ export class ApplicationService {
     if (!updated) {
       throw new NotFoundException(`Stage event ${stageEventId} not found`);
     }
+
+    this.eventBus.emitApplicationUpdated(stageEvent.applicationId, userId);
     return updated;
   }
 
   async removeStageEvent(stageEventId: string, userId: string): Promise<void> {
+    const stageEvent = await this.repo.findStageEventByIdAndUserId(
+      stageEventId,
+      userId,
+    );
+    if (!stageEvent) {
+      throw new NotFoundException(`Stage event ${stageEventId} not found`);
+    }
+
     const deleted = await this.repo.deleteStageEvent(stageEventId, userId);
     if (!deleted) {
       throw new NotFoundException(`Stage event ${stageEventId} not found`);
     }
+
+    this.eventBus.emitApplicationUpdated(stageEvent.applicationId, userId);
   }
 
   async removeTag(
