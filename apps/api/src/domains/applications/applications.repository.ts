@@ -1,6 +1,7 @@
 import { ApplicationEntity } from "@api/database/entities/application.entity";
 import { ApplicationStageEventEntity } from "@api/database/entities/application-stage-event.entity";
 import { DraftApplicationEntity } from "@api/database/entities/draft-application.entity";
+import { ApplicationSummaryStatus } from "@api/domains/applications/summary/summary-status.enum";
 import { tipTapToPlainText } from "@job-tracker/tiptap";
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
@@ -219,6 +220,7 @@ export class ApplicationRepository {
       draftApplication: draftApplicationId
         ? ({ id: draftApplicationId } as DraftApplicationEntity)
         : undefined,
+      summaryStatus: ApplicationSummaryStatus.COMPLETED,
     });
     return this.applicationsRepo.save(row);
   }

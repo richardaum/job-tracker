@@ -95,7 +95,7 @@ export class ApplicationEntity {
   @Column({ type: "text", nullable: true })
   summary!: string | null;
 
-  @Column({ name: "summary_status", type: "text", default: "completed" })
+  @Column({ name: "summary_status", type: "text", default: "COMPLETED" })
   summaryStatus!: ApplicationSummaryStatus;
 
   @Column({ name: "summary_error", type: "text", nullable: true })

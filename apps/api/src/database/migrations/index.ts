@@ -45,6 +45,7 @@ import { RenameImportToSource1765400000000 } from "./1765400000000-rename-import
 import { AddApplicationLocationFields1765500000000 } from "./1765500000000-add-application-location-fields";
 import { AddApplicationSummaryFields1766000000000 } from "./1766000000000-add-application-summary-fields";
 import { AddSummaryGeneratedAt1766100000000 } from "./1766100000000-add-summary-generated-at";
+import { FixSummaryStatusCase1766200000000 } from "./1766200000000-fix-summary-status-case";
 
 export const migrations = [
   Baseline1746009600000,
@@ -94,4 +95,5 @@ export const migrations = [
   AddApplicationLocationFields1765500000000,
   AddApplicationSummaryFields1766000000000,
   AddSummaryGeneratedAt1766100000000,
+  FixSummaryStatusCase1766200000000,
 ];
