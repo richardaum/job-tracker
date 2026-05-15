@@ -73,6 +73,10 @@ Build from repo root: `docker build -f apps/api/Dockerfile -t job-tracker-api:lo
 
 Long-running apps (**`api`**, **`web`**, **`storybook`**, **`extension`**) — start/stop/restart/teardown via PM2 only (**`pnpm pm2:start`** / **`pnpm pm2:stop`** / **`pnpm pm2:restart`**, **`pm2 delete`**, **`pm2 kill`** as needed). Logs: **`~/.pm2/logs/`** (`*-out.log`, `*-error.log`).
 
+## Dead Code
+
+Before finishing a task, run a dead code check against affected packages (`pnpm knip` or `npx knip`). If dead code (unused exports, files, dependencies) is found, list each item and **ask the user whether to remove it** — do not delete without confirmation.
+
 ## CI
 
 GitHub Actions: `ci` (Postgres 16-alpine, Node 22, pnpm 10.8.1), `e2e`, `docker-api`. CI installs with `pnpm install --frozen-lockfile`. CI fails if lint leaves a dirty tree.
