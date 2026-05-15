@@ -17,6 +17,9 @@
   - **Inline editing** — built — Click any field (title, company, URLs, source, salary, tags, description) on the detail page to edit it in place.
   - **URLs management** — built — Add and remove multiple job posting URLs per application.
   - **Tags** — built — Add and remove tags on any application for lightweight categorization.
+  - **Location & work region** (`specs/036`) — built — Free-text fields for job base location (e.g. "São Paulo, SP") and permitted work geography (e.g. "Brazil", "Latam", "Anywhere").
+    - **Detail page inline edit with AI inference** — built — Edit location and work region inline via dialog; SparkleIcon button infers both fields from the job description via AI.
+    - **List page quick-edit** — built — Location and work region inputs in the quick-edit dialog.
   - **Duplicate detection** — built — Automatically detect and mark duplicates (same role + company within 30 days) with a DUPLICATED stage.
   - **AI create v2** (`specs/027`) — in_progress — Paste a JD and let AI extract fields, detect duplicates, and batch-convert into applications.
 - **Stage timeline** (`specs/014`, `specs/020`) — built — Track every stage transition (Applied → Recruiter Screen → Technical → etc.) with reason and scheduled date.
