@@ -35,7 +35,7 @@ import {
 import { Application } from "./applications.schema";
 import { SalaryService } from "./salary/salary.service";
 import { SalaryPeriodEnum } from "./salary/salary-period.enum";
-import { TagService } from "@api/domains/tags/tag.service";
+import { TagService } from "./tags/tag.service";
 
 type CreateDto = {
   title: string;
@@ -278,13 +278,12 @@ export class ApplicationService {
       DraftApplicationConversionStatus.PROCESSING,
     );
 
-    // TODO: use another approach (e.g. a queue) to have a more reliable background task.
-    void this.convertDraftInBackground(userId, draftId);
+    this.draftEventBus.emitDraftConversionRequested(draftId, userId);
 
     return queuedDraft;
   }
 
-  private async convertDraftInBackground(
+  async convertDraftInBackground(
     userId: string,
     draftId: string,
   ): Promise<void> {

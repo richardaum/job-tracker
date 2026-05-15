@@ -19,7 +19,7 @@ import { ApplicationRepository } from "./applications.repository";
 import { Application } from "./applications.schema";
 import { ApplicationService } from "./applications.service";
 import { SalaryService } from "./salary/salary.service";
-import { TagService } from "@api/domains/tags/tag.service";
+import { TagService } from "./tags/tag.service";
 
 const makeApp = (overrides: Partial<Application> = {}): Application =>
   ({

@@ -17,11 +17,12 @@ import { ApplicationRepository } from "./applications.repository";
 import { ApplicationResolver } from "./applications.resolver";
 import { ApplicationService } from "./applications.service";
 import { ApplicationsSseController } from "./applications-sse.controller";
+import { DraftConversionEventListener } from "./draft-conversion-event.listener";
 import { SalaryModule } from "./salary/salary.module";
 import { SummaryService } from "./summary/summary.service";
 import { SummaryAiService } from "./summary/summary-ai.service";
 import { SummaryEventListener } from "./summary/summary-event.listener";
-import { TagsModule } from "@api/domains/tags/tags.module";
+import { TagsModule } from "./tags/tags.module";
 
 @Module({
   imports: [
@@ -47,6 +48,7 @@ import { TagsModule } from "@api/domains/tags/tags.module";
     ApplicationRepository,
     ApplicationService,
     ApplicationResolver,
+    DraftConversionEventListener,
     SummaryEventListener,
     SummaryService,
     SummaryAiService,
