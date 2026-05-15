@@ -9,10 +9,17 @@ export type FitStatusChangedEvent = {
   status: FitAnalysisStatus;
 };
 
+export type FitAnalysisRequestedEvent = {
+  fitId: string;
+  userId: string;
+  source: { applicationId?: string; draftApplicationId?: string };
+};
+
 @Injectable()
 export class FitAnalysisEventBus {
   private readonly emitter = new EventEmitter();
   private readonly FIT_STATUS_CHANGED = "fit.status.changed";
+  private readonly FIT_ANALYSIS_REQUESTED = "fit.analysis.requested";
 
   emitFitStatusChanged(
     fitId: string,
@@ -31,5 +38,20 @@ export class FitAnalysisEventBus {
     handler: (event: FitStatusChangedEvent) => void,
   ): void {
     this.emitter.off(this.FIT_STATUS_CHANGED, handler);
+  }
+
+  emitFitAnalysisRequested(
+    fitId: string,
+    userId: string,
+    source: { applicationId?: string; draftApplicationId?: string },
+  ): void {
+    const event: FitAnalysisRequestedEvent = { fitId, userId, source };
+    this.emitter.emit(this.FIT_ANALYSIS_REQUESTED, event);
+  }
+
+  onFitAnalysisRequested(
+    handler: (event: FitAnalysisRequestedEvent) => void,
+  ): void {
+    this.emitter.on(this.FIT_ANALYSIS_REQUESTED, handler);
   }
 }

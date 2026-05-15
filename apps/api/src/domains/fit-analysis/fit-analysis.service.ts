@@ -150,7 +150,7 @@ export class FitAnalysisService implements OnModuleInit {
       userId,
       FitAnalysisStatus.PROCESSING,
     );
-    void this.generateInBackground(saved.id, userId, { applicationId });
+    this.eventBus.emitFitAnalysisRequested(saved.id, userId, { applicationId });
 
     return saved;
   }
@@ -203,12 +203,14 @@ export class FitAnalysisService implements OnModuleInit {
       userId,
       FitAnalysisStatus.PROCESSING,
     );
-    void this.generateInBackground(saved.id, userId, { draftApplicationId });
+    this.eventBus.emitFitAnalysisRequested(saved.id, userId, {
+      draftApplicationId,
+    });
 
     return saved;
   }
 
-  private async generateInBackground(
+  async generateInBackground(
     fitId: string,
     userId: string,
     source: { applicationId?: string; draftApplicationId?: string },

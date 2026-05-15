@@ -2,6 +2,7 @@ import { ApplicationEntity } from "@api/database/entities/application.entity";
 import {
   ApplicationEventBus,
   ApplicationUpdatedEvent,
+  type SummaryGenerationRequestedEvent,
 } from "@api/domains/applications/application-event.bus";
 import { tryRun } from "@job-tracker/try-run";
 import { Injectable, Logger, OnModuleInit } from "@nestjs/common";
@@ -32,6 +33,10 @@ export class SummaryEventListener implements OnModuleInit {
       );
     });
 
+    this.eventBus.onSummaryGenerationRequested((event) => {
+      void this.handleSummaryGenerationRequested(event);
+    });
+
     void this.resetStuckProcessing();
   }
 
@@ -41,6 +46,41 @@ export class SummaryEventListener implements OnModuleInit {
     await this.summaryService.generateSummary(
       event.applicationId,
       event.userId,
+    );
+  }
+
+  private async handleSummaryGenerationRequested(
+    event: SummaryGenerationRequestedEvent,
+  ): Promise<void> {
+    const { applicationId, userId } = event;
+    const [error] = await tryRun(
+      this.summaryService.doGenerate(applicationId, userId),
+    );
+    if (error) {
+      this.logger.error(
+        `Failed to generate summary for ${applicationId}`,
+        error instanceof Error ? error.message : String(error),
+      );
+      await this.appRepo.update(
+        { id: applicationId, userId },
+        {
+          summaryStatus: ApplicationSummaryStatus.FAILED,
+          summaryError:
+            error instanceof Error ? error.message : "Unknown error",
+        },
+      );
+      this.eventBus.emitSummaryStatusChanged(
+        applicationId,
+        userId,
+        ApplicationSummaryStatus.FAILED,
+      );
+      return;
+    }
+
+    this.eventBus.emitSummaryStatusChanged(
+      applicationId,
+      userId,
+      ApplicationSummaryStatus.COMPLETED,
     );
   }
 

@@ -3,7 +3,6 @@ import { ApplicationNoteEntity } from "@api/database/entities/application-note.e
 import { ApplicationStageEventEntity } from "@api/database/entities/application-stage-event.entity";
 import { ApplicationEventBus } from "@api/domains/applications/application-event.bus";
 import { markdownToTipTap, tipTapToPlainText } from "@job-tracker/tiptap";
-import { tryRun } from "@job-tracker/try-run";
 import { Injectable, Logger } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
@@ -54,7 +53,7 @@ export class SummaryService {
       ApplicationSummaryStatus.PROCESSING,
     );
 
-    void this.generateSummaryInBackground(applicationId, userId);
+    this.eventBus.emitSummaryGenerationRequested(applicationId, userId);
   }
 
   async generateSummarySync(
@@ -85,46 +84,10 @@ export class SummaryService {
       ApplicationSummaryStatus.PROCESSING,
     );
 
-    void this.generateSummaryInBackground(applicationId, userId);
+    this.eventBus.emitSummaryGenerationRequested(applicationId, userId);
   }
 
-  private async generateSummaryInBackground(
-    applicationId: string,
-    userId: string,
-  ): Promise<void> {
-    const [error] = await tryRun(this.doGenerate(applicationId, userId));
-    if (error) {
-      this.logger.error(
-        `Failed to generate summary for ${applicationId}`,
-        error instanceof Error ? error.message : String(error),
-      );
-      await this.appRepo.update(
-        { id: applicationId, userId },
-        {
-          summaryStatus: ApplicationSummaryStatus.FAILED,
-          summaryError:
-            error instanceof Error ? error.message : "Unknown error",
-        },
-      );
-      this.eventBus.emitSummaryStatusChanged(
-        applicationId,
-        userId,
-        ApplicationSummaryStatus.FAILED,
-      );
-      return;
-    }
-
-    this.eventBus.emitSummaryStatusChanged(
-      applicationId,
-      userId,
-      ApplicationSummaryStatus.COMPLETED,
-    );
-  }
-
-  private async doGenerate(
-    applicationId: string,
-    userId: string,
-  ): Promise<void> {
+  async doGenerate(applicationId: string, userId: string): Promise<void> {
     const app = await this.appRepo.findOne({
       where: { id: applicationId, userId },
       relations: ["company"],

@@ -11,6 +11,10 @@ export type SummaryStatusChangedEvent = {
   userId: string;
   status: ApplicationSummaryStatus;
 };
+export type SummaryGenerationRequestedEvent = {
+  applicationId: string;
+  userId: string;
+};
 
 @Injectable()
 export class ApplicationEventBus {
@@ -19,6 +23,8 @@ export class ApplicationEventBus {
   private readonly APPLICATION_CREATED = "application.created";
   private readonly APPLICATION_UPDATED = "application.updated";
   private readonly SUMMARY_STATUS_CHANGED = "summary.status.changed";
+  private readonly SUMMARY_GENERATION_REQUESTED =
+    "summary.generation.requested";
 
   emitApplicationCreated(applicationId: string, userId: string): void {
     const event: ApplicationCreatedEvent = { applicationId, userId };
@@ -67,5 +73,16 @@ export class ApplicationEventBus {
     handler: (event: SummaryStatusChangedEvent) => void,
   ): void {
     this.emitter.off(this.SUMMARY_STATUS_CHANGED, handler);
+  }
+
+  emitSummaryGenerationRequested(applicationId: string, userId: string): void {
+    const event: SummaryGenerationRequestedEvent = { applicationId, userId };
+    this.emitter.emit(this.SUMMARY_GENERATION_REQUESTED, event);
+  }
+
+  onSummaryGenerationRequested(
+    handler: (event: SummaryGenerationRequestedEvent) => void,
+  ): void {
+    this.emitter.on(this.SUMMARY_GENERATION_REQUESTED, handler);
   }
 }

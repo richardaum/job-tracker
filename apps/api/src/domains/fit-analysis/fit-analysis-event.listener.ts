@@ -8,6 +8,10 @@ import { tryRun } from "@job-tracker/try-run";
 import { Injectable, Logger, OnModuleInit } from "@nestjs/common";
 
 import { FitAnalysisService } from "./fit-analysis.service";
+import {
+  FitAnalysisEventBus,
+  type FitAnalysisRequestedEvent,
+} from "./fit-analysis-event.bus";
 
 @Injectable()
 export class FitAnalysisEventListener implements OnModuleInit {
@@ -15,6 +19,7 @@ export class FitAnalysisEventListener implements OnModuleInit {
 
   constructor(
     private readonly eventBus: ApplicationEventBus,
+    private readonly fitEventBus: FitAnalysisEventBus,
     private readonly applicationRepo: ApplicationRepository,
     private readonly resumeRepo: ResumeRepository,
     private readonly fitService: FitAnalysisService,
@@ -24,7 +29,14 @@ export class FitAnalysisEventListener implements OnModuleInit {
     this.eventBus.onApplicationCreated((event) => {
       void this.handleApplicationCreated(event);
     });
-    this.logger.log("Listening for application.created events");
+
+    this.fitEventBus.onFitAnalysisRequested((event) => {
+      void this.handleFitAnalysisRequested(event);
+    });
+
+    this.logger.log(
+      "Listening for application.created and fit.analysis.requested events",
+    );
   }
 
   private async handleApplicationCreated(
@@ -70,5 +82,15 @@ export class FitAnalysisEventListener implements OnModuleInit {
         `[AutoFit] Queued fit analysis for application ${applicationId} (resume: ${defaultResume.id})`,
       );
     }
+  }
+
+  private async handleFitAnalysisRequested(
+    event: FitAnalysisRequestedEvent,
+  ): Promise<void> {
+    await this.fitService.generateInBackground(
+      event.fitId,
+      event.userId,
+      event.source,
+    );
   }
 }
