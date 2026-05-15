@@ -13,5 +13,8 @@
   },
   "peerDependencies": {
     "@job-tracker/try-run": "workspace:*"
+  },
+  "dependencies": {
+    "marked": "^18.0.3"
   }
 }
