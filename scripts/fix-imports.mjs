@@ -9,6 +9,7 @@
  *   node scripts/fix-imports.mjs "apps/api/<dirs>/*.ts" "packages/<dirs>/*.ts"
  */
 
+import nextPlugin from "@next/eslint-plugin-next";
 import { ESLint } from "eslint";
 import simpleImportSort from "eslint-plugin-simple-import-sort";
 import { parser as tsParser } from "typescript-eslint";
@@ -40,7 +41,10 @@ const eslint = new ESLint({
     { ignores: IGNORE_PATTERNS },
     {
       files: ["**/*.{ts,tsx}"],
-      plugins: { "simple-import-sort": simpleImportSort },
+      plugins: {
+        "simple-import-sort": simpleImportSort,
+        "@next/next": nextPlugin,
+      },
       languageOptions: {
         parser: tsParser,
         parserOptions: { ecmaFeatures: { jsx: true } },
@@ -52,7 +56,10 @@ const eslint = new ESLint({
     },
     {
       files: ["**/*.{js,jsx,mjs,cjs}"],
-      plugins: { "simple-import-sort": simpleImportSort },
+      plugins: {
+        "simple-import-sort": simpleImportSort,
+        "@next/next": nextPlugin,
+      },
       languageOptions: { parserOptions: { ecmaFeatures: { jsx: true } } },
       rules: {
         "simple-import-sort/imports": "error",
