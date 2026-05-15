@@ -9,7 +9,8 @@ export type TextColor =
   | "muted"
   | "brand"
   | "error"
-  | "success";
+  | "success"
+  | "warning";
 
 export interface TextProps extends React.HTMLAttributes<HTMLElement> {
   as?: "p" | "span" | "label" | "div";
@@ -40,6 +41,7 @@ const colorClasses: Record<TextColor, string> = {
   brand: "text-text-brand",
   error: "text-text-error",
   success: "text-text-success",
+  warning: "text-text-warning",
 };
 
 export function Text({
