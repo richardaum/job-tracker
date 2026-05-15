@@ -27,8 +27,8 @@ import {
   UpdateSourceRunStatusDocument,
 } from "@/gql/graphql";
 
-const GRAPHQL_URL =
-  import.meta.env.WXT_PUBLIC_API_GRAPHQL_URL ?? "http://localhost:3101/graphql";
+const API_URL = import.meta.env.WXT_PUBLIC_API_URL ?? "http://localhost:3101";
+const GRAPHQL_URL = `${API_URL}/graphql`;
 
 const GRAPHQL_SSE_URL =
   import.meta.env.WXT_PUBLIC_API_GRAPHQL_SSE_URL ??

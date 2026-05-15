@@ -6,7 +6,7 @@ import sharp from "sharp";
 import { defineConfig } from "wxt";
 
 const repoRoot = path.resolve(import.meta.dirname, "../..");
-const DEFAULT_API_GRAPHQL_URL = "http://localhost:3101/graphql";
+const DEFAULT_API_URL = "http://localhost:3101";
 
 export default defineConfig({
   srcDir: "src",
@@ -32,7 +32,7 @@ export default defineConfig({
             "https://remoteyeah.com/*",
             "https://*.remoteyeah.com/*",
             toGraphqlHostPermissionPattern(
-              process.env.WXT_PUBLIC_API_GRAPHQL_URL ?? DEFAULT_API_GRAPHQL_URL,
+              `${process.env.WXT_PUBLIC_API_URL ?? DEFAULT_API_URL}/graphql`,
             ),
           ],
     content_security_policy:
@@ -100,6 +100,6 @@ function toGraphqlHostPermissionPattern(graphqlUrl: string): string {
   try {
     return `${new URL(graphqlUrl).origin}/*`;
   } catch {
-    return `${new URL(DEFAULT_API_GRAPHQL_URL).origin}/*`;
+    return `${new URL(`${DEFAULT_API_URL}/graphql`).origin}/*`;
   }
 }
