@@ -17,11 +17,11 @@ import { ApplicationRepository } from "./applications.repository";
 import { ApplicationResolver } from "./applications.resolver";
 import { ApplicationService } from "./applications.service";
 import { ApplicationsSseController } from "./applications-sse.controller";
-import { SalaryService } from "./salary.service";
+import { SalaryModule } from "./salary/salary.module";
 import { SummaryService } from "./summary/summary.service";
 import { SummaryAiService } from "./summary/summary-ai.service";
 import { SummaryEventListener } from "./summary/summary-event.listener";
-import { TagService } from "./tag.service";
+import { TagsModule } from "@api/domains/tags/tags.module";
 
 @Module({
   imports: [
@@ -38,6 +38,8 @@ import { TagService } from "./tag.service";
     CompaniesModule,
     DraftApplicationsModule,
     LibAiModule,
+    SalaryModule,
+    TagsModule,
   ],
   controllers: [ApplicationsSseController],
   providers: [
@@ -45,10 +47,8 @@ import { TagService } from "./tag.service";
     ApplicationRepository,
     ApplicationService,
     ApplicationResolver,
-    SalaryService,
     SummaryEventListener,
     SummaryService,
-    TagService,
     SummaryAiService,
   ],
   exports: [ApplicationService, ApplicationRepository, ApplicationEventBus],

@@ -1,7 +1,7 @@
 import { Field, ID, InputType, Int } from "@nestjs/graphql";
 
 import { ApplicationSource } from "./application-source.enum";
-import { SalaryPeriodEnum } from "./salary-period.enum";
+import { SalaryPeriodEnum } from "./salary/salary-period.enum";
 
 @InputType()
 export class UpdateApplicationInput {

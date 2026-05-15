@@ -9,21 +9,16 @@ import {
   Args,
   ID,
   Mutation,
-  Parent,
   Query,
-  ResolveField,
   Resolver,
 } from "@nestjs/graphql";
 
 import { ApplicationType } from "./application.type";
 import { ApplicationQuickFilterEnum } from "./application-quick-filter.enum";
-import { ApplicationSalaryType } from "./application-salary.type";
 import { ApplicationStageEventType } from "./application-stage-event.type";
-import type { Application } from "./applications.schema";
 import { ApplicationService } from "./applications.service";
 import { CreateApplicationInput } from "./create-application.input";
 import { CreateApplicationStageEventInput } from "./create-application-stage-event.input";
-import { SalaryPeriodEnum } from "./salary-period.enum";
 import { SummaryService } from "./summary/summary.service";
 import { UpdateApplicationInput } from "./update-application.input";
 import { UpdateApplicationStageEventInput } from "./update-application-stage-event.input";
@@ -36,19 +31,6 @@ export class ApplicationResolver {
     private readonly service: ApplicationService,
     private readonly summaryService: SummaryService,
   ) {}
-
-  @ResolveField(() => ApplicationSalaryType)
-  salary(@Parent() app: Application): ApplicationSalaryType {
-    return {
-      minCents: app.salaryMinCents ?? null,
-      maxCents: app.salaryMaxCents ?? null,
-      currency: app.salaryCurrency ?? null,
-      period:
-        app.salaryPeriod != null
-          ? (app.salaryPeriod as SalaryPeriodEnum)
-          : null,
-    };
-  }
 
   @Query(() => [ApplicationType])
   applications(

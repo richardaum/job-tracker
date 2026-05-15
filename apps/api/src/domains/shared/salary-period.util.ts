@@ -1,4 +1,4 @@
-import { SalaryPeriodEnum } from "@api/domains/applications/salary-period.enum";
+import { SalaryPeriodEnum } from "@api/domains/applications/salary/salary-period.enum";
 
 export function asSalaryPeriod(value: unknown): SalaryPeriodEnum | null {
   if (typeof value !== "string") return null;

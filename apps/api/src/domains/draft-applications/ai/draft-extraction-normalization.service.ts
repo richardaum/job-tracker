@@ -1,4 +1,4 @@
-import { SalaryPeriodEnum } from "@api/domains/applications/salary-period.enum";
+import { SalaryPeriodEnum } from "@api/domains/applications/salary/salary-period.enum";
 import { asSalaryPeriod } from "@api/domains/shared/salary-period.util";
 import type { TipTapDocument } from "@job-tracker/tiptap";
 import {

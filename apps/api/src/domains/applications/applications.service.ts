@@ -6,6 +6,7 @@ import { CompanyService } from "@api/domains/companies/companies.service";
 import { DraftExtractionService } from "@api/domains/draft-applications/ai/draft-extraction.service";
 import { DraftExtractionNormalizationService } from "@api/domains/draft-applications/ai/draft-extraction-normalization.service";
 import { DraftApplicationType } from "@api/domains/draft-applications/draft-application.type";
+import { DraftApplicationEventBus } from "@api/domains/draft-applications/draft-application-event.bus";
 import { DraftApplicationsService } from "@api/domains/draft-applications/draft-applications.service";
 import { LocationInferenceService } from "@api/lib/ai";
 import { isTipTapDocumentString, tipTapToPlainText } from "@job-tracker/tiptap";
@@ -32,9 +33,9 @@ import {
   UpdateApplicationRepoDto,
 } from "./applications.repository";
 import { Application } from "./applications.schema";
-import { SalaryService } from "./salary.service";
-import { SalaryPeriodEnum } from "./salary-period.enum";
-import { TagService } from "./tag.service";
+import { SalaryService } from "./salary/salary.service";
+import { SalaryPeriodEnum } from "./salary/salary-period.enum";
+import { TagService } from "@api/domains/tags/tag.service";
 
 type CreateDto = {
   title: string;
@@ -93,6 +94,7 @@ export class ApplicationService {
     private readonly draftExtractionNormalizationService: DraftExtractionNormalizationService,
     private readonly locationInferenceService: LocationInferenceService,
     private readonly eventBus: ApplicationEventBus,
+    private readonly draftEventBus: DraftApplicationEventBus,
   ) {}
 
   async findAll(
@@ -270,6 +272,12 @@ export class ApplicationService {
       },
     );
 
+    this.draftEventBus.emitDraftConversionStatusChanged(
+      draftId,
+      userId,
+      DraftApplicationConversionStatus.PROCESSING,
+    );
+
     // TODO: use another approach (e.g. a queue) to have a more reliable background task.
     void this.convertDraftInBackground(userId, draftId);
 
@@ -355,6 +363,11 @@ export class ApplicationService {
           conversionStatus: DraftApplicationConversionStatus.FAILED,
           conversionError: appliedError.message,
         });
+        this.draftEventBus.emitDraftConversionStatusChanged(
+          draftId,
+          userId,
+          DraftApplicationConversionStatus.FAILED,
+        );
         return;
       }
     }
@@ -368,6 +381,12 @@ export class ApplicationService {
       conversionError: null,
       convertedAt: new Date(),
     });
+
+    this.draftEventBus.emitDraftConversionStatusChanged(
+      draftId,
+      userId,
+      DraftApplicationConversionStatus.SUCCEEDED,
+    );
   }
 
   async inferApplicationLocation(
@@ -594,5 +613,11 @@ export class ApplicationService {
         `Failed to update draft ${draftId} status — draft may have been deleted`,
       );
     }
+
+    this.draftEventBus.emitDraftConversionStatusChanged(
+      draftId,
+      userId,
+      DraftApplicationConversionStatus.FAILED,
+    );
   }
 }

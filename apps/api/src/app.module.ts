@@ -22,6 +22,7 @@ import { FitAnalysisModule } from "./domains/fit-analysis/fit-analysis.module";
 import { NotesModule } from "./domains/notes/notes.module";
 import { ResumesModule } from "./domains/resumes/resumes.module";
 import { SourcesModule } from "./domains/sources/sources.module";
+import { TagsModule } from "./domains/tags/tags.module";
 import { UserPreferencesModule } from "./domains/user-preferences/user-preferences.module";
 import { GraphqlSseMiddleware } from "./graphql/graphql-sse.middleware";
 
@@ -33,6 +34,7 @@ import { GraphqlSseMiddleware } from "./graphql/graphql-sse.middleware";
     CompaniesModule,
     CurrencyConverterModule,
     SourcesModule,
+    TagsModule,
     DraftApplicationsModule,
     NotesModule,
     ResumesModule,

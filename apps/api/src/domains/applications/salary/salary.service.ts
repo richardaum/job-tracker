@@ -1,19 +1,8 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 
-import { Application, NewApplication } from "./applications.schema";
+import type { Application } from "../applications.schema";
+import type { SalaryColumns, SalaryInput } from "./salary.schema";
 import { SalaryPeriodEnum } from "./salary-period.enum";
-
-export type SalaryInput = {
-  salaryMinCents?: number | null;
-  salaryMaxCents?: number | null;
-  salaryCurrency?: string | null;
-  salaryPeriod?: SalaryPeriodEnum | null;
-};
-
-export type SalaryColumns = Pick<
-  NewApplication,
-  "salaryMinCents" | "salaryMaxCents" | "salaryCurrency" | "salaryPeriod"
->;
 
 type SalaryShape = {
   salaryMinCents: number | null;

@@ -5,6 +5,7 @@ import { CompanyDescriptionService } from "@api/domains/companies/ai/company-des
 import { CompanyService } from "@api/domains/companies/companies.service";
 import { DraftExtractionService } from "@api/domains/draft-applications/ai/draft-extraction.service";
 import { DraftExtractionNormalizationService } from "@api/domains/draft-applications/ai/draft-extraction-normalization.service";
+import { DraftApplicationEventBus } from "@api/domains/draft-applications/draft-application-event.bus";
 import { DraftApplicationsService } from "@api/domains/draft-applications/draft-applications.service";
 import { LocationInferenceService } from "@api/lib/ai";
 import { NotFoundException } from "@nestjs/common";
@@ -17,8 +18,8 @@ import { ApplicationStageEvent } from "./application-stage-events.schema";
 import { ApplicationRepository } from "./applications.repository";
 import { Application } from "./applications.schema";
 import { ApplicationService } from "./applications.service";
-import { SalaryService } from "./salary.service";
-import { TagService } from "./tag.service";
+import { SalaryService } from "./salary/salary.service";
+import { TagService } from "@api/domains/tags/tag.service";
 
 const makeApp = (overrides: Partial<Application> = {}): Application =>
   ({
@@ -129,6 +130,10 @@ describe("ApplicationService", () => {
       emitApplicationCreated: vi.fn(),
     } as unknown as ApplicationEventBus;
 
+    const draftEventBus = {
+      emitDraftConversionStatusChanged: vi.fn(),
+    } as unknown as DraftApplicationEventBus;
+
     service = new ApplicationService(
       sourceRunsRepo as unknown as Repository<SourceRunEntity>,
       {
@@ -144,6 +149,7 @@ describe("ApplicationService", () => {
       draftExtractionNormalizationService,
       locationInferenceService,
       eventBus,
+      draftEventBus,
     );
   });
 
