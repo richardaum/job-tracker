@@ -4,10 +4,12 @@ import { cookies } from "next/headers";
 
 import { staticPageMetadata } from "@/app/metadata";
 import { serverEnv } from "@/env/server";
+import { getServerApiGraphqlUrl } from "@/lib/server-api-endpoints";
 import { createServerSdk } from "@/lib/server-graphql";
 
-const GRAPHQL_URL =
-  serverEnv.NEXT_PUBLIC_API_GRAPHQL_URL ?? "http://localhost:3101/graphql";
+const GRAPHQL_URL = getServerApiGraphqlUrl(
+  serverEnv.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:3101",
+);
 
 async function getFitMeta(id: string) {
   const [cookieErr, cookieStore] = await tryRun(cookies());
