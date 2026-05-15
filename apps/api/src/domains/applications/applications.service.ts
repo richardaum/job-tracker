@@ -1,12 +1,13 @@
 import { DraftApplicationConversionStatus } from "@api/database/entities/draft-application.entity";
 import { FitAnalysisEntity } from "@api/database/entities/fit-analysis.entity";
 import { SourceRunEntity } from "@api/database/entities/source-run.entity";
-import { ApplicationAiService } from "@api/domains/application-ai/application-ai.service";
-import { DraftExtractionNormalizationService } from "@api/domains/application-ai/draft-extraction-normalization.service";
+import { CompanyDescriptionService } from "@api/domains/companies/ai/company-description.service";
 import { CompanyService } from "@api/domains/companies/companies.service";
-import { CompanyAiService } from "@api/domains/company-ai/company-ai.service";
+import { DraftExtractionService } from "@api/domains/draft-applications/ai/draft-extraction.service";
+import { DraftExtractionNormalizationService } from "@api/domains/draft-applications/ai/draft-extraction-normalization.service";
 import { DraftApplicationType } from "@api/domains/draft-applications/draft-application.type";
 import { DraftApplicationsService } from "@api/domains/draft-applications/draft-applications.service";
+import { LocationInferenceService } from "@api/lib/ai";
 import { isTipTapDocumentString, tipTapToPlainText } from "@job-tracker/tiptap";
 import { tryRun } from "@job-tracker/try-run";
 import {
@@ -86,10 +87,11 @@ export class ApplicationService {
     private readonly companyService: CompanyService,
     private readonly salaryService: SalaryService,
     private readonly tagService: TagService,
-    private readonly companyAiService: CompanyAiService,
+    private readonly companyDescriptionService: CompanyDescriptionService,
     private readonly draftApplicationsService: DraftApplicationsService,
-    private readonly applicationAiService: ApplicationAiService,
+    private readonly draftExtractionService: DraftExtractionService,
     private readonly draftExtractionNormalizationService: DraftExtractionNormalizationService,
+    private readonly locationInferenceService: LocationInferenceService,
     private readonly eventBus: ApplicationEventBus,
   ) {}
 
@@ -281,7 +283,7 @@ export class ApplicationService {
     const draft = await this.draftApplicationsService.findOne(draftId, userId);
 
     const [extractError, raw] = await tryRun(
-      this.applicationAiService.extractFromDraft({
+      this.draftExtractionService.extract({
         title: draft.title,
         url: draft.url ?? null,
         htmlContent: draft.htmlContent,
@@ -374,7 +376,7 @@ export class ApplicationService {
   ): Promise<string | null> {
     const app = await this.findOne(applicationId, userId);
     const plainText = tipTapToPlainText(app.description);
-    return this.applicationAiService.inferLocationFromDescription(plainText);
+    return this.locationInferenceService.inferLocation(plainText);
   }
 
   async inferApplicationWorkRegion(
@@ -383,7 +385,7 @@ export class ApplicationService {
   ): Promise<string | null> {
     const app = await this.findOne(applicationId, userId);
     const plainText = tipTapToPlainText(app.description);
-    return this.applicationAiService.inferWorkRegionFromDescription(plainText);
+    return this.locationInferenceService.inferWorkRegion(plainText);
   }
 
   async generateCompanyDescription(
@@ -396,7 +398,7 @@ export class ApplicationService {
         dto.companyName,
       );
 
-    return this.companyAiService.generateCompanyDescription({
+    return this.companyDescriptionService.generateCompanyDescription({
       companyName: dto.companyName,
       jobPostingContexts,
     });

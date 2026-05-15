@@ -1,5 +1,3 @@
-/** Mustache source (unescaped HTML-ish fields use `{{{name}}}`). */
-
 export const DRAFT_EXTRACTION_SYSTEM_TEMPLATE = `### Role
 Expert Data Extractor for Job Postings.
 

@@ -4,7 +4,6 @@ import type {
   DraftExtractionSchemaKey,
 } from "./draft-extraction.types";
 
-/** Canonical ordered field specs (matches Zod keys). */
 export const DRAFT_EXTRACTION_FIELD_SPECS: DraftExtractionFieldSpec[] = (
   Object.entries(draftExtractionFieldDefs) as [
     DraftExtractionSchemaKey,
@@ -17,10 +16,6 @@ export const DRAFT_EXTRACTION_FIELD_SPECS: DraftExtractionFieldSpec[] = (
   hint: def.hint,
 }));
 
-/**
- * Formats `fields` for the system prompt.
- * Includes full schema/type guidance so the model has a stable global contract.
- */
 export function formatSystemPromptFields(
   specs: readonly DraftExtractionFieldSpec[],
 ): string {
@@ -32,10 +27,6 @@ export function formatSystemPromptFields(
     .join("\n");
 }
 
-/**
- * Formats `fields` for the user prompt.
- * Repeats the same field contract in compact form next to request-specific content.
- */
 export function formatUserPromptFields(
   specs: readonly DraftExtractionFieldSpec[],
 ): string {

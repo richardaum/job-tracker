@@ -13,7 +13,6 @@ import {
 import { ResumeEntity } from "@api/database/entities/resume.entity";
 import { UserEntity } from "@api/database/entities/user.entity";
 import { UserPreferencesEntity } from "@api/database/entities/user-preferences.entity";
-import { OpenAIService } from "@api/domains/application-ai/openai.service";
 import { ApplicationQuickFilterEnum } from "@api/domains/applications/application-quick-filter.enum";
 import { ApplicationRepository } from "@api/domains/applications/applications.repository";
 import { DraftApplicationsRepository } from "@api/domains/draft-applications/draft-applications.repository";
@@ -21,6 +20,7 @@ import { FitAnalysisRepository } from "@api/domains/fit-analysis/fit-analysis.re
 import { FitAnalysisService } from "@api/domains/fit-analysis/fit-analysis.service";
 import { FitAnalysisAiService } from "@api/domains/fit-analysis/fit-analysis-ai.service";
 import { TemplateService } from "@api/domains/shared/template/template.service";
+import { OpenAIClient, PromptRendererService } from "@api/lib/ai";
 import { tryRun } from "@job-tracker/try-run";
 import { config } from "dotenv";
 import type { FindOptionsOrder, FindOptionsWhere } from "typeorm";
@@ -160,9 +160,13 @@ async function main() {
     applicationOrmRepo,
   );
 
-  const openAIService = new OpenAIService();
   const templateService = new TemplateService();
-  const fitAiService = new FitAnalysisAiService(openAIService, templateService);
+  const promptRendererService = new PromptRendererService(templateService);
+  const openAIClient = new OpenAIClient();
+  const fitAiService = new FitAnalysisAiService(
+    openAIClient,
+    promptRendererService,
+  );
 
   const fitService = new FitAnalysisService(
     fitRepo,

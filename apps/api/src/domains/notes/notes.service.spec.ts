@@ -1,5 +1,4 @@
 import { ApplicationEventBus } from "@api/domains/applications/application-event.bus";
-import { NoteAiService } from "@api/domains/note-ai/note-ai.service";
 import {
   BadRequestException,
   ConflictException,
@@ -7,6 +6,7 @@ import {
 } from "@nestjs/common";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { NoteGenerationService } from "./ai/note-generation.service";
 import { NoteRepository } from "./notes.repository";
 import type { Note } from "./notes.schema";
 import { NoteService } from "./notes.service";
@@ -26,7 +26,7 @@ const makeNote = (overrides: Partial<Note> = {}): Note =>
 describe("NoteService", () => {
   let service: NoteService;
   let repo: NoteRepository;
-  let noteAiService: NoteAiService;
+  let noteAiService: NoteGenerationService;
   let eventBus: ApplicationEventBus;
 
   beforeEach(() => {
@@ -40,7 +40,9 @@ describe("NoteService", () => {
       delete: vi.fn(),
     } as unknown as NoteRepository;
 
-    noteAiService = { generateNote: vi.fn() } as unknown as NoteAiService;
+    noteAiService = {
+      generateNote: vi.fn(),
+    } as unknown as NoteGenerationService;
     eventBus = {
       emitApplicationUpdated: vi.fn(),
     } as unknown as ApplicationEventBus;

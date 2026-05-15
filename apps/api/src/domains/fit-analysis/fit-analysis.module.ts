@@ -1,12 +1,12 @@
 import { FitAnalysisEntity } from "@api/database/entities/fit-analysis.entity";
 import { ResumeEntity } from "@api/database/entities/resume.entity";
 import { UserPreferencesEntity } from "@api/database/entities/user-preferences.entity";
-import { ApplicationAiModule } from "@api/domains/application-ai/application-ai.module";
 import { ApplicationModule } from "@api/domains/applications/applications.module";
 import { AuthModule } from "@api/domains/auth/auth.module";
 import { DraftApplicationsModule } from "@api/domains/draft-applications/draft-applications.module";
 import { ResumesModule } from "@api/domains/resumes/resumes.module";
 import { TemplateModule } from "@api/domains/shared/template/template.module";
+import { LibAiModule } from "@api/lib/ai";
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 
@@ -28,7 +28,7 @@ import { FitAnalysisEventListener } from "./fit-analysis-event.listener";
       UserPreferencesEntity,
     ]),
     AuthModule,
-    ApplicationAiModule,
+    LibAiModule,
     TemplateModule,
     ApplicationModule,
     ResumesModule,

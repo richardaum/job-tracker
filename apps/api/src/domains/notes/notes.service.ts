@@ -1,5 +1,4 @@
 import { ApplicationEventBus } from "@api/domains/applications/application-event.bus";
-import { NoteAiService } from "@api/domains/note-ai/note-ai.service";
 import { isTipTapDocumentString } from "@job-tracker/tiptap";
 import {
   BadRequestException,
@@ -8,6 +7,7 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 
+import { NoteGenerationService } from "./ai/note-generation.service";
 import { NoteRepository } from "./notes.repository";
 import { Note } from "./notes.schema";
 
@@ -19,7 +19,7 @@ type UpdateNoteDto = { content?: string; expectedRevision: number };
 export class NoteService {
   constructor(
     private readonly repo: NoteRepository,
-    private readonly noteAiService: NoteAiService,
+    private readonly noteAiService: NoteGenerationService,
     private readonly eventBus: ApplicationEventBus,
   ) {}
 

@@ -5,10 +5,10 @@ import { buildDataSourceOptions } from "@api/database/data-source-options";
 import { ApplicationEntity } from "@api/database/entities/application.entity";
 import { ApplicationNoteEntity } from "@api/database/entities/application-note.entity";
 import { ApplicationStageEventEntity } from "@api/database/entities/application-stage-event.entity";
-import { OpenAIService } from "@api/domains/application-ai/openai.service";
-import { SummaryAiService } from "@api/domains/application-ai/summary-ai.service";
+import { SummaryAiService } from "@api/domains/applications/ai/summary-ai.service";
 import { ApplicationEventBus } from "@api/domains/applications/application-event.bus";
 import { SummaryService } from "@api/domains/applications/summary.service";
+import { LibAiModule } from "@api/lib/ai";
 import { tryRun } from "@job-tracker/try-run";
 import { Module } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
@@ -25,13 +25,9 @@ import { EntityManager } from "typeorm";
       ApplicationNoteEntity,
       ApplicationStageEventEntity,
     ]),
+    LibAiModule,
   ],
-  providers: [
-    ApplicationEventBus,
-    OpenAIService,
-    SummaryAiService,
-    SummaryService,
-  ],
+  providers: [ApplicationEventBus, SummaryAiService, SummaryService],
 })
 class BackfillModule {}
 

@@ -3,7 +3,7 @@ import { BadRequestException, Injectable } from "@nestjs/common";
 import OpenAI from "openai";
 
 @Injectable()
-export class OpenAIService {
+export class OpenAIClient {
   private readonly client: OpenAI | null = OPENAI_API_KEY
     ? new OpenAI({ apiKey: OPENAI_API_KEY })
     : null;

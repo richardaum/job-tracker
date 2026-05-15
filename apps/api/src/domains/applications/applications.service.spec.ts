@@ -1,11 +1,12 @@
 import { DraftApplicationConversionStatus } from "@api/database/entities/draft-application.entity";
 import { FitAnalysisEntity } from "@api/database/entities/fit-analysis.entity";
 import { SourceRunEntity } from "@api/database/entities/source-run.entity";
-import { ApplicationAiService } from "@api/domains/application-ai/application-ai.service";
-import { DraftExtractionNormalizationService } from "@api/domains/application-ai/draft-extraction-normalization.service";
+import { CompanyDescriptionService } from "@api/domains/companies/ai/company-description.service";
 import { CompanyService } from "@api/domains/companies/companies.service";
-import { CompanyAiService } from "@api/domains/company-ai/company-ai.service";
+import { DraftExtractionService } from "@api/domains/draft-applications/ai/draft-extraction.service";
+import { DraftExtractionNormalizationService } from "@api/domains/draft-applications/ai/draft-extraction-normalization.service";
 import { DraftApplicationsService } from "@api/domains/draft-applications/draft-applications.service";
+import { LocationInferenceService } from "@api/lib/ai";
 import { NotFoundException } from "@nestjs/common";
 import type { Repository } from "typeorm";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -70,10 +71,11 @@ describe("ApplicationService", () => {
   let companyService: CompanyService;
   let salaryService: SalaryService;
   let tagService: TagService;
-  let companyAiService: CompanyAiService;
+  let companyDescriptionService: CompanyDescriptionService;
   let draftApplicationsService: DraftApplicationsService;
-  let applicationAiService: ApplicationAiService;
+  let draftExtractionService: DraftExtractionService;
   let draftExtractionNormalizationService: DraftExtractionNormalizationService;
+  let locationInferenceService: LocationInferenceService;
 
   beforeEach(() => {
     sourceRunsRepo = { findOne: vi.fn().mockResolvedValue(null) };
@@ -105,19 +107,23 @@ describe("ApplicationService", () => {
 
     salaryService = new SalaryService();
     tagService = new TagService();
-    companyAiService = {
+    companyDescriptionService = {
       generateCompanyDescription: vi.fn(),
-    } as unknown as CompanyAiService;
+    } as unknown as CompanyDescriptionService;
     draftApplicationsService = {
       findOne: vi.fn(),
       update: vi.fn(),
     } as unknown as DraftApplicationsService;
-    applicationAiService = {
-      extractFromDraft: vi.fn(),
-    } as unknown as ApplicationAiService;
+    draftExtractionService = {
+      extract: vi.fn(),
+    } as unknown as DraftExtractionService;
     draftExtractionNormalizationService = {
       normalizeExtraction: vi.fn(),
     } as unknown as DraftExtractionNormalizationService;
+    locationInferenceService = {
+      inferLocation: vi.fn(),
+      inferWorkRegion: vi.fn(),
+    } as unknown as LocationInferenceService;
 
     const eventBus = {
       emitApplicationCreated: vi.fn(),
@@ -132,10 +138,11 @@ describe("ApplicationService", () => {
       companyService,
       salaryService,
       tagService,
-      companyAiService,
+      companyDescriptionService,
       draftApplicationsService,
-      applicationAiService,
+      draftExtractionService,
       draftExtractionNormalizationService,
+      locationInferenceService,
       eventBus,
     );
   });
@@ -281,9 +288,9 @@ describe("ApplicationService", () => {
     vi.mocked(
       repo.findUpToTwoJobPostingContextsByCompanyName,
     ).mockResolvedValue(snippets);
-    vi.mocked(companyAiService.generateCompanyDescription).mockResolvedValue(
-      "{}",
-    );
+    vi.mocked(
+      companyDescriptionService.generateCompanyDescription,
+    ).mockResolvedValue("{}");
 
     await service.generateCompanyDescription("user-1", {
       companyName: "  Acme  ",
@@ -293,7 +300,7 @@ describe("ApplicationService", () => {
       repo.findUpToTwoJobPostingContextsByCompanyName,
     ).toHaveBeenCalledWith("user-1", "  Acme  ");
     expect(
-      vi.mocked(companyAiService.generateCompanyDescription),
+      vi.mocked(companyDescriptionService.generateCompanyDescription),
     ).toHaveBeenCalledWith({
       companyName: "  Acme  ",
       jobPostingContexts: snippets,
@@ -329,7 +336,7 @@ describe("ApplicationService", () => {
           updatedAt: new Date(),
         }) as never,
     );
-    vi.mocked(applicationAiService.extractFromDraft).mockRejectedValue(
+    vi.mocked(draftExtractionService.extract).mockRejectedValue(
       new Error("openai down"),
     );
 
@@ -375,7 +382,7 @@ describe("ApplicationService", () => {
           convertedAt: patch?.convertedAt ?? null,
         }) as never,
     );
-    vi.mocked(applicationAiService.extractFromDraft).mockResolvedValue({
+    vi.mocked(draftExtractionService.extract).mockResolvedValue({
       title: "Senior Engineer",
       company: "Acme",
       url: "https://jobs.example.com/x",
@@ -414,7 +421,7 @@ describe("ApplicationService", () => {
           convertedAt: patch?.convertedAt ?? null,
         }) as never,
     );
-    vi.mocked(applicationAiService.extractFromDraft).mockResolvedValue({
+    vi.mocked(draftExtractionService.extract).mockResolvedValue({
       title: "Senior Engineer",
       company: "Acme",
       url: "https://jobs.example.com/x",
@@ -515,7 +522,7 @@ describe("ApplicationService", () => {
           conversionError: patch?.conversionError ?? null,
         }) as never,
     );
-    vi.mocked(applicationAiService.extractFromDraft).mockResolvedValue({
+    vi.mocked(draftExtractionService.extract).mockResolvedValue({
       title: "Senior Engineer",
       company: "Acme",
       url: "https://jobs.example.com/x",

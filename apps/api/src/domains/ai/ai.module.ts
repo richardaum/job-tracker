@@ -1,12 +1,8 @@
-import { ApplicationAiModule } from "@api/domains/application-ai/application-ai.module";
 import { AuthModule } from "@api/domains/auth/auth.module";
+import { LibAiModule } from "@api/lib/ai";
 import { Module } from "@nestjs/common";
 
 import { AiResolver } from "./ai.resolver";
-import { AiService } from "./ai.service";
 
-@Module({
-  imports: [ApplicationAiModule, AuthModule],
-  providers: [AiResolver, AiService],
-})
+@Module({ imports: [LibAiModule, AuthModule], providers: [AiResolver] })
 export class AiModule {}

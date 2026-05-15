@@ -33,7 +33,6 @@ function asOptionalInt(value: unknown): number | null {
   return null;
 }
 
-/** Salary amounts as returned by the model (major currency units, e.g. 5000.00) -> cents. */
 function salaryMajorUnitsToCents(value: unknown): number | null {
   if (value === null || value === undefined) return null;
   if (typeof value === "number" && Number.isFinite(value)) {
