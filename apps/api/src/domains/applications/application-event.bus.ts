@@ -2,7 +2,7 @@ import { EventEmitter } from "node:events";
 
 import { Injectable, Logger } from "@nestjs/common";
 
-import { ApplicationSummaryStatus } from "./application-summary-status.enum";
+import { ApplicationSummaryStatus } from "./summary/summary-status.enum";
 
 export type ApplicationCreatedEvent = { applicationId: string; userId: string };
 export type ApplicationUpdatedEvent = { applicationId: string; userId: string };

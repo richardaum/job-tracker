@@ -1,15 +1,15 @@
 import { ApplicationEntity } from "@api/database/entities/application.entity";
 import { ApplicationNoteEntity } from "@api/database/entities/application-note.entity";
 import { ApplicationStageEventEntity } from "@api/database/entities/application-stage-event.entity";
+import { ApplicationEventBus } from "@api/domains/applications/application-event.bus";
 import { markdownToTipTap, tipTapToPlainText } from "@job-tracker/tiptap";
 import { tryRun } from "@job-tracker/try-run";
 import { Injectable, Logger } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 
-import { SummaryAiService } from "./ai/summary-ai.service";
-import { ApplicationEventBus } from "./application-event.bus";
-import { ApplicationSummaryStatus } from "./application-summary-status.enum";
+import { SummaryAiService } from "./summary-ai.service";
+import { ApplicationSummaryStatus } from "./summary-status.enum";
 
 @Injectable()
 export class SummaryService {

@@ -1,15 +1,15 @@
 import { ApplicationEntity } from "@api/database/entities/application.entity";
+import {
+  ApplicationEventBus,
+  ApplicationUpdatedEvent,
+} from "@api/domains/applications/application-event.bus";
 import { tryRun } from "@job-tracker/try-run";
 import { Injectable, Logger, OnModuleInit } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 
-import {
-  ApplicationEventBus,
-  ApplicationUpdatedEvent,
-} from "./application-event.bus";
-import { ApplicationSummaryStatus } from "./application-summary-status.enum";
 import { SummaryService } from "./summary.service";
+import { ApplicationSummaryStatus } from "./summary-status.enum";
 
 @Injectable()
 export class SummaryEventListener implements OnModuleInit {

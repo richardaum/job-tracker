@@ -12,14 +12,15 @@ import { LibAiModule } from "@api/lib/ai";
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 
-import { SummaryAiService } from "./ai/summary-ai.service";
 import { ApplicationEventBus } from "./application-event.bus";
 import { ApplicationRepository } from "./applications.repository";
 import { ApplicationResolver } from "./applications.resolver";
 import { ApplicationService } from "./applications.service";
+import { ApplicationsSseController } from "./applications-sse.controller";
 import { SalaryService } from "./salary.service";
-import { SummaryService } from "./summary.service";
-import { SummaryEventListener } from "./summary-event.listener";
+import { SummaryService } from "./summary/summary.service";
+import { SummaryAiService } from "./summary/summary-ai.service";
+import { SummaryEventListener } from "./summary/summary-event.listener";
 import { TagService } from "./tag.service";
 
 @Module({
@@ -38,6 +39,7 @@ import { TagService } from "./tag.service";
     DraftApplicationsModule,
     LibAiModule,
   ],
+  controllers: [ApplicationsSseController],
   providers: [
     ApplicationEventBus,
     ApplicationRepository,

@@ -24,7 +24,7 @@ import { ApplicationService } from "./applications.service";
 import { CreateApplicationInput } from "./create-application.input";
 import { CreateApplicationStageEventInput } from "./create-application-stage-event.input";
 import { SalaryPeriodEnum } from "./salary-period.enum";
-import { SummaryService } from "./summary.service";
+import { SummaryService } from "./summary/summary.service";
 import { UpdateApplicationInput } from "./update-application.input";
 import { UpdateApplicationStageEventInput } from "./update-application-stage-event.input";
 

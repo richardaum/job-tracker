@@ -1,6 +1,6 @@
 import { WithGeneratedId } from "@api/database/decorators/with-generated-id.decorator";
 import { ApplicationSource } from "@api/domains/applications/application-source.enum";
-import { ApplicationSummaryStatus } from "@api/domains/applications/application-summary-status.enum";
+import { ApplicationSummaryStatus } from "@api/domains/applications/summary/summary-status.enum";
 import {
   Column,
   CreateDateColumn,

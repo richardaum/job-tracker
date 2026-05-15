@@ -4,7 +4,7 @@ import { Field, ID, ObjectType } from "@nestjs/graphql";
 
 import { ApplicationSource } from "./application-source.enum";
 import { ApplicationStageEnum } from "./application-stage.enum";
-import { ApplicationSummaryStatus } from "./application-summary-status.enum";
+import { ApplicationSummaryStatus } from "./summary/summary-status.enum";
 
 @ObjectType()
 export class ApplicationType {
