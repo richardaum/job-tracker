@@ -42,11 +42,11 @@ See **[`PATTERN.md`](./PATTERN.md)** for the full reference — type definition,
 
 Existing implementations need to consolidate 3 columns into 1 JSONB:
 
-| Entity             | Current (3 cols)                                          | Target (1 col)                      |
-| ------------------ | --------------------------------------------------------- | ----------------------------------- |
-| `Application`      | `summary_status`, `summary_error`, `summary_generated_at` | `summary_metadata` (jsonb)          |
-| `FitAnalysis`      | `status` (enum), `error` (text)                           | `metadata` (jsonb, + `generatedAt`) |
-| `DraftApplication` | `conversion_status`, `conversion_error`, `converted_at`   | `conversion_metadata` (jsonb)       |
+| Entity             | Current (3 cols)                                          | Target (1 col)                                 |
+| ------------------ | --------------------------------------------------------- | ---------------------------------------------- |
+| `Application`      | `summary_status`, `summary_error`, `summary_generated_at` | `summary_metadata` (jsonb)                     |
+| `FitAnalysis`      | `status` (enum), `error` (text)                           | `generation_metadata` (jsonb, + `generatedAt`) |
+| `DraftApplication` | `conversion_status`, `conversion_error`, `converted_at`   | `conversion_metadata` (jsonb)                  |
 
 ## Modus Operandi
 
