@@ -1,67 +1,58 @@
 ---
-status: planned
+status: in-progress
 created: 2026-05-12
+updated: 2026-05-15
 priority: high
 tags:
   - api
   - async
   - architecture
-created_at: 2026-05-12T18:40:00.000000Z
-updated_at: 2026-05-12T18:40:00.000000Z
+  - pattern
 ---
 
 # Technical Scope: async-task-pattern
 
-> **Status**: draft · **Priority**: high · **Created**: 2026-05-12
+> **Status**: active · **Priority**: high · **Created**: 2026-05-12 · **Updated**: 2026-05-15
 
 ## Objective
 
-Define a generic "fire-and-forget" pattern for asynchronous background tasks in the monorepo. This pattern ensures consistency when handling long-running operations (like AI analysis, external sync, or heavy computations) that should not block the initial GraphQL mutation response.
+Standardize async background tasks using a **single JSONB column per task slot** — replacing the 3-column pattern (`status` + `error` + `generated_at`) with a unified `AsyncTaskMeta` structure.
+
+## Motivation
+
+Every async feature needs the same metadata: status, error, completion timestamp. Spreading these across 3–4 columns forces repetitive migrations, verbose entities, and inconsistent naming. A single typed JSONB column is:
+
+- **DRY** — one type definition, one GraphQL type, one entity column
+- **Extensible** — future metadata (`progress`, `attempts`, `startedAt`, `model`) goes in the JSONB, zero migrations
+- **Replaceable** — same structure for inline (summary on Application) and standalone (FitAnalysis) use
 
 ## Context
 
-Operations that take more than a few hundred milliseconds (e.g., AI calls taking 3-10s) shouldn't hold the HTTP connection open. Instead, we use a pattern where:
+Flow unchanged from current pattern:
 
-1. The mutation initializes a record with a `processing` status and returns immediately.
-2. The server continues the work in a background process (fire-and-forget).
-3. The client polls the status until it reaches a terminal state (`completed` or `failed`).
+1. Mutation sets `task = { status: "processing" }`, persists, returns immediately.
+2. Server continues in background (`void this.work()`).
+3. Client polls until terminal state (`completed` / `failed`).
 
-## Generic Requirements (Pattern)
+## Standard Pattern
 
-- [T-207] **Persistence Layer**:
-  - Add a status enum (e.g., `processing`, `completed`, `failed`) to the relevant entity.
-  - Add an optional `error` text column for failure details.
-  - Provide a migration for the new columns and enums.
-- [T-208] **GraphQL Schema**:
-  - Expose the status enum and error message in the GraphQL types.
-  - Register the enum globally if needed.
-- [T-209] **Background Execution (Service)**:
-  - Mutation-facing method: Creates/updates the entity to `processing`, saves, triggers the background work via `void` (fire-and-forget), and returns the record immediately.
-  - Worker method: Performs the actual work (e.g., AI calls) wrapped in `tryRun()` or a try/catch. Updates the entity to `completed` or `failed` based on the outcome.
-- [T-210] **Query Readiness**:
-  - Ensure the relevant queries return the latest status and error information to support client-side polling.
-- [T-211] **Frontend Polling**:
-  - Implement a polling mechanism (e.g., `useQuery` with `pollInterval` or a `useEffect` timer) that triggers while the status is `processing`.
-  - Provide visual feedback (e.g., loading spinner or progress indicator).
-- [T-212] **Stale State Protection**:
-  - **Recovery**: Implement an `onModuleInit` hook in the service to reset any records stuck in `processing` after a server restart.
-  - **Concurrency**: Use atomic updates (e.g., `.update({ id, status: 'processing' }, { status: 'completed' })`) or a `revision` column to ensure background workers don't overwrite newer manual changes or other worker attempts.
+See **[`PATTERN.md`](./PATTERN.md)** for the full reference — type definition, entity mapping, repository atomic updates, service template, stale recovery, GraphQL schema, and frontend handling.
 
-## First Implementation: Fit Analysis
+## Migration Delta
 
-The first application of this pattern is the Fit Analysis generation:
+Existing implementations need to consolidate 3 columns into 1 JSONB:
 
-- **Persistence**: `FitAnalysisEntity` gains `status: FitAnalysisStatus` and `error: string?`.
-- **Service**: `FitAnalysisService.generate()` splits into:
-  - `generate()`: Sets `PROCESSING`, saves, fires `generateInBackground()`, returns entity.
-  - `generateInBackground()`: Performs AI `extractResumeFitItems` + `extractPreferenceFitItems`, updates to `COMPLETED` or `FAILED`.
-- **GraphQL**: `FitAnalysisType` exposes `status` and `error`.
-- **Frontend**: `FitAnalysisPage` polls `applicationFit` until `status !== 'processing'`.
+| Entity             | Current (3 cols)                                          | Target (1 col)                      |
+| ------------------ | --------------------------------------------------------- | ----------------------------------- |
+| `Application`      | `summary_status`, `summary_error`, `summary_generated_at` | `summary_metadata` (jsonb)          |
+| `FitAnalysis`      | `status` (enum), `error` (text)                           | `metadata` (jsonb, + `generatedAt`) |
+| `DraftApplication` | `conversion_status`, `conversion_error`, `converted_at`   | `conversion_metadata` (jsonb)       |
 
 ## Modus Operandi
 
-Follow the **fire-and-forget pattern** established in `apps/`:
-
-1. **Non-blocking**: The background method must be called without `await` (e.g., `void this.work()`) to return the response to the client immediately.
-2. **Resilience**: Use `tryRun()` for all external integrations (AI providers, external APIs) to ensure the background task doesn't crash the worker thread and accurately records failures.
-3. **Legacy Data**: When adding status to existing entities, default to `completed` for legacy records to maintain backward compatibility.
+1. **Non-blocking**: Background method called with `void` — never `await`
+2. **Resilience**: `tryRun()` for all external integrations — never raw try/catch in background paths
+3. **Atomic transitions**: `jsonb_set()` or `||` operator guarded by `task->>'status'` — no blind overwrites
+4. **Stale recovery**: Every async service owns its recovery in `onModuleInit`
+5. **Spread on update**: When mutating `task` in TypeORM, always spread existing state to avoid data loss
+6. **Default value**: `{ status: "completed" }` for backward compat; `null` for "never requested" states

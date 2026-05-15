@@ -1,9 +1,9 @@
 ---
 formatVersion: 1
 generator: "scripts/sync-spec-indices.mjs"
-specCount: 35
-requirementIdCount: 496
-historyCount: 77
+specCount: 39
+requirementIdCount: 546
+historyCount: 83
 ---
 
 # LeanSpec index
