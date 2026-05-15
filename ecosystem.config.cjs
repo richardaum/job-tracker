@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-require-imports */
 const path = require("path");
 
 const root = path.resolve(__dirname);
@@ -41,7 +40,7 @@ module.exports = {
       script: "pnpm",
       args: "run dev",
       interpreter: "none",
-      env: { NODE_ENV: "development", CI: "true" },
+      env: { NODE_ENV: "development" },
       watch: false,
     },
     {
