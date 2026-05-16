@@ -1,4 +1,4 @@
-import { ExchangeRateCacheEntity } from "@api/database/entities/exchange-rate-cache.entity";
+import { ExchangeRateEntity } from "@api/database/entities/exchange-rate.entity";
 import { tryRun } from "@job-tracker/try-run";
 import { Injectable, Logger } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
@@ -16,8 +16,8 @@ export class ExchangeRateCacheService {
   private readonly logger = new Logger(ExchangeRateCacheService.name);
 
   constructor(
-    @InjectRepository(ExchangeRateCacheEntity)
-    private readonly repo: Repository<ExchangeRateCacheEntity>,
+    @InjectRepository(ExchangeRateEntity)
+    private readonly repo: Repository<ExchangeRateEntity>,
   ) {}
 
   async get(baseCurrency: string): Promise<CachedExchangeRates | null> {

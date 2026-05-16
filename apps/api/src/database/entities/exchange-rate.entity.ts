@@ -7,9 +7,9 @@ import {
   UpdateDateColumn,
 } from "typeorm";
 
-@Entity({ name: "exchange_rate_cache" })
+@Entity({ name: "exchange_rate" })
 @Index("idx_exchange_rate_base_currency", ["baseCurrency"], { unique: true })
-export class ExchangeRateCacheEntity {
+export class ExchangeRateEntity {
   @PrimaryGeneratedColumn("uuid")
   id!: string;
 

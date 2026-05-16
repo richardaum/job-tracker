@@ -1,4 +1,4 @@
-import { ExchangeRateCacheEntity } from "@api/database/entities/exchange-rate-cache.entity";
+import { ExchangeRateEntity } from "@api/database/entities/exchange-rate.entity";
 import { AuthModule } from "@api/domains/auth/auth.module";
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
@@ -8,7 +8,7 @@ import { CurrencyConverterService } from "./currency-converter.service";
 import { ExchangeRateCacheService } from "./exchange-rate-cache.service";
 
 @Module({
-  imports: [AuthModule, TypeOrmModule.forFeature([ExchangeRateCacheEntity])],
+  imports: [AuthModule, TypeOrmModule.forFeature([ExchangeRateEntity])],
   providers: [
     ExchangeRateCacheService,
     CurrencyConverterService,

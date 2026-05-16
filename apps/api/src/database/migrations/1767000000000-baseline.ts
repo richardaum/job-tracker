@@ -134,9 +134,9 @@ export class SquashedBaseline1767000000000 implements MigrationInterface {
       `ALTER TABLE "application_notes" ADD CONSTRAINT "fk_an_user_id" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE`,
     );
 
-    // ── exchange_rate_cache ────────────────────────────────────────
+    // ── exchange_rate ────────────────────────────────────────
     await queryRunner.query(`
-      CREATE TABLE "exchange_rate_cache" (
+      CREATE TABLE "exchange_rate" (
         "id"              uuid NOT NULL DEFAULT gen_random_uuid(),
         "base_currency"   text NOT NULL,
         "rates_json"      jsonb NOT NULL,
@@ -144,7 +144,7 @@ export class SquashedBaseline1767000000000 implements MigrationInterface {
         "expires_at"      timestamptz NOT NULL,
         "created_at"      timestamptz NOT NULL DEFAULT now(),
         "updated_at"      timestamptz NOT NULL DEFAULT now(),
-        CONSTRAINT "pk_exchange_rate_cache" PRIMARY KEY ("id"),
+        CONSTRAINT "pk_exchange_rate" PRIMARY KEY ("id"),
         CONSTRAINT "uq_exchange_rate_base_currency" UNIQUE ("base_currency")
       )
     `);
