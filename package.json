@@ -1,10 +1,11 @@
 {
   "name": "job-tracker",
   "private": true,
+  "type": "module",
   "scripts": {
     "pm2:start": "pm2 start ecosystem.config.cjs",
-    "pm2:reset": "node scripts/pm2-ecosystem-reset.mjs",
-    "ports:kill": "node scripts/kill-tcp-listen-ports.mjs",
+    "pm2:reset": "node --experimental-strip-types scripts/pm2-ecosystem-reset.ts",
+    "ports:kill": "node --experimental-strip-types scripts/kill-tcp-listen-ports.ts",
     "pm2:stop": "pm2 stop ecosystem.config.cjs",
     "pm2:restart": "pm2 restart ecosystem.config.cjs --update-env",
     "dev": "turbo run dev db:migrate:watch",
@@ -14,8 +15,8 @@
     "ci:local": "pnpm leanspec:validate && pnpm leanspec:sync-spec-indices -- --check && pnpm turbo lint && pnpm turbo typecheck && pnpm turbo test -- --coverage --coverage.thresholds.lines=80 && pnpm turbo build",
     "e2e": "pnpm turbo build --filter=@job-tracker/web && pnpm --filter @job-tracker/web run e2e",
     "lint": "turbo lint",
-    "fix:imports": "node scripts/fix-imports.mjs",
-    "test:scripts": "node --test scripts/fix-imports.test.mjs",
+    "fix:imports": "node --experimental-strip-types scripts/fix-imports.ts",
+    "test:scripts": "node --experimental-strip-types --test scripts/fix-imports.test.ts",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint-staged": "lint-staged",
@@ -23,9 +24,9 @@
     "typecheck": "turbo typecheck",
     "typecheck:repo": "tsc -p tsconfig.repo.json --noEmit",
     "leanspec:validate": "pnpm exec lean-spec validate",
-    "leanspec:sync-spec-indices": "node scripts/sync-spec-indices.mjs",
-    "storybook:sync-specs": "node scripts/generate-specs-storybook.mjs",
-    "setup-ai": "node scripts/setup-ai-symlinks.mjs",
+    "leanspec:sync-spec-indices": "node --experimental-strip-types scripts/sync-spec-indices.ts",
+    "storybook:sync-specs": "node --experimental-strip-types scripts/generate-specs-storybook.ts",
+    "setup-ai": "node --experimental-strip-types scripts/setup-ai-symlinks.ts",
     "backfill:summaries": "pnpm --filter @job-tracker/api run backfill:summaries",
     "backfill:summaries:dry-run": "pnpm --filter @job-tracker/api run backfill:summaries --dry-run",
     "docker:build:api": "docker build -f apps/api/Dockerfile -t job-tracker-api:local .",
@@ -33,7 +34,7 @@
   },
   "lint-staged": {
     "*.{js,jsx,mjs,cjs,ts,tsx}": [
-      "node scripts/fix-imports.mjs",
+      "node --experimental-strip-types scripts/fix-imports.ts",
       "eslint --fix --max-warnings=0 --no-warn-ignored",
       "prettier --write"
     ],

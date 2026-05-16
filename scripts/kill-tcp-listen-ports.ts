@@ -1,25 +1,15 @@
 #!/usr/bin/env node
-/**
- * SIGKILL processes that are LISTEN on the given TCP ports (macOS/Linux: `lsof` + `kill`).
- *
- * Port list precedence: `PM2_RESET_PORTS` → `PORTS` → `KILL_PORTS`; if none set → 3100, 3101, 6006.
- *
- * CLI: `pnpm ports:kill` · `PORTS=3101 pnpm ports:kill`
- */
 
 import { execFileSync } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-/** @readonly */
-const DEFAULT_PORTS = Object.freeze([3100, 3101, 6006]);
+const DEFAULT_PORTS: readonly number[] = [3100, 3101, 6006];
 
-/**
- * @param {string} raw
- * @param {string} tag
- * @returns {readonly number[] | undefined} undefined → invalid input
- */
-function parseCommaPorts(raw, tag) {
+function parseCommaPorts(
+  raw: string,
+  tag: string,
+): readonly number[] | undefined {
   const list = raw
     .split(",")
     .map((s) => Number.parseInt(s.trim(), 10))
@@ -30,15 +20,14 @@ function parseCommaPorts(raw, tag) {
     );
     return undefined;
   }
-  return Object.freeze(list);
+  return list;
 }
 
-/**
- * @param {NodeJS.ProcessEnv} env
- * @param {{ tag?: string }} [opts]
- */
-export function resolveListenPorts(env, opts = {}) {
-  const tag = opts.tag ?? "[ports:kill]";
+export function resolveListenPorts(
+  env: NodeJS.ProcessEnv,
+  opts?: { tag?: string },
+): readonly number[] {
+  const tag = opts?.tag ?? "[ports:kill]";
   const explicit =
     env.PM2_RESET_PORTS?.trim() ||
     env.PORTS?.trim() ||
@@ -50,29 +39,26 @@ export function resolveListenPorts(env, opts = {}) {
   return parsed;
 }
 
-/** @returns {readonly string[]} */
-function pidsListeningOnTcpPort(port) {
+function pidsListeningOnTcpPort(port: number): readonly string[] {
   try {
     const out = execFileSync("lsof", ["-t", `-iTCP:${port}`, "-sTCP:LISTEN"], {
       encoding: "utf8",
       stdio: ["ignore", "pipe", "ignore"],
     });
-    /** @type {Set<string>} */
-    const uniq = new Set();
+    const uniq = new Set<string>();
     for (const line of out.trim().split(/\n/))
       if (/^\d+$/.test(line)) uniq.add(line);
-    return Object.freeze([...uniq]);
+    return [...uniq];
   } catch {
-    return Object.freeze([]);
+    return [];
   }
 }
 
-/**
- * @param {readonly number[]} ports
- * @param {{ tag?: string }} [opts]
- */
-export function killTcpListenPorts(ports, opts = {}) {
-  const tag = opts.tag ?? "[ports:kill]";
+export function killTcpListenPorts(
+  ports: readonly number[],
+  opts?: { tag?: string },
+): void {
+  const tag = opts?.tag ?? "[ports:kill]";
   for (const port of ports) {
     const pids = pidsListeningOnTcpPort(port);
     for (const pid of pids) {

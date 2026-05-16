@@ -1,21 +1,13 @@
 #!/usr/bin/env node
-/**
- * Apply `simple-import-sort` fixer only — no type-checking, no React/Next/Tailwind plugins.
- *
- * Roughly 10× faster than full `lint:fix` because ESLint only loads 2 rules.
- *
- * Usage:
- *   node scripts/fix-imports.mjs "apps/web/src/<dirs>/*.{ts,tsx}"
- *   node scripts/fix-imports.mjs "apps/api/<dirs>/*.ts" "packages/<dirs>/*.ts"
- */
 
+// @ts-expect-error — no types
 import nextPlugin from "@next/eslint-plugin-next";
 import { ESLint } from "eslint";
+// @ts-expect-error — no types
 import simpleImportSort from "eslint-plugin-simple-import-sort";
 import { parser as tsParser } from "typescript-eslint";
 
-/** @readonly */
-const IGNORE_PATTERNS = Object.freeze([
+const IGNORE_PATTERNS: readonly string[] = [
   "**/node_modules/**",
   "**/.next/**",
   "**/dist/**",
@@ -25,11 +17,13 @@ const IGNORE_PATTERNS = Object.freeze([
   "apps/extension/.wxt/**",
   "apps/web/src/gql/**",
   "apps/web/next-env.d.ts",
-]);
+];
 
 const patterns = process.argv.slice(2);
 if (patterns.length === 0) {
-  console.error("Usage: node scripts/fix-imports.mjs <glob1> [glob2 …]");
+  console.error(
+    "Usage: node --experimental-strip-types scripts/fix-imports.ts <glob1> [glob2 …]",
+  );
   process.exit(1);
 }
 
@@ -38,12 +32,12 @@ const eslint = new ESLint({
   warnIgnored: false,
   overrideConfigFile: true,
   overrideConfig: [
-    { ignores: IGNORE_PATTERNS },
+    { ignores: [...IGNORE_PATTERNS] },
     {
       files: ["**/*.{ts,tsx}"],
       plugins: {
-        "simple-import-sort": simpleImportSort,
-        "@next/next": nextPlugin,
+        "simple-import-sort": simpleImportSort as Record<string, unknown>,
+        "@next/next": nextPlugin as Record<string, unknown>,
       },
       languageOptions: {
         parser: tsParser,
@@ -57,8 +51,8 @@ const eslint = new ESLint({
     {
       files: ["**/*.{js,jsx,mjs,cjs}"],
       plugins: {
-        "simple-import-sort": simpleImportSort,
-        "@next/next": nextPlugin,
+        "simple-import-sort": simpleImportSort as Record<string, unknown>,
+        "@next/next": nextPlugin as Record<string, unknown>,
       },
       languageOptions: { parserOptions: { ecmaFeatures: { jsx: true } } },
       rules: {
@@ -69,12 +63,16 @@ const eslint = new ESLint({
   ],
 });
 
-/** @type {import("eslint").ESLint.LintResult[]} */
-let results;
+let results: ESLint.LintResult[];
 try {
   results = await eslint.lintFiles(patterns);
-} catch (err) {
-  if (err.messageTemplate === "file-not-found") {
+} catch (err: unknown) {
+  if (
+    typeof err === "object" &&
+    err !== null &&
+    "messageTemplate" in err &&
+    (err as Record<string, unknown>).messageTemplate === "file-not-found"
+  ) {
     process.exit(0);
   }
   throw err;

@@ -1,13 +1,4 @@
 #!/usr/bin/env node
-/**
- * Writes `packages/ui/src/stories/requirement-id-map.generated.json`:
- * each traceability id (`P-1`, `T-57`, `H-64`, …) → repo-relative path of the
- * Markdown file whose **list-item definition** (`- [X-NNN]`) is the canonical
- * home for that id (used to turn bare `[X-NNN]` into Storybook doc links).
- *
- * Priority: `specs/<NNN-slug>/README.md` (sorted), then `specs/HISTORY.md`,
- * then other Markdown under `specs/` (excluding `specs/INDEX.md`).
- */
 
 import fs from "node:fs";
 import path from "node:path";
@@ -25,13 +16,9 @@ const OUTPUT = path.join(
 const DEF_LINE = /^\s*-\s*\[(P|T|R|H|F)-(\d+)\]/;
 const SKIP = new Set(["specs/INDEX.md"]);
 
-/**
- * @returns {string[]}
- */
-function listSpecMarkdownRelPaths() {
-  /** @type {string[]} */
-  const out = [];
-  function walk(currentAbs) {
+function listSpecMarkdownRelPaths(): string[] {
+  const out: string[] = [];
+  function walk(currentAbs: string): void {
     for (const ent of fs.readdirSync(currentAbs, { withFileTypes: true })) {
       const abs = path.join(currentAbs, ent.name);
       if (ent.isDirectory()) {
@@ -50,11 +37,7 @@ function listSpecMarkdownRelPaths() {
   return out;
 }
 
-/**
- * @param {string} posix
- * @returns {number}
- */
-function pathTier(posix) {
+function pathTier(posix: string): number {
   if (posix === "specs/HISTORY.md") {
     return 1;
   }
@@ -64,12 +47,8 @@ function pathTier(posix) {
   return 2;
 }
 
-/**
- * @returns {Record<string, string>}
- */
-function buildMap() {
-  /** @type {Map<string, { path: string, tier: number }>} */
-  const best = new Map();
+function buildMap(): Record<string, string> {
+  const best = new Map<string, { path: string; tier: number }>();
 
   for (const posix of listSpecMarkdownRelPaths()) {
     const abs = path.join(repoRoot, posix);
@@ -92,23 +71,17 @@ function buildMap() {
     }
   }
 
-  /** @type {Record<string, string>} */
-  const out = {};
-  for (const [id, { path: p }] of best) {
-    out[id] = p;
-  }
-  const keys = Object.keys(out).sort();
-  /** @type {Record<string, string>} */
-  const sorted = {};
+  const sorted: Record<string, string> = {};
+  const keys = [...best.keys()].sort();
   for (const k of keys) {
-    sorted[k] = out[k];
+    sorted[k] = best.get(k)!.path;
   }
   return sorted;
 }
 
 const CHECK_FLAG = "--check";
 
-function main() {
+function main(): void {
   const check = process.argv.includes(CHECK_FLAG);
   const map = buildMap();
   const body = JSON.stringify(map, null, 2) + "\n";
@@ -117,14 +90,14 @@ function main() {
     const abs = OUTPUT;
     if (!fs.existsSync(abs)) {
       console.error(
-        `${path.relative(repoRoot, abs)} missing. Run: node scripts/generate-requirement-id-map.mjs`,
+        `${path.relative(repoRoot, abs)} missing. Run: node --experimental-strip-types scripts/generate-requirement-id-map.ts`,
       );
       process.exit(1);
     }
     const actual = fs.readFileSync(abs, "utf8");
     if (actual !== body) {
       console.error(
-        `${path.relative(repoRoot, abs)} is out of date. Run: node scripts/generate-requirement-id-map.mjs`,
+        `${path.relative(repoRoot, abs)} is out of date. Run: node --experimental-strip-types scripts/generate-requirement-id-map.ts`,
       );
       process.exit(1);
     }

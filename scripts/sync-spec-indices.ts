@@ -1,11 +1,4 @@
 #!/usr/bin/env node
-/**
- * Writes specs/INDEX.md — minimal YAML frontmatter: **`specCount`**, **`requirementIdCount`**, **`historyCount`**.
- *
- * Usage:
- *   node scripts/sync-spec-indices.mjs
- *   node scripts/sync-spec-indices.mjs --check
- */
 
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
@@ -19,11 +12,11 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, "..");
 const specsDir = path.join(repoRoot, "specs");
 
-const SCRIPT = "scripts/sync-spec-indices.mjs";
+const SCRIPT = "scripts/sync-spec-indices.ts";
 const CMD = "pnpm leanspec:sync-spec-indices";
 const REQ_MAP_SCRIPT = path.join(
   repoRoot,
-  "scripts/generate-requirement-id-map.mjs",
+  "scripts/generate-requirement-id-map.ts",
 );
 const OUTPUT = "specs/INDEX.md";
 const HISTORY_FILE = "specs/HISTORY.md";
@@ -37,8 +30,15 @@ const CHECK_FLAG = "--check";
 
 const FORMAT_VERSION = 1;
 
-/** Deterministic YAML for frontmatter (`--check` stays stable across runs). */
-function frontmatterYAML(doc) {
+interface IndexDoc {
+  formatVersion: number;
+  generator: string;
+  specCount: number;
+  requirementIdCount: number;
+  historyCount: number;
+}
+
+function frontmatterYAML(doc: IndexDoc): string {
   return (
     "---\n" +
     yamlStringify(doc, {
@@ -51,7 +51,7 @@ function frontmatterYAML(doc) {
   );
 }
 
-function countSpecFolders() {
+function countSpecFolders(): number {
   if (!fs.existsSync(specsDir)) {
     return 0;
   }
@@ -72,13 +72,9 @@ function countSpecFolders() {
   return n;
 }
 
-/**
- * Paths relative to repo root — Markdown files under specs/ recursively.
- */
-function listSpecMarkdownPaths() {
-  /** @type {string[]} */
-  const out = [];
-  function walk(currentAbs) {
+function listSpecMarkdownPaths(): string[] {
+  const out: string[] = [];
+  function walk(currentAbs: string): void {
     for (const ent of fs.readdirSync(currentAbs, { withFileTypes: true })) {
       const abs = path.join(currentAbs, ent.name);
       if (ent.isDirectory()) {
@@ -97,12 +93,12 @@ function listSpecMarkdownPaths() {
   return out;
 }
 
-function countUniqueTraceabilityIds() {
-  const seen = new Set();
+function countUniqueTraceabilityIds(): number {
+  const seen = new Set<string>();
   for (const posix of listSpecMarkdownPaths()) {
     const text = fs.readFileSync(path.join(repoRoot, posix), "utf8");
     TRACE_RE.lastIndex = 0;
-    let match;
+    let match: RegExpExecArray | null;
     while ((match = TRACE_RE.exec(text)) !== null) {
       seen.add(`${match[1]}-${match[2]}`);
     }
@@ -110,8 +106,7 @@ function countUniqueTraceabilityIds() {
   return seen.size;
 }
 
-/** Lines in `specs/HISTORY.md` that start a list item with `[H-NNN]` (chronicle entries). */
-function countHistoryEntries() {
+function countHistoryEntries(): number {
   const abs = path.join(repoRoot, HISTORY_FILE);
   if (!fs.existsSync(abs)) {
     return 0;
@@ -126,8 +121,8 @@ function countHistoryEntries() {
   return n;
 }
 
-function generateIndexMd() {
-  const doc = {
+function generateIndexMd(): string {
+  const doc: IndexDoc = {
     formatVersion: FORMAT_VERSION,
     generator: SCRIPT,
     specCount: countSpecFolders(),
@@ -144,10 +139,10 @@ function generateIndexMd() {
   ).replace(/\n*$/, "\n");
 }
 
-function main() {
+function main(): void {
   const check = process.argv.includes(CHECK_FLAG);
   const content = generateIndexMd();
-  const payloads = [[OUTPUT, content]];
+  const payloads: [string, string][] = [[OUTPUT, content]];
 
   if (check) {
     for (const [relPath, expected] of payloads) {
@@ -162,10 +157,11 @@ function main() {
         process.exit(1);
       }
     }
-    execFileSync(process.execPath, [REQ_MAP_SCRIPT, CHECK_FLAG], {
-      cwd: repoRoot,
-      stdio: "inherit",
-    });
+    execFileSync(
+      process.execPath,
+      ["--experimental-strip-types", REQ_MAP_SCRIPT, CHECK_FLAG],
+      { cwd: repoRoot, stdio: "inherit" },
+    );
     process.exit(0);
   }
 
@@ -176,10 +172,11 @@ function main() {
     console.warn(`Updated ${OUTPUT}`);
   }
 
-  execFileSync(process.execPath, [REQ_MAP_SCRIPT], {
-    cwd: repoRoot,
-    stdio: "inherit",
-  });
+  execFileSync(
+    process.execPath,
+    ["--experimental-strip-types", REQ_MAP_SCRIPT],
+    { cwd: repoRoot, stdio: "inherit" },
+  );
 }
 
 main();

@@ -7,12 +7,12 @@ const namespace = "job-tracker";
 /**
  * PM2 ecosystem — dev processes for this monorepo.
  *
- * **storybook** watches `specs/` and `scripts/generate-specs-storybook.mjs`; on change PM2 restarts
+ * **storybook** watches `specs/` and `scripts/generate-specs-storybook.ts`; on change PM2 restarts
  * the dev server, which runs `sync-specs-docs` then Storybook (regenerates gitignored `docs/specs/*.mdx`).
  *
  * Start:  pnpm pm2:start
- * Reset:  `pnpm pm2:reset` — stop + SIGKILL LISTEN on 3100/3101/6006 + delete + start (`scripts/pm2-ecosystem-reset.mjs`).
- * Ports:  `pnpm ports:kill` — only SIGKILL LISTEN PIDs (`scripts/kill-tcp-listen-ports.mjs`). Env: `PORTS`, `KILL_PORTS`, or `PM2_RESET_PORTS`.
+ * Reset:  `pnpm pm2:reset` — stop + SIGKILL LISTEN on 3100/3101/6006 + delete + start (`scripts/pm2-ecosystem-reset.ts`).
+ * Ports:  `pnpm ports:kill` — only SIGKILL LISTEN PIDs (`scripts/kill-tcp-listen-ports.ts`). Env: `PORTS`, `KILL_PORTS`, or `PM2_RESET_PORTS`.
  * Stop:   pnpm pm2:stop
  * Restart with refreshed env: pnpm pm2:restart
  *        → runs: pm2 restart ecosystem.config.cjs --update-env
@@ -27,6 +27,7 @@ module.exports = {
       script: "pnpm",
       args: "run dev:debug",
       interpreter: "none",
+      log_date_format: "YYYY-MM-DD HH:mm:ss Z",
       env: {
         NODE_ENV: "development",
         NODE_OPTIONS: `--import ${path.join(root, "apps/api/node_modules/tsx/dist/loader.mjs")}`,
@@ -40,6 +41,7 @@ module.exports = {
       script: "pnpm",
       args: "run dev",
       interpreter: "none",
+      log_date_format: "YYYY-MM-DD HH:mm:ss Z",
       env: { NODE_ENV: "development" },
       watch: false,
     },
@@ -50,12 +52,13 @@ module.exports = {
       script: "pnpm",
       args: "run dev",
       interpreter: "none",
+      log_date_format: "YYYY-MM-DD HH:mm:ss Z",
       env: { NODE_ENV: "development", CI: "true" },
       watch: [
         "src",
         ".storybook",
         path.join(root, "specs"),
-        path.join(root, "scripts", "generate-specs-storybook.mjs"),
+        path.join(root, "scripts", "generate-specs-storybook.ts"),
       ],
       ignore_watch: [
         "node_modules",
@@ -72,6 +75,7 @@ module.exports = {
       script: "pnpm",
       args: "run dev",
       interpreter: "none",
+      log_date_format: "YYYY-MM-DD HH:mm:ss Z",
       env: { NODE_ENV: "development" },
       watch: false,
     },

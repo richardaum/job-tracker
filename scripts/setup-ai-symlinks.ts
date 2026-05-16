@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import { lstat, mkdir, rename, rm, symlink } from "node:fs/promises";
 import path from "node:path";
 
@@ -5,32 +7,28 @@ const repoRoot = process.cwd();
 const sharedCommandFile = path.join(repoRoot, ".ai", "commands", "COMMIT.md");
 const sharedSkillsDir = path.join(repoRoot, ".ai", "skills");
 
-/** @type {readonly string[]} */
-const commandLinkPaths = [
+const commandLinkPaths: readonly string[] = [
   path.join(repoRoot, ".agents", "commands", "COMMIT.md"),
   path.join(repoRoot, ".cursor", "commands", "COMMIT.md"),
   path.join(repoRoot, ".claude", "commands", "COMMIT.md"),
   path.join(repoRoot, ".gemini", "commands", "COMMIT.md"),
 ];
 
-/** Lowercase symlink names used previously; kept for cleanup only. */
-const legacyCommandSymlinks = [
+const legacyCommandSymlinks: readonly string[] = [
   path.join(repoRoot, ".agents", "commands", "commit.md"),
   path.join(repoRoot, ".cursor", "commands", "commit.md"),
   path.join(repoRoot, ".claude", "commands", "commit.md"),
   path.join(repoRoot, ".gemini", "commands", "commit.md"),
 ];
 
-/** Mirror `.ai/skills` into tooling-specific trees. */
-const skillsLinkDirs = [
+const skillsLinkDirs: readonly string[] = [
   path.join(repoRoot, ".agents", "skills"),
   path.join(repoRoot, ".cursor", "skills"),
   path.join(repoRoot, ".claude", "skills"),
   path.join(repoRoot, ".gemini", "skills"),
 ];
 
-/** Skill lock files (Claude Code / agent installers); canonical copies under `.ai/`. */
-const agentLockPairs = [
+const agentLockPairs: readonly { canonical: string; link: string }[] = [
   {
     canonical: path.join(repoRoot, ".ai", ".skill-lock.json"),
     link: path.join(repoRoot, ".agents", ".skill-lock.json"),
@@ -41,7 +39,10 @@ const agentLockPairs = [
   },
 ];
 
-async function ensureFileSymlink(linkPath, targetAbsPath) {
+async function ensureFileSymlink(
+  linkPath: string,
+  targetAbsPath: string,
+): Promise<void> {
   await mkdir(path.dirname(linkPath), { recursive: true });
 
   try {
@@ -51,12 +52,12 @@ async function ensureFileSymlink(linkPath, targetAbsPath) {
     } else {
       throw new Error(`Cannot replace non-symlink path: ${linkPath}`);
     }
-  } catch (error) {
+  } catch (error: unknown) {
     if (
       error &&
       typeof error === "object" &&
       "code" in error &&
-      error.code !== "ENOENT"
+      (error as { code: string }).code !== "ENOENT"
     ) {
       throw error;
     }
@@ -67,7 +68,10 @@ async function ensureFileSymlink(linkPath, targetAbsPath) {
   console.log(`linked ${linkPath} -> ${relativeTarget}`);
 }
 
-async function ensureDirSymlink(linkPath, targetAbsDirPath) {
+async function ensureDirSymlink(
+  linkPath: string,
+  targetAbsDirPath: string,
+): Promise<void> {
   await mkdir(path.dirname(linkPath), { recursive: true });
 
   try {
@@ -79,12 +83,12 @@ async function ensureDirSymlink(linkPath, targetAbsDirPath) {
         `Skills path exists and is not a symlink (move content to .ai/skills first): ${linkPath}`,
       );
     }
-  } catch (error) {
+  } catch (error: unknown) {
     if (
       error &&
       typeof error === "object" &&
       "code" in error &&
-      error.code !== "ENOENT"
+      (error as { code: string }).code !== "ENOENT"
     ) {
       throw error;
     }
@@ -98,20 +102,23 @@ async function ensureDirSymlink(linkPath, targetAbsDirPath) {
   console.log(`linked dir ${linkPath} -> ${relativeTarget}`);
 }
 
-async function migrateAgentsLockFile(linkPath, canonicalPath) {
+async function migrateAgentsLockFile(
+  linkPath: string,
+  canonicalPath: string,
+): Promise<void> {
   let linkStats;
   try {
     linkStats = await lstat(linkPath);
-  } catch (error) {
+  } catch (error: unknown) {
     if (
       error &&
       typeof error === "object" &&
       "code" in error &&
-      error.code === "ENOENT"
+      (error as { code: string }).code !== "ENOENT"
     ) {
-      return;
+      throw error;
     }
-    throw error;
+    return;
   }
 
   if (linkStats.isSymbolicLink()) return;
@@ -122,12 +129,12 @@ async function migrateAgentsLockFile(linkPath, canonicalPath) {
       `Skipped migrating ${linkPath}: canonical file already exists at ${canonicalPath}`,
     );
     return;
-  } catch (error) {
+  } catch (error: unknown) {
     if (
       error &&
       typeof error === "object" &&
       "code" in error &&
-      error.code !== "ENOENT"
+      (error as { code: string }).code !== "ENOENT"
     ) {
       throw error;
     }
@@ -139,19 +146,19 @@ async function migrateAgentsLockFile(linkPath, canonicalPath) {
   }
 }
 
-async function unlinkIfSymlink(candidatePath) {
+async function unlinkIfSymlink(candidatePath: string): Promise<void> {
   try {
     const stats = await lstat(candidatePath);
     if (stats.isSymbolicLink()) {
       await rm(candidatePath);
       console.log(`removed legacy symlink ${candidatePath}`);
     }
-  } catch (error) {
+  } catch (error: unknown) {
     if (
       error &&
       typeof error === "object" &&
       "code" in error &&
-      error.code === "ENOENT"
+      (error as { code: string }).code === "ENOENT"
     ) {
       return;
     }
@@ -159,7 +166,7 @@ async function unlinkIfSymlink(candidatePath) {
   }
 }
 
-async function main() {
+async function main(): Promise<void> {
   for (const { link, canonical } of agentLockPairs) {
     await migrateAgentsLockFile(link, canonical);
   }
@@ -183,7 +190,7 @@ async function main() {
   console.log("AI command + skill symlinks are ready.");
 }
 
-main().catch((error) => {
+main().catch((error: unknown) => {
   console.error(error);
   process.exit(1);
 });

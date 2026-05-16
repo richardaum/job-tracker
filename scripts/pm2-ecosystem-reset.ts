@@ -1,14 +1,4 @@
 #!/usr/bin/env node
-/**
- * 1. `pm2 stop` apps declared in `ecosystem.config.cjs`
- * 2. SIGKILL any remaining LISTEN sockets on dev TCP ports (orphans / races)
- * 3. `pm2 delete` those apps from the daemon
- * 4. `pm2 start` the ecosystem again
- *
- * Ports: shared with `pnpm ports:kill` — see `scripts/kill-tcp-listen-ports.mjs`.
- *
- * Requires `lsof` + `kill` (macOS/Linux).
- */
 
 import { execFileSync } from "node:child_process";
 import path from "node:path";
@@ -17,14 +7,13 @@ import { fileURLToPath } from "node:url";
 import {
   killTcpListenPorts,
   resolveListenPorts,
-} from "./kill-tcp-listen-ports.mjs";
+} from "./kill-tcp-listen-ports.ts";
 
 const resetTag = "[pm2:reset]";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const ecosystemAbs = path.join(root, "ecosystem.config.cjs");
 
-/** @param {boolean} allowFailure */
-function pm2(args, allowFailure) {
+function pm2(args: string[], allowFailure: boolean): void {
   try {
     execFileSync("pm2", args, { cwd: root, stdio: "inherit" });
   } catch {
