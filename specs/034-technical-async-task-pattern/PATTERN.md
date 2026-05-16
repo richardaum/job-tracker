@@ -1,8 +1,8 @@
 # Async Task Pattern Reference
 
-> Canonical reference for fire-and-forget async tasks using `AsyncTaskMeta` JSONB.
+> Canonical reference for fire-and-forget async tasks using `AsyncMetadata` JSONB.
 
-**Scope boundary**: `AsyncTaskMeta` carries **only** processing state — status, error, timestamp. The actual output/result (summary content, fit items, etc.) stays in its **own column** (text, jsonb, etc.). Never inline business data inside `AsyncTaskMeta`.
+**Scope boundary**: `AsyncMetadata` carries **only** processing state — status, error, timestamp. The actual output/result (summary content, fit items, etc.) stays in its **own column** (text, jsonb, etc.). Never inline business data inside `AsyncMetadata`.
 
 **Field naming**: use `{action}Metadata` — e.g., `summaryMetadata`, `conversionMetadata`, `generationMetadata`. O prefixo descreve a **ação assíncrona** (summarizar, converter, gerar), não a entidade.
 
@@ -10,7 +10,7 @@
 
 ```typescript
 // packages/shared or apps/api/src/common
-export interface AsyncTaskMeta {
+export interface AsyncMetadata {
   status: "processing" | "completed" | "failed";
   error?: string;
   generatedAt?: string; // ISO 8601 — JSONB stores as string
@@ -22,35 +22,47 @@ GraphQL enum + type (defined once, reused everywhere):
 ```typescript
 import { registerEnumType } from "@nestjs/graphql";
 
-export enum TaskStatus {
-  PROCESSING = "processing",
-  COMPLETED = "completed",
-  FAILED = "failed",
+export enum AsyncMetadataStatus {
+  PROCESSING = "PROCESSING",
+  COMPLETED = "COMPLETED",
+  FAILED = "FAILED",
 }
-registerEnumType(TaskStatus, { name: "TaskStatus" });
+registerEnumType(AsyncMetadataStatus, { name: "AsyncMetadataStatus" });
 ```
 
 ```graphql
-enum TaskStatus {
+enum AsyncMetadataStatus {
   PROCESSING
   COMPLETED
   FAILED
 }
 
-type AsyncTaskMeta {
-  status: TaskStatus!
+type AsyncMetadata {
+  status: AsyncMetadataStatus!
   error: String
   generatedAt: DateTime
 }
 ```
 
-## [T-214] Entity Mapping
+## [T-214] Enum Value Convention
+
+All `registerEnumType` enums **must** use identical key and value (`KEY = "KEY"`). This ensures GraphQL key names match runtime values, so the frontend generated enum (`AsyncMetadataStatus.Completed = "COMPLETED"`) works for both GraphQL responses and SSE events without normalization.
+
+```typescript
+// correct: key === value
+PROCESSING = "PROCESSING";
+
+// wrong: key !== value
+PROCESSING = "processing";
+```
+
+## [T-215] Entity Mapping
 
 **A. Inline on existing entity** — use prefix matching the domain:
 
 ```typescript
 @Column({ type: "jsonb", nullable: true })
-summaryMetadata!: AsyncTaskMeta | null; // null = never requested
+summaryMetadata!: AsyncMetadata | null; // null = never requested
 ```
 
 Column naming: `summary_metadata`, `conversion_metadata`.
@@ -59,12 +71,12 @@ Column naming: `summary_metadata`, `conversion_metadata`.
 
 ```typescript
 @Column({ type: "jsonb", nullable: true })
-generationMetadata!: AsyncTaskMeta | null; // null = never requested
+generationMetadata!: AsyncMetadata | null; // null = never requested
 ```
 
 Default `{ status: "completed" }` for backward compat with existing records.
 
-## [T-215] Initial Mutation (Setting to Processing)
+## [T-216] Initial Mutation (Setting to Processing)
 
 ```typescript
 entity.summaryMetadata = { status: "processing" };
@@ -73,15 +85,15 @@ entity.generationMetadata = { status: "processing" };
 await this.repo.save(entity);
 ```
 
-## [T-216] Atomic Status Update
+## [T-217] Atomic Status Update
 
 Background workers **must** guard against stale transitions. Use `QueryBuilder` with JSONB `||` operator:
 
 ```typescript
 async updateMetadata(
   where: { id: string; userId?: string },
-  expectedStatus: TaskStatus,
-  patch: Partial<AsyncTaskMeta>,
+  expectedStatus: AsyncMetadataStatus,
+  patch: Partial<AsyncMetadata>,
   column: string = "generation_metadata",
 ): Promise<boolean> {
   const qb = this.repo
@@ -107,7 +119,7 @@ async updateMetadata(
 
 Pass the specific column name: `updateMetadata({ id }, processing, patch, "summary_metadata")`.
 
-## [T-217] Service Pattern
+## [T-218] Service Pattern
 
 ```typescript
 // Mutation-facing — fast, non-blocking
@@ -131,9 +143,9 @@ private async generateInBackground(
 
     const ok = await this.repo.updateMetadata(
       { id, userId },
-      "processing" as TaskStatus,
+      "processing" as AsyncMetadataStatus,
       {
-        status: TaskStatus.COMPLETED,
+        status: AsyncMetadataStatus.COMPLETED,
         generatedAt: new Date().toISOString(),
         error: undefined,
       },
@@ -147,9 +159,9 @@ private async generateInBackground(
     this.logger.error(`[${id}] Background failed`, err);
     await this.repo.updateMetadata(
       { id, userId },
-      "processing" as TaskStatus,
+      "processing" as AsyncMetadataStatus,
       {
-        status: TaskStatus.FAILED,
+        status: AsyncMetadataStatus.FAILED,
         error: err instanceof Error ? err.message : "Unknown error",
       },
     );
@@ -157,7 +169,7 @@ private async generateInBackground(
 }
 ```
 
-## [T-218] Stale State Recovery
+## [T-219] Stale State Recovery
 
 Service `OnModuleInit`:
 
@@ -196,7 +208,7 @@ async resetStaleProcessing(
 
 For inline fields, pass the column name: `repo.resetStaleProcessing("summary_metadata")`.
 
-## [T-219] Guard: Skip Duplicate Processing
+## [T-220] Guard: Skip Duplicate Processing
 
 ```typescript
 if (entity.summaryMetadata?.status === "processing") {
@@ -205,23 +217,23 @@ if (entity.summaryMetadata?.status === "processing") {
 }
 ```
 
-## [T-220] GraphQL Schema
+## [T-221] GraphQL Schema
 
-Entity type exposes `AsyncTaskMeta`:
+Entity type exposes `AsyncMetadata`:
 
 ```graphql
 type ApplicationType {
   summary: String
-  summaryMetadata: AsyncTaskMeta
+  summaryMetadata: AsyncMetadata
 }
 
 type FitAnalysisType {
-  generationMetadata: AsyncTaskMeta
+  generationMetadata: AsyncMetadata
   # ... domain fields ...
 }
 ```
 
-## [T-221] Frontend Display
+## [T-222] Frontend Display
 
 Two patterns:
 
@@ -236,12 +248,14 @@ Completed  → content + "Generated at [metadata.generatedAt]"
 **B. Detail page** — subscribe via SSE while processing:
 
 ```typescript
+import { AsyncMetadataStatus } from "@/gql/hooks";
+
 const sseUrl = `${getApiBaseUrl()}/<domain>/<id>/stream`;
-useEventSource<{ domainId: string; status: string }>(
+useEventSource<{ domainId: string; status: AsyncMetadataStatus }>(
   sseUrl,
   "<domain>_status_changed",
   (data) => {
-    if ((data.status === "completed" || data.status === "failed") && refetch) {
+    if (refetch) {
       void refetch();
     }
   },

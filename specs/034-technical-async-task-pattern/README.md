@@ -16,7 +16,7 @@ tags:
 
 ## Objective
 
-Standardize async background tasks using a **single JSONB column per task slot** — replacing the 3-column pattern (`status` + `error` + `generated_at`) with a unified `AsyncTaskMeta` structure.
+Standardize async background tasks using a **single JSONB column per task slot** — replacing the 3-column pattern (`status` + `error` + `generated_at`) with a unified `AsyncMetadata` structure.
 
 ## Motivation
 

@@ -67,7 +67,11 @@
 
 - **Salary calculator** (`specs/025`, `specs/026`) — built — Convert between periods (year/month/hour) and currencies at `/tools/salary-calculator`.
 
-## 9. Chrome Extension
+## 9. Real-time UI Updates
+
+- **Live status updates** — planned — See application changes reflected instantly without refreshing the page. Examples: AI summary finishes generating and appears on screen; stage transition updates across all views; import run progress shows in real time.
+
+## 10. Chrome Extension
 
 - **Collect Jobs** (`specs/023`) — built — One-click collect: paginates job listings, opens detail tabs in parallel, extracts fields, and sends to the app.
   - **Multi-platform content script** (`specs/023`) — built — Extracts job data from LinkedIn, Ashby, Lever, Micro1, and RemoteYeah automatically.
@@ -76,21 +80,22 @@
   - **Popup UI** (`specs/023`) — pending — Quick-status popup showing extension state and execution logs.
   - **Side-panel mapping** (`specs/023`) — pending — Visual wizard to map DOM selectors when adding support for a new job platform.
 
-## 10. AI Assistance
+## 11. AI Assistance
 
 - **AI company description** (`specs/001`) — built — Auto-generate a company description from its name.
   - **AI note generation** (`specs/014`) — built — Auto-structure a free-form note into a well-organized summary, or improve existing notes.
   - **Text rewrite & restructure** (`specs/012`) — built — Rewrite or reformat raw JD text for consistent reading.
   - **AI insights cards** (`specs/012`) — planned — Get proactive suggestions on the pipeline (e.g., "follow up with X", "salary seems low for Y").
+  - **AI application summary** (`specs/037`) — planned — Generate a concise rich-text summary of an application's fields, description, notes, and stage history. Displayed as a full-width card at the top of the detail page. Fire-and-forget async generation with SSE push notification.
 
-## 11. Multilingual
+## 12. Multilingual
 
 - **i18n** (`specs/017`) — planned — Switch between English and Brazilian Portuguese, with locale-based routes and a governed dictionary.
 
-## 12. Settings
+## 13. Settings
 
 - **Settings screen** (`specs/031`) — planned — Configure app behavior (e.g., duplicate-detection window) from `/settings`.
 
-## 13. LGPD / Compliance
+## 14. LGPD / Compliance
 
 - **LGPD** (`specs/033`) — planned — Consent management, data export, account deletion, and privacy page to comply with Brazilian data protection law.
