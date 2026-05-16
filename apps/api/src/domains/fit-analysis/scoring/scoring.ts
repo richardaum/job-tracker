@@ -2,6 +2,7 @@ import type {
   FitClassification,
   FitItem,
 } from "@api/database/entities/fit-analysis.entity";
+import { RequirementType } from "@api/database/entities/fit-analysis.entity";
 
 export interface ScoreResult {
   scoreRatio: number;
@@ -16,11 +17,11 @@ function itemPoints(item: FitItem): number {
 
   if (item.source === "resume") {
     switch (item.type) {
-      case "must_have":
+      case RequirementType.MUST_HAVE:
         return 5;
-      case "nice_to_have":
+      case RequirementType.NICE_TO_HAVE:
         return 2;
-      case "soft_skill":
+      case RequirementType.SOFT_SKILL:
         return 1;
       default:
         return 1;
@@ -37,11 +38,11 @@ function maxPossible(items: FitItem[]): number {
   return items.reduce((sum, item) => {
     if (item.source === "resume") {
       switch (item.type) {
-        case "must_have":
+        case RequirementType.MUST_HAVE:
           return sum + 5;
-        case "nice_to_have":
+        case RequirementType.NICE_TO_HAVE:
           return sum + 2;
-        case "soft_skill":
+        case RequirementType.SOFT_SKILL:
           return sum + 1;
         default:
           return sum + 1;
@@ -62,7 +63,9 @@ export function computeScore(items: FitItem[]): ScoreResult {
 
   const hasMustHaveGap = items.some(
     (i) =>
-      i.source === "resume" && i.type === "must_have" && i.verdict === "gap",
+      i.source === "resume" &&
+      i.type === RequirementType.MUST_HAVE &&
+      i.verdict === "gap",
   );
 
   const scoreRatio = max > 0 ? (total / max) * 100 : 0;

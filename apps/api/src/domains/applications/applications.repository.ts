@@ -1,7 +1,8 @@
 import { ApplicationEntity } from "@api/database/entities/application.entity";
 import { ApplicationStageEventEntity } from "@api/database/entities/application-stage-event.entity";
 import { DraftApplicationEntity } from "@api/database/entities/draft-application.entity";
-import type { AsyncTaskMeta } from "@api/domains/shared/async-task-meta.type";
+import type { AsyncMetadata } from "@api/domains/shared/async-metadata.type";
+import { AsyncMetadataStatus } from "@api/domains/shared/async-metadata.type";
 import { tipTapToPlainText } from "@job-tracker/tiptap";
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
@@ -396,40 +397,28 @@ export class ApplicationRepository {
 
   async updateSummaryMetadata(
     applicationId: string,
-    expectedStatus: Pick<AsyncTaskMeta, "status"> | null,
-    patch: Partial<AsyncTaskMeta> & { status: AsyncTaskMeta["status"] },
-    userId?: string,
+    expectedStatus: Pick<AsyncMetadata, "status"> | null,
+    patch: Partial<AsyncMetadata> & { status: AsyncMetadata["status"] },
+    userId: string,
   ): Promise<boolean> {
-    const where: Record<string, unknown> = { id: applicationId };
-    if (userId) where.userId = userId;
-
-    if (expectedStatus === null) {
-      where["summary_metadata"] = null;
-    } else {
-      where["summary_metadata->>status"] = expectedStatus.status;
-    }
-
+    const patchJson = JSON.stringify(patch);
     const qb = this.applicationsRepo
       .createQueryBuilder()
-      .update()
+      .update(ApplicationEntity)
       .set({
-        summaryMetadata: () =>
-          `"summary_metadata" || '${JSON.stringify(patch)}'::jsonb`,
+        summaryMetadata: () => `"summary_metadata" || '${patchJson}'::jsonb`,
+      })
+      .where(`"id" = :id AND "user_id" = :userId`, {
+        id: applicationId,
+        userId,
       });
 
     if (expectedStatus === null) {
-      qb.where(`"id" = :id AND "summary_metadata" IS NULL`, {
-        id: applicationId,
-      });
+      qb.andWhere(`"summary_metadata" IS NULL`);
     } else {
-      qb.where(`"id" = :id AND "summary_metadata"->>'status' = :expected`, {
-        id: applicationId,
+      qb.andWhere(`"summary_metadata"->>'status' = :expected`, {
         expected: expectedStatus.status,
       });
-    }
-
-    if (userId) {
-      qb.andWhere(`"user_id" = :userId`, { userId });
     }
 
     const result = await qb.execute();
@@ -454,10 +443,10 @@ export class ApplicationRepository {
       .update()
       .set({
         summaryMetadata: () =>
-          `'{"status": "failed", "error": "Server restart"}'::jsonb`,
+          `'{"status": "${AsyncMetadataStatus.FAILED}", "error": "Server restart"}'::jsonb`,
       })
       .where(`"summary_metadata"->>'status' = :processing`, {
-        processing: "processing",
+        processing: AsyncMetadataStatus.PROCESSING,
       })
       .execute();
     return result.affected ?? 0;

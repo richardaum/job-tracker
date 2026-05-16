@@ -8,6 +8,7 @@ import type { DataSource } from "typeorm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { ApplicationQuickFilterEnum } from "./application-quick-filter.enum";
+import { ApplicationStageEnum } from "./application-stage.enum";
 import { ApplicationRepository } from "./applications.repository";
 
 const DATABASE_URL = process.env.DATABASE_URL;
@@ -141,13 +142,13 @@ describe.skipIf(!hasDb)("ApplicationRepository (integration)", () => {
 
     const first = await repo.createStageEvent(userId, app.id, {
       fromStage: null,
-      toStage: "applied",
+      toStage: ApplicationStageEnum.APPLIED,
       source: "manual",
       scheduledAt: new Date("2030-01-01T09:00:00.000Z"),
     });
     const second = await repo.createStageEvent(userId, app.id, {
-      fromStage: "applied",
-      toStage: "technical",
+      fromStage: ApplicationStageEnum.APPLIED,
+      toStage: ApplicationStageEnum.TECHNICAL,
       source: "manual",
       scheduledAt: null,
     });
@@ -158,10 +159,10 @@ describe.skipIf(!hasDb)("ApplicationRepository (integration)", () => {
     );
     expect(events).toHaveLength(2);
     expect(events[0].id).toBe(first.id);
-    expect(events[0].toStage).toBe("applied");
+    expect(events[0].toStage).toBe(ApplicationStageEnum.APPLIED);
     expect(events[1].id).toBe(second.id);
-    expect(events[1].fromStage).toBe("applied");
-    expect(events[1].toStage).toBe("technical");
+    expect(events[1].fromStage).toBe(ApplicationStageEnum.APPLIED);
+    expect(events[1].toStage).toBe(ApplicationStageEnum.TECHNICAL);
   });
 
   it("active quick filter excludes applied stage", async () => {
@@ -174,7 +175,7 @@ describe.skipIf(!hasDb)("ApplicationRepository (integration)", () => {
     });
     await repo.createStageEvent(userId, appliedApp.id, {
       fromStage: null,
-      toStage: "applied",
+      toStage: ApplicationStageEnum.APPLIED,
       source: "manual",
       scheduledAt: null,
     });
@@ -185,8 +186,8 @@ describe.skipIf(!hasDb)("ApplicationRepository (integration)", () => {
       urls: [],
     });
     await repo.createStageEvent(userId, activeApp.id, {
-      fromStage: "applied",
-      toStage: "technical",
+      fromStage: ApplicationStageEnum.APPLIED,
+      toStage: ApplicationStageEnum.TECHNICAL,
       source: "manual",
       scheduledAt: null,
     });
@@ -210,7 +211,7 @@ describe.skipIf(!hasDb)("ApplicationRepository (integration)", () => {
     });
     await repo.createStageEvent(userId, appliedAppWithEvent.id, {
       fromStage: null,
-      toStage: "applied",
+      toStage: ApplicationStageEnum.APPLIED,
       source: "manual",
       scheduledAt: new Date(Date.now() + 86400000), // Tomorrow
     });
@@ -221,8 +222,8 @@ describe.skipIf(!hasDb)("ApplicationRepository (integration)", () => {
       urls: [],
     });
     await repo.createStageEvent(userId, recruiterScreenApp.id, {
-      fromStage: "applied",
-      toStage: "recruiter_screen",
+      fromStage: ApplicationStageEnum.APPLIED,
+      toStage: ApplicationStageEnum.RECRUITER_SCREEN,
       source: "manual",
       scheduledAt: new Date(Date.now() + 86400000), // Tomorrow
     });
@@ -246,7 +247,7 @@ describe.skipIf(!hasDb)("ApplicationRepository (integration)", () => {
     });
     await repo.createStageEvent(userId, newLatest.id, {
       fromStage: null,
-      toStage: "new",
+      toStage: ApplicationStageEnum.NEW,
       source: "manual",
       scheduledAt: null,
     });
@@ -258,13 +259,13 @@ describe.skipIf(!hasDb)("ApplicationRepository (integration)", () => {
     });
     await repo.createStageEvent(userId, dupLatest.id, {
       fromStage: null,
-      toStage: "new",
+      toStage: ApplicationStageEnum.NEW,
       source: "manual",
       scheduledAt: null,
     });
     await repo.createStageEvent(userId, dupLatest.id, {
-      fromStage: "new",
-      toStage: "duplicated",
+      fromStage: ApplicationStageEnum.NEW,
+      toStage: ApplicationStageEnum.DUPLICATED,
       source: "system",
       scheduledAt: null,
     });

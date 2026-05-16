@@ -57,7 +57,7 @@ const makeEvent = (
     applicationId: "app-1",
     userId: "user-1",
     fromStage: null,
-    toStage: "new",
+    toStage: ApplicationStageEnum.NEW,
     source: "manual",
     reason: null,
     createdAt: new Date("2026-01-02"),
@@ -193,7 +193,7 @@ describe("ApplicationService", () => {
     vi.mocked(repo.create).mockResolvedValue(app);
     vi.mocked(repo.findOneByIdAndUserId).mockResolvedValue(app);
     vi.mocked(repo.createStageEvent).mockResolvedValue(
-      makeEvent({ toStage: "new", source: "system" }),
+      makeEvent({ toStage: ApplicationStageEnum.NEW, source: "system" }),
     );
     const result = await service.create("user-1", {
       title: "Engineer",
@@ -221,7 +221,7 @@ describe("ApplicationService", () => {
     );
     expect(repo.createStageEvent).toHaveBeenCalledWith("user-1", app.id, {
       fromStage: null,
-      toStage: "new",
+      toStage: ApplicationStageEnum.NEW,
       source: "system",
       reason: null,
       scheduledAt: null,
@@ -246,11 +246,18 @@ describe("ApplicationService", () => {
     );
     vi.mocked(repo.findLatestStageSummariesByApplicationIds).mockResolvedValue(
       new Map([
-        [app.id, { toStage: "duplicated", reason: null, statusAt: new Date() }],
+        [
+          app.id,
+          {
+            toStage: ApplicationStageEnum.DUPLICATED,
+            reason: null,
+            statusAt: new Date(),
+          },
+        ],
       ]),
     );
     vi.mocked(repo.createStageEvent).mockResolvedValue(
-      makeEvent({ toStage: "duplicated", source: "system" }),
+      makeEvent({ toStage: ApplicationStageEnum.DUPLICATED, source: "system" }),
     );
     const result = await service.create("user-1", {
       title: "Engineer",
@@ -263,7 +270,7 @@ describe("ApplicationService", () => {
     expect(result.currentStage).toBe(ApplicationStageEnum.DUPLICATED);
     expect(repo.createStageEvent).toHaveBeenCalledWith("user-1", app.id, {
       fromStage: null,
-      toStage: "duplicated",
+      toStage: ApplicationStageEnum.DUPLICATED,
       source: "system",
       reason: null,
       scheduledAt: null,
@@ -455,13 +462,21 @@ describe("ApplicationService", () => {
     vi.mocked(repo.create).mockResolvedValue(app);
     vi.mocked(repo.findOneByIdAndUserId).mockResolvedValue(app);
     vi.mocked(repo.createStageEvent)
-      .mockResolvedValueOnce(makeEvent({ toStage: "new", source: "system" }))
       .mockResolvedValueOnce(
-        makeEvent({ fromStage: "new", toStage: "applied", source: "system" }),
+        makeEvent({ toStage: ApplicationStageEnum.NEW, source: "system" }),
+      )
+      .mockResolvedValueOnce(
+        makeEvent({
+          fromStage: ApplicationStageEnum.NEW,
+          toStage: ApplicationStageEnum.APPLIED,
+          source: "system",
+        }),
       );
     vi.mocked(
       repo.findLatestStageEventByApplicationIdAndUserId,
-    ).mockResolvedValue(makeEvent({ toStage: "new", source: "system" }));
+    ).mockResolvedValue(
+      makeEvent({ toStage: ApplicationStageEnum.NEW, source: "system" }),
+    );
 
     await service.createApplicationWithAI("user-1", "draft-1");
 
@@ -486,7 +501,7 @@ describe("ApplicationService", () => {
       app.id,
       expect.objectContaining({
         fromStage: null,
-        toStage: "new",
+        toStage: ApplicationStageEnum.NEW,
         source: "system",
       }),
     );
@@ -495,8 +510,8 @@ describe("ApplicationService", () => {
       "user-1",
       app.id,
       expect.objectContaining({
-        fromStage: "new",
-        toStage: "applied",
+        fromStage: ApplicationStageEnum.NEW,
+        toStage: ApplicationStageEnum.APPLIED,
         source: "system",
       }),
     );
@@ -560,11 +575,18 @@ describe("ApplicationService", () => {
     vi.mocked(repo.findOneByIdAndUserId).mockResolvedValue(app);
     vi.mocked(repo.findLatestStageSummariesByApplicationIds).mockResolvedValue(
       new Map([
-        [app.id, { toStage: "duplicated", reason: null, statusAt: new Date() }],
+        [
+          app.id,
+          {
+            toStage: ApplicationStageEnum.DUPLICATED,
+            reason: null,
+            statusAt: new Date(),
+          },
+        ],
       ]),
     );
     vi.mocked(repo.createStageEvent).mockResolvedValue(
-      makeEvent({ toStage: "duplicated", source: "system" }),
+      makeEvent({ toStage: ApplicationStageEnum.DUPLICATED, source: "system" }),
     );
 
     await service.createApplicationWithAI("user-1", "draft-1");
@@ -590,7 +612,7 @@ describe("ApplicationService", () => {
       app.id,
       expect.objectContaining({
         fromStage: null,
-        toStage: "duplicated",
+        toStage: ApplicationStageEnum.DUPLICATED,
         source: "system",
       }),
     );
@@ -619,16 +641,19 @@ describe("ApplicationService", () => {
 
     const events = await service.listStageEvents("app-1", "user-1");
     expect(events).toHaveLength(1);
-    expect(events[0].toStage).toBe("new");
+    expect(events[0].toStage).toBe(ApplicationStageEnum.NEW);
   });
 
   it("createStageEvent uses previous stage as fromStage", async () => {
     vi.mocked(repo.findOneByIdAndUserId).mockResolvedValue(makeApp());
     vi.mocked(
       repo.findLatestStageEventByApplicationIdAndUserId,
-    ).mockResolvedValue(makeEvent({ toStage: "technical" }));
+    ).mockResolvedValue(makeEvent({ toStage: ApplicationStageEnum.TECHNICAL }));
     vi.mocked(repo.createStageEvent).mockResolvedValue(
-      makeEvent({ fromStage: "technical", toStage: "offer" }),
+      makeEvent({
+        fromStage: ApplicationStageEnum.TECHNICAL,
+        toStage: ApplicationStageEnum.OFFER,
+      }),
     );
 
     const created = await service.createStageEvent("user-1", {
@@ -636,10 +661,10 @@ describe("ApplicationService", () => {
       toStage: ApplicationStageEnum.OFFER,
     });
 
-    expect(created.fromStage).toBe("technical");
+    expect(created.fromStage).toBe(ApplicationStageEnum.TECHNICAL);
     expect(repo.createStageEvent).toHaveBeenCalledWith("user-1", "app-1", {
-      fromStage: "technical",
-      toStage: "offer",
+      fromStage: ApplicationStageEnum.TECHNICAL,
+      toStage: ApplicationStageEnum.OFFER,
       source: "manual",
       reason: null,
       scheduledAt: null,
@@ -649,7 +674,7 @@ describe("ApplicationService", () => {
   it("updateStageEvent updates existing event", async () => {
     vi.mocked(repo.findStageEventByIdAndUserId).mockResolvedValue(makeEvent());
     vi.mocked(repo.updateStageEvent).mockResolvedValue(
-      makeEvent({ toStage: "technical" }),
+      makeEvent({ toStage: ApplicationStageEnum.TECHNICAL }),
     );
 
     const updated = await service.updateStageEvent("event-1", "user-1", {
@@ -657,9 +682,9 @@ describe("ApplicationService", () => {
       scheduledAt: null,
     });
 
-    expect(updated.toStage).toBe("technical");
+    expect(updated.toStage).toBe(ApplicationStageEnum.TECHNICAL);
     expect(repo.updateStageEvent).toHaveBeenCalledWith("event-1", "user-1", {
-      toStage: "technical",
+      toStage: ApplicationStageEnum.TECHNICAL,
       reason: undefined,
       scheduledAt: null,
     });

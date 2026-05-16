@@ -17,12 +17,12 @@ requirement in the job description.
    - AGGREGATION: If multiple lines describe the same skill (e.g., "Experience 
      with React" and "Strong knowledge of React hooks"), merge them into one.
 2. For each requirement, classify its type:
-   - "must_have": Mandatory technical skills or experience (e.g., "5+ years 
-     Java", "Must have AWS certification").
-   - "nice_to_have": Optional or preferred skills (e.g., "Experience with 
-     Kubernetes is a plus", "Preferred: Master's degree").
-   - "soft_skill": Behavioral or interpersonal skills (e.g., "Strong 
-     communication", "Team player", "Problem-solving mindset").
+    - "MUST_HAVE": Mandatory technical skills or experience (e.g., "5+ years 
+      Java", "Must have AWS certification").
+    - "NICE_TO_HAVE": Optional or preferred skills (e.g., "Experience with 
+      Kubernetes is a plus", "Preferred: Master's degree").
+    - "SOFT_SKILL": Behavioral or interpersonal skills (e.g., "Strong 
+      communication", "Team player", "Problem-solving mindset").
 3. For each one, search the resume for evidence that the candidate meets it.
 4. Classify as:
    - "fit" — the resume clearly shows this requirement is met.
@@ -69,9 +69,9 @@ Rules:
 2. For each preference, search the job description for evidence that the
    position satisfies that preference.
 3. Classify the type of requirement this preference matches in the JD:
-   - "must_have": The JD treats this as mandatory for the role.
-   - "nice_to_have": The JD treats this as optional or a bonus.
-   - "soft_skill": This is a behavioral/culture fit preference.
+    - "MUST_HAVE": The JD treats this as mandatory for the role.
+    - "NICE_TO_HAVE": The JD treats this as optional or a bonus.
+    - "SOFT_SKILL": This is a behavioral/culture fit preference.
 4. Classify as:
    - "fit" — the JD explicitly or implicitly satisfies this preference.
    - "gap" — the JD does not mention or contradicts this preference.
