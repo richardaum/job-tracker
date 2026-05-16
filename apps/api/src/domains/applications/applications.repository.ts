@@ -244,6 +244,19 @@ export class ApplicationRepository {
     return this.applicationsRepo.save(row);
   }
 
+  async findDraftApplicationId(
+    id: string,
+    userId: string,
+  ): Promise<string | null> {
+    const row = await this.applicationsRepo
+      .createQueryBuilder("a")
+      .select("a.draft_application_id", "draftApplicationId")
+      .where("a.id = :id AND a.user_id = :userId", { id, userId })
+      .getRawOne<{ draftApplicationId: string }>();
+
+    return row?.draftApplicationId ?? null;
+  }
+
   async detachApplicationsSourceRun(
     sourceRunId: string,
     userId: string,

@@ -9,7 +9,9 @@ import {
   Args,
   ID,
   Mutation,
+  Parent,
   Query,
+  ResolveField,
   Resolver,
 } from "@nestjs/graphql";
 
@@ -31,6 +33,14 @@ export class ApplicationResolver {
     private readonly service: ApplicationService,
     private readonly summaryService: SummaryService,
   ) {}
+
+  @ResolveField(() => ID, { nullable: true })
+  async draftApplicationId(
+    @Parent() application: ApplicationType,
+    @CurrentUser() user: { userId: string },
+  ): Promise<string | null> {
+    return this.service.findDraftApplicationId(application.id, user.userId);
+  }
 
   @Query(() => [ApplicationType])
   applications(

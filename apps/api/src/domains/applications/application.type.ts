@@ -73,4 +73,7 @@ export class ApplicationType {
 
   @Field(() => FitAnalysisType, { nullable: true })
   fit?: FitAnalysisType;
+
+  @Field(() => ID, { nullable: true })
+  draftApplicationId?: string | null;
 }

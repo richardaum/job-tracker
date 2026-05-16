@@ -116,6 +116,7 @@ type ApplicationType {
   summary: String
   summaryMetadata: AsyncMetadataType
   fit: FitAnalysisType
+  draftApplicationId: ID
   salary: ApplicationSalary!
 }
 

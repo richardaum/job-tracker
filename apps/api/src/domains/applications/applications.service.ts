@@ -631,6 +631,13 @@ export class ApplicationService {
     return (await this.attachCurrentStage(userId, [updated]))[0]!;
   }
 
+  async findDraftApplicationId(
+    id: string,
+    userId: string,
+  ): Promise<string | null> {
+    return this.repo.findDraftApplicationId(id, userId);
+  }
+
   private async safeUpdateDraftStatus(
     draftId: string,
     userId: string,
