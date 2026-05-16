@@ -452,10 +452,10 @@ export default function DraftApplicationDetailsPage({ params }: PageProps) {
             </span>{" "}
             {draft ? (
               <ConversionStatusBadge
-                conversionStatus={draft.conversionStatus}
-                conversionError={draft.conversionError}
+                conversionMetadata={draft.conversionMetadata}
                 showSpinner={
-                  draft.conversionStatus.toLowerCase() === "processing"
+                  draft.conversionMetadata?.status?.toLowerCase() ===
+                  "processing"
                 }
                 className={cn("ml-2 align-middle")}
               />
@@ -463,8 +463,8 @@ export default function DraftApplicationDetailsPage({ params }: PageProps) {
           </Heading>
           {draft ? (
             <span className={cn("shrink-0 pt-1 text-xs text-text-muted")}>
-              {draft.convertedAt
-                ? `Converted at ${formatDate(draft.convertedAt)}`
+              {draft.conversionMetadata?.timestamp
+                ? `Converted at ${formatDate(draft.conversionMetadata.timestamp)}`
                 : `Created at ${formatDate(draft.createdAt)}`}
             </span>
           ) : null}

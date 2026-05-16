@@ -25,7 +25,7 @@ import React from "react";
 
 import { EmptyState } from "@/components/empty-state";
 import {
-  FitAnalysisStatus,
+  AsyncMetadataStatus,
   useDeleteFitAnalysisMutation,
   useFitQuery,
   useGenerateApplicationFitMutation,
@@ -74,10 +74,10 @@ export default function FitAnalysisPage({ params }: PageProps) {
   >("all");
 
   const fit = fitData?.fit;
-  const status = fit?.status;
-  const isProcessing = status === FitAnalysisStatus.Processing;
-  const isFailed = status === FitAnalysisStatus.Failed;
-  const isCompleted = status === FitAnalysisStatus.Completed;
+  const status = fit?.generationMetadata?.status;
+  const isProcessing = status === AsyncMetadataStatus.Processing;
+  const isFailed = status === AsyncMetadataStatus.Failed;
+  const isCompleted = status === AsyncMetadataStatus.Completed;
   const hasFit = !!fit && !isProcessing && !isFailed;
   const generating = generatingApp || generatingDraft;
 
@@ -92,13 +92,13 @@ export default function FitAnalysisPage({ params }: PageProps) {
       : "#";
 
   const sseUrl = `${getApiBaseUrl()}/fits/${fitId}/stream`;
-  useEventSource<{ fitId: string; status: FitAnalysisStatus }>(
+  useEventSource<{ fitId: string; status: string }>(
     sseUrl,
     "fit_status_changed",
     (data) => {
       if (
-        (data.status === FitAnalysisStatus.Completed ||
-          data.status === FitAnalysisStatus.Failed) &&
+        (data.status === AsyncMetadataStatus.Completed ||
+          data.status === AsyncMetadataStatus.Failed) &&
         refetchFit
       ) {
         void refetchFit();
@@ -253,7 +253,7 @@ export default function FitAnalysisPage({ params }: PageProps) {
             {status ? (
               <FitStatusBadge
                 status={status}
-                error={fit?.error}
+                error={fit?.generationMetadata?.error ?? null}
                 className={cn("ml-3 align-middle")}
               />
             ) : null}
@@ -283,7 +283,10 @@ export default function FitAnalysisPage({ params }: PageProps) {
             <EmptyState
               variant="default"
               message="Analysis failed"
-              detail={fit?.error ?? "Something went wrong. Try again."}
+              detail={
+                fit?.generationMetadata?.error ??
+                "Something went wrong. Try again."
+              }
             />
           ) : isCompleted ? (
             <>

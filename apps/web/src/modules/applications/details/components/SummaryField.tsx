@@ -12,7 +12,7 @@ interface SummaryFieldProps {
     | {
         status: AsyncMetadataStatus;
         error?: string | null;
-        generatedAt?: string | null;
+        timestamp?: string | null;
       }
     | null
     | undefined;
@@ -67,10 +67,10 @@ export function SummaryField({
         ) : summary ? (
           <div className={cn("flex flex-col gap-1")}>
             <TipTapContent content={summary} />
-            {summaryMetadata?.generatedAt ? (
+            {summaryMetadata?.timestamp ? (
               <Text size="xs" color="muted">
                 Generated at{" "}
-                {new Date(summaryMetadata.generatedAt).toLocaleString()}
+                {new Date(summaryMetadata.timestamp).toLocaleString()}
               </Text>
             ) : null}
           </div>

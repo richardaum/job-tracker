@@ -3,7 +3,8 @@
 import { Badge, cn, Spinner, Tooltip } from "@job-tracker/ui";
 import React from "react";
 
-function formatConversionStatus(status: string): string {
+function formatConversionStatus(status: string | null | undefined): string {
+  if (!status) return "Idle";
   const normalized = status.toLowerCase();
   if (normalized === "processing") return "Processing";
   if (normalized === "succeeded") return "Succeeded";
@@ -12,8 +13,9 @@ function formatConversionStatus(status: string): string {
 }
 
 function conversionStatusBadgeIntent(
-  status: string,
+  status: string | null | undefined,
 ): "default" | "success" | "warning" | "error" {
+  if (!status) return "default";
   const normalized = status.toLowerCase();
   if (normalized === "processing") return "warning";
   if (normalized === "succeeded") return "success";
@@ -21,30 +23,33 @@ function conversionStatusBadgeIntent(
   return "default";
 }
 
+interface ConversionMetadataLike {
+  status?: string | null;
+  error?: string | null;
+  timestamp?: string | null;
+}
+
 interface ConversionStatusBadgeProps {
-  conversionStatus: string;
-  conversionError?: string | null;
+  conversionMetadata?: ConversionMetadataLike | null;
   showSpinner?: boolean;
   className?: string;
 }
 
 export function ConversionStatusBadge({
-  conversionStatus,
-  conversionError,
+  conversionMetadata,
   showSpinner = false,
   className,
 }: ConversionStatusBadgeProps) {
+  const status = conversionMetadata?.status;
+  const error = conversionMetadata?.error;
   return (
-    <Tooltip
-      content={conversionError ?? undefined}
-      enabled={Boolean(conversionError)}
-    >
+    <Tooltip content={error ?? undefined} enabled={Boolean(error)}>
       <span className={cn("inline-flex items-center")}>
         <Badge
-          intent={conversionStatusBadgeIntent(conversionStatus)}
+          intent={conversionStatusBadgeIntent(status)}
           className={cn("whitespace-nowrap gap-1.5", className)}
         >
-          {formatConversionStatus(conversionStatus)}
+          {formatConversionStatus(status)}
           {showSpinner ? <Spinner size="sm" /> : null}
         </Badge>
       </span>

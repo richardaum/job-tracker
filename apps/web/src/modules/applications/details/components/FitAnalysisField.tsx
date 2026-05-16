@@ -4,7 +4,7 @@ import { cn, FieldWithLabelAction, Text } from "@job-tracker/ui";
 import { ArrowRightIcon } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
 
-import { FitAnalysisStatus } from "@/gql/hooks";
+import { AsyncMetadataStatus } from "@/gql/hooks";
 import type { ApplicationDetailsValues } from "@/modules/applications/details/utils/application-details.shared";
 import {
   formatFitClassification,
@@ -22,7 +22,7 @@ export function FitAnalysisField({
 }: FitAnalysisFieldProps) {
   const router = useRouter();
   const fitColor =
-    fit?.status === FitAnalysisStatus.Completed
+    fit?.generationMetadata?.status === AsyncMetadataStatus.Completed
       ? fit.classification === "positive"
         ? "success"
         : fit.classification === "negative"
@@ -30,7 +30,8 @@ export function FitAnalysisField({
           : "primary"
       : "primary";
 
-  const tooltipContent = fit?.status === FitAnalysisStatus.Completed && (
+  const tooltipContent = fit?.generationMetadata?.status ===
+    AsyncMetadataStatus.Completed && (
     <div className={cn("space-y-1")}>
       <div className={cn("text-xs font-medium text-text-inverted")}>
         {formatFitClassification(fit.classification)}
@@ -80,13 +81,17 @@ export function FitAnalysisField({
             <Text size="sm" color="secondary">
               Not analyzed
             </Text>
-          ) : fit.status === FitAnalysisStatus.Processing ? (
+          ) : fit.generationMetadata?.status ===
+            AsyncMetadataStatus.Processing ? (
             <Text size="sm" color="secondary">
               Analyzing…
             </Text>
-          ) : fit.status === FitAnalysisStatus.Failed ? (
+          ) : fit.generationMetadata?.status === AsyncMetadataStatus.Failed ? (
             <FieldWithLabelAction.Tooltip
-              content={fit.error ?? "An error occurred during analysis."}
+              content={
+                fit.generationMetadata.error ??
+                "An error occurred during analysis."
+              }
             >
               <Text size="sm" color="error">
                 Failed

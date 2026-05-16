@@ -84,8 +84,7 @@ export function DraftApplicationCard({
         <span className={cn("inline-flex items-center gap-2")}>
           <span>{label}</span>
           <ConversionStatusBadge
-            conversionStatus={draft.conversionStatus}
-            conversionError={draft.conversionError}
+            conversionMetadata={draft.conversionMetadata}
           />
         </span>
       </NextLink>
@@ -152,8 +151,10 @@ export function DraftApplicationCard({
     </ListItemCard.Actions>
   );
 
-  const displayDate = draft.convertedAt ?? draft.createdAt;
-  const dateLabel = draft.convertedAt ? "Converted at" : "Created at";
+  const displayDate = draft.conversionMetadata?.timestamp ?? draft.createdAt;
+  const dateLabel = draft.conversionMetadata?.timestamp
+    ? "Converted at"
+    : "Created at";
 
   const meta = (
     <span className={cn("text-text-muted text-xs")}>

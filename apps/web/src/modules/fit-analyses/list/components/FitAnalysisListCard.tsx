@@ -4,7 +4,7 @@ import { cn, ListItemCard } from "@job-tracker/ui";
 import NextLink from "next/link";
 
 import type { FitAnalysesListQuery } from "@/gql/hooks";
-import { FitAnalysisStatus } from "@/gql/hooks";
+import { AsyncMetadataStatus } from "@/gql/hooks";
 import { formatFitLabel } from "@/modules/applications/shared/utils/fitFormat";
 
 export type FitListItem = FitAnalysesListQuery["fitAnalyses"][number];
@@ -54,7 +54,8 @@ export function FitAnalysisListCard({ fit }: FitAnalysisListCardProps) {
     </ListItemCard.Title>
   );
 
-  const isComplete = fit.status === FitAnalysisStatus.Completed;
+  const isComplete =
+    fit.generationMetadata?.status === AsyncMetadataStatus.Completed;
 
   const meta = (
     <span className={cn("text-text-muted text-xs")}>
