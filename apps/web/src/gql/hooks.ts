@@ -114,7 +114,7 @@ export enum AsyncMetadataStatus {
 export type AsyncMetadataType = {
   __typename?: "AsyncMetadataType";
   error?: Maybe<Scalars["String"]["output"]>;
-  generatedAt: Scalars["String"]["output"];
+  generatedAt?: Maybe<Scalars["String"]["output"]>;
   status: AsyncMetadataStatus;
 };
 
@@ -728,7 +728,7 @@ export type ApplicationsQuery = {
       __typename?: "AsyncMetadataType";
       status: AsyncMetadataStatus;
       error?: string | null;
-      generatedAt: string;
+      generatedAt?: string | null;
     } | null;
     fit?: {
       __typename?: "FitAnalysisType";
@@ -782,7 +782,7 @@ export type ApplicationQuery = {
       __typename?: "AsyncMetadataType";
       status: AsyncMetadataStatus;
       error?: string | null;
-      generatedAt: string;
+      generatedAt?: string | null;
     } | null;
     fit?: {
       __typename?: "FitAnalysisType";
@@ -878,7 +878,7 @@ export type UpdateApplicationMutation = {
       __typename?: "AsyncMetadataType";
       status: AsyncMetadataStatus;
       error?: string | null;
-      generatedAt: string;
+      generatedAt?: string | null;
     } | null;
     salary: {
       __typename?: "ApplicationSalary";
@@ -1113,7 +1113,7 @@ export type GenerateApplicationSummaryMutation = {
       __typename?: "AsyncMetadataType";
       status: AsyncMetadataStatus;
       error?: string | null;
-      generatedAt: string;
+      generatedAt?: string | null;
     } | null;
   };
 };
