@@ -1,0 +1,37 @@
+# TypeScript and React
+
+## Imports
+
+- Prefer `@/…` (or package root alias) over `../` traversals
+- Avoid inline type-only imports like `Foo<import("@/path").Bar>`. Use top-of-file `import type { Bar } from "@/path"`.
+- Inline `import("...")` types are harder to read, grep, and refactor.
+
+## Async errors
+
+Prefer `tryRun(...)` from `@job-tracker/try-run` over wrapping async flows in `try/catch` when behavior is equivalent:
+```ts
+const [error, data] = await tryRun(promise)
+```
+
+Keep `try/catch` where language-level control flow is required (finally, synchronous exceptions, framework boundaries).
+
+## Reexports
+
+Avoid files that only forward symbols (`export { x } from './x'`, barrel files). Import from the module that declares the export. Exception: deliberate public entrypoints (package `index.ts`, module boundary façades).
+
+## Named types
+
+Prefer a top-level `type` or `interface` over inline anonymous shapes in parameters, props, and return types when the object is non-trivial or reused. Primitives, simple utilities (`Record<string, string>`), and one-off literals can stay inline.
+
+## Nova convention
+
+Module-level regular functions belong in the lower part of the file: below imports, top-level types, constants, and the primary exported surface (components, hooks, classes, etc.).
+
+## cn() / className
+
+Use `cn()` for className construction. No raw string concatenation.
+
+## React 19 and React Compiler
+
+- Avoid unnecessary `useMemo` and `useCallback`. Prefer plain `const` derivations and direct closures. Add memoization only for expensive work, documented reference-stability contracts, or lint/compiler requirements.
+- Do not use `forwardRef`. Pass `ref` as a normal prop; UI components use `ref?: React.Ref<T>` on the props type.

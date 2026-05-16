@@ -55,6 +55,7 @@ logs/
 
 # Editor / agent tooling — canonical skills/commands live under `.ai/` (pnpm setup-ai symlinks elsewhere)
 .agents/
+!.agents/rules/
 .ai/skills/leanspec-development/
 .ai/.skill-lock.json
 .ai/.skill-lock.json.backup
