@@ -76,6 +76,21 @@ Numbered folders: `specs/<NNN-slug>/` with primary **`README.md`** (optional com
 - **AuthModule dependency:** Any NestJS module that defines resolvers decorated with **`@UseGuards(JwtAuthGuard, RolesGuard)`** (or similar guards) **must import `AuthModule`**. Guards like `RolesGuard` depend on `Reflector` and `UserService` which are provided through `AuthModule`. Omitting this import causes `UnknownDependenciesException` at startup.
 - **Import pattern:** Add `AuthModule` to the module's `imports` array, matching the pattern used by `CompaniesModule`, `ApplicationModule`, and other authenticated domains.
 
+### Async task JSONB metadata (`fieldMetadata`)
+
+Fields named `{action}Metadata` (e.g. `summaryMetadata`, `conversionMetadata`, `generationMetadata`) are JSONB columns carrying `AsyncMetadata` (`{ status, error?, generatedAt? }`). They pair with a sibling data column (`summary`, `conversionResult`, etc.) that holds the **output** once the async task completes. The metadata tracks **processing state only** — never inline business data inside it.
+
+| Rule | Detail |
+|------|--------|
+| **`null` semantics** | `metadata IS NULL` means the async task was **never requested** for that record. The sibling data column must also be `NULL`. |
+| **`NOT NULL` pairing** | If the data column is `NOT NULL` (output exists), the metadata column **must NOT be `NULL`** — its `status` should be `COMPLETED` and `generatedAt` must be set. Conversely, `metadata.status = COMPLETED` implies the data column is populated. |
+| **Backfill coverage** | Migrations that create the metadata JSONB from legacy columns or fix stale state must handle **both** cases: (a) metadata exists with `generatedAt IS NULL`, and (b) data column populated but metadata still `NULL`. |
+| **Atomic updates** | Background workers use `QueryBuilder` with JSONB `||` operator (merge) and optimistic concurrency (`WHERE metadata->>'status' = expectedStatus`). |
+| **Stale recovery** | Services implement `OnModuleInit` to reset lingering `PROCESSING` records to `FAILED` on startup. |
+| **Canonical spec** | `specs/034-technical-async-task-pattern/PATTERN.md` — full type definitions, entity mapping, service pattern, and frontend display. |
+
+When touching any `{action}` data field, verify its `{action}Metadata` consistency. When expanding async task slots (fit analysis, draft conversion), follow the same `{action}Metadata` naming.
+
 ## Web view models
 
 GraphQL screens should keep **rendering thin**: put API-to-display shaping (derived lists, formatted fields, empty/loading/error flags, props from query results) in **view-model hooks**, not large page or panel components.
