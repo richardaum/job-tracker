@@ -34,8 +34,8 @@ export default function ApplicationNotesPage({ params }: PageProps) {
             Back to application
           </Link>
         </div>
-        <div className={cn("flex items-start gap-3")}>
-          <Heading as="h1" size="2xl" className={cn("min-w-0 flex-1")}>
+        <div className={cn("flex items-center gap-3")}>
+          <Heading as="h1" size="2xl" className={cn("min-w-0")}>
             <span>
               {application?.title
                 ? `${application.title} — Notes`

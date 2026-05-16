@@ -247,17 +247,17 @@ export default function FitAnalysisPage({ params }: PageProps) {
             </Button>
           </div>
         </div>
-        <div className={cn("flex items-start gap-3")}>
-          <Heading as="h1" size="2xl" className={cn("min-w-0 flex-1")}>
+        <div className={cn("flex items-center gap-3")}>
+          <Heading as="h1" size="2xl" className={cn("min-w-0")}>
             <span>Fit Analysis</span>
-            {status ? (
-              <FitStatusBadge
-                status={status}
-                error={fit?.generationMetadata?.error ?? null}
-                className={cn("ml-3 align-middle")}
-              />
-            ) : null}
           </Heading>
+          {status ? (
+            <FitStatusBadge
+              status={status}
+              error={fit?.generationMetadata?.error ?? null}
+              className={cn("ml-3 align-middle")}
+            />
+          ) : null}
         </div>
       </div>
 
