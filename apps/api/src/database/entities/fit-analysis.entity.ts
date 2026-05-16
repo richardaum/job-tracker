@@ -12,9 +12,9 @@ import {
 import { DraftApplicationEntity } from "./draft-application.entity";
 
 export enum RequirementType {
-  MUST_HAVE = "must_have",
-  NICE_TO_HAVE = "nice_to_have",
-  SOFT_SKILL = "soft_skill",
+  MUST_HAVE = "MUST_HAVE",
+  NICE_TO_HAVE = "NICE_TO_HAVE",
+  SOFT_SKILL = "SOFT_SKILL",
 }
 
 export interface FitItem {
@@ -31,9 +31,9 @@ export interface FitItem {
 export type FitClassification = "positive" | "neutral" | "negative";
 
 export enum FitAnalysisStatus {
-  PROCESSING = "processing",
-  COMPLETED = "completed",
-  FAILED = "failed",
+  PROCESSING = "PROCESSING",
+  COMPLETED = "COMPLETED",
+  FAILED = "FAILED",
 }
 
 @WithGeneratedId()

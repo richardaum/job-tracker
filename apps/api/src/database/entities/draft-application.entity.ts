@@ -11,10 +11,10 @@ import {
 import { ApplicationEntity } from "./application.entity";
 
 export enum DraftApplicationConversionStatus {
-  IDLE = "idle",
-  PROCESSING = "processing",
-  SUCCEEDED = "succeeded",
-  FAILED = "failed",
+  IDLE = "IDLE",
+  PROCESSING = "PROCESSING",
+  SUCCEEDED = "SUCCEEDED",
+  FAILED = "FAILED",
 }
 
 @WithGeneratedId()
