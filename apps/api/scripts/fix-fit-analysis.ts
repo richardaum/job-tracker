@@ -1,6 +1,5 @@
 import "reflect-metadata";
-
-import { resolve } from "node:path";
+import "dotenv/config";
 
 import { buildDataSourceOptions } from "@api/database/data-source-options";
 import { ApplicationEntity } from "@api/database/entities/application.entity";
@@ -13,6 +12,7 @@ import {
 import { ResumeEntity } from "@api/database/entities/resume.entity";
 import { UserEntity } from "@api/database/entities/user.entity";
 import { UserPreferencesEntity } from "@api/database/entities/user-preferences.entity";
+import { ApplicationEventBus } from "@api/domains/applications/application-event.bus";
 import { ApplicationQuickFilterEnum } from "@api/domains/applications/application-quick-filter.enum";
 import { ApplicationRepository } from "@api/domains/applications/applications.repository";
 import { DraftApplicationsRepository } from "@api/domains/draft-applications/draft-applications.repository";
@@ -20,20 +20,26 @@ import { FitAnalysisRepository } from "@api/domains/fit-analysis/fit-analysis.re
 import { FitAnalysisService } from "@api/domains/fit-analysis/fit-analysis.service";
 import { FitAnalysisAiService } from "@api/domains/fit-analysis/fit-analysis-ai.service";
 import { FitAnalysisEventBus } from "@api/domains/fit-analysis/fit-analysis-event.bus";
-import { TemplateService } from "@api/domains/shared/template/template.service";
-import { OpenAIClient, PromptRendererService } from "@api/lib/ai";
-import { tryRun } from "@job-tracker/try-run";
-import { config } from "dotenv";
-import type { FindOptionsOrder, FindOptionsWhere } from "typeorm";
-import { DataSource } from "typeorm";
+import { FitAnalysisEventListener } from "@api/domains/fit-analysis/fit-analysis-event.listener";
+import { ResumeRepository } from "@api/domains/resumes/resumes.repository";
+import { LibAiModule } from "@api/lib/ai";
+import { Module } from "@nestjs/common";
+import { NestFactory } from "@nestjs/core";
+import { TypeOrmModule } from "@nestjs/typeorm";
+import { EntityManager } from "typeorm";
 
-config({ path: resolve(process.cwd(), ".env") });
-
-function parseArgs() {
+function parseArgs(): {
+  active: boolean;
+  email: string;
+  resumeId?: string;
+  dryRun: boolean;
+} {
   const args = process.argv.slice(2);
-  const parsed: { active: boolean; email: string; resumeId?: string } = {
+  const parsed = {
     active: false,
     email: "",
+    resumeId: undefined as string | undefined,
+    dryRun: false,
   };
 
   for (let i = 0; i < args.length; i++) {
@@ -44,12 +50,14 @@ function parseArgs() {
       parsed.email = args[++i]!;
     } else if (arg === "-r" || arg === "--resume-id") {
       parsed.resumeId = args[++i]!;
+    } else if (arg === "--dry-run") {
+      parsed.dryRun = true;
     }
   }
 
   if (!parsed.email) {
     console.error(
-      "Usage: tsx scripts/run-fit-analysis.ts --active -e <email> [-r <resume-id>]",
+      "Usage: tsx scripts/fix-fit-analysis.ts [--dry-run] [--active] -e <email> [-r <resume-id>]",
     );
     process.exit(1);
   }
@@ -57,28 +65,59 @@ function parseArgs() {
   return parsed;
 }
 
-async function main() {
-  const { active: activeOnly, email, resumeId: explicitResumeId } = parseArgs();
+@Module({
+  imports: [
+    TypeOrmModule.forRoot({
+      ...buildDataSourceOptions(process.env.DATABASE_URL!),
+    }),
+    TypeOrmModule.forFeature([
+      ApplicationEntity,
+      ApplicationStageEventEntity,
+      DraftApplicationEntity,
+      FitAnalysisEntity,
+      ResumeEntity,
+      UserEntity,
+      UserPreferencesEntity,
+    ]),
+    LibAiModule,
+  ],
+  providers: [
+    ApplicationEventBus,
+    ApplicationRepository,
+    DraftApplicationsRepository,
+    FitAnalysisEventBus,
+    FitAnalysisRepository,
+    FitAnalysisAiService,
+    FitAnalysisService,
+    FitAnalysisEventListener,
+    ResumeRepository,
+  ],
+})
+class ScriptModule {}
 
-  console.log("Connecting to database...");
-  const dataSource = new DataSource({
-    ...buildDataSourceOptions(process.env.DATABASE_URL!),
+async function main() {
+  const {
+    active: activeOnly,
+    email,
+    resumeId: explicitResumeId,
+    dryRun,
+  } = parseArgs();
+
+  process.stdout.write("Booting NestJS...\n");
+  const app = await NestFactory.createApplicationContext(ScriptModule, {
+    logger: ["error", "warn"],
   });
 
-  await dataSource.initialize();
-  console.log("Connected.");
+  const em = app.get(EntityManager);
+  const fitRepo = app.get(FitAnalysisRepository);
+  const resumeRepo = app.get(ResumeRepository);
+  const applicationRepo = app.get(ApplicationRepository);
+  const fitService = app.get(FitAnalysisService);
 
-  const userRepo = dataSource.getRepository(UserEntity);
-  const resumeEntityRepo = dataSource.getRepository(ResumeEntity);
-  const applicationOrmRepo = dataSource.getRepository(ApplicationEntity);
-  const stageEventRepo = dataSource.getRepository(ApplicationStageEventEntity);
-  const preferencesRepo = dataSource.getRepository(UserPreferencesEntity);
-  const fitEntityRepo = dataSource.getRepository(FitAnalysisEntity);
-
-  const user = await userRepo.findOne({ where: { email } });
+  const user = await em.getRepository(UserEntity).findOne({ where: { email } });
   if (!user) {
     console.error(`User not found: ${email}`);
-    await dataSource.destroy();
+    await app.close();
     process.exit(1);
   }
   const userId = user.id;
@@ -86,53 +125,37 @@ async function main() {
 
   let resumeId = explicitResumeId;
   if (!resumeId) {
-    const resumeQuery: FindOptionsWhere<ResumeEntity> = {
-      userId,
-      isDefault: true,
-    };
-    const defaultResume = await resumeEntityRepo.findOne({
-      where: resumeQuery,
-    });
+    const defaultResume = await resumeRepo.findDefaultByUserId(userId);
     if (defaultResume) {
       resumeId = defaultResume.id;
       console.log(
         `Using default resume: "${defaultResume.title}" (${resumeId})`,
       );
     } else {
-      const fallbackQuery: FindOptionsWhere<ResumeEntity> = { userId };
-      const fallbackOrder: FindOptionsOrder<ResumeEntity> = {
-        updatedAt: "DESC",
-      };
-      const mostRecent = await resumeEntityRepo.findOne({
-        where: fallbackQuery,
-        order: fallbackOrder,
-      });
-      if (!mostRecent) {
+      const resumes = await resumeRepo.findAllByUserId(userId);
+      if (resumes.length === 0) {
         console.error(
           "No resumes found. Create one via the web UI or pass --resume-id.",
         );
-        await dataSource.destroy();
+        await app.close();
         process.exit(1);
       }
-      resumeId = mostRecent.id;
+      resumeId = resumes[0]!.id;
       console.log(
-        `No default resume. Using most recent: "${mostRecent.title}" (${resumeId})`,
+        `No default resume. Using most recent: "${resumes[0]!.title}" (${resumeId})`,
       );
     }
   } else {
-    const resume = await resumeEntityRepo.findOne({ where: { id: resumeId } });
+    const resume = await em
+      .getRepository(ResumeEntity)
+      .findOne({ where: { id: resumeId } });
     if (!resume || resume.userId !== userId) {
       console.error(`Resume not found: ${resumeId}`);
-      await dataSource.destroy();
+      await app.close();
       process.exit(1);
     }
     console.log(`Using resume: "${resume.title}" (${resumeId})`);
   }
-
-  const applicationRepo = new ApplicationRepository(
-    applicationOrmRepo,
-    stageEventRepo,
-  );
 
   const allApps = activeOnly
     ? await applicationRepo.findAllByUserId(
@@ -147,7 +170,7 @@ async function main() {
 
   if (appsToProcess.length === 0) {
     console.log("No applications with job descriptions found.");
-    await dataSource.destroy();
+    await app.close();
     return;
   }
 
@@ -155,31 +178,6 @@ async function main() {
     `\nFound ${allApps.length} applications, ${appsToProcess.length} with descriptions.\n`,
   );
 
-  const fitRepo = new FitAnalysisRepository(fitEntityRepo);
-  const draftRepo = new DraftApplicationsRepository(
-    dataSource.getRepository(DraftApplicationEntity),
-    applicationOrmRepo,
-  );
-
-  const templateService = new TemplateService();
-  const promptRendererService = new PromptRendererService(templateService);
-  const openAIClient = new OpenAIClient();
-  const fitAiService = new FitAnalysisAiService(
-    openAIClient,
-    promptRendererService,
-  );
-
-  const fitService = new FitAnalysisService(
-    fitRepo,
-    fitAiService,
-    applicationRepo,
-    draftRepo,
-    {} as FitAnalysisEventBus,
-    resumeEntityRepo,
-    preferencesRepo,
-  );
-
-  // Parallel skip check
   const skipResults = await Promise.all(
     appsToProcess.map(async (app) => {
       const existing = await fitRepo.findByApplicationId(app.id);
@@ -199,7 +197,19 @@ async function main() {
 
   if (toGenerate.length === 0) {
     console.log("\nAll applications already have completed fit analysis.");
-    await dataSource.destroy();
+    await app.close();
+    return;
+  }
+
+  if (dryRun) {
+    console.log(
+      `\n[DRY-RUN] Would trigger fit analysis for ${toGenerate.length} applications:\n`,
+    );
+    for (const app of toGenerate) {
+      console.log(`  ${app.title} @ ${app.companyName}`);
+    }
+    console.log("\n[DRY-RUN] No analyses were generated.");
+    await app.close();
     return;
   }
 
@@ -207,7 +217,6 @@ async function main() {
     `\nTriggering fit analysis for ${toGenerate.length} applications...\n`,
   );
 
-  // Parallel generate with concurrency limit
   const triggered = new Set<string>();
   const concurrency = 5;
   const chunks: (typeof toGenerate)[] = [];
@@ -218,10 +227,7 @@ async function main() {
   for (const chunk of chunks) {
     const results = await Promise.allSettled(
       chunk.map(async (app) => {
-        const [err] = await tryRun(
-          fitService.generate(app.id, resumeId, userId),
-        );
-        if (err) throw err;
+        await fitService.generate(app.id, resumeId, userId);
         return app;
       }),
     );
@@ -240,7 +246,7 @@ async function main() {
 
   if (triggered.size === 0) {
     console.log("\nNo analyses were triggered.");
-    await dataSource.destroy();
+    await app.close();
     return;
   }
 
@@ -282,8 +288,9 @@ async function main() {
         `  OK    ${app.title} @ ${app.companyName} — ${scorePct} (${entity.classification ?? "N/A"})`,
       );
     } else if (entity.status === FitAnalysisStatus.FAILED) {
-      const errorMsg = entity.error ?? "Unknown error";
-      console.log(`  FAIL  ${app.title} @ ${app.companyName} — ${errorMsg}`);
+      console.log(
+        `  FAIL  ${app.title} @ ${app.companyName} — ${entity.error ?? "Unknown error"}`,
+      );
     } else {
       console.log(
         `  ?     ${app.title} @ ${app.companyName}: status=${entity.status}`,
@@ -296,7 +303,7 @@ async function main() {
   console.log(
     `\nDone. ${successCount} succeeded, ${failedCount} failed out of ${triggered.size}.`,
   );
-  await dataSource.destroy();
+  await app.close();
 }
 
 main().catch((err: unknown) => {

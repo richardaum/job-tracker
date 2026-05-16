@@ -8,7 +8,7 @@ NestJS 11 + Apollo GraphQL + TypeORM + PostgreSQL. Schema: `src/schema.gql`.
 
 - PM2: **api** process
 - Docker: `docker build -f apps/api/Dockerfile -t job-tracker-api:local .` (repo root)
-- Migrations: `apps/api/src/database/`; watch `node scripts/watch-migrations.mjs`
+- Migrations: `apps/api/src/database/`
 
 ## Tests
 

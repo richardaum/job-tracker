@@ -1,6 +1,6 @@
 # Standalone Scripts
 
-Scripts under `apps/api/src/scripts/` that need DB + external API calls (e.g. backfill).
+Scripts under `apps/api/src/scripts/` that need DB + NestJS services.
 
 **Use `ts-node` + NestJS DI** — `ts-node` handles NestJS decorator metadata correctly (unlike `tsx`, which cannot resolve it reliably, especially with circular module deps like `NotesModule` ↔ `ApplicationModule`).
 
@@ -62,7 +62,7 @@ ts-node -r tsconfig-paths/register --project tsconfig.json src/scripts/<script>.
 Add to `apps/api/package.json` scripts for convenience, e.g.:
 
 ```json
-"backfill:summaries": "ts-node -r tsconfig-paths/register --project tsconfig.json src/scripts/backfill-summaries.ts"
+"fix:generate-summaries": "ts-node -r tsconfig-paths/register --project tsconfig.json src/scripts/fix-generate-summaries.ts"
 ```
 
 `tsconfig-paths/register` is needed so `ts-node` resolves `@api/` path aliases. Both packages are already in `devDependencies`.
