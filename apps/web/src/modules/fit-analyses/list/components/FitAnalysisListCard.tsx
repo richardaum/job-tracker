@@ -5,7 +5,8 @@ import NextLink from "next/link";
 
 import type { FitAnalysesListQuery } from "@/gql/hooks";
 import { AsyncMetadataStatus } from "@/gql/hooks";
-import { formatFitLabel } from "@/modules/applications/shared/utils/fitFormat";
+
+import { FitScoreBadge } from "./FitScoreBadge";
 
 export type FitListItem = FitAnalysesListQuery["fitAnalyses"][number];
 
@@ -31,28 +32,22 @@ export function FitAnalysisListCard({ fit }: FitAnalysisListCardProps) {
       : "Unknown";
 
   const title = (
-    <ListItemCard.Title asChild size="sm" className={cn("font-semibold")}>
-      <NextLink href={`/fits/${fit.id}`}>
-        <span className={cn("inline-flex items-center gap-2")}>
-          <span>{parentLabel}</span>
-          {fit.scoreRatio != null && (
-            <span
-              className={cn(
-                "text-xs font-medium",
-                fit.classification === "positive"
-                  ? "text-text-success"
-                  : fit.classification === "negative"
-                    ? "text-text-error"
-                    : "text-text-primary",
-              )}
-            >
-              {formatFitLabel(fit.classification, fit.scoreRatio)}
-            </span>
-          )}
-        </span>
+    <ListItemCard.Title size="sm" asChild>
+      <NextLink href={`/fits/${fit.id}`} className={cn("font-semibold")}>
+        {parentLabel}
       </NextLink>
     </ListItemCard.Title>
   );
+
+  const actions =
+    fit.scoreRatio != null ? (
+      <ListItemCard.Actions>
+        <FitScoreBadge
+          classification={fit.classification}
+          scoreRatio={fit.scoreRatio}
+        />
+      </ListItemCard.Actions>
+    ) : undefined;
 
   const isComplete =
     fit.generationMetadata?.status === AsyncMetadataStatus.Completed;
@@ -66,5 +61,5 @@ export function FitAnalysisListCard({ fit }: FitAnalysisListCardProps) {
     </span>
   );
 
-  return <ListItemCard title={title} meta={meta} />;
+  return <ListItemCard title={title} actions={actions} meta={meta} />;
 }
