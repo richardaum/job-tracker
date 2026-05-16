@@ -113,8 +113,8 @@ export enum AsyncMetadataStatus {
 export type AsyncMetadataType = {
   __typename?: "AsyncMetadataType";
   error?: Maybe<Scalars["String"]["output"]>;
-  generatedAt?: Maybe<Scalars["String"]["output"]>;
   status: AsyncMetadataStatus;
+  timestamp?: Maybe<Scalars["String"]["output"]>;
 };
 
 export type CompanyType = {
@@ -125,6 +125,13 @@ export type CompanyType = {
   name: Scalars["String"]["output"];
   updatedAt: Scalars["DateTime"]["output"];
   userId: Scalars["String"]["output"];
+};
+
+export type ConversionMetadataType = {
+  __typename?: "ConversionMetadataType";
+  error?: Maybe<Scalars["String"]["output"]>;
+  status: DraftApplicationConversionStatus;
+  timestamp?: Maybe<Scalars["String"]["output"]>;
 };
 
 export type CreateApplicationInput = {
@@ -200,9 +207,7 @@ export enum DraftApplicationConversionStatus {
 export type DraftApplicationType = {
   __typename?: "DraftApplicationType";
   applicationId?: Maybe<Scalars["String"]["output"]>;
-  conversionError?: Maybe<Scalars["String"]["output"]>;
-  conversionStatus: DraftApplicationConversionStatus;
-  convertedAt?: Maybe<Scalars["DateTime"]["output"]>;
+  conversionMetadata?: Maybe<ConversionMetadataType>;
   createdAt: Scalars["DateTime"]["output"];
   fit?: Maybe<FitAnalysisType>;
   htmlContent: Scalars["String"]["output"];
@@ -218,12 +223,6 @@ export type ExchangeRate = {
   rate: Scalars["Float"]["output"];
 };
 
-export enum FitAnalysisStatus {
-  Completed = "COMPLETED",
-  Failed = "FAILED",
-  Processing = "PROCESSING",
-}
-
 export type FitAnalysisType = {
   __typename?: "FitAnalysisType";
   application?: Maybe<ApplicationType>;
@@ -232,14 +231,13 @@ export type FitAnalysisType = {
   createdAt: Scalars["DateTime"]["output"];
   draftApplication?: Maybe<DraftApplicationType>;
   draftApplicationId?: Maybe<Scalars["ID"]["output"]>;
-  error?: Maybe<Scalars["String"]["output"]>;
   fitCount: Scalars["Int"]["output"];
   gapCount: Scalars["Int"]["output"];
+  generationMetadata?: Maybe<AsyncMetadataType>;
   id: Scalars["ID"]["output"];
   items: Array<FitItemType>;
   resumeId: Scalars["ID"]["output"];
   scoreRatio?: Maybe<Scalars["Float"]["output"]>;
-  status: FitAnalysisStatus;
   unclearCount: Scalars["Int"]["output"];
   updatedAt: Scalars["DateTime"]["output"];
 };
@@ -727,7 +725,7 @@ export type ApplicationsQuery = {
       __typename?: "AsyncMetadataType";
       status: AsyncMetadataStatus;
       error?: string | null;
-      generatedAt?: string | null;
+      timestamp?: string | null;
     } | null;
     fit?: {
       __typename?: "FitAnalysisType";
@@ -737,8 +735,12 @@ export type ApplicationsQuery = {
       fitCount: number;
       gapCount: number;
       unclearCount: number;
-      status: FitAnalysisStatus;
-      error?: string | null;
+      generationMetadata?: {
+        __typename?: "AsyncMetadataType";
+        status: AsyncMetadataStatus;
+        error?: string | null;
+        timestamp?: string | null;
+      } | null;
     } | null;
     salary: {
       __typename?: "ApplicationSalary";
@@ -781,7 +783,7 @@ export type ApplicationQuery = {
       __typename?: "AsyncMetadataType";
       status: AsyncMetadataStatus;
       error?: string | null;
-      generatedAt?: string | null;
+      timestamp?: string | null;
     } | null;
     fit?: {
       __typename?: "FitAnalysisType";
@@ -791,8 +793,12 @@ export type ApplicationQuery = {
       fitCount: number;
       gapCount: number;
       unclearCount: number;
-      status: FitAnalysisStatus;
-      error?: string | null;
+      generationMetadata?: {
+        __typename?: "AsyncMetadataType";
+        status: AsyncMetadataStatus;
+        error?: string | null;
+        timestamp?: string | null;
+      } | null;
     } | null;
     salary: {
       __typename?: "ApplicationSalary";
@@ -877,7 +883,7 @@ export type UpdateApplicationMutation = {
       __typename?: "AsyncMetadataType";
       status: AsyncMetadataStatus;
       error?: string | null;
-      generatedAt?: string | null;
+      timestamp?: string | null;
     } | null;
     salary: {
       __typename?: "ApplicationSalary";
@@ -1112,7 +1118,7 @@ export type GenerateApplicationSummaryMutation = {
       __typename?: "AsyncMetadataType";
       status: AsyncMetadataStatus;
       error?: string | null;
-      generatedAt?: string | null;
+      timestamp?: string | null;
     } | null;
   };
 };
@@ -1196,10 +1202,13 @@ export type DraftApplicationsListQuery = {
     applicationId?: string | null;
     url?: string | null;
     title: string;
-    conversionStatus: DraftApplicationConversionStatus;
-    conversionError?: string | null;
-    convertedAt?: any | null;
     createdAt: any;
+    conversionMetadata?: {
+      __typename?: "ConversionMetadataType";
+      status: DraftApplicationConversionStatus;
+      error?: string | null;
+      timestamp?: string | null;
+    } | null;
   }>;
 };
 
@@ -1216,24 +1225,31 @@ export type DraftApplicationDetailQuery = {
     url?: string | null;
     title: string;
     htmlContent: string;
-    conversionStatus: DraftApplicationConversionStatus;
-    conversionError?: string | null;
-    convertedAt?: any | null;
     createdAt: any;
+    conversionMetadata?: {
+      __typename?: "ConversionMetadataType";
+      status: DraftApplicationConversionStatus;
+      error?: string | null;
+      timestamp?: string | null;
+    } | null;
     fit?: {
       __typename?: "FitAnalysisType";
       id: string;
       applicationId?: string | null;
       draftApplicationId?: string | null;
       resumeId: string;
-      status: FitAnalysisStatus;
-      error?: string | null;
       scoreRatio?: number | null;
       classification?: string | null;
       fitCount: number;
       gapCount: number;
       unclearCount: number;
       createdAt: any;
+      generationMetadata?: {
+        __typename?: "AsyncMetadataType";
+        status: AsyncMetadataStatus;
+        error?: string | null;
+        timestamp?: string | null;
+      } | null;
     } | null;
   };
 };
@@ -1275,8 +1291,11 @@ export type CreateApplicationWithAiMutation = {
     __typename?: "DraftApplicationType";
     id: string;
     title: string;
-    conversionStatus: DraftApplicationConversionStatus;
-    conversionError?: string | null;
+    conversionMetadata?: {
+      __typename?: "ConversionMetadataType";
+      status: DraftApplicationConversionStatus;
+      error?: string | null;
+    } | null;
   };
 };
 
@@ -1292,8 +1311,11 @@ export type CreateDraftApplicationMutation = {
     applicationId?: string | null;
     url?: string | null;
     title: string;
-    conversionStatus: DraftApplicationConversionStatus;
-    conversionError?: string | null;
+    conversionMetadata?: {
+      __typename?: "ConversionMetadataType";
+      status: DraftApplicationConversionStatus;
+      error?: string | null;
+    } | null;
   };
 };
 
@@ -1310,8 +1332,11 @@ export type UpdateDraftApplicationMutation = {
     applicationId?: string | null;
     url?: string | null;
     title: string;
-    conversionStatus: DraftApplicationConversionStatus;
-    conversionError?: string | null;
+    conversionMetadata?: {
+      __typename?: "ConversionMetadataType";
+      status: DraftApplicationConversionStatus;
+      error?: string | null;
+    } | null;
   };
 };
 
@@ -1325,8 +1350,6 @@ export type FitAnalysesListQuery = {
     applicationId?: string | null;
     draftApplicationId?: string | null;
     resumeId: string;
-    status: FitAnalysisStatus;
-    error?: string | null;
     scoreRatio?: number | null;
     classification?: string | null;
     fitCount: number;
@@ -1334,6 +1357,12 @@ export type FitAnalysesListQuery = {
     unclearCount: number;
     createdAt: any;
     updatedAt: any;
+    generationMetadata?: {
+      __typename?: "AsyncMetadataType";
+      status: AsyncMetadataStatus;
+      error?: string | null;
+      timestamp?: string | null;
+    } | null;
     application?: {
       __typename?: "ApplicationType";
       id: string;
@@ -1358,14 +1387,18 @@ export type FitQuery = {
     applicationId?: string | null;
     draftApplicationId?: string | null;
     resumeId: string;
-    status: FitAnalysisStatus;
-    error?: string | null;
     scoreRatio?: number | null;
     classification?: string | null;
     fitCount: number;
     gapCount: number;
     unclearCount: number;
     createdAt: any;
+    generationMetadata?: {
+      __typename?: "AsyncMetadataType";
+      status: AsyncMetadataStatus;
+      error?: string | null;
+      timestamp?: string | null;
+    } | null;
     items: Array<{
       __typename?: "FitItemType";
       requirement: string;
@@ -1403,14 +1436,18 @@ export type ApplicationFitQuery = {
     applicationId?: string | null;
     draftApplicationId?: string | null;
     resumeId: string;
-    status: FitAnalysisStatus;
-    error?: string | null;
     scoreRatio?: number | null;
     classification?: string | null;
     fitCount: number;
     gapCount: number;
     unclearCount: number;
     createdAt: any;
+    generationMetadata?: {
+      __typename?: "AsyncMetadataType";
+      status: AsyncMetadataStatus;
+      error?: string | null;
+      timestamp?: string | null;
+    } | null;
     items: Array<{
       __typename?: "FitItemType";
       requirement: string;
@@ -1437,14 +1474,18 @@ export type DraftApplicationFitQuery = {
     applicationId?: string | null;
     draftApplicationId?: string | null;
     resumeId: string;
-    status: FitAnalysisStatus;
-    error?: string | null;
     scoreRatio?: number | null;
     classification?: string | null;
     fitCount: number;
     gapCount: number;
     unclearCount: number;
     createdAt: any;
+    generationMetadata?: {
+      __typename?: "AsyncMetadataType";
+      status: AsyncMetadataStatus;
+      error?: string | null;
+      timestamp?: string | null;
+    } | null;
     items: Array<{
       __typename?: "FitItemType";
       requirement: string;
@@ -1471,14 +1512,56 @@ export type GenerateApplicationFitMutation = {
     applicationId?: string | null;
     draftApplicationId?: string | null;
     resumeId: string;
-    status: FitAnalysisStatus;
-    error?: string | null;
     scoreRatio?: number | null;
     classification?: string | null;
     fitCount: number;
     gapCount: number;
     unclearCount: number;
     createdAt: any;
+    generationMetadata?: {
+      __typename?: "AsyncMetadataType";
+      status: AsyncMetadataStatus;
+      error?: string | null;
+      timestamp?: string | null;
+    } | null;
+    items: Array<{
+      __typename?: "FitItemType";
+      requirement: string;
+      source: string;
+      weight?: string | null;
+      type: string;
+      verdict: string;
+      jdQuote: string;
+      sourceQuotes: Array<string>;
+      suggestion?: string | null;
+    }>;
+  };
+};
+
+export type GenerateDraftApplicationFitMutationVariables = Exact<{
+  input: GenerateDraftFitInput;
+}>;
+
+export type GenerateDraftApplicationFitMutation = {
+  __typename?: "Mutation";
+  generateDraftApplicationFit: {
+    __typename?: "FitAnalysisType";
+    id: string;
+    applicationId?: string | null;
+    draftApplicationId?: string | null;
+    resumeId: string;
+    scoreRatio?: number | null;
+    classification?: string | null;
+    fitCount: number;
+    gapCount: number;
+    unclearCount: number;
+    createdAt: any;
+    generationMetadata?: {
+      __typename?: "AsyncMetadataType";
+      status: AsyncMetadataStatus;
+      error?: string | null;
+      timestamp?: string | null;
+    } | null;
     items: Array<{
       __typename?: "FitItemType";
       requirement: string;
@@ -1503,40 +1586,6 @@ export type DeleteFitAnalysisMutation = {
     __typename?: "DeleteMutationPayloadType";
     success: boolean;
     deletedId: string;
-  };
-};
-
-export type GenerateDraftApplicationFitMutationVariables = Exact<{
-  input: GenerateDraftFitInput;
-}>;
-
-export type GenerateDraftApplicationFitMutation = {
-  __typename?: "Mutation";
-  generateDraftApplicationFit: {
-    __typename?: "FitAnalysisType";
-    id: string;
-    applicationId?: string | null;
-    draftApplicationId?: string | null;
-    resumeId: string;
-    status: FitAnalysisStatus;
-    error?: string | null;
-    scoreRatio?: number | null;
-    classification?: string | null;
-    fitCount: number;
-    gapCount: number;
-    unclearCount: number;
-    createdAt: any;
-    items: Array<{
-      __typename?: "FitItemType";
-      requirement: string;
-      source: string;
-      weight?: string | null;
-      type: string;
-      verdict: string;
-      jdQuote: string;
-      sourceQuotes: Array<string>;
-      suggestion?: string | null;
-    }>;
   };
 };
 
@@ -1793,7 +1842,7 @@ export const ApplicationsDocument = gql`
       summaryMetadata {
         status
         error
-        generatedAt
+        timestamp
       }
       currentStage
       currentStageReason
@@ -1806,8 +1855,11 @@ export const ApplicationsDocument = gql`
         fitCount
         gapCount
         unclearCount
-        status
-        error
+        generationMetadata {
+          status
+          error
+          timestamp
+        }
       }
     }
   }
@@ -1836,7 +1888,7 @@ export const ApplicationDocument = gql`
       summaryMetadata {
         status
         error
-        generatedAt
+        timestamp
       }
       currentStage
       currentStageReason
@@ -1849,8 +1901,11 @@ export const ApplicationDocument = gql`
         fitCount
         gapCount
         unclearCount
-        status
-        error
+        generationMetadata {
+          status
+          error
+          timestamp
+        }
       }
     }
   }
@@ -1906,7 +1961,7 @@ export const UpdateApplicationDocument = gql`
       summaryMetadata {
         status
         error
-        generatedAt
+        timestamp
       }
       createdAt
     }
@@ -2061,7 +2116,7 @@ export const GenerateApplicationSummaryDocument = gql`
       summaryMetadata {
         status
         error
-        generatedAt
+        timestamp
       }
     }
   }
@@ -2115,9 +2170,11 @@ export const DraftApplicationsListDocument = gql`
       applicationId
       url
       title
-      conversionStatus
-      conversionError
-      convertedAt
+      conversionMetadata {
+        status
+        error
+        timestamp
+      }
       createdAt
     }
   }
@@ -2130,17 +2187,22 @@ export const DraftApplicationDetailDocument = gql`
       url
       title
       htmlContent
-      conversionStatus
-      conversionError
-      convertedAt
+      conversionMetadata {
+        status
+        error
+        timestamp
+      }
       createdAt
       fit {
         id
         applicationId
         draftApplicationId
         resumeId
-        status
-        error
+        generationMetadata {
+          status
+          error
+          timestamp
+        }
         scoreRatio
         classification
         fitCount
@@ -2175,8 +2237,10 @@ export const CreateApplicationWithAiDocument = gql`
     createApplicationWithAI(draftId: $draftId) {
       id
       title
-      conversionStatus
-      conversionError
+      conversionMetadata {
+        status
+        error
+      }
     }
   }
 `;
@@ -2187,8 +2251,10 @@ export const CreateDraftApplicationDocument = gql`
       applicationId
       url
       title
-      conversionStatus
-      conversionError
+      conversionMetadata {
+        status
+        error
+      }
     }
   }
 `;
@@ -2202,8 +2268,10 @@ export const UpdateDraftApplicationDocument = gql`
       applicationId
       url
       title
-      conversionStatus
-      conversionError
+      conversionMetadata {
+        status
+        error
+      }
     }
   }
 `;
@@ -2214,8 +2282,11 @@ export const FitAnalysesListDocument = gql`
       applicationId
       draftApplicationId
       resumeId
-      status
-      error
+      generationMetadata {
+        status
+        error
+        timestamp
+      }
       scoreRatio
       classification
       fitCount
@@ -2245,8 +2316,11 @@ export const FitDocument = gql`
       applicationId
       draftApplicationId
       resumeId
-      status
-      error
+      generationMetadata {
+        status
+        error
+        timestamp
+      }
       scoreRatio
       classification
       fitCount
@@ -2285,8 +2359,11 @@ export const ApplicationFitDocument = gql`
       applicationId
       draftApplicationId
       resumeId
-      status
-      error
+      generationMetadata {
+        status
+        error
+        timestamp
+      }
       scoreRatio
       classification
       fitCount
@@ -2313,8 +2390,11 @@ export const DraftApplicationFitDocument = gql`
       applicationId
       draftApplicationId
       resumeId
-      status
-      error
+      generationMetadata {
+        status
+        error
+        timestamp
+      }
       scoreRatio
       classification
       fitCount
@@ -2341,8 +2421,42 @@ export const GenerateApplicationFitDocument = gql`
       applicationId
       draftApplicationId
       resumeId
-      status
-      error
+      generationMetadata {
+        status
+        error
+        timestamp
+      }
+      scoreRatio
+      classification
+      fitCount
+      gapCount
+      unclearCount
+      items {
+        requirement
+        source
+        weight
+        type
+        verdict
+        jdQuote
+        sourceQuotes
+        suggestion
+      }
+      createdAt
+    }
+  }
+`;
+export const GenerateDraftApplicationFitDocument = gql`
+  mutation GenerateDraftApplicationFit($input: GenerateDraftFitInput!) {
+    generateDraftApplicationFit(input: $input) {
+      id
+      applicationId
+      draftApplicationId
+      resumeId
+      generationMetadata {
+        status
+        error
+        timestamp
+      }
       scoreRatio
       classification
       fitCount
@@ -2367,34 +2481,6 @@ export const DeleteFitAnalysisDocument = gql`
     deleteFitAnalysis(id: $id) {
       success
       deletedId
-    }
-  }
-`;
-export const GenerateDraftApplicationFitDocument = gql`
-  mutation GenerateDraftApplicationFit($input: GenerateDraftFitInput!) {
-    generateDraftApplicationFit(input: $input) {
-      id
-      applicationId
-      draftApplicationId
-      resumeId
-      status
-      error
-      scoreRatio
-      classification
-      fitCount
-      gapCount
-      unclearCount
-      items {
-        requirement
-        source
-        weight
-        type
-        verdict
-        jdQuote
-        sourceQuotes
-        suggestion
-      }
-      createdAt
     }
   }
 `;
@@ -3256,24 +3342,6 @@ export function getSdk(
         variables,
       );
     },
-    DeleteFitAnalysis(
-      variables: DeleteFitAnalysisMutationVariables,
-      requestHeaders?: GraphQLClientRequestHeaders,
-      signal?: RequestInit["signal"],
-    ): Promise<DeleteFitAnalysisMutation> {
-      return withWrapper(
-        (wrappedRequestHeaders) =>
-          client.request<DeleteFitAnalysisMutation>({
-            document: DeleteFitAnalysisDocument,
-            variables,
-            requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
-            signal,
-          }),
-        "DeleteFitAnalysis",
-        "mutation",
-        variables,
-      );
-    },
     GenerateDraftApplicationFit(
       variables: GenerateDraftApplicationFitMutationVariables,
       requestHeaders?: GraphQLClientRequestHeaders,
@@ -3288,6 +3356,24 @@ export function getSdk(
             signal,
           }),
         "GenerateDraftApplicationFit",
+        "mutation",
+        variables,
+      );
+    },
+    DeleteFitAnalysis(
+      variables: DeleteFitAnalysisMutationVariables,
+      requestHeaders?: GraphQLClientRequestHeaders,
+      signal?: RequestInit["signal"],
+    ): Promise<DeleteFitAnalysisMutation> {
+      return withWrapper(
+        (wrappedRequestHeaders) =>
+          client.request<DeleteFitAnalysisMutation>({
+            document: DeleteFitAnalysisDocument,
+            variables,
+            requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
+            signal,
+          }),
+        "DeleteFitAnalysis",
         "mutation",
         variables,
       );

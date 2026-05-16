@@ -4,9 +4,11 @@ query DraftApplicationsList {
     applicationId
     url
     title
-    conversionStatus
-    conversionError
-    convertedAt
+    conversionMetadata {
+      status
+      error
+      timestamp
+    }
     createdAt
   }
 }
@@ -18,17 +20,22 @@ query DraftApplicationDetail($id: ID!) {
     url
     title
     htmlContent
-    conversionStatus
-    conversionError
-    convertedAt
+    conversionMetadata {
+      status
+      error
+      timestamp
+    }
     createdAt
     fit {
       id
       applicationId
       draftApplicationId
       resumeId
-      status
-      error
+      generationMetadata {
+        status
+        error
+        timestamp
+      }
       scoreRatio
       classification
       fitCount
@@ -60,8 +67,10 @@ mutation CreateApplicationWithAI($draftId: ID!) {
   createApplicationWithAI(draftId: $draftId) {
     id
     title
-    conversionStatus
-    conversionError
+    conversionMetadata {
+      status
+      error
+    }
   }
 }
 
@@ -71,8 +80,10 @@ mutation CreateDraftApplication($input: CreateDraftApplicationInput!) {
     applicationId
     url
     title
-    conversionStatus
-    conversionError
+    conversionMetadata {
+      status
+      error
+    }
   }
 }
 
@@ -85,7 +96,9 @@ mutation UpdateDraftApplication(
     applicationId
     url
     title
-    conversionStatus
-    conversionError
+    conversionMetadata {
+      status
+      error
+    }
   }
 }

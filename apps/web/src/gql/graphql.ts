@@ -112,8 +112,8 @@ export enum AsyncMetadataStatus {
 export type AsyncMetadataType = {
   __typename?: "AsyncMetadataType";
   error?: Maybe<Scalars["String"]["output"]>;
-  generatedAt?: Maybe<Scalars["String"]["output"]>;
   status: AsyncMetadataStatus;
+  timestamp?: Maybe<Scalars["String"]["output"]>;
 };
 
 export type CompanyType = {
@@ -124,6 +124,13 @@ export type CompanyType = {
   name: Scalars["String"]["output"];
   updatedAt: Scalars["DateTime"]["output"];
   userId: Scalars["String"]["output"];
+};
+
+export type ConversionMetadataType = {
+  __typename?: "ConversionMetadataType";
+  error?: Maybe<Scalars["String"]["output"]>;
+  status: DraftApplicationConversionStatus;
+  timestamp?: Maybe<Scalars["String"]["output"]>;
 };
 
 export type CreateApplicationInput = {
@@ -199,9 +206,7 @@ export enum DraftApplicationConversionStatus {
 export type DraftApplicationType = {
   __typename?: "DraftApplicationType";
   applicationId?: Maybe<Scalars["String"]["output"]>;
-  conversionError?: Maybe<Scalars["String"]["output"]>;
-  conversionStatus: DraftApplicationConversionStatus;
-  convertedAt?: Maybe<Scalars["DateTime"]["output"]>;
+  conversionMetadata?: Maybe<ConversionMetadataType>;
   createdAt: Scalars["DateTime"]["output"];
   fit?: Maybe<FitAnalysisType>;
   htmlContent: Scalars["String"]["output"];
@@ -217,12 +222,6 @@ export type ExchangeRate = {
   rate: Scalars["Float"]["output"];
 };
 
-export enum FitAnalysisStatus {
-  Completed = "COMPLETED",
-  Failed = "FAILED",
-  Processing = "PROCESSING",
-}
-
 export type FitAnalysisType = {
   __typename?: "FitAnalysisType";
   application?: Maybe<ApplicationType>;
@@ -231,14 +230,13 @@ export type FitAnalysisType = {
   createdAt: Scalars["DateTime"]["output"];
   draftApplication?: Maybe<DraftApplicationType>;
   draftApplicationId?: Maybe<Scalars["ID"]["output"]>;
-  error?: Maybe<Scalars["String"]["output"]>;
   fitCount: Scalars["Int"]["output"];
   gapCount: Scalars["Int"]["output"];
+  generationMetadata?: Maybe<AsyncMetadataType>;
   id: Scalars["ID"]["output"];
   items: Array<FitItemType>;
   resumeId: Scalars["ID"]["output"];
   scoreRatio?: Maybe<Scalars["Float"]["output"]>;
-  status: FitAnalysisStatus;
   unclearCount: Scalars["Int"]["output"];
   updatedAt: Scalars["DateTime"]["output"];
 };
@@ -727,7 +725,7 @@ export type ApplicationsQuery = {
         __typename?: "AsyncMetadataType";
         status: AsyncMetadataStatus;
         error?: string | null;
-        generatedAt?: string | null;
+        timestamp?: string | null;
       } | null;
       fit?: {
         __typename?: "FitAnalysisType";
@@ -737,8 +735,12 @@ export type ApplicationsQuery = {
         fitCount: number;
         gapCount: number;
         unclearCount: number;
-        status: FitAnalysisStatus;
-        error?: string | null;
+        generationMetadata?: {
+          __typename?: "AsyncMetadataType";
+          status: AsyncMetadataStatus;
+          error?: string | null;
+          timestamp?: string | null;
+        } | null;
       } | null;
     } & {
       " $fragmentRefs"?: {
@@ -779,7 +781,7 @@ export type ApplicationQuery = {
       __typename?: "AsyncMetadataType";
       status: AsyncMetadataStatus;
       error?: string | null;
-      generatedAt?: string | null;
+      timestamp?: string | null;
     } | null;
     fit?: {
       __typename?: "FitAnalysisType";
@@ -789,8 +791,12 @@ export type ApplicationQuery = {
       fitCount: number;
       gapCount: number;
       unclearCount: number;
-      status: FitAnalysisStatus;
-      error?: string | null;
+      generationMetadata?: {
+        __typename?: "AsyncMetadataType";
+        status: AsyncMetadataStatus;
+        error?: string | null;
+        timestamp?: string | null;
+      } | null;
     } | null;
   } & {
     " $fragmentRefs"?: {
@@ -869,7 +875,7 @@ export type UpdateApplicationMutation = {
       __typename?: "AsyncMetadataType";
       status: AsyncMetadataStatus;
       error?: string | null;
-      generatedAt?: string | null;
+      timestamp?: string | null;
     } | null;
   } & {
     " $fragmentRefs"?: {
@@ -1101,7 +1107,7 @@ export type GenerateApplicationSummaryMutation = {
       __typename?: "AsyncMetadataType";
       status: AsyncMetadataStatus;
       error?: string | null;
-      generatedAt?: string | null;
+      timestamp?: string | null;
     } | null;
   };
 };
@@ -1185,10 +1191,13 @@ export type DraftApplicationsListQuery = {
     applicationId?: string | null;
     url?: string | null;
     title: string;
-    conversionStatus: DraftApplicationConversionStatus;
-    conversionError?: string | null;
-    convertedAt?: any | null;
     createdAt: any;
+    conversionMetadata?: {
+      __typename?: "ConversionMetadataType";
+      status: DraftApplicationConversionStatus;
+      error?: string | null;
+      timestamp?: string | null;
+    } | null;
   }>;
 };
 
@@ -1205,24 +1214,31 @@ export type DraftApplicationDetailQuery = {
     url?: string | null;
     title: string;
     htmlContent: string;
-    conversionStatus: DraftApplicationConversionStatus;
-    conversionError?: string | null;
-    convertedAt?: any | null;
     createdAt: any;
+    conversionMetadata?: {
+      __typename?: "ConversionMetadataType";
+      status: DraftApplicationConversionStatus;
+      error?: string | null;
+      timestamp?: string | null;
+    } | null;
     fit?: {
       __typename?: "FitAnalysisType";
       id: string;
       applicationId?: string | null;
       draftApplicationId?: string | null;
       resumeId: string;
-      status: FitAnalysisStatus;
-      error?: string | null;
       scoreRatio?: number | null;
       classification?: string | null;
       fitCount: number;
       gapCount: number;
       unclearCount: number;
       createdAt: any;
+      generationMetadata?: {
+        __typename?: "AsyncMetadataType";
+        status: AsyncMetadataStatus;
+        error?: string | null;
+        timestamp?: string | null;
+      } | null;
     } | null;
   };
 };
@@ -1264,8 +1280,11 @@ export type CreateApplicationWithAiMutation = {
     __typename?: "DraftApplicationType";
     id: string;
     title: string;
-    conversionStatus: DraftApplicationConversionStatus;
-    conversionError?: string | null;
+    conversionMetadata?: {
+      __typename?: "ConversionMetadataType";
+      status: DraftApplicationConversionStatus;
+      error?: string | null;
+    } | null;
   };
 };
 
@@ -1281,8 +1300,11 @@ export type CreateDraftApplicationMutation = {
     applicationId?: string | null;
     url?: string | null;
     title: string;
-    conversionStatus: DraftApplicationConversionStatus;
-    conversionError?: string | null;
+    conversionMetadata?: {
+      __typename?: "ConversionMetadataType";
+      status: DraftApplicationConversionStatus;
+      error?: string | null;
+    } | null;
   };
 };
 
@@ -1299,8 +1321,11 @@ export type UpdateDraftApplicationMutation = {
     applicationId?: string | null;
     url?: string | null;
     title: string;
-    conversionStatus: DraftApplicationConversionStatus;
-    conversionError?: string | null;
+    conversionMetadata?: {
+      __typename?: "ConversionMetadataType";
+      status: DraftApplicationConversionStatus;
+      error?: string | null;
+    } | null;
   };
 };
 
@@ -1314,8 +1339,6 @@ export type FitAnalysesListQuery = {
     applicationId?: string | null;
     draftApplicationId?: string | null;
     resumeId: string;
-    status: FitAnalysisStatus;
-    error?: string | null;
     scoreRatio?: number | null;
     classification?: string | null;
     fitCount: number;
@@ -1323,6 +1346,12 @@ export type FitAnalysesListQuery = {
     unclearCount: number;
     createdAt: any;
     updatedAt: any;
+    generationMetadata?: {
+      __typename?: "AsyncMetadataType";
+      status: AsyncMetadataStatus;
+      error?: string | null;
+      timestamp?: string | null;
+    } | null;
     application?: {
       __typename?: "ApplicationType";
       id: string;
@@ -1347,14 +1376,18 @@ export type FitQuery = {
     applicationId?: string | null;
     draftApplicationId?: string | null;
     resumeId: string;
-    status: FitAnalysisStatus;
-    error?: string | null;
     scoreRatio?: number | null;
     classification?: string | null;
     fitCount: number;
     gapCount: number;
     unclearCount: number;
     createdAt: any;
+    generationMetadata?: {
+      __typename?: "AsyncMetadataType";
+      status: AsyncMetadataStatus;
+      error?: string | null;
+      timestamp?: string | null;
+    } | null;
     items: Array<{
       __typename?: "FitItemType";
       requirement: string;
@@ -1392,14 +1425,18 @@ export type ApplicationFitQuery = {
     applicationId?: string | null;
     draftApplicationId?: string | null;
     resumeId: string;
-    status: FitAnalysisStatus;
-    error?: string | null;
     scoreRatio?: number | null;
     classification?: string | null;
     fitCount: number;
     gapCount: number;
     unclearCount: number;
     createdAt: any;
+    generationMetadata?: {
+      __typename?: "AsyncMetadataType";
+      status: AsyncMetadataStatus;
+      error?: string | null;
+      timestamp?: string | null;
+    } | null;
     items: Array<{
       __typename?: "FitItemType";
       requirement: string;
@@ -1426,14 +1463,18 @@ export type DraftApplicationFitQuery = {
     applicationId?: string | null;
     draftApplicationId?: string | null;
     resumeId: string;
-    status: FitAnalysisStatus;
-    error?: string | null;
     scoreRatio?: number | null;
     classification?: string | null;
     fitCount: number;
     gapCount: number;
     unclearCount: number;
     createdAt: any;
+    generationMetadata?: {
+      __typename?: "AsyncMetadataType";
+      status: AsyncMetadataStatus;
+      error?: string | null;
+      timestamp?: string | null;
+    } | null;
     items: Array<{
       __typename?: "FitItemType";
       requirement: string;
@@ -1460,14 +1501,56 @@ export type GenerateApplicationFitMutation = {
     applicationId?: string | null;
     draftApplicationId?: string | null;
     resumeId: string;
-    status: FitAnalysisStatus;
-    error?: string | null;
     scoreRatio?: number | null;
     classification?: string | null;
     fitCount: number;
     gapCount: number;
     unclearCount: number;
     createdAt: any;
+    generationMetadata?: {
+      __typename?: "AsyncMetadataType";
+      status: AsyncMetadataStatus;
+      error?: string | null;
+      timestamp?: string | null;
+    } | null;
+    items: Array<{
+      __typename?: "FitItemType";
+      requirement: string;
+      source: string;
+      weight?: string | null;
+      type: string;
+      verdict: string;
+      jdQuote: string;
+      sourceQuotes: Array<string>;
+      suggestion?: string | null;
+    }>;
+  };
+};
+
+export type GenerateDraftApplicationFitMutationVariables = Exact<{
+  input: GenerateDraftFitInput;
+}>;
+
+export type GenerateDraftApplicationFitMutation = {
+  __typename?: "Mutation";
+  generateDraftApplicationFit: {
+    __typename?: "FitAnalysisType";
+    id: string;
+    applicationId?: string | null;
+    draftApplicationId?: string | null;
+    resumeId: string;
+    scoreRatio?: number | null;
+    classification?: string | null;
+    fitCount: number;
+    gapCount: number;
+    unclearCount: number;
+    createdAt: any;
+    generationMetadata?: {
+      __typename?: "AsyncMetadataType";
+      status: AsyncMetadataStatus;
+      error?: string | null;
+      timestamp?: string | null;
+    } | null;
     items: Array<{
       __typename?: "FitItemType";
       requirement: string;
@@ -1492,40 +1575,6 @@ export type DeleteFitAnalysisMutation = {
     __typename?: "DeleteMutationPayloadType";
     success: boolean;
     deletedId: string;
-  };
-};
-
-export type GenerateDraftApplicationFitMutationVariables = Exact<{
-  input: GenerateDraftFitInput;
-}>;
-
-export type GenerateDraftApplicationFitMutation = {
-  __typename?: "Mutation";
-  generateDraftApplicationFit: {
-    __typename?: "FitAnalysisType";
-    id: string;
-    applicationId?: string | null;
-    draftApplicationId?: string | null;
-    resumeId: string;
-    status: FitAnalysisStatus;
-    error?: string | null;
-    scoreRatio?: number | null;
-    classification?: string | null;
-    fitCount: number;
-    gapCount: number;
-    unclearCount: number;
-    createdAt: any;
-    items: Array<{
-      __typename?: "FitItemType";
-      requirement: string;
-      source: string;
-      weight?: string | null;
-      type: string;
-      verdict: string;
-      jdQuote: string;
-      sourceQuotes: Array<string>;
-      suggestion?: string | null;
-    }>;
   };
 };
 
@@ -1890,7 +1939,7 @@ export const ApplicationsDocument = {
                       { kind: "Field", name: { kind: "Name", value: "error" } },
                       {
                         kind: "Field",
-                        name: { kind: "Name", value: "generatedAt" },
+                        name: { kind: "Name", value: "timestamp" },
                       },
                     ],
                   },
@@ -1937,9 +1986,25 @@ export const ApplicationsDocument = {
                       },
                       {
                         kind: "Field",
-                        name: { kind: "Name", value: "status" },
+                        name: { kind: "Name", value: "generationMetadata" },
+                        selectionSet: {
+                          kind: "SelectionSet",
+                          selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "status" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "error" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "timestamp" },
+                            },
+                          ],
+                        },
                       },
-                      { kind: "Field", name: { kind: "Name", value: "error" } },
                     ],
                   },
                 },
@@ -2056,7 +2121,7 @@ export const ApplicationDocument = {
                       { kind: "Field", name: { kind: "Name", value: "error" } },
                       {
                         kind: "Field",
-                        name: { kind: "Name", value: "generatedAt" },
+                        name: { kind: "Name", value: "timestamp" },
                       },
                     ],
                   },
@@ -2103,9 +2168,25 @@ export const ApplicationDocument = {
                       },
                       {
                         kind: "Field",
-                        name: { kind: "Name", value: "status" },
+                        name: { kind: "Name", value: "generationMetadata" },
+                        selectionSet: {
+                          kind: "SelectionSet",
+                          selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "status" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "error" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "timestamp" },
+                            },
+                          ],
+                        },
                       },
-                      { kind: "Field", name: { kind: "Name", value: "error" } },
                     ],
                   },
                 },
@@ -2399,7 +2480,7 @@ export const UpdateApplicationDocument = {
                       { kind: "Field", name: { kind: "Name", value: "error" } },
                       {
                         kind: "Field",
-                        name: { kind: "Name", value: "generatedAt" },
+                        name: { kind: "Name", value: "timestamp" },
                       },
                     ],
                   },
@@ -3362,7 +3443,7 @@ export const GenerateApplicationSummaryDocument = {
                       { kind: "Field", name: { kind: "Name", value: "error" } },
                       {
                         kind: "Field",
-                        name: { kind: "Name", value: "generatedAt" },
+                        name: { kind: "Name", value: "timestamp" },
                       },
                     ],
                   },
@@ -3683,13 +3764,22 @@ export const DraftApplicationsListDocument = {
                 { kind: "Field", name: { kind: "Name", value: "title" } },
                 {
                   kind: "Field",
-                  name: { kind: "Name", value: "conversionStatus" },
+                  name: { kind: "Name", value: "conversionMetadata" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "status" },
+                      },
+                      { kind: "Field", name: { kind: "Name", value: "error" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "timestamp" },
+                      },
+                    ],
+                  },
                 },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "conversionError" },
-                },
-                { kind: "Field", name: { kind: "Name", value: "convertedAt" } },
                 { kind: "Field", name: { kind: "Name", value: "createdAt" } },
               ],
             },
@@ -3748,13 +3838,22 @@ export const DraftApplicationDetailDocument = {
                 { kind: "Field", name: { kind: "Name", value: "htmlContent" } },
                 {
                   kind: "Field",
-                  name: { kind: "Name", value: "conversionStatus" },
+                  name: { kind: "Name", value: "conversionMetadata" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "status" },
+                      },
+                      { kind: "Field", name: { kind: "Name", value: "error" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "timestamp" },
+                      },
+                    ],
+                  },
                 },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "conversionError" },
-                },
-                { kind: "Field", name: { kind: "Name", value: "convertedAt" } },
                 { kind: "Field", name: { kind: "Name", value: "createdAt" } },
                 {
                   kind: "Field",
@@ -3777,9 +3876,25 @@ export const DraftApplicationDetailDocument = {
                       },
                       {
                         kind: "Field",
-                        name: { kind: "Name", value: "status" },
+                        name: { kind: "Name", value: "generationMetadata" },
+                        selectionSet: {
+                          kind: "SelectionSet",
+                          selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "status" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "error" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "timestamp" },
+                            },
+                          ],
+                        },
                       },
-                      { kind: "Field", name: { kind: "Name", value: "error" } },
                       {
                         kind: "Field",
                         name: { kind: "Name", value: "scoreRatio" },
@@ -3978,11 +4093,17 @@ export const CreateApplicationWithAiDocument = {
                 { kind: "Field", name: { kind: "Name", value: "title" } },
                 {
                   kind: "Field",
-                  name: { kind: "Name", value: "conversionStatus" },
-                },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "conversionError" },
+                  name: { kind: "Name", value: "conversionMetadata" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "status" },
+                      },
+                      { kind: "Field", name: { kind: "Name", value: "error" } },
+                    ],
+                  },
                 },
               ],
             },
@@ -4046,11 +4167,17 @@ export const CreateDraftApplicationDocument = {
                 { kind: "Field", name: { kind: "Name", value: "title" } },
                 {
                   kind: "Field",
-                  name: { kind: "Name", value: "conversionStatus" },
-                },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "conversionError" },
+                  name: { kind: "Name", value: "conversionMetadata" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "status" },
+                      },
+                      { kind: "Field", name: { kind: "Name", value: "error" } },
+                    ],
+                  },
                 },
               ],
             },
@@ -4130,11 +4257,17 @@ export const UpdateDraftApplicationDocument = {
                 { kind: "Field", name: { kind: "Name", value: "title" } },
                 {
                   kind: "Field",
-                  name: { kind: "Name", value: "conversionStatus" },
-                },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "conversionError" },
+                  name: { kind: "Name", value: "conversionMetadata" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "status" },
+                      },
+                      { kind: "Field", name: { kind: "Name", value: "error" } },
+                    ],
+                  },
                 },
               ],
             },
@@ -4173,8 +4306,24 @@ export const FitAnalysesListDocument = {
                   name: { kind: "Name", value: "draftApplicationId" },
                 },
                 { kind: "Field", name: { kind: "Name", value: "resumeId" } },
-                { kind: "Field", name: { kind: "Name", value: "status" } },
-                { kind: "Field", name: { kind: "Name", value: "error" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "generationMetadata" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "status" },
+                      },
+                      { kind: "Field", name: { kind: "Name", value: "error" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "timestamp" },
+                      },
+                    ],
+                  },
+                },
                 { kind: "Field", name: { kind: "Name", value: "scoreRatio" } },
                 {
                   kind: "Field",
@@ -4284,8 +4433,24 @@ export const FitDocument = {
                   name: { kind: "Name", value: "draftApplicationId" },
                 },
                 { kind: "Field", name: { kind: "Name", value: "resumeId" } },
-                { kind: "Field", name: { kind: "Name", value: "status" } },
-                { kind: "Field", name: { kind: "Name", value: "error" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "generationMetadata" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "status" },
+                      },
+                      { kind: "Field", name: { kind: "Name", value: "error" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "timestamp" },
+                      },
+                    ],
+                  },
+                },
                 { kind: "Field", name: { kind: "Name", value: "scoreRatio" } },
                 {
                   kind: "Field",
@@ -4432,8 +4597,24 @@ export const ApplicationFitDocument = {
                   name: { kind: "Name", value: "draftApplicationId" },
                 },
                 { kind: "Field", name: { kind: "Name", value: "resumeId" } },
-                { kind: "Field", name: { kind: "Name", value: "status" } },
-                { kind: "Field", name: { kind: "Name", value: "error" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "generationMetadata" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "status" },
+                      },
+                      { kind: "Field", name: { kind: "Name", value: "error" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "timestamp" },
+                      },
+                    ],
+                  },
+                },
                 { kind: "Field", name: { kind: "Name", value: "scoreRatio" } },
                 {
                   kind: "Field",
@@ -4541,8 +4722,24 @@ export const DraftApplicationFitDocument = {
                   name: { kind: "Name", value: "draftApplicationId" },
                 },
                 { kind: "Field", name: { kind: "Name", value: "resumeId" } },
-                { kind: "Field", name: { kind: "Name", value: "status" } },
-                { kind: "Field", name: { kind: "Name", value: "error" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "generationMetadata" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "status" },
+                      },
+                      { kind: "Field", name: { kind: "Name", value: "error" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "timestamp" },
+                      },
+                    ],
+                  },
+                },
                 { kind: "Field", name: { kind: "Name", value: "scoreRatio" } },
                 {
                   kind: "Field",
@@ -4656,8 +4853,24 @@ export const GenerateApplicationFitDocument = {
                   name: { kind: "Name", value: "draftApplicationId" },
                 },
                 { kind: "Field", name: { kind: "Name", value: "resumeId" } },
-                { kind: "Field", name: { kind: "Name", value: "status" } },
-                { kind: "Field", name: { kind: "Name", value: "error" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "generationMetadata" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "status" },
+                      },
+                      { kind: "Field", name: { kind: "Name", value: "error" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "timestamp" },
+                      },
+                    ],
+                  },
+                },
                 { kind: "Field", name: { kind: "Name", value: "scoreRatio" } },
                 {
                   kind: "Field",
@@ -4719,55 +4932,6 @@ export const GenerateApplicationFitDocument = {
   GenerateApplicationFitMutation,
   GenerateApplicationFitMutationVariables
 >;
-export const DeleteFitAnalysisDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "mutation",
-      name: { kind: "Name", value: "DeleteFitAnalysis" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: { kind: "Variable", name: { kind: "Name", value: "id" } },
-          type: {
-            kind: "NonNullType",
-            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "deleteFitAnalysis" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "id" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "id" },
-                },
-              },
-            ],
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "success" } },
-                { kind: "Field", name: { kind: "Name", value: "deletedId" } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  DeleteFitAnalysisMutation,
-  DeleteFitAnalysisMutationVariables
->;
 export const GenerateDraftApplicationFitDocument = {
   kind: "Document",
   definitions: [
@@ -4820,8 +4984,24 @@ export const GenerateDraftApplicationFitDocument = {
                   name: { kind: "Name", value: "draftApplicationId" },
                 },
                 { kind: "Field", name: { kind: "Name", value: "resumeId" } },
-                { kind: "Field", name: { kind: "Name", value: "status" } },
-                { kind: "Field", name: { kind: "Name", value: "error" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "generationMetadata" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "status" },
+                      },
+                      { kind: "Field", name: { kind: "Name", value: "error" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "timestamp" },
+                      },
+                    ],
+                  },
+                },
                 { kind: "Field", name: { kind: "Name", value: "scoreRatio" } },
                 {
                   kind: "Field",
@@ -4882,6 +5062,55 @@ export const GenerateDraftApplicationFitDocument = {
 } as unknown as DocumentNode<
   GenerateDraftApplicationFitMutation,
   GenerateDraftApplicationFitMutationVariables
+>;
+export const DeleteFitAnalysisDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "DeleteFitAnalysis" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "id" } },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "deleteFitAnalysis" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "id" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "id" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "success" } },
+                { kind: "Field", name: { kind: "Name", value: "deletedId" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  DeleteFitAnalysisMutation,
+  DeleteFitAnalysisMutationVariables
 >;
 export const MeDocument = {
   kind: "Document",

@@ -4,8 +4,11 @@ query FitAnalysesList {
     applicationId
     draftApplicationId
     resumeId
-    status
-    error
+    generationMetadata {
+      status
+      error
+      timestamp
+    }
     scoreRatio
     classification
     fitCount
@@ -34,8 +37,11 @@ query Fit($id: ID!) {
     applicationId
     draftApplicationId
     resumeId
-    status
-    error
+    generationMetadata {
+      status
+      error
+      timestamp
+    }
     scoreRatio
     classification
     fitCount
@@ -73,8 +79,11 @@ query ApplicationFit($applicationId: ID!) {
     applicationId
     draftApplicationId
     resumeId
-    status
-    error
+    generationMetadata {
+      status
+      error
+      timestamp
+    }
     scoreRatio
     classification
     fitCount
@@ -100,8 +109,11 @@ query DraftApplicationFit($draftApplicationId: ID!) {
     applicationId
     draftApplicationId
     resumeId
-    status
-    error
+    generationMetadata {
+      status
+      error
+      timestamp
+    }
     scoreRatio
     classification
     fitCount
@@ -127,8 +139,41 @@ mutation GenerateApplicationFit($input: GenerateFitInput!) {
     applicationId
     draftApplicationId
     resumeId
-    status
-    error
+    generationMetadata {
+      status
+      error
+      timestamp
+    }
+    scoreRatio
+    classification
+    fitCount
+    gapCount
+    unclearCount
+    items {
+      requirement
+      source
+      weight
+      type
+      verdict
+      jdQuote
+      sourceQuotes
+      suggestion
+    }
+    createdAt
+  }
+}
+
+mutation GenerateDraftApplicationFit($input: GenerateDraftFitInput!) {
+  generateDraftApplicationFit(input: $input) {
+    id
+    applicationId
+    draftApplicationId
+    resumeId
+    generationMetadata {
+      status
+      error
+      timestamp
+    }
     scoreRatio
     classification
     fitCount
@@ -152,32 +197,5 @@ mutation DeleteFitAnalysis($id: ID!) {
   deleteFitAnalysis(id: $id) {
     success
     deletedId
-  }
-}
-
-mutation GenerateDraftApplicationFit($input: GenerateDraftFitInput!) {
-  generateDraftApplicationFit(input: $input) {
-    id
-    applicationId
-    draftApplicationId
-    resumeId
-    status
-    error
-    scoreRatio
-    classification
-    fitCount
-    gapCount
-    unclearCount
-    items {
-      requirement
-      source
-      weight
-      type
-      verdict
-      jdQuote
-      sourceQuotes
-      suggestion
-    }
-    createdAt
   }
 }

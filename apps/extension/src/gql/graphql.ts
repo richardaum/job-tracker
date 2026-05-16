@@ -197,11 +197,18 @@ export type ExchangeRate = {
   rate: Scalars["Float"]["output"];
 };
 
-export enum FitAnalysisStatus {
+export enum AsyncMetadataStatus {
   Completed = "COMPLETED",
   Failed = "FAILED",
   Processing = "PROCESSING",
 }
+
+export type AsyncMetadataType = {
+  __typename?: "AsyncMetadataType";
+  status: AsyncMetadataStatus;
+  error?: Maybe<Scalars["String"]["output"]>;
+  timestamp?: Maybe<Scalars["String"]["output"]>;
+};
 
 export type FitAnalysisType = {
   __typename?: "FitAnalysisType";
@@ -211,14 +218,13 @@ export type FitAnalysisType = {
   createdAt: Scalars["DateTime"]["output"];
   draftApplication?: Maybe<DraftApplicationType>;
   draftApplicationId?: Maybe<Scalars["ID"]["output"]>;
-  error?: Maybe<Scalars["String"]["output"]>;
   fitCount: Scalars["Int"]["output"];
   gapCount: Scalars["Int"]["output"];
+  generationMetadata?: Maybe<AsyncMetadataType>;
   id: Scalars["ID"]["output"];
   items: Array<FitItemType>;
   resumeId: Scalars["ID"]["output"];
   scoreRatio?: Maybe<Scalars["Float"]["output"]>;
-  status: FitAnalysisStatus;
   unclearCount: Scalars["Int"]["output"];
   updatedAt: Scalars["DateTime"]["output"];
 };

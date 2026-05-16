@@ -298,11 +298,11 @@ function createEvent(type: SourceRunEventType | string) {
   };
 }
 
-function createRun({ id }: { id: string; status: SourceRunStatus }) {
+function createRun({ id, status }: { id: string; status: SourceRunStatus }) {
   return {
     id,
+    status,
     sourceProfileId: "remoteyeah",
-
     sourceProfileSource: "test",
   };
 }
