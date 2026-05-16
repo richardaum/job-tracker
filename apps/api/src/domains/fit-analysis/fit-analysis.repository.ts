@@ -1,7 +1,5 @@
-import {
-  FitAnalysisEntity,
-  FitAnalysisStatusEnum,
-} from "@api/database/entities/fit-analysis.entity";
+import { FitAnalysisEntity } from "@api/database/entities/fit-analysis.entity";
+import { AsyncMetadataStatusEnum } from "@api/domains/shared/async-metadata.type";
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
@@ -92,26 +90,38 @@ export class FitAnalysisRepository {
 
   async updateById(
     id: string,
-    expectedStatus: FitAnalysisStatusEnum,
+    expectedStatus: AsyncMetadataStatusEnum,
     patch: Partial<FitAnalysisEntity>,
     userId?: string,
   ): Promise<FitAnalysisEntity | null> {
-    const entity = await this.repo.findOne({
-      where: { id, status: expectedStatus, ...(userId ? { userId } : {}) },
-    });
+    const qb = this.repo
+      .createQueryBuilder("f")
+      .where(
+        "f.id = :id AND f.generation_metadata->>'status' = :expectedStatus",
+        { id, expectedStatus },
+      );
+    if (userId) {
+      qb.andWhere("f.user_id = :userId", { userId });
+    }
+    const entity = await qb.getOne();
     if (!entity) return null;
     Object.assign(entity, patch);
     return this.repo.save(entity);
   }
 
   async resetStaleProcessing(): Promise<number> {
-    const stale = await this.repo.find({
-      where: { status: FitAnalysisStatusEnum.PROCESSING },
-    });
+    const stale = await this.repo
+      .createQueryBuilder("f")
+      .where("f.generation_metadata->>'status' = :status", {
+        status: AsyncMetadataStatusEnum.PROCESSING,
+      })
+      .getMany();
     for (const entity of stale) {
-      entity.status = FitAnalysisStatusEnum.FAILED;
-      entity.error =
-        "Analysis interrupted and reset to failed after server restart.";
+      entity.generationMetadata = {
+        status: AsyncMetadataStatusEnum.FAILED,
+        error: "Analysis interrupted and reset to failed after server restart.",
+        timestamp: new Date().toISOString(),
+      };
     }
     if (stale.length > 0) {
       await this.repo.save(stale);

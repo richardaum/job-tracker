@@ -29,6 +29,18 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
+type AsyncMetadataType {
+  status: AsyncMetadataStatus!
+  error: String
+  timestamp: String
+}
+
+enum AsyncMetadataStatus {
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
 type FitItemType {
   requirement: String!
   source: String!
@@ -45,8 +57,7 @@ type FitAnalysisType {
   applicationId: ID
   draftApplicationId: ID
   resumeId: ID!
-  status: FitAnalysisStatus!
-  error: String
+  generationMetadata: AsyncMetadataType
   scoreRatio: Float
   classification: String
   fitCount: Int!
@@ -59,24 +70,10 @@ type FitAnalysisType {
   draftApplication: DraftApplicationType
 }
 
-enum FitAnalysisStatus {
-  PROCESSING
-  COMPLETED
-  FAILED
-}
-
-type DraftApplicationType {
-  id: ID!
-  url: String
-  title: String!
-  htmlContent: String!
-  applicationId: String
-  conversionStatus: DraftApplicationConversionStatus!
-  conversionError: String
-  convertedAt: DateTime
-  createdAt: DateTime!
-  updatedAt: DateTime!
-  fit: FitAnalysisType
+type ConversionMetadataType {
+  status: DraftApplicationConversionStatus!
+  error: String
+  timestamp: String
 }
 
 enum DraftApplicationConversionStatus {
@@ -86,16 +83,16 @@ enum DraftApplicationConversionStatus {
   FAILED
 }
 
-type AsyncMetadataType {
-  status: AsyncMetadataStatus!
-  error: String
-  generatedAt: String
-}
-
-enum AsyncMetadataStatus {
-  PROCESSING
-  COMPLETED
-  FAILED
+type DraftApplicationType {
+  id: ID!
+  url: String
+  title: String!
+  htmlContent: String!
+  applicationId: String
+  conversionMetadata: ConversionMetadataType
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  fit: FitAnalysisType
 }
 
 type ApplicationType {

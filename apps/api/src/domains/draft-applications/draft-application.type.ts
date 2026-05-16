@@ -7,6 +7,18 @@ registerEnumType(DraftApplicationConversionStatusEnum, {
 });
 
 @ObjectType()
+export class ConversionMetadataType {
+  @Field(() => DraftApplicationConversionStatusEnum)
+  status!: DraftApplicationConversionStatusEnum;
+
+  @Field(() => String, { nullable: true })
+  error?: string | null;
+
+  @Field(() => String, { nullable: true })
+  timestamp?: string | null;
+}
+
+@ObjectType()
 export class DraftApplicationType {
   @Field(() => ID)
   id!: string;
@@ -23,14 +35,8 @@ export class DraftApplicationType {
   @Field(() => String, { nullable: true })
   applicationId!: string | null;
 
-  @Field(() => DraftApplicationConversionStatusEnum)
-  conversionStatus!: DraftApplicationConversionStatusEnum;
-
-  @Field(() => String, { nullable: true })
-  conversionError!: string | null;
-
-  @Field(() => Date, { nullable: true })
-  convertedAt!: Date | null;
+  @Field(() => ConversionMetadataType, { nullable: true })
+  conversionMetadata?: ConversionMetadataType | null;
 
   @Field()
   createdAt!: Date;

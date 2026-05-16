@@ -1,4 +1,5 @@
 import { ApplicationEntity } from "@api/database/entities/application.entity";
+import type { ConversionMetadata } from "@api/database/entities/draft-application.entity";
 import {
   DraftApplicationConversionStatusEnum,
   DraftApplicationEntity,
@@ -63,16 +64,12 @@ export class DraftApplicationsRepository {
     title: string;
     htmlContent: string;
     userId: string;
-    conversionStatus?: DraftApplicationEntity["conversionStatus"];
-    conversionError?: string | null;
   }): Promise<DraftApplicationEntity> {
     const row = this.draftApplicationsRepo.create({
       url: params.url,
       title: params.title,
       htmlContent: params.htmlContent,
       userId: params.userId,
-      conversionStatus: params.conversionStatus,
-      conversionError: params.conversionError ?? null,
     });
 
     return this.draftApplicationsRepo.save(row);
@@ -86,15 +83,7 @@ export class DraftApplicationsRepository {
     id: string,
     userId: string,
     patch: Partial<
-      Pick<
-        DraftApplicationEntity,
-        | "url"
-        | "title"
-        | "htmlContent"
-        | "conversionStatus"
-        | "conversionError"
-        | "convertedAt"
-      >
+      Pick<DraftApplicationEntity, "url" | "title" | "htmlContent">
     >,
   ): Promise<DraftApplicationEntity | null> {
     const row = await this.findOne(id, userId);
@@ -106,19 +95,52 @@ export class DraftApplicationsRepository {
     return this.draftApplicationsRepo.save(row);
   }
 
+  async updateConversionMetadata(
+    id: string,
+    userId: string,
+    expectedStatus: Pick<ConversionMetadata, "status"> | null,
+    patch: Partial<ConversionMetadata> & {
+      status: ConversionMetadata["status"];
+    },
+  ): Promise<boolean> {
+    const patchJson = JSON.stringify(patch);
+    const qb = this.draftApplicationsRepo
+      .createQueryBuilder()
+      .update(DraftApplicationEntity)
+      .set({
+        conversionMetadata: () =>
+          `"conversion_metadata" || '${patchJson}'::jsonb`,
+      })
+      .where(`"id" = :id AND "user_id" = :userId`, { id, userId });
+
+    if (expectedStatus === null) {
+      qb.andWhere(`"conversion_metadata" IS NULL`);
+    } else {
+      qb.andWhere(`"conversion_metadata"->>'status' = :expected`, {
+        expected: expectedStatus.status,
+      });
+    }
+
+    const result = await qb.execute();
+    return (result.affected ?? 0) > 0;
+  }
+
   async deleteById(id: string, userId: string): Promise<void> {
     await this.draftApplicationsRepo.delete({ id, userId });
   }
 
   async resetStaleProcessingDrafts(): Promise<number> {
-    const result = await this.draftApplicationsRepo.update(
-      { conversionStatus: DraftApplicationConversionStatusEnum.PROCESSING },
-      {
-        conversionStatus: DraftApplicationConversionStatusEnum.IDLE,
-        conversionError:
-          "Conversion interrupted and reset to idle after server restart.",
-      },
-    );
+    const result = await this.draftApplicationsRepo
+      .createQueryBuilder()
+      .update()
+      .set({
+        conversionMetadata: () =>
+          `'{"status": "${DraftApplicationConversionStatusEnum.FAILED}", "error": "Conversion interrupted and reset to idle after server restart."}'::jsonb`,
+      })
+      .where(`"conversion_metadata"->>'status' = :processing`, {
+        processing: DraftApplicationConversionStatusEnum.PROCESSING,
+      })
+      .execute();
 
     return result.affected ?? 0;
   }

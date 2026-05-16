@@ -1,3 +1,4 @@
+import type { ConversionMetadata } from "@api/database/entities/draft-application.entity";
 import { DraftApplicationEntity } from "@api/database/entities/draft-application.entity";
 import { DraftApplicationType } from "@api/domains/draft-applications/draft-application.type";
 import {
@@ -44,9 +45,7 @@ export class DraftApplicationsService implements OnModuleInit {
       title: row.title,
       htmlContent: row.htmlContent,
       applicationId,
-      conversionStatus: row.conversionStatus,
-      conversionError: row.conversionError,
-      convertedAt: row.convertedAt,
+      conversionMetadata: row.conversionMetadata,
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
     };
@@ -70,15 +69,7 @@ export class DraftApplicationsService implements OnModuleInit {
     id: string,
     userId: string,
     patch: Partial<
-      Pick<
-        DraftApplicationEntity,
-        | "url"
-        | "title"
-        | "htmlContent"
-        | "conversionStatus"
-        | "conversionError"
-        | "convertedAt"
-      >
+      Pick<DraftApplicationEntity, "url" | "title" | "htmlContent">
     >,
   ): Promise<DraftApplicationType> {
     const row = await this.repo.updateById(id, userId, patch);
@@ -86,6 +77,22 @@ export class DraftApplicationsService implements OnModuleInit {
       throw new NotFoundException(`Draft application ${id} not found`);
     }
     return await this.toType(row);
+  }
+
+  async updateConversionMetadata(
+    id: string,
+    userId: string,
+    expectedStatus: Pick<ConversionMetadata, "status"> | null,
+    patch: Partial<ConversionMetadata> & {
+      status: ConversionMetadata["status"];
+    },
+  ): Promise<boolean> {
+    return this.repo.updateConversionMetadata(
+      id,
+      userId,
+      expectedStatus,
+      patch,
+    );
   }
 
   async delete(

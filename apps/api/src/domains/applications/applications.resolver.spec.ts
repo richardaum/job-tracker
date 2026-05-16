@@ -16,6 +16,7 @@ import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { ApplicationResolver } from "./applications.resolver";
 import type { Application } from "./applications.schema";
 import { ApplicationService } from "./applications.service";
+import { SummaryService } from "./summary/summary.service";
 
 const mockApp: Application = {
   id: "app-1",
@@ -47,8 +48,11 @@ const mockDraft = {
   url: "https://example.com/jobs/1",
   title: "Draft title",
   htmlContent: "<p>Posting</p>",
-  conversionStatus: DraftApplicationConversionStatusEnum.PROCESSING,
-  conversionError: null,
+  conversionMetadata: {
+    status: DraftApplicationConversionStatusEnum.PROCESSING,
+  },
+  createdAt: new Date(),
+  updatedAt: new Date(),
 };
 
 describe("ApplicationResolver (integration)", () => {
@@ -88,6 +92,10 @@ describe("ApplicationResolver (integration)", () => {
       providers: [
         ApplicationResolver,
         { provide: ApplicationService, useValue: service },
+        {
+          provide: SummaryService,
+          useValue: { generateSummaryForApplication: vi.fn() },
+        },
       ],
     })
       .overrideGuard(JwtAuthGuard)
@@ -180,16 +188,18 @@ describe("ApplicationResolver (integration)", () => {
         query: `mutation {
           createApplicationWithAI(draftId: "draft-1") {
             id
-            conversionStatus
+            conversionMetadata {
+              status
+            }
           }
         }`,
       });
 
     expect(res.statusCode).toBe(200);
     expect(res.body.data.createApplicationWithAI.id).toBe("draft-1");
-    expect(res.body.data.createApplicationWithAI.conversionStatus).toBe(
-      "PROCESSING",
-    );
+    expect(
+      res.body.data.createApplicationWithAI.conversionMetadata.status,
+    ).toBe("PROCESSING");
     expect(service.createApplicationWithAI).toHaveBeenCalledWith(
       "user-1",
       "draft-1",

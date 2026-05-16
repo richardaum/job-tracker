@@ -1,7 +1,7 @@
+import { ApplicationType } from "@api/domains/applications/application.type";
+import type { Application } from "@api/domains/applications/applications.schema";
 import { Parent, ResolveField, Resolver } from "@nestjs/graphql";
 
-import { ApplicationType } from "../application.type";
-import type { Application } from "../applications.schema";
 import { ApplicationSalaryType } from "./salary.type";
 import { SalaryPeriodEnum } from "./salary-period.enum";
 

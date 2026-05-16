@@ -1,6 +1,6 @@
+import type { Application } from "@api/domains/applications/applications.schema";
 import { BadRequestException, Injectable } from "@nestjs/common";
 
-import type { Application } from "../applications.schema";
 import type { SalaryColumns, SalaryInput } from "./salary.schema";
 import { SalaryPeriodEnum } from "./salary-period.enum";
 

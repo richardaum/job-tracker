@@ -10,7 +10,7 @@ registerEnumType(AsyncMetadataStatusEnum, { name: "AsyncMetadataStatus" });
 export interface AsyncMetadata {
   status: AsyncMetadataStatusEnum;
   error?: string;
-  generatedAt?: string;
+  timestamp?: string;
 }
 
 @ObjectType()
@@ -22,5 +22,5 @@ export class AsyncMetadataType {
   error?: string | null;
 
   @Field(() => String, { nullable: true })
-  generatedAt?: string | null;
+  timestamp?: string | null;
 }

@@ -164,7 +164,7 @@ export class SummaryService {
         { status: AsyncMetadataStatusEnum.PROCESSING },
         {
           status: AsyncMetadataStatusEnum.COMPLETED,
-          generatedAt: new Date().toISOString(),
+          timestamp: new Date().toISOString(),
           error: undefined,
         },
         userId,

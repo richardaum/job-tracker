@@ -1,4 +1,5 @@
-import type { NewApplication } from "../applications.schema";
+import type { NewApplication } from "@api/domains/applications/applications.schema";
+
 import type { SalaryPeriodEnum } from "./salary-period.enum";
 
 export type SalaryInput = {

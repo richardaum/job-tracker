@@ -112,7 +112,10 @@ describe("SourcesService", () => {
     const result = await service.createSourceRun("user-1", "remoteyeah");
 
     expect(repo.findOrCreateTemplate).toHaveBeenCalledWith(
-      expect.objectContaining({ userId: "user-1", sourceProfileId: "remoteyeah" }),
+      expect.objectContaining({
+        userId: "user-1",
+        sourceProfileId: "remoteyeah",
+      }),
     );
     expect(repo.createRun).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -470,6 +473,12 @@ describe("SourcesService", () => {
     );
     vi.mocked(applicationRepo.detachApplicationsSourceRun).mockResolvedValue(3);
 
+    const result = await service.detachApplicationsFromSourceRun(
+      "user-1",
+      "run-1",
+    );
+
+    expect(result).toBe(3);
     expect(applicationRepo.detachApplicationsSourceRun).toHaveBeenCalledWith(
       "run-1",
       "user-1",

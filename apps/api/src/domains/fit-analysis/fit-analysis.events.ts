@@ -1,4 +1,4 @@
-import { FitAnalysisStatusEnum } from "@api/database/entities/fit-analysis.entity";
+import { AsyncMetadataStatusEnum } from "@api/domains/shared/async-metadata.type";
 import { DomainEvent } from "@api/lib/domain-event";
 
 export class FitStatusChanged extends DomainEvent {
@@ -7,7 +7,7 @@ export class FitStatusChanged extends DomainEvent {
   constructor(
     readonly fitId: string,
     readonly userId: string,
-    readonly status: FitAnalysisStatusEnum,
+    readonly status: AsyncMetadataStatusEnum,
   ) {
     super();
   }

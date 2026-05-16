@@ -1,19 +1,8 @@
-import {
-  FitAnalysisStatusEnum,
-  type FitItem,
-} from "@api/database/entities/fit-analysis.entity";
-import {
-  Field,
-  Float,
-  ID,
-  Int,
-  ObjectType,
-  registerEnumType,
-} from "@nestjs/graphql";
+import { type FitItem } from "@api/database/entities/fit-analysis.entity";
+import { AsyncMetadataType } from "@api/domains/shared/async-metadata.type";
+import { Field, Float, ID, Int, ObjectType } from "@nestjs/graphql";
 
 import { FitItemType } from "./fit-item.type";
-
-registerEnumType(FitAnalysisStatusEnum, { name: "FitAnalysisStatus" });
 
 @ObjectType()
 export class FitAnalysisType {
@@ -29,11 +18,8 @@ export class FitAnalysisType {
   @Field(() => ID)
   resumeId!: string;
 
-  @Field(() => FitAnalysisStatusEnum)
-  status!: FitAnalysisStatusEnum;
-
-  @Field(() => String, { nullable: true })
-  error!: string | null;
+  @Field(() => AsyncMetadataType, { nullable: true })
+  generationMetadata?: AsyncMetadataType | null;
 
   @Field(() => Float, { nullable: true })
   scoreRatio!: number | null;

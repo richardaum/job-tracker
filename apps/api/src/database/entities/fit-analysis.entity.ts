@@ -1,4 +1,5 @@
 import { WithGeneratedId } from "@api/database/decorators/with-generated-id.decorator";
+import type { AsyncMetadata } from "@api/domains/shared/async-metadata.type";
 import {
   Column,
   CreateDateColumn,
@@ -30,12 +31,6 @@ export interface FitItem {
 
 export type FitClassification = "positive" | "neutral" | "negative";
 
-export enum FitAnalysisStatusEnum {
-  PROCESSING = "PROCESSING",
-  COMPLETED = "COMPLETED",
-  FAILED = "FAILED",
-}
-
 @WithGeneratedId()
 @Entity({ name: "fit_analysis" })
 export class FitAnalysisEntity {
@@ -61,17 +56,8 @@ export class FitAnalysisEntity {
   @Column({ name: "resume_id", type: "text" })
   resumeId!: string;
 
-  @Column({
-    name: "status",
-    type: "enum",
-    enum: FitAnalysisStatusEnum,
-    enumName: "fit_analysis_status",
-    default: FitAnalysisStatusEnum.COMPLETED,
-  })
-  status!: FitAnalysisStatusEnum;
-
-  @Column({ name: "error", type: "text", nullable: true })
-  error!: string | null;
+  @Column({ name: "generation_metadata", type: "jsonb", nullable: true })
+  generationMetadata!: AsyncMetadata | null;
 
   @Column({ name: "score_ratio", type: "float", nullable: true })
   scoreRatio!: number | null;
