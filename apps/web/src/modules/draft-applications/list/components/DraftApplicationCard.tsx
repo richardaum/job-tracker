@@ -79,14 +79,12 @@ export function DraftApplicationCard({
   }
 
   const title = (
-    <ListItemCard.Title asChild size="sm" className={cn("font-semibold")}>
-      <NextLink href={`/draft-applications/${draft.id}`}>
-        <span className={cn("inline-flex items-center gap-2")}>
-          <span>{label}</span>
-          <ConversionStatusBadge
-            conversionMetadata={draft.conversionMetadata}
-          />
-        </span>
+    <ListItemCard.Title size="sm" asChild>
+      <NextLink
+        href={`/draft-applications/${draft.id}`}
+        className={cn("font-semibold")}
+      >
+        {label}
       </NextLink>
     </ListItemCard.Title>
   );
@@ -157,9 +155,12 @@ export function DraftApplicationCard({
     : "Created at";
 
   const meta = (
-    <span className={cn("text-text-muted text-xs")}>
-      {dateLabel} {formatDate(displayDate)}
-    </span>
+    <>
+      <ConversionStatusBadge conversionMetadata={draft.conversionMetadata} />
+      <span className={cn("text-text-muted text-xs")}>
+        {dateLabel} {formatDate(displayDate)}
+      </span>
+    </>
   );
 
   return <ListItemCard title={title} actions={actions} meta={meta} />;
