@@ -53,6 +53,7 @@ export default function ApplicationDetailsPage({ params }: PageProps) {
     application,
     currentStage,
     currentStageReason,
+    draftApplicationId,
     error,
     showInitialLoading,
     sourcePrimaryText,
@@ -168,9 +169,6 @@ export default function ApplicationDetailsPage({ params }: PageProps) {
       }
       align="end"
     >
-      <DropdownMenuItem onSelect={() => setActionsOpen(true)}>
-        Update status
-      </DropdownMenuItem>
       <DropdownMenuItem
         onSelect={() => {
           if (application?.fit?.id) {
@@ -183,6 +181,18 @@ export default function ApplicationDetailsPage({ params }: PageProps) {
       >
         Fit analysis
       </DropdownMenuItem>
+      <DropdownMenuItem onSelect={() => setActionsOpen(true)}>
+        Update status
+      </DropdownMenuItem>
+      {draftApplicationId ? (
+        <DropdownMenuItem
+          onSelect={() =>
+            router.push(`/draft-applications/${draftApplicationId}`)
+          }
+        >
+          View original draft
+        </DropdownMenuItem>
+      ) : null}
       <DropdownMenuSeparator />
       <DropdownMenuItem destructive onSelect={() => setDeleteDialogOpen(true)}>
         Remove
@@ -210,15 +220,15 @@ export default function ApplicationDetailsPage({ params }: PageProps) {
             <div className={cn("shrink-0")}>{actionsMenu}</div>
           ) : null}
         </div>
-        <div className={cn("flex items-start gap-3")}>
-          <Heading as="h1" size="2xl" className={cn("min-w-0 flex-1")}>
+        <div className={cn("flex items-center gap-3")}>
+          <Heading as="h1" size="2xl" className={cn("min-w-0")}>
             <span>{application?.title ?? "Application details"}</span>{" "}
-            <StatusBadge
-              stage={currentStage}
-              reason={currentStageReason}
-              className={cn("align-middle whitespace-nowrap")}
-            />
           </Heading>
+          <StatusBadge
+            stage={currentStage}
+            reason={currentStageReason}
+            className={cn("align-middle whitespace-nowrap")}
+          />
         </div>
         {application ? (
           <>

@@ -50,5 +50,6 @@ export function useApplicationDetailsViewModel(
     showInitialLoading: loading && !data,
     sourcePrimaryText,
     refetch,
+    draftApplicationId: application?.draftApplicationId ?? null,
   };
 }

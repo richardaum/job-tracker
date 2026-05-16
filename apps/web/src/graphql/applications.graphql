@@ -79,6 +79,7 @@ query Application($id: ID!) {
     currentStageReason
     currentStageAt
     createdAt
+    draftApplicationId
     fit {
       id
       scoreRatio

@@ -89,6 +89,7 @@ export type ApplicationType = {
   currentStageAt: Scalars["DateTime"]["output"];
   currentStageReason?: Maybe<Scalars["String"]["output"]>;
   description?: Maybe<Scalars["String"]["output"]>;
+  draftApplicationId?: Maybe<Scalars["ID"]["output"]>;
   fit?: Maybe<FitAnalysisType>;
   id: Scalars["ID"]["output"];
   location?: Maybe<Scalars["String"]["output"]>;
@@ -774,6 +775,7 @@ export type ApplicationQuery = {
     currentStageReason?: string | null;
     currentStageAt: any;
     createdAt: any;
+    draftApplicationId?: string | null;
     company: {
       __typename?: "CompanyType";
       id: string;
@@ -1946,6 +1948,7 @@ export const ApplicationDocument = gql`
       currentStageReason
       currentStageAt
       createdAt
+      draftApplicationId
       fit {
         id
         scoreRatio
