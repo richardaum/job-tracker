@@ -26,7 +26,6 @@
     "leanspec:validate": "pnpm exec lean-spec validate",
     "leanspec:sync-spec-indices": "node --experimental-strip-types scripts/sync-spec-indices.ts",
     "storybook:sync-specs": "node --experimental-strip-types scripts/generate-specs-storybook.ts",
-    "setup-ai": "node --experimental-strip-types scripts/setup-ai-symlinks.ts",
     "fix:generate-summaries": "pnpm --filter @job-tracker/api run fix:generate-summaries",
     "fix:generate-summaries:dry-run": "pnpm --filter @job-tracker/api run fix:generate-summaries --dry-run",
     "docker:build:api": "docker build -f apps/api/Dockerfile -t job-tracker-api:local .",

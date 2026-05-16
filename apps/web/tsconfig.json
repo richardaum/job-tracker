@@ -8,6 +8,7 @@
     "jsx": "preserve",
     "incremental": true,
     "plugins": [{ "name": "next" }],
+    "types": ["vitest/globals"],
     "paths": { "@/*": ["./src/*"], "@ui/*": ["../../packages/ui/src/*"] },
     "allowJs": true,
     "noEmit": true

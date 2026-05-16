@@ -1,8 +1,8 @@
 ---
 formatVersion: 1
 generator: "scripts/sync-spec-indices.ts"
-specCount: 40
-requirementIdCount: 559
+specCount: 41
+requirementIdCount: 579
 historyCount: 84
 ---
 
