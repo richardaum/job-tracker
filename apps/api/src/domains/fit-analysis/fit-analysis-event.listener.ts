@@ -83,7 +83,7 @@ export class FitAnalysisEventListener implements OnModuleInit {
   private async handleFitAnalysisRequested(
     event: FitAnalysisRequested,
   ): Promise<void> {
-    await this.fitService.generateInBackground(
+    await this.fitService.processFitAnalysis(
       event.fitId,
       event.userId,
       event.source,

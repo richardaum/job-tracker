@@ -263,18 +263,28 @@ export class ApplicationService {
   ): Promise<DraftApplicationType> {
     const draft = await this.draftApplicationsService.findOne(draftId, userId);
     if (
-      draft.conversionStatus === DraftApplicationConversionStatusEnum.PROCESSING
+      draft.conversionMetadata?.status ===
+      DraftApplicationConversionStatusEnum.PROCESSING
     ) {
       throw new BadRequestException("Draft conversion is already in progress.");
     }
 
-    const queuedDraft = await this.draftApplicationsService.update(
+    const updated =
+      await this.draftApplicationsService.updateConversionMetadata(
+        draftId,
+        userId,
+        null,
+        { status: DraftApplicationConversionStatusEnum.PROCESSING },
+      );
+
+    if (!updated) {
+      throw new BadRequestException("Draft conversion was already started.");
+    }
+
+    // Re-fetch to get updated metadata
+    const queuedDraft = await this.draftApplicationsService.findOne(
       draftId,
       userId,
-      {
-        conversionStatus: DraftApplicationConversionStatusEnum.PROCESSING,
-        conversionError: null,
-      },
     );
 
     this.draftEventBus.emit(
@@ -290,10 +300,7 @@ export class ApplicationService {
     return queuedDraft;
   }
 
-  async convertDraftInBackground(
-    userId: string,
-    draftId: string,
-  ): Promise<void> {
+  async processDraftConversion(userId: string, draftId: string): Promise<void> {
     const draft = await this.draftApplicationsService.findOne(draftId, userId);
 
     const [extractError, raw] = await tryRun(
@@ -365,10 +372,16 @@ export class ApplicationService {
           `Draft conversion failed for ${draftId}: ${appliedError.message}`,
           appliedError.stack,
         );
-        await this.draftApplicationsService.update(draftId, userId, {
-          conversionStatus: DraftApplicationConversionStatusEnum.FAILED,
-          conversionError: appliedError.message,
-        });
+        await this.draftApplicationsService.updateConversionMetadata(
+          draftId,
+          userId,
+          { status: DraftApplicationConversionStatusEnum.PROCESSING },
+          {
+            status: DraftApplicationConversionStatusEnum.FAILED,
+            error: appliedError.message,
+            timestamp: new Date().toISOString(),
+          },
+        );
         this.draftEventBus.emit(
           new DraftConversionStatusChanged(
             draftId,
@@ -385,10 +398,17 @@ export class ApplicationService {
 
     await this.draftApplicationsService.update(draftId, userId, {
       title: normalizedDraftTitle,
-      conversionStatus: DraftApplicationConversionStatusEnum.SUCCEEDED,
-      conversionError: null,
-      convertedAt: new Date(),
     });
+
+    await this.draftApplicationsService.updateConversionMetadata(
+      draftId,
+      userId,
+      { status: DraftApplicationConversionStatusEnum.PROCESSING },
+      {
+        status: DraftApplicationConversionStatusEnum.SUCCEEDED,
+        timestamp: new Date().toISOString(),
+      },
+    );
 
     this.draftEventBus.emit(
       new DraftConversionStatusChanged(
@@ -617,10 +637,16 @@ export class ApplicationService {
     errorMessage: string,
   ): Promise<void> {
     const [updateError] = await tryRun(
-      this.draftApplicationsService.update(draftId, userId, {
-        conversionStatus: DraftApplicationConversionStatusEnum.FAILED,
-        conversionError: errorMessage,
-      }),
+      this.draftApplicationsService.updateConversionMetadata(
+        draftId,
+        userId,
+        { status: DraftApplicationConversionStatusEnum.PROCESSING },
+        {
+          status: DraftApplicationConversionStatusEnum.FAILED,
+          error: errorMessage,
+          timestamp: new Date().toISOString(),
+        },
+      ),
     );
     if (updateError) {
       this.logger.warn(

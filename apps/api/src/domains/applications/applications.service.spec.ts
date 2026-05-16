@@ -114,6 +114,7 @@ describe("ApplicationService", () => {
     draftApplicationsService = {
       findOne: vi.fn(),
       update: vi.fn(),
+      updateConversionMetadata: vi.fn(),
     } as unknown as DraftApplicationsService;
     draftExtractionService = {
       extract: vi.fn(),
@@ -127,10 +128,12 @@ describe("ApplicationService", () => {
     } as unknown as LocationInferenceService;
 
     const eventBus = {
+      emit: vi.fn(),
       emitApplicationCreated: vi.fn(),
     } as unknown as ApplicationEventBus;
 
     const draftEventBus = {
+      emit: vi.fn(),
       emitDraftConversionStatusChanged: vi.fn(),
     } as unknown as DraftApplicationEventBus;
 
@@ -321,82 +324,73 @@ describe("ApplicationService", () => {
   });
 
   it("createApplicationWithAI marks draft as processing and returns immediately", async () => {
-    vi.mocked(draftApplicationsService.findOne).mockResolvedValue({
-      id: "draft-1",
-      applicationId: null,
-      title: "Page title",
-      url: "https://jobs.example.com/x",
-      htmlContent: "<p>Posting</p>",
-      conversionStatus: DraftApplicationConversionStatusEnum.IDLE,
-      conversionError: null,
-      convertedAt: null,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    });
-    vi.mocked(draftApplicationsService.update).mockImplementation(
-      async (_id, _userId, patch) =>
-        ({
-          id: "draft-1",
-          applicationId: null,
-          title: "Page title",
-          url: "https://jobs.example.com/x",
-          htmlContent: "<p>Posting</p>",
-          conversionStatus:
-            patch?.conversionStatus ??
-            DraftApplicationConversionStatusEnum.IDLE,
-          conversionError: patch?.conversionError ?? null,
-          convertedAt: null,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        }) as never,
-    );
+    vi.mocked(draftApplicationsService.findOne)
+      .mockResolvedValueOnce({
+        id: "draft-1",
+        applicationId: null,
+        title: "Page title",
+        url: "https://jobs.example.com/x",
+        htmlContent: "<p>Posting</p>",
+        conversionMetadata: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      })
+      .mockResolvedValueOnce({
+        id: "draft-1",
+        applicationId: null,
+        title: "Page title",
+        url: "https://jobs.example.com/x",
+        htmlContent: "<p>Posting</p>",
+        conversionMetadata: {
+          status: DraftApplicationConversionStatusEnum.PROCESSING,
+        },
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+    vi.mocked(
+      draftApplicationsService.updateConversionMetadata,
+    ).mockResolvedValue(true);
     vi.mocked(draftExtractionService.extract).mockRejectedValue(
       new Error("openai down"),
     );
 
     const result = await service.createApplicationWithAI("user-1", "draft-1");
 
-    expect(result.conversionStatus).toBe(
+    expect(result.conversionMetadata?.status).toBe(
       DraftApplicationConversionStatusEnum.PROCESSING,
     );
-    expect(draftApplicationsService.update).toHaveBeenCalledWith(
-      "draft-1",
-      "user-1",
-      {
-        conversionStatus: DraftApplicationConversionStatusEnum.PROCESSING,
-        conversionError: null,
-      },
-    );
+    expect(
+      draftApplicationsService.updateConversionMetadata,
+    ).toHaveBeenCalledWith("draft-1", "user-1", null, {
+      status: DraftApplicationConversionStatusEnum.PROCESSING,
+    });
   });
 
   it("createApplicationWithAI background conversion records Applied after New", async () => {
     const app = makeApp();
-    const draft = {
+    const idleDraft = {
       id: "draft-1",
       applicationId: null,
       title: "Page title",
       url: "https://jobs.example.com/x",
       htmlContent: "<p>Posting</p>",
-      conversionStatus: DraftApplicationConversionStatusEnum.IDLE,
-      conversionError: null,
-      convertedAt: null,
+      conversionMetadata: null,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
-    vi.mocked(draftApplicationsService.findOne).mockResolvedValue(
-      draft as never,
-    );
-    vi.mocked(draftApplicationsService.update).mockImplementation(
-      async (_id, _userId, patch) =>
-        ({
-          ...draft,
-          conversionStatus:
-            patch?.conversionStatus ??
-            DraftApplicationConversionStatusEnum.IDLE,
-          conversionError: patch?.conversionError ?? null,
-          convertedAt: patch?.convertedAt ?? null,
-        }) as never,
-    );
+    const processingDraft = {
+      ...idleDraft,
+      conversionMetadata: {
+        status: DraftApplicationConversionStatusEnum.PROCESSING,
+      },
+    };
+    vi.mocked(draftApplicationsService.findOne)
+      .mockResolvedValueOnce(idleDraft as never)
+      .mockResolvedValueOnce(processingDraft as never)
+      .mockResolvedValue(processingDraft as never);
+    vi.mocked(
+      draftApplicationsService.updateConversionMetadata,
+    ).mockResolvedValue(true);
     vi.mocked(draftExtractionService.extract).mockResolvedValue({
       title: "Senior Engineer",
       company: "Acme",
@@ -426,41 +420,6 @@ describe("ApplicationService", () => {
     vi.mocked(repo.hasRecentDuplicateSameRoleAndCompany).mockResolvedValue(
       false,
     );
-    vi.mocked(draftApplicationsService.update).mockImplementation(
-      async (_id, _userId, patch) =>
-        ({
-          ...draft,
-          conversionStatus:
-            patch?.conversionStatus ??
-            DraftApplicationConversionStatusEnum.IDLE,
-          conversionError: patch?.conversionError ?? null,
-          convertedAt: patch?.convertedAt ?? null,
-        }) as never,
-    );
-    vi.mocked(draftExtractionService.extract).mockResolvedValue({
-      title: "Senior Engineer",
-      company: "Acme",
-      url: "https://jobs.example.com/x",
-      description: "Job description",
-      salary: { min: null, max: null, currency: null, period: null },
-      tags: [],
-      location: null,
-      workRegion: null,
-    });
-    vi.mocked(
-      draftExtractionNormalizationService.normalizeExtraction,
-    ).mockReturnValue({
-      title: "Senior Engineer",
-      company: "Acme",
-      description: null,
-      salaryMinCents: null,
-      salaryMaxCents: null,
-      salaryCurrency: null,
-      salaryPeriod: null,
-      tags: [],
-      location: null,
-      workRegion: null,
-    });
     vi.mocked(companyService.findOrCreateByName).mockResolvedValue(app.company);
     vi.mocked(repo.create).mockResolvedValue(app);
     vi.mocked(repo.findOneByIdAndUserId).mockResolvedValue(app);
@@ -482,16 +441,24 @@ describe("ApplicationService", () => {
     );
 
     await service.createApplicationWithAI("user-1", "draft-1");
+    await service.processDraftConversion("user-1", "draft-1");
 
-    await vi.waitFor(() => {
-      expect(draftApplicationsService.update).toHaveBeenCalledWith(
-        "draft-1",
-        "user-1",
-        expect.objectContaining({
-          conversionStatus: DraftApplicationConversionStatusEnum.SUCCEEDED,
-        }),
-      );
+    expect(
+      draftApplicationsService.updateConversionMetadata,
+    ).toHaveBeenCalledWith("draft-1", "user-1", null, {
+      status: DraftApplicationConversionStatusEnum.PROCESSING,
     });
+
+    expect(
+      draftApplicationsService.updateConversionMetadata,
+    ).toHaveBeenCalledWith(
+      "draft-1",
+      "user-1",
+      { status: DraftApplicationConversionStatusEnum.PROCESSING },
+      expect.objectContaining({
+        status: DraftApplicationConversionStatusEnum.SUCCEEDED,
+      }),
+    );
 
     expect(repo.create).toHaveBeenCalledWith(
       "user-1",
@@ -522,31 +489,29 @@ describe("ApplicationService", () => {
 
   it("createApplicationWithAI does not emit Applied when create detects duplicate", async () => {
     const app = makeApp();
-    const draft = {
+    const idleDraft = {
       id: "draft-1",
       applicationId: null,
       title: "Page title",
       url: "https://jobs.example.com/x",
       htmlContent: "<p>Posting</p>",
-      conversionStatus: DraftApplicationConversionStatusEnum.IDLE,
-      conversionError: null,
-      convertedAt: null,
+      conversionMetadata: null,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
-    vi.mocked(draftApplicationsService.findOne).mockResolvedValue(
-      draft as never,
-    );
-    vi.mocked(draftApplicationsService.update).mockImplementation(
-      async (_id, _userId, patch) =>
-        ({
-          ...draft,
-          conversionStatus:
-            patch?.conversionStatus ??
-            DraftApplicationConversionStatusEnum.IDLE,
-          conversionError: patch?.conversionError ?? null,
-        }) as never,
-    );
+    const processingDraft = {
+      ...idleDraft,
+      conversionMetadata: {
+        status: DraftApplicationConversionStatusEnum.PROCESSING,
+      },
+    };
+    vi.mocked(draftApplicationsService.findOne)
+      .mockResolvedValueOnce(idleDraft as never)
+      .mockResolvedValueOnce(processingDraft as never)
+      .mockResolvedValue(processingDraft as never);
+    vi.mocked(
+      draftApplicationsService.updateConversionMetadata,
+    ).mockResolvedValue(true);
     vi.mocked(draftExtractionService.extract).mockResolvedValue({
       title: "Senior Engineer",
       company: "Acme",
@@ -594,16 +559,18 @@ describe("ApplicationService", () => {
     );
 
     await service.createApplicationWithAI("user-1", "draft-1");
+    await service.processDraftConversion("user-1", "draft-1");
 
-    await vi.waitFor(() => {
-      expect(draftApplicationsService.update).toHaveBeenCalledWith(
-        "draft-1",
-        "user-1",
-        expect.objectContaining({
-          conversionStatus: DraftApplicationConversionStatusEnum.SUCCEEDED,
-        }),
-      );
-    });
+    expect(
+      draftApplicationsService.updateConversionMetadata,
+    ).toHaveBeenCalledWith(
+      "draft-1",
+      "user-1",
+      { status: DraftApplicationConversionStatusEnum.PROCESSING },
+      expect.objectContaining({
+        status: DraftApplicationConversionStatusEnum.SUCCEEDED,
+      }),
+    );
 
     expect(repo.create).toHaveBeenCalledWith(
       "user-1",
@@ -695,6 +662,7 @@ describe("ApplicationService", () => {
   });
 
   it("removeStageEvent deletes existing event", async () => {
+    vi.mocked(repo.findStageEventByIdAndUserId).mockResolvedValue(makeEvent());
     vi.mocked(repo.deleteStageEvent).mockResolvedValue(true);
 
     await expect(

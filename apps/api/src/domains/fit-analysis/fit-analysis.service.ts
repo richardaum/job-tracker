@@ -1,7 +1,6 @@
 import { DraftApplicationEntity } from "@api/database/entities/draft-application.entity";
 import {
   FitAnalysisEntity,
-  FitAnalysisStatusEnum,
   type FitItem,
   RequirementTypeEnum,
 } from "@api/database/entities/fit-analysis.entity";
@@ -10,6 +9,7 @@ import { UserPreferencesEntity } from "@api/database/entities/user-preferences.e
 import { ApplicationRepository } from "@api/domains/applications/applications.repository";
 import type { Application } from "@api/domains/applications/applications.schema";
 import { DraftApplicationsRepository } from "@api/domains/draft-applications/draft-applications.repository";
+import { AsyncMetadataStatusEnum } from "@api/domains/shared/async-metadata.type";
 import { htmlToPlainText } from "@api/domains/shared/html-plain-text.util";
 import { tipTapToPlainText } from "@job-tracker/tiptap";
 import { tryRun } from "@job-tracker/try-run";
@@ -135,8 +135,10 @@ export class FitAnalysisService implements OnModuleInit {
     entity.draftApplicationId = existing?.draftApplicationId ?? null;
     entity.userId = userId;
     entity.resumeId = resumeId;
-    entity.status = FitAnalysisStatusEnum.PROCESSING;
-    entity.error = null;
+    entity.generationMetadata = {
+      status: AsyncMetadataStatusEnum.PROCESSING,
+      timestamp: new Date().toISOString(),
+    };
     entity.items = [];
     entity.scoreRatio = null;
     entity.classification = null;
@@ -147,7 +149,11 @@ export class FitAnalysisService implements OnModuleInit {
     const saved = await this.repo.upsert(entity);
 
     this.eventBus.emit(
-      new FitStatusChanged(saved.id, userId, FitAnalysisStatusEnum.PROCESSING),
+      new FitStatusChanged(
+        saved.id,
+        userId,
+        AsyncMetadataStatusEnum.PROCESSING,
+      ),
     );
     this.eventBus.emit(
       new FitAnalysisRequested(saved.id, userId, { applicationId }),
@@ -188,8 +194,10 @@ export class FitAnalysisService implements OnModuleInit {
     entity.draftApplicationId = draftApplicationId;
     entity.userId = userId;
     entity.resumeId = resumeId;
-    entity.status = FitAnalysisStatusEnum.PROCESSING;
-    entity.error = null;
+    entity.generationMetadata = {
+      status: AsyncMetadataStatusEnum.PROCESSING,
+      timestamp: new Date().toISOString(),
+    };
     entity.items = [];
     entity.scoreRatio = null;
     entity.classification = null;
@@ -200,7 +208,11 @@ export class FitAnalysisService implements OnModuleInit {
     const saved = await this.repo.upsert(entity);
 
     this.eventBus.emit(
-      new FitStatusChanged(saved.id, userId, FitAnalysisStatusEnum.PROCESSING),
+      new FitStatusChanged(
+        saved.id,
+        userId,
+        AsyncMetadataStatusEnum.PROCESSING,
+      ),
     );
     this.eventBus.emit(
       new FitAnalysisRequested(saved.id, userId, { draftApplicationId }),
@@ -209,7 +221,7 @@ export class FitAnalysisService implements OnModuleInit {
     return saved;
   }
 
-  async generateInBackground(
+  async processFitAnalysis(
     fitId: string,
     userId: string,
     source: { applicationId?: string; draftApplicationId?: string },
@@ -291,9 +303,12 @@ export class FitAnalysisService implements OnModuleInit {
 
       const updated = await this.repo.updateById(
         fitId,
-        FitAnalysisStatusEnum.PROCESSING,
+        AsyncMetadataStatusEnum.PROCESSING,
         {
-          status: FitAnalysisStatusEnum.COMPLETED,
+          generationMetadata: {
+            status: AsyncMetadataStatusEnum.COMPLETED,
+            timestamp: new Date().toISOString(),
+          },
           resumeId: resume.resumeId,
           items,
           scoreRatio: score.scoreRatio,
@@ -301,7 +316,6 @@ export class FitAnalysisService implements OnModuleInit {
           fitCount: score.fitCount,
           gapCount: score.gapCount,
           unclearCount: score.unclearCount,
-          error: null,
         },
         userId,
       );
@@ -313,7 +327,7 @@ export class FitAnalysisService implements OnModuleInit {
       }
 
       this.eventBus.emit(
-        new FitStatusChanged(fitId, userId, FitAnalysisStatusEnum.COMPLETED),
+        new FitStatusChanged(fitId, userId, AsyncMetadataStatusEnum.COMPLETED),
       );
     });
 
@@ -325,16 +339,19 @@ export class FitAnalysisService implements OnModuleInit {
 
       await this.repo.updateById(
         fitId,
-        FitAnalysisStatusEnum.PROCESSING,
+        AsyncMetadataStatusEnum.PROCESSING,
         {
-          status: FitAnalysisStatusEnum.FAILED,
-          error: err instanceof Error ? err.message : "Unknown error",
+          generationMetadata: {
+            status: AsyncMetadataStatusEnum.FAILED,
+            error: err instanceof Error ? err.message : "Unknown error",
+            timestamp: new Date().toISOString(),
+          },
         },
         userId,
       );
 
       this.eventBus.emit(
-        new FitStatusChanged(fitId, userId, FitAnalysisStatusEnum.FAILED),
+        new FitStatusChanged(fitId, userId, AsyncMetadataStatusEnum.FAILED),
       );
     }
   }

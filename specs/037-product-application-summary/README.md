@@ -48,8 +48,8 @@ Reviewing an application detail page requires the user to piece together informa
 ### Async Generation (per spec 034)
 
 - [T-231] **Fire-and-Forget Service**: Split generation into:
-  - `generateSummary(applicationId)`: Sets `summaryStatus = PROCESSING`, clears `summaryError`, saves, fires `generateSummaryInBackground()` via `void`, returns the application immediately.
-  - `generateSummaryInBackground(applicationId)`: Gathers Fields, Description (plain text via `tipTapToPlainText`), Notes (newest first), Stage events, and current stage into a single OpenAI prompt. On success stores TipTap JSON in `summary` with `summaryStatus = COMPLETED`. On failure stores error in `summaryError` with `summaryStatus = FAILED`.
+  - `generateSummary(applicationId)`: Sets `summaryStatus = PROCESSING`, clears `summaryError`, saves, emits event that triggers `processSummaryGeneration()`, returns the application immediately.
+  - `processSummaryGeneration(applicationId)`: Gathers Fields, Description (plain text via `tipTapToPlainText`), Notes (newest first), Stage events, and current stage into a single OpenAI prompt. On success stores TipTap JSON in `summary` with `summaryStatus = COMPLETED`. On failure stores error in `summaryError` with `summaryStatus = FAILED`.
 - [T-241] **Summary Event Listener**: Create `SummaryEventListener` that subscribes to `ApplicationUpdatedEvent` via `ApplicationEventBus`. On event, if stage is `Active` or `Applied` and `summaryStatus !== PROCESSING`, calls `SummaryService.generateSummary()`. Registered in the module providers.
 - [T-232] **Prompt Context**: Include title, company name, description plain text, custom fields (key-value), notes (newest first), stage history, and current stage. Instruct the model to produce a concise 2-4 sentence paragraph in TipTap JSON format.
 - [T-236] **Stale State Protection** ([T-212]): Add `onModuleInit` hook to reset stuck `PROCESSING` records to `FAILED` on server restart. Use atomic update for concurrency.

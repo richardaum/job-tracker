@@ -36,7 +36,7 @@ Every job posting includes location information, yet the application model curre
 - [T-217] **AI Extraction Schema**: Add `location` and `workRegion` to the Zod extraction schema, field specs, and normalization service.
 - [T-218] **Database Migration**: Add `location` (text, nullable) and `work_region` (text, nullable) columns to the `applications` table.
 - [T-219] **TypeORM Entity**: Add `location` and `workRegion` columns to `ApplicationEntity`.
-- [T-220] **Service DTOs**: Add `location` and `workRegion` to `CreateDto`, `UpdateDto`, and `CreateApplicationRepoDto` — pass through in `create()`, `update()`, and `convertDraftInBackground()`.
+- [T-220] **Service DTOs**: Add `location` and `workRegion` to `CreateDto`, `UpdateDto`, and `CreateApplicationRepoDto` — pass through in `create()`, `update()`, and `processDraftConversion()`.
 - [T-221] **GraphQL Schema**: Add `location` and `workRegion` to `ApplicationType`, `CreateApplicationInput`, `UpdateApplicationInput`.
 - [T-222] **NestJS Decorators**: Add `@Field()` on `ApplicationType`, `CreateApplicationInput`, `UpdateApplicationInput` classes.
 - [T-223] **Location AI Inference Query**: Add `generateApplicationLocationWithAI(applicationId: ID!): LocationInferenceType!` query to infer both fields from the stored description via OpenAI.

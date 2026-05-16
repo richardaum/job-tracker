@@ -128,13 +128,13 @@ async generate(id: string, userId: string): Promise<Entity> {
   // 2. Set metadata = { status: "processing" }
   // 3. Persist
   // 4. Fire background — never await
-  void this.generateInBackground(entity.id, userId);
+  void this.processFitAnalysis(entity.id, userId);
   // 5. Return immediately
   return entity;
 }
 
 // Background — resilient, atomic
-private async generateInBackground(
+private async processFitAnalysis(
   id: string,
   userId: string,
 ): Promise<void> {

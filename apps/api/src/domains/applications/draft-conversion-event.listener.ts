@@ -23,7 +23,7 @@ export class DraftConversionEventListener implements OnModuleInit {
   private async handleDraftConversionRequested(
     event: DraftConversionRequested,
   ): Promise<void> {
-    await this.applicationService.convertDraftInBackground(
+    await this.applicationService.processDraftConversion(
       event.userId,
       event.draftId,
     );
