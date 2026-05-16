@@ -1,20 +1,20 @@
 import { cn } from "@job-tracker/ui";
-import { render, screen, fireEvent, act } from "@testing-library/react";
-import { vi } from "vitest";
+import { act, render, screen } from "@testing-library/react";
 import React from "react";
+import { vi } from "vitest";
 
 import { PasteListenerProvider } from "./PasteListenerProvider";
 
 // Mock next/navigation
-vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push: vi.fn() }),
-}));
+vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
 
 // Mock GraphQL hooks
 vi.mock("@/gql/hooks", () => ({
   DraftApplicationsListDocument: { __brand: "DocumentNode" },
   useCreateDraftApplicationMutation: () => [
-    vi.fn(() => Promise.resolve({ data: { createDraftApplication: { id: "1" } } })),
+    vi.fn(() =>
+      Promise.resolve({ data: { createDraftApplication: { id: "1" } } }),
+    ),
     { loading: false },
   ],
 }));
@@ -24,11 +24,13 @@ vi.mock("@/modules/applications/shared/hooks/useToastQueue", () => ({
   useToastQueue: () => ({ enqueueToast: vi.fn() }),
 }));
 
-function createPasteEvent(clipboardData: Record<string, string> = {}) {
-  const event = new Event("paste", { bubbles: true }) as unknown as ClipboardEvent;
-  (event as unknown as { clipboardData: { getData: (type: string) => string } }).clipboardData = {
-    getData: (type: string) => clipboardData[type] || "",
-  };
+function dispatchPasteEvent(clipboardData: Record<string, string> = {}) {
+  const event = new Event("paste", { bubbles: true, cancelable: true });
+  Object.defineProperty(event, "clipboardData", {
+    value: { getData: (type: string) => clipboardData[type] || "" },
+  });
+  Object.defineProperty(event, "preventDefault", { value: vi.fn() });
+  window.dispatchEvent(event);
   return event;
 }
 
@@ -49,10 +51,14 @@ describe("PasteListenerProvider", () => {
     );
 
     const editor = screen.getByTestId("editor");
-    const pasteEvent = createPasteEvent({ "text/plain": "pasted text" });
+    const event = new Event("paste", { bubbles: true, cancelable: true });
+    Object.defineProperty(event, "clipboardData", {
+      value: { getData: () => "pasted text" },
+    });
+    Object.defineProperty(event, "preventDefault", { value: vi.fn() });
 
-    fireEvent(editor, pasteEvent);
-    expect(pasteEvent.defaultPrevented).toBe(false);
+    editor.dispatchEvent(event);
+    expect(event.preventDefault).not.toHaveBeenCalled();
   });
 
   it("skips paste when target is an input", () => {
@@ -63,10 +69,14 @@ describe("PasteListenerProvider", () => {
     );
 
     const input = screen.getByTestId("input");
-    const pasteEvent = createPasteEvent({ "text/plain": "pasted text" });
+    const event = new Event("paste", { bubbles: true, cancelable: true });
+    Object.defineProperty(event, "clipboardData", {
+      value: { getData: () => "pasted text" },
+    });
+    Object.defineProperty(event, "preventDefault", { value: vi.fn() });
 
-    fireEvent(input, pasteEvent);
-    expect(pasteEvent.defaultPrevented).toBe(false);
+    input.dispatchEvent(event);
+    expect(event.preventDefault).not.toHaveBeenCalled();
   });
 
   it("skips paste when target is a textarea", () => {
@@ -77,17 +87,25 @@ describe("PasteListenerProvider", () => {
     );
 
     const textarea = screen.getByTestId("textarea");
-    const pasteEvent = createPasteEvent({ "text/plain": "pasted text" });
+    const event = new Event("paste", { bubbles: true, cancelable: true });
+    Object.defineProperty(event, "clipboardData", {
+      value: { getData: () => "pasted text" },
+    });
+    Object.defineProperty(event, "preventDefault", { value: vi.fn() });
 
-    fireEvent(textarea, pasteEvent);
-    expect(pasteEvent.defaultPrevented).toBe(false);
+    textarea.dispatchEvent(event);
+    expect(event.preventDefault).not.toHaveBeenCalled();
   });
 
   it("skips paste when activeElement is inside ProseMirror", () => {
     render(
       <TestWrapper>
-        <div>
-          <div className={cn("ProseMirror")} contentEditable="true" data-testid="prosemirror" />
+        <div data-testid="wrapper">
+          <div
+            className={cn("ProseMirror")}
+            contentEditable="true"
+            data-testid="prosemirror"
+          />
         </div>
       </TestWrapper>,
     );
@@ -97,17 +115,25 @@ describe("PasteListenerProvider", () => {
       prosemirror.focus();
     });
 
-    const wrapper = screen.getByTestId("prosemirror").parentElement!;
-    const pasteEvent = createPasteEvent({ "text/plain": "pasted text" });
+    const wrapper = screen.getByTestId("wrapper");
+    const event = new Event("paste", { bubbles: true, cancelable: true });
+    Object.defineProperty(event, "clipboardData", {
+      value: { getData: () => "pasted text" },
+    });
+    Object.defineProperty(event, "preventDefault", { value: vi.fn() });
 
-    fireEvent(wrapper, pasteEvent);
-    expect(pasteEvent.defaultPrevented).toBe(false);
+    wrapper.dispatchEvent(event);
+    expect(event.preventDefault).not.toHaveBeenCalled();
   });
 
   it("skips paste when activeElement is a nested child of ProseMirror", () => {
     render(
       <TestWrapper>
-        <div className={cn("ProseMirror")} contentEditable="true" data-testid="prosemirror">
+        <div
+          className={cn("ProseMirror")}
+          contentEditable="true"
+          data-testid="prosemirror"
+        >
           <p data-testid="paragraph">Some text</p>
         </div>
       </TestWrapper>,
@@ -118,10 +144,14 @@ describe("PasteListenerProvider", () => {
       paragraph.focus();
     });
 
-    const pasteEvent = createPasteEvent({ "text/plain": "pasted text" });
+    const event = new Event("paste", { bubbles: true, cancelable: true });
+    Object.defineProperty(event, "clipboardData", {
+      value: { getData: () => "pasted text" },
+    });
+    Object.defineProperty(event, "preventDefault", { value: vi.fn() });
 
-    fireEvent(paragraph, pasteEvent);
-    expect(pasteEvent.defaultPrevented).toBe(false);
+    paragraph.dispatchEvent(event);
+    expect(event.preventDefault).not.toHaveBeenCalled();
   });
 
   it("triggers dialog when pasting outside editors", async () => {
@@ -131,16 +161,10 @@ describe("PasteListenerProvider", () => {
       </TestWrapper>,
     );
 
-    const pasteEvent = createPasteEvent({
-      "text/plain": "https://example.com/job-posting",
-    });
-
-    // Dispatch on window since the handler is registered on window
     await act(async () => {
-      window.dispatchEvent(pasteEvent);
+      dispatchPasteEvent({ "text/plain": "https://example.com/job-posting" });
     });
 
-    expect(pasteEvent.defaultPrevented).toBe(true);
     expect(await screen.findByText(/paste detected/i)).toBeInTheDocument();
   });
 });

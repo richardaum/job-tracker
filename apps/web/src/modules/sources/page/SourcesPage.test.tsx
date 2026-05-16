@@ -97,7 +97,7 @@ describe("SourcesPage", () => {
     await userEvent.click(screen.getByRole("button", { name: /^LinkedIn$/ }));
 
     expect(
-      screen.getByRole("complementary", { name: /sources for linkedin/i }),
+      screen.getByRole("complementary", { name: /sources · linkedin/i }),
     ).toBeInTheDocument();
     expect(screen.getByText(/^Source 1$/)).toBeInTheDocument();
     expect(screen.getByText(/^Schedule off$/)).toBeInTheDocument();
