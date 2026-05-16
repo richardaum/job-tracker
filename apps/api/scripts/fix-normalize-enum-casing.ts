@@ -4,8 +4,14 @@ import "dotenv/config";
 import { buildDataSourceOptions } from "@api/database/data-source-options";
 import { ApplicationEntity } from "@api/database/entities/application.entity";
 import { ApplicationStageEventEntity } from "@api/database/entities/application-stage-event.entity";
-import { FitAnalysisEntity } from "@api/database/entities/fit-analysis.entity";
+import {
+  FitAnalysisEntity,
+  type FitItem,
+  RequirementTypeEnum,
+} from "@api/database/entities/fit-analysis.entity";
+import type { PreferenceItem } from "@api/database/entities/user-preferences.entity";
 import { UserPreferencesEntity } from "@api/database/entities/user-preferences.entity";
+import { AsyncMetadataStatusEnum } from "@api/domains/shared/async-metadata.type";
 import { tryRun } from "@job-tracker/try-run";
 import { Module } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
@@ -58,7 +64,7 @@ async function fixJsonbFields(
     for (const a of fixStatus) {
       a.summaryMetadata = {
         ...a.summaryMetadata,
-        status: upper(a.summaryMetadata!.status)!,
+        status: upper(a.summaryMetadata!.status)! as AsyncMetadataStatusEnum,
       };
       const [err] = await tryRun(appRepo.save(a));
       if (err) {
@@ -89,7 +95,7 @@ async function fixJsonbFields(
     for (const e of fixType) {
       e.items = e.items.map((i) => ({
         ...i,
-        type: i.type ? upper(i.type) : i.type,
+        type: i.type ? (upper(i.type) as RequirementTypeEnum) : i.type,
       }));
       const [err] = await tryRun(fitRepo.save(e));
       if (err) {
@@ -119,7 +125,7 @@ async function fixJsonbFields(
     for (const e of fixWeight) {
       e.items = e.items.map((i) => ({
         ...i,
-        weight: i.weight ? upper(i.weight) : i.weight,
+        weight: i.weight ? (upper(i.weight) as FitItem["weight"]) : i.weight,
       }));
       const [err] = await tryRun(fitRepo.save(e));
       if (err) {
@@ -151,7 +157,9 @@ async function fixJsonbFields(
     for (const e of fixPrefWeight) {
       e.items = e.items.map((i) => ({
         ...i,
-        weight: i.weight ? upper(i.weight) : i.weight,
+        weight: i.weight
+          ? (upper(i.weight) as PreferenceItem["weight"])
+          : i.weight,
       }));
       const [err] = await tryRun(prefsRepo.save(e));
       if (err) {

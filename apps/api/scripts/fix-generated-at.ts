@@ -54,7 +54,7 @@ async function main() {
   const fix1 = appsWithMeta.filter(
     (a) =>
       a.summaryMetadata?.status === AsyncMetadataStatusEnum.COMPLETED &&
-      !a.summaryMetadata.generatedAt,
+      !a.summaryMetadata.timestamp,
   );
 
   if (fix1.length === 0) {
@@ -65,7 +65,7 @@ async function main() {
     for (const app of fix1) {
       app.summaryMetadata = {
         ...app.summaryMetadata,
-        generatedAt: nowUtcIso(),
+        timestamp: nowUtcIso(),
       } as AsyncMetadata;
       const [err] = await tryRun(repo.save(app));
       if (err) {
@@ -97,7 +97,7 @@ async function main() {
     for (const app of appsWithSummary) {
       app.summaryMetadata = {
         status: AsyncMetadataStatusEnum.COMPLETED,
-        generatedAt: nowUtcIso(),
+        timestamp: nowUtcIso(),
       };
       const [err] = await tryRun(repo.save(app));
       if (err) {

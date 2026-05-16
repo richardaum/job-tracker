@@ -5,10 +5,7 @@ import { buildDataSourceOptions } from "@api/database/data-source-options";
 import { ApplicationEntity } from "@api/database/entities/application.entity";
 import { ApplicationStageEventEntity } from "@api/database/entities/application-stage-event.entity";
 import { DraftApplicationEntity } from "@api/database/entities/draft-application.entity";
-import {
-  FitAnalysisEntity,
-  FitAnalysisStatusEnum,
-} from "@api/database/entities/fit-analysis.entity";
+import { FitAnalysisEntity } from "@api/database/entities/fit-analysis.entity";
 import { ResumeEntity } from "@api/database/entities/resume.entity";
 import { UserEntity } from "@api/database/entities/user.entity";
 import { UserPreferencesEntity } from "@api/database/entities/user-preferences.entity";
@@ -22,6 +19,7 @@ import { FitAnalysisAiService } from "@api/domains/fit-analysis/fit-analysis-ai.
 import { FitAnalysisEventBus } from "@api/domains/fit-analysis/fit-analysis-event.bus";
 import { FitAnalysisEventListener } from "@api/domains/fit-analysis/fit-analysis-event.listener";
 import { ResumeRepository } from "@api/domains/resumes/resumes.repository";
+import { AsyncMetadataStatusEnum } from "@api/domains/shared/async-metadata.type";
 import { LibAiModule } from "@api/lib/ai";
 import { Module } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
@@ -181,7 +179,9 @@ async function main() {
   const skipResults = await Promise.all(
     appsToProcess.map(async (app) => {
       const existing = await fitRepo.findByApplicationId(app.id);
-      const skip = existing?.status === FitAnalysisStatusEnum.COMPLETED;
+      const skip =
+        existing?.generationMetadata?.status ===
+        AsyncMetadataStatusEnum.COMPLETED;
       if (skip) console.log(`  SKIP  ${app.title} — fit already completed`);
       return { app, skip };
     }),
@@ -265,9 +265,13 @@ async function main() {
       const entity = await fitRepo.findByApplicationId(id);
       if (!entity) continue;
 
-      if (entity.status === FitAnalysisStatusEnum.COMPLETED) {
+      if (
+        entity.generationMetadata?.status === AsyncMetadataStatusEnum.COMPLETED
+      ) {
         completed.add(id);
-      } else if (entity.status === FitAnalysisStatusEnum.FAILED) {
+      } else if (
+        entity.generationMetadata?.status === AsyncMetadataStatusEnum.FAILED
+      ) {
         failed.add(id);
       }
     }
@@ -281,19 +285,20 @@ async function main() {
       console.log(`  ${app.title} @ ${app.companyName}: UNKNOWN`);
       continue;
     }
-    if (entity.status === FitAnalysisStatusEnum.COMPLETED) {
+    const meta = entity.generationMetadata;
+    if (meta?.status === AsyncMetadataStatusEnum.COMPLETED) {
       const scorePct =
         entity.scoreRatio != null ? `${Math.round(entity.scoreRatio)}%` : "N/A";
       console.log(
         `  OK    ${app.title} @ ${app.companyName} — ${scorePct} (${entity.classification ?? "N/A"})`,
       );
-    } else if (entity.status === FitAnalysisStatusEnum.FAILED) {
+    } else if (meta?.status === AsyncMetadataStatusEnum.FAILED) {
       console.log(
-        `  FAIL  ${app.title} @ ${app.companyName} — ${entity.error ?? "Unknown error"}`,
+        `  FAIL  ${app.title} @ ${app.companyName} — ${meta.error ?? "Unknown error"}`,
       );
     } else {
       console.log(
-        `  ?     ${app.title} @ ${app.companyName}: status=${entity.status}`,
+        `  ?     ${app.title} @ ${app.companyName}: status=${meta?.status ?? "null"}`,
       );
     }
   }
