@@ -3,13 +3,17 @@
 import { cn, FieldWithLabelAction, Text } from "@job-tracker/ui";
 import { ArrowsClockwiseIcon, SparkleIcon } from "@phosphor-icons/react";
 
-import { TaskStatus } from "@/gql/hooks";
+import { AsyncMetadataStatus } from "@/gql/hooks";
 import { TipTapContent } from "@/modules/applications/shared/components/TipTapContent";
 
 interface SummaryFieldProps {
   summary: string | null | undefined;
   summaryMetadata:
-    | { status: TaskStatus; error?: string | null; generatedAt?: string | null }
+    | {
+        status: AsyncMetadataStatus;
+        error?: string | null;
+        generatedAt?: string | null;
+      }
     | null
     | undefined;
   onGenerateSummary: () => void;
@@ -20,8 +24,9 @@ export function SummaryField({
   summaryMetadata,
   onGenerateSummary,
 }: SummaryFieldProps) {
-  const isProcessing = summaryMetadata?.status === TaskStatus.Processing;
-  const isFailed = summaryMetadata?.status === TaskStatus.Failed;
+  const isProcessing =
+    summaryMetadata?.status === AsyncMetadataStatus.Processing;
+  const isFailed = summaryMetadata?.status === AsyncMetadataStatus.Failed;
 
   return (
     <div className={cn("w-full")}>

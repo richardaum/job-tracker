@@ -14,6 +14,7 @@ import {
   ApplicationDocument,
   ApplicationsDocument,
   ApplicationSource,
+  AsyncMetadataStatus,
   useGenerateApplicationSummaryMutation,
   useRemoveApplicationTagMutation,
   useUpdateApplicationMutation,
@@ -80,17 +81,10 @@ export function OverviewTabContent({
   const [generateSummary] = useGenerateApplicationSummaryMutation();
 
   const sseUrl = `${getApiBaseUrl()}/applications/${application.id}/stream`;
-  useEventSource<{ applicationId: string; status: string }>(
+  useEventSource<{ applicationId: string; status: AsyncMetadataStatus }>(
     sseUrl,
     "summary_status_changed",
-    (data) => {
-      if (
-        (data.status === "COMPLETED" || data.status === "FAILED") &&
-        refetch
-      ) {
-        refetch();
-      }
-    },
+    () => refetch?.(),
   );
 
   async function handleRemoveTag(tag: string) {

@@ -28,6 +28,7 @@ import { useRouter } from "next/navigation";
 import React, { useCallback, useState } from "react";
 
 import {
+  DraftApplicationConversionStatus,
   useApplicationQuery,
   useCreateApplicationWithAiMutation,
   useGenerateDraftApplicationFitMutation,
@@ -125,12 +126,13 @@ export default function DraftApplicationDetailsPage({ params }: PageProps) {
   const { draft, error, refetch, showInitialLoading } =
     useDraftApplicationDetailsViewModel(id);
   const sseUrl = `${getApiBaseUrl()}/draft-applications/${id}/stream`;
-  useEventSource<{ draftId: string; status: string }>(
+  useEventSource<{ draftId: string; status: DraftApplicationConversionStatus }>(
     sseUrl,
     "draft_conversion_status_changed",
     (data) => {
       if (
-        (data.status === "succeeded" || data.status === "failed") &&
+        (data.status === DraftApplicationConversionStatus.Succeeded ||
+          data.status === DraftApplicationConversionStatus.Failed) &&
         refetch
       ) {
         void refetch();

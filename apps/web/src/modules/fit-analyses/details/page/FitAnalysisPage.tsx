@@ -92,12 +92,13 @@ export default function FitAnalysisPage({ params }: PageProps) {
       : "#";
 
   const sseUrl = `${getApiBaseUrl()}/fits/${fitId}/stream`;
-  useEventSource<{ fitId: string; status: string }>(
+  useEventSource<{ fitId: string; status: FitAnalysisStatus }>(
     sseUrl,
     "fit_status_changed",
     (data) => {
       if (
-        (data.status === "completed" || data.status === "failed") &&
+        (data.status === FitAnalysisStatus.Completed ||
+          data.status === FitAnalysisStatus.Failed) &&
         refetchFit
       ) {
         void refetchFit();

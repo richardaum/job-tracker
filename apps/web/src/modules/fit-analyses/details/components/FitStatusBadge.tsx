@@ -3,20 +3,22 @@
 import { Badge, cn, Spinner, Tooltip } from "@job-tracker/ui";
 import React from "react";
 
+import { FitAnalysisStatus } from "@/gql/hooks";
+
 const STATUS_LABEL: Record<string, string> = {
-  PROCESSING: "Processing",
-  COMPLETED: "Completed",
-  FAILED: "Failed",
+  [FitAnalysisStatus.Processing]: "Processing",
+  [FitAnalysisStatus.Completed]: "Completed",
+  [FitAnalysisStatus.Failed]: "Failed",
 };
 
 const STATUS_INTENT: Record<string, "warning" | "success" | "error"> = {
-  PROCESSING: "warning",
-  COMPLETED: "success",
-  FAILED: "error",
+  [FitAnalysisStatus.Processing]: "warning",
+  [FitAnalysisStatus.Completed]: "success",
+  [FitAnalysisStatus.Failed]: "error",
 };
 
 interface FitStatusBadgeProps {
-  status: string;
+  status: string | FitAnalysisStatus;
   error?: string | null;
   className?: string;
 }
@@ -26,8 +28,8 @@ export function FitStatusBadge({
   error,
   className,
 }: FitStatusBadgeProps) {
-  const isProcessing = status === "PROCESSING";
-  const hasError = status === "FAILED" && Boolean(error);
+  const isProcessing = status === FitAnalysisStatus.Processing;
+  const hasError = status === FitAnalysisStatus.Failed && Boolean(error);
 
   return (
     <span className={cn("inline-flex items-center gap-1.5", className)}>
