@@ -37,6 +37,7 @@ export default defineConfig(
       "apps/extension/build/**",
       "apps/extension/.wxt/**",
       "apps/extension/codegen.ts",
+      "apps/extension/src/gql/**",
       "apps/web/next-env.d.ts",
       "apps/web/src/gql/**",
       "apps/web/public/**",
