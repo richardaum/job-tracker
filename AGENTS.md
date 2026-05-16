@@ -43,6 +43,7 @@ Search the keyword in `.agents/rules/` files. Matches are by section topic, not 
 
 | Keyword / trigger                                                                | Rule file                    |
 | -------------------------------------------------------------------------------- | ---------------------------- |
+| `EOC`, `post-task`, `pre-task`, `verify`                                         | `execution-workflow.md`      |
 | `asChild`, `Slot`, `NextLink`, hydration                                         | `web-ui.md`                  |
 | `forwardRef`, `useMemo`, `useCallback`                                           | `typescript-react.md`        |
 | `view-model`, `useXxxViewModel`, `useQuery`                                      | `graphql-web.md`             |
@@ -67,6 +68,7 @@ Search the keyword in `.agents/rules/` files. Matches are by section topic, not 
 | `GraphQL`, `schema.gql`, codegen, `registerEnum`                                 | `graphql-web.md`             |
 | `enum`, `@Field`, TypeGraphQL enum                                               | `graphql-web.md`             |
 | `storybook`, `packages/ui`                                                       | `validation.md`              |
+| `task lifecycle`, `workflow`, `execution workflow`, `rule lookup`                | `execution-workflow.md`      |
 | `skill`, `.agents/skills`, agent skill                                           | `graphql-web.md`             |
 | `lint`, `fix:imports`, `typecheck`, `format`, `test`, `e2e`, CI, knip, dead code | `validation.md`              |
 | `PM2`, `pm2:start`, `pm2:stop`                                                   | `ops-docker-pm2.md`          |
