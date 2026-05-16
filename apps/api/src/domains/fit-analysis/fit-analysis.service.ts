@@ -289,7 +289,7 @@ export class FitAnalysisService implements OnModuleInit {
 
       const score = computeScore(items);
 
-      const success = await this.repo.updateStatusById(
+      const updated = await this.repo.updateById(
         fitId,
         FitAnalysisStatus.PROCESSING,
         {
@@ -306,7 +306,7 @@ export class FitAnalysisService implements OnModuleInit {
         userId,
       );
 
-      if (!success) {
+      if (!updated) {
         this.logger.warn(
           `Fit analysis ${fitId} was already updated or reset. Skipping background save.`,
         );
@@ -323,7 +323,7 @@ export class FitAnalysisService implements OnModuleInit {
         err instanceof Error ? err.stack : err,
       );
 
-      await this.repo.updateStatusById(
+      await this.repo.updateById(
         fitId,
         FitAnalysisStatus.PROCESSING,
         {

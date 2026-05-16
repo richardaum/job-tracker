@@ -90,63 +90,32 @@ export class FitAnalysisRepository {
     return (result.affected ?? 0) > 0;
   }
 
-  async updateStatus(
-    applicationId: string,
-    expectedStatus: FitAnalysisStatus,
-    patch: Partial<FitAnalysisEntity>,
-  ): Promise<boolean> {
-    const result = await this.repo.update(
-      { applicationId, status: expectedStatus },
-      patch,
-    );
-    return (result.affected ?? 0) > 0;
-  }
-
-  async updateStatusByDraftId(
-    draftApplicationId: string,
-    expectedStatus: FitAnalysisStatus,
-    patch: Partial<FitAnalysisEntity>,
-  ): Promise<boolean> {
-    const result = await this.repo.update(
-      { draftApplicationId, status: expectedStatus },
-      patch,
-    );
-    return (result.affected ?? 0) > 0;
-  }
-
-  async updateStatusById(
+  async updateById(
     id: string,
     expectedStatus: FitAnalysisStatus,
     patch: Partial<FitAnalysisEntity>,
     userId?: string,
-  ): Promise<boolean> {
-    const result = await this.repo.update(
-      { id, status: expectedStatus, ...(userId ? { userId } : {}) },
-      patch,
-    );
-    return (result.affected ?? 0) > 0;
-  }
-
-  async setApplicationId(
-    id: string,
-    applicationId: string,
-    userId?: string,
-  ): Promise<boolean> {
-    const result = await this.repo.update(
-      { id, ...(userId ? { userId } : {}) },
-      { applicationId },
-    );
-    return (result.affected ?? 0) > 0;
+  ): Promise<FitAnalysisEntity | null> {
+    const entity = await this.repo.findOne({
+      where: { id, status: expectedStatus, ...(userId ? { userId } : {}) },
+    });
+    if (!entity) return null;
+    Object.assign(entity, patch);
+    return this.repo.save(entity);
   }
 
   async resetStaleProcessing(): Promise<number> {
-    const result = await this.repo.update(
-      { status: FitAnalysisStatus.PROCESSING },
-      {
-        status: FitAnalysisStatus.FAILED,
-        error: "Analysis interrupted and reset to failed after server restart.",
-      },
-    );
-    return result.affected ?? 0;
+    const stale = await this.repo.find({
+      where: { status: FitAnalysisStatus.PROCESSING },
+    });
+    for (const entity of stale) {
+      entity.status = FitAnalysisStatus.FAILED;
+      entity.error =
+        "Analysis interrupted and reset to failed after server restart.";
+    }
+    if (stale.length > 0) {
+      await this.repo.save(stale);
+    }
+    return stale.length;
   }
 }
