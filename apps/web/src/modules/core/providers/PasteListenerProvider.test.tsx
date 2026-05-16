@@ -124,20 +124,23 @@ describe("PasteListenerProvider", () => {
     expect(pasteEvent.defaultPrevented).toBe(false);
   });
 
-  it("triggers dialog when pasting outside editors", () => {
+  it("triggers dialog when pasting outside editors", async () => {
     render(
       <TestWrapper>
         <div data-testid="page-content">Page content</div>
       </TestWrapper>,
     );
 
-    const pageContent = screen.getByTestId("page-content");
     const pasteEvent = createPasteEvent({
       "text/plain": "https://example.com/job-posting",
     });
 
-    fireEvent(pageContent, pasteEvent);
+    // Dispatch on window since the handler is registered on window
+    await act(async () => {
+      window.dispatchEvent(pasteEvent);
+    });
+
     expect(pasteEvent.defaultPrevented).toBe(true);
-    expect(screen.getByText(/paste detected/i)).toBeInTheDocument();
+    expect(await screen.findByText(/paste detected/i)).toBeInTheDocument();
   });
 });
