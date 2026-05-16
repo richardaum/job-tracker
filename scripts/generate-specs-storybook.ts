@@ -37,12 +37,7 @@ import raw from "${importPath}?raw";
 }
 
 function writeIfChanged(filePath: string, next: string): boolean {
-  let prev = "";
-  try {
-    prev = fs.readFileSync(filePath, "utf8");
-  } catch {
-    // missing
-  }
+  const prev = fs.existsSync(filePath) ? fs.readFileSync(filePath, "utf8") : "";
   if (prev !== next) {
     fs.writeFileSync(filePath, next, "utf8");
     return true;

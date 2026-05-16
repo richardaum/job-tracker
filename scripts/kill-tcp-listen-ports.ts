@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { execFileSync } from "node:child_process";
+import { spawnSync } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -40,18 +40,15 @@ export function resolveListenPorts(
 }
 
 function pidsListeningOnTcpPort(port: number): readonly string[] {
-  try {
-    const out = execFileSync("lsof", ["-t", `-iTCP:${port}`, "-sTCP:LISTEN"], {
-      encoding: "utf8",
-      stdio: ["ignore", "pipe", "ignore"],
-    });
-    const uniq = new Set<string>();
-    for (const line of out.trim().split(/\n/))
-      if (/^\d+$/.test(line)) uniq.add(line);
-    return [...uniq];
-  } catch {
-    return [];
-  }
+  const result = spawnSync("lsof", ["-t", `-iTCP:${port}`, "-sTCP:LISTEN"], {
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "ignore"],
+  });
+  if (result.status !== 0) return [];
+  const uniq = new Set<string>();
+  for (const line of result.stdout.trim().split(/\n/))
+    if (/^\d+$/.test(line)) uniq.add(line);
+  return [...uniq];
 }
 
 export function killTcpListenPorts(
@@ -62,13 +59,9 @@ export function killTcpListenPorts(
   for (const port of ports) {
     const pids = pidsListeningOnTcpPort(port);
     for (const pid of pids) {
-      try {
-        execFileSync("kill", ["-9", pid], {
-          stdio: ["ignore", "ignore", "pipe"],
-        });
+      const result = spawnSync("kill", ["-9", pid]);
+      if (result.status === 0) {
         console.warn(`${tag} SIGKILL PID ${pid} (LISTEN on TCP ${port}).`);
-      } catch {
-        // Process may already be gone.
       }
     }
   }

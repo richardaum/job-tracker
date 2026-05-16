@@ -295,7 +295,6 @@ export default defineConfig(
       "apps/web/codegen.ts",
       "apps/web/src/gql/**",
       "packages/try-run/**",
-      "scripts/**/*.ts",
     ],
     plugins: { "job-tracker": jobTrackerEslintPlugin },
     rules: { "job-tracker/prefer-try-run-over-try-catch": "warn" },

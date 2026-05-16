@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { execFileSync } from "node:child_process";
+import { spawnSync } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -14,11 +14,8 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const ecosystemAbs = path.join(root, "ecosystem.config.cjs");
 
 function pm2(args: string[], allowFailure: boolean): void {
-  try {
-    execFileSync("pm2", args, { cwd: root, stdio: "inherit" });
-  } catch {
-    if (!allowFailure) process.exit(1);
-  }
+  const result = spawnSync("pm2", args, { cwd: root, stdio: "inherit" });
+  if (result.status !== 0 && !allowFailure) process.exit(1);
 }
 
 const ports = resolveListenPorts(process.env, { tag: resetTag });

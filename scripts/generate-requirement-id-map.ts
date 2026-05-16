@@ -105,12 +105,7 @@ function main(): void {
   }
 
   fs.mkdirSync(path.dirname(OUTPUT), { recursive: true });
-  let prev = "";
-  try {
-    prev = fs.readFileSync(OUTPUT, "utf8");
-  } catch {
-    // missing
-  }
+  const prev = fs.existsSync(OUTPUT) ? fs.readFileSync(OUTPUT, "utf8") : "";
   if (prev !== body) {
     fs.writeFileSync(OUTPUT, body, "utf8");
     console.warn(
