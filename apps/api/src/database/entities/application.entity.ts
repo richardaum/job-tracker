@@ -1,6 +1,7 @@
 import { WithGeneratedId } from "@api/database/decorators/with-generated-id.decorator";
 import { ApplicationSource } from "@api/domains/applications/application-source.enum";
-import type { AsyncTaskMeta } from "@api/domains/shared/async-task-meta.type";
+import { SalaryPeriodEnum } from "@api/domains/applications/salary/salary-period.enum";
+import type { AsyncMetadata } from "@api/domains/shared/async-metadata.type";
 import {
   Column,
   CreateDateColumn,
@@ -65,11 +66,11 @@ export class ApplicationEntity {
   @Column({
     name: "salary_period",
     type: "enum",
-    enum: ["year", "month", "hour"],
+    enum: SalaryPeriodEnum,
     enumName: "salary_period",
     nullable: true,
   })
-  salaryPeriod!: "year" | "month" | "hour" | null;
+  salaryPeriod!: SalaryPeriodEnum | null;
 
   @Column({
     name: "tags",
@@ -96,7 +97,7 @@ export class ApplicationEntity {
   summary!: string | null;
 
   @Column({ name: "summary_metadata", type: "jsonb", nullable: true })
-  summaryMetadata!: AsyncTaskMeta | null;
+  summaryMetadata!: AsyncMetadata | null;
 
   @Column({ name: "source_run_id", type: "text", nullable: true })
   sourceRunId!: string | null;

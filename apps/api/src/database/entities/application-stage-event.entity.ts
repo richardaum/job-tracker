@@ -1,4 +1,5 @@
 import { WithGeneratedId } from "@api/database/decorators/with-generated-id.decorator";
+import { ApplicationStageEnum } from "@api/domains/applications/application-stage.enum";
 import { Column, CreateDateColumn, Entity, PrimaryColumn } from "typeorm";
 
 @WithGeneratedId()
@@ -16,54 +17,19 @@ export class ApplicationStageEventEntity {
   @Column({
     name: "from_stage",
     type: "enum",
-    enum: [
-      "new",
-      "applied",
-      "recruiter_screen",
-      "technical",
-      "cultural_fit",
-      "offer",
-      "rejected",
-      "duplicated",
-    ],
+    enum: ApplicationStageEnum,
     enumName: "application_stage",
     nullable: true,
   })
-  fromStage!:
-    | "new"
-    | "applied"
-    | "recruiter_screen"
-    | "technical"
-    | "cultural_fit"
-    | "offer"
-    | "rejected"
-    | "duplicated"
-    | null;
+  fromStage!: ApplicationStageEnum | null;
 
   @Column({
     name: "to_stage",
     type: "enum",
-    enum: [
-      "new",
-      "applied",
-      "recruiter_screen",
-      "technical",
-      "cultural_fit",
-      "offer",
-      "rejected",
-      "duplicated",
-    ],
+    enum: ApplicationStageEnum,
     enumName: "application_stage",
   })
-  toStage!:
-    | "new"
-    | "applied"
-    | "recruiter_screen"
-    | "technical"
-    | "cultural_fit"
-    | "offer"
-    | "rejected"
-    | "duplicated";
+  toStage!: ApplicationStageEnum;
 
   @Column({ type: "text", default: "manual" })
   source!: string;
