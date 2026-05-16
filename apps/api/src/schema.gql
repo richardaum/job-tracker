@@ -89,7 +89,7 @@ enum DraftApplicationConversionStatus {
 type AsyncMetadataType {
   status: AsyncMetadataStatus!
   error: String
-  generatedAt: String!
+  generatedAt: String
 }
 
 enum AsyncMetadataStatus {

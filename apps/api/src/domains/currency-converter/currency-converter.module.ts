@@ -5,12 +5,12 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 
 import { CurrencyConverterResolver } from "./currency-converter.resolver";
 import { CurrencyConverterService } from "./currency-converter.service";
-import { ExchangeRateCacheService } from "./exchange-rate-cache.service";
+import { ExchangeRateService } from "./exchange-rate.service";
 
 @Module({
   imports: [AuthModule, TypeOrmModule.forFeature([ExchangeRateEntity])],
   providers: [
-    ExchangeRateCacheService,
+    ExchangeRateService,
     CurrencyConverterService,
     CurrencyConverterResolver,
   ],

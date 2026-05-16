@@ -12,8 +12,8 @@ export interface CachedExchangeRates {
 }
 
 @Injectable()
-export class ExchangeRateCacheService {
-  private readonly logger = new Logger(ExchangeRateCacheService.name);
+export class ExchangeRateService {
+  private readonly logger = new Logger(ExchangeRateService.name);
 
   constructor(
     @InjectRepository(ExchangeRateEntity)

@@ -21,6 +21,6 @@ export class AsyncMetadataType {
   @Field(() => String, { nullable: true })
   error?: string | null;
 
-  @Field(() => String, { nullable: false })
-  generatedAt!: string;
+  @Field(() => String, { nullable: true })
+  generatedAt?: string | null;
 }

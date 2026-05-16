@@ -1,7 +1,7 @@
 import { tryRun } from "@job-tracker/try-run";
 import { Injectable, Logger, OnModuleInit } from "@nestjs/common";
 
-import { ExchangeRateCacheService } from "./exchange-rate-cache.service";
+import { ExchangeRateService } from "./exchange-rate.service";
 
 const CURRENCY_API_BASE = "https://api.frankfurter.app";
 const FALLBACK_API_BASE = "https://open.er-api.com/v6/latest";
@@ -46,7 +46,7 @@ const DEFAULT_TTL_SECONDS = 60 * 60;
 export class CurrencyConverterService implements OnModuleInit {
   private readonly logger = new Logger(CurrencyConverterService.name);
 
-  constructor(private readonly cacheService: ExchangeRateCacheService) {}
+  constructor(private readonly cacheService: ExchangeRateService) {}
 
   onModuleInit() {
     this.logger.log("Currency converter service initialized");
