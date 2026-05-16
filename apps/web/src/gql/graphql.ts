@@ -112,7 +112,7 @@ export enum AsyncMetadataStatus {
 export type AsyncMetadataType = {
   __typename?: "AsyncMetadataType";
   error?: Maybe<Scalars["String"]["output"]>;
-  generatedAt?: Maybe<Scalars["String"]["output"]>;
+  generatedAt: Scalars["String"]["output"];
   status: AsyncMetadataStatus;
 };
 
@@ -443,13 +443,13 @@ export type NoteType = {
 
 export type PreferenceInput = {
   text: Scalars["String"]["input"];
-  weight: WeightEnum;
+  weight: Weight;
 };
 
 export type PreferenceType = {
   __typename?: "PreferenceType";
   text: Scalars["String"]["output"];
-  weight: WeightEnum;
+  weight: Weight;
 };
 
 export type Query = {
@@ -675,7 +675,7 @@ export type UserType = {
   role: Scalars["String"]["output"];
 };
 
-export enum WeightEnum {
+export enum Weight {
   High = "HIGH",
   Low = "LOW",
 }
@@ -727,7 +727,7 @@ export type ApplicationsQuery = {
         __typename?: "AsyncMetadataType";
         status: AsyncMetadataStatus;
         error?: string | null;
-        generatedAt?: string | null;
+        generatedAt: string;
       } | null;
       fit?: {
         __typename?: "FitAnalysisType";
@@ -779,7 +779,7 @@ export type ApplicationQuery = {
       __typename?: "AsyncMetadataType";
       status: AsyncMetadataStatus;
       error?: string | null;
-      generatedAt?: string | null;
+      generatedAt: string;
     } | null;
     fit?: {
       __typename?: "FitAnalysisType";
@@ -869,7 +869,7 @@ export type UpdateApplicationMutation = {
       __typename?: "AsyncMetadataType";
       status: AsyncMetadataStatus;
       error?: string | null;
-      generatedAt?: string | null;
+      generatedAt: string;
     } | null;
   } & {
     " $fragmentRefs"?: {
@@ -1101,7 +1101,7 @@ export type GenerateApplicationSummaryMutation = {
       __typename?: "AsyncMetadataType";
       status: AsyncMetadataStatus;
       error?: string | null;
-      generatedAt?: string | null;
+      generatedAt: string;
     } | null;
   };
 };
@@ -1728,7 +1728,7 @@ export type UserPreferencesQuery = {
   userPreferences: Array<{
     __typename?: "PreferenceType";
     text: string;
-    weight: WeightEnum;
+    weight: Weight;
   }>;
 };
 
@@ -1741,7 +1741,7 @@ export type UpdateUserPreferencesMutation = {
   updateUserPreferences: Array<{
     __typename?: "PreferenceType";
     text: string;
-    weight: WeightEnum;
+    weight: Weight;
   }>;
 };
 

@@ -17,7 +17,7 @@ import {
 } from "@phosphor-icons/react";
 import React from "react";
 
-import { type PreferenceInput, WeightEnum } from "@/gql/hooks";
+import { type PreferenceInput, Weight } from "@/gql/hooks";
 import {
   useUpdateUserPreferencesMutation,
   useUserPreferencesQuery,
@@ -27,7 +27,7 @@ import { useToastQueue } from "@/modules/applications/shared/hooks/useToastQueue
 interface LocalPreference {
   id: string;
   text: string;
-  weight: WeightEnum;
+  weight: Weight;
 }
 
 let prefIdCounter = 0;
@@ -37,7 +37,7 @@ function nextPrefId(): string {
 }
 
 function toLocal(
-  items: readonly { text: string; weight: WeightEnum }[],
+  items: readonly { text: string; weight: Weight }[],
 ): LocalPreference[] {
   return items.map((p) => ({
     id: nextPrefId(),
@@ -80,7 +80,7 @@ function PreferencesEditor({
               >
                 <Text size="sm">{pref.text}</Text>
                 <div className={cn("ml-auto shrink-0")}>
-                  {pref.weight === WeightEnum.High ? (
+                  {pref.weight === Weight.High ? (
                     <ArrowUpIcon
                       size={14}
                       weight="bold"
@@ -150,12 +150,12 @@ function PreferenceRow({
               size="md"
               className={cn(
                 "h-9 shrink-0 px-2",
-                pref.weight === WeightEnum.High
+                pref.weight === Weight.High
                   ? "text-text-success"
                   : "text-text-muted",
               )}
             >
-              {pref.weight === WeightEnum.High ? (
+              {pref.weight === Weight.High ? (
                 <ArrowUpIcon size={14} weight="bold" />
               ) : (
                 <ArrowDownIcon size={14} weight="bold" />
@@ -172,7 +172,7 @@ function PreferenceRow({
                 className={cn("text-text-success")}
               />
             }
-            onSelect={() => onUpdate(pref.id, { weight: WeightEnum.High })}
+            onSelect={() => onUpdate(pref.id, { weight: Weight.High })}
           >
             High
           </DropdownMenuItem>
@@ -184,7 +184,7 @@ function PreferenceRow({
                 className={cn("text-text-muted")}
               />
             }
-            onSelect={() => onUpdate(pref.id, { weight: WeightEnum.Low })}
+            onSelect={() => onUpdate(pref.id, { weight: Weight.Low })}
           >
             Low
           </DropdownMenuItem>
@@ -249,7 +249,7 @@ export function PreferencesDialog({
     const newId = nextPrefId();
     setLocalItems((prev) => [
       ...prev,
-      { id: newId, text: "", weight: WeightEnum.Low },
+      { id: newId, text: "", weight: Weight.Low },
     ]);
     setFocusedId(newId);
   }
