@@ -9,6 +9,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 
 import { ApplicationQuickFilterEnum } from "./application-quick-filter.enum";
+import { ApplicationStageEnum } from "./application-stage.enum";
 import {
   ApplicationStageEvent,
   NewApplicationStageEvent,
@@ -100,21 +101,39 @@ export class ApplicationRepository {
     )`;
 
     if (filter === ApplicationQuickFilterEnum.NEW) {
-      qb.andWhere(`${latestStageSub} = 'new'`, { userId });
+      qb.andWhere(`${latestStageSub} = :stage`, {
+        userId,
+        stage: ApplicationStageEnum.NEW,
+      });
     } else if (filter === ApplicationQuickFilterEnum.DUPLICATED) {
-      qb.andWhere(`${latestStageSub} = 'duplicated'`, { userId });
+      qb.andWhere(`${latestStageSub} = :stage`, {
+        userId,
+        stage: ApplicationStageEnum.DUPLICATED,
+      });
     } else if (filter === ApplicationQuickFilterEnum.APPLIED) {
-      qb.andWhere(`${latestStageSub} = 'applied'`, { userId });
+      qb.andWhere(`${latestStageSub} = :stage`, {
+        userId,
+        stage: ApplicationStageEnum.APPLIED,
+      });
     } else if (filter === ApplicationQuickFilterEnum.ACTIVE) {
-      qb.andWhere(
-        `${latestStageSub} NOT IN ('new', 'applied', 'rejected', 'duplicated')`,
-        { userId },
-      );
+      qb.andWhere(`${latestStageSub} NOT IN (:...stages)`, {
+        userId,
+        stages: [
+          ApplicationStageEnum.NEW,
+          ApplicationStageEnum.APPLIED,
+          ApplicationStageEnum.REJECTED,
+          ApplicationStageEnum.DUPLICATED,
+        ],
+      });
     } else if (filter === ApplicationQuickFilterEnum.INCOMING) {
-      qb.andWhere(
-        `${latestStageSub} NOT IN ('applied', 'rejected', 'duplicated')`,
-        { userId },
-      ).andWhere(
+      qb.andWhere(`${latestStageSub} NOT IN (:...stages)`, {
+        userId,
+        stages: [
+          ApplicationStageEnum.APPLIED,
+          ApplicationStageEnum.REJECTED,
+          ApplicationStageEnum.DUPLICATED,
+        ],
+      }).andWhere(
         `EXISTS (
           SELECT 1 FROM application_stage_events e
           WHERE e.application_id = a.id AND e.user_id = :userId

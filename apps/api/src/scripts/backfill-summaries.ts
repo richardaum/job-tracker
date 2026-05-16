@@ -58,9 +58,9 @@ async function main() {
          LIMIT 1
        ) latest ON true
        WHERE (
-         latest.to_stage = 'applied'
-         OR latest.to_stage NOT IN ('new', 'applied', 'rejected', 'duplicated')
-       )
+          latest.to_stage = 'APPLIED'
+          OR latest.to_stage NOT IN ('NEW', 'APPLIED', 'REJECTED', 'DUPLICATED')
+        )
          AND a.summary_status IS DISTINCT FROM 'processing'
          AND (a.summary IS NULL OR a.summary = '' OR a.summary_status = 'failed')
        ORDER BY a.id`,

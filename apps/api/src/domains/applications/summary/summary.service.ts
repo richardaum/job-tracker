@@ -5,6 +5,7 @@ import {
   SummaryStatusChanged,
 } from "@api/domains/applications/application.events";
 import { ApplicationEventBus } from "@api/domains/applications/application-event.bus";
+import { ApplicationStageEnum } from "@api/domains/applications/application-stage.enum";
 import { ApplicationRepository } from "@api/domains/applications/applications.repository";
 import { AsyncMetadataStatus } from "@api/domains/shared/async-metadata.type";
 import { markdownToTipTap, tipTapToPlainText } from "@job-tracker/tiptap";
@@ -124,7 +125,7 @@ export class SummaryService {
         )
         .join(" → ");
 
-      const currentStage = stageEvents[0]?.toStage ?? "new";
+      const currentStage = stageEvents[0]?.toStage ?? ApplicationStageEnum.NEW;
       const salaryParts = [
         app.salaryMinCents != null
           ? `$${(app.salaryMinCents / 100).toLocaleString()}`
