@@ -96,7 +96,7 @@ export type ApplicationType = {
   source?: Maybe<ApplicationSource>;
   sourceRunId?: Maybe<Scalars["ID"]["output"]>;
   summary?: Maybe<Scalars["String"]["output"]>;
-  summaryMetadata?: Maybe<AsyncTaskMetaType>;
+  summaryMetadata?: Maybe<AsyncMetadataType>;
   tags: Array<Scalars["String"]["output"]>;
   title: Scalars["String"]["output"];
   updatedAt: Scalars["DateTime"]["output"];
@@ -105,11 +105,17 @@ export type ApplicationType = {
   workRegion?: Maybe<Scalars["String"]["output"]>;
 };
 
-export type AsyncTaskMetaType = {
-  __typename?: "AsyncTaskMetaType";
+export enum AsyncMetadataStatus {
+  Completed = "COMPLETED",
+  Failed = "FAILED",
+  Processing = "PROCESSING",
+}
+
+export type AsyncMetadataType = {
+  __typename?: "AsyncMetadataType";
   error?: Maybe<Scalars["String"]["output"]>;
   generatedAt?: Maybe<Scalars["String"]["output"]>;
-  status: TaskStatus;
+  status: AsyncMetadataStatus;
 };
 
 export type CompanyType = {
@@ -614,12 +620,6 @@ export type Subscription = {
   sourceRunEvents: SourceRunEvent;
 };
 
-export enum TaskStatus {
-  Completed = "COMPLETED",
-  Failed = "FAILED",
-  Processing = "PROCESSING",
-}
-
 export type UpdateApplicationInput = {
   company?: InputMaybe<Scalars["String"]["input"]>;
   companyId?: InputMaybe<Scalars["ID"]["input"]>;
@@ -725,8 +725,8 @@ export type ApplicationsQuery = {
       description?: string | null;
     };
     summaryMetadata?: {
-      __typename?: "AsyncTaskMetaType";
-      status: TaskStatus;
+      __typename?: "AsyncMetadataType";
+      status: AsyncMetadataStatus;
       error?: string | null;
       generatedAt?: string | null;
     } | null;
@@ -779,8 +779,8 @@ export type ApplicationQuery = {
       description?: string | null;
     };
     summaryMetadata?: {
-      __typename?: "AsyncTaskMetaType";
-      status: TaskStatus;
+      __typename?: "AsyncMetadataType";
+      status: AsyncMetadataStatus;
       error?: string | null;
       generatedAt?: string | null;
     } | null;
@@ -875,8 +875,8 @@ export type UpdateApplicationMutation = {
       description?: string | null;
     };
     summaryMetadata?: {
-      __typename?: "AsyncTaskMetaType";
-      status: TaskStatus;
+      __typename?: "AsyncMetadataType";
+      status: AsyncMetadataStatus;
       error?: string | null;
       generatedAt?: string | null;
     } | null;
@@ -1110,8 +1110,8 @@ export type GenerateApplicationSummaryMutation = {
     id: string;
     summary?: string | null;
     summaryMetadata?: {
-      __typename?: "AsyncTaskMetaType";
-      status: TaskStatus;
+      __typename?: "AsyncMetadataType";
+      status: AsyncMetadataStatus;
       error?: string | null;
       generatedAt?: string | null;
     } | null;

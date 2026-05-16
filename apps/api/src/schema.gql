@@ -86,13 +86,13 @@ enum DraftApplicationConversionStatus {
   FAILED
 }
 
-type AsyncTaskMetaType {
-  status: TaskStatus!
+type AsyncMetadataType {
+  status: AsyncMetadataStatus!
   error: String
   generatedAt: String
 }
 
-enum TaskStatus {
+enum AsyncMetadataStatus {
   PROCESSING
   COMPLETED
   FAILED
@@ -117,7 +117,7 @@ type ApplicationType {
   updatedAt: DateTime!
   sourceRunId: ID
   summary: String
-  summaryMetadata: AsyncTaskMetaType
+  summaryMetadata: AsyncMetadataType
   fit: FitAnalysisType
   salary: ApplicationSalary!
 }
