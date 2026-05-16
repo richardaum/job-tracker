@@ -17,7 +17,6 @@ import { ApplicationModule } from "./domains/applications/applications.module";
 import { AuthModule } from "./domains/auth/auth.module";
 import { CompaniesModule } from "./domains/companies/companies.module";
 import { CurrencyConverterModule } from "./domains/currency-converter/currency-converter.module";
-import { DraftApplicationsModule } from "./domains/draft-applications/draft-applications.module";
 import { FitAnalysisModule } from "./domains/fit-analysis/fit-analysis.module";
 import { NotesModule } from "./domains/notes/notes.module";
 import { ResumesModule } from "./domains/resumes/resumes.module";
@@ -33,7 +32,6 @@ import { GraphqlSseMiddleware } from "./graphql/graphql-sse.middleware";
     CompaniesModule,
     CurrencyConverterModule,
     SourcesModule,
-    DraftApplicationsModule,
     NotesModule,
     ResumesModule,
     UserPreferencesModule,
