@@ -1,22 +1,22 @@
 import { Field, ObjectType, registerEnumType } from "@nestjs/graphql";
 
-export enum AsyncMetadataStatus {
+export enum AsyncMetadataStatusEnum {
   PROCESSING = "PROCESSING",
   COMPLETED = "COMPLETED",
   FAILED = "FAILED",
 }
-registerEnumType(AsyncMetadataStatus, { name: "AsyncMetadataStatus" });
+registerEnumType(AsyncMetadataStatusEnum, { name: "AsyncMetadataStatus" });
 
 export interface AsyncMetadata {
-  status: AsyncMetadataStatus;
+  status: AsyncMetadataStatusEnum;
   error?: string;
   generatedAt?: string;
 }
 
 @ObjectType()
 export class AsyncMetadataType {
-  @Field(() => AsyncMetadataStatus)
-  status!: AsyncMetadataStatus;
+  @Field(() => AsyncMetadataStatusEnum)
+  status!: AsyncMetadataStatusEnum;
 
   @Field(() => String, { nullable: true })
   error?: string | null;

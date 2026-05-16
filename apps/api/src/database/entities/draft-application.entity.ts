@@ -10,7 +10,7 @@ import {
 
 import { ApplicationEntity } from "./application.entity";
 
-export enum DraftApplicationConversionStatus {
+export enum DraftApplicationConversionStatusEnum {
   IDLE = "IDLE",
   PROCESSING = "PROCESSING",
   SUCCEEDED = "SUCCEEDED",
@@ -38,11 +38,11 @@ export class DraftApplicationEntity {
   @Column({
     name: "conversion_status",
     type: "enum",
-    enum: DraftApplicationConversionStatus,
+    enum: DraftApplicationConversionStatusEnum,
     enumName: "draft_application_conversion_status",
-    default: DraftApplicationConversionStatus.IDLE,
+    default: DraftApplicationConversionStatusEnum.IDLE,
   })
-  conversionStatus!: DraftApplicationConversionStatus;
+  conversionStatus!: DraftApplicationConversionStatusEnum;
 
   @Column({ name: "conversion_error", type: "text", nullable: true })
   conversionError!: string | null;

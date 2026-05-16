@@ -1,6 +1,6 @@
 import { ApplicationEntity } from "@api/database/entities/application.entity";
 import {
-  DraftApplicationConversionStatus,
+  DraftApplicationConversionStatusEnum,
   DraftApplicationEntity,
 } from "@api/database/entities/draft-application.entity";
 import { Injectable } from "@nestjs/common";
@@ -112,9 +112,9 @@ export class DraftApplicationsRepository {
 
   async resetStaleProcessingDrafts(): Promise<number> {
     const result = await this.draftApplicationsRepo.update(
-      { conversionStatus: DraftApplicationConversionStatus.PROCESSING },
+      { conversionStatus: DraftApplicationConversionStatusEnum.PROCESSING },
       {
-        conversionStatus: DraftApplicationConversionStatus.IDLE,
+        conversionStatus: DraftApplicationConversionStatusEnum.IDLE,
         conversionError:
           "Conversion interrupted and reset to idle after server restart.",
       },

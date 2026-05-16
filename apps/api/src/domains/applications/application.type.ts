@@ -3,7 +3,7 @@ import { FitAnalysisType } from "@api/domains/fit-analysis/fit-analysis.type";
 import { AsyncMetadataType } from "@api/domains/shared/async-metadata.type";
 import { Field, ID, ObjectType } from "@nestjs/graphql";
 
-import { ApplicationSource } from "./application-source.enum";
+import { ApplicationSourceEnum } from "./application-source.enum";
 import { ApplicationStageEnum } from "./application-stage.enum";
 
 @ObjectType()
@@ -29,8 +29,8 @@ export class ApplicationType {
   @Field(() => [String])
   urls!: string[];
 
-  @Field(() => ApplicationSource, { nullable: true })
-  source!: ApplicationSource | null;
+  @Field(() => ApplicationSourceEnum, { nullable: true })
+  source!: ApplicationSourceEnum | null;
 
   @Field(() => [String])
   tags!: string[];

@@ -1,5 +1,5 @@
 import { WithGeneratedId } from "@api/database/decorators/with-generated-id.decorator";
-import { ApplicationSource } from "@api/domains/applications/application-source.enum";
+import { ApplicationSourceEnum } from "@api/domains/applications/application-source.enum";
 import { SalaryPeriodEnum } from "@api/domains/applications/salary/salary-period.enum";
 import type { AsyncMetadata } from "@api/domains/shared/async-metadata.type";
 import {
@@ -48,11 +48,11 @@ export class ApplicationEntity {
 
   @Column({
     type: "enum",
-    enum: ApplicationSource,
+    enum: ApplicationSourceEnum,
     enumName: "application_source",
     nullable: true,
   })
-  source!: ApplicationSource | null;
+  source!: ApplicationSourceEnum | null;
 
   @Column({ name: "salary_min_cents", type: "integer", nullable: true })
   salaryMinCents!: number | null;

@@ -1,8 +1,8 @@
-import { DraftApplicationConversionStatus } from "@api/database/entities/draft-application.entity";
+import { DraftApplicationConversionStatusEnum } from "@api/database/entities/draft-application.entity";
 import { FitAnalysisType } from "@api/domains/fit-analysis/fit-analysis.type";
 import { Field, ID, ObjectType, registerEnumType } from "@nestjs/graphql";
 
-registerEnumType(DraftApplicationConversionStatus, {
+registerEnumType(DraftApplicationConversionStatusEnum, {
   name: "DraftApplicationConversionStatus",
 });
 
@@ -23,8 +23,8 @@ export class DraftApplicationType {
   @Field(() => String, { nullable: true })
   applicationId!: string | null;
 
-  @Field(() => DraftApplicationConversionStatus)
-  conversionStatus!: DraftApplicationConversionStatus;
+  @Field(() => DraftApplicationConversionStatusEnum)
+  conversionStatus!: DraftApplicationConversionStatusEnum;
 
   @Field(() => String, { nullable: true })
   conversionError!: string | null;

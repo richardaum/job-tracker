@@ -1,6 +1,6 @@
 import {
   FitItem,
-  RequirementType,
+  RequirementTypeEnum,
 } from "@api/database/entities/fit-analysis.entity";
 import { describe, expect, it } from "vitest";
 
@@ -10,7 +10,7 @@ function resumeFit(overrides?: Partial<FitItem>): FitItem {
   return {
     requirement: "test",
     source: "resume",
-    type: RequirementType.NICE_TO_HAVE,
+    type: RequirementTypeEnum.NICE_TO_HAVE,
     verdict: "fit",
     jdQuote: "JD says X",
     sourceQuotes: ["Resume says X"],
@@ -19,12 +19,12 @@ function resumeFit(overrides?: Partial<FitItem>): FitItem {
 }
 
 function mustHaveFit(overrides?: Partial<FitItem>): FitItem {
-  return resumeFit({ type: RequirementType.MUST_HAVE, ...overrides });
+  return resumeFit({ type: RequirementTypeEnum.MUST_HAVE, ...overrides });
 }
 
 function mustHaveGap(overrides?: Partial<FitItem>): FitItem {
   return resumeFit({
-    type: RequirementType.MUST_HAVE,
+    type: RequirementTypeEnum.MUST_HAVE,
     verdict: "gap",
     sourceQuotes: [],
     ...overrides,
@@ -36,7 +36,7 @@ function niceToHaveGap(overrides?: Partial<FitItem>): FitItem {
 }
 
 function softSkillFit(overrides?: Partial<FitItem>): FitItem {
-  return resumeFit({ type: RequirementType.SOFT_SKILL, ...overrides });
+  return resumeFit({ type: RequirementTypeEnum.SOFT_SKILL, ...overrides });
 }
 
 function resumeUnclear(overrides?: Partial<FitItem>): FitItem {

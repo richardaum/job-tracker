@@ -1,9 +1,9 @@
 import { DraftApplicationEntity } from "@api/database/entities/draft-application.entity";
 import {
   FitAnalysisEntity,
-  FitAnalysisStatus,
+  FitAnalysisStatusEnum,
   type FitItem,
-  RequirementType,
+  RequirementTypeEnum,
 } from "@api/database/entities/fit-analysis.entity";
 import { ResumeEntity } from "@api/database/entities/resume.entity";
 import { UserPreferencesEntity } from "@api/database/entities/user-preferences.entity";
@@ -135,7 +135,7 @@ export class FitAnalysisService implements OnModuleInit {
     entity.draftApplicationId = existing?.draftApplicationId ?? null;
     entity.userId = userId;
     entity.resumeId = resumeId;
-    entity.status = FitAnalysisStatus.PROCESSING;
+    entity.status = FitAnalysisStatusEnum.PROCESSING;
     entity.error = null;
     entity.items = [];
     entity.scoreRatio = null;
@@ -147,7 +147,7 @@ export class FitAnalysisService implements OnModuleInit {
     const saved = await this.repo.upsert(entity);
 
     this.eventBus.emit(
-      new FitStatusChanged(saved.id, userId, FitAnalysisStatus.PROCESSING),
+      new FitStatusChanged(saved.id, userId, FitAnalysisStatusEnum.PROCESSING),
     );
     this.eventBus.emit(
       new FitAnalysisRequested(saved.id, userId, { applicationId }),
@@ -188,7 +188,7 @@ export class FitAnalysisService implements OnModuleInit {
     entity.draftApplicationId = draftApplicationId;
     entity.userId = userId;
     entity.resumeId = resumeId;
-    entity.status = FitAnalysisStatus.PROCESSING;
+    entity.status = FitAnalysisStatusEnum.PROCESSING;
     entity.error = null;
     entity.items = [];
     entity.scoreRatio = null;
@@ -200,7 +200,7 @@ export class FitAnalysisService implements OnModuleInit {
     const saved = await this.repo.upsert(entity);
 
     this.eventBus.emit(
-      new FitStatusChanged(saved.id, userId, FitAnalysisStatus.PROCESSING),
+      new FitStatusChanged(saved.id, userId, FitAnalysisStatusEnum.PROCESSING),
     );
     this.eventBus.emit(
       new FitAnalysisRequested(saved.id, userId, { draftApplicationId }),
@@ -265,7 +265,7 @@ export class FitAnalysisService implements OnModuleInit {
           (i): FitItem => ({
             requirement: i.requirement,
             source: "resume",
-            type: i.type as RequirementType,
+            type: i.type as RequirementTypeEnum,
             verdict: i.verdict,
             jdQuote: i.jdQuote,
             sourceQuotes: i.sourceQuotes,
@@ -278,7 +278,7 @@ export class FitAnalysisService implements OnModuleInit {
             requirement: i.requirement,
             source: "preference",
             weight: original?.weight,
-            type: i.type as RequirementType,
+            type: i.type as RequirementTypeEnum,
             verdict: i.verdict,
             jdQuote: i.jdQuote,
             sourceQuotes: [],
@@ -291,9 +291,9 @@ export class FitAnalysisService implements OnModuleInit {
 
       const updated = await this.repo.updateById(
         fitId,
-        FitAnalysisStatus.PROCESSING,
+        FitAnalysisStatusEnum.PROCESSING,
         {
-          status: FitAnalysisStatus.COMPLETED,
+          status: FitAnalysisStatusEnum.COMPLETED,
           resumeId: resume.resumeId,
           items,
           scoreRatio: score.scoreRatio,
@@ -313,7 +313,7 @@ export class FitAnalysisService implements OnModuleInit {
       }
 
       this.eventBus.emit(
-        new FitStatusChanged(fitId, userId, FitAnalysisStatus.COMPLETED),
+        new FitStatusChanged(fitId, userId, FitAnalysisStatusEnum.COMPLETED),
       );
     });
 
@@ -325,16 +325,16 @@ export class FitAnalysisService implements OnModuleInit {
 
       await this.repo.updateById(
         fitId,
-        FitAnalysisStatus.PROCESSING,
+        FitAnalysisStatusEnum.PROCESSING,
         {
-          status: FitAnalysisStatus.FAILED,
+          status: FitAnalysisStatusEnum.FAILED,
           error: err instanceof Error ? err.message : "Unknown error",
         },
         userId,
       );
 
       this.eventBus.emit(
-        new FitStatusChanged(fitId, userId, FitAnalysisStatus.FAILED),
+        new FitStatusChanged(fitId, userId, FitAnalysisStatusEnum.FAILED),
       );
     }
   }

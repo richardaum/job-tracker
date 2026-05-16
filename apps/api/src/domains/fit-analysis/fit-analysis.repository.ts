@@ -1,6 +1,6 @@
 import {
   FitAnalysisEntity,
-  FitAnalysisStatus,
+  FitAnalysisStatusEnum,
 } from "@api/database/entities/fit-analysis.entity";
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
@@ -92,7 +92,7 @@ export class FitAnalysisRepository {
 
   async updateById(
     id: string,
-    expectedStatus: FitAnalysisStatus,
+    expectedStatus: FitAnalysisStatusEnum,
     patch: Partial<FitAnalysisEntity>,
     userId?: string,
   ): Promise<FitAnalysisEntity | null> {
@@ -106,10 +106,10 @@ export class FitAnalysisRepository {
 
   async resetStaleProcessing(): Promise<number> {
     const stale = await this.repo.find({
-      where: { status: FitAnalysisStatus.PROCESSING },
+      where: { status: FitAnalysisStatusEnum.PROCESSING },
     });
     for (const entity of stale) {
-      entity.status = FitAnalysisStatus.FAILED;
+      entity.status = FitAnalysisStatusEnum.FAILED;
       entity.error =
         "Analysis interrupted and reset to failed after server restart.";
     }

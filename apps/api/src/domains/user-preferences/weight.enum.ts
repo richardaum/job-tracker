@@ -5,4 +5,4 @@ export enum WeightEnum {
   LOW = "LOW",
 }
 
-registerEnumType(WeightEnum, { name: "WeightEnum" });
+registerEnumType(WeightEnum, { name: "Weight" });

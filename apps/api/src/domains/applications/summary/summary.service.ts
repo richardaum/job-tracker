@@ -7,7 +7,7 @@ import {
 import { ApplicationEventBus } from "@api/domains/applications/application-event.bus";
 import { ApplicationStageEnum } from "@api/domains/applications/application-stage.enum";
 import { ApplicationRepository } from "@api/domains/applications/applications.repository";
-import { AsyncMetadataStatus } from "@api/domains/shared/async-metadata.type";
+import { AsyncMetadataStatusEnum } from "@api/domains/shared/async-metadata.type";
 import { markdownToTipTap, tipTapToPlainText } from "@job-tracker/tiptap";
 import { tryRun } from "@job-tracker/try-run";
 import { Injectable, Logger } from "@nestjs/common";
@@ -37,14 +37,15 @@ export class SummaryService {
       return;
     }
 
-    if (app.summaryMetadata?.status === AsyncMetadataStatus.PROCESSING) return;
+    if (app.summaryMetadata?.status === AsyncMetadataStatusEnum.PROCESSING)
+      return;
 
     const ok = await this.appRepo.updateSummaryMetadata(
       applicationId,
       app.summaryMetadata?.status
         ? { status: app.summaryMetadata.status }
         : null,
-      { status: AsyncMetadataStatus.PROCESSING },
+      { status: AsyncMetadataStatusEnum.PROCESSING },
       userId,
     );
     if (!ok) return;
@@ -53,7 +54,7 @@ export class SummaryService {
       new SummaryStatusChanged(
         applicationId,
         userId,
-        AsyncMetadataStatus.PROCESSING,
+        AsyncMetadataStatusEnum.PROCESSING,
       ),
     );
 
@@ -67,14 +68,15 @@ export class SummaryService {
     const app = await this.appRepo.findOneByIdAndUserId(applicationId, userId);
     if (!app) return;
 
-    if (app.summaryMetadata?.status === AsyncMetadataStatus.PROCESSING) return;
+    if (app.summaryMetadata?.status === AsyncMetadataStatusEnum.PROCESSING)
+      return;
 
     const ok = await this.appRepo.updateSummaryMetadata(
       applicationId,
       app.summaryMetadata?.status
         ? { status: app.summaryMetadata.status }
         : null,
-      { status: AsyncMetadataStatus.PROCESSING },
+      { status: AsyncMetadataStatusEnum.PROCESSING },
       userId,
     );
     if (!ok) return;
@@ -83,7 +85,7 @@ export class SummaryService {
       new SummaryStatusChanged(
         applicationId,
         userId,
-        AsyncMetadataStatus.PROCESSING,
+        AsyncMetadataStatusEnum.PROCESSING,
       ),
     );
 
@@ -159,9 +161,9 @@ export class SummaryService {
 
       const ok = await this.appRepo.updateSummaryMetadata(
         applicationId,
-        { status: AsyncMetadataStatus.PROCESSING },
+        { status: AsyncMetadataStatusEnum.PROCESSING },
         {
-          status: AsyncMetadataStatus.COMPLETED,
+          status: AsyncMetadataStatusEnum.COMPLETED,
           generatedAt: new Date().toISOString(),
           error: undefined,
         },
@@ -180,7 +182,7 @@ export class SummaryService {
         new SummaryStatusChanged(
           applicationId,
           userId,
-          AsyncMetadataStatus.COMPLETED,
+          AsyncMetadataStatusEnum.COMPLETED,
         ),
       );
     });
@@ -192,9 +194,9 @@ export class SummaryService {
       );
       await this.appRepo.updateSummaryMetadata(
         applicationId,
-        { status: AsyncMetadataStatus.PROCESSING },
+        { status: AsyncMetadataStatusEnum.PROCESSING },
         {
-          status: AsyncMetadataStatus.FAILED,
+          status: AsyncMetadataStatusEnum.FAILED,
           error: err instanceof Error ? err.message : "Unknown error",
         },
         userId,
@@ -204,7 +206,7 @@ export class SummaryService {
         new SummaryStatusChanged(
           applicationId,
           userId,
-          AsyncMetadataStatus.FAILED,
+          AsyncMetadataStatusEnum.FAILED,
         ),
       );
     }

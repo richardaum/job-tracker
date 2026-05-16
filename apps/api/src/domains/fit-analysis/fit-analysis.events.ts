@@ -1,4 +1,4 @@
-import { FitAnalysisStatus } from "@api/database/entities/fit-analysis.entity";
+import { FitAnalysisStatusEnum } from "@api/database/entities/fit-analysis.entity";
 import { DomainEvent } from "@api/lib/domain-event";
 
 export class FitStatusChanged extends DomainEvent {
@@ -7,7 +7,7 @@ export class FitStatusChanged extends DomainEvent {
   constructor(
     readonly fitId: string,
     readonly userId: string,
-    readonly status: FitAnalysisStatus,
+    readonly status: FitAnalysisStatusEnum,
   ) {
     super();
   }

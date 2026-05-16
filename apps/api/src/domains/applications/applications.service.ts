@@ -1,4 +1,4 @@
-import { DraftApplicationConversionStatus } from "@api/database/entities/draft-application.entity";
+import { DraftApplicationConversionStatusEnum } from "@api/database/entities/draft-application.entity";
 import { FitAnalysisEntity } from "@api/database/entities/fit-analysis.entity";
 import { SourceRunEntity } from "@api/database/entities/source-run.entity";
 import { CompanyDescriptionService } from "@api/domains/companies/ai/company-description.service";
@@ -28,8 +28,8 @@ import { ApplicationCreated, ApplicationUpdated } from "./application.events";
 import { APPLICATION_DUPLICATE_PAIRING_WINDOW_MS } from "./application-duplicate.constants";
 import { ApplicationEventBus } from "./application-event.bus";
 import { ApplicationQuickFilterEnum } from "./application-quick-filter.enum";
-import { ApplicationSource } from "./application-source.enum";
-import { inferApplicationSourceFromUrls } from "./application-source.util";
+import { ApplicationSourceEnum } from "./application-source.enum";
+import { inferApplicationSourceEnumFromUrls } from "./application-source.util";
 import { ApplicationStageEnum } from "./application-stage.enum";
 import { ApplicationStageEvent } from "./application-stage-events.schema";
 import {
@@ -48,7 +48,7 @@ type CreateDto = {
   companyId?: string | null;
   description?: string | null;
   urls?: string[] | null;
-  source?: ApplicationSource | null;
+  source?: ApplicationSourceEnum | null;
   salaryMinCents?: number | null;
   salaryMaxCents?: number | null;
   salaryCurrency?: string | null;
@@ -215,7 +215,7 @@ export class ApplicationService {
       source:
         dto.source !== undefined
           ? dto.source
-          : inferApplicationSourceFromUrls(normalizedUrls),
+          : inferApplicationSourceEnumFromUrls(normalizedUrls),
       tags,
       location: dto.location ?? null,
       workRegion: dto.workRegion ?? null,
@@ -263,7 +263,7 @@ export class ApplicationService {
   ): Promise<DraftApplicationType> {
     const draft = await this.draftApplicationsService.findOne(draftId, userId);
     if (
-      draft.conversionStatus === DraftApplicationConversionStatus.PROCESSING
+      draft.conversionStatus === DraftApplicationConversionStatusEnum.PROCESSING
     ) {
       throw new BadRequestException("Draft conversion is already in progress.");
     }
@@ -272,7 +272,7 @@ export class ApplicationService {
       draftId,
       userId,
       {
-        conversionStatus: DraftApplicationConversionStatus.PROCESSING,
+        conversionStatus: DraftApplicationConversionStatusEnum.PROCESSING,
         conversionError: null,
       },
     );
@@ -281,7 +281,7 @@ export class ApplicationService {
       new DraftConversionStatusChanged(
         draftId,
         userId,
-        DraftApplicationConversionStatus.PROCESSING,
+        DraftApplicationConversionStatusEnum.PROCESSING,
       ),
     );
 
@@ -366,14 +366,14 @@ export class ApplicationService {
           appliedError.stack,
         );
         await this.draftApplicationsService.update(draftId, userId, {
-          conversionStatus: DraftApplicationConversionStatus.FAILED,
+          conversionStatus: DraftApplicationConversionStatusEnum.FAILED,
           conversionError: appliedError.message,
         });
         this.draftEventBus.emit(
           new DraftConversionStatusChanged(
             draftId,
             userId,
-            DraftApplicationConversionStatus.FAILED,
+            DraftApplicationConversionStatusEnum.FAILED,
           ),
         );
         return;
@@ -385,7 +385,7 @@ export class ApplicationService {
 
     await this.draftApplicationsService.update(draftId, userId, {
       title: normalizedDraftTitle,
-      conversionStatus: DraftApplicationConversionStatus.SUCCEEDED,
+      conversionStatus: DraftApplicationConversionStatusEnum.SUCCEEDED,
       conversionError: null,
       convertedAt: new Date(),
     });
@@ -394,7 +394,7 @@ export class ApplicationService {
       new DraftConversionStatusChanged(
         draftId,
         userId,
-        DraftApplicationConversionStatus.SUCCEEDED,
+        DraftApplicationConversionStatusEnum.SUCCEEDED,
       ),
     );
   }
@@ -472,7 +472,7 @@ export class ApplicationService {
       ...(dto.source !== undefined
         ? { source: dto.source }
         : normalizedUrls !== undefined
-          ? { source: inferApplicationSourceFromUrls(normalizedUrls) }
+          ? { source: inferApplicationSourceEnumFromUrls(normalizedUrls) }
           : {}),
       ...(tags !== undefined ? { tags } : {}),
       ...(dto.location !== undefined ? { location: dto.location } : {}),
@@ -618,7 +618,7 @@ export class ApplicationService {
   ): Promise<void> {
     const [updateError] = await tryRun(
       this.draftApplicationsService.update(draftId, userId, {
-        conversionStatus: DraftApplicationConversionStatus.FAILED,
+        conversionStatus: DraftApplicationConversionStatusEnum.FAILED,
         conversionError: errorMessage,
       }),
     );
@@ -632,7 +632,7 @@ export class ApplicationService {
       new DraftConversionStatusChanged(
         draftId,
         userId,
-        DraftApplicationConversionStatus.FAILED,
+        DraftApplicationConversionStatusEnum.FAILED,
       ),
     );
   }

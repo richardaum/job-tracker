@@ -1,5 +1,5 @@
 import {
-  FitAnalysisStatus,
+  FitAnalysisStatusEnum,
   type FitItem,
 } from "@api/database/entities/fit-analysis.entity";
 import {
@@ -13,7 +13,7 @@ import {
 
 import { FitItemType } from "./fit-item.type";
 
-registerEnumType(FitAnalysisStatus, { name: "FitAnalysisStatus" });
+registerEnumType(FitAnalysisStatusEnum, { name: "FitAnalysisStatus" });
 
 @ObjectType()
 export class FitAnalysisType {
@@ -29,8 +29,8 @@ export class FitAnalysisType {
   @Field(() => ID)
   resumeId!: string;
 
-  @Field(() => FitAnalysisStatus)
-  status!: FitAnalysisStatus;
+  @Field(() => FitAnalysisStatusEnum)
+  status!: FitAnalysisStatusEnum;
 
   @Field(() => String, { nullable: true })
   error!: string | null;

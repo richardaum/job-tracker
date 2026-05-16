@@ -7,7 +7,7 @@ import { ApplicationStageEventEntity } from "@api/database/entities/application-
 import { DraftApplicationEntity } from "@api/database/entities/draft-application.entity";
 import {
   FitAnalysisEntity,
-  FitAnalysisStatus,
+  FitAnalysisStatusEnum,
 } from "@api/database/entities/fit-analysis.entity";
 import { ResumeEntity } from "@api/database/entities/resume.entity";
 import { UserEntity } from "@api/database/entities/user.entity";
@@ -181,7 +181,7 @@ async function main() {
   const skipResults = await Promise.all(
     appsToProcess.map(async (app) => {
       const existing = await fitRepo.findByApplicationId(app.id);
-      const skip = existing?.status === FitAnalysisStatus.COMPLETED;
+      const skip = existing?.status === FitAnalysisStatusEnum.COMPLETED;
       if (skip) console.log(`  SKIP  ${app.title} — fit already completed`);
       return { app, skip };
     }),
@@ -265,9 +265,9 @@ async function main() {
       const entity = await fitRepo.findByApplicationId(id);
       if (!entity) continue;
 
-      if (entity.status === FitAnalysisStatus.COMPLETED) {
+      if (entity.status === FitAnalysisStatusEnum.COMPLETED) {
         completed.add(id);
-      } else if (entity.status === FitAnalysisStatus.FAILED) {
+      } else if (entity.status === FitAnalysisStatusEnum.FAILED) {
         failed.add(id);
       }
     }
@@ -281,13 +281,13 @@ async function main() {
       console.log(`  ${app.title} @ ${app.companyName}: UNKNOWN`);
       continue;
     }
-    if (entity.status === FitAnalysisStatus.COMPLETED) {
+    if (entity.status === FitAnalysisStatusEnum.COMPLETED) {
       const scorePct =
         entity.scoreRatio != null ? `${Math.round(entity.scoreRatio)}%` : "N/A";
       console.log(
         `  OK    ${app.title} @ ${app.companyName} — ${scorePct} (${entity.classification ?? "N/A"})`,
       );
-    } else if (entity.status === FitAnalysisStatus.FAILED) {
+    } else if (entity.status === FitAnalysisStatusEnum.FAILED) {
       console.log(
         `  FAIL  ${app.title} @ ${app.companyName} — ${entity.error ?? "Unknown error"}`,
       );

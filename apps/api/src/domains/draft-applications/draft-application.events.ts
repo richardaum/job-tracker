@@ -1,4 +1,4 @@
-import { DraftApplicationConversionStatus } from "@api/database/entities/draft-application.entity";
+import { DraftApplicationConversionStatusEnum } from "@api/database/entities/draft-application.entity";
 import { DomainEvent } from "@api/lib/domain-event";
 
 export class DraftConversionStatusChanged extends DomainEvent {
@@ -7,7 +7,7 @@ export class DraftConversionStatusChanged extends DomainEvent {
   constructor(
     readonly draftId: string,
     readonly userId: string,
-    readonly status: DraftApplicationConversionStatus,
+    readonly status: DraftApplicationConversionStatusEnum,
   ) {
     super();
   }

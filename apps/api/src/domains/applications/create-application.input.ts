@@ -1,6 +1,6 @@
 import { Field, ID, InputType, Int } from "@nestjs/graphql";
 
-import { ApplicationSource } from "./application-source.enum";
+import { ApplicationSourceEnum } from "./application-source.enum";
 import { SalaryPeriodEnum } from "./salary/salary-period.enum";
 
 @InputType()
@@ -20,8 +20,8 @@ export class CreateApplicationInput {
   @Field(() => [String], { nullable: true })
   urls?: string[] | null;
 
-  @Field(() => ApplicationSource, { nullable: true })
-  source?: ApplicationSource | null;
+  @Field(() => ApplicationSourceEnum, { nullable: true })
+  source?: ApplicationSourceEnum | null;
 
   @Field(() => Int, { nullable: true })
   salaryMinCents?: number | null;

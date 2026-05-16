@@ -89,7 +89,7 @@ enum DraftApplicationConversionStatus {
 type AsyncMetadataType {
   status: AsyncMetadataStatus!
   error: String
-  generatedAt: String
+  generatedAt: String!
 }
 
 enum AsyncMetadataStatus {
@@ -240,10 +240,10 @@ enum SourceRunEventType {
 
 type PreferenceType {
   text: String!
-  weight: WeightEnum!
+  weight: Weight!
 }
 
-enum WeightEnum {
+enum Weight {
   HIGH
   LOW
 }
@@ -430,7 +430,7 @@ input UpdateResumeInput {
 
 input PreferenceInput {
   text: String!
-  weight: WeightEnum!
+  weight: Weight!
 }
 
 input GenerateFitInput {

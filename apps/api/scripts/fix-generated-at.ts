@@ -5,7 +5,7 @@ import { buildDataSourceOptions } from "@api/database/data-source-options";
 import { ApplicationEntity } from "@api/database/entities/application.entity";
 import {
   AsyncMetadata,
-  AsyncMetadataStatus,
+  AsyncMetadataStatusEnum,
 } from "@api/domains/shared/async-metadata.type";
 import { tryRun } from "@job-tracker/try-run";
 import { Module } from "@nestjs/common";
@@ -53,7 +53,7 @@ async function main() {
   });
   const fix1 = appsWithMeta.filter(
     (a) =>
-      a.summaryMetadata?.status === AsyncMetadataStatus.COMPLETED &&
+      a.summaryMetadata?.status === AsyncMetadataStatusEnum.COMPLETED &&
       !a.summaryMetadata.generatedAt,
   );
 
@@ -96,7 +96,7 @@ async function main() {
     let fail2 = 0;
     for (const app of appsWithSummary) {
       app.summaryMetadata = {
-        status: AsyncMetadataStatus.COMPLETED,
+        status: AsyncMetadataStatusEnum.COMPLETED,
         generatedAt: nowUtcIso(),
       };
       const [err] = await tryRun(repo.save(app));

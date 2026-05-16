@@ -2,7 +2,7 @@ import { ApplicationEntity } from "@api/database/entities/application.entity";
 import { ApplicationStageEventEntity } from "@api/database/entities/application-stage-event.entity";
 import { DraftApplicationEntity } from "@api/database/entities/draft-application.entity";
 import type { AsyncMetadata } from "@api/domains/shared/async-metadata.type";
-import { AsyncMetadataStatus } from "@api/domains/shared/async-metadata.type";
+import { AsyncMetadataStatusEnum } from "@api/domains/shared/async-metadata.type";
 import { tipTapToPlainText } from "@job-tracker/tiptap";
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
@@ -462,10 +462,10 @@ export class ApplicationRepository {
       .update()
       .set({
         summaryMetadata: () =>
-          `'{"status": "${AsyncMetadataStatus.FAILED}", "error": "Server restart"}'::jsonb`,
+          `'{"status": "${AsyncMetadataStatusEnum.FAILED}", "error": "Server restart"}'::jsonb`,
       })
       .where(`"summary_metadata"->>'status' = :processing`, {
-        processing: AsyncMetadataStatus.PROCESSING,
+        processing: AsyncMetadataStatusEnum.PROCESSING,
       })
       .execute();
     return result.affected ?? 0;

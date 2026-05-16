@@ -1,6 +1,6 @@
 import "reflect-metadata";
 
-import { DraftApplicationConversionStatus } from "@api/database/entities/draft-application.entity";
+import { DraftApplicationConversionStatusEnum } from "@api/database/entities/draft-application.entity";
 import { JwtAuthGuard } from "@api/domains/auth/jwt-auth.guard";
 import { RolesGuard } from "@api/domains/auth/roles.guard";
 import type { ApolloDriverConfig } from "@nestjs/apollo";
@@ -47,7 +47,7 @@ const mockDraft = {
   url: "https://example.com/jobs/1",
   title: "Draft title",
   htmlContent: "<p>Posting</p>",
-  conversionStatus: DraftApplicationConversionStatus.PROCESSING,
+  conversionStatus: DraftApplicationConversionStatusEnum.PROCESSING,
   conversionError: null,
 };
 

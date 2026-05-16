@@ -1,9 +1,9 @@
-import { RequirementType } from "@api/database/entities/fit-analysis.entity";
+import { RequirementTypeEnum } from "@api/database/entities/fit-analysis.entity";
 import { z } from "zod";
 
 export const resumeFitItemSchema = z.object({
   requirement: z.string(),
-  type: z.enum(Object.values(RequirementType) as [string, ...string[]]),
+  type: z.enum(Object.values(RequirementTypeEnum) as [string, ...string[]]),
   verdict: z.enum(["fit", "gap", "unclear"]),
   jdQuote: z.string(),
   sourceQuotes: z.array(z.string()),
@@ -18,7 +18,7 @@ export type ResumeFitItemParsed = z.infer<typeof resumeFitItemSchema>;
 
 export const preferenceFitItemSchema = z.object({
   requirement: z.string(),
-  type: z.enum(Object.values(RequirementType) as [string, ...string[]]),
+  type: z.enum(Object.values(RequirementTypeEnum) as [string, ...string[]]),
   verdict: z.enum(["fit", "gap", "unclear"]),
   jdQuote: z.string(),
   suggestion: z.string().nullable(),

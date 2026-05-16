@@ -11,7 +11,7 @@ import {
 
 import { DraftApplicationEntity } from "./draft-application.entity";
 
-export enum RequirementType {
+export enum RequirementTypeEnum {
   MUST_HAVE = "MUST_HAVE",
   NICE_TO_HAVE = "NICE_TO_HAVE",
   SOFT_SKILL = "SOFT_SKILL",
@@ -21,7 +21,7 @@ export interface FitItem {
   requirement: string;
   source: "resume" | "preference";
   weight?: "high" | "low";
-  type: RequirementType;
+  type: RequirementTypeEnum;
   verdict: "fit" | "gap" | "unclear";
   jdQuote: string;
   sourceQuotes: string[];
@@ -30,7 +30,7 @@ export interface FitItem {
 
 export type FitClassification = "positive" | "neutral" | "negative";
 
-export enum FitAnalysisStatus {
+export enum FitAnalysisStatusEnum {
   PROCESSING = "PROCESSING",
   COMPLETED = "COMPLETED",
   FAILED = "FAILED",
@@ -64,11 +64,11 @@ export class FitAnalysisEntity {
   @Column({
     name: "status",
     type: "enum",
-    enum: FitAnalysisStatus,
+    enum: FitAnalysisStatusEnum,
     enumName: "fit_analysis_status",
-    default: FitAnalysisStatus.COMPLETED,
+    default: FitAnalysisStatusEnum.COMPLETED,
   })
-  status!: FitAnalysisStatus;
+  status!: FitAnalysisStatusEnum;
 
   @Column({ name: "error", type: "text", nullable: true })
   error!: string | null;

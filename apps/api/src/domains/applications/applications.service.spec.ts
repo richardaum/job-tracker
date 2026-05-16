@@ -1,4 +1,4 @@
-import { DraftApplicationConversionStatus } from "@api/database/entities/draft-application.entity";
+import { DraftApplicationConversionStatusEnum } from "@api/database/entities/draft-application.entity";
 import { FitAnalysisEntity } from "@api/database/entities/fit-analysis.entity";
 import { SourceRunEntity } from "@api/database/entities/source-run.entity";
 import { CompanyDescriptionService } from "@api/domains/companies/ai/company-description.service";
@@ -327,7 +327,7 @@ describe("ApplicationService", () => {
       title: "Page title",
       url: "https://jobs.example.com/x",
       htmlContent: "<p>Posting</p>",
-      conversionStatus: DraftApplicationConversionStatus.IDLE,
+      conversionStatus: DraftApplicationConversionStatusEnum.IDLE,
       conversionError: null,
       convertedAt: null,
       createdAt: new Date(),
@@ -342,7 +342,8 @@ describe("ApplicationService", () => {
           url: "https://jobs.example.com/x",
           htmlContent: "<p>Posting</p>",
           conversionStatus:
-            patch?.conversionStatus ?? DraftApplicationConversionStatus.IDLE,
+            patch?.conversionStatus ??
+            DraftApplicationConversionStatusEnum.IDLE,
           conversionError: patch?.conversionError ?? null,
           convertedAt: null,
           createdAt: new Date(),
@@ -356,13 +357,13 @@ describe("ApplicationService", () => {
     const result = await service.createApplicationWithAI("user-1", "draft-1");
 
     expect(result.conversionStatus).toBe(
-      DraftApplicationConversionStatus.PROCESSING,
+      DraftApplicationConversionStatusEnum.PROCESSING,
     );
     expect(draftApplicationsService.update).toHaveBeenCalledWith(
       "draft-1",
       "user-1",
       {
-        conversionStatus: DraftApplicationConversionStatus.PROCESSING,
+        conversionStatus: DraftApplicationConversionStatusEnum.PROCESSING,
         conversionError: null,
       },
     );
@@ -376,7 +377,7 @@ describe("ApplicationService", () => {
       title: "Page title",
       url: "https://jobs.example.com/x",
       htmlContent: "<p>Posting</p>",
-      conversionStatus: DraftApplicationConversionStatus.IDLE,
+      conversionStatus: DraftApplicationConversionStatusEnum.IDLE,
       conversionError: null,
       convertedAt: null,
       createdAt: new Date(),
@@ -390,7 +391,8 @@ describe("ApplicationService", () => {
         ({
           ...draft,
           conversionStatus:
-            patch?.conversionStatus ?? DraftApplicationConversionStatus.IDLE,
+            patch?.conversionStatus ??
+            DraftApplicationConversionStatusEnum.IDLE,
           conversionError: patch?.conversionError ?? null,
           convertedAt: patch?.convertedAt ?? null,
         }) as never,
@@ -429,7 +431,8 @@ describe("ApplicationService", () => {
         ({
           ...draft,
           conversionStatus:
-            patch?.conversionStatus ?? DraftApplicationConversionStatus.IDLE,
+            patch?.conversionStatus ??
+            DraftApplicationConversionStatusEnum.IDLE,
           conversionError: patch?.conversionError ?? null,
           convertedAt: patch?.convertedAt ?? null,
         }) as never,
@@ -485,7 +488,7 @@ describe("ApplicationService", () => {
         "draft-1",
         "user-1",
         expect.objectContaining({
-          conversionStatus: DraftApplicationConversionStatus.SUCCEEDED,
+          conversionStatus: DraftApplicationConversionStatusEnum.SUCCEEDED,
         }),
       );
     });
@@ -525,7 +528,7 @@ describe("ApplicationService", () => {
       title: "Page title",
       url: "https://jobs.example.com/x",
       htmlContent: "<p>Posting</p>",
-      conversionStatus: DraftApplicationConversionStatus.IDLE,
+      conversionStatus: DraftApplicationConversionStatusEnum.IDLE,
       conversionError: null,
       convertedAt: null,
       createdAt: new Date(),
@@ -539,7 +542,8 @@ describe("ApplicationService", () => {
         ({
           ...draft,
           conversionStatus:
-            patch?.conversionStatus ?? DraftApplicationConversionStatus.IDLE,
+            patch?.conversionStatus ??
+            DraftApplicationConversionStatusEnum.IDLE,
           conversionError: patch?.conversionError ?? null,
         }) as never,
     );
@@ -596,7 +600,7 @@ describe("ApplicationService", () => {
         "draft-1",
         "user-1",
         expect.objectContaining({
-          conversionStatus: DraftApplicationConversionStatus.SUCCEEDED,
+          conversionStatus: DraftApplicationConversionStatusEnum.SUCCEEDED,
         }),
       );
     });

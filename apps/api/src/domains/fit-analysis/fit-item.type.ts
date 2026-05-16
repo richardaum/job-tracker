@@ -1,12 +1,12 @@
 import {
   FitItem,
-  RequirementType,
+  RequirementTypeEnum,
 } from "@api/database/entities/fit-analysis.entity";
 import { Field, ObjectType, registerEnumType } from "@nestjs/graphql";
 
 export type FitItemTypeRepresentation = FitItem;
 
-registerEnumType(RequirementType, { name: "RequirementType" });
+registerEnumType(RequirementTypeEnum, { name: "RequirementType" });
 
 @ObjectType()
 export class FitItemType {
@@ -20,7 +20,7 @@ export class FitItemType {
   weight?: "high" | "low";
 
   @Field(() => String)
-  type!: RequirementType;
+  type!: RequirementTypeEnum;
 
   @Field()
   verdict!: "fit" | "gap" | "unclear";
