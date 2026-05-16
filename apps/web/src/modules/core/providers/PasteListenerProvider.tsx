@@ -27,11 +27,21 @@ export function PasteListenerProvider({ children }: { children: ReactNode }) {
 
   const handlePasteCapture = useCallback((event: ClipboardEvent) => {
     const target = event.target;
-    if (
-      target instanceof Element &&
-      target.closest("input, textarea, [contenteditable='true']")
-    ) {
-      return;
+    if (target instanceof Element) {
+      // Skip paste events originating from input, textarea, or contenteditable elements
+      if (target.closest("input, textarea, [contenteditable='true']")) {
+        return;
+      }
+      // Skip paste when focus is inside a TipTap/ProseMirror editor
+      // Covers cases where event.target is a wrapper but activeElement is the editor
+      const active = document.activeElement;
+      if (
+        active instanceof Element &&
+        (active.closest(".ProseMirror, [contenteditable='true']") ||
+          active.classList.contains("ProseMirror"))
+      ) {
+        return;
+      }
     }
 
     const plainText = event.clipboardData?.getData("text/plain").trim();

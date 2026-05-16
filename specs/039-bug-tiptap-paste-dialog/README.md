@@ -84,13 +84,33 @@ The following should be investigated:
 
 ## Fix
 
-Once root cause is identified:
+**Root cause**: The `event.target` of a paste event inside a TipTap editor is not always the `.ProseMirror` contenteditable div. ProseMirror's internal DOM management, portal-based dropdowns, and focus restoration in dialogs can cause the paste event to target a wrapper element outside the contenteditable subtree.
 
-- **Option A** — Tighten the exclusion selector: add ProseMirror-specific selectors like `.ProseMirror`, or check `event.target` is within the editor DOM.
+**Solution implemented** (Option A + C hybrid):
 
-- **Option B** — Use capture phase: register the paste listener in capture phase and check `event.target` earlier in the propagation chain, before ProseMirror manipulates the DOM.
+In addition to the existing `target.closest()` check, also verify `document.activeElement`. If the currently focused element is inside `.ProseMirror` or any `[contenteditable='true']`, skip the global paste handler. This covers:
 
-- **Option C** — Delegate to TipTap: if the editor is the active/focused element, skip the global paste handler entirely.
+- Paste while focused on `.ProseMirror` (normal editor usage)
+- Paste after interacting with toolbar buttons that return focus to the editor
+- Paste inside dialogs where focus restoration targets a non-contenteditable element
+- Paste while a TipTap dropdown/portal is open but the editor retains logical focus
+
+```ts
+// Skip paste when focus is inside a TipTap/ProseMirror editor
+const active = document.activeElement;
+if (
+  active instanceof Element &&
+  (active.closest(".ProseMirror, [contenteditable='true']") ||
+    active.classList.contains("ProseMirror"))
+) {
+  return;
+}
+```
+
+- [x] Reproduce the bug and identify the exact scenario (editor type, focus state, browser)
+- [x] Add debug logging to `PasteListenerProvider` to log `event.target` and `closest()` result on paste
+- [x] Determine root cause
+- [x] Implement fix (refining the exclusion check in `PasteListenerProvider`)
 
 ## Test
 
@@ -99,6 +119,7 @@ Once root cause is identified:
 - [ ] Paste inside `<input>` / `<textarea>` → no dialog
 - [ ] Paste inside TipTap toolbar → no dialog (or dialog if intentional)
 - [ ] Paste inside TipTap inside a dialog → content is inserted, no dialog
+- [ ] Paste after clicking toolbar button then immediately Cmd+V → content is inserted, no dialog
 
 ## Notes
 
