@@ -1,4 +1,4 @@
-import { TaskStatus } from "@api/domains/shared/async-task-meta.type";
+import { AsyncMetadataStatus } from "@api/domains/shared/async-metadata.type";
 import { DomainEvent } from "@api/lib/domain-event";
 
 export class ApplicationCreated extends DomainEvent {
@@ -29,7 +29,7 @@ export class SummaryStatusChanged extends DomainEvent {
   constructor(
     readonly applicationId: string,
     readonly userId: string,
-    readonly status: TaskStatus,
+    readonly status: AsyncMetadataStatus,
   ) {
     super();
   }

@@ -6,7 +6,7 @@ import {
 } from "@api/domains/applications/application.events";
 import { ApplicationEventBus } from "@api/domains/applications/application-event.bus";
 import { ApplicationRepository } from "@api/domains/applications/applications.repository";
-import { TaskStatus } from "@api/domains/shared/async-task-meta.type";
+import { AsyncMetadataStatus } from "@api/domains/shared/async-metadata.type";
 import { markdownToTipTap, tipTapToPlainText } from "@job-tracker/tiptap";
 import { tryRun } from "@job-tracker/try-run";
 import { Injectable, Logger } from "@nestjs/common";
@@ -36,20 +36,24 @@ export class SummaryService {
       return;
     }
 
-    if (app.summaryMetadata?.status === TaskStatus.PROCESSING) return;
+    if (app.summaryMetadata?.status === AsyncMetadataStatus.PROCESSING) return;
 
     const ok = await this.appRepo.updateSummaryMetadata(
       applicationId,
       app.summaryMetadata?.status
         ? { status: app.summaryMetadata.status }
         : null,
-      { status: TaskStatus.PROCESSING },
+      { status: AsyncMetadataStatus.PROCESSING },
       userId,
     );
     if (!ok) return;
 
     this.eventBus.emit(
-      new SummaryStatusChanged(applicationId, userId, TaskStatus.PROCESSING),
+      new SummaryStatusChanged(
+        applicationId,
+        userId,
+        AsyncMetadataStatus.PROCESSING,
+      ),
     );
 
     this.eventBus.emit(new SummaryGenerationRequested(applicationId, userId));
@@ -62,20 +66,24 @@ export class SummaryService {
     const app = await this.appRepo.findOneByIdAndUserId(applicationId, userId);
     if (!app) return;
 
-    if (app.summaryMetadata?.status === TaskStatus.PROCESSING) return;
+    if (app.summaryMetadata?.status === AsyncMetadataStatus.PROCESSING) return;
 
     const ok = await this.appRepo.updateSummaryMetadata(
       applicationId,
       app.summaryMetadata?.status
         ? { status: app.summaryMetadata.status }
         : null,
-      { status: TaskStatus.PROCESSING },
+      { status: AsyncMetadataStatus.PROCESSING },
       userId,
     );
     if (!ok) return;
 
     this.eventBus.emit(
-      new SummaryStatusChanged(applicationId, userId, TaskStatus.PROCESSING),
+      new SummaryStatusChanged(
+        applicationId,
+        userId,
+        AsyncMetadataStatus.PROCESSING,
+      ),
     );
 
     this.eventBus.emit(new SummaryGenerationRequested(applicationId, userId));
@@ -150,9 +158,9 @@ export class SummaryService {
 
       const ok = await this.appRepo.updateSummaryMetadata(
         applicationId,
-        { status: TaskStatus.PROCESSING },
+        { status: AsyncMetadataStatus.PROCESSING },
         {
-          status: TaskStatus.COMPLETED,
+          status: AsyncMetadataStatus.COMPLETED,
           generatedAt: new Date().toISOString(),
           error: undefined,
         },
@@ -168,7 +176,11 @@ export class SummaryService {
       await this.appRepo.updateSummary(applicationId, tipTapJson, userId);
 
       this.eventBus.emit(
-        new SummaryStatusChanged(applicationId, userId, TaskStatus.COMPLETED),
+        new SummaryStatusChanged(
+          applicationId,
+          userId,
+          AsyncMetadataStatus.COMPLETED,
+        ),
       );
     });
 
@@ -179,16 +191,20 @@ export class SummaryService {
       );
       await this.appRepo.updateSummaryMetadata(
         applicationId,
-        { status: TaskStatus.PROCESSING },
+        { status: AsyncMetadataStatus.PROCESSING },
         {
-          status: TaskStatus.FAILED,
+          status: AsyncMetadataStatus.FAILED,
           error: err instanceof Error ? err.message : "Unknown error",
         },
         userId,
       );
 
       this.eventBus.emit(
-        new SummaryStatusChanged(applicationId, userId, TaskStatus.FAILED),
+        new SummaryStatusChanged(
+          applicationId,
+          userId,
+          AsyncMetadataStatus.FAILED,
+        ),
       );
     }
   }

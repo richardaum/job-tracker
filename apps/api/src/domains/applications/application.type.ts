@@ -1,6 +1,6 @@
 import { CompanyType } from "@api/domains/companies/company.type";
 import { FitAnalysisType } from "@api/domains/fit-analysis/fit-analysis.type";
-import { AsyncTaskMetaType } from "@api/domains/shared/async-task-meta.type";
+import { AsyncMetadataType } from "@api/domains/shared/async-metadata.type";
 import { Field, ID, ObjectType } from "@nestjs/graphql";
 
 import { ApplicationSource } from "./application-source.enum";
@@ -68,8 +68,8 @@ export class ApplicationType {
   @Field(() => String, { nullable: true })
   summary!: string | null;
 
-  @Field(() => AsyncTaskMetaType, { nullable: true })
-  summaryMetadata?: AsyncTaskMetaType | null;
+  @Field(() => AsyncMetadataType, { nullable: true })
+  summaryMetadata?: AsyncMetadataType | null;
 
   @Field(() => FitAnalysisType, { nullable: true })
   fit?: FitAnalysisType;
