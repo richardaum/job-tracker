@@ -139,7 +139,10 @@ function PreferenceRow({
         <Input
           ref={inputRef}
           value={pref.text}
-          onChange={(e) => onUpdate(pref.id, { text: e.target.value })}
+          onChange={(e) =>
+            onUpdate(pref.id, { text: e.target.value.slice(0, 255) })
+          }
+          maxLength={255}
           placeholder="e.g. Remote-first company"
           className={cn("flex-1")}
         />
