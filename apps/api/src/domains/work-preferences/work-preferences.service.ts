@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 
-import { UserPreferencesRepository } from "./user-preferences.repository";
 import { WeightEnum } from "./weight.enum";
+import { WorkPreferencesRepository } from "./work-preferences.repository";
 
 interface PreferenceItemDto {
   text: string;
@@ -9,8 +9,8 @@ interface PreferenceItemDto {
 }
 
 @Injectable()
-export class UserPreferencesService {
-  constructor(private readonly repo: UserPreferencesRepository) {}
+export class WorkPreferencesService {
+  constructor(private readonly repo: WorkPreferencesRepository) {}
 
   async findPreferences(userId: string): Promise<PreferenceItemDto[]> {
     const prefs = await this.repo.findByUserId(userId);

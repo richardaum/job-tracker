@@ -9,8 +9,8 @@ import {
   type FitItem,
   RequirementTypeEnum,
 } from "@api/database/entities/fit-analysis.entity";
-import type { PreferenceItem } from "@api/database/entities/user-preferences.entity";
-import { UserPreferencesEntity } from "@api/database/entities/user-preferences.entity";
+import type { PreferenceItem } from "@api/database/entities/work-preferences.entity";
+import { WorkPreferencesEntity } from "@api/database/entities/work-preferences.entity";
 import { AsyncMetadataStatusEnum } from "@api/domains/shared/async-metadata.type";
 import { tryRun } from "@job-tracker/try-run";
 import { Module } from "@nestjs/common";
@@ -26,7 +26,7 @@ import { EntityManager } from "typeorm";
     TypeOrmModule.forFeature([
       ApplicationEntity,
       FitAnalysisEntity,
-      UserPreferencesEntity,
+      WorkPreferencesEntity,
       ApplicationStageEventEntity,
     ]),
   ],
@@ -139,11 +139,11 @@ async function fixJsonbFields(
     process.stdout.write(`✓ ${ok3} fixed\n`);
   }
 
-  // 4. user_preferences items -> weight
+  // 4. work_preferences items -> weight
   process.stdout.write(
-    `  ${prefix}user_preferences items -> weight (lower -> UPPER)... `,
+    `  ${prefix}work_preferences items -> weight (lower -> UPPER)... `,
   );
-  const prefsRepo = em.getRepository(UserPreferencesEntity);
+  const prefsRepo = em.getRepository(WorkPreferencesEntity);
   const allPrefs = await prefsRepo.find();
   const fixPrefWeight = allPrefs.filter((e) =>
     e.items?.some((i) => i.weight && i.weight !== upper(i.weight)),

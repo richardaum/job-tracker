@@ -1,6 +1,6 @@
 import { FitAnalysisEntity } from "@api/database/entities/fit-analysis.entity";
 import { ResumeEntity } from "@api/database/entities/resume.entity";
-import { UserPreferencesEntity } from "@api/database/entities/user-preferences.entity";
+import { WorkPreferencesEntity } from "@api/database/entities/work-preferences.entity";
 import { ApplicationModule } from "@api/domains/applications/applications.module";
 import { AuthModule } from "@api/domains/auth/auth.module";
 import { DraftApplicationsModule } from "@api/domains/draft-applications/draft-applications.module";
@@ -27,7 +27,7 @@ import { FitAnalysisSseController } from "./fit-analysis-sse.controller";
     TypeOrmModule.forFeature([
       FitAnalysisEntity,
       ResumeEntity,
-      UserPreferencesEntity,
+      WorkPreferencesEntity,
     ]),
     AuthModule,
     LibAiModule,

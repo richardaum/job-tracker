@@ -1,25 +1,25 @@
-import { UserPreferencesEntity } from "@api/database/entities/user-preferences.entity";
+import { WorkPreferencesEntity } from "@api/database/entities/work-preferences.entity";
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 
-import { UserPreferences } from "./user-preferences.schema";
+import { WorkPreferences } from "./work-preferences.schema";
 
 @Injectable()
-export class UserPreferencesRepository {
+export class WorkPreferencesRepository {
   constructor(
-    @InjectRepository(UserPreferencesEntity)
-    private readonly repo: Repository<UserPreferencesEntity>,
+    @InjectRepository(WorkPreferencesEntity)
+    private readonly repo: Repository<WorkPreferencesEntity>,
   ) {}
 
-  async findByUserId(userId: string): Promise<UserPreferences | null> {
+  async findByUserId(userId: string): Promise<WorkPreferences | null> {
     return this.repo.findOne({ where: { userId } });
   }
 
   async upsert(
     userId: string,
-    items: UserPreferencesEntity["items"],
-  ): Promise<UserPreferences> {
+    items: WorkPreferencesEntity["items"],
+  ): Promise<WorkPreferences> {
     const existing = await this.findByUserId(userId);
     if (existing) {
       Object.assign(existing, { items });

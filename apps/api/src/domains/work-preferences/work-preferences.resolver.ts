@@ -7,23 +7,23 @@ import { Args, Mutation, Query, Resolver } from "@nestjs/graphql";
 
 import { PreferenceInput } from "./preference.input";
 import { PreferenceType } from "./preference.type";
-import { UserPreferencesService } from "./user-preferences.service";
+import { WorkPreferencesService } from "./work-preferences.service";
 
 @Resolver()
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles("user")
-export class UserPreferencesResolver {
-  constructor(private readonly service: UserPreferencesService) {}
+export class WorkPreferencesResolver {
+  constructor(private readonly service: WorkPreferencesService) {}
 
   @Query(() => [PreferenceType])
-  userPreferences(
+  workPreferences(
     @CurrentUser() user: { userId: string },
   ): Promise<PreferenceType[]> {
     return this.service.findPreferences(user.userId);
   }
 
   @Mutation(() => [PreferenceType])
-  updateUserPreferences(
+  updateWorkPreferences(
     @Args("items", { type: () => [PreferenceInput] }) items: PreferenceInput[],
     @CurrentUser() user: { userId: string },
   ): Promise<PreferenceType[]> {

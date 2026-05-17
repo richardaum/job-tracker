@@ -21,7 +21,7 @@ import { FitAnalysisModule } from "./domains/fit-analysis/fit-analysis.module";
 import { NotesModule } from "./domains/notes/notes.module";
 import { ResumesModule } from "./domains/resumes/resumes.module";
 import { SourcesModule } from "./domains/sources/sources.module";
-import { UserPreferencesModule } from "./domains/user-preferences/user-preferences.module";
+import { WorkPreferencesModule } from "./domains/work-preferences/work-preferences.module";
 import { GraphqlSseMiddleware } from "./graphql/graphql-sse.middleware";
 
 @Module({
@@ -34,7 +34,7 @@ import { GraphqlSseMiddleware } from "./graphql/graphql-sse.middleware";
     SourcesModule,
     NotesModule,
     ResumesModule,
-    UserPreferencesModule,
+    WorkPreferencesModule,
     FitAnalysisModule,
     AiModule,
     GraphQLModule.forRoot<ApolloDriverConfig>({

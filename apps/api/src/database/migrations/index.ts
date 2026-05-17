@@ -4,6 +4,7 @@ import { NormalizeEnumValuesUppercase1767200000000 } from "./1767200000000-norma
 import { RenameGeneratedAtToTimestamp1767300000000 } from "./1767300000000-rename-generated-at-to-timestamp";
 import { AddFitAnalysisGenerationMetadata1767400000000 } from "./1767400000000-add-fit-analysis-generation-metadata";
 import { AddConversionMetadataJsonb1767500000000 } from "./1767500000000-add-conversion-metadata-jsonb";
+import { RenameUserPreferencesToWorkPreferences1767600000000 } from "./1767600000000-rename-user-preferences-to-work-preferences";
 
 export const migrations = [
   SquashedBaseline1767000000000,
@@ -12,4 +13,5 @@ export const migrations = [
   RenameGeneratedAtToTimestamp1767300000000,
   AddFitAnalysisGenerationMetadata1767400000000,
   AddConversionMetadataJsonb1767500000000,
+  RenameUserPreferencesToWorkPreferences1767600000000,
 ];

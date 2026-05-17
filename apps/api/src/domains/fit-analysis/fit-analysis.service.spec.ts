@@ -1,5 +1,5 @@
 import { ResumeEntity } from "@api/database/entities/resume.entity";
-import { UserPreferencesEntity } from "@api/database/entities/user-preferences.entity";
+import { WorkPreferencesEntity } from "@api/database/entities/work-preferences.entity";
 import { ApplicationRepository } from "@api/domains/applications/applications.repository";
 import { DraftApplicationsRepository } from "@api/domains/draft-applications/draft-applications.repository";
 import { Logger } from "@nestjs/common";
@@ -33,7 +33,7 @@ describe("FitAnalysisService", () => {
       {} as DraftApplicationsRepository,
       {} as FitAnalysisEventBus,
       {} as Repository<ResumeEntity>,
-      {} as Repository<UserPreferencesEntity>,
+      {} as Repository<WorkPreferencesEntity>,
     );
   });
 

@@ -8,7 +8,7 @@ import { DraftApplicationEntity } from "@api/database/entities/draft-application
 import { FitAnalysisEntity } from "@api/database/entities/fit-analysis.entity";
 import { ResumeEntity } from "@api/database/entities/resume.entity";
 import { UserEntity } from "@api/database/entities/user.entity";
-import { UserPreferencesEntity } from "@api/database/entities/user-preferences.entity";
+import { WorkPreferencesEntity } from "@api/database/entities/work-preferences.entity";
 import { ApplicationEventBus } from "@api/domains/applications/application-event.bus";
 import { ApplicationQuickFilterEnum } from "@api/domains/applications/application-quick-filter.enum";
 import { ApplicationRepository } from "@api/domains/applications/applications.repository";
@@ -75,7 +75,7 @@ function parseArgs(): {
       FitAnalysisEntity,
       ResumeEntity,
       UserEntity,
-      UserPreferencesEntity,
+      WorkPreferencesEntity,
     ]),
     LibAiModule,
   ],

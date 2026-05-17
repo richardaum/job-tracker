@@ -11,7 +11,7 @@ import { ResumeEntity } from "./entities/resume.entity";
 import { SourceRunEntity } from "./entities/source-run.entity";
 import { SourceTemplateEntity } from "./entities/source-template.entity";
 import { UserEntity } from "./entities/user.entity";
-import { UserPreferencesEntity } from "./entities/user-preferences.entity";
+import { WorkPreferencesEntity } from "./entities/work-preferences.entity";
 import { migrations } from "./migrations";
 
 export const apiEntities = [
@@ -26,7 +26,7 @@ export const apiEntities = [
   DraftApplicationEntity,
   ExchangeRateEntity,
   FitAnalysisEntity,
-  UserPreferencesEntity,
+  WorkPreferencesEntity,
 ];
 
 export const apiMigrations = migrations;

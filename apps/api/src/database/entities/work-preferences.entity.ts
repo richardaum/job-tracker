@@ -14,9 +14,9 @@ export interface PreferenceItem {
 }
 
 @WithGeneratedId()
-@Entity({ name: "user_preferences" })
-@Index("uq_user_preferences_user_id", ["userId"], { unique: true })
-export class UserPreferencesEntity {
+@Entity({ name: "work_preferences" })
+@Index("uq_work_preferences_user_id", ["userId"], { unique: true })
+export class WorkPreferencesEntity {
   @PrimaryColumn({ type: "text" })
   id!: string;
 

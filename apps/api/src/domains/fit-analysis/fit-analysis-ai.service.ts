@@ -1,4 +1,4 @@
-import type { PreferenceItem } from "@api/database/entities/user-preferences.entity";
+import type { PreferenceItem } from "@api/database/entities/work-preferences.entity";
 import {
   AiBaseService,
   OpenAIClient,

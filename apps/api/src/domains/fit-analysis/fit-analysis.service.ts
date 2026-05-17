@@ -5,7 +5,7 @@ import {
   RequirementTypeEnum,
 } from "@api/database/entities/fit-analysis.entity";
 import { ResumeEntity } from "@api/database/entities/resume.entity";
-import { UserPreferencesEntity } from "@api/database/entities/user-preferences.entity";
+import { WorkPreferencesEntity } from "@api/database/entities/work-preferences.entity";
 import { ApplicationRepository } from "@api/domains/applications/applications.repository";
 import type { Application } from "@api/domains/applications/applications.schema";
 import { DraftApplicationsRepository } from "@api/domains/draft-applications/draft-applications.repository";
@@ -41,8 +41,8 @@ export class FitAnalysisService implements OnModuleInit {
     private readonly eventBus: FitAnalysisEventBus,
     @InjectRepository(ResumeEntity)
     private readonly resumeRepo: Repository<ResumeEntity>,
-    @InjectRepository(UserPreferencesEntity)
-    private readonly preferencesRepo: Repository<UserPreferencesEntity>,
+    @InjectRepository(WorkPreferencesEntity)
+    private readonly preferencesRepo: Repository<WorkPreferencesEntity>,
   ) {}
 
   async onModuleInit() {

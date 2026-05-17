@@ -267,7 +267,7 @@ type Query {
   generateApplicationNoteWithAI(applicationId: ID!, note: String!): String!
   resumes: [ResumeType!]!
   resume(id: ID!): ResumeType!
-  userPreferences: [PreferenceType!]!
+  workPreferences: [PreferenceType!]!
   fitAnalyses: [FitAnalysisType!]!
   fit(id: ID!): FitAnalysisType
   applicationFit(applicationId: ID!): FitAnalysisType
@@ -317,7 +317,7 @@ type Mutation {
   createResume(input: CreateResumeInput!): ResumeType!
   updateResume(id: ID!, input: UpdateResumeInput!): ResumeType!
   deleteResume(id: ID!): DeleteMutationPayloadType!
-  updateUserPreferences(items: [PreferenceInput!]!): [PreferenceType!]!
+  updateWorkPreferences(items: [PreferenceInput!]!): [PreferenceType!]!
   generateApplicationFit(input: GenerateFitInput!): FitAnalysisType!
   deleteFitAnalysis(id: ID!): DeleteMutationPayloadType!
   generateDraftApplicationFit(input: GenerateDraftFitInput!): FitAnalysisType!
