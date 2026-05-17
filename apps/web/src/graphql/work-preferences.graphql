@@ -1,0 +1,13 @@
+query WorkPreferences {
+  workPreferences {
+    text
+    weight
+  }
+}
+
+mutation UpdateWorkPreferences($items: [PreferenceInput!]!) {
+  updateWorkPreferences(items: $items) {
+    text
+    weight
+  }
+}

@@ -19,8 +19,8 @@ import React from "react";
 
 import { type PreferenceInput, Weight } from "@/gql/hooks";
 import {
-  useUpdateUserPreferencesMutation,
-  useUserPreferencesQuery,
+  useUpdateWorkPreferencesMutation,
+  useWorkPreferencesQuery,
 } from "@/gql/hooks";
 import { useToastQueue } from "@/modules/applications/shared/hooks/useToastQueue";
 
@@ -216,18 +216,17 @@ export function PreferencesDialog({
   onOpenChange,
   readOnly = false,
 }: PreferencesDialogProps) {
-  const { data, loading } = useUserPreferencesQuery({
+  const { data, loading } = useWorkPreferencesQuery({
     fetchPolicy: "cache-and-network",
     skip: !open,
   });
-  const [updatePreferences] = useUpdateUserPreferencesMutation();
+  const [updatePreferences] = useUpdateWorkPreferencesMutation();
   const { enqueueToast } = useToastQueue();
 
   const [localItems, setLocalItems] = React.useState<LocalPreference[]>([]);
   const [focusedId, setFocusedId] = React.useState<string | null>(null);
   const [saving, setSaving] = React.useState(false);
 
-  // Sync state when data loads or dialog opens/closes using "prevProps" pattern
   const [prevOpen, setPrevOpen] = React.useState(open);
   const [prevData, setPrevData] = React.useState<typeof data | null>(null);
 
@@ -240,9 +239,9 @@ export function PreferencesDialog({
     }
   }
 
-  if (open && data !== prevData && data?.userPreferences) {
+  if (open && data !== prevData && data?.workPreferences) {
     setPrevData(data);
-    setLocalItems(toLocal(data.userPreferences));
+    setLocalItems(toLocal(data.workPreferences));
   }
 
   function addPreference() {
@@ -276,7 +275,7 @@ export function PreferencesDialog({
     try {
       await updatePreferences({
         variables: { items },
-        refetchQueries: ["UserPreferences"],
+        refetchQueries: ["WorkPreferences"],
       });
       enqueueToast({ title: "Preferences saved.", intent: "success" });
       onOpenChange(false);
@@ -287,7 +286,7 @@ export function PreferencesDialog({
     }
   }
 
-  const isLoaded = !!data?.userPreferences;
+  const isLoaded = !!data?.workPreferences;
 
   return (
     <Dialog

@@ -29,8 +29,8 @@ import React from "react";
 import { type PreferenceInput, Weight } from "@/gql/hooks";
 import {
   useResumesQuery,
-  useUpdateUserPreferencesMutation,
-  useUserPreferencesQuery,
+  useUpdateWorkPreferencesMutation,
+  useWorkPreferencesQuery,
 } from "@/gql/hooks";
 import { useToastQueue } from "@/modules/applications/shared/hooks/useToastQueue";
 
@@ -209,11 +209,11 @@ export function FitWizardDialog({
     skip: !open,
   });
 
-  const { data: prefsData, loading: prefsLoading } = useUserPreferencesQuery({
+  const { data: prefsData, loading: prefsLoading } = useWorkPreferencesQuery({
     fetchPolicy: "cache-and-network",
     skip: !open,
   });
-  const [updatePreferences] = useUpdateUserPreferencesMutation();
+  const [updatePreferences] = useUpdateWorkPreferencesMutation();
 
   const [selectedResumeId, setSelectedResumeId] = React.useState<string>("");
   const [localItems, setLocalItems] = React.useState<LocalPreference[]>([]);
@@ -235,9 +235,9 @@ export function FitWizardDialog({
     }
   }
 
-  if (open && prefsData !== prevPrefsData && prefsData?.userPreferences) {
+  if (open && prefsData !== prevPrefsData && prefsData?.workPreferences) {
     setPrevPrefsData(prefsData);
-    setLocalItems(toLocal(prefsData.userPreferences));
+    setLocalItems(toLocal(prefsData.workPreferences));
   }
 
   const resumeOptions = React.useMemo(() => {
@@ -288,7 +288,7 @@ export function FitWizardDialog({
       const [prefErr] = await tryRun(
         updatePreferences({
           variables: { items },
-          refetchQueries: ["UserPreferences"],
+          refetchQueries: ["WorkPreferences"],
         }),
       );
       if (prefErr) {

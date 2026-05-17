@@ -302,7 +302,7 @@ export type Mutation = {
   updateSourceRun: SourceRunType;
   updateSourceRunStatus: SourceRunType;
   updateSourceTemplate: SourceTemplateType;
-  updateUserPreferences: Array<PreferenceType>;
+  updateWorkPreferences: Array<PreferenceType>;
 };
 
 export type MutationClaimSourceRunArgs = { id: Scalars["ID"]["input"] };
@@ -426,7 +426,7 @@ export type MutationUpdateSourceTemplateArgs = {
   input: UpdateSourceTemplateInput;
 };
 
-export type MutationUpdateUserPreferencesArgs = {
+export type MutationUpdateWorkPreferencesArgs = {
   items: Array<PreferenceInput>;
 };
 
@@ -480,7 +480,7 @@ export type Query = {
   sourceRuns: Array<SourceRunType>;
   sourceTemplates: Array<SourceTemplateType>;
   sourceTemplatesForSourceProfile: Array<SourceTemplateType>;
-  userPreferences: Array<PreferenceType>;
+  workPreferences: Array<PreferenceType>;
 };
 
 export type QueryApplicationArgs = { id: Scalars["ID"]["input"] };
@@ -1783,24 +1783,24 @@ export type CreateSourceTemplateMutation = {
   };
 };
 
-export type UserPreferencesQueryVariables = Exact<{ [key: string]: never }>;
+export type WorkPreferencesQueryVariables = Exact<{ [key: string]: never }>;
 
-export type UserPreferencesQuery = {
+export type WorkPreferencesQuery = {
   __typename?: "Query";
-  userPreferences: Array<{
+  workPreferences: Array<{
     __typename?: "PreferenceType";
     text: string;
     weight: Weight;
   }>;
 };
 
-export type UpdateUserPreferencesMutationVariables = Exact<{
+export type UpdateWorkPreferencesMutationVariables = Exact<{
   items: Array<PreferenceInput> | PreferenceInput;
 }>;
 
-export type UpdateUserPreferencesMutation = {
+export type UpdateWorkPreferencesMutation = {
   __typename?: "Mutation";
-  updateUserPreferences: Array<{
+  updateWorkPreferences: Array<{
     __typename?: "PreferenceType";
     text: string;
     weight: Weight;
@@ -2625,17 +2625,17 @@ export const CreateSourceTemplateDocument = gql`
     }
   }
 `;
-export const UserPreferencesDocument = gql`
-  query UserPreferences {
-    userPreferences {
+export const WorkPreferencesDocument = gql`
+  query WorkPreferences {
+    workPreferences {
       text
       weight
     }
   }
 `;
-export const UpdateUserPreferencesDocument = gql`
-  mutation UpdateUserPreferences($items: [PreferenceInput!]!) {
-    updateUserPreferences(items: $items) {
+export const UpdateWorkPreferencesDocument = gql`
+  mutation UpdateWorkPreferences($items: [PreferenceInput!]!) {
+    updateWorkPreferences(items: $items) {
       text
       weight
     }
@@ -3597,38 +3597,38 @@ export function getSdk(
         variables,
       );
     },
-    UserPreferences(
-      variables?: UserPreferencesQueryVariables,
+    WorkPreferences(
+      variables?: WorkPreferencesQueryVariables,
       requestHeaders?: GraphQLClientRequestHeaders,
       signal?: RequestInit["signal"],
-    ): Promise<UserPreferencesQuery> {
+    ): Promise<WorkPreferencesQuery> {
       return withWrapper(
         (wrappedRequestHeaders) =>
-          client.request<UserPreferencesQuery>({
-            document: UserPreferencesDocument,
+          client.request<WorkPreferencesQuery>({
+            document: WorkPreferencesDocument,
             variables,
             requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
             signal,
           }),
-        "UserPreferences",
+        "WorkPreferences",
         "query",
         variables,
       );
     },
-    UpdateUserPreferences(
-      variables: UpdateUserPreferencesMutationVariables,
+    UpdateWorkPreferences(
+      variables: UpdateWorkPreferencesMutationVariables,
       requestHeaders?: GraphQLClientRequestHeaders,
       signal?: RequestInit["signal"],
-    ): Promise<UpdateUserPreferencesMutation> {
+    ): Promise<UpdateWorkPreferencesMutation> {
       return withWrapper(
         (wrappedRequestHeaders) =>
-          client.request<UpdateUserPreferencesMutation>({
-            document: UpdateUserPreferencesDocument,
+          client.request<UpdateWorkPreferencesMutation>({
+            document: UpdateWorkPreferencesDocument,
             variables,
             requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
             signal,
           }),
-        "UpdateUserPreferences",
+        "UpdateWorkPreferences",
         "mutation",
         variables,
       );

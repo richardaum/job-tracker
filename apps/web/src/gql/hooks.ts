@@ -303,7 +303,7 @@ export type Mutation = {
   updateSourceRun: SourceRunType;
   updateSourceRunStatus: SourceRunType;
   updateSourceTemplate: SourceTemplateType;
-  updateUserPreferences: Array<PreferenceType>;
+  updateWorkPreferences: Array<PreferenceType>;
 };
 
 export type MutationClaimSourceRunArgs = { id: Scalars["ID"]["input"] };
@@ -427,7 +427,7 @@ export type MutationUpdateSourceTemplateArgs = {
   input: UpdateSourceTemplateInput;
 };
 
-export type MutationUpdateUserPreferencesArgs = {
+export type MutationUpdateWorkPreferencesArgs = {
   items: Array<PreferenceInput>;
 };
 
@@ -481,7 +481,7 @@ export type Query = {
   sourceRuns: Array<SourceRunType>;
   sourceTemplates: Array<SourceTemplateType>;
   sourceTemplatesForSourceProfile: Array<SourceTemplateType>;
-  userPreferences: Array<PreferenceType>;
+  workPreferences: Array<PreferenceType>;
 };
 
 export type QueryApplicationArgs = { id: Scalars["ID"]["input"] };
@@ -1784,24 +1784,24 @@ export type CreateSourceTemplateMutation = {
   };
 };
 
-export type UserPreferencesQueryVariables = Exact<{ [key: string]: never }>;
+export type WorkPreferencesQueryVariables = Exact<{ [key: string]: never }>;
 
-export type UserPreferencesQuery = {
+export type WorkPreferencesQuery = {
   __typename?: "Query";
-  userPreferences: Array<{
+  workPreferences: Array<{
     __typename?: "PreferenceType";
     text: string;
     weight: Weight;
   }>;
 };
 
-export type UpdateUserPreferencesMutationVariables = Exact<{
+export type UpdateWorkPreferencesMutationVariables = Exact<{
   items: Array<PreferenceInput> | PreferenceInput;
 }>;
 
-export type UpdateUserPreferencesMutation = {
+export type UpdateWorkPreferencesMutation = {
   __typename?: "Mutation";
-  updateUserPreferences: Array<{
+  updateWorkPreferences: Array<{
     __typename?: "PreferenceType";
     text: string;
     weight: Weight;
@@ -4742,9 +4742,9 @@ export function useCreateSourceTemplateMutation(
   >(CreateSourceTemplateDocument, options);
 }
 
-export const UserPreferencesDocument = gql`
-  query UserPreferences {
-    userPreferences {
+export const WorkPreferencesDocument = gql`
+  query WorkPreferences {
+    workPreferences {
       text
       weight
     }
@@ -4752,55 +4752,55 @@ export const UserPreferencesDocument = gql`
 `;
 
 /**
- * __useUserPreferencesQuery__
+ * __useWorkPreferencesQuery__
  *
- * To run a query within a React component, call `useUserPreferencesQuery` and pass it any options that fit your needs.
- * When your component renders, `useUserPreferencesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useWorkPreferencesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useWorkPreferencesQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useUserPreferencesQuery({
+ * const { data, loading, error } = useWorkPreferencesQuery({
  *   variables: {
  *   },
  * });
  */
-export function useUserPreferencesQuery(
+export function useWorkPreferencesQuery(
   baseOptions?: ApolloReactHooks.QueryHookOptions<
-    UserPreferencesQuery,
-    UserPreferencesQueryVariables
+    WorkPreferencesQuery,
+    WorkPreferencesQueryVariables
   >,
 ) {
   const options = { ...defaultOptions, ...baseOptions };
   return ApolloReactHooks.useQuery<
-    UserPreferencesQuery,
-    UserPreferencesQueryVariables
-  >(UserPreferencesDocument, options);
+    WorkPreferencesQuery,
+    WorkPreferencesQueryVariables
+  >(WorkPreferencesDocument, options);
 }
-export function useUserPreferencesLazyQuery(
+export function useWorkPreferencesLazyQuery(
   baseOptions?: ApolloReactHooks.LazyQueryHookOptions<
-    UserPreferencesQuery,
-    UserPreferencesQueryVariables
+    WorkPreferencesQuery,
+    WorkPreferencesQueryVariables
   >,
 ) {
   const options = { ...defaultOptions, ...baseOptions };
   return ApolloReactHooks.useLazyQuery<
-    UserPreferencesQuery,
-    UserPreferencesQueryVariables
-  >(UserPreferencesDocument, options);
+    WorkPreferencesQuery,
+    WorkPreferencesQueryVariables
+  >(WorkPreferencesDocument, options);
 }
 
-export type UserPreferencesQueryHookResult = ReturnType<
-  typeof useUserPreferencesQuery
+export type WorkPreferencesQueryHookResult = ReturnType<
+  typeof useWorkPreferencesQuery
 >;
-export type UserPreferencesLazyQueryHookResult = ReturnType<
-  typeof useUserPreferencesLazyQuery
+export type WorkPreferencesLazyQueryHookResult = ReturnType<
+  typeof useWorkPreferencesLazyQuery
 >;
 
-export const UpdateUserPreferencesDocument = gql`
-  mutation UpdateUserPreferences($items: [PreferenceInput!]!) {
-    updateUserPreferences(items: $items) {
+export const UpdateWorkPreferencesDocument = gql`
+  mutation UpdateWorkPreferences($items: [PreferenceInput!]!) {
+    updateWorkPreferences(items: $items) {
       text
       weight
     }
@@ -4808,31 +4808,31 @@ export const UpdateUserPreferencesDocument = gql`
 `;
 
 /**
- * __useUpdateUserPreferencesMutation__
+ * __useUpdateWorkPreferencesMutation__
  *
- * To run a mutation, you first call `useUpdateUserPreferencesMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateUserPreferencesMutation` returns a tuple that includes:
+ * To run a mutation, you first call `useUpdateWorkPreferencesMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateWorkPreferencesMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [updateUserPreferencesMutation, { data, loading, error }] = useUpdateUserPreferencesMutation({
+ * const [updateWorkPreferencesMutation, { data, loading, error }] = useUpdateWorkPreferencesMutation({
  *   variables: {
  *      items: // value for 'items'
  *   },
  * });
  */
-export function useUpdateUserPreferencesMutation(
+export function useUpdateWorkPreferencesMutation(
   baseOptions?: ApolloReactHooks.MutationHookOptions<
-    UpdateUserPreferencesMutation,
-    UpdateUserPreferencesMutationVariables
+    UpdateWorkPreferencesMutation,
+    UpdateWorkPreferencesMutationVariables
   >,
 ) {
   const options = { ...defaultOptions, ...baseOptions };
   return ApolloReactHooks.useMutation<
-    UpdateUserPreferencesMutation,
-    UpdateUserPreferencesMutationVariables
-  >(UpdateUserPreferencesDocument, options);
+    UpdateWorkPreferencesMutation,
+    UpdateWorkPreferencesMutationVariables
+  >(UpdateWorkPreferencesDocument, options);
 }

@@ -301,7 +301,7 @@ export type Mutation = {
   updateSourceRun: SourceRunType;
   updateSourceRunStatus: SourceRunType;
   updateSourceTemplate: SourceTemplateType;
-  updateUserPreferences: Array<PreferenceType>;
+  updateWorkPreferences: Array<PreferenceType>;
 };
 
 export type MutationClaimSourceRunArgs = { id: Scalars["ID"]["input"] };
@@ -425,7 +425,7 @@ export type MutationUpdateSourceTemplateArgs = {
   input: UpdateSourceTemplateInput;
 };
 
-export type MutationUpdateUserPreferencesArgs = {
+export type MutationUpdateWorkPreferencesArgs = {
   items: Array<PreferenceInput>;
 };
 
@@ -479,7 +479,7 @@ export type Query = {
   sourceRuns: Array<SourceRunType>;
   sourceTemplates: Array<SourceTemplateType>;
   sourceTemplatesForSourceProfile: Array<SourceTemplateType>;
-  userPreferences: Array<PreferenceType>;
+  workPreferences: Array<PreferenceType>;
 };
 
 export type QueryApplicationArgs = { id: Scalars["ID"]["input"] };
@@ -1772,24 +1772,24 @@ export type CreateSourceTemplateMutation = {
   };
 };
 
-export type UserPreferencesQueryVariables = Exact<{ [key: string]: never }>;
+export type WorkPreferencesQueryVariables = Exact<{ [key: string]: never }>;
 
-export type UserPreferencesQuery = {
+export type WorkPreferencesQuery = {
   __typename?: "Query";
-  userPreferences: Array<{
+  workPreferences: Array<{
     __typename?: "PreferenceType";
     text: string;
     weight: Weight;
   }>;
 };
 
-export type UpdateUserPreferencesMutationVariables = Exact<{
+export type UpdateWorkPreferencesMutationVariables = Exact<{
   items: Array<PreferenceInput> | PreferenceInput;
 }>;
 
-export type UpdateUserPreferencesMutation = {
+export type UpdateWorkPreferencesMutation = {
   __typename?: "Mutation";
-  updateUserPreferences: Array<{
+  updateWorkPreferences: Array<{
     __typename?: "PreferenceType";
     text: string;
     weight: Weight;
@@ -5794,19 +5794,19 @@ export const CreateSourceTemplateDocument = {
   CreateSourceTemplateMutation,
   CreateSourceTemplateMutationVariables
 >;
-export const UserPreferencesDocument = {
+export const WorkPreferencesDocument = {
   kind: "Document",
   definitions: [
     {
       kind: "OperationDefinition",
       operation: "query",
-      name: { kind: "Name", value: "UserPreferences" },
+      name: { kind: "Name", value: "WorkPreferences" },
       selectionSet: {
         kind: "SelectionSet",
         selections: [
           {
             kind: "Field",
-            name: { kind: "Name", value: "userPreferences" },
+            name: { kind: "Name", value: "workPreferences" },
             selectionSet: {
               kind: "SelectionSet",
               selections: [
@@ -5820,16 +5820,16 @@ export const UserPreferencesDocument = {
     },
   ],
 } as unknown as DocumentNode<
-  UserPreferencesQuery,
-  UserPreferencesQueryVariables
+  WorkPreferencesQuery,
+  WorkPreferencesQueryVariables
 >;
-export const UpdateUserPreferencesDocument = {
+export const UpdateWorkPreferencesDocument = {
   kind: "Document",
   definitions: [
     {
       kind: "OperationDefinition",
       operation: "mutation",
-      name: { kind: "Name", value: "UpdateUserPreferences" },
+      name: { kind: "Name", value: "UpdateWorkPreferences" },
       variableDefinitions: [
         {
           kind: "VariableDefinition",
@@ -5857,7 +5857,7 @@ export const UpdateUserPreferencesDocument = {
         selections: [
           {
             kind: "Field",
-            name: { kind: "Name", value: "updateUserPreferences" },
+            name: { kind: "Name", value: "updateWorkPreferences" },
             arguments: [
               {
                 kind: "Argument",
@@ -5881,6 +5881,6 @@ export const UpdateUserPreferencesDocument = {
     },
   ],
 } as unknown as DocumentNode<
-  UpdateUserPreferencesMutation,
-  UpdateUserPreferencesMutationVariables
+  UpdateWorkPreferencesMutation,
+  UpdateWorkPreferencesMutationVariables
 >;

@@ -15,8 +15,8 @@ import {
 import { SearchInput } from "@/modules/applications/shared/components/SearchInput";
 import { useToastQueue } from "@/modules/applications/shared/hooks/useToastQueue";
 import { AddResumeDialog } from "@/modules/resumes/list/components/AddResumeDialog";
-import { PreferencesDialog } from "@/modules/resumes/list/components/PreferencesDialog";
 import { ResumeCard } from "@/modules/resumes/list/components/ResumeCard";
+import { PreferencesDialog } from "@/modules/work-preferences/components/PreferencesDialog";
 
 function ResumesListCardSkeleton() {
   return (

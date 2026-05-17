@@ -38,7 +38,7 @@ import { useToastQueue } from "@/modules/applications/shared/hooks/useToastQueue
 import { FitItemCard } from "@/modules/fit-analyses/details/components/FitItemCard";
 import { FitStatusBadge } from "@/modules/fit-analyses/details/components/FitStatusBadge";
 import { FitWizardDialog } from "@/modules/fit-analyses/details/components/FitWizardDialog";
-import { PreferencesDialog } from "@/modules/resumes/list/components/PreferencesDialog";
+import { PreferencesDialog } from "@/modules/work-preferences/components/PreferencesDialog";
 
 interface PageProps {
   params: Promise<{ id: string }>;

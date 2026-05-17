@@ -13,7 +13,7 @@ import {
 import { FitClassification } from "@/modules/applications/shared/components/FitClassification";
 import { useToastQueue } from "@/modules/applications/shared/hooks/useToastQueue";
 import { FitItemCard } from "@/modules/fit-analyses/details/components/FitItemCard";
-import { PreferencesDialog } from "@/modules/resumes/list/components/PreferencesDialog";
+import { PreferencesDialog } from "@/modules/work-preferences/components/PreferencesDialog";
 
 interface FitDialogProps {
   applicationId: string;
