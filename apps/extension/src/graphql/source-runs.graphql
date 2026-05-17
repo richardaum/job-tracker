@@ -6,6 +6,6 @@ query SourceRuns {
     surfaceUrl
     status
     startedAt
-    sourceProfileSource
+    sourceProfile
   }
 }

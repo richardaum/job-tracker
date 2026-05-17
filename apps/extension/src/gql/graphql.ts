@@ -86,16 +86,34 @@ export type ApplicationType = {
   currentStageAt: Scalars["DateTime"]["output"];
   currentStageReason?: Maybe<Scalars["String"]["output"]>;
   description?: Maybe<Scalars["String"]["output"]>;
+  draftApplicationId?: Maybe<Scalars["ID"]["output"]>;
   fit?: Maybe<FitAnalysisType>;
   id: Scalars["ID"]["output"];
+  location?: Maybe<Scalars["String"]["output"]>;
   salary: ApplicationSalary;
   source?: Maybe<ApplicationSource>;
   sourceRunId?: Maybe<Scalars["ID"]["output"]>;
+  summary?: Maybe<Scalars["String"]["output"]>;
+  summaryMetadata?: Maybe<AsyncMetadataType>;
   tags: Array<Scalars["String"]["output"]>;
   title: Scalars["String"]["output"];
   updatedAt: Scalars["DateTime"]["output"];
   urls: Array<Scalars["String"]["output"]>;
   userId: Scalars["String"]["output"];
+  workRegion?: Maybe<Scalars["String"]["output"]>;
+};
+
+export enum AsyncMetadataStatus {
+  Completed = "COMPLETED",
+  Failed = "FAILED",
+  Processing = "PROCESSING",
+}
+
+export type AsyncMetadataType = {
+  __typename?: "AsyncMetadataType";
+  error?: Maybe<Scalars["String"]["output"]>;
+  status: AsyncMetadataStatus;
+  timestamp?: Maybe<Scalars["String"]["output"]>;
 };
 
 export type CompanyType = {
@@ -108,10 +126,18 @@ export type CompanyType = {
   userId: Scalars["String"]["output"];
 };
 
+export type ConversionMetadataType = {
+  __typename?: "ConversionMetadataType";
+  error?: Maybe<Scalars["String"]["output"]>;
+  status: DraftApplicationConversionStatus;
+  timestamp?: Maybe<Scalars["String"]["output"]>;
+};
+
 export type CreateApplicationInput = {
   company: Scalars["String"]["input"];
   companyId?: InputMaybe<Scalars["ID"]["input"]>;
   description?: InputMaybe<Scalars["String"]["input"]>;
+  location?: InputMaybe<Scalars["String"]["input"]>;
   salaryCurrency?: InputMaybe<Scalars["String"]["input"]>;
   salaryMaxCents?: InputMaybe<Scalars["Int"]["input"]>;
   salaryMinCents?: InputMaybe<Scalars["Int"]["input"]>;
@@ -121,6 +147,7 @@ export type CreateApplicationInput = {
   tags?: InputMaybe<Array<Scalars["String"]["input"]>>;
   title: Scalars["String"]["input"];
   urls?: InputMaybe<Array<Scalars["String"]["input"]>>;
+  workRegion?: InputMaybe<Scalars["String"]["input"]>;
 };
 
 export type CreateApplicationStageEventInput = {
@@ -148,13 +175,13 @@ export type CreateResumeInput = {
   title: Scalars["String"]["input"];
 };
 
-export type CreateSourceInput = {
-  sourceProfileId: Scalars["String"]["input"];
-  surfaceUrl: Scalars["String"]["input"];
-};
-
 export type CreateSourceRunInput = {
   sourceProfileId: Scalars["String"]["input"];
+};
+
+export type CreateSourceTemplateInput = {
+  sourceProfileId: Scalars["String"]["input"];
+  surfaceUrl: Scalars["String"]["input"];
 };
 
 export type CurrencyRates = {
@@ -179,9 +206,7 @@ export enum DraftApplicationConversionStatus {
 export type DraftApplicationType = {
   __typename?: "DraftApplicationType";
   applicationId?: Maybe<Scalars["String"]["output"]>;
-  conversionError?: Maybe<Scalars["String"]["output"]>;
-  conversionStatus: DraftApplicationConversionStatus;
-  convertedAt?: Maybe<Scalars["DateTime"]["output"]>;
+  conversionMetadata?: Maybe<ConversionMetadataType>;
   createdAt: Scalars["DateTime"]["output"];
   fit?: Maybe<FitAnalysisType>;
   htmlContent: Scalars["String"]["output"];
@@ -195,19 +220,6 @@ export type ExchangeRate = {
   __typename?: "ExchangeRate";
   currency: Scalars["String"]["output"];
   rate: Scalars["Float"]["output"];
-};
-
-export enum AsyncMetadataStatus {
-  Completed = "COMPLETED",
-  Failed = "FAILED",
-  Processing = "PROCESSING",
-}
-
-export type AsyncMetadataType = {
-  __typename?: "AsyncMetadataType";
-  status: AsyncMetadataStatus;
-  error?: Maybe<Scalars["String"]["output"]>;
-  timestamp?: Maybe<Scalars["String"]["output"]>;
 };
 
 export type FitAnalysisType = {
@@ -258,11 +270,11 @@ export type Mutation = {
   createApplication: ApplicationType;
   createApplicationNote: NoteType;
   createApplicationStageEvent: ApplicationStageEventType;
-  createApplicationWithAIV2: DraftApplicationType;
+  createApplicationWithAI: DraftApplicationType;
   createDraftApplication: DraftApplicationType;
   createResume: ResumeType;
-  createSource: SourceTemplateType;
   createSourceRun: SourceRunType;
+  createSourceTemplate: SourceTemplateType;
   deleteApplication: DeleteMutationPayloadType;
   deleteApplicationNote: DeleteMutationPayloadType;
   deleteApplicationStageEvent: DeleteMutationPayloadType;
@@ -271,23 +283,24 @@ export type Mutation = {
   deleteDraftApplication: DeleteMutationPayloadType;
   deleteFitAnalysis: DeleteMutationPayloadType;
   deleteResume: DeleteMutationPayloadType;
-  deleteSource: DeleteMutationPayloadType;
   deleteSourceRun: DeleteMutationPayloadType;
+  deleteSourceTemplate: DeleteMutationPayloadType;
   detachApplicationsFromSourceRun: Scalars["Int"]["output"];
   generateApplicationFit: FitAnalysisType;
+  generateApplicationSummary: ApplicationType;
   generateDraftApplicationFit: FitAnalysisType;
   removeApplicationTag: ApplicationType;
-  rerunSource: SourceRunType;
+  rerunSourceTemplate: SourceRunType;
   updateApplication: ApplicationType;
   updateApplicationNote: NoteType;
   updateApplicationStageEvent: ApplicationStageEventType;
   updateCompany: CompanyType;
   updateDraftApplication: DraftApplicationType;
   updateResume: ResumeType;
-  updateSource: SourceTemplateType;
   updateSourceRun: SourceRunType;
   updateSourceRunStatus: SourceRunType;
-  updateUserPreferences: Array<PreferenceType>;
+  updateSourceTemplate: SourceTemplateType;
+  updateWorkPreferences: Array<PreferenceType>;
 };
 
 export type MutationClaimSourceRunArgs = { id: Scalars["ID"]["input"] };
@@ -300,7 +313,7 @@ export type MutationCreateApplicationStageEventArgs = {
   input: CreateApplicationStageEventInput;
 };
 
-export type MutationCreateApplicationWithAiv2Args = {
+export type MutationCreateApplicationWithAiArgs = {
   draftId: Scalars["ID"]["input"];
 };
 
@@ -310,9 +323,11 @@ export type MutationCreateDraftApplicationArgs = {
 
 export type MutationCreateResumeArgs = { input: CreateResumeInput };
 
-export type MutationCreateSourceArgs = { input: CreateSourceInput };
-
 export type MutationCreateSourceRunArgs = { input: CreateSourceRunInput };
+
+export type MutationCreateSourceTemplateArgs = {
+  input: CreateSourceTemplateInput;
+};
 
 export type MutationDeleteApplicationArgs = { id: Scalars["ID"]["input"] };
 
@@ -337,15 +352,19 @@ export type MutationDeleteFitAnalysisArgs = { id: Scalars["ID"]["input"] };
 
 export type MutationDeleteResumeArgs = { id: Scalars["ID"]["input"] };
 
-export type MutationDeleteSourceArgs = { id: Scalars["ID"]["input"] };
-
 export type MutationDeleteSourceRunArgs = { id: Scalars["ID"]["input"] };
+
+export type MutationDeleteSourceTemplateArgs = { id: Scalars["ID"]["input"] };
 
 export type MutationDetachApplicationsFromSourceRunArgs = {
   sourceRunId: Scalars["ID"]["input"];
 };
 
 export type MutationGenerateApplicationFitArgs = { input: GenerateFitInput };
+
+export type MutationGenerateApplicationSummaryArgs = {
+  applicationId: Scalars["ID"]["input"];
+};
 
 export type MutationGenerateDraftApplicationFitArgs = {
   input: GenerateDraftFitInput;
@@ -356,7 +375,9 @@ export type MutationRemoveApplicationTagArgs = {
   tag: Scalars["String"]["input"];
 };
 
-export type MutationRerunSourceArgs = { templateId: Scalars["ID"]["input"] };
+export type MutationRerunSourceTemplateArgs = {
+  templateId: Scalars["ID"]["input"];
+};
 
 export type MutationUpdateApplicationArgs = {
   id: Scalars["ID"]["input"];
@@ -388,11 +409,6 @@ export type MutationUpdateResumeArgs = {
   input: UpdateResumeInput;
 };
 
-export type MutationUpdateSourceArgs = {
-  id: Scalars["ID"]["input"];
-  input: UpdateSourceInput;
-};
-
 export type MutationUpdateSourceRunArgs = {
   id: Scalars["ID"]["input"];
   input: UpdateSourceRunInput;
@@ -403,7 +419,12 @@ export type MutationUpdateSourceRunStatusArgs = {
   status: SourceRunStatus;
 };
 
-export type MutationUpdateUserPreferencesArgs = {
+export type MutationUpdateSourceTemplateArgs = {
+  id: Scalars["ID"]["input"];
+  input: UpdateSourceTemplateInput;
+};
+
+export type MutationUpdateWorkPreferencesArgs = {
   items: Array<PreferenceInput>;
 };
 
@@ -444,7 +465,9 @@ export type Query = {
   exchangeRates: CurrencyRates;
   fit?: Maybe<FitAnalysisType>;
   fitAnalyses: Array<FitAnalysisType>;
+  generateApplicationLocationWithAI?: Maybe<Scalars["String"]["output"]>;
   generateApplicationNoteWithAI: Scalars["String"]["output"];
+  generateApplicationWorkRegionWithAI?: Maybe<Scalars["String"]["output"]>;
   generateCompanyDescription: Scalars["String"]["output"];
   me: UserType;
   restructureJobDescriptionWithAI: Scalars["String"]["output"];
@@ -453,9 +476,9 @@ export type Query = {
   rewriteTextWithAI: Scalars["String"]["output"];
   sourceProfiles: Array<SourceProfileType>;
   sourceRuns: Array<SourceRunType>;
-  sources: Array<SourceTemplateType>;
-  sourcesForSourceProfile: Array<SourceTemplateType>;
-  userPreferences: Array<PreferenceType>;
+  sourceTemplates: Array<SourceTemplateType>;
+  sourceTemplatesForSourceProfile: Array<SourceTemplateType>;
+  workPreferences: Array<PreferenceType>;
 };
 
 export type QueryApplicationArgs = { id: Scalars["ID"]["input"] };
@@ -491,9 +514,17 @@ export type QueryExchangeRatesArgs = {
 
 export type QueryFitArgs = { id: Scalars["ID"]["input"] };
 
+export type QueryGenerateApplicationLocationWithAiArgs = {
+  applicationId: Scalars["ID"]["input"];
+};
+
 export type QueryGenerateApplicationNoteWithAiArgs = {
   applicationId: Scalars["ID"]["input"];
   note: Scalars["String"]["input"];
+};
+
+export type QueryGenerateApplicationWorkRegionWithAiArgs = {
+  applicationId: Scalars["ID"]["input"];
 };
 
 export type QueryGenerateCompanyDescriptionArgs = {
@@ -512,7 +543,7 @@ export type QuerySourceProfilesArgs = {
   onlyWithSourceTemplate?: InputMaybe<Scalars["Boolean"]["input"]>;
 };
 
-export type QuerySourcesForSourceProfileArgs = {
+export type QuerySourceTemplatesForSourceProfileArgs = {
   sourceProfileId: Scalars["String"]["input"];
 };
 
@@ -561,8 +592,8 @@ export enum SourceRunStatus {
 export type SourceRunType = {
   __typename?: "SourceRunType";
   id: Scalars["ID"]["output"];
+  sourceProfile: Scalars["String"]["output"];
   sourceProfileId: Scalars["String"]["output"];
-  sourceProfileSource: Scalars["String"]["output"];
   startedAt: Scalars["DateTime"]["output"];
   status: SourceRunStatus;
   surfaceUrl: Scalars["String"]["output"];
@@ -589,6 +620,7 @@ export type UpdateApplicationInput = {
   company?: InputMaybe<Scalars["String"]["input"]>;
   companyId?: InputMaybe<Scalars["ID"]["input"]>;
   description?: InputMaybe<Scalars["String"]["input"]>;
+  location?: InputMaybe<Scalars["String"]["input"]>;
   salaryCurrency?: InputMaybe<Scalars["String"]["input"]>;
   salaryMaxCents?: InputMaybe<Scalars["Int"]["input"]>;
   salaryMinCents?: InputMaybe<Scalars["Int"]["input"]>;
@@ -597,6 +629,7 @@ export type UpdateApplicationInput = {
   tags?: InputMaybe<Array<Scalars["String"]["input"]>>;
   title?: InputMaybe<Scalars["String"]["input"]>;
   urls?: InputMaybe<Array<Scalars["String"]["input"]>>;
+  workRegion?: InputMaybe<Scalars["String"]["input"]>;
 };
 
 export type UpdateApplicationStageEventInput = {
@@ -623,13 +656,13 @@ export type UpdateResumeInput = {
   title?: InputMaybe<Scalars["String"]["input"]>;
 };
 
-export type UpdateSourceInput = {
+export type UpdateSourceRunInput = { surfaceUrl: Scalars["String"]["input"] };
+
+export type UpdateSourceTemplateInput = {
   scheduleCron?: InputMaybe<Scalars["String"]["input"]>;
   scheduleEnabled?: InputMaybe<Scalars["Boolean"]["input"]>;
   surfaceUrl?: InputMaybe<Scalars["String"]["input"]>;
 };
-
-export type UpdateSourceRunInput = { surfaceUrl: Scalars["String"]["input"] };
 
 export type UserType = {
   __typename?: "UserType";
@@ -657,7 +690,7 @@ export type ClaimSourceRunMutation = {
     sourceProfileId: string;
     status: SourceRunStatus;
     startedAt: any;
-    sourceProfileSource: string;
+    sourceProfile: string;
   } | null;
 };
 
@@ -706,7 +739,7 @@ export type SourceRunEventsSubscription = {
       surfaceUrl: string;
       status: SourceRunStatus;
       startedAt: any;
-      sourceProfileSource: string;
+      sourceProfile: string;
     };
   };
 };
@@ -723,7 +756,7 @@ export type SourceRunsQuery = {
     surfaceUrl: string;
     status: SourceRunStatus;
     startedAt: any;
-    sourceProfileSource: string;
+    sourceProfile: string;
   }>;
 };
 
@@ -800,7 +833,7 @@ export const ClaimSourceRunDocument = {
                 { kind: "Field", name: { kind: "Name", value: "startedAt" } },
                 {
                   kind: "Field",
-                  name: { kind: "Name", value: "sourceProfileSource" },
+                  name: { kind: "Name", value: "sourceProfile" },
                 },
               ],
             },
@@ -971,7 +1004,7 @@ export const SourceRunEventsDocument = {
                       },
                       {
                         kind: "Field",
-                        name: { kind: "Name", value: "sourceProfileSource" },
+                        name: { kind: "Name", value: "sourceProfile" },
                       },
                     ],
                   },
@@ -1014,7 +1047,7 @@ export const SourceRunsDocument = {
                 { kind: "Field", name: { kind: "Name", value: "startedAt" } },
                 {
                   kind: "Field",
-                  name: { kind: "Name", value: "sourceProfileSource" },
+                  name: { kind: "Name", value: "sourceProfile" },
                 },
               ],
             },

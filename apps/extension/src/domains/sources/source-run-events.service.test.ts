@@ -299,10 +299,5 @@ function createEvent(type: SourceRunEventType | string) {
 }
 
 function createRun({ id, status }: { id: string; status: SourceRunStatus }) {
-  return {
-    id,
-    status,
-    sourceProfileId: "remoteyeah",
-    sourceProfileSource: "test",
-  };
+  return { id, status, sourceProfileId: "remoteyeah" };
 }
