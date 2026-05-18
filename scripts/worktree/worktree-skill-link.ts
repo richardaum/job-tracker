@@ -42,11 +42,11 @@ function main(): void {
   }
 
   const force = parseForce(process.argv);
-  const [linkResult, linkErr] = tryRun(() =>
+  const [linkErr, linkResult] = tryRun(() =>
     linkWorktreeJobSkill({ worktreeRoot, mainRoot, force }),
   );
   if (linkErr) {
-    fail(linkErr instanceof Error ? linkErr.message : String(linkErr));
+    fail(linkErr.message);
   }
 
   const { source, linkPath, created } = linkResult!;

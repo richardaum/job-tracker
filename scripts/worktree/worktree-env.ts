@@ -127,11 +127,11 @@ function main(): void {
   console.warn(`${tag} WXT  http://localhost:${ports.wxt}`);
   console.warn(`${tag} DB   ${parseDatabaseName(databaseUrl) ?? destDb}`);
 
-  const [skillLink, skillErr] = tryRun(() =>
+  const [skillErr, skillLink] = tryRun(() =>
     linkWorktreeJobSkill({ worktreeRoot, mainRoot }),
   );
   if (skillErr) {
-    fail(skillErr instanceof Error ? skillErr.message : String(skillErr));
+    fail(skillErr.message);
   }
   console.warn(
     `${tag} skill ${skillLink!.created ? "linked" : "ok"} ${skillLink!.linkPath} → ${skillLink!.source}`,

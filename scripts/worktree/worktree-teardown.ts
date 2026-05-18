@@ -84,9 +84,9 @@ function main(): void {
     } else {
       console.warn(`${tag} dropdb ${dbName}`);
     }
-    const [, dropErr] = tryRun(() => dropDatabase(dbName, root));
+    const [dropErr] = tryRun(() => dropDatabase(dbName, root));
     if (dropErr) {
-      fail(dropErr instanceof Error ? dropErr.message : String(dropErr));
+      fail(dropErr.message);
     }
   } else {
     console.warn(

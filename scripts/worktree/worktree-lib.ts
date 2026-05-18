@@ -130,8 +130,8 @@ export function isPortListening(port: number): boolean {
 }
 
 function parseJsonOrUndefined(raw: string): unknown {
-  const [, parsed] = tryRun(() => JSON.parse(raw) as unknown);
-  return parsed ?? undefined;
+  const [err, parsed] = tryRun(() => JSON.parse(raw) as unknown);
+  return err ? undefined : parsed;
 }
 
 export function readGlobalRegistry(): GlobalRegistry {
@@ -591,7 +591,7 @@ export function worktreeJobSkillLinkPath(worktreeRoot: string): string {
 }
 
 function tryRealpath(path: string): string {
-  const [resolved, err] = tryRun(() => realpathSync(path));
+  const [err, resolved] = tryRun(() => realpathSync(path));
   return err ? path : resolved!;
 }
 
