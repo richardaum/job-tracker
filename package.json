@@ -43,6 +43,7 @@
     ]
   },
   "devDependencies": {
+    "dotenv": "^16.6.1",
     "@job-tracker/try-run": "workspace:*",
     "@job-tracker/eslint-plugin": "workspace:*",
     "@eslint/js": "^9.39.4",

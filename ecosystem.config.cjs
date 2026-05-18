@@ -1,32 +1,11 @@
-const fs = require("node:fs");
 const path = require("node:path");
+const dotenv = require("dotenv");
 
 const root = path.resolve(__dirname);
 
-/** @param {string} filePath */
-function loadDotEnvFile(filePath) {
-  if (!fs.existsSync(filePath)) return {};
-  /** @type {Record<string, string>} */
-  const env = {};
-  for (const rawLine of fs.readFileSync(filePath, "utf8").split("\n")) {
-    const line = rawLine.trim();
-    if (!line || line.startsWith("#")) continue;
-    const eq = line.indexOf("=");
-    if (eq <= 0) continue;
-    const key = line.slice(0, eq).trim();
-    let value = line.slice(eq + 1).trim();
-    if (
-      (value.startsWith('"') && value.endsWith('"')) ||
-      (value.startsWith("'") && value.endsWith("'"))
-    ) {
-      value = value.slice(1, -1);
-    }
-    env[key] = value;
-  }
-  return env;
-}
-
-const worktreeEnv = loadDotEnvFile(path.join(root, ".env.worktree"));
+const { parsed: worktreeEnv = {} } = dotenv.config({
+  path: path.join(root, ".env.worktree"),
+});
 const namespace = worktreeEnv.PM2_NAMESPACE || "job-tracker";
 const appPrefix = worktreeEnv.PM2_APP_PREFIX
   ? `${worktreeEnv.PM2_APP_PREFIX}-`
