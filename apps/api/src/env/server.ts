@@ -1,4 +1,8 @@
-import "dotenv/config";
+import { config as loadDotenv } from "dotenv";
+
+if (!process.env.DATABASE_URL) {
+  loadDotenv();
+}
 
 import { z } from "zod";
 

@@ -7,6 +7,7 @@ import { defineConfig } from "wxt";
 
 const repoRoot = path.resolve(import.meta.dirname, "../..");
 const DEFAULT_API_URL = "http://localhost:3101";
+const wxtDevPort = Number.parseInt(process.env.WXT_DEV_PORT ?? "3001", 10);
 
 export default defineConfig({
   srcDir: "src",
@@ -14,7 +15,7 @@ export default defineConfig({
   outDir: "build",
   outDirTemplate: "{{browser}}-mv{{manifestVersion}}{{modeSuffix}}",
   webExt: { disabled: true },
-  dev: { server: { port: 3001 } },
+  dev: { server: { port: wxtDevPort } },
   manifest: (env) => ({
     name: "Job Tracker",
     description: "Job Tracker browser extension (MV3).",
@@ -38,8 +39,7 @@ export default defineConfig({
     content_security_policy:
       env.command === "serve"
         ? {
-            extension_pages:
-              "script-src 'self' 'wasm-unsafe-eval' http://localhost:3001; object-src 'self'",
+            extension_pages: `script-src 'self' 'wasm-unsafe-eval' http://localhost:${wxtDevPort}; object-src 'self'`,
           }
         : undefined,
     icons: {

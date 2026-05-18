@@ -3,12 +3,9 @@ import type { Metadata } from "next";
 import { cookies } from "next/headers";
 
 import { staticPageMetadata } from "@/app/metadata";
-import { serverEnv } from "@/env/server";
 import { getServerApiGraphqlUrl } from "@/lib/server-api-endpoints";
 
-const GRAPHQL_URL = getServerApiGraphqlUrl(
-  serverEnv.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:3101",
-);
+const GRAPHQL_URL = getServerApiGraphqlUrl();
 
 async function getDraftTitle(id: string) {
   const [cookieErr, cookieStore] = await tryRun(cookies());

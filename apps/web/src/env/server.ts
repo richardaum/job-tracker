@@ -9,7 +9,7 @@ const serverEnvSchema = z.object({
     .default("development"),
   PORT: z.coerce.number().int().min(1).max(65535).default(3100),
   /** Used by server-only fetches (e.g. generateMetadata). */
-  NEXT_PUBLIC_API_URL: z.url().optional(),
+  NEXT_PUBLIC_API_URL: z.url(),
 });
 
 export type ServerEnv = z.infer<typeof serverEnvSchema>;
