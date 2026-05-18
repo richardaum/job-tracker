@@ -13,6 +13,7 @@ yarn-error.log*
 .env
 .env.local
 .env.*.local
+.env.worktree
 
 # apps/web — Next.js 16, Vitest, Playwright (e2e)
 apps/web/.next/

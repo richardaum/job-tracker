@@ -3,6 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "worktree:env": "node --experimental-strip-types scripts/worktree/worktree-env.ts",
+    "worktree:teardown": "node --experimental-strip-types scripts/worktree/worktree-teardown.ts",
     "pm2:start": "pm2 start ecosystem.config.cjs",
     "pm2:reset": "node --experimental-strip-types scripts/pm2-ecosystem-reset.ts",
     "ports:kill": "node --experimental-strip-types scripts/kill-tcp-listen-ports.ts",
@@ -16,7 +18,7 @@
     "e2e": "pnpm turbo build --filter=@job-tracker/web && pnpm --filter @job-tracker/web run e2e",
     "lint": "turbo lint",
     "fix:imports": "node --experimental-strip-types scripts/fix-imports.ts",
-    "test:scripts": "node --experimental-strip-types --test scripts/fix-imports.test.ts",
+    "test:scripts": "node --experimental-strip-types --test scripts/fix-imports.test.ts scripts/worktree/worktree-lib.test.ts",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint-staged": "lint-staged",
@@ -41,6 +43,7 @@
     ]
   },
   "devDependencies": {
+    "@job-tracker/try-run": "workspace:*",
     "@job-tracker/eslint-plugin": "workspace:*",
     "@eslint/js": "^9.39.4",
     "@next/eslint-plugin-next": "16.3.0-canary.6",

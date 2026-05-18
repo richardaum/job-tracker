@@ -4,6 +4,8 @@ import { spawnSync } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { isGitWorktreeCheckout } from "./worktree/worktree-lib.ts";
+
 const DEFAULT_PORTS: readonly number[] = [3100, 3101, 6006];
 
 function parseCommaPorts(
@@ -74,6 +76,13 @@ const invokedDirectly =
 
 if (invokedDirectly) {
   const tag = "[ports:kill]";
+  const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+  if (isGitWorktreeCheckout(root) && !process.env.PM2_RESET_PORTS?.trim()) {
+    console.error(
+      `${tag} Refusing default port kill in a git worktree without PM2_RESET_PORTS.`,
+    );
+    process.exit(1);
+  }
   const ports = resolveListenPorts(process.env, { tag });
   console.warn(`${tag} Clearing LISTEN on TCP ${ports.join(", ")} …`);
   killTcpListenPorts(ports, { tag });
