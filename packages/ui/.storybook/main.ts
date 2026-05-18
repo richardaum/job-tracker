@@ -17,10 +17,7 @@ const require = createRequire(import.meta.url);
 const addonDocsBlocks = require.resolve("@storybook/addon-docs/blocks");
 
 const config: StorybookConfig = {
-  stories: [
-    "../src/**/*.stories.@(js|jsx|mjs|ts|tsx)",
-    "../../../docs/**/*.mdx",
-  ],
+  stories: ["../src/**/*.stories.@(js|jsx|mjs|ts|tsx)", "../../../docs/*.mdx"],
   addons: [
     {
       name: getAbsolutePath("@storybook/addon-docs"),

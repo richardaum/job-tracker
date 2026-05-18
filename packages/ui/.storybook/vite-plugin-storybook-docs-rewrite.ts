@@ -5,8 +5,8 @@ import type { Plugin } from "vite";
 import { rewriteSpecMarkdownForStorybook } from "#ui/stories/spec-markdown-resolve.ts";
 
 /**
- * Runs before MDX compile: rewrites LeanSpec traceability tokens and relative
- * Markdown links under the repo `docs/` tree so Storybook in-app navigation works.
+ * Runs before MDX compile: rewrites relative Markdown links in repo `docs/*.mdx`
+ * so Storybook in-app navigation works.
  */
 export function storybookDocsRewritePlugin(repoRoot: string): Plugin {
   return {

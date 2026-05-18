@@ -1,53 +1,14 @@
 import { toId } from "storybook/internal/csf";
 
-import requirementIdMap from "./requirement-id-map.generated.json" with { type: "json" };
-
-/** Bare `[P-12]` / `[T-57]` not already followed by `(` (i.e. not explicit markdown link open). */
-const REQUIREMENT_BRACKET_RE = /\[(P|T|R|H|F)-(\d+)\](?!\()/g;
-
-/** Matches `scripts/generate-specs-storybook.mjs` `humanizeSlug`. */
-export function humanizeSlug(slug: string) {
-  const rest = slug.replace(/^\d{3}-/, "");
-  return rest
-    .split("-")
-    .filter(Boolean)
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(" ");
-}
-
 /**
- * Repo-root–relative POSIX path (e.g. `specs/001-foo/README.md`) → Storybook `Meta` title
- * for a docs page that exists in this Storybook config.
+ * Repo-root–relative POSIX path → Storybook `Meta` title for docs MDX in this config.
  */
 export function filePathToDocTitle(repoPath: string): string | null {
   const p = repoPath.replace(/\\/g, "/").replace(/^\/+/, "");
 
-  if (p === "specs/README.md") return "Documentation/Specs/Overview";
-  if (p === "specs/HISTORY.md") return "Documentation/Specs/History";
-  if (p === "specs/INDEX.md") return "Documentation/Specs/Generated index";
-
-  const specReadme = p.match(/^specs\/(\d{3}-[a-z0-9-]+)\/README\.md$/);
-  if (specReadme) {
-    const folder = specReadme[1];
-    const id = folder.slice(0, 3);
-    return `Documentation/Specs/${id} — ${humanizeSlug(folder)}`;
-  }
-
   if (p === "docs/PROJECT.mdx") return "Documentation/Project";
   if (p === "docs/CONVENTIONS.mdx") return "Documentation/Conventions";
   if (p === "docs/COSTS.mdx") return "Documentation/Costs";
-
-  if (p === "docs/specs/HISTORY.mdx") return "Documentation/Specs/History";
-  if (p === "docs/specs/INDEX.mdx")
-    return "Documentation/Specs/Generated index";
-  if (p === "docs/specs/OVERVIEW.mdx") return "Documentation/Specs/Overview";
-
-  const dsm = p.match(/^docs\/specs\/(\d{3}-[a-z0-9-]+)\.mdx$/);
-  if (dsm) {
-    const base = dsm[1];
-    const id = base.slice(0, 3);
-    return `Documentation/Specs/${id} — ${humanizeSlug(base)}`;
-  }
 
   return null;
 }
@@ -90,42 +51,6 @@ export function docTitleToStorybookHref(title: string) {
  * Rewrite markdown `[text](./foo.md)` links so AnchorMdx can navigate to the target docs page.
  * Preserves `#hash` and `?query` on the URL when present.
  */
-/**
- * Turn traceability tokens like `[T-57]` into Storybook doc links when the id is listed in
- * `requirement-id-map.generated.json` (built from `- [X-NNN]` definition lines under `specs/`).
- */
-export function rewriteRequirementCrossReferences(
-  markdown: string,
-  map: Record<string, string> = requirementIdMap as Record<string, string>,
-) {
-  return markdown.replace(
-    REQUIREMENT_BRACKET_RE,
-    (full, kind: string, num: string) => {
-      const id = `${kind}-${num}`;
-      const repoPath = map[id];
-      if (!repoPath) {
-        return full;
-      }
-      const docTitle = filePathToDocTitle(repoPath);
-      if (!docTitle) {
-        return full;
-      }
-      const href = docTitleToStorybookHref(docTitle);
-      return `[${id}](${href})`;
-    },
-  );
-}
-
-/** Requirement cross-refs first, then relative `.md` / `.mdx` links (same source file). */
-export function rewriteSpecMarkdownForStorybook(
-  markdown: string,
-  sourceFile: string,
-) {
-  let body = rewriteRequirementCrossReferences(markdown);
-  body = rewriteLocalMarkdownLinks(body, sourceFile);
-  return body;
-}
-
 export function rewriteLocalMarkdownLinks(
   markdown: string,
   sourceFile: string,
@@ -147,4 +72,12 @@ export function rewriteLocalMarkdownLinks(
       return `[${text}](${next})`;
     },
   );
+}
+
+/** Pre-transform MDX from repo `docs/*.mdx` for in-doc navigation in Storybook. */
+export function rewriteSpecMarkdownForStorybook(
+  markdown: string,
+  sourceFile: string,
+) {
+  return rewriteLocalMarkdownLinks(markdown, sourceFile);
 }

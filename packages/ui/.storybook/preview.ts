@@ -8,15 +8,7 @@ const preview: Preview = {
     controls: { matchers: { color: /(background|color)$/i, date: /Date$/i } },
     options: {
       storySort: {
-        order: [
-          "Documentation",
-          [
-            "Project",
-            "Conventions",
-            ["Specs", ["Overview", "History", "Generated index", "*"]],
-          ],
-          "*",
-        ],
+        order: ["Documentation", ["Project", "Conventions", "Costs"], "*"],
       },
     },
     docs: { components: { mermaid: Mermaid, Mermaid } },

@@ -8,12 +8,10 @@
     "#ui/*": "./src/*"
   },
   "scripts": {
-    "sync-specs-docs": "node ../../scripts/generate-specs-storybook.mjs",
-    "dev": "pnpm run sync-specs-docs && storybook dev -p 6006 --no-open",
-    "storybook": "pnpm run sync-specs-docs && storybook dev -p 6006 --no-open",
+    "dev": "storybook dev -p 6006 --no-open",
+    "storybook": "storybook dev -p 6006 --no-open",
     "build": "tsc",
-    "build-storybook": "pnpm run sync-specs-docs && storybook build",
-    "pretest-storybook": "pnpm run sync-specs-docs",
+    "build-storybook": "storybook build",
     "test-storybook": "vitest run --project=storybook",
     "lint": "eslint . --max-warnings=0 --no-warn-ignored && tsc --noEmit",
     "lint:fix": "eslint . --fix --max-warnings=0 --no-warn-ignored && tsc --noEmit",

@@ -7,8 +7,7 @@ const namespace = "job-tracker";
 /**
  * PM2 ecosystem — dev processes for this monorepo.
  *
- * **storybook** watches `specs/` and `scripts/generate-specs-storybook.ts`; on change PM2 restarts
- * the dev server, which runs `sync-specs-docs` then Storybook (regenerates gitignored `docs/specs/*.mdx`).
+ * **storybook** watches `src` and `.storybook`; on change PM2 restarts the dev server.
  *
  * Start:  pnpm pm2:start
  * Reset:  `pnpm pm2:reset` — stop + SIGKILL LISTEN on 3100/3101/6006 + delete + start (`scripts/pm2-ecosystem-reset.ts`).
@@ -54,19 +53,8 @@ module.exports = {
       interpreter: "none",
       log_date_format: "YYYY-MM-DD HH:mm:ss Z",
       env: { NODE_ENV: "development", CI: "true" },
-      watch: [
-        "src",
-        ".storybook",
-        path.join(root, "specs"),
-        path.join(root, "scripts", "generate-specs-storybook.ts"),
-      ],
-      ignore_watch: [
-        "node_modules",
-        ".git",
-        "dist",
-        "storybook-static",
-        path.join(root, "docs", "specs"),
-      ],
+      watch: ["src", ".storybook"],
+      ignore_watch: ["node_modules", ".git", "dist", "storybook-static"],
     },
     {
       name: "extension",
