@@ -3,9 +3,14 @@
 import { spawnSync } from "node:child_process";
 import {
   existsSync,
+  lstatSync,
   mkdirSync,
   readFileSync,
+  readlinkSync,
+  realpathSync,
   renameSync,
+  rmSync,
+  symlinkSync,
   unlinkSync,
   writeFileSync,
 } from "node:fs";
@@ -573,6 +578,69 @@ export function buildWorktreeEnv(params: {
     ...secrets,
     NODE_ENV: "development",
   };
+}
+
+export const WORKTREE_JOB_SKILL_DIR = "worktree-job";
+
+export function worktreeJobSkillSourcePath(mainRoot: string): string {
+  return join(mainRoot, ".cursor/skills", WORKTREE_JOB_SKILL_DIR);
+}
+
+export function worktreeJobSkillLinkPath(worktreeRoot: string): string {
+  return join(worktreeRoot, ".cursor/skills", WORKTREE_JOB_SKILL_DIR);
+}
+
+function tryRealpath(path: string): string {
+  const [resolved, err] = tryRun(() => realpathSync(path));
+  return err ? path : resolved!;
+}
+
+/** Symlink main-checkout `.cursor/skills/worktree-job` into this worktree (idempotent). */
+export function linkWorktreeJobSkill(params: {
+  worktreeRoot: string;
+  mainRoot: string;
+  force?: boolean;
+}): { source: string; linkPath: string; created: boolean } {
+  const source = worktreeJobSkillSourcePath(params.mainRoot);
+  const linkPath = worktreeJobSkillLinkPath(params.worktreeRoot);
+
+  if (!existsSync(source)) {
+    throw new Error(
+      `worktree-job skill missing at ${source}. Add SKILL.md on the main checkout first.`,
+    );
+  }
+
+  const sourceReal = tryRealpath(source);
+  const worktreeReal = tryRealpath(params.worktreeRoot);
+  const mainReal = tryRealpath(params.mainRoot);
+
+  if (worktreeReal === mainReal) {
+    return { source, linkPath, created: false };
+  }
+
+  mkdirSync(join(params.worktreeRoot, ".cursor/skills"), { recursive: true });
+
+  if (existsSync(linkPath)) {
+    const stat = lstatSync(linkPath);
+    if (stat.isSymbolicLink()) {
+      const target = readlinkSync(linkPath);
+      const resolved = target.startsWith("/")
+        ? target
+        : join(dirname(linkPath), target);
+      if (tryRealpath(resolved) === sourceReal) {
+        return { source, linkPath, created: false };
+      }
+    }
+    if (!params.force) {
+      throw new Error(
+        `${linkPath} already exists and is not a symlink to ${source}. Remove it or pass --force.`,
+      );
+    }
+    rmSync(linkPath, { recursive: true, force: true });
+  }
+
+  symlinkSync(source, linkPath, "dir");
+  return { source, linkPath, created: true };
 }
 
 export function loadEnvWorktree(root: string): WorktreeEnvMap {

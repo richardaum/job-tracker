@@ -1,5 +1,14 @@
 #!/usr/bin/env node
 import assert from "node:assert/strict";
+import {
+  mkdirSync,
+  mkdtempSync,
+  readlinkSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { describe, it } from "node:test";
 
 import {
@@ -7,9 +16,11 @@ import {
   buildDestinationDatabaseUrl,
   buildWorktreeEnv,
   dbNameForSlug,
+  linkWorktreeJobSkill,
   parseEnvFile,
   resolvePostgresContainer,
   validateSlug,
+  worktreeJobSkillLinkPath,
 } from "./worktree-lib.ts";
 
 describe("worktree-lib", () => {
@@ -70,6 +81,28 @@ BAZ="quoted"
     assert.equal(env.PM2_APP_PREFIX, "feat-a");
     assert.equal(env.PM2_RESET_PORTS, "3105,3106,6007,3002");
     assert.equal(env.NEXT_PUBLIC_API_URL, "http://localhost:3105");
+  });
+
+  it("linkWorktreeJobSkill symlinks main skill into worktree", () => {
+    const base = mkdtempSync(join(tmpdir(), "jt-skill-"));
+    const mainRoot = join(base, "main");
+    const worktreeRoot = join(base, "wt");
+    const skillDir = join(mainRoot, ".cursor/skills/worktree-job");
+    mkdirSync(skillDir, { recursive: true });
+    writeFileSync(join(skillDir, "SKILL.md"), "# test\n", "utf8");
+    mkdirSync(worktreeRoot, { recursive: true });
+
+    const first = linkWorktreeJobSkill({ worktreeRoot, mainRoot });
+    assert.equal(first.created, true);
+    assert.equal(
+      readlinkSync(worktreeJobSkillLinkPath(worktreeRoot)),
+      skillDir,
+    );
+
+    const second = linkWorktreeJobSkill({ worktreeRoot, mainRoot });
+    assert.equal(second.created, false);
+
+    rmSync(base, { recursive: true, force: true });
   });
 
   it("resolvePostgresContainer uses WORKTREE_POSTGRES_DOCKER when set", () => {

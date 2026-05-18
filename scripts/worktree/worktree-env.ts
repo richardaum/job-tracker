@@ -4,6 +4,8 @@ import { existsSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { tryRun } from "@job-tracker/try-run";
+
 import {
   allocatePorts,
   buildDestinationDatabaseUrl,
@@ -14,6 +16,7 @@ import {
   extractRequiredSecrets,
   formatEnvWorktree,
   isGitWorktreeCheckout,
+  linkWorktreeJobSkill,
   parseDatabaseName,
   readApiEnvFromPath,
   readGlobalRegistry,
@@ -123,6 +126,17 @@ function main(): void {
   console.warn(`${tag} SB   http://localhost:${ports.storybook}`);
   console.warn(`${tag} WXT  http://localhost:${ports.wxt}`);
   console.warn(`${tag} DB   ${parseDatabaseName(databaseUrl) ?? destDb}`);
+
+  const [skillLink, skillErr] = tryRun(() =>
+    linkWorktreeJobSkill({ worktreeRoot, mainRoot }),
+  );
+  if (skillErr) {
+    fail(skillErr instanceof Error ? skillErr.message : String(skillErr));
+  }
+  console.warn(
+    `${tag} skill ${skillLink!.created ? "linked" : "ok"} ${skillLink!.linkPath} → ${skillLink!.source}`,
+  );
+
   console.warn(`${tag} Next: pnpm install (if needed) && pnpm pm2:start`);
   console.warn(
     `${tag} Migrations are not run automatically — run API migrations if schema drifted.`,

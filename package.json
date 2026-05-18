@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "worktree:env": "node --experimental-strip-types scripts/worktree/worktree-env.ts",
+    "worktree:skill-link": "node --experimental-strip-types scripts/worktree/worktree-skill-link.ts",
     "worktree:teardown": "node --experimental-strip-types scripts/worktree/worktree-teardown.ts",
     "pm2:start": "pm2 start ecosystem.config.cjs",
     "pm2:reset": "node --experimental-strip-types scripts/pm2-ecosystem-reset.ts",

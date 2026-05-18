@@ -12,6 +12,7 @@ import {
   dropDatabase,
   loadEnvWorktree,
   removeSlugFromRegistry,
+  resolvePostgresContainer,
   runGit,
 } from "./worktree-lib.ts";
 
@@ -25,9 +26,13 @@ function fail(message: string): never {
 
 function parseArgs(argv: string[]): { slug?: string; dropDb: boolean } {
   let slug: string | undefined;
-  let dropDb = false;
+  let dropDb = true;
   for (let i = 2; i < argv.length; i++) {
     const arg = argv[i];
+    if (arg === "--keep-db") {
+      dropDb = false;
+      continue;
+    }
     if (arg === "--drop-db") {
       dropDb = true;
       continue;
@@ -71,17 +76,21 @@ function main(): void {
     console.warn(`${tag} removed ${envPath}`);
   }
 
+  const dbName = dbNameForSlug(slug);
   if (dropDb) {
-    const dbName = dbNameForSlug(slug);
-    console.warn(`${tag} dropdb ${dbName}`);
+    const container = resolvePostgresContainer(root);
+    if (container) {
+      console.warn(`${tag} dropdb ${dbName} via docker (${container})`);
+    } else {
+      console.warn(`${tag} dropdb ${dbName}`);
+    }
     const [, dropErr] = tryRun(() => dropDatabase(dbName, root));
     if (dropErr) {
       fail(dropErr instanceof Error ? dropErr.message : String(dropErr));
     }
   } else {
-    const dbName = dbNameForSlug(slug);
     console.warn(
-      `${tag} database ${dbName} preserved. Pass --drop-db to remove it.`,
+      `${tag} database ${dbName} preserved (--keep-db). Postgres container/volume unchanged.`,
     );
   }
 
