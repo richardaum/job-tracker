@@ -21,6 +21,17 @@ Run the stack in development (Turborepo):
 pnpm dev
 ```
 
+Parallel feature work in **git worktrees** (isolated ports, DB, PM2 names; main checkout unchanged):
+
+```bash
+export WORKTREE_SOURCE_DB=job_tracker
+pnpm worktree:env    # inside the worktree only
+pnpm pm2:start
+pnpm worktree:teardown   # add -- --drop-db to remove the clone DB
+```
+
+See `.env.worktree.example` and `.agents/rules/ops-docker-pm2.md`.
+
 Match CI locally (LeanSpec validation, lint, typecheck, tests with coverage, production build):
 
 ```bash
