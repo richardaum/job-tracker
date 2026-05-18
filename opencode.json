@@ -1,1 +1,4 @@
-{ "instructions": [".agents/rules/*.md"] }
+{
+  "$schema": "https://opencode.ai/config.json",
+  "instructions": [".agents/rules/*.md"]
+}
