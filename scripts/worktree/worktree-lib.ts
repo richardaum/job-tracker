@@ -325,8 +325,127 @@ export function dbNameForSlug(slug: string): string {
   return `job_tracker_${slug.replaceAll("-", "_")}`;
 }
 
-export function databaseExists(dbName: string): boolean {
+function composeFilesForPostgres(repoRoot: string): string[] {
+  const files: string[] = [];
+  const mainRoot = resolveMainWorktreeRoot(repoRoot);
+  if (mainRoot) {
+    const mainCompose = join(mainRoot, "docker-compose.yml");
+    if (existsSync(mainCompose)) files.push(mainCompose);
+  }
+  const localCompose = join(repoRoot, "docker-compose.yml");
+  if (existsSync(localCompose) && !files.includes(localCompose)) {
+    files.push(localCompose);
+  }
+  return files;
+}
+
+function dockerComposePostgresId(composeFile: string): string | undefined {
   const result = spawnSync(
+    "docker",
+    ["compose", "-f", composeFile, "ps", "-q", "postgres"],
+    { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] },
+  );
+  if (result.status !== 0) return undefined;
+  return result.stdout
+    ?.trim()
+    .split("\n")
+    .map((line) => line.trim())
+    .find(Boolean);
+}
+
+/** Auto-detect Postgres in Docker; override with WORKTREE_POSTGRES_DOCKER. */
+export function resolvePostgresContainer(repoRoot: string): string | undefined {
+  const explicit = process.env.WORKTREE_POSTGRES_DOCKER?.trim();
+  if (explicit) return explicit;
+
+  for (const composeFile of composeFilesForPostgres(repoRoot)) {
+    const id = dockerComposePostgresId(composeFile);
+    if (id) return id;
+  }
+
+  const listed = spawnSync(
+    "docker",
+    ["ps", "--filter", "publish=5432", "--filter", "status=running", "-q"],
+    { encoding: "utf8" },
+  );
+  return listed.stdout?.trim().split(/\s+/).find(Boolean);
+}
+
+function pgUser(): string {
+  return process.env.WORKTREE_POSTGRES_USER?.trim() || "postgres";
+}
+
+function pgSpawn(
+  repoRoot: string,
+  command: string,
+  args: string[],
+  opts?: {
+    input?: string;
+    stdio?: "inherit" | ["ignore", "pipe", "pipe"];
+    encoding?: "utf8";
+  },
+): ReturnType<typeof spawnSync> {
+  const container = resolvePostgresContainer(repoRoot);
+  const maxBuffer = 50 * 1024 * 1024;
+  const stdio =
+    opts?.stdio ??
+    (opts?.encoding
+      ? ["pipe", "pipe", "pipe"]
+      : opts?.input !== undefined
+        ? "pipe"
+        : "inherit");
+
+  if (!container) {
+    return spawnSync(command, args, {
+      encoding: opts?.encoding,
+      input: opts?.input,
+      stdio,
+      maxBuffer,
+    });
+  }
+
+  const dockerArgs = ["exec"];
+  if (opts?.input !== undefined) dockerArgs.push("-i");
+  dockerArgs.push(container, command, "-U", pgUser(), ...args);
+
+  return spawnSync("docker", dockerArgs, {
+    encoding: opts?.encoding,
+    input: opts?.input,
+    stdio,
+    maxBuffer,
+  });
+}
+
+function pgSpawnOrThrow(
+  repoRoot: string,
+  command: string,
+  args: string[],
+): void {
+  const result = pgSpawn(repoRoot, command, args, { stdio: "inherit" });
+  if (result.status !== 0) {
+    throw new Error(
+      `${command} ${args.join(" ")} failed (exit ${result.status ?? "?"}).`,
+    );
+  }
+}
+
+function shellQuote(value: string): string {
+  return `'${value.replaceAll("'", "'\\''")}'`;
+}
+
+function assertPostgresAvailable(repoRoot: string): void {
+  if (resolvePostgresContainer(repoRoot)) return;
+  const psqlCheck = spawnSync("psql", ["--version"], { stdio: "ignore" });
+  if (psqlCheck.status === 0) return;
+  throw new Error(
+    "PostgreSQL client not found. Install psql, start Postgres via docker compose, " +
+      "or set WORKTREE_POSTGRES_DOCKER (e.g. job-tracker-postgres-1).",
+  );
+}
+
+export function databaseExists(dbName: string, repoRoot: string): boolean {
+  const result = pgSpawn(
+    repoRoot,
     "psql",
     [
       "-d",
@@ -336,37 +455,61 @@ export function databaseExists(dbName: string): boolean {
     ],
     { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] },
   );
-  return result.stdout.trim() === "1";
+  if (result.status !== 0) return false;
+  return (result.stdout ?? "").trim() === "1";
 }
 
 export function cloneDatabase(
   sourceDb: string,
   destDb: string,
-  opts?: { force?: boolean },
+  opts?: { force?: boolean; repoRoot?: string },
 ): void {
-  if (databaseExists(destDb) && !opts?.force) {
+  const repoRoot = opts?.repoRoot ?? process.cwd();
+  assertPostgresAvailable(repoRoot);
+
+  const container = resolvePostgresContainer(repoRoot);
+  if (container) {
+    console.warn(`[worktree:env] postgres CLI via docker (${container})`);
+  }
+
+  if (databaseExists(destDb, repoRoot) && !opts?.force) {
     console.warn(
       `[worktree:env] Database ${destDb} already exists — skipping clone.`,
     );
     return;
   }
-  if (databaseExists(destDb) && opts?.force) {
-    spawnOrThrow("dropdb", [destDb]);
+  if (databaseExists(destDb, repoRoot) && opts?.force) {
+    pgSpawnOrThrow(repoRoot, "dropdb", [destDb]);
   }
-  spawnOrThrow("createdb", [destDb]);
-  const dump = spawnSync("pg_dump", ["--no-owner", sourceDb], {
+  pgSpawnOrThrow(repoRoot, "createdb", [destDb]);
+
+  if (container) {
+    const user = pgUser();
+    const script = `pg_dump -U ${user} --no-owner ${shellQuote(sourceDb)} | psql -U ${user} ${shellQuote(destDb)}`;
+    const result = spawnSync(
+      "docker",
+      ["exec", container, "sh", "-c", script],
+      { stdio: "inherit" },
+    );
+    if (result.status !== 0) {
+      throw new Error(
+        `docker pg_dump|psql clone ${sourceDb} → ${destDb} failed (exit ${result.status ?? "?"}).`,
+      );
+    }
+    return;
+  }
+
+  const dump = pgSpawn(repoRoot, "pg_dump", ["--no-owner", sourceDb], {
     encoding: "utf8",
-    maxBuffer: 50 * 1024 * 1024,
   });
   if (dump.status !== 0) {
     throw new Error(
       `pg_dump failed for ${sourceDb}: ${dump.stderr || dump.stdout}`,
     );
   }
-  const load = spawnSync("psql", [destDb], {
-    input: dump.stdout,
+  const load = pgSpawn(repoRoot, "psql", [destDb], {
+    input: dump.stdout as string,
     encoding: "utf8",
-    maxBuffer: 50 * 1024 * 1024,
   });
   if (load.status !== 0) {
     throw new Error(
@@ -375,13 +518,9 @@ export function cloneDatabase(
   }
 }
 
-function spawnOrThrow(cmd: string, args: string[]): void {
-  const result = spawnSync(cmd, args, { stdio: "inherit" });
-  if (result.status !== 0) {
-    throw new Error(
-      `${cmd} ${args.join(" ")} failed (exit ${result.status ?? "?"}).`,
-    );
-  }
+export function dropDatabase(dbName: string, repoRoot: string): void {
+  assertPostgresAvailable(repoRoot);
+  pgSpawnOrThrow(repoRoot, "dropdb", [dbName]);
 }
 
 export function formatEnvWorktree(entries: WorktreeEnvMap): string {

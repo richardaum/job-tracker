@@ -8,6 +8,7 @@ import {
   buildWorktreeEnv,
   dbNameForSlug,
   parseEnvFile,
+  resolvePostgresContainer,
   validateSlug,
 } from "./worktree-lib.ts";
 
@@ -69,5 +70,14 @@ BAZ="quoted"
     assert.equal(env.PM2_APP_PREFIX, "feat-a");
     assert.equal(env.PM2_RESET_PORTS, "3105,3106,6007,3002");
     assert.equal(env.NEXT_PUBLIC_API_URL, "http://localhost:3105");
+  });
+
+  it("resolvePostgresContainer uses WORKTREE_POSTGRES_DOCKER when set", () => {
+    process.env.WORKTREE_POSTGRES_DOCKER = "pg-test";
+    try {
+      assert.equal(resolvePostgresContainer("/tmp"), "pg-test");
+    } finally {
+      delete process.env.WORKTREE_POSTGRES_DOCKER;
+    }
   });
 });

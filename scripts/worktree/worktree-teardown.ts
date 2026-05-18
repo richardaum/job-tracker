@@ -5,8 +5,11 @@ import { existsSync, unlinkSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { tryRun } from "@job-tracker/try-run";
+
 import {
   dbNameForSlug,
+  dropDatabase,
   loadEnvWorktree,
   removeSlugFromRegistry,
   runGit,
@@ -71,9 +74,9 @@ function main(): void {
   if (dropDb) {
     const dbName = dbNameForSlug(slug);
     console.warn(`${tag} dropdb ${dbName}`);
-    const result = spawnSync("dropdb", [dbName], { stdio: "inherit" });
-    if (result.status !== 0) {
-      fail(`dropdb ${dbName} failed.`);
+    const [, dropErr] = tryRun(() => dropDatabase(dbName, root));
+    if (dropErr) {
+      fail(dropErr instanceof Error ? dropErr.message : String(dropErr));
     }
   } else {
     const dbName = dbNameForSlug(slug);

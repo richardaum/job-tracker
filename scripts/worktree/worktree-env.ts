@@ -101,7 +101,10 @@ function main(): void {
 
   console.warn(`${tag} slug=${slug}`);
   console.warn(`${tag} cloning ${sourceDb} → ${destDb}`);
-  cloneDatabase(sourceDb, destDb, { force: recreateDb });
+  cloneDatabase(sourceDb, destDb, {
+    force: recreateDb,
+    repoRoot: worktreeRoot,
+  });
 
   const registry = readGlobalRegistry();
   const ports = allocatePorts(slug, registry);
