@@ -35,6 +35,7 @@ Domain-specific rules modularized in `.agents/rules/`:
 | `repository-architecture.md` | App boundaries, NestJS, JSONB metadata, imports, env, migrations |
 | `typescript-react.md`        | TypeScript, React 19/Compiler, Nova, imports                     |
 | `validation.md`              | Lint, typecheck, tests, CI, fix:imports, dead code, pre-commit   |
+| `worktree-reintegration.md`  | WORKTREE.md lifecycle, merge instructions, followup              |
 | `web-ui.md`                  | Components, layout, patterns, mobile debug                       |
 
 ### Keyword index
@@ -73,6 +74,7 @@ Search the keyword in `.agents/rules/` files. Matches are by section topic, not 
 | `lint`, `fix:imports`, `typecheck`, `format`, `test`, `e2e`, CI, knip, dead code | `validation.md`              |
 | `PM2`, `pm2:start`, `pm2:stop`                                                   | `ops-docker-pm2.md`          |
 | `Docker`, `docker build`                                                         | `ops-docker-pm2.md`          |
+| `WORKTREE.md`, `worktree reintegration`, `reintegrate`                           | `worktree-reintegration.md`  |
 | `mobile debug`, ngrok, `__debug_ingest`                                          | `web-ui.md`                  |
 | `uppercase`, `*.mdx` / `*.md` naming                                             | `docs-conventions.md`        |
 | `--before` in headings                                                           | `docs-conventions.md`        |
