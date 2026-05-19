@@ -55,8 +55,9 @@ logs/
 .prettiercache
 
 # Editor / agent tooling — canonical skills/commands live under `.ai/` (pnpm setup-ai symlinks elsewhere)
-.agents/
+.agents/*
 !.agents/rules/
+.agents/skills/*
 !.agents/skills/worktree-env/
 .ai/skills/leanspec-development/
 .ai/.skill-lock.json
