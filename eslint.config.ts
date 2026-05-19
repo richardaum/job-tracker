@@ -290,7 +290,9 @@ export default defineConfig(
       "**/.storybook/**/*.{ts,tsx}",
       "**/tailwind.config.ts",
       "**/vitest.shims.d.ts",
+      "**/vitest.setup.{ts,tsx}",
       "**/*.stories.{ts,tsx}",
+      "**/*.mock.{ts,tsx}",
       "**/*.{test,spec}.{ts,tsx}",
       "apps/extension/codegen.ts",
       "apps/web/codegen.ts",
@@ -298,7 +300,10 @@ export default defineConfig(
       "packages/try-run/**",
     ],
     plugins: { "job-tracker": jobTrackerEslintPlugin },
-    rules: { "job-tracker/prefer-try-run-over-try-catch": "warn" },
+    rules: {
+      "job-tracker/prefer-try-run-over-try-catch": "warn",
+      "job-tracker/no-as-unknown-as": "error",
+    },
   },
   {
     files: ["**/*.{ts,tsx}"],
