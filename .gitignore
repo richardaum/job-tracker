@@ -72,3 +72,6 @@ Thumbs.db
 
 # Vercel — root or linked app (web often uses apps/web)
 .vercel
+
+# Editor workspace files
+*.code-workspace

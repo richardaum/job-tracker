@@ -14,11 +14,12 @@ import { DefaultTimerService } from "@/domains/timer/timer.service";
 
 export default defineContentScript({
   matches: [
-    "https://jobs.ashbyhq.com/*",
-    "https://jobs.lever.co/*",
-    "https://jobs.micro1.ai/*",
-    "https://www.linkedin.com/*",
-    "*://*.remoteyeah.com/*",
+    "<all_urls>",
+    // "https://jobs.ashbyhq.com/*",
+    // "https://jobs.lever.co/*",
+    // "https://jobs.micro1.ai/*",
+    // "https://www.linkedin.com/*",
+    // "*://*.remoteyeah.com/*",
   ],
   main() {
     const messagingService = new MessagingService("content");
