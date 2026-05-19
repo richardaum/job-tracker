@@ -8,13 +8,26 @@ import {
   buildWorktreeEnv,
   dbNameForSlug,
   type GlobalRegistry,
+  parseBooleanFlagValue,
   parseEnvFile,
   parseSetupArgs,
   parseTeardownArgs,
   resolvePostgresContainer,
   resolveTeardownMode,
   validateSlug,
+  WORKTREE_TEARDOWN_TAG,
 } from "./lib.ts";
+
+const SETUP_FLAGS = [
+  "--dry-run=true",
+  "--recreate-db=false",
+  "--dbeaver=false",
+  "--force-dbeaver=false",
+  "--install=false",
+  "--migrate=false",
+  "--start=false",
+  "--verify=false",
+] as const;
 
 describe("worktree lib", () => {
   it("validateSlug accepts kebab-case ≤16", () => {
@@ -76,35 +89,68 @@ BAZ="quoted"
     assert.equal(env.NEXT_PUBLIC_API_URL, "http://localhost:3105");
   });
 
-  it("parseSetupArgs sets dryRun for --dry-run", () => {
+  it("parseBooleanFlagValue accepts true/false case-insensitively", () => {
+    assert.equal(parseBooleanFlagValue("true"), true);
+    assert.equal(parseBooleanFlagValue("FALSE"), false);
+    assert.equal(parseBooleanFlagValue("maybe"), undefined);
+  });
+
+  it("parseSetupArgs requires every boolean flag with =true|false", () => {
     const args = parseSetupArgs([
       "node",
       "setup.ts",
-      "--dry-run",
+      ...SETUP_FLAGS,
       "--source-db=job_tracker",
     ]);
     assert.equal(args.dryRun, true);
+    assert.equal(args.recreateDb, false);
     assert.equal(args.sourceDb, "job_tracker");
   });
 
-  it("parseSetupArgs sets --all post-step flags", () => {
-    const args = parseSetupArgs(["node", "setup.ts", "--all"]);
+  it("parseSetupArgs sets post-step flags from explicit values", () => {
+    const args = parseSetupArgs([
+      "node",
+      "setup.ts",
+      "--dry-run=false",
+      "--recreate-db=false",
+      "--dbeaver=false",
+      "--force-dbeaver=false",
+      "--install=true",
+      "--migrate=true",
+      "--start=true",
+      "--verify=true",
+    ]);
     assert.equal(args.install, true);
     assert.equal(args.migrate, true);
     assert.equal(args.start, true);
     assert.equal(args.verify, true);
   });
 
-  it("parseTeardownArgs sets dryRun for --dry-run", () => {
-    const args = parseTeardownArgs(["node", "teardown.ts", "--dry-run"]);
+  it("parseTeardownArgs requires every boolean flag with =true|false", () => {
+    const args = parseTeardownArgs([
+      "node",
+      "teardown.ts",
+      "--dry-run=true",
+      "--apply=false",
+      "--drop-db=true",
+      "--dbeaver=false",
+    ]);
     assert.equal(args.dryRun, true);
     assert.equal(args.apply, false);
+    assert.equal(args.dropDb, true);
   });
 
-  it("parseTeardownArgs accepts --apply", () => {
-    const args = parseTeardownArgs(["node", "teardown.ts", "--apply"]);
+  it("parseTeardownArgs resolves apply mode when --apply=true", () => {
+    const args = parseTeardownArgs([
+      "node",
+      "teardown.ts",
+      "--dry-run=false",
+      "--apply=true",
+      "--drop-db=true",
+      "--dbeaver=false",
+    ]);
     assert.equal(args.apply, true);
-    assert.equal(resolveTeardownMode(args, "[worktree:teardown]"), "apply");
+    assert.equal(resolveTeardownMode(args, WORKTREE_TEARDOWN_TAG), "apply");
   });
 
   it("resolvePostgresContainer uses WORKTREE_POSTGRES_DOCKER when set", () => {

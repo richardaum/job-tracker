@@ -2,7 +2,7 @@
 
 CLI helpers to run **api + web + storybook + extension** in a [git worktree](https://git-scm.com/docs/git-worktree) alongside the main checkout. Isolation uses dedicated ports, a cloned PostgreSQL database (`job_tracker_<slug>`), PM2 name prefix, and root `.env.worktree` (gitignored).
 
-Scripts are **flag-only** — no stdin prompts. Safe for agents and CI-style automation.
+Scripts are **flag-only** — no stdin prompts. Every boolean flag must be passed as `--name=true` or `--name=false`. Safe for agents and CI-style automation.
 
 ## Prerequisites
 
@@ -20,53 +20,87 @@ From the **worktree root**:
 ```bash
 export WORKTREE_SOURCE_DB=job_tracker
 
-# Setup — dry-run first, then apply
-pnpm worktree:setup -- --dry-run --source-db job_tracker --all --dbeaver
-pnpm worktree:setup -- --source-db job_tracker --all --dbeaver
+# Setup — dry-run first, then apply (all boolean flags required)
+pnpm worktree:setup -- \
+  --dry-run=true \
+  --recreate-db=false \
+  --dbeaver=true \
+  --force-dbeaver=false \
+  --install=true \
+  --migrate=true \
+  --start=true \
+  --verify=true \
+  --source-db=job_tracker
 
-# Teardown — requires --dry-run or --apply
-pnpm worktree:teardown -- --dry-run
-pnpm worktree:teardown -- --apply --dbeaver
+pnpm worktree:setup -- \
+  --dry-run=false \
+  --recreate-db=false \
+  --dbeaver=true \
+  --force-dbeaver=false \
+  --install=true \
+  --migrate=true \
+  --start=true \
+  --verify=true \
+  --source-db=job_tracker
+
+# Teardown — all boolean flags required; exactly one of dry-run/apply must be true
+pnpm worktree:teardown -- \
+  --dry-run=true \
+  --apply=false \
+  --drop-db=true \
+  --dbeaver=false
+
+pnpm worktree:teardown -- \
+  --dry-run=false \
+  --apply=true \
+  --drop-db=true \
+  --dbeaver=true
 ```
 
 Direct invocation (repo root as cwd is resolved from script location):
 
 ```bash
-node --experimental-strip-types scripts/worktree/setup.ts -- --dry-run
-node --experimental-strip-types scripts/worktree/teardown.ts -- --dry-run
+node --experimental-strip-types scripts/worktree/setup.ts -- \
+  --dry-run=true --recreate-db=false --dbeaver=false --force-dbeaver=false \
+  --install=false --migrate=false --start=false --verify=false
+
+node --experimental-strip-types scripts/worktree/teardown.ts -- \
+  --dry-run=true --apply=false --drop-db=true --dbeaver=false
 ```
 
 ## Setup flags
 
-| Flag               | Effect                                                   |
-| ------------------ | -------------------------------------------------------- |
-| `--dry-run`        | Print plan only (no writes, no post-steps)               |
-| `--source-db=NAME` | Database to clone (default: `WORKTREE_SOURCE_DB`)        |
-| `--recreate-db`    | Drop and re-clone destination DB                         |
-| `--dbeaver`        | Add DBeaver connection under Job Tracker/Worktrees       |
-| `--force-dbeaver`  | Replace existing DBeaver connection for this slug        |
-| `--install`        | `pnpm install` (after core setup)                        |
-| `--migrate`        | `pnpm --filter @job-tracker/api run db:migrate`          |
-| `--start`          | `pnpm pm2:start`                                         |
-| `--verify`         | curl API/Web/Storybook/WXT (WXT failure is warning only) |
-| `--all`            | `--install --migrate --start --verify`                   |
+| Flag                          | Required | Effect                                                                  |
+| ----------------------------- | -------- | ----------------------------------------------------------------------- |
+| `--dry-run=true\|false`       | yes      | `true`: print plan only (no writes, no post-steps)                      |
+| `--recreate-db=true\|false`   | yes      | `true`: drop and re-clone destination DB                                |
+| `--dbeaver=true\|false`       | yes      | `true`: add DBeaver connection under Job Tracker/Worktrees              |
+| `--force-dbeaver=true\|false` | yes      | `true`: replace existing DBeaver connection (requires `--dbeaver=true`) |
+| `--install=true\|false`       | yes      | `true`: `pnpm install` (after core setup)                               |
+| `--migrate=true\|false`       | yes      | `true`: `pnpm --filter @job-tracker/api run db:migrate`                 |
+| `--start=true\|false`         | yes      | `true`: `pnpm pm2:start`                                                |
+| `--verify=true\|false`        | yes      | `true`: curl API/Web/Storybook/WXT (WXT failure is warning only)        |
+| `--source-db=NAME`            | no\*     | Database to clone (default: `WORKTREE_SOURCE_DB`)                       |
 
-**Core setup** (when not `--dry-run`): clone DB → allocate ports → write `.env.worktree` → optional DBeaver → optional post-steps.
+\*At least one of `WORKTREE_SOURCE_DB` or `--source-db=…` must be set before setup runs.
 
-Re-running setup is idempotent: ports reused from `/tmp/job-tracker-ports.json`, DB clone skipped if the database already exists (unless `--recreate-db`).
+**Core setup** (when `--dry-run=false`): clone DB → allocate ports → write `.env.worktree` → optional DBeaver → optional post-steps.
+
+Re-running setup is idempotent: ports reused from `/tmp/job-tracker-ports.json`, DB clone skipped if the database already exists (unless `--recreate-db=true`).
 
 ## Teardown flags
 
-| Flag        | Effect                                               |
-| ----------- | ---------------------------------------------------- |
-| `--dry-run` | Print plan only                                      |
-| `--apply`   | Execute teardown (required if not dry-run)           |
-| `--keep-db` | Do not drop `job_tracker_<slug>`                     |
-| `--drop-db` | Drop DB (default)                                    |
-| `--dbeaver` | Remove DBeaver connection                            |
-| `[slug]`    | Optional positional slug (else from `.env.worktree`) |
+| Flag                    | Required | Effect                                                    |
+| ----------------------- | -------- | --------------------------------------------------------- |
+| `--dry-run=true\|false` | yes      | `true`: print plan only                                   |
+| `--apply=true\|false`   | yes      | `true`: execute teardown                                  |
+| `--drop-db=true\|false` | yes      | `true`: drop `job_tracker_<slug>`; `false`: keep database |
+| `--dbeaver=true\|false` | yes      | `true`: remove DBeaver connection                         |
+| `[slug]`                | no       | Optional positional slug (else from `.env.worktree`)      |
 
-**Apply order:** PM2 delete → DBeaver (if flagged) → dropdb → port registry → remove `.env.worktree`.
+Exactly one of `--dry-run` or `--apply` must be `true` (the other `false`).
+
+**Apply order:** PM2 delete → DBeaver (if `--dbeaver=true`) → dropdb (if `--drop-db=true`) → port registry → remove `.env.worktree`.
 
 `git worktree remove` is **not** automated — see stderr hint after teardown.
 

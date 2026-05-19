@@ -18,7 +18,7 @@ Long-running apps (**`api`**, **`web`**, **`storybook`**, **`extension`**) — s
 - Port registry: **`/tmp/job-tracker-ports.json`** + **`/tmp/job-tracker-<slug>.ports.json`** (reconciled with `lsof`).
 - PostgreSQL: shared server `:5432`, database **`job_tracker_<slug>`** cloned from source DB.
 - Auth: **`AUTH_BYPASS_ENABLED=true`** in worktree env — no new OAuth redirect URIs.
-- Teardown: **`pnpm worktree:teardown`** (drops clone DB by default); **`--keep-db`** preserves it.
+- Teardown: **`pnpm worktree:teardown`** — all boolean flags use `=true|false`; **`--drop-db=false`** preserves the clone DB.
 - **Do not** run `pnpm pm2:reset` or `pnpm ports:kill` in a worktree without **`PM2_RESET_PORTS`** from `.env.worktree` — script refuses default kills to protect other checkouts.
 - Logs: `pm2 logs <slug>-api` (and `-web`, `-storybook`, `-extension`).
 
