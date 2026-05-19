@@ -17,6 +17,7 @@ import {
   requireSourceDb,
   requireValidSlug,
   requireWorktreeRoot,
+  runWorktreePostSetup,
   WORKTREE_SETUP_TAG,
   writeWorktreeEnvFile,
 } from "./lib.ts";
@@ -28,13 +29,8 @@ assertGitWorktree(root, tag);
 const worktreeRoot = requireWorktreeRoot(root, tag);
 const slug = requireValidSlug(root, tag);
 
-const {
-  sourceDb: sourceDbArg,
-  recreateDb,
-  dbeaver,
-  dryRun,
-} = parseSetupArgs(process.argv);
-const sourceDb = requireSourceDb(sourceDbArg, tag);
+const args = parseSetupArgs(process.argv);
+const sourceDb = requireSourceDb(args.sourceDb, tag);
 
 const mainRoot = requireMainWorktreeRoot(root, tag);
 const { secrets, databaseUrl, destDb } = loadMainApiEnvForWorktree(
@@ -43,7 +39,7 @@ const { secrets, databaseUrl, destDb } = loadMainApiEnvForWorktree(
   tag,
 );
 
-if (dryRun) {
+if (args.dryRun) {
   logSetupDryRun({
     tag,
     worktreeRoot,
@@ -52,9 +48,14 @@ if (dryRun) {
     sourceDb,
     destDb,
     databaseUrl,
-    recreateDb,
-    dbeaver,
+    recreateDb: args.recreateDb,
+    dbeaver: args.dbeaver,
+    forceDbeaver: args.forceDbeaver,
     ports: previewWorktreePorts(slug),
+    install: args.install,
+    migrate: args.migrate,
+    start: args.start,
+    verify: args.verify,
   });
 } else {
   cloneWorktreeDatabase({
@@ -63,7 +64,7 @@ if (dryRun) {
     sourceDb,
     destDb,
     worktreeRoot,
-    recreateDb,
+    recreateDb: args.recreateDb,
   });
 
   const allocatedPorts = registerWorktreePorts(slug);
@@ -75,9 +76,23 @@ if (dryRun) {
     databaseUrl,
   });
 
-  if (dbeaver) {
-    addWorktreeDBeaverConnection({ tag, slug, databaseUrl });
+  if (args.dbeaver) {
+    addWorktreeDBeaverConnection({
+      tag,
+      slug,
+      databaseUrl,
+      force: args.forceDbeaver,
+    });
   }
 
   logSetupSummary({ tag, envPath, ports: allocatedPorts, databaseUrl, destDb });
+
+  runWorktreePostSetup({
+    tag,
+    repoRoot: root,
+    install: args.install,
+    migrate: args.migrate,
+    start: args.start,
+    verify: args.verify,
+  });
 }

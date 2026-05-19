@@ -5,6 +5,7 @@ import {
   existsSync,
   mkdirSync,
   readFileSync,
+  realpathSync,
   renameSync,
   unlinkSync,
   writeFileSync,
@@ -63,12 +64,24 @@ export function runGit(
   return { ok: true, stdout: (result.stdout || "").trim() };
 }
 
+function gitPathReal(
+  cwd: string,
+  flag: "--git-dir" | "--git-common-dir",
+): string | undefined {
+  const resolved = runGit(["rev-parse", flag], cwd);
+  if (!resolved.ok) return undefined;
+  const raw = resolved.stdout;
+  const candidate = raw.startsWith("/") ? raw : join(cwd, raw);
+  const [err, real] = tryRun(() => realpathSync(candidate));
+  return err ? undefined : real;
+}
+
 /** True when `.git` is not the shared bare/common dir (linked worktree checkout). */
 export function isGitWorktreeCheckout(cwd: string): boolean {
-  const gitDir = runGit(["rev-parse", "--git-dir"], cwd);
-  const gitCommon = runGit(["rev-parse", "--git-common-dir"], cwd);
-  if (!gitDir.ok || !gitCommon.ok) return false;
-  return gitDir.stdout !== gitCommon.stdout;
+  const gitDir = gitPathReal(cwd, "--git-dir");
+  const gitCommon = gitPathReal(cwd, "--git-common-dir");
+  if (!gitDir || !gitCommon) return false;
+  return gitDir !== gitCommon;
 }
 
 /** Filesystem root of the checkout `cwd` belongs to. */
@@ -335,6 +348,22 @@ export function parseDatabaseName(databaseUrl: string): string | undefined {
   return match?.[1];
 }
 
+/** Host/port/database only — safe for dry-run logs (no credentials). */
+export function formatDatabaseUrlForLog(databaseUrl: string): string {
+  const [urlErr, url] = tryRun(() => new URL(databaseUrl));
+  if (!urlErr && url) {
+    const host = url.hostname || "localhost";
+    const port = url.port || "5432";
+    const database =
+      parseDatabaseName(databaseUrl) ?? url.pathname.replace(/^\//, "");
+    return `host=${host} port=${port} database=${database || "(missing)"}`;
+  }
+  const database = parseDatabaseName(databaseUrl);
+  return database
+    ? `database=${database} (could not parse host/port)`
+    : "database=(invalid url)";
+}
+
 /** Rewrites only the DB name to `job_tracker_<slug>` while keeping host/credentials. */
 export function buildDestinationDatabaseUrl(
   sourceUrl: string,
@@ -475,8 +504,13 @@ function assertPostgresAvailable(repoRoot: string): void {
   );
 }
 
-/** Queries `pg_database` without creating a connection to the target DB. */
-export function databaseExists(dbName: string, repoRoot: string): boolean {
+export type DatabaseExistsStatus = "exists" | "missing" | "error";
+
+/** Queries `pg_database` — distinguishes missing DB from psql failures. */
+export function checkDatabaseExists(
+  dbName: string,
+  repoRoot: string,
+): { status: DatabaseExistsStatus; detail?: string } {
   const result = pgSpawn(
     repoRoot,
     "psql",
@@ -488,36 +522,65 @@ export function databaseExists(dbName: string, repoRoot: string): boolean {
     ],
     { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] },
   );
-  if (result.status !== 0) return false;
+  if (result.status !== 0) {
+    const detail = (result.stderr || result.stdout || "").toString().trim();
+    return {
+      status: "error",
+      detail: detail || `psql exited ${result.status ?? "?"}`,
+    };
+  }
   const stdout = result.stdout;
   const text =
     typeof stdout === "string" ? stdout : (stdout?.toString("utf8") ?? "");
-  return text.trim() === "1";
+  return { status: text.trim() === "1" ? "exists" : "missing" };
+}
+
+/** True when the database name exists (psql errors → false). */
+export function databaseExists(dbName: string, repoRoot: string): boolean {
+  return checkDatabaseExists(dbName, repoRoot).status === "exists";
+}
+
+function tryDropDatabaseQuiet(
+  dbName: string,
+  repoRoot: string,
+  tag: string,
+): void {
+  if (checkDatabaseExists(dbName, repoRoot).status !== "exists") return;
+  const [err] = tryRun(() => dropDatabase(dbName, repoRoot));
+  if (err) {
+    console.warn(`${tag} cleanup dropdb ${dbName} failed: ${err.message}`);
+  }
 }
 
 /** Idempotent clone: skip if dest exists unless `force` drops it first. */
 export function cloneDatabase(
   sourceDb: string,
   destDb: string,
-  opts?: { force?: boolean; repoRoot?: string },
+  opts?: { force?: boolean; repoRoot?: string; tag?: string },
 ): void {
   const repoRoot = opts?.repoRoot ?? process.cwd();
+  const tag = opts?.tag ?? WORKTREE_SETUP_TAG;
   assertPostgresAvailable(repoRoot);
 
   const container = resolvePostgresContainer(repoRoot);
   if (container) {
-    console.warn(`[worktree:setup] postgres CLI via docker (${container})`);
+    console.warn(`${tag} postgres CLI via docker (${container})`);
   }
 
-  if (databaseExists(destDb, repoRoot) && !opts?.force) {
-    console.warn(
-      `[worktree:setup] Database ${destDb} already exists — skipping clone.`,
+  const existsCheck = checkDatabaseExists(destDb, repoRoot);
+  if (existsCheck.status === "error") {
+    throw new Error(
+      `Could not check database ${destDb}: ${existsCheck.detail ?? "psql failed"}`,
     );
+  }
+  if (existsCheck.status === "exists" && !opts?.force) {
+    console.warn(`${tag} Database ${destDb} already exists — skipping clone.`);
     return;
   }
-  if (databaseExists(destDb, repoRoot) && opts?.force) {
+  if (existsCheck.status === "exists" && opts?.force) {
     pgSpawnOrThrow(repoRoot, "dropdb", [destDb]);
   }
+
   pgSpawnOrThrow(repoRoot, "createdb", [destDb]);
 
   if (container) {
@@ -529,6 +592,7 @@ export function cloneDatabase(
       { stdio: "inherit" },
     );
     if (result.status !== 0) {
+      tryDropDatabaseQuiet(destDb, repoRoot, tag);
       throw new Error(
         `docker pg_dump|psql clone ${sourceDb} → ${destDb} failed (exit ${result.status ?? "?"}).`,
       );
@@ -540,6 +604,7 @@ export function cloneDatabase(
     encoding: "utf8",
   });
   if (dump.status !== 0) {
+    tryDropDatabaseQuiet(destDb, repoRoot, tag);
     throw new Error(
       `pg_dump failed for ${sourceDb}: ${dump.stderr || dump.stdout}`,
     );
@@ -549,6 +614,7 @@ export function cloneDatabase(
     encoding: "utf8",
   });
   if (load.status !== 0) {
+    tryDropDatabaseQuiet(destDb, repoRoot, tag);
     throw new Error(
       `psql load failed for ${destDb}: ${load.stderr || load.stdout}`,
     );
@@ -642,17 +708,37 @@ export function worktreeFail(tag: string, message: string): never {
   throw new Error(message);
 }
 
-/** Parses setup CLI flags plus `WORKTREE_SOURCE_DB` from the environment. */
-export function parseSetupArgs(argv: string[]): {
+export type SetupArgs = {
   sourceDb?: string;
   recreateDb: boolean;
   dbeaver: boolean;
+  forceDbeaver: boolean;
   dryRun: boolean;
-} {
+  install: boolean;
+  migrate: boolean;
+  start: boolean;
+  verify: boolean;
+};
+
+export type TeardownArgs = {
+  slug?: string;
+  dropDb: boolean;
+  dbeaver: boolean;
+  dryRun: boolean;
+  apply: boolean;
+};
+
+/** Parses setup CLI flags (no stdin). Post-steps only run when not `--dry-run`. */
+export function parseSetupArgs(argv: string[]): SetupArgs {
   let sourceDb = process.env.WORKTREE_SOURCE_DB?.trim();
   let recreateDb = false;
   let dbeaver = false;
+  let forceDbeaver = false;
   let dryRun = false;
+  let install = false;
+  let migrate = false;
+  let start = false;
+  let verify = false;
   for (let i = 2; i < argv.length; i++) {
     const arg = argv[i];
     if (arg === "--dry-run") {
@@ -663,8 +749,36 @@ export function parseSetupArgs(argv: string[]): {
       dbeaver = true;
       continue;
     }
+    if (arg === "--force-dbeaver") {
+      forceDbeaver = true;
+      dbeaver = true;
+      continue;
+    }
     if (arg === "--recreate-db") {
       recreateDb = true;
+      continue;
+    }
+    if (arg === "--install") {
+      install = true;
+      continue;
+    }
+    if (arg === "--migrate") {
+      migrate = true;
+      continue;
+    }
+    if (arg === "--start") {
+      start = true;
+      continue;
+    }
+    if (arg === "--verify") {
+      verify = true;
+      continue;
+    }
+    if (arg === "--all") {
+      install = true;
+      migrate = true;
+      start = true;
+      verify = true;
       continue;
     }
     if (arg === "--source-db" && argv[i + 1]) {
@@ -675,24 +789,34 @@ export function parseSetupArgs(argv: string[]): {
       sourceDb = arg.slice("--source-db=".length).trim();
     }
   }
-  return { sourceDb, recreateDb, dbeaver, dryRun };
+  return {
+    sourceDb,
+    recreateDb,
+    dbeaver,
+    forceDbeaver,
+    dryRun,
+    install,
+    migrate,
+    start,
+    verify,
+  };
 }
 
-/** Parses teardown CLI flags and optional slug positional argument. */
-export function parseTeardownArgs(argv: string[]): {
-  slug?: string;
-  dropDb: boolean;
-  dbeaver: boolean;
-  dryRun: boolean;
-} {
+/** Parses teardown CLI flags. Requires `--dry-run` or `--apply` (no stdin). */
+export function parseTeardownArgs(argv: string[]): TeardownArgs {
   let slug: string | undefined;
   let dropDb = true;
   let dbeaver = false;
   let dryRun = false;
+  let apply = false;
   for (let i = 2; i < argv.length; i++) {
     const arg = argv[i];
     if (arg === "--dry-run") {
       dryRun = true;
+      continue;
+    }
+    if (arg === "--apply") {
+      apply = true;
       continue;
     }
     if (arg === "--dbeaver") {
@@ -709,7 +833,24 @@ export function parseTeardownArgs(argv: string[]): {
     }
     if (!arg.startsWith("-")) slug = arg;
   }
-  return { slug, dropDb, dbeaver, dryRun };
+  return { slug, dropDb, dbeaver, dryRun, apply };
+}
+
+/** Teardown must use `--dry-run` or `--apply` — never implicit mutate. */
+export function resolveTeardownMode(
+  args: TeardownArgs,
+  tag: string,
+): "dry-run" | "apply" {
+  if (args.dryRun && args.apply) {
+    worktreeFail(tag, "Pass only one of --dry-run or --apply.");
+  }
+  if (!args.dryRun && !args.apply) {
+    worktreeFail(
+      tag,
+      "Pass --dry-run (plan) or --apply (execute). This script does not prompt on stdin.",
+    );
+  }
+  return args.dryRun ? "dry-run" : "apply";
 }
 
 /** PM2 process names for the four dev apps under a worktree prefix. */
@@ -722,10 +863,53 @@ export function worktreePm2AppNames(prefix: string): string[] {
   ];
 }
 
-/** Best-effort `pm2 delete` from the repo root (stdio inherited). */
-export function pm2DeleteApps(repoRoot: string, names: string[]): void {
+/** Runs `pm2 delete` and fails on non-zero exit. */
+export function pm2DeleteApps(
+  repoRoot: string,
+  names: string[],
+  tag: string,
+): void {
   if (names.length === 0) return;
-  spawnSync("pm2", ["delete", ...names], { cwd: repoRoot, stdio: "inherit" });
+  const result = spawnSync("pm2", ["delete", ...names], {
+    cwd: repoRoot,
+    stdio: "inherit",
+  });
+  if (result.status !== 0) {
+    worktreeFail(tag, `pm2 delete failed (exit ${result.status ?? "?"}).`);
+  }
+}
+
+function spawnPnpmOrFail(
+  repoRoot: string,
+  args: string[],
+  tag: string,
+  env?: WorktreeEnvMap,
+): void {
+  const result = spawnSync("pnpm", args, {
+    cwd: repoRoot,
+    stdio: "inherit",
+    env: env ? { ...process.env, ...env } : process.env,
+  });
+  if (result.status !== 0) {
+    worktreeFail(
+      tag,
+      `pnpm ${args.join(" ")} failed (exit ${result.status ?? "?"}).`,
+    );
+  }
+}
+
+function curlCheck(url: string, tag: string, label: string): void {
+  const result = spawnSync("curl", ["-fsS", url], {
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "pipe"],
+  });
+  if (result.status !== 0) {
+    worktreeFail(
+      tag,
+      `verify ${label} failed for ${url}: ${(result.stderr || "").toString().trim()}`,
+    );
+  }
+  console.warn(`${tag} verify ${label} ok ${url}`);
 }
 
 /** Aborts setup/teardown when invoked from the main checkout. */
@@ -822,6 +1006,7 @@ export function cloneWorktreeDatabase(params: {
   cloneDatabase(sourceDb, destDb, {
     force: recreateDb,
     repoRoot: worktreeRoot,
+    tag,
   });
 }
 
@@ -848,11 +1033,14 @@ export function describeWorktreeClonePlan(params: {
   worktreeRoot: string;
   recreateDb: boolean;
 }): string {
-  const exists = databaseExists(params.destDb, params.worktreeRoot);
-  if (exists && !params.recreateDb) {
+  const check = checkDatabaseExists(params.destDb, params.worktreeRoot);
+  if (check.status === "error") {
+    return `unknown (psql check failed: ${check.detail ?? "error"})`;
+  }
+  if (check.status === "exists" && !params.recreateDb) {
     return "skip (database exists; use --recreate-db to replace)";
   }
-  if (exists && params.recreateDb) {
+  if (check.status === "exists" && params.recreateDb) {
     return "drop existing database, then pg_dump | psql clone";
   }
   return "createdb + pg_dump | psql clone";
@@ -888,7 +1076,12 @@ export function logSetupDryRun(params: {
   databaseUrl: string;
   recreateDb: boolean;
   dbeaver: boolean;
+  forceDbeaver: boolean;
   ports: SlugPorts;
+  install: boolean;
+  migrate: boolean;
+  start: boolean;
+  verify: boolean;
 }): void {
   const {
     tag,
@@ -900,7 +1093,12 @@ export function logSetupDryRun(params: {
     databaseUrl,
     recreateDb,
     dbeaver,
+    forceDbeaver,
     ports,
+    install,
+    migrate,
+    start,
+    verify,
   } = params;
   const envPath = join(worktreeRoot, ".env.worktree");
   const cloneAction = describeWorktreeClonePlan({
@@ -917,7 +1115,9 @@ export function logSetupDryRun(params: {
   console.warn(
     `${tag} [dry-run] database ${sourceDb} → ${destDb}: ${cloneAction}`,
   );
-  console.warn(`${tag} [dry-run] DATABASE_URL ${databaseUrl}`);
+  console.warn(
+    `${tag} [dry-run] DATABASE_URL ${formatDatabaseUrlForLog(databaseUrl)}`,
+  );
   console.warn(
     `${tag} [dry-run] ports api=${ports.api} web=${ports.web} storybook=${ports.storybook} wxt=${ports.wxt}`,
   );
@@ -926,12 +1126,80 @@ export function logSetupDryRun(params: {
   );
   if (dbeaver) {
     console.warn(
-      `${tag} [dry-run] would add DBeaver connection "${slug}" (Job Tracker/Worktrees)`,
+      `${tag} [dry-run] would add DBeaver connection "${slug}" (Job Tracker/Worktrees)${forceDbeaver ? " (--force-dbeaver)" : ""}`,
     );
   }
-  console.warn(
-    `${tag} [dry-run] then: pnpm install (if needed) && pnpm pm2:start`,
-  );
+  if (install) console.warn(`${tag} [dry-run] would run: pnpm install`);
+  if (migrate) {
+    console.warn(
+      `${tag} [dry-run] would run: pnpm --filter @job-tracker/api run db:migrate`,
+    );
+  }
+  if (start) console.warn(`${tag} [dry-run] would run: pnpm pm2:start`);
+  if (verify) {
+    console.warn(
+      `${tag} [dry-run] would verify API/Web/Storybook/WXT health endpoints`,
+    );
+  }
+  if (!install && !migrate && !start && !verify) {
+    console.warn(
+      `${tag} [dry-run] post-steps skipped (pass --install --migrate --start --verify or --all)`,
+    );
+  }
+}
+
+/** Runs optional post-setup steps (flags only; no stdin). */
+export function runWorktreePostSetup(params: {
+  tag: string;
+  repoRoot: string;
+  install: boolean;
+  migrate: boolean;
+  start: boolean;
+  verify: boolean;
+}): void {
+  const { tag, repoRoot, install, migrate, start, verify } = params;
+  const env = loadEnvWorktree(repoRoot);
+
+  if (install) {
+    console.warn(`${tag} pnpm install`);
+    spawnPnpmOrFail(repoRoot, ["install"], tag);
+  }
+  if (migrate) {
+    console.warn(`${tag} pnpm --filter @job-tracker/api run db:migrate`);
+    spawnPnpmOrFail(
+      repoRoot,
+      ["--filter", "@job-tracker/api", "run", "db:migrate"],
+      tag,
+      env,
+    );
+  }
+  if (start) {
+    console.warn(`${tag} pnpm pm2:start`);
+    spawnPnpmOrFail(repoRoot, ["pm2:start"], tag);
+  }
+  if (verify) {
+    const apiPort = env.API_PORT;
+    const webPort = env.WEB_PORT;
+    const sbPort = env.STORYBOOK_PORT;
+    const wxtPort = env.WXT_DEV_PORT;
+    if (!apiPort || !webPort || !sbPort || !wxtPort) {
+      worktreeFail(tag, "verify requires .env.worktree with port variables.");
+    }
+    curlCheck(`http://localhost:${apiPort}/health`, tag, "api");
+    curlCheck(`http://localhost:${webPort}/`, tag, "web");
+    curlCheck(`http://localhost:${sbPort}/`, tag, "storybook");
+    const wxt = spawnSync("curl", ["-fsS", `http://localhost:${wxtPort}/`], {
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+    if (wxt.status !== 0) {
+      console.warn(
+        `${tag} verify wxt skipped or failed (extension dev server may be down): http://localhost:${wxtPort}/`,
+      );
+    } else {
+      console.warn(`${tag} verify wxt ok http://localhost:${wxtPort}/`);
+    }
+  }
 }
 
 /** Post-setup URLs, env path, and reminder to run migrations manually. */
@@ -949,9 +1217,8 @@ export function logSetupSummary(params: {
   console.warn(`${tag} SB   http://localhost:${ports.storybook}`);
   console.warn(`${tag} WXT  http://localhost:${ports.wxt}`);
   console.warn(`${tag} DB   ${parseDatabaseName(databaseUrl) ?? destDb}`);
-  console.warn(`${tag} Next: pnpm install (if needed) && pnpm pm2:start`);
   console.warn(
-    `${tag} Migrations are not run automatically — run API migrations if schema drifted.`,
+    `${tag} Post-steps: pass --install --migrate --start --verify or --all`,
   );
 }
 
@@ -987,7 +1254,7 @@ export function stopWorktreePm2Apps(
 ): void {
   const appNames = worktreePm2AppNames(prefix);
   console.warn(`${tag} pm2 delete ${appNames.join(" ")}`);
-  pm2DeleteApps(repoRoot, appNames);
+  pm2DeleteApps(repoRoot, appNames, tag);
 }
 
 /** Unlinks `.env.worktree` when present. */
@@ -1049,12 +1316,11 @@ export function logTeardownDryRun(params: {
   console.warn(`${tag} [dry-run] no changes will be made`);
   console.warn(`${tag} [dry-run] slug ${slug}`);
   console.warn(`${tag} [dry-run] would run: pm2 delete ${appNames.join(" ")}`);
-  console.warn(
-    `${tag} [dry-run] would update ${GLOBAL_REGISTRY_PATH} and remove ${slugRegistryPath(slug)}`,
-  );
-  console.warn(
-    `${tag} [dry-run] would ${envExists ? "remove" : "skip (missing)"} ${envPath}`,
-  );
+  if (dbeaver) {
+    console.warn(
+      `${tag} [dry-run] would remove DBeaver connection for ${slug} (postgres-jdbc-wt-${slug})`,
+    );
+  }
   if (dropDb) {
     const container = resolvePostgresContainer(repoRoot);
     console.warn(
@@ -1063,10 +1329,14 @@ export function logTeardownDryRun(params: {
   } else {
     console.warn(`${tag} [dry-run] would keep database ${dbName} (--keep-db)`);
   }
-  if (dbeaver) {
-    console.warn(
-      `${tag} [dry-run] would remove DBeaver connection for ${slug} (postgres-jdbc-wt-${slug})`,
-    );
-  }
+  console.warn(
+    `${tag} [dry-run] would update ${GLOBAL_REGISTRY_PATH} and remove ${slugRegistryPath(slug)}`,
+  );
+  console.warn(
+    `${tag} [dry-run] would ${envExists ? "remove" : "skip (missing)"} ${envPath}`,
+  );
+  console.warn(
+    `${tag} [dry-run] re-run with --apply to execute (no stdin prompt).`,
+  );
   logWorktreeRemoveHint(repoRoot, `${tag} [dry-run]`);
 }

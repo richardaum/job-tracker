@@ -12,6 +12,7 @@ import {
   parseSetupArgs,
   parseTeardownArgs,
   resolvePostgresContainer,
+  resolveTeardownMode,
   validateSlug,
 } from "./lib.ts";
 
@@ -86,9 +87,24 @@ BAZ="quoted"
     assert.equal(args.sourceDb, "job_tracker");
   });
 
+  it("parseSetupArgs sets --all post-step flags", () => {
+    const args = parseSetupArgs(["node", "setup.ts", "--all"]);
+    assert.equal(args.install, true);
+    assert.equal(args.migrate, true);
+    assert.equal(args.start, true);
+    assert.equal(args.verify, true);
+  });
+
   it("parseTeardownArgs sets dryRun for --dry-run", () => {
     const args = parseTeardownArgs(["node", "teardown.ts", "--dry-run"]);
     assert.equal(args.dryRun, true);
+    assert.equal(args.apply, false);
+  });
+
+  it("parseTeardownArgs accepts --apply", () => {
+    const args = parseTeardownArgs(["node", "teardown.ts", "--apply"]);
+    assert.equal(args.apply, true);
+    assert.equal(resolveTeardownMode(args, "[worktree:teardown]"), "apply");
   });
 
   it("resolvePostgresContainer uses WORKTREE_POSTGRES_DOCKER when set", () => {

@@ -40,10 +40,12 @@ describe("dbeaver", () => {
     const afterAdd = JSON.parse(readFileSync(path, "utf8")) as {
       connections: Record<string, { name: string }>;
     };
-    assert.equal(
-      afterAdd.connections[dbeaverConnectionId("feat-x")]?.name,
-      "feat-x",
-    );
+    const added = afterAdd.connections[dbeaverConnectionId("feat-x")] as {
+      name: string;
+      configuration: Record<string, unknown>;
+    };
+    assert.equal(added?.name, "feat-x");
+    assert.equal("password" in (added?.configuration ?? {}), false);
 
     removeWorktreeDBeaverConnection({
       tag,

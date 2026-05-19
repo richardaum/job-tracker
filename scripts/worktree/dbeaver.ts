@@ -34,7 +34,7 @@ type DBeaverConnection = {
     database: string;
     url: string;
     user: string;
-    password: string;
+    password?: string;
     configurationType: string;
     type: string;
     "auth-model": string;
@@ -153,7 +153,7 @@ function buildConnection(
       provider: "postgresql",
       driver: "postgres-jdbc",
       name: slug,
-      "save-password": true,
+      "save-password": false,
       "show-system-objects": false,
       folder: WORKTREE_FOLDER,
       configuration: {
@@ -162,7 +162,6 @@ function buildConnection(
         database: pg.database,
         url: jdbcUrl,
         user: pg.user,
-        password: pg.password,
         configurationType: "MANUAL",
         type: "dev",
         "auth-model": "native",
@@ -177,6 +176,7 @@ export function addWorktreeDBeaverConnection(params: {
   slug: string;
   databaseUrl: string;
   dataSourcesPath?: string;
+  force?: boolean;
 }): void {
   const path = params.dataSourcesPath ?? defaultDBeaverDataSourcesPath();
   const database =
@@ -193,14 +193,22 @@ export function addWorktreeDBeaverConnection(params: {
       ? dbeaverConnectionId(params.slug)
       : findConnectionIdByDatabase(data!.connections, database);
 
-  if (existingId) {
+  const { id, entry } = buildConnection(params.slug, params.databaseUrl);
+
+  if (existingId && !params.force) {
     console.warn(
       `${params.tag} DBeaver connection already exists (${existingId}, db=${database})`,
     );
     return;
   }
 
-  const { id, entry } = buildConnection(params.slug, params.databaseUrl);
+  if (existingId && params.force) {
+    delete data!.connections[existingId];
+    console.warn(
+      `${params.tag} DBeaver updating existing connection (${existingId})`,
+    );
+  }
+
   data!.connections[id] = entry;
 
   const [writeErr] = tryRun(() => writeJsonAtomic(path, data));
