@@ -1,30 +1,32 @@
 ---
 name: worktree-env
 description: >-
-  Run worktree parallel dev setup or teardown in job-tracker. Requires argument
-  `setup` or `teardown`. Use when explicitly asked to configure or tear down a
-  git worktree (ports, DB clone, .env.worktree, PM2).
+  Run worktree parallel dev setup or teardown in job-tracker (`setup` or
+  `teardown`). Explicit invocation only — load when the user names
+  `@worktree-env` (or `/worktree-env`). Do not auto-invoke for worktree, port,
+  PM2, `.env.worktree`, or DBeaver questions.
 disable-model-invocation: true
+argument-hint: setup|teardown
 ---
 
 # Worktree Env
 
-Run **api + web + storybook + extension** in this git worktree alongside the main checkout. One PM2 daemon on the host; isolation via ports, PostgreSQL database name, and PM2 name prefix.
+**Explicit invocation only.** Follow this skill only when the user invokes `@worktree-env` (or `/worktree-env`) with `setup` or `teardown`. If they mention worktrees, ports, PM2, or `.env.worktree` without that invocation, do not read or apply this skill — answer from docs/rules or ask them to invoke the skill.
 
-Only act on explicit user request.
+Run **api + web + storybook + extension** in this git worktree alongside the main checkout. One PM2 daemon on the host; isolation via ports, PostgreSQL database name, and PM2 name prefix.
 
 ## Invocation (required)
 
-The user must pass exactly one argument:
+The user must invoke the skill by name and pass exactly one argument:
 
 | Argument | Action |
 | -------- | ------ |
 | `setup` | Dry-run then `pnpm worktree:setup` with flags (no stdin) |
 | `teardown` | Dry-run then `pnpm worktree:teardown -- --apply` (no stdin) |
 
-Examples: `@worktree-env setup`, `@worktree-env teardown`.
+Examples: `@worktree-env setup`, `/worktree-env teardown`.
 
-If the argument is missing or not `setup` / `teardown`, stop and ask the user to invoke again with one of those values. Do not run both flows in one invocation.
+If the skill was not invoked by name, or the argument is missing or not `setup` / `teardown`, stop. Ask the user to invoke again with `@worktree-env setup` or `@worktree-env teardown`. Do not run both flows in one invocation.
 
 ## Constraints
 
