@@ -19,7 +19,7 @@ function sharedEnv(extra = {}) {
 /**
  * PM2 ecosystem — dev processes for this monorepo.
  *
- * Worktrees: run `pnpm worktree:env` first — loads `.env.worktree` here (gitignored).
+ * Worktrees: run `pnpm worktree:setup` first — loads `.env.worktree` here (gitignored).
  *
  * Start:  pnpm pm2:start
  * Reset:  pnpm pm2:reset — uses PM2_RESET_PORTS from `.env.worktree` when present.

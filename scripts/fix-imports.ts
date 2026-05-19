@@ -1,9 +1,8 @@
 #!/usr/bin/env node
 
-// @ts-expect-error — no types
+import { tryRun } from "@job-tracker/try-run";
 import nextPlugin from "@next/eslint-plugin-next";
 import { ESLint } from "eslint";
-// @ts-expect-error — no types
 import simpleImportSort from "eslint-plugin-simple-import-sort";
 import { parser as tsParser } from "typescript-eslint";
 
@@ -63,20 +62,19 @@ const eslint = new ESLint({
   ],
 });
 
-let results: ESLint.LintResult[];
-try {
-  results = await eslint.lintFiles(patterns);
-} catch (err: unknown) {
+const [lintErr, lintResults] = await tryRun(() => eslint.lintFiles(patterns));
+if (lintErr) {
   if (
-    typeof err === "object" &&
-    err !== null &&
-    "messageTemplate" in err &&
-    (err as Record<string, unknown>).messageTemplate === "file-not-found"
+    typeof lintErr === "object" &&
+    lintErr !== null &&
+    "messageTemplate" in lintErr &&
+    (lintErr as Record<string, unknown>).messageTemplate === "file-not-found"
   ) {
     process.exit(0);
   }
-  throw err;
+  throw lintErr;
 }
+const results = lintResults!;
 await ESLint.outputFixes(results);
 
 const errors = results.filter((r) => r.errorCount > 0 || r.warningCount > 0);

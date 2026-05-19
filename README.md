@@ -25,9 +25,9 @@ Parallel feature work in **git worktrees** (isolated ports, DB, PM2 names; main 
 
 ```bash
 export WORKTREE_SOURCE_DB=job_tracker
-pnpm worktree:env    # inside the worktree only; symlinks .cursor/skills/worktree-job from main
+pnpm worktree:setup    # inside the worktree only; -- --dry-run to preview; -- --dbeaver optional
 pnpm pm2:start
-pnpm worktree:teardown   # drops clone DB by default; add -- --keep-db to preserve it
+pnpm worktree:teardown   # -- --dry-run / -- --keep-db / -- --dbeaver optional
 ```
 
 See `.env.worktree.example` and `.agents/rules/ops-docker-pm2.md`.

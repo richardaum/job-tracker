@@ -4,7 +4,7 @@ import { spawnSync } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { isGitWorktreeCheckout } from "./worktree/worktree-lib.ts";
+import { isGitWorktreeCheckout } from "./worktree/lib.ts";
 
 const DEFAULT_PORTS: readonly number[] = [3100, 3101, 6006];
 

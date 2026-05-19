@@ -1,14 +1,5 @@
 #!/usr/bin/env node
 import assert from "node:assert/strict";
-import {
-  mkdirSync,
-  mkdtempSync,
-  readlinkSync,
-  rmSync,
-  writeFileSync,
-} from "node:fs";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
 import { describe, it } from "node:test";
 
 import {
@@ -16,14 +7,15 @@ import {
   buildDestinationDatabaseUrl,
   buildWorktreeEnv,
   dbNameForSlug,
-  linkWorktreeJobSkill,
+  type GlobalRegistry,
   parseEnvFile,
+  parseSetupArgs,
+  parseTeardownArgs,
   resolvePostgresContainer,
   validateSlug,
-  worktreeJobSkillLinkPath,
-} from "./worktree-lib.ts";
+} from "./lib.ts";
 
-describe("worktree-lib", () => {
+describe("worktree lib", () => {
   it("validateSlug accepts kebab-case ≤16", () => {
     assert.equal(validateSlug("frontend-pdf"), true);
     assert.equal(validateSlug("a"), true);
@@ -44,7 +36,7 @@ describe("worktree-lib", () => {
   });
 
   it("allocatePorts assigns distinct api/web and skips reserved main ports", () => {
-    const registry = { slugs: {} };
+    const registry: GlobalRegistry = { slugs: {} };
     const ports = allocatePorts("feat-a", registry);
     assert.notEqual(ports.api, ports.web);
     for (const p of Object.values(ports)) {
@@ -83,26 +75,20 @@ BAZ="quoted"
     assert.equal(env.NEXT_PUBLIC_API_URL, "http://localhost:3105");
   });
 
-  it("linkWorktreeJobSkill symlinks main skill into worktree", () => {
-    const base = mkdtempSync(join(tmpdir(), "jt-skill-"));
-    const mainRoot = join(base, "main");
-    const worktreeRoot = join(base, "wt");
-    const skillDir = join(mainRoot, ".cursor/skills/worktree-job");
-    mkdirSync(skillDir, { recursive: true });
-    writeFileSync(join(skillDir, "SKILL.md"), "# test\n", "utf8");
-    mkdirSync(worktreeRoot, { recursive: true });
+  it("parseSetupArgs sets dryRun for --dry-run", () => {
+    const args = parseSetupArgs([
+      "node",
+      "setup.ts",
+      "--dry-run",
+      "--source-db=job_tracker",
+    ]);
+    assert.equal(args.dryRun, true);
+    assert.equal(args.sourceDb, "job_tracker");
+  });
 
-    const first = linkWorktreeJobSkill({ worktreeRoot, mainRoot });
-    assert.equal(first.created, true);
-    assert.equal(
-      readlinkSync(worktreeJobSkillLinkPath(worktreeRoot)),
-      skillDir,
-    );
-
-    const second = linkWorktreeJobSkill({ worktreeRoot, mainRoot });
-    assert.equal(second.created, false);
-
-    rmSync(base, { recursive: true, force: true });
+  it("parseTeardownArgs sets dryRun for --dry-run", () => {
+    const args = parseTeardownArgs(["node", "teardown.ts", "--dry-run"]);
+    assert.equal(args.dryRun, true);
   });
 
   it("resolvePostgresContainer uses WORKTREE_POSTGRES_DOCKER when set", () => {
