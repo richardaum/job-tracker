@@ -147,6 +147,7 @@ Run only when the invocation argument is `teardown`. No interactive confirm — 
 
 | Topic                               | File                                       |
 | ----------------------------------- | ------------------------------------------ |
+| Worktrees, code-agent handoff       | `.agents/rules/worktree.md`                |
 | PM2, worktree registry, port policy | `.agents/rules/ops-docker-pm2.md`          |
 | Migrations                          | `.agents/rules/repository-architecture.md` |
 | Lint/typecheck/test                 | `.agents/rules/validation.md`              |
