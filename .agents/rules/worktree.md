@@ -1,6 +1,49 @@
-# Worktree Reintegration
+# Worktree
 
-## `WORKTREE.md` — temporary reintegration manifest
+Git worktrees for parallel feature branches. Env/PM2 setup is separate from reintegration notes.
+
+## Code agent handoff (mandatory)
+
+Whenever you **create**, **reference**, or **hand off** a linked worktree path, end the response with **one** copy-pasteable inline shell command:
+
+```bash
+cd {path} && {code-agent}
+```
+
+- **`{path}`** — absolute filesystem path to the worktree root (`git rev-parse --show-toplevel` from that checkout, or the path you just created).
+- **`{code-agent}`** — CLI for the coding agent the user chose (see table below). Do not invent a default.
+
+### Ask which code agent
+
+If the user has not said which agent they use, ask once:
+
+> Which code agent — **OpenCode**, **Cursor**, or **Claude Code**?
+
+| Choice        | `{code-agent}` |
+| ------------- | -------------- |
+| OpenCode      | `opencode`     |
+| Cursor        | `cursor`       |
+| Claude Code   | `claude`       |
+
+Example (after `git worktree add` or when pointing at an existing checkout):
+
+```bash
+cd /Users/me/projects/job-tracker-worktrees/my-feature && cursor
+```
+
+Do not omit this line when the task involves a worktree path. Do not split `cd` and the agent across multiple blocks.
+
+## Parallel dev (env / PM2)
+
+Setup and teardown run **inside** the linked worktree only (not the main checkout).
+
+| Topic | Location |
+| ----- | -------- |
+| PM2, ports, `.env.worktree`, registry | `.agents/rules/ops-docker-pm2.md` |
+| `pnpm worktree:setup` / `teardown` flows | `.agents/skills/worktree-env/SKILL.md` (`@worktree-env`; explicit invocation only) |
+| CLI flags | `scripts/worktree/README.md` |
+
+## Reintegration — `WORKTREE.md`
 
 A worktree branch may carry a **`WORKTREE.md`** at the repository root. This file is a **temporary, human-readable integration note** authored inside the worktree before reintegration into `main`.
 
