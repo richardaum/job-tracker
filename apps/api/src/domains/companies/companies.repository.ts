@@ -13,7 +13,7 @@ export class CompanyRepository {
     @InjectRepository(CompanyEntity)
     private readonly repo: Repository<CompanyEntity>,
     @InjectRepository(JobEntity)
-    private readonly applicationsRepo: Repository<JobEntity>,
+    private readonly jobsRepo: Repository<JobEntity>,
   ) {}
 
   async findOneById(id: string, userId: string): Promise<Company | null> {
@@ -89,8 +89,8 @@ export class CompanyRepository {
     return this.repo.find({ where: { userId }, order: { name: "ASC" } });
   }
 
-  async countApplications(id: string, userId: string): Promise<number> {
-    return this.applicationsRepo.count({ where: { companyId: id, userId } });
+  async countJobs(id: string, userId: string): Promise<number> {
+    return this.jobsRepo.count({ where: { companyId: id, userId } });
   }
 
   async delete(id: string, userId: string): Promise<boolean> {

@@ -25,7 +25,7 @@ describe("CompaniesResolver (integration)", () => {
   let service: {
     findAll: ReturnType<typeof vi.fn>;
     findOne: ReturnType<typeof vi.fn>;
-    applicationsCount: ReturnType<typeof vi.fn>;
+    jobsCount: ReturnType<typeof vi.fn>;
     update: ReturnType<typeof vi.fn>;
     remove: ReturnType<typeof vi.fn>;
   };
@@ -43,7 +43,7 @@ describe("CompaniesResolver (integration)", () => {
     service = {
       findAll: vi.fn().mockResolvedValue([mockCompany]),
       findOne: vi.fn().mockResolvedValue(mockCompany),
-      applicationsCount: vi.fn().mockResolvedValue(0),
+      jobsCount: vi.fn().mockResolvedValue(0),
       update: vi.fn().mockResolvedValue(mockCompany),
       remove: vi.fn().mockResolvedValue(undefined),
     };

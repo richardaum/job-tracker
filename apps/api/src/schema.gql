@@ -256,7 +256,7 @@ type Query {
   jobStageEvents(jobId: ID!): [JobStageEventType!]!
   companies: [CompanyType!]!
   company(id: ID!): CompanyType!
-  companyApplicationsCount(id: ID!): Int!
+  companyJobsCount(id: ID!): Int!
   draftJobs: [DraftJobType!]!
   draftJob(id: ID!): DraftJobType!
   exchangeRates(base: String!, currencies: [String!]!): CurrencyRates!
@@ -264,8 +264,8 @@ type Query {
   sourceTemplates: [SourceTemplateType!]!
   sourceTemplatesForSourceProfile(sourceProfileId: String!): [SourceTemplateType!]!
   sourceProfiles(onlyWithSourceTemplate: Boolean = false): [SourceProfileType!]!
-  applicationNotes(jobId: ID!): [NoteType!]!
-  generateApplicationNoteWithAI(jobId: ID!, note: String!): String!
+  jobNotes(jobId: ID!): [NoteType!]!
+  generateJobNoteWithAI(jobId: ID!, note: String!): String!
   resumes: [ResumeType!]!
   resume(id: ID!): ResumeType!
   workPreferences: [PreferenceType!]!
@@ -307,14 +307,14 @@ type Mutation {
   updateSourceTemplate(id: ID!, input: UpdateSourceTemplateInput!): SourceTemplateType!
   deleteSourceTemplate(id: ID!): DeleteMutationPayloadType!
   updateSourceRun(id: ID!, input: UpdateSourceRunInput!): SourceRunType!
-  detachApplicationsFromSourceRun(sourceRunId: ID!): Int!
+  detachJobsFromSourceRun(sourceRunId: ID!): Int!
   deleteSourceRun(id: ID!): DeleteMutationPayloadType!
   clearSourceRuns: Boolean!
   updateSourceRunStatus(id: ID!, status: SourceRunStatus!): SourceRunType!
   claimSourceRun(id: ID!): SourceRunType
-  createApplicationNote(input: CreateNoteInput!): NoteType!
-  updateApplicationNote(id: ID!, input: UpdateNoteInput!): NoteType!
-  deleteApplicationNote(id: ID!): DeleteMutationPayloadType!
+  createJobNote(input: CreateNoteInput!): NoteType!
+  updateJobNote(id: ID!, input: UpdateNoteInput!): NoteType!
+  deleteJobNote(id: ID!): DeleteMutationPayloadType!
   createResume(input: CreateResumeInput!): ResumeType!
   updateResume(id: ID!, input: UpdateResumeInput!): ResumeType!
   deleteResume(id: ID!): DeleteMutationPayloadType!

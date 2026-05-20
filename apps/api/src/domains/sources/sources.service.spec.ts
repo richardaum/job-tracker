@@ -472,10 +472,7 @@ describe("SourcesService", () => {
     );
     vi.mocked(jobRepo.detachJobsSourceRun).mockResolvedValue(3);
 
-    const result = await service.detachApplicationsFromSourceRun(
-      "user-1",
-      "run-1",
-    );
+    const result = await service.detachJobsFromSourceRun("user-1", "run-1");
 
     expect(result).toBe(3);
     expect(jobRepo.detachJobsSourceRun).toHaveBeenCalledWith("run-1", "user-1");

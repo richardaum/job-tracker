@@ -30,11 +30,11 @@ export class CompaniesResolver {
   }
 
   @Query(() => Int)
-  companyApplicationsCount(
+  companyJobsCount(
     @Args("id", { type: () => ID }) id: string,
     @CurrentUser() user: { userId: string },
   ): Promise<number> {
-    return this.service.applicationsCount(id, user.userId);
+    return this.service.jobsCount(id, user.userId);
   }
 
   @Mutation(() => CompanyType)

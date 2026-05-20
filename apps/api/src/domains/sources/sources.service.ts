@@ -286,7 +286,7 @@ export class SourcesService implements OnModuleInit {
     return this.toGql(nextRow);
   }
 
-  async detachApplicationsFromSourceRun(
+  async detachJobsFromSourceRun(
     userId: string,
     sourceRunId: string,
   ): Promise<number> {
