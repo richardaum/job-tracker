@@ -133,4 +133,4 @@ Main checkout ports **3100, 3101, 6006, 3001** are reserved and never assigned t
 | `dbeaver.ts`  | Read/write DBeaver `data-sources.json` (passwords not stored in JSON) |
 | `*.test.ts`   | Unit tests (`pnpm test:scripts`)                                      |
 
-Agent rules: `.agents/rules/worktree.md`. Setup/teardown skill: `.agents/skills/worktree-env/SKILL.md`. PM2/ports: `.agents/rules/ops-docker-pm2.md`.
+Agent rules: `.agents/rules/worktree.md`. Setup/teardown: `@worktree-env` (`.agents/skills/worktree-env/SKILL.md`). Feature execution loop: `@worktree-loop` (`.agents/skills/worktree-loop/SKILL.md`). PM2/ports: `.agents/rules/ops-docker-pm2.md`.
