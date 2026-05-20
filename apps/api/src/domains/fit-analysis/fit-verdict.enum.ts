@@ -1,9 +1,9 @@
 import { registerEnumType } from "@nestjs/graphql";
 
 export enum FitVerdictEnum {
-  FIT = "FIT",
-  GAP = "GAP",
-  UNCLEAR = "UNCLEAR",
+  Fit = "Fit",
+  Gap = "Gap",
+  Unclear = "Unclear",
 }
 
 registerEnumType(FitVerdictEnum, { name: "FitVerdict" });

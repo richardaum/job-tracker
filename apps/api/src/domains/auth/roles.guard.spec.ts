@@ -29,7 +29,7 @@ describe("RolesGuard", () => {
       getAllAndOverride: vi.fn().mockReturnValue(["user"]),
     } as unknown as Reflector;
     const userService = {
-      findById: vi.fn().mockResolvedValue({ role: RoleEnum.USER }),
+      findById: vi.fn().mockResolvedValue({ role: RoleEnum.User }),
     } as unknown as UserService;
     const guard = new RolesGuard(reflector, userService);
     expect(await guard.canActivate(makeContext("user-1"))).toBe(true);
@@ -40,7 +40,7 @@ describe("RolesGuard", () => {
       getAllAndOverride: vi.fn().mockReturnValue(["admin"]),
     } as unknown as Reflector;
     const userService = {
-      findById: vi.fn().mockResolvedValue({ role: RoleEnum.USER }),
+      findById: vi.fn().mockResolvedValue({ role: RoleEnum.User }),
     } as unknown as UserService;
     const guard = new RolesGuard(reflector, userService);
     expect(await guard.canActivate(makeContext("user-1"))).toBe(false);

@@ -59,7 +59,7 @@ const makeEvent = (
     userId: "user-1",
     fromStage: null,
     toStage: ApplicationStageEnum.NEW,
-    source: StageEventSourceEnum.MANUAL,
+    source: StageEventSourceEnum.Manual,
     reason: null,
     createdAt: new Date("2026-01-02"),
     ...overrides,
@@ -199,7 +199,7 @@ describe("ApplicationService", () => {
     vi.mocked(repo.createStageEvent).mockResolvedValue(
       makeEvent({
         toStage: ApplicationStageEnum.NEW,
-        source: StageEventSourceEnum.SYSTEM,
+        source: StageEventSourceEnum.System,
       }),
     );
     const result = await service.create("user-1", {
@@ -229,7 +229,7 @@ describe("ApplicationService", () => {
     expect(repo.createStageEvent).toHaveBeenCalledWith("user-1", app.id, {
       fromStage: null,
       toStage: ApplicationStageEnum.NEW,
-      source: StageEventSourceEnum.SYSTEM,
+      source: StageEventSourceEnum.System,
       reason: null,
       scheduledAt: null,
     });
@@ -266,7 +266,7 @@ describe("ApplicationService", () => {
     vi.mocked(repo.createStageEvent).mockResolvedValue(
       makeEvent({
         toStage: ApplicationStageEnum.DUPLICATED,
-        source: StageEventSourceEnum.SYSTEM,
+        source: StageEventSourceEnum.System,
       }),
     );
     const result = await service.create("user-1", {
@@ -281,7 +281,7 @@ describe("ApplicationService", () => {
     expect(repo.createStageEvent).toHaveBeenCalledWith("user-1", app.id, {
       fromStage: null,
       toStage: ApplicationStageEnum.DUPLICATED,
-      source: StageEventSourceEnum.SYSTEM,
+      source: StageEventSourceEnum.System,
       reason: null,
       scheduledAt: null,
     });
@@ -434,14 +434,14 @@ describe("ApplicationService", () => {
       .mockResolvedValueOnce(
         makeEvent({
           toStage: ApplicationStageEnum.NEW,
-          source: StageEventSourceEnum.SYSTEM,
+          source: StageEventSourceEnum.System,
         }),
       )
       .mockResolvedValueOnce(
         makeEvent({
           fromStage: ApplicationStageEnum.NEW,
           toStage: ApplicationStageEnum.APPLIED,
-          source: StageEventSourceEnum.SYSTEM,
+          source: StageEventSourceEnum.System,
         }),
       );
     vi.mocked(
@@ -449,7 +449,7 @@ describe("ApplicationService", () => {
     ).mockResolvedValue(
       makeEvent({
         toStage: ApplicationStageEnum.NEW,
-        source: StageEventSourceEnum.SYSTEM,
+        source: StageEventSourceEnum.System,
       }),
     );
 
@@ -485,7 +485,7 @@ describe("ApplicationService", () => {
       expect.objectContaining({
         fromStage: null,
         toStage: ApplicationStageEnum.NEW,
-        source: StageEventSourceEnum.SYSTEM,
+        source: StageEventSourceEnum.System,
       }),
     );
     expect(repo.createStageEvent).toHaveBeenNthCalledWith(
@@ -495,7 +495,7 @@ describe("ApplicationService", () => {
       expect.objectContaining({
         fromStage: ApplicationStageEnum.NEW,
         toStage: ApplicationStageEnum.APPLIED,
-        source: StageEventSourceEnum.SYSTEM,
+        source: StageEventSourceEnum.System,
       }),
     );
   });
@@ -570,7 +570,7 @@ describe("ApplicationService", () => {
     vi.mocked(repo.createStageEvent).mockResolvedValue(
       makeEvent({
         toStage: ApplicationStageEnum.DUPLICATED,
-        source: StageEventSourceEnum.SYSTEM,
+        source: StageEventSourceEnum.System,
       }),
     );
 
@@ -600,7 +600,7 @@ describe("ApplicationService", () => {
       expect.objectContaining({
         fromStage: null,
         toStage: ApplicationStageEnum.DUPLICATED,
-        source: StageEventSourceEnum.SYSTEM,
+        source: StageEventSourceEnum.System,
       }),
     );
   });
@@ -652,7 +652,7 @@ describe("ApplicationService", () => {
     expect(repo.createStageEvent).toHaveBeenCalledWith("user-1", "app-1", {
       fromStage: ApplicationStageEnum.TECHNICAL,
       toStage: ApplicationStageEnum.OFFER,
-      source: StageEventSourceEnum.MANUAL,
+      source: StageEventSourceEnum.Manual,
       reason: null,
       scheduledAt: null,
     });

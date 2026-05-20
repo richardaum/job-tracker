@@ -39,7 +39,7 @@ export class GraphqlSseMiddleware implements NestMiddleware {
             return;
           }
 
-          if (!dbUser || dbUser.role !== RoleEnum.USER) {
+          if (!dbUser || dbUser.role !== RoleEnum.User) {
             if (!res.headersSent) {
               res.status(403).json({ errors: [{ message: "Forbidden" }] });
             }

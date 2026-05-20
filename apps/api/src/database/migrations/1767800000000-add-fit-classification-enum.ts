@@ -5,10 +5,15 @@ export class AddFitClassificationEnum1767800000000 implements MigrationInterface
 
   async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
-      `CREATE TYPE "fit_classification" AS ENUM ('POSITIVE', 'NEUTRAL', 'NEGATIVE')`,
+      `CREATE TYPE "fit_classification" AS ENUM ('Positive', 'Neutral', 'Negative')`,
     );
     await queryRunner.query(
-      `ALTER TABLE "fit_analysis" ALTER COLUMN "classification" SET DATA TYPE "fit_classification" USING UPPER("classification")::"fit_classification"`,
+      `ALTER TABLE "fit_analysis" ALTER COLUMN "classification" SET DATA TYPE "fit_classification" USING CASE "classification"
+        WHEN 'positive' THEN 'Positive'::"fit_classification"
+        WHEN 'neutral' THEN 'Neutral'::"fit_classification"
+        WHEN 'negative' THEN 'Negative'::"fit_classification"
+        ELSE "classification"::"fit_classification"
+      END`,
     );
   }
 

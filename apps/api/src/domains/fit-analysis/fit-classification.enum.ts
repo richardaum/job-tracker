@@ -1,9 +1,9 @@
 import { registerEnumType } from "@nestjs/graphql";
 
 export enum FitClassificationEnum {
-  POSITIVE = "POSITIVE",
-  NEUTRAL = "NEUTRAL",
-  NEGATIVE = "NEGATIVE",
+  Positive = "Positive",
+  Neutral = "Neutral",
+  Negative = "Negative",
 }
 
 registerEnumType(FitClassificationEnum, { name: "FitClassification" });

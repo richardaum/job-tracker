@@ -41,7 +41,7 @@ describe.skipIf(!hasDb)("UserRepository (integration)", () => {
     });
     expect(user.googleId).toBe("google-123");
     expect(user.email).toBe("test@example.com");
-    expect(user.role).toBe(RoleEnum.USER);
+    expect(user.role).toBe(RoleEnum.User);
     expect(user.id).toBeDefined();
   });
 

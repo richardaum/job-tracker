@@ -36,7 +36,7 @@ export class ApplicationStageEventEntity {
     type: "enum",
     enum: StageEventSourceEnum,
     enumName: "stage_event_source",
-    default: StageEventSourceEnum.MANUAL,
+    default: StageEventSourceEnum.Manual,
   })
   source!: StageEventSourceEnum;
 

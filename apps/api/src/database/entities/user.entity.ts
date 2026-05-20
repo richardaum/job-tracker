@@ -30,7 +30,7 @@ export class UserEntity {
     type: "enum",
     enum: RoleEnum,
     enumName: "role",
-    default: RoleEnum.USER,
+    default: RoleEnum.User,
   })
   role!: RoleEnum;
 

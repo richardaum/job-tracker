@@ -11,7 +11,7 @@ const mockUser: User = {
   email: "test@example.com",
   name: "Test User",
   avatarUrl: "https://example.com/avatar.jpg",
-  role: RoleEnum.USER,
+  role: RoleEnum.User,
   createdAt: new Date("2024-01-01"),
   updatedAt: new Date("2024-01-01"),
 };

@@ -1,8 +1,8 @@
 import { registerEnumType } from "@nestjs/graphql";
 
 export enum StageEventSourceEnum {
-  MANUAL = "MANUAL",
-  SYSTEM = "SYSTEM",
+  Manual = "Manual",
+  System = "System",
 }
 
 registerEnumType(StageEventSourceEnum, { name: "StageEventSource" });

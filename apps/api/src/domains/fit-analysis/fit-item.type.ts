@@ -21,7 +21,7 @@ export class FitItemType {
   @Field({ nullable: true })
   weight?: "high" | "low";
 
-  @Field(() => String)
+  @Field(() => RequirementTypeEnum)
   type!: RequirementTypeEnum;
 
   @Field(() => FitVerdictEnum)

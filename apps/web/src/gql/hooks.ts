@@ -245,9 +245,9 @@ export type FitAnalysisType = {
 };
 
 export enum FitClassification {
-  Negative = "NEGATIVE",
-  Neutral = "NEUTRAL",
-  Positive = "POSITIVE",
+  Negative = "Negative",
+  Neutral = "Neutral",
+  Positive = "Positive",
 }
 
 export type FitItemType = {
@@ -257,20 +257,20 @@ export type FitItemType = {
   source: FitSource;
   sourceQuotes: Array<Scalars["String"]["output"]>;
   suggestion?: Maybe<Scalars["String"]["output"]>;
-  type: Scalars["String"]["output"];
+  type: RequirementType;
   verdict: FitVerdict;
   weight?: Maybe<Scalars["String"]["output"]>;
 };
 
 export enum FitSource {
-  Preference = "PREFERENCE",
-  Resume = "RESUME",
+  Preference = "Preference",
+  Resume = "Resume",
 }
 
 export enum FitVerdict {
-  Fit = "FIT",
-  Gap = "GAP",
-  Unclear = "UNCLEAR",
+  Fit = "Fit",
+  Gap = "Gap",
+  Unclear = "Unclear",
 }
 
 export type GenerateDraftFitInput = {
@@ -567,6 +567,12 @@ export type QuerySourceTemplatesForSourceProfileArgs = {
   sourceProfileId: Scalars["String"]["input"];
 };
 
+export enum RequirementType {
+  MustHave = "MustHave",
+  NiceToHave = "NiceToHave",
+  SoftSkill = "SoftSkill",
+}
+
 export type ResumeType = {
   __typename?: "ResumeType";
   content: Scalars["String"]["output"];
@@ -632,10 +638,8 @@ export type SourceTemplateType = {
 };
 
 export enum StageEventSource {
-  AiDraftReview = "AI_DRAFT_REVIEW",
-  LinkedinTracker = "LINKEDIN_TRACKER",
-  Manual = "MANUAL",
-  System = "SYSTEM",
+  Manual = "Manual",
+  System = "System",
 }
 
 export type Subscription = {
@@ -1431,7 +1435,7 @@ export type FitQuery = {
       requirement: string;
       source: FitSource;
       weight?: string | null;
-      type: string;
+      type: RequirementType;
       verdict: FitVerdict;
       jdQuote: string;
       sourceQuotes: Array<string>;
@@ -1480,7 +1484,7 @@ export type ApplicationFitQuery = {
       requirement: string;
       source: FitSource;
       weight?: string | null;
-      type: string;
+      type: RequirementType;
       verdict: FitVerdict;
       jdQuote: string;
       sourceQuotes: Array<string>;
@@ -1518,7 +1522,7 @@ export type DraftApplicationFitQuery = {
       requirement: string;
       source: FitSource;
       weight?: string | null;
-      type: string;
+      type: RequirementType;
       verdict: FitVerdict;
       jdQuote: string;
       sourceQuotes: Array<string>;
@@ -1556,7 +1560,7 @@ export type GenerateApplicationFitMutation = {
       requirement: string;
       source: FitSource;
       weight?: string | null;
-      type: string;
+      type: RequirementType;
       verdict: FitVerdict;
       jdQuote: string;
       sourceQuotes: Array<string>;
@@ -1594,7 +1598,7 @@ export type GenerateDraftApplicationFitMutation = {
       requirement: string;
       source: FitSource;
       weight?: string | null;
-      type: string;
+      type: RequirementType;
       verdict: FitVerdict;
       jdQuote: string;
       sourceQuotes: Array<string>;

@@ -245,7 +245,7 @@ export class ApplicationService {
     await this.repo.createStageEvent(userId, application.id, {
       fromStage: null,
       toStage: initialStage,
-      source: StageEventSourceEnum.SYSTEM,
+      source: StageEventSourceEnum.System,
       reason: null,
       scheduledAt: null,
     });
@@ -364,7 +364,7 @@ export class ApplicationService {
         this.createStageEvent(userId, {
           applicationId: created.id,
           toStage: ApplicationStageEnum.APPLIED,
-          source: StageEventSourceEnum.SYSTEM,
+          source: StageEventSourceEnum.System,
         }),
       );
 
@@ -562,7 +562,7 @@ export class ApplicationService {
     const event = await this.repo.createStageEvent(userId, dto.applicationId, {
       fromStage: latest?.toStage ?? null,
       toStage: dto.toStage,
-      source: dto.source ?? StageEventSourceEnum.MANUAL,
+      source: dto.source ?? StageEventSourceEnum.Manual,
       reason: dto.reason ?? null,
       scheduledAt: dto.scheduledAt ?? null,
     });

@@ -58,7 +58,7 @@ export class UserRepository {
         email: values.email,
         name: values.name,
         avatarUrl: values.avatarUrl,
-        role: RoleEnum.USER,
+        role: RoleEnum.User,
       });
     }
 

@@ -23,21 +23,18 @@ import { EntityManager } from "typeorm";
 })
 class ScriptModule {}
 
-function upper(val: string | null | undefined): string | null | undefined {
-  return val?.toUpperCase();
-}
-
 function normalizeVerdict(
   verdict: string | null | undefined,
 ): FitVerdictEnum | undefined {
   if (!verdict) return undefined;
-  const upperVerdict = upper(verdict)! as FitVerdictEnum;
+  const capitalized =
+    verdict.charAt(0).toUpperCase() + verdict.slice(1).toLowerCase();
   if (
-    upperVerdict === FitVerdictEnum.FIT ||
-    upperVerdict === FitVerdictEnum.GAP ||
-    upperVerdict === FitVerdictEnum.UNCLEAR
+    capitalized === FitVerdictEnum.Fit ||
+    capitalized === FitVerdictEnum.Gap ||
+    capitalized === FitVerdictEnum.Unclear
   ) {
-    return upperVerdict;
+    return capitalized as FitVerdictEnum;
   }
   return undefined;
 }
@@ -58,7 +55,12 @@ async function main() {
   const fitRepo = em.getRepository(FitAnalysisEntity);
   const allFit = await fitRepo.find();
   const fixVerdict = allFit.filter((e) =>
-    e.items?.some((i) => i.verdict && i.verdict !== upper(i.verdict)),
+    e.items?.some(
+      (i) =>
+        i.verdict &&
+        i.verdict !==
+          i.verdict.charAt(0).toUpperCase() + i.verdict.slice(1).toLowerCase(),
+    ),
   );
 
   if (fixVerdict.length === 0) {

@@ -277,7 +277,7 @@ export class FitAnalysisService implements OnModuleInit {
         ...resumeFitItems.map(
           (i): FitItem => ({
             requirement: i.requirement,
-            source: FitSourceEnum.RESUME,
+            source: FitSourceEnum.Resume,
             type: i.type as RequirementTypeEnum,
             verdict: i.verdict,
             jdQuote: i.jdQuote,
@@ -289,7 +289,7 @@ export class FitAnalysisService implements OnModuleInit {
           const original = preferenceItems[index];
           return {
             requirement: i.requirement,
-            source: FitSourceEnum.PREFERENCE,
+            source: FitSourceEnum.Preference,
             weight: original?.weight,
             type: i.type as RequirementTypeEnum,
             verdict: i.verdict,

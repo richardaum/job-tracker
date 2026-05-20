@@ -45,7 +45,7 @@ type FitItemType {
   requirement: String!
   source: FitSource!
   weight: String
-  type: String!
+  type: RequirementType!
   verdict: FitVerdict!
   jdQuote: String!
   sourceQuotes: [String!]!
@@ -53,14 +53,20 @@ type FitItemType {
 }
 
 enum FitSource {
-  RESUME
-  PREFERENCE
+  Resume
+  Preference
+}
+
+enum RequirementType {
+  MustHave
+  NiceToHave
+  SoftSkill
 }
 
 enum FitVerdict {
-  FIT
-  GAP
-  UNCLEAR
+  Fit
+  Gap
+  Unclear
 }
 
 type FitAnalysisType {
@@ -82,9 +88,9 @@ type FitAnalysisType {
 }
 
 enum FitClassification {
-  POSITIVE
-  NEUTRAL
-  NEGATIVE
+  Positive
+  Neutral
+  Negative
 }
 
 type ConversionMetadataType {
@@ -168,8 +174,8 @@ type ApplicationStageEventType {
 }
 
 enum StageEventSource {
-  MANUAL
-  SYSTEM
+  Manual
+  System
 }
 
 type ApplicationSalary {

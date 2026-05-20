@@ -387,7 +387,7 @@ export class ApplicationRepository {
       applicationId,
       fromStage: dto.fromStage ?? null,
       toStage: dto.toStage,
-      source: dto.source ?? StageEventSourceEnum.MANUAL,
+      source: dto.source ?? StageEventSourceEnum.Manual,
       reason: dto.reason ?? null,
       scheduledAt: dto.scheduledAt ?? null,
     });

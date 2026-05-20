@@ -23,20 +23,17 @@ import { EntityManager } from "typeorm";
 })
 class ScriptModule {}
 
-function upper(val: string | null | undefined): string | null | undefined {
-  return val?.toUpperCase();
-}
-
 function normalizeSource(
   source: string | null | undefined,
 ): FitSourceEnum | undefined {
   if (!source) return undefined;
-  const upperSource = upper(source)! as FitSourceEnum;
+  const capitalized =
+    source.charAt(0).toUpperCase() + source.slice(1).toLowerCase();
   if (
-    upperSource === FitSourceEnum.RESUME ||
-    upperSource === FitSourceEnum.PREFERENCE
+    capitalized === FitSourceEnum.Resume ||
+    capitalized === FitSourceEnum.Preference
   ) {
-    return upperSource;
+    return capitalized as FitSourceEnum;
   }
   return undefined;
 }
@@ -57,7 +54,12 @@ async function main() {
   const fitRepo = em.getRepository(FitAnalysisEntity);
   const allFit = await fitRepo.find();
   const fixSource = allFit.filter((e) =>
-    e.items?.some((i) => i.source && i.source !== upper(i.source)),
+    e.items?.some(
+      (i) =>
+        i.source &&
+        i.source !==
+          i.source.charAt(0).toUpperCase() + i.source.slice(1).toLowerCase(),
+    ),
   );
 
   if (fixSource.length === 0) {

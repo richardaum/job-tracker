@@ -31,7 +31,7 @@ describe.skipIf(!hasDb)("NoteRepository (integration)", () => {
         email: "noterepo@example.com",
         name: "Note Repo User",
         avatarUrl: null,
-        role: RoleEnum.USER,
+        role: RoleEnum.User,
       }),
     );
     userId = user.id;

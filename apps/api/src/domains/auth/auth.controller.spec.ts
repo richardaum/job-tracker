@@ -21,7 +21,7 @@ const mockUser: User = {
   email: "test@example.com",
   name: "Test User",
   avatarUrl: null,
-  role: RoleEnum.USER,
+  role: RoleEnum.User,
   createdAt: new Date(),
   updatedAt: new Date(),
 };

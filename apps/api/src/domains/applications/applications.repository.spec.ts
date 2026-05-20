@@ -35,7 +35,7 @@ describe.skipIf(!hasDb)("ApplicationRepository (integration)", () => {
         email: "apprepo@example.com",
         name: "App Repo User",
         avatarUrl: null,
-        role: RoleEnum.USER,
+        role: RoleEnum.User,
       }),
     );
     userId = user.id;
@@ -119,7 +119,7 @@ describe.skipIf(!hasDb)("ApplicationRepository (integration)", () => {
         email: "other@example.com",
         name: "Other User",
         avatarUrl: null,
-        role: RoleEnum.USER,
+        role: RoleEnum.User,
       }),
     );
 
@@ -145,13 +145,13 @@ describe.skipIf(!hasDb)("ApplicationRepository (integration)", () => {
     const first = await repo.createStageEvent(userId, app.id, {
       fromStage: null,
       toStage: ApplicationStageEnum.APPLIED,
-      source: StageEventSourceEnum.MANUAL,
+      source: StageEventSourceEnum.Manual,
       scheduledAt: new Date("2030-01-01T09:00:00.000Z"),
     });
     const second = await repo.createStageEvent(userId, app.id, {
       fromStage: ApplicationStageEnum.APPLIED,
       toStage: ApplicationStageEnum.TECHNICAL,
-      source: StageEventSourceEnum.MANUAL,
+      source: StageEventSourceEnum.Manual,
       scheduledAt: null,
     });
 
@@ -178,7 +178,7 @@ describe.skipIf(!hasDb)("ApplicationRepository (integration)", () => {
     await repo.createStageEvent(userId, appliedApp.id, {
       fromStage: null,
       toStage: ApplicationStageEnum.APPLIED,
-      source: StageEventSourceEnum.MANUAL,
+      source: StageEventSourceEnum.Manual,
       scheduledAt: null,
     });
 
@@ -190,7 +190,7 @@ describe.skipIf(!hasDb)("ApplicationRepository (integration)", () => {
     await repo.createStageEvent(userId, activeApp.id, {
       fromStage: ApplicationStageEnum.APPLIED,
       toStage: ApplicationStageEnum.TECHNICAL,
-      source: StageEventSourceEnum.MANUAL,
+      source: StageEventSourceEnum.Manual,
       scheduledAt: null,
     });
 
@@ -214,7 +214,7 @@ describe.skipIf(!hasDb)("ApplicationRepository (integration)", () => {
     await repo.createStageEvent(userId, appliedAppWithEvent.id, {
       fromStage: null,
       toStage: ApplicationStageEnum.APPLIED,
-      source: StageEventSourceEnum.MANUAL,
+      source: StageEventSourceEnum.Manual,
       scheduledAt: new Date(Date.now() + 86400000), // Tomorrow
     });
 
@@ -226,7 +226,7 @@ describe.skipIf(!hasDb)("ApplicationRepository (integration)", () => {
     await repo.createStageEvent(userId, recruiterScreenApp.id, {
       fromStage: ApplicationStageEnum.APPLIED,
       toStage: ApplicationStageEnum.RECRUITER_SCREEN,
-      source: StageEventSourceEnum.MANUAL,
+      source: StageEventSourceEnum.Manual,
       scheduledAt: new Date(Date.now() + 86400000), // Tomorrow
     });
 
@@ -250,7 +250,7 @@ describe.skipIf(!hasDb)("ApplicationRepository (integration)", () => {
     await repo.createStageEvent(userId, newLatest.id, {
       fromStage: null,
       toStage: ApplicationStageEnum.NEW,
-      source: StageEventSourceEnum.MANUAL,
+      source: StageEventSourceEnum.Manual,
       scheduledAt: null,
     });
 
@@ -262,13 +262,13 @@ describe.skipIf(!hasDb)("ApplicationRepository (integration)", () => {
     await repo.createStageEvent(userId, dupLatest.id, {
       fromStage: null,
       toStage: ApplicationStageEnum.NEW,
-      source: StageEventSourceEnum.MANUAL,
+      source: StageEventSourceEnum.Manual,
       scheduledAt: null,
     });
     await repo.createStageEvent(userId, dupLatest.id, {
       fromStage: ApplicationStageEnum.NEW,
       toStage: ApplicationStageEnum.DUPLICATED,
-      source: StageEventSourceEnum.SYSTEM,
+      source: StageEventSourceEnum.System,
       scheduledAt: null,
     });
 
