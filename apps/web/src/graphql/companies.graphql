@@ -24,3 +24,11 @@ query Companies {
     description
   }
 }
+
+query Company($id: ID!) {
+  company(id: $id) {
+    id
+    name
+    description
+  }
+}

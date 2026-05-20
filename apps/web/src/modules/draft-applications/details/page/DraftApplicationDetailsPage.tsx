@@ -23,10 +23,11 @@ import {
   PencilSimpleIcon,
   SparkleIcon,
 } from "@phosphor-icons/react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useCallback, useState } from "react";
 
+import { BackToLink } from "@/components/back-to-link";
+import { EntityNotFound } from "@/components/entity-not-found";
 import {
   DraftApplicationConversionStatus,
   useApplicationQuery,
@@ -123,7 +124,7 @@ export default function DraftApplicationDetailsPage({ params }: PageProps) {
     useGenerateDraftApplicationFitMutation();
   const { enqueueToast } = useToastQueue();
 
-  const { draft, error, refetch, showInitialLoading } =
+  const { draft, error, refetch, status, notFound } =
     useDraftApplicationDetailsViewModel(id);
   const sseUrl = `${getApiBaseUrl()}/draft-applications/${id}/stream`;
   useEventSource<{ draftId: string; status: DraftApplicationConversionStatus }>(
@@ -192,7 +193,7 @@ export default function DraftApplicationDetailsPage({ params }: PageProps) {
   }, [draft, createApplicationWithAI, enqueueToast, refetch]);
 
   useDraftAutoConversion({
-    draftLoaded: !showInitialLoading && !!draft,
+    draftLoaded: status === "success" && !!draft,
     onConvert: handleConvertToApplication,
   });
 
@@ -361,14 +362,7 @@ export default function DraftApplicationDetailsPage({ params }: PageProps) {
         )}
       >
         <div className={cn("flex items-center justify-between gap-3")}>
-          <Link
-            href="/draft-applications"
-            className={cn(
-              "text-sm text-text-secondary underline-offset-2 hover:underline",
-            )}
-          >
-            Back to drafts
-          </Link>
+          <BackToLink href="/draft-applications">Back to drafts</BackToLink>
           <div
             className={cn(
               "flex shrink-0 flex-wrap items-center justify-end gap-2",
@@ -523,19 +517,21 @@ export default function DraftApplicationDetailsPage({ params }: PageProps) {
       </div>
 
       <div className={cn("min-h-0 flex-1 overflow-hidden p-4 sm:p-6")}>
-        {showInitialLoading ? (
+        {status === "loading" ? (
           <Text size="sm" color="secondary">
             Loading draft...
           </Text>
-        ) : error ? (
+        ) : notFound ? (
+          <EntityNotFound
+            resource="draft application"
+            backHref="/draft-applications"
+            backLabel="Back to draft applications"
+          />
+        ) : error && !notFound ? (
           <Text size="sm" color="error">
             Failed to load draft application.
           </Text>
-        ) : !draft ? (
-          <Text size="sm" color="secondary">
-            Draft not found.
-          </Text>
-        ) : (
+        ) : !draft ? null : (
           <Tabs
             defaultValue="overview"
             className={cn("flex size-full min-h-0  flex-col")}

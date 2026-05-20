@@ -10,7 +10,7 @@ export type LoginSpotlightIconKey =
   | "folders"
   | "rss";
 
-export interface LoginSpotlightCardTile {
+interface LoginSpotlightCardTile {
   readonly kind: "card";
   readonly id: string;
   readonly icon: LoginSpotlightIconKey;
@@ -19,7 +19,7 @@ export interface LoginSpotlightCardTile {
   readonly layoutClassName: string;
 }
 
-export interface LoginSpotlightWideTile {
+interface LoginSpotlightWideTile {
   readonly kind: "wide";
   readonly id: string;
   readonly icon: LoginSpotlightIconKey;
@@ -29,7 +29,7 @@ export interface LoginSpotlightWideTile {
   readonly accentSideLabel: string;
 }
 
-export interface LoginSpotlightVisualTile {
+interface LoginSpotlightVisualTile {
   readonly kind: "visual";
   readonly id: string;
   readonly icon: LoginSpotlightIconKey;

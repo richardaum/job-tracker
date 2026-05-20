@@ -41,8 +41,6 @@ import { formatStage } from "@/modules/applications/shared/components/status-bad
 import { StatusBadge } from "@/modules/applications/shared/components/StatusBadge";
 import { formatApplicationSourceLabel } from "@/modules/applications/shared/utils/applicationSourceLabel";
 
-export type { ApplicationCardApplication } from "@/modules/applications/list/hooks/useApplicationCardViewModel";
-
 interface ApplicationCardProps {
   application: ApplicationCardApplication;
   onSuccess: (message: string) => void;

@@ -1,0 +1,12 @@
+{
+  "$schema": "./node_modules/knip/schema.json",
+  "ignore": [
+    "apps/api/src/database/migrations/archive/**",
+    "apps/api/scripts/**",
+    "scripts/**"
+  ],
+  "ignoreIssues": {
+    "apps/web/src/gql/**": ["exports", "types", "files"],
+    "apps/extension/src/gql/**": ["exports", "types", "files"]
+  }
+}

@@ -17,6 +17,7 @@ import {
   BadRequestException,
   Injectable,
   Logger,
+  NotFoundException,
   OnModuleInit,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
@@ -54,8 +55,12 @@ export class FitAnalysisService implements OnModuleInit {
     }
   }
 
-  async findById(id: string, userId: string): Promise<FitAnalysis | null> {
-    return this.repo.findById(id, userId);
+  async findById(id: string, userId: string): Promise<FitAnalysis> {
+    const fit = await this.repo.findById(id, userId);
+    if (!fit) {
+      throw new NotFoundException("Fit analysis not found");
+    }
+    return fit;
   }
 
   async findForApplication(

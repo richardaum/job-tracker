@@ -15,8 +15,7 @@ import { ConvertDraftConflictDialog } from "@/modules/draft-applications/details
 import { DeleteDraftApplicationDialog } from "@/modules/draft-applications/list/components/DeleteDraftApplicationDialog";
 import { ConversionStatusBadge } from "@/modules/draft-applications/shared/components/ConversionStatusBadge";
 
-export type DraftListItem =
-  DraftApplicationsListQuery["draftApplications"][number];
+type DraftListItem = DraftApplicationsListQuery["draftApplications"][number];
 
 const dateFormatter = new Intl.DateTimeFormat("en-US", {
   month: "short",

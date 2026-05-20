@@ -255,6 +255,7 @@ type Query {
   generateCompanyDescription(companyName: String!): String!
   applicationStageEvents(applicationId: ID!): [ApplicationStageEventType!]!
   companies: [CompanyType!]!
+  company(id: ID!): CompanyType!
   companyApplicationsCount(id: ID!): Int!
   draftApplications: [DraftApplicationType!]!
   draftApplication(id: ID!): DraftApplicationType!
@@ -269,7 +270,7 @@ type Query {
   resume(id: ID!): ResumeType!
   workPreferences: [PreferenceType!]!
   fitAnalyses: [FitAnalysisType!]!
-  fit(id: ID!): FitAnalysisType
+  fit(id: ID!): FitAnalysisType!
   applicationFit(applicationId: ID!): FitAnalysisType
   draftApplicationFit(draftApplicationId: ID!): FitAnalysisType
   rewriteTextWithAI(text: String!): String!

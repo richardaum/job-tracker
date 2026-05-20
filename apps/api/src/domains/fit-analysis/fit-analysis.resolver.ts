@@ -34,11 +34,11 @@ export class FitAnalysisResolver {
     return this.service.findAll(user.userId);
   }
 
-  @Query(() => FitAnalysisType, { nullable: true })
+  @Query(() => FitAnalysisType)
   async fit(
     @Args("id", { type: () => ID }) id: string,
     @CurrentUser() user: { userId: string },
-  ): Promise<FitAnalysisType | null> {
+  ): Promise<FitAnalysisType> {
     return this.service.findById(id, user.userId);
   }
 

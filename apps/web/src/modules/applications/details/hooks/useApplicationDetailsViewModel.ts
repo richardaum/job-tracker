@@ -5,6 +5,7 @@ import {
   useApplicationQuery,
   useApplicationStageEventsQuery,
 } from "@/gql/hooks";
+import { deriveDetailStatus } from "@/lib/entity-detail-view-status";
 import { type ApplicationDetailsValues } from "@/modules/applications/details/utils/application-details.shared";
 import { formatApplicationSourceLabel } from "@/modules/applications/shared/utils/applicationSourceLabel";
 
@@ -22,7 +23,7 @@ export function useApplicationDetailsViewModel(
 ) {
   const includeStageEvents = options?.includeStageEvents ?? true;
 
-  const { data, loading, error, refetch } = useApplicationQuery({
+  const { data, error, loading, refetch } = useApplicationQuery({
     variables: { id: applicationId },
     fetchPolicy: "cache-and-network",
   });
@@ -34,20 +35,21 @@ export function useApplicationDetailsViewModel(
   });
 
   const application = data?.application as ApplicationDetailsValues | undefined;
+
+  // TODO use application.currentStage instead
   const currentStage =
     stageEventsData?.applicationStageEvents[0]?.toStage ?? ApplicationStage.New;
   const currentStageReason =
     stageEventsData?.applicationStageEvents[0]?.reason ?? null;
 
   const sourcePrimaryText = formatApplicationSourceLabel(application?.source);
+  const status = deriveDetailStatus(loading, error);
 
   return {
     application,
     currentStage,
     currentStageReason,
-    loading,
-    error,
-    showInitialLoading: loading && !data,
+    status,
     sourcePrimaryText,
     refetch,
     draftApplicationId: application?.draftApplicationId ?? null,

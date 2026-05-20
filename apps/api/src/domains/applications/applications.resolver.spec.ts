@@ -3,10 +3,15 @@ import "reflect-metadata";
 import { DraftApplicationConversionStatusEnum } from "@api/database/entities/draft-application.entity";
 import { JwtAuthGuard } from "@api/domains/auth/jwt-auth.guard";
 import { RolesGuard } from "@api/domains/auth/roles.guard";
+import { graphqlFormatError } from "@api/graphql/graphql-format-error";
 import type { ApolloDriverConfig } from "@nestjs/apollo";
 import { ApolloDriver } from "@nestjs/apollo";
 import type { ExecutionContext, INestApplication } from "@nestjs/common";
-import { UnauthorizedException } from "@nestjs/common";
+import {
+  ForbiddenException,
+  NotFoundException,
+  UnauthorizedException,
+} from "@nestjs/common";
 import { GraphQLModule } from "@nestjs/graphql";
 import { GqlExecutionContext } from "@nestjs/graphql";
 import { Test } from "@nestjs/testing";
@@ -87,6 +92,7 @@ describe("ApplicationResolver (integration)", () => {
         GraphQLModule.forRoot<ApolloDriverConfig>({
           driver: ApolloDriver,
           autoSchemaFile: true,
+          formatError: graphqlFormatError,
         }),
       ],
       providers: [
@@ -253,6 +259,39 @@ describe("ApplicationResolver (integration)", () => {
       success: true,
       deletedId: "app-1",
     });
+  });
+
+  it("application query maps missing entity to NOT_FOUND without leaking id", async () => {
+    service.findOne.mockRejectedValueOnce(
+      new NotFoundException(
+        "Application 00000000-0000-4000-8000-000000000099 not found",
+      ),
+    );
+    const res = await request(app.getHttpServer())
+      .post("/graphql")
+      .set(auth)
+      .send({ query: `{ application(id: "missing") { id } }` });
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body.errors).toHaveLength(1);
+    expect(res.body.errors[0].extensions.code).toBe("NOT_FOUND");
+    expect(res.body.errors[0].message).toBe("Resource not found");
+    expect(res.body.errors[0].message).not.toContain("00000000");
+    expect(res.body.errors[0].message).not.toContain("missing");
+  });
+
+  it("application query masks ForbiddenException as NOT_FOUND", async () => {
+    service.findOne.mockRejectedValueOnce(new ForbiddenException("Denied"));
+    const res = await request(app.getHttpServer())
+      .post("/graphql")
+      .set(auth)
+      .send({ query: `{ application(id: "app-x") { id } }` });
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body.errors).toHaveLength(1);
+    expect(res.body.errors[0].extensions.code).toBe("NOT_FOUND");
+    expect(res.body.errors[0].extensions.code).not.toBe("FORBIDDEN");
+    expect(res.body.errors[0].message).toBe("Resource not found");
   });
 
   it("deleteApplicationStageEvent mutation returns payload", async () => {
