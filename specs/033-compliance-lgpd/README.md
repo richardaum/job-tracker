@@ -33,8 +33,8 @@ This spec defines what needs to be implemented to bring Job Tracker into LGPD co
 | Subsystem        | Personal data                              | Purpose                           | Likely legal basis                       |
 | ---------------- | ------------------------------------------ | --------------------------------- | ---------------------------------------- |
 | **Auth**         | Name, email, avatar (via Google OAuth)     | Identification and authentication | Legitimate interest / contract execution |
-| **Resume**       | Full name, work history, education, skills | Job fit analysis                  | Consent                                  |
-| **Preferences**  | Work preferences (remote, salary, etc.)    | Fit analysis personalization      | Consent                                  |
+| **Resume**       | Full name, work history, education, skills | Job match analysis                | Consent                                  |
+| **Preferences**  | Work preferences (remote, salary, etc.)    | Match analysis personalization    | Consent                                  |
 | **Applications** | Target companies, roles, stages, notes     | Job search management             | Legitimate interest                      |
 | **Salary**       | Salary expectations, currency              | Salary calculation and conversion | Consent                                  |
 | **Extension**    | Visited job URLs, company, role            | Automatic job import              | Consent                                  |

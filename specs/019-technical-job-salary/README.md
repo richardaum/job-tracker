@@ -6,12 +6,12 @@ tags:
   - migrated
 ---
 
-# Technical Scope: application-salary
+# Technical Scope: job-salary
 
 ## Architecture Impact
 
-- [T-112] Extend the Drizzle `applications` model and PostgreSQL schema with `salary_min_cents`, `salary_max_cents`, `salary_currency` (text), `salary_period` (enum: year, month, hour), and `salary_tags` (text array with empty default), plus a versioned SQL migration in `apps/api`.
-- [T-113] Surface the same fields on GraphQL `ApplicationType`, `CreateApplicationInput`, and `UpdateApplicationInput` with null semantics aligned to SQL; regenerate the web `graphql` contract and client hooks.
+- [T-112] Extend the Drizzle `jobs` model and PostgreSQL schema with `salary_min_cents`, `salary_max_cents`, `salary_currency` (text), `salary_period` (enum: year, month, hour), and `salary_tags` (text array with empty default), plus a versioned SQL migration in `apps/api`.
+- [T-113] Surface the same fields on GraphQL `JobType`, `CreateJobInput`, and `UpdateJobInput` with null semantics aligned to SQL; regenerate the web `graphql` contract and client hooks.
 - [T-114] Add a shared web formatting utility for range + `Intl` currency display, and a small presentational chip row reused by the list card and the details overview.
 
 ## Design Decisions
@@ -24,7 +24,7 @@ tags:
 
 - [T-118] Invalid partial payloads (cents without currency) -> service-layer validation with integration tests; GraphQL errors map to user toast copy on web.
 - [T-119] Tag-only vs amount-only product ambiguity -> [P-93] is resolved in implementation by a single rule set documented in the service (either forbid tag-only, or require at least one amount when tags exist) and mirrored in the UI.
-- [T-120] List card horizontal overflow on small screens -> chip overflow with `+N` and responsive wrapping consistent with `ApplicationsPage` line layout.
+- [T-120] List card horizontal overflow on small screens -> chip overflow with `+N` and responsive wrapping consistent with `JobsPage` line layout.
 
 ## Validation
 

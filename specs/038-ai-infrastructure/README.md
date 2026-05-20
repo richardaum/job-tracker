@@ -22,12 +22,12 @@ Refactor the AI layer in `apps/api` to eliminate dependency violations, remove c
 
 Four structural problems exist today:
 
-| #   | Problem                                                                                                                                                                             | Impact                                                                                                                                     |
-| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| 1   | `openai.service.ts` lives inside `domains/application-ai/` but is consumed by every AI service across the API                                                                       | Dependency direction violation — `company-ai`, `note-ai`, `fit-analysis`, and `domains/ai/` all import from a module that is not the owner |
-| 2   | `OpenAIService` is instantiated in **two** separate modules (`ApplicationAiModule` and `CompanyAiModule`)                                                                           | Two singleton instances, defeating NestJS DI guarantees                                                                                    |
-| 3   | The same calling pattern (`tryRun → openai.chat → parse → throw`) is manually repeated across 5 services                                                                            | ~15 lines of identical boilerplate per method, ~40+ lines total                                                                            |
-| 4   | `domains/ai/` is a pseudo-domain — it contains generic text utilities (`rewriteTextAsSingleParagraph`, `restructureJobDescription`) with no domain entity, repository, or lifecycle | Misleading module boundary; the code is shared infra, not a domain                                                                         |
+| #   | Problem                                                                                                                                                                             | Impact                                                                                                                                       |
+| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | `openai.service.ts` lives inside `domains/application-ai/` but is consumed by every AI service across the API                                                                       | Dependency direction violation — `company-ai`, `note-ai`, `match-analysis`, and `domains/ai/` all import from a module that is not the owner |
+| 2   | `OpenAIService` is instantiated in **two** separate modules (`ApplicationAiModule` and `CompanyAiModule`)                                                                           | Two singleton instances, defeating NestJS DI guarantees                                                                                      |
+| 3   | The same calling pattern (`tryRun → openai.chat → parse → throw`) is manually repeated across 5 services                                                                            | ~15 lines of identical boilerplate per method, ~40+ lines total                                                                              |
+| 4   | `domains/ai/` is a pseudo-domain — it contains generic text utilities (`rewriteTextAsSingleParagraph`, `restructureJobDescription`) with no domain entity, repository, or lifecycle | Misleading module boundary; the code is shared infra, not a domain                                                                           |
 
 ## Design
 
@@ -36,9 +36,9 @@ Four structural problems exist today:
 AI logic that serves a single domain lives in a `domains/{X}/ai/` subdirectory. This keeps co-located what changes together, and avoids orphan modules when a domain is removed.
 
 ```
-domains/applications/
-├── ai/               ← NEW: Application inference logic only
-└── applications.service.ts
+domains/jobs/
+├── ai/               ← NEW: Job inference logic only
+└── jobs.service.ts
 
 domains/draft-applications/
 ├── ai/               ← NEW: Draft extraction logic
@@ -64,7 +64,7 @@ lib/ai/
 
 ### D3: Location inference in `lib/ai/`, not a domain
 
-`LocationInferenceService` is used by both `draft-applications` and `applications`. Placing it in a domain would create cross-domain dependency. As a pure text-in/text-out utility scoped to AI infra, it belongs in `lib/ai/`.
+`LocationInferenceService` is used by both `draft-applications` and `jobs`. Placing it in a domain would create cross-domain dependency. As a pure text-in/text-out utility scoped to AI infra, it belongs in `lib/ai/`.
 
 ### D4: Separate AI service per domain, not monolithic
 
@@ -102,12 +102,12 @@ apps/api/src/
 │   ├── draft-applications.resolver.ts
 │   └── draft-applications.module.ts
 │
-├── domains/applications/
+├── domains/jobs/
 │   ├── ai/
-│   │   ├── application-inference.service.ts ← NEW (thin facade if needed)
+│   │   ├── job-inference.service.ts ← NEW (thin facade if needed)
 │   │   └── summary-ai.service.ts            ← from application-ai/ + rename SummaryAiService
-│   ├── applications.service.ts
-│   ├── applications.module.ts
+│   ├── jobs.service.ts
+│   ├── jobs.module.ts
 │   ├── summary.service.ts                   ← untouched (orchestration, not AI)
 │   └── summary-event.listener.ts            ← untouched (event trigger)
 │
@@ -123,8 +123,8 @@ apps/api/src/
 │   ├── notes.service.ts
 │   └── notes.module.ts
 │
-└── domains/fit-analysis/                ← unchanged (already proper domain)
-    └── fit-analysis-ai.service.ts
+└── domains/match-analysis/                ← unchanged (already proper domain)
+    └── match-analysis-ai.service.ts
 ```
 
 ### Removed
@@ -197,9 +197,9 @@ apps/api/src/
 
 - [T-252] **Note-generation service**: Rename `NoteAiService` to `domains/notes/ai/note-generation.service.ts` (`NoteGenerationService`). Extends `AiBaseService`. Uses `zod-response` format.
 
-- [T-253] **Fit-analysis-ai service**: Rename `FitAnalysisAiService` to `FitAnalysisAiService` (name stays, but now extends `AiBaseService` instead of injecting `OpenAIService` directly). Uses `zod-response` format.
+- [T-253] **Match-analysis-ai service**: Rename `MatchAnalysisAiService` to `MatchAnalysisAiService` (name stays, but now extends `AiBaseService` instead of injecting `OpenAIService` directly). Uses `zod-response` format.
 
-- [T-263] **Summary-ai service**: Move `summary-ai.service.ts` from `application-ai/` into `domains/applications/ai/summary-ai.service.ts`. Now extends `AiBaseService`. Uses `json-schema` response format (same as today's `response_format: json_schema`). `SummaryService` (in `applications/`) continues to consume it — now via intra-domain import instead of cross-domain import.
+- [T-263] **Summary-ai service**: Move `summary-ai.service.ts` from `application-ai/` into `domains/jobs/ai/summary-ai.service.ts`. Now extends `AiBaseService`. Uses `json-schema` response format (same as today's `response_format: json_schema`). `SummaryService` (in `jobs/`) continues to consume it — now via intra-domain import instead of cross-domain import.
 
 ### Phase 3 — Module wiring
 
@@ -208,11 +208,11 @@ apps/api/src/
   - `providers: [DraftExtractionNormalizationService, DraftExtractionService, ...]`
   - `exports: [...]`
 
-- [T-255] **Applications module**: Update `domains/applications/applications.module.ts`:
+- [T-255] **Jobs module**: Update `domains/jobs/jobs.module.ts`:
   - Replace `ApplicationAiModule` import with `LibAiModule`
   - Remove `CompanyAiModule` import — now imports `LibAiModule` which provides basic infra
-  - Add `SummaryAiService` to local `providers` (moved into `applications/ai/`)
-  - Applications that still need location inference call `LocationInferenceService` directly
+  - Add `SummaryAiService` to local `providers` (moved into `jobs/ai/`)
+  - Jobs that still need location inference call `LocationInferenceService` directly
 
 - [T-256] **Companies module**: Update `domains/companies/companies.module.ts`:
   - Replace `CompanyAiModule` with inline providers + import `LibAiModule`
@@ -223,9 +223,9 @@ apps/api/src/
   - Replace `NoteAiModule` with inline providers + import `LibAiModule`
   - `providers: [NoteGenerationService]`
 
-- [T-258] **Fit-analysis module**: Update `domains/fit-analysis/fit-analysis.module.ts`:
+- [T-258] **Match-analysis module**: Update `domains/match-analysis/match-analysis.module.ts`:
   - Replace `ApplicationAiModule` with `LibAiModule`
-  - Keep `FitAnalysisAiService` in providers
+  - Keep `MatchAnalysisAiService` in providers
 
 - [T-259] **Remove orphan modules**: Delete `domains/application-ai/` and `domains/ai/` directories after confirming no remaining imports. Update `app.module.ts` accordingly.
 
@@ -244,9 +244,9 @@ apps/api/src/
 
 ## Risk assessment
 
-| Risk                                                                                                       | Likelihood | Mitigation                                                                                                                                 |
-| ---------------------------------------------------------------------------------------------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| `AiBaseService` abstraction doesn't fit all three calling conventions                                      | Medium     | Accept `CallAiOptions.responseFormat` as a union. Each format branch is explicit in the lib — no conditional chains leak into domain code. |
-| Merge conflicts with in-flight AI work                                                                     | Low        | Migration is additive until Phase 4. Existing files remain importable until the very end.                                                  |
-| `CompanyAiModule` had a sibling OpenAIService instance — new singleton changes behavior                    | Low        | The old duplicate was a bug, not a feature. Tests verify same behavior.                                                                    |
-| Location inference is called in two places (draft extraction + application queries) — import chain changes | Low        | Extracted to `lib/ai/` with a single class; both consumers import from same place.                                                         |
+| Risk                                                                                               | Likelihood | Mitigation                                                                                                                                 |
+| -------------------------------------------------------------------------------------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `AiBaseService` abstraction doesn't fit all three calling conventions                              | Medium     | Accept `CallAiOptions.responseFormat` as a union. Each format branch is explicit in the lib — no conditional chains leak into domain code. |
+| Merge conflicts with in-flight AI work                                                             | Low        | Migration is additive until Phase 4. Existing files remain importable until the very end.                                                  |
+| `CompanyAiModule` had a sibling OpenAIService instance — new singleton changes behavior            | Low        | The old duplicate was a bug, not a feature. Tests verify same behavior.                                                                    |
+| Location inference is called in two places (draft extraction + job queries) — import chain changes | Low        | Extracted to `lib/ai/` with a single class; both consumers import from same place.                                                         |

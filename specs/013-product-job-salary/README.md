@@ -6,23 +6,23 @@ tags:
   - migrated
 ---
 
-# Product Scope: application-salary
+# Product Scope: job-salary
 
 ## Objective
 
-- [P-84] Users can optionally record structured pay expectations (range and period) plus short free-form tags on each owned application, and see them consistently in the list and details surfaces.
+- [P-84] Users can optionally record structured pay expectations (range and period) plus short free-form tags on each owned job, and see them consistently in the list and details surfaces.
 
 ## In Scope
 
-- [P-85] Store optional `salary_min_cents` and `salary_max_cents` as integer minor currency units, optional ISO-4217 `salary_currency`, and optional `salary_period` (year, month, hour) on `applications` with clear all-or-cleared empty state.
+- [P-85] Store optional `salary_min_cents` and `salary_max_cents` as integer minor currency units, optional ISO-4217 `salary_currency`, and optional `salary_period` (year, month, hour) on `jobs` with clear all-or-cleared empty state.
 - [P-86] Store optional `salary_tags` as a bounded list of user-defined string labels (for example `Equity`, `Bonus`, `CLT`) with server-side trim, deduplication, and count limits.
-- [P-87] Show salary on the application list card only when a numeric range and/or tags exist, using a compact primary text line for the range and small neutral chips for currency, period, and up to a few tags with overflow handling.
+- [P-87] Show salary on the job list card only when a numeric range and/or tags exist, using a compact primary text line for the range and small neutral chips for currency, period, and up to a few tags with overflow handling.
 - [P-88] Expose read and edit for salary in the details `Overview` tab using the same inline hover pattern as other core fields, including the ability to clear the entire salary block in one action.
-- [P-89] Wire optional salary fields into create and update application surfaces (new application, quick edit, GraphQL) without requiring them for save.
+- [P-89] Wire optional salary fields into create and update job surfaces (new job, quick edit, GraphQL) without requiring them for save.
 
 ## Out of Scope
 
-- [P-90] Cross-application salary analytics, team benchmarks, and employer-reported pay transparency digests.
+- [P-90] Cross-job salary analytics, team benchmarks, and employer-reported pay transparency digests.
 - [P-91] Automatic tax, equity, or currency-conversion math beyond display formatting and minor-unit storage.
 
 ## Acceptance Criteria

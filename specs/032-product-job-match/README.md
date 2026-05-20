@@ -7,16 +7,16 @@ tags:
   - web
   - database
   - resume
-  - fit
+  - match
 ---
 
-# Job Fit / Profile Match
+# Job Match / Profile Match
 
 > **Status**: planned · **Priority**: medium · **Created**: 2026-05-11
 
 ## Motivation
 
-Users need to assess how well their profile/resume matches a job description — the classic _fit score_ problem. The core idea:
+Users need to assess how well their profile/resume matches a job description — the classic _match score_ problem. The core idea:
 
 > Given a job description (JD) as reference, compare the user's profile against each requirement/qualification in the JD. The profile has two sources:
 >
@@ -34,16 +34,16 @@ This spec builds the foundation incrementally:
 1. Persist user resumes (1:n) in the database.
 2. Provide a UI for creating/editing resumes (manual text via TiptapEditor).
 3. Surface a dedicated **Resume & Preferences** page (route `/resumes`), accessible from the sidebar, listing all resumes (layout follows `ApplicationsPage`), each rendered as a card via `ListItemCard`.
-4. Define the fit model and a dialog to run analysis: pick a job (via its JD/description), pick a resume (default: most recent), run point-by-point comparison, view fits, gaps, unclear items, and an overall **final score**. The result is **persisted** — each application can have one latest fit analysis; regenerating replaces it.
-5. Compute a **final score** that classifies the match as **positive** (green, strong fit), **negative** (red, weak fit), or **neutral** (gray, inconclusive), based on a weighted ratio of fits vs gaps.
+4. Define the match model and a dialog to run analysis: pick a job (via its JD/description), pick a resume (default: most recent), run point-by-point comparison, view matches, gaps, unclear items, and an overall **final score**. The result is **persisted** — each job can have one latest match analysis; regenerating replaces it.
+5. Compute a **final score** that classifies the match as **positive** (green, strong match), **negative** (red, weak match), or **neutral** (gray, inconclusive), based on a weighted ratio of matches vs gaps.
 
-Future iterations (out of scope here) will add AI-powered analysis, aggregate fit scoring, and per-job comparison pages. The fit data model and resume infrastructure here is a prerequisite for **[P-44]** (AI-generated job insight cards with candidate fit signal and skills gaps — see `specs/012-product-ai-assistance/README.md`).
+Future iterations (out of scope here) will add AI-powered analysis, aggregate match scoring, and per-job comparison pages. The match data model and resume infrastructure here is a prerequisite for **[P-44]** (AI-generated job insight cards with candidate match signal and skills gaps — see `specs/012-product-ai-assistance/README.md`).
 
-## Concept: Fit analysis
+## Concept: Match analysis
 
 ### Mental model
 
-The fit analysis compares the **JD** against **two sources** from the user:
+The match analysis compares the **JD** against **two sources** from the user:
 
 | Source          | Role         | What it expresses                                                             |
 | --------------- | ------------ | ----------------------------------------------------------------------------- |
@@ -69,13 +69,13 @@ Requirement E  ─── pref  ──▶  missing?  → Gap  (e.g. "no on‑call
 
 - The **JD** is decomposed into individual requirements/qualifications (tech stack, years of experience, soft skills, education, domain knowledge).
 - Each requirement is compared against **resume content** and **preferences** separately.
-- **Fit** — the source addresses the requirement acceptably. One JD aspect may produce **multiple FitItems** (one per matching source aspect) or a **single FitItem** with multiple `sourceQuotes`.
+- **Fit** — the source addresses the requirement acceptably. One JD aspect may produce **multiple MatchItems** (one per matching source aspect) or a **single MatchItem** with multiple `sourceQuotes`.
 - **Gap** — the source does not address it, underdelivers, or is silent on it.
 - **Unclear** — the JD is ambiguous, the source is vague, or there's insufficient signal to decide.
 
-### FitItem
+### MatchItem
 
-Each comparison result is a **FitItem**. Every verdict is anchored in **real quotes** — no paraphrasing.
+Each comparison result is a **MatchItem**. Every verdict is anchored in **real quotes** — no paraphrasing.
 
 | Field          | Type      | Notes                                                                                                                                                                                                                                                                                                               |
 | -------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -91,18 +91,18 @@ Each comparison result is a **FitItem**. Every verdict is anchored in **real quo
 
 ### Resume selection
 
-When running a fit analysis:
+When running a match analysis:
 
 - **Default**: the most recently created/updated resume for the authenticated user.
 - The user may override and pick any other resume from their list.
 
 ### Final score
 
-The fit analysis produces an overall **final score** — a single classification of the match.
+The match analysis produces an overall **final score** — a single classification of the match.
 
 #### Weighted point system
 
-Each FitItem contributes points toward the total:
+Each MatchItem contributes points toward the total:
 
 | Item                          | Points |
 | ----------------------------- | ------ |
@@ -131,12 +131,12 @@ Each FitItem contributes points toward the total:
 
 #### UI treatment
 
-A prominent **score badge** at the top of the fit modal:
+A prominent **score badge** at the top of the match modal:
 
 ```
 ┌────────────────────────────────┐
-│  🟢 Strong fit    Score: 78%  │  ← green background
-│  12 fits · 3 gaps · 2 unclear │
+│  🟢 Strong match    Score: 78%  │  ← green background
+│  12 matches · 3 gaps · 2 unclear │
 └────────────────────────────────┘
 ```
 
@@ -145,12 +145,12 @@ A prominent **score badge** at the top of the fit modal:
 
 ### Persistence
 
-Each fit analysis is persisted to the database:
+Each match analysis is persisted to the database:
 
-- **1:1 with Application** — one application has at most one latest fit analysis (`applicationId` unique constraint).
-- **Replace on regenerate** — clicking "Generate" / "Regenerate" runs the analysis and upserts the result, replacing any previous analysis for that application.
-- **FitItem** objects stored as a JSONB array on the `FitAnalysis` entity — always fetched together, never queried independently.
-- The UI always reads the persisted fit first; only the "Generate" button triggers a new computation.
+- **1:1 with Job** — one job has at most one latest match analysis (`jobId` unique constraint).
+- **Replace on regenerate** — clicking "Generate" / "Regenerate" runs the analysis and upserts the result, replacing any previous analysis for that job.
+- **MatchItem** objects stored as a JSONB array on the `MatchAnalysis` entity — always fetched together, never queried independently.
+- The UI always reads the persisted match first; only the "Generate" button triggers a new computation.
 
 ## Design
 
@@ -166,13 +166,13 @@ Each fit analysis is persisted to the database:
 - **[P-153]** The user can create a resume by typing directly in a `TipTapEditor`.
 - **[P-154]** The user can edit the title and content of an existing resume.
 - **[P-155]** The user can delete a resume.
-- **[P-156]** The user can run a fit analysis between an application's JD/description and their most recent resume (or a selected one).
-- **[P-157]** Each FitItem shows a verdict (`fit`, `gap`, or `unclear`), a source label (`resume` or `preference`), a literal **JD quote**, and matching **source quote(s)** — no paraphrasing.
+- **[P-156]** The user can run a match analysis between a job's JD/description and their most recent resume (or a selected one).
+- **[P-157]** Each MatchItem shows a verdict (`fit`, `gap`, or `unclear`), a source label (`resume` or `preference`), a literal **JD quote**, and matching **source quote(s)** — no paraphrasing.
 - **[P-158]** The user can add user-level preferences (not per-resume), each with a free‑text description and a **weight** (`high` or `low`).
-- **[P-159]** Preferences are analysed alongside resume content in the fit dialog, each producing their own FitItems with fit/gap/unclear verdicts.
-- **[P-160]** Each preference FitItem displays its weight, and the summary bar supports filtering/grouping by weight.
-- **[P-161]** The fit dialog shows an overall **final score** — a badge with classification (positive/green, negative/red, neutral/gray) based on a weighted ratio of fits vs gaps, using the defined thresholds.
-- **[P-162]** The user can regenerate a fit analysis from the fit dialog; each regeneration replaces the previous result for that application.
+- **[P-159]** Preferences are analysed alongside resume content in the match dialog, each producing their own MatchItems with fit/gap/unclear verdicts.
+- **[P-160]** Each preference MatchItem displays its weight, and the summary bar supports filtering/grouping by weight.
+- **[P-161]** The match dialog shows an overall **final score** — a badge with classification (positive/green, negative/red, neutral/gray) based on a weighted ratio of matches vs gaps, using the defined thresholds.
+- **[P-162]** The user can regenerate a match analysis from the match dialog; each regeneration replaces the previous result for that job.
 
 See [`tasks.md`](./tasks.md) for the detailed execution plan and [`design.md`](./design.md) for the data model and API surface.
 
@@ -182,12 +182,12 @@ See [`tasks.md`](./tasks.md) for the detailed execution plan and [`design.md`](.
 - [ ] `/resumes` page renders a list of ResumeCards with empty state and loading skeleton.
 - [ ] Resume editor (page at `/resumes/[id]`) supports TipTap manual editing.
 - [ ] Preferences dialog accessible from the resumes list page via "Preferences" button in the action bar, with bullet‑list (add/remove, single‑scope text, weight toggle high/low per item).
-- [ ] Fit dialog opens from the application detail page with resume selector (default: most recent), "Generate" / "Regenerate" button, and fit results area.
-- [ ] Fit dialog shows empty state when no analysis exists yet; "Generate" triggers computation and persists the result.
-- [ ] Each FitItem shows: verdict badge (`fit`/`gap`/`unclear`), source badge (`resume`/`preference`), literal **JD quote** as blockquote, literal **source quote(s)** as blockquote.
+- [ ] Match dialog opens from the job detail page with resume selector (default: most recent), "Generate" / "Regenerate" button, and match results area.
+- [ ] Match dialog shows empty state when no analysis exists yet; "Generate" triggers computation and persists the result.
+- [ ] Each MatchItem shows: verdict badge (`fit`/`gap`/`unclear`), source badge (`resume`/`preference`), literal **JD quote** as blockquote, literal **source quote(s)** as blockquote.
 - [ ] Gaps show no source quotes; unclear items show the vague passage.
-- [ ] Preferences items are separate FitItems with `source = preference`, interleaved or filterable in the list.
-- [ ] Summary bar shows fit/gap/unclear counts, with optional grouping by weight.
+- [ ] Preferences items are separate MatchItems with `source = preference`, interleaved or filterable in the list.
+- [ ] Summary bar shows match/gap/unclear counts, with optional grouping by weight.
 - [ ] Source filter toggle (all / resume‑only / preference‑only), plus weight filter (`high` / `low` / all).
-- [ ] Final score badge visible at the top of the fit dialog, color‑coded (green/gray/red), with classification label, percentage, and item counts.
+- [ ] Final score badge visible at the top of the match dialog, color‑coded (green/gray/red), with classification label, percentage, and item counts.
 - [ ] Score respects preference weights and unclear‑majority override.

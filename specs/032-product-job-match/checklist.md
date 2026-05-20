@@ -1,17 +1,17 @@
-# Checklist — Job Fit / Profile Match
+# Checklist — Job Match / Profile Match
 
 > Real progress against the execution plan in [`tasks.md`](./tasks.md).
 
 ## Phase 1 — Foundation (API + data)
 
-| Task  | Description                                 | Deps                      | Status                                        |
-| ----- | ------------------------------------------- | ------------------------- | --------------------------------------------- |
-| T-175 | Resume entity + migration                   | —                         | ✅ _(merged into T-176)_                      |
-| T-192 | FitAnalysis entity + migration              | —                         | ✅                                            |
-| T-190 | Scoring logic (pure functions)              | —                         | ⬜                                            |
-| T-176 | GraphQL resume CRUD                         | T-175                     | ✅                                            |
-| T-186 | Verify preferences column                   | T-175 (merged into T-176) | ✅ _(no-op, preferences moved to user-level)_ |
-| T-183 | `generateApplicationFit` + `applicationFit` | T-192, T-175              | ✅                                            |
+| Task  | Description                                     | Deps                      | Status                                        |
+| ----- | ----------------------------------------------- | ------------------------- | --------------------------------------------- |
+| T-175 | Resume entity + migration                       | —                         | ✅ _(merged into T-176)_                      |
+| T-192 | MatchAnalysis entity + migration                | —                         | ✅                                            |
+| T-190 | Scoring logic (pure functions)                  | —                         | ⬜                                            |
+| T-176 | GraphQL resume CRUD                             | T-175                     | ✅                                            |
+| T-186 | Verify preferences column                       | T-175 (merged into T-176) | ✅ _(no-op, preferences moved to user-level)_ |
+| T-183 | `generateApplicationMatch` + `applicationMatch` | T-192, T-175              | ✅                                            |
 
 ## Phase 2 — Web: Resume CRUD UI
 
@@ -32,15 +32,15 @@
 | T-187c    | Save button in modal                                          | —            | ✅                       |
 | T-188     | Tests: preferences                                            | T-186, T-187 | ⬜                       |
 
-## Phase 3 — Web: Fit analysis UI
+## Phase 3 — Web: Match analysis UI
 
-| Task  | Description                                  | Deps         | Status |
-| ----- | -------------------------------------------- | ------------ | ------ |
-| T-182 | Fit analysis page (`/applications/[id]/fit`) | —            | ✅     |
-| T-184 | Wire GraphQL hooks (fit)                     | T-183, T-182 | ✅     |
-| T-191 | Final score badge component                  | T-190, T-183 | ✅     |
-| T-189 | Weight badge + source/weight filters         | T-184, T-187 | ✅     |
-| T-185 | Tests: fit page                              | T-184        | ⬜     |
+| Task  | Description                                      | Deps         | Status |
+| ----- | ------------------------------------------------ | ------------ | ------ |
+| T-182 | Match analysis page (`/applications/[id]/match`) | —            | ✅     |
+| T-184 | Wire GraphQL hooks (match)                       | T-183, T-182 | ✅     |
+| T-191 | Final score badge component                      | T-190, T-183 | ✅     |
+| T-189 | Weight badge + source/weight filters             | T-184, T-187 | ✅     |
+| T-185 | Tests: match page                                | T-184        | ⬜     |
 
 ## Notes
 
@@ -51,4 +51,4 @@
 - T-177/T-178 merged: list page shell + `ResumeCard` connected to real GraphQL query (`useResumesQuery`) and delete mutation (`useDeleteResumeMutation`). `useMockResumes.ts` deleted.
 - T-179 implemented: detail page `/resumes/[id]` with real query (`useResumeQuery`), update mutation (`useUpdateResumeMutation`), and delete mutation (`useDeleteResumeMutation`). All mock data removed.
 - Preferences are **user-level**: T-186 (entity) + T-187 (modal on list page). Both implemented with real GraphQL hooks.
-- T-192 done:\*\* `FitAnalysisEntity` in `apps/api/src/database/entities/fit-analysis.entity.ts` + migration `1764400000000-create-fit-analysis`.
+- T-192 done:\*\* `MatchAnalysisEntity` in `apps/api/src/database/entities/match-analysis.entity.ts` + migration `1764400000000-create-match-analysis`.

@@ -31,9 +31,9 @@ Splitting **Importer** (plan contract) from **ImportTemplate** (user-scoped conf
 | ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Importer**       | The **plan**: allowed sources, extractors, modality constraints, server-side behavior contract. Does **not** carry per-run **surface URL**.                                       |
 | **ImportTemplate** | A **configured use** of an importer: references **Importer**, holds **schedule** (cron expression, optional), **rerun** semantics/flags as needed, and aggregates **ImportRuns**. |
-| **ImportRun**      | A **single execution** of a template: status, timestamps, **surface URL** for that execution, link to **applications** created or associated with this run.                       |
+| **ImportRun**      | A **single execution** of a template: status, timestamps, **surface URL** for that execution, link to **jobs** created or associated with this run.                               |
 
-**Flows:** User (or future scheduler) selects a **template** → creates a **run** → applications **link** to **that run**. **Run again** from the UI kicks off another execution against the **same template** while history stays **per run**.
+**Flows:** User (or future scheduler) selects a **template** → creates a **run** → jobs **link** to **that run**. **Run again** from the UI kicks off another execution against the **same template** while history stays **per run**.
 
 **Out of scope for the first implementation pass:** a background **cron worker** that evaluates `schedule` and spawns runs automatically. Persist the expression and expose it in **the UI**; add the executor later.
 
@@ -43,8 +43,8 @@ Splitting **Importer** (plan contract) from **ImportTemplate** (user-scoped conf
 - [P-79] Normalize imported payloads with field-confidence markers before user confirmation and final save.
 - [P-80] Protect source integrations with signed requests and explicit API-side validation contracts.
 - [P-131] Labels, titles, and navigation clearly separate **Importer** (plan), **ImportTemplate** (configuration), and **ImportRun** (execution).
-- [P-132] Applications list honors **`/applications?runId=<id>`** (stable filter in the URL).
-- [P-133] Run detail links to that filtered list; **remove all applications from this run** with confirmation.
+- [P-132] Jobs list honors **`/jobs?runId=<id>`** (stable filter in the URL).
+- [P-133] Run detail links to that filtered list; **remove all jobs from this run** with confirmation.
 - [P-134] Sources index groups runs under **Importer**; detail shows **multiple runs in an accordion** (one expanded at a time).
 
 ## Out of Scope
@@ -62,8 +62,8 @@ Splitting **Importer** (plan contract) from **ImportTemplate** (user-scoped conf
 
 - [x] **[T-142]** **`ImportTemplate`** entity + migration: FK to **Importer**, user scope; **ImportRun** belongs to template.
 - [x] **[T-143]** **`surfaceUrl`** only on **`ImportRun`**; migrate off plan; refresh seeds/metadata.
-- [x] **[T-144]** **Application ↔ ImportRun** association (FK or equivalent); backfill where appropriate.
-  - [x] **[T-144]** Set link when applications are created from the source pipeline.
+- [x] **[T-144]** **Job ↔ ImportRun** association (FK or equivalent); backfill where appropriate.
+  - [x] **[T-144]** Set link when jobs are created from the source pipeline.
   - [x] **[T-144]** GraphQL exposes link + `runId` filter; authorized **detach all** mutation.
 - [x] **[T-145]** **Schedule** fields on template (**cron**, enabled); **manual rerun** mutation (new run, same template) — **no** cron worker in this phase.
 
@@ -83,5 +83,5 @@ Splitting **Importer** (plan contract) from **ImportTemplate** (user-scoped conf
 
 ## Verification
 
-- [x] **[T-149]** API tests: template/run, rerun, application linkage, detach-all.
+- [x] **[T-149]** API tests: template/run, rerun, job linkage, detach-all.
 - [x] **[T-149]** Web tests: **`runId`** filter, sources UI smoke where package gates require it.

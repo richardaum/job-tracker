@@ -1,6 +1,6 @@
-# Design — Job Fit / Profile Match
+# Design — Job Match / Profile Match
 
-> Detailed design for `specs/032-product-job-fit/README.md`.
+> Detailed design for `specs/032-product-job-match/README.md`.
 
 ## Design
 
@@ -24,7 +24,7 @@ A **Resume** belongs to a single user. One user may have many resumes (e.g. diff
 
 ### Data model: User Preferences
 
-Preferences are **user-level** — one user has one set of preferences shared across fit analyses.
+Preferences are **user-level** — one user has one set of preferences shared across match analyses.
 
 | Field       | Type        | Notes                                                |
 | ----------- | ----------- | ---------------------------------------------------- |
@@ -37,31 +37,31 @@ Preferences are **user-level** — one user has one set of preferences shared ac
 - **1:1** — `User → Preferences` via `userId` UNIQUE.
 - Edited from the **resumes list page** via a modal ("Preferences" button next to "Add resume").
 
-### Data model: FitAnalysis
+### Data model: MatchAnalysis
 
-A **FitAnalysis** belongs to one application. Each application has at most one latest fit analysis — regenerating upserts it.
+A **MatchAnalysis** belongs to one job. Each job has at most one latest match analysis — regenerating upserts it.
 
-| Field            | Type        | Notes                                                                     |
-| ---------------- | ----------- | ------------------------------------------------------------------------- |
-| `id`             | `uuid`      | PK                                                                        |
-| `applicationId`  | `uuid`      | FK → `applications.id`, **UNIQUE** (1:1 enforcement), NOT NULL            |
-| `resumeId`       | `uuid`      | FK → `resumes.id`, NOT NULL                                               |
-| `scoreRatio`     | `float`     | Computed score ratio (0–100)                                              |
-| `classification` | `enum`      | `positive`, `neutral`, `negative`                                         |
-| `fitCount`       | `int`       | Count of `fit` items                                                      |
-| `gapCount`       | `int`       | Count of `gap` items                                                      |
-| `unclearCount`   | `int`       | Count of `unclear` items                                                  |
-| `items`          | `jsonb`     | Array of `FitItem` objects (verdicts, quotes, source, weight, suggestion) |
-| `createdAt`      | `timestamp` | Auto — reset on regenerate                                                |
-| `updatedAt`      | `timestamp` | Auto                                                                      |
+| Field            | Type        | Notes                                                                       |
+| ---------------- | ----------- | --------------------------------------------------------------------------- |
+| `id`             | `uuid`      | PK                                                                          |
+| `jobId`          | `uuid`      | FK → `jobs.id`, **UNIQUE** (1:1 enforcement), NOT NULL                      |
+| `resumeId`       | `uuid`      | FK → `resumes.id`, NOT NULL                                                 |
+| `scoreRatio`     | `float`     | Computed score ratio (0–100)                                                |
+| `classification` | `enum`      | `positive`, `neutral`, `negative`                                           |
+| `matchCount`     | `int`       | Count of `fit` items                                                        |
+| `gapCount`       | `int`       | Count of `gap` items                                                        |
+| `unclearCount`   | `int`       | Count of `unclear` items                                                    |
+| `items`          | `jsonb`     | Array of `MatchItem` objects (verdicts, quotes, source, weight, suggestion) |
+| `createdAt`      | `timestamp` | Auto — reset on regenerate                                                  |
+| `updatedAt`      | `timestamp` | Auto                                                                        |
 
-- **1:1** — `Application → FitAnalysis` via `applicationId` UNIQUE.
-- **`items`** stores the full list of `FitItem` objects as JSONB, each matching the FitItem schema from the spec (requirement, source, weight?, verdict, jdQuote, sourceQuotes, suggestion).
-- **Counts** (`fitCount`, `gapCount`, `unclearCount`) are denormalized for quick badge display without parsing JSONB.
+- **1:1** — `Job → MatchAnalysis` via `jobId` UNIQUE.
+- **`items`** stores the full list of `MatchItem` objects as JSONB, each matching the MatchItem schema from the spec (requirement, source, weight?, verdict, jdQuote, sourceQuotes, suggestion).
+- **Counts** (`matchCount`, `gapCount`, `unclearCount`) are denormalized for quick badge display without parsing JSONB.
 - **`scoreRatio` + `classification`** are denormalized from the scoring logic, stored at write time.
-- The `applicationId` UNIQUE constraint means a second `generateApplicationFit` call for the same application deletes the old row and inserts the new one (upsert via DELETE + INSERT, or ON CONFLICT UPDATE).
+- The `jobId` UNIQUE constraint means a second `generateJobMatch` call for the same job deletes the old row and inserts the new one (upsert via DELETE + INSERT, or ON CONFLICT UPDATE).
 
-#### FitItem (JSONB shape)
+#### MatchItem (JSONB shape)
 
 Stored in the `items` array:
 
@@ -94,12 +94,12 @@ All mutations scoped to the authenticated user. The `content` field accepts and 
 - **`PreferenceInput { text: String!, weight: WeightEnum! }`**, `WeightEnum` is `HIGH` | `LOW`.
 - **`Preference`** GraphQL type: `{ text: String!, weight: WeightEnum! }`.
 
-#### Fit Analysis
+#### Match Analysis
 
-- **`Mutation.generateApplicationFit(applicationId: UUID!, resumeId: UUID!): FitAnalysis!`** — runs the fit analysis (decompose JD, compare against resume + preferences, compute score), persists the `FitAnalysis` (replacing any previous one for the same application via `applicationId` UNIQUE upsert), and returns the result.
-- **`Query.applicationFit(applicationId: UUID!): FitAnalysis`** — returns the latest persisted fit analysis for the given application, or `null` if none exists yet.
-- **`FitAnalysis`** GraphQL type exposing all fields from the entity above.
-- **`FitItem`** GraphQL type (derived from JSONB items): `requirement`, `source`, `weight`, `verdict`, `jdQuote`, `sourceQuotes`, `suggestion`.
+- **`Mutation.generateJobMatch(jobId: UUID!, resumeId: UUID!): MatchAnalysis!`** — runs the match analysis (decompose JD, compare against resume + preferences, compute score), persists the `MatchAnalysis` (replacing any previous one for the same job via `jobId` UNIQUE upsert), and returns the result.
+- **`Query.jobMatch(jobId: UUID!): MatchAnalysis`** — returns the latest persisted match analysis for the given job, or `null` if none exists yet.
+- **`MatchAnalysis`** GraphQL type exposing all fields from the entity above.
+- **`MatchItem`** GraphQL type (derived from JSONB items): `requirement`, `source`, `weight`, `verdict`, `jdQuote`, `sourceQuotes`, `suggestion`.
 
 ### Sidebar entry
 
@@ -171,51 +171,51 @@ Title: [_____________________________]
 
 > Preferences are **user-level** (not per-resume) and edited via the "Preferences" button on the resumes list page — see below. 4. **Save** — Save button in the **header actions bar** (always visible), next to the "Actions" dropdown. Disabled when no changes exist. Avoid save buttons at the bottom of the page or inside individual tabs. Persists via `createResume` / `updateResume`.
 
-### UI: Fit Analysis Modal
+### UI: Match Analysis Modal
 
-Opened from the application detail page (trigger button in the action bar or a dedicated "Fit analysis" button). Renders inside a `Dialog` overlay — no dedicated route.
+Opened from the job detail page (trigger button in the action bar or a dedicated "Match analysis" button). Renders inside a `Dialog` overlay — no dedicated route.
 
-On open, the modal fetches the existing `applicationFit` (query). The content depends on state:
+On open, the modal fetches the existing `applicationMatch` (query). The content depends on state:
 
-#### No fit exists yet (empty state)
+#### No match exists yet (empty state)
 
 ```
 ┌─────────────────────────────────────────────┐
-│  Fit Analysis                    [×] close   │
+│  Match Analysis                  [×] close   │
 ├─────────────────────────────────────────────┤
 │  No analysis yet                            │
-│  Select a resume and generate a fit         │
+│  Select a resume and generate a match       │
 │  analysis to see how your profile matches   │
 │  this job description.                      │
 │                                             │
 │  Resume: [Dropdown ▼]                       │
 │                                             │
-│  [Generate fit analysis]                    │
+│  [Generate match analysis]                    │
 └─────────────────────────────────────────────┘
 ```
 
-#### Fit exists (showing results)
+#### Match exists (showing results)
 
 ```
 ┌─────────────────────────────────────────────┐
-│  Fit Analysis             [Regenerate] [×]  │
+│  Match Analysis           [Regenerate] [×]  │
 ├─────────────────────────────────────────────┤
 │  ┌───────────────────────────────────────┐  │
-│  │  🟢 Strong fit    Score: 78%         │  │
-│  │  12 fits · 3 gaps · 2 unclear        │  │
+│  │  🟢 Strong match    Score: 78%       │  │
+│  │  12 matches · 3 gaps · 2 unclear     │  │
 │  └───────────────────────────────────────┘  │
 │                                             │
 │  Resume: [Dropdown ▼]      (last analysis)  │
 │                                             │
-│  Summary: 12 fits  3 gaps  2 unclear        │
+│  Summary: 12 matches  3 gaps  2 unclear      │
 │  Filters: [All] [Resume] [Pref] [High] [Low]│
 │                                             │
-│  ┌─ FitItem ────────────────────────────┐   │
+│  ┌─ MatchItem ────────────────────────────┐   │
 │  │  ✅ Fit · resume                     │   │
 │  │  "5+ years React experience"          │   │
 │  │  > "Built 3 React apps at Acme"      │   │
 │  └──────────────────────────────────────┘   │
-│  ┌─ FitItem ────────────────────────────┐   │
+│  ┌─ MatchItem ────────────────────────────┐   │
 │  │  ❌ Gap · resume                     │   │
 │  │  "Experience with GraphQL"           │   │
 │  │  Suggestion: add a GraphQL side       │   │
@@ -227,15 +227,15 @@ On open, the modal fetches the existing `applicationFit` (query). The content de
 #### Key behaviours
 
 - **Resume selector** — dropdown showing the user's resumes, defaulting to the most recent. Changing the selection does **not** auto-regenerate; the user must click "Generate" / "Regenerate" explicitly.
-- **"Generate fit analysis"** — visible when no fit exists yet. Label: "Generate fit analysis".
-- **"Regenerate"** — visible when a fit already exists. Label: "Regenerate".
+- **"Generate match analysis"** — visible when no match exists yet. Label: "Generate match analysis".
+- **"Regenerate"** — visible when a match already exists. Label: "Regenerate".
 - **Loading state** — button shows a spinner and is disabled while the mutation runs.
-- **On success** — modal updates with the new fit results (button returns to "Regenerate").
+- **On success** — modal updates with the new match results (button returns to "Regenerate").
 
-#### Modal sections (when fit exists)
+#### Modal sections (when match exists)
 
 1. **Final score badge** — prominent card at the very top:
-   - **Classification label**: "Strong fit" / "Inconclusive" / "Weak fit".
+   - **Classification label**: "Strong match" / "Inconclusive" / "Weak match".
    - **Score percentage** (e.g. "78%").
    - **Color**: green / gray / red background.
    - **Breakdown row**: `X fits · Y gaps · Z unclear`.
@@ -273,7 +273,7 @@ Opened from the resumes list page via the "Preferences" button in the action bar
 - **Save** persists via `updateUserPreferences`.
 - Uses `Dialog` from `@job-tracker/ui`.
 
-5. **Fit results** — list of `FitItem` cards, each showing:
+5. **Match results** — list of `MatchItem` cards, each showing:
    - **Verdict badge** (`fit` / `gap` / `unclear`), color‑coded.
    - **Source badge** (`resume` or `preference`).
    - **Weight badge** (`high` / `low`) — only for preference items.
