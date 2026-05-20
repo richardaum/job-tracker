@@ -1,4 +1,5 @@
 import { WithGeneratedId } from "@api/database/decorators/with-generated-id.decorator";
+import { RoleEnum } from "@api/domains/users/role.enum";
 import {
   Column,
   CreateDateColumn,
@@ -25,8 +26,13 @@ export class UserEntity {
   @Column({ name: "avatar_url", type: "text", nullable: true })
   avatarUrl!: string | null;
 
-  @Column({ type: "enum", enum: ["user"], enumName: "role", default: "user" })
-  role!: "user";
+  @Column({
+    type: "enum",
+    enum: RoleEnum,
+    enumName: "role",
+    default: RoleEnum.USER,
+  })
+  role!: RoleEnum;
 
   @CreateDateColumn({ name: "created_at", type: "timestamp" })
   createdAt!: Date;

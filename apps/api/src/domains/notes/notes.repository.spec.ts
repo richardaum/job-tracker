@@ -3,6 +3,7 @@ import { ApplicationNoteEntity } from "@api/database/entities/application-note.e
 import { CompanyEntity } from "@api/database/entities/company.entity";
 import { UserEntity } from "@api/database/entities/user.entity";
 import { resetPublicSchemaAndMigrate } from "@api/database/test-db";
+import { RoleEnum } from "@api/domains/users/role.enum";
 import type { DataSource } from "typeorm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
@@ -30,7 +31,7 @@ describe.skipIf(!hasDb)("NoteRepository (integration)", () => {
         email: "noterepo@example.com",
         name: "Note Repo User",
         avatarUrl: null,
-        role: "user",
+        role: RoleEnum.USER,
       }),
     );
     userId = user.id;
