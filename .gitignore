@@ -62,6 +62,7 @@ logs/
 .agents/skills/*
 !.agents/skills/worktree-env/
 !.agents/skills/worktree-loop/
+!.agents/skills/code-review-skill/
 .ai/skills/leanspec-development/
 .ai/.skill-lock.json
 .ai/.skill-lock.json.backup

@@ -59,7 +59,7 @@ Spawn **one** implementation subagent per task unit (Compozy task file, PRD slic
 | ---- | ---- |
 | Ownership | Subagent owns edits, verification, commits per `execution-workflow.md` and `validation.md` |
 | User questions | May pause for a blocking question; after the user answers, **resume the same** subagent — do not restart A unless scope changed |
-| Delegation | `generalPurpose` (multi-file / feature); `cavecrew-builder` (≤2 files, site known). See cavecrew skill when token budget matters |
+| Delegation | `generalPurpose` (multi-file / feature) |
 | Compozy tasks | Prefer `cy-execute-task` when a task file path is provided |
 
 **Prompt must include:** worktree root path, feature slug, links to `_prd.md` / `_techspec.md` / task file, and acceptance criteria from docs.
@@ -70,7 +70,7 @@ After A finishes, spawn **two** code-review subagents **in parallel** on the sam
 
 | Item | Rule |
 | ---- | ---- |
-| Delegation | `cavecrew-reviewer` (structured findings); `cy-review-round` when Compozy `reviews-NNN/` artifacts are required |
+| Delegation | `code-review-excellence` (comprehensive, multi-language); `cy-review-round` when Compozy `reviews-NNN/` artifacts are required |
 | Acceptance | **2 passes** — both reviewers **pass** in the same round (no 🔴 / blocking findings) |
 | Parallelism | Launch both B subagents in **one** main-thread message |
 
@@ -117,3 +117,4 @@ Then reintegration may proceed per `.agents/rules/worktree.md` § Reintegration.
 | Env / PM2 setup | `@worktree-env` → `.agents/skills/worktree-env/SKILL.md` |
 | Task execution | `cy-execute-task` |
 | Review artifacts | `cy-review-round` |
+| Code review (B phase) | `code-review-excellence` → `.agents/skills/code-review-skill/` |
