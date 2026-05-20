@@ -1,54 +1,51 @@
-import { FitAnalysisEntity } from "@api/database/entities/fit-analysis.entity";
+import { MatchAnalysisEntity } from "@api/database/entities/match-analysis.entity";
 import { AsyncMetadataStatusEnum } from "@api/domains/shared/async-metadata.type";
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 
 @Injectable()
-export class FitAnalysisRepository {
+export class MatchAnalysisRepository {
   constructor(
-    @InjectRepository(FitAnalysisEntity)
-    private readonly repo: Repository<FitAnalysisEntity>,
+    @InjectRepository(MatchAnalysisEntity)
+    private readonly repo: Repository<MatchAnalysisEntity>,
   ) {}
 
   async findById(
     id: string,
     userId?: string,
-  ): Promise<FitAnalysisEntity | null> {
+  ): Promise<MatchAnalysisEntity | null> {
     return this.repo.findOne({ where: { id, ...(userId ? { userId } : {}) } });
   }
 
-  async findByApplicationId(
-    applicationId: string,
+  async findByJobId(
+    jobId: string,
     userId?: string,
-  ): Promise<FitAnalysisEntity | null> {
+  ): Promise<MatchAnalysisEntity | null> {
     return this.repo.findOne({
-      where: { applicationId, ...(userId ? { userId } : {}) },
+      where: { jobId, ...(userId ? { userId } : {}) },
     });
   }
 
-  async findByDraftApplicationId(
-    draftApplicationId: string,
+  async findByDraftJobId(
+    draftJobId: string,
     userId?: string,
-  ): Promise<FitAnalysisEntity | null> {
+  ): Promise<MatchAnalysisEntity | null> {
     return this.repo.findOne({
-      where: { draftApplicationId, ...(userId ? { userId } : {}) },
+      where: { draftJobId, ...(userId ? { userId } : {}) },
     });
   }
 
-  async findAllByUserId(userId: string): Promise<FitAnalysisEntity[]> {
+  async findAllByUserId(userId: string): Promise<MatchAnalysisEntity[]> {
     return this.repo.find({ where: { userId }, order: { updatedAt: "DESC" } });
   }
 
-  async upsert(entity: FitAnalysisEntity): Promise<FitAnalysisEntity> {
-    const existing = entity.applicationId
-      ? await this.findByApplicationId(
-          entity.applicationId,
-          entity.userId ?? undefined,
-        )
-      : entity.draftApplicationId
-        ? await this.findByDraftApplicationId(
-            entity.draftApplicationId,
+  async upsert(entity: MatchAnalysisEntity): Promise<MatchAnalysisEntity> {
+    const existing = entity.jobId
+      ? await this.findByJobId(entity.jobId, entity.userId ?? undefined)
+      : entity.draftJobId
+        ? await this.findByDraftJobId(
+            entity.draftJobId,
             entity.userId ?? undefined,
           )
         : null;
@@ -67,22 +64,22 @@ export class FitAnalysisRepository {
   }
 
   async deleteByApplicationId(
-    applicationId: string,
+    jobId: string,
     userId?: string,
   ): Promise<boolean> {
     const result = await this.repo.delete({
-      applicationId,
+      jobId,
       ...(userId ? { userId } : {}),
     });
     return (result.affected ?? 0) > 0;
   }
 
   async deleteByDraftApplicationId(
-    draftApplicationId: string,
+    draftJobId: string,
     userId?: string,
   ): Promise<boolean> {
     const result = await this.repo.delete({
-      draftApplicationId,
+      draftJobId,
       ...(userId ? { userId } : {}),
     });
     return (result.affected ?? 0) > 0;
@@ -91,9 +88,9 @@ export class FitAnalysisRepository {
   async updateById(
     id: string,
     expectedStatus: AsyncMetadataStatusEnum,
-    patch: Partial<FitAnalysisEntity>,
+    patch: Partial<MatchAnalysisEntity>,
     userId?: string,
-  ): Promise<FitAnalysisEntity | null> {
+  ): Promise<MatchAnalysisEntity | null> {
     const qb = this.repo
       .createQueryBuilder("f")
       .where(

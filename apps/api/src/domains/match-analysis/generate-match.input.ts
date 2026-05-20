@@ -1,9 +1,9 @@
 import { Field, ID, InputType } from "@nestjs/graphql";
 
 @InputType()
-export class GenerateFitInput {
+export class GenerateMatchInput {
   @Field(() => ID)
-  applicationId!: string;
+  jobId!: string;
 
   @Field(() => ID)
   resumeId!: string;

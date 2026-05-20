@@ -1,37 +1,37 @@
 import { ResumeEntity } from "@api/database/entities/resume.entity";
 import { WorkPreferencesEntity } from "@api/database/entities/work-preferences.entity";
-import { ApplicationRepository } from "@api/domains/applications/applications.repository";
-import { DraftApplicationsRepository } from "@api/domains/draft-applications/draft-applications.repository";
+import { DraftJobsRepository } from "@api/domains/draft-jobs/draft-jobs.repository";
+import { JobsRepository } from "@api/domains/jobs/jobs.repository";
 import { Logger } from "@nestjs/common";
 import { Repository } from "typeorm";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { FitAnalysisRepository } from "./fit-analysis.repository";
-import { FitAnalysisService } from "./fit-analysis.service";
-import { FitAnalysisAiService } from "./fit-analysis-ai.service";
-import { FitAnalysisEventBus } from "./fit-analysis-event.bus";
+import { MatchAnalysisRepository } from "./match-analysis.repository";
+import { MatchAnalysisService } from "./match-analysis.service";
+import { MatchAnalysisAiService } from "./match-analysis-ai.service";
+import { MatchAnalysisEventBus } from "./match-analysis-event.bus";
 
-describe("FitAnalysisService", () => {
-  let service: FitAnalysisService;
-  let repo: FitAnalysisRepository;
+describe("MatchAnalysisService", () => {
+  let service: MatchAnalysisService;
+  let repo: MatchAnalysisRepository;
 
   beforeEach(() => {
     repo = {
       resetStaleProcessing: vi.fn(),
-      findByApplicationId: vi.fn(),
+      findByJobId: vi.fn(),
       upsert: vi.fn(),
       updateStatus: vi.fn(),
       findById: vi.fn(),
-      findByDraftApplicationId: vi.fn(),
+      findByDraftJobId: vi.fn(),
       updateStatusById: vi.fn(),
-    } as unknown as FitAnalysisRepository;
+    } as unknown as MatchAnalysisRepository;
 
-    service = new FitAnalysisService(
+    service = new MatchAnalysisService(
       repo,
-      {} as FitAnalysisAiService,
-      {} as ApplicationRepository,
-      {} as DraftApplicationsRepository,
-      {} as FitAnalysisEventBus,
+      {} as MatchAnalysisAiService,
+      {} as JobsRepository,
+      {} as DraftJobsRepository,
+      {} as MatchAnalysisEventBus,
       {} as Repository<ResumeEntity>,
       {} as Repository<WorkPreferencesEntity>,
     );
@@ -47,7 +47,7 @@ describe("FitAnalysisService", () => {
 
     expect(repo.resetStaleProcessing).toHaveBeenCalledTimes(1);
     expect(loggerWarnSpy).toHaveBeenCalledWith(
-      expect.stringContaining("Recovered 3 stale fit analysis records"),
+      expect.stringContaining("Recovered 3 stale match analysis records"),
     );
   });
 });

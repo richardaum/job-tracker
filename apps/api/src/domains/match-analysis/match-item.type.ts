@@ -1,15 +1,15 @@
 import {
-  FitItem,
+  MatchItem,
   RequirementTypeEnum,
-} from "@api/database/entities/fit-analysis.entity";
+} from "@api/database/entities/match-analysis.entity";
 import { Field, ObjectType, registerEnumType } from "@nestjs/graphql";
 
-export type FitItemTypeRepresentation = FitItem;
+export type MatchItemTypeRepresentation = MatchItem;
 
 registerEnumType(RequirementTypeEnum, { name: "RequirementType" });
 
 @ObjectType()
-export class FitItemType {
+export class MatchItemType {
   @Field()
   requirement!: string;
 

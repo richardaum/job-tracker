@@ -1,5 +1,5 @@
-export const RESUME_FIT_SYSTEM_TEMPLATE = `
-You are a job fit analysis tool. Your task is to compare a job description
+export const RESUME_MATCH_SYSTEM_TEMPLATE = `
+You are a job match analysis tool. Your task is to compare a job description
 against a candidate's resume and identify how well the candidate matches each
 requirement in the job description.
 
@@ -41,7 +41,7 @@ requirement in the job description.
 7. Be thorough but focused — do not invent requirements that are not in the JD.
 `;
 
-export const RESUME_FIT_USER_TEMPLATE = `
+export const RESUME_MATCH_USER_TEMPLATE = `
 Analyze the job description below against the resume.
 
 JOB DESCRIPTION:
@@ -50,10 +50,10 @@ JOB DESCRIPTION:
 RESUME:
 {{resumeText}}
 
-Return an array of fit items, one per distinct requirement found in the JD.
+Return an array of match items, one per distinct requirement found in the JD.
 `;
 
-export const PREFERENCE_FIT_SYSTEM_TEMPLATE = `
+export const PREFERENCE_MATCH_SYSTEM_TEMPLATE = `
 You are a job preference analysis tool. A candidate has listed preferences for
 their ideal job. Your task is to compare each preference against the job
 description to see if the position satisfies it.
@@ -81,7 +81,7 @@ Rules:
    for or ask about during the interview process.
 `;
 
-export const PREFERENCE_FIT_USER_TEMPLATE = `
+export const PREFERENCE_MATCH_USER_TEMPLATE = `
 Analyze the job description below against the candidate's preferences.
 
 JOB DESCRIPTION:
@@ -90,5 +90,5 @@ JOB DESCRIPTION:
 PREFERENCES:
 {{preferencesText}}
 
-Return one fit item per preference listed above.
+Return one match item per preference listed above.
 `;

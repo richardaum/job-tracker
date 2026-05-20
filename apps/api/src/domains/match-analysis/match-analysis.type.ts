@@ -1,19 +1,19 @@
-import { type FitItem } from "@api/database/entities/fit-analysis.entity";
+import { type MatchItem } from "@api/database/entities/match-analysis.entity";
 import { AsyncMetadataType } from "@api/domains/shared/async-metadata.type";
 import { Field, Float, ID, Int, ObjectType } from "@nestjs/graphql";
 
-import { FitItemType } from "./fit-item.type";
+import { MatchItemType } from "./match-item.type";
 
 @ObjectType()
-export class FitAnalysisType {
+export class MatchAnalysisType {
   @Field(() => ID)
   id!: string;
 
   @Field(() => ID, { nullable: true })
-  applicationId!: string | null;
+  jobId!: string | null;
 
   @Field(() => ID, { nullable: true })
-  draftApplicationId!: string | null;
+  draftJobId!: string | null;
 
   @Field(() => ID)
   resumeId!: string;
@@ -28,7 +28,7 @@ export class FitAnalysisType {
   classification!: string | null;
 
   @Field(() => Int)
-  fitCount!: number;
+  matchCount!: number;
 
   @Field(() => Int)
   gapCount!: number;
@@ -36,8 +36,8 @@ export class FitAnalysisType {
   @Field(() => Int)
   unclearCount!: number;
 
-  @Field(() => [FitItemType])
-  items!: FitItem[];
+  @Field(() => [MatchItemType])
+  items!: MatchItem[];
 
   @Field()
   createdAt!: Date;

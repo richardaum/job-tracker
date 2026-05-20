@@ -1,14 +1,14 @@
-import { DraftApplicationEntity } from "@api/database/entities/draft-application.entity";
+import { DraftJobEntity } from "@api/database/entities/draft-job.entity";
 import {
-  FitAnalysisEntity,
-  type FitItem,
+  MatchAnalysisEntity,
+  type MatchItem,
   RequirementTypeEnum,
-} from "@api/database/entities/fit-analysis.entity";
+} from "@api/database/entities/match-analysis.entity";
 import { ResumeEntity } from "@api/database/entities/resume.entity";
 import { WorkPreferencesEntity } from "@api/database/entities/work-preferences.entity";
-import { ApplicationRepository } from "@api/domains/applications/applications.repository";
-import type { Application } from "@api/domains/applications/applications.schema";
-import { DraftApplicationsRepository } from "@api/domains/draft-applications/draft-applications.repository";
+import { DraftJobsRepository } from "@api/domains/draft-jobs/draft-jobs.repository";
+import { JobsRepository } from "@api/domains/jobs/jobs.repository";
+import type { Job } from "@api/domains/jobs/jobs.schema";
 import { AsyncMetadataStatusEnum } from "@api/domains/shared/async-metadata.type";
 import { htmlToPlainText } from "@api/domains/shared/html-plain-text.util";
 import { tipTapToPlainText } from "@job-tracker/tiptap";
@@ -22,23 +22,26 @@ import {
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 
-import { FitAnalysisRequested, FitStatusChanged } from "./fit-analysis.events";
-import { FitAnalysisRepository } from "./fit-analysis.repository";
-import { FitAnalysis } from "./fit-analysis.schema";
-import { FitAnalysisAiService } from "./fit-analysis-ai.service";
-import { FitAnalysisEventBus } from "./fit-analysis-event.bus";
+import {
+  MatchAnalysisRequested,
+  MatchStatusChanged,
+} from "./match-analysis.events";
+import { MatchAnalysisRepository } from "./match-analysis.repository";
+import { MatchAnalysis } from "./match-analysis.schema";
+import { MatchAnalysisAiService } from "./match-analysis-ai.service";
+import { MatchAnalysisEventBus } from "./match-analysis-event.bus";
 import { computeScore } from "./scoring/scoring";
 
 @Injectable()
-export class FitAnalysisService implements OnModuleInit {
-  private readonly logger = new Logger(FitAnalysisService.name);
+export class MatchAnalysisService implements OnModuleInit {
+  private readonly logger = new Logger(MatchAnalysisService.name);
 
   constructor(
-    private readonly repo: FitAnalysisRepository,
-    private readonly aiService: FitAnalysisAiService,
-    private readonly applicationRepo: ApplicationRepository,
-    private readonly draftRepo: DraftApplicationsRepository,
-    private readonly eventBus: FitAnalysisEventBus,
+    private readonly repo: MatchAnalysisRepository,
+    private readonly aiService: MatchAnalysisAiService,
+    private readonly jobRepo: JobsRepository,
+    private readonly draftRepo: DraftJobsRepository,
+    private readonly eventBus: MatchAnalysisEventBus,
     @InjectRepository(ResumeEntity)
     private readonly resumeRepo: Repository<ResumeEntity>,
     @InjectRepository(WorkPreferencesEntity)
@@ -49,72 +52,64 @@ export class FitAnalysisService implements OnModuleInit {
     const recovered = await this.repo.resetStaleProcessing();
     if (recovered > 0) {
       this.logger.warn(
-        `Recovered ${recovered} stale fit analysis records back to failed`,
+        `Recovered ${recovered} stale match analysis records back to failed`,
       );
     }
   }
 
-  async findById(id: string, userId: string): Promise<FitAnalysis | null> {
+  async findById(id: string, userId: string): Promise<MatchAnalysis | null> {
     return this.repo.findById(id, userId);
   }
 
-  async findForApplication(
-    applicationId: string,
+  async findForJob(
+    jobId: string,
     userId: string,
-  ): Promise<FitAnalysis | null> {
-    return this.repo.findByApplicationId(applicationId, userId);
+  ): Promise<MatchAnalysis | null> {
+    return this.repo.findByJobId(jobId, userId);
   }
 
-  async findForDraftApplication(
-    draftApplicationId: string,
+  async findForDraftJob(
+    draftJobId: string,
     userId: string,
-  ): Promise<FitAnalysis | null> {
-    const draft = await this.draftRepo.findOne(draftApplicationId, userId);
+  ): Promise<MatchAnalysis | null> {
+    const draft = await this.draftRepo.findOne(draftJobId, userId);
     if (!draft) return null;
-    return this.repo.findByDraftApplicationId(draftApplicationId, userId);
+    return this.repo.findByDraftJobId(draftJobId, userId);
   }
 
   async remove(id: string, userId: string): Promise<void> {
     const deleted = await this.repo.deleteById(id, userId);
     if (!deleted) {
-      throw new BadRequestException("Fit analysis not found.");
+      throw new BadRequestException("Match analysis not found.");
     }
   }
 
-  async findAll(userId: string): Promise<FitAnalysis[]> {
+  async findAll(userId: string): Promise<MatchAnalysis[]> {
     return this.repo.findAllByUserId(userId);
   }
 
-  async findApplicationById(
-    id: string,
-    userId: string,
-  ): Promise<Application | null> {
-    return this.applicationRepo.findOneByIdAndUserId(id, userId);
+  async findJobById(id: string, userId: string): Promise<Job | null> {
+    return this.jobRepo.findOneByIdAndUserId(id, userId);
   }
 
-  async findDraftApplicationById(
+  async findDraftJobById(
     id: string,
     userId: string,
-  ): Promise<DraftApplicationEntity | null> {
+  ): Promise<DraftJobEntity | null> {
     return this.draftRepo.findOne(id, userId);
   }
 
   async generate(
-    applicationId: string,
+    jobId: string,
     resumeId: string,
     userId: string,
-  ): Promise<FitAnalysis> {
-    const application = await this.applicationRepo.findOneByIdAndUserId(
-      applicationId,
-      userId,
-    );
-    if (!application) {
-      throw new BadRequestException("Application not found.");
+  ): Promise<MatchAnalysis> {
+    const job = await this.jobRepo.findOneByIdAndUserId(jobId, userId);
+    if (!job) {
+      throw new BadRequestException("Job not found.");
     }
-    if (!application.description?.trim()) {
-      throw new BadRequestException(
-        "Application has no job description to analyze.",
-      );
+    if (!job.description?.trim()) {
+      throw new BadRequestException("Job has no job description to analyze.");
     }
 
     const resume = await this.resumeRepo.findOne({
@@ -124,15 +119,15 @@ export class FitAnalysisService implements OnModuleInit {
       throw new BadRequestException("Resume not found.");
     }
 
-    const existing = await this.repo.findByApplicationId(applicationId);
+    const existing = await this.repo.findByJobId(jobId);
 
-    const entity = new FitAnalysisEntity();
+    const entity = new MatchAnalysisEntity();
     if (existing) {
       entity.id = existing.id;
       entity.createdAt = existing.createdAt;
     }
-    entity.applicationId = applicationId;
-    entity.draftApplicationId = existing?.draftApplicationId ?? null;
+    entity.jobId = jobId;
+    entity.draftJobId = existing?.draftJobId ?? null;
     entity.userId = userId;
     entity.resumeId = resumeId;
     entity.generationMetadata = {
@@ -142,34 +137,32 @@ export class FitAnalysisService implements OnModuleInit {
     entity.items = [];
     entity.scoreRatio = null;
     entity.classification = null;
-    entity.fitCount = 0;
+    entity.matchCount = 0;
     entity.gapCount = 0;
     entity.unclearCount = 0;
 
     const saved = await this.repo.upsert(entity);
 
     this.eventBus.emit(
-      new FitStatusChanged(
+      new MatchStatusChanged(
         saved.id,
         userId,
         AsyncMetadataStatusEnum.PROCESSING,
       ),
     );
-    this.eventBus.emit(
-      new FitAnalysisRequested(saved.id, userId, { applicationId }),
-    );
+    this.eventBus.emit(new MatchAnalysisRequested(saved.id, userId, { jobId }));
 
     return saved;
   }
 
   async generateForDraft(
-    draftApplicationId: string,
+    draftJobId: string,
     resumeId: string,
     userId: string,
-  ): Promise<FitAnalysis> {
-    const draft = await this.draftRepo.findOne(draftApplicationId, userId);
+  ): Promise<MatchAnalysis> {
+    const draft = await this.draftRepo.findOne(draftJobId, userId);
     if (!draft) {
-      throw new BadRequestException("Draft application not found.");
+      throw new BadRequestException("Draft job not found.");
     }
     if (!draft.htmlContent?.trim()) {
       throw new BadRequestException("Draft has no content to analyze.");
@@ -182,16 +175,15 @@ export class FitAnalysisService implements OnModuleInit {
       throw new BadRequestException("Resume not found.");
     }
 
-    const existing =
-      await this.repo.findByDraftApplicationId(draftApplicationId);
+    const existing = await this.repo.findByDraftJobId(draftJobId);
 
-    const entity = new FitAnalysisEntity();
+    const entity = new MatchAnalysisEntity();
     if (existing) {
       entity.id = existing.id;
       entity.createdAt = existing.createdAt;
     }
-    entity.applicationId = existing?.applicationId ?? null;
-    entity.draftApplicationId = draftApplicationId;
+    entity.jobId = existing?.jobId ?? null;
+    entity.draftJobId = draftJobId;
     entity.userId = userId;
     entity.resumeId = resumeId;
     entity.generationMetadata = {
@@ -201,30 +193,30 @@ export class FitAnalysisService implements OnModuleInit {
     entity.items = [];
     entity.scoreRatio = null;
     entity.classification = null;
-    entity.fitCount = 0;
+    entity.matchCount = 0;
     entity.gapCount = 0;
     entity.unclearCount = 0;
 
     const saved = await this.repo.upsert(entity);
 
     this.eventBus.emit(
-      new FitStatusChanged(
+      new MatchStatusChanged(
         saved.id,
         userId,
         AsyncMetadataStatusEnum.PROCESSING,
       ),
     );
     this.eventBus.emit(
-      new FitAnalysisRequested(saved.id, userId, { draftApplicationId }),
+      new MatchAnalysisRequested(saved.id, userId, { draftJobId }),
     );
 
     return saved;
   }
 
-  async processFitAnalysis(
-    fitId: string,
+  async processMatchAnalysis(
+    matchId: string,
     userId: string,
-    source: { applicationId?: string; draftApplicationId?: string },
+    source: { jobId?: string; draftJobId?: string },
   ): Promise<void> {
     const [err] = await tryRun(async () => {
       const preferences = await this.preferencesRepo.findOne({
@@ -233,25 +225,22 @@ export class FitAnalysisService implements OnModuleInit {
 
       let jdText: string;
 
-      if (source.applicationId) {
-        const application = await this.applicationRepo.findOneByIdAndUserId(
-          source.applicationId,
+      if (source.jobId) {
+        const job = await this.jobRepo.findOneByIdAndUserId(
+          source.jobId,
           userId,
         );
-        if (!application?.description) return;
-        jdText = application.description;
-      } else if (source.draftApplicationId) {
-        const draft = await this.draftRepo.findOne(
-          source.draftApplicationId,
-          userId,
-        );
+        if (!job?.description) return;
+        jdText = job.description;
+      } else if (source.draftJobId) {
+        const draft = await this.draftRepo.findOne(source.draftJobId, userId);
         if (!draft?.htmlContent) return;
         jdText = htmlToPlainText(draft.htmlContent);
       } else {
         return;
       }
 
-      const resume = await this.repo.findById(fitId, userId);
+      const resume = await this.repo.findById(matchId, userId);
       if (!resume?.resumeId) return;
 
       const resumeEntity = await this.resumeRepo.findOne({
@@ -261,20 +250,21 @@ export class FitAnalysisService implements OnModuleInit {
 
       const resumeText = tipTapToPlainText(resumeEntity.content);
 
-      const resumeFitItems = await this.aiService.extractResumeFitItems(
+      const resumeMatchItems = await this.aiService.extractResumeMatchItems(
         jdText,
         resumeText,
       );
 
       const preferenceItems = preferences?.items ?? [];
-      const preferenceFitItems = await this.aiService.extractPreferenceFitItems(
-        jdText,
-        preferenceItems,
-      );
+      const preferenceMatchItems =
+        await this.aiService.extractPreferenceMatchItems(
+          jdText,
+          preferenceItems,
+        );
 
-      const items: FitItem[] = [
-        ...resumeFitItems.map(
-          (i): FitItem => ({
+      const items: MatchItem[] = [
+        ...resumeMatchItems.map(
+          (i): MatchItem => ({
             requirement: i.requirement,
             source: "resume",
             type: i.type as RequirementTypeEnum,
@@ -284,7 +274,7 @@ export class FitAnalysisService implements OnModuleInit {
             suggestion: i.suggestion ?? undefined,
           }),
         ),
-        ...preferenceFitItems.map((i, index): FitItem => {
+        ...preferenceMatchItems.map((i, index): MatchItem => {
           const original = preferenceItems[index];
           return {
             requirement: i.requirement,
@@ -302,7 +292,7 @@ export class FitAnalysisService implements OnModuleInit {
       const score = computeScore(items);
 
       const updated = await this.repo.updateById(
-        fitId,
+        matchId,
         AsyncMetadataStatusEnum.PROCESSING,
         {
           generationMetadata: {
@@ -313,7 +303,7 @@ export class FitAnalysisService implements OnModuleInit {
           items,
           scoreRatio: score.scoreRatio,
           classification: score.classification,
-          fitCount: score.fitCount,
+          matchCount: score.matchCount,
           gapCount: score.gapCount,
           unclearCount: score.unclearCount,
         },
@@ -322,23 +312,27 @@ export class FitAnalysisService implements OnModuleInit {
 
       if (!updated) {
         this.logger.warn(
-          `Fit analysis ${fitId} was already updated or reset. Skipping background save.`,
+          `Match analysis ${matchId} was already updated or reset. Skipping background save.`,
         );
       }
 
       this.eventBus.emit(
-        new FitStatusChanged(fitId, userId, AsyncMetadataStatusEnum.COMPLETED),
+        new MatchStatusChanged(
+          matchId,
+          userId,
+          AsyncMetadataStatusEnum.COMPLETED,
+        ),
       );
     });
 
     if (err) {
       this.logger.error(
-        `[FitAnalysis] Background generation failed for fit ${fitId}:`,
+        `[MatchAnalysis] Background generation failed for match ${matchId}:`,
         err instanceof Error ? err.stack : err,
       );
 
       await this.repo.updateById(
-        fitId,
+        matchId,
         AsyncMetadataStatusEnum.PROCESSING,
         {
           generationMetadata: {
@@ -351,7 +345,7 @@ export class FitAnalysisService implements OnModuleInit {
       );
 
       this.eventBus.emit(
-        new FitStatusChanged(fitId, userId, AsyncMetadataStatusEnum.FAILED),
+        new MatchStatusChanged(matchId, userId, AsyncMetadataStatusEnum.FAILED),
       );
     }
   }

@@ -1,18 +1,18 @@
 import type {
-  FitClassification,
-  FitItem,
-} from "@api/database/entities/fit-analysis.entity";
-import { RequirementTypeEnum } from "@api/database/entities/fit-analysis.entity";
+  MatchClassification,
+  MatchItem,
+} from "@api/database/entities/match-analysis.entity";
+import { RequirementTypeEnum } from "@api/database/entities/match-analysis.entity";
 
 export interface ScoreResult {
   scoreRatio: number;
-  classification: FitClassification;
-  fitCount: number;
+  classification: MatchClassification;
+  matchCount: number;
   gapCount: number;
   unclearCount: number;
 }
 
-function itemPoints(item: FitItem): number {
+function itemPoints(item: MatchItem): number {
   if (item.verdict !== "fit") return 0;
 
   if (item.source === "resume") {
@@ -32,7 +32,7 @@ function itemPoints(item: FitItem): number {
   return item.weight === "high" ? 2 : 1;
 }
 
-function maxPossible(items: FitItem[]): number {
+function maxPossible(items: MatchItem[]): number {
   if (items.length === 0) return 0;
 
   return items.reduce((sum, item) => {
@@ -53,11 +53,11 @@ function maxPossible(items: FitItem[]): number {
   }, 0);
 }
 
-export function computeScore(items: FitItem[]): ScoreResult {
+export function computeScore(items: MatchItem[]): ScoreResult {
   const total = items.reduce((sum, item) => sum + itemPoints(item), 0);
   const max = maxPossible(items);
 
-  const fitCount = items.filter((i) => i.verdict === "fit").length;
+  const matchCount = items.filter((i) => i.verdict === "fit").length;
   const gapCount = items.filter((i) => i.verdict === "gap").length;
   const unclearCount = items.filter((i) => i.verdict === "unclear").length;
 
@@ -71,7 +71,7 @@ export function computeScore(items: FitItem[]): ScoreResult {
   const scoreRatio = max > 0 ? (total / max) * 100 : 0;
   const unclearMajority = unclearCount > items.length / 2;
 
-  let classification: FitClassification;
+  let classification: MatchClassification;
   if (items.length === 0 || unclearMajority) {
     classification = "neutral";
   } else if (scoreRatio >= 65 && !hasMustHaveGap) {
@@ -82,5 +82,5 @@ export function computeScore(items: FitItem[]): ScoreResult {
     classification = "neutral";
   }
 
-  return { scoreRatio, classification, fitCount, gapCount, unclearCount };
+  return { scoreRatio, classification, matchCount, gapCount, unclearCount };
 }

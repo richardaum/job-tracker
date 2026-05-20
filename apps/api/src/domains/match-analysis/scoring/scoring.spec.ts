@@ -1,12 +1,12 @@
 import {
-  FitItem,
+  MatchItem,
   RequirementTypeEnum,
-} from "@api/database/entities/fit-analysis.entity";
+} from "@api/database/entities/match-analysis.entity";
 import { describe, expect, it } from "vitest";
 
 import { computeScore } from "./scoring";
 
-function resumeFit(overrides?: Partial<FitItem>): FitItem {
+function resumeFit(overrides?: Partial<MatchItem>): MatchItem {
   return {
     requirement: "test",
     source: "resume",
@@ -18,11 +18,11 @@ function resumeFit(overrides?: Partial<FitItem>): FitItem {
   };
 }
 
-function mustHaveFit(overrides?: Partial<FitItem>): FitItem {
+function mustHaveFit(overrides?: Partial<MatchItem>): MatchItem {
   return resumeFit({ type: RequirementTypeEnum.MUST_HAVE, ...overrides });
 }
 
-function mustHaveGap(overrides?: Partial<FitItem>): FitItem {
+function mustHaveGap(overrides?: Partial<MatchItem>): MatchItem {
   return resumeFit({
     type: RequirementTypeEnum.MUST_HAVE,
     verdict: "gap",
@@ -31,22 +31,22 @@ function mustHaveGap(overrides?: Partial<FitItem>): FitItem {
   });
 }
 
-function niceToHaveGap(overrides?: Partial<FitItem>): FitItem {
+function niceToHaveGap(overrides?: Partial<MatchItem>): MatchItem {
   return resumeFit({ verdict: "gap", sourceQuotes: [], ...overrides });
 }
 
-function softSkillFit(overrides?: Partial<FitItem>): FitItem {
+function softSkillFit(overrides?: Partial<MatchItem>): MatchItem {
   return resumeFit({ type: RequirementTypeEnum.SOFT_SKILL, ...overrides });
 }
 
-function resumeUnclear(overrides?: Partial<FitItem>): FitItem {
+function resumeUnclear(overrides?: Partial<MatchItem>): MatchItem {
   return resumeFit({ verdict: "unclear", ...overrides });
 }
 
 function prefFit(
   weight: "high" | "low",
-  overrides?: Partial<FitItem>,
-): FitItem {
+  overrides?: Partial<MatchItem>,
+): MatchItem {
   return resumeFit({ source: "preference", weight, ...overrides });
 }
 
