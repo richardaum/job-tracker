@@ -74,6 +74,10 @@ type UpdateStageEventDto = {
 };
 type GenerateCompanyDescriptionDto = { companyName: string };
 
+// FIXME: currentStage / currentStageReason / currentStageAt are derived
+// from application_stage_events via attachCurrentStage(). Consider modelling
+// as a TypeORM ViewEntity or a getter on the ApplicationEntity so the shape
+// is co-located with the entity instead of duplicated here.
 type ApplicationWithCurrentStage = Application & {
   currentStage: ApplicationStageEnum;
   currentStageReason: string | null;
@@ -159,12 +163,14 @@ export class ApplicationService {
     );
     return apps.map((app) => {
       const s = byId.get(app.id);
+      const { summaryMetadata: _sm, ...rest } = app;
       return {
-        ...app,
+        ...rest,
         currentStage: (s?.toStage ??
           ApplicationStageEnum.NEW) as ApplicationStageEnum,
         currentStageReason: s?.reason ?? null,
         currentStageAt: s?.statusAt ?? app.createdAt,
+        summaryMetadata: app.summaryMetadata ?? null,
       };
     });
   }
@@ -379,7 +385,7 @@ export class ApplicationService {
           {
             status: DraftApplicationConversionStatusEnum.FAILED,
             error: appliedError.message,
-            timestamp: new Date().toISOString(),
+            timestamp: new Date(),
           },
         );
         this.draftEventBus.emit(
@@ -400,15 +406,22 @@ export class ApplicationService {
       title: normalizedDraftTitle,
     });
 
-    await this.draftApplicationsService.updateConversionMetadata(
-      draftId,
-      userId,
-      { status: DraftApplicationConversionStatusEnum.PROCESSING },
-      {
-        status: DraftApplicationConversionStatusEnum.SUCCEEDED,
-        timestamp: new Date().toISOString(),
-      },
-    );
+    const updated =
+      await this.draftApplicationsService.updateConversionMetadata(
+        draftId,
+        userId,
+        { status: DraftApplicationConversionStatusEnum.PROCESSING },
+        {
+          status: DraftApplicationConversionStatusEnum.SUCCEEDED,
+          timestamp: new Date(),
+        },
+      );
+
+    if (!updated) {
+      this.logger.error(
+        `Failed to update conversion status to SUCCEEDED for draft ${draftId}. The expected PROCESSING status was not found.`,
+      );
+    }
 
     this.draftEventBus.emit(
       new DraftConversionStatusChanged(
@@ -651,16 +664,16 @@ export class ApplicationService {
         {
           status: DraftApplicationConversionStatusEnum.FAILED,
           error: errorMessage,
-          timestamp: new Date().toISOString(),
+          timestamp: new Date(),
         },
       ),
     );
     if (updateError) {
-      this.logger.warn(
-        `Failed to update draft ${draftId} status — draft may have been deleted`,
+      this.logger.error(
+        `Draft conversion status update failed for ${draftId}: ${updateError.message}`,
+        updateError.stack,
       );
     }
-
     this.draftEventBus.emit(
       new DraftConversionStatusChanged(
         draftId,

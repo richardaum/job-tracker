@@ -1,5 +1,5 @@
+import type { ConversionMetadataEmbedded } from "@api/database/embeddeds/conversion-metadata.embedded";
 import { ApplicationEntity } from "@api/database/entities/application.entity";
-import type { ConversionMetadata } from "@api/database/entities/draft-application.entity";
 import {
   DraftApplicationConversionStatusEnum,
   DraftApplicationEntity,
@@ -98,25 +98,31 @@ export class DraftApplicationsRepository {
   async updateConversionMetadata(
     id: string,
     userId: string,
-    expectedStatus: Pick<ConversionMetadata, "status"> | null,
-    patch: Partial<ConversionMetadata> & {
-      status: ConversionMetadata["status"];
+    expectedStatus: Pick<ConversionMetadataEmbedded, "status"> | null,
+    patch: Partial<ConversionMetadataEmbedded> & {
+      status: ConversionMetadataEmbedded["status"];
     },
   ): Promise<boolean> {
-    const patchJson = JSON.stringify(patch);
+    const conversionUpdate: Partial<ConversionMetadataEmbedded> = {
+      status: patch.status,
+    };
+    if (patch.error !== undefined) {
+      conversionUpdate.error = patch.error;
+    }
+    if (patch.timestamp !== undefined) {
+      conversionUpdate.timestamp = patch.timestamp;
+    }
+
     const qb = this.draftApplicationsRepo
       .createQueryBuilder()
       .update(DraftApplicationEntity)
-      .set({
-        conversionMetadata: () =>
-          `"conversion_metadata" || '${patchJson}'::jsonb`,
-      })
+      .set({ conversionMetadata: conversionUpdate })
       .where(`"id" = :id AND "user_id" = :userId`, { id, userId });
 
     if (expectedStatus === null) {
-      qb.andWhere(`"conversion_metadata" IS NULL`);
+      qb.andWhere(`"conversion_status" IS NULL`);
     } else {
-      qb.andWhere(`"conversion_metadata"->>'status' = :expected`, {
+      qb.andWhere(`"conversion_status" = :expected`, {
         expected: expectedStatus.status,
       });
     }
@@ -134,10 +140,13 @@ export class DraftApplicationsRepository {
       .createQueryBuilder()
       .update()
       .set({
-        conversionMetadata: () =>
-          `'{"status": "${DraftApplicationConversionStatusEnum.FAILED}", "error": "Conversion interrupted and reset to idle after server restart."}'::jsonb`,
+        conversionMetadata: {
+          status: DraftApplicationConversionStatusEnum.FAILED,
+          error:
+            "Conversion interrupted and reset to idle after server restart.",
+        },
       })
-      .where(`"conversion_metadata"->>'status' = :processing`, {
+      .where(`"conversion_status" = :processing`, {
         processing: DraftApplicationConversionStatusEnum.PROCESSING,
       })
       .execute();

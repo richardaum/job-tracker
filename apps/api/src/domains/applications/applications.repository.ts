@@ -1,3 +1,4 @@
+import { AsyncMetadataEmbedded } from "@api/database/embeddeds/async-metadata.embedded";
 import { ApplicationEntity } from "@api/database/entities/application.entity";
 import { ApplicationStageEventEntity } from "@api/database/entities/application-stage-event.entity";
 import { DraftApplicationEntity } from "@api/database/entities/draft-application.entity";
@@ -433,22 +434,29 @@ export class ApplicationRepository {
     patch: Partial<AsyncMetadata> & { status: AsyncMetadata["status"] },
     userId: string,
   ): Promise<boolean> {
-    const patchJson = JSON.stringify(patch);
+    const summaryUpdate: Partial<AsyncMetadataEmbedded> = {
+      status: patch.status,
+    };
+    if (patch.error !== undefined) {
+      summaryUpdate.error = patch.error;
+    }
+    if (patch.timestamp !== undefined) {
+      summaryUpdate.timestamp = new Date(patch.timestamp);
+    }
+
     const qb = this.applicationsRepo
       .createQueryBuilder()
       .update(ApplicationEntity)
-      .set({
-        summaryMetadata: () => `"summary_metadata" || '${patchJson}'::jsonb`,
-      })
+      .set({ summaryMetadata: summaryUpdate })
       .where(`"id" = :id AND "user_id" = :userId`, {
         id: applicationId,
         userId,
       });
 
     if (expectedStatus === null) {
-      qb.andWhere(`"summary_metadata" IS NULL`);
+      qb.andWhere(`"summary_status" IS NULL`);
     } else {
-      qb.andWhere(`"summary_metadata"->>'status' = :expected`, {
+      qb.andWhere(`"summary_status" = :expected`, {
         expected: expectedStatus.status,
       });
     }
@@ -474,10 +482,12 @@ export class ApplicationRepository {
       .createQueryBuilder()
       .update()
       .set({
-        summaryMetadata: () =>
-          `'{"status": "${AsyncMetadataStatusEnum.FAILED}", "error": "Server restart"}'::jsonb`,
+        summaryMetadata: {
+          status: AsyncMetadataStatusEnum.FAILED,
+          error: "Server restart",
+        },
       })
-      .where(`"summary_metadata"->>'status' = :processing`, {
+      .where(`"summary_status" = :processing`, {
         processing: AsyncMetadataStatusEnum.PROCESSING,
       })
       .execute();
