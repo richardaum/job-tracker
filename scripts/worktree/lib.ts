@@ -336,7 +336,12 @@ export function extractRequiredSecrets(apiEnv: WorktreeEnvMap): WorktreeEnvMap {
       `Missing required secrets in source apps/api/.env: ${missing.join(", ")}`,
     );
   }
-  for (const optional of ["OPENAI_API_KEY", "OPENAI_MODEL", "SENTRY_DSN"]) {
+  for (const optional of [
+    "OPENAI_API_KEY",
+    "OPENAI_MODEL",
+    "SENTRY_DSN",
+    "DEV_AUTH_BYPASS_EMAIL",
+  ]) {
     if (apiEnv[optional]?.trim()) out[optional] = apiEnv[optional].trim();
   }
   return out;
