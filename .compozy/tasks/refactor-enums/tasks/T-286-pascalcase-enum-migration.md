@@ -1,6 +1,6 @@
 # T-286: Migrate new enum keys to PascalCase
 
-**Status:** planned · **Phase:** 5 · **Priority:** high · **Dependencies:** None (independent of all phases)
+**Status:** done · **Phase:** 5 · **Priority:** high · **Dependencies:** None (independent of all phases)
 
 ## Context
 

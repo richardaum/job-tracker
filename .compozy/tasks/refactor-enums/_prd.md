@@ -109,24 +109,8 @@ Todas as fases são independentes entre si e podem ser executadas em paralelo.
 
 ## Reintegration (merge → `main`)
 
-**Branch:** `task/refactor-enums`
-
 ```bash
-git merge task/refactor-enums
+git merge task/refactor-enums && bash scripts/post-merge-refactor-enums.sh
 ```
 
-**Após merge, executar na ordem:**
-
-1. Datafix scripts (JSONB — antes do deploy do código):
-   - `pnpm tsx apps/api/scripts/fix-fit-verdict-casing.ts --dry-run`
-   - `pnpm tsx apps/api/scripts/fix-fit-verdict-casing.ts`
-   - `pnpm tsx apps/api/scripts/fix-fit-source-casing.ts --dry-run`
-   - `pnpm tsx apps/api/scripts/fix-fit-source-casing.ts`
-2. `pnpm --filter @job-tracker/api run db:migrate`
-3. `pnpm --filter @job-tracker/web run codegen`
-4. `pnpm typecheck`
-5. `pnpm lint`
-6. `pnpm test`
-7. `pm2 logs api --lines 30 --nostream`
-
-**Followup:** Validar visualmente no web: TypeBadge (cores corretas) e fit dialog (verdicts/sources/classification com novos enums).
+O script audita o estado atual (migrations aplicadas? dados normalizados? schema.gql correto?) e só executa o que falta. Idempotente.
