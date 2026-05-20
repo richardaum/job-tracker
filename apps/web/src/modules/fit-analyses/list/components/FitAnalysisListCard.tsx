@@ -8,7 +8,7 @@ import { AsyncMetadataStatus } from "@/gql/hooks";
 
 import { FitScoreBadge } from "./FitScoreBadge";
 
-export type FitListItem = FitAnalysesListQuery["fitAnalyses"][number];
+type FitListItem = FitAnalysesListQuery["fitAnalyses"][number];
 
 const dateFormatter = new Intl.DateTimeFormat("en-US", {
   month: "short",

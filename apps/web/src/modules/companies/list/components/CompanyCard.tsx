@@ -13,7 +13,7 @@ import { TipTapContent } from "@/modules/applications/shared/components/TipTapCo
 
 import { DeleteCompanyDialog } from "./DeleteCompanyDialog";
 
-export interface CompanyCardData {
+interface CompanyCardData {
   id: string;
   name: string;
   description: string | null;
