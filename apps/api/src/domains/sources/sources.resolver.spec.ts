@@ -9,7 +9,9 @@ import { SourcesService } from "./sources.service";
 describe("SourcesResolver", () => {
   const service: Pick<
     SourcesService,
-    "sourceRunEvents" | "listSourceTemplates" | "listSourceTemplatesForSourceProfile"
+    | "sourceRunEvents"
+    | "listSourceTemplates"
+    | "listSourceTemplatesForSourceProfile"
   > = {
     sourceRunEvents: vi.fn(),
     listSourceTemplates: vi.fn(),
@@ -18,7 +20,10 @@ describe("SourcesResolver", () => {
 
   const sourceProfileRegistry = new SourceProfileRegistryService();
 
-  const resolver = new SourcesResolver(service as SourcesService, sourceProfileRegistry);
+  const resolver = new SourcesResolver(
+    service as SourcesService,
+    sourceProfileRegistry,
+  );
 
   const user = { userId: "user-1" };
 
@@ -89,7 +94,9 @@ describe("SourcesResolver", () => {
   });
 
   it("templates loads profile-scoped templates when not attached", async () => {
-    vi.mocked(service.listSourceTemplatesForSourceProfile).mockResolvedValue([]);
+    vi.mocked(service.listSourceTemplatesForSourceProfile).mockResolvedValue(
+      [],
+    );
 
     await expect(
       resolver.templates(
@@ -104,7 +111,9 @@ describe("SourcesResolver", () => {
   });
 
   it("sourceTemplatesForSourceProfile delegates to the service", async () => {
-    vi.mocked(service.listSourceTemplatesForSourceProfile).mockResolvedValue([]);
+    vi.mocked(service.listSourceTemplatesForSourceProfile).mockResolvedValue(
+      [],
+    );
 
     await expect(
       resolver.sourceTemplatesForSourceProfile(user, "remoteyeah"),

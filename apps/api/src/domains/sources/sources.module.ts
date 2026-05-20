@@ -1,8 +1,8 @@
 import { DatabaseModule } from "@api/database/database.module";
 import { SourceRunEntity } from "@api/database/entities/source-run.entity";
 import { SourceTemplateEntity } from "@api/database/entities/source-template.entity";
-import { ApplicationModule } from "@api/domains/applications/applications.module";
 import { AuthModule } from "@api/domains/auth/auth.module";
+import { JobsModule } from "@api/domains/jobs/jobs.module";
 import { SourceProfileRegistryService } from "@api/domains/sources/source-profile-registry.service";
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
@@ -17,7 +17,7 @@ import { SOURCES_EVENTS_PUBLISHER } from "./sources-events.publisher";
   imports: [
     DatabaseModule,
     TypeOrmModule.forFeature([SourceRunEntity, SourceTemplateEntity]),
-    ApplicationModule,
+    JobsModule,
     AuthModule,
   ],
   providers: [

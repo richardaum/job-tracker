@@ -13,11 +13,11 @@ import { join } from "path";
 import { AppController } from "./app.controller";
 import { DatabaseModule } from "./database/database.module";
 import { AiModule } from "./domains/ai/ai.module";
-import { ApplicationModule } from "./domains/applications/applications.module";
 import { AuthModule } from "./domains/auth/auth.module";
 import { CompaniesModule } from "./domains/companies/companies.module";
 import { CurrencyConverterModule } from "./domains/currency-converter/currency-converter.module";
-import { FitAnalysisModule } from "./domains/fit-analysis/fit-analysis.module";
+import { JobsModule } from "./domains/jobs/jobs.module";
+import { MatchAnalysisModule } from "./domains/match-analysis/match-analysis.module";
 import { NotesModule } from "./domains/notes/notes.module";
 import { ResumesModule } from "./domains/resumes/resumes.module";
 import { SourcesModule } from "./domains/sources/sources.module";
@@ -28,14 +28,14 @@ import { GraphqlSseMiddleware } from "./graphql/graphql-sse.middleware";
   imports: [
     DatabaseModule,
     AuthModule,
-    ApplicationModule,
+    JobsModule,
     CompaniesModule,
     CurrencyConverterModule,
     SourcesModule,
     NotesModule,
     ResumesModule,
     WorkPreferencesModule,
-    FitAnalysisModule,
+    MatchAnalysisModule,
     AiModule,
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,

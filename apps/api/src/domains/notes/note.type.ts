@@ -6,7 +6,7 @@ export class NoteType {
   id!: string;
 
   @Field(() => String, { nullable: true })
-  applicationId!: string | null;
+  jobId!: string | null;
 
   @Field()
   userId!: string;

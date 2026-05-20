@@ -1,5 +1,5 @@
-import { ApplicationEntity } from "@api/database/entities/application.entity";
 import { CompanyEntity } from "@api/database/entities/company.entity";
+import { JobEntity } from "@api/database/entities/job.entity";
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { QueryFailedError, Repository } from "typeorm";
@@ -11,8 +11,8 @@ export class CompanyRepository {
   constructor(
     @InjectRepository(CompanyEntity)
     private readonly repo: Repository<CompanyEntity>,
-    @InjectRepository(ApplicationEntity)
-    private readonly applicationsRepo: Repository<ApplicationEntity>,
+    @InjectRepository(JobEntity)
+    private readonly applicationsRepo: Repository<JobEntity>,
   ) {}
 
   async findOneById(id: string, userId: string): Promise<Company | null> {

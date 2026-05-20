@@ -1,6 +1,6 @@
 import { SourceRunEntity } from "@api/database/entities/source-run.entity";
 import { SourceTemplateEntity } from "@api/database/entities/source-template.entity";
-import { ApplicationRepository } from "@api/domains/applications/applications.repository";
+import { JobsRepository } from "@api/domains/jobs/jobs.repository";
 import { SourceProfileRegistryService } from "@api/domains/sources/source-profile-registry.service";
 import { entryUrlFromExecutorPlan } from "@api/domains/sources/source-profiles";
 import { SourceRunType } from "@api/domains/sources/source-run.type";
@@ -67,7 +67,7 @@ export class SourcesService implements OnModuleInit {
   constructor(
     private readonly repo: SourcesRepository,
     private readonly sourceProfileRegistry: SourceProfileRegistryService,
-    private readonly applicationRepo: ApplicationRepository,
+    private readonly jobRepo: JobsRepository,
     @Inject(SOURCES_EVENTS_PUBLISHER)
     private readonly eventsPublisher: SourcesEventsPublisher,
   ) {}
@@ -92,7 +92,8 @@ export class SourcesService implements OnModuleInit {
     userId: string,
     sourceProfileId: string,
   ): Promise<SourceTemplateType[]> {
-    const sourceProfileKey = this.sourceProfileRegistry.normalizeSourceProfileKey(sourceProfileId);
+    const sourceProfileKey =
+      this.sourceProfileRegistry.normalizeSourceProfileKey(sourceProfileId);
     const templates = await this.repo.listTemplatesByUserAndSourceProfileId({
       userId,
       sourceProfileId: sourceProfileKey,
@@ -113,11 +114,14 @@ export class SourcesService implements OnModuleInit {
     userId: string,
     input: { sourceProfileId: string; surfaceUrl: string },
   ): Promise<SourceTemplateType> {
-    const sourceProfileKey = this.sourceProfileRegistry.normalizeSourceProfileKey(
-      input.sourceProfileId,
-    );
+    const sourceProfileKey =
+      this.sourceProfileRegistry.normalizeSourceProfileKey(
+        input.sourceProfileId,
+      );
     if (this.sourceProfileRegistry.plan(sourceProfileKey) === undefined) {
-      throw new BadRequestException(`Unknown source profile: ${input.sourceProfileId}`);
+      throw new BadRequestException(
+        `Unknown source profile: ${input.sourceProfileId}`,
+      );
     }
     const template = await this.repo.findOrCreateTemplate({
       userId,
@@ -131,10 +135,13 @@ export class SourcesService implements OnModuleInit {
     userId: string,
     sourceProfileId: string,
   ): Promise<SourceRunType> {
-    const sourceProfileKey = this.sourceProfileRegistry.normalizeSourceProfileKey(sourceProfileId);
+    const sourceProfileKey =
+      this.sourceProfileRegistry.normalizeSourceProfileKey(sourceProfileId);
     const planDoc = this.sourceProfileRegistry.plan(sourceProfileKey);
     if (planDoc === undefined) {
-      throw new BadRequestException(`Unknown source profile: ${sourceProfileId}`);
+      throw new BadRequestException(
+        `Unknown source profile: ${sourceProfileId}`,
+      );
     }
 
     const defaultSurfaceUrl = entryUrlFromExecutorPlan(planDoc);
@@ -189,7 +196,9 @@ export class SourcesService implements OnModuleInit {
     }
     const planDoc = this.sourceProfileRegistry.plan(template.sourceProfileId);
     if (planDoc === undefined) {
-      throw new BadRequestException(`Unknown source profile: ${template.sourceProfileId}`);
+      throw new BadRequestException(
+        `Unknown source profile: ${template.sourceProfileId}`,
+      );
     }
     const startedAt = new Date();
     const surfaceUrl = template.surfaceUrl.trim();
@@ -286,10 +295,7 @@ export class SourcesService implements OnModuleInit {
       throw new NotFoundException(`Source run ${sourceRunId} not found`);
     }
 
-    return this.applicationRepo.detachApplicationsSourceRun(
-      sourceRunId,
-      userId,
-    );
+    return this.jobRepo.detachJobsSourceRun(sourceRunId, userId);
   }
 
   async deleteSourceRun(userId: string, id: string): Promise<void> {

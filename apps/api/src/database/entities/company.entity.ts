@@ -9,7 +9,7 @@ import {
   UpdateDateColumn,
 } from "typeorm";
 
-import { ApplicationEntity } from "./application.entity";
+import { JobEntity } from "./job.entity";
 
 /** DB enforces case- and whitespace-insensitive uniqueness via `UQ_companies_user_lower_name` (see migrations). */
 @WithGeneratedId()
@@ -28,8 +28,8 @@ export class CompanyEntity {
   @Column({ type: "text", nullable: true })
   description!: string | null;
 
-  @OneToMany(() => ApplicationEntity, (application) => application.company)
-  applications!: ApplicationEntity[];
+  @OneToMany(() => JobEntity, (job) => job.company)
+  jobs!: JobEntity[];
 
   @CreateDateColumn({ name: "created_at", type: "timestamp" })
   createdAt!: Date;

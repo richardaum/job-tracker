@@ -1,0 +1,175 @@
+import { CurrentUser } from "@api/domains/auth/current-user.decorator";
+import { JwtAuthGuard } from "@api/domains/auth/jwt-auth.guard";
+import { Roles } from "@api/domains/auth/roles.decorator";
+import { RolesGuard } from "@api/domains/auth/roles.guard";
+import { DraftJobType } from "@api/domains/draft-jobs/draft-job.type";
+import { DeleteMutationPayloadType } from "@api/domains/shared/delete-mutation-payload.type";
+import { UseGuards } from "@nestjs/common";
+import {
+  Args,
+  ID,
+  Mutation,
+  Parent,
+  Query,
+  ResolveField,
+  Resolver,
+} from "@nestjs/graphql";
+
+import { CreateJobInput } from "./create-job.input";
+import { CreateJobStageEventInput } from "./create-job-stage-event.input";
+import { JobType } from "./job.type";
+import { ApplicationQuickFilterEnum } from "./job-quick-filter.enum";
+import { JobStageEventType } from "./job-stage-event.type";
+import { JobsService } from "./jobs.service";
+import { SummaryService } from "./summary/summary.service";
+import { UpdateJobInput } from "./update-job.input";
+import { UpdateJobStageEventInput } from "./update-job-stage-event.input";
+
+@Resolver(() => JobType)
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles("user")
+export class JobsResolver {
+  constructor(
+    private readonly service: JobsService,
+    private readonly summaryService: SummaryService,
+  ) {}
+
+  @ResolveField(() => ID, { nullable: true })
+  async draftJobId(
+    @Parent() job: JobType,
+    @CurrentUser() user: { userId: string },
+  ): Promise<string | null> {
+    return this.service.findDraftJobId(job.id, user.userId);
+  }
+
+  @Query(() => [JobType])
+  jobs(
+    @CurrentUser() user: { userId: string },
+    @Args("filter", { type: () => ApplicationQuickFilterEnum, nullable: true })
+    filter?: ApplicationQuickFilterEnum,
+    @Args("company", { type: () => String, nullable: true }) company?: string,
+    @Args("runId", { type: () => ID, nullable: true }) runId?: string,
+  ): Promise<JobType[]> {
+    return this.service.findAll(user.userId, filter, company, runId);
+  }
+
+  @Query(() => JobType)
+  job(
+    @Args("id", { type: () => ID }) id: string,
+    @CurrentUser() user: { userId: string },
+  ): Promise<JobType> {
+    return this.service.findOne(id, user.userId);
+  }
+
+  @Mutation(() => JobType)
+  createJob(
+    @Args("input") input: CreateJobInput,
+    @CurrentUser() user: { userId: string },
+  ): Promise<JobType> {
+    return this.service.create(user.userId, input);
+  }
+
+  @Mutation(() => DraftJobType)
+  async createJobWithAI(
+    @Args("draftId", { type: () => ID }) draftId: string,
+    @CurrentUser() user: { userId: string },
+  ): Promise<DraftJobType> {
+    return this.service.createJobWithAI(user.userId, draftId);
+  }
+
+  @Query(() => String, { nullable: true })
+  generateJobLocationWithAI(
+    @Args("jobId", { type: () => ID }) jobId: string,
+    @CurrentUser() user: { userId: string },
+  ): Promise<string | null> {
+    return this.service.inferJobLocation(user.userId, jobId);
+  }
+
+  @Query(() => String, { nullable: true })
+  generateJobWorkRegionWithAI(
+    @Args("jobId", { type: () => ID }) jobId: string,
+    @CurrentUser() user: { userId: string },
+  ): Promise<string | null> {
+    return this.service.inferJobWorkRegion(user.userId, jobId);
+  }
+
+  @Query(() => String)
+  generateCompanyDescription(
+    @Args("companyName") companyName: string,
+    @CurrentUser() user: { userId: string },
+  ) {
+    return this.service.generateCompanyDescription(user.userId, {
+      companyName,
+    });
+  }
+
+  @Mutation(() => JobType)
+  updateJob(
+    @Args("id", { type: () => ID }) id: string,
+    @Args("input") input: UpdateJobInput,
+    @CurrentUser() user: { userId: string },
+  ): Promise<JobType> {
+    return this.service.update(id, user.userId, input);
+  }
+
+  @Mutation(() => JobType)
+  generateJobSummary(
+    @Args("jobId", { type: () => ID }) jobId: string,
+    @CurrentUser() user: { userId: string },
+  ): Promise<JobType> {
+    void this.summaryService.generateSummary(jobId, user.userId);
+    return this.service.findOne(jobId, user.userId);
+  }
+
+  @Mutation(() => JobType)
+  removeJobTag(
+    @Args("id", { type: () => ID }) id: string,
+    @Args("tag") tag: string,
+    @CurrentUser() user: { userId: string },
+  ): Promise<JobType> {
+    return this.service.removeTag(id, user.userId, tag);
+  }
+
+  @Mutation(() => DeleteMutationPayloadType)
+  async deleteJob(
+    @Args("id", { type: () => ID }) id: string,
+    @CurrentUser() user: { userId: string },
+  ): Promise<DeleteMutationPayloadType> {
+    await this.service.remove(id, user.userId);
+    return { success: true, deletedId: id };
+  }
+
+  @Query(() => [JobStageEventType])
+  jobStageEvents(
+    @Args("jobId", { type: () => ID }) jobId: string,
+    @CurrentUser() user: { userId: string },
+  ): Promise<JobStageEventType[]> {
+    return this.service.listStageEvents(jobId, user.userId);
+  }
+
+  @Mutation(() => JobStageEventType)
+  createJobStageEvent(
+    @Args("input") input: CreateJobStageEventInput,
+    @CurrentUser() user: { userId: string },
+  ): Promise<JobStageEventType> {
+    return this.service.createStageEvent(user.userId, input);
+  }
+
+  @Mutation(() => JobStageEventType)
+  updateJobStageEvent(
+    @Args("id", { type: () => ID }) id: string,
+    @Args("input") input: UpdateJobStageEventInput,
+    @CurrentUser() user: { userId: string },
+  ): Promise<JobStageEventType> {
+    return this.service.updateStageEvent(id, user.userId, input);
+  }
+
+  @Mutation(() => DeleteMutationPayloadType)
+  async deleteJobStageEvent(
+    @Args("id", { type: () => ID }) id: string,
+    @CurrentUser() user: { userId: string },
+  ): Promise<DeleteMutationPayloadType> {
+    await this.service.removeStageEvent(id, user.userId);
+    return { success: true, deletedId: id };
+  }
+}

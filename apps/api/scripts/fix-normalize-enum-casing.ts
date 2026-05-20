@@ -2,13 +2,13 @@ import "reflect-metadata";
 import "dotenv/config";
 
 import { buildDataSourceOptions } from "@api/database/data-source-options";
-import { ApplicationEntity } from "@api/database/entities/application.entity";
-import { ApplicationStageEventEntity } from "@api/database/entities/application-stage-event.entity";
+import { JobEntity } from "@api/database/entities/job.entity";
+import { JobStageEventEntity } from "@api/database/entities/job-stage-event.entity";
 import {
-  FitAnalysisEntity,
-  type FitItem,
+  MatchAnalysisEntity,
+  type MatchItem,
   RequirementTypeEnum,
-} from "@api/database/entities/fit-analysis.entity";
+} from "@api/database/entities/match-analysis.entity";
 import type { PreferenceItem } from "@api/database/entities/work-preferences.entity";
 import { WorkPreferencesEntity } from "@api/database/entities/work-preferences.entity";
 import { AsyncMetadataStatusEnum } from "@api/domains/shared/async-metadata.type";
@@ -24,10 +24,10 @@ import { EntityManager } from "typeorm";
       ...buildDataSourceOptions(process.env.DATABASE_URL!),
     }),
     TypeOrmModule.forFeature([
-      ApplicationEntity,
-      FitAnalysisEntity,
+      JobEntity,
+      MatchAnalysisEntity,
       WorkPreferencesEntity,
-      ApplicationStageEventEntity,
+      JobStageEventEntity,
     ]),
   ],
 })
@@ -49,9 +49,9 @@ async function fixJsonbFields(
   process.stdout.write(
     `  ${prefix}summary_metadata -> status (lower -> UPPER)... `,
   );
-  const appRepo = em.getRepository(ApplicationEntity);
-  const allApps = await appRepo.find();
-  const fixStatus = allApps.filter(
+  const jobRepo = em.getRepository(JobEntity);
+  const allJobs = await jobRepo.find();
+  const fixStatus = allJobs.filter(
     (a) =>
       a.summaryMetadata?.status &&
       a.summaryMetadata.status !== upper(a.summaryMetadata.status),
@@ -66,7 +66,7 @@ async function fixJsonbFields(
         ...a.summaryMetadata,
         status: upper(a.summaryMetadata!.status)! as AsyncMetadataStatusEnum,
       };
-      const [err] = await tryRun(appRepo.save(a));
+      const [err] = await tryRun(jobRepo.save(a));
       if (err) {
         process.stdout.write(`\n  ❌ ${a.id}: ${err.message.slice(0, 80)}`);
         fail++;
@@ -77,13 +77,13 @@ async function fixJsonbFields(
     process.stdout.write(`✓ ${ok} fixed\n`);
   }
 
-  // 2. fit_analysis items -> type
+  // 2. match_analysis items -> type
   process.stdout.write(
-    `  ${prefix}fit_analysis items -> type (lower -> UPPER)... `,
+    `  ${prefix}match_analysis items -> type (lower -> UPPER)... `,
   );
-  const fitRepo = em.getRepository(FitAnalysisEntity);
-  const allFit = await fitRepo.find();
-  const fixType = allFit.filter((e) =>
+  const matchRepo = em.getRepository(MatchAnalysisEntity);
+  const allMatch = await matchRepo.find();
+  const fixType = allMatch.filter((e) =>
     e.items?.some((i) => i.type && i.type !== upper(i.type)),
   );
   if (fixType.length === 0) {
@@ -97,7 +97,7 @@ async function fixJsonbFields(
         ...i,
         type: i.type ? (upper(i.type) as RequirementTypeEnum) : i.type,
       }));
-      const [err] = await tryRun(fitRepo.save(e));
+      const [err] = await tryRun(matchRepo.save(e));
       if (err) {
         process.stdout.write(`\n  ❌ ${e.id}: ${err.message.slice(0, 80)}`);
         fail++;
@@ -109,11 +109,11 @@ async function fixJsonbFields(
     process.stdout.write(`✓ ${ok2} fixed\n`);
   }
 
-  // 3. fit_analysis items -> weight
+  // 3. match_analysis items -> weight
   process.stdout.write(
-    `  ${prefix}fit_analysis items -> weight (lower -> UPPER)... `,
+    `  ${prefix}match_analysis items -> weight (lower -> UPPER)... `,
   );
-  const fixWeight = allFit.filter((e) =>
+  const fixWeight = allMatch.filter((e) =>
     e.items?.some((i) => i.weight && i.weight !== upper(i.weight)),
   );
   if (fixWeight.length === 0) {
@@ -125,9 +125,9 @@ async function fixJsonbFields(
     for (const e of fixWeight) {
       e.items = e.items.map((i) => ({
         ...i,
-        weight: i.weight ? (upper(i.weight) as FitItem["weight"]) : i.weight,
+        weight: i.weight ? (upper(i.weight) as MatchItem["weight"]) : i.weight,
       }));
-      const [err] = await tryRun(fitRepo.save(e));
+      const [err] = await tryRun(matchRepo.save(e));
       if (err) {
         process.stdout.write(`\n  ❌ ${e.id}: ${err.message.slice(0, 80)}`);
         fail++;
@@ -180,7 +180,7 @@ async function scanEnumColumns(em: EntityManager): Promise<void> {
   process.stdout.write("Scanning PG enum columns for lowercase values...\n");
   let totalLower = 0;
 
-  const stageRepo = em.getRepository(ApplicationStageEventEntity);
+  const stageRepo = em.getRepository(JobStageEventEntity);
   const allStages = await stageRepo
     .createQueryBuilder("e")
     .select(["e.id", "e.toStage", "e.fromStage"])
@@ -206,13 +206,13 @@ async function scanEnumColumns(em: EntityManager): Promise<void> {
     totalLower += lowerFromStage.length;
   }
 
-  const appRepo = em.getRepository(ApplicationEntity);
-  const allApps = await appRepo
+  const jobRepo = em.getRepository(JobEntity);
+  const allJobs = await jobRepo
     .createQueryBuilder("a")
     .select(["a.id", "a.source", "a.salaryPeriod"])
     .getMany();
 
-  const lowerSource = allApps.filter(
+  const lowerSource = allJobs.filter(
     (a) => a.source && a.source !== upper(a.source),
   );
   if (lowerSource.length > 0) {
@@ -222,7 +222,7 @@ async function scanEnumColumns(em: EntityManager): Promise<void> {
     totalLower += lowerSource.length;
   }
 
-  const lowerPeriod = allApps.filter(
+  const lowerPeriod = allJobs.filter(
     (a) => a.salaryPeriod && a.salaryPeriod !== upper(a.salaryPeriod),
   );
   if (lowerPeriod.length > 0) {

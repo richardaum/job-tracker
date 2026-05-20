@@ -1,6 +1,6 @@
 import { SourceRunEntity } from "@api/database/entities/source-run.entity";
 import { SourceTemplateEntity } from "@api/database/entities/source-template.entity";
-import { ApplicationRepository } from "@api/domains/applications/applications.repository";
+import { JobsRepository } from "@api/domains/jobs/jobs.repository";
 import { SourceProfileRegistryService } from "@api/domains/sources/source-profile-registry.service";
 import { SourceRunEventTypeEnum } from "@api/domains/sources/source-run-event-type.enum";
 import { SourceRunStatusEnum } from "@api/domains/sources/source-run-status.enum";
@@ -59,10 +59,9 @@ describe("SourcesService", () => {
     listTemplatesByUserAndSourceProfileId: vi.fn(),
   };
 
-  const applicationRepo: Pick<
-    ApplicationRepository,
-    "detachApplicationsSourceRun"
-  > = { detachApplicationsSourceRun: vi.fn() };
+  const jobRepo: Pick<JobsRepository, "detachJobsSourceRun"> = {
+    detachJobsSourceRun: vi.fn(),
+  };
 
   const eventsPublisher: SourcesEventsPublisher = {
     publish: vi.fn(),
@@ -78,7 +77,7 @@ describe("SourcesService", () => {
   const service = new SourcesService(
     repo as SourcesRepository,
     sourceProfileRegistry,
-    applicationRepo as ApplicationRepository,
+    jobRepo as JobsRepository,
     eventsPublisher,
   );
 
@@ -467,11 +466,11 @@ describe("SourcesService", () => {
     });
   });
 
-  it("detachApplicationsFromSourceRun delegates to application repository", async () => {
+  it("detachJobsFromSourceRun delegates to job repository", async () => {
     vi.mocked(repo.findByUserAndId).mockResolvedValue(
       runWithTemplate("remoteyeah"),
     );
-    vi.mocked(applicationRepo.detachApplicationsSourceRun).mockResolvedValue(3);
+    vi.mocked(jobRepo.detachJobsSourceRun).mockResolvedValue(3);
 
     const result = await service.detachApplicationsFromSourceRun(
       "user-1",
@@ -479,9 +478,6 @@ describe("SourcesService", () => {
     );
 
     expect(result).toBe(3);
-    expect(applicationRepo.detachApplicationsSourceRun).toHaveBeenCalledWith(
-      "run-1",
-      "user-1",
-    );
+    expect(jobRepo.detachJobsSourceRun).toHaveBeenCalledWith("run-1", "user-1");
   });
 });

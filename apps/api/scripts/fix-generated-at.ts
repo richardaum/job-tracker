@@ -2,7 +2,7 @@ import "reflect-metadata";
 import "dotenv/config";
 
 import { buildDataSourceOptions } from "@api/database/data-source-options";
-import { ApplicationEntity } from "@api/database/entities/application.entity";
+import { JobEntity } from "@api/database/entities/job.entity";
 import {
   AsyncMetadata,
   AsyncMetadataStatusEnum,
@@ -18,7 +18,7 @@ import { EntityManager, IsNull, Not } from "typeorm";
     TypeOrmModule.forRoot({
       ...buildDataSourceOptions(process.env.DATABASE_URL!),
     }),
-    TypeOrmModule.forFeature([ApplicationEntity]),
+    TypeOrmModule.forFeature([JobEntity]),
   ],
 })
 class ScriptModule {}
@@ -34,7 +34,7 @@ async function main() {
   });
 
   const em = app.get(EntityManager);
-  const repo = em.getRepository(ApplicationEntity);
+  const repo = em.getRepository(JobEntity);
   const dryRun = process.argv.includes("--dry-run");
 
   process.stdout.write("\nFixing generatedAt...\n");

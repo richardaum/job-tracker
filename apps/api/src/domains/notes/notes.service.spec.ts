@@ -1,4 +1,4 @@
-import { ApplicationEventBus } from "@api/domains/applications/application-event.bus";
+import { JobEventBus } from "@api/domains/jobs/job-event.bus";
 import {
   BadRequestException,
   ConflictException,
@@ -14,7 +14,7 @@ import { NoteService } from "./notes.service";
 const makeNote = (overrides: Partial<Note> = {}): Note =>
   ({
     id: "note-1",
-    applicationId: "app-1",
+    jobId: "app-1",
     userId: "user-1",
     content: JSON.stringify({ type: "doc", content: [{ type: "paragraph" }] }),
     revision: 1,
@@ -27,13 +27,13 @@ describe("NoteService", () => {
   let service: NoteService;
   let repo: NoteRepository;
   let noteAiService: NoteGenerationService;
-  let eventBus: ApplicationEventBus;
+  let eventBus: JobEventBus;
 
   beforeEach(() => {
     repo = {
-      hasApplication: vi.fn(),
+      hasJob: vi.fn(),
       findApplicationByIdAndUserId: vi.fn(),
-      findByApplicationIdAndUserId: vi.fn(),
+      findByJobIdAndUserId: vi.fn(),
       findByIdAndUserId: vi.fn(),
       create: vi.fn(),
       updateWithRevision: vi.fn(),
@@ -43,23 +43,21 @@ describe("NoteService", () => {
     noteAiService = {
       generateNote: vi.fn(),
     } as unknown as NoteGenerationService;
-    eventBus = { emit: vi.fn() } as unknown as ApplicationEventBus;
+    eventBus = { emit: vi.fn() } as unknown as JobEventBus;
     service = new NoteService(repo, noteAiService, eventBus);
   });
 
-  it("listNotes throws when application is not found", async () => {
-    vi.mocked(repo.hasApplication).mockResolvedValue(false);
+  it("listNotes throws when job is not found", async () => {
+    vi.mocked(repo.hasJob).mockResolvedValue(false);
 
     await expect(service.listNotes("app-1", "user-1")).rejects.toThrow(
       NotFoundException,
     );
   });
 
-  it("listNotes returns notes for owned application", async () => {
-    vi.mocked(repo.hasApplication).mockResolvedValue(true);
-    vi.mocked(repo.findByApplicationIdAndUserId).mockResolvedValue([
-      makeNote(),
-    ]);
+  it("listNotes returns notes for owned job", async () => {
+    vi.mocked(repo.hasJob).mockResolvedValue(true);
+    vi.mocked(repo.findByJobIdAndUserId).mockResolvedValue([makeNote()]);
 
     const notes = await service.listNotes("app-1", "user-1");
     expect(notes).toHaveLength(1);
@@ -67,19 +65,16 @@ describe("NoteService", () => {
 
   it("createNote validates TipTap JSON", async () => {
     await expect(
-      service.createNote("user-1", {
-        applicationId: "app-1",
-        content: "plain text",
-      }),
+      service.createNote("user-1", { jobId: "app-1", content: "plain text" }),
     ).rejects.toThrow(BadRequestException);
   });
 
-  it("createNote throws when application does not exist", async () => {
-    vi.mocked(repo.hasApplication).mockResolvedValue(false);
+  it("createNote throws when job does not exist", async () => {
+    vi.mocked(repo.hasJob).mockResolvedValue(false);
 
     await expect(
       service.createNote("user-1", {
-        applicationId: "app-1",
+        jobId: "app-1",
         content: JSON.stringify({
           type: "doc",
           content: [{ type: "paragraph" }],
@@ -89,11 +84,11 @@ describe("NoteService", () => {
   });
 
   it("createNote creates note when valid", async () => {
-    vi.mocked(repo.hasApplication).mockResolvedValue(true);
+    vi.mocked(repo.hasJob).mockResolvedValue(true);
     vi.mocked(repo.create).mockResolvedValue(makeNote());
 
     const created = await service.createNote("user-1", {
-      applicationId: "app-1",
+      jobId: "app-1",
       content: JSON.stringify({
         type: "doc",
         content: [{ type: "paragraph" }],
@@ -171,7 +166,7 @@ describe("NoteService", () => {
     expect(deleted.id).toBe("note-1");
   });
 
-  it("generateNoteWithAI throws when application is not found", async () => {
+  it("generateNoteWithAI throws when job is not found", async () => {
     vi.mocked(repo.findApplicationByIdAndUserId).mockResolvedValue(null);
 
     await expect(

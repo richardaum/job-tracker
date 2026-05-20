@@ -1,8 +1,5 @@
-import type { ApplicationNoteEntity } from "@api/database/entities/application-note.entity";
+import type { JobNoteEntity } from "@api/database/entities/job-note.entity";
 
-export type Note = Omit<ApplicationNoteEntity, "setId">;
+export type Note = Omit<JobNoteEntity, "setId">;
 
-export type NewNote = Pick<
-  ApplicationNoteEntity,
-  "applicationId" | "userId" | "content"
->;
+export type NewNote = Pick<JobNoteEntity, "jobId" | "userId" | "content">;
