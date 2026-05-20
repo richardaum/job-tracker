@@ -34,8 +34,16 @@ export class MatchAnalysisResolver {
     return this.service.findAll(user.userId);
   }
 
-  @Query(() => MatchAnalysisType, { nullable: true })
+  @Query(() => MatchAnalysisType)
   async match(
+    @Args("id", { type: () => ID }) id: string,
+    @CurrentUser() user: { userId: string },
+  ): Promise<MatchAnalysisType> {
+    return this.service.findById(id, user.userId);
+  }
+
+  @Query(() => MatchAnalysisType, { nullable: true })
+  async jobMatch(
     @Args("jobId", { type: () => ID }) jobId: string,
     @CurrentUser() user: { userId: string },
   ): Promise<MatchAnalysisType | null> {

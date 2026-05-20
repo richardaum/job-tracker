@@ -270,7 +270,8 @@ type Query {
   resume(id: ID!): ResumeType!
   workPreferences: [PreferenceType!]!
   matchAnalyses: [MatchAnalysisType!]!
-  match(jobId: ID!): MatchAnalysisType
+  match(id: ID!): MatchAnalysisType!
+  jobMatch(jobId: ID!): MatchAnalysisType
   draftJobMatch(draftJobId: ID!): MatchAnalysisType
   rewriteTextWithAI(text: String!): String!
   restructureJobDescriptionWithAI(text: String!): String!
