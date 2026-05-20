@@ -1,4 +1,4 @@
-import type { ConversionMetadata } from "@api/database/entities/draft-job.entity";
+import type { ConversionMetadataEmbedded } from "@api/database/embeddeds/conversion-metadata.embedded";
 import { DraftJobEntity } from "@api/database/entities/draft-job.entity";
 import { DraftJobType } from "@api/domains/draft-jobs/draft-job.type";
 import {
@@ -73,9 +73,9 @@ export class DraftJobsService implements OnModuleInit {
   async updateConversionMetadata(
     id: string,
     userId: string,
-    expectedStatus: Pick<ConversionMetadata, "status"> | null,
-    patch: Partial<ConversionMetadata> & {
-      status: ConversionMetadata["status"];
+    expectedStatus: Pick<ConversionMetadataEmbedded, "status"> | null,
+    patch: Partial<ConversionMetadataEmbedded> & {
+      status: ConversionMetadataEmbedded["status"];
     },
   ): Promise<boolean> {
     return this.repo.updateConversionMetadata(

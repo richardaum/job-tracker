@@ -369,7 +369,7 @@ export class JobsService {
           {
             status: DraftJobConversionStatusEnum.FAILED,
             error: appliedError.message,
-            timestamp: new Date().toISOString(),
+            timestamp: new Date(),
           },
         );
         this.draftEventBus.emit(
@@ -394,10 +394,7 @@ export class JobsService {
       draftId,
       userId,
       { status: DraftJobConversionStatusEnum.PROCESSING },
-      {
-        status: DraftJobConversionStatusEnum.SUCCEEDED,
-        timestamp: new Date().toISOString(),
-      },
+      { status: DraftJobConversionStatusEnum.SUCCEEDED, timestamp: new Date() },
     );
 
     this.draftEventBus.emit(
@@ -628,7 +625,7 @@ export class JobsService {
         {
           status: DraftJobConversionStatusEnum.FAILED,
           error: errorMessage,
-          timestamp: new Date().toISOString(),
+          timestamp: new Date(),
         },
       ),
     );

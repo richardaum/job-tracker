@@ -137,7 +137,8 @@ export class MatchAnalysisService implements OnModuleInit {
     entity.resumeId = resumeId;
     entity.generationMetadata = {
       status: AsyncMetadataStatusEnum.PROCESSING,
-      timestamp: new Date().toISOString(),
+      error: null,
+      timestamp: new Date(),
     };
     entity.items = [];
     entity.scoreRatio = null;
@@ -193,7 +194,8 @@ export class MatchAnalysisService implements OnModuleInit {
     entity.resumeId = resumeId;
     entity.generationMetadata = {
       status: AsyncMetadataStatusEnum.PROCESSING,
-      timestamp: new Date().toISOString(),
+      error: null,
+      timestamp: new Date(),
     };
     entity.items = [];
     entity.scoreRatio = null;
@@ -302,7 +304,8 @@ export class MatchAnalysisService implements OnModuleInit {
         {
           generationMetadata: {
             status: AsyncMetadataStatusEnum.COMPLETED,
-            timestamp: new Date().toISOString(),
+            error: null,
+            timestamp: new Date(),
           },
           resumeId: resume.resumeId,
           items,
@@ -343,7 +346,7 @@ export class MatchAnalysisService implements OnModuleInit {
           generationMetadata: {
             status: AsyncMetadataStatusEnum.FAILED,
             error: err instanceof Error ? err.message : "Unknown error",
-            timestamp: new Date().toISOString(),
+            timestamp: new Date(),
           },
         },
         userId,

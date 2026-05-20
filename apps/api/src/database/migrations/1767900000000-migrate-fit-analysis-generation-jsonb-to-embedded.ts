@@ -5,17 +5,17 @@ export class MigrateFitAnalysisGenerationJsonbToEmbedded1767900000000 implements
 
   async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
-      `ALTER TABLE "fit_analysis" ADD COLUMN "generation_status" text NULL`,
+      `ALTER TABLE "match_analysis" ADD COLUMN "generation_status" text NULL`,
     );
     await queryRunner.query(
-      `ALTER TABLE "fit_analysis" ADD COLUMN "generation_error" text NULL`,
+      `ALTER TABLE "match_analysis" ADD COLUMN "generation_error" text NULL`,
     );
     await queryRunner.query(
-      `ALTER TABLE "fit_analysis" ADD COLUMN "generation_timestamp" timestamptz NULL`,
+      `ALTER TABLE "match_analysis" ADD COLUMN "generation_timestamp" timestamptz NULL`,
     );
 
     await queryRunner.query(`
-      UPDATE "fit_analysis"
+      UPDATE "match_analysis"
       SET
         "generation_status" = "generation_metadata"->>'status',
         "generation_error" = "generation_metadata"->>'error',
@@ -24,17 +24,17 @@ export class MigrateFitAnalysisGenerationJsonbToEmbedded1767900000000 implements
     `);
 
     await queryRunner.query(
-      `ALTER TABLE "fit_analysis" DROP COLUMN "generation_metadata"`,
+      `ALTER TABLE "match_analysis" DROP COLUMN "generation_metadata"`,
     );
   }
 
   async down(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
-      `ALTER TABLE "fit_analysis" ADD COLUMN "generation_metadata" jsonb NULL`,
+      `ALTER TABLE "match_analysis" ADD COLUMN "generation_metadata" jsonb NULL`,
     );
 
     await queryRunner.query(`
-      UPDATE "fit_analysis"
+      UPDATE "match_analysis"
       SET "generation_metadata" = jsonb_build_object(
         'status', "generation_status",
         'error', "generation_error",
@@ -44,13 +44,13 @@ export class MigrateFitAnalysisGenerationJsonbToEmbedded1767900000000 implements
     `);
 
     await queryRunner.query(
-      `ALTER TABLE "fit_analysis" DROP COLUMN "generation_status"`,
+      `ALTER TABLE "match_analysis" DROP COLUMN "generation_status"`,
     );
     await queryRunner.query(
-      `ALTER TABLE "fit_analysis" DROP COLUMN "generation_error"`,
+      `ALTER TABLE "match_analysis" DROP COLUMN "generation_error"`,
     );
     await queryRunner.query(
-      `ALTER TABLE "fit_analysis" DROP COLUMN "generation_timestamp"`,
+      `ALTER TABLE "match_analysis" DROP COLUMN "generation_timestamp"`,
     );
   }
 }

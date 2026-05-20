@@ -1,4 +1,4 @@
-import type { ConversionMetadata } from "@api/database/entities/draft-job.entity";
+import type { ConversionMetadataEmbedded } from "@api/database/embeddeds/conversion-metadata.embedded";
 import {
   DraftJobConversionStatusEnum,
   DraftJobEntity,
@@ -88,9 +88,9 @@ export class DraftJobsRepository {
   async updateConversionMetadata(
     id: string,
     userId: string,
-    expectedStatus: Pick<ConversionMetadata, "status"> | null,
-    patch: Partial<ConversionMetadata> & {
-      status: ConversionMetadata["status"];
+    expectedStatus: Pick<ConversionMetadataEmbedded, "status"> | null,
+    patch: Partial<ConversionMetadataEmbedded> & {
+      status: ConversionMetadataEmbedded["status"];
     },
   ): Promise<boolean> {
     const patchJson = JSON.stringify(patch);

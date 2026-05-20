@@ -6,57 +6,57 @@ export class RenameEmbeddedColumnsToSnakeCase1768000000000 implements MigrationI
   async up(queryRunner: QueryRunner): Promise<void> {
     await this.safeRenameColumn(
       queryRunner,
-      "applications",
+      "jobs",
       "summary_Status",
       "summary_status",
     );
     await this.safeRenameColumn(
       queryRunner,
-      "applications",
+      "jobs",
       "summary_Error",
       "summary_error",
     );
     await this.safeRenameColumn(
       queryRunner,
-      "applications",
+      "jobs",
       "summary_Timestamp",
       "summary_timestamp",
     );
 
     await this.safeRenameColumn(
       queryRunner,
-      "draft_applications",
+      "draft_jobs",
       "conversion_Status",
       "conversion_status",
     );
     await this.safeRenameColumn(
       queryRunner,
-      "draft_applications",
+      "draft_jobs",
       "conversion_Error",
       "conversion_error",
     );
     await this.safeRenameColumn(
       queryRunner,
-      "draft_applications",
+      "draft_jobs",
       "conversion_Timestamp",
       "conversion_timestamp",
     );
 
     await this.safeRenameColumn(
       queryRunner,
-      "fit_analysis",
+      "match_analysis",
       "generation_Status",
       "generation_status",
     );
     await this.safeRenameColumn(
       queryRunner,
-      "fit_analysis",
+      "match_analysis",
       "generation_Error",
       "generation_error",
     );
     await this.safeRenameColumn(
       queryRunner,
-      "fit_analysis",
+      "match_analysis",
       "generation_Timestamp",
       "generation_timestamp",
     );
@@ -65,57 +65,57 @@ export class RenameEmbeddedColumnsToSnakeCase1768000000000 implements MigrationI
   async down(queryRunner: QueryRunner): Promise<void> {
     await this.safeRenameColumn(
       queryRunner,
-      "applications",
+      "jobs",
       "summary_status",
       "summary_Status",
     );
     await this.safeRenameColumn(
       queryRunner,
-      "applications",
+      "jobs",
       "summary_error",
       "summary_Error",
     );
     await this.safeRenameColumn(
       queryRunner,
-      "applications",
+      "jobs",
       "summary_timestamp",
       "summary_Timestamp",
     );
 
     await this.safeRenameColumn(
       queryRunner,
-      "draft_applications",
+      "draft_jobs",
       "conversion_status",
       "conversion_Status",
     );
     await this.safeRenameColumn(
       queryRunner,
-      "draft_applications",
+      "draft_jobs",
       "conversion_error",
       "conversion_Error",
     );
     await this.safeRenameColumn(
       queryRunner,
-      "draft_applications",
+      "draft_jobs",
       "conversion_timestamp",
       "conversion_Timestamp",
     );
 
     await this.safeRenameColumn(
       queryRunner,
-      "fit_analysis",
+      "match_analysis",
       "generation_status",
       "generation_Status",
     );
     await this.safeRenameColumn(
       queryRunner,
-      "fit_analysis",
+      "match_analysis",
       "generation_error",
       "generation_Error",
     );
     await this.safeRenameColumn(
       queryRunner,
-      "fit_analysis",
+      "match_analysis",
       "generation_timestamp",
       "generation_Timestamp",
     );

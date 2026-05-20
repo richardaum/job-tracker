@@ -1,9 +1,9 @@
-import { DraftApplicationConversionStatusEnum } from "@api/database/entities/draft-application.entity";
+import { DraftJobConversionStatusEnum } from "@api/database/entities/draft-job.entity";
 import { Column } from "typeorm";
 
 export class ConversionMetadataEmbedded {
   @Column({ type: "text", nullable: true })
-  status!: DraftApplicationConversionStatusEnum | null;
+  status!: DraftJobConversionStatusEnum | null;
 
   @Column({ type: "text", nullable: true })
   error!: string | null;

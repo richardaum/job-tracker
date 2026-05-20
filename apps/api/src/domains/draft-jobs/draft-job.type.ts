@@ -8,14 +8,14 @@ registerEnumType(DraftJobConversionStatusEnum, {
 
 @ObjectType()
 export class ConversionMetadataType {
-  @Field(() => DraftJobConversionStatusEnum)
-  status!: DraftJobConversionStatusEnum;
+  @Field(() => DraftJobConversionStatusEnum, { nullable: true })
+  status?: DraftJobConversionStatusEnum | null;
 
   @Field(() => String, { nullable: true })
   error?: string | null;
 
-  @Field(() => String, { nullable: true })
-  timestamp?: string | null;
+  @Field(() => Date, { nullable: true })
+  timestamp?: Date | null;
 }
 
 @ObjectType()

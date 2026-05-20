@@ -5,17 +5,17 @@ export class MigrateApplicationSummaryJsonbToEmbedded1767800000000 implements Mi
 
   async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
-      `ALTER TABLE "applications" ADD COLUMN "summary_status" text NULL`,
+      `ALTER TABLE "jobs" ADD COLUMN "summary_status" text NULL`,
     );
     await queryRunner.query(
-      `ALTER TABLE "applications" ADD COLUMN "summary_error" text NULL`,
+      `ALTER TABLE "jobs" ADD COLUMN "summary_error" text NULL`,
     );
     await queryRunner.query(
-      `ALTER TABLE "applications" ADD COLUMN "summary_timestamp" timestamptz NULL`,
+      `ALTER TABLE "jobs" ADD COLUMN "summary_timestamp" timestamptz NULL`,
     );
 
     await queryRunner.query(`
-      UPDATE "applications"
+      UPDATE "jobs"
       SET
         "summary_status" = "summary_metadata"->>'status',
         "summary_error" = "summary_metadata"->>'error',
@@ -24,17 +24,17 @@ export class MigrateApplicationSummaryJsonbToEmbedded1767800000000 implements Mi
     `);
 
     await queryRunner.query(
-      `ALTER TABLE "applications" DROP COLUMN "summary_metadata"`,
+      `ALTER TABLE "jobs" DROP COLUMN "summary_metadata"`,
     );
   }
 
   async down(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
-      `ALTER TABLE "applications" ADD COLUMN "summary_metadata" jsonb NULL`,
+      `ALTER TABLE "jobs" ADD COLUMN "summary_metadata" jsonb NULL`,
     );
 
     await queryRunner.query(`
-      UPDATE "applications"
+      UPDATE "jobs"
       SET "summary_metadata" = jsonb_build_object(
         'status', "summary_status",
         'error', "summary_error",
@@ -43,14 +43,10 @@ export class MigrateApplicationSummaryJsonbToEmbedded1767800000000 implements Mi
       WHERE "summary_status" IS NOT NULL
     `);
 
+    await queryRunner.query(`ALTER TABLE "jobs" DROP COLUMN "summary_status"`);
+    await queryRunner.query(`ALTER TABLE "jobs" DROP COLUMN "summary_error"`);
     await queryRunner.query(
-      `ALTER TABLE "applications" DROP COLUMN "summary_status"`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "applications" DROP COLUMN "summary_error"`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "applications" DROP COLUMN "summary_timestamp"`,
+      `ALTER TABLE "jobs" DROP COLUMN "summary_timestamp"`,
     );
   }
 }
