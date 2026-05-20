@@ -41,6 +41,7 @@ packages/*/dist/
 **/test-results/
 **/playwright-report/
 **/blob-report/
+.playwright-mcp/
 
 # Storybook — `build-storybook` default output (packages/ui)
 storybook-static/
