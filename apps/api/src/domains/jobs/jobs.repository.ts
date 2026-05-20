@@ -61,18 +61,21 @@ export class JobsRepository {
     const qb = this.jobsRepo
       .createQueryBuilder("a")
       .leftJoinAndSelect("a.company", "company")
-      .where("a.user_id = :userId", { userId })
-      .orderBy(
-        `(
-          SELECT COALESCE(e.schedule_at, e.created_at)
-          FROM job_stage_events e
-          WHERE e.job_id = a.id AND e.user_id = :userId
-          ORDER BY COALESCE(e.schedule_at, e.created_at) DESC, e.created_at DESC, e.id DESC
-          LIMIT 1
-        )`,
-        "DESC",
-        "NULLS LAST",
-      );
+      .where("a.user_id = :userId", { userId });
+
+    const latestTimestampSubQuery = qb
+      .subQuery()
+      .select("COALESCE(e.schedule_at, e.created_at)")
+      .from(JobStageEventEntity, "e")
+      .where("e.job_id = a.id")
+      .andWhere("e.user_id = :userId")
+      .orderBy("COALESCE(e.schedule_at, e.created_at)", "DESC")
+      .addOrderBy("e.created_at", "DESC")
+      .addOrderBy("e.id", "DESC")
+      .limit(1)
+      .getQuery();
+
+    qb.orderBy(`(${latestTimestampSubQuery})`, "DESC", "NULLS LAST");
 
     const normalizedCompany = company?.trim();
     if (normalizedCompany) {
@@ -90,12 +93,17 @@ export class JobsRepository {
       return qb.getMany();
     }
 
-    const latestStageSub = `(
-      SELECT e.to_stage FROM job_stage_events e
-      WHERE e.job_id = a.id AND e.user_id = :userId
-      ORDER BY COALESCE(e.schedule_at, e.created_at) DESC, e.created_at DESC, e.id DESC
-      LIMIT 1
-    )`;
+    const latestStageSub = `(${qb
+      .subQuery()
+      .select("e.to_stage")
+      .from(JobStageEventEntity, "e")
+      .where("e.job_id = a.id")
+      .andWhere("e.user_id = :userId")
+      .orderBy("COALESCE(e.schedule_at, e.created_at)", "DESC")
+      .addOrderBy("e.created_at", "DESC")
+      .addOrderBy("e.id", "DESC")
+      .limit(1)
+      .getQuery()})`;
 
     if (filter === ApplicationQuickFilterEnum.NEW) {
       qb.andWhere(`${latestStageSub} = :stage`, {
@@ -131,11 +139,14 @@ export class JobsRepository {
           ApplicationStageEnum.DUPLICATED,
         ],
       }).andWhere(
-        `EXISTS (
-          SELECT 1 FROM job_stage_events e
-          WHERE e.job_id = a.id AND e.user_id = :userId
-          AND e.schedule_at >= :today
-        )`,
+        `EXISTS ${qb
+          .subQuery()
+          .select("1")
+          .from(JobStageEventEntity, "e")
+          .where("e.job_id = a.id")
+          .andWhere("e.user_id = :userId")
+          .andWhere("e.schedule_at >= :today")
+          .getQuery()}`,
         { userId, today: new Date(new Date().setHours(0, 0, 0, 0)) },
       );
     }
