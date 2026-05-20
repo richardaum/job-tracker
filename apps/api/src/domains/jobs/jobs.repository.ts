@@ -247,7 +247,7 @@ export class JobsRepository {
   async findDraftJobId(id: string, userId: string): Promise<string | null> {
     const row = await this.jobsRepo
       .createQueryBuilder("a")
-      .select("a.draft_application_id", "draftJobId")
+      .select("a.draft_job_id", "draftJobId")
       .where("a.id = :id AND a.user_id = :userId", { id, userId })
       .getRawOne<{ draftJobId: string }>();
 

@@ -32,7 +32,7 @@ export class DraftJobsRepository {
     const row = await this.applicationsRepo
       .createQueryBuilder("a")
       .select("a.id", "id")
-      .where("a.draft_application_id = :draftId", { draftId })
+      .where("a.draft_job_id = :draftId", { draftId })
       .orderBy("a.created_at", "DESC")
       .getRawOne<{ id: string }>();
 
@@ -44,7 +44,7 @@ export class DraftJobsRepository {
       .createQueryBuilder()
       .delete()
       .from(JobEntity)
-      .where("draft_application_id = :draftId AND user_id = :userId", {
+      .where("draft_job_id = :draftId AND user_id = :userId", {
         draftId,
         userId,
       })
