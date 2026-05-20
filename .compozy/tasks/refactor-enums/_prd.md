@@ -52,6 +52,12 @@
 
 ---
 
+### Phase 5 — Migrate new enum keys to PascalCase
+
+Alinha chaves dos 5 novos enums com o codegen (API `.Manual` = web `.Manual`). Detalhes em [`tasks/T-286-pascalcase-enum-migration.md`](./tasks/T-286-pascalcase-enum-migration.md).
+
+---
+
 ## Dependencies
 
 ```
