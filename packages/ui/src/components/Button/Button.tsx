@@ -75,13 +75,21 @@ export function Button({
       aria-busy={isLoading ? true : undefined}
       className={classes}
     >
-      {isLoading ? (
-        <CircleNotchIcon className={cn("animate-spin")} size={16} />
-      ) : leftIcon ? (
-        <span aria-hidden>{leftIcon}</span>
-      ) : null}
-      {children}
-      {!isLoading && rightIcon ? <span aria-hidden>{rightIcon}</span> : null}
+      {asChild ? (
+        children
+      ) : (
+        <>
+          {isLoading ? (
+            <CircleNotchIcon className={cn("animate-spin")} size={16} />
+          ) : leftIcon ? (
+            <span aria-hidden>{leftIcon}</span>
+          ) : null}
+          {children}
+          {!isLoading && rightIcon ? (
+            <span aria-hidden>{rightIcon}</span>
+          ) : null}
+        </>
+      )}
     </Component>
   );
 }
