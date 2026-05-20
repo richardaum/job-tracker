@@ -1,5 +1,6 @@
 import { WithGeneratedId } from "@api/database/decorators/with-generated-id.decorator";
 import { ApplicationStageEnum } from "@api/domains/applications/application-stage.enum";
+import { StageEventSourceEnum } from "@api/domains/applications/stage-event-source.enum";
 import { Column, CreateDateColumn, Entity, PrimaryColumn } from "typeorm";
 
 @WithGeneratedId()
@@ -31,8 +32,13 @@ export class ApplicationStageEventEntity {
   })
   toStage!: ApplicationStageEnum;
 
-  @Column({ type: "text", default: "manual" })
-  source!: string;
+  @Column({
+    type: "enum",
+    enum: StageEventSourceEnum,
+    enumName: "stage_event_source",
+    default: StageEventSourceEnum.MANUAL,
+  })
+  source!: StageEventSourceEnum;
 
   @Column({ type: "text", nullable: true })
   reason!: string | null;

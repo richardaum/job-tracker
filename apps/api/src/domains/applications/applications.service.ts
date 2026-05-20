@@ -40,6 +40,7 @@ import {
 import { Application } from "./applications.schema";
 import { SalaryService } from "./salary/salary.service";
 import { SalaryPeriodEnum } from "./salary/salary-period.enum";
+import { StageEventSourceEnum } from "./stage-event-source.enum";
 import { TagService } from "./tags/tag.service";
 
 type CreateDto = {
@@ -63,7 +64,7 @@ type UpdateDto = Partial<CreateDto>;
 type CreateStageEventDto = {
   applicationId: string;
   toStage: ApplicationStageEnum;
-  source?: string;
+  source?: StageEventSourceEnum;
   reason?: string | null;
   scheduledAt?: Date;
 };
@@ -244,7 +245,7 @@ export class ApplicationService {
     await this.repo.createStageEvent(userId, application.id, {
       fromStage: null,
       toStage: initialStage,
-      source: "system",
+      source: StageEventSourceEnum.SYSTEM,
       reason: null,
       scheduledAt: null,
     });
@@ -363,7 +364,7 @@ export class ApplicationService {
         this.createStageEvent(userId, {
           applicationId: created.id,
           toStage: ApplicationStageEnum.APPLIED,
-          source: "system",
+          source: StageEventSourceEnum.SYSTEM,
         }),
       );
 
@@ -561,7 +562,7 @@ export class ApplicationService {
     const event = await this.repo.createStageEvent(userId, dto.applicationId, {
       fromStage: latest?.toStage ?? null,
       toStage: dto.toStage,
-      source: dto.source ?? "manual",
+      source: dto.source ?? StageEventSourceEnum.MANUAL,
       reason: dto.reason ?? null,
       scheduledAt: dto.scheduledAt ?? null,
     });

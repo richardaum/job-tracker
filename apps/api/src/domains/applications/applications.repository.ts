@@ -15,6 +15,7 @@ import {
   NewApplicationStageEvent,
 } from "./application-stage-events.schema";
 import { Application, NewApplication } from "./applications.schema";
+import { StageEventSourceEnum } from "./stage-event-source.enum";
 
 export type CreateApplicationRepoDto = Pick<
   NewApplication,
@@ -386,7 +387,7 @@ export class ApplicationRepository {
       applicationId,
       fromStage: dto.fromStage ?? null,
       toStage: dto.toStage,
-      source: dto.source ?? "manual",
+      source: dto.source ?? StageEventSourceEnum.MANUAL,
       reason: dto.reason ?? null,
       scheduledAt: dto.scheduledAt ?? null,
     });

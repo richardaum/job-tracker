@@ -15,6 +15,7 @@ import React, { useMemo, useState } from "react";
 import {
   ApplicationStage,
   ApplicationStageEventsDocument,
+  StageEventSource,
   useCreateApplicationStageEventMutation,
 } from "@/gql/hooks";
 import { formatStage } from "@/modules/applications/details/utils/application-details.shared";
@@ -105,7 +106,7 @@ export function UpdateStatusAction({
             applicationId,
             toStage: selectedStage,
             scheduledAt: buildScheduledAtWithBrowserTimezone(scheduledAtValue),
-            source: "manual",
+            source: StageEventSource.Manual,
             reason: reasonDraft.trim() || null,
           },
         },

@@ -1,6 +1,7 @@
 import { Field, InputType } from "@nestjs/graphql";
 
 import { ApplicationStageEnum } from "./application-stage.enum";
+import { StageEventSourceEnum } from "./stage-event-source.enum";
 
 @InputType()
 export class CreateApplicationStageEventInput {
@@ -10,8 +11,8 @@ export class CreateApplicationStageEventInput {
   @Field(() => ApplicationStageEnum)
   toStage!: ApplicationStageEnum;
 
-  @Field({ nullable: true })
-  source?: string;
+  @Field(() => StageEventSourceEnum, { nullable: true })
+  source?: StageEventSourceEnum;
 
   @Field(() => String, { nullable: true })
   reason?: string;

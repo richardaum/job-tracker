@@ -18,6 +18,7 @@ import {
   ApplicationStage,
   ApplicationStageEventsDocument,
   type ApplicationStageEventsQuery,
+  StageEventSource,
   useCreateApplicationStageEventMutation,
 } from "@/gql/hooks";
 import {
@@ -104,7 +105,7 @@ export function ApplicationTrackingPanel({
             applicationId,
             toStage: selectedStageDraft,
             scheduledAt: buildScheduledAtWithBrowserTimezone(scheduledAtValue),
-            source: "manual",
+            source: StageEventSource.Manual,
             reason: reasonDraft.trim() || null,
           },
         },
