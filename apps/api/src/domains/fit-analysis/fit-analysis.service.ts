@@ -27,6 +27,7 @@ import { FitAnalysisRepository } from "./fit-analysis.repository";
 import { FitAnalysis } from "./fit-analysis.schema";
 import { FitAnalysisAiService } from "./fit-analysis-ai.service";
 import { FitAnalysisEventBus } from "./fit-analysis-event.bus";
+import { FitSourceEnum } from "./fit-source.enum";
 import { computeScore } from "./scoring/scoring";
 
 @Injectable()
@@ -276,7 +277,7 @@ export class FitAnalysisService implements OnModuleInit {
         ...resumeFitItems.map(
           (i): FitItem => ({
             requirement: i.requirement,
-            source: "resume",
+            source: FitSourceEnum.RESUME,
             type: i.type as RequirementTypeEnum,
             verdict: i.verdict,
             jdQuote: i.jdQuote,
@@ -288,7 +289,7 @@ export class FitAnalysisService implements OnModuleInit {
           const original = preferenceItems[index];
           return {
             requirement: i.requirement,
-            source: "preference",
+            source: FitSourceEnum.PREFERENCE,
             weight: original?.weight,
             type: i.type as RequirementTypeEnum,
             verdict: i.verdict,

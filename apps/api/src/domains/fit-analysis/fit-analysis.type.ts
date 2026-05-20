@@ -2,6 +2,7 @@ import { type FitItem } from "@api/database/entities/fit-analysis.entity";
 import { AsyncMetadataType } from "@api/domains/shared/async-metadata.type";
 import { Field, Float, ID, Int, ObjectType } from "@nestjs/graphql";
 
+import { FitClassificationEnum } from "./fit-classification.enum";
 import { FitItemType } from "./fit-item.type";
 
 @ObjectType()
@@ -24,8 +25,8 @@ export class FitAnalysisType {
   @Field(() => Float, { nullable: true })
   scoreRatio!: number | null;
 
-  @Field(() => String, { nullable: true })
-  classification!: string | null;
+  @Field(() => FitClassificationEnum, { nullable: true })
+  classification!: FitClassificationEnum | null;
 
   @Field(() => Int)
   fitCount!: number;

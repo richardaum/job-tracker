@@ -1,0 +1,96 @@
+import "reflect-metadata";
+import "dotenv/config";
+
+import { buildDataSourceOptions } from "@api/database/data-source-options";
+import {
+  FitAnalysisEntity,
+  type FitItem,
+} from "@api/database/entities/fit-analysis.entity";
+import { FitVerdictEnum } from "@api/domains/fit-analysis/fit-verdict.enum";
+import { tryRun } from "@job-tracker/try-run";
+import { Module } from "@nestjs/common";
+import { NestFactory } from "@nestjs/core";
+import { TypeOrmModule } from "@nestjs/typeorm";
+import { EntityManager } from "typeorm";
+
+@Module({
+  imports: [
+    TypeOrmModule.forRoot({
+      ...buildDataSourceOptions(process.env.DATABASE_URL!),
+    }),
+    TypeOrmModule.forFeature([FitAnalysisEntity]),
+  ],
+})
+class ScriptModule {}
+
+function upper(val: string | null | undefined): string | null | undefined {
+  return val?.toUpperCase();
+}
+
+function normalizeVerdict(
+  verdict: string | null | undefined,
+): FitVerdictEnum | undefined {
+  if (!verdict) return undefined;
+  const upperVerdict = upper(verdict)! as FitVerdictEnum;
+  if (
+    upperVerdict === FitVerdictEnum.FIT ||
+    upperVerdict === FitVerdictEnum.GAP ||
+    upperVerdict === FitVerdictEnum.UNCLEAR
+  ) {
+    return upperVerdict;
+  }
+  return undefined;
+}
+
+async function main() {
+  process.stdout.write("Booting NestJS...\n");
+  const app = await NestFactory.createApplicationContext(ScriptModule, {
+    logger: ["error", "warn"],
+  });
+
+  const em = app.get(EntityManager);
+  const dryRun = process.argv.includes("--dry-run");
+  const prefix = dryRun ? "[DRY-RUN] " : "";
+
+  process.stdout.write(
+    `\n${prefix}Fixing fit_analysis items -> verdict (lower -> UPPER)...\n`,
+  );
+  const fitRepo = em.getRepository(FitAnalysisEntity);
+  const allFit = await fitRepo.find();
+  const fixVerdict = allFit.filter((e) =>
+    e.items?.some((i) => i.verdict && i.verdict !== upper(i.verdict)),
+  );
+
+  if (fixVerdict.length === 0) {
+    process.stdout.write("  ✓ none to fix\n");
+  } else if (dryRun) {
+    process.stdout.write(`  ✓ ${fixVerdict.length} would be fixed\n`);
+  } else {
+    let ok = 0;
+    let fail = 0;
+    for (const e of fixVerdict) {
+      e.items = e.items.map((i) => ({
+        ...i,
+        verdict: i.verdict
+          ? (normalizeVerdict(i.verdict) as FitItem["verdict"])
+          : i.verdict,
+      }));
+      const [err] = await tryRun(fitRepo.save(e));
+      if (err) {
+        process.stdout.write(`\n  ❌ ${e.id}: ${err.message.slice(0, 80)}`);
+        fail++;
+      } else {
+        ok++;
+      }
+    }
+    process.stdout.write(`✓ ${ok} fixed, ${fail} failed\n`);
+  }
+
+  await app.close();
+  process.stdout.write("\nDone.\n");
+}
+
+main().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});

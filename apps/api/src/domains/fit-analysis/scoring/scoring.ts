@@ -1,21 +1,21 @@
-import type {
-  FitClassification,
-  FitItem,
-} from "@api/database/entities/fit-analysis.entity";
+import type { FitItem } from "@api/database/entities/fit-analysis.entity";
 import { RequirementTypeEnum } from "@api/database/entities/fit-analysis.entity";
+import { FitClassificationEnum } from "@api/domains/fit-analysis/fit-classification.enum";
+import { FitSourceEnum } from "@api/domains/fit-analysis/fit-source.enum";
+import { FitVerdictEnum } from "@api/domains/fit-analysis/fit-verdict.enum";
 
 export interface ScoreResult {
   scoreRatio: number;
-  classification: FitClassification;
+  classification: FitClassificationEnum;
   fitCount: number;
   gapCount: number;
   unclearCount: number;
 }
 
 function itemPoints(item: FitItem): number {
-  if (item.verdict !== "fit") return 0;
+  if (item.verdict !== FitVerdictEnum.FIT) return 0;
 
-  if (item.source === "resume") {
+  if (item.source === FitSourceEnum.RESUME) {
     switch (item.type) {
       case RequirementTypeEnum.MUST_HAVE:
         return 5;
@@ -36,7 +36,7 @@ function maxPossible(items: FitItem[]): number {
   if (items.length === 0) return 0;
 
   return items.reduce((sum, item) => {
-    if (item.source === "resume") {
+    if (item.source === FitSourceEnum.RESUME) {
       switch (item.type) {
         case RequirementTypeEnum.MUST_HAVE:
           return sum + 5;
@@ -57,29 +57,31 @@ export function computeScore(items: FitItem[]): ScoreResult {
   const total = items.reduce((sum, item) => sum + itemPoints(item), 0);
   const max = maxPossible(items);
 
-  const fitCount = items.filter((i) => i.verdict === "fit").length;
-  const gapCount = items.filter((i) => i.verdict === "gap").length;
-  const unclearCount = items.filter((i) => i.verdict === "unclear").length;
+  const fitCount = items.filter((i) => i.verdict === FitVerdictEnum.FIT).length;
+  const gapCount = items.filter((i) => i.verdict === FitVerdictEnum.GAP).length;
+  const unclearCount = items.filter(
+    (i) => i.verdict === FitVerdictEnum.UNCLEAR,
+  ).length;
 
   const hasMustHaveGap = items.some(
     (i) =>
-      i.source === "resume" &&
+      i.source === FitSourceEnum.RESUME &&
       i.type === RequirementTypeEnum.MUST_HAVE &&
-      i.verdict === "gap",
+      i.verdict === FitVerdictEnum.GAP,
   );
 
   const scoreRatio = max > 0 ? (total / max) * 100 : 0;
   const unclearMajority = unclearCount > items.length / 2;
 
-  let classification: FitClassification;
+  let classification: FitClassificationEnum;
   if (items.length === 0 || unclearMajority) {
-    classification = "neutral";
+    classification = FitClassificationEnum.NEUTRAL;
   } else if (scoreRatio >= 65 && !hasMustHaveGap) {
-    classification = "positive";
+    classification = FitClassificationEnum.POSITIVE;
   } else if (scoreRatio <= 35 || (scoreRatio < 65 && hasMustHaveGap)) {
-    classification = "negative";
+    classification = FitClassificationEnum.NEGATIVE;
   } else {
-    classification = "neutral";
+    classification = FitClassificationEnum.NEUTRAL;
   }
 
   return { scoreRatio, classification, fitCount, gapCount, unclearCount };

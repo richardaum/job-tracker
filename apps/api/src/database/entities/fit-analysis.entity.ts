@@ -1,4 +1,7 @@
 import { WithGeneratedId } from "@api/database/decorators/with-generated-id.decorator";
+import { FitClassificationEnum } from "@api/domains/fit-analysis/fit-classification.enum";
+import { FitSourceEnum } from "@api/domains/fit-analysis/fit-source.enum";
+import { FitVerdictEnum } from "@api/domains/fit-analysis/fit-verdict.enum";
 import type { AsyncMetadata } from "@api/domains/shared/async-metadata.type";
 import {
   Column,
@@ -20,16 +23,14 @@ export enum RequirementTypeEnum {
 
 export interface FitItem {
   requirement: string;
-  source: "resume" | "preference";
+  source: FitSourceEnum;
   weight?: "high" | "low";
   type: RequirementTypeEnum;
-  verdict: "fit" | "gap" | "unclear";
+  verdict: FitVerdictEnum;
   jdQuote: string;
   sourceQuotes: string[];
   suggestion?: string;
 }
-
-export type FitClassification = "positive" | "neutral" | "negative";
 
 @WithGeneratedId()
 @Entity({ name: "fit_analysis" })
@@ -62,8 +63,13 @@ export class FitAnalysisEntity {
   @Column({ name: "score_ratio", type: "float", nullable: true })
   scoreRatio!: number | null;
 
-  @Column({ type: "text", nullable: true })
-  classification!: FitClassification | null;
+  @Column({
+    type: "enum",
+    enum: FitClassificationEnum,
+    enumName: "fit_classification",
+    nullable: true,
+  })
+  classification!: FitClassificationEnum | null;
 
   @Column({ name: "fit_count", type: "integer", default: 0 })
   fitCount!: number;
