@@ -448,6 +448,7 @@ export type PreferenceType = {
 export type Query = {
   __typename?: "Query";
   companies: Array<CompanyType>;
+  company: CompanyType;
   companyJobsCount: Scalars["Int"]["output"];
   draftJob: DraftJobType;
   draftJobMatch?: Maybe<MatchAnalysisType>;
@@ -462,7 +463,7 @@ export type Query = {
   jobNotes: Array<NoteType>;
   jobStageEvents: Array<JobStageEventType>;
   jobs: Array<JobType>;
-  match?: Maybe<MatchAnalysisType>;
+  match: MatchAnalysisType;
   matchAnalyses: Array<MatchAnalysisType>;
   me: UserType;
   restructureJobDescriptionWithAI: Scalars["String"]["output"];
@@ -475,6 +476,8 @@ export type Query = {
   sourceTemplatesForSourceProfile: Array<SourceTemplateType>;
   workPreferences: Array<PreferenceType>;
 };
+
+export type QueryCompanyArgs = { id: Scalars["ID"]["input"] };
 
 export type QueryCompanyJobsCountArgs = { id: Scalars["ID"]["input"] };
 
@@ -714,6 +717,18 @@ export type CompaniesQuery = {
     name: string;
     description?: string | null;
   }>;
+};
+
+export type CompanyQueryVariables = Exact<{ id: Scalars["ID"]["input"] }>;
+
+export type CompanyQuery = {
+  __typename?: "Query";
+  company: {
+    __typename?: "CompanyType";
+    id: string;
+    name: string;
+    description?: string | null;
+  };
 };
 
 export type ExchangeRatesQueryVariables = Exact<{
@@ -1356,7 +1371,7 @@ export type MatchQueryVariables = Exact<{ id: Scalars["ID"]["input"] }>;
 
 export type MatchQuery = {
   __typename?: "Query";
-  match?: {
+  match: {
     __typename?: "MatchAnalysisType";
     id: string;
     jobId?: string | null;
@@ -1396,7 +1411,7 @@ export type MatchQuery = {
       id: string;
       title: string;
     } | null;
-  } | null;
+  };
 };
 
 export type JobMatchQueryVariables = Exact<{ jobId: Scalars["ID"]["input"] }>;
@@ -1980,6 +1995,61 @@ export type CompaniesQueryHookResult = ReturnType<typeof useCompaniesQuery>;
 export type CompaniesLazyQueryHookResult = ReturnType<
   typeof useCompaniesLazyQuery
 >;
+
+export const CompanyDocument = gql`
+  query Company($id: ID!) {
+    company(id: $id) {
+      id
+      name
+      description
+    }
+  }
+`;
+
+/**
+ * __useCompanyQuery__
+ *
+ * To run a query within a React component, call `useCompanyQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCompanyQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCompanyQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useCompanyQuery(
+  baseOptions: ApolloReactHooks.QueryHookOptions<
+    CompanyQuery,
+    CompanyQueryVariables
+  > &
+    ({ variables: CompanyQueryVariables; skip?: boolean } | { skip: boolean }),
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useQuery<CompanyQuery, CompanyQueryVariables>(
+    CompanyDocument,
+    options,
+  );
+}
+export function useCompanyLazyQuery(
+  baseOptions?: ApolloReactHooks.LazyQueryHookOptions<
+    CompanyQuery,
+    CompanyQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useLazyQuery<CompanyQuery, CompanyQueryVariables>(
+    CompanyDocument,
+    options,
+  );
+}
+
+export type CompanyQueryHookResult = ReturnType<typeof useCompanyQuery>;
+export type CompanyLazyQueryHookResult = ReturnType<typeof useCompanyLazyQuery>;
 
 export const ExchangeRatesDocument = gql`
   query ExchangeRates($base: String!, $currencies: [String!]!) {

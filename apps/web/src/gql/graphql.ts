@@ -446,6 +446,7 @@ export type PreferenceType = {
 export type Query = {
   __typename?: "Query";
   companies: Array<CompanyType>;
+  company: CompanyType;
   companyJobsCount: Scalars["Int"]["output"];
   draftJob: DraftJobType;
   draftJobMatch?: Maybe<MatchAnalysisType>;
@@ -460,7 +461,7 @@ export type Query = {
   jobNotes: Array<NoteType>;
   jobStageEvents: Array<JobStageEventType>;
   jobs: Array<JobType>;
-  match?: Maybe<MatchAnalysisType>;
+  match: MatchAnalysisType;
   matchAnalyses: Array<MatchAnalysisType>;
   me: UserType;
   restructureJobDescriptionWithAI: Scalars["String"]["output"];
@@ -473,6 +474,8 @@ export type Query = {
   sourceTemplatesForSourceProfile: Array<SourceTemplateType>;
   workPreferences: Array<PreferenceType>;
 };
+
+export type QueryCompanyArgs = { id: Scalars["ID"]["input"] };
 
 export type QueryCompanyJobsCountArgs = { id: Scalars["ID"]["input"] };
 
@@ -712,6 +715,18 @@ export type CompaniesQuery = {
     name: string;
     description?: string | null;
   }>;
+};
+
+export type CompanyQueryVariables = Exact<{ id: Scalars["ID"]["input"] }>;
+
+export type CompanyQuery = {
+  __typename?: "Query";
+  company: {
+    __typename?: "CompanyType";
+    id: string;
+    name: string;
+    description?: string | null;
+  };
 };
 
 export type ExchangeRatesQueryVariables = Exact<{
@@ -1344,7 +1359,7 @@ export type MatchQueryVariables = Exact<{ id: Scalars["ID"]["input"] }>;
 
 export type MatchQuery = {
   __typename?: "Query";
-  match?: {
+  match: {
     __typename?: "MatchAnalysisType";
     id: string;
     jobId?: string | null;
@@ -1384,7 +1399,7 @@ export type MatchQuery = {
       id: string;
       title: string;
     } | null;
-  } | null;
+  };
 };
 
 export type JobMatchQueryVariables = Exact<{ jobId: Scalars["ID"]["input"] }>;
@@ -1987,6 +2002,53 @@ export const CompaniesDocument = {
     },
   ],
 } as unknown as DocumentNode<CompaniesQuery, CompaniesQueryVariables>;
+export const CompanyDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "query",
+      name: { kind: "Name", value: "Company" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "id" } },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "company" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "id" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "id" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                { kind: "Field", name: { kind: "Name", value: "name" } },
+                { kind: "Field", name: { kind: "Name", value: "description" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CompanyQuery, CompanyQueryVariables>;
 export const ExchangeRatesDocument = {
   kind: "Document",
   definitions: [
