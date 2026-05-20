@@ -30,9 +30,9 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 scalar DateTime
 
 type AsyncMetadataType {
-  status: AsyncMetadataStatus!
+  status: AsyncMetadataStatus
   error: String
-  timestamp: String
+  timestamp: DateTime
 }
 
 enum AsyncMetadataStatus {
@@ -71,9 +71,9 @@ type FitAnalysisType {
 }
 
 type ConversionMetadataType {
-  status: DraftApplicationConversionStatus!
+  status: DraftApplicationConversionStatus
   error: String
-  timestamp: String
+  timestamp: DateTime
 }
 
 enum DraftApplicationConversionStatus {

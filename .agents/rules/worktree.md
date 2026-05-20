@@ -41,46 +41,67 @@ Setup and teardown run **inside** the linked worktree only (not the main checkou
 | ----- | -------- |
 | PM2, ports, `.env.worktree`, registry | `.agents/rules/ops-docker-pm2.md` |
 | `pnpm worktree:setup` / `teardown` flows | `.agents/skills/worktree-env/SKILL.md` (`@worktree-env`; explicit invocation only) |
+| Subagent loop (A → B, 2 passes) | `.agents/skills/worktree-loop/SKILL.md` (`@worktree-loop` / `/worktree-loop`) |
 | CLI flags | `scripts/worktree/README.md` |
 
-## Reintegration — `WORKTREE.md`
+## Execution pipeline (mandatory)
 
-A worktree branch may carry a **`WORKTREE.md`** at the repository root. This file is a **temporary, human-readable integration note** authored inside the worktree before reintegration into `main`.
+Feature work **inside a linked worktree** MUST use the subagent loop (**A → B → B1**). Load and follow **`.agents/skills/worktree-loop/SKILL.md`**:
 
-### Purpose
+- Invoke **`@worktree-loop`** or **`/worktree-loop`** at the start of each task unit (Compozy task, PRD slice, or scoped request).
+- Main thread **orchestrates only** — no direct implementation or review.
+- Acceptance: **2 code-review passes** (two parallel reviewers, both pass); on failure, loop per skill § B1.
 
-- **What** is being merged (feature, fix, refactor — 2–3 sentences).
-- **How** to reintegrate: branch name, merge strategy preference, known conflict areas, migration dependencies, post-merge steps.
-- **Followup work** remaining after merge (if any): related tasks, deferred items, manual verification needed.
+## Reintegration — feature documentation lookup
 
-### Lifecycle
+Before merging a worktree branch into `main`, **discover and read** the feature documentation using the **worktree identifier** (directory name or branch slug). Project docs are the source of truth for scope, merge steps, conflict resolution, and follow-up work — not ad-hoc memory.
 
-1. **Authored in the worktree branch** — committed alongside the work. Purpose: communicate intent to whoever merges (author or reviewer).
-2. **Merged into `main`** alongside the branch diff — merge preserves the file.
-3. **Read and followed** — the person doing the merge reads `WORKTREE.md`, follows its instructions.
-4. **Removed from `main` after reintegration** — the file must NOT persist in `main`. Delete it in a cleanup commit after integration is confirmed.
+### 1. Resolve the feature slug
 
-### Format
+| Source | How |
+| ------ | --- |
+| Worktree directory name | Primary key — e.g. `job-fit-remodeling`, `improvement-404` (kebab-case). |
+| Git branch | When the folder is generic (`job-tracker`), use `git branch --show-current`. Prefer `task/<slug>` → slug is `<slug>`. |
+| Compozy task folder | If the directory name ≠ any `.compozy/tasks/<slug>/`, search task folders and `memory/MEMORY.md` for the worktree path or branch name. |
 
-Markdown, no frontmatter. 1–3 short sections. Example:
+### 2. Where to look (search order)
 
-```markdown
-# Worktree reintegration — app-fit-rename
+| Location | Use for reintegration |
+| -------- | --------------------- |
+| `.compozy/tasks/<slug>/` | `_prd.md`, `_techspec.md`, `_tasks.md`, `adrs/`, `reviews-NNN/`, acceptance gates, post-merge commands, worktree env contract |
+| `specs/` (linked from PRD) | Canonical product/technical scope, rename maps, API contracts, traceability IDs |
+| `plans/` | Ad-hoc implementation plans — grep for slug or feature keywords |
+| `.compozy/tasks/<slug>/memory/` | Runtime decisions, deferred items, execution notes |
 
-**What:** Renamed `Application` → `Job` and `FitAnalysis` → `MatchAnalysis`
-across GraphQL schema, entities, web modules, routes, and tests.
+From the worktree root, widen search when the slug alone is insufficient:
 
-**Reintegration:** Fast-forward from `task/app-fit-rename` onto `main`.
-No known conflicts. After merge, run:
-- `pnpm --filter @job-tracker/api run db:migrate`
-- `pnpm --filter @job-tracker/api run codegen`
-- `pnpm typecheck`
-
-**Followup:** E2E tests pending — run `pnpm e2e` and verify.
+```bash
+rg -l '<slug>' .compozy plans specs
 ```
+
+Also read `git diff main...HEAD --stat` and cross-check touched paths against PRD/techspec scope — that surfaces likely **merge conflicts** and files another worktree may have edited.
+
+### 3. What to extract before merge
+
+From the documentation above (and the branch diff):
+
+- **Scope summary** — what changed (entities, routes, enums, migrations, renames).
+- **Branch / merge strategy** — stated in techspec or PRD, if any.
+- **Conflict hotspots** — domains and files both branches touch; use docs + diff to resolve conflicts consistently with the feature intent (e.g. keep rename direction from the PRD, not a stale symbol from `main`).
+- **Post-merge steps** — migrations, datafix scripts, codegen, verification commands (often in `_techspec.md`, `_tasks.md`, or PRD acceptance gates).
+- **Follow-up work** — see below; record in Compozy task files or specs, not only in merge notes.
+
+### 4. Follow-up work
+
+Follow-up work is **continuation work** started in the worktree but **not finished at merge time** because of **drift** or **parallel changes**:
+
+- **Drift:** `main` or another worktree landed changes that partially undo or bypass this branch's conventions. Example: every `X_` prefix was removed in this worktree, but `main` later added a new symbol still using `X_` → follow-up: remove `X_` on that new symbol.
+- **Deferred scope:** tasks marked incomplete in `_tasks.md`, or open items under `reviews-NNN/`.
+- **Cross-worktree overlap:** another active worktree owns the same files — coordinate merge order or schedule a small follow-up PR after both land.
+
+Record follow-up items in `.compozy/tasks/<slug>/_tasks.md` or `memory/MEMORY.md`, or in a LeanSpec / `plans/` entry when the work spans features.
 
 ### Do not
 
-- Commit `WORKTREE.md` directly to `main` (outside a merge).
-- Leave `WORKTREE.md` in `main` after reintegration is complete.
-- Use `WORKTREE.md` for changelogs, commit messages, or permanent documentation.
+- Merge without reading the Compozy task and linked specs for that slug.
+- Drop follow-up work only in ephemeral chat; persist it in task memory or `_tasks.md`.
