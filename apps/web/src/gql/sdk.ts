@@ -32,79 +32,6 @@ export type Scalars = {
   DateTime: { input: any; output: any };
 };
 
-export enum ApplicationQuickFilter {
-  Active = "ACTIVE",
-  Applied = "APPLIED",
-  Duplicated = "DUPLICATED",
-  Incoming = "INCOMING",
-  New = "NEW",
-}
-
-export type ApplicationSalary = {
-  __typename?: "ApplicationSalary";
-  currency?: Maybe<Scalars["String"]["output"]>;
-  maxCents?: Maybe<Scalars["Int"]["output"]>;
-  minCents?: Maybe<Scalars["Int"]["output"]>;
-  period?: Maybe<SalaryPeriod>;
-};
-
-export enum ApplicationSource {
-  Jack = "JACK",
-  Linkedin = "LINKEDIN",
-  RemoteYeah = "REMOTE_YEAH",
-  Wellfound = "WELLFOUND",
-}
-
-export enum ApplicationStage {
-  Applied = "APPLIED",
-  CulturalFit = "CULTURAL_FIT",
-  Duplicated = "DUPLICATED",
-  New = "NEW",
-  Offer = "OFFER",
-  RecruiterScreen = "RECRUITER_SCREEN",
-  Rejected = "REJECTED",
-  Technical = "TECHNICAL",
-}
-
-export type ApplicationStageEventType = {
-  __typename?: "ApplicationStageEventType";
-  applicationId: Scalars["String"]["output"];
-  createdAt: Scalars["DateTime"]["output"];
-  fromStage?: Maybe<ApplicationStage>;
-  id: Scalars["ID"]["output"];
-  reason?: Maybe<Scalars["String"]["output"]>;
-  scheduledAt?: Maybe<Scalars["DateTime"]["output"]>;
-  source: Scalars["String"]["output"];
-  toStage: ApplicationStage;
-  userId: Scalars["String"]["output"];
-};
-
-export type ApplicationType = {
-  __typename?: "ApplicationType";
-  company: CompanyType;
-  companyId: Scalars["ID"]["output"];
-  createdAt: Scalars["DateTime"]["output"];
-  currentStage: ApplicationStage;
-  currentStageAt: Scalars["DateTime"]["output"];
-  currentStageReason?: Maybe<Scalars["String"]["output"]>;
-  description?: Maybe<Scalars["String"]["output"]>;
-  draftApplicationId?: Maybe<Scalars["ID"]["output"]>;
-  fit?: Maybe<FitAnalysisType>;
-  id: Scalars["ID"]["output"];
-  location?: Maybe<Scalars["String"]["output"]>;
-  salary: ApplicationSalary;
-  source?: Maybe<ApplicationSource>;
-  sourceRunId?: Maybe<Scalars["ID"]["output"]>;
-  summary?: Maybe<Scalars["String"]["output"]>;
-  summaryMetadata?: Maybe<AsyncMetadataType>;
-  tags: Array<Scalars["String"]["output"]>;
-  title: Scalars["String"]["output"];
-  updatedAt: Scalars["DateTime"]["output"];
-  urls: Array<Scalars["String"]["output"]>;
-  userId: Scalars["String"]["output"];
-  workRegion?: Maybe<Scalars["String"]["output"]>;
-};
-
 export enum AsyncMetadataStatus {
   Completed = "COMPLETED",
   Failed = "FAILED",
@@ -131,11 +58,17 @@ export type CompanyType = {
 export type ConversionMetadataType = {
   __typename?: "ConversionMetadataType";
   error?: Maybe<Scalars["String"]["output"]>;
-  status: DraftApplicationConversionStatus;
+  status: DraftJobConversionStatus;
   timestamp?: Maybe<Scalars["String"]["output"]>;
 };
 
-export type CreateApplicationInput = {
+export type CreateDraftJobInput = {
+  htmlContent: Scalars["String"]["input"];
+  title: Scalars["String"]["input"];
+  url?: InputMaybe<Scalars["String"]["input"]>;
+};
+
+export type CreateJobInput = {
   company: Scalars["String"]["input"];
   companyId?: InputMaybe<Scalars["ID"]["input"]>;
   description?: InputMaybe<Scalars["String"]["input"]>;
@@ -144,7 +77,7 @@ export type CreateApplicationInput = {
   salaryMaxCents?: InputMaybe<Scalars["Int"]["input"]>;
   salaryMinCents?: InputMaybe<Scalars["Int"]["input"]>;
   salaryPeriod?: InputMaybe<SalaryPeriod>;
-  source?: InputMaybe<ApplicationSource>;
+  source?: InputMaybe<JobSource>;
   sourceRunId?: InputMaybe<Scalars["ID"]["input"]>;
   tags?: InputMaybe<Array<Scalars["String"]["input"]>>;
   title: Scalars["String"]["input"];
@@ -152,23 +85,17 @@ export type CreateApplicationInput = {
   workRegion?: InputMaybe<Scalars["String"]["input"]>;
 };
 
-export type CreateApplicationStageEventInput = {
-  applicationId: Scalars["String"]["input"];
+export type CreateJobStageEventInput = {
+  jobId: Scalars["String"]["input"];
   reason?: InputMaybe<Scalars["String"]["input"]>;
   scheduledAt?: InputMaybe<Scalars["DateTime"]["input"]>;
   source?: InputMaybe<Scalars["String"]["input"]>;
-  toStage: ApplicationStage;
-};
-
-export type CreateDraftApplicationInput = {
-  htmlContent: Scalars["String"]["input"];
-  title: Scalars["String"]["input"];
-  url?: InputMaybe<Scalars["String"]["input"]>;
+  toStage: JobStage;
 };
 
 export type CreateNoteInput = {
-  applicationId: Scalars["String"]["input"];
   content: Scalars["String"]["input"];
+  jobId: Scalars["String"]["input"];
 };
 
 export type CreateResumeInput = {
@@ -198,21 +125,21 @@ export type DeleteMutationPayloadType = {
   success: Scalars["Boolean"]["output"];
 };
 
-export enum DraftApplicationConversionStatus {
+export enum DraftJobConversionStatus {
   Failed = "FAILED",
   Idle = "IDLE",
   Processing = "PROCESSING",
   Succeeded = "SUCCEEDED",
 }
 
-export type DraftApplicationType = {
-  __typename?: "DraftApplicationType";
-  applicationId?: Maybe<Scalars["String"]["output"]>;
+export type DraftJobType = {
+  __typename?: "DraftJobType";
   conversionMetadata?: Maybe<ConversionMetadataType>;
   createdAt: Scalars["DateTime"]["output"];
-  fit?: Maybe<FitAnalysisType>;
   htmlContent: Scalars["String"]["output"];
   id: Scalars["ID"]["output"];
+  jobId?: Maybe<Scalars["String"]["output"]>;
+  match?: Maybe<MatchAnalysisType>;
   title: Scalars["String"]["output"];
   updatedAt: Scalars["DateTime"]["output"];
   url?: Maybe<Scalars["String"]["output"]>;
@@ -224,27 +151,110 @@ export type ExchangeRate = {
   rate: Scalars["Float"]["output"];
 };
 
-export type FitAnalysisType = {
-  __typename?: "FitAnalysisType";
-  application?: Maybe<ApplicationType>;
-  applicationId?: Maybe<Scalars["ID"]["output"]>;
+export type GenerateDraftMatchInput = {
+  draftJobId: Scalars["ID"]["input"];
+  resumeId: Scalars["ID"]["input"];
+};
+
+export type GenerateMatchInput = {
+  jobId: Scalars["ID"]["input"];
+  resumeId: Scalars["ID"]["input"];
+};
+
+export enum JobQuickFilter {
+  Active = "ACTIVE",
+  Applied = "APPLIED",
+  Duplicated = "DUPLICATED",
+  Incoming = "INCOMING",
+  New = "NEW",
+}
+
+export type JobSalary = {
+  __typename?: "JobSalary";
+  currency?: Maybe<Scalars["String"]["output"]>;
+  maxCents?: Maybe<Scalars["Int"]["output"]>;
+  minCents?: Maybe<Scalars["Int"]["output"]>;
+  period?: Maybe<SalaryPeriod>;
+};
+
+export enum JobSource {
+  Jack = "JACK",
+  Linkedin = "LINKEDIN",
+  RemoteYeah = "REMOTE_YEAH",
+  Wellfound = "WELLFOUND",
+}
+
+export enum JobStage {
+  Applied = "APPLIED",
+  CulturalFit = "CULTURAL_FIT",
+  Duplicated = "DUPLICATED",
+  New = "NEW",
+  Offer = "OFFER",
+  RecruiterScreen = "RECRUITER_SCREEN",
+  Rejected = "REJECTED",
+  Technical = "TECHNICAL",
+}
+
+export type JobStageEventType = {
+  __typename?: "JobStageEventType";
+  createdAt: Scalars["DateTime"]["output"];
+  fromStage?: Maybe<JobStage>;
+  id: Scalars["ID"]["output"];
+  jobId: Scalars["String"]["output"];
+  reason?: Maybe<Scalars["String"]["output"]>;
+  scheduledAt?: Maybe<Scalars["DateTime"]["output"]>;
+  source: Scalars["String"]["output"];
+  toStage: JobStage;
+  userId: Scalars["String"]["output"];
+};
+
+export type JobType = {
+  __typename?: "JobType";
+  company: CompanyType;
+  companyId: Scalars["ID"]["output"];
+  createdAt: Scalars["DateTime"]["output"];
+  currentStage: JobStage;
+  currentStageAt: Scalars["DateTime"]["output"];
+  currentStageReason?: Maybe<Scalars["String"]["output"]>;
+  description?: Maybe<Scalars["String"]["output"]>;
+  draftJobId?: Maybe<Scalars["ID"]["output"]>;
+  id: Scalars["ID"]["output"];
+  location?: Maybe<Scalars["String"]["output"]>;
+  match?: Maybe<MatchAnalysisType>;
+  salary: JobSalary;
+  source?: Maybe<JobSource>;
+  sourceRunId?: Maybe<Scalars["ID"]["output"]>;
+  summary?: Maybe<Scalars["String"]["output"]>;
+  summaryMetadata?: Maybe<AsyncMetadataType>;
+  tags: Array<Scalars["String"]["output"]>;
+  title: Scalars["String"]["output"];
+  updatedAt: Scalars["DateTime"]["output"];
+  urls: Array<Scalars["String"]["output"]>;
+  userId: Scalars["String"]["output"];
+  workRegion?: Maybe<Scalars["String"]["output"]>;
+};
+
+export type MatchAnalysisType = {
+  __typename?: "MatchAnalysisType";
   classification?: Maybe<Scalars["String"]["output"]>;
   createdAt: Scalars["DateTime"]["output"];
-  draftApplication?: Maybe<DraftApplicationType>;
-  draftApplicationId?: Maybe<Scalars["ID"]["output"]>;
-  fitCount: Scalars["Int"]["output"];
+  draftJob?: Maybe<DraftJobType>;
+  draftJobId?: Maybe<Scalars["ID"]["output"]>;
   gapCount: Scalars["Int"]["output"];
   generationMetadata?: Maybe<AsyncMetadataType>;
   id: Scalars["ID"]["output"];
-  items: Array<FitItemType>;
+  items: Array<MatchItemType>;
+  job?: Maybe<JobType>;
+  jobId?: Maybe<Scalars["ID"]["output"]>;
+  matchCount: Scalars["Int"]["output"];
   resumeId: Scalars["ID"]["output"];
   scoreRatio?: Maybe<Scalars["Float"]["output"]>;
   unclearCount: Scalars["Int"]["output"];
   updatedAt: Scalars["DateTime"]["output"];
 };
 
-export type FitItemType = {
-  __typename?: "FitItemType";
+export type MatchItemType = {
+  __typename?: "MatchItemType";
   jdQuote: Scalars["String"]["output"];
   requirement: Scalars["String"]["output"];
   source: Scalars["String"]["output"];
@@ -255,49 +265,39 @@ export type FitItemType = {
   weight?: Maybe<Scalars["String"]["output"]>;
 };
 
-export type GenerateDraftFitInput = {
-  draftApplicationId: Scalars["ID"]["input"];
-  resumeId: Scalars["ID"]["input"];
-};
-
-export type GenerateFitInput = {
-  applicationId: Scalars["ID"]["input"];
-  resumeId: Scalars["ID"]["input"];
-};
-
 export type Mutation = {
   __typename?: "Mutation";
   claimSourceRun?: Maybe<SourceRunType>;
   clearSourceRuns: Scalars["Boolean"]["output"];
-  createApplication: ApplicationType;
-  createApplicationNote: NoteType;
-  createApplicationStageEvent: ApplicationStageEventType;
-  createApplicationWithAI: DraftApplicationType;
-  createDraftApplication: DraftApplicationType;
+  createDraftJob: DraftJobType;
+  createJob: JobType;
+  createJobNote: NoteType;
+  createJobStageEvent: JobStageEventType;
+  createJobWithAI: DraftJobType;
   createResume: ResumeType;
   createSourceRun: SourceRunType;
   createSourceTemplate: SourceTemplateType;
-  deleteApplication: DeleteMutationPayloadType;
-  deleteApplicationNote: DeleteMutationPayloadType;
-  deleteApplicationStageEvent: DeleteMutationPayloadType;
-  deleteApplicationsForDraft: DeleteMutationPayloadType;
   deleteCompany: DeleteMutationPayloadType;
-  deleteDraftApplication: DeleteMutationPayloadType;
-  deleteFitAnalysis: DeleteMutationPayloadType;
+  deleteDraftJob: DeleteMutationPayloadType;
+  deleteJob: DeleteMutationPayloadType;
+  deleteJobNote: DeleteMutationPayloadType;
+  deleteJobStageEvent: DeleteMutationPayloadType;
+  deleteJobsForDraft: DeleteMutationPayloadType;
+  deleteMatchAnalysis: DeleteMutationPayloadType;
   deleteResume: DeleteMutationPayloadType;
   deleteSourceRun: DeleteMutationPayloadType;
   deleteSourceTemplate: DeleteMutationPayloadType;
-  detachApplicationsFromSourceRun: Scalars["Int"]["output"];
-  generateApplicationFit: FitAnalysisType;
-  generateApplicationSummary: ApplicationType;
-  generateDraftApplicationFit: FitAnalysisType;
-  removeApplicationTag: ApplicationType;
+  detachJobsFromSourceRun: Scalars["Int"]["output"];
+  generateDraftJobMatch: MatchAnalysisType;
+  generateJobMatch: MatchAnalysisType;
+  generateJobSummary: JobType;
+  removeJobTag: JobType;
   rerunSourceTemplate: SourceRunType;
-  updateApplication: ApplicationType;
-  updateApplicationNote: NoteType;
-  updateApplicationStageEvent: ApplicationStageEventType;
   updateCompany: CompanyType;
-  updateDraftApplication: DraftApplicationType;
+  updateDraftJob: DraftJobType;
+  updateJob: JobType;
+  updateJobNote: NoteType;
+  updateJobStageEvent: JobStageEventType;
   updateResume: ResumeType;
   updateSourceRun: SourceRunType;
   updateSourceRunStatus: SourceRunType;
@@ -307,21 +307,17 @@ export type Mutation = {
 
 export type MutationClaimSourceRunArgs = { id: Scalars["ID"]["input"] };
 
-export type MutationCreateApplicationArgs = { input: CreateApplicationInput };
+export type MutationCreateDraftJobArgs = { input: CreateDraftJobInput };
 
-export type MutationCreateApplicationNoteArgs = { input: CreateNoteInput };
+export type MutationCreateJobArgs = { input: CreateJobInput };
 
-export type MutationCreateApplicationStageEventArgs = {
-  input: CreateApplicationStageEventInput;
+export type MutationCreateJobNoteArgs = { input: CreateNoteInput };
+
+export type MutationCreateJobStageEventArgs = {
+  input: CreateJobStageEventInput;
 };
 
-export type MutationCreateApplicationWithAiArgs = {
-  draftId: Scalars["ID"]["input"];
-};
-
-export type MutationCreateDraftApplicationArgs = {
-  input: CreateDraftApplicationInput;
-};
+export type MutationCreateJobWithAiArgs = { draftId: Scalars["ID"]["input"] };
 
 export type MutationCreateResumeArgs = { input: CreateResumeInput };
 
@@ -331,26 +327,24 @@ export type MutationCreateSourceTemplateArgs = {
   input: CreateSourceTemplateInput;
 };
 
-export type MutationDeleteApplicationArgs = { id: Scalars["ID"]["input"] };
+export type MutationDeleteCompanyArgs = { id: Scalars["ID"]["input"] };
 
-export type MutationDeleteApplicationNoteArgs = { id: Scalars["ID"]["input"] };
-
-export type MutationDeleteApplicationStageEventArgs = {
+export type MutationDeleteDraftJobArgs = {
+  deleteLinkedJob?: InputMaybe<Scalars["Boolean"]["input"]>;
   id: Scalars["ID"]["input"];
 };
 
-export type MutationDeleteApplicationsForDraftArgs = {
+export type MutationDeleteJobArgs = { id: Scalars["ID"]["input"] };
+
+export type MutationDeleteJobNoteArgs = { id: Scalars["ID"]["input"] };
+
+export type MutationDeleteJobStageEventArgs = { id: Scalars["ID"]["input"] };
+
+export type MutationDeleteJobsForDraftArgs = {
   draftId: Scalars["ID"]["input"];
 };
 
-export type MutationDeleteCompanyArgs = { id: Scalars["ID"]["input"] };
-
-export type MutationDeleteDraftApplicationArgs = {
-  deleteLinkedApplication?: InputMaybe<Scalars["Boolean"]["input"]>;
-  id: Scalars["ID"]["input"];
-};
-
-export type MutationDeleteFitAnalysisArgs = { id: Scalars["ID"]["input"] };
+export type MutationDeleteMatchAnalysisArgs = { id: Scalars["ID"]["input"] };
 
 export type MutationDeleteResumeArgs = { id: Scalars["ID"]["input"] };
 
@@ -358,21 +352,19 @@ export type MutationDeleteSourceRunArgs = { id: Scalars["ID"]["input"] };
 
 export type MutationDeleteSourceTemplateArgs = { id: Scalars["ID"]["input"] };
 
-export type MutationDetachApplicationsFromSourceRunArgs = {
+export type MutationDetachJobsFromSourceRunArgs = {
   sourceRunId: Scalars["ID"]["input"];
 };
 
-export type MutationGenerateApplicationFitArgs = { input: GenerateFitInput };
-
-export type MutationGenerateApplicationSummaryArgs = {
-  applicationId: Scalars["ID"]["input"];
+export type MutationGenerateDraftJobMatchArgs = {
+  input: GenerateDraftMatchInput;
 };
 
-export type MutationGenerateDraftApplicationFitArgs = {
-  input: GenerateDraftFitInput;
-};
+export type MutationGenerateJobMatchArgs = { input: GenerateMatchInput };
 
-export type MutationRemoveApplicationTagArgs = {
+export type MutationGenerateJobSummaryArgs = { jobId: Scalars["ID"]["input"] };
+
+export type MutationRemoveJobTagArgs = {
   id: Scalars["ID"]["input"];
   tag: Scalars["String"]["input"];
 };
@@ -381,29 +373,29 @@ export type MutationRerunSourceTemplateArgs = {
   templateId: Scalars["ID"]["input"];
 };
 
-export type MutationUpdateApplicationArgs = {
-  id: Scalars["ID"]["input"];
-  input: UpdateApplicationInput;
-};
-
-export type MutationUpdateApplicationNoteArgs = {
-  id: Scalars["ID"]["input"];
-  input: UpdateNoteInput;
-};
-
-export type MutationUpdateApplicationStageEventArgs = {
-  id: Scalars["ID"]["input"];
-  input: UpdateApplicationStageEventInput;
-};
-
 export type MutationUpdateCompanyArgs = {
   id: Scalars["ID"]["input"];
   input: UpdateCompanyInput;
 };
 
-export type MutationUpdateDraftApplicationArgs = {
+export type MutationUpdateDraftJobArgs = {
   id: Scalars["ID"]["input"];
-  input: UpdateDraftApplicationInput;
+  input: UpdateDraftJobInput;
+};
+
+export type MutationUpdateJobArgs = {
+  id: Scalars["ID"]["input"];
+  input: UpdateJobInput;
+};
+
+export type MutationUpdateJobNoteArgs = {
+  id: Scalars["ID"]["input"];
+  input: UpdateNoteInput;
+};
+
+export type MutationUpdateJobStageEventArgs = {
+  id: Scalars["ID"]["input"];
+  input: UpdateJobStageEventInput;
 };
 
 export type MutationUpdateResumeArgs = {
@@ -432,10 +424,10 @@ export type MutationUpdateWorkPreferencesArgs = {
 
 export type NoteType = {
   __typename?: "NoteType";
-  applicationId?: Maybe<Scalars["String"]["output"]>;
   content: Scalars["String"]["output"];
   createdAt: Scalars["DateTime"]["output"];
   id: Scalars["ID"]["output"];
+  jobId?: Maybe<Scalars["String"]["output"]>;
   revision: Scalars["Int"]["output"];
   updatedAt: Scalars["DateTime"]["output"];
   userId: Scalars["String"]["output"];
@@ -454,23 +446,24 @@ export type PreferenceType = {
 
 export type Query = {
   __typename?: "Query";
-  application: ApplicationType;
-  applicationFit?: Maybe<FitAnalysisType>;
-  applicationNotes: Array<NoteType>;
-  applicationStageEvents: Array<ApplicationStageEventType>;
-  applications: Array<ApplicationType>;
   companies: Array<CompanyType>;
-  companyApplicationsCount: Scalars["Int"]["output"];
-  draftApplication: DraftApplicationType;
-  draftApplicationFit?: Maybe<FitAnalysisType>;
-  draftApplications: Array<DraftApplicationType>;
+  company: CompanyType;
+  companyJobsCount: Scalars["Int"]["output"];
+  draftJob: DraftJobType;
+  draftJobMatch?: Maybe<MatchAnalysisType>;
+  draftJobs: Array<DraftJobType>;
   exchangeRates: CurrencyRates;
-  fit?: Maybe<FitAnalysisType>;
-  fitAnalyses: Array<FitAnalysisType>;
-  generateApplicationLocationWithAI?: Maybe<Scalars["String"]["output"]>;
-  generateApplicationNoteWithAI: Scalars["String"]["output"];
-  generateApplicationWorkRegionWithAI?: Maybe<Scalars["String"]["output"]>;
   generateCompanyDescription: Scalars["String"]["output"];
+  generateJobLocationWithAI?: Maybe<Scalars["String"]["output"]>;
+  generateJobNoteWithAI: Scalars["String"]["output"];
+  generateJobWorkRegionWithAI?: Maybe<Scalars["String"]["output"]>;
+  job: JobType;
+  jobMatch?: Maybe<MatchAnalysisType>;
+  jobNotes: Array<NoteType>;
+  jobStageEvents: Array<JobStageEventType>;
+  jobs: Array<JobType>;
+  match: MatchAnalysisType;
+  matchAnalyses: Array<MatchAnalysisType>;
   me: UserType;
   restructureJobDescriptionWithAI: Scalars["String"]["output"];
   resume: ResumeType;
@@ -483,55 +476,51 @@ export type Query = {
   workPreferences: Array<PreferenceType>;
 };
 
-export type QueryApplicationArgs = { id: Scalars["ID"]["input"] };
+export type QueryCompanyArgs = { id: Scalars["ID"]["input"] };
 
-export type QueryApplicationFitArgs = { applicationId: Scalars["ID"]["input"] };
+export type QueryCompanyJobsCountArgs = { id: Scalars["ID"]["input"] };
 
-export type QueryApplicationNotesArgs = {
-  applicationId: Scalars["ID"]["input"];
-};
+export type QueryDraftJobArgs = { id: Scalars["ID"]["input"] };
 
-export type QueryApplicationStageEventsArgs = {
-  applicationId: Scalars["ID"]["input"];
-};
-
-export type QueryApplicationsArgs = {
-  company?: InputMaybe<Scalars["String"]["input"]>;
-  filter?: InputMaybe<ApplicationQuickFilter>;
-  runId?: InputMaybe<Scalars["ID"]["input"]>;
-};
-
-export type QueryCompanyApplicationsCountArgs = { id: Scalars["ID"]["input"] };
-
-export type QueryDraftApplicationArgs = { id: Scalars["ID"]["input"] };
-
-export type QueryDraftApplicationFitArgs = {
-  draftApplicationId: Scalars["ID"]["input"];
-};
+export type QueryDraftJobMatchArgs = { draftJobId: Scalars["ID"]["input"] };
 
 export type QueryExchangeRatesArgs = {
   base: Scalars["String"]["input"];
   currencies: Array<Scalars["String"]["input"]>;
 };
 
-export type QueryFitArgs = { id: Scalars["ID"]["input"] };
-
-export type QueryGenerateApplicationLocationWithAiArgs = {
-  applicationId: Scalars["ID"]["input"];
-};
-
-export type QueryGenerateApplicationNoteWithAiArgs = {
-  applicationId: Scalars["ID"]["input"];
-  note: Scalars["String"]["input"];
-};
-
-export type QueryGenerateApplicationWorkRegionWithAiArgs = {
-  applicationId: Scalars["ID"]["input"];
-};
-
 export type QueryGenerateCompanyDescriptionArgs = {
   companyName: Scalars["String"]["input"];
 };
+
+export type QueryGenerateJobLocationWithAiArgs = {
+  jobId: Scalars["ID"]["input"];
+};
+
+export type QueryGenerateJobNoteWithAiArgs = {
+  jobId: Scalars["ID"]["input"];
+  note: Scalars["String"]["input"];
+};
+
+export type QueryGenerateJobWorkRegionWithAiArgs = {
+  jobId: Scalars["ID"]["input"];
+};
+
+export type QueryJobArgs = { id: Scalars["ID"]["input"] };
+
+export type QueryJobMatchArgs = { jobId: Scalars["ID"]["input"] };
+
+export type QueryJobNotesArgs = { jobId: Scalars["ID"]["input"] };
+
+export type QueryJobStageEventsArgs = { jobId: Scalars["ID"]["input"] };
+
+export type QueryJobsArgs = {
+  company?: InputMaybe<Scalars["String"]["input"]>;
+  filter?: InputMaybe<JobQuickFilter>;
+  runId?: InputMaybe<Scalars["ID"]["input"]>;
+};
+
+export type QueryMatchArgs = { id: Scalars["ID"]["input"] };
 
 export type QueryRestructureJobDescriptionWithAiArgs = {
   text: Scalars["String"]["input"];
@@ -618,7 +607,14 @@ export type Subscription = {
   sourceRunEvents: SourceRunEvent;
 };
 
-export type UpdateApplicationInput = {
+export type UpdateCompanyInput = {
+  description?: InputMaybe<Scalars["String"]["input"]>;
+  name?: InputMaybe<Scalars["String"]["input"]>;
+};
+
+export type UpdateDraftJobInput = { title: Scalars["String"]["input"] };
+
+export type UpdateJobInput = {
   company?: InputMaybe<Scalars["String"]["input"]>;
   companyId?: InputMaybe<Scalars["ID"]["input"]>;
   description?: InputMaybe<Scalars["String"]["input"]>;
@@ -627,25 +623,18 @@ export type UpdateApplicationInput = {
   salaryMaxCents?: InputMaybe<Scalars["Int"]["input"]>;
   salaryMinCents?: InputMaybe<Scalars["Int"]["input"]>;
   salaryPeriod?: InputMaybe<SalaryPeriod>;
-  source?: InputMaybe<ApplicationSource>;
+  source?: InputMaybe<JobSource>;
   tags?: InputMaybe<Array<Scalars["String"]["input"]>>;
   title?: InputMaybe<Scalars["String"]["input"]>;
   urls?: InputMaybe<Array<Scalars["String"]["input"]>>;
   workRegion?: InputMaybe<Scalars["String"]["input"]>;
 };
 
-export type UpdateApplicationStageEventInput = {
+export type UpdateJobStageEventInput = {
   reason?: InputMaybe<Scalars["String"]["input"]>;
   scheduledAt?: InputMaybe<Scalars["DateTime"]["input"]>;
-  toStage?: InputMaybe<ApplicationStage>;
+  toStage?: InputMaybe<JobStage>;
 };
-
-export type UpdateCompanyInput = {
-  description?: InputMaybe<Scalars["String"]["input"]>;
-  name?: InputMaybe<Scalars["String"]["input"]>;
-};
-
-export type UpdateDraftApplicationInput = { title: Scalars["String"]["input"] };
 
 export type UpdateNoteInput = {
   content?: InputMaybe<Scalars["String"]["input"]>;
@@ -680,451 +669,6 @@ export enum Weight {
   Low = "LOW",
 }
 
-export type ApplicationSalarySelectionFragment = {
-  __typename?: "ApplicationType";
-  salary: {
-    __typename?: "ApplicationSalary";
-    minCents?: number | null;
-    maxCents?: number | null;
-    currency?: string | null;
-    period?: SalaryPeriod | null;
-  };
-};
-
-export type ApplicationsQueryVariables = Exact<{
-  filter?: InputMaybe<ApplicationQuickFilter>;
-  company?: InputMaybe<Scalars["String"]["input"]>;
-  runId?: InputMaybe<Scalars["ID"]["input"]>;
-}>;
-
-export type ApplicationsQuery = {
-  __typename?: "Query";
-  applications: Array<{
-    __typename?: "ApplicationType";
-    id: string;
-    title: string;
-    companyId: string;
-    description?: string | null;
-    urls: Array<string>;
-    source?: ApplicationSource | null;
-    tags: Array<string>;
-    location?: string | null;
-    workRegion?: string | null;
-    sourceRunId?: string | null;
-    summary?: string | null;
-    currentStage: ApplicationStage;
-    currentStageReason?: string | null;
-    currentStageAt: any;
-    createdAt: any;
-    company: {
-      __typename?: "CompanyType";
-      id: string;
-      name: string;
-      description?: string | null;
-    };
-    summaryMetadata?: {
-      __typename?: "AsyncMetadataType";
-      status: AsyncMetadataStatus;
-      error?: string | null;
-      timestamp?: string | null;
-    } | null;
-    fit?: {
-      __typename?: "FitAnalysisType";
-      id: string;
-      scoreRatio?: number | null;
-      classification?: string | null;
-      fitCount: number;
-      gapCount: number;
-      unclearCount: number;
-      generationMetadata?: {
-        __typename?: "AsyncMetadataType";
-        status: AsyncMetadataStatus;
-        error?: string | null;
-        timestamp?: string | null;
-      } | null;
-    } | null;
-    salary: {
-      __typename?: "ApplicationSalary";
-      minCents?: number | null;
-      maxCents?: number | null;
-      currency?: string | null;
-      period?: SalaryPeriod | null;
-    };
-  }>;
-};
-
-export type ApplicationQueryVariables = Exact<{ id: Scalars["ID"]["input"] }>;
-
-export type ApplicationQuery = {
-  __typename?: "Query";
-  application: {
-    __typename?: "ApplicationType";
-    id: string;
-    title: string;
-    companyId: string;
-    description?: string | null;
-    urls: Array<string>;
-    source?: ApplicationSource | null;
-    tags: Array<string>;
-    location?: string | null;
-    workRegion?: string | null;
-    sourceRunId?: string | null;
-    summary?: string | null;
-    currentStage: ApplicationStage;
-    currentStageReason?: string | null;
-    currentStageAt: any;
-    createdAt: any;
-    draftApplicationId?: string | null;
-    company: {
-      __typename?: "CompanyType";
-      id: string;
-      name: string;
-      description?: string | null;
-    };
-    summaryMetadata?: {
-      __typename?: "AsyncMetadataType";
-      status: AsyncMetadataStatus;
-      error?: string | null;
-      timestamp?: string | null;
-    } | null;
-    fit?: {
-      __typename?: "FitAnalysisType";
-      id: string;
-      scoreRatio?: number | null;
-      classification?: string | null;
-      fitCount: number;
-      gapCount: number;
-      unclearCount: number;
-      generationMetadata?: {
-        __typename?: "AsyncMetadataType";
-        status: AsyncMetadataStatus;
-        error?: string | null;
-        timestamp?: string | null;
-      } | null;
-    } | null;
-    salary: {
-      __typename?: "ApplicationSalary";
-      minCents?: number | null;
-      maxCents?: number | null;
-      currency?: string | null;
-      period?: SalaryPeriod | null;
-    };
-  };
-};
-
-export type CreateApplicationMutationVariables = Exact<{
-  input: CreateApplicationInput;
-}>;
-
-export type CreateApplicationMutation = {
-  __typename?: "Mutation";
-  createApplication: {
-    __typename?: "ApplicationType";
-    id: string;
-    title: string;
-    companyId: string;
-    description?: string | null;
-    urls: Array<string>;
-    source?: ApplicationSource | null;
-    tags: Array<string>;
-    location?: string | null;
-    workRegion?: string | null;
-    createdAt: any;
-    company: {
-      __typename?: "CompanyType";
-      id: string;
-      name: string;
-      description?: string | null;
-    };
-    salary: {
-      __typename?: "ApplicationSalary";
-      minCents?: number | null;
-      maxCents?: number | null;
-      currency?: string | null;
-      period?: SalaryPeriod | null;
-    };
-  };
-};
-
-export type GenerateCompanyDescriptionQueryVariables = Exact<{
-  companyName: Scalars["String"]["input"];
-}>;
-
-export type GenerateCompanyDescriptionQuery = {
-  __typename?: "Query";
-  generateCompanyDescription: string;
-};
-
-export type UpdateApplicationMutationVariables = Exact<{
-  id: Scalars["ID"]["input"];
-  input: UpdateApplicationInput;
-}>;
-
-export type UpdateApplicationMutation = {
-  __typename?: "Mutation";
-  updateApplication: {
-    __typename?: "ApplicationType";
-    id: string;
-    title: string;
-    companyId: string;
-    description?: string | null;
-    urls: Array<string>;
-    source?: ApplicationSource | null;
-    tags: Array<string>;
-    location?: string | null;
-    workRegion?: string | null;
-    summary?: string | null;
-    createdAt: any;
-    company: {
-      __typename?: "CompanyType";
-      id: string;
-      name: string;
-      description?: string | null;
-    };
-    summaryMetadata?: {
-      __typename?: "AsyncMetadataType";
-      status: AsyncMetadataStatus;
-      error?: string | null;
-      timestamp?: string | null;
-    } | null;
-    salary: {
-      __typename?: "ApplicationSalary";
-      minCents?: number | null;
-      maxCents?: number | null;
-      currency?: string | null;
-      period?: SalaryPeriod | null;
-    };
-  };
-};
-
-export type RemoveApplicationTagMutationVariables = Exact<{
-  id: Scalars["ID"]["input"];
-  tag: Scalars["String"]["input"];
-}>;
-
-export type RemoveApplicationTagMutation = {
-  __typename?: "Mutation";
-  removeApplicationTag: {
-    __typename?: "ApplicationType";
-    id: string;
-    tags: Array<string>;
-  };
-};
-
-export type DeleteApplicationMutationVariables = Exact<{
-  id: Scalars["ID"]["input"];
-}>;
-
-export type DeleteApplicationMutation = {
-  __typename?: "Mutation";
-  deleteApplication: {
-    __typename?: "DeleteMutationPayloadType";
-    success: boolean;
-    deletedId: string;
-  };
-};
-
-export type ApplicationStageEventsQueryVariables = Exact<{
-  applicationId: Scalars["ID"]["input"];
-}>;
-
-export type ApplicationStageEventsQuery = {
-  __typename?: "Query";
-  applicationStageEvents: Array<{
-    __typename?: "ApplicationStageEventType";
-    id: string;
-    applicationId: string;
-    fromStage?: ApplicationStage | null;
-    toStage: ApplicationStage;
-    source: string;
-    reason?: string | null;
-    scheduledAt?: any | null;
-    createdAt: any;
-  }>;
-};
-
-export type CreateApplicationStageEventMutationVariables = Exact<{
-  input: CreateApplicationStageEventInput;
-}>;
-
-export type CreateApplicationStageEventMutation = {
-  __typename?: "Mutation";
-  createApplicationStageEvent: {
-    __typename?: "ApplicationStageEventType";
-    id: string;
-    applicationId: string;
-    fromStage?: ApplicationStage | null;
-    toStage: ApplicationStage;
-    source: string;
-    reason?: string | null;
-    scheduledAt?: any | null;
-    createdAt: any;
-  };
-};
-
-export type UpdateApplicationStageEventMutationVariables = Exact<{
-  id: Scalars["ID"]["input"];
-  input: UpdateApplicationStageEventInput;
-}>;
-
-export type UpdateApplicationStageEventMutation = {
-  __typename?: "Mutation";
-  updateApplicationStageEvent: {
-    __typename?: "ApplicationStageEventType";
-    id: string;
-    applicationId: string;
-    fromStage?: ApplicationStage | null;
-    toStage: ApplicationStage;
-    source: string;
-    reason?: string | null;
-    scheduledAt?: any | null;
-    createdAt: any;
-  };
-};
-
-export type DeleteApplicationStageEventMutationVariables = Exact<{
-  id: Scalars["ID"]["input"];
-}>;
-
-export type DeleteApplicationStageEventMutation = {
-  __typename?: "Mutation";
-  deleteApplicationStageEvent: {
-    __typename?: "DeleteMutationPayloadType";
-    success: boolean;
-    deletedId: string;
-  };
-};
-
-export type ApplicationNotesQueryVariables = Exact<{
-  applicationId: Scalars["ID"]["input"];
-}>;
-
-export type ApplicationNotesQuery = {
-  __typename?: "Query";
-  applicationNotes: Array<{
-    __typename?: "NoteType";
-    id: string;
-    applicationId?: string | null;
-    content: string;
-    revision: number;
-    createdAt: any;
-    updatedAt: any;
-  }>;
-};
-
-export type CreateApplicationNoteMutationVariables = Exact<{
-  input: CreateNoteInput;
-}>;
-
-export type CreateApplicationNoteMutation = {
-  __typename?: "Mutation";
-  createApplicationNote: {
-    __typename?: "NoteType";
-    id: string;
-    applicationId?: string | null;
-    content: string;
-    revision: number;
-    createdAt: any;
-    updatedAt: any;
-  };
-};
-
-export type UpdateApplicationNoteMutationVariables = Exact<{
-  id: Scalars["ID"]["input"];
-  input: UpdateNoteInput;
-}>;
-
-export type UpdateApplicationNoteMutation = {
-  __typename?: "Mutation";
-  updateApplicationNote: {
-    __typename?: "NoteType";
-    id: string;
-    applicationId?: string | null;
-    content: string;
-    revision: number;
-    createdAt: any;
-    updatedAt: any;
-  };
-};
-
-export type DeleteApplicationNoteMutationVariables = Exact<{
-  id: Scalars["ID"]["input"];
-}>;
-
-export type DeleteApplicationNoteMutation = {
-  __typename?: "Mutation";
-  deleteApplicationNote: {
-    __typename?: "DeleteMutationPayloadType";
-    success: boolean;
-    deletedId: string;
-  };
-};
-
-export type GenerateApplicationNoteWithAiQueryVariables = Exact<{
-  applicationId: Scalars["ID"]["input"];
-  note: Scalars["String"]["input"];
-}>;
-
-export type GenerateApplicationNoteWithAiQuery = {
-  __typename?: "Query";
-  generateApplicationNoteWithAI: string;
-};
-
-export type RewriteTextWithAiQueryVariables = Exact<{
-  text: Scalars["String"]["input"];
-}>;
-
-export type RewriteTextWithAiQuery = {
-  __typename?: "Query";
-  rewriteTextWithAI: string;
-};
-
-export type RestructureJobDescriptionWithAiQueryVariables = Exact<{
-  text: Scalars["String"]["input"];
-}>;
-
-export type RestructureJobDescriptionWithAiQuery = {
-  __typename?: "Query";
-  restructureJobDescriptionWithAI: string;
-};
-
-export type GenerateApplicationLocationWithAiQueryVariables = Exact<{
-  applicationId: Scalars["ID"]["input"];
-}>;
-
-export type GenerateApplicationLocationWithAiQuery = {
-  __typename?: "Query";
-  generateApplicationLocationWithAI?: string | null;
-};
-
-export type GenerateApplicationWorkRegionWithAiQueryVariables = Exact<{
-  applicationId: Scalars["ID"]["input"];
-}>;
-
-export type GenerateApplicationWorkRegionWithAiQuery = {
-  __typename?: "Query";
-  generateApplicationWorkRegionWithAI?: string | null;
-};
-
-export type GenerateApplicationSummaryMutationVariables = Exact<{
-  applicationId: Scalars["ID"]["input"];
-}>;
-
-export type GenerateApplicationSummaryMutation = {
-  __typename?: "Mutation";
-  generateApplicationSummary: {
-    __typename?: "ApplicationType";
-    id: string;
-    summary?: string | null;
-    summaryMetadata?: {
-      __typename?: "AsyncMetadataType";
-      status: AsyncMetadataStatus;
-      error?: string | null;
-      timestamp?: string | null;
-    } | null;
-  };
-};
-
 export type UpdateCompanyMutationVariables = Exact<{
   id: Scalars["ID"]["input"];
   input: UpdateCompanyInput;
@@ -1153,13 +697,13 @@ export type DeleteCompanyMutation = {
   };
 };
 
-export type CompanyApplicationsCountQueryVariables = Exact<{
+export type CompanyJobsCountQueryVariables = Exact<{
   id: Scalars["ID"]["input"];
 }>;
 
-export type CompanyApplicationsCountQuery = {
+export type CompanyJobsCountQuery = {
   __typename?: "Query";
-  companyApplicationsCount: number;
+  companyJobsCount: number;
 };
 
 export type CompaniesQueryVariables = Exact<{ [key: string]: never }>;
@@ -1172,6 +716,18 @@ export type CompaniesQuery = {
     name: string;
     description?: string | null;
   }>;
+};
+
+export type CompanyQueryVariables = Exact<{ id: Scalars["ID"]["input"] }>;
+
+export type CompanyQuery = {
+  __typename?: "Query";
+  company: {
+    __typename?: "CompanyType";
+    id: string;
+    name: string;
+    description?: string | null;
+  };
 };
 
 export type ExchangeRatesQueryVariables = Exact<{
@@ -1192,57 +748,55 @@ export type ExchangeRatesQuery = {
   };
 };
 
-export type DraftApplicationsListQueryVariables = Exact<{
-  [key: string]: never;
-}>;
+export type DraftJobsListQueryVariables = Exact<{ [key: string]: never }>;
 
-export type DraftApplicationsListQuery = {
+export type DraftJobsListQuery = {
   __typename?: "Query";
-  draftApplications: Array<{
-    __typename?: "DraftApplicationType";
+  draftJobs: Array<{
+    __typename?: "DraftJobType";
     id: string;
-    applicationId?: string | null;
+    jobId?: string | null;
     url?: string | null;
     title: string;
     createdAt: any;
     conversionMetadata?: {
       __typename?: "ConversionMetadataType";
-      status: DraftApplicationConversionStatus;
+      status: DraftJobConversionStatus;
       error?: string | null;
       timestamp?: string | null;
     } | null;
   }>;
 };
 
-export type DraftApplicationDetailQueryVariables = Exact<{
+export type DraftJobDetailQueryVariables = Exact<{
   id: Scalars["ID"]["input"];
 }>;
 
-export type DraftApplicationDetailQuery = {
+export type DraftJobDetailQuery = {
   __typename?: "Query";
-  draftApplication: {
-    __typename?: "DraftApplicationType";
+  draftJob: {
+    __typename?: "DraftJobType";
     id: string;
-    applicationId?: string | null;
+    jobId?: string | null;
     url?: string | null;
     title: string;
     htmlContent: string;
     createdAt: any;
     conversionMetadata?: {
       __typename?: "ConversionMetadataType";
-      status: DraftApplicationConversionStatus;
+      status: DraftJobConversionStatus;
       error?: string | null;
       timestamp?: string | null;
     } | null;
-    fit?: {
-      __typename?: "FitAnalysisType";
+    match?: {
+      __typename?: "MatchAnalysisType";
       id: string;
-      applicationId?: string | null;
-      draftApplicationId?: string | null;
+      jobId?: string | null;
+      draftJobId?: string | null;
       resumeId: string;
       scoreRatio?: number | null;
       classification?: string | null;
-      fitCount: number;
+      matchCount: number;
       gapCount: number;
       unclearCount: number;
       createdAt: any;
@@ -1256,105 +810,538 @@ export type DraftApplicationDetailQuery = {
   };
 };
 
-export type DeleteDraftApplicationMutationVariables = Exact<{
+export type DeleteDraftJobMutationVariables = Exact<{
   id: Scalars["ID"]["input"];
-  deleteLinkedApplication?: InputMaybe<Scalars["Boolean"]["input"]>;
+  deleteLinkedJob?: InputMaybe<Scalars["Boolean"]["input"]>;
 }>;
 
-export type DeleteDraftApplicationMutation = {
+export type DeleteDraftJobMutation = {
   __typename?: "Mutation";
-  deleteDraftApplication: {
+  deleteDraftJob: {
     __typename?: "DeleteMutationPayloadType";
     success: boolean;
     deletedId: string;
   };
 };
 
-export type DeleteApplicationsForDraftMutationVariables = Exact<{
+export type DeleteJobsForDraftMutationVariables = Exact<{
   draftId: Scalars["ID"]["input"];
 }>;
 
-export type DeleteApplicationsForDraftMutation = {
+export type DeleteJobsForDraftMutation = {
   __typename?: "Mutation";
-  deleteApplicationsForDraft: {
+  deleteJobsForDraft: {
     __typename?: "DeleteMutationPayloadType";
     success: boolean;
     deletedId: string;
   };
 };
 
-export type CreateApplicationWithAiMutationVariables = Exact<{
+export type CreateJobWithAiMutationVariables = Exact<{
   draftId: Scalars["ID"]["input"];
 }>;
 
-export type CreateApplicationWithAiMutation = {
+export type CreateJobWithAiMutation = {
   __typename?: "Mutation";
-  createApplicationWithAI: {
-    __typename?: "DraftApplicationType";
+  createJobWithAI: {
+    __typename?: "DraftJobType";
     id: string;
     title: string;
     conversionMetadata?: {
       __typename?: "ConversionMetadataType";
-      status: DraftApplicationConversionStatus;
+      status: DraftJobConversionStatus;
       error?: string | null;
     } | null;
   };
 };
 
-export type CreateDraftApplicationMutationVariables = Exact<{
-  input: CreateDraftApplicationInput;
+export type CreateDraftJobMutationVariables = Exact<{
+  input: CreateDraftJobInput;
 }>;
 
-export type CreateDraftApplicationMutation = {
+export type CreateDraftJobMutation = {
   __typename?: "Mutation";
-  createDraftApplication: {
-    __typename?: "DraftApplicationType";
+  createDraftJob: {
+    __typename?: "DraftJobType";
     id: string;
-    applicationId?: string | null;
+    jobId?: string | null;
     url?: string | null;
     title: string;
     conversionMetadata?: {
       __typename?: "ConversionMetadataType";
-      status: DraftApplicationConversionStatus;
+      status: DraftJobConversionStatus;
       error?: string | null;
     } | null;
   };
 };
 
-export type UpdateDraftApplicationMutationVariables = Exact<{
+export type UpdateDraftJobMutationVariables = Exact<{
   id: Scalars["ID"]["input"];
-  input: UpdateDraftApplicationInput;
+  input: UpdateDraftJobInput;
 }>;
 
-export type UpdateDraftApplicationMutation = {
+export type UpdateDraftJobMutation = {
   __typename?: "Mutation";
-  updateDraftApplication: {
-    __typename?: "DraftApplicationType";
+  updateDraftJob: {
+    __typename?: "DraftJobType";
     id: string;
-    applicationId?: string | null;
+    jobId?: string | null;
     url?: string | null;
     title: string;
     conversionMetadata?: {
       __typename?: "ConversionMetadataType";
-      status: DraftApplicationConversionStatus;
+      status: DraftJobConversionStatus;
       error?: string | null;
     } | null;
   };
 };
 
-export type FitAnalysesListQueryVariables = Exact<{ [key: string]: never }>;
+export type JobSalarySelectionFragment = {
+  __typename?: "JobType";
+  salary: {
+    __typename?: "JobSalary";
+    minCents?: number | null;
+    maxCents?: number | null;
+    currency?: string | null;
+    period?: SalaryPeriod | null;
+  };
+};
 
-export type FitAnalysesListQuery = {
+export type JobsQueryVariables = Exact<{
+  filter?: InputMaybe<JobQuickFilter>;
+  company?: InputMaybe<Scalars["String"]["input"]>;
+  runId?: InputMaybe<Scalars["ID"]["input"]>;
+}>;
+
+export type JobsQuery = {
   __typename?: "Query";
-  fitAnalyses: Array<{
-    __typename?: "FitAnalysisType";
+  jobs: Array<{
+    __typename?: "JobType";
     id: string;
-    applicationId?: string | null;
-    draftApplicationId?: string | null;
+    title: string;
+    companyId: string;
+    description?: string | null;
+    urls: Array<string>;
+    source?: JobSource | null;
+    tags: Array<string>;
+    location?: string | null;
+    workRegion?: string | null;
+    sourceRunId?: string | null;
+    summary?: string | null;
+    currentStage: JobStage;
+    currentStageReason?: string | null;
+    currentStageAt: any;
+    createdAt: any;
+    company: {
+      __typename?: "CompanyType";
+      id: string;
+      name: string;
+      description?: string | null;
+    };
+    summaryMetadata?: {
+      __typename?: "AsyncMetadataType";
+      status: AsyncMetadataStatus;
+      error?: string | null;
+      timestamp?: string | null;
+    } | null;
+    match?: {
+      __typename?: "MatchAnalysisType";
+      id: string;
+      scoreRatio?: number | null;
+      classification?: string | null;
+      matchCount: number;
+      gapCount: number;
+      unclearCount: number;
+      generationMetadata?: {
+        __typename?: "AsyncMetadataType";
+        status: AsyncMetadataStatus;
+        error?: string | null;
+        timestamp?: string | null;
+      } | null;
+    } | null;
+    salary: {
+      __typename?: "JobSalary";
+      minCents?: number | null;
+      maxCents?: number | null;
+      currency?: string | null;
+      period?: SalaryPeriod | null;
+    };
+  }>;
+};
+
+export type JobQueryVariables = Exact<{ id: Scalars["ID"]["input"] }>;
+
+export type JobQuery = {
+  __typename?: "Query";
+  job: {
+    __typename?: "JobType";
+    id: string;
+    title: string;
+    companyId: string;
+    description?: string | null;
+    urls: Array<string>;
+    source?: JobSource | null;
+    tags: Array<string>;
+    location?: string | null;
+    workRegion?: string | null;
+    sourceRunId?: string | null;
+    summary?: string | null;
+    currentStage: JobStage;
+    currentStageReason?: string | null;
+    currentStageAt: any;
+    createdAt: any;
+    draftJobId?: string | null;
+    company: {
+      __typename?: "CompanyType";
+      id: string;
+      name: string;
+      description?: string | null;
+    };
+    summaryMetadata?: {
+      __typename?: "AsyncMetadataType";
+      status: AsyncMetadataStatus;
+      error?: string | null;
+      timestamp?: string | null;
+    } | null;
+    match?: {
+      __typename?: "MatchAnalysisType";
+      id: string;
+      scoreRatio?: number | null;
+      classification?: string | null;
+      matchCount: number;
+      gapCount: number;
+      unclearCount: number;
+      generationMetadata?: {
+        __typename?: "AsyncMetadataType";
+        status: AsyncMetadataStatus;
+        error?: string | null;
+        timestamp?: string | null;
+      } | null;
+    } | null;
+    salary: {
+      __typename?: "JobSalary";
+      minCents?: number | null;
+      maxCents?: number | null;
+      currency?: string | null;
+      period?: SalaryPeriod | null;
+    };
+  };
+};
+
+export type CreateJobMutationVariables = Exact<{ input: CreateJobInput }>;
+
+export type CreateJobMutation = {
+  __typename?: "Mutation";
+  createJob: {
+    __typename?: "JobType";
+    id: string;
+    title: string;
+    companyId: string;
+    description?: string | null;
+    urls: Array<string>;
+    source?: JobSource | null;
+    tags: Array<string>;
+    location?: string | null;
+    workRegion?: string | null;
+    createdAt: any;
+    company: {
+      __typename?: "CompanyType";
+      id: string;
+      name: string;
+      description?: string | null;
+    };
+    salary: {
+      __typename?: "JobSalary";
+      minCents?: number | null;
+      maxCents?: number | null;
+      currency?: string | null;
+      period?: SalaryPeriod | null;
+    };
+  };
+};
+
+export type GenerateCompanyDescriptionQueryVariables = Exact<{
+  companyName: Scalars["String"]["input"];
+}>;
+
+export type GenerateCompanyDescriptionQuery = {
+  __typename?: "Query";
+  generateCompanyDescription: string;
+};
+
+export type UpdateJobMutationVariables = Exact<{
+  id: Scalars["ID"]["input"];
+  input: UpdateJobInput;
+}>;
+
+export type UpdateJobMutation = {
+  __typename?: "Mutation";
+  updateJob: {
+    __typename?: "JobType";
+    id: string;
+    title: string;
+    companyId: string;
+    description?: string | null;
+    urls: Array<string>;
+    source?: JobSource | null;
+    tags: Array<string>;
+    location?: string | null;
+    workRegion?: string | null;
+    summary?: string | null;
+    createdAt: any;
+    company: {
+      __typename?: "CompanyType";
+      id: string;
+      name: string;
+      description?: string | null;
+    };
+    summaryMetadata?: {
+      __typename?: "AsyncMetadataType";
+      status: AsyncMetadataStatus;
+      error?: string | null;
+      timestamp?: string | null;
+    } | null;
+    salary: {
+      __typename?: "JobSalary";
+      minCents?: number | null;
+      maxCents?: number | null;
+      currency?: string | null;
+      period?: SalaryPeriod | null;
+    };
+  };
+};
+
+export type RemoveJobTagMutationVariables = Exact<{
+  id: Scalars["ID"]["input"];
+  tag: Scalars["String"]["input"];
+}>;
+
+export type RemoveJobTagMutation = {
+  __typename?: "Mutation";
+  removeJobTag: { __typename?: "JobType"; id: string; tags: Array<string> };
+};
+
+export type DeleteJobMutationVariables = Exact<{ id: Scalars["ID"]["input"] }>;
+
+export type DeleteJobMutation = {
+  __typename?: "Mutation";
+  deleteJob: {
+    __typename?: "DeleteMutationPayloadType";
+    success: boolean;
+    deletedId: string;
+  };
+};
+
+export type JobStageEventsQueryVariables = Exact<{
+  jobId: Scalars["ID"]["input"];
+}>;
+
+export type JobStageEventsQuery = {
+  __typename?: "Query";
+  jobStageEvents: Array<{
+    __typename?: "JobStageEventType";
+    id: string;
+    jobId: string;
+    fromStage?: JobStage | null;
+    toStage: JobStage;
+    source: string;
+    reason?: string | null;
+    scheduledAt?: any | null;
+    createdAt: any;
+  }>;
+};
+
+export type CreateJobStageEventMutationVariables = Exact<{
+  input: CreateJobStageEventInput;
+}>;
+
+export type CreateJobStageEventMutation = {
+  __typename?: "Mutation";
+  createJobStageEvent: {
+    __typename?: "JobStageEventType";
+    id: string;
+    jobId: string;
+    fromStage?: JobStage | null;
+    toStage: JobStage;
+    source: string;
+    reason?: string | null;
+    scheduledAt?: any | null;
+    createdAt: any;
+  };
+};
+
+export type UpdateJobStageEventMutationVariables = Exact<{
+  id: Scalars["ID"]["input"];
+  input: UpdateJobStageEventInput;
+}>;
+
+export type UpdateJobStageEventMutation = {
+  __typename?: "Mutation";
+  updateJobStageEvent: {
+    __typename?: "JobStageEventType";
+    id: string;
+    jobId: string;
+    fromStage?: JobStage | null;
+    toStage: JobStage;
+    source: string;
+    reason?: string | null;
+    scheduledAt?: any | null;
+    createdAt: any;
+  };
+};
+
+export type DeleteJobStageEventMutationVariables = Exact<{
+  id: Scalars["ID"]["input"];
+}>;
+
+export type DeleteJobStageEventMutation = {
+  __typename?: "Mutation";
+  deleteJobStageEvent: {
+    __typename?: "DeleteMutationPayloadType";
+    success: boolean;
+    deletedId: string;
+  };
+};
+
+export type JobNotesQueryVariables = Exact<{ jobId: Scalars["ID"]["input"] }>;
+
+export type JobNotesQuery = {
+  __typename?: "Query";
+  jobNotes: Array<{
+    __typename?: "NoteType";
+    id: string;
+    jobId?: string | null;
+    content: string;
+    revision: number;
+    createdAt: any;
+    updatedAt: any;
+  }>;
+};
+
+export type CreateJobNoteMutationVariables = Exact<{ input: CreateNoteInput }>;
+
+export type CreateJobNoteMutation = {
+  __typename?: "Mutation";
+  createJobNote: {
+    __typename?: "NoteType";
+    id: string;
+    jobId?: string | null;
+    content: string;
+    revision: number;
+    createdAt: any;
+    updatedAt: any;
+  };
+};
+
+export type UpdateJobNoteMutationVariables = Exact<{
+  id: Scalars["ID"]["input"];
+  input: UpdateNoteInput;
+}>;
+
+export type UpdateJobNoteMutation = {
+  __typename?: "Mutation";
+  updateJobNote: {
+    __typename?: "NoteType";
+    id: string;
+    jobId?: string | null;
+    content: string;
+    revision: number;
+    createdAt: any;
+    updatedAt: any;
+  };
+};
+
+export type DeleteJobNoteMutationVariables = Exact<{
+  id: Scalars["ID"]["input"];
+}>;
+
+export type DeleteJobNoteMutation = {
+  __typename?: "Mutation";
+  deleteJobNote: {
+    __typename?: "DeleteMutationPayloadType";
+    success: boolean;
+    deletedId: string;
+  };
+};
+
+export type GenerateJobNoteWithAiQueryVariables = Exact<{
+  jobId: Scalars["ID"]["input"];
+  note: Scalars["String"]["input"];
+}>;
+
+export type GenerateJobNoteWithAiQuery = {
+  __typename?: "Query";
+  generateJobNoteWithAI: string;
+};
+
+export type RewriteTextWithAiQueryVariables = Exact<{
+  text: Scalars["String"]["input"];
+}>;
+
+export type RewriteTextWithAiQuery = {
+  __typename?: "Query";
+  rewriteTextWithAI: string;
+};
+
+export type RestructureJobDescriptionWithAiQueryVariables = Exact<{
+  text: Scalars["String"]["input"];
+}>;
+
+export type RestructureJobDescriptionWithAiQuery = {
+  __typename?: "Query";
+  restructureJobDescriptionWithAI: string;
+};
+
+export type GenerateJobLocationWithAiQueryVariables = Exact<{
+  jobId: Scalars["ID"]["input"];
+}>;
+
+export type GenerateJobLocationWithAiQuery = {
+  __typename?: "Query";
+  generateJobLocationWithAI?: string | null;
+};
+
+export type GenerateJobWorkRegionWithAiQueryVariables = Exact<{
+  jobId: Scalars["ID"]["input"];
+}>;
+
+export type GenerateJobWorkRegionWithAiQuery = {
+  __typename?: "Query";
+  generateJobWorkRegionWithAI?: string | null;
+};
+
+export type GenerateJobSummaryMutationVariables = Exact<{
+  jobId: Scalars["ID"]["input"];
+}>;
+
+export type GenerateJobSummaryMutation = {
+  __typename?: "Mutation";
+  generateJobSummary: {
+    __typename?: "JobType";
+    id: string;
+    summary?: string | null;
+    summaryMetadata?: {
+      __typename?: "AsyncMetadataType";
+      status: AsyncMetadataStatus;
+      error?: string | null;
+      timestamp?: string | null;
+    } | null;
+  };
+};
+
+export type MatchAnalysesListQueryVariables = Exact<{ [key: string]: never }>;
+
+export type MatchAnalysesListQuery = {
+  __typename?: "Query";
+  matchAnalyses: Array<{
+    __typename?: "MatchAnalysisType";
+    id: string;
+    jobId?: string | null;
+    draftJobId?: string | null;
     resumeId: string;
     scoreRatio?: number | null;
     classification?: string | null;
-    fitCount: number;
+    matchCount: number;
     gapCount: number;
     unclearCount: number;
     createdAt: any;
@@ -1365,33 +1352,33 @@ export type FitAnalysesListQuery = {
       error?: string | null;
       timestamp?: string | null;
     } | null;
-    application?: {
-      __typename?: "ApplicationType";
+    job?: {
+      __typename?: "JobType";
       id: string;
       title: string;
       company: { __typename?: "CompanyType"; id: string; name: string };
     } | null;
-    draftApplication?: {
-      __typename?: "DraftApplicationType";
+    draftJob?: {
+      __typename?: "DraftJobType";
       id: string;
       title: string;
     } | null;
   }>;
 };
 
-export type FitQueryVariables = Exact<{ id: Scalars["ID"]["input"] }>;
+export type MatchQueryVariables = Exact<{ id: Scalars["ID"]["input"] }>;
 
-export type FitQuery = {
+export type MatchQuery = {
   __typename?: "Query";
-  fit?: {
-    __typename?: "FitAnalysisType";
+  match: {
+    __typename?: "MatchAnalysisType";
     id: string;
-    applicationId?: string | null;
-    draftApplicationId?: string | null;
+    jobId?: string | null;
+    draftJobId?: string | null;
     resumeId: string;
     scoreRatio?: number | null;
     classification?: string | null;
-    fitCount: number;
+    matchCount: number;
     gapCount: number;
     unclearCount: number;
     createdAt: any;
@@ -1402,7 +1389,7 @@ export type FitQuery = {
       timestamp?: string | null;
     } | null;
     items: Array<{
-      __typename?: "FitItemType";
+      __typename?: "MatchItemType";
       requirement: string;
       source: string;
       weight?: string | null;
@@ -1412,35 +1399,33 @@ export type FitQuery = {
       sourceQuotes: Array<string>;
       suggestion?: string | null;
     }>;
-    application?: {
-      __typename?: "ApplicationType";
+    job?: {
+      __typename?: "JobType";
       id: string;
       title: string;
       company: { __typename?: "CompanyType"; id: string; name: string };
     } | null;
-    draftApplication?: {
-      __typename?: "DraftApplicationType";
+    draftJob?: {
+      __typename?: "DraftJobType";
       id: string;
       title: string;
     } | null;
-  } | null;
+  };
 };
 
-export type ApplicationFitQueryVariables = Exact<{
-  applicationId: Scalars["ID"]["input"];
-}>;
+export type JobMatchQueryVariables = Exact<{ jobId: Scalars["ID"]["input"] }>;
 
-export type ApplicationFitQuery = {
+export type JobMatchQuery = {
   __typename?: "Query";
-  applicationFit?: {
-    __typename?: "FitAnalysisType";
+  jobMatch?: {
+    __typename?: "MatchAnalysisType";
     id: string;
-    applicationId?: string | null;
-    draftApplicationId?: string | null;
+    jobId?: string | null;
+    draftJobId?: string | null;
     resumeId: string;
     scoreRatio?: number | null;
     classification?: string | null;
-    fitCount: number;
+    matchCount: number;
     gapCount: number;
     unclearCount: number;
     createdAt: any;
@@ -1451,7 +1436,7 @@ export type ApplicationFitQuery = {
       timestamp?: string | null;
     } | null;
     items: Array<{
-      __typename?: "FitItemType";
+      __typename?: "MatchItemType";
       requirement: string;
       source: string;
       weight?: string | null;
@@ -1464,21 +1449,21 @@ export type ApplicationFitQuery = {
   } | null;
 };
 
-export type DraftApplicationFitQueryVariables = Exact<{
-  draftApplicationId: Scalars["ID"]["input"];
+export type DraftJobMatchQueryVariables = Exact<{
+  draftJobId: Scalars["ID"]["input"];
 }>;
 
-export type DraftApplicationFitQuery = {
+export type DraftJobMatchQuery = {
   __typename?: "Query";
-  draftApplicationFit?: {
-    __typename?: "FitAnalysisType";
+  draftJobMatch?: {
+    __typename?: "MatchAnalysisType";
     id: string;
-    applicationId?: string | null;
-    draftApplicationId?: string | null;
+    jobId?: string | null;
+    draftJobId?: string | null;
     resumeId: string;
     scoreRatio?: number | null;
     classification?: string | null;
-    fitCount: number;
+    matchCount: number;
     gapCount: number;
     unclearCount: number;
     createdAt: any;
@@ -1489,7 +1474,7 @@ export type DraftApplicationFitQuery = {
       timestamp?: string | null;
     } | null;
     items: Array<{
-      __typename?: "FitItemType";
+      __typename?: "MatchItemType";
       requirement: string;
       source: string;
       weight?: string | null;
@@ -1502,21 +1487,21 @@ export type DraftApplicationFitQuery = {
   } | null;
 };
 
-export type GenerateApplicationFitMutationVariables = Exact<{
-  input: GenerateFitInput;
+export type GenerateJobMatchMutationVariables = Exact<{
+  input: GenerateMatchInput;
 }>;
 
-export type GenerateApplicationFitMutation = {
+export type GenerateJobMatchMutation = {
   __typename?: "Mutation";
-  generateApplicationFit: {
-    __typename?: "FitAnalysisType";
+  generateJobMatch: {
+    __typename?: "MatchAnalysisType";
     id: string;
-    applicationId?: string | null;
-    draftApplicationId?: string | null;
+    jobId?: string | null;
+    draftJobId?: string | null;
     resumeId: string;
     scoreRatio?: number | null;
     classification?: string | null;
-    fitCount: number;
+    matchCount: number;
     gapCount: number;
     unclearCount: number;
     createdAt: any;
@@ -1527,7 +1512,7 @@ export type GenerateApplicationFitMutation = {
       timestamp?: string | null;
     } | null;
     items: Array<{
-      __typename?: "FitItemType";
+      __typename?: "MatchItemType";
       requirement: string;
       source: string;
       weight?: string | null;
@@ -1540,21 +1525,21 @@ export type GenerateApplicationFitMutation = {
   };
 };
 
-export type GenerateDraftApplicationFitMutationVariables = Exact<{
-  input: GenerateDraftFitInput;
+export type GenerateDraftJobMatchMutationVariables = Exact<{
+  input: GenerateDraftMatchInput;
 }>;
 
-export type GenerateDraftApplicationFitMutation = {
+export type GenerateDraftJobMatchMutation = {
   __typename?: "Mutation";
-  generateDraftApplicationFit: {
-    __typename?: "FitAnalysisType";
+  generateDraftJobMatch: {
+    __typename?: "MatchAnalysisType";
     id: string;
-    applicationId?: string | null;
-    draftApplicationId?: string | null;
+    jobId?: string | null;
+    draftJobId?: string | null;
     resumeId: string;
     scoreRatio?: number | null;
     classification?: string | null;
-    fitCount: number;
+    matchCount: number;
     gapCount: number;
     unclearCount: number;
     createdAt: any;
@@ -1565,7 +1550,7 @@ export type GenerateDraftApplicationFitMutation = {
       timestamp?: string | null;
     } | null;
     items: Array<{
-      __typename?: "FitItemType";
+      __typename?: "MatchItemType";
       requirement: string;
       source: string;
       weight?: string | null;
@@ -1578,13 +1563,13 @@ export type GenerateDraftApplicationFitMutation = {
   };
 };
 
-export type DeleteFitAnalysisMutationVariables = Exact<{
+export type DeleteMatchAnalysisMutationVariables = Exact<{
   id: Scalars["ID"]["input"];
 }>;
 
-export type DeleteFitAnalysisMutation = {
+export type DeleteMatchAnalysisMutation = {
   __typename?: "Mutation";
-  deleteFitAnalysis: {
+  deleteMatchAnalysis: {
     __typename?: "DeleteMutationPayloadType";
     success: boolean;
     deletedId: string;
@@ -1807,320 +1792,13 @@ export type UpdateWorkPreferencesMutation = {
   }>;
 };
 
-export const ApplicationSalarySelectionFragmentDoc = gql`
-  fragment ApplicationSalarySelection on ApplicationType {
+export const JobSalarySelectionFragmentDoc = gql`
+  fragment JobSalarySelection on JobType {
     salary {
       minCents
       maxCents
       currency
       period
-    }
-  }
-`;
-export const ApplicationsDocument = gql`
-  query Applications(
-    $filter: ApplicationQuickFilter
-    $company: String
-    $runId: ID
-  ) {
-    applications(filter: $filter, company: $company, runId: $runId) {
-      id
-      title
-      companyId
-      company {
-        id
-        name
-        description
-      }
-      description
-      urls
-      source
-      ...ApplicationSalarySelection
-      tags
-      location
-      workRegion
-      sourceRunId
-      summary
-      summaryMetadata {
-        status
-        error
-        timestamp
-      }
-      currentStage
-      currentStageReason
-      currentStageAt
-      createdAt
-      fit {
-        id
-        scoreRatio
-        classification
-        fitCount
-        gapCount
-        unclearCount
-        generationMetadata {
-          status
-          error
-          timestamp
-        }
-      }
-    }
-  }
-  ${ApplicationSalarySelectionFragmentDoc}
-`;
-export const ApplicationDocument = gql`
-  query Application($id: ID!) {
-    application(id: $id) {
-      id
-      title
-      companyId
-      company {
-        id
-        name
-        description
-      }
-      description
-      urls
-      source
-      ...ApplicationSalarySelection
-      tags
-      location
-      workRegion
-      sourceRunId
-      summary
-      summaryMetadata {
-        status
-        error
-        timestamp
-      }
-      currentStage
-      currentStageReason
-      currentStageAt
-      createdAt
-      draftApplicationId
-      fit {
-        id
-        scoreRatio
-        classification
-        fitCount
-        gapCount
-        unclearCount
-        generationMetadata {
-          status
-          error
-          timestamp
-        }
-      }
-    }
-  }
-  ${ApplicationSalarySelectionFragmentDoc}
-`;
-export const CreateApplicationDocument = gql`
-  mutation CreateApplication($input: CreateApplicationInput!) {
-    createApplication(input: $input) {
-      id
-      title
-      companyId
-      company {
-        id
-        name
-        description
-      }
-      description
-      urls
-      source
-      ...ApplicationSalarySelection
-      tags
-      location
-      workRegion
-      createdAt
-    }
-  }
-  ${ApplicationSalarySelectionFragmentDoc}
-`;
-export const GenerateCompanyDescriptionDocument = gql`
-  query GenerateCompanyDescription($companyName: String!) {
-    generateCompanyDescription(companyName: $companyName)
-  }
-`;
-export const UpdateApplicationDocument = gql`
-  mutation UpdateApplication($id: ID!, $input: UpdateApplicationInput!) {
-    updateApplication(id: $id, input: $input) {
-      id
-      title
-      companyId
-      company {
-        id
-        name
-        description
-      }
-      description
-      urls
-      source
-      ...ApplicationSalarySelection
-      tags
-      location
-      workRegion
-      summary
-      summaryMetadata {
-        status
-        error
-        timestamp
-      }
-      createdAt
-    }
-  }
-  ${ApplicationSalarySelectionFragmentDoc}
-`;
-export const RemoveApplicationTagDocument = gql`
-  mutation RemoveApplicationTag($id: ID!, $tag: String!) {
-    removeApplicationTag(id: $id, tag: $tag) {
-      id
-      tags
-    }
-  }
-`;
-export const DeleteApplicationDocument = gql`
-  mutation DeleteApplication($id: ID!) {
-    deleteApplication(id: $id) {
-      success
-      deletedId
-    }
-  }
-`;
-export const ApplicationStageEventsDocument = gql`
-  query ApplicationStageEvents($applicationId: ID!) {
-    applicationStageEvents(applicationId: $applicationId) {
-      id
-      applicationId
-      fromStage
-      toStage
-      source
-      reason
-      scheduledAt
-      createdAt
-    }
-  }
-`;
-export const CreateApplicationStageEventDocument = gql`
-  mutation CreateApplicationStageEvent(
-    $input: CreateApplicationStageEventInput!
-  ) {
-    createApplicationStageEvent(input: $input) {
-      id
-      applicationId
-      fromStage
-      toStage
-      source
-      reason
-      scheduledAt
-      createdAt
-    }
-  }
-`;
-export const UpdateApplicationStageEventDocument = gql`
-  mutation UpdateApplicationStageEvent(
-    $id: ID!
-    $input: UpdateApplicationStageEventInput!
-  ) {
-    updateApplicationStageEvent(id: $id, input: $input) {
-      id
-      applicationId
-      fromStage
-      toStage
-      source
-      reason
-      scheduledAt
-      createdAt
-    }
-  }
-`;
-export const DeleteApplicationStageEventDocument = gql`
-  mutation DeleteApplicationStageEvent($id: ID!) {
-    deleteApplicationStageEvent(id: $id) {
-      success
-      deletedId
-    }
-  }
-`;
-export const ApplicationNotesDocument = gql`
-  query ApplicationNotes($applicationId: ID!) {
-    applicationNotes(applicationId: $applicationId) {
-      id
-      applicationId
-      content
-      revision
-      createdAt
-      updatedAt
-    }
-  }
-`;
-export const CreateApplicationNoteDocument = gql`
-  mutation CreateApplicationNote($input: CreateNoteInput!) {
-    createApplicationNote(input: $input) {
-      id
-      applicationId
-      content
-      revision
-      createdAt
-      updatedAt
-    }
-  }
-`;
-export const UpdateApplicationNoteDocument = gql`
-  mutation UpdateApplicationNote($id: ID!, $input: UpdateNoteInput!) {
-    updateApplicationNote(id: $id, input: $input) {
-      id
-      applicationId
-      content
-      revision
-      createdAt
-      updatedAt
-    }
-  }
-`;
-export const DeleteApplicationNoteDocument = gql`
-  mutation DeleteApplicationNote($id: ID!) {
-    deleteApplicationNote(id: $id) {
-      success
-      deletedId
-    }
-  }
-`;
-export const GenerateApplicationNoteWithAiDocument = gql`
-  query GenerateApplicationNoteWithAi($applicationId: ID!, $note: String!) {
-    generateApplicationNoteWithAI(applicationId: $applicationId, note: $note)
-  }
-`;
-export const RewriteTextWithAiDocument = gql`
-  query RewriteTextWithAi($text: String!) {
-    rewriteTextWithAI(text: $text)
-  }
-`;
-export const RestructureJobDescriptionWithAiDocument = gql`
-  query RestructureJobDescriptionWithAi($text: String!) {
-    restructureJobDescriptionWithAI(text: $text)
-  }
-`;
-export const GenerateApplicationLocationWithAiDocument = gql`
-  query GenerateApplicationLocationWithAi($applicationId: ID!) {
-    generateApplicationLocationWithAI(applicationId: $applicationId)
-  }
-`;
-export const GenerateApplicationWorkRegionWithAiDocument = gql`
-  query GenerateApplicationWorkRegionWithAi($applicationId: ID!) {
-    generateApplicationWorkRegionWithAI(applicationId: $applicationId)
-  }
-`;
-export const GenerateApplicationSummaryDocument = gql`
-  mutation GenerateApplicationSummary($applicationId: ID!) {
-    generateApplicationSummary(applicationId: $applicationId) {
-      id
-      summary
-      summaryMetadata {
-        status
-        error
-        timestamp
-      }
     }
   }
 `;
@@ -2141,14 +1819,23 @@ export const DeleteCompanyDocument = gql`
     }
   }
 `;
-export const CompanyApplicationsCountDocument = gql`
-  query CompanyApplicationsCount($id: ID!) {
-    companyApplicationsCount(id: $id)
+export const CompanyJobsCountDocument = gql`
+  query CompanyJobsCount($id: ID!) {
+    companyJobsCount(id: $id)
   }
 `;
 export const CompaniesDocument = gql`
   query Companies {
     companies {
+      id
+      name
+      description
+    }
+  }
+`;
+export const CompanyDocument = gql`
+  query Company($id: ID!) {
+    company(id: $id) {
       id
       name
       description
@@ -2166,11 +1853,11 @@ export const ExchangeRatesDocument = gql`
     }
   }
 `;
-export const DraftApplicationsListDocument = gql`
-  query DraftApplicationsList {
-    draftApplications {
+export const DraftJobsListDocument = gql`
+  query DraftJobsList {
+    draftJobs {
       id
-      applicationId
+      jobId
       url
       title
       conversionMetadata {
@@ -2182,11 +1869,11 @@ export const DraftApplicationsListDocument = gql`
     }
   }
 `;
-export const DraftApplicationDetailDocument = gql`
-  query DraftApplicationDetail($id: ID!) {
-    draftApplication(id: $id) {
+export const DraftJobDetailDocument = gql`
+  query DraftJobDetail($id: ID!) {
+    draftJob(id: $id) {
       id
-      applicationId
+      jobId
       url
       title
       htmlContent
@@ -2196,10 +1883,10 @@ export const DraftApplicationDetailDocument = gql`
         timestamp
       }
       createdAt
-      fit {
+      match {
         id
-        applicationId
-        draftApplicationId
+        jobId
+        draftJobId
         resumeId
         generationMetadata {
           status
@@ -2208,7 +1895,7 @@ export const DraftApplicationDetailDocument = gql`
         }
         scoreRatio
         classification
-        fitCount
+        matchCount
         gapCount
         unclearCount
         createdAt
@@ -2216,28 +1903,25 @@ export const DraftApplicationDetailDocument = gql`
     }
   }
 `;
-export const DeleteDraftApplicationDocument = gql`
-  mutation DeleteDraftApplication($id: ID!, $deleteLinkedApplication: Boolean) {
-    deleteDraftApplication(
-      id: $id
-      deleteLinkedApplication: $deleteLinkedApplication
-    ) {
+export const DeleteDraftJobDocument = gql`
+  mutation DeleteDraftJob($id: ID!, $deleteLinkedJob: Boolean) {
+    deleteDraftJob(id: $id, deleteLinkedJob: $deleteLinkedJob) {
       success
       deletedId
     }
   }
 `;
-export const DeleteApplicationsForDraftDocument = gql`
-  mutation DeleteApplicationsForDraft($draftId: ID!) {
-    deleteApplicationsForDraft(draftId: $draftId) {
+export const DeleteJobsForDraftDocument = gql`
+  mutation DeleteJobsForDraft($draftId: ID!) {
+    deleteJobsForDraft(draftId: $draftId) {
       success
       deletedId
     }
   }
 `;
-export const CreateApplicationWithAiDocument = gql`
-  mutation CreateApplicationWithAI($draftId: ID!) {
-    createApplicationWithAI(draftId: $draftId) {
+export const CreateJobWithAiDocument = gql`
+  mutation CreateJobWithAI($draftId: ID!) {
+    createJobWithAI(draftId: $draftId) {
       id
       title
       conversionMetadata {
@@ -2247,11 +1931,11 @@ export const CreateApplicationWithAiDocument = gql`
     }
   }
 `;
-export const CreateDraftApplicationDocument = gql`
-  mutation CreateDraftApplication($input: CreateDraftApplicationInput!) {
-    createDraftApplication(input: $input) {
+export const CreateDraftJobDocument = gql`
+  mutation CreateDraftJob($input: CreateDraftJobInput!) {
+    createDraftJob(input: $input) {
       id
-      applicationId
+      jobId
       url
       title
       conversionMetadata {
@@ -2261,14 +1945,11 @@ export const CreateDraftApplicationDocument = gql`
     }
   }
 `;
-export const UpdateDraftApplicationDocument = gql`
-  mutation UpdateDraftApplication(
-    $id: ID!
-    $input: UpdateDraftApplicationInput!
-  ) {
-    updateDraftApplication(id: $id, input: $input) {
+export const UpdateDraftJobDocument = gql`
+  mutation UpdateDraftJob($id: ID!, $input: UpdateDraftJobInput!) {
+    updateDraftJob(id: $id, input: $input) {
       id
-      applicationId
+      jobId
       url
       title
       conversionMetadata {
@@ -2278,12 +1959,310 @@ export const UpdateDraftApplicationDocument = gql`
     }
   }
 `;
-export const FitAnalysesListDocument = gql`
-  query FitAnalysesList {
-    fitAnalyses {
+export const JobsDocument = gql`
+  query Jobs($filter: JobQuickFilter, $company: String, $runId: ID) {
+    jobs(filter: $filter, company: $company, runId: $runId) {
       id
-      applicationId
-      draftApplicationId
+      title
+      companyId
+      company {
+        id
+        name
+        description
+      }
+      description
+      urls
+      source
+      ...JobSalarySelection
+      tags
+      location
+      workRegion
+      sourceRunId
+      summary
+      summaryMetadata {
+        status
+        error
+        timestamp
+      }
+      currentStage
+      currentStageReason
+      currentStageAt
+      createdAt
+      match {
+        id
+        scoreRatio
+        classification
+        matchCount
+        gapCount
+        unclearCount
+        generationMetadata {
+          status
+          error
+          timestamp
+        }
+      }
+    }
+  }
+  ${JobSalarySelectionFragmentDoc}
+`;
+export const JobDocument = gql`
+  query Job($id: ID!) {
+    job(id: $id) {
+      id
+      title
+      companyId
+      company {
+        id
+        name
+        description
+      }
+      description
+      urls
+      source
+      ...JobSalarySelection
+      tags
+      location
+      workRegion
+      sourceRunId
+      summary
+      summaryMetadata {
+        status
+        error
+        timestamp
+      }
+      currentStage
+      currentStageReason
+      currentStageAt
+      createdAt
+      draftJobId
+      match {
+        id
+        scoreRatio
+        classification
+        matchCount
+        gapCount
+        unclearCount
+        generationMetadata {
+          status
+          error
+          timestamp
+        }
+      }
+    }
+  }
+  ${JobSalarySelectionFragmentDoc}
+`;
+export const CreateJobDocument = gql`
+  mutation CreateJob($input: CreateJobInput!) {
+    createJob(input: $input) {
+      id
+      title
+      companyId
+      company {
+        id
+        name
+        description
+      }
+      description
+      urls
+      source
+      ...JobSalarySelection
+      tags
+      location
+      workRegion
+      createdAt
+    }
+  }
+  ${JobSalarySelectionFragmentDoc}
+`;
+export const GenerateCompanyDescriptionDocument = gql`
+  query GenerateCompanyDescription($companyName: String!) {
+    generateCompanyDescription(companyName: $companyName)
+  }
+`;
+export const UpdateJobDocument = gql`
+  mutation UpdateJob($id: ID!, $input: UpdateJobInput!) {
+    updateJob(id: $id, input: $input) {
+      id
+      title
+      companyId
+      company {
+        id
+        name
+        description
+      }
+      description
+      urls
+      source
+      ...JobSalarySelection
+      tags
+      location
+      workRegion
+      summary
+      summaryMetadata {
+        status
+        error
+        timestamp
+      }
+      createdAt
+    }
+  }
+  ${JobSalarySelectionFragmentDoc}
+`;
+export const RemoveJobTagDocument = gql`
+  mutation RemoveJobTag($id: ID!, $tag: String!) {
+    removeJobTag(id: $id, tag: $tag) {
+      id
+      tags
+    }
+  }
+`;
+export const DeleteJobDocument = gql`
+  mutation DeleteJob($id: ID!) {
+    deleteJob(id: $id) {
+      success
+      deletedId
+    }
+  }
+`;
+export const JobStageEventsDocument = gql`
+  query JobStageEvents($jobId: ID!) {
+    jobStageEvents(jobId: $jobId) {
+      id
+      jobId
+      fromStage
+      toStage
+      source
+      reason
+      scheduledAt
+      createdAt
+    }
+  }
+`;
+export const CreateJobStageEventDocument = gql`
+  mutation CreateJobStageEvent($input: CreateJobStageEventInput!) {
+    createJobStageEvent(input: $input) {
+      id
+      jobId
+      fromStage
+      toStage
+      source
+      reason
+      scheduledAt
+      createdAt
+    }
+  }
+`;
+export const UpdateJobStageEventDocument = gql`
+  mutation UpdateJobStageEvent($id: ID!, $input: UpdateJobStageEventInput!) {
+    updateJobStageEvent(id: $id, input: $input) {
+      id
+      jobId
+      fromStage
+      toStage
+      source
+      reason
+      scheduledAt
+      createdAt
+    }
+  }
+`;
+export const DeleteJobStageEventDocument = gql`
+  mutation DeleteJobStageEvent($id: ID!) {
+    deleteJobStageEvent(id: $id) {
+      success
+      deletedId
+    }
+  }
+`;
+export const JobNotesDocument = gql`
+  query JobNotes($jobId: ID!) {
+    jobNotes(jobId: $jobId) {
+      id
+      jobId
+      content
+      revision
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const CreateJobNoteDocument = gql`
+  mutation CreateJobNote($input: CreateNoteInput!) {
+    createJobNote(input: $input) {
+      id
+      jobId
+      content
+      revision
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const UpdateJobNoteDocument = gql`
+  mutation UpdateJobNote($id: ID!, $input: UpdateNoteInput!) {
+    updateJobNote(id: $id, input: $input) {
+      id
+      jobId
+      content
+      revision
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const DeleteJobNoteDocument = gql`
+  mutation DeleteJobNote($id: ID!) {
+    deleteJobNote(id: $id) {
+      success
+      deletedId
+    }
+  }
+`;
+export const GenerateJobNoteWithAiDocument = gql`
+  query GenerateJobNoteWithAi($jobId: ID!, $note: String!) {
+    generateJobNoteWithAI(jobId: $jobId, note: $note)
+  }
+`;
+export const RewriteTextWithAiDocument = gql`
+  query RewriteTextWithAi($text: String!) {
+    rewriteTextWithAI(text: $text)
+  }
+`;
+export const RestructureJobDescriptionWithAiDocument = gql`
+  query RestructureJobDescriptionWithAi($text: String!) {
+    restructureJobDescriptionWithAI(text: $text)
+  }
+`;
+export const GenerateJobLocationWithAiDocument = gql`
+  query GenerateJobLocationWithAi($jobId: ID!) {
+    generateJobLocationWithAI(jobId: $jobId)
+  }
+`;
+export const GenerateJobWorkRegionWithAiDocument = gql`
+  query GenerateJobWorkRegionWithAi($jobId: ID!) {
+    generateJobWorkRegionWithAI(jobId: $jobId)
+  }
+`;
+export const GenerateJobSummaryDocument = gql`
+  mutation GenerateJobSummary($jobId: ID!) {
+    generateJobSummary(jobId: $jobId) {
+      id
+      summary
+      summaryMetadata {
+        status
+        error
+        timestamp
+      }
+    }
+  }
+`;
+export const MatchAnalysesListDocument = gql`
+  query MatchAnalysesList {
+    matchAnalyses {
+      id
+      jobId
+      draftJobId
       resumeId
       generationMetadata {
         status
@@ -2292,12 +2271,12 @@ export const FitAnalysesListDocument = gql`
       }
       scoreRatio
       classification
-      fitCount
+      matchCount
       gapCount
       unclearCount
       createdAt
       updatedAt
-      application {
+      job {
         id
         title
         company {
@@ -2305,19 +2284,19 @@ export const FitAnalysesListDocument = gql`
           name
         }
       }
-      draftApplication {
+      draftJob {
         id
         title
       }
     }
   }
 `;
-export const FitDocument = gql`
-  query Fit($id: ID!) {
-    fit(id: $id) {
+export const MatchDocument = gql`
+  query Match($id: ID!) {
+    match(id: $id) {
       id
-      applicationId
-      draftApplicationId
+      jobId
+      draftJobId
       resumeId
       generationMetadata {
         status
@@ -2326,7 +2305,7 @@ export const FitDocument = gql`
       }
       scoreRatio
       classification
-      fitCount
+      matchCount
       gapCount
       unclearCount
       items {
@@ -2340,7 +2319,7 @@ export const FitDocument = gql`
         suggestion
       }
       createdAt
-      application {
+      job {
         id
         title
         company {
@@ -2348,19 +2327,19 @@ export const FitDocument = gql`
           name
         }
       }
-      draftApplication {
+      draftJob {
         id
         title
       }
     }
   }
 `;
-export const ApplicationFitDocument = gql`
-  query ApplicationFit($applicationId: ID!) {
-    applicationFit(applicationId: $applicationId) {
+export const JobMatchDocument = gql`
+  query JobMatch($jobId: ID!) {
+    jobMatch(jobId: $jobId) {
       id
-      applicationId
-      draftApplicationId
+      jobId
+      draftJobId
       resumeId
       generationMetadata {
         status
@@ -2369,7 +2348,7 @@ export const ApplicationFitDocument = gql`
       }
       scoreRatio
       classification
-      fitCount
+      matchCount
       gapCount
       unclearCount
       items {
@@ -2386,12 +2365,12 @@ export const ApplicationFitDocument = gql`
     }
   }
 `;
-export const DraftApplicationFitDocument = gql`
-  query DraftApplicationFit($draftApplicationId: ID!) {
-    draftApplicationFit(draftApplicationId: $draftApplicationId) {
+export const DraftJobMatchDocument = gql`
+  query DraftJobMatch($draftJobId: ID!) {
+    draftJobMatch(draftJobId: $draftJobId) {
       id
-      applicationId
-      draftApplicationId
+      jobId
+      draftJobId
       resumeId
       generationMetadata {
         status
@@ -2400,7 +2379,7 @@ export const DraftApplicationFitDocument = gql`
       }
       scoreRatio
       classification
-      fitCount
+      matchCount
       gapCount
       unclearCount
       items {
@@ -2417,12 +2396,12 @@ export const DraftApplicationFitDocument = gql`
     }
   }
 `;
-export const GenerateApplicationFitDocument = gql`
-  mutation GenerateApplicationFit($input: GenerateFitInput!) {
-    generateApplicationFit(input: $input) {
+export const GenerateJobMatchDocument = gql`
+  mutation GenerateJobMatch($input: GenerateMatchInput!) {
+    generateJobMatch(input: $input) {
       id
-      applicationId
-      draftApplicationId
+      jobId
+      draftJobId
       resumeId
       generationMetadata {
         status
@@ -2431,7 +2410,7 @@ export const GenerateApplicationFitDocument = gql`
       }
       scoreRatio
       classification
-      fitCount
+      matchCount
       gapCount
       unclearCount
       items {
@@ -2448,12 +2427,12 @@ export const GenerateApplicationFitDocument = gql`
     }
   }
 `;
-export const GenerateDraftApplicationFitDocument = gql`
-  mutation GenerateDraftApplicationFit($input: GenerateDraftFitInput!) {
-    generateDraftApplicationFit(input: $input) {
+export const GenerateDraftJobMatchDocument = gql`
+  mutation GenerateDraftJobMatch($input: GenerateDraftMatchInput!) {
+    generateDraftJobMatch(input: $input) {
       id
-      applicationId
-      draftApplicationId
+      jobId
+      draftJobId
       resumeId
       generationMetadata {
         status
@@ -2462,7 +2441,7 @@ export const GenerateDraftApplicationFitDocument = gql`
       }
       scoreRatio
       classification
-      fitCount
+      matchCount
       gapCount
       unclearCount
       items {
@@ -2479,9 +2458,9 @@ export const GenerateDraftApplicationFitDocument = gql`
     }
   }
 `;
-export const DeleteFitAnalysisDocument = gql`
-  mutation DeleteFitAnalysis($id: ID!) {
-    deleteFitAnalysis(id: $id) {
+export const DeleteMatchAnalysisDocument = gql`
+  mutation DeleteMatchAnalysis($id: ID!) {
+    deleteMatchAnalysis(id: $id) {
       success
       deletedId
     }
@@ -2661,56 +2640,290 @@ export function getSdk(
   withWrapper: SdkFunctionWrapper = defaultWrapper,
 ) {
   return {
-    Applications(
-      variables?: ApplicationsQueryVariables,
+    UpdateCompany(
+      variables: UpdateCompanyMutationVariables,
       requestHeaders?: GraphQLClientRequestHeaders,
       signal?: RequestInit["signal"],
-    ): Promise<ApplicationsQuery> {
+    ): Promise<UpdateCompanyMutation> {
       return withWrapper(
         (wrappedRequestHeaders) =>
-          client.request<ApplicationsQuery>({
-            document: ApplicationsDocument,
+          client.request<UpdateCompanyMutation>({
+            document: UpdateCompanyDocument,
             variables,
             requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
             signal,
           }),
-        "Applications",
+        "UpdateCompany",
+        "mutation",
+        variables,
+      );
+    },
+    DeleteCompany(
+      variables: DeleteCompanyMutationVariables,
+      requestHeaders?: GraphQLClientRequestHeaders,
+      signal?: RequestInit["signal"],
+    ): Promise<DeleteCompanyMutation> {
+      return withWrapper(
+        (wrappedRequestHeaders) =>
+          client.request<DeleteCompanyMutation>({
+            document: DeleteCompanyDocument,
+            variables,
+            requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
+            signal,
+          }),
+        "DeleteCompany",
+        "mutation",
+        variables,
+      );
+    },
+    CompanyJobsCount(
+      variables: CompanyJobsCountQueryVariables,
+      requestHeaders?: GraphQLClientRequestHeaders,
+      signal?: RequestInit["signal"],
+    ): Promise<CompanyJobsCountQuery> {
+      return withWrapper(
+        (wrappedRequestHeaders) =>
+          client.request<CompanyJobsCountQuery>({
+            document: CompanyJobsCountDocument,
+            variables,
+            requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
+            signal,
+          }),
+        "CompanyJobsCount",
         "query",
         variables,
       );
     },
-    Application(
-      variables: ApplicationQueryVariables,
+    Companies(
+      variables?: CompaniesQueryVariables,
       requestHeaders?: GraphQLClientRequestHeaders,
       signal?: RequestInit["signal"],
-    ): Promise<ApplicationQuery> {
+    ): Promise<CompaniesQuery> {
       return withWrapper(
         (wrappedRequestHeaders) =>
-          client.request<ApplicationQuery>({
-            document: ApplicationDocument,
+          client.request<CompaniesQuery>({
+            document: CompaniesDocument,
             variables,
             requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
             signal,
           }),
-        "Application",
+        "Companies",
         "query",
         variables,
       );
     },
-    CreateApplication(
-      variables: CreateApplicationMutationVariables,
+    Company(
+      variables: CompanyQueryVariables,
       requestHeaders?: GraphQLClientRequestHeaders,
       signal?: RequestInit["signal"],
-    ): Promise<CreateApplicationMutation> {
+    ): Promise<CompanyQuery> {
       return withWrapper(
         (wrappedRequestHeaders) =>
-          client.request<CreateApplicationMutation>({
-            document: CreateApplicationDocument,
+          client.request<CompanyQuery>({
+            document: CompanyDocument,
             variables,
             requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
             signal,
           }),
-        "CreateApplication",
+        "Company",
+        "query",
+        variables,
+      );
+    },
+    ExchangeRates(
+      variables: ExchangeRatesQueryVariables,
+      requestHeaders?: GraphQLClientRequestHeaders,
+      signal?: RequestInit["signal"],
+    ): Promise<ExchangeRatesQuery> {
+      return withWrapper(
+        (wrappedRequestHeaders) =>
+          client.request<ExchangeRatesQuery>({
+            document: ExchangeRatesDocument,
+            variables,
+            requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
+            signal,
+          }),
+        "ExchangeRates",
+        "query",
+        variables,
+      );
+    },
+    DraftJobsList(
+      variables?: DraftJobsListQueryVariables,
+      requestHeaders?: GraphQLClientRequestHeaders,
+      signal?: RequestInit["signal"],
+    ): Promise<DraftJobsListQuery> {
+      return withWrapper(
+        (wrappedRequestHeaders) =>
+          client.request<DraftJobsListQuery>({
+            document: DraftJobsListDocument,
+            variables,
+            requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
+            signal,
+          }),
+        "DraftJobsList",
+        "query",
+        variables,
+      );
+    },
+    DraftJobDetail(
+      variables: DraftJobDetailQueryVariables,
+      requestHeaders?: GraphQLClientRequestHeaders,
+      signal?: RequestInit["signal"],
+    ): Promise<DraftJobDetailQuery> {
+      return withWrapper(
+        (wrappedRequestHeaders) =>
+          client.request<DraftJobDetailQuery>({
+            document: DraftJobDetailDocument,
+            variables,
+            requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
+            signal,
+          }),
+        "DraftJobDetail",
+        "query",
+        variables,
+      );
+    },
+    DeleteDraftJob(
+      variables: DeleteDraftJobMutationVariables,
+      requestHeaders?: GraphQLClientRequestHeaders,
+      signal?: RequestInit["signal"],
+    ): Promise<DeleteDraftJobMutation> {
+      return withWrapper(
+        (wrappedRequestHeaders) =>
+          client.request<DeleteDraftJobMutation>({
+            document: DeleteDraftJobDocument,
+            variables,
+            requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
+            signal,
+          }),
+        "DeleteDraftJob",
+        "mutation",
+        variables,
+      );
+    },
+    DeleteJobsForDraft(
+      variables: DeleteJobsForDraftMutationVariables,
+      requestHeaders?: GraphQLClientRequestHeaders,
+      signal?: RequestInit["signal"],
+    ): Promise<DeleteJobsForDraftMutation> {
+      return withWrapper(
+        (wrappedRequestHeaders) =>
+          client.request<DeleteJobsForDraftMutation>({
+            document: DeleteJobsForDraftDocument,
+            variables,
+            requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
+            signal,
+          }),
+        "DeleteJobsForDraft",
+        "mutation",
+        variables,
+      );
+    },
+    CreateJobWithAI(
+      variables: CreateJobWithAiMutationVariables,
+      requestHeaders?: GraphQLClientRequestHeaders,
+      signal?: RequestInit["signal"],
+    ): Promise<CreateJobWithAiMutation> {
+      return withWrapper(
+        (wrappedRequestHeaders) =>
+          client.request<CreateJobWithAiMutation>({
+            document: CreateJobWithAiDocument,
+            variables,
+            requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
+            signal,
+          }),
+        "CreateJobWithAI",
+        "mutation",
+        variables,
+      );
+    },
+    CreateDraftJob(
+      variables: CreateDraftJobMutationVariables,
+      requestHeaders?: GraphQLClientRequestHeaders,
+      signal?: RequestInit["signal"],
+    ): Promise<CreateDraftJobMutation> {
+      return withWrapper(
+        (wrappedRequestHeaders) =>
+          client.request<CreateDraftJobMutation>({
+            document: CreateDraftJobDocument,
+            variables,
+            requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
+            signal,
+          }),
+        "CreateDraftJob",
+        "mutation",
+        variables,
+      );
+    },
+    UpdateDraftJob(
+      variables: UpdateDraftJobMutationVariables,
+      requestHeaders?: GraphQLClientRequestHeaders,
+      signal?: RequestInit["signal"],
+    ): Promise<UpdateDraftJobMutation> {
+      return withWrapper(
+        (wrappedRequestHeaders) =>
+          client.request<UpdateDraftJobMutation>({
+            document: UpdateDraftJobDocument,
+            variables,
+            requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
+            signal,
+          }),
+        "UpdateDraftJob",
+        "mutation",
+        variables,
+      );
+    },
+    Jobs(
+      variables?: JobsQueryVariables,
+      requestHeaders?: GraphQLClientRequestHeaders,
+      signal?: RequestInit["signal"],
+    ): Promise<JobsQuery> {
+      return withWrapper(
+        (wrappedRequestHeaders) =>
+          client.request<JobsQuery>({
+            document: JobsDocument,
+            variables,
+            requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
+            signal,
+          }),
+        "Jobs",
+        "query",
+        variables,
+      );
+    },
+    Job(
+      variables: JobQueryVariables,
+      requestHeaders?: GraphQLClientRequestHeaders,
+      signal?: RequestInit["signal"],
+    ): Promise<JobQuery> {
+      return withWrapper(
+        (wrappedRequestHeaders) =>
+          client.request<JobQuery>({
+            document: JobDocument,
+            variables,
+            requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
+            signal,
+          }),
+        "Job",
+        "query",
+        variables,
+      );
+    },
+    CreateJob(
+      variables: CreateJobMutationVariables,
+      requestHeaders?: GraphQLClientRequestHeaders,
+      signal?: RequestInit["signal"],
+    ): Promise<CreateJobMutation> {
+      return withWrapper(
+        (wrappedRequestHeaders) =>
+          client.request<CreateJobMutation>({
+            document: CreateJobDocument,
+            variables,
+            requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
+            signal,
+          }),
+        "CreateJob",
         "mutation",
         variables,
       );
@@ -2733,218 +2946,218 @@ export function getSdk(
         variables,
       );
     },
-    UpdateApplication(
-      variables: UpdateApplicationMutationVariables,
+    UpdateJob(
+      variables: UpdateJobMutationVariables,
       requestHeaders?: GraphQLClientRequestHeaders,
       signal?: RequestInit["signal"],
-    ): Promise<UpdateApplicationMutation> {
+    ): Promise<UpdateJobMutation> {
       return withWrapper(
         (wrappedRequestHeaders) =>
-          client.request<UpdateApplicationMutation>({
-            document: UpdateApplicationDocument,
+          client.request<UpdateJobMutation>({
+            document: UpdateJobDocument,
             variables,
             requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
             signal,
           }),
-        "UpdateApplication",
+        "UpdateJob",
         "mutation",
         variables,
       );
     },
-    RemoveApplicationTag(
-      variables: RemoveApplicationTagMutationVariables,
+    RemoveJobTag(
+      variables: RemoveJobTagMutationVariables,
       requestHeaders?: GraphQLClientRequestHeaders,
       signal?: RequestInit["signal"],
-    ): Promise<RemoveApplicationTagMutation> {
+    ): Promise<RemoveJobTagMutation> {
       return withWrapper(
         (wrappedRequestHeaders) =>
-          client.request<RemoveApplicationTagMutation>({
-            document: RemoveApplicationTagDocument,
+          client.request<RemoveJobTagMutation>({
+            document: RemoveJobTagDocument,
             variables,
             requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
             signal,
           }),
-        "RemoveApplicationTag",
+        "RemoveJobTag",
         "mutation",
         variables,
       );
     },
-    DeleteApplication(
-      variables: DeleteApplicationMutationVariables,
+    DeleteJob(
+      variables: DeleteJobMutationVariables,
       requestHeaders?: GraphQLClientRequestHeaders,
       signal?: RequestInit["signal"],
-    ): Promise<DeleteApplicationMutation> {
+    ): Promise<DeleteJobMutation> {
       return withWrapper(
         (wrappedRequestHeaders) =>
-          client.request<DeleteApplicationMutation>({
-            document: DeleteApplicationDocument,
+          client.request<DeleteJobMutation>({
+            document: DeleteJobDocument,
             variables,
             requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
             signal,
           }),
-        "DeleteApplication",
+        "DeleteJob",
         "mutation",
         variables,
       );
     },
-    ApplicationStageEvents(
-      variables: ApplicationStageEventsQueryVariables,
+    JobStageEvents(
+      variables: JobStageEventsQueryVariables,
       requestHeaders?: GraphQLClientRequestHeaders,
       signal?: RequestInit["signal"],
-    ): Promise<ApplicationStageEventsQuery> {
+    ): Promise<JobStageEventsQuery> {
       return withWrapper(
         (wrappedRequestHeaders) =>
-          client.request<ApplicationStageEventsQuery>({
-            document: ApplicationStageEventsDocument,
+          client.request<JobStageEventsQuery>({
+            document: JobStageEventsDocument,
             variables,
             requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
             signal,
           }),
-        "ApplicationStageEvents",
+        "JobStageEvents",
         "query",
         variables,
       );
     },
-    CreateApplicationStageEvent(
-      variables: CreateApplicationStageEventMutationVariables,
+    CreateJobStageEvent(
+      variables: CreateJobStageEventMutationVariables,
       requestHeaders?: GraphQLClientRequestHeaders,
       signal?: RequestInit["signal"],
-    ): Promise<CreateApplicationStageEventMutation> {
+    ): Promise<CreateJobStageEventMutation> {
       return withWrapper(
         (wrappedRequestHeaders) =>
-          client.request<CreateApplicationStageEventMutation>({
-            document: CreateApplicationStageEventDocument,
+          client.request<CreateJobStageEventMutation>({
+            document: CreateJobStageEventDocument,
             variables,
             requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
             signal,
           }),
-        "CreateApplicationStageEvent",
+        "CreateJobStageEvent",
         "mutation",
         variables,
       );
     },
-    UpdateApplicationStageEvent(
-      variables: UpdateApplicationStageEventMutationVariables,
+    UpdateJobStageEvent(
+      variables: UpdateJobStageEventMutationVariables,
       requestHeaders?: GraphQLClientRequestHeaders,
       signal?: RequestInit["signal"],
-    ): Promise<UpdateApplicationStageEventMutation> {
+    ): Promise<UpdateJobStageEventMutation> {
       return withWrapper(
         (wrappedRequestHeaders) =>
-          client.request<UpdateApplicationStageEventMutation>({
-            document: UpdateApplicationStageEventDocument,
+          client.request<UpdateJobStageEventMutation>({
+            document: UpdateJobStageEventDocument,
             variables,
             requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
             signal,
           }),
-        "UpdateApplicationStageEvent",
+        "UpdateJobStageEvent",
         "mutation",
         variables,
       );
     },
-    DeleteApplicationStageEvent(
-      variables: DeleteApplicationStageEventMutationVariables,
+    DeleteJobStageEvent(
+      variables: DeleteJobStageEventMutationVariables,
       requestHeaders?: GraphQLClientRequestHeaders,
       signal?: RequestInit["signal"],
-    ): Promise<DeleteApplicationStageEventMutation> {
+    ): Promise<DeleteJobStageEventMutation> {
       return withWrapper(
         (wrappedRequestHeaders) =>
-          client.request<DeleteApplicationStageEventMutation>({
-            document: DeleteApplicationStageEventDocument,
+          client.request<DeleteJobStageEventMutation>({
+            document: DeleteJobStageEventDocument,
             variables,
             requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
             signal,
           }),
-        "DeleteApplicationStageEvent",
+        "DeleteJobStageEvent",
         "mutation",
         variables,
       );
     },
-    ApplicationNotes(
-      variables: ApplicationNotesQueryVariables,
+    JobNotes(
+      variables: JobNotesQueryVariables,
       requestHeaders?: GraphQLClientRequestHeaders,
       signal?: RequestInit["signal"],
-    ): Promise<ApplicationNotesQuery> {
+    ): Promise<JobNotesQuery> {
       return withWrapper(
         (wrappedRequestHeaders) =>
-          client.request<ApplicationNotesQuery>({
-            document: ApplicationNotesDocument,
+          client.request<JobNotesQuery>({
+            document: JobNotesDocument,
             variables,
             requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
             signal,
           }),
-        "ApplicationNotes",
+        "JobNotes",
         "query",
         variables,
       );
     },
-    CreateApplicationNote(
-      variables: CreateApplicationNoteMutationVariables,
+    CreateJobNote(
+      variables: CreateJobNoteMutationVariables,
       requestHeaders?: GraphQLClientRequestHeaders,
       signal?: RequestInit["signal"],
-    ): Promise<CreateApplicationNoteMutation> {
+    ): Promise<CreateJobNoteMutation> {
       return withWrapper(
         (wrappedRequestHeaders) =>
-          client.request<CreateApplicationNoteMutation>({
-            document: CreateApplicationNoteDocument,
+          client.request<CreateJobNoteMutation>({
+            document: CreateJobNoteDocument,
             variables,
             requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
             signal,
           }),
-        "CreateApplicationNote",
+        "CreateJobNote",
         "mutation",
         variables,
       );
     },
-    UpdateApplicationNote(
-      variables: UpdateApplicationNoteMutationVariables,
+    UpdateJobNote(
+      variables: UpdateJobNoteMutationVariables,
       requestHeaders?: GraphQLClientRequestHeaders,
       signal?: RequestInit["signal"],
-    ): Promise<UpdateApplicationNoteMutation> {
+    ): Promise<UpdateJobNoteMutation> {
       return withWrapper(
         (wrappedRequestHeaders) =>
-          client.request<UpdateApplicationNoteMutation>({
-            document: UpdateApplicationNoteDocument,
+          client.request<UpdateJobNoteMutation>({
+            document: UpdateJobNoteDocument,
             variables,
             requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
             signal,
           }),
-        "UpdateApplicationNote",
+        "UpdateJobNote",
         "mutation",
         variables,
       );
     },
-    DeleteApplicationNote(
-      variables: DeleteApplicationNoteMutationVariables,
+    DeleteJobNote(
+      variables: DeleteJobNoteMutationVariables,
       requestHeaders?: GraphQLClientRequestHeaders,
       signal?: RequestInit["signal"],
-    ): Promise<DeleteApplicationNoteMutation> {
+    ): Promise<DeleteJobNoteMutation> {
       return withWrapper(
         (wrappedRequestHeaders) =>
-          client.request<DeleteApplicationNoteMutation>({
-            document: DeleteApplicationNoteDocument,
+          client.request<DeleteJobNoteMutation>({
+            document: DeleteJobNoteDocument,
             variables,
             requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
             signal,
           }),
-        "DeleteApplicationNote",
+        "DeleteJobNote",
         "mutation",
         variables,
       );
     },
-    GenerateApplicationNoteWithAi(
-      variables: GenerateApplicationNoteWithAiQueryVariables,
+    GenerateJobNoteWithAi(
+      variables: GenerateJobNoteWithAiQueryVariables,
       requestHeaders?: GraphQLClientRequestHeaders,
       signal?: RequestInit["signal"],
-    ): Promise<GenerateApplicationNoteWithAiQuery> {
+    ): Promise<GenerateJobNoteWithAiQuery> {
       return withWrapper(
         (wrappedRequestHeaders) =>
-          client.request<GenerateApplicationNoteWithAiQuery>({
-            document: GenerateApplicationNoteWithAiDocument,
+          client.request<GenerateJobNoteWithAiQuery>({
+            document: GenerateJobNoteWithAiDocument,
             variables,
             requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
             signal,
           }),
-        "GenerateApplicationNoteWithAi",
+        "GenerateJobNoteWithAi",
         "query",
         variables,
       );
@@ -2985,398 +3198,182 @@ export function getSdk(
         variables,
       );
     },
-    GenerateApplicationLocationWithAi(
-      variables: GenerateApplicationLocationWithAiQueryVariables,
+    GenerateJobLocationWithAi(
+      variables: GenerateJobLocationWithAiQueryVariables,
       requestHeaders?: GraphQLClientRequestHeaders,
       signal?: RequestInit["signal"],
-    ): Promise<GenerateApplicationLocationWithAiQuery> {
+    ): Promise<GenerateJobLocationWithAiQuery> {
       return withWrapper(
         (wrappedRequestHeaders) =>
-          client.request<GenerateApplicationLocationWithAiQuery>({
-            document: GenerateApplicationLocationWithAiDocument,
+          client.request<GenerateJobLocationWithAiQuery>({
+            document: GenerateJobLocationWithAiDocument,
             variables,
             requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
             signal,
           }),
-        "GenerateApplicationLocationWithAi",
+        "GenerateJobLocationWithAi",
         "query",
         variables,
       );
     },
-    GenerateApplicationWorkRegionWithAi(
-      variables: GenerateApplicationWorkRegionWithAiQueryVariables,
+    GenerateJobWorkRegionWithAi(
+      variables: GenerateJobWorkRegionWithAiQueryVariables,
       requestHeaders?: GraphQLClientRequestHeaders,
       signal?: RequestInit["signal"],
-    ): Promise<GenerateApplicationWorkRegionWithAiQuery> {
+    ): Promise<GenerateJobWorkRegionWithAiQuery> {
       return withWrapper(
         (wrappedRequestHeaders) =>
-          client.request<GenerateApplicationWorkRegionWithAiQuery>({
-            document: GenerateApplicationWorkRegionWithAiDocument,
+          client.request<GenerateJobWorkRegionWithAiQuery>({
+            document: GenerateJobWorkRegionWithAiDocument,
             variables,
             requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
             signal,
           }),
-        "GenerateApplicationWorkRegionWithAi",
+        "GenerateJobWorkRegionWithAi",
         "query",
         variables,
       );
     },
-    GenerateApplicationSummary(
-      variables: GenerateApplicationSummaryMutationVariables,
+    GenerateJobSummary(
+      variables: GenerateJobSummaryMutationVariables,
       requestHeaders?: GraphQLClientRequestHeaders,
       signal?: RequestInit["signal"],
-    ): Promise<GenerateApplicationSummaryMutation> {
+    ): Promise<GenerateJobSummaryMutation> {
       return withWrapper(
         (wrappedRequestHeaders) =>
-          client.request<GenerateApplicationSummaryMutation>({
-            document: GenerateApplicationSummaryDocument,
+          client.request<GenerateJobSummaryMutation>({
+            document: GenerateJobSummaryDocument,
             variables,
             requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
             signal,
           }),
-        "GenerateApplicationSummary",
+        "GenerateJobSummary",
         "mutation",
         variables,
       );
     },
-    UpdateCompany(
-      variables: UpdateCompanyMutationVariables,
+    MatchAnalysesList(
+      variables?: MatchAnalysesListQueryVariables,
       requestHeaders?: GraphQLClientRequestHeaders,
       signal?: RequestInit["signal"],
-    ): Promise<UpdateCompanyMutation> {
+    ): Promise<MatchAnalysesListQuery> {
       return withWrapper(
         (wrappedRequestHeaders) =>
-          client.request<UpdateCompanyMutation>({
-            document: UpdateCompanyDocument,
+          client.request<MatchAnalysesListQuery>({
+            document: MatchAnalysesListDocument,
             variables,
             requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
             signal,
           }),
-        "UpdateCompany",
-        "mutation",
-        variables,
-      );
-    },
-    DeleteCompany(
-      variables: DeleteCompanyMutationVariables,
-      requestHeaders?: GraphQLClientRequestHeaders,
-      signal?: RequestInit["signal"],
-    ): Promise<DeleteCompanyMutation> {
-      return withWrapper(
-        (wrappedRequestHeaders) =>
-          client.request<DeleteCompanyMutation>({
-            document: DeleteCompanyDocument,
-            variables,
-            requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
-            signal,
-          }),
-        "DeleteCompany",
-        "mutation",
-        variables,
-      );
-    },
-    CompanyApplicationsCount(
-      variables: CompanyApplicationsCountQueryVariables,
-      requestHeaders?: GraphQLClientRequestHeaders,
-      signal?: RequestInit["signal"],
-    ): Promise<CompanyApplicationsCountQuery> {
-      return withWrapper(
-        (wrappedRequestHeaders) =>
-          client.request<CompanyApplicationsCountQuery>({
-            document: CompanyApplicationsCountDocument,
-            variables,
-            requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
-            signal,
-          }),
-        "CompanyApplicationsCount",
+        "MatchAnalysesList",
         "query",
         variables,
       );
     },
-    Companies(
-      variables?: CompaniesQueryVariables,
+    Match(
+      variables: MatchQueryVariables,
       requestHeaders?: GraphQLClientRequestHeaders,
       signal?: RequestInit["signal"],
-    ): Promise<CompaniesQuery> {
+    ): Promise<MatchQuery> {
       return withWrapper(
         (wrappedRequestHeaders) =>
-          client.request<CompaniesQuery>({
-            document: CompaniesDocument,
+          client.request<MatchQuery>({
+            document: MatchDocument,
             variables,
             requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
             signal,
           }),
-        "Companies",
+        "Match",
         "query",
         variables,
       );
     },
-    ExchangeRates(
-      variables: ExchangeRatesQueryVariables,
+    JobMatch(
+      variables: JobMatchQueryVariables,
       requestHeaders?: GraphQLClientRequestHeaders,
       signal?: RequestInit["signal"],
-    ): Promise<ExchangeRatesQuery> {
+    ): Promise<JobMatchQuery> {
       return withWrapper(
         (wrappedRequestHeaders) =>
-          client.request<ExchangeRatesQuery>({
-            document: ExchangeRatesDocument,
+          client.request<JobMatchQuery>({
+            document: JobMatchDocument,
             variables,
             requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
             signal,
           }),
-        "ExchangeRates",
+        "JobMatch",
         "query",
         variables,
       );
     },
-    DraftApplicationsList(
-      variables?: DraftApplicationsListQueryVariables,
+    DraftJobMatch(
+      variables: DraftJobMatchQueryVariables,
       requestHeaders?: GraphQLClientRequestHeaders,
       signal?: RequestInit["signal"],
-    ): Promise<DraftApplicationsListQuery> {
+    ): Promise<DraftJobMatchQuery> {
       return withWrapper(
         (wrappedRequestHeaders) =>
-          client.request<DraftApplicationsListQuery>({
-            document: DraftApplicationsListDocument,
+          client.request<DraftJobMatchQuery>({
+            document: DraftJobMatchDocument,
             variables,
             requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
             signal,
           }),
-        "DraftApplicationsList",
+        "DraftJobMatch",
         "query",
         variables,
       );
     },
-    DraftApplicationDetail(
-      variables: DraftApplicationDetailQueryVariables,
+    GenerateJobMatch(
+      variables: GenerateJobMatchMutationVariables,
       requestHeaders?: GraphQLClientRequestHeaders,
       signal?: RequestInit["signal"],
-    ): Promise<DraftApplicationDetailQuery> {
+    ): Promise<GenerateJobMatchMutation> {
       return withWrapper(
         (wrappedRequestHeaders) =>
-          client.request<DraftApplicationDetailQuery>({
-            document: DraftApplicationDetailDocument,
+          client.request<GenerateJobMatchMutation>({
+            document: GenerateJobMatchDocument,
             variables,
             requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
             signal,
           }),
-        "DraftApplicationDetail",
-        "query",
-        variables,
-      );
-    },
-    DeleteDraftApplication(
-      variables: DeleteDraftApplicationMutationVariables,
-      requestHeaders?: GraphQLClientRequestHeaders,
-      signal?: RequestInit["signal"],
-    ): Promise<DeleteDraftApplicationMutation> {
-      return withWrapper(
-        (wrappedRequestHeaders) =>
-          client.request<DeleteDraftApplicationMutation>({
-            document: DeleteDraftApplicationDocument,
-            variables,
-            requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
-            signal,
-          }),
-        "DeleteDraftApplication",
+        "GenerateJobMatch",
         "mutation",
         variables,
       );
     },
-    DeleteApplicationsForDraft(
-      variables: DeleteApplicationsForDraftMutationVariables,
+    GenerateDraftJobMatch(
+      variables: GenerateDraftJobMatchMutationVariables,
       requestHeaders?: GraphQLClientRequestHeaders,
       signal?: RequestInit["signal"],
-    ): Promise<DeleteApplicationsForDraftMutation> {
+    ): Promise<GenerateDraftJobMatchMutation> {
       return withWrapper(
         (wrappedRequestHeaders) =>
-          client.request<DeleteApplicationsForDraftMutation>({
-            document: DeleteApplicationsForDraftDocument,
+          client.request<GenerateDraftJobMatchMutation>({
+            document: GenerateDraftJobMatchDocument,
             variables,
             requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
             signal,
           }),
-        "DeleteApplicationsForDraft",
+        "GenerateDraftJobMatch",
         "mutation",
         variables,
       );
     },
-    CreateApplicationWithAI(
-      variables: CreateApplicationWithAiMutationVariables,
+    DeleteMatchAnalysis(
+      variables: DeleteMatchAnalysisMutationVariables,
       requestHeaders?: GraphQLClientRequestHeaders,
       signal?: RequestInit["signal"],
-    ): Promise<CreateApplicationWithAiMutation> {
+    ): Promise<DeleteMatchAnalysisMutation> {
       return withWrapper(
         (wrappedRequestHeaders) =>
-          client.request<CreateApplicationWithAiMutation>({
-            document: CreateApplicationWithAiDocument,
+          client.request<DeleteMatchAnalysisMutation>({
+            document: DeleteMatchAnalysisDocument,
             variables,
             requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
             signal,
           }),
-        "CreateApplicationWithAI",
-        "mutation",
-        variables,
-      );
-    },
-    CreateDraftApplication(
-      variables: CreateDraftApplicationMutationVariables,
-      requestHeaders?: GraphQLClientRequestHeaders,
-      signal?: RequestInit["signal"],
-    ): Promise<CreateDraftApplicationMutation> {
-      return withWrapper(
-        (wrappedRequestHeaders) =>
-          client.request<CreateDraftApplicationMutation>({
-            document: CreateDraftApplicationDocument,
-            variables,
-            requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
-            signal,
-          }),
-        "CreateDraftApplication",
-        "mutation",
-        variables,
-      );
-    },
-    UpdateDraftApplication(
-      variables: UpdateDraftApplicationMutationVariables,
-      requestHeaders?: GraphQLClientRequestHeaders,
-      signal?: RequestInit["signal"],
-    ): Promise<UpdateDraftApplicationMutation> {
-      return withWrapper(
-        (wrappedRequestHeaders) =>
-          client.request<UpdateDraftApplicationMutation>({
-            document: UpdateDraftApplicationDocument,
-            variables,
-            requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
-            signal,
-          }),
-        "UpdateDraftApplication",
-        "mutation",
-        variables,
-      );
-    },
-    FitAnalysesList(
-      variables?: FitAnalysesListQueryVariables,
-      requestHeaders?: GraphQLClientRequestHeaders,
-      signal?: RequestInit["signal"],
-    ): Promise<FitAnalysesListQuery> {
-      return withWrapper(
-        (wrappedRequestHeaders) =>
-          client.request<FitAnalysesListQuery>({
-            document: FitAnalysesListDocument,
-            variables,
-            requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
-            signal,
-          }),
-        "FitAnalysesList",
-        "query",
-        variables,
-      );
-    },
-    Fit(
-      variables: FitQueryVariables,
-      requestHeaders?: GraphQLClientRequestHeaders,
-      signal?: RequestInit["signal"],
-    ): Promise<FitQuery> {
-      return withWrapper(
-        (wrappedRequestHeaders) =>
-          client.request<FitQuery>({
-            document: FitDocument,
-            variables,
-            requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
-            signal,
-          }),
-        "Fit",
-        "query",
-        variables,
-      );
-    },
-    ApplicationFit(
-      variables: ApplicationFitQueryVariables,
-      requestHeaders?: GraphQLClientRequestHeaders,
-      signal?: RequestInit["signal"],
-    ): Promise<ApplicationFitQuery> {
-      return withWrapper(
-        (wrappedRequestHeaders) =>
-          client.request<ApplicationFitQuery>({
-            document: ApplicationFitDocument,
-            variables,
-            requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
-            signal,
-          }),
-        "ApplicationFit",
-        "query",
-        variables,
-      );
-    },
-    DraftApplicationFit(
-      variables: DraftApplicationFitQueryVariables,
-      requestHeaders?: GraphQLClientRequestHeaders,
-      signal?: RequestInit["signal"],
-    ): Promise<DraftApplicationFitQuery> {
-      return withWrapper(
-        (wrappedRequestHeaders) =>
-          client.request<DraftApplicationFitQuery>({
-            document: DraftApplicationFitDocument,
-            variables,
-            requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
-            signal,
-          }),
-        "DraftApplicationFit",
-        "query",
-        variables,
-      );
-    },
-    GenerateApplicationFit(
-      variables: GenerateApplicationFitMutationVariables,
-      requestHeaders?: GraphQLClientRequestHeaders,
-      signal?: RequestInit["signal"],
-    ): Promise<GenerateApplicationFitMutation> {
-      return withWrapper(
-        (wrappedRequestHeaders) =>
-          client.request<GenerateApplicationFitMutation>({
-            document: GenerateApplicationFitDocument,
-            variables,
-            requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
-            signal,
-          }),
-        "GenerateApplicationFit",
-        "mutation",
-        variables,
-      );
-    },
-    GenerateDraftApplicationFit(
-      variables: GenerateDraftApplicationFitMutationVariables,
-      requestHeaders?: GraphQLClientRequestHeaders,
-      signal?: RequestInit["signal"],
-    ): Promise<GenerateDraftApplicationFitMutation> {
-      return withWrapper(
-        (wrappedRequestHeaders) =>
-          client.request<GenerateDraftApplicationFitMutation>({
-            document: GenerateDraftApplicationFitDocument,
-            variables,
-            requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
-            signal,
-          }),
-        "GenerateDraftApplicationFit",
-        "mutation",
-        variables,
-      );
-    },
-    DeleteFitAnalysis(
-      variables: DeleteFitAnalysisMutationVariables,
-      requestHeaders?: GraphQLClientRequestHeaders,
-      signal?: RequestInit["signal"],
-    ): Promise<DeleteFitAnalysisMutation> {
-      return withWrapper(
-        (wrappedRequestHeaders) =>
-          client.request<DeleteFitAnalysisMutation>({
-            document: DeleteFitAnalysisDocument,
-            variables,
-            requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
-            signal,
-          }),
-        "DeleteFitAnalysis",
+        "DeleteMatchAnalysis",
         "mutation",
         variables,
       );

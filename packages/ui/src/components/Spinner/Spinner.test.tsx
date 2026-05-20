@@ -6,9 +6,9 @@ import { Spinner } from "./Spinner";
 
 describe("Spinner", () => {
   it("renders as status element", () => {
-    render(<Spinner label="Loading applications" />);
+    render(<Spinner label="Loading jobs" />);
     expect(
-      screen.getByRole("status", { name: /loading applications/i }),
+      screen.getByRole("status", { name: /loading jobs/i }),
     ).toBeInTheDocument();
   });
 

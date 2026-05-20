@@ -18,23 +18,23 @@ tags:
 
 Spec 034 defines a unified `AsyncMetadata` JSONB pattern for async jobs. This spec distinguishes two sub-patterns that share the same shape (`{ status, error, timestamp }`) but differ in where the metadata lives:
 
-| Sub-pattern     | Where                                                                                      | Examples                                                             |
-| --------------- | ------------------------------------------------------------------------------------------ | -------------------------------------------------------------------- |
-| **AsyncField**  | Inline JSONB on an existing entity. Entity exists independently. `null` = never requested. | `Application.summaryMetadata`, `DraftApplication.conversionMetadata` |
-| **AsyncEntity** | JSONB on an entity that **is** the async result. Entity lifecycle = job lifecycle.         | `FitAnalysis.generationMetadata`                                     |
+| Sub-pattern     | Where                                                                                      | Examples                                                     |
+| --------------- | ------------------------------------------------------------------------------------------ | ------------------------------------------------------------ |
+| **AsyncField**  | Inline JSONB on an existing entity. Entity exists independently. `null` = never requested. | `Job.summaryMetadata`, `DraftApplication.conversionMetadata` |
+| **AsyncEntity** | JSONB on an entity that **is** the async result. Entity lifecycle = job lifecycle.         | `MatchAnalysis.generationMetadata`                           |
 
 The metadata shape is the same for both because `updatedAt` on the entity row is not a reliable job completion timestamp — only an explicit field in the metadata is.
 
 ## Target State
 
 ```graphql
-type ApplicationType {
+type JobType {
   summaryMetadata: AsyncMetadata # { status, error, timestamp }
 }
 
-type FitAnalysisType {
+type MatchAnalysisType {
   metadata: AsyncMetadata! # { status, error, timestamp }
-  items: [FitItem!]!
+  items: [MatchItem!]!
   scoreRatio: Float
 }
 
@@ -46,8 +46,8 @@ type DraftApplicationType {
 **Deltas:**
 
 - `generatedAt` → `timestamp`
-- `FitAnalysisStatus` enum removed → uses `AsyncMetadataStatus`
-- `FitAnalysis.status` + `.error` → `FitAnalysis.metadata`
+- `MatchAnalysisStatus` enum removed → uses `AsyncMetadataStatus`
+- `MatchAnalysis.status` + `.error` → `MatchAnalysis.metadata`
 - `DraftApplication.conversionStatus` + `.conversionError` + `.convertedAt` → `.conversionMetadata`
 
 ## Changes
@@ -57,20 +57,20 @@ type DraftApplicationType {
 No breaking change. Same type, renamed field.
 
 - [T-277] Rename in `AsyncMetadata` interface + `AsyncMetadataType` GraphQL type + `schema.gql`
-- [T-278] Update `summary.service.ts`, `application.events.ts`, `applications.repository.ts`
+- [T-278] Update `summary.service.ts`, `job.events.ts`, `jobs.repository.ts`
 - [T-279] Regenerate codegen
 
-### Phase 2 — Migrate `FitAnalysis` to JSONB metadata
+### Phase 2 — Migrate `MatchAnalysis` to JSONB metadata
 
-Breaking: `fit.status` → `fit.metadata.status`. Eliminates duplicate enum `FitAnalysisStatus`.
+Breaking: `fit.status` → `fit.metadata.status`. Eliminates duplicate enum `MatchAnalysisStatus`.
 
-- [T-280] Remove `FitAnalysisStatus` enum; use `AsyncMetadataStatusEnum`
+- [T-280] Remove `MatchAnalysisStatus` enum; use `AsyncMetadataStatusEnum`
 - [T-281] DB: `status` + `error` columns → `generation_metadata` jsonb. Migration with backfill.
-- [T-282] `fit-analysis.type.ts`: `@Field(() => AsyncMetadataType) metadata`
-- [T-283] `fit-analysis.service.ts`: rewrite status/error access to `generationMetadata.*`
-- [T-284] `fit-analysis.repository.ts`: queries on `generation_metadata->>'status'`
-- [T-285] Update all `*.spec.ts` referencing `FitAnalysisStatus` or old columns
-- [T-286] Remove `enum FitAnalysisStatus` from `schema.gql`
+- [T-282] `match-analysis.type.ts`: `@Field(() => AsyncMetadataType) metadata`
+- [T-283] `match-analysis.service.ts`: rewrite status/error access to `generationMetadata.*`
+- [T-284] `match-analysis.repository.ts`: queries on `generation_metadata->>'status'`
+- [T-285] Update all `*.spec.ts` referencing `MatchAnalysisStatus` or old columns
+- [T-286] Remove `enum MatchAnalysisStatus` from `schema.gql`
 - [T-287] Regenerate codegen
 
 ### Phase 3 — Migrate `DraftApplication` to JSONB metadata (future, breaking)
@@ -81,7 +81,7 @@ Breaking: `fit.status` → `fit.metadata.status`. Eliminates duplicate enum `Fit
 
 ## Enum Unification
 
-- `FitAnalysisStatus` = duplicate of `AsyncMetadataStatus` → removed in Phase 2
+- `MatchAnalysisStatus` = duplicate of `AsyncMetadataStatus` → removed in Phase 2
 - `DraftApplicationConversionStatusEnum` stays — different state machine (`IDLE`/`SUCCEEDED` ≠ `COMPLETED`)
 - `SourceRunStatusEnum` — business process, not async data generation. Out of scope.
 

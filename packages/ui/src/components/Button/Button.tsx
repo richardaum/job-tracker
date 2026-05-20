@@ -1,4 +1,5 @@
 import { CircleNotchIcon } from "@phosphor-icons/react";
+import { Slot } from "@radix-ui/react-slot";
 import { cn } from "@ui/lib/cn";
 import React from "react";
 
@@ -20,6 +21,7 @@ export interface ButtonProps extends Omit<
   state?: ButtonState;
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
+  asChild?: boolean;
 }
 
 const intentClasses: Record<ButtonIntent, string> = {
@@ -49,12 +51,14 @@ export function Button({
   state = "default",
   leftIcon,
   rightIcon,
+  asChild,
   className,
   disabled,
   ...props
 }: ButtonProps) {
   const isLoading = state === "loading";
   const isDisabled = disabled || isLoading;
+  const Component = asChild ? Slot : "button";
   const classes = cn(
     "inline-flex cursor-pointer items-center justify-center gap-2 rounded-md border font-medium shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-brand focus-visible:ring-inset focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-60",
     intentClasses[intent],
@@ -64,20 +68,28 @@ export function Button({
   );
 
   return (
-    <button
-      type="button"
+    <Component
+      {...(asChild ? {} : { type: "button" as const })}
       {...props}
       disabled={isDisabled}
       aria-busy={isLoading ? true : undefined}
       className={classes}
     >
-      {isLoading ? (
-        <CircleNotchIcon className={cn("animate-spin")} size={16} />
-      ) : leftIcon ? (
-        <span aria-hidden>{leftIcon}</span>
-      ) : null}
-      {children}
-      {!isLoading && rightIcon ? <span aria-hidden>{rightIcon}</span> : null}
-    </button>
+      {asChild ? (
+        children
+      ) : (
+        <>
+          {isLoading ? (
+            <CircleNotchIcon className={cn("animate-spin")} size={16} />
+          ) : leftIcon ? (
+            <span aria-hidden>{leftIcon}</span>
+          ) : null}
+          {children}
+          {!isLoading && rightIcon ? (
+            <span aria-hidden>{rightIcon}</span>
+          ) : null}
+        </>
+      )}
+    </Component>
   );
 }

@@ -18,15 +18,15 @@ export class NoteResolver {
   constructor(private readonly service: NoteService) {}
 
   @Query(() => [NoteType])
-  applicationNotes(
-    @Args("applicationId", { type: () => ID }) applicationId: string,
+  jobNotes(
+    @Args("jobId", { type: () => ID }) jobId: string,
     @CurrentUser() user: { userId: string },
   ): Promise<NoteType[]> {
-    return this.service.listNotes(applicationId, user.userId);
+    return this.service.listNotes(jobId, user.userId);
   }
 
   @Mutation(() => NoteType)
-  createApplicationNote(
+  createJobNote(
     @Args("input") input: CreateNoteInput,
     @CurrentUser() user: { userId: string },
   ): Promise<NoteType> {
@@ -34,7 +34,7 @@ export class NoteResolver {
   }
 
   @Mutation(() => NoteType)
-  updateApplicationNote(
+  updateJobNote(
     @Args("id", { type: () => ID }) id: string,
     @Args("input") input: UpdateNoteInput,
     @CurrentUser() user: { userId: string },
@@ -43,7 +43,7 @@ export class NoteResolver {
   }
 
   @Mutation(() => DeleteMutationPayloadType)
-  async deleteApplicationNote(
+  async deleteJobNote(
     @Args("id", { type: () => ID }) id: string,
     @CurrentUser() user: { userId: string },
   ): Promise<DeleteMutationPayloadType> {
@@ -52,11 +52,11 @@ export class NoteResolver {
   }
 
   @Query(() => String)
-  generateApplicationNoteWithAI(
-    @Args("applicationId", { type: () => ID }) applicationId: string,
+  generateJobNoteWithAI(
+    @Args("jobId", { type: () => ID }) jobId: string,
     @Args("note") note: string,
     @CurrentUser() user: { userId: string },
   ): Promise<string> {
-    return this.service.generateNoteWithAI(user.userId, applicationId, note);
+    return this.service.generateNoteWithAI(user.userId, jobId, note);
   }
 }

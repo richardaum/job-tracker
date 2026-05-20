@@ -1,16 +1,14 @@
-import { ImportApplicationService } from "@/domains/import-application/import-application.service";
+import { ImportJobService } from "@/domains/import-job/import-job.service";
 import {
   CONTEXT_MENU_IMPORT_PAGE_TITLE,
   CONTEXT_MENU_IMPORT_SELECTION_TITLE,
-} from "@/domains/import-application/import-application-labels";
+} from "@/domains/import-job/import-job-labels";
 
-const CONTEXT_MENU_IMPORT_PAGE_ID = "import-application-page";
-const CONTEXT_MENU_IMPORT_SELECTION_ID = "import-application-selection";
+const CONTEXT_MENU_IMPORT_PAGE_ID = "import-job-page";
+const CONTEXT_MENU_IMPORT_SELECTION_ID = "import-job-selection";
 
 export class ContextMenuService {
-  constructor(
-    private readonly importApplicationService: ImportApplicationService,
-  ) {}
+  constructor(private readonly importJobService: ImportJobService) {}
 
   async setup(): Promise<void> {
     await chrome.contextMenus.removeAll();
@@ -31,7 +29,7 @@ export class ContextMenuService {
 
     chrome.contextMenus.onClicked.addListener((info) => {
       if (!this.isImportMenuItem(info.menuItemId)) return;
-      void this.importApplicationService.execute();
+      void this.importJobService.execute();
     });
   }
 

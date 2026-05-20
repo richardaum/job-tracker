@@ -59,7 +59,10 @@ export class SourcesResolver {
     @CurrentUser() user: { userId: string },
     @Args("sourceProfileId") sourceProfileId: string,
   ): Promise<SourceTemplateType[]> {
-    return this.service.listSourceTemplatesForSourceProfile(user.userId, sourceProfileId);
+    return this.service.listSourceTemplatesForSourceProfile(
+      user.userId,
+      sourceProfileId,
+    );
   }
 
   @Query(() => [SourceProfileType])
@@ -162,14 +165,11 @@ export class SourcesResolver {
   }
 
   @Mutation(() => Int)
-  async detachApplicationsFromSourceRun(
+  async detachJobsFromSourceRun(
     @Args("sourceRunId", { type: () => ID }) sourceRunId: string,
     @CurrentUser() user: { userId: string },
   ): Promise<number> {
-    return this.service.detachApplicationsFromSourceRun(
-      user.userId,
-      sourceRunId,
-    );
+    return this.service.detachJobsFromSourceRun(user.userId, sourceRunId);
   }
 
   @Mutation(() => DeleteMutationPayloadType)

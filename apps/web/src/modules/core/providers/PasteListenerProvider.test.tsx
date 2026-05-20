@@ -10,8 +10,8 @@ vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
 
 // Mock GraphQL hooks
 vi.mock("@/gql/hooks", () => ({
-  DraftApplicationsListDocument: { __brand: "DocumentNode" },
-  useCreateDraftApplicationMutation: () => [
+  DraftJobsListDocument: { __brand: "DocumentNode" },
+  useCreateDraftJobMutation: () => [
     vi.fn(() =>
       Promise.resolve({ data: { createDraftApplication: { id: "1" } } }),
     ),
@@ -20,7 +20,7 @@ vi.mock("@/gql/hooks", () => ({
 }));
 
 // Mock toast queue
-vi.mock("@/modules/applications/shared/hooks/useToastQueue", () => ({
+vi.mock("@/modules/jobs/shared/hooks/useToastQueue", () => ({
   useToastQueue: () => ({ enqueueToast: vi.fn() }),
 }));
 

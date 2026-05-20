@@ -14,7 +14,7 @@ tags:
 
 ## In Scope
 
-- [P-44] Generate job insight cards covering summary, candidate fit signal, skills gaps, and interview preparation suggestions. Depends on the resume and fit data model defined in **`specs/032-product-job-fit/README.md`**.
+- [P-44] Generate job insight cards covering summary, candidate match signal, skills gaps, and interview preparation suggestions. Depends on the resume and match data model defined in **`specs/032-product-job-match/README.md`**.
 - [P-45] Convert raw interview notes into structured sections before user confirmation and persistence.
 - [P-46] Store user-approved AI output as part of the owned application timeline with traceable provenance metadata.
 - [P-74] Route AI generation through stable internal provider facades to keep model integrations swappable and governable.

@@ -24,7 +24,7 @@ Every async feature needs the same metadata: status, error, completion timestamp
 
 - **DRY** — one type definition, one GraphQL type, one entity column
 - **Extensible** — future metadata (`progress`, `attempts`, `startedAt`, `model`) goes in the JSONB, zero migrations
-- **Replaceable** — same structure for inline (summary on Application) and standalone (FitAnalysis) use
+- **Replaceable** — same structure for inline (summary on Job) and standalone (MatchAnalysis) use
 
 ## Context
 
@@ -44,8 +44,8 @@ Existing implementations need to consolidate 3 columns into 1 JSONB:
 
 | Entity             | Current (3 cols)                                          | Target (1 col)                                 |
 | ------------------ | --------------------------------------------------------- | ---------------------------------------------- |
-| `Application`      | `summary_status`, `summary_error`, `summary_generated_at` | `summary_metadata` (jsonb)                     |
-| `FitAnalysis`      | `status` (enum), `error` (text)                           | `generation_metadata` (jsonb, + `generatedAt`) |
+| `Job`              | `summary_status`, `summary_error`, `summary_generated_at` | `summary_metadata` (jsonb)                     |
+| `MatchAnalysis`    | `status` (enum), `error` (text)                           | `generation_metadata` (jsonb, + `generatedAt`) |
 | `DraftApplication` | `conversion_status`, `conversion_error`, `converted_at`   | `conversion_metadata` (jsonb)                  |
 
 ## Modus Operandi

@@ -6,10 +6,10 @@ import { Link } from "./Link";
 
 describe("Link", () => {
   it("renders an anchor with href", () => {
-    render(<Link href="/applications">Applications</Link>);
-    expect(screen.getByRole("link", { name: /applications/i })).toHaveAttribute(
+    render(<Link href="/jobs">Jobs</Link>);
+    expect(screen.getByRole("link", { name: /jobs/i })).toHaveAttribute(
       "href",
-      "/applications",
+      "/jobs",
     );
   });
 

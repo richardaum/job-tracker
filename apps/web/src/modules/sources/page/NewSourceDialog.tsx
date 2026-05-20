@@ -22,7 +22,7 @@ import {
   useSourceProfilesForNewSourcePickerQuery,
 } from "@/gql/hooks";
 
-export type NewSourceDialogSourceProfileRef = {
+type NewSourceDialogSourceProfileRef = {
   sourceProfileId: string;
   name: string;
 };

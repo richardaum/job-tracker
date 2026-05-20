@@ -5,7 +5,7 @@ import React from "react";
 
 import {
   CompaniesDocument,
-  useCompanyApplicationsCountLazyQuery,
+  useCompanyJobsCountLazyQuery,
   useDeleteCompanyMutation,
 } from "@/gql/hooks";
 
@@ -41,7 +41,7 @@ export function DeleteCompanyDialog({
     onOpenChange?.(nextOpen);
   }
 
-  const [fetchApplicationsCount] = useCompanyApplicationsCountLazyQuery();
+  const [fetchJobsCount] = useCompanyJobsCountLazyQuery();
   const [deleteCompany] = useDeleteCompanyMutation({
     refetchQueries: [{ query: CompaniesDocument }],
     awaitRefetchQueries: true,
@@ -50,10 +50,8 @@ export function DeleteCompanyDialog({
   async function handleInitialConfirm() {
     setSubmitting(true);
     try {
-      const result = await fetchApplicationsCount({
-        variables: { id: companyId },
-      });
-      const count = result.data?.companyApplicationsCount ?? 0;
+      const result = await fetchJobsCount({ variables: { id: companyId } });
+      const count = result.data?.companyJobsCount ?? 0;
 
       if (count > 0) {
         setAssociatedJobsCount(count);

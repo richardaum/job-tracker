@@ -14,7 +14,7 @@ import { ClockIcon, LinkSimpleIcon, TrashIcon } from "@phosphor-icons/react";
 import React, { useCallback, useState } from "react";
 
 import { useSourcesForSourceProfileQuery } from "@/gql/hooks";
-import { formatDateTime } from "@/modules/applications/details/utils/application-details.shared";
+import { formatDateTime } from "@/modules/jobs/details/utils/job-details.shared";
 import type { SourceProfileRow } from "@/modules/sources/hooks/useSourcesListViewModel";
 import { DeleteSourceDialog } from "@/modules/sources/page/DeleteSourceDialog";
 import type { SourceListItem } from "@/modules/sources/page/source-template-list.shared";

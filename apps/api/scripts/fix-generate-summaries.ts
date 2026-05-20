@@ -2,13 +2,13 @@ import "reflect-metadata";
 import "dotenv/config";
 
 import { buildDataSourceOptions } from "@api/database/data-source-options";
-import { ApplicationEntity } from "@api/database/entities/application.entity";
-import { ApplicationNoteEntity } from "@api/database/entities/application-note.entity";
-import { ApplicationStageEventEntity } from "@api/database/entities/application-stage-event.entity";
-import { ApplicationEventBus } from "@api/domains/applications/application-event.bus";
-import { ApplicationRepository } from "@api/domains/applications/applications.repository";
-import { SummaryService } from "@api/domains/applications/summary/summary.service";
-import { SummaryAiService } from "@api/domains/applications/summary/summary-ai.service";
+import { JobEntity } from "@api/database/entities/job.entity";
+import { JobNoteEntity } from "@api/database/entities/job-note.entity";
+import { JobStageEventEntity } from "@api/database/entities/job-stage-event.entity";
+import { JobEventBus } from "@api/domains/jobs/job-event.bus";
+import { JobsRepository } from "@api/domains/jobs/jobs.repository";
+import { SummaryService } from "@api/domains/jobs/summary/summary.service";
+import { SummaryAiService } from "@api/domains/jobs/summary/summary-ai.service";
 import { LibAiModule } from "@api/lib/ai";
 import { tryRun } from "@job-tracker/try-run";
 import { Module } from "@nestjs/common";
@@ -21,14 +21,10 @@ import { EntityManager } from "typeorm";
     TypeOrmModule.forRoot({
       ...buildDataSourceOptions(process.env.DATABASE_URL!),
     }),
-    TypeOrmModule.forFeature([
-      ApplicationEntity,
-      ApplicationNoteEntity,
-      ApplicationStageEventEntity,
-    ]),
+    TypeOrmModule.forFeature([JobEntity, JobNoteEntity, JobStageEventEntity]),
     LibAiModule,
   ],
-  providers: [ApplicationEventBus, SummaryAiService, SummaryService],
+  providers: [JobEventBus, SummaryAiService, SummaryService],
 })
 class ScriptModule {}
 
@@ -41,16 +37,16 @@ async function main() {
   const em = app.get(EntityManager);
   const summaryService = app.get(SummaryService);
 
-  const appRepo = new ApplicationRepository(
-    em.getRepository(ApplicationEntity),
-    em.getRepository(ApplicationStageEventEntity),
+  const jobRepo = new JobsRepository(
+    em.getRepository(JobEntity),
+    em.getRepository(JobStageEventEntity),
   );
 
   const dryRun = process.argv.includes("--dry-run");
 
   // Reset stale processing entries
   if (!dryRun) {
-    const resetCount = await appRepo.resetStaleSummaryProcessing();
+    const resetCount = await jobRepo.resetStaleSummaryProcessing();
     if (resetCount > 0) {
       process.stdout.write(`Reset ${resetCount} stale processing entries.\n`);
     }
@@ -64,7 +60,7 @@ async function main() {
   )`;
 
   const rows = await em
-    .getRepository(ApplicationEntity)
+    .getRepository(JobEntity)
     .createQueryBuilder("a")
     .select(["a.id", "a.userId"])
     .where(
@@ -85,7 +81,7 @@ async function main() {
     .orderBy("a.id")
     .getMany();
 
-  console.log(`Found ${rows.length} applications to process`);
+  console.log(`Found ${rows.length} jobs to process`);
 
   let ok = 0;
   let fail = 0;

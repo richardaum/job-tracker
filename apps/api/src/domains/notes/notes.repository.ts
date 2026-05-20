@@ -1,49 +1,43 @@
-import { ApplicationEntity } from "@api/database/entities/application.entity";
-import { ApplicationNoteEntity } from "@api/database/entities/application-note.entity";
+import { JobEntity } from "@api/database/entities/job.entity";
+import { JobNoteEntity } from "@api/database/entities/job-note.entity";
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 
 import { NewNote, Note } from "./notes.schema";
 
-type CreateNoteDto = Pick<NewNote, "applicationId" | "content">;
+type CreateNoteDto = Pick<NewNote, "jobId" | "content">;
 type UpdateNoteDto = Pick<NewNote, "content">;
 
 @Injectable()
 export class NoteRepository {
   constructor(
-    @InjectRepository(ApplicationEntity)
-    private readonly applicationsRepo: Repository<ApplicationEntity>,
-    @InjectRepository(ApplicationNoteEntity)
-    private readonly notesRepo: Repository<ApplicationNoteEntity>,
+    @InjectRepository(JobEntity)
+    private readonly applicationsRepo: Repository<JobEntity>,
+    @InjectRepository(JobNoteEntity)
+    private readonly notesRepo: Repository<JobNoteEntity>,
   ) {}
 
-  async hasApplication(
-    applicationId: string,
-    userId: string,
-  ): Promise<boolean> {
+  async hasJob(jobId: string, userId: string): Promise<boolean> {
     const count = await this.applicationsRepo.count({
-      where: { id: applicationId, userId },
+      where: { id: jobId, userId },
     });
     return count > 0;
   }
 
   async findApplicationByIdAndUserId(
-    applicationId: string,
+    jobId: string,
     userId: string,
-  ): Promise<ApplicationEntity | null> {
+  ): Promise<JobEntity | null> {
     return this.applicationsRepo.findOne({
-      where: { id: applicationId, userId },
+      where: { id: jobId, userId },
       relations: ["company"],
     });
   }
 
-  async findByApplicationIdAndUserId(
-    applicationId: string,
-    userId: string,
-  ): Promise<Note[]> {
+  async findByJobIdAndUserId(jobId: string, userId: string): Promise<Note[]> {
     return this.notesRepo.find({
-      where: { applicationId, userId },
+      where: { jobId, userId },
       order: { createdAt: "DESC", id: "DESC" },
     });
   }
@@ -58,7 +52,7 @@ export class NoteRepository {
   async create(userId: string, dto: CreateNoteDto): Promise<Note> {
     const row = this.notesRepo.create({
       userId,
-      applicationId: dto.applicationId,
+      jobId: dto.jobId,
       content: dto.content,
     });
     return this.notesRepo.save(row);

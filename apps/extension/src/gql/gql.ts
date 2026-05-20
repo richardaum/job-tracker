@@ -15,8 +15,8 @@ import { TypedDocumentNode as DocumentNode } from "@graphql-typed-document-node/
  */
 type Documents = {
   "mutation ClaimSourceRun($id: ID!) {\n  claimSourceRun(id: $id) {\n    id\n    sourceProfileId\n    status\n    startedAt\n    sourceProfile\n  }\n}": typeof types.ClaimSourceRunDocument;
-  "mutation CreateApplication($input: CreateApplicationInput!) {\n  createApplication(input: $input) {\n    id\n    title\n  }\n}": typeof types.CreateApplicationDocument;
-  "mutation CreateDraftApplication($input: CreateDraftApplicationInput!) {\n  createDraftApplication(input: $input) {\n    id\n    url\n    title\n  }\n}": typeof types.CreateDraftApplicationDocument;
+  "mutation CreateDraftJob($input: CreateDraftJobInput!) {\n  createDraftJob(input: $input) {\n    id\n    url\n    title\n  }\n}": typeof types.CreateDraftJobDocument;
+  "mutation CreateJob($input: CreateJobInput!) {\n  createJob(input: $input) {\n    id\n    title\n  }\n}": typeof types.CreateJobDocument;
   "subscription SourceRunEvents {\n  sourceRunEvents {\n    type\n    occurredAt\n    run {\n      id\n      templateId\n      sourceProfileId\n      surfaceUrl\n      status\n      startedAt\n      sourceProfile\n    }\n  }\n}": typeof types.SourceRunEventsDocument;
   "query SourceRuns {\n  sourceRuns {\n    id\n    templateId\n    sourceProfileId\n    surfaceUrl\n    status\n    startedAt\n    sourceProfile\n  }\n}": typeof types.SourceRunsDocument;
   "mutation UpdateSourceRunStatus($id: ID!, $status: SourceRunStatus!) {\n  updateSourceRunStatus(id: $id, status: $status) {\n    id\n    status\n  }\n}": typeof types.UpdateSourceRunStatusDocument;
@@ -25,10 +25,10 @@ type Documents = {
 const documents: Documents = {
   "mutation ClaimSourceRun($id: ID!) {\n  claimSourceRun(id: $id) {\n    id\n    sourceProfileId\n    status\n    startedAt\n    sourceProfile\n  }\n}":
     types.ClaimSourceRunDocument,
-  "mutation CreateApplication($input: CreateApplicationInput!) {\n  createApplication(input: $input) {\n    id\n    title\n  }\n}":
-    types.CreateApplicationDocument,
-  "mutation CreateDraftApplication($input: CreateDraftApplicationInput!) {\n  createDraftApplication(input: $input) {\n    id\n    url\n    title\n  }\n}":
-    types.CreateDraftApplicationDocument,
+  "mutation CreateDraftJob($input: CreateDraftJobInput!) {\n  createDraftJob(input: $input) {\n    id\n    url\n    title\n  }\n}":
+    types.CreateDraftJobDocument,
+  "mutation CreateJob($input: CreateJobInput!) {\n  createJob(input: $input) {\n    id\n    title\n  }\n}":
+    types.CreateJobDocument,
   "subscription SourceRunEvents {\n  sourceRunEvents {\n    type\n    occurredAt\n    run {\n      id\n      templateId\n      sourceProfileId\n      surfaceUrl\n      status\n      startedAt\n      sourceProfile\n    }\n  }\n}":
     types.SourceRunEventsDocument,
   "query SourceRuns {\n  sourceRuns {\n    id\n    templateId\n    sourceProfileId\n    surfaceUrl\n    status\n    startedAt\n    sourceProfile\n  }\n}":
@@ -63,14 +63,14 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: "mutation CreateApplication($input: CreateApplicationInput!) {\n  createApplication(input: $input) {\n    id\n    title\n  }\n}",
-): (typeof documents)["mutation CreateApplication($input: CreateApplicationInput!) {\n  createApplication(input: $input) {\n    id\n    title\n  }\n}"];
+  source: "mutation CreateDraftJob($input: CreateDraftJobInput!) {\n  createDraftJob(input: $input) {\n    id\n    url\n    title\n  }\n}",
+): (typeof documents)["mutation CreateDraftJob($input: CreateDraftJobInput!) {\n  createDraftJob(input: $input) {\n    id\n    url\n    title\n  }\n}"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: "mutation CreateDraftApplication($input: CreateDraftApplicationInput!) {\n  createDraftApplication(input: $input) {\n    id\n    url\n    title\n  }\n}",
-): (typeof documents)["mutation CreateDraftApplication($input: CreateDraftApplicationInput!) {\n  createDraftApplication(input: $input) {\n    id\n    url\n    title\n  }\n}"];
+  source: "mutation CreateJob($input: CreateJobInput!) {\n  createJob(input: $input) {\n    id\n    title\n  }\n}",
+): (typeof documents)["mutation CreateJob($input: CreateJobInput!) {\n  createJob(input: $input) {\n    id\n    title\n  }\n}"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

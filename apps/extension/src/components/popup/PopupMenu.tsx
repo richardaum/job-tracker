@@ -6,13 +6,12 @@ import { MenuPanel } from "./menu/MenuPanel";
 import { useMenuKeyboardNavigation } from "./useMenuKeyboardNavigation";
 
 type PopupMessage = { kind: "popup.trigger-plan-service" };
-type PopupImportMessage = { kind: "popup.import-application" };
+type PopupImportMessage = { kind: "popup.import-job" };
 type PopupImportLabelMessage = { kind: "popup.get-import-menu-label" };
 type PopupImportLabelResponse = { label: string };
 
 export function PopupMenu(): JSX.Element {
-  const [importApplicationLabel, setImportApplicationLabel] =
-    useState("Import application");
+  const [importJobLabel, setImportJobLabel] = useState("Import job");
 
   useAsyncEffect(async () => {
     const message: PopupImportLabelMessage = {
@@ -24,7 +23,7 @@ export function PopupMenu(): JSX.Element {
       PopupImportLabelResponse
     >(message);
     if (response?.label) {
-      setImportApplicationLabel(response.label);
+      setImportJobLabel(response.label);
     }
   }, []);
 
@@ -34,13 +33,13 @@ export function PopupMenu(): JSX.Element {
     window.close();
   };
 
-  const handleImportApplication = async () => {
-    const message: PopupImportMessage = { kind: "popup.import-application" };
+  const handleImportJob = async () => {
+    const message: PopupImportMessage = { kind: "popup.import-job" };
     await chrome.runtime.sendMessage(message);
     window.close();
   };
   const menuItems = [
-    { label: importApplicationLabel, onClick: handleImportApplication },
+    { label: importJobLabel, onClick: handleImportJob },
     { label: "Trigger PlanService", onClick: handleTriggerPlanService },
   ] as const;
 
