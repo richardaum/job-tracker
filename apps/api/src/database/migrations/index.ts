@@ -6,6 +6,10 @@ import { AddFitAnalysisGenerationMetadata1767400000000 } from "./1767400000000-a
 import { AddConversionMetadataJsonb1767500000000 } from "./1767500000000-add-conversion-metadata-jsonb";
 import { RenameUserPreferencesToWorkPreferences1767600000000 } from "./1767600000000-rename-user-preferences-to-work-preferences";
 import { RenameApplicationToJob1767700000000 } from "./1767700000000-rename-application-to-job";
+import { MigrateDraftConversionJsonbToEmbedded1767710000000 } from "./1767710000000-migrate-draft-conversion-jsonb-to-embedded";
+import { MigrateApplicationSummaryJsonbToEmbedded1767720000000 } from "./1767720000000-migrate-application-summary-jsonb-to-embedded";
+import { MigrateFitAnalysisGenerationJsonbToEmbedded1767730000000 } from "./1767730000000-migrate-fit-analysis-generation-jsonb-to-embedded";
+import { RenameEmbeddedColumnsToSnakeCase1767740000000 } from "./1767740000000-rename-embedded-columns-to-snake-case";
 
 export const migrations = [
   SquashedBaseline1767000000000,
@@ -16,4 +20,8 @@ export const migrations = [
   AddConversionMetadataJsonb1767500000000,
   RenameUserPreferencesToWorkPreferences1767600000000,
   RenameApplicationToJob1767700000000,
+  MigrateDraftConversionJsonbToEmbedded1767710000000,
+  MigrateApplicationSummaryJsonbToEmbedded1767720000000,
+  MigrateFitAnalysisGenerationJsonbToEmbedded1767730000000,
+  RenameEmbeddedColumnsToSnakeCase1767740000000,
 ];

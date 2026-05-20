@@ -1,7 +1,7 @@
 import type { MigrationInterface, QueryRunner } from "typeorm";
 
-export class RenameEmbeddedColumnsToSnakeCase1768000000000 implements MigrationInterface {
-  name = "RenameEmbeddedColumnsToSnakeCase1768000000000";
+export class RenameEmbeddedColumnsToSnakeCase1767740000000 implements MigrationInterface {
+  name = "RenameEmbeddedColumnsToSnakeCase1767740000000";
 
   async up(queryRunner: QueryRunner): Promise<void> {
     await this.safeRenameColumn(

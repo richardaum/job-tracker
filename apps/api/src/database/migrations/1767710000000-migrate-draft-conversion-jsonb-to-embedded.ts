@@ -1,7 +1,7 @@
 import type { MigrationInterface, QueryRunner } from "typeorm";
 
-export class MigrateDraftConversionJsonbToEmbedded1767700000000 implements MigrationInterface {
-  name = "MigrateDraftConversionJsonbToEmbedded1767700000000";
+export class MigrateDraftConversionJsonbToEmbedded1767710000000 implements MigrationInterface {
+  name = "MigrateDraftConversionJsonbToEmbedded1767710000000";
 
   async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(

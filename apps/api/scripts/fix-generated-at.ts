@@ -3,10 +3,7 @@ import "dotenv/config";
 
 import { buildDataSourceOptions } from "@api/database/data-source-options";
 import { JobEntity } from "@api/database/entities/job.entity";
-import {
-  AsyncMetadata,
-  AsyncMetadataStatusEnum,
-} from "@api/domains/shared/async-metadata.type";
+import { AsyncMetadataStatusEnum } from "@api/domains/shared/async-metadata.type";
 import { tryRun } from "@job-tracker/try-run";
 import { Module } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
@@ -66,7 +63,7 @@ async function main() {
       app.summaryMetadata = {
         ...app.summaryMetadata,
         timestamp: nowUtcIso(),
-      } as AsyncMetadata;
+      } as never;
       const [err] = await tryRun(repo.save(app));
       if (err) {
         process.stdout.write(`\n  ❌ ${app.id}: ${err.message.slice(0, 80)}`);
@@ -98,7 +95,7 @@ async function main() {
       app.summaryMetadata = {
         status: AsyncMetadataStatusEnum.COMPLETED,
         timestamp: nowUtcIso(),
-      };
+      } as never;
       const [err] = await tryRun(repo.save(app));
       if (err) {
         process.stdout.write(`\n  ❌ ${app.id}: ${err.message.slice(0, 80)}`);

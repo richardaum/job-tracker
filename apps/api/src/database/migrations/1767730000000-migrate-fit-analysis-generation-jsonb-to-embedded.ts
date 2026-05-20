@@ -1,7 +1,7 @@
 import type { MigrationInterface, QueryRunner } from "typeorm";
 
-export class MigrateFitAnalysisGenerationJsonbToEmbedded1767900000000 implements MigrationInterface {
-  name = "MigrateFitAnalysisGenerationJsonbToEmbedded1767900000000";
+export class MigrateFitAnalysisGenerationJsonbToEmbedded1767730000000 implements MigrationInterface {
+  name = "MigrateFitAnalysisGenerationJsonbToEmbedded1767730000000";
 
   async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(

@@ -62,10 +62,9 @@ async function fixJsonbFields(
     process.stdout.write(`✓ ${fixStatus.length} would be fixed\n`);
   } else {
     for (const a of fixStatus) {
-      a.summaryMetadata = {
-        ...a.summaryMetadata,
-        status: upper(a.summaryMetadata!.status)! as AsyncMetadataStatusEnum,
-      };
+      a.summaryMetadata!.status = upper(
+        a.summaryMetadata!.status,
+      )! as AsyncMetadataStatusEnum;
       const [err] = await tryRun(jobRepo.save(a));
       if (err) {
         process.stdout.write(`\n  ❌ ${a.id}: ${err.message.slice(0, 80)}`);
