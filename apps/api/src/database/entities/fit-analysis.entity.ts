@@ -16,9 +16,9 @@ import {
 import { DraftApplicationEntity } from "./draft-application.entity";
 
 export enum RequirementTypeEnum {
-  MUST_HAVE = "MUST_HAVE",
-  NICE_TO_HAVE = "NICE_TO_HAVE",
-  SOFT_SKILL = "SOFT_SKILL",
+  MustHave = "MustHave",
+  NiceToHave = "NiceToHave",
+  SoftSkill = "SoftSkill",
 }
 
 export interface FitItem {

@@ -1,4 +1,4 @@
-import { FitClassification } from "@/gql/hooks";
+import { FitClassification, RequirementType } from "@/gql/hooks";
 
 export function formatFitClassification(
   classification: string | null | undefined,
@@ -25,8 +25,8 @@ export function formatFitLabel(
 }
 
 export function formatRequirementType(type: string | null | undefined): string {
-  if (type === "MUST_HAVE") return "Required";
-  if (type === "NICE_TO_HAVE") return "Plus";
-  if (type === "SOFT_SKILL") return "Soft Skill";
+  if (type === RequirementType.MustHave) return "Required";
+  if (type === RequirementType.NiceToHave) return "Plus";
+  if (type === RequirementType.SoftSkill) return "Soft Skill";
   return type ?? "";
 }

@@ -3,7 +3,7 @@
 import { Card, cn, Text } from "@job-tracker/ui";
 import React from "react";
 
-import { FitVerdict } from "@/gql/hooks";
+import { FitVerdict, RequirementType } from "@/gql/hooks";
 
 import { RelevanceIcon } from "./RelevanceIcon";
 import { SourceBadge } from "./SourceBadge";
@@ -13,7 +13,7 @@ export interface FitItem {
   verdict: string;
   source: string;
   weight?: string | null;
-  type?: string | null;
+  type?: RequirementType | null;
   requirement: string;
   jdQuote: string;
   sourceQuotes: string[];
