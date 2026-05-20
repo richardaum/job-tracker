@@ -59,7 +59,10 @@ export class SourcesResolver {
     @CurrentUser() user: { userId: string },
     @Args("sourceProfileId") sourceProfileId: string,
   ): Promise<SourceTemplateType[]> {
-    return this.service.listSourceTemplatesForSourceProfile(user.userId, sourceProfileId);
+    return this.service.listSourceTemplatesForSourceProfile(
+      user.userId,
+      sourceProfileId,
+    );
   }
 
   @Query(() => [SourceProfileType])
