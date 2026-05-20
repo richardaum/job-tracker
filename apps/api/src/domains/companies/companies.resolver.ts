@@ -21,6 +21,14 @@ export class CompaniesResolver {
     return this.service.findAll(user.userId);
   }
 
+  @Query(() => CompanyType)
+  company(
+    @Args("id", { type: () => ID }) id: string,
+    @CurrentUser() user: { userId: string },
+  ): Promise<CompanyType> {
+    return this.service.findOne(id, user.userId);
+  }
+
   @Query(() => Int)
   companyApplicationsCount(
     @Args("id", { type: () => ID }) id: string,

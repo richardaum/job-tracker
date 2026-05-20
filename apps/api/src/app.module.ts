@@ -22,6 +22,7 @@ import { NotesModule } from "./domains/notes/notes.module";
 import { ResumesModule } from "./domains/resumes/resumes.module";
 import { SourcesModule } from "./domains/sources/sources.module";
 import { WorkPreferencesModule } from "./domains/work-preferences/work-preferences.module";
+import { graphqlFormatError } from "./graphql/graphql-format-error";
 import { GraphqlSseMiddleware } from "./graphql/graphql-sse.middleware";
 
 @Module({
@@ -42,6 +43,7 @@ import { GraphqlSseMiddleware } from "./graphql/graphql-sse.middleware";
       autoSchemaFile: join(process.cwd(), "src/schema.gql"),
       playground: true,
       plugins: apolloGraphOsPlugins(),
+      formatError: graphqlFormatError,
     }),
   ],
   controllers: [AppController],
