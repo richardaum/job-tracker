@@ -343,6 +343,8 @@ describe("ApplicationService", () => {
         htmlContent: "<p>Posting</p>",
         conversionMetadata: {
           status: DraftApplicationConversionStatusEnum.PROCESSING,
+          error: null,
+          timestamp: null,
         },
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -382,6 +384,8 @@ describe("ApplicationService", () => {
       ...idleDraft,
       conversionMetadata: {
         status: DraftApplicationConversionStatusEnum.PROCESSING,
+        error: null,
+        timestamp: null,
       },
     };
     vi.mocked(draftApplicationsService.findOne)
@@ -503,6 +507,8 @@ describe("ApplicationService", () => {
       ...idleDraft,
       conversionMetadata: {
         status: DraftApplicationConversionStatusEnum.PROCESSING,
+        error: null,
+        timestamp: null,
       },
     };
     vi.mocked(draftApplicationsService.findOne)
