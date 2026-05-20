@@ -15,10 +15,11 @@ import {
   Text,
 } from "@job-tracker/ui";
 import { CaretDownIcon, SparkleIcon } from "@phosphor-icons/react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 
+import { BackToLink } from "@/components/back-to-link";
+import { EntityNotFound } from "@/components/entity-not-found";
 import { useGenerateApplicationFitMutation } from "@/gql/hooks";
 import { useBreakpoint } from "@/hooks/useBreakpoint";
 import { ActivitySidePanel } from "@/modules/applications/details/components/ActivitySidePanel";
@@ -54,9 +55,8 @@ export default function ApplicationDetailsPage({ params }: PageProps) {
     currentStage,
     currentStageReason,
     draftApplicationId,
-    error,
-    showInitialLoading,
     sourcePrimaryText,
+    status,
     refetch,
   } = useApplicationDetailsViewModel(id);
   const isDesktop = useBreakpoint("(min-width: 1024px)");
@@ -208,14 +208,7 @@ export default function ApplicationDetailsPage({ params }: PageProps) {
         )}
       >
         <div className={cn("flex items-center justify-between gap-3")}>
-          <Link
-            href="/applications"
-            className={cn(
-              "text-sm text-text-secondary underline-offset-2 hover:underline",
-            )}
-          >
-            Back to applications
-          </Link>
+          <BackToLink href="/applications">Back to applications</BackToLink>
           {actionsMenu ? (
             <div className={cn("shrink-0")}>{actionsMenu}</div>
           ) : null}
@@ -224,11 +217,13 @@ export default function ApplicationDetailsPage({ params }: PageProps) {
           <Heading as="h1" size="2xl" className={cn("min-w-0")}>
             <span>{application?.title ?? "Application details"}</span>{" "}
           </Heading>
-          <StatusBadge
-            stage={currentStage}
-            reason={currentStageReason}
-            className={cn("align-middle whitespace-nowrap")}
-          />
+          {application ? (
+            <StatusBadge
+              stage={currentStage}
+              reason={currentStageReason}
+              className={cn("align-middle whitespace-nowrap")}
+            />
+          ) : null}
         </div>
         {application ? (
           <>
@@ -254,19 +249,21 @@ export default function ApplicationDetailsPage({ params }: PageProps) {
       </div>
 
       <div className={cn("flex-1 min-h-0 overflow-hidden p-4 sm:p-6")}>
-        {showInitialLoading ? (
+        {status === "loading" ? (
           <Text size="sm" color="secondary">
             Loading application...
           </Text>
-        ) : error ? (
+        ) : status === "notFound" ? (
+          <EntityNotFound
+            resource="application"
+            backHref="/applications"
+            backLabel="Back to applications"
+          />
+        ) : status === "error" ? (
           <Text size="sm" color="error">
             Failed to load application details.
           </Text>
-        ) : !application ? (
-          <Text size="sm" color="secondary">
-            Application not found.
-          </Text>
-        ) : !isDesktop ? (
+        ) : !application ? null : !isDesktop ? (
           <Tabs
             defaultValue="overview"
             className={cn("flex size-full min-h-0  flex-col")}
