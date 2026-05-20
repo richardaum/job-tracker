@@ -162,7 +162,7 @@ export default function CompaniesPage() {
                 }
                 onViewJobs={(companyName) =>
                   router.push(
-                    `/applications?company=${encodeURIComponent(companyName)}`,
+                    `/jobs?company=${encodeURIComponent(companyName)}`,
                   )
                 }
                 onDeleteSuccess={(message) =>
