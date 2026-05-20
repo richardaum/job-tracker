@@ -8,7 +8,7 @@ import { DraftJobEventBus } from "./draft-job-event.bus";
 
 type RequestWithUser = Request & { user?: { userId?: string } };
 
-@Controller("draft-applications")
+@Controller("draft-jobs")
 @UseGuards(JwtAuthGuard)
 export class DraftJobsSseController {
   constructor(private readonly eventBus: DraftJobEventBus) {}
