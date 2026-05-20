@@ -30,7 +30,8 @@
     "fix:generate-summaries": "pnpm --filter @job-tracker/api run fix:generate-summaries",
     "fix:generate-summaries:dry-run": "pnpm --filter @job-tracker/api run fix:generate-summaries --dry-run",
     "docker:build:api": "docker build -f apps/api/Dockerfile -t job-tracker-api:local .",
-    "perf:rsdoctor:dev": "pnpm --filter @job-tracker/web run dev:rsdoctor"
+    "perf:rsdoctor:dev": "pnpm --filter @job-tracker/web run dev:rsdoctor",
+    "knip": "knip"
   },
   "lint-staged": {
     "*.{js,jsx,mjs,cjs,ts,tsx}": [
@@ -43,12 +44,12 @@
     ]
   },
   "devDependencies": {
-    "dotenv": "^16.6.1",
-    "@job-tracker/try-run": "workspace:*",
-    "@job-tracker/eslint-plugin": "workspace:*",
     "@eslint/js": "^9.39.4",
+    "@job-tracker/eslint-plugin": "workspace:*",
+    "@job-tracker/try-run": "workspace:*",
     "@next/eslint-plugin-next": "16.3.0-canary.6",
     "@types/node": "^22.15.3",
+    "dotenv": "^16.6.1",
     "eslint": "^9.39.4",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-better-tailwindcss": "^4.5.0",
@@ -61,6 +62,7 @@
     "globals": "^17.5.0",
     "husky": "^9.1.7",
     "jiti": "^2.6.1",
+    "knip": "^6.14.1",
     "lean-spec": "^0.2.28",
     "lint-staged": "^16.4.0",
     "prettier": "^3.8.3",

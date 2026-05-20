@@ -17,7 +17,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   render: () => (
-    <Tooltip content="This action updates your latest application stage.">
+    <Tooltip content="This action updates your latest job stage.">
       <Button size="md" intent="secondary">
         Hover me
       </Button>

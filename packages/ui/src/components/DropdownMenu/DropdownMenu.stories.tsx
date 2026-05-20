@@ -29,7 +29,7 @@ export const Default: Story = {
         />
       }
     >
-      <DropdownMenuItem>Edit application</DropdownMenuItem>
+      <DropdownMenuItem>Edit job</DropdownMenuItem>
       <DropdownMenuItem>Duplicate</DropdownMenuItem>
       <DropdownMenuSeparator />
       <DropdownMenuItem destructive>Delete</DropdownMenuItem>
