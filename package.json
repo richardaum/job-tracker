@@ -31,7 +31,8 @@
     "fix:generate-summaries": "pnpm --filter @job-tracker/api run fix:generate-summaries",
     "fix:generate-summaries:dry-run": "pnpm --filter @job-tracker/api run fix:generate-summaries --dry-run",
     "docker:build:api": "docker build -f apps/api/Dockerfile -t job-tracker-api:local .",
-    "perf:rsdoctor:dev": "pnpm --filter @job-tracker/web run dev:rsdoctor"
+    "perf:rsdoctor:dev": "pnpm --filter @job-tracker/web run dev:rsdoctor",
+    "knip": "knip"
   },
   "lint-staged": {
     "*.{js,jsx,mjs,cjs,ts,tsx}": [

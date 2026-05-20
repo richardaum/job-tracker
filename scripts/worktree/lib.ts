@@ -384,6 +384,21 @@ export function dbNameForSlug(slug: string): string {
   return `job_tracker_${slug.replaceAll("-", "_")}`;
 }
 
+/** Rewrites only the DB name to `job_tracker_test_<slug>` for the E2E test database. */
+export function buildDestinationTestDatabaseUrl(
+  sourceUrl: string,
+  slug: string,
+): string {
+  const url = new URL(sourceUrl);
+  url.pathname = `/${testDbNameForSlug(slug)}`;
+  return url.toString();
+}
+
+/** Postgres identifier: `job_tracker_test_` plus slug hyphens as underscores. */
+export function testDbNameForSlug(slug: string): string {
+  return `job_tracker_test_${slug.replaceAll("-", "_")}`;
+}
+
 /** Collects main-then-worktree `docker-compose.yml` paths for Postgres discovery. */
 function composeFilesForPostgres(repoRoot: string): string[] {
   const files: string[] = [];
@@ -658,8 +673,9 @@ export function buildWorktreeEnv(params: {
   ports: SlugPorts;
   secrets: WorktreeEnvMap;
   databaseUrl: string;
+  e2eDatabaseUrl: string;
 }): WorktreeEnvMap {
-  const { slug, ports, secrets, databaseUrl } = params;
+  const { slug, ports, secrets, databaseUrl, e2eDatabaseUrl } = params;
   const apiUrl = `http://localhost:${ports.api}`;
   const webUrl = `http://localhost:${ports.web}`;
   const resetPorts = [ports.api, ports.web, ports.storybook, ports.wxt].join(
@@ -674,6 +690,7 @@ export function buildWorktreeEnv(params: {
     API_PORT: String(ports.api),
     WEB_PORT: String(ports.web),
     DATABASE_URL: databaseUrl,
+    DATABASE_E2E_URL: e2eDatabaseUrl,
     WEB_URL: webUrl,
     GOOGLE_CALLBACK_URL: `${apiUrl}/auth/google/callback`,
     AUTH_BYPASS_ENABLED: "true",
@@ -1128,6 +1145,38 @@ export function cloneWorktreeDatabase(params: {
   });
 }
 
+/** Creates an empty test database for the worktree (no data clone needed). */
+export function cloneWorktreeTestDatabase(params: {
+  tag: string;
+  slug: string;
+  testDbName: string;
+  worktreeRoot: string;
+  recreateDb: boolean;
+}): void {
+  const { tag, slug, testDbName, worktreeRoot, recreateDb } = params;
+  console.warn(`${tag} slug=${slug}`);
+  assertPostgresAvailable(worktreeRoot);
+
+  const existsCheck = checkDatabaseExists(testDbName, worktreeRoot);
+  if (existsCheck.status === "error") {
+    throw new Error(
+      `Could not check test database ${testDbName}: ${existsCheck.detail ?? "psql failed"}`,
+    );
+  }
+  if (existsCheck.status === "exists" && !recreateDb) {
+    console.warn(
+      `${tag} Test database ${testDbName} already exists — skipping.`,
+    );
+    return;
+  }
+  if (existsCheck.status === "exists" && recreateDb) {
+    pgSpawnOrThrow(worktreeRoot, "dropdb", [testDbName]);
+  }
+
+  console.warn(`${tag} creating test database ${testDbName}`);
+  pgSpawnOrThrow(worktreeRoot, "createdb", [testDbName]);
+}
+
 /** Allocates ports for dry-run without writing registry files. */
 export function previewWorktreePorts(slug: string): SlugPorts {
   const registry = readGlobalRegistry();
@@ -1171,6 +1220,7 @@ export function writeWorktreeEnvFile(params: {
   ports: SlugPorts;
   secrets: WorktreeEnvMap;
   databaseUrl: string;
+  e2eDatabaseUrl: string;
 }): string {
   const envPath = join(params.worktreeRoot, ".env.worktree");
   const envMap = buildWorktreeEnv({
@@ -1178,6 +1228,7 @@ export function writeWorktreeEnvFile(params: {
     ports: params.ports,
     secrets: params.secrets,
     databaseUrl: params.databaseUrl,
+    e2eDatabaseUrl: params.e2eDatabaseUrl,
   });
   writeFileSync(envPath, formatEnvWorktree(envMap), "utf8");
   return envPath;
@@ -1192,6 +1243,7 @@ export function logSetupDryRun(params: {
   sourceDb: string;
   destDb: string;
   databaseUrl: string;
+  e2eDatabaseUrl: string;
   recreateDb: boolean;
   dbeaver: boolean;
   forceDbeaver: boolean;
@@ -1209,6 +1261,7 @@ export function logSetupDryRun(params: {
     sourceDb,
     destDb,
     databaseUrl,
+    e2eDatabaseUrl,
     recreateDb,
     dbeaver,
     forceDbeaver,
@@ -1235,6 +1288,9 @@ export function logSetupDryRun(params: {
   );
   console.warn(
     `${tag} [dry-run] DATABASE_URL ${formatDatabaseUrlForLog(databaseUrl)}`,
+  );
+  console.warn(
+    `${tag} [dry-run] DATABASE_E2E_URL ${formatDatabaseUrlForLog(e2eDatabaseUrl)}`,
   );
   console.warn(
     `${tag} [dry-run] ports api=${ports.api} web=${ports.web} storybook=${ports.storybook} wxt=${ports.wxt}`,
@@ -1326,15 +1382,19 @@ export function logSetupSummary(params: {
   envPath: string;
   ports: SlugPorts;
   databaseUrl: string;
+  e2eDatabaseUrl: string;
   destDb: string;
 }): void {
-  const { tag, envPath, ports, databaseUrl, destDb } = params;
+  const { tag, envPath, ports, databaseUrl, e2eDatabaseUrl, destDb } = params;
   console.warn(`${tag} wrote ${envPath}`);
   console.warn(`${tag} API  http://localhost:${ports.api}`);
   console.warn(`${tag} Web  http://localhost:${ports.web}`);
   console.warn(`${tag} SB   http://localhost:${ports.storybook}`);
   console.warn(`${tag} WXT  http://localhost:${ports.wxt}`);
   console.warn(`${tag} DB   ${parseDatabaseName(databaseUrl) ?? destDb}`);
+  console.warn(
+    `${tag} E2E  ${parseDatabaseName(e2eDatabaseUrl) ?? "test_" + destDb}`,
+  );
   console.warn(
     `${tag} Post-steps: pass --install=true --migrate=true --start=true --verify=true`,
   );
@@ -1404,6 +1464,35 @@ export function dropWorktreeDatabase(
     console.warn(`${tag} dropdb ${dbName}`);
   }
   const [dropErr] = tryRun(() => dropDatabase(dbName, repoRoot));
+  if (dropErr) worktreeFail(tag, dropErr.message);
+}
+
+/** Drops `job_tracker_test_<slug>` unless `--keep-db` was passed. */
+export function dropWorktreeTestDatabase(
+  repoRoot: string,
+  slug: string,
+  dropDb: boolean,
+  tag: string,
+): void {
+  const testDbName = testDbNameForSlug(slug);
+  if (!dropDb) {
+    console.warn(`${tag} test database ${testDbName} preserved (--keep-db).`);
+    return;
+  }
+  const check = checkDatabaseExists(testDbName, repoRoot);
+  if (check.status !== "exists") {
+    console.warn(
+      `${tag} test database ${testDbName} does not exist — skipping.`,
+    );
+    return;
+  }
+  const container = resolvePostgresContainer(repoRoot);
+  if (container) {
+    console.warn(`${tag} dropdb ${testDbName} via docker (${container})`);
+  } else {
+    console.warn(`${tag} dropdb ${testDbName}`);
+  }
+  const [dropErr] = tryRun(() => dropDatabase(testDbName, repoRoot));
   if (dropErr) worktreeFail(tag, dropErr.message);
 }
 

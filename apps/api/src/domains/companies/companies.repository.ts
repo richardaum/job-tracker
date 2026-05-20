@@ -1,5 +1,6 @@
-import { ApplicationEntity } from "@api/database/entities/application.entity";
 import { CompanyEntity } from "@api/database/entities/company.entity";
+import { JobEntity } from "@api/database/entities/job.entity";
+import { tryRun } from "@job-tracker/try-run";
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { QueryFailedError, Repository } from "typeorm";
@@ -11,8 +12,8 @@ export class CompanyRepository {
   constructor(
     @InjectRepository(CompanyEntity)
     private readonly repo: Repository<CompanyEntity>,
-    @InjectRepository(ApplicationEntity)
-    private readonly applicationsRepo: Repository<ApplicationEntity>,
+    @InjectRepository(JobEntity)
+    private readonly applicationsRepo: Repository<JobEntity>,
   ) {}
 
   async findOneById(id: string, userId: string): Promise<Company | null> {
@@ -45,26 +46,25 @@ export class CompanyRepository {
       return existing;
     }
 
-    // `tryRun()` normalizes errors; we need `instanceof QueryFailedError` for race duplicates.
-    /* eslint-disable-next-line job-tracker/prefer-try-run-over-try-catch */
-    try {
-      const company = this.repo.create({ userId, name: trimmed });
-      return await this.repo.save(company);
-    } catch (e: unknown) {
-      if (
-        e instanceof QueryFailedError &&
-        (e.driverError as { code?: string } | undefined)?.code === "23505"
-      ) {
-        const afterRace = await this.findOneByNameInsensitiveTrimmed(
-          userId,
-          trimmed,
-        );
-        if (afterRace) {
-          return afterRace;
-        }
-      }
-      throw e;
+    const [saveErr, company] = await tryRun(
+      this.repo.save(this.repo.create({ userId, name: trimmed })),
+    );
+    if (!saveErr) {
+      return company;
     }
+    if (
+      saveErr instanceof QueryFailedError &&
+      (saveErr.driverError as { code?: string } | undefined)?.code === "23505"
+    ) {
+      const afterRace = await this.findOneByNameInsensitiveTrimmed(
+        userId,
+        trimmed,
+      );
+      if (afterRace) {
+        return afterRace;
+      }
+    }
+    throw saveErr;
   }
 
   async create(dto: NewCompany): Promise<Company> {

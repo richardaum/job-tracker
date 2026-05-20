@@ -55,7 +55,7 @@ export const LOGIN_SPOTLIGHT_TILES: readonly LoginSpotlightTile[] = [
     kind: "card",
     id: "applications",
     icon: "briefcase",
-    title: "Every application in one place",
+    title: "Every job in one place",
     body: "Companies, postings, stages, and notes stay linked so follow-ups stay quick.",
     layoutClassName:
       "h-full min-h-0 lg:col-span-4 lg:col-start-1 lg:row-start-1",

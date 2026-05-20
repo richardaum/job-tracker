@@ -1,7 +1,7 @@
 import { generateJSON } from "@tiptap/html";
 import StarterKit from "@tiptap/starter-kit";
 
-import { parseSalaryInnerTextForCreateApplication } from "@/domains/dom/parse-salary-inner-text-for-application";
+import { parseSalaryInnerTextForCreateJob } from "@/domains/dom/parse-salary-inner-text-for-job";
 import type {
   PlanStepCollectJobsDetailsField,
   PlanStepCollectJobsSurfaceField,
@@ -37,13 +37,13 @@ export class TiptapFieldFormatStrategy implements FieldFormatStrategy {
   }
 }
 
-/** Parsed salary line → object matching {@link CreateApplicationInput} salary fields. */
+/** Parsed salary line → object matching {@link CreateJobInput} salary fields. */
 export class SalaryFieldFormatStrategy implements FieldFormatStrategy {
   apply(value: string | null | undefined, _field: CollectField): unknown {
     if (value == null || typeof value !== "string" || value.trim() === "") {
       return null;
     }
-    return parseSalaryInnerTextForCreateApplication(value);
+    return parseSalaryInnerTextForCreateJob(value);
   }
 }
 

@@ -2,7 +2,7 @@ import { defineBackground } from "wxt/utils/define-background";
 
 import { ApiService } from "@/domains/api/api.service";
 import { ContextMenuService } from "@/domains/context-menu/context-menu.service";
-import { ImportApplicationService } from "@/domains/import-application/import-application.service";
+import { ImportJobService } from "@/domains/import-job/import-job.service";
 import { JobDetailsMessagingService } from "@/domains/job-details/job-details-messaging.service";
 import { JobsListMessagingService } from "@/domains/jobs-list/jobs-list-messaging.service";
 import { LogService } from "@/domains/log/log.service";
@@ -45,7 +45,7 @@ export default defineBackground(() => {
 
   const apiService = new ApiService();
 
-  const importApplicationService = new ImportApplicationService(
+  const importJobService = new ImportJobService(
     messagingService,
     new WxtTabService(),
     apiService,
@@ -58,7 +58,7 @@ export default defineBackground(() => {
   );
   sourceRunEventsService.start();
 
-  const contextMenuService = new ContextMenuService(importApplicationService);
+  const contextMenuService = new ContextMenuService(importJobService);
   void contextMenuService.setup();
   contextMenuService.bindListeners();
 
@@ -79,14 +79,14 @@ export default defineBackground(() => {
 
   registerMessageListenerByKind({
     "popup.get-import-menu-label": async () => {
-      const label = await importApplicationService.getImportMenuLabel();
+      const label = await importJobService.getImportMenuLabel();
       return { label };
     },
     "popup.trigger-plan-service": () => {
       void planService.execute(parsePlan(remoteyeahPlan));
     },
-    "popup.import-application": () => {
-      void importApplicationService.execute();
+    "popup.import-job": () => {
+      void importJobService.execute();
     },
   });
 });

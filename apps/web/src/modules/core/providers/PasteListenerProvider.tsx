@@ -5,11 +5,8 @@ import { useRouter } from "next/navigation";
 import type { ReactNode } from "react";
 import { useCallback, useEffect, useState } from "react";
 
-import {
-  DraftApplicationsListDocument,
-  useCreateDraftApplicationMutation,
-} from "@/gql/hooks";
-import { useToastQueue } from "@/modules/applications/shared/hooks/useToastQueue";
+import { DraftJobsListDocument, useCreateDraftJobMutation } from "@/gql/hooks";
+import { useToastQueue } from "@/modules/jobs/shared/hooks/useToastQueue";
 
 import { PasteDestinationDialog } from "./components/PasteDestinationDialog";
 
@@ -19,9 +16,9 @@ export function PasteListenerProvider({ children }: { children: ReactNode }) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const { enqueueToast } = useToastQueue();
 
-  const [createDraftApplication, { loading: createDraftLoading }] =
-    useCreateDraftApplicationMutation({
-      refetchQueries: [{ query: DraftApplicationsListDocument }],
+  const [createDraftJob, { loading: createDraftLoading }] =
+    useCreateDraftJobMutation({
+      refetchQueries: [{ query: DraftJobsListDocument }],
       awaitRefetchQueries: true,
     });
 
@@ -72,7 +69,7 @@ export function PasteListenerProvider({ children }: { children: ReactNode }) {
 
   async function handleConfirmPasteImport(url: string, autoConvert: boolean) {
     const [createError, result] = await tryRun(
-      createDraftApplication({
+      createDraftJob({
         variables: {
           input: {
             url: url || null,
@@ -90,7 +87,7 @@ export function PasteListenerProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    const draftId = result?.data?.createDraftApplication?.id;
+    const draftId = result?.data?.createDraftJob?.id;
     if (!draftId) return;
 
     setDialogOpen(false);

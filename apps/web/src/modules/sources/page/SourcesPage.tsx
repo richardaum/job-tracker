@@ -6,7 +6,7 @@ import type { ChangeEvent } from "react";
 import { useState } from "react";
 
 import { EmptyState } from "@/components/empty-state";
-import { SearchInput } from "@/modules/applications/shared/components/SearchInput";
+import { SearchInput } from "@/modules/jobs/shared/components/SearchInput";
 import {
   type SourceProfileRow,
   useSourcesListViewModel,

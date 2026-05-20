@@ -1,7 +1,0 @@
-mutation CreateDraftApplication($input: CreateDraftApplicationInput!) {
-  createDraftApplication(input: $input) {
-    id
-    url
-    title
-  }
-}

@@ -19,10 +19,10 @@ export class NoteResolver {
 
   @Query(() => [NoteType])
   applicationNotes(
-    @Args("applicationId", { type: () => ID }) applicationId: string,
+    @Args("jobId", { type: () => ID }) jobId: string,
     @CurrentUser() user: { userId: string },
   ): Promise<NoteType[]> {
-    return this.service.listNotes(applicationId, user.userId);
+    return this.service.listNotes(jobId, user.userId);
   }
 
   @Mutation(() => NoteType)
@@ -53,10 +53,10 @@ export class NoteResolver {
 
   @Query(() => String)
   generateApplicationNoteWithAI(
-    @Args("applicationId", { type: () => ID }) applicationId: string,
+    @Args("jobId", { type: () => ID }) jobId: string,
     @Args("note") note: string,
     @CurrentUser() user: { userId: string },
   ): Promise<string> {
-    return this.service.generateNoteWithAI(user.userId, applicationId, note);
+    return this.service.generateNoteWithAI(user.userId, jobId, note);
   }
 }

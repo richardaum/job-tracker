@@ -7,11 +7,11 @@ import { useEffect, useRef, useState } from "react";
 
 import { EmptyState } from "@/components/empty-state";
 import { useScrollRestoration } from "@/hooks/useScrollRestoration";
-import { SearchInput } from "@/modules/applications/shared/components/SearchInput";
-import { useToastQueue } from "@/modules/applications/shared/hooks/useToastQueue";
 import { CompanyCard } from "@/modules/companies/list/components/CompanyCard";
 import { useCompaniesListViewModel } from "@/modules/companies/list/hooks/useCompaniesListViewModel";
 import { CompanyEditDialog } from "@/modules/companies/shared/components/CompanyEditDialog";
+import { SearchInput } from "@/modules/jobs/shared/components/SearchInput";
+import { useToastQueue } from "@/modules/jobs/shared/hooks/useToastQueue";
 
 interface EditingCompany {
   id: string;

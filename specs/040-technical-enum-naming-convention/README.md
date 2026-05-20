@@ -37,9 +37,9 @@ A single consistent convention reduces cognitive overhead, makes imports self-do
 | `WeightEnum`                       | `weight.enum.ts`                                            | `"WeightEnum"`                       | ❌ GraphQL name keeps `Enum` suffix |
 | `ApplicationSource`                | `application-source.enum.ts`                                | `"ApplicationSource"`                | ❌ TS missing `Enum` suffix         |
 | `AsyncMetadataStatus`              | `async-metadata.type.ts`                                    | `"AsyncMetadataStatus"`              | ❌ TS missing `Enum` suffix         |
-| `FitAnalysisStatus`                | `fit-analysis.entity.ts` / `fit-analysis.type.ts`           | `"FitAnalysisStatus"`                | ❌ TS missing `Enum` suffix         |
+| `MatchAnalysisStatus`              | `match-analysis.entity.ts` / `match-analysis.type.ts`       | `"MatchAnalysisStatus"`              | ❌ TS missing `Enum` suffix         |
 | `DraftApplicationConversionStatus` | `draft-application.entity.ts` / `draft-application.type.ts` | `"DraftApplicationConversionStatus"` | ❌ TS missing `Enum` suffix         |
-| `RequirementType`                  | `fit-analysis.entity.ts` / `fit-item.type.ts`               | `"RequirementType"`                  | ❌ TS missing `Enum` suffix         |
+| `RequirementType`                  | `match-analysis.entity.ts` / `match-item.type.ts`           | `"RequirementType"`                  | ❌ TS missing `Enum` suffix         |
 
 ### Convention
 
@@ -56,9 +56,9 @@ Rename 5 enums to add `Enum` suffix. GraphQL names stay the same — `schema.gql
 | ---------------------------------- | -------------------------------------- | -------------------------------------------------------------- | ----------------------- |
 | `ApplicationSource`                | `ApplicationSourceEnum`                | `application-source.enum.ts`                                   | L11                     |
 | `AsyncMetadataStatus`              | `AsyncMetadataStatusEnum`              | `async-metadata.type.ts`                                       | L8                      |
-| `FitAnalysisStatus`                | `FitAnalysisStatusEnum`                | `fit-analysis.entity.ts` + `fit-analysis.type.ts` L16          | L16                     |
+| `MatchAnalysisStatus`              | `MatchAnalysisStatusEnum`              | `match-analysis.entity.ts` + `match-analysis.type.ts` L16      | L16                     |
 | `DraftApplicationConversionStatus` | `DraftApplicationConversionStatusEnum` | `draft-application.entity.ts` + `draft-application.type.ts` L5 | L5                      |
-| `RequirementType`                  | `RequirementTypeEnum`                  | `fit-analysis.entity.ts` + `fit-item.type.ts` L9               | L9                      |
+| `RequirementType`                  | `RequirementTypeEnum`                  | `match-analysis.entity.ts` + `match-item.type.ts` L9           | L9                      |
 
 ### Phase 2 — Fix `WeightEnum` GraphQL name (schema breakage)
 
@@ -72,7 +72,7 @@ Rename 5 enums to add `Enum` suffix. GraphQL names stay the same — `schema.gql
 
 - [T-265] Rename `ApplicationSource` → `ApplicationSourceEnum` + update all usages
 - [T-266] Rename `AsyncMetadataStatus` → `AsyncMetadataStatusEnum` + update all usages
-- [T-267] Rename `FitAnalysisStatus` → `FitAnalysisStatusEnum` + update entity and type imports
+- [T-267] Rename `MatchAnalysisStatus` → `MatchAnalysisStatusEnum` + update entity and type imports
 - [T-268] Rename `DraftApplicationConversionStatus` → `DraftApplicationConversionStatusEnum` + update entity and type imports
 - [T-269] Rename `RequirementType` → `RequirementTypeEnum` + update entity and type imports
 - [T-270] Fix `WeightEnum` GraphQL name → `"Weight"`, regenerate codegen, update client refs

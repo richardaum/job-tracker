@@ -9,7 +9,7 @@ import {
 import Link from "next/link";
 import { useState } from "react";
 
-import { TipTapContent } from "@/modules/applications/shared/components/TipTapContent";
+import { TipTapContent } from "@/modules/jobs/shared/components/TipTapContent";
 
 import { DeleteCompanyDialog } from "./DeleteCompanyDialog";
 

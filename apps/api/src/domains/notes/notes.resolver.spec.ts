@@ -18,7 +18,7 @@ import { NoteService } from "./notes.service";
 
 const mockNote: Note = {
   id: "note-1",
-  applicationId: "app-1",
+  jobId: "app-1",
   userId: "user-1",
   content: JSON.stringify({ type: "doc", content: [{ type: "paragraph" }] }),
   revision: 1,
@@ -87,7 +87,7 @@ describe("NoteResolver (integration)", () => {
       .post("/graphql")
       .set(auth)
       .send({
-        query: `{ applicationNotes(applicationId: "app-1") { id content revision } }`,
+        query: `{ applicationNotes(jobId: "app-1") { id content revision } }`,
       });
 
     expect(res.statusCode).toBe(200);
@@ -101,7 +101,7 @@ describe("NoteResolver (integration)", () => {
       .send({
         query: `mutation {
           createApplicationNote(
-            input: { applicationId: "app-1", content: "{\\"type\\":\\"doc\\",\\"content\\":[{\\"type\\":\\"paragraph\\"}]}" }
+            input: { jobId: "app-1", content: "{\\"type\\":\\"doc\\",\\"content\\":[{\\"type\\":\\"paragraph\\"}]}" }
           ) { id revision }
         }`,
       });
@@ -149,7 +149,7 @@ describe("NoteResolver (integration)", () => {
       .set(auth)
       .send({
         query: `query {
-          generateApplicationNoteWithAI(applicationId: "app-1", note: "follow up with recruiter") 
+          generateApplicationNoteWithAI(jobId: "app-1", note: "follow up with recruiter") 
         }`,
       });
 

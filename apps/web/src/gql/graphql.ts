@@ -31,79 +31,6 @@ export type Scalars = {
   DateTime: { input: any; output: any };
 };
 
-export enum ApplicationQuickFilter {
-  Active = "ACTIVE",
-  Applied = "APPLIED",
-  Duplicated = "DUPLICATED",
-  Incoming = "INCOMING",
-  New = "NEW",
-}
-
-export type ApplicationSalary = {
-  __typename?: "ApplicationSalary";
-  currency?: Maybe<Scalars["String"]["output"]>;
-  maxCents?: Maybe<Scalars["Int"]["output"]>;
-  minCents?: Maybe<Scalars["Int"]["output"]>;
-  period?: Maybe<SalaryPeriod>;
-};
-
-export enum ApplicationSource {
-  Jack = "JACK",
-  Linkedin = "LINKEDIN",
-  RemoteYeah = "REMOTE_YEAH",
-  Wellfound = "WELLFOUND",
-}
-
-export enum ApplicationStage {
-  Applied = "APPLIED",
-  CulturalFit = "CULTURAL_FIT",
-  Duplicated = "DUPLICATED",
-  New = "NEW",
-  Offer = "OFFER",
-  RecruiterScreen = "RECRUITER_SCREEN",
-  Rejected = "REJECTED",
-  Technical = "TECHNICAL",
-}
-
-export type ApplicationStageEventType = {
-  __typename?: "ApplicationStageEventType";
-  applicationId: Scalars["String"]["output"];
-  createdAt: Scalars["DateTime"]["output"];
-  fromStage?: Maybe<ApplicationStage>;
-  id: Scalars["ID"]["output"];
-  reason?: Maybe<Scalars["String"]["output"]>;
-  scheduledAt?: Maybe<Scalars["DateTime"]["output"]>;
-  source: Scalars["String"]["output"];
-  toStage: ApplicationStage;
-  userId: Scalars["String"]["output"];
-};
-
-export type ApplicationType = {
-  __typename?: "ApplicationType";
-  company: CompanyType;
-  companyId: Scalars["ID"]["output"];
-  createdAt: Scalars["DateTime"]["output"];
-  currentStage: ApplicationStage;
-  currentStageAt: Scalars["DateTime"]["output"];
-  currentStageReason?: Maybe<Scalars["String"]["output"]>;
-  description?: Maybe<Scalars["String"]["output"]>;
-  draftApplicationId?: Maybe<Scalars["ID"]["output"]>;
-  fit?: Maybe<FitAnalysisType>;
-  id: Scalars["ID"]["output"];
-  location?: Maybe<Scalars["String"]["output"]>;
-  salary: ApplicationSalary;
-  source?: Maybe<ApplicationSource>;
-  sourceRunId?: Maybe<Scalars["ID"]["output"]>;
-  summary?: Maybe<Scalars["String"]["output"]>;
-  summaryMetadata?: Maybe<AsyncMetadataType>;
-  tags: Array<Scalars["String"]["output"]>;
-  title: Scalars["String"]["output"];
-  updatedAt: Scalars["DateTime"]["output"];
-  urls: Array<Scalars["String"]["output"]>;
-  userId: Scalars["String"]["output"];
-  workRegion?: Maybe<Scalars["String"]["output"]>;
-};
-
 export enum AsyncMetadataStatus {
   Completed = "COMPLETED",
   Failed = "FAILED",
@@ -130,11 +57,17 @@ export type CompanyType = {
 export type ConversionMetadataType = {
   __typename?: "ConversionMetadataType";
   error?: Maybe<Scalars["String"]["output"]>;
-  status: DraftApplicationConversionStatus;
+  status: DraftJobConversionStatus;
   timestamp?: Maybe<Scalars["String"]["output"]>;
 };
 
-export type CreateApplicationInput = {
+export type CreateDraftJobInput = {
+  htmlContent: Scalars["String"]["input"];
+  title: Scalars["String"]["input"];
+  url?: InputMaybe<Scalars["String"]["input"]>;
+};
+
+export type CreateJobInput = {
   company: Scalars["String"]["input"];
   companyId?: InputMaybe<Scalars["ID"]["input"]>;
   description?: InputMaybe<Scalars["String"]["input"]>;
@@ -143,7 +76,7 @@ export type CreateApplicationInput = {
   salaryMaxCents?: InputMaybe<Scalars["Int"]["input"]>;
   salaryMinCents?: InputMaybe<Scalars["Int"]["input"]>;
   salaryPeriod?: InputMaybe<SalaryPeriod>;
-  source?: InputMaybe<ApplicationSource>;
+  source?: InputMaybe<JobSource>;
   sourceRunId?: InputMaybe<Scalars["ID"]["input"]>;
   tags?: InputMaybe<Array<Scalars["String"]["input"]>>;
   title: Scalars["String"]["input"];
@@ -151,23 +84,17 @@ export type CreateApplicationInput = {
   workRegion?: InputMaybe<Scalars["String"]["input"]>;
 };
 
-export type CreateApplicationStageEventInput = {
-  applicationId: Scalars["String"]["input"];
+export type CreateJobStageEventInput = {
+  jobId: Scalars["String"]["input"];
   reason?: InputMaybe<Scalars["String"]["input"]>;
   scheduledAt?: InputMaybe<Scalars["DateTime"]["input"]>;
   source?: InputMaybe<Scalars["String"]["input"]>;
-  toStage: ApplicationStage;
-};
-
-export type CreateDraftApplicationInput = {
-  htmlContent: Scalars["String"]["input"];
-  title: Scalars["String"]["input"];
-  url?: InputMaybe<Scalars["String"]["input"]>;
+  toStage: JobStage;
 };
 
 export type CreateNoteInput = {
-  applicationId: Scalars["String"]["input"];
   content: Scalars["String"]["input"];
+  jobId: Scalars["String"]["input"];
 };
 
 export type CreateResumeInput = {
@@ -197,21 +124,21 @@ export type DeleteMutationPayloadType = {
   success: Scalars["Boolean"]["output"];
 };
 
-export enum DraftApplicationConversionStatus {
+export enum DraftJobConversionStatus {
   Failed = "FAILED",
   Idle = "IDLE",
   Processing = "PROCESSING",
   Succeeded = "SUCCEEDED",
 }
 
-export type DraftApplicationType = {
-  __typename?: "DraftApplicationType";
-  applicationId?: Maybe<Scalars["String"]["output"]>;
+export type DraftJobType = {
+  __typename?: "DraftJobType";
   conversionMetadata?: Maybe<ConversionMetadataType>;
   createdAt: Scalars["DateTime"]["output"];
-  fit?: Maybe<FitAnalysisType>;
   htmlContent: Scalars["String"]["output"];
   id: Scalars["ID"]["output"];
+  jobId?: Maybe<Scalars["String"]["output"]>;
+  match?: Maybe<MatchAnalysisType>;
   title: Scalars["String"]["output"];
   updatedAt: Scalars["DateTime"]["output"];
   url?: Maybe<Scalars["String"]["output"]>;
@@ -223,27 +150,110 @@ export type ExchangeRate = {
   rate: Scalars["Float"]["output"];
 };
 
-export type FitAnalysisType = {
-  __typename?: "FitAnalysisType";
-  application?: Maybe<ApplicationType>;
-  applicationId?: Maybe<Scalars["ID"]["output"]>;
+export type GenerateDraftMatchInput = {
+  draftJobId: Scalars["ID"]["input"];
+  resumeId: Scalars["ID"]["input"];
+};
+
+export type GenerateMatchInput = {
+  jobId: Scalars["ID"]["input"];
+  resumeId: Scalars["ID"]["input"];
+};
+
+export enum JobQuickFilter {
+  Active = "ACTIVE",
+  Applied = "APPLIED",
+  Duplicated = "DUPLICATED",
+  Incoming = "INCOMING",
+  New = "NEW",
+}
+
+export type JobSalary = {
+  __typename?: "JobSalary";
+  currency?: Maybe<Scalars["String"]["output"]>;
+  maxCents?: Maybe<Scalars["Int"]["output"]>;
+  minCents?: Maybe<Scalars["Int"]["output"]>;
+  period?: Maybe<SalaryPeriod>;
+};
+
+export enum JobSource {
+  Jack = "JACK",
+  Linkedin = "LINKEDIN",
+  RemoteYeah = "REMOTE_YEAH",
+  Wellfound = "WELLFOUND",
+}
+
+export enum JobStage {
+  Applied = "APPLIED",
+  CulturalFit = "CULTURAL_FIT",
+  Duplicated = "DUPLICATED",
+  New = "NEW",
+  Offer = "OFFER",
+  RecruiterScreen = "RECRUITER_SCREEN",
+  Rejected = "REJECTED",
+  Technical = "TECHNICAL",
+}
+
+export type JobStageEventType = {
+  __typename?: "JobStageEventType";
+  createdAt: Scalars["DateTime"]["output"];
+  fromStage?: Maybe<JobStage>;
+  id: Scalars["ID"]["output"];
+  jobId: Scalars["String"]["output"];
+  reason?: Maybe<Scalars["String"]["output"]>;
+  scheduledAt?: Maybe<Scalars["DateTime"]["output"]>;
+  source: Scalars["String"]["output"];
+  toStage: JobStage;
+  userId: Scalars["String"]["output"];
+};
+
+export type JobType = {
+  __typename?: "JobType";
+  company: CompanyType;
+  companyId: Scalars["ID"]["output"];
+  createdAt: Scalars["DateTime"]["output"];
+  currentStage: JobStage;
+  currentStageAt: Scalars["DateTime"]["output"];
+  currentStageReason?: Maybe<Scalars["String"]["output"]>;
+  description?: Maybe<Scalars["String"]["output"]>;
+  draftJobId?: Maybe<Scalars["ID"]["output"]>;
+  id: Scalars["ID"]["output"];
+  location?: Maybe<Scalars["String"]["output"]>;
+  match?: Maybe<MatchAnalysisType>;
+  salary: JobSalary;
+  source?: Maybe<JobSource>;
+  sourceRunId?: Maybe<Scalars["ID"]["output"]>;
+  summary?: Maybe<Scalars["String"]["output"]>;
+  summaryMetadata?: Maybe<AsyncMetadataType>;
+  tags: Array<Scalars["String"]["output"]>;
+  title: Scalars["String"]["output"];
+  updatedAt: Scalars["DateTime"]["output"];
+  urls: Array<Scalars["String"]["output"]>;
+  userId: Scalars["String"]["output"];
+  workRegion?: Maybe<Scalars["String"]["output"]>;
+};
+
+export type MatchAnalysisType = {
+  __typename?: "MatchAnalysisType";
   classification?: Maybe<Scalars["String"]["output"]>;
   createdAt: Scalars["DateTime"]["output"];
-  draftApplication?: Maybe<DraftApplicationType>;
-  draftApplicationId?: Maybe<Scalars["ID"]["output"]>;
-  fitCount: Scalars["Int"]["output"];
+  draftJob?: Maybe<DraftJobType>;
+  draftJobId?: Maybe<Scalars["ID"]["output"]>;
   gapCount: Scalars["Int"]["output"];
   generationMetadata?: Maybe<AsyncMetadataType>;
   id: Scalars["ID"]["output"];
-  items: Array<FitItemType>;
+  items: Array<MatchItemType>;
+  job?: Maybe<JobType>;
+  jobId?: Maybe<Scalars["ID"]["output"]>;
+  matchCount: Scalars["Int"]["output"];
   resumeId: Scalars["ID"]["output"];
   scoreRatio?: Maybe<Scalars["Float"]["output"]>;
   unclearCount: Scalars["Int"]["output"];
   updatedAt: Scalars["DateTime"]["output"];
 };
 
-export type FitItemType = {
-  __typename?: "FitItemType";
+export type MatchItemType = {
+  __typename?: "MatchItemType";
   jdQuote: Scalars["String"]["output"];
   requirement: Scalars["String"]["output"];
   source: Scalars["String"]["output"];
@@ -254,49 +264,39 @@ export type FitItemType = {
   weight?: Maybe<Scalars["String"]["output"]>;
 };
 
-export type GenerateDraftFitInput = {
-  draftApplicationId: Scalars["ID"]["input"];
-  resumeId: Scalars["ID"]["input"];
-};
-
-export type GenerateFitInput = {
-  applicationId: Scalars["ID"]["input"];
-  resumeId: Scalars["ID"]["input"];
-};
-
 export type Mutation = {
   __typename?: "Mutation";
   claimSourceRun?: Maybe<SourceRunType>;
   clearSourceRuns: Scalars["Boolean"]["output"];
-  createApplication: ApplicationType;
-  createApplicationNote: NoteType;
-  createApplicationStageEvent: ApplicationStageEventType;
-  createApplicationWithAI: DraftApplicationType;
-  createDraftApplication: DraftApplicationType;
+  createDraftJob: DraftJobType;
+  createJob: JobType;
+  createJobNote: NoteType;
+  createJobStageEvent: JobStageEventType;
+  createJobWithAI: DraftJobType;
   createResume: ResumeType;
   createSourceRun: SourceRunType;
   createSourceTemplate: SourceTemplateType;
-  deleteApplication: DeleteMutationPayloadType;
-  deleteApplicationNote: DeleteMutationPayloadType;
-  deleteApplicationStageEvent: DeleteMutationPayloadType;
-  deleteApplicationsForDraft: DeleteMutationPayloadType;
   deleteCompany: DeleteMutationPayloadType;
-  deleteDraftApplication: DeleteMutationPayloadType;
-  deleteFitAnalysis: DeleteMutationPayloadType;
+  deleteDraftJob: DeleteMutationPayloadType;
+  deleteJob: DeleteMutationPayloadType;
+  deleteJobNote: DeleteMutationPayloadType;
+  deleteJobStageEvent: DeleteMutationPayloadType;
+  deleteJobsForDraft: DeleteMutationPayloadType;
+  deleteMatchAnalysis: DeleteMutationPayloadType;
   deleteResume: DeleteMutationPayloadType;
   deleteSourceRun: DeleteMutationPayloadType;
   deleteSourceTemplate: DeleteMutationPayloadType;
-  detachApplicationsFromSourceRun: Scalars["Int"]["output"];
-  generateApplicationFit: FitAnalysisType;
-  generateApplicationSummary: ApplicationType;
-  generateDraftApplicationFit: FitAnalysisType;
-  removeApplicationTag: ApplicationType;
+  detachJobsFromSourceRun: Scalars["Int"]["output"];
+  generateDraftJobMatch: MatchAnalysisType;
+  generateJobMatch: MatchAnalysisType;
+  generateJobSummary: JobType;
+  removeJobTag: JobType;
   rerunSourceTemplate: SourceRunType;
-  updateApplication: ApplicationType;
-  updateApplicationNote: NoteType;
-  updateApplicationStageEvent: ApplicationStageEventType;
   updateCompany: CompanyType;
-  updateDraftApplication: DraftApplicationType;
+  updateDraftJob: DraftJobType;
+  updateJob: JobType;
+  updateJobNote: NoteType;
+  updateJobStageEvent: JobStageEventType;
   updateResume: ResumeType;
   updateSourceRun: SourceRunType;
   updateSourceRunStatus: SourceRunType;
@@ -306,21 +306,17 @@ export type Mutation = {
 
 export type MutationClaimSourceRunArgs = { id: Scalars["ID"]["input"] };
 
-export type MutationCreateApplicationArgs = { input: CreateApplicationInput };
+export type MutationCreateDraftJobArgs = { input: CreateDraftJobInput };
 
-export type MutationCreateApplicationNoteArgs = { input: CreateNoteInput };
+export type MutationCreateJobArgs = { input: CreateJobInput };
 
-export type MutationCreateApplicationStageEventArgs = {
-  input: CreateApplicationStageEventInput;
+export type MutationCreateJobNoteArgs = { input: CreateNoteInput };
+
+export type MutationCreateJobStageEventArgs = {
+  input: CreateJobStageEventInput;
 };
 
-export type MutationCreateApplicationWithAiArgs = {
-  draftId: Scalars["ID"]["input"];
-};
-
-export type MutationCreateDraftApplicationArgs = {
-  input: CreateDraftApplicationInput;
-};
+export type MutationCreateJobWithAiArgs = { draftId: Scalars["ID"]["input"] };
 
 export type MutationCreateResumeArgs = { input: CreateResumeInput };
 
@@ -330,26 +326,24 @@ export type MutationCreateSourceTemplateArgs = {
   input: CreateSourceTemplateInput;
 };
 
-export type MutationDeleteApplicationArgs = { id: Scalars["ID"]["input"] };
+export type MutationDeleteCompanyArgs = { id: Scalars["ID"]["input"] };
 
-export type MutationDeleteApplicationNoteArgs = { id: Scalars["ID"]["input"] };
-
-export type MutationDeleteApplicationStageEventArgs = {
+export type MutationDeleteDraftJobArgs = {
+  deleteLinkedJob?: InputMaybe<Scalars["Boolean"]["input"]>;
   id: Scalars["ID"]["input"];
 };
 
-export type MutationDeleteApplicationsForDraftArgs = {
+export type MutationDeleteJobArgs = { id: Scalars["ID"]["input"] };
+
+export type MutationDeleteJobNoteArgs = { id: Scalars["ID"]["input"] };
+
+export type MutationDeleteJobStageEventArgs = { id: Scalars["ID"]["input"] };
+
+export type MutationDeleteJobsForDraftArgs = {
   draftId: Scalars["ID"]["input"];
 };
 
-export type MutationDeleteCompanyArgs = { id: Scalars["ID"]["input"] };
-
-export type MutationDeleteDraftApplicationArgs = {
-  deleteLinkedApplication?: InputMaybe<Scalars["Boolean"]["input"]>;
-  id: Scalars["ID"]["input"];
-};
-
-export type MutationDeleteFitAnalysisArgs = { id: Scalars["ID"]["input"] };
+export type MutationDeleteMatchAnalysisArgs = { id: Scalars["ID"]["input"] };
 
 export type MutationDeleteResumeArgs = { id: Scalars["ID"]["input"] };
 
@@ -357,21 +351,19 @@ export type MutationDeleteSourceRunArgs = { id: Scalars["ID"]["input"] };
 
 export type MutationDeleteSourceTemplateArgs = { id: Scalars["ID"]["input"] };
 
-export type MutationDetachApplicationsFromSourceRunArgs = {
+export type MutationDetachJobsFromSourceRunArgs = {
   sourceRunId: Scalars["ID"]["input"];
 };
 
-export type MutationGenerateApplicationFitArgs = { input: GenerateFitInput };
-
-export type MutationGenerateApplicationSummaryArgs = {
-  applicationId: Scalars["ID"]["input"];
+export type MutationGenerateDraftJobMatchArgs = {
+  input: GenerateDraftMatchInput;
 };
 
-export type MutationGenerateDraftApplicationFitArgs = {
-  input: GenerateDraftFitInput;
-};
+export type MutationGenerateJobMatchArgs = { input: GenerateMatchInput };
 
-export type MutationRemoveApplicationTagArgs = {
+export type MutationGenerateJobSummaryArgs = { jobId: Scalars["ID"]["input"] };
+
+export type MutationRemoveJobTagArgs = {
   id: Scalars["ID"]["input"];
   tag: Scalars["String"]["input"];
 };
@@ -380,29 +372,29 @@ export type MutationRerunSourceTemplateArgs = {
   templateId: Scalars["ID"]["input"];
 };
 
-export type MutationUpdateApplicationArgs = {
-  id: Scalars["ID"]["input"];
-  input: UpdateApplicationInput;
-};
-
-export type MutationUpdateApplicationNoteArgs = {
-  id: Scalars["ID"]["input"];
-  input: UpdateNoteInput;
-};
-
-export type MutationUpdateApplicationStageEventArgs = {
-  id: Scalars["ID"]["input"];
-  input: UpdateApplicationStageEventInput;
-};
-
 export type MutationUpdateCompanyArgs = {
   id: Scalars["ID"]["input"];
   input: UpdateCompanyInput;
 };
 
-export type MutationUpdateDraftApplicationArgs = {
+export type MutationUpdateDraftJobArgs = {
   id: Scalars["ID"]["input"];
-  input: UpdateDraftApplicationInput;
+  input: UpdateDraftJobInput;
+};
+
+export type MutationUpdateJobArgs = {
+  id: Scalars["ID"]["input"];
+  input: UpdateJobInput;
+};
+
+export type MutationUpdateJobNoteArgs = {
+  id: Scalars["ID"]["input"];
+  input: UpdateNoteInput;
+};
+
+export type MutationUpdateJobStageEventArgs = {
+  id: Scalars["ID"]["input"];
+  input: UpdateJobStageEventInput;
 };
 
 export type MutationUpdateResumeArgs = {
@@ -431,10 +423,10 @@ export type MutationUpdateWorkPreferencesArgs = {
 
 export type NoteType = {
   __typename?: "NoteType";
-  applicationId?: Maybe<Scalars["String"]["output"]>;
   content: Scalars["String"]["output"];
   createdAt: Scalars["DateTime"]["output"];
   id: Scalars["ID"]["output"];
+  jobId?: Maybe<Scalars["String"]["output"]>;
   revision: Scalars["Int"]["output"];
   updatedAt: Scalars["DateTime"]["output"];
   userId: Scalars["String"]["output"];
@@ -453,24 +445,23 @@ export type PreferenceType = {
 
 export type Query = {
   __typename?: "Query";
-  application: ApplicationType;
-  applicationFit?: Maybe<FitAnalysisType>;
-  applicationNotes: Array<NoteType>;
-  applicationStageEvents: Array<ApplicationStageEventType>;
-  applications: Array<ApplicationType>;
   companies: Array<CompanyType>;
-  company: CompanyType;
-  companyApplicationsCount: Scalars["Int"]["output"];
-  draftApplication: DraftApplicationType;
-  draftApplicationFit?: Maybe<FitAnalysisType>;
-  draftApplications: Array<DraftApplicationType>;
+  companyJobsCount: Scalars["Int"]["output"];
+  draftJob: DraftJobType;
+  draftJobMatch?: Maybe<MatchAnalysisType>;
+  draftJobs: Array<DraftJobType>;
   exchangeRates: CurrencyRates;
-  fit: FitAnalysisType;
-  fitAnalyses: Array<FitAnalysisType>;
-  generateApplicationLocationWithAI?: Maybe<Scalars["String"]["output"]>;
-  generateApplicationNoteWithAI: Scalars["String"]["output"];
-  generateApplicationWorkRegionWithAI?: Maybe<Scalars["String"]["output"]>;
   generateCompanyDescription: Scalars["String"]["output"];
+  generateJobLocationWithAI?: Maybe<Scalars["String"]["output"]>;
+  generateJobNoteWithAI: Scalars["String"]["output"];
+  generateJobWorkRegionWithAI?: Maybe<Scalars["String"]["output"]>;
+  job: JobType;
+  jobMatch?: Maybe<MatchAnalysisType>;
+  jobNotes: Array<NoteType>;
+  jobStageEvents: Array<JobStageEventType>;
+  jobs: Array<JobType>;
+  match?: Maybe<MatchAnalysisType>;
+  matchAnalyses: Array<MatchAnalysisType>;
   me: UserType;
   restructureJobDescriptionWithAI: Scalars["String"]["output"];
   resume: ResumeType;
@@ -483,57 +474,49 @@ export type Query = {
   workPreferences: Array<PreferenceType>;
 };
 
-export type QueryApplicationArgs = { id: Scalars["ID"]["input"] };
+export type QueryCompanyJobsCountArgs = { id: Scalars["ID"]["input"] };
 
-export type QueryApplicationFitArgs = { applicationId: Scalars["ID"]["input"] };
+export type QueryDraftJobArgs = { id: Scalars["ID"]["input"] };
 
-export type QueryApplicationNotesArgs = {
-  applicationId: Scalars["ID"]["input"];
-};
-
-export type QueryApplicationStageEventsArgs = {
-  applicationId: Scalars["ID"]["input"];
-};
-
-export type QueryApplicationsArgs = {
-  company?: InputMaybe<Scalars["String"]["input"]>;
-  filter?: InputMaybe<ApplicationQuickFilter>;
-  runId?: InputMaybe<Scalars["ID"]["input"]>;
-};
-
-export type QueryCompanyArgs = { id: Scalars["ID"]["input"] };
-
-export type QueryCompanyApplicationsCountArgs = { id: Scalars["ID"]["input"] };
-
-export type QueryDraftApplicationArgs = { id: Scalars["ID"]["input"] };
-
-export type QueryDraftApplicationFitArgs = {
-  draftApplicationId: Scalars["ID"]["input"];
-};
+export type QueryDraftJobMatchArgs = { draftJobId: Scalars["ID"]["input"] };
 
 export type QueryExchangeRatesArgs = {
   base: Scalars["String"]["input"];
   currencies: Array<Scalars["String"]["input"]>;
 };
 
-export type QueryFitArgs = { id: Scalars["ID"]["input"] };
-
-export type QueryGenerateApplicationLocationWithAiArgs = {
-  applicationId: Scalars["ID"]["input"];
-};
-
-export type QueryGenerateApplicationNoteWithAiArgs = {
-  applicationId: Scalars["ID"]["input"];
-  note: Scalars["String"]["input"];
-};
-
-export type QueryGenerateApplicationWorkRegionWithAiArgs = {
-  applicationId: Scalars["ID"]["input"];
-};
-
 export type QueryGenerateCompanyDescriptionArgs = {
   companyName: Scalars["String"]["input"];
 };
+
+export type QueryGenerateJobLocationWithAiArgs = {
+  jobId: Scalars["ID"]["input"];
+};
+
+export type QueryGenerateJobNoteWithAiArgs = {
+  jobId: Scalars["ID"]["input"];
+  note: Scalars["String"]["input"];
+};
+
+export type QueryGenerateJobWorkRegionWithAiArgs = {
+  jobId: Scalars["ID"]["input"];
+};
+
+export type QueryJobArgs = { id: Scalars["ID"]["input"] };
+
+export type QueryJobMatchArgs = { jobId: Scalars["ID"]["input"] };
+
+export type QueryJobNotesArgs = { jobId: Scalars["ID"]["input"] };
+
+export type QueryJobStageEventsArgs = { jobId: Scalars["ID"]["input"] };
+
+export type QueryJobsArgs = {
+  company?: InputMaybe<Scalars["String"]["input"]>;
+  filter?: InputMaybe<JobQuickFilter>;
+  runId?: InputMaybe<Scalars["ID"]["input"]>;
+};
+
+export type QueryMatchArgs = { id: Scalars["ID"]["input"] };
 
 export type QueryRestructureJobDescriptionWithAiArgs = {
   text: Scalars["String"]["input"];
@@ -620,7 +603,14 @@ export type Subscription = {
   sourceRunEvents: SourceRunEvent;
 };
 
-export type UpdateApplicationInput = {
+export type UpdateCompanyInput = {
+  description?: InputMaybe<Scalars["String"]["input"]>;
+  name?: InputMaybe<Scalars["String"]["input"]>;
+};
+
+export type UpdateDraftJobInput = { title: Scalars["String"]["input"] };
+
+export type UpdateJobInput = {
   company?: InputMaybe<Scalars["String"]["input"]>;
   companyId?: InputMaybe<Scalars["ID"]["input"]>;
   description?: InputMaybe<Scalars["String"]["input"]>;
@@ -629,25 +619,18 @@ export type UpdateApplicationInput = {
   salaryMaxCents?: InputMaybe<Scalars["Int"]["input"]>;
   salaryMinCents?: InputMaybe<Scalars["Int"]["input"]>;
   salaryPeriod?: InputMaybe<SalaryPeriod>;
-  source?: InputMaybe<ApplicationSource>;
+  source?: InputMaybe<JobSource>;
   tags?: InputMaybe<Array<Scalars["String"]["input"]>>;
   title?: InputMaybe<Scalars["String"]["input"]>;
   urls?: InputMaybe<Array<Scalars["String"]["input"]>>;
   workRegion?: InputMaybe<Scalars["String"]["input"]>;
 };
 
-export type UpdateApplicationStageEventInput = {
+export type UpdateJobStageEventInput = {
   reason?: InputMaybe<Scalars["String"]["input"]>;
   scheduledAt?: InputMaybe<Scalars["DateTime"]["input"]>;
-  toStage?: InputMaybe<ApplicationStage>;
+  toStage?: InputMaybe<JobStage>;
 };
-
-export type UpdateCompanyInput = {
-  description?: InputMaybe<Scalars["String"]["input"]>;
-  name?: InputMaybe<Scalars["String"]["input"]>;
-};
-
-export type UpdateDraftApplicationInput = { title: Scalars["String"]["input"] };
 
 export type UpdateNoteInput = {
   content?: InputMaybe<Scalars["String"]["input"]>;
@@ -682,441 +665,6 @@ export enum Weight {
   Low = "LOW",
 }
 
-export type ApplicationSalarySelectionFragment = {
-  __typename?: "ApplicationType";
-  salary: {
-    __typename?: "ApplicationSalary";
-    minCents?: number | null;
-    maxCents?: number | null;
-    currency?: string | null;
-    period?: SalaryPeriod | null;
-  };
-} & { " $fragmentName"?: "ApplicationSalarySelectionFragment" };
-
-export type ApplicationsQueryVariables = Exact<{
-  filter?: InputMaybe<ApplicationQuickFilter>;
-  company?: InputMaybe<Scalars["String"]["input"]>;
-  runId?: InputMaybe<Scalars["ID"]["input"]>;
-}>;
-
-export type ApplicationsQuery = {
-  __typename?: "Query";
-  applications: Array<
-    {
-      __typename?: "ApplicationType";
-      id: string;
-      title: string;
-      companyId: string;
-      description?: string | null;
-      urls: Array<string>;
-      source?: ApplicationSource | null;
-      tags: Array<string>;
-      location?: string | null;
-      workRegion?: string | null;
-      sourceRunId?: string | null;
-      summary?: string | null;
-      currentStage: ApplicationStage;
-      currentStageReason?: string | null;
-      currentStageAt: any;
-      createdAt: any;
-      company: {
-        __typename?: "CompanyType";
-        id: string;
-        name: string;
-        description?: string | null;
-      };
-      summaryMetadata?: {
-        __typename?: "AsyncMetadataType";
-        status: AsyncMetadataStatus;
-        error?: string | null;
-        timestamp?: string | null;
-      } | null;
-      fit?: {
-        __typename?: "FitAnalysisType";
-        id: string;
-        scoreRatio?: number | null;
-        classification?: string | null;
-        fitCount: number;
-        gapCount: number;
-        unclearCount: number;
-        generationMetadata?: {
-          __typename?: "AsyncMetadataType";
-          status: AsyncMetadataStatus;
-          error?: string | null;
-          timestamp?: string | null;
-        } | null;
-      } | null;
-    } & {
-      " $fragmentRefs"?: {
-        ApplicationSalarySelectionFragment: ApplicationSalarySelectionFragment;
-      };
-    }
-  >;
-};
-
-export type ApplicationQueryVariables = Exact<{ id: Scalars["ID"]["input"] }>;
-
-export type ApplicationQuery = {
-  __typename?: "Query";
-  application: {
-    __typename?: "ApplicationType";
-    id: string;
-    title: string;
-    companyId: string;
-    description?: string | null;
-    urls: Array<string>;
-    source?: ApplicationSource | null;
-    tags: Array<string>;
-    location?: string | null;
-    workRegion?: string | null;
-    sourceRunId?: string | null;
-    summary?: string | null;
-    currentStage: ApplicationStage;
-    currentStageReason?: string | null;
-    currentStageAt: any;
-    createdAt: any;
-    draftApplicationId?: string | null;
-    company: {
-      __typename?: "CompanyType";
-      id: string;
-      name: string;
-      description?: string | null;
-    };
-    summaryMetadata?: {
-      __typename?: "AsyncMetadataType";
-      status: AsyncMetadataStatus;
-      error?: string | null;
-      timestamp?: string | null;
-    } | null;
-    fit?: {
-      __typename?: "FitAnalysisType";
-      id: string;
-      scoreRatio?: number | null;
-      classification?: string | null;
-      fitCount: number;
-      gapCount: number;
-      unclearCount: number;
-      generationMetadata?: {
-        __typename?: "AsyncMetadataType";
-        status: AsyncMetadataStatus;
-        error?: string | null;
-        timestamp?: string | null;
-      } | null;
-    } | null;
-  } & {
-    " $fragmentRefs"?: {
-      ApplicationSalarySelectionFragment: ApplicationSalarySelectionFragment;
-    };
-  };
-};
-
-export type CreateApplicationMutationVariables = Exact<{
-  input: CreateApplicationInput;
-}>;
-
-export type CreateApplicationMutation = {
-  __typename?: "Mutation";
-  createApplication: {
-    __typename?: "ApplicationType";
-    id: string;
-    title: string;
-    companyId: string;
-    description?: string | null;
-    urls: Array<string>;
-    source?: ApplicationSource | null;
-    tags: Array<string>;
-    location?: string | null;
-    workRegion?: string | null;
-    createdAt: any;
-    company: {
-      __typename?: "CompanyType";
-      id: string;
-      name: string;
-      description?: string | null;
-    };
-  } & {
-    " $fragmentRefs"?: {
-      ApplicationSalarySelectionFragment: ApplicationSalarySelectionFragment;
-    };
-  };
-};
-
-export type GenerateCompanyDescriptionQueryVariables = Exact<{
-  companyName: Scalars["String"]["input"];
-}>;
-
-export type GenerateCompanyDescriptionQuery = {
-  __typename?: "Query";
-  generateCompanyDescription: string;
-};
-
-export type UpdateApplicationMutationVariables = Exact<{
-  id: Scalars["ID"]["input"];
-  input: UpdateApplicationInput;
-}>;
-
-export type UpdateApplicationMutation = {
-  __typename?: "Mutation";
-  updateApplication: {
-    __typename?: "ApplicationType";
-    id: string;
-    title: string;
-    companyId: string;
-    description?: string | null;
-    urls: Array<string>;
-    source?: ApplicationSource | null;
-    tags: Array<string>;
-    location?: string | null;
-    workRegion?: string | null;
-    summary?: string | null;
-    createdAt: any;
-    company: {
-      __typename?: "CompanyType";
-      id: string;
-      name: string;
-      description?: string | null;
-    };
-    summaryMetadata?: {
-      __typename?: "AsyncMetadataType";
-      status: AsyncMetadataStatus;
-      error?: string | null;
-      timestamp?: string | null;
-    } | null;
-  } & {
-    " $fragmentRefs"?: {
-      ApplicationSalarySelectionFragment: ApplicationSalarySelectionFragment;
-    };
-  };
-};
-
-export type RemoveApplicationTagMutationVariables = Exact<{
-  id: Scalars["ID"]["input"];
-  tag: Scalars["String"]["input"];
-}>;
-
-export type RemoveApplicationTagMutation = {
-  __typename?: "Mutation";
-  removeApplicationTag: {
-    __typename?: "ApplicationType";
-    id: string;
-    tags: Array<string>;
-  };
-};
-
-export type DeleteApplicationMutationVariables = Exact<{
-  id: Scalars["ID"]["input"];
-}>;
-
-export type DeleteApplicationMutation = {
-  __typename?: "Mutation";
-  deleteApplication: {
-    __typename?: "DeleteMutationPayloadType";
-    success: boolean;
-    deletedId: string;
-  };
-};
-
-export type ApplicationStageEventsQueryVariables = Exact<{
-  applicationId: Scalars["ID"]["input"];
-}>;
-
-export type ApplicationStageEventsQuery = {
-  __typename?: "Query";
-  applicationStageEvents: Array<{
-    __typename?: "ApplicationStageEventType";
-    id: string;
-    applicationId: string;
-    fromStage?: ApplicationStage | null;
-    toStage: ApplicationStage;
-    source: string;
-    reason?: string | null;
-    scheduledAt?: any | null;
-    createdAt: any;
-  }>;
-};
-
-export type CreateApplicationStageEventMutationVariables = Exact<{
-  input: CreateApplicationStageEventInput;
-}>;
-
-export type CreateApplicationStageEventMutation = {
-  __typename?: "Mutation";
-  createApplicationStageEvent: {
-    __typename?: "ApplicationStageEventType";
-    id: string;
-    applicationId: string;
-    fromStage?: ApplicationStage | null;
-    toStage: ApplicationStage;
-    source: string;
-    reason?: string | null;
-    scheduledAt?: any | null;
-    createdAt: any;
-  };
-};
-
-export type UpdateApplicationStageEventMutationVariables = Exact<{
-  id: Scalars["ID"]["input"];
-  input: UpdateApplicationStageEventInput;
-}>;
-
-export type UpdateApplicationStageEventMutation = {
-  __typename?: "Mutation";
-  updateApplicationStageEvent: {
-    __typename?: "ApplicationStageEventType";
-    id: string;
-    applicationId: string;
-    fromStage?: ApplicationStage | null;
-    toStage: ApplicationStage;
-    source: string;
-    reason?: string | null;
-    scheduledAt?: any | null;
-    createdAt: any;
-  };
-};
-
-export type DeleteApplicationStageEventMutationVariables = Exact<{
-  id: Scalars["ID"]["input"];
-}>;
-
-export type DeleteApplicationStageEventMutation = {
-  __typename?: "Mutation";
-  deleteApplicationStageEvent: {
-    __typename?: "DeleteMutationPayloadType";
-    success: boolean;
-    deletedId: string;
-  };
-};
-
-export type ApplicationNotesQueryVariables = Exact<{
-  applicationId: Scalars["ID"]["input"];
-}>;
-
-export type ApplicationNotesQuery = {
-  __typename?: "Query";
-  applicationNotes: Array<{
-    __typename?: "NoteType";
-    id: string;
-    applicationId?: string | null;
-    content: string;
-    revision: number;
-    createdAt: any;
-    updatedAt: any;
-  }>;
-};
-
-export type CreateApplicationNoteMutationVariables = Exact<{
-  input: CreateNoteInput;
-}>;
-
-export type CreateApplicationNoteMutation = {
-  __typename?: "Mutation";
-  createApplicationNote: {
-    __typename?: "NoteType";
-    id: string;
-    applicationId?: string | null;
-    content: string;
-    revision: number;
-    createdAt: any;
-    updatedAt: any;
-  };
-};
-
-export type UpdateApplicationNoteMutationVariables = Exact<{
-  id: Scalars["ID"]["input"];
-  input: UpdateNoteInput;
-}>;
-
-export type UpdateApplicationNoteMutation = {
-  __typename?: "Mutation";
-  updateApplicationNote: {
-    __typename?: "NoteType";
-    id: string;
-    applicationId?: string | null;
-    content: string;
-    revision: number;
-    createdAt: any;
-    updatedAt: any;
-  };
-};
-
-export type DeleteApplicationNoteMutationVariables = Exact<{
-  id: Scalars["ID"]["input"];
-}>;
-
-export type DeleteApplicationNoteMutation = {
-  __typename?: "Mutation";
-  deleteApplicationNote: {
-    __typename?: "DeleteMutationPayloadType";
-    success: boolean;
-    deletedId: string;
-  };
-};
-
-export type GenerateApplicationNoteWithAiQueryVariables = Exact<{
-  applicationId: Scalars["ID"]["input"];
-  note: Scalars["String"]["input"];
-}>;
-
-export type GenerateApplicationNoteWithAiQuery = {
-  __typename?: "Query";
-  generateApplicationNoteWithAI: string;
-};
-
-export type RewriteTextWithAiQueryVariables = Exact<{
-  text: Scalars["String"]["input"];
-}>;
-
-export type RewriteTextWithAiQuery = {
-  __typename?: "Query";
-  rewriteTextWithAI: string;
-};
-
-export type RestructureJobDescriptionWithAiQueryVariables = Exact<{
-  text: Scalars["String"]["input"];
-}>;
-
-export type RestructureJobDescriptionWithAiQuery = {
-  __typename?: "Query";
-  restructureJobDescriptionWithAI: string;
-};
-
-export type GenerateApplicationLocationWithAiQueryVariables = Exact<{
-  applicationId: Scalars["ID"]["input"];
-}>;
-
-export type GenerateApplicationLocationWithAiQuery = {
-  __typename?: "Query";
-  generateApplicationLocationWithAI?: string | null;
-};
-
-export type GenerateApplicationWorkRegionWithAiQueryVariables = Exact<{
-  applicationId: Scalars["ID"]["input"];
-}>;
-
-export type GenerateApplicationWorkRegionWithAiQuery = {
-  __typename?: "Query";
-  generateApplicationWorkRegionWithAI?: string | null;
-};
-
-export type GenerateApplicationSummaryMutationVariables = Exact<{
-  applicationId: Scalars["ID"]["input"];
-}>;
-
-export type GenerateApplicationSummaryMutation = {
-  __typename?: "Mutation";
-  generateApplicationSummary: {
-    __typename?: "ApplicationType";
-    id: string;
-    summary?: string | null;
-    summaryMetadata?: {
-      __typename?: "AsyncMetadataType";
-      status: AsyncMetadataStatus;
-      error?: string | null;
-      timestamp?: string | null;
-    } | null;
-  };
-};
-
 export type UpdateCompanyMutationVariables = Exact<{
   id: Scalars["ID"]["input"];
   input: UpdateCompanyInput;
@@ -1145,13 +693,13 @@ export type DeleteCompanyMutation = {
   };
 };
 
-export type CompanyApplicationsCountQueryVariables = Exact<{
+export type CompanyJobsCountQueryVariables = Exact<{
   id: Scalars["ID"]["input"];
 }>;
 
-export type CompanyApplicationsCountQuery = {
+export type CompanyJobsCountQuery = {
   __typename?: "Query";
-  companyApplicationsCount: number;
+  companyJobsCount: number;
 };
 
 export type CompaniesQueryVariables = Exact<{ [key: string]: never }>;
@@ -1164,18 +712,6 @@ export type CompaniesQuery = {
     name: string;
     description?: string | null;
   }>;
-};
-
-export type CompanyQueryVariables = Exact<{ id: Scalars["ID"]["input"] }>;
-
-export type CompanyQuery = {
-  __typename?: "Query";
-  company: {
-    __typename?: "CompanyType";
-    id: string;
-    name: string;
-    description?: string | null;
-  };
 };
 
 export type ExchangeRatesQueryVariables = Exact<{
@@ -1196,57 +732,55 @@ export type ExchangeRatesQuery = {
   };
 };
 
-export type DraftApplicationsListQueryVariables = Exact<{
-  [key: string]: never;
-}>;
+export type DraftJobsListQueryVariables = Exact<{ [key: string]: never }>;
 
-export type DraftApplicationsListQuery = {
+export type DraftJobsListQuery = {
   __typename?: "Query";
-  draftApplications: Array<{
-    __typename?: "DraftApplicationType";
+  draftJobs: Array<{
+    __typename?: "DraftJobType";
     id: string;
-    applicationId?: string | null;
+    jobId?: string | null;
     url?: string | null;
     title: string;
     createdAt: any;
     conversionMetadata?: {
       __typename?: "ConversionMetadataType";
-      status: DraftApplicationConversionStatus;
+      status: DraftJobConversionStatus;
       error?: string | null;
       timestamp?: string | null;
     } | null;
   }>;
 };
 
-export type DraftApplicationDetailQueryVariables = Exact<{
+export type DraftJobDetailQueryVariables = Exact<{
   id: Scalars["ID"]["input"];
 }>;
 
-export type DraftApplicationDetailQuery = {
+export type DraftJobDetailQuery = {
   __typename?: "Query";
-  draftApplication: {
-    __typename?: "DraftApplicationType";
+  draftJob: {
+    __typename?: "DraftJobType";
     id: string;
-    applicationId?: string | null;
+    jobId?: string | null;
     url?: string | null;
     title: string;
     htmlContent: string;
     createdAt: any;
     conversionMetadata?: {
       __typename?: "ConversionMetadataType";
-      status: DraftApplicationConversionStatus;
+      status: DraftJobConversionStatus;
       error?: string | null;
       timestamp?: string | null;
     } | null;
-    fit?: {
-      __typename?: "FitAnalysisType";
+    match?: {
+      __typename?: "MatchAnalysisType";
       id: string;
-      applicationId?: string | null;
-      draftApplicationId?: string | null;
+      jobId?: string | null;
+      draftJobId?: string | null;
       resumeId: string;
       scoreRatio?: number | null;
       classification?: string | null;
-      fitCount: number;
+      matchCount: number;
       gapCount: number;
       unclearCount: number;
       createdAt: any;
@@ -1260,105 +794,528 @@ export type DraftApplicationDetailQuery = {
   };
 };
 
-export type DeleteDraftApplicationMutationVariables = Exact<{
+export type DeleteDraftJobMutationVariables = Exact<{
   id: Scalars["ID"]["input"];
-  deleteLinkedApplication?: InputMaybe<Scalars["Boolean"]["input"]>;
+  deleteLinkedJob?: InputMaybe<Scalars["Boolean"]["input"]>;
 }>;
 
-export type DeleteDraftApplicationMutation = {
+export type DeleteDraftJobMutation = {
   __typename?: "Mutation";
-  deleteDraftApplication: {
+  deleteDraftJob: {
     __typename?: "DeleteMutationPayloadType";
     success: boolean;
     deletedId: string;
   };
 };
 
-export type DeleteApplicationsForDraftMutationVariables = Exact<{
+export type DeleteJobsForDraftMutationVariables = Exact<{
   draftId: Scalars["ID"]["input"];
 }>;
 
-export type DeleteApplicationsForDraftMutation = {
+export type DeleteJobsForDraftMutation = {
   __typename?: "Mutation";
-  deleteApplicationsForDraft: {
+  deleteJobsForDraft: {
     __typename?: "DeleteMutationPayloadType";
     success: boolean;
     deletedId: string;
   };
 };
 
-export type CreateApplicationWithAiMutationVariables = Exact<{
+export type CreateJobWithAiMutationVariables = Exact<{
   draftId: Scalars["ID"]["input"];
 }>;
 
-export type CreateApplicationWithAiMutation = {
+export type CreateJobWithAiMutation = {
   __typename?: "Mutation";
-  createApplicationWithAI: {
-    __typename?: "DraftApplicationType";
+  createJobWithAI: {
+    __typename?: "DraftJobType";
     id: string;
     title: string;
     conversionMetadata?: {
       __typename?: "ConversionMetadataType";
-      status: DraftApplicationConversionStatus;
+      status: DraftJobConversionStatus;
       error?: string | null;
     } | null;
   };
 };
 
-export type CreateDraftApplicationMutationVariables = Exact<{
-  input: CreateDraftApplicationInput;
+export type CreateDraftJobMutationVariables = Exact<{
+  input: CreateDraftJobInput;
 }>;
 
-export type CreateDraftApplicationMutation = {
+export type CreateDraftJobMutation = {
   __typename?: "Mutation";
-  createDraftApplication: {
-    __typename?: "DraftApplicationType";
+  createDraftJob: {
+    __typename?: "DraftJobType";
     id: string;
-    applicationId?: string | null;
+    jobId?: string | null;
     url?: string | null;
     title: string;
     conversionMetadata?: {
       __typename?: "ConversionMetadataType";
-      status: DraftApplicationConversionStatus;
+      status: DraftJobConversionStatus;
       error?: string | null;
     } | null;
   };
 };
 
-export type UpdateDraftApplicationMutationVariables = Exact<{
+export type UpdateDraftJobMutationVariables = Exact<{
   id: Scalars["ID"]["input"];
-  input: UpdateDraftApplicationInput;
+  input: UpdateDraftJobInput;
 }>;
 
-export type UpdateDraftApplicationMutation = {
+export type UpdateDraftJobMutation = {
   __typename?: "Mutation";
-  updateDraftApplication: {
-    __typename?: "DraftApplicationType";
+  updateDraftJob: {
+    __typename?: "DraftJobType";
     id: string;
-    applicationId?: string | null;
+    jobId?: string | null;
     url?: string | null;
     title: string;
     conversionMetadata?: {
       __typename?: "ConversionMetadataType";
-      status: DraftApplicationConversionStatus;
+      status: DraftJobConversionStatus;
       error?: string | null;
     } | null;
   };
 };
 
-export type FitAnalysesListQueryVariables = Exact<{ [key: string]: never }>;
+export type JobSalarySelectionFragment = {
+  __typename?: "JobType";
+  salary: {
+    __typename?: "JobSalary";
+    minCents?: number | null;
+    maxCents?: number | null;
+    currency?: string | null;
+    period?: SalaryPeriod | null;
+  };
+} & { " $fragmentName"?: "JobSalarySelectionFragment" };
 
-export type FitAnalysesListQuery = {
+export type JobsQueryVariables = Exact<{
+  filter?: InputMaybe<JobQuickFilter>;
+  company?: InputMaybe<Scalars["String"]["input"]>;
+  runId?: InputMaybe<Scalars["ID"]["input"]>;
+}>;
+
+export type JobsQuery = {
   __typename?: "Query";
-  fitAnalyses: Array<{
-    __typename?: "FitAnalysisType";
+  jobs: Array<
+    {
+      __typename?: "JobType";
+      id: string;
+      title: string;
+      companyId: string;
+      description?: string | null;
+      urls: Array<string>;
+      source?: JobSource | null;
+      tags: Array<string>;
+      location?: string | null;
+      workRegion?: string | null;
+      sourceRunId?: string | null;
+      summary?: string | null;
+      currentStage: JobStage;
+      currentStageReason?: string | null;
+      currentStageAt: any;
+      createdAt: any;
+      company: {
+        __typename?: "CompanyType";
+        id: string;
+        name: string;
+        description?: string | null;
+      };
+      summaryMetadata?: {
+        __typename?: "AsyncMetadataType";
+        status: AsyncMetadataStatus;
+        error?: string | null;
+        timestamp?: string | null;
+      } | null;
+      match?: {
+        __typename?: "MatchAnalysisType";
+        id: string;
+        scoreRatio?: number | null;
+        classification?: string | null;
+        matchCount: number;
+        gapCount: number;
+        unclearCount: number;
+        generationMetadata?: {
+          __typename?: "AsyncMetadataType";
+          status: AsyncMetadataStatus;
+          error?: string | null;
+          timestamp?: string | null;
+        } | null;
+      } | null;
+    } & {
+      " $fragmentRefs"?: {
+        JobSalarySelectionFragment: JobSalarySelectionFragment;
+      };
+    }
+  >;
+};
+
+export type JobQueryVariables = Exact<{ id: Scalars["ID"]["input"] }>;
+
+export type JobQuery = {
+  __typename?: "Query";
+  job: {
+    __typename?: "JobType";
     id: string;
-    applicationId?: string | null;
-    draftApplicationId?: string | null;
+    title: string;
+    companyId: string;
+    description?: string | null;
+    urls: Array<string>;
+    source?: JobSource | null;
+    tags: Array<string>;
+    location?: string | null;
+    workRegion?: string | null;
+    sourceRunId?: string | null;
+    summary?: string | null;
+    currentStage: JobStage;
+    currentStageReason?: string | null;
+    currentStageAt: any;
+    createdAt: any;
+    draftJobId?: string | null;
+    company: {
+      __typename?: "CompanyType";
+      id: string;
+      name: string;
+      description?: string | null;
+    };
+    summaryMetadata?: {
+      __typename?: "AsyncMetadataType";
+      status: AsyncMetadataStatus;
+      error?: string | null;
+      timestamp?: string | null;
+    } | null;
+    match?: {
+      __typename?: "MatchAnalysisType";
+      id: string;
+      scoreRatio?: number | null;
+      classification?: string | null;
+      matchCount: number;
+      gapCount: number;
+      unclearCount: number;
+      generationMetadata?: {
+        __typename?: "AsyncMetadataType";
+        status: AsyncMetadataStatus;
+        error?: string | null;
+        timestamp?: string | null;
+      } | null;
+    } | null;
+  } & {
+    " $fragmentRefs"?: {
+      JobSalarySelectionFragment: JobSalarySelectionFragment;
+    };
+  };
+};
+
+export type CreateJobMutationVariables = Exact<{ input: CreateJobInput }>;
+
+export type CreateJobMutation = {
+  __typename?: "Mutation";
+  createJob: {
+    __typename?: "JobType";
+    id: string;
+    title: string;
+    companyId: string;
+    description?: string | null;
+    urls: Array<string>;
+    source?: JobSource | null;
+    tags: Array<string>;
+    location?: string | null;
+    workRegion?: string | null;
+    createdAt: any;
+    company: {
+      __typename?: "CompanyType";
+      id: string;
+      name: string;
+      description?: string | null;
+    };
+  } & {
+    " $fragmentRefs"?: {
+      JobSalarySelectionFragment: JobSalarySelectionFragment;
+    };
+  };
+};
+
+export type GenerateCompanyDescriptionQueryVariables = Exact<{
+  companyName: Scalars["String"]["input"];
+}>;
+
+export type GenerateCompanyDescriptionQuery = {
+  __typename?: "Query";
+  generateCompanyDescription: string;
+};
+
+export type UpdateJobMutationVariables = Exact<{
+  id: Scalars["ID"]["input"];
+  input: UpdateJobInput;
+}>;
+
+export type UpdateJobMutation = {
+  __typename?: "Mutation";
+  updateJob: {
+    __typename?: "JobType";
+    id: string;
+    title: string;
+    companyId: string;
+    description?: string | null;
+    urls: Array<string>;
+    source?: JobSource | null;
+    tags: Array<string>;
+    location?: string | null;
+    workRegion?: string | null;
+    summary?: string | null;
+    createdAt: any;
+    company: {
+      __typename?: "CompanyType";
+      id: string;
+      name: string;
+      description?: string | null;
+    };
+    summaryMetadata?: {
+      __typename?: "AsyncMetadataType";
+      status: AsyncMetadataStatus;
+      error?: string | null;
+      timestamp?: string | null;
+    } | null;
+  } & {
+    " $fragmentRefs"?: {
+      JobSalarySelectionFragment: JobSalarySelectionFragment;
+    };
+  };
+};
+
+export type RemoveJobTagMutationVariables = Exact<{
+  id: Scalars["ID"]["input"];
+  tag: Scalars["String"]["input"];
+}>;
+
+export type RemoveJobTagMutation = {
+  __typename?: "Mutation";
+  removeJobTag: { __typename?: "JobType"; id: string; tags: Array<string> };
+};
+
+export type DeleteJobMutationVariables = Exact<{ id: Scalars["ID"]["input"] }>;
+
+export type DeleteJobMutation = {
+  __typename?: "Mutation";
+  deleteJob: {
+    __typename?: "DeleteMutationPayloadType";
+    success: boolean;
+    deletedId: string;
+  };
+};
+
+export type JobStageEventsQueryVariables = Exact<{
+  jobId: Scalars["ID"]["input"];
+}>;
+
+export type JobStageEventsQuery = {
+  __typename?: "Query";
+  jobStageEvents: Array<{
+    __typename?: "JobStageEventType";
+    id: string;
+    jobId: string;
+    fromStage?: JobStage | null;
+    toStage: JobStage;
+    source: string;
+    reason?: string | null;
+    scheduledAt?: any | null;
+    createdAt: any;
+  }>;
+};
+
+export type CreateJobStageEventMutationVariables = Exact<{
+  input: CreateJobStageEventInput;
+}>;
+
+export type CreateJobStageEventMutation = {
+  __typename?: "Mutation";
+  createJobStageEvent: {
+    __typename?: "JobStageEventType";
+    id: string;
+    jobId: string;
+    fromStage?: JobStage | null;
+    toStage: JobStage;
+    source: string;
+    reason?: string | null;
+    scheduledAt?: any | null;
+    createdAt: any;
+  };
+};
+
+export type UpdateJobStageEventMutationVariables = Exact<{
+  id: Scalars["ID"]["input"];
+  input: UpdateJobStageEventInput;
+}>;
+
+export type UpdateJobStageEventMutation = {
+  __typename?: "Mutation";
+  updateJobStageEvent: {
+    __typename?: "JobStageEventType";
+    id: string;
+    jobId: string;
+    fromStage?: JobStage | null;
+    toStage: JobStage;
+    source: string;
+    reason?: string | null;
+    scheduledAt?: any | null;
+    createdAt: any;
+  };
+};
+
+export type DeleteJobStageEventMutationVariables = Exact<{
+  id: Scalars["ID"]["input"];
+}>;
+
+export type DeleteJobStageEventMutation = {
+  __typename?: "Mutation";
+  deleteJobStageEvent: {
+    __typename?: "DeleteMutationPayloadType";
+    success: boolean;
+    deletedId: string;
+  };
+};
+
+export type JobNotesQueryVariables = Exact<{ jobId: Scalars["ID"]["input"] }>;
+
+export type JobNotesQuery = {
+  __typename?: "Query";
+  jobNotes: Array<{
+    __typename?: "NoteType";
+    id: string;
+    jobId?: string | null;
+    content: string;
+    revision: number;
+    createdAt: any;
+    updatedAt: any;
+  }>;
+};
+
+export type CreateJobNoteMutationVariables = Exact<{ input: CreateNoteInput }>;
+
+export type CreateJobNoteMutation = {
+  __typename?: "Mutation";
+  createJobNote: {
+    __typename?: "NoteType";
+    id: string;
+    jobId?: string | null;
+    content: string;
+    revision: number;
+    createdAt: any;
+    updatedAt: any;
+  };
+};
+
+export type UpdateJobNoteMutationVariables = Exact<{
+  id: Scalars["ID"]["input"];
+  input: UpdateNoteInput;
+}>;
+
+export type UpdateJobNoteMutation = {
+  __typename?: "Mutation";
+  updateJobNote: {
+    __typename?: "NoteType";
+    id: string;
+    jobId?: string | null;
+    content: string;
+    revision: number;
+    createdAt: any;
+    updatedAt: any;
+  };
+};
+
+export type DeleteJobNoteMutationVariables = Exact<{
+  id: Scalars["ID"]["input"];
+}>;
+
+export type DeleteJobNoteMutation = {
+  __typename?: "Mutation";
+  deleteJobNote: {
+    __typename?: "DeleteMutationPayloadType";
+    success: boolean;
+    deletedId: string;
+  };
+};
+
+export type GenerateJobNoteWithAiQueryVariables = Exact<{
+  jobId: Scalars["ID"]["input"];
+  note: Scalars["String"]["input"];
+}>;
+
+export type GenerateJobNoteWithAiQuery = {
+  __typename?: "Query";
+  generateJobNoteWithAI: string;
+};
+
+export type RewriteTextWithAiQueryVariables = Exact<{
+  text: Scalars["String"]["input"];
+}>;
+
+export type RewriteTextWithAiQuery = {
+  __typename?: "Query";
+  rewriteTextWithAI: string;
+};
+
+export type RestructureJobDescriptionWithAiQueryVariables = Exact<{
+  text: Scalars["String"]["input"];
+}>;
+
+export type RestructureJobDescriptionWithAiQuery = {
+  __typename?: "Query";
+  restructureJobDescriptionWithAI: string;
+};
+
+export type GenerateJobLocationWithAiQueryVariables = Exact<{
+  jobId: Scalars["ID"]["input"];
+}>;
+
+export type GenerateJobLocationWithAiQuery = {
+  __typename?: "Query";
+  generateJobLocationWithAI?: string | null;
+};
+
+export type GenerateJobWorkRegionWithAiQueryVariables = Exact<{
+  jobId: Scalars["ID"]["input"];
+}>;
+
+export type GenerateJobWorkRegionWithAiQuery = {
+  __typename?: "Query";
+  generateJobWorkRegionWithAI?: string | null;
+};
+
+export type GenerateJobSummaryMutationVariables = Exact<{
+  jobId: Scalars["ID"]["input"];
+}>;
+
+export type GenerateJobSummaryMutation = {
+  __typename?: "Mutation";
+  generateJobSummary: {
+    __typename?: "JobType";
+    id: string;
+    summary?: string | null;
+    summaryMetadata?: {
+      __typename?: "AsyncMetadataType";
+      status: AsyncMetadataStatus;
+      error?: string | null;
+      timestamp?: string | null;
+    } | null;
+  };
+};
+
+export type MatchAnalysesListQueryVariables = Exact<{ [key: string]: never }>;
+
+export type MatchAnalysesListQuery = {
+  __typename?: "Query";
+  matchAnalyses: Array<{
+    __typename?: "MatchAnalysisType";
+    id: string;
+    jobId?: string | null;
+    draftJobId?: string | null;
     resumeId: string;
     scoreRatio?: number | null;
     classification?: string | null;
-    fitCount: number;
+    matchCount: number;
     gapCount: number;
     unclearCount: number;
     createdAt: any;
@@ -1369,33 +1326,33 @@ export type FitAnalysesListQuery = {
       error?: string | null;
       timestamp?: string | null;
     } | null;
-    application?: {
-      __typename?: "ApplicationType";
+    job?: {
+      __typename?: "JobType";
       id: string;
       title: string;
       company: { __typename?: "CompanyType"; id: string; name: string };
     } | null;
-    draftApplication?: {
-      __typename?: "DraftApplicationType";
+    draftJob?: {
+      __typename?: "DraftJobType";
       id: string;
       title: string;
     } | null;
   }>;
 };
 
-export type FitQueryVariables = Exact<{ id: Scalars["ID"]["input"] }>;
+export type MatchQueryVariables = Exact<{ id: Scalars["ID"]["input"] }>;
 
-export type FitQuery = {
+export type MatchQuery = {
   __typename?: "Query";
-  fit: {
-    __typename?: "FitAnalysisType";
+  match?: {
+    __typename?: "MatchAnalysisType";
     id: string;
-    applicationId?: string | null;
-    draftApplicationId?: string | null;
+    jobId?: string | null;
+    draftJobId?: string | null;
     resumeId: string;
     scoreRatio?: number | null;
     classification?: string | null;
-    fitCount: number;
+    matchCount: number;
     gapCount: number;
     unclearCount: number;
     createdAt: any;
@@ -1406,7 +1363,7 @@ export type FitQuery = {
       timestamp?: string | null;
     } | null;
     items: Array<{
-      __typename?: "FitItemType";
+      __typename?: "MatchItemType";
       requirement: string;
       source: string;
       weight?: string | null;
@@ -1416,35 +1373,33 @@ export type FitQuery = {
       sourceQuotes: Array<string>;
       suggestion?: string | null;
     }>;
-    application?: {
-      __typename?: "ApplicationType";
+    job?: {
+      __typename?: "JobType";
       id: string;
       title: string;
       company: { __typename?: "CompanyType"; id: string; name: string };
     } | null;
-    draftApplication?: {
-      __typename?: "DraftApplicationType";
+    draftJob?: {
+      __typename?: "DraftJobType";
       id: string;
       title: string;
     } | null;
-  };
+  } | null;
 };
 
-export type ApplicationFitQueryVariables = Exact<{
-  applicationId: Scalars["ID"]["input"];
-}>;
+export type JobMatchQueryVariables = Exact<{ jobId: Scalars["ID"]["input"] }>;
 
-export type ApplicationFitQuery = {
+export type JobMatchQuery = {
   __typename?: "Query";
-  applicationFit?: {
-    __typename?: "FitAnalysisType";
+  jobMatch?: {
+    __typename?: "MatchAnalysisType";
     id: string;
-    applicationId?: string | null;
-    draftApplicationId?: string | null;
+    jobId?: string | null;
+    draftJobId?: string | null;
     resumeId: string;
     scoreRatio?: number | null;
     classification?: string | null;
-    fitCount: number;
+    matchCount: number;
     gapCount: number;
     unclearCount: number;
     createdAt: any;
@@ -1455,7 +1410,7 @@ export type ApplicationFitQuery = {
       timestamp?: string | null;
     } | null;
     items: Array<{
-      __typename?: "FitItemType";
+      __typename?: "MatchItemType";
       requirement: string;
       source: string;
       weight?: string | null;
@@ -1468,21 +1423,21 @@ export type ApplicationFitQuery = {
   } | null;
 };
 
-export type DraftApplicationFitQueryVariables = Exact<{
-  draftApplicationId: Scalars["ID"]["input"];
+export type DraftJobMatchQueryVariables = Exact<{
+  draftJobId: Scalars["ID"]["input"];
 }>;
 
-export type DraftApplicationFitQuery = {
+export type DraftJobMatchQuery = {
   __typename?: "Query";
-  draftApplicationFit?: {
-    __typename?: "FitAnalysisType";
+  draftJobMatch?: {
+    __typename?: "MatchAnalysisType";
     id: string;
-    applicationId?: string | null;
-    draftApplicationId?: string | null;
+    jobId?: string | null;
+    draftJobId?: string | null;
     resumeId: string;
     scoreRatio?: number | null;
     classification?: string | null;
-    fitCount: number;
+    matchCount: number;
     gapCount: number;
     unclearCount: number;
     createdAt: any;
@@ -1493,7 +1448,7 @@ export type DraftApplicationFitQuery = {
       timestamp?: string | null;
     } | null;
     items: Array<{
-      __typename?: "FitItemType";
+      __typename?: "MatchItemType";
       requirement: string;
       source: string;
       weight?: string | null;
@@ -1506,21 +1461,21 @@ export type DraftApplicationFitQuery = {
   } | null;
 };
 
-export type GenerateApplicationFitMutationVariables = Exact<{
-  input: GenerateFitInput;
+export type GenerateJobMatchMutationVariables = Exact<{
+  input: GenerateMatchInput;
 }>;
 
-export type GenerateApplicationFitMutation = {
+export type GenerateJobMatchMutation = {
   __typename?: "Mutation";
-  generateApplicationFit: {
-    __typename?: "FitAnalysisType";
+  generateJobMatch: {
+    __typename?: "MatchAnalysisType";
     id: string;
-    applicationId?: string | null;
-    draftApplicationId?: string | null;
+    jobId?: string | null;
+    draftJobId?: string | null;
     resumeId: string;
     scoreRatio?: number | null;
     classification?: string | null;
-    fitCount: number;
+    matchCount: number;
     gapCount: number;
     unclearCount: number;
     createdAt: any;
@@ -1531,7 +1486,7 @@ export type GenerateApplicationFitMutation = {
       timestamp?: string | null;
     } | null;
     items: Array<{
-      __typename?: "FitItemType";
+      __typename?: "MatchItemType";
       requirement: string;
       source: string;
       weight?: string | null;
@@ -1544,21 +1499,21 @@ export type GenerateApplicationFitMutation = {
   };
 };
 
-export type GenerateDraftApplicationFitMutationVariables = Exact<{
-  input: GenerateDraftFitInput;
+export type GenerateDraftJobMatchMutationVariables = Exact<{
+  input: GenerateDraftMatchInput;
 }>;
 
-export type GenerateDraftApplicationFitMutation = {
+export type GenerateDraftJobMatchMutation = {
   __typename?: "Mutation";
-  generateDraftApplicationFit: {
-    __typename?: "FitAnalysisType";
+  generateDraftJobMatch: {
+    __typename?: "MatchAnalysisType";
     id: string;
-    applicationId?: string | null;
-    draftApplicationId?: string | null;
+    jobId?: string | null;
+    draftJobId?: string | null;
     resumeId: string;
     scoreRatio?: number | null;
     classification?: string | null;
-    fitCount: number;
+    matchCount: number;
     gapCount: number;
     unclearCount: number;
     createdAt: any;
@@ -1569,7 +1524,7 @@ export type GenerateDraftApplicationFitMutation = {
       timestamp?: string | null;
     } | null;
     items: Array<{
-      __typename?: "FitItemType";
+      __typename?: "MatchItemType";
       requirement: string;
       source: string;
       weight?: string | null;
@@ -1582,13 +1537,13 @@ export type GenerateDraftApplicationFitMutation = {
   };
 };
 
-export type DeleteFitAnalysisMutationVariables = Exact<{
+export type DeleteMatchAnalysisMutationVariables = Exact<{
   id: Scalars["ID"]["input"];
 }>;
 
-export type DeleteFitAnalysisMutation = {
+export type DeleteMatchAnalysisMutation = {
   __typename?: "Mutation";
-  deleteFitAnalysis: {
+  deleteMatchAnalysis: {
     __typename?: "DeleteMutationPayloadType";
     success: boolean;
     deletedId: string;
@@ -1811,15 +1766,15 @@ export type UpdateWorkPreferencesMutation = {
   }>;
 };
 
-export const ApplicationSalarySelectionFragmentDoc = {
+export const JobSalarySelectionFragmentDoc = {
   kind: "Document",
   definitions: [
     {
       kind: "FragmentDefinition",
-      name: { kind: "Name", value: "ApplicationSalarySelection" },
+      name: { kind: "Name", value: "JobSalarySelection" },
       typeCondition: {
         kind: "NamedType",
-        name: { kind: "Name", value: "ApplicationType" },
+        name: { kind: "Name", value: "JobType" },
       },
       selectionSet: {
         kind: "SelectionSet",
@@ -1841,1645 +1796,7 @@ export const ApplicationSalarySelectionFragmentDoc = {
       },
     },
   ],
-} as unknown as DocumentNode<ApplicationSalarySelectionFragment, unknown>;
-export const ApplicationsDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "query",
-      name: { kind: "Name", value: "Applications" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "filter" },
-          },
-          type: {
-            kind: "NamedType",
-            name: { kind: "Name", value: "ApplicationQuickFilter" },
-          },
-        },
-        {
-          kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "company" },
-          },
-          type: { kind: "NamedType", name: { kind: "Name", value: "String" } },
-        },
-        {
-          kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "runId" },
-          },
-          type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
-        },
-      ],
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "applications" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "filter" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "filter" },
-                },
-              },
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "company" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "company" },
-                },
-              },
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "runId" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "runId" },
-                },
-              },
-            ],
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                { kind: "Field", name: { kind: "Name", value: "title" } },
-                { kind: "Field", name: { kind: "Name", value: "companyId" } },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "company" },
-                  selectionSet: {
-                    kind: "SelectionSet",
-                    selections: [
-                      { kind: "Field", name: { kind: "Name", value: "id" } },
-                      { kind: "Field", name: { kind: "Name", value: "name" } },
-                      {
-                        kind: "Field",
-                        name: { kind: "Name", value: "description" },
-                      },
-                    ],
-                  },
-                },
-                { kind: "Field", name: { kind: "Name", value: "description" } },
-                { kind: "Field", name: { kind: "Name", value: "urls" } },
-                { kind: "Field", name: { kind: "Name", value: "source" } },
-                {
-                  kind: "FragmentSpread",
-                  name: { kind: "Name", value: "ApplicationSalarySelection" },
-                },
-                { kind: "Field", name: { kind: "Name", value: "tags" } },
-                { kind: "Field", name: { kind: "Name", value: "location" } },
-                { kind: "Field", name: { kind: "Name", value: "workRegion" } },
-                { kind: "Field", name: { kind: "Name", value: "sourceRunId" } },
-                { kind: "Field", name: { kind: "Name", value: "summary" } },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "summaryMetadata" },
-                  selectionSet: {
-                    kind: "SelectionSet",
-                    selections: [
-                      {
-                        kind: "Field",
-                        name: { kind: "Name", value: "status" },
-                      },
-                      { kind: "Field", name: { kind: "Name", value: "error" } },
-                      {
-                        kind: "Field",
-                        name: { kind: "Name", value: "timestamp" },
-                      },
-                    ],
-                  },
-                },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "currentStage" },
-                },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "currentStageReason" },
-                },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "currentStageAt" },
-                },
-                { kind: "Field", name: { kind: "Name", value: "createdAt" } },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "fit" },
-                  selectionSet: {
-                    kind: "SelectionSet",
-                    selections: [
-                      { kind: "Field", name: { kind: "Name", value: "id" } },
-                      {
-                        kind: "Field",
-                        name: { kind: "Name", value: "scoreRatio" },
-                      },
-                      {
-                        kind: "Field",
-                        name: { kind: "Name", value: "classification" },
-                      },
-                      {
-                        kind: "Field",
-                        name: { kind: "Name", value: "fitCount" },
-                      },
-                      {
-                        kind: "Field",
-                        name: { kind: "Name", value: "gapCount" },
-                      },
-                      {
-                        kind: "Field",
-                        name: { kind: "Name", value: "unclearCount" },
-                      },
-                      {
-                        kind: "Field",
-                        name: { kind: "Name", value: "generationMetadata" },
-                        selectionSet: {
-                          kind: "SelectionSet",
-                          selections: [
-                            {
-                              kind: "Field",
-                              name: { kind: "Name", value: "status" },
-                            },
-                            {
-                              kind: "Field",
-                              name: { kind: "Name", value: "error" },
-                            },
-                            {
-                              kind: "Field",
-                              name: { kind: "Name", value: "timestamp" },
-                            },
-                          ],
-                        },
-                      },
-                    ],
-                  },
-                },
-              ],
-            },
-          },
-        ],
-      },
-    },
-    {
-      kind: "FragmentDefinition",
-      name: { kind: "Name", value: "ApplicationSalarySelection" },
-      typeCondition: {
-        kind: "NamedType",
-        name: { kind: "Name", value: "ApplicationType" },
-      },
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "salary" },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "minCents" } },
-                { kind: "Field", name: { kind: "Name", value: "maxCents" } },
-                { kind: "Field", name: { kind: "Name", value: "currency" } },
-                { kind: "Field", name: { kind: "Name", value: "period" } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<ApplicationsQuery, ApplicationsQueryVariables>;
-export const ApplicationDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "query",
-      name: { kind: "Name", value: "Application" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: { kind: "Variable", name: { kind: "Name", value: "id" } },
-          type: {
-            kind: "NonNullType",
-            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "application" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "id" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "id" },
-                },
-              },
-            ],
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                { kind: "Field", name: { kind: "Name", value: "title" } },
-                { kind: "Field", name: { kind: "Name", value: "companyId" } },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "company" },
-                  selectionSet: {
-                    kind: "SelectionSet",
-                    selections: [
-                      { kind: "Field", name: { kind: "Name", value: "id" } },
-                      { kind: "Field", name: { kind: "Name", value: "name" } },
-                      {
-                        kind: "Field",
-                        name: { kind: "Name", value: "description" },
-                      },
-                    ],
-                  },
-                },
-                { kind: "Field", name: { kind: "Name", value: "description" } },
-                { kind: "Field", name: { kind: "Name", value: "urls" } },
-                { kind: "Field", name: { kind: "Name", value: "source" } },
-                {
-                  kind: "FragmentSpread",
-                  name: { kind: "Name", value: "ApplicationSalarySelection" },
-                },
-                { kind: "Field", name: { kind: "Name", value: "tags" } },
-                { kind: "Field", name: { kind: "Name", value: "location" } },
-                { kind: "Field", name: { kind: "Name", value: "workRegion" } },
-                { kind: "Field", name: { kind: "Name", value: "sourceRunId" } },
-                { kind: "Field", name: { kind: "Name", value: "summary" } },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "summaryMetadata" },
-                  selectionSet: {
-                    kind: "SelectionSet",
-                    selections: [
-                      {
-                        kind: "Field",
-                        name: { kind: "Name", value: "status" },
-                      },
-                      { kind: "Field", name: { kind: "Name", value: "error" } },
-                      {
-                        kind: "Field",
-                        name: { kind: "Name", value: "timestamp" },
-                      },
-                    ],
-                  },
-                },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "currentStage" },
-                },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "currentStageReason" },
-                },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "currentStageAt" },
-                },
-                { kind: "Field", name: { kind: "Name", value: "createdAt" } },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "draftApplicationId" },
-                },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "fit" },
-                  selectionSet: {
-                    kind: "SelectionSet",
-                    selections: [
-                      { kind: "Field", name: { kind: "Name", value: "id" } },
-                      {
-                        kind: "Field",
-                        name: { kind: "Name", value: "scoreRatio" },
-                      },
-                      {
-                        kind: "Field",
-                        name: { kind: "Name", value: "classification" },
-                      },
-                      {
-                        kind: "Field",
-                        name: { kind: "Name", value: "fitCount" },
-                      },
-                      {
-                        kind: "Field",
-                        name: { kind: "Name", value: "gapCount" },
-                      },
-                      {
-                        kind: "Field",
-                        name: { kind: "Name", value: "unclearCount" },
-                      },
-                      {
-                        kind: "Field",
-                        name: { kind: "Name", value: "generationMetadata" },
-                        selectionSet: {
-                          kind: "SelectionSet",
-                          selections: [
-                            {
-                              kind: "Field",
-                              name: { kind: "Name", value: "status" },
-                            },
-                            {
-                              kind: "Field",
-                              name: { kind: "Name", value: "error" },
-                            },
-                            {
-                              kind: "Field",
-                              name: { kind: "Name", value: "timestamp" },
-                            },
-                          ],
-                        },
-                      },
-                    ],
-                  },
-                },
-              ],
-            },
-          },
-        ],
-      },
-    },
-    {
-      kind: "FragmentDefinition",
-      name: { kind: "Name", value: "ApplicationSalarySelection" },
-      typeCondition: {
-        kind: "NamedType",
-        name: { kind: "Name", value: "ApplicationType" },
-      },
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "salary" },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "minCents" } },
-                { kind: "Field", name: { kind: "Name", value: "maxCents" } },
-                { kind: "Field", name: { kind: "Name", value: "currency" } },
-                { kind: "Field", name: { kind: "Name", value: "period" } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<ApplicationQuery, ApplicationQueryVariables>;
-export const CreateApplicationDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "mutation",
-      name: { kind: "Name", value: "CreateApplication" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "input" },
-          },
-          type: {
-            kind: "NonNullType",
-            type: {
-              kind: "NamedType",
-              name: { kind: "Name", value: "CreateApplicationInput" },
-            },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "createApplication" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "input" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "input" },
-                },
-              },
-            ],
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                { kind: "Field", name: { kind: "Name", value: "title" } },
-                { kind: "Field", name: { kind: "Name", value: "companyId" } },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "company" },
-                  selectionSet: {
-                    kind: "SelectionSet",
-                    selections: [
-                      { kind: "Field", name: { kind: "Name", value: "id" } },
-                      { kind: "Field", name: { kind: "Name", value: "name" } },
-                      {
-                        kind: "Field",
-                        name: { kind: "Name", value: "description" },
-                      },
-                    ],
-                  },
-                },
-                { kind: "Field", name: { kind: "Name", value: "description" } },
-                { kind: "Field", name: { kind: "Name", value: "urls" } },
-                { kind: "Field", name: { kind: "Name", value: "source" } },
-                {
-                  kind: "FragmentSpread",
-                  name: { kind: "Name", value: "ApplicationSalarySelection" },
-                },
-                { kind: "Field", name: { kind: "Name", value: "tags" } },
-                { kind: "Field", name: { kind: "Name", value: "location" } },
-                { kind: "Field", name: { kind: "Name", value: "workRegion" } },
-                { kind: "Field", name: { kind: "Name", value: "createdAt" } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-    {
-      kind: "FragmentDefinition",
-      name: { kind: "Name", value: "ApplicationSalarySelection" },
-      typeCondition: {
-        kind: "NamedType",
-        name: { kind: "Name", value: "ApplicationType" },
-      },
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "salary" },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "minCents" } },
-                { kind: "Field", name: { kind: "Name", value: "maxCents" } },
-                { kind: "Field", name: { kind: "Name", value: "currency" } },
-                { kind: "Field", name: { kind: "Name", value: "period" } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  CreateApplicationMutation,
-  CreateApplicationMutationVariables
->;
-export const GenerateCompanyDescriptionDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "query",
-      name: { kind: "Name", value: "GenerateCompanyDescription" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "companyName" },
-          },
-          type: {
-            kind: "NonNullType",
-            type: {
-              kind: "NamedType",
-              name: { kind: "Name", value: "String" },
-            },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "generateCompanyDescription" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "companyName" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "companyName" },
-                },
-              },
-            ],
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  GenerateCompanyDescriptionQuery,
-  GenerateCompanyDescriptionQueryVariables
->;
-export const UpdateApplicationDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "mutation",
-      name: { kind: "Name", value: "UpdateApplication" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: { kind: "Variable", name: { kind: "Name", value: "id" } },
-          type: {
-            kind: "NonNullType",
-            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
-          },
-        },
-        {
-          kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "input" },
-          },
-          type: {
-            kind: "NonNullType",
-            type: {
-              kind: "NamedType",
-              name: { kind: "Name", value: "UpdateApplicationInput" },
-            },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "updateApplication" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "id" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "id" },
-                },
-              },
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "input" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "input" },
-                },
-              },
-            ],
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                { kind: "Field", name: { kind: "Name", value: "title" } },
-                { kind: "Field", name: { kind: "Name", value: "companyId" } },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "company" },
-                  selectionSet: {
-                    kind: "SelectionSet",
-                    selections: [
-                      { kind: "Field", name: { kind: "Name", value: "id" } },
-                      { kind: "Field", name: { kind: "Name", value: "name" } },
-                      {
-                        kind: "Field",
-                        name: { kind: "Name", value: "description" },
-                      },
-                    ],
-                  },
-                },
-                { kind: "Field", name: { kind: "Name", value: "description" } },
-                { kind: "Field", name: { kind: "Name", value: "urls" } },
-                { kind: "Field", name: { kind: "Name", value: "source" } },
-                {
-                  kind: "FragmentSpread",
-                  name: { kind: "Name", value: "ApplicationSalarySelection" },
-                },
-                { kind: "Field", name: { kind: "Name", value: "tags" } },
-                { kind: "Field", name: { kind: "Name", value: "location" } },
-                { kind: "Field", name: { kind: "Name", value: "workRegion" } },
-                { kind: "Field", name: { kind: "Name", value: "summary" } },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "summaryMetadata" },
-                  selectionSet: {
-                    kind: "SelectionSet",
-                    selections: [
-                      {
-                        kind: "Field",
-                        name: { kind: "Name", value: "status" },
-                      },
-                      { kind: "Field", name: { kind: "Name", value: "error" } },
-                      {
-                        kind: "Field",
-                        name: { kind: "Name", value: "timestamp" },
-                      },
-                    ],
-                  },
-                },
-                { kind: "Field", name: { kind: "Name", value: "createdAt" } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-    {
-      kind: "FragmentDefinition",
-      name: { kind: "Name", value: "ApplicationSalarySelection" },
-      typeCondition: {
-        kind: "NamedType",
-        name: { kind: "Name", value: "ApplicationType" },
-      },
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "salary" },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "minCents" } },
-                { kind: "Field", name: { kind: "Name", value: "maxCents" } },
-                { kind: "Field", name: { kind: "Name", value: "currency" } },
-                { kind: "Field", name: { kind: "Name", value: "period" } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  UpdateApplicationMutation,
-  UpdateApplicationMutationVariables
->;
-export const RemoveApplicationTagDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "mutation",
-      name: { kind: "Name", value: "RemoveApplicationTag" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: { kind: "Variable", name: { kind: "Name", value: "id" } },
-          type: {
-            kind: "NonNullType",
-            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
-          },
-        },
-        {
-          kind: "VariableDefinition",
-          variable: { kind: "Variable", name: { kind: "Name", value: "tag" } },
-          type: {
-            kind: "NonNullType",
-            type: {
-              kind: "NamedType",
-              name: { kind: "Name", value: "String" },
-            },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "removeApplicationTag" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "id" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "id" },
-                },
-              },
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "tag" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "tag" },
-                },
-              },
-            ],
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                { kind: "Field", name: { kind: "Name", value: "tags" } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  RemoveApplicationTagMutation,
-  RemoveApplicationTagMutationVariables
->;
-export const DeleteApplicationDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "mutation",
-      name: { kind: "Name", value: "DeleteApplication" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: { kind: "Variable", name: { kind: "Name", value: "id" } },
-          type: {
-            kind: "NonNullType",
-            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "deleteApplication" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "id" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "id" },
-                },
-              },
-            ],
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "success" } },
-                { kind: "Field", name: { kind: "Name", value: "deletedId" } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  DeleteApplicationMutation,
-  DeleteApplicationMutationVariables
->;
-export const ApplicationStageEventsDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "query",
-      name: { kind: "Name", value: "ApplicationStageEvents" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "applicationId" },
-          },
-          type: {
-            kind: "NonNullType",
-            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "applicationStageEvents" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "applicationId" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "applicationId" },
-                },
-              },
-            ],
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "applicationId" },
-                },
-                { kind: "Field", name: { kind: "Name", value: "fromStage" } },
-                { kind: "Field", name: { kind: "Name", value: "toStage" } },
-                { kind: "Field", name: { kind: "Name", value: "source" } },
-                { kind: "Field", name: { kind: "Name", value: "reason" } },
-                { kind: "Field", name: { kind: "Name", value: "scheduledAt" } },
-                { kind: "Field", name: { kind: "Name", value: "createdAt" } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  ApplicationStageEventsQuery,
-  ApplicationStageEventsQueryVariables
->;
-export const CreateApplicationStageEventDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "mutation",
-      name: { kind: "Name", value: "CreateApplicationStageEvent" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "input" },
-          },
-          type: {
-            kind: "NonNullType",
-            type: {
-              kind: "NamedType",
-              name: { kind: "Name", value: "CreateApplicationStageEventInput" },
-            },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "createApplicationStageEvent" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "input" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "input" },
-                },
-              },
-            ],
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "applicationId" },
-                },
-                { kind: "Field", name: { kind: "Name", value: "fromStage" } },
-                { kind: "Field", name: { kind: "Name", value: "toStage" } },
-                { kind: "Field", name: { kind: "Name", value: "source" } },
-                { kind: "Field", name: { kind: "Name", value: "reason" } },
-                { kind: "Field", name: { kind: "Name", value: "scheduledAt" } },
-                { kind: "Field", name: { kind: "Name", value: "createdAt" } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  CreateApplicationStageEventMutation,
-  CreateApplicationStageEventMutationVariables
->;
-export const UpdateApplicationStageEventDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "mutation",
-      name: { kind: "Name", value: "UpdateApplicationStageEvent" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: { kind: "Variable", name: { kind: "Name", value: "id" } },
-          type: {
-            kind: "NonNullType",
-            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
-          },
-        },
-        {
-          kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "input" },
-          },
-          type: {
-            kind: "NonNullType",
-            type: {
-              kind: "NamedType",
-              name: { kind: "Name", value: "UpdateApplicationStageEventInput" },
-            },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "updateApplicationStageEvent" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "id" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "id" },
-                },
-              },
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "input" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "input" },
-                },
-              },
-            ],
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "applicationId" },
-                },
-                { kind: "Field", name: { kind: "Name", value: "fromStage" } },
-                { kind: "Field", name: { kind: "Name", value: "toStage" } },
-                { kind: "Field", name: { kind: "Name", value: "source" } },
-                { kind: "Field", name: { kind: "Name", value: "reason" } },
-                { kind: "Field", name: { kind: "Name", value: "scheduledAt" } },
-                { kind: "Field", name: { kind: "Name", value: "createdAt" } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  UpdateApplicationStageEventMutation,
-  UpdateApplicationStageEventMutationVariables
->;
-export const DeleteApplicationStageEventDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "mutation",
-      name: { kind: "Name", value: "DeleteApplicationStageEvent" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: { kind: "Variable", name: { kind: "Name", value: "id" } },
-          type: {
-            kind: "NonNullType",
-            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "deleteApplicationStageEvent" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "id" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "id" },
-                },
-              },
-            ],
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "success" } },
-                { kind: "Field", name: { kind: "Name", value: "deletedId" } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  DeleteApplicationStageEventMutation,
-  DeleteApplicationStageEventMutationVariables
->;
-export const ApplicationNotesDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "query",
-      name: { kind: "Name", value: "ApplicationNotes" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "applicationId" },
-          },
-          type: {
-            kind: "NonNullType",
-            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "applicationNotes" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "applicationId" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "applicationId" },
-                },
-              },
-            ],
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "applicationId" },
-                },
-                { kind: "Field", name: { kind: "Name", value: "content" } },
-                { kind: "Field", name: { kind: "Name", value: "revision" } },
-                { kind: "Field", name: { kind: "Name", value: "createdAt" } },
-                { kind: "Field", name: { kind: "Name", value: "updatedAt" } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  ApplicationNotesQuery,
-  ApplicationNotesQueryVariables
->;
-export const CreateApplicationNoteDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "mutation",
-      name: { kind: "Name", value: "CreateApplicationNote" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "input" },
-          },
-          type: {
-            kind: "NonNullType",
-            type: {
-              kind: "NamedType",
-              name: { kind: "Name", value: "CreateNoteInput" },
-            },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "createApplicationNote" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "input" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "input" },
-                },
-              },
-            ],
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "applicationId" },
-                },
-                { kind: "Field", name: { kind: "Name", value: "content" } },
-                { kind: "Field", name: { kind: "Name", value: "revision" } },
-                { kind: "Field", name: { kind: "Name", value: "createdAt" } },
-                { kind: "Field", name: { kind: "Name", value: "updatedAt" } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  CreateApplicationNoteMutation,
-  CreateApplicationNoteMutationVariables
->;
-export const UpdateApplicationNoteDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "mutation",
-      name: { kind: "Name", value: "UpdateApplicationNote" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: { kind: "Variable", name: { kind: "Name", value: "id" } },
-          type: {
-            kind: "NonNullType",
-            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
-          },
-        },
-        {
-          kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "input" },
-          },
-          type: {
-            kind: "NonNullType",
-            type: {
-              kind: "NamedType",
-              name: { kind: "Name", value: "UpdateNoteInput" },
-            },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "updateApplicationNote" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "id" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "id" },
-                },
-              },
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "input" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "input" },
-                },
-              },
-            ],
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "applicationId" },
-                },
-                { kind: "Field", name: { kind: "Name", value: "content" } },
-                { kind: "Field", name: { kind: "Name", value: "revision" } },
-                { kind: "Field", name: { kind: "Name", value: "createdAt" } },
-                { kind: "Field", name: { kind: "Name", value: "updatedAt" } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  UpdateApplicationNoteMutation,
-  UpdateApplicationNoteMutationVariables
->;
-export const DeleteApplicationNoteDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "mutation",
-      name: { kind: "Name", value: "DeleteApplicationNote" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: { kind: "Variable", name: { kind: "Name", value: "id" } },
-          type: {
-            kind: "NonNullType",
-            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "deleteApplicationNote" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "id" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "id" },
-                },
-              },
-            ],
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "success" } },
-                { kind: "Field", name: { kind: "Name", value: "deletedId" } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  DeleteApplicationNoteMutation,
-  DeleteApplicationNoteMutationVariables
->;
-export const GenerateApplicationNoteWithAiDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "query",
-      name: { kind: "Name", value: "GenerateApplicationNoteWithAi" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "applicationId" },
-          },
-          type: {
-            kind: "NonNullType",
-            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
-          },
-        },
-        {
-          kind: "VariableDefinition",
-          variable: { kind: "Variable", name: { kind: "Name", value: "note" } },
-          type: {
-            kind: "NonNullType",
-            type: {
-              kind: "NamedType",
-              name: { kind: "Name", value: "String" },
-            },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "generateApplicationNoteWithAI" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "applicationId" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "applicationId" },
-                },
-              },
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "note" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "note" },
-                },
-              },
-            ],
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  GenerateApplicationNoteWithAiQuery,
-  GenerateApplicationNoteWithAiQueryVariables
->;
-export const RewriteTextWithAiDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "query",
-      name: { kind: "Name", value: "RewriteTextWithAi" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: { kind: "Variable", name: { kind: "Name", value: "text" } },
-          type: {
-            kind: "NonNullType",
-            type: {
-              kind: "NamedType",
-              name: { kind: "Name", value: "String" },
-            },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "rewriteTextWithAI" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "text" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "text" },
-                },
-              },
-            ],
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  RewriteTextWithAiQuery,
-  RewriteTextWithAiQueryVariables
->;
-export const RestructureJobDescriptionWithAiDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "query",
-      name: { kind: "Name", value: "RestructureJobDescriptionWithAi" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: { kind: "Variable", name: { kind: "Name", value: "text" } },
-          type: {
-            kind: "NonNullType",
-            type: {
-              kind: "NamedType",
-              name: { kind: "Name", value: "String" },
-            },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "restructureJobDescriptionWithAI" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "text" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "text" },
-                },
-              },
-            ],
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  RestructureJobDescriptionWithAiQuery,
-  RestructureJobDescriptionWithAiQueryVariables
->;
-export const GenerateApplicationLocationWithAiDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "query",
-      name: { kind: "Name", value: "GenerateApplicationLocationWithAi" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "applicationId" },
-          },
-          type: {
-            kind: "NonNullType",
-            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "generateApplicationLocationWithAI" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "applicationId" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "applicationId" },
-                },
-              },
-            ],
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  GenerateApplicationLocationWithAiQuery,
-  GenerateApplicationLocationWithAiQueryVariables
->;
-export const GenerateApplicationWorkRegionWithAiDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "query",
-      name: { kind: "Name", value: "GenerateApplicationWorkRegionWithAi" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "applicationId" },
-          },
-          type: {
-            kind: "NonNullType",
-            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: {
-              kind: "Name",
-              value: "generateApplicationWorkRegionWithAI",
-            },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "applicationId" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "applicationId" },
-                },
-              },
-            ],
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  GenerateApplicationWorkRegionWithAiQuery,
-  GenerateApplicationWorkRegionWithAiQueryVariables
->;
-export const GenerateApplicationSummaryDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "mutation",
-      name: { kind: "Name", value: "GenerateApplicationSummary" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "applicationId" },
-          },
-          type: {
-            kind: "NonNullType",
-            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "generateApplicationSummary" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "applicationId" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "applicationId" },
-                },
-              },
-            ],
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                { kind: "Field", name: { kind: "Name", value: "summary" } },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "summaryMetadata" },
-                  selectionSet: {
-                    kind: "SelectionSet",
-                    selections: [
-                      {
-                        kind: "Field",
-                        name: { kind: "Name", value: "status" },
-                      },
-                      { kind: "Field", name: { kind: "Name", value: "error" } },
-                      {
-                        kind: "Field",
-                        name: { kind: "Name", value: "timestamp" },
-                      },
-                    ],
-                  },
-                },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  GenerateApplicationSummaryMutation,
-  GenerateApplicationSummaryMutationVariables
->;
+} as unknown as DocumentNode<JobSalarySelectionFragment, unknown>;
 export const UpdateCompanyDocument = {
   kind: "Document",
   definitions: [
@@ -3601,13 +1918,13 @@ export const DeleteCompanyDocument = {
   DeleteCompanyMutation,
   DeleteCompanyMutationVariables
 >;
-export const CompanyApplicationsCountDocument = {
+export const CompanyJobsCountDocument = {
   kind: "Document",
   definitions: [
     {
       kind: "OperationDefinition",
       operation: "query",
-      name: { kind: "Name", value: "CompanyApplicationsCount" },
+      name: { kind: "Name", value: "CompanyJobsCount" },
       variableDefinitions: [
         {
           kind: "VariableDefinition",
@@ -3623,7 +1940,7 @@ export const CompanyApplicationsCountDocument = {
         selections: [
           {
             kind: "Field",
-            name: { kind: "Name", value: "companyApplicationsCount" },
+            name: { kind: "Name", value: "companyJobsCount" },
             arguments: [
               {
                 kind: "Argument",
@@ -3640,8 +1957,8 @@ export const CompanyApplicationsCountDocument = {
     },
   ],
 } as unknown as DocumentNode<
-  CompanyApplicationsCountQuery,
-  CompanyApplicationsCountQueryVariables
+  CompanyJobsCountQuery,
+  CompanyJobsCountQueryVariables
 >;
 export const CompaniesDocument = {
   kind: "Document",
@@ -3670,53 +1987,6 @@ export const CompaniesDocument = {
     },
   ],
 } as unknown as DocumentNode<CompaniesQuery, CompaniesQueryVariables>;
-export const CompanyDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "query",
-      name: { kind: "Name", value: "Company" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: { kind: "Variable", name: { kind: "Name", value: "id" } },
-          type: {
-            kind: "NonNullType",
-            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "company" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "id" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "id" },
-                },
-              },
-            ],
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                { kind: "Field", name: { kind: "Name", value: "name" } },
-                { kind: "Field", name: { kind: "Name", value: "description" } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<CompanyQuery, CompanyQueryVariables>;
 export const ExchangeRatesDocument = {
   kind: "Document",
   definitions: [
@@ -3807,27 +2077,24 @@ export const ExchangeRatesDocument = {
     },
   ],
 } as unknown as DocumentNode<ExchangeRatesQuery, ExchangeRatesQueryVariables>;
-export const DraftApplicationsListDocument = {
+export const DraftJobsListDocument = {
   kind: "Document",
   definitions: [
     {
       kind: "OperationDefinition",
       operation: "query",
-      name: { kind: "Name", value: "DraftApplicationsList" },
+      name: { kind: "Name", value: "DraftJobsList" },
       selectionSet: {
         kind: "SelectionSet",
         selections: [
           {
             kind: "Field",
-            name: { kind: "Name", value: "draftApplications" },
+            name: { kind: "Name", value: "draftJobs" },
             selectionSet: {
               kind: "SelectionSet",
               selections: [
                 { kind: "Field", name: { kind: "Name", value: "id" } },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "applicationId" },
-                },
+                { kind: "Field", name: { kind: "Name", value: "jobId" } },
                 { kind: "Field", name: { kind: "Name", value: "url" } },
                 { kind: "Field", name: { kind: "Name", value: "title" } },
                 {
@@ -3856,17 +2123,14 @@ export const DraftApplicationsListDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<
-  DraftApplicationsListQuery,
-  DraftApplicationsListQueryVariables
->;
-export const DraftApplicationDetailDocument = {
+} as unknown as DocumentNode<DraftJobsListQuery, DraftJobsListQueryVariables>;
+export const DraftJobDetailDocument = {
   kind: "Document",
   definitions: [
     {
       kind: "OperationDefinition",
       operation: "query",
-      name: { kind: "Name", value: "DraftApplicationDetail" },
+      name: { kind: "Name", value: "DraftJobDetail" },
       variableDefinitions: [
         {
           kind: "VariableDefinition",
@@ -3882,7 +2146,7 @@ export const DraftApplicationDetailDocument = {
         selections: [
           {
             kind: "Field",
-            name: { kind: "Name", value: "draftApplication" },
+            name: { kind: "Name", value: "draftJob" },
             arguments: [
               {
                 kind: "Argument",
@@ -3897,10 +2161,7 @@ export const DraftApplicationDetailDocument = {
               kind: "SelectionSet",
               selections: [
                 { kind: "Field", name: { kind: "Name", value: "id" } },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "applicationId" },
-                },
+                { kind: "Field", name: { kind: "Name", value: "jobId" } },
                 { kind: "Field", name: { kind: "Name", value: "url" } },
                 { kind: "Field", name: { kind: "Name", value: "title" } },
                 { kind: "Field", name: { kind: "Name", value: "htmlContent" } },
@@ -3925,18 +2186,15 @@ export const DraftApplicationDetailDocument = {
                 { kind: "Field", name: { kind: "Name", value: "createdAt" } },
                 {
                   kind: "Field",
-                  name: { kind: "Name", value: "fit" },
+                  name: { kind: "Name", value: "match" },
                   selectionSet: {
                     kind: "SelectionSet",
                     selections: [
                       { kind: "Field", name: { kind: "Name", value: "id" } },
+                      { kind: "Field", name: { kind: "Name", value: "jobId" } },
                       {
                         kind: "Field",
-                        name: { kind: "Name", value: "applicationId" },
-                      },
-                      {
-                        kind: "Field",
-                        name: { kind: "Name", value: "draftApplicationId" },
+                        name: { kind: "Name", value: "draftJobId" },
                       },
                       {
                         kind: "Field",
@@ -3973,7 +2231,7 @@ export const DraftApplicationDetailDocument = {
                       },
                       {
                         kind: "Field",
-                        name: { kind: "Name", value: "fitCount" },
+                        name: { kind: "Name", value: "matchCount" },
                       },
                       {
                         kind: "Field",
@@ -3997,17 +2255,14 @@ export const DraftApplicationDetailDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<
-  DraftApplicationDetailQuery,
-  DraftApplicationDetailQueryVariables
->;
-export const DeleteDraftApplicationDocument = {
+} as unknown as DocumentNode<DraftJobDetailQuery, DraftJobDetailQueryVariables>;
+export const DeleteDraftJobDocument = {
   kind: "Document",
   definitions: [
     {
       kind: "OperationDefinition",
       operation: "mutation",
-      name: { kind: "Name", value: "DeleteDraftApplication" },
+      name: { kind: "Name", value: "DeleteDraftJob" },
       variableDefinitions: [
         {
           kind: "VariableDefinition",
@@ -4021,7 +2276,7 @@ export const DeleteDraftApplicationDocument = {
           kind: "VariableDefinition",
           variable: {
             kind: "Variable",
-            name: { kind: "Name", value: "deleteLinkedApplication" },
+            name: { kind: "Name", value: "deleteLinkedJob" },
           },
           type: { kind: "NamedType", name: { kind: "Name", value: "Boolean" } },
         },
@@ -4031,7 +2286,7 @@ export const DeleteDraftApplicationDocument = {
         selections: [
           {
             kind: "Field",
-            name: { kind: "Name", value: "deleteDraftApplication" },
+            name: { kind: "Name", value: "deleteDraftJob" },
             arguments: [
               {
                 kind: "Argument",
@@ -4043,10 +2298,10 @@ export const DeleteDraftApplicationDocument = {
               },
               {
                 kind: "Argument",
-                name: { kind: "Name", value: "deleteLinkedApplication" },
+                name: { kind: "Name", value: "deleteLinkedJob" },
                 value: {
                   kind: "Variable",
-                  name: { kind: "Name", value: "deleteLinkedApplication" },
+                  name: { kind: "Name", value: "deleteLinkedJob" },
                 },
               },
             ],
@@ -4063,16 +2318,16 @@ export const DeleteDraftApplicationDocument = {
     },
   ],
 } as unknown as DocumentNode<
-  DeleteDraftApplicationMutation,
-  DeleteDraftApplicationMutationVariables
+  DeleteDraftJobMutation,
+  DeleteDraftJobMutationVariables
 >;
-export const DeleteApplicationsForDraftDocument = {
+export const DeleteJobsForDraftDocument = {
   kind: "Document",
   definitions: [
     {
       kind: "OperationDefinition",
       operation: "mutation",
-      name: { kind: "Name", value: "DeleteApplicationsForDraft" },
+      name: { kind: "Name", value: "DeleteJobsForDraft" },
       variableDefinitions: [
         {
           kind: "VariableDefinition",
@@ -4091,7 +2346,7 @@ export const DeleteApplicationsForDraftDocument = {
         selections: [
           {
             kind: "Field",
-            name: { kind: "Name", value: "deleteApplicationsForDraft" },
+            name: { kind: "Name", value: "deleteJobsForDraft" },
             arguments: [
               {
                 kind: "Argument",
@@ -4115,16 +2370,16 @@ export const DeleteApplicationsForDraftDocument = {
     },
   ],
 } as unknown as DocumentNode<
-  DeleteApplicationsForDraftMutation,
-  DeleteApplicationsForDraftMutationVariables
+  DeleteJobsForDraftMutation,
+  DeleteJobsForDraftMutationVariables
 >;
-export const CreateApplicationWithAiDocument = {
+export const CreateJobWithAiDocument = {
   kind: "Document",
   definitions: [
     {
       kind: "OperationDefinition",
       operation: "mutation",
-      name: { kind: "Name", value: "CreateApplicationWithAI" },
+      name: { kind: "Name", value: "CreateJobWithAI" },
       variableDefinitions: [
         {
           kind: "VariableDefinition",
@@ -4143,7 +2398,7 @@ export const CreateApplicationWithAiDocument = {
         selections: [
           {
             kind: "Field",
-            name: { kind: "Name", value: "createApplicationWithAI" },
+            name: { kind: "Name", value: "createJobWithAI" },
             arguments: [
               {
                 kind: "Argument",
@@ -4181,16 +2436,16 @@ export const CreateApplicationWithAiDocument = {
     },
   ],
 } as unknown as DocumentNode<
-  CreateApplicationWithAiMutation,
-  CreateApplicationWithAiMutationVariables
+  CreateJobWithAiMutation,
+  CreateJobWithAiMutationVariables
 >;
-export const CreateDraftApplicationDocument = {
+export const CreateDraftJobDocument = {
   kind: "Document",
   definitions: [
     {
       kind: "OperationDefinition",
       operation: "mutation",
-      name: { kind: "Name", value: "CreateDraftApplication" },
+      name: { kind: "Name", value: "CreateDraftJob" },
       variableDefinitions: [
         {
           kind: "VariableDefinition",
@@ -4202,7 +2457,7 @@ export const CreateDraftApplicationDocument = {
             kind: "NonNullType",
             type: {
               kind: "NamedType",
-              name: { kind: "Name", value: "CreateDraftApplicationInput" },
+              name: { kind: "Name", value: "CreateDraftJobInput" },
             },
           },
         },
@@ -4212,7 +2467,7 @@ export const CreateDraftApplicationDocument = {
         selections: [
           {
             kind: "Field",
-            name: { kind: "Name", value: "createDraftApplication" },
+            name: { kind: "Name", value: "createDraftJob" },
             arguments: [
               {
                 kind: "Argument",
@@ -4227,10 +2482,7 @@ export const CreateDraftApplicationDocument = {
               kind: "SelectionSet",
               selections: [
                 { kind: "Field", name: { kind: "Name", value: "id" } },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "applicationId" },
-                },
+                { kind: "Field", name: { kind: "Name", value: "jobId" } },
                 { kind: "Field", name: { kind: "Name", value: "url" } },
                 { kind: "Field", name: { kind: "Name", value: "title" } },
                 {
@@ -4255,16 +2507,16 @@ export const CreateDraftApplicationDocument = {
     },
   ],
 } as unknown as DocumentNode<
-  CreateDraftApplicationMutation,
-  CreateDraftApplicationMutationVariables
+  CreateDraftJobMutation,
+  CreateDraftJobMutationVariables
 >;
-export const UpdateDraftApplicationDocument = {
+export const UpdateDraftJobDocument = {
   kind: "Document",
   definitions: [
     {
       kind: "OperationDefinition",
       operation: "mutation",
-      name: { kind: "Name", value: "UpdateDraftApplication" },
+      name: { kind: "Name", value: "UpdateDraftJob" },
       variableDefinitions: [
         {
           kind: "VariableDefinition",
@@ -4284,7 +2536,7 @@ export const UpdateDraftApplicationDocument = {
             kind: "NonNullType",
             type: {
               kind: "NamedType",
-              name: { kind: "Name", value: "UpdateDraftApplicationInput" },
+              name: { kind: "Name", value: "UpdateDraftJobInput" },
             },
           },
         },
@@ -4294,7 +2546,7 @@ export const UpdateDraftApplicationDocument = {
         selections: [
           {
             kind: "Field",
-            name: { kind: "Name", value: "updateDraftApplication" },
+            name: { kind: "Name", value: "updateDraftJob" },
             arguments: [
               {
                 kind: "Argument",
@@ -4317,10 +2569,7 @@ export const UpdateDraftApplicationDocument = {
               kind: "SelectionSet",
               selections: [
                 { kind: "Field", name: { kind: "Name", value: "id" } },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "applicationId" },
-                },
+                { kind: "Field", name: { kind: "Name", value: "jobId" } },
                 { kind: "Field", name: { kind: "Name", value: "url" } },
                 { kind: "Field", name: { kind: "Name", value: "title" } },
                 {
@@ -4345,34 +2594,1627 @@ export const UpdateDraftApplicationDocument = {
     },
   ],
 } as unknown as DocumentNode<
-  UpdateDraftApplicationMutation,
-  UpdateDraftApplicationMutationVariables
+  UpdateDraftJobMutation,
+  UpdateDraftJobMutationVariables
 >;
-export const FitAnalysesListDocument = {
+export const JobsDocument = {
   kind: "Document",
   definitions: [
     {
       kind: "OperationDefinition",
       operation: "query",
-      name: { kind: "Name", value: "FitAnalysesList" },
+      name: { kind: "Name", value: "Jobs" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "filter" },
+          },
+          type: {
+            kind: "NamedType",
+            name: { kind: "Name", value: "JobQuickFilter" },
+          },
+        },
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "company" },
+          },
+          type: { kind: "NamedType", name: { kind: "Name", value: "String" } },
+        },
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "runId" },
+          },
+          type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+        },
+      ],
       selectionSet: {
         kind: "SelectionSet",
         selections: [
           {
             kind: "Field",
-            name: { kind: "Name", value: "fitAnalyses" },
+            name: { kind: "Name", value: "jobs" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "filter" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "filter" },
+                },
+              },
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "company" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "company" },
+                },
+              },
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "runId" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "runId" },
+                },
+              },
+            ],
             selectionSet: {
               kind: "SelectionSet",
               selections: [
                 { kind: "Field", name: { kind: "Name", value: "id" } },
+                { kind: "Field", name: { kind: "Name", value: "title" } },
+                { kind: "Field", name: { kind: "Name", value: "companyId" } },
                 {
                   kind: "Field",
-                  name: { kind: "Name", value: "applicationId" },
+                  name: { kind: "Name", value: "company" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      { kind: "Field", name: { kind: "Name", value: "id" } },
+                      { kind: "Field", name: { kind: "Name", value: "name" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "description" },
+                      },
+                    ],
+                  },
+                },
+                { kind: "Field", name: { kind: "Name", value: "description" } },
+                { kind: "Field", name: { kind: "Name", value: "urls" } },
+                { kind: "Field", name: { kind: "Name", value: "source" } },
+                {
+                  kind: "FragmentSpread",
+                  name: { kind: "Name", value: "JobSalarySelection" },
+                },
+                { kind: "Field", name: { kind: "Name", value: "tags" } },
+                { kind: "Field", name: { kind: "Name", value: "location" } },
+                { kind: "Field", name: { kind: "Name", value: "workRegion" } },
+                { kind: "Field", name: { kind: "Name", value: "sourceRunId" } },
+                { kind: "Field", name: { kind: "Name", value: "summary" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "summaryMetadata" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "status" },
+                      },
+                      { kind: "Field", name: { kind: "Name", value: "error" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "timestamp" },
+                      },
+                    ],
+                  },
                 },
                 {
                   kind: "Field",
-                  name: { kind: "Name", value: "draftApplicationId" },
+                  name: { kind: "Name", value: "currentStage" },
                 },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "currentStageReason" },
+                },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "currentStageAt" },
+                },
+                { kind: "Field", name: { kind: "Name", value: "createdAt" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "match" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      { kind: "Field", name: { kind: "Name", value: "id" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "scoreRatio" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "classification" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "matchCount" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "gapCount" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "unclearCount" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "generationMetadata" },
+                        selectionSet: {
+                          kind: "SelectionSet",
+                          selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "status" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "error" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "timestamp" },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+    {
+      kind: "FragmentDefinition",
+      name: { kind: "Name", value: "JobSalarySelection" },
+      typeCondition: {
+        kind: "NamedType",
+        name: { kind: "Name", value: "JobType" },
+      },
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "salary" },
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "minCents" } },
+                { kind: "Field", name: { kind: "Name", value: "maxCents" } },
+                { kind: "Field", name: { kind: "Name", value: "currency" } },
+                { kind: "Field", name: { kind: "Name", value: "period" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<JobsQuery, JobsQueryVariables>;
+export const JobDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "query",
+      name: { kind: "Name", value: "Job" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "id" } },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "job" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "id" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "id" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                { kind: "Field", name: { kind: "Name", value: "title" } },
+                { kind: "Field", name: { kind: "Name", value: "companyId" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "company" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      { kind: "Field", name: { kind: "Name", value: "id" } },
+                      { kind: "Field", name: { kind: "Name", value: "name" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "description" },
+                      },
+                    ],
+                  },
+                },
+                { kind: "Field", name: { kind: "Name", value: "description" } },
+                { kind: "Field", name: { kind: "Name", value: "urls" } },
+                { kind: "Field", name: { kind: "Name", value: "source" } },
+                {
+                  kind: "FragmentSpread",
+                  name: { kind: "Name", value: "JobSalarySelection" },
+                },
+                { kind: "Field", name: { kind: "Name", value: "tags" } },
+                { kind: "Field", name: { kind: "Name", value: "location" } },
+                { kind: "Field", name: { kind: "Name", value: "workRegion" } },
+                { kind: "Field", name: { kind: "Name", value: "sourceRunId" } },
+                { kind: "Field", name: { kind: "Name", value: "summary" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "summaryMetadata" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "status" },
+                      },
+                      { kind: "Field", name: { kind: "Name", value: "error" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "timestamp" },
+                      },
+                    ],
+                  },
+                },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "currentStage" },
+                },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "currentStageReason" },
+                },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "currentStageAt" },
+                },
+                { kind: "Field", name: { kind: "Name", value: "createdAt" } },
+                { kind: "Field", name: { kind: "Name", value: "draftJobId" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "match" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      { kind: "Field", name: { kind: "Name", value: "id" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "scoreRatio" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "classification" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "matchCount" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "gapCount" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "unclearCount" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "generationMetadata" },
+                        selectionSet: {
+                          kind: "SelectionSet",
+                          selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "status" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "error" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "timestamp" },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+    {
+      kind: "FragmentDefinition",
+      name: { kind: "Name", value: "JobSalarySelection" },
+      typeCondition: {
+        kind: "NamedType",
+        name: { kind: "Name", value: "JobType" },
+      },
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "salary" },
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "minCents" } },
+                { kind: "Field", name: { kind: "Name", value: "maxCents" } },
+                { kind: "Field", name: { kind: "Name", value: "currency" } },
+                { kind: "Field", name: { kind: "Name", value: "period" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<JobQuery, JobQueryVariables>;
+export const CreateJobDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "CreateJob" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "input" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: {
+              kind: "NamedType",
+              name: { kind: "Name", value: "CreateJobInput" },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "createJob" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "input" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "input" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                { kind: "Field", name: { kind: "Name", value: "title" } },
+                { kind: "Field", name: { kind: "Name", value: "companyId" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "company" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      { kind: "Field", name: { kind: "Name", value: "id" } },
+                      { kind: "Field", name: { kind: "Name", value: "name" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "description" },
+                      },
+                    ],
+                  },
+                },
+                { kind: "Field", name: { kind: "Name", value: "description" } },
+                { kind: "Field", name: { kind: "Name", value: "urls" } },
+                { kind: "Field", name: { kind: "Name", value: "source" } },
+                {
+                  kind: "FragmentSpread",
+                  name: { kind: "Name", value: "JobSalarySelection" },
+                },
+                { kind: "Field", name: { kind: "Name", value: "tags" } },
+                { kind: "Field", name: { kind: "Name", value: "location" } },
+                { kind: "Field", name: { kind: "Name", value: "workRegion" } },
+                { kind: "Field", name: { kind: "Name", value: "createdAt" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+    {
+      kind: "FragmentDefinition",
+      name: { kind: "Name", value: "JobSalarySelection" },
+      typeCondition: {
+        kind: "NamedType",
+        name: { kind: "Name", value: "JobType" },
+      },
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "salary" },
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "minCents" } },
+                { kind: "Field", name: { kind: "Name", value: "maxCents" } },
+                { kind: "Field", name: { kind: "Name", value: "currency" } },
+                { kind: "Field", name: { kind: "Name", value: "period" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CreateJobMutation, CreateJobMutationVariables>;
+export const GenerateCompanyDescriptionDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "query",
+      name: { kind: "Name", value: "GenerateCompanyDescription" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "companyName" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: {
+              kind: "NamedType",
+              name: { kind: "Name", value: "String" },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "generateCompanyDescription" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "companyName" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "companyName" },
+                },
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  GenerateCompanyDescriptionQuery,
+  GenerateCompanyDescriptionQueryVariables
+>;
+export const UpdateJobDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "UpdateJob" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "id" } },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "input" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: {
+              kind: "NamedType",
+              name: { kind: "Name", value: "UpdateJobInput" },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "updateJob" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "id" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "id" },
+                },
+              },
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "input" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "input" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                { kind: "Field", name: { kind: "Name", value: "title" } },
+                { kind: "Field", name: { kind: "Name", value: "companyId" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "company" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      { kind: "Field", name: { kind: "Name", value: "id" } },
+                      { kind: "Field", name: { kind: "Name", value: "name" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "description" },
+                      },
+                    ],
+                  },
+                },
+                { kind: "Field", name: { kind: "Name", value: "description" } },
+                { kind: "Field", name: { kind: "Name", value: "urls" } },
+                { kind: "Field", name: { kind: "Name", value: "source" } },
+                {
+                  kind: "FragmentSpread",
+                  name: { kind: "Name", value: "JobSalarySelection" },
+                },
+                { kind: "Field", name: { kind: "Name", value: "tags" } },
+                { kind: "Field", name: { kind: "Name", value: "location" } },
+                { kind: "Field", name: { kind: "Name", value: "workRegion" } },
+                { kind: "Field", name: { kind: "Name", value: "summary" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "summaryMetadata" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "status" },
+                      },
+                      { kind: "Field", name: { kind: "Name", value: "error" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "timestamp" },
+                      },
+                    ],
+                  },
+                },
+                { kind: "Field", name: { kind: "Name", value: "createdAt" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+    {
+      kind: "FragmentDefinition",
+      name: { kind: "Name", value: "JobSalarySelection" },
+      typeCondition: {
+        kind: "NamedType",
+        name: { kind: "Name", value: "JobType" },
+      },
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "salary" },
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "minCents" } },
+                { kind: "Field", name: { kind: "Name", value: "maxCents" } },
+                { kind: "Field", name: { kind: "Name", value: "currency" } },
+                { kind: "Field", name: { kind: "Name", value: "period" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UpdateJobMutation, UpdateJobMutationVariables>;
+export const RemoveJobTagDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "RemoveJobTag" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "id" } },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "tag" } },
+          type: {
+            kind: "NonNullType",
+            type: {
+              kind: "NamedType",
+              name: { kind: "Name", value: "String" },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "removeJobTag" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "id" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "id" },
+                },
+              },
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "tag" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "tag" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                { kind: "Field", name: { kind: "Name", value: "tags" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  RemoveJobTagMutation,
+  RemoveJobTagMutationVariables
+>;
+export const DeleteJobDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "DeleteJob" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "id" } },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "deleteJob" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "id" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "id" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "success" } },
+                { kind: "Field", name: { kind: "Name", value: "deletedId" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<DeleteJobMutation, DeleteJobMutationVariables>;
+export const JobStageEventsDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "query",
+      name: { kind: "Name", value: "JobStageEvents" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "jobId" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "jobStageEvents" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "jobId" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "jobId" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                { kind: "Field", name: { kind: "Name", value: "jobId" } },
+                { kind: "Field", name: { kind: "Name", value: "fromStage" } },
+                { kind: "Field", name: { kind: "Name", value: "toStage" } },
+                { kind: "Field", name: { kind: "Name", value: "source" } },
+                { kind: "Field", name: { kind: "Name", value: "reason" } },
+                { kind: "Field", name: { kind: "Name", value: "scheduledAt" } },
+                { kind: "Field", name: { kind: "Name", value: "createdAt" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<JobStageEventsQuery, JobStageEventsQueryVariables>;
+export const CreateJobStageEventDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "CreateJobStageEvent" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "input" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: {
+              kind: "NamedType",
+              name: { kind: "Name", value: "CreateJobStageEventInput" },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "createJobStageEvent" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "input" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "input" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                { kind: "Field", name: { kind: "Name", value: "jobId" } },
+                { kind: "Field", name: { kind: "Name", value: "fromStage" } },
+                { kind: "Field", name: { kind: "Name", value: "toStage" } },
+                { kind: "Field", name: { kind: "Name", value: "source" } },
+                { kind: "Field", name: { kind: "Name", value: "reason" } },
+                { kind: "Field", name: { kind: "Name", value: "scheduledAt" } },
+                { kind: "Field", name: { kind: "Name", value: "createdAt" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  CreateJobStageEventMutation,
+  CreateJobStageEventMutationVariables
+>;
+export const UpdateJobStageEventDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "UpdateJobStageEvent" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "id" } },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "input" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: {
+              kind: "NamedType",
+              name: { kind: "Name", value: "UpdateJobStageEventInput" },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "updateJobStageEvent" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "id" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "id" },
+                },
+              },
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "input" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "input" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                { kind: "Field", name: { kind: "Name", value: "jobId" } },
+                { kind: "Field", name: { kind: "Name", value: "fromStage" } },
+                { kind: "Field", name: { kind: "Name", value: "toStage" } },
+                { kind: "Field", name: { kind: "Name", value: "source" } },
+                { kind: "Field", name: { kind: "Name", value: "reason" } },
+                { kind: "Field", name: { kind: "Name", value: "scheduledAt" } },
+                { kind: "Field", name: { kind: "Name", value: "createdAt" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  UpdateJobStageEventMutation,
+  UpdateJobStageEventMutationVariables
+>;
+export const DeleteJobStageEventDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "DeleteJobStageEvent" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "id" } },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "deleteJobStageEvent" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "id" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "id" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "success" } },
+                { kind: "Field", name: { kind: "Name", value: "deletedId" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  DeleteJobStageEventMutation,
+  DeleteJobStageEventMutationVariables
+>;
+export const JobNotesDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "query",
+      name: { kind: "Name", value: "JobNotes" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "jobId" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "jobNotes" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "jobId" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "jobId" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                { kind: "Field", name: { kind: "Name", value: "jobId" } },
+                { kind: "Field", name: { kind: "Name", value: "content" } },
+                { kind: "Field", name: { kind: "Name", value: "revision" } },
+                { kind: "Field", name: { kind: "Name", value: "createdAt" } },
+                { kind: "Field", name: { kind: "Name", value: "updatedAt" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<JobNotesQuery, JobNotesQueryVariables>;
+export const CreateJobNoteDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "CreateJobNote" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "input" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: {
+              kind: "NamedType",
+              name: { kind: "Name", value: "CreateNoteInput" },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "createJobNote" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "input" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "input" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                { kind: "Field", name: { kind: "Name", value: "jobId" } },
+                { kind: "Field", name: { kind: "Name", value: "content" } },
+                { kind: "Field", name: { kind: "Name", value: "revision" } },
+                { kind: "Field", name: { kind: "Name", value: "createdAt" } },
+                { kind: "Field", name: { kind: "Name", value: "updatedAt" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  CreateJobNoteMutation,
+  CreateJobNoteMutationVariables
+>;
+export const UpdateJobNoteDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "UpdateJobNote" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "id" } },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "input" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: {
+              kind: "NamedType",
+              name: { kind: "Name", value: "UpdateNoteInput" },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "updateJobNote" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "id" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "id" },
+                },
+              },
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "input" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "input" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                { kind: "Field", name: { kind: "Name", value: "jobId" } },
+                { kind: "Field", name: { kind: "Name", value: "content" } },
+                { kind: "Field", name: { kind: "Name", value: "revision" } },
+                { kind: "Field", name: { kind: "Name", value: "createdAt" } },
+                { kind: "Field", name: { kind: "Name", value: "updatedAt" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  UpdateJobNoteMutation,
+  UpdateJobNoteMutationVariables
+>;
+export const DeleteJobNoteDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "DeleteJobNote" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "id" } },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "deleteJobNote" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "id" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "id" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "success" } },
+                { kind: "Field", name: { kind: "Name", value: "deletedId" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  DeleteJobNoteMutation,
+  DeleteJobNoteMutationVariables
+>;
+export const GenerateJobNoteWithAiDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "query",
+      name: { kind: "Name", value: "GenerateJobNoteWithAi" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "jobId" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "note" } },
+          type: {
+            kind: "NonNullType",
+            type: {
+              kind: "NamedType",
+              name: { kind: "Name", value: "String" },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "generateJobNoteWithAI" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "jobId" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "jobId" },
+                },
+              },
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "note" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "note" },
+                },
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  GenerateJobNoteWithAiQuery,
+  GenerateJobNoteWithAiQueryVariables
+>;
+export const RewriteTextWithAiDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "query",
+      name: { kind: "Name", value: "RewriteTextWithAi" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "text" } },
+          type: {
+            kind: "NonNullType",
+            type: {
+              kind: "NamedType",
+              name: { kind: "Name", value: "String" },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "rewriteTextWithAI" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "text" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "text" },
+                },
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  RewriteTextWithAiQuery,
+  RewriteTextWithAiQueryVariables
+>;
+export const RestructureJobDescriptionWithAiDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "query",
+      name: { kind: "Name", value: "RestructureJobDescriptionWithAi" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "text" } },
+          type: {
+            kind: "NonNullType",
+            type: {
+              kind: "NamedType",
+              name: { kind: "Name", value: "String" },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "restructureJobDescriptionWithAI" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "text" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "text" },
+                },
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  RestructureJobDescriptionWithAiQuery,
+  RestructureJobDescriptionWithAiQueryVariables
+>;
+export const GenerateJobLocationWithAiDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "query",
+      name: { kind: "Name", value: "GenerateJobLocationWithAi" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "jobId" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "generateJobLocationWithAI" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "jobId" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "jobId" },
+                },
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  GenerateJobLocationWithAiQuery,
+  GenerateJobLocationWithAiQueryVariables
+>;
+export const GenerateJobWorkRegionWithAiDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "query",
+      name: { kind: "Name", value: "GenerateJobWorkRegionWithAi" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "jobId" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "generateJobWorkRegionWithAI" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "jobId" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "jobId" },
+                },
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  GenerateJobWorkRegionWithAiQuery,
+  GenerateJobWorkRegionWithAiQueryVariables
+>;
+export const GenerateJobSummaryDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "GenerateJobSummary" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "jobId" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "generateJobSummary" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "jobId" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "jobId" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                { kind: "Field", name: { kind: "Name", value: "summary" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "summaryMetadata" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "status" },
+                      },
+                      { kind: "Field", name: { kind: "Name", value: "error" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "timestamp" },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  GenerateJobSummaryMutation,
+  GenerateJobSummaryMutationVariables
+>;
+export const MatchAnalysesListDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "query",
+      name: { kind: "Name", value: "MatchAnalysesList" },
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "matchAnalyses" },
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                { kind: "Field", name: { kind: "Name", value: "jobId" } },
+                { kind: "Field", name: { kind: "Name", value: "draftJobId" } },
                 { kind: "Field", name: { kind: "Name", value: "resumeId" } },
                 {
                   kind: "Field",
@@ -4397,7 +4239,7 @@ export const FitAnalysesListDocument = {
                   kind: "Field",
                   name: { kind: "Name", value: "classification" },
                 },
-                { kind: "Field", name: { kind: "Name", value: "fitCount" } },
+                { kind: "Field", name: { kind: "Name", value: "matchCount" } },
                 { kind: "Field", name: { kind: "Name", value: "gapCount" } },
                 {
                   kind: "Field",
@@ -4407,7 +4249,7 @@ export const FitAnalysesListDocument = {
                 { kind: "Field", name: { kind: "Name", value: "updatedAt" } },
                 {
                   kind: "Field",
-                  name: { kind: "Name", value: "application" },
+                  name: { kind: "Name", value: "job" },
                   selectionSet: {
                     kind: "SelectionSet",
                     selections: [
@@ -4435,7 +4277,7 @@ export const FitAnalysesListDocument = {
                 },
                 {
                   kind: "Field",
-                  name: { kind: "Name", value: "draftApplication" },
+                  name: { kind: "Name", value: "draftJob" },
                   selectionSet: {
                     kind: "SelectionSet",
                     selections: [
@@ -4452,16 +4294,16 @@ export const FitAnalysesListDocument = {
     },
   ],
 } as unknown as DocumentNode<
-  FitAnalysesListQuery,
-  FitAnalysesListQueryVariables
+  MatchAnalysesListQuery,
+  MatchAnalysesListQueryVariables
 >;
-export const FitDocument = {
+export const MatchDocument = {
   kind: "Document",
   definitions: [
     {
       kind: "OperationDefinition",
       operation: "query",
-      name: { kind: "Name", value: "Fit" },
+      name: { kind: "Name", value: "Match" },
       variableDefinitions: [
         {
           kind: "VariableDefinition",
@@ -4477,7 +4319,7 @@ export const FitDocument = {
         selections: [
           {
             kind: "Field",
-            name: { kind: "Name", value: "fit" },
+            name: { kind: "Name", value: "match" },
             arguments: [
               {
                 kind: "Argument",
@@ -4492,14 +4334,8 @@ export const FitDocument = {
               kind: "SelectionSet",
               selections: [
                 { kind: "Field", name: { kind: "Name", value: "id" } },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "applicationId" },
-                },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "draftApplicationId" },
-                },
+                { kind: "Field", name: { kind: "Name", value: "jobId" } },
+                { kind: "Field", name: { kind: "Name", value: "draftJobId" } },
                 { kind: "Field", name: { kind: "Name", value: "resumeId" } },
                 {
                   kind: "Field",
@@ -4524,7 +4360,7 @@ export const FitDocument = {
                   kind: "Field",
                   name: { kind: "Name", value: "classification" },
                 },
-                { kind: "Field", name: { kind: "Name", value: "fitCount" } },
+                { kind: "Field", name: { kind: "Name", value: "matchCount" } },
                 { kind: "Field", name: { kind: "Name", value: "gapCount" } },
                 {
                   kind: "Field",
@@ -4571,7 +4407,7 @@ export const FitDocument = {
                 { kind: "Field", name: { kind: "Name", value: "createdAt" } },
                 {
                   kind: "Field",
-                  name: { kind: "Name", value: "application" },
+                  name: { kind: "Name", value: "job" },
                   selectionSet: {
                     kind: "SelectionSet",
                     selections: [
@@ -4599,7 +4435,7 @@ export const FitDocument = {
                 },
                 {
                   kind: "Field",
-                  name: { kind: "Name", value: "draftApplication" },
+                  name: { kind: "Name", value: "draftJob" },
                   selectionSet: {
                     kind: "SelectionSet",
                     selections: [
@@ -4615,20 +4451,20 @@ export const FitDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<FitQuery, FitQueryVariables>;
-export const ApplicationFitDocument = {
+} as unknown as DocumentNode<MatchQuery, MatchQueryVariables>;
+export const JobMatchDocument = {
   kind: "Document",
   definitions: [
     {
       kind: "OperationDefinition",
       operation: "query",
-      name: { kind: "Name", value: "ApplicationFit" },
+      name: { kind: "Name", value: "JobMatch" },
       variableDefinitions: [
         {
           kind: "VariableDefinition",
           variable: {
             kind: "Variable",
-            name: { kind: "Name", value: "applicationId" },
+            name: { kind: "Name", value: "jobId" },
           },
           type: {
             kind: "NonNullType",
@@ -4641,14 +4477,14 @@ export const ApplicationFitDocument = {
         selections: [
           {
             kind: "Field",
-            name: { kind: "Name", value: "applicationFit" },
+            name: { kind: "Name", value: "jobMatch" },
             arguments: [
               {
                 kind: "Argument",
-                name: { kind: "Name", value: "applicationId" },
+                name: { kind: "Name", value: "jobId" },
                 value: {
                   kind: "Variable",
-                  name: { kind: "Name", value: "applicationId" },
+                  name: { kind: "Name", value: "jobId" },
                 },
               },
             ],
@@ -4656,14 +4492,8 @@ export const ApplicationFitDocument = {
               kind: "SelectionSet",
               selections: [
                 { kind: "Field", name: { kind: "Name", value: "id" } },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "applicationId" },
-                },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "draftApplicationId" },
-                },
+                { kind: "Field", name: { kind: "Name", value: "jobId" } },
+                { kind: "Field", name: { kind: "Name", value: "draftJobId" } },
                 { kind: "Field", name: { kind: "Name", value: "resumeId" } },
                 {
                   kind: "Field",
@@ -4688,7 +4518,7 @@ export const ApplicationFitDocument = {
                   kind: "Field",
                   name: { kind: "Name", value: "classification" },
                 },
-                { kind: "Field", name: { kind: "Name", value: "fitCount" } },
+                { kind: "Field", name: { kind: "Name", value: "matchCount" } },
                 { kind: "Field", name: { kind: "Name", value: "gapCount" } },
                 {
                   kind: "Field",
@@ -4740,20 +4570,20 @@ export const ApplicationFitDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<ApplicationFitQuery, ApplicationFitQueryVariables>;
-export const DraftApplicationFitDocument = {
+} as unknown as DocumentNode<JobMatchQuery, JobMatchQueryVariables>;
+export const DraftJobMatchDocument = {
   kind: "Document",
   definitions: [
     {
       kind: "OperationDefinition",
       operation: "query",
-      name: { kind: "Name", value: "DraftApplicationFit" },
+      name: { kind: "Name", value: "DraftJobMatch" },
       variableDefinitions: [
         {
           kind: "VariableDefinition",
           variable: {
             kind: "Variable",
-            name: { kind: "Name", value: "draftApplicationId" },
+            name: { kind: "Name", value: "draftJobId" },
           },
           type: {
             kind: "NonNullType",
@@ -4766,14 +4596,14 @@ export const DraftApplicationFitDocument = {
         selections: [
           {
             kind: "Field",
-            name: { kind: "Name", value: "draftApplicationFit" },
+            name: { kind: "Name", value: "draftJobMatch" },
             arguments: [
               {
                 kind: "Argument",
-                name: { kind: "Name", value: "draftApplicationId" },
+                name: { kind: "Name", value: "draftJobId" },
                 value: {
                   kind: "Variable",
-                  name: { kind: "Name", value: "draftApplicationId" },
+                  name: { kind: "Name", value: "draftJobId" },
                 },
               },
             ],
@@ -4781,14 +4611,8 @@ export const DraftApplicationFitDocument = {
               kind: "SelectionSet",
               selections: [
                 { kind: "Field", name: { kind: "Name", value: "id" } },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "applicationId" },
-                },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "draftApplicationId" },
-                },
+                { kind: "Field", name: { kind: "Name", value: "jobId" } },
+                { kind: "Field", name: { kind: "Name", value: "draftJobId" } },
                 { kind: "Field", name: { kind: "Name", value: "resumeId" } },
                 {
                   kind: "Field",
@@ -4813,7 +4637,7 @@ export const DraftApplicationFitDocument = {
                   kind: "Field",
                   name: { kind: "Name", value: "classification" },
                 },
-                { kind: "Field", name: { kind: "Name", value: "fitCount" } },
+                { kind: "Field", name: { kind: "Name", value: "matchCount" } },
                 { kind: "Field", name: { kind: "Name", value: "gapCount" } },
                 {
                   kind: "Field",
@@ -4865,17 +4689,14 @@ export const DraftApplicationFitDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<
-  DraftApplicationFitQuery,
-  DraftApplicationFitQueryVariables
->;
-export const GenerateApplicationFitDocument = {
+} as unknown as DocumentNode<DraftJobMatchQuery, DraftJobMatchQueryVariables>;
+export const GenerateJobMatchDocument = {
   kind: "Document",
   definitions: [
     {
       kind: "OperationDefinition",
       operation: "mutation",
-      name: { kind: "Name", value: "GenerateApplicationFit" },
+      name: { kind: "Name", value: "GenerateJobMatch" },
       variableDefinitions: [
         {
           kind: "VariableDefinition",
@@ -4887,7 +4708,7 @@ export const GenerateApplicationFitDocument = {
             kind: "NonNullType",
             type: {
               kind: "NamedType",
-              name: { kind: "Name", value: "GenerateFitInput" },
+              name: { kind: "Name", value: "GenerateMatchInput" },
             },
           },
         },
@@ -4897,7 +4718,7 @@ export const GenerateApplicationFitDocument = {
         selections: [
           {
             kind: "Field",
-            name: { kind: "Name", value: "generateApplicationFit" },
+            name: { kind: "Name", value: "generateJobMatch" },
             arguments: [
               {
                 kind: "Argument",
@@ -4912,14 +4733,8 @@ export const GenerateApplicationFitDocument = {
               kind: "SelectionSet",
               selections: [
                 { kind: "Field", name: { kind: "Name", value: "id" } },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "applicationId" },
-                },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "draftApplicationId" },
-                },
+                { kind: "Field", name: { kind: "Name", value: "jobId" } },
+                { kind: "Field", name: { kind: "Name", value: "draftJobId" } },
                 { kind: "Field", name: { kind: "Name", value: "resumeId" } },
                 {
                   kind: "Field",
@@ -4944,7 +4759,7 @@ export const GenerateApplicationFitDocument = {
                   kind: "Field",
                   name: { kind: "Name", value: "classification" },
                 },
-                { kind: "Field", name: { kind: "Name", value: "fitCount" } },
+                { kind: "Field", name: { kind: "Name", value: "matchCount" } },
                 { kind: "Field", name: { kind: "Name", value: "gapCount" } },
                 {
                   kind: "Field",
@@ -4997,16 +4812,16 @@ export const GenerateApplicationFitDocument = {
     },
   ],
 } as unknown as DocumentNode<
-  GenerateApplicationFitMutation,
-  GenerateApplicationFitMutationVariables
+  GenerateJobMatchMutation,
+  GenerateJobMatchMutationVariables
 >;
-export const GenerateDraftApplicationFitDocument = {
+export const GenerateDraftJobMatchDocument = {
   kind: "Document",
   definitions: [
     {
       kind: "OperationDefinition",
       operation: "mutation",
-      name: { kind: "Name", value: "GenerateDraftApplicationFit" },
+      name: { kind: "Name", value: "GenerateDraftJobMatch" },
       variableDefinitions: [
         {
           kind: "VariableDefinition",
@@ -5018,7 +4833,7 @@ export const GenerateDraftApplicationFitDocument = {
             kind: "NonNullType",
             type: {
               kind: "NamedType",
-              name: { kind: "Name", value: "GenerateDraftFitInput" },
+              name: { kind: "Name", value: "GenerateDraftMatchInput" },
             },
           },
         },
@@ -5028,7 +4843,7 @@ export const GenerateDraftApplicationFitDocument = {
         selections: [
           {
             kind: "Field",
-            name: { kind: "Name", value: "generateDraftApplicationFit" },
+            name: { kind: "Name", value: "generateDraftJobMatch" },
             arguments: [
               {
                 kind: "Argument",
@@ -5043,14 +4858,8 @@ export const GenerateDraftApplicationFitDocument = {
               kind: "SelectionSet",
               selections: [
                 { kind: "Field", name: { kind: "Name", value: "id" } },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "applicationId" },
-                },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "draftApplicationId" },
-                },
+                { kind: "Field", name: { kind: "Name", value: "jobId" } },
+                { kind: "Field", name: { kind: "Name", value: "draftJobId" } },
                 { kind: "Field", name: { kind: "Name", value: "resumeId" } },
                 {
                   kind: "Field",
@@ -5075,7 +4884,7 @@ export const GenerateDraftApplicationFitDocument = {
                   kind: "Field",
                   name: { kind: "Name", value: "classification" },
                 },
-                { kind: "Field", name: { kind: "Name", value: "fitCount" } },
+                { kind: "Field", name: { kind: "Name", value: "matchCount" } },
                 { kind: "Field", name: { kind: "Name", value: "gapCount" } },
                 {
                   kind: "Field",
@@ -5128,16 +4937,16 @@ export const GenerateDraftApplicationFitDocument = {
     },
   ],
 } as unknown as DocumentNode<
-  GenerateDraftApplicationFitMutation,
-  GenerateDraftApplicationFitMutationVariables
+  GenerateDraftJobMatchMutation,
+  GenerateDraftJobMatchMutationVariables
 >;
-export const DeleteFitAnalysisDocument = {
+export const DeleteMatchAnalysisDocument = {
   kind: "Document",
   definitions: [
     {
       kind: "OperationDefinition",
       operation: "mutation",
-      name: { kind: "Name", value: "DeleteFitAnalysis" },
+      name: { kind: "Name", value: "DeleteMatchAnalysis" },
       variableDefinitions: [
         {
           kind: "VariableDefinition",
@@ -5153,7 +4962,7 @@ export const DeleteFitAnalysisDocument = {
         selections: [
           {
             kind: "Field",
-            name: { kind: "Name", value: "deleteFitAnalysis" },
+            name: { kind: "Name", value: "deleteMatchAnalysis" },
             arguments: [
               {
                 kind: "Argument",
@@ -5177,8 +4986,8 @@ export const DeleteFitAnalysisDocument = {
     },
   ],
 } as unknown as DocumentNode<
-  DeleteFitAnalysisMutation,
-  DeleteFitAnalysisMutationVariables
+  DeleteMatchAnalysisMutation,
+  DeleteMatchAnalysisMutationVariables
 >;
 export const MeDocument = {
   kind: "Document",

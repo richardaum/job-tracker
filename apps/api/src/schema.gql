@@ -29,6 +29,16 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
+type ExchangeRate {
+  currency: String!
+  rate: Float!
+}
+
+type CurrencyRates {
+  base: String!
+  rates: [ExchangeRate!]!
+}
+
 type AsyncMetadataType {
   status: AsyncMetadataStatus!
   error: String
@@ -41,7 +51,7 @@ enum AsyncMetadataStatus {
   FAILED
 }
 
-type FitItemType {
+type MatchItemType {
   requirement: String!
   source: String!
   weight: String
@@ -52,50 +62,50 @@ type FitItemType {
   suggestion: String
 }
 
-type FitAnalysisType {
+type MatchAnalysisType {
   id: ID!
-  applicationId: ID
-  draftApplicationId: ID
+  jobId: ID
+  draftJobId: ID
   resumeId: ID!
   generationMetadata: AsyncMetadataType
   scoreRatio: Float
   classification: String
-  fitCount: Int!
+  matchCount: Int!
   gapCount: Int!
   unclearCount: Int!
-  items: [FitItemType!]!
+  items: [MatchItemType!]!
   createdAt: DateTime!
   updatedAt: DateTime!
-  application: ApplicationType
-  draftApplication: DraftApplicationType
+  job: JobType
+  draftJob: DraftJobType
 }
 
 type ConversionMetadataType {
-  status: DraftApplicationConversionStatus!
+  status: DraftJobConversionStatus!
   error: String
   timestamp: String
 }
 
-enum DraftApplicationConversionStatus {
+enum DraftJobConversionStatus {
   IDLE
   PROCESSING
   SUCCEEDED
   FAILED
 }
 
-type DraftApplicationType {
+type DraftJobType {
   id: ID!
   url: String
   title: String!
   htmlContent: String!
-  applicationId: String
+  jobId: String
   conversionMetadata: ConversionMetadataType
   createdAt: DateTime!
   updatedAt: DateTime!
-  fit: FitAnalysisType
+  match: MatchAnalysisType
 }
 
-type ApplicationType {
+type JobType {
   id: ID!
   userId: String!
   title: String!
@@ -103,11 +113,11 @@ type ApplicationType {
   company: CompanyType!
   description: String
   urls: [String!]!
-  source: ApplicationSource
+  source: JobSource
   tags: [String!]!
   location: String
   workRegion: String
-  currentStage: ApplicationStage!
+  currentStage: JobStage!
   currentStageReason: String
   currentStageAt: DateTime!
   createdAt: DateTime!
@@ -115,19 +125,19 @@ type ApplicationType {
   sourceRunId: ID
   summary: String
   summaryMetadata: AsyncMetadataType
-  fit: FitAnalysisType
-  draftApplicationId: ID
-  salary: ApplicationSalary!
+  match: MatchAnalysisType
+  draftJobId: ID
+  salary: JobSalary!
 }
 
-enum ApplicationSource {
+enum JobSource {
   LINKEDIN
   JACK
   WELLFOUND
   REMOTE_YEAH
 }
 
-enum ApplicationStage {
+enum JobStage {
   NEW
   APPLIED
   RECRUITER_SCREEN
@@ -138,19 +148,19 @@ enum ApplicationStage {
   DUPLICATED
 }
 
-type ApplicationStageEventType {
+type JobStageEventType {
   id: ID!
-  applicationId: String!
+  jobId: String!
   userId: String!
-  fromStage: ApplicationStage
-  toStage: ApplicationStage!
+  fromStage: JobStage
+  toStage: JobStage!
   source: String!
   reason: String
   scheduledAt: DateTime
   createdAt: DateTime!
 }
 
-type ApplicationSalary {
+type JobSalary {
   minCents: Int
   maxCents: Int
   currency: String
@@ -161,16 +171,6 @@ enum SalaryPeriod {
   YEAR
   MONTH
   HOUR
-}
-
-type ExchangeRate {
-  currency: String!
-  rate: Float!
-}
-
-type CurrencyRates {
-  base: String!
-  rates: [ExchangeRate!]!
 }
 
 type ResumeType {
@@ -185,7 +185,7 @@ type ResumeType {
 
 type NoteType {
   id: ID!
-  applicationId: String
+  jobId: String
   userId: String!
   content: String!
   revision: Int!
@@ -248,36 +248,35 @@ enum Weight {
 
 type Query {
   me: UserType!
-  applications(filter: ApplicationQuickFilter, company: String, runId: ID): [ApplicationType!]!
-  application(id: ID!): ApplicationType!
-  generateApplicationLocationWithAI(applicationId: ID!): String
-  generateApplicationWorkRegionWithAI(applicationId: ID!): String
+  jobs(filter: JobQuickFilter, company: String, runId: ID): [JobType!]!
+  job(id: ID!): JobType!
+  generateJobLocationWithAI(jobId: ID!): String
+  generateJobWorkRegionWithAI(jobId: ID!): String
   generateCompanyDescription(companyName: String!): String!
-  applicationStageEvents(applicationId: ID!): [ApplicationStageEventType!]!
+  jobStageEvents(jobId: ID!): [JobStageEventType!]!
   companies: [CompanyType!]!
   company(id: ID!): CompanyType!
   companyApplicationsCount(id: ID!): Int!
-  draftApplications: [DraftApplicationType!]!
-  draftApplication(id: ID!): DraftApplicationType!
+  draftJobs: [DraftJobType!]!
+  draftJob(id: ID!): DraftJobType!
   exchangeRates(base: String!, currencies: [String!]!): CurrencyRates!
   sourceRuns: [SourceRunType!]!
   sourceTemplates: [SourceTemplateType!]!
   sourceTemplatesForSourceProfile(sourceProfileId: String!): [SourceTemplateType!]!
   sourceProfiles(onlyWithSourceTemplate: Boolean = false): [SourceProfileType!]!
-  applicationNotes(applicationId: ID!): [NoteType!]!
-  generateApplicationNoteWithAI(applicationId: ID!, note: String!): String!
+  applicationNotes(jobId: ID!): [NoteType!]!
+  generateApplicationNoteWithAI(jobId: ID!, note: String!): String!
   resumes: [ResumeType!]!
   resume(id: ID!): ResumeType!
   workPreferences: [PreferenceType!]!
-  fitAnalyses: [FitAnalysisType!]!
-  fit(id: ID!): FitAnalysisType!
-  applicationFit(applicationId: ID!): FitAnalysisType
-  draftApplicationFit(draftApplicationId: ID!): FitAnalysisType
+  matchAnalyses: [MatchAnalysisType!]!
+  match(jobId: ID!): MatchAnalysisType
+  draftJobMatch(draftJobId: ID!): MatchAnalysisType
   rewriteTextWithAI(text: String!): String!
   restructureJobDescriptionWithAI(text: String!): String!
 }
 
-enum ApplicationQuickFilter {
+enum JobQuickFilter {
   INCOMING
   ACTIVE
   APPLIED
@@ -286,21 +285,21 @@ enum ApplicationQuickFilter {
 }
 
 type Mutation {
-  createApplication(input: CreateApplicationInput!): ApplicationType!
-  createApplicationWithAI(draftId: ID!): DraftApplicationType!
-  updateApplication(id: ID!, input: UpdateApplicationInput!): ApplicationType!
-  generateApplicationSummary(applicationId: ID!): ApplicationType!
-  removeApplicationTag(id: ID!, tag: String!): ApplicationType!
-  deleteApplication(id: ID!): DeleteMutationPayloadType!
-  createApplicationStageEvent(input: CreateApplicationStageEventInput!): ApplicationStageEventType!
-  updateApplicationStageEvent(id: ID!, input: UpdateApplicationStageEventInput!): ApplicationStageEventType!
-  deleteApplicationStageEvent(id: ID!): DeleteMutationPayloadType!
+  createJob(input: CreateJobInput!): JobType!
+  createJobWithAI(draftId: ID!): DraftJobType!
+  updateJob(id: ID!, input: UpdateJobInput!): JobType!
+  generateJobSummary(jobId: ID!): JobType!
+  removeJobTag(id: ID!, tag: String!): JobType!
+  deleteJob(id: ID!): DeleteMutationPayloadType!
+  createJobStageEvent(input: CreateJobStageEventInput!): JobStageEventType!
+  updateJobStageEvent(id: ID!, input: UpdateJobStageEventInput!): JobStageEventType!
+  deleteJobStageEvent(id: ID!): DeleteMutationPayloadType!
   updateCompany(id: ID!, input: UpdateCompanyInput!): CompanyType!
   deleteCompany(id: ID!): DeleteMutationPayloadType!
-  createDraftApplication(input: CreateDraftApplicationInput!): DraftApplicationType!
-  deleteApplicationsForDraft(draftId: ID!): DeleteMutationPayloadType!
-  deleteDraftApplication(id: ID!, deleteLinkedApplication: Boolean = false): DeleteMutationPayloadType!
-  updateDraftApplication(id: ID!, input: UpdateDraftApplicationInput!): DraftApplicationType!
+  createDraftJob(input: CreateDraftJobInput!): DraftJobType!
+  deleteJobsForDraft(draftId: ID!): DeleteMutationPayloadType!
+  deleteDraftJob(id: ID!, deleteLinkedJob: Boolean = false): DeleteMutationPayloadType!
+  updateDraftJob(id: ID!, input: UpdateDraftJobInput!): DraftJobType!
   createSourceRun(input: CreateSourceRunInput!): SourceRunType!
   createSourceTemplate(input: CreateSourceTemplateInput!): SourceTemplateType!
   rerunSourceTemplate(templateId: ID!): SourceRunType!
@@ -319,18 +318,18 @@ type Mutation {
   updateResume(id: ID!, input: UpdateResumeInput!): ResumeType!
   deleteResume(id: ID!): DeleteMutationPayloadType!
   updateWorkPreferences(items: [PreferenceInput!]!): [PreferenceType!]!
-  generateApplicationFit(input: GenerateFitInput!): FitAnalysisType!
-  deleteFitAnalysis(id: ID!): DeleteMutationPayloadType!
-  generateDraftApplicationFit(input: GenerateDraftFitInput!): FitAnalysisType!
+  generateJobMatch(input: GenerateMatchInput!): MatchAnalysisType!
+  deleteMatchAnalysis(id: ID!): DeleteMutationPayloadType!
+  generateDraftJobMatch(input: GenerateDraftMatchInput!): MatchAnalysisType!
 }
 
-input CreateApplicationInput {
+input CreateJobInput {
   title: String!
   company: String!
   companyId: ID
   description: String
   urls: [String!]
-  source: ApplicationSource
+  source: JobSource
   salaryMinCents: Int
   salaryMaxCents: Int
   salaryCurrency: String
@@ -341,13 +340,13 @@ input CreateApplicationInput {
   sourceRunId: ID
 }
 
-input UpdateApplicationInput {
+input UpdateJobInput {
   title: String
   company: String
   companyId: ID
   description: String
   urls: [String!]
-  source: ApplicationSource
+  source: JobSource
   salaryMinCents: Int
   salaryMaxCents: Int
   salaryCurrency: String
@@ -357,16 +356,16 @@ input UpdateApplicationInput {
   workRegion: String
 }
 
-input CreateApplicationStageEventInput {
-  applicationId: String!
-  toStage: ApplicationStage!
+input CreateJobStageEventInput {
+  jobId: String!
+  toStage: JobStage!
   source: String
   reason: String
   scheduledAt: DateTime
 }
 
-input UpdateApplicationStageEventInput {
-  toStage: ApplicationStage
+input UpdateJobStageEventInput {
+  toStage: JobStage
   scheduledAt: DateTime
   reason: String
 }
@@ -376,13 +375,13 @@ input UpdateCompanyInput {
   description: String
 }
 
-input CreateDraftApplicationInput {
+input CreateDraftJobInput {
   url: String
   title: String!
   htmlContent: String!
 }
 
-input UpdateDraftApplicationInput {
+input UpdateDraftJobInput {
   title: String!
 }
 
@@ -406,7 +405,7 @@ input UpdateSourceRunInput {
 }
 
 input CreateNoteInput {
-  applicationId: String!
+  jobId: String!
   content: String!
 }
 
@@ -432,13 +431,13 @@ input PreferenceInput {
   weight: Weight!
 }
 
-input GenerateFitInput {
-  applicationId: ID!
+input GenerateMatchInput {
+  jobId: ID!
   resumeId: ID!
 }
 
-input GenerateDraftFitInput {
-  draftApplicationId: ID!
+input GenerateDraftMatchInput {
+  draftJobId: ID!
   resumeId: ID!
 }
 

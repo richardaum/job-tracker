@@ -19,8 +19,8 @@ import React, { useState } from "react";
 import { BackToLink } from "@/components/back-to-link";
 import { EntityNotFound } from "@/components/entity-not-found";
 import { ResumesDocument, useDeleteResumeMutation } from "@/gql/hooks";
-import { TipTapEditor } from "@/modules/applications/details/components/TipTapEditor";
-import { useToastQueue } from "@/modules/applications/shared/hooks/useToastQueue";
+import { TipTapEditor } from "@/modules/jobs/details/components/TipTapEditor";
+import { useToastQueue } from "@/modules/jobs/shared/hooks/useToastQueue";
 import { ResumeTitleEditDialog } from "@/modules/resumes/details/components/ResumeTitleEditDialog";
 import { useResumeDetailsViewModel } from "@/modules/resumes/details/hooks/useResumeDetailsViewModel";
 import { DeleteResumeDialog } from "@/modules/resumes/list/components/DeleteResumeDialog";
@@ -211,7 +211,6 @@ export default function ResumeDetailsPage({ params }: PageProps) {
         />
       ) : null}
 
-      {/* Editor */}
       <div className={cn("flex-1 min-h-0 overflow-hidden p-4 sm:p-6")}>
         {status === "loading" ? (
           <Text size="sm" color="secondary">
