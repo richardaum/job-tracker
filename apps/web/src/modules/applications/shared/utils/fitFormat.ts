@@ -1,8 +1,10 @@
+import { FitClassification } from "@/gql/hooks";
+
 export function formatFitClassification(
   classification: string | null | undefined,
 ): string {
-  if (classification === "positive") return "Strong fit";
-  if (classification === "negative") return "Weak fit";
+  if (classification === FitClassification.Positive) return "Strong fit";
+  if (classification === FitClassification.Negative) return "Weak fit";
   return "Inconclusive";
 }
 
@@ -23,8 +25,8 @@ export function formatFitLabel(
 }
 
 export function formatRequirementType(type: string | null | undefined): string {
-  if (type === "must_have") return "Required";
-  if (type === "nice_to_have") return "Plus";
-  if (type === "soft_skill") return "Soft Skill";
+  if (type === "MUST_HAVE") return "Required";
+  if (type === "NICE_TO_HAVE") return "Plus";
+  if (type === "SOFT_SKILL") return "Soft Skill";
   return type ?? "";
 }

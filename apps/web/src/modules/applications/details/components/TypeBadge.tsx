@@ -11,12 +11,12 @@ export function TypeBadge({ type }: { type: string }) {
     <Badge
       className={cn(
         "self-end border-0",
-        type === "must_have" && "bg-bg-info-subtle",
-        type === "nice_to_have" && "bg-bg-success-subtle",
+        type === "MUST_HAVE" && "bg-bg-info-subtle",
+        type === "NICE_TO_HAVE" && "bg-bg-success-subtle",
       )}
       intent="default"
     >
-      {type === "nice_to_have" && (
+      {type === "NICE_TO_HAVE" && (
         <StarIcon
           size={10}
           weight="fill"
@@ -25,9 +25,9 @@ export function TypeBadge({ type }: { type: string }) {
       )}
       <span
         className={cn(
-          type === "must_have" && "text-blue-600",
-          type === "nice_to_have" && "text-green-600",
-          type === "soft_skill" && "text-text-muted",
+          type === "MUST_HAVE" && "text-blue-600",
+          type === "NICE_TO_HAVE" && "text-green-600",
+          type === "SOFT_SKILL" && "text-text-muted",
         )}
       >
         {formatRequirementType(type)}

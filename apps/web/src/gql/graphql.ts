@@ -73,7 +73,7 @@ export type ApplicationStageEventType = {
   id: Scalars["ID"]["output"];
   reason?: Maybe<Scalars["String"]["output"]>;
   scheduledAt?: Maybe<Scalars["DateTime"]["output"]>;
-  source: Scalars["String"]["output"];
+  source: StageEventSource;
   toStage: ApplicationStage;
   userId: Scalars["String"]["output"];
 };
@@ -155,7 +155,7 @@ export type CreateApplicationStageEventInput = {
   applicationId: Scalars["String"]["input"];
   reason?: InputMaybe<Scalars["String"]["input"]>;
   scheduledAt?: InputMaybe<Scalars["DateTime"]["input"]>;
-  source?: InputMaybe<Scalars["String"]["input"]>;
+  source?: InputMaybe<StageEventSource>;
   toStage: ApplicationStage;
 };
 
@@ -227,7 +227,7 @@ export type FitAnalysisType = {
   __typename?: "FitAnalysisType";
   application?: Maybe<ApplicationType>;
   applicationId?: Maybe<Scalars["ID"]["output"]>;
-  classification?: Maybe<Scalars["String"]["output"]>;
+  classification?: Maybe<FitClassification>;
   createdAt: Scalars["DateTime"]["output"];
   draftApplication?: Maybe<DraftApplicationType>;
   draftApplicationId?: Maybe<Scalars["ID"]["output"]>;
@@ -242,17 +242,34 @@ export type FitAnalysisType = {
   updatedAt: Scalars["DateTime"]["output"];
 };
 
+export enum FitClassification {
+  Negative = "NEGATIVE",
+  Neutral = "NEUTRAL",
+  Positive = "POSITIVE",
+}
+
 export type FitItemType = {
   __typename?: "FitItemType";
   jdQuote: Scalars["String"]["output"];
   requirement: Scalars["String"]["output"];
-  source: Scalars["String"]["output"];
+  source: FitSource;
   sourceQuotes: Array<Scalars["String"]["output"]>;
   suggestion?: Maybe<Scalars["String"]["output"]>;
   type: Scalars["String"]["output"];
-  verdict: Scalars["String"]["output"];
+  verdict: FitVerdict;
   weight?: Maybe<Scalars["String"]["output"]>;
 };
+
+export enum FitSource {
+  Preference = "PREFERENCE",
+  Resume = "RESUME",
+}
+
+export enum FitVerdict {
+  Fit = "FIT",
+  Gap = "GAP",
+  Unclear = "UNCLEAR",
+}
 
 export type GenerateDraftFitInput = {
   draftApplicationId: Scalars["ID"]["input"];
@@ -612,6 +629,13 @@ export type SourceTemplateType = {
   surfaceUrl: Scalars["String"]["output"];
 };
 
+export enum StageEventSource {
+  AiDraftReview = "AI_DRAFT_REVIEW",
+  LinkedinTracker = "LINKEDIN_TRACKER",
+  Manual = "MANUAL",
+  System = "SYSTEM",
+}
+
 export type Subscription = {
   __typename?: "Subscription";
   sourceRunEvents: SourceRunEvent;
@@ -732,7 +756,7 @@ export type ApplicationsQuery = {
         __typename?: "FitAnalysisType";
         id: string;
         scoreRatio?: number | null;
-        classification?: string | null;
+        classification?: FitClassification | null;
         fitCount: number;
         gapCount: number;
         unclearCount: number;
@@ -789,7 +813,7 @@ export type ApplicationQuery = {
       __typename?: "FitAnalysisType";
       id: string;
       scoreRatio?: number | null;
-      classification?: string | null;
+      classification?: FitClassification | null;
       fitCount: number;
       gapCount: number;
       unclearCount: number;
@@ -925,7 +949,7 @@ export type ApplicationStageEventsQuery = {
     applicationId: string;
     fromStage?: ApplicationStage | null;
     toStage: ApplicationStage;
-    source: string;
+    source: StageEventSource;
     reason?: string | null;
     scheduledAt?: any | null;
     createdAt: any;
@@ -944,7 +968,7 @@ export type CreateApplicationStageEventMutation = {
     applicationId: string;
     fromStage?: ApplicationStage | null;
     toStage: ApplicationStage;
-    source: string;
+    source: StageEventSource;
     reason?: string | null;
     scheduledAt?: any | null;
     createdAt: any;
@@ -964,7 +988,7 @@ export type UpdateApplicationStageEventMutation = {
     applicationId: string;
     fromStage?: ApplicationStage | null;
     toStage: ApplicationStage;
-    source: string;
+    source: StageEventSource;
     reason?: string | null;
     scheduledAt?: any | null;
     createdAt: any;
@@ -1230,7 +1254,7 @@ export type DraftApplicationDetailQuery = {
       draftApplicationId?: string | null;
       resumeId: string;
       scoreRatio?: number | null;
-      classification?: string | null;
+      classification?: FitClassification | null;
       fitCount: number;
       gapCount: number;
       unclearCount: number;
@@ -1342,7 +1366,7 @@ export type FitAnalysesListQuery = {
     draftApplicationId?: string | null;
     resumeId: string;
     scoreRatio?: number | null;
-    classification?: string | null;
+    classification?: FitClassification | null;
     fitCount: number;
     gapCount: number;
     unclearCount: number;
@@ -1379,7 +1403,7 @@ export type FitQuery = {
     draftApplicationId?: string | null;
     resumeId: string;
     scoreRatio?: number | null;
-    classification?: string | null;
+    classification?: FitClassification | null;
     fitCount: number;
     gapCount: number;
     unclearCount: number;
@@ -1393,10 +1417,10 @@ export type FitQuery = {
     items: Array<{
       __typename?: "FitItemType";
       requirement: string;
-      source: string;
+      source: FitSource;
       weight?: string | null;
       type: string;
-      verdict: string;
+      verdict: FitVerdict;
       jdQuote: string;
       sourceQuotes: Array<string>;
       suggestion?: string | null;
@@ -1428,7 +1452,7 @@ export type ApplicationFitQuery = {
     draftApplicationId?: string | null;
     resumeId: string;
     scoreRatio?: number | null;
-    classification?: string | null;
+    classification?: FitClassification | null;
     fitCount: number;
     gapCount: number;
     unclearCount: number;
@@ -1442,10 +1466,10 @@ export type ApplicationFitQuery = {
     items: Array<{
       __typename?: "FitItemType";
       requirement: string;
-      source: string;
+      source: FitSource;
       weight?: string | null;
       type: string;
-      verdict: string;
+      verdict: FitVerdict;
       jdQuote: string;
       sourceQuotes: Array<string>;
       suggestion?: string | null;
@@ -1466,7 +1490,7 @@ export type DraftApplicationFitQuery = {
     draftApplicationId?: string | null;
     resumeId: string;
     scoreRatio?: number | null;
-    classification?: string | null;
+    classification?: FitClassification | null;
     fitCount: number;
     gapCount: number;
     unclearCount: number;
@@ -1480,10 +1504,10 @@ export type DraftApplicationFitQuery = {
     items: Array<{
       __typename?: "FitItemType";
       requirement: string;
-      source: string;
+      source: FitSource;
       weight?: string | null;
       type: string;
-      verdict: string;
+      verdict: FitVerdict;
       jdQuote: string;
       sourceQuotes: Array<string>;
       suggestion?: string | null;
@@ -1504,7 +1528,7 @@ export type GenerateApplicationFitMutation = {
     draftApplicationId?: string | null;
     resumeId: string;
     scoreRatio?: number | null;
-    classification?: string | null;
+    classification?: FitClassification | null;
     fitCount: number;
     gapCount: number;
     unclearCount: number;
@@ -1518,10 +1542,10 @@ export type GenerateApplicationFitMutation = {
     items: Array<{
       __typename?: "FitItemType";
       requirement: string;
-      source: string;
+      source: FitSource;
       weight?: string | null;
       type: string;
-      verdict: string;
+      verdict: FitVerdict;
       jdQuote: string;
       sourceQuotes: Array<string>;
       suggestion?: string | null;
@@ -1542,7 +1566,7 @@ export type GenerateDraftApplicationFitMutation = {
     draftApplicationId?: string | null;
     resumeId: string;
     scoreRatio?: number | null;
-    classification?: string | null;
+    classification?: FitClassification | null;
     fitCount: number;
     gapCount: number;
     unclearCount: number;
@@ -1556,10 +1580,10 @@ export type GenerateDraftApplicationFitMutation = {
     items: Array<{
       __typename?: "FitItemType";
       requirement: string;
-      source: string;
+      source: FitSource;
       weight?: string | null;
       type: string;
-      verdict: string;
+      verdict: FitVerdict;
       jdQuote: string;
       sourceQuotes: Array<string>;
       suggestion?: string | null;

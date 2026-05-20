@@ -4,7 +4,7 @@ import { cn, FieldWithLabelAction, Text } from "@job-tracker/ui";
 import { ArrowRightIcon } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
 
-import { AsyncMetadataStatus } from "@/gql/hooks";
+import { AsyncMetadataStatus, FitClassification } from "@/gql/hooks";
 import type { ApplicationDetailsValues } from "@/modules/applications/details/utils/application-details.shared";
 import {
   formatFitClassification,
@@ -23,9 +23,9 @@ export function FitAnalysisField({
   const router = useRouter();
   const fitColor =
     fit?.generationMetadata?.status === AsyncMetadataStatus.Completed
-      ? fit.classification === "positive"
+      ? fit.classification === FitClassification.Positive
         ? "success"
-        : fit.classification === "negative"
+        : fit.classification === FitClassification.Negative
           ? "error"
           : "primary"
       : "primary";

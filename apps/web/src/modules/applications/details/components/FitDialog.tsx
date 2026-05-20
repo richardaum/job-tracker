@@ -6,6 +6,7 @@ import React from "react";
 
 import { EmptyState } from "@/components/empty-state";
 import {
+  FitSource,
   useApplicationFitQuery,
   useGenerateApplicationFitMutation,
   useResumesQuery,
@@ -43,9 +44,9 @@ export function FitDialog({
     useGenerateApplicationFitMutation();
 
   const [selectedResumeId, setSelectedResumeId] = React.useState<string>("");
-  const [sourceFilter, setSourceFilter] = React.useState<
-    "all" | "resume" | "preference"
-  >("all");
+  const [sourceFilter, setSourceFilter] = React.useState<"all" | FitSource>(
+    "all",
+  );
   const [weightFilter, setWeightFilter] = React.useState<
     "all" | "high" | "low"
   >("all");
@@ -164,18 +165,18 @@ export function FitDialog({
                   All
                 </FilterChip>
                 <FilterChip
-                  active={sourceFilter === "resume"}
+                  active={sourceFilter === FitSource.Resume}
                   onClick={() => {
-                    setSourceFilter("resume");
+                    setSourceFilter(FitSource.Resume);
                     setWeightFilter("all");
                   }}
                 >
                   Resume
                 </FilterChip>
                 <FilterChip
-                  active={sourceFilter === "preference"}
+                  active={sourceFilter === FitSource.Preference}
                   onClick={() => {
-                    setSourceFilter("preference");
+                    setSourceFilter(FitSource.Preference);
                     setWeightFilter("all");
                   }}
                 >

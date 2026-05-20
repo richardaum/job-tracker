@@ -26,6 +26,7 @@ import React from "react";
 import { EmptyState } from "@/components/empty-state";
 import {
   AsyncMetadataStatus,
+  FitVerdict,
   useDeleteFitAnalysisMutation,
   useFitQuery,
   useGenerateApplicationFitMutation,
@@ -69,9 +70,9 @@ export default function FitAnalysisPage({ params }: PageProps) {
   const [generateDraftFit, { loading: generatingDraft }] =
     useGenerateDraftApplicationFitMutation();
 
-  const [fitFilterTab, setFitFilterTab] = React.useState<
-    "all" | "fit" | "gap" | "unclear"
-  >("all");
+  const [fitFilterTab, setFitFilterTab] = React.useState<"all" | FitVerdict>(
+    "all",
+  );
 
   const fit = fitData?.fit;
   const status = fit?.generationMetadata?.status;
@@ -109,9 +110,12 @@ export default function FitAnalysisPage({ params }: PageProps) {
   const filteredItems = React.useMemo(() => {
     const items = fit?.items ?? [];
     return items.filter((item) => {
-      if (fitFilterTab === "fit") return item.verdict === "fit";
-      if (fitFilterTab === "gap") return item.verdict === "gap";
-      if (fitFilterTab === "unclear") return item.verdict === "unclear";
+      if (fitFilterTab === FitVerdict.Fit)
+        return item.verdict === FitVerdict.Fit;
+      if (fitFilterTab === FitVerdict.Gap)
+        return item.verdict === FitVerdict.Gap;
+      if (fitFilterTab === FitVerdict.Unclear)
+        return item.verdict === FitVerdict.Unclear;
       return true;
     });
   }, [fit, fitFilterTab]);
@@ -299,9 +303,11 @@ export default function FitAnalysisPage({ params }: PageProps) {
                 >
                   <TabsList>
                     <TabsTrigger value="all">All</TabsTrigger>
-                    <TabsTrigger value="fit">Fits</TabsTrigger>
-                    <TabsTrigger value="gap">Gaps</TabsTrigger>
-                    <TabsTrigger value="unclear">Unclear</TabsTrigger>
+                    <TabsTrigger value={FitVerdict.Fit}>Fits</TabsTrigger>
+                    <TabsTrigger value={FitVerdict.Gap}>Gaps</TabsTrigger>
+                    <TabsTrigger value={FitVerdict.Unclear}>
+                      Unclear
+                    </TabsTrigger>
                   </TabsList>
                 </Tabs>
 

@@ -30,9 +30,11 @@ query Applications(
     workRegion
     sourceRunId
     summary
-    summaryMetadata { status
-    error
-    timestamp }
+    summaryMetadata {
+      status
+      error
+      timestamp
+    }
     currentStage
     currentStageReason
     currentStageAt
@@ -72,9 +74,11 @@ query Application($id: ID!) {
     workRegion
     sourceRunId
     summary
-    summaryMetadata { status
-    error
-    timestamp }
+    summaryMetadata {
+      status
+      error
+      timestamp
+    }
     currentStage
     currentStageReason
     currentStageAt
@@ -139,9 +143,11 @@ mutation UpdateApplication($id: ID!, $input: UpdateApplicationInput!) {
     location
     workRegion
     summary
-    summaryMetadata { status
-    error
-    timestamp }
+    summaryMetadata {
+      status
+      error
+      timestamp
+    }
     createdAt
   }
 }
@@ -275,8 +281,10 @@ mutation GenerateApplicationSummary($applicationId: ID!) {
   generateApplicationSummary(applicationId: $applicationId) {
     id
     summary
-    summaryMetadata { status
-    error
-    timestamp }
+    summaryMetadata {
+      status
+      error
+      timestamp
+    }
   }
 }

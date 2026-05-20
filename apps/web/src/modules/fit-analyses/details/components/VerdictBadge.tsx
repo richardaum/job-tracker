@@ -8,9 +8,11 @@ import {
 } from "@phosphor-icons/react";
 import React from "react";
 
+import { FitVerdict } from "@/gql/hooks";
+
 export function VerdictBadge({ verdict }: { verdict: string }) {
-  const isFit = verdict === "fit";
-  const isGap = verdict === "gap";
+  const isFit = verdict === FitVerdict.Fit;
+  const isGap = verdict === FitVerdict.Gap;
 
   return (
     <>

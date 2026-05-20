@@ -3,6 +3,7 @@
 import { Badge, cn, Stack, Text, Tooltip } from "@job-tracker/ui";
 import NextLink from "next/link";
 
+import { FitClassification as FitClassificationValue } from "@/gql/hooks";
 import {
   formatFitClassification,
   formatFitLabel,
@@ -39,8 +40,10 @@ const colorMap = {
 } as const;
 
 function getStyle(classification: string | null) {
-  if (classification === "positive") return colorMap.positive;
-  if (classification === "negative") return colorMap.negative;
+  if (classification === FitClassificationValue.Positive)
+    return colorMap.positive;
+  if (classification === FitClassificationValue.Negative)
+    return colorMap.negative;
   return colorMap.inconclusive;
 }
 

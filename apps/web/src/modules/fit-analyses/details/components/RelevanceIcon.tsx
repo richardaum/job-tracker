@@ -52,7 +52,7 @@ export function RelevanceIcon({
           {weight}
         </div>
       )}
-      {type === "must_have" && (
+      {type === "MUST_HAVE" && (
         <Tooltip content="Required">
           <div className={cn("size-7 flex items-center justify-center")}>
             <FlagIcon
@@ -63,7 +63,7 @@ export function RelevanceIcon({
           </div>
         </Tooltip>
       )}
-      {type === "nice_to_have" && (
+      {type === "NICE_TO_HAVE" && (
         <Tooltip content="Nice to have">
           <div className={cn("size-7 flex items-center justify-center")}>
             <StarIcon
@@ -74,7 +74,7 @@ export function RelevanceIcon({
           </div>
         </Tooltip>
       )}
-      {type === "soft_skill" && (
+      {type === "SOFT_SKILL" && (
         <Tooltip content="Soft skill">
           <div className={cn("size-7 flex items-center justify-center")}>
             <HeartIcon
