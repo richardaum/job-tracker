@@ -1,4 +1,4 @@
-import type { ConversionMetadata } from "@api/database/entities/draft-application.entity";
+import type { ConversionMetadataEmbedded } from "@api/database/embeddeds/conversion-metadata.embedded";
 import { DraftApplicationEntity } from "@api/database/entities/draft-application.entity";
 import { DraftApplicationType } from "@api/domains/draft-applications/draft-application.type";
 import {
@@ -45,7 +45,7 @@ export class DraftApplicationsService implements OnModuleInit {
       title: row.title,
       htmlContent: row.htmlContent,
       applicationId,
-      conversionMetadata: row.conversionMetadata,
+      conversionMetadata: row.conversionMetadata ?? null,
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
     };
@@ -82,9 +82,9 @@ export class DraftApplicationsService implements OnModuleInit {
   async updateConversionMetadata(
     id: string,
     userId: string,
-    expectedStatus: Pick<ConversionMetadata, "status"> | null,
-    patch: Partial<ConversionMetadata> & {
-      status: ConversionMetadata["status"];
+    expectedStatus: Pick<ConversionMetadataEmbedded, "status"> | null,
+    patch: Partial<ConversionMetadataEmbedded> & {
+      status: ConversionMetadataEmbedded["status"];
     },
   ): Promise<boolean> {
     return this.repo.updateConversionMetadata(

@@ -1,5 +1,5 @@
 import { WithGeneratedId } from "@api/database/decorators/with-generated-id.decorator";
-import type { AsyncMetadata } from "@api/domains/shared/async-metadata.type";
+import { ConversionMetadataEmbedded } from "@api/database/embeddeds/conversion-metadata.embedded";
 import {
   Column,
   CreateDateColumn,
@@ -17,10 +17,6 @@ export enum DraftApplicationConversionStatusEnum {
   SUCCEEDED = "SUCCEEDED",
   FAILED = "FAILED",
 }
-
-export type ConversionMetadata = Omit<AsyncMetadata, "status"> & {
-  status: DraftApplicationConversionStatusEnum;
-};
 
 @WithGeneratedId()
 @Entity({ name: "draft_applications" })
@@ -40,8 +36,8 @@ export class DraftApplicationEntity {
   @Column({ name: "html_content", type: "text" })
   htmlContent!: string;
 
-  @Column({ name: "conversion_metadata", type: "jsonb", nullable: true })
-  conversionMetadata!: ConversionMetadata | null;
+  @Column(() => ConversionMetadataEmbedded, { prefix: "conversion" })
+  conversionMetadata?: ConversionMetadataEmbedded | null;
 
   @CreateDateColumn({ name: "created_at", type: "timestamptz" })
   createdAt!: Date;

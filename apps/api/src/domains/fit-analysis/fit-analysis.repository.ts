@@ -96,10 +96,10 @@ export class FitAnalysisRepository {
   ): Promise<FitAnalysisEntity | null> {
     const qb = this.repo
       .createQueryBuilder("f")
-      .where(
-        "f.id = :id AND f.generation_metadata->>'status' = :expectedStatus",
-        { id, expectedStatus },
-      );
+      .where("f.id = :id AND f.generation_status = :expectedStatus", {
+        id,
+        expectedStatus,
+      });
     if (userId) {
       qb.andWhere("f.user_id = :userId", { userId });
     }
@@ -112,7 +112,7 @@ export class FitAnalysisRepository {
   async resetStaleProcessing(): Promise<number> {
     const stale = await this.repo
       .createQueryBuilder("f")
-      .where("f.generation_metadata->>'status' = :status", {
+      .where("f.generation_status = :status", {
         status: AsyncMetadataStatusEnum.PROCESSING,
       })
       .getMany();
@@ -120,7 +120,7 @@ export class FitAnalysisRepository {
       entity.generationMetadata = {
         status: AsyncMetadataStatusEnum.FAILED,
         error: "Analysis interrupted and reset to failed after server restart.",
-        timestamp: new Date().toISOString(),
+        timestamp: new Date(),
       };
     }
     if (stale.length > 0) {

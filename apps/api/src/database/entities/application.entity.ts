@@ -1,7 +1,7 @@
 import { WithGeneratedId } from "@api/database/decorators/with-generated-id.decorator";
+import { AsyncMetadataEmbedded } from "@api/database/embeddeds/async-metadata.embedded";
 import { ApplicationSourceEnum } from "@api/domains/applications/application-source.enum";
 import { SalaryPeriodEnum } from "@api/domains/applications/salary/salary-period.enum";
-import type { AsyncMetadata } from "@api/domains/shared/async-metadata.type";
 import {
   Column,
   CreateDateColumn,
@@ -96,8 +96,8 @@ export class ApplicationEntity {
   @Column({ type: "text", nullable: true })
   summary!: string | null;
 
-  @Column({ name: "summary_metadata", type: "jsonb", nullable: true })
-  summaryMetadata!: AsyncMetadata | null;
+  @Column(() => AsyncMetadataEmbedded, { prefix: "summary" })
+  summaryMetadata?: AsyncMetadataEmbedded | null;
 
   @Column({ name: "source_run_id", type: "text", nullable: true })
   sourceRunId!: string | null;

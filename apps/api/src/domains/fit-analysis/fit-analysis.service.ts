@@ -54,15 +54,22 @@ export class FitAnalysisService implements OnModuleInit {
     }
   }
 
+  private toFitAnalysis(entity: FitAnalysisEntity): FitAnalysis {
+    const { generationMetadata: gm, ...rest } = entity;
+    return { ...rest, generationMetadata: gm ?? null };
+  }
+
   async findById(id: string, userId: string): Promise<FitAnalysis | null> {
-    return this.repo.findById(id, userId);
+    const entity = await this.repo.findById(id, userId);
+    return entity ? this.toFitAnalysis(entity) : null;
   }
 
   async findForApplication(
     applicationId: string,
     userId: string,
   ): Promise<FitAnalysis | null> {
-    return this.repo.findByApplicationId(applicationId, userId);
+    const entity = await this.repo.findByApplicationId(applicationId, userId);
+    return entity ? this.toFitAnalysis(entity) : null;
   }
 
   async findForDraftApplication(
@@ -71,7 +78,11 @@ export class FitAnalysisService implements OnModuleInit {
   ): Promise<FitAnalysis | null> {
     const draft = await this.draftRepo.findOne(draftApplicationId, userId);
     if (!draft) return null;
-    return this.repo.findByDraftApplicationId(draftApplicationId, userId);
+    const entity = await this.repo.findByDraftApplicationId(
+      draftApplicationId,
+      userId,
+    );
+    return entity ? this.toFitAnalysis(entity) : null;
   }
 
   async remove(id: string, userId: string): Promise<void> {
@@ -82,7 +93,8 @@ export class FitAnalysisService implements OnModuleInit {
   }
 
   async findAll(userId: string): Promise<FitAnalysis[]> {
-    return this.repo.findAllByUserId(userId);
+    const entities = await this.repo.findAllByUserId(userId);
+    return entities.map((e) => this.toFitAnalysis(e));
   }
 
   async findApplicationById(
@@ -137,7 +149,8 @@ export class FitAnalysisService implements OnModuleInit {
     entity.resumeId = resumeId;
     entity.generationMetadata = {
       status: AsyncMetadataStatusEnum.PROCESSING,
-      timestamp: new Date().toISOString(),
+      error: null,
+      timestamp: new Date(),
     };
     entity.items = [];
     entity.scoreRatio = null;
@@ -159,7 +172,7 @@ export class FitAnalysisService implements OnModuleInit {
       new FitAnalysisRequested(saved.id, userId, { applicationId }),
     );
 
-    return saved;
+    return this.toFitAnalysis(saved);
   }
 
   async generateForDraft(
@@ -196,7 +209,8 @@ export class FitAnalysisService implements OnModuleInit {
     entity.resumeId = resumeId;
     entity.generationMetadata = {
       status: AsyncMetadataStatusEnum.PROCESSING,
-      timestamp: new Date().toISOString(),
+      error: null,
+      timestamp: new Date(),
     };
     entity.items = [];
     entity.scoreRatio = null;
@@ -218,7 +232,7 @@ export class FitAnalysisService implements OnModuleInit {
       new FitAnalysisRequested(saved.id, userId, { draftApplicationId }),
     );
 
-    return saved;
+    return this.toFitAnalysis(saved);
   }
 
   async processFitAnalysis(
@@ -307,7 +321,8 @@ export class FitAnalysisService implements OnModuleInit {
         {
           generationMetadata: {
             status: AsyncMetadataStatusEnum.COMPLETED,
-            timestamp: new Date().toISOString(),
+            error: null,
+            timestamp: new Date(),
           },
           resumeId: resume.resumeId,
           items,
@@ -344,7 +359,7 @@ export class FitAnalysisService implements OnModuleInit {
           generationMetadata: {
             status: AsyncMetadataStatusEnum.FAILED,
             error: err instanceof Error ? err.message : "Unknown error",
-            timestamp: new Date().toISOString(),
+            timestamp: new Date(),
           },
         },
         userId,

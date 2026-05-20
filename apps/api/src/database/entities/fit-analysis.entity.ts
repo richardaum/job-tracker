@@ -1,5 +1,5 @@
 import { WithGeneratedId } from "@api/database/decorators/with-generated-id.decorator";
-import type { AsyncMetadata } from "@api/domains/shared/async-metadata.type";
+import { AsyncMetadataEmbedded } from "@api/database/embeddeds/async-metadata.embedded";
 import {
   Column,
   CreateDateColumn,
@@ -56,8 +56,8 @@ export class FitAnalysisEntity {
   @Column({ name: "resume_id", type: "text" })
   resumeId!: string;
 
-  @Column({ name: "generation_metadata", type: "jsonb", nullable: true })
-  generationMetadata!: AsyncMetadata | null;
+  @Column(() => AsyncMetadataEmbedded, { prefix: "generation" })
+  generationMetadata?: AsyncMetadataEmbedded | null;
 
   @Column({ name: "score_ratio", type: "float", nullable: true })
   scoreRatio!: number | null;

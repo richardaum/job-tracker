@@ -13,6 +13,7 @@ import { SourceTemplateEntity } from "./entities/source-template.entity";
 import { UserEntity } from "./entities/user.entity";
 import { WorkPreferencesEntity } from "./entities/work-preferences.entity";
 import { migrations } from "./migrations";
+import { SnakeCaseNamingStrategy } from "./naming-strategy";
 
 export const apiEntities = [
   UserEntity,
@@ -39,6 +40,7 @@ export function buildDataSourceOptions(
     url: databaseUrl,
     entities: apiEntities,
     migrations: apiMigrations,
+    namingStrategy: new SnakeCaseNamingStrategy(),
     migrationsTableName: "typeorm_migrations",
     synchronize: false,
     migrationsRun: false,

@@ -3,15 +3,12 @@ import "dotenv/config";
 
 import { buildDataSourceOptions } from "@api/database/data-source-options";
 import { ApplicationEntity } from "@api/database/entities/application.entity";
-import {
-  AsyncMetadata,
-  AsyncMetadataStatusEnum,
-} from "@api/domains/shared/async-metadata.type";
+import { AsyncMetadataStatusEnum } from "@api/domains/shared/async-metadata.type";
 import { tryRun } from "@job-tracker/try-run";
 import { Module } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { EntityManager, IsNull, Not } from "typeorm";
+import { EntityManager } from "typeorm";
 
 @Module({
   imports: [
@@ -48,13 +45,14 @@ async function main() {
     `  ${prefix}summary_metadata COMPLETED with null generatedAt... `,
   );
 
-  const appsWithMeta = await repo.find({
-    where: { summaryMetadata: Not(IsNull()) },
-  });
+  const appsWithMeta = await repo
+    .createQueryBuilder("a")
+    .where(`"summary_status" IS NOT NULL`)
+    .getMany();
   const fix1 = appsWithMeta.filter(
     (a) =>
-      a.summaryMetadata?.status === AsyncMetadataStatusEnum.COMPLETED &&
-      !a.summaryMetadata.timestamp,
+      a.summaryMetadata!.status === AsyncMetadataStatusEnum.COMPLETED &&
+      !a.summaryMetadata!.timestamp,
   );
 
   if (fix1.length === 0) {
@@ -64,9 +62,10 @@ async function main() {
   } else {
     for (const app of fix1) {
       app.summaryMetadata = {
-        ...app.summaryMetadata,
-        timestamp: nowUtcIso(),
-      } as AsyncMetadata;
+        status: app.summaryMetadata!.status,
+        error: app.summaryMetadata!.error,
+        timestamp: new Date(nowUtcIso()),
+      };
       const [err] = await tryRun(repo.save(app));
       if (err) {
         process.stdout.write(`\n  ❌ ${app.id}: ${err.message.slice(0, 80)}`);
@@ -83,9 +82,10 @@ async function main() {
     `  ${prefix}summary NOT NULL with null summary_metadata... `,
   );
 
-  const appsWithSummary = await repo.find({
-    where: { summary: Not(IsNull()), summaryMetadata: IsNull() },
-  });
+  const appsWithSummary = await repo
+    .createQueryBuilder("a")
+    .where(`"summary" IS NOT NULL AND "summary_status" IS NULL`)
+    .getMany();
 
   if (appsWithSummary.length === 0) {
     process.stdout.write("✓ none to fix\n");
@@ -97,7 +97,8 @@ async function main() {
     for (const app of appsWithSummary) {
       app.summaryMetadata = {
         status: AsyncMetadataStatusEnum.COMPLETED,
-        timestamp: nowUtcIso(),
+        error: null,
+        timestamp: new Date(nowUtcIso()),
       };
       const [err] = await tryRun(repo.save(app));
       if (err) {

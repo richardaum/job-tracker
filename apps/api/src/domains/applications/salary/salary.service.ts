@@ -1,4 +1,3 @@
-import type { Application } from "@api/domains/applications/applications.schema";
 import { BadRequestException, Injectable } from "@nestjs/common";
 
 import type { SalaryColumns, SalaryInput } from "./salary.schema";
@@ -29,7 +28,7 @@ export class SalaryService {
   }
 
   getUpdateSalary(
-    current: Application,
+    current: SalaryShape,
     input: SalaryInput,
   ): SalaryColumns | null {
     const anyKey =

@@ -7,7 +7,10 @@ import {
 import { ApplicationEventBus } from "@api/domains/applications/application-event.bus";
 import { ApplicationStageEnum } from "@api/domains/applications/application-stage.enum";
 import { ApplicationRepository } from "@api/domains/applications/applications.repository";
-import { AsyncMetadataStatusEnum } from "@api/domains/shared/async-metadata.type";
+import {
+  type AsyncMetadata,
+  AsyncMetadataStatusEnum,
+} from "@api/domains/shared/async-metadata.type";
 import { markdownToTipTap, tipTapToPlainText } from "@job-tracker/tiptap";
 import { tryRun } from "@job-tracker/try-run";
 import { Injectable, Logger } from "@nestjs/common";
@@ -37,14 +40,15 @@ export class SummaryService {
       return;
     }
 
-    if (app.summaryMetadata?.status === AsyncMetadataStatusEnum.PROCESSING)
-      return;
+    const currentStatus = app.summaryMetadata?.status as
+      | AsyncMetadata["status"]
+      | null
+      | undefined;
+    if (currentStatus === AsyncMetadataStatusEnum.PROCESSING) return;
 
     const ok = await this.appRepo.updateSummaryMetadata(
       applicationId,
-      app.summaryMetadata?.status
-        ? { status: app.summaryMetadata.status }
-        : null,
+      currentStatus ? { status: currentStatus } : null,
       { status: AsyncMetadataStatusEnum.PROCESSING },
       userId,
     );
@@ -68,14 +72,15 @@ export class SummaryService {
     const app = await this.appRepo.findOneByIdAndUserId(applicationId, userId);
     if (!app) return;
 
-    if (app.summaryMetadata?.status === AsyncMetadataStatusEnum.PROCESSING)
-      return;
+    const currentStatus = app.summaryMetadata?.status as
+      | AsyncMetadata["status"]
+      | null
+      | undefined;
+    if (currentStatus === AsyncMetadataStatusEnum.PROCESSING) return;
 
     const ok = await this.appRepo.updateSummaryMetadata(
       applicationId,
-      app.summaryMetadata?.status
-        ? { status: app.summaryMetadata.status }
-        : null,
+      currentStatus ? { status: currentStatus } : null,
       { status: AsyncMetadataStatusEnum.PROCESSING },
       userId,
     );
