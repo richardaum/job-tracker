@@ -8,7 +8,7 @@ const useCurrentUserMock = vi.fn();
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ replace: replaceMock }),
-  usePathname: () => "/applications",
+  usePathname: () => "/jobs",
   useSearchParams: () => new URLSearchParams("status=OPEN"),
 }));
 
@@ -31,7 +31,7 @@ describe("ProtectedLayout", () => {
     );
 
     expect(replaceMock).toHaveBeenCalledWith(
-      "/login?returnTo=%2Fapplications%3Fstatus%3DOPEN",
+      "/login?returnTo=%2Fjobs%3Fstatus%3DOPEN",
     );
   });
 

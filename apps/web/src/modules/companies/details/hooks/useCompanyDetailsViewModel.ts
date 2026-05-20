@@ -1,10 +1,6 @@
 "use client";
 
-import {
-  type ApplicationsQuery,
-  useApplicationsQuery,
-  useCompaniesQuery,
-} from "@/gql/hooks";
+import { type JobsQuery, useCompaniesQuery, useJobsQuery } from "@/gql/hooks";
 
 export function useCompanyDetailsViewModel(companyId: string) {
   const { data, loading, error } = useCompaniesQuery({
@@ -17,19 +13,19 @@ export function useCompanyDetailsViewModel(companyId: string) {
     data: applicationsData,
     loading: applicationsLoading,
     error: applicationsError,
-  } = useApplicationsQuery({
+  } = useJobsQuery({
     variables: { company: company?.name ?? "" },
     skip: !company,
     fetchPolicy: "cache-and-network",
   });
 
-  const companyApplications = (applicationsData?.applications ?? []).filter(
-    (application) => application.companyId === company?.id,
-  ) as ApplicationsQuery["applications"];
+  const companyJobs = (applicationsData?.jobs ?? []).filter(
+    (job) => job.companyId === company?.id,
+  );
 
   return {
     company,
-    companyApplications,
+    companyJobs,
     applicationsError,
     companiesError: error,
     showCompaniesInitialLoading: loading && !data,

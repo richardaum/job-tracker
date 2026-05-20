@@ -62,7 +62,7 @@ describe("FieldValueService", () => {
     expect(result).toMatchObject({ type: "doc", content: expect.any(Array) });
   });
 
-  it("applies format salary to innerText → CreateApplicationInput-shaped payload", () => {
+  it("applies format salary to innerText → CreateJobInput-shaped payload", () => {
     const svc = new FieldValueService();
     const el = {
       innerHTML: "",

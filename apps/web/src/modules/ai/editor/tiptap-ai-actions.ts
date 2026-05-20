@@ -1,6 +1,6 @@
-export type TipTapAiActionKind = "generate" | "rewrite";
+type TipTapAiActionKind = "generate" | "rewrite";
 
-export interface TipTapAiActionContext {
+interface TipTapAiActionContext {
   sourceText: string;
   documentText: string;
 }

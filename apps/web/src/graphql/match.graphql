@@ -1,0 +1,201 @@
+query MatchAnalysesList {
+  matchAnalyses {
+    id
+    jobId
+    draftJobId
+    resumeId
+    generationMetadata {
+      status
+      error
+      timestamp
+    }
+    scoreRatio
+    classification
+    matchCount
+    gapCount
+    unclearCount
+    createdAt
+    updatedAt
+    job {
+      id
+      title
+      company {
+        id
+        name
+      }
+    }
+    draftJob {
+      id
+      title
+    }
+  }
+}
+
+query Match($id: ID!) {
+  match(id: $id) {
+    id
+    jobId
+    draftJobId
+    resumeId
+    generationMetadata {
+      status
+      error
+      timestamp
+    }
+    scoreRatio
+    classification
+    matchCount
+    gapCount
+    unclearCount
+    items {
+      requirement
+      source
+      weight
+      type
+      verdict
+      jdQuote
+      sourceQuotes
+      suggestion
+    }
+    createdAt
+    job {
+      id
+      title
+      company {
+        id
+        name
+      }
+    }
+    draftJob {
+      id
+      title
+    }
+  }
+}
+
+query JobMatch($jobId: ID!) {
+  jobMatch(jobId: $jobId) {
+    id
+    jobId
+    draftJobId
+    resumeId
+    generationMetadata {
+      status
+      error
+      timestamp
+    }
+    scoreRatio
+    classification
+    matchCount
+    gapCount
+    unclearCount
+    items {
+      requirement
+      source
+      weight
+      type
+      verdict
+      jdQuote
+      sourceQuotes
+      suggestion
+    }
+    createdAt
+  }
+}
+
+query DraftJobMatch($draftJobId: ID!) {
+  draftJobMatch(draftJobId: $draftJobId) {
+    id
+    jobId
+    draftJobId
+    resumeId
+    generationMetadata {
+      status
+      error
+      timestamp
+    }
+    scoreRatio
+    classification
+    matchCount
+    gapCount
+    unclearCount
+    items {
+      requirement
+      source
+      weight
+      type
+      verdict
+      jdQuote
+      sourceQuotes
+      suggestion
+    }
+    createdAt
+  }
+}
+
+mutation GenerateJobMatch($input: GenerateMatchInput!) {
+  generateJobMatch(input: $input) {
+    id
+    jobId
+    draftJobId
+    resumeId
+    generationMetadata {
+      status
+      error
+      timestamp
+    }
+    scoreRatio
+    classification
+    matchCount
+    gapCount
+    unclearCount
+    items {
+      requirement
+      source
+      weight
+      type
+      verdict
+      jdQuote
+      sourceQuotes
+      suggestion
+    }
+    createdAt
+  }
+}
+
+mutation GenerateDraftJobMatch($input: GenerateDraftMatchInput!) {
+  generateDraftJobMatch(input: $input) {
+    id
+    jobId
+    draftJobId
+    resumeId
+    generationMetadata {
+      status
+      error
+      timestamp
+    }
+    scoreRatio
+    classification
+    matchCount
+    gapCount
+    unclearCount
+    items {
+      requirement
+      source
+      weight
+      type
+      verdict
+      jdQuote
+      sourceQuotes
+      suggestion
+    }
+    createdAt
+  }
+}
+
+mutation DeleteMatchAnalysis($id: ID!) {
+  deleteMatchAnalysis(id: $id) {
+    success
+    deletedId
+  }
+}

@@ -4,7 +4,7 @@ import { Badge, cn, Dialog, Stack, Text } from "@job-tracker/ui";
 import React from "react";
 
 import { SourceRunStatus } from "@/gql/graphql";
-import { formatDateTime } from "@/modules/applications/details/utils/application-details.shared";
+import { formatDateTime } from "@/modules/jobs/details/utils/job-details.shared";
 import type { SourceListItem } from "@/modules/sources/page/source-template-list.shared";
 import { scheduleSummary } from "@/modules/sources/page/source-template-list.shared";
 

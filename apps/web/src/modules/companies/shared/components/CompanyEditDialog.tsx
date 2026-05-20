@@ -10,23 +10,23 @@ import { type DialogControl } from "@job-tracker/ui";
 import React, { useMemo, useState } from "react";
 
 import {
-  ApplicationDocument,
-  ApplicationsDocument,
   CompaniesDocument,
+  JobDocument,
+  JobsDocument,
   useUpdateCompanyMutation,
 } from "@/gql/hooks";
 import { useGenerateCompanyDescriptionAiAction } from "@/modules/ai/actions/useGenerateCompanyDescriptionAiAction";
 import { useRewriteTextAiAction } from "@/modules/ai/actions/useRewriteTextAiAction";
-import { TipTapEditor } from "@/modules/applications/details/components/TipTapEditor";
+import { TipTapEditor } from "@/modules/jobs/details/components/TipTapEditor";
 
-export interface CompanyEditDialogApplication {
+export interface CompanyEditDialogJob {
   id: string;
   company: { id: string; name: string; description?: string | null };
 }
 
 interface CompanyEditDialogProps {
   control: DialogControl;
-  application?: CompanyEditDialogApplication;
+  job?: CompanyEditDialogJob;
   company?: { id: string; name: string; description?: string | null };
   refetchCompanies?: boolean;
   onSuccess?: (message: string) => void;
@@ -35,13 +35,13 @@ interface CompanyEditDialogProps {
 
 export function CompanyEditDialog({
   control: _control,
-  application,
+  job,
   company,
   refetchCompanies = false,
   onSuccess,
   onError,
 }: CompanyEditDialogProps) {
-  const sourceCompany = company ?? application?.company;
+  const sourceCompany = company ?? job?.company;
   const editingCompany = sourceCompany ?? {
     id: "",
     name: "",
@@ -56,10 +56,10 @@ export function CompanyEditDialog({
 
   const [updateCompany] = useUpdateCompanyMutation({
     refetchQueries: [
-      ...(application
+      ...(job
         ? [
-            { query: ApplicationDocument, variables: { id: application.id } },
-            { query: ApplicationsDocument },
+            { query: JobDocument, variables: { id: job.id } },
+            { query: JobsDocument },
           ]
         : []),
       ...(refetchCompanies ? [{ query: CompaniesDocument }] : []),
@@ -132,7 +132,7 @@ export function CompanyEditDialog({
   return (
     <Dialog
       title="Edit company"
-      description="Update the company name and description used across your applications."
+      description="Update the company name and description used across your jobs."
       size="2xl"
       open={_control.isOpen}
       onOpenChange={(next) => {

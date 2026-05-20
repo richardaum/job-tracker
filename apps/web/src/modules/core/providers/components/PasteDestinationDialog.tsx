@@ -19,7 +19,7 @@ const PASTE_ACTIONS: { id: PasteAction; label: string; description: string }[] =
     {
       id: "draft",
       label: "Save as draft",
-      description: "Create a new draft application from the pasted content",
+      description: "Create a new draft job from the pasted content",
     },
   ];
 
@@ -163,7 +163,7 @@ export function PasteDestinationDialog({
             onCheckedChange={setAutoConvert}
             size="sm"
           />
-          <Text size="sm">Convert to application automatically</Text>
+          <Text size="sm">Convert to job automatically</Text>
         </label>
 
         <div className={cn("space-y-1.5")}>

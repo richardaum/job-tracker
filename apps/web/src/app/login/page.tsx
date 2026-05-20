@@ -25,7 +25,7 @@ export default function LoginPage() {
 
   const handleGoogleLogin = () => {
     // Full navigation to API origin for OAuth (not an in-app Next route).
-    // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- cross-origin auth redirect
+
     window.location.assign(
       `${getApiBaseUrl()}/auth/google?returnTo=${encodeURIComponent(safeReturnTo)}`,
     );

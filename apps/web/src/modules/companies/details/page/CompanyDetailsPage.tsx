@@ -26,10 +26,10 @@ import React from "react";
 import { CompaniesDocument, useUpdateCompanyMutation } from "@/gql/hooks";
 import { useGenerateCompanyDescriptionAiAction } from "@/modules/ai/actions/useGenerateCompanyDescriptionAiAction";
 import { useRewriteTextAiAction } from "@/modules/ai/actions/useRewriteTextAiAction";
-import { TipTapEditor } from "@/modules/applications/details/components/TipTapEditor";
-import { ApplicationCard } from "@/modules/applications/list/components/ApplicationCard";
 import { useCompanyDetailsViewModel } from "@/modules/companies/details/hooks/useCompanyDetailsViewModel";
 import { DeleteCompanyDialog } from "@/modules/companies/list/components/DeleteCompanyDialog";
+import { TipTapEditor } from "@/modules/jobs/details/components/TipTapEditor";
+import { JobCard } from "@/modules/jobs/list/components/JobCard";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -42,7 +42,7 @@ export default function CompanyDetailsPage({ params }: PageProps) {
   const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
   const {
     company,
-    companyApplications,
+    companyJobs,
     applicationsError,
     companiesError,
     showCompaniesInitialLoading,
@@ -124,9 +124,7 @@ export default function CompanyDetailsPage({ params }: PageProps) {
     >
       <DropdownMenuItem
         onSelect={() =>
-          router.push(
-            `/applications?company=${encodeURIComponent(company.name)}`,
-          )
+          router.push(`/jobs?company=${encodeURIComponent(company.name)}`)
         }
       >
         View jobs
@@ -205,16 +203,16 @@ export default function CompanyDetailsPage({ params }: PageProps) {
                 <Text size="sm" color="error">
                   Failed to load jobs.
                 </Text>
-              ) : companyApplications.length === 0 ? (
+              ) : companyJobs.length === 0 ? (
                 <Text size="sm" color="muted">
                   No jobs found for this company.
                 </Text>
               ) : (
                 <div className={cn("space-y-3")}>
-                  {companyApplications.map((application) => (
-                    <ApplicationCard
-                      key={application.id}
-                      application={application}
+                  {companyJobs.map((job) => (
+                    <JobCard
+                      key={job.id}
+                      job={job}
                       onSuccess={() => undefined}
                       onError={() => undefined}
                     />

@@ -1,8 +1,12 @@
 import { useMemo, useState } from "react";
 
-import { type SourceProfilesListQuery, useSourceProfilesListQuery } from "@/gql/hooks";
+import {
+  type SourceProfilesListQuery,
+  useSourceProfilesListQuery,
+} from "@/gql/hooks";
 
-export type SourceProfileRow = SourceProfilesListQuery["sourceProfiles"][number];
+export type SourceProfileRow =
+  SourceProfilesListQuery["sourceProfiles"][number];
 
 function sourceProfileSearchHaystack(row: SourceProfileRow): string {
   return `${row.name}\n${row.sourceProfileId}`.toLowerCase();
@@ -27,5 +31,11 @@ export function useSourcesListViewModel() {
 
   const showInitialLoading = loading && !data;
 
-  return { sourceProfiles, searchQuery, setSearchQuery, error, showInitialLoading };
+  return {
+    sourceProfiles,
+    searchQuery,
+    setSearchQuery,
+    error,
+    showInitialLoading,
+  };
 }

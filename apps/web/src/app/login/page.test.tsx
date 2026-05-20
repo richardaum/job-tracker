@@ -22,7 +22,7 @@ describe("LoginPage", () => {
   it("renders Google login button", () => {
     usePathnameMock.mockReturnValue("/login");
     useSearchParamsMock.mockReturnValue(
-      new URLSearchParams("returnTo=%2Fapplications%2F123"),
+      new URLSearchParams("returnTo=%2Fjobs%2F123"),
     );
     useCurrentUserMock.mockReturnValue({
       user: null,
@@ -46,7 +46,7 @@ describe("LoginPage", () => {
   it("redirects authenticated users to returnTo from query param", () => {
     usePathnameMock.mockReturnValue("/login");
     useSearchParamsMock.mockReturnValue(
-      new URLSearchParams("returnTo=%2Fapplications%2F123"),
+      new URLSearchParams("returnTo=%2Fjobs%2F123"),
     );
     useCurrentUserMock.mockReturnValue({
       user: { id: "user-1" },
@@ -56,7 +56,7 @@ describe("LoginPage", () => {
 
     render(<LoginPage />);
 
-    expect(replaceMock).toHaveBeenCalledWith("/applications/123");
+    expect(replaceMock).toHaveBeenCalledWith("/jobs/123");
   });
 
   it("falls back to home for unsafe returnTo", () => {

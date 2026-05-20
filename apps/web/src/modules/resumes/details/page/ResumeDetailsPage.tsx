@@ -14,8 +14,8 @@ import {
   useResumeQuery,
   useUpdateResumeMutation,
 } from "@/gql/hooks";
-import { TipTapEditor } from "@/modules/applications/details/components/TipTapEditor";
-import { useToastQueue } from "@/modules/applications/shared/hooks/useToastQueue";
+import { TipTapEditor } from "@/modules/jobs/details/components/TipTapEditor";
+import { useToastQueue } from "@/modules/jobs/shared/hooks/useToastQueue";
 import { DeleteResumeDialog } from "@/modules/resumes/list/components/DeleteResumeDialog";
 
 function useResumeEditorState(resumeId: string, onSaved: () => void) {
