@@ -1,6 +1,7 @@
 "use client";
 
 import { useDraftApplicationDetailQuery } from "@/gql/hooks";
+import { deriveDetailStatus } from "@/lib/entity-detail-view-status";
 
 export function useDraftApplicationDetailsViewModel(id: string) {
   const { data, loading, error, refetch, startPolling, stopPolling } =
@@ -11,12 +12,14 @@ export function useDraftApplicationDetailsViewModel(id: string) {
     });
 
   const draft = data?.draftApplication ?? null;
+  const status = deriveDetailStatus(loading, error);
 
   return {
     draft,
     error,
     refetch,
-    showInitialLoading: loading && !data,
+    notFound: status === "notFound",
+    status,
     startPolling,
     stopPolling,
   };

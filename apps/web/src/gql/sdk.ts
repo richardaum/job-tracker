@@ -460,12 +460,13 @@ export type Query = {
   applicationStageEvents: Array<ApplicationStageEventType>;
   applications: Array<ApplicationType>;
   companies: Array<CompanyType>;
+  company: CompanyType;
   companyApplicationsCount: Scalars["Int"]["output"];
   draftApplication: DraftApplicationType;
   draftApplicationFit?: Maybe<FitAnalysisType>;
   draftApplications: Array<DraftApplicationType>;
   exchangeRates: CurrencyRates;
-  fit?: Maybe<FitAnalysisType>;
+  fit: FitAnalysisType;
   fitAnalyses: Array<FitAnalysisType>;
   generateApplicationLocationWithAI?: Maybe<Scalars["String"]["output"]>;
   generateApplicationNoteWithAI: Scalars["String"]["output"];
@@ -500,6 +501,8 @@ export type QueryApplicationsArgs = {
   filter?: InputMaybe<ApplicationQuickFilter>;
   runId?: InputMaybe<Scalars["ID"]["input"]>;
 };
+
+export type QueryCompanyArgs = { id: Scalars["ID"]["input"] };
 
 export type QueryCompanyApplicationsCountArgs = { id: Scalars["ID"]["input"] };
 
@@ -1174,6 +1177,18 @@ export type CompaniesQuery = {
   }>;
 };
 
+export type CompanyQueryVariables = Exact<{ id: Scalars["ID"]["input"] }>;
+
+export type CompanyQuery = {
+  __typename?: "Query";
+  company: {
+    __typename?: "CompanyType";
+    id: string;
+    name: string;
+    description?: string | null;
+  };
+};
+
 export type ExchangeRatesQueryVariables = Exact<{
   base: Scalars["String"]["input"];
   currencies: Array<Scalars["String"]["input"]> | Scalars["String"]["input"];
@@ -1383,7 +1398,7 @@ export type FitQueryVariables = Exact<{ id: Scalars["ID"]["input"] }>;
 
 export type FitQuery = {
   __typename?: "Query";
-  fit?: {
+  fit: {
     __typename?: "FitAnalysisType";
     id: string;
     applicationId?: string | null;
@@ -1423,7 +1438,7 @@ export type FitQuery = {
       id: string;
       title: string;
     } | null;
-  } | null;
+  };
 };
 
 export type ApplicationFitQueryVariables = Exact<{
@@ -2149,6 +2164,15 @@ export const CompanyApplicationsCountDocument = gql`
 export const CompaniesDocument = gql`
   query Companies {
     companies {
+      id
+      name
+      description
+    }
+  }
+`;
+export const CompanyDocument = gql`
+  query Company($id: ID!) {
+    company(id: $id) {
       id
       name
       description
@@ -3107,6 +3131,24 @@ export function getSdk(
             signal,
           }),
         "Companies",
+        "query",
+        variables,
+      );
+    },
+    Company(
+      variables: CompanyQueryVariables,
+      requestHeaders?: GraphQLClientRequestHeaders,
+      signal?: RequestInit["signal"],
+    ): Promise<CompanyQuery> {
+      return withWrapper(
+        (wrappedRequestHeaders) =>
+          client.request<CompanyQuery>({
+            document: CompanyDocument,
+            variables,
+            requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
+            signal,
+          }),
+        "Company",
         "query",
         variables,
       );

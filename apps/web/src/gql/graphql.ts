@@ -459,12 +459,13 @@ export type Query = {
   applicationStageEvents: Array<ApplicationStageEventType>;
   applications: Array<ApplicationType>;
   companies: Array<CompanyType>;
+  company: CompanyType;
   companyApplicationsCount: Scalars["Int"]["output"];
   draftApplication: DraftApplicationType;
   draftApplicationFit?: Maybe<FitAnalysisType>;
   draftApplications: Array<DraftApplicationType>;
   exchangeRates: CurrencyRates;
-  fit?: Maybe<FitAnalysisType>;
+  fit: FitAnalysisType;
   fitAnalyses: Array<FitAnalysisType>;
   generateApplicationLocationWithAI?: Maybe<Scalars["String"]["output"]>;
   generateApplicationNoteWithAI: Scalars["String"]["output"];
@@ -499,6 +500,8 @@ export type QueryApplicationsArgs = {
   filter?: InputMaybe<ApplicationQuickFilter>;
   runId?: InputMaybe<Scalars["ID"]["input"]>;
 };
+
+export type QueryCompanyArgs = { id: Scalars["ID"]["input"] };
 
 export type QueryCompanyApplicationsCountArgs = { id: Scalars["ID"]["input"] };
 
@@ -1163,6 +1166,18 @@ export type CompaniesQuery = {
   }>;
 };
 
+export type CompanyQueryVariables = Exact<{ id: Scalars["ID"]["input"] }>;
+
+export type CompanyQuery = {
+  __typename?: "Query";
+  company: {
+    __typename?: "CompanyType";
+    id: string;
+    name: string;
+    description?: string | null;
+  };
+};
+
 export type ExchangeRatesQueryVariables = Exact<{
   base: Scalars["String"]["input"];
   currencies: Array<Scalars["String"]["input"]> | Scalars["String"]["input"];
@@ -1372,7 +1387,7 @@ export type FitQueryVariables = Exact<{ id: Scalars["ID"]["input"] }>;
 
 export type FitQuery = {
   __typename?: "Query";
-  fit?: {
+  fit: {
     __typename?: "FitAnalysisType";
     id: string;
     applicationId?: string | null;
@@ -1412,7 +1427,7 @@ export type FitQuery = {
       id: string;
       title: string;
     } | null;
-  } | null;
+  };
 };
 
 export type ApplicationFitQueryVariables = Exact<{
@@ -3655,6 +3670,53 @@ export const CompaniesDocument = {
     },
   ],
 } as unknown as DocumentNode<CompaniesQuery, CompaniesQueryVariables>;
+export const CompanyDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "query",
+      name: { kind: "Name", value: "Company" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "id" } },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "company" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "id" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "id" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                { kind: "Field", name: { kind: "Name", value: "name" } },
+                { kind: "Field", name: { kind: "Name", value: "description" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CompanyQuery, CompanyQueryVariables>;
 export const ExchangeRatesDocument = {
   kind: "Document",
   definitions: [

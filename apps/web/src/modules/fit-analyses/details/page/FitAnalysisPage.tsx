@@ -19,11 +19,12 @@ import {
   NotePencilIcon,
   TrashIcon,
 } from "@phosphor-icons/react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React from "react";
 
+import { BackToLink } from "@/components/back-to-link";
 import { EmptyState } from "@/components/empty-state";
+import { EntityNotFound } from "@/components/entity-not-found";
 import {
   AsyncMetadataStatus,
   useDeleteFitAnalysisMutation,
@@ -33,6 +34,7 @@ import {
 } from "@/gql/hooks";
 import { useEventSource } from "@/hooks/useEventSource";
 import { getApiBaseUrl } from "@/lib/api-endpoints";
+import { hasGraphQLCode } from "@/lib/graphql-entity-errors";
 import { FitClassification } from "@/modules/applications/shared/components/FitClassification";
 import { useToastQueue } from "@/modules/applications/shared/hooks/useToastQueue";
 import { FitItemCard } from "@/modules/fit-analyses/details/components/FitItemCard";
@@ -58,6 +60,7 @@ export default function FitAnalysisPage({ params }: PageProps) {
   const {
     data: fitData,
     loading: fitLoading,
+    error,
     refetch: refetchFit,
   } = useFitQuery({
     variables: { id: fitId },
@@ -80,16 +83,9 @@ export default function FitAnalysisPage({ params }: PageProps) {
   const isCompleted = status === AsyncMetadataStatus.Completed;
   const hasFit = !!fit && !isProcessing && !isFailed;
   const generating = generatingApp || generatingDraft;
+  const notFound = hasGraphQLCode(error, "NOT_FOUND");
 
-  const belongsToApplication = !!fit?.applicationId;
-  const belongsToDraft = !!fit?.draftApplicationId;
-
-  const parentLabel = belongsToApplication ? "application" : "draft";
-  const parentHref = belongsToApplication
-    ? `/applications/${fit!.applicationId}`
-    : belongsToDraft
-      ? `/draft-applications/${fit!.draftApplicationId}`
-      : "#";
+  const { parentLabel, parentHref } = resolveParentLink(fit, notFound);
 
   const sseUrl = `${getApiBaseUrl()}/fits/${fitId}/stream`;
   useEventSource<{ fitId: string; status: string }>(
@@ -117,27 +113,11 @@ export default function FitAnalysisPage({ params }: PageProps) {
   }, [fit, fitFilterTab]);
 
   async function handleGenerate(resumeId: string) {
-    if (belongsToApplication && fit.applicationId) {
+    const appId = fit?.applicationId;
+    if (appId) {
       const [error] = await tryRun(
         generateApplicationFit({
-          variables: { input: { applicationId: fit.applicationId, resumeId } },
-          refetchQueries: ["Fit"],
-        }),
-      );
-      if (error) {
-        const message =
-          error instanceof Error
-            ? error.message.replace("Bad Request Exception: ", "")
-            : "Failed to generate fit analysis.";
-        enqueueToast({ title: message, intent: "error" });
-        return;
-      }
-    } else if (belongsToDraft && fit.draftApplicationId) {
-      const [error] = await tryRun(
-        generateDraftFit({
-          variables: {
-            input: { draftApplicationId: fit.draftApplicationId, resumeId },
-          },
+          variables: { input: { applicationId: appId, resumeId } },
           refetchQueries: ["Fit"],
         }),
       );
@@ -150,10 +130,28 @@ export default function FitAnalysisPage({ params }: PageProps) {
         return;
       }
     } else {
-      enqueueToast({
-        title: "Fit is not linked to an application or draft.",
-        intent: "error",
-      });
+      const draftId = fit?.draftApplicationId;
+      if (draftId) {
+        const [error] = await tryRun(
+          generateDraftFit({
+            variables: { input: { draftApplicationId: draftId, resumeId } },
+            refetchQueries: ["Fit"],
+          }),
+        );
+        if (error) {
+          const message =
+            error instanceof Error
+              ? error.message.replace("Bad Request Exception: ", "")
+              : "Failed to generate fit analysis.";
+          enqueueToast({ title: message, intent: "error" });
+          return;
+        }
+      } else {
+        enqueueToast({
+          title: "Fit is not linked to an application or draft.",
+          intent: "error",
+        });
+      }
     }
   }
 
@@ -225,26 +223,21 @@ export default function FitAnalysisPage({ params }: PageProps) {
         )}
       >
         <div className={cn("flex items-center justify-between gap-3")}>
-          <Link
-            href={parentHref}
-            className={cn(
-              "text-sm text-text-secondary underline-offset-2 hover:underline",
-            )}
-          >
-            Back to {parentLabel}
-          </Link>
+          <BackToLink href={parentHref}>Back to {parentLabel}</BackToLink>
           <div className={cn("flex items-center gap-2")}>
             {actionsMenu ? (
               <div className={cn("shrink-0")}>{actionsMenu}</div>
             ) : null}
-            <Button
-              intent="primary"
-              size="md"
-              onClick={() => setWizardOpen(true)}
-              state={isProcessing ? "loading" : "default"}
-            >
-              {hasFit ? "Regenerate" : "Generate"}
-            </Button>
+            {!notFound && (
+              <Button
+                intent="primary"
+                size="md"
+                onClick={() => setWizardOpen(true)}
+                state={isProcessing ? "loading" : "default"}
+              >
+                {hasFit ? "Regenerate" : "Generate"}
+              </Button>
+            )}
           </div>
         </div>
         <div className={cn("flex items-center gap-3")}>
@@ -266,6 +259,16 @@ export default function FitAnalysisPage({ params }: PageProps) {
           {fitLoading && !fit ? (
             <Text size="sm" color="muted">
               Loading...
+            </Text>
+          ) : notFound ? (
+            <EntityNotFound
+              resource="fit analysis"
+              backHref="/fits"
+              backLabel="Back to fits"
+            />
+          ) : error ? (
+            <Text size="sm" color="error">
+              Failed to load fit analysis.
             </Text>
           ) : !fit ? (
             <EmptyState
@@ -358,4 +361,27 @@ export default function FitAnalysisPage({ params }: PageProps) {
       />
     </div>
   );
+}
+
+type FitAnalysisLike = {
+  applicationId?: string | null;
+  draftApplicationId?: string | null;
+};
+
+function resolveParentLink(
+  fit: FitAnalysisLike | null | undefined,
+  notFound: boolean,
+) {
+  if (notFound) return { parentLabel: "fits", parentHref: "/fits" };
+  if (fit?.applicationId)
+    return {
+      parentLabel: "application",
+      parentHref: `/applications/${fit.applicationId}`,
+    };
+  if (fit?.draftApplicationId)
+    return {
+      parentLabel: "draft",
+      parentHref: `/draft-applications/${fit.draftApplicationId}`,
+    };
+  return { parentLabel: "draft", parentHref: "#" };
 }

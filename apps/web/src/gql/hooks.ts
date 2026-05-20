@@ -461,12 +461,13 @@ export type Query = {
   applicationStageEvents: Array<ApplicationStageEventType>;
   applications: Array<ApplicationType>;
   companies: Array<CompanyType>;
+  company: CompanyType;
   companyApplicationsCount: Scalars["Int"]["output"];
   draftApplication: DraftApplicationType;
   draftApplicationFit?: Maybe<FitAnalysisType>;
   draftApplications: Array<DraftApplicationType>;
   exchangeRates: CurrencyRates;
-  fit?: Maybe<FitAnalysisType>;
+  fit: FitAnalysisType;
   fitAnalyses: Array<FitAnalysisType>;
   generateApplicationLocationWithAI?: Maybe<Scalars["String"]["output"]>;
   generateApplicationNoteWithAI: Scalars["String"]["output"];
@@ -501,6 +502,8 @@ export type QueryApplicationsArgs = {
   filter?: InputMaybe<ApplicationQuickFilter>;
   runId?: InputMaybe<Scalars["ID"]["input"]>;
 };
+
+export type QueryCompanyArgs = { id: Scalars["ID"]["input"] };
 
 export type QueryCompanyApplicationsCountArgs = { id: Scalars["ID"]["input"] };
 
@@ -1175,6 +1178,18 @@ export type CompaniesQuery = {
   }>;
 };
 
+export type CompanyQueryVariables = Exact<{ id: Scalars["ID"]["input"] }>;
+
+export type CompanyQuery = {
+  __typename?: "Query";
+  company: {
+    __typename?: "CompanyType";
+    id: string;
+    name: string;
+    description?: string | null;
+  };
+};
+
 export type ExchangeRatesQueryVariables = Exact<{
   base: Scalars["String"]["input"];
   currencies: Array<Scalars["String"]["input"]> | Scalars["String"]["input"];
@@ -1384,7 +1399,7 @@ export type FitQueryVariables = Exact<{ id: Scalars["ID"]["input"] }>;
 
 export type FitQuery = {
   __typename?: "Query";
-  fit?: {
+  fit: {
     __typename?: "FitAnalysisType";
     id: string;
     applicationId?: string | null;
@@ -1424,7 +1439,7 @@ export type FitQuery = {
       id: string;
       title: string;
     } | null;
-  } | null;
+  };
 };
 
 export type ApplicationFitQueryVariables = Exact<{
@@ -3201,6 +3216,61 @@ export type CompaniesQueryHookResult = ReturnType<typeof useCompaniesQuery>;
 export type CompaniesLazyQueryHookResult = ReturnType<
   typeof useCompaniesLazyQuery
 >;
+
+export const CompanyDocument = gql`
+  query Company($id: ID!) {
+    company(id: $id) {
+      id
+      name
+      description
+    }
+  }
+`;
+
+/**
+ * __useCompanyQuery__
+ *
+ * To run a query within a React component, call `useCompanyQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCompanyQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCompanyQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useCompanyQuery(
+  baseOptions: ApolloReactHooks.QueryHookOptions<
+    CompanyQuery,
+    CompanyQueryVariables
+  > &
+    ({ variables: CompanyQueryVariables; skip?: boolean } | { skip: boolean }),
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useQuery<CompanyQuery, CompanyQueryVariables>(
+    CompanyDocument,
+    options,
+  );
+}
+export function useCompanyLazyQuery(
+  baseOptions?: ApolloReactHooks.LazyQueryHookOptions<
+    CompanyQuery,
+    CompanyQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useLazyQuery<CompanyQuery, CompanyQueryVariables>(
+    CompanyDocument,
+    options,
+  );
+}
+
+export type CompanyQueryHookResult = ReturnType<typeof useCompanyQuery>;
+export type CompanyLazyQueryHookResult = ReturnType<typeof useCompanyLazyQuery>;
 
 export const ExchangeRatesDocument = gql`
   query ExchangeRates($base: String!, $currencies: [String!]!) {
