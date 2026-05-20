@@ -4,6 +4,7 @@ import { UserEntity } from "@api/database/entities/user.entity";
 import { resetPublicSchemaAndMigrate } from "@api/database/test-db";
 import { SourceRunStatusEnum } from "@api/domains/sources/source-run-status.enum";
 import { SourcesRepository } from "@api/domains/sources/sources.repository";
+import { RoleEnum } from "@api/domains/users/role.enum";
 import type { DataSource } from "typeorm";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 
@@ -29,7 +30,7 @@ describe.skipIf(!hasDb)("SourcesRepository (integration)", () => {
         email: "sourcesrepo@example.com",
         name: "Sources Repo User",
         avatarUrl: null,
-        role: "user",
+        role: RoleEnum.USER,
       }),
     );
     userId = user.id;

@@ -43,13 +43,24 @@ enum AsyncMetadataStatus {
 
 type FitItemType {
   requirement: String!
-  source: String!
+  source: FitSource!
   weight: String
   type: String!
-  verdict: String!
+  verdict: FitVerdict!
   jdQuote: String!
   sourceQuotes: [String!]!
   suggestion: String
+}
+
+enum FitSource {
+  RESUME
+  PREFERENCE
+}
+
+enum FitVerdict {
+  FIT
+  GAP
+  UNCLEAR
 }
 
 type FitAnalysisType {
@@ -59,7 +70,7 @@ type FitAnalysisType {
   resumeId: ID!
   generationMetadata: AsyncMetadataType
   scoreRatio: Float
-  classification: String
+  classification: FitClassification
   fitCount: Int!
   gapCount: Int!
   unclearCount: Int!
@@ -68,6 +79,12 @@ type FitAnalysisType {
   updatedAt: DateTime!
   application: ApplicationType
   draftApplication: DraftApplicationType
+}
+
+enum FitClassification {
+  POSITIVE
+  NEUTRAL
+  NEGATIVE
 }
 
 type ConversionMetadataType {
@@ -144,10 +161,15 @@ type ApplicationStageEventType {
   userId: String!
   fromStage: ApplicationStage
   toStage: ApplicationStage!
-  source: String!
+  source: StageEventSource!
   reason: String
   scheduledAt: DateTime
   createdAt: DateTime!
+}
+
+enum StageEventSource {
+  MANUAL
+  SYSTEM
 }
 
 type ApplicationSalary {
@@ -359,7 +381,7 @@ input UpdateApplicationInput {
 input CreateApplicationStageEventInput {
   applicationId: String!
   toStage: ApplicationStage!
-  source: String
+  source: StageEventSource
   reason: String
   scheduledAt: DateTime
 }
