@@ -79,3 +79,4 @@ Thumbs.db
 
 # Editor workspace files
 *.code-workspace
+.playwright-mcp/
