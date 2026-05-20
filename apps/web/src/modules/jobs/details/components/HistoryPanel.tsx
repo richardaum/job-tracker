@@ -1,7 +1,5 @@
 "use client";
 
-import { gql } from "@apollo/client";
-import { useMutation } from "@apollo/client/react";
 import { tryRun } from "@job-tracker/try-run";
 import {
   Button,
@@ -26,6 +24,7 @@ import { EmptyState } from "@/components/empty-state";
 import {
   JobStage,
   JobStageEventsDocument,
+  useDeleteJobStageEventMutation,
   useJobStageEventsQuery,
   useUpdateJobStageEventMutation,
 } from "@/gql/hooks";
@@ -57,12 +56,6 @@ const quickScheduleOptions = [
   { label: "+3d", offsetDays: 3 },
 ] as const;
 
-const DeleteJobStageEventDocument = gql`
-  mutation DeleteJobStageEvent($id: ID!) {
-    deleteJobStageEvent(id: $id)
-  }
-`;
-
 export function HistoryPanel({
   jobId,
   onSuccess,
@@ -89,12 +82,10 @@ export function HistoryPanel({
     useUpdateJobStageEventMutation({
       refetchQueries: [{ query: JobStageEventsDocument, variables: { jobId } }],
     });
-  const [deleteStageEvent, { loading: deletingStageEvent }] = useMutation(
-    DeleteJobStageEventDocument,
-    {
+  const [deleteStageEvent, { loading: deletingStageEvent }] =
+    useDeleteJobStageEventMutation({
       refetchQueries: [{ query: JobStageEventsDocument, variables: { jobId } }],
-    },
-  );
+    });
 
   const stageEvents = eventsData?.jobStageEvents ?? [];
   const currentStage = stageEvents[0]?.toStage ?? JobStage.New;
