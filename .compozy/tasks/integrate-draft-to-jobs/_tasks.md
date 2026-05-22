@@ -16,4 +16,4 @@
 | 10  | Codegen: regenerate frontend hooks                     | completed | low        | task_05          |
 | 11  | Frontend: add Source content tab + Fill button         | completed | high       | task_10          |
 | 12  | Frontend: add Draft filter + indicator on cards        | completed | medium     | task_10          |
-| 13  | Frontend: remove draft routes and components           | pending   | medium     | task_11, task_12 |
+| 13  | Frontend: remove draft routes and components           | completed | medium     | task_11, task_12 |

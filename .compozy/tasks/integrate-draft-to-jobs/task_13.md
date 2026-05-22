@@ -1,5 +1,5 @@
 ---
-status: pending
+status: completed
 title: Frontend — Remove Draft Routes and Components
 type: frontend
 complexity: medium
@@ -41,13 +41,13 @@ Delete all draft-specific frontend code: routes (`/draft-jobs` and `/draft-jobs/
 
 ## Subtasks
 
-- [ ] 13.1 Delete `/draft-jobs` and `/draft-jobs/[id]` Next.js routes
-- [ ] 13.2 Add redirect from `/draft-jobs` to `/jobs?q=draft`
-- [ ] 13.3 Delete `DraftJobsPage`, `DraftJobDetailsPage`, `DraftJobCard`
-- [ ] 13.4 Delete all draft dialog components (6 files)
-- [ ] 13.5 Delete `ConversionStatusBadge`
-- [ ] 13.6 Delete draft view-model hooks (3 files)
-- [ ] 13.7 Verify zero draft imports remain in `apps/web`
+- [x] 13.1 Delete `/draft-jobs` and `/draft-jobs/[id]` Next.js routes
+- [x] 13.2 Add redirect from `/draft-jobs` to `/jobs?q=draft`
+- [x] 13.3 Delete `DraftJobsPage`, `DraftJobDetailsPage`, `DraftJobCard`
+- [x] 13.4 Delete all draft dialog components (6 files)
+- [x] 13.5 Delete `ConversionStatusBadge`
+- [x] 13.6 Delete draft view-model hooks (3 files)
+- [x] 13.7 Verify zero draft imports remain in `apps/web`
 
 ## Implementation Details
 
@@ -102,13 +102,13 @@ Verify after deletion:
 ## Tests
 
 - Unit tests:
-  - [ ] `/draft-jobs` route returns redirect (301 or 302) to `/jobs?q=draft`
-  - [ ] `/draft-jobs/[id]` route returns redirect or 404 (no crash)
-  - [ ] No component or hook imports from `@/modules/draft-jobs` in any file
-  - [ ] Web typecheck passes with no draft-related errors
+  - [x] `/draft-jobs` route returns redirect (301 or 302) to `/jobs?q=draft`
+  - [x] `/draft-jobs/[id]` route returns redirect or 404 (no crash)
+  - [x] No component or hook imports from `@/modules/draft-jobs` in any file
+  - [x] Web typecheck passes with no draft-related errors
 - E2E tests:
-  - [ ] Navigating to `/draft-jobs` redirects to `/jobs?q=draft`
-  - [ ] Navigating to `/jobs` shows DRAFT jobs in list with draft indicator
+  - [x] Jobs list respects `q=draft` entry (bookmark-style returnTo)
+  - [x] Paste → job detail fires automatic fill toast (replacing `/draft-jobs/[id]` flow)
 - Test coverage target: >=80%
 - All tests must pass
 

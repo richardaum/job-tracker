@@ -107,8 +107,8 @@ export function PasteListenerProvider({ children }: { children: ReactNode }) {
     setPastedContent("");
 
     const path = autoConvert
-      ? `/draft-jobs/${draftId}?autoConvert=true`
-      : `/draft-jobs/${draftId}`;
+      ? `/jobs/${draftId}?autoConvert=true`
+      : `/jobs/${draftId}`;
 
     router.push(path);
   }

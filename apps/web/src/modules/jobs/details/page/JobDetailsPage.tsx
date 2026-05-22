@@ -29,6 +29,7 @@ import { NotesPanelTabsContent } from "@/modules/jobs/details/components/NotesPa
 import { OverviewTabContent } from "@/modules/jobs/details/components/OverviewTabContent";
 import { SourceContentTabContent } from "@/modules/jobs/details/components/SourceContentTabContent";
 import { UpdateStatusAction } from "@/modules/jobs/details/components/UpdateStatusAction";
+import { useJobAutoFillFromQuery } from "@/modules/jobs/details/hooks/useJobAutoFillFromQuery";
 import { useJobDetailsViewModel } from "@/modules/jobs/details/hooks/useJobDetailsViewModel";
 import { jobDetailDisplayTitle } from "@/modules/jobs/details/utils/job-detail-title";
 import { type JobDetailsValues } from "@/modules/jobs/details/utils/job-details.shared";
@@ -117,6 +118,11 @@ export default function JobDetailsPage({ params }: PageProps) {
     }
     enqueueToast({ title: "Automatic fill queued.", intent: "success" });
   }, [enqueueToast, triggerFillAutomatically]);
+
+  useJobAutoFillFromQuery({
+    jobReady: Boolean(job) && status === "success",
+    onFill: handleFillAutomatically,
+  });
 
   function renderPrimaryTabTriggers({
     showSourceContent,

@@ -40,10 +40,9 @@ export class ImportJobService {
     const id = result?.data?.createJob?.id;
     if (!id) throw new Error("Failed to create draft job");
 
-    await this.tabService.openTab(
-      `${WEB_URL}/draft-jobs/${id}?autoConvert=true`,
-      { focus: true },
-    );
+    await this.tabService.openTab(`${WEB_URL}/jobs/${id}?autoConvert=true`, {
+      focus: true,
+    });
   }
 
   async getImportMenuLabel(): Promise<string> {

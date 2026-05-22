@@ -16,7 +16,7 @@ import {
 } from "@phosphor-icons/react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import React, { useState } from "react";
 
 import type { CurrentUser } from "@/hooks/useCurrentUser";
@@ -29,7 +29,12 @@ const API_URL = getApiBaseUrl();
 
 const navItems = [
   { href: "/jobs", label: "Jobs", icon: BriefcaseIcon },
-  { href: "/draft-jobs", label: "Draft jobs", icon: NotePencilIcon },
+  {
+    href: "/jobs?q=draft",
+    label: "Draft jobs",
+    icon: NotePencilIcon,
+    variant: "draftFilter" as const,
+  },
   { href: "/resumes", label: "Resumes", icon: FilesIcon },
   { href: "/matches", label: "Matches", icon: SparkleIcon },
   { href: "/sources", label: "Sources", icon: DownloadSimpleIcon },
@@ -67,6 +72,7 @@ interface SidebarProps {
 
 export function Sidebar({ open = false, onClose, user }: SidebarProps) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const router = useRouter();
   const [loggingOut, setLoggingOut] = useState(false);
   const initials = user.name
@@ -136,11 +142,21 @@ export function Sidebar({ open = false, onClose, user }: SidebarProps) {
           Menu
         </Text>
         <div className={cn("flex flex-col gap-0.5")}>
-          {navItems.map(({ href, label, icon: Icon }) => {
-            const isActive = pathname.startsWith(href);
+          {navItems.map(({ href, label, icon: Icon, variant }) => {
+            const draftFilterActive =
+              pathname === "/jobs" && searchParams.get("q") === "draft";
+            const jobsDefaultActive =
+              pathname.startsWith("/jobs") &&
+              !(pathname === "/jobs" && searchParams.get("q") === "draft");
+            const isActive =
+              variant === "draftFilter"
+                ? draftFilterActive
+                : jobsDefaultActive && href.startsWith("/jobs");
+
+            const key = `${href}:${variant ?? "default"}`;
             return (
               <Link
-                key={href}
+                key={key}
                 href={href}
                 onClick={() => onClose?.()}
                 className={cn(
