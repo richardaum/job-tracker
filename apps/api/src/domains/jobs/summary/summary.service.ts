@@ -8,6 +8,7 @@ import { JobEventBus } from "@api/domains/jobs/job-event.bus";
 import { ApplicationStageEnum } from "@api/domains/jobs/job-stage.enum";
 import { JobsRepository } from "@api/domains/jobs/jobs.repository";
 import { AsyncMetadataStatusEnum } from "@api/domains/shared/async-metadata.type";
+import { htmlToPlainText } from "@api/domains/shared/html-plain-text.util";
 import { markdownToTipTap, tipTapToPlainText } from "@job-tracker/tiptap";
 import { tryRun } from "@job-tracker/try-run";
 import { Injectable, Logger } from "@nestjs/common";
@@ -95,9 +96,17 @@ export class SummaryService {
 
     const [err] = await tryRun(async () => {
       const companyName = app.company?.name ?? null;
-      const descPlain = app.description
-        ? tipTapToPlainText(app.description)
-        : null;
+      /** Align with match-analysis: prefer captured HTML posting body when present. */
+      const descPlain = app.description?.trim()
+        ? tipTapToPlainText(app.description).trim()
+        : "";
+      const trimmedHtml = app.htmlContent?.trim() ?? "";
+      const htmlPlain = trimmedHtml ? htmlToPlainText(trimmedHtml).trim() : "";
+      const bodyPlain = htmlPlain
+        ? htmlPlain
+        : descPlain.trim()
+          ? descPlain
+          : null;
 
       const notes = await this.notesRepo.find({
         where: { jobId, userId },
@@ -113,6 +122,7 @@ export class SummaryService {
         .where("e.job_id = :jobId AND e.user_id = :userId", { jobId, userId })
         .orderBy("COALESCE(e.schedule_at, e.created_at)", "DESC")
         .addOrderBy("e.created_at", "DESC")
+        .addOrderBy("e.id", "DESC")
         .getMany();
 
       const stagesText = stageEvents
@@ -135,10 +145,10 @@ export class SummaryService {
       const salaryText = salaryParts.length > 0 ? salaryParts.join(" ") : null;
 
       const context = [
-        `Title: ${app.title}`,
+        ...(app.title?.trim() ? [`Title: ${app.title.trim()}`] : ["Title: —"]),
         companyName ? `Company: ${companyName}` : null,
         `Current stage: ${currentStage}`,
-        descPlain ? `Description:\n${descPlain}` : null,
+        bodyPlain ? `Description:\n${bodyPlain}` : null,
         `Tags: ${(app.tags ?? []).join(", ")}`,
         app.location ? `Location: ${app.location}` : null,
         app.workRegion ? `Work Region: ${app.workRegion}` : null,

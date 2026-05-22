@@ -1,4 +1,3 @@
-import { DraftJobEntity } from "@api/database/entities/draft-job.entity";
 import {
   MatchAnalysisEntity,
   type MatchItem,
@@ -72,14 +71,13 @@ export class MatchAnalysisService implements OnModuleInit {
     return this.repo.findByJobId(jobId, userId);
   }
 
+  /**
+   * Draft captures share the jobs PK after merge (`draft_jobs.id` → `jobs.id`), so lookups use unified `job_id`.
+   */
   async findForDraftJob(
     draftJobId: string,
     userId: string,
   ): Promise<MatchAnalysis | null> {
-    const job = await this.jobRepo.findOneByIdAndUserId(draftJobId, userId);
-    if (!job) {
-      return null;
-    }
     return this.repo.findByJobId(draftJobId, userId);
   }
 
@@ -96,13 +94,6 @@ export class MatchAnalysisService implements OnModuleInit {
 
   async findJobById(id: string, userId: string): Promise<Job | null> {
     return this.jobRepo.findOneByIdAndUserId(id, userId);
-  }
-
-  async findDraftJobById(
-    _id: string,
-    _userId: string,
-  ): Promise<DraftJobEntity | null> {
-    return Promise.resolve(null);
   }
 
   async generate(

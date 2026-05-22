@@ -1,5 +1,5 @@
 ---
-status: pending
+status: completed
 title: GraphQL — Remove Draft Types and Add fillJobAutomatically
 type: backend
 complexity: high
@@ -40,13 +40,13 @@ Remove all draft-specific GraphQL types, queries, mutations, and inputs from the
 
 ## Subtasks
 
-- [ ] 5.1 Remove all draft-specific queries and mutations from `DraftJobsResolver`
-- [ ] 5.2 Remove `DraftJobType`, `ConversionMetadataType`, `DraftJobConversionStatus` GraphQL types
-- [ ] 5.3 Remove `CreateDraftJobInput`, `UpdateDraftJobInput` input types
-- [ ] 5.4 Remove `createJobWithAI` mutation from `JobsResolver`
-- [ ] 5.5 Add `fillJobAutomatically` mutation to `JobsResolver`
-- [ ] 5.6 Remove `DraftJobsModule` import from `JobsModule` and `MatchAnalysisModule`
-- [ ] 5.7 Restart API and verify schema.gql regenerates without draft types
+- [x] 5.1 Remove all draft-specific queries and mutations from `DraftJobsResolver`
+- [x] 5.2 Remove `DraftJobType`, `ConversionMetadataType`, `DraftJobConversionStatus` GraphQL types
+- [x] 5.3 Remove `CreateDraftJobInput`, `UpdateDraftJobInput` input types
+- [x] 5.4 Remove `createJobWithAI` mutation from `JobsResolver`
+- [x] 5.5 Add `fillJobAutomatically` mutation to `JobsResolver`
+- [x] 5.6 Remove `DraftJobsModule` import from `JobsModule` and `MatchAnalysisModule`
+- [x] 5.7 Restart API and verify schema.gql regenerates without draft types
 
 ## Implementation Details
 
@@ -89,16 +89,16 @@ The `fillJobAutomatically` mutation on `JobsResolver` initially returns the job 
 ## Tests
 
 - Unit tests:
-  - [ ] `fillJobAutomatically` mutation exists on schema and accepts `jobId: ID!`
-  - [ ] `JobType` includes `fillMetadata` field (nullable AsyncMetadataType)
-  - [ ] `createDraftJob` mutation NOT present in schema
-  - [ ] `draftJobs` query NOT present in schema
-  - [ ] `createJobWithAI` mutation NOT present in schema
-  - [ ] `DraftJobType` NOT present in schema types
-  - [ ] `ConversionMetadataType` NOT present in schema types
+  - [x] `fillJobAutomatically` mutation exists on schema and accepts `jobId: ID!`
+  - [x] `JobType` includes `fillMetadata` field (nullable AsyncMetadataType)
+  - [x] `createDraftJob` mutation NOT present in schema
+  - [x] `draftJobs` query NOT present in schema
+  - [x] `createJobWithAI` mutation NOT present in schema
+  - [x] `DraftJobType` NOT present in schema types
+  - [x] `ConversionMetadataType` NOT present in schema types
 - Integration tests:
-  - [ ] Call `fillJobAutomatically` mutation via GraphQL — returns JobType with fillMetadata.status
-  - [ ] Call removed `createDraftJob` mutation — GraphQL validation error (unknown field)
+  - [x] Call `fillJobAutomatically` mutation via GraphQL — returns JobType with fillMetadata.status
+  - [x] Call removed `createDraftJob` mutation — GraphQL validation error (unknown field)
 - Test coverage target: >=80%
 - All tests must pass
 

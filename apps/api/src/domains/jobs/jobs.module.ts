@@ -7,7 +7,7 @@ import { MatchAnalysisEntity } from "@api/database/entities/match-analysis.entit
 import { SourceRunEntity } from "@api/database/entities/source-run.entity";
 import { AuthModule } from "@api/domains/auth/auth.module";
 import { CompaniesModule } from "@api/domains/companies/companies.module";
-import { DraftJobsModule } from "@api/domains/draft-jobs/draft-jobs.module";
+import { DraftJobsCoreModule } from "@api/domains/draft-jobs/draft-jobs-core.module";
 import { LibAiModule } from "@api/lib/ai";
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
@@ -37,7 +37,7 @@ import { TagsModule } from "./tags/tags.module";
     ]),
     AuthModule,
     CompaniesModule,
-    DraftJobsModule,
+    DraftJobsCoreModule,
     LibAiModule,
     SalaryModule,
     TagsModule,

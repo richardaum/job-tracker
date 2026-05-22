@@ -1,4 +1,4 @@
-import { DraftJobConversionStatusEnum } from "@api/database/entities/draft-job.entity";
+import { DraftJobConversionStatusEnum } from "@api/database/entities/draft-job-conversion.enum";
 import { Column } from "typeorm";
 
 export class ConversionMetadataEmbedded {

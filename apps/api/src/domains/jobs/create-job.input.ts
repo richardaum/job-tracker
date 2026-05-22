@@ -1,12 +1,16 @@
 import { Field, ID, InputType, Int } from "@nestjs/graphql";
+import { IsOptional, MaxLength } from "class-validator";
 
 import { ApplicationSourceEnum } from "./job-source.enum";
+import { JOB_TITLE_MAX_LENGTH } from "./job-title.constraints";
 import { SalaryPeriodEnum } from "./salary/salary-period.enum";
 
 @InputType()
 export class CreateJobInput {
-  @Field()
-  title!: string;
+  @Field(() => String, { nullable: true })
+  @IsOptional()
+  @MaxLength(JOB_TITLE_MAX_LENGTH)
+  title?: string | null;
 
   @Field()
   company!: string;
@@ -44,6 +48,15 @@ export class CreateJobInput {
   @Field(() => String, { nullable: true })
   workRegion?: string | null;
 
+  @Field(() => String, { nullable: true })
+  @IsOptional()
+  @MaxLength(5_242_880)
+  htmlContent?: string | null;
+
   @Field(() => ID, { nullable: true })
   sourceRunId?: string | null;
+
+  /** When true, creates a persisted `jobs` row in {@link ApplicationStageEnum.DRAFT} (replacement for legacy `createDraftJob`). */
+  @Field(() => Boolean, { nullable: true })
+  createAsDraftCapture?: boolean | null;
 }

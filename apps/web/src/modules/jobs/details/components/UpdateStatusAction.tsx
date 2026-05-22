@@ -13,7 +13,7 @@ import {
 import React, { useMemo, useState } from "react";
 
 import {
-  JobStage,
+  ApplicationStage,
   JobStageEventsDocument,
   StageEventSource,
   useCreateJobStageEventMutation,
@@ -24,15 +24,16 @@ import {
   getDateTimeInputValueFromNow,
 } from "@/modules/jobs/details/utils/scheduled-at";
 
-const stageOptions: Array<{ value: JobStage; label: string }> = [
-  { value: JobStage.New, label: "New" },
-  { value: JobStage.Duplicated, label: "Duplicated" },
-  { value: JobStage.Applied, label: "Applied" },
-  { value: JobStage.RecruiterScreen, label: "Recruiter Screen" },
-  { value: JobStage.Technical, label: "Technical" },
-  { value: JobStage.CulturalFit, label: "Cultural Fit" },
-  { value: JobStage.Offer, label: "Offer" },
-  { value: JobStage.Rejected, label: "Rejected" },
+const stageOptions: Array<{ value: ApplicationStage; label: string }> = [
+  { value: ApplicationStage.Draft, label: "Draft" },
+  { value: ApplicationStage.New, label: "New" },
+  { value: ApplicationStage.Duplicated, label: "Duplicated" },
+  { value: ApplicationStage.Applied, label: "Applied" },
+  { value: ApplicationStage.RecruiterScreen, label: "Recruiter Screen" },
+  { value: ApplicationStage.Technical, label: "Technical" },
+  { value: ApplicationStage.CulturalFit, label: "Cultural Fit" },
+  { value: ApplicationStage.Offer, label: "Offer" },
+  { value: ApplicationStage.Rejected, label: "Rejected" },
 ];
 
 const quickScheduleOptions = [
@@ -52,7 +53,7 @@ export function UpdateStatusAction({
   onError,
 }: {
   jobId: string;
-  currentStage: JobStage;
+  currentStage: ApplicationStage;
   trigger?: React.ReactElement;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
@@ -60,9 +61,9 @@ export function UpdateStatusAction({
   onError?: (message: string) => void;
 }) {
   const [internalOpen, setInternalOpen] = useState(false);
-  const [selectedStage, setSelectedStage] = useState<JobStage | undefined>(
-    undefined,
-  );
+  const [selectedStage, setSelectedStage] = useState<
+    ApplicationStage | undefined
+  >(undefined);
   const [scheduledAtDraft, setScheduledAtDraft] = useState("");
   const [reasonDraft, setReasonDraft] = useState("");
 
@@ -130,7 +131,9 @@ export function UpdateStatusAction({
         <FormField label="Status" htmlFor={`history-status-${jobId}`}>
           <Select
             value={selectedStage}
-            onValueChange={(value) => setSelectedStage(value as JobStage)}
+            onValueChange={(value) =>
+              setSelectedStage(value as ApplicationStage)
+            }
             options={selectOptions}
             placeholder={`Current: ${formatStage(currentStage)}`}
             size="sm"

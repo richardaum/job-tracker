@@ -27,7 +27,11 @@ export type CreateJobRepoDto = Pick<
   | "tags"
   | "location"
   | "workRegion"
-> & { draftJobId?: string | null; sourceRunId?: string | null };
+> & {
+  draftJobId?: string | null;
+  sourceRunId?: string | null;
+  htmlContent?: string | null;
+};
 export type UpdateJobRepoDto = Partial<CreateJobRepoDto>;
 
 export type JobPostingContextSnippet = {
@@ -55,6 +59,14 @@ export class JobsRepository {
     private readonly stageEventsRepo: Repository<JobStageEventEntity>,
   ) {}
 
+  /**
+   * List jobs with optional quick filter. **Product / PRD:** when `filter` is omitted (the main "All" jobs
+   * listing), results **include** `stage = DRAFT` captures alongside normal jobs - do not add a blanket
+   * draft exclusion on this path. Explicit non-DRAFT quick filters exclude persisted drafts (`jobs.stage`),
+   * then derive pipeline state via latest stage-event subqueries (same temporal ordering as batch helpers).
+   * Call sites that need non-draft slices without matching an {@link ApplicationQuickFilterEnum} value must use
+   * a bespoke query or a dedicated repo helper instead of repurposing undefined `filter` semantics.
+   */
   async findAllByUserId(
     userId: string,
     filter?: ApplicationQuickFilterEnum,
@@ -103,6 +115,11 @@ export class JobsRepository {
       return qb.getMany();
     }
 
+    /** Non-DRAFT quick filters derive state from stage events — still exclude persisted DRAFT rows. */
+    qb.andWhere("a.stage != :draftExclude", {
+      draftExclude: ApplicationStageEnum.DRAFT,
+    });
+
     const latestStageSub = `(${qb
       .subQuery()
       .select("e.to_stage")
@@ -131,6 +148,7 @@ export class JobsRepository {
         stage: ApplicationStageEnum.APPLIED,
       });
     } else if (filter === ApplicationQuickFilterEnum.ACTIVE) {
+      // Defensive: never treat latest event DRAFT as "active pipeline" even if row metadata drifts.
       qb.andWhere(`${latestStageSub} NOT IN (:...stages)`, {
         userId,
         stages: [
@@ -139,6 +157,9 @@ export class JobsRepository {
           ApplicationStageEnum.REJECTED,
           ApplicationStageEnum.DUPLICATED,
         ],
+      }).andWhere(`${latestStageSub} != :excludeDraftLatestEvtActive`, {
+        userId,
+        excludeDraftLatestEvtActive: ApplicationStageEnum.DRAFT,
       });
     } else if (filter === ApplicationQuickFilterEnum.INCOMING) {
       qb.andWhere(`${latestStageSub} NOT IN (:...stages)`, {
@@ -148,17 +169,22 @@ export class JobsRepository {
           ApplicationStageEnum.REJECTED,
           ApplicationStageEnum.DUPLICATED,
         ],
-      }).andWhere(
-        `EXISTS ${qb
-          .subQuery()
-          .select("1")
-          .from(JobStageEventEntity, "e")
-          .where("e.job_id = a.id")
-          .andWhere("e.user_id = :userId")
-          .andWhere("e.schedule_at >= :today")
-          .getQuery()}`,
-        { userId, today: new Date(new Date().setHours(0, 0, 0, 0)) },
-      );
+      })
+        .andWhere(`${latestStageSub} != :excludeDraftLatestEvtIncoming`, {
+          userId,
+          excludeDraftLatestEvtIncoming: ApplicationStageEnum.DRAFT,
+        })
+        .andWhere(
+          `EXISTS ${qb
+            .subQuery()
+            .select("1")
+            .from(JobStageEventEntity, "e")
+            .where("e.job_id = a.id")
+            .andWhere("e.user_id = :userId")
+            .andWhere("e.schedule_at >= :today")
+            .getQuery()}`,
+          { userId, today: new Date(new Date().setHours(0, 0, 0, 0)) },
+        );
     }
 
     return qb.getMany();
@@ -166,7 +192,8 @@ export class JobsRepository {
 
   /**
    * Up to two recent jobs for this user whose company matches (case-insensitive, trimmed),
-   * with non-empty plaintext extracted from TipTap descriptions.
+   * with non-empty plaintext extracted from TipTap descriptions. Draft captures excluded so snippets
+   * do not bleed placeholder-draft rows into AI/context paths.
    */
   async findUpToTwoJobPostingContextsByCompanyName(
     userId: string,
@@ -181,6 +208,9 @@ export class JobsRepository {
       .createQueryBuilder("a")
       .innerJoin("a.company", "c")
       .where("a.user_id = :userId", { userId })
+      .andWhere("a.stage != :excludeDraftPostingSnippet", {
+        excludeDraftPostingSnippet: ApplicationStageEnum.DRAFT,
+      })
       .andWhere("LOWER(TRIM(c.name)) = LOWER(TRIM(:company))", {
         company: normalized,
       })
@@ -243,18 +273,32 @@ export class JobsRepository {
     });
   }
 
+  /**
+   * Keep denormalized `jobs.stage` aligned with the canonical initial pipeline stage (before/for the
+   * first system stage event). Required when converting a DRAFT row via `create` + reused PK: plain
+   * `save()` would leave stale `stage = DRAFT` despite `NEW`/`DUPLICATED` events.
+   */
+  async setPersistedStage(
+    userId: string,
+    jobId: string,
+    stage: ApplicationStageEnum,
+  ): Promise<void> {
+    await this.jobsRepo.update({ id: jobId, userId }, { stage });
+  }
+
   async create(userId: string, dto: CreateJobRepoDto): Promise<Job> {
-    const { draftJobId: _draftIgnored, sourceRunId, ...rest } = dto;
+    const { draftJobId, sourceRunId, ...rest } = dto;
+    const draftPk =
+      typeof draftJobId === "string" && draftJobId.trim().length > 0
+        ? draftJobId.trim()
+        : null;
     const row = this.jobsRepo.create({
       userId,
       ...rest,
       sourceRunId: sourceRunId ?? null,
+      ...(draftPk ? { id: draftPk } : {}),
     });
     return this.jobsRepo.save(row);
-  }
-
-  async findDraftJobId(_id: string, _userId: string): Promise<string | null> {
-    return Promise.resolve(null);
   }
 
   async detachJobsSourceRun(
@@ -307,10 +351,14 @@ export class JobsRepository {
     jobId: string,
     userId: string,
   ): Promise<JobStageEvent | null> {
-    return this.stageEventsRepo.findOne({
-      where: { jobId, userId },
-      order: { createdAt: "DESC", id: "DESC" },
-    });
+    return this.stageEventsRepo
+      .createQueryBuilder("e")
+      .where("e.job_id = :jobId AND e.user_id = :userId", { jobId, userId })
+      .orderBy("COALESCE(e.schedule_at, e.created_at)", "DESC")
+      .addOrderBy("e.created_at", "DESC")
+      .addOrderBy("e.id", "DESC")
+      .limit(1)
+      .getOne();
   }
 
   /**
@@ -487,5 +535,43 @@ export class JobsRepository {
       })
       .execute();
     return result.affected ?? 0;
+  }
+
+  /**
+   * Sets fill pipeline metadata on a job owned by {@param userId}
+   * (same column pattern as {@link updateSummaryMetadata}).
+   */
+  async updateFillMetadata(
+    jobId: string,
+    expectedStatus: Pick<AsyncMetadataEmbedded, "status"> | null,
+    patch: Partial<AsyncMetadataEmbedded> & {
+      status: AsyncMetadataEmbedded["status"];
+    },
+    userId: string,
+  ): Promise<boolean> {
+    const fillUpdate: Partial<AsyncMetadataEmbedded> = { status: patch.status };
+    if (patch.error !== undefined) {
+      fillUpdate.error = patch.error;
+    }
+    if (patch.timestamp !== undefined) {
+      fillUpdate.timestamp = patch.timestamp;
+    }
+
+    const qb = this.jobsRepo
+      .createQueryBuilder()
+      .update(JobEntity)
+      .set({ fillMetadata: fillUpdate })
+      .where(`"id" = :id AND "user_id" = :userId`, { id: jobId, userId });
+
+    if (expectedStatus === null) {
+      qb.andWhere(`"fill_status" IS NULL`);
+    } else {
+      qb.andWhere(`"fill_status" = :expected`, {
+        expected: expectedStatus.status,
+      });
+    }
+
+    const result = await qb.execute();
+    return (result.affected ?? 0) > 0;
   }
 }

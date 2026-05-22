@@ -10,11 +10,10 @@ vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
 
 // Mock GraphQL hooks
 vi.mock("@/gql/hooks", () => ({
-  DraftJobsListDocument: { __brand: "DocumentNode" },
-  useCreateDraftJobMutation: () => [
-    vi.fn(() =>
-      Promise.resolve({ data: { createDraftApplication: { id: "1" } } }),
-    ),
+  ApplicationQuickFilter: { Draft: "DRAFT" },
+  JobsDocument: { __brand: "DocumentNode" },
+  useCreateDraftCaptureJobMutation: () => [
+    vi.fn(() => Promise.resolve({ data: { createJob: { id: "1" } } })),
     { loading: false },
   ],
 }));

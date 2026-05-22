@@ -9,4 +9,6 @@ export enum ApplicationQuickFilterEnum {
   DUPLICATED = "DUPLICATED",
 }
 
-registerEnumType(ApplicationQuickFilterEnum, { name: "JobQuickFilter" });
+registerEnumType(ApplicationQuickFilterEnum, {
+  name: "ApplicationQuickFilter",
+});

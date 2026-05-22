@@ -6,16 +6,13 @@ import { ArrowsClockwiseIcon, TrashIcon } from "@phosphor-icons/react";
 import NextLink from "next/link";
 import { useState } from "react";
 
-import {
-  type DraftJobsListQuery,
-  useCreateJobWithAiMutation,
-} from "@/gql/hooks";
+import type { JobsQuery } from "@/gql/hooks";
+import { useFillJobAutomaticallyMutation } from "@/gql/hooks";
 import { ConvertDraftConfirmationDialog } from "@/modules/draft-jobs/details/components/ConvertDraftConfirmationDialog";
-import { ConvertDraftConflictDialog } from "@/modules/draft-jobs/details/components/ConvertDraftConflictDialog";
 import { DeleteDraftJobDialog } from "@/modules/draft-jobs/list/components/DeleteDraftJobDialog";
 import { ConversionStatusBadge } from "@/modules/draft-jobs/shared/components/ConversionStatusBadge";
 
-type DraftListItem = DraftJobsListQuery["draftJobs"][number];
+type DraftListItem = JobsQuery["jobs"][number];
 
 const dateFormatter = new Intl.DateTimeFormat("en-US", {
   month: "short",
@@ -27,7 +24,9 @@ function formatDate(date: string): string {
   return dateFormatter.format(new Date(date));
 }
 
-function draftDisplayUrl(url: string | null | undefined): string {
+function draftDisplayUrl(urls: readonly string[]): string {
+  const url =
+    urls.length > 0 && urls[0]!.trim() !== "" ? urls[0]!.trim() : null;
   if (!url) return "—";
   const [err, joined] = tryRun(() => {
     const u = new URL(url);
@@ -50,27 +49,23 @@ interface DraftJobCardProps {
 export function DraftJobCard({ draft, onSuccess, onError }: DraftJobCardProps) {
   const [convertConfirmDialogOpen, setConvertConfirmDialogOpen] =
     useState(false);
-  const [convertConflictDialogOpen, setConvertConflictDialogOpen] =
-    useState(false);
-  const [createJobWithAI] = useCreateJobWithAiMutation();
-  const label = draft.title.trim() || draftDisplayUrl(draft.url);
+
+  const [fillJobAutomatically] = useFillJobAutomaticallyMutation();
+  const label = draft.title?.trim().length
+    ? draft.title!.trim()
+    : draftDisplayUrl(draft.urls);
 
   async function handleConvertToJob() {
-    if (draft.jobId) {
-      setConvertConflictDialogOpen(true);
-      return;
-    }
-
     const [error] = await tryRun(
-      createJobWithAI({ variables: { draftId: draft.id } }),
+      fillJobAutomatically({ variables: { jobId: draft.id } }),
     );
 
     if (error) {
-      onError?.(error.message || "Failed to start draft conversion.");
+      onError?.(error.message || "Failed to start automatic fill.");
       return;
     }
 
-    onSuccess?.("Conversion started in background.");
+    onSuccess?.("Automatic fill queued.");
   }
 
   const title = (
@@ -116,24 +111,8 @@ export function DraftJobCard({ draft, onSuccess, onError }: DraftJobCardProps) {
         }
         draftId={draft.id}
         draftSummary={label}
-        hasLinkedJob={Boolean(draft.jobId)}
         onSuccess={onSuccess}
         onError={onError}
-      />
-      <ConvertDraftConflictDialog
-        open={convertConflictDialogOpen}
-        draftId={draft.id}
-        previousJobId={draft.jobId ?? null}
-        onOpenChange={setConvertConflictDialogOpen}
-        onDeletePreviousSuccess={() => {
-          onSuccess?.("Linked jobs removed for this draft.");
-        }}
-        onConversionSuccess={() => {
-          onSuccess?.("Conversion started in background.");
-        }}
-        onError={(message) => {
-          onError?.(message);
-        }}
       />
       <ConvertDraftConfirmationDialog
         open={convertConfirmDialogOpen}
@@ -144,14 +123,17 @@ export function DraftJobCard({ draft, onSuccess, onError }: DraftJobCardProps) {
     </ListItemCard.Actions>
   );
 
-  const displayDate = draft.conversionMetadata?.timestamp ?? draft.createdAt;
-  const dateLabel = draft.conversionMetadata?.timestamp
-    ? "Converted at"
-    : "Created at";
+  const displayDate = draft.fillMetadata?.timestamp ?? draft.createdAt;
+  const dateLabel = draft.fillMetadata?.timestamp ? "Updated at" : "Created at";
+  const showSpinner =
+    draft.fillMetadata?.status?.toLowerCase() === "processing";
 
   const meta = (
     <>
-      <ConversionStatusBadge conversionMetadata={draft.conversionMetadata} />
+      <ConversionStatusBadge
+        conversionMetadata={draft.fillMetadata}
+        showSpinner={showSpinner}
+      />
       <span className={cn("text-text-muted text-xs")}>
         {dateLabel} {formatDate(displayDate)}
       </span>

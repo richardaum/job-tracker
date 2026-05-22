@@ -1,7 +1,0 @@
-mutation CreateDraftJob($input: CreateDraftJobInput!) {
-  createDraftJob(input: $input) {
-    id
-    url
-    title
-  }
-}

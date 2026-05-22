@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 const QUICK_FILTERS = [
   { key: "all", label: "All", tooltip: "Show all jobs" },
+  { key: "draft", label: "Draft", tooltip: "Imported jobs awaiting fill" },
   {
     key: "incoming",
     label: "Incoming",

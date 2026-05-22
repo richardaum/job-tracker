@@ -1,0 +1,15 @@
+mutation CreateDraftCaptureJob($input: CreateJobInput!) {
+  createJob(input: $input) {
+    id
+    title
+    urls
+    htmlContent
+    currentStage
+    fillMetadata {
+      status
+      error
+      timestamp
+    }
+    createdAt
+  }
+}

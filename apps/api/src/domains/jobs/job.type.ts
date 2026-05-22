@@ -41,6 +41,9 @@ export class JobType {
   @Field(() => String, { nullable: true })
   workRegion!: string | null;
 
+  @Field(() => String, { nullable: true })
+  htmlContent!: string | null;
+
   /** Latest pipeline stage, derived from the most recent stage event. */
   @Field(() => ApplicationStageEnum)
   currentStage!: ApplicationStageEnum;
@@ -71,9 +74,9 @@ export class JobType {
   @Field(() => AsyncMetadataType, { nullable: true })
   summaryMetadata?: AsyncMetadataType | null;
 
+  @Field(() => AsyncMetadataType, { nullable: true })
+  fillMetadata?: AsyncMetadataType | null;
+
   @Field(() => MatchAnalysisType, { nullable: true })
   match?: MatchAnalysisType;
-
-  @Field(() => ID, { nullable: true })
-  draftJobId?: string | null;
 }

@@ -7,7 +7,8 @@ function formatConversionStatus(status: string | null | undefined): string {
   if (!status) return "Idle";
   const normalized = status.toLowerCase();
   if (normalized === "processing") return "Processing";
-  if (normalized === "succeeded") return "Succeeded";
+  if (normalized === "succeeded" || normalized === "completed")
+    return "Succeeded";
   if (normalized === "failed") return "Failed";
   return "Idle";
 }
@@ -18,7 +19,8 @@ function conversionStatusBadgeIntent(
   if (!status) return "default";
   const normalized = status.toLowerCase();
   if (normalized === "processing") return "warning";
-  if (normalized === "succeeded") return "success";
+  if (normalized === "succeeded" || normalized === "completed")
+    return "success";
   if (normalized === "failed") return "error";
   return "default";
 }

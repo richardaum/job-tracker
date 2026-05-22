@@ -1,12 +1,33 @@
+import { DRAFT_JOB_PLACEHOLDER_COMPANY_NAME } from "@api/domains/draft-jobs/draft-placeholder.constants";
 import type { MigrationInterface, QueryRunner } from "typeorm";
 
-/** Placeholder company for migrated orphan drafts until the user assigns a real company. */
-export const PLACEHOLDER_DRAFT_COMPANY_NAME = "Draft (pending company)";
+/** Re-export for integration tests — same string as migrate-time placeholder company. */
+export const PLACEHOLDER_DRAFT_COMPANY_NAME =
+  DRAFT_JOB_PLACEHOLDER_COMPANY_NAME;
+
+/**
+ * Draft → Jobs merge migration.
+ *
+ * **Operational:**
+ * - `transaction = false` because PostgreSQL forbids using a newly-added enum label in the same
+ *   transaction as `ALTER TYPE ... ADD VALUE`. If `up()` fails mid-way, **repair manually**
+ *   (inspect partial schema, rerun from a restored snapshot, or complete steps by hand)—there is no
+ *   single transactional guarantee for the whole migration (no atomic rollback path).
+ *
+ * **`down()` caveats:**
+ * - Only orphaned placeholder-backed DRAFT jobs are split back into `draft_jobs`; **jobs that had**
+ *   **`draft_job_id` merged in `up` cannot be reconstructed** — `down` still **drops**
+ *   **`html_content` / fill / stage** columns for **all** jobs, **destroying migrated HTML/fill/stage**
+ *   data for merged rows (there is intentionally no narrower `ALTER` path for merged rows only).
+ * - `application_stage` enum value `DRAFT` cannot be cleanly removed without recreating the enum type;
+ *   `down()` does **not** remove `DRAFT` — operators restoring pre-merge code must tolerate the extra label
+ *   or recreate the enum in a manual maintenance window.
+ */
 
 export class IntegrateDraftIntoJobs1767800000000 implements MigrationInterface {
   /**
    * Postgres: enum labels added with `ALTER TYPE ... ADD VALUE` cannot be assigned in the same
-   * transaction that adds them (“unsafe use of new value”). Disabling wrapping fixes integration tests and deploys.
+   * transaction that adds them ("unsafe use of new value"). Disabling wrapping fixes integration tests and deploys.
    */
   transaction?: boolean = false;
 
@@ -35,6 +56,7 @@ export class IntegrateDraftIntoJobs1767800000000 implements MigrationInterface {
         ADD COLUMN IF NOT EXISTS "stage" "application_stage" NOT NULL DEFAULT 'NEW'
     `);
 
+    // Backfill persisted jobs.stage using same latest-event ordering as JobsRepository queries.
     await queryRunner.query(`
       UPDATE "jobs" j
       SET "stage" = ls."to_stage"
@@ -43,7 +65,10 @@ export class IntegrateDraftIntoJobs1767800000000 implements MigrationInterface {
           "job_id",
           "to_stage"
         FROM "job_stage_events"
-        ORDER BY "job_id", "created_at" DESC
+        ORDER BY "job_id",
+          COALESCE("schedule_at", "created_at") DESC,
+          "created_at" DESC,
+          "id" DESC
       ) ls
       WHERE j."id" = ls."job_id"
     `);
@@ -234,6 +259,23 @@ export class IntegrateDraftIntoJobs1767800000000 implements MigrationInterface {
     `);
 
     await queryRunner.query(`
+      -- Orphan analyses: unmigrated rows still have job_id IS NULL once draft_job_id is dropped.
+      -- DELETE (+ WARNING with row count) so SET NOT NULL cannot fail on legacy NULLs.
+      DO $purge$
+      DECLARE
+        deleted_count integer;
+      BEGIN
+        DELETE FROM "match_analysis" WHERE "job_id" IS NULL;
+        GET DIAGNOSTICS deleted_count = ROW_COUNT;
+        IF deleted_count > 0 THEN
+          RAISE WARNING 'IntegrateDraftIntoJobs: deleted % orphan match_analysis row(s) (NULL job_id after repoint); review backups if unexpected',
+            deleted_count;
+        END IF;
+      END;
+      $purge$
+    `);
+
+    await queryRunner.query(`
       ALTER TABLE "match_analysis"
         ALTER COLUMN "job_id" SET NOT NULL
     `);
@@ -249,6 +291,13 @@ export class IntegrateDraftIntoJobs1767800000000 implements MigrationInterface {
     await queryRunner.query(`DROP TABLE IF EXISTS "draft_jobs"`);
   }
 
+  /**
+   * @danger — best-effort rewind only:
+   * - Recreates `draft_jobs` **only** for placeholder-company rows and rewires orphan analyses.
+   * - Immediately after, **drops** `jobs.html_content`, `fill_*`, and `jobs.stage` for **every**
+   *   job — merged real applications **lose captured HTML/fill/state** irrevocably; this is NOT a
+   *   full inverse of `up`. Prefer restore-from-backup over `down` for production merges.
+   */
   async down(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
       ALTER TABLE "match_analysis"
@@ -362,6 +411,7 @@ export class IntegrateDraftIntoJobs1767800000000 implements MigrationInterface {
       [PLACEHOLDER_DRAFT_COMPANY_NAME],
     );
 
+    // ⚠ Deletes merged draft→job enrichment for ALL rows (see class-level `down()` warning).
     await queryRunner.query(`
       ALTER TABLE "jobs" DROP COLUMN IF EXISTS "html_content"
     `);

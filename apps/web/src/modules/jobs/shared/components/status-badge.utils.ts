@@ -1,6 +1,6 @@
-import { JobStage } from "@/gql/hooks";
+import { ApplicationStage } from "@/gql/hooks";
 
-export function formatStage(value: JobStage) {
+export function formatStage(value: ApplicationStage) {
   return value
     .toLowerCase()
     .split("_")

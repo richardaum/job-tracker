@@ -1,3 +1,7 @@
+/**
+ * Requires `DATABASE_E2E_URL` (Postgres). The suite is skipped when unset; set the var in CI if you
+ * want this migration exercised in pipelines.
+ */
 import { randomUUID } from "node:crypto";
 
 import { buildDataSourceOptions } from "@api/database/data-source-options";

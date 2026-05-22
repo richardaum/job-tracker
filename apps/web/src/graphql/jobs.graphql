@@ -7,7 +7,7 @@ fragment JobSalarySelection on JobType {
   }
 }
 
-query Jobs($filter: JobQuickFilter, $company: String, $runId: ID) {
+query Jobs($filter: ApplicationQuickFilter, $company: String, $runId: ID) {
   jobs(filter: $filter, company: $company, runId: $runId) {
     id
     title
@@ -31,12 +31,18 @@ query Jobs($filter: JobQuickFilter, $company: String, $runId: ID) {
       error
       timestamp
     }
+    fillMetadata {
+      status
+      error
+      timestamp
+    }
     currentStage
     currentStageReason
     currentStageAt
     createdAt
     match {
       id
+      resumeId
       scoreRatio
       classification
       matchCount
@@ -75,13 +81,19 @@ query Job($id: ID!) {
       error
       timestamp
     }
+    fillMetadata {
+      status
+      error
+      timestamp
+    }
+    htmlContent
     currentStage
     currentStageReason
     currentStageAt
     createdAt
-    draftJobId
     match {
       id
+      resumeId
       scoreRatio
       classification
       matchCount
@@ -277,5 +289,33 @@ mutation GenerateJobSummary($jobId: ID!) {
       error
       timestamp
     }
+  }
+}
+
+mutation FillJobAutomatically($jobId: ID!) {
+  fillJobAutomatically(jobId: $jobId) {
+    id
+    fillMetadata {
+      status
+      error
+      timestamp
+    }
+    currentStage
+  }
+}
+
+mutation CreateDraftCaptureJob($input: CreateJobInput!) {
+  createJob(input: $input) {
+    id
+    title
+    urls
+    htmlContent
+    currentStage
+    fillMetadata {
+      status
+      error
+      timestamp
+    }
+    createdAt
   }
 }

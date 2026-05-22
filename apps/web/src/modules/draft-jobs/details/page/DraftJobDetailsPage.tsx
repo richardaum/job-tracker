@@ -29,16 +29,14 @@ import React, { useCallback, useState } from "react";
 import { BackToLink } from "@/components/back-to-link";
 import { EntityNotFound } from "@/components/entity-not-found";
 import {
-  DraftJobConversionStatus,
-  useCreateJobWithAiMutation,
-  useGenerateDraftJobMatchMutation,
-  useJobQuery,
-  useUpdateDraftJobMutation,
+  ApplicationStage,
+  useFillJobAutomaticallyMutation,
+  useGenerateJobMatchMutation,
+  useUpdateJobMutation,
 } from "@/gql/hooks";
 import { useEventSource } from "@/hooks/useEventSource";
 import { getApiBaseUrl } from "@/lib/api-endpoints";
 import { ConvertDraftConfirmationDialog } from "@/modules/draft-jobs/details/components/ConvertDraftConfirmationDialog";
-import { ConvertDraftConflictDialog } from "@/modules/draft-jobs/details/components/ConvertDraftConflictDialog";
 import { DraftCurrentJobField } from "@/modules/draft-jobs/details/components/DraftCurrentJobField";
 import { DraftTitleEditDialog } from "@/modules/draft-jobs/details/components/DraftTitleEditDialog";
 import { useDraftAutoConversion } from "@/modules/draft-jobs/details/hooks/useDraftAutoConversion";
@@ -96,6 +94,10 @@ function truncateText(value: string, maxLength: number): string {
   return `${value.slice(0, maxLength - 1)}…`;
 }
 
+function capturePrimaryUrl(urls: readonly string[]): string | null {
+  const u = urls.length > 0 ? urls[0]!.trim() : "";
+  return u.length > 0 ? u : null;
+}
 function truncateMiddle(
   value: string,
   prefixLength: number,
@@ -115,36 +117,29 @@ export default function DraftJobDetailsPage({ params }: PageProps) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [convertConfirmDialogOpen, setConvertConfirmDialogOpen] =
     useState(false);
-  const [convertConflictDialogOpen, setConvertConflictDialogOpen] =
-    useState(false);
   const [matchWizardOpen, setMatchWizardOpen] = useState(false);
-  const [createJobWithAI] = useCreateJobWithAiMutation();
-  const [updateDraftJob] = useUpdateDraftJobMutation();
-  const [generateDraftMatch, { loading: generatingMatch }] =
-    useGenerateDraftJobMatchMutation();
+  const [fillJobAutomatically] = useFillJobAutomaticallyMutation();
+  const [updateJob] = useUpdateJobMutation();
+  const [generateJobMatch, { loading: generatingMatch }] =
+    useGenerateJobMatchMutation();
   const { enqueueToast } = useToastQueue();
 
-  const { draft, error, refetch, status, notFound } =
+  const { draft, error, refetch, status, notFound, wrongStage } =
     useDraftJobDetailsViewModel(id);
   const sseUrl = `${getApiBaseUrl()}/draft-jobs/${id}/stream`;
-  useEventSource<{ draftId: string; status: DraftJobConversionStatus }>(
+  useEventSource<{ draftId: string; status: string }>(
     sseUrl,
     "draft_conversion_status_changed",
     (data) => {
       if (
-        (data.status === DraftJobConversionStatus.Succeeded ||
-          data.status === DraftJobConversionStatus.Failed) &&
+        data.status &&
+        ["SUCCEEDED", "FAILED"].includes(String(data.status).toUpperCase()) &&
         refetch
       ) {
         void refetch();
       }
     },
   );
-  const { data: jobData } = useJobQuery({
-    variables: { id: draft?.jobId ?? "" },
-    skip: !draft?.jobId,
-    fetchPolicy: "cache-first",
-  });
 
   const showToast = useCallback(
     (message: string, intent: "success" | "error") => {
@@ -168,29 +163,24 @@ export default function DraftJobDetailsPage({ params }: PageProps) {
   const handleConvertToJob = useCallback(async () => {
     if (!draft) return;
 
-    if (draft.jobId) {
-      setConvertConflictDialogOpen(true);
-      return;
-    }
-
     const [error] = await tryRun(
-      createJobWithAI({ variables: { draftId: draft.id } }),
+      fillJobAutomatically({ variables: { jobId: draft.id } }),
     );
 
     if (error) {
       enqueueToast({
-        title: error.message || "Failed to start draft conversion.",
+        title:
+          error instanceof Error
+            ? error.message.replace("Bad Request Exception: ", "")
+            : "Failed to start automatic fill.",
         intent: "error",
       });
       return;
     }
 
-    enqueueToast({
-      title: "Conversion started in background.",
-      intent: "success",
-    });
+    enqueueToast({ title: "Automatic fill queued.", intent: "success" });
     void refetch();
-  }, [draft, createJobWithAI, enqueueToast, refetch]);
+  }, [draft, fillJobAutomatically, enqueueToast, refetch]);
 
   useDraftAutoConversion({
     draftLoaded: status === "success" && !!draft,
@@ -201,13 +191,18 @@ export default function DraftJobDetailsPage({ params }: PageProps) {
     async (nextValue: string) => {
       if (!draft) return;
       const [mutationError] = await tryRun(
-        updateDraftJob({
-          variables: { id: draft.id, input: { title: nextValue } },
+        updateJob({
+          variables: {
+            id: draft.id,
+            input: { title: nextValue.trim() || null },
+          },
         }),
       );
       if (mutationError) {
         showToast(
-          mutationError.message || "Could not update draft title.",
+          mutationError instanceof Error
+            ? mutationError.message
+            : "Could not update draft title.",
           "error",
         );
         return;
@@ -215,15 +210,15 @@ export default function DraftJobDetailsPage({ params }: PageProps) {
       showToast("Draft title updated.", "success");
       void refetch();
     },
-    [draft, updateDraftJob, showToast, refetch],
+    [draft, updateJob, showToast, refetch],
   );
 
   const handleGenerateMatch = useCallback(
     async (resumeId: string) => {
       if (!draft) return;
       const [error, result] = await tryRun(
-        generateDraftMatch({
-          variables: { input: { draftJobId: draft.id, resumeId } },
+        generateJobMatch({
+          variables: { input: { jobId: draft.id, resumeId } },
         }),
       );
       if (error) {
@@ -241,32 +236,38 @@ export default function DraftJobDetailsPage({ params }: PageProps) {
         intent: "success",
       });
       void refetch();
-      if (result?.data?.generateDraftJobMatch?.id) {
-        router.push(`/matches/${result.data.generateDraftJobMatch.id}`);
+      if (result?.data?.generateJobMatch?.id) {
+        router.push(`/matches/${result.data.generateJobMatch.id}`);
       }
     },
-    [draft, generateDraftMatch, enqueueToast, refetch, router],
+    [draft, generateJobMatch, enqueueToast, refetch, router],
   );
 
   function renderOverviewBody() {
     if (!draft) return null;
-    const truncatedUrl = draft.url ? truncateText(draft.url, 80) : null;
-    const isUrlTruncated = truncatedUrl !== draft.url;
-    const linkedJob = jobData?.job ?? null;
+    const sourceUrl = capturePrimaryUrl(draft.urls);
+    const truncatedUrl = sourceUrl ? truncateText(sourceUrl, 80) : null;
+    const isUrlTruncated = !!(
+      sourceUrl &&
+      truncatedUrl &&
+      truncatedUrl !== sourceUrl
+    );
+    const linkedJob =
+      draft.currentStage !== ApplicationStage.Draft ? draft : null;
     const truncatedDraftId = truncateMiddle(draft.id, 8, 4);
 
     return (
       <OverviewSection layout="grid">
-        {draft.url ? (
+        {sourceUrl ? (
           <FieldWithLabelAction
             label="Source URL"
             content={
               <FieldWithLabelAction.Tooltip
-                content={isUrlTruncated ? draft.url : undefined}
+                content={isUrlTruncated ? sourceUrl : undefined}
                 enabled={isUrlTruncated}
               >
                 <a
-                  href={draft.url}
+                  href={sourceUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className={cn(
@@ -322,13 +323,13 @@ export default function DraftJobDetailsPage({ params }: PageProps) {
           }
           content={
             <Text size="sm" className={cn("wrap-break-word")}>
-              {draft.title.trim() || "Untitled page"}
+              {draft.title?.trim() ? draft.title!.trim() : "Untitled page"}
             </Text>
           }
         />
         <DraftTitleEditDialog
           control={titleDialog}
-          value={draft.title}
+          value={draft.title ?? ""}
           onSave={handleSaveTitle}
         />
         <DraftCurrentJobField job={linkedJob} />
@@ -346,7 +347,7 @@ export default function DraftJobDetailsPage({ params }: PageProps) {
       >
         <iframe
           title="Captured posting HTML"
-          srcDoc={draft.htmlContent}
+          srcDoc={draft.htmlContent ?? ""}
           sandbox=""
           className={cn("h-full min-h-0 flex-1 border-0")}
         />
@@ -394,9 +395,9 @@ export default function DraftJobDetailsPage({ params }: PageProps) {
                     }
                     align="end"
                   >
-                    {draft.jobId ? (
+                    {draft.currentStage !== ApplicationStage.Draft ? (
                       <DropdownMenuItem
-                        onSelect={() => router.push(`/jobs/${draft.jobId}`)}
+                        onSelect={() => router.push(`/jobs/${draft.id}`)}
                       >
                         Open job
                       </DropdownMenuItem>
@@ -440,14 +441,18 @@ export default function DraftJobDetailsPage({ params }: PageProps) {
         <div className={cn("flex items-start justify-between gap-3")}>
           <Heading as="h1" size="2xl" className={cn("min-w-0 flex-1 truncate")}>
             <span>
-              {draft ? draftHeadingTitle(draft.title, draft.url) : "Draft job"}
+              {draft
+                ? draftHeadingTitle(
+                    draft.title ?? "",
+                    capturePrimaryUrl(draft.urls),
+                  )
+                : "Draft job"}
             </span>{" "}
             {draft ? (
               <ConversionStatusBadge
-                conversionMetadata={draft.conversionMetadata}
+                conversionMetadata={draft.fillMetadata}
                 showSpinner={
-                  draft.conversionMetadata?.status?.toLowerCase() ===
-                  "processing"
+                  draft.fillMetadata?.status?.toLowerCase() === "processing"
                 }
                 className={cn("ml-2 align-middle")}
               />
@@ -455,8 +460,8 @@ export default function DraftJobDetailsPage({ params }: PageProps) {
           </Heading>
           {draft ? (
             <span className={cn("shrink-0 pt-1 text-xs text-text-muted")}>
-              {draft.conversionMetadata?.timestamp
-                ? `Converted at ${formatDate(draft.conversionMetadata.timestamp)}`
+              {draft.fillMetadata?.timestamp
+                ? `Updated at ${formatDate(draft.fillMetadata.timestamp)}`
                 : `Created at ${formatDate(draft.createdAt)}`}
             </span>
           ) : null}
@@ -464,8 +469,10 @@ export default function DraftJobDetailsPage({ params }: PageProps) {
         {draft ? (
           <DeleteDraftJobDialog
             draftId={draft.id}
-            draftSummary={draftHeadingTitle(draft.title, draft.url)}
-            hasLinkedJob={Boolean(draft.jobId)}
+            draftSummary={draftHeadingTitle(
+              draft.title ?? "",
+              capturePrimaryUrl(draft.urls),
+            )}
             open={deleteDialogOpen}
             onOpenChange={setDeleteDialogOpen}
             onSuccess={(msg) => {
@@ -475,32 +482,15 @@ export default function DraftJobDetailsPage({ params }: PageProps) {
             onError={(msg) => showToast(msg, "error")}
           />
         ) : null}
-        <ConvertDraftConflictDialog
-          open={convertConflictDialogOpen}
-          draftId={draft?.id}
-          previousJobId={draft?.jobId ?? null}
-          onOpenChange={setConvertConflictDialogOpen}
-          onDeletePreviousSuccess={() => {
-            enqueueToast({
-              title: "Linked jobs removed for this draft.",
-              intent: "success",
-            });
-          }}
-          onConversionSuccess={() => {
-            enqueueToast({
-              title: "Conversion started in background.",
-              intent: "success",
-            });
-            void refetch();
-          }}
-          onError={(message) => {
-            enqueueToast({ title: message, intent: "error" });
-          }}
-        />
         <ConvertDraftConfirmationDialog
           open={convertConfirmDialogOpen}
           draftSummary={
-            draft ? draftHeadingTitle(draft.title, draft.url) : "this draft"
+            draft
+              ? draftHeadingTitle(
+                  draft.title ?? "",
+                  capturePrimaryUrl(draft.urls),
+                )
+              : "this draft"
           }
           onOpenChange={setConvertConfirmDialogOpen}
           onConfirm={handleConvertToJob}
@@ -524,6 +514,12 @@ export default function DraftJobDetailsPage({ params }: PageProps) {
             resource="draft job"
             backHref="/draft-jobs"
             backLabel="Back to draft jobs"
+          />
+        ) : wrongStage ? (
+          <EntityNotFound
+            resource="draft job"
+            backHref={`/jobs/${id}`}
+            backLabel="Open job record"
           />
         ) : error && !notFound ? (
           <Text size="sm" color="error">

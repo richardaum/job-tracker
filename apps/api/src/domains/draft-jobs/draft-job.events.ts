@@ -1,4 +1,4 @@
-import { DraftJobConversionStatusEnum } from "@api/database/entities/draft-job.entity";
+import { DraftJobConversionStatusEnum } from "@api/database/entities/draft-job-conversion.enum";
 import { DomainEvent } from "@api/lib/domain-event";
 
 export class DraftConversionStatusChanged extends DomainEvent {

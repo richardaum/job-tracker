@@ -12,4 +12,4 @@ export enum ApplicationStageEnum {
   DUPLICATED = "DUPLICATED",
 }
 
-registerEnumType(ApplicationStageEnum, { name: "JobStage" });
+registerEnumType(ApplicationStageEnum, { name: "ApplicationStage" });

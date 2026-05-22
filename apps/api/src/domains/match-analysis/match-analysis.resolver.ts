@@ -15,7 +15,6 @@ import {
   Resolver,
 } from "@nestjs/graphql";
 
-import { GenerateDraftMatchInput } from "./generate-draft-match.input";
 import { GenerateMatchInput } from "./generate-match.input";
 import { MatchAnalysisService } from "./match-analysis.service";
 import { MatchAnalysisType } from "./match-analysis.type";
@@ -49,14 +48,6 @@ export class MatchAnalysisResolver {
     return this.service.findForJob(jobId, user.userId);
   }
 
-  @Query(() => MatchAnalysisType, { nullable: true })
-  async draftJobMatch(
-    @Args("draftJobId", { type: () => ID }) draftJobId: string,
-    @CurrentUser() user: { userId: string },
-  ): Promise<MatchAnalysisType | null> {
-    return this.service.findForDraftJob(draftJobId, user.userId);
-  }
-
   @ResolveField(() => JobType, { nullable: true })
   async job(
     @Parent() matchAnalysis: MatchAnalysisType,
@@ -80,18 +71,6 @@ export class MatchAnalysisResolver {
   ): Promise<DeleteMutationPayloadType> {
     await this.service.remove(id, user.userId);
     return { success: true, deletedId: id };
-  }
-
-  @Mutation(() => MatchAnalysisType)
-  async generateDraftJobMatch(
-    @Args("input") input: GenerateDraftMatchInput,
-    @CurrentUser() user: { userId: string },
-  ): Promise<MatchAnalysisType> {
-    return this.service.generateForDraft(
-      input.draftJobId,
-      input.resumeId,
-      user.userId,
-    );
   }
 }
 

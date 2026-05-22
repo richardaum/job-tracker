@@ -54,7 +54,6 @@ export default function JobDetailsPage({ params }: PageProps) {
     job,
     currentStage,
     currentStageReason,
-    draftJobId,
     sourcePrimaryText,
     status,
     refetch,
@@ -182,13 +181,6 @@ export default function JobDetailsPage({ params }: PageProps) {
       <DropdownMenuItem onSelect={() => setActionsOpen(true)}>
         Update status
       </DropdownMenuItem>
-      {draftJobId ? (
-        <DropdownMenuItem
-          onSelect={() => router.push(`/draft-jobs/${draftJobId}`)}
-        >
-          View original draft
-        </DropdownMenuItem>
-      ) : null}
       <DropdownMenuSeparator />
       <DropdownMenuItem destructive onSelect={() => setDeleteDialogOpen(true)}>
         Remove
@@ -234,7 +226,7 @@ export default function JobDetailsPage({ params }: PageProps) {
             <DeleteJobDialog
               trigger={<span aria-hidden style={{ display: "none" }} />}
               jobId={job.id}
-              jobTitle={job.title}
+              jobTitle={job.title ?? ""}
               open={deleteDialogOpen}
               onOpenChange={setDeleteDialogOpen}
               onSuccess={() => router.push("/jobs")}

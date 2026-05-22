@@ -1,7 +1,2 @@
-import { Field, InputType } from "@nestjs/graphql";
-
-@InputType()
-export class UpdateDraftJobInput {
-  @Field(() => String)
-  title!: string;
-}
+/** DTO for partial draft updates (no longer a GraphQL input type). */
+export type UpdateDraftJobInput = { title?: string };

@@ -1,7 +1,9 @@
 import { AsyncMetadataEmbedded } from "@api/database/embeddeds/async-metadata.embedded";
 import { ApplicationSourceEnum } from "@api/domains/jobs/job-source.enum";
 import { ApplicationStageEnum } from "@api/domains/jobs/job-stage.enum";
+import { JOB_TITLE_MAX_LENGTH } from "@api/domains/jobs/job-title.constraints";
 import { SalaryPeriodEnum } from "@api/domains/jobs/salary/salary-period.enum";
+import { MaxLength, ValidateIf } from "class-validator";
 import {
   Column,
   CreateDateColumn,
@@ -24,6 +26,8 @@ export class JobEntity {
   userId!: string;
 
   @Column({ type: "text", nullable: true })
+  @ValidateIf((_e: JobEntity, v: unknown) => typeof v === "string")
+  @MaxLength(JOB_TITLE_MAX_LENGTH)
   title!: string | null;
 
   @Column({ name: "company_id", type: "text" })

@@ -1,26 +1,31 @@
 "use client";
 
-import { useDraftJobDetailQuery } from "@/gql/hooks";
-import { deriveDetailStatus } from "@/lib/entity-detail-view-status";
+import { ApplicationStage, type JobQuery, useJobQuery } from "@/gql/hooks";
+
+export type DraftJobDetailsStatus = "idle" | "loading" | "success" | "error";
 
 export function useDraftJobDetailsViewModel(id: string) {
-  const { data, loading, error, refetch, startPolling, stopPolling } =
-    useDraftJobDetailQuery({
-      variables: { id },
-      fetchPolicy: "cache-and-network",
-      skip: !id,
-    });
+  const { data, loading, error, refetch } = useJobQuery({
+    variables: { id },
+    skip: id.length === 0,
+    fetchPolicy: "cache-and-network",
+  });
 
-  const draft = data?.draftJob ?? null;
-  const status = deriveDetailStatus(loading, error);
+  const draft: JobQuery["job"] | undefined = data?.job;
+  const notFound = !loading && !draft;
 
-  return {
-    draft,
-    error,
-    refetch,
-    notFound: status === "notFound",
-    status,
-    startPolling,
-    stopPolling,
-  };
+  /** `/draft-jobs/:id` is only meaningful for rows still tagged as captures. */
+  const wrongStage =
+    !!draft && draft.currentStage !== ApplicationStage.Draft ? true : false;
+
+  let status: DraftJobDetailsStatus = "idle";
+  if (loading) {
+    status = "loading";
+  } else if (error) {
+    status = "error";
+  } else {
+    status = "success";
+  }
+
+  return { draft, wrongStage, error, status, notFound, refetch };
 }

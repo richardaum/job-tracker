@@ -17,7 +17,7 @@ import {
 } from "@phosphor-icons/react";
 import NextLink from "next/link";
 
-import { JobStage } from "@/gql/hooks";
+import { ApplicationStage } from "@/gql/hooks";
 import { SalaryEditDialog } from "@/modules/jobs/details/components/SalaryEditDialog";
 import { formatDateTime } from "@/modules/jobs/details/utils/job-details.shared";
 import { DeleteJobDialog } from "@/modules/jobs/list/components/DeleteJobDialog";
@@ -54,7 +54,7 @@ function CurrentStageBadge({
   historyLoading,
   onRequestStageEvents,
 }: {
-  listStage: JobStage;
+  listStage: ApplicationStage;
   listReason: string | null;
   jobStageEvents: Array<JobCardStageEventRow>;
   historyLoading: boolean;
@@ -118,14 +118,14 @@ function CurrentStageDateText({
   jobStageEvents,
   stageEventsRequested,
 }: {
-  listStage: JobStage;
+  listStage: ApplicationStage;
   listStatusAt: string;
   jobStageEvents: Array<JobCardStageEventRow>;
   stageEventsRequested: boolean;
 }) {
   if (stageEventsRequested && jobStageEvents.length > 0) {
     const currentStageEvent = jobStageEvents[0] ?? null;
-    const currentStage = currentStageEvent?.toStage ?? JobStage.New;
+    const currentStage = currentStageEvent?.toStage ?? ApplicationStage.New;
     const statusAt =
       currentStageEvent?.scheduledAt ??
       currentStageEvent?.createdAt ??
@@ -176,7 +176,7 @@ export function JobCard({ job: app, onSuccess, onError }: JobCardProps) {
     <ListItemCard
       title={
         <ListItemCard.Title asChild>
-          <NextLink href={`/jobs/${app.id}`}>{app.title}</NextLink>
+          <NextLink href={`/jobs/${app.id}`}>{app.title ?? "—"}</NextLink>
         </ListItemCard.Title>
       }
       actions={
@@ -202,7 +202,7 @@ export function JobCard({ job: app, onSuccess, onError }: JobCardProps) {
           <IconButton
             intent="ghost"
             size="sm"
-            label={`Quick edit ${app.title}`}
+            label={`Quick edit ${app.title ?? "job"}`}
             tooltip="Quick edit"
             className={cn(ListItemCard.actionIconButtonClassName)}
             icon={<PencilSimpleIcon size={13} weight="regular" />}
@@ -221,7 +221,7 @@ export function JobCard({ job: app, onSuccess, onError }: JobCardProps) {
             control={quickEditDialog}
             job={{
               id: app.id,
-              title: app.title,
+              title: app.title ?? "",
               company: app.company.name,
               urls: app.urls,
               location: app.location,
@@ -241,14 +241,14 @@ export function JobCard({ job: app, onSuccess, onError }: JobCardProps) {
               <IconButton
                 intent="ghost"
                 size="sm"
-                label={`Delete ${app.title}`}
+                label={`Delete ${app.title ?? "job"}`}
                 tooltip="Delete"
                 className={cn(ListItemCard.actionIconButtonClassName)}
                 icon={<TrashIcon size={13} weight="regular" />}
               />
             }
             jobId={app.id}
-            jobTitle={app.title}
+            jobTitle={app.title ?? ""}
             onSuccess={onSuccess}
             onError={onError}
           />

@@ -105,6 +105,16 @@ describe("JobsRepository", () => {
     expect(jobsRepo.createQueryBuilder).toHaveBeenCalledWith("a");
     expect(qb.leftJoinAndSelect).toHaveBeenCalledWith("a.company", "company");
     expect(qb.getMany).toHaveBeenCalled();
+    const calledDraftExclude = vi
+      .mocked(qb.andWhere)
+      .mock.calls.some(
+        ([, params]) =>
+          params &&
+          typeof params === "object" &&
+          !Array.isArray(params) &&
+          "draftExclude" in params,
+      );
+    expect(calledDraftExclude).toBe(false);
   });
 
   it("findAllByUserId ACTIVE filter gates on latest-stage subquery", async () => {
@@ -119,6 +129,24 @@ describe("JobsRepository", () => {
     await repo.findAllByUserId("u1", ApplicationQuickFilterEnum.ACTIVE);
 
     expect(qb.andWhere).toHaveBeenCalled();
+    expect(qb.andWhere).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({ draftExclude: ApplicationStageEnum.DRAFT }),
+    );
+    expect(
+      vi
+        .mocked(qb.andWhere)
+        .mock.calls.some(
+          ([sql, bindings]) =>
+            typeof sql === "string" &&
+            bindings &&
+            typeof bindings === "object" &&
+            !Array.isArray(bindings) &&
+            "excludeDraftLatestEvtActive" in bindings &&
+            (bindings as { excludeDraftLatestEvtActive: unknown })
+              .excludeDraftLatestEvtActive === ApplicationStageEnum.DRAFT,
+        ),
+    ).toBe(true);
     expect(
       vi
         .mocked(qb.andWhere)
@@ -183,6 +211,24 @@ describe("JobsRepository", () => {
     await repo.findAllByUserId("u1", ApplicationQuickFilterEnum.INCOMING);
 
     expect(qb.andWhere).toHaveBeenCalled();
+    expect(qb.andWhere).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({ draftExclude: ApplicationStageEnum.DRAFT }),
+    );
+    expect(
+      vi
+        .mocked(qb.andWhere)
+        .mock.calls.some(
+          ([sql, bindings]) =>
+            typeof sql === "string" &&
+            bindings &&
+            typeof bindings === "object" &&
+            !Array.isArray(bindings) &&
+            "excludeDraftLatestEvtIncoming" in bindings &&
+            (bindings as { excludeDraftLatestEvtIncoming: unknown })
+              .excludeDraftLatestEvtIncoming === ApplicationStageEnum.DRAFT,
+        ),
+    ).toBe(true);
     expect(
       vi
         .mocked(qb.andWhere)
@@ -203,6 +249,10 @@ describe("JobsRepository", () => {
 
     await repo.findAllByUserId("u1", ApplicationQuickFilterEnum.NEW);
 
+    expect(qb.andWhere).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({ draftExclude: ApplicationStageEnum.DRAFT }),
+    );
     expect(qb.andWhere).toHaveBeenCalledWith(
       expect.any(String),
       expect.objectContaining({
@@ -244,6 +294,11 @@ describe("JobsRepository", () => {
 
     await repo.create("u1", dto);
 
+    expect(jobsRepo.create).toHaveBeenCalledTimes(1);
+    const noDraftPayload = vi.mocked(jobsRepo.create).mock
+      .calls[0]![0] as Record<string, unknown>;
+    expect(noDraftPayload).not.toHaveProperty("id");
+    expect(noDraftPayload).not.toHaveProperty("draftJobId");
     expect(jobsRepo.create).toHaveBeenCalledWith(
       expect.objectContaining({
         userId: "u1",
@@ -256,6 +311,96 @@ describe("JobsRepository", () => {
       }),
     );
     expect(jobsRepo.save).toHaveBeenCalledTimes(1);
+  });
+
+  it("create sets job id from trimmed draftJobId for draft conversion PK stability", async () => {
+    vi.mocked(jobsRepo.create).mockImplementation((e) => e as JobEntity);
+    const saved = { id: "draft-pk", userId: "u1" } as JobEntity;
+    vi.mocked(jobsRepo.save).mockResolvedValue(saved);
+
+    const repo = new JobsRepository(
+      jobsRepo as unknown as Repository<JobEntity>,
+      stageEventsRepo as unknown as Repository<JobStageEventEntity>,
+    );
+
+    const dto = {
+      title: "T",
+      companyId: "c1",
+      description: null,
+      urls: [],
+      source: null,
+      salaryMinCents: null,
+      salaryMaxCents: null,
+      salaryCurrency: null,
+      salaryPeriod: null,
+      tags: [],
+      location: null,
+      workRegion: null,
+      draftJobId: "  draft-pk  ",
+    };
+
+    const result = await repo.create("u1", dto);
+
+    expect(jobsRepo.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: "draft-pk",
+        userId: "u1",
+        companyId: "c1",
+      }),
+    );
+    expect(
+      vi.mocked(jobsRepo.create).mock.calls[0]![0] as Record<string, unknown>,
+    ).not.toHaveProperty("draftJobId");
+    expect(result).toBe(saved);
+  });
+
+  it("create ignores empty draftJobId string (generated id)", async () => {
+    vi.mocked(jobsRepo.create).mockImplementation((e) => e as JobEntity);
+    const saved = { id: "j1", userId: "u1" } as JobEntity;
+    vi.mocked(jobsRepo.save).mockResolvedValue(saved);
+
+    const repo = new JobsRepository(
+      jobsRepo as unknown as Repository<JobEntity>,
+      stageEventsRepo as unknown as Repository<JobStageEventEntity>,
+    );
+
+    await repo.create("u1", {
+      title: "T",
+      companyId: "c1",
+      description: null,
+      urls: [],
+      source: null,
+      salaryMinCents: null,
+      salaryMaxCents: null,
+      salaryCurrency: null,
+      salaryPeriod: null,
+      tags: [],
+      location: null,
+      workRegion: null,
+      draftJobId: "   ",
+    });
+
+    const payload = vi.mocked(jobsRepo.create).mock.calls[0]![0] as Record<
+      string,
+      unknown
+    >;
+    expect(payload).not.toHaveProperty("id");
+  });
+
+  it("setPersistedStage updates jobs.stage scoped to id and userId", async () => {
+    vi.mocked(jobsRepo.update).mockResolvedValue({ affected: 1 } as never);
+
+    const repo = new JobsRepository(
+      jobsRepo as unknown as Repository<JobEntity>,
+      stageEventsRepo as unknown as Repository<JobStageEventEntity>,
+    );
+
+    await repo.setPersistedStage("u1", "j1", ApplicationStageEnum.TECHNICAL);
+
+    expect(jobsRepo.update).toHaveBeenCalledWith(
+      { id: "j1", userId: "u1" },
+      { stage: ApplicationStageEnum.TECHNICAL },
+    );
   });
 
   it("update merges dto into existing entity and saves", async () => {
@@ -381,6 +526,12 @@ describe("JobsRepository", () => {
       "Acme ",
     );
 
+    expect(qb.andWhere).toHaveBeenCalledWith(
+      expect.stringContaining("stage"),
+      expect.objectContaining({
+        excludeDraftPostingSnippet: ApplicationStageEnum.DRAFT,
+      }),
+    );
     expect(rows).toHaveLength(1);
     expect(rows[0]).toMatchObject({
       title: "Engineer",
@@ -443,16 +594,6 @@ describe("JobsRepository", () => {
       { sourceRunId: null },
     );
     expect(affected).toBe(3);
-  });
-
-  it("findDraftJobId returns null after draft FK removal", async () => {
-    const repo = new JobsRepository(
-      jobsRepo as unknown as Repository<JobEntity>,
-      stageEventsRepo as unknown as Repository<JobStageEventEntity>,
-    );
-
-    await expect(repo.findDraftJobId("job-x", "u1")).resolves.toBeNull();
-    expect(jobsRepo.createQueryBuilder).not.toHaveBeenCalled();
   });
 
   it("resetStaleSummaryProcessing aggregates affected summaries", async () => {
@@ -646,12 +787,19 @@ describe("JobsRepository", () => {
     expect(qb.getCount).toHaveBeenCalled();
   });
 
-  it("findLatestStageEventByJobId delegates to descending findOne ordering", async () => {
+  it("findLatestStageEventByJobId uses COALESCE ordering matching summaries and filters", async () => {
     const ev = Object.assign(new JobStageEventEntity(), {
       id: "s1",
       jobId: "j1",
     });
-    vi.mocked(stageEventsRepo.findOne).mockResolvedValue(ev);
+    const qb = {
+      where: vi.fn().mockReturnThis(),
+      orderBy: vi.fn().mockReturnThis(),
+      addOrderBy: vi.fn().mockReturnThis(),
+      limit: vi.fn().mockReturnThis(),
+      getOne: vi.fn().mockResolvedValue(ev),
+    };
+    vi.mocked(stageEventsRepo.createQueryBuilder).mockReturnValue(qb as never);
 
     const repo = new JobsRepository(
       jobsRepo as unknown as Repository<JobEntity>,
@@ -663,12 +811,19 @@ describe("JobsRepository", () => {
       "user-1",
     );
 
-    expect(stageEventsRepo.findOne).toHaveBeenCalledWith(
-      expect.objectContaining({
-        where: { jobId: "j1", userId: "user-1" },
-        order: { createdAt: "DESC", id: "DESC" },
-      }),
+    expect(stageEventsRepo.createQueryBuilder).toHaveBeenCalledWith("e");
+    expect(qb.where).toHaveBeenCalledWith(
+      "e.job_id = :jobId AND e.user_id = :userId",
+      { jobId: "j1", userId: "user-1" },
     );
+    expect(qb.orderBy).toHaveBeenCalledWith(
+      "COALESCE(e.schedule_at, e.created_at)",
+      "DESC",
+    );
+    expect(qb.addOrderBy).toHaveBeenCalledWith("e.created_at", "DESC");
+    expect(qb.addOrderBy).toHaveBeenCalledWith("e.id", "DESC");
+    expect(qb.limit).toHaveBeenCalledWith(1);
+    expect(qb.getOne).toHaveBeenCalled();
     expect(latest?.id).toBe("s1");
   });
 

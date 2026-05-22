@@ -1,4 +1,4 @@
-import { DraftJobConversionStatusEnum } from "@api/database/entities/draft-job.entity";
+import { DraftJobConversionStatusEnum } from "@api/database/entities/draft-job-conversion.enum";
 import { MatchAnalysisEntity } from "@api/database/entities/match-analysis.entity";
 import { SourceRunEntity } from "@api/database/entities/source-run.entity";
 import { CompanyDescriptionService } from "@api/domains/companies/ai/company-description.service";
@@ -9,9 +9,11 @@ import {
   DraftConversionRequested,
   DraftConversionStatusChanged,
 } from "@api/domains/draft-jobs/draft-job.events";
-import { DraftJobType } from "@api/domains/draft-jobs/draft-job.type";
+import type { DraftJobType } from "@api/domains/draft-jobs/draft-job.type";
 import { DraftJobEventBus } from "@api/domains/draft-jobs/draft-job-event.bus";
 import { DraftJobsService } from "@api/domains/draft-jobs/draft-jobs.service";
+import { DRAFT_JOB_PLACEHOLDER_COMPANY_NAME } from "@api/domains/draft-jobs/draft-placeholder.constants";
+import { AsyncMetadataStatusEnum } from "@api/domains/shared/async-metadata.type";
 import { LocationInferenceService } from "@api/lib/ai";
 import { isTipTapDocumentString, tipTapToPlainText } from "@job-tracker/tiptap";
 import { tryRun } from "@job-tracker/try-run";
@@ -44,7 +46,7 @@ import { StageEventSourceEnum } from "./stage-event-source.enum";
 import { TagService } from "./tags/tag.service";
 
 type CreateDto = {
-  title: string;
+  title?: string | null;
   company: string;
   companyId?: string | null;
   description?: string | null;
@@ -57,8 +59,10 @@ type CreateDto = {
   tags?: string[] | null;
   location?: string | null;
   workRegion?: string | null;
+  htmlContent?: string | null;
   draftJobId?: string | null;
   sourceRunId?: string | null;
+  createAsDraftCapture?: boolean | null;
 };
 type UpdateDto = Partial<CreateDto>;
 type CreateStageEventDto = {
@@ -178,6 +182,75 @@ export class JobsService {
       );
     }
 
+    if (dto.createAsDraftCapture) {
+      if (
+        dto.description !== undefined &&
+        dto.description !== null &&
+        dto.description.trim() !== ""
+      ) {
+        throw new BadRequestException(
+          "Draft capture jobs cannot carry a TipTap description; use htmlContent.",
+        );
+      }
+      const htmlTrim = dto.htmlContent?.trim() ?? "";
+      if (!htmlTrim) {
+        throw new BadRequestException(
+          "Draft capture jobs require htmlContent.",
+        );
+      }
+
+      const companyName =
+        dto.company?.trim() || DRAFT_JOB_PLACEHOLDER_COMPANY_NAME;
+      const companyId = await this.resolveCompanyId(
+        userId,
+        companyName,
+        dto.companyId,
+      );
+
+      if (!companyId) {
+        throw new BadRequestException("Company could not be resolved");
+      }
+
+      const tags = this.tagService.normalizeTags(dto.tags);
+      const normalizedUrls = this.normalizeUrls(dto.urls);
+      const salaryColumns = this.salaryService.getCreateSalary(dto);
+      const repoDto: CreateJobRepoDto = {
+        title: dto.title ?? null,
+        companyId,
+        description: null,
+        urls: normalizedUrls,
+        htmlContent: dto.htmlContent ?? null,
+        source:
+          dto.source !== undefined
+            ? dto.source
+            : inferJobSourceEnumFromUrls(normalizedUrls),
+        tags,
+        location: dto.location ?? null,
+        workRegion: dto.workRegion ?? null,
+        draftJobId: null,
+        sourceRunId: dto.sourceRunId ?? null,
+        ...salaryColumns,
+      };
+
+      const job = await this.repo.create(userId, repoDto);
+
+      await this.repo.setPersistedStage(
+        userId,
+        job.id,
+        ApplicationStageEnum.DRAFT,
+      );
+
+      await this.repo.createStageEvent(userId, job.id, {
+        fromStage: null,
+        toStage: ApplicationStageEnum.DRAFT,
+        source: StageEventSourceEnum.System,
+        reason: null,
+        scheduledAt: null,
+      });
+
+      return this.findOne(job.id, userId);
+    }
+
     if (dto.sourceRunId) {
       const run = await this.sourceRunsRepo.findOne({
         where: { id: dto.sourceRunId, userId },
@@ -203,10 +276,11 @@ export class JobsService {
     const normalizedUrls = this.normalizeUrls(dto.urls);
 
     const repoDto: CreateJobRepoDto = {
-      title: dto.title,
+      title: dto.title ?? null,
       companyId,
       description: dto.description ?? null,
       urls: normalizedUrls,
+      htmlContent: dto.htmlContent ?? null,
       source:
         dto.source !== undefined
           ? dto.source
@@ -227,7 +301,7 @@ export class JobsService {
       userId,
       job.id,
       companyId,
-      dto.title,
+      dto.title ?? "",
       referenceTime,
       duplicateLookbackMs,
     );
@@ -235,6 +309,8 @@ export class JobsService {
     const initialStage = isDuplicate
       ? ApplicationStageEnum.DUPLICATED
       : ApplicationStageEnum.NEW;
+
+    await this.repo.setPersistedStage(userId, job.id, initialStage);
 
     await this.repo.createStageEvent(userId, job.id, {
       fromStage: null,
@@ -291,6 +367,24 @@ export class JobsService {
     return queuedDraft;
   }
 
+  /**
+   * Stub pipeline for automatic job fill from captured HTML / AI (full behavior task 08).
+   * Immediately marks {@link AsyncMetadataStatusEnum.PROCESSING} so clients can subscribe via SSE.
+   */
+  async fillJobAutomatically(
+    userId: string,
+    jobId: string,
+  ): Promise<JobWithCurrentStage> {
+    await this.findOne(jobId, userId);
+    await this.repo.updateFillMetadata(
+      jobId,
+      null,
+      { status: AsyncMetadataStatusEnum.PROCESSING, timestamp: new Date() },
+      userId,
+    );
+    return this.findOne(jobId, userId);
+  }
+
   async processDraftConversion(userId: string, draftId: string): Promise<void> {
     const draft = await this.draftJobsService.findOne(draftId, userId);
 
@@ -327,6 +421,7 @@ export class JobsService {
         tags: normalized.tags,
         location: normalized.location,
         workRegion: normalized.workRegion,
+        htmlContent: draft.htmlContent ?? null,
         draftJobId: draftId,
       }),
     );
@@ -384,8 +479,16 @@ export class JobsService {
       }
     }
 
+    const trimmedJobTitle = (created.title ?? "").trim();
+    const trimmedCompany = (normalized.company ?? "").trim();
     const normalizedDraftTitle =
-      `${created.title} @ ${normalized.company}`.trim();
+      trimmedJobTitle !== "" && trimmedCompany !== ""
+        ? `${trimmedJobTitle} @ ${trimmedCompany}`
+        : trimmedJobTitle !== ""
+          ? trimmedJobTitle
+          : trimmedCompany !== ""
+            ? `@ ${trimmedCompany}`
+            : "—";
 
     await this.draftJobsService.update(draftId, userId, {
       title: normalizedDraftTitle,
@@ -485,6 +588,9 @@ export class JobsService {
       ...(tags !== undefined ? { tags } : {}),
       ...(dto.location !== undefined ? { location: dto.location } : {}),
       ...(dto.workRegion !== undefined ? { workRegion: dto.workRegion } : {}),
+      ...(dto.htmlContent !== undefined
+        ? { htmlContent: dto.htmlContent }
+        : {}),
       ...(salaryColumns ?? {}),
     };
 
@@ -607,10 +713,6 @@ export class JobsService {
     const updated = await this.repo.update(id, userId, { tags });
     if (!updated) throw new NotFoundException(`Job ${id} not found`);
     return (await this.attachCurrentStage(userId, [updated]))[0]!;
-  }
-
-  async findDraftJobId(id: string, userId: string): Promise<string | null> {
-    return this.repo.findDraftJobId(id, userId);
   }
 
   private async safeUpdateDraftStatus(

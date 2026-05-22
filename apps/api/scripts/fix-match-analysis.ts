@@ -2,14 +2,12 @@ import "reflect-metadata";
 import "dotenv/config";
 
 import { buildDataSourceOptions } from "@api/database/data-source-options";
-import { DraftJobEntity } from "@api/database/entities/draft-job.entity";
 import { JobEntity } from "@api/database/entities/job.entity";
 import { JobStageEventEntity } from "@api/database/entities/job-stage-event.entity";
 import { MatchAnalysisEntity } from "@api/database/entities/match-analysis.entity";
 import { ResumeEntity } from "@api/database/entities/resume.entity";
 import { UserEntity } from "@api/database/entities/user.entity";
 import { WorkPreferencesEntity } from "@api/database/entities/work-preferences.entity";
-import { DraftJobsRepository } from "@api/domains/draft-jobs/draft-jobs.repository";
 import { JobEventBus } from "@api/domains/jobs/job-event.bus";
 import { ApplicationQuickFilterEnum } from "@api/domains/jobs/job-quick-filter.enum";
 import { JobsRepository } from "@api/domains/jobs/jobs.repository";
@@ -71,7 +69,6 @@ function parseArgs(): {
     TypeOrmModule.forFeature([
       JobEntity,
       JobStageEventEntity,
-      DraftJobEntity,
       MatchAnalysisEntity,
       ResumeEntity,
       UserEntity,
@@ -82,7 +79,6 @@ function parseArgs(): {
   providers: [
     JobEventBus,
     JobsRepository,
-    DraftJobsRepository,
     MatchAnalysisEventBus,
     MatchAnalysisRepository,
     MatchAnalysisAiService,
@@ -157,8 +153,9 @@ async function main() {
 
   const allJobs = activeOnly
     ? await jobRepo.findAllByUserId(userId, ApplicationQuickFilterEnum.ACTIVE)
-    : await jobRepo.findAllByUserId(userId);
+    : await jobRepo.findAllByUserId(userId); // Omitting filter follows PRD "All jobs" semantics (includes DRAFT).
 
+  // Batch only rows with persisted TipTap description; unparsed drafts (often description-null) skip here.
   const jobsToProcess = allJobs.filter(
     (a) => a.description?.trim() && a.description.length > 0,
   );

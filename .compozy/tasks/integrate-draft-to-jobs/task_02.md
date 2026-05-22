@@ -102,3 +102,12 @@ Migration file goes in `apps/api/src/database/migrations/`. Use the next availab
 - Zero data loss: row count in `jobs WHERE stage = 'DRAFT'` equals pre-migration `draft_jobs` row count
 - `draft_jobs` table no longer exists after `up`
 - Migration registered in `index.ts` and appears in `migration:run` output
+
+## Review remediation (blocked loop)
+
+| Area                                     | Resolution                                                                                        |
+| ---------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| `DraftJobEntity` vs dropped table        | No TypeORM entity maps `draft_jobs` (`draft-job.orm.md`, `DraftJobsRepository` uses `JobEntity`). |
+| `ACTIVE` / `INCOMING` filters            | Persisted `jobs.stage <> DRAFT` plus defensive `latestStageSub != DRAFT` clauses.                 |
+| `match_analysis` NULL `job_id`           | `DELETE` with `RAISE WARNING` orphan count before `SET NOT NULL`.                                 |
+| `down()` destructive / enum label caveat | Class + method comments document merged-row loss + `DRAFT` stays on PG enum after `down()`.       |

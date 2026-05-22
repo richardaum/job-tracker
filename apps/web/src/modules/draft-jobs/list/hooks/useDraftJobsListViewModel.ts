@@ -1,13 +1,14 @@
 "use client";
 
-import { useDraftJobsListQuery } from "@/gql/hooks";
+import { ApplicationQuickFilter, useJobsQuery } from "@/gql/hooks";
 
 export function useDraftJobsListViewModel() {
-  const { data, loading, error } = useDraftJobsListQuery({
+  const { data, loading, error } = useJobsQuery({
     fetchPolicy: "cache-and-network",
+    variables: { filter: ApplicationQuickFilter.Draft },
   });
 
-  const drafts = data?.draftJobs ?? [];
+  const drafts = data?.jobs ?? [];
 
-  return { drafts, loading, error, showInitialLoading: loading && !data };
+  return { drafts, error, showInitialLoading: loading && !data };
 }

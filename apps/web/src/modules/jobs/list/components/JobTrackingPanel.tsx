@@ -15,7 +15,7 @@ import {
 import React, { useMemo, useState } from "react";
 
 import {
-  JobStage,
+  ApplicationStage,
   JobStageEventsDocument,
   type JobStageEventsQuery,
   StageEventSource,
@@ -26,15 +26,16 @@ import {
   getDateTimeInputValueFromNow,
 } from "@/modules/jobs/details/utils/scheduled-at";
 
-const stageOptions: Array<{ value: JobStage; label: string }> = [
-  { value: JobStage.New, label: "New" },
-  { value: JobStage.Duplicated, label: "Duplicated" },
-  { value: JobStage.Applied, label: "Applied" },
-  { value: JobStage.RecruiterScreen, label: "Recruiter Screen" },
-  { value: JobStage.Technical, label: "Technical" },
-  { value: JobStage.CulturalFit, label: "Cultural Fit" },
-  { value: JobStage.Offer, label: "Offer" },
-  { value: JobStage.Rejected, label: "Rejected" },
+const stageOptions: Array<{ value: ApplicationStage; label: string }> = [
+  { value: ApplicationStage.Draft, label: "Draft" },
+  { value: ApplicationStage.New, label: "New" },
+  { value: ApplicationStage.Duplicated, label: "Duplicated" },
+  { value: ApplicationStage.Applied, label: "Applied" },
+  { value: ApplicationStage.RecruiterScreen, label: "Recruiter Screen" },
+  { value: ApplicationStage.Technical, label: "Technical" },
+  { value: ApplicationStage.CulturalFit, label: "Cultural Fit" },
+  { value: ApplicationStage.Offer, label: "Offer" },
+  { value: ApplicationStage.Rejected, label: "Rejected" },
 ];
 
 const quickScheduleOptions = [
@@ -82,13 +83,12 @@ export function JobTrackingPanel({
     });
 
   const latestEvent = useMemo(() => stageEvents[0] ?? null, [stageEvents]);
-  const [selectedStageDraft, setSelectedStageDraft] = useState<JobStage | null>(
-    null,
-  );
+  const [selectedStageDraft, setSelectedStageDraft] =
+    useState<ApplicationStage | null>(null);
   const [scheduledAtDraft, setScheduledAtDraft] = useState<string | null>(null);
   const [reasonDraft, setReasonDraft] = useState("");
 
-  const currentStage = latestEvent?.toStage ?? JobStage.New;
+  const currentStage = latestEvent?.toStage ?? ApplicationStage.New;
   const selectedStage = selectedStageDraft ?? undefined;
   const scheduledAtValue = scheduledAtDraft ?? "";
   const canSaveStageUpdate = selectedStageDraft !== null;
@@ -146,7 +146,7 @@ export function JobTrackingPanel({
             <Select
               value={selectedStage}
               onValueChange={(value) => {
-                setSelectedStageDraft(value as JobStage);
+                setSelectedStageDraft(value as ApplicationStage);
                 setScheduledAtDraft(
                   (current) => current ?? getDateTimeInputValueFromNow(),
                 );

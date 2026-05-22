@@ -348,6 +348,41 @@ describe.skipIf(!hasDb)("JobsRepository (integration)", () => {
     expect(result.every((r) => r.plainTextDescription)).toBe(true);
   });
 
+  it("persists htmlContent and isolates persisted DRAFT rows for DRAFT quick filter", async () => {
+    const company = await createTestCompany(userId, "Draft Filter Corp");
+
+    const capture = await repo.create(userId, {
+      title: null,
+      companyId: company.id,
+      urls: ["https://import.example/from-extension"],
+      description: null,
+      htmlContent: "<html><body>captured</body></html>",
+    });
+
+    await repo.setPersistedStage(
+      userId,
+      capture.id,
+      ApplicationStageEnum.DRAFT,
+    );
+
+    const normal = await repo.create(userId, {
+      title: "Normal job",
+      companyId: company.id,
+      urls: [],
+      description: null,
+    });
+
+    const reloaded = await repo.findOneByIdAndUserId(capture.id, userId);
+    expect(reloaded?.htmlContent).toContain("captured");
+
+    const draftsOnly = await repo.findAllByUserId(
+      userId,
+      ApplicationQuickFilterEnum.DRAFT,
+    );
+    expect(draftsOnly.map((j) => j.id)).toContain(capture.id);
+    expect(draftsOnly.map((j) => j.id)).not.toContain(normal.id);
+  });
+
   it("findOrCreateByName resolves case-insensitive matches under unique constraint", async () => {
     const companyRepo = new CompanyRepository(
       dataSource.getRepository(CompanyEntity),

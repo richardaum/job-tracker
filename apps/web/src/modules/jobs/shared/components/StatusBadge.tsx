@@ -4,22 +4,24 @@ import { Badge, cn, Tooltip } from "@job-tracker/ui";
 import { InfoIcon } from "@phosphor-icons/react";
 import React from "react";
 
-import { JobStage } from "@/gql/hooks";
+import { ApplicationStage } from "@/gql/hooks";
 import { formatStage } from "@/modules/jobs/shared/components/status-badge.utils";
 
-function getStageBadgeIntent(stage: JobStage) {
+function getStageBadgeIntent(stage: ApplicationStage) {
   switch (stage) {
-    case JobStage.Offer:
+    case ApplicationStage.Draft:
+      return "default" as const;
+    case ApplicationStage.Offer:
       return "success" as const;
-    case JobStage.Rejected:
+    case ApplicationStage.Rejected:
       return "error" as const;
-    case JobStage.Technical:
+    case ApplicationStage.Technical:
       return "info" as const;
-    case JobStage.CulturalFit:
+    case ApplicationStage.CulturalFit:
       return "info" as const;
-    case JobStage.RecruiterScreen:
+    case ApplicationStage.RecruiterScreen:
       return "warning" as const;
-    case JobStage.Duplicated:
+    case ApplicationStage.Duplicated:
       return "warning" as const;
     default:
       return "default" as const;
@@ -31,7 +33,7 @@ export function StatusBadge({
   reason,
   className,
 }: {
-  stage: JobStage;
+  stage: ApplicationStage;
   reason?: string | null;
   className?: string;
 }) {

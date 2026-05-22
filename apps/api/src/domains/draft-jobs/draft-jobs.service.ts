@@ -1,6 +1,4 @@
 import type { ConversionMetadataEmbedded } from "@api/database/embeddeds/conversion-metadata.embedded";
-import { DraftJobEntity } from "@api/database/entities/draft-job.entity";
-import { DraftJobType } from "@api/domains/draft-jobs/draft-job.type";
 import {
   Injectable,
   Logger,
@@ -9,6 +7,8 @@ import {
 } from "@nestjs/common";
 
 import { CreateDraftJobInput } from "./create-draft-job.input";
+import { DraftJobType } from "./draft-job.type";
+import type { DraftJobRow } from "./draft-jobs.repository";
 import { DraftJobsRepository } from "./draft-jobs.repository";
 
 @Injectable()
@@ -30,7 +30,7 @@ export class DraftJobsService implements OnModuleInit {
     await this.repo.deleteJobsByDraftId(draftId, userId);
   }
 
-  private async toType(row: DraftJobEntity): Promise<DraftJobType> {
+  private async toType(row: DraftJobRow): Promise<DraftJobType> {
     const jobId = await this.repo.findLatestJobIdByDraftId(row.id);
     return {
       id: row.id,
@@ -49,6 +49,14 @@ export class DraftJobsService implements OnModuleInit {
     return Promise.all(rows.map((row) => this.toType(row)));
   }
 
+  async findOneOrNull(
+    id: string,
+    userId: string,
+  ): Promise<DraftJobType | null> {
+    const row = await this.repo.findOne(id, userId);
+    return row ? await this.toType(row) : null;
+  }
+
   async findOne(id: string, userId: string): Promise<DraftJobType> {
     const row = await this.repo.findOne(id, userId);
     if (!row) {
@@ -61,7 +69,7 @@ export class DraftJobsService implements OnModuleInit {
   async update(
     id: string,
     userId: string,
-    patch: Partial<Pick<DraftJobEntity, "url" | "title" | "htmlContent">>,
+    patch: Partial<Pick<DraftJobRow, "url" | "title" | "htmlContent">>,
   ): Promise<DraftJobType> {
     const row = await this.repo.updateById(id, userId, patch);
     if (!row) {

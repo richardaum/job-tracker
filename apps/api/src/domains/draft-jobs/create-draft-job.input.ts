@@ -1,13 +1,6 @@
-import { Field, InputType } from "@nestjs/graphql";
-
-@InputType()
-export class CreateDraftJobInput {
-  @Field(() => String, { nullable: true })
+/** DTO for creating a draft capture (no longer a GraphQL input type). */
+export type CreateDraftJobInput = {
+  title: string;
   url?: string | null;
-
-  @Field()
-  title!: string;
-
-  @Field()
-  htmlContent!: string;
-}
+  htmlContent: string;
+};

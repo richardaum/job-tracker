@@ -29,7 +29,6 @@ import {
   AsyncMetadataStatus,
   FitVerdict,
   useDeleteMatchAnalysisMutation,
-  useGenerateDraftJobMatchMutation,
   useGenerateJobMatchMutation,
   useMatchQuery,
 } from "@/gql/hooks";
@@ -47,21 +46,16 @@ interface PageProps {
   params: Promise<{ id: string }>;
 }
 
-type MatchAnalysisLike = { jobId?: string | null; draftJobId?: string | null };
+type MatchAnalysisLike = { jobId?: string | null; job?: { id: string } | null };
 
 function resolveParentLink(
   match: MatchAnalysisLike | null | undefined,
   notFound: boolean,
 ) {
   if (notFound) return { parentLabel: "matches", parentHref: "/matches" };
-  if (match?.jobId)
-    return { parentLabel: "job", parentHref: `/jobs/${match.jobId}` };
-  if (match?.draftJobId)
-    return {
-      parentLabel: "draft",
-      parentHref: `/draft-jobs/${match.draftJobId}`,
-    };
-  return { parentLabel: "draft", parentHref: "#" };
+  const jobId = match?.job?.id ?? match?.jobId;
+  if (jobId) return { parentLabel: "job", parentHref: `/jobs/${jobId}` };
+  return { parentLabel: "matches", parentHref: "/matches" };
 }
 
 export default function MatchAnalysisPage({ params }: PageProps) {
@@ -85,10 +79,8 @@ export default function MatchAnalysisPage({ params }: PageProps) {
     fetchPolicy: "cache-and-network",
   });
 
-  const [generateJobMatch, { loading: generatingApp }] =
+  const [generateJobMatch, { loading: generating }] =
     useGenerateJobMatchMutation();
-  const [generateDraftMatch, { loading: generatingDraft }] =
-    useGenerateDraftJobMatchMutation();
 
   const [matchFilterTab, setMatchFilterTab] = React.useState<
     "all" | FitVerdict
@@ -100,11 +92,8 @@ export default function MatchAnalysisPage({ params }: PageProps) {
   const isFailed = status === AsyncMetadataStatus.Failed;
   const isCompleted = status === AsyncMetadataStatus.Completed;
   const hasMatch = !!matchAnalysis && !isProcessing && !isFailed;
-  const generating = generatingApp || generatingDraft;
-  const notFound = hasGraphQLCode(error, "NOT_FOUND");
 
-  const belongsToJob = !!matchAnalysis?.jobId;
-  const belongsToDraft = !!matchAnalysis?.draftJobId;
+  const notFound = hasGraphQLCode(error, "NOT_FOUND");
   const { parentLabel, parentHref } = resolveParentLink(
     matchAnalysis,
     notFound,
@@ -138,43 +127,23 @@ export default function MatchAnalysisPage({ params }: PageProps) {
   }, [matchAnalysis, matchFilterTab]);
 
   async function handleGenerate(resumeId: string) {
-    if (belongsToJob && matchAnalysis?.jobId) {
-      const [error] = await tryRun(
-        generateJobMatch({
-          variables: { input: { jobId: matchAnalysis.jobId, resumeId } },
-          refetchQueries: ["Match"],
-        }),
-      );
-      if (error) {
-        const message =
-          error instanceof Error
-            ? error.message.replace("Bad Request Exception: ", "")
-            : "Failed to generate match analysis.";
-        enqueueToast({ title: message, intent: "error" });
-        return;
-      }
-    } else if (belongsToDraft && matchAnalysis?.draftJobId) {
-      const [error] = await tryRun(
-        generateDraftMatch({
-          variables: {
-            input: { draftJobId: matchAnalysis.draftJobId, resumeId },
-          },
-          refetchQueries: ["Match"],
-        }),
-      );
-      if (error) {
-        const message =
-          error instanceof Error
-            ? error.message.replace("Bad Request Exception: ", "")
-            : "Failed to generate match analysis.";
-        enqueueToast({ title: message, intent: "error" });
-        return;
-      }
-    } else {
-      enqueueToast({
-        title: "Match is not linked to a job or draft.",
-        intent: "error",
-      });
+    const jobPk = matchAnalysis?.job?.id ?? matchAnalysis?.jobId;
+    if (!jobPk) {
+      enqueueToast({ title: "Match is not linked to a job.", intent: "error" });
+      return;
+    }
+    const [error] = await tryRun(
+      generateJobMatch({
+        variables: { input: { jobId: jobPk, resumeId } },
+        refetchQueries: ["Match"],
+      }),
+    );
+    if (error) {
+      const message =
+        error instanceof Error
+          ? error.message.replace("Bad Request Exception: ", "")
+          : "Failed to generate match analysis.";
+      enqueueToast({ title: message, intent: "error" });
     }
   }
 

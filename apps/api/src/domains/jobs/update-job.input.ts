@@ -1,11 +1,15 @@
 import { Field, ID, InputType, Int } from "@nestjs/graphql";
+import { IsOptional, MaxLength } from "class-validator";
 
 import { ApplicationSourceEnum } from "./job-source.enum";
+import { JOB_TITLE_MAX_LENGTH } from "./job-title.constraints";
 import { SalaryPeriodEnum } from "./salary/salary-period.enum";
 
 @InputType()
 export class UpdateJobInput {
   @Field({ nullable: true })
+  @IsOptional()
+  @MaxLength(JOB_TITLE_MAX_LENGTH)
   title?: string;
 
   @Field({ nullable: true })
@@ -43,4 +47,9 @@ export class UpdateJobInput {
 
   @Field(() => String, { nullable: true })
   workRegion?: string | null;
+
+  @Field(() => String, { nullable: true })
+  @IsOptional()
+  @MaxLength(5_242_880)
+  htmlContent?: string | null;
 }

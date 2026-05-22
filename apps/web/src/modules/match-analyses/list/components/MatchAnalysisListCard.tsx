@@ -29,8 +29,8 @@ export function MatchAnalysisListCard({
 }: MatchAnalysisListCardProps) {
   const parentLabel = matchAnalysis.job
     ? `${matchAnalysis.job.title} @ ${matchAnalysis.job.company.name}`
-    : matchAnalysis.draftJob
-      ? matchAnalysis.draftJob.title
+    : matchAnalysis.jobId
+      ? `Job ${matchAnalysis.jobId}`
       : "Unknown";
 
   const title = (

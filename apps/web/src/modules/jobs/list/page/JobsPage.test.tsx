@@ -20,12 +20,13 @@ vi.mock("next/image", () => ({
 }));
 
 vi.mock("@/gql/hooks", () => ({
-  JobQuickFilter: {
+  ApplicationQuickFilter: {
     Active: "ACTIVE",
     Applied: "APPLIED",
     Incoming: "INCOMING",
     New: "NEW",
     Duplicated: "DUPLICATED",
+    Draft: "DRAFT",
   },
   JobSource: {
     Jack: "JACK",
@@ -33,14 +34,16 @@ vi.mock("@/gql/hooks", () => ({
     RemoteYeah: "REMOTE_YEAH",
     Wellfound: "WELLFOUND",
   },
-  JobStage: {
+  ApplicationStage: {
     New: "NEW",
     Duplicated: "DUPLICATED",
     Applied: "APPLIED",
     RecruiterScreen: "RECRUITER_SCREEN",
     Technical: "TECHNICAL",
+    CulturalFit: "CULTURAL_FIT",
     Offer: "OFFER",
     Rejected: "REJECTED",
+    Draft: "DRAFT",
   },
   SalaryPeriod: { Year: "YEAR", Month: "MONTH", Hour: "HOUR" },
   useJobsQuery: (...args: unknown[]) => useJobsQueryMock(...args),

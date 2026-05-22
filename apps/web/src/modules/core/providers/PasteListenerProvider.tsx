@@ -5,10 +5,16 @@ import { useRouter } from "next/navigation";
 import type { ReactNode } from "react";
 import { useCallback, useEffect, useState } from "react";
 
-import { DraftJobsListDocument, useCreateDraftJobMutation } from "@/gql/hooks";
+import {
+  ApplicationQuickFilter,
+  JobsDocument,
+  useCreateDraftCaptureJobMutation,
+} from "@/gql/hooks";
 import { useToastQueue } from "@/modules/jobs/shared/hooks/useToastQueue";
 
 import { PasteDestinationDialog } from "./components/PasteDestinationDialog";
+
+const DRAFT_CAPTURE_COMPANY = "Draft (pending company)" as const;
 
 export function PasteListenerProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
@@ -16,9 +22,14 @@ export function PasteListenerProvider({ children }: { children: ReactNode }) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const { enqueueToast } = useToastQueue();
 
-  const [createDraftJob, { loading: createDraftLoading }] =
-    useCreateDraftJobMutation({
-      refetchQueries: [{ query: DraftJobsListDocument }],
+  const [createDraftCaptureJob, { loading: createDraftLoading }] =
+    useCreateDraftCaptureJobMutation({
+      refetchQueries: [
+        {
+          query: JobsDocument,
+          variables: { filter: ApplicationQuickFilter.Draft },
+        },
+      ],
       awaitRefetchQueries: true,
     });
 
@@ -69,12 +80,14 @@ export function PasteListenerProvider({ children }: { children: ReactNode }) {
 
   async function handleConfirmPasteImport(url: string, autoConvert: boolean) {
     const [createError, result] = await tryRun(
-      createDraftJob({
+      createDraftCaptureJob({
         variables: {
           input: {
-            url: url || null,
+            company: DRAFT_CAPTURE_COMPANY,
             title: titleFromUrl(url),
+            urls: url ? [url] : [],
             htmlContent: pastedContent,
+            createAsDraftCapture: true,
           },
         },
       }),
@@ -87,7 +100,7 @@ export function PasteListenerProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    const draftId = result?.data?.createDraftJob?.id;
+    const draftId = result?.data?.createJob?.id;
     if (!draftId) return;
 
     setDialogOpen(false);

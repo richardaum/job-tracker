@@ -2,18 +2,9 @@ import { CurrentUser } from "@api/domains/auth/current-user.decorator";
 import { JwtAuthGuard } from "@api/domains/auth/jwt-auth.guard";
 import { Roles } from "@api/domains/auth/roles.decorator";
 import { RolesGuard } from "@api/domains/auth/roles.guard";
-import { DraftJobType } from "@api/domains/draft-jobs/draft-job.type";
 import { DeleteMutationPayloadType } from "@api/domains/shared/delete-mutation-payload.type";
 import { UseGuards } from "@nestjs/common";
-import {
-  Args,
-  ID,
-  Mutation,
-  Parent,
-  Query,
-  ResolveField,
-  Resolver,
-} from "@nestjs/graphql";
+import { Args, ID, Mutation, Query, Resolver } from "@nestjs/graphql";
 
 import { CreateJobInput } from "./create-job.input";
 import { CreateJobStageEventInput } from "./create-job-stage-event.input";
@@ -33,14 +24,6 @@ export class JobsResolver {
     private readonly service: JobsService,
     private readonly summaryService: SummaryService,
   ) {}
-
-  @ResolveField(() => ID, { nullable: true })
-  async draftJobId(
-    @Parent() job: JobType,
-    @CurrentUser() user: { userId: string },
-  ): Promise<string | null> {
-    return this.service.findDraftJobId(job.id, user.userId);
-  }
 
   @Query(() => [JobType])
   jobs(
@@ -69,12 +52,12 @@ export class JobsResolver {
     return this.service.create(user.userId, input);
   }
 
-  @Mutation(() => DraftJobType)
-  async createJobWithAI(
-    @Args("draftId", { type: () => ID }) draftId: string,
+  @Mutation(() => JobType)
+  fillJobAutomatically(
+    @Args("jobId", { type: () => ID }) jobId: string,
     @CurrentUser() user: { userId: string },
-  ): Promise<DraftJobType> {
-    return this.service.createJobWithAI(user.userId, draftId);
+  ): Promise<JobType> {
+    return this.service.fillJobAutomatically(user.userId, jobId);
   }
 
   @Query(() => String, { nullable: true })

@@ -25,9 +25,10 @@ export class ImportJobService {
     >({ to: "content", payload: { kind: "import.job" }, tabId });
 
     const [error, result] = await tryRun(
-      this.apiService.createDraftJob({
-        url: snapshot.url,
+      this.apiService.createDraftCaptureJob({
+        company: "",
         title: snapshot.title,
+        urls: snapshot.url?.trim() ? [snapshot.url.trim()] : [],
         htmlContent: snapshot.innerHTML,
       }),
     );
@@ -36,7 +37,7 @@ export class ImportJobService {
       throw new Error("Failed to create draft job", { cause: error });
     }
 
-    const id = result?.data?.createDraftJob.id;
+    const id = result?.data?.createJob?.id;
     if (!id) throw new Error("Failed to create draft job");
 
     await this.tabService.openTab(

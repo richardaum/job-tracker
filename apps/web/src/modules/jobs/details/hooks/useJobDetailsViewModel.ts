@@ -1,6 +1,10 @@
 "use client";
 
-import { JobStage, useJobQuery, useJobStageEventsQuery } from "@/gql/hooks";
+import {
+  ApplicationStage,
+  useJobQuery,
+  useJobStageEventsQuery,
+} from "@/gql/hooks";
 import { deriveDetailStatus } from "@/lib/entity-detail-view-status";
 import { type JobDetailsValues } from "@/modules/jobs/details/utils/job-details.shared";
 import { formatJobSourceLabel } from "@/modules/jobs/shared/utils/jobSourceLabel";
@@ -32,7 +36,7 @@ export function useJobDetailsViewModel(
 
   const job = data?.job as JobDetailsValues | undefined;
   const currentStage =
-    stageEventsData?.jobStageEvents[0]?.toStage ?? JobStage.New;
+    stageEventsData?.jobStageEvents[0]?.toStage ?? ApplicationStage.New;
   const currentStageReason = stageEventsData?.jobStageEvents[0]?.reason ?? null;
 
   const sourcePrimaryText = formatJobSourceLabel(job?.source);
@@ -45,6 +49,5 @@ export function useJobDetailsViewModel(
     status,
     sourcePrimaryText,
     refetch,
-    draftJobId: job?.draftJobId ?? null,
   };
 }

@@ -217,7 +217,7 @@ export function OverviewTabContent({
       <div className={cn("max-w-full")}>
         <FieldWithLabelAction
           label="Job title"
-          content={<Text size="sm">{job.title}</Text>}
+          content={<Text size="sm">{job.title ?? "—"}</Text>}
           actions={
             <FieldWithLabelAction.IconActionButton
               label="Edit job title"
@@ -229,7 +229,7 @@ export function OverviewTabContent({
         <TextFieldEditDialog
           control={titleDialog}
           label="Job title"
-          value={job.title}
+          value={job.title ?? ""}
           placeholder="e.g. Senior Frontend Engineer"
           onSave={handleSaveTitle}
         />

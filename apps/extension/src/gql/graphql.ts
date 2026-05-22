@@ -30,6 +30,27 @@ export type Scalars = {
   DateTime: { input: any; output: any };
 };
 
+export enum ApplicationQuickFilter {
+  Active = "ACTIVE",
+  Applied = "APPLIED",
+  Draft = "DRAFT",
+  Duplicated = "DUPLICATED",
+  Incoming = "INCOMING",
+  New = "NEW",
+}
+
+export enum ApplicationStage {
+  Applied = "APPLIED",
+  CulturalFit = "CULTURAL_FIT",
+  Draft = "DRAFT",
+  Duplicated = "DUPLICATED",
+  New = "NEW",
+  Offer = "OFFER",
+  RecruiterScreen = "RECRUITER_SCREEN",
+  Rejected = "REJECTED",
+  Technical = "TECHNICAL",
+}
+
 export enum AsyncMetadataStatus {
   Completed = "COMPLETED",
   Failed = "FAILED",
@@ -39,8 +60,8 @@ export enum AsyncMetadataStatus {
 export type AsyncMetadataType = {
   __typename?: "AsyncMetadataType";
   error?: Maybe<Scalars["String"]["output"]>;
-  status: AsyncMetadataStatus;
-  timestamp?: Maybe<Scalars["String"]["output"]>;
+  status?: Maybe<AsyncMetadataStatus>;
+  timestamp?: Maybe<Scalars["DateTime"]["output"]>;
 };
 
 export type CompanyType = {
@@ -53,23 +74,12 @@ export type CompanyType = {
   userId: Scalars["String"]["output"];
 };
 
-export type ConversionMetadataType = {
-  __typename?: "ConversionMetadataType";
-  error?: Maybe<Scalars["String"]["output"]>;
-  status: DraftJobConversionStatus;
-  timestamp?: Maybe<Scalars["String"]["output"]>;
-};
-
-export type CreateDraftJobInput = {
-  htmlContent: Scalars["String"]["input"];
-  title: Scalars["String"]["input"];
-  url?: InputMaybe<Scalars["String"]["input"]>;
-};
-
 export type CreateJobInput = {
   company: Scalars["String"]["input"];
   companyId?: InputMaybe<Scalars["ID"]["input"]>;
+  createAsDraftCapture?: InputMaybe<Scalars["Boolean"]["input"]>;
   description?: InputMaybe<Scalars["String"]["input"]>;
+  htmlContent?: InputMaybe<Scalars["String"]["input"]>;
   location?: InputMaybe<Scalars["String"]["input"]>;
   salaryCurrency?: InputMaybe<Scalars["String"]["input"]>;
   salaryMaxCents?: InputMaybe<Scalars["Int"]["input"]>;
@@ -78,7 +88,7 @@ export type CreateJobInput = {
   source?: InputMaybe<JobSource>;
   sourceRunId?: InputMaybe<Scalars["ID"]["input"]>;
   tags?: InputMaybe<Array<Scalars["String"]["input"]>>;
-  title: Scalars["String"]["input"];
+  title?: InputMaybe<Scalars["String"]["input"]>;
   urls?: InputMaybe<Array<Scalars["String"]["input"]>>;
   workRegion?: InputMaybe<Scalars["String"]["input"]>;
 };
@@ -87,8 +97,8 @@ export type CreateJobStageEventInput = {
   jobId: Scalars["String"]["input"];
   reason?: InputMaybe<Scalars["String"]["input"]>;
   scheduledAt?: InputMaybe<Scalars["DateTime"]["input"]>;
-  source?: InputMaybe<Scalars["String"]["input"]>;
-  toStage: JobStage;
+  source?: InputMaybe<StageEventSource>;
+  toStage: ApplicationStage;
 };
 
 export type CreateNoteInput = {
@@ -123,80 +133,33 @@ export type DeleteMutationPayloadType = {
   success: Scalars["Boolean"]["output"];
 };
 
-export enum DraftJobConversionStatus {
-  Failed = "FAILED",
-  Idle = "IDLE",
-  Processing = "PROCESSING",
-  Succeeded = "SUCCEEDED",
-}
-
-export type DraftJobType = {
-  __typename?: "DraftJobType";
-  conversionMetadata?: Maybe<ConversionMetadataType>;
-  createdAt: Scalars["DateTime"]["output"];
-  fit?: Maybe<FitAnalysisType>;
-  htmlContent: Scalars["String"]["output"];
-  id: Scalars["ID"]["output"];
-  jobId?: Maybe<Scalars["String"]["output"]>;
-  title: Scalars["String"]["output"];
-  updatedAt: Scalars["DateTime"]["output"];
-  url?: Maybe<Scalars["String"]["output"]>;
-};
-
 export type ExchangeRate = {
   __typename?: "ExchangeRate";
   currency: Scalars["String"]["output"];
   rate: Scalars["Float"]["output"];
 };
 
-export type FitAnalysisType = {
-  __typename?: "FitAnalysisType";
-  classification?: Maybe<Scalars["String"]["output"]>;
-  createdAt: Scalars["DateTime"]["output"];
-  draftJob?: Maybe<DraftJobType>;
-  draftJobId?: Maybe<Scalars["ID"]["output"]>;
-  fitCount: Scalars["Int"]["output"];
-  gapCount: Scalars["Int"]["output"];
-  generationMetadata?: Maybe<AsyncMetadataType>;
-  id: Scalars["ID"]["output"];
-  items: Array<FitItemType>;
-  job?: Maybe<JobType>;
-  jobId?: Maybe<Scalars["ID"]["output"]>;
-  resumeId: Scalars["ID"]["output"];
-  scoreRatio?: Maybe<Scalars["Float"]["output"]>;
-  unclearCount: Scalars["Int"]["output"];
-  updatedAt: Scalars["DateTime"]["output"];
-};
+export enum FitClassification {
+  Negative = "Negative",
+  Neutral = "Neutral",
+  Positive = "Positive",
+}
 
-export type FitItemType = {
-  __typename?: "FitItemType";
-  jdQuote: Scalars["String"]["output"];
-  requirement: Scalars["String"]["output"];
-  source: Scalars["String"]["output"];
-  sourceQuotes: Array<Scalars["String"]["output"]>;
-  suggestion?: Maybe<Scalars["String"]["output"]>;
-  type: Scalars["String"]["output"];
-  verdict: Scalars["String"]["output"];
-  weight?: Maybe<Scalars["String"]["output"]>;
-};
+export enum FitSource {
+  Preference = "Preference",
+  Resume = "Resume",
+}
 
-export type GenerateDraftFitInput = {
-  draftJobId: Scalars["ID"]["input"];
-  resumeId: Scalars["ID"]["input"];
-};
+export enum FitVerdict {
+  Fit = "Fit",
+  Gap = "Gap",
+  Unclear = "Unclear",
+}
 
-export type GenerateFitInput = {
+export type GenerateMatchInput = {
   jobId: Scalars["ID"]["input"];
   resumeId: Scalars["ID"]["input"];
 };
-
-export enum JobQuickFilter {
-  Active = "ACTIVE",
-  Applied = "APPLIED",
-  Duplicated = "DUPLICATED",
-  Incoming = "INCOMING",
-  New = "NEW",
-}
 
 export type JobSalary = {
   __typename?: "JobSalary";
@@ -213,27 +176,16 @@ export enum JobSource {
   Wellfound = "WELLFOUND",
 }
 
-export enum JobStage {
-  Applied = "APPLIED",
-  CulturalFit = "CULTURAL_FIT",
-  Duplicated = "DUPLICATED",
-  New = "NEW",
-  Offer = "OFFER",
-  RecruiterScreen = "RECRUITER_SCREEN",
-  Rejected = "REJECTED",
-  Technical = "TECHNICAL",
-}
-
 export type JobStageEventType = {
   __typename?: "JobStageEventType";
   createdAt: Scalars["DateTime"]["output"];
-  fromStage?: Maybe<JobStage>;
+  fromStage?: Maybe<ApplicationStage>;
   id: Scalars["ID"]["output"];
   jobId: Scalars["String"]["output"];
   reason?: Maybe<Scalars["String"]["output"]>;
   scheduledAt?: Maybe<Scalars["DateTime"]["output"]>;
-  source: Scalars["String"]["output"];
-  toStage: JobStage;
+  source: StageEventSource;
+  toStage: ApplicationStage;
   userId: Scalars["String"]["output"];
 };
 
@@ -242,57 +194,82 @@ export type JobType = {
   company: CompanyType;
   companyId: Scalars["ID"]["output"];
   createdAt: Scalars["DateTime"]["output"];
-  currentStage: JobStage;
+  currentStage: ApplicationStage;
   currentStageAt: Scalars["DateTime"]["output"];
   currentStageReason?: Maybe<Scalars["String"]["output"]>;
   description?: Maybe<Scalars["String"]["output"]>;
-  draftJobId?: Maybe<Scalars["ID"]["output"]>;
-  fit?: Maybe<FitAnalysisType>;
+  fillMetadata?: Maybe<AsyncMetadataType>;
+  htmlContent?: Maybe<Scalars["String"]["output"]>;
   id: Scalars["ID"]["output"];
   location?: Maybe<Scalars["String"]["output"]>;
+  match?: Maybe<MatchAnalysisType>;
   salary: JobSalary;
   source?: Maybe<JobSource>;
   sourceRunId?: Maybe<Scalars["ID"]["output"]>;
   summary?: Maybe<Scalars["String"]["output"]>;
   summaryMetadata?: Maybe<AsyncMetadataType>;
   tags: Array<Scalars["String"]["output"]>;
-  title: Scalars["String"]["output"];
+  title?: Maybe<Scalars["String"]["output"]>;
   updatedAt: Scalars["DateTime"]["output"];
   urls: Array<Scalars["String"]["output"]>;
   userId: Scalars["String"]["output"];
   workRegion?: Maybe<Scalars["String"]["output"]>;
 };
 
+export type MatchAnalysisType = {
+  __typename?: "MatchAnalysisType";
+  classification?: Maybe<FitClassification>;
+  createdAt: Scalars["DateTime"]["output"];
+  gapCount: Scalars["Int"]["output"];
+  generationMetadata?: Maybe<AsyncMetadataType>;
+  id: Scalars["ID"]["output"];
+  items: Array<MatchItemType>;
+  job?: Maybe<JobType>;
+  jobId: Scalars["ID"]["output"];
+  matchCount: Scalars["Int"]["output"];
+  resumeId: Scalars["ID"]["output"];
+  scoreRatio?: Maybe<Scalars["Float"]["output"]>;
+  unclearCount: Scalars["Int"]["output"];
+  updatedAt: Scalars["DateTime"]["output"];
+};
+
+export type MatchItemType = {
+  __typename?: "MatchItemType";
+  jdQuote: Scalars["String"]["output"];
+  requirement: Scalars["String"]["output"];
+  source: FitSource;
+  sourceQuotes: Array<Scalars["String"]["output"]>;
+  suggestion?: Maybe<Scalars["String"]["output"]>;
+  type: RequirementType;
+  verdict: FitVerdict;
+  weight?: Maybe<Scalars["String"]["output"]>;
+};
+
 export type Mutation = {
   __typename?: "Mutation";
   claimSourceRun?: Maybe<SourceRunType>;
   clearSourceRuns: Scalars["Boolean"]["output"];
-  createDraftJob: DraftJobType;
   createJob: JobType;
   createJobNote: NoteType;
   createJobStageEvent: JobStageEventType;
-  createJobWithAI: DraftJobType;
   createResume: ResumeType;
   createSourceRun: SourceRunType;
   createSourceTemplate: SourceTemplateType;
   deleteCompany: DeleteMutationPayloadType;
-  deleteDraftJob: DeleteMutationPayloadType;
-  deleteFitAnalysis: DeleteMutationPayloadType;
   deleteJob: DeleteMutationPayloadType;
   deleteJobNote: DeleteMutationPayloadType;
   deleteJobStageEvent: DeleteMutationPayloadType;
-  deleteJobsForDraft: DeleteMutationPayloadType;
+  deleteMatchAnalysis: DeleteMutationPayloadType;
   deleteResume: DeleteMutationPayloadType;
   deleteSourceRun: DeleteMutationPayloadType;
   deleteSourceTemplate: DeleteMutationPayloadType;
   detachJobsFromSourceRun: Scalars["Int"]["output"];
-  generateDraftJobFit: FitAnalysisType;
-  generateJobFit: FitAnalysisType;
+  fillJobAutomatically: JobType;
+  generateJobMatch: MatchAnalysisType;
   generateJobSummary: JobType;
   removeJobTag: JobType;
   rerunSourceTemplate: SourceRunType;
   updateCompany: CompanyType;
-  updateDraftJob: DraftJobType;
   updateJob: JobType;
   updateJobNote: NoteType;
   updateJobStageEvent: JobStageEventType;
@@ -305,8 +282,6 @@ export type Mutation = {
 
 export type MutationClaimSourceRunArgs = { id: Scalars["ID"]["input"] };
 
-export type MutationCreateDraftJobArgs = { input: CreateDraftJobInput };
-
 export type MutationCreateJobArgs = { input: CreateJobInput };
 
 export type MutationCreateJobNoteArgs = { input: CreateNoteInput };
@@ -314,8 +289,6 @@ export type MutationCreateJobNoteArgs = { input: CreateNoteInput };
 export type MutationCreateJobStageEventArgs = {
   input: CreateJobStageEventInput;
 };
-
-export type MutationCreateJobWithAiArgs = { draftId: Scalars["ID"]["input"] };
 
 export type MutationCreateResumeArgs = { input: CreateResumeInput };
 
@@ -327,22 +300,13 @@ export type MutationCreateSourceTemplateArgs = {
 
 export type MutationDeleteCompanyArgs = { id: Scalars["ID"]["input"] };
 
-export type MutationDeleteDraftJobArgs = {
-  deleteLinkedJob?: InputMaybe<Scalars["Boolean"]["input"]>;
-  id: Scalars["ID"]["input"];
-};
-
-export type MutationDeleteFitAnalysisArgs = { id: Scalars["ID"]["input"] };
-
 export type MutationDeleteJobArgs = { id: Scalars["ID"]["input"] };
 
 export type MutationDeleteJobNoteArgs = { id: Scalars["ID"]["input"] };
 
 export type MutationDeleteJobStageEventArgs = { id: Scalars["ID"]["input"] };
 
-export type MutationDeleteJobsForDraftArgs = {
-  draftId: Scalars["ID"]["input"];
-};
+export type MutationDeleteMatchAnalysisArgs = { id: Scalars["ID"]["input"] };
 
 export type MutationDeleteResumeArgs = { id: Scalars["ID"]["input"] };
 
@@ -354,9 +318,11 @@ export type MutationDetachJobsFromSourceRunArgs = {
   sourceRunId: Scalars["ID"]["input"];
 };
 
-export type MutationGenerateDraftJobFitArgs = { input: GenerateDraftFitInput };
+export type MutationFillJobAutomaticallyArgs = {
+  jobId: Scalars["ID"]["input"];
+};
 
-export type MutationGenerateJobFitArgs = { input: GenerateFitInput };
+export type MutationGenerateJobMatchArgs = { input: GenerateMatchInput };
 
 export type MutationGenerateJobSummaryArgs = { jobId: Scalars["ID"]["input"] };
 
@@ -372,11 +338,6 @@ export type MutationRerunSourceTemplateArgs = {
 export type MutationUpdateCompanyArgs = {
   id: Scalars["ID"]["input"];
   input: UpdateCompanyInput;
-};
-
-export type MutationUpdateDraftJobArgs = {
-  id: Scalars["ID"]["input"];
-  input: UpdateDraftJobInput;
 };
 
 export type MutationUpdateJobArgs = {
@@ -443,22 +404,20 @@ export type PreferenceType = {
 export type Query = {
   __typename?: "Query";
   companies: Array<CompanyType>;
+  company: CompanyType;
   companyJobsCount: Scalars["Int"]["output"];
-  draftJob: DraftJobType;
-  draftJobFit?: Maybe<FitAnalysisType>;
-  draftJobs: Array<DraftJobType>;
   exchangeRates: CurrencyRates;
-  fit?: Maybe<FitAnalysisType>;
-  fitAnalyses: Array<FitAnalysisType>;
   generateCompanyDescription: Scalars["String"]["output"];
   generateJobLocationWithAI?: Maybe<Scalars["String"]["output"]>;
   generateJobNoteWithAI: Scalars["String"]["output"];
   generateJobWorkRegionWithAI?: Maybe<Scalars["String"]["output"]>;
   job: JobType;
-  jobFit?: Maybe<FitAnalysisType>;
+  jobMatch?: Maybe<MatchAnalysisType>;
   jobNotes: Array<NoteType>;
   jobStageEvents: Array<JobStageEventType>;
   jobs: Array<JobType>;
+  match: MatchAnalysisType;
+  matchAnalyses: Array<MatchAnalysisType>;
   me: UserType;
   restructureJobDescriptionWithAI: Scalars["String"]["output"];
   resume: ResumeType;
@@ -471,18 +430,14 @@ export type Query = {
   workPreferences: Array<PreferenceType>;
 };
 
+export type QueryCompanyArgs = { id: Scalars["ID"]["input"] };
+
 export type QueryCompanyJobsCountArgs = { id: Scalars["ID"]["input"] };
-
-export type QueryDraftJobArgs = { id: Scalars["ID"]["input"] };
-
-export type QueryDraftJobFitArgs = { draftJobId: Scalars["ID"]["input"] };
 
 export type QueryExchangeRatesArgs = {
   base: Scalars["String"]["input"];
   currencies: Array<Scalars["String"]["input"]>;
 };
-
-export type QueryFitArgs = { id: Scalars["ID"]["input"] };
 
 export type QueryGenerateCompanyDescriptionArgs = {
   companyName: Scalars["String"]["input"];
@@ -503,7 +458,7 @@ export type QueryGenerateJobWorkRegionWithAiArgs = {
 
 export type QueryJobArgs = { id: Scalars["ID"]["input"] };
 
-export type QueryJobFitArgs = { jobId: Scalars["ID"]["input"] };
+export type QueryJobMatchArgs = { jobId: Scalars["ID"]["input"] };
 
 export type QueryJobNotesArgs = { jobId: Scalars["ID"]["input"] };
 
@@ -511,9 +466,11 @@ export type QueryJobStageEventsArgs = { jobId: Scalars["ID"]["input"] };
 
 export type QueryJobsArgs = {
   company?: InputMaybe<Scalars["String"]["input"]>;
-  filter?: InputMaybe<JobQuickFilter>;
+  filter?: InputMaybe<ApplicationQuickFilter>;
   runId?: InputMaybe<Scalars["ID"]["input"]>;
 };
+
+export type QueryMatchArgs = { id: Scalars["ID"]["input"] };
 
 export type QueryRestructureJobDescriptionWithAiArgs = {
   text: Scalars["String"]["input"];
@@ -530,6 +487,12 @@ export type QuerySourceProfilesArgs = {
 export type QuerySourceTemplatesForSourceProfileArgs = {
   sourceProfileId: Scalars["String"]["input"];
 };
+
+export enum RequirementType {
+  MustHave = "MustHave",
+  NiceToHave = "NiceToHave",
+  SoftSkill = "SoftSkill",
+}
 
 export type ResumeType = {
   __typename?: "ResumeType";
@@ -595,6 +558,11 @@ export type SourceTemplateType = {
   surfaceUrl: Scalars["String"]["output"];
 };
 
+export enum StageEventSource {
+  Manual = "Manual",
+  System = "System",
+}
+
 export type Subscription = {
   __typename?: "Subscription";
   sourceRunEvents: SourceRunEvent;
@@ -605,12 +573,11 @@ export type UpdateCompanyInput = {
   name?: InputMaybe<Scalars["String"]["input"]>;
 };
 
-export type UpdateDraftJobInput = { title: Scalars["String"]["input"] };
-
 export type UpdateJobInput = {
   company?: InputMaybe<Scalars["String"]["input"]>;
   companyId?: InputMaybe<Scalars["ID"]["input"]>;
   description?: InputMaybe<Scalars["String"]["input"]>;
+  htmlContent?: InputMaybe<Scalars["String"]["input"]>;
   location?: InputMaybe<Scalars["String"]["input"]>;
   salaryCurrency?: InputMaybe<Scalars["String"]["input"]>;
   salaryMaxCents?: InputMaybe<Scalars["Int"]["input"]>;
@@ -626,7 +593,7 @@ export type UpdateJobInput = {
 export type UpdateJobStageEventInput = {
   reason?: InputMaybe<Scalars["String"]["input"]>;
   scheduledAt?: InputMaybe<Scalars["DateTime"]["input"]>;
-  toStage?: InputMaybe<JobStage>;
+  toStage?: InputMaybe<ApplicationStage>;
 };
 
 export type UpdateNoteInput = {
@@ -678,17 +645,26 @@ export type ClaimSourceRunMutation = {
   } | null;
 };
 
-export type CreateDraftJobMutationVariables = Exact<{
-  input: CreateDraftJobInput;
+export type CreateDraftCaptureJobMutationVariables = Exact<{
+  input: CreateJobInput;
 }>;
 
-export type CreateDraftJobMutation = {
+export type CreateDraftCaptureJobMutation = {
   __typename?: "Mutation";
-  createDraftJob: {
-    __typename?: "DraftJobType";
+  createJob: {
+    __typename?: "JobType";
     id: string;
-    url?: string | null;
-    title: string;
+    title?: string | null;
+    urls: Array<string>;
+    htmlContent?: string | null;
+    currentStage: ApplicationStage;
+    createdAt: any;
+    fillMetadata?: {
+      __typename?: "AsyncMetadataType";
+      status?: AsyncMetadataStatus | null;
+      error?: string | null;
+      timestamp?: any | null;
+    } | null;
   };
 };
 
@@ -696,7 +672,7 @@ export type CreateJobMutationVariables = Exact<{ input: CreateJobInput }>;
 
 export type CreateJobMutation = {
   __typename?: "Mutation";
-  createJob: { __typename?: "JobType"; id: string; title: string };
+  createJob: { __typename?: "JobType"; id: string; title?: string | null };
 };
 
 export type SourceRunEventsSubscriptionVariables = Exact<{
@@ -824,13 +800,13 @@ export const ClaimSourceRunDocument = {
   ClaimSourceRunMutation,
   ClaimSourceRunMutationVariables
 >;
-export const CreateDraftJobDocument = {
+export const CreateDraftCaptureJobDocument = {
   kind: "Document",
   definitions: [
     {
       kind: "OperationDefinition",
       operation: "mutation",
-      name: { kind: "Name", value: "CreateDraftJob" },
+      name: { kind: "Name", value: "CreateDraftCaptureJob" },
       variableDefinitions: [
         {
           kind: "VariableDefinition",
@@ -842,7 +818,7 @@ export const CreateDraftJobDocument = {
             kind: "NonNullType",
             type: {
               kind: "NamedType",
-              name: { kind: "Name", value: "CreateDraftJobInput" },
+              name: { kind: "Name", value: "CreateJobInput" },
             },
           },
         },
@@ -852,7 +828,7 @@ export const CreateDraftJobDocument = {
         selections: [
           {
             kind: "Field",
-            name: { kind: "Name", value: "createDraftJob" },
+            name: { kind: "Name", value: "createJob" },
             arguments: [
               {
                 kind: "Argument",
@@ -867,8 +843,32 @@ export const CreateDraftJobDocument = {
               kind: "SelectionSet",
               selections: [
                 { kind: "Field", name: { kind: "Name", value: "id" } },
-                { kind: "Field", name: { kind: "Name", value: "url" } },
                 { kind: "Field", name: { kind: "Name", value: "title" } },
+                { kind: "Field", name: { kind: "Name", value: "urls" } },
+                { kind: "Field", name: { kind: "Name", value: "htmlContent" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "currentStage" },
+                },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "fillMetadata" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "status" },
+                      },
+                      { kind: "Field", name: { kind: "Name", value: "error" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "timestamp" },
+                      },
+                    ],
+                  },
+                },
+                { kind: "Field", name: { kind: "Name", value: "createdAt" } },
               ],
             },
           },
@@ -877,8 +877,8 @@ export const CreateDraftJobDocument = {
     },
   ],
 } as unknown as DocumentNode<
-  CreateDraftJobMutation,
-  CreateDraftJobMutationVariables
+  CreateDraftCaptureJobMutation,
+  CreateDraftCaptureJobMutationVariables
 >;
 export const CreateJobDocument = {
   kind: "Document",

@@ -1,5 +1,5 @@
 ---
-status: pending
+status: completed
 title: Update JobEntity, Enums, and Inputs
 type: backend
 complexity: high
@@ -11,7 +11,8 @@ dependencies:
 
 ## Overview
 
-Update the data model and GraphQL inputs to reflect the merged schema. `JobEntity` gains `htmlContent` (nullable, raw captured HTML) and `fillMetadata` (AsyncMetadataEmbedded) columns, loses the `draftJob` ManyToOne relation and `draftJobId` FK, and makes `title` nullable. `ApplicationStageEnum` and `ApplicationQuickFilterEnum` each gain a `DRAFT` value. `CreateJobInput` and `UpdateJobInput` gain `htmlContent` and lose `draftJobId`. Register enum changes with GraphQL. Update `JobType` object type to reflect nullable title and new fields.
+Update the data model and GraphQL inputs to reflect the merged schema. `JobEntity` gains `htmlContent` (nullable, raw captured HTML) and `fillMetadata` (AsyncMetadataEmbedded) columns, loses the `draftJob` ManyToOne relation and `draftJobId` FK, and makes `title` nullable. `ApplicationStageEnum` and `ApplicationQuickFilterEnum` each gain a `DRAFT` value. `CreateJobInput` and `UpdateJobInput` gain `htmlContent` and lose `draftJobId`. Register enum changes with GraphQL.
+**Note:** `DraftJobEntity` is absent from TypeORM entities (see `draft-job.orm.md`). Task 02 aligned parts of JobEntity / enums ahead of formal GraphQL input cleanup here.
 
 <critical>
 - ALWAYS READ the PRD and TechSpec before starting
@@ -43,12 +44,12 @@ Update the data model and GraphQL inputs to reflect the merged schema. `JobEntit
 
 ## Subtasks
 
-- [ ] 3.1 Update `JobEntity` — add htmlContent and fillMetadata columns, make title nullable, remove draftJob relation and draftJobId
-- [ ] 3.2 Add `DRAFT` to `ApplicationStageEnum` and `ApplicationQuickFilterEnum`
-- [ ] 3.3 Update `JobType` GraphQL object type — nullable title, add htmlContent, add fillMetadata, remove draftJobId
-- [ ] 3.4 Update `CreateJobInput` and `UpdateJobInput` — add htmlContent, remove draftJobId
-- [ ] 3.5 Remove `draftJobId` @ResolveField from `JobsResolver`
-- [ ] 3.6 Fix compilation errors across all files that reference removed fields (draftJobId, draftJob relation)
+- [x] 3.1 Update `JobEntity` — add htmlContent and fillMetadata columns, make title nullable, remove draftJob relation and draftJobId
+- [x] 3.2 Add `DRAFT` to `ApplicationStageEnum` and `ApplicationQuickFilterEnum`
+- [x] 3.3 Update `JobType` GraphQL object type — nullable title, add htmlContent, add fillMetadata, remove draftJobId
+- [x] 3.4 Update `CreateJobInput` and `UpdateJobInput` — add htmlContent, remove draftJobId
+- [x] 3.5 Remove `draftJobId` @ResolveField from `JobsResolver`
+- [x] 3.6 Fix compilation errors across all files that reference removed fields (draftJobId, draftJob relation)
 
 ## Implementation Details
 
@@ -56,9 +57,9 @@ Entity changes in `JobEntity`: remove `import { DraftJobEntity }` and the `@Many
 
 For nullable `title`, update both the `@Column` decorator and the class property type: `title: string | null`. This cascades to any service code that destructures or asserts `title` as always-present.
 
-Enum additions: add `DRAFT = "DRAFT"` in alphabetical or logical position. The `registerEnumType` call does not need to change since it uses the enum object reference.
+Enum additions: add `DRAFT = "DRAFT"` in alphabetical or logical position. `registerEnumType` uses GraphQL enum names **`ApplicationStage`** and **`ApplicationQuickFilter`** (alias renames away from legacy `JobStage` / `JobQuickFilter`; web codegen tracked in task 10).
 
-Input changes: `CreateJobInput` currently has `draftJobId` field — remove it entirely. Add `htmlContent` following the existing field pattern. In `UpdateJobInput`, add `htmlContent`.
+Input changes: **`CreateJobInput` has no `draftJobId`** (GraphQL rejects unknown fields anyway). **`htmlContent`** added on inputs; **`title`** nullable on `CreateJobInput` with **`class-validator`** `MaxLength(JOB_TITLE_MAX_LENGTH)` parity with `JobEntity`.
 
 ### Relevant Files
 
@@ -68,14 +69,14 @@ Input changes: `CreateJobInput` currently has `draftJobId` field — remove it e
 - `apps/api/src/domains/jobs/job.type.ts` — JobType GraphQL object type with updated fields
 - `apps/api/src/domains/jobs/create-job.input.ts` — add htmlContent, remove draftJobId
 - `apps/api/src/domains/jobs/update-job.input.ts` — add htmlContent
-- `apps/api/src/domains/jobs/jobs.resolver.ts` — remove `@ResolveField("draftJobId")` method
+- `apps/api/src/domains/jobs/job-title.constraints.ts` — shared `JOB_TITLE_MAX_LENGTH`
+- `apps/api/src/domains/jobs/jobs.resolver.ts` — **`draftJobId` @ResolveField removed** (requirement 3.5)
 
 ### Dependent Files
 
-- `apps/api/src/domains/jobs/jobs.service.ts` — references `draftJobId` in `create()`, `update()`, `processDraftConversion()`; will need updates (done in task_08)
-- `apps/api/src/domains/jobs/jobs.repository.ts` — references `draft_job_id` in queries; will need updates (done in task_08)
-- `apps/api/src/domains/jobs/jobs.service.spec.ts` and `jobs.resolver.spec.ts` — tests reference `draftJobId`; may need assertion updates
-- `apps/api/src/domains/jobs/jobs.resolver.spec.ts` — tests for `draftJobId` @ResolveField removed
+- `apps/api/src/domains/jobs/jobs.service.ts` — **`draftJobId` kept only on internal `CreateDto` / repository create** for legacy `processDraftConversion` PK stability until task 08
+- `apps/api/src/domains/jobs/jobs.repository.ts` — internal `draftJobId` on `CreateJobRepoDto` stripped before `save()`
+- `apps/api/src/schema.gql` — checked in repo; reflects nullable `JobType.title`, **`ApplicationStage`** / **`ApplicationQuickFilter`** including **DRAFT**, `fillMetadata`, `htmlContent`, no **`JobType.draftJobId`**
 
 ### Related ADRs
 
@@ -94,18 +95,18 @@ Input changes: `CreateJobInput` currently has `draftJobId` field — remove it e
 ## Tests
 
 - Unit tests:
-  - [ ] JobEntity can be instantiated with htmlContent, fillMetadata, and null title
-  - [ ] JobEntity fails validation if title exceeds max length (but not if null)
-  - [ ] CreateJobInput validation: htmlContent is optional, draftJobId is rejected
-  - [ ] ApplicationStageEnum.DRAFT registered correctly in GraphQL enum
-  - [ ] ApplicationQuickFilterEnum.DRAFT registered correctly in GraphQL enum
-  - [ ] JobType GraphQL schema includes htmlContent and fillMetadata fields (nullable)
-  - [ ] JobType GraphQL schema has nullable title
-  - [ ] JobType GraphQL schema does NOT have draftJobId field
+  - [x] JobEntity can be instantiated with htmlContent, fillMetadata, and null title
+  - [x] JobEntity fails validation if title exceeds max length (but not if null)
+  - [x] CreateJobInput validation: htmlContent optional, draftJobId is rejected
+  - [x] ApplicationStageEnum.DRAFT registered correctly in GraphQL enum
+  - [x] ApplicationQuickFilterEnum.DRAFT registered correctly in GraphQL enum
+  - [x] JobType GraphQL schema includes htmlContent and fillMetadata fields (nullable)
+  - [x] JobType GraphQL schema has nullable title
+  - [x] JobType GraphQL schema does NOT have draftJobId field
 - Integration tests:
-  - [ ] Create job via GraphQL with htmlContent — persisted correctly in DB
-  - [ ] Query job via GraphQL — title returned as null for DRAFT job
-  - [ ] Quick filter DRAFT — returns only jobs with stage=DRAFT
+  - [x] Create job via GraphQL with htmlContent — persisted correctly in DB
+  - [x] Query job via GraphQL — title returned as null for DRAFT job
+  - [x] Quick filter DRAFT — returns only jobs with stage=DRAFT
 - Test coverage target: >=80%
 - All tests must pass
 
