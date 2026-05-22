@@ -3,10 +3,10 @@ import "dotenv/config";
 
 import { buildDataSourceOptions } from "@api/database/data-source-options";
 import {
-  FitAnalysisEntity,
-  type FitItem,
-} from "@api/database/entities/fit-analysis.entity";
-import { FitVerdictEnum } from "@api/domains/fit-analysis/fit-verdict.enum";
+  MatchAnalysisEntity,
+  type MatchItem,
+} from "@api/database/entities/match-analysis.entity";
+import { FitVerdictEnum } from "@api/domains/match-analysis/fit-verdict.enum";
 import { tryRun } from "@job-tracker/try-run";
 import { Module } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
@@ -18,7 +18,7 @@ import { EntityManager } from "typeorm";
     TypeOrmModule.forRoot({
       ...buildDataSourceOptions(process.env.DATABASE_URL!),
     }),
-    TypeOrmModule.forFeature([FitAnalysisEntity]),
+    TypeOrmModule.forFeature([MatchAnalysisEntity]),
   ],
 })
 class ScriptModule {}
@@ -52,11 +52,11 @@ async function main() {
   process.stdout.write(
     `\n${prefix}Fixing fit_analysis items -> verdict (lower -> UPPER)...\n`,
   );
-  const fitRepo = em.getRepository(FitAnalysisEntity);
+  const fitRepo = em.getRepository(MatchAnalysisEntity);
   const allFit = await fitRepo.find();
   const fixVerdict = allFit.filter((e) =>
     e.items?.some(
-      (i) =>
+      (i: MatchItem) =>
         i.verdict &&
         i.verdict !==
           i.verdict.charAt(0).toUpperCase() + i.verdict.slice(1).toLowerCase(),
@@ -71,10 +71,10 @@ async function main() {
     let ok = 0;
     let fail = 0;
     for (const e of fixVerdict) {
-      e.items = e.items.map((i) => ({
+      e.items = e.items.map((i: MatchItem) => ({
         ...i,
         verdict: i.verdict
-          ? (normalizeVerdict(i.verdict) as FitItem["verdict"])
+          ? (normalizeVerdict(i.verdict) as MatchItem["verdict"])
           : i.verdict,
       }));
       const [err] = await tryRun(fitRepo.save(e));

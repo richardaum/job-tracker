@@ -3,10 +3,10 @@ import "dotenv/config";
 
 import { buildDataSourceOptions } from "@api/database/data-source-options";
 import {
-  FitAnalysisEntity,
-  type FitItem,
-} from "@api/database/entities/fit-analysis.entity";
-import { FitSourceEnum } from "@api/domains/fit-analysis/fit-source.enum";
+  MatchAnalysisEntity,
+  type MatchItem,
+} from "@api/database/entities/match-analysis.entity";
+import { FitSourceEnum } from "@api/domains/match-analysis/fit-source.enum";
 import { tryRun } from "@job-tracker/try-run";
 import { Module } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
@@ -18,7 +18,7 @@ import { EntityManager } from "typeorm";
     TypeOrmModule.forRoot({
       ...buildDataSourceOptions(process.env.DATABASE_URL!),
     }),
-    TypeOrmModule.forFeature([FitAnalysisEntity]),
+    TypeOrmModule.forFeature([MatchAnalysisEntity]),
   ],
 })
 class ScriptModule {}
@@ -51,11 +51,11 @@ async function main() {
   process.stdout.write(
     `\n${prefix}Fixing fit_analysis items -> source (lower -> UPPER)...\n`,
   );
-  const fitRepo = em.getRepository(FitAnalysisEntity);
+  const fitRepo = em.getRepository(MatchAnalysisEntity);
   const allFit = await fitRepo.find();
   const fixSource = allFit.filter((e) =>
     e.items?.some(
-      (i) =>
+      (i: MatchItem) =>
         i.source &&
         i.source !==
           i.source.charAt(0).toUpperCase() + i.source.slice(1).toLowerCase(),
@@ -70,10 +70,10 @@ async function main() {
     let ok = 0;
     let fail = 0;
     for (const e of fixSource) {
-      e.items = e.items.map((i) => ({
+      e.items = e.items.map((i: MatchItem) => ({
         ...i,
         source: i.source
-          ? (normalizeSource(i.source) as FitItem["source"])
+          ? (normalizeSource(i.source) as MatchItem["source"])
           : i.source,
       }));
       const [err] = await tryRun(fitRepo.save(e));

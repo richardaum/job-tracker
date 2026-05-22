@@ -5,6 +5,7 @@ import {
 import { JobEntity } from "@api/database/entities/job.entity";
 import { UserEntity } from "@api/database/entities/user.entity";
 import { createTestDataSource } from "@api/database/test-db";
+import { RoleEnum } from "@api/domains/users/role.enum";
 import type { DataSource } from "typeorm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
@@ -33,7 +34,7 @@ describe.skipIf(!hasDb)(
           email: "draftmetadata@example.com",
           name: "Draft Meta User",
           avatarUrl: null,
-          role: "user",
+          role: RoleEnum.User,
         }),
       );
       userId = user.id;

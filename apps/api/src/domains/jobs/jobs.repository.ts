@@ -35,10 +35,13 @@ export type JobPostingContextSnippet = {
   title: string;
   plainTextDescription: string;
 };
-type CreateStageEventDto = Pick<
-  NewJobStageEvent,
-  "toStage" | "source" | "reason" | "scheduledAt"
-> & { fromStage?: NewJobStageEvent["fromStage"] };
+type CreateStageEventDto = {
+  toStage: ApplicationStageEnum;
+  source?: StageEventSourceEnum;
+  fromStage?: ApplicationStageEnum | null;
+  reason?: string | null;
+  scheduledAt?: Date | null;
+};
 type UpdateStageEventDto = Pick<
   NewJobStageEvent,
   "toStage" | "reason" | "scheduledAt"

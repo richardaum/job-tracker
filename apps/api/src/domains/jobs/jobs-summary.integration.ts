@@ -4,6 +4,7 @@ import { JobStageEventEntity } from "@api/database/entities/job-stage-event.enti
 import { UserEntity } from "@api/database/entities/user.entity";
 import { createTestDataSource } from "@api/database/test-db";
 import { AsyncMetadataStatusEnum } from "@api/domains/shared/async-metadata.type";
+import { RoleEnum } from "@api/domains/users/role.enum";
 import type { DataSource } from "typeorm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
@@ -32,7 +33,7 @@ describe.skipIf(!hasDb)(
           email: "summarymeta@example.com",
           name: "Summary Meta User",
           avatarUrl: null,
-          role: "user",
+          role: RoleEnum.User,
         }),
       );
       userId = user.id;

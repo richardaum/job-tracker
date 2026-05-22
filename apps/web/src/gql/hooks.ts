@@ -42,8 +42,8 @@ export enum AsyncMetadataStatus {
 export type AsyncMetadataType = {
   __typename?: "AsyncMetadataType";
   error?: Maybe<Scalars["String"]["output"]>;
-  status: AsyncMetadataStatus;
-  timestamp?: Maybe<Scalars["String"]["output"]>;
+  status?: Maybe<AsyncMetadataStatus>;
+  timestamp?: Maybe<Scalars["DateTime"]["output"]>;
 };
 
 export type CompanyType = {
@@ -59,8 +59,8 @@ export type CompanyType = {
 export type ConversionMetadataType = {
   __typename?: "ConversionMetadataType";
   error?: Maybe<Scalars["String"]["output"]>;
-  status: DraftJobConversionStatus;
-  timestamp?: Maybe<Scalars["String"]["output"]>;
+  status?: Maybe<DraftJobConversionStatus>;
+  timestamp?: Maybe<Scalars["DateTime"]["output"]>;
 };
 
 export type CreateDraftJobInput = {
@@ -90,7 +90,7 @@ export type CreateJobStageEventInput = {
   jobId: Scalars["String"]["input"];
   reason?: InputMaybe<Scalars["String"]["input"]>;
   scheduledAt?: InputMaybe<Scalars["DateTime"]["input"]>;
-  source?: InputMaybe<Scalars["String"]["input"]>;
+  source?: InputMaybe<StageEventSource>;
   toStage: JobStage;
 };
 
@@ -152,6 +152,23 @@ export type ExchangeRate = {
   rate: Scalars["Float"]["output"];
 };
 
+export enum FitClassification {
+  Negative = "Negative",
+  Neutral = "Neutral",
+  Positive = "Positive",
+}
+
+export enum FitSource {
+  Preference = "Preference",
+  Resume = "Resume",
+}
+
+export enum FitVerdict {
+  Fit = "Fit",
+  Gap = "Gap",
+  Unclear = "Unclear",
+}
+
 export type GenerateDraftMatchInput = {
   draftJobId: Scalars["ID"]["input"];
   resumeId: Scalars["ID"]["input"];
@@ -204,7 +221,7 @@ export type JobStageEventType = {
   jobId: Scalars["String"]["output"];
   reason?: Maybe<Scalars["String"]["output"]>;
   scheduledAt?: Maybe<Scalars["DateTime"]["output"]>;
-  source: Scalars["String"]["output"];
+  source: StageEventSource;
   toStage: JobStage;
   userId: Scalars["String"]["output"];
 };
@@ -237,7 +254,7 @@ export type JobType = {
 
 export type MatchAnalysisType = {
   __typename?: "MatchAnalysisType";
-  classification?: Maybe<Scalars["String"]["output"]>;
+  classification?: Maybe<FitClassification>;
   createdAt: Scalars["DateTime"]["output"];
   draftJob?: Maybe<DraftJobType>;
   draftJobId?: Maybe<Scalars["ID"]["output"]>;
@@ -258,11 +275,11 @@ export type MatchItemType = {
   __typename?: "MatchItemType";
   jdQuote: Scalars["String"]["output"];
   requirement: Scalars["String"]["output"];
-  source: Scalars["String"]["output"];
+  source: FitSource;
   sourceQuotes: Array<Scalars["String"]["output"]>;
   suggestion?: Maybe<Scalars["String"]["output"]>;
-  type: Scalars["String"]["output"];
-  verdict: Scalars["String"]["output"];
+  type: RequirementType;
+  verdict: FitVerdict;
   weight?: Maybe<Scalars["String"]["output"]>;
 };
 
@@ -539,6 +556,12 @@ export type QuerySourceTemplatesForSourceProfileArgs = {
   sourceProfileId: Scalars["String"]["input"];
 };
 
+export enum RequirementType {
+  MustHave = "MustHave",
+  NiceToHave = "NiceToHave",
+  SoftSkill = "SoftSkill",
+}
+
 export type ResumeType = {
   __typename?: "ResumeType";
   content: Scalars["String"]["output"];
@@ -602,6 +625,11 @@ export type SourceTemplateType = {
   sourceProfileId: Scalars["String"]["output"];
   surfaceUrl: Scalars["String"]["output"];
 };
+
+export enum StageEventSource {
+  Manual = "Manual",
+  System = "System",
+}
 
 export type Subscription = {
   __typename?: "Subscription";
@@ -762,9 +790,9 @@ export type DraftJobsListQuery = {
     createdAt: any;
     conversionMetadata?: {
       __typename?: "ConversionMetadataType";
-      status: DraftJobConversionStatus;
+      status?: DraftJobConversionStatus | null;
       error?: string | null;
-      timestamp?: string | null;
+      timestamp?: any | null;
     } | null;
   }>;
 };
@@ -785,9 +813,9 @@ export type DraftJobDetailQuery = {
     createdAt: any;
     conversionMetadata?: {
       __typename?: "ConversionMetadataType";
-      status: DraftJobConversionStatus;
+      status?: DraftJobConversionStatus | null;
       error?: string | null;
-      timestamp?: string | null;
+      timestamp?: any | null;
     } | null;
     match?: {
       __typename?: "MatchAnalysisType";
@@ -796,16 +824,16 @@ export type DraftJobDetailQuery = {
       draftJobId?: string | null;
       resumeId: string;
       scoreRatio?: number | null;
-      classification?: string | null;
+      classification?: FitClassification | null;
       matchCount: number;
       gapCount: number;
       unclearCount: number;
       createdAt: any;
       generationMetadata?: {
         __typename?: "AsyncMetadataType";
-        status: AsyncMetadataStatus;
+        status?: AsyncMetadataStatus | null;
         error?: string | null;
-        timestamp?: string | null;
+        timestamp?: any | null;
       } | null;
     } | null;
   };
@@ -850,7 +878,7 @@ export type CreateJobWithAiMutation = {
     title: string;
     conversionMetadata?: {
       __typename?: "ConversionMetadataType";
-      status: DraftJobConversionStatus;
+      status?: DraftJobConversionStatus | null;
       error?: string | null;
     } | null;
   };
@@ -870,7 +898,7 @@ export type CreateDraftJobMutation = {
     title: string;
     conversionMetadata?: {
       __typename?: "ConversionMetadataType";
-      status: DraftJobConversionStatus;
+      status?: DraftJobConversionStatus | null;
       error?: string | null;
     } | null;
   };
@@ -891,7 +919,7 @@ export type UpdateDraftJobMutation = {
     title: string;
     conversionMetadata?: {
       __typename?: "ConversionMetadataType";
-      status: DraftJobConversionStatus;
+      status?: DraftJobConversionStatus | null;
       error?: string | null;
     } | null;
   };
@@ -941,23 +969,23 @@ export type JobsQuery = {
     };
     summaryMetadata?: {
       __typename?: "AsyncMetadataType";
-      status: AsyncMetadataStatus;
+      status?: AsyncMetadataStatus | null;
       error?: string | null;
-      timestamp?: string | null;
+      timestamp?: any | null;
     } | null;
     match?: {
       __typename?: "MatchAnalysisType";
       id: string;
       scoreRatio?: number | null;
-      classification?: string | null;
+      classification?: FitClassification | null;
       matchCount: number;
       gapCount: number;
       unclearCount: number;
       generationMetadata?: {
         __typename?: "AsyncMetadataType";
-        status: AsyncMetadataStatus;
+        status?: AsyncMetadataStatus | null;
         error?: string | null;
-        timestamp?: string | null;
+        timestamp?: any | null;
       } | null;
     } | null;
     salary: {
@@ -1000,23 +1028,23 @@ export type JobQuery = {
     };
     summaryMetadata?: {
       __typename?: "AsyncMetadataType";
-      status: AsyncMetadataStatus;
+      status?: AsyncMetadataStatus | null;
       error?: string | null;
-      timestamp?: string | null;
+      timestamp?: any | null;
     } | null;
     match?: {
       __typename?: "MatchAnalysisType";
       id: string;
       scoreRatio?: number | null;
-      classification?: string | null;
+      classification?: FitClassification | null;
       matchCount: number;
       gapCount: number;
       unclearCount: number;
       generationMetadata?: {
         __typename?: "AsyncMetadataType";
-        status: AsyncMetadataStatus;
+        status?: AsyncMetadataStatus | null;
         error?: string | null;
-        timestamp?: string | null;
+        timestamp?: any | null;
       } | null;
     } | null;
     salary: {
@@ -1098,9 +1126,9 @@ export type UpdateJobMutation = {
     };
     summaryMetadata?: {
       __typename?: "AsyncMetadataType";
-      status: AsyncMetadataStatus;
+      status?: AsyncMetadataStatus | null;
       error?: string | null;
-      timestamp?: string | null;
+      timestamp?: any | null;
     } | null;
     salary: {
       __typename?: "JobSalary";
@@ -1145,7 +1173,7 @@ export type JobStageEventsQuery = {
     jobId: string;
     fromStage?: JobStage | null;
     toStage: JobStage;
-    source: string;
+    source: StageEventSource;
     reason?: string | null;
     scheduledAt?: any | null;
     createdAt: any;
@@ -1164,7 +1192,7 @@ export type CreateJobStageEventMutation = {
     jobId: string;
     fromStage?: JobStage | null;
     toStage: JobStage;
-    source: string;
+    source: StageEventSource;
     reason?: string | null;
     scheduledAt?: any | null;
     createdAt: any;
@@ -1184,7 +1212,7 @@ export type UpdateJobStageEventMutation = {
     jobId: string;
     fromStage?: JobStage | null;
     toStage: JobStage;
-    source: string;
+    source: StageEventSource;
     reason?: string | null;
     scheduledAt?: any | null;
     createdAt: any;
@@ -1323,9 +1351,9 @@ export type GenerateJobSummaryMutation = {
     summary?: string | null;
     summaryMetadata?: {
       __typename?: "AsyncMetadataType";
-      status: AsyncMetadataStatus;
+      status?: AsyncMetadataStatus | null;
       error?: string | null;
-      timestamp?: string | null;
+      timestamp?: any | null;
     } | null;
   };
 };
@@ -1341,7 +1369,7 @@ export type MatchAnalysesListQuery = {
     draftJobId?: string | null;
     resumeId: string;
     scoreRatio?: number | null;
-    classification?: string | null;
+    classification?: FitClassification | null;
     matchCount: number;
     gapCount: number;
     unclearCount: number;
@@ -1349,9 +1377,9 @@ export type MatchAnalysesListQuery = {
     updatedAt: any;
     generationMetadata?: {
       __typename?: "AsyncMetadataType";
-      status: AsyncMetadataStatus;
+      status?: AsyncMetadataStatus | null;
       error?: string | null;
-      timestamp?: string | null;
+      timestamp?: any | null;
     } | null;
     job?: {
       __typename?: "JobType";
@@ -1378,24 +1406,24 @@ export type MatchQuery = {
     draftJobId?: string | null;
     resumeId: string;
     scoreRatio?: number | null;
-    classification?: string | null;
+    classification?: FitClassification | null;
     matchCount: number;
     gapCount: number;
     unclearCount: number;
     createdAt: any;
     generationMetadata?: {
       __typename?: "AsyncMetadataType";
-      status: AsyncMetadataStatus;
+      status?: AsyncMetadataStatus | null;
       error?: string | null;
-      timestamp?: string | null;
+      timestamp?: any | null;
     } | null;
     items: Array<{
       __typename?: "MatchItemType";
       requirement: string;
-      source: string;
+      source: FitSource;
       weight?: string | null;
-      type: string;
-      verdict: string;
+      type: RequirementType;
+      verdict: FitVerdict;
       jdQuote: string;
       sourceQuotes: Array<string>;
       suggestion?: string | null;
@@ -1425,24 +1453,24 @@ export type JobMatchQuery = {
     draftJobId?: string | null;
     resumeId: string;
     scoreRatio?: number | null;
-    classification?: string | null;
+    classification?: FitClassification | null;
     matchCount: number;
     gapCount: number;
     unclearCount: number;
     createdAt: any;
     generationMetadata?: {
       __typename?: "AsyncMetadataType";
-      status: AsyncMetadataStatus;
+      status?: AsyncMetadataStatus | null;
       error?: string | null;
-      timestamp?: string | null;
+      timestamp?: any | null;
     } | null;
     items: Array<{
       __typename?: "MatchItemType";
       requirement: string;
-      source: string;
+      source: FitSource;
       weight?: string | null;
-      type: string;
-      verdict: string;
+      type: RequirementType;
+      verdict: FitVerdict;
       jdQuote: string;
       sourceQuotes: Array<string>;
       suggestion?: string | null;
@@ -1463,24 +1491,24 @@ export type DraftJobMatchQuery = {
     draftJobId?: string | null;
     resumeId: string;
     scoreRatio?: number | null;
-    classification?: string | null;
+    classification?: FitClassification | null;
     matchCount: number;
     gapCount: number;
     unclearCount: number;
     createdAt: any;
     generationMetadata?: {
       __typename?: "AsyncMetadataType";
-      status: AsyncMetadataStatus;
+      status?: AsyncMetadataStatus | null;
       error?: string | null;
-      timestamp?: string | null;
+      timestamp?: any | null;
     } | null;
     items: Array<{
       __typename?: "MatchItemType";
       requirement: string;
-      source: string;
+      source: FitSource;
       weight?: string | null;
-      type: string;
-      verdict: string;
+      type: RequirementType;
+      verdict: FitVerdict;
       jdQuote: string;
       sourceQuotes: Array<string>;
       suggestion?: string | null;
@@ -1501,24 +1529,24 @@ export type GenerateJobMatchMutation = {
     draftJobId?: string | null;
     resumeId: string;
     scoreRatio?: number | null;
-    classification?: string | null;
+    classification?: FitClassification | null;
     matchCount: number;
     gapCount: number;
     unclearCount: number;
     createdAt: any;
     generationMetadata?: {
       __typename?: "AsyncMetadataType";
-      status: AsyncMetadataStatus;
+      status?: AsyncMetadataStatus | null;
       error?: string | null;
-      timestamp?: string | null;
+      timestamp?: any | null;
     } | null;
     items: Array<{
       __typename?: "MatchItemType";
       requirement: string;
-      source: string;
+      source: FitSource;
       weight?: string | null;
-      type: string;
-      verdict: string;
+      type: RequirementType;
+      verdict: FitVerdict;
       jdQuote: string;
       sourceQuotes: Array<string>;
       suggestion?: string | null;
@@ -1539,24 +1567,24 @@ export type GenerateDraftJobMatchMutation = {
     draftJobId?: string | null;
     resumeId: string;
     scoreRatio?: number | null;
-    classification?: string | null;
+    classification?: FitClassification | null;
     matchCount: number;
     gapCount: number;
     unclearCount: number;
     createdAt: any;
     generationMetadata?: {
       __typename?: "AsyncMetadataType";
-      status: AsyncMetadataStatus;
+      status?: AsyncMetadataStatus | null;
       error?: string | null;
-      timestamp?: string | null;
+      timestamp?: any | null;
     } | null;
     items: Array<{
       __typename?: "MatchItemType";
       requirement: string;
-      source: string;
+      source: FitSource;
       weight?: string | null;
-      type: string;
-      verdict: string;
+      type: RequirementType;
+      verdict: FitVerdict;
       jdQuote: string;
       sourceQuotes: Array<string>;
       suggestion?: string | null;

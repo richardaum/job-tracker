@@ -3,10 +3,10 @@ import "dotenv/config";
 
 import { buildDataSourceOptions } from "@api/database/data-source-options";
 import {
-  FitAnalysisEntity,
-  type FitItem,
+  MatchAnalysisEntity,
+  type MatchItem,
   RequirementTypeEnum,
-} from "@api/database/entities/fit-analysis.entity";
+} from "@api/database/entities/match-analysis.entity";
 import { tryRun } from "@job-tracker/try-run";
 import { Module } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
@@ -18,7 +18,7 @@ import { EntityManager } from "typeorm";
     TypeOrmModule.forRoot({
       ...buildDataSourceOptions(process.env.DATABASE_URL!),
     }),
-    TypeOrmModule.forFeature([FitAnalysisEntity]),
+    TypeOrmModule.forFeature([MatchAnalysisEntity]),
   ],
 })
 class ScriptModule {}
@@ -55,11 +55,11 @@ async function main() {
   process.stdout.write(
     `\n${prefix}Fixing fit_analysis items -> type (UPPER -> PascalCase)...\n`,
   );
-  const fitRepo = em.getRepository(FitAnalysisEntity);
+  const fitRepo = em.getRepository(MatchAnalysisEntity);
   const allFit = await fitRepo.find();
   const fixType = allFit.filter((e) =>
     e.items?.some(
-      (i) =>
+      (i: MatchItem) =>
         i.type && normalizeType(i.type) && i.type !== normalizeType(i.type),
     ),
   );
@@ -72,9 +72,9 @@ async function main() {
     let ok = 0;
     let fail = 0;
     for (const e of fixType) {
-      e.items = e.items.map((i) => ({
+      e.items = e.items.map((i: MatchItem) => ({
         ...i,
-        type: i.type ? (normalizeType(i.type) as FitItem["type"]) : i.type,
+        type: i.type ? (normalizeType(i.type) as MatchItem["type"]) : i.type,
       }));
       const [err] = await tryRun(fitRepo.save(e));
       if (err) {
