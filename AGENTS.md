@@ -50,6 +50,7 @@ Search the keyword in `.agents/rules/` files. Matches are by section topic, not 
 | `forwardRef`, `useMemo`, `useCallback`                                                                                                                      | `typescript-react.md`                |
 | `view-model`, `useXxxViewModel`, `useQuery`                                                                                                                 | `graphql-web.md`                     |
 | `tryRun`, `try/catch`                                                                                                                                       | `typescript-react.md`                |
+| `type assertion`, `as`, `cast`, `casting`                                                                                                                   | `typescript-react.md`                |
 | `import type`, inline `import("@/path")`                                                                                                                    | `typescript-react.md`                |
 | `reexports`, barrel files                                                                                                                                   | `typescript-react.md`                |
 | `Nova`, helper function placement                                                                                                                           | `typescript-react.md`                |

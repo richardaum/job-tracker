@@ -31,7 +31,17 @@ Module-level regular functions belong in the lower part of the file: below impor
 
 Use `cn()` for className construction. No raw string concatenation.
 
-## React 19 and React Compiler
+## Type assertions
+
+Avoid using `as` (type assertions / casting) to work around type mismatches. Prefer adjusting the actual types at the source (interfaces, zod schemas, AI prompts, database enums) so the whole chain stays consistent. When a type mismatch reveals a design decision (e.g. changing an AI prompt contract), ask the user before proceeding.
+
+```ts
+// ✗ BAD — hides the mismatch, causes runtime errors, breaks refactoring
+verdict: i.verdict as FitVerdictEnum,
+
+// ✓ GOOD — fix the zod schema + AI prompt so output type matches enum
+verdict: z.nativeEnum(FitVerdictEnum),
+```
 
 - Avoid unnecessary `useMemo` and `useCallback`. Prefer plain `const` derivations and direct closures. Add memoization only for expensive work, documented reference-stability contracts, or lint/compiler requirements.
 - Do not use `forwardRef`. Pass `ref` as a normal prop; UI components use `ref?: React.Ref<T>` on the props type.
