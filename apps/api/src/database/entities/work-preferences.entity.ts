@@ -24,9 +24,9 @@ export class WorkPreferencesEntity {
   @Column({ name: "items", type: "jsonb", default: [] })
   items!: PreferenceItem[];
 
-  @CreateDateColumn({ name: "created_at", type: "timestamp" })
+  @CreateDateColumn({ name: "created_at", type: "timestamptz" })
   createdAt!: Date;
 
-  @UpdateDateColumn({ name: "updated_at", type: "timestamp" })
+  @UpdateDateColumn({ name: "updated_at", type: "timestamptz" })
   updatedAt!: Date;
 }

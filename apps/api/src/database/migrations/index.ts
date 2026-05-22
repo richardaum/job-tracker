@@ -12,6 +12,8 @@ import { MigrateFitAnalysisGenerationJsonbToEmbedded1767730000000 } from "./1767
 import { RenameEmbeddedColumnsToSnakeCase1767740000000 } from "./1767740000000-rename-embedded-columns-to-snake-case";
 import { AddStageEventSourceEnum1767750000000 } from "./1767750000000-add-stage-event-source-enum";
 import { AddFitClassificationEnum1767760000000 } from "./1767760000000-add-fit-classification-enum";
+import { UseTimestamptzForJobNotes1767770000000 } from "./1767770000000-use-timestamptz-for-job-notes";
+import { UseTimestamptzForRemainingEntities1767780000000 } from "./1767780000000-use-timestamptz-for-remaining-entities";
 
 export const migrations = [
   SquashedBaseline1767000000000,
@@ -28,4 +30,6 @@ export const migrations = [
   RenameEmbeddedColumnsToSnakeCase1767740000000,
   AddStageEventSourceEnum1767750000000,
   AddFitClassificationEnum1767760000000,
+  UseTimestamptzForJobNotes1767770000000,
+  UseTimestamptzForRemainingEntities1767780000000,
 ];
