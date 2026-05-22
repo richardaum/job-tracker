@@ -7,7 +7,14 @@ import { getServerApiGraphqlUrl } from "@/lib/server-api-endpoints";
 
 const GRAPHQL_URL = getServerApiGraphqlUrl();
 
-async function getDraftTitle(id: string) {
+function primaryListingUrl(
+  urls: readonly string[] | null | undefined,
+): string | null {
+  const raw = urls?.[0]?.trim();
+  return raw && raw.length > 0 ? raw : null;
+}
+
+async function getDraftCaptureMetaTitle(id: string) {
   const [cookieErr, cookieStore] = await tryRun(cookies());
   if (cookieErr) {
     return null;
@@ -15,8 +22,8 @@ async function getDraftTitle(id: string) {
 
   const cookieHeader = cookieStore.toString();
 
-  type DraftPayload = {
-    data?: { draftJob?: { url?: string | null; title?: string | null } | null };
+  type JobMetaPayload = {
+    data?: { job?: { title?: string | null; urls?: string[] } | null } | null;
     errors?: unknown;
   };
 
@@ -29,11 +36,11 @@ async function getDraftTitle(id: string) {
       },
       body: JSON.stringify({
         query: `
-          query DraftApplicationMeta($id: ID!) {
-            draftJob(id: $id) {
+          query JobDraftCaptureMeta($id: ID!) {
+            job(id: $id) {
               id
-              url
               title
+              urls
             }
           }
         `,
@@ -48,7 +55,7 @@ async function getDraftTitle(id: string) {
   }
 
   const [jsonErr, payload] = await tryRun(
-    response.json() as Promise<DraftPayload>,
+    response.json() as Promise<JobMetaPayload>,
   );
   if (jsonErr) {
     return null;
@@ -58,12 +65,14 @@ async function getDraftTitle(id: string) {
     return null;
   }
 
-  const title = payload.data?.draftJob?.title?.trim() ?? "";
+  const job = payload.data?.job ?? null;
+
+  const title = job?.title?.trim() ?? "";
   if (title.length > 0) {
     return title.slice(0, 80);
   }
 
-  const url = payload.data?.draftJob?.url ?? null;
+  const url = primaryListingUrl(job?.urls ?? null);
   if (!url) return null;
   const [urlErr, combined] = tryRun(() => {
     const u = new URL(url);
@@ -84,7 +93,7 @@ export async function generateMetadata({
   params: Promise<{ id: string }>;
 }): Promise<Metadata> {
   const { id } = await params;
-  const title = await getDraftTitle(id);
+  const title = await getDraftCaptureMetaTitle(id);
 
   return staticPageMetadata(title ?? "Draft job");
 }
