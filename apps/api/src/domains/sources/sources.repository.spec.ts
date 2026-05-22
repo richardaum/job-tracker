@@ -30,7 +30,7 @@ describe.skipIf(!hasDb)("SourcesRepository (integration)", () => {
         email: "sourcesrepo@example.com",
         name: "Sources Repo User",
         avatarUrl: null,
-        role: RoleEnum.USER,
+        role: RoleEnum.User,
       }),
     );
     userId = user.id;
