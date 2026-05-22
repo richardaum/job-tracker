@@ -6,12 +6,12 @@
 
 ## Mapping
 
-| Current | New | Notes |
-|---------|-----|-------|
-| Importer (plan) | SourceProfile | RemoteYeah, LinkedIn etc. — extraction profile |
-| ImportTemplate | Source | User's config (URL + cron) |
-| ImportRun | SourceRun | One execution |
-| Application.importRunId | Application.sourceRunId | FK column |
+| Current                 | New                     | Notes                                          |
+| ----------------------- | ----------------------- | ---------------------------------------------- |
+| Importer (plan)         | SourceProfile           | RemoteYeah, LinkedIn etc. — extraction profile |
+| ImportTemplate          | Source                  | User's config (URL + cron)                     |
+| ImportRun               | SourceRun               | One execution                                  |
+| Application.importRunId | Application.sourceRunId | FK column                                      |
 
 ## Migration SQL
 
@@ -45,45 +45,55 @@ Use TypeORM `RENAME` in a new migration to avoid hand-writing SQL across envs. C
 ## Phases
 
 ### Phase 1 — Database entities
+
 - `import-run.entity.ts` → `source-run.entity.ts`
 - `import-template.entity.ts` → `source-template.entity.ts`
 - `user-preferences.entity.ts` (cross-ref)
 - Update `application.entity.ts` (importRunId → sourceRunId)
 
 ### Phase 2 — API domain
+
 - Rename folder `domains/imports/` → `domains/sources/`
 - Rename all classes, methods, files inside
 - Update `app.module.ts` and `data-source-options.ts`
 
 ### Phase 3 — GraphQL schema
+
 - Update all types, queries, mutations, inputs, enums in `schema.gql`
 
 ### Phase 4 — Applications domain cross-refs
+
 - `importRunId` → `sourceRunId` across service, resolver, repository, input, type
 
 ### Phase 5 — Web app
+
 - Rename folder `modules/imports/` → `modules/sources/`
 - Rename route `app/(authenticated)/imports/` → `app/(authenticated)/sources/`
 - Update sidebar, all imports, GraphQL operations
 - Update all user-facing text
 
 ### Phase 6 — Extension
+
 - Rename folder `domains/imports/` → `domains/sources/`
 - Update all GraphQL operations, services, tests
 
 ### Phase 7 — DB migration
+
 - Create migration file with all ALTER TABLE/INDEX/COLUMN renames
 
 ### Phase 8 — Docs + Specs
+
 - `specs/035-product-import/` → `specs/035-product-sources/`
 - `docs/FEATURE_MAP.md`
 - Other specs referencing `/imports` or feature name
 
 ### Phase 9 — Codegen
+
 - `pnpm codegen` for web
 - Regenerate extension gql types
 
 ### Phase 10 — Validation
+
 - typecheck
 - lint
 - tests (api, web, extension)
