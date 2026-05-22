@@ -1,16 +1,6 @@
-import { DraftJobConversionStatusEnum } from "@api/database/entities/draft-job-conversion.enum";
-import { MatchAnalysisEntity } from "@api/database/entities/match-analysis.entity";
 import { SourceRunEntity } from "@api/database/entities/source-run.entity";
 import { CompanyDescriptionService } from "@api/domains/companies/ai/company-description.service";
 import { CompanyService } from "@api/domains/companies/companies.service";
-import {
-  DraftConversionRequested,
-  DraftConversionStatusChanged,
-} from "@api/domains/draft-jobs/draft-job.events";
-import type { DraftJobType } from "@api/domains/draft-jobs/draft-job.type";
-import { DraftJobEventBus } from "@api/domains/draft-jobs/draft-job-event.bus";
-import { DraftJobsService } from "@api/domains/draft-jobs/draft-jobs.service";
-import { DRAFT_JOB_PLACEHOLDER_COMPANY_NAME } from "@api/domains/draft-jobs/draft-placeholder.constants";
 import { DraftExtractionService } from "@api/domains/jobs/ai/draft-extraction.service";
 import { DraftExtractionNormalizationService } from "@api/domains/jobs/ai/draft-extraction-normalization.service";
 import { AsyncMetadataStatusEnum } from "@api/domains/shared/async-metadata.type";
@@ -24,7 +14,7 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import type { Repository } from "typeorm";
 
 import {
   FillJobCompleted,
@@ -33,6 +23,7 @@ import {
   JobCreated,
   JobUpdated,
 } from "./job.events";
+import { DRAFT_JOB_PLACEHOLDER_COMPANY_NAME } from "./job-draft.constants";
 import { APPLICATION_DUPLICATE_PAIRING_WINDOW_MS } from "./job-duplicate.constants";
 import { JobEventBus } from "./job-event.bus";
 import { ApplicationQuickFilterEnum } from "./job-quick-filter.enum";
@@ -42,6 +33,7 @@ import { ApplicationStageEnum } from "./job-stage.enum";
 import { JobStageEvent } from "./job-stage-events.schema";
 import {
   CreateJobRepoDto,
+  FillCompletionCasMismatchError,
   JobsRepository,
   UpdateJobRepoDto,
 } from "./jobs.repository";
@@ -98,19 +90,15 @@ export class JobsService {
   constructor(
     @InjectRepository(SourceRunEntity)
     private readonly sourceRunsRepo: Repository<SourceRunEntity>,
-    @InjectRepository(MatchAnalysisEntity)
-    private readonly matchAnalysisRepo: Repository<MatchAnalysisEntity>,
     private readonly repo: JobsRepository,
     private readonly companyService: CompanyService,
     private readonly salaryService: SalaryService,
     private readonly tagService: TagService,
     private readonly companyDescriptionService: CompanyDescriptionService,
-    private readonly draftJobsService: DraftJobsService,
     private readonly draftExtractionService: DraftExtractionService,
     private readonly draftExtractionNormalizationService: DraftExtractionNormalizationService,
     private readonly locationInferenceService: LocationInferenceService,
     private readonly eventBus: JobEventBus,
-    private readonly draftEventBus: DraftJobEventBus,
   ) {}
 
   async findAll(
@@ -334,45 +322,6 @@ export class JobsService {
     return hydrated;
   }
 
-  async createJobWithAI(
-    userId: string,
-    draftId: string,
-  ): Promise<DraftJobType> {
-    const draft = await this.draftJobsService.findOne(draftId, userId);
-    if (
-      draft.conversionMetadata?.status ===
-      DraftJobConversionStatusEnum.PROCESSING
-    ) {
-      throw new BadRequestException("Draft conversion is already in progress.");
-    }
-
-    const updated = await this.draftJobsService.updateConversionMetadata(
-      draftId,
-      userId,
-      null,
-      { status: DraftJobConversionStatusEnum.PROCESSING },
-    );
-
-    if (!updated) {
-      throw new BadRequestException("Draft conversion was already started.");
-    }
-
-    // Re-fetch to get updated metadata
-    const queuedDraft = await this.draftJobsService.findOne(draftId, userId);
-
-    this.draftEventBus.emit(
-      new DraftConversionStatusChanged(
-        draftId,
-        userId,
-        DraftJobConversionStatusEnum.PROCESSING,
-      ),
-    );
-
-    this.draftEventBus.emit(new DraftConversionRequested(draftId, userId));
-
-    return queuedDraft;
-  }
-
   /**
    * Starts async fill: CAS to {@link AsyncMetadataStatusEnum.PROCESSING}, emits
    * {@link FillJobRequested} on {@link JobEventBus}, returns immediately.
@@ -504,52 +453,33 @@ export class JobsService {
       ...(salaryColumns ?? {}),
     };
 
-    const updated = await this.repo.update(jobId, userId, repoDto);
-    if (!updated) {
-      await this.persistFillFailure(jobId, userId, "Job was deleted.");
+    const [txnErr, persisted] = await tryRun(() =>
+      this.repo.finalizeAutomaticExtractedFillTransactional(
+        jobId,
+        userId,
+        repoDto,
+        isDraftStage,
+      ),
+    );
+
+    if (txnErr instanceof FillCompletionCasMismatchError) {
+      this.logger.warn(
+        `[${jobId}] Fill finalize CAS missed PROCESSING inside TX — rolled back extraction/promotion.`,
+      );
       return;
     }
 
-    if (isDraftStage) {
-      const [draftErr] = await tryRun(
-        (async () => {
-          await this.repo.setPersistedStage(
-            userId,
-            jobId,
-            ApplicationStageEnum.NEW,
-          );
-          await this.repo.createStageEvent(userId, jobId, {
-            fromStage: ApplicationStageEnum.DRAFT,
-            toStage: ApplicationStageEnum.NEW,
-            source: StageEventSourceEnum.System,
-            reason: null,
-            scheduledAt: null,
-          });
-        })(),
+    if (txnErr != null) {
+      await this.persistFillFailure(
+        jobId,
+        userId,
+        txnErr instanceof Error ? txnErr.message : "Fill persistence failed.",
       );
-
-      if (draftErr != null) {
-        this.logger.error(
-          `Failed DRAFT→NEW after fill for ${jobId}: ${
-            draftErr instanceof Error ? draftErr.message : String(draftErr)
-          }`,
-        );
-        await this.persistFillFailure(
-          jobId,
-          userId,
-          draftErr instanceof Error
-            ? draftErr.message
-            : "Stage transition failed.",
-        );
-        return;
-      }
+      return;
     }
 
-    const finalized = await this.repo.completeFillAutomatically(jobId, userId);
-    if (!finalized) {
-      this.logger.warn(
-        `[${jobId}] Fill finished but fillMetadata was not PROCESSING — skipping completion events.`,
-      );
+    if (!persisted) {
+      await this.persistFillFailure(jobId, userId, "Job was deleted.");
       return;
     }
 
@@ -570,131 +500,6 @@ export class JobsService {
       return;
     }
     this.eventBus.emit(new FillJobFailed(jobId, userId, message));
-  }
-
-  async processDraftConversion(userId: string, draftId: string): Promise<void> {
-    const draft = await this.draftJobsService.findOne(draftId, userId);
-
-    const [extractError, raw] = await tryRun(
-      this.draftExtractionService.extract({
-        title: draft.title,
-        url: draft.url ?? null,
-        htmlContent: draft.htmlContent,
-      }),
-    );
-
-    if (extractError) {
-      this.logger.error(
-        `Draft conversion failed for ${draftId}: ${extractError.message}`,
-        extractError.stack,
-      );
-      await this.safeUpdateDraftStatus(draftId, userId, extractError.message);
-      return;
-    }
-
-    const normalized =
-      this.draftExtractionNormalizationService.normalizeExtraction(raw);
-
-    const [createError, created] = await tryRun(
-      this.create(userId, {
-        title: normalized.title,
-        company: normalized.company,
-        description: normalized.description,
-        urls: draft.url?.trim() ? [draft.url.trim()] : [],
-        salaryMinCents: normalized.salaryMinCents,
-        salaryMaxCents: normalized.salaryMaxCents,
-        salaryCurrency: normalized.salaryCurrency,
-        salaryPeriod: normalized.salaryPeriod,
-        tags: normalized.tags,
-        location: normalized.location,
-        workRegion: normalized.workRegion,
-        htmlContent: draft.htmlContent ?? null,
-        draftJobId: draftId,
-      }),
-    );
-
-    if (createError) {
-      this.logger.error(
-        `Draft conversion failed for ${draftId}: ${createError.message}`,
-        createError.stack,
-      );
-      await this.safeUpdateDraftStatus(draftId, userId, createError.message);
-      return;
-    }
-
-    const matchTransferResult = await this.matchAnalysisRepo.update(
-      { jobId: draftId },
-      { jobId: created.id },
-    );
-
-    if ((matchTransferResult.affected ?? 0) === 0) {
-      this.eventBus.emit(new JobCreated(created.id, userId));
-    }
-
-    if (created.currentStage !== ApplicationStageEnum.DUPLICATED) {
-      const [appliedError] = await tryRun(
-        this.createStageEvent(userId, {
-          jobId: created.id,
-          toStage: ApplicationStageEnum.APPLIED,
-          source: StageEventSourceEnum.System,
-        }),
-      );
-
-      if (appliedError) {
-        this.logger.error(
-          `Draft conversion failed for ${draftId}: ${appliedError.message}`,
-          appliedError.stack,
-        );
-        await this.draftJobsService.updateConversionMetadata(
-          draftId,
-          userId,
-          { status: DraftJobConversionStatusEnum.PROCESSING },
-          {
-            status: DraftJobConversionStatusEnum.FAILED,
-            error: appliedError.message,
-            timestamp: new Date(),
-          },
-        );
-        this.draftEventBus.emit(
-          new DraftConversionStatusChanged(
-            draftId,
-            userId,
-            DraftJobConversionStatusEnum.FAILED,
-          ),
-        );
-        return;
-      }
-    }
-
-    const trimmedJobTitle = (created.title ?? "").trim();
-    const trimmedCompany = (normalized.company ?? "").trim();
-    const normalizedDraftTitle =
-      trimmedJobTitle !== "" && trimmedCompany !== ""
-        ? `${trimmedJobTitle} @ ${trimmedCompany}`
-        : trimmedJobTitle !== ""
-          ? trimmedJobTitle
-          : trimmedCompany !== ""
-            ? `@ ${trimmedCompany}`
-            : "—";
-
-    await this.draftJobsService.update(draftId, userId, {
-      title: normalizedDraftTitle,
-    });
-
-    await this.draftJobsService.updateConversionMetadata(
-      draftId,
-      userId,
-      { status: DraftJobConversionStatusEnum.PROCESSING },
-      { status: DraftJobConversionStatusEnum.SUCCEEDED, timestamp: new Date() },
-    );
-
-    this.draftEventBus.emit(
-      new DraftConversionStatusChanged(
-        draftId,
-        userId,
-        DraftJobConversionStatusEnum.SUCCEEDED,
-      ),
-    );
   }
 
   async inferJobLocation(
@@ -900,37 +705,5 @@ export class JobsService {
     const updated = await this.repo.update(id, userId, { tags });
     if (!updated) throw new NotFoundException(`Job ${id} not found`);
     return (await this.attachCurrentStage(userId, [updated]))[0]!;
-  }
-
-  private async safeUpdateDraftStatus(
-    draftId: string,
-    userId: string,
-    errorMessage: string,
-  ): Promise<void> {
-    const [updateError] = await tryRun(
-      this.draftJobsService.updateConversionMetadata(
-        draftId,
-        userId,
-        { status: DraftJobConversionStatusEnum.PROCESSING },
-        {
-          status: DraftJobConversionStatusEnum.FAILED,
-          error: errorMessage,
-          timestamp: new Date(),
-        },
-      ),
-    );
-    if (updateError) {
-      this.logger.warn(
-        `Failed to update draft ${draftId} status — draft may have been deleted`,
-      );
-    }
-
-    this.draftEventBus.emit(
-      new DraftConversionStatusChanged(
-        draftId,
-        userId,
-        DraftJobConversionStatusEnum.FAILED,
-      ),
-    );
   }
 }

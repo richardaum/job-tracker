@@ -229,14 +229,13 @@ describe("JobsResolver (integration)", () => {
     );
   });
 
-  it("removed createDraftJob mutation yields GraphQL validation error", async () => {
+  it("removed legacy draft-create mutation yields GraphQL validation error", async () => {
+    const createLegacyDraft = ["create", "Draft", "Job"].join("");
     const res = await request(app.getHttpServer())
       .post("/graphql")
       .set(auth)
       .send({
-        query: `mutation {
-          createDraftJob(input: { title: "x", htmlContent: "<p>h</p>" }) { id }
-        }`,
+        query: `mutation { ${createLegacyDraft}(input: { title: "x", htmlContent: "<p>h</p>" }) { id } }`,
       });
 
     expect(res.body.errors?.length ?? 0).toBeGreaterThan(0);

@@ -1,33 +1,27 @@
-import { DraftJobConversionStatusEnum } from "@api/database/entities/draft-job-conversion.enum";
-import { MatchAnalysisEntity } from "@api/database/entities/match-analysis.entity";
 import { SourceRunEntity } from "@api/database/entities/source-run.entity";
 import { CompanyDescriptionService } from "@api/domains/companies/ai/company-description.service";
 import { CompanyService } from "@api/domains/companies/companies.service";
-import {
-  DraftConversionRequested,
-  DraftConversionStatusChanged,
-} from "@api/domains/draft-jobs/draft-job.events";
-import { DraftJobEventBus } from "@api/domains/draft-jobs/draft-job-event.bus";
-import { DraftJobsService } from "@api/domains/draft-jobs/draft-jobs.service";
 import { DraftExtractionService } from "@api/domains/jobs/ai/draft-extraction.service";
 import { DraftExtractionNormalizationService } from "@api/domains/jobs/ai/draft-extraction-normalization.service";
 import { AsyncMetadataStatusEnum } from "@api/domains/shared/async-metadata.type";
 import { LocationInferenceService } from "@api/lib/ai";
 import { BadRequestException, NotFoundException } from "@nestjs/common";
-import type { Repository, UpdateResult } from "typeorm";
+import type { Repository } from "typeorm";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
   FillJobCompleted,
   FillJobFailed,
   FillJobRequested,
-  JobCreated,
   JobUpdated,
 } from "./job.events";
 import { JobEventBus } from "./job-event.bus";
 import { ApplicationStageEnum } from "./job-stage.enum";
 import { JobStageEvent } from "./job-stage-events.schema";
-import { JobsRepository } from "./jobs.repository";
+import {
+  FillCompletionCasMismatchError,
+  JobsRepository,
+} from "./jobs.repository";
 import { Job } from "./jobs.schema";
 import { JobsService } from "./jobs.service";
 import { SalaryService } from "./salary/salary.service";
@@ -84,12 +78,9 @@ describe("JobsService", () => {
   let salaryService: SalaryService;
   let tagService: TagService;
   let companyDescriptionService: CompanyDescriptionService;
-  let draftJobsService: DraftJobsService;
   let draftExtractionService: DraftExtractionService;
   let draftExtractionNormalizationService: DraftExtractionNormalizationService;
   let locationInferenceService: LocationInferenceService;
-  let matchAnalysisRepo: Pick<Repository<MatchAnalysisEntity>, "update">;
-  let draftEventBusEmit: ReturnType<typeof vi.fn>;
   let jobEventBusEmit: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
@@ -114,6 +105,9 @@ describe("JobsService", () => {
       beginFillAutomaticallyProcessing: vi.fn().mockResolvedValue(true),
       completeFillAutomatically: vi.fn().mockResolvedValue(true),
       failFillAutomatically: vi.fn().mockResolvedValue(true),
+      finalizeAutomaticExtractedFillTransactional: vi
+        .fn()
+        .mockResolvedValue(true),
       updateFillMetadata: vi.fn().mockResolvedValue(true),
     } as unknown as JobsRepository;
 
@@ -128,11 +122,6 @@ describe("JobsService", () => {
     companyDescriptionService = {
       generateCompanyDescription: vi.fn(),
     } as unknown as CompanyDescriptionService;
-    draftJobsService = {
-      findOne: vi.fn(),
-      update: vi.fn(),
-      updateConversionMetadata: vi.fn(),
-    } as unknown as DraftJobsService;
     draftExtractionService = {
       extract: vi.fn(),
     } as unknown as DraftExtractionService;
@@ -144,7 +133,6 @@ describe("JobsService", () => {
       inferWorkRegion: vi.fn(),
     } as unknown as LocationInferenceService;
 
-    draftEventBusEmit = vi.fn();
     jobEventBusEmit = vi.fn();
 
     const eventBus = {
@@ -152,29 +140,17 @@ describe("JobsService", () => {
       emitJobCreated: vi.fn(),
     } as unknown as JobEventBus;
 
-    const draftEventBus = {
-      emit: draftEventBusEmit,
-      emitDraftConversionStatusChanged: vi.fn(),
-    } as unknown as DraftJobEventBus;
-
-    matchAnalysisRepo = {
-      update: vi.fn().mockResolvedValue({ affected: 1 } as UpdateResult),
-    } as Pick<Repository<MatchAnalysisEntity>, "update">;
-
     service = new JobsService(
       sourceRunsRepo as unknown as Repository<SourceRunEntity>,
-      matchAnalysisRepo as unknown as Repository<MatchAnalysisEntity>,
       repo,
       companyService,
       salaryService,
       tagService,
       companyDescriptionService,
-      draftJobsService,
       draftExtractionService,
       draftExtractionNormalizationService,
       locationInferenceService,
       eventBus,
-      draftEventBus,
     );
   });
 
@@ -348,7 +324,6 @@ describe("JobsService", () => {
       vi.mocked(companyService.findOrCreateByName).mockResolvedValue(
         base.company,
       );
-      vi.mocked(repo.update).mockResolvedValue(makeJob());
 
       await service.processFillJob("user-1", "app-1");
 
@@ -357,7 +332,9 @@ describe("JobsService", () => {
         url: null,
         htmlContent: base.htmlContent,
       });
-      expect(repo.update).toHaveBeenCalledWith(
+      expect(
+        repo.finalizeAutomaticExtractedFillTransactional,
+      ).toHaveBeenCalledWith(
         "app-1",
         "user-1",
         expect.objectContaining({
@@ -366,11 +343,10 @@ describe("JobsService", () => {
           description: tiptapDesc,
           tags: [],
         }),
+        false,
       );
-      expect(repo.completeFillAutomatically).toHaveBeenCalledWith(
-        "app-1",
-        "user-1",
-      );
+      expect(repo.completeFillAutomatically).not.toHaveBeenCalled();
+      expect(repo.update).not.toHaveBeenCalled();
       expect(repo.failFillAutomatically).not.toHaveBeenCalled();
       expect(repo.setPersistedStage).not.toHaveBeenCalled();
       expect(
@@ -434,7 +410,6 @@ describe("JobsService", () => {
       vi.mocked(companyService.findOrCreateByName).mockResolvedValue(
         base.company,
       );
-      vi.mocked(repo.update).mockResolvedValue(makeJob());
 
       await service.processFillJob("user-1", "app-1");
 
@@ -445,7 +420,7 @@ describe("JobsService", () => {
       });
     });
 
-    it("records DRAFT→NEW persisted stage plus stage event before completing fillMetadata", async () => {
+    it("passes promoteDraft=true into transactional finalize for DRAFT jobs", async () => {
       jobEventBusEmit.mockClear();
 
       const base = makeJob({
@@ -497,28 +472,20 @@ describe("JobsService", () => {
       vi.mocked(companyService.findOrCreateByName).mockResolvedValue(
         base.company,
       );
-      vi.mocked(repo.update).mockResolvedValue(makeJob());
-      vi.mocked(repo.completeFillAutomatically).mockResolvedValue(true);
 
       await service.processFillJob("user-1", "app-1");
 
-      expect(repo.setPersistedStage).toHaveBeenCalledWith(
-        "user-1",
-        "app-1",
-        ApplicationStageEnum.NEW,
-      );
-      expect(repo.createStageEvent).toHaveBeenCalledWith("user-1", "app-1", {
-        fromStage: ApplicationStageEnum.DRAFT,
-        toStage: ApplicationStageEnum.NEW,
-        source: StageEventSourceEnum.System,
-        reason: null,
-        scheduledAt: null,
-      });
       expect(
-        vi.mocked(repo.completeFillAutomatically).mock.invocationCallOrder[0],
-      ).toBeGreaterThan(
-        vi.mocked(repo.createStageEvent).mock.invocationCallOrder[0]!,
+        repo.finalizeAutomaticExtractedFillTransactional,
+      ).toHaveBeenCalledWith(
+        "app-1",
+        "user-1",
+        expect.objectContaining({ title: "Role", companyId: base.company.id }),
+        true,
       );
+      expect(repo.setPersistedStage).not.toHaveBeenCalled();
+      expect(repo.createStageEvent).not.toHaveBeenCalled();
+      expect(repo.completeFillAutomatically).not.toHaveBeenCalled();
     });
 
     it("calls failFillAutomatically and emits FillJobFailed when extract fails", async () => {
@@ -565,7 +532,140 @@ describe("JobsService", () => {
             e.jobId === "app-1",
         ),
       ).toBe(true);
-      expect(repo.completeFillAutomatically).not.toHaveBeenCalled();
+      expect(
+        repo.finalizeAutomaticExtractedFillTransactional,
+      ).not.toHaveBeenCalled();
+    });
+
+    it("fills FAILED when transactional finalize returns false (deleted job)", async () => {
+      jobEventBusEmit.mockClear();
+
+      const base = makeJob({
+        fillMetadata: {
+          status: AsyncMetadataStatusEnum.PROCESSING,
+          error: null,
+          timestamp: new Date(),
+        },
+        htmlContent: "<p>x</p>",
+      });
+      vi.mocked(repo.findOneByIdAndUserId).mockResolvedValue(base);
+      vi.mocked(repo.findLatestStageSummariesByJobIds).mockResolvedValue(
+        new Map([
+          [
+            "app-1",
+            {
+              toStage: ApplicationStageEnum.NEW,
+              reason: null,
+              statusAt: new Date(),
+            },
+          ],
+        ]),
+      );
+      vi.mocked(draftExtractionService.extract).mockResolvedValue({
+        title: "Role",
+        company: "Corp",
+        url: null,
+        description: "",
+        salary: { min: null, max: null, currency: null, period: null },
+        tags: [],
+        location: null,
+        workRegion: null,
+      } as never);
+      vi.mocked(
+        draftExtractionNormalizationService.normalizeExtraction,
+      ).mockReturnValue({
+        title: "Role",
+        company: "Corp",
+        description: null,
+        salaryMinCents: null,
+        salaryMaxCents: null,
+        salaryCurrency: null,
+        salaryPeriod: null,
+        tags: [],
+        location: null,
+        workRegion: null,
+      });
+      vi.mocked(companyService.findOrCreateByName).mockResolvedValue(
+        base.company,
+      );
+      vi.mocked(
+        repo.finalizeAutomaticExtractedFillTransactional,
+      ).mockResolvedValue(false);
+      vi.mocked(repo.failFillAutomatically).mockResolvedValue(true);
+
+      await service.processFillJob("user-1", "app-1");
+
+      expect(repo.failFillAutomatically).toHaveBeenCalledWith(
+        "app-1",
+        "user-1",
+        "Job was deleted.",
+      );
+    });
+
+    it("rolls back transactional writes on FillCompletionCasMismatchError without emitting Fill FAILED", async () => {
+      jobEventBusEmit.mockClear();
+
+      const base = makeJob({
+        fillMetadata: {
+          status: AsyncMetadataStatusEnum.PROCESSING,
+          error: null,
+          timestamp: new Date(),
+        },
+        htmlContent: "<p>x</p>",
+      });
+      vi.mocked(repo.findOneByIdAndUserId).mockResolvedValue(base);
+      vi.mocked(repo.findLatestStageSummariesByJobIds).mockResolvedValue(
+        new Map([
+          [
+            "app-1",
+            {
+              toStage: ApplicationStageEnum.NEW,
+              reason: null,
+              statusAt: new Date(),
+            },
+          ],
+        ]),
+      );
+      vi.mocked(draftExtractionService.extract).mockResolvedValue({
+        title: "Role",
+        company: "Corp",
+        url: null,
+        description: "",
+        salary: { min: null, max: null, currency: null, period: null },
+        tags: [],
+        location: null,
+        workRegion: null,
+      } as never);
+      vi.mocked(
+        draftExtractionNormalizationService.normalizeExtraction,
+      ).mockReturnValue({
+        title: "Role",
+        company: "Corp",
+        description: null,
+        salaryMinCents: null,
+        salaryMaxCents: null,
+        salaryCurrency: null,
+        salaryPeriod: null,
+        tags: [],
+        location: null,
+        workRegion: null,
+      });
+      vi.mocked(companyService.findOrCreateByName).mockResolvedValue(
+        base.company,
+      );
+      vi.mocked(
+        repo.finalizeAutomaticExtractedFillTransactional,
+      ).mockRejectedValue(new FillCompletionCasMismatchError());
+
+      await service.processFillJob("user-1", "app-1");
+
+      expect(repo.failFillAutomatically).not.toHaveBeenCalled();
+      expect(
+        jobEventBusEmit.mock.calls.some(([e]) => e instanceof FillJobCompleted),
+      ).toBe(false);
+      expect(
+        jobEventBusEmit.mock.calls.some(([e]) => e instanceof FillJobFailed),
+      ).toBe(false);
     });
 
     it("does nothing when fillMetadata is not PROCESSING", async () => {
@@ -581,6 +681,9 @@ describe("JobsService", () => {
       await service.processFillJob("user-1", "app-1");
 
       expect(draftExtractionService.extract).not.toHaveBeenCalled();
+      expect(
+        repo.finalizeAutomaticExtractedFillTransactional,
+      ).not.toHaveBeenCalled();
     });
   });
 
@@ -741,558 +844,6 @@ describe("JobsService", () => {
       companyName: "  Acme  ",
       jobPostingContexts: snippets,
     });
-  });
-
-  it("createJobWithAI marks draft as processing and returns immediately", async () => {
-    vi.mocked(draftJobsService.findOne)
-      .mockResolvedValueOnce({
-        id: "draft-1",
-        jobId: null,
-        title: "Page title",
-        url: "https://jobs.example.com/x",
-        htmlContent: "<p>Posting</p>",
-        conversionMetadata: null,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      })
-      .mockResolvedValueOnce({
-        id: "draft-1",
-        jobId: null,
-        title: "Page title",
-        url: "https://jobs.example.com/x",
-        htmlContent: "<p>Posting</p>",
-        conversionMetadata: {
-          status: DraftJobConversionStatusEnum.PROCESSING,
-          error: null,
-          timestamp: null,
-        },
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      });
-    vi.mocked(draftJobsService.updateConversionMetadata).mockResolvedValue(
-      true,
-    );
-    vi.mocked(draftExtractionService.extract).mockRejectedValue(
-      new Error("openai down"),
-    );
-
-    const result = await service.createJobWithAI("user-1", "draft-1");
-
-    expect(result.conversionMetadata?.status).toBe(
-      DraftJobConversionStatusEnum.PROCESSING,
-    );
-    expect(draftJobsService.updateConversionMetadata).toHaveBeenCalledWith(
-      "draft-1",
-      "user-1",
-      null,
-      { status: DraftJobConversionStatusEnum.PROCESSING },
-    );
-
-    expect(draftEventBusEmit.mock.calls).toHaveLength(2);
-
-    expect(draftEventBusEmit.mock.calls[0][0]).toBeInstanceOf(
-      DraftConversionStatusChanged,
-    );
-    expect(
-      draftEventBusEmit.mock.calls[0][0] as DraftConversionStatusChanged,
-    ).toMatchObject({
-      draftId: "draft-1",
-      userId: "user-1",
-      status: DraftJobConversionStatusEnum.PROCESSING,
-    });
-
-    expect(draftEventBusEmit.mock.calls[1][0]).toBeInstanceOf(
-      DraftConversionRequested,
-    );
-  });
-
-  it("createJobWithAI background conversion records Applied after New", async () => {
-    const app = makeJob({ id: "draft-1" });
-    const idleDraft = {
-      id: "draft-1",
-      jobId: null,
-      title: "Page title",
-      url: "https://jobs.example.com/x",
-      htmlContent: "<p>Posting</p>",
-      conversionMetadata: null,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-    const processingDraft = {
-      ...idleDraft,
-      conversionMetadata: {
-        status: DraftJobConversionStatusEnum.PROCESSING,
-        error: null,
-        timestamp: null,
-      },
-    };
-    vi.mocked(draftJobsService.findOne)
-      .mockResolvedValueOnce(idleDraft as never)
-      .mockResolvedValueOnce(processingDraft as never)
-      .mockResolvedValue(processingDraft as never);
-    vi.mocked(draftJobsService.updateConversionMetadata).mockResolvedValue(
-      true,
-    );
-    vi.mocked(draftExtractionService.extract).mockResolvedValue({
-      title: "Senior Engineer",
-      company: "Acme",
-      url: "https://jobs.example.com/x",
-      description: "Job description",
-      salary: { min: null, max: null, currency: null, period: null },
-      tags: [],
-      location: null,
-      workRegion: null,
-    });
-    vi.mocked(
-      draftExtractionNormalizationService.normalizeExtraction,
-    ).mockReturnValue({
-      title: "Senior Engineer",
-      company: "Acme",
-      description: null,
-      salaryMinCents: null,
-      salaryMaxCents: null,
-      salaryCurrency: null,
-      salaryPeriod: null,
-      tags: [],
-      location: null,
-      workRegion: null,
-    });
-    vi.mocked(companyService.findOrCreateByName).mockResolvedValue(app.company);
-    vi.mocked(repo.create).mockResolvedValue(app);
-    vi.mocked(repo.hasRecentDuplicateSameRoleAndCompany).mockResolvedValue(
-      false,
-    );
-    vi.mocked(repo.findOneByIdAndUserId).mockResolvedValue(app);
-    vi.mocked(repo.createStageEvent)
-      .mockResolvedValueOnce(
-        makeEvent({
-          toStage: ApplicationStageEnum.NEW,
-          source: StageEventSourceEnum.System,
-        }),
-      )
-      .mockResolvedValueOnce(
-        makeEvent({
-          fromStage: ApplicationStageEnum.NEW,
-          toStage: ApplicationStageEnum.APPLIED,
-          source: StageEventSourceEnum.System,
-        }),
-      );
-    vi.mocked(repo.findLatestStageEventByJobIdAndUserId).mockResolvedValue(
-      makeEvent({
-        toStage: ApplicationStageEnum.NEW,
-        source: StageEventSourceEnum.System,
-      }),
-    );
-
-    await service.createJobWithAI("user-1", "draft-1");
-    await service.processDraftConversion("user-1", "draft-1");
-
-    expect(draftJobsService.updateConversionMetadata).toHaveBeenCalledWith(
-      "draft-1",
-      "user-1",
-      null,
-      { status: DraftJobConversionStatusEnum.PROCESSING },
-    );
-
-    expect(draftJobsService.updateConversionMetadata).toHaveBeenCalledWith(
-      "draft-1",
-      "user-1",
-      { status: DraftJobConversionStatusEnum.PROCESSING },
-      expect.objectContaining({
-        status: DraftJobConversionStatusEnum.SUCCEEDED,
-      }),
-    );
-
-    expect(repo.create).toHaveBeenCalledWith(
-      "user-1",
-      expect.objectContaining({ draftJobId: "draft-1" }),
-    );
-
-    expect(repo.setPersistedStage).toHaveBeenCalledWith(
-      "user-1",
-      "draft-1",
-      ApplicationStageEnum.NEW,
-    );
-    expect(
-      vi.mocked(repo.setPersistedStage).mock.invocationCallOrder[0],
-    ).toBeLessThan(
-      vi.mocked(repo.createStageEvent).mock.invocationCallOrder[0]!,
-    );
-
-    expect(matchAnalysisRepo.update).toHaveBeenCalledWith(
-      { jobId: "draft-1" },
-      { jobId: app.id },
-    );
-
-    expect(
-      jobEventBusEmit.mock.calls.some(([e]) => e instanceof JobCreated),
-    ).toBe(false);
-
-    expect(repo.createStageEvent).toHaveBeenNthCalledWith(
-      1,
-      "user-1",
-      app.id,
-      expect.objectContaining({
-        fromStage: null,
-        toStage: ApplicationStageEnum.NEW,
-        source: StageEventSourceEnum.System,
-      }),
-    );
-    expect(repo.createStageEvent).toHaveBeenNthCalledWith(
-      2,
-      "user-1",
-      app.id,
-      expect.objectContaining({
-        fromStage: ApplicationStageEnum.NEW,
-        toStage: ApplicationStageEnum.APPLIED,
-        source: StageEventSourceEnum.System,
-      }),
-    );
-
-    expect(draftJobsService.update).toHaveBeenCalledWith("draft-1", "user-1", {
-      title: "Engineer @ Acme",
-    });
-  });
-
-  it("processDraftConversion draft title omits null job title (uses @ company)", async () => {
-    const createdJob = makeJob({
-      id: "draft-null-title",
-      title: null as never,
-    });
-    const idleDraft = {
-      id: "draft-null-title",
-      jobId: null,
-      title: "Page title",
-      url: "https://jobs.example.com/x",
-      htmlContent: "<p>Posting</p>",
-      conversionMetadata: null,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-    const processingDraft = {
-      ...idleDraft,
-      conversionMetadata: {
-        status: DraftJobConversionStatusEnum.PROCESSING,
-        error: null,
-        timestamp: null,
-      },
-    };
-    vi.mocked(draftJobsService.findOne)
-      .mockResolvedValueOnce(idleDraft as never)
-      .mockResolvedValueOnce(processingDraft as never)
-      .mockResolvedValue(processingDraft as never);
-    vi.mocked(draftJobsService.updateConversionMetadata).mockResolvedValue(
-      true,
-    );
-    vi.mocked(draftExtractionService.extract).mockResolvedValue({
-      title: "",
-      company: "Acme",
-      url: "https://jobs.example.com/x",
-      description: "Job description",
-      salary: { min: null, max: null, currency: null, period: null },
-      tags: [],
-      location: null,
-      workRegion: null,
-    });
-    vi.mocked(
-      draftExtractionNormalizationService.normalizeExtraction,
-    ).mockReturnValue({
-      title: "",
-      company: "Acme",
-      description: null,
-      salaryMinCents: null,
-      salaryMaxCents: null,
-      salaryCurrency: null,
-      salaryPeriod: null,
-      tags: [],
-      location: null,
-      workRegion: null,
-    });
-    vi.mocked(companyService.findOrCreateByName).mockResolvedValue(
-      createdJob.company,
-    );
-    vi.mocked(repo.create).mockResolvedValue(createdJob);
-    vi.mocked(repo.hasRecentDuplicateSameRoleAndCompany).mockResolvedValue(
-      false,
-    );
-    vi.mocked(repo.findOneByIdAndUserId).mockResolvedValue(createdJob);
-    vi.mocked(repo.createStageEvent).mockResolvedValue(makeEvent());
-
-    vi.mocked(repo.findLatestStageEventByJobIdAndUserId).mockResolvedValue(
-      makeEvent({
-        jobId: "draft-null-title",
-        toStage: ApplicationStageEnum.NEW,
-        source: StageEventSourceEnum.System,
-      }),
-    );
-
-    await service.createJobWithAI("user-1", "draft-null-title");
-    await service.processDraftConversion("user-1", "draft-null-title");
-
-    expect(draftJobsService.update).toHaveBeenCalledWith(
-      "draft-null-title",
-      "user-1",
-      { title: "@ Acme" },
-    );
-  });
-
-  it("processDraftConversion publishes FAILED conversion when extraction rejects", async () => {
-    const processingDraft = {
-      id: "draft-err",
-      jobId: null,
-      title: "Page title",
-      url: "https://jobs.example.com/x",
-      htmlContent: "<p>Posting</p>",
-      conversionMetadata: {
-        status: DraftJobConversionStatusEnum.PROCESSING,
-        error: null,
-        timestamp: null,
-      },
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-    vi.mocked(draftJobsService.findOne).mockResolvedValue(
-      processingDraft as never,
-    );
-    vi.mocked(draftExtractionService.extract).mockRejectedValue(
-      new Error("no credits"),
-    );
-    vi.mocked(draftJobsService.updateConversionMetadata).mockResolvedValue(
-      true,
-    );
-
-    await service.processDraftConversion("user-1", "draft-err");
-
-    expect(draftJobsService.updateConversionMetadata).toHaveBeenCalledWith(
-      "draft-err",
-      "user-1",
-      { status: DraftJobConversionStatusEnum.PROCESSING },
-      expect.objectContaining({
-        status: DraftJobConversionStatusEnum.FAILED,
-        error: "no credits",
-      }),
-    );
-
-    expect(
-      draftEventBusEmit.mock.calls.some(
-        ([event]) =>
-          event instanceof DraftConversionStatusChanged &&
-          event.status === DraftJobConversionStatusEnum.FAILED &&
-          event.draftId === "draft-err",
-      ),
-    ).toBe(true);
-  });
-
-  it("processDraftConversion emits JobCreated only when match analysis rows fail to migrate", async () => {
-    vi.mocked(matchAnalysisRepo.update).mockReset();
-    vi.mocked(matchAnalysisRepo.update).mockResolvedValue({
-      affected: 0,
-    } as UpdateResult);
-
-    const app = makeJob({ id: "draft-2" });
-    const idleDraft = {
-      id: "draft-2",
-      jobId: null,
-      title: "Page title",
-      url: "https://jobs.example.com/x",
-      htmlContent: "<p>Posting</p>",
-      conversionMetadata: null,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-    const processingDraft = {
-      ...idleDraft,
-      conversionMetadata: {
-        status: DraftJobConversionStatusEnum.PROCESSING,
-        error: null,
-        timestamp: null,
-      },
-    };
-    vi.mocked(draftJobsService.findOne)
-      .mockResolvedValueOnce(idleDraft as never)
-      .mockResolvedValueOnce(processingDraft as never)
-      .mockResolvedValue(processingDraft as never);
-    vi.mocked(draftJobsService.updateConversionMetadata).mockResolvedValue(
-      true,
-    );
-    vi.mocked(draftExtractionService.extract).mockResolvedValue({
-      title: "Senior Engineer",
-      company: "Acme",
-      url: "https://jobs.example.com/x",
-      description: "Job description",
-      salary: { min: null, max: null, currency: null, period: null },
-      tags: [],
-      location: null,
-      workRegion: null,
-    });
-    vi.mocked(
-      draftExtractionNormalizationService.normalizeExtraction,
-    ).mockReturnValue({
-      title: "Senior Engineer",
-      company: "Acme",
-      description: null,
-      salaryMinCents: null,
-      salaryMaxCents: null,
-      salaryCurrency: null,
-      salaryPeriod: null,
-      tags: [],
-      location: null,
-      workRegion: null,
-    });
-    vi.mocked(companyService.findOrCreateByName).mockResolvedValue(app.company);
-    vi.mocked(repo.create).mockResolvedValue(app);
-    vi.mocked(repo.hasRecentDuplicateSameRoleAndCompany).mockResolvedValue(
-      false,
-    );
-    vi.mocked(repo.findOneByIdAndUserId).mockResolvedValue(app);
-    vi.mocked(repo.createStageEvent)
-      .mockResolvedValueOnce(
-        makeEvent({
-          toStage: ApplicationStageEnum.NEW,
-          source: StageEventSourceEnum.System,
-        }),
-      )
-      .mockResolvedValueOnce(
-        makeEvent({
-          fromStage: ApplicationStageEnum.NEW,
-          toStage: ApplicationStageEnum.APPLIED,
-          source: StageEventSourceEnum.System,
-        }),
-      );
-    vi.mocked(repo.findLatestStageEventByJobIdAndUserId).mockResolvedValue(
-      makeEvent({
-        toStage: ApplicationStageEnum.NEW,
-        source: StageEventSourceEnum.System,
-      }),
-    );
-
-    await service.createJobWithAI("user-1", "draft-2");
-    await service.processDraftConversion("user-1", "draft-2");
-
-    expect(matchAnalysisRepo.update).toHaveBeenCalled();
-
-    expect(repo.setPersistedStage).toHaveBeenCalledWith(
-      "user-1",
-      "draft-2",
-      ApplicationStageEnum.NEW,
-    );
-
-    expect(
-      jobEventBusEmit.mock.calls.some(
-        ([event]) => event instanceof JobCreated && event.jobId === app.id,
-      ),
-    ).toBe(true);
-  });
-
-  it("createJobWithAI does not emit Applied when create detects duplicate", async () => {
-    const app = makeJob({ id: "draft-1" });
-    const idleDraft = {
-      id: "draft-1",
-      jobId: null,
-      title: "Page title",
-      url: "https://jobs.example.com/x",
-      htmlContent: "<p>Posting</p>",
-      conversionMetadata: null,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-    const processingDraft = {
-      ...idleDraft,
-      conversionMetadata: {
-        status: DraftJobConversionStatusEnum.PROCESSING,
-        error: null,
-        timestamp: null,
-      },
-    };
-    vi.mocked(draftJobsService.findOne)
-      .mockResolvedValueOnce(idleDraft as never)
-      .mockResolvedValueOnce(processingDraft as never)
-      .mockResolvedValue(processingDraft as never);
-    vi.mocked(draftJobsService.updateConversionMetadata).mockResolvedValue(
-      true,
-    );
-    vi.mocked(draftExtractionService.extract).mockResolvedValue({
-      title: "Senior Engineer",
-      company: "Acme",
-      url: "https://jobs.example.com/x",
-      description: "Job description",
-      salary: { min: null, max: null, currency: null, period: null },
-      tags: [],
-      location: null,
-      workRegion: null,
-    });
-    vi.mocked(
-      draftExtractionNormalizationService.normalizeExtraction,
-    ).mockReturnValue({
-      title: "Senior Engineer",
-      company: "Acme",
-      description: null,
-      salaryMinCents: null,
-      salaryMaxCents: null,
-      salaryCurrency: null,
-      salaryPeriod: null,
-      tags: [],
-      location: null,
-      workRegion: null,
-    });
-    vi.mocked(companyService.findOrCreateByName).mockResolvedValue(app.company);
-    vi.mocked(repo.hasRecentDuplicateSameRoleAndCompany).mockResolvedValue(
-      true,
-    );
-    vi.mocked(repo.create).mockResolvedValue(app);
-    vi.mocked(repo.findOneByIdAndUserId).mockResolvedValue(app);
-    vi.mocked(repo.findLatestStageSummariesByJobIds).mockResolvedValue(
-      new Map([
-        [
-          app.id,
-          {
-            toStage: ApplicationStageEnum.DUPLICATED,
-            reason: null,
-            statusAt: new Date(),
-          },
-        ],
-      ]),
-    );
-    vi.mocked(repo.createStageEvent).mockResolvedValue(
-      makeEvent({
-        toStage: ApplicationStageEnum.DUPLICATED,
-        source: StageEventSourceEnum.System,
-      }),
-    );
-
-    await service.createJobWithAI("user-1", "draft-1");
-    await service.processDraftConversion("user-1", "draft-1");
-
-    expect(draftJobsService.updateConversionMetadata).toHaveBeenCalledWith(
-      "draft-1",
-      "user-1",
-      { status: DraftJobConversionStatusEnum.PROCESSING },
-      expect.objectContaining({
-        status: DraftJobConversionStatusEnum.SUCCEEDED,
-      }),
-    );
-
-    expect(repo.create).toHaveBeenCalledWith(
-      "user-1",
-      expect.objectContaining({ draftJobId: "draft-1" }),
-    );
-
-    expect(repo.setPersistedStage).toHaveBeenCalledWith(
-      "user-1",
-      "draft-1",
-      ApplicationStageEnum.DUPLICATED,
-    );
-
-    expect(repo.createStageEvent).toHaveBeenCalledTimes(1);
-    expect(repo.createStageEvent).toHaveBeenCalledWith(
-      "user-1",
-      app.id,
-      expect.objectContaining({
-        fromStage: null,
-        toStage: ApplicationStageEnum.DUPLICATED,
-        source: StageEventSourceEnum.System,
-      }),
-    );
   });
 
   it("update throws for invalid TipTap description JSON", async () => {

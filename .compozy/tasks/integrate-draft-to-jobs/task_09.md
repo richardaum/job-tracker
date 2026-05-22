@@ -1,5 +1,5 @@
 ---
-status: pending
+status: completed
 title: Remove DraftJobsModule and Legacy Entities
 type: backend
 complexity: medium
@@ -42,13 +42,13 @@ Delete all draft-specific code that is now obsolete: the entire `DraftJobsModule
 
 ## Subtasks
 
-- [ ] 9.1 Delete `DraftJobsModule` directory (`domains/draft-jobs/`)
-- [ ] 9.2 Delete `DraftJobEntity` and `ConversionMetadataEmbedded`
-- [ ] 9.3 Remove `createJobWithAI` and `processDraftConversion` from `JobsService`
-- [ ] 9.4 Remove `DraftConversionEventListener` and draft event imports from `JobsModule`
-- [ ] 9.5 Remove draft imports from `JobsModule` and `MatchAnalysisModule`
-- [ ] 9.6 Delete draft test files
-- [ ] 9.7 Run typecheck + lint to verify zero remaining draft references
+- [x] 9.1 Delete `DraftJobsModule` directory (`domains/draft-jobs/`)
+- [x] 9.2 Delete `DraftJobEntity` and `ConversionMetadataEmbedded`
+- [x] 9.3 Remove `createJobWithAI` and `processDraftConversion` from `JobsService`
+- [x] 9.4 Remove `DraftConversionEventListener` and draft event imports from `JobsModule`
+- [x] 9.5 Remove draft imports from `JobsModule` and `MatchAnalysisModule`
+- [x] 9.6 Delete draft test files
+- [x] 9.7 Run typecheck + lint to verify zero remaining draft references
 
 ## Implementation Details
 

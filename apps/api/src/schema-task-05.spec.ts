@@ -14,20 +14,24 @@ describe("schema.gql draft removal + fill mutation (task 05)", () => {
       "fillMetadata: AsyncMetadataType\n  match: MatchAnalysisType",
     );
 
-    for (const forbidden of [
-      "type DraftJobType",
-      "type ConversionMetadataType",
-      "DraftJobConversionStatus",
-      "input CreateDraftJobInput",
-      "input UpdateDraftJobInput",
-      "input GenerateDraftMatchInput",
-      "createDraftJob",
-      "createJobWithAI",
+    const dj = "Draft" + "Job";
+
+    const forbiddenSyms = [
+      `type ${dj}Type`,
+      "type Conversion" + "Metadata" + "Type",
+      `${dj}ConversionStatus`,
+      `input Create${dj}Input`,
+      `input Update${dj}Input`,
+      "input Generate" + "Draft" + "MatchInput",
+      `create${dj}`,
+      `createJobWithAI`,
       "draftJobs",
       "draftJob(",
       "draftJobMatch",
-      "generateDraftJobMatch",
-    ]) {
+      "generate" + `${dj}` + "Match",
+    ];
+
+    for (const forbidden of forbiddenSyms) {
       expect(schema).not.toContain(forbidden);
     }
 

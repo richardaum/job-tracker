@@ -1,4 +1,4 @@
-import { DRAFT_JOB_PLACEHOLDER_COMPANY_NAME } from "@api/domains/draft-jobs/draft-placeholder.constants";
+import { DRAFT_JOB_PLACEHOLDER_COMPANY_NAME } from "@api/domains/jobs/job-draft.constants";
 import type { MigrationInterface, QueryRunner } from "typeorm";
 
 /** Re-export for integration tests — same string as migrate-time placeholder company. */

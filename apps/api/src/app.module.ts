@@ -16,7 +16,6 @@ import { AiModule } from "./domains/ai/ai.module";
 import { AuthModule } from "./domains/auth/auth.module";
 import { CompaniesModule } from "./domains/companies/companies.module";
 import { CurrencyConverterModule } from "./domains/currency-converter/currency-converter.module";
-import { DraftJobsModule } from "./domains/draft-jobs/draft-jobs.module";
 import { JobsModule } from "./domains/jobs/jobs.module";
 import { MatchAnalysisModule } from "./domains/match-analysis/match-analysis.module";
 import { NotesModule } from "./domains/notes/notes.module";
@@ -31,7 +30,6 @@ import { GraphqlSseMiddleware } from "./graphql/graphql-sse.middleware";
     DatabaseModule,
     AuthModule,
     JobsModule,
-    DraftJobsModule,
     CompaniesModule,
     CurrencyConverterModule,
     SourcesModule,
