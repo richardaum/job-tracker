@@ -1,7 +1,7 @@
-import { Field, ID, InputType, Int } from "@nestjs/graphql";
+import { Field, ID, InputType } from "@nestjs/graphql";
 
 import { ApplicationSourceEnum } from "./job-source.enum";
-import { SalaryPeriodEnum } from "./salary/salary-period.enum";
+import { JobSalaryInput } from "./salary/job-salary.input";
 
 @InputType()
 export class CreateJobInput {
@@ -23,17 +23,8 @@ export class CreateJobInput {
   @Field(() => ApplicationSourceEnum, { nullable: true })
   source?: ApplicationSourceEnum | null;
 
-  @Field(() => Int, { nullable: true })
-  salaryMinCents?: number | null;
-
-  @Field(() => Int, { nullable: true })
-  salaryMaxCents?: number | null;
-
-  @Field(() => String, { nullable: true })
-  salaryCurrency?: string | null;
-
-  @Field(() => SalaryPeriodEnum, { nullable: true })
-  salaryPeriod?: SalaryPeriodEnum | null;
+  @Field(() => JobSalaryInput, { nullable: true })
+  salary?: JobSalaryInput;
 
   @Field(() => [String], { nullable: true })
   tags?: string[] | null;

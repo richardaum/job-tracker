@@ -1,4 +1,5 @@
 import { AsyncMetadataEmbedded } from "@api/database/embeddeds/async-metadata.embedded";
+import { SalaryEmbedded } from "@api/database/embeddeds/salary.embedded";
 import { DraftJobEntity } from "@api/database/entities/draft-job.entity";
 import { JobEntity } from "@api/database/entities/job.entity";
 import { JobStageEventEntity } from "@api/database/entities/job-stage-event.entity";
@@ -21,14 +22,14 @@ export type CreateJobRepoDto = Pick<
   | "description"
   | "urls"
   | "source"
-  | "salaryMinCents"
-  | "salaryMaxCents"
-  | "salaryCurrency"
-  | "salaryPeriod"
   | "tags"
   | "location"
   | "workRegion"
-> & { draftJobId?: string | null; sourceRunId?: string | null };
+> & {
+  salary?: SalaryEmbedded;
+  draftJobId?: string | null;
+  sourceRunId?: string | null;
+};
 export type UpdateJobRepoDto = Partial<CreateJobRepoDto>;
 
 export type JobPostingContextSnippet = {

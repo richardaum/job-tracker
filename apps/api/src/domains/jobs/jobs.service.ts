@@ -50,10 +50,7 @@ type CreateDto = {
   description?: string | null;
   urls?: string[] | null;
   source?: ApplicationSourceEnum | null;
-  salaryMinCents?: number | null;
-  salaryMaxCents?: number | null;
-  salaryCurrency?: string | null;
-  salaryPeriod?: SalaryPeriodEnum | null;
+  salary?: { minCents?: number | null; maxCents?: number | null; currency?: string | null; period?: SalaryPeriodEnum | null };
   tags?: string[] | null;
   location?: string | null;
   workRegion?: string | null;
@@ -198,7 +195,7 @@ export class JobsService {
     if (!companyId) {
       throw new BadRequestException("Company could not be resolved");
     }
-    const salaryColumns = this.salaryService.getCreateSalary(dto);
+    const salaryEmbedded = this.salaryService.getCreateSalary(dto.salary ?? {});
     const tags = this.tagService.normalizeTags(dto.tags);
     const normalizedUrls = this.normalizeUrls(dto.urls);
 
@@ -216,7 +213,7 @@ export class JobsService {
       workRegion: dto.workRegion ?? null,
       draftJobId: dto.draftJobId ?? null,
       sourceRunId: dto.sourceRunId ?? null,
-      ...salaryColumns,
+      salary: salaryEmbedded,
     };
 
     const job = await this.repo.create(userId, repoDto);
@@ -320,10 +317,7 @@ export class JobsService {
         company: normalized.company,
         description: normalized.description,
         urls: draft.url?.trim() ? [draft.url.trim()] : [],
-        salaryMinCents: normalized.salaryMinCents,
-        salaryMaxCents: normalized.salaryMaxCents,
-        salaryCurrency: normalized.salaryCurrency,
-        salaryPeriod: normalized.salaryPeriod,
+        salary: normalized.salary,
         tags: normalized.tags,
         location: normalized.location,
         workRegion: normalized.workRegion,
@@ -462,7 +456,10 @@ export class JobsService {
       dto.company,
       dto.companyId,
     );
-    const salaryColumns = this.salaryService.getUpdateSalary(existing, dto);
+    const salaryEmbedded =
+      dto.salary != null
+        ? this.salaryService.getUpdateSalary(existing, dto.salary)
+        : undefined;
     const tags =
       dto.tags !== undefined
         ? this.tagService.normalizeTags(dto.tags)
@@ -485,7 +482,9 @@ export class JobsService {
       ...(tags !== undefined ? { tags } : {}),
       ...(dto.location !== undefined ? { location: dto.location } : {}),
       ...(dto.workRegion !== undefined ? { workRegion: dto.workRegion } : {}),
-      ...(salaryColumns ?? {}),
+      ...(salaryEmbedded !== null && salaryEmbedded !== undefined
+        ? { salary: salaryEmbedded }
+        : {}),
     };
 
     const updated = await this.repo.update(id, userId, repoDto);

@@ -5,6 +5,7 @@ import { Field, ID, ObjectType } from "@nestjs/graphql";
 
 import { ApplicationSourceEnum } from "./job-source.enum";
 import { ApplicationStageEnum } from "./job-stage.enum";
+import { JobSalaryType } from "./salary/salary.type";
 
 @ObjectType()
 export class JobType {
@@ -55,6 +56,9 @@ export class JobType {
    */
   @Field()
   currentStageAt!: Date;
+
+  @Field(() => JobSalaryType, { nullable: true })
+  salary?: JobSalaryType | null;
 
   @Field()
   createdAt!: Date;

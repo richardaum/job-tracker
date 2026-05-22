@@ -1,6 +1,6 @@
 import { AsyncMetadataEmbedded } from "@api/database/embeddeds/async-metadata.embedded";
+import { SalaryEmbedded } from "@api/database/embeddeds/salary.embedded";
 import { ApplicationSourceEnum } from "@api/domains/jobs/job-source.enum";
-import { SalaryPeriodEnum } from "@api/domains/jobs/salary/salary-period.enum";
 import {
   Column,
   CreateDateColumn,
@@ -52,23 +52,8 @@ export class JobEntity {
   })
   source!: ApplicationSourceEnum | null;
 
-  @Column({ name: "salary_min_cents", type: "integer", nullable: true })
-  salaryMinCents!: number | null;
-
-  @Column({ name: "salary_max_cents", type: "integer", nullable: true })
-  salaryMaxCents!: number | null;
-
-  @Column({ name: "salary_currency", type: "text", nullable: true })
-  salaryCurrency!: string | null;
-
-  @Column({
-    name: "salary_period",
-    type: "enum",
-    enum: SalaryPeriodEnum,
-    enumName: "salary_period",
-    nullable: true,
-  })
-  salaryPeriod!: SalaryPeriodEnum | null;
+  @Column(() => SalaryEmbedded, { prefix: "salary" })
+  salary?: SalaryEmbedded | null;
 
   @Column({
     name: "tags",
@@ -104,9 +89,9 @@ export class JobEntity {
   @JoinColumn({ name: "source_run_id" })
   sourceRun?: SourceRunEntity | null;
 
-  @CreateDateColumn({ name: "created_at", type: "timestamp" })
+  @CreateDateColumn({ name: "created_at", type: "timestamptz" })
   createdAt!: Date;
 
-  @UpdateDateColumn({ name: "updated_at", type: "timestamp" })
+  @UpdateDateColumn({ name: "updated_at", type: "timestamptz" })
   updatedAt!: Date;
 }

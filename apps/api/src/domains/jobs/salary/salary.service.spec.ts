@@ -1,3 +1,4 @@
+import { SalaryEmbedded } from "@api/database/embeddeds/salary.embedded";
 import type { Job } from "@api/domains/jobs/jobs.schema";
 import { BadRequestException } from "@nestjs/common";
 import { beforeEach, describe, expect, it } from "vitest";
@@ -15,72 +16,71 @@ describe("SalaryService", () => {
   describe("getCreateSalary", () => {
     it("returns null values when no amount is provided", () => {
       const result = salaryService.getCreateSalary({});
-      expect(result.salaryMinCents).toBeNull();
-      expect(result.salaryCurrency).toBeNull();
+      expect(result.minCents).toBeNull();
+      expect(result.currency).toBeNull();
     });
 
     it("throws if amount is provided without currency or period", () => {
-      expect(() =>
-        salaryService.getCreateSalary({ salaryMinCents: 100 }),
-      ).toThrow(BadRequestException);
+      expect(() => salaryService.getCreateSalary({ minCents: 100 })).toThrow(
+        BadRequestException,
+      );
     });
 
     it("normalizes currency to uppercase", () => {
       const result = salaryService.getCreateSalary({
-        salaryMinCents: 100,
-        salaryCurrency: "usd",
-        salaryPeriod: SalaryPeriodEnum.MONTH,
+        minCents: 100,
+        currency: "usd",
+        period: SalaryPeriodEnum.MONTH,
       });
-      expect(result.salaryCurrency).toBe("USD");
+      expect(result.currency).toBe("USD");
     });
 
     it("validates non-negative amounts and min <= max", () => {
       expect(() =>
         salaryService.getCreateSalary({
-          salaryMinCents: -1,
-          salaryCurrency: "USD",
-          salaryPeriod: SalaryPeriodEnum.MONTH,
+          minCents: -1,
+          currency: "USD",
+          period: SalaryPeriodEnum.MONTH,
         }),
       ).toThrow(BadRequestException);
 
       expect(() =>
         salaryService.getCreateSalary({
-          salaryMinCents: 200,
-          salaryMaxCents: 100,
-          salaryCurrency: "USD",
-          salaryPeriod: SalaryPeriodEnum.MONTH,
+          minCents: 200,
+          maxCents: 100,
+          currency: "USD",
+          period: SalaryPeriodEnum.MONTH,
         }),
       ).toThrow(BadRequestException);
     });
   });
 
   describe("getUpdateSalary", () => {
-    const current = {
-      salaryMinCents: 5000,
-      salaryMaxCents: 7000,
-      salaryCurrency: "USD",
-      salaryPeriod: SalaryPeriodEnum.MONTH,
-    } as unknown as Job;
+    const embedded = new SalaryEmbedded();
+    embedded.minCents = 5000;
+    embedded.maxCents = 7000;
+    embedded.currency = "USD";
+    embedded.period = SalaryPeriodEnum.MONTH;
+
+    const current: Job = { salary: embedded } as unknown as Job;
 
     it("returns null if no salary keys are in input", () => {
       expect(salaryService.getUpdateSalary(current, {})).toBeNull();
     });
 
     it("merges with current values", () => {
-      const result = salaryService.getUpdateSalary(current, {
-        salaryMinCents: 6000,
-      });
-      expect(result?.salaryMinCents).toBe(6000);
-      expect(result?.salaryMaxCents).toBe(7000);
+      const result = salaryService.getUpdateSalary(current, { minCents: 6000 });
+      expect(result?.minCents).toBe(6000);
+      expect(result?.maxCents).toBe(7000);
     });
 
     it("allows clearing salary range", () => {
       const result = salaryService.getUpdateSalary(current, {
-        salaryMinCents: null,
-        salaryMaxCents: null,
+        minCents: null,
+        maxCents: null,
       });
-      expect(result?.salaryMinCents).toBeNull();
-      expect(result?.salaryCurrency).toBeNull();
+      expect(result?.minCents).toBeNull();
+      expect(result?.currency).toBeNull();
     });
   });
 });

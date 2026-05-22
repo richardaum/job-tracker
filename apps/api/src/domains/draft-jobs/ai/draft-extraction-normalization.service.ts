@@ -1,4 +1,4 @@
-import { SalaryPeriodEnum } from "@api/domains/jobs/salary/salary-period.enum";
+import { SalaryEmbedded } from "@api/database/embeddeds/salary.embedded";
 import { asSalaryPeriod } from "@api/domains/shared/salary-period.util";
 import type { TipTapDocument } from "@job-tracker/tiptap";
 import {
@@ -12,10 +12,7 @@ export type NormalizedDraftExtraction = {
   title: string;
   company: string;
   description: string | null;
-  salaryMinCents: number | null;
-  salaryMaxCents: number | null;
-  salaryCurrency: string | null;
-  salaryPeriod: SalaryPeriodEnum | null;
+  salary: SalaryEmbedded;
   tags: string[];
   location: string | null;
   workRegion: string | null;
@@ -65,15 +62,11 @@ function asRecord(value: unknown): Record<string, unknown> | null {
 @Injectable()
 export class DraftExtractionNormalizationService {
   normalizeExtraction(raw: Record<string, unknown>): NormalizedDraftExtraction {
-    const salary = this.normalizeDraftSalaryFields(raw);
     return {
       title: this.normalizeDraftTitle(raw),
       company: this.normalizeDraftCompany(raw),
       description: this.normalizeDraftDescription(raw),
-      salaryMinCents: salary.salaryMinCents,
-      salaryMaxCents: salary.salaryMaxCents,
-      salaryCurrency: salary.salaryCurrency,
-      salaryPeriod: salary.salaryPeriod,
+      salary: this.normalizeDraftSalaryFields(raw),
       tags: this.normalizeDraftTags(raw),
       location: this.normalizeDraftLocation(raw),
       workRegion: this.normalizeDraftWorkRegion(raw),
@@ -103,26 +96,21 @@ export class DraftExtractionNormalizationService {
 
   private normalizeDraftSalaryFields(
     raw: Record<string, unknown>,
-  ): Pick<
-    NormalizedDraftExtraction,
-    "salaryMinCents" | "salaryMaxCents" | "salaryCurrency" | "salaryPeriod"
-  > {
+  ): SalaryEmbedded {
+    const embedded = new SalaryEmbedded();
     const salary = asRecord(raw.salary);
     if (salary) {
-      return {
-        salaryMinCents: salaryMajorUnitsToCents(salary.min),
-        salaryMaxCents: salaryMajorUnitsToCents(salary.max),
-        salaryCurrency: asOptionalCurrency(salary.currency),
-        salaryPeriod: asSalaryPeriod(salary.period),
-      };
+      embedded.minCents = salaryMajorUnitsToCents(salary.min);
+      embedded.maxCents = salaryMajorUnitsToCents(salary.max);
+      embedded.currency = asOptionalCurrency(salary.currency);
+      embedded.period = asSalaryPeriod(salary.period);
+    } else {
+      embedded.minCents = asOptionalInt(raw.salaryMinCents);
+      embedded.maxCents = asOptionalInt(raw.salaryMaxCents);
+      embedded.currency = asOptionalCurrency(raw.salaryCurrency);
+      embedded.period = asSalaryPeriod(raw.salaryPeriod);
     }
-
-    return {
-      salaryMinCents: asOptionalInt(raw.salaryMinCents),
-      salaryMaxCents: asOptionalInt(raw.salaryMaxCents),
-      salaryCurrency: asOptionalCurrency(raw.salaryCurrency),
-      salaryPeriod: asSalaryPeriod(raw.salaryPeriod),
-    };
+    return embedded;
   }
 
   private normalizeDraftTags(raw: Record<string, unknown>): string[] {

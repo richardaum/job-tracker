@@ -123,14 +123,14 @@ export class SummaryService {
 
       const currentStage = stageEvents[0]?.toStage ?? ApplicationStageEnum.NEW;
       const salaryParts = [
-        app.salaryMinCents != null
-          ? `$${(app.salaryMinCents / 100).toLocaleString()}`
+        app.salary?.minCents != null
+          ? `$${(app.salary.minCents / 100).toLocaleString()}`
           : null,
-        app.salaryMaxCents != null
-          ? `$${(app.salaryMaxCents / 100).toLocaleString()}`
+        app.salary?.maxCents != null
+          ? `$${(app.salary.maxCents / 100).toLocaleString()}`
           : null,
-        app.salaryCurrency ?? null,
-        app.salaryPeriod ?? null,
+        app.salary?.currency ?? null,
+        app.salary?.period ?? null,
       ].filter(Boolean);
       const salaryText = salaryParts.length > 0 ? salaryParts.join(" ") : null;
 

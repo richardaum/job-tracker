@@ -1,3 +1,4 @@
+import { SalaryEmbedded } from "@api/database/embeddeds/salary.embedded";
 import { DraftJobConversionStatusEnum } from "@api/database/entities/draft-job.entity";
 import { MatchAnalysisEntity } from "@api/database/entities/match-analysis.entity";
 import { SourceRunEntity } from "@api/database/entities/source-run.entity";
@@ -39,10 +40,7 @@ const makeJob = (overrides: Partial<Job> = {}): Job =>
     description: null,
     urls: [],
     source: null,
-    salaryMinCents: null,
-    salaryMaxCents: null,
-    salaryCurrency: null,
-    salaryPeriod: null,
+    salary: null,
     tags: [],
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -407,10 +405,7 @@ describe("JobsService", () => {
       title: "Senior Engineer",
       company: "Acme",
       description: null,
-      salaryMinCents: null,
-      salaryMaxCents: null,
-      salaryCurrency: null,
-      salaryPeriod: null,
+      salary: new SalaryEmbedded(),
       tags: [],
       location: null,
       workRegion: null,
@@ -529,10 +524,7 @@ describe("JobsService", () => {
       title: "Senior Engineer",
       company: "Acme",
       description: null,
-      salaryMinCents: null,
-      salaryMaxCents: null,
-      salaryCurrency: null,
-      salaryPeriod: null,
+      salary: new SalaryEmbedded(),
       tags: [],
       location: null,
       workRegion: null,

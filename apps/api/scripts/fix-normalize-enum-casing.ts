@@ -208,7 +208,7 @@ async function scanEnumColumns(em: EntityManager): Promise<void> {
   const jobRepo = em.getRepository(JobEntity);
   const allJobs = await jobRepo
     .createQueryBuilder("a")
-    .select(["a.id", "a.source", "a.salaryPeriod"])
+    .select(["a.id", "a.source", "a.salary"])
     .getMany();
 
   const lowerSource = allJobs.filter(
@@ -222,7 +222,7 @@ async function scanEnumColumns(em: EntityManager): Promise<void> {
   }
 
   const lowerPeriod = allJobs.filter(
-    (a) => a.salaryPeriod && a.salaryPeriod !== upper(a.salaryPeriod),
+    (a) => a.salary?.period && a.salary?.period !== upper(a.salary?.period),
   );
   if (lowerPeriod.length > 0) {
     process.stdout.write(
