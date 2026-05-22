@@ -19,6 +19,7 @@ import NextLink from "next/link";
 
 import { ApplicationStage } from "@/gql/hooks";
 import { SalaryEditDialog } from "@/modules/jobs/details/components/SalaryEditDialog";
+import { jobDetailDisplayTitle } from "@/modules/jobs/details/utils/job-detail-title";
 import { formatDateTime } from "@/modules/jobs/details/utils/job-details.shared";
 import { DeleteJobDialog } from "@/modules/jobs/list/components/DeleteJobDialog";
 import { JobQuickEditDialog } from "@/modules/jobs/list/components/JobQuickEditDialog";
@@ -171,12 +172,13 @@ export function JobCard({ job: app, onSuccess, onError }: JobCardProps) {
   const quickEditDialog = useDialog();
   const salaryDialog = useDialog();
   const hasJobUrls = normalizeJobUrls(app.urls).length > 0;
+  const displayTitle = jobDetailDisplayTitle(app.title);
 
   return (
     <ListItemCard
       title={
         <ListItemCard.Title asChild>
-          <NextLink href={`/jobs/${app.id}`}>{app.title ?? "—"}</NextLink>
+          <NextLink href={`/jobs/${app.id}`}>{displayTitle}</NextLink>
         </ListItemCard.Title>
       }
       actions={
@@ -202,7 +204,7 @@ export function JobCard({ job: app, onSuccess, onError }: JobCardProps) {
           <IconButton
             intent="ghost"
             size="sm"
-            label={`Quick edit ${app.title ?? "job"}`}
+            label={`Quick edit ${displayTitle}`}
             tooltip="Quick edit"
             className={cn(ListItemCard.actionIconButtonClassName)}
             icon={<PencilSimpleIcon size={13} weight="regular" />}
@@ -241,14 +243,14 @@ export function JobCard({ job: app, onSuccess, onError }: JobCardProps) {
               <IconButton
                 intent="ghost"
                 size="sm"
-                label={`Delete ${app.title ?? "job"}`}
+                label={`Delete ${displayTitle}`}
                 tooltip="Delete"
                 className={cn(ListItemCard.actionIconButtonClassName)}
                 icon={<TrashIcon size={13} weight="regular" />}
               />
             }
             jobId={app.id}
-            jobTitle={app.title ?? ""}
+            jobTitle={displayTitle}
             onSuccess={onSuccess}
             onError={onError}
           />

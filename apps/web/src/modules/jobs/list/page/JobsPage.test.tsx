@@ -1,14 +1,16 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import JobsPage from "./JobsPage";
+
+const navigationMocks = { searchParams: "" };
 
 const useJobsQueryMock = vi.fn();
 const useJobStageEventsQueryMock = vi.fn();
 const useCurrentUserMock = vi.fn();
 
 vi.mock("next/navigation", () => ({
-  useSearchParams: () => new URLSearchParams(),
+  useSearchParams: () => new URLSearchParams(navigationMocks.searchParams),
   useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
   usePathname: () => "/",
 }));
@@ -76,6 +78,48 @@ vi.mock("@/modules/jobs/details/components/SalaryEditDialog", () => ({
 }));
 
 describe("JobsPage", () => {
+  beforeEach(() => {
+    navigationMocks.searchParams = "";
+    vi.clearAllMocks();
+  });
+
+  it("passes DRAFT filter to Jobs query when URL has q=draft", () => {
+    navigationMocks.searchParams = "q=draft";
+    useJobStageEventsQueryMock.mockImplementation(
+      (options: { variables?: { jobId: string }; skip?: boolean } = {}) => {
+        if (options.skip) {
+          return { data: undefined, loading: false, error: undefined };
+        }
+        return {
+          data: { jobStageEvents: [] },
+          loading: false,
+          error: undefined,
+        };
+      },
+    );
+    useCurrentUserMock.mockReturnValue({
+      user: {
+        id: "user-1",
+        name: "Test User",
+        email: "test@example.com",
+        avatarUrl: null,
+      },
+    });
+    useJobsQueryMock.mockReturnValue({
+      data: { jobs: [] },
+      loading: false,
+      error: undefined,
+    });
+
+    render(<JobsPage />);
+
+    expect(useJobsQueryMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        variables: expect.objectContaining({ filter: "DRAFT" }),
+      }),
+    );
+  });
+
   it("renders current stage from job when list includes currentStage", () => {
     useJobStageEventsQueryMock.mockImplementation(
       (options: { variables?: { jobId: string }; skip?: boolean } = {}) => {
