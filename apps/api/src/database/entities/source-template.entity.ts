@@ -1,4 +1,3 @@
-import { WithGeneratedId } from "@api/database/decorators/with-generated-id.decorator";
 import {
   Column,
   CreateDateColumn,
@@ -7,7 +6,6 @@ import {
   Unique,
 } from "typeorm";
 
-@WithGeneratedId()
 @Entity({ name: "source_templates" })
 @Unique(["userId", "sourceProfileId"])
 export class SourceTemplateEntity {

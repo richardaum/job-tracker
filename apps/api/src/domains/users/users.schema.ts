@@ -1,6 +1,6 @@
 import type { UserEntity } from "@api/database/entities/user.entity";
 
-export type User = Omit<UserEntity, "setId">;
+export type User = UserEntity;
 
 export type NewUser = Pick<
   UserEntity,

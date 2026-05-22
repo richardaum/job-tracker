@@ -1,4 +1,3 @@
-import { WithGeneratedId } from "@api/database/decorators/with-generated-id.decorator";
 import {
   Column,
   CreateDateColumn,
@@ -12,7 +11,6 @@ import {
 import { JobEntity } from "./job.entity";
 
 /** DB enforces case- and whitespace-insensitive uniqueness via `UQ_companies_user_lower_name` (see migrations). */
-@WithGeneratedId()
 @Entity({ name: "companies" })
 @Unique(["userId", "name"])
 export class CompanyEntity {

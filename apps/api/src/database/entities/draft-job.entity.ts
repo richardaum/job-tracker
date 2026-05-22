@@ -1,4 +1,3 @@
-import { WithGeneratedId } from "@api/database/decorators/with-generated-id.decorator";
 import { ConversionMetadataEmbedded } from "@api/database/embeddeds/conversion-metadata.embedded";
 import {
   Column,
@@ -18,7 +17,6 @@ export enum DraftJobConversionStatusEnum {
   FAILED = "FAILED",
 }
 
-@WithGeneratedId()
 @Entity({ name: "draft_jobs" })
 export class DraftJobEntity {
   @PrimaryColumn({ type: "text" })

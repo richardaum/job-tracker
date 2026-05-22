@@ -1,4 +1,3 @@
-import { WithGeneratedId } from "@api/database/decorators/with-generated-id.decorator";
 import { AsyncMetadataEmbedded } from "@api/database/embeddeds/async-metadata.embedded";
 import { ApplicationSourceEnum } from "@api/domains/jobs/job-source.enum";
 import { SalaryPeriodEnum } from "@api/domains/jobs/salary/salary-period.enum";
@@ -16,7 +15,6 @@ import { CompanyEntity } from "./company.entity";
 import { DraftJobEntity } from "./draft-job.entity";
 import { SourceRunEntity } from "./source-run.entity";
 
-@WithGeneratedId()
 @Entity({ name: "jobs" })
 export class JobEntity {
   @PrimaryColumn({ type: "text" })

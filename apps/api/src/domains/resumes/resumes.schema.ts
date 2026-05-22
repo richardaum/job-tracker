@@ -1,8 +1,8 @@
 import type { ResumeEntity } from "@api/database/entities/resume.entity";
 
-export type Resume = Omit<ResumeEntity, "setId">;
+export type Resume = ResumeEntity;
 
 export type NewResume = Partial<
-  Omit<ResumeEntity, "id" | "createdAt" | "updatedAt" | "setId">
+  Omit<ResumeEntity, "id" | "createdAt" | "updatedAt">
 > &
   Pick<ResumeEntity, "title" | "content" | "userId">;

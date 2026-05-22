@@ -1,6 +1,6 @@
 import type { JobStageEventEntity } from "@api/database/entities/job-stage-event.entity";
 
-export type JobStageEvent = Omit<JobStageEventEntity, "setId">;
+export type JobStageEvent = JobStageEventEntity;
 
 export type NewJobStageEvent = Pick<
   JobStageEventEntity,

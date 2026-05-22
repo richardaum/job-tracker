@@ -1,10 +1,8 @@
-import { WithGeneratedId } from "@api/database/decorators/with-generated-id.decorator";
 import { SourceRunStatusEnum } from "@api/domains/sources/source-run-status.enum";
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from "typeorm";
 
 import { SourceTemplateEntity } from "./source-template.entity";
 
-@WithGeneratedId()
 @Entity({ name: "source_runs" })
 export class SourceRunEntity {
   @PrimaryColumn({ type: "text" })

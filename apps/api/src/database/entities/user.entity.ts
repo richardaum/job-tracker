@@ -1,4 +1,3 @@
-import { WithGeneratedId } from "@api/database/decorators/with-generated-id.decorator";
 import {
   Column,
   CreateDateColumn,
@@ -7,7 +6,6 @@ import {
   UpdateDateColumn,
 } from "typeorm";
 
-@WithGeneratedId()
 @Entity({ name: "users" })
 export class UserEntity {
   @PrimaryColumn({ type: "text" })

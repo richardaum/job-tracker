@@ -1,4 +1,3 @@
-import { WithGeneratedId } from "@api/database/decorators/with-generated-id.decorator";
 import {
   Column,
   CreateDateColumn,
@@ -13,7 +12,6 @@ export interface PreferenceItem {
   weight: "high" | "low";
 }
 
-@WithGeneratedId()
 @Entity({ name: "work_preferences" })
 @Index("uq_work_preferences_user_id", ["userId"], { unique: true })
 export class WorkPreferencesEntity {

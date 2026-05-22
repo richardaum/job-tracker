@@ -1,8 +1,6 @@
-import { WithGeneratedId } from "@api/database/decorators/with-generated-id.decorator";
 import { ApplicationStageEnum } from "@api/domains/jobs/job-stage.enum";
 import { Column, CreateDateColumn, Entity, PrimaryColumn } from "typeorm";
 
-@WithGeneratedId()
 @Entity({ name: "job_stage_events" })
 export class JobStageEventEntity {
   @PrimaryColumn({ type: "text" })

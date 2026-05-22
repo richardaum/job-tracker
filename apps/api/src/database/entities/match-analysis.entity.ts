@@ -1,4 +1,3 @@
-import { WithGeneratedId } from "@api/database/decorators/with-generated-id.decorator";
 import { AsyncMetadataEmbedded } from "@api/database/embeddeds/async-metadata.embedded";
 import {
   Column,
@@ -31,7 +30,6 @@ export interface MatchItem {
 
 export type MatchClassification = "positive" | "neutral" | "negative";
 
-@WithGeneratedId()
 @Entity({ name: "match_analysis" })
 export class MatchAnalysisEntity {
   @PrimaryColumn({ type: "text" })

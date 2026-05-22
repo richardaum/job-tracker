@@ -1,4 +1,3 @@
-import { WithGeneratedId } from "@api/database/decorators/with-generated-id.decorator";
 import {
   Column,
   CreateDateColumn,
@@ -12,7 +11,6 @@ const EMPTY_TIPTAP_DOC = JSON.stringify({
   content: [{ type: "paragraph" }],
 });
 
-@WithGeneratedId()
 @Entity({ name: "job_notes" })
 export class JobNoteEntity {
   @PrimaryColumn({ type: "text" })
