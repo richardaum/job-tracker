@@ -1,272 +1,281 @@
-import { TypedDocumentNode as DocumentNode } from "@graphql-typed-document-node/core";
+/* eslint-disable */
+import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/core';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = T | null | undefined;
-export type Exact<T extends { [key: string]: unknown }> = {
-  [K in keyof T]: T[K];
-};
-export type MakeOptional<T, K extends keyof T> = Omit<T, K> & {
-  [SubKey in K]?: Maybe<T[SubKey]>;
-};
-export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & {
-  [SubKey in K]: Maybe<T[SubKey]>;
-};
-export type MakeEmpty<
-  T extends { [key: string]: unknown },
-  K extends keyof T,
-> = { [_ in K]?: never };
-export type Incremental<T> =
-  | T
-  | {
-      [P in keyof T]?: P extends " $fragmentName" | "__typename" ? T[P] : never;
-    };
+export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
+export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
+export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
+export type MakeEmpty<T extends { [key: string]: unknown }, K extends keyof T> = { [_ in K]?: never };
+export type Incremental<T> = T | { [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never };
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
-  ID: { input: string; output: string };
-  String: { input: string; output: string };
-  Boolean: { input: boolean; output: boolean };
-  Int: { input: number; output: number };
-  Float: { input: number; output: number };
+  ID: { input: string; output: string; }
+  String: { input: string; output: string; }
+  Boolean: { input: boolean; output: boolean; }
+  Int: { input: number; output: number; }
+  Float: { input: number; output: number; }
   /** A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format. */
-  DateTime: { input: any; output: any };
+  DateTime: { input: any; output: any; }
 };
 
 export enum AsyncMetadataStatus {
-  Completed = "COMPLETED",
-  Failed = "FAILED",
-  Processing = "PROCESSING",
+  Completed = 'COMPLETED',
+  Failed = 'FAILED',
+  Processing = 'PROCESSING'
 }
 
 export type AsyncMetadataType = {
-  __typename?: "AsyncMetadataType";
-  error?: Maybe<Scalars["String"]["output"]>;
-  status: AsyncMetadataStatus;
-  timestamp?: Maybe<Scalars["String"]["output"]>;
+  __typename?: 'AsyncMetadataType';
+  error?: Maybe<Scalars['String']['output']>;
+  status?: Maybe<AsyncMetadataStatus>;
+  timestamp?: Maybe<Scalars['DateTime']['output']>;
 };
 
 export type CompanyType = {
-  __typename?: "CompanyType";
-  createdAt: Scalars["DateTime"]["output"];
-  description?: Maybe<Scalars["String"]["output"]>;
-  id: Scalars["ID"]["output"];
-  name: Scalars["String"]["output"];
-  updatedAt: Scalars["DateTime"]["output"];
-  userId: Scalars["String"]["output"];
+  __typename?: 'CompanyType';
+  createdAt: Scalars['DateTime']['output'];
+  description?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+  userId: Scalars['String']['output'];
 };
 
 export type ConversionMetadataType = {
-  __typename?: "ConversionMetadataType";
-  error?: Maybe<Scalars["String"]["output"]>;
-  status: DraftJobConversionStatus;
-  timestamp?: Maybe<Scalars["String"]["output"]>;
+  __typename?: 'ConversionMetadataType';
+  error?: Maybe<Scalars['String']['output']>;
+  status?: Maybe<DraftJobConversionStatus>;
+  timestamp?: Maybe<Scalars['DateTime']['output']>;
 };
 
 export type CreateDraftJobInput = {
-  htmlContent: Scalars["String"]["input"];
-  title: Scalars["String"]["input"];
-  url?: InputMaybe<Scalars["String"]["input"]>;
+  htmlContent: Scalars['String']['input'];
+  title: Scalars['String']['input'];
+  url?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type CreateJobInput = {
-  company: Scalars["String"]["input"];
-  companyId?: InputMaybe<Scalars["ID"]["input"]>;
-  description?: InputMaybe<Scalars["String"]["input"]>;
-  location?: InputMaybe<Scalars["String"]["input"]>;
-  salaryCurrency?: InputMaybe<Scalars["String"]["input"]>;
-  salaryMaxCents?: InputMaybe<Scalars["Int"]["input"]>;
-  salaryMinCents?: InputMaybe<Scalars["Int"]["input"]>;
-  salaryPeriod?: InputMaybe<SalaryPeriod>;
+  company: Scalars['String']['input'];
+  companyId?: InputMaybe<Scalars['ID']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  location?: InputMaybe<Scalars['String']['input']>;
+  salary?: InputMaybe<JobSalaryInput>;
   source?: InputMaybe<JobSource>;
-  sourceRunId?: InputMaybe<Scalars["ID"]["input"]>;
-  tags?: InputMaybe<Array<Scalars["String"]["input"]>>;
-  title: Scalars["String"]["input"];
-  urls?: InputMaybe<Array<Scalars["String"]["input"]>>;
-  workRegion?: InputMaybe<Scalars["String"]["input"]>;
+  sourceRunId?: InputMaybe<Scalars['ID']['input']>;
+  tags?: InputMaybe<Array<Scalars['String']['input']>>;
+  title: Scalars['String']['input'];
+  urls?: InputMaybe<Array<Scalars['String']['input']>>;
+  workRegion?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type CreateJobStageEventInput = {
-  jobId: Scalars["String"]["input"];
-  reason?: InputMaybe<Scalars["String"]["input"]>;
-  scheduledAt?: InputMaybe<Scalars["DateTime"]["input"]>;
-  source?: InputMaybe<Scalars["String"]["input"]>;
+  jobId: Scalars['String']['input'];
+  reason?: InputMaybe<Scalars['String']['input']>;
+  scheduledAt?: InputMaybe<Scalars['DateTime']['input']>;
+  source?: InputMaybe<StageEventSource>;
   toStage: JobStage;
 };
 
 export type CreateNoteInput = {
-  content: Scalars["String"]["input"];
-  jobId: Scalars["String"]["input"];
+  content: Scalars['String']['input'];
+  jobId: Scalars['String']['input'];
 };
 
 export type CreateResumeInput = {
-  content: Scalars["String"]["input"];
-  isDefault?: Scalars["Boolean"]["input"];
-  title: Scalars["String"]["input"];
+  content: Scalars['String']['input'];
+  isDefault?: Scalars['Boolean']['input'];
+  title: Scalars['String']['input'];
 };
 
 export type CreateSourceRunInput = {
-  sourceProfileId: Scalars["String"]["input"];
+  sourceProfileId: Scalars['String']['input'];
 };
 
 export type CreateSourceTemplateInput = {
-  sourceProfileId: Scalars["String"]["input"];
-  surfaceUrl: Scalars["String"]["input"];
+  sourceProfileId: Scalars['String']['input'];
+  surfaceUrl: Scalars['String']['input'];
 };
 
 export type CurrencyRates = {
-  __typename?: "CurrencyRates";
-  base: Scalars["String"]["output"];
+  __typename?: 'CurrencyRates';
+  base: Scalars['String']['output'];
   rates: Array<ExchangeRate>;
 };
 
 export type DeleteMutationPayloadType = {
-  __typename?: "DeleteMutationPayloadType";
-  deletedId: Scalars["ID"]["output"];
-  success: Scalars["Boolean"]["output"];
+  __typename?: 'DeleteMutationPayloadType';
+  deletedId: Scalars['ID']['output'];
+  success: Scalars['Boolean']['output'];
 };
 
 export enum DraftJobConversionStatus {
-  Failed = "FAILED",
-  Idle = "IDLE",
-  Processing = "PROCESSING",
-  Succeeded = "SUCCEEDED",
+  Failed = 'FAILED',
+  Idle = 'IDLE',
+  Processing = 'PROCESSING',
+  Succeeded = 'SUCCEEDED'
 }
 
 export type DraftJobType = {
-  __typename?: "DraftJobType";
+  __typename?: 'DraftJobType';
   conversionMetadata?: Maybe<ConversionMetadataType>;
-  createdAt: Scalars["DateTime"]["output"];
-  fit?: Maybe<FitAnalysisType>;
-  htmlContent: Scalars["String"]["output"];
-  id: Scalars["ID"]["output"];
-  jobId?: Maybe<Scalars["String"]["output"]>;
-  title: Scalars["String"]["output"];
-  updatedAt: Scalars["DateTime"]["output"];
-  url?: Maybe<Scalars["String"]["output"]>;
+  createdAt: Scalars['DateTime']['output'];
+  htmlContent: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  jobId?: Maybe<Scalars['String']['output']>;
+  match?: Maybe<MatchAnalysisType>;
+  title: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+  url?: Maybe<Scalars['String']['output']>;
 };
 
 export type ExchangeRate = {
-  __typename?: "ExchangeRate";
-  currency: Scalars["String"]["output"];
-  rate: Scalars["Float"]["output"];
+  __typename?: 'ExchangeRate';
+  currency: Scalars['String']['output'];
+  rate: Scalars['Float']['output'];
 };
 
-export type FitAnalysisType = {
-  __typename?: "FitAnalysisType";
-  classification?: Maybe<Scalars["String"]["output"]>;
-  createdAt: Scalars["DateTime"]["output"];
-  draftJob?: Maybe<DraftJobType>;
-  draftJobId?: Maybe<Scalars["ID"]["output"]>;
-  fitCount: Scalars["Int"]["output"];
-  gapCount: Scalars["Int"]["output"];
-  generationMetadata?: Maybe<AsyncMetadataType>;
-  id: Scalars["ID"]["output"];
-  items: Array<FitItemType>;
-  job?: Maybe<JobType>;
-  jobId?: Maybe<Scalars["ID"]["output"]>;
-  resumeId: Scalars["ID"]["output"];
-  scoreRatio?: Maybe<Scalars["Float"]["output"]>;
-  unclearCount: Scalars["Int"]["output"];
-  updatedAt: Scalars["DateTime"]["output"];
+export enum FitClassification {
+  Negative = 'Negative',
+  Neutral = 'Neutral',
+  Positive = 'Positive'
+}
+
+export enum FitSource {
+  Preference = 'Preference',
+  Resume = 'Resume'
+}
+
+export enum FitVerdict {
+  Fit = 'Fit',
+  Gap = 'Gap',
+  Unclear = 'Unclear'
+}
+
+export type GenerateDraftMatchInput = {
+  draftJobId: Scalars['ID']['input'];
+  resumeId: Scalars['ID']['input'];
 };
 
-export type FitItemType = {
-  __typename?: "FitItemType";
-  jdQuote: Scalars["String"]["output"];
-  requirement: Scalars["String"]["output"];
-  source: Scalars["String"]["output"];
-  sourceQuotes: Array<Scalars["String"]["output"]>;
-  suggestion?: Maybe<Scalars["String"]["output"]>;
-  type: Scalars["String"]["output"];
-  verdict: Scalars["String"]["output"];
-  weight?: Maybe<Scalars["String"]["output"]>;
-};
-
-export type GenerateDraftFitInput = {
-  draftJobId: Scalars["ID"]["input"];
-  resumeId: Scalars["ID"]["input"];
-};
-
-export type GenerateFitInput = {
-  jobId: Scalars["ID"]["input"];
-  resumeId: Scalars["ID"]["input"];
+export type GenerateMatchInput = {
+  jobId: Scalars['ID']['input'];
+  resumeId: Scalars['ID']['input'];
 };
 
 export enum JobQuickFilter {
-  Active = "ACTIVE",
-  Applied = "APPLIED",
-  Duplicated = "DUPLICATED",
-  Incoming = "INCOMING",
-  New = "NEW",
+  Active = 'ACTIVE',
+  Applied = 'APPLIED',
+  Duplicated = 'DUPLICATED',
+  Incoming = 'INCOMING',
+  New = 'NEW'
 }
 
 export type JobSalary = {
-  __typename?: "JobSalary";
-  currency?: Maybe<Scalars["String"]["output"]>;
-  maxCents?: Maybe<Scalars["Int"]["output"]>;
-  minCents?: Maybe<Scalars["Int"]["output"]>;
+  __typename?: 'JobSalary';
+  currency?: Maybe<Scalars['String']['output']>;
+  maxCents?: Maybe<Scalars['Int']['output']>;
+  minCents?: Maybe<Scalars['Int']['output']>;
   period?: Maybe<SalaryPeriod>;
 };
 
+export type JobSalaryInput = {
+  currency?: InputMaybe<Scalars['String']['input']>;
+  maxCents?: InputMaybe<Scalars['Int']['input']>;
+  minCents?: InputMaybe<Scalars['Int']['input']>;
+  period?: InputMaybe<SalaryPeriod>;
+};
+
 export enum JobSource {
-  Jack = "JACK",
-  Linkedin = "LINKEDIN",
-  RemoteYeah = "REMOTE_YEAH",
-  Wellfound = "WELLFOUND",
+  Jack = 'JACK',
+  Linkedin = 'LINKEDIN',
+  RemoteYeah = 'REMOTE_YEAH',
+  Wellfound = 'WELLFOUND'
 }
 
 export enum JobStage {
-  Applied = "APPLIED",
-  CulturalFit = "CULTURAL_FIT",
-  Duplicated = "DUPLICATED",
-  New = "NEW",
-  Offer = "OFFER",
-  RecruiterScreen = "RECRUITER_SCREEN",
-  Rejected = "REJECTED",
-  Technical = "TECHNICAL",
+  Applied = 'APPLIED',
+  CulturalFit = 'CULTURAL_FIT',
+  Duplicated = 'DUPLICATED',
+  New = 'NEW',
+  Offer = 'OFFER',
+  RecruiterScreen = 'RECRUITER_SCREEN',
+  Rejected = 'REJECTED',
+  Technical = 'TECHNICAL'
 }
 
 export type JobStageEventType = {
-  __typename?: "JobStageEventType";
-  createdAt: Scalars["DateTime"]["output"];
+  __typename?: 'JobStageEventType';
+  createdAt: Scalars['DateTime']['output'];
   fromStage?: Maybe<JobStage>;
-  id: Scalars["ID"]["output"];
-  jobId: Scalars["String"]["output"];
-  reason?: Maybe<Scalars["String"]["output"]>;
-  scheduledAt?: Maybe<Scalars["DateTime"]["output"]>;
-  source: Scalars["String"]["output"];
+  id: Scalars['ID']['output'];
+  jobId: Scalars['String']['output'];
+  reason?: Maybe<Scalars['String']['output']>;
+  scheduledAt?: Maybe<Scalars['DateTime']['output']>;
+  source: StageEventSource;
   toStage: JobStage;
-  userId: Scalars["String"]["output"];
+  userId: Scalars['String']['output'];
 };
 
 export type JobType = {
-  __typename?: "JobType";
+  __typename?: 'JobType';
   company: CompanyType;
-  companyId: Scalars["ID"]["output"];
-  createdAt: Scalars["DateTime"]["output"];
+  companyId: Scalars['ID']['output'];
+  createdAt: Scalars['DateTime']['output'];
   currentStage: JobStage;
-  currentStageAt: Scalars["DateTime"]["output"];
-  currentStageReason?: Maybe<Scalars["String"]["output"]>;
-  description?: Maybe<Scalars["String"]["output"]>;
-  draftJobId?: Maybe<Scalars["ID"]["output"]>;
-  fit?: Maybe<FitAnalysisType>;
-  id: Scalars["ID"]["output"];
-  location?: Maybe<Scalars["String"]["output"]>;
-  salary: JobSalary;
+  currentStageAt: Scalars['DateTime']['output'];
+  currentStageReason?: Maybe<Scalars['String']['output']>;
+  description?: Maybe<Scalars['String']['output']>;
+  draftJobId?: Maybe<Scalars['ID']['output']>;
+  id: Scalars['ID']['output'];
+  location?: Maybe<Scalars['String']['output']>;
+  match?: Maybe<MatchAnalysisType>;
+  salary?: Maybe<JobSalary>;
   source?: Maybe<JobSource>;
-  sourceRunId?: Maybe<Scalars["ID"]["output"]>;
-  summary?: Maybe<Scalars["String"]["output"]>;
+  sourceRunId?: Maybe<Scalars['ID']['output']>;
+  summary?: Maybe<Scalars['String']['output']>;
   summaryMetadata?: Maybe<AsyncMetadataType>;
-  tags: Array<Scalars["String"]["output"]>;
-  title: Scalars["String"]["output"];
-  updatedAt: Scalars["DateTime"]["output"];
-  urls: Array<Scalars["String"]["output"]>;
-  userId: Scalars["String"]["output"];
-  workRegion?: Maybe<Scalars["String"]["output"]>;
+  tags: Array<Scalars['String']['output']>;
+  title: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+  urls: Array<Scalars['String']['output']>;
+  userId: Scalars['String']['output'];
+  workRegion?: Maybe<Scalars['String']['output']>;
+};
+
+export type MatchAnalysisType = {
+  __typename?: 'MatchAnalysisType';
+  classification?: Maybe<FitClassification>;
+  createdAt: Scalars['DateTime']['output'];
+  draftJob?: Maybe<DraftJobType>;
+  draftJobId?: Maybe<Scalars['ID']['output']>;
+  gapCount: Scalars['Int']['output'];
+  generationMetadata?: Maybe<AsyncMetadataType>;
+  id: Scalars['ID']['output'];
+  items: Array<MatchItemType>;
+  job?: Maybe<JobType>;
+  jobId?: Maybe<Scalars['ID']['output']>;
+  matchCount: Scalars['Int']['output'];
+  resumeId: Scalars['ID']['output'];
+  scoreRatio?: Maybe<Scalars['Float']['output']>;
+  unclearCount: Scalars['Int']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type MatchItemType = {
+  __typename?: 'MatchItemType';
+  jdQuote: Scalars['String']['output'];
+  requirement: Scalars['String']['output'];
+  source: FitSource;
+  sourceQuotes: Array<Scalars['String']['output']>;
+  suggestion?: Maybe<Scalars['String']['output']>;
+  type: RequirementType;
+  verdict: FitVerdict;
+  weight?: Maybe<Scalars['String']['output']>;
 };
 
 export type Mutation = {
-  __typename?: "Mutation";
+  __typename?: 'Mutation';
   claimSourceRun?: Maybe<SourceRunType>;
-  clearSourceRuns: Scalars["Boolean"]["output"];
+  clearSourceRuns: Scalars['Boolean']['output'];
   createDraftJob: DraftJobType;
   createJob: JobType;
   createJobNote: NoteType;
@@ -277,17 +286,17 @@ export type Mutation = {
   createSourceTemplate: SourceTemplateType;
   deleteCompany: DeleteMutationPayloadType;
   deleteDraftJob: DeleteMutationPayloadType;
-  deleteFitAnalysis: DeleteMutationPayloadType;
   deleteJob: DeleteMutationPayloadType;
   deleteJobNote: DeleteMutationPayloadType;
   deleteJobStageEvent: DeleteMutationPayloadType;
   deleteJobsForDraft: DeleteMutationPayloadType;
+  deleteMatchAnalysis: DeleteMutationPayloadType;
   deleteResume: DeleteMutationPayloadType;
   deleteSourceRun: DeleteMutationPayloadType;
   deleteSourceTemplate: DeleteMutationPayloadType;
-  detachJobsFromSourceRun: Scalars["Int"]["output"];
-  generateDraftJobFit: FitAnalysisType;
-  generateJobFit: FitAnalysisType;
+  detachJobsFromSourceRun: Scalars['Int']['output'];
+  generateDraftJobMatch: MatchAnalysisType;
+  generateJobMatch: MatchAnalysisType;
   generateJobSummary: JobType;
   removeJobTag: JobType;
   rerunSourceTemplate: SourceRunType;
@@ -303,167 +312,239 @@ export type Mutation = {
   updateWorkPreferences: Array<PreferenceType>;
 };
 
-export type MutationClaimSourceRunArgs = { id: Scalars["ID"]["input"] };
 
-export type MutationCreateDraftJobArgs = { input: CreateDraftJobInput };
+export type MutationClaimSourceRunArgs = {
+  id: Scalars['ID']['input'];
+};
 
-export type MutationCreateJobArgs = { input: CreateJobInput };
 
-export type MutationCreateJobNoteArgs = { input: CreateNoteInput };
+export type MutationCreateDraftJobArgs = {
+  input: CreateDraftJobInput;
+};
+
+
+export type MutationCreateJobArgs = {
+  input: CreateJobInput;
+};
+
+
+export type MutationCreateJobNoteArgs = {
+  input: CreateNoteInput;
+};
+
 
 export type MutationCreateJobStageEventArgs = {
   input: CreateJobStageEventInput;
 };
 
-export type MutationCreateJobWithAiArgs = { draftId: Scalars["ID"]["input"] };
 
-export type MutationCreateResumeArgs = { input: CreateResumeInput };
+export type MutationCreateJobWithAiArgs = {
+  draftId: Scalars['ID']['input'];
+};
 
-export type MutationCreateSourceRunArgs = { input: CreateSourceRunInput };
+
+export type MutationCreateResumeArgs = {
+  input: CreateResumeInput;
+};
+
+
+export type MutationCreateSourceRunArgs = {
+  input: CreateSourceRunInput;
+};
+
 
 export type MutationCreateSourceTemplateArgs = {
   input: CreateSourceTemplateInput;
 };
 
-export type MutationDeleteCompanyArgs = { id: Scalars["ID"]["input"] };
+
+export type MutationDeleteCompanyArgs = {
+  id: Scalars['ID']['input'];
+};
+
 
 export type MutationDeleteDraftJobArgs = {
-  deleteLinkedJob?: InputMaybe<Scalars["Boolean"]["input"]>;
-  id: Scalars["ID"]["input"];
+  deleteLinkedJob?: InputMaybe<Scalars['Boolean']['input']>;
+  id: Scalars['ID']['input'];
 };
 
-export type MutationDeleteFitAnalysisArgs = { id: Scalars["ID"]["input"] };
 
-export type MutationDeleteJobArgs = { id: Scalars["ID"]["input"] };
+export type MutationDeleteJobArgs = {
+  id: Scalars['ID']['input'];
+};
 
-export type MutationDeleteJobNoteArgs = { id: Scalars["ID"]["input"] };
 
-export type MutationDeleteJobStageEventArgs = { id: Scalars["ID"]["input"] };
+export type MutationDeleteJobNoteArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteJobStageEventArgs = {
+  id: Scalars['ID']['input'];
+};
+
 
 export type MutationDeleteJobsForDraftArgs = {
-  draftId: Scalars["ID"]["input"];
+  draftId: Scalars['ID']['input'];
 };
 
-export type MutationDeleteResumeArgs = { id: Scalars["ID"]["input"] };
 
-export type MutationDeleteSourceRunArgs = { id: Scalars["ID"]["input"] };
+export type MutationDeleteMatchAnalysisArgs = {
+  id: Scalars['ID']['input'];
+};
 
-export type MutationDeleteSourceTemplateArgs = { id: Scalars["ID"]["input"] };
+
+export type MutationDeleteResumeArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteSourceRunArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteSourceTemplateArgs = {
+  id: Scalars['ID']['input'];
+};
+
 
 export type MutationDetachJobsFromSourceRunArgs = {
-  sourceRunId: Scalars["ID"]["input"];
+  sourceRunId: Scalars['ID']['input'];
 };
 
-export type MutationGenerateDraftJobFitArgs = { input: GenerateDraftFitInput };
 
-export type MutationGenerateJobFitArgs = { input: GenerateFitInput };
+export type MutationGenerateDraftJobMatchArgs = {
+  input: GenerateDraftMatchInput;
+};
 
-export type MutationGenerateJobSummaryArgs = { jobId: Scalars["ID"]["input"] };
+
+export type MutationGenerateJobMatchArgs = {
+  input: GenerateMatchInput;
+};
+
+
+export type MutationGenerateJobSummaryArgs = {
+  jobId: Scalars['ID']['input'];
+};
+
 
 export type MutationRemoveJobTagArgs = {
-  id: Scalars["ID"]["input"];
-  tag: Scalars["String"]["input"];
+  id: Scalars['ID']['input'];
+  tag: Scalars['String']['input'];
 };
+
 
 export type MutationRerunSourceTemplateArgs = {
-  templateId: Scalars["ID"]["input"];
+  templateId: Scalars['ID']['input'];
 };
 
+
 export type MutationUpdateCompanyArgs = {
-  id: Scalars["ID"]["input"];
+  id: Scalars['ID']['input'];
   input: UpdateCompanyInput;
 };
 
+
 export type MutationUpdateDraftJobArgs = {
-  id: Scalars["ID"]["input"];
+  id: Scalars['ID']['input'];
   input: UpdateDraftJobInput;
 };
 
+
 export type MutationUpdateJobArgs = {
-  id: Scalars["ID"]["input"];
+  id: Scalars['ID']['input'];
   input: UpdateJobInput;
 };
 
+
 export type MutationUpdateJobNoteArgs = {
-  id: Scalars["ID"]["input"];
+  id: Scalars['ID']['input'];
   input: UpdateNoteInput;
 };
 
+
 export type MutationUpdateJobStageEventArgs = {
-  id: Scalars["ID"]["input"];
+  id: Scalars['ID']['input'];
   input: UpdateJobStageEventInput;
 };
 
+
 export type MutationUpdateResumeArgs = {
-  id: Scalars["ID"]["input"];
+  id: Scalars['ID']['input'];
   input: UpdateResumeInput;
 };
 
+
 export type MutationUpdateSourceRunArgs = {
-  id: Scalars["ID"]["input"];
+  id: Scalars['ID']['input'];
   input: UpdateSourceRunInput;
 };
 
+
 export type MutationUpdateSourceRunStatusArgs = {
-  id: Scalars["ID"]["input"];
+  id: Scalars['ID']['input'];
   status: SourceRunStatus;
 };
 
+
 export type MutationUpdateSourceTemplateArgs = {
-  id: Scalars["ID"]["input"];
+  id: Scalars['ID']['input'];
   input: UpdateSourceTemplateInput;
 };
+
 
 export type MutationUpdateWorkPreferencesArgs = {
   items: Array<PreferenceInput>;
 };
 
 export type NoteType = {
-  __typename?: "NoteType";
-  content: Scalars["String"]["output"];
-  createdAt: Scalars["DateTime"]["output"];
-  id: Scalars["ID"]["output"];
-  jobId?: Maybe<Scalars["String"]["output"]>;
-  revision: Scalars["Int"]["output"];
-  updatedAt: Scalars["DateTime"]["output"];
-  userId: Scalars["String"]["output"];
+  __typename?: 'NoteType';
+  content: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  jobId?: Maybe<Scalars['String']['output']>;
+  revision: Scalars['Int']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+  userId: Scalars['String']['output'];
 };
 
 export type PreferenceInput = {
-  text: Scalars["String"]["input"];
+  text: Scalars['String']['input'];
   weight: Weight;
 };
 
 export type PreferenceType = {
-  __typename?: "PreferenceType";
-  text: Scalars["String"]["output"];
+  __typename?: 'PreferenceType';
+  text: Scalars['String']['output'];
   weight: Weight;
 };
 
 export type Query = {
-  __typename?: "Query";
+  __typename?: 'Query';
   companies: Array<CompanyType>;
-  companyJobsCount: Scalars["Int"]["output"];
+  company: CompanyType;
+  companyJobsCount: Scalars['Int']['output'];
   draftJob: DraftJobType;
-  draftJobFit?: Maybe<FitAnalysisType>;
+  draftJobMatch?: Maybe<MatchAnalysisType>;
   draftJobs: Array<DraftJobType>;
   exchangeRates: CurrencyRates;
-  fit?: Maybe<FitAnalysisType>;
-  fitAnalyses: Array<FitAnalysisType>;
-  generateCompanyDescription: Scalars["String"]["output"];
-  generateJobLocationWithAI?: Maybe<Scalars["String"]["output"]>;
-  generateJobNoteWithAI: Scalars["String"]["output"];
-  generateJobWorkRegionWithAI?: Maybe<Scalars["String"]["output"]>;
+  generateCompanyDescription: Scalars['String']['output'];
+  generateJobLocationWithAI?: Maybe<Scalars['String']['output']>;
+  generateJobNoteWithAI: Scalars['String']['output'];
+  generateJobWorkRegionWithAI?: Maybe<Scalars['String']['output']>;
   job: JobType;
-  jobFit?: Maybe<FitAnalysisType>;
+  jobMatch?: Maybe<MatchAnalysisType>;
   jobNotes: Array<NoteType>;
   jobStageEvents: Array<JobStageEventType>;
   jobs: Array<JobType>;
+  match: MatchAnalysisType;
+  matchAnalyses: Array<MatchAnalysisType>;
   me: UserType;
-  restructureJobDescriptionWithAI: Scalars["String"]["output"];
+  restructureJobDescriptionWithAI: Scalars['String']['output'];
   resume: ResumeType;
   resumes: Array<ResumeType>;
-  rewriteTextWithAI: Scalars["String"]["output"];
+  rewriteTextWithAI: Scalars['String']['output'];
   sourceProfiles: Array<SourceProfileType>;
   sourceRuns: Array<SourceRunType>;
   sourceTemplates: Array<SourceTemplateType>;
@@ -471,706 +552,305 @@ export type Query = {
   workPreferences: Array<PreferenceType>;
 };
 
-export type QueryCompanyJobsCountArgs = { id: Scalars["ID"]["input"] };
 
-export type QueryDraftJobArgs = { id: Scalars["ID"]["input"] };
+export type QueryCompanyArgs = {
+  id: Scalars['ID']['input'];
+};
 
-export type QueryDraftJobFitArgs = { draftJobId: Scalars["ID"]["input"] };
+
+export type QueryCompanyJobsCountArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryDraftJobArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryDraftJobMatchArgs = {
+  draftJobId: Scalars['ID']['input'];
+};
+
 
 export type QueryExchangeRatesArgs = {
-  base: Scalars["String"]["input"];
-  currencies: Array<Scalars["String"]["input"]>;
+  base: Scalars['String']['input'];
+  currencies: Array<Scalars['String']['input']>;
 };
 
-export type QueryFitArgs = { id: Scalars["ID"]["input"] };
 
 export type QueryGenerateCompanyDescriptionArgs = {
-  companyName: Scalars["String"]["input"];
+  companyName: Scalars['String']['input'];
 };
+
 
 export type QueryGenerateJobLocationWithAiArgs = {
-  jobId: Scalars["ID"]["input"];
+  jobId: Scalars['ID']['input'];
 };
+
 
 export type QueryGenerateJobNoteWithAiArgs = {
-  jobId: Scalars["ID"]["input"];
-  note: Scalars["String"]["input"];
+  jobId: Scalars['ID']['input'];
+  note: Scalars['String']['input'];
 };
+
 
 export type QueryGenerateJobWorkRegionWithAiArgs = {
-  jobId: Scalars["ID"]["input"];
+  jobId: Scalars['ID']['input'];
 };
 
-export type QueryJobArgs = { id: Scalars["ID"]["input"] };
 
-export type QueryJobFitArgs = { jobId: Scalars["ID"]["input"] };
+export type QueryJobArgs = {
+  id: Scalars['ID']['input'];
+};
 
-export type QueryJobNotesArgs = { jobId: Scalars["ID"]["input"] };
 
-export type QueryJobStageEventsArgs = { jobId: Scalars["ID"]["input"] };
+export type QueryJobMatchArgs = {
+  jobId: Scalars['ID']['input'];
+};
+
+
+export type QueryJobNotesArgs = {
+  jobId: Scalars['ID']['input'];
+};
+
+
+export type QueryJobStageEventsArgs = {
+  jobId: Scalars['ID']['input'];
+};
+
 
 export type QueryJobsArgs = {
-  company?: InputMaybe<Scalars["String"]["input"]>;
+  company?: InputMaybe<Scalars['String']['input']>;
   filter?: InputMaybe<JobQuickFilter>;
-  runId?: InputMaybe<Scalars["ID"]["input"]>;
+  runId?: InputMaybe<Scalars['ID']['input']>;
 };
+
+
+export type QueryMatchArgs = {
+  id: Scalars['ID']['input'];
+};
+
 
 export type QueryRestructureJobDescriptionWithAiArgs = {
-  text: Scalars["String"]["input"];
+  text: Scalars['String']['input'];
 };
 
-export type QueryResumeArgs = { id: Scalars["ID"]["input"] };
 
-export type QueryRewriteTextWithAiArgs = { text: Scalars["String"]["input"] };
+export type QueryResumeArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryRewriteTextWithAiArgs = {
+  text: Scalars['String']['input'];
+};
+
 
 export type QuerySourceProfilesArgs = {
-  onlyWithSourceTemplate?: InputMaybe<Scalars["Boolean"]["input"]>;
+  onlyWithSourceTemplate?: InputMaybe<Scalars['Boolean']['input']>;
 };
+
 
 export type QuerySourceTemplatesForSourceProfileArgs = {
-  sourceProfileId: Scalars["String"]["input"];
+  sourceProfileId: Scalars['String']['input'];
 };
 
+export enum RequirementType {
+  MustHave = 'MustHave',
+  NiceToHave = 'NiceToHave',
+  SoftSkill = 'SoftSkill'
+}
+
 export type ResumeType = {
-  __typename?: "ResumeType";
-  content: Scalars["String"]["output"];
-  createdAt: Scalars["DateTime"]["output"];
-  id: Scalars["ID"]["output"];
-  isDefault: Scalars["Boolean"]["output"];
-  title: Scalars["String"]["output"];
-  updatedAt: Scalars["DateTime"]["output"];
-  userId: Scalars["String"]["output"];
+  __typename?: 'ResumeType';
+  content: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  isDefault: Scalars['Boolean']['output'];
+  title: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+  userId: Scalars['String']['output'];
 };
 
 export enum SalaryPeriod {
-  Hour = "HOUR",
-  Month = "MONTH",
-  Year = "YEAR",
+  Hour = 'HOUR',
+  Month = 'MONTH',
+  Year = 'YEAR'
 }
 
 export type SourceProfileType = {
-  __typename?: "SourceProfileType";
-  name: Scalars["String"]["output"];
-  sourceProfileId: Scalars["String"]["output"];
+  __typename?: 'SourceProfileType';
+  name: Scalars['String']['output'];
+  sourceProfileId: Scalars['String']['output'];
   templates: Array<SourceTemplateType>;
 };
 
 export type SourceRunEvent = {
-  __typename?: "SourceRunEvent";
-  occurredAt: Scalars["DateTime"]["output"];
+  __typename?: 'SourceRunEvent';
+  occurredAt: Scalars['DateTime']['output'];
   run: SourceRunType;
   type: SourceRunEventType;
 };
 
 export enum SourceRunEventType {
-  SourceRunCreated = "SOURCE_RUN_CREATED",
+  SourceRunCreated = 'SOURCE_RUN_CREATED'
 }
 
 export enum SourceRunStatus {
-  Completed = "COMPLETED",
-  Failed = "FAILED",
-  InProgress = "IN_PROGRESS",
-  Running = "RUNNING",
+  Completed = 'COMPLETED',
+  Failed = 'FAILED',
+  InProgress = 'IN_PROGRESS',
+  Running = 'RUNNING'
 }
 
 export type SourceRunType = {
-  __typename?: "SourceRunType";
-  id: Scalars["ID"]["output"];
-  sourceProfile: Scalars["String"]["output"];
-  sourceProfileId: Scalars["String"]["output"];
-  startedAt: Scalars["DateTime"]["output"];
+  __typename?: 'SourceRunType';
+  id: Scalars['ID']['output'];
+  sourceProfile: Scalars['String']['output'];
+  sourceProfileId: Scalars['String']['output'];
+  startedAt: Scalars['DateTime']['output'];
   status: SourceRunStatus;
-  surfaceUrl: Scalars["String"]["output"];
-  templateId: Scalars["ID"]["output"];
+  surfaceUrl: Scalars['String']['output'];
+  templateId: Scalars['ID']['output'];
 };
 
 export type SourceTemplateType = {
-  __typename?: "SourceTemplateType";
-  createdAt: Scalars["DateTime"]["output"];
-  id: Scalars["ID"]["output"];
+  __typename?: 'SourceTemplateType';
+  createdAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
   runs: Array<SourceRunType>;
-  scheduleCron?: Maybe<Scalars["String"]["output"]>;
-  scheduleEnabled: Scalars["Boolean"]["output"];
-  sourceProfileId: Scalars["String"]["output"];
-  surfaceUrl: Scalars["String"]["output"];
+  scheduleCron?: Maybe<Scalars['String']['output']>;
+  scheduleEnabled: Scalars['Boolean']['output'];
+  sourceProfileId: Scalars['String']['output'];
+  surfaceUrl: Scalars['String']['output'];
 };
 
+export enum StageEventSource {
+  Manual = 'Manual',
+  System = 'System'
+}
+
 export type Subscription = {
-  __typename?: "Subscription";
+  __typename?: 'Subscription';
   sourceRunEvents: SourceRunEvent;
 };
 
 export type UpdateCompanyInput = {
-  description?: InputMaybe<Scalars["String"]["input"]>;
-  name?: InputMaybe<Scalars["String"]["input"]>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type UpdateDraftJobInput = { title: Scalars["String"]["input"] };
+export type UpdateDraftJobInput = {
+  title: Scalars['String']['input'];
+};
 
 export type UpdateJobInput = {
-  company?: InputMaybe<Scalars["String"]["input"]>;
-  companyId?: InputMaybe<Scalars["ID"]["input"]>;
-  description?: InputMaybe<Scalars["String"]["input"]>;
-  location?: InputMaybe<Scalars["String"]["input"]>;
-  salaryCurrency?: InputMaybe<Scalars["String"]["input"]>;
-  salaryMaxCents?: InputMaybe<Scalars["Int"]["input"]>;
-  salaryMinCents?: InputMaybe<Scalars["Int"]["input"]>;
-  salaryPeriod?: InputMaybe<SalaryPeriod>;
+  company?: InputMaybe<Scalars['String']['input']>;
+  companyId?: InputMaybe<Scalars['ID']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  location?: InputMaybe<Scalars['String']['input']>;
+  salary?: InputMaybe<JobSalaryInput>;
   source?: InputMaybe<JobSource>;
-  tags?: InputMaybe<Array<Scalars["String"]["input"]>>;
-  title?: InputMaybe<Scalars["String"]["input"]>;
-  urls?: InputMaybe<Array<Scalars["String"]["input"]>>;
-  workRegion?: InputMaybe<Scalars["String"]["input"]>;
+  tags?: InputMaybe<Array<Scalars['String']['input']>>;
+  title?: InputMaybe<Scalars['String']['input']>;
+  urls?: InputMaybe<Array<Scalars['String']['input']>>;
+  workRegion?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type UpdateJobStageEventInput = {
-  reason?: InputMaybe<Scalars["String"]["input"]>;
-  scheduledAt?: InputMaybe<Scalars["DateTime"]["input"]>;
+  reason?: InputMaybe<Scalars['String']['input']>;
+  scheduledAt?: InputMaybe<Scalars['DateTime']['input']>;
   toStage?: InputMaybe<JobStage>;
 };
 
 export type UpdateNoteInput = {
-  content?: InputMaybe<Scalars["String"]["input"]>;
-  expectedRevision: Scalars["Int"]["input"];
+  content?: InputMaybe<Scalars['String']['input']>;
+  expectedRevision: Scalars['Int']['input'];
 };
 
 export type UpdateResumeInput = {
-  content?: InputMaybe<Scalars["String"]["input"]>;
-  isDefault?: InputMaybe<Scalars["Boolean"]["input"]>;
-  title?: InputMaybe<Scalars["String"]["input"]>;
+  content?: InputMaybe<Scalars['String']['input']>;
+  isDefault?: InputMaybe<Scalars['Boolean']['input']>;
+  title?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type UpdateSourceRunInput = { surfaceUrl: Scalars["String"]["input"] };
+export type UpdateSourceRunInput = {
+  surfaceUrl: Scalars['String']['input'];
+};
 
 export type UpdateSourceTemplateInput = {
-  scheduleCron?: InputMaybe<Scalars["String"]["input"]>;
-  scheduleEnabled?: InputMaybe<Scalars["Boolean"]["input"]>;
-  surfaceUrl?: InputMaybe<Scalars["String"]["input"]>;
+  scheduleCron?: InputMaybe<Scalars['String']['input']>;
+  scheduleEnabled?: InputMaybe<Scalars['Boolean']['input']>;
+  surfaceUrl?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type UserType = {
-  __typename?: "UserType";
-  avatarUrl?: Maybe<Scalars["String"]["output"]>;
-  email: Scalars["String"]["output"];
-  id: Scalars["ID"]["output"];
-  name: Scalars["String"]["output"];
-  role: Scalars["String"]["output"];
+  __typename?: 'UserType';
+  avatarUrl?: Maybe<Scalars['String']['output']>;
+  email: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  role: Scalars['String']['output'];
 };
 
 export enum Weight {
-  High = "HIGH",
-  Low = "LOW",
+  High = 'HIGH',
+  Low = 'LOW'
 }
 
 export type ClaimSourceRunMutationVariables = Exact<{
-  id: Scalars["ID"]["input"];
+  id: Scalars['ID']['input'];
 }>;
 
-export type ClaimSourceRunMutation = {
-  __typename?: "Mutation";
-  claimSourceRun?: {
-    __typename?: "SourceRunType";
-    id: string;
-    sourceProfileId: string;
-    status: SourceRunStatus;
-    startedAt: any;
-    sourceProfile: string;
-  } | null;
-};
+
+export type ClaimSourceRunMutation = { __typename?: 'Mutation', claimSourceRun?: { __typename?: 'SourceRunType', id: string, sourceProfileId: string, status: SourceRunStatus, startedAt: any, sourceProfile: string } | null };
 
 export type CreateDraftJobMutationVariables = Exact<{
   input: CreateDraftJobInput;
 }>;
 
-export type CreateDraftJobMutation = {
-  __typename?: "Mutation";
-  createDraftJob: {
-    __typename?: "DraftJobType";
-    id: string;
-    url?: string | null;
-    title: string;
-  };
-};
 
-export type CreateJobMutationVariables = Exact<{ input: CreateJobInput }>;
+export type CreateDraftJobMutation = { __typename?: 'Mutation', createDraftJob: { __typename?: 'DraftJobType', id: string, url?: string | null, title: string } };
 
-export type CreateJobMutation = {
-  __typename?: "Mutation";
-  createJob: { __typename?: "JobType"; id: string; title: string };
-};
-
-export type SourceRunEventsSubscriptionVariables = Exact<{
-  [key: string]: never;
+export type CreateJobMutationVariables = Exact<{
+  input: CreateJobInput;
 }>;
 
-export type SourceRunEventsSubscription = {
-  __typename?: "Subscription";
-  sourceRunEvents: {
-    __typename?: "SourceRunEvent";
-    type: SourceRunEventType;
-    occurredAt: any;
-    run: {
-      __typename?: "SourceRunType";
-      id: string;
-      templateId: string;
-      sourceProfileId: string;
-      surfaceUrl: string;
-      status: SourceRunStatus;
-      startedAt: any;
-      sourceProfile: string;
-    };
-  };
-};
 
-export type SourceRunsQueryVariables = Exact<{ [key: string]: never }>;
+export type CreateJobMutation = { __typename?: 'Mutation', createJob: { __typename?: 'JobType', id: string, title: string } };
 
-export type SourceRunsQuery = {
-  __typename?: "Query";
-  sourceRuns: Array<{
-    __typename?: "SourceRunType";
-    id: string;
-    templateId: string;
-    sourceProfileId: string;
-    surfaceUrl: string;
-    status: SourceRunStatus;
-    startedAt: any;
-    sourceProfile: string;
-  }>;
-};
+export type SourceRunEventsSubscriptionVariables = Exact<{ [key: string]: never; }>;
+
+
+export type SourceRunEventsSubscription = { __typename?: 'Subscription', sourceRunEvents: { __typename?: 'SourceRunEvent', type: SourceRunEventType, occurredAt: any, run: { __typename?: 'SourceRunType', id: string, templateId: string, sourceProfileId: string, surfaceUrl: string, status: SourceRunStatus, startedAt: any, sourceProfile: string } } };
+
+export type SourceRunsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type SourceRunsQuery = { __typename?: 'Query', sourceRuns: Array<{ __typename?: 'SourceRunType', id: string, templateId: string, sourceProfileId: string, surfaceUrl: string, status: SourceRunStatus, startedAt: any, sourceProfile: string }> };
 
 export type UpdateSourceRunStatusMutationVariables = Exact<{
-  id: Scalars["ID"]["input"];
+  id: Scalars['ID']['input'];
   status: SourceRunStatus;
 }>;
 
-export type UpdateSourceRunStatusMutation = {
-  __typename?: "Mutation";
-  updateSourceRunStatus: {
-    __typename?: "SourceRunType";
-    id: string;
-    status: SourceRunStatus;
-  };
-};
+
+export type UpdateSourceRunStatusMutation = { __typename?: 'Mutation', updateSourceRunStatus: { __typename?: 'SourceRunType', id: string, status: SourceRunStatus } };
 
 export type UpdateSourceRunMutationVariables = Exact<{
-  id: Scalars["ID"]["input"];
+  id: Scalars['ID']['input'];
   input: UpdateSourceRunInput;
 }>;
 
-export type UpdateSourceRunMutation = {
-  __typename?: "Mutation";
-  updateSourceRun: {
-    __typename?: "SourceRunType";
-    id: string;
-    surfaceUrl: string;
-  };
-};
 
-export const ClaimSourceRunDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "mutation",
-      name: { kind: "Name", value: "ClaimSourceRun" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: { kind: "Variable", name: { kind: "Name", value: "id" } },
-          type: {
-            kind: "NonNullType",
-            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "claimSourceRun" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "id" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "id" },
-                },
-              },
-            ],
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "sourceProfileId" },
-                },
-                { kind: "Field", name: { kind: "Name", value: "status" } },
-                { kind: "Field", name: { kind: "Name", value: "startedAt" } },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "sourceProfile" },
-                },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  ClaimSourceRunMutation,
-  ClaimSourceRunMutationVariables
->;
-export const CreateDraftJobDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "mutation",
-      name: { kind: "Name", value: "CreateDraftJob" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "input" },
-          },
-          type: {
-            kind: "NonNullType",
-            type: {
-              kind: "NamedType",
-              name: { kind: "Name", value: "CreateDraftJobInput" },
-            },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "createDraftJob" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "input" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "input" },
-                },
-              },
-            ],
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                { kind: "Field", name: { kind: "Name", value: "url" } },
-                { kind: "Field", name: { kind: "Name", value: "title" } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  CreateDraftJobMutation,
-  CreateDraftJobMutationVariables
->;
-export const CreateJobDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "mutation",
-      name: { kind: "Name", value: "CreateJob" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "input" },
-          },
-          type: {
-            kind: "NonNullType",
-            type: {
-              kind: "NamedType",
-              name: { kind: "Name", value: "CreateJobInput" },
-            },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "createJob" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "input" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "input" },
-                },
-              },
-            ],
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                { kind: "Field", name: { kind: "Name", value: "title" } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<CreateJobMutation, CreateJobMutationVariables>;
-export const SourceRunEventsDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "subscription",
-      name: { kind: "Name", value: "SourceRunEvents" },
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "sourceRunEvents" },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "type" } },
-                { kind: "Field", name: { kind: "Name", value: "occurredAt" } },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "run" },
-                  selectionSet: {
-                    kind: "SelectionSet",
-                    selections: [
-                      { kind: "Field", name: { kind: "Name", value: "id" } },
-                      {
-                        kind: "Field",
-                        name: { kind: "Name", value: "templateId" },
-                      },
-                      {
-                        kind: "Field",
-                        name: { kind: "Name", value: "sourceProfileId" },
-                      },
-                      {
-                        kind: "Field",
-                        name: { kind: "Name", value: "surfaceUrl" },
-                      },
-                      {
-                        kind: "Field",
-                        name: { kind: "Name", value: "status" },
-                      },
-                      {
-                        kind: "Field",
-                        name: { kind: "Name", value: "startedAt" },
-                      },
-                      {
-                        kind: "Field",
-                        name: { kind: "Name", value: "sourceProfile" },
-                      },
-                    ],
-                  },
-                },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  SourceRunEventsSubscription,
-  SourceRunEventsSubscriptionVariables
->;
-export const SourceRunsDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "query",
-      name: { kind: "Name", value: "SourceRuns" },
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "sourceRuns" },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                { kind: "Field", name: { kind: "Name", value: "templateId" } },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "sourceProfileId" },
-                },
-                { kind: "Field", name: { kind: "Name", value: "surfaceUrl" } },
-                { kind: "Field", name: { kind: "Name", value: "status" } },
-                { kind: "Field", name: { kind: "Name", value: "startedAt" } },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "sourceProfile" },
-                },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<SourceRunsQuery, SourceRunsQueryVariables>;
-export const UpdateSourceRunStatusDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "mutation",
-      name: { kind: "Name", value: "UpdateSourceRunStatus" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: { kind: "Variable", name: { kind: "Name", value: "id" } },
-          type: {
-            kind: "NonNullType",
-            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
-          },
-        },
-        {
-          kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "status" },
-          },
-          type: {
-            kind: "NonNullType",
-            type: {
-              kind: "NamedType",
-              name: { kind: "Name", value: "SourceRunStatus" },
-            },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "updateSourceRunStatus" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "id" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "id" },
-                },
-              },
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "status" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "status" },
-                },
-              },
-            ],
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                { kind: "Field", name: { kind: "Name", value: "status" } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  UpdateSourceRunStatusMutation,
-  UpdateSourceRunStatusMutationVariables
->;
-export const UpdateSourceRunDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "mutation",
-      name: { kind: "Name", value: "UpdateSourceRun" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: { kind: "Variable", name: { kind: "Name", value: "id" } },
-          type: {
-            kind: "NonNullType",
-            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
-          },
-        },
-        {
-          kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "input" },
-          },
-          type: {
-            kind: "NonNullType",
-            type: {
-              kind: "NamedType",
-              name: { kind: "Name", value: "UpdateSourceRunInput" },
-            },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "updateSourceRun" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "id" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "id" },
-                },
-              },
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "input" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "input" },
-                },
-              },
-            ],
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                { kind: "Field", name: { kind: "Name", value: "surfaceUrl" } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  UpdateSourceRunMutation,
-  UpdateSourceRunMutationVariables
->;
+export type UpdateSourceRunMutation = { __typename?: 'Mutation', updateSourceRun: { __typename?: 'SourceRunType', id: string, surfaceUrl: string } };
+
+
+export const ClaimSourceRunDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"ClaimSourceRun"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"claimSourceRun"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"sourceProfileId"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"startedAt"}},{"kind":"Field","name":{"kind":"Name","value":"sourceProfile"}}]}}]}}]} as unknown as DocumentNode<ClaimSourceRunMutation, ClaimSourceRunMutationVariables>;
+export const CreateDraftJobDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateDraftJob"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateDraftJobInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createDraftJob"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"title"}}]}}]}}]} as unknown as DocumentNode<CreateDraftJobMutation, CreateDraftJobMutationVariables>;
+export const CreateJobDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateJob"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateJobInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createJob"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"title"}}]}}]}}]} as unknown as DocumentNode<CreateJobMutation, CreateJobMutationVariables>;
+export const SourceRunEventsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"subscription","name":{"kind":"Name","value":"SourceRunEvents"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"sourceRunEvents"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"occurredAt"}},{"kind":"Field","name":{"kind":"Name","value":"run"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"templateId"}},{"kind":"Field","name":{"kind":"Name","value":"sourceProfileId"}},{"kind":"Field","name":{"kind":"Name","value":"surfaceUrl"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"startedAt"}},{"kind":"Field","name":{"kind":"Name","value":"sourceProfile"}}]}}]}}]}}]} as unknown as DocumentNode<SourceRunEventsSubscription, SourceRunEventsSubscriptionVariables>;
+export const SourceRunsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"SourceRuns"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"sourceRuns"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"templateId"}},{"kind":"Field","name":{"kind":"Name","value":"sourceProfileId"}},{"kind":"Field","name":{"kind":"Name","value":"surfaceUrl"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"startedAt"}},{"kind":"Field","name":{"kind":"Name","value":"sourceProfile"}}]}}]}}]} as unknown as DocumentNode<SourceRunsQuery, SourceRunsQueryVariables>;
+export const UpdateSourceRunStatusDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateSourceRunStatus"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"status"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"SourceRunStatus"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateSourceRunStatus"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}},{"kind":"Argument","name":{"kind":"Name","value":"status"},"value":{"kind":"Variable","name":{"kind":"Name","value":"status"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"status"}}]}}]}}]} as unknown as DocumentNode<UpdateSourceRunStatusMutation, UpdateSourceRunStatusMutationVariables>;
+export const UpdateSourceRunDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateSourceRun"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UpdateSourceRunInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateSourceRun"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}},{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"surfaceUrl"}}]}}]}}]} as unknown as DocumentNode<UpdateSourceRunMutation, UpdateSourceRunMutationVariables>;

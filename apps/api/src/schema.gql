@@ -128,6 +128,19 @@ type DraftJobType {
   match: MatchAnalysisType
 }
 
+type JobSalary {
+  minCents: Int
+  maxCents: Int
+  currency: String
+  period: SalaryPeriod
+}
+
+enum SalaryPeriod {
+  YEAR
+  MONTH
+  HOUR
+}
+
 type JobType {
   id: ID!
   userId: String!
@@ -143,6 +156,7 @@ type JobType {
   currentStage: JobStage!
   currentStageReason: String
   currentStageAt: DateTime!
+  salary: JobSalary
   createdAt: DateTime!
   updatedAt: DateTime!
   sourceRunId: ID
@@ -150,7 +164,6 @@ type JobType {
   summaryMetadata: AsyncMetadataType
   match: MatchAnalysisType
   draftJobId: ID
-  salary: JobSalary!
 }
 
 enum JobSource {
@@ -186,19 +199,6 @@ type JobStageEventType {
 enum StageEventSource {
   Manual
   System
-}
-
-type JobSalary {
-  minCents: Int
-  maxCents: Int
-  currency: String
-  period: SalaryPeriod
-}
-
-enum SalaryPeriod {
-  YEAR
-  MONTH
-  HOUR
 }
 
 type ResumeType {
@@ -359,14 +359,18 @@ input CreateJobInput {
   description: String
   urls: [String!]
   source: JobSource
-  salaryMinCents: Int
-  salaryMaxCents: Int
-  salaryCurrency: String
-  salaryPeriod: SalaryPeriod
+  salary: JobSalaryInput
   tags: [String!]
   location: String
   workRegion: String
   sourceRunId: ID
+}
+
+input JobSalaryInput {
+  minCents: Int
+  maxCents: Int
+  currency: String
+  period: SalaryPeriod
 }
 
 input UpdateJobInput {
@@ -376,10 +380,7 @@ input UpdateJobInput {
   description: String
   urls: [String!]
   source: JobSource
-  salaryMinCents: Int
-  salaryMaxCents: Int
-  salaryCurrency: String
-  salaryPeriod: SalaryPeriod
+  salary: JobSalaryInput
   tags: [String!]
   location: String
   workRegion: String

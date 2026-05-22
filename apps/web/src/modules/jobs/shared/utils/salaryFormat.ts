@@ -49,7 +49,10 @@ export function majorFromCents(
   return cents / 100;
 }
 
-export function formatSalary(salary: JobSalary): string | null {
+export function formatSalary(
+  salary: JobSalary | null | undefined,
+): string | null {
+  if (!salary) return null;
   const has =
     (salary.minCents != null && salary.minCents >= 0) ||
     (salary.maxCents != null && salary.maxCents >= 0);

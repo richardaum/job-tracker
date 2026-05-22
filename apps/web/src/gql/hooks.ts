@@ -74,10 +74,7 @@ export type CreateJobInput = {
   companyId?: InputMaybe<Scalars["ID"]["input"]>;
   description?: InputMaybe<Scalars["String"]["input"]>;
   location?: InputMaybe<Scalars["String"]["input"]>;
-  salaryCurrency?: InputMaybe<Scalars["String"]["input"]>;
-  salaryMaxCents?: InputMaybe<Scalars["Int"]["input"]>;
-  salaryMinCents?: InputMaybe<Scalars["Int"]["input"]>;
-  salaryPeriod?: InputMaybe<SalaryPeriod>;
+  salary?: InputMaybe<JobSalaryInput>;
   source?: InputMaybe<JobSource>;
   sourceRunId?: InputMaybe<Scalars["ID"]["input"]>;
   tags?: InputMaybe<Array<Scalars["String"]["input"]>>;
@@ -195,6 +192,13 @@ export type JobSalary = {
   period?: Maybe<SalaryPeriod>;
 };
 
+export type JobSalaryInput = {
+  currency?: InputMaybe<Scalars["String"]["input"]>;
+  maxCents?: InputMaybe<Scalars["Int"]["input"]>;
+  minCents?: InputMaybe<Scalars["Int"]["input"]>;
+  period?: InputMaybe<SalaryPeriod>;
+};
+
 export enum JobSource {
   Jack = "JACK",
   Linkedin = "LINKEDIN",
@@ -239,7 +243,7 @@ export type JobType = {
   id: Scalars["ID"]["output"];
   location?: Maybe<Scalars["String"]["output"]>;
   match?: Maybe<MatchAnalysisType>;
-  salary: JobSalary;
+  salary?: Maybe<JobSalary>;
   source?: Maybe<JobSource>;
   sourceRunId?: Maybe<Scalars["ID"]["output"]>;
   summary?: Maybe<Scalars["String"]["output"]>;
@@ -648,10 +652,7 @@ export type UpdateJobInput = {
   companyId?: InputMaybe<Scalars["ID"]["input"]>;
   description?: InputMaybe<Scalars["String"]["input"]>;
   location?: InputMaybe<Scalars["String"]["input"]>;
-  salaryCurrency?: InputMaybe<Scalars["String"]["input"]>;
-  salaryMaxCents?: InputMaybe<Scalars["Int"]["input"]>;
-  salaryMinCents?: InputMaybe<Scalars["Int"]["input"]>;
-  salaryPeriod?: InputMaybe<SalaryPeriod>;
+  salary?: InputMaybe<JobSalaryInput>;
   source?: InputMaybe<JobSource>;
   tags?: InputMaybe<Array<Scalars["String"]["input"]>>;
   title?: InputMaybe<Scalars["String"]["input"]>;
@@ -927,13 +928,13 @@ export type UpdateDraftJobMutation = {
 
 export type JobSalarySelectionFragment = {
   __typename?: "JobType";
-  salary: {
+  salary?: {
     __typename?: "JobSalary";
     minCents?: number | null;
     maxCents?: number | null;
     currency?: string | null;
     period?: SalaryPeriod | null;
-  };
+  } | null;
 };
 
 export type JobsQueryVariables = Exact<{
@@ -988,13 +989,13 @@ export type JobsQuery = {
         timestamp?: any | null;
       } | null;
     } | null;
-    salary: {
+    salary?: {
       __typename?: "JobSalary";
       minCents?: number | null;
       maxCents?: number | null;
       currency?: string | null;
       period?: SalaryPeriod | null;
-    };
+    } | null;
   }>;
 };
 
@@ -1047,13 +1048,13 @@ export type JobQuery = {
         timestamp?: any | null;
       } | null;
     } | null;
-    salary: {
+    salary?: {
       __typename?: "JobSalary";
       minCents?: number | null;
       maxCents?: number | null;
       currency?: string | null;
       period?: SalaryPeriod | null;
-    };
+    } | null;
   };
 };
 
@@ -1079,13 +1080,13 @@ export type CreateJobMutation = {
       name: string;
       description?: string | null;
     };
-    salary: {
+    salary?: {
       __typename?: "JobSalary";
       minCents?: number | null;
       maxCents?: number | null;
       currency?: string | null;
       period?: SalaryPeriod | null;
-    };
+    } | null;
   };
 };
 
@@ -1130,13 +1131,13 @@ export type UpdateJobMutation = {
       error?: string | null;
       timestamp?: any | null;
     } | null;
-    salary: {
+    salary?: {
       __typename?: "JobSalary";
       minCents?: number | null;
       maxCents?: number | null;
       currency?: string | null;
       period?: SalaryPeriod | null;
-    };
+    } | null;
   };
 };
 

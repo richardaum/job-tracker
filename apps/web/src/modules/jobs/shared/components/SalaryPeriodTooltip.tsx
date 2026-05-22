@@ -18,9 +18,11 @@ export function SalaryPeriodTooltip({
   salary,
   children,
 }: {
-  salary: JobSalary;
+  salary: JobSalary | null | undefined;
   children: ReactNode;
 }) {
+  if (!salary) return children;
+
   const curr = salary.currency?.trim();
   const from = salaryPeriodToRateBasis(salary.period);
   const minMajor = majorFromCents(salary.minCents);

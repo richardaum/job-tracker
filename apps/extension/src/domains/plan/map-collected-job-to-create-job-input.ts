@@ -76,10 +76,12 @@ export function mapCollectedJobToCreateJobInput(job: Job): CreateJobInput {
     ...(tags != null ? { tags } : {}),
     ...(salary != null
       ? {
-          salaryMinCents: salary.salaryMinCents,
-          salaryMaxCents: salary.salaryMaxCents,
-          salaryCurrency: salary.salaryCurrency,
-          salaryPeriod: salary.salaryPeriod,
+          salary: {
+            minCents: salary.salaryMinCents,
+            maxCents: salary.salaryMaxCents,
+            currency: salary.salaryCurrency,
+            period: salary.salaryPeriod,
+          },
         }
       : {}),
   };

@@ -12,7 +12,7 @@ import {
   Stack,
 } from "@job-tracker/ui";
 import { type DialogControl } from "@job-tracker/ui";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useState } from "react";
 import { NumericFormat } from "react-number-format";
 
 import {
@@ -76,16 +76,41 @@ function isDraftProps(
   return "mode" in p && p.mode === "draft";
 }
 
+const defaultForm = {
+  salaryMin: "",
+  salaryMax: "",
+  salaryCurrency: defaultSalaryCurrency,
+  salaryPeriod: "",
+};
+
+function initialFormFromProps(p: SalaryEditDialogProps) {
+  if (isDraftProps(p)) {
+    const c = p.salaryDraft;
+    const cur = c.salaryCurrency?.trim().toUpperCase() || defaultSalaryCurrency;
+    return {
+      salaryMin: centsToMajorInput(c.salaryMinCents),
+      salaryMax: centsToMajorInput(c.salaryMaxCents),
+      salaryCurrency: cur,
+      salaryPeriod: c.salaryPeriod ? String(c.salaryPeriod) : "",
+    };
+  }
+  const s = p.job.salary;
+  if (!s) return defaultForm;
+  const cur = s.currency?.trim().toUpperCase() || defaultSalaryCurrency;
+  return {
+    salaryMin: centsToMajorInput(s.minCents),
+    salaryMax: centsToMajorInput(s.maxCents),
+    salaryCurrency: cur,
+    salaryPeriod: s.period ? String(s.period) : "",
+  };
+}
+
 export function SalaryEditDialog(props: SalaryEditDialogProps) {
   const isDraft = isDraftProps(props);
   const [saving, setSaving] = useState(false);
-  const [form, setForm] = useState({
-    salaryMin: "",
-    salaryMax: "",
-    salaryCurrency: defaultSalaryCurrency,
-    salaryPeriod: "",
-  });
+  const [form, setForm] = useState(() => initialFormFromProps(props));
   const [error, setError] = useState<string | undefined>();
+  const [prevOpen, setPrevOpen] = useState(props.control.isOpen);
 
   const [update] = useUpdateJobMutation({
     refetchQueries: isDraft
@@ -100,50 +125,21 @@ export function SalaryEditDialog(props: SalaryEditDialogProps) {
   });
 
   const { control } = props;
+
+  if (control.isOpen !== prevOpen) {
+    setPrevOpen(control.isOpen);
+    if (control.isOpen) {
+      setForm(initialFormFromProps(props));
+      setError(undefined);
+    }
+  }
+
   const disabledInputs = isDraft ? Boolean(props.disabled) : false;
   const idPrefix = isDraft ? (props.idPrefix ?? "ai-draft-sal") : "ov-sal";
   const amountDecimalScale = iso4217MaxFractionDigits(form.salaryCurrency);
 
-  function syncFromJob(job: JobDetailsValues) {
-    const s = job.salary;
-    const cur = s.currency?.trim().toUpperCase() || defaultSalaryCurrency;
-    setForm({
-      salaryMin: centsToMajorInput(s.minCents),
-      salaryMax: centsToMajorInput(s.maxCents),
-      salaryCurrency: cur,
-      salaryPeriod: s.period ? String(s.period) : "",
-    });
-    setError(undefined);
-  }
-
-  function syncFromDraft(c: DraftSalary) {
-    const cur = c.salaryCurrency?.trim().toUpperCase() || defaultSalaryCurrency;
-    setForm({
-      salaryMin: centsToMajorInput(c.salaryMinCents),
-      salaryMax: centsToMajorInput(c.salaryMaxCents),
-      salaryCurrency: cur,
-      salaryPeriod: c.salaryPeriod ? String(c.salaryPeriod) : "",
-    });
-    setError(undefined);
-  }
-
-  const wasDraftDialogOpen = useRef(false);
-  useEffect(() => {
-    if (!isDraftProps(props)) {
-      wasDraftDialogOpen.current = false;
-      return;
-    }
-    if (control.isOpen && !wasDraftDialogOpen.current) {
-      syncFromDraft(props.salaryDraft);
-    }
-    wasDraftDialogOpen.current = control.isOpen;
-  });
-
   function handleOpenChange(next: boolean) {
     control.onOpenChange(next);
-    if (!isDraft && next) {
-      syncFromJob(props.job);
-    }
   }
 
   function validate(): boolean {
@@ -205,10 +201,12 @@ export function SalaryEditDialog(props: SalaryEditDialogProps) {
         variables: {
           id: props.job.id,
           input: {
-            salaryMinCents: payload.salaryMinCents,
-            salaryMaxCents: payload.salaryMaxCents,
-            salaryCurrency: payload.salaryCurrency,
-            salaryPeriod: payload.salaryPeriod,
+            salary: {
+              minCents: payload.salaryMinCents,
+              maxCents: payload.salaryMaxCents,
+              currency: payload.salaryCurrency,
+              period: payload.salaryPeriod,
+            },
           },
         },
       });
