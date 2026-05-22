@@ -11,7 +11,6 @@ import {
 import { PencilSimpleIcon } from "@phosphor-icons/react";
 
 import {
-  AsyncMetadataStatus,
   JobDocument,
   JobsDocument,
   JobSource,
@@ -23,9 +22,8 @@ import {
   useGenerateJobLocationWithAiLazyQuery,
   useGenerateJobWorkRegionWithAiLazyQuery,
 } from "@/gql/hooks";
-import { useEventSource } from "@/hooks/useEventSource";
-import { getApiBaseUrl } from "@/lib/api-endpoints";
 import { CompanyEditDialog } from "@/modules/companies/shared/components/CompanyEditDialog";
+import { jobDetailDisplayTitle } from "@/modules/jobs/details/utils/job-detail-title";
 import type { JobDetailsValues } from "@/modules/jobs/details/utils/job-details.shared";
 import { CompanyNameWithPopover } from "@/modules/jobs/shared/components/CompanyNameWithPopover";
 import { JobTags } from "@/modules/jobs/shared/components/JobTags";
@@ -45,13 +43,11 @@ export function OverviewTabContent({
   sourcePrimaryText,
   onSuccess,
   onError,
-  refetch,
 }: {
   job: JobDetailsValues;
   sourcePrimaryText: string | null;
   onSuccess?: (message: string) => void;
   onError?: (message: string) => void;
-  refetch?: () => void;
 }) {
   const titleDialog = useDialog();
   const urlDialog = useDialog();
@@ -79,13 +75,6 @@ export function OverviewTabContent({
   const [inferLocation] = useGenerateJobLocationWithAiLazyQuery();
   const [inferWorkRegion] = useGenerateJobWorkRegionWithAiLazyQuery();
   const [generateSummary] = useGenerateJobSummaryMutation();
-
-  const sseUrl = `${getApiBaseUrl()}/jobs/${job.id}/stream`;
-  useEventSource<{ jobId: string; status: AsyncMetadataStatus }>(
-    sseUrl,
-    "summary_status_changed",
-    () => refetch?.(),
-  );
 
   async function handleRemoveTag(tag: string) {
     const [error] = await tryRun(
@@ -217,7 +206,7 @@ export function OverviewTabContent({
       <div className={cn("max-w-full")}>
         <FieldWithLabelAction
           label="Job title"
-          content={<Text size="sm">{job.title ?? "—"}</Text>}
+          content={<Text size="sm">{jobDetailDisplayTitle(job.title)}</Text>}
           actions={
             <FieldWithLabelAction.IconActionButton
               label="Edit job title"

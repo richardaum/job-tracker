@@ -14,6 +14,6 @@
 | 08  | Implement fillJobAutomatically with SSE tracking       | completed | high       | task_05, task_06 |
 | 09  | Remove DraftJobsModule and legacy entities             | completed | medium     | task_05, task_08 |
 | 10  | Codegen: regenerate frontend hooks                     | completed | low        | task_05          |
-| 11  | Frontend: add Source content tab + Fill button         | pending   | high       | task_10          |
+| 11  | Frontend: add Source content tab + Fill button         | completed | high       | task_10          |
 | 12  | Frontend: add Draft filter + indicator on cards        | pending   | medium     | task_10          |
 | 13  | Frontend: remove draft routes and components           | pending   | medium     | task_11, task_12 |
