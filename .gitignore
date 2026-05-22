@@ -41,6 +41,7 @@ packages/*/dist/
 **/test-results/
 **/playwright-report/
 **/blob-report/
+.playwright-mcp/
 
 # Storybook — `build-storybook` default output (packages/ui)
 storybook-static/
@@ -61,6 +62,7 @@ logs/
 .agents/skills/*
 !.agents/skills/worktree-env/
 !.agents/skills/worktree-loop/
+!.agents/skills/code-review-skill/
 .ai/skills/leanspec-development/
 .ai/.skill-lock.json
 .ai/.skill-lock.json.backup
@@ -79,3 +81,4 @@ Thumbs.db
 
 # Editor workspace files
 *.code-workspace
+.playwright-mcp/
