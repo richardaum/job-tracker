@@ -25,9 +25,9 @@ Parallel feature work in **git worktrees** (isolated ports, DB, PM2 names; main 
 
 ```bash
 export WORKTREE_SOURCE_DB=job_tracker
-pnpm worktree:setup    # inside the worktree only; -- --dry-run to preview; -- --dbeaver optional
+pnpm worktree:setup    # inside the worktree only; boolean flags use =true|false (see scripts/worktree/README.md)
 pnpm pm2:start
-pnpm worktree:teardown   # -- --dry-run / -- --keep-db / -- --dbeaver optional
+pnpm worktree:teardown   # -- --dry-run=true|false --apply=true|false --drop-db=true|false --dbeaver=true|false
 ```
 
 See `.env.worktree.example` and `.agents/rules/ops-docker-pm2.md`.

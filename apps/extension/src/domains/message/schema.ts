@@ -30,12 +30,12 @@ export const CanNavigateNextPageMessageSchema = z.object({
   action: PlanStepActionSchema,
 });
 
-export const ImportApplicationMessageSchema = z.object({
-  kind: z.literal("import.application"),
+export const ImportJobMessageSchema = z.object({
+  kind: z.literal("import.job"),
 });
 
-export const ImportApplicationMenuLabelMessageSchema = z.object({
-  kind: z.literal("import.application.menu-label"),
+export const ImportJobMenuLabelMessageSchema = z.object({
+  kind: z.literal("import.job.menu-label"),
 });
 
 export const ContentActionMessageSchema = z.discriminatedUnion("kind", [
@@ -43,8 +43,8 @@ export const ContentActionMessageSchema = z.discriminatedUnion("kind", [
   JobDetailsMessageSchema,
   NavigateNextPageMessageSchema,
   CanNavigateNextPageMessageSchema,
-  ImportApplicationMessageSchema,
-  ImportApplicationMenuLabelMessageSchema,
+  ImportJobMessageSchema,
+  ImportJobMenuLabelMessageSchema,
 ]);
 
 export const LogLevelSchema = z.enum(["debug", "info", "warn", "error"]);
@@ -61,8 +61,8 @@ export const RequestPayloadSchemas = {
   "job.details": JobDetailsMessageSchema,
   "navigate.next.page": NavigateNextPageMessageSchema,
   "can.navigate.next.page": CanNavigateNextPageMessageSchema,
-  "import.application": ImportApplicationMessageSchema,
-  "import.application.menu-label": ImportApplicationMenuLabelMessageSchema,
+  "import.job": ImportJobMessageSchema,
+  "import.job.menu-label": ImportJobMenuLabelMessageSchema,
 } as const;
 
 export const EventPayloadSchemas = {

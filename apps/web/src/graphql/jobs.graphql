@@ -1,0 +1,281 @@
+fragment JobSalarySelection on JobType {
+  salary {
+    minCents
+    maxCents
+    currency
+    period
+  }
+}
+
+query Jobs($filter: JobQuickFilter, $company: String, $runId: ID) {
+  jobs(filter: $filter, company: $company, runId: $runId) {
+    id
+    title
+    companyId
+    company {
+      id
+      name
+      description
+    }
+    description
+    urls
+    source
+    ...JobSalarySelection
+    tags
+    location
+    workRegion
+    sourceRunId
+    summary
+    summaryMetadata {
+      status
+      error
+      timestamp
+    }
+    currentStage
+    currentStageReason
+    currentStageAt
+    createdAt
+    match {
+      id
+      scoreRatio
+      classification
+      matchCount
+      gapCount
+      unclearCount
+      generationMetadata {
+        status
+        error
+        timestamp
+      }
+    }
+  }
+}
+
+query Job($id: ID!) {
+  job(id: $id) {
+    id
+    title
+    companyId
+    company {
+      id
+      name
+      description
+    }
+    description
+    urls
+    source
+    ...JobSalarySelection
+    tags
+    location
+    workRegion
+    sourceRunId
+    summary
+    summaryMetadata {
+      status
+      error
+      timestamp
+    }
+    currentStage
+    currentStageReason
+    currentStageAt
+    createdAt
+    draftJobId
+    match {
+      id
+      scoreRatio
+      classification
+      matchCount
+      gapCount
+      unclearCount
+      generationMetadata {
+        status
+        error
+        timestamp
+      }
+    }
+  }
+}
+
+mutation CreateJob($input: CreateJobInput!) {
+  createJob(input: $input) {
+    id
+    title
+    companyId
+    company {
+      id
+      name
+      description
+    }
+    description
+    urls
+    source
+    ...JobSalarySelection
+    tags
+    location
+    workRegion
+    createdAt
+  }
+}
+
+query GenerateCompanyDescription($companyName: String!) {
+  generateCompanyDescription(companyName: $companyName)
+}
+
+mutation UpdateJob($id: ID!, $input: UpdateJobInput!) {
+  updateJob(id: $id, input: $input) {
+    id
+    title
+    companyId
+    company {
+      id
+      name
+      description
+    }
+    description
+    urls
+    source
+    ...JobSalarySelection
+    tags
+    location
+    workRegion
+    summary
+    summaryMetadata {
+      status
+      error
+      timestamp
+    }
+    createdAt
+  }
+}
+
+mutation RemoveJobTag($id: ID!, $tag: String!) {
+  removeJobTag(id: $id, tag: $tag) {
+    id
+    tags
+  }
+}
+
+mutation DeleteJob($id: ID!) {
+  deleteJob(id: $id) {
+    success
+    deletedId
+  }
+}
+
+query JobStageEvents($jobId: ID!) {
+  jobStageEvents(jobId: $jobId) {
+    id
+    jobId
+    fromStage
+    toStage
+    source
+    reason
+    scheduledAt
+    createdAt
+  }
+}
+
+mutation CreateJobStageEvent($input: CreateJobStageEventInput!) {
+  createJobStageEvent(input: $input) {
+    id
+    jobId
+    fromStage
+    toStage
+    source
+    reason
+    scheduledAt
+    createdAt
+  }
+}
+
+mutation UpdateJobStageEvent($id: ID!, $input: UpdateJobStageEventInput!) {
+  updateJobStageEvent(id: $id, input: $input) {
+    id
+    jobId
+    fromStage
+    toStage
+    source
+    reason
+    scheduledAt
+    createdAt
+  }
+}
+
+mutation DeleteJobStageEvent($id: ID!) {
+  deleteJobStageEvent(id: $id) {
+    success
+    deletedId
+  }
+}
+
+query JobNotes($jobId: ID!) {
+  jobNotes(jobId: $jobId) {
+    id
+    jobId
+    content
+    revision
+    createdAt
+    updatedAt
+  }
+}
+
+mutation CreateJobNote($input: CreateNoteInput!) {
+  createJobNote(input: $input) {
+    id
+    jobId
+    content
+    revision
+    createdAt
+    updatedAt
+  }
+}
+
+mutation UpdateJobNote($id: ID!, $input: UpdateNoteInput!) {
+  updateJobNote(id: $id, input: $input) {
+    id
+    jobId
+    content
+    revision
+    createdAt
+    updatedAt
+  }
+}
+
+mutation DeleteJobNote($id: ID!) {
+  deleteJobNote(id: $id) {
+    success
+    deletedId
+  }
+}
+
+query GenerateJobNoteWithAi($jobId: ID!, $note: String!) {
+  generateJobNoteWithAI(jobId: $jobId, note: $note)
+}
+
+query RewriteTextWithAi($text: String!) {
+  rewriteTextWithAI(text: $text)
+}
+
+query RestructureJobDescriptionWithAi($text: String!) {
+  restructureJobDescriptionWithAI(text: $text)
+}
+
+query GenerateJobLocationWithAi($jobId: ID!) {
+  generateJobLocationWithAI(jobId: $jobId)
+}
+
+query GenerateJobWorkRegionWithAi($jobId: ID!) {
+  generateJobWorkRegionWithAI(jobId: $jobId)
+}
+
+mutation GenerateJobSummary($jobId: ID!) {
+  generateJobSummary(jobId: $jobId) {
+    id
+    summary
+    summaryMetadata {
+      status
+      error
+      timestamp
+    }
+  }
+}

@@ -2,11 +2,8 @@ import "reflect-metadata";
 import "dotenv/config";
 
 import { buildDataSourceOptions } from "@api/database/data-source-options";
-import { ApplicationEntity } from "@api/database/entities/application.entity";
-import {
-  AsyncMetadata,
-  AsyncMetadataStatusEnum,
-} from "@api/domains/shared/async-metadata.type";
+import { JobEntity } from "@api/database/entities/job.entity";
+import { AsyncMetadataStatusEnum } from "@api/domains/shared/async-metadata.type";
 import { tryRun } from "@job-tracker/try-run";
 import { Module } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
@@ -18,7 +15,7 @@ import { EntityManager, IsNull, Not } from "typeorm";
     TypeOrmModule.forRoot({
       ...buildDataSourceOptions(process.env.DATABASE_URL!),
     }),
-    TypeOrmModule.forFeature([ApplicationEntity]),
+    TypeOrmModule.forFeature([JobEntity]),
   ],
 })
 class ScriptModule {}
@@ -34,7 +31,7 @@ async function main() {
   });
 
   const em = app.get(EntityManager);
-  const repo = em.getRepository(ApplicationEntity);
+  const repo = em.getRepository(JobEntity);
   const dryRun = process.argv.includes("--dry-run");
 
   process.stdout.write("\nFixing generatedAt...\n");
@@ -66,7 +63,7 @@ async function main() {
       app.summaryMetadata = {
         ...app.summaryMetadata,
         timestamp: nowUtcIso(),
-      } as AsyncMetadata;
+      } as never;
       const [err] = await tryRun(repo.save(app));
       if (err) {
         process.stdout.write(`\n  ❌ ${app.id}: ${err.message.slice(0, 80)}`);
@@ -98,7 +95,7 @@ async function main() {
       app.summaryMetadata = {
         status: AsyncMetadataStatusEnum.COMPLETED,
         timestamp: nowUtcIso(),
-      };
+      } as never;
       const [err] = await tryRun(repo.save(app));
       if (err) {
         process.stdout.write(`\n  ❌ ${app.id}: ${err.message.slice(0, 80)}`);

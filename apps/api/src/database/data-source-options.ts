@@ -1,31 +1,32 @@
 import type { DataSourceOptions } from "typeorm";
 
-import { ApplicationEntity } from "./entities/application.entity";
-import { ApplicationNoteEntity } from "./entities/application-note.entity";
-import { ApplicationStageEventEntity } from "./entities/application-stage-event.entity";
 import { CompanyEntity } from "./entities/company.entity";
-import { DraftApplicationEntity } from "./entities/draft-application.entity";
+import { DraftJobEntity } from "./entities/draft-job.entity";
 import { ExchangeRateEntity } from "./entities/exchange-rate.entity";
-import { FitAnalysisEntity } from "./entities/fit-analysis.entity";
+import { JobEntity } from "./entities/job.entity";
+import { JobNoteEntity } from "./entities/job-note.entity";
+import { JobStageEventEntity } from "./entities/job-stage-event.entity";
+import { MatchAnalysisEntity } from "./entities/match-analysis.entity";
 import { ResumeEntity } from "./entities/resume.entity";
 import { SourceRunEntity } from "./entities/source-run.entity";
 import { SourceTemplateEntity } from "./entities/source-template.entity";
 import { UserEntity } from "./entities/user.entity";
 import { WorkPreferencesEntity } from "./entities/work-preferences.entity";
 import { migrations } from "./migrations";
+import { SnakeCaseNamingStrategy } from "./naming-strategy";
 
 export const apiEntities = [
   UserEntity,
-  ApplicationEntity,
-  ApplicationStageEventEntity,
-  ApplicationNoteEntity,
+  JobEntity,
+  JobStageEventEntity,
+  JobNoteEntity,
   CompanyEntity,
   SourceRunEntity,
   SourceTemplateEntity,
   ResumeEntity,
-  DraftApplicationEntity,
+  DraftJobEntity,
   ExchangeRateEntity,
-  FitAnalysisEntity,
+  MatchAnalysisEntity,
   WorkPreferencesEntity,
 ];
 
@@ -39,6 +40,7 @@ export function buildDataSourceOptions(
     url: databaseUrl,
     entities: apiEntities,
     migrations: apiMigrations,
+    namingStrategy: new SnakeCaseNamingStrategy(),
     migrationsTableName: "typeorm_migrations",
     synchronize: false,
     migrationsRun: false,

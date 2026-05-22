@@ -3,12 +3,12 @@ import { Card } from "@ui/components/Card/Card";
 import { cn } from "@ui/lib/cn";
 import React from "react";
 
-/** Default `IconButton` chrome for list row actions (matches application list cards). */
+/** Default `IconButton` chrome for list row actions (matches job list cards). */
 export const listItemCardActionIconButtonClassName = cn(
   "size-6 text-text-muted/80 hover:text-text-muted",
 );
 
-/** Row title scale: `base` (applications, companies, importers) vs `sm` (drafts, nested template rows). */
+/** Row title scale: `base` (jobs, companies, importers) vs `sm` (drafts, nested template rows). */
 export type ListItemCardTitleSize = "base" | "sm";
 
 function titleSizeClassName(size: ListItemCardTitleSize): string {
@@ -32,7 +32,7 @@ function titleInteractiveClassName(size: ListItemCardTitleSize): string {
 export interface ListItemCardTitleProps extends React.HTMLAttributes<HTMLSpanElement> {
   /**
    * Row title scale.
-   * App usage: `base` for primary lists (applications, companies, importers); `sm` for draft rows and nested template rows.
+   * App usage: `base` for primary lists (jobs, companies, importers); `sm` for draft rows and nested template rows.
    */
   size?: ListItemCardTitleSize;
   /**

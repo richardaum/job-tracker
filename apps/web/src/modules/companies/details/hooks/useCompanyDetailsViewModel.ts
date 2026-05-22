@@ -1,38 +1,41 @@
 "use client";
 
-import {
-  type ApplicationsQuery,
-  useApplicationsQuery,
-  useCompaniesQuery,
-} from "@/gql/hooks";
+import { type JobsQuery, useCompanyQuery, useJobsQuery } from "@/gql/hooks";
+import { deriveDetailStatus } from "@/lib/entity-detail-view-status";
 
 export function useCompanyDetailsViewModel(companyId: string) {
-  const { data, loading, error } = useCompaniesQuery({
+  const { data, loading, error } = useCompanyQuery({
+    variables: { id: companyId },
     fetchPolicy: "cache-and-network",
   });
 
-  const company = data?.companies.find((item) => item.id === companyId);
+  const company = data?.company ?? null;
 
   const {
-    data: applicationsData,
-    loading: applicationsLoading,
-    error: applicationsError,
-  } = useApplicationsQuery({
+    data: jobsData,
+    loading: jobsLoading,
+    error: jobsError,
+  } = useJobsQuery({
     variables: { company: company?.name ?? "" },
     skip: !company,
     fetchPolicy: "cache-and-network",
   });
 
-  const companyApplications = (applicationsData?.applications ?? []).filter(
-    (application) => application.companyId === company?.id,
-  ) as ApplicationsQuery["applications"];
+  const companyJobs = ((jobsData as JobsQuery | undefined)?.jobs ?? []).filter(
+    (job) => job.companyId === company?.id,
+  );
+
+  const showApplicationsInitialLoading = jobsLoading && !jobsData;
+
+  const status = deriveDetailStatus(loading, error);
 
   return {
     company,
-    companyApplications,
-    applicationsError,
+    companyJobs,
+    applicationsError: jobsError,
     companiesError: error,
-    showCompaniesInitialLoading: loading && !data,
-    showApplicationsInitialLoading: applicationsLoading && !applicationsData,
+    showApplicationsInitialLoading,
+    notFound: status === "notFound",
+    status,
   };
 }

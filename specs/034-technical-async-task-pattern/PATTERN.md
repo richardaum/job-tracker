@@ -2,7 +2,7 @@
 
 > Canonical reference for fire-and-forget async tasks using `AsyncMetadata` JSONB.
 
-**Scope boundary**: `AsyncMetadata` carries **only** processing state — status, error, timestamp. The actual output/result (summary content, fit items, etc.) stays in its **own column** (text, jsonb, etc.). Never inline business data inside `AsyncMetadata`.
+**Scope boundary**: `AsyncMetadata` carries **only** processing state — status, error, timestamp. The actual output/result (summary content, match items, etc.) stays in its **own column** (text, jsonb, etc.). Never inline business data inside `AsyncMetadata`.
 
 **Field naming**: use `{action}Metadata` — e.g., `summaryMetadata`, `conversionMetadata`, `generationMetadata`. O prefixo descreve a **ação assíncrona** (summarizar, converter, gerar), não a entidade.
 
@@ -128,13 +128,13 @@ async generate(id: string, userId: string): Promise<Entity> {
   // 2. Set metadata = { status: "processing" }
   // 3. Persist
   // 4. Fire background — never await
-  void this.processFitAnalysis(entity.id, userId);
+  void this.processMatchAnalysis(entity.id, userId);
   // 5. Return immediately
   return entity;
 }
 
 // Background — resilient, atomic
-private async processFitAnalysis(
+private async processMatchAnalysis(
   id: string,
   userId: string,
 ): Promise<void> {
@@ -222,12 +222,12 @@ if (entity.summaryMetadata?.status === "processing") {
 Entity type exposes `AsyncMetadata`:
 
 ```graphql
-type ApplicationType {
+type JobType {
   summary: String
   summaryMetadata: AsyncMetadata
 }
 
-type FitAnalysisType {
+type MatchAnalysisType {
   generationMetadata: AsyncMetadata
   # ... domain fields ...
 }

@@ -165,14 +165,11 @@ export class SourcesResolver {
   }
 
   @Mutation(() => Int)
-  async detachApplicationsFromSourceRun(
+  async detachJobsFromSourceRun(
     @Args("sourceRunId", { type: () => ID }) sourceRunId: string,
     @CurrentUser() user: { userId: string },
   ): Promise<number> {
-    return this.service.detachApplicationsFromSourceRun(
-      user.userId,
-      sourceRunId,
-    );
+    return this.service.detachJobsFromSourceRun(user.userId, sourceRunId);
   }
 
   @Mutation(() => DeleteMutationPayloadType)

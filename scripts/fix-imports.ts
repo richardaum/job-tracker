@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import jobTrackerPlugin from "@job-tracker/eslint-plugin";
 import { tryRun } from "@job-tracker/try-run";
 import nextPlugin from "@next/eslint-plugin-next";
 import { ESLint } from "eslint";
@@ -37,6 +38,7 @@ const eslint = new ESLint({
       plugins: {
         "simple-import-sort": simpleImportSort as Record<string, unknown>,
         "@next/next": nextPlugin as Record<string, unknown>,
+        "job-tracker": jobTrackerPlugin as Record<string, unknown>,
       },
       languageOptions: {
         parser: tsParser,
@@ -52,6 +54,7 @@ const eslint = new ESLint({
       plugins: {
         "simple-import-sort": simpleImportSort as Record<string, unknown>,
         "@next/next": nextPlugin as Record<string, unknown>,
+        "job-tracker": jobTrackerPlugin as Record<string, unknown>,
       },
       languageOptions: { parserOptions: { ecmaFeatures: { jsx: true } } },
       rules: {

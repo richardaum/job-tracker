@@ -21,12 +21,20 @@ export class CompaniesResolver {
     return this.service.findAll(user.userId);
   }
 
+  @Query(() => CompanyType)
+  company(
+    @Args("id", { type: () => ID }) id: string,
+    @CurrentUser() user: { userId: string },
+  ): Promise<CompanyType> {
+    return this.service.findOne(id, user.userId);
+  }
+
   @Query(() => Int)
-  companyApplicationsCount(
+  companyJobsCount(
     @Args("id", { type: () => ID }) id: string,
     @CurrentUser() user: { userId: string },
   ): Promise<number> {
-    return this.service.applicationsCount(id, user.userId);
+    return this.service.jobsCount(id, user.userId);
   }
 
   @Mutation(() => CompanyType)

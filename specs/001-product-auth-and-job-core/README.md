@@ -1,0 +1,35 @@
+---
+status: archived
+created: "2026-05-02"
+priority: low
+tags:
+  - migrated
+---
+
+# Product Scope: auth-and-job-core
+
+## Objective
+
+- [P-1] Enable authenticated users to securely manage their jobs in one place with full lifecycle tracking.
+
+## In Scope
+
+- [P-2] Sign in with Google and maintain authenticated sessions for returning users.
+- [P-3] Create jobs with title, company, source URL, and application date.
+- [P-4] View only the jobs that belong to the signed-in user.
+- [P-5] Edit and delete existing jobs owned by the signed-in user.
+- [P-6] Provide a reliable daily workflow that reduces missed updates across active jobs.
+
+## Out of Scope
+
+- [P-7] Automatic import from external job boards or browser-assisted capture outside the core authenticated CRUD flows (see **`specs/035-product-import/README.md`** and **`specs/023-product-chrome-extension/README.md`**).
+- [P-8] Guided auto-apply flows or autonomous job submission.
+- [P-9] Design system implementation details, build tooling, and infrastructure topology decisions.
+
+## Acceptance Criteria
+
+- [P-10] A user can complete sign-in and access protected job screens in one session.
+- [P-11] A user can create, view, edit, and delete a job record without accessing another user's data.
+- [P-12] The jobs list reflects user mutations after create, update, and delete operations.
+- [P-13] Unauthorized access attempts to another user's jobs are blocked.
+- [P-14] The core authenticated CRUD flow is verifiable through automated end-to-end tests.

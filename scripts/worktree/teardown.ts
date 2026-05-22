@@ -7,6 +7,7 @@ import { removeWorktreeDBeaverConnection } from "./dbeaver.ts";
 import {
   assertGitWorktree,
   dropWorktreeDatabase,
+  dropWorktreeTestDatabase,
   logTeardownDryRun,
   logWorktreeRemoveHint,
   parseTeardownArgs,
@@ -44,6 +45,7 @@ if (mode === "dry-run") {
     removeWorktreeDBeaverConnection({ tag, slug });
   }
   dropWorktreeDatabase(root, slug, args.dropDb, tag);
+  dropWorktreeTestDatabase(root, slug, args.dropDb, tag);
   removeSlugFromRegistry(slug);
   removeWorktreeEnvFile(root, tag);
   logWorktreeRemoveHint(root, tag);

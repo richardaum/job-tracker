@@ -12,8 +12,8 @@ import {
   useResumesQuery,
   useUpdateResumeMutation,
 } from "@/gql/hooks";
-import { SearchInput } from "@/modules/applications/shared/components/SearchInput";
-import { useToastQueue } from "@/modules/applications/shared/hooks/useToastQueue";
+import { SearchInput } from "@/modules/jobs/shared/components/SearchInput";
+import { useToastQueue } from "@/modules/jobs/shared/hooks/useToastQueue";
 import { AddResumeDialog } from "@/modules/resumes/list/components/AddResumeDialog";
 import { ResumeCard } from "@/modules/resumes/list/components/ResumeCard";
 import { PreferencesDialog } from "@/modules/work-preferences/components/PreferencesDialog";

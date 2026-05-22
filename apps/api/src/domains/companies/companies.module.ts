@@ -1,5 +1,5 @@
-import { ApplicationEntity } from "@api/database/entities/application.entity";
 import { CompanyEntity } from "@api/database/entities/company.entity";
+import { JobEntity } from "@api/database/entities/job.entity";
 import { AuthModule } from "@api/domains/auth/auth.module";
 import { LibAiModule } from "@api/lib/ai";
 import { Module } from "@nestjs/common";
@@ -12,7 +12,7 @@ import { CompanyService } from "./companies.service";
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([CompanyEntity, ApplicationEntity]),
+    TypeOrmModule.forFeature([CompanyEntity, JobEntity]),
     AuthModule,
     LibAiModule,
   ],

@@ -18,7 +18,7 @@ import { NoteService } from "./notes.service";
 
 const mockNote: Note = {
   id: "note-1",
-  applicationId: "app-1",
+  jobId: "app-1",
   userId: "user-1",
   content: JSON.stringify({ type: "doc", content: [{ type: "paragraph" }] }),
   revision: 1,
@@ -82,41 +82,39 @@ describe("NoteResolver (integration)", () => {
 
   const auth = { Authorization: "Bearer mock-token" };
 
-  it("applicationNotes query returns list", async () => {
+  it("jobNotes query returns list", async () => {
     const res = await request(app.getHttpServer())
       .post("/graphql")
       .set(auth)
-      .send({
-        query: `{ applicationNotes(applicationId: "app-1") { id content revision } }`,
-      });
+      .send({ query: `{ jobNotes(jobId: "app-1") { id content revision } }` });
 
     expect(res.statusCode).toBe(200);
-    expect(res.body.data.applicationNotes).toHaveLength(1);
+    expect(res.body.data.jobNotes).toHaveLength(1);
   });
 
-  it("createApplicationNote mutation returns note", async () => {
+  it("createJobNote mutation returns note", async () => {
     const res = await request(app.getHttpServer())
       .post("/graphql")
       .set(auth)
       .send({
         query: `mutation {
-          createApplicationNote(
-            input: { applicationId: "app-1", content: "{\\"type\\":\\"doc\\",\\"content\\":[{\\"type\\":\\"paragraph\\"}]}" }
+          createJobNote(
+            input: { jobId: "app-1", content: "{\\"type\\":\\"doc\\",\\"content\\":[{\\"type\\":\\"paragraph\\"}]}" }
           ) { id revision }
         }`,
       });
 
     expect(res.statusCode).toBe(200);
-    expect(res.body.data.createApplicationNote.id).toBe("note-1");
+    expect(res.body.data.createJobNote.id).toBe("note-1");
   });
 
-  it("updateApplicationNote mutation returns updated note", async () => {
+  it("updateJobNote mutation returns updated note", async () => {
     const res = await request(app.getHttpServer())
       .post("/graphql")
       .set(auth)
       .send({
         query: `mutation {
-          updateApplicationNote(
+          updateJobNote(
             id: "note-1",
             input: { expectedRevision: 1, content: "{\\"type\\":\\"doc\\",\\"content\\":[{\\"type\\":\\"paragraph\\"}]}" }
           ) { id revision }
@@ -124,38 +122,35 @@ describe("NoteResolver (integration)", () => {
       });
 
     expect(res.statusCode).toBe(200);
-    expect(res.body.data.updateApplicationNote.revision).toBe(2);
+    expect(res.body.data.updateJobNote.revision).toBe(2);
   });
 
-  it("deleteApplicationNote mutation returns payload", async () => {
+  it("deleteJobNote mutation returns payload", async () => {
     const res = await request(app.getHttpServer())
       .post("/graphql")
       .set(auth)
       .send({
-        query:
-          'mutation { deleteApplicationNote(id: "note-1") { success deletedId } }',
+        query: 'mutation { deleteJobNote(id: "note-1") { success deletedId } }',
       });
 
     expect(res.statusCode).toBe(200);
-    expect(res.body.data.deleteApplicationNote).toEqual({
+    expect(res.body.data.deleteJobNote).toEqual({
       success: true,
       deletedId: "note-1",
     });
   });
 
-  it("generateApplicationNoteWithAI query returns generated content", async () => {
+  it("generateJobNoteWithAI query returns generated content", async () => {
     const res = await request(app.getHttpServer())
       .post("/graphql")
       .set(auth)
       .send({
         query: `query {
-          generateApplicationNoteWithAI(applicationId: "app-1", note: "follow up with recruiter") 
+          generateJobNoteWithAI(jobId: "app-1", note: "follow up with recruiter") 
         }`,
       });
 
     expect(res.statusCode).toBe(200);
-    expect(res.body.data.generateApplicationNoteWithAI).toContain(
-      '"type":"doc"',
-    );
+    expect(res.body.data.generateJobNoteWithAI).toContain('"type":"doc"');
   });
 });

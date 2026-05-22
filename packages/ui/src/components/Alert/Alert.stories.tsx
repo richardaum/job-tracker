@@ -23,7 +23,7 @@ export const Info: Story = {
 export const Success: Story = {
   args: {
     title: "Saved",
-    children: "Application details were updated.",
+    children: "Job details were updated.",
     intent: "success",
   },
 };

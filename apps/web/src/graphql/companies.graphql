@@ -13,12 +13,20 @@ mutation DeleteCompany($id: ID!) {
   }
 }
 
-query CompanyApplicationsCount($id: ID!) {
-  companyApplicationsCount(id: $id)
+query CompanyJobsCount($id: ID!) {
+  companyJobsCount(id: $id)
 }
 
 query Companies {
   companies {
+    id
+    name
+    description
+  }
+}
+
+query Company($id: ID!) {
+  company(id: $id) {
     id
     name
     description

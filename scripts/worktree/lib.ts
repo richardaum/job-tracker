@@ -384,6 +384,21 @@ export function dbNameForSlug(slug: string): string {
   return `job_tracker_${slug.replaceAll("-", "_")}`;
 }
 
+/** Rewrites only the DB name to `job_tracker_test_<slug>` for the E2E test database. */
+export function buildDestinationTestDatabaseUrl(
+  sourceUrl: string,
+  slug: string,
+): string {
+  const url = new URL(sourceUrl);
+  url.pathname = `/${testDbNameForSlug(slug)}`;
+  return url.toString();
+}
+
+/** Postgres identifier: `job_tracker_test_` plus slug hyphens as underscores. */
+export function testDbNameForSlug(slug: string): string {
+  return `job_tracker_test_${slug.replaceAll("-", "_")}`;
+}
+
 /** Collects main-then-worktree `docker-compose.yml` paths for Postgres discovery. */
 function composeFilesForPostgres(repoRoot: string): string[] {
   const files: string[] = [];
@@ -658,8 +673,9 @@ export function buildWorktreeEnv(params: {
   ports: SlugPorts;
   secrets: WorktreeEnvMap;
   databaseUrl: string;
+  e2eDatabaseUrl: string;
 }): WorktreeEnvMap {
-  const { slug, ports, secrets, databaseUrl } = params;
+  const { slug, ports, secrets, databaseUrl, e2eDatabaseUrl } = params;
   const apiUrl = `http://localhost:${ports.api}`;
   const webUrl = `http://localhost:${ports.web}`;
   const resetPorts = [ports.api, ports.web, ports.storybook, ports.wxt].join(
@@ -674,6 +690,7 @@ export function buildWorktreeEnv(params: {
     API_PORT: String(ports.api),
     WEB_PORT: String(ports.web),
     DATABASE_URL: databaseUrl,
+    DATABASE_E2E_URL: e2eDatabaseUrl,
     WEB_URL: webUrl,
     GOOGLE_CALLBACK_URL: `${apiUrl}/auth/google/callback`,
     AUTH_BYPASS_ENABLED: "true",
@@ -733,57 +750,118 @@ export type TeardownArgs = {
   apply: boolean;
 };
 
-/** Parses setup CLI flags (no stdin). Post-steps only run when not `--dry-run`. */
+const SETUP_BOOLEAN_FLAGS = [
+  "--dry-run",
+  "--recreate-db",
+  "--dbeaver",
+  "--force-dbeaver",
+  "--install",
+  "--migrate",
+  "--start",
+  "--verify",
+] as const;
+
+const TEARDOWN_BOOLEAN_FLAGS = [
+  "--dry-run",
+  "--apply",
+  "--drop-db",
+  "--dbeaver",
+] as const;
+
+/** Parses `true` / `false` (case-insensitive) for `--flag=value` booleans. */
+export function parseBooleanFlagValue(raw: string): boolean | undefined {
+  const normalized = raw.trim().toLowerCase();
+  if (normalized === "true") return true;
+  if (normalized === "false") return false;
+  return undefined;
+}
+
+function readBooleanFlag(
+  arg: string,
+  flag: string,
+  tag: string,
+): boolean | undefined {
+  const prefix = `${flag}=`;
+  if (!arg.startsWith(prefix)) return undefined;
+  const value = parseBooleanFlagValue(arg.slice(prefix.length));
+  if (value === undefined) {
+    worktreeFail(tag, `${flag} must be true or false (e.g. ${flag}=false).`);
+  }
+  return value;
+}
+
+function rejectBareBooleanFlag(
+  arg: string,
+  flags: readonly string[],
+  tag: string,
+): void {
+  if (flags.includes(arg as (typeof flags)[number])) {
+    worktreeFail(tag, `${arg} requires =true or =false (e.g. ${arg}=false).`);
+  }
+}
+
+function requireAllBooleanFlags(
+  seen: Partial<Record<string, boolean>>,
+  flags: readonly string[],
+  tag: string,
+): void {
+  const missing = flags.filter((flag) => seen[flag] === undefined);
+  if (missing.length === 0) return;
+  worktreeFail(
+    tag,
+    `Missing required flags: ${missing.map((f) => `${f}=true|false`).join(", ")}`,
+  );
+}
+
+/** Parses setup CLI flags (no stdin). Every boolean flag must use `=true` or `=false`. */
 export function parseSetupArgs(argv: string[]): SetupArgs {
+  const tag = WORKTREE_SETUP_TAG;
   let sourceDb = process.env.WORKTREE_SOURCE_DB?.trim();
-  let recreateDb = false;
-  let dbeaver = false;
-  let forceDbeaver = false;
-  let dryRun = false;
-  let install = false;
-  let migrate = false;
-  let start = false;
-  let verify = false;
+  const seen: Partial<Record<string, boolean>> = {};
+  let slugArg: string | undefined;
+
   for (let i = 2; i < argv.length; i++) {
     const arg = argv[i];
-    if (arg === "--dry-run") {
-      dryRun = true;
+    rejectBareBooleanFlag(arg, SETUP_BOOLEAN_FLAGS, tag);
+
+    const dryRun = readBooleanFlag(arg, "--dry-run", tag);
+    if (dryRun !== undefined) {
+      seen["--dry-run"] = dryRun;
       continue;
     }
-    if (arg === "--dbeaver") {
-      dbeaver = true;
+    const recreateDb = readBooleanFlag(arg, "--recreate-db", tag);
+    if (recreateDb !== undefined) {
+      seen["--recreate-db"] = recreateDb;
       continue;
     }
-    if (arg === "--force-dbeaver") {
-      forceDbeaver = true;
-      dbeaver = true;
+    const dbeaver = readBooleanFlag(arg, "--dbeaver", tag);
+    if (dbeaver !== undefined) {
+      seen["--dbeaver"] = dbeaver;
       continue;
     }
-    if (arg === "--recreate-db") {
-      recreateDb = true;
+    const forceDbeaver = readBooleanFlag(arg, "--force-dbeaver", tag);
+    if (forceDbeaver !== undefined) {
+      seen["--force-dbeaver"] = forceDbeaver;
       continue;
     }
-    if (arg === "--install") {
-      install = true;
+    const install = readBooleanFlag(arg, "--install", tag);
+    if (install !== undefined) {
+      seen["--install"] = install;
       continue;
     }
-    if (arg === "--migrate") {
-      migrate = true;
+    const migrate = readBooleanFlag(arg, "--migrate", tag);
+    if (migrate !== undefined) {
+      seen["--migrate"] = migrate;
       continue;
     }
-    if (arg === "--start") {
-      start = true;
+    const start = readBooleanFlag(arg, "--start", tag);
+    if (start !== undefined) {
+      seen["--start"] = start;
       continue;
     }
-    if (arg === "--verify") {
-      verify = true;
-      continue;
-    }
-    if (arg === "--all") {
-      install = true;
-      migrate = true;
-      start = true;
-      verify = true;
+    const verify = readBooleanFlag(arg, "--verify", tag);
+    if (verify !== undefined) {
+      seen["--verify"] = verify;
       continue;
     }
     if (arg === "--source-db" && argv[i + 1]) {
@@ -792,8 +870,38 @@ export function parseSetupArgs(argv: string[]): SetupArgs {
     }
     if (arg.startsWith("--source-db=")) {
       sourceDb = arg.slice("--source-db=".length).trim();
+      continue;
+    }
+    if (!arg.startsWith("-")) {
+      slugArg = arg;
+      continue;
+    }
+    if (arg.startsWith("--")) {
+      worktreeFail(tag, `Unknown flag: ${arg}`);
     }
   }
+
+  requireAllBooleanFlags(seen, SETUP_BOOLEAN_FLAGS, tag);
+
+  const recreateDb = seen["--recreate-db"]!;
+  const dbeaver = seen["--dbeaver"]!;
+  const forceDbeaver = seen["--force-dbeaver"]!;
+  const dryRun = seen["--dry-run"]!;
+  const install = seen["--install"]!;
+  const migrate = seen["--migrate"]!;
+  const start = seen["--start"]!;
+  const verify = seen["--verify"]!;
+
+  if (forceDbeaver && !dbeaver) {
+    worktreeFail(tag, "--force-dbeaver=true requires --dbeaver=true.");
+  }
+  if (slugArg) {
+    worktreeFail(
+      tag,
+      `Unexpected positional argument: ${slugArg}. Setup does not accept a slug argument.`,
+    );
+  }
+
   return {
     sourceDb,
     recreateDb,
@@ -807,52 +915,74 @@ export function parseSetupArgs(argv: string[]): SetupArgs {
   };
 }
 
-/** Parses teardown CLI flags. Requires `--dry-run` or `--apply` (no stdin). */
+/** Parses teardown CLI flags. Every boolean flag must use `=true` or `=false`. */
 export function parseTeardownArgs(argv: string[]): TeardownArgs {
+  const tag = WORKTREE_TEARDOWN_TAG;
+  const seen: Partial<Record<string, boolean>> = {};
   let slug: string | undefined;
-  let dropDb = true;
-  let dbeaver = false;
-  let dryRun = false;
-  let apply = false;
+
   for (let i = 2; i < argv.length; i++) {
     const arg = argv[i];
-    if (arg === "--dry-run") {
-      dryRun = true;
+    rejectBareBooleanFlag(arg, TEARDOWN_BOOLEAN_FLAGS, tag);
+
+    const dryRun = readBooleanFlag(arg, "--dry-run", tag);
+    if (dryRun !== undefined) {
+      seen["--dry-run"] = dryRun;
       continue;
     }
-    if (arg === "--apply") {
-      apply = true;
+    const apply = readBooleanFlag(arg, "--apply", tag);
+    if (apply !== undefined) {
+      seen["--apply"] = apply;
       continue;
     }
-    if (arg === "--dbeaver") {
-      dbeaver = true;
+    const dropDb = readBooleanFlag(arg, "--drop-db", tag);
+    if (dropDb !== undefined) {
+      seen["--drop-db"] = dropDb;
+      continue;
+    }
+    const dbeaver = readBooleanFlag(arg, "--dbeaver", tag);
+    if (dbeaver !== undefined) {
+      seen["--dbeaver"] = dbeaver;
       continue;
     }
     if (arg === "--keep-db") {
-      dropDb = false;
+      worktreeFail(tag, "--keep-db was removed. Use --drop-db=false instead.");
+    }
+    if (!arg.startsWith("-")) {
+      slug = arg;
       continue;
     }
-    if (arg === "--drop-db") {
-      dropDb = true;
-      continue;
+    if (arg.startsWith("--")) {
+      worktreeFail(tag, `Unknown flag: ${arg}`);
     }
-    if (!arg.startsWith("-")) slug = arg;
   }
-  return { slug, dropDb, dbeaver, dryRun, apply };
+
+  requireAllBooleanFlags(seen, TEARDOWN_BOOLEAN_FLAGS, tag);
+
+  return {
+    slug,
+    dropDb: seen["--drop-db"]!,
+    dbeaver: seen["--dbeaver"]!,
+    dryRun: seen["--dry-run"]!,
+    apply: seen["--apply"]!,
+  };
 }
 
-/** Teardown must use `--dry-run` or `--apply` — never implicit mutate. */
+/** Teardown mode: exactly one of `--dry-run=true` or `--apply=true`. */
 export function resolveTeardownMode(
   args: TeardownArgs,
   tag: string,
 ): "dry-run" | "apply" {
   if (args.dryRun && args.apply) {
-    worktreeFail(tag, "Pass only one of --dry-run or --apply.");
+    worktreeFail(
+      tag,
+      "Set exactly one mode flag to true: --dry-run=true or --apply=true.",
+    );
   }
   if (!args.dryRun && !args.apply) {
     worktreeFail(
       tag,
-      "Pass --dry-run (plan) or --apply (execute). This script does not prompt on stdin.",
+      "Set exactly one mode flag to true: --dry-run=true (plan) or --apply=true (execute).",
     );
   }
   return args.dryRun ? "dry-run" : "apply";
@@ -1015,6 +1145,38 @@ export function cloneWorktreeDatabase(params: {
   });
 }
 
+/** Creates an empty test database for the worktree (no data clone needed). */
+export function cloneWorktreeTestDatabase(params: {
+  tag: string;
+  slug: string;
+  testDbName: string;
+  worktreeRoot: string;
+  recreateDb: boolean;
+}): void {
+  const { tag, slug, testDbName, worktreeRoot, recreateDb } = params;
+  console.warn(`${tag} slug=${slug}`);
+  assertPostgresAvailable(worktreeRoot);
+
+  const existsCheck = checkDatabaseExists(testDbName, worktreeRoot);
+  if (existsCheck.status === "error") {
+    throw new Error(
+      `Could not check test database ${testDbName}: ${existsCheck.detail ?? "psql failed"}`,
+    );
+  }
+  if (existsCheck.status === "exists" && !recreateDb) {
+    console.warn(
+      `${tag} Test database ${testDbName} already exists — skipping.`,
+    );
+    return;
+  }
+  if (existsCheck.status === "exists" && recreateDb) {
+    pgSpawnOrThrow(worktreeRoot, "dropdb", [testDbName]);
+  }
+
+  console.warn(`${tag} creating test database ${testDbName}`);
+  pgSpawnOrThrow(worktreeRoot, "createdb", [testDbName]);
+}
+
 /** Allocates ports for dry-run without writing registry files. */
 export function previewWorktreePorts(slug: string): SlugPorts {
   const registry = readGlobalRegistry();
@@ -1043,7 +1205,7 @@ export function describeWorktreeClonePlan(params: {
     return `unknown (psql check failed: ${check.detail ?? "error"})`;
   }
   if (check.status === "exists" && !params.recreateDb) {
-    return "skip (database exists; use --recreate-db to replace)";
+    return "skip (database exists; use --recreate-db=true to replace)";
   }
   if (check.status === "exists" && params.recreateDb) {
     return "drop existing database, then pg_dump | psql clone";
@@ -1058,6 +1220,7 @@ export function writeWorktreeEnvFile(params: {
   ports: SlugPorts;
   secrets: WorktreeEnvMap;
   databaseUrl: string;
+  e2eDatabaseUrl: string;
 }): string {
   const envPath = join(params.worktreeRoot, ".env.worktree");
   const envMap = buildWorktreeEnv({
@@ -1065,6 +1228,7 @@ export function writeWorktreeEnvFile(params: {
     ports: params.ports,
     secrets: params.secrets,
     databaseUrl: params.databaseUrl,
+    e2eDatabaseUrl: params.e2eDatabaseUrl,
   });
   writeFileSync(envPath, formatEnvWorktree(envMap), "utf8");
   return envPath;
@@ -1079,6 +1243,7 @@ export function logSetupDryRun(params: {
   sourceDb: string;
   destDb: string;
   databaseUrl: string;
+  e2eDatabaseUrl: string;
   recreateDb: boolean;
   dbeaver: boolean;
   forceDbeaver: boolean;
@@ -1096,6 +1261,7 @@ export function logSetupDryRun(params: {
     sourceDb,
     destDb,
     databaseUrl,
+    e2eDatabaseUrl,
     recreateDb,
     dbeaver,
     forceDbeaver,
@@ -1124,6 +1290,9 @@ export function logSetupDryRun(params: {
     `${tag} [dry-run] DATABASE_URL ${formatDatabaseUrlForLog(databaseUrl)}`,
   );
   console.warn(
+    `${tag} [dry-run] DATABASE_E2E_URL ${formatDatabaseUrlForLog(e2eDatabaseUrl)}`,
+  );
+  console.warn(
     `${tag} [dry-run] ports api=${ports.api} web=${ports.web} storybook=${ports.storybook} wxt=${ports.wxt}`,
   );
   console.warn(
@@ -1148,7 +1317,7 @@ export function logSetupDryRun(params: {
   }
   if (!install && !migrate && !start && !verify) {
     console.warn(
-      `${tag} [dry-run] post-steps skipped (pass --install --migrate --start --verify or --all)`,
+      `${tag} [dry-run] post-steps skipped (pass --install=true --migrate=true --start=true --verify=true)`,
     );
   }
 }
@@ -1213,9 +1382,10 @@ export function logSetupSummary(params: {
   envPath: string;
   ports: SlugPorts;
   databaseUrl: string;
+  e2eDatabaseUrl: string;
   destDb: string;
 }): void {
-  const { tag, envPath, ports, databaseUrl, destDb } = params;
+  const { tag, envPath, ports, databaseUrl, e2eDatabaseUrl, destDb } = params;
   console.warn(`${tag} wrote ${envPath}`);
   console.warn(`${tag} API  http://localhost:${ports.api}`);
   console.warn(`${tag} Web  http://localhost:${ports.web}`);
@@ -1223,7 +1393,10 @@ export function logSetupSummary(params: {
   console.warn(`${tag} WXT  http://localhost:${ports.wxt}`);
   console.warn(`${tag} DB   ${parseDatabaseName(databaseUrl) ?? destDb}`);
   console.warn(
-    `${tag} Post-steps: pass --install --migrate --start --verify or --all`,
+    `${tag} E2E  ${parseDatabaseName(e2eDatabaseUrl) ?? "test_" + destDb}`,
+  );
+  console.warn(
+    `${tag} Post-steps: pass --install=true --migrate=true --start=true --verify=true`,
   );
 }
 
@@ -1270,7 +1443,7 @@ export function removeWorktreeEnvFile(repoRoot: string, tag: string): void {
   console.warn(`${tag} removed ${envPath}`);
 }
 
-/** Drops `job_tracker_<slug>` unless `--keep-db` was passed. */
+/** Drops `job_tracker_<slug>` unless `--drop-db=false` was passed. */
 export function dropWorktreeDatabase(
   repoRoot: string,
   slug: string,
@@ -1280,7 +1453,7 @@ export function dropWorktreeDatabase(
   const dbName = dbNameForSlug(slug);
   if (!dropDb) {
     console.warn(
-      `${tag} database ${dbName} preserved (--keep-db). Postgres container/volume unchanged.`,
+      `${tag} database ${dbName} preserved (--drop-db=false). Postgres container/volume unchanged.`,
     );
     return;
   }
@@ -1291,6 +1464,35 @@ export function dropWorktreeDatabase(
     console.warn(`${tag} dropdb ${dbName}`);
   }
   const [dropErr] = tryRun(() => dropDatabase(dbName, repoRoot));
+  if (dropErr) worktreeFail(tag, dropErr.message);
+}
+
+/** Drops `job_tracker_test_<slug>` unless `--keep-db` was passed. */
+export function dropWorktreeTestDatabase(
+  repoRoot: string,
+  slug: string,
+  dropDb: boolean,
+  tag: string,
+): void {
+  const testDbName = testDbNameForSlug(slug);
+  if (!dropDb) {
+    console.warn(`${tag} test database ${testDbName} preserved (--keep-db).`);
+    return;
+  }
+  const check = checkDatabaseExists(testDbName, repoRoot);
+  if (check.status !== "exists") {
+    console.warn(
+      `${tag} test database ${testDbName} does not exist — skipping.`,
+    );
+    return;
+  }
+  const container = resolvePostgresContainer(repoRoot);
+  if (container) {
+    console.warn(`${tag} dropdb ${testDbName} via docker (${container})`);
+  } else {
+    console.warn(`${tag} dropdb ${testDbName}`);
+  }
+  const [dropErr] = tryRun(() => dropDatabase(testDbName, repoRoot));
   if (dropErr) worktreeFail(tag, dropErr.message);
 }
 
@@ -1332,7 +1534,9 @@ export function logTeardownDryRun(params: {
       `${tag} [dry-run] would dropdb ${dbName}${container ? ` via docker (${container})` : ""}`,
     );
   } else {
-    console.warn(`${tag} [dry-run] would keep database ${dbName} (--keep-db)`);
+    console.warn(
+      `${tag} [dry-run] would keep database ${dbName} (--drop-db=false)`,
+    );
   }
   console.warn(
     `${tag} [dry-run] would update ${GLOBAL_REGISTRY_PATH} and remove ${slugRegistryPath(slug)}`,
@@ -1341,7 +1545,7 @@ export function logTeardownDryRun(params: {
     `${tag} [dry-run] would ${envExists ? "remove" : "skip (missing)"} ${envPath}`,
   );
   console.warn(
-    `${tag} [dry-run] re-run with --apply to execute (no stdin prompt).`,
+    `${tag} [dry-run] re-run with --apply=true to execute (no stdin prompt).`,
   );
   logWorktreeRemoveHint(repoRoot, `${tag} [dry-run]`);
 }

@@ -1,5 +1,5 @@
-import { ApplicationUpdated } from "@api/domains/applications/application.events";
-import { ApplicationEventBus } from "@api/domains/applications/application-event.bus";
+import { JobUpdated } from "@api/domains/jobs/job.events";
+import { JobEventBus } from "@api/domains/jobs/job-event.bus";
 import { isTipTapDocumentString } from "@job-tracker/tiptap";
 import {
   BadRequestException,
@@ -12,7 +12,7 @@ import { NoteGenerationService } from "./ai/note-generation.service";
 import { NoteRepository } from "./notes.repository";
 import { Note } from "./notes.schema";
 
-type CreateNoteDto = { applicationId: string; content: string };
+type CreateNoteDto = { jobId: string; content: string };
 
 type UpdateNoteDto = { content?: string; expectedRevision: number };
 
@@ -21,18 +21,15 @@ export class NoteService {
   constructor(
     private readonly repo: NoteRepository,
     private readonly noteAiService: NoteGenerationService,
-    private readonly eventBus: ApplicationEventBus,
+    private readonly eventBus: JobEventBus,
   ) {}
 
-  async listNotes(applicationId: string, userId: string): Promise<Note[]> {
-    const hasApplication = await this.repo.hasApplication(
-      applicationId,
-      userId,
-    );
-    if (!hasApplication) {
-      throw new NotFoundException(`Application ${applicationId} not found`);
+  async listNotes(jobId: string, userId: string): Promise<Note[]> {
+    const hasJob = await this.repo.hasJob(jobId, userId);
+    if (!hasJob) {
+      throw new NotFoundException(`Job ${jobId} not found`);
     }
-    return this.repo.findByApplicationIdAndUserId(applicationId, userId);
+    return this.repo.findByJobIdAndUserId(jobId, userId);
   }
 
   async createNote(userId: string, dto: CreateNoteDto): Promise<Note> {
@@ -42,20 +39,17 @@ export class NoteService {
       );
     }
 
-    const hasApplication = await this.repo.hasApplication(
-      dto.applicationId,
-      userId,
-    );
-    if (!hasApplication) {
-      throw new NotFoundException(`Application ${dto.applicationId} not found`);
+    const hasJob = await this.repo.hasJob(dto.jobId, userId);
+    if (!hasJob) {
+      throw new NotFoundException(`Job ${dto.jobId} not found`);
     }
 
     const note = await this.repo.create(userId, {
-      applicationId: dto.applicationId,
+      jobId: dto.jobId,
       content: dto.content,
     });
 
-    this.eventBus.emit(new ApplicationUpdated(dto.applicationId, userId));
+    this.eventBus.emit(new JobUpdated(dto.jobId, userId));
     return note;
   }
 
@@ -66,7 +60,7 @@ export class NoteService {
   ): Promise<Note> {
     const note = await this.repo.findByIdAndUserId(noteId, userId);
     if (!note) {
-      throw new NotFoundException(`Application note ${noteId} not found`);
+      throw new NotFoundException(`Job note ${noteId} not found`);
     }
 
     const nextContent = dto.content ?? note.content;
@@ -84,44 +78,39 @@ export class NoteService {
     );
 
     if (!updated) {
-      throw new ConflictException(
-        `Application note ${noteId} revision mismatch`,
-      );
+      throw new ConflictException(`Job note ${noteId} revision mismatch`);
     }
 
-    this.eventBus.emit(new ApplicationUpdated(note.applicationId, userId));
+    this.eventBus.emit(new JobUpdated(note.jobId, userId));
     return updated;
   }
 
   async removeNote(noteId: string, userId: string): Promise<Note> {
     const note = await this.repo.findByIdAndUserId(noteId, userId);
     if (!note) {
-      throw new NotFoundException(`Application note ${noteId} not found`);
+      throw new NotFoundException(`Job note ${noteId} not found`);
     }
 
     const deleted = await this.repo.delete(noteId, userId);
     if (!deleted) {
-      throw new NotFoundException(`Application note ${noteId} not found`);
+      throw new NotFoundException(`Job note ${noteId} not found`);
     }
 
-    this.eventBus.emit(new ApplicationUpdated(note.applicationId, userId));
+    this.eventBus.emit(new JobUpdated(note.jobId, userId));
     return deleted;
   }
 
   async generateNoteWithAI(
     userId: string,
-    applicationId: string,
+    jobId: string,
     note: string,
   ): Promise<string> {
-    const application = await this.repo.findApplicationByIdAndUserId(
-      applicationId,
-      userId,
-    );
-    if (!application) {
-      throw new NotFoundException(`Application ${applicationId} not found`);
+    const job = await this.repo.findApplicationByIdAndUserId(jobId, userId);
+    if (!job) {
+      throw new NotFoundException(`Job ${jobId} not found`);
     }
-    const description = application.description?.trim() ?? "";
-    const context = `Title: ${application.title}\nCompany: ${application.company.name}\nDescription: ${description}`;
+    const description = job.description?.trim() ?? "";
+    const context = `Title: ${job.title}\nCompany: ${job.company.name}\nDescription: ${description}`;
     const generated = await this.noteAiService.generateNote({
       description: context,
       note,

@@ -6,7 +6,9 @@ import { fileURLToPath } from "node:url";
 import { addWorktreeDBeaverConnection } from "./dbeaver.ts";
 import {
   assertGitWorktree,
+  buildDestinationTestDatabaseUrl,
   cloneWorktreeDatabase,
+  cloneWorktreeTestDatabase,
   loadMainApiEnvForWorktree,
   logSetupDryRun,
   logSetupSummary,
@@ -18,6 +20,7 @@ import {
   requireValidSlug,
   requireWorktreeRoot,
   runWorktreePostSetup,
+  testDbNameForSlug,
   WORKTREE_SETUP_TAG,
   writeWorktreeEnvFile,
 } from "./lib.ts";
@@ -48,6 +51,7 @@ if (args.dryRun) {
     sourceDb,
     destDb,
     databaseUrl,
+    e2eDatabaseUrl: buildDestinationTestDatabaseUrl(databaseUrl, slug),
     recreateDb: args.recreateDb,
     dbeaver: args.dbeaver,
     forceDbeaver: args.forceDbeaver,
@@ -67,6 +71,15 @@ if (args.dryRun) {
     recreateDb: args.recreateDb,
   });
 
+  const testDatabaseUrl = buildDestinationTestDatabaseUrl(databaseUrl, slug);
+  cloneWorktreeTestDatabase({
+    tag,
+    slug,
+    testDbName: testDbNameForSlug(slug),
+    worktreeRoot,
+    recreateDb: args.recreateDb,
+  });
+
   const allocatedPorts = registerWorktreePorts(slug);
   const envPath = writeWorktreeEnvFile({
     worktreeRoot,
@@ -74,6 +87,7 @@ if (args.dryRun) {
     ports: allocatedPorts,
     secrets,
     databaseUrl,
+    e2eDatabaseUrl: testDatabaseUrl,
   });
 
   if (args.dbeaver) {
@@ -85,7 +99,14 @@ if (args.dryRun) {
     });
   }
 
-  logSetupSummary({ tag, envPath, ports: allocatedPorts, databaseUrl, destDb });
+  logSetupSummary({
+    tag,
+    envPath,
+    ports: allocatedPorts,
+    databaseUrl,
+    e2eDatabaseUrl: testDatabaseUrl,
+    destDb,
+  });
 
   runWorktreePostSetup({
     tag,

@@ -15,10 +15,10 @@ import {
 } from "@/domains/api/create-extension-sse-link";
 import {
   ClaimSourceRunDocument,
-  CreateApplicationDocument,
-  type CreateApplicationInput,
-  CreateDraftApplicationDocument,
-  type CreateDraftApplicationInput,
+  CreateDraftJobDocument,
+  type CreateDraftJobInput,
+  CreateJobDocument,
+  type CreateJobInput,
   SourceRunEventsDocument,
   type SourceRunEventsSubscription,
   SourceRunsDocument,
@@ -71,16 +71,16 @@ export class ApiService {
     });
   }
 
-  async createApplication(input: CreateApplicationInput) {
+  async createJob(input: CreateJobInput) {
     return await this.client.mutate({
-      mutation: CreateApplicationDocument,
+      mutation: CreateJobDocument,
       variables: { input },
     });
   }
 
-  async createDraftApplication(input: CreateDraftApplicationInput) {
+  async createDraftJob(input: CreateDraftJobInput) {
     return await this.client.mutate({
-      mutation: CreateDraftApplicationDocument,
+      mutation: CreateDraftJobDocument,
       variables: { input },
     });
   }

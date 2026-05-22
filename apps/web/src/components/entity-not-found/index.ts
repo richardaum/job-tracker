@@ -1,0 +1,1 @@
+export { EntityNotFound } from "./EntityNotFound";

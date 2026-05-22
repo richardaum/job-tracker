@@ -17,7 +17,7 @@ export const Success: Story = {
   args: {
     trigger: <Button>Show toast</Button>,
     intent: "success",
-    title: "Application saved",
+    title: "Job saved",
     description: "Your updates are now available.",
     actionLabel: "Undo",
   },
@@ -30,7 +30,7 @@ export const Queue: Story = {
       {
         id: "b",
         intent: "success",
-        title: "Application saved",
+        title: "Job saved",
         description: "The item is now available in your list.",
       },
     ],

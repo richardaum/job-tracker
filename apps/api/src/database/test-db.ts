@@ -1,17 +1,38 @@
+import { tryRun } from "@job-tracker/try-run";
 import { DataSource } from "typeorm";
 
 import { buildDataSourceOptions } from "./data-source-options";
 
-/**
- * Drops `public` and reapplies TypeORM migrations — for integration tests only.
- */
-export async function resetPublicSchemaAndMigrate(
-  databaseUrl: string,
-): Promise<DataSource> {
-  const dataSource = new DataSource(buildDataSourceOptions(databaseUrl));
-  await dataSource.initialize();
+export async function createTestDataSource(): Promise<DataSource> {
+  const databaseUrl = process.env.DATABASE_E2E_URL;
+  if (!databaseUrl) {
+    throw new Error("DATABASE_E2E_URL is required for integration tests");
+  }
+
+  const targetDbName = new URL(databaseUrl).pathname.replace(/^\//, "");
+
+  const tryConnect = async (url: string) => {
+    const ds = new DataSource(buildDataSourceOptions(url));
+    await ds.initialize();
+    return ds;
+  };
+
+  let dataSource: DataSource;
+  const [connectError, ds] = await tryRun(tryConnect(databaseUrl));
+  if (connectError) {
+    const postgresUrl = databaseUrl.replace(`/${targetDbName}`, "/postgres");
+    const adminDs = await tryConnect(postgresUrl);
+    await adminDs.query(`CREATE DATABASE "${targetDbName}"`);
+    await adminDs.destroy();
+
+    dataSource = await tryConnect(databaseUrl);
+  } else {
+    dataSource = ds;
+  }
+
   await dataSource.query("DROP SCHEMA IF EXISTS public CASCADE");
   await dataSource.query("CREATE SCHEMA public");
   await dataSource.runMigrations({ transaction: "each" });
+
   return dataSource;
 }

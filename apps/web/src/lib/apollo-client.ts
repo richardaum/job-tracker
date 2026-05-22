@@ -18,7 +18,7 @@ export function createApolloClient() {
     credentials: "include",
     // fetch: async (uri, options) => {
     //   const bodyText = typeof options?.body === "string" ? options.body : "";
-    //   const isCreateWithAi = bodyText.includes("createApplicationWithAI");
+    //   const isCreateWithAi = bodyText.includes("createJobWithAI");
     //   const resolvedUri =
     //     isCreateWithAiV2 && String(uri) === "/graphql"
     //       ? typeof window !== "undefined"

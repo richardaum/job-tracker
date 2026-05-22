@@ -34,9 +34,9 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     trigger: <Button>Open dialog</Button>,
-    title: "Delete application",
+    title: "Delete job",
     description:
-      "This action cannot be undone. You will permanently remove this application.",
+      "This action cannot be undone. You will permanently remove this job.",
     children: (
       <p className={cn("text-sm text-text-secondary")}>Are you sure?</p>
     ),

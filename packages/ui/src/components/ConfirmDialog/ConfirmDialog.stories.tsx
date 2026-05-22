@@ -24,7 +24,7 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     trigger: <Button>Delete something</Button>,
-    title: "Delete application",
+    title: "Delete job",
     description:
       'Are you sure you want to delete "Senior engineer"? This cannot be undone.',
     onConfirm: async () => {

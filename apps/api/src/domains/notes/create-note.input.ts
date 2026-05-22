@@ -3,7 +3,7 @@ import { Field, InputType } from "@nestjs/graphql";
 @InputType()
 export class CreateNoteInput {
   @Field(() => String)
-  applicationId!: string;
+  jobId!: string;
 
   @Field()
   content!: string;

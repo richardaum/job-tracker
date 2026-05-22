@@ -8,7 +8,7 @@ export default defineConfig({
   resolve: { alias: { "@api": path.resolve(__dirname, "src") } },
   test: {
     environment: "node",
-    include: ["src/**/*.spec.ts"],
+    include: ["src/**/*.spec.ts", "src/**/*.integration.ts"],
     setupFiles: ["./vitest.setup.ts"],
     fileParallelism: false,
   },

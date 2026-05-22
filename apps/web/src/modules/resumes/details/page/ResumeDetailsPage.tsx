@@ -1,93 +1,29 @@
 "use client";
 
-import { EMPTY_TIPTAP_DOC, normalizeTipTapDocument } from "@job-tracker/tiptap";
+import { EMPTY_TIPTAP_DOC } from "@job-tracker/tiptap";
 import { tryRun } from "@job-tracker/try-run";
-import { Button, cn, Heading, Input, Text } from "@job-tracker/ui";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import React from "react";
-
 import {
-  ResumeDocument,
-  ResumesDocument,
-  useDeleteResumeMutation,
-  useResumeQuery,
-  useUpdateResumeMutation,
-} from "@/gql/hooks";
-import { TipTapEditor } from "@/modules/applications/details/components/TipTapEditor";
-import { useToastQueue } from "@/modules/applications/shared/hooks/useToastQueue";
+  Button,
+  cn,
+  DropdownMenu,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  Heading,
+  Text,
+  useDialog,
+} from "@job-tracker/ui";
+import { CaretDownIcon, StarIcon } from "@phosphor-icons/react";
+import { useRouter } from "next/navigation";
+import React, { useState } from "react";
+
+import { BackToLink } from "@/components/back-to-link";
+import { EntityNotFound } from "@/components/entity-not-found";
+import { ResumesDocument, useDeleteResumeMutation } from "@/gql/hooks";
+import { TipTapEditor } from "@/modules/jobs/details/components/TipTapEditor";
+import { useToastQueue } from "@/modules/jobs/shared/hooks/useToastQueue";
+import { ResumeTitleEditDialog } from "@/modules/resumes/details/components/ResumeTitleEditDialog";
+import { useResumeDetailsViewModel } from "@/modules/resumes/details/hooks/useResumeDetailsViewModel";
 import { DeleteResumeDialog } from "@/modules/resumes/list/components/DeleteResumeDialog";
-
-function useResumeEditorState(resumeId: string, onSaved: () => void) {
-  const { data, loading, error } = useResumeQuery({
-    variables: { id: resumeId },
-    fetchPolicy: "cache-and-network",
-  });
-  const [updateResume] = useUpdateResumeMutation({
-    refetchQueries: [
-      { query: ResumesDocument },
-      { query: ResumeDocument, variables: { id: resumeId } },
-    ],
-    awaitRefetchQueries: true,
-  });
-
-  const resume = data?.resume ?? null;
-
-  const [draftState, setDraftState] = React.useState<{
-    resumeId: string | null;
-    title: string;
-    content: string;
-  }>({ resumeId: null, title: "", content: EMPTY_TIPTAP_DOC });
-
-  const [saving, setSaving] = React.useState(false);
-
-  const currentTitle = resume?.title ?? "";
-  const currentContent = normalizeTipTapDocument(
-    resume?.content ?? EMPTY_TIPTAP_DOC,
-  );
-
-  const titleDraft =
-    draftState.resumeId === resume?.id ? draftState.title : currentTitle;
-  const contentDraft =
-    draftState.resumeId === resume?.id ? draftState.content : currentContent;
-
-  const hasChanges =
-    titleDraft !== currentTitle || contentDraft !== currentContent;
-
-  function commitDraft(title: string, content: string) {
-    setDraftState({ resumeId: resume?.id ?? null, title, content });
-  }
-
-  async function handleSave() {
-    if (!resume) return;
-    setSaving(true);
-    try {
-      await updateResume({
-        variables: {
-          id: resume.id,
-          input: { title: titleDraft, content: contentDraft },
-        },
-      });
-      setDraftState({ resumeId: null, title: "", content: EMPTY_TIPTAP_DOC });
-      onSaved();
-    } finally {
-      setSaving(false);
-    }
-  }
-
-  return {
-    resume,
-    notFound: !loading && !error && !resume,
-    showInitialLoading: loading && !data,
-    titleDraft,
-    setTitleDraft: (title: string) => commitDraft(title, contentDraft),
-    contentDraft,
-    setContentDraft: (content: string) => commitDraft(titleDraft, content),
-    saving,
-    hasChanges,
-    handleSave,
-  };
-}
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -97,6 +33,10 @@ export default function ResumeDetailsPage({ params }: PageProps) {
   const { id } = React.use(params);
   const router = useRouter();
   const { enqueueToast } = useToastQueue();
+  const [actionsMenuOpen, setActionsMenuOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const titleDialog = useDialog();
+
   const [deleteResume] = useDeleteResumeMutation({
     refetchQueries: [{ query: ResumesDocument }],
     awaitRefetchQueries: true,
@@ -104,16 +44,18 @@ export default function ResumeDetailsPage({ params }: PageProps) {
 
   const {
     resume,
+    error,
     notFound,
-    showInitialLoading,
+    status,
     titleDraft,
-    setTitleDraft,
     contentDraft,
     setContentDraft,
     saving,
     hasChanges,
     handleSave,
-  } = useResumeEditorState(id, () =>
+    persistResumeTitle,
+    setResumeDefault,
+  } = useResumeDetailsViewModel(id, () =>
     enqueueToast({ title: "Resume saved.", intent: "success" }),
   );
 
@@ -131,67 +73,158 @@ export default function ResumeDetailsPage({ params }: PageProps) {
     router.push("/resumes");
   }
 
+  async function handlePersistTitle(nextTitle: string) {
+    const [err] = await tryRun(persistResumeTitle(nextTitle));
+    if (err) {
+      enqueueToast({
+        title: err.message ?? "Failed to update title.",
+        intent: "error",
+      });
+      return;
+    }
+    enqueueToast({ title: "Resume title updated.", intent: "success" });
+  }
+
+  async function handleSetAsDefault() {
+    const [err] = await tryRun(setResumeDefault());
+    if (err) {
+      enqueueToast({
+        title: err.message ?? "Failed to update default resume.",
+        intent: "error",
+      });
+      return;
+    }
+    enqueueToast({ title: "Default resume updated.", intent: "success" });
+  }
+
+  const actionsMenu = resume ? (
+    <DropdownMenu
+      open={actionsMenuOpen}
+      onOpenChange={setActionsMenuOpen}
+      trigger={
+        <Button
+          intent="secondary"
+          size="md"
+          rightIcon={
+            <CaretDownIcon
+              size={12}
+              weight="bold"
+              className={cn(
+                "transition-transform duration-200",
+                actionsMenuOpen ? "rotate-180" : "rotate-0",
+              )}
+            />
+          }
+        >
+          Actions
+        </Button>
+      }
+      align="end"
+    >
+      <DropdownMenuItem
+        onSelect={() => queueMicrotask(() => titleDialog.open())}
+      >
+        Update title
+      </DropdownMenuItem>
+      <DropdownMenuItem
+        disabled={resume.isDefault}
+        onSelect={() => void handleSetAsDefault()}
+      >
+        Set as default
+      </DropdownMenuItem>
+      <DropdownMenuSeparator />
+      <DropdownMenuItem destructive onSelect={() => setDeleteDialogOpen(true)}>
+        Delete
+      </DropdownMenuItem>
+    </DropdownMenu>
+  ) : null;
+
   return (
     <div className={cn("flex h-full min-h-0 flex-col")}>
-      {/* Header */}
       <div
         className={cn(
           "flex flex-col gap-3 border-b border-border-subtle p-4 sm:px-6 sm:py-5",
         )}
       >
         <div className={cn("flex items-center justify-between gap-3")}>
-          <Link
-            href="/resumes"
-            className={cn(
-              "text-sm text-text-secondary underline-offset-2 hover:underline",
-            )}
-          >
-            Back to resumes
-          </Link>
-          <div className={cn("flex items-center gap-2")}>
-            <DeleteResumeDialog
-              resumeId={id}
-              resumeTitle={titleDraft}
-              onConfirm={() => void handleDelete()}
-              trigger={
-                <Button intent="destructive" size="md">
-                  Delete
-                </Button>
-              }
-            />
-            <Button
-              intent="primary"
-              size="md"
-              onClick={() => void handleSave()}
-              disabled={!hasChanges || saving}
-              state={saving ? "loading" : "default"}
+          <BackToLink href="/resumes">Back to resumes</BackToLink>
+          {resume ? (
+            <div
+              className={cn(
+                "flex shrink-0 flex-wrap items-center justify-end gap-2",
+              )}
             >
-              Save
-            </Button>
-          </div>
+              <div className={cn("shrink-0")}>{actionsMenu}</div>
+              <Button
+                intent="primary"
+                size="md"
+                onClick={() => void handleSave()}
+                disabled={!hasChanges || saving}
+                state={saving ? "loading" : "default"}
+              >
+                Save
+              </Button>
+            </div>
+          ) : null}
         </div>
 
-        <Heading as="h1" size="2xl" className={cn("min-w-0")}>
-          <Input
-            value={titleDraft}
-            onChange={(e) => setTitleDraft(e.target.value)}
-            placeholder="Resume title"
+        <div className={cn("flex min-w-0 flex-wrap items-center gap-2")}>
+          <Heading
+            as="h1"
+            size="2xl"
             className={cn(
-              "text-2xl font-bold border-none p-0 h-auto shadow-none bg-transparent",
+              "min-w-0 flex-1 truncate",
+              resume ? "" : cn("text-text-secondary"),
             )}
-          />
-        </Heading>
+          >
+            {resume?.title ?? "Resume"}
+          </Heading>
+          {resume?.isDefault ? (
+            <span
+              className={cn("inline-flex shrink-0 items-center gap-1")}
+              aria-label="Default resume"
+            >
+              <StarIcon
+                size={20}
+                weight="fill"
+                className={cn("text-yellow-500")}
+              />
+            </span>
+          ) : null}
+        </div>
       </div>
 
-      {/* Editor */}
+      <DeleteResumeDialog
+        resumeId={id}
+        resumeTitle={resume?.title ?? titleDraft}
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        onConfirm={() => void handleDelete()}
+        trigger={<span aria-hidden style={{ display: "none" }} />}
+      />
+
+      {resume ? (
+        <ResumeTitleEditDialog
+          control={titleDialog}
+          value={resume.title}
+          onSave={(nextTitle) => handlePersistTitle(nextTitle)}
+        />
+      ) : null}
+
       <div className={cn("flex-1 min-h-0 overflow-hidden p-4 sm:p-6")}>
-        {showInitialLoading ? (
+        {status === "loading" ? (
           <Text size="sm" color="secondary">
             Loading resume...
           </Text>
         ) : notFound ? (
-          <Text size="sm" color="secondary">
-            Resume not found.
+          <EntityNotFound
+            resource="resume"
+            backHref="/resumes"
+            backLabel="Back to resumes"
+          />
+        ) : error && !notFound ? (
+          <Text size="sm" color="error">
+            Failed to load resume details.
           </Text>
         ) : !resume ? null : (
           <div className={cn("flex h-full min-h-0 flex-col gap-3")}>

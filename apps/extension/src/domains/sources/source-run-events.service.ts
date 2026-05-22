@@ -5,7 +5,7 @@ import type {
   SourceRunEventHandler,
 } from "@/domains/api/api.service";
 import type { LogService } from "@/domains/log/log.service";
-import { mapCollectedJobToCreateApplicationInput } from "@/domains/plan/map-collected-job-to-create-application-input";
+import { mapCollectedJobToCreateJobInput } from "@/domains/plan/map-collected-job-to-create-job-input";
 import type { PlanService } from "@/domains/plan/services/plan.service";
 import {
   planForSourceRun,
@@ -130,17 +130,16 @@ export class SourceRunEventsService {
         await this.planService.execute(plan, {
           onJobCollected: async (job) => {
             const input = {
-              ...mapCollectedJobToCreateApplicationInput(job),
+              ...mapCollectedJobToCreateJobInput(job),
               sourceRunId: runId,
             };
-            const [createErr] = await tryRun(
-              this.apiService.createApplication(input),
-            );
+            const [createErr] = await tryRun(this.apiService.createJob(input));
             if (createErr) {
-              this.logService.error(
-                "source-run-events:create-application-failed",
-                { runId, error: createErr, title: job.title },
-              );
+              this.logService.error("source-run-events:create-job-failed", {
+                runId,
+                error: createErr,
+                title: job.title,
+              });
             }
           },
         });

@@ -14,11 +14,11 @@ Scope id: `typeorm-data-layer` (technical-only spec; product traceability via [P
 
 **Objective**
 
-- [P-94] The API must keep the same observable persistence behavior for users, applications, stage events, and notes while replacing the Drizzle stack with TypeORM integrated into NestJS.
+- [P-94] The API must keep the same observable persistence behavior for users, jobs, stage events, and notes while replacing the Drizzle stack with TypeORM integrated into NestJS.
 
 **In scope**
 
-- [P-95] All existing authenticated flows that read or write job applications, stage history, and notes must continue to work without users changing how they use the product.
+- [P-95] All existing authenticated flows that read or write jobs, stage history, and notes must continue to work without users changing how they use the product.
 - [P-96] Local and CI database setup must remain a single documented path (`db:migrate` before `dev` or image run) with deterministic schema application on a fresh database.
 - [P-97] Operators who already applied Drizzle migrations must have a documented one-time cutover so the new migration journal does not re-apply destructive DDL.
 
@@ -34,7 +34,7 @@ Scope id: `typeorm-data-layer` (technical-only spec; product traceability via [P
 ## Architecture Impact
 
 - [T-122] Remove `drizzle-orm`, `drizzle-kit`, and Drizzle schema modules from `apps/api`; add `@nestjs/typeorm`, `typeorm`, and a small CLI runner (`tsx`) to apply TypeORM migrations before Nest boot in `dev` and `db:migrate`.
-- [T-123] Introduce TypeORM entity classes for `users`, `applications`, `application_stage_events`, and `application_notes` with explicit PostgreSQL column names matching the existing squashed baseline DDL.
+- [T-123] Introduce TypeORM entity classes for `users`, `jobs`, `job_stage_events`, and `job_notes` with explicit PostgreSQL column names matching the existing squashed baseline DDL.
 - [T-124] Replace `DatabaseService` Drizzle wiring with `TypeOrmModule.forRoot` configuration, `TypeOrmModule.forFeature` in domain modules, and repository implementations based on `Repository<Entity>` (or query builder where ordering requires `COALESCE`).
 - [T-125] Re-hook `DatabasePoolInterceptor` against the underlying `pg` `Pool` exposed by the TypeORM Postgres driver after `DataSource` initialization so slow-query and per-request query counting behavior is preserved.
 
@@ -42,7 +42,7 @@ Scope id: `typeorm-data-layer` (technical-only spec; product traceability via [P
 
 - [T-126] Keep `synchronize: false` and version schema only through checked-in TypeORM `MigrationInterface` classes that replay the current baseline SQL, instead of auto-sync in any environment. -> Avoids silent drift and matches the prior migration-first posture.
 - [T-127] Use a dedicated `typeorm_migrations` table name to reduce collision risk with unrelated `migrations` tables and to make cutover from Drizzle explicit. -> Clear operational boundary between old and new journals.
-- [T-128] Retain domain-level TypeScript types (`User`, `Application`, etc.) as aliases of entity classes (or thin interfaces) so services and GraphQL layers change imports minimally. -> Lowers regression risk in resolver and service code.
+- [T-128] Retain domain-level TypeScript types (`User`, `Job`, etc.) as aliases of entity classes (or thin interfaces) so services and GraphQL layers change imports minimally. -> Lowers regression risk in resolver and service code.
 
 ## Risks and Mitigations
 

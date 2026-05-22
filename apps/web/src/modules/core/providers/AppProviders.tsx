@@ -4,8 +4,8 @@ import { ApolloProvider } from "@apollo/client/react";
 import type { ReactNode } from "react";
 
 import { apolloClient } from "@/lib/apollo-client";
-import { ToastQueueProvider } from "@/modules/applications/shared/hooks/ToastQueueProvider";
 import { PasteListenerProvider } from "@/modules/core/providers/PasteListenerProvider";
+import { ToastQueueProvider } from "@/modules/jobs/shared/hooks/ToastQueueProvider";
 
 export function AppProviders({ children }: { children: ReactNode }) {
   return (

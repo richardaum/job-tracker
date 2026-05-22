@@ -2,7 +2,7 @@ import { useCallback } from "react";
 
 import { useExchangeRatesQuery } from "@/gql/hooks";
 
-export type ExchangeRates = Record<string, number>;
+type ExchangeRates = Record<string, number>;
 
 export interface UseExchangeRatesReturn {
   rates: ExchangeRates | null;

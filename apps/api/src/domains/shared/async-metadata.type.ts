@@ -15,12 +15,12 @@ export interface AsyncMetadata {
 
 @ObjectType()
 export class AsyncMetadataType {
-  @Field(() => AsyncMetadataStatusEnum)
-  status!: AsyncMetadataStatusEnum;
+  @Field(() => AsyncMetadataStatusEnum, { nullable: true })
+  status?: AsyncMetadataStatusEnum | null;
 
   @Field(() => String, { nullable: true })
   error?: string | null;
 
-  @Field(() => String, { nullable: true })
-  timestamp?: string | null;
+  @Field(() => Date, { nullable: true })
+  timestamp?: Date | null;
 }

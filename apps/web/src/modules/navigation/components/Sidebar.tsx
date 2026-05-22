@@ -28,14 +28,10 @@ import { ObfuscatedText } from "@/modules/navigation/components/ObfuscatedText";
 const API_URL = getApiBaseUrl();
 
 const navItems = [
-  { href: "/applications", label: "Applications", icon: BriefcaseIcon },
-  {
-    href: "/draft-applications",
-    label: "Draft applications",
-    icon: NotePencilIcon,
-  },
+  { href: "/jobs", label: "Jobs", icon: BriefcaseIcon },
+  { href: "/draft-jobs", label: "Draft jobs", icon: NotePencilIcon },
   { href: "/resumes", label: "Resumes", icon: FilesIcon },
-  { href: "/fits", label: "Fits", icon: SparkleIcon },
+  { href: "/matches", label: "Matches", icon: SparkleIcon },
   { href: "/sources", label: "Sources", icon: DownloadSimpleIcon },
   { href: "/companies", label: "Companies", icon: BuildingsIcon },
   {

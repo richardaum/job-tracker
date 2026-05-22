@@ -14,7 +14,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const DisplayOnly: Story = {
-  args: { placeholder: "Search applications...", shortcutHint: "⌘/" },
+  args: { placeholder: "Search jobs...", shortcutHint: "⌘/" },
 };
 
 function InteractiveSearchInput(

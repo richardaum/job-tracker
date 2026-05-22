@@ -2,8 +2,8 @@ import "reflect-metadata";
 import "dotenv/config";
 
 import { buildDataSourceOptions } from "@api/database/data-source-options";
-import { FitAnalysisEntity } from "@api/database/entities/fit-analysis.entity";
-import { computeScore } from "@api/domains/fit-analysis/scoring/scoring";
+import { MatchAnalysisEntity } from "@api/database/entities/match-analysis.entity";
+import { computeScore } from "@api/domains/match-analysis/scoring/scoring";
 import { tryRun } from "@job-tracker/try-run";
 import { Module } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
@@ -15,7 +15,7 @@ import { EntityManager } from "typeorm";
     TypeOrmModule.forRoot({
       ...buildDataSourceOptions(process.env.DATABASE_URL!),
     }),
-    TypeOrmModule.forFeature([FitAnalysisEntity]),
+    TypeOrmModule.forFeature([MatchAnalysisEntity]),
   ],
 })
 class ScriptModule {}
@@ -27,11 +27,11 @@ async function main() {
   });
 
   const em = app.get(EntityManager);
-  const repo = em.getRepository(FitAnalysisEntity);
+  const repo = em.getRepository(MatchAnalysisEntity);
   const dryRun = process.argv.includes("--dry-run");
 
   const analyses = await repo.find();
-  process.stdout.write(`Found ${analyses.length} fit analysis records.\n`);
+  process.stdout.write(`Found ${analyses.length} match analysis records.\n`);
 
   let ok = 0;
   let fail = 0;
@@ -53,7 +53,7 @@ async function main() {
     const score = computeScore(entity.items);
     entity.scoreRatio = score.scoreRatio;
     entity.classification = score.classification;
-    entity.fitCount = score.fitCount;
+    entity.matchCount = score.matchCount;
     entity.gapCount = score.gapCount;
     entity.unclearCount = score.unclearCount;
 

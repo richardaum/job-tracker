@@ -22,7 +22,7 @@ import {
   useUpdateWorkPreferencesMutation,
   useWorkPreferencesQuery,
 } from "@/gql/hooks";
-import { useToastQueue } from "@/modules/applications/shared/hooks/useToastQueue";
+import { useToastQueue } from "@/modules/jobs/shared/hooks/useToastQueue";
 
 interface LocalPreference {
   id: string;
@@ -296,7 +296,7 @@ export function PreferencesDialog({
       open={open}
       onOpenChange={onOpenChange}
       title="Work Preferences"
-      description="What matters to you in a job? These preferences are used to evaluate fit against job descriptions."
+      description="What matters to you in a job? These preferences are used to evaluate match against job descriptions."
       childrenClassName="overflow-auto"
       footer={
         readOnly ? undefined : (

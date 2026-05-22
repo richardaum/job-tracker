@@ -19,17 +19,19 @@ import {
   Text,
 } from "@job-tracker/ui";
 import { CaretDownIcon } from "@phosphor-icons/react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React from "react";
 
+import { BackToLink } from "@/components/back-to-link";
+import { EntityNotFound } from "@/components/entity-not-found";
 import { CompaniesDocument, useUpdateCompanyMutation } from "@/gql/hooks";
 import { useGenerateCompanyDescriptionAiAction } from "@/modules/ai/actions/useGenerateCompanyDescriptionAiAction";
 import { useRewriteTextAiAction } from "@/modules/ai/actions/useRewriteTextAiAction";
-import { TipTapEditor } from "@/modules/applications/details/components/TipTapEditor";
-import { ApplicationCard } from "@/modules/applications/list/components/ApplicationCard";
 import { useCompanyDetailsViewModel } from "@/modules/companies/details/hooks/useCompanyDetailsViewModel";
 import { DeleteCompanyDialog } from "@/modules/companies/list/components/DeleteCompanyDialog";
+import { TipTapEditor } from "@/modules/jobs/details/components/TipTapEditor";
+import { JobCard } from "@/modules/jobs/list/components/JobCard";
+import { useToastQueue } from "@/modules/jobs/shared/hooks/useToastQueue";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -38,15 +40,17 @@ interface PageProps {
 export default function CompanyDetailsPage({ params }: PageProps) {
   const { id } = React.use(params);
   const router = useRouter();
+  const { enqueueToast } = useToastQueue();
   const [actionsMenuOpen, setActionsMenuOpen] = React.useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
   const {
     company,
-    companyApplications,
+    companyJobs,
     applicationsError,
     companiesError,
-    showCompaniesInitialLoading,
+    status,
     showApplicationsInitialLoading,
+    notFound,
   } = useCompanyDetailsViewModel(id);
   const [descriptionDraftState, setDescriptionDraftState] = React.useState<{
     companyId: string | null;
@@ -124,9 +128,7 @@ export default function CompanyDetailsPage({ params }: PageProps) {
     >
       <DropdownMenuItem
         onSelect={() =>
-          router.push(
-            `/applications?company=${encodeURIComponent(company.name)}`,
-          )
+          router.push(`/jobs?company=${encodeURIComponent(company.name)}`)
         }
       >
         View jobs
@@ -146,14 +148,7 @@ export default function CompanyDetailsPage({ params }: PageProps) {
         )}
       >
         <div className={cn("flex items-center justify-between gap-3")}>
-          <Link
-            href="/companies"
-            className={cn(
-              "text-sm text-text-secondary underline-offset-2 hover:underline",
-            )}
-          >
-            Back to companies
-          </Link>
+          <BackToLink href="/companies">Back to companies</BackToLink>
           {actionsMenu ? (
             <div className={cn("shrink-0")}>{actionsMenu}</div>
           ) : null}
@@ -169,25 +164,29 @@ export default function CompanyDetailsPage({ params }: PageProps) {
             open={deleteDialogOpen}
             onOpenChange={setDeleteDialogOpen}
             onSuccess={() => router.push("/companies")}
-            onError={() => undefined}
+            onError={(message) =>
+              enqueueToast({ title: message, intent: "error" })
+            }
           />
         ) : null}
       </div>
 
       <div className={cn("flex-1 min-h-0 overflow-hidden p-4 sm:p-6")}>
-        {showCompaniesInitialLoading ? (
+        {status === "loading" ? (
           <Text size="sm" color="secondary">
             Loading company...
           </Text>
-        ) : companiesError ? (
+        ) : notFound ? (
+          <EntityNotFound
+            resource="company"
+            backHref="/companies"
+            backLabel="Back to companies"
+          />
+        ) : companiesError && !notFound ? (
           <Text size="sm" color="error">
             Failed to load company details.
           </Text>
-        ) : !company ? (
-          <Text size="sm" color="secondary">
-            Company not found.
-          </Text>
-        ) : (
+        ) : !company ? null : (
           <Tabs
             defaultValue="jobs"
             className={cn("flex size-full min-h-0  flex-col")}
@@ -205,16 +204,16 @@ export default function CompanyDetailsPage({ params }: PageProps) {
                 <Text size="sm" color="error">
                   Failed to load jobs.
                 </Text>
-              ) : companyApplications.length === 0 ? (
+              ) : companyJobs.length === 0 ? (
                 <Text size="sm" color="muted">
                   No jobs found for this company.
                 </Text>
               ) : (
                 <div className={cn("space-y-3")}>
-                  {companyApplications.map((application) => (
-                    <ApplicationCard
-                      key={application.id}
-                      application={application}
+                  {companyJobs.map((job) => (
+                    <JobCard
+                      key={job.id}
+                      job={job}
                       onSuccess={() => undefined}
                       onError={() => undefined}
                     />

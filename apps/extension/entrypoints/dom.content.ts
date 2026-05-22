@@ -2,7 +2,7 @@ import { defineContentScript } from "wxt/utils/define-content-script";
 
 import { DomListenerService } from "@/domains/dom/dom-listener.service";
 import { FieldValueService } from "@/domains/dom/field-value.service";
-import { CurrentTabContentService } from "@/domains/import-application/current-tab-content.service";
+import { CurrentTabContentService } from "@/domains/import-job/current-tab-content.service";
 import { JobDetailsService } from "@/domains/job-details/job-details.service";
 import { JobsListService } from "@/domains/jobs-list/jobs-list.service";
 import { PopupLogService } from "@/domains/log/popup-log.service";
@@ -43,8 +43,8 @@ export default defineContentScript({
       "job.details",
       "navigate.next.page",
       "can.navigate.next.page",
-      "import.application",
-      "import.application.menu-label",
+      "import.job",
+      "import.job.menu-label",
     ] as const;
 
     contentRequestTypes.forEach((requestType) => {

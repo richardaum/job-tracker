@@ -1,6 +1,6 @@
 import { SourceRunEntity } from "@api/database/entities/source-run.entity";
 import { SourceTemplateEntity } from "@api/database/entities/source-template.entity";
-import { ApplicationRepository } from "@api/domains/applications/applications.repository";
+import { JobsRepository } from "@api/domains/jobs/jobs.repository";
 import { SourceProfileRegistryService } from "@api/domains/sources/source-profile-registry.service";
 import { entryUrlFromExecutorPlan } from "@api/domains/sources/source-profiles";
 import { SourceRunType } from "@api/domains/sources/source-run.type";
@@ -67,7 +67,7 @@ export class SourcesService implements OnModuleInit {
   constructor(
     private readonly repo: SourcesRepository,
     private readonly sourceProfileRegistry: SourceProfileRegistryService,
-    private readonly applicationRepo: ApplicationRepository,
+    private readonly jobRepo: JobsRepository,
     @Inject(SOURCES_EVENTS_PUBLISHER)
     private readonly eventsPublisher: SourcesEventsPublisher,
   ) {}
@@ -286,7 +286,7 @@ export class SourcesService implements OnModuleInit {
     return this.toGql(nextRow);
   }
 
-  async detachApplicationsFromSourceRun(
+  async detachJobsFromSourceRun(
     userId: string,
     sourceRunId: string,
   ): Promise<number> {
@@ -295,10 +295,7 @@ export class SourcesService implements OnModuleInit {
       throw new NotFoundException(`Source run ${sourceRunId} not found`);
     }
 
-    return this.applicationRepo.detachApplicationsSourceRun(
-      sourceRunId,
-      userId,
-    );
+    return this.jobRepo.detachJobsSourceRun(sourceRunId, userId);
   }
 
   async deleteSourceRun(userId: string, id: string): Promise<void> {

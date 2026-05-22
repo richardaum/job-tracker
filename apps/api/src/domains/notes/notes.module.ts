@@ -1,8 +1,8 @@
 import { DatabaseModule } from "@api/database/database.module";
-import { ApplicationEntity } from "@api/database/entities/application.entity";
-import { ApplicationNoteEntity } from "@api/database/entities/application-note.entity";
-import { ApplicationModule } from "@api/domains/applications/applications.module";
+import { JobEntity } from "@api/database/entities/job.entity";
+import { JobNoteEntity } from "@api/database/entities/job-note.entity";
 import { AuthModule } from "@api/domains/auth/auth.module";
+import { JobsModule } from "@api/domains/jobs/jobs.module";
 import { LibAiModule } from "@api/lib/ai";
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
@@ -15,8 +15,8 @@ import { NoteService } from "./notes.service";
 @Module({
   imports: [
     DatabaseModule,
-    TypeOrmModule.forFeature([ApplicationEntity, ApplicationNoteEntity]),
-    ApplicationModule,
+    TypeOrmModule.forFeature([JobEntity, JobNoteEntity]),
+    JobsModule,
     AuthModule,
     LibAiModule,
   ],
