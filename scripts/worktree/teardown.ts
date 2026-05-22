@@ -13,6 +13,8 @@ import {
   parseTeardownArgs,
   removeSlugFromRegistry,
   removeWorktreeEnvFile,
+  removeWorktreeFromWorkspace,
+  requireMainWorktreeRoot,
   requireTeardownSlug,
   resolveTeardownMode,
   resolveTeardownPm2Prefix,
@@ -44,6 +46,11 @@ if (mode === "dry-run") {
   if (args.dbeaver) {
     removeWorktreeDBeaverConnection({ tag, slug });
   }
+  removeWorktreeFromWorkspace({
+    mainRoot: requireMainWorktreeRoot(root, tag),
+    slug,
+    tag,
+  });
   dropWorktreeDatabase(root, slug, args.dropDb, tag);
   dropWorktreeTestDatabase(root, slug, args.dropDb, tag);
   removeSlugFromRegistry(slug);

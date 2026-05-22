@@ -10,7 +10,7 @@ import {
   unlinkSync,
   writeFileSync,
 } from "node:fs";
-import { dirname, join } from "node:path";
+import { dirname, join, relative } from "node:path";
 
 import { tryRun } from "@job-tracker/try-run";
 
@@ -720,6 +720,106 @@ export function removeSlugFromRegistry(slug: string): void {
   if (existsSync(slugPath)) unlinkSync(slugPath);
 }
 
+/** Path to the VS Code workspace file in the repository root. */
+export const WORKSPACE_FILE = "job-tracker.code-workspace";
+
+export function resolveWorkspacePath(repoRoot: string): string {
+  return join(repoRoot, WORKSPACE_FILE);
+}
+
+/** Parses workspace JSON, returning folders array and settings object. */
+function readWorkspace(
+  workspacePath: string,
+):
+  | { folders: { name: string; path: string }[]; settings: unknown }
+  | undefined {
+  if (!existsSync(workspacePath)) return undefined;
+  const [err, parsed] = tryRun(
+    () => JSON.parse(readFileSync(workspacePath, "utf8")) as unknown,
+  );
+  if (err || !parsed || typeof parsed !== "object") return undefined;
+  const ws = parsed as Record<string, unknown>;
+  const folders = Array.isArray(ws.folders) ? ws.folders : [];
+  const validFolders = folders.filter(
+    (f: unknown): f is { name: string; path: string } =>
+      typeof f === "object" &&
+      f !== null &&
+      typeof (f as Record<string, unknown>).name === "string" &&
+      typeof (f as Record<string, unknown>).path === "string",
+  );
+  return { folders: validFolders, settings: ws.settings };
+}
+
+/** Writes the workspace file atomically. */
+function writeWorkspace(
+  workspacePath: string,
+  folders: { name: string; path: string }[],
+  settings: unknown,
+): void {
+  const content = { folders, settings };
+  writeJsonAtomic(workspacePath, content);
+}
+
+/** Adds a worktree entry to the workspace file. Idempotent — skips if path already present. */
+export function addWorktreeToWorkspace(params: {
+  mainRoot: string;
+  slug: string;
+  worktreeRoot: string;
+  tag: string;
+}): void {
+  const { mainRoot, slug, worktreeRoot, tag } = params;
+  const workspacePath = resolveWorkspacePath(mainRoot);
+  const ws = readWorkspace(workspacePath);
+  if (!ws) {
+    console.warn(
+      `${tag} workspace file not found or invalid at ${workspacePath} — skipping.`,
+    );
+    return;
+  }
+
+  const relPath = relative(mainRoot, worktreeRoot);
+  const alreadyExists = ws.folders.some((f) => f.path === relPath);
+  if (alreadyExists) {
+    console.warn(
+      `${tag} workspace already has entry for ${slug} (${relPath}) — skipping.`,
+    );
+    return;
+  }
+
+  ws.folders.push({ name: slug, path: relPath });
+  writeWorkspace(workspacePath, ws.folders, ws.settings);
+  console.warn(`${tag} added ${slug} (${relPath}) to ${WORKSPACE_FILE}`);
+}
+
+/** Removes a worktree entry from the workspace file by slug. No-op if not found. */
+export function removeWorktreeFromWorkspace(params: {
+  mainRoot: string;
+  slug: string;
+  tag: string;
+}): void {
+  const { mainRoot, slug, tag } = params;
+  const workspacePath = resolveWorkspacePath(mainRoot);
+  const ws = readWorkspace(workspacePath);
+  if (!ws) {
+    console.warn(
+      `${tag} workspace file not found or invalid at ${workspacePath} — skipping.`,
+    );
+    return;
+  }
+
+  const index = ws.folders.findIndex((f) => f.name === slug);
+  if (index === -1) {
+    console.warn(`${tag} workspace has no entry for slug ${slug} — skipping.`);
+    return;
+  }
+
+  const removed = ws.folders.splice(index, 1)[0];
+  writeWorkspace(workspacePath, ws.folders, ws.settings);
+  console.warn(
+    `${tag} removed ${slug} (${removed.path}) from ${WORKSPACE_FILE}`,
+  );
+}
+
 export const WORKTREE_SETUP_TAG = "[worktree:setup]";
 export const WORKTREE_TEARDOWN_TAG = "[worktree:teardown]";
 
@@ -1252,6 +1352,7 @@ export function logSetupDryRun(params: {
   migrate: boolean;
   start: boolean;
   verify: boolean;
+  workspacePath: string;
 }): void {
   const {
     tag,
@@ -1270,6 +1371,7 @@ export function logSetupDryRun(params: {
     migrate,
     start,
     verify,
+    workspacePath,
   } = params;
   const envPath = join(worktreeRoot, ".env.worktree");
   const cloneAction = describeWorktreeClonePlan({
@@ -1278,6 +1380,7 @@ export function logSetupDryRun(params: {
     worktreeRoot,
     recreateDb,
   });
+  const relPath = relative(mainRoot, worktreeRoot);
 
   console.warn(`${tag} [dry-run] no changes will be made`);
   console.warn(`${tag} [dry-run] worktree ${worktreeRoot}`);
@@ -1297,6 +1400,9 @@ export function logSetupDryRun(params: {
   );
   console.warn(
     `${tag} [dry-run] would write ${envPath} and update ${GLOBAL_REGISTRY_PATH}, ${slugRegistryPath(slug)}`,
+  );
+  console.warn(
+    `${tag} [dry-run] would add ${slug} (${relPath}) to ${workspacePath}`,
   );
   if (dbeaver) {
     console.warn(
@@ -1519,6 +1625,8 @@ export function logTeardownDryRun(params: {
   const envPath = join(repoRoot, ".env.worktree");
   const dbName = dbNameForSlug(slug);
   const envExists = existsSync(envPath);
+  const mainRoot = resolveMainWorktreeRoot(repoRoot);
+  const workspacePath = mainRoot ? resolveWorkspacePath(mainRoot) : undefined;
 
   console.warn(`${tag} [dry-run] no changes will be made`);
   console.warn(`${tag} [dry-run] slug ${slug}`);
@@ -1527,6 +1635,9 @@ export function logTeardownDryRun(params: {
     console.warn(
       `${tag} [dry-run] would remove DBeaver connection for ${slug} (postgres-jdbc-wt-${slug})`,
     );
+  }
+  if (workspacePath) {
+    console.warn(`${tag} [dry-run] would remove ${slug} from ${workspacePath}`);
   }
   if (dropDb) {
     const container = resolvePostgresContainer(repoRoot);

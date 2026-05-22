@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 
 import { addWorktreeDBeaverConnection } from "./dbeaver.ts";
 import {
+  addWorktreeToWorkspace,
   assertGitWorktree,
   buildDestinationTestDatabaseUrl,
   cloneWorktreeDatabase,
@@ -60,6 +61,7 @@ if (args.dryRun) {
     migrate: args.migrate,
     start: args.start,
     verify: args.verify,
+    workspacePath: join(mainRoot, "job-tracker.code-workspace"),
   });
 } else {
   cloneWorktreeDatabase({
@@ -89,6 +91,8 @@ if (args.dryRun) {
     databaseUrl,
     e2eDatabaseUrl: testDatabaseUrl,
   });
+
+  addWorktreeToWorkspace({ mainRoot, slug, worktreeRoot, tag });
 
   if (args.dbeaver) {
     addWorktreeDBeaverConnection({
