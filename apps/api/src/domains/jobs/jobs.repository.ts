@@ -538,38 +538,35 @@ export class JobsRepository {
   }
 
   /**
-   * Sets fill pipeline metadata on a job owned by {@param userId}
-   * (same column pattern as {@link updateSummaryMetadata}).
+   * Starts automatic fill (`fill_*` → PROCESSING) only when the row is not already PROCESSING:
+   * `fill_status` is NULL ("idle"), FAILED, or COMPLETED (allows re-trigger per PRD).
+   * Uses a single conditional UPDATE (`affected`) for CAS semantics vs concurrent callers.
    */
-  async updateFillMetadata(
+  async beginFillAutomaticallyProcessing(
     jobId: string,
-    expectedStatus: Pick<AsyncMetadataEmbedded, "status"> | null,
-    patch: Partial<AsyncMetadataEmbedded> & {
-      status: AsyncMetadataEmbedded["status"];
-    },
     userId: string,
   ): Promise<boolean> {
-    const fillUpdate: Partial<AsyncMetadataEmbedded> = { status: patch.status };
-    if (patch.error !== undefined) {
-      fillUpdate.error = patch.error;
-    }
-    if (patch.timestamp !== undefined) {
-      fillUpdate.timestamp = patch.timestamp;
-    }
+    const now = new Date();
+    const fillUpdate: Partial<AsyncMetadataEmbedded> = {
+      status: AsyncMetadataStatusEnum.PROCESSING,
+      error: null,
+      timestamp: now,
+    };
 
     const qb = this.jobsRepo
       .createQueryBuilder()
       .update(JobEntity)
       .set({ fillMetadata: fillUpdate })
-      .where(`"id" = :id AND "user_id" = :userId`, { id: jobId, userId });
-
-    if (expectedStatus === null) {
-      qb.andWhere(`"fill_status" IS NULL`);
-    } else {
-      qb.andWhere(`"fill_status" = :expected`, {
-        expected: expectedStatus.status,
-      });
-    }
+      .where(`"id" = :id AND "user_id" = :userId`, { id: jobId, userId })
+      .andWhere(
+        `("fill_status" IS NULL OR "fill_status" IN (:...restartableStatuses))`,
+        {
+          restartableStatuses: [
+            AsyncMetadataStatusEnum.FAILED,
+            AsyncMetadataStatusEnum.COMPLETED,
+          ],
+        },
+      );
 
     const result = await qb.execute();
     return (result.affected ?? 0) > 0;

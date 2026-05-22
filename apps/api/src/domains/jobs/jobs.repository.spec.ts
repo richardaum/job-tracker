@@ -493,6 +493,63 @@ describe("JobsRepository", () => {
     expect(qbChain.andWhere).toHaveBeenCalledWith(`"summary_status" IS NULL`);
   });
 
+  it("beginFillAutomaticallyProcessing sets PROCESSING when fill_status is restartable", async () => {
+    const qbChain = {
+      update: vi.fn().mockReturnThis(),
+      set: vi.fn().mockReturnThis(),
+      where: vi.fn().mockReturnThis(),
+      andWhere: vi.fn().mockReturnThis(),
+      execute: vi.fn().mockResolvedValue({ affected: 1 }),
+    };
+    vi.mocked(jobsRepo.createQueryBuilder).mockReturnValue(qbChain as never);
+
+    const repo = new JobsRepository(
+      jobsRepo as unknown as Repository<JobEntity>,
+      stageEventsRepo as unknown as Repository<JobStageEventEntity>,
+    );
+
+    await expect(
+      repo.beginFillAutomaticallyProcessing("j1", "u1"),
+    ).resolves.toBe(true);
+
+    expect(qbChain.andWhere).toHaveBeenCalledWith(
+      expect.stringContaining(
+        '("fill_status" IS NULL OR "fill_status" IN (:...restartableStatuses))',
+      ),
+      expect.objectContaining({
+        restartableStatuses: [
+          AsyncMetadataStatusEnum.FAILED,
+          AsyncMetadataStatusEnum.COMPLETED,
+        ],
+      }),
+    );
+    expect(qbChain.set).toHaveBeenCalledWith({
+      fillMetadata: expect.objectContaining({
+        status: AsyncMetadataStatusEnum.PROCESSING,
+      }),
+    });
+  });
+
+  it("beginFillAutomaticallyProcessing returns false when CAS affects no rows", async () => {
+    const qbChain = {
+      update: vi.fn().mockReturnThis(),
+      set: vi.fn().mockReturnThis(),
+      where: vi.fn().mockReturnThis(),
+      andWhere: vi.fn().mockReturnThis(),
+      execute: vi.fn().mockResolvedValue({ affected: 0 }),
+    };
+    vi.mocked(jobsRepo.createQueryBuilder).mockReturnValue(qbChain as never);
+
+    const repo = new JobsRepository(
+      jobsRepo as unknown as Repository<JobEntity>,
+      stageEventsRepo as unknown as Repository<JobStageEventEntity>,
+    );
+
+    await expect(
+      repo.beginFillAutomaticallyProcessing("j1", "u1"),
+    ).resolves.toBe(false);
+  });
+
   it("findUpToTwoJobPostingContextsByCompanyName trims and skips empty plaintext", async () => {
     const qb = makeMainJobsQb([]);
     qb.getMany.mockResolvedValue([

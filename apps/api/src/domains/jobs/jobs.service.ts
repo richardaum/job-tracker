@@ -369,19 +369,29 @@ export class JobsService {
 
   /**
    * Stub pipeline for automatic job fill from captured HTML / AI (full behavior task 08).
-   * Immediately marks {@link AsyncMetadataStatusEnum.PROCESSING} so clients can subscribe via SSE.
+   * Available for any job (PRD): sets {@link AsyncMetadataStatusEnum.PROCESSING} when not already filling.
+   * Re-start allowed from idle (null), FAILED, or COMPLETED via repository CAS.
    */
   async fillJobAutomatically(
     userId: string,
     jobId: string,
   ): Promise<JobWithCurrentStage> {
-    await this.findOne(jobId, userId);
-    await this.repo.updateFillMetadata(
+    const existing = await this.findOne(jobId, userId);
+
+    if (existing.fillMetadata?.status === AsyncMetadataStatusEnum.PROCESSING) {
+      throw new BadRequestException("Fill already in progress.");
+    }
+
+    const started = await this.repo.beginFillAutomaticallyProcessing(
       jobId,
-      null,
-      { status: AsyncMetadataStatusEnum.PROCESSING, timestamp: new Date() },
       userId,
     );
+    if (!started) {
+      throw new BadRequestException(
+        "Could not start fill — the job fill state changed. Try again.",
+      );
+    }
+
     return this.findOne(jobId, userId);
   }
 

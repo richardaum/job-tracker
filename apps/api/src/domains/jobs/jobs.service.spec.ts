@@ -11,8 +11,9 @@ import {
 } from "@api/domains/draft-jobs/draft-job.events";
 import { DraftJobEventBus } from "@api/domains/draft-jobs/draft-job-event.bus";
 import { DraftJobsService } from "@api/domains/draft-jobs/draft-jobs.service";
+import { AsyncMetadataStatusEnum } from "@api/domains/shared/async-metadata.type";
 import { LocationInferenceService } from "@api/lib/ai";
-import { NotFoundException } from "@nestjs/common";
+import { BadRequestException, NotFoundException } from "@nestjs/common";
 import type { Repository, UpdateResult } from "typeorm";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -104,6 +105,7 @@ describe("JobsService", () => {
       updateStageEvent: vi.fn(),
       deleteStageEvent: vi.fn(),
       findUpToTwoJobPostingContextsByCompanyName: vi.fn().mockResolvedValue([]),
+      beginFillAutomaticallyProcessing: vi.fn().mockResolvedValue(true),
     } as unknown as JobsRepository;
 
     companyService = {
@@ -199,6 +201,70 @@ describe("JobsService", () => {
     await expect(service.findOne("app-1", "user-1")).rejects.toThrow(
       NotFoundException,
     );
+  });
+
+  describe("fillJobAutomatically", () => {
+    it("throws BadRequestException when fill metadata is PROCESSING", async () => {
+      vi.mocked(repo.findOneByIdAndUserId).mockResolvedValue(
+        makeJob({
+          fillMetadata: {
+            status: AsyncMetadataStatusEnum.PROCESSING,
+            error: null,
+            timestamp: new Date(),
+          },
+        }),
+      );
+
+      await expect(
+        service.fillJobAutomatically("user-1", "app-1"),
+      ).rejects.toThrow(BadRequestException);
+
+      expect(
+        vi.mocked(repo.beginFillAutomaticallyProcessing),
+      ).not.toHaveBeenCalled();
+    });
+
+    it("begins PROCESSING via repository CAS when restartable", async () => {
+      const jobIdle = makeJob({ fillMetadata: undefined });
+      const jobAfterProcessing = makeJob({
+        fillMetadata: {
+          status: AsyncMetadataStatusEnum.PROCESSING,
+          error: null,
+          timestamp: new Date(),
+        },
+      });
+
+      vi.mocked(repo.findOneByIdAndUserId)
+        .mockResolvedValueOnce(jobIdle)
+        .mockResolvedValueOnce(jobAfterProcessing);
+      vi.mocked(repo.beginFillAutomaticallyProcessing).mockResolvedValue(true);
+
+      const result = await service.fillJobAutomatically("user-1", "app-1");
+
+      expect(
+        vi.mocked(repo.beginFillAutomaticallyProcessing),
+      ).toHaveBeenCalledWith("app-1", "user-1");
+      expect(result.fillMetadata?.status).toBe(
+        AsyncMetadataStatusEnum.PROCESSING,
+      );
+    });
+
+    it("throws BadRequestException when CAS updates zero rows", async () => {
+      vi.mocked(repo.findOneByIdAndUserId).mockResolvedValue(
+        makeJob({
+          fillMetadata: {
+            status: AsyncMetadataStatusEnum.COMPLETED,
+            error: null,
+            timestamp: new Date(),
+          },
+        }),
+      );
+      vi.mocked(repo.beginFillAutomaticallyProcessing).mockResolvedValue(false);
+
+      await expect(
+        service.fillJobAutomatically("user-1", "app-1"),
+      ).rejects.toThrow(BadRequestException);
+    });
   });
 
   it("create persists job and emits initial New stage event", async () => {
