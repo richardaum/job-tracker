@@ -11,7 +11,7 @@
 | 05  | GraphQL: remove draft types + add fillJobAutomatically | completed | high       | task_03          |
 | 06  | Relocate AI extraction to jobs domain                  | completed | medium     | task_05          |
 | 07  | Unify match analysis (single mutation)                 | completed | high       | task_04, task_05 |
-| 08  | Implement fillJobAutomatically with SSE tracking       | pending   | high       | task_05, task_06 |
+| 08  | Implement fillJobAutomatically with SSE tracking       | completed | high       | task_05, task_06 |
 | 09  | Remove DraftJobsModule and legacy entities             | pending   | medium     | task_05, task_08 |
 | 10  | Codegen: regenerate frontend hooks                     | pending   | low        | task_05          |
 | 11  | Frontend: add Source content tab + Fill button         | pending   | high       | task_10          |

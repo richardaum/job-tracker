@@ -1,10 +1,22 @@
 import { JwtAuthGuard } from "@api/domains/auth/jwt-auth.guard";
+import { AsyncMetadataStatusEnum } from "@api/domains/shared/async-metadata.type";
 import { Controller, Param, Req, Sse, UseGuards } from "@nestjs/common";
 import type { Request } from "express";
 import { Observable } from "rxjs";
 
-import { SummaryStatusChanged } from "./job.events";
+import {
+  FillJobCompleted,
+  FillJobFailed,
+  FillJobRequested,
+  SummaryStatusChanged,
+} from "./job.events";
 import { JobEventBus } from "./job-event.bus";
+
+type FillSsePayload = {
+  jobId: string;
+  status: AsyncMetadataStatusEnum;
+  error: string | null;
+};
 
 type RequestWithUser = Request & { user?: { userId?: string } };
 
@@ -17,22 +29,74 @@ export class JobsSseController {
   stream(
     @Param("id") id: string,
     @Req() req: RequestWithUser,
-  ): Observable<{ data: { jobId: string; status: string }; type: string }> {
-    return new Observable<{
-      data: { jobId: string; status: string };
-      type: string;
-    }>((observer) => {
-      const handler = (event: SummaryStatusChanged) => {
+  ): Observable<{
+    data: FillSsePayload | { jobId: string; status: string };
+    type: string;
+  }> {
+    const userId = req.user?.userId;
+
+    return new Observable<
+      | { data: FillSsePayload; type: "fill_status_changed" }
+      | {
+          data: { jobId: string; status: string };
+          type: "summary_status_changed";
+        }
+    >((observer) => {
+      const summaryUnsub = this.eventBus.on(SummaryStatusChanged, (event) => {
         if (event.jobId !== id) return;
-        if (event.userId !== req.user?.userId) return;
+        if (event.userId !== userId) return;
 
         observer.next({
           data: { jobId: id, status: event.status },
           type: "summary_status_changed",
         });
-      };
+      });
 
-      return this.eventBus.on(SummaryStatusChanged, handler);
+      const fillRequestedUnsub = this.eventBus.on(FillJobRequested, (event) => {
+        if (event.jobId !== id) return;
+        if (event.userId !== userId) return;
+        observer.next({
+          data: {
+            jobId: id,
+            status: AsyncMetadataStatusEnum.PROCESSING,
+            error: null,
+          },
+          type: "fill_status_changed",
+        });
+      });
+
+      const fillCompletedUnsub = this.eventBus.on(FillJobCompleted, (event) => {
+        if (event.jobId !== id) return;
+        if (event.userId !== userId) return;
+        observer.next({
+          data: {
+            jobId: id,
+            status: AsyncMetadataStatusEnum.COMPLETED,
+            error: null,
+          },
+          type: "fill_status_changed",
+        });
+      });
+
+      const fillFailedUnsub = this.eventBus.on(FillJobFailed, (event) => {
+        if (event.jobId !== id) return;
+        if (event.userId !== userId) return;
+        observer.next({
+          data: {
+            jobId: id,
+            status: AsyncMetadataStatusEnum.FAILED,
+            error: event.error,
+          },
+          type: "fill_status_changed",
+        });
+      });
+
+      return () => {
+        summaryUnsub();
+        fillRequestedUnsub();
+        fillCompletedUnsub();
+        fillFailedUnsub();
+      };
     });
   }
 }

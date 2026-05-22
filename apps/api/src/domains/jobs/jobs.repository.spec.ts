@@ -670,6 +670,110 @@ describe("JobsRepository", () => {
     await expect(repo.resetStaleSummaryProcessing()).resolves.toBe(4);
   });
 
+  it("resetStaleFillProcessing aggregates affected fill rows", async () => {
+    const qbStale = {
+      update: vi.fn().mockReturnThis(),
+      set: vi.fn().mockReturnThis(),
+      where: vi.fn().mockReturnThis(),
+      execute: vi.fn().mockResolvedValue({ affected: 2 }),
+    };
+    vi.mocked(jobsRepo.createQueryBuilder).mockReturnValue(qbStale as never);
+
+    const repo = new JobsRepository(
+      jobsRepo as unknown as Repository<JobEntity>,
+      stageEventsRepo as unknown as Repository<JobStageEventEntity>,
+    );
+
+    await expect(repo.resetStaleFillProcessing()).resolves.toBe(2);
+    expect(qbStale.where).toHaveBeenCalledWith(
+      `"fill_status" = :processing`,
+      expect.objectContaining({
+        processing: AsyncMetadataStatusEnum.PROCESSING,
+      }),
+    );
+  });
+
+  it("updateFillMetadata succeeds CAS when fill_status matches expected", async () => {
+    const qbChain = {
+      update: vi.fn().mockReturnThis(),
+      set: vi.fn().mockReturnThis(),
+      where: vi.fn().mockReturnThis(),
+      andWhere: vi.fn().mockReturnThis(),
+      execute: vi.fn().mockResolvedValue({ affected: 1 }),
+    };
+    vi.mocked(jobsRepo.createQueryBuilder).mockReturnValue(qbChain as never);
+
+    const repo = new JobsRepository(
+      jobsRepo as unknown as Repository<JobEntity>,
+      stageEventsRepo as unknown as Repository<JobStageEventEntity>,
+    );
+
+    const ok = await repo.updateFillMetadata(
+      "j1",
+      { status: AsyncMetadataStatusEnum.PROCESSING },
+      {
+        status: AsyncMetadataStatusEnum.COMPLETED,
+        timestamp: new Date(),
+        error: null,
+      },
+      "u1",
+    );
+
+    expect(ok).toBe(true);
+    expect(qbChain.andWhere).toHaveBeenCalledWith(`"fill_status" = :expected`, {
+      expected: AsyncMetadataStatusEnum.PROCESSING,
+    });
+  });
+
+  it("updateFillMetadata returns false when fill CAS affects no rows", async () => {
+    const qbChain = {
+      update: vi.fn().mockReturnThis(),
+      set: vi.fn().mockReturnThis(),
+      where: vi.fn().mockReturnThis(),
+      andWhere: vi.fn().mockReturnThis(),
+      execute: vi.fn().mockResolvedValue({ affected: 0 }),
+    };
+    vi.mocked(jobsRepo.createQueryBuilder).mockReturnValue(qbChain as never);
+
+    const repo = new JobsRepository(
+      jobsRepo as unknown as Repository<JobEntity>,
+      stageEventsRepo as unknown as Repository<JobStageEventEntity>,
+    );
+
+    const ok = await repo.updateFillMetadata(
+      "j1",
+      { status: AsyncMetadataStatusEnum.PROCESSING },
+      { status: AsyncMetadataStatusEnum.FAILED, error: "x" },
+      "u1",
+    );
+
+    expect(ok).toBe(false);
+  });
+
+  it("completeFillAutomatically and failFillAutomatically delegate to CAS update", async () => {
+    const qbChain = {
+      update: vi.fn().mockReturnThis(),
+      set: vi.fn().mockReturnThis(),
+      where: vi.fn().mockReturnThis(),
+      andWhere: vi.fn().mockReturnThis(),
+      execute: vi.fn().mockResolvedValue({ affected: 1 }),
+    };
+    vi.mocked(jobsRepo.createQueryBuilder).mockReturnValue(qbChain as never);
+
+    const repo = new JobsRepository(
+      jobsRepo as unknown as Repository<JobEntity>,
+      stageEventsRepo as unknown as Repository<JobStageEventEntity>,
+    );
+
+    await expect(repo.completeFillAutomatically("j1", "u1")).resolves.toBe(
+      true,
+    );
+    await expect(repo.failFillAutomatically("j1", "u1", "boom")).resolves.toBe(
+      true,
+    );
+    expect(qbChain.execute).toHaveBeenCalledTimes(2);
+  });
+
   it("findStageEventsByJobIdAndUserId orders by schedule and created timestamps", async () => {
     const qb = {
       where: vi.fn().mockReturnThis(),

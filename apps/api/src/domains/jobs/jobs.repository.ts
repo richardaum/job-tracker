@@ -508,6 +508,77 @@ export class JobsRepository {
     return (result.affected ?? 0) > 0;
   }
 
+  /**
+   * Atomic JSONB update for embedded `fillMetadata` when `fill_status` matches {@link expectedStatus}
+   * (CAS). Returns whether at least one row was updated — `false` on races or mismatched expectation.
+   */
+  async updateFillMetadata(
+    jobId: string,
+    expectedStatus: Pick<AsyncMetadataEmbedded, "status"> | null,
+    patch: Partial<AsyncMetadataEmbedded> & {
+      status: AsyncMetadataEmbedded["status"];
+    },
+    userId: string,
+  ): Promise<boolean> {
+    const fillUpdate: Partial<AsyncMetadataEmbedded> = { status: patch.status };
+    if (patch.error !== undefined) {
+      fillUpdate.error = patch.error;
+    }
+    if (patch.timestamp !== undefined) {
+      fillUpdate.timestamp = patch.timestamp;
+    }
+
+    const qb = this.jobsRepo
+      .createQueryBuilder()
+      .update(JobEntity)
+      .set({ fillMetadata: fillUpdate })
+      .where(`"id" = :id AND "user_id" = :userId`, { id: jobId, userId });
+
+    if (expectedStatus === null) {
+      qb.andWhere(`"fill_status" IS NULL`);
+    } else {
+      qb.andWhere(`"fill_status" = :expected`, {
+        expected: expectedStatus.status,
+      });
+    }
+
+    const result = await qb.execute();
+    return (result.affected ?? 0) > 0;
+  }
+
+  async completeFillAutomatically(
+    jobId: string,
+    userId: string,
+  ): Promise<boolean> {
+    return this.updateFillMetadata(
+      jobId,
+      { status: AsyncMetadataStatusEnum.PROCESSING },
+      {
+        status: AsyncMetadataStatusEnum.COMPLETED,
+        timestamp: new Date(),
+        error: null,
+      },
+      userId,
+    );
+  }
+
+  async failFillAutomatically(
+    jobId: string,
+    userId: string,
+    errorMessage: string,
+  ): Promise<boolean> {
+    return this.updateFillMetadata(
+      jobId,
+      { status: AsyncMetadataStatusEnum.PROCESSING },
+      {
+        status: AsyncMetadataStatusEnum.FAILED,
+        error: errorMessage,
+        timestamp: new Date(),
+      },
+      userId,
+    );
+  }
+
   async updateSummary(
     jobId: string,
     summary: string,
@@ -531,6 +602,23 @@ export class JobsRepository {
         },
       })
       .where(`"summary_status" = :processing`, {
+        processing: AsyncMetadataStatusEnum.PROCESSING,
+      })
+      .execute();
+    return result.affected ?? 0;
+  }
+
+  async resetStaleFillProcessing(): Promise<number> {
+    const result = await this.jobsRepo
+      .createQueryBuilder()
+      .update()
+      .set({
+        fillMetadata: {
+          status: AsyncMetadataStatusEnum.FAILED,
+          error: "Server restart — fill interrupted",
+        },
+      })
+      .where(`"fill_status" = :processing`, {
         processing: AsyncMetadataStatusEnum.PROCESSING,
       })
       .execute();

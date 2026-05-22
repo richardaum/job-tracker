@@ -14,6 +14,7 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 
 import { DraftExtractionService } from "./ai/draft-extraction.service";
 import { DraftExtractionNormalizationService } from "./ai/draft-extraction-normalization.service";
+import { FillJobEventListener } from "./fill-job-event.listener";
 import { DraftConversionEventListener } from "./job-conversion-event.listener";
 import { JobEventBus } from "./job-event.bus";
 import { JobsRepository } from "./jobs.repository";
@@ -53,6 +54,7 @@ import { TagsModule } from "./tags/tags.module";
     JobsService,
     JobsResolver,
     DraftConversionEventListener,
+    FillJobEventListener,
     SummaryEventListener,
     SummaryService,
     SummaryAiService,

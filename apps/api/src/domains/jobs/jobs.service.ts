@@ -26,7 +26,13 @@ import {
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 
-import { JobCreated, JobUpdated } from "./job.events";
+import {
+  FillJobCompleted,
+  FillJobFailed,
+  FillJobRequested,
+  JobCreated,
+  JobUpdated,
+} from "./job.events";
 import { APPLICATION_DUPLICATE_PAIRING_WINDOW_MS } from "./job-duplicate.constants";
 import { JobEventBus } from "./job-event.bus";
 import { ApplicationQuickFilterEnum } from "./job-quick-filter.enum";
@@ -368,9 +374,8 @@ export class JobsService {
   }
 
   /**
-   * Stub pipeline for automatic job fill from captured HTML / AI (full behavior task 08).
-   * Available for any job (PRD): sets {@link AsyncMetadataStatusEnum.PROCESSING} when not already filling.
-   * Re-start allowed from idle (null), FAILED, or COMPLETED via repository CAS.
+   * Starts async fill: CAS to {@link AsyncMetadataStatusEnum.PROCESSING}, emits
+   * {@link FillJobRequested} on {@link JobEventBus}, returns immediately.
    */
   async fillJobAutomatically(
     userId: string,
@@ -379,7 +384,7 @@ export class JobsService {
     const existing = await this.findOne(jobId, userId);
 
     if (existing.fillMetadata?.status === AsyncMetadataStatusEnum.PROCESSING) {
-      throw new BadRequestException("Fill already in progress.");
+      throw new BadRequestException("Fill already in progress");
     }
 
     const started = await this.repo.beginFillAutomaticallyProcessing(
@@ -392,7 +397,179 @@ export class JobsService {
       );
     }
 
+    this.eventBus.emit(new FillJobRequested(jobId, userId));
+
     return this.findOne(jobId, userId);
+  }
+
+  /**
+   * Background worker: extracts from `htmlContent` (preferred) with URL fallback via
+   * {@link DraftExtractionService}, normalizes fields, updates the job row in place, then CAS-completes or
+   * fails `fillMetadata` when still {@link AsyncMetadataStatusEnum.PROCESSING}.
+   */
+  async processFillJob(userId: string, jobId: string): Promise<void> {
+    const row = await this.repo.findOneByIdAndUserId(jobId, userId);
+    if (!row) {
+      const ok = await this.repo.failFillAutomatically(
+        jobId,
+        userId,
+        "Job not found.",
+      );
+      if (ok) {
+        this.eventBus.emit(new FillJobFailed(jobId, userId, "Job not found."));
+      }
+      return;
+    }
+
+    if (row.fillMetadata?.status !== AsyncMetadataStatusEnum.PROCESSING) {
+      return;
+    }
+
+    const jobWithStage =
+      (
+        await this.attachCurrentStage(userId, [
+          { ...row, urls: row.urls ?? [] },
+        ])
+      )[0] ?? null;
+    const isDraftStage =
+      jobWithStage?.currentStage === ApplicationStageEnum.DRAFT;
+
+    const [extractError, raw] = await tryRun(
+      this.draftExtractionService.extract({
+        title: row.title?.trim() ?? "",
+        url:
+          typeof row.urls?.[0] === "string" && row.urls[0].trim()
+            ? row.urls[0].trim()
+            : null,
+        htmlContent: row.htmlContent?.trim() ?? "",
+      }),
+    );
+
+    if (extractError != null) {
+      await this.persistFillFailure(
+        jobId,
+        userId,
+        extractError instanceof Error ? extractError.message : "Unknown error",
+      );
+      return;
+    }
+
+    const normalized =
+      this.draftExtractionNormalizationService.normalizeExtraction(
+        raw as Record<string, unknown>,
+      );
+
+    const [salaryErr, salaryColumns] = await tryRun(() =>
+      this.salaryService.getUpdateSalary(row, {
+        salaryMinCents: normalized.salaryMinCents,
+        salaryMaxCents: normalized.salaryMaxCents,
+        salaryCurrency: normalized.salaryCurrency,
+        salaryPeriod: normalized.salaryPeriod,
+      }),
+    );
+
+    if (salaryErr != null) {
+      await this.persistFillFailure(
+        jobId,
+        userId,
+        salaryErr instanceof Error
+          ? salaryErr.message
+          : "Salary validation failed.",
+      );
+      return;
+    }
+
+    const companyId = await this.resolveCompanyId(
+      userId,
+      normalized.company,
+      undefined,
+    );
+
+    if (!companyId) {
+      await this.persistFillFailure(
+        jobId,
+        userId,
+        "Company could not be resolved",
+      );
+      return;
+    }
+
+    const repoDto: UpdateJobRepoDto = {
+      title: normalized.title,
+      companyId,
+      description: normalized.description,
+      tags: this.tagService.normalizeTags(normalized.tags),
+      location: normalized.location ?? null,
+      workRegion: normalized.workRegion ?? null,
+      ...(salaryColumns ?? {}),
+    };
+
+    const updated = await this.repo.update(jobId, userId, repoDto);
+    if (!updated) {
+      await this.persistFillFailure(jobId, userId, "Job was deleted.");
+      return;
+    }
+
+    if (isDraftStage) {
+      const [draftErr] = await tryRun(
+        (async () => {
+          await this.repo.setPersistedStage(
+            userId,
+            jobId,
+            ApplicationStageEnum.NEW,
+          );
+          await this.repo.createStageEvent(userId, jobId, {
+            fromStage: ApplicationStageEnum.DRAFT,
+            toStage: ApplicationStageEnum.NEW,
+            source: StageEventSourceEnum.System,
+            reason: null,
+            scheduledAt: null,
+          });
+        })(),
+      );
+
+      if (draftErr != null) {
+        this.logger.error(
+          `Failed DRAFT→NEW after fill for ${jobId}: ${
+            draftErr instanceof Error ? draftErr.message : String(draftErr)
+          }`,
+        );
+        await this.persistFillFailure(
+          jobId,
+          userId,
+          draftErr instanceof Error
+            ? draftErr.message
+            : "Stage transition failed.",
+        );
+        return;
+      }
+    }
+
+    const finalized = await this.repo.completeFillAutomatically(jobId, userId);
+    if (!finalized) {
+      this.logger.warn(
+        `[${jobId}] Fill finished but fillMetadata was not PROCESSING — skipping completion events.`,
+      );
+      return;
+    }
+
+    this.eventBus.emit(new FillJobCompleted(jobId, userId));
+    this.eventBus.emit(new JobUpdated(jobId, userId));
+  }
+
+  private async persistFillFailure(
+    jobId: string,
+    userId: string,
+    message: string,
+  ): Promise<void> {
+    const ok = await this.repo.failFillAutomatically(jobId, userId, message);
+    if (!ok) {
+      this.logger.warn(
+        `[${jobId}] Could not persist fill failure (${message}) — CAS missed or stale.`,
+      );
+      return;
+    }
+    this.eventBus.emit(new FillJobFailed(jobId, userId, message));
   }
 
   async processDraftConversion(userId: string, draftId: string): Promise<void> {
