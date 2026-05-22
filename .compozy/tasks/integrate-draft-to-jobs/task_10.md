@@ -1,5 +1,5 @@
 ---
-status: pending
+status: completed
 title: Codegen — Regenerate Frontend Hooks
 type: chore
 complexity: low
@@ -37,12 +37,18 @@ Run GraphQL codegen to regenerate all frontend hooks, types, and documents from 
 
 ## Subtasks
 
-- [ ] 10.1 Restart API and verify `schema.gql` is regenerated with new types
-- [ ] 10.2 Remove draft-specific GraphQL operations from `.graphql` files
-- [ ] 10.3 Add `FillJobAutomatically` mutation to `jobs.graphql`
-- [ ] 10.4 Run codegen: `pnpm --filter @job-tracker/web run codegen`
-- [ ] 10.5 Run post-process: `pnpm --filter @job-tracker/web run codegen:postprocess` (if exists)
-- [ ] 10.6 Run `fix:imports` and verify typecheck passes for web
+- [x] 10.1 Restart API and verify `schema.gql` is regenerated with new types — **`apps/api/src/schema.gql` already authoritative** (includes `fillJobAutomatically`); **PM2/API restart not required** for codegen
+- [x] 10.2 Remove draft-specific GraphQL operations from `.graphql` files (`draft-jobs.graphql` deleted; `match.graphql` cleaned)
+- [x] 10.3 Add `FillJobAutomatically` mutation to `jobs.graphql`
+- [x] 10.4 Run codegen: `pnpm --filter @job-tracker/web run codegen`
+- [x] 10.5 Run post-process: `pnpm --filter @job-tracker/web run codegen:postprocess` (if exists) — **handled inline** (`codegen` script runs `scripts/postprocess-codegen-hooks.mjs` after codegen)
+- [x] 10.6 Run `fix:imports` scoped to `apps/web/src` and verify typecheck/test/lint for web
+
+### Execution notes (2026-05-22)
+
+- **Verification**: `apps/web/codegen.ts` reads `../api/src/schema.gql`; `draft-jobs.graphql` absent; `jobs.graphql` has `FillJobAutomatically`, no `CreateJobWithAI`; `match.graphql` has no `GenerateDraftJobMatch` / `DraftJobMatch`.
+- **`pnpm fix:imports "apps/web/src/**/_.ts" "apps/web/src/\*\*/_.tsx"`**: ran from repo root. **Avoid** blindly removing `eslint-disable-next-line`adjacent to sorted imports —`login/page.tsx`needed`@next/next/no-location-assign-relative-destination` preserved (fixed before commit).
+- **Checks**: `pnpm --filter @job-tracker/web run typecheck`, `pnpm --filter @job-tracker/web run test` (69 tests), `pnpm --filter @job-tracker/web run lint` — all passed.
 
 ## Implementation Details
 
