@@ -40,9 +40,9 @@ type CurrencyRates {
 }
 
 type AsyncMetadataType {
-  status: AsyncMetadataStatus!
+  status: AsyncMetadataStatus
   error: String
-  timestamp: String
+  timestamp: DateTime
 }
 
 enum AsyncMetadataStatus {
@@ -81,9 +81,9 @@ type MatchAnalysisType {
 }
 
 type ConversionMetadataType {
-  status: DraftJobConversionStatus!
+  status: DraftJobConversionStatus
   error: String
-  timestamp: String
+  timestamp: DateTime
 }
 
 enum DraftJobConversionStatus {
