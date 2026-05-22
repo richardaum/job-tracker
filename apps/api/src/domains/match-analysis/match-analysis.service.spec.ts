@@ -46,7 +46,6 @@ describe("MatchAnalysisService", () => {
     repo = {
       resetStaleProcessing: vi.fn(),
       findByJobId: vi.fn(),
-      findByDraftJobId: vi.fn(),
       upsert: vi.fn(),
       updateById: vi.fn(),
       deleteById: vi.fn(),
@@ -97,14 +96,45 @@ describe("MatchAnalysisService", () => {
     }
   });
 
-  it("generate throws when description missing", async () => {
+  it("generate throws BadRequestException when neither description nor htmlContent yields text", async () => {
     vi.mocked(jobRepo.findOneByIdAndUserId).mockResolvedValue({
       id: "job-1",
       description: "",
+      htmlContent: "",
     } as never);
 
     await expect(service.generate("job-1", "res-1", "user-1")).rejects.toThrow(
       BadRequestException,
+    );
+    await expect(service.generate("job-1", "res-1", "user-1")).rejects.toThrow(
+      "Job has no description or htmlContent",
+    );
+  });
+
+  it("generate upserts match from htmlContent when description is empty", async () => {
+    vi.mocked(jobRepo.findOneByIdAndUserId).mockResolvedValue({
+      id: "job-1",
+      description: "",
+      htmlContent: "<p>Captured JD</p>",
+    } as never);
+    vi.mocked(resumeRepo.findOne).mockResolvedValue({
+      id: "res-1",
+      userId: "user-1",
+      content: resumeTiTap,
+    } as ResumeEntity);
+
+    vi.mocked(repo.findByJobId).mockResolvedValue(null);
+    const saved = Object.assign(new MatchAnalysisEntity(), {
+      id: "m-html-only",
+      userId: "user-1",
+      jobId: "job-1",
+    });
+    vi.mocked(repo.upsert).mockResolvedValue(saved);
+
+    await service.generate("job-1", "res-1", "user-1");
+
+    expect(repo.upsert).toHaveBeenCalledWith(
+      expect.objectContaining({ jobId: "job-1" }),
     );
   });
 
@@ -161,57 +191,6 @@ describe("MatchAnalysisService", () => {
     expect(eventEmit).toHaveBeenCalled();
     const sources = matchSourcesFromEmit(eventEmit);
     expect(sources.some((s) => s.jobId === "job-1")).toBe(true);
-  });
-
-  it("generateForDraft delegates to generate — missing job IDs fail", async () => {
-    vi.mocked(jobRepo.findOneByIdAndUserId).mockResolvedValue(null);
-
-    await expect(
-      service.generateForDraft("missing", "res-1", "user-1"),
-    ).rejects.toThrow("Job not found");
-  });
-
-  it("generateForDraft delegates to generate — needs description or captured HTML", async () => {
-    vi.mocked(jobRepo.findOneByIdAndUserId).mockResolvedValue({
-      id: "job-draft",
-      description: "",
-      htmlContent: "",
-    } as never);
-
-    await expect(
-      service.generateForDraft("job-draft", "res-1", "user-1"),
-    ).rejects.toThrow("Job has no captured HTML or job description");
-  });
-
-  it("generateForDraft delegates to generate and emits job lifecycle", async () => {
-    vi.mocked(jobRepo.findOneByIdAndUserId).mockResolvedValue({
-      id: "job-draft",
-      description: "",
-      htmlContent: "<p>Rust role</p>",
-    } as never);
-
-    vi.mocked(resumeRepo.findOne).mockResolvedValue({
-      id: "res-1",
-      content: resumeTiTap,
-      userId: "user-1",
-    } as ResumeEntity);
-
-    vi.mocked(repo.findByJobId).mockResolvedValue(null);
-
-    const saved = Object.assign(new MatchAnalysisEntity(), {
-      id: "m-draft",
-      jobId: "job-draft",
-    });
-
-    vi.mocked(repo.upsert).mockResolvedValue(saved);
-
-    await service.generateForDraft("job-draft", "res-1", "user-1");
-
-    expect(repo.upsert).toHaveBeenCalledWith(
-      expect.objectContaining({ jobId: "job-draft" }),
-    );
-    const sources = matchSourcesFromEmit(eventEmit);
-    expect(sources.some((s) => s.jobId === "job-draft")).toBe(true);
   });
 
   it("processMatchAnalysis uses JD text from TipTap description for job sources", async () => {
@@ -300,12 +279,17 @@ describe("MatchAnalysisService", () => {
     );
   });
 
-  it("processMatchAnalysis returns early when JD source unspecified", async () => {
+  it("processMatchAnalysis returns early when job has no describable JD text", async () => {
     vi.mocked(preferencesRepo.findOne).mockResolvedValue({
       items: [],
     } as unknown as WorkPreferencesEntity);
+    vi.mocked(jobRepo.findOneByIdAndUserId).mockResolvedValue({
+      id: "job-empty",
+      description: "",
+      htmlContent: "",
+    } as never);
 
-    await service.processMatchAnalysis("m1", "user-1", {});
+    await service.processMatchAnalysis("m1", "user-1", { jobId: "job-empty" });
 
     expect(aiService.extractResumeMatchItems).not.toHaveBeenCalled();
   });
@@ -384,7 +368,7 @@ describe("MatchAnalysisService", () => {
   }
 });
 
-type MatchRequestedSource = { jobId?: string; draftJobId?: string };
+type MatchRequestedSource = { jobId: string };
 
 function matchSourcesFromEmit(
   spy: ReturnType<typeof vi.fn>,

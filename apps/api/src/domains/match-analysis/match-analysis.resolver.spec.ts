@@ -44,18 +44,14 @@ describe("MatchAnalysisResolver (GraphQL integration smoke)", () => {
     | "findAll"
     | "findById"
     | "findForJob"
-    | "findForDraftJob"
     | "generate"
     | "remove"
     | "findJobById"
-    | "generateForDraft"
   > = {
     findAll: vi.fn().mockResolvedValue([mockMatch]),
     findById: vi.fn().mockResolvedValue(mockMatch),
     findForJob: vi.fn().mockResolvedValue(mockMatch),
-    findForDraftJob: vi.fn().mockResolvedValue(mockMatch),
     generate: vi.fn().mockResolvedValue(mockMatch),
-    generateForDraft: vi.fn().mockResolvedValue(mockMatch),
     remove: vi.fn(),
     findJobById: vi.fn().mockResolvedValue(null),
   };

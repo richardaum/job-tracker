@@ -1,5 +1,5 @@
 ---
-status: pending
+status: completed
 title: Unify Match Analysis — Single Mutation
 type: backend
 complexity: high
@@ -40,13 +40,13 @@ Consolidate the two match analysis paths (`generate` for jobs, `generateForDraft
 
 ## Subtasks
 
-- [ ] 7.1 Add unified source selection to `MatchAnalysisService.generate()`
-- [ ] 7.2 Remove `generateForDraft` and `findForDraftJob` from `MatchAnalysisService`
-- [ ] 7.3 Remove draft dispatch path from `processMatchAnalysis()`
-- [ ] 7.4 Remove `generateDraftJobMatch` mutation and `draftJobMatch` query from resolver
-- [ ] 7.5 Delete `DraftJobMatchResolver` class
-- [ ] 7.6 Remove `GenerateDraftMatchInput` input type
-- [ ] 7.7 Clean up repository methods that reference `draftJobId`
+- [x] 7.1 Add unified source selection to `MatchAnalysisService.generate()`
+- [x] 7.2 Remove `generateForDraft` and `findForDraftJob` from `MatchAnalysisService`
+- [x] 7.3 Remove draft dispatch path from `processMatchAnalysis()`
+- [x] 7.4 Remove `generateDraftJobMatch` mutation and `draftJobMatch` query from resolver
+- [x] 7.5 Delete `DraftJobMatchResolver` class
+- [x] 7.6 Remove `GenerateDraftMatchInput` input type
+- [x] 7.7 Clean up repository methods that reference `draftJobId`
 
 ## Implementation Details
 
@@ -60,11 +60,14 @@ The core change in `MatchAnalysisService.generate()`:
 5. Proceed with existing AI pipeline using selected source
 ```
 
-The `processMatchAnalysis` method currently dispatches based on `source.jobId` vs `source.draftJobId`. After unification, only `jobId` source exists — remove the `draftJobId` branch entirely.
+JD plain-text resolution is shared via `job-posting-plain-text.util.ts` (`resolveJobPostingPlainText`) — used by `generate()`, `processMatchAnalysis()`, and auto-match listener.
+
+The `processMatchAnalysis` method previously dispatched based on `source.jobId` vs `source.draftJobId`. After unification, only `jobId` source exists — the `draftJobId` branch is removed.
 
 ### Relevant Files
 
 - `apps/api/src/domains/match-analysis/match-analysis.service.ts` — primary target: unify `generate()`, remove `generateForDraft()`, update `processMatchAnalysis()`
+- `apps/api/src/domains/match-analysis/job-posting-plain-text.util.ts` — shared JD text resolution
 - `apps/api/src/domains/match-analysis/match-analysis.resolver.ts` — remove `generateDraftJobMatch`, `draftJobMatch`, `DraftJobMatchResolver`
 - `apps/api/src/domains/match-analysis/match-analysis.repository.ts` — remove `findForDraftJob`, clean `draftJobId` references
 - `apps/api/src/domains/match-analysis/generate-draft-match.input.ts` — delete file
@@ -94,15 +97,15 @@ The `processMatchAnalysis` method currently dispatches based on `source.jobId` v
 ## Tests
 
 - Unit tests:
-  - [ ] `generate()` with job that has `htmlContent` — uses `htmlToPlainText(htmlContent)` as AI input
-  - [ ] `generate()` with job that has `description` but no `htmlContent` — uses `tipTapToPlainText(description)` as AI input
-  - [ ] `generate()` with job that has both `htmlContent` and `description` — prefers `htmlContent`
-  - [ ] `generate()` with job that has neither `htmlContent` nor `description` — throws `BadRequestException` with descriptive message
-  - [ ] `generate()` still creates match analysis with correct jobId
-  - [ ] `processMatchAnalysis()` with `jobId` source — dispatches to `generate()`
-  - [ ] `processMatchAnalysis()` with `draftJobId` source — no longer supported, throws or ignores
-  - [ ] `generateForDraft` method no longer exists on service
-  - [ ] `generateDraftJobMatch` mutation not present in GraphQL schema
+  - [x] `generate()` with job that has `htmlContent` — uses `htmlToPlainText(htmlContent)` as AI input
+  - [x] `generate()` with job that has `description` but no `htmlContent` — uses `tipTapToPlainText(description)` as AI input
+  - [x] `generate()` with job that has both `htmlContent` and `description` — prefers `htmlContent`
+  - [x] `generate()` with job that has neither `htmlContent` nor `description` — throws `BadRequestException` with descriptive message
+  - [x] `generate()` still creates match analysis with correct jobId
+  - [x] `processMatchAnalysis()` with `jobId` source — dispatches to `generate()`
+  - [x] `processMatchAnalysis()` with `draftJobId` source — no longer supported, throws or ignores
+  - [x] `generateForDraft` method no longer exists on service
+  - [x] `generateDraftJobMatch` mutation not present in GraphQL schema
 - Integration tests:
   - [ ] Full match analysis flow for job with htmlContent — match created, emits SSE event
   - [ ] Full match analysis flow for job with description only — match created

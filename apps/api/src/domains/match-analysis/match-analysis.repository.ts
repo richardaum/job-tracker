@@ -27,13 +27,6 @@ export class MatchAnalysisRepository {
     });
   }
 
-  async findByDraftJobId(
-    draftJobId: string,
-    userId?: string,
-  ): Promise<MatchAnalysisEntity | null> {
-    return this.findByJobId(draftJobId, userId);
-  }
-
   async findAllByUserId(userId: string): Promise<MatchAnalysisEntity[]> {
     return this.repo.find({ where: { userId }, order: { updatedAt: "DESC" } });
   }
@@ -63,17 +56,6 @@ export class MatchAnalysisRepository {
   ): Promise<boolean> {
     const result = await this.repo.delete({
       jobId,
-      ...(userId ? { userId } : {}),
-    });
-    return (result.affected ?? 0) > 0;
-  }
-
-  async deleteByDraftApplicationId(
-    draftJobId: string,
-    userId?: string,
-  ): Promise<boolean> {
-    const result = await this.repo.delete({
-      jobId: draftJobId,
       ...(userId ? { userId } : {}),
     });
     return (result.affected ?? 0) > 0;

@@ -8,7 +8,6 @@ import { WorkPreferencesEntity } from "@api/database/entities/work-preferences.e
 import { JobsRepository } from "@api/domains/jobs/jobs.repository";
 import type { Job } from "@api/domains/jobs/jobs.schema";
 import { AsyncMetadataStatusEnum } from "@api/domains/shared/async-metadata.type";
-import { htmlToPlainText } from "@api/domains/shared/html-plain-text.util";
 import { tipTapToPlainText } from "@job-tracker/tiptap";
 import { tryRun } from "@job-tracker/try-run";
 import {
@@ -22,6 +21,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 
 import { FitSourceEnum } from "./fit-source.enum";
+import { resolveJobPostingPlainText } from "./job-posting-plain-text.util";
 import {
   MatchAnalysisRequested,
   MatchStatusChanged,
@@ -71,16 +71,6 @@ export class MatchAnalysisService implements OnModuleInit {
     return this.repo.findByJobId(jobId, userId);
   }
 
-  /**
-   * Draft captures share the jobs PK after merge (`draft_jobs.id` → `jobs.id`), so lookups use unified `job_id`.
-   */
-  async findForDraftJob(
-    draftJobId: string,
-    userId: string,
-  ): Promise<MatchAnalysis | null> {
-    return this.repo.findByJobId(draftJobId, userId);
-  }
-
   async remove(id: string, userId: string): Promise<void> {
     const deleted = await this.repo.deleteById(id, userId);
     if (!deleted) {
@@ -105,16 +95,9 @@ export class MatchAnalysisService implements OnModuleInit {
     if (!job) {
       throw new BadRequestException("Job not found.");
     }
-    const fromDesc = job.description?.trim()
-      ? tipTapToPlainText(job.description)
-      : "";
-    const fromHtml = job.htmlContent?.trim()
-      ? htmlToPlainText(job.htmlContent)
-      : "";
-    if (!fromDesc.trim() && !fromHtml.trim()) {
-      throw new BadRequestException(
-        "Job has no captured HTML or job description to analyze.",
-      );
+    const jdPlain = resolveJobPostingPlainText(job);
+    if (!jdPlain) {
+      throw new BadRequestException("Job has no description or htmlContent.");
     }
 
     const resume = await this.resumeRepo.findOne({
@@ -160,46 +143,20 @@ export class MatchAnalysisService implements OnModuleInit {
     return saved;
   }
 
-  async generateForDraft(
-    draftJobId: string,
-    resumeId: string,
-    userId: string,
-  ): Promise<MatchAnalysis> {
-    /** Legacy mutation name — `draftJobId` is a job PK after drafts merged into jobs. */
-    return this.generate(draftJobId, resumeId, userId);
-  }
-
   async processMatchAnalysis(
     matchId: string,
     userId: string,
-    source: { jobId?: string; draftJobId?: string },
+    source: { jobId: string },
   ): Promise<void> {
     const [err] = await tryRun(async () => {
       const preferences = await this.preferencesRepo.findOne({
         where: { userId },
       });
 
-      let jdText: string;
+      const job = await this.jobRepo.findOneByIdAndUserId(source.jobId, userId);
 
-      if (source.jobId) {
-        const job = await this.jobRepo.findOneByIdAndUserId(
-          source.jobId,
-          userId,
-        );
-        const trimmedHtml = job?.htmlContent?.trim();
-        if (trimmedHtml) {
-          jdText = htmlToPlainText(trimmedHtml);
-        } else if (job?.description?.trim()) {
-          jdText = job.description;
-        } else {
-          return;
-        }
-      } else if (source.draftJobId) {
-        await this.processMatchAnalysis(matchId, userId, {
-          jobId: source.draftJobId,
-        });
-        return;
-      } else {
+      const jdText = job ? resolveJobPostingPlainText(job) : "";
+      if (!jdText) {
         return;
       }
 
