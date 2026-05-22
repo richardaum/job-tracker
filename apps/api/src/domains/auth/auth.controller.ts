@@ -26,6 +26,13 @@ const cookieBase = {
   secure: true,
   path: "/",
 };
+const cookieBaseDev = {
+  httpOnly: true,
+  sameSite: "lax" as const,
+  secure: false,
+  domain: "localhost",
+  path: "/",
+};
 const DEFAULT_AFTER_LOGIN_PATH = "/login";
 
 @Controller("auth")
@@ -97,12 +104,16 @@ export class AuthController {
     const accessToken = this.authService.generateAccessToken(user);
     const refreshToken = this.authService.generateRefreshToken(user);
 
+    const cookies = this.devAuthBypassService.isEnabled()
+      ? cookieBaseDev
+      : cookieBase;
+
     res.cookie("access_token", accessToken, {
-      ...cookieBase,
+      ...cookies,
       maxAge: 15 * 60 * 1000,
     });
     res.cookie("refresh_token", refreshToken, {
-      ...cookieBase,
+      ...cookies,
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
@@ -112,14 +123,13 @@ export class AuthController {
     const forwardedHost = Array.isArray(forwardedHostHeader)
       ? forwardedHostHeader[0]
       : forwardedHostHeader;
-    const host = forwardedHost ?? req.headers.host;
     const forwardedProto = req.headers["x-forwarded-proto"];
     const protocol = Array.isArray(forwardedProto)
       ? forwardedProto[0]
       : (forwardedProto ?? req.protocol);
     const runtimeWebUrl =
       (originHeader && originHeader.trim()) ||
-      (host ? `${protocol}://${host}` : WEB_URL);
+      (forwardedHost ? `${protocol}://${forwardedHost}` : WEB_URL);
     const redirectUrl = new URL(DEFAULT_AFTER_LOGIN_PATH, runtimeWebUrl);
 
     if (returnTo) {
