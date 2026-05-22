@@ -1,7 +1,7 @@
+import { AsyncMetadataEmbedded } from "@api/database/embeddeds/async-metadata.embedded";
 import { DraftJobEntity } from "@api/database/entities/draft-job.entity";
 import { JobEntity } from "@api/database/entities/job.entity";
 import { JobStageEventEntity } from "@api/database/entities/job-stage-event.entity";
-import type { AsyncMetadata } from "@api/domains/shared/async-metadata.type";
 import { AsyncMetadataStatusEnum } from "@api/domains/shared/async-metadata.type";
 import { tipTapToPlainText } from "@job-tracker/tiptap";
 import { Injectable } from "@nestjs/common";
@@ -423,23 +423,32 @@ export class JobsRepository {
 
   async updateSummaryMetadata(
     jobId: string,
-    expectedStatus: Pick<AsyncMetadata, "status"> | null,
-    patch: Partial<AsyncMetadata> & { status: AsyncMetadata["status"] },
+    expectedStatus: Pick<AsyncMetadataEmbedded, "status"> | null,
+    patch: Partial<AsyncMetadataEmbedded> & {
+      status: AsyncMetadataEmbedded["status"];
+    },
     userId: string,
   ): Promise<boolean> {
-    const patchJson = JSON.stringify(patch);
+    const summaryUpdate: Partial<AsyncMetadataEmbedded> = {
+      status: patch.status,
+    };
+    if (patch.error !== undefined) {
+      summaryUpdate.error = patch.error;
+    }
+    if (patch.timestamp !== undefined) {
+      summaryUpdate.timestamp = patch.timestamp;
+    }
+
     const qb = this.jobsRepo
       .createQueryBuilder()
       .update(JobEntity)
-      .set({
-        summaryMetadata: () => `"summary_metadata" || '${patchJson}'::jsonb`,
-      })
+      .set({ summaryMetadata: summaryUpdate })
       .where(`"id" = :id AND "user_id" = :userId`, { id: jobId, userId });
 
     if (expectedStatus === null) {
-      qb.andWhere(`"summary_metadata" IS NULL`);
+      qb.andWhere(`"summary_status" IS NULL`);
     } else {
-      qb.andWhere(`"summary_metadata"->>'status' = :expected`, {
+      qb.andWhere(`"summary_status" = :expected`, {
         expected: expectedStatus.status,
       });
     }
@@ -465,10 +474,12 @@ export class JobsRepository {
       .createQueryBuilder()
       .update()
       .set({
-        summaryMetadata: () =>
-          `'{"status": "${AsyncMetadataStatusEnum.FAILED}", "error": "Server restart"}'::jsonb`,
+        summaryMetadata: {
+          status: AsyncMetadataStatusEnum.FAILED,
+          error: "Server restart",
+        },
       })
-      .where(`"summary_metadata"->>'status' = :processing`, {
+      .where(`"summary_status" = :processing`, {
         processing: AsyncMetadataStatusEnum.PROCESSING,
       })
       .execute();
