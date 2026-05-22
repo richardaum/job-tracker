@@ -3,14 +3,14 @@ import { MatchAnalysisEntity } from "@api/database/entities/match-analysis.entit
 import { SourceRunEntity } from "@api/database/entities/source-run.entity";
 import { CompanyDescriptionService } from "@api/domains/companies/ai/company-description.service";
 import { CompanyService } from "@api/domains/companies/companies.service";
-import { DraftExtractionService } from "@api/domains/draft-jobs/ai/draft-extraction.service";
-import { DraftExtractionNormalizationService } from "@api/domains/draft-jobs/ai/draft-extraction-normalization.service";
 import {
   DraftConversionRequested,
   DraftConversionStatusChanged,
 } from "@api/domains/draft-jobs/draft-job.events";
 import { DraftJobEventBus } from "@api/domains/draft-jobs/draft-job-event.bus";
 import { DraftJobsService } from "@api/domains/draft-jobs/draft-jobs.service";
+import { DraftExtractionService } from "@api/domains/jobs/ai/draft-extraction.service";
+import { DraftExtractionNormalizationService } from "@api/domains/jobs/ai/draft-extraction-normalization.service";
 import { AsyncMetadataStatusEnum } from "@api/domains/shared/async-metadata.type";
 import { LocationInferenceService } from "@api/lib/ai";
 import { BadRequestException, NotFoundException } from "@nestjs/common";

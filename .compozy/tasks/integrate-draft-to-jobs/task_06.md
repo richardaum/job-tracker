@@ -1,5 +1,5 @@
 ---
-status: pending
+status: completed
 title: Relocate AI Extraction to Jobs Domain
 type: backend
 complexity: medium
@@ -37,12 +37,12 @@ Move the AI extraction services and schemas from `domains/draft-jobs/ai/` to `do
 
 ## Subtasks
 
-- [ ] 6.1 Create `apps/api/src/domains/jobs/ai/` directory
-- [ ] 6.2 Move all extraction files from `draft-jobs/ai/` to `jobs/ai/`
-- [ ] 6.3 Update all import paths referencing the old location
-- [ ] 6.4 Register extraction services in `JobsModule` providers
-- [ ] 6.5 Delete empty `draft-jobs/ai/` directory
-- [ ] 6.6 Run typecheck to verify no broken imports
+- [x] 6.1 Create `apps/api/src/domains/jobs/ai/` directory
+- [x] 6.2 Move all extraction files from `draft-jobs/ai/` to `jobs/ai/`
+- [x] 6.3 Update all import paths referencing the old location
+- [x] 6.4 Register extraction services in `JobsModule` providers
+- [x] 6.5 Delete empty `draft-jobs/ai/` directory
+- [x] 6.6 Run typecheck to verify no broken imports
 
 ## Implementation Details
 
@@ -93,11 +93,11 @@ After moving, run `fix:imports` to sort imports. Update `JobsModule` to register
 ## Tests
 
 - Unit tests:
-  - [ ] Relocated services export same public API as before (same class names, same method signatures)
-  - [ ] Moved test file (`draft-extraction-normalization.service.spec.ts`) passes from new location
+  - [x] Relocated services export same public API as before (same class names, same method signatures)
+  - [x] Moved test file (`draft-extraction-normalization.service.spec.ts`) passes from new location
 - Integration tests:
-  - [ ] JobsModule boots with relocated services as providers (no DI errors)
-  - [ ] Extraction service callable from JobsService context
+  - [x] JobsModule boots with relocated services as providers (no DI errors; full Vitest suite)
+  - [x] Extraction service wired for `JobsService` DI (`JobsModule` registers both services)
 - Test coverage target: >=80%
 - All tests must pass
 

@@ -12,6 +12,8 @@ import { LibAiModule } from "@api/lib/ai";
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 
+import { DraftExtractionService } from "./ai/draft-extraction.service";
+import { DraftExtractionNormalizationService } from "./ai/draft-extraction-normalization.service";
 import { DraftConversionEventListener } from "./job-conversion-event.listener";
 import { JobEventBus } from "./job-event.bus";
 import { JobsRepository } from "./jobs.repository";
@@ -46,6 +48,8 @@ import { TagsModule } from "./tags/tags.module";
   providers: [
     JobEventBus,
     JobsRepository,
+    DraftExtractionNormalizationService,
+    DraftExtractionService,
     JobsService,
     JobsResolver,
     DraftConversionEventListener,
@@ -53,6 +57,12 @@ import { TagsModule } from "./tags/tags.module";
     SummaryService,
     SummaryAiService,
   ],
-  exports: [JobsService, JobsRepository, JobEventBus],
+  exports: [
+    JobsService,
+    JobsRepository,
+    JobEventBus,
+    DraftExtractionNormalizationService,
+    DraftExtractionService,
+  ],
 })
 export class JobsModule {}

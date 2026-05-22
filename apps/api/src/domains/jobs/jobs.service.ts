@@ -3,8 +3,6 @@ import { MatchAnalysisEntity } from "@api/database/entities/match-analysis.entit
 import { SourceRunEntity } from "@api/database/entities/source-run.entity";
 import { CompanyDescriptionService } from "@api/domains/companies/ai/company-description.service";
 import { CompanyService } from "@api/domains/companies/companies.service";
-import { DraftExtractionService } from "@api/domains/draft-jobs/ai/draft-extraction.service";
-import { DraftExtractionNormalizationService } from "@api/domains/draft-jobs/ai/draft-extraction-normalization.service";
 import {
   DraftConversionRequested,
   DraftConversionStatusChanged,
@@ -13,6 +11,8 @@ import type { DraftJobType } from "@api/domains/draft-jobs/draft-job.type";
 import { DraftJobEventBus } from "@api/domains/draft-jobs/draft-job-event.bus";
 import { DraftJobsService } from "@api/domains/draft-jobs/draft-jobs.service";
 import { DRAFT_JOB_PLACEHOLDER_COMPANY_NAME } from "@api/domains/draft-jobs/draft-placeholder.constants";
+import { DraftExtractionService } from "@api/domains/jobs/ai/draft-extraction.service";
+import { DraftExtractionNormalizationService } from "@api/domains/jobs/ai/draft-extraction-normalization.service";
 import { AsyncMetadataStatusEnum } from "@api/domains/shared/async-metadata.type";
 import { LocationInferenceService } from "@api/lib/ai";
 import { isTipTapDocumentString, tipTapToPlainText } from "@job-tracker/tiptap";
