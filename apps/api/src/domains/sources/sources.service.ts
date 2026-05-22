@@ -92,7 +92,8 @@ export class SourcesService implements OnModuleInit {
     userId: string,
     sourceProfileId: string,
   ): Promise<SourceTemplateType[]> {
-    const sourceProfileKey = this.sourceProfileRegistry.normalizeSourceProfileKey(sourceProfileId);
+    const sourceProfileKey =
+      this.sourceProfileRegistry.normalizeSourceProfileKey(sourceProfileId);
     const templates = await this.repo.listTemplatesByUserAndSourceProfileId({
       userId,
       sourceProfileId: sourceProfileKey,
@@ -113,11 +114,14 @@ export class SourcesService implements OnModuleInit {
     userId: string,
     input: { sourceProfileId: string; surfaceUrl: string },
   ): Promise<SourceTemplateType> {
-    const sourceProfileKey = this.sourceProfileRegistry.normalizeSourceProfileKey(
-      input.sourceProfileId,
-    );
+    const sourceProfileKey =
+      this.sourceProfileRegistry.normalizeSourceProfileKey(
+        input.sourceProfileId,
+      );
     if (this.sourceProfileRegistry.plan(sourceProfileKey) === undefined) {
-      throw new BadRequestException(`Unknown source profile: ${input.sourceProfileId}`);
+      throw new BadRequestException(
+        `Unknown source profile: ${input.sourceProfileId}`,
+      );
     }
     const template = await this.repo.findOrCreateTemplate({
       userId,
@@ -131,10 +135,13 @@ export class SourcesService implements OnModuleInit {
     userId: string,
     sourceProfileId: string,
   ): Promise<SourceRunType> {
-    const sourceProfileKey = this.sourceProfileRegistry.normalizeSourceProfileKey(sourceProfileId);
+    const sourceProfileKey =
+      this.sourceProfileRegistry.normalizeSourceProfileKey(sourceProfileId);
     const planDoc = this.sourceProfileRegistry.plan(sourceProfileKey);
     if (planDoc === undefined) {
-      throw new BadRequestException(`Unknown source profile: ${sourceProfileId}`);
+      throw new BadRequestException(
+        `Unknown source profile: ${sourceProfileId}`,
+      );
     }
 
     const defaultSurfaceUrl = entryUrlFromExecutorPlan(planDoc);
@@ -189,7 +196,9 @@ export class SourcesService implements OnModuleInit {
     }
     const planDoc = this.sourceProfileRegistry.plan(template.sourceProfileId);
     if (planDoc === undefined) {
-      throw new BadRequestException(`Unknown source profile: ${template.sourceProfileId}`);
+      throw new BadRequestException(
+        `Unknown source profile: ${template.sourceProfileId}`,
+      );
     }
     const startedAt = new Date();
     const surfaceUrl = template.surfaceUrl.trim();

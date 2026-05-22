@@ -49,8 +49,13 @@ function SourceProfilesListError() {
 }
 
 export default function SourcesPage() {
-  const { sourceProfiles, searchQuery, setSearchQuery, error, showInitialLoading } =
-    useSourcesListViewModel();
+  const {
+    sourceProfiles,
+    searchQuery,
+    setSearchQuery,
+    error,
+    showInitialLoading,
+  } = useSourcesListViewModel();
 
   const [detailSourceProfile, setDetailSourceProfile] =
     useState<SourceProfileRow | null>(null);
