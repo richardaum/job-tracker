@@ -123,8 +123,8 @@ function basenameToSlug(name: string): string {
     .replaceAll(/[_\s/]+/g, "-")
     .replaceAll(/[^a-z0-9-]/g, "")
     .replaceAll(/-+/g, "-")
-    .replace(/^-|-$/g, "")
-    .slice(0, 16);
+    .slice(0, 16)
+    .replace(/^-|-$/g, "");
 }
 
 /** Strips `refs/heads/` before applying basename slug rules. */
