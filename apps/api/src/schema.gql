@@ -81,8 +81,7 @@ enum FitVerdict {
 
 type MatchAnalysisType {
   id: ID!
-  jobId: ID
-  draftJobId: ID
+  jobId: ID!
   resumeId: ID!
   generationMetadata: AsyncMetadataType
   scoreRatio: Float
@@ -94,7 +93,6 @@ type MatchAnalysisType {
   createdAt: DateTime!
   updatedAt: DateTime!
   job: JobType
-  draftJob: DraftJobType
 }
 
 enum FitClassification {
@@ -131,7 +129,7 @@ type DraftJobType {
 type JobType {
   id: ID!
   userId: String!
-  title: String!
+  title: String
   companyId: ID!
   company: CompanyType!
   description: String
@@ -140,7 +138,8 @@ type JobType {
   tags: [String!]!
   location: String
   workRegion: String
-  currentStage: JobStage!
+  htmlContent: String
+  currentStage: ApplicationStage!
   currentStageReason: String
   currentStageAt: DateTime!
   createdAt: DateTime!
@@ -148,8 +147,8 @@ type JobType {
   sourceRunId: ID
   summary: String
   summaryMetadata: AsyncMetadataType
+  fillMetadata: AsyncMetadataType
   match: MatchAnalysisType
-  draftJobId: ID
   salary: JobSalary!
 }
 
@@ -160,7 +159,8 @@ enum JobSource {
   REMOTE_YEAH
 }
 
-enum JobStage {
+enum ApplicationStage {
+  DRAFT
   NEW
   APPLIED
   RECRUITER_SCREEN
@@ -175,8 +175,8 @@ type JobStageEventType {
   id: ID!
   jobId: String!
   userId: String!
-  fromStage: JobStage
-  toStage: JobStage!
+  fromStage: ApplicationStage
+  toStage: ApplicationStage!
   source: StageEventSource!
   reason: String
   scheduledAt: DateTime
@@ -276,7 +276,7 @@ enum Weight {
 
 type Query {
   me: UserType!
-  jobs(filter: JobQuickFilter, company: String, runId: ID): [JobType!]!
+  jobs(filter: ApplicationQuickFilter, company: String, runId: ID): [JobType!]!
   job(id: ID!): JobType!
   generateJobLocationWithAI(jobId: ID!): String
   generateJobWorkRegionWithAI(jobId: ID!): String
@@ -305,7 +305,8 @@ type Query {
   restructureJobDescriptionWithAI(text: String!): String!
 }
 
-enum JobQuickFilter {
+enum ApplicationQuickFilter {
+  DRAFT
   INCOMING
   ACTIVE
   APPLIED
@@ -353,7 +354,7 @@ type Mutation {
 }
 
 input CreateJobInput {
-  title: String!
+  title: String
   company: String!
   companyId: ID
   description: String
@@ -366,6 +367,7 @@ input CreateJobInput {
   tags: [String!]
   location: String
   workRegion: String
+  htmlContent: String
   sourceRunId: ID
 }
 
@@ -383,18 +385,19 @@ input UpdateJobInput {
   tags: [String!]
   location: String
   workRegion: String
+  htmlContent: String
 }
 
 input CreateJobStageEventInput {
   jobId: String!
-  toStage: JobStage!
+  toStage: ApplicationStage!
   source: StageEventSource
   reason: String
   scheduledAt: DateTime
 }
 
 input UpdateJobStageEventInput {
-  toStage: JobStage
+  toStage: ApplicationStage
   scheduledAt: DateTime
   reason: String
 }

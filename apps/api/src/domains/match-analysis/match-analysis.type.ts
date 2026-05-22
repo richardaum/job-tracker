@@ -13,9 +13,6 @@ export class MatchAnalysisType {
   @Field(() => ID)
   jobId!: string;
 
-  @Field(() => ID, { nullable: true })
-  draftJobId!: string | null;
-
   @Field(() => ID)
   resumeId!: string;
 

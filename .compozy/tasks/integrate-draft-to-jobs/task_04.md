@@ -1,5 +1,5 @@
 ---
-status: pending
+status: completed
 title: Update MatchAnalysisEntity — Remove Draft FK
 type: backend
 complexity: medium
@@ -33,11 +33,11 @@ Remove the `draftJobId` column and `draftJob` ManyToOne relation from `MatchAnal
 
 ## Subtasks
 
-- [ ] 4.1 Remove `draftJob` ManyToOne relation and `draftJobId` column from `MatchAnalysisEntity`
-- [ ] 4.2 Make `jobId` NOT NULL on `MatchAnalysisEntity`
-- [ ] 4.3 Remove `draftJob` field from `MatchAnalysisType` GraphQL type
-- [ ] 4.4 Remove any `@ResolveField("draftJob")` from match-analysis resolver
-- [ ] 4.5 Fix compilation errors from removed fields across match-analysis services and tests
+- [x] 4.1 Remove `draftJob` ManyToOne relation and `draftJobId` column from `MatchAnalysisEntity`
+- [x] 4.2 Make `jobId` NOT NULL on `MatchAnalysisEntity`
+- [x] 4.3 Remove `draftJob` field from `MatchAnalysisType` GraphQL type
+- [x] 4.4 Remove any `@ResolveField("draftJob")` from match-analysis resolver
+- [x] 4.5 Fix compilation errors from removed fields across match-analysis services and tests
 
 ## Implementation Details
 
@@ -81,13 +81,13 @@ After this task: only `jobId` remains, and it becomes NOT NULL. The `draftJob` r
 ## Tests
 
 - Unit tests:
-  - [ ] MatchAnalysisEntity can be instantiated without draftJobId — only jobId required
-  - [ ] MatchAnalysisEntity validation rejects null jobId
-  - [ ] MatchAnalysisType GraphQL schema does NOT include draftJob field
-  - [ ] MatchAnalysisType GraphQL schema includes jobId as non-nullable
+  - [x] MatchAnalysisEntity can be instantiated without draftJobId — only jobId required
+  - [x] MatchAnalysisEntity validation rejects null jobId
+  - [x] MatchAnalysisType GraphQL schema does NOT include draftJob field
+  - [x] MatchAnalysisType GraphQL schema includes jobId as non-nullable
 - Integration tests:
-  - [ ] Create match analysis via GraphQL — associated with jobId, no draftJobId path exists
-  - [ ] Query match via GraphQL — no draftJob field in response
+  - [x] Create match analysis via GraphQL — associated with jobId, no draftJobId path exists
+  - [x] Query match via GraphQL — no draftJob field in response
 - Test coverage target: >=80%
 - All tests must pass
 

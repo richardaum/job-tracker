@@ -6,8 +6,8 @@
 | --- | ------------------------------------------------------ | --------- | ---------- | ---------------- |
 | 01  | Create baseline tests for affected areas               | completed | high       | —                |
 | 02  | DB migration: merge draft_jobs into jobs               | completed | critical   | task_01          |
-| 03  | Update JobEntity, enums, and inputs                    | pending   | high       | task_02          |
-| 04  | Update MatchAnalysisEntity (remove draft FK)           | pending   | medium     | task_02          |
+| 03  | Update JobEntity, enums, and inputs                    | completed | high       | task_02          |
+| 04  | Update MatchAnalysisEntity (remove draft FK)           | completed | medium     | task_02          |
 | 05  | GraphQL: remove draft types + add fillJobAutomatically | pending   | high       | task_03          |
 | 06  | Relocate AI extraction to jobs domain                  | pending   | medium     | task_05          |
 | 07  | Unify match analysis (single mutation)                 | pending   | high       | task_04, task_05 |

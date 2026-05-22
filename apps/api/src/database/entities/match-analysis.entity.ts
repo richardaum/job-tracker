@@ -2,6 +2,7 @@ import { AsyncMetadataEmbedded } from "@api/database/embeddeds/async-metadata.em
 import { FitClassificationEnum } from "@api/domains/match-analysis/fit-classification.enum";
 import { FitSourceEnum } from "@api/domains/match-analysis/fit-source.enum";
 import { FitVerdictEnum } from "@api/domains/match-analysis/fit-verdict.enum";
+import { IsNotEmpty, IsString } from "class-validator";
 import {
   Column,
   CreateDateColumn,
@@ -35,10 +36,9 @@ export class MatchAnalysisEntity {
   id!: string;
 
   @Column({ name: "job_id", type: "text" })
+  @IsString()
+  @IsNotEmpty()
   jobId!: string;
-
-  /** @deprecated Draft rows became jobs — column removed from DB; kept null for transitional code. */
-  draftJobId: string | null = null;
 
   @Column({ name: "user_id", type: "text", nullable: true })
   userId!: string | null;
