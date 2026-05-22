@@ -2,6 +2,7 @@ import { type MatchItem } from "@api/database/entities/match-analysis.entity";
 import { AsyncMetadataType } from "@api/domains/shared/async-metadata.type";
 import { Field, Float, ID, Int, ObjectType } from "@nestjs/graphql";
 
+import { FitClassificationEnum } from "./fit-classification.enum";
 import { MatchItemType } from "./match-item.type";
 
 @ObjectType()
@@ -24,8 +25,8 @@ export class MatchAnalysisType {
   @Field(() => Float, { nullable: true })
   scoreRatio!: number | null;
 
-  @Field(() => String, { nullable: true })
-  classification!: string | null;
+  @Field(() => FitClassificationEnum, { nullable: true })
+  classification!: FitClassificationEnum | null;
 
   @Field(() => Int)
   matchCount!: number;

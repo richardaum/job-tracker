@@ -1,4 +1,7 @@
 import { AsyncMetadataEmbedded } from "@api/database/embeddeds/async-metadata.embedded";
+import { FitClassificationEnum } from "@api/domains/match-analysis/fit-classification.enum";
+import { FitSourceEnum } from "@api/domains/match-analysis/fit-source.enum";
+import { FitVerdictEnum } from "@api/domains/match-analysis/fit-verdict.enum";
 import {
   Column,
   CreateDateColumn,
@@ -12,17 +15,17 @@ import {
 import { DraftJobEntity } from "./draft-job.entity";
 
 export enum RequirementTypeEnum {
-  MUST_HAVE = "MUST_HAVE",
-  NICE_TO_HAVE = "NICE_TO_HAVE",
-  SOFT_SKILL = "SOFT_SKILL",
+  MustHave = "MustHave",
+  NiceToHave = "NiceToHave",
+  SoftSkill = "SoftSkill",
 }
 
 export interface MatchItem {
   requirement: string;
-  source: "resume" | "preference";
+  source: FitSourceEnum;
   weight?: "high" | "low";
   type: RequirementTypeEnum;
-  verdict: "fit" | "gap" | "unclear";
+  verdict: FitVerdictEnum;
   jdQuote: string;
   sourceQuotes: string[];
   suggestion?: string;
@@ -57,8 +60,13 @@ export class MatchAnalysisEntity {
   @Column({ name: "score_ratio", type: "float", nullable: true })
   scoreRatio!: number | null;
 
-  @Column({ type: "text", nullable: true })
-  classification!: MatchClassification | null;
+  @Column({
+    type: "enum",
+    enum: FitClassificationEnum,
+    enumName: "fit_classification",
+    nullable: true,
+  })
+  classification!: FitClassificationEnum | null;
 
   @Column({ name: "fit_count", type: "integer", default: 0 })
   matchCount!: number;

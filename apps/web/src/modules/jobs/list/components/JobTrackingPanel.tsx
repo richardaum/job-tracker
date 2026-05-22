@@ -18,6 +18,7 @@ import {
   JobStage,
   JobStageEventsDocument,
   type JobStageEventsQuery,
+  StageEventSource,
   useCreateJobStageEventMutation,
 } from "@/gql/hooks";
 import {
@@ -103,7 +104,7 @@ export function JobTrackingPanel({
             jobId,
             toStage: selectedStageDraft,
             scheduledAt: buildScheduledAtWithBrowserTimezone(scheduledAtValue),
-            source: "manual",
+            source: StageEventSource.Manual,
             reason: reasonDraft.trim() || null,
           },
         },

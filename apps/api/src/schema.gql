@@ -53,13 +53,30 @@ enum AsyncMetadataStatus {
 
 type MatchItemType {
   requirement: String!
-  source: String!
+  source: FitSource!
   weight: String
-  type: String!
-  verdict: String!
+  type: RequirementType!
+  verdict: FitVerdict!
   jdQuote: String!
   sourceQuotes: [String!]!
   suggestion: String
+}
+
+enum FitSource {
+  Resume
+  Preference
+}
+
+enum RequirementType {
+  MustHave
+  NiceToHave
+  SoftSkill
+}
+
+enum FitVerdict {
+  Fit
+  Gap
+  Unclear
 }
 
 type MatchAnalysisType {
@@ -69,7 +86,7 @@ type MatchAnalysisType {
   resumeId: ID!
   generationMetadata: AsyncMetadataType
   scoreRatio: Float
-  classification: String
+  classification: FitClassification
   matchCount: Int!
   gapCount: Int!
   unclearCount: Int!
@@ -78,6 +95,12 @@ type MatchAnalysisType {
   updatedAt: DateTime!
   job: JobType
   draftJob: DraftJobType
+}
+
+enum FitClassification {
+  Positive
+  Neutral
+  Negative
 }
 
 type ConversionMetadataType {
@@ -154,10 +177,15 @@ type JobStageEventType {
   userId: String!
   fromStage: JobStage
   toStage: JobStage!
-  source: String!
+  source: StageEventSource!
   reason: String
   scheduledAt: DateTime
   createdAt: DateTime!
+}
+
+enum StageEventSource {
+  Manual
+  System
 }
 
 type JobSalary {
@@ -360,7 +388,7 @@ input UpdateJobInput {
 input CreateJobStageEventInput {
   jobId: String!
   toStage: JobStage!
-  source: String
+  source: StageEventSource
   reason: String
   scheduledAt: DateTime
 }

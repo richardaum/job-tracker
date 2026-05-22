@@ -2,6 +2,7 @@ import { Field, ID, ObjectType } from "@nestjs/graphql";
 
 import { ApplicationStageEnum } from "./job-stage.enum";
 import { JobStageEvent } from "./job-stage-events.schema";
+import { StageEventSourceEnum } from "./stage-event-source.enum";
 
 @ObjectType()
 export class JobStageEventType {
@@ -20,8 +21,8 @@ export class JobStageEventType {
   @Field(() => ApplicationStageEnum)
   toStage!: JobStageEvent["toStage"];
 
-  @Field()
-  source!: string;
+  @Field(() => StageEventSourceEnum)
+  source!: StageEventSourceEnum;
 
   @Field(() => String, { nullable: true })
   reason!: string | null;

@@ -23,6 +23,7 @@ import {
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 
+import { FitSourceEnum } from "./fit-source.enum";
 import {
   MatchAnalysisRequested,
   MatchStatusChanged,
@@ -273,7 +274,7 @@ export class MatchAnalysisService implements OnModuleInit {
         ...resumeMatchItems.map(
           (i): MatchItem => ({
             requirement: i.requirement,
-            source: "resume",
+            source: FitSourceEnum.Resume,
             type: i.type as RequirementTypeEnum,
             verdict: i.verdict,
             jdQuote: i.jdQuote,
@@ -285,7 +286,7 @@ export class MatchAnalysisService implements OnModuleInit {
           const original = preferenceItems[index];
           return {
             requirement: i.requirement,
-            source: "preference",
+            source: FitSourceEnum.Preference,
             weight: original?.weight,
             type: i.type as RequirementTypeEnum,
             verdict: i.verdict,

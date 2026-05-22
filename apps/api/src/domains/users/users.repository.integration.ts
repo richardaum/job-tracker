@@ -3,6 +3,7 @@ import { createTestDataSource } from "@api/database/test-db";
 import type { DataSource } from "typeorm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
+import { RoleEnum } from "./role.enum";
 import { UserRepository } from "./users.repository";
 
 const hasDb = !!process.env.DATABASE_E2E_URL;
@@ -39,7 +40,7 @@ describe.skipIf(!hasDb)("UserRepository (integration)", () => {
     });
     expect(user.googleId).toBe("google-123");
     expect(user.email).toBe("test@example.com");
-    expect(user.role).toBe("user");
+    expect(user.role).toBe(RoleEnum.User);
     expect(user.id).toBeDefined();
   });
 

@@ -10,7 +10,7 @@ interface SummaryFieldProps {
   summary: string | null | undefined;
   summaryMetadata:
     | {
-        status: AsyncMetadataStatus;
+        status?: AsyncMetadataStatus | null;
         error?: string | null;
         timestamp?: string | null;
       }

@@ -5,6 +5,7 @@ import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 
+import { RoleEnum } from "./role.enum";
 import type { NewUser, User } from "./users.schema";
 
 @Injectable()
@@ -57,7 +58,7 @@ export class UserRepository {
         email: values.email,
         name: values.name,
         avatarUrl: values.avatarUrl,
-        role: "user",
+        role: RoleEnum.User,
       });
     }
 

@@ -27,6 +27,7 @@ import { EmptyState } from "@/components/empty-state";
 import { EntityNotFound } from "@/components/entity-not-found";
 import {
   AsyncMetadataStatus,
+  FitVerdict,
   useDeleteMatchAnalysisMutation,
   useGenerateDraftJobMatchMutation,
   useGenerateJobMatchMutation,
@@ -90,7 +91,7 @@ export default function MatchAnalysisPage({ params }: PageProps) {
     useGenerateDraftJobMatchMutation();
 
   const [matchFilterTab, setMatchFilterTab] = React.useState<
-    "all" | "fit" | "gap" | "unclear"
+    "all" | FitVerdict
   >("all");
 
   const matchAnalysis = matchData?.match;
@@ -126,9 +127,12 @@ export default function MatchAnalysisPage({ params }: PageProps) {
   const filteredItems = React.useMemo(() => {
     const items = matchAnalysis?.items ?? [];
     return items.filter((item) => {
-      if (matchFilterTab === "fit") return item.verdict === "fit";
-      if (matchFilterTab === "gap") return item.verdict === "gap";
-      if (matchFilterTab === "unclear") return item.verdict === "unclear";
+      if (matchFilterTab === FitVerdict.Fit)
+        return item.verdict === FitVerdict.Fit;
+      if (matchFilterTab === FitVerdict.Gap)
+        return item.verdict === FitVerdict.Gap;
+      if (matchFilterTab === FitVerdict.Unclear)
+        return item.verdict === FitVerdict.Unclear;
       return true;
     });
   }, [matchAnalysis, matchFilterTab]);
@@ -321,9 +325,11 @@ export default function MatchAnalysisPage({ params }: PageProps) {
                 >
                   <TabsList>
                     <TabsTrigger value="all">All</TabsTrigger>
-                    <TabsTrigger value="fit">Matches</TabsTrigger>
-                    <TabsTrigger value="gap">Gaps</TabsTrigger>
-                    <TabsTrigger value="unclear">Unclear</TabsTrigger>
+                    <TabsTrigger value={FitVerdict.Fit}>Fits</TabsTrigger>
+                    <TabsTrigger value={FitVerdict.Gap}>Gaps</TabsTrigger>
+                    <TabsTrigger value={FitVerdict.Unclear}>
+                      Unclear
+                    </TabsTrigger>
                   </TabsList>
                 </Tabs>
 

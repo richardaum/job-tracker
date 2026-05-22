@@ -1,3 +1,4 @@
+import { RoleEnum } from "@api/domains/users/role.enum";
 import { UserService } from "@api/domains/users/users.service";
 import { tryRun } from "@job-tracker/try-run";
 import { Injectable, NestMiddleware } from "@nestjs/common";
@@ -38,7 +39,7 @@ export class GraphqlSseMiddleware implements NestMiddleware {
             return;
           }
 
-          if (!dbUser || dbUser.role !== "user") {
+          if (!dbUser || dbUser.role !== RoleEnum.User) {
             if (!res.headersSent) {
               res.status(403).json({ errors: [{ message: "Forbidden" }] });
             }

@@ -35,6 +35,7 @@ Domain-specific rules modularized in `.agents/rules/`:
 | `repository-architecture.md` | App boundaries, NestJS, JSONB metadata, imports, env, migrations |
 | `typescript-react.md`        | TypeScript, React 19/Compiler, Nova, imports                     |
 | `validation.md`              | Lint, typecheck, tests, CI, fix:imports, dead code, pre-commit   |
+| `enum-patterns.md`           | Enum naming, creation, migrations, datafix scripts, case-safety  |
 | `worktree.md`                | Worktrees, subagent execution pipeline, reintegration            |
 | `web-ui.md`                  | Components, layout, patterns, mobile debug                       |
 
@@ -49,6 +50,7 @@ Search the keyword in `.agents/rules/` files. Matches are by section topic, not 
 | `forwardRef`, `useMemo`, `useCallback`                                                                                                                      | `typescript-react.md`                |
 | `view-model`, `useXxxViewModel`, `useQuery`                                                                                                                 | `graphql-web.md`                     |
 | `tryRun`, `try/catch`                                                                                                                                       | `typescript-react.md`                |
+| `type assertion`, `as`, `cast`, `casting`                                                                                                                   | `typescript-react.md`                |
 | `import type`, inline `import("@/path")`                                                                                                                    | `typescript-react.md`                |
 | `reexports`, barrel files                                                                                                                                   | `typescript-react.md`                |
 | `Nova`, helper function placement                                                                                                                           | `typescript-react.md`                |
@@ -68,6 +70,7 @@ Search the keyword in `.agents/rules/` files. Matches are by section topic, not 
 | `migration`, `TypeORM`, schema change                                                                                                                       | `repository-architecture.md`         |
 | `GraphQL`, `schema.gql`, codegen, `registerEnum`                                                                                                            | `graphql-web.md`                     |
 | `enum`, `@Field`, TypeGraphQL enum                                                                                                                          | `graphql-web.md`                     |
+| `enum creation`, `datafix`, `JSONB enum`, `migration enum`                                                                                                  | `enum-patterns.md`                   |
 | `storybook`, `packages/ui`                                                                                                                                  | `validation.md`                      |
 | `task lifecycle`, `workflow`, `execution workflow`, `rule lookup`                                                                                           | `execution-workflow.md`              |
 | `skill`, `.agents/skills`, agent skill                                                                                                                      | `graphql-web.md`                     |

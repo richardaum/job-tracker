@@ -10,6 +10,8 @@ import { MigrateDraftConversionJsonbToEmbedded1767710000000 } from "./1767710000
 import { MigrateApplicationSummaryJsonbToEmbedded1767720000000 } from "./1767720000000-migrate-application-summary-jsonb-to-embedded";
 import { MigrateFitAnalysisGenerationJsonbToEmbedded1767730000000 } from "./1767730000000-migrate-fit-analysis-generation-jsonb-to-embedded";
 import { RenameEmbeddedColumnsToSnakeCase1767740000000 } from "./1767740000000-rename-embedded-columns-to-snake-case";
+import { AddStageEventSourceEnum1767750000000 } from "./1767750000000-add-stage-event-source-enum";
+import { AddFitClassificationEnum1767760000000 } from "./1767760000000-add-fit-classification-enum";
 
 export const migrations = [
   SquashedBaseline1767000000000,
@@ -24,4 +26,6 @@ export const migrations = [
   MigrateApplicationSummaryJsonbToEmbedded1767720000000,
   MigrateFitAnalysisGenerationJsonbToEmbedded1767730000000,
   RenameEmbeddedColumnsToSnakeCase1767740000000,
+  AddStageEventSourceEnum1767750000000,
+  AddFitClassificationEnum1767760000000,
 ];

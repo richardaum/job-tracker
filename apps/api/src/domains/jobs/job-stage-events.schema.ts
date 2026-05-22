@@ -2,7 +2,7 @@ import type { JobStageEventEntity } from "@api/database/entities/job-stage-event
 
 export type JobStageEvent = JobStageEventEntity;
 
-export type NewJobStageEvent = Pick<
+export type NewJobStageEvent = Omit<
   JobStageEventEntity,
-  "jobId" | "userId" | "fromStage" | "toStage"
-> & { source?: string; reason?: string | null; scheduledAt?: Date | null };
+  "id" | "createdAt" | "setId"
+>;

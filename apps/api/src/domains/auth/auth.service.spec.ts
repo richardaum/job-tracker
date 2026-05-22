@@ -1,5 +1,6 @@
 import "reflect-metadata";
 
+import { RoleEnum } from "@api/domains/users/role.enum";
 import type { User } from "@api/domains/users/users.schema";
 import { JwtService } from "@nestjs/jwt";
 import * as jwt from "jsonwebtoken";
@@ -13,7 +14,7 @@ const mockUser: User = {
   email: "test@example.com",
   name: "Test User",
   avatarUrl: null,
-  role: "user",
+  role: RoleEnum.User,
   createdAt: new Date(),
   updatedAt: new Date(),
 };

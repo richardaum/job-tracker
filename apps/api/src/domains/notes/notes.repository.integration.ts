@@ -3,6 +3,7 @@ import { JobEntity } from "@api/database/entities/job.entity";
 import { JobNoteEntity } from "@api/database/entities/job-note.entity";
 import { UserEntity } from "@api/database/entities/user.entity";
 import { createTestDataSource } from "@api/database/test-db";
+import { RoleEnum } from "@api/domains/users/role.enum";
 import type { DataSource } from "typeorm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
@@ -29,7 +30,7 @@ describe.skipIf(!hasDb)("NoteRepository (integration)", () => {
         email: "noterepo@example.com",
         name: "Note Repo User",
         avatarUrl: null,
-        role: "user",
+        role: RoleEnum.User,
       }),
     );
     userId = user.id;

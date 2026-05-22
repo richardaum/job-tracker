@@ -4,19 +4,20 @@ import { Badge, cn } from "@job-tracker/ui";
 import { StarIcon } from "@phosphor-icons/react";
 import React from "react";
 
+import { RequirementType } from "@/gql/hooks";
 import { formatRequirementType } from "@/modules/jobs/shared/utils/matchFormat";
 
-export function TypeBadge({ type }: { type: string }) {
+export function TypeBadge({ type }: { type: RequirementType }) {
   return (
     <Badge
       className={cn(
         "self-end border-0",
-        type === "must_have" && "bg-bg-info-subtle",
-        type === "nice_to_have" && "bg-bg-success-subtle",
+        type === RequirementType.MustHave && "bg-bg-info-subtle",
+        type === RequirementType.NiceToHave && "bg-bg-success-subtle",
       )}
       intent="default"
     >
-      {type === "nice_to_have" && (
+      {type === RequirementType.NiceToHave && (
         <StarIcon
           size={10}
           weight="fill"
@@ -25,9 +26,9 @@ export function TypeBadge({ type }: { type: string }) {
       )}
       <span
         className={cn(
-          type === "must_have" && "text-blue-600",
-          type === "nice_to_have" && "text-green-600",
-          type === "soft_skill" && "text-text-muted",
+          type === RequirementType.MustHave && "text-blue-600",
+          type === RequirementType.NiceToHave && "text-green-600",
+          type === RequirementType.SoftSkill && "text-text-muted",
         )}
       >
         {formatRequirementType(type)}

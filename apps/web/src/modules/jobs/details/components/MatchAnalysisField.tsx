@@ -4,7 +4,7 @@ import { cn, FieldWithLabelAction, Text } from "@job-tracker/ui";
 import { ArrowRightIcon } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
 
-import { AsyncMetadataStatus } from "@/gql/hooks";
+import { AsyncMetadataStatus, FitClassification } from "@/gql/hooks";
 import type { JobDetailsValues } from "@/modules/jobs/details/utils/job-details.shared";
 import {
   formatMatchClassification,
@@ -23,9 +23,9 @@ export function MatchAnalysisField({
   const router = useRouter();
   const matchColor =
     match?.generationMetadata?.status === AsyncMetadataStatus.Completed
-      ? match.classification === "positive"
+      ? match.classification === FitClassification.Positive
         ? "success"
-        : match.classification === "negative"
+        : match.classification === FitClassification.Negative
           ? "error"
           : "primary"
       : "primary";

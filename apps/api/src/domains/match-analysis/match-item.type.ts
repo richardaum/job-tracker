@@ -2,6 +2,8 @@ import {
   MatchItem,
   RequirementTypeEnum,
 } from "@api/database/entities/match-analysis.entity";
+import { FitSourceEnum } from "@api/domains/match-analysis/fit-source.enum";
+import { FitVerdictEnum } from "@api/domains/match-analysis/fit-verdict.enum";
 import { Field, ObjectType, registerEnumType } from "@nestjs/graphql";
 
 export type MatchItemTypeRepresentation = MatchItem;
@@ -13,17 +15,17 @@ export class MatchItemType {
   @Field()
   requirement!: string;
 
-  @Field()
-  source!: string;
+  @Field(() => FitSourceEnum)
+  source!: FitSourceEnum;
 
   @Field({ nullable: true })
   weight?: "high" | "low";
 
-  @Field(() => String)
+  @Field(() => RequirementTypeEnum)
   type!: RequirementTypeEnum;
 
-  @Field()
-  verdict!: "fit" | "gap" | "unclear";
+  @Field(() => FitVerdictEnum)
+  verdict!: FitVerdictEnum;
 
   @Field()
   jdQuote!: string;

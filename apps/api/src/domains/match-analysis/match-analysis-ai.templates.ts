@@ -25,18 +25,18 @@ requirement in the job description.
       communication", "Team player", "Problem-solving mindset").
 3. For each one, search the resume for evidence that the candidate meets it.
 4. Classify as:
-   - "fit" — the resume clearly shows this requirement is met.
-   - "gap" — the resume does not mention or imply this requirement.
-   - "unclear" — cannot determine from the available information.
-5. When classifying as "fit", include the exact resume excerpts (sourceQuotes)
-   that demonstrate the match. 
+   - "Fit" — the resume clearly shows this requirement is met.
+   - "Gap" — the resume does not mention or imply this requirement.
+   - "Unclear" — cannot determine from the available information.
+5. When classifying as "Fit", include the exact resume excerpts (sourceQuotes)
+    that demonstrate the match. 
    - EVIDENCE QUALITY: Provide the full sentence or bullet point from the resume 
      to give context. 
    - NO REPETITION: Never return the requirement name itself (or a subset of it) 
      as a quote. If the requirement is "React", the quote should be the 
      sentence where "React" appears in the resume, providing evidence of 
      experience, not just the word "React".
-6. For "gap" items, provide a concrete suggestion for how the candidate could
+6. For "Gap" items, provide a concrete suggestion for how the candidate could
    address this gap.
 7. Be thorough but focused — do not invent requirements that are not in the JD.
 `;
@@ -73,11 +73,11 @@ Rules:
     - "NICE_TO_HAVE": The JD treats this as optional or a bonus.
     - "SOFT_SKILL": This is a behavioral/culture fit preference.
 4. Classify as:
-   - "fit" — the JD explicitly or implicitly satisfies this preference.
-   - "gap" — the JD does not mention or contradicts this preference.
-   - "unclear" — cannot determine from the available information.
+   - "Fit" — the JD explicitly or implicitly satisfies this preference.
+   - "Gap" — the JD does not mention or contradicts this preference.
+   - "Unclear" — cannot determine from the available information.
 5. Include the exact JD quote that supports your classification.
-6. For "gap" items, provide a suggestion for what the candidate should look
+6. For "Gap" items, provide a suggestion for what the candidate should look
    for or ask about during the interview process.
 `;
 

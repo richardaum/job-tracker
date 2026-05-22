@@ -12,6 +12,7 @@ import { ApplicationQuickFilterEnum } from "./job-quick-filter.enum";
 import { ApplicationStageEnum } from "./job-stage.enum";
 import { JobStageEvent, NewJobStageEvent } from "./job-stage-events.schema";
 import { Job, NewJob } from "./jobs.schema";
+import { StageEventSourceEnum } from "./stage-event-source.enum";
 
 export type CreateJobRepoDto = Pick<
   NewJob,
@@ -34,10 +35,13 @@ export type JobPostingContextSnippet = {
   title: string;
   plainTextDescription: string;
 };
-type CreateStageEventDto = Pick<
-  NewJobStageEvent,
-  "toStage" | "source" | "reason" | "scheduledAt"
-> & { fromStage?: NewJobStageEvent["fromStage"] };
+type CreateStageEventDto = {
+  toStage: ApplicationStageEnum;
+  source?: StageEventSourceEnum;
+  fromStage?: ApplicationStageEnum | null;
+  reason?: string | null;
+  scheduledAt?: Date | null;
+};
 type UpdateStageEventDto = Pick<
   NewJobStageEvent,
   "toStage" | "reason" | "scheduledAt"
@@ -380,7 +384,7 @@ export class JobsRepository {
       jobId,
       fromStage: dto.fromStage ?? null,
       toStage: dto.toStage,
-      source: dto.source ?? "manual",
+      source: dto.source ?? StageEventSourceEnum.Manual,
       reason: dto.reason ?? null,
       scheduledAt: dto.scheduledAt ?? null,
     });

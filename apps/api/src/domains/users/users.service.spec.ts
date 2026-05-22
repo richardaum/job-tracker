@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { RoleEnum } from "./role.enum";
 import { UserRepository } from "./users.repository";
 import { User } from "./users.schema";
 import { UserService } from "./users.service";
@@ -10,7 +11,7 @@ const mockUser: User = {
   email: "test@example.com",
   name: "Test User",
   avatarUrl: "https://example.com/avatar.jpg",
-  role: "user",
+  role: RoleEnum.User,
   createdAt: new Date("2024-01-01"),
   updatedAt: new Date("2024-01-01"),
 };

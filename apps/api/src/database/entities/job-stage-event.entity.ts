@@ -1,4 +1,5 @@
 import { ApplicationStageEnum } from "@api/domains/jobs/job-stage.enum";
+import { StageEventSourceEnum } from "@api/domains/jobs/stage-event-source.enum";
 import { Column, CreateDateColumn, Entity, PrimaryColumn } from "typeorm";
 
 @Entity({ name: "job_stage_events" })
@@ -29,8 +30,13 @@ export class JobStageEventEntity {
   })
   toStage!: ApplicationStageEnum;
 
-  @Column({ type: "text", default: "manual" })
-  source!: string;
+  @Column({
+    type: "enum",
+    enum: StageEventSourceEnum,
+    enumName: "stage_event_source",
+    default: StageEventSourceEnum.Manual,
+  })
+  source!: StageEventSourceEnum;
 
   @Column({ type: "text", nullable: true })
   reason!: string | null;

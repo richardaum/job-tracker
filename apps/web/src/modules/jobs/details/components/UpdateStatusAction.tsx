@@ -15,6 +15,7 @@ import React, { useMemo, useState } from "react";
 import {
   JobStage,
   JobStageEventsDocument,
+  StageEventSource,
   useCreateJobStageEventMutation,
 } from "@/gql/hooks";
 import { formatStage } from "@/modules/jobs/details/utils/job-details.shared";
@@ -103,7 +104,7 @@ export function UpdateStatusAction({
             jobId,
             toStage: selectedStage,
             scheduledAt: buildScheduledAtWithBrowserTimezone(scheduledAtValue),
-            source: "manual",
+            source: StageEventSource.Manual,
             reason: reasonDraft.trim() || null,
           },
         },

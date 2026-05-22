@@ -1,5 +1,6 @@
 import "reflect-metadata";
 
+import { RoleEnum } from "@api/domains/users/role.enum";
 import { UserService } from "@api/domains/users/users.service";
 import { ExecutionContext } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
@@ -28,7 +29,7 @@ describe("RolesGuard", () => {
       getAllAndOverride: vi.fn().mockReturnValue(["user"]),
     } as unknown as Reflector;
     const userService = {
-      findById: vi.fn().mockResolvedValue({ role: "user" }),
+      findById: vi.fn().mockResolvedValue({ role: RoleEnum.User }),
     } as unknown as UserService;
     const guard = new RolesGuard(reflector, userService);
     expect(await guard.canActivate(makeContext("user-1"))).toBe(true);
@@ -39,7 +40,7 @@ describe("RolesGuard", () => {
       getAllAndOverride: vi.fn().mockReturnValue(["admin"]),
     } as unknown as Reflector;
     const userService = {
-      findById: vi.fn().mockResolvedValue({ role: "user" }),
+      findById: vi.fn().mockResolvedValue({ role: RoleEnum.User }),
     } as unknown as UserService;
     const guard = new RolesGuard(reflector, userService);
     expect(await guard.canActivate(makeContext("user-1"))).toBe(false);
