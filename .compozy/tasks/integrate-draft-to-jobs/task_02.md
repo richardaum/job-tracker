@@ -25,7 +25,7 @@ Create a single TypeORM migration that transforms the database schema to elimina
 - MUST create a single migration file following the naming convention `17678NNNNNNN-integrate-draft-into-jobs.ts`
 - MUST add `DRAFT` to PostgreSQL `application_stage` enum via `ALTER TYPE ... ADD VALUE`
 - MUST add `html_content` column (text, nullable) to `jobs` table
-- MUST add `fill_status`, `fill_error`, `fill_timestamp` JSONB columns to `jobs` via `AsyncMetadataEmbedded` prefix pattern
+- MUST add `fill_status`, `fill_error`, `fill_timestamp` TEXT / timestamptz columns to `jobs` with the `fill_` prefix (`AsyncMetadataEmbedded` pattern in this codebase)
 - MUST make `title` column nullable on `jobs`
 - MUST merge all `draft_jobs` rows into `jobs` with stage=`DRAFT`, `html_content = draft.html_content`, merged URLs, and preserved timestamps
 - MUST merge draft URLs into `jobs.urls` array — if the draft has a `url`, append it to the existing `urls` array (or create array if null)
