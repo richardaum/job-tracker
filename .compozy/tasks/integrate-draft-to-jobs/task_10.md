@@ -47,7 +47,8 @@ Run GraphQL codegen to regenerate all frontend hooks, types, and documents from 
 ### Execution notes (2026-05-22)
 
 - **Verification**: `apps/web/codegen.ts` reads `../api/src/schema.gql`; `draft-jobs.graphql` absent; `jobs.graphql` has `FillJobAutomatically`, no `CreateJobWithAI`; `match.graphql` has no `GenerateDraftJobMatch` / `DraftJobMatch`.
-- **`pnpm fix:imports "apps/web/src/**/_.ts" "apps/web/src/\*\*/_.tsx"`**: ran from repo root. **Avoid** blindly removing `eslint-disable-next-line`adjacent to sorted imports —`login/page.tsx`needed`@next/next/no-location-assign-relative-destination` preserved (fixed before commit).
+- **`pnpm fix:imports "apps/web/src/**/_.ts" "apps/web/src/\*\*/_.tsx"`** (repo root). **Avoid** blanket import fixes that drop `eslint-disable-next-line`— e.g.`login/page.tsx`needs`@next/next/no-location-assign-relative-destination` for cross-origin OAuth.
+- **`src/gql` vs git**: Raw `pnpm codegen` can produce a large working-tree diff versus `HEAD`, but **husky `lint-staged`** (`fix-imports`, `eslint --fix`, `prettier`) on those files restores the canonical formatted output; committing only codegen without that pipeline yields an empty commit. **Tracked `apps/web/src/gql/` already matches hooked output** (includes `useFillJobAutomaticallyMutation`, no draft symbols).
 - **Checks**: `pnpm --filter @job-tracker/web run typecheck`, `pnpm --filter @job-tracker/web run test` (69 tests), `pnpm --filter @job-tracker/web run lint` — all passed.
 
 ## Implementation Details
