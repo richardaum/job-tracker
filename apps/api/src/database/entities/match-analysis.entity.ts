@@ -6,13 +6,9 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  JoinColumn,
-  ManyToOne,
   PrimaryColumn,
   UpdateDateColumn,
 } from "typeorm";
-
-import { DraftJobEntity } from "./draft-job.entity";
 
 export enum RequirementTypeEnum {
   MustHave = "MustHave",
@@ -38,18 +34,14 @@ export class MatchAnalysisEntity {
   @PrimaryColumn({ type: "text" })
   id!: string;
 
-  @Column({ name: "job_id", type: "text", nullable: true })
-  jobId!: string | null;
+  @Column({ name: "job_id", type: "text" })
+  jobId!: string;
 
-  @Column({ name: "draft_job_id", type: "text", nullable: true })
-  draftJobId!: string | null;
+  /** @deprecated Draft rows became jobs — column removed from DB; kept null for transitional code. */
+  draftJobId: string | null = null;
 
   @Column({ name: "user_id", type: "text", nullable: true })
   userId!: string | null;
-
-  @ManyToOne(() => DraftJobEntity, { nullable: true, onDelete: "CASCADE" })
-  @JoinColumn({ name: "draft_job_id" })
-  draftJob?: DraftJobEntity | null;
 
   @Column({ name: "resume_id", type: "text" })
   resumeId!: string;

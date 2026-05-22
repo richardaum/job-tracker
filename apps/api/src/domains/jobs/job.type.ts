@@ -14,8 +14,8 @@ export class JobType {
   @Field()
   userId!: string;
 
-  @Field()
-  title!: string;
+  @Field(() => String, { nullable: true })
+  title!: string | null;
 
   @Field(() => ID)
   companyId!: string;

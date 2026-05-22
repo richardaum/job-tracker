@@ -3,12 +3,9 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  OneToMany,
   PrimaryColumn,
   UpdateDateColumn,
 } from "typeorm";
-
-import { JobEntity } from "./job.entity";
 
 export enum DraftJobConversionStatusEnum {
   IDLE = "IDLE",
@@ -42,7 +39,4 @@ export class DraftJobEntity {
 
   @UpdateDateColumn({ name: "updated_at", type: "timestamptz" })
   updatedAt!: Date;
-
-  @OneToMany(() => JobEntity, (job) => job.draftJob)
-  jobs!: JobEntity[];
 }

@@ -10,8 +10,8 @@ export class MatchAnalysisType {
   @Field(() => ID)
   id!: string;
 
-  @Field(() => ID, { nullable: true })
-  jobId!: string | null;
+  @Field(() => ID)
+  jobId!: string;
 
   @Field(() => ID, { nullable: true })
   draftJobId!: string | null;

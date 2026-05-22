@@ -1,5 +1,6 @@
 import { AsyncMetadataEmbedded } from "@api/database/embeddeds/async-metadata.embedded";
 import { ApplicationSourceEnum } from "@api/domains/jobs/job-source.enum";
+import { ApplicationStageEnum } from "@api/domains/jobs/job-stage.enum";
 import { SalaryPeriodEnum } from "@api/domains/jobs/salary/salary-period.enum";
 import {
   Column,
@@ -12,7 +13,6 @@ import {
 } from "typeorm";
 
 import { CompanyEntity } from "./company.entity";
-import { DraftJobEntity } from "./draft-job.entity";
 import { SourceRunEntity } from "./source-run.entity";
 
 @Entity({ name: "jobs" })
@@ -23,8 +23,8 @@ export class JobEntity {
   @Column({ name: "user_id", type: "text" })
   userId!: string;
 
-  @Column({ type: "text" })
-  title!: string;
+  @Column({ type: "text", nullable: true })
+  title!: string | null;
 
   @Column({ name: "company_id", type: "text" })
   companyId!: string;
@@ -84,12 +84,19 @@ export class JobEntity {
   @Column({ name: "work_region", type: "text", nullable: true })
   workRegion!: string | null;
 
-  @ManyToOne(() => DraftJobEntity, (draft) => draft.jobs, {
-    nullable: true,
-    onDelete: "SET NULL",
+  @Column({ name: "html_content", type: "text", nullable: true })
+  htmlContent!: string | null;
+
+  @Column(() => AsyncMetadataEmbedded, { prefix: "fill" })
+  fillMetadata?: AsyncMetadataEmbedded | null;
+
+  @Column({
+    type: "enum",
+    enum: ApplicationStageEnum,
+    enumName: "application_stage",
+    default: ApplicationStageEnum.NEW,
   })
-  @JoinColumn({ name: "draft_job_id" })
-  draftJob?: DraftJobEntity | null;
+  stage!: ApplicationStageEnum;
 
   @Column({ type: "text", nullable: true })
   summary!: string | null;

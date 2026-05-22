@@ -341,7 +341,7 @@ export class JobsService {
     }
 
     const matchTransferResult = await this.matchAnalysisRepo.update(
-      { draftJobId: draftId },
+      { jobId: draftId },
       { jobId: created.id },
     );
 

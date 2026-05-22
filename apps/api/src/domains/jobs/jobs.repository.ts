@@ -1,5 +1,4 @@
 import { AsyncMetadataEmbedded } from "@api/database/embeddeds/async-metadata.embedded";
-import { DraftJobEntity } from "@api/database/entities/draft-job.entity";
 import { JobEntity } from "@api/database/entities/job.entity";
 import { JobStageEventEntity } from "@api/database/entities/job-stage-event.entity";
 import { AsyncMetadataStatusEnum } from "@api/domains/shared/async-metadata.type";
@@ -97,6 +96,13 @@ export class JobsRepository {
       return qb.getMany();
     }
 
+    if (filter === ApplicationQuickFilterEnum.DRAFT) {
+      qb.andWhere("a.stage = :draftStage", {
+        draftStage: ApplicationStageEnum.DRAFT,
+      });
+      return qb.getMany();
+    }
+
     const latestStageSub = `(${qb
       .subQuery()
       .select("e.to_stage")
@@ -189,8 +195,8 @@ export class JobsRepository {
       if (!plain.trim()) {
         continue;
       }
-      const title =
-        row.title.trim().length > 0 ? row.title.trim() : "(no title)";
+      const trimmedTitle = row.title?.trim() ?? "";
+      const title = trimmedTitle.length > 0 ? trimmedTitle : "(no title)";
       contexts.push({ title, plainTextDescription: plain });
       if (contexts.length >= 2) {
         break;
@@ -238,24 +244,17 @@ export class JobsRepository {
   }
 
   async create(userId: string, dto: CreateJobRepoDto): Promise<Job> {
-    const { draftJobId, sourceRunId, ...rest } = dto;
+    const { draftJobId: _draftIgnored, sourceRunId, ...rest } = dto;
     const row = this.jobsRepo.create({
       userId,
       ...rest,
       sourceRunId: sourceRunId ?? null,
-      draftJob: draftJobId ? ({ id: draftJobId } as DraftJobEntity) : undefined,
     });
     return this.jobsRepo.save(row);
   }
 
-  async findDraftJobId(id: string, userId: string): Promise<string | null> {
-    const row = await this.jobsRepo
-      .createQueryBuilder("a")
-      .select("a.draft_job_id", "draftJobId")
-      .where("a.id = :id AND a.user_id = :userId", { id, userId })
-      .getRawOne<{ draftJobId: string }>();
-
-    return row?.draftJobId ?? null;
+  async findDraftJobId(_id: string, _userId: string): Promise<string | null> {
+    return Promise.resolve(null);
   }
 
   async detachJobsSourceRun(

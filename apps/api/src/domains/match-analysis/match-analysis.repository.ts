@@ -31,9 +31,7 @@ export class MatchAnalysisRepository {
     draftJobId: string,
     userId?: string,
   ): Promise<MatchAnalysisEntity | null> {
-    return this.repo.findOne({
-      where: { draftJobId, ...(userId ? { userId } : {}) },
-    });
+    return this.findByJobId(draftJobId, userId);
   }
 
   async findAllByUserId(userId: string): Promise<MatchAnalysisEntity[]> {
@@ -41,14 +39,10 @@ export class MatchAnalysisRepository {
   }
 
   async upsert(entity: MatchAnalysisEntity): Promise<MatchAnalysisEntity> {
-    const existing = entity.jobId
-      ? await this.findByJobId(entity.jobId, entity.userId ?? undefined)
-      : entity.draftJobId
-        ? await this.findByDraftJobId(
-            entity.draftJobId,
-            entity.userId ?? undefined,
-          )
-        : null;
+    const existing = await this.findByJobId(
+      entity.jobId,
+      entity.userId ?? undefined,
+    );
 
     if (existing) {
       entity.id = existing.id;
@@ -79,7 +73,7 @@ export class MatchAnalysisRepository {
     userId?: string,
   ): Promise<boolean> {
     const result = await this.repo.delete({
-      draftJobId,
+      jobId: draftJobId,
       ...(userId ? { userId } : {}),
     });
     return (result.affected ?? 0) > 0;

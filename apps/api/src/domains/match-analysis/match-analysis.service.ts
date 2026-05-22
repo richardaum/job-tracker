@@ -6,7 +6,6 @@ import {
 } from "@api/database/entities/match-analysis.entity";
 import { ResumeEntity } from "@api/database/entities/resume.entity";
 import { WorkPreferencesEntity } from "@api/database/entities/work-preferences.entity";
-import { DraftJobsRepository } from "@api/domains/draft-jobs/draft-jobs.repository";
 import { JobsRepository } from "@api/domains/jobs/jobs.repository";
 import type { Job } from "@api/domains/jobs/jobs.schema";
 import { AsyncMetadataStatusEnum } from "@api/domains/shared/async-metadata.type";
@@ -42,7 +41,6 @@ export class MatchAnalysisService implements OnModuleInit {
     private readonly repo: MatchAnalysisRepository,
     private readonly aiService: MatchAnalysisAiService,
     private readonly jobRepo: JobsRepository,
-    private readonly draftRepo: DraftJobsRepository,
     private readonly eventBus: MatchAnalysisEventBus,
     @InjectRepository(ResumeEntity)
     private readonly resumeRepo: Repository<ResumeEntity>,
@@ -78,9 +76,11 @@ export class MatchAnalysisService implements OnModuleInit {
     draftJobId: string,
     userId: string,
   ): Promise<MatchAnalysis | null> {
-    const draft = await this.draftRepo.findOne(draftJobId, userId);
-    if (!draft) return null;
-    return this.repo.findByDraftJobId(draftJobId, userId);
+    const job = await this.jobRepo.findOneByIdAndUserId(draftJobId, userId);
+    if (!job) {
+      return null;
+    }
+    return this.repo.findByJobId(draftJobId, userId);
   }
 
   async remove(id: string, userId: string): Promise<void> {
@@ -99,10 +99,10 @@ export class MatchAnalysisService implements OnModuleInit {
   }
 
   async findDraftJobById(
-    id: string,
-    userId: string,
+    _id: string,
+    _userId: string,
   ): Promise<DraftJobEntity | null> {
-    return this.draftRepo.findOne(id, userId);
+    return Promise.resolve(null);
   }
 
   async generate(
@@ -114,8 +114,16 @@ export class MatchAnalysisService implements OnModuleInit {
     if (!job) {
       throw new BadRequestException("Job not found.");
     }
-    if (!job.description?.trim()) {
-      throw new BadRequestException("Job has no job description to analyze.");
+    const fromDesc = job.description?.trim()
+      ? tipTapToPlainText(job.description)
+      : "";
+    const fromHtml = job.htmlContent?.trim()
+      ? htmlToPlainText(job.htmlContent)
+      : "";
+    if (!fromDesc.trim() && !fromHtml.trim()) {
+      throw new BadRequestException(
+        "Job has no captured HTML or job description to analyze.",
+      );
     }
 
     const resume = await this.resumeRepo.findOne({
@@ -133,7 +141,6 @@ export class MatchAnalysisService implements OnModuleInit {
       entity.createdAt = existing.createdAt;
     }
     entity.jobId = jobId;
-    entity.draftJobId = existing?.draftJobId ?? null;
     entity.userId = userId;
     entity.resumeId = resumeId;
     entity.generationMetadata = {
@@ -167,58 +174,8 @@ export class MatchAnalysisService implements OnModuleInit {
     resumeId: string,
     userId: string,
   ): Promise<MatchAnalysis> {
-    const draft = await this.draftRepo.findOne(draftJobId, userId);
-    if (!draft) {
-      throw new BadRequestException("Draft job not found.");
-    }
-    if (!draft.htmlContent?.trim()) {
-      throw new BadRequestException("Draft has no content to analyze.");
-    }
-
-    const resume = await this.resumeRepo.findOne({
-      where: { id: resumeId, userId },
-    });
-    if (!resume) {
-      throw new BadRequestException("Resume not found.");
-    }
-
-    const existing = await this.repo.findByDraftJobId(draftJobId);
-
-    const entity = new MatchAnalysisEntity();
-    if (existing) {
-      entity.id = existing.id;
-      entity.createdAt = existing.createdAt;
-    }
-    entity.jobId = existing?.jobId ?? null;
-    entity.draftJobId = draftJobId;
-    entity.userId = userId;
-    entity.resumeId = resumeId;
-    entity.generationMetadata = {
-      status: AsyncMetadataStatusEnum.PROCESSING,
-      error: null,
-      timestamp: new Date(),
-    };
-    entity.items = [];
-    entity.scoreRatio = null;
-    entity.classification = null;
-    entity.matchCount = 0;
-    entity.gapCount = 0;
-    entity.unclearCount = 0;
-
-    const saved = await this.repo.upsert(entity);
-
-    this.eventBus.emit(
-      new MatchStatusChanged(
-        saved.id,
-        userId,
-        AsyncMetadataStatusEnum.PROCESSING,
-      ),
-    );
-    this.eventBus.emit(
-      new MatchAnalysisRequested(saved.id, userId, { draftJobId }),
-    );
-
-    return saved;
+    /** Legacy mutation name — `draftJobId` is a job PK after drafts merged into jobs. */
+    return this.generate(draftJobId, resumeId, userId);
   }
 
   async processMatchAnalysis(
@@ -238,12 +195,19 @@ export class MatchAnalysisService implements OnModuleInit {
           source.jobId,
           userId,
         );
-        if (!job?.description) return;
-        jdText = job.description;
+        const trimmedHtml = job?.htmlContent?.trim();
+        if (trimmedHtml) {
+          jdText = htmlToPlainText(trimmedHtml);
+        } else if (job?.description?.trim()) {
+          jdText = job.description;
+        } else {
+          return;
+        }
       } else if (source.draftJobId) {
-        const draft = await this.draftRepo.findOne(source.draftJobId, userId);
-        if (!draft?.htmlContent) return;
-        jdText = htmlToPlainText(draft.htmlContent);
+        await this.processMatchAnalysis(matchId, userId, {
+          jobId: source.draftJobId,
+        });
+        return;
       } else {
         return;
       }
