@@ -143,6 +143,37 @@ export class MatchAnalysisService implements OnModuleInit {
     return saved;
   }
 
+  /** Clears PROCESSING after the request was persisted (enqueue); mirrors AI-error path. */
+  private async failMatchProcessing(
+    matchId: string,
+    userId: string,
+    message: string,
+  ): Promise<void> {
+    const updated = await this.repo.updateById(
+      matchId,
+      AsyncMetadataStatusEnum.PROCESSING,
+      {
+        generationMetadata: {
+          status: AsyncMetadataStatusEnum.FAILED,
+          error: message,
+          timestamp: new Date(),
+        },
+      },
+      userId,
+    );
+
+    if (!updated) {
+      this.logger.warn(
+        `Match analysis ${matchId} was not in PROCESSING state; skipping FAILED lifecycle event (${message}).`,
+      );
+      return;
+    }
+
+    this.eventBus.emit(
+      new MatchStatusChanged(matchId, userId, AsyncMetadataStatusEnum.FAILED),
+    );
+  }
+
   async processMatchAnalysis(
     matchId: string,
     userId: string,
@@ -155,18 +186,38 @@ export class MatchAnalysisService implements OnModuleInit {
 
       const job = await this.jobRepo.findOneByIdAndUserId(source.jobId, userId);
 
-      const jdText = job ? resolveJobPostingPlainText(job) : "";
+      if (!job) {
+        await this.failMatchProcessing(matchId, userId, "Job not found.");
+        return;
+      }
+
+      const jdText = resolveJobPostingPlainText(job);
       if (!jdText) {
+        await this.failMatchProcessing(
+          matchId,
+          userId,
+          "Job has no description or htmlContent.",
+        );
         return;
       }
 
       const resume = await this.repo.findById(matchId, userId);
-      if (!resume?.resumeId) return;
+      if (!resume?.resumeId) {
+        await this.failMatchProcessing(
+          matchId,
+          userId,
+          "Match analysis has no resume linked.",
+        );
+        return;
+      }
 
       const resumeEntity = await this.resumeRepo.findOne({
         where: { id: resume.resumeId, userId },
       });
-      if (!resumeEntity) return;
+      if (!resumeEntity) {
+        await this.failMatchProcessing(matchId, userId, "Resume not found.");
+        return;
+      }
 
       const resumeText = tipTapToPlainText(resumeEntity.content);
 
@@ -235,6 +286,7 @@ export class MatchAnalysisService implements OnModuleInit {
         this.logger.warn(
           `Match analysis ${matchId} was already updated or reset. Skipping background save.`,
         );
+        return;
       }
 
       this.eventBus.emit(
@@ -252,21 +304,10 @@ export class MatchAnalysisService implements OnModuleInit {
         err instanceof Error ? err.stack : err,
       );
 
-      await this.repo.updateById(
+      await this.failMatchProcessing(
         matchId,
-        AsyncMetadataStatusEnum.PROCESSING,
-        {
-          generationMetadata: {
-            status: AsyncMetadataStatusEnum.FAILED,
-            error: err instanceof Error ? err.message : "Unknown error",
-            timestamp: new Date(),
-          },
-        },
         userId,
-      );
-
-      this.eventBus.emit(
-        new MatchStatusChanged(matchId, userId, AsyncMetadataStatusEnum.FAILED),
+        err instanceof Error ? err.message : "Unknown error",
       );
     }
   }

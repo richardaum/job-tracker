@@ -11,7 +11,10 @@ import type { Repository } from "typeorm";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { FitVerdictEnum } from "./fit-verdict.enum";
-import { MatchAnalysisRequested } from "./match-analysis.events";
+import {
+  MatchAnalysisRequested,
+  MatchStatusChanged,
+} from "./match-analysis.events";
 import { MatchAnalysisRepository } from "./match-analysis.repository";
 import { MatchAnalysisService } from "./match-analysis.service";
 import type { ResumeMatchItemParsed } from "./match-analysis-ai.schema";
@@ -229,6 +232,7 @@ describe("MatchAnalysisService", () => {
     expect(
       vi.mocked(aiService.extractResumeMatchItems).mock.calls[0][0],
     ).toContain("Need Rust");
+    expect(hasCompletedLifecycleEmit(eventEmit)).toBe(true);
   });
 
   it("processMatchAnalysis prefers htmlContent over TipTap descriptions", async () => {
@@ -277,6 +281,50 @@ describe("MatchAnalysisService", () => {
       expect.any(String),
       [],
     );
+    expect(hasCompletedLifecycleEmit(eventEmit)).toBe(true);
+  });
+
+  it("processMatchAnalysis does not emit COMPLETED when CAS update misses", async () => {
+    vi.mocked(preferencesRepo.findOne).mockResolvedValue({
+      items: [],
+    } as unknown as WorkPreferencesEntity);
+    vi.mocked(jobRepo.findOneByIdAndUserId).mockResolvedValue({
+      id: "job-1",
+      description: jobDescription,
+    } as never);
+
+    vi.mocked(repo.findById).mockResolvedValue(
+      Object.assign(new MatchAnalysisEntity(), {
+        id: "m1",
+        resumeId: "res-1",
+        userId: "user-1",
+      }),
+    );
+    vi.mocked(resumeRepo.findOne).mockResolvedValue({
+      id: "res-1",
+      userId: "user-1",
+      content: resumeTiTap,
+    } as ResumeEntity);
+
+    vi.mocked(aiService.extractResumeMatchItems).mockResolvedValue([
+      makeResumeParsed("Rust"),
+    ]);
+    vi.mocked(repo.updateById).mockResolvedValue(null);
+
+    const warnSpy = vi
+      .spyOn(Logger.prototype, "warn")
+      .mockImplementation(() => {});
+
+    try {
+      await service.processMatchAnalysis("m1", "user-1", { jobId: "job-1" });
+
+      expect(hasCompletedLifecycleEmit(eventEmit)).toBe(false);
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining("was already updated or reset"),
+      );
+    } finally {
+      warnSpy.mockRestore();
+    }
   });
 
   it("processMatchAnalysis returns early when job has no describable JD text", async () => {
@@ -288,10 +336,85 @@ describe("MatchAnalysisService", () => {
       description: "",
       htmlContent: "",
     } as never);
+    vi.mocked(repo.updateById).mockResolvedValue(
+      Object.assign(new MatchAnalysisEntity(), { id: "m1" }),
+    );
 
     await service.processMatchAnalysis("m1", "user-1", { jobId: "job-empty" });
 
     expect(aiService.extractResumeMatchItems).not.toHaveBeenCalled();
+    expect(repo.updateById).toHaveBeenCalledWith(
+      "m1",
+      AsyncMetadataStatusEnum.PROCESSING,
+      expect.objectContaining({
+        generationMetadata: expect.objectContaining({
+          status: AsyncMetadataStatusEnum.FAILED,
+          error: "Job has no description or htmlContent.",
+        }),
+      }),
+      "user-1",
+    );
+    expect(hasFailedLifecycleEmit(eventEmit)).toBe(true);
+  });
+
+  it("processMatchAnalysis does not emit FAILED when CAS row is not PROCESSING", async () => {
+    vi.mocked(preferencesRepo.findOne).mockResolvedValue({
+      items: [],
+    } as unknown as WorkPreferencesEntity);
+    vi.mocked(jobRepo.findOneByIdAndUserId).mockResolvedValue({
+      id: "job-empty",
+      description: "",
+      htmlContent: "",
+    } as never);
+    vi.mocked(repo.updateById).mockResolvedValue(null);
+
+    const warnSpy = vi
+      .spyOn(Logger.prototype, "warn")
+      .mockImplementation(() => {});
+
+    try {
+      await service.processMatchAnalysis("m1", "user-1", {
+        jobId: "job-empty",
+      });
+
+      expect(hasFailedLifecycleEmit(eventEmit)).toBe(false);
+      expect(repo.updateById).toHaveBeenCalled();
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining(
+          "was not in PROCESSING state; skipping FAILED lifecycle event",
+        ),
+      );
+    } finally {
+      warnSpy.mockRestore();
+    }
+  });
+
+  it("processMatchAnalysis fails when job is missing between enqueue and worker", async () => {
+    vi.mocked(preferencesRepo.findOne).mockResolvedValue({
+      items: [],
+    } as unknown as WorkPreferencesEntity);
+    vi.mocked(jobRepo.findOneByIdAndUserId).mockResolvedValue(null);
+    vi.mocked(repo.updateById).mockResolvedValue(
+      Object.assign(new MatchAnalysisEntity(), { id: "m1" }),
+    );
+
+    await service.processMatchAnalysis("m1", "user-1", {
+      jobId: "gone-job-id",
+    });
+
+    expect(aiService.extractResumeMatchItems).not.toHaveBeenCalled();
+    expect(repo.updateById).toHaveBeenCalledWith(
+      "m1",
+      AsyncMetadataStatusEnum.PROCESSING,
+      expect.objectContaining({
+        generationMetadata: expect.objectContaining({
+          status: AsyncMetadataStatusEnum.FAILED,
+          error: "Job not found.",
+        }),
+      }),
+      "user-1",
+    );
+    expect(hasFailedLifecycleEmit(eventEmit)).toBe(true);
   });
 
   it("processMatchAnalysis stops when persisted record lacks resumeId", async () => {
@@ -309,10 +432,59 @@ describe("MatchAnalysisService", () => {
         resumeId: undefined,
       }),
     );
+    vi.mocked(repo.updateById).mockResolvedValue(
+      Object.assign(new MatchAnalysisEntity(), { id: "m1" }),
+    );
 
     await service.processMatchAnalysis("m1", "user-1", { jobId: "job-1" });
 
     expect(aiService.extractResumeMatchItems).not.toHaveBeenCalled();
+    expect(repo.updateById).toHaveBeenCalledWith(
+      "m1",
+      AsyncMetadataStatusEnum.PROCESSING,
+      expect.objectContaining({
+        generationMetadata: expect.objectContaining({
+          status: AsyncMetadataStatusEnum.FAILED,
+          error: "Match analysis has no resume linked.",
+        }),
+      }),
+      "user-1",
+    );
+    expect(hasFailedLifecycleEmit(eventEmit)).toBe(true);
+  });
+
+  it("processMatchAnalysis fails when linked resume row is gone", async () => {
+    vi.mocked(preferencesRepo.findOne).mockResolvedValue({
+      items: [],
+    } as unknown as WorkPreferencesEntity);
+    vi.mocked(jobRepo.findOneByIdAndUserId).mockResolvedValue({
+      id: "job-1",
+      description: jobDescription,
+    } as never);
+
+    vi.mocked(repo.findById).mockResolvedValue(
+      Object.assign(new MatchAnalysisEntity(), { id: "m1", resumeId: "res-1" }),
+    );
+    vi.mocked(resumeRepo.findOne).mockResolvedValue(null);
+    vi.mocked(repo.updateById).mockResolvedValue(
+      Object.assign(new MatchAnalysisEntity(), { id: "m1" }),
+    );
+
+    await service.processMatchAnalysis("m1", "user-1", { jobId: "job-1" });
+
+    expect(aiService.extractResumeMatchItems).not.toHaveBeenCalled();
+    expect(repo.updateById).toHaveBeenCalledWith(
+      "m1",
+      AsyncMetadataStatusEnum.PROCESSING,
+      expect.objectContaining({
+        generationMetadata: expect.objectContaining({
+          status: AsyncMetadataStatusEnum.FAILED,
+          error: "Resume not found.",
+        }),
+      }),
+      "user-1",
+    );
+    expect(hasFailedLifecycleEmit(eventEmit)).toBe(true);
   });
 
   it("processMatchAnalysis marks FAILED when AI throws", async () => {
@@ -354,6 +526,49 @@ describe("MatchAnalysisService", () => {
       }),
       "user-1",
     );
+    expect(hasFailedLifecycleEmit(eventEmit)).toBe(true);
+  });
+
+  it("does not emit FAILED after AI error when FAILED CAS update misses", async () => {
+    vi.mocked(preferencesRepo.findOne).mockResolvedValue({
+      items: [],
+    } as unknown as WorkPreferencesEntity);
+    vi.mocked(jobRepo.findOneByIdAndUserId).mockResolvedValue({
+      id: "job-1",
+      description: jobDescription,
+    } as never);
+
+    vi.mocked(repo.findById).mockResolvedValue(
+      Object.assign(new MatchAnalysisEntity(), { id: "m1", resumeId: "res-1" }),
+    );
+
+    vi.mocked(resumeRepo.findOne).mockResolvedValue({
+      id: "res-1",
+      userId: "user-1",
+      content: resumeTiTap,
+    } as ResumeEntity);
+
+    vi.mocked(aiService.extractResumeMatchItems).mockRejectedValue(
+      new Error("LLM outage"),
+    );
+    vi.mocked(repo.updateById).mockResolvedValue(null);
+
+    const warnSpy = vi
+      .spyOn(Logger.prototype, "warn")
+      .mockImplementation(() => {});
+
+    try {
+      await service.processMatchAnalysis("m1", "user-1", { jobId: "job-1" });
+
+      expect(hasFailedLifecycleEmit(eventEmit)).toBe(false);
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining(
+          "was not in PROCESSING state; skipping FAILED lifecycle event",
+        ),
+      );
+    } finally {
+      warnSpy.mockRestore();
+    }
   });
 
   function makeResumeParsed(requirement: string): ResumeMatchItemParsed {
@@ -367,6 +582,22 @@ describe("MatchAnalysisService", () => {
     };
   }
 });
+
+function hasFailedLifecycleEmit(spy: ReturnType<typeof vi.fn>): boolean {
+  return spy.mock.calls.some(
+    (args) =>
+      args[0] instanceof MatchStatusChanged &&
+      args[0].status === AsyncMetadataStatusEnum.FAILED,
+  );
+}
+
+function hasCompletedLifecycleEmit(spy: ReturnType<typeof vi.fn>): boolean {
+  return spy.mock.calls.some(
+    (args) =>
+      args[0] instanceof MatchStatusChanged &&
+      args[0].status === AsyncMetadataStatusEnum.COMPLETED,
+  );
+}
 
 type MatchRequestedSource = { jobId: string };
 
