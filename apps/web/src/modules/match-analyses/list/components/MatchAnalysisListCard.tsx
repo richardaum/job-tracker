@@ -5,6 +5,7 @@ import NextLink from "next/link";
 
 import type { MatchAnalysesListQuery } from "@/gql/hooks";
 import { AsyncMetadataStatus } from "@/gql/hooks";
+import { jobDetailDisplayTitle } from "@/modules/jobs/details/utils/job-detail-title";
 
 import { MatchScoreBadge } from "./MatchScoreBadge";
 
@@ -28,7 +29,12 @@ export function MatchAnalysisListCard({
   matchAnalysis,
 }: MatchAnalysisListCardProps) {
   const parentLabel = matchAnalysis.job
-    ? `${matchAnalysis.job.title} @ ${matchAnalysis.job.company.name}`
+    ? (() => {
+        const j = matchAnalysis.job;
+        const roleLabel = jobDetailDisplayTitle(j.title);
+        const companyLabel = j.company?.name?.trim();
+        return companyLabel ? `${roleLabel} @ ${companyLabel}` : roleLabel;
+      })()
     : matchAnalysis.jobId
       ? `Job ${matchAnalysis.jobId}`
       : "Unknown";

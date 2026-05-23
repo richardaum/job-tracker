@@ -194,6 +194,7 @@ export function OverviewTabContent({
 
   const salary = formatSalary(job.salary);
   const tags = job.tags ?? [];
+  const showCompanyMeta = Boolean(job.company?.name?.trim());
 
   return (
     <OverviewSection>
@@ -228,18 +229,26 @@ export function OverviewTabContent({
         <FieldWithLabelAction
           label="Company"
           content={
-            <CompanyNameWithPopover
-              job={job}
-              onSuccess={onSuccess}
-              onError={onError}
-            />
+            showCompanyMeta ? (
+              <CompanyNameWithPopover
+                job={job}
+                onSuccess={onSuccess}
+                onError={onError}
+              />
+            ) : (
+              <Text size="sm" color="muted">
+                Not set
+              </Text>
+            )
           }
           actions={
-            <FieldWithLabelAction.IconActionButton
-              label="Edit company"
-              icon={<PencilSimpleIcon size={14} weight="regular" />}
-              onClick={companyDialog.open}
-            />
+            showCompanyMeta ? (
+              <FieldWithLabelAction.IconActionButton
+                label="Edit company"
+                icon={<PencilSimpleIcon size={14} weight="regular" />}
+                onClick={companyDialog.open}
+              />
+            ) : null
           }
         />
         <CompanyEditDialog

@@ -162,4 +162,46 @@ describe("JobCard", () => {
       screen.getByRole("link", { name: "Product Designer" }),
     ).toBeInTheDocument();
   });
+
+  it("shows company meta when company has a non-empty name", () => {
+    render(
+      <JobCard
+        job={createJobFixture()}
+        onSuccess={() => {}}
+        onError={() => {}}
+      />,
+    );
+    expect(screen.getByTestId("job-card-company-meta")).toBeInTheDocument();
+    expect(screen.getByText("Acme Corp")).toBeInTheDocument();
+  });
+
+  it("omits company from meta row when company name is empty", () => {
+    render(
+      <JobCard
+        job={createJobFixture({
+          company: { id: "company-1", name: "", description: null },
+        })}
+        onSuccess={() => {}}
+        onError={() => {}}
+      />,
+    );
+    expect(
+      screen.queryByTestId("job-card-company-meta"),
+    ).not.toBeInTheDocument();
+  });
+
+  it("omits company from meta row when company name is whitespace only", () => {
+    render(
+      <JobCard
+        job={createJobFixture({
+          company: { id: "company-1", name: "   ", description: null },
+        })}
+        onSuccess={() => {}}
+        onError={() => {}}
+      />,
+    );
+    expect(
+      screen.queryByTestId("job-card-company-meta"),
+    ).not.toBeInTheDocument();
+  });
 });
