@@ -71,6 +71,22 @@ jobs:
   e2e:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: job_tracker
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -89,14 +105,31 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Write API .env for CI
+        run: |
+          cat > apps/api/.env << 'EOF'
+          DATABASE_URL=postgresql://postgres:postgres@localhost:5432/job_tracker
+          PORT=3101
+          GOOGLE_CLIENT_ID=ci-dummy
+          GOOGLE_CLIENT_SECRET=ci-dummy
+          GOOGLE_CALLBACK_URL=http://localhost:3101/auth/google/callback
+          JWT_ACCESS_SECRET=ci-dummy-access
+          JWT_REFRESH_SECRET=ci-dummy-refresh
+          WEB_URL=http://localhost:3100
+          AUTH_BYPASS_ENABLED=true
+          DEV_AUTH_BYPASS_EMAIL=ci@test.local
+          EOF
+
+      - name: Run migrations (seed source DB for clone)
+        run: pnpm --filter @job-tracker/api run db:migrate
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/job_tracker
+
       - name: Install Playwright Chromium
         run: pnpm --filter @job-tracker/web exec playwright install chromium --with-deps
 
-      - name: Build web workspace
-        run: pnpm turbo build --filter=@job-tracker/web
-
-      - name: Run Playwright tests
-        run: pnpm --filter @job-tracker/web run e2e
+      - name: Run E2E tests
+        run: pnpm e2e
         env:
           CI: true
 
