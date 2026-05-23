@@ -39,10 +39,10 @@ Setup and teardown run **inside** the linked worktree only (not the main checkou
 
 | Topic | Location |
 | ----- | -------- |
-| PM2, ports, `.env.worktree`, registry | `.agents/rules/ops-docker-pm2.md` |
+| PM2, ports, per-app `.env`, registry | `.agents/rules/ops-docker-pm2.md` |
 | `pnpm worktree:setup` / `teardown` flows | `.agents/skills/worktree-env/SKILL.md` (`@worktree-env`; explicit invocation only) |
 | Subagent loop (A → B, 2 passes) | `.agents/skills/worktree-loop/SKILL.md` (`@worktree-loop` / `/worktree-loop`) |
-| CLI flags | `scripts/worktree/README.md` |
+| CLI implementation / flags | `packages/worktree-cli/README.md` (`@job-tracker/worktree-cli`) |
 
 ## Execution pipeline (mandatory)
 

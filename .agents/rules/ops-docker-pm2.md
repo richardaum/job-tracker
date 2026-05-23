@@ -14,12 +14,14 @@ Long-running apps (**`api`**, **`web`**, **`storybook`**, **`extension`**) — s
 ## Git worktree parallel dev
 
 - Setup **only** inside a linked worktree: **`pnpm worktree:setup`** (requires **`WORKTREE_SOURCE_DB`**). Refuses the main checkout.
-- Writes gitignored **`.env.worktree`** at repo root; **`ecosystem.config.cjs`** loads it (namespace `job-tracker-<slug>`, app names `<slug>-api`, …).
+- CLI package: **`@job-tracker/worktree-cli`** (`packages/worktree-cli/`). Slug helper for PM2: `packages/worktree-cli/derive-slug.cjs` (required by root `ecosystem.config.cjs`).
+- Writes per-app `.env` files: `apps/api/.env`, `apps/web/.env`, `packages/ui/.env`, `apps/extension/.env.development`.
+- **`ecosystem.config.cjs`** derives PM2 namespace/prefix from directory name; each app loads its `.env` via `env_file`.
 - Port registry: **`/tmp/job-tracker-ports.json`** + **`/tmp/job-tracker-<slug>.ports.json`** (reconciled with `lsof`).
 - PostgreSQL: shared server `:5432`, database **`job_tracker_<slug>`** cloned from source DB.
 - Auth: **`AUTH_BYPASS_ENABLED=true`** in worktree env — no new OAuth redirect URIs.
 - Teardown: **`pnpm worktree:teardown`** — all boolean flags use `=true|false`; **`--drop-db=false`** preserves the clone DB.
-- **Do not** run `pnpm pm2:reset` or `pnpm ports:kill` in a worktree without **`PM2_RESET_PORTS`** from `.env.worktree` — script refuses default kills to protect other checkouts.
+- **Do not** run `pnpm pm2:reset` or `pnpm ports:kill` in a worktree without **`PM2_RESET_PORTS`** — script reads from slug port registry; refuses default kills to protect other checkouts.
 - Logs: `pm2 logs <slug>-api` (and `-web`, `-storybook`, `-extension`).
 
 ## EOC task check

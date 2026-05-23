@@ -115,5 +115,6 @@ Then reintegration may proceed per `.agents/rules/worktree.md` § Reintegration.
 | ----- | ---- |
 | Worktrees, reintegration, handoff | `.agents/rules/worktree.md` |
 | Env / PM2 setup | `@worktree-env` → `.agents/skills/worktree-env/SKILL.md` |
+| Worktree CLI (setup/teardown impl) | `packages/worktree-cli/README.md` (`@job-tracker/worktree-cli`) |
 | Task execution | `cy-execute-task` |
 | Review artifacts | `cy-review-round` |
