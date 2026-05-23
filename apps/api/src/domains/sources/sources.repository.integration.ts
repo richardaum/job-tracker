@@ -5,10 +5,11 @@ import { createTestDataSource } from "@api/database/test-db";
 import { SourceRunStatusEnum } from "@api/domains/sources/source-run-status.enum";
 import { SourcesRepository } from "@api/domains/sources/sources.repository";
 import { RoleEnum } from "@api/domains/users/role.enum";
+import { DATABASE_INTEGRATION_URL } from "@api/env/server";
 import type { DataSource } from "typeorm";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 
-const hasDb = !!process.env.DATABASE_INTEGRATION_URL;
+const hasDb = !!DATABASE_INTEGRATION_URL;
 
 describe.skipIf(!hasDb)("SourcesRepository (integration)", () => {
   let dataSource: DataSource;

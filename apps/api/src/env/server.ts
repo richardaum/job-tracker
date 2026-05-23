@@ -22,6 +22,7 @@ const serverEnvSchema = z.object({
     .default("http://localhost:3101/auth/google/callback"),
   JWT_ACCESS_SECRET: z.string(),
   JWT_REFRESH_SECRET: z.string(),
+  DATABASE_INTEGRATION_URL: z.url().optional(),
   WEB_URL: z.url().default("http://localhost:3100"),
   OPENAI_API_KEY: z.string().optional(),
   OPENAI_MODEL: z.string().default("gpt-4.1-mini"),
@@ -43,6 +44,7 @@ const validated = serverEnvSchema
 export const {
   NODE_ENV,
   DATABASE_URL,
+  DATABASE_INTEGRATION_URL,
   SENTRY_DSN,
   PORT,
   GOOGLE_CLIENT_ID,
