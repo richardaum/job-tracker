@@ -13,6 +13,7 @@ import {
   useDialog,
 } from "@job-tracker/ui";
 import { type DialogControl } from "@job-tracker/ui";
+import { TrashIcon } from "@phosphor-icons/react";
 import React, { useState } from "react";
 import { NumericFormat } from "react-number-format";
 
@@ -142,6 +143,8 @@ export function SalaryEditDialog(props: SalaryEditDialogProps) {
   const idPrefix = isDraft ? (props.idPrefix ?? "ai-draft-sal") : "ov-sal";
   const amountDecimalScale = iso4217MaxFractionDigits(form.salaryCurrency);
 
+  const hasSalary = form.salaryMin !== "" || form.salaryMax !== "";
+
   function handleOpenChange(next: boolean) {
     control.onOpenChange(next);
   }
@@ -229,6 +232,47 @@ export function SalaryEditDialog(props: SalaryEditDialogProps) {
     }
   }
 
+  async function handleRemove() {
+    setSaving(true);
+    try {
+      if (isDraft) {
+        props.onSalarySave({
+          salaryMinCents: null,
+          salaryMaxCents: null,
+          salaryCurrency: null,
+          salaryPeriod: null,
+        });
+        control.close();
+        return;
+      }
+      await update({
+        variables: {
+          id: props.job.id,
+          input: {
+            salary: {
+              minCents: null,
+              maxCents: null,
+              currency: null,
+              period: null,
+            },
+          },
+        },
+      });
+      props.onSuccess?.("Salary removed.");
+      control.close();
+    } catch {
+      if (isDraft) {
+        props.onError?.("Could not remove salary.");
+      } else {
+        (props as SalaryEditDialogJobProps).onError?.(
+          "Could not remove salary.",
+        );
+      }
+    } finally {
+      setSaving(false);
+    }
+  }
+
   return (
     <Dialog
       trigger={trigger}
@@ -309,6 +353,17 @@ export function SalaryEditDialog(props: SalaryEditDialogProps) {
           </FormField>
         </div>
         <div className={cn("flex justify-end")}>
+          {hasSalary && (
+            <Button
+              intent="destructive"
+              onClick={() => void handleRemove()}
+              disabled={saving || disabledInputs}
+              className={cn("mr-auto")}
+            >
+              <TrashIcon size={14} weight="regular" />
+              Remove
+            </Button>
+          )}
           <Button
             intent="primary"
             onClick={() => void handleSave()}
