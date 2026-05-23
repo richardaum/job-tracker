@@ -15,7 +15,8 @@ export function useQuickFilter(): ApplicationQuickFilter | null {
   const searchParams = useSearchParams();
   const raw = searchParams.get("q");
   if (!raw) return ApplicationQuickFilter.Incoming;
-  return PARAM_TO_FILTER[raw] ?? null;
+  if (raw === "all") return null;
+  return PARAM_TO_FILTER[raw] ?? ApplicationQuickFilter.Incoming;
 }
 
 export function useCompanyFilter(): string | null {

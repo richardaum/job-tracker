@@ -1,7 +1,7 @@
 "use client";
 
 import { cn, FilterChip, Tooltip } from "@job-tracker/ui";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 const QUICK_FILTERS = [
   { key: "all", label: "All", tooltip: "Show all jobs" },
@@ -32,22 +32,32 @@ const QUICK_FILTERS = [
 
 type QuickFilterKey = (typeof QUICK_FILTERS)[number]["key"];
 
+function resolveActiveQuickFilterKey(raw: string | null): QuickFilterKey {
+  if (!raw) return "incoming";
+  const match = QUICK_FILTERS.find((f) => f.key === raw);
+  return match ? match.key : "incoming";
+}
+
 export function QuickFilters() {
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
-  const activeFilter =
-    (searchParams.get("q") as QuickFilterKey | null) ?? "incoming";
+  const activeFilter = resolveActiveQuickFilterKey(searchParams.get("q"));
 
   function toggle(key: QuickFilterKey) {
     const params = new URLSearchParams(searchParams.toString());
     if (activeFilter === key) {
-      if (searchParams.has("q")) {
+      if (!searchParams.has("q")) return;
+      if (key === "all") {
+        params.set("q", "incoming");
+      } else {
         params.delete("q");
       }
     } else {
       params.set("q", key);
     }
-    router.push(`?${params.toString()}`);
+    const query = params.toString();
+    router.push(query ? `${pathname}?${query}` : pathname);
   }
 
   return (

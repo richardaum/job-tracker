@@ -24,8 +24,14 @@ describe("useQuickFilter", () => {
     expect(result.current).toBe(ApplicationQuickFilter.Incoming);
   });
 
-  it("returns null for unknown q values", () => {
+  it("falls back to Incoming for unknown q tokens (aligned with chips + list semantics)", () => {
     navigationMocks.searchParams = "q=unknown";
+    const { result } = renderHook(() => useQuickFilter());
+    expect(result.current).toBe(ApplicationQuickFilter.Incoming);
+  });
+
+  it("maps q=all to null so jobs query uses unrestricted list", () => {
+    navigationMocks.searchParams = "q=all";
     const { result } = renderHook(() => useQuickFilter());
     expect(result.current).toBeNull();
   });

@@ -1,4 +1,5 @@
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import JobsPage from "./JobsPage";
@@ -8,11 +9,12 @@ const navigationMocks = { searchParams: "" };
 const useJobsQueryMock = vi.fn();
 const useJobStageEventsQueryMock = vi.fn();
 const useCurrentUserMock = vi.fn();
+const routerPushSpy = vi.fn();
 
 vi.mock("next/navigation", () => ({
   useSearchParams: () => new URLSearchParams(navigationMocks.searchParams),
-  useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
-  usePathname: () => "/",
+  useRouter: () => ({ push: routerPushSpy, replace: vi.fn() }),
+  usePathname: () => "/jobs",
 }));
 
 vi.mock("next/image", () => ({
@@ -80,6 +82,7 @@ vi.mock("@/modules/jobs/details/components/SalaryEditDialog", () => ({
 describe("JobsPage", () => {
   beforeEach(() => {
     navigationMocks.searchParams = "";
+    routerPushSpy.mockClear();
     vi.clearAllMocks();
   });
 
@@ -118,6 +121,172 @@ describe("JobsPage", () => {
         variables: expect.objectContaining({ filter: "DRAFT" }),
       }),
     );
+  });
+
+  it("falls back to INCOMING Jobs filter when URL has an unknown q token", () => {
+    navigationMocks.searchParams = "q=not-a-filter";
+    useJobStageEventsQueryMock.mockImplementation(
+      (options: { skip?: boolean } | undefined) => {
+        if (options?.skip) {
+          return { data: undefined, loading: false, error: undefined };
+        }
+        return {
+          data: { jobStageEvents: [] },
+          loading: false,
+          error: undefined,
+        };
+      },
+    );
+    useCurrentUserMock.mockReturnValue({
+      user: {
+        id: "user-1",
+        name: "Test User",
+        email: "test@example.com",
+        avatarUrl: null,
+      },
+    });
+    useJobsQueryMock.mockReturnValue({
+      data: { jobs: [] },
+      loading: false,
+      error: undefined,
+    });
+
+    render(<JobsPage />);
+
+    expect(useJobsQueryMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        variables: expect.objectContaining({ filter: "INCOMING" }),
+      }),
+    );
+  });
+
+  it("passes null filter when URL has q=all for unrestricted jobs list", () => {
+    navigationMocks.searchParams = "q=all";
+    useJobStageEventsQueryMock.mockImplementation(
+      (options: { skip?: boolean } | undefined) => {
+        if (options?.skip) {
+          return { data: undefined, loading: false, error: undefined };
+        }
+        return {
+          data: { jobStageEvents: [] },
+          loading: false,
+          error: undefined,
+        };
+      },
+    );
+    useCurrentUserMock.mockReturnValue({
+      user: {
+        id: "user-1",
+        name: "Test User",
+        email: "test@example.com",
+        avatarUrl: null,
+      },
+    });
+    useJobsQueryMock.mockReturnValue({
+      data: { jobs: [] },
+      loading: false,
+      error: undefined,
+    });
+
+    render(<JobsPage />);
+
+    expect(useJobsQueryMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        variables: expect.objectContaining({ filter: null }),
+      }),
+    );
+  });
+
+  it("clearing company filter removes only company from the URL", async () => {
+    navigationMocks.searchParams =
+      "q=draft&company=Acme%20Labs&runId=should-remain";
+
+    useJobStageEventsQueryMock.mockImplementation(
+      (options: { skip?: boolean } | undefined) => {
+        if (options?.skip) {
+          return { data: undefined, loading: false, error: undefined };
+        }
+        return {
+          data: { jobStageEvents: [] },
+          loading: false,
+          error: undefined,
+        };
+      },
+    );
+
+    useCurrentUserMock.mockReturnValue({
+      user: {
+        id: "user-1",
+        name: "Test User",
+        email: "test@example.com",
+        avatarUrl: null,
+      },
+    });
+
+    useJobsQueryMock.mockReturnValue({
+      data: { jobs: [] },
+      loading: false,
+      error: undefined,
+    });
+
+    const user = userEvent.setup();
+    render(<JobsPage />);
+
+    await user.click(screen.getByRole("button", { name: "Clear" }));
+
+    expect(routerPushSpy).toHaveBeenCalledTimes(1);
+
+    const target = routerPushSpy.mock.calls[0][0] as string;
+    expect(target.startsWith("/jobs")).toBe(true);
+    const u = new URL(target, "http://localhost/");
+    expect(u.searchParams.has("company")).toBe(false);
+    expect(u.searchParams.get("q")).toBe("draft");
+    expect(u.searchParams.get("runId")).toBe("should-remain");
+  });
+
+  it("clearing runId filter preserves q and unrelated params", async () => {
+    navigationMocks.searchParams = "company=PinnedCo&q=all&runId=run-z";
+
+    useJobStageEventsQueryMock.mockImplementation(
+      (options: { skip?: boolean } | undefined) => {
+        if (options?.skip) {
+          return { data: undefined, loading: false, error: undefined };
+        }
+        return {
+          data: { jobStageEvents: [] },
+          loading: false,
+          error: undefined,
+        };
+      },
+    );
+
+    useCurrentUserMock.mockReturnValue({
+      user: {
+        id: "user-1",
+        name: "Test User",
+        email: "test@example.com",
+        avatarUrl: null,
+      },
+    });
+
+    useJobsQueryMock.mockReturnValue({
+      data: { jobs: [] },
+      loading: false,
+      error: undefined,
+    });
+
+    const user = userEvent.setup();
+    render(<JobsPage />);
+
+    await user.click(screen.getByRole("button", { name: /clear run filter/i }));
+
+    expect(routerPushSpy).toHaveBeenCalledTimes(1);
+
+    const target = routerPushSpy.mock.calls[0][0] as string;
+    const u = new URL(target, "http://localhost/");
+    expect(u.searchParams.has("runId")).toBe(false);
+    expect(u.searchParams.get("company")).toBe("PinnedCo");
+    expect(u.searchParams.get("q")).toBe("all");
   });
 
   it("renders current stage from job when list includes currentStage", () => {
