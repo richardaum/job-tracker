@@ -229,7 +229,9 @@ export class JobsService {
 
       const tags = this.tagService.normalizeTags(dto.tags);
       const normalizedUrls = this.normalizeUrls(dto.urls);
-      const salaryColumns = this.salaryService.getCreateSalary(dto);
+      const salaryEmbedded = this.salaryService.getCreateSalary(
+        dto.salary ?? {},
+      );
       const repoDto: CreateJobRepoDto = {
         title: dto.title ?? null,
         companyId: companyId ?? null,
@@ -245,7 +247,7 @@ export class JobsService {
         workRegion: dto.workRegion ?? null,
         draftJobId: null,
         sourceRunId: dto.sourceRunId ?? null,
-        ...salaryColumns,
+        salary: salaryEmbedded,
       };
 
       const job = await this.repo.create(userId, repoDto);

@@ -1,3 +1,4 @@
+import { SalaryEmbedded } from "@api/database/embeddeds/salary.embedded";
 import { JobEntity } from "@api/database/entities/job.entity";
 import { JobStageEventEntity } from "@api/database/entities/job-stage-event.entity";
 import { AsyncMetadataStatusEnum } from "@api/domains/shared/async-metadata.type";
@@ -284,10 +285,12 @@ describe("JobsRepository", () => {
       description: null,
       urls: [],
       source: null,
-      salaryMinCents: 1_000_000,
-      salaryMaxCents: 1_500_000,
-      salaryCurrency: "USD",
-      salaryPeriod: null,
+      salary: {
+        minCents: 1_000_000,
+        maxCents: 1_500_000,
+        currency: "USD",
+        period: null,
+      } as SalaryEmbedded,
       tags: [],
       location: null,
       workRegion: null,
@@ -306,9 +309,7 @@ describe("JobsRepository", () => {
         userId: "u1",
         title: "T",
         companyId: "c1",
-        salaryMinCents: 1_000_000,
-        salaryMaxCents: 1_500_000,
-        salaryCurrency: "USD",
+        salary: { minCents: 1_000_000, maxCents: 1_500_000, currency: "USD" },
         sourceRunId: null,
       }),
     );
@@ -330,10 +331,12 @@ describe("JobsRepository", () => {
       description: null,
       urls: [],
       source: null,
-      salaryMinCents: null,
-      salaryMaxCents: null,
-      salaryCurrency: null,
-      salaryPeriod: null,
+      salary: {
+        minCents: null,
+        maxCents: null,
+        currency: null,
+        period: null,
+      } as SalaryEmbedded,
       tags: [],
       location: null,
       workRegion: null,
@@ -370,10 +373,12 @@ describe("JobsRepository", () => {
       description: null,
       urls: [],
       source: null,
-      salaryMinCents: null,
-      salaryMaxCents: null,
-      salaryCurrency: null,
-      salaryPeriod: null,
+      salary: {
+        minCents: null,
+        maxCents: null,
+        currency: null,
+        period: null,
+      } as SalaryEmbedded,
       tags: [],
       location: null,
       workRegion: null,
