@@ -43,7 +43,7 @@ const argv = await yargs(userArgs)
   })
   .option("recreate-db", {
     type: "boolean",
-    default: false,
+    default: true,
     description: "Drop and re-clone destination DB",
   })
   .option("dbeaver", {
