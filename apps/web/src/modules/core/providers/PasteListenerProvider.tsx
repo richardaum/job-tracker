@@ -1,5 +1,6 @@
 "use client";
 
+import { sanitizeCapturedHtml } from "@job-tracker/html-sanitize";
 import { tryRun } from "@job-tracker/try-run";
 import { useRouter } from "next/navigation";
 import type { ReactNode } from "react";
@@ -13,8 +14,6 @@ import {
 import { useToastQueue } from "@/modules/jobs/shared/hooks/useToastQueue";
 
 import { PasteDestinationDialog } from "./components/PasteDestinationDialog";
-
-const DRAFT_CAPTURE_COMPANY = "Draft (pending company)" as const;
 
 export function PasteListenerProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
@@ -54,13 +53,13 @@ export function PasteListenerProvider({ children }: { children: ReactNode }) {
 
     const plainText = event.clipboardData?.getData("text/plain").trim();
     const htmlText = event.clipboardData?.getData("text/html").trim();
-    const normalized = plainText || htmlText;
-    if (!normalized) {
+    const rawContent = htmlText || plainText;
+    if (!rawContent) {
       return;
     }
 
     event.preventDefault();
-    setPastedContent(normalized);
+    setPastedContent(sanitizeCapturedHtml(rawContent));
     setDialogOpen(true);
   }, []);
 
@@ -83,7 +82,6 @@ export function PasteListenerProvider({ children }: { children: ReactNode }) {
       createDraftCaptureJob({
         variables: {
           input: {
-            company: DRAFT_CAPTURE_COMPANY,
             title: titleFromUrl(url),
             urls: url ? [url] : [],
             htmlContent: pastedContent,

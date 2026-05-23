@@ -5,6 +5,7 @@ import { DraftExtractionService } from "@api/domains/jobs/ai/draft-extraction.se
 import { DraftExtractionNormalizationService } from "@api/domains/jobs/ai/draft-extraction-normalization.service";
 import { AsyncMetadataStatusEnum } from "@api/domains/shared/async-metadata.type";
 import { LocationInferenceService } from "@api/lib/ai";
+import { sanitizeCapturedHtml } from "@job-tracker/html-sanitize";
 import { isTipTapDocumentString, tipTapToPlainText } from "@job-tracker/tiptap";
 import { tryRun } from "@job-tracker/try-run";
 import {
@@ -133,6 +134,18 @@ export class JobsService {
     )[0]!;
   }
 
+  private normalizeHtmlContent(
+    htmlContent: string | null | undefined,
+  ): string | null | undefined {
+    if (htmlContent === undefined) {
+      return undefined;
+    }
+    if (htmlContent === null) {
+      return null;
+    }
+    return sanitizeCapturedHtml(htmlContent);
+  }
+
   private normalizeUrls(urls: string[] | null | undefined): string[] {
     if (!urls) {
       return [];
@@ -220,7 +233,7 @@ export class JobsService {
         companyId: companyId ?? null,
         description: null,
         urls: normalizedUrls,
-        htmlContent: dto.htmlContent ?? null,
+        htmlContent: this.normalizeHtmlContent(dto.htmlContent) ?? null,
         source:
           dto.source !== undefined
             ? dto.source
@@ -281,7 +294,7 @@ export class JobsService {
       companyId,
       description: dto.description ?? null,
       urls: normalizedUrls,
-      htmlContent: dto.htmlContent ?? null,
+      htmlContent: this.normalizeHtmlContent(dto.htmlContent) ?? null,
       source:
         dto.source !== undefined
           ? dto.source
@@ -607,7 +620,7 @@ export class JobsService {
       ...(dto.location !== undefined ? { location: dto.location } : {}),
       ...(dto.workRegion !== undefined ? { workRegion: dto.workRegion } : {}),
       ...(dto.htmlContent !== undefined
-        ? { htmlContent: dto.htmlContent }
+        ? { htmlContent: this.normalizeHtmlContent(dto.htmlContent) ?? null }
         : {}),
       ...(salaryColumns ?? {}),
     };

@@ -25,6 +25,7 @@
   "dependencies": {
     "@apollo/server": "^5.5.0",
     "@as-integrations/express5": "^1.1.2",
+    "@job-tracker/html-sanitize": "workspace:*",
     "@job-tracker/logger": "workspace:*",
     "@job-tracker/tiptap": "workspace:*",
     "@job-tracker/try-run": "workspace:*",

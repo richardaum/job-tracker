@@ -5,15 +5,17 @@ import { useCallback } from "react";
 
 import {
   ApplicationStage,
+  AsyncMetadataStatus,
   JobDocument,
   JobStageEventsDocument,
   useFillJobAutomaticallyMutation,
   useJobQuery,
   useJobStageEventsQuery,
 } from "@/gql/hooks";
+import { useEventSource } from "@/hooks/useEventSource";
+import { getApiBaseUrl } from "@/lib/api-endpoints";
 import { deriveDetailStatus } from "@/lib/entity-detail-view-status";
 import { deriveJobFillButtonState } from "@/modules/jobs/details/hooks/deriveJobFillButtonState";
-import { useJobDetailsSse } from "@/modules/jobs/details/hooks/useJobDetailsSse";
 import { jobDetailDisplayTitle } from "@/modules/jobs/details/utils/job-detail-title";
 import type { JobDetailsValues } from "@/modules/jobs/details/utils/job-details.shared";
 import { formatJobSourceLabel } from "@/modules/jobs/shared/utils/jobSourceLabel";
@@ -51,7 +53,24 @@ export function useJobDetailsViewModel(
     ]);
   }, [refetch, refetchStageEvents, includeStageEvents]);
 
-  useJobDetailsSse(jobId, () => void refetchJobAndTimeline());
+  const sseUrl = jobId ? `${getApiBaseUrl()}/jobs/${jobId}/stream` : null;
+
+  useEventSource(sseUrl, "summary_status_changed", () => {
+    void refetchJobAndTimeline();
+  });
+
+  useEventSource<{ jobId: string; status: string }>(
+    sseUrl,
+    "fill_status_changed",
+    (data) => {
+      if (
+        data.status === AsyncMetadataStatus.Completed ||
+        data.status === AsyncMetadataStatus.Failed
+      ) {
+        void refetchJobAndTimeline();
+      }
+    },
+  );
 
   const refetchQueries = includeStageEvents
     ? [
