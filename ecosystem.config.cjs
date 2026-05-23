@@ -1,28 +1,21 @@
 const path = require("node:path");
-const dotenv = require("dotenv");
+const { deriveSlug } = require("./packages/worktree-cli/derive-slug.cjs");
 
 const root = path.resolve(__dirname);
-
-const { parsed: worktreeEnv = {} } = dotenv.config({
-  path: path.join(root, ".env.worktree"),
-});
-const namespace = worktreeEnv.PM2_NAMESPACE || "job-tracker";
-const appPrefix = worktreeEnv.PM2_APP_PREFIX
-  ? `${worktreeEnv.PM2_APP_PREFIX}-`
-  : "";
-
-/** @param {Record<string, string>} extra */
-function sharedEnv(extra = {}) {
-  return { NODE_ENV: "development", ...worktreeEnv, ...extra };
-}
+const slug = deriveSlug(root);
+const isWorktree = slug !== "job-tracker";
+const namespace = isWorktree ? `job-tracker-${slug}` : "job-tracker";
+const appPrefix = isWorktree ? `${slug}-` : "";
 
 /**
  * PM2 ecosystem — dev processes for this monorepo.
  *
- * Worktrees: run `pnpm worktree:setup` first — loads `.env.worktree` here (gitignored).
+ * Each app loads its env from its own `.env` file via `env_file`.
+ * In a worktree, `pnpm worktree:setup` writes worktree-specific `.env` files.
+ * PM2 namespace and app prefix are derived from the directory name.
  *
  * Start:  pnpm pm2:start
- * Reset:  pnpm pm2:reset — uses PM2_RESET_PORTS from `.env.worktree` when present.
+ * Reset:  pnpm pm2:reset
  * Ports:  pnpm ports:kill
  * Stop:   pnpm pm2:stop
  */
@@ -36,10 +29,11 @@ module.exports = {
       args: "run dev:debug",
       interpreter: "none",
       log_date_format: "YYYY-MM-DD HH:mm:ss Z",
-      env: sharedEnv({
+      env_file: path.join(root, "apps/api/.env"),
+      env: {
+        NODE_ENV: "development",
         NODE_OPTIONS: `--import ${path.join(root, "apps/api/node_modules/tsx/dist/loader.mjs")}`,
-        PORT: worktreeEnv.API_PORT || "3101",
-      }),
+      },
       watch: false,
     },
     {
@@ -50,11 +44,8 @@ module.exports = {
       args: "run dev",
       interpreter: "none",
       log_date_format: "YYYY-MM-DD HH:mm:ss Z",
-      env: sharedEnv({
-        PORT: worktreeEnv.WEB_PORT || "3100",
-        NEXT_PUBLIC_API_URL:
-          worktreeEnv.NEXT_PUBLIC_API_URL || "http://localhost:3101",
-      }),
+      env_file: path.join(root, "apps/web/.env"),
+      env: { NODE_ENV: "development" },
       watch: false,
     },
     {
@@ -65,7 +56,8 @@ module.exports = {
       args: "run dev",
       interpreter: "none",
       log_date_format: "YYYY-MM-DD HH:mm:ss Z",
-      env: sharedEnv({ CI: "true" }),
+      env_file: path.join(root, "packages/ui/.env"),
+      env: { NODE_ENV: "development", CI: "true" },
       watch: ["src", ".storybook"],
       ignore_watch: ["node_modules", ".git", "dist", "storybook-static"],
     },
@@ -77,7 +69,8 @@ module.exports = {
       args: "run dev",
       interpreter: "none",
       log_date_format: "YYYY-MM-DD HH:mm:ss Z",
-      env: sharedEnv(),
+      env_file: path.join(root, "apps/extension/.env.development"),
+      env: { NODE_ENV: "development" },
       watch: false,
     },
   ],

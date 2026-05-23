@@ -25,12 +25,12 @@ Parallel feature work in **git worktrees** (isolated ports, DB, PM2 names; main 
 
 ```bash
 export WORKTREE_SOURCE_DB=job_tracker
-pnpm worktree:setup    # inside the worktree only; boolean flags use =true|false (see scripts/worktree/README.md)
+pnpm worktree:setup    # inside the worktree only; boolean flags use =true|false (see packages/worktree-cli/README.md)
 pnpm pm2:start
 pnpm worktree:teardown   # -- --dry-run=true|false --apply=true|false --drop-db=true|false --dbeaver=true|false
 ```
 
-See `.env.worktree.example` and `.agents/rules/ops-docker-pm2.md`.
+See `apps/api/.env.example`, `apps/web/.env.example`, `apps/extension/.env.example`, and `.agents/rules/ops-docker-pm2.md`.
 
 Match CI locally (LeanSpec validation, lint, typecheck, tests with coverage, production build):
 
@@ -40,10 +40,10 @@ pnpm ci:local
 
 ## End-to-end tests
 
-Playwright drives the web dev server on port **3100** by default (`E2E_PORT`). Use another free port in the **31xx** range if something already listens on 3100 (for example your own `pnpm dev`):
+Playwright drives the web dev server on port **3102** by default (`E2E_PORT`), so it won't conflict with the local dev server on **3100**. Use another free port in the **31xx** range if 3102 is taken:
 
 ```bash
-E2E_PORT=3102 pnpm e2e
+E2E_PORT=3103 pnpm e2e
 ```
 
 This runs `turbo build --filter=@job-tracker/web` then the suite under `apps/web/e2e` (including the mocked GraphQL CRUD flow for [P-14]).
