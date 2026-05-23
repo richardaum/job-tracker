@@ -84,6 +84,7 @@ module.exports = {
       env: {
         NODE_ENV: "development",
         ...loadEnvFile(path.join(root, "apps/extension/.env.development")),
+        ...loadEnvFile(path.join(root, "apps/extension/.env")),
       },
       watch: false,
     },
