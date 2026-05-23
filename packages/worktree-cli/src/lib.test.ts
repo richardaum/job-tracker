@@ -16,6 +16,7 @@ import {
   parseEnvFile,
   testDbNameForSlug,
   validateSlug,
+  worktreeWebUrl,
 } from "./lib.ts";
 
 describe("worktree lib", () => {
@@ -120,5 +121,12 @@ BAZ="quoted"
     assert.equal(env.WXT_DEV_PORT, "3002");
     assert.equal(env.WXT_PUBLIC_API_URL, "http://localhost:3105");
     assert.equal(env.WXT_PUBLIC_WEB_URL, "http://localhost:3106");
+  });
+
+  it("worktreeWebUrl builds localhost web URL", () => {
+    assert.equal(
+      worktreeWebUrl({ api: 3105, web: 3106, storybook: 6007, wxt: 3002 }),
+      "http://localhost:3106/",
+    );
   });
 });

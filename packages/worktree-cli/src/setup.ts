@@ -76,6 +76,11 @@ const argv = await yargs(userArgs)
     default: false,
     description: "Verify API/Web/Storybook/WXT health endpoints",
   })
+  .option("open", {
+    type: "boolean",
+    description:
+      "Open web app in the default browser (default: same as --verify)",
+  })
   .option("source-db", {
     type: "string",
     description:
@@ -95,6 +100,7 @@ const worktreeRoot = requireWorktreeRoot(root, tag);
 const slug = requireValidSlug(root, tag);
 
 const sourceDb = argv.sourceDb ?? worktreeEnv.WORKTREE_SOURCE_DB;
+const open = argv.open ?? argv.verify;
 if (!sourceDb) {
   worktreeFail(
     tag,
@@ -126,6 +132,7 @@ if (argv.dryRun) {
     migrate: argv.migrate,
     start: argv.start,
     verify: argv.verify,
+    open,
     workspacePath: join(mainRoot, "job-tracker.code-workspace"),
   });
 } else {
@@ -188,5 +195,6 @@ if (argv.dryRun) {
     migrate: argv.migrate,
     start: argv.start,
     verify: argv.verify,
+    open,
   });
 }

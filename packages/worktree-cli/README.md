@@ -28,6 +28,7 @@ pnpm worktree:setup -- \
   --migrate \
   --start \
   --verify \
+  --open \
   --source-db=job_tracker
 
 pnpm worktree:setup -- \
@@ -37,6 +38,7 @@ pnpm worktree:setup -- \
   --migrate \
   --start \
   --verify \
+  --open \
   --source-db=job_tracker
 
 # Teardown — dry-run first, then apply
@@ -70,6 +72,7 @@ node --experimental-strip-types packages/worktree-cli/src/teardown.ts -- \
 | `--migrate`        | boolean | `false` | `true`: `pnpm --filter @job-tracker/api run db:migrate`            |
 | `--start`          | boolean | `false` | `true`: `pnpm pm2:start`                                           |
 | `--verify`         | boolean | `false` | `true`: curl API/Web/Storybook/WXT (WXT failure is warning only)   |
+| `--open`           | boolean | verify  | `true`: open web app in default browser after post-setup           |
 | `--source-db=NAME` | string  | —       | Database to clone (default: `WORKTREE_SOURCE_DB`)                  |
 
 At least one of `WORKTREE_SOURCE_DB` or `--source-db=…` must be set before setup runs.
