@@ -27,7 +27,7 @@ const serverEnvSchema = z.object({
   OPENAI_API_KEY: z.string().optional(),
   OPENAI_MODEL: z.string().default("gpt-4.1-mini"),
   AUTH_BYPASS_ENABLED: z.coerce.boolean().default(false),
-  DEV_AUTH_BYPASS_EMAIL: z.email().default("richard.lopes92@gmail.com"),
+  DEV_AUTH_BYPASS_EMAIL: z.email().optional(),
 });
 
 export const serverEnv = serverEnvSchema
@@ -37,6 +37,15 @@ export const serverEnv = serverEnvSchema
     {
       message: "PORT must stay in the 31xx range for local/test environments.",
       path: ["PORT"],
+    },
+  )
+  .refine(
+    ({ AUTH_BYPASS_ENABLED, DEV_AUTH_BYPASS_EMAIL }) =>
+      !AUTH_BYPASS_ENABLED || DEV_AUTH_BYPASS_EMAIL !== undefined,
+    {
+      message:
+        "DEV_AUTH_BYPASS_EMAIL is required when AUTH_BYPASS_ENABLED is true.",
+      path: ["DEV_AUTH_BYPASS_EMAIL"],
     },
   )
   .parse(process.env);

@@ -1,7 +1,11 @@
 import type { User } from "@api/domains/users/users.schema";
 import { UserService } from "@api/domains/users/users.service";
 import { serverEnv } from "@api/env/server";
-import { Injectable, Logger } from "@nestjs/common";
+import {
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+} from "@nestjs/common";
 
 @Injectable()
 export class DevAuthBypassService {
@@ -22,18 +26,20 @@ export class DevAuthBypassService {
   }
 
   async getBypassUser(): Promise<User> {
-    const existingByEmail = await this.userService.findByEmail(
-      serverEnv.DEV_AUTH_BYPASS_EMAIL,
-    );
-    if (existingByEmail) {
-      return existingByEmail;
+    const email = serverEnv.DEV_AUTH_BYPASS_EMAIL;
+    if (!email) {
+      throw new InternalServerErrorException(
+        "DEV_AUTH_BYPASS_EMAIL is required when auth bypass is enabled.",
+      );
     }
 
-    return this.userService.findOrCreateFromGoogle({
-      googleId: "dev-bypass-richard-lopes",
-      email: serverEnv.DEV_AUTH_BYPASS_EMAIL,
-      name: "Richard Lopes",
-      avatarUrl: null,
-    });
+    const user = await this.userService.findByEmail(email);
+    if (!user) {
+      throw new InternalServerErrorException(
+        `Auth bypass user not found for email: ${email}`,
+      );
+    }
+
+    return user;
   }
 }
