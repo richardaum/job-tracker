@@ -212,6 +212,13 @@ export default function JobDetailsPage({ params }: PageProps) {
       align="end"
     >
       <DropdownMenuItem
+        disabled={fillButtonState === "loading"}
+        onSelect={() => void handleFillAutomatically()}
+        icon={<SparkleIcon size={14} weight="regular" />}
+      >
+        Fill automatically
+      </DropdownMenuItem>
+      <DropdownMenuItem
         onSelect={() => {
           if (job?.match?.id) {
             router.push(`/matches/${job.match.id}`);
@@ -248,14 +255,6 @@ export default function JobDetailsPage({ params }: PageProps) {
                 "flex shrink-0 flex-wrap items-center justify-end gap-2",
               )}
             >
-              <Button
-                intent="secondary"
-                size="md"
-                state={fillButtonState}
-                onClick={() => void handleFillAutomatically()}
-              >
-                Fill automatically
-              </Button>
               {actionsMenu}
             </div>
           ) : null}
