@@ -33,6 +33,8 @@ const cookieBaseDev = {
   domain: "localhost",
   path: "/",
 };
+/** Long-lived refresh cookie scoped to `/auth/*` so SSE/other paths do not send it on every reconnect. */
+const REFRESH_COOKIE_PATH = "/auth";
 const DEFAULT_AFTER_LOGIN_PATH = "/login";
 
 @Controller("auth")
@@ -68,7 +70,9 @@ export class AuthController {
   @HttpCode(200)
   logout(@Res() res: Response): void {
     res.clearCookie("access_token", { path: "/" });
+    // Clear legacy path "/" and scoped path for migration from older sessions.
     res.clearCookie("refresh_token", { path: "/" });
+    res.clearCookie("refresh_token", { path: REFRESH_COOKIE_PATH });
     res.json({ ok: true });
   }
 
@@ -114,6 +118,7 @@ export class AuthController {
     });
     res.cookie("refresh_token", refreshToken, {
       ...cookies,
+      path: REFRESH_COOKIE_PATH,
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
