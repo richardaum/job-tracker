@@ -34,7 +34,7 @@ test("paste HTML → job capture opens unified detail → automatic fill queued"
   // Paste dialog should appear
   const dialog = page.getByRole("dialog", { name: "Paste detected" });
   await expect(dialog).toBeVisible();
-  await expect(dialog.getByText(html)).toBeVisible();
+  await expect(dialog.getByText(title)).toBeVisible();
 
   // Auto-convert should be checked by default
   const autoConvert = dialog.getByRole("checkbox", {
@@ -46,7 +46,7 @@ test("paste HTML → job capture opens unified detail → automatic fill queued"
   await dialog.getByRole("button", { name: "Create draft" }).click();
 
   await page.waitForURL(/\/jobs\/[a-f0-9-]+/, { timeout: 15000 });
-  await expect(page.getByText("Automatic fill queued.")).toBeVisible({
-    timeout: 15000,
-  });
+  await expect(
+    page.getByText("Automatic fill queued.", { exact: true }),
+  ).toBeVisible({ timeout: 15000 });
 });
