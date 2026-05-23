@@ -27,7 +27,7 @@ jobs:
 
     env:
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/job_tracker_test
-      DATABASE_E2E_URL: postgresql://postgres:postgres@localhost:5432/job_tracker_test
+      DATABASE_INTEGRATION_URL: postgresql://postgres:postgres@localhost:5432/job_tracker_test
 
     steps:
       - name: Checkout

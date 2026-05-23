@@ -15,7 +15,7 @@ import { JobsRepository } from "./jobs.repository";
 import { JobsListQuery } from "./jobs-list.query";
 import { StageEventSourceEnum } from "./stage-event-source.enum";
 
-const hasDb = !!process.env.DATABASE_E2E_URL;
+const hasDb = !!process.env.DATABASE_INTEGRATION_URL;
 
 describe.skipIf(!hasDb)("Jobs domain persistence (integration)", () => {
   let dataSource: DataSource;

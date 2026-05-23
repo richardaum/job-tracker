@@ -134,7 +134,7 @@ SSE integration: in `JobsSseController`, listen for `FillJobCompleted` / `FillJo
   - [x] Listener `OnModuleInit` resets PROCESSING rows (via `resetStaleFillProcessing`)
   - [ ] Does not affect COMPLETED or FAILED records (covered implicitly by CAS WHERE; narrow unit not added)
 - Integration tests:
-  - [x] `jobs-fill.integration.ts`: begin fill → CAS complete; stale reset (`describe.skipIf` without DATABASE_E2E_URL)
+  - [x] `jobs-fill.integration.ts`: begin fill → CAS complete; stale reset (`describe.skipIf` without DATABASE_INTEGRATION_URL)
   - [ ] SSE stream emits `fill_status_changed` (unit-level controller test not added; payloads wired in controller)
   - [x] Concurrent fill request rejected while PROCESSING (CAS + prefetch guard)
 - Test coverage target: >=80%

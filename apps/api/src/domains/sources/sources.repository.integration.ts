@@ -8,7 +8,7 @@ import { RoleEnum } from "@api/domains/users/role.enum";
 import type { DataSource } from "typeorm";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 
-const hasDb = !!process.env.DATABASE_E2E_URL;
+const hasDb = !!process.env.DATABASE_INTEGRATION_URL;
 
 describe.skipIf(!hasDb)("SourcesRepository (integration)", () => {
   let dataSource: DataSource;

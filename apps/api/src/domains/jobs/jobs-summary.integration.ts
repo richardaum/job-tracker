@@ -10,7 +10,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { JobAsyncMetadataRepository } from "./job-async-metadata.repository";
 import { JobsRepository } from "./jobs.repository";
 
-const hasDb = !!process.env.DATABASE_E2E_URL;
+const hasDb = !!process.env.DATABASE_INTEGRATION_URL;
 
 describe.skipIf(!hasDb)("Job async summary metadata (integration)", () => {
   let dataSource: DataSource;

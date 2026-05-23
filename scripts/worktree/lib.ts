@@ -690,7 +690,7 @@ export function buildWorktreeEnv(params: {
     API_PORT: String(ports.api),
     WEB_PORT: String(ports.web),
     DATABASE_URL: databaseUrl,
-    DATABASE_E2E_URL: e2eDatabaseUrl,
+    DATABASE_INTEGRATION_URL: e2eDatabaseUrl,
     WEB_URL: webUrl,
     GOOGLE_CALLBACK_URL: `${apiUrl}/auth/google/callback`,
     AUTH_BYPASS_ENABLED: "true",
@@ -1393,7 +1393,7 @@ export function logSetupDryRun(params: {
     `${tag} [dry-run] DATABASE_URL ${formatDatabaseUrlForLog(databaseUrl)}`,
   );
   console.warn(
-    `${tag} [dry-run] DATABASE_E2E_URL ${formatDatabaseUrlForLog(e2eDatabaseUrl)}`,
+    `${tag} [dry-run] DATABASE_INTEGRATION_URL ${formatDatabaseUrlForLog(e2eDatabaseUrl)}`,
   );
   console.warn(
     `${tag} [dry-run] ports api=${ports.api} web=${ports.web} storybook=${ports.storybook} wxt=${ports.wxt}`,

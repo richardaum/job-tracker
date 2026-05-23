@@ -6,7 +6,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { RoleEnum } from "./role.enum";
 import { UserRepository } from "./users.repository";
 
-const hasDb = !!process.env.DATABASE_E2E_URL;
+const hasDb = !!process.env.DATABASE_INTEGRATION_URL;
 
 describe.skipIf(!hasDb)("UserRepository (integration)", () => {
   let dataSource: DataSource;

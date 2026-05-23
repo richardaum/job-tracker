@@ -1,5 +1,5 @@
 /**
- * Requires `DATABASE_E2E_URL` (Postgres). The suite is skipped when unset; set the var in CI if you
+ * Requires `DATABASE_INTEGRATION_URL` (Postgres). The suite is skipped when unset; set the var in CI if you
  * want this migration exercised in pipelines.
  */
 import { randomUUID } from "node:crypto";
@@ -13,7 +13,7 @@ import type { QueryRunner } from "typeorm";
 import { DataSource } from "typeorm";
 import { beforeAll, describe, expect, it } from "vitest";
 
-const hasDb = !!process.env.DATABASE_E2E_URL;
+const hasDb = !!process.env.DATABASE_INTEGRATION_URL;
 
 const defaultTipTapDoc = '{"type":"doc","content":[{"type":"paragraph"}]}';
 
@@ -36,7 +36,7 @@ describe.skipIf(!hasDb)(
     let databaseUrl: string;
 
     beforeAll(() => {
-      databaseUrl = process.env.DATABASE_E2E_URL!;
+      databaseUrl = process.env.DATABASE_INTEGRATION_URL!;
     });
 
     async function bootstrapPreDraftMerge(): Promise<DataSource> {

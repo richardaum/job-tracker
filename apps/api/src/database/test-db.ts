@@ -4,9 +4,11 @@ import { DataSource } from "typeorm";
 import { buildDataSourceOptions } from "./data-source-options";
 
 export async function createTestDataSource(): Promise<DataSource> {
-  const databaseUrl = process.env.DATABASE_E2E_URL;
+  const databaseUrl = process.env.DATABASE_INTEGRATION_URL;
   if (!databaseUrl) {
-    throw new Error("DATABASE_E2E_URL is required for integration tests");
+    throw new Error(
+      "DATABASE_INTEGRATION_URL is required for integration tests",
+    );
   }
 
   const targetDbName = new URL(databaseUrl).pathname.replace(/^\//, "");

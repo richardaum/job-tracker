@@ -9,7 +9,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { NoteRepository } from "./notes.repository";
 
-const hasDb = !!process.env.DATABASE_E2E_URL;
+const hasDb = !!process.env.DATABASE_INTEGRATION_URL;
 
 describe.skipIf(!hasDb)("NoteRepository (integration)", () => {
   let dataSource: DataSource;

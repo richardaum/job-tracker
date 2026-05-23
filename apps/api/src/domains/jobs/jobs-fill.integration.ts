@@ -14,7 +14,7 @@ import { ApplicationStageEnum } from "./job-stage.enum";
 import { JobStageEventsRepository } from "./job-stage-events.repository";
 import { JobsRepository } from "./jobs.repository";
 
-const hasDb = !!process.env.DATABASE_E2E_URL;
+const hasDb = !!process.env.DATABASE_INTEGRATION_URL;
 
 describe.skipIf(!hasDb)("Job async fill metadata (integration)", () => {
   let dataSource: DataSource;
