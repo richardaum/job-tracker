@@ -12,10 +12,9 @@ import { MigrateFitAnalysisGenerationJsonbToEmbedded1767730000000 } from "./1767
 import { RenameEmbeddedColumnsToSnakeCase1767740000000 } from "./1767740000000-rename-embedded-columns-to-snake-case";
 import { AddStageEventSourceEnum1767750000000 } from "./1767750000000-add-stage-event-source-enum";
 import { AddFitClassificationEnum1767760000000 } from "./1767760000000-add-fit-classification-enum";
-import {
-  IntegrateDraftIntoJobs1767800000000,
-  PLACEHOLDER_DRAFT_COMPANY_NAME,
-} from "./1767800000000-integrate-draft-into-jobs";
+import { IntegrateDraftIntoJobs1767800000000 } from "./1767800000000-integrate-draft-into-jobs";
+import { NullableJobCompanyId1767850000000 } from "./1767850000000-nullable-job-company-id";
+import { RemoveDraftPendingPlaceholderCompanies1767860000000 } from "./1767860000000-remove-draft-pending-placeholder-companies";
 
 export const migrations = [
   SquashedBaseline1767000000000,
@@ -33,6 +32,8 @@ export const migrations = [
   AddStageEventSourceEnum1767750000000,
   AddFitClassificationEnum1767760000000,
   IntegrateDraftIntoJobs1767800000000,
+  NullableJobCompanyId1767850000000,
+  RemoveDraftPendingPlaceholderCompanies1767860000000,
 ];
 
 /** For migration tests — schema immediately before merging `draft_jobs` into `jobs`. */
@@ -40,4 +41,4 @@ export const migrationsBeforeIntegrateDraftIntoJobs = migrations.filter(
   (m) => m !== IntegrateDraftIntoJobs1767800000000,
 );
 
-export { IntegrateDraftIntoJobs1767800000000, PLACEHOLDER_DRAFT_COMPANY_NAME };
+export { IntegrateDraftIntoJobs1767800000000 };

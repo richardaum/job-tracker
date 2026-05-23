@@ -30,12 +30,12 @@ export class JobEntity {
   @MaxLength(JOB_TITLE_MAX_LENGTH)
   title!: string | null;
 
-  @Column({ name: "company_id", type: "text" })
-  companyId!: string;
+  @Column({ name: "company_id", type: "text", nullable: true })
+  companyId!: string | null;
 
-  @ManyToOne(() => CompanyEntity, (company) => company.jobs)
+  @ManyToOne(() => CompanyEntity, (company) => company.jobs, { nullable: true })
   @JoinColumn({ name: "company_id" })
-  company!: CompanyEntity;
+  company?: CompanyEntity | null;
 
   @Column({ type: "text", nullable: true })
   description!: string | null;

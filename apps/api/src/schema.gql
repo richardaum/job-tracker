@@ -105,8 +105,8 @@ type JobType {
   id: ID!
   userId: String!
   title: String
-  companyId: ID!
-  company: CompanyType!
+  companyId: ID
+  company: CompanyType
   description: String
   urls: [String!]!
   source: JobSource
@@ -322,7 +322,7 @@ type Mutation {
 
 input CreateJobInput {
   title: String
-  company: String!
+  company: String
   companyId: ID
   description: String
   urls: [String!]

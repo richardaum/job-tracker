@@ -8,7 +8,6 @@ import { buildDataSourceOptions } from "@api/database/data-source-options";
 import {
   IntegrateDraftIntoJobs1767800000000,
   migrationsBeforeIntegrateDraftIntoJobs,
-  PLACEHOLDER_DRAFT_COMPANY_NAME,
 } from "@api/database/migrations";
 import type { QueryRunner } from "typeorm";
 import { DataSource } from "typeorm";
@@ -366,7 +365,7 @@ describe.skipIf(!hasDb)(
           (
             await ds.query(
               `SELECT 1 FROM companies WHERE LOWER(trim(name)) = LOWER(trim($1))`,
-              [PLACEHOLDER_DRAFT_COMPANY_NAME],
+              ["Draft (pending company)"],
             )
           ).length,
         ).toBe(0);

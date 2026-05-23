@@ -109,8 +109,9 @@ export class NoteService {
     if (!job) {
       throw new NotFoundException(`Job ${jobId} not found`);
     }
+    const companyName = job.company?.name?.trim() || "Unknown company";
     const description = job.description?.trim() ?? "";
-    const context = `Title: ${job.title}\nCompany: ${job.company.name}\nDescription: ${description}`;
+    const context = `Title: ${job.title}\nCompany: ${companyName}\nDescription: ${description}`;
     const generated = await this.noteAiService.generateNote({
       description: context,
       note,

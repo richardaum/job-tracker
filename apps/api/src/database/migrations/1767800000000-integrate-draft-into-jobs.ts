@@ -1,18 +1,15 @@
-import { DRAFT_JOB_PLACEHOLDER_COMPANY_NAME } from "@api/domains/jobs/job-draft.constants";
 import type { MigrationInterface, QueryRunner } from "typeorm";
-
-/** Re-export for integration tests — same string as migrate-time placeholder company. */
-export const PLACEHOLDER_DRAFT_COMPANY_NAME =
-  DRAFT_JOB_PLACEHOLDER_COMPANY_NAME;
 
 /**
  * Draft → Jobs merge migration.
  *
  * **Operational:**
  * - `transaction = false` because PostgreSQL forbids using a newly-added enum label in the same
- *   transaction as `ALTER TYPE ... ADD VALUE`. If `up()` fails mid-way, **repair manually**
- *   (inspect partial schema, rerun from a restored snapshot, or complete steps by hand)—there is no
- *   single transactional guarantee for the whole migration (no atomic rollback path).
+ *   transaction as `ALTER TYPE ... ADD VALUE`. Requires `migrationsTransactionMode: "each"` in the
+ *   DataSource (see `buildDataSourceOptions`): global `"all"` makes TypeORM throw before running.
+ *   If `up()` fails mid-way, **repair manually** (inspect partial schema, rerun from a restored
+ *   snapshot, or complete steps by hand)—there is no single transactional guarantee for the whole
+ *   migration (no atomic rollback path).
  *
  * **`down()` caveats:**
  * - Only orphaned placeholder-backed DRAFT jobs are split back into `draft_jobs`; **jobs that had**
@@ -122,7 +119,7 @@ export class IntegrateDraftIntoJobs1767800000000 implements MigrationInterface {
         )
       ORDER BY d."user_id"
     `,
-      [PLACEHOLDER_DRAFT_COMPANY_NAME],
+      ["Draft (pending company)"],
     );
 
     await queryRunner.query(
@@ -198,7 +195,7 @@ export class IntegrateDraftIntoJobs1767800000000 implements MigrationInterface {
       WHERE NOT EXISTS (SELECT 1 FROM "jobs" j WHERE j."draft_job_id" = d."id")
         AND NOT EXISTS (SELECT 1 FROM "jobs" j2 WHERE j2."id" = d."id")
     `,
-      [PLACEHOLDER_DRAFT_COMPANY_NAME],
+      ["Draft (pending company)"],
     );
 
     await queryRunner.query(`
@@ -367,7 +364,7 @@ export class IntegrateDraftIntoJobs1767800000000 implements MigrationInterface {
       WHERE j."stage" = 'DRAFT'::"application_stage"
         AND LOWER(TRIM(c."name")) = LOWER(TRIM($1))
       `,
-      [PLACEHOLDER_DRAFT_COMPANY_NAME],
+      ["Draft (pending company)"],
     );
 
     await queryRunner.query(
@@ -384,7 +381,7 @@ export class IntegrateDraftIntoJobs1767800000000 implements MigrationInterface {
           AND LOWER(TRIM(c."name")) = LOWER(TRIM($1))
       )
       `,
-      [PLACEHOLDER_DRAFT_COMPANY_NAME],
+      ["Draft (pending company)"],
     );
 
     await queryRunner.query(
@@ -397,7 +394,7 @@ export class IntegrateDraftIntoJobs1767800000000 implements MigrationInterface {
             AND LOWER(TRIM(c."name")) = LOWER(TRIM($1))
         )
       `,
-      [PLACEHOLDER_DRAFT_COMPANY_NAME],
+      ["Draft (pending company)"],
     );
 
     await queryRunner.query(
@@ -408,7 +405,7 @@ export class IntegrateDraftIntoJobs1767800000000 implements MigrationInterface {
           SELECT 1 FROM "jobs" j WHERE j."company_id" = c."id"
         )
       `,
-      [PLACEHOLDER_DRAFT_COMPANY_NAME],
+      ["Draft (pending company)"],
     );
 
     // ⚠ Deletes merged draft→job enrichment for ALL rows (see class-level `down()` warning).

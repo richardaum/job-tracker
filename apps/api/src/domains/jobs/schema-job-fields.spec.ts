@@ -36,5 +36,15 @@ describe("schema.gql Job / enum surface (task 03)", () => {
     expect(chunk.split("\n").map((s) => s.trim())).toContain(
       "createAsDraftCapture: Boolean",
     );
+    expect(chunk).toContain("company: String\n");
+    expect(chunk).not.toContain("company: String!");
+  });
+
+  it("exposes nullable Job company linkage for draft captures", () => {
+    const match = schema.match(/type JobType \{[^}]+\}/s)?.[0] ?? "";
+    expect(match).toContain("companyId: ID\n");
+    expect(match).not.toContain("companyId: ID!");
+    expect(match).toContain("company: CompanyType\n");
+    expect(match).not.toContain("company: CompanyType!");
   });
 });

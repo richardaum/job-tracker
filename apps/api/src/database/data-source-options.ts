@@ -46,6 +46,14 @@ export function buildDataSourceOptions(
     migrationsTableName: "typeorm_migrations",
     synchronize: false,
     migrationsRun: false,
+    /**
+     * Default TypeORM `"all"` rejects any migration that sets `MigrationInterface.transaction`
+     * (`ForbiddenTransactionModeOverrideError`). `IntegrateDraftIntoJobs1767800000000` must use
+     * `transaction: false` because PostgreSQL does not allow using a new enum label in the same
+     * transaction as `ALTER TYPE ... ADD VALUE`. `"each"` runs other migrations wrapped per file
+     * and honours per-migration overrides.
+     */
+    migrationsTransactionMode: "each",
     logging: false,
   };
 }

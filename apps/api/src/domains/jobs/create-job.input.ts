@@ -12,8 +12,9 @@ export class CreateJobInput {
   @MaxLength(JOB_TITLE_MAX_LENGTH)
   title?: string | null;
 
-  @Field()
-  company!: string;
+  @Field(() => String, { nullable: true })
+  @IsOptional()
+  company?: string | null;
 
   @Field(() => ID, { nullable: true })
   companyId?: string | null;

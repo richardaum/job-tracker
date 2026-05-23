@@ -17,11 +17,11 @@ export class JobType {
   @Field(() => String, { nullable: true })
   title!: string | null;
 
-  @Field(() => ID)
-  companyId!: string;
+  @Field(() => ID, { nullable: true })
+  companyId!: string | null;
 
-  @Field(() => CompanyType)
-  company!: CompanyType;
+  @Field(() => CompanyType, { nullable: true })
+  company?: CompanyType | null;
 
   @Field(() => String, { nullable: true })
   description!: string | null;
