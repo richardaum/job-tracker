@@ -78,7 +78,7 @@ export type CompanyType = {
 };
 
 export type CreateJobInput = {
-  company: Scalars["String"]["input"];
+  company?: InputMaybe<Scalars["String"]["input"]>;
   companyId?: InputMaybe<Scalars["ID"]["input"]>;
   createAsDraftCapture?: InputMaybe<Scalars["Boolean"]["input"]>;
   description?: InputMaybe<Scalars["String"]["input"]>;
@@ -194,8 +194,8 @@ export type JobStageEventType = {
 
 export type JobType = {
   __typename?: "JobType";
-  company: CompanyType;
-  companyId: Scalars["ID"]["output"];
+  company?: Maybe<CompanyType>;
+  companyId?: Maybe<Scalars["ID"]["output"]>;
   createdAt: Scalars["DateTime"]["output"];
   currentStage: ApplicationStage;
   currentStageAt: Scalars["DateTime"]["output"];
@@ -734,7 +734,7 @@ export type JobsQuery = {
     __typename?: "JobType";
     id: string;
     title?: string | null;
-    companyId: string;
+    companyId?: string | null;
     description?: string | null;
     urls: Array<string>;
     source?: JobSource | null;
@@ -747,12 +747,12 @@ export type JobsQuery = {
     currentStageReason?: string | null;
     currentStageAt: any;
     createdAt: any;
-    company: {
+    company?: {
       __typename?: "CompanyType";
       id: string;
       name: string;
       description?: string | null;
-    };
+    } | null;
     summaryMetadata?: {
       __typename?: "AsyncMetadataType";
       status?: AsyncMetadataStatus | null;
@@ -799,7 +799,7 @@ export type JobQuery = {
     __typename?: "JobType";
     id: string;
     title?: string | null;
-    companyId: string;
+    companyId?: string | null;
     description?: string | null;
     urls: Array<string>;
     source?: JobSource | null;
@@ -813,12 +813,12 @@ export type JobQuery = {
     currentStageReason?: string | null;
     currentStageAt: any;
     createdAt: any;
-    company: {
+    company?: {
       __typename?: "CompanyType";
       id: string;
       name: string;
       description?: string | null;
-    };
+    } | null;
     summaryMetadata?: {
       __typename?: "AsyncMetadataType";
       status?: AsyncMetadataStatus | null;
@@ -865,7 +865,7 @@ export type CreateJobMutation = {
     __typename?: "JobType";
     id: string;
     title?: string | null;
-    companyId: string;
+    companyId?: string | null;
     description?: string | null;
     urls: Array<string>;
     source?: JobSource | null;
@@ -873,12 +873,12 @@ export type CreateJobMutation = {
     location?: string | null;
     workRegion?: string | null;
     createdAt: any;
-    company: {
+    company?: {
       __typename?: "CompanyType";
       id: string;
       name: string;
       description?: string | null;
-    };
+    } | null;
     salary: {
       __typename?: "JobSalary";
       minCents?: number | null;
@@ -909,7 +909,7 @@ export type UpdateJobMutation = {
     __typename?: "JobType";
     id: string;
     title?: string | null;
-    companyId: string;
+    companyId?: string | null;
     description?: string | null;
     urls: Array<string>;
     source?: JobSource | null;
@@ -918,12 +918,12 @@ export type UpdateJobMutation = {
     workRegion?: string | null;
     summary?: string | null;
     createdAt: any;
-    company: {
+    company?: {
       __typename?: "CompanyType";
       id: string;
       name: string;
       description?: string | null;
-    };
+    } | null;
     summaryMetadata?: {
       __typename?: "AsyncMetadataType";
       status?: AsyncMetadataStatus | null;
@@ -1226,7 +1226,7 @@ export type MatchAnalysesListQuery = {
       __typename?: "JobType";
       id: string;
       title?: string | null;
-      company: { __typename?: "CompanyType"; id: string; name: string };
+      company?: { __typename?: "CompanyType"; id: string; name: string } | null;
     } | null;
   }>;
 };
@@ -1267,7 +1267,7 @@ export type MatchQuery = {
       __typename?: "JobType";
       id: string;
       title?: string | null;
-      company: { __typename?: "CompanyType"; id: string; name: string };
+      company?: { __typename?: "CompanyType"; id: string; name: string } | null;
     } | null;
   };
 };
