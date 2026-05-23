@@ -13,10 +13,14 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { DraftExtractionService } from "./ai/draft-extraction.service";
 import { DraftExtractionNormalizationService } from "./ai/draft-extraction-normalization.service";
 import { FillJobEventListener } from "./fill-job-event.listener";
+import { JobAsyncMetadataRepository } from "./job-async-metadata.repository";
 import { JobEventBus } from "./job-event.bus";
+import { JobFillPersistence } from "./job-fill.persistence";
+import { JobStageEventsRepository } from "./job-stage-events.repository";
 import { JobsRepository } from "./jobs.repository";
 import { JobsResolver } from "./jobs.resolver";
 import { JobsService } from "./jobs.service";
+import { JobsListQuery } from "./jobs-list.query";
 import { JobsSseController } from "./jobs-sse.controller";
 import { SalaryModule } from "./salary/salary.module";
 import { SummaryService } from "./summary/summary.service";
@@ -44,6 +48,10 @@ import { TagsModule } from "./tags/tags.module";
   providers: [
     JobEventBus,
     JobsRepository,
+    JobStageEventsRepository,
+    JobAsyncMetadataRepository,
+    JobsListQuery,
+    JobFillPersistence,
     DraftExtractionNormalizationService,
     DraftExtractionService,
     JobsService,

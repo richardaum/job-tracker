@@ -4,6 +4,7 @@ import {
   SummaryGenerationRequested,
   SummaryStatusChanged,
 } from "@api/domains/jobs/job.events";
+import { JobAsyncMetadataRepository } from "@api/domains/jobs/job-async-metadata.repository";
 import { JobEventBus } from "@api/domains/jobs/job-event.bus";
 import { ApplicationStageEnum } from "@api/domains/jobs/job-stage.enum";
 import { JobsRepository } from "@api/domains/jobs/jobs.repository";
@@ -25,6 +26,7 @@ export class SummaryService {
     private readonly summaryAiService: SummaryAiService,
     private readonly eventBus: JobEventBus,
     private readonly appRepo: JobsRepository,
+    private readonly asyncMetadataRepo: JobAsyncMetadataRepository,
     @InjectRepository(JobStageEventEntity)
     private readonly stageEventsRepo: Repository<JobStageEventEntity>,
     @InjectRepository(JobNoteEntity)
@@ -41,13 +43,14 @@ export class SummaryService {
     if (app.summaryMetadata?.status === AsyncMetadataStatusEnum.PROCESSING)
       return;
 
-    const ok = await this.appRepo.updateSummaryMetadata(
+    const ok = await this.asyncMetadataRepo.updateCas(
+      "summary",
       jobId,
+      userId,
       app.summaryMetadata?.status
         ? { status: app.summaryMetadata.status }
         : null,
       { status: AsyncMetadataStatusEnum.PROCESSING },
-      userId,
     );
     if (!ok) return;
 
@@ -69,13 +72,14 @@ export class SummaryService {
     if (app.summaryMetadata?.status === AsyncMetadataStatusEnum.PROCESSING)
       return;
 
-    const ok = await this.appRepo.updateSummaryMetadata(
+    const ok = await this.asyncMetadataRepo.updateCas(
+      "summary",
       jobId,
+      userId,
       app.summaryMetadata?.status
         ? { status: app.summaryMetadata.status }
         : null,
       { status: AsyncMetadataStatusEnum.PROCESSING },
-      userId,
     );
     if (!ok) return;
 
@@ -163,15 +167,16 @@ export class SummaryService {
       const plainText = await this.summaryAiService.generateSummary(context);
       const tipTapJson = markdownToTipTap(plainText);
 
-      const ok = await this.appRepo.updateSummaryMetadata(
+      const ok = await this.asyncMetadataRepo.updateCas(
+        "summary",
         jobId,
+        userId,
         { status: AsyncMetadataStatusEnum.PROCESSING },
         {
           status: AsyncMetadataStatusEnum.COMPLETED,
           timestamp: new Date(),
           error: undefined,
         },
-        userId,
       );
       if (!ok) {
         this.logger.warn(`[${jobId}] Race — summary already transitioned`);
@@ -194,14 +199,15 @@ export class SummaryService {
         `Failed to generate summary for ${jobId}`,
         err instanceof Error ? err.message : String(err),
       );
-      await this.appRepo.updateSummaryMetadata(
+      await this.asyncMetadataRepo.updateCas(
+        "summary",
         jobId,
+        userId,
         { status: AsyncMetadataStatusEnum.PROCESSING },
         {
           status: AsyncMetadataStatusEnum.FAILED,
           error: err instanceof Error ? err.message : "Unknown error",
         },
-        userId,
       );
 
       this.eventBus.emit(

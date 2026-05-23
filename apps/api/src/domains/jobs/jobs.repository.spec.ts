@@ -4,10 +4,13 @@ import { AsyncMetadataStatusEnum } from "@api/domains/shared/async-metadata.type
 import { Repository } from "typeorm";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { JobAsyncMetadataRepository } from "./job-async-metadata.repository";
 import { ApplicationQuickFilterEnum } from "./job-quick-filter.enum";
 import { ApplicationStageEnum } from "./job-stage.enum";
+import { JobStageEventsRepository } from "./job-stage-events.repository";
 import { JobsRepository } from "./jobs.repository";
 import type { Job } from "./jobs.schema";
+import { JobsListQuery } from "./jobs-list.query";
 
 function makeSubQueryBuilder(getQuerySql = "(SELECT sq)") {
   return {
@@ -46,6 +49,7 @@ describe("JobsRepository", () => {
     | "delete"
     | "createQueryBuilder"
     | "find"
+    | "manager"
   >;
   let stageEventsRepo: Pick<
     Repository<JobStageEventEntity>,
@@ -61,6 +65,9 @@ describe("JobsRepository", () => {
       delete: vi.fn(),
       createQueryBuilder: vi.fn(),
       find: vi.fn(),
+      manager: {
+        createQueryBuilder: vi.fn(),
+      } as unknown as import("typeorm").EntityManager,
     };
 
     stageEventsRepo = {
@@ -79,7 +86,6 @@ describe("JobsRepository", () => {
 
     const repo = new JobsRepository(
       jobsRepo as unknown as Repository<JobEntity>,
-      stageEventsRepo as unknown as Repository<JobStageEventEntity>,
     );
 
     const result = await repo.findOneByIdAndUserId("j1", "u1");
@@ -95,12 +101,11 @@ describe("JobsRepository", () => {
     const qb = makeMainJobsQb([]);
     vi.mocked(jobsRepo.createQueryBuilder).mockReturnValue(qb as never);
 
-    const repo = new JobsRepository(
+    const listQuery = new JobsListQuery(
       jobsRepo as unknown as Repository<JobEntity>,
-      stageEventsRepo as unknown as Repository<JobStageEventEntity>,
     );
 
-    await repo.findAllByUserId("u1");
+    await listQuery.findAllByUserId("u1");
 
     expect(jobsRepo.createQueryBuilder).toHaveBeenCalledWith("a");
     expect(qb.leftJoinAndSelect).toHaveBeenCalledWith("a.company", "company");
@@ -121,12 +126,11 @@ describe("JobsRepository", () => {
     const qb = makeMainJobsQb([]);
     vi.mocked(jobsRepo.createQueryBuilder).mockReturnValue(qb as never);
 
-    const repo = new JobsRepository(
+    const listQuery = new JobsListQuery(
       jobsRepo as unknown as Repository<JobEntity>,
-      stageEventsRepo as unknown as Repository<JobStageEventEntity>,
     );
 
-    await repo.findAllByUserId("u1", ApplicationQuickFilterEnum.ACTIVE);
+    await listQuery.findAllByUserId("u1", ApplicationQuickFilterEnum.ACTIVE);
 
     expect(qb.andWhere).toHaveBeenCalled();
     expect(qb.andWhere).toHaveBeenCalledWith(
@@ -163,12 +167,11 @@ describe("JobsRepository", () => {
     const qb = makeMainJobsQb([]);
     vi.mocked(jobsRepo.createQueryBuilder).mockReturnValue(qb as never);
 
-    const repo = new JobsRepository(
+    const listQuery = new JobsListQuery(
       jobsRepo as unknown as Repository<JobEntity>,
-      stageEventsRepo as unknown as Repository<JobStageEventEntity>,
     );
 
-    await repo.findAllByUserId("u1", ApplicationQuickFilterEnum.APPLIED);
+    await listQuery.findAllByUserId("u1", ApplicationQuickFilterEnum.APPLIED);
 
     expect(qb.andWhere).toHaveBeenCalledWith(
       expect.any(String),
@@ -183,12 +186,14 @@ describe("JobsRepository", () => {
     const qb = makeMainJobsQb([]);
     vi.mocked(jobsRepo.createQueryBuilder).mockReturnValue(qb as never);
 
-    const repo = new JobsRepository(
+    const listQuery = new JobsListQuery(
       jobsRepo as unknown as Repository<JobEntity>,
-      stageEventsRepo as unknown as Repository<JobStageEventEntity>,
     );
 
-    await repo.findAllByUserId("u1", ApplicationQuickFilterEnum.DUPLICATED);
+    await listQuery.findAllByUserId(
+      "u1",
+      ApplicationQuickFilterEnum.DUPLICATED,
+    );
 
     expect(qb.andWhere).toHaveBeenCalledWith(
       expect.any(String),
@@ -203,12 +208,11 @@ describe("JobsRepository", () => {
     const qb = makeMainJobsQb([]);
     vi.mocked(jobsRepo.createQueryBuilder).mockReturnValue(qb as never);
 
-    const repo = new JobsRepository(
+    const listQuery = new JobsListQuery(
       jobsRepo as unknown as Repository<JobEntity>,
-      stageEventsRepo as unknown as Repository<JobStageEventEntity>,
     );
 
-    await repo.findAllByUserId("u1", ApplicationQuickFilterEnum.INCOMING);
+    await listQuery.findAllByUserId("u1", ApplicationQuickFilterEnum.INCOMING);
 
     expect(qb.andWhere).toHaveBeenCalled();
     expect(qb.andWhere).toHaveBeenCalledWith(
@@ -242,12 +246,11 @@ describe("JobsRepository", () => {
     const qb = makeMainJobsQb([]);
     vi.mocked(jobsRepo.createQueryBuilder).mockReturnValue(qb as never);
 
-    const repo = new JobsRepository(
+    const listQuery = new JobsListQuery(
       jobsRepo as unknown as Repository<JobEntity>,
-      stageEventsRepo as unknown as Repository<JobStageEventEntity>,
     );
 
-    await repo.findAllByUserId("u1", ApplicationQuickFilterEnum.NEW);
+    await listQuery.findAllByUserId("u1", ApplicationQuickFilterEnum.NEW);
 
     expect(qb.andWhere).toHaveBeenCalledWith(
       expect.any(String),
@@ -273,7 +276,6 @@ describe("JobsRepository", () => {
 
     const repo = new JobsRepository(
       jobsRepo as unknown as Repository<JobEntity>,
-      stageEventsRepo as unknown as Repository<JobStageEventEntity>,
     );
 
     const dto = {
@@ -320,7 +322,6 @@ describe("JobsRepository", () => {
 
     const repo = new JobsRepository(
       jobsRepo as unknown as Repository<JobEntity>,
-      stageEventsRepo as unknown as Repository<JobStageEventEntity>,
     );
 
     const dto = {
@@ -361,7 +362,6 @@ describe("JobsRepository", () => {
 
     const repo = new JobsRepository(
       jobsRepo as unknown as Repository<JobEntity>,
-      stageEventsRepo as unknown as Repository<JobStageEventEntity>,
     );
 
     await repo.create("u1", {
@@ -392,7 +392,6 @@ describe("JobsRepository", () => {
 
     const repo = new JobsRepository(
       jobsRepo as unknown as Repository<JobEntity>,
-      stageEventsRepo as unknown as Repository<JobStageEventEntity>,
     );
 
     await repo.setPersistedStage("u1", "j1", ApplicationStageEnum.TECHNICAL);
@@ -417,7 +416,6 @@ describe("JobsRepository", () => {
 
     const repo = new JobsRepository(
       jobsRepo as unknown as Repository<JobEntity>,
-      stageEventsRepo as unknown as Repository<JobStageEventEntity>,
     );
 
     await repo.update("j1", "u1", { title: "New" });
@@ -431,7 +429,6 @@ describe("JobsRepository", () => {
 
     const repo = new JobsRepository(
       jobsRepo as unknown as Repository<JobEntity>,
-      stageEventsRepo as unknown as Repository<JobStageEventEntity>,
     );
 
     const result = await repo.update("missing", "u1", { title: "X" });
@@ -440,7 +437,7 @@ describe("JobsRepository", () => {
     expect(jobsRepo.save).not.toHaveBeenCalled();
   });
 
-  it("updateSummaryMetadata updates when summary_status matches expected PROCESSING", async () => {
+  it("updateCas summary updates when summary_status matches expected PROCESSING", async () => {
     const qbChain = {
       update: vi.fn().mockReturnThis(),
       set: vi.fn().mockReturnThis(),
@@ -448,18 +445,20 @@ describe("JobsRepository", () => {
       andWhere: vi.fn().mockReturnThis(),
       execute: vi.fn().mockResolvedValue({ affected: 1 }),
     };
-    vi.mocked(jobsRepo.createQueryBuilder).mockReturnValue(qbChain as never);
-
-    const repo = new JobsRepository(
-      jobsRepo as unknown as Repository<JobEntity>,
-      stageEventsRepo as unknown as Repository<JobStageEventEntity>,
+    vi.mocked(jobsRepo.manager.createQueryBuilder).mockReturnValue(
+      qbChain as never,
     );
 
-    const ok = await repo.updateSummaryMetadata(
+    const metadataRepo = new JobAsyncMetadataRepository(
+      jobsRepo as unknown as Repository<JobEntity>,
+    );
+
+    const ok = await metadataRepo.updateCas(
+      "summary",
       "j1",
+      "u1",
       { status: AsyncMetadataStatusEnum.PROCESSING },
       { status: AsyncMetadataStatusEnum.COMPLETED },
-      "u1",
     );
 
     expect(ok).toBe(true);
@@ -468,7 +467,7 @@ describe("JobsRepository", () => {
     );
   });
 
-  it("updateSummaryMetadata uses IS NULL predicate when expecting null summary", async () => {
+  it("updateCas summary uses IS NULL predicate when expecting null summary", async () => {
     const qbChain = {
       update: vi.fn().mockReturnThis(),
       set: vi.fn().mockReturnThis(),
@@ -476,19 +475,17 @@ describe("JobsRepository", () => {
       andWhere: vi.fn().mockReturnThis(),
       execute: vi.fn().mockResolvedValue({ affected: 0 }),
     };
-    vi.mocked(jobsRepo.createQueryBuilder).mockReturnValue(qbChain as never);
+    vi.mocked(jobsRepo.manager.createQueryBuilder).mockReturnValue(
+      qbChain as never,
+    );
 
-    const repo = new JobsRepository(
+    const metadataRepo = new JobAsyncMetadataRepository(
       jobsRepo as unknown as Repository<JobEntity>,
-      stageEventsRepo as unknown as Repository<JobStageEventEntity>,
     );
 
-    await repo.updateSummaryMetadata(
-      "j1",
-      null,
-      { status: AsyncMetadataStatusEnum.PROCESSING },
-      "u1",
-    );
+    await metadataRepo.updateCas("summary", "j1", "u1", null, {
+      status: AsyncMetadataStatusEnum.PROCESSING,
+    });
 
     expect(qbChain.andWhere).toHaveBeenCalledWith(`"summary_status" IS NULL`);
   });
@@ -503,13 +500,12 @@ describe("JobsRepository", () => {
     };
     vi.mocked(jobsRepo.createQueryBuilder).mockReturnValue(qbChain as never);
 
-    const repo = new JobsRepository(
+    const metadataRepo = new JobAsyncMetadataRepository(
       jobsRepo as unknown as Repository<JobEntity>,
-      stageEventsRepo as unknown as Repository<JobStageEventEntity>,
     );
 
     await expect(
-      repo.beginFillAutomaticallyProcessing("j1", "u1"),
+      metadataRepo.beginFillAutomaticallyProcessing("j1", "u1"),
     ).resolves.toBe(true);
 
     expect(qbChain.andWhere).toHaveBeenCalledWith(
@@ -540,13 +536,12 @@ describe("JobsRepository", () => {
     };
     vi.mocked(jobsRepo.createQueryBuilder).mockReturnValue(qbChain as never);
 
-    const repo = new JobsRepository(
+    const metadataRepo = new JobAsyncMetadataRepository(
       jobsRepo as unknown as Repository<JobEntity>,
-      stageEventsRepo as unknown as Repository<JobStageEventEntity>,
     );
 
     await expect(
-      repo.beginFillAutomaticallyProcessing("j1", "u1"),
+      metadataRepo.beginFillAutomaticallyProcessing("j1", "u1"),
     ).resolves.toBe(false);
   });
 
@@ -573,12 +568,11 @@ describe("JobsRepository", () => {
 
     vi.mocked(jobsRepo.createQueryBuilder).mockReturnValue(qb as never);
 
-    const repo = new JobsRepository(
+    const listQuery = new JobsListQuery(
       jobsRepo as unknown as Repository<JobEntity>,
-      stageEventsRepo as unknown as Repository<JobStageEventEntity>,
     );
 
-    const rows = await repo.findUpToTwoJobPostingContextsByCompanyName(
+    const rows = await listQuery.findUpToTwoJobPostingContextsByCompanyName(
       "user-1",
       "Acme ",
     );
@@ -597,12 +591,11 @@ describe("JobsRepository", () => {
   });
 
   it("hasRecentDuplicateSameRoleAndCompany returns false when title blank", async () => {
-    const repo = new JobsRepository(
+    const listQuery = new JobsListQuery(
       jobsRepo as unknown as Repository<JobEntity>,
-      stageEventsRepo as unknown as Repository<JobStageEventEntity>,
     );
 
-    const hit = await repo.hasRecentDuplicateSameRoleAndCompany(
+    const hit = await listQuery.hasRecentDuplicateSameRoleAndCompany(
       "u1",
       "j1",
       "c1",
@@ -627,7 +620,6 @@ describe("JobsRepository", () => {
 
     const repo = new JobsRepository(
       jobsRepo as unknown as Repository<JobEntity>,
-      stageEventsRepo as unknown as Repository<JobStageEventEntity>,
     );
 
     const deleted = await repo.delete("j1", "u1");
@@ -641,7 +633,6 @@ describe("JobsRepository", () => {
 
     const repo = new JobsRepository(
       jobsRepo as unknown as Repository<JobEntity>,
-      stageEventsRepo as unknown as Repository<JobStageEventEntity>,
     );
 
     const affected = await repo.detachJobsSourceRun("run-x", "u1");
@@ -662,12 +653,11 @@ describe("JobsRepository", () => {
     };
     vi.mocked(jobsRepo.createQueryBuilder).mockReturnValue(qbStale as never);
 
-    const repo = new JobsRepository(
+    const metadataRepo = new JobAsyncMetadataRepository(
       jobsRepo as unknown as Repository<JobEntity>,
-      stageEventsRepo as unknown as Repository<JobStageEventEntity>,
     );
 
-    await expect(repo.resetStaleSummaryProcessing()).resolves.toBe(4);
+    await expect(metadataRepo.resetStaleSummaryProcessing()).resolves.toBe(4);
   });
 
   it("resetStaleFillProcessing aggregates affected fill rows", async () => {
@@ -679,12 +669,11 @@ describe("JobsRepository", () => {
     };
     vi.mocked(jobsRepo.createQueryBuilder).mockReturnValue(qbStale as never);
 
-    const repo = new JobsRepository(
+    const metadataRepo = new JobAsyncMetadataRepository(
       jobsRepo as unknown as Repository<JobEntity>,
-      stageEventsRepo as unknown as Repository<JobStageEventEntity>,
     );
 
-    await expect(repo.resetStaleFillProcessing()).resolves.toBe(2);
+    await expect(metadataRepo.resetStaleFillProcessing()).resolves.toBe(2);
     expect(qbStale.where).toHaveBeenCalledWith(
       `"fill_status" = :processing`,
       expect.objectContaining({
@@ -693,7 +682,7 @@ describe("JobsRepository", () => {
     );
   });
 
-  it("updateFillMetadata succeeds CAS when fill_status matches expected", async () => {
+  it("updateCas fill succeeds when fill_status matches expected", async () => {
     const qbChain = {
       update: vi.fn().mockReturnThis(),
       set: vi.fn().mockReturnThis(),
@@ -701,22 +690,24 @@ describe("JobsRepository", () => {
       andWhere: vi.fn().mockReturnThis(),
       execute: vi.fn().mockResolvedValue({ affected: 1 }),
     };
-    vi.mocked(jobsRepo.createQueryBuilder).mockReturnValue(qbChain as never);
-
-    const repo = new JobsRepository(
-      jobsRepo as unknown as Repository<JobEntity>,
-      stageEventsRepo as unknown as Repository<JobStageEventEntity>,
+    vi.mocked(jobsRepo.manager.createQueryBuilder).mockReturnValue(
+      qbChain as never,
     );
 
-    const ok = await repo.updateFillMetadata(
+    const metadataRepo = new JobAsyncMetadataRepository(
+      jobsRepo as unknown as Repository<JobEntity>,
+    );
+
+    const ok = await metadataRepo.updateCas(
+      "fill",
       "j1",
+      "u1",
       { status: AsyncMetadataStatusEnum.PROCESSING },
       {
         status: AsyncMetadataStatusEnum.COMPLETED,
         timestamp: new Date(),
         error: null,
       },
-      "u1",
     );
 
     expect(ok).toBe(true);
@@ -725,7 +716,7 @@ describe("JobsRepository", () => {
     });
   });
 
-  it("updateFillMetadata returns false when fill CAS affects no rows", async () => {
+  it("updateCas fill returns false when CAS affects no rows", async () => {
     const qbChain = {
       update: vi.fn().mockReturnThis(),
       set: vi.fn().mockReturnThis(),
@@ -733,24 +724,26 @@ describe("JobsRepository", () => {
       andWhere: vi.fn().mockReturnThis(),
       execute: vi.fn().mockResolvedValue({ affected: 0 }),
     };
-    vi.mocked(jobsRepo.createQueryBuilder).mockReturnValue(qbChain as never);
-
-    const repo = new JobsRepository(
-      jobsRepo as unknown as Repository<JobEntity>,
-      stageEventsRepo as unknown as Repository<JobStageEventEntity>,
+    vi.mocked(jobsRepo.manager.createQueryBuilder).mockReturnValue(
+      qbChain as never,
     );
 
-    const ok = await repo.updateFillMetadata(
+    const metadataRepo = new JobAsyncMetadataRepository(
+      jobsRepo as unknown as Repository<JobEntity>,
+    );
+
+    const ok = await metadataRepo.updateCas(
+      "fill",
       "j1",
+      "u1",
       { status: AsyncMetadataStatusEnum.PROCESSING },
       { status: AsyncMetadataStatusEnum.FAILED, error: "x" },
-      "u1",
     );
 
     expect(ok).toBe(false);
   });
 
-  it("completeFillAutomatically and failFillAutomatically delegate to CAS update", async () => {
+  it("updateCas fill column completes and fails fill metadata", async () => {
     const qbChain = {
       update: vi.fn().mockReturnThis(),
       set: vi.fn().mockReturnThis(),
@@ -758,19 +751,40 @@ describe("JobsRepository", () => {
       andWhere: vi.fn().mockReturnThis(),
       execute: vi.fn().mockResolvedValue({ affected: 1 }),
     };
-    vi.mocked(jobsRepo.createQueryBuilder).mockReturnValue(qbChain as never);
+    vi.mocked(jobsRepo.manager.createQueryBuilder).mockReturnValue(
+      qbChain as never,
+    );
 
-    const repo = new JobsRepository(
+    const metadataRepo = new JobAsyncMetadataRepository(
       jobsRepo as unknown as Repository<JobEntity>,
-      stageEventsRepo as unknown as Repository<JobStageEventEntity>,
     );
 
-    await expect(repo.completeFillAutomatically("j1", "u1")).resolves.toBe(
-      true,
-    );
-    await expect(repo.failFillAutomatically("j1", "u1", "boom")).resolves.toBe(
-      true,
-    );
+    await expect(
+      metadataRepo.updateCas(
+        "fill",
+        "j1",
+        "u1",
+        { status: AsyncMetadataStatusEnum.PROCESSING },
+        {
+          status: AsyncMetadataStatusEnum.COMPLETED,
+          timestamp: new Date(),
+          error: null,
+        },
+      ),
+    ).resolves.toBe(true);
+    await expect(
+      metadataRepo.updateCas(
+        "fill",
+        "j1",
+        "u1",
+        { status: AsyncMetadataStatusEnum.PROCESSING },
+        {
+          status: AsyncMetadataStatusEnum.FAILED,
+          error: "boom",
+          timestamp: new Date(),
+        },
+      ),
+    ).resolves.toBe(true);
     expect(qbChain.execute).toHaveBeenCalledTimes(2);
   });
 
@@ -783,12 +797,14 @@ describe("JobsRepository", () => {
     };
     vi.mocked(stageEventsRepo.createQueryBuilder).mockReturnValue(qb as never);
 
-    const repo = new JobsRepository(
-      jobsRepo as unknown as Repository<JobEntity>,
+    const stageEvents = new JobStageEventsRepository(
       stageEventsRepo as unknown as Repository<JobStageEventEntity>,
     );
 
-    const rows = await repo.findStageEventsByJobIdAndUserId("job-1", "user-1");
+    const rows = await stageEvents.findStageEventsByJobIdAndUserId(
+      "job-1",
+      "user-1",
+    );
 
     expect(stageEventsRepo.createQueryBuilder).toHaveBeenCalledWith("e");
     expect(qb.getMany).toHaveBeenCalled();
@@ -834,12 +850,11 @@ describe("JobsRepository", () => {
       getMany: vi.fn().mockResolvedValue([j1Newest, j1Older, j2Only]),
     } as never);
 
-    const repo = new JobsRepository(
-      jobsRepo as unknown as Repository<JobEntity>,
+    const stageEvents = new JobStageEventsRepository(
       stageEventsRepo as unknown as Repository<JobStageEventEntity>,
     );
 
-    const map = await repo.findLatestStageSummariesByJobIds("u1", [
+    const map = await stageEvents.findLatestStageSummariesByJobIds("u1", [
       "j1",
       "j2",
       "missing",
@@ -859,12 +874,11 @@ describe("JobsRepository", () => {
     vi.mocked(stageEventsRepo.create).mockReturnValue(saved);
     vi.mocked(stageEventsRepo.save).mockResolvedValue(saved);
 
-    const repo = new JobsRepository(
-      jobsRepo as unknown as Repository<JobEntity>,
+    const stageEvents = new JobStageEventsRepository(
       stageEventsRepo as unknown as Repository<JobStageEventEntity>,
     );
 
-    const created = await repo.createStageEvent("u1", "j1", {
+    const created = await stageEvents.createStageEvent("u1", "j1", {
       toStage: ApplicationStageEnum.TECHNICAL,
       reason: null,
       scheduledAt: null,
@@ -878,13 +892,12 @@ describe("JobsRepository", () => {
   });
 
   it("findUpToTwoJobPostingContextsByCompanyName skips DB when trimmed name empty", async () => {
-    const repo = new JobsRepository(
+    const listQuery = new JobsListQuery(
       jobsRepo as unknown as Repository<JobEntity>,
-      stageEventsRepo as unknown as Repository<JobStageEventEntity>,
     );
 
     await expect(
-      repo.findUpToTwoJobPostingContextsByCompanyName("user-1", "   "),
+      listQuery.findUpToTwoJobPostingContextsByCompanyName("user-1", "   "),
     ).resolves.toEqual([]);
     expect(jobsRepo.createQueryBuilder).not.toHaveBeenCalled();
   });
@@ -893,12 +906,11 @@ describe("JobsRepository", () => {
     const qb = makeMainJobsQb([]);
     vi.mocked(jobsRepo.createQueryBuilder).mockReturnValue(qb as never);
 
-    const repo = new JobsRepository(
+    const listQuery = new JobsListQuery(
       jobsRepo as unknown as Repository<JobEntity>,
-      stageEventsRepo as unknown as Repository<JobStageEventEntity>,
     );
 
-    await repo.findAllByUserId("u1", undefined, " MegaCorp ");
+    await listQuery.findAllByUserId("u1", undefined, " MegaCorp ");
 
     expect(qb.andWhere).toHaveBeenCalledWith(
       "LOWER(company.name) = LOWER(:company)",
@@ -910,12 +922,11 @@ describe("JobsRepository", () => {
     const qb = makeMainJobsQb([]);
     vi.mocked(jobsRepo.createQueryBuilder).mockReturnValue(qb as never);
 
-    const repo = new JobsRepository(
+    const listQuery = new JobsListQuery(
       jobsRepo as unknown as Repository<JobEntity>,
-      stageEventsRepo as unknown as Repository<JobStageEventEntity>,
     );
 
-    await repo.findAllByUserId("u1", undefined, undefined, "run-uuid");
+    await listQuery.findAllByUserId("u1", undefined, undefined, "run-uuid");
 
     expect(qb.andWhere).toHaveBeenCalledWith("a.source_run_id = :runId", {
       runId: "run-uuid",
@@ -930,12 +941,11 @@ describe("JobsRepository", () => {
     };
     vi.mocked(jobsRepo.createQueryBuilder).mockReturnValue(qb as never);
 
-    const repo = new JobsRepository(
+    const listQuery = new JobsListQuery(
       jobsRepo as unknown as Repository<JobEntity>,
-      stageEventsRepo as unknown as Repository<JobStageEventEntity>,
     );
 
-    const hit = await repo.hasRecentDuplicateSameRoleAndCompany(
+    const hit = await listQuery.hasRecentDuplicateSameRoleAndCompany(
       "user-1",
       "exclude",
       "comp",
@@ -962,12 +972,11 @@ describe("JobsRepository", () => {
     };
     vi.mocked(stageEventsRepo.createQueryBuilder).mockReturnValue(qb as never);
 
-    const repo = new JobsRepository(
-      jobsRepo as unknown as Repository<JobEntity>,
+    const stageEvents = new JobStageEventsRepository(
       stageEventsRepo as unknown as Repository<JobStageEventEntity>,
     );
 
-    const latest = await repo.findLatestStageEventByJobIdAndUserId(
+    const latest = await stageEvents.findLatestStageEventByJobIdAndUserId(
       "j1",
       "user-1",
     );
@@ -993,7 +1002,6 @@ describe("JobsRepository", () => {
 
     const repo = new JobsRepository(
       jobsRepo as unknown as Repository<JobEntity>,
-      stageEventsRepo as unknown as Repository<JobStageEventEntity>,
     );
 
     await expect(repo.delete("missing", "u1")).resolves.toBeNull();
@@ -1005,7 +1013,6 @@ describe("JobsRepository", () => {
 
     const repo = new JobsRepository(
       jobsRepo as unknown as Repository<JobEntity>,
-      stageEventsRepo as unknown as Repository<JobStageEventEntity>,
     );
 
     const ok = await repo.updateSummary("j1", '{"type":"doc"}', "user-1");
@@ -1020,12 +1027,11 @@ describe("JobsRepository", () => {
     const ev = Object.assign(new JobStageEventEntity(), { id: "ev-1" });
     vi.mocked(stageEventsRepo.findOne).mockResolvedValue(ev);
 
-    const repo = new JobsRepository(
-      jobsRepo as unknown as Repository<JobEntity>,
+    const stageEvents = new JobStageEventsRepository(
       stageEventsRepo as unknown as Repository<JobStageEventEntity>,
     );
 
-    const row = await repo.findStageEventByIdAndUserId("ev-1", "user-1");
+    const row = await stageEvents.findStageEventByIdAndUserId("ev-1", "user-1");
     expect(row?.id).toBe("ev-1");
   });
 
@@ -1042,12 +1048,11 @@ describe("JobsRepository", () => {
       Promise.resolve(e as JobStageEventEntity),
     );
 
-    const repo = new JobsRepository(
-      jobsRepo as unknown as Repository<JobEntity>,
+    const stageEvents = new JobStageEventsRepository(
       stageEventsRepo as unknown as Repository<JobStageEventEntity>,
     );
 
-    const updated = await repo.updateStageEvent("ev-1", "u1", {
+    const updated = await stageEvents.updateStageEvent("ev-1", "u1", {
       toStage: ApplicationStageEnum.OFFER,
       scheduledAt: new Date("2026-02-01"),
       reason: "Advance",
@@ -1062,11 +1067,12 @@ describe("JobsRepository", () => {
       affected: 1,
     } as never);
 
-    const repo = new JobsRepository(
-      jobsRepo as unknown as Repository<JobEntity>,
+    const stageEvents = new JobStageEventsRepository(
       stageEventsRepo as unknown as Repository<JobStageEventEntity>,
     );
 
-    await expect(repo.deleteStageEvent("ev-1", "u1")).resolves.toBe(true);
+    await expect(stageEvents.deleteStageEvent("ev-1", "u1")).resolves.toBe(
+      true,
+    );
   });
 });

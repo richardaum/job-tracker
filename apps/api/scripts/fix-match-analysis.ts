@@ -11,6 +11,7 @@ import { WorkPreferencesEntity } from "@api/database/entities/work-preferences.e
 import { JobEventBus } from "@api/domains/jobs/job-event.bus";
 import { ApplicationQuickFilterEnum } from "@api/domains/jobs/job-quick-filter.enum";
 import { JobsRepository } from "@api/domains/jobs/jobs.repository";
+import { JobsListQuery } from "@api/domains/jobs/jobs-list.query";
 import { MatchAnalysisRepository } from "@api/domains/match-analysis/match-analysis.repository";
 import { MatchAnalysisService } from "@api/domains/match-analysis/match-analysis.service";
 import { MatchAnalysisAiService } from "@api/domains/match-analysis/match-analysis-ai.service";
@@ -79,6 +80,7 @@ function parseArgs(): {
   providers: [
     JobEventBus,
     JobsRepository,
+    JobsListQuery,
     MatchAnalysisEventBus,
     MatchAnalysisRepository,
     MatchAnalysisAiService,
@@ -105,7 +107,7 @@ async function main() {
   const em = app.get(EntityManager);
   const matchRepo = app.get(MatchAnalysisRepository);
   const resumeRepo = app.get(ResumeRepository);
-  const jobRepo = app.get(JobsRepository);
+  const listQuery = app.get(JobsListQuery);
   const matchService = app.get(MatchAnalysisService);
 
   const user = await em.getRepository(UserEntity).findOne({ where: { email } });
@@ -152,8 +154,8 @@ async function main() {
   }
 
   const allJobs = activeOnly
-    ? await jobRepo.findAllByUserId(userId, ApplicationQuickFilterEnum.ACTIVE)
-    : await jobRepo.findAllByUserId(userId); // Omitting filter follows PRD "All jobs" semantics (includes DRAFT).
+    ? await listQuery.findAllByUserId(userId, ApplicationQuickFilterEnum.ACTIVE)
+    : await listQuery.findAllByUserId(userId); // Omitting filter follows PRD "All jobs" semantics (includes DRAFT).
 
   // Batch only rows with persisted TipTap description; unparsed drafts (often description-null) skip here.
   const jobsToProcess = allJobs.filter(

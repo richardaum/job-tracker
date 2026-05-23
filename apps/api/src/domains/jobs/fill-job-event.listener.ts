@@ -1,8 +1,8 @@
 import { Injectable, Logger, OnModuleInit } from "@nestjs/common";
 
 import { FillJobRequested } from "./job.events";
+import { JobAsyncMetadataRepository } from "./job-async-metadata.repository";
 import { JobEventBus } from "./job-event.bus";
-import { JobsRepository } from "./jobs.repository";
 import { JobsService } from "./jobs.service";
 
 @Injectable()
@@ -11,7 +11,7 @@ export class FillJobEventListener implements OnModuleInit {
 
   constructor(
     private readonly eventBus: JobEventBus,
-    private readonly jobsRepo: JobsRepository,
+    private readonly asyncMetadataRepo: JobAsyncMetadataRepository,
     private readonly jobsService: JobsService,
   ) {}
 
@@ -32,7 +32,7 @@ export class FillJobEventListener implements OnModuleInit {
   }
 
   private async resetStaleProcessing(): Promise<void> {
-    const count = await this.jobsRepo.resetStaleFillProcessing();
+    const count = await this.asyncMetadataRepo.resetStaleFillProcessing();
     if (count > 0) {
       this.logger.warn(`Recovered ${count} stale PROCESSING fill jobs`);
     }

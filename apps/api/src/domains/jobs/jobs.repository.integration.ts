@@ -10,20 +10,26 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { ApplicationQuickFilterEnum } from "./job-quick-filter.enum";
 import { ApplicationStageEnum } from "./job-stage.enum";
+import { JobStageEventsRepository } from "./job-stage-events.repository";
 import { JobsRepository } from "./jobs.repository";
+import { JobsListQuery } from "./jobs-list.query";
 import { StageEventSourceEnum } from "./stage-event-source.enum";
 
 const hasDb = !!process.env.DATABASE_E2E_URL;
 
-describe.skipIf(!hasDb)("JobsRepository (integration)", () => {
+describe.skipIf(!hasDb)("Jobs domain persistence (integration)", () => {
   let dataSource: DataSource;
   let repo: JobsRepository;
+  let listQuery: JobsListQuery;
+  let stageEventsRepo: JobStageEventsRepository;
   let userId: string;
 
   beforeAll(async () => {
     dataSource = await createTestDataSource();
-    repo = new JobsRepository(
-      dataSource.getRepository(JobEntity),
+    const jobsRepository = dataSource.getRepository(JobEntity);
+    repo = new JobsRepository(jobsRepository);
+    listQuery = new JobsListQuery(jobsRepository);
+    stageEventsRepo = new JobStageEventsRepository(
       dataSource.getRepository(JobStageEventEntity),
     );
 
@@ -55,7 +61,7 @@ describe.skipIf(!hasDb)("JobsRepository (integration)", () => {
   }
 
   it("findAllByUserId returns empty array when no applications", async () => {
-    const result = await repo.findAllByUserId(userId);
+    const result = await listQuery.findAllByUserId(userId);
     expect(result).toEqual([]);
   });
 
@@ -73,28 +79,30 @@ describe.skipIf(!hasDb)("JobsRepository (integration)", () => {
   });
 
   it("findAllByUserId returns only the user's applications", async () => {
-    const result = await repo.findAllByUserId(userId);
+    const result = await listQuery.findAllByUserId(userId);
     expect(result).toHaveLength(1);
     expect(result[0].title).toBe("Software Engineer");
-    expect(result[0].company.name).toBe("Acme Corp");
+    expect(result[0].company).toBeDefined();
+    expect(result[0].company!.name).toBe("Acme Corp");
   });
 
   it("findOneByIdAndUserId returns job when owner matches", async () => {
-    const [app] = await repo.findAllByUserId(userId);
+    const [app] = await listQuery.findAllByUserId(userId);
     const found = await repo.findOneByIdAndUserId(app.id, userId);
     expect(found).not.toBeNull();
     expect(found?.id).toBe(app.id);
-    expect(found?.company.name).toBe("Acme Corp");
+    expect(found?.company).toBeDefined();
+    expect(found?.company!.name).toBe("Acme Corp");
   });
 
   it("findOneByIdAndUserId returns null when owner does not match", async () => {
-    const [app] = await repo.findAllByUserId(userId);
+    const [app] = await listQuery.findAllByUserId(userId);
     const found = await repo.findOneByIdAndUserId(app.id, "wrong-user-id");
     expect(found).toBeNull();
   });
 
   it("update modifies the job", async () => {
-    const [app] = await repo.findAllByUserId(userId);
+    const [app] = await listQuery.findAllByUserId(userId);
     const updated = await repo.update(app.id, userId, {
       title: "Senior Engineer",
     });
@@ -103,10 +111,10 @@ describe.skipIf(!hasDb)("JobsRepository (integration)", () => {
   });
 
   it("delete removes the job", async () => {
-    const [app] = await repo.findAllByUserId(userId);
+    const [app] = await listQuery.findAllByUserId(userId);
     const deleted = await repo.delete(app.id, userId);
     expect(deleted).not.toBeNull();
-    const remaining = await repo.findAllByUserId(userId);
+    const remaining = await listQuery.findAllByUserId(userId);
     expect(remaining).toHaveLength(0);
   });
 
@@ -129,7 +137,7 @@ describe.skipIf(!hasDb)("JobsRepository (integration)", () => {
       urls: [],
     });
 
-    const result = await repo.findAllByUserId(userId);
+    const result = await listQuery.findAllByUserId(userId);
     expect(result.every((a) => a.userId === userId)).toBe(true);
   });
 
@@ -141,20 +149,23 @@ describe.skipIf(!hasDb)("JobsRepository (integration)", () => {
       urls: [],
     });
 
-    const first = await repo.createStageEvent(userId, app.id, {
+    const first = await stageEventsRepo.createStageEvent(userId, app.id, {
       fromStage: null,
       toStage: ApplicationStageEnum.APPLIED,
       source: StageEventSourceEnum.Manual,
       scheduledAt: new Date("2030-01-01T09:00:00.000Z"),
     });
-    const second = await repo.createStageEvent(userId, app.id, {
+    const second = await stageEventsRepo.createStageEvent(userId, app.id, {
       fromStage: ApplicationStageEnum.APPLIED,
       toStage: ApplicationStageEnum.TECHNICAL,
       source: StageEventSourceEnum.Manual,
       scheduledAt: null,
     });
 
-    const events = await repo.findStageEventsByJobIdAndUserId(app.id, userId);
+    const events = await stageEventsRepo.findStageEventsByJobIdAndUserId(
+      app.id,
+      userId,
+    );
     expect(events).toHaveLength(2);
     expect(events[0].id).toBe(first.id);
     expect(events[0].toStage).toBe(ApplicationStageEnum.APPLIED);
@@ -171,7 +182,7 @@ describe.skipIf(!hasDb)("JobsRepository (integration)", () => {
       companyId: company.id,
       urls: [],
     });
-    await repo.createStageEvent(userId, appliedApp.id, {
+    await stageEventsRepo.createStageEvent(userId, appliedApp.id, {
       fromStage: null,
       toStage: ApplicationStageEnum.APPLIED,
       source: StageEventSourceEnum.Manual,
@@ -183,14 +194,14 @@ describe.skipIf(!hasDb)("JobsRepository (integration)", () => {
       companyId: company.id,
       urls: [],
     });
-    await repo.createStageEvent(userId, activeApp.id, {
+    await stageEventsRepo.createStageEvent(userId, activeApp.id, {
       fromStage: ApplicationStageEnum.APPLIED,
       toStage: ApplicationStageEnum.TECHNICAL,
       source: StageEventSourceEnum.Manual,
       scheduledAt: null,
     });
 
-    const active = await repo.findAllByUserId(
+    const active = await listQuery.findAllByUserId(
       userId,
       ApplicationQuickFilterEnum.ACTIVE,
     );
@@ -207,7 +218,7 @@ describe.skipIf(!hasDb)("JobsRepository (integration)", () => {
       companyId: company.id,
       urls: [],
     });
-    await repo.createStageEvent(userId, appliedAppWithEvent.id, {
+    await stageEventsRepo.createStageEvent(userId, appliedAppWithEvent.id, {
       fromStage: null,
       toStage: ApplicationStageEnum.APPLIED,
       source: StageEventSourceEnum.Manual,
@@ -219,14 +230,14 @@ describe.skipIf(!hasDb)("JobsRepository (integration)", () => {
       companyId: company.id,
       urls: [],
     });
-    await repo.createStageEvent(userId, recruiterScreenApp.id, {
+    await stageEventsRepo.createStageEvent(userId, recruiterScreenApp.id, {
       fromStage: ApplicationStageEnum.APPLIED,
       toStage: ApplicationStageEnum.RECRUITER_SCREEN,
       source: StageEventSourceEnum.Manual,
       scheduledAt: new Date(Date.now() + 86400000), // Tomorrow
     });
 
-    const incoming = await repo.findAllByUserId(
+    const incoming = await listQuery.findAllByUserId(
       userId,
       ApplicationQuickFilterEnum.INCOMING,
     );
@@ -243,7 +254,7 @@ describe.skipIf(!hasDb)("JobsRepository (integration)", () => {
       companyId: company.id,
       urls: [],
     });
-    await repo.createStageEvent(userId, newLatest.id, {
+    await stageEventsRepo.createStageEvent(userId, newLatest.id, {
       fromStage: null,
       toStage: ApplicationStageEnum.NEW,
       source: StageEventSourceEnum.Manual,
@@ -255,24 +266,24 @@ describe.skipIf(!hasDb)("JobsRepository (integration)", () => {
       companyId: company.id,
       urls: [],
     });
-    await repo.createStageEvent(userId, dupLatest.id, {
+    await stageEventsRepo.createStageEvent(userId, dupLatest.id, {
       fromStage: null,
       toStage: ApplicationStageEnum.NEW,
       source: StageEventSourceEnum.Manual,
       scheduledAt: null,
     });
-    await repo.createStageEvent(userId, dupLatest.id, {
+    await stageEventsRepo.createStageEvent(userId, dupLatest.id, {
       fromStage: ApplicationStageEnum.NEW,
       toStage: ApplicationStageEnum.DUPLICATED,
       source: StageEventSourceEnum.System,
       scheduledAt: null,
     });
 
-    const newFiltered = await repo.findAllByUserId(
+    const newFiltered = await listQuery.findAllByUserId(
       userId,
       ApplicationQuickFilterEnum.NEW,
     );
-    const dupFiltered = await repo.findAllByUserId(
+    const dupFiltered = await listQuery.findAllByUserId(
       userId,
       ApplicationQuickFilterEnum.DUPLICATED,
     );
@@ -298,9 +309,13 @@ describe.skipIf(!hasDb)("JobsRepository (integration)", () => {
       urls: [],
     });
 
-    const filtered = await repo.findAllByUserId(userId, undefined, acme.name);
+    const filtered = await listQuery.findAllByUserId(
+      userId,
+      undefined,
+      acme.name,
+    );
     expect(filtered.map((app) => app.id)).toContain(acmeApp.id);
-    expect(filtered.every((app) => app.company.name === acme.name)).toBe(true);
+    expect(filtered.every((app) => app.company!.name === acme.name)).toBe(true);
   });
 
   it("findUpToTwoJobPostingContextsByCompanyName returns up to two recent descriptions", async () => {
@@ -338,7 +353,7 @@ describe.skipIf(!hasDb)("JobsRepository (integration)", () => {
       urls: [],
     });
 
-    const result = await repo.findUpToTwoJobPostingContextsByCompanyName(
+    const result = await listQuery.findUpToTwoJobPostingContextsByCompanyName(
       userId,
       "  posting snippet co ",
     );
@@ -375,7 +390,7 @@ describe.skipIf(!hasDb)("JobsRepository (integration)", () => {
     const reloaded = await repo.findOneByIdAndUserId(capture.id, userId);
     expect(reloaded?.htmlContent).toContain("captured");
 
-    const draftsOnly = await repo.findAllByUserId(
+    const draftsOnly = await listQuery.findAllByUserId(
       userId,
       ApplicationQuickFilterEnum.DRAFT,
     );

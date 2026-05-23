@@ -23,21 +23,23 @@ import {
   JobCreated,
   JobUpdated,
 } from "./job.events";
-import { DRAFT_JOB_PLACEHOLDER_COMPANY_NAME } from "./job-draft.constants";
+import { JobAsyncMetadataRepository } from "./job-async-metadata.repository";
 import { APPLICATION_DUPLICATE_PAIRING_WINDOW_MS } from "./job-duplicate.constants";
 import { JobEventBus } from "./job-event.bus";
+import { JobFillPersistence } from "./job-fill.persistence";
 import { ApplicationQuickFilterEnum } from "./job-quick-filter.enum";
 import { ApplicationSourceEnum } from "./job-source.enum";
 import { inferJobSourceEnumFromUrls } from "./job-source.util";
 import { ApplicationStageEnum } from "./job-stage.enum";
+import { JobStageEventsRepository } from "./job-stage-events.repository";
 import { JobStageEvent } from "./job-stage-events.schema";
 import {
   CreateJobRepoDto,
-  FillCompletionCasMismatchError,
   JobsRepository,
   UpdateJobRepoDto,
 } from "./jobs.repository";
 import { Job } from "./jobs.schema";
+import { JobsListQuery } from "./jobs-list.query";
 import { SalaryService } from "./salary/salary.service";
 import { SalaryPeriodEnum } from "./salary/salary-period.enum";
 import { StageEventSourceEnum } from "./stage-event-source.enum";
@@ -45,7 +47,7 @@ import { TagService } from "./tags/tag.service";
 
 type CreateDto = {
   title?: string | null;
-  company: string;
+  company?: string | null;
   companyId?: string | null;
   description?: string | null;
   urls?: string[] | null;
@@ -91,6 +93,10 @@ export class JobsService {
     @InjectRepository(SourceRunEntity)
     private readonly sourceRunsRepo: Repository<SourceRunEntity>,
     private readonly repo: JobsRepository,
+    private readonly jobsListQuery: JobsListQuery,
+    private readonly stageEventsRepo: JobStageEventsRepository,
+    private readonly asyncMetadataRepo: JobAsyncMetadataRepository,
+    private readonly fillPersistence: JobFillPersistence,
     private readonly companyService: CompanyService,
     private readonly salaryService: SalaryService,
     private readonly tagService: TagService,
@@ -107,7 +113,7 @@ export class JobsService {
     company?: string,
     runId?: string,
   ): Promise<JobWithCurrentStage[]> {
-    const apps = await this.repo.findAllByUserId(
+    const apps = await this.jobsListQuery.findAllByUserId(
       userId,
       filter,
       company,
@@ -149,7 +155,7 @@ export class JobsService {
     if (apps.length === 0) {
       return [];
     }
-    const byId = await this.repo.findLatestStageSummariesByJobIds(
+    const byId = await this.stageEventsRepo.findLatestStageSummariesByJobIds(
       userId,
       apps.map((a) => a.id),
     );
@@ -163,6 +169,13 @@ export class JobsService {
         currentStageAt: s?.statusAt ?? app.createdAt,
       };
     });
+  }
+
+  /** Promote DRAFT captures to NEW once automatic fill succeeds (canonical stage from events). */
+  private shouldPromoteDraftToNewAfterFill(
+    currentStage: ApplicationStageEnum | undefined,
+  ): boolean {
+    return currentStage === ApplicationStageEnum.DRAFT;
   }
 
   async create(userId: string, dto: CreateDto): Promise<JobWithCurrentStage> {
@@ -193,24 +206,18 @@ export class JobsService {
         );
       }
 
-      const companyName =
-        dto.company?.trim() || DRAFT_JOB_PLACEHOLDER_COMPANY_NAME;
       const companyId = await this.resolveCompanyId(
         userId,
-        companyName,
+        dto.company,
         dto.companyId,
       );
-
-      if (!companyId) {
-        throw new BadRequestException("Company could not be resolved");
-      }
 
       const tags = this.tagService.normalizeTags(dto.tags);
       const normalizedUrls = this.normalizeUrls(dto.urls);
       const salaryColumns = this.salaryService.getCreateSalary(dto);
       const repoDto: CreateJobRepoDto = {
         title: dto.title ?? null,
-        companyId,
+        companyId: companyId ?? null,
         description: null,
         urls: normalizedUrls,
         htmlContent: dto.htmlContent ?? null,
@@ -234,7 +241,7 @@ export class JobsService {
         ApplicationStageEnum.DRAFT,
       );
 
-      await this.repo.createStageEvent(userId, job.id, {
+      await this.stageEventsRepo.createStageEvent(userId, job.id, {
         fromStage: null,
         toStage: ApplicationStageEnum.DRAFT,
         source: StageEventSourceEnum.System,
@@ -291,14 +298,15 @@ export class JobsService {
 
     const duplicateLookbackMs = APPLICATION_DUPLICATE_PAIRING_WINDOW_MS;
     const referenceTime = new Date();
-    const isDuplicate = await this.repo.hasRecentDuplicateSameRoleAndCompany(
-      userId,
-      job.id,
-      companyId,
-      dto.title ?? "",
-      referenceTime,
-      duplicateLookbackMs,
-    );
+    const isDuplicate =
+      await this.jobsListQuery.hasRecentDuplicateSameRoleAndCompany(
+        userId,
+        job.id,
+        companyId,
+        dto.title ?? "",
+        referenceTime,
+        duplicateLookbackMs,
+      );
 
     const initialStage = isDuplicate
       ? ApplicationStageEnum.DUPLICATED
@@ -306,7 +314,7 @@ export class JobsService {
 
     await this.repo.setPersistedStage(userId, job.id, initialStage);
 
-    await this.repo.createStageEvent(userId, job.id, {
+    await this.stageEventsRepo.createStageEvent(userId, job.id, {
       fromStage: null,
       toStage: initialStage,
       source: StageEventSourceEnum.System,
@@ -336,10 +344,11 @@ export class JobsService {
       throw new BadRequestException("Fill already in progress");
     }
 
-    const started = await this.repo.beginFillAutomaticallyProcessing(
-      jobId,
-      userId,
-    );
+    const started =
+      await this.asyncMetadataRepo.beginFillAutomaticallyProcessing(
+        jobId,
+        userId,
+      );
     if (!started) {
       throw new BadRequestException(
         "Could not start fill — the job fill state changed. Try again.",
@@ -359,10 +368,16 @@ export class JobsService {
   async processFillJob(userId: string, jobId: string): Promise<void> {
     const row = await this.repo.findOneByIdAndUserId(jobId, userId);
     if (!row) {
-      const ok = await this.repo.failFillAutomatically(
+      const ok = await this.asyncMetadataRepo.updateCas(
+        "fill",
         jobId,
         userId,
-        "Job not found.",
+        { status: AsyncMetadataStatusEnum.PROCESSING },
+        {
+          status: AsyncMetadataStatusEnum.FAILED,
+          error: "Job not found.",
+          timestamp: new Date(),
+        },
       );
       if (ok) {
         this.eventBus.emit(new FillJobFailed(jobId, userId, "Job not found."));
@@ -380,8 +395,9 @@ export class JobsService {
           { ...row, urls: row.urls ?? [] },
         ])
       )[0] ?? null;
-    const isDraftStage =
-      jobWithStage?.currentStage === ApplicationStageEnum.DRAFT;
+    const shouldPromoteDraftToNew = this.shouldPromoteDraftToNewAfterFill(
+      jobWithStage?.currentStage,
+    );
 
     const [extractError, raw] = await tryRun(
       this.draftExtractionService.extract({
@@ -453,21 +469,14 @@ export class JobsService {
       ...(salaryColumns ?? {}),
     };
 
-    const [txnErr, persisted] = await tryRun(() =>
-      this.repo.finalizeAutomaticExtractedFillTransactional(
+    const [txnErr, result] = await tryRun(
+      this.fillPersistence.finalizeExtractedFill(
         jobId,
         userId,
         repoDto,
-        isDraftStage,
+        shouldPromoteDraftToNew,
       ),
     );
-
-    if (txnErr instanceof FillCompletionCasMismatchError) {
-      this.logger.warn(
-        `[${jobId}] Fill finalize CAS missed PROCESSING inside TX — rolled back extraction/promotion.`,
-      );
-      return;
-    }
 
     if (txnErr != null) {
       await this.persistFillFailure(
@@ -478,7 +487,14 @@ export class JobsService {
       return;
     }
 
-    if (!persisted) {
+    if (!result.ok && result.reason === "cas_mismatch") {
+      this.logger.warn(
+        `[${jobId}] Fill finalize CAS missed PROCESSING inside TX — rolled back extraction/promotion.`,
+      );
+      return;
+    }
+
+    if (!result.ok) {
       await this.persistFillFailure(jobId, userId, "Job was deleted.");
       return;
     }
@@ -492,7 +508,17 @@ export class JobsService {
     userId: string,
     message: string,
   ): Promise<void> {
-    const ok = await this.repo.failFillAutomatically(jobId, userId, message);
+    const ok = await this.asyncMetadataRepo.updateCas(
+      "fill",
+      jobId,
+      userId,
+      { status: AsyncMetadataStatusEnum.PROCESSING },
+      {
+        status: AsyncMetadataStatusEnum.FAILED,
+        error: message,
+        timestamp: new Date(),
+      },
+    );
     if (!ok) {
       this.logger.warn(
         `[${jobId}] Could not persist fill failure (${message}) — CAS missed or stale.`,
@@ -525,7 +551,7 @@ export class JobsService {
     dto: GenerateCompanyDescriptionDto,
   ) {
     const jobPostingContexts =
-      await this.repo.findUpToTwoJobPostingContextsByCompanyName(
+      await this.jobsListQuery.findUpToTwoJobPostingContextsByCompanyName(
         userId,
         dto.companyName,
       );
@@ -597,17 +623,19 @@ export class JobsService {
 
   private async resolveCompanyId(
     userId: string,
-    companyName?: string,
+    companyName?: string | null,
     companyId?: string | null,
   ): Promise<string | undefined> {
-    if (companyId) {
-      const company = await this.companyService.findOne(companyId, userId);
+    const cid = typeof companyId === "string" ? companyId.trim() : "";
+    if (cid) {
+      const company = await this.companyService.findOne(cid, userId);
       return company.id;
     }
-    if (companyName) {
+    const name = typeof companyName === "string" ? companyName.trim() : "";
+    if (name) {
       const company = await this.companyService.findOrCreateByName(
         userId,
-        companyName,
+        name,
       );
       return company.id;
     }
@@ -626,7 +654,7 @@ export class JobsService {
     userId: string,
   ): Promise<JobStageEvent[]> {
     await this.findOne(jobId, userId);
-    return this.repo.findStageEventsByJobIdAndUserId(jobId, userId);
+    return this.stageEventsRepo.findStageEventsByJobIdAndUserId(jobId, userId);
   }
 
   async createStageEvent(
@@ -634,17 +662,22 @@ export class JobsService {
     dto: CreateStageEventDto,
   ): Promise<JobStageEvent> {
     await this.findOne(dto.jobId, userId);
-    const latest = await this.repo.findLatestStageEventByJobIdAndUserId(
-      dto.jobId,
+    const latest =
+      await this.stageEventsRepo.findLatestStageEventByJobIdAndUserId(
+        dto.jobId,
+        userId,
+      );
+    const event = await this.stageEventsRepo.createStageEvent(
       userId,
+      dto.jobId,
+      {
+        fromStage: latest?.toStage ?? null,
+        toStage: dto.toStage,
+        source: dto.source ?? StageEventSourceEnum.Manual,
+        reason: dto.reason ?? null,
+        scheduledAt: dto.scheduledAt ?? null,
+      },
     );
-    const event = await this.repo.createStageEvent(userId, dto.jobId, {
-      fromStage: latest?.toStage ?? null,
-      toStage: dto.toStage,
-      source: dto.source ?? StageEventSourceEnum.Manual,
-      reason: dto.reason ?? null,
-      scheduledAt: dto.scheduledAt ?? null,
-    });
 
     this.eventBus.emit(new JobUpdated(dto.jobId, userId));
     return event;
@@ -655,7 +688,7 @@ export class JobsService {
     userId: string,
     dto: UpdateStageEventDto,
   ): Promise<JobStageEvent> {
-    const stageEvent = await this.repo.findStageEventByIdAndUserId(
+    const stageEvent = await this.stageEventsRepo.findStageEventByIdAndUserId(
       stageEventId,
       userId,
     );
@@ -663,11 +696,15 @@ export class JobsService {
       throw new NotFoundException(`Stage event ${stageEventId} not found`);
     }
 
-    const updated = await this.repo.updateStageEvent(stageEventId, userId, {
-      toStage: dto.toStage,
-      reason: dto.reason,
-      scheduledAt: dto.scheduledAt,
-    });
+    const updated = await this.stageEventsRepo.updateStageEvent(
+      stageEventId,
+      userId,
+      {
+        toStage: dto.toStage,
+        reason: dto.reason,
+        scheduledAt: dto.scheduledAt,
+      },
+    );
     if (!updated) {
       throw new NotFoundException(`Stage event ${stageEventId} not found`);
     }
@@ -677,7 +714,7 @@ export class JobsService {
   }
 
   async removeStageEvent(stageEventId: string, userId: string): Promise<void> {
-    const stageEvent = await this.repo.findStageEventByIdAndUserId(
+    const stageEvent = await this.stageEventsRepo.findStageEventByIdAndUserId(
       stageEventId,
       userId,
     );
@@ -685,7 +722,10 @@ export class JobsService {
       throw new NotFoundException(`Stage event ${stageEventId} not found`);
     }
 
-    const deleted = await this.repo.deleteStageEvent(stageEventId, userId);
+    const deleted = await this.stageEventsRepo.deleteStageEvent(
+      stageEventId,
+      userId,
+    );
     if (!deleted) {
       throw new NotFoundException(`Stage event ${stageEventId} not found`);
     }

@@ -2,8 +2,8 @@ import {
   JobUpdated,
   SummaryGenerationRequested,
 } from "@api/domains/jobs/job.events";
+import { JobAsyncMetadataRepository } from "@api/domains/jobs/job-async-metadata.repository";
 import { JobEventBus } from "@api/domains/jobs/job-event.bus";
-import { JobsRepository } from "@api/domains/jobs/jobs.repository";
 import { Injectable, Logger, OnModuleInit } from "@nestjs/common";
 
 import { SummaryService } from "./summary.service";
@@ -15,7 +15,7 @@ export class SummaryEventListener implements OnModuleInit {
   constructor(
     private readonly eventBus: JobEventBus,
     private readonly summaryService: SummaryService,
-    private readonly appRepo: JobsRepository,
+    private readonly asyncMetadataRepo: JobAsyncMetadataRepository,
   ) {}
 
   onModuleInit(): void {
@@ -46,7 +46,7 @@ export class SummaryEventListener implements OnModuleInit {
   }
 
   private async resetStuckProcessing(): Promise<void> {
-    const count = await this.appRepo.resetStaleSummaryProcessing();
+    const count = await this.asyncMetadataRepo.resetStaleSummaryProcessing();
     if (count > 0) {
       this.logger.warn(`Recovered ${count} stale PROCESSING summaries`);
     }
