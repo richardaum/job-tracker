@@ -3,6 +3,8 @@
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import yargs from "yargs";
+
 import { addWorktreeDBeaverConnection } from "./dbeaver.ts";
 import {
   addWorktreeToWorkspace,
@@ -13,7 +15,6 @@ import {
   loadMainApiEnvForWorktree,
   logSetupDryRun,
   logSetupSummary,
-  parseSetupArgs,
   previewWorktreePorts,
   registerWorktreePorts,
   requireMainWorktreeRoot,
@@ -29,12 +30,72 @@ import {
 const tag = WORKTREE_SETUP_TAG;
 const root = join(fileURLToPath(new URL(".", import.meta.url)), "../..");
 
+const raw = process.argv.slice(2);
+const scriptIdx = raw.findIndex((a) => !a.startsWith("-") || a === "--");
+const userArgs = scriptIdx >= 0 ? raw.slice(scriptIdx + 1) : raw;
+
+const argv = await yargs(userArgs)
+  .option("dry-run", {
+    type: "boolean",
+    default: false,
+    description: "Dry run (print plan only, no writes)",
+  })
+  .option("recreate-db", {
+    type: "boolean",
+    default: false,
+    description: "Drop and re-clone destination DB",
+  })
+  .option("dbeaver", {
+    type: "boolean",
+    default: false,
+    description: "Add DBeaver connection under Job Tracker/Worktrees",
+  })
+  .option("force-dbeaver", {
+    type: "boolean",
+    default: false,
+    description: "Replace existing DBeaver connection (requires --dbeaver)",
+  })
+  .option("install", {
+    type: "boolean",
+    default: false,
+    description: "Run pnpm install after core setup",
+  })
+  .option("migrate", {
+    type: "boolean",
+    default: false,
+    description: "Run pnpm --filter @job-tracker/api run db:migrate",
+  })
+  .option("start", {
+    type: "boolean",
+    default: false,
+    description: "Run pnpm pm2:start",
+  })
+  .option("verify", {
+    type: "boolean",
+    default: false,
+    description: "Verify API/Web/Storybook/WXT health endpoints",
+  })
+  .option("source-db", {
+    type: "string",
+    description: "Database to clone (default: WORKTREE_SOURCE_DB env var)",
+  })
+  .strict()
+  .check((args) => {
+    if (args.forceDbeaver && !args.dbeaver) {
+      throw new Error("--force-dbeaver requires --dbeaver");
+    }
+    return true;
+  })
+  .parse();
+
 assertGitWorktree(root, tag);
 const worktreeRoot = requireWorktreeRoot(root, tag);
 const slug = requireValidSlug(root, tag);
 
-const args = parseSetupArgs(process.argv);
-const sourceDb = requireSourceDb(args.sourceDb, tag);
+const sourceDb = requireSourceDb(
+  argv.sourceDb ?? process.env.WORKTREE_SOURCE_DB?.trim(),
+  tag,
+);
 
 const mainRoot = requireMainWorktreeRoot(root, tag);
 const { secrets, databaseUrl, destDb } = loadMainApiEnvForWorktree(
@@ -43,7 +104,7 @@ const { secrets, databaseUrl, destDb } = loadMainApiEnvForWorktree(
   tag,
 );
 
-if (args.dryRun) {
+if (argv.dryRun) {
   logSetupDryRun({
     tag,
     worktreeRoot,
@@ -53,14 +114,14 @@ if (args.dryRun) {
     destDb,
     databaseUrl,
     e2eDatabaseUrl: buildDestinationTestDatabaseUrl(databaseUrl, slug),
-    recreateDb: args.recreateDb,
-    dbeaver: args.dbeaver,
-    forceDbeaver: args.forceDbeaver,
+    recreateDb: argv.recreateDb,
+    dbeaver: argv.dbeaver,
+    forceDbeaver: argv.forceDbeaver,
     ports: previewWorktreePorts(slug),
-    install: args.install,
-    migrate: args.migrate,
-    start: args.start,
-    verify: args.verify,
+    install: argv.install,
+    migrate: argv.migrate,
+    start: argv.start,
+    verify: argv.verify,
     workspacePath: join(mainRoot, "job-tracker.code-workspace"),
   });
 } else {
@@ -70,7 +131,7 @@ if (args.dryRun) {
     sourceDb,
     destDb,
     worktreeRoot,
-    recreateDb: args.recreateDb,
+    recreateDb: argv.recreateDb,
   });
 
   const testDatabaseUrl = buildDestinationTestDatabaseUrl(databaseUrl, slug);
@@ -79,7 +140,7 @@ if (args.dryRun) {
     slug,
     testDbName: testDbNameForSlug(slug),
     worktreeRoot,
-    recreateDb: args.recreateDb,
+    recreateDb: argv.recreateDb,
   });
 
   const allocatedPorts = registerWorktreePorts(slug);
@@ -94,12 +155,12 @@ if (args.dryRun) {
 
   addWorktreeToWorkspace({ mainRoot, slug, worktreeRoot, tag });
 
-  if (args.dbeaver) {
+  if (argv.dbeaver) {
     addWorktreeDBeaverConnection({
       tag,
       slug,
       databaseUrl,
-      force: args.forceDbeaver,
+      force: argv.forceDbeaver,
     });
   }
 
@@ -115,9 +176,9 @@ if (args.dryRun) {
   runWorktreePostSetup({
     tag,
     repoRoot: root,
-    install: args.install,
-    migrate: args.migrate,
-    start: args.start,
-    verify: args.verify,
+    install: argv.install,
+    migrate: argv.migrate,
+    start: argv.start,
+    verify: argv.verify,
   });
 }
