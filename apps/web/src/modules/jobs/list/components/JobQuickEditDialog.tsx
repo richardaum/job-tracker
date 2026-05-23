@@ -9,6 +9,7 @@ import {
   FormField,
   Input,
   Stack,
+  useDialog,
 } from "@job-tracker/ui";
 import { type DialogControl } from "@job-tracker/ui";
 import React, { useState } from "react";
@@ -246,7 +247,8 @@ function JobQuickEditDialogForm({
 }
 
 export interface JobQuickEditDialogProps {
-  control: DialogControl;
+  control?: DialogControl;
+  trigger?: React.ReactElement;
   job?: JobValues;
   onSuccess?: (message: string) => void;
   onError?: (message: string) => void;
@@ -254,16 +256,20 @@ export interface JobQuickEditDialogProps {
 }
 
 export function JobQuickEditDialog({
-  control,
+  control: controlProp,
+  trigger,
   job,
   onSuccess,
   onError,
   onCreated,
 }: JobQuickEditDialogProps) {
+  const internalControl = useDialog();
+  const control = controlProp ?? internalControl;
   const isEdit = Boolean(job);
 
   return (
     <Dialog
+      trigger={trigger}
       title={isEdit ? "Edit job" : "New job"}
       description={
         isEdit

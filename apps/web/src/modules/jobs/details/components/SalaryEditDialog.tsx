@@ -10,6 +10,7 @@ import {
   Select,
   type SelectOption,
   Stack,
+  useDialog,
 } from "@job-tracker/ui";
 import { type DialogControl } from "@job-tracker/ui";
 import React, { useEffect, useRef, useState } from "react";
@@ -45,7 +46,8 @@ type DraftSalary = {
 };
 
 type SalaryEditDialogJobProps = {
-  control: DialogControl;
+  control?: DialogControl;
+  trigger?: React.ReactElement;
   job: JobDetailsValues;
   onSuccess?: (message: string) => void;
   onError?: (message: string) => void;
@@ -78,6 +80,7 @@ function isDraftProps(
 
 export function SalaryEditDialog(props: SalaryEditDialogProps) {
   const isDraft = isDraftProps(props);
+  const internalControl = useDialog();
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({
     salaryMin: "",
@@ -99,7 +102,8 @@ export function SalaryEditDialog(props: SalaryEditDialogProps) {
         ],
   });
 
-  const { control } = props;
+  const control = isDraft ? props.control : (props.control ?? internalControl);
+  const trigger = isDraft ? undefined : props.trigger;
   const disabledInputs = isDraft ? Boolean(props.disabled) : false;
   const idPrefix = isDraft ? (props.idPrefix ?? "ai-draft-sal") : "ov-sal";
   const amountDecimalScale = iso4217MaxFractionDigits(form.salaryCurrency);
@@ -229,6 +233,7 @@ export function SalaryEditDialog(props: SalaryEditDialogProps) {
 
   return (
     <Dialog
+      trigger={trigger}
       title="Edit salary"
       open={control.isOpen}
       onOpenChange={handleOpenChange}
