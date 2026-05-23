@@ -113,7 +113,7 @@ export function SalaryEditDialog(props: SalaryEditDialogProps) {
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState(() => initialFormFromProps(props));
   const [error, setError] = useState<string | undefined>();
-  const [prevOpen, setPrevOpen] = useState(props.control.isOpen);
+  const [prevOpen, setPrevOpen] = useState(props.control?.isOpen ?? false);
 
   const [update] = useUpdateJobMutation({
     refetchQueries: isDraft
