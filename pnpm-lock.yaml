@@ -26,6 +26,9 @@ importers:
       '@types/node':
         specifier: ^22.15.3
         version: 22.19.17
+      '@types/pg':
+        specifier: ^8.20.0
+        version: 8.20.0
       dotenv:
         specifier: ^16.6.1
         version: 16.6.1
@@ -510,6 +513,31 @@ importers:
         specifier: workspace:*
         version: link:../try-run
     devDependencies:
+      typescript:
+        specifier: ^5.8.3
+        version: 5.9.3
+
+  packages/e2e:
+    dependencies:
+      '@job-tracker/try-run':
+        specifier: workspace:*
+        version: link:../try-run
+      '@job-tracker/worktree-cli':
+        specifier: workspace:*
+        version: link:../worktree-cli
+      dotenv:
+        specifier: ^16.6.1
+        version: 16.6.1
+      pg:
+        specifier: ^8.20.0
+        version: 8.20.0
+      zod:
+        specifier: ^4.3.6
+        version: 4.3.6
+    devDependencies:
+      '@types/node':
+        specifier: ^22.15.3
+        version: 22.19.17
       typescript:
         specifier: ^5.8.3
         version: 5.9.3
