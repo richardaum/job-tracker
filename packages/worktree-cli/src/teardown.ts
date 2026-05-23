@@ -50,8 +50,10 @@ const argv = await yargs(userArgs)
     type: "string",
     description: "Worktree slug (optional, derived from directory name)",
   })
-  .conflicts("dry-run", "apply")
   .check((args) => {
+    if (args.dryRun && args.apply) {
+      throw new Error("Arguments dry-run and apply are mutually exclusive");
+    }
     if (!args.dryRun && !args.apply) {
       throw new Error("Set exactly one of --dry-run or --apply to true");
     }
