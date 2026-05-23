@@ -30,7 +30,7 @@ const serverEnvSchema = z.object({
   DEV_AUTH_BYPASS_EMAIL: z.email().default("richard.lopes92@gmail.com"),
 });
 
-const validated = serverEnvSchema
+export const serverEnv = serverEnvSchema
   .refine(
     ({ NODE_ENV, PORT }) =>
       NODE_ENV === "production" || (PORT >= 3100 && PORT <= 3199),
@@ -40,21 +40,3 @@ const validated = serverEnvSchema
     },
   )
   .parse(process.env);
-
-export const {
-  NODE_ENV,
-  DATABASE_URL,
-  DATABASE_INTEGRATION_URL,
-  SENTRY_DSN,
-  PORT,
-  GOOGLE_CLIENT_ID,
-  GOOGLE_CLIENT_SECRET,
-  GOOGLE_CALLBACK_URL,
-  JWT_ACCESS_SECRET,
-  JWT_REFRESH_SECRET,
-  WEB_URL,
-  OPENAI_API_KEY,
-  OPENAI_MODEL,
-  AUTH_BYPASS_ENABLED,
-  DEV_AUTH_BYPASS_EMAIL,
-} = validated;

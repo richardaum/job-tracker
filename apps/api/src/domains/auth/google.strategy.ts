@@ -1,10 +1,6 @@
 import type { User } from "@api/domains/users/users.schema";
 import { UserService } from "@api/domains/users/users.service";
-import {
-  GOOGLE_CALLBACK_URL,
-  GOOGLE_CLIENT_ID,
-  GOOGLE_CLIENT_SECRET,
-} from "@api/env/server";
+import { serverEnv } from "@api/env/server";
 import { Injectable } from "@nestjs/common";
 import { PassportStrategy } from "@nestjs/passport";
 import { Profile, Strategy } from "passport-google-oauth20";
@@ -13,9 +9,9 @@ import { Profile, Strategy } from "passport-google-oauth20";
 export class GoogleStrategy extends PassportStrategy(Strategy, "google") {
   constructor(private readonly userService: UserService) {
     super({
-      clientID: GOOGLE_CLIENT_ID,
-      clientSecret: GOOGLE_CLIENT_SECRET,
-      callbackURL: GOOGLE_CALLBACK_URL,
+      clientID: serverEnv.GOOGLE_CLIENT_ID,
+      clientSecret: serverEnv.GOOGLE_CLIENT_SECRET,
+      callbackURL: serverEnv.GOOGLE_CALLBACK_URL,
       scope: ["email", "profile"],
     });
   }

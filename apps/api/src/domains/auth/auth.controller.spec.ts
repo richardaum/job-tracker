@@ -3,7 +3,7 @@ import "reflect-metadata";
 import { RoleEnum } from "@api/domains/users/role.enum";
 import type { User } from "@api/domains/users/users.schema";
 import { UserService } from "@api/domains/users/users.service";
-import { WEB_URL } from "@api/env/server";
+import { serverEnv } from "@api/env/server";
 import type { ExecutionContext, INestApplication } from "@nestjs/common";
 import { Test } from "@nestjs/testing";
 import cookieParser from "cookie-parser";
@@ -28,7 +28,7 @@ const mockUser: User = {
 
 describe("AuthController (integration)", () => {
   let app: INestApplication;
-  const webUrl = new URL(WEB_URL);
+  const webUrl = new URL(serverEnv.WEB_URL);
   const loginUrl = new URL("/login", webUrl).toString();
   const host = webUrl.host;
 

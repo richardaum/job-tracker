@@ -10,11 +10,11 @@ import cookieParser from "cookie-parser";
 import passport from "passport";
 
 import { AppModule } from "./app.module";
-import { PORT, SENTRY_DSN } from "./env/server";
+import { serverEnv } from "./env/server";
 
 setupFileLogger({ filename: "api.log" });
 
-Sentry.init({ dsn: SENTRY_DSN, tracesSampleRate: 1.0 });
+Sentry.init({ dsn: serverEnv.SENTRY_DSN, tracesSampleRate: 1.0 });
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -22,7 +22,7 @@ async function bootstrap() {
   app.use(passport.initialize());
   app.enableCors({ origin: true, credentials: true });
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
-  await app.listen(PORT, "0.0.0.0");
+  await app.listen(serverEnv.PORT, "0.0.0.0");
 }
 
 bootstrap();

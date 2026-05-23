@@ -6,13 +6,13 @@ import { UserEntity } from "@api/database/entities/user.entity";
 import { createTestDataSource } from "@api/database/test-db";
 import { AsyncMetadataStatusEnum } from "@api/domains/shared/async-metadata.type";
 import { RoleEnum } from "@api/domains/users/role.enum";
-import { DATABASE_INTEGRATION_URL } from "@api/env/server";
+import { serverEnv } from "@api/env/server";
 import type { DataSource } from "typeorm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { MatchAnalysisRepository } from "./match-analysis.repository";
 
-const hasDb = !!DATABASE_INTEGRATION_URL;
+const hasDb = !!serverEnv.DATABASE_INTEGRATION_URL;
 
 describe.skipIf(!hasDb)(
   "MatchAnalysisRepository — generation metadata (integration)",

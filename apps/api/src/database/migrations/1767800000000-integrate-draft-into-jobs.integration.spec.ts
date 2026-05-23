@@ -9,12 +9,12 @@ import {
   IntegrateDraftIntoJobs1767800000000,
   migrationsBeforeIntegrateDraftIntoJobs,
 } from "@api/database/migrations";
-import { DATABASE_INTEGRATION_URL } from "@api/env/server";
+import { serverEnv } from "@api/env/server";
 import type { QueryRunner } from "typeorm";
 import { DataSource } from "typeorm";
 import { beforeAll, describe, expect, it } from "vitest";
 
-const hasDb = !!DATABASE_INTEGRATION_URL;
+const hasDb = !!serverEnv.DATABASE_INTEGRATION_URL;
 
 const defaultTipTapDoc = '{"type":"doc","content":[{"type":"paragraph"}]}';
 
@@ -37,7 +37,7 @@ describe.skipIf(!hasDb)(
     let databaseUrl: string;
 
     beforeAll(() => {
-      databaseUrl = DATABASE_INTEGRATION_URL!;
+      databaseUrl = serverEnv.DATABASE_INTEGRATION_URL!;
     });
 
     async function bootstrapPreDraftMerge(): Promise<DataSource> {

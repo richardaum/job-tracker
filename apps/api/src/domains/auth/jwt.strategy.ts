@@ -1,4 +1,4 @@
-import { JWT_ACCESS_SECRET } from "@api/env/server";
+import { serverEnv } from "@api/env/server";
 import { Injectable } from "@nestjs/common";
 import { PassportStrategy } from "@nestjs/passport";
 import type { Request } from "express";
@@ -13,7 +13,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         ExtractJwt.fromAuthHeaderAsBearerToken(),
       ]),
       ignoreExpiration: false,
-      secretOrKey: JWT_ACCESS_SECRET,
+      secretOrKey: serverEnv.JWT_ACCESS_SECRET,
     });
   }
 

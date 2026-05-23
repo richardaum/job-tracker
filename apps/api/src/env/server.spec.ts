@@ -34,9 +34,9 @@ describe("API server env schema", () => {
   it("loads required values and applies defaults for PORT and WEB_URL", async () => {
     const env = await loadEnv({ PORT: undefined, WEB_URL: undefined });
 
-    expect(env.DATABASE_URL).toBe(REQUIRED_ENV.DATABASE_URL);
-    expect(env.PORT).toBe(3101);
-    expect(env.WEB_URL).toBe("http://localhost:3100");
+    expect(env.serverEnv.DATABASE_URL).toBe(REQUIRED_ENV.DATABASE_URL);
+    expect(env.serverEnv.PORT).toBe(3101);
+    expect(env.serverEnv.WEB_URL).toBe("http://localhost:3100");
   });
 
   it("rejects non-31xx PORT values in development", async () => {
@@ -50,6 +50,6 @@ describe("API server env schema", () => {
   it("allows non-31xx PORT values in production", async () => {
     const env = await loadEnv({ NODE_ENV: "production", PORT: "8080" });
 
-    expect(env.PORT).toBe(8080);
+    expect(env.serverEnv.PORT).toBe(8080);
   });
 });

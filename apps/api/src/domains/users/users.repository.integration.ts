@@ -1,13 +1,13 @@
 import { UserEntity } from "@api/database/entities/user.entity";
 import { createTestDataSource } from "@api/database/test-db";
-import { DATABASE_INTEGRATION_URL } from "@api/env/server";
+import { serverEnv } from "@api/env/server";
 import type { DataSource } from "typeorm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { RoleEnum } from "./role.enum";
 import { UserRepository } from "./users.repository";
 
-const hasDb = !!DATABASE_INTEGRATION_URL;
+const hasDb = !!serverEnv.DATABASE_INTEGRATION_URL;
 
 describe.skipIf(!hasDb)("UserRepository (integration)", () => {
   let dataSource: DataSource;
