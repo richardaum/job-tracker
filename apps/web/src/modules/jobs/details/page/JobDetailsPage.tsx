@@ -19,6 +19,7 @@ import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 
 import { BackToLink } from "@/components/back-to-link";
+import { DetailPageHeader } from "@/components/detail-page-header";
 import { EntityNotFound } from "@/components/entity-not-found";
 import { useGenerateJobMatchMutation } from "@/gql/hooks";
 import { useBreakpoint } from "@/hooks/useBreakpoint";
@@ -242,23 +243,8 @@ export default function JobDetailsPage({ params }: PageProps) {
 
   return (
     <div className={cn("flex h-full min-h-0 flex-col")}>
-      <div
-        className={cn(
-          "flex flex-col gap-2 border-b border-border-subtle p-4  sm:px-6 sm:py-5",
-        )}
-      >
-        <div className={cn("flex items-center justify-between gap-3")}>
-          <BackToLink href="/jobs">Back to jobs</BackToLink>
-          {job ? (
-            <div
-              className={cn(
-                "flex shrink-0 flex-wrap items-center justify-end gap-2",
-              )}
-            >
-              {actionsMenu}
-            </div>
-          ) : null}
-        </div>
+      <DetailPageHeader trailing={job ? actionsMenu : undefined}>
+        <BackToLink href="/jobs">Back to jobs</BackToLink>
         <div className={cn("flex items-center gap-3")}>
           <Heading as="h1" size="2xl" className={cn("min-w-0")}>
             <span>
@@ -294,7 +280,7 @@ export default function JobDetailsPage({ params }: PageProps) {
             />
           </>
         ) : null}
-      </div>
+      </DetailPageHeader>
 
       <div className={cn("flex-1 min-h-0 overflow-hidden p-4 sm:p-6")}>
         {status === "loading" ? (

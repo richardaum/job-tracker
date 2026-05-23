@@ -23,6 +23,7 @@ import { useRouter } from "next/navigation";
 import React from "react";
 
 import { BackToLink } from "@/components/back-to-link";
+import { DetailPageHeader } from "@/components/detail-page-header";
 import { EntityNotFound } from "@/components/entity-not-found";
 import { CompaniesDocument, useUpdateCompanyMutation } from "@/gql/hooks";
 import { useGenerateCompanyDescriptionAiAction } from "@/modules/ai/actions/useGenerateCompanyDescriptionAiAction";
@@ -142,17 +143,8 @@ export default function CompanyDetailsPage({ params }: PageProps) {
 
   return (
     <div className={cn("flex h-full min-h-0 flex-col")}>
-      <div
-        className={cn(
-          "flex flex-col gap-2 border-b border-border-subtle p-4  sm:px-6 sm:py-5",
-        )}
-      >
-        <div className={cn("flex items-center justify-between gap-3")}>
-          <BackToLink href="/companies">Back to companies</BackToLink>
-          {actionsMenu ? (
-            <div className={cn("shrink-0")}>{actionsMenu}</div>
-          ) : null}
-        </div>
+      <DetailPageHeader trailing={actionsMenu ?? undefined}>
+        <BackToLink href="/companies">Back to companies</BackToLink>
         <Heading as="h1" size="2xl" className={cn("min-w-0")}>
           {company?.name ?? "Company details"}
         </Heading>
@@ -169,7 +161,7 @@ export default function CompanyDetailsPage({ params }: PageProps) {
             }
           />
         ) : null}
-      </div>
+      </DetailPageHeader>
 
       <div className={cn("flex-1 min-h-0 overflow-hidden p-4 sm:p-6")}>
         {status === "loading" ? (

@@ -30,7 +30,7 @@ interface PageProps {
   params: Promise<{ id: string }>;
 }
 
-export default function ResumeDetailsPage({ params }: PageProps) {
+export default function ResumeDetailPage({ params }: PageProps) {
   const { id } = React.use(params);
   const router = useRouter();
   const { enqueueToast } = useToastQueue();
@@ -71,7 +71,7 @@ export default function ResumeDetailsPage({ params }: PageProps) {
       return;
     }
     enqueueToast({ title: `"${titleDraft}" deleted.`, intent: "success" });
-    router.push("/resumes");
+    router.push("/profile/resumes");
   }
 
   async function handlePersistTitle(nextTitle: string) {
@@ -162,7 +162,7 @@ export default function ResumeDetailsPage({ params }: PageProps) {
           ) : undefined
         }
       >
-        <BackToLink href="/resumes">Back to resumes</BackToLink>
+        <BackToLink href="/profile/resumes">Back to resumes</BackToLink>
 
         <div className={cn("flex min-w-0 flex-wrap items-center gap-2")}>
           <Heading
@@ -215,7 +215,7 @@ export default function ResumeDetailsPage({ params }: PageProps) {
         ) : notFound ? (
           <EntityNotFound
             resource="resume"
-            backHref="/resumes"
+            backHref="/profile/resumes"
             backLabel="Back to resumes"
           />
         ) : error && !notFound ? (

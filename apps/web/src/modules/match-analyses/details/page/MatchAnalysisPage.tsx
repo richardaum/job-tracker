@@ -23,6 +23,7 @@ import { useRouter } from "next/navigation";
 import React from "react";
 
 import { BackToLink } from "@/components/back-to-link";
+import { DetailPageHeader } from "@/components/detail-page-header";
 import { EmptyState } from "@/components/empty-state";
 import { EntityNotFound } from "@/components/entity-not-found";
 import {
@@ -186,7 +187,9 @@ export default function MatchAnalysisPage({ params }: PageProps) {
       align="end"
     >
       <DropdownMenuItem
-        onSelect={() => router.push(`/resumes/${matchAnalysis.resumeId}`)}
+        onSelect={() =>
+          router.push(`/profile/resumes/${matchAnalysis.resumeId}`)
+        }
         icon={<NotePencilIcon size={14} weight="regular" />}
       >
         View resume
@@ -207,31 +210,31 @@ export default function MatchAnalysisPage({ params }: PageProps) {
     </DropdownMenu>
   ) : null;
 
+  const detailHeaderTrailing =
+    actionsMenu != null || !notFound ? (
+      <>
+        {actionsMenu}
+        {!notFound ? (
+          <Button
+            intent="primary"
+            size="md"
+            onClick={() => setWizardOpen(true)}
+            state={isProcessing ? "loading" : "default"}
+          >
+            {hasMatch ? "Regenerate" : "Generate"}
+          </Button>
+        ) : null}
+      </>
+    ) : undefined;
+
   return (
     <div className={cn("flex h-full min-h-0 flex-col")}>
-      <div
-        className={cn(
-          "flex flex-col gap-2 border-b border-border-subtle p-4 sm:px-6 sm:py-5 shrink-0",
-        )}
+      <DetailPageHeader
+        className={cn("shrink-0")}
+        reserveClassName={cn("pe-52 sm:pe-60")}
+        trailing={detailHeaderTrailing}
       >
-        <div className={cn("flex items-center justify-between gap-3")}>
-          <BackToLink href={parentHref}>Back to {parentLabel}</BackToLink>
-          <div className={cn("flex items-center gap-2")}>
-            {actionsMenu ? (
-              <div className={cn("shrink-0")}>{actionsMenu}</div>
-            ) : null}
-            {!notFound && (
-              <Button
-                intent="primary"
-                size="md"
-                onClick={() => setWizardOpen(true)}
-                state={isProcessing ? "loading" : "default"}
-              >
-                {hasMatch ? "Regenerate" : "Generate"}
-              </Button>
-            )}
-          </div>
-        </div>
+        <BackToLink href={parentHref}>Back to {parentLabel}</BackToLink>
         <div className={cn("flex items-center gap-3")}>
           <Heading as="h1" size="2xl" className={cn("min-w-0")}>
             <span>Match Analysis</span>
@@ -244,7 +247,7 @@ export default function MatchAnalysisPage({ params }: PageProps) {
             />
           ) : null}
         </div>
-      </div>
+      </DetailPageHeader>
 
       <div className={cn("flex-1 min-h-0 overflow-auto p-4 sm:p-6")}>
         <div className={cn("flex w-full flex-col gap-4")}>
