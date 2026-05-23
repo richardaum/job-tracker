@@ -78,6 +78,7 @@ const argv = await yargs(userArgs)
   })
   .option("open", {
     type: "boolean",
+    default: true,
     description:
       "Open web app in the default browser (default: same as --verify)",
   })
