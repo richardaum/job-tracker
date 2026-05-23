@@ -6,11 +6,14 @@ import {
   allocatePorts,
   buildDestinationDatabaseUrl,
   buildDestinationTestDatabaseUrl,
-  buildWorktreeEnv,
+  buildWorktreeApiEnv,
+  buildWorktreeExtensionEnv,
+  buildWorktreeStorybookEnv,
+  buildWorktreeWebEnv,
   dbNameForSlug,
   type GlobalRegistry,
+  mergeEnvMap,
   parseEnvFile,
-  resolvePostgresContainer,
   testDbNameForSlug,
   validateSlug,
 } from "./lib.ts";
@@ -69,31 +72,53 @@ BAZ="quoted"
     assert.equal(map.BAZ, "quoted");
   });
 
-  it("buildWorktreeEnv sets auth bypass and PM2 fields", () => {
-    const env = buildWorktreeEnv({
-      slug: "feat-a",
+  it("buildWorktreeApiEnv sets computed overrides", () => {
+    const env = buildWorktreeApiEnv({
       ports: { api: 3105, web: 3106, storybook: 6007, wxt: 3002 },
-      secrets: {
-        GOOGLE_CLIENT_ID: "id",
-        GOOGLE_CLIENT_SECRET: "secret",
-        JWT_ACCESS_SECRET: "a",
-        JWT_REFRESH_SECRET: "r",
-      },
       databaseUrl: "postgresql://localhost/job_tracker_feat_a",
       e2eDatabaseUrl: "postgresql://localhost/job_tracker_test_feat_a",
     });
-    assert.equal(env.AUTH_BYPASS_ENABLED, "true");
-    assert.equal(env.PM2_APP_PREFIX, "feat-a");
-    assert.equal(env.PM2_RESET_PORTS, "3105,3106,6007,3002");
-    assert.equal(env.NEXT_PUBLIC_API_URL, "http://localhost:3105");
+    assert.equal(env.DATABASE_URL, "postgresql://localhost/job_tracker_feat_a");
+    assert.equal(env.PORT, "3105");
+    assert.equal(
+      env.GOOGLE_CALLBACK_URL,
+      "http://localhost:3105/auth/google/callback",
+    );
+    assert.equal(env.WEB_URL, "http://localhost:3106");
   });
 
-  it("resolvePostgresContainer uses WORKTREE_POSTGRES_DOCKER when set", () => {
-    process.env.WORKTREE_POSTGRES_DOCKER = "pg-test";
-    try {
-      assert.equal(resolvePostgresContainer("/tmp"), "pg-test");
-    } finally {
-      delete process.env.WORKTREE_POSTGRES_DOCKER;
-    }
+  it("buildWorktreeWebEnv sets computed overrides", () => {
+    const env = buildWorktreeWebEnv({
+      ports: { api: 3105, web: 3106, storybook: 6007, wxt: 3002 },
+    });
+    assert.equal(env.PORT, "3106");
+    assert.equal(env.NEXT_PUBLIC_API_URL, "http://localhost:3105");
+    assert.equal(env.E2E_PORT, "3106");
+  });
+
+  it("mergeEnvMap overrides base with overrides", () => {
+    const merged = mergeEnvMap(
+      { FOO: "base", BAR: "base" },
+      { BAR: "override", BAZ: "new" },
+    );
+    assert.equal(merged.FOO, "base");
+    assert.equal(merged.BAR, "override");
+    assert.equal(merged.BAZ, "new");
+  });
+
+  it("buildWorktreeStorybookEnv sets STORYBOOK_PORT", () => {
+    const env = buildWorktreeStorybookEnv({
+      ports: { api: 3105, web: 3106, storybook: 6007, wxt: 3002 },
+    });
+    assert.equal(env.STORYBOOK_PORT, "6007");
+  });
+
+  it("buildWorktreeExtensionEnv sets WXT vars", () => {
+    const env = buildWorktreeExtensionEnv({
+      ports: { api: 3105, web: 3106, storybook: 6007, wxt: 3002 },
+    });
+    assert.equal(env.WXT_DEV_PORT, "3002");
+    assert.equal(env.WXT_PUBLIC_API_URL, "http://localhost:3105");
+    assert.equal(env.WXT_PUBLIC_WEB_URL, "http://localhost:3106");
   });
 });

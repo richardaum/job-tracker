@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 
 import { join } from "node:path";
-import { fileURLToPath } from "node:url";
 
 import yargs from "yargs";
 
 import { addWorktreeDBeaverConnection } from "./dbeaver.ts";
+import { worktreeEnv } from "./env.ts";
 import {
   addWorktreeToWorkspace,
   assertGitWorktree,
@@ -18,17 +18,18 @@ import {
   previewWorktreePorts,
   registerWorktreePorts,
   requireMainWorktreeRoot,
-  requireSourceDb,
   requireValidSlug,
   requireWorktreeRoot,
   runWorktreePostSetup,
   testDbNameForSlug,
   WORKTREE_SETUP_TAG,
-  writeWorktreeEnvFile,
+  worktreeFail,
+  writeWorktreeAppEnvs,
 } from "./lib.ts";
+import { resolveRepoRoot } from "./repo-root.ts";
 
 const tag = WORKTREE_SETUP_TAG;
-const root = join(fileURLToPath(new URL(".", import.meta.url)), "../..");
+const root = resolveRepoRoot(import.meta.url);
 
 const raw = process.argv.slice(2);
 const scriptIdx = raw.findIndex((a) => !a.startsWith("-") || a === "--");
@@ -77,7 +78,8 @@ const argv = await yargs(userArgs)
   })
   .option("source-db", {
     type: "string",
-    description: "Database to clone (default: WORKTREE_SOURCE_DB env var)",
+    description:
+      "Database to clone (default: WORKTREE_SOURCE_DB from worktreeEnv)",
   })
   .strict()
   .check((args) => {
@@ -92,17 +94,19 @@ assertGitWorktree(root, tag);
 const worktreeRoot = requireWorktreeRoot(root, tag);
 const slug = requireValidSlug(root, tag);
 
-const sourceDb = requireSourceDb(
-  argv.sourceDb ?? process.env.WORKTREE_SOURCE_DB?.trim(),
-  tag,
-);
+const sourceDb = argv.sourceDb ?? worktreeEnv.WORKTREE_SOURCE_DB;
+if (!sourceDb) {
+  worktreeFail(
+    tag,
+    "WORKTREE_SOURCE_DB is required.\n" +
+      "  export WORKTREE_SOURCE_DB=job_tracker\n" +
+      "  pnpm worktree:setup\n" +
+      "Or: pnpm worktree:setup -- --source-db job_tracker",
+  );
+}
 
 const mainRoot = requireMainWorktreeRoot(root, tag);
-const { secrets, databaseUrl, destDb } = loadMainApiEnvForWorktree(
-  mainRoot,
-  slug,
-  tag,
-);
+const { databaseUrl, destDb } = loadMainApiEnvForWorktree(mainRoot, slug, tag);
 
 if (argv.dryRun) {
   logSetupDryRun({
@@ -144,14 +148,14 @@ if (argv.dryRun) {
   });
 
   const allocatedPorts = registerWorktreePorts(slug);
-  const envPath = writeWorktreeEnvFile({
-    worktreeRoot,
-    slug,
-    ports: allocatedPorts,
-    secrets,
-    databaseUrl,
-    e2eDatabaseUrl: testDatabaseUrl,
-  });
+  const { apiEnvPath, webEnvPath, storybookEnvPath, extensionEnvPath } =
+    writeWorktreeAppEnvs({
+      worktreeRoot,
+      mainRoot,
+      ports: allocatedPorts,
+      databaseUrl,
+      e2eDatabaseUrl: testDatabaseUrl,
+    });
 
   addWorktreeToWorkspace({ mainRoot, slug, worktreeRoot, tag });
 
@@ -166,7 +170,10 @@ if (argv.dryRun) {
 
   logSetupSummary({
     tag,
-    envPath,
+    apiEnvPath,
+    webEnvPath,
+    storybookEnvPath,
+    extensionEnvPath,
     ports: allocatedPorts,
     databaseUrl,
     e2eDatabaseUrl: testDatabaseUrl,
@@ -176,6 +183,7 @@ if (argv.dryRun) {
   runWorktreePostSetup({
     tag,
     repoRoot: root,
+    ports: allocatedPorts,
     install: argv.install,
     migrate: argv.migrate,
     start: argv.start,

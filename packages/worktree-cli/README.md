@@ -1,6 +1,6 @@
 # Worktree scripts
 
-CLI helpers to run **api + web + storybook + extension** in a [git worktree](https://git-scm.com/docs/git-worktree) alongside the main checkout. Isolation uses dedicated ports, a cloned PostgreSQL database (`job_tracker_<slug>`), PM2 name prefix, and root `.env.worktree` (gitignored).
+CLI helpers to run **api + web + storybook + extension** in a [git worktree](https://git-scm.com/docs/git-worktree) alongside the main checkout. Isolation uses dedicated ports, a cloned PostgreSQL database (`job_tracker_<slug>`), and per-app `.env` files written by the setup script. PM2 namespace and prefix are derived from the directory name.
 
 CLI is built with **yargs**. Boolean flags use `--flag` / `--no-flag` conventions (safe for agents and CI-style automation).
 
@@ -51,10 +51,10 @@ pnpm worktree:teardown -- \
 Direct invocation (repo root as cwd is resolved from script location):
 
 ```bash
-node --experimental-strip-types scripts/worktree/setup.ts -- \
+node --experimental-strip-types packages/worktree-cli/src/setup.ts -- \
   --dry-run --dbeaver
 
-node --experimental-strip-types scripts/worktree/teardown.ts -- \
+node --experimental-strip-types packages/worktree-cli/src/teardown.ts -- \
   --dry-run
 ```
 
@@ -74,7 +74,7 @@ node --experimental-strip-types scripts/worktree/teardown.ts -- \
 
 At least one of `WORKTREE_SOURCE_DB` or `--source-db=…` must be set before setup runs.
 
-**Core setup** (when `--no-dry-run`): clone DB → allocate ports → write `.env.worktree` → optional DBeaver → optional post-steps.
+**Core setup** (when `--no-dry-run`): clone DB → allocate ports → write per-app `.env` files → optional DBeaver → optional post-steps.
 
 Re-running setup is idempotent: ports reused from `/tmp/job-tracker-ports.json`, DB clone skipped if the database already exists (unless `--recreate-db`).
 
@@ -86,11 +86,11 @@ Re-running setup is idempotent: ports reused from `/tmp/job-tracker-ports.json`,
 | `--apply`   | boolean | `false` | Execute teardown                                         |
 | `--drop-db` | boolean | `true`  | Drop `job_tracker_<slug>`; `--no-drop-db` keeps database |
 | `--dbeaver` | boolean | `false` | Remove DBeaver connection                                |
-| `[slug]`    | string  | —       | Optional positional slug (else from `.env.worktree`)     |
+| `[slug]`    | string  | —       | Optional positional slug (derived from directory name)   |
 
 Exactly one of `--dry-run` or `--apply` must be set (they conflict).
 
-**Apply order:** PM2 delete → DBeaver (if `--dbeaver`) → dropdb (if `--drop-db`) → port registry → remove `.env.worktree`.
+**Apply order:** PM2 delete → DBeaver (if `--dbeaver`) → dropdb (if `--drop-db`) → port registry.
 
 `git worktree remove` is **not** automated — see stderr hint after teardown.
 
@@ -105,22 +105,28 @@ Exactly one of `--dry-run` or `--apply` must be set (they conflict).
 
 ## Artifacts
 
-| Path                                 | Role                                                                              |
-| ------------------------------------ | --------------------------------------------------------------------------------- |
-| `.env.worktree`                      | Ports, `DATABASE_URL`, auth bypass, PM2 prefix — loaded by `ecosystem.config.cjs` |
-| `/tmp/job-tracker-ports.json`        | Global slug → port map                                                            |
-| `/tmp/job-tracker-<slug>.ports.json` | Per-slug port cache                                                               |
+| Path                                 | Role                                                                       |
+| ------------------------------------ | -------------------------------------------------------------------------- |
+| `apps/api/.env`                      | API: DATABASE_URL, PORT, GOOGLE_CALLBACK_URL, WEB_URL (worktree overrides) |
+| `apps/web/.env`                      | Web: PORT, NEXT_PUBLIC_API_URL, E2E_PORT (worktree overrides)              |
+| `packages/ui/.env`                   | Storybook: STORYBOOK_PORT (worktree override)                              |
+| `apps/extension/.env.development`    | Extension: WXT*DEV_PORT, WXT_PUBLIC*\* (worktree override)                 |
+| `/tmp/job-tracker-ports.json`        | Global slug → port map                                                     |
+| `/tmp/job-tracker-<slug>.ports.json` | Per-slug port cache (includes PM2_RESET_PORTS for scripts)                 |
 
 Main checkout ports **3100, 3101, 6006, 3001** are reserved and never assigned to worktrees.
 
 ## Layout
 
-| File          | Role                                                                  |
-| ------------- | --------------------------------------------------------------------- |
-| `setup.ts`    | Setup orchestrator (yargs CLI)                                        |
-| `teardown.ts` | Teardown orchestrator (yargs CLI)                                     |
-| `lib.ts`      | Git guards, ports, DB clone/drop, env, PM2, post-steps                |
-| `dbeaver.ts`  | Read/write DBeaver `data-sources.json` (passwords not stored in JSON) |
-| `*.test.ts`   | Unit tests (`pnpm test:scripts`)                                      |
+Package: `@job-tracker/worktree-cli` (`packages/worktree-cli/`).
+
+| File              | Role                                                                  |
+| ----------------- | --------------------------------------------------------------------- |
+| `src/setup.ts`    | Setup orchestrator (yargs CLI)                                        |
+| `src/teardown.ts` | Teardown orchestrator (yargs CLI)                                     |
+| `src/lib.ts`      | Git guards, ports, DB clone/drop, env, PM2, post-steps                |
+| `src/dbeaver.ts`  | Read/write DBeaver `data-sources.json` (passwords not stored in JSON) |
+| `derive-slug.cjs` | CommonJS slug helper for `ecosystem.config.cjs` (PM2)                 |
+| `src/*.test.ts`   | Unit tests (`pnpm --filter @job-tracker/worktree-cli run test`)       |
 
 Agent rules: `.agents/rules/worktree.md`. Setup/teardown: `@worktree-env` (`.agents/skills/worktree-env/SKILL.md`). Feature execution loop: `@worktree-loop` (`.agents/skills/worktree-loop/SKILL.md`). PM2/ports: `.agents/rules/ops-docker-pm2.md`.

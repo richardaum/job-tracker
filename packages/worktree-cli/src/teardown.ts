@@ -1,8 +1,5 @@
 #!/usr/bin/env node
 
-import { join } from "node:path";
-import { fileURLToPath } from "node:url";
-
 import yargs from "yargs";
 
 import { removeWorktreeDBeaverConnection } from "./dbeaver.ts";
@@ -11,9 +8,7 @@ import {
   dropWorktreeDatabase,
   dropWorktreeTestDatabase,
   logTeardownDryRun,
-  logWorktreeRemoveHint,
   removeSlugFromRegistry,
-  removeWorktreeEnvFile,
   removeWorktreeFromWorkspace,
   requireMainWorktreeRoot,
   requireTeardownSlug,
@@ -21,9 +16,10 @@ import {
   stopWorktreePm2Apps,
   WORKTREE_TEARDOWN_TAG,
 } from "./lib.ts";
+import { resolveRepoRoot } from "./repo-root.ts";
 
 const tag = WORKTREE_TEARDOWN_TAG;
-const root = join(fileURLToPath(new URL(".", import.meta.url)), "../..");
+const root = resolveRepoRoot(import.meta.url);
 
 const raw = process.argv.slice(2);
 const scriptIdx = raw.findIndex((a) => !a.startsWith("-") || a === "--");
@@ -52,7 +48,7 @@ const argv = await yargs(userArgs)
   })
   .positional("slug", {
     type: "string",
-    description: "Worktree slug (optional, from .env.worktree)",
+    description: "Worktree slug (optional, derived from directory name)",
   })
   .conflicts("dry-run", "apply")
   .check((args) => {
@@ -91,6 +87,4 @@ if (argv.dryRun) {
   dropWorktreeDatabase(root, slug, argv.dropDb, tag);
   dropWorktreeTestDatabase(root, slug, argv.dropDb, tag);
   removeSlugFromRegistry(slug);
-  removeWorktreeEnvFile(root, tag);
-  logWorktreeRemoveHint(root, tag);
 }

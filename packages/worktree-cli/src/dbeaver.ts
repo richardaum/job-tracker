@@ -10,6 +10,7 @@ import { dirname, join } from "node:path";
 
 import { tryRun } from "@job-tracker/try-run";
 
+import { worktreeEnv } from "./env.ts";
 import { dbNameForSlug, parseDatabaseName, worktreeFail } from "./lib.ts";
 
 const WORKTREE_FOLDER = "Job Tracker/Worktrees";
@@ -41,9 +42,9 @@ type DBeaverConnection = {
   };
 };
 
-/** Platform default for DBeaver 23+ `data-sources.json`, overridable via env. */
+/** Platform default for DBeaver 23+ `data-sources.json`, overridable via worktreeEnv. */
 export function defaultDBeaverDataSourcesPath(): string {
-  const explicit = process.env.WORKTREE_DBEAVER_DATA_SOURCES?.trim();
+  const explicit = worktreeEnv.WORKTREE_DBEAVER_DATA_SOURCES;
   if (explicit) return explicit;
 
   const home = homedir();
