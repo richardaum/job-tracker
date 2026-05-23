@@ -21,6 +21,7 @@
     "@graphql-typed-document-node/core": "^3.2.0",
     "@job-tracker/try-run": "workspace:*",
     "@job-tracker/auth": "workspace:*",
+    "@job-tracker/html-sanitize": "workspace:*",
     "@job-tracker/ui": "workspace:*",
     "@tiptap/html": "^3.23.1",
     "@tiptap/starter-kit": "^3.23.1",

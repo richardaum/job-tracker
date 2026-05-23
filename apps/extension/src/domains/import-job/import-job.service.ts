@@ -1,3 +1,4 @@
+import { sanitizeCapturedHtml } from "@job-tracker/html-sanitize";
 import { tryRun } from "@job-tracker/try-run";
 
 import { ApiService } from "@/domains/api/api.service";
@@ -25,10 +26,11 @@ export class ImportJobService {
     >({ to: "content", payload: { kind: "import.job" }, tabId });
 
     const [error, result] = await tryRun(
-      this.apiService.createDraftJob({
-        url: snapshot.url,
+      this.apiService.createDraftCaptureJob({
+        company: "",
         title: snapshot.title,
-        htmlContent: snapshot.innerHTML,
+        urls: snapshot.url?.trim() ? [snapshot.url.trim()] : [],
+        htmlContent: sanitizeCapturedHtml(snapshot.innerHTML),
       }),
     );
 
@@ -36,13 +38,12 @@ export class ImportJobService {
       throw new Error("Failed to create draft job", { cause: error });
     }
 
-    const id = result?.data?.createDraftJob.id;
+    const id = result?.data?.createJob?.id;
     if (!id) throw new Error("Failed to create draft job");
 
-    await this.tabService.openTab(
-      `${WEB_URL}/draft-jobs/${id}?autoConvert=true`,
-      { focus: true },
-    );
+    await this.tabService.openTab(`${WEB_URL}/jobs/${id}?autoConvert=true`, {
+      focus: true,
+    });
   }
 
   async getImportMenuLabel(): Promise<string> {

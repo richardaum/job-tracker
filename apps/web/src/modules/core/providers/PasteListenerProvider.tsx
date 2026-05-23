@@ -1,11 +1,16 @@
 "use client";
 
+import { sanitizeCapturedHtml } from "@job-tracker/html-sanitize";
 import { tryRun } from "@job-tracker/try-run";
 import { useRouter } from "next/navigation";
 import type { ReactNode } from "react";
 import { useCallback, useEffect, useState } from "react";
 
-import { DraftJobsListDocument, useCreateDraftJobMutation } from "@/gql/hooks";
+import {
+  ApplicationQuickFilter,
+  JobsDocument,
+  useCreateDraftCaptureJobMutation,
+} from "@/gql/hooks";
 import { useToastQueue } from "@/modules/jobs/shared/hooks/useToastQueue";
 
 import { PasteDestinationDialog } from "./components/PasteDestinationDialog";
@@ -16,9 +21,14 @@ export function PasteListenerProvider({ children }: { children: ReactNode }) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const { enqueueToast } = useToastQueue();
 
-  const [createDraftJob, { loading: createDraftLoading }] =
-    useCreateDraftJobMutation({
-      refetchQueries: [{ query: DraftJobsListDocument }],
+  const [createDraftCaptureJob, { loading: createDraftLoading }] =
+    useCreateDraftCaptureJobMutation({
+      refetchQueries: [
+        {
+          query: JobsDocument,
+          variables: { filter: ApplicationQuickFilter.Draft },
+        },
+      ],
       awaitRefetchQueries: true,
     });
 
@@ -43,13 +53,13 @@ export function PasteListenerProvider({ children }: { children: ReactNode }) {
 
     const plainText = event.clipboardData?.getData("text/plain").trim();
     const htmlText = event.clipboardData?.getData("text/html").trim();
-    const normalized = plainText || htmlText;
-    if (!normalized) {
+    const rawContent = htmlText || plainText;
+    if (!rawContent) {
       return;
     }
 
     event.preventDefault();
-    setPastedContent(normalized);
+    setPastedContent(sanitizeCapturedHtml(rawContent));
     setDialogOpen(true);
   }, []);
 
@@ -69,12 +79,13 @@ export function PasteListenerProvider({ children }: { children: ReactNode }) {
 
   async function handleConfirmPasteImport(url: string, autoConvert: boolean) {
     const [createError, result] = await tryRun(
-      createDraftJob({
+      createDraftCaptureJob({
         variables: {
           input: {
-            url: url || null,
             title: titleFromUrl(url),
+            urls: url ? [url] : [],
             htmlContent: pastedContent,
+            createAsDraftCapture: true,
           },
         },
       }),
@@ -87,15 +98,15 @@ export function PasteListenerProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    const draftId = result?.data?.createDraftJob?.id;
+    const draftId = result?.data?.createJob?.id;
     if (!draftId) return;
 
     setDialogOpen(false);
     setPastedContent("");
 
     const path = autoConvert
-      ? `/draft-jobs/${draftId}?autoConvert=true`
-      : `/draft-jobs/${draftId}`;
+      ? `/jobs/${draftId}?autoConvert=true`
+      : `/jobs/${draftId}`;
 
     router.push(path);
   }

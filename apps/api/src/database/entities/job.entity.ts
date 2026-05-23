@@ -1,6 +1,9 @@
 import { AsyncMetadataEmbedded } from "@api/database/embeddeds/async-metadata.embedded";
 import { SalaryEmbedded } from "@api/database/embeddeds/salary.embedded";
 import { ApplicationSourceEnum } from "@api/domains/jobs/job-source.enum";
+import { ApplicationStageEnum } from "@api/domains/jobs/job-stage.enum";
+import { JOB_TITLE_MAX_LENGTH } from "@api/domains/jobs/job-title.constraints";
+import { MaxLength, ValidateIf } from "class-validator";
 import {
   Column,
   CreateDateColumn,
@@ -12,7 +15,6 @@ import {
 } from "typeorm";
 
 import { CompanyEntity } from "./company.entity";
-import { DraftJobEntity } from "./draft-job.entity";
 import { SourceRunEntity } from "./source-run.entity";
 
 @Entity({ name: "jobs" })
@@ -23,15 +25,17 @@ export class JobEntity {
   @Column({ name: "user_id", type: "text" })
   userId!: string;
 
-  @Column({ type: "text" })
-  title!: string;
+  @Column({ type: "text", nullable: true })
+  @ValidateIf((_e: JobEntity, v: unknown) => typeof v === "string")
+  @MaxLength(JOB_TITLE_MAX_LENGTH)
+  title!: string | null;
 
-  @Column({ name: "company_id", type: "text" })
-  companyId!: string;
+  @Column({ name: "company_id", type: "text", nullable: true })
+  companyId!: string | null;
 
-  @ManyToOne(() => CompanyEntity, (company) => company.jobs)
+  @ManyToOne(() => CompanyEntity, (company) => company.jobs, { nullable: true })
   @JoinColumn({ name: "company_id" })
-  company!: CompanyEntity;
+  company?: CompanyEntity | null;
 
   @Column({ type: "text", nullable: true })
   description!: string | null;
@@ -69,12 +73,19 @@ export class JobEntity {
   @Column({ name: "work_region", type: "text", nullable: true })
   workRegion!: string | null;
 
-  @ManyToOne(() => DraftJobEntity, (draft) => draft.jobs, {
-    nullable: true,
-    onDelete: "SET NULL",
+  @Column({ name: "html_content", type: "text", nullable: true })
+  htmlContent!: string | null;
+
+  @Column(() => AsyncMetadataEmbedded, { prefix: "fill" })
+  fillMetadata?: AsyncMetadataEmbedded | null;
+
+  @Column({
+    type: "enum",
+    enum: ApplicationStageEnum,
+    enumName: "application_stage",
+    default: ApplicationStageEnum.NEW,
   })
-  @JoinColumn({ name: "draft_job_id" })
-  draftJob?: DraftJobEntity | null;
+  stage!: ApplicationStageEnum;
 
   @Column({ type: "text", nullable: true })
   summary!: string | null;

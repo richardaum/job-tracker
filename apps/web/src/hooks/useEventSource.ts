@@ -17,15 +17,30 @@ export function useEventSource<T = unknown>(
   useEffect(() => {
     if (!url) return;
 
+    let canceled = false;
+
+    const notify = (parsed: T) => {
+      if (!canceled) {
+        onEventRef.current(parsed);
+      }
+    };
+
     const es = new EventSource(url, { withCredentials: true });
 
-    es.addEventListener(eventName, (e) => {
+    const listener = (e: MessageEvent) => {
       const [err, parsed] = tryRun(() => JSON.parse(e.data) as T);
-      if (!err) onEventRef.current(parsed);
-    });
+      if (!err) notify(parsed);
+    };
+
+    es.addEventListener(eventName, listener);
 
     es.onerror = () => {};
 
-    return () => es.close();
+    return () => {
+      canceled = true;
+      es.removeEventListener(eventName, listener);
+      es.onerror = null;
+      es.close();
+    };
   }, [url, eventName]);
 }

@@ -81,8 +81,7 @@ enum FitVerdict {
 
 type MatchAnalysisType {
   id: ID!
-  jobId: ID
-  draftJobId: ID
+  jobId: ID!
   resumeId: ID!
   generationMetadata: AsyncMetadataType
   scoreRatio: Float
@@ -94,38 +93,12 @@ type MatchAnalysisType {
   createdAt: DateTime!
   updatedAt: DateTime!
   job: JobType
-  draftJob: DraftJobType
 }
 
 enum FitClassification {
   Positive
   Neutral
   Negative
-}
-
-type ConversionMetadataType {
-  status: DraftJobConversionStatus
-  error: String
-  timestamp: DateTime
-}
-
-enum DraftJobConversionStatus {
-  IDLE
-  PROCESSING
-  SUCCEEDED
-  FAILED
-}
-
-type DraftJobType {
-  id: ID!
-  url: String
-  title: String!
-  htmlContent: String!
-  jobId: String
-  conversionMetadata: ConversionMetadataType
-  createdAt: DateTime!
-  updatedAt: DateTime!
-  match: MatchAnalysisType
 }
 
 type JobSalary {
@@ -144,16 +117,17 @@ enum SalaryPeriod {
 type JobType {
   id: ID!
   userId: String!
-  title: String!
-  companyId: ID!
-  company: CompanyType!
+  title: String
+  companyId: ID
+  company: CompanyType
   description: String
   urls: [String!]!
   source: JobSource
   tags: [String!]!
   location: String
   workRegion: String
-  currentStage: JobStage!
+  htmlContent: String
+  currentStage: ApplicationStage!
   currentStageReason: String
   currentStageAt: DateTime!
   salary: JobSalary
@@ -162,8 +136,8 @@ type JobType {
   sourceRunId: ID
   summary: String
   summaryMetadata: AsyncMetadataType
+  fillMetadata: AsyncMetadataType
   match: MatchAnalysisType
-  draftJobId: ID
 }
 
 enum JobSource {
@@ -173,7 +147,8 @@ enum JobSource {
   REMOTE_YEAH
 }
 
-enum JobStage {
+enum ApplicationStage {
+  DRAFT
   NEW
   APPLIED
   RECRUITER_SCREEN
@@ -188,8 +163,8 @@ type JobStageEventType {
   id: ID!
   jobId: String!
   userId: String!
-  fromStage: JobStage
-  toStage: JobStage!
+  fromStage: ApplicationStage
+  toStage: ApplicationStage!
   source: StageEventSource!
   reason: String
   scheduledAt: DateTime
@@ -276,7 +251,7 @@ enum Weight {
 
 type Query {
   me: UserType!
-  jobs(filter: JobQuickFilter, company: String, runId: ID): [JobType!]!
+  jobs(filter: ApplicationQuickFilter, company: String, runId: ID): [JobType!]!
   job(id: ID!): JobType!
   generateJobLocationWithAI(jobId: ID!): String
   generateJobWorkRegionWithAI(jobId: ID!): String
@@ -285,8 +260,6 @@ type Query {
   companies: [CompanyType!]!
   company(id: ID!): CompanyType!
   companyJobsCount(id: ID!): Int!
-  draftJobs: [DraftJobType!]!
-  draftJob(id: ID!): DraftJobType!
   exchangeRates(base: String!, currencies: [String!]!): CurrencyRates!
   sourceRuns: [SourceRunType!]!
   sourceTemplates: [SourceTemplateType!]!
@@ -300,12 +273,12 @@ type Query {
   matchAnalyses: [MatchAnalysisType!]!
   match(id: ID!): MatchAnalysisType!
   jobMatch(jobId: ID!): MatchAnalysisType
-  draftJobMatch(draftJobId: ID!): MatchAnalysisType
   rewriteTextWithAI(text: String!): String!
   restructureJobDescriptionWithAI(text: String!): String!
 }
 
-enum JobQuickFilter {
+enum ApplicationQuickFilter {
+  DRAFT
   INCOMING
   ACTIVE
   APPLIED
@@ -315,7 +288,7 @@ enum JobQuickFilter {
 
 type Mutation {
   createJob(input: CreateJobInput!): JobType!
-  createJobWithAI(draftId: ID!): DraftJobType!
+  fillJobAutomatically(jobId: ID!): JobType!
   updateJob(id: ID!, input: UpdateJobInput!): JobType!
   generateJobSummary(jobId: ID!): JobType!
   removeJobTag(id: ID!, tag: String!): JobType!
@@ -325,10 +298,6 @@ type Mutation {
   deleteJobStageEvent(id: ID!): DeleteMutationPayloadType!
   updateCompany(id: ID!, input: UpdateCompanyInput!): CompanyType!
   deleteCompany(id: ID!): DeleteMutationPayloadType!
-  createDraftJob(input: CreateDraftJobInput!): DraftJobType!
-  deleteJobsForDraft(draftId: ID!): DeleteMutationPayloadType!
-  deleteDraftJob(id: ID!, deleteLinkedJob: Boolean = false): DeleteMutationPayloadType!
-  updateDraftJob(id: ID!, input: UpdateDraftJobInput!): DraftJobType!
   createSourceRun(input: CreateSourceRunInput!): SourceRunType!
   createSourceTemplate(input: CreateSourceTemplateInput!): SourceTemplateType!
   rerunSourceTemplate(templateId: ID!): SourceRunType!
@@ -349,12 +318,11 @@ type Mutation {
   updateWorkPreferences(items: [PreferenceInput!]!): [PreferenceType!]!
   generateJobMatch(input: GenerateMatchInput!): MatchAnalysisType!
   deleteMatchAnalysis(id: ID!): DeleteMutationPayloadType!
-  generateDraftJobMatch(input: GenerateDraftMatchInput!): MatchAnalysisType!
 }
 
 input CreateJobInput {
-  title: String!
-  company: String!
+  title: String
+  company: String
   companyId: ID
   description: String
   urls: [String!]
@@ -363,7 +331,9 @@ input CreateJobInput {
   tags: [String!]
   location: String
   workRegion: String
+  htmlContent: String
   sourceRunId: ID
+  createAsDraftCapture: Boolean
 }
 
 input JobSalaryInput {
@@ -384,18 +354,19 @@ input UpdateJobInput {
   tags: [String!]
   location: String
   workRegion: String
+  htmlContent: String
 }
 
 input CreateJobStageEventInput {
   jobId: String!
-  toStage: JobStage!
+  toStage: ApplicationStage!
   source: StageEventSource
   reason: String
   scheduledAt: DateTime
 }
 
 input UpdateJobStageEventInput {
-  toStage: JobStage
+  toStage: ApplicationStage
   scheduledAt: DateTime
   reason: String
 }
@@ -403,16 +374,6 @@ input UpdateJobStageEventInput {
 input UpdateCompanyInput {
   name: String
   description: String
-}
-
-input CreateDraftJobInput {
-  url: String
-  title: String!
-  htmlContent: String!
-}
-
-input UpdateDraftJobInput {
-  title: String!
 }
 
 input CreateSourceRunInput {
@@ -463,11 +424,6 @@ input PreferenceInput {
 
 input GenerateMatchInput {
   jobId: ID!
-  resumeId: ID!
-}
-
-input GenerateDraftMatchInput {
-  draftJobId: ID!
   resumeId: ID!
 }
 

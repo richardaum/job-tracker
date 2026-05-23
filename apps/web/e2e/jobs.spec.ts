@@ -6,11 +6,13 @@ test("jobs list page renders", async ({ page }) => {
   await expect(page.getByRole("button", { name: "New job" })).toBeVisible();
 });
 
-test("draft jobs list page renders", async ({ page }) => {
-  await page.goto("http://localhost:3104/auth/google?returnTo=/draft-jobs");
-  await page.waitForURL(/\/draft-jobs/, { timeout: 15000 });
+test("draft jobs filter on jobs list renders", async ({ page }) => {
+  const returnTo = encodeURIComponent("/jobs?q=draft");
+  await page.goto(`http://localhost:3104/auth/google?returnTo=${returnTo}`);
+  await page.waitForURL(/\/jobs/, { timeout: 15000 });
+  await expect(page).toHaveURL(/[?&]q=draft/);
   await expect(
-    page.getByRole("textbox", { name: "Search drafts..." }),
+    page.getByRole("textbox", { name: "Search jobs..." }),
   ).toBeVisible();
 });
 

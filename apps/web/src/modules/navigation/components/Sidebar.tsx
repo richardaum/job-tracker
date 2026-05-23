@@ -9,7 +9,6 @@ import {
   FilesIcon,
   GearIcon,
   MagnifyingGlassIcon,
-  NotePencilIcon,
   QuestionIcon,
   SignOutIcon,
   SparkleIcon,
@@ -29,7 +28,6 @@ const API_URL = getApiBaseUrl();
 
 const navItems = [
   { href: "/jobs", label: "Jobs", icon: BriefcaseIcon },
-  { href: "/draft-jobs", label: "Draft jobs", icon: NotePencilIcon },
   { href: "/resumes", label: "Resumes", icon: FilesIcon },
   { href: "/matches", label: "Matches", icon: SparkleIcon },
   { href: "/sources", label: "Sources", icon: DownloadSimpleIcon },

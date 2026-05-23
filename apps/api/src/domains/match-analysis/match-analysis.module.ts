@@ -2,7 +2,6 @@ import { MatchAnalysisEntity } from "@api/database/entities/match-analysis.entit
 import { ResumeEntity } from "@api/database/entities/resume.entity";
 import { WorkPreferencesEntity } from "@api/database/entities/work-preferences.entity";
 import { AuthModule } from "@api/domains/auth/auth.module";
-import { DraftJobsModule } from "@api/domains/draft-jobs/draft-jobs.module";
 import { JobsModule } from "@api/domains/jobs/jobs.module";
 import { ResumesModule } from "@api/domains/resumes/resumes.module";
 import { TemplateModule } from "@api/domains/shared/template/template.module";
@@ -12,7 +11,6 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 
 import { MatchAnalysisRepository } from "./match-analysis.repository";
 import {
-  DraftJobMatchResolver,
   JobMatchResolver,
   MatchAnalysisResolver,
 } from "./match-analysis.resolver";
@@ -34,7 +32,6 @@ import { MatchAnalysisSseController } from "./match-analysis-sse.controller";
     TemplateModule,
     JobsModule,
     ResumesModule,
-    DraftJobsModule,
   ],
   controllers: [MatchAnalysisSseController],
   providers: [
@@ -43,7 +40,6 @@ import { MatchAnalysisSseController } from "./match-analysis-sse.controller";
     MatchAnalysisService,
     MatchAnalysisResolver,
     JobMatchResolver,
-    DraftJobMatchResolver,
     MatchAnalysisAiService,
     MatchAnalysisEventListener,
   ],

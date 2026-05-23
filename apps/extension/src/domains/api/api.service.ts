@@ -15,8 +15,7 @@ import {
 } from "@/domains/api/create-extension-sse-link";
 import {
   ClaimSourceRunDocument,
-  CreateDraftJobDocument,
-  type CreateDraftJobInput,
+  CreateDraftCaptureJobDocument,
   CreateJobDocument,
   type CreateJobInput,
   SourceRunEventsDocument,
@@ -78,10 +77,10 @@ export class ApiService {
     });
   }
 
-  async createDraftJob(input: CreateDraftJobInput) {
+  async createDraftCaptureJob(input: CreateJobInput) {
     return await this.client.mutate({
-      mutation: CreateDraftJobDocument,
-      variables: { input },
+      mutation: CreateDraftCaptureJobDocument,
+      variables: { input: { ...input, createAsDraftCapture: true } },
     });
   }
 

@@ -22,6 +22,6 @@ import { CompanyService } from "./companies.service";
     CompaniesResolver,
     CompanyDescriptionService,
   ],
-  exports: [CompanyService, CompanyDescriptionService],
+  exports: [CompanyService, CompanyDescriptionService, CompanyRepository],
 })
 export class CompaniesModule {}

@@ -19,7 +19,7 @@ export class MatchAnalysisRequested extends DomainEvent {
   constructor(
     readonly matchId: string,
     readonly userId: string,
-    readonly source: { jobId?: string; draftJobId?: string },
+    readonly source: { jobId: string },
   ) {
     super();
   }

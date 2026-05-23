@@ -1,20 +1,22 @@
 import { useSearchParams } from "next/navigation";
 
-import { JobQuickFilter } from "@/gql/hooks";
+import { ApplicationQuickFilter } from "@/gql/hooks";
 
-const PARAM_TO_FILTER: Record<string, JobQuickFilter> = {
-  active: JobQuickFilter.Active,
-  incoming: JobQuickFilter.Incoming,
-  applied: JobQuickFilter.Applied,
-  new: JobQuickFilter.New,
-  duplicated: JobQuickFilter.Duplicated,
+const PARAM_TO_FILTER: Record<string, ApplicationQuickFilter> = {
+  active: ApplicationQuickFilter.Active,
+  incoming: ApplicationQuickFilter.Incoming,
+  applied: ApplicationQuickFilter.Applied,
+  new: ApplicationQuickFilter.New,
+  duplicated: ApplicationQuickFilter.Duplicated,
+  draft: ApplicationQuickFilter.Draft,
 };
 
-export function useQuickFilter(): JobQuickFilter | null {
+export function useQuickFilter(): ApplicationQuickFilter | null {
   const searchParams = useSearchParams();
   const raw = searchParams.get("q");
-  if (!raw) return JobQuickFilter.Incoming;
-  return PARAM_TO_FILTER[raw] ?? null;
+  if (!raw) return ApplicationQuickFilter.Incoming;
+  if (raw === "all") return null;
+  return PARAM_TO_FILTER[raw] ?? ApplicationQuickFilter.Incoming;
 }
 
 export function useCompanyFilter(): string | null {

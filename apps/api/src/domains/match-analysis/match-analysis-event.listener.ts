@@ -5,6 +5,7 @@ import { ResumeRepository } from "@api/domains/resumes/resumes.repository";
 import { tryRun } from "@job-tracker/try-run";
 import { Injectable, Logger, OnModuleInit } from "@nestjs/common";
 
+import { resolveJobPostingPlainText } from "./job-posting-plain-text.util";
 import { MatchAnalysisRequested } from "./match-analysis.events";
 import { MatchAnalysisService } from "./match-analysis.service";
 import { MatchAnalysisEventBus } from "./match-analysis-event.bus";
@@ -48,8 +49,10 @@ export class MatchAnalysisEventListener implements OnModuleInit {
       return;
     }
 
-    if (!job.description?.trim()) {
-      this.logger.log(`[AutoMatch] Skipping job ${jobId}: no job description`);
+    if (!resolveJobPostingPlainText(job)) {
+      this.logger.log(
+        `[AutoMatch] Skipping job ${jobId}: no job description or htmlContent`,
+      );
       return;
     }
 

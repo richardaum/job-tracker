@@ -2,6 +2,7 @@ import { withSentryConfig } from "@sentry/nextjs";
 import type { NextConfig } from "next";
 
 import { getAllowedDevOrigins } from "./config/dev-network";
+import { legacyRouteRedirects } from "./config/legacy-route-redirects";
 
 const nextConfig: NextConfig = {
   // Keep separate dist dirs so `next build` does not conflict with a running `next dev`.
@@ -13,6 +14,9 @@ const nextConfig: NextConfig = {
     ],
   },
   allowedDevOrigins: getAllowedDevOrigins(),
+  async redirects() {
+    return legacyRouteRedirects;
+  },
   serverExternalPackages: ["pdfjs-dist"],
   webpack: (config, { isServer }) => {
     if (!isServer) {

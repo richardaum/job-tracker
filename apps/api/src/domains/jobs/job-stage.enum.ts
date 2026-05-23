@@ -1,6 +1,7 @@
 import { registerEnumType } from "@nestjs/graphql";
 
 export enum ApplicationStageEnum {
+  DRAFT = "DRAFT",
   NEW = "NEW",
   APPLIED = "APPLIED",
   RECRUITER_SCREEN = "RECRUITER_SCREEN",
@@ -11,4 +12,4 @@ export enum ApplicationStageEnum {
   DUPLICATED = "DUPLICATED",
 }
 
-registerEnumType(ApplicationStageEnum, { name: "JobStage" });
+registerEnumType(ApplicationStageEnum, { name: "ApplicationStage" });

@@ -10,6 +10,7 @@ import {
   Select,
   type SelectOption,
   Stack,
+  useDialog,
 } from "@job-tracker/ui";
 import { type DialogControl } from "@job-tracker/ui";
 import React, { useState } from "react";
@@ -45,7 +46,8 @@ type DraftSalary = {
 };
 
 type SalaryEditDialogJobProps = {
-  control: DialogControl;
+  control?: DialogControl;
+  trigger?: React.ReactElement;
   job: JobDetailsValues;
   onSuccess?: (message: string) => void;
   onError?: (message: string) => void;
@@ -107,6 +109,7 @@ function initialFormFromProps(p: SalaryEditDialogProps) {
 
 export function SalaryEditDialog(props: SalaryEditDialogProps) {
   const isDraft = isDraftProps(props);
+  const internalControl = useDialog();
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState(() => initialFormFromProps(props));
   const [error, setError] = useState<string | undefined>();
@@ -124,7 +127,8 @@ export function SalaryEditDialog(props: SalaryEditDialogProps) {
         ],
   });
 
-  const { control } = props;
+  const control = isDraft ? props.control : (props.control ?? internalControl);
+  const trigger = isDraft ? undefined : props.trigger;
 
   if (control.isOpen !== prevOpen) {
     setPrevOpen(control.isOpen);
@@ -227,6 +231,7 @@ export function SalaryEditDialog(props: SalaryEditDialogProps) {
 
   return (
     <Dialog
+      trigger={trigger}
       title="Edit salary"
       open={control.isOpen}
       onOpenChange={handleOpenChange}

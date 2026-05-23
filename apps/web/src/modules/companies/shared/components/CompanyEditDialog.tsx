@@ -21,7 +21,7 @@ import { TipTapEditor } from "@/modules/jobs/details/components/TipTapEditor";
 
 export interface CompanyEditDialogJob {
   id: string;
-  company: { id: string; name: string; description?: string | null };
+  company?: { id: string; name: string; description?: string | null } | null;
 }
 
 interface CompanyEditDialogProps {

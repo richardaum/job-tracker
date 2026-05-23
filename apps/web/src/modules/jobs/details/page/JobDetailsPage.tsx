@@ -27,8 +27,11 @@ import { DescriptionTabContent } from "@/modules/jobs/details/components/Descrip
 import { HistoryPanelTabsContent } from "@/modules/jobs/details/components/HistoryPanel";
 import { NotesPanelTabsContent } from "@/modules/jobs/details/components/NotesPanel";
 import { OverviewTabContent } from "@/modules/jobs/details/components/OverviewTabContent";
+import { SourceContentTabContent } from "@/modules/jobs/details/components/SourceContentTabContent";
 import { UpdateStatusAction } from "@/modules/jobs/details/components/UpdateStatusAction";
+import { useJobAutoFillFromQuery } from "@/modules/jobs/details/hooks/useJobAutoFillFromQuery";
 import { useJobDetailsViewModel } from "@/modules/jobs/details/hooks/useJobDetailsViewModel";
+import { jobDetailDisplayTitle } from "@/modules/jobs/details/utils/job-detail-title";
 import { type JobDetailsValues } from "@/modules/jobs/details/utils/job-details.shared";
 import { DeleteJobDialog } from "@/modules/jobs/list/components/DeleteJobDialog";
 import { StatusBadge } from "@/modules/jobs/shared/components/StatusBadge";
@@ -54,10 +57,11 @@ export default function JobDetailsPage({ params }: PageProps) {
     job,
     currentStage,
     currentStageReason,
-    draftJobId,
     sourcePrimaryText,
     status,
-    refetch,
+    displayTitle,
+    fillButtonState,
+    triggerFillAutomatically,
   } = useJobDetailsViewModel(id);
   const isDesktop = useBreakpoint("(min-width: 1024px)");
 
@@ -100,11 +104,38 @@ export default function JobDetailsPage({ params }: PageProps) {
   const handleDescriptionError = () =>
     showToast("Failed to save description.", "error");
 
-  function renderPrimaryTabTriggers() {
+  const handleFillAutomatically = React.useCallback(async () => {
+    const { error } = await triggerFillAutomatically();
+    if (error) {
+      enqueueToast({
+        title:
+          error instanceof Error
+            ? error.message.replace("Bad Request Exception: ", "")
+            : "Failed to start automatic fill.",
+        intent: "error",
+      });
+      return;
+    }
+    enqueueToast({ title: "Automatic fill queued.", intent: "success" });
+  }, [enqueueToast, triggerFillAutomatically]);
+
+  useJobAutoFillFromQuery({
+    jobReady: Boolean(job) && status === "success",
+    onFill: handleFillAutomatically,
+  });
+
+  function renderPrimaryTabTriggers({
+    showSourceContent,
+  }: {
+    showSourceContent: boolean;
+  }) {
     return (
       <>
         <TabsTrigger value="overview">Overview</TabsTrigger>
         <TabsTrigger value="description">Description</TabsTrigger>
+        {showSourceContent ? (
+          <TabsTrigger value="source">Source content</TabsTrigger>
+        ) : null}
       </>
     );
   }
@@ -113,13 +144,21 @@ export default function JobDetailsPage({ params }: PageProps) {
     currentJob,
     overviewClassName,
     descriptionClassName,
+    sourceContentClassName,
+    showSourceContent,
     overviewSourcePrimaryText,
   }: {
     currentJob: JobDetailsValues;
     overviewClassName: string;
     descriptionClassName: string;
+    sourceContentClassName: string;
+    showSourceContent: boolean;
     overviewSourcePrimaryText: string | null;
   }) {
+    const html =
+      showSourceContent && currentJob.htmlContent
+        ? currentJob.htmlContent
+        : null;
     return (
       <>
         <TabsContent value="overview" className={cn(overviewClassName)}>
@@ -128,7 +167,6 @@ export default function JobDetailsPage({ params }: PageProps) {
             sourcePrimaryText={overviewSourcePrimaryText}
             onSuccess={handleEntitySuccess}
             onError={handleEntityError}
-            refetch={refetch}
           />
         </TabsContent>
 
@@ -139,6 +177,12 @@ export default function JobDetailsPage({ params }: PageProps) {
             onError={handleDescriptionError}
           />
         </TabsContent>
+
+        {html !== null ? (
+          <TabsContent value="source" className={cn(sourceContentClassName)}>
+            <SourceContentTabContent htmlContent={html} />
+          </TabsContent>
+        ) : null}
       </>
     );
   }
@@ -168,6 +212,13 @@ export default function JobDetailsPage({ params }: PageProps) {
       align="end"
     >
       <DropdownMenuItem
+        disabled={fillButtonState === "loading"}
+        onSelect={() => void handleFillAutomatically()}
+        icon={<SparkleIcon size={14} weight="regular" />}
+      >
+        Fill automatically
+      </DropdownMenuItem>
+      <DropdownMenuItem
         onSelect={() => {
           if (job?.match?.id) {
             router.push(`/matches/${job.match.id}`);
@@ -182,13 +233,6 @@ export default function JobDetailsPage({ params }: PageProps) {
       <DropdownMenuItem onSelect={() => setActionsOpen(true)}>
         Update status
       </DropdownMenuItem>
-      {draftJobId ? (
-        <DropdownMenuItem
-          onSelect={() => router.push(`/draft-jobs/${draftJobId}`)}
-        >
-          View original draft
-        </DropdownMenuItem>
-      ) : null}
       <DropdownMenuSeparator />
       <DropdownMenuItem destructive onSelect={() => setDeleteDialogOpen(true)}>
         Remove
@@ -205,13 +249,21 @@ export default function JobDetailsPage({ params }: PageProps) {
       >
         <div className={cn("flex items-center justify-between gap-3")}>
           <BackToLink href="/jobs">Back to jobs</BackToLink>
-          {actionsMenu ? (
-            <div className={cn("shrink-0")}>{actionsMenu}</div>
+          {job ? (
+            <div
+              className={cn(
+                "flex shrink-0 flex-wrap items-center justify-end gap-2",
+              )}
+            >
+              {actionsMenu}
+            </div>
           ) : null}
         </div>
         <div className={cn("flex items-center gap-3")}>
           <Heading as="h1" size="2xl" className={cn("min-w-0")}>
-            <span>{job?.title ?? "Job details"}</span>{" "}
+            <span>
+              {displayTitle !== null ? displayTitle : "Job details"}
+            </span>{" "}
           </Heading>
           {job ? (
             <StatusBadge
@@ -234,7 +286,7 @@ export default function JobDetailsPage({ params }: PageProps) {
             <DeleteJobDialog
               trigger={<span aria-hidden style={{ display: "none" }} />}
               jobId={job.id}
-              jobTitle={job.title}
+              jobTitle={jobDetailDisplayTitle(job.title)}
               open={deleteDialogOpen}
               onOpenChange={setDeleteDialogOpen}
               onSuccess={() => router.push("/jobs")}
@@ -265,7 +317,9 @@ export default function JobDetailsPage({ params }: PageProps) {
             className={cn("flex size-full min-h-0  flex-col")}
           >
             <TabsList className={cn("w-full shrink-0 flex-wrap")}>
-              {renderPrimaryTabTriggers()}
+              {renderPrimaryTabTriggers({
+                showSourceContent: Boolean(job.htmlContent),
+              })}
               <TabsTrigger value="notes">Notes</TabsTrigger>
               <TabsTrigger value="history">History</TabsTrigger>
             </TabsList>
@@ -274,6 +328,8 @@ export default function JobDetailsPage({ params }: PageProps) {
               currentJob: job,
               overviewClassName: cn("mt-3 flex-1 min-h-0 overflow-auto px-2"),
               descriptionClassName: cn("mt-3 flex-1 min-h-0 overflow-auto"),
+              sourceContentClassName: cn("mt-3 flex-1 min-h-0 overflow-hidden"),
+              showSourceContent: Boolean(job.htmlContent),
               overviewSourcePrimaryText: sourcePrimaryText,
             })}
 
@@ -295,12 +351,20 @@ export default function JobDetailsPage({ params }: PageProps) {
               defaultValue="overview"
               className={cn("flex size-full min-h-0  flex-col")}
             >
-              <TabsList>{renderPrimaryTabTriggers()}</TabsList>
+              <TabsList>
+                {renderPrimaryTabTriggers({
+                  showSourceContent: Boolean(job.htmlContent),
+                })}
+              </TabsList>
 
               {renderPrimaryTabContents({
                 currentJob: job,
                 overviewClassName: cn("mt-3 flex-1 min-h-0 overflow-auto px-2"),
                 descriptionClassName: cn("mt-3 flex-1 min-h-0 overflow-auto"),
+                sourceContentClassName: cn(
+                  "mt-3 flex-1 min-h-0 overflow-hidden",
+                ),
+                showSourceContent: Boolean(job.htmlContent),
                 overviewSourcePrimaryText: sourcePrimaryText,
               })}
             </Tabs>

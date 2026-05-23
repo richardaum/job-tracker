@@ -2,17 +2,14 @@ import { AsyncMetadataEmbedded } from "@api/database/embeddeds/async-metadata.em
 import { FitClassificationEnum } from "@api/domains/match-analysis/fit-classification.enum";
 import { FitSourceEnum } from "@api/domains/match-analysis/fit-source.enum";
 import { FitVerdictEnum } from "@api/domains/match-analysis/fit-verdict.enum";
+import { IsNotEmpty, IsString } from "class-validator";
 import {
   Column,
   CreateDateColumn,
   Entity,
-  JoinColumn,
-  ManyToOne,
   PrimaryColumn,
   UpdateDateColumn,
 } from "typeorm";
-
-import { DraftJobEntity } from "./draft-job.entity";
 
 export enum RequirementTypeEnum {
   MustHave = "MustHave",
@@ -38,18 +35,13 @@ export class MatchAnalysisEntity {
   @PrimaryColumn({ type: "text" })
   id!: string;
 
-  @Column({ name: "job_id", type: "text", nullable: true })
-  jobId!: string | null;
-
-  @Column({ name: "draft_job_id", type: "text", nullable: true })
-  draftJobId!: string | null;
+  @Column({ name: "job_id", type: "text" })
+  @IsString()
+  @IsNotEmpty()
+  jobId!: string;
 
   @Column({ name: "user_id", type: "text", nullable: true })
   userId!: string | null;
-
-  @ManyToOne(() => DraftJobEntity, { nullable: true, onDelete: "CASCADE" })
-  @JoinColumn({ name: "draft_job_id" })
-  draftJob?: DraftJobEntity | null;
 
   @Column({ name: "resume_id", type: "text" })
   resumeId!: string;

@@ -25,7 +25,6 @@ function formatTitle(
       title?: string | null;
       company?: { name?: string | null } | null;
     } | null;
-    draftJob?: { title?: string | null } | null;
   } | null,
 ): string | null {
   if (matchAnalysis?.job?.title) {
@@ -33,9 +32,6 @@ function formatTitle(
     return company
       ? `${matchAnalysis.job.title} @ ${company}`
       : matchAnalysis.job.title;
-  }
-  if (matchAnalysis?.draftJob?.title) {
-    return matchAnalysis.draftJob.title;
   }
   return null;
 }

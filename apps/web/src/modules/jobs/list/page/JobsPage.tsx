@@ -10,7 +10,7 @@ import {
   useDialog,
 } from "@job-tracker/ui";
 import { PlusIcon } from "@phosphor-icons/react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { EmptyState } from "@/components/empty-state";
 import { JobCard } from "@/modules/jobs/list/components/JobCard";
@@ -21,6 +21,15 @@ import { QuickFilters } from "@/modules/jobs/list/components/QuickFilters";
 import { useJobsListViewModel } from "@/modules/jobs/list/hooks/useJobsListViewModel";
 import { SearchInput } from "@/modules/jobs/shared/components/SearchInput";
 import { useToastQueue } from "@/modules/jobs/shared/hooks/useToastQueue";
+
+function stripSearchKeys(
+  currentSearch: string,
+  keysToRemove: Array<string>,
+): string {
+  const params = new URLSearchParams(currentSearch);
+  for (const key of keysToRemove) params.delete(key);
+  return params.toString();
+}
 
 function JobListCardSkeleton() {
   return (
@@ -78,6 +87,14 @@ function JobsListError() {
 
 export default function JobsPage() {
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  function navigateDeletingSearchKeys(keys: Array<string>) {
+    const qs = stripSearchKeys(searchParams.toString(), keys);
+    router.push(qs ? `${pathname}?${qs}` : pathname);
+  }
+
   const { jobs, companyFilter, error, runIdFilter, showInitialLoading } =
     useJobsListViewModel();
 
@@ -119,13 +136,11 @@ export default function JobsPage() {
       <QuickFilters />
       <JobsCompanyFilterBanner
         companyName={companyFilter}
-        onClear={() => router.push("/jobs")}
+        onClear={() => navigateDeletingSearchKeys(["company"])}
       />
       <JobsImportRunFilterBanner
         runId={runIdFilter}
-        onClear={() => {
-          router.push("/jobs");
-        }}
+        onClear={() => navigateDeletingSearchKeys(["runId"])}
       />
 
       {/* Content */}

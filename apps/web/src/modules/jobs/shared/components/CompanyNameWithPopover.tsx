@@ -34,8 +34,13 @@ export function CompanyNameWithPopover({
 }: CompanyNameWithPopoverProps) {
   const router = useRouter();
   const editCompany = useDialog();
-  const name = job.company.name;
-  const description = job.company.description;
+  const company = job.company;
+  const name = company?.name?.trim() ?? "";
+  if (!company || !name) {
+    return null;
+  }
+
+  const description = company.description;
   const hasDescription = Boolean(description);
 
   return (
@@ -84,7 +89,7 @@ export function CompanyNameWithPopover({
             className={cn("size-6 opacity-100")}
             onClick={(e) => {
               e.stopPropagation();
-              router.push(`/companies/${encodeURIComponent(job.company.id)}`);
+              router.push(`/companies/${encodeURIComponent(company.id)}`);
             }}
           />
         </div>

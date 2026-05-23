@@ -12,13 +12,13 @@ import { ArrowRightIcon } from "@phosphor-icons/react";
 import type { ReactNode } from "react";
 
 import { EmptyState } from "@/components/empty-state";
-import { JobStage } from "@/gql/hooks";
+import { ApplicationStage } from "@/gql/hooks";
 import { formatStage } from "@/modules/jobs/shared/components/status-badge.utils";
 
 interface StageTimelineItem {
   id: string;
-  fromStage?: JobStage | null;
-  toStage: JobStage;
+  fromStage?: ApplicationStage | null;
+  toStage: ApplicationStage;
   reason?: string | null;
   dateLabel: string;
 }
@@ -113,19 +113,21 @@ export function StageTimeline({
   );
 }
 
-function getStageTimelineDotColor(stage: JobStage) {
+function getStageTimelineDotColor(stage: ApplicationStage) {
   switch (stage) {
-    case JobStage.Offer:
+    case ApplicationStage.Draft:
+      return "text-text-muted";
+    case ApplicationStage.Offer:
       return "text-text-success";
-    case JobStage.Rejected:
+    case ApplicationStage.Rejected:
       return "text-text-error";
-    case JobStage.RecruiterScreen:
+    case ApplicationStage.RecruiterScreen:
       return "text-text-warning";
-    case JobStage.Technical:
+    case ApplicationStage.Technical:
       return "text-text-brand";
-    case JobStage.CulturalFit:
+    case ApplicationStage.CulturalFit:
       return "text-text-brand";
-    case JobStage.Duplicated:
+    case ApplicationStage.Duplicated:
       return "text-text-warning";
     default:
       return "text-text-secondary";

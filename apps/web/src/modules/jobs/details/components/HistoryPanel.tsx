@@ -22,7 +22,7 @@ import React from "react";
 
 import { EmptyState } from "@/components/empty-state";
 import {
-  JobStage,
+  ApplicationStage,
   JobStageEventsDocument,
   useDeleteJobStageEventMutation,
   useJobStageEventsQuery,
@@ -38,15 +38,16 @@ import { StageTimeline } from "@/modules/jobs/shared/components/StageTimeline";
 
 import { UpdateStatusAction } from "./UpdateStatusAction";
 
-const stageOptions: Array<{ value: JobStage; label: string }> = [
-  { value: JobStage.New, label: "New" },
-  { value: JobStage.Duplicated, label: "Duplicated" },
-  { value: JobStage.Applied, label: "Applied" },
-  { value: JobStage.RecruiterScreen, label: "Recruiter Screen" },
-  { value: JobStage.Technical, label: "Technical" },
-  { value: JobStage.CulturalFit, label: "Cultural Fit" },
-  { value: JobStage.Offer, label: "Offer" },
-  { value: JobStage.Rejected, label: "Rejected" },
+const stageOptions: Array<{ value: ApplicationStage; label: string }> = [
+  { value: ApplicationStage.Draft, label: "Draft" },
+  { value: ApplicationStage.New, label: "New" },
+  { value: ApplicationStage.Duplicated, label: "Duplicated" },
+  { value: ApplicationStage.Applied, label: "Applied" },
+  { value: ApplicationStage.RecruiterScreen, label: "Recruiter Screen" },
+  { value: ApplicationStage.Technical, label: "Technical" },
+  { value: ApplicationStage.CulturalFit, label: "Cultural Fit" },
+  { value: ApplicationStage.Offer, label: "Offer" },
+  { value: ApplicationStage.Rejected, label: "Rejected" },
 ];
 
 const quickScheduleOptions = [
@@ -69,7 +70,7 @@ export function HistoryPanel({
     null,
   );
   const [selectedStage, setSelectedStage] = React.useState<
-    JobStage | undefined
+    ApplicationStage | undefined
   >();
   const [scheduledAtDraft, setScheduledAtDraft] = React.useState("");
   const [reasonDraft, setReasonDraft] = React.useState("");
@@ -88,7 +89,7 @@ export function HistoryPanel({
     });
 
   const stageEvents = eventsData?.jobStageEvents ?? [];
-  const currentStage = stageEvents[0]?.toStage ?? JobStage.New;
+  const currentStage = stageEvents[0]?.toStage ?? ApplicationStage.New;
   const editingEvent = stageEvents.find((event) => event.id === editingEventId);
   const isMutatingStageEvent = updatingStageEvent || deletingStageEvent;
   const canSaveEdit = Boolean(
@@ -243,7 +244,9 @@ export function HistoryPanel({
           <FormField label="Status" htmlFor={`edit-history-status-${jobId}`}>
             <Select
               value={selectedStage}
-              onValueChange={(value) => setSelectedStage(value as JobStage)}
+              onValueChange={(value) =>
+                setSelectedStage(value as ApplicationStage)
+              }
               options={stageOptions}
               size="sm"
             />

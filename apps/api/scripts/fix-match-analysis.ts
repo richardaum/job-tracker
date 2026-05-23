@@ -2,17 +2,16 @@ import "reflect-metadata";
 import "dotenv/config";
 
 import { buildDataSourceOptions } from "@api/database/data-source-options";
-import { DraftJobEntity } from "@api/database/entities/draft-job.entity";
 import { JobEntity } from "@api/database/entities/job.entity";
 import { JobStageEventEntity } from "@api/database/entities/job-stage-event.entity";
 import { MatchAnalysisEntity } from "@api/database/entities/match-analysis.entity";
 import { ResumeEntity } from "@api/database/entities/resume.entity";
 import { UserEntity } from "@api/database/entities/user.entity";
 import { WorkPreferencesEntity } from "@api/database/entities/work-preferences.entity";
-import { DraftJobsRepository } from "@api/domains/draft-jobs/draft-jobs.repository";
 import { JobEventBus } from "@api/domains/jobs/job-event.bus";
 import { ApplicationQuickFilterEnum } from "@api/domains/jobs/job-quick-filter.enum";
 import { JobsRepository } from "@api/domains/jobs/jobs.repository";
+import { JobsListQuery } from "@api/domains/jobs/jobs-list.query";
 import { MatchAnalysisRepository } from "@api/domains/match-analysis/match-analysis.repository";
 import { MatchAnalysisService } from "@api/domains/match-analysis/match-analysis.service";
 import { MatchAnalysisAiService } from "@api/domains/match-analysis/match-analysis-ai.service";
@@ -71,7 +70,6 @@ function parseArgs(): {
     TypeOrmModule.forFeature([
       JobEntity,
       JobStageEventEntity,
-      DraftJobEntity,
       MatchAnalysisEntity,
       ResumeEntity,
       UserEntity,
@@ -82,7 +80,7 @@ function parseArgs(): {
   providers: [
     JobEventBus,
     JobsRepository,
-    DraftJobsRepository,
+    JobsListQuery,
     MatchAnalysisEventBus,
     MatchAnalysisRepository,
     MatchAnalysisAiService,
@@ -109,7 +107,7 @@ async function main() {
   const em = app.get(EntityManager);
   const matchRepo = app.get(MatchAnalysisRepository);
   const resumeRepo = app.get(ResumeRepository);
-  const jobRepo = app.get(JobsRepository);
+  const listQuery = app.get(JobsListQuery);
   const matchService = app.get(MatchAnalysisService);
 
   const user = await em.getRepository(UserEntity).findOne({ where: { email } });
@@ -156,9 +154,10 @@ async function main() {
   }
 
   const allJobs = activeOnly
-    ? await jobRepo.findAllByUserId(userId, ApplicationQuickFilterEnum.ACTIVE)
-    : await jobRepo.findAllByUserId(userId);
+    ? await listQuery.findAllByUserId(userId, ApplicationQuickFilterEnum.ACTIVE)
+    : await listQuery.findAllByUserId(userId); // Omitting filter follows PRD "All jobs" semantics (includes DRAFT).
 
+  // Batch only rows with persisted TipTap description; unparsed drafts (often description-null) skip here.
   const jobsToProcess = allJobs.filter(
     (a) => a.description?.trim() && a.description.length > 0,
   );

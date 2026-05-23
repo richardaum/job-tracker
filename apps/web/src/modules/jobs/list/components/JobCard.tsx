@@ -7,7 +7,6 @@ import {
   ListItemCard,
   Stack,
   Text,
-  useDialog,
 } from "@job-tracker/ui";
 import {
   ArrowSquareRightIcon,
@@ -17,8 +16,9 @@ import {
 } from "@phosphor-icons/react";
 import NextLink from "next/link";
 
-import { JobStage } from "@/gql/hooks";
+import { ApplicationStage } from "@/gql/hooks";
 import { SalaryEditDialog } from "@/modules/jobs/details/components/SalaryEditDialog";
+import { jobDetailDisplayTitle } from "@/modules/jobs/details/utils/job-detail-title";
 import { formatDateTime } from "@/modules/jobs/details/utils/job-details.shared";
 import { DeleteJobDialog } from "@/modules/jobs/list/components/DeleteJobDialog";
 import { JobQuickEditDialog } from "@/modules/jobs/list/components/JobQuickEditDialog";
@@ -54,7 +54,7 @@ function CurrentStageBadge({
   historyLoading,
   onRequestStageEvents,
 }: {
-  listStage: JobStage;
+  listStage: ApplicationStage;
   listReason: string | null;
   jobStageEvents: Array<JobCardStageEventRow>;
   historyLoading: boolean;
@@ -118,14 +118,14 @@ function CurrentStageDateText({
   jobStageEvents,
   stageEventsRequested,
 }: {
-  listStage: JobStage;
+  listStage: ApplicationStage;
   listStatusAt: string;
   jobStageEvents: Array<JobCardStageEventRow>;
   stageEventsRequested: boolean;
 }) {
   if (stageEventsRequested && jobStageEvents.length > 0) {
     const currentStageEvent = jobStageEvents[0] ?? null;
-    const currentStage = currentStageEvent?.toStage ?? JobStage.New;
+    const currentStage = currentStageEvent?.toStage ?? ApplicationStage.New;
     const statusAt =
       currentStageEvent?.scheduledAt ??
       currentStageEvent?.createdAt ??
@@ -168,15 +168,15 @@ export function JobCard({ job: app, onSuccess, onError }: JobCardProps) {
     salaryActionLabel,
   } = useJobCardViewModel(app);
 
-  const quickEditDialog = useDialog();
-  const salaryDialog = useDialog();
   const hasJobUrls = normalizeJobUrls(app.urls).length > 0;
+  const displayTitle = jobDetailDisplayTitle(app.title);
+  const displayCompanyMeta = Boolean(app.company?.name?.trim());
 
   return (
     <ListItemCard
       title={
         <ListItemCard.Title asChild>
-          <NextLink href={`/jobs/${app.id}`}>{app.title}</NextLink>
+          <NextLink href={`/jobs/${app.id}`}>{displayTitle}</NextLink>
         </ListItemCard.Title>
       }
       actions={
@@ -199,30 +199,21 @@ export function JobCard({ job: app, onSuccess, onError }: JobCardProps) {
             historyLoading={stageEventsLoading}
             onRequestStageEvents={requestStageEvents}
           />
-          <IconButton
-            intent="ghost"
-            size="sm"
-            label={`Quick edit ${app.title}`}
-            tooltip="Quick edit"
-            className={cn(ListItemCard.actionIconButtonClassName)}
-            icon={<PencilSimpleIcon size={13} weight="regular" />}
-            onClick={quickEditDialog.open}
-          />
-          <IconButton
-            intent="ghost"
-            size="sm"
-            label={salaryActionLabel}
-            tooltip={salaryActionLabel}
-            className={cn(ListItemCard.actionIconButtonClassName)}
-            icon={<CurrencyDollarIcon size={13} weight="regular" />}
-            onClick={salaryDialog.open}
-          />
           <JobQuickEditDialog
-            control={quickEditDialog}
+            trigger={
+              <IconButton
+                intent="ghost"
+                size="sm"
+                label={`Quick edit ${displayTitle}`}
+                tooltip="Quick edit"
+                className={cn(ListItemCard.actionIconButtonClassName)}
+                icon={<PencilSimpleIcon size={13} weight="regular" />}
+              />
+            }
             job={{
               id: app.id,
-              title: app.title,
-              company: app.company.name,
+              title: app.title ?? "",
+              company: app.company?.name ?? "",
               urls: app.urls,
               location: app.location,
               workRegion: app.workRegion,
@@ -231,24 +222,17 @@ export function JobCard({ job: app, onSuccess, onError }: JobCardProps) {
             onError={onError}
           />
           <SalaryEditDialog
-            control={salaryDialog}
-            job={app}
-            onSuccess={onSuccess}
-            onError={onError}
-          />
-          <DeleteJobDialog
             trigger={
               <IconButton
                 intent="ghost"
                 size="sm"
-                label={`Delete ${app.title}`}
-                tooltip="Delete"
+                label={salaryActionLabel}
+                tooltip={salaryActionLabel}
                 className={cn(ListItemCard.actionIconButtonClassName)}
-                icon={<TrashIcon size={13} weight="regular" />}
+                icon={<CurrencyDollarIcon size={13} weight="regular" />}
               />
             }
-            jobId={app.id}
-            jobTitle={app.title}
+            job={app}
             onSuccess={onSuccess}
             onError={onError}
           />
@@ -261,16 +245,41 @@ export function JobCard({ job: app, onSuccess, onError }: JobCardProps) {
             onSuccess={onSuccess}
             onError={onError}
           />
+          <DeleteJobDialog
+            trigger={
+              <IconButton
+                intent="ghost"
+                size="sm"
+                label={`Delete ${displayTitle}`}
+                tooltip="Delete"
+                className={cn(ListItemCard.actionIconButtonClassName)}
+                icon={<TrashIcon size={13} weight="regular" />}
+              />
+            }
+            jobId={app.id}
+            jobTitle={displayTitle}
+            onSuccess={onSuccess}
+            onError={onError}
+          />
         </ListItemCard.Actions>
       }
       meta={
         <>
-          <CompanyNameWithPopover
-            job={app}
-            onSuccess={onSuccess}
-            onError={onError}
-          />
-          <InlineMetaDot />
+          {displayCompanyMeta ? (
+            <>
+              <span
+                className={cn("contents")}
+                data-testid="job-card-company-meta"
+              >
+                <CompanyNameWithPopover
+                  job={app}
+                  onSuccess={onSuccess}
+                  onError={onError}
+                />
+              </span>
+              <InlineMetaDot />
+            </>
+          ) : null}
           <CurrentStageDateText
             listStage={app.currentStage}
             listStatusAt={app.currentStageAt}

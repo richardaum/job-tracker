@@ -1,168 +1,388 @@
-import { SalaryEmbedded } from "@api/database/embeddeds/salary.embedded";
-import type { JobNoteEntity } from "@api/database/entities/job-note.entity";
-import type { JobStageEventEntity } from "@api/database/entities/job-stage-event.entity";
+import { JobNoteEntity } from "@api/database/entities/job-note.entity";
+import { JobStageEventEntity } from "@api/database/entities/job-stage-event.entity";
+import {
+  SummaryGenerationRequested,
+  SummaryStatusChanged,
+} from "@api/domains/jobs/job.events";
+import { JobAsyncMetadataRepository } from "@api/domains/jobs/job-async-metadata.repository";
 import { JobEventBus } from "@api/domains/jobs/job-event.bus";
+import { ApplicationStageEnum } from "@api/domains/jobs/job-stage.enum";
 import { JobsRepository } from "@api/domains/jobs/jobs.repository";
-import type { Job } from "@api/domains/jobs/jobs.schema";
-import { SalaryPeriodEnum } from "@api/domains/jobs/salary/salary-period.enum";
 import { AsyncMetadataStatusEnum } from "@api/domains/shared/async-metadata.type";
-import type { Repository } from "typeorm";
+import { htmlToPlainText } from "@api/domains/shared/html-plain-text.util";
+import { tipTapToPlainText } from "@job-tracker/tiptap";
+import { Repository } from "typeorm";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { SummaryService } from "./summary.service";
 import { SummaryAiService } from "./summary-ai.service";
 
-function makeJob(overrides: Partial<Job> = {}): Job {
-  return {
-    id: "job-1",
-    userId: "user-1",
-    title: "Software Engineer",
-    companyId: "company-1",
-    company: {
-      id: "company-1",
-      name: "Acme Corp",
-      userId: "user-1",
-      description: null,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-    description: null,
-    urls: [],
-    source: null,
-    salary: null,
-    tags: [],
-    location: null,
-    workRegion: null,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    sourceRunId: null,
-    ...overrides,
-  } as unknown as Job;
-}
+const TIPTAP_HELLO = JSON.stringify({
+  type: "doc",
+  content: [
+    { type: "paragraph", content: [{ type: "text", text: "Hello JD" }] },
+  ],
+});
 
 describe("SummaryService", () => {
   let service: SummaryService;
-  let summaryAiService: { generateSummary: ReturnType<typeof vi.fn> };
-  let eventBus: { emit: ReturnType<typeof vi.fn> };
-  let appRepo: JobsRepository;
-  let notesRepo: { find: ReturnType<typeof vi.fn> };
-  let stageEventsRepo: { createQueryBuilder: ReturnType<typeof vi.fn> };
+  let appRepo: Pick<JobsRepository, "findOneByIdAndUserId" | "updateSummary">;
+  let asyncMetadataRepo: Pick<JobAsyncMetadataRepository, "updateCas">;
+  let summaryAiService: Pick<SummaryAiService, "generateSummary">;
+  let eventBus: Pick<JobEventBus, "emit">;
+  /** Shared chain returned by `stageEventsRepo.createQueryBuilder("e")`. */
+  let stageTimelineQb: {
+    where: ReturnType<typeof vi.fn>;
+    orderBy: ReturnType<typeof vi.fn>;
+    addOrderBy: ReturnType<typeof vi.fn>;
+    getMany: ReturnType<typeof vi.fn>;
+  };
+  let stageEventsRepo: Pick<
+    Repository<JobStageEventEntity>,
+    "createQueryBuilder"
+  >;
+  let notesRepo: Pick<Repository<JobNoteEntity>, "find">;
 
   beforeEach(() => {
-    summaryAiService = {
-      generateSummary: vi.fn().mockResolvedValue("Summary text"),
-    };
+    appRepo = { findOneByIdAndUserId: vi.fn(), updateSummary: vi.fn() };
+
+    asyncMetadataRepo = { updateCas: vi.fn() };
+
+    summaryAiService = { generateSummary: vi.fn() };
+
     eventBus = { emit: vi.fn() };
 
-    appRepo = {
-      findOneByIdAndUserId: vi.fn(),
-      updateSummaryMetadata: vi.fn().mockResolvedValue(true),
-      updateSummary: vi.fn().mockResolvedValue(true),
-    } as unknown as JobsRepository;
+    notesRepo = { find: vi.fn().mockResolvedValue([]) };
 
-    const mockQb = {
+    stageTimelineQb = {
       where: vi.fn().mockReturnThis(),
       orderBy: vi.fn().mockReturnThis(),
       addOrderBy: vi.fn().mockReturnThis(),
       getMany: vi.fn().mockResolvedValue([]),
     };
-    stageEventsRepo = { createQueryBuilder: vi.fn().mockReturnValue(mockQb) };
-    notesRepo = { find: vi.fn().mockResolvedValue([]) };
+
+    stageEventsRepo = {
+      createQueryBuilder: vi.fn(() => stageTimelineQb),
+    } as unknown as Pick<Repository<JobStageEventEntity>, "createQueryBuilder">;
 
     service = new SummaryService(
-      summaryAiService as unknown as SummaryAiService,
-      eventBus as unknown as JobEventBus,
-      appRepo,
+      summaryAiService as SummaryAiService,
+      eventBus as JobEventBus,
+      appRepo as JobsRepository,
+      asyncMetadataRepo as JobAsyncMetadataRepository,
       stageEventsRepo as unknown as Repository<JobStageEventEntity>,
-      notesRepo as unknown as Repository<JobNoteEntity>,
+      notesRepo as Repository<JobNoteEntity>,
     );
   });
 
-  it("doGenerate with salary null → salary text omitted from context", async () => {
-    const job = makeJob({ salary: null });
-    vi.mocked(appRepo.findOneByIdAndUserId).mockResolvedValue(job);
+  it("generateSummary skips when job is missing", async () => {
+    vi.mocked(appRepo.findOneByIdAndUserId).mockResolvedValue(null);
 
-    await service.doGenerate("job-1", "user-1");
+    await service.generateSummary("job-1", "user-1");
 
-    expect(summaryAiService.generateSummary).toHaveBeenCalledTimes(1);
-    const contextArg = summaryAiService.generateSummary.mock
-      .calls[0][0] as string;
-    expect(contextArg).toContain("Software Engineer");
-    expect(contextArg).not.toContain("Salary:");
+    expect(asyncMetadataRepo.updateCas).not.toHaveBeenCalled();
+    expect(eventBus.emit).not.toHaveBeenCalled();
   });
 
-  it("doGenerate with salary.minCents set → salary text includes min value", async () => {
-    const embedded = new SalaryEmbedded();
-    embedded.minCents = 100000;
-    embedded.currency = "USD";
-    embedded.period = SalaryPeriodEnum.YEAR;
-
-    const job = makeJob({ salary: embedded });
-    vi.mocked(appRepo.findOneByIdAndUserId).mockResolvedValue(job);
-
-    await service.doGenerate("job-1", "user-1");
-
-    const contextArg = summaryAiService.generateSummary.mock
-      .calls[0][0] as string;
-    expect(contextArg).toContain("Salary:");
-    expect(contextArg).toContain("$1,000");
-    expect(contextArg).toContain("USD");
-    expect(contextArg).toContain("YEAR");
-  });
-
-  it("doGenerate with salary fully populated → all fields reflected", async () => {
-    const embedded = new SalaryEmbedded();
-    embedded.minCents = 5000000;
-    embedded.maxCents = 7000000;
-    embedded.currency = "BRL";
-    embedded.period = SalaryPeriodEnum.MONTH;
-
-    const job = makeJob({ salary: embedded });
-    vi.mocked(appRepo.findOneByIdAndUserId).mockResolvedValue(job);
-
-    await service.doGenerate("job-1", "user-1");
-
-    const contextArg = summaryAiService.generateSummary.mock
-      .calls[0][0] as string;
-    expect(contextArg).toContain("$50,000");
-    expect(contextArg).toContain("$70,000");
-    expect(contextArg).toContain("BRL");
-    expect(contextArg).toContain("MONTH");
-  });
-
-  it("doGenerate with salary partial (only min, no max) → includes only set fields", async () => {
-    const embedded = new SalaryEmbedded();
-    embedded.minCents = 250000;
-    embedded.currency = "EUR";
-    embedded.period = SalaryPeriodEnum.MONTH;
-
-    const job = makeJob({ salary: embedded });
-    vi.mocked(appRepo.findOneByIdAndUserId).mockResolvedValue(job);
-
-    await service.doGenerate("job-1", "user-1");
-
-    const contextArg = summaryAiService.generateSummary.mock
-      .calls[0][0] as string;
-    expect(contextArg).toContain("$2,500");
-    expect(contextArg).toContain("EUR");
-  });
-
-  it("doGenerate failure → marks metadata as FAILED with error message", async () => {
-    const job = makeJob({ salary: null, summaryMetadata: undefined });
-    vi.mocked(appRepo.findOneByIdAndUserId).mockResolvedValue(job);
-    const error = new Error("AI service unavailable");
-    vi.mocked(summaryAiService.generateSummary).mockRejectedValue(error);
-
-    await service.doGenerate("job-1", "user-1");
-
-    expect(appRepo.updateSummaryMetadata).toHaveBeenCalledWith(
-      "job-1",
-      { status: AsyncMetadataStatusEnum.PROCESSING },
-      {
-        status: AsyncMetadataStatusEnum.FAILED,
-        error: "AI service unavailable",
+  it("generateSummary skips when summary is already PROCESSING", async () => {
+    vi.mocked(appRepo.findOneByIdAndUserId).mockResolvedValue({
+      id: "job-1",
+      title: "T",
+      summaryMetadata: {
+        status: AsyncMetadataStatusEnum.PROCESSING,
+        error: null,
+        timestamp: null,
       },
+    } as never);
+
+    await service.generateSummary("job-1", "user-1");
+
+    expect(asyncMetadataRepo.updateCas).not.toHaveBeenCalled();
+  });
+
+  it("generateSummary transitions metadata to PROCESSING and emits events on success", async () => {
+    vi.mocked(appRepo.findOneByIdAndUserId).mockResolvedValue({
+      id: "job-1",
+      title: "T",
+      company: { name: "Co" },
+      description: TIPTAP_HELLO,
+      summaryMetadata: null,
+    } as never);
+    vi.mocked(asyncMetadataRepo.updateCas).mockResolvedValueOnce(true);
+
+    await service.generateSummary("job-1", "user-1");
+
+    expect(asyncMetadataRepo.updateCas).toHaveBeenCalledWith(
+      "summary",
+      "job-1",
+      "user-1",
+      null,
+      { status: AsyncMetadataStatusEnum.PROCESSING },
+    );
+
+    expect(eventBus.emit).toHaveBeenCalledWith(
+      expect.any(SummaryStatusChanged),
+    );
+    expect(eventBus.emit).toHaveBeenCalledWith(
+      expect.any(SummaryGenerationRequested),
+    );
+  });
+
+  it("generateSummary exits quietly when optimistic update fails", async () => {
+    vi.mocked(appRepo.findOneByIdAndUserId).mockResolvedValue({
+      id: "job-1",
+      title: "T",
+      description: TIPTAP_HELLO,
+      summaryMetadata: null,
+    } as never);
+    vi.mocked(asyncMetadataRepo.updateCas).mockResolvedValue(false);
+
+    await service.generateSummary("job-1", "user-1");
+
+    expect(eventBus.emit).not.toHaveBeenCalled();
+  });
+
+  it("doGenerate completes summary metadata and persists TipTap JSON (from AI markdown via markdownToTipTap)", async () => {
+    vi.mocked(appRepo.findOneByIdAndUserId).mockResolvedValue({
+      id: "job-1",
+      title: "Role",
+      company: { name: "Globex" },
+      description: TIPTAP_HELLO,
+      tags: ["python"],
+      location: null,
+      workRegion: null,
+      source: null,
+      salary: null,
+      summaryMetadata: { status: AsyncMetadataStatusEnum.PROCESSING },
+    } as never);
+    vi.mocked(summaryAiService.generateSummary).mockResolvedValue(
+      "# Summary md",
+    );
+    vi.mocked(asyncMetadataRepo.updateCas).mockResolvedValue(true);
+    vi.mocked(appRepo.updateSummary).mockResolvedValue(true);
+
+    await service.doGenerate("job-1", "user-1");
+
+    expect(stageTimelineQb.orderBy).toHaveBeenCalledWith(
+      "COALESCE(e.schedule_at, e.created_at)",
+      "DESC",
+    );
+    expect(stageTimelineQb.addOrderBy).toHaveBeenNthCalledWith(
+      1,
+      "e.created_at",
+      "DESC",
+    );
+    expect(stageTimelineQb.addOrderBy).toHaveBeenNthCalledWith(
+      2,
+      "e.id",
+      "DESC",
+    );
+
+    expect(summaryAiService.generateSummary).toHaveBeenCalled();
+
+    const prompt =
+      vi.mocked(summaryAiService.generateSummary).mock.calls[0]?.[0] ?? "";
+    expect(prompt).toContain(tipTapToPlainText(TIPTAP_HELLO));
+
+    expect(asyncMetadataRepo.updateCas).toHaveBeenCalledWith(
+      "summary",
+      "job-1",
+      "user-1",
+      { status: AsyncMetadataStatusEnum.PROCESSING },
+      expect.objectContaining({ status: AsyncMetadataStatusEnum.COMPLETED }),
+    );
+
+    expect(appRepo.updateSummary).toHaveBeenCalledWith(
+      "job-1",
+      expect.any(String),
       "user-1",
     );
+
+    expect(eventBus.emit).toHaveBeenCalledWith(
+      expect.any(SummaryStatusChanged),
+    );
+  });
+
+  it("doGenerate without description omits Description when no posting HTML", async () => {
+    vi.mocked(appRepo.findOneByIdAndUserId).mockResolvedValue({
+      id: "job-1",
+      title: "Role",
+      company: null,
+      description: null,
+      htmlContent: null,
+      tags: [],
+      salary: null,
+      location: null,
+      workRegion: null,
+      source: null,
+      summaryMetadata: { status: AsyncMetadataStatusEnum.PROCESSING },
+    } as never);
+    vi.mocked(summaryAiService.generateSummary).mockResolvedValue("x");
+    vi.mocked(asyncMetadataRepo.updateCas).mockResolvedValue(true);
+    vi.mocked(appRepo.updateSummary).mockResolvedValue(true);
+
+    await service.doGenerate("job-1", "user-1");
+
+    expect(summaryAiService.generateSummary).toHaveBeenCalled();
+    expect(
+      vi.mocked(summaryAiService.generateSummary).mock.calls[0][0],
+    ).not.toMatch(/^Description:/m);
+  });
+
+  it("doGenerate includes posting body from htmlContent when description is empty", async () => {
+    const html = "<p>Hello <strong>World</strong></p>";
+    vi.mocked(appRepo.findOneByIdAndUserId).mockResolvedValue({
+      id: "job-1",
+      title: "Role",
+      company: null,
+      description: null,
+      htmlContent: html,
+      tags: [],
+      salary: null,
+      location: null,
+      workRegion: null,
+      source: null,
+      summaryMetadata: { status: AsyncMetadataStatusEnum.PROCESSING },
+    } as never);
+    vi.mocked(summaryAiService.generateSummary).mockResolvedValue("ok");
+    vi.mocked(asyncMetadataRepo.updateCas).mockResolvedValue(true);
+    vi.mocked(appRepo.updateSummary).mockResolvedValue(true);
+
+    await service.doGenerate("job-1", "user-1");
+
+    const ctx =
+      vi.mocked(summaryAiService.generateSummary).mock.calls[0][0] ?? "";
+    expect(ctx).toContain("Description:");
+    expect(ctx).toContain(htmlToPlainText(html));
+  });
+
+  it("doGenerate prefers posting HTML plain text over TipTap description when both exist", async () => {
+    vi.mocked(appRepo.findOneByIdAndUserId).mockResolvedValue({
+      id: "job-1",
+      title: "Role",
+      company: null,
+      description: TIPTAP_HELLO,
+      htmlContent: "<p>Rust backend focus</p>",
+      tags: [],
+      salary: null,
+      location: null,
+      workRegion: null,
+      source: null,
+      summaryMetadata: { status: AsyncMetadataStatusEnum.PROCESSING },
+    } as never);
+    vi.mocked(summaryAiService.generateSummary).mockResolvedValue("ok");
+    vi.mocked(asyncMetadataRepo.updateCas).mockResolvedValue(true);
+    vi.mocked(appRepo.updateSummary).mockResolvedValue(true);
+
+    await service.doGenerate("job-1", "user-1");
+
+    const ctx =
+      vi.mocked(summaryAiService.generateSummary).mock.calls[0][0] ?? "";
+    expect(ctx).toContain(htmlToPlainText("<p>Rust backend focus</p>"));
+    expect(ctx).not.toContain(tipTapToPlainText(TIPTAP_HELLO));
+  });
+
+  it("doGenerate with empty strings still completes when AI succeeds", async () => {
+    vi.mocked(appRepo.findOneByIdAndUserId).mockResolvedValue({
+      id: "job-1",
+      title: " ",
+      company: undefined,
+      description: null,
+      tags: [],
+      summaryMetadata: { status: AsyncMetadataStatusEnum.PROCESSING },
+    } as never);
+    vi.mocked(summaryAiService.generateSummary).mockResolvedValue("ok");
+    vi.mocked(asyncMetadataRepo.updateCas).mockResolvedValue(true);
+    vi.mocked(appRepo.updateSummary).mockResolvedValue(true);
+
+    await service.doGenerate("job-1", "user-1");
+
+    expect(summaryAiService.generateSummary).toHaveBeenCalled();
+    expect(asyncMetadataRepo.updateCas).toHaveBeenCalledWith(
+      "summary",
+      "job-1",
+      "user-1",
+      { status: AsyncMetadataStatusEnum.PROCESSING },
+      expect.objectContaining({ status: AsyncMetadataStatusEnum.COMPLETED }),
+    );
+  });
+
+  it("doGenerate sets FAILED summary metadata when AI throws", async () => {
+    vi.mocked(appRepo.findOneByIdAndUserId).mockResolvedValue({
+      id: "job-1",
+      title: "Role",
+      company: null,
+      description: TIPTAP_HELLO,
+      summaryMetadata: { status: AsyncMetadataStatusEnum.PROCESSING },
+    } as never);
+    vi.mocked(summaryAiService.generateSummary).mockRejectedValue(
+      new Error("quota exceeded"),
+    );
+    vi.mocked(asyncMetadataRepo.updateCas).mockResolvedValue(true);
+
+    await service.doGenerate("job-1", "user-1");
+
+    expect(asyncMetadataRepo.updateCas).toHaveBeenCalledWith(
+      "summary",
+      "job-1",
+      "user-1",
+      { status: AsyncMetadataStatusEnum.PROCESSING },
+      expect.objectContaining({
+        status: AsyncMetadataStatusEnum.FAILED,
+        error: "quota exceeded",
+      }),
+    );
+
+    expect(eventBus.emit).toHaveBeenCalledWith(
+      expect.any(SummaryStatusChanged),
+    );
+  });
+
+  it("generateSummarySync no-ops immediately when PROCESSING metadata", async () => {
+    vi.mocked(appRepo.findOneByIdAndUserId).mockResolvedValue({
+      id: "job-1",
+      title: "T",
+      summaryMetadata: {
+        status: AsyncMetadataStatusEnum.PROCESSING,
+        error: null,
+        timestamp: null,
+      },
+    } as never);
+
+    await service.generateSummarySync("job-1", "user-1");
+
+    expect(asyncMetadataRepo.updateCas).not.toHaveBeenCalled();
+  });
+
+  it("includes stage-event context when query returns rows", async () => {
+    const stageEv = Object.assign(new JobStageEventEntity(), {
+      id: "e1",
+      jobId: "job-1",
+      userId: "user-1",
+      toStage: ApplicationStageEnum.TECHNICAL,
+      reason: "Loop",
+      createdAt: new Date(),
+      scheduledAt: null,
+    });
+
+    vi.mocked(stageTimelineQb.getMany).mockResolvedValue([stageEv]);
+
+    vi.mocked(appRepo.findOneByIdAndUserId).mockResolvedValue({
+      id: "job-1",
+      title: "Role",
+      company: null,
+      description: TIPTAP_HELLO,
+      summaryMetadata: { status: AsyncMetadataStatusEnum.PROCESSING },
+    } as never);
+    vi.mocked(summaryAiService.generateSummary).mockResolvedValue("s");
+    vi.mocked(asyncMetadataRepo.updateCas).mockResolvedValue(true);
+    vi.mocked(appRepo.updateSummary).mockResolvedValue(true);
+
+    await service.doGenerate("job-1", "user-1");
+
+    const ctx =
+      vi.mocked(summaryAiService.generateSummary).mock.calls[0][0] ?? "";
+    expect(ctx).toContain("TECHNICAL");
+    expect(ctx).toContain("Loop");
   });
 });

@@ -5,4 +5,4 @@ export type MatchAnalysis = MatchAnalysisEntity;
 export type NewMatchAnalysis = Partial<
   Omit<MatchAnalysisEntity, "id" | "createdAt" | "updatedAt">
 > &
-  Pick<Partial<MatchAnalysisEntity>, "jobId" | "draftJobId" | "resumeId">;
+  Pick<Partial<MatchAnalysisEntity>, "jobId" | "resumeId">;

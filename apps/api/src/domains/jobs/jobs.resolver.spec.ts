@@ -1,8 +1,8 @@
 import "reflect-metadata";
 
-import { DraftJobConversionStatusEnum } from "@api/database/entities/draft-job.entity";
 import { JwtAuthGuard } from "@api/domains/auth/jwt-auth.guard";
 import { RolesGuard } from "@api/domains/auth/roles.guard";
+import { AsyncMetadataStatusEnum } from "@api/domains/shared/async-metadata.type";
 import { graphqlFormatError } from "@api/graphql/graphql-format-error";
 import type { ApolloDriverConfig } from "@nestjs/apollo";
 import { ApolloDriver } from "@nestjs/apollo";
@@ -45,15 +45,14 @@ const mockJob: Job = {
   updatedAt: new Date("2026-01-01T00:00:00.000Z"),
 } as unknown as Job;
 
-const mockDraft = {
-  id: "draft-1",
-  url: "https://example.com/jobs/1",
-  title: "Draft title",
-  htmlContent: "<p>Posting</p>",
-  conversionMetadata: { status: DraftJobConversionStatusEnum.PROCESSING },
-  createdAt: new Date(),
-  updatedAt: new Date(),
-};
+const mockJobWithFillProcessing = {
+  ...mockJob,
+  fillMetadata: {
+    status: AsyncMetadataStatusEnum.PROCESSING,
+    error: null,
+    timestamp: new Date("2026-01-02T00:00:00.000Z"),
+  },
+} as unknown as Job;
 
 describe("JobsResolver (integration)", () => {
   let app: INestApplication;
@@ -61,7 +60,7 @@ describe("JobsResolver (integration)", () => {
     findAll: ReturnType<typeof vi.fn>;
     findOne: ReturnType<typeof vi.fn>;
     create: ReturnType<typeof vi.fn>;
-    createJobWithAI: ReturnType<typeof vi.fn>;
+    fillJobAutomatically: ReturnType<typeof vi.fn>;
     update: ReturnType<typeof vi.fn>;
     remove: ReturnType<typeof vi.fn>;
     removeStageEvent: ReturnType<typeof vi.fn>;
@@ -73,7 +72,9 @@ describe("JobsResolver (integration)", () => {
       findAll: vi.fn().mockResolvedValue([mockJob]),
       findOne: vi.fn().mockResolvedValue(mockJob),
       create: vi.fn().mockResolvedValue(mockJob),
-      createJobWithAI: vi.fn().mockResolvedValue(mockDraft),
+      fillJobAutomatically: vi
+        .fn()
+        .mockResolvedValue(mockJobWithFillProcessing),
       update: vi.fn().mockResolvedValue(mockJob),
       remove: vi.fn().mockResolvedValue(mockJob),
       removeStageEvent: vi.fn().mockResolvedValue(undefined),
@@ -180,15 +181,34 @@ describe("JobsResolver (integration)", () => {
     expect(res.body.data.createJob.company.name).toBe("Acme Corp");
   });
 
-  it("createJobWithAI mutation queues conversion and returns draft", async () => {
+  it("createJob forwards optional htmlContent to service", async () => {
     const res = await request(app.getHttpServer())
       .post("/graphql")
       .set(auth)
       .send({
         query: `mutation {
-          createJobWithAI(draftId: "draft-1") {
+          createJob(input: { company: "Acme", htmlContent: "<p>capture</p>" }) {
             id
-            conversionMetadata {
+          }
+        }`,
+      });
+
+    expect(res.statusCode).toBe(200);
+    expect(service.create).toHaveBeenCalledWith(
+      "user-1",
+      expect.objectContaining({ htmlContent: "<p>capture</p>" }),
+    );
+  });
+
+  it("fillJobAutomatically mutation delegates to JobsService.fillJobAutomatically", async () => {
+    const res = await request(app.getHttpServer())
+      .post("/graphql")
+      .set(auth)
+      .send({
+        query: `mutation {
+          fillJobAutomatically(jobId: "app-1") {
+            id
+            fillMetadata {
               status
             }
           }
@@ -196,11 +216,26 @@ describe("JobsResolver (integration)", () => {
       });
 
     expect(res.statusCode).toBe(200);
-    expect(res.body.data.createJobWithAI.id).toBe("draft-1");
-    expect(res.body.data.createJobWithAI.conversionMetadata.status).toBe(
+    expect(res.body.data.fillJobAutomatically.id).toBe("app-1");
+    expect(res.body.data.fillJobAutomatically.fillMetadata.status).toBe(
       "PROCESSING",
     );
-    expect(service.createJobWithAI).toHaveBeenCalledWith("user-1", "draft-1");
+    expect(service.fillJobAutomatically).toHaveBeenCalledWith(
+      "user-1",
+      "app-1",
+    );
+  });
+
+  it("removed legacy draft-create mutation yields GraphQL validation error", async () => {
+    const createLegacyDraft = ["create", "Draft", "Job"].join("");
+    const res = await request(app.getHttpServer())
+      .post("/graphql")
+      .set(auth)
+      .send({
+        query: `mutation { ${createLegacyDraft}(input: { title: "x", htmlContent: "<p>h</p>" }) { id } }`,
+      });
+
+    expect(res.body.errors?.length ?? 0).toBeGreaterThan(0);
   });
 
   it("updateJob mutation updates and returns job", async () => {
@@ -282,6 +317,20 @@ describe("JobsResolver (integration)", () => {
     expect(res.body.errors[0].extensions.code).toBe("NOT_FOUND");
     expect(res.body.errors[0].extensions.code).not.toBe("FORBIDDEN");
     expect(res.body.errors[0].message).toBe("Resource not found");
+  });
+
+  it("job query returns null title when underlying job has no title", async () => {
+    service.findOne.mockResolvedValueOnce({
+      ...mockJob,
+      title: null,
+    } as unknown as Job);
+    const res = await request(app.getHttpServer())
+      .post("/graphql")
+      .set(auth)
+      .send({ query: `{ job(id: "app-1") { id title } }` });
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body.data.job.title).toBeNull();
   });
 
   it("deleteJobStageEvent mutation returns payload", async () => {

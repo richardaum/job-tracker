@@ -1,11 +1,13 @@
 import { expect, test } from "@playwright/test";
 
 test.beforeEach(async ({ page }) => {
-  await page.goto(`http://localhost:3104/auth/google?returnTo=/draft-jobs`);
-  await page.waitForURL(/\/draft-jobs/, { timeout: 15000 });
+  await page.goto(
+    `http://localhost:3104/auth/google?returnTo=${encodeURIComponent("/jobs")}`,
+  );
+  await page.waitForURL(/\/jobs/, { timeout: 15000 });
 });
 
-test("paste HTML → create draft with auto-convert → status Succeeded", async ({
+test("paste HTML → job capture opens unified detail → automatic fill queued", async ({
   page,
 }) => {
   const title = `E2E Paste Test ${Date.now()}`;
@@ -40,20 +42,11 @@ test("paste HTML → create draft with auto-convert → status Succeeded", async
   });
   await expect(autoConvert).toBeChecked();
 
-  // Click Create draft (navigates to draft detail page)
+  // Opens unified job detail; ?autoConvert triggers one-shot fill from the query string.
   await dialog.getByRole("button", { name: "Create draft" }).click();
 
-  // Should navigate to draft detail page
-  await page.waitForURL(/\/draft-jobs\/[a-f0-9-]+/, { timeout: 15000 });
-  await page.waitForTimeout(1000);
-
-  // Verify Succeeded status and title
-  await expect(page.getByText("Succeeded")).toBeVisible();
-  await expect(
-    page.locator("h1").filter({ hasText: "Succeeded" }),
-  ).toBeVisible();
-
-  // Verify a linked job was created
-  const jobLink = page.locator('a[href*="/jobs/"]');
-  await expect(jobLink.first()).toBeVisible();
+  await page.waitForURL(/\/jobs\/[a-f0-9-]+/, { timeout: 15000 });
+  await expect(page.getByText("Automatic fill queued.")).toBeVisible({
+    timeout: 15000,
+  });
 });

@@ -84,6 +84,7 @@ describe("AuthController (integration)", () => {
       cookies.some(
         (c) =>
           c.startsWith("refresh_token=") &&
+          c.toLowerCase().includes("path=/auth") &&
           c.toLowerCase().includes("httponly"),
       ),
     ).toBe(true);
@@ -115,7 +116,10 @@ describe("AuthController (integration)", () => {
     expect(res.statusCode).toBe(200);
     const cookies = ([] as string[]).concat(res.headers["set-cookie"] ?? []);
     expect(cookies.some((c) => c.startsWith("access_token=;"))).toBe(true);
-    expect(cookies.some((c) => c.startsWith("refresh_token=;"))).toBe(true);
+    const refreshClears = cookies.filter((c) =>
+      c.startsWith("refresh_token=;"),
+    );
+    expect(refreshClears.length).toBe(2);
   });
 
   it("POST /auth/refresh sets a new access token cookie", async () => {

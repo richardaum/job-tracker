@@ -18,6 +18,7 @@
     "@apollo/client": "^4.1.7",
     "@graphql-typed-document-node/core": "^3.2.0",
     "@job-tracker/auth": "workspace:*",
+    "@job-tracker/html-sanitize": "workspace:*",
     "@job-tracker/tiptap": "workspace:*",
     "@job-tracker/try-run": "workspace:*",
     "@job-tracker/ui": "workspace:*",
