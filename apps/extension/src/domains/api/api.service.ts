@@ -78,18 +78,9 @@ export class ApiService {
   }
 
   async createDraftCaptureJob(input: CreateJobInput) {
-    const DRAFT_CAPTURE_COMPANY = "Draft (pending company)" as const;
     return await this.client.mutate({
       mutation: CreateDraftCaptureJobDocument,
-      variables: {
-        input: {
-          ...input,
-          company: input.company?.trim()
-            ? input.company
-            : DRAFT_CAPTURE_COMPANY,
-          createAsDraftCapture: true,
-        },
-      },
+      variables: { input: { ...input, createAsDraftCapture: true } },
     });
   }
 
