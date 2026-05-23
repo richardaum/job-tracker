@@ -72,6 +72,7 @@ If the output is `main checkout`, stop. Do not proceed and do not create a workt
 | `--migrate=true\|false` | `true`: `pnpm --filter @job-tracker/api run db:migrate` |
 | `--start=true\|false` | `true`: `pnpm pm2:start` |
 | `--verify=true\|false` | `true`: curl health checks (WXT failure is warning only) |
+| `--open=true\|false` | `true`: open web app in default browser (default: same as `--verify`) |
 
 Post-step flags are ignored during `--dry-run=true` (only listed in the plan).
 
@@ -97,6 +98,7 @@ Run only when the invocation argument is `setup`.
      --migrate=false \
      --start=false \
      --verify=false \
+     --open=false \
      --source-db=job_tracker
 
    # full stack preview:
@@ -109,6 +111,7 @@ Run only when the invocation argument is `setup`.
      --migrate=true \
      --start=true \
      --verify=true \
+     --open=true \
      --source-db=job_tracker
    ```
 
@@ -126,6 +129,7 @@ Run only when the invocation argument is `setup`.
      --migrate=false \
      --start=false \
      --verify=false \
+     --open=false \
      --source-db=job_tracker
 
    pnpm worktree:setup -- \
@@ -137,6 +141,7 @@ Run only when the invocation argument is `setup`.
      --migrate=true \
      --start=true \
      --verify=true \
+     --open=true \
      --source-db=job_tracker
    ```
 

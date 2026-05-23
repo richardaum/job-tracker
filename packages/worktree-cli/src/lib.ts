@@ -898,6 +898,28 @@ function curlCheck(url: string, tag: string, label: string): void {
   console.warn(`${tag} verify ${label} ok ${url}`);
 }
 
+/** Worktree web app URL for the allocated port. */
+export function worktreeWebUrl(ports: SlugPorts): string {
+  return `http://localhost:${ports.web}/`;
+}
+
+/** Opens `url` in the system default browser (best-effort; warns on failure). */
+export function openWebBrowser(url: string, tag: string): void {
+  const command =
+    process.platform === "darwin"
+      ? { cmd: "open", args: [url] }
+      : process.platform === "win32"
+        ? { cmd: "cmd", args: ["/c", "start", "", url] }
+        : { cmd: "xdg-open", args: [url] };
+
+  const result = spawnSync(command.cmd, command.args, { stdio: "ignore" });
+  if (result.status !== 0) {
+    console.warn(`${tag} could not open browser for ${url}`);
+    return;
+  }
+  console.warn(`${tag} opened browser ${url}`);
+}
+
 /** Aborts setup/teardown when invoked from the main checkout. */
 export function assertGitWorktree(repoRoot: string, tag: string): void {
   if (isGitWorktreeCheckout(repoRoot)) return;
@@ -1163,6 +1185,7 @@ export function logSetupDryRun(params: {
   migrate: boolean;
   start: boolean;
   verify: boolean;
+  open: boolean;
   workspacePath: string;
 }): void {
   const {
@@ -1182,6 +1205,7 @@ export function logSetupDryRun(params: {
     migrate,
     start,
     verify,
+    open,
     workspacePath,
   } = params;
   const apiEnvPath = join(worktreeRoot, "apps/api/.env");
@@ -1241,9 +1265,14 @@ export function logSetupDryRun(params: {
       `${tag} [dry-run] would verify API/Web/Storybook/WXT health endpoints`,
     );
   }
-  if (!install && !migrate && !start && !verify) {
+  if (open) {
     console.warn(
-      `${tag} [dry-run] post-steps skipped (pass --install=true --migrate=true --start=true --verify=true)`,
+      `${tag} [dry-run] would open browser ${worktreeWebUrl(ports)}`,
+    );
+  }
+  if (!install && !migrate && !start && !verify && !open) {
+    console.warn(
+      `${tag} [dry-run] post-steps skipped (pass --install=true --migrate=true --start=true --verify=true --open=true)`,
     );
   }
 }
@@ -1257,8 +1286,11 @@ export function runWorktreePostSetup(params: {
   migrate: boolean;
   start: boolean;
   verify: boolean;
+  open: boolean;
 }): void {
-  const { tag, repoRoot, ports, install, migrate, start, verify } = params;
+  const { tag, repoRoot, ports, install, migrate, start, verify, open } =
+    params;
+  const webUrl = worktreeWebUrl(ports);
 
   if (install) {
     console.warn(`${tag} pnpm install`);
@@ -1278,11 +1310,13 @@ export function runWorktreePostSetup(params: {
   }
   if (verify) {
     const apiPort = String(ports.api);
-    const webPort = String(ports.web);
     const sbPort = String(ports.storybook);
     const wxtPort = String(ports.wxt);
     curlCheck(`http://localhost:${apiPort}/health`, tag, "api");
-    curlCheck(`http://localhost:${webPort}/`, tag, "web");
+    curlCheck(webUrl, tag, "web");
+    if (open) {
+      openWebBrowser(webUrl, tag);
+    }
     curlCheck(`http://localhost:${sbPort}/`, tag, "storybook");
     const wxt = spawnSync("curl", ["-fsS", `http://localhost:${wxtPort}/`], {
       encoding: "utf8",
@@ -1295,6 +1329,8 @@ export function runWorktreePostSetup(params: {
     } else {
       console.warn(`${tag} verify wxt ok http://localhost:${wxtPort}/`);
     }
+  } else if (open) {
+    openWebBrowser(webUrl, tag);
   }
 }
 
@@ -1334,7 +1370,7 @@ export function logSetupSummary(params: {
     `${tag} E2E  ${parseDatabaseName(e2eDatabaseUrl) ?? "test_" + destDb}`,
   );
   console.warn(
-    `${tag} Post-steps: pass --install=true --migrate=true --start=true --verify=true`,
+    `${tag} Post-steps: pass --install=true --migrate=true --start=true --verify=true --open=true`,
   );
 }
 
