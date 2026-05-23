@@ -33,6 +33,27 @@ export type Scalars = {
   DateTime: { input: any; output: any };
 };
 
+export enum ApplicationQuickFilter {
+  Active = "ACTIVE",
+  Applied = "APPLIED",
+  Draft = "DRAFT",
+  Duplicated = "DUPLICATED",
+  Incoming = "INCOMING",
+  New = "NEW",
+}
+
+export enum ApplicationStage {
+  Applied = "APPLIED",
+  CulturalFit = "CULTURAL_FIT",
+  Draft = "DRAFT",
+  Duplicated = "DUPLICATED",
+  New = "NEW",
+  Offer = "OFFER",
+  RecruiterScreen = "RECRUITER_SCREEN",
+  Rejected = "REJECTED",
+  Technical = "TECHNICAL",
+}
+
 export enum AsyncMetadataStatus {
   Completed = "COMPLETED",
   Failed = "FAILED",
@@ -56,29 +77,18 @@ export type CompanyType = {
   userId: Scalars["String"]["output"];
 };
 
-export type ConversionMetadataType = {
-  __typename?: "ConversionMetadataType";
-  error?: Maybe<Scalars["String"]["output"]>;
-  status?: Maybe<DraftJobConversionStatus>;
-  timestamp?: Maybe<Scalars["DateTime"]["output"]>;
-};
-
-export type CreateDraftJobInput = {
-  htmlContent: Scalars["String"]["input"];
-  title: Scalars["String"]["input"];
-  url?: InputMaybe<Scalars["String"]["input"]>;
-};
-
 export type CreateJobInput = {
-  company: Scalars["String"]["input"];
+  company?: InputMaybe<Scalars["String"]["input"]>;
   companyId?: InputMaybe<Scalars["ID"]["input"]>;
+  createAsDraftCapture?: InputMaybe<Scalars["Boolean"]["input"]>;
   description?: InputMaybe<Scalars["String"]["input"]>;
+  htmlContent?: InputMaybe<Scalars["String"]["input"]>;
   location?: InputMaybe<Scalars["String"]["input"]>;
   salary?: InputMaybe<JobSalaryInput>;
   source?: InputMaybe<JobSource>;
   sourceRunId?: InputMaybe<Scalars["ID"]["input"]>;
   tags?: InputMaybe<Array<Scalars["String"]["input"]>>;
-  title: Scalars["String"]["input"];
+  title?: InputMaybe<Scalars["String"]["input"]>;
   urls?: InputMaybe<Array<Scalars["String"]["input"]>>;
   workRegion?: InputMaybe<Scalars["String"]["input"]>;
 };
@@ -88,7 +98,7 @@ export type CreateJobStageEventInput = {
   reason?: InputMaybe<Scalars["String"]["input"]>;
   scheduledAt?: InputMaybe<Scalars["DateTime"]["input"]>;
   source?: InputMaybe<StageEventSource>;
-  toStage: JobStage;
+  toStage: ApplicationStage;
 };
 
 export type CreateNoteInput = {
@@ -123,26 +133,6 @@ export type DeleteMutationPayloadType = {
   success: Scalars["Boolean"]["output"];
 };
 
-export enum DraftJobConversionStatus {
-  Failed = "FAILED",
-  Idle = "IDLE",
-  Processing = "PROCESSING",
-  Succeeded = "SUCCEEDED",
-}
-
-export type DraftJobType = {
-  __typename?: "DraftJobType";
-  conversionMetadata?: Maybe<ConversionMetadataType>;
-  createdAt: Scalars["DateTime"]["output"];
-  htmlContent: Scalars["String"]["output"];
-  id: Scalars["ID"]["output"];
-  jobId?: Maybe<Scalars["String"]["output"]>;
-  match?: Maybe<MatchAnalysisType>;
-  title: Scalars["String"]["output"];
-  updatedAt: Scalars["DateTime"]["output"];
-  url?: Maybe<Scalars["String"]["output"]>;
-};
-
 export type ExchangeRate = {
   __typename?: "ExchangeRate";
   currency: Scalars["String"]["output"];
@@ -166,23 +156,10 @@ export enum FitVerdict {
   Unclear = "Unclear",
 }
 
-export type GenerateDraftMatchInput = {
-  draftJobId: Scalars["ID"]["input"];
-  resumeId: Scalars["ID"]["input"];
-};
-
 export type GenerateMatchInput = {
   jobId: Scalars["ID"]["input"];
   resumeId: Scalars["ID"]["input"];
 };
-
-export enum JobQuickFilter {
-  Active = "ACTIVE",
-  Applied = "APPLIED",
-  Duplicated = "DUPLICATED",
-  Incoming = "INCOMING",
-  New = "NEW",
-}
 
 export type JobSalary = {
   __typename?: "JobSalary";
@@ -206,40 +183,30 @@ export enum JobSource {
   Wellfound = "WELLFOUND",
 }
 
-export enum JobStage {
-  Applied = "APPLIED",
-  CulturalFit = "CULTURAL_FIT",
-  Duplicated = "DUPLICATED",
-  New = "NEW",
-  Offer = "OFFER",
-  RecruiterScreen = "RECRUITER_SCREEN",
-  Rejected = "REJECTED",
-  Technical = "TECHNICAL",
-}
-
 export type JobStageEventType = {
   __typename?: "JobStageEventType";
   createdAt: Scalars["DateTime"]["output"];
-  fromStage?: Maybe<JobStage>;
+  fromStage?: Maybe<ApplicationStage>;
   id: Scalars["ID"]["output"];
   jobId: Scalars["String"]["output"];
   reason?: Maybe<Scalars["String"]["output"]>;
   scheduledAt?: Maybe<Scalars["DateTime"]["output"]>;
   source: StageEventSource;
-  toStage: JobStage;
+  toStage: ApplicationStage;
   userId: Scalars["String"]["output"];
 };
 
 export type JobType = {
   __typename?: "JobType";
-  company: CompanyType;
-  companyId: Scalars["ID"]["output"];
+  company?: Maybe<CompanyType>;
+  companyId?: Maybe<Scalars["ID"]["output"]>;
   createdAt: Scalars["DateTime"]["output"];
-  currentStage: JobStage;
+  currentStage: ApplicationStage;
   currentStageAt: Scalars["DateTime"]["output"];
   currentStageReason?: Maybe<Scalars["String"]["output"]>;
   description?: Maybe<Scalars["String"]["output"]>;
-  draftJobId?: Maybe<Scalars["ID"]["output"]>;
+  fillMetadata?: Maybe<AsyncMetadataType>;
+  htmlContent?: Maybe<Scalars["String"]["output"]>;
   id: Scalars["ID"]["output"];
   location?: Maybe<Scalars["String"]["output"]>;
   match?: Maybe<MatchAnalysisType>;
@@ -249,7 +216,7 @@ export type JobType = {
   summary?: Maybe<Scalars["String"]["output"]>;
   summaryMetadata?: Maybe<AsyncMetadataType>;
   tags: Array<Scalars["String"]["output"]>;
-  title: Scalars["String"]["output"];
+  title?: Maybe<Scalars["String"]["output"]>;
   updatedAt: Scalars["DateTime"]["output"];
   urls: Array<Scalars["String"]["output"]>;
   userId: Scalars["String"]["output"];
@@ -260,14 +227,12 @@ export type MatchAnalysisType = {
   __typename?: "MatchAnalysisType";
   classification?: Maybe<FitClassification>;
   createdAt: Scalars["DateTime"]["output"];
-  draftJob?: Maybe<DraftJobType>;
-  draftJobId?: Maybe<Scalars["ID"]["output"]>;
   gapCount: Scalars["Int"]["output"];
   generationMetadata?: Maybe<AsyncMetadataType>;
   id: Scalars["ID"]["output"];
   items: Array<MatchItemType>;
   job?: Maybe<JobType>;
-  jobId?: Maybe<Scalars["ID"]["output"]>;
+  jobId: Scalars["ID"]["output"];
   matchCount: Scalars["Int"]["output"];
   resumeId: Scalars["ID"]["output"];
   scoreRatio?: Maybe<Scalars["Float"]["output"]>;
@@ -291,32 +256,27 @@ export type Mutation = {
   __typename?: "Mutation";
   claimSourceRun?: Maybe<SourceRunType>;
   clearSourceRuns: Scalars["Boolean"]["output"];
-  createDraftJob: DraftJobType;
   createJob: JobType;
   createJobNote: NoteType;
   createJobStageEvent: JobStageEventType;
-  createJobWithAI: DraftJobType;
   createResume: ResumeType;
   createSourceRun: SourceRunType;
   createSourceTemplate: SourceTemplateType;
   deleteCompany: DeleteMutationPayloadType;
-  deleteDraftJob: DeleteMutationPayloadType;
   deleteJob: DeleteMutationPayloadType;
   deleteJobNote: DeleteMutationPayloadType;
   deleteJobStageEvent: DeleteMutationPayloadType;
-  deleteJobsForDraft: DeleteMutationPayloadType;
   deleteMatchAnalysis: DeleteMutationPayloadType;
   deleteResume: DeleteMutationPayloadType;
   deleteSourceRun: DeleteMutationPayloadType;
   deleteSourceTemplate: DeleteMutationPayloadType;
   detachJobsFromSourceRun: Scalars["Int"]["output"];
-  generateDraftJobMatch: MatchAnalysisType;
+  fillJobAutomatically: JobType;
   generateJobMatch: MatchAnalysisType;
   generateJobSummary: JobType;
   removeJobTag: JobType;
   rerunSourceTemplate: SourceRunType;
   updateCompany: CompanyType;
-  updateDraftJob: DraftJobType;
   updateJob: JobType;
   updateJobNote: NoteType;
   updateJobStageEvent: JobStageEventType;
@@ -329,8 +289,6 @@ export type Mutation = {
 
 export type MutationClaimSourceRunArgs = { id: Scalars["ID"]["input"] };
 
-export type MutationCreateDraftJobArgs = { input: CreateDraftJobInput };
-
 export type MutationCreateJobArgs = { input: CreateJobInput };
 
 export type MutationCreateJobNoteArgs = { input: CreateNoteInput };
@@ -338,8 +296,6 @@ export type MutationCreateJobNoteArgs = { input: CreateNoteInput };
 export type MutationCreateJobStageEventArgs = {
   input: CreateJobStageEventInput;
 };
-
-export type MutationCreateJobWithAiArgs = { draftId: Scalars["ID"]["input"] };
 
 export type MutationCreateResumeArgs = { input: CreateResumeInput };
 
@@ -351,20 +307,11 @@ export type MutationCreateSourceTemplateArgs = {
 
 export type MutationDeleteCompanyArgs = { id: Scalars["ID"]["input"] };
 
-export type MutationDeleteDraftJobArgs = {
-  deleteLinkedJob?: InputMaybe<Scalars["Boolean"]["input"]>;
-  id: Scalars["ID"]["input"];
-};
-
 export type MutationDeleteJobArgs = { id: Scalars["ID"]["input"] };
 
 export type MutationDeleteJobNoteArgs = { id: Scalars["ID"]["input"] };
 
 export type MutationDeleteJobStageEventArgs = { id: Scalars["ID"]["input"] };
-
-export type MutationDeleteJobsForDraftArgs = {
-  draftId: Scalars["ID"]["input"];
-};
 
 export type MutationDeleteMatchAnalysisArgs = { id: Scalars["ID"]["input"] };
 
@@ -378,8 +325,8 @@ export type MutationDetachJobsFromSourceRunArgs = {
   sourceRunId: Scalars["ID"]["input"];
 };
 
-export type MutationGenerateDraftJobMatchArgs = {
-  input: GenerateDraftMatchInput;
+export type MutationFillJobAutomaticallyArgs = {
+  jobId: Scalars["ID"]["input"];
 };
 
 export type MutationGenerateJobMatchArgs = { input: GenerateMatchInput };
@@ -398,11 +345,6 @@ export type MutationRerunSourceTemplateArgs = {
 export type MutationUpdateCompanyArgs = {
   id: Scalars["ID"]["input"];
   input: UpdateCompanyInput;
-};
-
-export type MutationUpdateDraftJobArgs = {
-  id: Scalars["ID"]["input"];
-  input: UpdateDraftJobInput;
 };
 
 export type MutationUpdateJobArgs = {
@@ -471,9 +413,6 @@ export type Query = {
   companies: Array<CompanyType>;
   company: CompanyType;
   companyJobsCount: Scalars["Int"]["output"];
-  draftJob: DraftJobType;
-  draftJobMatch?: Maybe<MatchAnalysisType>;
-  draftJobs: Array<DraftJobType>;
   exchangeRates: CurrencyRates;
   generateCompanyDescription: Scalars["String"]["output"];
   generateJobLocationWithAI?: Maybe<Scalars["String"]["output"]>;
@@ -501,10 +440,6 @@ export type Query = {
 export type QueryCompanyArgs = { id: Scalars["ID"]["input"] };
 
 export type QueryCompanyJobsCountArgs = { id: Scalars["ID"]["input"] };
-
-export type QueryDraftJobArgs = { id: Scalars["ID"]["input"] };
-
-export type QueryDraftJobMatchArgs = { draftJobId: Scalars["ID"]["input"] };
 
 export type QueryExchangeRatesArgs = {
   base: Scalars["String"]["input"];
@@ -538,7 +473,7 @@ export type QueryJobStageEventsArgs = { jobId: Scalars["ID"]["input"] };
 
 export type QueryJobsArgs = {
   company?: InputMaybe<Scalars["String"]["input"]>;
-  filter?: InputMaybe<JobQuickFilter>;
+  filter?: InputMaybe<ApplicationQuickFilter>;
   runId?: InputMaybe<Scalars["ID"]["input"]>;
 };
 
@@ -645,12 +580,11 @@ export type UpdateCompanyInput = {
   name?: InputMaybe<Scalars["String"]["input"]>;
 };
 
-export type UpdateDraftJobInput = { title: Scalars["String"]["input"] };
-
 export type UpdateJobInput = {
   company?: InputMaybe<Scalars["String"]["input"]>;
   companyId?: InputMaybe<Scalars["ID"]["input"]>;
   description?: InputMaybe<Scalars["String"]["input"]>;
+  htmlContent?: InputMaybe<Scalars["String"]["input"]>;
   location?: InputMaybe<Scalars["String"]["input"]>;
   salary?: InputMaybe<JobSalaryInput>;
   source?: InputMaybe<JobSource>;
@@ -663,7 +597,7 @@ export type UpdateJobInput = {
 export type UpdateJobStageEventInput = {
   reason?: InputMaybe<Scalars["String"]["input"]>;
   scheduledAt?: InputMaybe<Scalars["DateTime"]["input"]>;
-  toStage?: InputMaybe<JobStage>;
+  toStage?: InputMaybe<ApplicationStage>;
 };
 
 export type UpdateNoteInput = {
@@ -778,154 +712,6 @@ export type ExchangeRatesQuery = {
   };
 };
 
-export type DraftJobsListQueryVariables = Exact<{ [key: string]: never }>;
-
-export type DraftJobsListQuery = {
-  __typename?: "Query";
-  draftJobs: Array<{
-    __typename?: "DraftJobType";
-    id: string;
-    jobId?: string | null;
-    url?: string | null;
-    title: string;
-    createdAt: any;
-    conversionMetadata?: {
-      __typename?: "ConversionMetadataType";
-      status?: DraftJobConversionStatus | null;
-      error?: string | null;
-      timestamp?: any | null;
-    } | null;
-  }>;
-};
-
-export type DraftJobDetailQueryVariables = Exact<{
-  id: Scalars["ID"]["input"];
-}>;
-
-export type DraftJobDetailQuery = {
-  __typename?: "Query";
-  draftJob: {
-    __typename?: "DraftJobType";
-    id: string;
-    jobId?: string | null;
-    url?: string | null;
-    title: string;
-    htmlContent: string;
-    createdAt: any;
-    conversionMetadata?: {
-      __typename?: "ConversionMetadataType";
-      status?: DraftJobConversionStatus | null;
-      error?: string | null;
-      timestamp?: any | null;
-    } | null;
-    match?: {
-      __typename?: "MatchAnalysisType";
-      id: string;
-      jobId?: string | null;
-      draftJobId?: string | null;
-      resumeId: string;
-      scoreRatio?: number | null;
-      classification?: FitClassification | null;
-      matchCount: number;
-      gapCount: number;
-      unclearCount: number;
-      createdAt: any;
-      generationMetadata?: {
-        __typename?: "AsyncMetadataType";
-        status?: AsyncMetadataStatus | null;
-        error?: string | null;
-        timestamp?: any | null;
-      } | null;
-    } | null;
-  };
-};
-
-export type DeleteDraftJobMutationVariables = Exact<{
-  id: Scalars["ID"]["input"];
-  deleteLinkedJob?: InputMaybe<Scalars["Boolean"]["input"]>;
-}>;
-
-export type DeleteDraftJobMutation = {
-  __typename?: "Mutation";
-  deleteDraftJob: {
-    __typename?: "DeleteMutationPayloadType";
-    success: boolean;
-    deletedId: string;
-  };
-};
-
-export type DeleteJobsForDraftMutationVariables = Exact<{
-  draftId: Scalars["ID"]["input"];
-}>;
-
-export type DeleteJobsForDraftMutation = {
-  __typename?: "Mutation";
-  deleteJobsForDraft: {
-    __typename?: "DeleteMutationPayloadType";
-    success: boolean;
-    deletedId: string;
-  };
-};
-
-export type CreateJobWithAiMutationVariables = Exact<{
-  draftId: Scalars["ID"]["input"];
-}>;
-
-export type CreateJobWithAiMutation = {
-  __typename?: "Mutation";
-  createJobWithAI: {
-    __typename?: "DraftJobType";
-    id: string;
-    title: string;
-    conversionMetadata?: {
-      __typename?: "ConversionMetadataType";
-      status?: DraftJobConversionStatus | null;
-      error?: string | null;
-    } | null;
-  };
-};
-
-export type CreateDraftJobMutationVariables = Exact<{
-  input: CreateDraftJobInput;
-}>;
-
-export type CreateDraftJobMutation = {
-  __typename?: "Mutation";
-  createDraftJob: {
-    __typename?: "DraftJobType";
-    id: string;
-    jobId?: string | null;
-    url?: string | null;
-    title: string;
-    conversionMetadata?: {
-      __typename?: "ConversionMetadataType";
-      status?: DraftJobConversionStatus | null;
-      error?: string | null;
-    } | null;
-  };
-};
-
-export type UpdateDraftJobMutationVariables = Exact<{
-  id: Scalars["ID"]["input"];
-  input: UpdateDraftJobInput;
-}>;
-
-export type UpdateDraftJobMutation = {
-  __typename?: "Mutation";
-  updateDraftJob: {
-    __typename?: "DraftJobType";
-    id: string;
-    jobId?: string | null;
-    url?: string | null;
-    title: string;
-    conversionMetadata?: {
-      __typename?: "ConversionMetadataType";
-      status?: DraftJobConversionStatus | null;
-      error?: string | null;
-    } | null;
-  };
-};
-
 export type JobSalarySelectionFragment = {
   __typename?: "JobType";
   salary?: {
@@ -938,7 +724,7 @@ export type JobSalarySelectionFragment = {
 };
 
 export type JobsQueryVariables = Exact<{
-  filter?: InputMaybe<JobQuickFilter>;
+  filter?: InputMaybe<ApplicationQuickFilter>;
   company?: InputMaybe<Scalars["String"]["input"]>;
   runId?: InputMaybe<Scalars["ID"]["input"]>;
 }>;
@@ -948,8 +734,8 @@ export type JobsQuery = {
   jobs: Array<{
     __typename?: "JobType";
     id: string;
-    title: string;
-    companyId: string;
+    title?: string | null;
+    companyId?: string | null;
     description?: string | null;
     urls: Array<string>;
     source?: JobSource | null;
@@ -958,17 +744,23 @@ export type JobsQuery = {
     workRegion?: string | null;
     sourceRunId?: string | null;
     summary?: string | null;
-    currentStage: JobStage;
+    currentStage: ApplicationStage;
     currentStageReason?: string | null;
     currentStageAt: any;
     createdAt: any;
-    company: {
+    company?: {
       __typename?: "CompanyType";
       id: string;
       name: string;
       description?: string | null;
-    };
+    } | null;
     summaryMetadata?: {
+      __typename?: "AsyncMetadataType";
+      status?: AsyncMetadataStatus | null;
+      error?: string | null;
+      timestamp?: any | null;
+    } | null;
+    fillMetadata?: {
       __typename?: "AsyncMetadataType";
       status?: AsyncMetadataStatus | null;
       error?: string | null;
@@ -977,6 +769,7 @@ export type JobsQuery = {
     match?: {
       __typename?: "MatchAnalysisType";
       id: string;
+      resumeId: string;
       scoreRatio?: number | null;
       classification?: FitClassification | null;
       matchCount: number;
@@ -1006,8 +799,8 @@ export type JobQuery = {
   job: {
     __typename?: "JobType";
     id: string;
-    title: string;
-    companyId: string;
+    title?: string | null;
+    companyId?: string | null;
     description?: string | null;
     urls: Array<string>;
     source?: JobSource | null;
@@ -1016,18 +809,24 @@ export type JobQuery = {
     workRegion?: string | null;
     sourceRunId?: string | null;
     summary?: string | null;
-    currentStage: JobStage;
+    htmlContent?: string | null;
+    currentStage: ApplicationStage;
     currentStageReason?: string | null;
     currentStageAt: any;
     createdAt: any;
-    draftJobId?: string | null;
-    company: {
+    company?: {
       __typename?: "CompanyType";
       id: string;
       name: string;
       description?: string | null;
-    };
+    } | null;
     summaryMetadata?: {
+      __typename?: "AsyncMetadataType";
+      status?: AsyncMetadataStatus | null;
+      error?: string | null;
+      timestamp?: any | null;
+    } | null;
+    fillMetadata?: {
       __typename?: "AsyncMetadataType";
       status?: AsyncMetadataStatus | null;
       error?: string | null;
@@ -1036,6 +835,7 @@ export type JobQuery = {
     match?: {
       __typename?: "MatchAnalysisType";
       id: string;
+      resumeId: string;
       scoreRatio?: number | null;
       classification?: FitClassification | null;
       matchCount: number;
@@ -1065,8 +865,8 @@ export type CreateJobMutation = {
   createJob: {
     __typename?: "JobType";
     id: string;
-    title: string;
-    companyId: string;
+    title?: string | null;
+    companyId?: string | null;
     description?: string | null;
     urls: Array<string>;
     source?: JobSource | null;
@@ -1074,12 +874,12 @@ export type CreateJobMutation = {
     location?: string | null;
     workRegion?: string | null;
     createdAt: any;
-    company: {
+    company?: {
       __typename?: "CompanyType";
       id: string;
       name: string;
       description?: string | null;
-    };
+    } | null;
     salary?: {
       __typename?: "JobSalary";
       minCents?: number | null;
@@ -1109,8 +909,8 @@ export type UpdateJobMutation = {
   updateJob: {
     __typename?: "JobType";
     id: string;
-    title: string;
-    companyId: string;
+    title?: string | null;
+    companyId?: string | null;
     description?: string | null;
     urls: Array<string>;
     source?: JobSource | null;
@@ -1119,12 +919,12 @@ export type UpdateJobMutation = {
     workRegion?: string | null;
     summary?: string | null;
     createdAt: any;
-    company: {
+    company?: {
       __typename?: "CompanyType";
       id: string;
       name: string;
       description?: string | null;
-    };
+    } | null;
     summaryMetadata?: {
       __typename?: "AsyncMetadataType";
       status?: AsyncMetadataStatus | null;
@@ -1172,8 +972,8 @@ export type JobStageEventsQuery = {
     __typename?: "JobStageEventType";
     id: string;
     jobId: string;
-    fromStage?: JobStage | null;
-    toStage: JobStage;
+    fromStage?: ApplicationStage | null;
+    toStage: ApplicationStage;
     source: StageEventSource;
     reason?: string | null;
     scheduledAt?: any | null;
@@ -1191,8 +991,8 @@ export type CreateJobStageEventMutation = {
     __typename?: "JobStageEventType";
     id: string;
     jobId: string;
-    fromStage?: JobStage | null;
-    toStage: JobStage;
+    fromStage?: ApplicationStage | null;
+    toStage: ApplicationStage;
     source: StageEventSource;
     reason?: string | null;
     scheduledAt?: any | null;
@@ -1211,8 +1011,8 @@ export type UpdateJobStageEventMutation = {
     __typename?: "JobStageEventType";
     id: string;
     jobId: string;
-    fromStage?: JobStage | null;
-    toStage: JobStage;
+    fromStage?: ApplicationStage | null;
+    toStage: ApplicationStage;
     source: StageEventSource;
     reason?: string | null;
     scheduledAt?: any | null;
@@ -1359,6 +1159,48 @@ export type GenerateJobSummaryMutation = {
   };
 };
 
+export type FillJobAutomaticallyMutationVariables = Exact<{
+  jobId: Scalars["ID"]["input"];
+}>;
+
+export type FillJobAutomaticallyMutation = {
+  __typename?: "Mutation";
+  fillJobAutomatically: {
+    __typename?: "JobType";
+    id: string;
+    currentStage: ApplicationStage;
+    fillMetadata?: {
+      __typename?: "AsyncMetadataType";
+      status?: AsyncMetadataStatus | null;
+      error?: string | null;
+      timestamp?: any | null;
+    } | null;
+  };
+};
+
+export type CreateDraftCaptureJobMutationVariables = Exact<{
+  input: CreateJobInput;
+}>;
+
+export type CreateDraftCaptureJobMutation = {
+  __typename?: "Mutation";
+  createJob: {
+    __typename?: "JobType";
+    id: string;
+    title?: string | null;
+    urls: Array<string>;
+    htmlContent?: string | null;
+    currentStage: ApplicationStage;
+    createdAt: any;
+    fillMetadata?: {
+      __typename?: "AsyncMetadataType";
+      status?: AsyncMetadataStatus | null;
+      error?: string | null;
+      timestamp?: any | null;
+    } | null;
+  };
+};
+
 export type MatchAnalysesListQueryVariables = Exact<{ [key: string]: never }>;
 
 export type MatchAnalysesListQuery = {
@@ -1366,8 +1208,7 @@ export type MatchAnalysesListQuery = {
   matchAnalyses: Array<{
     __typename?: "MatchAnalysisType";
     id: string;
-    jobId?: string | null;
-    draftJobId?: string | null;
+    jobId: string;
     resumeId: string;
     scoreRatio?: number | null;
     classification?: FitClassification | null;
@@ -1385,13 +1226,8 @@ export type MatchAnalysesListQuery = {
     job?: {
       __typename?: "JobType";
       id: string;
-      title: string;
-      company: { __typename?: "CompanyType"; id: string; name: string };
-    } | null;
-    draftJob?: {
-      __typename?: "DraftJobType";
-      id: string;
-      title: string;
+      title?: string | null;
+      company?: { __typename?: "CompanyType"; id: string; name: string } | null;
     } | null;
   }>;
 };
@@ -1403,8 +1239,7 @@ export type MatchQuery = {
   match: {
     __typename?: "MatchAnalysisType";
     id: string;
-    jobId?: string | null;
-    draftJobId?: string | null;
+    jobId: string;
     resumeId: string;
     scoreRatio?: number | null;
     classification?: FitClassification | null;
@@ -1432,13 +1267,8 @@ export type MatchQuery = {
     job?: {
       __typename?: "JobType";
       id: string;
-      title: string;
-      company: { __typename?: "CompanyType"; id: string; name: string };
-    } | null;
-    draftJob?: {
-      __typename?: "DraftJobType";
-      id: string;
-      title: string;
+      title?: string | null;
+      company?: { __typename?: "CompanyType"; id: string; name: string } | null;
     } | null;
   };
 };
@@ -1450,46 +1280,7 @@ export type JobMatchQuery = {
   jobMatch?: {
     __typename?: "MatchAnalysisType";
     id: string;
-    jobId?: string | null;
-    draftJobId?: string | null;
-    resumeId: string;
-    scoreRatio?: number | null;
-    classification?: FitClassification | null;
-    matchCount: number;
-    gapCount: number;
-    unclearCount: number;
-    createdAt: any;
-    generationMetadata?: {
-      __typename?: "AsyncMetadataType";
-      status?: AsyncMetadataStatus | null;
-      error?: string | null;
-      timestamp?: any | null;
-    } | null;
-    items: Array<{
-      __typename?: "MatchItemType";
-      requirement: string;
-      source: FitSource;
-      weight?: string | null;
-      type: RequirementType;
-      verdict: FitVerdict;
-      jdQuote: string;
-      sourceQuotes: Array<string>;
-      suggestion?: string | null;
-    }>;
-  } | null;
-};
-
-export type DraftJobMatchQueryVariables = Exact<{
-  draftJobId: Scalars["ID"]["input"];
-}>;
-
-export type DraftJobMatchQuery = {
-  __typename?: "Query";
-  draftJobMatch?: {
-    __typename?: "MatchAnalysisType";
-    id: string;
-    jobId?: string | null;
-    draftJobId?: string | null;
+    jobId: string;
     resumeId: string;
     scoreRatio?: number | null;
     classification?: FitClassification | null;
@@ -1526,46 +1317,7 @@ export type GenerateJobMatchMutation = {
   generateJobMatch: {
     __typename?: "MatchAnalysisType";
     id: string;
-    jobId?: string | null;
-    draftJobId?: string | null;
-    resumeId: string;
-    scoreRatio?: number | null;
-    classification?: FitClassification | null;
-    matchCount: number;
-    gapCount: number;
-    unclearCount: number;
-    createdAt: any;
-    generationMetadata?: {
-      __typename?: "AsyncMetadataType";
-      status?: AsyncMetadataStatus | null;
-      error?: string | null;
-      timestamp?: any | null;
-    } | null;
-    items: Array<{
-      __typename?: "MatchItemType";
-      requirement: string;
-      source: FitSource;
-      weight?: string | null;
-      type: RequirementType;
-      verdict: FitVerdict;
-      jdQuote: string;
-      sourceQuotes: Array<string>;
-      suggestion?: string | null;
-    }>;
-  };
-};
-
-export type GenerateDraftJobMatchMutationVariables = Exact<{
-  input: GenerateDraftMatchInput;
-}>;
-
-export type GenerateDraftJobMatchMutation = {
-  __typename?: "Mutation";
-  generateDraftJobMatch: {
-    __typename?: "MatchAnalysisType";
-    id: string;
-    jobId?: string | null;
-    draftJobId?: string | null;
+    jobId: string;
     resumeId: string;
     scoreRatio?: number | null;
     classification?: FitClassification | null;
@@ -2145,372 +1897,8 @@ export type ExchangeRatesLazyQueryHookResult = ReturnType<
   typeof useExchangeRatesLazyQuery
 >;
 
-export const DraftJobsListDocument = gql`
-  query DraftJobsList {
-    draftJobs {
-      id
-      jobId
-      url
-      title
-      conversionMetadata {
-        status
-        error
-        timestamp
-      }
-      createdAt
-    }
-  }
-`;
-
-/**
- * __useDraftJobsListQuery__
- *
- * To run a query within a React component, call `useDraftJobsListQuery` and pass it any options that fit your needs.
- * When your component renders, `useDraftJobsListQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useDraftJobsListQuery({
- *   variables: {
- *   },
- * });
- */
-export function useDraftJobsListQuery(
-  baseOptions?: ApolloReactHooks.QueryHookOptions<
-    DraftJobsListQuery,
-    DraftJobsListQueryVariables
-  >,
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return ApolloReactHooks.useQuery<
-    DraftJobsListQuery,
-    DraftJobsListQueryVariables
-  >(DraftJobsListDocument, options);
-}
-export function useDraftJobsListLazyQuery(
-  baseOptions?: ApolloReactHooks.LazyQueryHookOptions<
-    DraftJobsListQuery,
-    DraftJobsListQueryVariables
-  >,
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return ApolloReactHooks.useLazyQuery<
-    DraftJobsListQuery,
-    DraftJobsListQueryVariables
-  >(DraftJobsListDocument, options);
-}
-
-export type DraftJobsListQueryHookResult = ReturnType<
-  typeof useDraftJobsListQuery
->;
-export type DraftJobsListLazyQueryHookResult = ReturnType<
-  typeof useDraftJobsListLazyQuery
->;
-
-export const DraftJobDetailDocument = gql`
-  query DraftJobDetail($id: ID!) {
-    draftJob(id: $id) {
-      id
-      jobId
-      url
-      title
-      htmlContent
-      conversionMetadata {
-        status
-        error
-        timestamp
-      }
-      createdAt
-      match {
-        id
-        jobId
-        draftJobId
-        resumeId
-        generationMetadata {
-          status
-          error
-          timestamp
-        }
-        scoreRatio
-        classification
-        matchCount
-        gapCount
-        unclearCount
-        createdAt
-      }
-    }
-  }
-`;
-
-/**
- * __useDraftJobDetailQuery__
- *
- * To run a query within a React component, call `useDraftJobDetailQuery` and pass it any options that fit your needs.
- * When your component renders, `useDraftJobDetailQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useDraftJobDetailQuery({
- *   variables: {
- *      id: // value for 'id'
- *   },
- * });
- */
-export function useDraftJobDetailQuery(
-  baseOptions: ApolloReactHooks.QueryHookOptions<
-    DraftJobDetailQuery,
-    DraftJobDetailQueryVariables
-  > &
-    (
-      | { variables: DraftJobDetailQueryVariables; skip?: boolean }
-      | { skip: boolean }
-    ),
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return ApolloReactHooks.useQuery<
-    DraftJobDetailQuery,
-    DraftJobDetailQueryVariables
-  >(DraftJobDetailDocument, options);
-}
-export function useDraftJobDetailLazyQuery(
-  baseOptions?: ApolloReactHooks.LazyQueryHookOptions<
-    DraftJobDetailQuery,
-    DraftJobDetailQueryVariables
-  >,
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return ApolloReactHooks.useLazyQuery<
-    DraftJobDetailQuery,
-    DraftJobDetailQueryVariables
-  >(DraftJobDetailDocument, options);
-}
-
-export type DraftJobDetailQueryHookResult = ReturnType<
-  typeof useDraftJobDetailQuery
->;
-export type DraftJobDetailLazyQueryHookResult = ReturnType<
-  typeof useDraftJobDetailLazyQuery
->;
-
-export const DeleteDraftJobDocument = gql`
-  mutation DeleteDraftJob($id: ID!, $deleteLinkedJob: Boolean) {
-    deleteDraftJob(id: $id, deleteLinkedJob: $deleteLinkedJob) {
-      success
-      deletedId
-    }
-  }
-`;
-
-/**
- * __useDeleteDraftJobMutation__
- *
- * To run a mutation, you first call `useDeleteDraftJobMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useDeleteDraftJobMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [deleteDraftJobMutation, { data, loading, error }] = useDeleteDraftJobMutation({
- *   variables: {
- *      id: // value for 'id'
- *      deleteLinkedJob: // value for 'deleteLinkedJob'
- *   },
- * });
- */
-export function useDeleteDraftJobMutation(
-  baseOptions?: ApolloReactHooks.MutationHookOptions<
-    DeleteDraftJobMutation,
-    DeleteDraftJobMutationVariables
-  >,
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return ApolloReactHooks.useMutation<
-    DeleteDraftJobMutation,
-    DeleteDraftJobMutationVariables
-  >(DeleteDraftJobDocument, options);
-}
-
-export const DeleteJobsForDraftDocument = gql`
-  mutation DeleteJobsForDraft($draftId: ID!) {
-    deleteJobsForDraft(draftId: $draftId) {
-      success
-      deletedId
-    }
-  }
-`;
-
-/**
- * __useDeleteJobsForDraftMutation__
- *
- * To run a mutation, you first call `useDeleteJobsForDraftMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useDeleteJobsForDraftMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [deleteJobsForDraftMutation, { data, loading, error }] = useDeleteJobsForDraftMutation({
- *   variables: {
- *      draftId: // value for 'draftId'
- *   },
- * });
- */
-export function useDeleteJobsForDraftMutation(
-  baseOptions?: ApolloReactHooks.MutationHookOptions<
-    DeleteJobsForDraftMutation,
-    DeleteJobsForDraftMutationVariables
-  >,
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return ApolloReactHooks.useMutation<
-    DeleteJobsForDraftMutation,
-    DeleteJobsForDraftMutationVariables
-  >(DeleteJobsForDraftDocument, options);
-}
-
-export const CreateJobWithAiDocument = gql`
-  mutation CreateJobWithAI($draftId: ID!) {
-    createJobWithAI(draftId: $draftId) {
-      id
-      title
-      conversionMetadata {
-        status
-        error
-      }
-    }
-  }
-`;
-
-/**
- * __useCreateJobWithAiMutation__
- *
- * To run a mutation, you first call `useCreateJobWithAiMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useCreateJobWithAiMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [createJobWithAiMutation, { data, loading, error }] = useCreateJobWithAiMutation({
- *   variables: {
- *      draftId: // value for 'draftId'
- *   },
- * });
- */
-export function useCreateJobWithAiMutation(
-  baseOptions?: ApolloReactHooks.MutationHookOptions<
-    CreateJobWithAiMutation,
-    CreateJobWithAiMutationVariables
-  >,
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return ApolloReactHooks.useMutation<
-    CreateJobWithAiMutation,
-    CreateJobWithAiMutationVariables
-  >(CreateJobWithAiDocument, options);
-}
-
-export const CreateDraftJobDocument = gql`
-  mutation CreateDraftJob($input: CreateDraftJobInput!) {
-    createDraftJob(input: $input) {
-      id
-      jobId
-      url
-      title
-      conversionMetadata {
-        status
-        error
-      }
-    }
-  }
-`;
-
-/**
- * __useCreateDraftJobMutation__
- *
- * To run a mutation, you first call `useCreateDraftJobMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useCreateDraftJobMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [createDraftJobMutation, { data, loading, error }] = useCreateDraftJobMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useCreateDraftJobMutation(
-  baseOptions?: ApolloReactHooks.MutationHookOptions<
-    CreateDraftJobMutation,
-    CreateDraftJobMutationVariables
-  >,
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return ApolloReactHooks.useMutation<
-    CreateDraftJobMutation,
-    CreateDraftJobMutationVariables
-  >(CreateDraftJobDocument, options);
-}
-
-export const UpdateDraftJobDocument = gql`
-  mutation UpdateDraftJob($id: ID!, $input: UpdateDraftJobInput!) {
-    updateDraftJob(id: $id, input: $input) {
-      id
-      jobId
-      url
-      title
-      conversionMetadata {
-        status
-        error
-      }
-    }
-  }
-`;
-
-/**
- * __useUpdateDraftJobMutation__
- *
- * To run a mutation, you first call `useUpdateDraftJobMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateDraftJobMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [updateDraftJobMutation, { data, loading, error }] = useUpdateDraftJobMutation({
- *   variables: {
- *      id: // value for 'id'
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useUpdateDraftJobMutation(
-  baseOptions?: ApolloReactHooks.MutationHookOptions<
-    UpdateDraftJobMutation,
-    UpdateDraftJobMutationVariables
-  >,
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return ApolloReactHooks.useMutation<
-    UpdateDraftJobMutation,
-    UpdateDraftJobMutationVariables
-  >(UpdateDraftJobDocument, options);
-}
-
 export const JobsDocument = gql`
-  query Jobs($filter: JobQuickFilter, $company: String, $runId: ID) {
+  query Jobs($filter: ApplicationQuickFilter, $company: String, $runId: ID) {
     jobs(filter: $filter, company: $company, runId: $runId) {
       id
       title
@@ -2534,12 +1922,18 @@ export const JobsDocument = gql`
         error
         timestamp
       }
+      fillMetadata {
+        status
+        error
+        timestamp
+      }
       currentStage
       currentStageReason
       currentStageAt
       createdAt
       match {
         id
+        resumeId
         scoreRatio
         classification
         matchCount
@@ -2627,13 +2021,19 @@ export const JobDocument = gql`
         error
         timestamp
       }
+      fillMetadata {
+        status
+        error
+        timestamp
+      }
+      htmlContent
       currentStage
       currentStageReason
       currentStageAt
       createdAt
-      draftJobId
       match {
         id
+        resumeId
         scoreRatio
         classification
         matchCount
@@ -3665,12 +3065,103 @@ export function useGenerateJobSummaryMutation(
   >(GenerateJobSummaryDocument, options);
 }
 
+export const FillJobAutomaticallyDocument = gql`
+  mutation FillJobAutomatically($jobId: ID!) {
+    fillJobAutomatically(jobId: $jobId) {
+      id
+      fillMetadata {
+        status
+        error
+        timestamp
+      }
+      currentStage
+    }
+  }
+`;
+
+/**
+ * __useFillJobAutomaticallyMutation__
+ *
+ * To run a mutation, you first call `useFillJobAutomaticallyMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useFillJobAutomaticallyMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [fillJobAutomaticallyMutation, { data, loading, error }] = useFillJobAutomaticallyMutation({
+ *   variables: {
+ *      jobId: // value for 'jobId'
+ *   },
+ * });
+ */
+export function useFillJobAutomaticallyMutation(
+  baseOptions?: ApolloReactHooks.MutationHookOptions<
+    FillJobAutomaticallyMutation,
+    FillJobAutomaticallyMutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useMutation<
+    FillJobAutomaticallyMutation,
+    FillJobAutomaticallyMutationVariables
+  >(FillJobAutomaticallyDocument, options);
+}
+
+export const CreateDraftCaptureJobDocument = gql`
+  mutation CreateDraftCaptureJob($input: CreateJobInput!) {
+    createJob(input: $input) {
+      id
+      title
+      urls
+      htmlContent
+      currentStage
+      fillMetadata {
+        status
+        error
+        timestamp
+      }
+      createdAt
+    }
+  }
+`;
+
+/**
+ * __useCreateDraftCaptureJobMutation__
+ *
+ * To run a mutation, you first call `useCreateDraftCaptureJobMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateDraftCaptureJobMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createDraftCaptureJobMutation, { data, loading, error }] = useCreateDraftCaptureJobMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateDraftCaptureJobMutation(
+  baseOptions?: ApolloReactHooks.MutationHookOptions<
+    CreateDraftCaptureJobMutation,
+    CreateDraftCaptureJobMutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useMutation<
+    CreateDraftCaptureJobMutation,
+    CreateDraftCaptureJobMutationVariables
+  >(CreateDraftCaptureJobDocument, options);
+}
+
 export const MatchAnalysesListDocument = gql`
   query MatchAnalysesList {
     matchAnalyses {
       id
       jobId
-      draftJobId
       resumeId
       generationMetadata {
         status
@@ -3691,10 +3182,6 @@ export const MatchAnalysesListDocument = gql`
           id
           name
         }
-      }
-      draftJob {
-        id
-        title
       }
     }
   }
@@ -3752,7 +3239,6 @@ export const MatchDocument = gql`
     match(id: $id) {
       id
       jobId
-      draftJobId
       resumeId
       generationMetadata {
         status
@@ -3782,10 +3268,6 @@ export const MatchDocument = gql`
           id
           name
         }
-      }
-      draftJob {
-        id
-        title
       }
     }
   }
@@ -3841,7 +3323,6 @@ export const JobMatchDocument = gql`
     jobMatch(jobId: $jobId) {
       id
       jobId
-      draftJobId
       resumeId
       generationMetadata {
         status
@@ -3915,96 +3396,11 @@ export type JobMatchLazyQueryHookResult = ReturnType<
   typeof useJobMatchLazyQuery
 >;
 
-export const DraftJobMatchDocument = gql`
-  query DraftJobMatch($draftJobId: ID!) {
-    draftJobMatch(draftJobId: $draftJobId) {
-      id
-      jobId
-      draftJobId
-      resumeId
-      generationMetadata {
-        status
-        error
-        timestamp
-      }
-      scoreRatio
-      classification
-      matchCount
-      gapCount
-      unclearCount
-      items {
-        requirement
-        source
-        weight
-        type
-        verdict
-        jdQuote
-        sourceQuotes
-        suggestion
-      }
-      createdAt
-    }
-  }
-`;
-
-/**
- * __useDraftJobMatchQuery__
- *
- * To run a query within a React component, call `useDraftJobMatchQuery` and pass it any options that fit your needs.
- * When your component renders, `useDraftJobMatchQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useDraftJobMatchQuery({
- *   variables: {
- *      draftJobId: // value for 'draftJobId'
- *   },
- * });
- */
-export function useDraftJobMatchQuery(
-  baseOptions: ApolloReactHooks.QueryHookOptions<
-    DraftJobMatchQuery,
-    DraftJobMatchQueryVariables
-  > &
-    (
-      | { variables: DraftJobMatchQueryVariables; skip?: boolean }
-      | { skip: boolean }
-    ),
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return ApolloReactHooks.useQuery<
-    DraftJobMatchQuery,
-    DraftJobMatchQueryVariables
-  >(DraftJobMatchDocument, options);
-}
-export function useDraftJobMatchLazyQuery(
-  baseOptions?: ApolloReactHooks.LazyQueryHookOptions<
-    DraftJobMatchQuery,
-    DraftJobMatchQueryVariables
-  >,
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return ApolloReactHooks.useLazyQuery<
-    DraftJobMatchQuery,
-    DraftJobMatchQueryVariables
-  >(DraftJobMatchDocument, options);
-}
-
-export type DraftJobMatchQueryHookResult = ReturnType<
-  typeof useDraftJobMatchQuery
->;
-export type DraftJobMatchLazyQueryHookResult = ReturnType<
-  typeof useDraftJobMatchLazyQuery
->;
-
 export const GenerateJobMatchDocument = gql`
   mutation GenerateJobMatch($input: GenerateMatchInput!) {
     generateJobMatch(input: $input) {
       id
       jobId
-      draftJobId
       resumeId
       generationMetadata {
         status
@@ -4059,68 +3455,6 @@ export function useGenerateJobMatchMutation(
     GenerateJobMatchMutation,
     GenerateJobMatchMutationVariables
   >(GenerateJobMatchDocument, options);
-}
-
-export const GenerateDraftJobMatchDocument = gql`
-  mutation GenerateDraftJobMatch($input: GenerateDraftMatchInput!) {
-    generateDraftJobMatch(input: $input) {
-      id
-      jobId
-      draftJobId
-      resumeId
-      generationMetadata {
-        status
-        error
-        timestamp
-      }
-      scoreRatio
-      classification
-      matchCount
-      gapCount
-      unclearCount
-      items {
-        requirement
-        source
-        weight
-        type
-        verdict
-        jdQuote
-        sourceQuotes
-        suggestion
-      }
-      createdAt
-    }
-  }
-`;
-
-/**
- * __useGenerateDraftJobMatchMutation__
- *
- * To run a mutation, you first call `useGenerateDraftJobMatchMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useGenerateDraftJobMatchMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [generateDraftJobMatchMutation, { data, loading, error }] = useGenerateDraftJobMatchMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useGenerateDraftJobMatchMutation(
-  baseOptions?: ApolloReactHooks.MutationHookOptions<
-    GenerateDraftJobMatchMutation,
-    GenerateDraftJobMatchMutationVariables
-  >,
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return ApolloReactHooks.useMutation<
-    GenerateDraftJobMatchMutation,
-    GenerateDraftJobMatchMutationVariables
-  >(GenerateDraftJobMatchDocument, options);
 }
 
 export const DeleteMatchAnalysisDocument = gql`
