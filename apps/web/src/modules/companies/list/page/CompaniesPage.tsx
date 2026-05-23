@@ -2,6 +2,7 @@
 
 import { normalizeTipTapDocument } from "@job-tracker/tiptap";
 import { Card, cn, Skeleton, Stack, Text, useDialog } from "@job-tracker/ui";
+import { SearchInput } from "@job-tracker/ui";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
@@ -10,7 +11,6 @@ import { useScrollRestoration } from "@/hooks/useScrollRestoration";
 import { CompanyCard } from "@/modules/companies/list/components/CompanyCard";
 import { useCompaniesListViewModel } from "@/modules/companies/list/hooks/useCompaniesListViewModel";
 import { CompanyEditDialog } from "@/modules/companies/shared/components/CompanyEditDialog";
-import { SearchInput } from "@/modules/jobs/shared/components/SearchInput";
 import { useToastQueue } from "@/modules/jobs/shared/hooks/useToastQueue";
 
 interface EditingCompany {

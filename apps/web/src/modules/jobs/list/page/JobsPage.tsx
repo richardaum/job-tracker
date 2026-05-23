@@ -9,6 +9,7 @@ import {
   Text,
   useDialog,
 } from "@job-tracker/ui";
+import { SearchInput } from "@job-tracker/ui";
 import { PlusIcon } from "@phosphor-icons/react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
@@ -19,7 +20,6 @@ import { JobsCompanyFilterBanner } from "@/modules/jobs/list/components/JobsComp
 import { JobsImportRunFilterBanner } from "@/modules/jobs/list/components/JobsImportRunFilterBanner";
 import { QuickFilters } from "@/modules/jobs/list/components/QuickFilters";
 import { useJobsListViewModel } from "@/modules/jobs/list/hooks/useJobsListViewModel";
-import { SearchInput } from "@/modules/jobs/shared/components/SearchInput";
 import { useToastQueue } from "@/modules/jobs/shared/hooks/useToastQueue";
 
 function stripSearchKeys(

@@ -1,12 +1,12 @@
 "use client";
 
 import { Button, Card, cn, Skeleton, Stack, Text } from "@job-tracker/ui";
+import { SearchInput } from "@job-tracker/ui";
 import { PlusIcon } from "@phosphor-icons/react";
 import type { ChangeEvent } from "react";
 import { useState } from "react";
 
 import { EmptyState } from "@/components/empty-state";
-import { SearchInput } from "@/modules/jobs/shared/components/SearchInput";
 import {
   type SourceProfileRow,
   useSourcesListViewModel,

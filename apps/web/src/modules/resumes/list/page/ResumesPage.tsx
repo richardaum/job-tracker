@@ -2,6 +2,7 @@
 
 import { tryRun } from "@job-tracker/try-run";
 import { Button, cn, Skeleton, Stack, Text } from "@job-tracker/ui";
+import { SearchInput } from "@job-tracker/ui";
 import { BriefcaseIcon, PlusIcon } from "@phosphor-icons/react";
 import { useState } from "react";
 
@@ -12,7 +13,6 @@ import {
   useResumesQuery,
   useUpdateResumeMutation,
 } from "@/gql/hooks";
-import { SearchInput } from "@/modules/jobs/shared/components/SearchInput";
 import { useToastQueue } from "@/modules/jobs/shared/hooks/useToastQueue";
 import { AddResumeDialog } from "@/modules/resumes/list/components/AddResumeDialog";
 import { ResumeCard } from "@/modules/resumes/list/components/ResumeCard";
