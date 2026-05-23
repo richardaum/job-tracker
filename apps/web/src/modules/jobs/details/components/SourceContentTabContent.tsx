@@ -2,6 +2,8 @@
 
 import { cn } from "@job-tracker/ui";
 
+import { buildCapturedHtmlSrcDoc } from "@/lib/captured-html-iframe-srcdoc";
+
 export function SourceContentTabContent({
   htmlContent,
 }: {
@@ -15,8 +17,9 @@ export function SourceContentTabContent({
     >
       <iframe
         title="Source posting HTML"
-        srcDoc={htmlContent}
+        srcDoc={buildCapturedHtmlSrcDoc(htmlContent)}
         sandbox=""
+        referrerPolicy="no-referrer"
         className={cn("h-full min-h-0 flex-1 border-0")}
       />
     </div>
