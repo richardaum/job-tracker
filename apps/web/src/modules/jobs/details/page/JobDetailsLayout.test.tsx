@@ -231,6 +231,55 @@ describe("JobDetailsLayout", () => {
     expect(screen.getByTestId("notes-child")).toBeInTheDocument();
   });
 
+  it("hides ActivitySidePanel on desktop when route is /jobs/[id]/notes", async () => {
+    useBreakpointMock.mockReturnValue(true);
+    usePathnameMock.mockReturnValue("/jobs/job-1/notes");
+
+    render(
+      <JobDetailsLayout params={syncParamsResolved({ id: "job-1" })}>
+        <div data-testid="notes-child" />
+      </JobDetailsLayout>,
+    );
+
+    expect(
+      await screen.findByRole("tab", { name: "History" }),
+    ).toBeInTheDocument();
+    expect(screen.queryByTestId("activity-mock")).toBeNull();
+  });
+
+  it("selects History tab and hides ActivitySidePanel on desktop /jobs/[id]/history", async () => {
+    useBreakpointMock.mockReturnValue(true);
+    usePathnameMock.mockReturnValue("/jobs/job-1/history");
+
+    render(
+      <JobDetailsLayout params={syncParamsResolved({ id: "job-1" })}>
+        <div data-testid="history-child" />
+      </JobDetailsLayout>,
+    );
+
+    expect(
+      await screen.findByRole("tab", { name: "History", selected: true }),
+    ).toBeInTheDocument();
+    expect(
+      await screen.findByRole("tab", { name: "Notes" }),
+    ).toBeInTheDocument();
+    expect(screen.queryByTestId("activity-mock")).toBeNull();
+  });
+
+  it("shows ActivitySidePanel on desktop overview route", async () => {
+    useBreakpointMock.mockReturnValue(true);
+    usePathnameMock.mockReturnValue("/jobs/job-1");
+
+    render(
+      <JobDetailsLayout params={syncParamsResolved({ id: "job-1" })}>
+        <div data-testid="child-content" />
+      </JobDetailsLayout>,
+    );
+
+    expect(await screen.findByTestId("activity-mock")).toBeInTheDocument();
+    expect(screen.queryByRole("tab", { name: "Notes" })).toBeNull();
+  });
+
   it("does not show match menu items until match tab content registers them", async () => {
     usePathnameMock.mockReturnValue("/jobs/job-1/match");
     const user = userEvent.setup();

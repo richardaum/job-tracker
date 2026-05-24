@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  isJobDetailsSidePanelTab,
   jobDetailsHref,
   jobDetailsNotesFocusPath,
   jobDetailsPath,
@@ -44,5 +45,12 @@ describe("job-details-routes", () => {
     expect(parseJobSidePanel("notes")).toBe("notes");
     expect(parseJobSidePanel("history")).toBe("history");
     expect(parseJobSidePanel("other")).toBeNull();
+  });
+
+  it("detects side-panel tabs", () => {
+    expect(isJobDetailsSidePanelTab("notes")).toBe(true);
+    expect(isJobDetailsSidePanelTab("history")).toBe(true);
+    expect(isJobDetailsSidePanelTab("overview")).toBe(false);
+    expect(isJobDetailsSidePanelTab("match")).toBe(false);
   });
 });

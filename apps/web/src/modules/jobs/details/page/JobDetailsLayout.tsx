@@ -36,6 +36,7 @@ import {
 } from "@/modules/jobs/details/job-details-header.slots";
 import { jobDetailDisplayTitle } from "@/modules/jobs/details/utils/job-detail-title";
 import {
+  isJobDetailsSidePanelTab,
   jobDetailsHref,
   type JobDetailsMainTab,
   jobDetailsPath,
@@ -84,6 +85,29 @@ function MobileTabTrigger({
     <TabsTrigger value={tab} asChild>
       <NextLink href={jobDetailsPath(jobId, tab)}>{label}</NextLink>
     </TabsTrigger>
+  );
+}
+
+function FullWidthTabList({
+  jobId,
+  showSourceContent,
+  className,
+}: {
+  jobId: string;
+  showSourceContent: boolean;
+  className?: string;
+}) {
+  return (
+    <TabsList className={cn("w-fit max-w-full shrink-0 self-start", className)}>
+      <MobileTabTrigger jobId={jobId} tab="overview" label="Overview" />
+      <MobileTabTrigger jobId={jobId} tab="description" label="Description" />
+      {showSourceContent ? (
+        <MobileTabTrigger jobId={jobId} tab="source" label="Source content" />
+      ) : null}
+      <MobileTabTrigger jobId={jobId} tab="match" label="Match" />
+      <MobileTabTrigger jobId={jobId} tab="notes" label="Notes" />
+      <MobileTabTrigger jobId={jobId} tab="history" label="History" />
+    </TabsList>
   );
 }
 
@@ -169,6 +193,7 @@ export default function JobDetailsLayout({
   const effectiveSidePanel = sidePanelFromQuery ?? "notes";
 
   const showSourceContent = Boolean(job?.htmlContent);
+  const isSidePanelRoute = isJobDetailsSidePanelTab(activeTab);
 
   const actionsMenu = job ? (
     <DropdownMenu
@@ -297,34 +322,27 @@ export default function JobDetailsLayout({
               value={activeTab}
               className={cn("flex size-full min-h-0 flex-col")}
             >
-              <TabsList className={cn("w-full shrink-0 flex-wrap")}>
-                <MobileTabTrigger
-                  jobId={job.id}
-                  tab="overview"
-                  label="Overview"
-                />
-                <MobileTabTrigger
-                  jobId={job.id}
-                  tab="description"
-                  label="Description"
-                />
-                {showSourceContent ? (
-                  <MobileTabTrigger
-                    jobId={job.id}
-                    tab="source"
-                    label="Source content"
-                  />
-                ) : null}
-                <MobileTabTrigger jobId={job.id} tab="match" label="Match" />
-                <MobileTabTrigger jobId={job.id} tab="notes" label="Notes" />
-                <MobileTabTrigger
-                  jobId={job.id}
-                  tab="history"
-                  label="History"
-                />
-              </TabsList>
+              <FullWidthTabList
+                jobId={job.id}
+                showSourceContent={showSourceContent}
+                className={cn("flex-wrap")}
+              />
 
               <div className={cn("flex flex-1 min-h-0 flex-col")}>
+                {children}
+              </div>
+            </Tabs>
+          ) : isSidePanelRoute ? (
+            <Tabs
+              value={activeTab}
+              className={cn("flex size-full min-h-0 flex-col")}
+            >
+              <FullWidthTabList
+                jobId={job.id}
+                showSourceContent={showSourceContent}
+              />
+
+              <div className={cn("mt-3 flex flex-1 min-h-0 flex-col")}>
                 {children}
               </div>
             </Tabs>
@@ -338,7 +356,7 @@ export default function JobDetailsLayout({
                 value={mainTab}
                 className={cn("flex size-full min-h-0 flex-col")}
               >
-                <TabsList>
+                <TabsList className={cn("w-fit self-start")}>
                   <DesktopMainTabTrigger
                     jobId={job.id}
                     tab="overview"

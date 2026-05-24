@@ -10,21 +10,31 @@ import { ArrowSquareOutIcon } from "@phosphor-icons/react";
 import NextLink from "next/link";
 import React from "react";
 
+import {
+  jobDetailsNotesFocusPath,
+  type JobSidePanel,
+} from "@/modules/jobs/details/utils/job-details-routes";
+
 import { HistoryPanelTabsContent } from "./HistoryPanel";
 import { NotesPanelTabsContent } from "./NotesPanel";
 
 export function ActivitySidePanel({
   jobId,
+  sidePanel = "notes",
+  onSidePanelChange,
   onSuccess,
   onError,
 }: {
   jobId: string;
+  sidePanel?: JobSidePanel;
+  onSidePanelChange?: (sidePanel: JobSidePanel) => void;
   onSuccess?: (message: string) => void;
   onError?: (message: string) => void;
 }) {
   return (
     <Tabs
-      defaultValue="notes"
+      value={sidePanel}
+      onValueChange={(value) => onSidePanelChange?.(value as JobSidePanel)}
       className={cn("flex size-full min-h-0  flex-col")}
     >
       <TabsList className={cn("w-full")}>
@@ -45,7 +55,7 @@ export function ActivitySidePanel({
                   "opacity-0 transition-opacity group-hover:opacity-100 data-[state=active]:opacity-100 no-underline hover:no-underline",
                 )}
               >
-                <NextLink href={`/jobs/${jobId}/notes`}>
+                <NextLink href={jobDetailsNotesFocusPath(jobId)}>
                   <ArrowSquareOutIcon size={14} weight="regular" />
                 </NextLink>
               </Link>

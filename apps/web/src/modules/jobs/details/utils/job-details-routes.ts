@@ -61,3 +61,9 @@ export function isJobDetailsMainTab(
 ): tab is JobDetailsMainTab {
   return tab !== "notes" && tab !== "history";
 }
+
+export function isJobDetailsSidePanelTab(
+  tab: JobDetailsTab,
+): tab is JobSidePanel {
+  return !isJobDetailsMainTab(tab);
+}
