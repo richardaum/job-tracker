@@ -32,10 +32,16 @@ pnpm worktree:teardown   # -- --dry-run=true|false --apply=true|false --drop-db=
 
 See `apps/api/.env.example`, `apps/web/.env.example`, `apps/extension/.env.example`, and `.agents/rules/ops-docker-pm2.md`.
 
-Match CI locally (LeanSpec validation, lint, typecheck, tests with coverage, production build):
+Validate before a PR (specs, lint, typecheck, coverage, format, knip, build):
 
 ```bash
-pnpm ci:local
+pnpm validate:ci
+```
+
+Quick check during development:
+
+```bash
+pnpm validate
 ```
 
 ## End-to-end tests
