@@ -23,4 +23,9 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default withSentryConfig(nextConfig, { silent: true, telemetry: false });
+export default withSentryConfig(nextConfig, {
+  silent: true,
+  telemetry: false,
+  webpack: { reactComponentAnnotation: { enabled: true } },
+  _experimental: { turbopackReactComponentAnnotation: { enabled: true } },
+});
