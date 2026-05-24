@@ -645,6 +645,7 @@ export type UserSetting = {
   autoFillEnabled: Scalars["Boolean"]["output"];
   autoSummaryEnabled: Scalars["Boolean"]["output"];
   duplicateWindowDays: Scalars["Int"]["output"];
+  id: Scalars["ID"]["output"];
   userId: Scalars["String"]["output"];
 };
 
@@ -1492,7 +1493,7 @@ export type SettingsQuery = {
   __typename?: "Query";
   settings: {
     __typename?: "UserSetting";
-    userId: string;
+    id: string;
     autoFillEnabled: boolean;
     autoSummaryEnabled: boolean;
     duplicateWindowDays: number;
@@ -1507,7 +1508,7 @@ export type UpdateSettingsMutation = {
   __typename?: "Mutation";
   updateSettings: {
     __typename?: "UserSetting";
-    userId: string;
+    id: string;
     autoFillEnabled: boolean;
     autoSummaryEnabled: boolean;
     duplicateWindowDays: number;
@@ -2252,7 +2253,7 @@ export const DeleteResumeDocument = gql`
 export const SettingsDocument = gql`
   query Settings {
     settings {
-      userId
+      id
       autoFillEnabled
       autoSummaryEnabled
       duplicateWindowDays
@@ -2262,7 +2263,7 @@ export const SettingsDocument = gql`
 export const UpdateSettingsDocument = gql`
   mutation UpdateSettings($input: UpdateSettingsInput!) {
     updateSettings(input: $input) {
-      userId
+      id
       autoFillEnabled
       autoSummaryEnabled
       duplicateWindowDays

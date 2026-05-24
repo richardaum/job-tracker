@@ -44,7 +44,7 @@ function buildOptimisticSettings(
 ): UpdateSettingsMutation["updateSettings"] {
   return {
     __typename: "UserSetting",
-    userId: settings.userId,
+    id: settings.id,
     autoFillEnabled: input.autoFillEnabled ?? settings.autoFillEnabled,
     autoSummaryEnabled: input.autoSummaryEnabled ?? settings.autoSummaryEnabled,
     duplicateWindowDays:

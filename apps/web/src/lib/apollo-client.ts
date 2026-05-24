@@ -17,9 +17,7 @@ export function createApolloClient() {
 
   return new ApolloClient({
     link: authRefreshLink.concat(httpLink),
-    cache: new InMemoryCache({
-      typePolicies: { UserSetting: { keyFields: ["userId"] } },
-    }),
+    cache: new InMemoryCache(),
     devtools: { enabled: clientEnv.NODE_ENV === "development" },
   });
 }

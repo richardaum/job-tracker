@@ -5,10 +5,11 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 
 import { SettingsResolver } from "./settings.resolver";
 import { SettingsService } from "./settings.service";
+import { UserSettingFieldsResolver } from "./user-setting.fields.resolver";
 
 @Module({
   imports: [TypeOrmModule.forFeature([UserSettingEntity]), AuthModule],
-  providers: [SettingsService, SettingsResolver],
+  providers: [SettingsService, SettingsResolver, UserSettingFieldsResolver],
   exports: [SettingsService],
 })
 export class SettingsModule {}

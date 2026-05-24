@@ -1,6 +1,6 @@
 query Settings {
   settings {
-    userId
+    id
     autoFillEnabled
     autoSummaryEnabled
     duplicateWindowDays
@@ -9,7 +9,7 @@ query Settings {
 
 mutation UpdateSettings($input: UpdateSettingsInput!) {
   updateSettings(input: $input) {
-    userId
+    id
     autoFillEnabled
     autoSummaryEnabled
     duplicateWindowDays

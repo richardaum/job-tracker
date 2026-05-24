@@ -15,6 +15,7 @@ import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
 import { SettingsResolver } from "./settings.resolver";
 import { SettingsService } from "./settings.service";
+import { UserSettingFieldsResolver } from "./user-setting.fields.resolver";
 
 describe("SettingsResolver (integration)", () => {
   let app: INestApplication;
@@ -46,6 +47,7 @@ describe("SettingsResolver (integration)", () => {
       ],
       providers: [
         SettingsResolver,
+        UserSettingFieldsResolver,
         { provide: SettingsService, useValue: service },
       ],
     })
@@ -78,11 +80,12 @@ describe("SettingsResolver (integration)", () => {
       .post("/graphql")
       .set(auth)
       .send({
-        query: `{ settings { userId autoFillEnabled autoSummaryEnabled duplicateWindowDays } }`,
+        query: `{ settings { id userId autoFillEnabled autoSummaryEnabled duplicateWindowDays } }`,
       });
 
     expect(res.statusCode).toBe(200);
     expect(res.body.data.settings).toMatchObject({
+      id: "user-1",
       userId: "user-1",
       autoFillEnabled: false,
       autoSummaryEnabled: false,

@@ -28,7 +28,7 @@ function mockSettings(
     data: {
       settings: {
         __typename: "UserSetting" as const,
-        userId: "user-1",
+        id: "user-1",
         autoFillEnabled: false,
         autoSummaryEnabled: false,
         duplicateWindowDays: 30,
@@ -86,7 +86,7 @@ describe("SettingsTabPage", () => {
         optimisticResponse: {
           updateSettings: expect.objectContaining({
             __typename: "UserSetting",
-            userId: "user-1",
+            id: "user-1",
             autoFillEnabled: true,
             autoSummaryEnabled: false,
             duplicateWindowDays: 30,
