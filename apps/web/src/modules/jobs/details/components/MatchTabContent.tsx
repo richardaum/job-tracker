@@ -173,7 +173,7 @@ export function MatchTabContent({ jobId }: MatchTabContentProps) {
         ) : (
           <div
             className={cn(
-              "columns-1 gap-4 sm:columns-2 lg:columns-3 xl:columns-4 2xl:columns-5 *:break-inside-avoid *:mb-4",
+              "columns-1 gap-4 @sm:columns-2 @2xl:columns-3 @4xl:columns-4 @6xl:columns-5 *:break-inside-avoid *:mb-4",
             )}
           >
             {vm.filteredItems.map((item, i) => (
@@ -236,7 +236,13 @@ export function MatchTabContent({ jobId }: MatchTabContentProps) {
         <JobHeaderActions>{generateButton}</JobHeaderActions>
       ) : null}
       <JobActionsMenuItems>{matchActionsMenuItems}</JobActionsMenuItems>
-      <div className={cn("flex min-h-0 flex-1 flex-col gap-4")}>{body}</div>
+      <div
+        className={cn(
+          "@container w-full min-w-0 flex min-h-0 flex-1 flex-col gap-4",
+        )}
+      >
+        {body}
+      </div>
 
       <MatchWizardDialog
         open={vm.wizardOpen}
