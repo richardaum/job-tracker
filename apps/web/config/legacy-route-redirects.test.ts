@@ -21,10 +21,33 @@ describe("legacyRouteRedirects", () => {
     expect(detailRule!.permanent).toBe(false);
   });
 
-  it("defines exactly the two legacy draft-jobs redirects", () => {
-    expect(legacyRouteRedirects).toHaveLength(2);
-    expect(new Set(legacyRouteRedirects.map((r) => r.source))).toEqual(
-      new Set(["/draft-jobs/:id", "/draft-jobs"]),
+  it("redirects legacy /matches/[id] bookmarks to job Match tab (308)", () => {
+    const matchDetail = legacyRouteRedirects.find(
+      (r) => r.source === "/matches/:id",
     );
+    expect(matchDetail).toBeDefined();
+    expect(matchDetail!.destination).toBe("/jobs/:id/match");
+    expect(matchDetail!.permanent).toBe(true);
+  });
+
+  it("redirects ?s=notes on /jobs/[id] to notes subpage", () => {
+    const notesRule = legacyRouteRedirects.find(
+      (r) =>
+        r.source === "/jobs/:id" &&
+        "has" in r &&
+        r.has?.some(
+          (entry) =>
+            entry.type === "query" &&
+            entry.key === "s" &&
+            entry.value === "notes",
+        ),
+    );
+    expect(notesRule).toBeDefined();
+    expect(notesRule!.destination).toBe("/jobs/:id/notes");
+    expect(notesRule!.permanent).toBe(false);
+  });
+
+  it("defines exactly five legacy redirects", () => {
+    expect(legacyRouteRedirects).toHaveLength(5);
   });
 });

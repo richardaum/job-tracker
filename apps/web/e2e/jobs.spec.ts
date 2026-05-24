@@ -13,7 +13,8 @@ test("draft jobs filter on jobs list renders", async ({ page }) => {
   ).toBeVisible();
 });
 
-test("matches page renders", async ({ page }) => {
-  await page.goto("/matches");
-  await expect(page.getByText("Job Tracker").first()).toBeVisible();
+test("legacy match URL redirects to job Match tab", async ({ page }) => {
+  await page.goto("/matches/e2e-legacy-job-id");
+
+  await expect(page).toHaveURL(/\/jobs\/e2e-legacy-job-id\/match(\?|$)/);
 });

@@ -55,7 +55,7 @@
 - **Resumes** (`specs/032`) — built — Store one or more resumes with a TipTap editor; mark one as default for match analyses.
   - **Preferences** (`specs/032`) — built — Set weighted preferences (e.g., "remote-first", "equity") to guide match scoring.
 - **Match analysis** (`specs/032`) — built — Compare a JD against your resume and preferences, get a score, classification, and per-item match/gap/unclear verdicts.
-  - **Match list** (`specs/032`) — built — Browse all past match analyses at `/matches`.
+  - **Job Match tab** (`specs/032`) — built — Tabs at `/jobs/[id]`, `/description`, `/source`, `/match`, `/notes`, `/history`; desktop notes full page at `/jobs/[id]/notes/focus`; side panel uses `?s=notes|history`.
   - **Draft match** (`specs/032`) — built — Run match analysis on unconverted drafts before deciding to apply.
 
 ## 7. Dashboard & Search

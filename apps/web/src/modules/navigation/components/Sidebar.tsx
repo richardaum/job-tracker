@@ -12,7 +12,6 @@ import {
   MagnifyingGlassIcon,
   QuestionIcon,
   SignOutIcon,
-  SparkleIcon,
 } from "@phosphor-icons/react";
 import Image from "next/image";
 import Link from "next/link";
@@ -30,7 +29,6 @@ const API_URL = getApiBaseUrl();
 const navItems = [
   { href: "/jobs", label: "Jobs", icon: BriefcaseIcon },
   { href: "/resumes", label: "Resumes", icon: FilesIcon },
-  { href: "/matches", label: "Matches", icon: SparkleIcon },
   { href: "/sources", label: "Sources", icon: DownloadSimpleIcon },
   { href: "/companies", label: "Companies", icon: BuildingsIcon },
   {
