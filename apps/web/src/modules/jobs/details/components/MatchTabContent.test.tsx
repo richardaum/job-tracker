@@ -308,6 +308,23 @@ describe("MatchTabContent", () => {
     ).toBeInTheDocument();
   });
 
+  it("hides header Generate during initial loading without cached match", () => {
+    setupApolloMocks({ loading: true, jobMatch: undefined });
+    const { rerender } = renderMatchTab(<MatchTabContent jobId="job-1" />);
+
+    expect(
+      screen.queryByRole("button", { name: /^(generate|regenerate)$/i }),
+    ).not.toBeInTheDocument();
+
+    const items = [mockItem({ verdict: FitVerdict.Fit })];
+    setupApolloMocks({ loading: false, jobMatch: completedMatch(items) });
+    rerender(<MatchTabContent jobId="job-1" />);
+
+    expect(
+      screen.getByRole("button", { name: /^regenerate$/i }),
+    ).toBeInTheDocument();
+  });
+
   it("opens preferences dialog from Actions menu View preferences", async () => {
     const user = userEvent.setup();
     const items = [mockItem({ verdict: FitVerdict.Fit })];
