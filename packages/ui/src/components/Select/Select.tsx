@@ -45,11 +45,13 @@ export function Select({
   size = "md",
   state = "default",
 }: SelectProps) {
+  const isControlled = value !== undefined || onValueChange !== undefined;
+
   return (
     <RadixSelect.Root
-      value={value}
-      defaultValue={defaultValue}
-      onValueChange={onValueChange}
+      {...(isControlled
+        ? { value: value ?? "", onValueChange }
+        : { defaultValue, onValueChange })}
       disabled={disabled}
       name={name}
       required={required}
