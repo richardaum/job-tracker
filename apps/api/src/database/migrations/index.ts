@@ -43,8 +43,3 @@ export const migrations = [
   AddUserActiveTokenVersion1767900000000,
   AddUserRefreshJti1767910000000,
 ];
-
-/** For migration tests — schema immediately before merging `draft_jobs` into `jobs`. */
-export const migrationsBeforeIntegrateDraftIntoJobs = migrations.filter(
-  (m) => m !== IntegrateDraftIntoJobs1767800000000,
-);
