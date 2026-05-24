@@ -36,7 +36,9 @@ export { Dialog } from "./components/Dialog/Dialog";
 export type { DropdownButtonProps } from "./components/DropdownButton/DropdownButton";
 export { DropdownButton } from "./components/DropdownButton/DropdownButton";
 export type {
+  DropdownMenuGroupProps,
   DropdownMenuItemProps,
+  DropdownMenuLabelProps,
   DropdownMenuProps,
 } from "./components/DropdownMenu/DropdownMenu";
 export {

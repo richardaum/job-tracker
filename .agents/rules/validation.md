@@ -3,12 +3,21 @@
 ## Workflow
 
 ```
+pnpm validate        # lint + typecheck + test (daily)
+pnpm test:all        # turbo test + root/worktree-cli scripts
+pnpm validate:ci     # pre-PR: specs, lint, typecheck, coverage, repo typecheck, format, knip, build
+pnpm e2e             # Playwright, Chromium, apps/web/e2e/, E2E_PORT (default 3100)
+```
+
+Individual steps:
+
+```
 pnpm fix:imports     # import sorting (fast, no type-checking)
 pnpm lint            # turbo lint (ESLint)
 pnpm format          # prettier --write
 pnpm typecheck       # turbo typecheck (tsc --noEmit)
 pnpm test            # turbo test (Vitest/Jest)
-pnpm e2e             # Playwright, Chromium, apps/web/e2e/, E2E_PORT (default 3100)
+pnpm test:coverage   # alias for validate:coverage
 ```
 
 ## Parallelism
@@ -33,4 +42,4 @@ Run `pnpm knip` before finishing a task. If dead code found, list and ask user b
 
 ## Local CI
 
-`pnpm ci:local` runs: leanspec:validate → leanspec:sync-spec-indices --check → lint → typecheck → test (coverage 80%) → build.
+`pnpm validate:ci` (alias `pnpm ci:local`) runs: validate:specs → lint → typecheck → validate:coverage → typecheck:repo → format:check → knip → build.

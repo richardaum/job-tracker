@@ -309,6 +309,12 @@ describe("JobsRepository", () => {
         userId: "u1",
         title: "T",
         companyId: "c1",
+        description: null,
+        location: null,
+        workRegion: null,
+        source: null,
+        urls: [],
+        tags: [],
         salary: {
           minCents: 1_000_000,
           maxCents: 1_500_000,

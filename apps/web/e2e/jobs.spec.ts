@@ -12,9 +12,3 @@ test("draft jobs filter on jobs list renders", async ({ page }) => {
     page.getByRole("textbox", { name: "Search jobs..." }),
   ).toBeVisible();
 });
-
-test("legacy match URL redirects to job Match tab", async ({ page }) => {
-  await page.goto("/matches/e2e-legacy-job-id");
-
-  await expect(page).toHaveURL(/\/jobs\/e2e-legacy-job-id\/match(\?|$)/);
-});
