@@ -88,7 +88,7 @@ function MobileTabTrigger({
   );
 }
 
-function FullWidthTabList({
+function JobDetailsTabList({
   jobId,
   showSourceContent,
   className,
@@ -108,6 +108,30 @@ function FullWidthTabList({
       <MobileTabTrigger jobId={jobId} tab="notes" label="Notes" />
       <MobileTabTrigger jobId={jobId} tab="history" label="History" />
     </TabsList>
+  );
+}
+
+function JobDetailsFullWidthTabLayout({
+  jobId,
+  showSourceContent,
+  activeTab,
+  children,
+}: {
+  jobId: string;
+  showSourceContent: boolean;
+  activeTab: JobDetailsTab;
+  children: React.ReactNode;
+}) {
+  return (
+    <Tabs value={activeTab} className={cn("flex size-full min-h-0 flex-col")}>
+      <JobDetailsTabList
+        jobId={jobId}
+        showSourceContent={showSourceContent}
+        className={cn("flex-wrap")}
+      />
+
+      <div className={cn("flex flex-1 min-h-0 flex-col")}>{children}</div>
+    </Tabs>
   );
 }
 
@@ -317,35 +341,14 @@ export default function JobDetailsLayout({
             <Text size="sm" color="error">
               Failed to load job details.
             </Text>
-          ) : !job ? null : !isDesktop ? (
-            <Tabs
-              value={activeTab}
-              className={cn("flex size-full min-h-0 flex-col")}
+          ) : !job ? null : !isDesktop || isSidePanelRoute ? (
+            <JobDetailsFullWidthTabLayout
+              jobId={job.id}
+              showSourceContent={showSourceContent}
+              activeTab={activeTab}
             >
-              <FullWidthTabList
-                jobId={job.id}
-                showSourceContent={showSourceContent}
-                className={cn("flex-wrap")}
-              />
-
-              <div className={cn("flex flex-1 min-h-0 flex-col")}>
-                {children}
-              </div>
-            </Tabs>
-          ) : isSidePanelRoute ? (
-            <Tabs
-              value={activeTab}
-              className={cn("flex size-full min-h-0 flex-col")}
-            >
-              <FullWidthTabList
-                jobId={job.id}
-                showSourceContent={showSourceContent}
-              />
-
-              <div className={cn("mt-3 flex flex-1 min-h-0 flex-col")}>
-                {children}
-              </div>
-            </Tabs>
+              {children}
+            </JobDetailsFullWidthTabLayout>
           ) : (
             <div
               className={cn(

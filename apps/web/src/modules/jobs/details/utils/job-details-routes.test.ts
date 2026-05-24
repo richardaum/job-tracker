@@ -52,5 +52,11 @@ describe("job-details-routes", () => {
     expect(isJobDetailsSidePanelTab("history")).toBe(true);
     expect(isJobDetailsSidePanelTab("overview")).toBe(false);
     expect(isJobDetailsSidePanelTab("match")).toBe(false);
+    expect(isJobDetailsSidePanelTab("description")).toBe(false);
+    expect(isJobDetailsSidePanelTab("source")).toBe(false);
+  });
+
+  it("returns overview for notes focus route outside detail tabs", () => {
+    expect(parseJobDetailsTab("/jobs/abc/notes/focus")).toBe("overview");
   });
 });

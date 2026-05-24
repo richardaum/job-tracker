@@ -242,6 +242,9 @@ describe("JobDetailsLayout", () => {
     );
 
     expect(
+      await screen.findByRole("tab", { name: "Notes", selected: true }),
+    ).toBeInTheDocument();
+    expect(
       await screen.findByRole("tab", { name: "History" }),
     ).toBeInTheDocument();
     expect(screen.queryByTestId("activity-mock")).toBeNull();

@@ -18,49 +18,51 @@ import {
 import { HistoryPanelTabsContent } from "./HistoryPanel";
 import { NotesPanelTabsContent } from "./NotesPanel";
 
+export type ActivitySidePanelProps = {
+  jobId: string;
+  sidePanel: JobSidePanel;
+  onSidePanelChange: (sidePanel: JobSidePanel) => void;
+  onSuccess?: (message: string) => void;
+  onError?: (message: string) => void;
+};
+
 export function ActivitySidePanel({
   jobId,
-  sidePanel = "notes",
+  sidePanel,
   onSidePanelChange,
   onSuccess,
   onError,
-}: {
-  jobId: string;
-  sidePanel?: JobSidePanel;
-  onSidePanelChange?: (sidePanel: JobSidePanel) => void;
-  onSuccess?: (message: string) => void;
-  onError?: (message: string) => void;
-}) {
+}: ActivitySidePanelProps) {
   return (
     <Tabs
       value={sidePanel}
-      onValueChange={(value) => onSidePanelChange?.(value as JobSidePanel)}
+      onValueChange={(value) => onSidePanelChange(value as JobSidePanel)}
       className={cn("flex size-full min-h-0  flex-col")}
     >
       <TabsList className={cn("w-full")}>
         <TabsTrigger
           value="notes"
-          asChild
           className={cn(
             "group flex-1 flex items-center justify-center gap-1.5",
           )}
         >
-          <div>
-            <span>Notes</span>
-            <Tooltip content="Open full page">
-              <Link
-                variant="muted"
-                asChild
-                className={cn(
-                  "opacity-0 transition-opacity group-hover:opacity-100 data-[state=active]:opacity-100 no-underline hover:no-underline",
-                )}
+          <span>Notes</span>
+          <Tooltip content="Open full page">
+            <Link
+              variant="muted"
+              asChild
+              className={cn(
+                "opacity-0 transition-opacity group-hover:opacity-100 data-[state=active]:opacity-100 no-underline hover:no-underline",
+              )}
+            >
+              <NextLink
+                href={jobDetailsNotesFocusPath(jobId)}
+                aria-label="Open full page"
               >
-                <NextLink href={jobDetailsNotesFocusPath(jobId)}>
-                  <ArrowSquareOutIcon size={14} weight="regular" />
-                </NextLink>
-              </Link>
-            </Tooltip>
-          </div>
+                <ArrowSquareOutIcon size={14} weight="regular" />
+              </NextLink>
+            </Link>
+          </Tooltip>
         </TabsTrigger>
         <TabsTrigger value="history" className={cn("flex-1")}>
           History
