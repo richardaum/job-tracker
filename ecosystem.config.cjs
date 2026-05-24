@@ -25,6 +25,9 @@ function loadEnvFile(filepath) {
  * Reset:  pnpm pm2:reset
  * Ports:  pnpm ports:kill
  * Stop:   pnpm pm2:stop
+ *
+ * ezpm2gui: http://127.0.0.1:9310 — autorestart off (monitoring UI, not a dev app).
+ * Start only the GUI: pm2 start ecosystem.config.cjs --only <prefix>ezpm2gui
  */
 module.exports = {
   apps: [
@@ -87,6 +90,18 @@ module.exports = {
         ...loadEnvFile(path.join(root, "apps/extension/.env")),
       },
       watch: false,
+    },
+    {
+      name: `${appPrefix}ezpm2gui`,
+      namespace,
+      cwd: root,
+      script: "npx",
+      args: "ezpm2gui",
+      interpreter: "none",
+      log_date_format: "YYYY-MM-DD HH:mm:ss Z",
+      autorestart: false,
+      watch: false,
+      env: { NODE_ENV: "development", PORT: "9310", HOST: "127.0.0.1" },
     },
   ],
 };

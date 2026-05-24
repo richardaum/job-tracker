@@ -1,7 +1,6 @@
-import {
-  IntegrateDraftIntoJobs1767800000000,
-  migrations,
-} from "@api/database/migrations";
+import { migrations } from "@api/database/migrations";
+import { IntegrateDraftIntoJobs1767800000000 } from "@api/database/migrations/1767800000000-integrate-draft-into-jobs";
+import { AddUserActiveTokenVersion1767900000000 } from "@api/database/migrations/1767900000000-add-user-active-token-version";
 import { describe, expect, it } from "vitest";
 
 function migrationTimestamp(Ctor: { name: string }): bigint {
@@ -25,19 +24,17 @@ describe("IntegrateDraftIntoJobs1767800000000", () => {
 
   it("is ordered last among registered migrations so the timestamp stays monotonic", () => {
     expect(migrations[migrations.length - 1]).toBe(
-      IntegrateDraftIntoJobs1767800000000,
+      AddUserActiveTokenVersion1767900000000,
     );
 
-    const latest = migrationTimestamp(
-      IntegrateDraftIntoJobs1767800000000 as unknown as { name: string },
-    );
+    const latest = migrationTimestamp(AddUserActiveTokenVersion1767900000000);
 
     let maxPrior = BigInt(0);
     for (const Ctor of migrations) {
-      if (Ctor === IntegrateDraftIntoJobs1767800000000) {
+      if (Ctor === AddUserActiveTokenVersion1767900000000) {
         break;
       }
-      const t = migrationTimestamp(Ctor as unknown as { name: string });
+      const t = migrationTimestamp(Ctor);
       if (t > maxPrior) {
         maxPrior = t;
       }

@@ -1,0 +1,135 @@
+# Auth Security Review
+
+Authentication flow audit — 2026-05-23.
+
+## Architecture
+
+```
+Browser/Extension → GET /auth/google → Google OAuth 2.0
+  → callback /auth/google/callback
+  → JWT access (15min) + refresh (7d) in httpOnly cookies
+
+GraphQL/REST APIs → JwtAuthGuard + RolesGuard
+SSE → GraphqlSseMiddleware (JWT or bypass)
+
+Dev: AUTH_BYPASS_ENABLED=true skips JWT validation
+```
+
+## Findings
+
+### 🔴 HIGH
+
+**H1 — No refresh token rotation**
+
+- `auth.controller.ts:81-99`: `/auth/refresh` issues a new `access_token` but does not rotate the `refresh_token`.
+- A leaked token is valid for 7 days with no detection or revocation.
+- **Fix**: Issue a new refresh token on each use, invalidate the previous one (token family / `tokenVersion` in DB).
+- **Status (2026-05-24)**: Resolved — `/auth/refresh` rotates refresh token, increments `tokenVersion`, and rotates `refresh_jti` (reuse detection invalidates all sessions).
+
+**H2 — No per-session token revocation (logout)**
+
+- `auth.controller.ts:69-77`: `/auth/logout` only clears client-side cookies.
+- **Account**-level revocation is already possible with `active: boolean` on `UserEntity`.
+- The gap is **session**-level revocation: on logout, there is no way to invalidate tokens without disabling the entire account. If a token leaks and the user does not log out, there is also no mitigation.
+- **Fix**: `tokenVersion` (int) on `UserEntity`, included in the JWT payload. Increment on logout. Validate in guard/refresh/SSE.
+
+**H3 — Dev bypass has no production safety guard**
+
+- `dev-auth-bypass.service.ts:17-26`: `AUTH_BYPASS_ENABLED=true` works in any `NODE_ENV`.
+- If it leaks to production, every request becomes the bypass user with full access.
+- Zod requires `DEV_AUTH_BYPASS_EMAIL` when enabled, but does not check the environment.
+- **Fix**: `isEnabled()` must return `false` when `NODE_ENV === "production"`.
+- **Status (2026-05-24)**: Resolved — `dev-auth-bypass.service.ts` returns `false` in production.
+
+### 🟡 MEDIUM
+
+**M1 — CSRF on `SameSite=None` cookies**
+
+- `auth.controller.ts:21-28`: Cookies use `SameSite=None; Secure` (required for Chrome extension cross-site requests).
+- Exposes `/auth/logout` and `/auth/refresh` to CSRF — an attacker can forge logout or refresh requests.
+- **Fix**: CSRF token or a separate route for the extension with a custom header.
+- **Status (2026-05-24)**: Resolved — `/auth/logout` and `/auth/refresh` require `X-Auth-Action: 1` plus same-origin check (`auth-mutation.util.ts`; extension via `@job-tracker/auth`).
+
+**M2 — Refresh does not verify user still exists/is active**
+
+- `/auth/refresh` only validates the JWT signature. If the user was deleted/disabled, the token remains valid.
+- **Fix**: DB query during refresh to check `active === true` and existence.
+
+**M3 — RolesGuard queries DB on every request**
+
+- `roles.guard.ts:27`: `userService.findById()` on every GraphQL request.
+- `TODO` on line 26 already acknowledges this. Degrades under load.
+- **Fix**: Cache (in-memory or Redis) or include `role` in the JWT payload.
+- **Status (2026-05-24)**: Partially resolved — `validateActiveUser` cached 30s in-memory; `JwtAuthGuard` sets `user.role` so `RolesGuard` skips DB when present.
+
+**M4 — SSE middleware duplicates role check**
+
+- `graphql-sse.middleware.ts:69`: Manual `RoleEnum.User` check instead of using `RolesGuard`.
+- **Fix**: Reuse `RolesGuard` or extract validation into a shared service.
+- **Status (2026-05-24)**: Resolved — SSE uses `AuthUserAccessService.assertAuthenticatedUser`.
+
+**M5 — Error message leaks email in bypass**
+
+- `dev-auth-bypass.service.ts:38-40`: `Auth bypass user not found for email: ${email}`.
+- Enables user enumeration if bypass is enabled outside dev.
+- **Fix**: Mask email in error message. For instance: `r**&@g***.c***`.
+
+### 🟢 LOW
+
+**L1 — No rate limiting on auth endpoints**
+
+- `/auth/refresh`, `/auth/google/callback` have no throttle. Potential DDoS vector.
+- **Fix**: `@nestjs/throttler` on auth endpoints.
+- **Status (2026-05-24)**: Resolved — auth REST only (not GraphQL): `/auth/google` and `/auth/google/callback` 5/min, `/auth/refresh` 10/min, `/auth/logout` 20/min; `graphql-sse/stream` 30/min via in-memory IP limiter; `TRUST_PROXY_HOPS` env (default 0).
+
+**L2 — Refresh token 7d without rotation**
+
+- 7 days is generous but common. Only concerning when combined with H1.
+- **Mitigated by H1 (rotation).**
+
+**L3 — No key rotation for JWT secrets**
+
+- Fixed secrets, no rotation mechanism.
+- **Fix**: JWKS endpoint or support for multiple secrets with `kid` in the header.
+- **Status (2026-05-24)**: Resolved — optional `JWT_ACCESS_SECRETS` / `JWT_REFRESH_SECRETS` JSON with `current` + `previous`; tokens signed with `kid: current`, verified with current then previous.
+
+**L4 — `returnTo` open redirect**
+
+- **Status (2026-05-24)**: Closed. API: `getSafeReturnTo` (relative paths only, no `//`). Web: `sanitizeReturnTo` in `useAuthReturnTo.ts`. Chrome extension: no `returnTo` usage; no OAuth/login redirect flow — auth reads `access_token` cookie from configured API origin; refresh URL is derived from `WXT_PUBLIC_API_URL` only.
+
+## Priority recommendations
+
+| #   | Action                                                                                       | Resolves   |
+| --- | -------------------------------------------------------------------------------------------- | ---------- |
+| 1   | `active` (account) + `tokenVersion` (session) on `UserEntity`, validate in guard/refresh/SSE | H1, H2, M2 |
+| 2   | `isEnabled()`: `NODE_ENV !== "production"`                                                   | H3         |
+| 3   | CSRF token or custom header for extension                                                    | M1         |
+| 4   | Role cache (in-memory) or include in JWT                                                     | M3         |
+| 5   | `@nestjs/throttler` on auth endpoints                                                        | L1         |
+
+## Proposed design: tokenVersion + active
+
+```sql
+ALTER TABLE users ADD COLUMN active BOOLEAN NOT NULL DEFAULT true;
+ALTER TABLE users ADD COLUMN token_version INTEGER NOT NULL DEFAULT 0;
+```
+
+```ts
+// JWT payload
+{ sub: userId, tv: tokenVersion }
+
+// JwtAuthGuard / refresh / SSE
+const dbUser = await userService.findById(userId);
+if (!dbUser || !dbUser.active) throw new UnauthorizedException();
+if (dbUser.tokenVersion !== payload.tv) throw new UnauthorizedException();
+
+// Logout
+await userService.incrementTokenVersion(userId);
+res.clearCookie("access_token");
+res.clearCookie("refresh_token");
+```
+
+- **Logout**: Increment `tokenVersion` → all existing tokens (access + refresh) become invalid instantly.
+- **Account disable**: `active = false` → account blocked, even if `tokenVersion` matches.
+- **Refresh rotation**: Issue a new refresh token with the current `tv`, invalidating the previous refresh.
+- **No blacklist, no Redis**: Pure DB logic, tokens remain stateless.

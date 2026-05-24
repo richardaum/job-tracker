@@ -1,4 +1,4 @@
-import { serverEnv } from "@api/env/server";
+import { apiEnv } from "@api/env/server";
 
 import { buildDataSourceOptions } from "./data-source-options";
 
@@ -11,6 +11,6 @@ import { buildDataSourceOptions } from "./data-source-options";
  * in `buildDataSourceOptions` and control execution explicitly.
  */
 export const databaseModuleOptions = {
-  ...buildDataSourceOptions(serverEnv.DATABASE_URL),
+  ...buildDataSourceOptions(apiEnv.DATABASE_URL),
   migrationsRun: true,
 };

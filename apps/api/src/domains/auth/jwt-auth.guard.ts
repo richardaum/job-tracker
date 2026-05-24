@@ -2,11 +2,15 @@ import { ExecutionContext, Injectable } from "@nestjs/common";
 import { GqlExecutionContext } from "@nestjs/graphql";
 import { AuthGuard } from "@nestjs/passport";
 
+import { AuthUserAccessService } from "./auth-user-access.service";
 import { DevAuthBypassService } from "./dev-auth-bypass.service";
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard("jwt") {
-  constructor(private readonly devAuthBypassService: DevAuthBypassService) {
+  constructor(
+    private readonly devAuthBypassService: DevAuthBypassService,
+    private readonly authUserAccessService: AuthUserAccessService,
+  ) {
     super();
   }
 
@@ -19,10 +23,25 @@ export class JwtAuthGuard extends AuthGuard("jwt") {
     if (this.devAuthBypassService.isEnabled()) {
       const request = this.getRequest(context);
       const user = await this.devAuthBypassService.getBypassUser();
-      request.user = { userId: user.id };
+      request.user = { userId: user.id, role: user.role };
       return true;
     }
 
-    return (await super.canActivate(context)) as boolean;
+    const result = (await super.canActivate(context)) as boolean;
+    if (!result) return false;
+
+    const request = this.getRequest(context);
+    const jwtUser = request.user as
+      | { userId: string; tokenVersion: number }
+      | undefined;
+    if (!jwtUser?.userId) return false;
+
+    const dbUser = await this.authUserAccessService.assertAuthenticatedUser(
+      jwtUser.userId,
+      jwtUser.tokenVersion,
+    );
+
+    request.user = { userId: dbUser.id, role: dbUser.role };
+    return true;
   }
 }
