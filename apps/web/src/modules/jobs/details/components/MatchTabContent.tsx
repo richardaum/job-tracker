@@ -52,7 +52,7 @@ export function MatchTabContent({ jobId }: MatchTabContentProps) {
   const vm = useMatchTabViewModel(jobId);
   const router = useRouter();
   const [prefsOpen, setPrefsOpen] = React.useState(false);
-  const headerActionsSlotMounted = useJobHeaderActionsSlotMounted();
+  const _headerActionsSlotMounted = useJobHeaderActionsSlotMounted();
 
   function emptyFilterMessage(): string {
     if (vm.matchFilterTab === FitVerdict.Fit) return "No fits found";
@@ -125,11 +125,6 @@ export function MatchTabContent({ jobId }: MatchTabContentProps) {
           />
         ) : null}
       </div>
-      {!headerActionsSlotMounted ? (
-        <div className={cn("flex shrink-0 items-center gap-2")}>
-          {generateButton}
-        </div>
-      ) : null}
     </div>
   );
 
