@@ -230,7 +230,7 @@ export function MatchTabContent({ jobId }: MatchTabContentProps) {
       <RegisterJobActionsMenuItems>
         {matchActionsMenuItems}
       </RegisterJobActionsMenuItems>
-      {vm.matchAnalysis ? toolbar : null}
+      {vm.matchAnalysis && vm.status ? toolbar : null}
       <div className={cn("flex min-h-0 flex-1 flex-col gap-4")}>{body}</div>
 
       <MatchWizardDialog
