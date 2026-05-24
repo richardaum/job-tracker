@@ -261,6 +261,7 @@ export type Mutation = {
   createResume: ResumeType;
   createSourceRun: SourceRunType;
   createSourceTemplate: SourceTemplateType;
+  deactivateAccount: Scalars["Boolean"]["output"];
   deleteCompany: DeleteMutationPayloadType;
   deleteJob: DeleteMutationPayloadType;
   deleteJobNote: DeleteMutationPayloadType;
@@ -1386,6 +1387,18 @@ export type ResumesQuery = {
   }>;
 };
 
+export type ResumesForPickerQueryVariables = Exact<{ [key: string]: never }>;
+
+export type ResumesForPickerQuery = {
+  __typename?: "Query";
+  resumes: Array<{
+    __typename?: "ResumeType";
+    id: string;
+    title: string;
+    isDefault: boolean;
+  }>;
+};
+
 export type ResumeQueryVariables = Exact<{ id: Scalars["ID"]["input"] }>;
 
 export type ResumeQuery = {
@@ -2129,6 +2142,15 @@ export const ResumesDocument = gql`
       isDefault
       createdAt
       updatedAt
+    }
+  }
+`;
+export const ResumesForPickerDocument = gql`
+  query ResumesForPicker {
+    resumes {
+      id
+      title
+      isDefault
     }
   }
 `;
@@ -2927,6 +2949,24 @@ export function getSdk(
             signal,
           }),
         "Resumes",
+        "query",
+        variables,
+      );
+    },
+    ResumesForPicker(
+      variables?: ResumesForPickerQueryVariables,
+      requestHeaders?: GraphQLClientRequestHeaders,
+      signal?: RequestInit["signal"],
+    ): Promise<ResumesForPickerQuery> {
+      return withWrapper(
+        (wrappedRequestHeaders) =>
+          client.request<ResumesForPickerQuery>({
+            document: ResumesForPickerDocument,
+            variables,
+            requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
+            signal,
+          }),
+        "ResumesForPicker",
         "query",
         variables,
       );

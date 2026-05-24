@@ -262,6 +262,7 @@ export type Mutation = {
   createResume: ResumeType;
   createSourceRun: SourceRunType;
   createSourceTemplate: SourceTemplateType;
+  deactivateAccount: Scalars["Boolean"]["output"];
   deleteCompany: DeleteMutationPayloadType;
   deleteJob: DeleteMutationPayloadType;
   deleteJobNote: DeleteMutationPayloadType;
@@ -1384,6 +1385,18 @@ export type ResumesQuery = {
     isDefault: boolean;
     createdAt: any;
     updatedAt: any;
+  }>;
+};
+
+export type ResumesForPickerQueryVariables = Exact<{ [key: string]: never }>;
+
+export type ResumesForPickerQuery = {
+  __typename?: "Query";
+  resumes: Array<{
+    __typename?: "ResumeType";
+    id: string;
+    title: string;
+    isDefault: boolean;
   }>;
 };
 
@@ -3603,6 +3616,63 @@ export function useResumesLazyQuery(
 
 export type ResumesQueryHookResult = ReturnType<typeof useResumesQuery>;
 export type ResumesLazyQueryHookResult = ReturnType<typeof useResumesLazyQuery>;
+
+export const ResumesForPickerDocument = gql`
+  query ResumesForPicker {
+    resumes {
+      id
+      title
+      isDefault
+    }
+  }
+`;
+
+/**
+ * __useResumesForPickerQuery__
+ *
+ * To run a query within a React component, call `useResumesForPickerQuery` and pass it any options that fit your needs.
+ * When your component renders, `useResumesForPickerQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useResumesForPickerQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useResumesForPickerQuery(
+  baseOptions?: ApolloReactHooks.QueryHookOptions<
+    ResumesForPickerQuery,
+    ResumesForPickerQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useQuery<
+    ResumesForPickerQuery,
+    ResumesForPickerQueryVariables
+  >(ResumesForPickerDocument, options);
+}
+export function useResumesForPickerLazyQuery(
+  baseOptions?: ApolloReactHooks.LazyQueryHookOptions<
+    ResumesForPickerQuery,
+    ResumesForPickerQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useLazyQuery<
+    ResumesForPickerQuery,
+    ResumesForPickerQueryVariables
+  >(ResumesForPickerDocument, options);
+}
+
+export type ResumesForPickerQueryHookResult = ReturnType<
+  typeof useResumesForPickerQuery
+>;
+export type ResumesForPickerLazyQueryHookResult = ReturnType<
+  typeof useResumesForPickerLazyQuery
+>;
 
 export const ResumeDocument = gql`
   query Resume($id: ID!) {
