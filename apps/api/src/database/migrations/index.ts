@@ -49,8 +49,3 @@ export const migrations = [
   UserAuthProvider1767950000000,
   UserAccounts1767960000000,
 ];
-
-/** For migration tests — schema immediately before merging `draft_jobs` into `jobs`. */
-export const migrationsBeforeIntegrateDraftIntoJobs = migrations.filter(
-  (m) => m !== IntegrateDraftIntoJobs1767800000000,
-);

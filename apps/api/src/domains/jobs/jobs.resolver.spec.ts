@@ -16,7 +16,15 @@ import { GraphQLModule } from "@nestjs/graphql";
 import { GqlExecutionContext } from "@nestjs/graphql";
 import { Test } from "@nestjs/testing";
 import request from "supertest";
-import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
+import {
+  afterAll,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vitest";
 
 import { JobsResolver } from "./jobs.resolver";
 import type { Job } from "./jobs.schema";
@@ -104,11 +112,17 @@ describe("JobsResolver (integration)", () => {
       .useValue({
         canActivate: (ctx: ExecutionContext) => {
           const gqlCtx = GqlExecutionContext.create(ctx);
-          const req = gqlCtx.getContext<{
-            req: Request & { headers: Record<string, string>; user?: unknown };
-          }>().req;
-          if (!req.headers["authorization"]) throw new UnauthorizedException();
-          req.user = { userId: "user-1" };
+          const req =
+            gqlCtx.getContext<{
+              req?: {
+                headers: Record<string, string | string[] | undefined>;
+                user?: unknown;
+              };
+            }>().req ?? ctx.switchToHttp().getRequest();
+          const raw = req.headers?.authorization ?? req.headers?.Authorization;
+          const authHeader = Array.isArray(raw) ? raw[0] : raw;
+          if (!authHeader) throw new UnauthorizedException();
+          req.user = { userId: "user-1", role: "user" };
           return true;
         },
       })
@@ -122,13 +136,31 @@ describe("JobsResolver (integration)", () => {
 
   afterAll(() => app.close());
 
-  const auth = { Authorization: "Bearer mock-token" };
+  beforeEach(() => {
+    service.findAll.mockReset().mockResolvedValue([mockJob]);
+    service.findOne.mockReset().mockResolvedValue(mockJob);
+    service.create.mockReset().mockResolvedValue(mockJob);
+    service.fillJobAutomatically
+      .mockReset()
+      .mockResolvedValue(mockJobWithFillProcessing);
+    service.update.mockReset().mockResolvedValue(mockJob);
+    service.remove.mockReset().mockResolvedValue(mockJob);
+    service.removeStageEvent.mockReset().mockResolvedValue(undefined);
+    service.generateCompanyDescription
+      .mockReset()
+      .mockResolvedValue(JSON.stringify({ type: "doc", content: [] }));
+  });
+
+  function graphqlRequest() {
+    return request(app.getHttpServer())
+      .post("/graphql")
+      .set("Authorization", "Bearer mock-token");
+  }
 
   it("jobs query returns list", async () => {
-    const res = await request(app.getHttpServer())
-      .post("/graphql")
-      .set(auth)
-      .send({ query: "{ jobs { id title company { name } } }" });
+    const res = await graphqlRequest().send({
+      query: "{ jobs { id title company { name } } }",
+    });
 
     expect(res.statusCode).toBe(200);
     expect(res.body.data.jobs).toHaveLength(1);
@@ -137,12 +169,9 @@ describe("JobsResolver (integration)", () => {
   });
 
   it("jobs query accepts company argument", async () => {
-    const res = await request(app.getHttpServer())
-      .post("/graphql")
-      .set(auth)
-      .send({
-        query: '{ jobs(company: "Acme Corp") { id title company { name } } }',
-      });
+    const res = await graphqlRequest().send({
+      query: '{ jobs(company: "Acme Corp") { id title company { name } } }',
+    });
 
     expect(res.statusCode).toBe(200);
     expect(res.body.data.jobs).toHaveLength(1);
@@ -155,26 +184,22 @@ describe("JobsResolver (integration)", () => {
   });
 
   it("job query returns one by id", async () => {
-    const res = await request(app.getHttpServer())
-      .post("/graphql")
-      .set(auth)
-      .send({ query: `{ job(id: "app-1") { id title } }` });
+    const res = await graphqlRequest().send({
+      query: `{ job(id: "app-1") { id title } }`,
+    });
 
     expect(res.statusCode).toBe(200);
     expect(res.body.data.job.id).toBe("app-1");
   });
 
   it("createJob mutation creates and returns job", async () => {
-    const res = await request(app.getHttpServer())
-      .post("/graphql")
-      .set(auth)
-      .send({
-        query: `mutation {
+    const res = await graphqlRequest().send({
+      query: `mutation {
           createJob(input: { title: "Engineer", company: "Acme" }) {
             id title company { name }
           }
         }`,
-      });
+    });
 
     expect(res.statusCode).toBe(200);
     expect(res.body.data.createJob.id).toBe("app-1");
@@ -182,16 +207,13 @@ describe("JobsResolver (integration)", () => {
   });
 
   it("createJob forwards optional htmlContent to service", async () => {
-    const res = await request(app.getHttpServer())
-      .post("/graphql")
-      .set(auth)
-      .send({
-        query: `mutation {
+    const res = await graphqlRequest().send({
+      query: `mutation {
           createJob(input: { company: "Acme", htmlContent: "<p>capture</p>" }) {
             id
           }
         }`,
-      });
+    });
 
     expect(res.statusCode).toBe(200);
     expect(service.create).toHaveBeenCalledWith(
@@ -201,11 +223,8 @@ describe("JobsResolver (integration)", () => {
   });
 
   it("fillJobAutomatically mutation delegates to JobsService.fillJobAutomatically", async () => {
-    const res = await request(app.getHttpServer())
-      .post("/graphql")
-      .set(auth)
-      .send({
-        query: `mutation {
+    const res = await graphqlRequest().send({
+      query: `mutation {
           fillJobAutomatically(jobId: "app-1") {
             id
             fillMetadata {
@@ -213,7 +232,7 @@ describe("JobsResolver (integration)", () => {
             }
           }
         }`,
-      });
+    });
 
     expect(res.statusCode).toBe(200);
     expect(res.body.data.fillJobAutomatically.id).toBe("app-1");
@@ -228,41 +247,32 @@ describe("JobsResolver (integration)", () => {
 
   it("removed legacy draft-create mutation yields GraphQL validation error", async () => {
     const createLegacyDraft = ["create", "Draft", "Job"].join("");
-    const res = await request(app.getHttpServer())
-      .post("/graphql")
-      .set(auth)
-      .send({
-        query: `mutation { ${createLegacyDraft}(input: { title: "x", htmlContent: "<p>h</p>" }) { id } }`,
-      });
+    const res = await graphqlRequest().send({
+      query: `mutation { ${createLegacyDraft}(input: { title: "x", htmlContent: "<p>h</p>" }) { id } }`,
+    });
 
     expect(res.body.errors?.length ?? 0).toBeGreaterThan(0);
   });
 
   it("updateJob mutation updates and returns job", async () => {
-    const res = await request(app.getHttpServer())
-      .post("/graphql")
-      .set(auth)
-      .send({
-        query: `mutation {
+    const res = await graphqlRequest().send({
+      query: `mutation {
           updateJob(id: "app-1", input: { title: "Senior Engineer" }) {
             id title
           }
         }`,
-      });
+    });
 
     expect(res.statusCode).toBe(200);
     expect(res.body.data.updateJob.id).toBe("app-1");
   });
 
   it("generateCompanyDescription forwards user id and trimmed company name", async () => {
-    const res = await request(app.getHttpServer())
-      .post("/graphql")
-      .set(auth)
-      .send({
-        query:
-          "query ($name: String!) { generateCompanyDescription(companyName: $name) }",
-        variables: { name: "  Acme  " },
-      });
+    const res = await graphqlRequest().send({
+      query:
+        "query ($name: String!) { generateCompanyDescription(companyName: $name) }",
+      variables: { name: "  Acme  " },
+    });
 
     expect(res.statusCode).toBe(200);
     expect(service.generateCompanyDescription).toHaveBeenCalledWith(
@@ -272,12 +282,9 @@ describe("JobsResolver (integration)", () => {
   });
 
   it("deleteJob mutation returns payload", async () => {
-    const res = await request(app.getHttpServer())
-      .post("/graphql")
-      .set(auth)
-      .send({
-        query: 'mutation { deleteJob(id: "app-1") { success deletedId } }',
-      });
+    const res = await graphqlRequest().send({
+      query: 'mutation { deleteJob(id: "app-1") { success deletedId } }',
+    });
 
     expect(res.statusCode).toBe(200);
     expect(res.body.data.deleteJob).toEqual({
@@ -292,10 +299,9 @@ describe("JobsResolver (integration)", () => {
         "Job 00000000-0000-4000-8000-000000000099 not found",
       ),
     );
-    const res = await request(app.getHttpServer())
-      .post("/graphql")
-      .set(auth)
-      .send({ query: `{ job(id: "missing") { id } }` });
+    const res = await graphqlRequest().send({
+      query: `{ job(id: "missing") { id } }`,
+    });
 
     expect(res.statusCode).toBe(200);
     expect(res.body.errors).toHaveLength(1);
@@ -307,10 +313,9 @@ describe("JobsResolver (integration)", () => {
 
   it("job query masks ForbiddenException as NOT_FOUND", async () => {
     service.findOne.mockRejectedValueOnce(new ForbiddenException("Denied"));
-    const res = await request(app.getHttpServer())
-      .post("/graphql")
-      .set(auth)
-      .send({ query: `{ job(id: "app-x") { id } }` });
+    const res = await graphqlRequest().send({
+      query: `{ job(id: "app-x") { id } }`,
+    });
 
     expect(res.statusCode).toBe(200);
     expect(res.body.errors).toHaveLength(1);
@@ -324,23 +329,19 @@ describe("JobsResolver (integration)", () => {
       ...mockJob,
       title: null,
     } as unknown as Job);
-    const res = await request(app.getHttpServer())
-      .post("/graphql")
-      .set(auth)
-      .send({ query: `{ job(id: "app-1") { id title } }` });
+    const res = await graphqlRequest().send({
+      query: `{ job(id: "app-1") { id title } }`,
+    });
 
     expect(res.statusCode).toBe(200);
     expect(res.body.data.job.title).toBeNull();
   });
 
   it("deleteJobStageEvent mutation returns payload", async () => {
-    const res = await request(app.getHttpServer())
-      .post("/graphql")
-      .set(auth)
-      .send({
-        query:
-          'mutation { deleteJobStageEvent(id: "event-1") { success deletedId } }',
-      });
+    const res = await graphqlRequest().send({
+      query:
+        'mutation { deleteJobStageEvent(id: "event-1") { success deletedId } }',
+    });
 
     expect(res.statusCode).toBe(200);
     expect(res.body.data.deleteJobStageEvent).toEqual({
