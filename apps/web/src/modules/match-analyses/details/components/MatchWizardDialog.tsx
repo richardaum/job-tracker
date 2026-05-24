@@ -28,7 +28,7 @@ import React from "react";
 
 import { type PreferenceInput, Weight } from "@/gql/hooks";
 import {
-  useResumesQuery,
+  useResumesForPickerQuery,
   useUpdateWorkPreferencesMutation,
   useWorkPreferencesQuery,
 } from "@/gql/hooks";
@@ -40,6 +40,8 @@ interface MatchWizardDialogProps {
   onGenerate: (resumeId: string) => Promise<void>;
   generating: boolean;
   hasExistingMatch: boolean;
+  /** Pre-select the resume used by the current match when regenerating. */
+  initialResumeId?: string | null;
 }
 
 interface LocalPreference {
@@ -201,13 +203,16 @@ export function MatchWizardDialog({
   onGenerate,
   generating,
   hasExistingMatch,
+  initialResumeId = null,
 }: MatchWizardDialogProps) {
   const { enqueueToast } = useToastQueue();
 
-  const { data: resumesData } = useResumesQuery({
-    fetchPolicy: "cache-and-network",
-    skip: !open,
-  });
+  const {
+    data: resumesData,
+    loading: resumesLoading,
+    error: resumesError,
+    refetch: refetchResumes,
+  } = useResumesForPickerQuery({ fetchPolicy: "cache-first", skip: !open });
 
   const { data: prefsData, loading: prefsLoading } = useWorkPreferencesQuery({
     fetchPolicy: "cache-and-network",
@@ -227,8 +232,14 @@ export function MatchWizardDialog({
 
   if (open !== prevOpen) {
     setPrevOpen(open);
-    if (!open) {
+    if (open) {
+      setSelectedResumeId(initialResumeId ?? "");
+      setFocusedId(null);
+      setPrefsDirty(false);
+      setPrevPrefsData(null);
+    } else {
       setLocalItems([]);
+      setSelectedResumeId("");
       setFocusedId(null);
       setPrefsDirty(false);
       setPrevPrefsData(null);
@@ -246,8 +257,19 @@ export function MatchWizardDialog({
     );
   }, [resumesData]);
 
-  const effectiveResumeId =
-    selectedResumeId || resumesData?.resumes?.[0]?.id || "";
+  const resumes = resumesData?.resumes;
+  const isLoadingResumes = open && !resumes && resumesLoading;
+
+  const effectiveResumeId = React.useMemo(() => {
+    const optionIds = new Set(resumeOptions.map((option) => option.value));
+    if (selectedResumeId && optionIds.has(selectedResumeId)) {
+      return selectedResumeId;
+    }
+    if (initialResumeId && optionIds.has(initialResumeId)) {
+      return initialResumeId;
+    }
+    return resumeOptions[0]?.value ?? "";
+  }, [selectedResumeId, initialResumeId, resumeOptions]);
 
   function addPreference() {
     const newId = nextPrefId();
@@ -366,12 +388,36 @@ export function MatchWizardDialog({
             </Link>
             .
           </Text>
-          <Select
-            value={effectiveResumeId}
-            onValueChange={(v) => setSelectedResumeId(v)}
-            placeholder="Select a resume"
-            options={resumeOptions}
-          />
+          {isLoadingResumes ? (
+            <Text size="sm" color="muted">
+              Loading resumes...
+            </Text>
+          ) : resumesError ? (
+            <div className={cn("flex flex-col gap-2")}>
+              <Text size="sm" color="error">
+                Failed to load resumes.
+              </Text>
+              <Button
+                intent="secondary"
+                size="md"
+                className={cn("self-start")}
+                onClick={() => void refetchResumes()}
+              >
+                Retry
+              </Button>
+            </div>
+          ) : resumeOptions.length === 0 ? (
+            <Text size="sm" color="muted">
+              No resumes yet. Create one before generating a match analysis.
+            </Text>
+          ) : (
+            <Select
+              value={effectiveResumeId || undefined}
+              onValueChange={(v) => setSelectedResumeId(v)}
+              placeholder="Select a resume"
+              options={resumeOptions}
+            />
+          )}
         </TabsContent>
 
         <TabsContent value="preferences" className={cn("flex flex-col gap-2")}>
