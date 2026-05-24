@@ -17,22 +17,14 @@ export class WorkPreferencesService {
     if (!prefs) {
       return [];
     }
-    return prefs.items.map((item) => ({
-      text: item.text,
-      weight: item.weight === "high" ? WeightEnum.HIGH : WeightEnum.LOW,
-    }));
+    return prefs.items;
   }
 
   async updatePreferences(
     userId: string,
     items: PreferenceItemDto[],
   ): Promise<PreferenceItemDto[]> {
-    const dbItems = items.map((item) => ({
-      text: item.text,
-      weight:
-        item.weight === WeightEnum.HIGH ? ("high" as const) : ("low" as const),
-    }));
-    await this.repo.upsert(userId, dbItems);
+    await this.repo.upsert(userId, items);
     return items;
   }
 }

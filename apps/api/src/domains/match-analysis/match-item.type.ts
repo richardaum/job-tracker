@@ -4,6 +4,7 @@ import {
 } from "@api/database/entities/match-analysis.entity";
 import { MatchSourceEnum } from "@api/domains/match-analysis/match-source.enum";
 import { MatchVerdictEnum } from "@api/domains/match-analysis/match-verdict.enum";
+import { WeightEnum } from "@api/domains/work-preferences/weight.enum";
 import { Field, ObjectType, registerEnumType } from "@nestjs/graphql";
 
 export type MatchItemTypeRepresentation = MatchItem;
@@ -18,8 +19,8 @@ export class MatchItemType {
   @Field(() => MatchSourceEnum)
   source!: MatchSourceEnum;
 
-  @Field({ nullable: true })
-  weight?: "high" | "low";
+  @Field(() => WeightEnum, { nullable: true })
+  weight?: WeightEnum;
 
   @Field(() => RequirementTypeEnum)
   type!: RequirementTypeEnum;

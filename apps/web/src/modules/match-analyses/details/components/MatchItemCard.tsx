@@ -3,7 +3,7 @@
 import { Card, cn, Text } from "@job-tracker/ui";
 import React from "react";
 
-import { MatchVerdict, RequirementType } from "@/gql/hooks";
+import { MatchVerdict, RequirementType, Weight } from "@/gql/hooks";
 
 import { RelevanceIcon } from "./RelevanceIcon";
 import { SourceBadge } from "./SourceBadge";
@@ -12,7 +12,7 @@ import { VerdictBadge } from "./VerdictBadge";
 export interface MatchItem {
   verdict: string;
   source: string;
-  weight?: string | null;
+  weight?: Weight | null;
   type?: RequirementType | null;
   requirement: string;
   jdQuote: string;

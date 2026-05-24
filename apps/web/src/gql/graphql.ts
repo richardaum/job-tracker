@@ -248,7 +248,7 @@ export type MatchItemType = {
   suggestion?: Maybe<Scalars["String"]["output"]>;
   type: RequirementType;
   verdict: MatchVerdict;
-  weight?: Maybe<Scalars["String"]["output"]>;
+  weight?: Maybe<Weight>;
 };
 
 export enum MatchSource {
@@ -660,8 +660,8 @@ export type UserType = {
 };
 
 export enum Weight {
-  High = "HIGH",
-  Low = "LOW",
+  High = "High",
+  Low = "Low",
 }
 
 export type UpdateCompanyMutationVariables = Exact<{
@@ -1278,7 +1278,7 @@ export type MatchQuery = {
       __typename?: "MatchItemType";
       requirement: string;
       source: MatchSource;
-      weight?: string | null;
+      weight?: Weight | null;
       type: RequirementType;
       verdict: MatchVerdict;
       jdQuote: string;
@@ -1319,7 +1319,7 @@ export type JobMatchQuery = {
       __typename?: "MatchItemType";
       requirement: string;
       source: MatchSource;
-      weight?: string | null;
+      weight?: Weight | null;
       type: RequirementType;
       verdict: MatchVerdict;
       jdQuote: string;
@@ -1356,7 +1356,7 @@ export type GenerateJobMatchMutation = {
       __typename?: "MatchItemType";
       requirement: string;
       source: MatchSource;
-      weight?: string | null;
+      weight?: Weight | null;
       type: RequirementType;
       verdict: MatchVerdict;
       jdQuote: string;

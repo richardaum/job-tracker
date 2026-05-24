@@ -1,8 +1,8 @@
 import { registerEnumType } from "@nestjs/graphql";
 
 export enum WeightEnum {
-  HIGH = "HIGH",
-  LOW = "LOW",
+  High = "High",
+  Low = "Low",
 }
 
 registerEnumType(WeightEnum, { name: "Weight" });

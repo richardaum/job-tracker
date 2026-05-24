@@ -10,20 +10,20 @@ import {
 } from "@phosphor-icons/react";
 import React from "react";
 
-import { RequirementType } from "@/gql/hooks";
+import { RequirementType, Weight } from "@/gql/hooks";
 
 export function RelevanceIcon({
   weight,
   type,
 }: {
-  weight?: string | null;
+  weight?: Weight | null;
   type?: RequirementType | null;
 }) {
   if (!weight && !type) return null;
 
   return (
     <div className={cn("flex items-center gap-1 shrink-0")}>
-      {weight === "high" && (
+      {weight === Weight.High && (
         <Tooltip content="High priority">
           <div className={cn("size-7 flex items-center justify-center")}>
             <ArrowUpIcon
@@ -34,7 +34,7 @@ export function RelevanceIcon({
           </div>
         </Tooltip>
       )}
-      {weight === "low" && (
+      {weight === Weight.Low && (
         <Tooltip content="Low priority">
           <div className={cn("size-7 flex items-center justify-center")}>
             <ArrowDownIcon
@@ -44,15 +44,6 @@ export function RelevanceIcon({
             />
           </div>
         </Tooltip>
-      )}
-      {!!weight && weight !== "high" && weight !== "low" && (
-        <div
-          className={cn(
-            "size-7 flex items-center justify-center text-xs text-neutral-500",
-          )}
-        >
-          {weight}
-        </div>
       )}
       {type === RequirementType.MustHave && (
         <Tooltip content="Required">

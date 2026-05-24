@@ -5,6 +5,7 @@ import {
 import { FitClassificationEnum } from "@api/domains/match-analysis/fit-classification.enum";
 import { MatchSourceEnum } from "@api/domains/match-analysis/match-source.enum";
 import { MatchVerdictEnum } from "@api/domains/match-analysis/match-verdict.enum";
+import { WeightEnum } from "@api/domains/work-preferences/weight.enum";
 import { describe, expect, it } from "vitest";
 
 import { computeScore } from "./scoring";
@@ -51,7 +52,7 @@ function resumeUnclear(overrides?: Partial<MatchItem>): MatchItem {
 }
 
 function prefFit(
-  weight: "high" | "low",
+  weight: WeightEnum,
   overrides?: Partial<MatchItem>,
 ): MatchItem {
   return resumeFit({
@@ -94,13 +95,13 @@ describe("computeScore", () => {
     });
 
     it("preference fit low = full weight (1/1)", () => {
-      const result = computeScore([prefFit("low")]);
+      const result = computeScore([prefFit(WeightEnum.Low)]);
       expect(result.scoreRatio).toBe(100);
       expect(result.classification).toBe(FitClassificationEnum.Positive);
     });
 
     it("preference fit high = full weight (2/2)", () => {
-      const result = computeScore([prefFit("high")]);
+      const result = computeScore([prefFit(WeightEnum.High)]);
       expect(result.scoreRatio).toBe(100);
       expect(result.classification).toBe(FitClassificationEnum.Positive);
     });

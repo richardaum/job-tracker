@@ -12,6 +12,7 @@ import {
 import type { PreferenceItem } from "@api/database/entities/work-preferences.entity";
 import { WorkPreferencesEntity } from "@api/database/entities/work-preferences.entity";
 import { AsyncMetadataStatusEnum } from "@api/domains/shared/async-metadata.type";
+import { WeightEnum } from "@api/domains/work-preferences/weight.enum";
 import { tryRun } from "@job-tracker/try-run";
 import { Module } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
@@ -35,6 +36,18 @@ class ScriptModule {}
 
 function upper(val: string | null | undefined): string | null | undefined {
   return val?.toUpperCase();
+}
+
+function normalizeWeight(
+  weight: string | null | undefined,
+): WeightEnum | undefined {
+  if (!weight) return undefined;
+  const capitalized =
+    weight.charAt(0).toUpperCase() + weight.slice(1).toLowerCase();
+  if (capitalized === WeightEnum.High || capitalized === WeightEnum.Low) {
+    return capitalized as WeightEnum;
+  }
+  return undefined;
 }
 
 async function fixJsonbFields(
@@ -110,10 +123,12 @@ async function fixJsonbFields(
 
   // 3. match_analysis items -> weight
   process.stdout.write(
-    `  ${prefix}match_analysis items -> weight (lower -> UPPER)... `,
+    `  ${prefix}match_analysis items -> weight (-> PascalCase)... `,
   );
   const fixWeight = allMatch.filter((e) =>
-    e.items?.some((i) => i.weight && i.weight !== upper(i.weight)),
+    e.items?.some(
+      (i) => i.weight && normalizeWeight(String(i.weight)) !== i.weight,
+    ),
   );
   if (fixWeight.length === 0) {
     process.stdout.write("✓ none to fix\n");
@@ -124,7 +139,9 @@ async function fixJsonbFields(
     for (const e of fixWeight) {
       e.items = e.items.map((i) => ({
         ...i,
-        weight: i.weight ? (upper(i.weight) as MatchItem["weight"]) : i.weight,
+        weight: i.weight
+          ? (normalizeWeight(String(i.weight)) as MatchItem["weight"])
+          : i.weight,
       }));
       const [err] = await tryRun(matchRepo.save(e));
       if (err) {
@@ -140,12 +157,14 @@ async function fixJsonbFields(
 
   // 4. work_preferences items -> weight
   process.stdout.write(
-    `  ${prefix}work_preferences items -> weight (lower -> UPPER)... `,
+    `  ${prefix}work_preferences items -> weight (-> PascalCase)... `,
   );
   const prefsRepo = em.getRepository(WorkPreferencesEntity);
   const allPrefs = await prefsRepo.find();
   const fixPrefWeight = allPrefs.filter((e) =>
-    e.items?.some((i) => i.weight && i.weight !== upper(i.weight)),
+    e.items?.some(
+      (i) => i.weight && normalizeWeight(String(i.weight)) !== i.weight,
+    ),
   );
   if (fixPrefWeight.length === 0) {
     process.stdout.write("✓ none to fix\n");
@@ -157,7 +176,7 @@ async function fixJsonbFields(
       e.items = e.items.map((i) => ({
         ...i,
         weight: i.weight
-          ? (upper(i.weight) as PreferenceItem["weight"])
+          ? (normalizeWeight(String(i.weight)) as PreferenceItem["weight"])
           : i.weight,
       }));
       const [err] = await tryRun(prefsRepo.save(e));
@@ -206,10 +225,7 @@ async function scanEnumColumns(em: EntityManager): Promise<void> {
   }
 
   const jobRepo = em.getRepository(JobEntity);
-  const allJobs = await jobRepo
-    .createQueryBuilder("a")
-    .select(["a.id", "a.source", "a.salary"])
-    .getMany();
+  const allJobs = await jobRepo.find({ select: ["id", "source", "salary"] });
 
   const lowerSource = allJobs.filter(
     (a) => a.source && a.source !== upper(a.source),

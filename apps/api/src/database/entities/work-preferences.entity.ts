@@ -1,3 +1,4 @@
+import { WeightEnum } from "@api/domains/work-preferences/weight.enum";
 import {
   Column,
   CreateDateColumn,
@@ -9,7 +10,7 @@ import {
 
 export interface PreferenceItem {
   text: string;
-  weight: "high" | "low";
+  weight: WeightEnum;
 }
 
 @Entity({ name: "work_preferences" })

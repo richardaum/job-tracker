@@ -2,6 +2,7 @@ import { AsyncMetadataEmbedded } from "@api/database/embeddeds/async-metadata.em
 import { FitClassificationEnum } from "@api/domains/match-analysis/fit-classification.enum";
 import { MatchSourceEnum } from "@api/domains/match-analysis/match-source.enum";
 import { MatchVerdictEnum } from "@api/domains/match-analysis/match-verdict.enum";
+import { WeightEnum } from "@api/domains/work-preferences/weight.enum";
 import { IsNotEmpty, IsString } from "class-validator";
 import {
   Column,
@@ -20,7 +21,7 @@ export enum RequirementTypeEnum {
 export interface MatchItem {
   requirement: string;
   source: MatchSourceEnum;
-  weight?: "high" | "low";
+  weight?: WeightEnum;
   type: RequirementTypeEnum;
   verdict: MatchVerdictEnum;
   jdQuote: string;

@@ -74,7 +74,7 @@ enum AsyncMetadataStatus {
 type MatchItemType {
   requirement: String!
   source: MatchSource!
-  weight: String
+  weight: Weight
   type: RequirementType!
   verdict: MatchVerdict!
   jdQuote: String!
@@ -85,6 +85,11 @@ type MatchItemType {
 enum MatchSource {
   Resume
   Preference
+}
+
+enum Weight {
+  High
+  Low
 }
 
 enum RequirementType {
@@ -262,11 +267,6 @@ enum SourceRunEventType {
 type PreferenceType {
   text: String!
   weight: Weight!
-}
-
-enum Weight {
-  HIGH
-  LOW
 }
 
 type Query {

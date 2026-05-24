@@ -10,6 +10,7 @@ import {
   useGenerateJobMatchMutation,
   useJobMatchQuery,
   useResumesQuery,
+  Weight,
 } from "@/gql/hooks";
 import { MatchClassification } from "@/modules/jobs/shared/components/MatchClassification";
 import { useToastQueue } from "@/modules/jobs/shared/hooks/useToastQueue";
@@ -43,9 +44,7 @@ export function MatchDialog({ jobId, open, onOpenChange }: MatchDialogProps) {
   const [sourceFilter, setSourceFilter] = React.useState<"all" | MatchSource>(
     "all",
   );
-  const [weightFilter, setWeightFilter] = React.useState<
-    "all" | "high" | "low"
-  >("all");
+  const [weightFilter, setWeightFilter] = React.useState<"all" | Weight>("all");
   const [prefsOpen, setPrefsOpen] = React.useState(false);
   const hasMatch = !!matchData?.jobMatch;
 
@@ -179,18 +178,18 @@ export function MatchDialog({ jobId, open, onOpenChange }: MatchDialogProps) {
                   Pref
                 </FilterChip>
                 <FilterChip
-                  active={weightFilter === "high"}
+                  active={weightFilter === Weight.High}
                   onClick={() => {
-                    setWeightFilter("high");
+                    setWeightFilter(Weight.High);
                     setSourceFilter("all");
                   }}
                 >
                   High
                 </FilterChip>
                 <FilterChip
-                  active={weightFilter === "low"}
+                  active={weightFilter === Weight.Low}
                   onClick={() => {
-                    setWeightFilter("low");
+                    setWeightFilter(Weight.Low);
                     setSourceFilter("all");
                   }}
                 >

@@ -3,6 +3,7 @@ import { RequirementTypeEnum } from "@api/database/entities/match-analysis.entit
 import { FitClassificationEnum } from "@api/domains/match-analysis/fit-classification.enum";
 import { MatchSourceEnum } from "@api/domains/match-analysis/match-source.enum";
 import { MatchVerdictEnum } from "@api/domains/match-analysis/match-verdict.enum";
+import { WeightEnum } from "@api/domains/work-preferences/weight.enum";
 
 export interface ScoreResult {
   scoreRatio: number;
@@ -29,7 +30,7 @@ function itemPoints(item: MatchItem): number {
   }
 
   // Preferences
-  return item.weight === "high" ? 2 : 1;
+  return item.weight === WeightEnum.High ? 2 : 1;
 }
 
 function maxPossible(items: MatchItem[]): number {
@@ -49,7 +50,7 @@ function maxPossible(items: MatchItem[]): number {
       }
     }
     // Preferences
-    return sum + (item.weight === "high" ? 2 : 1);
+    return sum + (item.weight === WeightEnum.High ? 2 : 1);
   }, 0);
 }
 

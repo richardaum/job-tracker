@@ -5,6 +5,7 @@ import {
   MatchSource,
   MatchVerdict,
   RequirementType,
+  Weight,
 } from "@/gql/hooks";
 
 export type JobMatchData = NonNullable<JobMatchQuery["jobMatch"]>;
@@ -18,7 +19,7 @@ export function mockMatchItem(partial: {
     __typename: "MatchItemType",
     requirement: partial.requirement ?? `${partial.verdict} requirement`,
     source: partial.source ?? MatchSource.Resume,
-    weight: "high",
+    weight: Weight.High,
     type: RequirementType.MustHave,
     verdict: partial.verdict,
     jdQuote: "JD quote",
