@@ -119,6 +119,7 @@ describe("JobsResolver (integration)", () => {
                 user?: unknown;
               };
             }>().req ?? ctx.switchToHttp().getRequest();
+          if (!req) throw new UnauthorizedException();
           const raw = req.headers?.authorization ?? req.headers?.Authorization;
           const authHeader = Array.isArray(raw) ? raw[0] : raw;
           if (!authHeader) throw new UnauthorizedException();

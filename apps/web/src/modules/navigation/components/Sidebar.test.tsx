@@ -74,6 +74,7 @@ const mockUser: CurrentUser = {
   email: "john@example.com",
   role: "USER",
   avatarUrl: null,
+  accounts: [],
 };
 
 describe("Sidebar", () => {
