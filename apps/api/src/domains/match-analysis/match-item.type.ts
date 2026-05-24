@@ -5,7 +5,7 @@ import {
 import { MatchSourceEnum } from "@api/domains/match-analysis/match-source.enum";
 import { MatchVerdictEnum } from "@api/domains/match-analysis/match-verdict.enum";
 import { WeightEnum } from "@api/domains/work-preferences/weight.enum";
-import { Field, ObjectType, registerEnumType } from "@nestjs/graphql";
+import { Field, ID, ObjectType, registerEnumType } from "@nestjs/graphql";
 
 export type MatchItemTypeRepresentation = MatchItem;
 
@@ -13,6 +13,9 @@ registerEnumType(RequirementTypeEnum, { name: "RequirementType" });
 
 @ObjectType()
 export class MatchItemType {
+  @Field(() => ID)
+  id!: string;
+
   @Field()
   requirement!: string;
 

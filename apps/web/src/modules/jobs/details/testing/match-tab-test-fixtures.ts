@@ -11,12 +11,14 @@ import {
 export type JobMatchData = NonNullable<JobMatchQuery["jobMatch"]>;
 
 export function mockMatchItem(partial: {
+  id?: string;
   verdict: MatchVerdict;
   requirement?: string;
   source?: MatchSource;
 }): JobMatchData["items"][number] {
   return {
     __typename: "MatchItemType",
+    id: partial.id ?? `match-item-${partial.verdict}`,
     requirement: partial.requirement ?? `${partial.verdict} requirement`,
     source: partial.source ?? MatchSource.Resume,
     weight: Weight.High,

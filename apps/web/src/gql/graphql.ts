@@ -241,6 +241,7 @@ export type MatchAnalysisType = {
 
 export type MatchItemType = {
   __typename?: "MatchItemType";
+  id: Scalars["ID"]["output"];
   jdQuote: Scalars["String"]["output"];
   requirement: Scalars["String"]["output"];
   source: MatchSource;
@@ -1276,6 +1277,7 @@ export type MatchQuery = {
     } | null;
     items: Array<{
       __typename?: "MatchItemType";
+      id: string;
       requirement: string;
       source: MatchSource;
       weight?: Weight | null;
@@ -1317,6 +1319,7 @@ export type JobMatchQuery = {
     } | null;
     items: Array<{
       __typename?: "MatchItemType";
+      id: string;
       requirement: string;
       source: MatchSource;
       weight?: Weight | null;
@@ -1354,6 +1357,7 @@ export type GenerateJobMatchMutation = {
     } | null;
     items: Array<{
       __typename?: "MatchItemType";
+      id: string;
       requirement: string;
       source: MatchSource;
       weight?: Weight | null;
@@ -3959,6 +3963,7 @@ export const MatchDocument = {
                   selectionSet: {
                     kind: "SelectionSet",
                     selections: [
+                      { kind: "Field", name: { kind: "Name", value: "id" } },
                       {
                         kind: "Field",
                         name: { kind: "Name", value: "requirement" },
@@ -4105,6 +4110,7 @@ export const JobMatchDocument = {
                   selectionSet: {
                     kind: "SelectionSet",
                     selections: [
+                      { kind: "Field", name: { kind: "Name", value: "id" } },
                       {
                         kind: "Field",
                         name: { kind: "Name", value: "requirement" },
@@ -4226,6 +4232,7 @@ export const GenerateJobMatchDocument = {
                   selectionSet: {
                     kind: "SelectionSet",
                     selections: [
+                      { kind: "Field", name: { kind: "Name", value: "id" } },
                       {
                         kind: "Field",
                         name: { kind: "Name", value: "requirement" },

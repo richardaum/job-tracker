@@ -19,6 +19,7 @@ export enum RequirementTypeEnum {
 }
 
 export interface MatchItem {
+  id: string;
   requirement: string;
   source: MatchSourceEnum;
   weight?: WeightEnum;

@@ -72,6 +72,7 @@ enum AsyncMetadataStatus {
 }
 
 type MatchItemType {
+  id: ID!
   requirement: String!
   source: MatchSource!
   weight: Weight

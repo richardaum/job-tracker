@@ -29,6 +29,7 @@ import { MatchAnalysisRepository } from "./match-analysis.repository";
 import { MatchAnalysis } from "./match-analysis.schema";
 import { MatchAnalysisAiService } from "./match-analysis-ai.service";
 import { MatchAnalysisEventBus } from "./match-analysis-event.bus";
+import { createMatchItemId } from "./match-item-id.util";
 import { MatchSourceEnum } from "./match-source.enum";
 import { computeScore } from "./scoring/scoring";
 
@@ -255,6 +256,7 @@ export class MatchAnalysisService implements OnModuleInit {
       const items: MatchItem[] = [
         ...resumeMatchItems.map(
           (i): MatchItem => ({
+            id: createMatchItemId(),
             requirement: i.requirement,
             source: MatchSourceEnum.Resume,
             type: i.type as RequirementTypeEnum,
@@ -267,6 +269,7 @@ export class MatchAnalysisService implements OnModuleInit {
         ...preferenceMatchItems.map((i, index): MatchItem => {
           const original = preferenceItems[index];
           return {
+            id: createMatchItemId(),
             requirement: i.requirement,
             source: MatchSourceEnum.Preference,
             weight: original?.weight,

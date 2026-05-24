@@ -42,6 +42,7 @@ query Match($id: ID!) {
     gapCount
     unclearCount
     items {
+      id
       requirement
       source
       weight
@@ -79,6 +80,7 @@ query JobMatch($jobId: ID!) {
     gapCount
     unclearCount
     items {
+      id
       requirement
       source
       weight
@@ -108,6 +110,7 @@ mutation GenerateJobMatch($input: GenerateMatchInput!) {
     gapCount
     unclearCount
     items {
+      id
       requirement
       source
       weight

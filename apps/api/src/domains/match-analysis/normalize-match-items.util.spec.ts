@@ -66,4 +66,18 @@ describe("normalizeMatchItems", () => {
       sourceQuotes: [],
     });
   });
+
+  it("preserves item id when present", () => {
+    expect(
+      normalizeMatchItem({
+        id: "item-1",
+        requirement: "Rust",
+        source: MatchSourceEnum.Resume,
+        type: RequirementTypeEnum.MustHave,
+        verdict: MatchVerdictEnum.Fit,
+        jdQuote: "Rust",
+        sourceQuotes: [],
+      }),
+    ).toEqual(expect.objectContaining({ id: "item-1", requirement: "Rust" }));
+  });
 });

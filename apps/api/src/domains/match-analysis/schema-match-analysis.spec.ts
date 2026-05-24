@@ -15,4 +15,9 @@ describe("schema.gql MatchAnalysis surface (task 04)", () => {
     expect(block).not.toContain("draftJobId");
     expect(block).toContain("jobId: ID!");
   });
+
+  it("exposes id on MatchItemType", () => {
+    const block = schema.match(/type MatchItemType \{[^}]+\}/s)?.[0] ?? "";
+    expect(block).toContain("id: ID!");
+  });
 });

@@ -232,6 +232,19 @@ describe("MatchAnalysisService", () => {
     expect(
       vi.mocked(aiService.extractResumeMatchItems).mock.calls[0][0],
     ).toContain("Need Rust");
+    expect(repo.updateById).toHaveBeenCalledWith(
+      "m1",
+      AsyncMetadataStatusEnum.PROCESSING,
+      expect.objectContaining({
+        items: [
+          expect.objectContaining({
+            id: expect.any(String),
+            requirement: "Rust",
+          }),
+        ],
+      }),
+      "user-1",
+    );
     expect(hasCompletedLifecycleEmit(eventEmit)).toBe(true);
   });
 

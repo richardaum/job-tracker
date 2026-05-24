@@ -12,6 +12,7 @@ import { computeScore } from "./scoring";
 
 function resumeFit(overrides?: Partial<MatchItem>): MatchItem {
   return {
+    id: "match-item-test-id",
     requirement: "test",
     source: MatchSourceEnum.Resume,
     type: RequirementTypeEnum.NiceToHave,

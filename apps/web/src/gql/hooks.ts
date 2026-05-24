@@ -243,6 +243,7 @@ export type MatchAnalysisType = {
 
 export type MatchItemType = {
   __typename?: "MatchItemType";
+  id: Scalars["ID"]["output"];
   jdQuote: Scalars["String"]["output"];
   requirement: Scalars["String"]["output"];
   source: MatchSource;
@@ -1288,6 +1289,7 @@ export type MatchQuery = {
     } | null;
     items: Array<{
       __typename?: "MatchItemType";
+      id: string;
       requirement: string;
       source: MatchSource;
       weight?: Weight | null;
@@ -1329,6 +1331,7 @@ export type JobMatchQuery = {
     } | null;
     items: Array<{
       __typename?: "MatchItemType";
+      id: string;
       requirement: string;
       source: MatchSource;
       weight?: Weight | null;
@@ -1366,6 +1369,7 @@ export type GenerateJobMatchMutation = {
     } | null;
     items: Array<{
       __typename?: "MatchItemType";
+      id: string;
       requirement: string;
       source: MatchSource;
       weight?: Weight | null;
@@ -3331,6 +3335,7 @@ export const MatchDocument = gql`
       gapCount
       unclearCount
       items {
+        id
         requirement
         source
         weight
@@ -3415,6 +3420,7 @@ export const JobMatchDocument = gql`
       gapCount
       unclearCount
       items {
+        id
         requirement
         source
         weight
@@ -3493,6 +3499,7 @@ export const GenerateJobMatchDocument = gql`
       gapCount
       unclearCount
       items {
+        id
         requirement
         source
         weight
