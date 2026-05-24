@@ -1,0 +1,17 @@
+query Settings {
+  settings {
+    userId
+    autoFillEnabled
+    autoSummaryEnabled
+    duplicateWindowDays
+  }
+}
+
+mutation UpdateSettings($input: UpdateSettingsInput!) {
+  updateSettings(input: $input) {
+    userId
+    autoFillEnabled
+    autoSummaryEnabled
+    duplicateWindowDays
+  }
+}

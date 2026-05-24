@@ -18,7 +18,7 @@ export function SourceBadge({
 }) {
   if (source === FitSource.Resume && resumeId) {
     return (
-      <NextLink href={`/resumes/${resumeId}`}>
+      <NextLink href={`/profile/resumes/${resumeId}`}>
         <IconButton
           icon={<FilesIcon size={16} weight="regular" />}
           label="View resume"

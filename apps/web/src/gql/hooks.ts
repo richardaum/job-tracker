@@ -67,6 +67,18 @@ export type AsyncMetadataType = {
   timestamp?: Maybe<Scalars["DateTime"]["output"]>;
 };
 
+export type AuthAccount = {
+  __typename?: "AuthAccount";
+  createdAt: Scalars["DateTime"]["output"];
+  id: Scalars["ID"]["output"];
+  providerAccountId: Scalars["String"]["output"];
+  providerName: AuthProvider;
+};
+
+export enum AuthProvider {
+  Google = "GOOGLE",
+}
+
 export type CompanyType = {
   __typename?: "CompanyType";
   createdAt: Scalars["DateTime"]["output"];
@@ -281,6 +293,7 @@ export type Mutation = {
   updateJobNote: NoteType;
   updateJobStageEvent: JobStageEventType;
   updateResume: ResumeType;
+  updateSettings: UserSetting;
   updateSourceRun: SourceRunType;
   updateSourceRunStatus: SourceRunType;
   updateSourceTemplate: SourceTemplateType;
@@ -367,6 +380,8 @@ export type MutationUpdateResumeArgs = {
   input: UpdateResumeInput;
 };
 
+export type MutationUpdateSettingsArgs = { input: UpdateSettingsInput };
+
 export type MutationUpdateSourceRunArgs = {
   id: Scalars["ID"]["input"];
   input: UpdateSourceRunInput;
@@ -430,6 +445,7 @@ export type Query = {
   resume: ResumeType;
   resumes: Array<ResumeType>;
   rewriteTextWithAI: Scalars["String"]["output"];
+  settings: UserSetting;
   sourceProfiles: Array<SourceProfileType>;
   sourceRuns: Array<SourceRunType>;
   sourceTemplates: Array<SourceTemplateType>;
@@ -611,6 +627,12 @@ export type UpdateResumeInput = {
   title?: InputMaybe<Scalars["String"]["input"]>;
 };
 
+export type UpdateSettingsInput = {
+  autoFillEnabled?: InputMaybe<Scalars["Boolean"]["input"]>;
+  autoSummaryEnabled?: InputMaybe<Scalars["Boolean"]["input"]>;
+  duplicateWindowDays?: InputMaybe<Scalars["Int"]["input"]>;
+};
+
 export type UpdateSourceRunInput = { surfaceUrl: Scalars["String"]["input"] };
 
 export type UpdateSourceTemplateInput = {
@@ -619,8 +641,17 @@ export type UpdateSourceTemplateInput = {
   surfaceUrl?: InputMaybe<Scalars["String"]["input"]>;
 };
 
+export type UserSetting = {
+  __typename?: "UserSetting";
+  autoFillEnabled: Scalars["Boolean"]["output"];
+  autoSummaryEnabled: Scalars["Boolean"]["output"];
+  duplicateWindowDays: Scalars["Int"]["output"];
+  userId: Scalars["String"]["output"];
+};
+
 export type UserType = {
   __typename?: "UserType";
+  accounts: Array<AuthAccount>;
   avatarUrl?: Maybe<Scalars["String"]["output"]>;
   email: Scalars["String"]["output"];
   id: Scalars["ID"]["output"];
@@ -1369,6 +1400,13 @@ export type MeQuery = {
     name: string;
     role: string;
     avatarUrl?: string | null;
+    accounts: Array<{
+      __typename?: "AuthAccount";
+      id: string;
+      providerName: AuthProvider;
+      providerAccountId: string;
+      createdAt: any;
+    }>;
   };
 };
 
@@ -1446,6 +1484,34 @@ export type DeleteResumeMutation = {
     __typename?: "DeleteMutationPayloadType";
     success: boolean;
     deletedId: string;
+  };
+};
+
+export type SettingsQueryVariables = Exact<{ [key: string]: never }>;
+
+export type SettingsQuery = {
+  __typename?: "Query";
+  settings: {
+    __typename?: "UserSetting";
+    userId: string;
+    autoFillEnabled: boolean;
+    autoSummaryEnabled: boolean;
+    duplicateWindowDays: number;
+  };
+};
+
+export type UpdateSettingsMutationVariables = Exact<{
+  input: UpdateSettingsInput;
+}>;
+
+export type UpdateSettingsMutation = {
+  __typename?: "Mutation";
+  updateSettings: {
+    __typename?: "UserSetting";
+    userId: string;
+    autoFillEnabled: boolean;
+    autoSummaryEnabled: boolean;
+    duplicateWindowDays: number;
   };
 };
 
@@ -3504,6 +3570,12 @@ export const MeDocument = gql`
       name
       role
       avatarUrl
+      accounts {
+        id
+        providerName
+        providerAccountId
+        createdAt
+      }
     }
   }
 `;
@@ -3787,6 +3859,103 @@ export function useDeleteResumeMutation(
     DeleteResumeMutation,
     DeleteResumeMutationVariables
   >(DeleteResumeDocument, options);
+}
+
+export const SettingsDocument = gql`
+  query Settings {
+    settings {
+      userId
+      autoFillEnabled
+      autoSummaryEnabled
+      duplicateWindowDays
+    }
+  }
+`;
+
+/**
+ * __useSettingsQuery__
+ *
+ * To run a query within a React component, call `useSettingsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useSettingsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useSettingsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useSettingsQuery(
+  baseOptions?: ApolloReactHooks.QueryHookOptions<
+    SettingsQuery,
+    SettingsQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useQuery<SettingsQuery, SettingsQueryVariables>(
+    SettingsDocument,
+    options,
+  );
+}
+export function useSettingsLazyQuery(
+  baseOptions?: ApolloReactHooks.LazyQueryHookOptions<
+    SettingsQuery,
+    SettingsQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useLazyQuery<SettingsQuery, SettingsQueryVariables>(
+    SettingsDocument,
+    options,
+  );
+}
+
+export type SettingsQueryHookResult = ReturnType<typeof useSettingsQuery>;
+export type SettingsLazyQueryHookResult = ReturnType<
+  typeof useSettingsLazyQuery
+>;
+
+export const UpdateSettingsDocument = gql`
+  mutation UpdateSettings($input: UpdateSettingsInput!) {
+    updateSettings(input: $input) {
+      userId
+      autoFillEnabled
+      autoSummaryEnabled
+      duplicateWindowDays
+    }
+  }
+`;
+
+/**
+ * __useUpdateSettingsMutation__
+ *
+ * To run a mutation, you first call `useUpdateSettingsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateSettingsMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateSettingsMutation, { data, loading, error }] = useUpdateSettingsMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateSettingsMutation(
+  baseOptions?: ApolloReactHooks.MutationHookOptions<
+    UpdateSettingsMutation,
+    UpdateSettingsMutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useMutation<
+    UpdateSettingsMutation,
+    UpdateSettingsMutationVariables
+  >(UpdateSettingsDocument, options);
 }
 
 export const SourceProfilesListDocument = gql`
