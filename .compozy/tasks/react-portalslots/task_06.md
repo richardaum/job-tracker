@@ -37,7 +37,7 @@ Run automated and manual verification that Match tab header actions work end-to-
 
 - [x] 6.1 Run targeted Vitest suites for Match tab and layout
 - [x] 6.2 Manual smoke: header Generate/Regenerate on Match tab — covered by `MatchTabContent.test.tsx` (`renders Generate match CTA when there is no jobMatch`, `Regenerate exposes wizard hasExistingMatch when match is rendered`) with `JobHeaderActions.Slot` portal wiring
-- [x] 6.3 Manual smoke: Actions menu Match items — covered by `MatchTabContent.test.tsx` (`navigates to resume when Actions View resume is selected`, `shows match header menu items while tab content loads`) and `JobDetailsLayout.test.tsx` (`does not show match menu items until match tab content registers them`)
+- [x] 6.3 Manual smoke: Actions menu Match items — covered by `MatchTabContent.test.tsx` (`navigates to resume when Actions View resume is selected`, `does not show View resume when match has no resumeId`, `shows match header menu items while tab content loads`) and `JobDetailsLayout.test.tsx` (`does not show match menu items until match tab content registers them`)
 - [x] 6.4 Manual smoke: preferences from card click — covered by `MatchTabContent.test.tsx` (`opens preferences dialog from Actions menu View preferences`, `opens preferences dialog from match item card preference control`)
 - [x] 6.5 Document dropdown portal behavior outcome (pass or mitigated)
 
