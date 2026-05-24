@@ -92,14 +92,15 @@ pnpm --filter @job-tracker/web lint
 
 Follow-up **#10** manual smoke checklist is covered by Vitest integration tests (not a live browser session):
 
-| Manual check                            | Test file                   | Test name(s)                                                                                                                |
-| --------------------------------------- | --------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| Header Generate/Regenerate on Match tab | `MatchTabContent.test.tsx`  | `renders Generate match CTA when there is no jobMatch`; `Regenerate exposes wizard hasExistingMatch when match is rendered` |
-| Actions → View resume                   | `MatchTabContent.test.tsx`  | `navigates to resume when Actions View resume is selected`                                                                  |
-| Actions → View preferences              | `MatchTabContent.test.tsx`  | `opens preferences dialog from Actions menu View preferences`                                                               |
-| Preference indicator on match card      | `MatchTabContent.test.tsx`  | `opens preferences dialog from match item card preference control`                                                          |
-| Menu items register from Match tab      | `MatchTabContent.test.tsx`  | `shows match header menu items while tab content loads`                                                                     |
-| Menu items absent until tab mounts      | `JobDetailsLayout.test.tsx` | `does not show match menu items until match tab content registers them`                                                     |
+| Manual check                                    | Test file                   | Test name(s)                                                                                                                |
+| ----------------------------------------------- | --------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| Header Generate/Regenerate on Match tab         | `MatchTabContent.test.tsx`  | `renders Generate match CTA when there is no jobMatch`; `Regenerate exposes wizard hasExistingMatch when match is rendered` |
+| Actions → View resume                           | `MatchTabContent.test.tsx`  | `navigates to resume when Actions View resume is selected`                                                                  |
+| Actions → View resume (absent when no resumeId) | `MatchTabContent.test.tsx`  | `does not show View resume when match has no resumeId`                                                                      |
+| Actions → View preferences                      | `MatchTabContent.test.tsx`  | `opens preferences dialog from Actions menu View preferences`                                                               |
+| Preference indicator on match card              | `MatchTabContent.test.tsx`  | `opens preferences dialog from match item card preference control`                                                          |
+| Menu items register from Match tab              | `MatchTabContent.test.tsx`  | `shows match header menu items while tab content loads`                                                                     |
+| Menu items absent until tab mounts              | `JobDetailsLayout.test.tsx` | `does not show match menu items until match tab content registers them`                                                     |
 
 Manual browser smoke on `/jobs/[id]/match` is still recommended before merge (Radix focus, real routing, SSE) but is **not blocking** given the above Vitest coverage.
 
