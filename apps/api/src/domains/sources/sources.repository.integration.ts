@@ -1,10 +1,9 @@
 import { SourceRunEntity } from "@api/database/entities/source-run.entity";
 import { SourceTemplateEntity } from "@api/database/entities/source-template.entity";
-import { UserEntity } from "@api/database/entities/user.entity";
+import { insertUserWithAuthAccount } from "@api/database/integration-test-user";
 import { createTestDataSource } from "@api/database/test-db";
 import { SourceRunStatusEnum } from "@api/domains/sources/source-run-status.enum";
 import { SourcesRepository } from "@api/domains/sources/sources.repository";
-import { RoleEnum } from "@api/domains/users/role.enum";
 import { apiEnv } from "@api/env/server";
 import type { DataSource } from "typeorm";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
@@ -23,16 +22,12 @@ describe.skipIf(!hasDb)("SourcesRepository (integration)", () => {
       dataSource.getRepository(SourceTemplateEntity),
     );
 
-    const userRepo = dataSource.getRepository(UserEntity);
-    const user = await userRepo.save(
-      userRepo.create({
-        googleId: "google-sources-repo-test",
-        email: "sourcesrepo@example.com",
-        name: "Sources Repo User",
-        avatarUrl: null,
-        role: RoleEnum.User,
-      }),
-    );
+    const user = await insertUserWithAuthAccount(dataSource, {
+      providerAccountId: "google-sources-repo-test",
+      email: "sourcesrepo@example.com",
+      name: "Sources Repo User",
+      avatarUrl: null,
+    });
     userId = user.id;
   });
 

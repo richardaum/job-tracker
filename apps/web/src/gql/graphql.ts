@@ -65,6 +65,18 @@ export type AsyncMetadataType = {
   timestamp?: Maybe<Scalars["DateTime"]["output"]>;
 };
 
+export type AuthAccount = {
+  __typename?: "AuthAccount";
+  createdAt: Scalars["DateTime"]["output"];
+  id: Scalars["ID"]["output"];
+  providerAccountId: Scalars["String"]["output"];
+  providerName: AuthProvider;
+};
+
+export enum AuthProvider {
+  Google = "GOOGLE",
+}
+
 export type CompanyType = {
   __typename?: "CompanyType";
   createdAt: Scalars["DateTime"]["output"];
@@ -280,6 +292,7 @@ export type Mutation = {
   updateJobNote: NoteType;
   updateJobStageEvent: JobStageEventType;
   updateResume: ResumeType;
+  updateSettings: UserSetting;
   updateSourceRun: SourceRunType;
   updateSourceRunStatus: SourceRunType;
   updateSourceTemplate: SourceTemplateType;
@@ -366,6 +379,8 @@ export type MutationUpdateResumeArgs = {
   input: UpdateResumeInput;
 };
 
+export type MutationUpdateSettingsArgs = { input: UpdateSettingsInput };
+
 export type MutationUpdateSourceRunArgs = {
   id: Scalars["ID"]["input"];
   input: UpdateSourceRunInput;
@@ -429,6 +444,7 @@ export type Query = {
   resume: ResumeType;
   resumes: Array<ResumeType>;
   rewriteTextWithAI: Scalars["String"]["output"];
+  settings: UserSetting;
   sourceProfiles: Array<SourceProfileType>;
   sourceRuns: Array<SourceRunType>;
   sourceTemplates: Array<SourceTemplateType>;
@@ -610,6 +626,12 @@ export type UpdateResumeInput = {
   title?: InputMaybe<Scalars["String"]["input"]>;
 };
 
+export type UpdateSettingsInput = {
+  autoFillEnabled?: InputMaybe<Scalars["Boolean"]["input"]>;
+  autoSummaryEnabled?: InputMaybe<Scalars["Boolean"]["input"]>;
+  duplicateWindowDays?: InputMaybe<Scalars["Int"]["input"]>;
+};
+
 export type UpdateSourceRunInput = { surfaceUrl: Scalars["String"]["input"] };
 
 export type UpdateSourceTemplateInput = {
@@ -618,8 +640,18 @@ export type UpdateSourceTemplateInput = {
   surfaceUrl?: InputMaybe<Scalars["String"]["input"]>;
 };
 
+export type UserSetting = {
+  __typename?: "UserSetting";
+  autoFillEnabled: Scalars["Boolean"]["output"];
+  autoSummaryEnabled: Scalars["Boolean"]["output"];
+  duplicateWindowDays: Scalars["Int"]["output"];
+  id: Scalars["ID"]["output"];
+  userId: Scalars["String"]["output"];
+};
+
 export type UserType = {
   __typename?: "UserType";
+  accounts: Array<AuthAccount>;
   avatarUrl?: Maybe<Scalars["String"]["output"]>;
   email: Scalars["String"]["output"];
   id: Scalars["ID"]["output"];
@@ -1358,6 +1390,13 @@ export type MeQuery = {
     name: string;
     role: string;
     avatarUrl?: string | null;
+    accounts: Array<{
+      __typename?: "AuthAccount";
+      id: string;
+      providerName: AuthProvider;
+      providerAccountId: string;
+      createdAt: any;
+    }>;
   };
 };
 
@@ -1447,6 +1486,34 @@ export type DeleteResumeMutation = {
     __typename?: "DeleteMutationPayloadType";
     success: boolean;
     deletedId: string;
+  };
+};
+
+export type SettingsQueryVariables = Exact<{ [key: string]: never }>;
+
+export type SettingsQuery = {
+  __typename?: "Query";
+  settings: {
+    __typename?: "UserSetting";
+    id: string;
+    autoFillEnabled: boolean;
+    autoSummaryEnabled: boolean;
+    duplicateWindowDays: number;
+  };
+};
+
+export type UpdateSettingsMutationVariables = Exact<{
+  input: UpdateSettingsInput;
+}>;
+
+export type UpdateSettingsMutation = {
+  __typename?: "Mutation";
+  updateSettings: {
+    __typename?: "UserSetting";
+    id: string;
+    autoFillEnabled: boolean;
+    autoSummaryEnabled: boolean;
+    duplicateWindowDays: number;
   };
 };
 
@@ -4273,6 +4340,28 @@ export const MeDocument = {
                 { kind: "Field", name: { kind: "Name", value: "name" } },
                 { kind: "Field", name: { kind: "Name", value: "role" } },
                 { kind: "Field", name: { kind: "Name", value: "avatarUrl" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "accounts" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      { kind: "Field", name: { kind: "Name", value: "id" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "providerName" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "providerAccountId" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "createdAt" },
+                      },
+                    ],
+                  },
+                },
               ],
             },
           },
@@ -4574,6 +4663,109 @@ export const DeleteResumeDocument = {
 } as unknown as DocumentNode<
   DeleteResumeMutation,
   DeleteResumeMutationVariables
+>;
+export const SettingsDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "query",
+      name: { kind: "Name", value: "Settings" },
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "settings" },
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "autoFillEnabled" },
+                },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "autoSummaryEnabled" },
+                },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "duplicateWindowDays" },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<SettingsQuery, SettingsQueryVariables>;
+export const UpdateSettingsDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "UpdateSettings" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "input" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: {
+              kind: "NamedType",
+              name: { kind: "Name", value: "UpdateSettingsInput" },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "updateSettings" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "input" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "input" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "autoFillEnabled" },
+                },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "autoSummaryEnabled" },
+                },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "duplicateWindowDays" },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  UpdateSettingsMutation,
+  UpdateSettingsMutationVariables
 >;
 export const SourceProfilesListDocument = {
   kind: "Document",

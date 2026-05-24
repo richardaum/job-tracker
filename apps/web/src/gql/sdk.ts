@@ -66,6 +66,18 @@ export type AsyncMetadataType = {
   timestamp?: Maybe<Scalars["DateTime"]["output"]>;
 };
 
+export type AuthAccount = {
+  __typename?: "AuthAccount";
+  createdAt: Scalars["DateTime"]["output"];
+  id: Scalars["ID"]["output"];
+  providerAccountId: Scalars["String"]["output"];
+  providerName: AuthProvider;
+};
+
+export enum AuthProvider {
+  Google = "GOOGLE",
+}
+
 export type CompanyType = {
   __typename?: "CompanyType";
   createdAt: Scalars["DateTime"]["output"];
@@ -281,6 +293,7 @@ export type Mutation = {
   updateJobNote: NoteType;
   updateJobStageEvent: JobStageEventType;
   updateResume: ResumeType;
+  updateSettings: UserSetting;
   updateSourceRun: SourceRunType;
   updateSourceRunStatus: SourceRunType;
   updateSourceTemplate: SourceTemplateType;
@@ -367,6 +380,8 @@ export type MutationUpdateResumeArgs = {
   input: UpdateResumeInput;
 };
 
+export type MutationUpdateSettingsArgs = { input: UpdateSettingsInput };
+
 export type MutationUpdateSourceRunArgs = {
   id: Scalars["ID"]["input"];
   input: UpdateSourceRunInput;
@@ -430,6 +445,7 @@ export type Query = {
   resume: ResumeType;
   resumes: Array<ResumeType>;
   rewriteTextWithAI: Scalars["String"]["output"];
+  settings: UserSetting;
   sourceProfiles: Array<SourceProfileType>;
   sourceRuns: Array<SourceRunType>;
   sourceTemplates: Array<SourceTemplateType>;
@@ -611,6 +627,12 @@ export type UpdateResumeInput = {
   title?: InputMaybe<Scalars["String"]["input"]>;
 };
 
+export type UpdateSettingsInput = {
+  autoFillEnabled?: InputMaybe<Scalars["Boolean"]["input"]>;
+  autoSummaryEnabled?: InputMaybe<Scalars["Boolean"]["input"]>;
+  duplicateWindowDays?: InputMaybe<Scalars["Int"]["input"]>;
+};
+
 export type UpdateSourceRunInput = { surfaceUrl: Scalars["String"]["input"] };
 
 export type UpdateSourceTemplateInput = {
@@ -619,8 +641,18 @@ export type UpdateSourceTemplateInput = {
   surfaceUrl?: InputMaybe<Scalars["String"]["input"]>;
 };
 
+export type UserSetting = {
+  __typename?: "UserSetting";
+  autoFillEnabled: Scalars["Boolean"]["output"];
+  autoSummaryEnabled: Scalars["Boolean"]["output"];
+  duplicateWindowDays: Scalars["Int"]["output"];
+  id: Scalars["ID"]["output"];
+  userId: Scalars["String"]["output"];
+};
+
 export type UserType = {
   __typename?: "UserType";
+  accounts: Array<AuthAccount>;
   avatarUrl?: Maybe<Scalars["String"]["output"]>;
   email: Scalars["String"]["output"];
   id: Scalars["ID"]["output"];
@@ -1369,6 +1401,13 @@ export type MeQuery = {
     name: string;
     role: string;
     avatarUrl?: string | null;
+    accounts: Array<{
+      __typename?: "AuthAccount";
+      id: string;
+      providerName: AuthProvider;
+      providerAccountId: string;
+      createdAt: any;
+    }>;
   };
 };
 
@@ -1458,6 +1497,34 @@ export type DeleteResumeMutation = {
     __typename?: "DeleteMutationPayloadType";
     success: boolean;
     deletedId: string;
+  };
+};
+
+export type SettingsQueryVariables = Exact<{ [key: string]: never }>;
+
+export type SettingsQuery = {
+  __typename?: "Query";
+  settings: {
+    __typename?: "UserSetting";
+    id: string;
+    autoFillEnabled: boolean;
+    autoSummaryEnabled: boolean;
+    duplicateWindowDays: number;
+  };
+};
+
+export type UpdateSettingsMutationVariables = Exact<{
+  input: UpdateSettingsInput;
+}>;
+
+export type UpdateSettingsMutation = {
+  __typename?: "Mutation";
+  updateSettings: {
+    __typename?: "UserSetting";
+    id: string;
+    autoFillEnabled: boolean;
+    autoSummaryEnabled: boolean;
+    duplicateWindowDays: number;
   };
 };
 
@@ -2130,6 +2197,12 @@ export const MeDocument = gql`
       name
       role
       avatarUrl
+      accounts {
+        id
+        providerName
+        providerAccountId
+        createdAt
+      }
     }
   }
 `;
@@ -2196,6 +2269,26 @@ export const DeleteResumeDocument = gql`
     deleteResume(id: $id) {
       success
       deletedId
+    }
+  }
+`;
+export const SettingsDocument = gql`
+  query Settings {
+    settings {
+      id
+      autoFillEnabled
+      autoSummaryEnabled
+      duplicateWindowDays
+    }
+  }
+`;
+export const UpdateSettingsDocument = gql`
+  mutation UpdateSettings($input: UpdateSettingsInput!) {
+    updateSettings(input: $input) {
+      id
+      autoFillEnabled
+      autoSummaryEnabled
+      duplicateWindowDays
     }
   }
 `;
@@ -3039,6 +3132,42 @@ export function getSdk(
             signal,
           }),
         "DeleteResume",
+        "mutation",
+        variables,
+      );
+    },
+    Settings(
+      variables?: SettingsQueryVariables,
+      requestHeaders?: GraphQLClientRequestHeaders,
+      signal?: RequestInit["signal"],
+    ): Promise<SettingsQuery> {
+      return withWrapper(
+        (wrappedRequestHeaders) =>
+          client.request<SettingsQuery>({
+            document: SettingsDocument,
+            variables,
+            requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
+            signal,
+          }),
+        "Settings",
+        "query",
+        variables,
+      );
+    },
+    UpdateSettings(
+      variables: UpdateSettingsMutationVariables,
+      requestHeaders?: GraphQLClientRequestHeaders,
+      signal?: RequestInit["signal"],
+    ): Promise<UpdateSettingsMutation> {
+      return withWrapper(
+        (wrappedRequestHeaders) =>
+          client.request<UpdateSettingsMutation>({
+            document: UpdateSettingsDocument,
+            variables,
+            requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
+            signal,
+          }),
+        "UpdateSettings",
         "mutation",
         variables,
       );

@@ -43,7 +43,7 @@ export function AddResumeDialog({ open, onOpenChange }: AddResumeDialogProps) {
 
       if (data?.createResume) {
         onOpenChange(false);
-        router.push(`/resumes/${data.createResume.id}`);
+        router.push(`/profile/resumes/${data.createResume.id}`);
       }
     } catch (err) {
       console.error("Failed to create resume:", err);

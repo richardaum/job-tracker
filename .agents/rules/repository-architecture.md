@@ -20,6 +20,12 @@ Typed env modules only — no raw `process.env` in application code. In config/c
 
 Any NestJS module with resolvers decorated with `@UseGuards(JwtAuthGuard, RolesGuard)` must import `AuthModule`. Guards depend on `Reflector` and `UserService` from `AuthModule`. Omitting causes `UnknownDependenciesException`.
 
+## Thin repositories
+
+A thin repository only translates read/write operations to the database: `find`, `save`, `insert`, `update`, optimized queries (joins instead of N+1), and methods that accept an optional `EntityManager` for transactional composition. It does not own business flow — no find-or-create, branching upserts, domain defaults (role, UUID), provider/use-case wrappers (`findByGoogleId`), or business invariants/exceptions. The service orchestrates “already exists? update : create”, opens transactions, and turns `null` into domain errors. Quick rule: if the method describes *what to do* with data, it belongs in the service; if it describes *how to read/write a table*, it belongs in the repository.
+
+Reference: `apps/api/src/domains/users/users.repository.ts` + `users.service.ts`, `apps/api/src/domains/jobs/jobs.repository.ts` (`EntityManager?` on write helpers).
+
 ## Async task JSONB metadata
 
 Fields named `{action}Metadata` (e.g. `summaryMetadata`, `conversionMetadata`, `generationMetadata`) are JSONB columns carrying `AsyncMetadata` (`{ status, error?, generatedAt? }`).
@@ -41,7 +47,7 @@ When changes affect data models (entities, columns, types, indices, enums), crea
 Operational:
 - Migration files at `apps/api/src/database/migrations/`
 - Register in `apps/api/src/database/migrations/index.ts` (two places: import + `migrations` array)
-- `pnpm --filter api migration:generate <name>` to generate from entity changes
-- `pnpm --filter api migration:run` to apply pending
+- No codegen script — add migration file manually; follow `apps/api/src/database/migrations/MIGRATIONS.md`
+- `pnpm --filter @job-tracker/api run db:migrate` to apply pending
 
 Detailed reference: `apps/api/src/database/migrations/MIGRATIONS.md`.

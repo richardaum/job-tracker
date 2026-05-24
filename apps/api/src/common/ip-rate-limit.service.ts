@@ -1,3 +1,4 @@
+import { apiEnv } from "@api/env/server";
 import { Injectable } from "@nestjs/common";
 
 type Bucket = { count: number; resetAt: number };
@@ -10,6 +11,10 @@ export class IpRateLimitService {
 
   /** Returns true when the request is allowed, false when rate limit is exceeded. */
   consume(key: string, limit: number, ttlMs: number): boolean {
+    if (apiEnv.RATE_LIMIT_DISABLED) {
+      return true;
+    }
+
     const now = Date.now();
     this.pruneExpiredBuckets(now);
 

@@ -13,21 +13,7 @@ const authRefreshLink = createAuthRefreshLink(
 );
 
 export function createApolloClient() {
-  const httpLink = new HttpLink({
-    uri: getApiGraphqlUrl(),
-    credentials: "include",
-    // fetch: async (uri, options) => {
-    //   const bodyText = typeof options?.body === "string" ? options.body : "";
-    //   const isCreateWithAi = bodyText.includes("createJobWithAI");
-    //   const resolvedUri =
-    //     isCreateWithAiV2 && String(uri) === "/graphql"
-    //       ? typeof window !== "undefined"
-    //         ? `${window.location.protocol}//${window.location.hostname}:3101/graphql`
-    //         : "http://127.0.0.1:3101/graphql"
-    //       : uri;
-    //   return fetch(resolvedUri, options);
-    // },
-  });
+  const httpLink = new HttpLink({ uri: getApiGraphqlUrl() });
 
   return new ApolloClient({
     link: authRefreshLink.concat(httpLink),

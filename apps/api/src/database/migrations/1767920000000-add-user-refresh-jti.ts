@@ -1,7 +1,7 @@
 import type { MigrationInterface, QueryRunner } from "typeorm";
 
-export class AddUserRefreshJti1767910000000 implements MigrationInterface {
-  name = "AddUserRefreshJti1767910000000";
+export class AddUserRefreshJti1767920000000 implements MigrationInterface {
+  name = "AddUserRefreshJti1767920000000";
 
   async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`

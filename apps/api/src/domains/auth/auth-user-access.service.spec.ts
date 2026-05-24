@@ -10,7 +10,6 @@ import { AuthUserAccessService } from "./auth-user-access.service";
 
 const mockUser: User = {
   id: "user-1",
-  googleId: "google-123",
   email: "test@example.com",
   name: "Test User",
   avatarUrl: null,
@@ -20,6 +19,7 @@ const mockUser: User = {
   refreshJti: null,
   createdAt: new Date(),
   updatedAt: new Date(),
+  accounts: [],
 };
 
 describe("AuthUserAccessService", () => {

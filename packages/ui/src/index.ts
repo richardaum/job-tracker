@@ -118,6 +118,8 @@ export type { SpinnerProps, SpinnerSize } from "./components/Spinner/Spinner";
 export { Spinner } from "./components/Spinner/Spinner";
 export type { StackProps } from "./components/Stack/Stack";
 export { Stack } from "./components/Stack/Stack";
+export type { SwitchProps } from "./components/Switch/Switch";
+export { Switch } from "./components/Switch/Switch";
 export type {
   TabsContentProps,
   TabsListProps,

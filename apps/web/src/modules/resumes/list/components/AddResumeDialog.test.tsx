@@ -49,7 +49,7 @@ describe("AddResumeDialog", () => {
           input: { title: "My Resume", content: expect.any(String) },
         },
       });
-      expect(pushMock).toHaveBeenCalledWith("/resumes/res-1");
+      expect(pushMock).toHaveBeenCalledWith("/profile/resumes/res-1");
       expect(onOpenChange).toHaveBeenCalledWith(false);
     });
   });

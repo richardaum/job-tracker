@@ -39,7 +39,7 @@ export function ResumeCard({
 
   const title = (
     <ListItemCard.Title asChild size="sm" className={cn("font-semibold")}>
-      <NextLink href={`/resumes/${resume.id}`}>
+      <NextLink href={`/profile/resumes/${resume.id}`}>
         <span>{resume.title}</span>
       </NextLink>
     </ListItemCard.Title>

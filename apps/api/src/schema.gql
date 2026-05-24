@@ -2,12 +2,29 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type AuthAccount {
+  id: ID!
+  providerName: AuthProvider!
+  providerAccountId: String!
+  createdAt: DateTime!
+}
+
+enum AuthProvider {
+  GOOGLE
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
 type UserType {
   id: ID!
   email: String!
   name: String!
   avatarUrl: String
   role: String!
+  accounts: [AuthAccount!]!
 }
 
 type DeleteMutationPayloadType {
@@ -24,11 +41,6 @@ type CompanyType {
   updatedAt: DateTime!
 }
 
-"""
-A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
-"""
-scalar DateTime
-
 type ExchangeRate {
   currency: String!
   rate: Float!
@@ -37,6 +49,14 @@ type ExchangeRate {
 type CurrencyRates {
   base: String!
   rates: [ExchangeRate!]!
+}
+
+type UserSetting {
+  userId: String!
+  autoFillEnabled: Boolean!
+  autoSummaryEnabled: Boolean!
+  duplicateWindowDays: Int!
+  id: ID!
 }
 
 type AsyncMetadataType {
@@ -260,6 +280,7 @@ type Query {
   companies: [CompanyType!]!
   company(id: ID!): CompanyType!
   companyJobsCount(id: ID!): Int!
+  settings: UserSetting!
   exchangeRates(base: String!, currencies: [String!]!): CurrencyRates!
   sourceRuns: [SourceRunType!]!
   sourceTemplates: [SourceTemplateType!]!
@@ -299,6 +320,7 @@ type Mutation {
   deleteJobStageEvent(id: ID!): DeleteMutationPayloadType!
   updateCompany(id: ID!, input: UpdateCompanyInput!): CompanyType!
   deleteCompany(id: ID!): DeleteMutationPayloadType!
+  updateSettings(input: UpdateSettingsInput!): UserSetting!
   createSourceRun(input: CreateSourceRunInput!): SourceRunType!
   createSourceTemplate(input: CreateSourceTemplateInput!): SourceTemplateType!
   rerunSourceTemplate(templateId: ID!): SourceRunType!
@@ -375,6 +397,12 @@ input UpdateJobStageEventInput {
 input UpdateCompanyInput {
   name: String
   description: String
+}
+
+input UpdateSettingsInput {
+  autoFillEnabled: Boolean
+  autoSummaryEnabled: Boolean
+  duplicateWindowDays: Int
 }
 
 input CreateSourceRunInput {

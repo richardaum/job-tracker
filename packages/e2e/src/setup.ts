@@ -185,6 +185,7 @@ async function main() {
       WEB_URL: `http://localhost:${e2eEnv.E2E_WEB_PORT}`,
       OPENAI_API_KEY: apiEnv.OPENAI_API_KEY ?? "",
       DEV_AUTH_BYPASS_EMAIL: e2eEnv.E2E_BYPASS_EMAIL,
+      RATE_LIMIT_DISABLED: "true",
     },
   });
 

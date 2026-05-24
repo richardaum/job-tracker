@@ -48,9 +48,14 @@ describe("API server env schema", () => {
   });
 
   it("allows non-31xx PORT values in production", async () => {
-    const env = await loadEnv({ NODE_ENV: "production", PORT: "8080" });
+    const env = await loadEnv({
+      NODE_ENV: "production",
+      PORT: "8080",
+      RATE_LIMIT_DISABLED: undefined,
+    });
 
     expect(env.apiEnv.PORT).toBe(8080);
+    expect(env.apiEnv.RATE_LIMIT_DISABLED).toBe(false);
   });
 
   it("parses JWT_ACCESS_SECRETS JSON when JWT_ACCESS_SECRET is omitted", async () => {
@@ -72,5 +77,17 @@ describe("API server env schema", () => {
     await expect(
       loadEnv({ JWT_ACCESS_SECRET: undefined, JWT_ACCESS_SECRETS: undefined }),
     ).rejects.toThrow("JWT_ACCESS_SECRET or JWT_ACCESS_SECRETS is required.");
+  });
+
+  it("parses RATE_LIMIT_DISABLED in development", async () => {
+    const env = await loadEnv({ RATE_LIMIT_DISABLED: "true" });
+
+    expect(env.apiEnv.RATE_LIMIT_DISABLED).toBe(true);
+  });
+
+  it("rejects RATE_LIMIT_DISABLED in production", async () => {
+    await expect(
+      loadEnv({ NODE_ENV: "production", RATE_LIMIT_DISABLED: "true" }),
+    ).rejects.toThrow("RATE_LIMIT_DISABLED cannot be enabled in production.");
   });
 });

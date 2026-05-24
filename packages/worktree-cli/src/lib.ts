@@ -666,6 +666,7 @@ export function buildWorktreeApiEnv(params: {
     PORT: String(ports.api),
     GOOGLE_CALLBACK_URL: `http://localhost:${ports.api}/auth/google/callback`,
     WEB_URL: `http://localhost:${ports.web}`,
+    RATE_LIMIT_DISABLED: "true",
   };
 }
 

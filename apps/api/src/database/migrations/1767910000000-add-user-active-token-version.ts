@@ -1,7 +1,7 @@
 import type { MigrationInterface, QueryRunner } from "typeorm";
 
-export class AddUserActiveTokenVersion1767900000000 implements MigrationInterface {
-  name = "AddUserActiveTokenVersion1767900000000";
+export class AddUserActiveTokenVersion1767910000000 implements MigrationInterface {
+  name = "AddUserActiveTokenVersion1767910000000";
 
   async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`

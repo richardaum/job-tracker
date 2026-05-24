@@ -17,6 +17,7 @@ import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 
 import { BackToLink } from "@/components/back-to-link";
+import { DetailPageHeader } from "@/components/detail-page-header";
 import { EntityNotFound } from "@/components/entity-not-found";
 import { ResumesDocument, useDeleteResumeMutation } from "@/gql/hooks";
 import { TipTapEditor } from "@/modules/jobs/details/components/TipTapEditor";
@@ -141,20 +142,13 @@ export default function ResumeDetailsPage({ params }: PageProps) {
 
   return (
     <div className={cn("flex h-full min-h-0 flex-col")}>
-      <div
-        className={cn(
-          "flex flex-col gap-3 border-b border-border-subtle p-4 sm:px-6 sm:py-5",
-        )}
-      >
-        <div className={cn("flex items-center justify-between gap-3")}>
-          <BackToLink href="/resumes">Back to resumes</BackToLink>
-          {resume ? (
-            <div
-              className={cn(
-                "flex shrink-0 flex-wrap items-center justify-end gap-2",
-              )}
-            >
-              <div className={cn("shrink-0")}>{actionsMenu}</div>
+      <DetailPageHeader
+        reserveClassName={cn("pe-52 sm:pe-60")}
+        stackClassName="gap-3"
+        trailing={
+          resume ? (
+            <>
+              {actionsMenu}
               <Button
                 intent="primary"
                 size="md"
@@ -164,9 +158,11 @@ export default function ResumeDetailsPage({ params }: PageProps) {
               >
                 Save
               </Button>
-            </div>
-          ) : null}
-        </div>
+            </>
+          ) : undefined
+        }
+      >
+        <BackToLink href="/resumes">Back to resumes</BackToLink>
 
         <div className={cn("flex min-w-0 flex-wrap items-center gap-2")}>
           <Heading
@@ -192,7 +188,7 @@ export default function ResumeDetailsPage({ params }: PageProps) {
             </span>
           ) : null}
         </div>
-      </div>
+      </DetailPageHeader>
 
       <DeleteResumeDialog
         resumeId={id}

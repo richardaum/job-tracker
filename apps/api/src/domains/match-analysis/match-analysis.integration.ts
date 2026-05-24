@@ -2,10 +2,9 @@ import { CompanyEntity } from "@api/database/entities/company.entity";
 import { JobEntity } from "@api/database/entities/job.entity";
 import { MatchAnalysisEntity } from "@api/database/entities/match-analysis.entity";
 import { ResumeEntity } from "@api/database/entities/resume.entity";
-import { UserEntity } from "@api/database/entities/user.entity";
+import { insertUserWithAuthAccount } from "@api/database/integration-test-user";
 import { createTestDataSource } from "@api/database/test-db";
 import { AsyncMetadataStatusEnum } from "@api/domains/shared/async-metadata.type";
-import { RoleEnum } from "@api/domains/users/role.enum";
 import { apiEnv } from "@api/env/server";
 import type { DataSource } from "typeorm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
@@ -28,16 +27,12 @@ describe.skipIf(!hasDb)(
         dataSource.getRepository(MatchAnalysisEntity),
       );
 
-      const userRepo = dataSource.getRepository(UserEntity);
-      const user = await userRepo.save(
-        userRepo.create({
-          googleId: "google-match-metadata-test",
-          email: "matchmetadata@example.com",
-          name: "Match Meta User",
-          avatarUrl: null,
-          role: RoleEnum.User,
-        }),
-      );
+      const user = await insertUserWithAuthAccount(dataSource, {
+        providerAccountId: "google-match-metadata-test",
+        email: "matchmetadata@example.com",
+        name: "Match Meta User",
+        avatarUrl: null,
+      });
       userId = user.id;
 
       const resumeRepo = dataSource.getRepository(ResumeEntity);

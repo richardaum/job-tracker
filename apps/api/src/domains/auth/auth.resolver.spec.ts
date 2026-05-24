@@ -1,5 +1,6 @@
 import "reflect-metadata";
 
+import { UserAccountEntity } from "@api/database/entities/user-account.entity";
 import { RoleEnum } from "@api/domains/users/role.enum";
 import type { User } from "@api/domains/users/users.schema";
 import { UserService } from "@api/domains/users/users.service";
@@ -19,7 +20,6 @@ import { RolesGuard } from "./roles.guard";
 
 const mockUser: User = {
   id: "user-1",
-  googleId: "google-123",
   email: "test@example.com",
   name: "Test User",
   avatarUrl: null,
@@ -29,6 +29,7 @@ const mockUser: User = {
   refreshJti: null,
   createdAt: new Date(),
   updatedAt: new Date(),
+  accounts: [] as UserAccountEntity[],
 };
 
 describe("AuthResolver (integration)", () => {

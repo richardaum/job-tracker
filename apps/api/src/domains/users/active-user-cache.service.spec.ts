@@ -6,7 +6,6 @@ import type { User } from "./users.schema";
 
 const mockUser: User = {
   id: "uuid-1",
-  googleId: "google-123",
   email: "test@example.com",
   name: "Test User",
   avatarUrl: null,
@@ -16,6 +15,7 @@ const mockUser: User = {
   refreshJti: null,
   createdAt: new Date("2024-01-01"),
   updatedAt: new Date("2024-01-01"),
+  accounts: [],
 };
 
 describe("ActiveUserCacheService", () => {

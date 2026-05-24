@@ -22,15 +22,20 @@ import { JobsModule } from "./domains/jobs/jobs.module";
 import { MatchAnalysisModule } from "./domains/match-analysis/match-analysis.module";
 import { NotesModule } from "./domains/notes/notes.module";
 import { ResumesModule } from "./domains/resumes/resumes.module";
+import { SettingsModule } from "./domains/settings/settings.module";
 import { SourcesModule } from "./domains/sources/sources.module";
 import { WorkPreferencesModule } from "./domains/work-preferences/work-preferences.module";
+import { apiEnv } from "./env/server";
 import { graphqlFormatError } from "./graphql/graphql-format-error";
 import { GraphqlSseMiddleware } from "./graphql/graphql-sse.middleware";
 
 @Module({
   imports: [
     // TODO(infra): Remove ThrottlerModule when WAF/CloudFront rate limits replace in-app auth throttling.
-    ThrottlerModule.forRoot([{ ttl: 60_000, limit: 20 }]),
+    ThrottlerModule.forRoot({
+      throttlers: [{ ttl: 60_000, limit: 20 }],
+      skipIf: () => apiEnv.RATE_LIMIT_DISABLED,
+    }),
     DatabaseModule,
     AuthModule,
     JobsModule,
@@ -39,6 +44,7 @@ import { GraphqlSseMiddleware } from "./graphql/graphql-sse.middleware";
     SourcesModule,
     NotesModule,
     ResumesModule,
+    SettingsModule,
     WorkPreferencesModule,
     MatchAnalysisModule,
     AiModule,

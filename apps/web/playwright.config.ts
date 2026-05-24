@@ -1,24 +1,12 @@
-import { existsSync, readFileSync } from "node:fs";
-import { join } from "node:path";
+import "./src/env/load-dotenv";
 
 import { defineConfig, devices } from "@playwright/test";
 
 import { e2eEnv } from "./src/env/e2e";
 import { isCI } from "./src/env/is-ci";
 
-function loadWorktreeWebPort(): string | undefined {
-  const envPath = join(process.cwd(), ".env");
-  if (!existsSync(envPath)) return undefined;
-  const content = readFileSync(envPath, "utf8");
-  const match = content.match(/^E2E_PORT=(\d+)$/m);
-  return match?.[1];
-}
-
 const ci = isCI();
-
-// Worktree: reuse PM2 web server (E2E_PORT = WEB_PORT).
-// Main checkout: E2E_PORT from clientEnv (default 3102).
-const PORT = loadWorktreeWebPort() ?? String(e2eEnv.E2E_PORT);
+const PORT = String(e2eEnv.E2E_PORT);
 const baseURL = `http://localhost:${PORT}`;
 
 export default defineConfig({
