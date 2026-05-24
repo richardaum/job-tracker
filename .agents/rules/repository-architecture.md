@@ -47,7 +47,7 @@ When changes affect data models (entities, columns, types, indices, enums), crea
 Operational:
 - Migration files at `apps/api/src/database/migrations/`
 - Register in `apps/api/src/database/migrations/index.ts` (two places: import + `migrations` array)
-- `pnpm --filter api migration:generate <name>` to generate from entity changes
-- `pnpm --filter api migration:run` to apply pending
+- No codegen script — add migration file manually; follow `apps/api/src/database/migrations/MIGRATIONS.md`
+- `pnpm --filter @job-tracker/api run db:migrate` to apply pending
 
 Detailed reference: `apps/api/src/database/migrations/MIGRATIONS.md`.
