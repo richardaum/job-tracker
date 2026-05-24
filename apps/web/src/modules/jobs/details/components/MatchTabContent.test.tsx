@@ -296,6 +296,18 @@ describe("MatchTabContent", () => {
     expect(routerPushSpy).toHaveBeenCalledWith("/resumes/resume-88");
   });
 
+  it("renders error message when jobMatch query fails", () => {
+    setupApolloMocks({ error: new Error("network"), jobMatch: undefined });
+    renderMatchTab(<MatchTabContent jobId="job-1" />);
+
+    expect(
+      screen.getByText(/failed to load match analysis/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /^generate$/i }),
+    ).toBeInTheDocument();
+  });
+
   it("opens preferences dialog from Actions menu View preferences", async () => {
     const user = userEvent.setup();
     const items = [mockItem({ verdict: FitVerdict.Fit })];
