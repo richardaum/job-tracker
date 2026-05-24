@@ -69,7 +69,7 @@ export function Select({
         <RadixSelect.Content
           position="popper"
           className={cn(
-            "z-50 min-w-(--radix-select-trigger-width) rounded-md border border-border-subtle bg-bg-surface p-1 shadow-md",
+            "z-100 min-w-(--radix-select-trigger-width) rounded-md border border-border-subtle bg-bg-surface p-1 shadow-md",
           )}
         >
           <RadixSelect.Viewport>

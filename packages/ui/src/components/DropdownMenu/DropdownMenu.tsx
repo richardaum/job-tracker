@@ -18,6 +18,15 @@ export interface DropdownMenuItemProps {
   icon?: React.ReactNode;
 }
 
+export interface DropdownMenuLabelProps {
+  children: React.ReactNode;
+  className?: string;
+}
+
+export interface DropdownMenuGroupProps {
+  children: React.ReactNode;
+}
+
 export function DropdownMenu({
   trigger,
   children,
@@ -64,22 +73,28 @@ export function DropdownMenuItem({
   );
 }
 
-export function DropdownMenuGroup({ children }: { children: React.ReactNode }) {
-  return <RadixDropdownMenu.Group>{children}</RadixDropdownMenu.Group>;
+export function DropdownMenuSeparator() {
+  return (
+    <RadixDropdownMenu.Separator className={cn("my-1 h-px bg-border-subtle")} />
+  );
 }
 
-export function DropdownMenuLabel({ children }: { children: React.ReactNode }) {
+export function DropdownMenuLabel({
+  children,
+  className,
+}: DropdownMenuLabelProps) {
   return (
     <RadixDropdownMenu.Label
-      className={cn("px-2 py-1.5 text-xs text-text-secondary")}
+      className={cn(
+        "px-2 py-1.5 text-xs font-medium text-text-secondary",
+        className,
+      )}
     >
       {children}
     </RadixDropdownMenu.Label>
   );
 }
 
-export function DropdownMenuSeparator() {
-  return (
-    <RadixDropdownMenu.Separator className={cn("my-1 h-px bg-border-subtle")} />
-  );
+export function DropdownMenuGroup({ children }: DropdownMenuGroupProps) {
+  return <RadixDropdownMenu.Group>{children}</RadixDropdownMenu.Group>;
 }
