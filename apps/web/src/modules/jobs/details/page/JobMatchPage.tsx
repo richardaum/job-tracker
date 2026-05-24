@@ -6,7 +6,7 @@ import { MatchTabContent } from "@/modules/jobs/details/components/MatchTabConte
 
 export function JobMatchPage({ jobId }: { jobId: string }) {
   return (
-    <div className={cn("flex-1 min-h-0 overflow-auto px-2")}>
+    <div className={cn("flex-1 min-h-0 overflow-auto")}>
       <MatchTabContent jobId={jobId} />
     </div>
   );

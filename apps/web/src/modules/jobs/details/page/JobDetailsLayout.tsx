@@ -152,8 +152,87 @@ function JobDetailsFullWidthTabLayout({
         />
       </JobDetailsTabBar>
 
-      <div className={cn("flex flex-1 min-h-0 flex-col")}>{children}</div>
+      <div className={cn("mt-3 flex flex-1 min-h-0 flex-col")}>{children}</div>
     </Tabs>
+  );
+}
+
+function JobDetailsSplitTabLayout({
+  jobId,
+  showSourceContent,
+  activeTab,
+  sidePanel,
+  effectiveSidePanel,
+  onSidePanelChange,
+  onSuccess,
+  onError,
+  children,
+}: {
+  jobId: string;
+  showSourceContent: boolean;
+  activeTab: JobDetailsMainTab;
+  sidePanel: JobSidePanel | null;
+  effectiveSidePanel: JobSidePanel;
+  onSidePanelChange: (sidePanel: JobSidePanel) => void;
+  onSuccess: (message: string) => void;
+  onError: (message: string) => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <div
+      className={cn(
+        "grid h-full min-h-0 gap-4 lg:grid-cols-[minmax(0,1fr)_360px]",
+      )}
+    >
+      <Tabs value={activeTab} className={cn("flex size-full min-h-0 flex-col")}>
+        <JobDetailsTabBar>
+          <TabsList className={cn("w-fit self-start")}>
+            <DesktopMainTabTrigger
+              jobId={jobId}
+              tab="overview"
+              label="Overview"
+              sidePanel={sidePanel}
+            />
+            <DesktopMainTabTrigger
+              jobId={jobId}
+              tab="description"
+              label="Description"
+              sidePanel={sidePanel}
+            />
+            {showSourceContent ? (
+              <DesktopMainTabTrigger
+                jobId={jobId}
+                tab="source"
+                label="Source content"
+                sidePanel={sidePanel}
+              />
+            ) : null}
+            <MatchTabTrigger
+              tab="match"
+              href={jobDetailsHref(jobId, "match", sidePanel ?? undefined)}
+            />
+          </TabsList>
+        </JobDetailsTabBar>
+
+        <div className={cn("mt-3 flex flex-1 min-h-0 flex-col")}>
+          {children}
+        </div>
+      </Tabs>
+
+      <div
+        className={cn(
+          "min-h-0 overflow-hidden border-l border-border-subtle pl-4",
+        )}
+      >
+        <ActivitySidePanel
+          jobId={jobId}
+          sidePanel={effectiveSidePanel}
+          onSidePanelChange={onSidePanelChange}
+          onSuccess={onSuccess}
+          onError={onError}
+        />
+      </div>
+    </div>
   );
 }
 
@@ -375,67 +454,18 @@ export default function JobDetailsLayout({
                 {children}
               </JobDetailsFullWidthTabLayout>
             ) : (
-              <div
-                className={cn(
-                  "grid h-full min-h-0 gap-4 lg:grid-cols-[minmax(0,1fr)_360px]",
-                )}
+              <JobDetailsSplitTabLayout
+                jobId={job.id}
+                showSourceContent={showSourceContent}
+                activeTab={mainTab}
+                sidePanel={sidePanelFromQuery}
+                effectiveSidePanel={effectiveSidePanel}
+                onSidePanelChange={setSidePanel}
+                onSuccess={handleEntitySuccess}
+                onError={handleEntityError}
               >
-                <Tabs
-                  value={mainTab}
-                  className={cn("flex size-full min-h-0 flex-col")}
-                >
-                  <JobDetailsTabBar>
-                    <TabsList className={cn("w-fit self-start")}>
-                      <DesktopMainTabTrigger
-                        jobId={job.id}
-                        tab="overview"
-                        label="Overview"
-                        sidePanel={sidePanelFromQuery}
-                      />
-                      <DesktopMainTabTrigger
-                        jobId={job.id}
-                        tab="description"
-                        label="Description"
-                        sidePanel={sidePanelFromQuery}
-                      />
-                      {showSourceContent ? (
-                        <DesktopMainTabTrigger
-                          jobId={job.id}
-                          tab="source"
-                          label="Source content"
-                          sidePanel={sidePanelFromQuery}
-                        />
-                      ) : null}
-                      <MatchTabTrigger
-                        tab="match"
-                        href={jobDetailsHref(
-                          job.id,
-                          "match",
-                          sidePanelFromQuery ?? undefined,
-                        )}
-                      />
-                    </TabsList>
-                  </JobDetailsTabBar>
-
-                  <div className={cn("mt-3 flex flex-1 min-h-0 flex-col")}>
-                    {children}
-                  </div>
-                </Tabs>
-
-                <div
-                  className={cn(
-                    "min-h-0 overflow-hidden border-l border-border-subtle pl-4",
-                  )}
-                >
-                  <ActivitySidePanel
-                    jobId={job.id}
-                    sidePanel={effectiveSidePanel}
-                    onSidePanelChange={setSidePanel}
-                    onSuccess={handleEntitySuccess}
-                    onError={handleEntityError}
-                  />
-                </div>
-              </div>
+                {children}
+              </JobDetailsSplitTabLayout>
             )}
           </div>
         </div>
