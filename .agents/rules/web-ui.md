@@ -74,6 +74,8 @@ Canonical reference: `/applications` and `/applications/[id]`.
 - Layout: wrap the layout subtree in `PortalSlotsProvider` and render `<SomeSlot.Slot />` in the header.
 - Tab/route content: wrap contributions in `<SomeSlot>...</SomeSlot>`.
 - **Radix `DropdownMenu` items:** do not portal `DropdownMenuItem` (or other Radix menu primitives) into the Actions dropdown — portaled nodes keep context from the tab subtree, so Radix throws `MenuItem must be used within Menu`. Register tab-owned menu fragments with a layout-scoped outlet instead (canonical: `apps/web/src/modules/jobs/details/job-details-actions-menu.tsx`: `JobActionsMenuItemsProvider`, `<RegisterJobActionsMenuItems>` in tab, `<JobActionsMenuItemsOutlet />` inside the layout dropdown).
+- Job details layout always mounts `<JobHeaderActions.Slot />` when the job entity is loaded; tab content must portal Generate/Regenerate there — no in-tab toolbar duplicate for that primary action.
+- Only one tab should register Actions menu fragments at a time via `<RegisterJobActionsMenuItems>`; if multiple tabs register, the last mount wins until unmount. Match tab owns Match section while its route is active.
 
 **When not:**
 

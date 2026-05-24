@@ -38,6 +38,8 @@ export function JobActionsMenuItemsOutlet() {
 /**
  * Tab content registers dropdown items here. Not a portal slot — Radix
  * `DropdownMenuItem` must mount under `DropdownMenu` in the React tree.
+ * Only one registrar should be mounted per layout; if multiple tabs register,
+ * the last mount wins until unmount.
  */
 export function RegisterJobActionsMenuItems({
   children,
