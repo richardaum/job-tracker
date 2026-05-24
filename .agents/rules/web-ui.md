@@ -63,6 +63,23 @@ Canonical reference: `/applications` and `/applications/[id]`.
 - **Responsive**: Below `lg`, collapse to one column — side column content becomes extra tabs on the same `TabsList`.
 - **Tabs**: When main area has multiple subviews, use `Tabs` for the main column first. Add more triggers only when side column is merged for small breakpoints.
 
+### Header actions from nested tabs/routes
+
+**When:** A shared detail layout wraps multiple tabs or nested routes, and a child tab needs to place buttons or menu items in the shared header (e.g. Match Generate/Regenerate, Profile tab actions).
+
+**How:**
+
+- Use `react-portalslots` (`PortalSlotsProvider` + `PortalSlot(name)`) for header buttons and other content that does not depend on ancestor React context at the slot target.
+- Co-locate portal slot pairs in a `*.slots.ts` file next to the feature (canonical: `apps/web/src/modules/jobs/details/job-details-header.slots.ts`).
+- Layout: wrap the layout subtree in `PortalSlotsProvider` and render `<SomeSlot.Slot />` in the header.
+- Tab/route content: wrap contributions in `<SomeSlot>...</SomeSlot>`.
+- **Radix `DropdownMenu` items:** do not portal `DropdownMenuItem` (or other Radix menu primitives) into the Actions dropdown — portaled nodes keep context from the tab subtree, so Radix throws `MenuItem must be used within Menu`. Register tab-owned menu fragments with a layout-scoped outlet instead (canonical: `apps/web/src/modules/jobs/details/job-details-actions-menu.tsx`: `JobActionsMenuItemsProvider`, `<RegisterJobActionsMenuItems>` in tab, `<JobActionsMenuItemsOutlet />` inside the layout dropdown).
+
+**When not:**
+
+- Dialogs, popovers, tooltips — use Radix overlay components.
+- Actions on the same component as the control — use inline props (e.g. `trailing={...}` on a field row).
+
 ## Mobile debug
 
 When debugging from a phone (ngrok), do not point client at `127.0.0.1` — mobile cannot reach host loopback; HTTPS may block mixed content.
