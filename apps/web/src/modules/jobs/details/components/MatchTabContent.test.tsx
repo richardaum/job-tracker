@@ -4,23 +4,19 @@ import userEvent from "@testing-library/user-event";
 import type { ReactElement, ReactNode } from "react";
 import { PortalSlotsProvider } from "react-portalslots";
 
-import type { JobMatchQuery } from "@/gql/hooks";
-import {
-  AsyncMetadataStatus,
-  FitClassification,
-  FitSource,
-  FitVerdict,
-  RequirementType,
-} from "@/gql/hooks";
+import { AsyncMetadataStatus, FitSource, FitVerdict } from "@/gql/hooks";
 import {
   JobActionsMenuItemsOutlet,
   JobActionsMenuItemsProvider,
 } from "@/modules/jobs/details/job-details-actions-menu";
 import { JobHeaderActions } from "@/modules/jobs/details/job-details-header.slots";
+import {
+  completedJobMatch,
+  type JobMatchData,
+  mockMatchItem,
+} from "@/modules/jobs/details/testing/match-tab-test-fixtures";
 
 import { MatchTabContent } from "./MatchTabContent";
-
-type JobMatchData = NonNullable<JobMatchQuery["jobMatch"]>;
 
 vi.mock("@/modules/jobs/shared/hooks/useToastQueue", () => ({
   useToastQueue: () => ({ enqueueToast: vi.fn() }),
@@ -109,49 +105,6 @@ vi.mock(
       ) : null,
   }),
 );
-
-function mockItem(partial: {
-  verdict: FitVerdict;
-  requirement?: string;
-  source?: FitSource;
-}): JobMatchData["items"][number] {
-  return {
-    __typename: "MatchItemType",
-    requirement: partial.requirement ?? `${partial.verdict} requirement`,
-    source: partial.source ?? FitSource.Resume,
-    weight: "high",
-    type: RequirementType.MustHave,
-    verdict: partial.verdict,
-    jdQuote: "JD quote",
-    sourceQuotes: ["Resume quote"],
-    suggestion: null,
-  };
-}
-
-function completedMatch(
-  items: JobMatchData["items"],
-  id = "match-42",
-): JobMatchData {
-  return {
-    __typename: "MatchAnalysisType",
-    id,
-    jobId: "job-1",
-    resumeId: "resume-88",
-    generationMetadata: {
-      __typename: "AsyncMetadataType",
-      status: AsyncMetadataStatus.Completed,
-      error: null,
-      timestamp: null,
-    },
-    scoreRatio: 76,
-    classification: FitClassification.Positive,
-    matchCount: 2,
-    gapCount: 1,
-    unclearCount: 0,
-    items,
-    createdAt: new Date().toISOString(),
-  };
-}
 
 function setupApolloMocks(options: {
   jobMatch?: JobMatchData | undefined;
@@ -243,7 +196,7 @@ describe("MatchTabContent", () => {
   it("renders processing state when generation metadata is PROCESSING", () => {
     setupApolloMocks({
       jobMatch: {
-        ...completedMatch([]),
+        ...completedJobMatch([]),
         items: [],
         generationMetadata: {
           status: AsyncMetadataStatus.Processing,
@@ -257,7 +210,7 @@ describe("MatchTabContent", () => {
 
   it("renders failure state and Retry opens wizard", async () => {
     const user = userEvent.setup();
-    const failedBase = completedMatch([]);
+    const failedBase = completedJobMatch([]);
     setupApolloMocks({
       jobMatch: {
         ...failedBase,
@@ -284,8 +237,8 @@ describe("MatchTabContent", () => {
 
   it("navigates to resume when Actions View resume is selected", async () => {
     const user = userEvent.setup();
-    const items = [mockItem({ verdict: FitVerdict.Fit })];
-    setupApolloMocks({ jobMatch: completedMatch(items) });
+    const items = [mockMatchItem({ verdict: FitVerdict.Fit })];
+    setupApolloMocks({ jobMatch: completedJobMatch(items) });
     renderMatchTab(<MatchTabContent jobId="job-1" />, {
       withHeaderActions: true,
     });
@@ -294,6 +247,26 @@ describe("MatchTabContent", () => {
     await user.click(screen.getByRole("menuitem", { name: /view resume/i }));
 
     expect(routerPushSpy).toHaveBeenCalledWith("/resumes/resume-88");
+  });
+
+  it("does not show View resume when match has no resumeId", async () => {
+    const user = userEvent.setup();
+    const items = [mockMatchItem({ verdict: FitVerdict.Fit })];
+    setupApolloMocks({
+      jobMatch: completedJobMatch(items, { resumeId: null }),
+    });
+    renderMatchTab(<MatchTabContent jobId="job-1" />, {
+      withHeaderActions: true,
+    });
+
+    await user.click(screen.getByRole("button", { name: /^actions$/i }));
+
+    expect(
+      screen.getByRole("menuitem", { name: /view preferences/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("menuitem", { name: /view resume/i }),
+    ).not.toBeInTheDocument();
   });
 
   it("renders error message when jobMatch query fails", () => {
@@ -316,8 +289,8 @@ describe("MatchTabContent", () => {
       screen.queryByRole("button", { name: /^(generate|regenerate)$/i }),
     ).not.toBeInTheDocument();
 
-    const items = [mockItem({ verdict: FitVerdict.Fit })];
-    setupApolloMocks({ loading: false, jobMatch: completedMatch(items) });
+    const items = [mockMatchItem({ verdict: FitVerdict.Fit })];
+    setupApolloMocks({ loading: false, jobMatch: completedJobMatch(items) });
     rerender(<MatchTabContent jobId="job-1" />);
 
     expect(
@@ -327,8 +300,8 @@ describe("MatchTabContent", () => {
 
   it("opens preferences dialog from Actions menu View preferences", async () => {
     const user = userEvent.setup();
-    const items = [mockItem({ verdict: FitVerdict.Fit })];
-    setupApolloMocks({ jobMatch: completedMatch(items) });
+    const items = [mockMatchItem({ verdict: FitVerdict.Fit })];
+    setupApolloMocks({ jobMatch: completedJobMatch(items) });
     renderMatchTab(<MatchTabContent jobId="job-1" />, {
       withHeaderActions: true,
     });
@@ -348,13 +321,13 @@ describe("MatchTabContent", () => {
   it("opens preferences dialog from match item card preference control", async () => {
     const user = userEvent.setup();
     const items = [
-      mockItem({
+      mockMatchItem({
         verdict: FitVerdict.Fit,
         source: FitSource.Preference,
         requirement: "Preference-backed skill",
       }),
     ];
-    setupApolloMocks({ jobMatch: completedMatch(items) });
+    setupApolloMocks({ jobMatch: completedJobMatch(items) });
     renderMatchTab(<MatchTabContent jobId="job-1" />);
 
     await user.click(screen.getByRole("button", { name: /work preferences/i }));
@@ -367,11 +340,14 @@ describe("MatchTabContent", () => {
   it("shows match header menu items while tab content loads", async () => {
     const user = userEvent.setup();
     const items = [
-      mockItem({ verdict: FitVerdict.Fit, requirement: "Skill A fit" }),
-      mockItem({ verdict: FitVerdict.Gap, requirement: "Missing skill B gap" }),
+      mockMatchItem({ verdict: FitVerdict.Fit, requirement: "Skill A fit" }),
+      mockMatchItem({
+        verdict: FitVerdict.Gap,
+        requirement: "Missing skill B gap",
+      }),
     ];
 
-    setupApolloMocks({ jobMatch: completedMatch(items), loading: true });
+    setupApolloMocks({ jobMatch: completedJobMatch(items), loading: true });
     renderMatchTab(<MatchTabContent jobId="job-1" />, {
       withHeaderActions: true,
     });
@@ -388,11 +364,14 @@ describe("MatchTabContent", () => {
 
   it("renders completed match analysis content", async () => {
     const items = [
-      mockItem({ verdict: FitVerdict.Fit, requirement: "Skill A fit" }),
-      mockItem({ verdict: FitVerdict.Gap, requirement: "Missing skill B gap" }),
+      mockMatchItem({ verdict: FitVerdict.Fit, requirement: "Skill A fit" }),
+      mockMatchItem({
+        verdict: FitVerdict.Gap,
+        requirement: "Missing skill B gap",
+      }),
     ];
 
-    setupApolloMocks({ jobMatch: completedMatch(items) });
+    setupApolloMocks({ jobMatch: completedJobMatch(items) });
     renderMatchTab(<MatchTabContent jobId="job-1" />);
 
     screen.getByRole("button", { name: /^regenerate$/i });
@@ -405,14 +384,14 @@ describe("MatchTabContent", () => {
 
   it("defaults verdict filter to All (shows every item)", () => {
     const items = [
-      mockItem({ verdict: FitVerdict.Fit, requirement: "only fit label" }),
-      mockItem({ verdict: FitVerdict.Gap, requirement: "only gap label" }),
-      mockItem({
+      mockMatchItem({ verdict: FitVerdict.Fit, requirement: "only fit label" }),
+      mockMatchItem({ verdict: FitVerdict.Gap, requirement: "only gap label" }),
+      mockMatchItem({
         verdict: FitVerdict.Unclear,
         requirement: "only unclear label",
       }),
     ];
-    setupApolloMocks({ jobMatch: completedMatch(items) });
+    setupApolloMocks({ jobMatch: completedJobMatch(items) });
     renderMatchTab(<MatchTabContent jobId="job-1" />);
 
     screen.getByText(/only fit label/i);
@@ -423,16 +402,16 @@ describe("MatchTabContent", () => {
   it("shows only Fits when Fits tab selected", async () => {
     const user = userEvent.setup();
     const items = [
-      mockItem({
+      mockMatchItem({
         verdict: FitVerdict.Fit,
         requirement: "shown for fits filter",
       }),
-      mockItem({
+      mockMatchItem({
         verdict: FitVerdict.Gap,
         requirement: "hidden when fits focused",
       }),
     ];
-    setupApolloMocks({ jobMatch: completedMatch(items) });
+    setupApolloMocks({ jobMatch: completedJobMatch(items) });
     renderMatchTab(<MatchTabContent jobId="job-1" />);
 
     await user.click(screen.getByRole("tab", { name: /^fits$/i }));
@@ -445,16 +424,16 @@ describe("MatchTabContent", () => {
   it("shows only Gaps when Gaps tab selected", async () => {
     const user = userEvent.setup();
     const items = [
-      mockItem({
+      mockMatchItem({
         verdict: FitVerdict.Fit,
         requirement: "hidden when gaps focused",
       }),
-      mockItem({
+      mockMatchItem({
         verdict: FitVerdict.Gap,
         requirement: "shown for gaps filter",
       }),
     ];
-    setupApolloMocks({ jobMatch: completedMatch(items) });
+    setupApolloMocks({ jobMatch: completedJobMatch(items) });
     renderMatchTab(<MatchTabContent jobId="job-1" />);
 
     await user.click(screen.getByRole("tab", { name: /^gaps$/i }));
@@ -467,16 +446,16 @@ describe("MatchTabContent", () => {
   it("shows only Unclear when Unclear tab selected", async () => {
     const user = userEvent.setup();
     const items = [
-      mockItem({
+      mockMatchItem({
         verdict: FitVerdict.Fit,
         requirement: "hidden when unclear focused",
       }),
-      mockItem({
+      mockMatchItem({
         verdict: FitVerdict.Unclear,
         requirement: "shown for unclear filter",
       }),
     ];
-    setupApolloMocks({ jobMatch: completedMatch(items) });
+    setupApolloMocks({ jobMatch: completedJobMatch(items) });
     renderMatchTab(<MatchTabContent jobId="job-1" />);
 
     await user.click(screen.getByRole("tab", { name: /^unclear$/i }));
@@ -489,10 +468,10 @@ describe("MatchTabContent", () => {
   it("shows explicit empty-message when verdict filter hides every item", async () => {
     const user = userEvent.setup();
     const items = [
-      mockItem({ verdict: FitVerdict.Fit }),
-      mockItem({ verdict: FitVerdict.Fit }),
+      mockMatchItem({ verdict: FitVerdict.Fit }),
+      mockMatchItem({ verdict: FitVerdict.Fit }),
     ];
-    setupApolloMocks({ jobMatch: completedMatch(items) });
+    setupApolloMocks({ jobMatch: completedJobMatch(items) });
     renderMatchTab(<MatchTabContent jobId="job-1" />);
 
     await user.click(screen.getByRole("tab", { name: /^gaps$/i }));
@@ -501,8 +480,8 @@ describe("MatchTabContent", () => {
 
   it("Regenerate exposes wizard hasExistingMatch when match is rendered", async () => {
     const user = userEvent.setup();
-    const items = [mockItem({ verdict: FitVerdict.Fit })];
-    setupApolloMocks({ jobMatch: completedMatch(items) });
+    const items = [mockMatchItem({ verdict: FitVerdict.Fit })];
+    setupApolloMocks({ jobMatch: completedJobMatch(items) });
     renderMatchTab(<MatchTabContent jobId="job-1" />);
 
     await user.click(screen.getByRole("button", { name: /^regenerate$/i }));
@@ -522,7 +501,7 @@ describe("MatchTabContent", () => {
   });
 
   it("SSE: passes stream URL once jobMatch has id", () => {
-    setupApolloMocks({ jobMatch: completedMatch([], "sse-match") });
+    setupApolloMocks({ jobMatch: completedJobMatch([], { id: "sse-match" }) });
     renderMatchTab(<MatchTabContent jobId="job-777" />);
     expect(
       sseMocks.useEventSource.mock.calls.some(
@@ -533,9 +512,9 @@ describe("MatchTabContent", () => {
 
   it("SSE: invokes refetch after COMPLETED event", async () => {
     const { refetch } = setupApolloMocks({
-      jobMatch: completedMatch(
-        [mockItem({ verdict: FitVerdict.Fit })],
-        "live-match",
+      jobMatch: completedJobMatch(
+        [mockMatchItem({ verdict: FitVerdict.Fit })],
+        { id: "live-match" },
       ),
     });
     renderMatchTab(<MatchTabContent jobId="job-live" />);
@@ -556,7 +535,7 @@ describe("MatchTabContent", () => {
 
   it("SSE: invokes refetch after FAILED event", async () => {
     const { refetch } = setupApolloMocks({
-      jobMatch: completedMatch([], "fail-match"),
+      jobMatch: completedJobMatch([], { id: "fail-match" }),
     });
     renderMatchTab(<MatchTabContent jobId="job-fail-stream" />);
     await waitFor(() =>
