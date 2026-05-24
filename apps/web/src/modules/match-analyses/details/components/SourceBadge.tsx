@@ -5,7 +5,7 @@ import { BriefcaseIcon, FilesIcon } from "@phosphor-icons/react";
 import NextLink from "next/link";
 import React from "react";
 
-import { FitSource } from "@/gql/hooks";
+import { MatchSource } from "@/gql/hooks";
 
 export function SourceBadge({
   source,
@@ -16,7 +16,7 @@ export function SourceBadge({
   resumeId?: string;
   onPreferenceClick?: () => void;
 }) {
-  if (source === FitSource.Resume && resumeId) {
+  if (source === MatchSource.Resume && resumeId) {
     return (
       <NextLink href={`/resumes/${resumeId}`}>
         <IconButton

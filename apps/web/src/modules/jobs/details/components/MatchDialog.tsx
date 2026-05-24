@@ -6,7 +6,7 @@ import React from "react";
 
 import { EmptyState } from "@/components/empty-state";
 import {
-  FitSource,
+  MatchSource,
   useGenerateJobMatchMutation,
   useJobMatchQuery,
   useResumesQuery,
@@ -40,7 +40,7 @@ export function MatchDialog({ jobId, open, onOpenChange }: MatchDialogProps) {
     useGenerateJobMatchMutation();
 
   const [selectedResumeId, setSelectedResumeId] = React.useState<string>("");
-  const [sourceFilter, setSourceFilter] = React.useState<"all" | FitSource>(
+  const [sourceFilter, setSourceFilter] = React.useState<"all" | MatchSource>(
     "all",
   );
   const [weightFilter, setWeightFilter] = React.useState<
@@ -161,18 +161,18 @@ export function MatchDialog({ jobId, open, onOpenChange }: MatchDialogProps) {
                   All
                 </FilterChip>
                 <FilterChip
-                  active={sourceFilter === FitSource.Resume}
+                  active={sourceFilter === MatchSource.Resume}
                   onClick={() => {
-                    setSourceFilter(FitSource.Resume);
+                    setSourceFilter(MatchSource.Resume);
                     setWeightFilter("all");
                   }}
                 >
                   Resume
                 </FilterChip>
                 <FilterChip
-                  active={sourceFilter === FitSource.Preference}
+                  active={sourceFilter === MatchSource.Preference}
                   onClick={() => {
-                    setSourceFilter(FitSource.Preference);
+                    setSourceFilter(MatchSource.Preference);
                     setWeightFilter("all");
                   }}
                 >

@@ -1,15 +1,14 @@
+import { SlotsProvider } from "@job-tracker/react-slots";
 import { Button, DropdownMenu } from "@job-tracker/ui";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { ReactElement, ReactNode } from "react";
-import { PortalSlotsProvider } from "react-portalslots";
 
-import { AsyncMetadataStatus, FitSource, FitVerdict } from "@/gql/hooks";
+import { AsyncMetadataStatus, MatchSource, MatchVerdict } from "@/gql/hooks";
 import {
-  JobActionsMenuItemsOutlet,
-  JobActionsMenuItemsProvider,
-} from "@/modules/jobs/details/job-details-actions-menu";
-import { JobHeaderActions } from "@/modules/jobs/details/job-details-header.slots";
+  JobActionsMenuItems,
+  JobHeaderActions,
+} from "@/modules/jobs/details/job-details-header.slots";
 import {
   completedJobMatch,
   type JobMatchData,
@@ -144,17 +143,15 @@ function renderMatchTab(
 ) {
   function Wrapper({ children }: { children: ReactNode }) {
     return (
-      <JobActionsMenuItemsProvider>
-        <PortalSlotsProvider>
-          {options?.withHeaderActions ? (
-            <DropdownMenu trigger={<Button>Actions</Button>}>
-              <JobActionsMenuItemsOutlet />
-            </DropdownMenu>
-          ) : null}
-          <JobHeaderActions.Slot />
-          {children}
-        </PortalSlotsProvider>
-      </JobActionsMenuItemsProvider>
+      <SlotsProvider>
+        {options?.withHeaderActions ? (
+          <DropdownMenu trigger={<Button>Actions</Button>}>
+            <JobActionsMenuItems.Slot />
+          </DropdownMenu>
+        ) : null}
+        <JobHeaderActions.Slot />
+        {children}
+      </SlotsProvider>
     );
   }
 
@@ -237,7 +234,7 @@ describe("MatchTabContent", () => {
 
   it("navigates to resume when Actions View resume is selected", async () => {
     const user = userEvent.setup();
-    const items = [mockMatchItem({ verdict: FitVerdict.Fit })];
+    const items = [mockMatchItem({ verdict: MatchVerdict.Fit })];
     setupApolloMocks({ jobMatch: completedJobMatch(items) });
     renderMatchTab(<MatchTabContent jobId="job-1" />, {
       withHeaderActions: true,
@@ -251,7 +248,7 @@ describe("MatchTabContent", () => {
 
   it("does not show View resume when match has no resumeId", async () => {
     const user = userEvent.setup();
-    const items = [mockMatchItem({ verdict: FitVerdict.Fit })];
+    const items = [mockMatchItem({ verdict: MatchVerdict.Fit })];
     setupApolloMocks({
       jobMatch: completedJobMatch(items, { resumeId: null }),
     });
@@ -289,7 +286,7 @@ describe("MatchTabContent", () => {
       screen.queryByRole("button", { name: /^(generate|regenerate)$/i }),
     ).not.toBeInTheDocument();
 
-    const items = [mockMatchItem({ verdict: FitVerdict.Fit })];
+    const items = [mockMatchItem({ verdict: MatchVerdict.Fit })];
     setupApolloMocks({ loading: false, jobMatch: completedJobMatch(items) });
     rerender(<MatchTabContent jobId="job-1" />);
 
@@ -300,7 +297,7 @@ describe("MatchTabContent", () => {
 
   it("opens preferences dialog from Actions menu View preferences", async () => {
     const user = userEvent.setup();
-    const items = [mockMatchItem({ verdict: FitVerdict.Fit })];
+    const items = [mockMatchItem({ verdict: MatchVerdict.Fit })];
     setupApolloMocks({ jobMatch: completedJobMatch(items) });
     renderMatchTab(<MatchTabContent jobId="job-1" />, {
       withHeaderActions: true,
@@ -322,8 +319,8 @@ describe("MatchTabContent", () => {
     const user = userEvent.setup();
     const items = [
       mockMatchItem({
-        verdict: FitVerdict.Fit,
-        source: FitSource.Preference,
+        verdict: MatchVerdict.Fit,
+        source: MatchSource.Preference,
         requirement: "Preference-backed skill",
       }),
     ];
@@ -340,9 +337,9 @@ describe("MatchTabContent", () => {
   it("shows match header menu items while tab content loads", async () => {
     const user = userEvent.setup();
     const items = [
-      mockMatchItem({ verdict: FitVerdict.Fit, requirement: "Skill A fit" }),
+      mockMatchItem({ verdict: MatchVerdict.Fit, requirement: "Skill A fit" }),
       mockMatchItem({
-        verdict: FitVerdict.Gap,
+        verdict: MatchVerdict.Gap,
         requirement: "Missing skill B gap",
       }),
     ];
@@ -364,9 +361,9 @@ describe("MatchTabContent", () => {
 
   it("renders completed match analysis content", async () => {
     const items = [
-      mockMatchItem({ verdict: FitVerdict.Fit, requirement: "Skill A fit" }),
+      mockMatchItem({ verdict: MatchVerdict.Fit, requirement: "Skill A fit" }),
       mockMatchItem({
-        verdict: FitVerdict.Gap,
+        verdict: MatchVerdict.Gap,
         requirement: "Missing skill B gap",
       }),
     ];
@@ -384,10 +381,16 @@ describe("MatchTabContent", () => {
 
   it("defaults verdict filter to All (shows every item)", () => {
     const items = [
-      mockMatchItem({ verdict: FitVerdict.Fit, requirement: "only fit label" }),
-      mockMatchItem({ verdict: FitVerdict.Gap, requirement: "only gap label" }),
       mockMatchItem({
-        verdict: FitVerdict.Unclear,
+        verdict: MatchVerdict.Fit,
+        requirement: "only fit label",
+      }),
+      mockMatchItem({
+        verdict: MatchVerdict.Gap,
+        requirement: "only gap label",
+      }),
+      mockMatchItem({
+        verdict: MatchVerdict.Unclear,
         requirement: "only unclear label",
       }),
     ];
@@ -403,11 +406,11 @@ describe("MatchTabContent", () => {
     const user = userEvent.setup();
     const items = [
       mockMatchItem({
-        verdict: FitVerdict.Fit,
+        verdict: MatchVerdict.Fit,
         requirement: "shown for fits filter",
       }),
       mockMatchItem({
-        verdict: FitVerdict.Gap,
+        verdict: MatchVerdict.Gap,
         requirement: "hidden when fits focused",
       }),
     ];
@@ -425,11 +428,11 @@ describe("MatchTabContent", () => {
     const user = userEvent.setup();
     const items = [
       mockMatchItem({
-        verdict: FitVerdict.Fit,
+        verdict: MatchVerdict.Fit,
         requirement: "hidden when gaps focused",
       }),
       mockMatchItem({
-        verdict: FitVerdict.Gap,
+        verdict: MatchVerdict.Gap,
         requirement: "shown for gaps filter",
       }),
     ];
@@ -447,11 +450,11 @@ describe("MatchTabContent", () => {
     const user = userEvent.setup();
     const items = [
       mockMatchItem({
-        verdict: FitVerdict.Fit,
+        verdict: MatchVerdict.Fit,
         requirement: "hidden when unclear focused",
       }),
       mockMatchItem({
-        verdict: FitVerdict.Unclear,
+        verdict: MatchVerdict.Unclear,
         requirement: "shown for unclear filter",
       }),
     ];
@@ -468,8 +471,8 @@ describe("MatchTabContent", () => {
   it("shows explicit empty-message when verdict filter hides every item", async () => {
     const user = userEvent.setup();
     const items = [
-      mockMatchItem({ verdict: FitVerdict.Fit }),
-      mockMatchItem({ verdict: FitVerdict.Fit }),
+      mockMatchItem({ verdict: MatchVerdict.Fit }),
+      mockMatchItem({ verdict: MatchVerdict.Fit }),
     ];
     setupApolloMocks({ jobMatch: completedJobMatch(items) });
     renderMatchTab(<MatchTabContent jobId="job-1" />);
@@ -480,7 +483,7 @@ describe("MatchTabContent", () => {
 
   it("Regenerate exposes wizard hasExistingMatch when match is rendered", async () => {
     const user = userEvent.setup();
-    const items = [mockMatchItem({ verdict: FitVerdict.Fit })];
+    const items = [mockMatchItem({ verdict: MatchVerdict.Fit })];
     setupApolloMocks({ jobMatch: completedJobMatch(items) });
     renderMatchTab(<MatchTabContent jobId="job-1" />);
 
@@ -513,7 +516,7 @@ describe("MatchTabContent", () => {
   it("SSE: invokes refetch after COMPLETED event", async () => {
     const { refetch } = setupApolloMocks({
       jobMatch: completedJobMatch(
-        [mockMatchItem({ verdict: FitVerdict.Fit })],
+        [mockMatchItem({ verdict: MatchVerdict.Fit })],
         { id: "live-match" },
       ),
     });

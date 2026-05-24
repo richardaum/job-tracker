@@ -18,10 +18,12 @@ import { useRouter } from "next/navigation";
 import React, { useMemo } from "react";
 
 import { EmptyState } from "@/components/empty-state";
-import { FitVerdict } from "@/gql/hooks";
+import { MatchVerdict } from "@/gql/hooks";
 import { useMatchTabViewModel } from "@/modules/jobs/details/hooks/useMatchTabViewModel";
-import { RegisterJobActionsMenuItems } from "@/modules/jobs/details/job-details-actions-menu";
-import { JobHeaderActions } from "@/modules/jobs/details/job-details-header.slots";
+import {
+  JobActionsMenuItems,
+  JobHeaderActions,
+} from "@/modules/jobs/details/job-details-header.slots";
 import { MatchClassification } from "@/modules/jobs/shared/components/MatchClassification";
 import { MatchItemCard } from "@/modules/match-analyses/details/components/MatchItemCard";
 import { MatchStatusBadge } from "@/modules/match-analyses/details/components/MatchStatusBadge";
@@ -39,9 +41,9 @@ export function MatchTabContent({ jobId }: MatchTabContentProps) {
   const [prefsOpen, setPrefsOpen] = React.useState(false);
 
   function emptyFilterMessage(): string {
-    if (vm.matchFilterTab === FitVerdict.Fit) return "No fits found";
-    if (vm.matchFilterTab === FitVerdict.Gap) return "No gaps found";
-    if (vm.matchFilterTab === FitVerdict.Unclear)
+    if (vm.matchFilterTab === MatchVerdict.Fit) return "No fits found";
+    if (vm.matchFilterTab === MatchVerdict.Gap) return "No gaps found";
+    if (vm.matchFilterTab === MatchVerdict.Unclear)
       return "No unclear requirements found";
     return "Nothing to display yet.";
   }
@@ -182,9 +184,9 @@ export function MatchTabContent({ jobId }: MatchTabContentProps) {
           >
             <TabsList>
               <TabsTrigger value="all">All</TabsTrigger>
-              <TabsTrigger value={FitVerdict.Fit}>Fits</TabsTrigger>
-              <TabsTrigger value={FitVerdict.Gap}>Gaps</TabsTrigger>
-              <TabsTrigger value={FitVerdict.Unclear}>Unclear</TabsTrigger>
+              <TabsTrigger value={MatchVerdict.Fit}>Fits</TabsTrigger>
+              <TabsTrigger value={MatchVerdict.Gap}>Gaps</TabsTrigger>
+              <TabsTrigger value={MatchVerdict.Unclear}>Unclear</TabsTrigger>
             </TabsList>
           </Tabs>
 
@@ -227,9 +229,7 @@ export function MatchTabContent({ jobId }: MatchTabContentProps) {
       {generateButton ? (
         <JobHeaderActions>{generateButton}</JobHeaderActions>
       ) : null}
-      <RegisterJobActionsMenuItems>
-        {matchActionsMenuItems}
-      </RegisterJobActionsMenuItems>
+      <JobActionsMenuItems>{matchActionsMenuItems}</JobActionsMenuItems>
       {vm.matchAnalysis && vm.status ? toolbar : null}
       <div className={cn("flex min-h-0 flex-1 flex-col gap-4")}>{body}</div>
 

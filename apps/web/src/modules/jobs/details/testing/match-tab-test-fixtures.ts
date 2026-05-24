@@ -2,22 +2,22 @@ import type { JobMatchQuery } from "@/gql/hooks";
 import {
   AsyncMetadataStatus,
   FitClassification,
-  FitSource,
-  FitVerdict,
+  MatchSource,
+  MatchVerdict,
   RequirementType,
 } from "@/gql/hooks";
 
 export type JobMatchData = NonNullable<JobMatchQuery["jobMatch"]>;
 
 export function mockMatchItem(partial: {
-  verdict: FitVerdict;
+  verdict: MatchVerdict;
   requirement?: string;
-  source?: FitSource;
+  source?: MatchSource;
 }): JobMatchData["items"][number] {
   return {
     __typename: "MatchItemType",
     requirement: partial.requirement ?? `${partial.verdict} requirement`,
-    source: partial.source ?? FitSource.Resume,
+    source: partial.source ?? MatchSource.Resume,
     weight: "high",
     type: RequirementType.MustHave,
     verdict: partial.verdict,

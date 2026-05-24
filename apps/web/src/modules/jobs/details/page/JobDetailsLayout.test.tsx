@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { FitVerdict } from "@/gql/hooks";
+import { MatchVerdict } from "@/gql/hooks";
 import { MatchTabContent } from "@/modules/jobs/details/components/MatchTabContent";
 import {
   completedJobMatch,
@@ -253,7 +253,7 @@ describe("JobDetailsLayout", () => {
     usePathnameMock.mockReturnValue("/jobs/job-1/match");
     const user = userEvent.setup();
     const items = [
-      mockMatchItem({ verdict: FitVerdict.Fit, requirement: "Skill A fit" }),
+      mockMatchItem({ verdict: MatchVerdict.Fit, requirement: "Skill A fit" }),
     ];
     setupMatchTabMocks({ jobMatch: completedJobMatch(items) });
 
