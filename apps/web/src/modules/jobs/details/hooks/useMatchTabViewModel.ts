@@ -7,10 +7,8 @@ import {
   AsyncMetadataStatus,
   MatchVerdict,
   useGenerateJobMatchMutation,
-  useJobMatchQuery,
 } from "@/gql/hooks";
-import { useEventSource } from "@/hooks/useEventSource";
-import { getApiBaseUrl } from "@/lib/api-endpoints";
+import { useJobMatchStatus } from "@/modules/jobs/details/hooks/useJobMatchStatus";
 import { useToastQueue } from "@/modules/jobs/shared/hooks/useToastQueue";
 
 export type MatchTabFilterTab = "all" | MatchVerdict;
@@ -24,21 +22,17 @@ export function useMatchTabViewModel(jobId: string) {
     useState<MatchTabFilterTab>("all");
 
   const {
-    data: matchData,
-    loading: matchLoading,
-    error: matchError,
-    refetch: refetchJobMatch,
-  } = useJobMatchQuery({
-    variables: { jobId },
-    fetchPolicy: "cache-and-network",
-  });
+    matchAnalysis,
+    matchPk,
+    status,
+    matchLoading,
+    matchError,
+    refetchJobMatch,
+    sseUrl,
+  } = useJobMatchStatus();
 
   const [generateJobMatch, { loading: generating }] =
     useGenerateJobMatchMutation();
-
-  const matchAnalysis = matchData?.jobMatch ?? null;
-  const matchPk = matchAnalysis?.id ?? null;
-  const status = matchAnalysis?.generationMetadata?.status;
 
   const isProcessing = status === AsyncMetadataStatus.Processing;
   const isFailed = status === AsyncMetadataStatus.Failed;
@@ -47,22 +41,6 @@ export function useMatchTabViewModel(jobId: string) {
   /** True when toolbar should offer Regenerate vs Generate (parity with standalone page). */
   const hasRenderableMatchRecord =
     !!matchAnalysis && !isProcessing && !isFailed;
-
-  const sseUrl =
-    matchPk != null ? `${getApiBaseUrl()}/matches/${matchPk}/stream` : null;
-
-  useEventSource<{ matchId: string; status: string }>(
-    sseUrl,
-    "match_status_changed",
-    (data) => {
-      if (
-        data.status === AsyncMetadataStatus.Completed ||
-        data.status === AsyncMetadataStatus.Failed
-      ) {
-        void refetchJobMatch();
-      }
-    },
-  );
 
   const filteredItems = useMemo(() => {
     const items = matchAnalysis?.items ?? [];

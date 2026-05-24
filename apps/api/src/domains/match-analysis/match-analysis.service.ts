@@ -135,6 +135,7 @@ export class MatchAnalysisService implements OnModuleInit {
       new MatchStatusChanged(
         saved.id,
         userId,
+        jobId,
         AsyncMetadataStatusEnum.PROCESSING,
       ),
     );
@@ -147,6 +148,7 @@ export class MatchAnalysisService implements OnModuleInit {
   private async failMatchProcessing(
     matchId: string,
     userId: string,
+    jobId: string,
     message: string,
   ): Promise<void> {
     const updated = await this.repo.updateById(
@@ -170,7 +172,12 @@ export class MatchAnalysisService implements OnModuleInit {
     }
 
     this.eventBus.emit(
-      new MatchStatusChanged(matchId, userId, AsyncMetadataStatusEnum.FAILED),
+      new MatchStatusChanged(
+        matchId,
+        userId,
+        jobId,
+        AsyncMetadataStatusEnum.FAILED,
+      ),
     );
   }
 
@@ -187,7 +194,12 @@ export class MatchAnalysisService implements OnModuleInit {
       const job = await this.jobRepo.findOneByIdAndUserId(source.jobId, userId);
 
       if (!job) {
-        await this.failMatchProcessing(matchId, userId, "Job not found.");
+        await this.failMatchProcessing(
+          matchId,
+          userId,
+          source.jobId,
+          "Job not found.",
+        );
         return;
       }
 
@@ -196,6 +208,7 @@ export class MatchAnalysisService implements OnModuleInit {
         await this.failMatchProcessing(
           matchId,
           userId,
+          source.jobId,
           "Job has no description or htmlContent.",
         );
         return;
@@ -206,6 +219,7 @@ export class MatchAnalysisService implements OnModuleInit {
         await this.failMatchProcessing(
           matchId,
           userId,
+          source.jobId,
           "Match analysis has no resume linked.",
         );
         return;
@@ -215,7 +229,12 @@ export class MatchAnalysisService implements OnModuleInit {
         where: { id: resume.resumeId, userId },
       });
       if (!resumeEntity) {
-        await this.failMatchProcessing(matchId, userId, "Resume not found.");
+        await this.failMatchProcessing(
+          matchId,
+          userId,
+          source.jobId,
+          "Resume not found.",
+        );
         return;
       }
 
@@ -293,6 +312,7 @@ export class MatchAnalysisService implements OnModuleInit {
         new MatchStatusChanged(
           matchId,
           userId,
+          source.jobId,
           AsyncMetadataStatusEnum.COMPLETED,
         ),
       );
@@ -307,6 +327,7 @@ export class MatchAnalysisService implements OnModuleInit {
       await this.failMatchProcessing(
         matchId,
         userId,
+        source.jobId,
         err instanceof Error ? err.message : "Unknown error",
       );
     }

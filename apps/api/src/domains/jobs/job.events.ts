@@ -79,3 +79,16 @@ export class FillJobFailed extends DomainEvent {
     super();
   }
 }
+
+export class JobMatchStatusChanged extends DomainEvent {
+  static readonly eventName = "job.match.status.changed";
+
+  constructor(
+    readonly jobId: string,
+    readonly userId: string,
+    readonly matchId: string,
+    readonly status: AsyncMetadataStatusEnum,
+  ) {
+    super();
+  }
+}

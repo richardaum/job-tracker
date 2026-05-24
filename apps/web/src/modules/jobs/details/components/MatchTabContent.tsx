@@ -27,7 +27,6 @@ import {
 } from "@/modules/jobs/details/job-details-header.slots";
 import { MatchClassification } from "@/modules/jobs/shared/components/MatchClassification";
 import { MatchItemCard } from "@/modules/match-analyses/details/components/MatchItemCard";
-import { MatchStatusBadge } from "@/modules/match-analyses/details/components/MatchStatusBadge";
 import { MatchWizardDialog } from "@/modules/match-analyses/details/components/MatchWizardDialog";
 import { PreferencesDialog } from "@/modules/work-preferences/components/PreferencesDialog";
 
@@ -99,24 +98,6 @@ export function MatchTabContent({ jobId }: MatchTabContentProps) {
       </>
     ),
     [matchResumeId, router],
-  );
-
-  const toolbar = (
-    <div
-      className={cn(
-        "flex flex-wrap items-center justify-between gap-3 border-b border-border-subtle pb-4",
-      )}
-    >
-      <div className={cn("flex flex-wrap items-center gap-3 min-w-0")}>
-        {vm.status ? (
-          <MatchStatusBadge
-            status={vm.status}
-            error={vm.matchAnalysis?.generationMetadata?.error ?? null}
-            className={cn("shrink-0")}
-          />
-        ) : null}
-      </div>
-    </div>
   );
 
   let body: React.ReactNode = null;
@@ -255,7 +236,6 @@ export function MatchTabContent({ jobId }: MatchTabContentProps) {
         <JobHeaderActions>{generateButton}</JobHeaderActions>
       ) : null}
       <JobActionsMenuItems>{matchActionsMenuItems}</JobActionsMenuItems>
-      {vm.matchAnalysis && vm.status ? toolbar : null}
       <div className={cn("flex min-h-0 flex-1 flex-col gap-4")}>{body}</div>
 
       <MatchWizardDialog

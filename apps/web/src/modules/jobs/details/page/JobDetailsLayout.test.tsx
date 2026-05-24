@@ -147,6 +147,12 @@ describe("JobDetailsLayout", () => {
     gqlMocks.useGenerateJobMatchMutation.mockReset();
     gqlMocks.useDeleteMatchAnalysisMutation.mockReset();
     sseMocks.useEventSource.mockReset();
+    gqlMocks.useJobMatchQuery.mockReturnValue({
+      data: undefined,
+      loading: false,
+      error: undefined,
+      refetch: vi.fn().mockResolvedValue({ data: null }),
+    });
     useBreakpointMock.mockReturnValue(false);
     usePathnameMock.mockReturnValue("/jobs/job-1");
     useSearchParamsMock.mockReturnValue(new URLSearchParams());

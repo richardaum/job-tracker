@@ -5,15 +5,22 @@ import userEvent from "@testing-library/user-event";
 import type { ReactElement, ReactNode } from "react";
 
 import { AsyncMetadataStatus, MatchSource, MatchVerdict } from "@/gql/hooks";
+import { JobMatchStatusProvider } from "@/modules/jobs/details/hooks/JobMatchStatusProvider";
 import {
   JobActionsMenuItems,
   JobDetailsSubTabs,
   JobHeaderActions,
 } from "@/modules/jobs/details/job-details-header.slots";
 import {
+  getMatchStatusChangedHandler,
+  setupReactiveMatchTabGraphqlMocks,
+} from "@/modules/jobs/details/testing/match-sse-test-utils";
+import {
   completedJobMatch,
+  failedJobMatch,
   type JobMatchData,
   mockMatchItem,
+  processingJobMatch,
 } from "@/modules/jobs/details/testing/match-tab-test-fixtures";
 
 import { MatchTabContent } from "./MatchTabContent";
@@ -140,20 +147,24 @@ function setupApolloMocks(options: {
 
 function renderMatchTab(
   ui: ReactElement,
-  options?: { withHeaderActions?: boolean },
+  options?: { withHeaderActions?: boolean; jobId?: string },
 ) {
+  const jobId = options?.jobId ?? "job-1";
+
   function Wrapper({ children }: { children: ReactNode }) {
     return (
-      <SlotsProvider>
-        {options?.withHeaderActions ? (
-          <DropdownMenu trigger={<Button>Actions</Button>}>
-            <JobActionsMenuItems.Slot />
-          </DropdownMenu>
-        ) : null}
-        <JobHeaderActions.Slot />
-        <JobDetailsSubTabs.Slot />
-        {children}
-      </SlotsProvider>
+      <JobMatchStatusProvider jobId={jobId}>
+        <SlotsProvider>
+          {options?.withHeaderActions ? (
+            <DropdownMenu trigger={<Button>Actions</Button>}>
+              <JobActionsMenuItems.Slot />
+            </DropdownMenu>
+          ) : null}
+          <JobHeaderActions.Slot />
+          <JobDetailsSubTabs.Slot />
+          {children}
+        </SlotsProvider>
+      </JobMatchStatusProvider>
     );
   }
 
@@ -497,20 +508,12 @@ describe("MatchTabContent", () => {
     );
   });
 
-  it("SSE: skips URL when query has no jobMatch id yet", () => {
-    setupApolloMocks({ jobMatch: undefined });
-    renderMatchTab(<MatchTabContent jobId="job-404" />);
-    expect(sseMocks.useEventSource.mock.calls.some((c) => c[0] === null)).toBe(
-      true,
-    );
-  });
-
-  it("SSE: passes stream URL once jobMatch has id", () => {
+  it("SSE: uses job stream URL keyed by jobId", () => {
     setupApolloMocks({ jobMatch: completedJobMatch([], { id: "sse-match" }) });
-    renderMatchTab(<MatchTabContent jobId="job-777" />);
+    renderMatchTab(<MatchTabContent jobId="job-777" />, { jobId: "job-777" });
     expect(
       sseMocks.useEventSource.mock.calls.some(
-        (c) => c[0] === "https://api.test/matches/sse-match/stream",
+        (c) => c[0] === "https://api.test/jobs/job-777/stream",
       ),
     ).toBe(true);
   });
@@ -555,5 +558,69 @@ describe("MatchTabContent", () => {
     await onEvent({ status: AsyncMetadataStatus.Failed });
 
     await waitFor(() => expect(refetch).toHaveBeenCalled());
+  });
+
+  it("SSE COMPLETED: updates tab body from processing to completed content", async () => {
+    const fitItem = mockMatchItem({
+      verdict: MatchVerdict.Fit,
+      requirement: "React streams into view",
+    });
+    setupReactiveMatchTabGraphqlMocks(gqlMocks.useJobMatchQuery, {
+      initial: processingJobMatch({ id: "stream-match" }),
+      afterRefetch: completedJobMatch([fitItem], { id: "stream-match" }),
+      useGenerateJobMatchMutationMock: gqlMocks.useGenerateJobMatchMutation,
+      useDeleteMatchAnalysisMutationMock:
+        gqlMocks.useDeleteMatchAnalysisMutation,
+    });
+
+    renderMatchTab(<MatchTabContent jobId="job-stream-ui" />);
+
+    expect(screen.getByText(/analyzing your match/i)).toBeInTheDocument();
+
+    await waitFor(() =>
+      expect(sseMocks.useEventSource.mock.calls.length).toBeGreaterThanOrEqual(
+        1,
+      ),
+    );
+
+    await getMatchStatusChangedHandler(sseMocks.useEventSource)({
+      status: AsyncMetadataStatus.Completed,
+    });
+
+    expect(
+      await screen.findByText(/react streams into view/i),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/76%/i)).toBeInTheDocument();
+    expect(screen.queryByText(/analyzing your match/i)).not.toBeInTheDocument();
+  });
+
+  it("SSE FAILED: updates tab body from processing to failed state", async () => {
+    setupReactiveMatchTabGraphqlMocks(gqlMocks.useJobMatchQuery, {
+      initial: processingJobMatch({ id: "stream-fail-match" }),
+      afterRefetch: failedJobMatch("LLM unreachable", {
+        id: "stream-fail-match",
+      }),
+      useGenerateJobMatchMutationMock: gqlMocks.useGenerateJobMatchMutation,
+      useDeleteMatchAnalysisMutationMock:
+        gqlMocks.useDeleteMatchAnalysisMutation,
+    });
+
+    renderMatchTab(<MatchTabContent jobId="job-stream-fail-ui" />);
+
+    expect(screen.getByText(/analyzing your match/i)).toBeInTheDocument();
+
+    await waitFor(() =>
+      expect(sseMocks.useEventSource.mock.calls.length).toBeGreaterThanOrEqual(
+        1,
+      ),
+    );
+
+    await getMatchStatusChangedHandler(sseMocks.useEventSource)({
+      status: AsyncMetadataStatus.Failed,
+    });
+
+    expect(await screen.findByText(/analysis failed/i)).toBeInTheDocument();
+    expect(screen.getByText(/llm unreachable/i)).toBeInTheDocument();
+    expect(screen.queryByText(/analyzing your match/i)).not.toBeInTheDocument();
   });
 });

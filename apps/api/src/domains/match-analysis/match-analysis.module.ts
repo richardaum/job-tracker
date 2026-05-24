@@ -18,7 +18,7 @@ import { MatchAnalysisService } from "./match-analysis.service";
 import { MatchAnalysisAiService } from "./match-analysis-ai.service";
 import { MatchAnalysisEventBus } from "./match-analysis-event.bus";
 import { MatchAnalysisEventListener } from "./match-analysis-event.listener";
-import { MatchAnalysisSseController } from "./match-analysis-sse.controller";
+import { MatchStatusJobStreamListener } from "./match-status-job-stream.listener";
 
 @Module({
   imports: [
@@ -33,7 +33,7 @@ import { MatchAnalysisSseController } from "./match-analysis-sse.controller";
     JobsModule,
     ResumesModule,
   ],
-  controllers: [MatchAnalysisSseController],
+  controllers: [],
   providers: [
     MatchAnalysisEventBus,
     MatchAnalysisRepository,
@@ -42,6 +42,7 @@ import { MatchAnalysisSseController } from "./match-analysis-sse.controller";
     JobMatchResolver,
     MatchAnalysisAiService,
     MatchAnalysisEventListener,
+    MatchStatusJobStreamListener,
   ],
   exports: [
     MatchAnalysisService,

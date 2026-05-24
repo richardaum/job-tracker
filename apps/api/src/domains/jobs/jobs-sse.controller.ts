@@ -8,6 +8,7 @@ import {
   FillJobCompleted,
   FillJobFailed,
   FillJobRequested,
+  JobMatchStatusChanged,
   SummaryStatusChanged,
 } from "./job.events";
 import { JobEventBus } from "./job-event.bus";
@@ -17,6 +18,8 @@ type FillSsePayload = {
   status: AsyncMetadataStatusEnum;
   error: string | null;
 };
+
+type MatchSsePayload = { jobId: string; matchId: string; status: string };
 
 type RequestWithUser = Request & { user?: { userId?: string } };
 
@@ -30,13 +33,14 @@ export class JobsSseController {
     @Param("id") id: string,
     @Req() req: RequestWithUser,
   ): Observable<{
-    data: FillSsePayload | { jobId: string; status: string };
+    data: FillSsePayload | MatchSsePayload | { jobId: string; status: string };
     type: string;
   }> {
     const userId = req.user?.userId;
 
     return new Observable<
       | { data: FillSsePayload; type: "fill_status_changed" }
+      | { data: MatchSsePayload; type: "match_status_changed" }
       | {
           data: { jobId: string; status: string };
           type: "summary_status_changed";
@@ -91,11 +95,24 @@ export class JobsSseController {
         });
       });
 
+      const matchStatusUnsub = this.eventBus.on(
+        JobMatchStatusChanged,
+        (event) => {
+          if (event.jobId !== id) return;
+          if (event.userId !== userId) return;
+          observer.next({
+            data: { jobId: id, matchId: event.matchId, status: event.status },
+            type: "match_status_changed",
+          });
+        },
+      );
+
       return () => {
         summaryUnsub();
         fillRequestedUnsub();
         fillCompletedUnsub();
         fillFailedUnsub();
+        matchStatusUnsub();
       };
     });
   }

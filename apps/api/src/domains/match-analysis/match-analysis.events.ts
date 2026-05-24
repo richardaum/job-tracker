@@ -7,6 +7,7 @@ export class MatchStatusChanged extends DomainEvent {
   constructor(
     readonly matchId: string,
     readonly userId: string,
+    readonly jobId: string,
     readonly status: AsyncMetadataStatusEnum,
   ) {
     super();

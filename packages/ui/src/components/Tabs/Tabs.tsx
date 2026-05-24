@@ -20,6 +20,7 @@ export interface TabsTriggerProps {
   children: React.ReactNode;
   className?: string;
   asChild?: boolean;
+  ref?: React.Ref<React.ComponentRef<typeof RadixTabs.Trigger>>;
 }
 
 export interface TabsContentProps {
@@ -65,15 +66,19 @@ export function TabsTrigger({
   children,
   className,
   asChild,
+  ref,
+  ...props
 }: TabsTriggerProps) {
   return (
     <RadixTabs.Trigger
+      ref={ref}
       value={value}
       asChild={asChild}
       className={cn(
         "inline-flex h-8 cursor-pointer items-center justify-center rounded-sm px-3 text-sm font-medium text-text-secondary transition-colors hover:bg-bg-surface-hover hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-brand focus-visible:ring-offset-0 data-[state=active]:bg-bg-brand-subtle data-[state=active]:text-text-brand",
         className,
       )}
+      {...props}
     >
       {children}
     </RadixTabs.Trigger>

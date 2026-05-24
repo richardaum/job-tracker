@@ -1,7 +1,8 @@
 "use client";
 
-import { tryRun } from "@job-tracker/try-run";
 import { useEffect, useRef } from "react";
+
+import { subscribeEventSource } from "@/hooks/event-source-pool";
 
 export function useEventSource<T = unknown>(
   url: string | null,
@@ -19,28 +20,15 @@ export function useEventSource<T = unknown>(
 
     let canceled = false;
 
-    const notify = (parsed: T) => {
+    const unsubscribe = subscribeEventSource(url, eventName, (data) => {
       if (!canceled) {
-        onEventRef.current(parsed);
+        onEventRef.current(data as T);
       }
-    };
-
-    const es = new EventSource(url, { withCredentials: true });
-
-    const listener = (e: MessageEvent) => {
-      const [err, parsed] = tryRun(() => JSON.parse(e.data) as T);
-      if (!err) notify(parsed);
-    };
-
-    es.addEventListener(eventName, listener);
-
-    es.onerror = () => {};
+    });
 
     return () => {
       canceled = true;
-      es.removeEventListener(eventName, listener);
-      es.onerror = null;
-      es.close();
+      unsubscribe();
     };
   }, [url, eventName]);
 }

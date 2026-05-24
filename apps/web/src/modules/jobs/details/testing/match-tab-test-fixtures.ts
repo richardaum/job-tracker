@@ -53,3 +53,34 @@ export function completedJobMatch(
     createdAt: new Date().toISOString(),
   } as JobMatchData;
 }
+
+export function processingJobMatch(
+  options: { id?: string; resumeId?: string | null; jobId?: string } = {},
+): JobMatchData {
+  return {
+    ...completedJobMatch([], options),
+    items: [],
+    generationMetadata: {
+      __typename: "AsyncMetadataType",
+      status: AsyncMetadataStatus.Processing,
+      error: null,
+      timestamp: null,
+    },
+  };
+}
+
+export function failedJobMatch(
+  error: string,
+  options: { id?: string; resumeId?: string | null; jobId?: string } = {},
+): JobMatchData {
+  return {
+    ...completedJobMatch([], options),
+    items: [],
+    generationMetadata: {
+      __typename: "AsyncMetadataType",
+      status: AsyncMetadataStatus.Failed,
+      error,
+      timestamp: null,
+    },
+  };
+}
