@@ -20,6 +20,7 @@ Standalone scripts that run **outside migrations**. May be one-shot (fix) or rec
 | `fix-normalize-enum-casing.ts` | NestJS DI (minimal Module)    |   ✅    | Normalizes lowercase enums → UPPERCASE in JSONB fields; scans PG enum columns                                  |
 | `fix-scoring-logic.ts`         | NestJS DI (minimal Module)    |   ✅    | Backfills `scoreRatio`, `classification`, `matchCount`, `gapCount`, `unclearCount` from `match_analysis.items` |
 | `fix-match-analysis.ts`        | NestJS DI (Module + services) |   ✅    | Triggers match analysis for a user's applications; polls until completion                                      |
+| `generate-schema.ts` (`src/`)  | NestJS DI (`AppModule`)       |   ❌    | Regenerates `src/schema.gql` via GraphQL `autoSchemaFile` (`pnpm schema:generate` in `apps/api`)               |
 | `squash-migrations.mjs`        | Plain Node                    |   ❌    | Squashes migration files                                                                                       |
 
 ## How to run
