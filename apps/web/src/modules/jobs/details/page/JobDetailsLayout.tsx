@@ -14,6 +14,7 @@ import {
   Text,
 } from "@job-tracker/ui";
 import { CaretDownIcon, SparkleIcon } from "@phosphor-icons/react";
+import type { Route } from "next";
 import NextLink from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import React, { useCallback, useEffect, useState } from "react";
@@ -310,7 +311,7 @@ export default function JobDetailsLayout({
     (sidePanel: JobSidePanel) => {
       const next = new URLSearchParams(searchParams.toString());
       next.set("s", sidePanel);
-      router.replace(`${pathname}?${next.toString()}`);
+      router.replace(`${pathname}?${next.toString()}` as Route);
     },
     [pathname, router, searchParams],
   );

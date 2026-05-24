@@ -1,6 +1,7 @@
 "use client";
 
 import { cn, TabsTrigger, Tooltip } from "@job-tracker/ui";
+import type { Route } from "next";
 import NextLink from "next/link";
 
 import { useJobMatchStatus } from "@/modules/jobs/details/hooks/useJobMatchStatus";
@@ -13,7 +14,7 @@ import { MatchStatusBadge } from "@/modules/match-analyses/details/components/Ma
 
 interface MatchTabTriggerProps {
   tab: JobDetailsMainTab | JobDetailsTab;
-  href: string;
+  href: Route;
   label?: string;
 }
 

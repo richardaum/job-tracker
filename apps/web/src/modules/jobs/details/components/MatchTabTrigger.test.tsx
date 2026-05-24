@@ -1,6 +1,7 @@
 import { Tabs, TabsList } from "@job-tracker/ui";
 import { act, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import type { Route } from "next";
 import React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -55,7 +56,7 @@ function renderMatchTabTrigger() {
     <JobMatchStatusProvider jobId="job-1">
       <Tabs value="match">
         <TabsList>
-          <MatchTabTrigger tab="match" href="/jobs/job-1/match" />
+          <MatchTabTrigger tab="match" href={"/jobs/job-1/match" as Route} />
         </TabsList>
       </Tabs>
     </JobMatchStatusProvider>,
@@ -63,7 +64,9 @@ function renderMatchTabTrigger() {
 }
 
 function getStatusDot() {
-  return screen.getByTestId("match-status-badge", { hidden: true });
+  return document.querySelector(
+    '[data-testid="match-status-badge"]',
+  ) as HTMLElement;
 }
 
 function getMatchTabTooltipTrigger() {

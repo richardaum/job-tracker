@@ -81,7 +81,7 @@ export function MatchTabContent({ jobId }: MatchTabContentProps) {
           <DropdownMenuLabel>Match</DropdownMenuLabel>
           {matchResumeId ? (
             <DropdownMenuItem
-              onSelect={() => router.push(`/resumes/${matchResumeId}`)}
+              onSelect={() => router.push(`/profile/resumes/${matchResumeId}`)}
               icon={<NotePencilIcon size={14} weight="regular" />}
             >
               View resume

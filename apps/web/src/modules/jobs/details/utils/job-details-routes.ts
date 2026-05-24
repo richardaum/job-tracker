@@ -1,21 +1,23 @@
+import type { Route } from "next";
+
 export type JobDetailsMainTab = "overview" | "description" | "source" | "match";
 
 export type JobSidePanel = "notes" | "history";
 
 export type JobDetailsTab = JobDetailsMainTab | JobSidePanel;
 
-export function jobDetailsNotesFocusPath(jobId: string): string {
-  return `/jobs/${jobId}/notes/focus`;
+export function jobDetailsNotesFocusPath(jobId: string): Route {
+  return `/jobs/${jobId}/notes/focus` as Route;
 }
 
 export function jobDetailsPath(
   jobId: string,
   tab: JobDetailsTab = "overview",
-): string {
+): Route {
   if (tab === "overview") {
-    return `/jobs/${jobId}`;
+    return `/jobs/${jobId}` as Route;
   }
-  return `/jobs/${jobId}/${tab}`;
+  return `/jobs/${jobId}/${tab}` as Route;
 }
 
 /** Desktop side panel: append `?s=` on main-tab routes only. */
@@ -23,12 +25,12 @@ export function jobDetailsHref(
   jobId: string,
   tab: JobDetailsMainTab,
   sidePanel?: JobSidePanel,
-): string {
+): Route {
   const path = jobDetailsPath(jobId, tab);
   if (!sidePanel) {
     return path;
   }
-  return `${path}?s=${sidePanel}`;
+  return `${path}?s=${sidePanel}` as Route;
 }
 
 export function parseJobDetailsTab(pathname: string): JobDetailsTab {

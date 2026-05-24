@@ -256,7 +256,7 @@ describe("MatchTabContent", () => {
     await user.click(screen.getByRole("button", { name: /^actions$/i }));
     await user.click(screen.getByRole("menuitem", { name: /view resume/i }));
 
-    expect(routerPushSpy).toHaveBeenCalledWith("/resumes/resume-88");
+    expect(routerPushSpy).toHaveBeenCalledWith("/profile/resumes/resume-88");
   });
 
   it("does not show View resume when match has no resumeId", async () => {

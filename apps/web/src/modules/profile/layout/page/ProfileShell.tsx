@@ -1,6 +1,7 @@
 "use client";
 
 import { cn, Heading, Tabs, TabsList, TabsTrigger } from "@job-tracker/ui";
+import type { Route } from "next";
 import { usePathname, useRouter } from "next/navigation";
 import { PortalSlotsProvider } from "react-portalslots";
 
@@ -15,7 +16,7 @@ function deriveTab(pathname: string): string {
   return "identity";
 }
 
-const TAB_ROUTES: Record<string, string> = {
+const TAB_ROUTES: Record<string, Route> = {
   identity: "/profile",
   settings: "/profile/settings",
   resumes: "/profile/resumes",

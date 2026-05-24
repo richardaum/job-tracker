@@ -1,11 +1,12 @@
 "use client";
 
 import { Button, cn, Heading } from "@job-tracker/ui";
+import type { Route } from "next";
 import Link from "next/link";
 
 type EntityNotFoundProps = {
   resource: string;
-  backHref: string;
+  backHref: Route;
   backLabel: string;
 };
 

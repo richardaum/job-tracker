@@ -2,6 +2,7 @@
 
 import { sanitizeCapturedHtml } from "@job-tracker/html-sanitize";
 import { tryRun } from "@job-tracker/try-run";
+import type { Route } from "next";
 import { useRouter } from "next/navigation";
 import type { ReactNode } from "react";
 import { useCallback, useEffect, useState } from "react";
@@ -104,9 +105,9 @@ export function PasteListenerProvider({ children }: { children: ReactNode }) {
     setDialogOpen(false);
     setPastedContent("");
 
-    const path = autoConvert
-      ? `/jobs/${draftId}?autoConvert=true`
-      : `/jobs/${draftId}`;
+    const path = (
+      autoConvert ? `/jobs/${draftId}?autoConvert=true` : `/jobs/${draftId}`
+    ) as Route;
 
     router.push(path);
   }

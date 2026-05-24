@@ -1,9 +1,10 @@
 "use client";
 
+import type { Route } from "next";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useMemo } from "react";
 
-function sanitizeReturnTo(value: string | null): string {
+function sanitizeReturnTo(value: string | null): Route {
   if (!value || !value.startsWith("/")) {
     return "/";
   }
@@ -12,7 +13,7 @@ function sanitizeReturnTo(value: string | null): string {
     return "/";
   }
 
-  return value;
+  return value as Route;
 }
 
 export function useAuthReturnTo() {
@@ -24,7 +25,7 @@ export function useAuthReturnTo() {
     const currentPathWithQuery = query ? `${pathname}?${query}` : pathname;
     const loginRedirectUrl = `/login?returnTo=${encodeURIComponent(
       currentPathWithQuery,
-    )}`;
+    )}` as Route;
     const safeReturnTo = sanitizeReturnTo(searchParams.get("returnTo"));
 
     return { loginRedirectUrl, safeReturnTo };

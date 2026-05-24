@@ -5,53 +5,47 @@ import { AsyncMetadataStatus } from "@/gql/hooks";
 
 import { MatchStatusBadge } from "./MatchStatusBadge";
 
+function getStatusBadge() {
+  return document.querySelector(
+    '[data-testid="match-status-badge"]',
+  ) as HTMLElement;
+}
+
 describe("MatchStatusBadge", () => {
   it("renders a status dot without visible label text", () => {
     render(<MatchStatusBadge status={AsyncMetadataStatus.Processing} />);
 
-    expect(
-      screen.getByTestId("match-status-badge", { hidden: true }),
-    ).toBeTruthy();
+    expect(getStatusBadge()).toBeTruthy();
     expect(screen.queryByText(/.+/)).toBeNull();
   });
 
   it("applies warning color class for PROCESSING", () => {
     render(<MatchStatusBadge status={AsyncMetadataStatus.Processing} />);
 
-    expect(
-      screen.getByTestId("match-status-badge", { hidden: true }),
-    ).toHaveClass("bg-text-warning");
+    expect(getStatusBadge()).toHaveClass("bg-text-warning");
   });
 
   it("pulses opacity while PROCESSING", () => {
     render(<MatchStatusBadge status={AsyncMetadataStatus.Processing} />);
 
-    expect(
-      screen.getByTestId("match-status-badge", { hidden: true }),
-    ).toHaveClass("animate-match-status-pulse");
+    expect(getStatusBadge()).toHaveClass("animate-match-status-pulse");
   });
 
   it("does not pulse when COMPLETED", () => {
     render(<MatchStatusBadge status={AsyncMetadataStatus.Completed} />);
 
-    expect(
-      screen.getByTestId("match-status-badge", { hidden: true }),
-    ).not.toHaveClass("animate-match-status-pulse");
+    expect(getStatusBadge()).not.toHaveClass("animate-match-status-pulse");
   });
 
   it("applies success color class for COMPLETED", () => {
     render(<MatchStatusBadge status={AsyncMetadataStatus.Completed} />);
 
-    expect(
-      screen.getByTestId("match-status-badge", { hidden: true }),
-    ).toHaveClass("bg-text-success");
+    expect(getStatusBadge()).toHaveClass("bg-text-success");
   });
 
   it("applies error color class for FAILED", () => {
     render(<MatchStatusBadge status={AsyncMetadataStatus.Failed} />);
 
-    expect(
-      screen.getByTestId("match-status-badge", { hidden: true }),
-    ).toHaveClass("bg-text-error");
+    expect(getStatusBadge()).toHaveClass("bg-text-error");
   });
 });

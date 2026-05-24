@@ -1,6 +1,7 @@
 "use client";
 
 import { cn, FilterChip, Tooltip } from "@job-tracker/ui";
+import type { Route } from "next";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 const QUICK_FILTERS = [
@@ -57,7 +58,7 @@ export function QuickFilters() {
       params.set("q", key);
     }
     const query = params.toString();
-    router.push(query ? `${pathname}?${query}` : pathname);
+    router.push((query ? `${pathname}?${query}` : pathname) as Route);
   }
 
   return (

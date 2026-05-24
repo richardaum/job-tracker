@@ -384,7 +384,7 @@ export function MatchWizardDialog({
             Choose the resume to evaluate against this job description. You can
             manage your resumes{" "}
             <Link asChild>
-              <NextLink href="/resumes">here</NextLink>
+              <NextLink href="/profile/resumes">here</NextLink>
             </Link>
             .
           </Text>

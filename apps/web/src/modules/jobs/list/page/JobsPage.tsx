@@ -11,6 +11,7 @@ import {
 } from "@job-tracker/ui";
 import { SearchInput } from "@job-tracker/ui";
 import { PlusIcon } from "@phosphor-icons/react";
+import type { Route } from "next";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { EmptyState } from "@/components/empty-state";
@@ -92,7 +93,7 @@ export default function JobsPage() {
 
   function navigateDeletingSearchKeys(keys: Array<string>) {
     const qs = stripSearchKeys(searchParams.toString(), keys);
-    router.push(qs ? `${pathname}?${qs}` : pathname);
+    router.push((qs ? `${pathname}?${qs}` : pathname) as Route);
   }
 
   const { jobs, companyFilter, error, runIdFilter, showInitialLoading } =

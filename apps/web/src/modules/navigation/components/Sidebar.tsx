@@ -13,6 +13,7 @@ import {
   QuestionIcon,
   SignOutIcon,
 } from "@phosphor-icons/react";
+import type { Route } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -26,7 +27,11 @@ import { ObfuscatedText } from "@/modules/navigation/components/ObfuscatedText";
 
 const API_URL = getApiBaseUrl();
 
-const navItems = [
+const navItems: Array<{
+  href: Route;
+  label: string;
+  icon: typeof BriefcaseIcon;
+}> = [
   { href: "/jobs", label: "Jobs", icon: BriefcaseIcon },
   { href: "/sources", label: "Sources", icon: DownloadSimpleIcon },
   { href: "/companies", label: "Companies", icon: BuildingsIcon },
@@ -37,8 +42,12 @@ const navItems = [
   },
 ];
 
-const bottomItems = [
-  { href: "#", label: "Help Center", icon: QuestionIcon },
+const bottomItems: Array<{
+  href: Route;
+  label: string;
+  icon: typeof QuestionIcon;
+}> = [
+  { href: "#" as Route, label: "Help Center", icon: QuestionIcon },
   { href: "/profile/settings", label: "Settings", icon: GearIcon },
 ];
 

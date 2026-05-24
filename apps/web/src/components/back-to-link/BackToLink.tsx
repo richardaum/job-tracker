@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@job-tracker/ui";
+import type { Route } from "next";
 import Link from "next/link";
 import type { ComponentPropsWithoutRef, ReactNode } from "react";
 
@@ -10,8 +11,8 @@ const backLinkClassName = cn(
 
 export type BackToLinkProps = Omit<
   ComponentPropsWithoutRef<typeof Link>,
-  "className"
-> & { children: ReactNode; className?: string };
+  "className" | "href"
+> & { children: ReactNode; className?: string; href: Route };
 
 /** Header “Back to …” nav link shared across entity detail layouts. */
 export function BackToLink({
