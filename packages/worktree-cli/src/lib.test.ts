@@ -86,6 +86,7 @@ BAZ="quoted"
       "http://localhost:3105/auth/google/callback",
     );
     assert.equal(env.WEB_URL, "http://localhost:3106");
+    assert.equal(env.RATE_LIMIT_DISABLED, "true");
   });
 
   it("buildWorktreeWebEnv sets computed overrides", () => {

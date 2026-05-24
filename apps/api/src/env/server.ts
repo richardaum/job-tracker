@@ -12,6 +12,19 @@ const nodeEnvSchema = z
   .enum(["development", "test", "production"])
   .default("development");
 
+function parseEnvBoolean(value: unknown, defaultValue = false): boolean {
+  if (value === undefined || value === "") {
+    return defaultValue;
+  }
+  if (typeof value === "boolean") {
+    return value;
+  }
+  if (typeof value === "string") {
+    return value === "true" || value === "1";
+  }
+  return defaultValue;
+}
+
 const apiEnvSchema = z.object({
   NODE_ENV: nodeEnvSchema,
   DATABASE_URL: z.url().startsWith("postgresql://"),
@@ -33,6 +46,11 @@ const apiEnvSchema = z.object({
   OPENAI_MODEL: z.string().default("gpt-4.1-mini"),
   AUTH_BYPASS_ENABLED: z.coerce.boolean().default(false),
   DEV_AUTH_BYPASS_EMAIL: z.email().optional(),
+  /** Dev/E2E only — skips @nestjs/throttler and in-app IP rate limits. */
+  RATE_LIMIT_DISABLED: z.preprocess(
+    (value) => parseEnvBoolean(value, false),
+    z.boolean(),
+  ),
 });
 
 export const apiEnv = apiEnvSchema
@@ -67,6 +85,14 @@ export const apiEnv = apiEnvSchema
     {
       message: "JWT_REFRESH_SECRET or JWT_REFRESH_SECRETS is required.",
       path: ["JWT_REFRESH_SECRET"],
+    },
+  )
+  .refine(
+    ({ NODE_ENV, RATE_LIMIT_DISABLED }) =>
+      NODE_ENV !== "production" || !RATE_LIMIT_DISABLED,
+    {
+      message: "RATE_LIMIT_DISABLED cannot be enabled in production.",
+      path: ["RATE_LIMIT_DISABLED"],
     },
   )
   .parse(process.env);
