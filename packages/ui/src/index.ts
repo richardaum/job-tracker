@@ -41,7 +41,9 @@ export type {
 } from "./components/DropdownMenu/DropdownMenu";
 export {
   DropdownMenu,
+  DropdownMenuGroup,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuSeparator,
 } from "./components/DropdownMenu/DropdownMenu";
 export type {
