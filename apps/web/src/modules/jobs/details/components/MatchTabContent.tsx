@@ -55,18 +55,22 @@ export function MatchTabContent({ jobId }: MatchTabContentProps) {
     ? "Run the match analysis again with your resume and preferences."
     : "Compare this job to a resume to see fits, gaps, and unclear areas.";
 
-  const generateButton = showGenerateInHeader ? (
-    <Tooltip content={generateTooltip} side="bottom" align="end">
-      <Button
-        intent="primary"
-        size="md"
-        onClick={() => vm.setWizardOpen(true)}
-        state={vm.isProcessing || vm.generating ? "loading" : "default"}
-      >
-        {vm.hasRenderableMatchRecord ? "Regenerate" : "Generate"}
-      </Button>
-    </Tooltip>
-  ) : null;
+  const generateButton = useMemo(
+    () =>
+      showGenerateInHeader ? (
+        <Tooltip content={generateTooltip} side="bottom" align="end">
+          <Button
+            intent="primary"
+            size="md"
+            onClick={() => vm.setWizardOpen(true)}
+            state={vm.isProcessing || vm.generating ? "loading" : "default"}
+          >
+            {vm.hasRenderableMatchRecord ? "Regenerate" : "Generate"}
+          </Button>
+        </Tooltip>
+      ) : null,
+    [showGenerateInHeader, generateTooltip, vm],
+  );
 
   const matchResumeId = vm.matchAnalysis?.resumeId ?? null;
 

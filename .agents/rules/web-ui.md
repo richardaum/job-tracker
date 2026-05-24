@@ -69,13 +69,14 @@ Canonical reference: `/applications` and `/applications/[id]`.
 
 **How:**
 
-- Use `react-portalslots` (`PortalSlotsProvider` + `PortalSlot(name)`) for header buttons and other content that does not depend on ancestor React context at the slot target.
-- Co-locate portal slot pairs in a `*.slots.ts` file next to the feature (canonical: `apps/web/src/modules/jobs/details/job-details-header.slots.ts`).
-- Layout: wrap the layout subtree in `PortalSlotsProvider` and render `<SomeSlot.Slot />` in the header.
+- Use `@job-tracker/react-slots` (`SlotsProvider` + `PortalSlot(name)` / `ContextSlot(name)`) for header contributions from nested tabs.
+- Co-locate slot pairs in a `*.slots.ts` file next to the feature (canonical: `apps/web/src/modules/jobs/details/job-details-header.slots.ts`).
+- Layout: wrap the layout subtree in `SlotsProvider` and render `<SomeSlot.Slot />` at each target (header button area, inside Actions dropdown, etc.).
 - Tab/route content: wrap contributions in `<SomeSlot>...</SomeSlot>`.
-- **Radix `DropdownMenu` items:** do not portal `DropdownMenuItem` (or other Radix menu primitives) into the Actions dropdown — portaled nodes keep context from the tab subtree, so Radix throws `MenuItem must be used within Menu`. Register tab-owned menu fragments with a layout-scoped outlet instead (canonical: `apps/web/src/modules/jobs/details/job-details-actions-menu.tsx`: `JobActionsMenuItemsProvider`, `<RegisterJobActionsMenuItems>` in tab, `<JobActionsMenuItemsOutlet />` inside the layout dropdown).
+- **`PortalSlot`:** header buttons and content that must keep hooks/state from the tab subtree (uses DOM portal).
+- **`ContextSlot`:** Radix `DropdownMenuItem` and other primitives that must mount under a layout ancestor (e.g. `<JobActionsMenuItems.Slot />` inside the layout `DropdownMenu`). Do not use `PortalSlot` for menu items — portaled nodes keep tab context, so Radix throws `MenuItem must be used within Menu`.
 - Job details layout always mounts `<JobHeaderActions.Slot />` when the job entity is loaded; tab content must portal Generate/Regenerate there — no in-tab toolbar duplicate for that primary action.
-- Only one tab should register Actions menu fragments at a time via `<RegisterJobActionsMenuItems>`; if multiple tabs register, the last mount wins until unmount. Match tab owns Match section while its route is active.
+- Only one tab should fill a given slot at a time; if multiple tabs register, the last mount wins until unmount. Match tab owns Match section while its route is active.
 
 **When not:**
 

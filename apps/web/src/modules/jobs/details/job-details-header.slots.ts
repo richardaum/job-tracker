@@ -1,5 +1,4 @@
-import { PortalSlot } from "react-portalslots";
+import { ContextSlot, PortalSlot } from "@job-tracker/react-slots";
 
 export const JobHeaderActions = PortalSlot("job-header-actions");
-
-/** Actions dropdown items (Match section, etc.) use the Radix outlet in `job-details-actions-menu.tsx`, not a portal slot here. */
+export const JobActionsMenuItems = ContextSlot("job-actions-menu-items");
