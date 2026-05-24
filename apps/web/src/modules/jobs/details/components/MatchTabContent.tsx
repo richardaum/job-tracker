@@ -22,6 +22,7 @@ import { MatchVerdict } from "@/gql/hooks";
 import { useMatchTabViewModel } from "@/modules/jobs/details/hooks/useMatchTabViewModel";
 import {
   JobActionsMenuItems,
+  JobDetailsSubTabs,
   JobHeaderActions,
 } from "@/modules/jobs/details/job-details-header.slots";
 import { MatchClassification } from "@/modules/jobs/shared/components/MatchClassification";
@@ -81,7 +82,7 @@ export function MatchTabContent({ jobId }: MatchTabContentProps) {
           <DropdownMenuLabel>Match</DropdownMenuLabel>
           {matchResumeId ? (
             <DropdownMenuItem
-              onSelect={() => router.push(`/profile/resumes/${matchResumeId}`)}
+              onSelect={() => router.push(`/resumes/${matchResumeId}`)}
               icon={<NotePencilIcon size={14} weight="regular" />}
             >
               View resume
@@ -175,34 +176,14 @@ export function MatchTabContent({ jobId }: MatchTabContentProps) {
   } else if (vm.isCompleted) {
     body = (
       <>
-        <div
-          className={cn(
-            "flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between",
-          )}
-        >
-          <Tabs
-            value={vm.matchFilterTab}
-            onValueChange={(v) =>
-              vm.setMatchFilterTab(v as typeof vm.matchFilterTab)
-            }
-          >
-            <TabsList>
-              <TabsTrigger value="all">All</TabsTrigger>
-              <TabsTrigger value={MatchVerdict.Fit}>Fits</TabsTrigger>
-              <TabsTrigger value={MatchVerdict.Gap}>Gaps</TabsTrigger>
-              <TabsTrigger value={MatchVerdict.Unclear}>Unclear</TabsTrigger>
-            </TabsList>
-          </Tabs>
-
-          <MatchClassification
-            variant="detailed"
-            classification={vm.matchAnalysis.classification ?? null}
-            scoreRatio={vm.matchAnalysis.scoreRatio ?? null}
-            matchCount={vm.matchAnalysis.matchCount}
-            gapCount={vm.matchAnalysis.gapCount}
-            unclearCount={vm.matchAnalysis.unclearCount}
-          />
-        </div>
+        <MatchClassification
+          variant="detailed"
+          classification={vm.matchAnalysis.classification ?? null}
+          scoreRatio={vm.matchAnalysis.scoreRatio ?? null}
+          matchCount={vm.matchAnalysis.matchCount}
+          gapCount={vm.matchAnalysis.gapCount}
+          unclearCount={vm.matchAnalysis.unclearCount}
+        />
 
         {vm.filteredItems.length === 0 ? (
           <Text size="sm" color="muted">
@@ -228,8 +209,48 @@ export function MatchTabContent({ jobId }: MatchTabContentProps) {
     );
   }
 
+  const matchSubTabTriggerClass = cn(
+    "data-[state=active]:bg-bg-info-subtle data-[state=active]:text-text-brand",
+  );
+
+  const matchFilterTabs = vm.isCompleted ? (
+    <JobDetailsSubTabs>
+      <Tabs
+        value={vm.matchFilterTab}
+        onValueChange={(v) =>
+          vm.setMatchFilterTab(v as typeof vm.matchFilterTab)
+        }
+      >
+        <TabsList className={cn("border-border-brand/40")}>
+          <TabsTrigger value="all" className={matchSubTabTriggerClass}>
+            All
+          </TabsTrigger>
+          <TabsTrigger
+            value={MatchVerdict.Fit}
+            className={matchSubTabTriggerClass}
+          >
+            Fits
+          </TabsTrigger>
+          <TabsTrigger
+            value={MatchVerdict.Gap}
+            className={matchSubTabTriggerClass}
+          >
+            Gaps
+          </TabsTrigger>
+          <TabsTrigger
+            value={MatchVerdict.Unclear}
+            className={matchSubTabTriggerClass}
+          >
+            Unclear
+          </TabsTrigger>
+        </TabsList>
+      </Tabs>
+    </JobDetailsSubTabs>
+  ) : null;
+
   return (
     <div className={cn("flex min-h-0 flex-col gap-4")}>
+      {matchFilterTabs}
       {generateButton ? (
         <JobHeaderActions>{generateButton}</JobHeaderActions>
       ) : null}

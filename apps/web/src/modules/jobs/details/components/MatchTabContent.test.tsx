@@ -7,6 +7,7 @@ import type { ReactElement, ReactNode } from "react";
 import { AsyncMetadataStatus, MatchSource, MatchVerdict } from "@/gql/hooks";
 import {
   JobActionsMenuItems,
+  JobDetailsSubTabs,
   JobHeaderActions,
 } from "@/modules/jobs/details/job-details-header.slots";
 import {
@@ -150,6 +151,7 @@ function renderMatchTab(
           </DropdownMenu>
         ) : null}
         <JobHeaderActions.Slot />
+        <JobDetailsSubTabs.Slot />
         {children}
       </SlotsProvider>
     );
@@ -243,7 +245,7 @@ describe("MatchTabContent", () => {
     await user.click(screen.getByRole("button", { name: /^actions$/i }));
     await user.click(screen.getByRole("menuitem", { name: /view resume/i }));
 
-    expect(routerPushSpy).toHaveBeenCalledWith("/profile/resumes/resume-88");
+    expect(routerPushSpy).toHaveBeenCalledWith("/resumes/resume-88");
   });
 
   it("does not show View resume when match has no resumeId", async () => {

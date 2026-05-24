@@ -319,6 +319,9 @@ describe("JobDetailsLayout", () => {
       await screen.findByRole("button", { name: /^regenerate$/i }),
     ).toBeInTheDocument();
 
+    expect(await screen.findByRole("tab", { name: "All" })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "Fits" })).toBeInTheDocument();
+
     await user.click(screen.getByRole("button", { name: "Actions" }));
 
     expect(

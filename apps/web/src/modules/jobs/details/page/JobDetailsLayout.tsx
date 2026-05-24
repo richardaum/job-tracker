@@ -32,6 +32,7 @@ import {
 import { useJobDetailsViewModel } from "@/modules/jobs/details/hooks/useJobDetailsViewModel";
 import {
   JobActionsMenuItems,
+  JobDetailsSubTabs,
   JobHeaderActions,
 } from "@/modules/jobs/details/job-details-header.slots";
 import { jobDetailDisplayTitle } from "@/modules/jobs/details/utils/job-detail-title";
@@ -111,6 +112,23 @@ function JobDetailsTabList({
   );
 }
 
+function JobDetailsTabBar({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <div
+      className={cn("flex flex-wrap items-center gap-x-4 gap-y-2", className)}
+    >
+      {children}
+      <JobDetailsSubTabs.Slot className={cn("empty:hidden")} />
+    </div>
+  );
+}
+
 function JobDetailsFullWidthTabLayout({
   jobId,
   showSourceContent,
@@ -124,11 +142,13 @@ function JobDetailsFullWidthTabLayout({
 }) {
   return (
     <Tabs value={activeTab} className={cn("flex size-full min-h-0 flex-col")}>
-      <JobDetailsTabList
-        jobId={jobId}
-        showSourceContent={showSourceContent}
-        className={cn("flex-wrap")}
-      />
+      <JobDetailsTabBar>
+        <JobDetailsTabList
+          jobId={jobId}
+          showSourceContent={showSourceContent}
+          className={cn("flex-wrap")}
+        />
+      </JobDetailsTabBar>
 
       <div className={cn("flex flex-1 min-h-0 flex-col")}>{children}</div>
     </Tabs>
@@ -359,34 +379,36 @@ export default function JobDetailsLayout({
                 value={mainTab}
                 className={cn("flex size-full min-h-0 flex-col")}
               >
-                <TabsList className={cn("w-fit self-start")}>
-                  <DesktopMainTabTrigger
-                    jobId={job.id}
-                    tab="overview"
-                    label="Overview"
-                    sidePanel={sidePanelFromQuery}
-                  />
-                  <DesktopMainTabTrigger
-                    jobId={job.id}
-                    tab="description"
-                    label="Description"
-                    sidePanel={sidePanelFromQuery}
-                  />
-                  {showSourceContent ? (
+                <JobDetailsTabBar>
+                  <TabsList className={cn("w-fit self-start")}>
                     <DesktopMainTabTrigger
                       jobId={job.id}
-                      tab="source"
-                      label="Source content"
+                      tab="overview"
+                      label="Overview"
                       sidePanel={sidePanelFromQuery}
                     />
-                  ) : null}
-                  <DesktopMainTabTrigger
-                    jobId={job.id}
-                    tab="match"
-                    label="Match"
-                    sidePanel={sidePanelFromQuery}
-                  />
-                </TabsList>
+                    <DesktopMainTabTrigger
+                      jobId={job.id}
+                      tab="description"
+                      label="Description"
+                      sidePanel={sidePanelFromQuery}
+                    />
+                    {showSourceContent ? (
+                      <DesktopMainTabTrigger
+                        jobId={job.id}
+                        tab="source"
+                        label="Source content"
+                        sidePanel={sidePanelFromQuery}
+                      />
+                    ) : null}
+                    <DesktopMainTabTrigger
+                      jobId={job.id}
+                      tab="match"
+                      label="Match"
+                      sidePanel={sidePanelFromQuery}
+                    />
+                  </TabsList>
+                </JobDetailsTabBar>
 
                 <div className={cn("mt-3 flex flex-1 min-h-0 flex-col")}>
                   {children}
