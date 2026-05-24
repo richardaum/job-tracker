@@ -185,6 +185,7 @@ export function JobCard({ job: app, onSuccess, onError }: JobCardProps) {
             <MatchClassification
               variant="badge"
               matchId={app.match.id}
+              jobId={app.id}
               classification={app.match.classification ?? null}
               scoreRatio={app.match.scoreRatio}
               matchCount={app.match.matchCount}

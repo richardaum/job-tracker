@@ -272,6 +272,7 @@ export type Mutation = {
   createResume: ResumeType;
   createSourceRun: SourceRunType;
   createSourceTemplate: SourceTemplateType;
+  deactivateAccount: Scalars["Boolean"]["output"];
   deleteCompany: DeleteMutationPayloadType;
   deleteJob: DeleteMutationPayloadType;
   deleteJobNote: DeleteMutationPayloadType;
@@ -1411,6 +1412,18 @@ export type ResumesQuery = {
     isDefault: boolean;
     createdAt: any;
     updatedAt: any;
+  }>;
+};
+
+export type ResumesForPickerQueryVariables = Exact<{ [key: string]: never }>;
+
+export type ResumesForPickerQuery = {
+  __typename?: "Query";
+  resumes: Array<{
+    __typename?: "ResumeType";
+    id: string;
+    title: string;
+    isDefault: boolean;
   }>;
 };
 
@@ -4387,6 +4400,36 @@ export const ResumesDocument = {
     },
   ],
 } as unknown as DocumentNode<ResumesQuery, ResumesQueryVariables>;
+export const ResumesForPickerDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "query",
+      name: { kind: "Name", value: "ResumesForPicker" },
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "resumes" },
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                { kind: "Field", name: { kind: "Name", value: "title" } },
+                { kind: "Field", name: { kind: "Name", value: "isDefault" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  ResumesForPickerQuery,
+  ResumesForPickerQueryVariables
+>;
 export const ResumeDocument = {
   kind: "Document",
   definitions: [

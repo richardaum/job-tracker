@@ -130,10 +130,21 @@ describe("Sidebar", () => {
     expect(settingsLinks[0]).toHaveAttribute("href", "/profile/settings");
   });
 
+  it("does not render a Matches nav link", () => {
+    render(<Sidebar user={mockUser} />);
+    expect(screen.queryByRole("link", { name: "Matches" })).toBeNull();
+  });
+
+  it("does not include /matches in any menu link href", () => {
+    render(<Sidebar user={mockUser} />);
+    const links = screen.getAllByRole("link");
+    const hrefs = links.map((el) => el.getAttribute("href"));
+    expect(hrefs.filter((h) => h?.startsWith("/matches"))).toEqual([]);
+  });
+
   it("renders main nav items", () => {
     render(<Sidebar user={mockUser} />);
     expect(screen.getAllByText("Jobs").length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByText("Matches").length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText("Sources").length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText("Companies").length).toBeGreaterThanOrEqual(1);
     expect(

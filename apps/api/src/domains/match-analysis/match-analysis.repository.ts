@@ -4,6 +4,8 @@ import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 
+import { normalizeMatchAnalysisEntity } from "./normalize-match-items.util";
+
 @Injectable()
 export class MatchAnalysisRepository {
   constructor(
@@ -15,20 +17,28 @@ export class MatchAnalysisRepository {
     id: string,
     userId?: string,
   ): Promise<MatchAnalysisEntity | null> {
-    return this.repo.findOne({ where: { id, ...(userId ? { userId } : {}) } });
+    const entity = await this.repo.findOne({
+      where: { id, ...(userId ? { userId } : {}) },
+    });
+    return normalizeMatchAnalysisEntity(entity);
   }
 
   async findByJobId(
     jobId: string,
     userId?: string,
   ): Promise<MatchAnalysisEntity | null> {
-    return this.repo.findOne({
+    const entity = await this.repo.findOne({
       where: { jobId, ...(userId ? { userId } : {}) },
     });
+    return normalizeMatchAnalysisEntity(entity);
   }
 
   async findAllByUserId(userId: string): Promise<MatchAnalysisEntity[]> {
-    return this.repo.find({ where: { userId }, order: { updatedAt: "DESC" } });
+    const entities = await this.repo.find({
+      where: { userId },
+      order: { updatedAt: "DESC" },
+    });
+    return entities.map((entity) => normalizeMatchAnalysisEntity(entity)!);
   }
 
   async upsert(entity: MatchAnalysisEntity): Promise<MatchAnalysisEntity> {

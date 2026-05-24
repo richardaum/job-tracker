@@ -18,7 +18,10 @@ interface MatchClassificationProps {
   gapCount: number;
   unclearCount: number;
   variant?: BadgeVariant;
+  /** Kept for call-site clarity; linking uses `jobId` into the Match tab. */
   matchId?: string;
+  /** Opens the Match tab (`/jobs/:id/match`) when `variant="badge"`. */
+  jobId?: string;
 }
 
 const colorMap = {
@@ -154,7 +157,7 @@ function BadgeBadge({
   matchCount,
   gapCount,
   unclearCount,
-  matchId,
+  jobId,
 }: MatchClassificationProps) {
   const style = getStyle(classification);
 
@@ -176,9 +179,9 @@ function BadgeBadge({
       gapCount={gapCount}
       unclearCount={unclearCount}
     >
-      {matchId ? (
+      {jobId !== undefined && jobId !== "" ? (
         <NextLink
-          href={`/matches/${matchId}`}
+          href={`/jobs/${jobId}/match`}
           className={cn("no-underline focus-visible:outline-none")}
         >
           {badge}

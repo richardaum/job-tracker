@@ -9,6 +9,14 @@ query Resumes {
   }
 }
 
+query ResumesForPicker {
+  resumes {
+    id
+    title
+    isDefault
+  }
+}
+
 query Resume($id: ID!) {
   resume(id: $id) {
     id

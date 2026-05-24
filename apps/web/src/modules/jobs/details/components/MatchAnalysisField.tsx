@@ -16,10 +16,7 @@ interface MatchAnalysisFieldProps {
   match: JobDetailsValues["match"];
 }
 
-export function MatchAnalysisField({
-  jobId: _jobId,
-  match,
-}: MatchAnalysisFieldProps) {
+export function MatchAnalysisField({ jobId, match }: MatchAnalysisFieldProps) {
   const router = useRouter();
   const matchColor =
     match?.generationMetadata?.status === AsyncMetadataStatus.Completed
@@ -73,7 +70,7 @@ export function MatchAnalysisField({
           <FieldWithLabelAction.IconActionButton
             label="View full match analysis"
             icon={<ArrowRightIcon size={14} weight="regular" />}
-            onClick={() => match?.id && router.push(`/matches/${match.id}`)}
+            onClick={() => match?.id && router.push(`/jobs/${jobId}/match`)}
           />
         }
         content={
