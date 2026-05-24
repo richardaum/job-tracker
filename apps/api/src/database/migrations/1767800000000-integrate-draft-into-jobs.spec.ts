@@ -1,7 +1,5 @@
-import {
-  IntegrateDraftIntoJobs1767800000000,
-  migrations,
-} from "@api/database/migrations";
+import { migrations } from "@api/database/migrations";
+import { IntegrateDraftIntoJobs1767800000000 } from "@api/database/migrations/1767800000000-integrate-draft-into-jobs";
 import { describe, expect, it } from "vitest";
 
 function migrationTimestamp(Ctor: { name: string }): bigint {
@@ -35,7 +33,7 @@ describe("IntegrateDraftIntoJobs1767800000000", () => {
       if (Ctor === latestCtor) {
         break;
       }
-      const t = migrationTimestamp(Ctor as unknown as { name: string });
+      const t = migrationTimestamp(Ctor);
       if (t > maxPrior) {
         maxPrior = t;
       }

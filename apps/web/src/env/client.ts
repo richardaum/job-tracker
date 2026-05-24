@@ -9,6 +9,7 @@ const clientEnvSchema = z.object({
   E2E_PORT: z.coerce.number().int().min(1).max(65535).default(3102),
 });
 
+// process.env need to be explicitly parsed to avoid type errors
 export const clientEnv = clientEnvSchema.parse({
   NODE_ENV: process.env.NODE_ENV,
   NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,

@@ -37,6 +37,15 @@ export class UserEntity {
   })
   role!: RoleEnum;
 
+  @Column({ type: "boolean", default: true })
+  active!: boolean;
+
+  @Column({ name: "token_version", type: "integer", default: 0 })
+  tokenVersion!: number;
+
+  @Column({ name: "refresh_jti", type: "uuid", nullable: true })
+  refreshJti!: string | null;
+
   @CreateDateColumn({ name: "created_at", type: "timestamptz" })
   createdAt!: Date;
 

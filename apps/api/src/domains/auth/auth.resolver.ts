@@ -1,7 +1,7 @@
 import { UserType } from "@api/domains/users/user.type";
 import { UserService } from "@api/domains/users/users.service";
 import { UnauthorizedException, UseGuards } from "@nestjs/common";
-import { Query, Resolver } from "@nestjs/graphql";
+import { Mutation, Query, Resolver } from "@nestjs/graphql";
 
 import { CurrentUser } from "./current-user.decorator";
 import { JwtAuthGuard } from "./jwt-auth.guard";
@@ -19,5 +19,15 @@ export class AuthResolver {
     const user = await this.userService.findById(currentUser.userId);
     if (!user) throw new UnauthorizedException();
     return user;
+  }
+
+  @Mutation(() => Boolean)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles("user")
+  async deactivateAccount(
+    @CurrentUser() currentUser: { userId: string },
+  ): Promise<boolean> {
+    await this.userService.deactivateUser(currentUser.userId);
+    return true;
   }
 }

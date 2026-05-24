@@ -4,7 +4,7 @@ import { JobStageEventEntity } from "@api/database/entities/job-stage-event.enti
 import { insertUserWithAuthAccount } from "@api/database/integration-test-user";
 import { createTestDataSource } from "@api/database/test-db";
 import { CompanyRepository } from "@api/domains/companies/companies.repository";
-import { serverEnv } from "@api/env/server";
+import { apiEnv } from "@api/env/server";
 import type { DataSource } from "typeorm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
@@ -15,7 +15,7 @@ import { JobsRepository } from "./jobs.repository";
 import { JobsListQuery } from "./jobs-list.query";
 import { StageEventSourceEnum } from "./stage-event-source.enum";
 
-const hasDb = !!serverEnv.DATABASE_INTEGRATION_URL;
+const hasDb = !!apiEnv.DATABASE_INTEGRATION_URL;
 
 describe.skipIf(!hasDb)("Jobs domain persistence (integration)", () => {
   let dataSource: DataSource;

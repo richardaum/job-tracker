@@ -7,6 +7,7 @@ import { PassportModule } from "@nestjs/passport";
 import { AuthController } from "./auth.controller";
 import { AuthResolver } from "./auth.resolver";
 import { AuthService } from "./auth.service";
+import { AuthUserAccessService } from "./auth-user-access.service";
 import { DevAuthBypassService } from "./dev-auth-bypass.service";
 import { GoogleStrategy } from "./google.strategy";
 import { JwtStrategy } from "./jwt.strategy";
@@ -26,6 +27,7 @@ import { RolesGuard } from "./roles.guard";
     GoogleAuthGuard,
     RolesGuard,
     AuthService,
+    AuthUserAccessService,
     DevAuthBypassService,
     AuthResolver,
   ],
@@ -35,6 +37,7 @@ import { RolesGuard } from "./roles.guard";
     RolesGuard,
     DevAuthBypassService,
     AuthService,
+    AuthUserAccessService,
     UsersModule,
   ],
 })

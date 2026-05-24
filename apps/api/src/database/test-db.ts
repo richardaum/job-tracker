@@ -1,16 +1,16 @@
-import { serverEnv } from "@api/env/server";
+import { apiEnv } from "@api/env/server";
 import { tryRun } from "@job-tracker/try-run";
 import { DataSource } from "typeorm";
 
 import { buildDataSourceOptions } from "./data-source-options";
 
 export async function createTestDataSource(): Promise<DataSource> {
-  if (!serverEnv.DATABASE_INTEGRATION_URL) {
+  if (!apiEnv.DATABASE_INTEGRATION_URL) {
     throw new Error(
       "DATABASE_INTEGRATION_URL is required for integration tests",
     );
   }
-  const databaseUrl = serverEnv.DATABASE_INTEGRATION_URL;
+  const databaseUrl = apiEnv.DATABASE_INTEGRATION_URL;
 
   const targetDbName = new URL(databaseUrl).pathname.replace(/^\//, "");
 

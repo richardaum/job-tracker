@@ -5,16 +5,14 @@
 import { randomUUID } from "node:crypto";
 
 import { buildDataSourceOptions } from "@api/database/data-source-options";
-import {
-  IntegrateDraftIntoJobs1767800000000,
-  migrationsBeforeIntegrateDraftIntoJobs,
-} from "@api/database/migrations";
-import { serverEnv } from "@api/env/server";
+import { migrationsBeforeIntegrateDraftIntoJobs } from "@api/database/migrations";
+import { IntegrateDraftIntoJobs1767800000000 } from "@api/database/migrations/1767800000000-integrate-draft-into-jobs";
+import { apiEnv } from "@api/env/server";
 import type { QueryRunner } from "typeorm";
 import { DataSource } from "typeorm";
 import { beforeAll, describe, expect, it } from "vitest";
 
-const hasDb = !!serverEnv.DATABASE_INTEGRATION_URL;
+const hasDb = !!apiEnv.DATABASE_INTEGRATION_URL;
 
 const defaultTipTapDoc = '{"type":"doc","content":[{"type":"paragraph"}]}';
 
@@ -37,7 +35,7 @@ describe.skipIf(!hasDb)(
     let databaseUrl: string;
 
     beforeAll(() => {
-      databaseUrl = serverEnv.DATABASE_INTEGRATION_URL!;
+      databaseUrl = apiEnv.DATABASE_INTEGRATION_URL!;
     });
 
     async function bootstrapPreDraftMerge(): Promise<DataSource> {

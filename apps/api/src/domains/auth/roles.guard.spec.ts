@@ -8,8 +8,10 @@ import { describe, expect, it, vi } from "vitest";
 
 import { RolesGuard } from "./roles.guard";
 
-function makeContext(userId: string | undefined): ExecutionContext {
-  const request = { user: userId !== undefined ? { userId } : undefined };
+function makeContext(
+  user: { userId: string; role?: string } | undefined,
+): ExecutionContext {
+  const request = { user };
   const gqlContext = { req: request };
   const args = [{}, {}, gqlContext, {}];
 
@@ -24,7 +26,35 @@ function makeContext(userId: string | undefined): ExecutionContext {
 }
 
 describe("RolesGuard", () => {
-  it("allows when user role matches required role", async () => {
+  it("allows when user role matches required role (cached)", async () => {
+    const reflector = {
+      getAllAndOverride: vi.fn().mockReturnValue(["user"]),
+    } as unknown as Reflector;
+    const userService = { findById: vi.fn() } as unknown as UserService;
+    const guard = new RolesGuard(reflector, userService);
+    expect(
+      await guard.canActivate(
+        makeContext({ userId: "user-1", role: RoleEnum.User }),
+      ),
+    ).toBe(true);
+    expect(userService.findById).not.toHaveBeenCalled();
+  });
+
+  it("blocks when user role does not match required role (cached)", async () => {
+    const reflector = {
+      getAllAndOverride: vi.fn().mockReturnValue(["admin"]),
+    } as unknown as Reflector;
+    const userService = { findById: vi.fn() } as unknown as UserService;
+    const guard = new RolesGuard(reflector, userService);
+    expect(
+      await guard.canActivate(
+        makeContext({ userId: "user-1", role: RoleEnum.User }),
+      ),
+    ).toBe(false);
+    expect(userService.findById).not.toHaveBeenCalled();
+  });
+
+  it("falls back to DB when request.user has no role set", async () => {
     const reflector = {
       getAllAndOverride: vi.fn().mockReturnValue(["user"]),
     } as unknown as Reflector;
@@ -32,18 +62,10 @@ describe("RolesGuard", () => {
       findById: vi.fn().mockResolvedValue({ role: RoleEnum.User }),
     } as unknown as UserService;
     const guard = new RolesGuard(reflector, userService);
-    expect(await guard.canActivate(makeContext("user-1"))).toBe(true);
-  });
-
-  it("blocks when user role does not match required role", async () => {
-    const reflector = {
-      getAllAndOverride: vi.fn().mockReturnValue(["admin"]),
-    } as unknown as Reflector;
-    const userService = {
-      findById: vi.fn().mockResolvedValue({ role: RoleEnum.User }),
-    } as unknown as UserService;
-    const guard = new RolesGuard(reflector, userService);
-    expect(await guard.canActivate(makeContext("user-1"))).toBe(false);
+    expect(await guard.canActivate(makeContext({ userId: "user-1" }))).toBe(
+      true,
+    );
+    expect(userService.findById).toHaveBeenCalledWith("user-1");
   });
 
   it("allows when no roles metadata is set (public route)", async () => {

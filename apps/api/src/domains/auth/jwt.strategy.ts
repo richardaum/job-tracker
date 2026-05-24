@@ -1,8 +1,11 @@
-import { serverEnv } from "@api/env/server";
+import { jwtAccessSecrets } from "@api/env/server";
+import { tryRun } from "@job-tracker/try-run";
 import { Injectable } from "@nestjs/common";
 import { PassportStrategy } from "@nestjs/passport";
 import type { Request } from "express";
 import { ExtractJwt, Strategy } from "passport-jwt";
+
+import { resolveJwtVerificationSecret } from "./jwt-token.util";
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -13,11 +16,27 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         ExtractJwt.fromAuthHeaderAsBearerToken(),
       ]),
       ignoreExpiration: false,
-      secretOrKey: serverEnv.JWT_ACCESS_SECRET,
+      secretOrKeyProvider: (
+        _request: Request,
+        rawJwtToken: string,
+        done: (error: Error | null, secret?: string) => void,
+      ) => {
+        const [error, secret] = tryRun(() =>
+          resolveJwtVerificationSecret(rawJwtToken, jwtAccessSecrets),
+        );
+        if (error) {
+          done(error);
+          return;
+        }
+        done(null, secret);
+      },
     });
   }
 
-  validate(payload: { sub: string }): { userId: string } {
-    return { userId: payload.sub };
+  validate(payload: { sub: string; tv?: number }): {
+    userId: string;
+    tokenVersion: number;
+  } {
+    return { userId: payload.sub, tokenVersion: payload.tv ?? 0 };
   }
 }

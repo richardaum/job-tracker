@@ -3,8 +3,8 @@ import { join } from "node:path";
 
 import { defineConfig, devices } from "@playwright/test";
 
-import { clientEnv } from "./src/env/client";
-import { isCI } from "./src/env/server";
+import { e2eEnv } from "./src/env/e2e";
+import { isCI } from "./src/env/is-ci";
 
 function loadWorktreeWebPort(): string | undefined {
   const envPath = join(process.cwd(), ".env");
@@ -18,7 +18,7 @@ const ci = isCI();
 
 // Worktree: reuse PM2 web server (E2E_PORT = WEB_PORT).
 // Main checkout: E2E_PORT from clientEnv (default 3102).
-const PORT = loadWorktreeWebPort() ?? String(clientEnv.E2E_PORT);
+const PORT = loadWorktreeWebPort() ?? String(e2eEnv.E2E_PORT);
 const baseURL = `http://localhost:${PORT}`;
 
 export default defineConfig({
@@ -31,7 +31,7 @@ export default defineConfig({
   use: { baseURL, trace: "on-first-retry" },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
   webServer: {
-    command: `PORT=${PORT} pnpm dev`,
+    command: `PORT=${PORT} pnpm start`,
     url: baseURL,
     reuseExistingServer: !ci,
     timeout: 120 * 1000,

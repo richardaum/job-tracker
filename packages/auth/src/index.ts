@@ -5,11 +5,27 @@ import { tryRun } from "@job-tracker/try-run";
 
 type RefreshUrlProvider = () => string;
 
+export const AUTH_MUTATION_HEADER = "X-Auth-Action";
+export const AUTH_MUTATION_VALUE = "1";
+
+export function authMutationRequestInit(init: RequestInit = {}): RequestInit {
+  return {
+    ...init,
+    headers: {
+      ...(init.headers ?? {}),
+      [AUTH_MUTATION_HEADER]: AUTH_MUTATION_VALUE,
+    },
+  };
+}
+
 let refreshPromise: Promise<boolean> | null = null;
 
 async function refreshAccessToken(refreshUrl: string): Promise<boolean> {
   const [err, response] = await tryRun(
-    fetch(refreshUrl, { method: "POST", credentials: "include" }),
+    fetch(
+      refreshUrl,
+      authMutationRequestInit({ method: "POST", credentials: "include" }),
+    ),
   );
   if (err) {
     return false;

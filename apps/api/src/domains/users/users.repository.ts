@@ -84,4 +84,16 @@ export class UserRepository {
     const row = this.accounts(manager).create(data);
     return this.accounts(manager).save(row);
   }
+
+  async incrementTokenVersion(id: string): Promise<void> {
+    await this.usersRepo.increment({ id }, "tokenVersion", 1);
+  }
+
+  async setRefreshJti(id: string, jti: string | null): Promise<void> {
+    await this.usersRepo.update({ id }, { refreshJti: jti });
+  }
+
+  async setActive(id: string, active: boolean): Promise<void> {
+    await this.usersRepo.update({ id }, { active });
+  }
 }

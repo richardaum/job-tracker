@@ -3,13 +3,13 @@ import { JobEntity } from "@api/database/entities/job.entity";
 import { JobNoteEntity } from "@api/database/entities/job-note.entity";
 import { insertUserWithAuthAccount } from "@api/database/integration-test-user";
 import { createTestDataSource } from "@api/database/test-db";
-import { serverEnv } from "@api/env/server";
+import { apiEnv } from "@api/env/server";
 import type { DataSource } from "typeorm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { NoteRepository } from "./notes.repository";
 
-const hasDb = !!serverEnv.DATABASE_INTEGRATION_URL;
+const hasDb = !!apiEnv.DATABASE_INTEGRATION_URL;
 
 describe.skipIf(!hasDb)("NoteRepository (integration)", () => {
   let dataSource: DataSource;

@@ -4,11 +4,11 @@ import { insertUserWithAuthAccount } from "@api/database/integration-test-user";
 import { createTestDataSource } from "@api/database/test-db";
 import { SourceRunStatusEnum } from "@api/domains/sources/source-run-status.enum";
 import { SourcesRepository } from "@api/domains/sources/sources.repository";
-import { serverEnv } from "@api/env/server";
+import { apiEnv } from "@api/env/server";
 import type { DataSource } from "typeorm";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 
-const hasDb = !!serverEnv.DATABASE_INTEGRATION_URL;
+const hasDb = !!apiEnv.DATABASE_INTEGRATION_URL;
 
 describe.skipIf(!hasDb)("SourcesRepository (integration)", () => {
   let dataSource: DataSource;

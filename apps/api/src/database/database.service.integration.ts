@@ -1,11 +1,11 @@
 // integration
-import { serverEnv } from "@api/env/server";
+import { apiEnv } from "@api/env/server";
 import { DataSource } from "typeorm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { buildDataSourceOptions } from "./data-source-options";
 
-const hasDb = !!serverEnv.DATABASE_INTEGRATION_URL;
+const hasDb = !!apiEnv.DATABASE_INTEGRATION_URL;
 
 describe("PostgreSQL connection (integration)", () => {
   let dataSource: DataSource;
@@ -13,7 +13,7 @@ describe("PostgreSQL connection (integration)", () => {
   beforeAll(async () => {
     if (!hasDb) return;
     dataSource = new DataSource(
-      buildDataSourceOptions(serverEnv.DATABASE_INTEGRATION_URL!),
+      buildDataSourceOptions(apiEnv.DATABASE_INTEGRATION_URL!),
     );
     await dataSource.initialize();
   });

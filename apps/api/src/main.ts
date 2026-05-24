@@ -10,19 +10,22 @@ import cookieParser from "cookie-parser";
 import passport from "passport";
 
 import { AppModule } from "./app.module";
-import { serverEnv } from "./env/server";
+import { apiEnv } from "./env/server";
 
 setupFileLogger({ filename: "api.log" });
 
-Sentry.init({ dsn: serverEnv.SENTRY_DSN, tracesSampleRate: 1.0 });
+Sentry.init({ dsn: apiEnv.SENTRY_DSN, tracesSampleRate: 1.0 });
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  if (apiEnv.TRUST_PROXY_HOPS > 0) {
+    app.set("trust proxy", apiEnv.TRUST_PROXY_HOPS);
+  }
   app.use(cookieParser());
   app.use(passport.initialize());
   app.enableCors({ origin: true, credentials: true });
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
-  await app.listen(serverEnv.PORT, "0.0.0.0");
+  await app.listen(apiEnv.PORT, "0.0.0.0");
 }
 
 bootstrap();

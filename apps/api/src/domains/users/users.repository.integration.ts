@@ -1,16 +1,17 @@
 import { UserEntity } from "@api/database/entities/user.entity";
 import { UserAccountEntity } from "@api/database/entities/user-account.entity";
 import { createTestDataSource } from "@api/database/test-db";
-import { serverEnv } from "@api/env/server";
+import { apiEnv } from "@api/env/server";
 import type { DataSource } from "typeorm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
+import { ActiveUserCacheService } from "./active-user-cache.service";
 import { AuthProviderEnum } from "./auth-provider.enum";
 import { RoleEnum } from "./role.enum";
 import { UserRepository } from "./users.repository";
 import { UserService } from "./users.service";
 
-const hasDb = !!serverEnv.DATABASE_INTEGRATION_URL;
+const hasDb = !!apiEnv.DATABASE_INTEGRATION_URL;
 
 describe.skipIf(!hasDb)("UserRepository (integration)", () => {
   let dataSource: DataSource;
@@ -23,7 +24,7 @@ describe.skipIf(!hasDb)("UserRepository (integration)", () => {
       dataSource.getRepository(UserEntity),
       dataSource.getRepository(UserAccountEntity),
     );
-    service = new UserService(repo);
+    service = new UserService(repo, new ActiveUserCacheService());
   });
 
   afterAll(async () => {

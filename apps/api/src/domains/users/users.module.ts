@@ -4,6 +4,7 @@ import { UserAccountEntity } from "@api/database/entities/user-account.entity";
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 
+import { ActiveUserCacheService } from "./active-user-cache.service";
 import { UserTypeFieldsResolver } from "./user-type.fields.resolver";
 import { UserRepository } from "./users.repository";
 import { UserService } from "./users.service";
@@ -13,7 +14,12 @@ import { UserService } from "./users.service";
     DatabaseModule,
     TypeOrmModule.forFeature([UserEntity, UserAccountEntity]),
   ],
-  providers: [UserRepository, UserService, UserTypeFieldsResolver],
+  providers: [
+    ActiveUserCacheService,
+    UserRepository,
+    UserService,
+    UserTypeFieldsResolver,
+  ],
   exports: [UserService],
 })
 export class UsersModule {}

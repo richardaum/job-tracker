@@ -3,14 +3,14 @@ import { JobEntity } from "@api/database/entities/job.entity";
 import { insertUserWithAuthAccount } from "@api/database/integration-test-user";
 import { createTestDataSource } from "@api/database/test-db";
 import { AsyncMetadataStatusEnum } from "@api/domains/shared/async-metadata.type";
-import { serverEnv } from "@api/env/server";
+import { apiEnv } from "@api/env/server";
 import type { DataSource } from "typeorm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { JobAsyncMetadataRepository } from "./job-async-metadata.repository";
 import { JobsRepository } from "./jobs.repository";
 
-const hasDb = !!serverEnv.DATABASE_INTEGRATION_URL;
+const hasDb = !!apiEnv.DATABASE_INTEGRATION_URL;
 
 describe.skipIf(!hasDb)("Job async summary metadata (integration)", () => {
   let dataSource: DataSource;

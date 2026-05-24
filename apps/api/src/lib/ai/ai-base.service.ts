@@ -1,4 +1,4 @@
-import { serverEnv } from "@api/env/server";
+import { apiEnv } from "@api/env/server";
 import { tryRun } from "@job-tracker/try-run";
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { zodResponseFormat } from "openai/helpers/zod";
@@ -32,7 +32,7 @@ export class AiBaseService {
 
   async callAi(opts: CallAiOptions): Promise<unknown> {
     const client = this.openAIClient.getClient();
-    const model = opts.model ?? serverEnv.OPENAI_MODEL;
+    const model = opts.model ?? apiEnv.OPENAI_MODEL;
 
     switch (opts.responseFormat) {
       case "zod-response": {

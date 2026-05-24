@@ -24,6 +24,9 @@ const mockUser: User = {
   name: "Test User",
   avatarUrl: null,
   role: RoleEnum.User,
+  active: true,
+  tokenVersion: 0,
+  refreshJti: null,
   createdAt: new Date(),
   updatedAt: new Date(),
   accounts: [] as UserAccountEntity[],
@@ -31,8 +34,10 @@ const mockUser: User = {
 
 describe("AuthResolver (integration)", () => {
   let app: INestApplication;
+  let deactivateUser: ReturnType<typeof vi.fn>;
 
   beforeAll(async () => {
+    deactivateUser = vi.fn().mockResolvedValue(undefined);
     const moduleRef = await Test.createTestingModule({
       imports: [
         GraphQLModule.forRoot<ApolloDriverConfig>({
@@ -44,7 +49,10 @@ describe("AuthResolver (integration)", () => {
         AuthResolver,
         {
           provide: UserService,
-          useValue: { findById: vi.fn().mockResolvedValue(mockUser) },
+          useValue: {
+            findById: vi.fn().mockResolvedValue(mockUser),
+            deactivateUser,
+          },
         },
       ],
     })
@@ -92,5 +100,16 @@ describe("AuthResolver (integration)", () => {
 
     expect(res.body.errors).toBeDefined();
     expect(res.body.errors[0].extensions.code).toBe("UNAUTHENTICATED");
+  });
+
+  it("deactivateAccount deactivates the authenticated user", async () => {
+    const res = await request(app.getHttpServer())
+      .post("/graphql")
+      .set("Authorization", "Bearer mock-token")
+      .send({ query: "mutation { deactivateAccount }" });
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body.data.deactivateAccount).toBe(true);
+    expect(deactivateUser).toHaveBeenCalledWith(mockUser.id);
   });
 });

@@ -2,10 +2,6 @@ import "server-only";
 
 import { z } from "zod";
 
-export function isCI(): boolean {
-  return process.env.CI === "true";
-}
-
 const serverEnvSchema = z
   .object({
     NODE_ENV: z

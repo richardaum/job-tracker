@@ -1,5 +1,6 @@
 "use client";
 
+import { authMutationRequestInit } from "@job-tracker/auth";
 import { Button, cn, Text } from "@job-tracker/ui";
 import {
   BriefcaseIcon,
@@ -76,10 +77,10 @@ export function Sidebar({ open = false, onClose, user }: SidebarProps) {
   async function handleLogout() {
     setLoggingOut(true);
     try {
-      await fetch(`${API_URL}/auth/logout`, {
-        method: "POST",
-        credentials: "include",
-      });
+      await fetch(
+        `${API_URL}/auth/logout`,
+        authMutationRequestInit({ method: "POST", credentials: "include" }),
+      );
       await apolloClient.clearStore();
       onClose?.();
       router.replace("/login");

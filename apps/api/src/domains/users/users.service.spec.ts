@@ -1,7 +1,9 @@
 import { UserAccountEntity } from "@api/database/entities/user-account.entity";
+import { UnauthorizedException } from "@nestjs/common";
 import type { EntityManager } from "typeorm";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { ActiveUserCacheService } from "./active-user-cache.service";
 import { AuthProviderEnum } from "./auth-provider.enum";
 import { RoleEnum } from "./role.enum";
 import { UserRepository } from "./users.repository";
@@ -14,6 +16,9 @@ const mockUser: User = {
   name: "Test User",
   avatarUrl: "https://example.com/avatar.jpg",
   role: RoleEnum.User,
+  active: true,
+  tokenVersion: 0,
+  refreshJti: null,
   createdAt: new Date("2024-01-01"),
   updatedAt: new Date("2024-01-01"),
   accounts: [] as UserAccountEntity[],
@@ -36,8 +41,13 @@ describe("UserService", () => {
       saveUser: vi.fn(),
       insertUser: vi.fn(),
       insertAccount: vi.fn(),
+      findById: vi.fn(),
+      findByEmail: vi.fn(),
+      incrementTokenVersion: vi.fn(),
+      setRefreshJti: vi.fn(),
+      setActive: vi.fn(),
     } as unknown as UserRepository;
-    service = new UserService(repo);
+    service = new UserService(repo, new ActiveUserCacheService());
   });
 
   describe("findOrCreateFromGoogle", () => {
@@ -110,6 +120,83 @@ describe("UserService", () => {
         em,
       );
       expect(result).toBe(mockUser);
+    });
+  });
+
+  describe("incrementTokenVersion", () => {
+    it("delegates to UserRepository.incrementTokenVersion", async () => {
+      await service.incrementTokenVersion("uuid-1");
+      expect(repo.incrementTokenVersion).toHaveBeenCalledWith("uuid-1");
+    });
+
+    it("invalidates validateActiveUser cache", async () => {
+      vi.mocked(repo.findById).mockResolvedValue(mockUser);
+      await service.validateActiveUser("uuid-1", 0);
+      await service.incrementTokenVersion("uuid-1");
+      await service.validateActiveUser("uuid-1", 0);
+      expect(repo.findById).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  describe("setRefreshJti", () => {
+    it("delegates to UserRepository.setRefreshJti", async () => {
+      await service.setRefreshJti("uuid-1", "jti-123");
+      expect(repo.setRefreshJti).toHaveBeenCalledWith("uuid-1", "jti-123");
+    });
+  });
+
+  describe("validateActiveUser", () => {
+    it("returns user when active and tokenVersion matches", async () => {
+      vi.mocked(repo.findById).mockResolvedValue(mockUser);
+      const result = await service.validateActiveUser("uuid-1", 0);
+      expect(result).toBe(mockUser);
+    });
+
+    it("returns cached user without a second DB lookup", async () => {
+      vi.mocked(repo.findById).mockResolvedValue(mockUser);
+      await service.validateActiveUser("uuid-1", 0);
+      await service.validateActiveUser("uuid-1", 0);
+      expect(repo.findById).toHaveBeenCalledTimes(1);
+    });
+
+    it("throws UnauthorizedException when user not found", async () => {
+      vi.mocked(repo.findById).mockResolvedValue(null);
+      await expect(service.validateActiveUser("uuid-1", 0)).rejects.toThrow(
+        UnauthorizedException,
+      );
+    });
+
+    it("throws UnauthorizedException when user is inactive", async () => {
+      vi.mocked(repo.findById).mockResolvedValue({
+        ...mockUser,
+        active: false,
+      });
+      await expect(service.validateActiveUser("uuid-1", 0)).rejects.toThrow(
+        UnauthorizedException,
+      );
+    });
+
+    it("throws UnauthorizedException when tokenVersion mismatches", async () => {
+      vi.mocked(repo.findById).mockResolvedValue(mockUser);
+      await expect(service.validateActiveUser("uuid-1", 5)).rejects.toThrow(
+        UnauthorizedException,
+      );
+    });
+  });
+
+  describe("deactivateUser", () => {
+    it("sets user inactive and increments token version", async () => {
+      await service.deactivateUser("uuid-1");
+      expect(repo.setActive).toHaveBeenCalledWith("uuid-1", false);
+      expect(repo.incrementTokenVersion).toHaveBeenCalledWith("uuid-1");
+    });
+
+    it("invalidates validateActiveUser cache", async () => {
+      vi.mocked(repo.findById).mockResolvedValue(mockUser);
+      await service.validateActiveUser("uuid-1", 0);
+      await service.deactivateUser("uuid-1");
+      await service.validateActiveUser("uuid-1", 0);
+      expect(repo.findById).toHaveBeenCalledTimes(2);
     });
   });
 });
