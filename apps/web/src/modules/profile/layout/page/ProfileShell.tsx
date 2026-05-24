@@ -2,11 +2,11 @@
 
 import { cn, Heading, Tabs, TabsList, TabsTrigger } from "@job-tracker/ui";
 import { usePathname, useRouter } from "next/navigation";
-import { type ReactNode, useState } from "react";
+import { PortalSlotsProvider } from "react-portalslots";
 
 import { BackToLink } from "@/components/back-to-link";
 import { DetailPageHeader } from "@/components/detail-page-header";
-import { ProfileHeaderActionsContext } from "@/modules/profile/layout/hooks/useProfileHeaderActions";
+import { ProfileHeaderActions } from "@/modules/profile/layout/profile-header.slots";
 
 function deriveTab(pathname: string): string {
   if (pathname.startsWith("/profile/settings")) return "settings";
@@ -26,7 +26,6 @@ export function ProfileShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const currentTab = deriveTab(pathname);
-  const [headerActions, setHeaderActions] = useState<ReactNode | null>(null);
 
   function navigateToTab(value: string) {
     const route = TAB_ROUTES[value] ?? "/profile";
@@ -34,9 +33,15 @@ export function ProfileShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <ProfileHeaderActionsContext.Provider value={setHeaderActions}>
+    <PortalSlotsProvider>
       <div className={cn("flex h-full min-h-0 flex-col")}>
-        <DetailPageHeader trailing={headerActions ?? undefined}>
+        <DetailPageHeader
+          trailing={
+            <ProfileHeaderActions.Slot
+              className={cn("flex shrink-0 items-center gap-2 empty:hidden")}
+            />
+          }
+        >
           <BackToLink href="/jobs">Back to jobs</BackToLink>
           <Heading as="h1" size="2xl" className={cn("min-w-0")}>
             Profile
@@ -64,6 +69,6 @@ export function ProfileShell({ children }: { children: React.ReactNode }) {
           </div>
         </div>
       </div>
-    </ProfileHeaderActionsContext.Provider>
+    </PortalSlotsProvider>
   );
 }

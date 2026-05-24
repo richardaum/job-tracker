@@ -1,9 +1,8 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import React, { useState } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { ProfileHeaderActionsContext } from "@/modules/profile/layout/hooks/useProfileHeaderActions";
+import { ProfileHeaderSlotsTestWrapper } from "@/modules/profile/layout/test/profileHeaderSlotsTestWrapper";
 
 import ResumesTabPage from "./ResumesTabPage";
 
@@ -35,16 +34,6 @@ vi.mock("@/modules/jobs/shared/utils/apolloDeleteCache", () => ({
 vi.mock("@/modules/jobs/shared/hooks/useToastQueue", () => ({
   useToastQueue: () => ({ enqueueToast: enqueueToastMock }),
 }));
-
-function HeaderContextWrapper({ children }: { children: React.ReactNode }) {
-  const [actions, setActions] = useState<React.ReactNode | null>(null);
-  return (
-    <ProfileHeaderActionsContext.Provider value={setActions}>
-      <div>{actions}</div>
-      {children}
-    </ProfileHeaderActionsContext.Provider>
-  );
-}
 
 function mockResumes() {
   return {
@@ -80,11 +69,7 @@ describe("ResumesTabPage", () => {
 
   it("renders Add resume button via header portal", () => {
     useResumesQueryMock.mockReturnValue(mockResumes());
-    render(
-      <HeaderContextWrapper>
-        <ResumesTabPage />
-      </HeaderContextWrapper>,
-    );
+    render(<ResumesTabPage />, { wrapper: ProfileHeaderSlotsTestWrapper });
     expect(
       screen.getByRole("button", { name: /add resume/i }),
     ).toBeInTheDocument();
@@ -93,11 +78,7 @@ describe("ResumesTabPage", () => {
   it("clicking Add resume opens dialog", async () => {
     const user = userEvent.setup();
     useResumesQueryMock.mockReturnValue(mockEmpty());
-    render(
-      <HeaderContextWrapper>
-        <ResumesTabPage />
-      </HeaderContextWrapper>,
-    );
+    render(<ResumesTabPage />, { wrapper: ProfileHeaderSlotsTestWrapper });
 
     await user.click(screen.getByRole("button", { name: /add resume/i }));
     expect(screen.getByText("Add Resume")).toBeInTheDocument();
@@ -108,31 +89,19 @@ describe("ResumesTabPage", () => {
 
   it("shows empty state when no resumes", () => {
     useResumesQueryMock.mockReturnValue(mockEmpty());
-    render(
-      <HeaderContextWrapper>
-        <ResumesTabPage />
-      </HeaderContextWrapper>,
-    );
+    render(<ResumesTabPage />, { wrapper: ProfileHeaderSlotsTestWrapper });
     expect(screen.getByText("No resumes yet.")).toBeInTheDocument();
   });
 
   it("shows cards when resumes exist", () => {
     useResumesQueryMock.mockReturnValue(mockResumes());
-    render(
-      <HeaderContextWrapper>
-        <ResumesTabPage />
-      </HeaderContextWrapper>,
-    );
+    render(<ResumesTabPage />, { wrapper: ProfileHeaderSlotsTestWrapper });
     expect(screen.getByText("Software Engineer")).toBeInTheDocument();
   });
 
   it("shows loading skeleton on initial load", () => {
     useResumesQueryMock.mockReturnValue(mockLoading());
-    render(
-      <HeaderContextWrapper>
-        <ResumesTabPage />
-      </HeaderContextWrapper>,
-    );
+    render(<ResumesTabPage />, { wrapper: ProfileHeaderSlotsTestWrapper });
     expect(screen.queryByText("No resumes yet.")).not.toBeInTheDocument();
     expect(screen.queryByText("Software Engineer")).not.toBeInTheDocument();
   });

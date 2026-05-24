@@ -14,7 +14,7 @@ import {
 } from "@/gql/hooks";
 import { useToastQueue } from "@/modules/jobs/shared/hooks/useToastQueue";
 import { removeDeletedEntityFromListCache } from "@/modules/jobs/shared/utils/apolloDeleteCache";
-import { useSetProfileHeaderActions } from "@/modules/profile/layout/hooks/useProfileHeaderActions";
+import { ProfileHeaderActions } from "@/modules/profile/layout/profile-header.slots";
 import { AddResumeDialog } from "@/modules/resumes/list/components/AddResumeDialog";
 import ResumesList from "@/modules/resumes/list/components/ResumesList";
 
@@ -38,13 +38,6 @@ export default function ResumesTabPage() {
 
   const { enqueueToast } = useToastQueue();
   const [addDialogOpen, setAddDialogOpen] = useState(false);
-
-  useSetProfileHeaderActions(
-    <Button intent="primary" size="md" onClick={() => setAddDialogOpen(true)}>
-      <PlusIcon size={16} weight="bold" className={cn("mr-2")} />
-      Add resume
-    </Button>,
-  );
 
   const resumes = data?.resumes ?? [];
   const showInitialLoading = loading && !data;
@@ -75,6 +68,16 @@ export default function ResumesTabPage() {
 
   return (
     <div className={cn("flex min-h-0 flex-1 flex-col overflow-auto")}>
+      <ProfileHeaderActions>
+        <Button
+          intent="primary"
+          size="md"
+          onClick={() => setAddDialogOpen(true)}
+        >
+          <PlusIcon size={16} weight="bold" className={cn("mr-2")} />
+          Add resume
+        </Button>
+      </ProfileHeaderActions>
       <ResumesList
         resumes={resumes}
         loading={showInitialLoading}
