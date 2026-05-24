@@ -25,19 +25,19 @@ Canonical reference: **`.agents/rules/leanspec.md`**.
 
 Domain-specific rules modularized in `.agents/rules/`:
 
-| File                         | Domain                                                           |
-| ---------------------------- | ---------------------------------------------------------------- |
-| `docs-conventions.md`        | MDX format, naming, language rules                               |
-| `execution-workflow.md`      | Task lifecycle, rule lookup, post-task verification              |
-| `graphql-web.md`             | Codegen, view-models, list cache consistency                     |
-| `leanspec.md`                | LeanSpec structure, IDs, workflow                                |
-| `ops-docker-pm2.md`          | Docker build, PM2 lifecycle, error logs                          |
-| `repository-architecture.md` | App boundaries, NestJS, JSONB metadata, imports, env, migrations |
-| `typescript-react.md`        | TypeScript, React 19/Compiler, Nova, imports                     |
-| `validation.md`              | Lint, typecheck, tests, CI, fix:imports, dead code, pre-commit   |
-| `enum-patterns.md`           | Enum naming, creation, migrations, datafix scripts, case-safety  |
-| `worktree.md`                | Worktrees, subagent execution pipeline, reintegration            |
-| `web-ui.md`                  | Components, layout, patterns, mobile debug                       |
+| File                         | Domain                                                                              |
+| ---------------------------- | ----------------------------------------------------------------------------------- |
+| `docs-conventions.md`        | MDX format, naming, language rules                                                  |
+| `execution-workflow.md`      | Task lifecycle, rule lookup, post-task verification                                 |
+| `graphql-web.md`             | Codegen, view-models, list cache consistency                                        |
+| `leanspec.md`                | LeanSpec structure, IDs, workflow                                                   |
+| `ops-docker-pm2.md`          | Docker build, PM2 lifecycle, error logs                                             |
+| `repository-architecture.md` | App boundaries, NestJS, thin repositories, JSONB metadata, imports, env, migrations |
+| `typescript-react.md`        | TypeScript, React 19/Compiler, Nova, imports                                        |
+| `validation.md`              | Lint, typecheck, tests, CI, fix:imports, dead code, pre-commit                      |
+| `enum-patterns.md`           | Enum naming, creation, migrations, datafix scripts, case-safety                     |
+| `worktree.md`                | Worktrees, subagent execution pipeline, reintegration                               |
+| `web-ui.md`                  | Components, layout, patterns, mobile debug                                          |
 
 ### Keyword index
 
@@ -66,6 +66,7 @@ Search the keyword in `.agents/rules/` files. Matches are by section topic, not 
 | `useControllableState`                                                                                                                                                                                                | `web-ui.md`                                                                               |
 | `extraction`, `SRP`, `M.O.`                                                                                                                                                                                           | `web-ui.md`                                                                               |
 | `NestJS`, `AuthModule`, `@UseGuards`                                                                                                                                                                                  | `repository-architecture.md`                                                              |
+| `thin repository`, `repository`, find-or-create, upsert                                                                                                                                                               | `repository-architecture.md`                                                              |
 | `fieldMetadata`, `summaryMetadata`, `generationMetadata`                                                                                                                                                              | `repository-architecture.md`                                                              |
 | `migration`, `TypeORM`, schema change                                                                                                                                                                                 | `repository-architecture.md`                                                              |
 | `GraphQL`, `schema.gql`, codegen, `registerEnum`                                                                                                                                                                      | `graphql-web.md`                                                                          |
