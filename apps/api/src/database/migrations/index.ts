@@ -17,6 +17,9 @@ import { UseTimestamptzForRemainingEntities1767780000000 } from "./1767780000000
 import { IntegrateDraftIntoJobs1767800000000 } from "./1767800000000-integrate-draft-into-jobs";
 import { NullableJobCompanyId1767850000000 } from "./1767850000000-nullable-job-company-id";
 import { RemoveDraftPendingPlaceholderCompanies1767860000000 } from "./1767860000000-remove-draft-pending-placeholder-companies";
+import { UserSettings1767900000000 } from "./1767900000000-user-settings";
+import { UserAuthProvider1767950000000 } from "./1767950000000-user-auth-provider";
+import { UserAccounts1767960000000 } from "./1767960000000-user-accounts";
 
 export const migrations = [
   SquashedBaseline1767000000000,
@@ -38,6 +41,9 @@ export const migrations = [
   IntegrateDraftIntoJobs1767800000000,
   NullableJobCompanyId1767850000000,
   RemoveDraftPendingPlaceholderCompanies1767860000000,
+  UserSettings1767900000000,
+  UserAuthProvider1767950000000,
+  UserAccounts1767960000000,
 ];
 
 /** For migration tests — schema immediately before merging `draft_jobs` into `jobs`. */

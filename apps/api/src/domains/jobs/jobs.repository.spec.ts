@@ -309,7 +309,12 @@ describe("JobsRepository", () => {
         userId: "u1",
         title: "T",
         companyId: "c1",
-        salary: { minCents: 1_000_000, maxCents: 1_500_000, currency: "USD" },
+        salary: {
+          minCents: 1_000_000,
+          maxCents: 1_500_000,
+          currency: "USD",
+          period: null,
+        },
         sourceRunId: null,
       }),
     );

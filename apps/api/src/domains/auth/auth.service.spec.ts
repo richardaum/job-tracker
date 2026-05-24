@@ -1,5 +1,6 @@
 import "reflect-metadata";
 
+import { UserAccountEntity } from "@api/database/entities/user-account.entity";
 import { RoleEnum } from "@api/domains/users/role.enum";
 import type { User } from "@api/domains/users/users.schema";
 import { JwtService } from "@nestjs/jwt";
@@ -10,13 +11,13 @@ import { AuthService } from "./auth.service";
 
 const mockUser: User = {
   id: "user-123",
-  googleId: "google-456",
   email: "test@example.com",
   name: "Test User",
   avatarUrl: null,
   role: RoleEnum.User,
   createdAt: new Date(),
   updatedAt: new Date(),
+  accounts: [] as UserAccountEntity[],
 };
 
 describe("AuthService", () => {

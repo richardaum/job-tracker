@@ -1,10 +1,9 @@
 import { CompanyEntity } from "@api/database/entities/company.entity";
 import { JobEntity } from "@api/database/entities/job.entity";
 import { JobStageEventEntity } from "@api/database/entities/job-stage-event.entity";
-import { UserEntity } from "@api/database/entities/user.entity";
+import { insertUserWithAuthAccount } from "@api/database/integration-test-user";
 import { createTestDataSource } from "@api/database/test-db";
 import { CompanyRepository } from "@api/domains/companies/companies.repository";
-import { RoleEnum } from "@api/domains/users/role.enum";
 import { serverEnv } from "@api/env/server";
 import type { DataSource } from "typeorm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
@@ -34,16 +33,12 @@ describe.skipIf(!hasDb)("Jobs domain persistence (integration)", () => {
       dataSource.getRepository(JobStageEventEntity),
     );
 
-    const userRepo = dataSource.getRepository(UserEntity);
-    const user = await userRepo.save(
-      userRepo.create({
-        googleId: "google-app-repo-test",
-        email: "apprepo@example.com",
-        name: "App Repo User",
-        avatarUrl: null,
-        role: RoleEnum.User,
-      }),
-    );
+    const user = await insertUserWithAuthAccount(dataSource, {
+      providerAccountId: "google-app-repo-test",
+      email: "apprepo@example.com",
+      name: "App Repo User",
+      avatarUrl: null,
+    });
     userId = user.id;
   });
 
@@ -120,16 +115,12 @@ describe.skipIf(!hasDb)("Jobs domain persistence (integration)", () => {
   });
 
   it("findAllByUserId does not return other users' applications", async () => {
-    const userRepo = dataSource.getRepository(UserEntity);
-    const otherUser = await userRepo.save(
-      userRepo.create({
-        googleId: "google-other-user",
-        email: "other@example.com",
-        name: "Other User",
-        avatarUrl: null,
-        role: RoleEnum.User,
-      }),
-    );
+    const otherUser = await insertUserWithAuthAccount(dataSource, {
+      providerAccountId: "google-other-user",
+      email: "other@example.com",
+      name: "Other User",
+      avatarUrl: null,
+    });
 
     const otherCompany = await createTestCompany(otherUser.id, "Other Corp");
     await repo.create(otherUser.id, {

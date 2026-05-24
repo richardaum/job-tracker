@@ -3,6 +3,7 @@ import { CompanyDescriptionService } from "@api/domains/companies/ai/company-des
 import { CompanyService } from "@api/domains/companies/companies.service";
 import { DraftExtractionService } from "@api/domains/jobs/ai/draft-extraction.service";
 import { DraftExtractionNormalizationService } from "@api/domains/jobs/ai/draft-extraction-normalization.service";
+import { SettingsService } from "@api/domains/settings/settings.service";
 import { AsyncMetadataStatusEnum } from "@api/domains/shared/async-metadata.type";
 import { LocationInferenceService } from "@api/lib/ai";
 import { sanitizeCapturedHtml } from "@job-tracker/html-sanitize";
@@ -25,7 +26,6 @@ import {
   JobUpdated,
 } from "./job.events";
 import { JobAsyncMetadataRepository } from "./job-async-metadata.repository";
-import { APPLICATION_DUPLICATE_PAIRING_WINDOW_MS } from "./job-duplicate.constants";
 import { JobEventBus } from "./job-event.bus";
 import { JobFillPersistence } from "./job-fill.persistence";
 import { ApplicationQuickFilterEnum } from "./job-quick-filter.enum";
@@ -108,6 +108,7 @@ export class JobsService {
     private readonly draftExtractionNormalizationService: DraftExtractionNormalizationService,
     private readonly locationInferenceService: LocationInferenceService,
     private readonly eventBus: JobEventBus,
+    private readonly settings: SettingsService,
   ) {}
 
   async findAll(
@@ -313,7 +314,9 @@ export class JobsService {
 
     const job = await this.repo.create(userId, repoDto);
 
-    const duplicateLookbackMs = APPLICATION_DUPLICATE_PAIRING_WINDOW_MS;
+    const userSettings = await this.settings.getSettings(userId);
+    const duplicateLookbackMs =
+      userSettings.duplicateWindowDays * 24 * 60 * 60 * 1000;
     const referenceTime = new Date();
     const isDuplicate =
       await this.jobsListQuery.hasRecentDuplicateSameRoleAndCompany(

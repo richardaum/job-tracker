@@ -3,20 +3,25 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   PrimaryColumn,
   UpdateDateColumn,
 } from "typeorm";
+
+import { UserAccountEntity } from "./user-account.entity";
 
 @Entity({ name: "users" })
 export class UserEntity {
   @PrimaryColumn({ type: "text" })
   id!: string;
 
-  @Column({ name: "google_id", type: "text", unique: true })
-  googleId!: string;
-
   @Column({ type: "text", unique: true })
   email!: string;
+
+  @OneToMany(() => UserAccountEntity, (account) => account.user, {
+    cascade: false,
+  })
+  accounts!: UserAccountEntity[];
 
   @Column({ type: "text" })
   name!: string;

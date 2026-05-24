@@ -4,6 +4,7 @@ import { CompanyDescriptionService } from "@api/domains/companies/ai/company-des
 import { CompanyService } from "@api/domains/companies/companies.service";
 import { DraftExtractionService } from "@api/domains/jobs/ai/draft-extraction.service";
 import { DraftExtractionNormalizationService } from "@api/domains/jobs/ai/draft-extraction-normalization.service";
+import { SettingsService } from "@api/domains/settings/settings.service";
 import { AsyncMetadataStatusEnum } from "@api/domains/shared/async-metadata.type";
 import { LocationInferenceService } from "@api/lib/ai";
 import { BadRequestException, NotFoundException } from "@nestjs/common";
@@ -91,6 +92,7 @@ describe("JobsService", () => {
   let draftExtractionService: DraftExtractionService;
   let draftExtractionNormalizationService: DraftExtractionNormalizationService;
   let locationInferenceService: LocationInferenceService;
+  let settingsService: SettingsService;
   let jobEventBusEmit: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
@@ -151,6 +153,11 @@ describe("JobsService", () => {
       inferWorkRegion: vi.fn(),
     } as unknown as LocationInferenceService;
 
+    settingsService = {
+      getSettings: vi.fn().mockResolvedValue({ duplicateWindowDays: 30 }),
+      updateSettings: vi.fn(),
+    } as unknown as SettingsService;
+
     jobEventBusEmit = vi.fn();
 
     const eventBus = {
@@ -173,6 +180,7 @@ describe("JobsService", () => {
       draftExtractionNormalizationService,
       locationInferenceService,
       eventBus,
+      settingsService,
     );
   });
 
@@ -854,6 +862,45 @@ describe("JobsService", () => {
         reason: null,
         scheduledAt: null,
       },
+    );
+  });
+
+  it("create passes duplicate window ms computed from settings", async () => {
+    vi.mocked(settingsService.getSettings).mockResolvedValue({
+      duplicateWindowDays: 7,
+    } as never);
+    const app = makeJob();
+    vi.mocked(companyService.findOrCreateByName).mockResolvedValue(co(app));
+    vi.mocked(repo.create).mockResolvedValue(app);
+    vi.mocked(repo.findOneByIdAndUserId).mockResolvedValue(app);
+    vi.mocked(
+      jobsListQuery.hasRecentDuplicateSameRoleAndCompany,
+    ).mockResolvedValue(false);
+    vi.mocked(stageEventsRepo.createStageEvent).mockResolvedValue(
+      makeEvent({
+        toStage: ApplicationStageEnum.NEW,
+        source: StageEventSourceEnum.System,
+      }),
+    );
+
+    await service.create("user-1", {
+      title: "Engineer",
+      company: "Acme",
+      description: JSON.stringify({
+        type: "doc",
+        content: [{ type: "paragraph", content: [] }],
+      }),
+    });
+
+    expect(
+      jobsListQuery.hasRecentDuplicateSameRoleAndCompany,
+    ).toHaveBeenCalledWith(
+      "user-1",
+      app.id,
+      co(app).id,
+      "Engineer",
+      expect.any(Date),
+      604800000,
     );
   });
 

@@ -10,6 +10,8 @@ import { ResumeEntity } from "./entities/resume.entity";
 import { SourceRunEntity } from "./entities/source-run.entity";
 import { SourceTemplateEntity } from "./entities/source-template.entity";
 import { UserEntity } from "./entities/user.entity";
+import { UserAccountEntity } from "./entities/user-account.entity";
+import { UserSettingEntity } from "./entities/user-setting.entity";
 import { WorkPreferencesEntity } from "./entities/work-preferences.entity";
 import { migrations } from "./migrations";
 import { SnakeCaseNamingStrategy } from "./naming-strategy";
@@ -17,6 +19,7 @@ import { UuidGenerateSubscriber } from "./subscribers/uuid-generate.subscriber";
 
 export const apiEntities = [
   UserEntity,
+  UserAccountEntity,
   JobEntity,
   JobStageEventEntity,
   JobNoteEntity,
@@ -27,6 +30,7 @@ export const apiEntities = [
   ExchangeRateEntity,
   MatchAnalysisEntity,
   WorkPreferencesEntity,
+  UserSettingEntity,
 ];
 
 export const apiSubscribers = [UuidGenerateSubscriber];

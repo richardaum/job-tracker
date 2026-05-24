@@ -20,6 +20,7 @@ import { JobsModule } from "./domains/jobs/jobs.module";
 import { MatchAnalysisModule } from "./domains/match-analysis/match-analysis.module";
 import { NotesModule } from "./domains/notes/notes.module";
 import { ResumesModule } from "./domains/resumes/resumes.module";
+import { SettingsModule } from "./domains/settings/settings.module";
 import { SourcesModule } from "./domains/sources/sources.module";
 import { WorkPreferencesModule } from "./domains/work-preferences/work-preferences.module";
 import { graphqlFormatError } from "./graphql/graphql-format-error";
@@ -35,6 +36,7 @@ import { GraphqlSseMiddleware } from "./graphql/graphql-sse.middleware";
     SourcesModule,
     NotesModule,
     ResumesModule,
+    SettingsModule,
     WorkPreferencesModule,
     MatchAnalysisModule,
     AiModule,

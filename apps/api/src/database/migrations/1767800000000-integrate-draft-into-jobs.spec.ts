@@ -24,17 +24,15 @@ describe("IntegrateDraftIntoJobs1767800000000", () => {
   });
 
   it("is ordered last among registered migrations so the timestamp stays monotonic", () => {
-    expect(migrations[migrations.length - 1]).toBe(
-      IntegrateDraftIntoJobs1767800000000,
-    );
+    const latestCtor = migrations[migrations.length - 1]!;
 
     const latest = migrationTimestamp(
-      IntegrateDraftIntoJobs1767800000000 as unknown as { name: string },
+      latestCtor as unknown as { name: string },
     );
 
     let maxPrior = BigInt(0);
     for (const Ctor of migrations) {
-      if (Ctor === IntegrateDraftIntoJobs1767800000000) {
+      if (Ctor === latestCtor) {
         break;
       }
       const t = migrationTimestamp(Ctor as unknown as { name: string });

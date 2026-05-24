@@ -6,6 +6,7 @@ import { JobStageEventEntity } from "@api/database/entities/job-stage-event.enti
 import { SourceRunEntity } from "@api/database/entities/source-run.entity";
 import { AuthModule } from "@api/domains/auth/auth.module";
 import { CompaniesModule } from "@api/domains/companies/companies.module";
+import { SettingsModule } from "@api/domains/settings/settings.module";
 import { LibAiModule } from "@api/lib/ai";
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
@@ -40,6 +41,7 @@ import { TagsModule } from "./tags/tags.module";
     ]),
     AuthModule,
     CompaniesModule,
+    SettingsModule,
     LibAiModule,
     SalaryModule,
     TagsModule,

@@ -80,10 +80,17 @@ describe.skipIf(!hasDb)(
 
         await ds.query(
           `
-          INSERT INTO users (id, google_id, email, name, avatar_url, role, created_at, updated_at)
-          VALUES ($1, $2, $3, $4, NULL, 'user', now(), now())
+          INSERT INTO users (id, email, name, avatar_url, role, created_at, updated_at)
+          VALUES ($1, $2, $3, NULL, 'user', now(), now())
         `,
-          [userId, `g-${userId}`, `${userId}@example.com`, "Migration User"],
+          [userId, `${userId}@example.com`, "Migration User"],
+        );
+        await ds.query(
+          `
+          INSERT INTO user_accounts (id, user_id, provider_name, provider_account_id)
+          VALUES (gen_random_uuid()::text, $1, 'GOOGLE', $2)
+        `,
+          [userId, `g-${userId}`],
         );
 
         await ds.query(
@@ -200,10 +207,17 @@ describe.skipIf(!hasDb)(
 
         await ds.query(
           `
-          INSERT INTO users (id, google_id, email, name, avatar_url, role, created_at, updated_at)
-          VALUES ($1, $2, $3, $4, NULL, 'user', now(), now())
+          INSERT INTO users (id, email, name, avatar_url, role, created_at, updated_at)
+          VALUES ($1, $2, $3, NULL, 'user', now(), now())
         `,
-          [userId, `g-${userId}`, `${userId}@example.com`, "Draft-only User"],
+          [userId, `${userId}@example.com`, "Draft-only User"],
+        );
+        await ds.query(
+          `
+          INSERT INTO user_accounts (id, user_id, provider_name, provider_account_id)
+          VALUES (gen_random_uuid()::text, $1, 'GOOGLE', $2)
+        `,
+          [userId, `g-${userId}`],
         );
 
         await ds.query(
@@ -279,10 +293,17 @@ describe.skipIf(!hasDb)(
 
         await ds.query(
           `
-          INSERT INTO users (id, google_id, email, name, avatar_url, role, created_at, updated_at)
-          VALUES ($1, $2, $3, $4, NULL, 'user', now(), now())
+          INSERT INTO users (id, email, name, avatar_url, role, created_at, updated_at)
+          VALUES ($1, $2, $3, NULL, 'user', now(), now())
         `,
-          [userId, `g-${userId}`, `${userId}@example.com`, "Empty-draft User"],
+          [userId, `${userId}@example.com`, "Empty-draft User"],
+        );
+        await ds.query(
+          `
+          INSERT INTO user_accounts (id, user_id, provider_name, provider_account_id)
+          VALUES (gen_random_uuid()::text, $1, 'GOOGLE', $2)
+        `,
+          [userId, `g-${userId}`],
         );
 
         await ds.query(
@@ -317,10 +338,17 @@ describe.skipIf(!hasDb)(
 
         await ds.query(
           `
-          INSERT INTO users (id, google_id, email, name, avatar_url, role, created_at, updated_at)
-          VALUES ($1, $2, $3, $4, NULL, 'user', now(), now())
+          INSERT INTO users (id, email, name, avatar_url, role, created_at, updated_at)
+          VALUES ($1, $2, $3, NULL, 'user', now(), now())
         `,
-          [userId, `g-${userId}`, `${userId}@example.com`, "Rollback User"],
+          [userId, `${userId}@example.com`, "Rollback User"],
+        );
+        await ds.query(
+          `
+          INSERT INTO user_accounts (id, user_id, provider_name, provider_account_id)
+          VALUES (gen_random_uuid()::text, $1, 'GOOGLE', $2)
+        `,
+          [userId, `g-${userId}`],
         );
 
         await ds.query(
