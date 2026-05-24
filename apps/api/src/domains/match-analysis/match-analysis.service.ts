@@ -20,7 +20,6 @@ import {
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 
-import { FitSourceEnum } from "./fit-source.enum";
 import { resolveJobPostingPlainText } from "./job-posting-plain-text.util";
 import {
   MatchAnalysisRequested,
@@ -30,6 +29,7 @@ import { MatchAnalysisRepository } from "./match-analysis.repository";
 import { MatchAnalysis } from "./match-analysis.schema";
 import { MatchAnalysisAiService } from "./match-analysis-ai.service";
 import { MatchAnalysisEventBus } from "./match-analysis-event.bus";
+import { MatchSourceEnum } from "./match-source.enum";
 import { computeScore } from "./scoring/scoring";
 
 @Injectable()
@@ -237,7 +237,7 @@ export class MatchAnalysisService implements OnModuleInit {
         ...resumeMatchItems.map(
           (i): MatchItem => ({
             requirement: i.requirement,
-            source: FitSourceEnum.Resume,
+            source: MatchSourceEnum.Resume,
             type: i.type as RequirementTypeEnum,
             verdict: i.verdict,
             jdQuote: i.jdQuote,
@@ -249,7 +249,7 @@ export class MatchAnalysisService implements OnModuleInit {
           const original = preferenceItems[index];
           return {
             requirement: i.requirement,
-            source: FitSourceEnum.Preference,
+            source: MatchSourceEnum.Preference,
             weight: original?.weight,
             type: i.type as RequirementTypeEnum,
             verdict: i.verdict,

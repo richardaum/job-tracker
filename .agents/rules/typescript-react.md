@@ -37,10 +37,10 @@ Avoid using `as` (type assertions / casting) to work around type mismatches. Pre
 
 ```ts
 // ✗ BAD — hides the mismatch, causes runtime errors, breaks refactoring
-verdict: i.verdict as FitVerdictEnum,
+verdict: i.verdict as MatchVerdictEnum,
 
 // ✓ GOOD — fix the zod schema + AI prompt so output type matches enum
-verdict: z.nativeEnum(FitVerdictEnum),
+verdict: z.nativeEnum(MatchVerdictEnum),
 ```
 
 - Avoid unnecessary `useMemo` and `useCallback`. Prefer plain `const` derivations and direct closures. Add memoization only for expensive work, documented reference-stability contracts, or lint/compiler requirements.

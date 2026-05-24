@@ -17,6 +17,10 @@ Scripts: see `scripts` in root `package.json`.
 
 Turbo: `test` and `typecheck` depend on `^build`; `dev` persistent (no cache).
 
+## Generated files
+
+Never hand-edit generated artifacts. Change the source and regenerate with the appropriate tool (e.g. PM2 restart for `schema.gql`, `pnpm --filter @job-tracker/web run codegen` for `apps/web/src/gql/`, `pnpm leanspec:sync-spec-indices` for spec indices).
+
 ## LeanSpec (`specs/`)
 
 Canonical reference: **`.agents/rules/leanspec.md`**.
@@ -69,6 +73,7 @@ Search the keyword in `.agents/rules/` files. Matches are by section topic, not 
 | `thin repository`, `repository`, find-or-create, upsert                                                                                                                                                               | `repository-architecture.md`                                                              |
 | `fieldMetadata`, `summaryMetadata`, `generationMetadata`                                                                                                                                                              | `repository-architecture.md`                                                              |
 | `migration`, `TypeORM`, schema change                                                                                                                                                                                 | `repository-architecture.md`                                                              |
+| `generated files`, `hand-edit`, `regenerate`                                                                                                                                                                          | `AGENTS.md` (Generated files), `graphql-web.md`                                           |
 | `GraphQL`, `schema.gql`, codegen, `registerEnum`                                                                                                                                                                      | `graphql-web.md`                                                                          |
 | `enum`, `@Field`, TypeGraphQL enum                                                                                                                                                                                    | `graphql-web.md`                                                                          |
 | `enum creation`, `datafix`, `JSONB enum`, `migration enum`                                                                                                                                                            | `enum-patterns.md`                                                                        |

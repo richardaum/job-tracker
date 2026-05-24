@@ -64,6 +64,20 @@ export function DropdownMenuItem({
   );
 }
 
+export function DropdownMenuGroup({ children }: { children: React.ReactNode }) {
+  return <RadixDropdownMenu.Group>{children}</RadixDropdownMenu.Group>;
+}
+
+export function DropdownMenuLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <RadixDropdownMenu.Label
+      className={cn("px-2 py-1.5 text-xs text-text-secondary")}
+    >
+      {children}
+    </RadixDropdownMenu.Label>
+  );
+}
+
 export function DropdownMenuSeparator() {
   return (
     <RadixDropdownMenu.Separator className={cn("my-1 h-px bg-border-subtle")} />

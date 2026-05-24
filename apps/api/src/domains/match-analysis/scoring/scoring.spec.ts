@@ -3,8 +3,8 @@ import {
   RequirementTypeEnum,
 } from "@api/database/entities/match-analysis.entity";
 import { FitClassificationEnum } from "@api/domains/match-analysis/fit-classification.enum";
-import { FitSourceEnum } from "@api/domains/match-analysis/fit-source.enum";
-import { FitVerdictEnum } from "@api/domains/match-analysis/fit-verdict.enum";
+import { MatchSourceEnum } from "@api/domains/match-analysis/match-source.enum";
+import { MatchVerdictEnum } from "@api/domains/match-analysis/match-verdict.enum";
 import { describe, expect, it } from "vitest";
 
 import { computeScore } from "./scoring";
@@ -12,9 +12,9 @@ import { computeScore } from "./scoring";
 function resumeFit(overrides?: Partial<MatchItem>): MatchItem {
   return {
     requirement: "test",
-    source: FitSourceEnum.Resume,
+    source: MatchSourceEnum.Resume,
     type: RequirementTypeEnum.NiceToHave,
-    verdict: FitVerdictEnum.Fit,
+    verdict: MatchVerdictEnum.Fit,
     jdQuote: "JD says X",
     sourceQuotes: ["Resume says X"],
     ...overrides,
@@ -28,7 +28,7 @@ function mustHaveFit(overrides?: Partial<MatchItem>): MatchItem {
 function mustHaveGap(overrides?: Partial<MatchItem>): MatchItem {
   return resumeFit({
     type: RequirementTypeEnum.MustHave,
-    verdict: FitVerdictEnum.Gap,
+    verdict: MatchVerdictEnum.Gap,
     sourceQuotes: [],
     ...overrides,
   });
@@ -36,7 +36,7 @@ function mustHaveGap(overrides?: Partial<MatchItem>): MatchItem {
 
 function niceToHaveGap(overrides?: Partial<MatchItem>): MatchItem {
   return resumeFit({
-    verdict: FitVerdictEnum.Gap,
+    verdict: MatchVerdictEnum.Gap,
     sourceQuotes: [],
     ...overrides,
   });
@@ -47,14 +47,18 @@ function softSkillFit(overrides?: Partial<MatchItem>): MatchItem {
 }
 
 function resumeUnclear(overrides?: Partial<MatchItem>): MatchItem {
-  return resumeFit({ verdict: FitVerdictEnum.Unclear, ...overrides });
+  return resumeFit({ verdict: MatchVerdictEnum.Unclear, ...overrides });
 }
 
 function prefFit(
   weight: "high" | "low",
   overrides?: Partial<MatchItem>,
 ): MatchItem {
-  return resumeFit({ source: FitSourceEnum.Preference, weight, ...overrides });
+  return resumeFit({
+    source: MatchSourceEnum.Preference,
+    weight,
+    ...overrides,
+  });
 }
 
 describe("computeScore", () => {

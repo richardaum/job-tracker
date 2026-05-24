@@ -19,6 +19,7 @@
     "@graphql-typed-document-node/core": "^3.2.0",
     "@job-tracker/auth": "workspace:*",
     "@job-tracker/html-sanitize": "workspace:*",
+    "@job-tracker/react-slots": "workspace:*",
     "@job-tracker/tiptap": "workspace:*",
     "@job-tracker/try-run": "workspace:*",
     "@job-tracker/ui": "workspace:*",

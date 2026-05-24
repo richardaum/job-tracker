@@ -1,12 +1,37 @@
 #!/usr/bin/env node
 
-import { join } from "node:path";
+import { spawnSync } from "node:child_process";
+import { existsSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 
-import yargs from "yargs";
+function findRepoRoot(from: string): string {
+  let dir = dirname(fileURLToPath(from));
+  while (true) {
+    if (existsSync(join(dir, "pnpm-workspace.yaml"))) return dir;
+    const parent = dirname(dir);
+    if (parent === dir) throw new Error("pnpm-workspace.yaml not found");
+    dir = parent;
+  }
+}
 
-import { addWorktreeDBeaverConnection } from "./dbeaver.ts";
-import { worktreeEnv } from "./env.ts";
-import {
+const repoRoot = findRepoRoot(import.meta.url);
+
+if (!existsSync(join(repoRoot, "node_modules"))) {
+  console.log("[worktree:setup] node_modules missing, running pnpm install...");
+  const result = spawnSync("pnpm", ["install"], {
+    cwd: repoRoot,
+    stdio: "inherit",
+  });
+  if (result.status !== 0) {
+    process.exit(result.status ?? 1);
+  }
+}
+
+const { default: yargs } = await import("yargs");
+const { addWorktreeDBeaverConnection } = await import("./dbeaver.ts");
+const { worktreeEnv } = await import("./env.ts");
+const {
   addWorktreeToWorkspace,
   assertGitWorktree,
   buildDestinationTestDatabaseUrl,
@@ -23,13 +48,10 @@ import {
   runWorktreePostSetup,
   testDbNameForSlug,
   WORKTREE_SETUP_TAG,
-  worktreeFail,
   writeWorktreeAppEnvs,
-} from "./lib.ts";
-import { resolveRepoRoot } from "./repo-root.ts";
+} = await import("./lib.ts");
 
 const tag = WORKTREE_SETUP_TAG;
-const root = resolveRepoRoot(import.meta.url);
 
 const raw = process.argv.slice(2);
 const scriptIdx = raw.findIndex((a) => !a.startsWith("-") || a === "--");
@@ -82,11 +104,6 @@ const argv = await yargs(userArgs)
     description:
       "Open web app in the default browser (default: same as --verify)",
   })
-  .option("source-db", {
-    type: "string",
-    description:
-      "Database to clone (default: WORKTREE_SOURCE_DB from worktreeEnv)",
-  })
   .strict()
   .check((args) => {
     if (args.forceDbeaver && !args.dbeaver) {
@@ -96,23 +113,22 @@ const argv = await yargs(userArgs)
   })
   .parse();
 
-assertGitWorktree(root, tag);
-const worktreeRoot = requireWorktreeRoot(root, tag);
-const slug = requireValidSlug(root, tag);
+assertGitWorktree(repoRoot, tag);
+const worktreeRoot = requireWorktreeRoot(repoRoot, tag);
+const slug = requireValidSlug(repoRoot, tag);
 
-const sourceDb = argv.sourceDb ?? worktreeEnv.WORKTREE_SOURCE_DB;
+const sourceDb = worktreeEnv.WORKTREE_SOURCE_DB;
 const open = argv.open ?? argv.verify;
 if (!sourceDb) {
-  worktreeFail(
-    tag,
-    "WORKTREE_SOURCE_DB is required.\n" +
+  console.error(
+    `${tag} WORKTREE_SOURCE_DB is required.\n` +
       "  export WORKTREE_SOURCE_DB=job_tracker\n" +
-      "  pnpm worktree:setup\n" +
-      "Or: pnpm worktree:setup -- --source-db job_tracker",
+      "  pnpm worktree:setup",
   );
+  process.exit(1);
 }
 
-const mainRoot = requireMainWorktreeRoot(root, tag);
+const mainRoot = requireMainWorktreeRoot(repoRoot, tag);
 const { databaseUrl, destDb } = loadMainApiEnvForWorktree(mainRoot, slug, tag);
 
 if (argv.dryRun) {
@@ -190,7 +206,7 @@ if (argv.dryRun) {
 
   runWorktreePostSetup({
     tag,
-    repoRoot: root,
+    repoRoot,
     ports: allocatedPorts,
     install: argv.install,
     migrate: argv.migrate,

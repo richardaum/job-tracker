@@ -6,7 +6,7 @@ import {
   MatchAnalysisEntity,
   type MatchItem,
 } from "@api/database/entities/match-analysis.entity";
-import { FitSourceEnum } from "@api/domains/match-analysis/fit-source.enum";
+import { MatchVerdictEnum } from "@api/domains/match-analysis/match-verdict.enum";
 import { tryRun } from "@job-tracker/try-run";
 import { Module } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
@@ -23,17 +23,18 @@ import { EntityManager } from "typeorm";
 })
 class ScriptModule {}
 
-function normalizeSource(
-  source: string | null | undefined,
-): FitSourceEnum | undefined {
-  if (!source) return undefined;
+function normalizeVerdict(
+  verdict: string | null | undefined,
+): MatchVerdictEnum | undefined {
+  if (!verdict) return undefined;
   const capitalized =
-    source.charAt(0).toUpperCase() + source.slice(1).toLowerCase();
+    verdict.charAt(0).toUpperCase() + verdict.slice(1).toLowerCase();
   if (
-    capitalized === FitSourceEnum.Resume ||
-    capitalized === FitSourceEnum.Preference
+    capitalized === MatchVerdictEnum.Fit ||
+    capitalized === MatchVerdictEnum.Gap ||
+    capitalized === MatchVerdictEnum.Unclear
   ) {
-    return capitalized as FitSourceEnum;
+    return capitalized as MatchVerdictEnum;
   }
   return undefined;
 }
@@ -49,32 +50,32 @@ async function main() {
   const prefix = dryRun ? "[DRY-RUN] " : "";
 
   process.stdout.write(
-    `\n${prefix}Fixing fit_analysis items -> source (lower -> UPPER)...\n`,
+    `\n${prefix}Fixing match_analysis items -> verdict (lower -> UPPER)...\n`,
   );
   const fitRepo = em.getRepository(MatchAnalysisEntity);
   const allFit = await fitRepo.find();
-  const fixSource = allFit.filter((e) =>
+  const fixVerdict = allFit.filter((e) =>
     e.items?.some(
       (i: MatchItem) =>
-        i.source &&
-        i.source !==
-          i.source.charAt(0).toUpperCase() + i.source.slice(1).toLowerCase(),
+        i.verdict &&
+        i.verdict !==
+          i.verdict.charAt(0).toUpperCase() + i.verdict.slice(1).toLowerCase(),
     ),
   );
 
-  if (fixSource.length === 0) {
+  if (fixVerdict.length === 0) {
     process.stdout.write("  ✓ none to fix\n");
   } else if (dryRun) {
-    process.stdout.write(`  ✓ ${fixSource.length} would be fixed\n`);
+    process.stdout.write(`  ✓ ${fixVerdict.length} would be fixed\n`);
   } else {
     let ok = 0;
     let fail = 0;
-    for (const e of fixSource) {
+    for (const e of fixVerdict) {
       e.items = e.items.map((i: MatchItem) => ({
         ...i,
-        source: i.source
-          ? (normalizeSource(i.source) as MatchItem["source"])
-          : i.source,
+        verdict: i.verdict
+          ? (normalizeVerdict(i.verdict) as MatchItem["verdict"])
+          : i.verdict,
       }));
       const [err] = await tryRun(fitRepo.save(e));
       if (err) {

@@ -157,17 +157,6 @@ export enum FitClassification {
   Positive = "Positive",
 }
 
-export enum FitSource {
-  Preference = "Preference",
-  Resume = "Resume",
-}
-
-export enum FitVerdict {
-  Fit = "Fit",
-  Gap = "Gap",
-  Unclear = "Unclear",
-}
-
 export type GenerateMatchInput = {
   jobId: Scalars["ID"]["input"];
   resumeId: Scalars["ID"]["input"];
@@ -256,13 +245,24 @@ export type MatchItemType = {
   __typename?: "MatchItemType";
   jdQuote: Scalars["String"]["output"];
   requirement: Scalars["String"]["output"];
-  source: FitSource;
+  source: MatchSource;
   sourceQuotes: Array<Scalars["String"]["output"]>;
   suggestion?: Maybe<Scalars["String"]["output"]>;
   type: RequirementType;
-  verdict: FitVerdict;
+  verdict: MatchVerdict;
   weight?: Maybe<Scalars["String"]["output"]>;
 };
+
+export enum MatchSource {
+  Preference = "Preference",
+  Resume = "Resume",
+}
+
+export enum MatchVerdict {
+  Fit = "Fit",
+  Gap = "Gap",
+  Unclear = "Unclear",
+}
 
 export type Mutation = {
   __typename?: "Mutation";
@@ -1288,10 +1288,10 @@ export type MatchQuery = {
     items: Array<{
       __typename?: "MatchItemType";
       requirement: string;
-      source: FitSource;
+      source: MatchSource;
       weight?: string | null;
       type: RequirementType;
-      verdict: FitVerdict;
+      verdict: MatchVerdict;
       jdQuote: string;
       sourceQuotes: Array<string>;
       suggestion?: string | null;
@@ -1329,10 +1329,10 @@ export type JobMatchQuery = {
     items: Array<{
       __typename?: "MatchItemType";
       requirement: string;
-      source: FitSource;
+      source: MatchSource;
       weight?: string | null;
       type: RequirementType;
-      verdict: FitVerdict;
+      verdict: MatchVerdict;
       jdQuote: string;
       sourceQuotes: Array<string>;
       suggestion?: string | null;
@@ -1366,10 +1366,10 @@ export type GenerateJobMatchMutation = {
     items: Array<{
       __typename?: "MatchItemType";
       requirement: string;
-      source: FitSource;
+      source: MatchSource;
       weight?: string | null;
       type: RequirementType;
-      verdict: FitVerdict;
+      verdict: MatchVerdict;
       jdQuote: string;
       sourceQuotes: Array<string>;
       suggestion?: string | null;

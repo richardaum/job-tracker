@@ -35,15 +35,12 @@ function formatAppTitle(
   return meta.title;
 }
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}): Promise<Metadata> {
-  const { id } = await params;
+export async function generateJobDetailMetadata(
+  id: string,
+  tabSuffix?: string,
+): Promise<Metadata> {
   const meta = await getJobMeta(id);
-
-  return staticPageMetadata(formatAppTitle(meta, "Job details"));
+  const base = formatAppTitle(meta, "Job details");
+  const title = tabSuffix ? `${base} — ${tabSuffix}` : base;
+  return staticPageMetadata(title);
 }
-
-export { default } from "@/modules/jobs/details/page/JobDetailsPage";

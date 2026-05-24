@@ -3,7 +3,7 @@
 import { Card, cn, Text } from "@job-tracker/ui";
 import React from "react";
 
-import { FitVerdict, RequirementType } from "@/gql/hooks";
+import { MatchVerdict, RequirementType } from "@/gql/hooks";
 
 import { RelevanceIcon } from "./RelevanceIcon";
 import { SourceBadge } from "./SourceBadge";
@@ -29,9 +29,9 @@ export function MatchItemCard({
   resumeId?: string;
   onPreferenceClick?: () => void;
 }) {
-  const isFit = item.verdict === FitVerdict.Fit;
-  const isGap = item.verdict === FitVerdict.Gap;
-  const isUnclear = item.verdict === FitVerdict.Unclear;
+  const isFit = item.verdict === MatchVerdict.Fit;
+  const isGap = item.verdict === MatchVerdict.Gap;
+  const isUnclear = item.verdict === MatchVerdict.Unclear;
 
   const displayQuotes = item.sourceQuotes.filter(
     (quote) =>

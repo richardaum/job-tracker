@@ -84,7 +84,7 @@ log "4/5 — Apply fixes"
 
 if $NEEDS_DATA_FIX; then
   log "Running datafix scripts..."
-  for script in fix-fit-verdict-casing fix-fit-source-casing fix-requirement-type-casing; do
+  for script in fix-match-verdict-casing fix-match-source-casing fix-requirement-type-casing; do
     pnpm tsx "apps/api/scripts/${script}.ts" --dry-run
     pnpm tsx "apps/api/scripts/${script}.ts" || fail "$script failed"
     CHANGES_MADE=true

@@ -1,36 +1,32 @@
 "use client";
 
 import { cn, Heading, Text } from "@job-tracker/ui";
-import React from "react";
 
 import { BackToLink } from "@/components/back-to-link";
-import { DetailPageHeader } from "@/components/detail-page-header";
 import { EntityNotFound } from "@/components/entity-not-found";
 import { NotesPanel } from "@/modules/jobs/details/components/NotesPanel";
-import { useJobNotesViewModel } from "@/modules/jobs/details/hooks/useJobNotesViewModel";
+import { useJobDetailsViewModel } from "@/modules/jobs/details/hooks/useJobDetailsViewModel";
+import { jobDetailsPath } from "@/modules/jobs/details/utils/job-details-routes";
 
-interface PageProps {
-  params: Promise<{ id: string }>;
-}
-
-export default function JobNotesPage({ params }: PageProps) {
-  const { id } = React.use(params);
-
-  const { job, status, shouldGoBackToJob, shouldGoBackToTheJobsList } =
-    useJobNotesViewModel(id);
+export function JobNotesFocusPage({ jobId }: { jobId: string }) {
+  const { status, displayTitle } = useJobDetailsViewModel(jobId, {
+    includeStageEvents: false,
+  });
 
   return (
     <div className={cn("flex h-full min-h-0 flex-col")}>
-      <DetailPageHeader className={cn("shrink-0")}>
-        {shouldGoBackToJob ? (
-          <BackToLink href={`/jobs/${id}`}>Back to job</BackToLink>
-        ) : shouldGoBackToTheJobsList ? (
-          <BackToLink href="/jobs">Back to jobs</BackToLink>
-        ) : null}
+      <div
+        className={cn(
+          "flex shrink-0 flex-col gap-2 border-b border-border-subtle p-4 sm:px-6 sm:py-5",
+        )}
+      >
+        <BackToLink href={jobDetailsPath(jobId)}>Back to job</BackToLink>
         <Heading as="h1" size="2xl" className={cn("min-w-0")}>
-          <span>{job?.title ? `${job.title} — Notes` : "Job notes"}</span>
+          <span>
+            {displayTitle !== null ? `${displayTitle} — Notes` : "Job notes"}
+          </span>
         </Heading>
-      </DetailPageHeader>
+      </div>
 
       <div className={cn("flex-1 min-h-0 overflow-hidden p-4 sm:p-6")}>
         {status === "loading" ? (
@@ -47,11 +43,11 @@ export default function JobNotesPage({ params }: PageProps) {
           <Text size="sm" color="error">
             Failed to load notes.
           </Text>
-        ) : (
-          <div className={cn("h-full max-w-5xl mx-auto flex flex-col")}>
-            <NotesPanel jobId={id} />
+        ) : status === "success" ? (
+          <div className={cn("mx-auto flex h-full max-w-5xl flex-col")}>
+            <NotesPanel jobId={jobId} />
           </div>
-        )}
+        ) : null}
       </div>
     </div>
   );

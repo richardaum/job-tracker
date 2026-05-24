@@ -1,9 +1,38 @@
 #!/usr/bin/env node
 
-import yargs from "yargs";
+import { spawnSync } from "node:child_process";
+import { existsSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 
-import { removeWorktreeDBeaverConnection } from "./dbeaver.ts";
-import {
+function findRepoRoot(from: string): string {
+  let dir = dirname(fileURLToPath(from));
+  while (true) {
+    if (existsSync(join(dir, "pnpm-workspace.yaml"))) return dir;
+    const parent = dirname(dir);
+    if (parent === dir) throw new Error("pnpm-workspace.yaml not found");
+    dir = parent;
+  }
+}
+
+const repoRoot = findRepoRoot(import.meta.url);
+
+if (!existsSync(join(repoRoot, "node_modules"))) {
+  console.log(
+    "[worktree:teardown] node_modules missing, running pnpm install...",
+  );
+  const result = spawnSync("pnpm", ["install"], {
+    cwd: repoRoot,
+    stdio: "inherit",
+  });
+  if (result.status !== 0) {
+    process.exit(result.status ?? 1);
+  }
+}
+
+const { default: yargs } = await import("yargs");
+const { removeWorktreeDBeaverConnection } = await import("./dbeaver.ts");
+const {
   assertGitWorktree,
   dropWorktreeDatabase,
   dropWorktreeTestDatabase,
@@ -15,11 +44,9 @@ import {
   resolveTeardownPm2Prefix,
   stopWorktreePm2Apps,
   WORKTREE_TEARDOWN_TAG,
-} from "./lib.ts";
-import { resolveRepoRoot } from "./repo-root.ts";
+} = await import("./lib.ts");
 
 const tag = WORKTREE_TEARDOWN_TAG;
-const root = resolveRepoRoot(import.meta.url);
 
 const raw = process.argv.slice(2);
 const scriptIdx = raw.findIndex((a) => !a.startsWith("-") || a === "--");
@@ -62,31 +89,35 @@ const argv = await yargs(userArgs)
   .strict()
   .parse();
 
-assertGitWorktree(root, tag);
+assertGitWorktree(repoRoot, tag);
 
-const slug = requireTeardownSlug(root, argv.slug as string | undefined, tag);
-const pm2Prefix = resolveTeardownPm2Prefix(root, slug);
+const slug = requireTeardownSlug(
+  repoRoot,
+  argv.slug as string | undefined,
+  tag,
+);
+const pm2Prefix = resolveTeardownPm2Prefix(repoRoot, slug);
 
 if (argv.dryRun) {
   logTeardownDryRun({
     tag,
-    repoRoot: root,
+    repoRoot,
     slug,
     pm2Prefix,
     dropDb: argv.dropDb,
     dbeaver: argv.dbeaver,
   });
 } else {
-  stopWorktreePm2Apps(root, pm2Prefix, tag);
+  stopWorktreePm2Apps(repoRoot, pm2Prefix, tag);
   if (argv.dbeaver) {
     removeWorktreeDBeaverConnection({ tag, slug });
   }
   removeWorktreeFromWorkspace({
-    mainRoot: requireMainWorktreeRoot(root, tag),
+    mainRoot: requireMainWorktreeRoot(repoRoot, tag),
     slug,
     tag,
   });
-  dropWorktreeDatabase(root, slug, argv.dropDb, tag);
-  dropWorktreeTestDatabase(root, slug, argv.dropDb, tag);
+  dropWorktreeDatabase(repoRoot, slug, argv.dropDb, tag);
+  dropWorktreeTestDatabase(repoRoot, slug, argv.dropDb, tag);
   removeSlugFromRegistry(slug);
 }

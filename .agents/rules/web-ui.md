@@ -63,6 +63,26 @@ Canonical reference: `/applications` and `/applications/[id]`.
 - **Responsive**: Below `lg`, collapse to one column — side column content becomes extra tabs on the same `TabsList`.
 - **Tabs**: When main area has multiple subviews, use `Tabs` for the main column first. Add more triggers only when side column is merged for small breakpoints.
 
+### Header actions from nested tabs/routes
+
+**When:** A shared detail layout wraps multiple tabs or nested routes, and a child tab needs to place buttons or menu items in the shared header (e.g. Match Generate/Regenerate, Profile tab actions).
+
+**How:**
+
+- Use `@job-tracker/react-slots` (`SlotsProvider` + `PortalSlot(name)` / `ContextSlot(name)`) for header contributions from nested tabs.
+- Co-locate slot pairs in a `*.slots.ts` file next to the feature (canonical: `apps/web/src/modules/jobs/details/job-details-header.slots.ts`).
+- Layout: wrap the layout subtree in `SlotsProvider` and render `<SomeSlot.Slot />` at each target (header button area, inside Actions dropdown, etc.).
+- Tab/route content: wrap contributions in `<SomeSlot>...</SomeSlot>`.
+- **`PortalSlot`:** header buttons and content that must keep hooks/state from the tab subtree (uses DOM portal).
+- **`ContextSlot`:** Radix `DropdownMenuItem` and other primitives that must mount under a layout ancestor (e.g. `<JobActionsMenuItems.Slot />` inside the layout `DropdownMenu`). Do not use `PortalSlot` for menu items — portaled nodes keep tab context, so Radix throws `MenuItem must be used within Menu`.
+- Job details layout always mounts `<JobHeaderActions.Slot />` when the job entity is loaded; tab content must portal Generate/Regenerate there — no in-tab toolbar duplicate for that primary action.
+- Only one tab should fill a given slot at a time; if multiple tabs register, the last mount wins until unmount. Match tab owns Match section while its route is active.
+
+**When not:**
+
+- Dialogs, popovers, tooltips — use Radix overlay components.
+- Actions on the same component as the control — use inline props (e.g. `trailing={...}` on a field row).
+
 ## Mobile debug
 
 When debugging from a phone (ngrok), do not point client at `127.0.0.1` — mobile cannot reach host loopback; HTTPS may block mixed content.

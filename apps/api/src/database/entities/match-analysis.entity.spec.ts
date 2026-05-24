@@ -3,8 +3,8 @@ import {
   RequirementTypeEnum,
 } from "@api/database/entities/match-analysis.entity";
 import { FitClassificationEnum } from "@api/domains/match-analysis/fit-classification.enum";
-import { FitSourceEnum } from "@api/domains/match-analysis/fit-source.enum";
-import { FitVerdictEnum } from "@api/domains/match-analysis/fit-verdict.enum";
+import { MatchSourceEnum } from "@api/domains/match-analysis/match-source.enum";
+import { MatchVerdictEnum } from "@api/domains/match-analysis/match-verdict.enum";
 import { AsyncMetadataStatusEnum } from "@api/domains/shared/async-metadata.type";
 import { plainToInstance } from "class-transformer";
 import { validate } from "class-validator";
@@ -32,9 +32,9 @@ function minimalMatchAnalysis(
     items: [
       {
         requirement: "Rust",
-        source: FitSourceEnum.Resume,
+        source: MatchSourceEnum.Resume,
         type: RequirementTypeEnum.MustHave,
-        verdict: FitVerdictEnum.Fit,
+        verdict: MatchVerdictEnum.Fit,
         jdQuote: "Rust",
         sourceQuotes: [],
       },
