@@ -12,7 +12,7 @@ NestJS 11 + Apollo GraphQL + TypeORM + PostgreSQL. Schema: `src/schema.gql`.
 
 ## Tests
 
-Vitest, `src/**/*.spec.ts`, Node, `fileParallelism: false`. Needs `DATABASE_URL`.
+Vitest, `src/**/*.spec.ts`, Node, `fileParallelism: false`. Integration tests (`*.integration.ts`) need `DATABASE_INTEGRATION_URL` in `apps/api/.env` or process env (see `.env.example`); `vitest.setup.ts` loads `.env` then `.env.test` for test credentials.
 
 ## NestJS
 
