@@ -187,7 +187,7 @@ function setupApolloMocks(options: {
 
 function renderMatchTab(
   ui: ReactElement,
-  options?: { withHeaderActions?: boolean; matchResumeId?: string | null },
+  options?: { withHeaderActions?: boolean },
 ) {
   function Wrapper({ children }: { children: ReactNode }) {
     return (
@@ -280,6 +280,20 @@ describe("MatchTabContent", () => {
     expect(
       await screen.findByRole("dialog", { name: "match-wizard-dialog" }),
     ).toBeInTheDocument();
+  });
+
+  it("navigates to resume when Actions View resume is selected", async () => {
+    const user = userEvent.setup();
+    const items = [mockItem({ verdict: FitVerdict.Fit })];
+    setupApolloMocks({ jobMatch: completedMatch(items) });
+    renderMatchTab(<MatchTabContent jobId="job-1" />, {
+      withHeaderActions: true,
+    });
+
+    await user.click(screen.getByRole("button", { name: /^actions$/i }));
+    await user.click(screen.getByRole("menuitem", { name: /view resume/i }));
+
+    expect(routerPushSpy).toHaveBeenCalledWith("/resumes/resume-88");
   });
 
   it("opens preferences dialog from Actions menu View preferences", async () => {
