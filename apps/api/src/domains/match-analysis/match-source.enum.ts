@@ -1,8 +1,8 @@
 import { registerEnumType } from "@nestjs/graphql";
 
-export enum FitSourceEnum {
+export enum MatchSourceEnum {
   Resume = "Resume",
   Preference = "Preference",
 }
 
-registerEnumType(FitSourceEnum, { name: "FitSource" });
+registerEnumType(MatchSourceEnum, { name: "MatchSource" });

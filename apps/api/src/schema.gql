@@ -53,16 +53,16 @@ enum AsyncMetadataStatus {
 
 type MatchItemType {
   requirement: String!
-  source: FitSource!
+  source: MatchSource!
   weight: String
   type: RequirementType!
-  verdict: FitVerdict!
+  verdict: MatchVerdict!
   jdQuote: String!
   sourceQuotes: [String!]!
   suggestion: String
 }
 
-enum FitSource {
+enum MatchSource {
   Resume
   Preference
 }
@@ -73,7 +73,7 @@ enum RequirementType {
   SoftSkill
 }
 
-enum FitVerdict {
+enum MatchVerdict {
   Fit
   Gap
   Unclear

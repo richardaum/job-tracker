@@ -10,7 +10,6 @@ import { BadRequestException, Logger } from "@nestjs/common";
 import type { Repository } from "typeorm";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { FitVerdictEnum } from "./fit-verdict.enum";
 import {
   MatchAnalysisRequested,
   MatchStatusChanged,
@@ -20,6 +19,7 @@ import { MatchAnalysisService } from "./match-analysis.service";
 import type { ResumeMatchItemParsed } from "./match-analysis-ai.schema";
 import { MatchAnalysisAiService } from "./match-analysis-ai.service";
 import { MatchAnalysisEventBus } from "./match-analysis-event.bus";
+import { MatchVerdictEnum } from "./match-verdict.enum";
 
 describe("MatchAnalysisService", () => {
   let service: MatchAnalysisService;
@@ -575,7 +575,7 @@ describe("MatchAnalysisService", () => {
     return {
       requirement,
       type: RequirementTypeEnum.MustHave,
-      verdict: FitVerdictEnum.Fit,
+      verdict: MatchVerdictEnum.Fit,
       jdQuote: requirement,
       sourceQuotes: [],
       suggestion: null,
