@@ -15,7 +15,7 @@ import {
 } from "@job-tracker/ui";
 import { BriefcaseIcon, NotePencilIcon } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
-import React, { useMemo, useSyncExternalStore } from "react";
+import React, { useMemo } from "react";
 
 import { EmptyState } from "@/components/empty-state";
 import { FitVerdict } from "@/gql/hooks";
@@ -28,21 +28,6 @@ import { MatchStatusBadge } from "@/modules/match-analyses/details/components/Ma
 import { MatchWizardDialog } from "@/modules/match-analyses/details/components/MatchWizardDialog";
 import { PreferencesDialog } from "@/modules/work-preferences/components/PreferencesDialog";
 
-const JOB_HEADER_ACTIONS_SLOT_SELECTOR =
-  ".react-portalslots-slot.job-header-actions";
-
-function useJobHeaderActionsSlotMounted(): boolean {
-  return useSyncExternalStore(
-    (onStoreChange) => {
-      const observer = new MutationObserver(onStoreChange);
-      observer.observe(document.body, { childList: true, subtree: true });
-      return () => observer.disconnect();
-    },
-    () => Boolean(document.querySelector(JOB_HEADER_ACTIONS_SLOT_SELECTOR)),
-    () => false,
-  );
-}
-
 export interface MatchTabContentProps {
   jobId: string;
 }
@@ -52,7 +37,6 @@ export function MatchTabContent({ jobId }: MatchTabContentProps) {
   const vm = useMatchTabViewModel(jobId);
   const router = useRouter();
   const [prefsOpen, setPrefsOpen] = React.useState(false);
-  const _headerActionsSlotMounted = useJobHeaderActionsSlotMounted();
 
   function emptyFilterMessage(): string {
     if (vm.matchFilterTab === FitVerdict.Fit) return "No fits found";
