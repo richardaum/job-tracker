@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import SettingsTabPage from "./SettingsTabPage";
@@ -80,9 +80,20 @@ describe("SettingsTabPage", () => {
     const autoFillSwitch = switches[0]!;
 
     fireEvent.click(autoFillSwitch);
-    expect(updateSettingsMock).toHaveBeenCalledWith({
-      variables: { input: { autoFillEnabled: true } },
-    });
+    expect(updateSettingsMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        variables: { input: { autoFillEnabled: true } },
+        optimisticResponse: {
+          updateSettings: expect.objectContaining({
+            __typename: "UserSetting",
+            userId: "user-1",
+            autoFillEnabled: true,
+            autoSummaryEnabled: false,
+            duplicateWindowDays: 30,
+          }),
+        },
+      }),
+    );
   });
 
   it("toggle onChange calls updateSettings mutation — Auto-summary", async () => {
@@ -93,28 +104,131 @@ describe("SettingsTabPage", () => {
     const autoSummarySwitch = switches[1]!;
 
     fireEvent.click(autoSummarySwitch);
-    expect(updateSettingsMock).toHaveBeenCalledWith({
-      variables: { input: { autoSummaryEnabled: true } },
-    });
+    expect(updateSettingsMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        variables: { input: { autoSummaryEnabled: true } },
+        optimisticResponse: {
+          updateSettings: expect.objectContaining({ autoSummaryEnabled: true }),
+        },
+      }),
+    );
   });
 
-  it("number input debounced 500ms", () => {
+  it("shows spinner and disables switch while saving", async () => {
     vi.useFakeTimers();
+    let resolveUpdate: (() => void) | undefined;
+    updateSettingsMock.mockReturnValue(
+      new Promise<void>((resolve) => {
+        resolveUpdate = resolve;
+      }),
+    );
+    settingsQueryMock.mockReturnValue(mockSettings());
+    render(<SettingsTabPage />);
+
+    const autoFillSwitch = screen.getAllByRole("switch")[0]!;
+    fireEvent.click(autoFillSwitch);
+
+    expect(autoFillSwitch).toBeDisabled();
+    expect(
+      screen.queryByRole("status", { name: "Saving setting" }),
+    ).not.toBeInTheDocument();
+
+    act(() => {
+      vi.advanceTimersByTime(300);
+    });
+    expect(
+      screen.getByRole("status", { name: "Saving setting" }),
+    ).toBeInTheDocument();
+
+    await act(async () => {
+      resolveUpdate?.();
+      await Promise.resolve();
+    });
+    expect(autoFillSwitch).not.toBeDisabled();
+    expect(
+      screen.queryByRole("status", { name: "Saving setting" }),
+    ).not.toBeInTheDocument();
+    vi.useRealTimers();
+  });
+
+  it("does not show spinner when save completes before delay", async () => {
+    vi.useFakeTimers();
+    updateSettingsMock.mockResolvedValue(undefined);
+    settingsQueryMock.mockReturnValue(mockSettings());
+    render(<SettingsTabPage />);
+
+    fireEvent.click(screen.getAllByRole("switch")[0]!);
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(
+      screen.queryByRole("status", { name: "Saving setting" }),
+    ).not.toBeInTheDocument();
+
+    act(() => {
+      vi.advanceTimersByTime(300);
+    });
+    expect(
+      screen.queryByRole("status", { name: "Saving setting" }),
+    ).not.toBeInTheDocument();
+    vi.useRealTimers();
+  });
+
+  it("saves duplicate window value when pressing Enter", async () => {
+    updateSettingsMock.mockResolvedValue(undefined);
     settingsQueryMock.mockReturnValue(mockSettings());
     render(<SettingsTabPage />);
 
     const numberInput = screen.getByRole("spinbutton");
     fireEvent.change(numberInput, { target: { value: "60" } });
+    fireEvent.submit(
+      screen.getByRole("form", { name: "Duplicate detection window" }),
+    );
 
+    expect(updateSettingsMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        variables: { input: { duplicateWindowDays: 60 } },
+      }),
+    );
+  });
+
+  it("shows Save when duplicate window value changes and saves on click", async () => {
+    updateSettingsMock.mockResolvedValue(undefined);
+    settingsQueryMock.mockReturnValue(mockSettings());
+    render(<SettingsTabPage />);
+
+    const numberInput = screen.getByRole("spinbutton");
+    const saveButton = screen.getByRole("button", { name: "Save" });
+    expect(saveButton).toBeDisabled();
+
+    fireEvent.change(numberInput, { target: { value: "60" } });
+    expect(saveButton).not.toBeDisabled();
     expect(updateSettingsMock).not.toHaveBeenCalled();
 
-    vi.advanceTimersByTime(500);
+    fireEvent.click(saveButton);
+    expect(updateSettingsMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        variables: { input: { duplicateWindowDays: 60 } },
+        optimisticResponse: {
+          updateSettings: expect.objectContaining({ duplicateWindowDays: 60 }),
+        },
+      }),
+    );
+  });
 
-    expect(updateSettingsMock).toHaveBeenCalledWith({
-      variables: { input: { duplicateWindowDays: 60 } },
-    });
+  it("disables Save when duplicate window value matches saved value", () => {
+    settingsQueryMock.mockReturnValue(mockSettings());
+    render(<SettingsTabPage />);
 
-    vi.useRealTimers();
+    const numberInput = screen.getByRole("spinbutton");
+    const saveButton = screen.getByRole("button", { name: "Save" });
+    fireEvent.change(numberInput, { target: { value: "60" } });
+    expect(saveButton).not.toBeDisabled();
+
+    fireEvent.change(numberInput, { target: { value: "30" } });
+    expect(saveButton).toBeDisabled();
   });
 
   it("loading state shows placeholder", () => {
@@ -131,21 +245,20 @@ describe("SettingsTabPage", () => {
     expect(numberInput).toHaveAttribute("max", "365");
   });
 
-  it("clamps number input value to 1..365 range", () => {
-    vi.useFakeTimers();
+  it("clamps duplicate window value to 1..365 range on save", async () => {
+    updateSettingsMock.mockResolvedValue(undefined);
     settingsQueryMock.mockReturnValue(mockSettings());
     render(<SettingsTabPage />);
 
     const numberInput = screen.getByRole("spinbutton");
     fireEvent.change(numberInput, { target: { value: "500" } });
+    fireEvent.click(screen.getByRole("button", { name: "Save" }));
 
-    vi.advanceTimersByTime(500);
-
-    expect(updateSettingsMock).toHaveBeenCalledWith({
-      variables: { input: { duplicateWindowDays: 365 } },
-    });
-
-    vi.useRealTimers();
+    expect(updateSettingsMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        variables: { input: { duplicateWindowDays: 365 } },
+      }),
+    );
   });
 
   it("returns null when settings is null and not loading", () => {
