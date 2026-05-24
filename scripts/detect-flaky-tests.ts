@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { spawnSync } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
@@ -58,6 +58,114 @@ export const E2E_TARGETS: readonly TestTarget[] = [
   },
 ];
 
+/** Wall-clock ms from last valid run (2026-05-24, local dev). */
+export const TARGET_BASELINE_MS: Readonly<Record<string, number>> = {
+  "@job-tracker/api": 17_655,
+  "@job-tracker/web": 15_300,
+  "@job-tracker/ui": 9_942,
+  "@job-tracker/react-slots": 1_068,
+  "@job-tracker/html-sanitize": 781,
+  "@job-tracker/extension": 847,
+  "@job-tracker/web:e2e": 300_000,
+};
+
+export const DEFAULT_TARGET_BASELINE_MS = 60_000;
+export const DEFAULT_TIMEOUT_MULTIPLIER = 3;
+export const MIN_TARGET_TIMEOUT_MS = 30_000;
+export const DEFAULT_IDLE_TIMEOUT_MS = 60_000;
+export const PROGRESS_LOG_INTERVAL_MS = 5_000;
+
+export function resolveTargetTimeoutMs(
+  targetId: string,
+  multiplier = DEFAULT_TIMEOUT_MULTIPLIER,
+): number {
+  const baseline = TARGET_BASELINE_MS[targetId] ?? DEFAULT_TARGET_BASELINE_MS;
+  return Math.max(MIN_TARGET_TIMEOUT_MS, Math.ceil(baseline * multiplier));
+}
+
+export function safeTargetFileStem(targetId: string): string {
+  return targetId.replace(/[^a-zA-Z0-9._-]+/g, "_");
+}
+
+export type ParsedVitestVerboseLine = {
+  status: "passed" | "failed" | "skipped";
+  file: string;
+  fullName: string;
+};
+
+const VITEST_VERBOSE_LINE = /^\s*([✓×✗↓])\s+(.+?)\s>\s*(.+?)(?:\s+\d+m?s)?\s*$/;
+
+export function parseVitestVerboseLine(
+  line: string,
+): ParsedVitestVerboseLine | undefined {
+  const match = VITEST_VERBOSE_LINE.exec(line.trimEnd());
+  if (!match) return undefined;
+
+  const symbol = match[1];
+  const status =
+    symbol === "✓"
+      ? "passed"
+      : symbol === "↓"
+        ? "skipped"
+        : symbol === "×" || symbol === "✗"
+          ? "failed"
+          : undefined;
+  if (!status) return undefined;
+
+  return { status, file: match[2].trim(), fullName: match[3].trim() };
+}
+
+export type LiveRunProgress = {
+  lastActivityAt: number;
+  lastLine: string;
+  lastTestFile?: string;
+  lastTestFullName?: string;
+  completedTests: number;
+  passedTests: number;
+  failedTests: number;
+  skippedTests: number;
+};
+
+export function createLiveRunProgress(startedAt = Date.now()): LiveRunProgress {
+  return {
+    lastActivityAt: startedAt,
+    lastLine: "",
+    completedTests: 0,
+    passedTests: 0,
+    failedTests: 0,
+    skippedTests: 0,
+  };
+}
+
+export function applyVitestVerboseLine(
+  progress: LiveRunProgress,
+  line: string,
+): ParsedVitestVerboseLine | undefined {
+  progress.lastActivityAt = Date.now();
+  progress.lastLine = line.trim();
+
+  const parsed = parseVitestVerboseLine(line);
+  if (!parsed) return undefined;
+
+  progress.completedTests += 1;
+  progress.lastTestFile = parsed.file;
+  progress.lastTestFullName = parsed.fullName;
+
+  switch (parsed.status) {
+    case "passed":
+      progress.passedTests += 1;
+      break;
+    case "failed":
+      progress.failedTests += 1;
+      break;
+    case "skipped":
+      progress.skippedTests += 1;
+      break;
+  }
+
+  return parsed;
+}
+
 export type ParsedTestResult = {
   targetId: string;
   file: string;
@@ -85,6 +193,8 @@ export type FlakyDetectionOptions = {
   nameFilter?: RegExp;
   build: boolean;
   failOnFlaky: boolean;
+  timeoutMultiplier: number;
+  idleTimeoutMs: number;
 };
 
 type VitestAssertionResult = {
@@ -115,95 +225,126 @@ type PlaywrightTest = {
   results?: Array<{ status?: string; error?: { message?: string } }>;
 };
 
-function printUsage(): void {
-  console.log(`Usage: pnpm test:flaky [-- [options]]
+type SpawnCaptureResult = {
+  status: number | null;
+  signal: NodeJS.Signals | null;
+  stdout: string;
+  stderr: string;
+  progress: LiveRunProgress;
+};
 
-Detect flaky tests by running the suite multiple times and comparing outcomes.
-
-Options:
-  --runs <n>          Number of repetitions per target (default: 10)
-  --scope <unit|e2e|all>  Which tests to run (default: unit)
-  --package <id>      Run only one target (e.g. @job-tracker/web)
-  --grep <pattern>    Filter tests by name (regex)
-  --no-build          Skip "pnpm turbo build" before unit runs
-  --no-fail           Exit 0 even when flaky tests are found
-
-Examples:
-  pnpm test:flaky
-  pnpm test:flaky -- --runs 20 --package @job-tracker/web
-  pnpm test:flaky -- --scope e2e --runs 5
-  pnpm test:flaky -- --grep "JobCard"
-`);
+/** Strips pnpm's `--` passthrough separator when present. */
+export function stripScriptArgv(argv: readonly string[]): string[] {
+  const separatorIndex = argv.indexOf("--");
+  return separatorIndex >= 0 ? argv.slice(separatorIndex + 1) : [...argv];
 }
 
-function parseArgs(argv: string[]): FlakyDetectionOptions | undefined {
-  let runs = 10;
-  let scope: FlakyDetectionOptions["scope"] = "unit";
-  let packageFilter: string | undefined;
-  let nameFilter: RegExp | undefined;
-  let build = true;
-  let failOnFlaky = true;
+export async function parseFlakyDetectionArgs(
+  argv: readonly string[],
+): Promise<FlakyDetectionOptions> {
+  const { default: yargs } = await import("yargs");
+  const userArgs = stripScriptArgv(argv);
 
-  for (let i = 0; i < argv.length; i += 1) {
-    const arg = argv[i];
-    switch (arg) {
-      case "--runs": {
-        const value = Number.parseInt(argv[++i] ?? "", 10);
-        if (!Number.isInteger(value) || value < 2) {
-          console.error(`${TAG} --runs must be an integer >= 2.`);
-          return undefined;
-        }
-        runs = value;
-        break;
+  const parsed = await yargs(userArgs)
+    .scriptName("test:flaky")
+    .usage(
+      "Usage: pnpm test:flaky [-- [options]]\n\n" +
+        "Detect flaky tests by running the suite multiple times and comparing outcomes.\n" +
+        "Streams test output live, detects stale runs when output stops, and flags flaky\n" +
+        "tests as soon as pass/fail outcomes diverge across repetitions.",
+    )
+    .option("runs", {
+      type: "number",
+      default: 10,
+      description: "Number of repetitions per target",
+    })
+    .option("scope", {
+      choices: ["unit", "e2e", "all"] as const,
+      default: "unit" as const,
+      description: "Which tests to run",
+    })
+    .option("package", {
+      type: "string",
+      description: "Run only one target (e.g. @job-tracker/web)",
+    })
+    .option("grep", {
+      type: "string",
+      description: "Filter tests by name (regex)",
+    })
+    .option("build", {
+      type: "boolean",
+      default: true,
+      description: 'Run "pnpm turbo build" before unit runs',
+    })
+    .option("fail", {
+      type: "boolean",
+      default: true,
+      description: "Exit 1 when flaky tests are found",
+    })
+    .option("timeout-multiplier", {
+      type: "number",
+      default: DEFAULT_TIMEOUT_MULTIPLIER,
+      description: "Per-target timeout = baseline × n",
+    })
+    .option("idle-timeout-ms", {
+      type: "number",
+      default: DEFAULT_IDLE_TIMEOUT_MS,
+      description: "Kill when no output for n ms",
+    })
+    .example("pnpm test:flaky", "Run 10 unit repetitions per target")
+    .example(
+      "pnpm test:flaky -- --runs 20 --package @job-tracker/web",
+      "Repeat web unit tests 20 times",
+    )
+    .example("pnpm test:flaky -- --scope e2e --runs 5", "Run e2e suite 5 times")
+    .example('pnpm test:flaky -- --grep "JobCard"', "Filter by test name")
+    .help()
+    .alias("h", "help")
+    .strict()
+    .check((args) => {
+      const timeoutMultiplier = Number(args.timeoutMultiplier);
+      const idleTimeoutMs = Number(args.idleTimeoutMs);
+
+      if (!Number.isInteger(args.runs) || args.runs < 2) {
+        throw new Error(`${TAG} --runs must be an integer >= 2.`);
       }
-      case "--scope": {
-        const value = argv[++i];
-        if (value !== "unit" && value !== "e2e" && value !== "all") {
-          console.error(`${TAG} --scope must be unit, e2e, or all.`);
-          return undefined;
-        }
-        scope = value;
-        break;
+      if (!Number.isFinite(timeoutMultiplier) || timeoutMultiplier <= 0) {
+        throw new Error(
+          `${TAG} --timeout-multiplier must be a positive number.`,
+        );
       }
-      case "--package":
-        packageFilter = argv[++i];
-        if (!packageFilter) {
-          console.error(`${TAG} --package requires a target id.`);
-          return undefined;
-        }
-        break;
-      case "--grep": {
-        const pattern = argv[++i];
-        if (!pattern) {
-          console.error(`${TAG} --grep requires a regex pattern.`);
-          return undefined;
-        }
-        const [regexError, compiledFilter] = tryRun(() => new RegExp(pattern));
+      if (!Number.isInteger(idleTimeoutMs) || idleTimeoutMs < 1_000) {
+        throw new Error(`${TAG} --idle-timeout-ms must be an integer >= 1000.`);
+      }
+      if (args.grep) {
+        const [regexError] = tryRun(() => new RegExp(args.grep as string));
         if (regexError) {
-          console.error(`${TAG} Invalid --grep regex: ${pattern}`);
-          return undefined;
+          throw new Error(`${TAG} Invalid --grep regex: ${args.grep}`);
         }
-        nameFilter = compiledFilter;
-        break;
       }
-      case "--no-build":
-        build = false;
-        break;
-      case "--no-fail":
-        failOnFlaky = false;
-        break;
-      case "--help":
-      case "-h":
-        printUsage();
-        return undefined;
-      default:
-        console.error(`${TAG} Unknown argument: ${arg}`);
-        printUsage();
-        return undefined;
-    }
-  }
+      return true;
+    })
+    .fail((message, error) => {
+      if (error) throw error;
+      throw new Error(message);
+    })
+    .parse();
 
-  return { runs, scope, packageFilter, nameFilter, build, failOnFlaky };
+  const grep = typeof parsed.grep === "string" ? parsed.grep : undefined;
+  const [, compiledNameFilter] = grep
+    ? tryRun(() => new RegExp(grep))
+    : [undefined, undefined];
+
+  return {
+    runs: parsed.runs,
+    scope: parsed.scope,
+    packageFilter: parsed.package,
+    nameFilter: compiledNameFilter ?? undefined,
+    build: parsed.build,
+    failOnFlaky: parsed.fail,
+    timeoutMultiplier: parsed.timeoutMultiplier,
+    idleTimeoutMs: parsed.idleTimeoutMs,
+  };
 }
 
 function normalizeStatus(raw: string | undefined): TestStatus {
@@ -284,8 +425,14 @@ export function parsePlaywrightReport(
   return results;
 }
 
-function testKey(result: ParsedTestResult): string {
+function testKey(
+  result: Pick<ParsedTestResult, "targetId" | "file" | "fullName">,
+): string {
   return `${result.targetId}::${result.file}::${result.fullName}`;
+}
+
+function isFlakyStats(entry: TestRunStats): boolean {
+  return entry.passCount > 0 && entry.failCount > 0;
 }
 
 export function mergeRunResults(
@@ -296,17 +443,20 @@ export function mergeRunResults(
 
   for (const result of runResults) {
     const key = testKey(result);
-    const current = next.get(key) ?? {
-      targetId: result.targetId,
-      file: result.file,
-      fullName: result.fullName,
-      passCount: 0,
-      failCount: 0,
-      skipCount: 0,
-      otherCount: 0,
-      runs: 0,
-      failureMessages: [],
-    };
+    const existing = next.get(key);
+    const current = existing
+      ? { ...existing, failureMessages: [...existing.failureMessages] }
+      : {
+          targetId: result.targetId,
+          file: result.file,
+          fullName: result.fullName,
+          passCount: 0,
+          failCount: 0,
+          skipCount: 0,
+          otherCount: 0,
+          runs: 0,
+          failureMessages: [],
+        };
 
     current.runs += 1;
     switch (result.status) {
@@ -334,6 +484,22 @@ export function mergeRunResults(
   return next;
 }
 
+export function findNewlyFlakyTests(
+  previous: Map<string, TestRunStats>,
+  next: Map<string, TestRunStats>,
+): TestRunStats[] {
+  const newlyFlaky: TestRunStats[] = [];
+
+  for (const [key, entry] of next) {
+    if (!isFlakyStats(entry)) continue;
+    const before = previous.get(key);
+    if (before && isFlakyStats(before)) continue;
+    newlyFlaky.push(entry);
+  }
+
+  return newlyFlaky;
+}
+
 export function classifyStats(stats: TestRunStats[]): {
   flaky: TestRunStats[];
   alwaysFailing: TestRunStats[];
@@ -344,7 +510,7 @@ export function classifyStats(stats: TestRunStats[]): {
   const stable: TestRunStats[] = [];
 
   for (const entry of stats) {
-    if (entry.passCount > 0 && entry.failCount > 0) {
+    if (isFlakyStats(entry)) {
       flaky.push(entry);
       continue;
     }
@@ -396,11 +562,151 @@ function runBuild(): void {
   }
 }
 
-function runTargetOnce(
+function formatProgressSummary(progress: LiveRunProgress): string {
+  const lastTest =
+    progress.lastTestFile && progress.lastTestFullName
+      ? `${progress.lastTestFile} > ${progress.lastTestFullName}`
+      : progress.lastLine || "starting";
+  return (
+    `${progress.completedTests} completed` +
+    ` (${progress.passedTests} passed, ${progress.failedTests} failed, ${progress.skippedTests} skipped)` +
+    ` — last: ${lastTest}`
+  );
+}
+
+function processVitestOutputLines(
+  text: string,
+  lineBuffer: { partial: string },
+  target: TestTarget,
+  progress: LiveRunProgress,
+): void {
+  lineBuffer.partial += text;
+  const lines = lineBuffer.partial.split("\n");
+  lineBuffer.partial = lines.pop() ?? "";
+
+  if (target.runner !== "vitest") return;
+
+  for (const line of lines) {
+    const parsed = applyVitestVerboseLine(progress, line);
+    if (parsed?.status === "failed") {
+      console.log(`${TAG}    ✗ ${parsed.file} > ${parsed.fullName}`);
+    }
+  }
+}
+
+function spawnPnpmWithLiveDetection(
+  command: readonly string[],
+  cwd: string,
+  env: NodeJS.ProcessEnv,
+  target: TestTarget,
+  context: {
+    outputFile: string;
+    startedAt: number;
+    timeoutMs: number;
+    idleTimeoutMs: number;
+    baselineMs: number;
+    timeoutMultiplier: number;
+  },
+): Promise<SpawnCaptureResult> {
+  return new Promise((resolve, reject) => {
+    const progress = createLiveRunProgress(context.startedAt);
+    const stdoutLineBuffer = { partial: "" };
+    let stdout = "";
+    let stderr = "";
+    let timedOut = false;
+    let staleReason: "idle" | "suite" | undefined;
+
+    const child = spawn("pnpm", [...command], {
+      cwd,
+      env,
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+
+    const killChild = (reason: "idle" | "suite") => {
+      staleReason = reason;
+      timedOut = true;
+      child.kill("SIGTERM");
+      setTimeout(() => {
+        if (child.exitCode === null && child.signalCode === null) {
+          child.kill("SIGKILL");
+        }
+      }, 5_000);
+    };
+
+    const suiteTimeoutHandle = setTimeout(() => {
+      killChild("suite");
+    }, context.timeoutMs);
+
+    const monitors = [
+      setInterval(() => {
+        const idleForMs = Date.now() - progress.lastActivityAt;
+        if (idleForMs >= context.idleTimeoutMs) {
+          killChild("idle");
+          return;
+        }
+
+        console.log(
+          `${TAG}    … ${formatProgressSummary(progress)} (idle ${Math.round(idleForMs / 1000)}s)`,
+        );
+      }, PROGRESS_LOG_INTERVAL_MS),
+    ];
+
+    child.stdout?.on("data", (chunk) => {
+      const text = chunk.toString();
+      stdout += text;
+      progress.lastActivityAt = Date.now();
+      process.stdout.write(text);
+      processVitestOutputLines(text, stdoutLineBuffer, target, progress);
+    });
+
+    child.stderr?.on("data", (chunk) => {
+      const text = chunk.toString();
+      stderr += text;
+      progress.lastActivityAt = Date.now();
+      process.stderr.write(text);
+    });
+
+    child.on("error", (error) => {
+      clearTimeout(suiteTimeoutHandle);
+      for (const monitor of monitors) clearInterval(monitor);
+      reject(error);
+    });
+
+    child.on("close", (status, signal) => {
+      clearTimeout(suiteTimeoutHandle);
+      for (const monitor of monitors) clearInterval(monitor);
+
+      if (timedOut) {
+        const idleForMs = Date.now() - progress.lastActivityAt;
+        const lastTest =
+          progress.lastTestFile && progress.lastTestFullName
+            ? `${progress.lastTestFile} > ${progress.lastTestFullName}`
+            : progress.lastLine || "(no output yet)";
+        const reason =
+          staleReason === "idle"
+            ? `no output for ${context.idleTimeoutMs}ms (last activity ${Math.round(idleForMs / 1000)}s ago)`
+            : `exceeded suite timeout ${context.timeoutMs}ms (baseline ${context.baselineMs}ms × ${context.timeoutMultiplier})`;
+
+        reject(
+          new Error(
+            `${target.id} stale run detected: ${reason}. Last seen: ${lastTest}`,
+          ),
+        );
+        return;
+      }
+
+      resolve({ status, signal, stdout, stderr, progress });
+    });
+  });
+}
+
+async function runTargetOnce(
   target: TestTarget,
   outputFile: string,
+  timeoutMultiplier: number,
+  idleTimeoutMs: number,
   nameFilter?: RegExp,
-): ParsedTestResult[] {
+): Promise<ParsedTestResult[]> {
   const cwd = join(REPO_ROOT, target.cwd);
   const grepArgs =
     target.runner === "vitest" && nameFilter
@@ -417,6 +723,7 @@ function runTargetOnce(
           "run",
           ...target.args,
           ...grepArgs,
+          "--reporter=verbose",
           "--reporter=json",
           `--outputFile=${outputFile}`,
         ]
@@ -426,18 +733,29 @@ function runTargetOnce(
           "test",
           ...target.args,
           ...grepArgs,
+          "--reporter=list",
           "--reporter=json",
         ];
 
-  const result = spawnSync("pnpm", command, {
-    cwd,
-    encoding: "utf8",
-    env: {
-      ...process.env,
-      ...(target.runner === "playwright"
-        ? { PLAYWRIGHT_JSON_OUTPUT_NAME: outputFile }
-        : {}),
-    },
+  const env = {
+    ...process.env,
+    ...(target.runner === "playwright"
+      ? { PLAYWRIGHT_JSON_OUTPUT_NAME: outputFile }
+      : {}),
+  };
+
+  const startedAt = Date.now();
+  const timeoutMs = resolveTargetTimeoutMs(target.id, timeoutMultiplier);
+  const baselineMs =
+    TARGET_BASELINE_MS[target.id] ?? DEFAULT_TARGET_BASELINE_MS;
+
+  const result = await spawnPnpmWithLiveDetection(command, cwd, env, target, {
+    outputFile,
+    startedAt,
+    timeoutMs,
+    idleTimeoutMs,
+    baselineMs,
+    timeoutMultiplier,
   });
 
   let parsed: ParsedTestResult[] = [];
@@ -459,6 +777,11 @@ function runTargetOnce(
   if (result.status !== 0 && parsed.length === 0) {
     throw new Error(`${target.id} run failed without parseable test results`);
   }
+
+  const elapsedSec = ((Date.now() - startedAt) / 1000).toFixed(1);
+  console.log(
+    `${TAG}    done in ${elapsedSec}s — ${formatProgressSummary(result.progress)}`,
+  );
 
   return parsed;
 }
@@ -522,14 +845,27 @@ export async function detectFlakyTests(
     for (let run = 1; run <= options.runs; run += 1) {
       console.log(`\n${TAG} Run ${run}/${options.runs}`);
       for (const target of targets) {
-        const outputFile = join(tempDir, `${target.id}-${run}.json`);
+        const outputFile = join(
+          tempDir,
+          `${safeTargetFileStem(target.id)}-${run}.json`,
+        );
         console.log(`${TAG}  → ${target.id}`);
-        const runResults = runTargetOnce(
+        const runResults = await runTargetOnce(
           target,
           outputFile,
+          options.timeoutMultiplier,
+          options.idleTimeoutMs,
           options.nameFilter,
         );
+        const previous = stats;
         stats = mergeRunResults(stats, runResults);
+
+        for (const entry of findNewlyFlakyTests(previous, stats)) {
+          console.log(
+            `${TAG}    ⚡ flaky: ${entry.fullName} (${entry.passCount} passed, ${entry.failCount} failed after ${entry.runs} run(s))`,
+          );
+        }
+
         console.log(`${TAG}    collected ${runResults.length} test result(s)`);
       }
     }
@@ -546,22 +882,17 @@ const invokedDirectly =
   resolve(process.argv[1]) === selfResolved;
 
 if (invokedDirectly) {
-  const options = parseArgs(process.argv.slice(2));
-  if (!options) {
-    process.exit(
-      process.argv.includes("--help") || process.argv.includes("-h") ? 0 : 1,
-    );
-  }
-
-  detectFlakyTests(options)
-    .then(({ flaky }) => {
-      if (flaky.length > 0 && options.failOnFlaky) {
-        process.exit(1);
-      }
-    })
+  parseFlakyDetectionArgs(process.argv.slice(2))
+    .then((options) =>
+      detectFlakyTests(options).then(({ flaky }) => {
+        if (flaky.length > 0 && options.failOnFlaky) {
+          process.exit(1);
+        }
+      }),
+    )
     .catch((error: unknown) => {
       const message = error instanceof Error ? error.message : String(error);
-      console.error(`${TAG} ${message}`);
+      console.error(message.startsWith(TAG) ? message : `${TAG} ${message}`);
       process.exit(1);
     });
 }

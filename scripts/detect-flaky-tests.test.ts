@@ -3,10 +3,19 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
 import {
+  applyVitestVerboseLine,
   classifyStats,
+  createLiveRunProgress,
+  DEFAULT_TIMEOUT_MULTIPLIER,
+  findNewlyFlakyTests,
   mergeRunResults,
+  parseFlakyDetectionArgs,
   parsePlaywrightReport,
   parseVitestReport,
+  parseVitestVerboseLine,
+  resolveTargetTimeoutMs,
+  safeTargetFileStem,
+  stripScriptArgv,
   type TestRunStats,
 } from "./detect-flaky-tests.ts";
 
@@ -96,5 +105,113 @@ describe("detect-flaky-tests.ts", () => {
     assert.equal(flaky[0]?.fullName, "flaky test");
     assert.equal(alwaysFailing.length, 1);
     assert.equal(stable.length, 1);
+  });
+
+  it("derives per-target timeout from observed baseline × multiplier", () => {
+    assert.equal(
+      resolveTargetTimeoutMs("@job-tracker/api"),
+      Math.ceil(17_655 * DEFAULT_TIMEOUT_MULTIPLIER),
+    );
+    assert.equal(
+      resolveTargetTimeoutMs("@job-tracker/web"),
+      Math.ceil(15_300 * DEFAULT_TIMEOUT_MULTIPLIER),
+    );
+    assert.equal(resolveTargetTimeoutMs("@job-tracker/react-slots"), 30_000);
+  });
+
+  it("parses vitest verbose lines from live output", () => {
+    const parsed = parseVitestVerboseLine(
+      " ✓ src/hooks/useBreakpoint.test.ts > useBreakpoint > returns false when query does not match 8ms",
+    );
+    assert.deepEqual(parsed, {
+      status: "passed",
+      file: "src/hooks/useBreakpoint.test.ts",
+      fullName: "useBreakpoint > returns false when query does not match",
+    });
+  });
+
+  it("tracks live progress and detects newly flaky tests", () => {
+    const progress = createLiveRunProgress();
+    applyVitestVerboseLine(
+      progress,
+      " ✓ src/a.test.ts > suite > flaky test 1ms",
+    );
+    applyVitestVerboseLine(
+      progress,
+      " × src/a.test.ts > suite > flaky test 2ms",
+    );
+
+    assert.equal(progress.completedTests, 2);
+    assert.equal(progress.failedTests, 1);
+
+    let stats = mergeRunResults(new Map(), [
+      {
+        targetId: "@job-tracker/web",
+        file: "src/a.test.ts",
+        fullName: "suite > flaky test",
+        status: "passed",
+      },
+    ]);
+    const previous = stats;
+    stats = mergeRunResults(stats, [
+      {
+        targetId: "@job-tracker/web",
+        file: "src/a.test.ts",
+        fullName: "suite > flaky test",
+        status: "failed",
+        failureMessage: "boom",
+      },
+    ]);
+
+    const newlyFlaky = findNewlyFlakyTests(previous, stats);
+    assert.equal(newlyFlaky.length, 1);
+    assert.equal(newlyFlaky[0]?.fullName, "suite > flaky test");
+  });
+
+  it("sanitizes target ids for json output filenames", () => {
+    assert.equal(safeTargetFileStem("@job-tracker/web"), "_job-tracker_web");
+  });
+
+  it("strips pnpm passthrough separator before parsing", () => {
+    assert.deepEqual(stripScriptArgv(["--", "--runs", "5", "--no-build"]), [
+      "--runs",
+      "5",
+      "--no-build",
+    ]);
+    assert.deepEqual(stripScriptArgv(["--runs", "5"]), ["--runs", "5"]);
+  });
+
+  it("parses CLI options with yargs", async () => {
+    const options = await parseFlakyDetectionArgs([
+      "--runs",
+      "3",
+      "--package",
+      "@job-tracker/web",
+      "--no-build",
+      "--no-fail",
+      "--grep",
+      "JobCard",
+    ]);
+
+    assert.equal(options.runs, 3);
+    assert.equal(options.scope, "unit");
+    assert.equal(options.packageFilter, "@job-tracker/web");
+    assert.equal(options.build, false);
+    assert.equal(options.failOnFlaky, false);
+    assert.equal(options.nameFilter?.source, "JobCard");
+    assert.equal(options.timeoutMultiplier, DEFAULT_TIMEOUT_MULTIPLIER);
+  });
+
+  it("accepts options after pnpm passthrough separator", async () => {
+    const options = await parseFlakyDetectionArgs([
+      "--",
+      "--runs",
+      "4",
+      "--scope",
+      "e2e",
+    ]);
+
+    assert.equal(options.runs, 4);
+    assert.equal(options.scope, "e2e");
   });
 });
