@@ -3,20 +3,16 @@ import userEvent from "@testing-library/user-event";
 import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { JobMatchQuery } from "@/gql/hooks";
-import {
-  AsyncMetadataStatus,
-  FitClassification,
-  FitSource,
-  FitVerdict,
-  RequirementType,
-} from "@/gql/hooks";
+import { FitVerdict } from "@/gql/hooks";
 import { MatchTabContent } from "@/modules/jobs/details/components/MatchTabContent";
+import {
+  completedJobMatch,
+  type JobMatchData,
+  mockMatchItem,
+} from "@/modules/jobs/details/testing/match-tab-test-fixtures";
 import type { JobDetailsValues } from "@/modules/jobs/details/utils/job-details.shared";
 
 import JobDetailsLayout from "./JobDetailsLayout";
-
-type JobMatchData = NonNullable<JobMatchQuery["jobMatch"]>;
 
 const gqlMocks = vi.hoisted(() => ({
   useJobMatchQuery: vi.fn(),
@@ -116,49 +112,6 @@ vi.mock("@/modules/jobs/list/components/DeleteJobDialog", () => ({
     <div>{trigger}</div>
   ),
 }));
-
-function mockMatchItem(partial: {
-  verdict: FitVerdict;
-  requirement?: string;
-  source?: FitSource;
-}): JobMatchData["items"][number] {
-  return {
-    __typename: "MatchItemType",
-    requirement: partial.requirement ?? `${partial.verdict} requirement`,
-    source: partial.source ?? FitSource.Resume,
-    weight: "high",
-    type: RequirementType.MustHave,
-    verdict: partial.verdict,
-    jdQuote: "JD quote",
-    sourceQuotes: ["Resume quote"],
-    suggestion: null,
-  };
-}
-
-function completedJobMatch(
-  items: JobMatchData["items"],
-  id = "match-42",
-): JobMatchData {
-  return {
-    __typename: "MatchAnalysisType",
-    id,
-    jobId: "job-1",
-    resumeId: "resume-88",
-    generationMetadata: {
-      __typename: "AsyncMetadataType",
-      status: AsyncMetadataStatus.Completed,
-      error: null,
-      timestamp: null,
-    },
-    scoreRatio: 76,
-    classification: FitClassification.Positive,
-    matchCount: 2,
-    gapCount: 1,
-    unclearCount: 0,
-    items,
-    createdAt: new Date().toISOString(),
-  };
-}
 
 function setupMatchTabMocks(options: { jobMatch?: JobMatchData | undefined }) {
   gqlMocks.useJobMatchQuery.mockReturnValue({
