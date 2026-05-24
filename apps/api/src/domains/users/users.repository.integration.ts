@@ -1,13 +1,15 @@
+import { randomUUID } from "node:crypto";
+
 import { UserEntity } from "@api/database/entities/user.entity";
 import { createTestDataSource } from "@api/database/test-db";
-import { serverEnv } from "@api/env/server";
+import { apiEnv } from "@api/env/server";
 import type { DataSource } from "typeorm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { RoleEnum } from "./role.enum";
 import { UserRepository } from "./users.repository";
 
-const hasDb = !!serverEnv.DATABASE_INTEGRATION_URL;
+const hasDb = !!apiEnv.DATABASE_INTEGRATION_URL;
 
 describe.skipIf(!hasDb)("UserRepository (integration)", () => {
   let dataSource: DataSource;
@@ -32,12 +34,14 @@ describe.skipIf(!hasDb)("UserRepository (integration)", () => {
     expect(result).toBeNull();
   });
 
-  it("upsert creates a new user", async () => {
-    const user = await repo.upsert({
+  it("create inserts a new user", async () => {
+    const user = await repo.create({
+      id: randomUUID(),
       googleId: "google-123",
       email: "test@example.com",
       name: "Test User",
       avatarUrl: "https://example.com/avatar.jpg",
+      role: RoleEnum.User,
     });
     expect(user.googleId).toBe("google-123");
     expect(user.email).toBe("test@example.com");
@@ -51,14 +55,16 @@ describe.skipIf(!hasDb)("UserRepository (integration)", () => {
     expect(user?.email).toBe("test@example.com");
   });
 
-  it("upsert updates existing user on conflict", async () => {
-    const updated = await repo.upsert({
-      googleId: "google-123",
+  it("updateProfile updates an existing user", async () => {
+    const existing = await repo.findByGoogleId("google-123");
+    expect(existing).not.toBeNull();
+
+    const updated = await repo.updateProfile(existing!.id, {
       email: "test@example.com",
       name: "Updated Name",
       avatarUrl: null,
     });
-    expect(updated.name).toBe("Updated Name");
-    expect(updated.googleId).toBe("google-123");
+    expect(updated?.name).toBe("Updated Name");
+    expect(updated?.googleId).toBe("google-123");
   });
 });

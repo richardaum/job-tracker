@@ -8,9 +8,11 @@ import {
   RequestMethod,
 } from "@nestjs/common";
 import { GraphQLModule } from "@nestjs/graphql";
+import { ThrottlerModule } from "@nestjs/throttler";
 import { join } from "path";
 
 import { AppController } from "./app.controller";
+import { IpRateLimitService } from "./common/ip-rate-limit.service";
 import { DatabaseModule } from "./database/database.module";
 import { AiModule } from "./domains/ai/ai.module";
 import { AuthModule } from "./domains/auth/auth.module";
@@ -27,6 +29,8 @@ import { GraphqlSseMiddleware } from "./graphql/graphql-sse.middleware";
 
 @Module({
   imports: [
+    // TODO(infra): Remove ThrottlerModule when WAF/CloudFront rate limits replace in-app auth throttling.
+    ThrottlerModule.forRoot([{ ttl: 60_000, limit: 20 }]),
     DatabaseModule,
     AuthModule,
     JobsModule,
@@ -47,7 +51,8 @@ import { GraphqlSseMiddleware } from "./graphql/graphql-sse.middleware";
     }),
   ],
   controllers: [AppController],
-  providers: [GraphqlSseMiddleware],
+  // TODO(infra): Remove IpRateLimitService when SSE (and any /graphql) limits move to the edge.
+  providers: [GraphqlSseMiddleware, IpRateLimitService],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer): void {

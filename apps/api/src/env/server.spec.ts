@@ -34,9 +34,9 @@ describe("API server env schema", () => {
   it("loads required values and applies defaults for PORT and WEB_URL", async () => {
     const env = await loadEnv({ PORT: undefined, WEB_URL: undefined });
 
-    expect(env.serverEnv.DATABASE_URL).toBe(REQUIRED_ENV.DATABASE_URL);
-    expect(env.serverEnv.PORT).toBe(3101);
-    expect(env.serverEnv.WEB_URL).toBe("http://localhost:3100");
+    expect(env.apiEnv.DATABASE_URL).toBe(REQUIRED_ENV.DATABASE_URL);
+    expect(env.apiEnv.PORT).toBe(3101);
+    expect(env.apiEnv.WEB_URL).toBe("http://localhost:3100");
   });
 
   it("rejects non-31xx PORT values in development", async () => {
@@ -50,6 +50,27 @@ describe("API server env schema", () => {
   it("allows non-31xx PORT values in production", async () => {
     const env = await loadEnv({ NODE_ENV: "production", PORT: "8080" });
 
-    expect(env.serverEnv.PORT).toBe(8080);
+    expect(env.apiEnv.PORT).toBe(8080);
+  });
+
+  it("parses JWT_ACCESS_SECRETS JSON when JWT_ACCESS_SECRET is omitted", async () => {
+    const env = await loadEnv({
+      JWT_ACCESS_SECRET: undefined,
+      JWT_ACCESS_SECRETS: JSON.stringify({
+        current: "json-access-current",
+        previous: "json-access-previous",
+      }),
+    });
+
+    expect(env.jwtAccessSecrets).toEqual({
+      current: "json-access-current",
+      previous: "json-access-previous",
+    });
+  });
+
+  it("rejects env when neither JWT_ACCESS_SECRET nor JWT_ACCESS_SECRETS is set", async () => {
+    await expect(
+      loadEnv({ JWT_ACCESS_SECRET: undefined, JWT_ACCESS_SECRETS: undefined }),
+    ).rejects.toThrow("JWT_ACCESS_SECRET or JWT_ACCESS_SECRETS is required.");
   });
 });

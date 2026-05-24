@@ -23,7 +23,10 @@ export class RolesGuard implements CanActivate {
     const { user } = request;
     if (!user?.userId) return false;
 
-    // TODO Add cache to save some db roundtrips
+    if (user.role) {
+      return requiredRoles.includes(user.role);
+    }
+
     const dbUser = await this.userService.findById(user.userId);
     return !!dbUser && requiredRoles.includes(dbUser.role);
   }

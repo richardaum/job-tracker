@@ -1,4 +1,4 @@
-import { serverEnv } from "@api/env/server";
+import { apiEnv } from "@api/env/server";
 import {
   AiBaseService,
   OpenAIClient,
@@ -55,7 +55,7 @@ export class SummaryAiService extends AiBaseService {
       userMessage: `Summarize this job:\n\n${context}`,
       schemaJson: SUMMARY_SCHEMA,
       responseFormat: "json-schema",
-      model: serverEnv.OPENAI_MODEL,
+      model: apiEnv.OPENAI_MODEL,
     })) as { summary: string };
 
     return result.summary;
