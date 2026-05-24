@@ -1,55 +1,18 @@
-import { existsSync, readFileSync } from "node:fs";
-import { join } from "node:path";
+import "@/env/load-dotenv";
 
 import type { Page } from "@playwright/test";
 
-function parseEnvValue(raw: string): string {
-  const trimmed = raw.trim();
-  if (
-    (trimmed.startsWith('"') && trimmed.endsWith('"')) ||
-    (trimmed.startsWith("'") && trimmed.endsWith("'"))
-  ) {
-    return trimmed.slice(1, -1);
-  }
-  return trimmed;
-}
-
-function readApiUrlFromFile(filename: string): string | undefined {
-  const envPath = join(process.cwd(), filename);
-  if (!existsSync(envPath)) {
-    return undefined;
-  }
-
-  const match = readFileSync(envPath, "utf8").match(
-    /^NEXT_PUBLIC_API_URL=(.+)$/m,
-  );
-  if (!match?.[1]) {
-    return undefined;
-  }
-
-  return parseEnvValue(match[1]).replace(/\/$/, "");
-}
+import { e2eEnv } from "@/env/e2e";
 
 function getApiBaseUrl(): string {
-  const fromEnv = process.env.NEXT_PUBLIC_API_URL;
-  if (fromEnv) {
-    return fromEnv.replace(/\/$/, "");
+  const url = e2eEnv.NEXT_PUBLIC_API_URL;
+  if (!url) {
+    throw new Error(
+      "NEXT_PUBLIC_API_URL not set — configure it in apps/web/.env or .env.local for E2E auth bypass.",
+    );
   }
 
-  // Next.js precedence: .env.local overrides .env (E2E setup writes .env.local on main).
-  const fromLocal = readApiUrlFromFile(".env.local");
-  if (fromLocal) {
-    return fromLocal;
-  }
-
-  const fromDotEnv = readApiUrlFromFile(".env");
-  if (fromDotEnv) {
-    return fromDotEnv;
-  }
-
-  throw new Error(
-    "NEXT_PUBLIC_API_URL not found — set it in apps/web/.env.local or apps/web/.env for E2E auth bypass.",
-  );
+  return url.replace(/\/$/, "");
 }
 
 /** Dev auth bypass via API origin (same flow as the login page Google button). */
