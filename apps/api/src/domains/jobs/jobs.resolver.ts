@@ -9,10 +9,11 @@ import { Args, ID, Mutation, Query, Resolver } from "@nestjs/graphql";
 import { CreateJobInput } from "./create-job.input";
 import { CreateJobStageEventInput } from "./create-job-stage-event.input";
 import { JobType } from "./job.type";
+import { JobAutomaticFillService } from "./job-automatic-fill.service";
 import { ApplicationQuickFilterEnum } from "./job-quick-filter.enum";
 import { JobStageEventType } from "./job-stage-event.type";
 import { JobsService } from "./jobs.service";
-import { SummaryService } from "./summary/summary.service";
+import { JobSummaryService } from "./summary/job-summary.service";
 import { UpdateJobInput } from "./update-job.input";
 import { UpdateJobStageEventInput } from "./update-job-stage-event.input";
 
@@ -22,7 +23,8 @@ import { UpdateJobStageEventInput } from "./update-job-stage-event.input";
 export class JobsResolver {
   constructor(
     private readonly service: JobsService,
-    private readonly summaryService: SummaryService,
+    private readonly fillService: JobAutomaticFillService,
+    private readonly summaryService: JobSummaryService,
   ) {}
 
   @Query(() => [JobType])
@@ -57,7 +59,7 @@ export class JobsResolver {
     @Args("jobId", { type: () => ID }) jobId: string,
     @CurrentUser() user: { userId: string },
   ): Promise<JobType> {
-    return this.service.fillJobAutomatically(user.userId, jobId);
+    return this.fillService.fillJobAutomatically(user.userId, jobId);
   }
 
   @Query(() => String, { nullable: true })
@@ -96,11 +98,11 @@ export class JobsResolver {
   }
 
   @Mutation(() => JobType)
-  generateJobSummary(
+  async requestJobSummary(
     @Args("jobId", { type: () => ID }) jobId: string,
     @CurrentUser() user: { userId: string },
   ): Promise<JobType> {
-    void this.summaryService.generateSummary(jobId, user.userId);
+    await this.summaryService.requestSummary(jobId, user.userId);
     return this.service.findOne(jobId, user.userId);
   }
 

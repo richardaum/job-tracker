@@ -5,10 +5,9 @@ import { buildDataSourceOptions } from "@api/database/data-source-options";
 import { JobEntity } from "@api/database/entities/job.entity";
 import { JobNoteEntity } from "@api/database/entities/job-note.entity";
 import { JobStageEventEntity } from "@api/database/entities/job-stage-event.entity";
-import { JobAsyncMetadataRepository } from "@api/domains/jobs/job-async-metadata.repository";
 import { JobEventBus } from "@api/domains/jobs/job-event.bus";
 import { JobsRepository } from "@api/domains/jobs/jobs.repository";
-import { SummaryService } from "@api/domains/jobs/summary/summary.service";
+import { JobSummaryService } from "@api/domains/jobs/summary/job-summary.service";
 import { SummaryAiService } from "@api/domains/jobs/summary/summary-ai.service";
 import { LibAiModule } from "@api/lib/ai";
 import { tryRun } from "@job-tracker/try-run";
@@ -25,13 +24,7 @@ import { EntityManager } from "typeorm";
     TypeOrmModule.forFeature([JobEntity, JobNoteEntity, JobStageEventEntity]),
     LibAiModule,
   ],
-  providers: [
-    JobEventBus,
-    JobsRepository,
-    JobAsyncMetadataRepository,
-    SummaryAiService,
-    SummaryService,
-  ],
+  providers: [JobEventBus, JobsRepository, SummaryAiService, JobSummaryService],
 })
 class ScriptModule {}
 
@@ -42,15 +35,14 @@ async function main() {
   });
 
   const em = app.get(EntityManager);
-  const summaryService = app.get(SummaryService);
-
-  const asyncMetadataRepo = app.get(JobAsyncMetadataRepository);
+  const summaryService = app.get(JobSummaryService);
+  const jobsRepo = app.get(JobsRepository);
 
   const dryRun = process.argv.includes("--dry-run");
 
   // Reset stale processing entries
   if (!dryRun) {
-    const resetCount = await asyncMetadataRepo.resetStaleSummaryProcessing();
+    const resetCount = await jobsRepo.resetStaleSummaryProcessing();
     if (resetCount > 0) {
       process.stdout.write(`Reset ${resetCount} stale processing entries.\n`);
     }
@@ -95,7 +87,7 @@ async function main() {
     process.stdout.write(`  ${prefix}${row.id}`);
     if (!dryRun) {
       const [err] = await tryRun(
-        summaryService.generateSummarySync(row.id, row.userId),
+        summaryService.requestSummarySync(row.id, row.userId),
       );
       if (err) {
         process.stdout.write(` ❌ ${err.message.slice(0, 80)}`);

@@ -4,7 +4,6 @@ import {
   SummaryGenerationRequested,
   SummaryStatusChanged,
 } from "@api/domains/jobs/job.events";
-import { JobAsyncMetadataRepository } from "@api/domains/jobs/job-async-metadata.repository";
 import { JobEventBus } from "@api/domains/jobs/job-event.bus";
 import { ApplicationStageEnum } from "@api/domains/jobs/job-stage.enum";
 import { JobsRepository } from "@api/domains/jobs/jobs.repository";
@@ -14,7 +13,7 @@ import { tipTapToPlainText } from "@job-tracker/tiptap";
 import { Repository } from "typeorm";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { SummaryService } from "./summary.service";
+import { JobSummaryService } from "./job-summary.service";
 import { SummaryAiService } from "./summary-ai.service";
 
 const TIPTAP_HELLO = JSON.stringify({
@@ -24,10 +23,15 @@ const TIPTAP_HELLO = JSON.stringify({
   ],
 });
 
-describe("SummaryService", () => {
-  let service: SummaryService;
-  let appRepo: Pick<JobsRepository, "findOneByIdAndUserId" | "updateSummary">;
-  let asyncMetadataRepo: Pick<JobAsyncMetadataRepository, "updateCas">;
+describe("JobSummaryService", () => {
+  let service: JobSummaryService;
+  let appRepo: Pick<
+    JobsRepository,
+    | "findOneByIdAndUserId"
+    | "updateSummary"
+    | "updateSummaryMetadataIfStatus"
+    | "resetStaleSummaryProcessing"
+  >;
   let summaryAiService: Pick<SummaryAiService, "generateSummary">;
   let eventBus: Pick<JobEventBus, "emit">;
   /** Shared chain returned by `stageEventsRepo.createQueryBuilder("e")`. */
@@ -44,9 +48,12 @@ describe("SummaryService", () => {
   let notesRepo: Pick<Repository<JobNoteEntity>, "find">;
 
   beforeEach(() => {
-    appRepo = { findOneByIdAndUserId: vi.fn(), updateSummary: vi.fn() };
-
-    asyncMetadataRepo = { updateCas: vi.fn() };
+    appRepo = {
+      findOneByIdAndUserId: vi.fn(),
+      updateSummary: vi.fn(),
+      updateSummaryMetadataIfStatus: vi.fn(),
+      resetStaleSummaryProcessing: vi.fn().mockResolvedValue(0),
+    };
 
     summaryAiService = { generateSummary: vi.fn() };
 
@@ -65,26 +72,35 @@ describe("SummaryService", () => {
       createQueryBuilder: vi.fn(() => stageTimelineQb),
     } as unknown as Pick<Repository<JobStageEventEntity>, "createQueryBuilder">;
 
-    service = new SummaryService(
+    service = new JobSummaryService(
       summaryAiService as SummaryAiService,
       eventBus as JobEventBus,
       appRepo as JobsRepository,
-      asyncMetadataRepo as JobAsyncMetadataRepository,
       stageEventsRepo as unknown as Repository<JobStageEventEntity>,
       notesRepo as Repository<JobNoteEntity>,
     );
   });
 
-  it("generateSummary skips when job is missing", async () => {
+  it("onModuleInit invokes resetStaleSummaryProcessing on repository", async () => {
+    vi.mocked(appRepo.resetStaleSummaryProcessing).mockResolvedValue(3);
+
+    service.onModuleInit();
+
+    await vi.waitFor(() =>
+      expect(appRepo.resetStaleSummaryProcessing).toHaveBeenCalledTimes(1),
+    );
+  });
+
+  it("requestSummary skips when job is missing", async () => {
     vi.mocked(appRepo.findOneByIdAndUserId).mockResolvedValue(null);
 
-    await service.generateSummary("job-1", "user-1");
+    await service.requestSummary("job-1", "user-1");
 
-    expect(asyncMetadataRepo.updateCas).not.toHaveBeenCalled();
+    expect(appRepo.updateSummaryMetadataIfStatus).not.toHaveBeenCalled();
     expect(eventBus.emit).not.toHaveBeenCalled();
   });
 
-  it("generateSummary skips when summary is already PROCESSING", async () => {
+  it("requestSummary skips when summary is already PROCESSING", async () => {
     vi.mocked(appRepo.findOneByIdAndUserId).mockResolvedValue({
       id: "job-1",
       title: "T",
@@ -95,12 +111,12 @@ describe("SummaryService", () => {
       },
     } as never);
 
-    await service.generateSummary("job-1", "user-1");
+    await service.requestSummary("job-1", "user-1");
 
-    expect(asyncMetadataRepo.updateCas).not.toHaveBeenCalled();
+    expect(appRepo.updateSummaryMetadataIfStatus).not.toHaveBeenCalled();
   });
 
-  it("generateSummary transitions metadata to PROCESSING and emits events on success", async () => {
+  it("requestSummary transitions metadata to PROCESSING and emits events on success", async () => {
     vi.mocked(appRepo.findOneByIdAndUserId).mockResolvedValue({
       id: "job-1",
       title: "T",
@@ -108,12 +124,13 @@ describe("SummaryService", () => {
       description: TIPTAP_HELLO,
       summaryMetadata: null,
     } as never);
-    vi.mocked(asyncMetadataRepo.updateCas).mockResolvedValueOnce(true);
+    vi.mocked(appRepo.updateSummaryMetadataIfStatus).mockResolvedValueOnce(
+      true,
+    );
 
-    await service.generateSummary("job-1", "user-1");
+    await service.requestSummary("job-1", "user-1");
 
-    expect(asyncMetadataRepo.updateCas).toHaveBeenCalledWith(
-      "summary",
+    expect(appRepo.updateSummaryMetadataIfStatus).toHaveBeenCalledWith(
       "job-1",
       "user-1",
       null,
@@ -128,16 +145,16 @@ describe("SummaryService", () => {
     );
   });
 
-  it("generateSummary exits quietly when optimistic update fails", async () => {
+  it("requestSummary exits quietly when optimistic update fails", async () => {
     vi.mocked(appRepo.findOneByIdAndUserId).mockResolvedValue({
       id: "job-1",
       title: "T",
       description: TIPTAP_HELLO,
       summaryMetadata: null,
     } as never);
-    vi.mocked(asyncMetadataRepo.updateCas).mockResolvedValue(false);
+    vi.mocked(appRepo.updateSummaryMetadataIfStatus).mockResolvedValue(false);
 
-    await service.generateSummary("job-1", "user-1");
+    await service.requestSummary("job-1", "user-1");
 
     expect(eventBus.emit).not.toHaveBeenCalled();
   });
@@ -158,7 +175,7 @@ describe("SummaryService", () => {
     vi.mocked(summaryAiService.generateSummary).mockResolvedValue(
       "# Summary md",
     );
-    vi.mocked(asyncMetadataRepo.updateCas).mockResolvedValue(true);
+    vi.mocked(appRepo.updateSummaryMetadataIfStatus).mockResolvedValue(true);
     vi.mocked(appRepo.updateSummary).mockResolvedValue(true);
 
     await service.doGenerate("job-1", "user-1");
@@ -184,11 +201,10 @@ describe("SummaryService", () => {
       vi.mocked(summaryAiService.generateSummary).mock.calls[0]?.[0] ?? "";
     expect(prompt).toContain(tipTapToPlainText(TIPTAP_HELLO));
 
-    expect(asyncMetadataRepo.updateCas).toHaveBeenCalledWith(
-      "summary",
+    expect(appRepo.updateSummaryMetadataIfStatus).toHaveBeenCalledWith(
       "job-1",
       "user-1",
-      { status: AsyncMetadataStatusEnum.PROCESSING },
+      AsyncMetadataStatusEnum.PROCESSING,
       expect.objectContaining({ status: AsyncMetadataStatusEnum.COMPLETED }),
     );
 
@@ -218,7 +234,7 @@ describe("SummaryService", () => {
       summaryMetadata: { status: AsyncMetadataStatusEnum.PROCESSING },
     } as never);
     vi.mocked(summaryAiService.generateSummary).mockResolvedValue("x");
-    vi.mocked(asyncMetadataRepo.updateCas).mockResolvedValue(true);
+    vi.mocked(appRepo.updateSummaryMetadataIfStatus).mockResolvedValue(true);
     vi.mocked(appRepo.updateSummary).mockResolvedValue(true);
 
     await service.doGenerate("job-1", "user-1");
@@ -245,7 +261,7 @@ describe("SummaryService", () => {
       summaryMetadata: { status: AsyncMetadataStatusEnum.PROCESSING },
     } as never);
     vi.mocked(summaryAiService.generateSummary).mockResolvedValue("ok");
-    vi.mocked(asyncMetadataRepo.updateCas).mockResolvedValue(true);
+    vi.mocked(appRepo.updateSummaryMetadataIfStatus).mockResolvedValue(true);
     vi.mocked(appRepo.updateSummary).mockResolvedValue(true);
 
     await service.doGenerate("job-1", "user-1");
@@ -271,7 +287,7 @@ describe("SummaryService", () => {
       summaryMetadata: { status: AsyncMetadataStatusEnum.PROCESSING },
     } as never);
     vi.mocked(summaryAiService.generateSummary).mockResolvedValue("ok");
-    vi.mocked(asyncMetadataRepo.updateCas).mockResolvedValue(true);
+    vi.mocked(appRepo.updateSummaryMetadataIfStatus).mockResolvedValue(true);
     vi.mocked(appRepo.updateSummary).mockResolvedValue(true);
 
     await service.doGenerate("job-1", "user-1");
@@ -292,17 +308,16 @@ describe("SummaryService", () => {
       summaryMetadata: { status: AsyncMetadataStatusEnum.PROCESSING },
     } as never);
     vi.mocked(summaryAiService.generateSummary).mockResolvedValue("ok");
-    vi.mocked(asyncMetadataRepo.updateCas).mockResolvedValue(true);
+    vi.mocked(appRepo.updateSummaryMetadataIfStatus).mockResolvedValue(true);
     vi.mocked(appRepo.updateSummary).mockResolvedValue(true);
 
     await service.doGenerate("job-1", "user-1");
 
     expect(summaryAiService.generateSummary).toHaveBeenCalled();
-    expect(asyncMetadataRepo.updateCas).toHaveBeenCalledWith(
-      "summary",
+    expect(appRepo.updateSummaryMetadataIfStatus).toHaveBeenCalledWith(
       "job-1",
       "user-1",
-      { status: AsyncMetadataStatusEnum.PROCESSING },
+      AsyncMetadataStatusEnum.PROCESSING,
       expect.objectContaining({ status: AsyncMetadataStatusEnum.COMPLETED }),
     );
   });
@@ -318,15 +333,14 @@ describe("SummaryService", () => {
     vi.mocked(summaryAiService.generateSummary).mockRejectedValue(
       new Error("quota exceeded"),
     );
-    vi.mocked(asyncMetadataRepo.updateCas).mockResolvedValue(true);
+    vi.mocked(appRepo.updateSummaryMetadataIfStatus).mockResolvedValue(true);
 
     await service.doGenerate("job-1", "user-1");
 
-    expect(asyncMetadataRepo.updateCas).toHaveBeenCalledWith(
-      "summary",
+    expect(appRepo.updateSummaryMetadataIfStatus).toHaveBeenCalledWith(
       "job-1",
       "user-1",
-      { status: AsyncMetadataStatusEnum.PROCESSING },
+      AsyncMetadataStatusEnum.PROCESSING,
       expect.objectContaining({
         status: AsyncMetadataStatusEnum.FAILED,
         error: "quota exceeded",
@@ -338,7 +352,7 @@ describe("SummaryService", () => {
     );
   });
 
-  it("generateSummarySync no-ops immediately when PROCESSING metadata", async () => {
+  it("requestSummarySync no-ops immediately when PROCESSING metadata", async () => {
     vi.mocked(appRepo.findOneByIdAndUserId).mockResolvedValue({
       id: "job-1",
       title: "T",
@@ -349,9 +363,9 @@ describe("SummaryService", () => {
       },
     } as never);
 
-    await service.generateSummarySync("job-1", "user-1");
+    await service.requestSummarySync("job-1", "user-1");
 
-    expect(asyncMetadataRepo.updateCas).not.toHaveBeenCalled();
+    expect(appRepo.updateSummaryMetadataIfStatus).not.toHaveBeenCalled();
   });
 
   it("includes stage-event context when query returns rows", async () => {
@@ -375,7 +389,7 @@ describe("SummaryService", () => {
       summaryMetadata: { status: AsyncMetadataStatusEnum.PROCESSING },
     } as never);
     vi.mocked(summaryAiService.generateSummary).mockResolvedValue("s");
-    vi.mocked(asyncMetadataRepo.updateCas).mockResolvedValue(true);
+    vi.mocked(appRepo.updateSummaryMetadataIfStatus).mockResolvedValue(true);
     vi.mocked(appRepo.updateSummary).mockResolvedValue(true);
 
     await service.doGenerate("job-1", "user-1");

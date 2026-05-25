@@ -1,5 +1,12 @@
+import { AsyncMetadataEmbedded } from "@api/database/embeddeds/async-metadata.embedded";
 import { SalaryEmbedded } from "@api/database/embeddeds/salary.embedded";
 import { JobEntity } from "@api/database/entities/job.entity";
+import {
+  type AsyncMetadataColumns,
+  beginAsyncMetadataProcessingWhenRestartable,
+  resetStaleAsyncMetadataProcessing,
+  updateAsyncMetadataIfStatus,
+} from "@api/domains/shared/async-metadata.helper";
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import type { EntityManager } from "typeorm";
@@ -7,6 +14,16 @@ import { Repository } from "typeorm";
 
 import { ApplicationStageEnum } from "./job-stage.enum";
 import { Job, NewJob } from "./jobs.schema";
+
+export const FILL_METADATA = {
+  metadataField: "fillMetadata",
+  statusColumn: "fill_status",
+} satisfies AsyncMetadataColumns;
+
+export const SUMMARY_METADATA = {
+  metadataField: "summaryMetadata",
+  statusColumn: "summary_status",
+} satisfies AsyncMetadataColumns;
 
 export type CreateJobRepoDto = Pick<
   NewJob,
@@ -123,5 +140,75 @@ export class JobsRepository {
       { summary },
     );
     return (result.affected ?? 0) > 0;
+  }
+
+  async updateFillMetadataIfStatus(
+    jobId: string,
+    userId: string,
+    expectedStatus: AsyncMetadataEmbedded["status"] | null,
+    patch: Partial<AsyncMetadataEmbedded> & {
+      status: AsyncMetadataEmbedded["status"];
+    },
+    manager?: EntityManager,
+  ): Promise<boolean> {
+    return updateAsyncMetadataIfStatus(
+      JobEntity,
+      this.jobsRepo,
+      FILL_METADATA,
+      { id: jobId, userId },
+      expectedStatus,
+      patch,
+      manager,
+    );
+  }
+
+  async updateSummaryMetadataIfStatus(
+    jobId: string,
+    userId: string,
+    expectedStatus: AsyncMetadataEmbedded["status"] | null,
+    patch: Partial<AsyncMetadataEmbedded> & {
+      status: AsyncMetadataEmbedded["status"];
+    },
+    manager?: EntityManager,
+  ): Promise<boolean> {
+    return updateAsyncMetadataIfStatus(
+      JobEntity,
+      this.jobsRepo,
+      SUMMARY_METADATA,
+      { id: jobId, userId },
+      expectedStatus,
+      patch,
+      manager,
+    );
+  }
+
+  async beginFillAutomaticallyProcessing(
+    jobId: string,
+    userId: string,
+  ): Promise<boolean> {
+    return beginAsyncMetadataProcessingWhenRestartable(
+      JobEntity,
+      this.jobsRepo,
+      FILL_METADATA,
+      { id: jobId, userId },
+    );
+  }
+
+  async resetStaleFillProcessing(): Promise<number> {
+    return resetStaleAsyncMetadataProcessing(
+      JobEntity,
+      this.jobsRepo,
+      FILL_METADATA,
+      "Server restart — fill interrupted",
+    );
+  }
+
+  async resetStaleSummaryProcessing(): Promise<number> {
+    return resetStaleAsyncMetadataProcessing(
+      JobEntity,
+      this.jobsRepo,
+      SUMMARY_METADATA,
+      "Server restart",
+    );
   }
 }

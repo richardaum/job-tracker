@@ -51,4 +51,8 @@ export class CreateJobInput {
   /** When true, creates a persisted `jobs` row in {@link ApplicationStageEnum.DRAFT} (replacement for legacy draft-job create). */
   @Field(() => Boolean, { nullable: true })
   createAsDraftCapture?: boolean | null;
+
+  /** Per-action intent to start automatic fill after draft capture; gated by user `autoFillEnabled` setting. */
+  @Field(() => Boolean, { nullable: true })
+  autoFill?: boolean | null;
 }

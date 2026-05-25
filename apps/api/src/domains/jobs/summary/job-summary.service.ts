@@ -4,7 +4,6 @@ import {
   SummaryGenerationRequested,
   SummaryStatusChanged,
 } from "@api/domains/jobs/job.events";
-import { JobAsyncMetadataRepository } from "@api/domains/jobs/job-async-metadata.repository";
 import { JobEventBus } from "@api/domains/jobs/job-event.bus";
 import { ApplicationStageEnum } from "@api/domains/jobs/job-stage.enum";
 import { JobsRepository } from "@api/domains/jobs/jobs.repository";
@@ -12,44 +11,51 @@ import { AsyncMetadataStatusEnum } from "@api/domains/shared/async-metadata.type
 import { htmlToPlainText } from "@api/domains/shared/html-plain-text.util";
 import { markdownToTipTap, tipTapToPlainText } from "@job-tracker/tiptap";
 import { tryRun } from "@job-tracker/try-run";
-import { Injectable, Logger } from "@nestjs/common";
+import { Injectable, Logger, OnModuleInit } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 
 import { SummaryAiService } from "./summary-ai.service";
 
 @Injectable()
-export class SummaryService {
-  private readonly logger = new Logger(SummaryService.name);
+export class JobSummaryService implements OnModuleInit {
+  private readonly logger = new Logger(JobSummaryService.name);
 
   constructor(
     private readonly summaryAiService: SummaryAiService,
     private readonly eventBus: JobEventBus,
-    private readonly appRepo: JobsRepository,
-    private readonly asyncMetadataRepo: JobAsyncMetadataRepository,
+    private readonly jobsRepo: JobsRepository,
     @InjectRepository(JobStageEventEntity)
     private readonly stageEventsRepo: Repository<JobStageEventEntity>,
     @InjectRepository(JobNoteEntity)
     private readonly notesRepo: Repository<JobNoteEntity>,
   ) {}
 
-  async generateSummary(jobId: string, userId: string): Promise<void> {
-    const app = await this.appRepo.findOneByIdAndUserId(jobId, userId);
-    if (!app) {
+  onModuleInit(): void {
+    void this.resetStaleProcessing();
+  }
+
+  private async resetStaleProcessing(): Promise<void> {
+    const count = await this.jobsRepo.resetStaleSummaryProcessing();
+    if (count > 0) {
+      this.logger.warn(`Recovered ${count} stale PROCESSING summaries`);
+    }
+  }
+
+  async requestSummary(jobId: string, userId: string): Promise<void> {
+    const job = await this.jobsRepo.findOneByIdAndUserId(jobId, userId);
+    if (!job) {
       this.logger.warn(`Job ${jobId} not found, skipping`);
       return;
     }
 
-    if (app.summaryMetadata?.status === AsyncMetadataStatusEnum.PROCESSING)
+    if (job.summaryMetadata?.status === AsyncMetadataStatusEnum.PROCESSING)
       return;
 
-    const ok = await this.asyncMetadataRepo.updateCas(
-      "summary",
+    const ok = await this.jobsRepo.updateSummaryMetadataIfStatus(
       jobId,
       userId,
-      app.summaryMetadata?.status
-        ? { status: app.summaryMetadata.status }
-        : null,
+      job.summaryMetadata?.status ?? null,
       { status: AsyncMetadataStatusEnum.PROCESSING },
     );
     if (!ok) return;
@@ -65,20 +71,17 @@ export class SummaryService {
     this.eventBus.emit(new SummaryGenerationRequested(jobId, userId));
   }
 
-  async generateSummarySync(jobId: string, userId: string): Promise<void> {
-    const app = await this.appRepo.findOneByIdAndUserId(jobId, userId);
-    if (!app) return;
+  async requestSummarySync(jobId: string, userId: string): Promise<void> {
+    const job = await this.jobsRepo.findOneByIdAndUserId(jobId, userId);
+    if (!job) return;
 
-    if (app.summaryMetadata?.status === AsyncMetadataStatusEnum.PROCESSING)
+    if (job.summaryMetadata?.status === AsyncMetadataStatusEnum.PROCESSING)
       return;
 
-    const ok = await this.asyncMetadataRepo.updateCas(
-      "summary",
+    const ok = await this.jobsRepo.updateSummaryMetadataIfStatus(
       jobId,
       userId,
-      app.summaryMetadata?.status
-        ? { status: app.summaryMetadata.status }
-        : null,
+      job.summaryMetadata?.status ?? null,
       { status: AsyncMetadataStatusEnum.PROCESSING },
     );
     if (!ok) return;
@@ -95,16 +98,16 @@ export class SummaryService {
   }
 
   async doGenerate(jobId: string, userId: string): Promise<void> {
-    const app = await this.appRepo.findOneByIdAndUserId(jobId, userId);
-    if (!app) return;
+    const job = await this.jobsRepo.findOneByIdAndUserId(jobId, userId);
+    if (!job) return;
 
     const [err] = await tryRun(async () => {
-      const companyName = app.company?.name ?? null;
+      const companyName = job.company?.name ?? null;
       /** Align with match-analysis: prefer captured HTML posting body when present. */
-      const descPlain = app.description?.trim()
-        ? tipTapToPlainText(app.description).trim()
+      const descPlain = job.description?.trim()
+        ? tipTapToPlainText(job.description).trim()
         : "";
-      const trimmedHtml = app.htmlContent?.trim() ?? "";
+      const trimmedHtml = job.htmlContent?.trim() ?? "";
       const htmlPlain = trimmedHtml ? htmlToPlainText(trimmedHtml).trim() : "";
       const bodyPlain = htmlPlain
         ? htmlPlain
@@ -137,26 +140,26 @@ export class SummaryService {
 
       const currentStage = stageEvents[0]?.toStage ?? ApplicationStageEnum.NEW;
       const salaryParts = [
-        app.salary?.minCents != null
-          ? `$${(app.salary.minCents / 100).toLocaleString()}`
+        job.salary?.minCents != null
+          ? `$${(job.salary.minCents / 100).toLocaleString()}`
           : null,
-        app.salary?.maxCents != null
-          ? `$${(app.salary.maxCents / 100).toLocaleString()}`
+        job.salary?.maxCents != null
+          ? `$${(job.salary.maxCents / 100).toLocaleString()}`
           : null,
-        app.salary?.currency ?? null,
-        app.salary?.period ?? null,
+        job.salary?.currency ?? null,
+        job.salary?.period ?? null,
       ].filter(Boolean);
       const salaryText = salaryParts.length > 0 ? salaryParts.join(" ") : null;
 
       const context = [
-        ...(app.title?.trim() ? [`Title: ${app.title.trim()}`] : ["Title: —"]),
+        ...(job.title?.trim() ? [`Title: ${job.title.trim()}`] : ["Title: —"]),
         companyName ? `Company: ${companyName}` : null,
         `Current stage: ${currentStage}`,
         bodyPlain ? `Description:\n${bodyPlain}` : null,
-        `Tags: ${(app.tags ?? []).join(", ")}`,
-        app.location ? `Location: ${app.location}` : null,
-        app.workRegion ? `Work Region: ${app.workRegion}` : null,
-        app.source ? `Source: ${app.source}` : null,
+        `Tags: ${(job.tags ?? []).join(", ")}`,
+        job.location ? `Location: ${job.location}` : null,
+        job.workRegion ? `Work Region: ${job.workRegion}` : null,
+        job.source ? `Source: ${job.source}` : null,
         salaryText ? `Salary: ${salaryText}` : null,
         stagesText ? `Stage timeline: ${stagesText}` : null,
         notesPlain ? `Notes:\n${notesPlain}` : null,
@@ -167,11 +170,10 @@ export class SummaryService {
       const plainText = await this.summaryAiService.generateSummary(context);
       const tipTapJson = markdownToTipTap(plainText);
 
-      const ok = await this.asyncMetadataRepo.updateCas(
-        "summary",
+      const ok = await this.jobsRepo.updateSummaryMetadataIfStatus(
         jobId,
         userId,
-        { status: AsyncMetadataStatusEnum.PROCESSING },
+        AsyncMetadataStatusEnum.PROCESSING,
         {
           status: AsyncMetadataStatusEnum.COMPLETED,
           timestamp: new Date(),
@@ -183,7 +185,7 @@ export class SummaryService {
         return;
       }
 
-      await this.appRepo.updateSummary(jobId, tipTapJson, userId);
+      await this.jobsRepo.updateSummary(jobId, tipTapJson, userId);
 
       this.eventBus.emit(
         new SummaryStatusChanged(
@@ -199,11 +201,10 @@ export class SummaryService {
         `Failed to generate summary for ${jobId}`,
         err instanceof Error ? err.message : String(err),
       );
-      await this.asyncMetadataRepo.updateCas(
-        "summary",
+      await this.jobsRepo.updateSummaryMetadataIfStatus(
         jobId,
         userId,
-        { status: AsyncMetadataStatusEnum.PROCESSING },
+        AsyncMetadataStatusEnum.PROCESSING,
         {
           status: AsyncMetadataStatusEnum.FAILED,
           error: err instanceof Error ? err.message : "Unknown error",

@@ -313,7 +313,7 @@ type Mutation {
   createJob(input: CreateJobInput!): JobType!
   fillJobAutomatically(jobId: ID!): JobType!
   updateJob(id: ID!, input: UpdateJobInput!): JobType!
-  generateJobSummary(jobId: ID!): JobType!
+  requestJobSummary(jobId: ID!): JobType!
   removeJobTag(id: ID!, tag: String!): JobType!
   deleteJob(id: ID!): DeleteMutationPayloadType!
   createJobStageEvent(input: CreateJobStageEventInput!): JobStageEventType!
@@ -358,6 +358,7 @@ input CreateJobInput {
   htmlContent: String
   sourceRunId: ID
   createAsDraftCapture: Boolean
+  autoFill: Boolean
 }
 
 input JobSalaryInput {

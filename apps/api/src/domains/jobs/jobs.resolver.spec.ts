@@ -26,10 +26,11 @@ import {
   vi,
 } from "vitest";
 
+import { JobAutomaticFillService } from "./job-automatic-fill.service";
 import { JobsResolver } from "./jobs.resolver";
 import type { Job } from "./jobs.schema";
 import { JobsService } from "./jobs.service";
-import { SummaryService } from "./summary/summary.service";
+import { JobSummaryService } from "./summary/job-summary.service";
 
 const mockJob: Job = {
   id: "app-1",
@@ -68,27 +69,30 @@ describe("JobsResolver (integration)", () => {
     findAll: ReturnType<typeof vi.fn>;
     findOne: ReturnType<typeof vi.fn>;
     create: ReturnType<typeof vi.fn>;
-    fillJobAutomatically: ReturnType<typeof vi.fn>;
     update: ReturnType<typeof vi.fn>;
     remove: ReturnType<typeof vi.fn>;
     removeStageEvent: ReturnType<typeof vi.fn>;
     generateCompanyDescription: ReturnType<typeof vi.fn>;
   };
+  let fillService: { fillJobAutomatically: ReturnType<typeof vi.fn> };
 
   beforeAll(async () => {
     service = {
       findAll: vi.fn().mockResolvedValue([mockJob]),
       findOne: vi.fn().mockResolvedValue(mockJob),
       create: vi.fn().mockResolvedValue(mockJob),
-      fillJobAutomatically: vi
-        .fn()
-        .mockResolvedValue(mockJobWithFillProcessing),
       update: vi.fn().mockResolvedValue(mockJob),
       remove: vi.fn().mockResolvedValue(mockJob),
       removeStageEvent: vi.fn().mockResolvedValue(undefined),
       generateCompanyDescription: vi
         .fn()
         .mockResolvedValue(JSON.stringify({ type: "doc", content: [] })),
+    };
+
+    fillService = {
+      fillJobAutomatically: vi
+        .fn()
+        .mockResolvedValue(mockJobWithFillProcessing),
     };
 
     const moduleRef = await Test.createTestingModule({
@@ -102,10 +106,8 @@ describe("JobsResolver (integration)", () => {
       providers: [
         JobsResolver,
         { provide: JobsService, useValue: service },
-        {
-          provide: SummaryService,
-          useValue: { generateSummaryForJob: vi.fn() },
-        },
+        { provide: JobAutomaticFillService, useValue: fillService },
+        { provide: JobSummaryService, useValue: { requestSummary: vi.fn() } },
       ],
     })
       .overrideGuard(JwtAuthGuard)
@@ -141,7 +143,7 @@ describe("JobsResolver (integration)", () => {
     service.findAll.mockReset().mockResolvedValue([mockJob]);
     service.findOne.mockReset().mockResolvedValue(mockJob);
     service.create.mockReset().mockResolvedValue(mockJob);
-    service.fillJobAutomatically
+    fillService.fillJobAutomatically
       .mockReset()
       .mockResolvedValue(mockJobWithFillProcessing);
     service.update.mockReset().mockResolvedValue(mockJob);
@@ -223,7 +225,7 @@ describe("JobsResolver (integration)", () => {
     );
   });
 
-  it("fillJobAutomatically mutation delegates to JobsService.fillJobAutomatically", async () => {
+  it("fillJobAutomatically mutation delegates to JobAutomaticFillService.fillJobAutomatically", async () => {
     const res = await graphqlRequest().send({
       query: `mutation {
           fillJobAutomatically(jobId: "app-1") {
@@ -240,7 +242,7 @@ describe("JobsResolver (integration)", () => {
     expect(res.body.data.fillJobAutomatically.fillMetadata.status).toBe(
       "PROCESSING",
     );
-    expect(service.fillJobAutomatically).toHaveBeenCalledWith(
+    expect(fillService.fillJobAutomatically).toHaveBeenCalledWith(
       "user-1",
       "app-1",
     );

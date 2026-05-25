@@ -7,7 +7,6 @@ import { apiEnv } from "@api/env/server";
 import type { DataSource } from "typeorm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
-import { JobAsyncMetadataRepository } from "./job-async-metadata.repository";
 import { JobsRepository } from "./jobs.repository";
 
 const hasDb = !!apiEnv.DATABASE_INTEGRATION_URL;
@@ -15,14 +14,12 @@ const hasDb = !!apiEnv.DATABASE_INTEGRATION_URL;
 describe.skipIf(!hasDb)("Job async summary metadata (integration)", () => {
   let dataSource: DataSource;
   let repo: JobsRepository;
-  let asyncMetadataRepo: JobAsyncMetadataRepository;
   let userId: string;
 
   beforeAll(async () => {
     dataSource = await createTestDataSource();
     const jobsRepository = dataSource.getRepository(JobEntity);
     repo = new JobsRepository(jobsRepository);
-    asyncMetadataRepo = new JobAsyncMetadataRepository(jobsRepository);
 
     const user = await insertUserWithAuthAccount(dataSource, {
       providerAccountId: "google-summary-metadata-test",
@@ -52,7 +49,7 @@ describe.skipIf(!hasDb)("Job async summary metadata (integration)", () => {
     return repo.create(userId, { title, companyId: company.id, urls: [] });
   }
 
-  describe("updateCas summary — transitions", () => {
+  describe("updateSummaryMetadataIfStatus — transitions", () => {
     it("NULL → PROCESSING (first transition)", async () => {
       const job = await createJob("Summary First");
       const row = await dataSource.query(
@@ -61,8 +58,7 @@ describe.skipIf(!hasDb)("Job async summary metadata (integration)", () => {
       );
       expect(row[0].summary_status).toBeNull();
 
-      const ok = await asyncMetadataRepo.updateCas(
-        "summary",
+      const ok = await repo.updateSummaryMetadataIfStatus(
         job.id,
         userId,
         null,
@@ -88,11 +84,10 @@ describe.skipIf(!hasDb)("Job async summary metadata (integration)", () => {
       );
 
       const now = new Date();
-      const ok = await asyncMetadataRepo.updateCas(
-        "summary",
+      const ok = await repo.updateSummaryMetadataIfStatus(
         job.id,
         userId,
-        { status: AsyncMetadataStatusEnum.PROCESSING },
+        AsyncMetadataStatusEnum.PROCESSING,
         { status: AsyncMetadataStatusEnum.COMPLETED, timestamp: now },
       );
       expect(ok).toBe(true);
@@ -111,11 +106,10 @@ describe.skipIf(!hasDb)("Job async summary metadata (integration)", () => {
         [AsyncMetadataStatusEnum.PROCESSING, job.id],
       );
 
-      const ok = await asyncMetadataRepo.updateCas(
-        "summary",
+      const ok = await repo.updateSummaryMetadataIfStatus(
         job.id,
         userId,
-        { status: AsyncMetadataStatusEnum.PROCESSING },
+        AsyncMetadataStatusEnum.PROCESSING,
         {
           status: AsyncMetadataStatusEnum.FAILED,
           error: "AI service unavailable",
@@ -139,11 +133,10 @@ describe.skipIf(!hasDb)("Job async summary metadata (integration)", () => {
         [AsyncMetadataStatusEnum.COMPLETED, job.id],
       );
 
-      const ok = await asyncMetadataRepo.updateCas(
-        "summary",
+      const ok = await repo.updateSummaryMetadataIfStatus(
         job.id,
         userId,
-        { status: AsyncMetadataStatusEnum.PROCESSING },
+        AsyncMetadataStatusEnum.PROCESSING,
         { status: AsyncMetadataStatusEnum.COMPLETED },
       );
       expect(ok).toBe(false);
@@ -152,8 +145,7 @@ describe.skipIf(!hasDb)("Job async summary metadata (integration)", () => {
     it("rejects when another user tries to update", async () => {
       const job = await createJob("Summary Wrong User");
 
-      const ok = await asyncMetadataRepo.updateCas(
-        "summary",
+      const ok = await repo.updateSummaryMetadataIfStatus(
         job.id,
         "wrong-user-id",
         null,
@@ -186,7 +178,7 @@ describe.skipIf(!hasDb)("Job async summary metadata (integration)", () => {
         [AsyncMetadataStatusEnum.COMPLETED, job3.id],
       );
 
-      const count = await asyncMetadataRepo.resetStaleSummaryProcessing();
+      const count = await repo.resetStaleSummaryProcessing();
       expect(count).toBe(2);
 
       const rows: Array<{

@@ -5,7 +5,6 @@ import { AsyncMetadataStatusEnum } from "@api/domains/shared/async-metadata.type
 import { Repository } from "typeorm";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { JobAsyncMetadataRepository } from "./job-async-metadata.repository";
 import { ApplicationQuickFilterEnum } from "./job-quick-filter.enum";
 import { ApplicationStageEnum } from "./job-stage.enum";
 import { JobStageEventsRepository } from "./job-stage-events.repository";
@@ -453,7 +452,7 @@ describe("JobsRepository", () => {
     expect(jobsRepo.save).not.toHaveBeenCalled();
   });
 
-  it("updateCas summary updates when summary_status matches expected PROCESSING", async () => {
+  it("updateSummaryMetadataIfStatus updates when summary_status matches expected PROCESSING", async () => {
     const qbChain = {
       update: vi.fn().mockReturnThis(),
       set: vi.fn().mockReturnThis(),
@@ -465,15 +464,14 @@ describe("JobsRepository", () => {
       qbChain as never,
     );
 
-    const metadataRepo = new JobAsyncMetadataRepository(
+    const repo = new JobsRepository(
       jobsRepo as unknown as Repository<JobEntity>,
     );
 
-    const ok = await metadataRepo.updateCas(
-      "summary",
+    const ok = await repo.updateSummaryMetadataIfStatus(
       "j1",
       "u1",
-      { status: AsyncMetadataStatusEnum.PROCESSING },
+      AsyncMetadataStatusEnum.PROCESSING,
       { status: AsyncMetadataStatusEnum.COMPLETED },
     );
 
@@ -483,7 +481,7 @@ describe("JobsRepository", () => {
     );
   });
 
-  it("updateCas summary uses IS NULL predicate when expecting null summary", async () => {
+  it("updateSummaryMetadataIfStatus uses IS NULL predicate when expecting null summary", async () => {
     const qbChain = {
       update: vi.fn().mockReturnThis(),
       set: vi.fn().mockReturnThis(),
@@ -495,11 +493,11 @@ describe("JobsRepository", () => {
       qbChain as never,
     );
 
-    const metadataRepo = new JobAsyncMetadataRepository(
+    const repo = new JobsRepository(
       jobsRepo as unknown as Repository<JobEntity>,
     );
 
-    await metadataRepo.updateCas("summary", "j1", "u1", null, {
+    await repo.updateSummaryMetadataIfStatus("j1", "u1", null, {
       status: AsyncMetadataStatusEnum.PROCESSING,
     });
 
@@ -516,12 +514,12 @@ describe("JobsRepository", () => {
     };
     vi.mocked(jobsRepo.createQueryBuilder).mockReturnValue(qbChain as never);
 
-    const metadataRepo = new JobAsyncMetadataRepository(
+    const repo = new JobsRepository(
       jobsRepo as unknown as Repository<JobEntity>,
     );
 
     await expect(
-      metadataRepo.beginFillAutomaticallyProcessing("j1", "u1"),
+      repo.beginFillAutomaticallyProcessing("j1", "u1"),
     ).resolves.toBe(true);
 
     expect(qbChain.andWhere).toHaveBeenCalledWith(
@@ -542,7 +540,7 @@ describe("JobsRepository", () => {
     });
   });
 
-  it("beginFillAutomaticallyProcessing returns false when CAS affects no rows", async () => {
+  it("beginFillAutomaticallyProcessing returns false when status update affects no rows", async () => {
     const qbChain = {
       update: vi.fn().mockReturnThis(),
       set: vi.fn().mockReturnThis(),
@@ -552,12 +550,12 @@ describe("JobsRepository", () => {
     };
     vi.mocked(jobsRepo.createQueryBuilder).mockReturnValue(qbChain as never);
 
-    const metadataRepo = new JobAsyncMetadataRepository(
+    const repo = new JobsRepository(
       jobsRepo as unknown as Repository<JobEntity>,
     );
 
     await expect(
-      metadataRepo.beginFillAutomaticallyProcessing("j1", "u1"),
+      repo.beginFillAutomaticallyProcessing("j1", "u1"),
     ).resolves.toBe(false);
   });
 
@@ -669,11 +667,11 @@ describe("JobsRepository", () => {
     };
     vi.mocked(jobsRepo.createQueryBuilder).mockReturnValue(qbStale as never);
 
-    const metadataRepo = new JobAsyncMetadataRepository(
+    const repo = new JobsRepository(
       jobsRepo as unknown as Repository<JobEntity>,
     );
 
-    await expect(metadataRepo.resetStaleSummaryProcessing()).resolves.toBe(4);
+    await expect(repo.resetStaleSummaryProcessing()).resolves.toBe(4);
   });
 
   it("resetStaleFillProcessing aggregates affected fill rows", async () => {
@@ -685,11 +683,11 @@ describe("JobsRepository", () => {
     };
     vi.mocked(jobsRepo.createQueryBuilder).mockReturnValue(qbStale as never);
 
-    const metadataRepo = new JobAsyncMetadataRepository(
+    const repo = new JobsRepository(
       jobsRepo as unknown as Repository<JobEntity>,
     );
 
-    await expect(metadataRepo.resetStaleFillProcessing()).resolves.toBe(2);
+    await expect(repo.resetStaleFillProcessing()).resolves.toBe(2);
     expect(qbStale.where).toHaveBeenCalledWith(
       `"fill_status" = :processing`,
       expect.objectContaining({
@@ -698,7 +696,7 @@ describe("JobsRepository", () => {
     );
   });
 
-  it("updateCas fill succeeds when fill_status matches expected", async () => {
+  it("updateFillMetadataIfStatus succeeds when fill_status matches expected", async () => {
     const qbChain = {
       update: vi.fn().mockReturnThis(),
       set: vi.fn().mockReturnThis(),
@@ -710,15 +708,14 @@ describe("JobsRepository", () => {
       qbChain as never,
     );
 
-    const metadataRepo = new JobAsyncMetadataRepository(
+    const repo = new JobsRepository(
       jobsRepo as unknown as Repository<JobEntity>,
     );
 
-    const ok = await metadataRepo.updateCas(
-      "fill",
+    const ok = await repo.updateFillMetadataIfStatus(
       "j1",
       "u1",
-      { status: AsyncMetadataStatusEnum.PROCESSING },
+      AsyncMetadataStatusEnum.PROCESSING,
       {
         status: AsyncMetadataStatusEnum.COMPLETED,
         timestamp: new Date(),
@@ -732,7 +729,7 @@ describe("JobsRepository", () => {
     });
   });
 
-  it("updateCas fill returns false when CAS affects no rows", async () => {
+  it("updateFillMetadataIfStatus returns false when status update affects no rows", async () => {
     const qbChain = {
       update: vi.fn().mockReturnThis(),
       set: vi.fn().mockReturnThis(),
@@ -744,22 +741,21 @@ describe("JobsRepository", () => {
       qbChain as never,
     );
 
-    const metadataRepo = new JobAsyncMetadataRepository(
+    const repo = new JobsRepository(
       jobsRepo as unknown as Repository<JobEntity>,
     );
 
-    const ok = await metadataRepo.updateCas(
-      "fill",
+    const ok = await repo.updateFillMetadataIfStatus(
       "j1",
       "u1",
-      { status: AsyncMetadataStatusEnum.PROCESSING },
+      AsyncMetadataStatusEnum.PROCESSING,
       { status: AsyncMetadataStatusEnum.FAILED, error: "x" },
     );
 
     expect(ok).toBe(false);
   });
 
-  it("updateCas fill column completes and fails fill metadata", async () => {
+  it("updateFillMetadataIfStatus completes and fails fill metadata", async () => {
     const qbChain = {
       update: vi.fn().mockReturnThis(),
       set: vi.fn().mockReturnThis(),
@@ -771,16 +767,15 @@ describe("JobsRepository", () => {
       qbChain as never,
     );
 
-    const metadataRepo = new JobAsyncMetadataRepository(
+    const repo = new JobsRepository(
       jobsRepo as unknown as Repository<JobEntity>,
     );
 
     await expect(
-      metadataRepo.updateCas(
-        "fill",
+      repo.updateFillMetadataIfStatus(
         "j1",
         "u1",
-        { status: AsyncMetadataStatusEnum.PROCESSING },
+        AsyncMetadataStatusEnum.PROCESSING,
         {
           status: AsyncMetadataStatusEnum.COMPLETED,
           timestamp: new Date(),
@@ -789,11 +784,10 @@ describe("JobsRepository", () => {
       ),
     ).resolves.toBe(true);
     await expect(
-      metadataRepo.updateCas(
-        "fill",
+      repo.updateFillMetadataIfStatus(
         "j1",
         "u1",
-        { status: AsyncMetadataStatusEnum.PROCESSING },
+        AsyncMetadataStatusEnum.PROCESSING,
         {
           status: AsyncMetadataStatusEnum.FAILED,
           error: "boom",
