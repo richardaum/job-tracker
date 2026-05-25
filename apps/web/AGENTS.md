@@ -17,7 +17,7 @@ Next.js 16 + Apollo Client. Generated hooks in `src/gql/hooks`.
 
 ## Tests
 
-Vitest, `src/**/*.test.{ts,tsx}`, jsdom. 80% coverage on `src/app/page.tsx`, `src/hooks/**`, `src/env/client.ts`, `src/lib/apollo-client.ts`.
+Vitest, `src/**/*.test.{ts,tsx}`, jsdom. 80% coverage on `src/app/page.tsx`, `src/hooks/**`, `src/env/client.ts`, `src/lib/make-apollo-client.ts`.
 
 ## View models
 

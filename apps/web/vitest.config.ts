@@ -15,7 +15,7 @@ export default defineConfig({
         "src/app/page.tsx",
         "src/hooks/**/*.{ts,tsx}",
         "src/env/client.ts",
-        "src/lib/apollo-client.ts",
+        "src/lib/make-apollo-client.ts",
       ],
       exclude: ["**/*.test.{ts,tsx}"],
       thresholds: { lines: 80 },

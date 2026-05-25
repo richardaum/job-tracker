@@ -23,7 +23,7 @@ function primaryProviderLabel(
 }
 
 export default function IdentityTabPage() {
-  const { data, loading } = useMeQuery();
+  const { data, loading } = useMeQuery({ fetchPolicy: "cache-first" });
   const user = data?.me ?? null;
 
   if (loading) {

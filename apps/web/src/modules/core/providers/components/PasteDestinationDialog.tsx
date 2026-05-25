@@ -2,14 +2,17 @@
 
 import { tryRun } from "@job-tracker/try-run";
 import { Button, Checkbox, cn, Dialog, Input, Text } from "@job-tracker/ui";
+import { SparkleIcon } from "@phosphor-icons/react";
 import { useMemo, useState } from "react";
+
+import { useSettingsQuery } from "@/gql/hooks";
 
 interface PasteDestinationDialogProps {
   open: boolean;
   pastedContent: string;
   submitting?: boolean;
   onOpenChange: (open: boolean) => void;
-  onConfirm: (url: string, autoConvert: boolean) => Promise<void>;
+  onConfirm: (url: string, autoFill: boolean) => Promise<void>;
 }
 
 type PasteAction = "draft";
@@ -35,14 +38,22 @@ export function PasteDestinationDialog({
   onOpenChange,
   onConfirm,
 }: PasteDestinationDialogProps) {
+  const { data: settingsData } = useSettingsQuery({
+    fetchPolicy: "cache-first",
+  });
   const [selectedAction, setSelectedAction] = useState<PasteAction>("draft");
   const [url, setUrl] = useState("");
   const [urlError, setUrlError] = useState<string | null>(null);
-  const [autoConvert, setAutoConvert] = useState(true);
+  const [autoFillOverride, setAutoFillOverride] = useState<boolean | null>(
+    null,
+  );
   const preview = useMemo(
     () => truncatePreview(pastedContent),
     [pastedContent],
   );
+
+  const defaultAutoFill = settingsData?.settings.autoFillEnabled ?? false;
+  const autoFill = autoFillOverride ?? defaultAutoFill;
 
   async function handleConfirm() {
     const normalized = url.trim();
@@ -58,7 +69,7 @@ export function PasteDestinationDialog({
     }
 
     setUrlError(null);
-    await onConfirm(normalized, autoConvert);
+    await onConfirm(normalized, autoFill);
     setUrl("");
   }
 
@@ -73,7 +84,7 @@ export function PasteDestinationDialog({
         if (!nextOpen) {
           setUrl("");
           setUrlError(null);
-          setAutoConvert(true);
+          setAutoFillOverride(null);
         }
       }}
       footer={
@@ -88,6 +99,7 @@ export function PasteDestinationDialog({
           </Button>
           <Button
             type="button"
+            disabled={submitting}
             state={submitting ? "loading" : "default"}
             onClick={handleConfirm}
           >
@@ -159,11 +171,14 @@ export function PasteDestinationDialog({
 
         <label className={cn("flex items-center gap-2")}>
           <Checkbox
-            checked={autoConvert}
-            onCheckedChange={setAutoConvert}
+            checked={autoFill}
+            onCheckedChange={(checked) => {
+              setAutoFillOverride(checked);
+            }}
             size="sm"
           />
-          <Text size="sm">Convert to job automatically</Text>
+          <SparkleIcon size={14} weight="regular" aria-hidden />
+          <Text size="sm">Fill job fields automatically</Text>
         </label>
 
         <div className={cn("space-y-1.5")}>

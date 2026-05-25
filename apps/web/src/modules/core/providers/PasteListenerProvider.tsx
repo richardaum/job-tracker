@@ -78,7 +78,7 @@ export function PasteListenerProvider({ children }: { children: ReactNode }) {
     return "Imported draft";
   }
 
-  async function handleConfirmPasteImport(url: string, autoConvert: boolean) {
+  async function handleConfirmPasteImport(url: string, autoFill: boolean) {
     const [createError, result] = await tryRun(
       createDraftCaptureJob({
         variables: {
@@ -87,6 +87,7 @@ export function PasteListenerProvider({ children }: { children: ReactNode }) {
             urls: url ? [url] : [],
             htmlContent: pastedContent,
             createAsDraftCapture: true,
+            autoFill,
           },
         },
       }),
@@ -105,11 +106,7 @@ export function PasteListenerProvider({ children }: { children: ReactNode }) {
     setDialogOpen(false);
     setPastedContent("");
 
-    const path = (
-      autoConvert ? `/jobs/${draftId}?autoConvert=true` : `/jobs/${draftId}`
-    ) as Route;
-
-    router.push(path);
+    router.push(`/jobs/${draftId}` as Route);
   }
 
   return (

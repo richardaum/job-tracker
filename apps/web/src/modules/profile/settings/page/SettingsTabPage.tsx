@@ -1,10 +1,15 @@
 "use client";
 
-import { Button, cn, Input, Spinner, Switch, Text } from "@job-tracker/ui";
-import { useEffect, useState } from "react";
+import { Button, cn, Input, Switch, Text } from "@job-tracker/ui";
+import { SparkleIcon } from "@phosphor-icons/react";
+import { useState } from "react";
 
 import type { UpdateSettingsMutation } from "@/gql/graphql";
 import { useSettingsQuery, useUpdateSettingsMutation } from "@/gql/hooks";
+import {
+  SettingCard,
+  SettingCardLabel,
+} from "@/modules/profile/settings/components/SettingCard";
 
 type SettingsToggleField = "autoFillEnabled" | "autoSummaryEnabled";
 type PendingSettingField = SettingsToggleField | "duplicateWindowDays";
@@ -12,26 +17,6 @@ type PendingSettingField = SettingsToggleField | "duplicateWindowDays";
 type SettingsValues = NonNullable<
   NonNullable<ReturnType<typeof useSettingsQuery>["data"]>["settings"]
 >;
-
-const SAVING_SPINNER_DELAY_MS = 300;
-
-function useDelayedTrue(value: boolean, delayMs: number): boolean {
-  const [showDelayed, setShowDelayed] = useState(false);
-
-  useEffect(() => {
-    if (!value) {
-      return;
-    }
-
-    const timer = window.setTimeout(() => setShowDelayed(true), delayMs);
-    return () => {
-      window.clearTimeout(timer);
-      setShowDelayed(false);
-    };
-  }, [value, delayMs]);
-
-  return value && showDelayed;
-}
 
 function buildOptimisticSettings(
   settings: SettingsValues,
@@ -53,7 +38,7 @@ function buildOptimisticSettings(
 }
 
 export default function SettingsTabPage() {
-  const { data, loading } = useSettingsQuery();
+  const { data, loading } = useSettingsQuery({ fetchPolicy: "cache-first" });
   const [updateSettings] = useUpdateSettingsMutation();
   const settings = data?.settings ?? null;
 
@@ -117,8 +102,14 @@ export default function SettingsTabPage() {
   return (
     <div className={cn("flex flex-col gap-3")}>
       <SettingCard
-        label="Auto-fill"
-        description="Pre-fill application fields when converting from draft"
+        label={
+          <SettingCardLabel
+            icon={<SparkleIcon size={14} weight="regular" aria-hidden />}
+          >
+            Auto-fill job fields
+          </SettingCardLabel>
+        }
+        description="Fill job fields automatically when creating a draft from pasted content"
         pending={pendingField === "autoFillEnabled"}
         control={
           <Switch
@@ -131,7 +122,13 @@ export default function SettingsTabPage() {
         }
       />
       <SettingCard
-        label="Auto-summary"
+        label={
+          <SettingCardLabel
+            icon={<SparkleIcon size={14} weight="regular" aria-hidden />}
+          >
+            Auto-summary
+          </SettingCardLabel>
+        }
         description="Generate summaries automatically when job fields change"
         pending={pendingField === "autoSummaryEnabled"}
         control={
@@ -145,7 +142,7 @@ export default function SettingsTabPage() {
         }
       />
       <SettingCard
-        label="Duplicate detection window"
+        label={<SettingCardLabel>Duplicate detection window</SettingCardLabel>}
         description="Time range in days for detecting duplicate applications"
         pending={pendingField === "duplicateWindowDays"}
         control={
@@ -178,41 +175,6 @@ export default function SettingsTabPage() {
           </form>
         }
       />
-    </div>
-  );
-}
-
-function SettingCard({
-  label,
-  description,
-  control,
-  pending = false,
-}: {
-  label: string;
-  description: string;
-  control: React.ReactNode;
-  pending?: boolean;
-}) {
-  const showSpinner = useDelayedTrue(pending, SAVING_SPINNER_DELAY_MS);
-
-  return (
-    <div
-      className={cn(
-        "flex items-center gap-4 rounded-lg border border-border-subtle p-4",
-      )}
-    >
-      <div className={cn("flex flex-col gap-0.5")}>
-        <div className={cn("flex items-center gap-2")}>
-          <Text size="base" weight="medium">
-            {label}
-          </Text>
-          {showSpinner ? <Spinner size="sm" label="Saving setting" /> : null}
-        </div>
-        <Text size="sm" color="muted">
-          {description}
-        </Text>
-      </div>
-      <div className={cn("shrink-0")}>{control}</div>
     </div>
   );
 }

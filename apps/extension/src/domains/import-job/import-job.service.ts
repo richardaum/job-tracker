@@ -31,6 +31,7 @@ export class ImportJobService {
         title: snapshot.title,
         urls: snapshot.url?.trim() ? [snapshot.url.trim()] : [],
         htmlContent: sanitizeCapturedHtml(snapshot.innerHTML),
+        autoFill: true,
       }),
     );
 
@@ -41,9 +42,7 @@ export class ImportJobService {
     const id = result?.data?.createJob?.id;
     if (!id) throw new Error("Failed to create draft job");
 
-    await this.tabService.openTab(`${WEB_URL}/jobs/${id}?autoConvert=true`, {
-      focus: true,
-    });
+    await this.tabService.openTab(`${WEB_URL}/jobs/${id}`, { focus: true });
   }
 
   async getImportMenuLabel(): Promise<string> {

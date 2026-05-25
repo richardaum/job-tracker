@@ -199,16 +199,13 @@ export class JobSummaryService implements OnModuleInit {
     if (err) {
       this.logger.error(
         `Failed to generate summary for ${jobId}`,
-        err instanceof Error ? err.message : String(err),
+        err instanceof Error ? err.stack : String(err),
       );
       await this.jobsRepo.updateSummaryMetadataIfStatus(
         jobId,
         userId,
         AsyncMetadataStatusEnum.PROCESSING,
-        {
-          status: AsyncMetadataStatusEnum.FAILED,
-          error: err instanceof Error ? err.message : "Unknown error",
-        },
+        { status: AsyncMetadataStatusEnum.FAILED },
       );
 
       this.eventBus.emit(

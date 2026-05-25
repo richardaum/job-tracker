@@ -33,7 +33,7 @@
 - **Draft management** (`specs/027`, `specs/035`) — built — View, search, and manage collected-but-unconverted JDs in the draft inbox.
   - **Import from paste** (`specs/027`) — built — Paste a JD (Ctrl+V) anywhere in the app to create a draft from clipboard content.
   - **Convert to job** (`specs/027`) — built — AI extracts title, company, description, salary, and tags; detects duplicates and resolves conflicts (replace vs. keep).
-  - **Auto-convert** (`specs/027`) — built — Pass `?autoConvert=true` to auto-convert a draft on page load.
+  - **Auto-convert** (`specs/027`) — built — Pass `autoFill: true` on draft create when the user setting and paste checkbox allow; backend gates on `autoFillEnabled`.
   - **Linked job** — built — See which job a draft is linked to, or convert unlinked drafts.
 
 ## 4. Companies

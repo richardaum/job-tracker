@@ -20,7 +20,7 @@ function AuthenticatedFullscreenLoadingScreen() {
   );
 }
 
-export default function ProtectedLayout({ children }: { children: ReactNode }) {
+export function AuthenticatedLayout({ children }: { children: ReactNode }) {
   const router = useRouter();
   const { user, loading } = useCurrentUser();
   const { loginRedirectUrl } = useAuthReturnTo();

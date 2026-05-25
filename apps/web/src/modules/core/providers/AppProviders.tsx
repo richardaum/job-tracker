@@ -1,18 +1,18 @@
 "use client";
 
-import { ApolloProvider } from "@apollo/client/react";
+import { ApolloNextAppProvider } from "@apollo/client-integration-nextjs";
 import type { ReactNode } from "react";
 
-import { apolloClient } from "@/lib/apollo-client";
+import { createApolloClient } from "@/lib/make-apollo-client";
 import { PasteListenerProvider } from "@/modules/core/providers/PasteListenerProvider";
 import { ToastQueueProvider } from "@/modules/jobs/shared/hooks/ToastQueueProvider";
 
 export function AppProviders({ children }: { children: ReactNode }) {
   return (
-    <ApolloProvider client={apolloClient}>
+    <ApolloNextAppProvider makeClient={createApolloClient}>
       <ToastQueueProvider>
         <PasteListenerProvider>{children}</PasteListenerProvider>
       </ToastQueueProvider>
-    </ApolloProvider>
+    </ApolloNextAppProvider>
   );
 }

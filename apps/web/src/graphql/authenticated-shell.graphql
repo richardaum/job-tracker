@@ -1,0 +1,21 @@
+query AuthenticatedShell {
+  me {
+    id
+    email
+    name
+    role
+    avatarUrl
+    accounts {
+      id
+      providerName
+      providerAccountId
+      createdAt
+    }
+  }
+  settings {
+    id
+    autoFillEnabled
+    autoSummaryEnabled
+    duplicateWindowDays
+  }
+}

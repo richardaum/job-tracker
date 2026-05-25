@@ -1,5 +1,6 @@
 "use client";
 
+import { useApolloClient } from "@apollo/client/react";
 import { authMutationRequestInit } from "@job-tracker/auth";
 import { Button, cn, Text } from "@job-tracker/ui";
 import {
@@ -21,7 +22,6 @@ import React, { useState } from "react";
 
 import type { CurrentUser } from "@/hooks/useCurrentUser";
 import { getApiBaseUrl } from "@/lib/api-endpoints";
-import { apolloClient } from "@/lib/apollo-client";
 import { AppBrandMark } from "@/modules/navigation/components/AppBrandMark";
 import { ObfuscatedText } from "@/modules/navigation/components/ObfuscatedText";
 
@@ -73,6 +73,7 @@ interface SidebarProps {
 export function Sidebar({ open = false, onClose, user }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
+  const apolloClient = useApolloClient();
   const [loggingOut, setLoggingOut] = useState(false);
   const initials = user.name
     .split(" ")

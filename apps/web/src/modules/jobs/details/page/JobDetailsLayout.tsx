@@ -26,7 +26,6 @@ import { ActivitySidePanel } from "@/modules/jobs/details/components/ActivitySid
 import { MatchTabTrigger } from "@/modules/jobs/details/components/MatchTabTrigger";
 import { UpdateStatusAction } from "@/modules/jobs/details/components/UpdateStatusAction";
 import { JobMatchStatusProvider } from "@/modules/jobs/details/hooks/JobMatchStatusProvider";
-import { useJobAutoFillFromQuery } from "@/modules/jobs/details/hooks/useJobAutoFillFromQuery";
 import {
   useJobDetailsMainTab,
   useJobDetailsTab,
@@ -302,11 +301,6 @@ export default function JobDetailsLayout({
     enqueueToast({ title: "Automatic fill queued.", intent: "success" });
   }, [enqueueToast, triggerFillAutomatically]);
 
-  useJobAutoFillFromQuery({
-    jobReady: Boolean(job) && status === "success",
-    onFill: handleFillAutomatically,
-  });
-
   const setSidePanel = useCallback(
     (sidePanel: JobSidePanel) => {
       const next = new URLSearchParams(searchParams.toString());
@@ -351,7 +345,7 @@ export default function JobDetailsLayout({
         onSelect={() => void handleFillAutomatically()}
         icon={<SparkleIcon size={14} weight="regular" />}
       >
-        Fill automatically
+        Fill job fields automatically
       </DropdownMenuItem>
       <DropdownMenuItem onSelect={() => setActionsOpen(true)}>
         Update status

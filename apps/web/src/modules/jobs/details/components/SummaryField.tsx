@@ -54,16 +54,9 @@ export function SummaryField({
             Generating summary...
           </Text>
         ) : isFailed ? (
-          <div className={cn("flex flex-col gap-1")}>
-            <Text size="sm" color="error">
-              Failed to generate summary.
-            </Text>
-            {summaryMetadata?.error ? (
-              <Text size="xs" color="muted">
-                {summaryMetadata.error}
-              </Text>
-            ) : null}
-          </div>
+          <Text size="sm" color="error">
+            Failed to generate summary.
+          </Text>
         ) : summary ? (
           <div className={cn("flex flex-col gap-1")}>
             <TipTapContent content={summary} />
