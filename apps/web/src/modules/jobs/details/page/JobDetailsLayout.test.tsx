@@ -19,9 +19,10 @@ const gqlMocks = vi.hoisted(() => ({
   useJobQuery: vi.fn(),
   useGenerateJobMatchMutation: vi.fn(),
   useDeleteMatchAnalysisMutation: vi.fn(),
+  useJobSummaryStatusChangedSubscription: vi.fn(),
+  useJobFillStatusChangedSubscription: vi.fn(),
+  useJobMatchStatusChangedSubscription: vi.fn(),
 }));
-
-const sseMocks = vi.hoisted(() => ({ useEventSource: vi.fn() }));
 
 vi.mock("@/gql/hooks", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/gql/hooks")>();
@@ -31,15 +32,26 @@ vi.mock("@/gql/hooks", async (importOriginal) => {
     useJobQuery: gqlMocks.useJobQuery,
     useGenerateJobMatchMutation: gqlMocks.useGenerateJobMatchMutation,
     useDeleteMatchAnalysisMutation: gqlMocks.useDeleteMatchAnalysisMutation,
+    useJobSummaryStatusChangedSubscription:
+      gqlMocks.useJobSummaryStatusChangedSubscription,
+    useJobFillStatusChangedSubscription:
+      gqlMocks.useJobFillStatusChangedSubscription,
+    useJobMatchStatusChangedSubscription:
+      gqlMocks.useJobMatchStatusChangedSubscription,
   };
 });
 
-vi.mock("@/hooks/useEventSource", () => ({
-  useEventSource: sseMocks.useEventSource,
-}));
-
-vi.mock("@/lib/api-endpoints", () => ({
-  getApiBaseUrl: () => "https://api.test",
+vi.mock("@apollo/client/react", () => ({
+  useApolloClient: () => ({
+    cache: {
+      readFragment: vi.fn(),
+      writeFragment: vi.fn(),
+      readQuery: vi.fn(),
+      writeQuery: vi.fn(),
+      identify: vi.fn(),
+      evict: vi.fn(),
+    },
+  }),
 }));
 
 vi.mock("@/modules/work-preferences/components/PreferencesDialog", () => ({
@@ -145,7 +157,9 @@ describe("JobDetailsLayout", () => {
     gqlMocks.useJobQuery.mockReset();
     gqlMocks.useGenerateJobMatchMutation.mockReset();
     gqlMocks.useDeleteMatchAnalysisMutation.mockReset();
-    sseMocks.useEventSource.mockReset();
+    gqlMocks.useJobFillStatusChangedSubscription.mockReturnValue(undefined);
+    gqlMocks.useJobSummaryStatusChangedSubscription.mockReturnValue(undefined);
+    gqlMocks.useJobMatchStatusChangedSubscription.mockReturnValue(undefined);
     gqlMocks.useJobMatchQuery.mockReturnValue({
       data: undefined,
       loading: false,

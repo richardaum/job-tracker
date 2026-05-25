@@ -28,7 +28,6 @@ export function useMatchTabViewModel(jobId: string) {
     matchLoading,
     matchError,
     refetchJobMatch,
-    sseUrl,
   } = useJobMatchStatus();
 
   const [generateJobMatch, { loading: generating }] =
@@ -75,7 +74,6 @@ export function useMatchTabViewModel(jobId: string) {
     jobId,
     matchAnalysis,
     matchPk,
-    sseUrl,
     status,
     matchLoading,
     matchError,

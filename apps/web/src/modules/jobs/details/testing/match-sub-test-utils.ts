@@ -5,16 +5,31 @@ import { vi } from "vitest";
 import type { JobMatchData } from "@/modules/jobs/details/testing/match-tab-test-fixtures";
 
 export function getMatchStatusChangedHandler(
-  useEventSourceMock: Mock,
+  subscriptionMock: Mock,
 ): (evt: { status: string }) => void | Promise<void> {
-  const call = useEventSourceMock.mock.calls.find(
-    (entry) => entry[1] === "match_status_changed",
+  const call = subscriptionMock.mock.calls.find(
+    (entry) => entry[0].onData !== undefined,
   );
   if (!call) {
-    throw new Error("match_status_changed SSE handler not registered");
+    throw new Error(
+      "jobMatchStatusChanged subscription handler not registered",
+    );
   }
 
-  return call[2] as (evt: { status: string }) => void | Promise<void>;
+  const onData = call[0].onData as
+    | ((opts: {
+        data: { data?: { jobMatchStatusChanged?: { status: string } } };
+      }) => void)
+    | undefined;
+  if (!onData) {
+    throw new Error(
+      "jobMatchStatusChanged subscription onData handler not found",
+    );
+  }
+
+  return (evt: { status: string }) => {
+    onData({ data: { data: { jobMatchStatusChanged: evt } } });
+  };
 }
 
 export function setupReactiveJobMatchQuery(

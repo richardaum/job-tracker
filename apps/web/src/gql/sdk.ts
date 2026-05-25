@@ -90,7 +90,6 @@ export type CompanyType = {
 
 export type CreateJobInput = {
   autoFill?: InputMaybe<Scalars["Boolean"]["input"]>;
-  autoMatch?: InputMaybe<Scalars["Boolean"]["input"]>;
   company?: InputMaybe<Scalars["String"]["input"]>;
   companyId?: InputMaybe<Scalars["ID"]["input"]>;
   createAsDraftCapture?: InputMaybe<Scalars["Boolean"]["input"]>;
@@ -152,6 +151,32 @@ export type ExchangeRate = {
   rate: Scalars["Float"]["output"];
 };
 
+export type ExtensionActivityEvent = {
+  __typename?: "ExtensionActivityEvent";
+  browser?: Maybe<Scalars["String"]["output"]>;
+  correlationId?: Maybe<Scalars["String"]["output"]>;
+  extensionVersion?: Maybe<Scalars["String"]["output"]>;
+  id: Scalars["ID"]["output"];
+  occurredAt: Scalars["DateTime"]["output"];
+  payload?: Maybe<Scalars["String"]["output"]>;
+  summary: Scalars["String"]["output"];
+  type: ExtensionActivityEventType;
+};
+
+export enum ExtensionActivityEventType {
+  AuthFailed = "AuthFailed",
+  AuthRefreshed = "AuthRefreshed",
+  ImportJobCompleted = "ImportJobCompleted",
+  ImportJobFailed = "ImportJobFailed",
+  ImportJobStarted = "ImportJobStarted",
+  SourceRunClaimSkipped = "SourceRunClaimSkipped",
+  SourceRunCompleted = "SourceRunCompleted",
+  SourceRunFailed = "SourceRunFailed",
+  SourceRunJobImported = "SourceRunJobImported",
+  SourceRunReceived = "SourceRunReceived",
+  SourceRunStarted = "SourceRunStarted",
+}
+
 export enum FitClassification {
   Negative = "Negative",
   Neutral = "Neutral",
@@ -161,6 +186,20 @@ export enum FitClassification {
 export type GenerateMatchInput = {
   jobId: Scalars["ID"]["input"];
   resumeId: Scalars["ID"]["input"];
+};
+
+export type JobFillStatusEventType = {
+  __typename?: "JobFillStatusEventType";
+  error?: Maybe<Scalars["String"]["output"]>;
+  jobId: Scalars["ID"]["output"];
+  status: Scalars["String"]["output"];
+};
+
+export type JobMatchStatusEventType = {
+  __typename?: "JobMatchStatusEventType";
+  jobId: Scalars["ID"]["output"];
+  matchId: Scalars["ID"]["output"];
+  status: Scalars["String"]["output"];
 };
 
 export type JobSalary = {
@@ -196,6 +235,12 @@ export type JobStageEventType = {
   source: StageEventSource;
   toStage: ApplicationStage;
   userId: Scalars["String"]["output"];
+};
+
+export type JobSummaryStatusEventType = {
+  __typename?: "JobSummaryStatusEventType";
+  jobId: Scalars["ID"]["output"];
+  status: Scalars["String"]["output"];
 };
 
 export type JobType = {
@@ -289,6 +334,7 @@ export type Mutation = {
   fillJobAutomatically: JobType;
   generateJobMatch: MatchAnalysisType;
   removeJobTag: JobType;
+  reportExtensionActivity: ExtensionActivityEvent;
   requestJobSummary: JobType;
   rerunSourceTemplate: SourceRunType;
   updateCompany: CompanyType;
@@ -333,7 +379,10 @@ export type MutationDeleteMatchAnalysisArgs = { id: Scalars["ID"]["input"] };
 
 export type MutationDeleteResumeArgs = { id: Scalars["ID"]["input"] };
 
-export type MutationDeleteSourceRunArgs = { id: Scalars["ID"]["input"] };
+export type MutationDeleteSourceRunArgs = {
+  deleteJobs?: InputMaybe<Scalars["Boolean"]["input"]>;
+  id: Scalars["ID"]["input"];
+};
 
 export type MutationDeleteSourceTemplateArgs = { id: Scalars["ID"]["input"] };
 
@@ -350,6 +399,10 @@ export type MutationGenerateJobMatchArgs = { input: GenerateMatchInput };
 export type MutationRemoveJobTagArgs = {
   id: Scalars["ID"]["input"];
   tag: Scalars["String"]["input"];
+};
+
+export type MutationReportExtensionActivityArgs = {
+  input: ReportExtensionActivityInput;
 };
 
 export type MutationRequestJobSummaryArgs = { jobId: Scalars["ID"]["input"] };
@@ -432,6 +485,7 @@ export type Query = {
   company: CompanyType;
   companyJobsCount: Scalars["Int"]["output"];
   exchangeRates: CurrencyRates;
+  extensionActivityEvents: Array<ExtensionActivityEvent>;
   generateCompanyDescription: Scalars["String"]["output"];
   generateJobLocationWithAI?: Maybe<Scalars["String"]["output"]>;
   generateJobNoteWithAI: Scalars["String"]["output"];
@@ -451,6 +505,7 @@ export type Query = {
   settings: UserSetting;
   sourceProfiles: Array<SourceProfileType>;
   sourceRuns: Array<SourceRunType>;
+  sourceTemplate: SourceTemplateType;
   sourceTemplates: Array<SourceTemplateType>;
   sourceTemplatesForSourceProfile: Array<SourceTemplateType>;
   workPreferences: Array<PreferenceType>;
@@ -463,6 +518,10 @@ export type QueryCompanyJobsCountArgs = { id: Scalars["ID"]["input"] };
 export type QueryExchangeRatesArgs = {
   base: Scalars["String"]["input"];
   currencies: Array<Scalars["String"]["input"]>;
+};
+
+export type QueryExtensionActivityEventsArgs = {
+  limit?: InputMaybe<Scalars["Int"]["input"]>;
 };
 
 export type QueryGenerateCompanyDescriptionArgs = {
@@ -510,8 +569,20 @@ export type QuerySourceProfilesArgs = {
   onlyWithSourceTemplate?: InputMaybe<Scalars["Boolean"]["input"]>;
 };
 
+export type QuerySourceTemplateArgs = { id: Scalars["ID"]["input"] };
+
 export type QuerySourceTemplatesForSourceProfileArgs = {
   sourceProfileId: Scalars["String"]["input"];
+};
+
+export type ReportExtensionActivityInput = {
+  browser?: InputMaybe<Scalars["String"]["input"]>;
+  correlationId?: InputMaybe<Scalars["String"]["input"]>;
+  extensionVersion?: InputMaybe<Scalars["String"]["input"]>;
+  occurredAt?: InputMaybe<Scalars["DateTime"]["input"]>;
+  payload?: InputMaybe<Scalars["String"]["input"]>;
+  summary: Scalars["String"]["input"];
+  type: ExtensionActivityEventType;
 };
 
 export enum RequirementType {
@@ -591,7 +662,23 @@ export enum StageEventSource {
 
 export type Subscription = {
   __typename?: "Subscription";
+  extensionActivityEvents: ExtensionActivityEvent;
+  jobFillStatusChanged: JobFillStatusEventType;
+  jobMatchStatusChanged: JobMatchStatusEventType;
+  jobSummaryStatusChanged: JobSummaryStatusEventType;
   sourceRunEvents: SourceRunEvent;
+};
+
+export type SubscriptionJobFillStatusChangedArgs = {
+  jobId: Scalars["ID"]["input"];
+};
+
+export type SubscriptionJobMatchStatusChangedArgs = {
+  jobId: Scalars["ID"]["input"];
+};
+
+export type SubscriptionJobSummaryStatusChangedArgs = {
+  jobId: Scalars["ID"]["input"];
 };
 
 export type UpdateCompanyInput = {
@@ -632,7 +719,6 @@ export type UpdateResumeInput = {
 
 export type UpdateSettingsInput = {
   autoFillEnabled?: InputMaybe<Scalars["Boolean"]["input"]>;
-  autoMatchEnabled?: InputMaybe<Scalars["Boolean"]["input"]>;
   autoSummaryEnabled?: InputMaybe<Scalars["Boolean"]["input"]>;
   duplicateWindowDays?: InputMaybe<Scalars["Int"]["input"]>;
 };
@@ -648,7 +734,6 @@ export type UpdateSourceTemplateInput = {
 export type UserSetting = {
   __typename?: "UserSetting";
   autoFillEnabled: Scalars["Boolean"]["output"];
-  autoMatchEnabled: Scalars["Boolean"]["output"];
   autoSummaryEnabled: Scalars["Boolean"]["output"];
   duplicateWindowDays: Scalars["Int"]["output"];
   id: Scalars["ID"]["output"];
@@ -669,6 +754,77 @@ export enum Weight {
   High = "High",
   Low = "Low",
 }
+
+export type AdminSourceRunsListQueryVariables = Exact<{ [key: string]: never }>;
+
+export type AdminSourceRunsListQuery = {
+  __typename?: "Query";
+  sourceRuns: Array<{
+    __typename?: "SourceRunType";
+    id: string;
+    templateId: string;
+    sourceProfileId: string;
+    surfaceUrl: string;
+    status: SourceRunStatus;
+    startedAt: any;
+    sourceProfile: string;
+  }>;
+};
+
+export type AdminExtensionActivityEventsListQueryVariables = Exact<{
+  limit?: InputMaybe<Scalars["Int"]["input"]>;
+}>;
+
+export type AdminExtensionActivityEventsListQuery = {
+  __typename?: "Query";
+  extensionActivityEvents: Array<{
+    __typename?: "ExtensionActivityEvent";
+    id: string;
+    type: ExtensionActivityEventType;
+    summary: string;
+    correlationId?: string | null;
+    occurredAt: any;
+  }>;
+};
+
+export type AdminSourceRunEventsSubscriptionVariables = Exact<{
+  [key: string]: never;
+}>;
+
+export type AdminSourceRunEventsSubscription = {
+  __typename?: "Subscription";
+  sourceRunEvents: {
+    __typename?: "SourceRunEvent";
+    type: SourceRunEventType;
+    occurredAt: any;
+    run: {
+      __typename?: "SourceRunType";
+      id: string;
+      templateId: string;
+      sourceProfileId: string;
+      surfaceUrl: string;
+      status: SourceRunStatus;
+      startedAt: any;
+      sourceProfile: string;
+    };
+  };
+};
+
+export type AdminExtensionActivityEventsSubscriptionVariables = Exact<{
+  [key: string]: never;
+}>;
+
+export type AdminExtensionActivityEventsSubscription = {
+  __typename?: "Subscription";
+  extensionActivityEvents: {
+    __typename?: "ExtensionActivityEvent";
+    id: string;
+    type: ExtensionActivityEventType;
+    summary: string;
+    correlationId?: string | null;
+    occurredAt: any;
+  };
+};
 
 export type AuthenticatedShellQueryVariables = Exact<{ [key: string]: never }>;
 
@@ -694,7 +850,6 @@ export type AuthenticatedShellQuery = {
     id: string;
     autoFillEnabled: boolean;
     autoSummaryEnabled: boolean;
-    autoMatchEnabled: boolean;
     duplicateWindowDays: number;
   };
 };
@@ -1267,6 +1422,47 @@ export type CreateDraftCaptureJobMutation = {
   };
 };
 
+export type JobSummaryStatusChangedSubscriptionVariables = Exact<{
+  jobId: Scalars["ID"]["input"];
+}>;
+
+export type JobSummaryStatusChangedSubscription = {
+  __typename?: "Subscription";
+  jobSummaryStatusChanged: {
+    __typename?: "JobSummaryStatusEventType";
+    jobId: string;
+    status: string;
+  };
+};
+
+export type JobFillStatusChangedSubscriptionVariables = Exact<{
+  jobId: Scalars["ID"]["input"];
+}>;
+
+export type JobFillStatusChangedSubscription = {
+  __typename?: "Subscription";
+  jobFillStatusChanged: {
+    __typename?: "JobFillStatusEventType";
+    jobId: string;
+    status: string;
+    error?: string | null;
+  };
+};
+
+export type JobMatchStatusChangedSubscriptionVariables = Exact<{
+  jobId: Scalars["ID"]["input"];
+}>;
+
+export type JobMatchStatusChangedSubscription = {
+  __typename?: "Subscription";
+  jobMatchStatusChanged: {
+    __typename?: "JobMatchStatusEventType";
+    jobId: string;
+    matchId: string;
+    status: string;
+  };
+};
+
 export type MatchAnalysesListQueryVariables = Exact<{ [key: string]: never }>;
 
 export type MatchAnalysesListQuery = {
@@ -1546,7 +1742,6 @@ export type SettingsQuery = {
     id: string;
     autoFillEnabled: boolean;
     autoSummaryEnabled: boolean;
-    autoMatchEnabled: boolean;
     duplicateWindowDays: number;
   };
 };
@@ -1562,7 +1757,6 @@ export type UpdateSettingsMutation = {
     id: string;
     autoFillEnabled: boolean;
     autoSummaryEnabled: boolean;
-    autoMatchEnabled: boolean;
     duplicateWindowDays: number;
   };
 };
@@ -1589,6 +1783,29 @@ export type SourceProfilesForNewSourcePickerQuery = {
     sourceProfileId: string;
     name: string;
   }>;
+};
+
+export type SourceTemplateQueryVariables = Exact<{
+  id: Scalars["ID"]["input"];
+}>;
+
+export type SourceTemplateQuery = {
+  __typename?: "Query";
+  sourceTemplate: {
+    __typename?: "SourceTemplateType";
+    id: string;
+    sourceProfileId: string;
+    scheduleCron?: string | null;
+    scheduleEnabled: boolean;
+    surfaceUrl: string;
+    createdAt: any;
+    runs: Array<{
+      __typename?: "SourceRunType";
+      id: string;
+      status: SourceRunStatus;
+      startedAt: any;
+    }>;
+  };
 };
 
 export type SourcesForSourceProfileQueryVariables = Exact<{
@@ -1668,6 +1885,34 @@ export type CreateSourceTemplateMutation = {
   };
 };
 
+export type RerunSourceTemplateMutationVariables = Exact<{
+  templateId: Scalars["ID"]["input"];
+}>;
+
+export type RerunSourceTemplateMutation = {
+  __typename?: "Mutation";
+  rerunSourceTemplate: {
+    __typename?: "SourceRunType";
+    id: string;
+    status: SourceRunStatus;
+    startedAt: any;
+  };
+};
+
+export type DeleteSourceRunMutationVariables = Exact<{
+  id: Scalars["ID"]["input"];
+  deleteJobs?: InputMaybe<Scalars["Boolean"]["input"]>;
+}>;
+
+export type DeleteSourceRunMutation = {
+  __typename?: "Mutation";
+  deleteSourceRun: {
+    __typename?: "DeleteMutationPayloadType";
+    success: boolean;
+    deletedId: string;
+  };
+};
+
 export type WorkPreferencesQueryVariables = Exact<{ [key: string]: never }>;
 
 export type WorkPreferencesQuery = {
@@ -1702,6 +1947,58 @@ export const JobSalarySelectionFragmentDoc = gql`
     }
   }
 `;
+export const AdminSourceRunsListDocument = gql`
+  query AdminSourceRunsList {
+    sourceRuns {
+      id
+      templateId
+      sourceProfileId
+      surfaceUrl
+      status
+      startedAt
+      sourceProfile
+    }
+  }
+`;
+export const AdminExtensionActivityEventsListDocument = gql`
+  query AdminExtensionActivityEventsList($limit: Int) {
+    extensionActivityEvents(limit: $limit) {
+      id
+      type
+      summary
+      correlationId
+      occurredAt
+    }
+  }
+`;
+export const AdminSourceRunEventsDocument = gql`
+  subscription AdminSourceRunEvents {
+    sourceRunEvents {
+      type
+      occurredAt
+      run {
+        id
+        templateId
+        sourceProfileId
+        surfaceUrl
+        status
+        startedAt
+        sourceProfile
+      }
+    }
+  }
+`;
+export const AdminExtensionActivityEventsDocument = gql`
+  subscription AdminExtensionActivityEvents {
+    extensionActivityEvents {
+      id
+      type
+      summary
+      correlationId
+      occurredAt
+    }
+  }
+`;
 export const AuthenticatedShellDocument = gql`
   query AuthenticatedShell {
     me {
@@ -1721,7 +2018,6 @@ export const AuthenticatedShellDocument = gql`
       id
       autoFillEnabled
       autoSummaryEnabled
-      autoMatchEnabled
       duplicateWindowDays
     }
   }
@@ -2117,6 +2413,32 @@ export const CreateDraftCaptureJobDocument = gql`
     }
   }
 `;
+export const JobSummaryStatusChangedDocument = gql`
+  subscription JobSummaryStatusChanged($jobId: ID!) {
+    jobSummaryStatusChanged(jobId: $jobId) {
+      jobId
+      status
+    }
+  }
+`;
+export const JobFillStatusChangedDocument = gql`
+  subscription JobFillStatusChanged($jobId: ID!) {
+    jobFillStatusChanged(jobId: $jobId) {
+      jobId
+      status
+      error
+    }
+  }
+`;
+export const JobMatchStatusChangedDocument = gql`
+  subscription JobMatchStatusChanged($jobId: ID!) {
+    jobMatchStatusChanged(jobId: $jobId) {
+      jobId
+      matchId
+      status
+    }
+  }
+`;
 export const MatchAnalysesListDocument = gql`
   query MatchAnalysesList {
     matchAnalyses {
@@ -2344,7 +2666,6 @@ export const SettingsDocument = gql`
       id
       autoFillEnabled
       autoSummaryEnabled
-      autoMatchEnabled
       duplicateWindowDays
     }
   }
@@ -2355,7 +2676,6 @@ export const UpdateSettingsDocument = gql`
       id
       autoFillEnabled
       autoSummaryEnabled
-      autoMatchEnabled
       duplicateWindowDays
     }
   }
@@ -2373,6 +2693,23 @@ export const SourceProfilesForNewSourcePickerDocument = gql`
     sourceProfiles(onlyWithSourceTemplate: false) {
       sourceProfileId
       name
+    }
+  }
+`;
+export const SourceTemplateDocument = gql`
+  query SourceTemplate($id: ID!) {
+    sourceTemplate(id: $id) {
+      id
+      sourceProfileId
+      scheduleCron
+      scheduleEnabled
+      surfaceUrl
+      createdAt
+      runs {
+        id
+        status
+        startedAt
+      }
     }
   }
 `;
@@ -2430,6 +2767,23 @@ export const CreateSourceTemplateDocument = gql`
     }
   }
 `;
+export const RerunSourceTemplateDocument = gql`
+  mutation RerunSourceTemplate($templateId: ID!) {
+    rerunSourceTemplate(templateId: $templateId) {
+      id
+      status
+      startedAt
+    }
+  }
+`;
+export const DeleteSourceRunDocument = gql`
+  mutation DeleteSourceRun($id: ID!, $deleteJobs: Boolean = false) {
+    deleteSourceRun(id: $id, deleteJobs: $deleteJobs) {
+      success
+      deletedId
+    }
+  }
+`;
 export const WorkPreferencesDocument = gql`
   query WorkPreferences {
     workPreferences {
@@ -2466,6 +2820,78 @@ export function getSdk(
   withWrapper: SdkFunctionWrapper = defaultWrapper,
 ) {
   return {
+    AdminSourceRunsList(
+      variables?: AdminSourceRunsListQueryVariables,
+      requestHeaders?: GraphQLClientRequestHeaders,
+      signal?: RequestInit["signal"],
+    ): Promise<AdminSourceRunsListQuery> {
+      return withWrapper(
+        (wrappedRequestHeaders) =>
+          client.request<AdminSourceRunsListQuery>({
+            document: AdminSourceRunsListDocument,
+            variables,
+            requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
+            signal,
+          }),
+        "AdminSourceRunsList",
+        "query",
+        variables,
+      );
+    },
+    AdminExtensionActivityEventsList(
+      variables?: AdminExtensionActivityEventsListQueryVariables,
+      requestHeaders?: GraphQLClientRequestHeaders,
+      signal?: RequestInit["signal"],
+    ): Promise<AdminExtensionActivityEventsListQuery> {
+      return withWrapper(
+        (wrappedRequestHeaders) =>
+          client.request<AdminExtensionActivityEventsListQuery>({
+            document: AdminExtensionActivityEventsListDocument,
+            variables,
+            requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
+            signal,
+          }),
+        "AdminExtensionActivityEventsList",
+        "query",
+        variables,
+      );
+    },
+    AdminSourceRunEvents(
+      variables?: AdminSourceRunEventsSubscriptionVariables,
+      requestHeaders?: GraphQLClientRequestHeaders,
+      signal?: RequestInit["signal"],
+    ): Promise<AdminSourceRunEventsSubscription> {
+      return withWrapper(
+        (wrappedRequestHeaders) =>
+          client.request<AdminSourceRunEventsSubscription>({
+            document: AdminSourceRunEventsDocument,
+            variables,
+            requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
+            signal,
+          }),
+        "AdminSourceRunEvents",
+        "subscription",
+        variables,
+      );
+    },
+    AdminExtensionActivityEvents(
+      variables?: AdminExtensionActivityEventsSubscriptionVariables,
+      requestHeaders?: GraphQLClientRequestHeaders,
+      signal?: RequestInit["signal"],
+    ): Promise<AdminExtensionActivityEventsSubscription> {
+      return withWrapper(
+        (wrappedRequestHeaders) =>
+          client.request<AdminExtensionActivityEventsSubscription>({
+            document: AdminExtensionActivityEventsDocument,
+            variables,
+            requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
+            signal,
+          }),
+        "AdminExtensionActivityEvents",
+        "subscription",
+        variables,
+      );
+    },
     AuthenticatedShell(
       variables?: AuthenticatedShellQueryVariables,
       requestHeaders?: GraphQLClientRequestHeaders,
@@ -3006,6 +3432,60 @@ export function getSdk(
         variables,
       );
     },
+    JobSummaryStatusChanged(
+      variables: JobSummaryStatusChangedSubscriptionVariables,
+      requestHeaders?: GraphQLClientRequestHeaders,
+      signal?: RequestInit["signal"],
+    ): Promise<JobSummaryStatusChangedSubscription> {
+      return withWrapper(
+        (wrappedRequestHeaders) =>
+          client.request<JobSummaryStatusChangedSubscription>({
+            document: JobSummaryStatusChangedDocument,
+            variables,
+            requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
+            signal,
+          }),
+        "JobSummaryStatusChanged",
+        "subscription",
+        variables,
+      );
+    },
+    JobFillStatusChanged(
+      variables: JobFillStatusChangedSubscriptionVariables,
+      requestHeaders?: GraphQLClientRequestHeaders,
+      signal?: RequestInit["signal"],
+    ): Promise<JobFillStatusChangedSubscription> {
+      return withWrapper(
+        (wrappedRequestHeaders) =>
+          client.request<JobFillStatusChangedSubscription>({
+            document: JobFillStatusChangedDocument,
+            variables,
+            requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
+            signal,
+          }),
+        "JobFillStatusChanged",
+        "subscription",
+        variables,
+      );
+    },
+    JobMatchStatusChanged(
+      variables: JobMatchStatusChangedSubscriptionVariables,
+      requestHeaders?: GraphQLClientRequestHeaders,
+      signal?: RequestInit["signal"],
+    ): Promise<JobMatchStatusChangedSubscription> {
+      return withWrapper(
+        (wrappedRequestHeaders) =>
+          client.request<JobMatchStatusChangedSubscription>({
+            document: JobMatchStatusChangedDocument,
+            variables,
+            requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
+            signal,
+          }),
+        "JobMatchStatusChanged",
+        "subscription",
+        variables,
+      );
+    },
     MatchAnalysesList(
       variables?: MatchAnalysesListQueryVariables,
       requestHeaders?: GraphQLClientRequestHeaders,
@@ -3294,6 +3774,24 @@ export function getSdk(
         variables,
       );
     },
+    SourceTemplate(
+      variables: SourceTemplateQueryVariables,
+      requestHeaders?: GraphQLClientRequestHeaders,
+      signal?: RequestInit["signal"],
+    ): Promise<SourceTemplateQuery> {
+      return withWrapper(
+        (wrappedRequestHeaders) =>
+          client.request<SourceTemplateQuery>({
+            document: SourceTemplateDocument,
+            variables,
+            requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
+            signal,
+          }),
+        "SourceTemplate",
+        "query",
+        variables,
+      );
+    },
     SourcesForSourceProfile(
       variables: SourcesForSourceProfileQueryVariables,
       requestHeaders?: GraphQLClientRequestHeaders,
@@ -3362,6 +3860,42 @@ export function getSdk(
             signal,
           }),
         "CreateSourceTemplate",
+        "mutation",
+        variables,
+      );
+    },
+    RerunSourceTemplate(
+      variables: RerunSourceTemplateMutationVariables,
+      requestHeaders?: GraphQLClientRequestHeaders,
+      signal?: RequestInit["signal"],
+    ): Promise<RerunSourceTemplateMutation> {
+      return withWrapper(
+        (wrappedRequestHeaders) =>
+          client.request<RerunSourceTemplateMutation>({
+            document: RerunSourceTemplateDocument,
+            variables,
+            requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
+            signal,
+          }),
+        "RerunSourceTemplate",
+        "mutation",
+        variables,
+      );
+    },
+    DeleteSourceRun(
+      variables: DeleteSourceRunMutationVariables,
+      requestHeaders?: GraphQLClientRequestHeaders,
+      signal?: RequestInit["signal"],
+    ): Promise<DeleteSourceRunMutation> {
+      return withWrapper(
+        (wrappedRequestHeaders) =>
+          client.request<DeleteSourceRunMutation>({
+            document: DeleteSourceRunDocument,
+            variables,
+            requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
+            signal,
+          }),
+        "DeleteSourceRun",
         "mutation",
         variables,
       );

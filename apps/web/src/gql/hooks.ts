@@ -91,7 +91,6 @@ export type CompanyType = {
 
 export type CreateJobInput = {
   autoFill?: InputMaybe<Scalars["Boolean"]["input"]>;
-  autoMatch?: InputMaybe<Scalars["Boolean"]["input"]>;
   company?: InputMaybe<Scalars["String"]["input"]>;
   companyId?: InputMaybe<Scalars["ID"]["input"]>;
   createAsDraftCapture?: InputMaybe<Scalars["Boolean"]["input"]>;
@@ -153,6 +152,32 @@ export type ExchangeRate = {
   rate: Scalars["Float"]["output"];
 };
 
+export type ExtensionActivityEvent = {
+  __typename?: "ExtensionActivityEvent";
+  browser?: Maybe<Scalars["String"]["output"]>;
+  correlationId?: Maybe<Scalars["String"]["output"]>;
+  extensionVersion?: Maybe<Scalars["String"]["output"]>;
+  id: Scalars["ID"]["output"];
+  occurredAt: Scalars["DateTime"]["output"];
+  payload?: Maybe<Scalars["String"]["output"]>;
+  summary: Scalars["String"]["output"];
+  type: ExtensionActivityEventType;
+};
+
+export enum ExtensionActivityEventType {
+  AuthFailed = "AuthFailed",
+  AuthRefreshed = "AuthRefreshed",
+  ImportJobCompleted = "ImportJobCompleted",
+  ImportJobFailed = "ImportJobFailed",
+  ImportJobStarted = "ImportJobStarted",
+  SourceRunClaimSkipped = "SourceRunClaimSkipped",
+  SourceRunCompleted = "SourceRunCompleted",
+  SourceRunFailed = "SourceRunFailed",
+  SourceRunJobImported = "SourceRunJobImported",
+  SourceRunReceived = "SourceRunReceived",
+  SourceRunStarted = "SourceRunStarted",
+}
+
 export enum FitClassification {
   Negative = "Negative",
   Neutral = "Neutral",
@@ -162,6 +187,20 @@ export enum FitClassification {
 export type GenerateMatchInput = {
   jobId: Scalars["ID"]["input"];
   resumeId: Scalars["ID"]["input"];
+};
+
+export type JobFillStatusEventType = {
+  __typename?: "JobFillStatusEventType";
+  error?: Maybe<Scalars["String"]["output"]>;
+  jobId: Scalars["ID"]["output"];
+  status: Scalars["String"]["output"];
+};
+
+export type JobMatchStatusEventType = {
+  __typename?: "JobMatchStatusEventType";
+  jobId: Scalars["ID"]["output"];
+  matchId: Scalars["ID"]["output"];
+  status: Scalars["String"]["output"];
 };
 
 export type JobSalary = {
@@ -197,6 +236,12 @@ export type JobStageEventType = {
   source: StageEventSource;
   toStage: ApplicationStage;
   userId: Scalars["String"]["output"];
+};
+
+export type JobSummaryStatusEventType = {
+  __typename?: "JobSummaryStatusEventType";
+  jobId: Scalars["ID"]["output"];
+  status: Scalars["String"]["output"];
 };
 
 export type JobType = {
@@ -290,6 +335,7 @@ export type Mutation = {
   fillJobAutomatically: JobType;
   generateJobMatch: MatchAnalysisType;
   removeJobTag: JobType;
+  reportExtensionActivity: ExtensionActivityEvent;
   requestJobSummary: JobType;
   rerunSourceTemplate: SourceRunType;
   updateCompany: CompanyType;
@@ -334,7 +380,10 @@ export type MutationDeleteMatchAnalysisArgs = { id: Scalars["ID"]["input"] };
 
 export type MutationDeleteResumeArgs = { id: Scalars["ID"]["input"] };
 
-export type MutationDeleteSourceRunArgs = { id: Scalars["ID"]["input"] };
+export type MutationDeleteSourceRunArgs = {
+  deleteJobs?: InputMaybe<Scalars["Boolean"]["input"]>;
+  id: Scalars["ID"]["input"];
+};
 
 export type MutationDeleteSourceTemplateArgs = { id: Scalars["ID"]["input"] };
 
@@ -351,6 +400,10 @@ export type MutationGenerateJobMatchArgs = { input: GenerateMatchInput };
 export type MutationRemoveJobTagArgs = {
   id: Scalars["ID"]["input"];
   tag: Scalars["String"]["input"];
+};
+
+export type MutationReportExtensionActivityArgs = {
+  input: ReportExtensionActivityInput;
 };
 
 export type MutationRequestJobSummaryArgs = { jobId: Scalars["ID"]["input"] };
@@ -433,6 +486,7 @@ export type Query = {
   company: CompanyType;
   companyJobsCount: Scalars["Int"]["output"];
   exchangeRates: CurrencyRates;
+  extensionActivityEvents: Array<ExtensionActivityEvent>;
   generateCompanyDescription: Scalars["String"]["output"];
   generateJobLocationWithAI?: Maybe<Scalars["String"]["output"]>;
   generateJobNoteWithAI: Scalars["String"]["output"];
@@ -452,6 +506,7 @@ export type Query = {
   settings: UserSetting;
   sourceProfiles: Array<SourceProfileType>;
   sourceRuns: Array<SourceRunType>;
+  sourceTemplate: SourceTemplateType;
   sourceTemplates: Array<SourceTemplateType>;
   sourceTemplatesForSourceProfile: Array<SourceTemplateType>;
   workPreferences: Array<PreferenceType>;
@@ -464,6 +519,10 @@ export type QueryCompanyJobsCountArgs = { id: Scalars["ID"]["input"] };
 export type QueryExchangeRatesArgs = {
   base: Scalars["String"]["input"];
   currencies: Array<Scalars["String"]["input"]>;
+};
+
+export type QueryExtensionActivityEventsArgs = {
+  limit?: InputMaybe<Scalars["Int"]["input"]>;
 };
 
 export type QueryGenerateCompanyDescriptionArgs = {
@@ -511,8 +570,20 @@ export type QuerySourceProfilesArgs = {
   onlyWithSourceTemplate?: InputMaybe<Scalars["Boolean"]["input"]>;
 };
 
+export type QuerySourceTemplateArgs = { id: Scalars["ID"]["input"] };
+
 export type QuerySourceTemplatesForSourceProfileArgs = {
   sourceProfileId: Scalars["String"]["input"];
+};
+
+export type ReportExtensionActivityInput = {
+  browser?: InputMaybe<Scalars["String"]["input"]>;
+  correlationId?: InputMaybe<Scalars["String"]["input"]>;
+  extensionVersion?: InputMaybe<Scalars["String"]["input"]>;
+  occurredAt?: InputMaybe<Scalars["DateTime"]["input"]>;
+  payload?: InputMaybe<Scalars["String"]["input"]>;
+  summary: Scalars["String"]["input"];
+  type: ExtensionActivityEventType;
 };
 
 export enum RequirementType {
@@ -592,7 +663,23 @@ export enum StageEventSource {
 
 export type Subscription = {
   __typename?: "Subscription";
+  extensionActivityEvents: ExtensionActivityEvent;
+  jobFillStatusChanged: JobFillStatusEventType;
+  jobMatchStatusChanged: JobMatchStatusEventType;
+  jobSummaryStatusChanged: JobSummaryStatusEventType;
   sourceRunEvents: SourceRunEvent;
+};
+
+export type SubscriptionJobFillStatusChangedArgs = {
+  jobId: Scalars["ID"]["input"];
+};
+
+export type SubscriptionJobMatchStatusChangedArgs = {
+  jobId: Scalars["ID"]["input"];
+};
+
+export type SubscriptionJobSummaryStatusChangedArgs = {
+  jobId: Scalars["ID"]["input"];
 };
 
 export type UpdateCompanyInput = {
@@ -633,7 +720,6 @@ export type UpdateResumeInput = {
 
 export type UpdateSettingsInput = {
   autoFillEnabled?: InputMaybe<Scalars["Boolean"]["input"]>;
-  autoMatchEnabled?: InputMaybe<Scalars["Boolean"]["input"]>;
   autoSummaryEnabled?: InputMaybe<Scalars["Boolean"]["input"]>;
   duplicateWindowDays?: InputMaybe<Scalars["Int"]["input"]>;
 };
@@ -649,7 +735,6 @@ export type UpdateSourceTemplateInput = {
 export type UserSetting = {
   __typename?: "UserSetting";
   autoFillEnabled: Scalars["Boolean"]["output"];
-  autoMatchEnabled: Scalars["Boolean"]["output"];
   autoSummaryEnabled: Scalars["Boolean"]["output"];
   duplicateWindowDays: Scalars["Int"]["output"];
   id: Scalars["ID"]["output"];
@@ -670,6 +755,77 @@ export enum Weight {
   High = "High",
   Low = "Low",
 }
+
+export type AdminSourceRunsListQueryVariables = Exact<{ [key: string]: never }>;
+
+export type AdminSourceRunsListQuery = {
+  __typename?: "Query";
+  sourceRuns: Array<{
+    __typename?: "SourceRunType";
+    id: string;
+    templateId: string;
+    sourceProfileId: string;
+    surfaceUrl: string;
+    status: SourceRunStatus;
+    startedAt: any;
+    sourceProfile: string;
+  }>;
+};
+
+export type AdminExtensionActivityEventsListQueryVariables = Exact<{
+  limit?: InputMaybe<Scalars["Int"]["input"]>;
+}>;
+
+export type AdminExtensionActivityEventsListQuery = {
+  __typename?: "Query";
+  extensionActivityEvents: Array<{
+    __typename?: "ExtensionActivityEvent";
+    id: string;
+    type: ExtensionActivityEventType;
+    summary: string;
+    correlationId?: string | null;
+    occurredAt: any;
+  }>;
+};
+
+export type AdminSourceRunEventsSubscriptionVariables = Exact<{
+  [key: string]: never;
+}>;
+
+export type AdminSourceRunEventsSubscription = {
+  __typename?: "Subscription";
+  sourceRunEvents: {
+    __typename?: "SourceRunEvent";
+    type: SourceRunEventType;
+    occurredAt: any;
+    run: {
+      __typename?: "SourceRunType";
+      id: string;
+      templateId: string;
+      sourceProfileId: string;
+      surfaceUrl: string;
+      status: SourceRunStatus;
+      startedAt: any;
+      sourceProfile: string;
+    };
+  };
+};
+
+export type AdminExtensionActivityEventsSubscriptionVariables = Exact<{
+  [key: string]: never;
+}>;
+
+export type AdminExtensionActivityEventsSubscription = {
+  __typename?: "Subscription";
+  extensionActivityEvents: {
+    __typename?: "ExtensionActivityEvent";
+    id: string;
+    type: ExtensionActivityEventType;
+    summary: string;
+    correlationId?: string | null;
+    occurredAt: any;
+  };
+};
 
 export type AuthenticatedShellQueryVariables = Exact<{ [key: string]: never }>;
 
@@ -695,7 +851,6 @@ export type AuthenticatedShellQuery = {
     id: string;
     autoFillEnabled: boolean;
     autoSummaryEnabled: boolean;
-    autoMatchEnabled: boolean;
     duplicateWindowDays: number;
   };
 };
@@ -1268,6 +1423,47 @@ export type CreateDraftCaptureJobMutation = {
   };
 };
 
+export type JobSummaryStatusChangedSubscriptionVariables = Exact<{
+  jobId: Scalars["ID"]["input"];
+}>;
+
+export type JobSummaryStatusChangedSubscription = {
+  __typename?: "Subscription";
+  jobSummaryStatusChanged: {
+    __typename?: "JobSummaryStatusEventType";
+    jobId: string;
+    status: string;
+  };
+};
+
+export type JobFillStatusChangedSubscriptionVariables = Exact<{
+  jobId: Scalars["ID"]["input"];
+}>;
+
+export type JobFillStatusChangedSubscription = {
+  __typename?: "Subscription";
+  jobFillStatusChanged: {
+    __typename?: "JobFillStatusEventType";
+    jobId: string;
+    status: string;
+    error?: string | null;
+  };
+};
+
+export type JobMatchStatusChangedSubscriptionVariables = Exact<{
+  jobId: Scalars["ID"]["input"];
+}>;
+
+export type JobMatchStatusChangedSubscription = {
+  __typename?: "Subscription";
+  jobMatchStatusChanged: {
+    __typename?: "JobMatchStatusEventType";
+    jobId: string;
+    matchId: string;
+    status: string;
+  };
+};
+
 export type MatchAnalysesListQueryVariables = Exact<{ [key: string]: never }>;
 
 export type MatchAnalysesListQuery = {
@@ -1547,7 +1743,6 @@ export type SettingsQuery = {
     id: string;
     autoFillEnabled: boolean;
     autoSummaryEnabled: boolean;
-    autoMatchEnabled: boolean;
     duplicateWindowDays: number;
   };
 };
@@ -1563,7 +1758,6 @@ export type UpdateSettingsMutation = {
     id: string;
     autoFillEnabled: boolean;
     autoSummaryEnabled: boolean;
-    autoMatchEnabled: boolean;
     duplicateWindowDays: number;
   };
 };
@@ -1590,6 +1784,29 @@ export type SourceProfilesForNewSourcePickerQuery = {
     sourceProfileId: string;
     name: string;
   }>;
+};
+
+export type SourceTemplateQueryVariables = Exact<{
+  id: Scalars["ID"]["input"];
+}>;
+
+export type SourceTemplateQuery = {
+  __typename?: "Query";
+  sourceTemplate: {
+    __typename?: "SourceTemplateType";
+    id: string;
+    sourceProfileId: string;
+    scheduleCron?: string | null;
+    scheduleEnabled: boolean;
+    surfaceUrl: string;
+    createdAt: any;
+    runs: Array<{
+      __typename?: "SourceRunType";
+      id: string;
+      status: SourceRunStatus;
+      startedAt: any;
+    }>;
+  };
 };
 
 export type SourcesForSourceProfileQueryVariables = Exact<{
@@ -1669,6 +1886,34 @@ export type CreateSourceTemplateMutation = {
   };
 };
 
+export type RerunSourceTemplateMutationVariables = Exact<{
+  templateId: Scalars["ID"]["input"];
+}>;
+
+export type RerunSourceTemplateMutation = {
+  __typename?: "Mutation";
+  rerunSourceTemplate: {
+    __typename?: "SourceRunType";
+    id: string;
+    status: SourceRunStatus;
+    startedAt: any;
+  };
+};
+
+export type DeleteSourceRunMutationVariables = Exact<{
+  id: Scalars["ID"]["input"];
+  deleteJobs?: InputMaybe<Scalars["Boolean"]["input"]>;
+}>;
+
+export type DeleteSourceRunMutation = {
+  __typename?: "Mutation";
+  deleteSourceRun: {
+    __typename?: "DeleteMutationPayloadType";
+    success: boolean;
+    deletedId: string;
+  };
+};
+
 export type WorkPreferencesQueryVariables = Exact<{ [key: string]: never }>;
 
 export type WorkPreferencesQuery = {
@@ -1703,6 +1948,219 @@ export const JobSalarySelectionFragmentDoc = gql`
     }
   }
 `;
+export const AdminSourceRunsListDocument = gql`
+  query AdminSourceRunsList {
+    sourceRuns {
+      id
+      templateId
+      sourceProfileId
+      surfaceUrl
+      status
+      startedAt
+      sourceProfile
+    }
+  }
+`;
+
+/**
+ * __useAdminSourceRunsListQuery__
+ *
+ * To run a query within a React component, call `useAdminSourceRunsListQuery` and pass it any options that fit your needs.
+ * When your component renders, `useAdminSourceRunsListQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useAdminSourceRunsListQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useAdminSourceRunsListQuery(
+  baseOptions?: ApolloReactHooks.QueryHookOptions<
+    AdminSourceRunsListQuery,
+    AdminSourceRunsListQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useQuery<
+    AdminSourceRunsListQuery,
+    AdminSourceRunsListQueryVariables
+  >(AdminSourceRunsListDocument, options);
+}
+export function useAdminSourceRunsListLazyQuery(
+  baseOptions?: ApolloReactHooks.LazyQueryHookOptions<
+    AdminSourceRunsListQuery,
+    AdminSourceRunsListQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useLazyQuery<
+    AdminSourceRunsListQuery,
+    AdminSourceRunsListQueryVariables
+  >(AdminSourceRunsListDocument, options);
+}
+
+export type AdminSourceRunsListQueryHookResult = ReturnType<
+  typeof useAdminSourceRunsListQuery
+>;
+export type AdminSourceRunsListLazyQueryHookResult = ReturnType<
+  typeof useAdminSourceRunsListLazyQuery
+>;
+
+export const AdminExtensionActivityEventsListDocument = gql`
+  query AdminExtensionActivityEventsList($limit: Int) {
+    extensionActivityEvents(limit: $limit) {
+      id
+      type
+      summary
+      correlationId
+      occurredAt
+    }
+  }
+`;
+
+/**
+ * __useAdminExtensionActivityEventsListQuery__
+ *
+ * To run a query within a React component, call `useAdminExtensionActivityEventsListQuery` and pass it any options that fit your needs.
+ * When your component renders, `useAdminExtensionActivityEventsListQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useAdminExtensionActivityEventsListQuery({
+ *   variables: {
+ *      limit: // value for 'limit'
+ *   },
+ * });
+ */
+export function useAdminExtensionActivityEventsListQuery(
+  baseOptions?: ApolloReactHooks.QueryHookOptions<
+    AdminExtensionActivityEventsListQuery,
+    AdminExtensionActivityEventsListQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useQuery<
+    AdminExtensionActivityEventsListQuery,
+    AdminExtensionActivityEventsListQueryVariables
+  >(AdminExtensionActivityEventsListDocument, options);
+}
+export function useAdminExtensionActivityEventsListLazyQuery(
+  baseOptions?: ApolloReactHooks.LazyQueryHookOptions<
+    AdminExtensionActivityEventsListQuery,
+    AdminExtensionActivityEventsListQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useLazyQuery<
+    AdminExtensionActivityEventsListQuery,
+    AdminExtensionActivityEventsListQueryVariables
+  >(AdminExtensionActivityEventsListDocument, options);
+}
+
+export type AdminExtensionActivityEventsListQueryHookResult = ReturnType<
+  typeof useAdminExtensionActivityEventsListQuery
+>;
+export type AdminExtensionActivityEventsListLazyQueryHookResult = ReturnType<
+  typeof useAdminExtensionActivityEventsListLazyQuery
+>;
+
+export const AdminSourceRunEventsDocument = gql`
+  subscription AdminSourceRunEvents {
+    sourceRunEvents {
+      type
+      occurredAt
+      run {
+        id
+        templateId
+        sourceProfileId
+        surfaceUrl
+        status
+        startedAt
+        sourceProfile
+      }
+    }
+  }
+`;
+
+/**
+ * __useAdminSourceRunEventsSubscription__
+ *
+ * To run a query within a React component, call `useAdminSourceRunEventsSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useAdminSourceRunEventsSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useAdminSourceRunEventsSubscription({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useAdminSourceRunEventsSubscription(
+  baseOptions?: ApolloReactHooks.SubscriptionHookOptions<
+    AdminSourceRunEventsSubscription,
+    AdminSourceRunEventsSubscriptionVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useSubscription<
+    AdminSourceRunEventsSubscription,
+    AdminSourceRunEventsSubscriptionVariables
+  >(AdminSourceRunEventsDocument, options);
+}
+export type AdminSourceRunEventsSubscriptionHookResult = ReturnType<
+  typeof useAdminSourceRunEventsSubscription
+>;
+
+export const AdminExtensionActivityEventsDocument = gql`
+  subscription AdminExtensionActivityEvents {
+    extensionActivityEvents {
+      id
+      type
+      summary
+      correlationId
+      occurredAt
+    }
+  }
+`;
+
+/**
+ * __useAdminExtensionActivityEventsSubscription__
+ *
+ * To run a query within a React component, call `useAdminExtensionActivityEventsSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useAdminExtensionActivityEventsSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useAdminExtensionActivityEventsSubscription({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useAdminExtensionActivityEventsSubscription(
+  baseOptions?: ApolloReactHooks.SubscriptionHookOptions<
+    AdminExtensionActivityEventsSubscription,
+    AdminExtensionActivityEventsSubscriptionVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useSubscription<
+    AdminExtensionActivityEventsSubscription,
+    AdminExtensionActivityEventsSubscriptionVariables
+  >(AdminExtensionActivityEventsDocument, options);
+}
+export type AdminExtensionActivityEventsSubscriptionHookResult = ReturnType<
+  typeof useAdminExtensionActivityEventsSubscription
+>;
+
 export const AuthenticatedShellDocument = gql`
   query AuthenticatedShell {
     me {
@@ -1722,7 +2180,6 @@ export const AuthenticatedShellDocument = gql`
       id
       autoFillEnabled
       autoSummaryEnabled
-      autoMatchEnabled
       duplicateWindowDays
     }
   }
@@ -3348,6 +3805,149 @@ export function useCreateDraftCaptureJobMutation(
   >(CreateDraftCaptureJobDocument, options);
 }
 
+export const JobSummaryStatusChangedDocument = gql`
+  subscription JobSummaryStatusChanged($jobId: ID!) {
+    jobSummaryStatusChanged(jobId: $jobId) {
+      jobId
+      status
+    }
+  }
+`;
+
+/**
+ * __useJobSummaryStatusChangedSubscription__
+ *
+ * To run a query within a React component, call `useJobSummaryStatusChangedSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useJobSummaryStatusChangedSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useJobSummaryStatusChangedSubscription({
+ *   variables: {
+ *      jobId: // value for 'jobId'
+ *   },
+ * });
+ */
+export function useJobSummaryStatusChangedSubscription(
+  baseOptions: ApolloReactHooks.SubscriptionHookOptions<
+    JobSummaryStatusChangedSubscription,
+    JobSummaryStatusChangedSubscriptionVariables
+  > &
+    (
+      | {
+          variables: JobSummaryStatusChangedSubscriptionVariables;
+          skip?: boolean;
+        }
+      | { skip: boolean }
+    ),
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useSubscription<
+    JobSummaryStatusChangedSubscription,
+    JobSummaryStatusChangedSubscriptionVariables
+  >(JobSummaryStatusChangedDocument, options);
+}
+export type JobSummaryStatusChangedSubscriptionHookResult = ReturnType<
+  typeof useJobSummaryStatusChangedSubscription
+>;
+
+export const JobFillStatusChangedDocument = gql`
+  subscription JobFillStatusChanged($jobId: ID!) {
+    jobFillStatusChanged(jobId: $jobId) {
+      jobId
+      status
+      error
+    }
+  }
+`;
+
+/**
+ * __useJobFillStatusChangedSubscription__
+ *
+ * To run a query within a React component, call `useJobFillStatusChangedSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useJobFillStatusChangedSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useJobFillStatusChangedSubscription({
+ *   variables: {
+ *      jobId: // value for 'jobId'
+ *   },
+ * });
+ */
+export function useJobFillStatusChangedSubscription(
+  baseOptions: ApolloReactHooks.SubscriptionHookOptions<
+    JobFillStatusChangedSubscription,
+    JobFillStatusChangedSubscriptionVariables
+  > &
+    (
+      | { variables: JobFillStatusChangedSubscriptionVariables; skip?: boolean }
+      | { skip: boolean }
+    ),
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useSubscription<
+    JobFillStatusChangedSubscription,
+    JobFillStatusChangedSubscriptionVariables
+  >(JobFillStatusChangedDocument, options);
+}
+export type JobFillStatusChangedSubscriptionHookResult = ReturnType<
+  typeof useJobFillStatusChangedSubscription
+>;
+
+export const JobMatchStatusChangedDocument = gql`
+  subscription JobMatchStatusChanged($jobId: ID!) {
+    jobMatchStatusChanged(jobId: $jobId) {
+      jobId
+      matchId
+      status
+    }
+  }
+`;
+
+/**
+ * __useJobMatchStatusChangedSubscription__
+ *
+ * To run a query within a React component, call `useJobMatchStatusChangedSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useJobMatchStatusChangedSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useJobMatchStatusChangedSubscription({
+ *   variables: {
+ *      jobId: // value for 'jobId'
+ *   },
+ * });
+ */
+export function useJobMatchStatusChangedSubscription(
+  baseOptions: ApolloReactHooks.SubscriptionHookOptions<
+    JobMatchStatusChangedSubscription,
+    JobMatchStatusChangedSubscriptionVariables
+  > &
+    (
+      | {
+          variables: JobMatchStatusChangedSubscriptionVariables;
+          skip?: boolean;
+        }
+      | { skip: boolean }
+    ),
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useSubscription<
+    JobMatchStatusChangedSubscription,
+    JobMatchStatusChangedSubscriptionVariables
+  >(JobMatchStatusChangedDocument, options);
+}
+export type JobMatchStatusChangedSubscriptionHookResult = ReturnType<
+  typeof useJobMatchStatusChangedSubscription
+>;
+
 export const MatchAnalysesListDocument = gql`
   query MatchAnalysesList {
     matchAnalyses {
@@ -4052,7 +4652,6 @@ export const SettingsDocument = gql`
       id
       autoFillEnabled
       autoSummaryEnabled
-      autoMatchEnabled
       duplicateWindowDays
     }
   }
@@ -4109,7 +4708,6 @@ export const UpdateSettingsDocument = gql`
       id
       autoFillEnabled
       autoSummaryEnabled
-      autoMatchEnabled
       duplicateWindowDays
     }
   }
@@ -4255,6 +4853,76 @@ export type SourceProfilesForNewSourcePickerQueryHookResult = ReturnType<
 >;
 export type SourceProfilesForNewSourcePickerLazyQueryHookResult = ReturnType<
   typeof useSourceProfilesForNewSourcePickerLazyQuery
+>;
+
+export const SourceTemplateDocument = gql`
+  query SourceTemplate($id: ID!) {
+    sourceTemplate(id: $id) {
+      id
+      sourceProfileId
+      scheduleCron
+      scheduleEnabled
+      surfaceUrl
+      createdAt
+      runs {
+        id
+        status
+        startedAt
+      }
+    }
+  }
+`;
+
+/**
+ * __useSourceTemplateQuery__
+ *
+ * To run a query within a React component, call `useSourceTemplateQuery` and pass it any options that fit your needs.
+ * When your component renders, `useSourceTemplateQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useSourceTemplateQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useSourceTemplateQuery(
+  baseOptions: ApolloReactHooks.QueryHookOptions<
+    SourceTemplateQuery,
+    SourceTemplateQueryVariables
+  > &
+    (
+      | { variables: SourceTemplateQueryVariables; skip?: boolean }
+      | { skip: boolean }
+    ),
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useQuery<
+    SourceTemplateQuery,
+    SourceTemplateQueryVariables
+  >(SourceTemplateDocument, options);
+}
+export function useSourceTemplateLazyQuery(
+  baseOptions?: ApolloReactHooks.LazyQueryHookOptions<
+    SourceTemplateQuery,
+    SourceTemplateQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useLazyQuery<
+    SourceTemplateQuery,
+    SourceTemplateQueryVariables
+  >(SourceTemplateDocument, options);
+}
+
+export type SourceTemplateQueryHookResult = ReturnType<
+  typeof useSourceTemplateQuery
+>;
+export type SourceTemplateLazyQueryHookResult = ReturnType<
+  typeof useSourceTemplateLazyQuery
 >;
 
 export const SourcesForSourceProfileDocument = gql`
@@ -4456,6 +5124,86 @@ export function useCreateSourceTemplateMutation(
     CreateSourceTemplateMutation,
     CreateSourceTemplateMutationVariables
   >(CreateSourceTemplateDocument, options);
+}
+
+export const RerunSourceTemplateDocument = gql`
+  mutation RerunSourceTemplate($templateId: ID!) {
+    rerunSourceTemplate(templateId: $templateId) {
+      id
+      status
+      startedAt
+    }
+  }
+`;
+
+/**
+ * __useRerunSourceTemplateMutation__
+ *
+ * To run a mutation, you first call `useRerunSourceTemplateMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRerunSourceTemplateMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [rerunSourceTemplateMutation, { data, loading, error }] = useRerunSourceTemplateMutation({
+ *   variables: {
+ *      templateId: // value for 'templateId'
+ *   },
+ * });
+ */
+export function useRerunSourceTemplateMutation(
+  baseOptions?: ApolloReactHooks.MutationHookOptions<
+    RerunSourceTemplateMutation,
+    RerunSourceTemplateMutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useMutation<
+    RerunSourceTemplateMutation,
+    RerunSourceTemplateMutationVariables
+  >(RerunSourceTemplateDocument, options);
+}
+
+export const DeleteSourceRunDocument = gql`
+  mutation DeleteSourceRun($id: ID!, $deleteJobs: Boolean = false) {
+    deleteSourceRun(id: $id, deleteJobs: $deleteJobs) {
+      success
+      deletedId
+    }
+  }
+`;
+
+/**
+ * __useDeleteSourceRunMutation__
+ *
+ * To run a mutation, you first call `useDeleteSourceRunMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteSourceRunMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteSourceRunMutation, { data, loading, error }] = useDeleteSourceRunMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      deleteJobs: // value for 'deleteJobs'
+ *   },
+ * });
+ */
+export function useDeleteSourceRunMutation(
+  baseOptions?: ApolloReactHooks.MutationHookOptions<
+    DeleteSourceRunMutation,
+    DeleteSourceRunMutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useMutation<
+    DeleteSourceRunMutation,
+    DeleteSourceRunMutationVariables
+  >(DeleteSourceRunDocument, options);
 }
 
 export const WorkPreferencesDocument = gql`

@@ -319,3 +319,26 @@ mutation CreateDraftCaptureJob($input: CreateJobInput!) {
     createdAt
   }
 }
+
+subscription JobSummaryStatusChanged($jobId: ID!) {
+  jobSummaryStatusChanged(jobId: $jobId) {
+    jobId
+    status
+  }
+}
+
+subscription JobFillStatusChanged($jobId: ID!) {
+  jobFillStatusChanged(jobId: $jobId) {
+    jobId
+    status
+    error
+  }
+}
+
+subscription JobMatchStatusChanged($jobId: ID!) {
+  jobMatchStatusChanged(jobId: $jobId) {
+    jobId
+    matchId
+    status
+  }
+}

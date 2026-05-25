@@ -89,7 +89,6 @@ export type CompanyType = {
 
 export type CreateJobInput = {
   autoFill?: InputMaybe<Scalars["Boolean"]["input"]>;
-  autoMatch?: InputMaybe<Scalars["Boolean"]["input"]>;
   company?: InputMaybe<Scalars["String"]["input"]>;
   companyId?: InputMaybe<Scalars["ID"]["input"]>;
   createAsDraftCapture?: InputMaybe<Scalars["Boolean"]["input"]>;
@@ -151,6 +150,32 @@ export type ExchangeRate = {
   rate: Scalars["Float"]["output"];
 };
 
+export type ExtensionActivityEvent = {
+  __typename?: "ExtensionActivityEvent";
+  browser?: Maybe<Scalars["String"]["output"]>;
+  correlationId?: Maybe<Scalars["String"]["output"]>;
+  extensionVersion?: Maybe<Scalars["String"]["output"]>;
+  id: Scalars["ID"]["output"];
+  occurredAt: Scalars["DateTime"]["output"];
+  payload?: Maybe<Scalars["String"]["output"]>;
+  summary: Scalars["String"]["output"];
+  type: ExtensionActivityEventType;
+};
+
+export enum ExtensionActivityEventType {
+  AuthFailed = "AuthFailed",
+  AuthRefreshed = "AuthRefreshed",
+  ImportJobCompleted = "ImportJobCompleted",
+  ImportJobFailed = "ImportJobFailed",
+  ImportJobStarted = "ImportJobStarted",
+  SourceRunClaimSkipped = "SourceRunClaimSkipped",
+  SourceRunCompleted = "SourceRunCompleted",
+  SourceRunFailed = "SourceRunFailed",
+  SourceRunJobImported = "SourceRunJobImported",
+  SourceRunReceived = "SourceRunReceived",
+  SourceRunStarted = "SourceRunStarted",
+}
+
 export enum FitClassification {
   Negative = "Negative",
   Neutral = "Neutral",
@@ -160,6 +185,20 @@ export enum FitClassification {
 export type GenerateMatchInput = {
   jobId: Scalars["ID"]["input"];
   resumeId: Scalars["ID"]["input"];
+};
+
+export type JobFillStatusEventType = {
+  __typename?: "JobFillStatusEventType";
+  error?: Maybe<Scalars["String"]["output"]>;
+  jobId: Scalars["ID"]["output"];
+  status: Scalars["String"]["output"];
+};
+
+export type JobMatchStatusEventType = {
+  __typename?: "JobMatchStatusEventType";
+  jobId: Scalars["ID"]["output"];
+  matchId: Scalars["ID"]["output"];
+  status: Scalars["String"]["output"];
 };
 
 export type JobSalary = {
@@ -195,6 +234,12 @@ export type JobStageEventType = {
   source: StageEventSource;
   toStage: ApplicationStage;
   userId: Scalars["String"]["output"];
+};
+
+export type JobSummaryStatusEventType = {
+  __typename?: "JobSummaryStatusEventType";
+  jobId: Scalars["ID"]["output"];
+  status: Scalars["String"]["output"];
 };
 
 export type JobType = {
@@ -288,6 +333,7 @@ export type Mutation = {
   fillJobAutomatically: JobType;
   generateJobMatch: MatchAnalysisType;
   removeJobTag: JobType;
+  reportExtensionActivity: ExtensionActivityEvent;
   requestJobSummary: JobType;
   rerunSourceTemplate: SourceRunType;
   updateCompany: CompanyType;
@@ -332,7 +378,10 @@ export type MutationDeleteMatchAnalysisArgs = { id: Scalars["ID"]["input"] };
 
 export type MutationDeleteResumeArgs = { id: Scalars["ID"]["input"] };
 
-export type MutationDeleteSourceRunArgs = { id: Scalars["ID"]["input"] };
+export type MutationDeleteSourceRunArgs = {
+  deleteJobs?: InputMaybe<Scalars["Boolean"]["input"]>;
+  id: Scalars["ID"]["input"];
+};
 
 export type MutationDeleteSourceTemplateArgs = { id: Scalars["ID"]["input"] };
 
@@ -349,6 +398,10 @@ export type MutationGenerateJobMatchArgs = { input: GenerateMatchInput };
 export type MutationRemoveJobTagArgs = {
   id: Scalars["ID"]["input"];
   tag: Scalars["String"]["input"];
+};
+
+export type MutationReportExtensionActivityArgs = {
+  input: ReportExtensionActivityInput;
 };
 
 export type MutationRequestJobSummaryArgs = { jobId: Scalars["ID"]["input"] };
@@ -431,6 +484,7 @@ export type Query = {
   company: CompanyType;
   companyJobsCount: Scalars["Int"]["output"];
   exchangeRates: CurrencyRates;
+  extensionActivityEvents: Array<ExtensionActivityEvent>;
   generateCompanyDescription: Scalars["String"]["output"];
   generateJobLocationWithAI?: Maybe<Scalars["String"]["output"]>;
   generateJobNoteWithAI: Scalars["String"]["output"];
@@ -450,6 +504,7 @@ export type Query = {
   settings: UserSetting;
   sourceProfiles: Array<SourceProfileType>;
   sourceRuns: Array<SourceRunType>;
+  sourceTemplate: SourceTemplateType;
   sourceTemplates: Array<SourceTemplateType>;
   sourceTemplatesForSourceProfile: Array<SourceTemplateType>;
   workPreferences: Array<PreferenceType>;
@@ -462,6 +517,10 @@ export type QueryCompanyJobsCountArgs = { id: Scalars["ID"]["input"] };
 export type QueryExchangeRatesArgs = {
   base: Scalars["String"]["input"];
   currencies: Array<Scalars["String"]["input"]>;
+};
+
+export type QueryExtensionActivityEventsArgs = {
+  limit?: InputMaybe<Scalars["Int"]["input"]>;
 };
 
 export type QueryGenerateCompanyDescriptionArgs = {
@@ -509,8 +568,20 @@ export type QuerySourceProfilesArgs = {
   onlyWithSourceTemplate?: InputMaybe<Scalars["Boolean"]["input"]>;
 };
 
+export type QuerySourceTemplateArgs = { id: Scalars["ID"]["input"] };
+
 export type QuerySourceTemplatesForSourceProfileArgs = {
   sourceProfileId: Scalars["String"]["input"];
+};
+
+export type ReportExtensionActivityInput = {
+  browser?: InputMaybe<Scalars["String"]["input"]>;
+  correlationId?: InputMaybe<Scalars["String"]["input"]>;
+  extensionVersion?: InputMaybe<Scalars["String"]["input"]>;
+  occurredAt?: InputMaybe<Scalars["DateTime"]["input"]>;
+  payload?: InputMaybe<Scalars["String"]["input"]>;
+  summary: Scalars["String"]["input"];
+  type: ExtensionActivityEventType;
 };
 
 export enum RequirementType {
@@ -590,7 +661,23 @@ export enum StageEventSource {
 
 export type Subscription = {
   __typename?: "Subscription";
+  extensionActivityEvents: ExtensionActivityEvent;
+  jobFillStatusChanged: JobFillStatusEventType;
+  jobMatchStatusChanged: JobMatchStatusEventType;
+  jobSummaryStatusChanged: JobSummaryStatusEventType;
   sourceRunEvents: SourceRunEvent;
+};
+
+export type SubscriptionJobFillStatusChangedArgs = {
+  jobId: Scalars["ID"]["input"];
+};
+
+export type SubscriptionJobMatchStatusChangedArgs = {
+  jobId: Scalars["ID"]["input"];
+};
+
+export type SubscriptionJobSummaryStatusChangedArgs = {
+  jobId: Scalars["ID"]["input"];
 };
 
 export type UpdateCompanyInput = {
@@ -631,7 +718,6 @@ export type UpdateResumeInput = {
 
 export type UpdateSettingsInput = {
   autoFillEnabled?: InputMaybe<Scalars["Boolean"]["input"]>;
-  autoMatchEnabled?: InputMaybe<Scalars["Boolean"]["input"]>;
   autoSummaryEnabled?: InputMaybe<Scalars["Boolean"]["input"]>;
   duplicateWindowDays?: InputMaybe<Scalars["Int"]["input"]>;
 };
@@ -647,7 +733,6 @@ export type UpdateSourceTemplateInput = {
 export type UserSetting = {
   __typename?: "UserSetting";
   autoFillEnabled: Scalars["Boolean"]["output"];
-  autoMatchEnabled: Scalars["Boolean"]["output"];
   autoSummaryEnabled: Scalars["Boolean"]["output"];
   duplicateWindowDays: Scalars["Int"]["output"];
   id: Scalars["ID"]["output"];
@@ -668,6 +753,77 @@ export enum Weight {
   High = "High",
   Low = "Low",
 }
+
+export type AdminSourceRunsListQueryVariables = Exact<{ [key: string]: never }>;
+
+export type AdminSourceRunsListQuery = {
+  __typename?: "Query";
+  sourceRuns: Array<{
+    __typename?: "SourceRunType";
+    id: string;
+    templateId: string;
+    sourceProfileId: string;
+    surfaceUrl: string;
+    status: SourceRunStatus;
+    startedAt: any;
+    sourceProfile: string;
+  }>;
+};
+
+export type AdminExtensionActivityEventsListQueryVariables = Exact<{
+  limit?: InputMaybe<Scalars["Int"]["input"]>;
+}>;
+
+export type AdminExtensionActivityEventsListQuery = {
+  __typename?: "Query";
+  extensionActivityEvents: Array<{
+    __typename?: "ExtensionActivityEvent";
+    id: string;
+    type: ExtensionActivityEventType;
+    summary: string;
+    correlationId?: string | null;
+    occurredAt: any;
+  }>;
+};
+
+export type AdminSourceRunEventsSubscriptionVariables = Exact<{
+  [key: string]: never;
+}>;
+
+export type AdminSourceRunEventsSubscription = {
+  __typename?: "Subscription";
+  sourceRunEvents: {
+    __typename?: "SourceRunEvent";
+    type: SourceRunEventType;
+    occurredAt: any;
+    run: {
+      __typename?: "SourceRunType";
+      id: string;
+      templateId: string;
+      sourceProfileId: string;
+      surfaceUrl: string;
+      status: SourceRunStatus;
+      startedAt: any;
+      sourceProfile: string;
+    };
+  };
+};
+
+export type AdminExtensionActivityEventsSubscriptionVariables = Exact<{
+  [key: string]: never;
+}>;
+
+export type AdminExtensionActivityEventsSubscription = {
+  __typename?: "Subscription";
+  extensionActivityEvents: {
+    __typename?: "ExtensionActivityEvent";
+    id: string;
+    type: ExtensionActivityEventType;
+    summary: string;
+    correlationId?: string | null;
+    occurredAt: any;
+  };
+};
 
 export type AuthenticatedShellQueryVariables = Exact<{ [key: string]: never }>;
 
@@ -693,7 +849,6 @@ export type AuthenticatedShellQuery = {
     id: string;
     autoFillEnabled: boolean;
     autoSummaryEnabled: boolean;
-    autoMatchEnabled: boolean;
     duplicateWindowDays: number;
   };
 };
@@ -1256,6 +1411,47 @@ export type CreateDraftCaptureJobMutation = {
   };
 };
 
+export type JobSummaryStatusChangedSubscriptionVariables = Exact<{
+  jobId: Scalars["ID"]["input"];
+}>;
+
+export type JobSummaryStatusChangedSubscription = {
+  __typename?: "Subscription";
+  jobSummaryStatusChanged: {
+    __typename?: "JobSummaryStatusEventType";
+    jobId: string;
+    status: string;
+  };
+};
+
+export type JobFillStatusChangedSubscriptionVariables = Exact<{
+  jobId: Scalars["ID"]["input"];
+}>;
+
+export type JobFillStatusChangedSubscription = {
+  __typename?: "Subscription";
+  jobFillStatusChanged: {
+    __typename?: "JobFillStatusEventType";
+    jobId: string;
+    status: string;
+    error?: string | null;
+  };
+};
+
+export type JobMatchStatusChangedSubscriptionVariables = Exact<{
+  jobId: Scalars["ID"]["input"];
+}>;
+
+export type JobMatchStatusChangedSubscription = {
+  __typename?: "Subscription";
+  jobMatchStatusChanged: {
+    __typename?: "JobMatchStatusEventType";
+    jobId: string;
+    matchId: string;
+    status: string;
+  };
+};
+
 export type MatchAnalysesListQueryVariables = Exact<{ [key: string]: never }>;
 
 export type MatchAnalysesListQuery = {
@@ -1535,7 +1731,6 @@ export type SettingsQuery = {
     id: string;
     autoFillEnabled: boolean;
     autoSummaryEnabled: boolean;
-    autoMatchEnabled: boolean;
     duplicateWindowDays: number;
   };
 };
@@ -1551,7 +1746,6 @@ export type UpdateSettingsMutation = {
     id: string;
     autoFillEnabled: boolean;
     autoSummaryEnabled: boolean;
-    autoMatchEnabled: boolean;
     duplicateWindowDays: number;
   };
 };
@@ -1578,6 +1772,29 @@ export type SourceProfilesForNewSourcePickerQuery = {
     sourceProfileId: string;
     name: string;
   }>;
+};
+
+export type SourceTemplateQueryVariables = Exact<{
+  id: Scalars["ID"]["input"];
+}>;
+
+export type SourceTemplateQuery = {
+  __typename?: "Query";
+  sourceTemplate: {
+    __typename?: "SourceTemplateType";
+    id: string;
+    sourceProfileId: string;
+    scheduleCron?: string | null;
+    scheduleEnabled: boolean;
+    surfaceUrl: string;
+    createdAt: any;
+    runs: Array<{
+      __typename?: "SourceRunType";
+      id: string;
+      status: SourceRunStatus;
+      startedAt: any;
+    }>;
+  };
 };
 
 export type SourcesForSourceProfileQueryVariables = Exact<{
@@ -1657,6 +1874,34 @@ export type CreateSourceTemplateMutation = {
   };
 };
 
+export type RerunSourceTemplateMutationVariables = Exact<{
+  templateId: Scalars["ID"]["input"];
+}>;
+
+export type RerunSourceTemplateMutation = {
+  __typename?: "Mutation";
+  rerunSourceTemplate: {
+    __typename?: "SourceRunType";
+    id: string;
+    status: SourceRunStatus;
+    startedAt: any;
+  };
+};
+
+export type DeleteSourceRunMutationVariables = Exact<{
+  id: Scalars["ID"]["input"];
+  deleteJobs?: InputMaybe<Scalars["Boolean"]["input"]>;
+}>;
+
+export type DeleteSourceRunMutation = {
+  __typename?: "Mutation";
+  deleteSourceRun: {
+    __typename?: "DeleteMutationPayloadType";
+    success: boolean;
+    deletedId: string;
+  };
+};
+
 export type WorkPreferencesQueryVariables = Exact<{ [key: string]: never }>;
 
 export type WorkPreferencesQuery = {
@@ -1712,6 +1957,199 @@ export const JobSalarySelectionFragmentDoc = {
     },
   ],
 } as unknown as DocumentNode<JobSalarySelectionFragment, unknown>;
+export const AdminSourceRunsListDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "query",
+      name: { kind: "Name", value: "AdminSourceRunsList" },
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "sourceRuns" },
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                { kind: "Field", name: { kind: "Name", value: "templateId" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "sourceProfileId" },
+                },
+                { kind: "Field", name: { kind: "Name", value: "surfaceUrl" } },
+                { kind: "Field", name: { kind: "Name", value: "status" } },
+                { kind: "Field", name: { kind: "Name", value: "startedAt" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "sourceProfile" },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  AdminSourceRunsListQuery,
+  AdminSourceRunsListQueryVariables
+>;
+export const AdminExtensionActivityEventsListDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "query",
+      name: { kind: "Name", value: "AdminExtensionActivityEventsList" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "limit" },
+          },
+          type: { kind: "NamedType", name: { kind: "Name", value: "Int" } },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "extensionActivityEvents" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "limit" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "limit" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                { kind: "Field", name: { kind: "Name", value: "type" } },
+                { kind: "Field", name: { kind: "Name", value: "summary" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "correlationId" },
+                },
+                { kind: "Field", name: { kind: "Name", value: "occurredAt" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  AdminExtensionActivityEventsListQuery,
+  AdminExtensionActivityEventsListQueryVariables
+>;
+export const AdminSourceRunEventsDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "subscription",
+      name: { kind: "Name", value: "AdminSourceRunEvents" },
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "sourceRunEvents" },
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "type" } },
+                { kind: "Field", name: { kind: "Name", value: "occurredAt" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "run" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      { kind: "Field", name: { kind: "Name", value: "id" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "templateId" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "sourceProfileId" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "surfaceUrl" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "status" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "startedAt" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "sourceProfile" },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  AdminSourceRunEventsSubscription,
+  AdminSourceRunEventsSubscriptionVariables
+>;
+export const AdminExtensionActivityEventsDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "subscription",
+      name: { kind: "Name", value: "AdminExtensionActivityEvents" },
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "extensionActivityEvents" },
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                { kind: "Field", name: { kind: "Name", value: "type" } },
+                { kind: "Field", name: { kind: "Name", value: "summary" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "correlationId" },
+                },
+                { kind: "Field", name: { kind: "Name", value: "occurredAt" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  AdminExtensionActivityEventsSubscription,
+  AdminExtensionActivityEventsSubscriptionVariables
+>;
 export const AuthenticatedShellDocument = {
   kind: "Document",
   definitions: [
@@ -1772,10 +2210,6 @@ export const AuthenticatedShellDocument = {
                 {
                   kind: "Field",
                   name: { kind: "Name", value: "autoSummaryEnabled" },
-                },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "autoMatchEnabled" },
                 },
                 {
                   kind: "Field",
@@ -3915,6 +4349,164 @@ export const CreateDraftCaptureJobDocument = {
   CreateDraftCaptureJobMutation,
   CreateDraftCaptureJobMutationVariables
 >;
+export const JobSummaryStatusChangedDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "subscription",
+      name: { kind: "Name", value: "JobSummaryStatusChanged" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "jobId" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "jobSummaryStatusChanged" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "jobId" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "jobId" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "jobId" } },
+                { kind: "Field", name: { kind: "Name", value: "status" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  JobSummaryStatusChangedSubscription,
+  JobSummaryStatusChangedSubscriptionVariables
+>;
+export const JobFillStatusChangedDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "subscription",
+      name: { kind: "Name", value: "JobFillStatusChanged" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "jobId" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "jobFillStatusChanged" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "jobId" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "jobId" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "jobId" } },
+                { kind: "Field", name: { kind: "Name", value: "status" } },
+                { kind: "Field", name: { kind: "Name", value: "error" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  JobFillStatusChangedSubscription,
+  JobFillStatusChangedSubscriptionVariables
+>;
+export const JobMatchStatusChangedDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "subscription",
+      name: { kind: "Name", value: "JobMatchStatusChanged" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "jobId" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "jobMatchStatusChanged" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "jobId" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "jobId" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "jobId" } },
+                { kind: "Field", name: { kind: "Name", value: "matchId" } },
+                { kind: "Field", name: { kind: "Name", value: "status" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  JobMatchStatusChangedSubscription,
+  JobMatchStatusChangedSubscriptionVariables
+>;
 export const MatchAnalysesListDocument = {
   kind: "Document",
   definitions: [
@@ -4813,10 +5405,6 @@ export const SettingsDocument = {
                 },
                 {
                   kind: "Field",
-                  name: { kind: "Name", value: "autoMatchEnabled" },
-                },
-                {
-                  kind: "Field",
                   name: { kind: "Name", value: "duplicateWindowDays" },
                 },
               ],
@@ -4877,10 +5465,6 @@ export const UpdateSettingsDocument = {
                 {
                   kind: "Field",
                   name: { kind: "Name", value: "autoSummaryEnabled" },
-                },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "autoMatchEnabled" },
                 },
                 {
                   kind: "Field",
@@ -4975,6 +5559,83 @@ export const SourceProfilesForNewSourcePickerDocument = {
   SourceProfilesForNewSourcePickerQuery,
   SourceProfilesForNewSourcePickerQueryVariables
 >;
+export const SourceTemplateDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "query",
+      name: { kind: "Name", value: "SourceTemplate" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "id" } },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "sourceTemplate" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "id" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "id" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "sourceProfileId" },
+                },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "scheduleCron" },
+                },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "scheduleEnabled" },
+                },
+                { kind: "Field", name: { kind: "Name", value: "surfaceUrl" } },
+                { kind: "Field", name: { kind: "Name", value: "createdAt" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "runs" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      { kind: "Field", name: { kind: "Name", value: "id" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "status" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "startedAt" },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<SourceTemplateQuery, SourceTemplateQueryVariables>;
 export const SourcesForSourceProfileDocument = {
   kind: "Document",
   definitions: [
@@ -5279,6 +5940,125 @@ export const CreateSourceTemplateDocument = {
 } as unknown as DocumentNode<
   CreateSourceTemplateMutation,
   CreateSourceTemplateMutationVariables
+>;
+export const RerunSourceTemplateDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "RerunSourceTemplate" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "templateId" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "rerunSourceTemplate" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "templateId" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "templateId" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                { kind: "Field", name: { kind: "Name", value: "status" } },
+                { kind: "Field", name: { kind: "Name", value: "startedAt" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  RerunSourceTemplateMutation,
+  RerunSourceTemplateMutationVariables
+>;
+export const DeleteSourceRunDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "DeleteSourceRun" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "id" } },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "deleteJobs" },
+          },
+          type: { kind: "NamedType", name: { kind: "Name", value: "Boolean" } },
+          defaultValue: { kind: "BooleanValue", value: false },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "deleteSourceRun" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "id" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "id" },
+                },
+              },
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "deleteJobs" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "deleteJobs" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "success" } },
+                { kind: "Field", name: { kind: "Name", value: "deletedId" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  DeleteSourceRunMutation,
+  DeleteSourceRunMutationVariables
 >;
 export const WorkPreferencesDocument = {
   kind: "Document",

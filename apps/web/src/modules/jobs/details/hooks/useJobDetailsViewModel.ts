@@ -10,11 +10,11 @@ import {
   JobDocument,
   JobStageEventsDocument,
   useFillJobAutomaticallyMutation,
+  useJobFillStatusChangedSubscription,
   useJobQuery,
   useJobStageEventsQuery,
+  useJobSummaryStatusChangedSubscription,
 } from "@/gql/hooks";
-import { useEventSource } from "@/hooks/useEventSource";
-import { getApiBaseUrl } from "@/lib/api-endpoints";
 import { deriveDetailStatus } from "@/lib/entity-detail-view-status";
 import { deriveJobFillButtonState } from "@/modules/jobs/details/hooks/deriveJobFillButtonState";
 import { jobDetailDisplayTitle } from "@/modules/jobs/details/utils/job-detail-title";
@@ -56,12 +56,11 @@ export function useJobDetailsViewModel(
     ]);
   }, [refetch, refetchStageEvents, includeStageEvents]);
 
-  const sseUrl = jobId ? `${getApiBaseUrl()}/jobs/${jobId}/stream` : null;
+  useJobSummaryStatusChangedSubscription({
+    variables: { jobId },
+    onData: ({ data }) => {
+      const eventData = data.data!.jobSummaryStatusChanged;
 
-  useEventSource<{ jobId: string; status: string }>(
-    sseUrl,
-    "summary_status_changed",
-    (eventData) => {
       if (eventData.status === AsyncMetadataStatus.Processing) {
         const patched = writeJobSummaryStatusToCache(
           apolloClient.cache,
@@ -79,20 +78,21 @@ export function useJobDetailsViewModel(
         void refetchJobAndTimeline();
       }
     },
-  );
+  });
 
-  useEventSource<{ jobId: string; status: string }>(
-    sseUrl,
-    "fill_status_changed",
-    (data) => {
+  useJobFillStatusChangedSubscription({
+    variables: { jobId },
+    onData: ({ data }) => {
+      const eventData = data.data!.jobFillStatusChanged;
+
       if (
-        data.status === AsyncMetadataStatus.Completed ||
-        data.status === AsyncMetadataStatus.Failed
+        eventData.status === AsyncMetadataStatus.Completed ||
+        eventData.status === AsyncMetadataStatus.Failed
       ) {
         void refetchJobAndTimeline();
       }
     },
-  );
+  });
 
   const refetchQueries = includeStageEvents
     ? [

@@ -11,10 +11,8 @@ import {
   JobDetailsSubTabs,
   JobHeaderActions,
 } from "@/modules/jobs/details/job-details-header.slots";
-import {
-  getMatchStatusChangedHandler,
-  setupReactiveMatchTabGraphqlMocks,
-} from "@/modules/jobs/details/testing/match-sse-test-utils";
+import { getMatchStatusChangedHandler } from "@/modules/jobs/details/testing/match-sub-test-utils";
+import { setupReactiveMatchTabGraphqlMocks } from "@/modules/jobs/details/testing/match-sub-test-utils";
 import {
   completedJobMatch,
   failedJobMatch,
@@ -29,10 +27,6 @@ vi.mock("@/modules/jobs/shared/hooks/useToastQueue", () => ({
   useToastQueue: () => ({ enqueueToast: vi.fn() }),
 }));
 
-vi.mock("@/lib/api-endpoints", () => ({
-  getApiBaseUrl: () => "https://api.test",
-}));
-
 const routerPushSpy = vi.fn();
 
 vi.mock("next/navigation", () => ({
@@ -43,9 +37,8 @@ const gqlMocks = vi.hoisted(() => ({
   useJobMatchQuery: vi.fn(),
   useGenerateJobMatchMutation: vi.fn(),
   useDeleteMatchAnalysisMutation: vi.fn(),
+  useJobMatchStatusChangedSubscription: vi.fn(),
 }));
-
-const sseMocks = vi.hoisted(() => ({ useEventSource: vi.fn() }));
 
 vi.mock("@/gql/hooks", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/gql/hooks")>();
@@ -54,12 +47,10 @@ vi.mock("@/gql/hooks", async (importOriginal) => {
     useJobMatchQuery: gqlMocks.useJobMatchQuery,
     useGenerateJobMatchMutation: gqlMocks.useGenerateJobMatchMutation,
     useDeleteMatchAnalysisMutation: gqlMocks.useDeleteMatchAnalysisMutation,
+    useJobMatchStatusChangedSubscription:
+      gqlMocks.useJobMatchStatusChangedSubscription,
   };
 });
-
-vi.mock("@/hooks/useEventSource", () => ({
-  useEventSource: sseMocks.useEventSource,
-}));
 
 vi.mock("@/modules/work-preferences/components/PreferencesDialog", () => ({
   PreferencesDialog: ({
@@ -174,10 +165,10 @@ function renderMatchTab(
 describe("MatchTabContent", () => {
   beforeEach(() => {
     routerPushSpy.mockClear();
-    sseMocks.useEventSource.mockClear();
     gqlMocks.useJobMatchQuery.mockReset();
     gqlMocks.useGenerateJobMatchMutation.mockReset();
     gqlMocks.useDeleteMatchAnalysisMutation.mockReset();
+    gqlMocks.useJobMatchStatusChangedSubscription.mockReturnValue(undefined);
   });
 
   afterEach(() => {
@@ -508,17 +499,7 @@ describe("MatchTabContent", () => {
     );
   });
 
-  it("SSE: uses job stream URL keyed by jobId", () => {
-    setupApolloMocks({ jobMatch: completedJobMatch([], { id: "sse-match" }) });
-    renderMatchTab(<MatchTabContent jobId="job-777" />, { jobId: "job-777" });
-    expect(
-      sseMocks.useEventSource.mock.calls.some(
-        (c) => c[0] === "https://api.test/jobs/job-777/stream",
-      ),
-    ).toBe(true);
-  });
-
-  it("SSE: invokes refetch after COMPLETED event", async () => {
+  it("subscription: invokes refetch after COMPLETED event", async () => {
     const { refetch } = setupApolloMocks({
       jobMatch: completedJobMatch(
         [mockMatchItem({ verdict: MatchVerdict.Fit })],
@@ -527,40 +508,37 @@ describe("MatchTabContent", () => {
     });
     renderMatchTab(<MatchTabContent jobId="job-live" />);
     await waitFor(() =>
-      expect(sseMocks.useEventSource.mock.calls.length).toBeGreaterThanOrEqual(
-        1,
-      ),
+      expect(
+        gqlMocks.useJobMatchStatusChangedSubscription.mock.calls.length,
+      ).toBeGreaterThanOrEqual(1),
     );
-    const call = sseMocks.useEventSource.mock.calls.find(
-      (c) => c[1] === "match_status_changed",
+    const onEvent = getMatchStatusChangedHandler(
+      gqlMocks.useJobMatchStatusChangedSubscription,
     );
-    expect(call).toBeDefined();
-    const onEvent = call![2] as (evt: { status: AsyncMetadataStatus }) => void;
     await onEvent({ status: AsyncMetadataStatus.Completed });
 
     await waitFor(() => expect(refetch).toHaveBeenCalled());
   });
 
-  it("SSE: invokes refetch after FAILED event", async () => {
+  it("subscription: invokes refetch after FAILED event", async () => {
     const { refetch } = setupApolloMocks({
       jobMatch: completedJobMatch([], { id: "fail-match" }),
     });
     renderMatchTab(<MatchTabContent jobId="job-fail-stream" />);
     await waitFor(() =>
-      expect(sseMocks.useEventSource.mock.calls.length).toBeGreaterThanOrEqual(
-        1,
-      ),
+      expect(
+        gqlMocks.useJobMatchStatusChangedSubscription.mock.calls.length,
+      ).toBeGreaterThanOrEqual(1),
     );
-    const call = sseMocks.useEventSource.mock.calls.find(
-      (c) => c[1] === "match_status_changed",
-    )!;
-    const onEvent = call[2] as (evt: { status: AsyncMetadataStatus }) => void;
+    const onEvent = getMatchStatusChangedHandler(
+      gqlMocks.useJobMatchStatusChangedSubscription,
+    );
     await onEvent({ status: AsyncMetadataStatus.Failed });
 
     await waitFor(() => expect(refetch).toHaveBeenCalled());
   });
 
-  it("SSE COMPLETED: updates tab body from processing to completed content", async () => {
+  it("subscription COMPLETED: updates tab body from processing to completed content", async () => {
     const fitItem = mockMatchItem({
       verdict: MatchVerdict.Fit,
       requirement: "React streams into view",
@@ -578,14 +556,14 @@ describe("MatchTabContent", () => {
     expect(screen.getByText(/analyzing your match/i)).toBeInTheDocument();
 
     await waitFor(() =>
-      expect(sseMocks.useEventSource.mock.calls.length).toBeGreaterThanOrEqual(
-        1,
-      ),
+      expect(
+        gqlMocks.useJobMatchStatusChangedSubscription.mock.calls.length,
+      ).toBeGreaterThanOrEqual(1),
     );
 
-    await getMatchStatusChangedHandler(sseMocks.useEventSource)({
-      status: AsyncMetadataStatus.Completed,
-    });
+    await getMatchStatusChangedHandler(
+      gqlMocks.useJobMatchStatusChangedSubscription,
+    )({ status: AsyncMetadataStatus.Completed });
 
     expect(
       await screen.findByText(/react streams into view/i),
@@ -594,7 +572,7 @@ describe("MatchTabContent", () => {
     expect(screen.queryByText(/analyzing your match/i)).not.toBeInTheDocument();
   });
 
-  it("SSE FAILED: updates tab body from processing to failed state", async () => {
+  it("subscription FAILED: updates tab body from processing to failed state", async () => {
     setupReactiveMatchTabGraphqlMocks(gqlMocks.useJobMatchQuery, {
       initial: processingJobMatch({ id: "stream-fail-match" }),
       afterRefetch: failedJobMatch("LLM unreachable", {
@@ -610,14 +588,14 @@ describe("MatchTabContent", () => {
     expect(screen.getByText(/analyzing your match/i)).toBeInTheDocument();
 
     await waitFor(() =>
-      expect(sseMocks.useEventSource.mock.calls.length).toBeGreaterThanOrEqual(
-        1,
-      ),
+      expect(
+        gqlMocks.useJobMatchStatusChangedSubscription.mock.calls.length,
+      ).toBeGreaterThanOrEqual(1),
     );
 
-    await getMatchStatusChangedHandler(sseMocks.useEventSource)({
-      status: AsyncMetadataStatus.Failed,
-    });
+    await getMatchStatusChangedHandler(
+      gqlMocks.useJobMatchStatusChangedSubscription,
+    )({ status: AsyncMetadataStatus.Failed });
 
     expect(await screen.findByText(/analysis failed/i)).toBeInTheDocument();
     expect(screen.getByText(/llm unreachable/i)).toBeInTheDocument();

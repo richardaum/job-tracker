@@ -1,5 +1,5 @@
 import { Tabs, TabsList } from "@job-tracker/ui";
-import { act, render, screen, waitFor, within } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { Route } from "next";
 import React from "react";
@@ -8,31 +8,26 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { AsyncMetadataStatus } from "@/gql/hooks";
 import { JobMatchStatusProvider } from "@/modules/jobs/details/hooks/JobMatchStatusProvider";
 import {
-  getMatchStatusChangedHandler,
-  setupReactiveJobMatchQuery,
-} from "@/modules/jobs/details/testing/match-sse-test-utils";
-import {
   completedJobMatch,
   processingJobMatch,
 } from "@/modules/jobs/details/testing/match-tab-test-fixtures";
 
 import { MatchTabTrigger } from "./MatchTabTrigger";
 
-const gqlMocks = vi.hoisted(() => ({ useJobMatchQuery: vi.fn() }));
-const sseMocks = vi.hoisted(() => ({ useEventSource: vi.fn() }));
+const gqlMocks = vi.hoisted(() => ({
+  useJobMatchQuery: vi.fn(),
+  useJobMatchStatusChangedSubscription: vi.fn(),
+}));
 
 vi.mock("@/gql/hooks", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/gql/hooks")>();
-  return { ...actual, useJobMatchQuery: gqlMocks.useJobMatchQuery };
+  return {
+    ...actual,
+    useJobMatchQuery: gqlMocks.useJobMatchQuery,
+    useJobMatchStatusChangedSubscription:
+      gqlMocks.useJobMatchStatusChangedSubscription,
+  };
 });
-
-vi.mock("@/hooks/useEventSource", () => ({
-  useEventSource: sseMocks.useEventSource,
-}));
-
-vi.mock("@/lib/api-endpoints", () => ({
-  getApiBaseUrl: () => "https://api.test",
-}));
 
 vi.mock("next/link", () => ({
   default: ({
@@ -63,12 +58,6 @@ function renderMatchTabTrigger() {
   );
 }
 
-function getStatusDot() {
-  return document.querySelector(
-    '[data-testid="match-status-badge"]',
-  ) as HTMLElement;
-}
-
 function getMatchTabTooltipTrigger() {
   return within(screen.getByRole("tab", { name: "Match" })).getByText("Match");
 }
@@ -76,7 +65,7 @@ function getMatchTabTooltipTrigger() {
 describe("MatchTabTrigger", () => {
   beforeEach(() => {
     gqlMocks.useJobMatchQuery.mockReset();
-    sseMocks.useEventSource.mockReset();
+    gqlMocks.useJobMatchStatusChangedSubscription.mockReturnValue(undefined);
   });
 
   it("shows active tab styles when the match tab is selected", () => {
@@ -155,44 +144,6 @@ describe("MatchTabTrigger", () => {
 
     expect(await screen.findByRole("tooltip")).toHaveTextContent(
       "Match analysis failed. Open the tab to retry. LLM unreachable",
-    );
-  });
-
-  it("SSE COMPLETED: updates tab dot from processing pulse to completed", async () => {
-    const user = userEvent.setup();
-    setupReactiveJobMatchQuery(gqlMocks.useJobMatchQuery, {
-      initial: processingJobMatch({ id: "tab-stream-match" }),
-      afterRefetch: completedJobMatch([], { id: "tab-stream-match" }),
-    });
-
-    renderMatchTabTrigger();
-
-    const processingDot = getStatusDot();
-    expect(processingDot).toHaveClass("animate-match-status-pulse");
-    expect(processingDot).toHaveClass("bg-text-warning");
-
-    await waitFor(() =>
-      expect(sseMocks.useEventSource.mock.calls.length).toBeGreaterThanOrEqual(
-        1,
-      ),
-    );
-
-    await act(async () => {
-      await getMatchStatusChangedHandler(sseMocks.useEventSource)({
-        status: AsyncMetadataStatus.Completed,
-      });
-    });
-
-    await waitFor(() => {
-      const dot = getStatusDot();
-      expect(dot).toHaveClass("bg-text-success");
-      expect(dot).not.toHaveClass("animate-match-status-pulse");
-    });
-
-    await user.hover(getMatchTabTooltipTrigger());
-
-    expect(await screen.findByRole("tooltip")).toHaveTextContent(
-      "Match analysis is ready. Open to see fits, gaps, and unclear areas.",
     );
   });
 });
