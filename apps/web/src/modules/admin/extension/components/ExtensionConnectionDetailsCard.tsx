@@ -32,7 +32,7 @@ export function ExtensionConnectionDetailsCard({
             value={connectionDetailValue(connection.status, connection.browser)}
           />
           <DetailRow
-            label="Last heartbeat"
+            label="Last checked"
             value={connectionDetailValue(
               connection.status,
               connection.lastHeartbeatAt

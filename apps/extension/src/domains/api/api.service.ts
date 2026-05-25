@@ -18,6 +18,7 @@ import {
   CreateDraftCaptureJobDocument,
   CreateJobDocument,
   type CreateJobInput,
+  MeDocument,
   SourceRunEventsDocument,
   type SourceRunEventsSubscription,
   SourceRunsDocument,
@@ -110,6 +111,16 @@ export class ApiService {
       query: SourceRunsDocument,
       fetchPolicy: "network-only",
     });
+  }
+
+  async meEmail(): Promise<string | null> {
+    const [err, result] = await tryRun(
+      this.client.query({ query: MeDocument, fetchPolicy: "network-only" }),
+    );
+
+    if (err) return null;
+
+    return result.data?.me?.email ?? null;
   }
 
   subscribeToSourceRunEvents(

@@ -31,6 +31,7 @@ export class WebBridgeService {
     const message: AdminGetStatusMessage = {
       kind: "admin.get-status",
       webAppOrigin: window.location.origin,
+      ...(ping.refreshAuth ? { refreshAuth: true } : {}),
     };
 
     const [err, response] = await tryRun(

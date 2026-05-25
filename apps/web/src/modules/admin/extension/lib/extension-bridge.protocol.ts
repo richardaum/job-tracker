@@ -5,13 +5,15 @@ export const EXTENSION_BRIDGE_MESSAGE_TYPE = {
   pong: "JOB_TRACKER_EXTENSION_PONG",
 } as const;
 
-export const EXTENSION_BRIDGE_PING_INTERVAL_MS = 5_000;
-export const EXTENSION_BRIDGE_STALE_MS = 15_000;
+export const EXTENSION_BRIDGE_PROBE_TIMEOUT_MS = 5_000;
+
+export type ExtensionBridgeAuthStatus = "authenticated" | "unauthenticated";
 
 export type ExtensionBridgePing = {
   type: typeof EXTENSION_BRIDGE_MESSAGE_TYPE.ping;
   source: typeof EXTENSION_BRIDGE_SOURCE;
   requestId: string;
+  refreshAuth?: boolean;
 };
 
 export type ExtensionBridgeStatus = {
@@ -19,6 +21,8 @@ export type ExtensionBridgeStatus = {
   browser: string;
   lastHeartbeatAt: string;
   webAppOrigin: string;
+  authStatus: ExtensionBridgeAuthStatus;
+  authenticatedEmail: string | null;
 };
 
 export type ExtensionBridgePong = ExtensionBridgeStatus & {
@@ -27,13 +31,17 @@ export type ExtensionBridgePong = ExtensionBridgeStatus & {
   requestId: string;
 };
 
+export type CreateExtensionBridgePingOptions = { refreshAuth?: boolean };
+
 export function createExtensionBridgePing(
   requestId: string,
+  options?: CreateExtensionBridgePingOptions,
 ): ExtensionBridgePing {
   return {
     type: EXTENSION_BRIDGE_MESSAGE_TYPE.ping,
     source: EXTENSION_BRIDGE_SOURCE,
     requestId,
+    ...(options?.refreshAuth ? { refreshAuth: true } : {}),
   };
 }
 
@@ -46,7 +54,8 @@ export function isExtensionBridgePing(
   return (
     record.type === EXTENSION_BRIDGE_MESSAGE_TYPE.ping &&
     record.source === EXTENSION_BRIDGE_SOURCE &&
-    typeof record.requestId === "string"
+    typeof record.requestId === "string" &&
+    (record.refreshAuth === undefined || record.refreshAuth === true)
   );
 }
 
@@ -63,6 +72,10 @@ export function isExtensionBridgePong(
     typeof record.extensionVersion === "string" &&
     typeof record.browser === "string" &&
     typeof record.lastHeartbeatAt === "string" &&
-    typeof record.webAppOrigin === "string"
+    typeof record.webAppOrigin === "string" &&
+    (record.authStatus === "authenticated" ||
+      record.authStatus === "unauthenticated") &&
+    (typeof record.authenticatedEmail === "string" ||
+      record.authenticatedEmail === null)
   );
 }

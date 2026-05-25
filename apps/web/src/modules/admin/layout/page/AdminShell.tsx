@@ -7,7 +7,10 @@ import { usePathname, useRouter } from "next/navigation";
 
 import { BackToLink } from "@/components/back-to-link";
 import { DetailPageHeader } from "@/components/detail-page-header";
-import { AdminSubTabs } from "@/modules/admin/layout/admin-header.slots";
+import {
+  AdminHeaderActions,
+  AdminSubTabs,
+} from "@/modules/admin/layout/admin-header.slots";
 
 function deriveTab(pathname: string): string {
   if (pathname.startsWith("/admin/overview")) return "overview";
@@ -45,7 +48,13 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   return (
     <SlotsProvider>
       <div className={cn("flex h-full min-h-0 flex-col")}>
-        <DetailPageHeader>
+        <DetailPageHeader
+          trailing={
+            <AdminHeaderActions.Slot
+              className={cn("flex shrink-0 items-center gap-2 empty:hidden")}
+            />
+          }
+        >
           <BackToLink href="/jobs">Back to jobs</BackToLink>
           <Heading as="h1" size="2xl" className={cn("min-w-0")}>
             Admin

@@ -1,6 +1,10 @@
 import type { TextColor } from "@job-tracker/ui";
 
-import type { ExtensionConnectionStatus } from "@/modules/admin/extension/hooks/useExtensionConnectionStatus";
+import type {
+  ExtensionConnectionState,
+  ExtensionConnectionStatus,
+} from "@/modules/admin/extension/hooks/useExtensionConnectionStatus";
+import { formatDateTime } from "@/modules/jobs/details/utils/job-details.shared";
 
 export function connectionTextColor(
   status: ExtensionConnectionStatus,
@@ -27,13 +31,18 @@ export function connectionLabel(status: ExtensionConnectionStatus): string {
 }
 
 export function connectionSubtext(
-  status: ExtensionConnectionStatus,
+  connection: Pick<ExtensionConnectionState, "status" | "lastHeartbeatAt">,
 ): string | null {
-  if (status === "disconnected") {
-    return "Extension not detected";
+  switch (connection.status) {
+    case "connected":
+      return connection.lastHeartbeatAt
+        ? `Last checked at ${formatDateTime(connection.lastHeartbeatAt)}`
+        : null;
+    case "checking":
+      return "Contacting extension…";
+    case "disconnected":
+      return "Extension not detected";
   }
-
-  return null;
 }
 
 export function connectionDetailValue(

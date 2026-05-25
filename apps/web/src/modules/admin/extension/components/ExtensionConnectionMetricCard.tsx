@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Card, cn, Stack, Text, type TextColor } from "@job-tracker/ui";
+import { Card, cn, Stack, Text, type TextColor } from "@job-tracker/ui";
 import {
   ArrowClockwiseIcon,
   PlugsConnectedIcon,
@@ -16,15 +16,12 @@ import {
 
 type ExtensionConnectionMetricCardProps = {
   connection: ExtensionConnectionState;
-  onRetry: () => void;
 };
 
 export function ExtensionConnectionMetricCard({
   connection,
-  onRetry,
 }: ExtensionConnectionMetricCardProps) {
-  const hint = connectionSubtext(connection.status);
-  const showRetry = connection.status !== "connected";
+  const hint = connectionSubtext(connection);
 
   return (
     <Card padding="md" className={cn("min-w-0 flex-1")}>
@@ -43,37 +40,14 @@ export function ExtensionConnectionMetricCard({
             {connectionIcon(connection.status)}
           </span>
         </Stack>
-        <Stack
-          direction="row"
-          gap="sm"
-          align="center"
-          justify="between"
-          className={cn("w-full min-w-0")}
-        >
-          <Stack gap="xs" align="start" className={cn("min-w-0 flex-1")}>
-            <ConnectionMetricValue
-              color={connectionTextColor(connection.status)}
-            >
-              {connectionLabel(connection.status)}
-            </ConnectionMetricValue>
-            {hint ? (
-              <Text size="xs" color="secondary">
-                {hint}
-              </Text>
-            ) : null}
-          </Stack>
-          {showRetry ? (
-            <Button
-              type="button"
-              size="sm"
-              intent="secondary"
-              state={connection.status === "checking" ? "loading" : "default"}
-              leftIcon={<ArrowClockwiseIcon size={14} weight="bold" />}
-              className={cn("shrink-0")}
-              onClick={onRetry}
-            >
-              Retry
-            </Button>
+        <Stack gap="xs" align="start" className={cn("min-w-0 w-full")}>
+          <ConnectionMetricValue color={connectionTextColor(connection.status)}>
+            {connectionLabel(connection.status)}
+          </ConnectionMetricValue>
+          {hint ? (
+            <Text size="xs" color="muted">
+              {hint}
+            </Text>
           ) : null}
         </Stack>
       </Stack>

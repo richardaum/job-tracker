@@ -2,6 +2,7 @@
 
 import {
   Badge,
+  Button,
   Card,
   cn,
   Heading,
@@ -22,10 +23,16 @@ import { useState } from "react";
 import { ExtensionConnectionDetailsCard } from "@/modules/admin/extension/components/ExtensionConnectionDetailsCard";
 import { ExtensionConnectionMetricCard } from "@/modules/admin/extension/components/ExtensionConnectionMetricCard";
 import { useExtensionConnectionStatus } from "@/modules/admin/extension/hooks/useExtensionConnectionStatus";
-import { AdminSubTabs } from "@/modules/admin/layout/admin-header.slots";
+import {
+  authDisplayLabel,
+  authTextColor,
+} from "@/modules/admin/extension/lib/extension-auth.display";
+import {
+  AdminHeaderActions,
+  AdminSubTabs,
+} from "@/modules/admin/layout/admin-header.slots";
 import { formatDateTime } from "@/modules/jobs/details/utils/job-details.shared";
 
-type ExtensionAuthStatus = "authenticated" | "unauthenticated";
 type ExtensionEventStatus = "processing" | "completed" | "failed" | "queued";
 type ExtensionSubTab = "status" | "events";
 
@@ -37,17 +44,7 @@ type ExtensionEvent = {
   summary: string;
 };
 
-type ExtensionAdminSnapshot = {
-  authStatus: ExtensionAuthStatus;
-  authenticatedEmail: string | null;
-  events: ExtensionEvent[];
-};
-
-const MOCK_EXTENSION_SNAPSHOT: ExtensionAdminSnapshot = {
-  authStatus: "authenticated", // mocked
-  authenticatedEmail: "richard@example.com", // mocked
-  events: buildMockExtensionEvents(), // mocked
-};
+const MOCK_EXTENSION_EVENTS = buildMockExtensionEvents();
 
 // mocked — synthetic feed rows for scroll preview; remove when wired to live data
 function buildMockExtensionEvents(): ExtensionEvent[] {
@@ -132,10 +129,6 @@ function buildMockExtensionEvents(): ExtensionEvent[] {
 const extensionSubTabTriggerClass = cn(
   "data-[state=active]:bg-bg-info-subtle data-[state=active]:text-text-brand",
 );
-
-function authTextColor(status: ExtensionAuthStatus): TextColor | undefined {
-  return status === "authenticated" ? undefined : "warning";
-}
 
 function inFlightTextColor(count: number): TextColor {
   return count > 0 ? "brand" : "muted";
@@ -282,31 +275,24 @@ function ExtensionEventRow({ event }: { event: ExtensionEvent }) {
 
 function ExtensionStatusPanel({
   connection,
-  snapshot,
+  events,
 }: {
   connection: ReturnType<typeof useExtensionConnectionStatus>;
-  snapshot: ExtensionAdminSnapshot;
+  events: ExtensionEvent[];
 }) {
-  const inFlightCount = countInFlightEvents(snapshot.events);
-  const authDisplay =
-    snapshot.authStatus === "authenticated" && snapshot.authenticatedEmail
-      ? snapshot.authenticatedEmail
-      : "Not signed in";
+  const inFlightCount = countInFlightEvents(events);
 
   return (
     <Stack gap="lg" align="stretch" className={cn("w-full min-w-0")}>
       <div className={cn("grid gap-3 sm:grid-cols-2 xl:grid-cols-3")}>
-        <ExtensionConnectionMetricCard
-          connection={connection}
-          onRetry={connection.retry}
-        />
+        <ExtensionConnectionMetricCard connection={connection} />
 
         <StatusMetricCard
           label="Authentication"
           icon={<ShieldCheckIcon size={18} weight="duotone" />}
         >
-          <MetricValueText color={authTextColor(snapshot.authStatus)}>
-            {authDisplay}
+          <MetricValueText color={authTextColor(connection)}>
+            {authDisplayLabel(connection)}
           </MetricValueText>
         </StatusMetricCard>
 
@@ -358,12 +344,28 @@ function ExtensionEventsPanel({ events }: { events: ExtensionEvent[] }) {
 
 export default function ExtensionTabPage() {
   const connection = useExtensionConnectionStatus();
-  const snapshot = MOCK_EXTENSION_SNAPSHOT;
   const [extensionSubTab, setExtensionSubTab] =
     useState<ExtensionSubTab>("status");
 
+  function refreshExtensionAdmin() {
+    connection.retry();
+  }
+
   return (
     <Stack gap="lg" align="stretch" className={cn("w-full min-w-0 px-1")}>
+      <AdminHeaderActions>
+        <Button
+          type="button"
+          intent="secondary"
+          size="md"
+          state={connection.status === "checking" ? "loading" : "default"}
+          leftIcon={<ArrowClockwiseIcon size={16} weight="bold" />}
+          onClick={refreshExtensionAdmin}
+        >
+          Refresh
+        </Button>
+      </AdminHeaderActions>
+
       <AdminSubTabs>
         <Tabs
           value={extensionSubTab}
@@ -383,9 +385,12 @@ export default function ExtensionTabPage() {
       </AdminSubTabs>
 
       {extensionSubTab === "status" ? (
-        <ExtensionStatusPanel connection={connection} snapshot={snapshot} />
+        <ExtensionStatusPanel
+          connection={connection}
+          events={MOCK_EXTENSION_EVENTS}
+        />
       ) : (
-        <ExtensionEventsPanel events={snapshot.events} />
+        <ExtensionEventsPanel events={MOCK_EXTENSION_EVENTS} />
       )}
     </Stack>
   );

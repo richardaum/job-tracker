@@ -711,6 +711,13 @@ export type CreateJobMutation = {
   createJob: { __typename?: "JobType"; id: string; title?: string | null };
 };
 
+export type MeQueryVariables = Exact<{ [key: string]: never }>;
+
+export type MeQuery = {
+  __typename?: "Query";
+  me: { __typename?: "UserType"; email: string };
+};
+
 export type SourceRunEventsSubscriptionVariables = Exact<{
   [key: string]: never;
 }>;
@@ -968,6 +975,31 @@ export const CreateJobDocument = {
     },
   ],
 } as unknown as DocumentNode<CreateJobMutation, CreateJobMutationVariables>;
+export const MeDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "query",
+      name: { kind: "Name", value: "Me" },
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "me" },
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "email" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<MeQuery, MeQueryVariables>;
 export const SourceRunEventsDocument = {
   kind: "Document",
   definitions: [

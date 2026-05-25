@@ -52,7 +52,9 @@ export default defineBackground(() => {
     apiService,
   );
 
-  const adminExtensionStatusService = new AdminExtensionStatusService();
+  const adminExtensionStatusService = new AdminExtensionStatusService({
+    fetchAuthenticatedEmail: () => apiService.meEmail(),
+  });
 
   const sourceRunEventsService = new SourceRunEventsService(
     apiService,

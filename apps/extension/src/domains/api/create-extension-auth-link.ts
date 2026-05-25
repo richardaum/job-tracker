@@ -1,6 +1,6 @@
 import { SetContextLink } from "@apollo/client/link/context";
 
-const ACCESS_TOKEN_COOKIE = "access_token";
+import { getAccessTokenFromCookie } from "@/domains/api/get-access-token-from-cookie";
 
 export function createExtensionAuthLink(graphqlUrl: string): SetContextLink {
   const cookieUrl = new URL(graphqlUrl).origin;
@@ -15,18 +15,5 @@ export function createExtensionAuthLink(graphqlUrl: string): SetContextLink {
       ...context,
       headers: { ...context.headers, Authorization: `Bearer ${accessToken}` },
     };
-  });
-}
-
-function getAccessTokenFromCookie(url: string): Promise<string | undefined> {
-  return new Promise((resolve) => {
-    chrome.cookies.get({ url, name: ACCESS_TOKEN_COOKIE }, (cookie) => {
-      if (chrome.runtime.lastError) {
-        resolve(undefined);
-        return;
-      }
-
-      resolve(cookie?.value);
-    });
   });
 }
