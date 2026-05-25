@@ -30,7 +30,10 @@ export const registerMessageListenerByKind = (
     if (!handler) return;
 
     const result = handler(rawMessage);
-    if (!isPromise(result)) return;
+    if (!isPromise(result)) {
+      sendResponse(result);
+      return;
+    }
 
     void result
       .then((response) => sendResponse(response))

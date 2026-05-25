@@ -16,6 +16,7 @@ import { PlanService } from "@/domains/plan/services/plan.service";
 import { StringTemplateService } from "@/domains/plan/services/string-template.service";
 import { SourceRunEventsService } from "@/domains/sources/source-run-events.service";
 import { WxtTabService } from "@/domains/tab/wxt-tab.service";
+import { AdminExtensionStatusService } from "@/domains/web-bridge/admin-extension-status.service";
 
 export default defineBackground(() => {
   const logService = new LogService({ prefix: "Background", level: "debug" });
@@ -50,6 +51,8 @@ export default defineBackground(() => {
     new WxtTabService(),
     apiService,
   );
+
+  const adminExtensionStatusService = new AdminExtensionStatusService();
 
   const sourceRunEventsService = new SourceRunEventsService(
     apiService,
@@ -88,5 +91,7 @@ export default defineBackground(() => {
     "popup.import-job": () => {
       void importJobService.execute();
     },
+    "admin.get-status": (message) =>
+      adminExtensionStatusService.handleGetStatusMessage(message),
   });
 });

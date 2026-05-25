@@ -9,6 +9,7 @@ import {
   CalculatorIcon,
   CaretRightIcon,
   DownloadSimpleIcon,
+  GaugeIcon,
   GearIcon,
   MagnifyingGlassIcon,
   QuestionIcon,
@@ -40,6 +41,7 @@ const navItems: Array<{
     label: "Salary Calculator",
     icon: CalculatorIcon,
   },
+  { href: "/admin", label: "Admin", icon: GaugeIcon },
 ];
 
 const bottomItems: Array<{
