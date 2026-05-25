@@ -63,7 +63,7 @@ export function ProfileShell({ children }: { children: React.ReactNode }) {
           </Tabs>
           <div
             className={cn(
-              "flex min-h-0 min-w-0 flex-1 flex-col items-stretch px-1 text-start",
+              "flex min-h-0 min-w-0 flex-1 flex-col items-stretch text-start",
             )}
           >
             {children}

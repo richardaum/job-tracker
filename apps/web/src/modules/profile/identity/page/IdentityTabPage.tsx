@@ -44,7 +44,7 @@ export default function IdentityTabPage() {
   const providerLabel = primaryProviderLabel(user.accounts);
 
   return (
-    <Stack gap="lg" align="stretch" className={cn("w-full")}>
+    <Stack gap="lg" align="stretch" className={cn("px-1 w-full")}>
       <div className={cn("max-w-full")}>
         <FieldWithLabelAction
           label="Photo"

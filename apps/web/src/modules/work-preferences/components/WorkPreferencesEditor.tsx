@@ -213,7 +213,7 @@ export default function WorkPreferencesEditor({
   if (mode === "inline") {
     return (
       <div>
-        <Text size="sm" color="muted" className={cn("mb-4")}>
+        <Text size="sm" color="muted" className={cn("px-1 mb-4")}>
           What matters to you in a job? These preferences are used to evaluate
           match against job descriptions.
         </Text>
