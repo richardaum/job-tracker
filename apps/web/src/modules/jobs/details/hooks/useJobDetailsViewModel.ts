@@ -1,5 +1,6 @@
 "use client";
 
+import { useApolloClient } from "@apollo/client/react";
 import { tryRun } from "@job-tracker/try-run";
 import { useCallback } from "react";
 
@@ -18,6 +19,7 @@ import { deriveDetailStatus } from "@/lib/entity-detail-view-status";
 import { deriveJobFillButtonState } from "@/modules/jobs/details/hooks/deriveJobFillButtonState";
 import { jobDetailDisplayTitle } from "@/modules/jobs/details/utils/job-detail-title";
 import type { JobDetailsValues } from "@/modules/jobs/details/utils/job-details.shared";
+import { writeJobSummaryStatusToCache } from "@/modules/jobs/shared/utils/apolloJobSummaryCache";
 import { formatJobSourceLabel } from "@/modules/jobs/shared/utils/jobSourceLabel";
 
 export interface UseJobDetailsViewModelOptions {
@@ -33,6 +35,7 @@ export function useJobDetailsViewModel(
   options?: UseJobDetailsViewModelOptions,
 ) {
   const includeStageEvents = options?.includeStageEvents ?? true;
+  const apolloClient = useApolloClient();
 
   const { data, loading, error, refetch } = useJobQuery({
     variables: { id: jobId },
@@ -55,9 +58,28 @@ export function useJobDetailsViewModel(
 
   const sseUrl = jobId ? `${getApiBaseUrl()}/jobs/${jobId}/stream` : null;
 
-  useEventSource(sseUrl, "summary_status_changed", () => {
-    void refetchJobAndTimeline();
-  });
+  useEventSource<{ jobId: string; status: string }>(
+    sseUrl,
+    "summary_status_changed",
+    (eventData) => {
+      if (eventData.status === AsyncMetadataStatus.Processing) {
+        const patched = writeJobSummaryStatusToCache(
+          apolloClient.cache,
+          jobId,
+          AsyncMetadataStatus.Processing,
+        );
+        if (!patched) void refetchJobAndTimeline();
+        return;
+      }
+
+      if (
+        eventData.status === AsyncMetadataStatus.Completed ||
+        eventData.status === AsyncMetadataStatus.Failed
+      ) {
+        void refetchJobAndTimeline();
+      }
+    },
+  );
 
   useEventSource<{ jobId: string; status: string }>(
     sseUrl,
@@ -95,7 +117,7 @@ export function useJobDetailsViewModel(
   const currentStageReason = stageEventsData?.jobStageEvents[0]?.reason ?? null;
 
   const sourcePrimaryText = formatJobSourceLabel(job?.source);
-  const status = deriveDetailStatus(loading, error);
+  const status = deriveDetailStatus(loading && !job, error);
 
   const displayTitle = job ? jobDetailDisplayTitle(job.title) : null;
 
