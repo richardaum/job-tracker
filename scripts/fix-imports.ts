@@ -65,7 +65,7 @@ const eslint = new ESLint({
   ],
 });
 
-const [lintErr, lintResults] = await tryRun(() => eslint.lintFiles(patterns));
+const [lintErr, lintResults] = await tryRun(eslint.lintFiles(patterns));
 if (lintErr) {
   if (
     typeof lintErr === "object" &&
@@ -77,7 +77,10 @@ if (lintErr) {
   }
   throw lintErr;
 }
-const results = lintResults!;
+if (lintResults == null) {
+  throw new Error("eslint.lintFiles returned no results");
+}
+const results: ESLint.LintResult[] = lintResults;
 await ESLint.outputFixes(results);
 
 const errors = results.filter((r) => r.errorCount > 0 || r.warningCount > 0);
