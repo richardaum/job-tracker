@@ -1,9 +1,16 @@
 import { cn } from "@job-tracker/ui";
 import { act, render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import React from "react";
-import { vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { PasteListenerProvider } from "./PasteListenerProvider";
+
+const { createDraftCaptureJobMock } = vi.hoisted(() => ({
+  createDraftCaptureJobMock: vi.fn(() =>
+    Promise.resolve({ data: { createJob: { id: "job-1" } } }),
+  ),
+}));
 
 // Mock next/navigation
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
@@ -13,9 +20,19 @@ vi.mock("@/gql/hooks", () => ({
   ApplicationQuickFilter: { Draft: "DRAFT" },
   JobsDocument: { __brand: "DocumentNode" },
   useCreateDraftCaptureJobMutation: () => [
-    vi.fn(() => Promise.resolve({ data: { createJob: { id: "1" } } })),
+    createDraftCaptureJobMock,
     { loading: false },
   ],
+  useSettingsQuery: () => ({
+    data: {
+      settings: {
+        autoFillEnabled: true,
+        autoSummaryEnabled: false,
+        duplicateWindowDays: 30,
+      },
+    },
+    loading: false,
+  }),
 }));
 
 // Mock toast queue
@@ -165,5 +182,76 @@ describe("PasteListenerProvider", () => {
     });
 
     expect(await screen.findByText(/paste detected/i)).toBeInTheDocument();
+  });
+
+  it("passes autoFill from dialog checkbox to createDraftCaptureJob mutation", async () => {
+    const user = userEvent.setup();
+
+    render(
+      <TestWrapper>
+        <div data-testid="page-content">Page content</div>
+      </TestWrapper>,
+    );
+
+    await act(async () => {
+      dispatchPasteEvent({ "text/plain": "https://example.com/job-posting" });
+    });
+
+    const checkbox = await screen.findByRole("checkbox", {
+      name: "Fill job fields automatically",
+    });
+    expect(checkbox).toBeChecked();
+
+    await user.click(checkbox);
+    await user.click(screen.getByRole("button", { name: "Create draft" }));
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(createDraftCaptureJobMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        variables: {
+          input: expect.objectContaining({
+            autoFill: false,
+            createAsDraftCapture: true,
+          }),
+        },
+      }),
+    );
+  });
+
+  it("sends autoFill true when checkbox stays checked", async () => {
+    const user = userEvent.setup();
+
+    render(
+      <TestWrapper>
+        <div data-testid="page-content">Page content</div>
+      </TestWrapper>,
+    );
+
+    await act(async () => {
+      dispatchPasteEvent({ "text/plain": "https://example.com/job-posting" });
+    });
+
+    await screen.findByRole("checkbox", {
+      name: "Fill job fields automatically",
+    });
+    await user.click(screen.getByRole("button", { name: "Create draft" }));
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(createDraftCaptureJobMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        variables: {
+          input: expect.objectContaining({
+            autoFill: true,
+            createAsDraftCapture: true,
+          }),
+        },
+      }),
+    );
   });
 });

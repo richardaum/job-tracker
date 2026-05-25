@@ -17,7 +17,7 @@ test("profile page renders 4 tabs after login", async ({ page }) => {
 test("settings tab renders and toggles work", async ({ page }) => {
   await loginWithAuthBypass(page, "/profile/settings");
 
-  await expect(page.getByText("Auto-fill")).toBeVisible();
+  await expect(page.getByText("Auto-fill job fields")).toBeVisible();
   await expect(page.getByText("Auto-summary")).toBeVisible();
   await expect(page.getByText("Duplicate detection window")).toBeVisible();
 

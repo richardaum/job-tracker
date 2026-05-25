@@ -1,7 +1,10 @@
+import { ApolloProvider } from "@apollo/client/react";
 import { render, screen } from "@testing-library/react";
+import type { ReactNode } from "react";
 import { describe, expect, it, vi } from "vitest";
 
-import ProtectedLayout from "./layout";
+import { createApolloClient } from "@/lib/make-apollo-client";
+import { AuthenticatedLayout } from "@/modules/navigation/layouts/AuthenticatedLayout";
 
 const replaceMock = vi.fn();
 const useCurrentUserMock = vi.fn();
@@ -16,7 +19,15 @@ vi.mock("@/hooks/useCurrentUser", () => ({
   useCurrentUser: () => useCurrentUserMock(),
 }));
 
-describe("ProtectedLayout", () => {
+function renderAuthenticatedLayout(children: ReactNode) {
+  return render(
+    <ApolloProvider client={createApolloClient()}>
+      <AuthenticatedLayout>{children}</AuthenticatedLayout>
+    </ApolloProvider>,
+  );
+}
+
+describe("AuthenticatedLayout", () => {
   it("redirects unauthenticated users to /login with returnTo", () => {
     useCurrentUserMock.mockReturnValue({
       user: null,
@@ -24,11 +35,7 @@ describe("ProtectedLayout", () => {
       error: undefined,
     });
 
-    render(
-      <ProtectedLayout>
-        <div>Private Area</div>
-      </ProtectedLayout>,
-    );
+    renderAuthenticatedLayout(<div>Private Area</div>);
 
     expect(replaceMock).toHaveBeenCalledWith(
       "/login?returnTo=%2Fjobs%3Fstatus%3DOPEN",
@@ -47,11 +54,7 @@ describe("ProtectedLayout", () => {
       error: undefined,
     });
 
-    render(
-      <ProtectedLayout>
-        <div>Private Area</div>
-      </ProtectedLayout>,
-    );
+    renderAuthenticatedLayout(<div>Private Area</div>);
 
     expect(screen.getByText("Private Area")).toBeInTheDocument();
   });

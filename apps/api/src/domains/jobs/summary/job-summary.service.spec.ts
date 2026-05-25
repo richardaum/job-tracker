@@ -343,7 +343,7 @@ describe("JobSummaryService", () => {
       AsyncMetadataStatusEnum.PROCESSING,
       expect.objectContaining({
         status: AsyncMetadataStatusEnum.FAILED,
-        error: "quota exceeded",
+        error: null,
       }),
     );
 

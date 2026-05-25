@@ -44,10 +44,10 @@ describe("SettingsTabPage", () => {
     vi.useRealTimers();
   });
 
-  it("renders 3 settings: Auto-fill, Auto-summary, Duplicate window", () => {
+  it("renders 3 settings: Auto-fill job fields, Auto-summary, Duplicate window", () => {
     settingsQueryMock.mockReturnValue(mockSettings());
     render(<SettingsTabPage />);
-    expect(screen.getByText("Auto-fill")).toBeInTheDocument();
+    expect(screen.getByText("Auto-fill job fields")).toBeInTheDocument();
     expect(screen.getByText("Auto-summary")).toBeInTheDocument();
     expect(screen.getByText("Duplicate detection window")).toBeInTheDocument();
   });
@@ -57,7 +57,7 @@ describe("SettingsTabPage", () => {
     render(<SettingsTabPage />);
     expect(
       screen.getByText(
-        "Pre-fill application fields when converting from draft",
+        "Fill job fields automatically when creating a draft from pasted content",
       ),
     ).toBeInTheDocument();
     expect(
@@ -267,6 +267,6 @@ describe("SettingsTabPage", () => {
       data: { settings: null },
     });
     render(<SettingsTabPage />);
-    expect(screen.queryByText("Auto-fill")).not.toBeInTheDocument();
+    expect(screen.queryByText("Auto-fill job fields")).not.toBeInTheDocument();
   });
 });

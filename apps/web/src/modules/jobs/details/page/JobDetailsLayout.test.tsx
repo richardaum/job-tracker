@@ -83,10 +83,6 @@ vi.mock("@/modules/jobs/details/hooks/useJobDetailsViewModel", () => ({
     useJobDetailsViewModelMock(id, options),
 }));
 
-vi.mock("@/modules/jobs/details/hooks/useJobAutoFillFromQuery", () => ({
-  useJobAutoFillFromQuery: vi.fn(),
-}));
-
 vi.mock("@/modules/jobs/details/page/JobOverviewPage", () => ({
   JobOverviewPage: () => <div data-testid="overview-tab-mock" />,
 }));
@@ -183,7 +179,7 @@ describe("JobDetailsLayout", () => {
       screen.queryByRole("menuitem", { name: "Match analysis" }),
     ).toBeNull();
     expect(
-      screen.getByRole("menuitem", { name: "Fill automatically" }),
+      screen.getByRole("menuitem", { name: "Fill job fields automatically" }),
     ).toBeDefined();
     expect(
       screen.getByRole("menuitem", { name: "Update status" }),

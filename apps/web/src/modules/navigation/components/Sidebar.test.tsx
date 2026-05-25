@@ -51,9 +51,12 @@ vi.mock("@/lib/api-endpoints", () => ({
   getApiBaseUrl: () => "http://localhost:3101",
 }));
 
-vi.mock("@/lib/apollo-client", () => ({
-  apolloClient: { clearStore: vi.fn().mockResolvedValue(undefined) },
-}));
+const clearStoreMock = vi.fn().mockResolvedValue(undefined);
+
+vi.mock("@apollo/client/react", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@apollo/client/react")>();
+  return { ...actual, useApolloClient: () => ({ clearStore: clearStoreMock }) };
+});
 
 vi.mock("@/modules/navigation/components/AppBrandMark", () => ({
   AppBrandMark: ({ size: _size }: { size?: number }) => (
