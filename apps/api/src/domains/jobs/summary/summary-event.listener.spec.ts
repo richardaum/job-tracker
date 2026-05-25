@@ -3,6 +3,8 @@ import {
   SummaryGenerationRequested,
 } from "@api/domains/jobs/job.events";
 import { JobEventBus } from "@api/domains/jobs/job-event.bus";
+import { ApplicationStageEnum } from "@api/domains/jobs/job-stage.enum";
+import type { JobsRepository } from "@api/domains/jobs/jobs.repository";
 import type { SettingsService } from "@api/domains/settings/settings.service";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -13,6 +15,7 @@ describe("SummaryEventListener", () => {
   let bus: JobEventBus;
   let summaryService: Pick<JobSummaryService, "requestSummary" | "doGenerate">;
   let settingsService: Pick<SettingsService, "getSettings">;
+  let jobsRepository: Pick<JobsRepository, "findOneByIdAndUserId">;
 
   beforeEach(() => {
     bus = new JobEventBus();
@@ -23,6 +26,11 @@ describe("SummaryEventListener", () => {
     settingsService = {
       getSettings: vi.fn().mockResolvedValue({ autoSummaryEnabled: true }),
     };
+    jobsRepository = {
+      findOneByIdAndUserId: vi
+        .fn()
+        .mockResolvedValue({ stage: ApplicationStageEnum.NEW }),
+    };
   });
 
   function createListener() {
@@ -30,6 +38,7 @@ describe("SummaryEventListener", () => {
       bus,
       summaryService as JobSummaryService,
       settingsService as SettingsService,
+      jobsRepository as JobsRepository,
     );
   }
 
@@ -60,6 +69,24 @@ describe("SummaryEventListener", () => {
 
     await vi.waitFor(() =>
       expect(settingsService.getSettings).toHaveBeenCalledWith("user-y"),
+    );
+    expect(summaryService.requestSummary).not.toHaveBeenCalled();
+  });
+
+  it("skips summary generation when job stage is Duplicated", async () => {
+    vi.mocked(jobsRepository.findOneByIdAndUserId).mockResolvedValue({
+      stage: ApplicationStageEnum.DUPLICATED,
+    } as Awaited<ReturnType<JobsRepository["findOneByIdAndUserId"]>>);
+
+    createListener().onModuleInit();
+
+    bus.emit(new JobUpdated("job-x", "user-y"));
+
+    await vi.waitFor(() =>
+      expect(jobsRepository.findOneByIdAndUserId).toHaveBeenCalledWith(
+        "job-x",
+        "user-y",
+      ),
     );
     expect(summaryService.requestSummary).not.toHaveBeenCalled();
   });
