@@ -1,7 +1,7 @@
-const path = require("node:path");
-const childProcess = require("node:child_process");
+import { spawnSync } from "node:child_process";
+import path from "node:path";
 
-function basenameToSlug(name) {
+function basenameToSlug(name: string): string {
   return name
     .toLowerCase()
     .replace(/[_\s/]+/g, "-")
@@ -11,7 +11,7 @@ function basenameToSlug(name) {
     .replace(/^-|-$/g, "");
 }
 
-function branchToSlug(branch) {
+function branchToSlug(branch: string): string {
   return basenameToSlug(branch.replace(/^refs\/heads\//, ""));
 }
 
@@ -20,15 +20,14 @@ function branchToSlug(branch) {
  * Falls back to git branch when the directory is still named "job-tracker" (main checkout).
  * Returns "job-tracker" for the main checkout, meaning no worktree prefix is applied.
  */
-function deriveSlug(root) {
+export function deriveSlug(root: string): string {
   let slug = basenameToSlug(path.basename(root));
 
   if (slug === "job-tracker") {
-    const result = childProcess.spawnSync(
-      "git",
-      ["rev-parse", "--abbrev-ref", "HEAD"],
-      { cwd: root, encoding: "utf8" },
-    );
+    const result = spawnSync("git", ["rev-parse", "--abbrev-ref", "HEAD"], {
+      cwd: root,
+      encoding: "utf8",
+    });
     if (result.status === 0 && result.stdout.trim() !== "HEAD") {
       slug = branchToSlug(result.stdout.trim());
     }
@@ -36,5 +35,3 @@ function deriveSlug(root) {
 
   return slug;
 }
-
-module.exports = { deriveSlug };

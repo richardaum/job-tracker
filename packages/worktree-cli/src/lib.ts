@@ -10,17 +10,12 @@ import {
   unlinkSync,
   writeFileSync,
 } from "node:fs";
-import { createRequire } from "node:module";
 import { dirname, join, relative } from "node:path";
 
 import { tryRun } from "@job-tracker/try-run";
 
+import { deriveSlug } from "./derive-slug.ts";
 import { worktreeEnv } from "./env.ts";
-
-const require = createRequire(import.meta.url);
-const { deriveSlug } = require("../derive-slug.cjs") as {
-  deriveSlug: (root: string) => string;
-};
 
 export const GLOBAL_REGISTRY_PATH = "/tmp/job-tracker-ports.json";
 export const SLUG_REGISTRY_PREFIX = "/tmp/job-tracker-";

@@ -8,5 +8,5 @@
     "allowImportingTsExtensions": true,
     "allowJs": true
   },
-  "include": ["src/**/*.ts", "derive-slug.cjs.d.ts"]
+  "include": ["src/**/*.ts"]
 }
