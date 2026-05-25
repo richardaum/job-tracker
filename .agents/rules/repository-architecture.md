@@ -40,6 +40,30 @@ Fields named `{action}Metadata` (e.g. `summaryMetadata`, `conversionMetadata`, `
 
 Canonical spec: `specs/034-technical-async-task-pattern/PATTERN.md`.
 
+## Real-time events (SSE → GraphQL Subscription)
+
+Real-time events from backend to frontend use **GraphQL Subscription** over the existing Apollo + `graphql-sse` middleware. Do not add raw `@Sse()` controllers, `EventSource`, or `useEventSource` hooks.
+
+| Mechanism | Use |
+|---|---|
+| GraphQL Subscription (`@Subscription()`) | All real-time events — always |
+| NestJS `@Sse()` / raw `EventSource` | **Forbidden** — not used |
+
+**Backend pattern:**
+
+1. Define `DomainEvent` subclass in `*.events.ts`
+2. Emit via `EventBus` in the service: `this.eventBus.emit(new XxxCompleted(id, userId, payload))`
+3. Create resolver with `@Subscription()` returning `AsyncIterable`
+4. Filter events via `for await (const event of this.eventBus.events())` + `instanceof`
+
+**Frontend pattern:**
+
+- Define subscription operation in `.graphql` file
+- Run codegen: `pnpm --filter @job-tracker/web run codegen`
+- Use generated hook: `useXxxSubscription({ variables, onData })`
+
+**Canonical references:** `JobsEventsResolver` (`jobs-events.resolver.ts`), `ExtensionActivityEventsResolver`.
+
 ## Database migrations
 
 When changes affect data models (entities, columns, types, indices, enums), create a TypeORM migration, not a raw SQL script. Forbidden to use TypeORM `synchronize` against shared or production-like databases.
