@@ -32,6 +32,7 @@ import {
   useJobSidePanel,
 } from "@/modules/jobs/details/hooks/useJobDetailsRoute";
 import { useJobDetailsViewModel } from "@/modules/jobs/details/hooks/useJobDetailsViewModel";
+import { useJobPageTitle } from "@/modules/jobs/details/hooks/useJobPageTitle";
 import {
   JobActionsMenuItems,
   JobDetailsSubTabs,
@@ -262,6 +263,8 @@ export default function JobDetailsLayout({
     triggerFillAutomatically,
   } = useJobDetailsViewModel(id);
   const isDesktop = useBreakpoint("(min-width: 1024px)");
+
+  useJobPageTitle(job, activeTab);
 
   useEffect(() => {
     if (isDesktop || !sidePanelFromQuery) {

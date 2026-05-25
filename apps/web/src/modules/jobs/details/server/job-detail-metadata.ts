@@ -5,6 +5,7 @@ import { cookies } from "next/headers";
 import { staticPageMetadata } from "@/app/metadata";
 import { getServerApiGraphqlUrl } from "@/lib/server-api-endpoints";
 import { createServerSdk } from "@/lib/server-graphql";
+import { formatJobPageTabTitle } from "@/modules/jobs/details/utils/job-detail-title";
 
 const GRAPHQL_URL = getServerApiGraphqlUrl();
 
@@ -23,24 +24,13 @@ async function getJobMeta(id: string) {
   return data.job ?? null;
 }
 
-function formatAppTitle(
-  meta: {
-    title?: string | null;
-    company?: { name?: string | null } | null;
-  } | null,
-  fallback: string,
-): string {
-  if (!meta?.title) return fallback;
-  if (meta.company?.name) return `${meta.title} @ ${meta.company.name}`;
-  return meta.title;
-}
-
 export async function generateJobDetailMetadata(
   id: string,
   tabSuffix?: string,
 ): Promise<Metadata> {
   const meta = await getJobMeta(id);
-  const base = formatAppTitle(meta, "Job details");
-  const title = tabSuffix ? `${base} — ${tabSuffix}` : base;
+  const title = formatJobPageTabTitle(meta?.title, meta?.company?.name, {
+    tabLabel: tabSuffix,
+  });
   return staticPageMetadata(title);
 }
