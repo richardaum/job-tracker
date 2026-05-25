@@ -87,6 +87,58 @@ export function safeTargetFileStem(targetId: string): string {
   return targetId.replace(/[^a-zA-Z0-9._-]+/g, "_");
 }
 
+/** Workspace package name for `pnpm --filter` (strips scope suffix like `:e2e`). */
+export function resolvePnpmFilter(target: Pick<TestTarget, "id">): string {
+  const colonIndex = target.id.indexOf(":");
+  return colonIndex >= 0 ? target.id.slice(0, colonIndex) : target.id;
+}
+
+export function buildFilteredPnpmTestCommand(
+  target: TestTarget,
+  options?: {
+    nameFilter?: RegExp;
+    vitestReporters?: readonly string[];
+    playwrightReporters?: readonly string[];
+    vitestOutputFile?: string;
+  },
+): string[] {
+  const grepArgs =
+    target.runner === "vitest" && options?.nameFilter
+      ? ["-t", options.nameFilter.source]
+      : target.runner === "playwright" && options?.nameFilter
+        ? ["--grep", options.nameFilter.source]
+        : [];
+
+  const filterArgs = ["--filter", resolvePnpmFilter(target)];
+
+  if (target.runner === "vitest") {
+    const reporters = options?.vitestReporters ?? ["verbose"];
+    return [
+      ...filterArgs,
+      "exec",
+      "vitest",
+      "run",
+      ...target.args,
+      ...grepArgs,
+      ...reporters.map((reporter) => `--reporter=${reporter}`),
+      ...(options?.vitestOutputFile
+        ? [`--outputFile=${options.vitestOutputFile}`]
+        : []),
+    ];
+  }
+
+  const reporters = options?.playwrightReporters ?? ["list"];
+  return [
+    ...filterArgs,
+    "exec",
+    "playwright",
+    "test",
+    ...target.args,
+    ...grepArgs,
+    ...reporters.map((reporter) => `--reporter=${reporter}`),
+  ];
+}
+
 export type ParsedVitestVerboseLine = {
   status: "passed" | "failed" | "skipped";
   file: string;
@@ -707,35 +759,12 @@ async function runTargetOnce(
   idleTimeoutMs: number,
   nameFilter?: RegExp,
 ): Promise<ParsedTestResult[]> {
-  const cwd = join(REPO_ROOT, target.cwd);
-  const grepArgs =
-    target.runner === "vitest" && nameFilter
-      ? ["-t", nameFilter.source]
-      : target.runner === "playwright" && nameFilter
-        ? ["--grep", nameFilter.source]
-        : [];
-
-  const command =
-    target.runner === "vitest"
-      ? [
-          "exec",
-          "vitest",
-          "run",
-          ...target.args,
-          ...grepArgs,
-          "--reporter=verbose",
-          "--reporter=json",
-          `--outputFile=${outputFile}`,
-        ]
-      : [
-          "exec",
-          "playwright",
-          "test",
-          ...target.args,
-          ...grepArgs,
-          "--reporter=list",
-          "--reporter=json",
-        ];
+  const command = buildFilteredPnpmTestCommand(target, {
+    nameFilter,
+    vitestReporters: ["verbose", "json"],
+    vitestOutputFile: outputFile,
+    playwrightReporters: ["list", "json"],
+  });
 
   const env = {
     ...process.env,
@@ -749,14 +778,20 @@ async function runTargetOnce(
   const baselineMs =
     TARGET_BASELINE_MS[target.id] ?? DEFAULT_TARGET_BASELINE_MS;
 
-  const result = await spawnPnpmWithLiveDetection(command, cwd, env, target, {
-    outputFile,
-    startedAt,
-    timeoutMs,
-    idleTimeoutMs,
-    baselineMs,
-    timeoutMultiplier,
-  });
+  const result = await spawnPnpmWithLiveDetection(
+    command,
+    REPO_ROOT,
+    env,
+    target,
+    {
+      outputFile,
+      startedAt,
+      timeoutMs,
+      idleTimeoutMs,
+      baselineMs,
+      timeoutMultiplier,
+    },
+  );
 
   let parsed: ParsedTestResult[] = [];
   const [parseError, parsedFromReport] = tryRun(() => {

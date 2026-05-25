@@ -4,6 +4,7 @@ import { describe, it } from "node:test";
 
 import {
   applyVitestVerboseLine,
+  buildFilteredPnpmTestCommand,
   classifyStats,
   createLiveRunProgress,
   DEFAULT_TIMEOUT_MULTIPLIER,
@@ -13,6 +14,7 @@ import {
   parsePlaywrightReport,
   parseVitestReport,
   parseVitestVerboseLine,
+  resolvePnpmFilter,
   resolveTargetTimeoutMs,
   safeTargetFileStem,
   stripScriptArgv,
@@ -170,6 +172,48 @@ describe("detect-flaky-tests.ts", () => {
 
   it("sanitizes target ids for json output filenames", () => {
     assert.equal(safeTargetFileStem("@job-tracker/web"), "_job-tracker_web");
+  });
+
+  it("builds pnpm --filter test commands from targets", () => {
+    assert.deepEqual(
+      buildFilteredPnpmTestCommand({
+        id: "@job-tracker/web",
+        cwd: "apps/web",
+        runner: "vitest",
+        args: [],
+      }),
+      [
+        "--filter",
+        "@job-tracker/web",
+        "exec",
+        "vitest",
+        "run",
+        "--reporter=verbose",
+      ],
+    );
+    assert.deepEqual(
+      buildFilteredPnpmTestCommand(
+        {
+          id: "@job-tracker/web:e2e",
+          cwd: "apps/web",
+          runner: "playwright",
+          args: [],
+        },
+        { playwrightReporters: ["list"] },
+      ),
+      [
+        "--filter",
+        "@job-tracker/web",
+        "exec",
+        "playwright",
+        "test",
+        "--reporter=list",
+      ],
+    );
+    assert.equal(
+      resolvePnpmFilter({ id: "@job-tracker/web:e2e" }),
+      "@job-tracker/web",
+    );
   });
 
   it("strips pnpm passthrough separator before parsing", () => {
