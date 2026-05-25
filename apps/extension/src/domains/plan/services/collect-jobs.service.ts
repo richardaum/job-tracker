@@ -52,9 +52,11 @@ export class CollectJobsService {
   ) {}
 
   async execute(action: PlanStepAction, options?: PlanExecuteOptions) {
-    const tabId = await this.tabManager.openWindow(action.input.surfaceUrl, {
-      focus: true,
-    });
+    const surfaceTabId = await this.tabManager.openWindow(
+      action.input.surfaceUrl,
+      { focus: true },
+    );
+    const surfaceWindowId = await this.tabManager.getTabWindowId(surfaceTabId);
 
     const jobs: Map<string, Job> = new Map();
 
@@ -64,12 +66,19 @@ export class CollectJobsService {
       );
 
       for (let iteration = 1; iteration <= MAX_PAGES; iteration += 1) {
-        const list = await this.jobsListMessaging.listJobs(action, tabId);
+        const list = await this.jobsListMessaging.listJobs(
+          action,
+          surfaceTabId,
+        );
 
         await Promise.all(
           list.map((job) =>
             limitDetailTabs(async () => {
-              const jobWithDetails = await this.collectJobDetails(action, job);
+              const jobWithDetails = await this.collectJobDetails(
+                action,
+                job,
+                surfaceWindowId,
+              );
               const key = this.generateJobKey(action, jobWithDetails);
               const firstVisit = !jobs.has(key);
               jobs.set(key, jobWithDetails);
@@ -81,26 +90,35 @@ export class CollectJobsService {
         );
 
         const canNavigate =
-          await this.paginationMessaging.canNavigateToNextPage(action, tabId);
+          await this.paginationMessaging.canNavigateToNextPage(
+            action,
+            surfaceTabId,
+          );
         if (!canNavigate) break;
 
-        await this.paginationMessaging.navigateToNextPage(action, tabId);
-        await this.tabManager.waitUntilTabComplete(tabId);
+        await this.paginationMessaging.navigateToNextPage(action, surfaceTabId);
+        await this.tabManager.waitUntilTabComplete(surfaceTabId);
       }
 
       return jobs;
     } finally {
-      await this.tabManager.closeWindow(tabId);
+      await this.tabManager.closeWindow(surfaceTabId);
     }
   }
 
-  private async collectJobDetails(action: PlanStepAction, job: Job) {
+  private async collectJobDetails(
+    action: PlanStepAction,
+    job: Job,
+    surfaceWindowId: number,
+  ) {
     if (action.input.detailsFields.length === 0) return job;
 
     const detailUrl = job[action.input.detailsUrlField] as string;
     if (detailUrl == null) return job;
 
-    const detailTabId = await this.tabManager.openTab(detailUrl);
+    const detailTabId = await this.tabManager.openTab(detailUrl, {
+      windowId: surfaceWindowId,
+    });
     const details = await this.jobDetailsMessaging.getJobDetails(
       action,
       detailTabId,

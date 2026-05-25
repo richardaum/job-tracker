@@ -26,7 +26,7 @@ export function surfaceUrlFromPlan(plan: Plan): string | null {
  * **`surfaceUrl`** is seeded from **`remoteyeah.plan.json`** then sent to **`updateSourceRun`**.
  *
  * `surfaceUrl` matches {@link CollectJobsService.execute}
- * (`openWindow(surfaceUrl, { focus: true })`; detail URLs use `openTab`).
+ * (`openWindow(surfaceUrl, { focus: true })`; detail URLs use `openTab` in the same window).
  */
 export function planForSourceRun(params: { importerId: string }): Plan {
   const id = params.importerId.trim().toLowerCase();

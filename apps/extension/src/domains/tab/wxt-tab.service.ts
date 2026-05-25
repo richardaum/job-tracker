@@ -30,10 +30,16 @@ export class WxtTabService implements TabService {
     return tabId;
   }
 
+  async getTabWindowId(tabId: number): Promise<number> {
+    const tab = await chrome.tabs.get(tabId);
+    return tab.windowId;
+  }
+
   async openTab(url: string, options?: OpenTabOptions): Promise<number> {
     const tab = await chrome.tabs.create({
       url,
       active: options?.focus ?? false,
+      ...(options?.windowId != null ? { windowId: options.windowId } : {}),
     });
     if (tab.id == null) {
       throw new Error("Unable to open tab: missing tab id");

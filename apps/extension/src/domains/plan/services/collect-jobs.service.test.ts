@@ -36,6 +36,7 @@ describe("CollectJobsService", () => {
     };
     const tabManager = {
       openWindow: vi.fn().mockResolvedValue(10),
+      getTabWindowId: vi.fn().mockResolvedValue(100),
       closeWindow: vi.fn().mockResolvedValue(undefined),
       waitUntilTabComplete: vi.fn().mockResolvedValue(undefined),
       openTab: vi.fn(),
@@ -83,6 +84,7 @@ describe("CollectJobsService", () => {
     };
     const tabManager = {
       openWindow: vi.fn().mockResolvedValue(11),
+      getTabWindowId: vi.fn().mockResolvedValue(101),
       closeWindow: vi.fn().mockResolvedValue(undefined),
       waitUntilTabComplete: vi.fn().mockResolvedValue(undefined),
       openTab: vi.fn(),

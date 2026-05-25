@@ -32,6 +32,10 @@ export class MockedTabManager implements TabService {
     return this.openTab(url, options);
   }
 
+  async getTabWindowId(_tabId: number): Promise<number> {
+    return 1;
+  }
+
   async openTab(url: string, options?: OpenTabOptions): Promise<number> {
     void options;
     const id = ++this.tabSeq;
