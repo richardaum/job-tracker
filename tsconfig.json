@@ -1,0 +1,4 @@
+{
+  "extends": "./tsconfig.repo.json",
+  "include": ["eslint.config.ts", "prettier.config.mts"]
+}

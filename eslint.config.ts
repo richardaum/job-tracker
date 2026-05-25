@@ -88,7 +88,7 @@ export default defineConfig(
             {
               regex: parentRelativeImportSourcePattern,
               message:
-                "Do not import via paths that traverse to a parent directory (..). Prefer workspace/package aliases from tsconfig paths. Same-directory ./ imports are fine. docs/CONVENTIONS.mdx (Imports).",
+                "Do not import via paths that traverse to a parent directory (..). Prefer workspace/package aliases from tsconfig paths. Same-directory ./ imports are fine.",
             },
           ],
         },
