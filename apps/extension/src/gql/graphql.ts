@@ -64,6 +64,18 @@ export type AsyncMetadataType = {
   timestamp?: Maybe<Scalars["DateTime"]["output"]>;
 };
 
+export type AuthAccount = {
+  __typename?: "AuthAccount";
+  createdAt: Scalars["DateTime"]["output"];
+  id: Scalars["ID"]["output"];
+  providerAccountId: Scalars["String"]["output"];
+  providerName: AuthProvider;
+};
+
+export enum AuthProvider {
+  Google = "GOOGLE",
+}
+
 export type CompanyType = {
   __typename?: "CompanyType";
   createdAt: Scalars["DateTime"]["output"];
@@ -75,6 +87,7 @@ export type CompanyType = {
 };
 
 export type CreateJobInput = {
+  autoFill?: InputMaybe<Scalars["Boolean"]["input"]>;
   company?: InputMaybe<Scalars["String"]["input"]>;
   companyId?: InputMaybe<Scalars["ID"]["input"]>;
   createAsDraftCapture?: InputMaybe<Scalars["Boolean"]["input"]>;
@@ -228,6 +241,7 @@ export type MatchAnalysisType = {
 
 export type MatchItemType = {
   __typename?: "MatchItemType";
+  id: Scalars["ID"]["output"];
   jdQuote: Scalars["String"]["output"];
   requirement: Scalars["String"]["output"];
   source: MatchSource;
@@ -235,7 +249,7 @@ export type MatchItemType = {
   suggestion?: Maybe<Scalars["String"]["output"]>;
   type: RequirementType;
   verdict: MatchVerdict;
-  weight?: Maybe<Scalars["String"]["output"]>;
+  weight?: Maybe<Weight>;
 };
 
 export enum MatchSource {
@@ -259,6 +273,7 @@ export type Mutation = {
   createResume: ResumeType;
   createSourceRun: SourceRunType;
   createSourceTemplate: SourceTemplateType;
+  deactivateAccount: Scalars["Boolean"]["output"];
   deleteCompany: DeleteMutationPayloadType;
   deleteJob: DeleteMutationPayloadType;
   deleteJobNote: DeleteMutationPayloadType;
@@ -270,14 +285,15 @@ export type Mutation = {
   detachJobsFromSourceRun: Scalars["Int"]["output"];
   fillJobAutomatically: JobType;
   generateJobMatch: MatchAnalysisType;
-  generateJobSummary: JobType;
   removeJobTag: JobType;
+  requestJobSummary: JobType;
   rerunSourceTemplate: SourceRunType;
   updateCompany: CompanyType;
   updateJob: JobType;
   updateJobNote: NoteType;
   updateJobStageEvent: JobStageEventType;
   updateResume: ResumeType;
+  updateSettings: UserSetting;
   updateSourceRun: SourceRunType;
   updateSourceRunStatus: SourceRunType;
   updateSourceTemplate: SourceTemplateType;
@@ -328,12 +344,12 @@ export type MutationFillJobAutomaticallyArgs = {
 
 export type MutationGenerateJobMatchArgs = { input: GenerateMatchInput };
 
-export type MutationGenerateJobSummaryArgs = { jobId: Scalars["ID"]["input"] };
-
 export type MutationRemoveJobTagArgs = {
   id: Scalars["ID"]["input"];
   tag: Scalars["String"]["input"];
 };
+
+export type MutationRequestJobSummaryArgs = { jobId: Scalars["ID"]["input"] };
 
 export type MutationRerunSourceTemplateArgs = {
   templateId: Scalars["ID"]["input"];
@@ -363,6 +379,8 @@ export type MutationUpdateResumeArgs = {
   id: Scalars["ID"]["input"];
   input: UpdateResumeInput;
 };
+
+export type MutationUpdateSettingsArgs = { input: UpdateSettingsInput };
 
 export type MutationUpdateSourceRunArgs = {
   id: Scalars["ID"]["input"];
@@ -427,6 +445,7 @@ export type Query = {
   resume: ResumeType;
   resumes: Array<ResumeType>;
   rewriteTextWithAI: Scalars["String"]["output"];
+  settings: UserSetting;
   sourceProfiles: Array<SourceProfileType>;
   sourceRuns: Array<SourceRunType>;
   sourceTemplates: Array<SourceTemplateType>;
@@ -608,6 +627,12 @@ export type UpdateResumeInput = {
   title?: InputMaybe<Scalars["String"]["input"]>;
 };
 
+export type UpdateSettingsInput = {
+  autoFillEnabled?: InputMaybe<Scalars["Boolean"]["input"]>;
+  autoSummaryEnabled?: InputMaybe<Scalars["Boolean"]["input"]>;
+  duplicateWindowDays?: InputMaybe<Scalars["Int"]["input"]>;
+};
+
 export type UpdateSourceRunInput = { surfaceUrl: Scalars["String"]["input"] };
 
 export type UpdateSourceTemplateInput = {
@@ -616,8 +641,18 @@ export type UpdateSourceTemplateInput = {
   surfaceUrl?: InputMaybe<Scalars["String"]["input"]>;
 };
 
+export type UserSetting = {
+  __typename?: "UserSetting";
+  autoFillEnabled: Scalars["Boolean"]["output"];
+  autoSummaryEnabled: Scalars["Boolean"]["output"];
+  duplicateWindowDays: Scalars["Int"]["output"];
+  id: Scalars["ID"]["output"];
+  userId: Scalars["String"]["output"];
+};
+
 export type UserType = {
   __typename?: "UserType";
+  accounts: Array<AuthAccount>;
   avatarUrl?: Maybe<Scalars["String"]["output"]>;
   email: Scalars["String"]["output"];
   id: Scalars["ID"]["output"];
@@ -626,8 +661,8 @@ export type UserType = {
 };
 
 export enum Weight {
-  High = "HIGH",
-  Low = "LOW",
+  High = "High",
+  Low = "Low",
 }
 
 export type ClaimSourceRunMutationVariables = Exact<{

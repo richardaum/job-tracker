@@ -89,6 +89,7 @@ export type CompanyType = {
 };
 
 export type CreateJobInput = {
+  autoFill?: InputMaybe<Scalars["Boolean"]["input"]>;
   company?: InputMaybe<Scalars["String"]["input"]>;
   companyId?: InputMaybe<Scalars["ID"]["input"]>;
   createAsDraftCapture?: InputMaybe<Scalars["Boolean"]["input"]>;
@@ -665,6 +666,34 @@ export enum Weight {
   High = "High",
   Low = "Low",
 }
+
+export type AuthenticatedShellQueryVariables = Exact<{ [key: string]: never }>;
+
+export type AuthenticatedShellQuery = {
+  __typename?: "Query";
+  me: {
+    __typename?: "UserType";
+    id: string;
+    email: string;
+    name: string;
+    role: string;
+    avatarUrl?: string | null;
+    accounts: Array<{
+      __typename?: "AuthAccount";
+      id: string;
+      providerName: AuthProvider;
+      providerAccountId: string;
+      createdAt: any;
+    }>;
+  };
+  settings: {
+    __typename?: "UserSetting";
+    id: string;
+    autoFillEnabled: boolean;
+    autoSummaryEnabled: boolean;
+    duplicateWindowDays: number;
+  };
+};
 
 export type UpdateCompanyMutationVariables = Exact<{
   id: Scalars["ID"]["input"];
@@ -1667,6 +1696,29 @@ export const JobSalarySelectionFragmentDoc = gql`
     }
   }
 `;
+export const AuthenticatedShellDocument = gql`
+  query AuthenticatedShell {
+    me {
+      id
+      email
+      name
+      role
+      avatarUrl
+      accounts {
+        id
+        providerName
+        providerAccountId
+        createdAt
+      }
+    }
+    settings {
+      id
+      autoFillEnabled
+      autoSummaryEnabled
+      duplicateWindowDays
+    }
+  }
+`;
 export const UpdateCompanyDocument = gql`
   mutation UpdateCompany($id: ID!, $input: UpdateCompanyInput!) {
     updateCompany(id: $id, input: $input) {
@@ -2405,6 +2457,24 @@ export function getSdk(
   withWrapper: SdkFunctionWrapper = defaultWrapper,
 ) {
   return {
+    AuthenticatedShell(
+      variables?: AuthenticatedShellQueryVariables,
+      requestHeaders?: GraphQLClientRequestHeaders,
+      signal?: RequestInit["signal"],
+    ): Promise<AuthenticatedShellQuery> {
+      return withWrapper(
+        (wrappedRequestHeaders) =>
+          client.request<AuthenticatedShellQuery>({
+            document: AuthenticatedShellDocument,
+            variables,
+            requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
+            signal,
+          }),
+        "AuthenticatedShell",
+        "query",
+        variables,
+      );
+    },
     UpdateCompany(
       variables: UpdateCompanyMutationVariables,
       requestHeaders?: GraphQLClientRequestHeaders,

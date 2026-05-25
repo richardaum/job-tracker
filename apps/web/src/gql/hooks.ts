@@ -90,6 +90,7 @@ export type CompanyType = {
 };
 
 export type CreateJobInput = {
+  autoFill?: InputMaybe<Scalars["Boolean"]["input"]>;
   company?: InputMaybe<Scalars["String"]["input"]>;
   companyId?: InputMaybe<Scalars["ID"]["input"]>;
   createAsDraftCapture?: InputMaybe<Scalars["Boolean"]["input"]>;
@@ -666,6 +667,34 @@ export enum Weight {
   High = "High",
   Low = "Low",
 }
+
+export type AuthenticatedShellQueryVariables = Exact<{ [key: string]: never }>;
+
+export type AuthenticatedShellQuery = {
+  __typename?: "Query";
+  me: {
+    __typename?: "UserType";
+    id: string;
+    email: string;
+    name: string;
+    role: string;
+    avatarUrl?: string | null;
+    accounts: Array<{
+      __typename?: "AuthAccount";
+      id: string;
+      providerName: AuthProvider;
+      providerAccountId: string;
+      createdAt: any;
+    }>;
+  };
+  settings: {
+    __typename?: "UserSetting";
+    id: string;
+    autoFillEnabled: boolean;
+    autoSummaryEnabled: boolean;
+    duplicateWindowDays: number;
+  };
+};
 
 export type UpdateCompanyMutationVariables = Exact<{
   id: Scalars["ID"]["input"];
@@ -1668,6 +1697,77 @@ export const JobSalarySelectionFragmentDoc = gql`
     }
   }
 `;
+export const AuthenticatedShellDocument = gql`
+  query AuthenticatedShell {
+    me {
+      id
+      email
+      name
+      role
+      avatarUrl
+      accounts {
+        id
+        providerName
+        providerAccountId
+        createdAt
+      }
+    }
+    settings {
+      id
+      autoFillEnabled
+      autoSummaryEnabled
+      duplicateWindowDays
+    }
+  }
+`;
+
+/**
+ * __useAuthenticatedShellQuery__
+ *
+ * To run a query within a React component, call `useAuthenticatedShellQuery` and pass it any options that fit your needs.
+ * When your component renders, `useAuthenticatedShellQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useAuthenticatedShellQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useAuthenticatedShellQuery(
+  baseOptions?: ApolloReactHooks.QueryHookOptions<
+    AuthenticatedShellQuery,
+    AuthenticatedShellQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useQuery<
+    AuthenticatedShellQuery,
+    AuthenticatedShellQueryVariables
+  >(AuthenticatedShellDocument, options);
+}
+export function useAuthenticatedShellLazyQuery(
+  baseOptions?: ApolloReactHooks.LazyQueryHookOptions<
+    AuthenticatedShellQuery,
+    AuthenticatedShellQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useLazyQuery<
+    AuthenticatedShellQuery,
+    AuthenticatedShellQueryVariables
+  >(AuthenticatedShellDocument, options);
+}
+
+export type AuthenticatedShellQueryHookResult = ReturnType<
+  typeof useAuthenticatedShellQuery
+>;
+export type AuthenticatedShellLazyQueryHookResult = ReturnType<
+  typeof useAuthenticatedShellLazyQuery
+>;
+
 export const UpdateCompanyDocument = gql`
   mutation UpdateCompany($id: ID!, $input: UpdateCompanyInput!) {
     updateCompany(id: $id, input: $input) {

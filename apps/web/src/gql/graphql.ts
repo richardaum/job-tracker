@@ -88,6 +88,7 @@ export type CompanyType = {
 };
 
 export type CreateJobInput = {
+  autoFill?: InputMaybe<Scalars["Boolean"]["input"]>;
   company?: InputMaybe<Scalars["String"]["input"]>;
   companyId?: InputMaybe<Scalars["ID"]["input"]>;
   createAsDraftCapture?: InputMaybe<Scalars["Boolean"]["input"]>;
@@ -664,6 +665,34 @@ export enum Weight {
   High = "High",
   Low = "Low",
 }
+
+export type AuthenticatedShellQueryVariables = Exact<{ [key: string]: never }>;
+
+export type AuthenticatedShellQuery = {
+  __typename?: "Query";
+  me: {
+    __typename?: "UserType";
+    id: string;
+    email: string;
+    name: string;
+    role: string;
+    avatarUrl?: string | null;
+    accounts: Array<{
+      __typename?: "AuthAccount";
+      id: string;
+      providerName: AuthProvider;
+      providerAccountId: string;
+      createdAt: any;
+    }>;
+  };
+  settings: {
+    __typename?: "UserSetting";
+    id: string;
+    autoFillEnabled: boolean;
+    autoSummaryEnabled: boolean;
+    duplicateWindowDays: number;
+  };
+};
 
 export type UpdateCompanyMutationVariables = Exact<{
   id: Scalars["ID"]["input"];
@@ -1677,6 +1706,82 @@ export const JobSalarySelectionFragmentDoc = {
     },
   ],
 } as unknown as DocumentNode<JobSalarySelectionFragment, unknown>;
+export const AuthenticatedShellDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "query",
+      name: { kind: "Name", value: "AuthenticatedShell" },
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "me" },
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                { kind: "Field", name: { kind: "Name", value: "email" } },
+                { kind: "Field", name: { kind: "Name", value: "name" } },
+                { kind: "Field", name: { kind: "Name", value: "role" } },
+                { kind: "Field", name: { kind: "Name", value: "avatarUrl" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "accounts" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      { kind: "Field", name: { kind: "Name", value: "id" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "providerName" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "providerAccountId" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "createdAt" },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "settings" },
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "autoFillEnabled" },
+                },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "autoSummaryEnabled" },
+                },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "duplicateWindowDays" },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  AuthenticatedShellQuery,
+  AuthenticatedShellQueryVariables
+>;
 export const UpdateCompanyDocument = {
   kind: "Document",
   definitions: [
