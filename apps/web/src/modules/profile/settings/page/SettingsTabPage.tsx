@@ -11,7 +11,10 @@ import {
   SettingCardLabel,
 } from "@/modules/profile/settings/components/SettingCard";
 
-type SettingsToggleField = "autoFillEnabled" | "autoSummaryEnabled";
+type SettingsToggleField =
+  | "autoFillEnabled"
+  | "autoSummaryEnabled"
+  | "autoMatchEnabled";
 type PendingSettingField = SettingsToggleField | "duplicateWindowDays";
 
 type SettingsValues = NonNullable<
@@ -23,7 +26,10 @@ function buildOptimisticSettings(
   input: Partial<
     Pick<
       SettingsValues,
-      "autoFillEnabled" | "autoSummaryEnabled" | "duplicateWindowDays"
+      | "autoFillEnabled"
+      | "autoSummaryEnabled"
+      | "autoMatchEnabled"
+      | "duplicateWindowDays"
     >
   >,
 ): UpdateSettingsMutation["updateSettings"] {
@@ -32,6 +38,7 @@ function buildOptimisticSettings(
     id: settings.id,
     autoFillEnabled: input.autoFillEnabled ?? settings.autoFillEnabled,
     autoSummaryEnabled: input.autoSummaryEnabled ?? settings.autoSummaryEnabled,
+    autoMatchEnabled: input.autoMatchEnabled ?? settings.autoMatchEnabled,
     duplicateWindowDays:
       input.duplicateWindowDays ?? settings.duplicateWindowDays,
   };
@@ -61,7 +68,10 @@ export default function SettingsTabPage() {
     input: Partial<
       Pick<
         SettingsValues,
-        "autoFillEnabled" | "autoSummaryEnabled" | "duplicateWindowDays"
+        | "autoFillEnabled"
+        | "autoSummaryEnabled"
+        | "autoMatchEnabled"
+        | "duplicateWindowDays"
       >
     >,
     field: PendingSettingField,
@@ -137,6 +147,26 @@ export default function SettingsTabPage() {
             disabled={pendingField === "autoSummaryEnabled"}
             onCheckedChange={(checked) =>
               handleToggle("autoSummaryEnabled", checked)
+            }
+          />
+        }
+      />
+      <SettingCard
+        label={
+          <SettingCardLabel
+            icon={<SparkleIcon size={14} weight="regular" aria-hidden />}
+          >
+            Auto-match
+          </SettingCardLabel>
+        }
+        description="Run match analysis automatically when a job is created"
+        pending={pendingField === "autoMatchEnabled"}
+        control={
+          <Switch
+            checked={settings.autoMatchEnabled}
+            disabled={pendingField === "autoMatchEnabled"}
+            onCheckedChange={(checked) =>
+              handleToggle("autoMatchEnabled", checked)
             }
           />
         }

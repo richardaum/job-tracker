@@ -20,6 +20,7 @@ function mockSettings(
   overrides: Partial<{
     autoFillEnabled: boolean;
     autoSummaryEnabled: boolean;
+    autoMatchEnabled: boolean;
     duplicateWindowDays: number;
   }> = {},
 ) {
@@ -31,6 +32,7 @@ function mockSettings(
         id: "user-1",
         autoFillEnabled: false,
         autoSummaryEnabled: false,
+        autoMatchEnabled: false,
         duplicateWindowDays: 30,
         ...overrides,
       },
@@ -44,11 +46,12 @@ describe("SettingsTabPage", () => {
     vi.useRealTimers();
   });
 
-  it("renders 3 settings: Auto-fill job fields, Auto-summary, Duplicate window", () => {
+  it("renders 4 settings: Auto-fill, Auto-summary, Auto-match, Duplicate window", () => {
     settingsQueryMock.mockReturnValue(mockSettings());
     render(<SettingsTabPage />);
     expect(screen.getByText("Auto-fill job fields")).toBeInTheDocument();
     expect(screen.getByText("Auto-summary")).toBeInTheDocument();
+    expect(screen.getByText("Auto-match")).toBeInTheDocument();
     expect(screen.getByText("Duplicate detection window")).toBeInTheDocument();
   });
 
@@ -63,6 +66,11 @@ describe("SettingsTabPage", () => {
     expect(
       screen.getByText(
         "Generate summaries automatically when job fields change",
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Run match analysis automatically when a job is created",
       ),
     ).toBeInTheDocument();
     expect(
@@ -89,6 +97,7 @@ describe("SettingsTabPage", () => {
             id: "user-1",
             autoFillEnabled: true,
             autoSummaryEnabled: false,
+            autoMatchEnabled: false,
             duplicateWindowDays: 30,
           }),
         },
@@ -109,6 +118,23 @@ describe("SettingsTabPage", () => {
         variables: { input: { autoSummaryEnabled: true } },
         optimisticResponse: {
           updateSettings: expect.objectContaining({ autoSummaryEnabled: true }),
+        },
+      }),
+    );
+  });
+
+  it("toggle onChange calls updateSettings mutation — Auto-match", async () => {
+    settingsQueryMock.mockReturnValue(mockSettings());
+    render(<SettingsTabPage />);
+
+    const autoMatchSwitch = screen.getAllByRole("switch")[2]!;
+
+    fireEvent.click(autoMatchSwitch);
+    expect(updateSettingsMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        variables: { input: { autoMatchEnabled: true } },
+        optimisticResponse: {
+          updateSettings: expect.objectContaining({ autoMatchEnabled: true }),
         },
       }),
     );

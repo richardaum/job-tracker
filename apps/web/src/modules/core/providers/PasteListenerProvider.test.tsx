@@ -27,6 +27,7 @@ vi.mock("@/gql/hooks", () => ({
     data: {
       settings: {
         autoFillEnabled: true,
+        autoMatchEnabled: false,
         autoSummaryEnabled: false,
         duplicateWindowDays: 30,
       },
@@ -214,6 +215,44 @@ describe("PasteListenerProvider", () => {
         variables: {
           input: expect.objectContaining({
             autoFill: false,
+            autoMatch: false,
+            createAsDraftCapture: true,
+          }),
+        },
+      }),
+    );
+  });
+
+  it("passes autoMatch from dialog checkbox to createDraftCaptureJob mutation", async () => {
+    const user = userEvent.setup();
+
+    render(
+      <TestWrapper>
+        <div data-testid="page-content">Page content</div>
+      </TestWrapper>,
+    );
+
+    await act(async () => {
+      dispatchPasteEvent({ "text/plain": "https://example.com/job-posting" });
+    });
+
+    const autoMatchCheckbox = await screen.findByRole("checkbox", {
+      name: "Run match analysis",
+    });
+    expect(autoMatchCheckbox).not.toBeChecked();
+
+    await user.click(autoMatchCheckbox);
+    await user.click(screen.getByRole("button", { name: "Create draft" }));
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(createDraftCaptureJobMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        variables: {
+          input: expect.objectContaining({
+            autoMatch: true,
             createAsDraftCapture: true,
           }),
         },
@@ -248,6 +287,7 @@ describe("PasteListenerProvider", () => {
         variables: {
           input: expect.objectContaining({
             autoFill: true,
+            autoMatch: false,
             createAsDraftCapture: true,
           }),
         },

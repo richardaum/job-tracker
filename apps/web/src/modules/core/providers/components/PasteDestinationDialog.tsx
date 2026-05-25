@@ -7,12 +7,20 @@ import { useMemo, useState } from "react";
 
 import { useSettingsQuery } from "@/gql/hooks";
 
+export interface PasteAfterCreateOptions {
+  autoFill: boolean;
+  autoMatch: boolean;
+}
+
 interface PasteDestinationDialogProps {
   open: boolean;
   pastedContent: string;
   submitting?: boolean;
   onOpenChange: (open: boolean) => void;
-  onConfirm: (url: string, autoFill: boolean) => Promise<void>;
+  onConfirm: (
+    url: string,
+    afterCreate: PasteAfterCreateOptions,
+  ) => Promise<void>;
 }
 
 type PasteAction = "draft";
@@ -47,13 +55,18 @@ export function PasteDestinationDialog({
   const [autoFillOverride, setAutoFillOverride] = useState<boolean | null>(
     null,
   );
+  const [autoMatchOverride, setAutoMatchOverride] = useState<boolean | null>(
+    null,
+  );
   const preview = useMemo(
     () => truncatePreview(pastedContent),
     [pastedContent],
   );
 
   const defaultAutoFill = settingsData?.settings.autoFillEnabled ?? false;
+  const defaultAutoMatch = settingsData?.settings.autoMatchEnabled ?? false;
   const autoFill = autoFillOverride ?? defaultAutoFill;
+  const autoMatch = autoMatchOverride ?? defaultAutoMatch;
 
   async function handleConfirm() {
     const normalized = url.trim();
@@ -69,7 +82,7 @@ export function PasteDestinationDialog({
     }
 
     setUrlError(null);
-    await onConfirm(normalized, autoFill);
+    await onConfirm(normalized, { autoFill, autoMatch });
     setUrl("");
   }
 
@@ -85,6 +98,7 @@ export function PasteDestinationDialog({
           setUrl("");
           setUrlError(null);
           setAutoFillOverride(null);
+          setAutoMatchOverride(null);
         }
       }}
       footer={
@@ -169,17 +183,37 @@ export function PasteDestinationDialog({
           ) : null}
         </label>
 
-        <label className={cn("flex items-center gap-2")}>
-          <Checkbox
-            checked={autoFill}
-            onCheckedChange={(checked) => {
-              setAutoFillOverride(checked);
-            }}
-            size="sm"
-          />
-          <SparkleIcon size={14} weight="regular" aria-hidden />
-          <Text size="sm">Fill job fields automatically</Text>
-        </label>
+        <fieldset className={cn("space-y-2 border-0 p-0")}>
+          <legend className={cn("mb-0")}>
+            <Text size="sm" weight="medium">
+              After create:
+            </Text>
+          </legend>
+          <div className={cn("space-y-2")}>
+            <label className={cn("flex items-center gap-2")}>
+              <Checkbox
+                checked={autoFill}
+                onCheckedChange={(checked) => {
+                  setAutoFillOverride(checked);
+                }}
+                size="sm"
+              />
+              <SparkleIcon size={14} weight="regular" aria-hidden />
+              <Text size="sm">Fill job fields automatically</Text>
+            </label>
+            <label className={cn("flex items-center gap-2")}>
+              <Checkbox
+                checked={autoMatch}
+                onCheckedChange={(checked) => {
+                  setAutoMatchOverride(checked);
+                }}
+                size="sm"
+              />
+              <SparkleIcon size={14} weight="regular" aria-hidden />
+              <Text size="sm">Run match analysis</Text>
+            </label>
+          </div>
+        </fieldset>
 
         <div className={cn("space-y-1.5")}>
           <Text size="sm" weight="medium">

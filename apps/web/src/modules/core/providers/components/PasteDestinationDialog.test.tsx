@@ -15,12 +15,13 @@ describe("PasteDestinationDialog", () => {
     vi.clearAllMocks();
   });
 
-  it("defaults auto-fill checkbox to autoFillEnabled from preloaded settings", () => {
+  it("defaults after-create checkboxes to settings", () => {
     useSettingsQueryMock.mockReturnValue({
       data: {
         settings: {
           autoFillEnabled: true,
           autoSummaryEnabled: false,
+          autoMatchEnabled: true,
           duplicateWindowDays: 30,
         },
       },
@@ -38,17 +39,22 @@ describe("PasteDestinationDialog", () => {
     expect(
       screen.getByRole("checkbox", { name: "Fill job fields automatically" }),
     ).toBeChecked();
+    expect(
+      screen.getByRole("checkbox", { name: "Run match analysis" }),
+    ).toBeChecked();
+    expect(screen.getByText("After create:")).toBeInTheDocument();
     expect(useSettingsQueryMock).toHaveBeenCalledWith(
       expect.objectContaining({ fetchPolicy: "cache-first" }),
     );
   });
 
-  it("defaults auto-fill checkbox to unchecked when setting is off", () => {
+  it("defaults after-create checkboxes to unchecked when settings are off", () => {
     useSettingsQueryMock.mockReturnValue({
       data: {
         settings: {
           autoFillEnabled: false,
           autoSummaryEnabled: false,
+          autoMatchEnabled: false,
           duplicateWindowDays: 30,
         },
       },
@@ -66,13 +72,17 @@ describe("PasteDestinationDialog", () => {
     expect(
       screen.getByRole("checkbox", { name: "Fill job fields automatically" }),
     ).not.toBeChecked();
+    expect(
+      screen.getByRole("checkbox", { name: "Run match analysis" }),
+    ).not.toBeChecked();
   });
 
-  it("passes toggled auto-fill value to onConfirm", async () => {
+  it("passes toggled after-create values to onConfirm", async () => {
     useSettingsQueryMock.mockReturnValue({
       data: {
         settings: {
           autoFillEnabled: true,
+          autoMatchEnabled: true,
           autoSummaryEnabled: false,
           duplicateWindowDays: 30,
         },
@@ -91,12 +101,17 @@ describe("PasteDestinationDialog", () => {
       />,
     );
 
-    const checkbox = screen.getByRole("checkbox", {
-      name: "Fill job fields automatically",
-    });
-    await user.click(checkbox);
+    await user.click(
+      screen.getByRole("checkbox", { name: "Fill job fields automatically" }),
+    );
+    await user.click(
+      screen.getByRole("checkbox", { name: "Run match analysis" }),
+    );
     await user.click(screen.getByRole("button", { name: "Create draft" }));
 
-    expect(onConfirm).toHaveBeenCalledWith("", false);
+    expect(onConfirm).toHaveBeenCalledWith("", {
+      autoFill: false,
+      autoMatch: false,
+    });
   });
 });

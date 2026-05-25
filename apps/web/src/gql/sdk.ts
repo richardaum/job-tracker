@@ -90,6 +90,7 @@ export type CompanyType = {
 
 export type CreateJobInput = {
   autoFill?: InputMaybe<Scalars["Boolean"]["input"]>;
+  autoMatch?: InputMaybe<Scalars["Boolean"]["input"]>;
   company?: InputMaybe<Scalars["String"]["input"]>;
   companyId?: InputMaybe<Scalars["ID"]["input"]>;
   createAsDraftCapture?: InputMaybe<Scalars["Boolean"]["input"]>;
@@ -631,6 +632,7 @@ export type UpdateResumeInput = {
 
 export type UpdateSettingsInput = {
   autoFillEnabled?: InputMaybe<Scalars["Boolean"]["input"]>;
+  autoMatchEnabled?: InputMaybe<Scalars["Boolean"]["input"]>;
   autoSummaryEnabled?: InputMaybe<Scalars["Boolean"]["input"]>;
   duplicateWindowDays?: InputMaybe<Scalars["Int"]["input"]>;
 };
@@ -646,6 +648,7 @@ export type UpdateSourceTemplateInput = {
 export type UserSetting = {
   __typename?: "UserSetting";
   autoFillEnabled: Scalars["Boolean"]["output"];
+  autoMatchEnabled: Scalars["Boolean"]["output"];
   autoSummaryEnabled: Scalars["Boolean"]["output"];
   duplicateWindowDays: Scalars["Int"]["output"];
   id: Scalars["ID"]["output"];
@@ -691,6 +694,7 @@ export type AuthenticatedShellQuery = {
     id: string;
     autoFillEnabled: boolean;
     autoSummaryEnabled: boolean;
+    autoMatchEnabled: boolean;
     duplicateWindowDays: number;
   };
 };
@@ -1542,6 +1546,7 @@ export type SettingsQuery = {
     id: string;
     autoFillEnabled: boolean;
     autoSummaryEnabled: boolean;
+    autoMatchEnabled: boolean;
     duplicateWindowDays: number;
   };
 };
@@ -1557,6 +1562,7 @@ export type UpdateSettingsMutation = {
     id: string;
     autoFillEnabled: boolean;
     autoSummaryEnabled: boolean;
+    autoMatchEnabled: boolean;
     duplicateWindowDays: number;
   };
 };
@@ -1715,6 +1721,7 @@ export const AuthenticatedShellDocument = gql`
       id
       autoFillEnabled
       autoSummaryEnabled
+      autoMatchEnabled
       duplicateWindowDays
     }
   }
@@ -2337,6 +2344,7 @@ export const SettingsDocument = gql`
       id
       autoFillEnabled
       autoSummaryEnabled
+      autoMatchEnabled
       duplicateWindowDays
     }
   }
@@ -2347,6 +2355,7 @@ export const UpdateSettingsDocument = gql`
       id
       autoFillEnabled
       autoSummaryEnabled
+      autoMatchEnabled
       duplicateWindowDays
     }
   }

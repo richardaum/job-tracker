@@ -78,7 +78,10 @@ export function PasteListenerProvider({ children }: { children: ReactNode }) {
     return "Imported draft";
   }
 
-  async function handleConfirmPasteImport(url: string, autoFill: boolean) {
+  async function handleConfirmPasteImport(
+    url: string,
+    afterCreate: { autoFill: boolean; autoMatch: boolean },
+  ) {
     const [createError, result] = await tryRun(
       createDraftCaptureJob({
         variables: {
@@ -87,7 +90,8 @@ export function PasteListenerProvider({ children }: { children: ReactNode }) {
             urls: url ? [url] : [],
             htmlContent: pastedContent,
             createAsDraftCapture: true,
-            autoFill,
+            autoFill: afterCreate.autoFill,
+            autoMatch: afterCreate.autoMatch,
           },
         },
       }),

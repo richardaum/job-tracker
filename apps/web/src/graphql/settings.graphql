@@ -3,6 +3,7 @@ query Settings {
     id
     autoFillEnabled
     autoSummaryEnabled
+    autoMatchEnabled
     duplicateWindowDays
   }
 }
@@ -12,6 +13,7 @@ mutation UpdateSettings($input: UpdateSettingsInput!) {
     id
     autoFillEnabled
     autoSummaryEnabled
+    autoMatchEnabled
     duplicateWindowDays
   }
 }

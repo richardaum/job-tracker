@@ -16,6 +16,7 @@ query AuthenticatedShell {
     id
     autoFillEnabled
     autoSummaryEnabled
+    autoMatchEnabled
     duplicateWindowDays
   }
 }
