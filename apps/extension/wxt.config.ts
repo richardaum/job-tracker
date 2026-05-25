@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 
+import { deriveSlug } from "@job-tracker/worktree-cli/derive-slug";
 import react from "@vitejs/plugin-react";
 import sharp from "sharp";
 import { defineConfig } from "wxt";
@@ -8,6 +9,11 @@ import { defineConfig } from "wxt";
 const repoRoot = path.resolve(import.meta.dirname, "../..");
 const DEFAULT_API_URL = "http://localhost:3101";
 const wxtDevPort = Number.parseInt(process.env.WXT_DEV_PORT ?? "3001", 10);
+const worktreeSlug = deriveSlug(repoRoot);
+const extensionDisplayName =
+  worktreeSlug !== "job-tracker"
+    ? `Job Tracker (${worktreeSlug})`
+    : "Job Tracker";
 
 export default defineConfig({
   srcDir: "src",
@@ -17,7 +23,7 @@ export default defineConfig({
   webExt: { disabled: true },
   dev: { server: { port: wxtDevPort } },
   manifest: (env) => ({
-    name: "Job Tracker",
+    name: extensionDisplayName,
     description: "Job Tracker browser extension (MV3).",
     permissions: [
       "cookies",
