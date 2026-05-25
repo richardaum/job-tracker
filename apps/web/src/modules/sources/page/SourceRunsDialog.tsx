@@ -5,6 +5,7 @@ import React from "react";
 
 import { SourceRunStatus } from "@/gql/graphql";
 import { formatDateTime } from "@/modules/jobs/details/utils/job-details.shared";
+import { RunSourceTemplateButton } from "@/modules/sources/page/RunSourceTemplateButton";
 import type { SourceListItem } from "@/modules/sources/page/source-template-list.shared";
 import { scheduleSummary } from "@/modules/sources/page/source-template-list.shared";
 
@@ -24,12 +25,19 @@ function statusBadgeIntent(
 
 type SourceRunsDialogProps = {
   template: SourceListItem | null;
+  sourceProfileId: string;
   onOpenChange: (open: boolean) => void;
+  onRunStarted?: (
+    templateId: string,
+    run: SourceListItem["runs"][number],
+  ) => void;
 };
 
 export function SourceRunsDialog({
   template,
+  sourceProfileId,
   onOpenChange,
+  onRunStarted,
 }: SourceRunsDialogProps) {
   const open = template !== null;
 
@@ -45,6 +53,20 @@ export function SourceRunsDialog({
             {scheduleSummary(template)} · Created{" "}
             {formatDateTime(String(template.createdAt))}
           </Text>
+        ) : undefined
+      }
+      footer={
+        template ? (
+          <Stack direction="row" justify="end">
+            <RunSourceTemplateButton
+              templateId={template.id}
+              sourceProfileId={sourceProfileId}
+              label="Run again"
+              tooltip="Run again"
+              variant="button"
+              onRunStarted={onRunStarted}
+            />
+          </Stack>
         ) : undefined
       }
     >

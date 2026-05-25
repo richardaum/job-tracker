@@ -17,6 +17,7 @@ import { useSourcesForSourceProfileQuery } from "@/gql/hooks";
 import { formatDateTime } from "@/modules/jobs/details/utils/job-details.shared";
 import type { SourceProfileRow } from "@/modules/sources/hooks/useSourcesListViewModel";
 import { DeleteSourceDialog } from "@/modules/sources/page/DeleteSourceDialog";
+import { RunSourceTemplateButton } from "@/modules/sources/page/RunSourceTemplateButton";
 import type { SourceListItem } from "@/modules/sources/page/source-template-list.shared";
 import { scheduleSummary } from "@/modules/sources/page/source-template-list.shared";
 import { SourceRunsDialog } from "@/modules/sources/page/SourceRunsDialog";
@@ -79,6 +80,17 @@ export function SourceSideDetails({
     [],
   );
 
+  const appendRunToDialogIfSame = useCallback(
+    (templateId: string, run: SourceListItem["runs"][number]) => {
+      setRunsDialogTemplate((template) =>
+        template?.id === templateId
+          ? { ...template, runs: [run, ...template.runs] }
+          : template,
+      );
+    },
+    [],
+  );
+
   return (
     <SideDetails
       layout="inline"
@@ -134,6 +146,13 @@ export function SourceSideDetails({
               }
               actions={
                 <ListItemCard.Actions>
+                  <RunSourceTemplateButton
+                    templateId={template.id}
+                    sourceProfileId={sourceProfileId}
+                    label={`Run source ${templateIndex + 1}`}
+                    tooltip="Run source"
+                    onRunStarted={appendRunToDialogIfSame}
+                  />
                   <IconButton
                     intent="ghost"
                     size="sm"
@@ -187,9 +206,11 @@ export function SourceSideDetails({
       )}
       <SourceRunsDialog
         template={runsDialogTemplate}
+        sourceProfileId={sourceProfileId}
         onOpenChange={(open) => {
           if (!open) setRunsDialogTemplate(null);
         }}
+        onRunStarted={appendRunToDialogIfSame}
       />
       <SourceSurfaceUrlDialog
         sourceProfileId={sourceProfileId}
