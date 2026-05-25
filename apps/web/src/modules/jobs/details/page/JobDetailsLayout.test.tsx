@@ -16,6 +16,7 @@ import JobDetailsLayout from "./JobDetailsLayout";
 
 const gqlMocks = vi.hoisted(() => ({
   useJobMatchQuery: vi.fn(),
+  useJobQuery: vi.fn(),
   useGenerateJobMatchMutation: vi.fn(),
   useDeleteMatchAnalysisMutation: vi.fn(),
 }));
@@ -27,6 +28,7 @@ vi.mock("@/gql/hooks", async (importOriginal) => {
   return {
     ...actual,
     useJobMatchQuery: gqlMocks.useJobMatchQuery,
+    useJobQuery: gqlMocks.useJobQuery,
     useGenerateJobMatchMutation: gqlMocks.useGenerateJobMatchMutation,
     useDeleteMatchAnalysisMutation: gqlMocks.useDeleteMatchAnalysisMutation,
   };
@@ -140,6 +142,7 @@ describe("JobDetailsLayout", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     gqlMocks.useJobMatchQuery.mockReset();
+    gqlMocks.useJobQuery.mockReset();
     gqlMocks.useGenerateJobMatchMutation.mockReset();
     gqlMocks.useDeleteMatchAnalysisMutation.mockReset();
     sseMocks.useEventSource.mockReset();
@@ -148,6 +151,12 @@ describe("JobDetailsLayout", () => {
       loading: false,
       error: undefined,
       refetch: vi.fn().mockResolvedValue({ data: null }),
+    });
+    gqlMocks.useJobQuery.mockReturnValue({
+      data: { job: minimalJob },
+      loading: false,
+      error: undefined,
+      refetch: vi.fn().mockResolvedValue({ data: { job: minimalJob } }),
     });
     useBreakpointMock.mockReturnValue(false);
     usePathnameMock.mockReturnValue("/jobs/job-1");

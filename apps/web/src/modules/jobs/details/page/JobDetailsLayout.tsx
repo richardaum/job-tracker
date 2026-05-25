@@ -24,7 +24,9 @@ import { EntityNotFound } from "@/components/entity-not-found";
 import { useBreakpoint } from "@/hooks/useBreakpoint";
 import { ActivitySidePanel } from "@/modules/jobs/details/components/ActivitySidePanel";
 import { MatchTabTrigger } from "@/modules/jobs/details/components/MatchTabTrigger";
+import { OverviewTabTrigger } from "@/modules/jobs/details/components/OverviewTabTrigger";
 import { UpdateStatusAction } from "@/modules/jobs/details/components/UpdateStatusAction";
+import { JobFillStatusProvider } from "@/modules/jobs/details/hooks/JobFillStatusProvider";
 import { JobMatchStatusProvider } from "@/modules/jobs/details/hooks/JobMatchStatusProvider";
 import {
   useJobDetailsMainTab,
@@ -103,7 +105,10 @@ function JobDetailsTabList({
 }) {
   return (
     <TabsList className={cn("w-fit max-w-full shrink-0 self-start", className)}>
-      <MobileTabTrigger jobId={jobId} tab="overview" label="Overview" />
+      <OverviewTabTrigger
+        tab="overview"
+        href={jobDetailsPath(jobId, "overview")}
+      />
       <MobileTabTrigger jobId={jobId} tab="description" label="Description" />
       {showSourceContent ? (
         <MobileTabTrigger jobId={jobId} tab="source" label="Source content" />
@@ -188,11 +193,9 @@ function JobDetailsSplitTabLayout({
       <Tabs value={activeTab} className={cn("flex size-full min-h-0 flex-col")}>
         <JobDetailsTabBar>
           <TabsList className={cn("w-fit self-start")}>
-            <DesktopMainTabTrigger
-              jobId={jobId}
+            <OverviewTabTrigger
               tab="overview"
-              label="Overview"
-              sidePanel={sidePanel}
+              href={jobDetailsHref(jobId, "overview", sidePanel ?? undefined)}
             />
             <DesktopMainTabTrigger
               jobId={jobId}
@@ -362,112 +365,114 @@ export default function JobDetailsLayout({
 
   return (
     <SlotsProvider>
-      <JobMatchStatusProvider jobId={id}>
-        <div className={cn("flex h-full min-h-0 flex-col")}>
-          <div
-            className={cn(
-              "relative flex flex-col gap-2 border-b border-border-subtle p-4 sm:px-6 sm:py-5",
-            )}
-          >
-            {job ? (
-              <div
-                className={cn(
-                  "absolute top-4 right-4 z-10 flex shrink-0 flex-wrap items-center justify-end gap-2 sm:top-5 sm:right-6",
-                )}
-              >
-                {actionsMenu}
-                <JobHeaderActions.Slot
-                  className={cn(
-                    "flex shrink-0 items-center gap-2 empty:hidden",
-                  )}
-                />
-              </div>
-            ) : null}
-            <div className={cn("flex items-center gap-3")}>
-              <BackToLink href="/jobs">Back to jobs</BackToLink>
-            </div>
+      <JobFillStatusProvider jobId={id}>
+        <JobMatchStatusProvider jobId={id}>
+          <div className={cn("flex h-full min-h-0 flex-col")}>
             <div
               className={cn(
-                "flex items-center gap-3",
-                job ? "pr-36 sm:pr-64" : undefined,
+                "relative flex flex-col gap-2 border-b border-border-subtle p-4 sm:px-6 sm:py-5",
               )}
             >
-              <Heading as="h1" size="2xl" className={cn("min-w-0")}>
-                <span>
-                  {displayTitle !== null ? displayTitle : "Job details"}
-                </span>{" "}
-              </Heading>
               {job ? (
-                <StatusBadge
-                  stage={currentStage}
-                  reason={currentStageReason}
-                  className={cn("align-middle whitespace-nowrap")}
-                />
+                <div
+                  className={cn(
+                    "absolute top-4 right-4 z-10 flex shrink-0 flex-wrap items-center justify-end gap-2 sm:top-5 sm:right-6",
+                  )}
+                >
+                  {actionsMenu}
+                  <JobHeaderActions.Slot
+                    className={cn(
+                      "flex shrink-0 items-center gap-2 empty:hidden",
+                    )}
+                  />
+                </div>
+              ) : null}
+              <div className={cn("flex items-center gap-3")}>
+                <BackToLink href="/jobs">Back to jobs</BackToLink>
+              </div>
+              <div
+                className={cn(
+                  "flex items-center gap-3",
+                  job ? "pr-36 sm:pr-64" : undefined,
+                )}
+              >
+                <Heading as="h1" size="2xl" className={cn("min-w-0")}>
+                  <span>
+                    {displayTitle !== null ? displayTitle : "Job details"}
+                  </span>{" "}
+                </Heading>
+                {job ? (
+                  <StatusBadge
+                    stage={currentStage}
+                    reason={currentStageReason}
+                    className={cn("align-middle whitespace-nowrap")}
+                  />
+                ) : null}
+              </div>
+              {job ? (
+                <>
+                  <UpdateStatusAction
+                    jobId={job.id}
+                    currentStage={currentStage}
+                    open={actionsOpen}
+                    onOpenChange={setActionsOpen}
+                    onSuccess={handleEntitySuccess}
+                    onError={handleEntityError}
+                  />
+                  <DeleteJobDialog
+                    trigger={<span aria-hidden style={{ display: "none" }} />}
+                    jobId={job.id}
+                    jobTitle={jobDetailDisplayTitle(job.title)}
+                    open={deleteDialogOpen}
+                    onOpenChange={setDeleteDialogOpen}
+                    onSuccess={() => router.push("/jobs")}
+                    onError={(msg) => handleEntityError(msg)}
+                  />
+                </>
               ) : null}
             </div>
-            {job ? (
-              <>
-                <UpdateStatusAction
+
+            <div className={cn("flex-1 min-h-0 overflow-hidden p-4 sm:p-6")}>
+              {status === "loading" ? (
+                <Text size="sm" color="secondary">
+                  Loading job...
+                </Text>
+              ) : status === "notFound" ? (
+                <EntityNotFound
+                  resource="job"
+                  backHref="/jobs"
+                  backLabel="Back to jobs"
+                />
+              ) : status === "error" ? (
+                <Text size="sm" color="error">
+                  Failed to load job details.
+                </Text>
+              ) : !job ? null : !isDesktop || isSidePanelRoute ? (
+                <JobDetailsFullWidthTabLayout
                   jobId={job.id}
-                  currentStage={currentStage}
-                  open={actionsOpen}
-                  onOpenChange={setActionsOpen}
+                  showSourceContent={showSourceContent}
+                  activeTab={activeTab}
+                >
+                  {children}
+                </JobDetailsFullWidthTabLayout>
+              ) : (
+                <JobDetailsSplitTabLayout
+                  jobId={job.id}
+                  showSourceContent={showSourceContent}
+                  activeTab={mainTab}
+                  sidePanel={sidePanelFromQuery}
+                  effectiveSidePanel={effectiveSidePanel}
+                  onSidePanelChange={setSidePanel}
                   onSuccess={handleEntitySuccess}
                   onError={handleEntityError}
-                />
-                <DeleteJobDialog
-                  trigger={<span aria-hidden style={{ display: "none" }} />}
-                  jobId={job.id}
-                  jobTitle={jobDetailDisplayTitle(job.title)}
-                  open={deleteDialogOpen}
-                  onOpenChange={setDeleteDialogOpen}
-                  onSuccess={() => router.push("/jobs")}
-                  onError={(msg) => handleEntityError(msg)}
-                />
-              </>
-            ) : null}
+                >
+                  {children}
+                </JobDetailsSplitTabLayout>
+              )}
+            </div>
           </div>
-
-          <div className={cn("flex-1 min-h-0 overflow-hidden p-4 sm:p-6")}>
-            {status === "loading" ? (
-              <Text size="sm" color="secondary">
-                Loading job...
-              </Text>
-            ) : status === "notFound" ? (
-              <EntityNotFound
-                resource="job"
-                backHref="/jobs"
-                backLabel="Back to jobs"
-              />
-            ) : status === "error" ? (
-              <Text size="sm" color="error">
-                Failed to load job details.
-              </Text>
-            ) : !job ? null : !isDesktop || isSidePanelRoute ? (
-              <JobDetailsFullWidthTabLayout
-                jobId={job.id}
-                showSourceContent={showSourceContent}
-                activeTab={activeTab}
-              >
-                {children}
-              </JobDetailsFullWidthTabLayout>
-            ) : (
-              <JobDetailsSplitTabLayout
-                jobId={job.id}
-                showSourceContent={showSourceContent}
-                activeTab={mainTab}
-                sidePanel={sidePanelFromQuery}
-                effectiveSidePanel={effectiveSidePanel}
-                onSidePanelChange={setSidePanel}
-                onSuccess={handleEntitySuccess}
-                onError={handleEntityError}
-              >
-                {children}
-              </JobDetailsSplitTabLayout>
-            )}
-          </div>
-        </div>
-      </JobMatchStatusProvider>
+        </JobMatchStatusProvider>
+      </JobFillStatusProvider>
     </SlotsProvider>
   );
 }
