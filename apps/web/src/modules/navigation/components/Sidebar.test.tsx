@@ -154,6 +154,7 @@ describe("Sidebar", () => {
     expect(
       screen.getAllByText("Salary Calculator").length,
     ).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("Admin").length).toBeGreaterThanOrEqual(1);
   });
 
   it("renders bottom items — Help Center and Settings", () => {

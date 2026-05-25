@@ -23,6 +23,7 @@ vi.mock("@/gql/hooks", async () => {
     useCreateSourceTemplateMutation: () => [vi.fn(), {}] as const,
     useUpdateSourceTemplateMutation: () => [vi.fn(), {}] as const,
     useDeleteSourceTemplateMutation: () => [vi.fn(), {}] as const,
+    useRerunSourceTemplateMutation: () => [vi.fn(), {}] as const,
   };
 });
 
@@ -101,6 +102,9 @@ describe("SourcesPage", () => {
     ).toBeInTheDocument();
     expect(screen.getByText(/^Source 1$/)).toBeInTheDocument();
     expect(screen.getByText(/^Schedule off$/)).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /run source 1/i }),
+    ).toBeInTheDocument();
   });
 
   it("shows empty state when API returns no source profiles with sources", () => {
