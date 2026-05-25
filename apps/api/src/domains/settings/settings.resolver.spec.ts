@@ -29,6 +29,7 @@ describe("SettingsResolver (integration)", () => {
       userId: "user-1",
       autoFillEnabled: false,
       autoSummaryEnabled: false,
+      autoMatchEnabled: false,
       duplicateWindowDays: 30,
     };
 
@@ -80,7 +81,7 @@ describe("SettingsResolver (integration)", () => {
       .post("/graphql")
       .set(auth)
       .send({
-        query: `{ settings { id userId autoFillEnabled autoSummaryEnabled duplicateWindowDays } }`,
+        query: `{ settings { id userId autoFillEnabled autoSummaryEnabled autoMatchEnabled duplicateWindowDays } }`,
       });
 
     expect(res.statusCode).toBe(200);
@@ -89,6 +90,7 @@ describe("SettingsResolver (integration)", () => {
       userId: "user-1",
       autoFillEnabled: false,
       autoSummaryEnabled: false,
+      autoMatchEnabled: false,
       duplicateWindowDays: 30,
     });
     expect(service.getSettings).toHaveBeenCalledWith("user-1");

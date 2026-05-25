@@ -11,6 +11,9 @@ export class UserSettingType {
   @Field()
   autoSummaryEnabled!: boolean;
 
+  @Field()
+  autoMatchEnabled!: boolean;
+
   @Field(() => Int)
   duplicateWindowDays!: number;
 }

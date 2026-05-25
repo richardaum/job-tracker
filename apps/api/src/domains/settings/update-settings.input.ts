@@ -8,6 +8,9 @@ export class UpdateSettingsInput {
   @Field(() => Boolean, { nullable: true })
   autoSummaryEnabled?: boolean;
 
+  @Field(() => Boolean, { nullable: true })
+  autoMatchEnabled?: boolean;
+
   @Field(() => Int, { nullable: true })
   duplicateWindowDays?: number;
 }

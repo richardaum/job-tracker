@@ -24,6 +24,9 @@ export class UserSettingEntity {
   @Column({ name: "auto_summary_enabled", type: "boolean", default: false })
   autoSummaryEnabled!: boolean;
 
+  @Column({ name: "auto_match_enabled", type: "boolean", default: false })
+  autoMatchEnabled!: boolean;
+
   @Column({ name: "duplicate_window_days", type: "int", default: 30 })
   duplicateWindowDays!: number;
 

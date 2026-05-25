@@ -22,6 +22,7 @@ import { AddUserActiveTokenVersion1767910000000 } from "./1767910000000-add-user
 import { AddUserRefreshJti1767920000000 } from "./1767920000000-add-user-refresh-jti";
 import { UserAuthProvider1767950000000 } from "./1767950000000-user-auth-provider";
 import { UserAccounts1767960000000 } from "./1767960000000-user-accounts";
+import { AddAutoMatchEnabled1767970000000 } from "./1767970000000-add-auto-match-enabled";
 
 export const migrations = [
   SquashedBaseline1767000000000,
@@ -48,4 +49,5 @@ export const migrations = [
   AddUserRefreshJti1767920000000,
   UserAuthProvider1767950000000,
   UserAccounts1767960000000,
+  AddAutoMatchEnabled1767970000000,
 ];

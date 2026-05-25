@@ -35,6 +35,7 @@ describe("SettingsService", () => {
       userId: "user-1",
       autoFillEnabled: false,
       autoSummaryEnabled: false,
+      autoMatchEnabled: false,
       duplicateWindowDays: 30,
     });
 
@@ -46,6 +47,7 @@ describe("SettingsService", () => {
     expect(result).toMatchObject({
       autoFillEnabled: false,
       autoSummaryEnabled: false,
+      autoMatchEnabled: false,
       duplicateWindowDays: 30,
     });
   });
@@ -76,6 +78,7 @@ describe("SettingsService", () => {
       userId: "user-1",
       autoFillEnabled: false,
       autoSummaryEnabled: false,
+      autoMatchEnabled: false,
       duplicateWindowDays: 30,
     };
     repo.findOne.mockResolvedValue(existing);
@@ -96,6 +99,7 @@ describe("SettingsService", () => {
       userId: "user-1",
       autoFillEnabled: false,
       autoSummaryEnabled: false,
+      autoMatchEnabled: false,
       duplicateWindowDays: 30,
     };
     repo.findOne.mockResolvedValue(existing);

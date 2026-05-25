@@ -55,6 +55,7 @@ type UserSetting {
   userId: String!
   autoFillEnabled: Boolean!
   autoSummaryEnabled: Boolean!
+  autoMatchEnabled: Boolean!
   duplicateWindowDays: Int!
   id: ID!
 }
@@ -359,6 +360,7 @@ input CreateJobInput {
   sourceRunId: ID
   createAsDraftCapture: Boolean
   autoFill: Boolean
+  autoMatch: Boolean
 }
 
 input JobSalaryInput {
@@ -404,6 +406,7 @@ input UpdateCompanyInput {
 input UpdateSettingsInput {
   autoFillEnabled: Boolean
   autoSummaryEnabled: Boolean
+  autoMatchEnabled: Boolean
   duplicateWindowDays: Int
 }
 

@@ -58,6 +58,7 @@ type CreateDto = {
   sourceRunId?: string | null;
   createAsDraftCapture?: boolean | null;
   autoFill?: boolean | null;
+  autoMatch?: boolean | null;
 };
 type UpdateDto = Partial<CreateDto>;
 type CreateStageEventDto = {
@@ -262,6 +263,8 @@ export class JobsService {
         }
       }
 
+      this.eventBus.emit(new JobCreated(job.id, userId, dto.autoMatch));
+
       return this.findOne(job.id, userId);
     }
 
@@ -338,9 +341,7 @@ export class JobsService {
     });
     const hydrated = await this.findOne(job.id, userId);
 
-    if (dto.sourceRunId) {
-      this.eventBus.emit(new JobCreated(job.id, userId));
-    }
+    this.eventBus.emit(new JobCreated(job.id, userId, dto.autoMatch));
 
     return hydrated;
   }

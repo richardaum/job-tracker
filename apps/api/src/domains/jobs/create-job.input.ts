@@ -55,4 +55,8 @@ export class CreateJobInput {
   /** Per-action intent to start automatic fill after draft capture; gated by user `autoFillEnabled` setting. */
   @Field(() => Boolean, { nullable: true })
   autoFill?: boolean | null;
+
+  /** Per-action intent to start automatic match after job creation; gated by user `autoMatchEnabled` setting. */
+  @Field(() => Boolean, { nullable: true })
+  autoMatch?: boolean | null;
 }

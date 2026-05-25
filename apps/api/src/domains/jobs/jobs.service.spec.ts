@@ -7,6 +7,7 @@ import { NotFoundException } from "@nestjs/common";
 import type { Repository } from "typeorm";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { JobCreated } from "./job.events";
 import { JobAutomaticFillService } from "./job-automatic-fill.service";
 import { JobEventBus } from "./job-event.bus";
 import { ApplicationStageEnum } from "./job-stage.enum";
@@ -79,6 +80,7 @@ describe("JobsService", () => {
   let locationInferenceService: LocationInferenceService;
   let settingsService: SettingsService;
   let fillService: JobAutomaticFillService;
+  let eventBus: { emit: ReturnType<typeof vi.fn> };
 
   beforeEach(() => {
     sourceRunsRepo = { findOne: vi.fn().mockResolvedValue(null) };
@@ -132,10 +134,7 @@ describe("JobsService", () => {
       fillJobAutomatically: vi.fn(),
     } as unknown as JobAutomaticFillService;
 
-    const eventBus = {
-      emit: vi.fn(),
-      emitJobCreated: vi.fn(),
-    } as unknown as JobEventBus;
+    eventBus = { emit: vi.fn() };
 
     service = new JobsService(
       sourceRunsRepo as unknown as Repository<SourceRunEntity>,
@@ -147,7 +146,7 @@ describe("JobsService", () => {
       tagService,
       companyDescriptionService,
       locationInferenceService,
-      eventBus,
+      eventBus as unknown as JobEventBus,
       settingsService,
       fillService,
     );
@@ -253,6 +252,10 @@ describe("JobsService", () => {
       expect.any(Date),
       expect.any(Number),
     );
+    expect(eventBus.emit).toHaveBeenCalledWith(
+      expect.objectContaining({ jobId: app.id, userId: "user-1" }),
+    );
+    expect(eventBus.emit.mock.calls[0]?.[0]).toBeInstanceOf(JobCreated);
   });
 
   it("create uses Duplicated initial stage when matching job exists in lookback window", async () => {
@@ -402,6 +405,10 @@ describe("JobsService", () => {
       jobsListQuery.hasRecentDuplicateSameRoleAndCompany,
     ).not.toHaveBeenCalled();
     expect(result.currentStage).toBe(ApplicationStageEnum.DRAFT);
+    expect(eventBus.emit).toHaveBeenCalledWith(
+      expect.objectContaining({ jobId: saved.id, userId: "user-1" }),
+    );
+    expect(eventBus.emit.mock.calls[0]?.[0]).toBeInstanceOf(JobCreated);
   });
 
   describe("draft capture auto-fill gate", () => {

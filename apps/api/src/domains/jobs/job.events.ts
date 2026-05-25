@@ -7,6 +7,7 @@ export class JobCreated extends DomainEvent {
   constructor(
     readonly jobId: string,
     readonly userId: string,
+    readonly autoMatch?: boolean | null,
   ) {
     super();
   }

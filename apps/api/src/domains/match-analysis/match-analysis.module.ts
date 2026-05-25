@@ -4,6 +4,7 @@ import { WorkPreferencesEntity } from "@api/database/entities/work-preferences.e
 import { AuthModule } from "@api/domains/auth/auth.module";
 import { JobsModule } from "@api/domains/jobs/jobs.module";
 import { ResumesModule } from "@api/domains/resumes/resumes.module";
+import { SettingsModule } from "@api/domains/settings/settings.module";
 import { TemplateModule } from "@api/domains/shared/template/template.module";
 import { LibAiModule } from "@api/lib/ai";
 import { Module } from "@nestjs/common";
@@ -32,6 +33,7 @@ import { MatchStatusJobStreamListener } from "./match-status-job-stream.listener
     TemplateModule,
     JobsModule,
     ResumesModule,
+    SettingsModule,
   ],
   controllers: [],
   providers: [

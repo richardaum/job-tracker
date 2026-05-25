@@ -341,10 +341,7 @@ describe("JobSummaryService", () => {
       "job-1",
       "user-1",
       AsyncMetadataStatusEnum.PROCESSING,
-      expect.objectContaining({
-        status: AsyncMetadataStatusEnum.FAILED,
-        error: null,
-      }),
+      { status: AsyncMetadataStatusEnum.FAILED },
     );
 
     expect(eventBus.emit).toHaveBeenCalledWith(
