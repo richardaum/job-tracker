@@ -15,13 +15,14 @@ import { DraftExtractionService } from "./ai/draft-extraction.service";
 import { DraftExtractionNormalizationService } from "./ai/draft-extraction-normalization.service";
 import { FillJobEventListener } from "./fill-job-event.listener";
 import { JobAutomaticFillService } from "./job-automatic-fill.service";
+import { JobDuplicateService } from "./job-duplicate.service";
 import { JobEventBus } from "./job-event.bus";
 import { JobStageEventsRepository } from "./job-stage-events.repository";
 import { JobsRepository } from "./jobs.repository";
 import { JobsResolver } from "./jobs.resolver";
 import { JobsService } from "./jobs.service";
+import { JobsEventsResolver } from "./jobs-events.resolver";
 import { JobsListQuery } from "./jobs-list.query";
-import { JobsSseController } from "./jobs-sse.controller";
 import { SalaryModule } from "./salary/salary.module";
 import { JobSummaryService } from "./summary/job-summary.service";
 import { SummaryAiService } from "./summary/summary-ai.service";
@@ -45,7 +46,7 @@ import { TagsModule } from "./tags/tags.module";
     SalaryModule,
     TagsModule,
   ],
-  controllers: [JobsSseController],
+  controllers: [],
   providers: [
     JobEventBus,
     JobsRepository,
@@ -57,6 +58,7 @@ import { TagsModule } from "./tags/tags.module";
     JobsService,
     JobAutomaticFillService,
     JobsResolver,
+    JobsEventsResolver,
     FillJobEventListener,
     SummaryEventListener,
     JobSummaryService,

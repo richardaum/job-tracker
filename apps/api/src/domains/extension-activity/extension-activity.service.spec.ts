@@ -1,7 +1,8 @@
+import { ExtensionActivityReported } from "@api/domains/extension-activity/extension-activity.events";
 import { ExtensionActivityRepository } from "@api/domains/extension-activity/extension-activity.repository";
 import { ExtensionActivityService } from "@api/domains/extension-activity/extension-activity.service";
+import { ExtensionActivityEventBus } from "@api/domains/extension-activity/extension-activity-event.bus";
 import { ExtensionActivityEventTypeEnum } from "@api/domains/extension-activity/extension-activity-event-type.enum";
-import { ExtensionActivityEventsPublisher } from "@api/domains/extension-activity/extension-activity-events.publisher";
 import { ReportExtensionActivityInput } from "@api/domains/extension-activity/report-extension-activity.input";
 import { BadRequestException } from "@nestjs/common";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -11,9 +12,9 @@ describe("ExtensionActivityService", () => {
     ExtensionActivityRepository,
     "create" | "listRecentByUserId"
   > = { create: vi.fn(), listRecentByUserId: vi.fn() };
-  const eventsPublisher: ExtensionActivityEventsPublisher = {
-    publish: vi.fn(),
-    subscribe: vi.fn(),
+  const eventBus: Pick<ExtensionActivityEventBus, "emit" | "events"> = {
+    emit: vi.fn(),
+    events: vi.fn(),
   };
 
   let service: ExtensionActivityService;
@@ -22,7 +23,7 @@ describe("ExtensionActivityService", () => {
     vi.clearAllMocks();
     service = new ExtensionActivityService(
       repo as ExtensionActivityRepository,
-      eventsPublisher,
+      eventBus as ExtensionActivityEventBus,
     );
   });
 
@@ -60,19 +61,21 @@ describe("ExtensionActivityService", () => {
       browser: "Chrome",
       occurredAt: expect.any(Date),
     });
-    expect(eventsPublisher.publish).toHaveBeenCalledWith({
-      userId: "user-1",
-      payload: {
-        id: "evt-1",
-        type: ExtensionActivityEventTypeEnum.SourceRunStarted,
-        summary: "RemoteYeah run started",
-        correlationId: "run-1",
-        payload: null,
-        extensionVersion: "1.0.0",
-        browser: "Chrome",
-        occurredAt,
-      },
-    });
+    expect(eventBus.emit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        userId: "user-1",
+        payload: {
+          id: "evt-1",
+          type: ExtensionActivityEventTypeEnum.SourceRunStarted,
+          summary: "RemoteYeah run started",
+          correlationId: "run-1",
+          payload: null,
+          extensionVersion: "1.0.0",
+          browser: "Chrome",
+          occurredAt,
+        },
+      }),
+    );
     expect(result.id).toBe("evt-1");
   });
 
@@ -97,10 +100,10 @@ describe("ExtensionActivityService", () => {
       occurredAt: new Date("2026-05-25T12:00:00.000Z"),
     };
 
-    vi.mocked(eventsPublisher.subscribe).mockReturnValue({
+    vi.mocked(eventBus.events).mockReturnValue({
       async *[Symbol.asyncIterator]() {
-        yield { userId: "other-user", payload };
-        yield { userId: "user-1", payload };
+        yield new ExtensionActivityReported("other-user", payload);
+        yield new ExtensionActivityReported("user-1", payload);
       },
     });
 

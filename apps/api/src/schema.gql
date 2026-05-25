@@ -203,6 +203,23 @@ enum StageEventSource {
   System
 }
 
+type JobSummaryStatusEventType {
+  jobId: ID!
+  status: String!
+}
+
+type JobFillStatusEventType {
+  jobId: ID!
+  status: String!
+  error: String
+}
+
+type JobMatchStatusEventType {
+  jobId: ID!
+  matchId: ID!
+  status: String!
+}
+
 type ResumeType {
   id: ID!
   userId: String!
@@ -462,5 +479,8 @@ input GenerateMatchInput {
 }
 
 type Subscription {
+  jobSummaryStatusChanged(jobId: ID!): JobSummaryStatusEventType!
+  jobFillStatusChanged(jobId: ID!): JobFillStatusEventType!
+  jobMatchStatusChanged(jobId: ID!): JobMatchStatusEventType!
   sourceRunEvents: SourceRunEvent!
 }
