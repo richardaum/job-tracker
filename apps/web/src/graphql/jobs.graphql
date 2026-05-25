@@ -280,8 +280,8 @@ query GenerateJobWorkRegionWithAi($jobId: ID!) {
   generateJobWorkRegionWithAI(jobId: $jobId)
 }
 
-mutation GenerateJobSummary($jobId: ID!) {
-  generateJobSummary(jobId: $jobId) {
+mutation RequestJobSummary($jobId: ID!) {
+  requestJobSummary(jobId: $jobId) {
     id
     summary
     summaryMetadata {

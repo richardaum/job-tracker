@@ -14,8 +14,8 @@ import {
   JobDocument,
   JobsDocument,
   JobSource,
-  useGenerateJobSummaryMutation,
   useRemoveJobTagMutation,
+  useRequestJobSummaryMutation,
   useUpdateJobMutation,
 } from "@/gql/hooks";
 import {
@@ -74,7 +74,7 @@ export function OverviewTabContent({
 
   const [inferLocation] = useGenerateJobLocationWithAiLazyQuery();
   const [inferWorkRegion] = useGenerateJobWorkRegionWithAiLazyQuery();
-  const [generateSummary] = useGenerateJobSummaryMutation();
+  const [requestSummary] = useRequestJobSummaryMutation();
 
   async function handleRemoveTag(tag: string) {
     const [error] = await tryRun(
@@ -180,7 +180,7 @@ export function OverviewTabContent({
 
   async function handleGenerateSummary() {
     const [error] = await tryRun(
-      generateSummary({
+      requestSummary({
         variables: { jobId: job.id },
         refetchQueries: [{ query: JobDocument, variables: { id: job.id } }],
       }),

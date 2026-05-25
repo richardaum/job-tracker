@@ -287,8 +287,8 @@ export type Mutation = {
   detachJobsFromSourceRun: Scalars["Int"]["output"];
   fillJobAutomatically: JobType;
   generateJobMatch: MatchAnalysisType;
-  generateJobSummary: JobType;
   removeJobTag: JobType;
+  requestJobSummary: JobType;
   rerunSourceTemplate: SourceRunType;
   updateCompany: CompanyType;
   updateJob: JobType;
@@ -346,12 +346,12 @@ export type MutationFillJobAutomaticallyArgs = {
 
 export type MutationGenerateJobMatchArgs = { input: GenerateMatchInput };
 
-export type MutationGenerateJobSummaryArgs = { jobId: Scalars["ID"]["input"] };
-
 export type MutationRemoveJobTagArgs = {
   id: Scalars["ID"]["input"];
   tag: Scalars["String"]["input"];
 };
+
+export type MutationRequestJobSummaryArgs = { jobId: Scalars["ID"]["input"] };
 
 export type MutationRerunSourceTemplateArgs = {
   templateId: Scalars["ID"]["input"];
@@ -1174,13 +1174,13 @@ export type GenerateJobWorkRegionWithAiQuery = {
   generateJobWorkRegionWithAI?: string | null;
 };
 
-export type GenerateJobSummaryMutationVariables = Exact<{
+export type RequestJobSummaryMutationVariables = Exact<{
   jobId: Scalars["ID"]["input"];
 }>;
 
-export type GenerateJobSummaryMutation = {
+export type RequestJobSummaryMutation = {
   __typename?: "Mutation";
-  generateJobSummary: {
+  requestJobSummary: {
     __typename?: "JobType";
     id: string;
     summary?: string | null;
@@ -3105,9 +3105,9 @@ export type GenerateJobWorkRegionWithAiLazyQueryHookResult = ReturnType<
   typeof useGenerateJobWorkRegionWithAiLazyQuery
 >;
 
-export const GenerateJobSummaryDocument = gql`
-  mutation GenerateJobSummary($jobId: ID!) {
-    generateJobSummary(jobId: $jobId) {
+export const RequestJobSummaryDocument = gql`
+  mutation RequestJobSummary($jobId: ID!) {
+    requestJobSummary(jobId: $jobId) {
       id
       summary
       summaryMetadata {
@@ -3120,33 +3120,33 @@ export const GenerateJobSummaryDocument = gql`
 `;
 
 /**
- * __useGenerateJobSummaryMutation__
+ * __useRequestJobSummaryMutation__
  *
- * To run a mutation, you first call `useGenerateJobSummaryMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useGenerateJobSummaryMutation` returns a tuple that includes:
+ * To run a mutation, you first call `useRequestJobSummaryMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRequestJobSummaryMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [generateJobSummaryMutation, { data, loading, error }] = useGenerateJobSummaryMutation({
+ * const [requestJobSummaryMutation, { data, loading, error }] = useRequestJobSummaryMutation({
  *   variables: {
  *      jobId: // value for 'jobId'
  *   },
  * });
  */
-export function useGenerateJobSummaryMutation(
+export function useRequestJobSummaryMutation(
   baseOptions?: ApolloReactHooks.MutationHookOptions<
-    GenerateJobSummaryMutation,
-    GenerateJobSummaryMutationVariables
+    RequestJobSummaryMutation,
+    RequestJobSummaryMutationVariables
   >,
 ) {
   const options = { ...defaultOptions, ...baseOptions };
   return ApolloReactHooks.useMutation<
-    GenerateJobSummaryMutation,
-    GenerateJobSummaryMutationVariables
-  >(GenerateJobSummaryDocument, options);
+    RequestJobSummaryMutation,
+    RequestJobSummaryMutationVariables
+  >(RequestJobSummaryDocument, options);
 }
 
 export const FillJobAutomaticallyDocument = gql`

@@ -285,8 +285,8 @@ export type Mutation = {
   detachJobsFromSourceRun: Scalars["Int"]["output"];
   fillJobAutomatically: JobType;
   generateJobMatch: MatchAnalysisType;
-  generateJobSummary: JobType;
   removeJobTag: JobType;
+  requestJobSummary: JobType;
   rerunSourceTemplate: SourceRunType;
   updateCompany: CompanyType;
   updateJob: JobType;
@@ -344,12 +344,12 @@ export type MutationFillJobAutomaticallyArgs = {
 
 export type MutationGenerateJobMatchArgs = { input: GenerateMatchInput };
 
-export type MutationGenerateJobSummaryArgs = { jobId: Scalars["ID"]["input"] };
-
 export type MutationRemoveJobTagArgs = {
   id: Scalars["ID"]["input"];
   tag: Scalars["String"]["input"];
 };
+
+export type MutationRequestJobSummaryArgs = { jobId: Scalars["ID"]["input"] };
 
 export type MutationRerunSourceTemplateArgs = {
   templateId: Scalars["ID"]["input"];
@@ -1162,13 +1162,13 @@ export type GenerateJobWorkRegionWithAiQuery = {
   generateJobWorkRegionWithAI?: string | null;
 };
 
-export type GenerateJobSummaryMutationVariables = Exact<{
+export type RequestJobSummaryMutationVariables = Exact<{
   jobId: Scalars["ID"]["input"];
 }>;
 
-export type GenerateJobSummaryMutation = {
+export type RequestJobSummaryMutation = {
   __typename?: "Mutation";
-  generateJobSummary: {
+  requestJobSummary: {
     __typename?: "JobType";
     id: string;
     summary?: string | null;
@@ -3577,13 +3577,13 @@ export const GenerateJobWorkRegionWithAiDocument = {
   GenerateJobWorkRegionWithAiQuery,
   GenerateJobWorkRegionWithAiQueryVariables
 >;
-export const GenerateJobSummaryDocument = {
+export const RequestJobSummaryDocument = {
   kind: "Document",
   definitions: [
     {
       kind: "OperationDefinition",
       operation: "mutation",
-      name: { kind: "Name", value: "GenerateJobSummary" },
+      name: { kind: "Name", value: "RequestJobSummary" },
       variableDefinitions: [
         {
           kind: "VariableDefinition",
@@ -3602,7 +3602,7 @@ export const GenerateJobSummaryDocument = {
         selections: [
           {
             kind: "Field",
-            name: { kind: "Name", value: "generateJobSummary" },
+            name: { kind: "Name", value: "requestJobSummary" },
             arguments: [
               {
                 kind: "Argument",
@@ -3644,8 +3644,8 @@ export const GenerateJobSummaryDocument = {
     },
   ],
 } as unknown as DocumentNode<
-  GenerateJobSummaryMutation,
-  GenerateJobSummaryMutationVariables
+  RequestJobSummaryMutation,
+  RequestJobSummaryMutationVariables
 >;
 export const FillJobAutomaticallyDocument = {
   kind: "Document",
