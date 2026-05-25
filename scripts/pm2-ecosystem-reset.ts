@@ -16,7 +16,7 @@ import {
 
 const resetTag = "[pm2:reset]";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const ecosystemAbs = path.join(root, "ecosystem.config.cjs");
+import { ecosystemConfigPath, ecosystemPm2Args } from "./pm2-ecosystem.ts";
 
 function pm2(args: string[], allowFailure: boolean): void {
   const result = spawnSync("pm2", args, { cwd: root, stdio: "inherit" });
@@ -36,13 +36,13 @@ if (isGitWorktreeCheckout(root) && !process.env.PM2_RESET_PORTS?.trim()) {
 const ports = resolveListenPorts(process.env, { tag: resetTag });
 
 console.warn("[pm2:reset] pm2 stop …");
-pm2(["stop", ecosystemAbs], true);
+pm2(["stop", ecosystemConfigPath, ...ecosystemPm2Args], true);
 
 console.warn(`[pm2:reset] Clearing LISTEN on TCP ${ports.join(", ")} …`);
 killTcpListenPorts(ports, { tag: resetTag });
 
 console.warn("[pm2:reset] pm2 delete …");
-pm2(["delete", ecosystemAbs], true);
+pm2(["delete", ecosystemConfigPath, ...ecosystemPm2Args], true);
 
 console.warn("[pm2:reset] pm2 start …");
-pm2(["start", ecosystemAbs], false);
+pm2(["start", ecosystemConfigPath, ...ecosystemPm2Args], false);

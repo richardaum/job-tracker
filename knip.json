@@ -1,6 +1,6 @@
 {
   "$schema": "./node_modules/knip/schema.json",
-  "ignore": ["ecosystem.config.cjs"],
+  "ignore": ["scripts/ecosystem.config.ts", "ecosystem.config.cjs"],
   "ignoreBinaries": ["pm2"],
   "ignoreDependencies": ["dotenv"],
   "ignoreIssues": {

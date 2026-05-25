@@ -1,22 +1,19 @@
 #!/usr/bin/env node
 
 import { spawnSync } from "node:child_process";
-import { createRequire } from "node:module";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const require = createRequire(import.meta.url);
-const ecosystem = require(path.join(root, "ecosystem.config.cjs")) as {
-  apps: Array<{ name: string }>;
-};
+import { ecosystemConfig } from "./pm2-ecosystem.ts";
 
-const devApps = ecosystem.apps
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+
+const devApps = ecosystemConfig.apps
   .map((app) => app.name)
   .filter((name) => !name.endsWith("ezpm2gui"));
 
 if (devApps.length === 0) {
-  console.error("[pm2:restart] No dev apps found in ecosystem.config.cjs");
+  console.error("[pm2:restart] No dev apps found in ecosystem.config.ts");
   process.exit(1);
 }
 
