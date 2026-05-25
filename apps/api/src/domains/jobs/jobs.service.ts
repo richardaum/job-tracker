@@ -18,6 +18,7 @@ import type { Repository } from "typeorm";
 
 import { JobCreated, JobUpdated } from "./job.events";
 import { JobAutomaticFillService } from "./job-automatic-fill.service";
+import { JobDuplicateService } from "./job-duplicate.service";
 import { JobEventBus } from "./job-event.bus";
 import { ApplicationQuickFilterEnum } from "./job-quick-filter.enum";
 import { ApplicationSourceEnum } from "./job-source.enum";
@@ -90,6 +91,7 @@ export class JobsService {
     private readonly sourceRunsRepo: Repository<SourceRunEntity>,
     private readonly repo: JobsRepository,
     private readonly jobsListQuery: JobsListQuery,
+    private readonly jobDuplicateService: JobDuplicateService,
     private readonly stageEventsRepo: JobStageEventsRepository,
     private readonly companyService: CompanyService,
     private readonly salaryService: SalaryService,
@@ -312,23 +314,13 @@ export class JobsService {
 
     const job = await this.repo.create(userId, repoDto);
 
-    const userSettings = await this.settings.getSettings(userId);
-    const duplicateLookbackMs =
-      userSettings.duplicateWindowDays * 24 * 60 * 60 * 1000;
-    const referenceTime = new Date();
-    const isDuplicate =
-      await this.jobsListQuery.hasRecentDuplicateSameRoleAndCompany(
+    const initialStage =
+      await this.jobDuplicateService.resolveInitialStageOnCreate({
         userId,
-        job.id,
+        jobId: job.id,
         companyId,
-        dto.title ?? "",
-        referenceTime,
-        duplicateLookbackMs,
-      );
-
-    const initialStage = isDuplicate
-      ? ApplicationStageEnum.DUPLICATED
-      : ApplicationStageEnum.NEW;
+        title: dto.title,
+      });
 
     await this.repo.setPersistedStage(userId, job.id, initialStage);
 
@@ -341,7 +333,10 @@ export class JobsService {
     });
     const hydrated = await this.findOne(job.id, userId);
 
-    this.eventBus.emit(new JobCreated(job.id, userId, dto.autoMatch));
+    if (dto.sourceRunId && initialStage !== ApplicationStageEnum.DUPLICATED) {
+      this.eventBus.emit(new JobCreated(job.id, userId, dto.autoMatch));
+    }
+
 
     return hydrated;
   }

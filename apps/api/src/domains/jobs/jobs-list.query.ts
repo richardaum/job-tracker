@@ -196,34 +196,4 @@ export class JobsListQuery {
 
     return contexts;
   }
-
-  /**
-   * Another job (same user, same company, same trimmed title, case-insensitive)
-   * created on or after `referenceTime - lookbackMs`.
-   */
-  async hasRecentDuplicateSameRoleAndCompany(
-    userId: string,
-    excludeJobId: string,
-    companyId: string,
-    title: string,
-    referenceTime: Date,
-    lookbackMs: number,
-  ): Promise<boolean> {
-    const trimmedTitle = title.trim();
-    if (!trimmedTitle) {
-      return false;
-    }
-    const cutoff = new Date(referenceTime.getTime() - lookbackMs);
-    const count = await this.jobsRepo
-      .createQueryBuilder("a")
-      .where("a.user_id = :userId", { userId })
-      .andWhere("a.id != :excludeJobId", { excludeJobId })
-      .andWhere("a.company_id = :companyId", { companyId })
-      .andWhere("LOWER(TRIM(a.title)) = LOWER(:titleNorm)", {
-        titleNorm: trimmedTitle,
-      })
-      .andWhere("a.created_at >= :cutoff", { cutoff })
-      .getCount();
-    return count > 0;
-  }
 }

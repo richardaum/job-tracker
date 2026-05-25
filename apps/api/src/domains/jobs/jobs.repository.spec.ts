@@ -604,24 +604,6 @@ describe("JobsRepository", () => {
     });
   });
 
-  it("hasRecentDuplicateSameRoleAndCompany returns false when title blank", async () => {
-    const listQuery = new JobsListQuery(
-      jobsRepo as unknown as Repository<JobEntity>,
-    );
-
-    const hit = await listQuery.hasRecentDuplicateSameRoleAndCompany(
-      "u1",
-      "j1",
-      "c1",
-      "   ",
-      new Date(),
-      86400000,
-    );
-
-    expect(hit).toBe(false);
-    expect(jobsRepo.createQueryBuilder).not.toHaveBeenCalled();
-  });
-
   it("delete removes row and returns previous entity snapshot", async () => {
     const existing = Object.assign(new JobEntity(), {
       id: "j1",
@@ -941,31 +923,6 @@ describe("JobsRepository", () => {
     expect(qb.andWhere).toHaveBeenCalledWith("a.source_run_id = :runId", {
       runId: "run-uuid",
     });
-  });
-
-  it("hasRecentDuplicateSameRoleAndCompany returns true when lookback yields matches", async () => {
-    const qb = {
-      where: vi.fn().mockReturnThis(),
-      andWhere: vi.fn().mockReturnThis(),
-      getCount: vi.fn().mockResolvedValue(2),
-    };
-    vi.mocked(jobsRepo.createQueryBuilder).mockReturnValue(qb as never);
-
-    const listQuery = new JobsListQuery(
-      jobsRepo as unknown as Repository<JobEntity>,
-    );
-
-    const hit = await listQuery.hasRecentDuplicateSameRoleAndCompany(
-      "user-1",
-      "exclude",
-      "comp",
-      "Title",
-      new Date(),
-      1,
-    );
-
-    expect(hit).toBe(true);
-    expect(qb.getCount).toHaveBeenCalled();
   });
 
   it("findLatestStageEventByJobId uses COALESCE ordering matching summaries and filters", async () => {

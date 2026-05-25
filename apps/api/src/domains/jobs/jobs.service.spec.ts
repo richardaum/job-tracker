@@ -9,6 +9,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { JobCreated } from "./job.events";
 import { JobAutomaticFillService } from "./job-automatic-fill.service";
+import { JobDuplicateService } from "./job-duplicate.service";
 import { JobEventBus } from "./job-event.bus";
 import { ApplicationStageEnum } from "./job-stage.enum";
 import { JobStageEventsRepository } from "./job-stage-events.repository";
@@ -69,9 +70,11 @@ function co(job: Job): NonNullable<Job["company"]> {
 
 describe("JobsService", () => {
   let service: JobsService;
+  let eventBus: JobEventBus;
   let sourceRunsRepo: Pick<Repository<SourceRunEntity>, "findOne">;
   let repo: JobsRepository;
   let jobsListQuery: JobsListQuery;
+  let jobDuplicateService: JobDuplicateService;
   let stageEventsRepo: JobStageEventsRepository;
   let companyService: CompanyService;
   let salaryService: SalaryService;
@@ -95,9 +98,14 @@ describe("JobsService", () => {
 
     jobsListQuery = {
       findAllByUserId: vi.fn(),
-      hasRecentDuplicateSameRoleAndCompany: vi.fn().mockResolvedValue(false),
       findUpToTwoJobPostingContextsByCompanyName: vi.fn().mockResolvedValue([]),
     } as unknown as JobsListQuery;
+
+    jobDuplicateService = {
+      resolveInitialStageOnCreate: vi
+        .fn()
+        .mockResolvedValue(ApplicationStageEnum.NEW),
+    } as unknown as JobDuplicateService;
 
     stageEventsRepo = {
       findLatestStageSummariesByJobIds: vi.fn().mockResolvedValue(new Map()),
@@ -134,12 +142,13 @@ describe("JobsService", () => {
       fillJobAutomatically: vi.fn(),
     } as unknown as JobAutomaticFillService;
 
-    eventBus = { emit: vi.fn() };
+    eventBus = { emit: vi.fn() } as unknown as JobEventBus;
 
     service = new JobsService(
       sourceRunsRepo as unknown as Repository<SourceRunEntity>,
       repo,
       jobsListQuery,
+      jobDuplicateService,
       stageEventsRepo,
       companyService,
       salaryService,
@@ -149,6 +158,93 @@ describe("JobsService", () => {
       eventBus as unknown as JobEventBus,
       settingsService,
       fillService,
+    );
+  });
+
+  it("source-run import marks Duplicated and skips JobCreated auto-match", async () => {
+    const app = makeJob({ sourceRunId: "run-1" });
+    vi.mocked(sourceRunsRepo.findOne).mockResolvedValue({
+      id: "run-1",
+      userId: "user-1",
+    } as SourceRunEntity);
+    vi.mocked(companyService.findOrCreateByName).mockResolvedValue(co(app));
+    vi.mocked(repo.create).mockResolvedValue(app);
+    vi.mocked(repo.findOneByIdAndUserId).mockResolvedValue(app);
+    vi.mocked(
+      jobDuplicateService.resolveInitialStageOnCreate,
+    ).mockResolvedValue(ApplicationStageEnum.DUPLICATED);
+    vi.mocked(stageEventsRepo.createStageEvent).mockResolvedValue(
+      makeEvent({
+        toStage: ApplicationStageEnum.DUPLICATED,
+        source: StageEventSourceEnum.System,
+      }),
+    );
+    vi.mocked(
+      stageEventsRepo.findLatestStageSummariesByJobIds,
+    ).mockResolvedValue(
+      new Map([
+        [
+          app.id,
+          {
+            toStage: ApplicationStageEnum.DUPLICATED,
+            reason: null,
+            statusAt: new Date(),
+          },
+        ],
+      ]),
+    );
+
+    const result = await service.create("user-1", {
+      title: "Engineer",
+      company: "Acme",
+      sourceRunId: "run-1",
+      description: JSON.stringify({
+        type: "doc",
+        content: [{ type: "paragraph", content: [] }],
+      }),
+    });
+
+    expect(result.currentStage).toBe(ApplicationStageEnum.DUPLICATED);
+    expect(jobDuplicateService.resolveInitialStageOnCreate).toHaveBeenCalled();
+    expect(eventBus.emit).not.toHaveBeenCalled();
+    expect(repo.setPersistedStage).toHaveBeenCalledWith(
+      "user-1",
+      app.id,
+      ApplicationStageEnum.DUPLICATED,
+    );
+  });
+
+  it("source-run import emits JobCreated when stage is New", async () => {
+    const app = makeJob({ sourceRunId: "run-1" });
+    vi.mocked(sourceRunsRepo.findOne).mockResolvedValue({
+      id: "run-1",
+      userId: "user-1",
+    } as SourceRunEntity);
+    vi.mocked(companyService.findOrCreateByName).mockResolvedValue(co(app));
+    vi.mocked(repo.create).mockResolvedValue(app);
+    vi.mocked(repo.findOneByIdAndUserId).mockResolvedValue(app);
+    vi.mocked(
+      jobDuplicateService.resolveInitialStageOnCreate,
+    ).mockResolvedValue(ApplicationStageEnum.NEW);
+    vi.mocked(stageEventsRepo.createStageEvent).mockResolvedValue(
+      makeEvent({
+        toStage: ApplicationStageEnum.NEW,
+        source: StageEventSourceEnum.System,
+      }),
+    );
+
+    await service.create("user-1", {
+      title: "Engineer",
+      company: "Acme",
+      sourceRunId: "run-1",
+      description: JSON.stringify({
+        type: "doc",
+        content: [{ type: "paragraph", content: [] }],
+      }),
+    });
+
+    expect(eventBus.emit).toHaveBeenCalledWith(
+      expect.objectContaining({ jobId: app.id, userId: "user-1" }),
     );
   });
 
@@ -243,19 +339,13 @@ describe("JobsService", () => {
       },
     );
     expect(
-      jobsListQuery.hasRecentDuplicateSameRoleAndCompany,
-    ).toHaveBeenCalledWith(
-      "user-1",
-      app.id,
-      co(app).id,
-      "Engineer",
-      expect.any(Date),
-      expect.any(Number),
-    );
-    expect(eventBus.emit).toHaveBeenCalledWith(
-      expect.objectContaining({ jobId: app.id, userId: "user-1" }),
-    );
-    expect(eventBus.emit.mock.calls[0]?.[0]).toBeInstanceOf(JobCreated);
+      jobDuplicateService.resolveInitialStageOnCreate,
+    ).toHaveBeenCalledWith({
+      userId: "user-1",
+      jobId: app.id,
+      companyId: co(app).id,
+      title: "Engineer",
+    });
   });
 
   it("create uses Duplicated initial stage when matching job exists in lookback window", async () => {
@@ -264,8 +354,8 @@ describe("JobsService", () => {
     vi.mocked(repo.create).mockResolvedValue(app);
     vi.mocked(repo.findOneByIdAndUserId).mockResolvedValue(app);
     vi.mocked(
-      jobsListQuery.hasRecentDuplicateSameRoleAndCompany,
-    ).mockResolvedValue(true);
+      jobDuplicateService.resolveInitialStageOnCreate,
+    ).mockResolvedValue(ApplicationStageEnum.DUPLICATED);
     vi.mocked(
       stageEventsRepo.findLatestStageSummariesByJobIds,
     ).mockResolvedValue(
@@ -318,45 +408,6 @@ describe("JobsService", () => {
     );
   });
 
-  it("create passes duplicate window ms computed from settings", async () => {
-    vi.mocked(settingsService.getSettings).mockResolvedValue({
-      duplicateWindowDays: 7,
-    } as never);
-    const app = makeJob();
-    vi.mocked(companyService.findOrCreateByName).mockResolvedValue(co(app));
-    vi.mocked(repo.create).mockResolvedValue(app);
-    vi.mocked(repo.findOneByIdAndUserId).mockResolvedValue(app);
-    vi.mocked(
-      jobsListQuery.hasRecentDuplicateSameRoleAndCompany,
-    ).mockResolvedValue(false);
-    vi.mocked(stageEventsRepo.createStageEvent).mockResolvedValue(
-      makeEvent({
-        toStage: ApplicationStageEnum.NEW,
-        source: StageEventSourceEnum.System,
-      }),
-    );
-
-    await service.create("user-1", {
-      title: "Engineer",
-      company: "Acme",
-      description: JSON.stringify({
-        type: "doc",
-        content: [{ type: "paragraph", content: [] }],
-      }),
-    });
-
-    expect(
-      jobsListQuery.hasRecentDuplicateSameRoleAndCompany,
-    ).toHaveBeenCalledWith(
-      "user-1",
-      app.id,
-      co(app).id,
-      "Engineer",
-      expect.any(Date),
-      604800000,
-    );
-  });
-
   it("draft capture persists without resolved company when none is provided", async () => {
     const saved = makeJob({
       description: null,
@@ -402,7 +453,7 @@ describe("JobsService", () => {
       expect.objectContaining({ companyId: null }),
     );
     expect(
-      jobsListQuery.hasRecentDuplicateSameRoleAndCompany,
+      jobDuplicateService.resolveInitialStageOnCreate,
     ).not.toHaveBeenCalled();
     expect(result.currentStage).toBe(ApplicationStageEnum.DRAFT);
     expect(eventBus.emit).toHaveBeenCalledWith(

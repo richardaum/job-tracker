@@ -51,6 +51,7 @@ import { TagsModule } from "./tags/tags.module";
     JobsRepository,
     JobStageEventsRepository,
     JobsListQuery,
+    JobDuplicateService,
     DraftExtractionNormalizationService,
     DraftExtractionService,
     JobsService,
