@@ -4,8 +4,6 @@ import type {
   ExtensionConnectionState,
   ExtensionConnectionStatus,
 } from "@/modules/admin/extension/hooks/useExtensionConnectionStatus";
-import { formatDateTime } from "@/modules/jobs/details/utils/job-details.shared";
-
 export function connectionTextColor(
   status: ExtensionConnectionStatus,
 ): TextColor | undefined {
@@ -31,13 +29,11 @@ export function connectionLabel(status: ExtensionConnectionStatus): string {
 }
 
 export function connectionSubtext(
-  connection: Pick<ExtensionConnectionState, "status" | "lastHeartbeatAt">,
+  connection: Pick<ExtensionConnectionState, "status">,
 ): string | null {
   switch (connection.status) {
     case "connected":
-      return connection.lastHeartbeatAt
-        ? `Last checked at ${formatDateTime(connection.lastHeartbeatAt)}`
-        : null;
+      return null;
     case "checking":
       return "Contacting extension…";
     case "disconnected":
