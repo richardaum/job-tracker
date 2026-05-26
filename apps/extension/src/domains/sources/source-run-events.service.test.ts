@@ -11,14 +11,15 @@ const REMOTEYEAH_SURFACE_URL =
   "https://remoteyeah.com/remote-frontend-engineer+reactjs-jobs-in-brazil+latin-america+worldwide";
 
 describe("SourceRunEventsService", () => {
-  it("attempts startup recovery for RUNNING runs", async () => {
+  it("attempts startup recovery for RUNNING and IN_PROGRESS runs", async () => {
     const setup = createSetup({
       claimValue: { data: { claimSourceRun: { id: "run-1" } } },
       sourceRunsValue: {
         data: {
           sourceRuns: [
             createRun({ id: "run-1", status: SourceRunStatus.Running }),
-            createRun({ id: "run-2", status: SourceRunStatus.Completed }),
+            createRun({ id: "run-2", status: SourceRunStatus.InProgress }),
+            createRun({ id: "run-3", status: SourceRunStatus.Completed }),
           ],
         },
       },
@@ -33,9 +34,10 @@ describe("SourceRunEventsService", () => {
 
     await vi.waitFor(() => {
       expect(setup.claimSourceRun).toHaveBeenCalledWith("run-1");
+      expect(setup.claimSourceRun).toHaveBeenCalledWith("run-2");
     });
-    expect(setup.claimSourceRun).not.toHaveBeenCalledWith("run-2");
-    expect(setup.executePlan).toHaveBeenCalledTimes(1);
+    expect(setup.claimSourceRun).not.toHaveBeenCalledWith("run-3");
+    expect(setup.executePlan).toHaveBeenCalledTimes(2);
     const executeOptions = setup.executePlan.mock.calls[0]?.[1] as {
       surfaceUrl: string;
     };
