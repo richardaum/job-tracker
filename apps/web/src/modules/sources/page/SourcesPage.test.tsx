@@ -14,7 +14,7 @@ vi.mock("@/gql/hooks", async () => {
     ...actual,
     useSourcesForSourceProfileQuery: (...args: unknown[]) =>
       useSourcesForSourceProfileQueryMock(...args),
-    useSourceProfilesForNewSourcePickerQuery: () => ({
+    useSourceProfilesListQuery: () => ({
       loading: false,
       error: undefined,
       data: { __typename: "Query", sourceProfiles: [] },

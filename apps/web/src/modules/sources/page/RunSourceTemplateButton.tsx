@@ -8,6 +8,7 @@ import React, { useState } from "react";
 import type { SourceRunStatus } from "@/gql/graphql";
 import {
   SourcesForSourceProfileDocument,
+  SourceTemplateDocument,
   useRerunSourceTemplateMutation,
 } from "@/gql/hooks";
 
@@ -35,19 +36,20 @@ export function RunSourceTemplateButton({
   onRunStarted,
 }: RunSourceTemplateButtonProps) {
   const [running, setRunning] = useState(false);
-  const [rerunSourceTemplate] = useRerunSourceTemplateMutation(
-    sourceProfileId !== ""
-      ? {
-          refetchQueries: [
+  const [rerunSourceTemplate] = useRerunSourceTemplateMutation({
+    refetchQueries: [
+      ...(sourceProfileId !== ""
+        ? [
             {
               query: SourcesForSourceProfileDocument,
               variables: { sourceProfileId },
             },
-          ],
-          awaitRefetchQueries: true,
-        }
-      : {},
-  );
+          ]
+        : []),
+      { query: SourceTemplateDocument, variables: { id: templateId } },
+    ],
+    awaitRefetchQueries: true,
+  });
 
   async function handleRun() {
     setRunning(true);
@@ -65,7 +67,7 @@ export function RunSourceTemplateButton({
     return (
       <Button
         intent="primary"
-        size="sm"
+        size="md"
         type="button"
         state={running ? "loading" : "default"}
         onClick={() => void handleRun()}

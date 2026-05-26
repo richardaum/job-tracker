@@ -11,7 +11,8 @@ import {
   Text,
 } from "@job-tracker/ui";
 import { ClockIcon, LinkSimpleIcon, TrashIcon } from "@phosphor-icons/react";
-import React, { useCallback, useState } from "react";
+import NextLink from "next/link";
+import { useCallback, useState } from "react";
 
 import { useSourcesForSourceProfileQuery } from "@/gql/hooks";
 import { formatDateTime } from "@/modules/jobs/details/utils/job-details.shared";
@@ -20,7 +21,6 @@ import { DeleteSourceDialog } from "@/modules/sources/page/DeleteSourceDialog";
 import { RunSourceTemplateButton } from "@/modules/sources/page/RunSourceTemplateButton";
 import type { SourceListItem } from "@/modules/sources/page/source-template-list.shared";
 import { scheduleSummary } from "@/modules/sources/page/source-template-list.shared";
-import { SourceRunsDialog } from "@/modules/sources/page/SourceRunsDialog";
 import { SourceScheduleDialog } from "@/modules/sources/page/SourceScheduleDialog";
 import { SourceSurfaceUrlDialog } from "@/modules/sources/page/SourceSurfaceUrlDialog";
 import { looksLikeUuid } from "@/modules/sources/utils/looks-like-uuid";
@@ -51,8 +51,6 @@ export function SourceSideDetails({
   onOpenChange,
 }: SourceSideDetailsProps) {
   const sourceProfileId = sourceProfile?.sourceProfileId ?? "";
-  const [runsDialogTemplate, setRunsDialogTemplate] =
-    useState<SourceListItem | null>(null);
   const [surfaceDialogTemplate, setSurfaceDialogTemplate] =
     useState<SourceListItem | null>(null);
   const [scheduleDialogTemplate, setScheduleDialogTemplate] =
@@ -68,25 +66,14 @@ export function SourceSideDetails({
   const showSkeleton = sourceProfile !== null && loading && !data;
 
   const clearDialogsForTemplate = useCallback((templateId: string) => {
-    setRunsDialogTemplate((t) => (t?.id === templateId ? null : t));
     setSurfaceDialogTemplate((t) => (t?.id === templateId ? null : t));
     setScheduleDialogTemplate((t) => (t?.id === templateId ? null : t));
   }, []);
 
-  const patchRunsDialogIfSame = useCallback(
+  const patchTemplateIfSame = useCallback(
     (id: string, patch: Partial<SourceListItem>) => {
-      setRunsDialogTemplate((t) => (t?.id === id ? { ...t, ...patch } : t));
-    },
-    [],
-  );
-
-  const appendRunToDialogIfSame = useCallback(
-    (templateId: string, run: SourceListItem["runs"][number]) => {
-      setRunsDialogTemplate((template) =>
-        template?.id === templateId
-          ? { ...template, runs: [run, ...template.runs] }
-          : template,
-      );
+      setSurfaceDialogTemplate((t) => (t?.id === id ? { ...t, ...patch } : t));
+      setScheduleDialogTemplate((t) => (t?.id === id ? { ...t, ...patch } : t));
     },
     [],
   );
@@ -135,13 +122,12 @@ export function SourceSideDetails({
                     "inline-block max-w-full cursor-pointer border-0 bg-transparent p-0 text-left outline-none",
                   )}
                 >
-                  <button
-                    type="button"
+                  <NextLink
+                    href={`/sources/${template.id}`}
                     title="View runs for this source"
-                    onClick={() => setRunsDialogTemplate(template)}
                   >
                     Source {templateIndex + 1}
-                  </button>
+                  </NextLink>
                 </ListItemCard.Title>
               }
               actions={
@@ -151,7 +137,6 @@ export function SourceSideDetails({
                     sourceProfileId={sourceProfileId}
                     label={`Run source ${templateIndex + 1}`}
                     tooltip="Run source"
-                    onRunStarted={appendRunToDialogIfSame}
                   />
                   <IconButton
                     intent="ghost"
@@ -204,14 +189,6 @@ export function SourceSideDetails({
           ))}
         </Stack>
       )}
-      <SourceRunsDialog
-        template={runsDialogTemplate}
-        sourceProfileId={sourceProfileId}
-        onOpenChange={(open) => {
-          if (!open) setRunsDialogTemplate(null);
-        }}
-        onRunStarted={appendRunToDialogIfSame}
-      />
       <SourceSurfaceUrlDialog
         sourceProfileId={sourceProfileId}
         template={surfaceDialogTemplate}
@@ -219,7 +196,7 @@ export function SourceSideDetails({
           if (!open) setSurfaceDialogTemplate(null);
         }}
         onSurfaceSaved={(id, surfaceUrl) =>
-          patchRunsDialogIfSame(id, { surfaceUrl })
+          patchTemplateIfSame(id, { surfaceUrl })
         }
       />
       <SourceScheduleDialog
@@ -228,7 +205,7 @@ export function SourceSideDetails({
         onOpenChange={(open) => {
           if (!open) setScheduleDialogTemplate(null);
         }}
-        onScheduleSaved={(id, patch) => patchRunsDialogIfSame(id, patch)}
+        onScheduleSaved={(id, patch) => patchTemplateIfSame(id, patch)}
       />
     </SideDetails>
   );

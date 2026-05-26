@@ -19,7 +19,7 @@ import {
   SourceProfilesListDocument,
   SourcesForSourceProfileDocument,
   useCreateSourceTemplateMutation,
-  useSourceProfilesForNewSourcePickerQuery,
+  useSourceProfilesListQuery,
 } from "@/gql/hooks";
 
 type NewSourceDialogSourceProfileRef = {
@@ -64,7 +64,7 @@ export function NewSourceDialog({
     data,
     loading,
     error: loadError,
-  } = useSourceProfilesForNewSourcePickerQuery({
+  } = useSourceProfilesListQuery({
     skip: !open,
     fetchPolicy: "cache-and-network",
   });

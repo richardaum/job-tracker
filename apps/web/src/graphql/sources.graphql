@@ -5,10 +5,34 @@ query SourceProfilesList {
   }
 }
 
-query SourceProfilesForNewSourcePicker {
-  sourceProfiles(onlyWithSourceTemplate: false) {
+mutation RerunSourceTemplate($templateId: ID!) {
+  rerunSourceTemplate(templateId: $templateId) {
+    id
+    status
+    startedAt
+  }
+}
+
+mutation DeleteSourceRun($id: ID!, $deleteJobs: Boolean = false) {
+  deleteSourceRun(id: $id, deleteJobs: $deleteJobs) {
+    success
+    deletedId
+  }
+}
+
+query SourceTemplate($id: ID!) {
+  sourceTemplate(id: $id) {
+    id
     sourceProfileId
-    name
+    scheduleCron
+    scheduleEnabled
+    surfaceUrl
+    createdAt
+    runs {
+      id
+      status
+      startedAt
+    }
   }
 }
 
