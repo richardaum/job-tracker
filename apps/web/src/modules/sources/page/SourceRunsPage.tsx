@@ -7,6 +7,7 @@ import {
   cn,
   DropdownMenu,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   Heading,
   IconButton,
   ListItemCard,
@@ -31,6 +32,7 @@ import {
 } from "@/modules/sources/lib/source-runs.display";
 import { sourceRunJobsHref } from "@/modules/sources/lib/source-runs.routes";
 import { DeleteSourceRunDialog } from "@/modules/sources/page/DeleteSourceRunDialog";
+import { DeleteSourceTemplateDialog } from "@/modules/sources/page/DeleteSourceTemplateDialog";
 import { RunSourceTemplateButton } from "@/modules/sources/page/RunSourceTemplateButton";
 import { scheduleSummary } from "@/modules/sources/page/source-template-list.shared";
 import { SourceScheduleDialog } from "@/modules/sources/page/SourceScheduleDialog";
@@ -67,6 +69,8 @@ export default function SourceRunsPage({ params }: PageProps) {
   const [actionsMenuOpen, setActionsMenuOpen] = React.useState(false);
   const [surfaceUrlDialogOpen, setSurfaceUrlDialogOpen] = React.useState(false);
   const [scheduleDialogOpen, setScheduleDialogOpen] = React.useState(false);
+  const [deleteTemplateDialogOpen, setDeleteTemplateDialogOpen] =
+    React.useState(false);
 
   const headerActions =
     template !== null ? (
@@ -99,6 +103,13 @@ export default function SourceRunsPage({ params }: PageProps) {
           </DropdownMenuItem>
           <DropdownMenuItem onSelect={() => setScheduleDialogOpen(true)}>
             Edit schedule
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            destructive
+            onSelect={() => setDeleteTemplateDialogOpen(true)}
+          >
+            Remove template
           </DropdownMenuItem>
         </DropdownMenu>
         <RunSourceTemplateButton
@@ -214,6 +225,13 @@ export default function SourceRunsPage({ params }: PageProps) {
         sourceProfileId={template?.sourceProfileId ?? ""}
         template={scheduleDialogOpen ? template : null}
         onOpenChange={setScheduleDialogOpen}
+      />
+
+      <DeleteSourceTemplateDialog
+        open={deleteTemplateDialogOpen}
+        onOpenChange={setDeleteTemplateDialogOpen}
+        templateId={templateId}
+        sourceProfileId={profileId}
       />
     </div>
   );
