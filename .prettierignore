@@ -15,3 +15,4 @@ apps/extension/.wxt
 .cursor/skills
 .windsurf/skills
 specs/INDEX.md
+apps/web/src/gql
