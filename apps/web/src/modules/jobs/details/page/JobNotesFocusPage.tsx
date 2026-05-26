@@ -9,6 +9,8 @@ import { useJobDetailsViewModel } from "@/modules/jobs/details/hooks/useJobDetai
 import { jobDetailsPath } from "@/modules/jobs/details/utils/job-details-routes";
 
 export function JobNotesFocusPage({ jobId }: { jobId: string }) {
+  // TODO: consume job data from JobDetailsContext instead of calling
+  // useJobDetailsViewModel() here (see TODO in that hook).
   const { status, displayTitle } = useJobDetailsViewModel(jobId, {
     includeStageEvents: false,
   });

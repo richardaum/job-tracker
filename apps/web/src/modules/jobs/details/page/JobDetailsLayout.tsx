@@ -256,6 +256,12 @@ export default function JobDetailsLayout({
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const { enqueueToast } = useToastQueue();
 
+  // TODO: extract subscription creation from useJobDetailsViewModel into a
+  // JobDetailsContext provider mounted here. Tab pages should consume context
+  // instead of calling useJobDetailsViewModel independently.
+  // useJobFillStatusChangedSubscription is also duplicated by
+  // JobFillStatusProvider -> useJobFillStatusValue below. The layout-level
+  // subscription should be removed once the provider is the single source.
   const {
     job,
     currentStage,

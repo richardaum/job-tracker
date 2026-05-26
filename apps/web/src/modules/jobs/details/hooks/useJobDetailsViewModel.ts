@@ -1,5 +1,19 @@
 "use client";
 
+// TODO: Separate data fetching from data shaping.
+// This hook bundles 2 subscriptions (useJobSummaryStatusChangedSubscription,
+// useJobFillStatusChangedSubscription) with view-model logic and is called from
+// JobDetailsLayout AND 4 tab pages (Overview, Description, Source, Notes).
+// Result: 5x summary subscription + 6x fill-status subscription per jobId.
+// Every tab switch destroys the old page's subscriptions and recreates them.
+//
+// Fix: subscriptions should live ONLY at JobDetailsLayout level (which already
+// calls this hook). Tab pages should consume job data from context instead of
+// calling useJobDetailsViewModel directly. The data-shaping layer
+// (deriveDetailStatus, deriveJobFillButtonState, displayTitle, etc.) can stay
+// in a view-model hook that reads from context.
+// Reference pattern: JobMatchStatusProvider + useJobMatchStatusValue.
+
 import { useApolloClient } from "@apollo/client/react";
 import { tryRun } from "@job-tracker/try-run";
 import { useCallback } from "react";

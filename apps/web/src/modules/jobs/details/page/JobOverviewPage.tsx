@@ -8,6 +8,8 @@ import { useToastQueue } from "@/modules/jobs/shared/hooks/useToastQueue";
 
 export function JobOverviewPage({ jobId }: { jobId: string }) {
   const { enqueueToast } = useToastQueue();
+  // TODO: consume job data from JobDetailsContext instead of calling
+  // useJobDetailsViewModel() here (see TODO in that hook).
   const { job, sourcePrimaryText } = useJobDetailsViewModel(jobId, {
     includeStageEvents: false,
   });

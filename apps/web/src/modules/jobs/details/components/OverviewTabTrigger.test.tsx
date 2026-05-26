@@ -10,21 +10,20 @@ import { JobFillStatusProvider } from "@/modules/jobs/details/hooks/JobFillStatu
 
 import { OverviewTabTrigger } from "./OverviewTabTrigger";
 
-const gqlMocks = vi.hoisted(() => ({ useJobQuery: vi.fn() }));
-const sseMocks = vi.hoisted(() => ({ useEventSource: vi.fn() }));
+const gqlMocks = vi.hoisted(() => ({
+  useJobQuery: vi.fn(),
+  useJobFillStatusChangedSubscription: vi.fn(),
+}));
 
 vi.mock("@/gql/hooks", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/gql/hooks")>();
-  return { ...actual, useJobQuery: gqlMocks.useJobQuery };
+  return {
+    ...actual,
+    useJobQuery: gqlMocks.useJobQuery,
+    useJobFillStatusChangedSubscription:
+      gqlMocks.useJobFillStatusChangedSubscription,
+  };
 });
-
-vi.mock("@/hooks/useEventSource", () => ({
-  useEventSource: sseMocks.useEventSource,
-}));
-
-vi.mock("@/lib/api-endpoints", () => ({
-  getApiBaseUrl: () => "https://api.test",
-}));
 
 vi.mock("next/link", () => ({
   default: ({
@@ -92,20 +91,24 @@ function getOverviewTabTooltipTrigger() {
 }
 
 function getFillStatusChangedHandler() {
-  const call = sseMocks.useEventSource.mock.calls.find(
-    (entry) => entry[1] === "fill_status_changed",
+  const call = gqlMocks.useJobFillStatusChangedSubscription.mock.calls.find(
+    (entry) => entry[0]?.onData !== undefined,
   );
   if (!call) {
-    throw new Error("fill_status_changed SSE handler not registered");
+    throw new Error(
+      "jobFillStatusChanged subscription onData handler not found",
+    );
   }
 
-  return call[2] as (evt: { status: string }) => void | Promise<void>;
+  return call[0].onData as (evt: {
+    data: { data: { jobFillStatusChanged: { status: string } } };
+  }) => void;
 }
 
 describe("OverviewTabTrigger", () => {
   beforeEach(() => {
     gqlMocks.useJobQuery.mockReset();
-    sseMocks.useEventSource.mockReset();
+    gqlMocks.useJobFillStatusChangedSubscription.mockReset();
   });
 
   it("shows active tab styles when the overview tab is selected", () => {
@@ -159,7 +162,7 @@ describe("OverviewTabTrigger", () => {
     );
   });
 
-  it("SSE COMPLETED: updates tab dot from processing pulse to completed", async () => {
+  it("updates tab dot from processing pulse to completed on subscription event", async () => {
     const user = userEvent.setup();
     gqlMocks.useJobQuery.mockImplementation(() => {
       const [job, setJob] = React.useState(processingFillJob());
@@ -179,14 +182,18 @@ describe("OverviewTabTrigger", () => {
     expect(processingDot).toHaveClass("bg-text-warning");
 
     await waitFor(() =>
-      expect(sseMocks.useEventSource.mock.calls.length).toBeGreaterThanOrEqual(
-        1,
-      ),
+      expect(
+        gqlMocks.useJobFillStatusChangedSubscription.mock.calls.length,
+      ).toBeGreaterThanOrEqual(1),
     );
 
     await act(async () => {
       await getFillStatusChangedHandler()({
-        status: AsyncMetadataStatus.Completed,
+        data: {
+          data: {
+            jobFillStatusChanged: { status: AsyncMetadataStatus.Completed },
+          },
+        },
       });
     });
 

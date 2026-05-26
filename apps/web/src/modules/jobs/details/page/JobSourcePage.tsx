@@ -10,6 +10,8 @@ import { jobDetailsPath } from "@/modules/jobs/details/utils/job-details-routes"
 
 export function JobSourcePage({ jobId }: { jobId: string }) {
   const router = useRouter();
+  // TODO: consume job data from JobDetailsContext instead of calling
+  // useJobDetailsViewModel() here (see TODO in that hook).
   const { job } = useJobDetailsViewModel(jobId, { includeStageEvents: false });
 
   useEffect(() => {
