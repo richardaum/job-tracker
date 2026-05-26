@@ -14,12 +14,13 @@ export interface IconButtonProps extends Omit<
   React.ButtonHTMLAttributes<HTMLButtonElement>,
   "size" | "children"
 > {
-  icon: React.ReactNode;
+  icon?: React.ReactNode;
   label: string;
   tooltip: React.ReactNode;
   intent?: IconButtonIntent;
   size?: IconButtonSize;
   asChild?: boolean;
+  children?: React.ReactNode;
 }
 
 const intentClasses: Record<IconButtonIntent, string> = {
@@ -46,6 +47,7 @@ export function IconButton({
   size = "md",
   className,
   asChild,
+  children,
   ...props
 }: IconButtonProps) {
   const Component = asChild ? Slot : "button";
@@ -59,12 +61,12 @@ export function IconButton({
   return (
     <Tooltip content={tooltip}>
       <Component
-        type="button"
+        {...(asChild ? {} : { type: "button" as const })}
         aria-label={label}
         className={classes}
         {...props}
       >
-        <span aria-hidden>{icon}</span>
+        {asChild ? children : <span aria-hidden>{icon}</span>}
       </Component>
     </Tooltip>
   );
