@@ -4,7 +4,7 @@ import { Roles } from "@api/domains/auth/roles.decorator";
 import { RolesGuard } from "@api/domains/auth/roles.guard";
 import { DeleteMutationPayloadType } from "@api/domains/shared/delete-mutation-payload.type";
 import { SourceProfileRegistryService } from "@api/domains/sources/source-profile-registry.service";
-import { UseGuards } from "@nestjs/common";
+import { Inject, UseGuards } from "@nestjs/common";
 import {
   Args,
   ID,
@@ -24,12 +24,15 @@ import { SourceRunType } from "./source-run.type";
 import { SourceRunEvent } from "./source-run-event.type";
 import { SourceRunStatusEnum } from "./source-run-status.enum";
 import { SourceTemplateType } from "./source-template.type";
+import { SourcesService } from "./sources.service";
 import {
-  type SourceRunEventsSubscriptionRoot,
-  SourcesService,
-} from "./sources.service";
+  SOURCES_EVENTS_PUBLISHER,
+  type SourcesEventsPublisher,
+} from "./sources-events.publisher";
 import { UpdateSourceRunInput } from "./update-source-run.input";
 import { UpdateSourceTemplateInput } from "./update-source-template.input";
+
+type SourceRunEventsSubscriptionRoot = { sourceRunEvents: SourceRunEvent };
 
 @Resolver(() => SourceProfileType)
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -38,6 +41,8 @@ export class SourcesResolver {
   constructor(
     private readonly service: SourcesService,
     private readonly sourceProfileRegistry: SourceProfileRegistryService,
+    @Inject(SOURCES_EVENTS_PUBLISHER)
+    private readonly eventsPublisher: SourcesEventsPublisher,
   ) {}
 
   @Query(() => [SourceRunType])
@@ -63,6 +68,14 @@ export class SourcesResolver {
       user.userId,
       sourceProfileId,
     );
+  }
+
+  @Query(() => SourceTemplateType)
+  sourceTemplate(
+    @Args("id", { type: () => ID }) id: string,
+    @CurrentUser() user: { userId: string },
+  ): Promise<SourceTemplateType> {
+    return this.service.getSourceTemplate(user.userId, id);
   }
 
   @Query(() => [SourceProfileType])
@@ -175,9 +188,15 @@ export class SourcesResolver {
   @Mutation(() => DeleteMutationPayloadType)
   async deleteSourceRun(
     @Args("id", { type: () => ID }) id: string,
+    @Args("deleteJobs", {
+      type: () => Boolean,
+      nullable: true,
+      defaultValue: false,
+    })
+    deleteJobs: boolean,
     @CurrentUser() user: { userId: string },
   ): Promise<DeleteMutationPayloadType> {
-    await this.service.deleteSourceRun(user.userId, id);
+    await this.service.deleteSourceRun(user.userId, id, { deleteJobs });
     return { success: true, deletedId: id };
   }
 
@@ -208,9 +227,12 @@ export class SourcesResolver {
   }
 
   @Subscription(() => SourceRunEvent)
-  sourceRunEvents(
+  async *sourceRunEvents(
     @CurrentUser() user: { userId: string },
   ): AsyncIterable<SourceRunEventsSubscriptionRoot> {
-    return this.service.sourceRunEvents(user.userId);
+    for await (const event of this.eventsPublisher.subscribe()) {
+      if (event.userId !== user.userId) continue;
+      yield { sourceRunEvents: event.payload };
+    }
   }
 }

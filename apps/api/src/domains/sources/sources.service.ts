@@ -15,21 +15,12 @@ import {
   OnModuleInit,
 } from "@nestjs/common";
 
-import { SourceRunEvent } from "./source-run-event.type";
 import { SourceRunEventTypeEnum } from "./source-run-event-type.enum";
 import { SourcesRepository } from "./sources.repository";
 import {
   SOURCES_EVENTS_PUBLISHER,
   SourcesEventsPublisher,
 } from "./sources-events.publisher";
-
-/**
- * Each streamed subscription execution uses this object as graphql `rootValue`
- * so the default resolver can read {@link SourceRunEventsSubscriptionRoot.sourceRunEvents}.
- */
-export type SourceRunEventsSubscriptionRoot = {
-  sourceRunEvents: SourceRunEvent;
-};
 
 function extensionMayTransitionStatus(
   from: SourceRunStatusEnum,
@@ -99,6 +90,17 @@ export class SourcesService implements OnModuleInit {
       sourceProfileId: sourceProfileKey,
     });
     return Promise.all(templates.map((t) => this.templateToGql(t, userId)));
+  }
+
+  async getSourceTemplate(
+    userId: string,
+    id: string,
+  ): Promise<SourceTemplateType> {
+    const template = await this.repo.findTemplateByUserAndId({ userId, id });
+    if (!template) {
+      throw new NotFoundException(`Source template ${id} not found`);
+    }
+    return this.templateToGql(template, userId);
   }
 
   async listSourceRuns(userId: string): Promise<SourceRunType[]> {
@@ -298,7 +300,20 @@ export class SourcesService implements OnModuleInit {
     return this.jobRepo.detachJobsSourceRun(sourceRunId, userId);
   }
 
-  async deleteSourceRun(userId: string, id: string): Promise<void> {
+  async deleteSourceRun(
+    userId: string,
+    id: string,
+    options?: { deleteJobs?: boolean },
+  ): Promise<void> {
+    const row = await this.repo.findByUserAndId({ id, userId });
+    if (!row) {
+      throw new NotFoundException(`Source run ${id} not found`);
+    }
+
+    if (options?.deleteJobs) {
+      await this.jobRepo.deleteBySourceRunId(id, userId);
+    }
+
     const deleted = await this.repo.deleteByUser({ id, userId });
     if (!deleted) {
       throw new NotFoundException(`Source run ${id} not found`);
@@ -368,17 +383,6 @@ export class SourcesService implements OnModuleInit {
     }
 
     return null;
-  }
-
-  async *sourceRunEvents(
-    userId: string,
-  ): AsyncIterable<SourceRunEventsSubscriptionRoot> {
-    for await (const event of this.eventsPublisher.subscribe()) {
-      if (event.userId !== userId) {
-        continue;
-      }
-      yield { sourceRunEvents: event.payload };
-    }
   }
 
   private async templateToGql(

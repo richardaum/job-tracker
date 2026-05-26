@@ -63,13 +63,8 @@ describe("SourcesService", () => {
     detachJobsSourceRun: vi.fn(),
   };
 
-  const eventsPublisher: SourcesEventsPublisher = {
+  const eventsPublisher: Pick<SourcesEventsPublisher, "publish"> = {
     publish: vi.fn(),
-    subscribe: vi.fn(() => ({
-      [Symbol.asyncIterator]: (): AsyncIterator<never> => ({
-        next: async () => ({ value: undefined, done: true }),
-      }),
-    })),
   };
 
   const sourceProfileRegistry = new SourceProfileRegistryService();
@@ -78,7 +73,7 @@ describe("SourcesService", () => {
     repo as SourcesRepository,
     sourceProfileRegistry,
     jobRepo as JobsRepository,
-    eventsPublisher,
+    eventsPublisher as SourcesEventsPublisher,
   );
 
   beforeEach(() => {
@@ -399,70 +394,6 @@ describe("SourcesService", () => {
     expect(winners[0]).toMatchObject({
       id: "run-1",
       status: SourceRunStatusEnum.IN_PROGRESS,
-    });
-  });
-
-  it("sourceRunEvents yields only events from the current user", async () => {
-    vi.mocked(eventsPublisher.subscribe).mockReturnValue({
-      [Symbol.asyncIterator]: () => {
-        let index = 0;
-        const events = [
-          {
-            userId: "other-user",
-            payload: {
-              type: SourceRunEventTypeEnum.SOURCE_RUN_CREATED,
-              occurredAt: new Date("2026-05-01T12:00:00.000Z"),
-              run: {
-                id: "run-other",
-                templateId: "t2",
-                sourceProfileId: "remoteyeah",
-                surfaceUrl: "https://example.com",
-                status: SourceRunStatusEnum.RUNNING,
-                startedAt: new Date("2026-05-01T12:00:00.000Z"),
-                sourceProfile: "database" as const,
-              },
-            },
-          },
-          {
-            userId: "user-1",
-            payload: {
-              type: SourceRunEventTypeEnum.SOURCE_RUN_CREATED,
-              occurredAt: new Date("2026-05-01T12:00:01.000Z"),
-              run: {
-                id: "run-1",
-                templateId: "t1",
-                sourceProfileId: "remoteyeah",
-                surfaceUrl: "https://example.com",
-                status: SourceRunStatusEnum.RUNNING,
-                startedAt: new Date("2026-05-01T12:00:01.000Z"),
-                sourceProfile: "database" as const,
-              },
-            },
-          },
-        ];
-
-        return {
-          next: async () => {
-            if (index >= events.length) {
-              return { value: undefined, done: true };
-            }
-            const value = events[index];
-            index += 1;
-            return { value, done: false };
-          },
-        };
-      },
-    });
-
-    const iterator = service.sourceRunEvents("user-1")[Symbol.asyncIterator]();
-    const first = await iterator.next();
-
-    expect(first.done).toBe(false);
-    expect(first.value).toMatchObject({
-      sourceRunEvents: {
-        type: SourceRunEventTypeEnum.SOURCE_RUN_CREATED,
-        run: { id: "run-1", sourceProfileId: "remoteyeah" },
-      },
     });
   });
 

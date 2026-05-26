@@ -4,18 +4,20 @@ import { SourceRunStatusEnum } from "@api/domains/sources/source-run-status.enum
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { SourcesResolver } from "./sources.resolver";
-import { SourcesService } from "./sources.service";
+import type { SourcesService } from "./sources.service";
+import type { SourcesEventsPublisher } from "./sources-events.publisher";
 
 describe("SourcesResolver", () => {
   const service: Pick<
     SourcesService,
-    | "sourceRunEvents"
-    | "listSourceTemplates"
-    | "listSourceTemplatesForSourceProfile"
+    "listSourceTemplates" | "listSourceTemplatesForSourceProfile"
   > = {
-    sourceRunEvents: vi.fn(),
     listSourceTemplates: vi.fn(),
     listSourceTemplatesForSourceProfile: vi.fn(),
+  };
+
+  const eventsPublisher: Pick<SourcesEventsPublisher, "subscribe"> = {
+    subscribe: vi.fn(),
   };
 
   const sourceProfileRegistry = new SourceProfileRegistryService();
@@ -23,6 +25,7 @@ describe("SourcesResolver", () => {
   const resolver = new SourcesResolver(
     service as SourcesService,
     sourceProfileRegistry,
+    eventsPublisher as SourcesEventsPublisher,
   );
 
   const user = { userId: "user-1" };
@@ -130,45 +133,53 @@ describe("SourcesResolver", () => {
     await expect(resolver.sourceProfiles(user, true)).resolves.toEqual([]);
   });
 
-  it("sourceRunEvents scopes subscription by authenticated user", () => {
-    const iterable: AsyncIterable<never> = {
-      [Symbol.asyncIterator]: () => ({
-        next: async () => ({ value: undefined, done: true }),
-      }),
-    };
-    vi.mocked(service.sourceRunEvents).mockReturnValue(iterable);
-
-    const out = resolver.sourceRunEvents({ userId: "user-1" });
-
-    expect(service.sourceRunEvents).toHaveBeenCalledWith("user-1");
-    expect(out).toBe(iterable);
-  });
-
-  it("sourceRunEvents returns SourceRunEvent payload shape", async () => {
-    const payload = {
-      type: SourceRunEventTypeEnum.SOURCE_RUN_CREATED,
-      occurredAt: new Date("2026-05-01T12:00:00.000Z"),
-      run: {
-        id: "run-1",
-        templateId: "tmpl-1",
-        sourceProfileId: "remoteyeah",
-        surfaceUrl: "https://example.com",
-        status: SourceRunStatusEnum.RUNNING,
-        startedAt: new Date("2026-05-01T12:00:00.000Z"),
-        sourceProfile: "database" as const,
-      },
-    };
-
-    vi.mocked(service.sourceRunEvents).mockReturnValue({
+  it("sourceRunEvents filters events by authenticated user", async () => {
+    vi.mocked(eventsPublisher.subscribe).mockReturnValue({
       [Symbol.asyncIterator]: () => {
-        let yielded = false;
+        let index = 0;
+        const events = [
+          {
+            userId: "other-user",
+            payload: {
+              type: SourceRunEventTypeEnum.SOURCE_RUN_CREATED,
+              occurredAt: new Date("2026-05-01T12:00:00.000Z"),
+              run: {
+                id: "run-other",
+                templateId: "t2",
+                sourceProfileId: "remoteyeah",
+                surfaceUrl: "https://example.com",
+                status: SourceRunStatusEnum.RUNNING,
+                startedAt: new Date("2026-05-01T12:00:00.000Z"),
+                sourceProfile: "database" as const,
+              },
+            },
+          },
+          {
+            userId: "user-1",
+            payload: {
+              type: SourceRunEventTypeEnum.SOURCE_RUN_CREATED,
+              occurredAt: new Date("2026-05-01T12:00:01.000Z"),
+              run: {
+                id: "run-1",
+                templateId: "t1",
+                sourceProfileId: "remoteyeah",
+                surfaceUrl: "https://example.com",
+                status: SourceRunStatusEnum.RUNNING,
+                startedAt: new Date("2026-05-01T12:00:01.000Z"),
+                sourceProfile: "database" as const,
+              },
+            },
+          },
+        ];
+
         return {
           next: async () => {
-            if (yielded) {
+            if (index >= events.length) {
               return { value: undefined, done: true };
             }
-            yielded = true;
-            return { value: { sourceRunEvents: payload }, done: false };
+            const value = events[index];
+            index += 1;
+            return { value, done: false };
           },
         };
       },
@@ -179,14 +190,11 @@ describe("SourcesResolver", () => {
       [Symbol.asyncIterator]();
     const first = await iterator.next();
 
+    expect(first.done).toBe(false);
     expect(first.value).toMatchObject({
       sourceRunEvents: {
         type: SourceRunEventTypeEnum.SOURCE_RUN_CREATED,
-        run: {
-          id: "run-1",
-          sourceProfileId: "remoteyeah",
-          status: SourceRunStatusEnum.RUNNING,
-        },
+        run: { id: "run-1", sourceProfileId: "remoteyeah" },
       },
     });
   });
