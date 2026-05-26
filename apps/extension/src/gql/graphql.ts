@@ -149,6 +149,32 @@ export type ExchangeRate = {
   rate: Scalars["Float"]["output"];
 };
 
+export type ExtensionActivityEvent = {
+  __typename?: "ExtensionActivityEvent";
+  browser?: Maybe<Scalars["String"]["output"]>;
+  correlationId?: Maybe<Scalars["String"]["output"]>;
+  extensionVersion?: Maybe<Scalars["String"]["output"]>;
+  id: Scalars["ID"]["output"];
+  occurredAt: Scalars["DateTime"]["output"];
+  payload?: Maybe<Scalars["String"]["output"]>;
+  summary: Scalars["String"]["output"];
+  type: ExtensionActivityEventType;
+};
+
+export enum ExtensionActivityEventType {
+  AuthFailed = "AuthFailed",
+  AuthRefreshed = "AuthRefreshed",
+  ImportJobCompleted = "ImportJobCompleted",
+  ImportJobFailed = "ImportJobFailed",
+  ImportJobStarted = "ImportJobStarted",
+  SourceRunClaimSkipped = "SourceRunClaimSkipped",
+  SourceRunCompleted = "SourceRunCompleted",
+  SourceRunFailed = "SourceRunFailed",
+  SourceRunJobImported = "SourceRunJobImported",
+  SourceRunReceived = "SourceRunReceived",
+  SourceRunStarted = "SourceRunStarted",
+}
+
 export enum FitClassification {
   Negative = "Negative",
   Neutral = "Neutral",
@@ -158,6 +184,20 @@ export enum FitClassification {
 export type GenerateMatchInput = {
   jobId: Scalars["ID"]["input"];
   resumeId: Scalars["ID"]["input"];
+};
+
+export type JobFillStatusEventType = {
+  __typename?: "JobFillStatusEventType";
+  error?: Maybe<Scalars["String"]["output"]>;
+  jobId: Scalars["ID"]["output"];
+  status: Scalars["String"]["output"];
+};
+
+export type JobMatchStatusEventType = {
+  __typename?: "JobMatchStatusEventType";
+  jobId: Scalars["ID"]["output"];
+  matchId: Scalars["ID"]["output"];
+  status: Scalars["String"]["output"];
 };
 
 export type JobSalary = {
@@ -193,6 +233,12 @@ export type JobStageEventType = {
   source: StageEventSource;
   toStage: ApplicationStage;
   userId: Scalars["String"]["output"];
+};
+
+export type JobSummaryStatusEventType = {
+  __typename?: "JobSummaryStatusEventType";
+  jobId: Scalars["ID"]["output"];
+  status: Scalars["String"]["output"];
 };
 
 export type JobType = {
@@ -286,6 +332,7 @@ export type Mutation = {
   fillJobAutomatically: JobType;
   generateJobMatch: MatchAnalysisType;
   removeJobTag: JobType;
+  reportExtensionActivity: ExtensionActivityEvent;
   requestJobSummary: JobType;
   rerunSourceTemplate: SourceRunType;
   updateCompany: CompanyType;
@@ -330,7 +377,10 @@ export type MutationDeleteMatchAnalysisArgs = { id: Scalars["ID"]["input"] };
 
 export type MutationDeleteResumeArgs = { id: Scalars["ID"]["input"] };
 
-export type MutationDeleteSourceRunArgs = { id: Scalars["ID"]["input"] };
+export type MutationDeleteSourceRunArgs = {
+  deleteJobs?: InputMaybe<Scalars["Boolean"]["input"]>;
+  id: Scalars["ID"]["input"];
+};
 
 export type MutationDeleteSourceTemplateArgs = { id: Scalars["ID"]["input"] };
 
@@ -347,6 +397,10 @@ export type MutationGenerateJobMatchArgs = { input: GenerateMatchInput };
 export type MutationRemoveJobTagArgs = {
   id: Scalars["ID"]["input"];
   tag: Scalars["String"]["input"];
+};
+
+export type MutationReportExtensionActivityArgs = {
+  input: ReportExtensionActivityInput;
 };
 
 export type MutationRequestJobSummaryArgs = { jobId: Scalars["ID"]["input"] };
@@ -429,6 +483,7 @@ export type Query = {
   company: CompanyType;
   companyJobsCount: Scalars["Int"]["output"];
   exchangeRates: CurrencyRates;
+  extensionActivityEvents: Array<ExtensionActivityEvent>;
   generateCompanyDescription: Scalars["String"]["output"];
   generateJobLocationWithAI?: Maybe<Scalars["String"]["output"]>;
   generateJobNoteWithAI: Scalars["String"]["output"];
@@ -448,6 +503,7 @@ export type Query = {
   settings: UserSetting;
   sourceProfiles: Array<SourceProfileType>;
   sourceRuns: Array<SourceRunType>;
+  sourceTemplate: SourceTemplateType;
   sourceTemplates: Array<SourceTemplateType>;
   sourceTemplatesForSourceProfile: Array<SourceTemplateType>;
   workPreferences: Array<PreferenceType>;
@@ -460,6 +516,10 @@ export type QueryCompanyJobsCountArgs = { id: Scalars["ID"]["input"] };
 export type QueryExchangeRatesArgs = {
   base: Scalars["String"]["input"];
   currencies: Array<Scalars["String"]["input"]>;
+};
+
+export type QueryExtensionActivityEventsArgs = {
+  limit?: InputMaybe<Scalars["Int"]["input"]>;
 };
 
 export type QueryGenerateCompanyDescriptionArgs = {
@@ -507,8 +567,20 @@ export type QuerySourceProfilesArgs = {
   onlyWithSourceTemplate?: InputMaybe<Scalars["Boolean"]["input"]>;
 };
 
+export type QuerySourceTemplateArgs = { id: Scalars["ID"]["input"] };
+
 export type QuerySourceTemplatesForSourceProfileArgs = {
   sourceProfileId: Scalars["String"]["input"];
+};
+
+export type ReportExtensionActivityInput = {
+  browser?: InputMaybe<Scalars["String"]["input"]>;
+  correlationId?: InputMaybe<Scalars["String"]["input"]>;
+  extensionVersion?: InputMaybe<Scalars["String"]["input"]>;
+  occurredAt?: InputMaybe<Scalars["DateTime"]["input"]>;
+  payload?: InputMaybe<Scalars["String"]["input"]>;
+  summary: Scalars["String"]["input"];
+  type: ExtensionActivityEventType;
 };
 
 export enum RequirementType {
@@ -588,7 +660,23 @@ export enum StageEventSource {
 
 export type Subscription = {
   __typename?: "Subscription";
+  extensionActivityEvents: ExtensionActivityEvent;
+  jobFillStatusChanged: JobFillStatusEventType;
+  jobMatchStatusChanged: JobMatchStatusEventType;
+  jobSummaryStatusChanged: JobSummaryStatusEventType;
   sourceRunEvents: SourceRunEvent;
+};
+
+export type SubscriptionJobFillStatusChangedArgs = {
+  jobId: Scalars["ID"]["input"];
+};
+
+export type SubscriptionJobMatchStatusChangedArgs = {
+  jobId: Scalars["ID"]["input"];
+};
+
+export type SubscriptionJobSummaryStatusChangedArgs = {
+  jobId: Scalars["ID"]["input"];
 };
 
 export type UpdateCompanyInput = {
@@ -716,6 +804,22 @@ export type MeQueryVariables = Exact<{ [key: string]: never }>;
 export type MeQuery = {
   __typename?: "Query";
   me: { __typename?: "UserType"; email: string };
+};
+
+export type ReportExtensionActivityMutationVariables = Exact<{
+  input: ReportExtensionActivityInput;
+}>;
+
+export type ReportExtensionActivityMutation = {
+  __typename?: "Mutation";
+  reportExtensionActivity: {
+    __typename?: "ExtensionActivityEvent";
+    id: string;
+    type: ExtensionActivityEventType;
+    summary: string;
+    correlationId?: string | null;
+    occurredAt: any;
+  };
 };
 
 export type SourceRunEventsSubscriptionVariables = Exact<{
@@ -1000,6 +1104,67 @@ export const MeDocument = {
     },
   ],
 } as unknown as DocumentNode<MeQuery, MeQueryVariables>;
+export const ReportExtensionActivityDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "ReportExtensionActivity" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "input" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: {
+              kind: "NamedType",
+              name: { kind: "Name", value: "ReportExtensionActivityInput" },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "reportExtensionActivity" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "input" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "input" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                { kind: "Field", name: { kind: "Name", value: "type" } },
+                { kind: "Field", name: { kind: "Name", value: "summary" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "correlationId" },
+                },
+                { kind: "Field", name: { kind: "Name", value: "occurredAt" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  ReportExtensionActivityMutation,
+  ReportExtensionActivityMutationVariables
+>;
 export const SourceRunEventsDocument = {
   kind: "Document",
   definitions: [
