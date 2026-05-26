@@ -12,11 +12,13 @@ import {
   Text,
 } from "@job-tracker/ui";
 import { BriefcaseIcon, TrashIcon } from "@phosphor-icons/react";
+import type { Route } from "next";
 import NextLink from "next/link";
 import React from "react";
 
 import { BackToLink } from "@/components/back-to-link";
 import { DetailPageHeader } from "@/components/detail-page-header";
+import { EmptyState } from "@/components/empty-state";
 import { EntityNotFound } from "@/components/entity-not-found";
 import { formatDateTime } from "@/modules/jobs/details/utils/job-details.shared";
 import { useSourceRunsViewModel } from "@/modules/sources/hooks/useSourceRunsViewModel";
@@ -30,7 +32,7 @@ import { RunSourceTemplateButton } from "@/modules/sources/page/RunSourceTemplat
 import { scheduleSummary } from "@/modules/sources/page/source-template-list.shared";
 
 interface PageProps {
-  params: Promise<{ id: string }>;
+  params: Promise<{ profileId: string; templateId: string }>;
 }
 
 function SourceRunsListSkeleton() {
@@ -53,9 +55,9 @@ function runLabel(index: number): string {
 }
 
 export default function SourceRunsPage({ params }: PageProps) {
-  const { id } = React.use(params);
+  const { profileId, templateId } = React.use(params);
   const { template, error, status, notFound, showInitialLoading } =
-    useSourceRunsViewModel(id);
+    useSourceRunsViewModel(templateId);
 
   const headerActions =
     template !== null ? (
@@ -71,7 +73,9 @@ export default function SourceRunsPage({ params }: PageProps) {
   return (
     <div className={cn("flex h-full min-h-0 flex-col")}>
       <DetailPageHeader trailing={headerActions}>
-        <BackToLink href="/sources">Back to sources</BackToLink>
+        <BackToLink href={`/sources/profile/${profileId}` as Route}>
+          Back to source profile
+        </BackToLink>
         <Heading as="h1" size="2xl" className={cn("min-w-0")}>
           Source runs
         </Heading>
@@ -98,9 +102,10 @@ export default function SourceRunsPage({ params }: PageProps) {
           </Text>
         ) : status !== "success" || !template ? null : template.runs.length ===
           0 ? (
-          <Text size="sm" color="secondary">
-            No runs for this source yet.
-          </Text>
+          <EmptyState
+            variant="default"
+            message="No runs for this source yet."
+          />
         ) : (
           <Stack gap="sm" className={cn("min-w-0")}>
             {template.runs.map((run, index) => (
