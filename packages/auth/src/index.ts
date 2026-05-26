@@ -5,6 +5,10 @@ import { tryRun } from "@job-tracker/try-run";
 
 type RefreshUrlProvider = () => string;
 
+export type AuthRefreshLinkOptions = {
+  onRefreshResult?: (success: boolean) => void;
+};
+
 export const AUTH_MUTATION_HEADER = "X-Auth-Action";
 export const AUTH_MUTATION_VALUE = "1";
 
@@ -57,7 +61,10 @@ function isUnauthorizedError(error: unknown): boolean {
   return statusCode === 401;
 }
 
-export function createAuthRefreshLink(getRefreshUrl: RefreshUrlProvider) {
+export function createAuthRefreshLink(
+  getRefreshUrl: RefreshUrlProvider,
+  options?: AuthRefreshLinkOptions,
+) {
   return new ErrorLink(({ error, operation, forward }) => {
     const alreadyRetried = operation.getContext().didRefreshRetry === true;
     if (alreadyRetried || !isUnauthorizedError(error)) {
@@ -65,9 +72,14 @@ export function createAuthRefreshLink(getRefreshUrl: RefreshUrlProvider) {
     }
 
     if (!refreshPromise) {
-      refreshPromise = refreshAccessToken(getRefreshUrl()).finally(() => {
-        refreshPromise = null;
-      });
+      refreshPromise = refreshAccessToken(getRefreshUrl())
+        .then((success) => {
+          options?.onRefreshResult?.(success);
+          return success;
+        })
+        .finally(() => {
+          refreshPromise = null;
+        });
     }
     const currentRefreshPromise = refreshPromise;
 

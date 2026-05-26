@@ -4,6 +4,7 @@ import type {
   ApiService,
   SourceRunEventHandler,
 } from "@/domains/api/api.service";
+import type { ExtensionActivityReporterService } from "@/domains/extension-activity/extension-activity-reporter.service";
 import type { LogService } from "@/domains/log/log.service";
 import { mapCollectedJobToCreateJobInput } from "@/domains/plan/map-collected-job-to-create-job-input";
 import type { PlanService } from "@/domains/plan/services/plan.service";
@@ -12,6 +13,7 @@ import {
   surfaceUrlFromPlan,
 } from "@/domains/sources/source-run-plan";
 import {
+  ExtensionActivityEventType,
   type SourceRunEventsSubscription,
   SourceRunEventType,
   SourceRunStatus,
@@ -19,6 +21,16 @@ import {
 
 type SubscriptionHandle = { unsubscribe: () => void };
 type SourceRunEvent = SourceRunEventsSubscription["sourceRunEvents"];
+
+function sourceRunActivitySummary(run: SourceRunEvent["run"]): string {
+  const profile = run.sourceProfile.trim();
+  const surfaceUrl = run.surfaceUrl.trim();
+
+  if (profile && surfaceUrl) return `${profile} · ${surfaceUrl}`;
+  if (profile) return profile;
+  if (surfaceUrl) return surfaceUrl;
+  return run.sourceProfileId;
+}
 
 export class SourceRunEventsService {
   private subscription: SubscriptionHandle | null = null;
@@ -28,6 +40,7 @@ export class SourceRunEventsService {
     private readonly apiService: ApiService,
     private readonly logService: LogService,
     private readonly planService: PlanService,
+    private readonly activityReporter?: ExtensionActivityReporterService,
   ) {}
 
   on(handler: SourceRunEventHandler): () => void {
@@ -99,15 +112,33 @@ export class SourceRunEventsService {
 
   private async handleSourceRunCreated(event: SourceRunEvent): Promise<void> {
     const runId = event.run.id;
+    const summary = sourceRunActivitySummary(event.run);
+
+    this.activityReporter?.report(
+      ExtensionActivityEventType.SourceRunReceived,
+      summary,
+      { correlationId: runId, occurredAt: event.occurredAt },
+    );
+
     const claim = await this.apiService.claimSourceRun(runId);
     if (!claim.data?.claimSourceRun) {
       this.logService.debug("source-run-events:claim-skipped", { runId });
+      this.activityReporter?.report(
+        ExtensionActivityEventType.SourceRunClaimSkipped,
+        summary,
+        { correlationId: runId },
+      );
       return;
     }
 
     await this.apiService.updateSourceRunStatus(
       runId,
       SourceRunStatus.InProgress,
+    );
+    this.activityReporter?.report(
+      ExtensionActivityEventType.SourceRunStarted,
+      summary,
+      { correlationId: runId },
     );
 
     const plan = planForSourceRun({ importerId: event.run.sourceProfileId });
@@ -140,7 +171,16 @@ export class SourceRunEventsService {
                 error: createErr,
                 title: job.title,
               });
+              return;
             }
+
+            this.activityReporter?.report(
+              ExtensionActivityEventType.SourceRunJobImported,
+              typeof job.title === "string" && job.title.trim()
+                ? job.title.trim()
+                : summary,
+              { correlationId: runId },
+            );
           },
         });
         await this.apiService.updateSourceRunStatus(
@@ -159,7 +199,19 @@ export class SourceRunEventsService {
         runId,
         error: runErr,
       });
+      this.activityReporter?.report(
+        ExtensionActivityEventType.SourceRunFailed,
+        summary,
+        { correlationId: runId },
+      );
+      return;
     }
+
+    this.activityReporter?.report(
+      ExtensionActivityEventType.SourceRunCompleted,
+      summary,
+      { correlationId: runId },
+    );
   }
 
   stop(): void {

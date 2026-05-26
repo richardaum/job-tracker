@@ -19,6 +19,8 @@ import {
   CreateJobDocument,
   type CreateJobInput,
   MeDocument,
+  ReportExtensionActivityDocument,
+  type ReportExtensionActivityInput,
   SourceRunEventsDocument,
   type SourceRunEventsSubscription,
   SourceRunsDocument,
@@ -40,14 +42,17 @@ export type SourceRunEventHandler = (
 
 type SubscriptionHandle = { unsubscribe: () => void };
 
+type ApiServiceOptions = { onAuthRefreshResult?: (success: boolean) => void };
+
 export class ApiService {
   private readonly client: ApolloClient;
   private readonly sseLink: ExtensionSSELink;
 
-  constructor() {
+  constructor(options?: ApiServiceOptions) {
     const authLink = createExtensionAuthLink(GRAPHQL_URL);
-    const authRefreshLink = createAuthRefreshLink(() =>
-      getAuthRefreshUrl(GRAPHQL_URL),
+    const authRefreshLink = createAuthRefreshLink(
+      () => getAuthRefreshUrl(GRAPHQL_URL),
+      { onRefreshResult: options?.onAuthRefreshResult },
     );
     const httpLink = new HttpLink({ uri: GRAPHQL_URL, credentials: "include" });
 
@@ -121,6 +126,13 @@ export class ApiService {
     if (err) return null;
 
     return result.data?.me?.email ?? null;
+  }
+
+  async reportExtensionActivity(input: ReportExtensionActivityInput) {
+    return await this.client.mutate({
+      mutation: ReportExtensionActivityDocument,
+      variables: { input },
+    });
   }
 
   subscribeToSourceRunEvents(

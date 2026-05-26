@@ -1,0 +1,9 @@
+mutation ReportExtensionActivity($input: ReportExtensionActivityInput!) {
+  reportExtensionActivity(input: $input) {
+    id
+    type
+    summary
+    correlationId
+    occurredAt
+  }
+}

@@ -2,6 +2,7 @@ import { defineBackground } from "wxt/utils/define-background";
 
 import { ApiService } from "@/domains/api/api.service";
 import { ContextMenuService } from "@/domains/context-menu/context-menu.service";
+import { ExtensionActivityReporterService } from "@/domains/extension-activity/extension-activity-reporter.service";
 import { ImportJobService } from "@/domains/import-job/import-job.service";
 import { JobDetailsMessagingService } from "@/domains/job-details/job-details-messaging.service";
 import { JobsListMessagingService } from "@/domains/jobs-list/jobs-list-messaging.service";
@@ -17,6 +18,7 @@ import { StringTemplateService } from "@/domains/plan/services/string-template.s
 import { SourceRunEventsService } from "@/domains/sources/source-run-events.service";
 import { WxtTabService } from "@/domains/tab/wxt-tab.service";
 import { AdminExtensionStatusService } from "@/domains/web-bridge/admin-extension-status.service";
+import { ExtensionActivityEventType } from "@/gql/graphql";
 
 export default defineBackground(() => {
   const logService = new LogService({ prefix: "Background", level: "debug" });
@@ -44,12 +46,39 @@ export default defineBackground(() => {
     logService,
   );
 
-  const apiService = new ApiService();
+  const activityReporterDeps = {
+    extensionVersion: chrome.runtime.getManifest().version,
+    browser: navigator.userAgent,
+  };
+
+  const onAuthRefreshCallbacks: Array<(success: boolean) => void> = [];
+
+  const apiService = new ApiService({
+    onAuthRefreshResult: (success) =>
+      onAuthRefreshCallbacks.forEach((cb) => cb(success)),
+  });
+
+  const activityReporter = new ExtensionActivityReporterService(
+    apiService,
+    logService,
+    activityReporterDeps,
+  );
+
+  onAuthRefreshCallbacks.push((success) => {
+    activityReporter.report(
+      success
+        ? ExtensionActivityEventType.AuthRefreshed
+        : ExtensionActivityEventType.AuthFailed,
+      success ? "Session token refreshed" : "Session token refresh failed",
+      { correlationId: "auth" },
+    );
+  });
 
   const importJobService = new ImportJobService(
     messagingService,
     new WxtTabService(),
     apiService,
+    activityReporter,
   );
 
   const adminExtensionStatusService = new AdminExtensionStatusService({
@@ -60,6 +89,7 @@ export default defineBackground(() => {
     apiService,
     logService,
     planService,
+    activityReporter,
   );
   sourceRunEventsService.start();
 

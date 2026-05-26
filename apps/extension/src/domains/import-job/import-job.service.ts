@@ -2,8 +2,10 @@ import { sanitizeCapturedHtml } from "@job-tracker/html-sanitize";
 import { tryRun } from "@job-tracker/try-run";
 
 import { ApiService } from "@/domains/api/api.service";
+import type { ExtensionActivityReporterService } from "@/domains/extension-activity/extension-activity-reporter.service";
 import { MessagingService } from "@/domains/message/messaging.service";
 import { WxtTabService } from "@/domains/tab/wxt-tab.service";
+import { ExtensionActivityEventType } from "@/gql/graphql";
 
 import type { DraftJobSnapshot } from "./current-tab-content.service";
 import { CONTEXT_MENU_IMPORT_PAGE_TITLE } from "./import-job-labels";
@@ -15,6 +17,7 @@ export class ImportJobService {
     private readonly messagingService: MessagingService,
     private readonly tabService: WxtTabService,
     private readonly apiService: ApiService,
+    private readonly activityReporter?: ExtensionActivityReporterService,
   ) {}
 
   async execute(): Promise<void> {
@@ -24,6 +27,16 @@ export class ImportJobService {
       "import.job",
       DraftJobSnapshot
     >({ to: "content", payload: { kind: "import.job" }, tabId });
+
+    const summary =
+      snapshot.title.trim() || snapshot.url.trim() || "Current page";
+    const correlationId = crypto.randomUUID();
+
+    this.activityReporter?.report(
+      ExtensionActivityEventType.ImportJobStarted,
+      summary,
+      { correlationId },
+    );
 
     const [error, result] = await tryRun(
       this.apiService.createDraftCaptureJob({
@@ -36,11 +49,29 @@ export class ImportJobService {
     );
 
     if (error) {
+      this.activityReporter?.report(
+        ExtensionActivityEventType.ImportJobFailed,
+        summary,
+        { correlationId },
+      );
       throw new Error("Failed to create draft job", { cause: error });
     }
 
     const id = result?.data?.createJob?.id;
-    if (!id) throw new Error("Failed to create draft job");
+    if (!id) {
+      this.activityReporter?.report(
+        ExtensionActivityEventType.ImportJobFailed,
+        summary,
+        { correlationId },
+      );
+      throw new Error("Failed to create draft job");
+    }
+
+    this.activityReporter?.report(
+      ExtensionActivityEventType.ImportJobCompleted,
+      summary,
+      { correlationId, payload: JSON.stringify({ jobId: id }) },
+    );
 
     await this.tabService.openTab(`${WEB_URL}/jobs/${id}`, { focus: true });
   }
