@@ -59,6 +59,37 @@ export function isExtensionBridgePing(
   );
 }
 
+export async function wakeExtension(
+  timeoutMs = 3_000,
+): Promise<ExtensionBridgePong | null> {
+  if (typeof window === "undefined") return null;
+
+  const requestId = crypto.randomUUID();
+  const ping = createExtensionBridgePing(requestId);
+  const origin = window.location.origin;
+
+  return new Promise((resolve) => {
+    const timer = setTimeout(() => {
+      window.removeEventListener("message", handler);
+      resolve(null);
+    }, timeoutMs);
+
+    const handler = (event: MessageEvent) => {
+      if (event.source !== window) return;
+      if (event.origin !== origin) return;
+      if (!isExtensionBridgePong(event.data)) return;
+      if (event.data.requestId !== requestId) return;
+
+      clearTimeout(timer);
+      window.removeEventListener("message", handler);
+      resolve(event.data);
+    };
+
+    window.addEventListener("message", handler);
+    window.postMessage(ping, origin);
+  });
+}
+
 export function isExtensionBridgePong(
   data: unknown,
 ): data is ExtensionBridgePong {

@@ -11,6 +11,7 @@ import {
   SourceTemplateDocument,
   useRerunSourceTemplateMutation,
 } from "@/gql/hooks";
+import { wakeExtension } from "@/modules/admin/extension/lib/extension-bridge.protocol";
 
 type SourceRunSummary = {
   id: string;
@@ -53,6 +54,8 @@ export function RunSourceTemplateButton({
 
   async function handleRun() {
     setRunning(true);
+    const wakeResult = await wakeExtension();
+    console.log("[source] wakeExtension result", wakeResult ? "ok" : "timeout");
     const [err, result] = await tryRun(
       rerunSourceTemplate({ variables: { templateId } }),
     );

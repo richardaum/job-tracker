@@ -9,6 +9,7 @@ import type {
 import {
   createExtensionBridgePing,
   EXTENSION_BRIDGE_PROBE_TIMEOUT_MS,
+  isExtensionBridgePing,
   isExtensionBridgePong,
 } from "@/modules/admin/extension/lib/extension-bridge.protocol";
 
@@ -93,6 +94,7 @@ export function useExtensionConnectionStatus(): ExtensionConnectionViewModel {
   );
   const probeTimeoutRef = useRef<number | null>(null);
   const retryRef = useRef<(() => void) | null>(null);
+  const probeStartedRef = useRef(false);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -119,8 +121,8 @@ export function useExtensionConnectionStatus(): ExtensionConnectionViewModel {
     const handleMessage = (event: MessageEvent) => {
       if (event.source !== window) return;
       if (event.origin !== webAppOrigin) return;
+      if (isExtensionBridgePing(event.data)) return;
       if (!isExtensionBridgePong(event.data)) return;
-
       clearProbeTimeout();
       setConnection(connectionFromPong(event.data));
     };
@@ -130,17 +132,20 @@ export function useExtensionConnectionStatus(): ExtensionConnectionViewModel {
         setConnection((current) => clearedConnectionFields(current));
       }
 
+      const ping = createExtensionBridgePing(crypto.randomUUID(), options);
       scheduleProbeTimeout();
-      window.postMessage(
-        createExtensionBridgePing(crypto.randomUUID(), options),
-        webAppOrigin,
-      );
+      window.postMessage(ping, webAppOrigin);
     };
 
     retryRef.current = () => probe({ refreshAuth: true });
-    probe();
 
     window.addEventListener("message", handleMessage);
+
+    // Prevent double probe from React Strict Mode effect double-fire in development
+    if (!probeStartedRef.current) {
+      probeStartedRef.current = true;
+      probe();
+    }
 
     return () => {
       retryRef.current = null;
