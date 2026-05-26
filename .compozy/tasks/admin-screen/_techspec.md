@@ -7,9 +7,14 @@
 
 Add an authenticated **Admin** area in the web app to monitor the Chrome extension and, later, aggregate system metrics. The shell ships with two primary tabs — **Extension** (default) and **Overview** — and nested sub-tabs on Extension (**Status | Events**).
 
-**Current state:** Extension **connection status is live** via a client-side Web Bridge (`window.postMessage` ping/pong between web and extension content script). **Authentication, active-event counts, and the events feed are mocked** pending backend or extension-side wiring.
+**Current state:**
 
-**Primary trade-off:** Connection health uses a lightweight postMessage bridge (no GraphQL, no SSE) for fast iteration and zero API changes. Event telemetry will require a separate transport (extension runtime events, GraphQL subscription, or SSE) in a follow-up phase.
+- **Connection status** — live via Web Bridge (`window.postMessage` ping/pong).
+- **Authentication metric** — live from bridge pong (`authStatus`, `authenticatedEmail` resolved by extension background via GraphQL `me`).
+- **Active events card + Events tab** — live merged feed from `sourceRuns` + `extensionActivityEvents` (query, poll, subscriptions). Includes source-run state and extension activity log rows.
+- **Extension activity log** — extension reports fine-grained steps via `reportExtensionActivity`; persisted in `extension_activity_events`.
+
+**Primary trade-off:** Connection health and extension auth use a lightweight postMessage bridge (no server audit trail). Source-run state and extension activity use GraphQL on the web app (with SSE subscriptions). `/sources` stays template-scoped; Admin Events is global.
 
 ## System Architecture
 
@@ -30,11 +35,11 @@ ExtensionTabPage (/admin)
 ├── AdminSubTabs → Status | Events (local state)
 ├── Status panel
 │   ├── ExtensionConnectionMetricCard     ← live (useExtensionConnectionStatus)
-│   ├── Authentication metric card        ← mock
-│   ├── Active events metric card         ← mock
+│   ├── Authentication metric card        ← live (bridge pong + extension-auth.display)
+│   ├── Active events metric card         ← live (useExtensionEventsViewModel.inFlightCount)
 │   └── ExtensionConnectionDetailsCard    ← live when connected
 └── Events panel
-    └── ExtensionEventRow list            ← mock feed
+    └── ExtensionEventRow list            ← live source runs (useExtensionEventsViewModel)
 
 OverviewTabPage (/admin/overview)
 └── Placeholder copy
@@ -44,13 +49,13 @@ OverviewTabPage (/admin/overview)
 
 ```
 Web (useExtensionConnectionStatus)
-  │ window.postMessage(PING) every 5s
+  │ window.postMessage(PING) on mount / Retry
   ▼
 Content Script (WebBridgeService)
-  │ chrome.runtime.sendMessage({ kind: "admin.get-status" })
+  │ chrome.runtime.sendMessage({ kind: "admin.get-status", refreshAuth? })
   ▼
 Background (AdminExtensionStatusService)
-  │ { extensionVersion, browser, lastHeartbeatAt, webAppOrigin }
+  │ { extensionVersion, browser, lastHeartbeatAt, webAppOrigin, authStatus, authenticatedEmail }
   ▼
 Content Script
   │ window.postMessage(PONG)
@@ -58,7 +63,27 @@ Content Script
 Web (message listener → status "connected")
 ```
 
-**Stale detection:** No pong within 15s → `disconnected`. Retry resets state and sends an immediate ping.
+**Stale detection:** No pong within `EXTENSION_BRIDGE_PROBE_TIMEOUT_MS` (5_000 ms) → `disconnected`. Retry clears auth fields and sends a ping with `refreshAuth: true`.
+
+### Source Run Events Data Flow
+
+```
+Web (useExtensionEventsViewModel)
+  │ useAdminSourceRunsListQuery (poll 5s)
+  │ useAdminSourceRunEventsSubscription → refetch on new run
+  ▼
+Apollo Client (HTTP + graphql-sse split link)
+  ▼
+API
+  │ Query sourceRuns
+  │ Subscription sourceRunEvents (SOURCE_RUN_CREATED)
+  ▼
+Web maps runs → ExtensionSourceRunEvent rows
+  ├── Events tab (sorted by startedAt desc)
+  └── Active events card (count RUNNING + IN_PROGRESS)
+```
+
+**Scope vs `/sources`:** `/sources` shows runs per template (operational). Admin Events shows a **global** source-run feed for monitoring. Same API data, different scope.
 
 ## Implementation Design
 
@@ -71,6 +96,7 @@ export type ExtensionBridgePing = {
   type: "JOB_TRACKER_EXTENSION_PING";
   source: "job-tracker-extension-bridge";
   requestId: string;
+  refreshAuth?: boolean;
 };
 
 export type ExtensionBridgePong = {
@@ -81,24 +107,47 @@ export type ExtensionBridgePong = {
   browser: string;
   lastHeartbeatAt: string;
   webAppOrigin: string;
+  authStatus: "authenticated" | "unauthenticated";
+  authenticatedEmail: string | null;
 };
 ```
 
 ```ts
 // apps/web/src/modules/admin/extension/hooks/useExtensionConnectionStatus.ts
 
-export type ExtensionConnectionStatus =
-  | "checking"
-  | "connected"
-  | "disconnected";
-
 export type ExtensionConnectionViewModel = {
-  status: ExtensionConnectionStatus;
+  status: "checking" | "connected" | "disconnected";
   extensionVersion: string | null;
   browser: string | null;
   lastHeartbeatAt: string | null;
   webAppOrigin: string | null;
+  authStatus: "authenticated" | "unauthenticated" | null;
+  authenticatedEmail: string | null;
   retry: () => void;
+};
+```
+
+```ts
+// apps/web/src/modules/admin/extension/lib/extension-events.display.ts
+
+export type ExtensionSourceRunEvent = {
+  id: string;
+  type: SourceRunEventType; // SOURCE_RUN_CREATED
+  status: SourceRunStatus; // RUNNING | IN_PROGRESS | COMPLETED | FAILED
+  occurredAt: string; // run.startedAt
+  summary: string; // sourceProfile · surfaceUrl
+};
+```
+
+```ts
+// apps/web/src/modules/admin/extension/hooks/useExtensionEventsViewModel.ts
+
+export function useExtensionEventsViewModel(): {
+  events: ExtensionSourceRunEvent[];
+  inFlightCount: number;
+  error: unknown;
+  showInitialLoading: boolean;
+  refetch: () => Promise<unknown>;
 };
 ```
 
@@ -108,8 +157,18 @@ export type ExtensionConnectionViewModel = {
 export type AdminGetStatusMessage = {
   kind: "admin.get-status";
   webAppOrigin: string;
+  refreshAuth?: boolean;
 };
 ```
+
+### GraphQL Operations
+
+**File:** `apps/web/src/graphql/admin-extension-events.graphql`
+
+- `AdminSourceRunsList` → `sourceRuns`
+- `AdminSourceRunEvents` → subscription `sourceRunEvents`
+
+**Apollo transport:** `apps/web/src/lib/make-apollo-client.ts` routes subscriptions to `graphql-sse/stream` via `createGraphqlSseLink`.
 
 ### Routes
 
@@ -120,23 +179,16 @@ export type AdminGetStatusMessage = {
 
 ### Protocol Constants
 
-| Constant                     | Value                                      |
-| ---------------------------- | ------------------------------------------ |
-| `EXTENSION_BRIDGE_SOURCE`    | `job-tracker-extension-bridge`             |
-| Ping interval                | 5_000 ms                                   |
-| Stale threshold              | 15_000 ms                                  |
-| Content-script match pattern | `http://localhost/*` (no port in hostname) |
+| Constant                            | Value                          |
+| ----------------------------------- | ------------------------------ |
+| `EXTENSION_BRIDGE_SOURCE`           | `job-tracker-extension-bridge` |
+| `EXTENSION_BRIDGE_PROBE_TIMEOUT_MS` | 5_000 ms                       |
+| `SOURCE_RUN_POLL_INTERVAL_MS`       | 5_000 ms                       |
+| Content-script match pattern        | `http://localhost/*` (no port) |
 
-### Mock Data (to be replaced)
+### Active Events Semantics
 
-`ExtensionTabPage` defines `MOCK_EXTENSION_SNAPSHOT` with:
-
-- `authStatus`: `"authenticated" | "unauthenticated"`
-- `authenticatedEmail`: string | null
-- `events[]`: `{ id, type, status, occurredAt, summary }`
-
-Event types: `SOURCE_RUN_CREATED`, `IMPORT_JOB`, `AUTH_REFRESH`.
-Event statuses: `processing`, `queued`, `completed`, `failed`.
+Counts source runs with status **`RUNNING`** or **`IN_PROGRESS`**. Derived from the same list that powers the Events tab — not a separate data source.
 
 ## Integration Points
 
@@ -159,7 +211,7 @@ Registered in `background.ts`:
   adminExtensionStatusService.handleGetStatusMessage(message),
 ```
 
-Returns manifest version, `navigator.userAgent`, ISO timestamp, and `webAppOrigin`.
+Returns manifest version, `navigator.userAgent`, ISO timestamp, `webAppOrigin`, and auth snapshot from `apiService.meEmail()`.
 
 ### Portal Sub-Tabs
 
@@ -167,18 +219,24 @@ Returns manifest version, `navigator.userAgent`, ISO timestamp, and `webAppOrigi
 
 ## Impact Analysis
 
-| Component                         | Impact Type | Description                                        |
-| --------------------------------- | ----------- | -------------------------------------------------- |
-| `AdminShell`                      | New         | Primary tab shell, route sync, `AdminSubTabs.Slot` |
-| `ExtensionTabPage`                | New         | Status + Events UI; connection live, rest mocked   |
-| `OverviewTabPage`                 | New         | Placeholder only                                   |
-| `useExtensionConnectionStatus`    | New         | Ping/pong hook with stale detection                |
-| `extension-bridge.protocol` (web) | New         | Shared message types and guards                    |
-| `WebBridgeService` (extension)    | New         | Content-script ping responder                      |
-| `AdminExtensionStatusService`     | New         | Background status provider                         |
-| `web-bridge.content.ts`           | New         | WXT content script entry                           |
-| `Sidebar`                         | Modified    | Admin nav item                                     |
-| `background.ts`                   | Modified    | `admin.get-status` handler                         |
+| Component                         | Impact Type | Description                                            |
+| --------------------------------- | ----------- | ------------------------------------------------------ |
+| `AdminShell`                      | New         | Primary tab shell, route sync, `AdminSubTabs.Slot`     |
+| `ExtensionTabPage`                | New         | Status + Events UI; bridge + source-run telemetry live |
+| `OverviewTabPage`                 | New         | Placeholder only                                       |
+| `useExtensionConnectionStatus`    | New         | Ping/pong hook with stale detection + auth fields      |
+| `useExtensionEventsViewModel`     | New         | Source runs query + subscription for Events tab + card |
+| `extension-events.display`        | New         | Run → event row mapping, in-flight count helpers       |
+| `extension-auth.display`          | New         | Auth metric labels/colors from bridge state            |
+| `extension-bridge.protocol` (web) | New         | Shared message types and guards                        |
+| `admin-extension-events.graphql`  | New         | Admin source-run query + subscription                  |
+| `create-graphql-sse-link` (web)   | New         | Apollo SSE link for GraphQL subscriptions              |
+| `make-apollo-client` (web)        | Modified    | Split HTTP vs SSE by operation type                    |
+| `WebBridgeService` (extension)    | New         | Content-script ping responder                          |
+| `AdminExtensionStatusService`     | New         | Background status + auth provider                      |
+| `web-bridge.content.ts`           | New         | WXT content script entry                               |
+| `Sidebar`                         | Modified    | Admin nav item                                         |
+| `background.ts`                   | Modified    | `admin.get-status` handler                             |
 
 ## Testing Approach
 
@@ -186,51 +244,56 @@ Returns manifest version, `navigator.userAgent`, ISO timestamp, and `webAppOrigi
 
 - `useExtensionConnectionStatus.test.ts` — ping send, pong handling, stale → disconnected, retry
 - `extension-bridge.protocol.test.ts` (web + extension) — type guards, match pattern
+- `extension-auth.display.test.ts` — auth metric labels/colors
+- `extension-events.display.test.ts` — run mapping, sort, in-flight count
 - `admin-extension-status.service.test.ts` — status payload shape
 - `runtime-message-listener.test.ts` — synchronous `sendResponse` for admin handler
 
 ### Integration Tests (future)
 
-- Extension installed + web on matching origin → Status shows Connected within 5s
+- Extension installed + web on matching origin → Status shows Connected within probe timeout
 - Extension disabled/uninstalled → Disconnected + Retry
-- Events feed renders real events after Phase 2 wiring
+- Source run created → appears in Events tab; Active events increments while RUNNING/IN_PROGRESS
+- Extension activity log (Phase 2) — import manual, auth refresh, plan steps
 
 ### Environment
 
-- Vitest + jsdom for web hook/protocol tests
+- Vitest + jsdom for web hook/protocol/display tests
 - Node env for extension protocol/service tests
 
 ## Development Sequencing
 
 ### Build Order (as implemented)
 
-1. **Web bridge protocol** — shared ping/pong types and guards (web + extension). No dependencies.
-2. **Extension content script + background handler** — depends on step 1. Responds to pings with status payload.
-3. **`useExtensionConnectionStatus` hook** — depends on step 1. Sends pings, tracks connection state.
-4. **AdminShell + routes** — depends on step 3 for Extension tab wiring. Adds `/admin`, `/admin/overview`, Sidebar link.
-5. **Extension tab UI (Status + Events)** — depends on steps 3–4. Connection cards live; auth/events mocked.
-6. **Overview placeholder** — depends on step 4. No data dependencies.
+1. **Web bridge protocol** — shared ping/pong types and guards (web + extension).
+2. **Extension content script + background handler** — responds to pings with status payload.
+3. **`useExtensionConnectionStatus` hook** — ping/pong + stale detection.
+4. **AdminShell + routes** — `/admin`, `/admin/overview`, Sidebar link.
+5. **Extension tab UI (Status + Events)** — layout + sub-tabs.
+6. **Overview placeholder** — no data dependencies.
+7. **Bridge auth wiring** — `authStatus` / `authenticatedEmail` in pong; `extension-auth.display`.
+8. **Source-run events wiring** — GraphQL query + SSE subscription; `useExtensionEventsViewModel`; Events tab + Active events card.
 
-### Remaining Work (Phase 2+)
+### Remaining Work (Phase 3+)
 
-7. **Replace auth mock** — wire to `useCurrentUser` and/or extension cookie validation. Depends on step 5.
-8. **Replace events mock** — subscribe to real extension/API event stream. Depends on step 5 + transport decision (extension runtime vs GraphQL/SSE).
-9. **Overview metrics** — GraphQL queries or subscriptions for aggregate stats. Depends on step 6 + API design.
-10. **Role guard** — restrict `/admin` to `admin` role if product requires it. Depends on step 4.
+9. **Overview metrics** — GraphQL queries or subscriptions for aggregate stats.
+10. **Role guard** — restrict `/admin` to `admin` role if product requires it.
 
 ## Monitoring and Observability
 
-- **Connection health:** Derivable from admin UI state (`connected` vs `disconnected` ratio during manual QA).
-- **Bridge failures:** Silent drop when background `sendMessage` fails — no user-visible error beyond Disconnected. Consider debug logging in extension background for support.
-- **No server-side metrics** until events feed is wired to API.
+- **Connection health:** Derivable from admin UI state (`connected` vs `disconnected` during manual QA).
+- **Source-run activity:** Visible in Admin Events tab and Active events card from API state.
+- **Bridge failures:** Silent drop when background `sendMessage` fails — no user-visible error beyond Disconnected.
+- **Extension activity audit trail:** Not available until Phase 2 activity log.
 
 ## Technical Considerations
 
 ### Key Decisions
 
-- **Decision:** Client-side postMessage bridge for connection status. **Rationale:** Zero API changes; works with MV3 content script injection. **Trade-off:** No server audit trail. **Alternative rejected:** GraphQL query proxied through extension — heavier, couples admin to API auth in extension.
-- **Decision:** Primary tabs route-driven; Extension sub-tabs local state via portal slot. **Rationale:** Matches `ProfileShell` / detail-page tab patterns; sub-tabs don't need deep links yet. **Alternative rejected:** Nested routes (`/admin/extension/status`) — premature for two sub-tabs.
-- **Decision:** Mock auth and events while shipping connection UI. **Rationale:** Unblocks layout and bridge validation. **Trade-off:** Admin screen shows synthetic data until Phase 2.
+- **Decision:** Client-side postMessage bridge for connection status and extension auth snapshot. **Rationale:** Zero API changes for bridge; works with MV3 content script injection. **Trade-off:** No server audit trail for bridge probes.
+- **Decision:** Source-run telemetry via GraphQL on the web app (not proxied through extension). **Rationale:** Reuses existing `sourceRuns` / `sourceRunEvents`; Admin works without extension connected. **Trade-off:** Does not show extension-internal steps until activity log.
+- **Decision:** Primary tabs route-driven; Extension sub-tabs local state via portal slot. **Rationale:** Matches detail-page tab patterns; sub-tabs don't need deep links yet.
+- **Decision:** Admin Events and `/sources` share API data but differ in scope. **Rationale:** Avoid duplicate UIs — global monitoring vs per-template operations.
 
 ### Known Risks
 
@@ -238,5 +301,6 @@ Returns manifest version, `navigator.userAgent`, ISO timestamp, and `webAppOrigi
 | ------------------------------------------------- | ---------- | ---------------------------------------------------------------- |
 | Content script not injected (stale dev build)     | Medium     | Document WXT rebuild; verify `web-bridge.js` in extension output |
 | `localhost` port mismatch vs `WXT_PUBLIC_WEB_URL` | Medium     | Origin guard in `WebBridgeService`; match pattern without port   |
-| Mock data mistaken for production                 | Medium     | Label events panel "Live feed preview"; remove mock before GA    |
+| SSE subscription drops silently                   | Medium     | 5s poll on `sourceRuns` as fallback; Refresh refetches           |
+| Status updates lag subscription                   | Low        | Poll picks up IN_PROGRESS/COMPLETED/FAILED after create event    |
 | No auth guard on `/admin`                         | Low        | Add role check in Phase 3 if required                            |

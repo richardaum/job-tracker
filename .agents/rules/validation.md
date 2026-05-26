@@ -36,6 +36,16 @@ eslint --fix --max-warnings=0 --no-warn-ignored
 prettier --write
 ```
 
+## AI pair review
+
+Use [pair-review](https://github.com/in-the-loop-labs/pair-review) (`@in-the-loop-labs/pair-review`) for AI-assisted code review of uncommitted changes:
+
+```bash
+npx @in-the-loop-labs/pair-review --local
+```
+
+Opens a local web UI for diff review with AI analysis, inline comments, and structured feedback export. Supports multiple AI providers — configure via `~/.pair-review/config.json`.
+
 ## Dead code
 
 Run `pnpm knip` before finishing a task. If dead code found, list and ask user before removing.
