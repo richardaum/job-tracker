@@ -1,7 +1,8 @@
+import { AsyncMetadataStatusEnum } from "@api/domains/shared/async-metadata.type";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { FillJobEventListener } from "./fill-job-event.listener";
-import { FillJobRequested } from "./job.events";
+import { FillJobStatusChanged } from "./job.events";
 import type { JobAutomaticFillService } from "./job-automatic-fill.service";
 import { JobEventBus } from "./job-event.bus";
 
@@ -14,13 +15,19 @@ describe("FillJobEventListener", () => {
     fillService = { processFillJob: vi.fn().mockResolvedValue(undefined) };
   });
 
-  it("delegates FillJobRequested to processFillJob (async)", async () => {
+  it("delegates FillJobStatusChanged PROCESSING to processFillJob (async)", async () => {
     new FillJobEventListener(
       bus,
       fillService as JobAutomaticFillService,
     ).onModuleInit();
 
-    bus.emit(new FillJobRequested("job-x", "user-y"));
+    bus.emit(
+      new FillJobStatusChanged(
+        "job-x",
+        "user-y",
+        AsyncMetadataStatusEnum.PROCESSING,
+      ),
+    );
 
     await vi.waitFor(() =>
       expect(fillService.processFillJob).toHaveBeenCalledWith(
@@ -28,5 +35,22 @@ describe("FillJobEventListener", () => {
         "job-x",
       ),
     );
+  });
+
+  it("ignores FillJobStatusChanged COMPLETED", () => {
+    new FillJobEventListener(
+      bus,
+      fillService as JobAutomaticFillService,
+    ).onModuleInit();
+
+    bus.emit(
+      new FillJobStatusChanged(
+        "job-x",
+        "user-y",
+        AsyncMetadataStatusEnum.COMPLETED,
+      ),
+    );
+
+    expect(fillService.processFillJob).not.toHaveBeenCalled();
   });
 });

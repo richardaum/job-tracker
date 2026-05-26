@@ -1,9 +1,10 @@
 import { EventEmitter } from "node:events";
 
-import { Subject, type Subscription } from "rxjs";
+import { Subject } from "rxjs";
 
 export abstract class DomainEvent {
   static readonly eventName: string;
+  abstract readonly userId: string;
 
   get name(): string {
     const n = (this.constructor as typeof DomainEvent).eventName;
@@ -12,9 +13,14 @@ export abstract class DomainEvent {
   }
 }
 
-type PendingNext = (value: IteratorResult<DomainEvent>) => void;
+export interface ScopedEventBus<Extra = object> {
+  eventsOf<T extends DomainEvent & Extra>(EventClass: {
+    new (...args: never[]): T;
+    readonly eventName: string;
+  }): AsyncIterable<T>;
+}
 
-export abstract class EventBus {
+export abstract class EventBus<Extra = object> {
   private readonly emitter = new EventEmitter();
   private readonly subject$ = new Subject<DomainEvent>();
 
@@ -31,15 +37,36 @@ export abstract class EventBus {
     return () => this.emitter.off(EventClass.eventName, handler);
   }
 
-  events(): AsyncIterable<DomainEvent> {
-    const queue: DomainEvent[] = [];
-    let pendingNext: PendingNext | null = null;
+  eventsOf<T extends DomainEvent & Extra>(
+    EventClass: { new (...args: never[]): T; readonly eventName: string },
+    userId?: string,
+  ): AsyncIterable<T> {
+    return this.createIterable((event): event is T => {
+      if (!(event instanceof EventClass)) return false;
+      return userId === undefined || event.userId === userId;
+    });
+  }
+
+  forUser(userId: string): ScopedEventBus<Extra> {
+    const eventsOf = this.eventsOf.bind(this);
+    return {
+      eventsOf: <T extends DomainEvent & Extra>(EventClass: {
+        new (...args: never[]): T;
+        readonly eventName: string;
+      }): AsyncIterable<T> => eventsOf(EventClass, userId),
+    };
+  }
+
+  private createIterable<T extends DomainEvent>(
+    accept: (event: DomainEvent) => event is T,
+  ): AsyncIterable<T> {
+    const queue: T[] = [];
+    let pendingNext: ((value: IteratorResult<T>) => void) | null = null;
     let closed = false;
 
-    const sub: Subscription = this.subject$.subscribe((event) => {
-      if (closed) {
-        return;
-      }
+    const sub = this.subject$.subscribe((event) => {
+      if (closed) return;
+      if (!accept(event)) return;
       if (pendingNext) {
         const resolve = pendingNext;
         pendingNext = null;
@@ -50,26 +77,23 @@ export abstract class EventBus {
     });
 
     return {
-      [Symbol.asyncIterator]: (): AsyncIterator<DomainEvent> => ({
-        next: async (): Promise<IteratorResult<DomainEvent>> => {
-          if (queue.length > 0) {
-            return { value: queue.shift()!, done: false };
-          }
-          if (closed) {
-            return { value: undefined, done: true };
-          }
-          return new Promise<IteratorResult<DomainEvent>>((resolve) => {
+      [Symbol.asyncIterator]: (): AsyncIterator<T> => ({
+        next: async (): Promise<IteratorResult<T>> => {
+          if (queue.length > 0) return { value: queue.shift()!, done: false };
+          if (closed)
+            return { value: undefined, done: true } as IteratorResult<T>;
+          return new Promise<IteratorResult<T>>((resolve) => {
             pendingNext = resolve;
           });
         },
-        return: async (): Promise<IteratorResult<DomainEvent>> => {
+        return: async (): Promise<IteratorResult<T>> => {
           closed = true;
           sub.unsubscribe();
           if (pendingNext) {
-            pendingNext({ value: undefined, done: true });
+            pendingNext({ value: undefined, done: true } as IteratorResult<T>);
             pendingNext = null;
           }
-          return { value: undefined, done: true };
+          return { value: undefined, done: true } as IteratorResult<T>;
         },
       }),
     };

@@ -83,7 +83,6 @@ describe("JobsService", () => {
   let locationInferenceService: LocationInferenceService;
   let settingsService: SettingsService;
   let fillService: JobAutomaticFillService;
-  let eventBus: { emit: ReturnType<typeof vi.fn> };
 
   beforeEach(() => {
     sourceRunsRepo = { findOne: vi.fn().mockResolvedValue(null) };
@@ -459,7 +458,9 @@ describe("JobsService", () => {
     expect(eventBus.emit).toHaveBeenCalledWith(
       expect.objectContaining({ jobId: saved.id, userId: "user-1" }),
     );
-    expect(eventBus.emit.mock.calls[0]?.[0]).toBeInstanceOf(JobCreated);
+    expect(vi.mocked(eventBus.emit).mock.calls[0]?.[0]).toBeInstanceOf(
+      JobCreated,
+    );
   });
 
   describe("draft capture auto-fill gate", () => {

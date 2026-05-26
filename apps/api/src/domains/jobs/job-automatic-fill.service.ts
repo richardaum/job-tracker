@@ -14,12 +14,7 @@ import {
 import { InjectDataSource } from "@nestjs/typeorm";
 import type { DataSource } from "typeorm";
 
-import {
-  FillJobCompleted,
-  FillJobFailed,
-  FillJobRequested,
-  JobUpdated,
-} from "./job.events";
+import { FillJobStatusChanged, JobUpdated } from "./job.events";
 import { JobEventBus } from "./job-event.bus";
 import { ApplicationStageEnum } from "./job-stage.enum";
 import { JobStageEventsRepository } from "./job-stage-events.repository";
@@ -73,7 +68,7 @@ export class JobAutomaticFillService implements OnModuleInit {
 
   /**
    * Starts async fill: transitions to {@link AsyncMetadataStatusEnum.PROCESSING}, emits
-   * {@link FillJobRequested} on {@link JobEventBus}, returns immediately.
+   * {@link FillJobStatusChanged} on {@link JobEventBus}, returns immediately.
    */
   async fillJobAutomatically(userId: string, jobId: string) {
     const existing = await this.jobsService.findOne(jobId, userId);
@@ -92,7 +87,13 @@ export class JobAutomaticFillService implements OnModuleInit {
       );
     }
 
-    this.eventBus.emit(new FillJobRequested(jobId, userId));
+    this.eventBus.emit(
+      new FillJobStatusChanged(
+        jobId,
+        userId,
+        AsyncMetadataStatusEnum.PROCESSING,
+      ),
+    );
 
     return this.jobsService.findOne(jobId, userId);
   }
@@ -116,7 +117,14 @@ export class JobAutomaticFillService implements OnModuleInit {
         },
       );
       if (ok) {
-        this.eventBus.emit(new FillJobFailed(jobId, userId, "Job not found."));
+        this.eventBus.emit(
+          new FillJobStatusChanged(
+            jobId,
+            userId,
+            AsyncMetadataStatusEnum.FAILED,
+            "Job not found.",
+          ),
+        );
       }
       return;
     }
@@ -227,7 +235,13 @@ export class JobAutomaticFillService implements OnModuleInit {
       return;
     }
 
-    this.eventBus.emit(new FillJobCompleted(jobId, userId));
+    this.eventBus.emit(
+      new FillJobStatusChanged(
+        jobId,
+        userId,
+        AsyncMetadataStatusEnum.COMPLETED,
+      ),
+    );
     this.eventBus.emit(new JobUpdated(jobId, userId));
   }
 
@@ -321,7 +335,14 @@ export class JobAutomaticFillService implements OnModuleInit {
       );
       return;
     }
-    this.eventBus.emit(new FillJobFailed(jobId, userId, message));
+    this.eventBus.emit(
+      new FillJobStatusChanged(
+        jobId,
+        userId,
+        AsyncMetadataStatusEnum.FAILED,
+        message,
+      ),
+    );
   }
 
   private async resolveCompanyId(

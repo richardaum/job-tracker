@@ -108,6 +108,14 @@ export class JobsRepository {
     return result.affected ?? 0;
   }
 
+  async deleteBySourceRunId(
+    sourceRunId: string,
+    userId: string,
+  ): Promise<number> {
+    const result = await this.jobsRepo.delete({ userId, sourceRunId });
+    return result.affected ?? 0;
+  }
+
   async update(
     id: string,
     userId: string,

@@ -2,17 +2,18 @@ import { AsyncMetadataStatusEnum } from "@api/domains/shared/async-metadata.type
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
-  FillJobCompleted,
-  FillJobFailed,
-  FillJobRequested,
+  FillJobStatusChanged,
   JobMatchStatusChanged,
   SummaryStatusChanged,
 } from "./job.events";
-import { JobEventBus } from "./job-event.bus";
+import type { JobEventBus } from "./job-event.bus";
 import { JobsEventsResolver } from "./jobs-events.resolver";
 
 describe("JobsEventsResolver", () => {
-  const eventBus: Pick<JobEventBus, "events"> = { events: vi.fn() };
+  const scopedBus = { eventsOf: vi.fn() };
+  const eventBus: Pick<JobEventBus, "forJob"> = {
+    forJob: vi.fn().mockReturnValue(scopedBus),
+  };
 
   let resolver: JobsEventsResolver;
 
@@ -22,17 +23,12 @@ describe("JobsEventsResolver", () => {
   });
 
   it("jobSummaryStatusChanged yields only matching SummaryStatusChanged events", async () => {
-    vi.mocked(eventBus.events).mockReturnValue({
+    vi.mocked(scopedBus.eventsOf).mockReturnValue({
       async *[Symbol.asyncIterator]() {
         yield new SummaryStatusChanged(
           "job-1",
           "user-1",
           AsyncMetadataStatusEnum.COMPLETED,
-        );
-        yield new SummaryStatusChanged(
-          "job-2",
-          "user-2",
-          AsyncMetadataStatusEnum.FAILED,
         );
         yield new SummaryStatusChanged(
           "job-1",
@@ -59,14 +55,29 @@ describe("JobsEventsResolver", () => {
     });
 
     expect(await iterator.next()).toEqual({ value: undefined, done: true });
+    expect(eventBus.forJob).toHaveBeenCalledWith("user-1", "job-1");
+    expect(scopedBus.eventsOf).toHaveBeenCalledWith(SummaryStatusChanged);
   });
 
-  it("jobFillStatusChanged maps FillJobRequested to PROCESSING", async () => {
-    vi.mocked(eventBus.events).mockReturnValue({
+  it("jobFillStatusChanged yields FillJobStatusChanged events", async () => {
+    vi.mocked(scopedBus.eventsOf).mockReturnValue({
       async *[Symbol.asyncIterator]() {
-        yield new FillJobRequested("job-1", "user-1");
-        yield new FillJobCompleted("job-1", "user-1");
-        yield new FillJobFailed("job-1", "user-1", "timeout");
+        yield new FillJobStatusChanged(
+          "job-1",
+          "user-1",
+          AsyncMetadataStatusEnum.PROCESSING,
+        );
+        yield new FillJobStatusChanged(
+          "job-1",
+          "user-1",
+          AsyncMetadataStatusEnum.COMPLETED,
+        );
+        yield new FillJobStatusChanged(
+          "job-1",
+          "user-1",
+          AsyncMetadataStatusEnum.FAILED,
+          "timeout",
+        );
       },
     });
 
@@ -90,22 +101,18 @@ describe("JobsEventsResolver", () => {
       error: "timeout",
     });
     expect(await iterator.next()).toEqual({ value: undefined, done: true });
+    expect(eventBus.forJob).toHaveBeenCalledWith("user-1", "job-1");
+    expect(scopedBus.eventsOf).toHaveBeenCalledWith(FillJobStatusChanged);
   });
 
   it("jobMatchStatusChanged yields only matching JobMatchStatusChanged events", async () => {
-    vi.mocked(eventBus.events).mockReturnValue({
+    vi.mocked(scopedBus.eventsOf).mockReturnValue({
       async *[Symbol.asyncIterator]() {
         yield new JobMatchStatusChanged(
           "job-1",
           "user-1",
           "match-a",
           AsyncMetadataStatusEnum.COMPLETED,
-        );
-        yield new JobMatchStatusChanged(
-          "job-2",
-          "user-2",
-          "match-b",
-          AsyncMetadataStatusEnum.FAILED,
         );
         yield new JobMatchStatusChanged(
           "job-1",
@@ -135,5 +142,7 @@ describe("JobsEventsResolver", () => {
     });
 
     expect(await iterator.next()).toEqual({ value: undefined, done: true });
+    expect(eventBus.forJob).toHaveBeenCalledWith("user-1", "job-1");
+    expect(scopedBus.eventsOf).toHaveBeenCalledWith(JobMatchStatusChanged);
   });
 });

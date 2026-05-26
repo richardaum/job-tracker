@@ -2,14 +2,11 @@ import { CurrentUser } from "@api/domains/auth/current-user.decorator";
 import { JwtAuthGuard } from "@api/domains/auth/jwt-auth.guard";
 import { Roles } from "@api/domains/auth/roles.decorator";
 import { RolesGuard } from "@api/domains/auth/roles.guard";
-import { AsyncMetadataStatusEnum } from "@api/domains/shared/async-metadata.type";
 import { UseGuards } from "@nestjs/common";
 import { Args, ID, Resolver, Subscription } from "@nestjs/graphql";
 
 import {
-  FillJobCompleted,
-  FillJobFailed,
-  FillJobRequested,
+  FillJobStatusChanged,
   JobMatchStatusChanged,
   SummaryStatusChanged,
 } from "./job.events";
@@ -31,13 +28,8 @@ export class JobsEventsResolver {
     @Args("jobId", { type: () => ID }) jobId: string,
     @CurrentUser() user: { userId: string },
   ): AsyncIterable<JobSummaryStatusEventType> {
-    for await (const event of this.eventBus.events()) {
-      if (!(event instanceof SummaryStatusChanged)) {
-        continue;
-      }
-      if (event.jobId !== jobId || event.userId !== user.userId) {
-        continue;
-      }
+    const bus = this.eventBus.forJob(user.userId, jobId);
+    for await (const event of bus.eventsOf(SummaryStatusChanged)) {
       yield { jobId: event.jobId, status: event.status };
     }
   }
@@ -47,35 +39,9 @@ export class JobsEventsResolver {
     @Args("jobId", { type: () => ID }) jobId: string,
     @CurrentUser() user: { userId: string },
   ): AsyncIterable<JobFillStatusEventType> {
-    for await (const event of this.eventBus.events()) {
-      if (event instanceof FillJobRequested) {
-        if (event.jobId !== jobId || event.userId !== user.userId) {
-          continue;
-        }
-        yield {
-          jobId: event.jobId,
-          status: AsyncMetadataStatusEnum.PROCESSING,
-          error: undefined,
-        };
-      } else if (event instanceof FillJobCompleted) {
-        if (event.jobId !== jobId || event.userId !== user.userId) {
-          continue;
-        }
-        yield {
-          jobId: event.jobId,
-          status: AsyncMetadataStatusEnum.COMPLETED,
-          error: undefined,
-        };
-      } else if (event instanceof FillJobFailed) {
-        if (event.jobId !== jobId || event.userId !== user.userId) {
-          continue;
-        }
-        yield {
-          jobId: event.jobId,
-          status: AsyncMetadataStatusEnum.FAILED,
-          error: event.error,
-        };
-      }
+    const bus = this.eventBus.forJob(user.userId, jobId);
+    for await (const event of bus.eventsOf(FillJobStatusChanged)) {
+      yield { jobId: event.jobId, status: event.status, error: event.error };
     }
   }
 
@@ -84,13 +50,8 @@ export class JobsEventsResolver {
     @Args("jobId", { type: () => ID }) jobId: string,
     @CurrentUser() user: { userId: string },
   ): AsyncIterable<JobMatchStatusEventType> {
-    for await (const event of this.eventBus.events()) {
-      if (!(event instanceof JobMatchStatusChanged)) {
-        continue;
-      }
-      if (event.jobId !== jobId || event.userId !== user.userId) {
-        continue;
-      }
+    const bus = this.eventBus.forJob(user.userId, jobId);
+    for await (const event of bus.eventsOf(JobMatchStatusChanged)) {
       yield {
         jobId: event.jobId,
         matchId: event.matchId,

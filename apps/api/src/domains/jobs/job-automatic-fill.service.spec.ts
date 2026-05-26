@@ -7,12 +7,7 @@ import { BadRequestException } from "@nestjs/common";
 import type { DataSource, EntityManager } from "typeorm";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import {
-  FillJobCompleted,
-  FillJobFailed,
-  FillJobRequested,
-  JobUpdated,
-} from "./job.events";
+import { FillJobStatusChanged, JobUpdated } from "./job.events";
 import { JobAutomaticFillService } from "./job-automatic-fill.service";
 import { JobEventBus } from "./job-event.bus";
 import { ApplicationStageEnum } from "./job-stage.enum";
@@ -159,7 +154,7 @@ describe("JobAutomaticFillService", () => {
       ).not.toHaveBeenCalled();
     });
 
-    it("begins PROCESSING via repository when restartable and emits FillJobRequested", async () => {
+    it("begins PROCESSING via repository when restartable and emits FillJobStatusChanged PROCESSING", async () => {
       const jobIdle = makeJobWithStage({ fillMetadata: undefined });
       const jobAfterProcessing = makeJobWithStage({
         fillMetadata: {
@@ -181,14 +176,15 @@ describe("JobAutomaticFillService", () => {
         "user-1",
       );
       expect(jobEventBusEmit).toHaveBeenCalledWith(
-        expect.any(FillJobRequested),
+        expect.any(FillJobStatusChanged),
       );
       expect(
         jobEventBusEmit.mock.calls.some(
           ([e]) =>
-            e instanceof FillJobRequested &&
+            e instanceof FillJobStatusChanged &&
             e.jobId === "app-1" &&
-            e.userId === "user-1",
+            e.userId === "user-1" &&
+            e.status === AsyncMetadataStatusEnum.PROCESSING,
         ),
       ).toBe(true);
       expect(result.fillMetadata?.status).toBe(
@@ -222,7 +218,7 @@ describe("JobAutomaticFillService", () => {
       ],
     });
 
-    it("calls extract with htmlContent, completes fill metadata, emits FillJobCompleted when not DRAFT", async () => {
+    it("calls extract with htmlContent, completes fill metadata, emits FillJobStatusChanged COMPLETED when not DRAFT", async () => {
       jobEventBusEmit.mockClear();
 
       const base = makeJob({
@@ -305,7 +301,11 @@ describe("JobAutomaticFillService", () => {
       );
       expect(repo.setPersistedStage).not.toHaveBeenCalled();
       expect(
-        jobEventBusEmit.mock.calls.some(([e]) => e instanceof FillJobCompleted),
+        jobEventBusEmit.mock.calls.some(
+          ([e]) =>
+            e instanceof FillJobStatusChanged &&
+            e.status === AsyncMetadataStatusEnum.COMPLETED,
+        ),
       ).toBe(true);
       expect(
         jobEventBusEmit.mock.calls.some(([e]) => e instanceof JobUpdated),
@@ -454,7 +454,7 @@ describe("JobAutomaticFillService", () => {
       expect(repo.setPersistedStage).not.toHaveBeenCalled();
     });
 
-    it("calls persistFillFailure and emits FillJobFailed when extract fails", async () => {
+    it("calls persistFillFailure and emits FillJobStatusChanged FAILED when extract fails", async () => {
       jobEventBusEmit.mockClear();
 
       const base = makeJob({
@@ -499,7 +499,8 @@ describe("JobAutomaticFillService", () => {
       expect(
         jobEventBusEmit.mock.calls.some(
           ([e]) =>
-            e instanceof FillJobFailed &&
+            e instanceof FillJobStatusChanged &&
+            e.status === AsyncMetadataStatusEnum.FAILED &&
             e.error === "extract went wrong" &&
             e.jobId === "app-1",
         ),
@@ -577,7 +578,7 @@ describe("JobAutomaticFillService", () => {
       );
     });
 
-    it("rolls back transactional writes on status mismatch without emitting FillJobFailed", async () => {
+    it("rolls back transactional writes on status mismatch without emitting FillJobStatusChanged", async () => {
       jobEventBusEmit.mockClear();
 
       const base = makeJob({
@@ -635,10 +636,9 @@ describe("JobAutomaticFillService", () => {
       await service.processFillJob("user-1", "app-1");
 
       expect(
-        jobEventBusEmit.mock.calls.some(([e]) => e instanceof FillJobCompleted),
-      ).toBe(false);
-      expect(
-        jobEventBusEmit.mock.calls.some(([e]) => e instanceof FillJobFailed),
+        jobEventBusEmit.mock.calls.some(
+          ([e]) => e instanceof FillJobStatusChanged,
+        ),
       ).toBe(false);
     });
 

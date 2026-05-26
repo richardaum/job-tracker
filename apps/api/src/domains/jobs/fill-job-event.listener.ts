@@ -1,6 +1,7 @@
+import { AsyncMetadataStatusEnum } from "@api/domains/shared/async-metadata.type";
 import { Injectable, Logger } from "@nestjs/common";
 
-import { FillJobRequested } from "./job.events";
+import { FillJobStatusChanged } from "./job.events";
 import { JobAutomaticFillService } from "./job-automatic-fill.service";
 import { JobEventBus } from "./job-event.bus";
 
@@ -14,7 +15,8 @@ export class FillJobEventListener {
   ) {}
 
   onModuleInit(): void {
-    this.eventBus.on(FillJobRequested, (event) => {
+    this.eventBus.on(FillJobStatusChanged, (event) => {
+      if (event.status !== AsyncMetadataStatusEnum.PROCESSING) return;
       void this.fillService
         .processFillJob(event.userId, event.jobId)
         .catch((err) =>
@@ -25,6 +27,6 @@ export class FillJobEventListener {
         );
     });
 
-    this.logger.log("Listening for job.fill.requested events");
+    this.logger.log("Listening for job.fill.status.changed events");
   }
 }

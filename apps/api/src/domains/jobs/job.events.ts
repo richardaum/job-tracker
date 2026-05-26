@@ -47,35 +47,14 @@ export class SummaryGenerationRequested extends DomainEvent {
   }
 }
 
-export class FillJobRequested extends DomainEvent {
-  static readonly eventName = "job.fill.requested";
+export class FillJobStatusChanged extends DomainEvent {
+  static readonly eventName = "job.fill.status.changed";
 
   constructor(
     readonly jobId: string,
     readonly userId: string,
-  ) {
-    super();
-  }
-}
-
-export class FillJobCompleted extends DomainEvent {
-  static readonly eventName = "job.fill.completed";
-
-  constructor(
-    readonly jobId: string,
-    readonly userId: string,
-  ) {
-    super();
-  }
-}
-
-export class FillJobFailed extends DomainEvent {
-  static readonly eventName = "job.fill.failed";
-
-  constructor(
-    readonly jobId: string,
-    readonly userId: string,
-    readonly error: string,
+    readonly status: AsyncMetadataStatusEnum,
+    readonly error?: string,
   ) {
     super();
   }
