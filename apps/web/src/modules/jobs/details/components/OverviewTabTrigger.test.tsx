@@ -165,7 +165,10 @@ describe("OverviewTabTrigger", () => {
   it("updates tab dot from processing pulse to completed on subscription event", async () => {
     const user = userEvent.setup();
     gqlMocks.useJobQuery.mockImplementation(() => {
-      const [job, setJob] = React.useState(processingFillJob());
+      const [job, setJob] = React.useState<
+        | ReturnType<typeof processingFillJob>
+        | ReturnType<typeof completedFillJob>
+      >(processingFillJob());
 
       const refetch = React.useCallback(async () => {
         setJob(completedFillJob());
