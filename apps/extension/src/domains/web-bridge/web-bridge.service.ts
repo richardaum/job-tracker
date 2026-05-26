@@ -40,10 +40,12 @@ export class WebBridgeService {
       ),
     );
 
-    if (err || !isAdminGetStatusResponse(response)) {
+    if (err) {
       return;
     }
-
+    if (!isAdminGetStatusResponse(response)) {
+      return;
+    }
     window.postMessage(
       {
         type: EXTENSION_BRIDGE_MESSAGE_TYPE.pong,
