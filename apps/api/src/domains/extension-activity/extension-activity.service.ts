@@ -6,14 +6,6 @@ import { ExtensionActivityEvent } from "@api/domains/extension-activity/extensio
 import { ReportExtensionActivityInput } from "@api/domains/extension-activity/report-extension-activity.input";
 import { BadRequestException, Injectable } from "@nestjs/common";
 
-/**
- * GraphQL subscription root shape — default resolver reads
- * {@link ExtensionActivityEventsSubscriptionRoot.extensionActivityEvents}.
- */
-export type ExtensionActivityEventsSubscriptionRoot = {
-  extensionActivityEvents: ExtensionActivityEvent;
-};
-
 const DEFAULT_LIST_LIMIT = 100;
 const MAX_LIST_LIMIT = 500;
 
@@ -55,20 +47,6 @@ export class ExtensionActivityService {
     const payload = this.toGql(row);
     this.eventBus.emit(new ExtensionActivityReported(userId, payload));
     return payload;
-  }
-
-  async *activityEvents(
-    userId: string,
-  ): AsyncIterable<ExtensionActivityEventsSubscriptionRoot> {
-    for await (const raw of this.eventBus.events()) {
-      if (!(raw instanceof ExtensionActivityReported)) {
-        continue;
-      }
-      if (raw.userId !== userId) {
-        continue;
-      }
-      yield { extensionActivityEvents: raw.payload };
-    }
   }
 
   private resolveListLimit(limit?: number | null): number {

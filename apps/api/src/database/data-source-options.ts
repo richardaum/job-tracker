@@ -2,6 +2,7 @@ import type { DataSourceOptions } from "typeorm";
 
 import { CompanyEntity } from "./entities/company.entity";
 import { ExchangeRateEntity } from "./entities/exchange-rate.entity";
+import { ExtensionActivityEventEntity } from "./entities/extension-activity-event.entity";
 import { JobEntity } from "./entities/job.entity";
 import { JobNoteEntity } from "./entities/job-note.entity";
 import { JobStageEventEntity } from "./entities/job-stage-event.entity";
@@ -26,6 +27,7 @@ export const apiEntities = [
   CompanyEntity,
   SourceRunEntity,
   SourceTemplateEntity,
+  ExtensionActivityEventEntity,
   ResumeEntity,
   ExchangeRateEntity,
   MatchAnalysisEntity,

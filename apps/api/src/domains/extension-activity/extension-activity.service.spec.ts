@@ -1,7 +1,6 @@
-import { ExtensionActivityReported } from "@api/domains/extension-activity/extension-activity.events";
 import { ExtensionActivityRepository } from "@api/domains/extension-activity/extension-activity.repository";
 import { ExtensionActivityService } from "@api/domains/extension-activity/extension-activity.service";
-import { ExtensionActivityEventBus } from "@api/domains/extension-activity/extension-activity-event.bus";
+import type { ExtensionActivityEventBus } from "@api/domains/extension-activity/extension-activity-event.bus";
 import { ExtensionActivityEventTypeEnum } from "@api/domains/extension-activity/extension-activity-event-type.enum";
 import { ReportExtensionActivityInput } from "@api/domains/extension-activity/report-extension-activity.input";
 import { BadRequestException } from "@nestjs/common";
@@ -12,10 +11,7 @@ describe("ExtensionActivityService", () => {
     ExtensionActivityRepository,
     "create" | "listRecentByUserId"
   > = { create: vi.fn(), listRecentByUserId: vi.fn() };
-  const eventBus: Pick<ExtensionActivityEventBus, "emit" | "events"> = {
-    emit: vi.fn(),
-    events: vi.fn(),
-  };
+  const eventBus: Pick<ExtensionActivityEventBus, "emit"> = { emit: vi.fn() };
 
   let service: ExtensionActivityService;
 
@@ -86,31 +82,5 @@ describe("ExtensionActivityService", () => {
         summary: "   ",
       }),
     ).rejects.toBeInstanceOf(BadRequestException);
-  });
-
-  it("activityEvents yields only events for the current user", async () => {
-    const payload = {
-      id: "evt-1",
-      type: ExtensionActivityEventTypeEnum.ImportJobCompleted,
-      summary: "Imported LinkedIn page",
-      correlationId: null,
-      payload: null,
-      extensionVersion: null,
-      browser: null,
-      occurredAt: new Date("2026-05-25T12:00:00.000Z"),
-    };
-
-    vi.mocked(eventBus.events).mockReturnValue({
-      async *[Symbol.asyncIterator]() {
-        yield new ExtensionActivityReported("other-user", payload);
-        yield new ExtensionActivityReported("user-1", payload);
-      },
-    });
-
-    const iterator = service.activityEvents("user-1")[Symbol.asyncIterator]();
-    const first = await iterator.next();
-
-    expect(first.value).toEqual({ extensionActivityEvents: payload });
-    expect(await iterator.next()).toEqual({ value: undefined, done: true });
   });
 });

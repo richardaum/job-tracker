@@ -23,6 +23,8 @@ import { AddUserRefreshJti1767920000000 } from "./1767920000000-add-user-refresh
 import { UserAuthProvider1767950000000 } from "./1767950000000-user-auth-provider";
 import { UserAccounts1767960000000 } from "./1767960000000-user-accounts";
 import { AddAutoMatchEnabled1767970000000 } from "./1767970000000-add-auto-match-enabled";
+import { ExtensionActivityEvents1767970000000 } from "./1767970000000-extension-activity-events";
+import { ChangePayloadToJsonb1767980000000 } from "./1767980000000-change-payload-to-jsonb";
 
 export const migrations = [
   SquashedBaseline1767000000000,
@@ -50,4 +52,6 @@ export const migrations = [
   UserAuthProvider1767950000000,
   UserAccounts1767960000000,
   AddAutoMatchEnabled1767970000000,
+  ExtensionActivityEvents1767970000000,
+  ChangePayloadToJsonb1767980000000,
 ];

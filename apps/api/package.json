@@ -46,6 +46,7 @@
     "dotenv": "^16.6.1",
     "graphql": "^16.13.2",
     "graphql-sse": "^2.6.0",
+    "graphql-type-json": "^0.3.2",
     "jsonwebtoken": "^9.0.3",
     "mustache": "^4.2.0",
     "openai": "^6.37.0",
