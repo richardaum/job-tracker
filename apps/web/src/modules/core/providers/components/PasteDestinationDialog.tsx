@@ -1,7 +1,15 @@
 "use client";
 
 import { tryRun } from "@job-tracker/try-run";
-import { Button, Checkbox, cn, Dialog, Input, Text } from "@job-tracker/ui";
+import {
+  Button,
+  Checkbox,
+  cn,
+  Dialog,
+  FormField,
+  Input,
+  Text,
+} from "@job-tracker/ui";
 import { SparkleIcon } from "@phosphor-icons/react";
 import { useMemo, useState } from "react";
 
@@ -123,10 +131,7 @@ export function PasteDestinationDialog({
       }
     >
       <div className={cn("space-y-4")}>
-        <div className={cn("space-y-2")}>
-          <Text size="sm" weight="medium">
-            Action
-          </Text>
+        <FormField label="Action">
           <div className={cn("space-y-2")}>
             {PASTE_ACTIONS.map((action) => (
               <button
@@ -159,13 +164,15 @@ export function PasteDestinationDialog({
               </button>
             ))}
           </div>
-        </div>
+        </FormField>
 
-        <label className={cn("block space-y-1.5")}>
-          <Text size="sm" weight="medium">
-            URL <span className={cn("text-text-muted")}>(optional)</span>
-          </Text>
+        <FormField
+          label="URL (optional)"
+          error={urlError ?? undefined}
+          htmlFor="paste-url"
+        >
           <Input
+            id="paste-url"
             type="url"
             value={url}
             onChange={(event) => {
@@ -176,19 +183,9 @@ export function PasteDestinationDialog({
             state={urlError ? "error" : "default"}
             autoFocus
           />
-          {urlError ? (
-            <Text size="xs" color="error">
-              {urlError}
-            </Text>
-          ) : null}
-        </label>
+        </FormField>
 
-        <fieldset className={cn("space-y-2 border-0 p-0")}>
-          <legend className={cn("mb-0")}>
-            <Text size="sm" weight="medium">
-              After create:
-            </Text>
-          </legend>
+        <FormField label="After create">
           <div className={cn("space-y-2")}>
             <label className={cn("flex items-center gap-2")}>
               <Checkbox
@@ -213,12 +210,9 @@ export function PasteDestinationDialog({
               <Text size="sm">Run match analysis</Text>
             </label>
           </div>
-        </fieldset>
+        </FormField>
 
-        <div className={cn("space-y-1.5")}>
-          <Text size="sm" weight="medium">
-            Pasted content (preview)
-          </Text>
+        <FormField label="Pasted content (preview)">
           <div
             className={cn(
               "max-h-56 overflow-auto rounded-md border border-border-subtle bg-bg-surface-hover p-3 font-mono text-xs text-text-secondary",
@@ -227,7 +221,7 @@ export function PasteDestinationDialog({
           >
             {preview}
           </div>
-        </div>
+        </FormField>
       </div>
     </Dialog>
   );
