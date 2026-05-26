@@ -2,8 +2,11 @@
 
 import {
   Badge,
+  Button,
   Card,
   cn,
+  DropdownMenu,
+  DropdownMenuItem,
   Heading,
   IconButton,
   ListItemCard,
@@ -11,7 +14,7 @@ import {
   Stack,
   Text,
 } from "@job-tracker/ui";
-import { BriefcaseIcon, TrashIcon } from "@phosphor-icons/react";
+import { BriefcaseIcon, CaretDownIcon, TrashIcon } from "@phosphor-icons/react";
 import type { Route } from "next";
 import NextLink from "next/link";
 import React from "react";
@@ -30,6 +33,8 @@ import { sourceRunJobsHref } from "@/modules/sources/lib/source-runs.routes";
 import { DeleteSourceRunDialog } from "@/modules/sources/page/DeleteSourceRunDialog";
 import { RunSourceTemplateButton } from "@/modules/sources/page/RunSourceTemplateButton";
 import { scheduleSummary } from "@/modules/sources/page/source-template-list.shared";
+import { SourceScheduleDialog } from "@/modules/sources/page/SourceScheduleDialog";
+import { SourceSurfaceUrlDialog } from "@/modules/sources/page/SourceSurfaceUrlDialog";
 
 interface PageProps {
   params: Promise<{ profileId: string; templateId: string }>;
@@ -59,15 +64,51 @@ export default function SourceRunsPage({ params }: PageProps) {
   const { template, error, status, notFound, showInitialLoading } =
     useSourceRunsViewModel(templateId);
 
+  const [actionsMenuOpen, setActionsMenuOpen] = React.useState(false);
+  const [surfaceUrlDialogOpen, setSurfaceUrlDialogOpen] = React.useState(false);
+  const [scheduleDialogOpen, setScheduleDialogOpen] = React.useState(false);
+
   const headerActions =
     template !== null ? (
-      <RunSourceTemplateButton
-        templateId={template.id}
-        sourceProfileId={template.sourceProfileId}
-        label="Run again"
-        tooltip="Run again"
-        variant="button"
-      />
+      <div className={cn("flex items-center gap-2")}>
+        <DropdownMenu
+          open={actionsMenuOpen}
+          onOpenChange={setActionsMenuOpen}
+          trigger={
+            <Button
+              intent="secondary"
+              size="md"
+              rightIcon={
+                <CaretDownIcon
+                  size={12}
+                  weight="bold"
+                  className={cn(
+                    "transition-transform duration-200",
+                    actionsMenuOpen ? "rotate-180" : "rotate-0",
+                  )}
+                />
+              }
+            >
+              Actions
+            </Button>
+          }
+          align="end"
+        >
+          <DropdownMenuItem onSelect={() => setSurfaceUrlDialogOpen(true)}>
+            Edit URL
+          </DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => setScheduleDialogOpen(true)}>
+            Edit schedule
+          </DropdownMenuItem>
+        </DropdownMenu>
+        <RunSourceTemplateButton
+          templateId={template.id}
+          sourceProfileId={template.sourceProfileId}
+          label="Run again"
+          tooltip="Run again"
+          variant="button"
+        />
+      </div>
     ) : null;
 
   return (
@@ -162,6 +203,18 @@ export default function SourceRunsPage({ params }: PageProps) {
           </Stack>
         )}
       </div>
+
+      <SourceSurfaceUrlDialog
+        sourceProfileId={template?.sourceProfileId ?? ""}
+        template={surfaceUrlDialogOpen ? template : null}
+        onOpenChange={setSurfaceUrlDialogOpen}
+      />
+
+      <SourceScheduleDialog
+        sourceProfileId={template?.sourceProfileId ?? ""}
+        template={scheduleDialogOpen ? template : null}
+        onOpenChange={setScheduleDialogOpen}
+      />
     </div>
   );
 }
