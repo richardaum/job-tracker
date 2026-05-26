@@ -29,6 +29,8 @@ export type Scalars = {
   Float: { input: number; output: number };
   /** A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format. */
   DateTime: { input: any; output: any };
+  /** The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf). */
+  JSON: { input: any; output: any };
 };
 
 export enum ApplicationQuickFilter {
@@ -89,6 +91,7 @@ export type CompanyType = {
 
 export type CreateJobInput = {
   autoFill?: InputMaybe<Scalars["Boolean"]["input"]>;
+  autoMatch?: InputMaybe<Scalars["Boolean"]["input"]>;
   company?: InputMaybe<Scalars["String"]["input"]>;
   companyId?: InputMaybe<Scalars["ID"]["input"]>;
   createAsDraftCapture?: InputMaybe<Scalars["Boolean"]["input"]>;
@@ -152,13 +155,21 @@ export type ExchangeRate = {
 
 export type ExtensionActivityEvent = {
   __typename?: "ExtensionActivityEvent";
+  /** Browser user-agent or name. */
   browser?: Maybe<Scalars["String"]["output"]>;
+  /** Groups related events (e.g. run ID). */
   correlationId?: Maybe<Scalars["String"]["output"]>;
+  /** Extension version that reported the event. */
   extensionVersion?: Maybe<Scalars["String"]["output"]>;
+  /** Unique event identifier. */
   id: Scalars["ID"]["output"];
+  /** When the event actually happened (client-reported). */
   occurredAt: Scalars["DateTime"]["output"];
-  payload?: Maybe<Scalars["String"]["output"]>;
+  /** Arbitrary JSON payload with event details. */
+  payload?: Maybe<Scalars["JSON"]["output"]>;
+  /** Human-readable summary of what happened. */
   summary: Scalars["String"]["output"];
+  /** Event category (source run lifecycle, import, auth). */
   type: ExtensionActivityEventType;
 };
 
@@ -579,7 +590,7 @@ export type ReportExtensionActivityInput = {
   correlationId?: InputMaybe<Scalars["String"]["input"]>;
   extensionVersion?: InputMaybe<Scalars["String"]["input"]>;
   occurredAt?: InputMaybe<Scalars["DateTime"]["input"]>;
-  payload?: InputMaybe<Scalars["String"]["input"]>;
+  payload?: InputMaybe<Scalars["JSON"]["input"]>;
   summary: Scalars["String"]["input"];
   type: ExtensionActivityEventType;
 };
@@ -718,6 +729,7 @@ export type UpdateResumeInput = {
 
 export type UpdateSettingsInput = {
   autoFillEnabled?: InputMaybe<Scalars["Boolean"]["input"]>;
+  autoMatchEnabled?: InputMaybe<Scalars["Boolean"]["input"]>;
   autoSummaryEnabled?: InputMaybe<Scalars["Boolean"]["input"]>;
   duplicateWindowDays?: InputMaybe<Scalars["Int"]["input"]>;
 };
@@ -733,6 +745,7 @@ export type UpdateSourceTemplateInput = {
 export type UserSetting = {
   __typename?: "UserSetting";
   autoFillEnabled: Scalars["Boolean"]["output"];
+  autoMatchEnabled: Scalars["Boolean"]["output"];
   autoSummaryEnabled: Scalars["Boolean"]["output"];
   duplicateWindowDays: Scalars["Int"]["output"];
   id: Scalars["ID"]["output"];
@@ -849,6 +862,7 @@ export type AuthenticatedShellQuery = {
     id: string;
     autoFillEnabled: boolean;
     autoSummaryEnabled: boolean;
+    autoMatchEnabled: boolean;
     duplicateWindowDays: number;
   };
 };
@@ -1731,6 +1745,7 @@ export type SettingsQuery = {
     id: string;
     autoFillEnabled: boolean;
     autoSummaryEnabled: boolean;
+    autoMatchEnabled: boolean;
     duplicateWindowDays: number;
   };
 };
@@ -1746,6 +1761,7 @@ export type UpdateSettingsMutation = {
     id: string;
     autoFillEnabled: boolean;
     autoSummaryEnabled: boolean;
+    autoMatchEnabled: boolean;
     duplicateWindowDays: number;
   };
 };
@@ -1761,17 +1777,32 @@ export type SourceProfilesListQuery = {
   }>;
 };
 
-export type SourceProfilesForNewSourcePickerQueryVariables = Exact<{
-  [key: string]: never;
+export type RerunSourceTemplateMutationVariables = Exact<{
+  templateId: Scalars["ID"]["input"];
 }>;
 
-export type SourceProfilesForNewSourcePickerQuery = {
-  __typename?: "Query";
-  sourceProfiles: Array<{
-    __typename?: "SourceProfileType";
-    sourceProfileId: string;
-    name: string;
-  }>;
+export type RerunSourceTemplateMutation = {
+  __typename?: "Mutation";
+  rerunSourceTemplate: {
+    __typename?: "SourceRunType";
+    id: string;
+    status: SourceRunStatus;
+    startedAt: any;
+  };
+};
+
+export type DeleteSourceRunMutationVariables = Exact<{
+  id: Scalars["ID"]["input"];
+  deleteJobs?: InputMaybe<Scalars["Boolean"]["input"]>;
+}>;
+
+export type DeleteSourceRunMutation = {
+  __typename?: "Mutation";
+  deleteSourceRun: {
+    __typename?: "DeleteMutationPayloadType";
+    success: boolean;
+    deletedId: string;
+  };
 };
 
 export type SourceTemplateQueryVariables = Exact<{
@@ -1871,34 +1902,6 @@ export type CreateSourceTemplateMutation = {
     scheduleCron?: string | null;
     scheduleEnabled: boolean;
     createdAt: any;
-  };
-};
-
-export type RerunSourceTemplateMutationVariables = Exact<{
-  templateId: Scalars["ID"]["input"];
-}>;
-
-export type RerunSourceTemplateMutation = {
-  __typename?: "Mutation";
-  rerunSourceTemplate: {
-    __typename?: "SourceRunType";
-    id: string;
-    status: SourceRunStatus;
-    startedAt: any;
-  };
-};
-
-export type DeleteSourceRunMutationVariables = Exact<{
-  id: Scalars["ID"]["input"];
-  deleteJobs?: InputMaybe<Scalars["Boolean"]["input"]>;
-}>;
-
-export type DeleteSourceRunMutation = {
-  __typename?: "Mutation";
-  deleteSourceRun: {
-    __typename?: "DeleteMutationPayloadType";
-    success: boolean;
-    deletedId: string;
   };
 };
 
@@ -2210,6 +2213,10 @@ export const AuthenticatedShellDocument = {
                 {
                   kind: "Field",
                   name: { kind: "Name", value: "autoSummaryEnabled" },
+                },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "autoMatchEnabled" },
                 },
                 {
                   kind: "Field",
@@ -5405,6 +5412,10 @@ export const SettingsDocument = {
                 },
                 {
                   kind: "Field",
+                  name: { kind: "Name", value: "autoMatchEnabled" },
+                },
+                {
+                  kind: "Field",
                   name: { kind: "Name", value: "duplicateWindowDays" },
                 },
               ],
@@ -5468,6 +5479,10 @@ export const UpdateSettingsDocument = {
                 },
                 {
                   kind: "Field",
+                  name: { kind: "Name", value: "autoMatchEnabled" },
+                },
+                {
+                  kind: "Field",
                   name: { kind: "Name", value: "duplicateWindowDays" },
                 },
               ],
@@ -5520,34 +5535,48 @@ export const SourceProfilesListDocument = {
   SourceProfilesListQuery,
   SourceProfilesListQueryVariables
 >;
-export const SourceProfilesForNewSourcePickerDocument = {
+export const RerunSourceTemplateDocument = {
   kind: "Document",
   definitions: [
     {
       kind: "OperationDefinition",
-      operation: "query",
-      name: { kind: "Name", value: "SourceProfilesForNewSourcePicker" },
+      operation: "mutation",
+      name: { kind: "Name", value: "RerunSourceTemplate" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "templateId" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
+      ],
       selectionSet: {
         kind: "SelectionSet",
         selections: [
           {
             kind: "Field",
-            name: { kind: "Name", value: "sourceProfiles" },
+            name: { kind: "Name", value: "rerunSourceTemplate" },
             arguments: [
               {
                 kind: "Argument",
-                name: { kind: "Name", value: "onlyWithSourceTemplate" },
-                value: { kind: "BooleanValue", value: false },
+                name: { kind: "Name", value: "templateId" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "templateId" },
+                },
               },
             ],
             selectionSet: {
               kind: "SelectionSet",
               selections: [
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "sourceProfileId" },
-                },
-                { kind: "Field", name: { kind: "Name", value: "name" } },
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                { kind: "Field", name: { kind: "Name", value: "status" } },
+                { kind: "Field", name: { kind: "Name", value: "startedAt" } },
               ],
             },
           },
@@ -5556,8 +5585,74 @@ export const SourceProfilesForNewSourcePickerDocument = {
     },
   ],
 } as unknown as DocumentNode<
-  SourceProfilesForNewSourcePickerQuery,
-  SourceProfilesForNewSourcePickerQueryVariables
+  RerunSourceTemplateMutation,
+  RerunSourceTemplateMutationVariables
+>;
+export const DeleteSourceRunDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "DeleteSourceRun" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "id" } },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "deleteJobs" },
+          },
+          type: { kind: "NamedType", name: { kind: "Name", value: "Boolean" } },
+          defaultValue: { kind: "BooleanValue", value: false },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "deleteSourceRun" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "id" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "id" },
+                },
+              },
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "deleteJobs" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "deleteJobs" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "success" } },
+                { kind: "Field", name: { kind: "Name", value: "deletedId" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  DeleteSourceRunMutation,
+  DeleteSourceRunMutationVariables
 >;
 export const SourceTemplateDocument = {
   kind: "Document",
@@ -5940,125 +6035,6 @@ export const CreateSourceTemplateDocument = {
 } as unknown as DocumentNode<
   CreateSourceTemplateMutation,
   CreateSourceTemplateMutationVariables
->;
-export const RerunSourceTemplateDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "mutation",
-      name: { kind: "Name", value: "RerunSourceTemplate" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "templateId" },
-          },
-          type: {
-            kind: "NonNullType",
-            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "rerunSourceTemplate" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "templateId" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "templateId" },
-                },
-              },
-            ],
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                { kind: "Field", name: { kind: "Name", value: "status" } },
-                { kind: "Field", name: { kind: "Name", value: "startedAt" } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  RerunSourceTemplateMutation,
-  RerunSourceTemplateMutationVariables
->;
-export const DeleteSourceRunDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "mutation",
-      name: { kind: "Name", value: "DeleteSourceRun" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: { kind: "Variable", name: { kind: "Name", value: "id" } },
-          type: {
-            kind: "NonNullType",
-            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
-          },
-        },
-        {
-          kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "deleteJobs" },
-          },
-          type: { kind: "NamedType", name: { kind: "Name", value: "Boolean" } },
-          defaultValue: { kind: "BooleanValue", value: false },
-        },
-      ],
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "deleteSourceRun" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "id" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "id" },
-                },
-              },
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "deleteJobs" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "deleteJobs" },
-                },
-              },
-            ],
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "success" } },
-                { kind: "Field", name: { kind: "Name", value: "deletedId" } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  DeleteSourceRunMutation,
-  DeleteSourceRunMutationVariables
 >;
 export const WorkPreferencesDocument = {
   kind: "Document",

@@ -30,6 +30,8 @@ export type Scalars = {
   Float: { input: number; output: number };
   /** A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format. */
   DateTime: { input: any; output: any };
+  /** The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf). */
+  JSON: { input: any; output: any };
 };
 
 export enum ApplicationQuickFilter {
@@ -90,6 +92,7 @@ export type CompanyType = {
 
 export type CreateJobInput = {
   autoFill?: InputMaybe<Scalars["Boolean"]["input"]>;
+  autoMatch?: InputMaybe<Scalars["Boolean"]["input"]>;
   company?: InputMaybe<Scalars["String"]["input"]>;
   companyId?: InputMaybe<Scalars["ID"]["input"]>;
   createAsDraftCapture?: InputMaybe<Scalars["Boolean"]["input"]>;
@@ -153,13 +156,21 @@ export type ExchangeRate = {
 
 export type ExtensionActivityEvent = {
   __typename?: "ExtensionActivityEvent";
+  /** Browser user-agent or name. */
   browser?: Maybe<Scalars["String"]["output"]>;
+  /** Groups related events (e.g. run ID). */
   correlationId?: Maybe<Scalars["String"]["output"]>;
+  /** Extension version that reported the event. */
   extensionVersion?: Maybe<Scalars["String"]["output"]>;
+  /** Unique event identifier. */
   id: Scalars["ID"]["output"];
+  /** When the event actually happened (client-reported). */
   occurredAt: Scalars["DateTime"]["output"];
-  payload?: Maybe<Scalars["String"]["output"]>;
+  /** Arbitrary JSON payload with event details. */
+  payload?: Maybe<Scalars["JSON"]["output"]>;
+  /** Human-readable summary of what happened. */
   summary: Scalars["String"]["output"];
+  /** Event category (source run lifecycle, import, auth). */
   type: ExtensionActivityEventType;
 };
 
@@ -580,7 +591,7 @@ export type ReportExtensionActivityInput = {
   correlationId?: InputMaybe<Scalars["String"]["input"]>;
   extensionVersion?: InputMaybe<Scalars["String"]["input"]>;
   occurredAt?: InputMaybe<Scalars["DateTime"]["input"]>;
-  payload?: InputMaybe<Scalars["String"]["input"]>;
+  payload?: InputMaybe<Scalars["JSON"]["input"]>;
   summary: Scalars["String"]["input"];
   type: ExtensionActivityEventType;
 };
@@ -719,6 +730,7 @@ export type UpdateResumeInput = {
 
 export type UpdateSettingsInput = {
   autoFillEnabled?: InputMaybe<Scalars["Boolean"]["input"]>;
+  autoMatchEnabled?: InputMaybe<Scalars["Boolean"]["input"]>;
   autoSummaryEnabled?: InputMaybe<Scalars["Boolean"]["input"]>;
   duplicateWindowDays?: InputMaybe<Scalars["Int"]["input"]>;
 };
@@ -734,6 +746,7 @@ export type UpdateSourceTemplateInput = {
 export type UserSetting = {
   __typename?: "UserSetting";
   autoFillEnabled: Scalars["Boolean"]["output"];
+  autoMatchEnabled: Scalars["Boolean"]["output"];
   autoSummaryEnabled: Scalars["Boolean"]["output"];
   duplicateWindowDays: Scalars["Int"]["output"];
   id: Scalars["ID"]["output"];
@@ -850,6 +863,7 @@ export type AuthenticatedShellQuery = {
     id: string;
     autoFillEnabled: boolean;
     autoSummaryEnabled: boolean;
+    autoMatchEnabled: boolean;
     duplicateWindowDays: number;
   };
 };
@@ -1742,6 +1756,7 @@ export type SettingsQuery = {
     id: string;
     autoFillEnabled: boolean;
     autoSummaryEnabled: boolean;
+    autoMatchEnabled: boolean;
     duplicateWindowDays: number;
   };
 };
@@ -1757,6 +1772,7 @@ export type UpdateSettingsMutation = {
     id: string;
     autoFillEnabled: boolean;
     autoSummaryEnabled: boolean;
+    autoMatchEnabled: boolean;
     duplicateWindowDays: number;
   };
 };
@@ -1772,17 +1788,32 @@ export type SourceProfilesListQuery = {
   }>;
 };
 
-export type SourceProfilesForNewSourcePickerQueryVariables = Exact<{
-  [key: string]: never;
+export type RerunSourceTemplateMutationVariables = Exact<{
+  templateId: Scalars["ID"]["input"];
 }>;
 
-export type SourceProfilesForNewSourcePickerQuery = {
-  __typename?: "Query";
-  sourceProfiles: Array<{
-    __typename?: "SourceProfileType";
-    sourceProfileId: string;
-    name: string;
-  }>;
+export type RerunSourceTemplateMutation = {
+  __typename?: "Mutation";
+  rerunSourceTemplate: {
+    __typename?: "SourceRunType";
+    id: string;
+    status: SourceRunStatus;
+    startedAt: any;
+  };
+};
+
+export type DeleteSourceRunMutationVariables = Exact<{
+  id: Scalars["ID"]["input"];
+  deleteJobs?: InputMaybe<Scalars["Boolean"]["input"]>;
+}>;
+
+export type DeleteSourceRunMutation = {
+  __typename?: "Mutation";
+  deleteSourceRun: {
+    __typename?: "DeleteMutationPayloadType";
+    success: boolean;
+    deletedId: string;
+  };
 };
 
 export type SourceTemplateQueryVariables = Exact<{
@@ -1882,34 +1913,6 @@ export type CreateSourceTemplateMutation = {
     scheduleCron?: string | null;
     scheduleEnabled: boolean;
     createdAt: any;
-  };
-};
-
-export type RerunSourceTemplateMutationVariables = Exact<{
-  templateId: Scalars["ID"]["input"];
-}>;
-
-export type RerunSourceTemplateMutation = {
-  __typename?: "Mutation";
-  rerunSourceTemplate: {
-    __typename?: "SourceRunType";
-    id: string;
-    status: SourceRunStatus;
-    startedAt: any;
-  };
-};
-
-export type DeleteSourceRunMutationVariables = Exact<{
-  id: Scalars["ID"]["input"];
-  deleteJobs?: InputMaybe<Scalars["Boolean"]["input"]>;
-}>;
-
-export type DeleteSourceRunMutation = {
-  __typename?: "Mutation";
-  deleteSourceRun: {
-    __typename?: "DeleteMutationPayloadType";
-    success: boolean;
-    deletedId: string;
   };
 };
 
@@ -2018,6 +2021,7 @@ export const AuthenticatedShellDocument = gql`
       id
       autoFillEnabled
       autoSummaryEnabled
+      autoMatchEnabled
       duplicateWindowDays
     }
   }
@@ -2666,6 +2670,7 @@ export const SettingsDocument = gql`
       id
       autoFillEnabled
       autoSummaryEnabled
+      autoMatchEnabled
       duplicateWindowDays
     }
   }
@@ -2676,6 +2681,7 @@ export const UpdateSettingsDocument = gql`
       id
       autoFillEnabled
       autoSummaryEnabled
+      autoMatchEnabled
       duplicateWindowDays
     }
   }
@@ -2688,11 +2694,20 @@ export const SourceProfilesListDocument = gql`
     }
   }
 `;
-export const SourceProfilesForNewSourcePickerDocument = gql`
-  query SourceProfilesForNewSourcePicker {
-    sourceProfiles(onlyWithSourceTemplate: false) {
-      sourceProfileId
-      name
+export const RerunSourceTemplateDocument = gql`
+  mutation RerunSourceTemplate($templateId: ID!) {
+    rerunSourceTemplate(templateId: $templateId) {
+      id
+      status
+      startedAt
+    }
+  }
+`;
+export const DeleteSourceRunDocument = gql`
+  mutation DeleteSourceRun($id: ID!, $deleteJobs: Boolean = false) {
+    deleteSourceRun(id: $id, deleteJobs: $deleteJobs) {
+      success
+      deletedId
     }
   }
 `;
@@ -2764,23 +2779,6 @@ export const CreateSourceTemplateDocument = gql`
       scheduleCron
       scheduleEnabled
       createdAt
-    }
-  }
-`;
-export const RerunSourceTemplateDocument = gql`
-  mutation RerunSourceTemplate($templateId: ID!) {
-    rerunSourceTemplate(templateId: $templateId) {
-      id
-      status
-      startedAt
-    }
-  }
-`;
-export const DeleteSourceRunDocument = gql`
-  mutation DeleteSourceRun($id: ID!, $deleteJobs: Boolean = false) {
-    deleteSourceRun(id: $id, deleteJobs: $deleteJobs) {
-      success
-      deletedId
     }
   }
 `;
@@ -3756,21 +3754,39 @@ export function getSdk(
         variables,
       );
     },
-    SourceProfilesForNewSourcePicker(
-      variables?: SourceProfilesForNewSourcePickerQueryVariables,
+    RerunSourceTemplate(
+      variables: RerunSourceTemplateMutationVariables,
       requestHeaders?: GraphQLClientRequestHeaders,
       signal?: RequestInit["signal"],
-    ): Promise<SourceProfilesForNewSourcePickerQuery> {
+    ): Promise<RerunSourceTemplateMutation> {
       return withWrapper(
         (wrappedRequestHeaders) =>
-          client.request<SourceProfilesForNewSourcePickerQuery>({
-            document: SourceProfilesForNewSourcePickerDocument,
+          client.request<RerunSourceTemplateMutation>({
+            document: RerunSourceTemplateDocument,
             variables,
             requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
             signal,
           }),
-        "SourceProfilesForNewSourcePicker",
-        "query",
+        "RerunSourceTemplate",
+        "mutation",
+        variables,
+      );
+    },
+    DeleteSourceRun(
+      variables: DeleteSourceRunMutationVariables,
+      requestHeaders?: GraphQLClientRequestHeaders,
+      signal?: RequestInit["signal"],
+    ): Promise<DeleteSourceRunMutation> {
+      return withWrapper(
+        (wrappedRequestHeaders) =>
+          client.request<DeleteSourceRunMutation>({
+            document: DeleteSourceRunDocument,
+            variables,
+            requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
+            signal,
+          }),
+        "DeleteSourceRun",
+        "mutation",
         variables,
       );
     },
@@ -3860,42 +3876,6 @@ export function getSdk(
             signal,
           }),
         "CreateSourceTemplate",
-        "mutation",
-        variables,
-      );
-    },
-    RerunSourceTemplate(
-      variables: RerunSourceTemplateMutationVariables,
-      requestHeaders?: GraphQLClientRequestHeaders,
-      signal?: RequestInit["signal"],
-    ): Promise<RerunSourceTemplateMutation> {
-      return withWrapper(
-        (wrappedRequestHeaders) =>
-          client.request<RerunSourceTemplateMutation>({
-            document: RerunSourceTemplateDocument,
-            variables,
-            requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
-            signal,
-          }),
-        "RerunSourceTemplate",
-        "mutation",
-        variables,
-      );
-    },
-    DeleteSourceRun(
-      variables: DeleteSourceRunMutationVariables,
-      requestHeaders?: GraphQLClientRequestHeaders,
-      signal?: RequestInit["signal"],
-    ): Promise<DeleteSourceRunMutation> {
-      return withWrapper(
-        (wrappedRequestHeaders) =>
-          client.request<DeleteSourceRunMutation>({
-            document: DeleteSourceRunDocument,
-            variables,
-            requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
-            signal,
-          }),
-        "DeleteSourceRun",
         "mutation",
         variables,
       );

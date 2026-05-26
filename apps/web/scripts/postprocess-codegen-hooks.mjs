@@ -1,3 +1,8 @@
+// TODO: Migrate hooks.ts generation from legacy typescript-react-apollo plugin
+// to the client preset (already configured for src/gql/). The legacy plugin
+// generates type re-exports that reference Apollo v3 types removed in v4
+// (QueryResult, MutationFunction, MutationResult, SubscriptionResult, etc.).
+// This script strips them as a workaround. Delete this file after migration.
 import { readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 

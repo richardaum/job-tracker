@@ -10,6 +10,9 @@ const config: CodegenConfig = {
   documents: ["src/graphql/**/*.graphql"],
   generates: {
     "src/gql/": { preset: "client" },
+    // TODO: Legacy hooks.ts generation via typescript-react-apollo plugin.
+    // Migrate to the client preset (see src/gql/) and delete the hooks.ts
+    // output + the postprocess-codegen-hooks.mjs workaround script.
     "src/gql/hooks.ts": {
       plugins: [
         "typescript",

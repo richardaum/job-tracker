@@ -31,6 +31,8 @@ export type Scalars = {
   Float: { input: number; output: number };
   /** A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format. */
   DateTime: { input: any; output: any };
+  /** The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf). */
+  JSON: { input: any; output: any };
 };
 
 export enum ApplicationQuickFilter {
@@ -91,6 +93,7 @@ export type CompanyType = {
 
 export type CreateJobInput = {
   autoFill?: InputMaybe<Scalars["Boolean"]["input"]>;
+  autoMatch?: InputMaybe<Scalars["Boolean"]["input"]>;
   company?: InputMaybe<Scalars["String"]["input"]>;
   companyId?: InputMaybe<Scalars["ID"]["input"]>;
   createAsDraftCapture?: InputMaybe<Scalars["Boolean"]["input"]>;
@@ -154,13 +157,21 @@ export type ExchangeRate = {
 
 export type ExtensionActivityEvent = {
   __typename?: "ExtensionActivityEvent";
+  /** Browser user-agent or name. */
   browser?: Maybe<Scalars["String"]["output"]>;
+  /** Groups related events (e.g. run ID). */
   correlationId?: Maybe<Scalars["String"]["output"]>;
+  /** Extension version that reported the event. */
   extensionVersion?: Maybe<Scalars["String"]["output"]>;
+  /** Unique event identifier. */
   id: Scalars["ID"]["output"];
+  /** When the event actually happened (client-reported). */
   occurredAt: Scalars["DateTime"]["output"];
-  payload?: Maybe<Scalars["String"]["output"]>;
+  /** Arbitrary JSON payload with event details. */
+  payload?: Maybe<Scalars["JSON"]["output"]>;
+  /** Human-readable summary of what happened. */
   summary: Scalars["String"]["output"];
+  /** Event category (source run lifecycle, import, auth). */
   type: ExtensionActivityEventType;
 };
 
@@ -581,7 +592,7 @@ export type ReportExtensionActivityInput = {
   correlationId?: InputMaybe<Scalars["String"]["input"]>;
   extensionVersion?: InputMaybe<Scalars["String"]["input"]>;
   occurredAt?: InputMaybe<Scalars["DateTime"]["input"]>;
-  payload?: InputMaybe<Scalars["String"]["input"]>;
+  payload?: InputMaybe<Scalars["JSON"]["input"]>;
   summary: Scalars["String"]["input"];
   type: ExtensionActivityEventType;
 };
@@ -720,6 +731,7 @@ export type UpdateResumeInput = {
 
 export type UpdateSettingsInput = {
   autoFillEnabled?: InputMaybe<Scalars["Boolean"]["input"]>;
+  autoMatchEnabled?: InputMaybe<Scalars["Boolean"]["input"]>;
   autoSummaryEnabled?: InputMaybe<Scalars["Boolean"]["input"]>;
   duplicateWindowDays?: InputMaybe<Scalars["Int"]["input"]>;
 };
@@ -735,6 +747,7 @@ export type UpdateSourceTemplateInput = {
 export type UserSetting = {
   __typename?: "UserSetting";
   autoFillEnabled: Scalars["Boolean"]["output"];
+  autoMatchEnabled: Scalars["Boolean"]["output"];
   autoSummaryEnabled: Scalars["Boolean"]["output"];
   duplicateWindowDays: Scalars["Int"]["output"];
   id: Scalars["ID"]["output"];
@@ -851,6 +864,7 @@ export type AuthenticatedShellQuery = {
     id: string;
     autoFillEnabled: boolean;
     autoSummaryEnabled: boolean;
+    autoMatchEnabled: boolean;
     duplicateWindowDays: number;
   };
 };
@@ -1743,6 +1757,7 @@ export type SettingsQuery = {
     id: string;
     autoFillEnabled: boolean;
     autoSummaryEnabled: boolean;
+    autoMatchEnabled: boolean;
     duplicateWindowDays: number;
   };
 };
@@ -1758,6 +1773,7 @@ export type UpdateSettingsMutation = {
     id: string;
     autoFillEnabled: boolean;
     autoSummaryEnabled: boolean;
+    autoMatchEnabled: boolean;
     duplicateWindowDays: number;
   };
 };
@@ -1773,17 +1789,32 @@ export type SourceProfilesListQuery = {
   }>;
 };
 
-export type SourceProfilesForNewSourcePickerQueryVariables = Exact<{
-  [key: string]: never;
+export type RerunSourceTemplateMutationVariables = Exact<{
+  templateId: Scalars["ID"]["input"];
 }>;
 
-export type SourceProfilesForNewSourcePickerQuery = {
-  __typename?: "Query";
-  sourceProfiles: Array<{
-    __typename?: "SourceProfileType";
-    sourceProfileId: string;
-    name: string;
-  }>;
+export type RerunSourceTemplateMutation = {
+  __typename?: "Mutation";
+  rerunSourceTemplate: {
+    __typename?: "SourceRunType";
+    id: string;
+    status: SourceRunStatus;
+    startedAt: any;
+  };
+};
+
+export type DeleteSourceRunMutationVariables = Exact<{
+  id: Scalars["ID"]["input"];
+  deleteJobs?: InputMaybe<Scalars["Boolean"]["input"]>;
+}>;
+
+export type DeleteSourceRunMutation = {
+  __typename?: "Mutation";
+  deleteSourceRun: {
+    __typename?: "DeleteMutationPayloadType";
+    success: boolean;
+    deletedId: string;
+  };
 };
 
 export type SourceTemplateQueryVariables = Exact<{
@@ -1883,34 +1914,6 @@ export type CreateSourceTemplateMutation = {
     scheduleCron?: string | null;
     scheduleEnabled: boolean;
     createdAt: any;
-  };
-};
-
-export type RerunSourceTemplateMutationVariables = Exact<{
-  templateId: Scalars["ID"]["input"];
-}>;
-
-export type RerunSourceTemplateMutation = {
-  __typename?: "Mutation";
-  rerunSourceTemplate: {
-    __typename?: "SourceRunType";
-    id: string;
-    status: SourceRunStatus;
-    startedAt: any;
-  };
-};
-
-export type DeleteSourceRunMutationVariables = Exact<{
-  id: Scalars["ID"]["input"];
-  deleteJobs?: InputMaybe<Scalars["Boolean"]["input"]>;
-}>;
-
-export type DeleteSourceRunMutation = {
-  __typename?: "Mutation";
-  deleteSourceRun: {
-    __typename?: "DeleteMutationPayloadType";
-    success: boolean;
-    deletedId: string;
   };
 };
 
@@ -2117,7 +2120,8 @@ export function useAdminSourceRunEventsSubscription(
 export type AdminSourceRunEventsSubscriptionHookResult = ReturnType<
   typeof useAdminSourceRunEventsSubscription
 >;
-
+export type AdminSourceRunEventsSubscriptionResult =
+  Apollo.SubscriptionResult<AdminSourceRunEventsSubscription>;
 export const AdminExtensionActivityEventsDocument = gql`
   subscription AdminExtensionActivityEvents {
     extensionActivityEvents {
@@ -2160,7 +2164,8 @@ export function useAdminExtensionActivityEventsSubscription(
 export type AdminExtensionActivityEventsSubscriptionHookResult = ReturnType<
   typeof useAdminExtensionActivityEventsSubscription
 >;
-
+export type AdminExtensionActivityEventsSubscriptionResult =
+  Apollo.SubscriptionResult<AdminExtensionActivityEventsSubscription>;
 export const AuthenticatedShellDocument = gql`
   query AuthenticatedShell {
     me {
@@ -2180,6 +2185,7 @@ export const AuthenticatedShellDocument = gql`
       id
       autoFillEnabled
       autoSummaryEnabled
+      autoMatchEnabled
       duplicateWindowDays
     }
   }
@@ -3852,7 +3858,8 @@ export function useJobSummaryStatusChangedSubscription(
 export type JobSummaryStatusChangedSubscriptionHookResult = ReturnType<
   typeof useJobSummaryStatusChangedSubscription
 >;
-
+export type JobSummaryStatusChangedSubscriptionResult =
+  Apollo.SubscriptionResult<JobSummaryStatusChangedSubscription>;
 export const JobFillStatusChangedDocument = gql`
   subscription JobFillStatusChanged($jobId: ID!) {
     jobFillStatusChanged(jobId: $jobId) {
@@ -3898,7 +3905,8 @@ export function useJobFillStatusChangedSubscription(
 export type JobFillStatusChangedSubscriptionHookResult = ReturnType<
   typeof useJobFillStatusChangedSubscription
 >;
-
+export type JobFillStatusChangedSubscriptionResult =
+  Apollo.SubscriptionResult<JobFillStatusChangedSubscription>;
 export const JobMatchStatusChangedDocument = gql`
   subscription JobMatchStatusChanged($jobId: ID!) {
     jobMatchStatusChanged(jobId: $jobId) {
@@ -3947,7 +3955,8 @@ export function useJobMatchStatusChangedSubscription(
 export type JobMatchStatusChangedSubscriptionHookResult = ReturnType<
   typeof useJobMatchStatusChangedSubscription
 >;
-
+export type JobMatchStatusChangedSubscriptionResult =
+  Apollo.SubscriptionResult<JobMatchStatusChangedSubscription>;
 export const MatchAnalysesListDocument = gql`
   query MatchAnalysesList {
     matchAnalyses {
@@ -4652,6 +4661,7 @@ export const SettingsDocument = gql`
       id
       autoFillEnabled
       autoSummaryEnabled
+      autoMatchEnabled
       duplicateWindowDays
     }
   }
@@ -4708,6 +4718,7 @@ export const UpdateSettingsDocument = gql`
       id
       autoFillEnabled
       autoSummaryEnabled
+      autoMatchEnabled
       duplicateWindowDays
     }
   }
@@ -4799,61 +4810,85 @@ export type SourceProfilesListLazyQueryHookResult = ReturnType<
   typeof useSourceProfilesListLazyQuery
 >;
 
-export const SourceProfilesForNewSourcePickerDocument = gql`
-  query SourceProfilesForNewSourcePicker {
-    sourceProfiles(onlyWithSourceTemplate: false) {
-      sourceProfileId
-      name
+export const RerunSourceTemplateDocument = gql`
+  mutation RerunSourceTemplate($templateId: ID!) {
+    rerunSourceTemplate(templateId: $templateId) {
+      id
+      status
+      startedAt
     }
   }
 `;
 
 /**
- * __useSourceProfilesForNewSourcePickerQuery__
+ * __useRerunSourceTemplateMutation__
  *
- * To run a query within a React component, call `useSourceProfilesForNewSourcePickerQuery` and pass it any options that fit your needs.
- * When your component renders, `useSourceProfilesForNewSourcePickerQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
+ * To run a mutation, you first call `useRerunSourceTemplateMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRerunSourceTemplateMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
  *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const { data, loading, error } = useSourceProfilesForNewSourcePickerQuery({
+ * const [rerunSourceTemplateMutation, { data, loading, error }] = useRerunSourceTemplateMutation({
  *   variables: {
+ *      templateId: // value for 'templateId'
  *   },
  * });
  */
-export function useSourceProfilesForNewSourcePickerQuery(
-  baseOptions?: ApolloReactHooks.QueryHookOptions<
-    SourceProfilesForNewSourcePickerQuery,
-    SourceProfilesForNewSourcePickerQueryVariables
+export function useRerunSourceTemplateMutation(
+  baseOptions?: ApolloReactHooks.MutationHookOptions<
+    RerunSourceTemplateMutation,
+    RerunSourceTemplateMutationVariables
   >,
 ) {
   const options = { ...defaultOptions, ...baseOptions };
-  return ApolloReactHooks.useQuery<
-    SourceProfilesForNewSourcePickerQuery,
-    SourceProfilesForNewSourcePickerQueryVariables
-  >(SourceProfilesForNewSourcePickerDocument, options);
-}
-export function useSourceProfilesForNewSourcePickerLazyQuery(
-  baseOptions?: ApolloReactHooks.LazyQueryHookOptions<
-    SourceProfilesForNewSourcePickerQuery,
-    SourceProfilesForNewSourcePickerQueryVariables
-  >,
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return ApolloReactHooks.useLazyQuery<
-    SourceProfilesForNewSourcePickerQuery,
-    SourceProfilesForNewSourcePickerQueryVariables
-  >(SourceProfilesForNewSourcePickerDocument, options);
+  return ApolloReactHooks.useMutation<
+    RerunSourceTemplateMutation,
+    RerunSourceTemplateMutationVariables
+  >(RerunSourceTemplateDocument, options);
 }
 
-export type SourceProfilesForNewSourcePickerQueryHookResult = ReturnType<
-  typeof useSourceProfilesForNewSourcePickerQuery
->;
-export type SourceProfilesForNewSourcePickerLazyQueryHookResult = ReturnType<
-  typeof useSourceProfilesForNewSourcePickerLazyQuery
->;
+export const DeleteSourceRunDocument = gql`
+  mutation DeleteSourceRun($id: ID!, $deleteJobs: Boolean = false) {
+    deleteSourceRun(id: $id, deleteJobs: $deleteJobs) {
+      success
+      deletedId
+    }
+  }
+`;
+
+/**
+ * __useDeleteSourceRunMutation__
+ *
+ * To run a mutation, you first call `useDeleteSourceRunMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteSourceRunMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteSourceRunMutation, { data, loading, error }] = useDeleteSourceRunMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      deleteJobs: // value for 'deleteJobs'
+ *   },
+ * });
+ */
+export function useDeleteSourceRunMutation(
+  baseOptions?: ApolloReactHooks.MutationHookOptions<
+    DeleteSourceRunMutation,
+    DeleteSourceRunMutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useMutation<
+    DeleteSourceRunMutation,
+    DeleteSourceRunMutationVariables
+  >(DeleteSourceRunDocument, options);
+}
 
 export const SourceTemplateDocument = gql`
   query SourceTemplate($id: ID!) {
@@ -5124,86 +5159,6 @@ export function useCreateSourceTemplateMutation(
     CreateSourceTemplateMutation,
     CreateSourceTemplateMutationVariables
   >(CreateSourceTemplateDocument, options);
-}
-
-export const RerunSourceTemplateDocument = gql`
-  mutation RerunSourceTemplate($templateId: ID!) {
-    rerunSourceTemplate(templateId: $templateId) {
-      id
-      status
-      startedAt
-    }
-  }
-`;
-
-/**
- * __useRerunSourceTemplateMutation__
- *
- * To run a mutation, you first call `useRerunSourceTemplateMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useRerunSourceTemplateMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [rerunSourceTemplateMutation, { data, loading, error }] = useRerunSourceTemplateMutation({
- *   variables: {
- *      templateId: // value for 'templateId'
- *   },
- * });
- */
-export function useRerunSourceTemplateMutation(
-  baseOptions?: ApolloReactHooks.MutationHookOptions<
-    RerunSourceTemplateMutation,
-    RerunSourceTemplateMutationVariables
-  >,
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return ApolloReactHooks.useMutation<
-    RerunSourceTemplateMutation,
-    RerunSourceTemplateMutationVariables
-  >(RerunSourceTemplateDocument, options);
-}
-
-export const DeleteSourceRunDocument = gql`
-  mutation DeleteSourceRun($id: ID!, $deleteJobs: Boolean = false) {
-    deleteSourceRun(id: $id, deleteJobs: $deleteJobs) {
-      success
-      deletedId
-    }
-  }
-`;
-
-/**
- * __useDeleteSourceRunMutation__
- *
- * To run a mutation, you first call `useDeleteSourceRunMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useDeleteSourceRunMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [deleteSourceRunMutation, { data, loading, error }] = useDeleteSourceRunMutation({
- *   variables: {
- *      id: // value for 'id'
- *      deleteJobs: // value for 'deleteJobs'
- *   },
- * });
- */
-export function useDeleteSourceRunMutation(
-  baseOptions?: ApolloReactHooks.MutationHookOptions<
-    DeleteSourceRunMutation,
-    DeleteSourceRunMutationVariables
-  >,
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return ApolloReactHooks.useMutation<
-    DeleteSourceRunMutation,
-    DeleteSourceRunMutationVariables
-  >(DeleteSourceRunDocument, options);
 }
 
 export const WorkPreferencesDocument = gql`
