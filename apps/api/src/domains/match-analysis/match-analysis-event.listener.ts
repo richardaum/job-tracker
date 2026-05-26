@@ -1,5 +1,6 @@
 import { JobCreated } from "@api/domains/jobs/job.events";
 import { JobEventBus } from "@api/domains/jobs/job-event.bus";
+import { ApplicationStageEnum } from "@api/domains/jobs/job-stage.enum";
 import { JobsRepository } from "@api/domains/jobs/jobs.repository";
 import { ResumeRepository } from "@api/domains/resumes/resumes.repository";
 import { SettingsService } from "@api/domains/settings/settings.service";
@@ -56,6 +57,11 @@ export class MatchAnalysisEventListener implements OnModuleInit {
       this.logger.warn(
         `[AutoMatch] Job ${jobId} not found or error: ${appErr?.message}`,
       );
+      return;
+    }
+
+    if (job.stage === ApplicationStageEnum.DUPLICATED) {
+      this.logger.log(`[AutoMatch] Skipping job ${jobId}: stage=DUPLICATED`);
       return;
     }
 

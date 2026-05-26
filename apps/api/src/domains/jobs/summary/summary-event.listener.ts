@@ -3,6 +3,8 @@ import {
   SummaryGenerationRequested,
 } from "@api/domains/jobs/job.events";
 import { JobEventBus } from "@api/domains/jobs/job-event.bus";
+import { ApplicationStageEnum } from "@api/domains/jobs/job-stage.enum";
+import { JobsRepository } from "@api/domains/jobs/jobs.repository";
 import { SettingsService } from "@api/domains/settings/settings.service";
 import { Injectable, Logger } from "@nestjs/common";
 
@@ -16,6 +18,7 @@ export class SummaryEventListener {
     private readonly eventBus: JobEventBus,
     private readonly summaryService: JobSummaryService,
     private readonly settingsService: SettingsService,
+    private readonly jobsRepository: JobsRepository,
   ) {}
 
   onModuleInit(): void {
@@ -36,6 +39,14 @@ export class SummaryEventListener {
   private async handleJobUpdated(event: JobUpdated): Promise<void> {
     const settings = await this.settingsService.getSettings(event.userId);
     if (!settings.autoSummaryEnabled) {
+      return;
+    }
+
+    const job = await this.jobsRepository.findOneByIdAndUserId(
+      event.jobId,
+      event.userId,
+    );
+    if (job?.stage === ApplicationStageEnum.DUPLICATED) {
       return;
     }
 
