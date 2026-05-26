@@ -31,6 +31,7 @@
     "@tiptap/starter-kit": "^3.23.1",
     "@tiptap/static-renderer": "^3.23.1",
     "graphql": "^16.13.2",
+    "graphql-sse": "^2.6.0",
     "graphql-request": "^7.4.0",
     "graphql-tag": "^2.12.6",
     "html2pdf.js": "^0.14.0",

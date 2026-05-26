@@ -13,3 +13,7 @@ export function getApiBaseUrl(): string {
 export function getApiGraphqlUrl(): string {
   return `${getApiBaseUrl()}/graphql`;
 }
+
+export function getApiGraphqlSseUrl(): string {
+  return `${getApiBaseUrl()}/graphql-sse/stream`;
+}
