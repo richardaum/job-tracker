@@ -13,21 +13,21 @@ Standalone scripts that run **outside migrations**. May be one-shot (fix) or rec
 
 ## Scripts
 
-| Script                         | Pattern                       | Dry-run | What it does                                                                                                   |
-| ------------------------------ | ----------------------------- | :-----: | -------------------------------------------------------------------------------------------------------------- |
-| `fix-generate-summaries.ts`    | NestJS DI (Module + services) |   ✅    | Batch-generates AI summaries for applications missing them                                                     |
-| `fix-generated-at.ts`          | NestJS DI (minimal Module)    |   ✅    | Fills missing `generatedAt` in `summary_metadata` JSONB                                                        |
-| `fix-normalize-enum-casing.ts` | NestJS DI (minimal Module)    |   ✅    | Normalizes lowercase enums → UPPERCASE in JSONB fields; scans PG enum columns                                  |
-| `fix-scoring-logic.ts`         | NestJS DI (minimal Module)    |   ✅    | Backfills `scoreRatio`, `classification`, `matchCount`, `gapCount`, `unclearCount` from `match_analysis.items` |
-| `fix-match-analysis.ts`        | NestJS DI (Module + services) |   ✅    | Triggers match analysis for a user's applications; polls until completion                                      |
-| `generate-schema.ts` (`src/`)  | NestJS DI (`AppModule`)       |   ❌    | Regenerates `src/schema.gql` via GraphQL `autoSchemaFile` (`pnpm schema:generate` in `apps/api`)               |
-| `squash-migrations.mjs`        | Plain Node                    |   ❌    | Squashes migration files                                                                                       |
+| Script                         | Pattern                         | Dry-run | What it does                                                                                                   |
+| ------------------------------ | ------------------------------- | :-----: | -------------------------------------------------------------------------------------------------------------- |
+| `fix-generate-summaries.ts`    | NestJS DI (Module + services)   |   ✅    | Batch-generates AI summaries for applications missing them                                                     |
+| `fix-generated-at.ts`          | NestJS DI (minimal Module)      |   ✅    | Fills missing `generatedAt` in `summary_metadata` JSONB                                                        |
+| `fix-normalize-enum-casing.ts` | NestJS DI (minimal Module)      |   ✅    | Normalizes lowercase enums → UPPERCASE in JSONB fields; scans PG enum columns                                  |
+| `fix-scoring-logic.ts`         | NestJS DI (minimal Module)      |   ✅    | Backfills `scoreRatio`, `classification`, `matchCount`, `gapCount`, `unclearCount` from `match_analysis.items` |
+| `fix-match-analysis.ts`        | NestJS DI (Module + services)   |   ✅    | Triggers match analysis for a user's applications; polls until completion                                      |
+| `generate-schema.ts` (`src/`)  | NestJS DI (`AppModule`)         |   ❌    | Regenerates `src/schema.gql` via GraphQL `autoSchemaFile` (`pnpm schema:generate` in `apps/api`)               |
+| `squash-migrations.ts`         | Plain Node + TypeORM DataSource |   ❌    | Creates temp DB, runs all migrations, dumps schema via pg_dump, generates consolidated baseline migration      |
 
 ## How to run
 
 ```sh
-tsx scripts/<script>.ts [args]            # fix-*, other scripts
-node scripts/<script>.mjs                 # *.mjs
+tsx --tsconfig tsconfig.json scripts/<script>.ts [args]  # require TypeORM
+tsx scripts/<script>.ts [args]                           # plain scripts
 ```
 
 ## Notes
