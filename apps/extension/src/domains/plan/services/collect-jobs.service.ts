@@ -51,11 +51,10 @@ export class CollectJobsService {
     private readonly stringTemplateService: StringTemplateService,
   ) {}
 
-  async execute(action: PlanStepAction, options?: PlanExecuteOptions) {
-    const surfaceTabId = await this.tabManager.openWindow(
-      action.input.surfaceUrl,
-      { focus: true },
-    );
+  async execute(action: PlanStepAction, options: PlanExecuteOptions) {
+    const surfaceTabId = await this.tabManager.openWindow(options.surfaceUrl, {
+      focus: true,
+    });
     const surfaceWindowId = await this.tabManager.getTabWindowId(surfaceTabId);
 
     const jobs: Map<string, Job> = new Map();

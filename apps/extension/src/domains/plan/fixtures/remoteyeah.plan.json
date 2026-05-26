@@ -7,7 +7,6 @@
         "scope": "public",
         "kind": "collect.jobs",
         "input": {
-          "surfaceUrl": "https://remoteyeah.com/remote-frontend-engineer+reactjs-jobs-in-brazil+latin-america+worldwide",
           "containerSector": ".section__content div:has(> article.job-card)",
           "itemSelector": "article.job-card",
           "detailsUrlField": "detailUrl",

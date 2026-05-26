@@ -9,7 +9,6 @@ function actionWithKey(template: string | undefined): PlanStepAction {
   return {
     kind: "collect.jobs",
     input: {
-      surfaceUrl: "https://example.com/jobs",
       containerSector: ".list",
       itemSelector: ".card",
       detailsUrlField: "detailUrl",
@@ -56,7 +55,7 @@ describe("CollectJobsService", () => {
 
     const result = await service.execute(
       actionWithKey("{{company}}-{{title}}"),
-      { onJobCollected },
+      { surfaceUrl: "https://example.com/jobs", onJobCollected },
     );
 
     expect(onJobCollected).toHaveBeenCalledTimes(1);
@@ -103,6 +102,7 @@ describe("CollectJobsService", () => {
     );
 
     await service.execute(actionWithKey("{{company}}-{{title}}"), {
+      surfaceUrl: "https://example.com/jobs",
       onJobCollected,
     });
 

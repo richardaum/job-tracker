@@ -7,7 +7,7 @@ import { SourceRunEventType, SourceRunStatus } from "@/gql/graphql";
 
 import { SourceRunEventsService } from "./source-run-events.service";
 
-const REMOTEYEAH_SURFACE_URL_FROM_PLAN =
+const REMOTEYEAH_SURFACE_URL =
   "https://remoteyeah.com/remote-frontend-engineer+reactjs-jobs-in-brazil+latin-america+worldwide";
 
 describe("SourceRunEventsService", () => {
@@ -36,12 +36,10 @@ describe("SourceRunEventsService", () => {
     });
     expect(setup.claimSourceRun).not.toHaveBeenCalledWith("run-2");
     expect(setup.executePlan).toHaveBeenCalledTimes(1);
-    const calledPlan = setup.executePlan.mock.calls[0]?.[0] as {
-      steps: Array<{ action: { input: { surfaceUrl: string } } }>;
+    const executeOptions = setup.executePlan.mock.calls[0]?.[1] as {
+      surfaceUrl: string;
     };
-    expect(calledPlan.steps[0].action.input.surfaceUrl).toBe(
-      REMOTEYEAH_SURFACE_URL_FROM_PLAN,
-    );
+    expect(executeOptions.surfaceUrl).toBe(REMOTEYEAH_SURFACE_URL);
   });
 
   it("does not fail startup when recovery query fails", async () => {
@@ -91,12 +89,10 @@ describe("SourceRunEventsService", () => {
       );
     });
     expect(setup.executePlan).toHaveBeenCalledTimes(1);
-    const calledPlan = setup.executePlan.mock.calls[0]?.[0] as {
-      steps: Array<{ action: { input: { surfaceUrl: string } } }>;
+    const executeOptions = setup.executePlan.mock.calls[0]?.[1] as {
+      surfaceUrl: string;
     };
-    expect(calledPlan.steps[0].action.input.surfaceUrl).toBe(
-      REMOTEYEAH_SURFACE_URL_FROM_PLAN,
-    );
+    expect(executeOptions.surfaceUrl).toBe(REMOTEYEAH_SURFACE_URL);
   });
 
   it("skips execution when claim fails", async () => {
@@ -299,5 +295,11 @@ function createEvent(type: SourceRunEventType | string) {
 }
 
 function createRun({ id, status }: { id: string; status: SourceRunStatus }) {
-  return { id, status, sourceProfileId: "remoteyeah" };
+  return {
+    id,
+    status,
+    sourceProfileId: "remoteyeah",
+    sourceProfile: "database",
+    surfaceUrl: REMOTEYEAH_SURFACE_URL,
+  };
 }

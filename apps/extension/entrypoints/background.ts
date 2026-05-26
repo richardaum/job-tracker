@@ -118,7 +118,10 @@ export default defineBackground(() => {
       return { label };
     },
     "popup.trigger-plan-service": () => {
-      void planService.execute(parsePlan(remoteyeahPlan));
+      void planService.execute(parsePlan(remoteyeahPlan), {
+        surfaceUrl:
+          "https://remoteyeah.com/remote-frontend-engineer+reactjs-jobs-in-brazil+latin-america+worldwide",
+      });
     },
     "popup.import-job": () => {
       void importJobService.execute();

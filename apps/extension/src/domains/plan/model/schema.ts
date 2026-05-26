@@ -79,9 +79,6 @@ export const PlanStepCollectJobsDetailsFieldSchema = z
 /** Combined list surface + per-item detail extraction (single-tab flow). */
 export const PlanStepCollectJobsInputSchema = z
   .object({
-    surfaceUrl: z
-      .url()
-      .describe("Listing page URL used to open the surface tab for this step"),
     containerSector: CssSelectorSchema.describe("list container"),
     itemSelector: CssSelectorSchema.describe("row"),
     detailsUrlField: z

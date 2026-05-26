@@ -2,32 +2,7 @@ import remoteyeahFixture from "@/domains/plan/fixtures/remoteyeah.plan.json";
 import type { Plan } from "@/domains/plan/model/types";
 import { parsePlan } from "@/domains/plan/parse/parser";
 
-/** First `collect.jobs` listing URL when present — persisted via `SourceRun.surfaceUrl` on the API. */
-export function surfaceUrlFromPlan(plan: Plan): string | null {
-  for (const step of plan.steps) {
-    const action = step.action;
-    if (typeof action !== "object" || action === null) {
-      continue;
-    }
-    if (!("kind" in action) || action.kind !== "collect.jobs") {
-      continue;
-    }
-    const input = action.input as { surfaceUrl?: string };
-    const url = input.surfaceUrl?.trim();
-    if (url) {
-      return url;
-    }
-  }
-  return null;
-}
-
-/**
- * Build the executable collect-jobs plan for an API source run.
- * **`surfaceUrl`** is seeded from **`remoteyeah.plan.json`** then sent to **`updateSourceRun`**.
- *
- * `surfaceUrl` matches {@link CollectJobsService.execute}
- * (`openWindow(surfaceUrl, { focus: true })`; detail URLs use `openTab` in the same window).
- */
+/** Build the executable collect-jobs plan for an API source run. */
 export function planForSourceRun(params: { sourceProfileId: string }): Plan {
   const id = params.sourceProfileId.trim().toLowerCase();
   if (id !== "remoteyeah") {

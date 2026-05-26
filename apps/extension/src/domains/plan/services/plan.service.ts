@@ -14,7 +14,7 @@ export class PlanService {
     this.logService.debug("PlanService initialized");
   }
 
-  async execute(plan: Plan, options?: PlanExecuteOptions) {
+  async execute(plan: Plan, options: PlanExecuteOptions) {
     this.logService.debug("Executing plan", { plan });
     const output = await this.runPlanSteps(plan.steps, options);
     this.logService.debug("Plan executed", { output });
@@ -23,7 +23,7 @@ export class PlanService {
 
   private async runPlanSteps(
     steps: Plan["steps"],
-    options?: PlanExecuteOptions,
+    options: PlanExecuteOptions,
   ) {
     for (const step of steps) {
       const stepResult = await this.runPlanStep(step, options);
@@ -32,7 +32,7 @@ export class PlanService {
     return this.filterPublicOutput(steps);
   }
 
-  private async runPlanStep(step: PlanStep, options?: PlanExecuteOptions) {
+  private async runPlanStep(step: PlanStep, options: PlanExecuteOptions) {
     switch (step.action.kind) {
       case "collect.jobs":
         return await this.collectJobsService.execute(step.action, options);

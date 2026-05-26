@@ -1,17 +1,17 @@
 import { tryRun } from "@job-tracker/try-run";
 
+// #endregion DEBUG
 import type {
   ApiService,
   SourceRunEventHandler,
 } from "@/domains/api/api.service";
 import type { ExtensionActivityReporterService } from "@/domains/extension-activity/extension-activity-reporter.service";
+// #region DEBUG
+import { debugLog } from "@/domains/log/debug-log";
 import type { LogService } from "@/domains/log/log.service";
 import { mapCollectedJobToCreateJobInput } from "@/domains/plan/map-collected-job-to-create-job-input";
 import type { PlanService } from "@/domains/plan/services/plan.service";
-import {
-  planForSourceRun,
-  surfaceUrlFromPlan,
-} from "@/domains/sources/source-run-plan";
+import { planForSourceRun } from "@/domains/sources/source-run-plan";
 import {
   ExtensionActivityEventType,
   type SourceRunEventsSubscription,
@@ -52,10 +52,22 @@ export class SourceRunEventsService {
     if (this.subscription) {
       return;
     }
+    // #region DEBUG
+    void debugLog({ h: "H1", event: "start", ts: Date.now() });
+    // #endregion DEBUG
     this.logService.debug("source-run-events:start");
     void this.recoverOutstandingRuns();
     this.subscription = this.apiService.subscribeToSourceRunEvents(
       (event) => {
+        // #region DEBUG
+        void debugLog({
+          h: "H1",
+          event: "sse-event",
+          type: event.type,
+          runId: event.run.id,
+          ts: Date.now(),
+        });
+        // #endregion DEBUG
         this.logService.debug("source-run-events:event", {
           type: event.type,
           runId: event.run.id,
@@ -71,12 +83,23 @@ export class SourceRunEventsService {
         }
       },
       (error) => {
+        // #region DEBUG
+        void debugLog({
+          h: "H2",
+          event: "sse-error",
+          error: String(error),
+          ts: Date.now(),
+        });
+        // #endregion DEBUG
         this.logService.error("source-run-events:error", { error });
       },
     );
   }
 
   private async recoverOutstandingRuns(): Promise<void> {
+    // #region DEBUG
+    void debugLog({ h: "H1", event: "recovery-start", ts: Date.now() });
+    // #endregion DEBUG
     const [err, response] = await tryRun(this.apiService.sourceRuns());
     if (err) {
       this.logService.error("source-run-events:recovery-error", { error: err });
@@ -87,6 +110,15 @@ export class SourceRunEventsService {
       response.data?.sourceRuns?.filter(
         (run) => run.status === SourceRunStatus.Running,
       ) ?? [];
+
+    // #region DEBUG
+    void debugLog({
+      h: "H1",
+      event: "recovery-runs",
+      count: runningRuns.length,
+      ts: Date.now(),
+    });
+    // #endregion DEBUG
 
     for (const run of runningRuns) {
       await this.handleSourceRunCreated({
@@ -112,6 +144,16 @@ export class SourceRunEventsService {
 
   private async handleSourceRunCreated(event: SourceRunEvent): Promise<void> {
     const runId = event.run.id;
+    // #region DEBUG
+    void debugLog({
+      h: "H3",
+      event: "handle-start",
+      runId,
+      sourceProfileId: event.run.sourceProfileId,
+      status: event.run.status,
+      ts: Date.now(),
+    });
+    // #endregion DEBUG
     const summary = sourceRunActivitySummary(event.run);
 
     this.activityReporter?.report(
@@ -121,6 +163,15 @@ export class SourceRunEventsService {
     );
 
     const claim = await this.apiService.claimSourceRun(runId);
+    // #region DEBUG
+    void debugLog({
+      h: "H3",
+      event: "claim-result",
+      runId,
+      claimed: !!claim.data?.claimSourceRun,
+      ts: Date.now(),
+    });
+    // #endregion DEBUG
     if (!claim.data?.claimSourceRun) {
       this.logService.debug("source-run-events:claim-skipped", { runId });
       this.activityReporter?.report(
@@ -144,23 +195,29 @@ export class SourceRunEventsService {
     const plan = planForSourceRun({
       sourceProfileId: event.run.sourceProfileId,
     });
-
-    const surfaceUrl = surfaceUrlFromPlan(plan);
-    if (surfaceUrl) {
-      const [surfErr] = await tryRun(
-        this.apiService.updateSourceRunSurfaceUrl(runId, surfaceUrl),
-      );
-      if (surfErr) {
-        this.logService.error("source-run-events:surface-url-failed", {
-          runId,
-          error: surfErr,
-        });
-      }
-    }
+    // #region DEBUG
+    void debugLog({
+      h: "H4",
+      event: "plan-built",
+      runId,
+      hasPlan: !!plan,
+      steps: plan?.steps?.length,
+      ts: Date.now(),
+    });
+    // #endregion DEBUG
 
     const [runErr] = await tryRun(
       (async () => {
+        // #region DEBUG
+        void debugLog({
+          h: "H4",
+          event: "execute-start",
+          runId,
+          ts: Date.now(),
+        });
+        // #endregion DEBUG
         await this.planService.execute(plan, {
+          surfaceUrl: event.run.surfaceUrl.trim(),
           onJobCollected: async (job) => {
             const input = {
               ...mapCollectedJobToCreateJobInput(job),
@@ -193,6 +250,15 @@ export class SourceRunEventsService {
     );
 
     if (runErr) {
+      // #region DEBUG
+      void debugLog({
+        h: "H4",
+        event: "execute-failed",
+        runId,
+        error: String(runErr),
+        ts: Date.now(),
+      });
+      // #endregion DEBUG
       await this.apiService.updateSourceRunStatus(
         runId,
         SourceRunStatus.Failed,
@@ -214,6 +280,14 @@ export class SourceRunEventsService {
       summary,
       { correlationId: runId },
     );
+    // #region DEBUG
+    void debugLog({
+      h: "H4",
+      event: "execute-completed",
+      runId,
+      ts: Date.now(),
+    });
+    // #endregion DEBUG
   }
 
   stop(): void {

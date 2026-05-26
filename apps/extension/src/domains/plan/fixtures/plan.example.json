@@ -6,7 +6,6 @@
       "action": {
         "kind": "collect.jobs",
         "input": {
-          "surfaceUrl": "https://www.linkedin.com/jobs/",
           "containerSector": ".scaffold-layout__list-container",
           "itemSelector": "li[data-occludable-job-id]",
           "detailsUrlField": "detailUrl",
