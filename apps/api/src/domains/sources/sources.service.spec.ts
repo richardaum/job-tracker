@@ -36,6 +36,7 @@ describe("SourcesService", () => {
     SourcesRepository,
     | "listByUserId"
     | "findOrCreateTemplate"
+    | "findTemplateByUserAndSourceProfile"
     | "createRun"
     | "deleteByUser"
     | "deleteTemplatesByUserId"
@@ -48,6 +49,7 @@ describe("SourcesService", () => {
   > = {
     listByUserId: vi.fn(),
     findOrCreateTemplate: vi.fn(),
+    findTemplateByUserAndSourceProfile: vi.fn(),
     createRun: vi.fn(),
     deleteByUser: vi.fn(),
     deleteTemplatesByUserId: vi.fn(),
@@ -80,7 +82,7 @@ describe("SourcesService", () => {
     vi.clearAllMocks();
   });
 
-  it("createSourceRun creates template and run", async () => {
+  it("createSourceRun creates run from existing template", async () => {
     const template = {
       id: "tmpl-1",
       userId: "user-1",
@@ -90,7 +92,9 @@ describe("SourcesService", () => {
       scheduleEnabled: false,
       createdAt: new Date("2026-05-01T12:00:00.000Z"),
     } as SourceTemplateEntity;
-    vi.mocked(repo.findOrCreateTemplate).mockResolvedValue(template);
+    vi.mocked(repo.findTemplateByUserAndSourceProfile).mockResolvedValue(
+      template,
+    );
     vi.mocked(repo.createRun).mockResolvedValue({
       id: "run-1",
       userId: "user-1",
@@ -105,12 +109,10 @@ describe("SourcesService", () => {
 
     const result = await service.createSourceRun("user-1", "remoteyeah");
 
-    expect(repo.findOrCreateTemplate).toHaveBeenCalledWith(
-      expect.objectContaining({
-        userId: "user-1",
-        sourceProfileId: "remoteyeah",
-      }),
-    );
+    expect(repo.findTemplateByUserAndSourceProfile).toHaveBeenCalledWith({
+      userId: "user-1",
+      sourceProfileId: "remoteyeah",
+    });
     expect(repo.createRun).toHaveBeenCalledWith(
       expect.objectContaining({
         userId: "user-1",
@@ -142,7 +144,7 @@ describe("SourcesService", () => {
     await expect(service.createSourceRun("user-1", "nope")).rejects.toThrow(
       BadRequestException,
     );
-    expect(repo.findOrCreateTemplate).not.toHaveBeenCalled();
+    expect(repo.findTemplateByUserAndSourceProfile).not.toHaveBeenCalled();
   });
 
   it("createSourceTemplate ensures template without creating a run", async () => {

@@ -61,6 +61,15 @@ export class SourcesRepository {
     });
   }
 
+  async findTemplateByUserAndSourceProfile(params: {
+    userId: string;
+    sourceProfileId: string;
+  }): Promise<SourceTemplateEntity | null> {
+    return this.templatesRepo.findOne({
+      where: { userId: params.userId, sourceProfileId: params.sourceProfileId },
+    });
+  }
+
   async patchSourceTemplate(params: {
     userId: string;
     id: string;

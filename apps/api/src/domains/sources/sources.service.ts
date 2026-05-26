@@ -2,7 +2,6 @@ import { SourceRunEntity } from "@api/database/entities/source-run.entity";
 import { SourceTemplateEntity } from "@api/database/entities/source-template.entity";
 import { JobsRepository } from "@api/domains/jobs/jobs.repository";
 import { SourceProfileRegistryService } from "@api/domains/sources/source-profile-registry.service";
-import { entryUrlFromExecutorPlan } from "@api/domains/sources/source-profiles";
 import { SourceRunType } from "@api/domains/sources/source-run.type";
 import { SourceRunStatusEnum } from "@api/domains/sources/source-run-status.enum";
 import { SourceTemplateType } from "@api/domains/sources/source-template.type";
@@ -139,25 +138,21 @@ export class SourcesService implements OnModuleInit {
   ): Promise<SourceRunType> {
     const sourceProfileKey =
       this.sourceProfileRegistry.normalizeSourceProfileKey(sourceProfileId);
-    const planDoc = this.sourceProfileRegistry.plan(sourceProfileKey);
-    if (planDoc === undefined) {
+    if (this.sourceProfileRegistry.plan(sourceProfileKey) === undefined) {
       throw new BadRequestException(
         `Unknown source profile: ${sourceProfileId}`,
       );
     }
 
-    const defaultSurfaceUrl = entryUrlFromExecutorPlan(planDoc);
-    if (!defaultSurfaceUrl) {
-      throw new BadRequestException(
-        `Source profile ${sourceProfileId} has no default surfaceUrl`,
-      );
-    }
-
-    const template = await this.repo.findOrCreateTemplate({
+    const template = await this.repo.findTemplateByUserAndSourceProfile({
       userId,
       sourceProfileId: sourceProfileKey,
-      surfaceUrl: defaultSurfaceUrl,
     });
+    if (!template) {
+      throw new BadRequestException(
+        `No source template for profile ${sourceProfileId}. Create one first.`,
+      );
+    }
 
     const startedAt = new Date();
     const surfaceUrl = template.surfaceUrl.trim();
