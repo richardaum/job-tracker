@@ -141,7 +141,9 @@ export class SourceRunEventsService {
       { correlationId: runId },
     );
 
-    const plan = planForSourceRun({ importerId: event.run.sourceProfileId });
+    const plan = planForSourceRun({
+      sourceProfileId: event.run.sourceProfileId,
+    });
 
     const surfaceUrl = surfaceUrlFromPlan(plan);
     if (surfaceUrl) {

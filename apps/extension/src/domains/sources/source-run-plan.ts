@@ -28,10 +28,12 @@ export function surfaceUrlFromPlan(plan: Plan): string | null {
  * `surfaceUrl` matches {@link CollectJobsService.execute}
  * (`openWindow(surfaceUrl, { focus: true })`; detail URLs use `openTab` in the same window).
  */
-export function planForSourceRun(params: { importerId: string }): Plan {
-  const id = params.importerId.trim().toLowerCase();
+export function planForSourceRun(params: { sourceProfileId: string }): Plan {
+  const id = params.sourceProfileId.trim().toLowerCase();
   if (id !== "remoteyeah") {
-    throw new Error(`No executor plan for importer: ${params.importerId}`);
+    throw new Error(
+      `No executor plan for source profile: ${params.sourceProfileId}`,
+    );
   }
 
   const raw = structuredClone(remoteyeahFixture) as Record<string, unknown>;
