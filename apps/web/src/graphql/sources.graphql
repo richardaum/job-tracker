@@ -5,6 +5,13 @@ query SourceProfilesList {
   }
 }
 
+query SourceProfilesListAll {
+  sourceProfiles {
+    sourceProfileId
+    name
+  }
+}
+
 mutation RerunSourceTemplate($templateId: ID!) {
   rerunSourceTemplate(templateId: $templateId) {
     id

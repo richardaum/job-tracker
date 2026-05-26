@@ -24,6 +24,7 @@ const cleaned = original
   .replace(/^\s*export type \w+MutationFn.*$/gm, "")
   .replace(/^\s*export type \w+MutationResult.*$/gm, "")
   .replace(/^\s*export type \w+MutationOptions.*$/gm, "")
-  .replace(/^\s*export type \w+MutationHookResult.*$/gm, "");
+  .replace(/^\s*export type \w+MutationHookResult.*$/gm, "")
+  .replace(/^\s*export type \w+SubscriptionResult.*$/gm, "");
 
 writeFileSync(hooksPath, cleaned, "utf8");

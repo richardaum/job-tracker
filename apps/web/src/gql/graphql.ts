@@ -1777,6 +1777,19 @@ export type SourceProfilesListQuery = {
   }>;
 };
 
+export type SourceProfilesListAllQueryVariables = Exact<{
+  [key: string]: never;
+}>;
+
+export type SourceProfilesListAllQuery = {
+  __typename?: "Query";
+  sourceProfiles: Array<{
+    __typename?: "SourceProfileType";
+    sourceProfileId: string;
+    name: string;
+  }>;
+};
+
 export type RerunSourceTemplateMutationVariables = Exact<{
   templateId: Scalars["ID"]["input"];
 }>;
@@ -5534,6 +5547,38 @@ export const SourceProfilesListDocument = {
 } as unknown as DocumentNode<
   SourceProfilesListQuery,
   SourceProfilesListQueryVariables
+>;
+export const SourceProfilesListAllDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "query",
+      name: { kind: "Name", value: "SourceProfilesListAll" },
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "sourceProfiles" },
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "sourceProfileId" },
+                },
+                { kind: "Field", name: { kind: "Name", value: "name" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  SourceProfilesListAllQuery,
+  SourceProfilesListAllQueryVariables
 >;
 export const RerunSourceTemplateDocument = {
   kind: "Document",

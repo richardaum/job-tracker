@@ -1789,6 +1789,19 @@ export type SourceProfilesListQuery = {
   }>;
 };
 
+export type SourceProfilesListAllQueryVariables = Exact<{
+  [key: string]: never;
+}>;
+
+export type SourceProfilesListAllQuery = {
+  __typename?: "Query";
+  sourceProfiles: Array<{
+    __typename?: "SourceProfileType";
+    sourceProfileId: string;
+    name: string;
+  }>;
+};
+
 export type RerunSourceTemplateMutationVariables = Exact<{
   templateId: Scalars["ID"]["input"];
 }>;
@@ -2120,8 +2133,7 @@ export function useAdminSourceRunEventsSubscription(
 export type AdminSourceRunEventsSubscriptionHookResult = ReturnType<
   typeof useAdminSourceRunEventsSubscription
 >;
-export type AdminSourceRunEventsSubscriptionResult =
-  Apollo.SubscriptionResult<AdminSourceRunEventsSubscription>;
+
 export const AdminExtensionActivityEventsDocument = gql`
   subscription AdminExtensionActivityEvents {
     extensionActivityEvents {
@@ -2164,8 +2176,7 @@ export function useAdminExtensionActivityEventsSubscription(
 export type AdminExtensionActivityEventsSubscriptionHookResult = ReturnType<
   typeof useAdminExtensionActivityEventsSubscription
 >;
-export type AdminExtensionActivityEventsSubscriptionResult =
-  Apollo.SubscriptionResult<AdminExtensionActivityEventsSubscription>;
+
 export const AuthenticatedShellDocument = gql`
   query AuthenticatedShell {
     me {
@@ -3858,8 +3869,7 @@ export function useJobSummaryStatusChangedSubscription(
 export type JobSummaryStatusChangedSubscriptionHookResult = ReturnType<
   typeof useJobSummaryStatusChangedSubscription
 >;
-export type JobSummaryStatusChangedSubscriptionResult =
-  Apollo.SubscriptionResult<JobSummaryStatusChangedSubscription>;
+
 export const JobFillStatusChangedDocument = gql`
   subscription JobFillStatusChanged($jobId: ID!) {
     jobFillStatusChanged(jobId: $jobId) {
@@ -3905,8 +3915,7 @@ export function useJobFillStatusChangedSubscription(
 export type JobFillStatusChangedSubscriptionHookResult = ReturnType<
   typeof useJobFillStatusChangedSubscription
 >;
-export type JobFillStatusChangedSubscriptionResult =
-  Apollo.SubscriptionResult<JobFillStatusChangedSubscription>;
+
 export const JobMatchStatusChangedDocument = gql`
   subscription JobMatchStatusChanged($jobId: ID!) {
     jobMatchStatusChanged(jobId: $jobId) {
@@ -3955,8 +3964,7 @@ export function useJobMatchStatusChangedSubscription(
 export type JobMatchStatusChangedSubscriptionHookResult = ReturnType<
   typeof useJobMatchStatusChangedSubscription
 >;
-export type JobMatchStatusChangedSubscriptionResult =
-  Apollo.SubscriptionResult<JobMatchStatusChangedSubscription>;
+
 export const MatchAnalysesListDocument = gql`
   query MatchAnalysesList {
     matchAnalyses {
@@ -4808,6 +4816,62 @@ export type SourceProfilesListQueryHookResult = ReturnType<
 >;
 export type SourceProfilesListLazyQueryHookResult = ReturnType<
   typeof useSourceProfilesListLazyQuery
+>;
+
+export const SourceProfilesListAllDocument = gql`
+  query SourceProfilesListAll {
+    sourceProfiles {
+      sourceProfileId
+      name
+    }
+  }
+`;
+
+/**
+ * __useSourceProfilesListAllQuery__
+ *
+ * To run a query within a React component, call `useSourceProfilesListAllQuery` and pass it any options that fit your needs.
+ * When your component renders, `useSourceProfilesListAllQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useSourceProfilesListAllQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useSourceProfilesListAllQuery(
+  baseOptions?: ApolloReactHooks.QueryHookOptions<
+    SourceProfilesListAllQuery,
+    SourceProfilesListAllQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useQuery<
+    SourceProfilesListAllQuery,
+    SourceProfilesListAllQueryVariables
+  >(SourceProfilesListAllDocument, options);
+}
+export function useSourceProfilesListAllLazyQuery(
+  baseOptions?: ApolloReactHooks.LazyQueryHookOptions<
+    SourceProfilesListAllQuery,
+    SourceProfilesListAllQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useLazyQuery<
+    SourceProfilesListAllQuery,
+    SourceProfilesListAllQueryVariables
+  >(SourceProfilesListAllDocument, options);
+}
+
+export type SourceProfilesListAllQueryHookResult = ReturnType<
+  typeof useSourceProfilesListAllQuery
+>;
+export type SourceProfilesListAllLazyQueryHookResult = ReturnType<
+  typeof useSourceProfilesListAllLazyQuery
 >;
 
 export const RerunSourceTemplateDocument = gql`

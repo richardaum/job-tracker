@@ -1788,6 +1788,19 @@ export type SourceProfilesListQuery = {
   }>;
 };
 
+export type SourceProfilesListAllQueryVariables = Exact<{
+  [key: string]: never;
+}>;
+
+export type SourceProfilesListAllQuery = {
+  __typename?: "Query";
+  sourceProfiles: Array<{
+    __typename?: "SourceProfileType";
+    sourceProfileId: string;
+    name: string;
+  }>;
+};
+
 export type RerunSourceTemplateMutationVariables = Exact<{
   templateId: Scalars["ID"]["input"];
 }>;
@@ -2689,6 +2702,14 @@ export const UpdateSettingsDocument = gql`
 export const SourceProfilesListDocument = gql`
   query SourceProfilesList {
     sourceProfiles(onlyWithSourceTemplate: true) {
+      sourceProfileId
+      name
+    }
+  }
+`;
+export const SourceProfilesListAllDocument = gql`
+  query SourceProfilesListAll {
+    sourceProfiles {
       sourceProfileId
       name
     }
@@ -3750,6 +3771,24 @@ export function getSdk(
             signal,
           }),
         "SourceProfilesList",
+        "query",
+        variables,
+      );
+    },
+    SourceProfilesListAll(
+      variables?: SourceProfilesListAllQueryVariables,
+      requestHeaders?: GraphQLClientRequestHeaders,
+      signal?: RequestInit["signal"],
+    ): Promise<SourceProfilesListAllQuery> {
+      return withWrapper(
+        (wrappedRequestHeaders) =>
+          client.request<SourceProfilesListAllQuery>({
+            document: SourceProfilesListAllDocument,
+            variables,
+            requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
+            signal,
+          }),
+        "SourceProfilesListAll",
         "query",
         variables,
       );

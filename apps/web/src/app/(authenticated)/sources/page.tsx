@@ -4,4 +4,6 @@ import { staticPageMetadata } from "@/app/metadata";
 
 export const metadata: Metadata = staticPageMetadata("Sources");
 
-export { default } from "@/modules/sources/page/SourcesPage";
+export default function Page() {
+  return null;
+}
