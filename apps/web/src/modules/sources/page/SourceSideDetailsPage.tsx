@@ -6,15 +6,15 @@ import type { SourceProfileRow } from "@/modules/sources/hooks/useSourcesListVie
 import { SourceProfileTemplatesList } from "@/modules/sources/page/SourceProfileTemplatesList";
 import { looksLikeUuid } from "@/modules/sources/utils/looks-like-uuid";
 
-type SourceSideDetailsProps = {
+type SourceSideDetailsPageProps = {
   sourceProfile: SourceProfileRow | null;
   onOpenChange: (open: boolean) => void;
 };
 
-export function SourceSideDetails({
+export function SourceSideDetailsPage({
   sourceProfile,
   onOpenChange,
-}: SourceSideDetailsProps) {
+}: SourceSideDetailsPageProps) {
   const sourceProfileId = sourceProfile?.sourceProfileId ?? "";
 
   return (

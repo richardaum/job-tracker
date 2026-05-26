@@ -14,7 +14,7 @@ import {
 import { SourceListCard } from "@/modules/sources/list/components/SourceListCard";
 
 import { NewSourceDialog } from "./NewSourceDialog";
-import { SourceSideDetails } from "./SourceSideDetails";
+import { SourceSideDetailsPage } from "./SourceSideDetailsPage";
 
 function SourceListCardSkeleton() {
   return (
@@ -153,7 +153,7 @@ export default function SourcesPage() {
 
         {detailSourceProfile !== null ? (
           <div className={cn("flex min-h-0 min-w-0 flex-col overflow-hidden")}>
-            <SourceSideDetails
+            <SourceSideDetailsPage
               sourceProfile={detailSourceProfile}
               onOpenChange={onSourceSideDetailsChange}
             />

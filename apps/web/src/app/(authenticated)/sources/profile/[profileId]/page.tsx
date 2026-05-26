@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import React, { useMemo } from "react";
 
 import { useSourceProfilesListQuery } from "@/gql/hooks";
-import { SourceSideDetails } from "@/modules/sources/page/SourceSideDetails";
+import { SourceSideDetailsPage } from "@/modules/sources/page/SourceSideDetailsPage";
 
 export default function SourceProfilePage({
   params,
@@ -24,7 +24,7 @@ export default function SourceProfilePage({
 
   return (
     <div className={cn("flex h-full min-h-0 min-w-0 flex-col overflow-hidden")}>
-      <SourceSideDetails
+      <SourceSideDetailsPage
         sourceProfile={sourceProfile}
         onOpenChange={(open) => {
           if (!open) router.push("/sources");
