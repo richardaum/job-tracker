@@ -303,9 +303,6 @@ importers:
       graphql:
         specifier: ^16.13.2
         version: 16.13.2
-      graphql-sse:
-        specifier: ^2.6.0
-        version: 2.6.0(graphql@16.13.2)
       p-limit:
         specifier: ^7.3.0
         version: 7.3.0
