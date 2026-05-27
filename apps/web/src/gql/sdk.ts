@@ -311,7 +311,6 @@ export enum MatchVerdict {
 
 export type Mutation = {
   __typename?: 'Mutation';
-  claimSourceRun?: Maybe<SourceRunType>;
   clearSourceRuns: Scalars['Boolean']['output'];
   createJob: JobType;
   createJobNote: NoteType;
@@ -345,11 +344,6 @@ export type Mutation = {
   updateSourceRunStatus: SourceRunType;
   updateSourceTemplate: SourceTemplateType;
   updateWorkPreferences: Array<PreferenceType>;
-};
-
-
-export type MutationClaimSourceRunArgs = {
-  id: Scalars['ID']['input'];
 };
 
 
@@ -1226,7 +1220,7 @@ export type RerunSourceTemplateMutationVariables = Exact<{
 }>;
 
 
-export type RerunSourceTemplateMutation = { __typename?: 'Mutation', rerunSourceTemplate: { __typename?: 'SourceRunType', id: string, status: SourceRunStatus, startedAt: any } };
+export type RerunSourceTemplateMutation = { __typename?: 'Mutation', rerunSourceTemplate: { __typename?: 'SourceRunType', id: string, status: SourceRunStatus, startedAt: any, surfaceUrl: string, sourceProfileId: string } };
 
 export type DeleteSourceRunMutationVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -2048,6 +2042,8 @@ export const RerunSourceTemplateDocument = gql`
     id
     status
     startedAt
+    surfaceUrl
+    sourceProfileId
   }
 }
     `;

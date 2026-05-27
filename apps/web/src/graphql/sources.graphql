@@ -17,6 +17,8 @@ mutation RerunSourceTemplate($templateId: ID!) {
     id
     status
     startedAt
+    surfaceUrl
+    sourceProfileId
   }
 }
 

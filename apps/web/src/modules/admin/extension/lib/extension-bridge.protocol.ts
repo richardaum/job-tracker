@@ -3,6 +3,7 @@ export const EXTENSION_BRIDGE_SOURCE = "job-tracker-extension-bridge" as const;
 export const EXTENSION_BRIDGE_MESSAGE_TYPE = {
   ping: "JOB_TRACKER_EXTENSION_PING",
   pong: "JOB_TRACKER_EXTENSION_PONG",
+  sourceRunStart: "JOB_TRACKER_SOURCE_RUN_START",
 } as const;
 
 export const EXTENSION_BRIDGE_PROBE_TIMEOUT_MS = 5_000;
@@ -109,4 +110,30 @@ export function isExtensionBridgePong(
     (typeof record.authenticatedEmail === "string" ||
       record.authenticatedEmail === null)
   );
+}
+
+export type SourceRunStartRequest = {
+  type: typeof EXTENSION_BRIDGE_MESSAGE_TYPE.sourceRunStart;
+  source: typeof EXTENSION_BRIDGE_SOURCE;
+  runId: string;
+  surfaceUrl: string;
+  sourceProfileId: string;
+};
+
+export function sendSourceRunStart(
+  runId: string,
+  surfaceUrl: string,
+  sourceProfileId: string,
+): void {
+  if (typeof window === "undefined") return;
+
+  const message: SourceRunStartRequest = {
+    type: EXTENSION_BRIDGE_MESSAGE_TYPE.sourceRunStart,
+    source: EXTENSION_BRIDGE_SOURCE,
+    runId,
+    surfaceUrl,
+    sourceProfileId,
+  };
+
+  window.postMessage(message, window.location.origin);
 }
