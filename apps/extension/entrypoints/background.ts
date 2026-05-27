@@ -10,8 +10,6 @@ import { LogService } from "@/domains/log/log.service";
 import { MessagingService } from "@/domains/message/messaging.service";
 import { registerMessageListenerByKind } from "@/domains/message/runtime-message-listener";
 import { PaginationMessagingService } from "@/domains/pagination/pagination-messaging.service";
-import remoteyeahPlan from "@/domains/plan/fixtures/remoteyeah.plan.json";
-import { parsePlan } from "@/domains/plan/parse/parser";
 import { CollectJobsService } from "@/domains/plan/services/collect-jobs.service";
 import { PlanService } from "@/domains/plan/services/plan.service";
 import { StringTemplateService } from "@/domains/plan/services/string-template.service";
@@ -112,19 +110,6 @@ export default defineBackground(() => {
   });
 
   registerMessageListenerByKind({
-    "popup.get-import-menu-label": async () => {
-      const label = await importJobService.getImportMenuLabel();
-      return { label };
-    },
-    "popup.trigger-plan-service": () => {
-      void planService.execute(parsePlan(remoteyeahPlan), {
-        surfaceUrl:
-          "https://remoteyeah.com/remote-frontend-engineer+reactjs-jobs-in-brazil+latin-america+worldwide",
-      });
-    },
-    "popup.import-job": () => {
-      void importJobService.execute();
-    },
     "admin.get-status": (message) =>
       adminExtensionStatusService.handleGetStatusMessage(message),
     "source-run.start": (message) => {

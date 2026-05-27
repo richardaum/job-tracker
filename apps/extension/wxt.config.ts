@@ -57,7 +57,6 @@ export default defineConfig({
       512: "assets/icon512.png",
     },
     action: {
-      default_popup: "popup.html",
       default_icon: {
         16: "assets/icon16.png",
         32: "assets/icon32.png",
