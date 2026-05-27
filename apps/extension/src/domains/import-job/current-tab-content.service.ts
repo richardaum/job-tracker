@@ -1,7 +1,4 @@
-import {
-  CONTEXT_MENU_IMPORT_PAGE_TITLE,
-  CONTEXT_MENU_IMPORT_SELECTION_TITLE,
-} from "./import-job-labels";
+import { CONTEXT_MENU_IMPORT_TITLE } from "./import-job-labels";
 
 export type DraftJobSnapshot = {
   url: string;
@@ -19,9 +16,7 @@ export class CurrentTabContentService {
   }
 
   getImportMenuLabel(): string {
-    return this.hasTextSelection()
-      ? CONTEXT_MENU_IMPORT_SELECTION_TITLE
-      : CONTEXT_MENU_IMPORT_PAGE_TITLE;
+    return CONTEXT_MENU_IMPORT_TITLE;
   }
 
   /** Full page (`body` clone) or wrapper around the current text selection. */

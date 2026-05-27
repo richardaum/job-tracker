@@ -8,7 +8,7 @@ import { WxtTabService } from "@/domains/tab/wxt-tab.service";
 import { ExtensionActivityEventType } from "@/gql/graphql";
 
 import type { DraftJobSnapshot } from "./current-tab-content.service";
-import { CONTEXT_MENU_IMPORT_PAGE_TITLE } from "./import-job-labels";
+import { CONTEXT_MENU_IMPORT_TITLE } from "./import-job-labels";
 
 const WEB_URL = import.meta.env.WXT_PUBLIC_WEB_URL ?? "http://localhost:3100";
 
@@ -79,7 +79,7 @@ export class ImportJobService {
   async getImportMenuLabel(): Promise<string> {
     const [tabErr, tabId] = await tryRun(this.tabService.getCurrentTab());
     if (tabErr) {
-      return CONTEXT_MENU_IMPORT_PAGE_TITLE;
+      return CONTEXT_MENU_IMPORT_TITLE;
     }
 
     const [msgErr, response] = await tryRun(
@@ -89,7 +89,7 @@ export class ImportJobService {
     );
 
     if (msgErr) {
-      return CONTEXT_MENU_IMPORT_PAGE_TITLE;
+      return CONTEXT_MENU_IMPORT_TITLE;
     }
 
     return response.label;
