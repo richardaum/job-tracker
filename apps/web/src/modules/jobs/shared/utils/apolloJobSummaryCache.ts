@@ -45,6 +45,49 @@ export function writeJobSummaryStatusToCache(
   return true;
 }
 
+export function writeJobSummaryToCache(
+  cache: ApolloCache,
+  jobId: string,
+  summary: string,
+  metadata: {
+    status?: AsyncMetadataStatus | null;
+    error?: string | null;
+    timestamp?: unknown | null;
+  },
+): boolean {
+  const cacheId = cache.identify({ __typename: "JobType", id: jobId });
+  if (!cacheId) {
+    return false;
+  }
+
+  const existing = cache.readFragment<{ id: string }>({
+    id: cacheId,
+    fragment: jobSummaryCacheExistsFragment,
+  });
+  if (!existing) {
+    return false;
+  }
+
+  cache.modify({
+    id: cacheId,
+    fields: {
+      summary() {
+        return summary;
+      },
+      summaryMetadata() {
+        return {
+          __typename: "AsyncMetadataType",
+          status: metadata.status ?? null,
+          error: metadata.error ?? null,
+          timestamp: metadata.timestamp ?? null,
+        };
+      },
+    },
+  });
+
+  return true;
+}
+
 function readStoredAsyncMetadata(
   existing: AsyncMetadataType | Reference | undefined,
 ): AsyncMetadataType {

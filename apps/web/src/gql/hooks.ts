@@ -240,6 +240,8 @@ export type JobSummaryStatusEventType = {
   __typename?: 'JobSummaryStatusEventType';
   jobId: Scalars['ID']['output'];
   status: Scalars['String']['output'];
+  summary?: Maybe<Scalars['String']['output']>;
+  summaryMetadata?: Maybe<AsyncMetadataType>;
 };
 
 export type JobType = {
@@ -1107,7 +1109,7 @@ export type JobSummaryStatusChangedSubscriptionVariables = Exact<{
 }>;
 
 
-export type JobSummaryStatusChangedSubscription = { __typename?: 'Subscription', jobSummaryStatusChanged: { __typename?: 'JobSummaryStatusEventType', jobId: string, status: string } };
+export type JobSummaryStatusChangedSubscription = { __typename?: 'Subscription', jobSummaryStatusChanged: { __typename?: 'JobSummaryStatusEventType', jobId: string, status: string, summary?: string | null, summaryMetadata?: { __typename?: 'AsyncMetadataType', status?: AsyncMetadataStatus | null, error?: string | null, timestamp?: any | null } | null } };
 
 export type JobFillStatusChangedSubscriptionVariables = Exact<{
   jobId: Scalars['ID']['input'];
@@ -2720,6 +2722,12 @@ export const JobSummaryStatusChangedDocument = gql`
   jobSummaryStatusChanged(jobId: $jobId) {
     jobId
     status
+    summary
+    summaryMetadata {
+      status
+      error
+      timestamp
+    }
   }
 }
     `;

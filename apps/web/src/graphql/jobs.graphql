@@ -324,6 +324,12 @@ subscription JobSummaryStatusChanged($jobId: ID!) {
   jobSummaryStatusChanged(jobId: $jobId) {
     jobId
     status
+    summary
+    summaryMetadata {
+      status
+      error
+      timestamp
+    }
   }
 }
 

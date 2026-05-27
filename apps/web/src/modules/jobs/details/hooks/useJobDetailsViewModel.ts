@@ -33,7 +33,10 @@ import { deriveDetailStatus } from "@/lib/entity-detail-view-status";
 import { deriveJobFillButtonState } from "@/modules/jobs/details/hooks/deriveJobFillButtonState";
 import { jobDetailDisplayTitle } from "@/modules/jobs/details/utils/job-detail-title";
 import type { JobDetailsValues } from "@/modules/jobs/details/utils/job-details.shared";
-import { writeJobSummaryStatusToCache } from "@/modules/jobs/shared/utils/apolloJobSummaryCache";
+import {
+  writeJobSummaryStatusToCache,
+  writeJobSummaryToCache,
+} from "@/modules/jobs/shared/utils/apolloJobSummaryCache";
 import { formatJobSourceLabel } from "@/modules/jobs/shared/utils/jobSourceLabel";
 
 export interface UseJobDetailsViewModelOptions {
@@ -75,6 +78,21 @@ export function useJobDetailsViewModel(
     onData: ({ data }) => {
       const eventData = data.data!.jobSummaryStatusChanged;
 
+      if (eventData.status === AsyncMetadataStatus.Completed) {
+        if (eventData.summary && eventData.summaryMetadata) {
+          const patched = writeJobSummaryToCache(
+            apolloClient.cache,
+            jobId,
+            eventData.summary,
+            eventData.summaryMetadata,
+          );
+          if (!patched) void refetchJobAndTimeline();
+          return;
+        }
+        void refetchJobAndTimeline();
+        return;
+      }
+
       if (eventData.status === AsyncMetadataStatus.Processing) {
         const patched = writeJobSummaryStatusToCache(
           apolloClient.cache,
@@ -85,11 +103,13 @@ export function useJobDetailsViewModel(
         return;
       }
 
-      if (
-        eventData.status === AsyncMetadataStatus.Completed ||
-        eventData.status === AsyncMetadataStatus.Failed
-      ) {
-        void refetchJobAndTimeline();
+      if (eventData.status === AsyncMetadataStatus.Failed) {
+        const patched = writeJobSummaryStatusToCache(
+          apolloClient.cache,
+          jobId,
+          AsyncMetadataStatus.Failed,
+        );
+        if (!patched) void refetchJobAndTimeline();
       }
     },
   });
