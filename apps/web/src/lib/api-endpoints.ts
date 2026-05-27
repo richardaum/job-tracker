@@ -14,6 +14,6 @@ export function getApiGraphqlUrl(): string {
   return `${getApiBaseUrl()}/graphql`;
 }
 
-export function getApiGraphqlSseUrl(): string {
-  return `${getApiBaseUrl()}/graphql-sse/stream`;
+export function getApiGraphqlWsUrl(): string {
+  return `${getApiBaseUrl().replace(/^http/, "ws")}/graphql`;
 }

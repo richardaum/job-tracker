@@ -9,10 +9,10 @@ import { clientEnv } from "@/env/client";
 
 import {
   getApiBaseUrl,
-  getApiGraphqlSseUrl,
   getApiGraphqlUrl,
+  getApiGraphqlWsUrl,
 } from "./api-endpoints";
-import { createGraphqlSseLink } from "./create-graphql-sse-link";
+import { createWebSocketLink } from "./create-websocket-link";
 
 export const APOLLO_GRAPHQL_URI = getApiGraphqlUrl();
 
@@ -24,7 +24,7 @@ export function createApolloClient() {
     uri: getApiGraphqlUrl(),
     credentials: "include",
   });
-  const sseLink = createGraphqlSseLink(getApiGraphqlSseUrl());
+  const wsLink = createWebSocketLink(getApiGraphqlWsUrl());
   const transportLink = ApolloLink.split(
     ({ query }) => {
       const definition = getMainDefinition(query);
@@ -33,7 +33,7 @@ export function createApolloClient() {
         definition.operation === "subscription"
       );
     },
-    sseLink,
+    wsLink,
     httpLink,
   );
 
