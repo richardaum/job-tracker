@@ -4,6 +4,7 @@ import { CanActivate, ExecutionContext, Injectable } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 import { GqlExecutionContext } from "@nestjs/graphql";
 
+import { RoleService } from "./role.service";
 import { ROLES_KEY } from "./roles.decorator";
 
 @Injectable()
@@ -11,6 +12,7 @@ export class RolesGuard implements CanActivate {
   constructor(
     private reflector: Reflector,
     private userService: UserService,
+    private roleService: RoleService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -24,11 +26,8 @@ export class RolesGuard implements CanActivate {
     const { user } = request;
     if (!user?.userId) return false;
 
-    if (user.role) {
-      return requiredRoles.includes(user.role);
-    }
-
     const dbUser = await this.userService.findById(user.userId);
-    return !!dbUser && requiredRoles.includes(dbUser.role);
+    if (!dbUser) return false;
+    return this.roleService.isAllowed(dbUser.role, requiredRoles);
   }
 }

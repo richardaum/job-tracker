@@ -12,6 +12,7 @@ import { DevAuthBypassService } from "./dev-auth-bypass.service";
 import { GoogleStrategy } from "./google.strategy";
 import { JwtStrategy } from "./jwt.strategy";
 import { JwtAuthGuard } from "./jwt-auth.guard";
+import { RoleService } from "./role.service";
 import { RolesGuard } from "./roles.guard";
 
 @Module({
@@ -29,6 +30,7 @@ import { RolesGuard } from "./roles.guard";
     AuthService,
     AuthUserAccessService,
     DevAuthBypassService,
+    RoleService,
     AuthResolver,
   ],
   controllers: [AuthController],
@@ -38,6 +40,7 @@ import { RolesGuard } from "./roles.guard";
     DevAuthBypassService,
     AuthService,
     AuthUserAccessService,
+    RoleService,
     UsersModule,
   ],
 })

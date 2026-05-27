@@ -5,6 +5,8 @@ import { AuthGuard } from "@nestjs/passport";
 import { AuthUserAccessService } from "./auth-user-access.service";
 import { DevAuthBypassService } from "./dev-auth-bypass.service";
 
+type JwtUser = { userId: string; tokenVersion: number };
+
 @Injectable()
 export class JwtAuthGuard extends AuthGuard("jwt") {
   constructor(
@@ -23,7 +25,7 @@ export class JwtAuthGuard extends AuthGuard("jwt") {
     if (this.devAuthBypassService.isEnabled()) {
       const request = this.getRequest(context);
       const user = await this.devAuthBypassService.getBypassUser();
-      request.user = { userId: user.id, role: user.role };
+      request.user = { userId: user.id };
       return true;
     }
 
@@ -31,9 +33,7 @@ export class JwtAuthGuard extends AuthGuard("jwt") {
     if (!result) return false;
 
     const request = this.getRequest(context);
-    const jwtUser = request.user as
-      | { userId: string; tokenVersion: number }
-      | undefined;
+    const jwtUser = request.user as JwtUser | undefined;
     if (!jwtUser?.userId) return false;
 
     const dbUser = await this.authUserAccessService.assertAuthenticatedUser(
@@ -41,7 +41,7 @@ export class JwtAuthGuard extends AuthGuard("jwt") {
       jwtUser.tokenVersion,
     );
 
-    request.user = { userId: dbUser.id, role: dbUser.role };
+    request.user = { userId: dbUser.id };
     return true;
   }
 }
