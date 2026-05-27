@@ -2,6 +2,7 @@ import { CurrentUser } from "@api/domains/auth/current-user.decorator";
 import { JwtAuthGuard } from "@api/domains/auth/jwt-auth.guard";
 import { Roles } from "@api/domains/auth/roles.decorator";
 import { RolesGuard } from "@api/domains/auth/roles.guard";
+import { AsyncMetadataStatusEnum } from "@api/domains/shared/async-metadata.type";
 import { RoleEnum } from "@api/domains/users/role.enum";
 import { UseGuards } from "@nestjs/common";
 import { Args, ID, Resolver, Subscription } from "@nestjs/graphql";
@@ -17,12 +18,16 @@ import {
   JobMatchStatusEventType,
   JobSummaryStatusEventType,
 } from "./job-event.types";
+import { JobsRepository } from "./jobs.repository";
 
 @Resolver()
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(RoleEnum.User)
 export class JobsEventsResolver {
-  constructor(private readonly eventBus: JobEventBus) {}
+  constructor(
+    private readonly eventBus: JobEventBus,
+    private readonly jobsRepo: JobsRepository,
+  ) {}
 
   @Subscription(() => JobSummaryStatusEventType)
   async *jobSummaryStatusChanged(
@@ -31,7 +36,23 @@ export class JobsEventsResolver {
   ): AsyncIterable<JobSummaryStatusEventType> {
     const bus = this.eventBus.forJob(user.userId, jobId);
     for await (const event of bus.eventsOf(SummaryStatusChanged)) {
-      yield { jobId: event.jobId, status: event.status };
+      const payload: JobSummaryStatusEventType = {
+        jobId: event.jobId,
+        status: event.status,
+      };
+
+      if (event.status === AsyncMetadataStatusEnum.COMPLETED) {
+        const job = await this.jobsRepo.findOneByIdAndUserId(
+          jobId,
+          user.userId,
+        );
+        if (job) {
+          payload.summary = job.summary;
+          payload.summaryMetadata = job.summaryMetadata;
+        }
+      }
+
+      yield payload;
     }
   }
 

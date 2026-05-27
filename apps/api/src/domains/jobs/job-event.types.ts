@@ -1,3 +1,4 @@
+import { AsyncMetadataType } from "@api/domains/shared/async-metadata.type";
 import { Field, ID, ObjectType } from "@nestjs/graphql";
 
 @ObjectType()
@@ -7,6 +8,12 @@ export class JobSummaryStatusEventType {
 
   @Field()
   status!: string;
+
+  @Field(() => String, { nullable: true })
+  summary?: string | null;
+
+  @Field(() => AsyncMetadataType, { nullable: true })
+  summaryMetadata?: AsyncMetadataType | null;
 }
 
 @ObjectType()

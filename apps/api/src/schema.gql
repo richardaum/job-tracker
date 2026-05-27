@@ -251,6 +251,8 @@ enum StageEventSource {
 type JobSummaryStatusEventType {
   jobId: ID!
   status: String!
+  summary: String
+  summaryMetadata: AsyncMetadataType
 }
 
 type JobFillStatusEventType {

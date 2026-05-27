@@ -7,6 +7,7 @@ import {
   SummaryStatusChanged,
 } from "./job.events";
 import type { JobEventBus } from "./job-event.bus";
+import type { JobsRepository } from "./jobs.repository";
 import { JobsEventsResolver } from "./jobs-events.resolver";
 
 describe("JobsEventsResolver", () => {
@@ -14,12 +15,18 @@ describe("JobsEventsResolver", () => {
   const eventBus: Pick<JobEventBus, "forJob"> = {
     forJob: vi.fn().mockReturnValue(scopedBus),
   };
+  const jobsRepo: Pick<JobsRepository, "findOneByIdAndUserId"> = {
+    findOneByIdAndUserId: vi.fn(),
+  };
 
   let resolver: JobsEventsResolver;
 
   beforeEach(() => {
     vi.clearAllMocks();
-    resolver = new JobsEventsResolver(eventBus as JobEventBus);
+    resolver = new JobsEventsResolver(
+      eventBus as JobEventBus,
+      jobsRepo as JobsRepository,
+    );
   });
 
   it("jobSummaryStatusChanged yields only matching SummaryStatusChanged events", async () => {
@@ -37,6 +44,14 @@ describe("JobsEventsResolver", () => {
         );
       },
     });
+    vi.mocked(jobsRepo.findOneByIdAndUserId!).mockResolvedValue({
+      summary: '{"type":"doc","content":[]}',
+      summaryMetadata: {
+        status: AsyncMetadataStatusEnum.COMPLETED,
+        error: null,
+        timestamp: new Date("2024-01-01"),
+      },
+    } as never);
 
     const iterator = resolver
       .jobSummaryStatusChanged("job-1", { userId: "user-1" })
@@ -46,10 +61,16 @@ describe("JobsEventsResolver", () => {
     expect(first.value).toEqual({
       jobId: "job-1",
       status: AsyncMetadataStatusEnum.COMPLETED,
+      summary: '{"type":"doc","content":[]}',
+      summaryMetadata: {
+        status: AsyncMetadataStatusEnum.COMPLETED,
+        error: null,
+        timestamp: new Date("2024-01-01"),
+      },
     });
 
     const second = await iterator.next();
-    expect(second.value).toEqual({
+    expect(second.value).toMatchObject({
       jobId: "job-1",
       status: AsyncMetadataStatusEnum.PROCESSING,
     });
@@ -57,6 +78,7 @@ describe("JobsEventsResolver", () => {
     expect(await iterator.next()).toEqual({ value: undefined, done: true });
     expect(eventBus.forJob).toHaveBeenCalledWith("user-1", "job-1");
     expect(scopedBus.eventsOf).toHaveBeenCalledWith(SummaryStatusChanged);
+    expect(jobsRepo.findOneByIdAndUserId).toHaveBeenCalledOnce();
   });
 
   it("jobFillStatusChanged yields FillJobStatusChanged events", async () => {
