@@ -44,6 +44,7 @@ const eslint = new ESLint({
         parser: tsParser,
         parserOptions: { ecmaFeatures: { jsx: true } },
       },
+      linterOptions: { reportUnusedDisableDirectives: "off" },
       rules: {
         "simple-import-sort/imports": "error",
         "simple-import-sort/exports": "error",
@@ -57,6 +58,7 @@ const eslint = new ESLint({
         "job-tracker": jobTrackerPlugin as Record<string, unknown>,
       },
       languageOptions: { parserOptions: { ecmaFeatures: { jsx: true } } },
+      linterOptions: { reportUnusedDisableDirectives: "off" },
       rules: {
         "simple-import-sort/imports": "error",
         "simple-import-sort/exports": "error",
