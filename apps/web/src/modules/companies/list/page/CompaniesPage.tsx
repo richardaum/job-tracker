@@ -3,7 +3,6 @@
 import { normalizeTipTapDocument } from "@job-tracker/tiptap";
 import { Card, cn, Skeleton, Stack, Text, useDialog } from "@job-tracker/ui";
 import { SearchInput } from "@job-tracker/ui";
-import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 import { EmptyState } from "@/components/empty-state";
@@ -36,7 +35,6 @@ function CompaniesListSkeleton({ count = 4 }: { count?: number }) {
 }
 
 export default function CompaniesPage() {
-  const router = useRouter();
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const [query, setQuery] = useState("");
   const [recentlyVisitedCompanyId, setRecentlyVisitedCompanyId] = useState<
@@ -158,11 +156,6 @@ export default function CompaniesPage() {
                 onRecentlyVisitedAnimationEnd={() =>
                   setRecentlyVisitedCompanyId((currentId) =>
                     currentId === company.id ? null : currentId,
-                  )
-                }
-                onViewJobs={(companyName) =>
-                  router.push(
-                    `/jobs?company=${encodeURIComponent(companyName)}`,
                   )
                 }
                 onDeleteSuccess={(message) =>

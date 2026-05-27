@@ -22,7 +22,6 @@ interface CompanyCardData {
 interface CompanyCardProps {
   company: CompanyCardData;
   onEdit: (company: CompanyCardData) => void;
-  onViewJobs: (companyName: string) => void;
   onOpenDetails?: (companyId: string) => void;
   isRecentlyVisited?: boolean;
   onRecentlyVisitedAnimationEnd?: () => void;
@@ -33,7 +32,6 @@ interface CompanyCardProps {
 export function CompanyCard({
   company,
   onEdit,
-  onViewJobs,
   onOpenDetails,
   isRecentlyVisited,
   onRecentlyVisitedAnimationEnd,
@@ -92,14 +90,19 @@ export function CompanyCard({
         actions={
           <ListItemCard.Actions>
             <IconButton
+              asChild
               intent="ghost"
               size="sm"
               label={`View jobs from ${company.name}`}
               tooltip="View jobs"
               className={cn(ListItemCard.actionIconButtonClassName)}
-              icon={<ArrowSquareOutIcon size={13} weight="regular" />}
-              onClick={() => onViewJobs(company.name)}
-            />
+            >
+              <Link
+                href={`/jobs?q=all&company=${encodeURIComponent(company.name)}`}
+              >
+                <ArrowSquareOutIcon size={13} weight="regular" />
+              </Link>
+            </IconButton>
             <IconButton
               intent="ghost"
               size="sm"
