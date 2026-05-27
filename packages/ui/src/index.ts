@@ -184,4 +184,5 @@ export { Wizard, WizardMain, WizardSidebar } from "./components/Wizard/Wizard";
 export { useAsyncEffect } from "./hooks/useAsyncEffect";
 export type { DialogControl } from "./hooks/useDialog";
 export { useDialog } from "./hooks/useDialog";
+export { conceptIcon } from "./icons/concept-map";
 export { cn } from "./lib/cn";
