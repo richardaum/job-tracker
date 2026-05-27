@@ -51,10 +51,12 @@ function SocialComingSoonGlyph({
 export function LoginSocialPanel({
   brandName,
   onGoogleClick,
+  error,
   className,
 }: {
   brandName: string;
   onGoogleClick: () => void;
+  error?: unknown;
   className?: string;
 }) {
   return (
@@ -72,6 +74,12 @@ export function LoginSocialPanel({
         Welcome to {brandName} — sign in with a social account. We never store a
         password for this path.
       </p>
+
+      {!!error && (
+        <p className={cn("mt-3 text-sm text-red-600")} role="alert">
+          Something went wrong. Please try again.
+        </p>
+      )}
 
       <div className={cn("mt-8")}>
         <SocialDivider />

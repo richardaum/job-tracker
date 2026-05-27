@@ -13,7 +13,12 @@ import {
   TabsTrigger,
   Text,
 } from "@job-tracker/ui";
-import { CaretDownIcon, SparkleIcon } from "@phosphor-icons/react";
+import {
+  ArrowSquareRightIcon,
+  CaretDownIcon,
+  SparkleIcon,
+  TrashIcon,
+} from "@phosphor-icons/react";
 import type { Route } from "next";
 import NextLink from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -359,11 +364,18 @@ export default function JobDetailsLayout({
       >
         Fill job fields automatically
       </DropdownMenuItem>
-      <DropdownMenuItem onSelect={() => setActionsOpen(true)}>
+      <DropdownMenuItem
+        onSelect={() => setActionsOpen(true)}
+        icon={<ArrowSquareRightIcon size={14} weight="regular" />}
+      >
         Update status
       </DropdownMenuItem>
       <DropdownMenuSeparator />
-      <DropdownMenuItem destructive onSelect={() => setDeleteDialogOpen(true)}>
+      <DropdownMenuItem
+        destructive
+        onSelect={() => setDeleteDialogOpen(true)}
+        icon={<TrashIcon size={14} weight="regular" />}
+      >
         Remove
       </DropdownMenuItem>
     </DropdownMenu>

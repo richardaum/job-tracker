@@ -14,7 +14,7 @@ import { AppBrandMark } from "@/modules/navigation/components/AppBrandMark";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { user, loading } = useCurrentUser();
+  const { user, loading, error } = useCurrentUser();
   const { safeReturnTo } = useAuthReturnTo();
 
   useEffect(() => {
@@ -25,7 +25,7 @@ export default function LoginPage() {
 
   const handleGoogleLogin = () => {
     // Full navigation to API origin for OAuth (not an in-app Next route).
-    // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- cross-origin auth redirect
+    // eslint-disable-next-line @next/next/no-location-assign-relative-destination
     window.location.assign(
       `${getApiBaseUrl()}/auth/google?returnTo=${encodeURIComponent(safeReturnTo)}`,
     );
@@ -72,6 +72,7 @@ export default function LoginPage() {
             <LoginSocialPanel
               brandName={APP_TITLE}
               onGoogleClick={handleGoogleLogin}
+              error={error}
               className={cn("shadow-xl")}
             />
           </div>

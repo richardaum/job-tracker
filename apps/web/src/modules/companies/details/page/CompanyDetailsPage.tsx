@@ -18,7 +18,7 @@ import {
   TabsTrigger,
   Text,
 } from "@job-tracker/ui";
-import { CaretDownIcon } from "@phosphor-icons/react";
+import { BriefcaseIcon, CaretDownIcon, TrashIcon } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
 import React from "react";
 
@@ -131,11 +131,16 @@ export default function CompanyDetailsPage({ params }: PageProps) {
         onSelect={() =>
           router.push(`/jobs?company=${encodeURIComponent(company.name)}`)
         }
+        icon={<BriefcaseIcon size={14} weight="regular" />}
       >
         View jobs
       </DropdownMenuItem>
       <DropdownMenuSeparator />
-      <DropdownMenuItem destructive onSelect={() => setDeleteDialogOpen(true)}>
+      <DropdownMenuItem
+        destructive
+        onSelect={() => setDeleteDialogOpen(true)}
+        icon={<TrashIcon size={14} weight="regular" />}
+      >
         Remove company
       </DropdownMenuItem>
     </DropdownMenu>

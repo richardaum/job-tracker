@@ -15,7 +15,13 @@ import {
   Stack,
   Text,
 } from "@job-tracker/ui";
-import { BriefcaseIcon, CaretDownIcon, TrashIcon } from "@phosphor-icons/react";
+import {
+  BriefcaseIcon,
+  CaretDownIcon,
+  ClockIcon,
+  LinkIcon,
+  TrashIcon,
+} from "@phosphor-icons/react";
 import type { Route } from "next";
 import NextLink from "next/link";
 import React from "react";
@@ -98,16 +104,23 @@ export default function SourceRunsPage({ params }: PageProps) {
           }
           align="end"
         >
-          <DropdownMenuItem onSelect={() => setSurfaceUrlDialogOpen(true)}>
+          <DropdownMenuItem
+            onSelect={() => setSurfaceUrlDialogOpen(true)}
+            icon={<LinkIcon size={14} weight="regular" />}
+          >
             Edit URL
           </DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => setScheduleDialogOpen(true)}>
+          <DropdownMenuItem
+            onSelect={() => setScheduleDialogOpen(true)}
+            icon={<ClockIcon size={14} weight="regular" />}
+          >
             Edit schedule
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
             destructive
             onSelect={() => setDeleteTemplateDialogOpen(true)}
+            icon={<TrashIcon size={14} weight="regular" />}
           >
             Remove template
           </DropdownMenuItem>

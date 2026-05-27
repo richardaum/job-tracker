@@ -12,7 +12,12 @@ import {
   Text,
   useDialog,
 } from "@job-tracker/ui";
-import { CaretDownIcon, StarIcon } from "@phosphor-icons/react";
+import {
+  CaretDownIcon,
+  PencilSimpleIcon,
+  StarIcon,
+  TrashIcon,
+} from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 
@@ -124,17 +129,23 @@ export default function ResumeDetailsPage({ params }: PageProps) {
     >
       <DropdownMenuItem
         onSelect={() => queueMicrotask(() => titleDialog.open())}
+        icon={<PencilSimpleIcon size={14} weight="regular" />}
       >
         Update title
       </DropdownMenuItem>
       <DropdownMenuItem
         disabled={resume.isDefault}
         onSelect={() => void handleSetAsDefault()}
+        icon={<StarIcon size={14} weight="regular" />}
       >
         Set as default
       </DropdownMenuItem>
       <DropdownMenuSeparator />
-      <DropdownMenuItem destructive onSelect={() => setDeleteDialogOpen(true)}>
+      <DropdownMenuItem
+        destructive
+        onSelect={() => setDeleteDialogOpen(true)}
+        icon={<TrashIcon size={14} weight="regular" />}
+      >
         Delete
       </DropdownMenuItem>
     </DropdownMenu>
