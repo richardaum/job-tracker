@@ -4,6 +4,7 @@ import { Roles } from "@api/domains/auth/roles.decorator";
 import { RolesGuard } from "@api/domains/auth/roles.guard";
 import { DeleteMutationPayloadType } from "@api/domains/shared/delete-mutation-payload.type";
 import { SourceProfileRegistryService } from "@api/domains/sources/source-profile-registry.service";
+import { RoleEnum } from "@api/domains/users/role.enum";
 import { Inject, UseGuards } from "@nestjs/common";
 import {
   Args,
@@ -36,7 +37,7 @@ type SourceRunEventsSubscriptionRoot = { sourceRunEvents: SourceRunEvent };
 
 @Resolver(() => SourceProfileType)
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Roles("user")
+@Roles(RoleEnum.User)
 export class SourcesResolver {
   constructor(
     private readonly service: SourcesService,

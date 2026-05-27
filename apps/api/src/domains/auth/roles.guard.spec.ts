@@ -28,7 +28,7 @@ function makeContext(
 describe("RolesGuard", () => {
   it("allows when user role matches required role (cached)", async () => {
     const reflector = {
-      getAllAndOverride: vi.fn().mockReturnValue(["user"]),
+      getAllAndOverride: vi.fn().mockReturnValue([RoleEnum.User]),
     } as unknown as Reflector;
     const userService = { findById: vi.fn() } as unknown as UserService;
     const guard = new RolesGuard(reflector, userService);
@@ -42,7 +42,7 @@ describe("RolesGuard", () => {
 
   it("blocks when user role does not match required role (cached)", async () => {
     const reflector = {
-      getAllAndOverride: vi.fn().mockReturnValue(["admin"]),
+      getAllAndOverride: vi.fn().mockReturnValue([RoleEnum.Admin]),
     } as unknown as Reflector;
     const userService = { findById: vi.fn() } as unknown as UserService;
     const guard = new RolesGuard(reflector, userService);
@@ -56,7 +56,7 @@ describe("RolesGuard", () => {
 
   it("falls back to DB when request.user has no role set", async () => {
     const reflector = {
-      getAllAndOverride: vi.fn().mockReturnValue(["user"]),
+      getAllAndOverride: vi.fn().mockReturnValue([RoleEnum.User]),
     } as unknown as Reflector;
     const userService = {
       findById: vi.fn().mockResolvedValue({ role: RoleEnum.User }),

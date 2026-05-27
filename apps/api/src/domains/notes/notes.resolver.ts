@@ -3,6 +3,7 @@ import { JwtAuthGuard } from "@api/domains/auth/jwt-auth.guard";
 import { Roles } from "@api/domains/auth/roles.decorator";
 import { RolesGuard } from "@api/domains/auth/roles.guard";
 import { DeleteMutationPayloadType } from "@api/domains/shared/delete-mutation-payload.type";
+import { RoleEnum } from "@api/domains/users/role.enum";
 import { UseGuards } from "@nestjs/common";
 import { Args, ID, Mutation, Query, Resolver } from "@nestjs/graphql";
 
@@ -13,7 +14,7 @@ import { UpdateNoteInput } from "./update-note.input";
 
 @Resolver(() => NoteType)
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Roles("user")
+@Roles(RoleEnum.User)
 export class NoteResolver {
   constructor(private readonly service: NoteService) {}
 

@@ -4,6 +4,7 @@ import { Roles } from "@api/domains/auth/roles.decorator";
 import { RolesGuard } from "@api/domains/auth/roles.guard";
 import { JobType } from "@api/domains/jobs/job.type";
 import { DeleteMutationPayloadType } from "@api/domains/shared/delete-mutation-payload.type";
+import { RoleEnum } from "@api/domains/users/role.enum";
 import { UseGuards } from "@nestjs/common";
 import {
   Args,
@@ -21,7 +22,7 @@ import { MatchAnalysisType } from "./match-analysis.type";
 
 @Resolver(() => MatchAnalysisType)
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Roles("user")
+@Roles(RoleEnum.User)
 export class MatchAnalysisResolver {
   constructor(private readonly service: MatchAnalysisService) {}
 
@@ -76,7 +77,7 @@ export class MatchAnalysisResolver {
 
 @Resolver(() => JobType)
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Roles("user")
+@Roles(RoleEnum.User)
 export class JobMatchResolver {
   constructor(private readonly service: MatchAnalysisService) {}
 

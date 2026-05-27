@@ -334,6 +334,7 @@ type PreferenceType {
 }
 
 type Query {
+  users: [UserType!]!
   me: UserType!
   jobs(filter: ApplicationQuickFilter, company: String, runId: ID): [JobType!]!
   job(id: ID!): JobType!

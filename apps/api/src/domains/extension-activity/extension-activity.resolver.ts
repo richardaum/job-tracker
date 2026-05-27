@@ -7,6 +7,7 @@ import { ExtensionActivityService } from "@api/domains/extension-activity/extens
 import { ExtensionActivityEventBus } from "@api/domains/extension-activity/extension-activity-event.bus";
 import { ExtensionActivityEvent } from "@api/domains/extension-activity/extension-activity-event.type";
 import { ReportExtensionActivityInput } from "@api/domains/extension-activity/report-extension-activity.input";
+import { RoleEnum } from "@api/domains/users/role.enum";
 import { UseGuards } from "@nestjs/common";
 import {
   Args,
@@ -19,7 +20,7 @@ import {
 
 @Resolver()
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Roles("user")
+@Roles(RoleEnum.User)
 export class ExtensionActivityResolver {
   constructor(
     private readonly service: ExtensionActivityService,

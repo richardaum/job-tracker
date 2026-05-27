@@ -1,6 +1,7 @@
 import { JwtAuthGuard } from "@api/domains/auth/jwt-auth.guard";
 import { Roles } from "@api/domains/auth/roles.decorator";
 import { RolesGuard } from "@api/domains/auth/roles.guard";
+import { RoleEnum } from "@api/domains/users/role.enum";
 import { UseGuards } from "@nestjs/common";
 import { Args, Query, Resolver } from "@nestjs/graphql";
 
@@ -9,7 +10,7 @@ import { CurrencyConverterService } from "./currency-converter.service";
 
 @Resolver(() => CurrencyRates)
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Roles("user")
+@Roles(RoleEnum.User)
 export class CurrencyConverterResolver {
   constructor(private readonly service: CurrencyConverterService) {}
 

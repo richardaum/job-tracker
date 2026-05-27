@@ -33,6 +33,10 @@ export class UserRepository {
     return manager?.getRepository(UserAccountEntity) ?? this.accountsRepo;
   }
 
+  async findAll(): Promise<User[]> {
+    return this.usersRepo.find({ order: { createdAt: "DESC" } });
+  }
+
   async findById(id: string): Promise<User | null> {
     return this.usersRepo.findOne({ where: { id } });
   }

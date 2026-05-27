@@ -1,3 +1,4 @@
+import { RoleEnum } from "@api/domains/users/role.enum";
 import { UserType } from "@api/domains/users/user.type";
 import { UserService } from "@api/domains/users/users.service";
 import { UnauthorizedException, UseGuards } from "@nestjs/common";
@@ -12,9 +13,16 @@ import { RolesGuard } from "./roles.guard";
 export class AuthResolver {
   constructor(private readonly userService: UserService) {}
 
+  @Query(() => [UserType])
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(RoleEnum.Admin)
+  async users(): Promise<UserType[]> {
+    return this.userService.listAllUsers();
+  }
+
   @Query(() => UserType)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles("user")
+  @Roles(RoleEnum.User, RoleEnum.Admin)
   async me(@CurrentUser() currentUser: { userId: string }): Promise<UserType> {
     const user = await this.userService.findById(currentUser.userId);
     if (!user) throw new UnauthorizedException();
@@ -23,7 +31,7 @@ export class AuthResolver {
 
   @Mutation(() => Boolean)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles("user")
+  @Roles(RoleEnum.User, RoleEnum.Admin)
   async deactivateAccount(
     @CurrentUser() currentUser: { userId: string },
   ): Promise<boolean> {

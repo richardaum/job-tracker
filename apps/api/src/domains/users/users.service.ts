@@ -15,6 +15,10 @@ export class UserService {
     private readonly activeUserCache: ActiveUserCacheService,
   ) {}
 
+  async listAllUsers(): Promise<User[]> {
+    return this.userRepository.findAll();
+  }
+
   async findById(id: string): Promise<User | null> {
     return this.userRepository.findById(id);
   }

@@ -1,3 +1,4 @@
+import { RoleEnum } from "@api/domains/users/role.enum";
 import { UserService } from "@api/domains/users/users.service";
 import { CanActivate, ExecutionContext, Injectable } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
@@ -13,7 +14,7 @@ export class RolesGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const requiredRoles = this.reflector.getAllAndOverride<string[]>(
+    const requiredRoles = this.reflector.getAllAndOverride<RoleEnum[]>(
       ROLES_KEY,
       [context.getHandler(), context.getClass()],
     );

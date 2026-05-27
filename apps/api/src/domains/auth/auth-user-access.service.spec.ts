@@ -42,7 +42,7 @@ describe("AuthUserAccessService", () => {
 
     await expect(
       service.assertAuthenticatedUser(mockUser.id, mockUser.tokenVersion, [
-        "admin" as RoleEnum,
+        RoleEnum.Admin,
       ]),
     ).rejects.toBeInstanceOf(ForbiddenException);
   });
