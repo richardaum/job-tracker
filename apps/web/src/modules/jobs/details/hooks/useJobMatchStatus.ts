@@ -35,6 +35,7 @@ export function useJobMatchStatusValue(jobId: string) {
       if (!eventData) return;
 
       if (
+        eventData.status === AsyncMetadataStatus.Processing ||
         eventData.status === AsyncMetadataStatus.Completed ||
         eventData.status === AsyncMetadataStatus.Failed
       ) {

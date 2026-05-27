@@ -40,6 +40,7 @@ export function useJobFillStatusValue(jobId: string) {
       const eventData = data.data!.jobFillStatusChanged;
 
       if (
+        eventData.status === AsyncMetadataStatus.Processing ||
         eventData.status === AsyncMetadataStatus.Completed ||
         eventData.status === AsyncMetadataStatus.Failed
       ) {
