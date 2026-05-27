@@ -22,10 +22,9 @@ export class WorkPreferencesRepository {
   ): Promise<WorkPreferences> {
     const existing = await this.findByUserId(userId);
     if (existing) {
-      Object.assign(existing, { items });
+      existing.items = items;
       return this.repo.save(existing);
     }
-    const prefs = this.repo.create({ userId, items });
-    return this.repo.save(prefs);
+    return this.repo.save(this.repo.create({ userId, items }));
   }
 }
