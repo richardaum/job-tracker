@@ -1,4 +1,9 @@
-import { DotsThreeOutlineVertical } from "@phosphor-icons/react";
+import {
+  CopyIcon,
+  DotsThreeOutlineVertical,
+  PencilSimpleIcon,
+  TrashIcon,
+} from "@phosphor-icons/react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { IconButton } from "@ui/components/IconButton/IconButton";
 
@@ -29,10 +34,19 @@ export const Default: Story = {
         />
       }
     >
-      <DropdownMenuItem>Edit job</DropdownMenuItem>
-      <DropdownMenuItem>Duplicate</DropdownMenuItem>
+      <DropdownMenuItem icon={<PencilSimpleIcon size={14} weight="regular" />}>
+        Edit job
+      </DropdownMenuItem>
+      <DropdownMenuItem icon={<CopyIcon size={14} weight="regular" />}>
+        Duplicate
+      </DropdownMenuItem>
       <DropdownMenuSeparator />
-      <DropdownMenuItem destructive>Delete</DropdownMenuItem>
+      <DropdownMenuItem
+        destructive
+        icon={<TrashIcon size={14} weight="regular" />}
+      >
+        Delete
+      </DropdownMenuItem>
     </DropdownMenu>
   ),
 };
