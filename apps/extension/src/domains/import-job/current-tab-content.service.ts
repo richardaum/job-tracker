@@ -1,3 +1,5 @@
+import { sanitizeCapturedHtml } from "@job-tracker/html-sanitize";
+
 import { CONTEXT_MENU_IMPORT_TITLE } from "./import-job-labels";
 
 export type DraftJobSnapshot = {
@@ -12,7 +14,7 @@ export class CurrentTabContentService {
     const url = window.location.href;
     const root = this.buildImportRoot();
     this.removeNonContentElements(root);
-    return { url, title, innerHTML: root.innerHTML };
+    return { url, title, innerHTML: sanitizeCapturedHtml(root.innerHTML) };
   }
 
   getImportMenuLabel(): string {
@@ -36,18 +38,6 @@ export class CurrentTabContentService {
     }
 
     return document.body.cloneNode(true) as HTMLBodyElement;
-  }
-
-  private hasTextSelection(): boolean {
-    const selection = window.getSelection();
-    if (
-      selection == null ||
-      selection.isCollapsed ||
-      selection.rangeCount === 0
-    ) {
-      return false;
-    }
-    return selection.toString().trim().length > 0;
   }
 
   private removeNonContentElements(parent: ParentNode): void {

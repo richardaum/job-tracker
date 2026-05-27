@@ -1,4 +1,3 @@
-import { sanitizeCapturedHtml } from "@job-tracker/html-sanitize";
 import { tryRun } from "@job-tracker/try-run";
 
 import { ApiService } from "@/domains/api/api.service";
@@ -43,7 +42,7 @@ export class ImportJobService {
         company: "",
         title: snapshot.title,
         urls: snapshot.url?.trim() ? [snapshot.url.trim()] : [],
-        htmlContent: sanitizeCapturedHtml(snapshot.innerHTML),
+        htmlContent: snapshot.innerHTML,
         autoFill: true,
       }),
     );
