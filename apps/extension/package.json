@@ -26,7 +26,6 @@
     "@tiptap/html": "^3.23.1",
     "@tiptap/starter-kit": "^3.23.1",
     "graphql": "^16.13.2",
-    "graphql-sse": "^2.6.0",
     "p-limit": "^7.3.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",

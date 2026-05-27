@@ -3,6 +3,7 @@ export const EXTENSION_BRIDGE_SOURCE = "job-tracker-extension-bridge" as const;
 export const EXTENSION_BRIDGE_MESSAGE_TYPE = {
   ping: "JOB_TRACKER_EXTENSION_PING",
   pong: "JOB_TRACKER_EXTENSION_PONG",
+  sourceRunStart: "JOB_TRACKER_SOURCE_RUN_START",
 } as const;
 
 export type ExtensionBridgeAuthStatus = "authenticated" | "unauthenticated";
@@ -58,6 +59,29 @@ export function isAdminGetStatusResponse(
       record.authStatus === "unauthenticated") &&
     (typeof record.authenticatedEmail === "string" ||
       record.authenticatedEmail === null)
+  );
+}
+
+export type SourceRunStartRequest = {
+  type: typeof EXTENSION_BRIDGE_MESSAGE_TYPE.sourceRunStart;
+  source: typeof EXTENSION_BRIDGE_SOURCE;
+  runId: string;
+  surfaceUrl: string;
+  sourceProfileId: string;
+};
+
+export function isSourceRunStartRequest(
+  data: unknown,
+): data is SourceRunStartRequest {
+  if (typeof data !== "object" || data == null) return false;
+
+  const record = data as Record<string, unknown>;
+  return (
+    record.type === EXTENSION_BRIDGE_MESSAGE_TYPE.sourceRunStart &&
+    record.source === EXTENSION_BRIDGE_SOURCE &&
+    typeof record.runId === "string" &&
+    typeof record.surfaceUrl === "string" &&
+    typeof record.sourceProfileId === "string"
   );
 }
 

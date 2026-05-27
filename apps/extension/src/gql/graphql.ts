@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { TypedDocumentNode as DocumentNode } from "@graphql-typed-document-node/core";
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = T | null | undefined;
@@ -28,6 +29,8 @@ export type Scalars = {
   Float: { input: number; output: number };
   /** A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format. */
   DateTime: { input: any; output: any };
+  /** The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf). */
+  JSON: { input: any; output: any };
 };
 
 export enum ApplicationQuickFilter {
@@ -88,6 +91,7 @@ export type CompanyType = {
 
 export type CreateJobInput = {
   autoFill?: InputMaybe<Scalars["Boolean"]["input"]>;
+  autoMatch?: InputMaybe<Scalars["Boolean"]["input"]>;
   company?: InputMaybe<Scalars["String"]["input"]>;
   companyId?: InputMaybe<Scalars["ID"]["input"]>;
   createAsDraftCapture?: InputMaybe<Scalars["Boolean"]["input"]>;
@@ -151,13 +155,21 @@ export type ExchangeRate = {
 
 export type ExtensionActivityEvent = {
   __typename?: "ExtensionActivityEvent";
+  /** Browser user-agent or name. */
   browser?: Maybe<Scalars["String"]["output"]>;
+  /** Groups related events (e.g. run ID). */
   correlationId?: Maybe<Scalars["String"]["output"]>;
+  /** Extension version that reported the event. */
   extensionVersion?: Maybe<Scalars["String"]["output"]>;
+  /** Unique event identifier. */
   id: Scalars["ID"]["output"];
+  /** When the event actually happened (client-reported). */
   occurredAt: Scalars["DateTime"]["output"];
-  payload?: Maybe<Scalars["String"]["output"]>;
+  /** Arbitrary JSON payload with event details. */
+  payload?: Maybe<Scalars["JSON"]["output"]>;
+  /** Human-readable summary of what happened. */
   summary: Scalars["String"]["output"];
+  /** Event category (source run lifecycle, import, auth). */
   type: ExtensionActivityEventType;
 };
 
@@ -578,7 +590,7 @@ export type ReportExtensionActivityInput = {
   correlationId?: InputMaybe<Scalars["String"]["input"]>;
   extensionVersion?: InputMaybe<Scalars["String"]["input"]>;
   occurredAt?: InputMaybe<Scalars["DateTime"]["input"]>;
-  payload?: InputMaybe<Scalars["String"]["input"]>;
+  payload?: InputMaybe<Scalars["JSON"]["input"]>;
   summary: Scalars["String"]["input"];
   type: ExtensionActivityEventType;
 };
@@ -717,6 +729,7 @@ export type UpdateResumeInput = {
 
 export type UpdateSettingsInput = {
   autoFillEnabled?: InputMaybe<Scalars["Boolean"]["input"]>;
+  autoMatchEnabled?: InputMaybe<Scalars["Boolean"]["input"]>;
   autoSummaryEnabled?: InputMaybe<Scalars["Boolean"]["input"]>;
   duplicateWindowDays?: InputMaybe<Scalars["Int"]["input"]>;
 };
@@ -732,6 +745,7 @@ export type UpdateSourceTemplateInput = {
 export type UserSetting = {
   __typename?: "UserSetting";
   autoFillEnabled: Scalars["Boolean"]["output"];
+  autoMatchEnabled: Scalars["Boolean"]["output"];
   autoSummaryEnabled: Scalars["Boolean"]["output"];
   duplicateWindowDays: Scalars["Int"]["output"];
   id: Scalars["ID"]["output"];
@@ -752,22 +766,6 @@ export enum Weight {
   High = "High",
   Low = "Low",
 }
-
-export type ClaimSourceRunMutationVariables = Exact<{
-  id: Scalars["ID"]["input"];
-}>;
-
-export type ClaimSourceRunMutation = {
-  __typename?: "Mutation";
-  claimSourceRun?: {
-    __typename?: "SourceRunType";
-    id: string;
-    sourceProfileId: string;
-    status: SourceRunStatus;
-    startedAt: any;
-    sourceProfile: string;
-  } | null;
-};
 
 export type CreateDraftCaptureJobMutationVariables = Exact<{
   input: CreateJobInput;
@@ -822,29 +820,6 @@ export type ReportExtensionActivityMutation = {
   };
 };
 
-export type SourceRunEventsSubscriptionVariables = Exact<{
-  [key: string]: never;
-}>;
-
-export type SourceRunEventsSubscription = {
-  __typename?: "Subscription";
-  sourceRunEvents: {
-    __typename?: "SourceRunEvent";
-    type: SourceRunEventType;
-    occurredAt: any;
-    run: {
-      __typename?: "SourceRunType";
-      id: string;
-      templateId: string;
-      sourceProfileId: string;
-      surfaceUrl: string;
-      status: SourceRunStatus;
-      startedAt: any;
-      sourceProfile: string;
-    };
-  };
-};
-
 export type SourceRunsQueryVariables = Exact<{ [key: string]: never }>;
 
 export type SourceRunsQuery = {
@@ -889,64 +864,6 @@ export type UpdateSourceRunMutation = {
   };
 };
 
-export const ClaimSourceRunDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "mutation",
-      name: { kind: "Name", value: "ClaimSourceRun" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: { kind: "Variable", name: { kind: "Name", value: "id" } },
-          type: {
-            kind: "NonNullType",
-            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "claimSourceRun" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "id" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "id" },
-                },
-              },
-            ],
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "sourceProfileId" },
-                },
-                { kind: "Field", name: { kind: "Name", value: "status" } },
-                { kind: "Field", name: { kind: "Name", value: "startedAt" } },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "sourceProfile" },
-                },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  ClaimSourceRunMutation,
-  ClaimSourceRunMutationVariables
->;
 export const CreateDraftCaptureJobDocument = {
   kind: "Document",
   definitions: [
@@ -1164,69 +1081,6 @@ export const ReportExtensionActivityDocument = {
 } as unknown as DocumentNode<
   ReportExtensionActivityMutation,
   ReportExtensionActivityMutationVariables
->;
-export const SourceRunEventsDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "subscription",
-      name: { kind: "Name", value: "SourceRunEvents" },
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "sourceRunEvents" },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "type" } },
-                { kind: "Field", name: { kind: "Name", value: "occurredAt" } },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "run" },
-                  selectionSet: {
-                    kind: "SelectionSet",
-                    selections: [
-                      { kind: "Field", name: { kind: "Name", value: "id" } },
-                      {
-                        kind: "Field",
-                        name: { kind: "Name", value: "templateId" },
-                      },
-                      {
-                        kind: "Field",
-                        name: { kind: "Name", value: "sourceProfileId" },
-                      },
-                      {
-                        kind: "Field",
-                        name: { kind: "Name", value: "surfaceUrl" },
-                      },
-                      {
-                        kind: "Field",
-                        name: { kind: "Name", value: "status" },
-                      },
-                      {
-                        kind: "Field",
-                        name: { kind: "Name", value: "startedAt" },
-                      },
-                      {
-                        kind: "Field",
-                        name: { kind: "Name", value: "sourceProfile" },
-                      },
-                    ],
-                  },
-                },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  SourceRunEventsSubscription,
-  SourceRunEventsSubscriptionVariables
 >;
 export const SourceRunsDocument = {
   kind: "Document",

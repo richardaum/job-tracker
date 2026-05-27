@@ -1,4 +1,4 @@
-type RuntimeMessage = { kind: string };
+type RuntimeMessage = { kind: string; [key: string]: unknown };
 
 type RuntimeMessageHandler<
   TMessage extends RuntimeMessage,

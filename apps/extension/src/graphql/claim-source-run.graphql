@@ -1,9 +1,0 @@
-mutation ClaimSourceRun($id: ID!) {
-  claimSourceRun(id: $id) {
-    id
-    sourceProfileId
-    status
-    startedAt
-    sourceProfile
-  }
-}

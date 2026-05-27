@@ -91,14 +91,13 @@ export default defineBackground(() => {
     planService,
     activityReporter,
   );
-  sourceRunEventsService.start();
+  void sourceRunEventsService.recoverOutstandingRuns();
 
   const contextMenuService = new ContextMenuService(importJobService);
   void contextMenuService.setup();
   contextMenuService.bindListeners();
 
   chrome.runtime.onSuspend.addListener(() => {
-    sourceRunEventsService.stop();
     apiService.dispose();
   });
 
@@ -128,5 +127,8 @@ export default defineBackground(() => {
     },
     "admin.get-status": (message) =>
       adminExtensionStatusService.handleGetStatusMessage(message),
+    "source-run.start": (message) => {
+      void sourceRunEventsService.executeSourceRun(message);
+    },
   });
 });

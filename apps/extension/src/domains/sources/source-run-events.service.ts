@@ -1,38 +1,14 @@
 import { tryRun } from "@job-tracker/try-run";
 
-import type {
-  ApiService,
-  SourceRunEventHandler,
-} from "@/domains/api/api.service";
+import type { ApiService } from "@/domains/api/api.service";
 import type { ExtensionActivityReporterService } from "@/domains/extension-activity/extension-activity-reporter.service";
 import type { LogService } from "@/domains/log/log.service";
 import { mapCollectedJobToCreateJobInput } from "@/domains/plan/map-collected-job-to-create-job-input";
 import type { PlanService } from "@/domains/plan/services/plan.service";
 import { planForSourceRun } from "@/domains/sources/source-run-plan";
-import {
-  ExtensionActivityEventType,
-  type SourceRunEventsSubscription,
-  SourceRunEventType,
-  SourceRunStatus,
-} from "@/gql/graphql";
-
-type SubscriptionHandle = { unsubscribe: () => void };
-type SourceRunEvent = SourceRunEventsSubscription["sourceRunEvents"];
-
-function sourceRunActivitySummary(run: SourceRunEvent["run"]): string {
-  const profile = run.sourceProfile.trim();
-  const surfaceUrl = run.surfaceUrl.trim();
-
-  if (profile && surfaceUrl) return `${profile} · ${surfaceUrl}`;
-  if (profile) return profile;
-  if (surfaceUrl) return surfaceUrl;
-  return run.sourceProfileId;
-}
+import { ExtensionActivityEventType, SourceRunStatus } from "@/gql/graphql";
 
 export class SourceRunEventsService {
-  private subscription: SubscriptionHandle | null = null;
-  private readonly handlers = new Set<SourceRunEventHandler>();
-
   constructor(
     private readonly apiService: ApiService,
     private readonly logService: LogService,
@@ -40,43 +16,10 @@ export class SourceRunEventsService {
     private readonly activityReporter?: ExtensionActivityReporterService,
   ) {}
 
-  on(handler: SourceRunEventHandler): () => void {
-    this.handlers.add(handler);
-    return () => this.handlers.delete(handler);
-  }
-
-  start(): void {
-    if (this.subscription) {
-      return;
-    }
-    this.logService.debug("source-run-events:start");
-    void this.recoverOutstandingRuns();
-    this.subscription = this.apiService.subscribeToSourceRunEvents(
-      (event) => {
-        this.logService.debug("source-run-events:event", {
-          type: event.type,
-          runId: event.run.id,
-        });
-        void this.routeEvent(event);
-        for (const handler of this.handlers) {
-          const [handlerErr] = tryRun(() => handler(event));
-          if (handlerErr) {
-            this.logService.error("source-run-events:handler-error", {
-              error: handlerErr,
-            });
-          }
-        }
-      },
-      (error) => {
-        this.logService.error("source-run-events:error", { error });
-      },
-    );
-  }
-
-  private async recoverOutstandingRuns(): Promise<void> {
+  async recoverOutstandingRuns(): Promise<void> {
     const [err, response] = await tryRun(this.apiService.sourceRuns());
     if (err) {
-      this.logService.error("source-run-events:recovery-error", { error: err });
+      this.logService.error("source-run:recovery-error", { error: err });
       return;
     }
 
@@ -88,66 +31,38 @@ export class SourceRunEventsService {
       ) ?? [];
 
     for (const run of outstandingRuns) {
-      await this.handleSourceRunCreated({
-        type: SourceRunEventType.SourceRunCreated,
-        occurredAt: new Date().toISOString(),
-        run,
+      await this.executeSourceRun({
+        runId: run.id,
+        surfaceUrl: run.surfaceUrl,
+        sourceProfileId: run.sourceProfileId,
       });
     }
   }
 
-  private async routeEvent(event: SourceRunEvent): Promise<void> {
-    switch (event.type) {
-      case SourceRunEventType.SourceRunCreated:
-        await this.handleSourceRunCreated(event);
-        return;
-      default:
-        this.logService.debug("source-run-events:ignored", {
-          type: event.type,
-          runId: event.run.id,
-        });
-    }
-  }
-
-  private async handleSourceRunCreated(event: SourceRunEvent): Promise<void> {
-    const runId = event.run.id;
-    const summary = sourceRunActivitySummary(event.run);
-
-    this.activityReporter?.report(
-      ExtensionActivityEventType.SourceRunReceived,
-      summary,
-      { correlationId: runId, occurredAt: event.occurredAt },
-    );
-
-    const claim = await this.apiService.claimSourceRun(runId);
-    if (!claim.data?.claimSourceRun) {
-      this.logService.debug("source-run-events:claim-skipped", { runId });
-      this.activityReporter?.report(
-        ExtensionActivityEventType.SourceRunClaimSkipped,
-        summary,
-        { correlationId: runId },
-      );
+  async executeSourceRun(params: unknown): Promise<void> {
+    if (!isSourceRunStartMessage(params)) {
+      this.logService.error("source-run:invalid-message", { params });
       return;
     }
+    const { runId, surfaceUrl, sourceProfileId } = params;
 
     await this.apiService.updateSourceRunStatus(
       runId,
       SourceRunStatus.InProgress,
     );
+
     this.activityReporter?.report(
       ExtensionActivityEventType.SourceRunStarted,
-      summary,
+      `${sourceProfileId} · ${surfaceUrl}`,
       { correlationId: runId },
     );
 
-    const plan = planForSourceRun({
-      sourceProfileId: event.run.sourceProfileId,
-    });
+    const plan = planForSourceRun({ sourceProfileId });
 
     const [runErr] = await tryRun(
       (async () => {
         await this.planService.execute(plan, {
-          surfaceUrl: event.run.surfaceUrl.trim(),
+          surfaceUrl: surfaceUrl.trim(),
           onJobCollected: async (job) => {
             const input = {
               ...mapCollectedJobToCreateJobInput(job),
@@ -155,7 +70,7 @@ export class SourceRunEventsService {
             };
             const [createErr] = await tryRun(this.apiService.createJob(input));
             if (createErr) {
-              this.logService.error("source-run-events:create-job-failed", {
+              this.logService.error("source-run:create-job-failed", {
                 runId,
                 error: createErr,
                 title: job.title,
@@ -167,7 +82,7 @@ export class SourceRunEventsService {
               ExtensionActivityEventType.SourceRunJobImported,
               typeof job.title === "string" && job.title.trim()
                 ? job.title.trim()
-                : summary,
+                : `${sourceProfileId} · ${surfaceUrl}`,
               { correlationId: runId },
             );
           },
@@ -184,13 +99,13 @@ export class SourceRunEventsService {
         runId,
         SourceRunStatus.Failed,
       );
-      this.logService.error("source-run-events:execution-failed", {
+      this.logService.error("source-run:execution-failed", {
         runId,
         error: runErr,
       });
       this.activityReporter?.report(
         ExtensionActivityEventType.SourceRunFailed,
-        summary,
+        `${sourceProfileId} · ${surfaceUrl}`,
         { correlationId: runId },
       );
       return;
@@ -198,17 +113,26 @@ export class SourceRunEventsService {
 
     this.activityReporter?.report(
       ExtensionActivityEventType.SourceRunCompleted,
-      summary,
+      `${sourceProfileId} · ${surfaceUrl}`,
       { correlationId: runId },
     );
   }
+}
 
-  stop(): void {
-    if (!this.subscription) {
-      return;
-    }
-    this.logService.debug("source-run-events:stop");
-    this.subscription.unsubscribe();
-    this.subscription = null;
-  }
+type SourceRunStartMessage = {
+  runId: string;
+  surfaceUrl: string;
+  sourceProfileId: string;
+};
+
+function isSourceRunStartMessage(
+  message: unknown,
+): message is SourceRunStartMessage {
+  if (typeof message !== "object" || message === null) return false;
+  const m = message as Record<string, unknown>;
+  return (
+    typeof m.runId === "string" &&
+    typeof m.surfaceUrl === "string" &&
+    typeof m.sourceProfileId === "string"
+  );
 }

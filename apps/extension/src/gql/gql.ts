@@ -14,19 +14,15 @@ import { TypedDocumentNode as DocumentNode } from "@graphql-typed-document-node/
  * Learn more about it here: https://the-guild.dev/graphql/codegen/plugins/presets/preset-client#reducing-bundle-size
  */
 type Documents = {
-  "mutation ClaimSourceRun($id: ID!) {\n  claimSourceRun(id: $id) {\n    id\n    sourceProfileId\n    status\n    startedAt\n    sourceProfile\n  }\n}": typeof types.ClaimSourceRunDocument;
   "mutation CreateDraftCaptureJob($input: CreateJobInput!) {\n  createJob(input: $input) {\n    id\n    title\n    urls\n    htmlContent\n    currentStage\n    fillMetadata {\n      status\n      error\n      timestamp\n    }\n    createdAt\n  }\n}": typeof types.CreateDraftCaptureJobDocument;
   "mutation CreateJob($input: CreateJobInput!) {\n  createJob(input: $input) {\n    id\n    title\n  }\n}": typeof types.CreateJobDocument;
   "query Me {\n  me {\n    email\n  }\n}": typeof types.MeDocument;
   "mutation ReportExtensionActivity($input: ReportExtensionActivityInput!) {\n  reportExtensionActivity(input: $input) {\n    id\n    type\n    summary\n    correlationId\n    occurredAt\n  }\n}": typeof types.ReportExtensionActivityDocument;
-  "subscription SourceRunEvents {\n  sourceRunEvents {\n    type\n    occurredAt\n    run {\n      id\n      templateId\n      sourceProfileId\n      surfaceUrl\n      status\n      startedAt\n      sourceProfile\n    }\n  }\n}": typeof types.SourceRunEventsDocument;
   "query SourceRuns {\n  sourceRuns {\n    id\n    templateId\n    sourceProfileId\n    surfaceUrl\n    status\n    startedAt\n    sourceProfile\n  }\n}": typeof types.SourceRunsDocument;
   "mutation UpdateSourceRunStatus($id: ID!, $status: SourceRunStatus!) {\n  updateSourceRunStatus(id: $id, status: $status) {\n    id\n    status\n  }\n}": typeof types.UpdateSourceRunStatusDocument;
   "mutation UpdateSourceRun($id: ID!, $input: UpdateSourceRunInput!) {\n  updateSourceRun(id: $id, input: $input) {\n    id\n    surfaceUrl\n  }\n}": typeof types.UpdateSourceRunDocument;
 };
 const documents: Documents = {
-  "mutation ClaimSourceRun($id: ID!) {\n  claimSourceRun(id: $id) {\n    id\n    sourceProfileId\n    status\n    startedAt\n    sourceProfile\n  }\n}":
-    types.ClaimSourceRunDocument,
   "mutation CreateDraftCaptureJob($input: CreateJobInput!) {\n  createJob(input: $input) {\n    id\n    title\n    urls\n    htmlContent\n    currentStage\n    fillMetadata {\n      status\n      error\n      timestamp\n    }\n    createdAt\n  }\n}":
     types.CreateDraftCaptureJobDocument,
   "mutation CreateJob($input: CreateJobInput!) {\n  createJob(input: $input) {\n    id\n    title\n  }\n}":
@@ -34,8 +30,6 @@ const documents: Documents = {
   "query Me {\n  me {\n    email\n  }\n}": types.MeDocument,
   "mutation ReportExtensionActivity($input: ReportExtensionActivityInput!) {\n  reportExtensionActivity(input: $input) {\n    id\n    type\n    summary\n    correlationId\n    occurredAt\n  }\n}":
     types.ReportExtensionActivityDocument,
-  "subscription SourceRunEvents {\n  sourceRunEvents {\n    type\n    occurredAt\n    run {\n      id\n      templateId\n      sourceProfileId\n      surfaceUrl\n      status\n      startedAt\n      sourceProfile\n    }\n  }\n}":
-    types.SourceRunEventsDocument,
   "query SourceRuns {\n  sourceRuns {\n    id\n    templateId\n    sourceProfileId\n    surfaceUrl\n    status\n    startedAt\n    sourceProfile\n  }\n}":
     types.SourceRunsDocument,
   "mutation UpdateSourceRunStatus($id: ID!, $status: SourceRunStatus!) {\n  updateSourceRunStatus(id: $id, status: $status) {\n    id\n    status\n  }\n}":
@@ -62,12 +56,6 @@ export function graphql(source: string): unknown;
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: "mutation ClaimSourceRun($id: ID!) {\n  claimSourceRun(id: $id) {\n    id\n    sourceProfileId\n    status\n    startedAt\n    sourceProfile\n  }\n}",
-): (typeof documents)["mutation ClaimSourceRun($id: ID!) {\n  claimSourceRun(id: $id) {\n    id\n    sourceProfileId\n    status\n    startedAt\n    sourceProfile\n  }\n}"];
-/**
- * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function graphql(
   source: "mutation CreateDraftCaptureJob($input: CreateJobInput!) {\n  createJob(input: $input) {\n    id\n    title\n    urls\n    htmlContent\n    currentStage\n    fillMetadata {\n      status\n      error\n      timestamp\n    }\n    createdAt\n  }\n}",
 ): (typeof documents)["mutation CreateDraftCaptureJob($input: CreateJobInput!) {\n  createJob(input: $input) {\n    id\n    title\n    urls\n    htmlContent\n    currentStage\n    fillMetadata {\n      status\n      error\n      timestamp\n    }\n    createdAt\n  }\n}"];
 /**
@@ -88,12 +76,6 @@ export function graphql(
 export function graphql(
   source: "mutation ReportExtensionActivity($input: ReportExtensionActivityInput!) {\n  reportExtensionActivity(input: $input) {\n    id\n    type\n    summary\n    correlationId\n    occurredAt\n  }\n}",
 ): (typeof documents)["mutation ReportExtensionActivity($input: ReportExtensionActivityInput!) {\n  reportExtensionActivity(input: $input) {\n    id\n    type\n    summary\n    correlationId\n    occurredAt\n  }\n}"];
-/**
- * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function graphql(
-  source: "subscription SourceRunEvents {\n  sourceRunEvents {\n    type\n    occurredAt\n    run {\n      id\n      templateId\n      sourceProfileId\n      surfaceUrl\n      status\n      startedAt\n      sourceProfile\n    }\n  }\n}",
-): (typeof documents)["subscription SourceRunEvents {\n  sourceRunEvents {\n    type\n    occurredAt\n    run {\n      id\n      templateId\n      sourceProfileId\n      surfaceUrl\n      status\n      startedAt\n      sourceProfile\n    }\n  }\n}"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

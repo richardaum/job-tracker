@@ -8,6 +8,8 @@ import {
   type ExtensionBridgeStatus,
   isAdminGetStatusResponse,
   isExtensionBridgePing,
+  isSourceRunStartRequest,
+  type SourceRunStartRequest,
 } from "@/domains/web-bridge/extension-bridge.protocol";
 
 export class WebBridgeService {
@@ -18,9 +20,16 @@ export class WebBridgeService {
       if (window.location.origin !== this.expectedWebAppOrigin) return;
       if (event.source !== window) return;
       if (event.origin !== window.location.origin) return;
-      if (!isExtensionBridgePing(event.data)) return;
 
-      void this.respondToPing(event.data);
+      if (isExtensionBridgePing(event.data)) {
+        void this.respondToPing(event.data);
+        return;
+      }
+
+      if (isSourceRunStartRequest(event.data)) {
+        void this.forwardSourceRunStart(event.data);
+        return;
+      }
     };
 
     window.addEventListener("message", handleWindowMessage);
@@ -55,5 +64,16 @@ export class WebBridgeService {
       },
       window.location.origin,
     );
+  }
+
+  private async forwardSourceRunStart(
+    request: SourceRunStartRequest,
+  ): Promise<void> {
+    await chrome.runtime.sendMessage({
+      kind: "source-run.start",
+      runId: request.runId,
+      surfaceUrl: request.surfaceUrl,
+      sourceProfileId: request.sourceProfileId,
+    });
   }
 }
