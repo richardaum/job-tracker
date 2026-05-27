@@ -1,18 +1,13 @@
 import { apolloGraphOsPlugins } from "@api/graphql/apollo-graphos-plugins";
 import type { ApolloDriverConfig } from "@nestjs/apollo";
 import { ApolloDriver } from "@nestjs/apollo";
-import {
-  MiddlewareConsumer,
-  Module,
-  NestModule,
-  RequestMethod,
-} from "@nestjs/common";
+import { Module } from "@nestjs/common";
 import { GraphQLModule } from "@nestjs/graphql";
 import { ThrottlerModule } from "@nestjs/throttler";
+import type { Request } from "express";
 import { join } from "path";
 
 import { AppController } from "./app.controller";
-import { IpRateLimitService } from "./common/ip-rate-limit.service";
 import { DatabaseModule } from "./database/database.module";
 import { AiModule } from "./domains/ai/ai.module";
 import { AuthModule } from "./domains/auth/auth.module";
@@ -27,8 +22,8 @@ import { SettingsModule } from "./domains/settings/settings.module";
 import { SourcesModule } from "./domains/sources/sources.module";
 import { WorkPreferencesModule } from "./domains/work-preferences/work-preferences.module";
 import { apiEnv } from "./env/server";
+import { fixSubscriptionResolve } from "./graphql/fix-subscription-resolve";
 import { graphqlFormatError } from "./graphql/graphql-format-error";
-import { GraphqlSseMiddleware } from "./graphql/graphql-sse.middleware";
 
 @Module({
   imports: [
@@ -56,16 +51,15 @@ import { GraphqlSseMiddleware } from "./graphql/graphql-sse.middleware";
       playground: true,
       plugins: apolloGraphOsPlugins(),
       formatError: graphqlFormatError,
+      subscriptions: { "graphql-ws": { path: "/graphql" } },
+      transformSchema: fixSubscriptionResolve,
+      context: (ctx: {
+        req?: Request;
+        connectionParams?: Record<string, unknown>;
+        extra?: { request: Request };
+      }) => ({ req: ctx.req ?? ctx.extra?.request }),
     }),
   ],
   controllers: [AppController],
-  // TODO(infra): Remove IpRateLimitService when SSE (and any /graphql) limits move to the edge.
-  providers: [GraphqlSseMiddleware, IpRateLimitService],
 })
-export class AppModule implements NestModule {
-  configure(consumer: MiddlewareConsumer): void {
-    consumer
-      .apply(GraphqlSseMiddleware)
-      .forRoutes({ path: "graphql-sse/stream", method: RequestMethod.ALL });
-  }
-}
+export class AppModule {}
