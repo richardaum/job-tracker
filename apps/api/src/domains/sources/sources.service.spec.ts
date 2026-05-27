@@ -44,7 +44,6 @@ describe("SourcesService", () => {
     | "findRunsForTemplate"
     | "updateStatus"
     | "resetStaleInProgressRuns"
-    | "claimRunning"
     | "listTemplatesByUserAndSourceProfileId"
   > = {
     listByUserId: vi.fn(),
@@ -57,7 +56,6 @@ describe("SourcesService", () => {
     findRunsForTemplate: vi.fn(),
     updateStatus: vi.fn(),
     resetStaleInProgressRuns: vi.fn(),
-    claimRunning: vi.fn(),
     listTemplatesByUserAndSourceProfileId: vi.fn(),
   };
 
@@ -305,98 +303,6 @@ describe("SourcesService", () => {
     expect(repo.resetStaleInProgressRuns).toHaveBeenCalledWith(
       expect.any(Date),
     );
-  });
-
-  it("claimSourceRun reclaims stale in-progress run", async () => {
-    const staleStartedAt = new Date(Date.now() - 11 * 60 * 1000);
-    const staleRow = {
-      ...runWithTemplate("remoteyeah"),
-      status: SourceRunStatusEnum.IN_PROGRESS,
-      startedAt: staleStartedAt,
-    };
-    vi.mocked(repo.claimRunning)
-      .mockResolvedValueOnce(null)
-      .mockResolvedValueOnce(staleRow);
-    vi.mocked(repo.findByUserAndId)
-      .mockResolvedValueOnce(staleRow)
-      .mockResolvedValueOnce(staleRow);
-    vi.mocked(repo.updateStatus).mockResolvedValue(true);
-
-    const out = await service.claimSourceRun("user-1", "run-1");
-
-    expect(out?.status).toBe(SourceRunStatusEnum.IN_PROGRESS);
-    expect(repo.updateStatus).toHaveBeenNthCalledWith(1, {
-      id: "run-1",
-      userId: "user-1",
-      status: SourceRunStatusEnum.RUNNING,
-    });
-    expect(repo.claimRunning).toHaveBeenNthCalledWith(2, {
-      id: "run-1",
-      userId: "user-1",
-    });
-  });
-
-  it("claimSourceRun returns the run when CAS wins (RUNNING -> IN_PROGRESS)", async () => {
-    const claimed = {
-      ...runWithTemplate("remoteyeah"),
-      status: SourceRunStatusEnum.IN_PROGRESS,
-    };
-    vi.mocked(repo.claimRunning).mockResolvedValue(claimed);
-
-    const out = await service.claimSourceRun("user-1", "run-1");
-
-    expect(repo.claimRunning).toHaveBeenCalledWith({
-      id: "run-1",
-      userId: "user-1",
-    });
-    expect(out).toMatchObject({
-      id: "run-1",
-      status: SourceRunStatusEnum.IN_PROGRESS,
-      sourceProfile: "database",
-    });
-  });
-
-  it("claimSourceRun returns null on contention (CAS no row)", async () => {
-    vi.mocked(repo.claimRunning).mockResolvedValue(null);
-
-    const out = await service.claimSourceRun("user-1", "run-1");
-
-    expect(out).toBeNull();
-  });
-
-  it("claimSourceRun does not throw when run is missing or not RUNNING", async () => {
-    vi.mocked(repo.claimRunning).mockResolvedValue(null);
-
-    await expect(
-      service.claimSourceRun("user-1", "missing"),
-    ).resolves.toBeNull();
-  });
-
-  it("claimSourceRun: only one winner under concurrent claims", async () => {
-    let claimedOnce = false;
-    vi.mocked(repo.claimRunning).mockImplementation(async () => {
-      if (claimedOnce) {
-        return null;
-      }
-      claimedOnce = true;
-      return {
-        ...runWithTemplate("remoteyeah"),
-        status: SourceRunStatusEnum.IN_PROGRESS,
-      };
-    });
-
-    const results = await Promise.all([
-      service.claimSourceRun("user-1", "run-1"),
-      service.claimSourceRun("user-1", "run-1"),
-      service.claimSourceRun("user-1", "run-1"),
-    ]);
-
-    const winners = results.filter((r) => r !== null);
-    expect(winners).toHaveLength(1);
-    expect(winners[0]).toMatchObject({
-      id: "run-1",
-      status: SourceRunStatusEnum.IN_PROGRESS,
-    });
   });
 
   it("detachJobsFromSourceRun delegates to job repository", async () => {

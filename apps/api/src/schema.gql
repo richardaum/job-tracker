@@ -397,7 +397,6 @@ type Mutation {
   deleteSourceRun(id: ID!, deleteJobs: Boolean = false): DeleteMutationPayloadType!
   clearSourceRuns: Boolean!
   updateSourceRunStatus(id: ID!, status: SourceRunStatus!): SourceRunType!
-  claimSourceRun(id: ID!): SourceRunType
   reportExtensionActivity(input: ReportExtensionActivityInput!): ExtensionActivityEvent!
   createJobNote(input: CreateNoteInput!): NoteType!
   updateJobNote(id: ID!, input: UpdateNoteInput!): NoteType!

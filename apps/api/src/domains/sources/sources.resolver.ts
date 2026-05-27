@@ -218,14 +218,6 @@ export class SourcesResolver {
     return this.service.updateSourceRunStatus(user.userId, id, status);
   }
 
-  @Mutation(() => SourceRunType, { nullable: true })
-  claimSourceRun(
-    @Args("id", { type: () => ID }) id: string,
-    @CurrentUser() user: { userId: string },
-  ): Promise<SourceRunType | null> {
-    return this.service.claimSourceRun(user.userId, id);
-  }
-
   @Subscription(() => SourceRunEvent)
   async *sourceRunEvents(
     @CurrentUser() user: { userId: string },

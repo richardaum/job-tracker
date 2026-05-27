@@ -346,40 +346,6 @@ export class SourcesService implements OnModuleInit {
     return this.toGql(next);
   }
 
-  async claimSourceRun(
-    userId: string,
-    id: string,
-  ): Promise<SourceRunType | null> {
-    const claimed = await this.repo.claimRunning({ id, userId });
-    if (claimed) {
-      return this.toGql(claimed);
-    }
-
-    const now = new Date();
-    const row = await this.repo.findByUserAndId({ id, userId });
-    if (!row) {
-      return null;
-    }
-    if (
-      row.status === SourceRunStatusEnum.IN_PROGRESS &&
-      this.isStaleInProgress(row.startedAt, now)
-    ) {
-      await this.repo.updateStatus({
-        id,
-        userId,
-        status: SourceRunStatusEnum.RUNNING,
-      });
-      const reclaimed = await this.repo.claimRunning({ id, userId });
-      if (reclaimed) {
-        return this.toGql(reclaimed);
-      }
-    } else if (row.status !== SourceRunStatusEnum.RUNNING) {
-      return null;
-    }
-
-    return null;
-  }
-
   private async templateToGql(
     template: SourceTemplateEntity,
     userId: string,
@@ -421,9 +387,5 @@ export class SourcesService implements OnModuleInit {
     return new Date(
       now.getTime() - SourcesService.STALE_IN_PROGRESS_TIMEOUT_MS,
     );
-  }
-
-  private isStaleInProgress(startedAt: Date, now: Date): boolean {
-    return startedAt.getTime() < this.getStaleCutoff(now).getTime();
   }
 }
