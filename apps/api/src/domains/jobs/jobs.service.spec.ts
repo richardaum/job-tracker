@@ -1,7 +1,6 @@
 import { SourceRunEntity } from "@api/database/entities/source-run.entity";
 import { CompanyDescriptionService } from "@api/domains/companies/ai/company-description.service";
 import { CompanyService } from "@api/domains/companies/companies.service";
-import { SettingsService } from "@api/domains/settings/settings.service";
 import { LocationInferenceService } from "@api/lib/ai";
 import { NotFoundException } from "@nestjs/common";
 import type { Repository } from "typeorm";
@@ -81,7 +80,6 @@ describe("JobsService", () => {
   let tagService: TagService;
   let companyDescriptionService: CompanyDescriptionService;
   let locationInferenceService: LocationInferenceService;
-  let settingsService: SettingsService;
   let fillService: JobAutomaticFillService;
 
   beforeEach(() => {
@@ -132,11 +130,6 @@ describe("JobsService", () => {
       inferWorkRegion: vi.fn(),
     } as unknown as LocationInferenceService;
 
-    settingsService = {
-      getSettings: vi.fn().mockResolvedValue({ duplicateWindowDays: 30 }),
-      updateSettings: vi.fn(),
-    } as unknown as SettingsService;
-
     fillService = {
       fillJobAutomatically: vi.fn(),
     } as unknown as JobAutomaticFillService;
@@ -155,7 +148,6 @@ describe("JobsService", () => {
       companyDescriptionService,
       locationInferenceService,
       eventBus as unknown as JobEventBus,
-      settingsService,
       fillService,
     );
   });
@@ -495,7 +487,7 @@ describe("JobsService", () => {
       );
     }
 
-    it("calls fillJobAutomatically when autoFill and autoFillEnabled are true", async () => {
+    it("calls fillJobAutomatically when autoFill is true", async () => {
       const saved = makeJob({
         description: null,
         htmlContent: "<p>h</p>",
@@ -505,10 +497,6 @@ describe("JobsService", () => {
       (saved as { company?: unknown }).company = undefined;
 
       mockDraftCaptureCreate(saved);
-      vi.mocked(settingsService.getSettings).mockResolvedValue({
-        duplicateWindowDays: 30,
-        autoFillEnabled: true,
-      } as never);
       vi.mocked(fillService.fillJobAutomatically).mockResolvedValue(
         saved as never,
       );
@@ -521,27 +509,7 @@ describe("JobsService", () => {
       );
     });
 
-    it("does not call fill when autoFill is true but autoFillEnabled is false", async () => {
-      const saved = makeJob({
-        description: null,
-        htmlContent: "<p>h</p>",
-        companyId: null,
-        urls: ["https://example.com/job"],
-      });
-      (saved as { company?: unknown }).company = undefined;
-
-      mockDraftCaptureCreate(saved);
-      vi.mocked(settingsService.getSettings).mockResolvedValue({
-        duplicateWindowDays: 30,
-        autoFillEnabled: false,
-      } as never);
-
-      await service.create("user-1", { ...draftCaptureInput, autoFill: true });
-
-      expect(fillService.fillJobAutomatically).not.toHaveBeenCalled();
-    });
-
-    it("does not call fill when autoFill is false even if autoFillEnabled is true", async () => {
+    it("does not call fill when autoFill is false", async () => {
       const saved = makeJob({
         description: null,
         htmlContent: "<p>h</p>",
@@ -554,7 +522,6 @@ describe("JobsService", () => {
 
       await service.create("user-1", { ...draftCaptureInput, autoFill: false });
 
-      expect(settingsService.getSettings).not.toHaveBeenCalled();
       expect(fillService.fillJobAutomatically).not.toHaveBeenCalled();
     });
 
@@ -571,7 +538,6 @@ describe("JobsService", () => {
 
       await service.create("user-1", draftCaptureInput);
 
-      expect(settingsService.getSettings).not.toHaveBeenCalled();
       expect(fillService.fillJobAutomatically).not.toHaveBeenCalled();
     });
 

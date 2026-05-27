@@ -1,7 +1,6 @@
 import { SourceRunEntity } from "@api/database/entities/source-run.entity";
 import { CompanyDescriptionService } from "@api/domains/companies/ai/company-description.service";
 import { CompanyService } from "@api/domains/companies/companies.service";
-import { SettingsService } from "@api/domains/settings/settings.service";
 import { LocationInferenceService } from "@api/lib/ai";
 import { sanitizeCapturedHtml } from "@job-tracker/html-sanitize";
 import { isTipTapDocumentString, tipTapToPlainText } from "@job-tracker/tiptap";
@@ -99,7 +98,6 @@ export class JobsService {
     private readonly companyDescriptionService: CompanyDescriptionService,
     private readonly locationInferenceService: LocationInferenceService,
     private readonly eventBus: JobEventBus,
-    private readonly settings: SettingsService,
     @Inject(forwardRef(() => JobAutomaticFillService))
     private readonly fillService: JobAutomaticFillService,
   ) {}
@@ -254,15 +252,8 @@ export class JobsService {
       });
 
       if (dto.autoFill === true) {
-        const userSettings = await this.settings.getSettings(userId);
-        if (userSettings.autoFillEnabled) {
-          this.logger.log(`[AutoFill] Queued fill for job ${job.id}`);
-          await this.fillService.fillJobAutomatically(userId, job.id);
-        } else {
-          this.logger.debug(
-            `[AutoFill] Skipped job ${job.id}: autoFillEnabled=false`,
-          );
-        }
+        this.logger.log(`[AutoFill] Queued fill for job ${job.id}`);
+        await this.fillService.fillJobAutomatically(userId, job.id);
       }
 
       this.eventBus.emit(new JobCreated(job.id, userId, dto.autoMatch));
@@ -336,7 +327,6 @@ export class JobsService {
     if (dto.sourceRunId && initialStage !== ApplicationStageEnum.DUPLICATED) {
       this.eventBus.emit(new JobCreated(job.id, userId, dto.autoMatch));
     }
-
 
     return hydrated;
   }

@@ -3,7 +3,6 @@ import { JobEventBus } from "@api/domains/jobs/job-event.bus";
 import { ApplicationStageEnum } from "@api/domains/jobs/job-stage.enum";
 import { JobsRepository } from "@api/domains/jobs/jobs.repository";
 import { ResumeRepository } from "@api/domains/resumes/resumes.repository";
-import { SettingsService } from "@api/domains/settings/settings.service";
 import { tryRun } from "@job-tracker/try-run";
 import { Injectable, Logger, OnModuleInit } from "@nestjs/common";
 
@@ -22,7 +21,6 @@ export class MatchAnalysisEventListener implements OnModuleInit {
     private readonly jobRepo: JobsRepository,
     private readonly resumeRepo: ResumeRepository,
     private readonly matchService: MatchAnalysisService,
-    private readonly settingsService: SettingsService,
   ) {}
 
   onModuleInit(): void {
@@ -42,11 +40,8 @@ export class MatchAnalysisEventListener implements OnModuleInit {
   private async handleJobCreated(event: JobCreated): Promise<void> {
     const { jobId, userId } = event;
 
-    const settings = await this.settingsService.getSettings(userId);
-    if (!settings.autoMatchEnabled || event.autoMatch === false) {
-      this.logger.debug(
-        `[AutoMatch] Skipped job ${jobId}: autoMatchEnabled=${settings.autoMatchEnabled}, autoMatch=${String(event.autoMatch)}`,
-      );
+    if (event.autoMatch === false) {
+      this.logger.debug(`[AutoMatch] Skipped job ${jobId}: autoMatch=false`);
       return;
     }
 
