@@ -20,6 +20,25 @@ describe("sanitizeCapturedHtml", () => {
     expect(sanitizeCapturedHtml(dirty)).not.toContain("<object");
   });
 
+  it("removes non-content elements (style, img, video, svg, canvas, etc.)", () => {
+    const dirty =
+      '<style>body{color:red}</style><img src="x"><video src="y"></video><svg><circle/></svg><canvas></canvas><noscript>tracking</noscript><template><p>hidden</p></template>';
+
+    expect(sanitizeCapturedHtml(dirty)).not.toContain("<style");
+    expect(sanitizeCapturedHtml(dirty)).not.toContain("<img");
+    expect(sanitizeCapturedHtml(dirty)).not.toContain("<video");
+    expect(sanitizeCapturedHtml(dirty)).not.toContain("<svg");
+    expect(sanitizeCapturedHtml(dirty)).not.toContain("<canvas");
+    expect(sanitizeCapturedHtml(dirty)).not.toContain("<noscript");
+    expect(sanitizeCapturedHtml(dirty)).not.toContain("<template");
+  });
+
+  it("strips inline style attributes", () => {
+    const dirty = '<p style="color:red">Hello</p>';
+
+    expect(sanitizeCapturedHtml(dirty)).not.toContain('style="');
+  });
+
   it("preserves basic posting markup", () => {
     const clean = "<h1>Senior Engineer</h1><ul><li>React</li></ul>";
 

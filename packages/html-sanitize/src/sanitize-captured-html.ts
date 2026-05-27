@@ -4,6 +4,13 @@ const CAPTURED_HTML_CONFIG = {
   USE_PROFILES: { html: true },
   FORBID_TAGS: [
     "script",
+    "style",
+    "noscript",
+    "template",
+    "canvas",
+    "svg",
+    "img",
+    "video",
     "iframe",
     "object",
     "embed",
@@ -16,6 +23,7 @@ const CAPTURED_HTML_CONFIG = {
     "link",
     "base",
   ],
+  FORBID_ATTR: ["style"],
   ALLOW_DATA_ATTR: true,
   RETURN_TRUSTED_TYPE: false,
 };
