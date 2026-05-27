@@ -11,6 +11,7 @@ import { AdminHeaderActions } from "@/modules/admin/layout/admin-header.slots";
 
 function deriveTab(pathname: string): string {
   if (pathname.startsWith("/admin/overview")) return "overview";
+  if (pathname.startsWith("/admin/users")) return "users";
   return "extension";
 }
 
@@ -22,6 +23,7 @@ function deriveExtensionSubTab(pathname: string): string {
 const TAB_ROUTES: Record<string, Route> = {
   extension: "/admin/extension/status",
   overview: "/admin/overview",
+  users: "/admin/users",
 };
 
 const EXTENSION_SUB_TAB_ROUTES: Record<string, Route> = {
@@ -58,6 +60,7 @@ function AdminTabBar({
         <TabsList className={cn("w-full justify-start sm:w-fit")}>
           <TabsTrigger value="extension">Extension</TabsTrigger>
           <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="users">Users</TabsTrigger>
         </TabsList>
       </Tabs>
 

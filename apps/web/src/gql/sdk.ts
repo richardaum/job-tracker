@@ -562,6 +562,7 @@ export type Query = {
   sourceTemplate: SourceTemplateType;
   sourceTemplates: Array<SourceTemplateType>;
   sourceTemplatesForSourceProfile: Array<SourceTemplateType>;
+  users: Array<UserType>;
   workPreferences: Array<PreferenceType>;
 };
 
@@ -877,6 +878,11 @@ export type AdminExtensionActivityEventsSubscriptionVariables = Exact<{ [key: st
 
 
 export type AdminExtensionActivityEventsSubscription = { __typename?: 'Subscription', extensionActivityEvents: { __typename?: 'ExtensionActivityEvent', id: string, type: ExtensionActivityEventType, summary: string, correlationId?: string | null, occurredAt: any } };
+
+export type AdminUsersQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type AdminUsersQuery = { __typename?: 'Query', users: Array<{ __typename?: 'UserType', id: string, email: string, name: string, role: string, avatarUrl?: string | null }> };
 
 export type AuthenticatedShellQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -1337,6 +1343,17 @@ export const AdminExtensionActivityEventsDocument = gql`
     summary
     correlationId
     occurredAt
+  }
+}
+    `;
+export const AdminUsersDocument = gql`
+    query AdminUsers {
+  users {
+    id
+    email
+    name
+    role
+    avatarUrl
   }
 }
     `;
@@ -2161,6 +2178,9 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     AdminExtensionActivityEvents(variables?: AdminExtensionActivityEventsSubscriptionVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<AdminExtensionActivityEventsSubscription> {
       return withWrapper((wrappedRequestHeaders) => client.request<AdminExtensionActivityEventsSubscription>({ document: AdminExtensionActivityEventsDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'AdminExtensionActivityEvents', 'subscription', variables);
+    },
+    AdminUsers(variables?: AdminUsersQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<AdminUsersQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<AdminUsersQuery>({ document: AdminUsersDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'AdminUsers', 'query', variables);
     },
     AuthenticatedShell(variables?: AuthenticatedShellQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<AuthenticatedShellQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<AuthenticatedShellQuery>({ document: AuthenticatedShellDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'AuthenticatedShell', 'query', variables);

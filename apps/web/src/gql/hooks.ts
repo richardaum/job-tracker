@@ -563,6 +563,7 @@ export type Query = {
   sourceTemplate: SourceTemplateType;
   sourceTemplates: Array<SourceTemplateType>;
   sourceTemplatesForSourceProfile: Array<SourceTemplateType>;
+  users: Array<UserType>;
   workPreferences: Array<PreferenceType>;
 };
 
@@ -878,6 +879,11 @@ export type AdminExtensionActivityEventsSubscriptionVariables = Exact<{ [key: st
 
 
 export type AdminExtensionActivityEventsSubscription = { __typename?: 'Subscription', extensionActivityEvents: { __typename?: 'ExtensionActivityEvent', id: string, type: ExtensionActivityEventType, summary: string, correlationId?: string | null, occurredAt: any } };
+
+export type AdminUsersQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type AdminUsersQuery = { __typename?: 'Query', users: Array<{ __typename?: 'UserType', id: string, email: string, name: string, role: string, avatarUrl?: string | null }> };
 
 export type AuthenticatedShellQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -1441,6 +1447,45 @@ export function useAdminExtensionActivityEventsSubscription(baseOptions?: Apollo
         return ApolloReactHooks.useSubscription<AdminExtensionActivityEventsSubscription, AdminExtensionActivityEventsSubscriptionVariables>(AdminExtensionActivityEventsDocument, options);
       }
 export type AdminExtensionActivityEventsSubscriptionHookResult = ReturnType<typeof useAdminExtensionActivityEventsSubscription>;
+
+export const AdminUsersDocument = gql`
+    query AdminUsers {
+  users {
+    id
+    email
+    name
+    role
+    avatarUrl
+  }
+}
+    `;
+
+/**
+ * __useAdminUsersQuery__
+ *
+ * To run a query within a React component, call `useAdminUsersQuery` and pass it any options that fit your needs.
+ * When your component renders, `useAdminUsersQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useAdminUsersQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useAdminUsersQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<AdminUsersQuery, AdminUsersQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<AdminUsersQuery, AdminUsersQueryVariables>(AdminUsersDocument, options);
+      }
+export function useAdminUsersLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<AdminUsersQuery, AdminUsersQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<AdminUsersQuery, AdminUsersQueryVariables>(AdminUsersDocument, options);
+        }
+
+export type AdminUsersQueryHookResult = ReturnType<typeof useAdminUsersQuery>;
+export type AdminUsersLazyQueryHookResult = ReturnType<typeof useAdminUsersLazyQuery>;
 
 export const AuthenticatedShellDocument = gql`
     query AuthenticatedShell {

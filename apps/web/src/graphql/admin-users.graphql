@@ -1,0 +1,9 @@
+query AdminUsers {
+  users {
+    id
+    email
+    name
+    role
+    avatarUrl
+  }
+}
