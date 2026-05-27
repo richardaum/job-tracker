@@ -1,7 +1,7 @@
 "use client";
 
 import { Button, cn, Stack } from "@job-tracker/ui";
-import { ArrowClockwiseIcon } from "@phosphor-icons/react";
+import { ArrowsClockwiseIcon } from "@phosphor-icons/react";
 
 import { ExtensionStatusPanel } from "@/modules/admin/extension/components/ExtensionAdminPanels";
 import { useExtensionConnectionStatus } from "@/modules/admin/extension/hooks/useExtensionConnectionStatus";
@@ -27,7 +27,7 @@ export default function ExtensionStatusPage() {
           intent="secondary"
           size="md"
           state={connection.status === "checking" ? "loading" : "default"}
-          leftIcon={<ArrowClockwiseIcon size={16} weight="bold" />}
+          leftIcon={<ArrowsClockwiseIcon size={16} weight="bold" />}
           onClick={refreshExtensionAdmin}
         >
           Refresh

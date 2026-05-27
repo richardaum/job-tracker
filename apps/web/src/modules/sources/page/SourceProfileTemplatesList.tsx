@@ -9,7 +9,7 @@ import {
   Stack,
   Text,
 } from "@job-tracker/ui";
-import { ClockIcon, LinkSimpleIcon, TrashIcon } from "@phosphor-icons/react";
+import { ClockIcon, LinkIcon, TrashIcon } from "@phosphor-icons/react";
 import NextLink from "next/link";
 import { useCallback, useState } from "react";
 
@@ -128,7 +128,7 @@ export function SourceProfileTemplatesList({
                   label={`Edit listing URL for source ${templateIndex + 1}`}
                   tooltip="Edit surface URL"
                   className={cn(ListItemCard.actionIconButtonClassName)}
-                  icon={<LinkSimpleIcon size={13} weight="regular" />}
+                  icon={<LinkIcon size={13} weight="regular" />}
                   onClick={() => setSurfaceDialogTemplate(template)}
                 />
                 <IconButton

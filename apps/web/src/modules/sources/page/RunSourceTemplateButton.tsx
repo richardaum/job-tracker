@@ -11,7 +11,10 @@ import {
   SourceTemplateDocument,
   useRerunSourceTemplateMutation,
 } from "@/gql/hooks";
-import { wakeExtension } from "@/modules/admin/extension/lib/extension-bridge.protocol";
+import {
+  sendSourceRunStart,
+  wakeExtension,
+} from "@/modules/admin/extension/lib/extension-bridge.protocol";
 
 type SourceRunSummary = {
   id: string;
@@ -63,7 +66,10 @@ export function RunSourceTemplateButton({
     if (err || !result.data?.rerunSourceTemplate) {
       return;
     }
-    onRunStarted?.(templateId, result.data.rerunSourceTemplate);
+
+    const run = result.data.rerunSourceTemplate;
+    sendSourceRunStart(run.id, run.surfaceUrl, run.sourceProfileId);
+    onRunStarted?.(templateId, run);
   }
 
   if (variant === "button") {

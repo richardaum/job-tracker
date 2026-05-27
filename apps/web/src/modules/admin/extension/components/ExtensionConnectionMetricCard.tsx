@@ -2,7 +2,7 @@
 
 import { Card, cn, Stack, Text, type TextColor } from "@job-tracker/ui";
 import {
-  ArrowClockwiseIcon,
+  ArrowsClockwiseIcon,
   PlugsConnectedIcon,
   WarningCircleIcon,
 } from "@phosphor-icons/react";
@@ -82,7 +82,7 @@ function connectionIcon(
   }
 
   if (status === "checking") {
-    return <ArrowClockwiseIcon size={18} weight="duotone" />;
+    return <ArrowsClockwiseIcon size={18} weight="duotone" />;
   }
 
   return <WarningCircleIcon size={18} weight="duotone" />;

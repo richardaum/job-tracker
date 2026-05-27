@@ -10,7 +10,7 @@ import {
   type TextColor,
 } from "@job-tracker/ui";
 import {
-  ArrowClockwiseIcon,
+  ArrowsClockwiseIcon,
   PulseIcon,
   ShieldCheckIcon,
 } from "@phosphor-icons/react";
@@ -208,7 +208,7 @@ export function ExtensionEventsPanel({
             Extension activity
           </Heading>
           <Stack direction="row" gap="xs" align="center">
-            <ArrowClockwiseIcon size={14} className={cn("text-text-muted")} />
+            <ArrowsClockwiseIcon size={14} className={cn("text-text-muted")} />
             <Text size="xs" color="secondary">
               Live updates
             </Text>

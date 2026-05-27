@@ -13,7 +13,7 @@ import {
   Text,
   Tooltip,
 } from "@job-tracker/ui";
-import { BriefcaseIcon, NotePencilIcon } from "@phosphor-icons/react";
+import { BriefcaseIcon, FilesIcon } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
 import React, { useMemo } from "react";
 
@@ -82,7 +82,7 @@ export function MatchTabContent({ jobId }: MatchTabContentProps) {
           {matchResumeId ? (
             <DropdownMenuItem
               onSelect={() => router.push(`/profile/resumes/${matchResumeId}`)}
-              icon={<NotePencilIcon size={14} weight="regular" />}
+              icon={<FilesIcon size={14} weight="regular" />}
             >
               View resume
             </DropdownMenuItem>

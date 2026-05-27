@@ -1,7 +1,7 @@
 "use client";
 
 import { cn, FieldWithLabelAction, Text } from "@job-tracker/ui";
-import { ArrowRightIcon } from "@phosphor-icons/react";
+import { ArrowSquareOutIcon } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
 
 import { AsyncMetadataStatus, FitClassification } from "@/gql/hooks";
@@ -69,7 +69,7 @@ export function MatchAnalysisField({ jobId, match }: MatchAnalysisFieldProps) {
         actions={
           <FieldWithLabelAction.IconActionButton
             label="View full match analysis"
-            icon={<ArrowRightIcon size={14} weight="regular" />}
+            icon={<ArrowSquareOutIcon size={14} weight="regular" />}
             onClick={() => match?.id && router.push(`/jobs/${jobId}/match`)}
           />
         }

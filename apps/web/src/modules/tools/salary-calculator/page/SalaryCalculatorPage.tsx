@@ -12,10 +12,7 @@ import {
   Stack,
   Text,
 } from "@job-tracker/ui";
-import {
-  ArrowCounterClockwiseIcon,
-  CalculatorIcon,
-} from "@phosphor-icons/react";
+import { ArrowsClockwiseIcon, CalculatorIcon } from "@phosphor-icons/react";
 import { useState } from "react";
 import { NumericFormat } from "react-number-format";
 
@@ -203,7 +200,7 @@ export function SalaryCalculatorPage() {
                   onClick={fetchRates}
                   state={loading ? "loading" : "default"}
                   leftIcon={
-                    <ArrowCounterClockwiseIcon
+                    <ArrowsClockwiseIcon
                       size={14}
                       className={cn(loading ? "animate-spin" : "")}
                     />
