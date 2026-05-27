@@ -34,7 +34,6 @@
     "graphql-sse": "^2.6.0",
     "graphql-request": "^7.4.0",
     "graphql-tag": "^2.12.6",
-    "html2pdf.js": "^0.14.0",
     "marked": "^18.0.3",
     "next": "^16.2.6",
     "pdfjs-dist": "^5.7.284",

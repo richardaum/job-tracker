@@ -4,8 +4,8 @@
   "ignoreBinaries": ["pm2"],
   "ignoreDependencies": ["dotenv"],
   "ignoreIssues": {
-    "apps/web/src/gql/**": ["exports", "types", "files"],
-    "apps/extension/src/gql/**": ["exports", "types", "files"]
+    "apps/web/src/gql/**": ["exports", "types", "files", "enumMembers"],
+    "apps/extension/src/gql/**": ["exports", "types", "files", "enumMembers"]
   },
   "workspaces": {
     "apps/api": {
