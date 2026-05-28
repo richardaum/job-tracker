@@ -62,7 +62,7 @@ function ValueCell({
       type="button"
       onClick={startEdit}
       className={cn(
-        "w-full min-w-0 cursor-text text-left font-mono text-sm outline-none",
+        "w-full min-w-0 cursor-text text-left font-mono text-sm outline-none focus-visible:ring-2 focus-visible:ring-border-brand focus-visible:ring-offset-1 rounded-sm",
         typeof value === "string" && "text-text-success",
         typeof value === "number" && "text-text-info",
         typeof value === "boolean" && "text-text-warning",
@@ -119,7 +119,7 @@ function TreeNode({
           type="button"
           onClick={() => setExpanded(!expanded)}
           className={cn(
-            "flex w-full cursor-pointer items-center gap-1 text-left hover:opacity-75",
+            "flex w-full cursor-pointer items-center gap-1 text-left hover:opacity-75 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-brand focus-visible:ring-offset-1 rounded-sm",
           )}
         >
           <CollapseIcon expanded={expanded} />

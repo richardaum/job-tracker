@@ -46,7 +46,7 @@ export default function PlansPage() {
       </div>
       <div
         className={cn(
-          "flex min-h-0 flex-1 flex-col overflow-auto px-4 pb-4 sm:px-6 sm:pb-6",
+          "flex min-h-0 flex-1 flex-col overflow-auto px-4 pb-4 pt-0.5 sm:px-6 sm:pb-6",
         )}
       >
         {loading ? (
@@ -66,7 +66,9 @@ export default function PlansPage() {
                 onClick={() =>
                   router.push(`/sources/plans/${plan.sourceProfileId}`)
                 }
-                className={cn("w-full cursor-pointer text-start")}
+                className={cn(
+                  "w-full cursor-pointer text-start focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-brand rounded-lg",
+                )}
               >
                 <Card
                   padding="md"
