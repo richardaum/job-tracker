@@ -1,11 +1,11 @@
 "use client";
 
-import { cn } from "@job-tracker/ui";
 import { useRouter } from "next/navigation";
 import React, { useMemo } from "react";
 
 import { useSourceProfilesListQuery } from "@/gql/hooks";
 import { SourceSideDetailsPage } from "@/modules/sources/page/SourceSideDetailsPage";
+import { SourcesLayout } from "@/modules/sources/page/SourcesLayout";
 
 export default function SourceProfilePage({
   params,
@@ -23,13 +23,13 @@ export default function SourceProfilePage({
   }, [data, profileId]);
 
   return (
-    <div className={cn("flex h-full min-h-0 min-w-0 flex-col overflow-hidden")}>
+    <SourcesLayout>
       <SourceSideDetailsPage
         sourceProfile={sourceProfile}
         onOpenChange={(open) => {
           if (!open) router.push("/sources");
         }}
       />
-    </div>
+    </SourcesLayout>
   );
 }

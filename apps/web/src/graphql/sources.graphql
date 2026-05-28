@@ -94,3 +94,32 @@ mutation CreateSourceTemplate($input: CreateSourceTemplateInput!) {
     createdAt
   }
 }
+
+query Plans {
+  plans {
+    id
+    sourceProfileId
+    displayName
+  }
+}
+
+query Plan($sourceProfileId: String!) {
+  plan(sourceProfileId: $sourceProfileId) {
+    id
+    sourceProfileId
+    displayName
+    document
+    createdAt
+    updatedAt
+  }
+}
+
+mutation UpdatePlan($id: ID!, $input: UpdatePlanInput!) {
+  updatePlan(id: $id, input: $input) {
+    id
+    sourceProfileId
+    displayName
+    document
+    updatedAt
+  }
+}

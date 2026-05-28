@@ -1,10 +1,9 @@
 "use client";
 
-import { cn, SideDetails, Text } from "@job-tracker/ui";
+import { cn, SideDetails } from "@job-tracker/ui";
 
 import type { SourceProfileRow } from "@/modules/sources/hooks/useSourcesListViewModel";
 import { SourceProfileTemplatesList } from "@/modules/sources/page/SourceProfileTemplatesList";
-import { looksLikeUuid } from "@/modules/sources/utils/looks-like-uuid";
 
 type SourceSideDetailsPageProps = {
   sourceProfile: SourceProfileRow | null;
@@ -28,13 +27,6 @@ export function SourceSideDetailsPage({
       title={sourceProfile ? `Sources · ${sourceProfile.name}` : undefined}
       accessibilityTitle={
         sourceProfile ? `Sources for ${sourceProfile.name}` : "Source details"
-      }
-      description={
-        sourceProfile && !looksLikeUuid(sourceProfile.sourceProfileId) ? (
-          <Text size="sm" color="secondary" className={cn("font-mono text-xs")}>
-            {sourceProfile.sourceProfileId}
-          </Text>
-        ) : undefined
       }
     >
       {sourceProfile !== null ? (

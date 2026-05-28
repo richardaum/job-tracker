@@ -69,23 +69,16 @@ export function NewSourceDialog({
     fetchPolicy: "cache-and-network",
   });
 
-  const sortedSourceProfiles = useMemo(() => {
-    const rows = data?.sourceProfiles ?? [];
-    return [...rows].sort((a, b) =>
-      a.name.localeCompare(b.name, undefined, { sensitivity: "base" }),
-    );
-  }, [data?.sourceProfiles]);
-
   const selectOptions: SelectOption[] = useMemo(
     () =>
-      sortedSourceProfiles.map((row) => ({
+      (data?.sourceProfiles ?? []).map((row) => ({
         value: row.sourceProfileId,
         label: row.name,
       })),
-    [sortedSourceProfiles],
+    [data?.sourceProfiles],
   );
 
-  const selectedRow = sortedSourceProfiles.find(
+  const selectedRow = (data?.sourceProfiles ?? []).find(
     (row) => row.sourceProfileId === selectedSourceProfileId,
   );
 
@@ -128,7 +121,7 @@ export function NewSourceDialog({
 
   const pickerDisabled = loading || Boolean(loadError);
   const showSkeleton =
-    loading && sortedSourceProfiles.length === 0 && !loadError;
+    loading && (data?.sourceProfiles ?? []).length === 0 && !loadError;
 
   return (
     <Dialog
