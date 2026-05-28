@@ -1,13 +1,12 @@
 import { SourceRunEntity } from "@api/database/entities/source-run.entity";
 import { SourceTemplateEntity } from "@api/database/entities/source-template.entity";
 import { JobsRepository } from "@api/domains/jobs/jobs.repository";
-import { SourceProfileRegistryService } from "@api/domains/sources/source-profile-registry.service";
+import { PlanService } from "@api/domains/sources/plan.service";
 import { SourceRunType } from "@api/domains/sources/source-run.type";
 import { SourceRunStatusEnum } from "@api/domains/sources/source-run-status.enum";
 import { SourceTemplateType } from "@api/domains/sources/source-template.type";
 import {
   BadRequestException,
-  Inject,
   Injectable,
   Logger,
   NotFoundException,
@@ -15,11 +14,9 @@ import {
 } from "@nestjs/common";
 
 import { SourceRunEventTypeEnum } from "./source-run-event-type.enum";
+import { SourceRunReported } from "./sources.events";
 import { SourcesRepository } from "./sources.repository";
-import {
-  SOURCES_EVENTS_PUBLISHER,
-  SourcesEventsPublisher,
-} from "./sources-events.publisher";
+import { SourcesEventBus } from "./sources-event.bus";
 
 function extensionMayTransitionStatus(
   from: SourceRunStatusEnum,
@@ -56,10 +53,9 @@ export class SourcesService implements OnModuleInit {
 
   constructor(
     private readonly repo: SourcesRepository,
-    private readonly sourceProfileRegistry: SourceProfileRegistryService,
+    private readonly planService: PlanService,
     private readonly jobRepo: JobsRepository,
-    @Inject(SOURCES_EVENTS_PUBLISHER)
-    private readonly eventsPublisher: SourcesEventsPublisher,
+    private readonly eventBus: SourcesEventBus,
   ) {}
 
   async onModuleInit(): Promise<void> {
@@ -83,7 +79,7 @@ export class SourcesService implements OnModuleInit {
     sourceProfileId: string,
   ): Promise<SourceTemplateType[]> {
     const sourceProfileKey =
-      this.sourceProfileRegistry.normalizeSourceProfileKey(sourceProfileId);
+      this.planService.normalizeSourceProfileKey(sourceProfileId);
     const templates = await this.repo.listTemplatesByUserAndSourceProfileId({
       userId,
       sourceProfileId: sourceProfileKey,
@@ -115,11 +111,12 @@ export class SourcesService implements OnModuleInit {
     userId: string,
     input: { sourceProfileId: string; surfaceUrl: string },
   ): Promise<SourceTemplateType> {
-    const sourceProfileKey =
-      this.sourceProfileRegistry.normalizeSourceProfileKey(
-        input.sourceProfileId,
-      );
-    if (this.sourceProfileRegistry.plan(sourceProfileKey) === undefined) {
+    const sourceProfileKey = this.planService.normalizeSourceProfileKey(
+      input.sourceProfileId,
+    );
+    if (
+      (await this.planService.findPlanDocument(sourceProfileKey)) === undefined
+    ) {
       throw new BadRequestException(
         `Unknown source profile: ${input.sourceProfileId}`,
       );
@@ -137,8 +134,10 @@ export class SourcesService implements OnModuleInit {
     sourceProfileId: string,
   ): Promise<SourceRunType> {
     const sourceProfileKey =
-      this.sourceProfileRegistry.normalizeSourceProfileKey(sourceProfileId);
-    if (this.sourceProfileRegistry.plan(sourceProfileKey) === undefined) {
+      this.planService.normalizeSourceProfileKey(sourceProfileId);
+    if (
+      (await this.planService.findPlanDocument(sourceProfileKey)) === undefined
+    ) {
       throw new BadRequestException(
         `Unknown source profile: ${sourceProfileId}`,
       );
@@ -168,14 +167,13 @@ export class SourcesService implements OnModuleInit {
     const loaded =
       (await this.repo.findByUserAndId({ id: row.id, userId })) ?? row;
     const run = this.toGql(loaded);
-    await this.eventsPublisher.publish({
-      userId,
-      payload: {
+    this.eventBus.emit(
+      new SourceRunReported(userId, {
         type: SourceRunEventTypeEnum.SOURCE_RUN_CREATED,
         occurredAt: new Date(),
         run,
-      },
-    });
+      }),
+    );
 
     return run;
   }
@@ -191,7 +189,9 @@ export class SourcesService implements OnModuleInit {
     if (!template) {
       throw new NotFoundException(`Source template ${templateId} not found`);
     }
-    const planDoc = this.sourceProfileRegistry.plan(template.sourceProfileId);
+    const planDoc = await this.planService.findPlanDocument(
+      template.sourceProfileId,
+    );
     if (planDoc === undefined) {
       throw new BadRequestException(
         `Unknown source profile: ${template.sourceProfileId}`,
@@ -211,14 +211,13 @@ export class SourcesService implements OnModuleInit {
     const loaded =
       (await this.repo.findByUserAndId({ id: row.id, userId })) ?? row;
     const run = this.toGql(loaded);
-    await this.eventsPublisher.publish({
-      userId,
-      payload: {
+    this.eventBus.emit(
+      new SourceRunReported(userId, {
         type: SourceRunEventTypeEnum.SOURCE_RUN_CREATED,
         occurredAt: new Date(),
         run,
-      },
-    });
+      }),
+    );
 
     return run;
   }

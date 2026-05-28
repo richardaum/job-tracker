@@ -1,12 +1,12 @@
 import { SourceRunEntity } from "@api/database/entities/source-run.entity";
 import { SourceTemplateEntity } from "@api/database/entities/source-template.entity";
 import { JobsRepository } from "@api/domains/jobs/jobs.repository";
-import { SourceProfileRegistryService } from "@api/domains/sources/source-profile-registry.service";
+import { type ExecutorPlanDocument } from "@api/domains/sources/source-profiles";
 import { SourceRunEventTypeEnum } from "@api/domains/sources/source-run-event-type.enum";
 import { SourceRunStatusEnum } from "@api/domains/sources/source-run-status.enum";
 import { SourcesRepository } from "@api/domains/sources/sources.repository";
 import { SourcesService } from "@api/domains/sources/sources.service";
-import { SourcesEventsPublisher } from "@api/domains/sources/sources-events.publisher";
+import type { SourcesEventBus } from "@api/domains/sources/sources-event.bus";
 import { BadRequestException, NotFoundException } from "@nestjs/common";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -63,17 +63,21 @@ describe("SourcesService", () => {
     detachJobsSourceRun: vi.fn(),
   };
 
-  const eventsPublisher: Pick<SourcesEventsPublisher, "publish"> = {
-    publish: vi.fn(),
-  };
+  const eventBus: Pick<SourcesEventBus, "emit"> = { emit: vi.fn() };
 
-  const sourceProfileRegistry = new SourceProfileRegistryService();
+  const planService = {
+    normalizeSourceProfileKey: (raw: string) => raw.trim().toLowerCase(),
+    findPlanDocument: vi.fn(
+      async (key: string): Promise<ExecutorPlanDocument | undefined> =>
+        key === "remoteyeah" ? ({} as ExecutorPlanDocument) : undefined,
+    ),
+  };
 
   const service = new SourcesService(
     repo as SourcesRepository,
-    sourceProfileRegistry,
+    planService as never,
     jobRepo as JobsRepository,
-    eventsPublisher as SourcesEventsPublisher,
+    eventBus as SourcesEventBus,
   );
 
   beforeEach(() => {
@@ -121,7 +125,7 @@ describe("SourcesService", () => {
     );
     expect(result.sourceProfile).toBe("database");
     expect(result.templateId).toBe("tmpl-1");
-    expect(eventsPublisher.publish).toHaveBeenCalledWith(
+    expect(eventBus.emit).toHaveBeenCalledWith(
       expect.objectContaining({
         userId: "user-1",
         payload: expect.objectContaining({
@@ -133,9 +137,7 @@ describe("SourcesService", () => {
         }),
       }),
     );
-    expect(repo.createRun).toHaveBeenCalledBefore(
-      vi.mocked(eventsPublisher.publish),
-    );
+    expect(repo.createRun).toHaveBeenCalledBefore(vi.mocked(eventBus.emit));
   });
 
   it("createSourceRun rejects unknown source profile", async () => {
@@ -169,7 +171,7 @@ describe("SourcesService", () => {
       surfaceUrl: "https://example.com",
     });
     expect(repo.createRun).not.toHaveBeenCalled();
-    expect(eventsPublisher.publish).not.toHaveBeenCalled();
+    expect(eventBus.emit).not.toHaveBeenCalled();
     expect(result.id).toBe("tmpl-1");
     expect(result.runs).toEqual([]);
   });
