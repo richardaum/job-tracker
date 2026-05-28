@@ -56,7 +56,7 @@ export function SourcesShell({ children }: { children: React.ReactNode }) {
         <div className={cn("flex min-h-0 flex-1 flex-col")}>
           <div
             className={cn(
-              "flex w-full shrink-0 flex-wrap items-center gap-x-4 gap-y-2 border-b border-border-subtle p-4 sm:p-6",
+              "flex w-full shrink-0 flex-wrap items-center gap-x-4 gap-y-2 p-4 sm:p-6",
             )}
           >
             <Tabs
