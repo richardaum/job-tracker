@@ -96,41 +96,12 @@ The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://
 """
 scalar JSON
 
-type NoteType {
-  id: ID!
-  jobId: String
-  userId: String!
-  content: String!
-  revision: Int!
-  createdAt: DateTime!
-  updatedAt: DateTime!
-}
-
-type BlockedKeyword {
-  keyword: String!
-  scope: KeywordScope!
-  matchMode: MatchMode!
-}
-
-enum KeywordScope {
-  TITLE
-  DESCRIPTION
-  COMPANY
-}
-
-enum MatchMode {
-  PARTIAL
-  EXACT
-}
-
 type UserSetting {
   userId: String!
   autoFillEnabled: Boolean!
   autoSummaryEnabled: Boolean!
   autoMatchEnabled: Boolean!
   duplicateWindowDays: Int!
-  blockedKeywords: [BlockedKeyword!]
-  blockedCompanies: [String!]
   id: ID!
 }
 
@@ -306,6 +277,25 @@ type ResumeType {
   updatedAt: DateTime!
 }
 
+type NoteType {
+  id: ID!
+  jobId: String
+  userId: String!
+  content: String!
+  revision: Int!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type PlanType {
+  id: ID!
+  sourceProfileId: String!
+  displayName: String!
+  document: JSON!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
 type SourceRunType {
   id: ID!
   templateId: ID!
@@ -367,15 +357,17 @@ type Query {
   company(id: ID!): CompanyType!
   companyJobsCount(id: ID!): Int!
   settings: UserSetting!
-  jobNotes(jobId: ID!): [NoteType!]!
-  generateJobNoteWithAI(jobId: ID!, note: String!): String!
   exchangeRates(base: String!, currencies: [String!]!): CurrencyRates!
+  plans: [PlanType!]!
+  plan(sourceProfileId: String!): PlanType
   sourceRuns: [SourceRunType!]!
   sourceTemplates: [SourceTemplateType!]!
   sourceTemplatesForSourceProfile(sourceProfileId: String!): [SourceTemplateType!]!
   sourceTemplate(id: ID!): SourceTemplateType!
   sourceProfiles(onlyWithSourceTemplate: Boolean = false): [SourceProfileType!]!
   extensionActivityEvents(limit: Int): [ExtensionActivityEvent!]!
+  jobNotes(jobId: ID!): [NoteType!]!
+  generateJobNoteWithAI(jobId: ID!, note: String!): String!
   resumes: [ResumeType!]!
   resume(id: ID!): ResumeType!
   workPreferences: [PreferenceType!]!
@@ -393,7 +385,6 @@ enum ApplicationQuickFilter {
   APPLIED
   NEW
   DUPLICATED
-  REJECTED
 }
 
 type Mutation {
@@ -410,9 +401,9 @@ type Mutation {
   updateCompany(id: ID!, input: UpdateCompanyInput!): CompanyType!
   deleteCompany(id: ID!): DeleteMutationPayloadType!
   updateSettings(input: UpdateSettingsInput!): UserSetting!
-  createJobNote(input: CreateNoteInput!): NoteType!
-  updateJobNote(id: ID!, input: UpdateNoteInput!): NoteType!
-  deleteJobNote(id: ID!): DeleteMutationPayloadType!
+  createPlan(input: CreatePlanInput!): PlanType!
+  updatePlan(id: ID!, input: UpdatePlanInput!): PlanType!
+  deletePlan(id: ID!): DeleteMutationPayloadType!
   createSourceRun(input: CreateSourceRunInput!): SourceRunType!
   createSourceTemplate(input: CreateSourceTemplateInput!): SourceTemplateType!
   rerunSourceTemplate(templateId: ID!): SourceRunType!
@@ -424,6 +415,9 @@ type Mutation {
   clearSourceRuns: Boolean!
   updateSourceRunStatus(id: ID!, status: SourceRunStatus!): SourceRunType!
   reportExtensionActivity(input: ReportExtensionActivityInput!): ExtensionActivityEvent!
+  createJobNote(input: CreateNoteInput!): NoteType!
+  updateJobNote(id: ID!, input: UpdateNoteInput!): NoteType!
+  deleteJobNote(id: ID!): DeleteMutationPayloadType!
   createResume(input: CreateResumeInput!): ResumeType!
   updateResume(id: ID!, input: UpdateResumeInput!): ResumeType!
   deleteResume(id: ID!): DeleteMutationPayloadType!
@@ -495,24 +489,18 @@ input UpdateSettingsInput {
   autoSummaryEnabled: Boolean
   autoMatchEnabled: Boolean
   duplicateWindowDays: Int
-  blockedKeywords: [BlockedKeywordInput!]
-  blockedCompanies: [String!]
 }
 
-input BlockedKeywordInput {
-  keyword: String!
-  scope: KeywordScope!
-  matchMode: MatchMode!
+input CreatePlanInput {
+  sourceProfileId: String!
+  displayName: String!
+  document: JSON!
 }
 
-input CreateNoteInput {
-  jobId: String!
-  content: String!
-}
-
-input UpdateNoteInput {
-  content: String
-  expectedRevision: Int!
+input UpdatePlanInput {
+  sourceProfileId: String
+  displayName: String
+  document: JSON
 }
 
 input CreateSourceRunInput {
@@ -542,6 +530,16 @@ input ReportExtensionActivityInput {
   extensionVersion: String
   browser: String
   occurredAt: DateTime
+}
+
+input CreateNoteInput {
+  jobId: String!
+  content: String!
+}
+
+input UpdateNoteInput {
+  content: String
+  expectedRevision: Int!
 }
 
 input CreateResumeInput {

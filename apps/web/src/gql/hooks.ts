@@ -123,6 +123,12 @@ export type CreateNoteInput = {
   jobId: Scalars['String']['input'];
 };
 
+export type CreatePlanInput = {
+  displayName: Scalars['String']['input'];
+  document: Scalars['JSON']['input'];
+  sourceProfileId: Scalars['String']['input'];
+};
+
 export type CreateResumeInput = {
   content: Scalars['String']['input'];
   isDefault?: Scalars['Boolean']['input'];
@@ -343,6 +349,7 @@ export type Mutation = {
   createJob: JobType;
   createJobNote: NoteType;
   createJobStageEvent: JobStageEventType;
+  createPlan: PlanType;
   createResume: ResumeType;
   createSourceRun: SourceRunType;
   createSourceTemplate: SourceTemplateType;
@@ -352,6 +359,7 @@ export type Mutation = {
   deleteJobNote: DeleteMutationPayloadType;
   deleteJobStageEvent: DeleteMutationPayloadType;
   deleteMatchAnalysis: DeleteMutationPayloadType;
+  deletePlan: DeleteMutationPayloadType;
   deleteResume: DeleteMutationPayloadType;
   deleteSourceRun: DeleteMutationPayloadType;
   deleteSourceTemplate: DeleteMutationPayloadType;
@@ -366,6 +374,7 @@ export type Mutation = {
   updateJob: JobType;
   updateJobNote: NoteType;
   updateJobStageEvent: JobStageEventType;
+  updatePlan: PlanType;
   updateResume: ResumeType;
   updateSettings: UserSetting;
   updateSourceRun: SourceRunType;
@@ -387,6 +396,11 @@ export type MutationCreateJobNoteArgs = {
 
 export type MutationCreateJobStageEventArgs = {
   input: CreateJobStageEventInput;
+};
+
+
+export type MutationCreatePlanArgs = {
+  input: CreatePlanInput;
 };
 
 
@@ -426,6 +440,11 @@ export type MutationDeleteJobStageEventArgs = {
 
 
 export type MutationDeleteMatchAnalysisArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeletePlanArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -506,6 +525,12 @@ export type MutationUpdateJobStageEventArgs = {
 };
 
 
+export type MutationUpdatePlanArgs = {
+  id: Scalars['ID']['input'];
+  input: UpdatePlanInput;
+};
+
+
 export type MutationUpdateResumeArgs = {
   id: Scalars['ID']['input'];
   input: UpdateResumeInput;
@@ -550,6 +575,16 @@ export type NoteType = {
   userId: Scalars['String']['output'];
 };
 
+export type PlanType = {
+  __typename?: 'PlanType';
+  createdAt: Scalars['DateTime']['output'];
+  displayName: Scalars['String']['output'];
+  document: Scalars['JSON']['output'];
+  id: Scalars['ID']['output'];
+  sourceProfileId: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
 export type PreferenceInput = {
   text: Scalars['String']['input'];
   weight: Weight;
@@ -580,6 +615,8 @@ export type Query = {
   match: MatchAnalysisType;
   matchAnalyses: Array<MatchAnalysisType>;
   me: UserType;
+  plan?: Maybe<PlanType>;
+  plans: Array<PlanType>;
   restructureJobDescriptionWithAI: Scalars['String']['output'];
   resume: ResumeType;
   resumes: Array<ResumeType>;
@@ -666,6 +703,11 @@ export type QueryJobsArgs = {
 
 export type QueryMatchArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type QueryPlanArgs = {
+  sourceProfileId: Scalars['String']['input'];
 };
 
 
@@ -835,6 +877,12 @@ export type UpdateJobStageEventInput = {
 export type UpdateNoteInput = {
   content?: InputMaybe<Scalars['String']['input']>;
   expectedRevision: Scalars['Int']['input'];
+};
+
+export type UpdatePlanInput = {
+  displayName?: InputMaybe<Scalars['String']['input']>;
+  document?: InputMaybe<Scalars['JSON']['input']>;
+  sourceProfileId?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type UpdateResumeInput = {
@@ -1303,6 +1351,33 @@ export type CreateSourceTemplateMutationVariables = Exact<{
 
 
 export type CreateSourceTemplateMutation = { __typename?: 'Mutation', createSourceTemplate: { __typename?: 'SourceTemplateType', id: string, sourceProfileId: string, surfaceUrl: string, scheduleCron?: string | null, scheduleEnabled: boolean, createdAt: any } };
+
+export type PlansQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type PlansQuery = { __typename?: 'Query', plans: Array<{ __typename?: 'PlanType', id: string, sourceProfileId: string, displayName: string }> };
+
+export type PlanQueryVariables = Exact<{
+  sourceProfileId: Scalars['String']['input'];
+}>;
+
+
+export type PlanQuery = { __typename?: 'Query', plan?: { __typename?: 'PlanType', id: string, sourceProfileId: string, displayName: string, document: any, createdAt: any, updatedAt: any } | null };
+
+export type UpdatePlanMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  input: UpdatePlanInput;
+}>;
+
+
+export type UpdatePlanMutation = { __typename?: 'Mutation', updatePlan: { __typename?: 'PlanType', id: string, sourceProfileId: string, displayName: string, document: any, updatedAt: any } };
+
+export type CreatePlanMutationVariables = Exact<{
+  input: CreatePlanInput;
+}>;
+
+
+export type CreatePlanMutation = { __typename?: 'Mutation', createPlan: { __typename?: 'PlanType', id: string, sourceProfileId: string, displayName: string, document: any, createdAt: any, updatedAt: any } };
 
 export type WorkPreferencesQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -3824,6 +3899,158 @@ export const CreateSourceTemplateDocument = gql`
 export function useCreateSourceTemplateMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<CreateSourceTemplateMutation, CreateSourceTemplateMutationVariables>) {
         const options = {...defaultOptions, ...baseOptions}
         return ApolloReactHooks.useMutation<CreateSourceTemplateMutation, CreateSourceTemplateMutationVariables>(CreateSourceTemplateDocument, options);
+      }
+
+
+export const PlansDocument = gql`
+    query Plans {
+  plans {
+    id
+    sourceProfileId
+    displayName
+  }
+}
+    `;
+
+/**
+ * __usePlansQuery__
+ *
+ * To run a query within a React component, call `usePlansQuery` and pass it any options that fit your needs.
+ * When your component renders, `usePlansQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = usePlansQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function usePlansQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<PlansQuery, PlansQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<PlansQuery, PlansQueryVariables>(PlansDocument, options);
+      }
+export function usePlansLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<PlansQuery, PlansQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<PlansQuery, PlansQueryVariables>(PlansDocument, options);
+        }
+
+export type PlansQueryHookResult = ReturnType<typeof usePlansQuery>;
+export type PlansLazyQueryHookResult = ReturnType<typeof usePlansLazyQuery>;
+
+export const PlanDocument = gql`
+    query Plan($sourceProfileId: String!) {
+  plan(sourceProfileId: $sourceProfileId) {
+    id
+    sourceProfileId
+    displayName
+    document
+    createdAt
+    updatedAt
+  }
+}
+    `;
+
+/**
+ * __usePlanQuery__
+ *
+ * To run a query within a React component, call `usePlanQuery` and pass it any options that fit your needs.
+ * When your component renders, `usePlanQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = usePlanQuery({
+ *   variables: {
+ *      sourceProfileId: // value for 'sourceProfileId'
+ *   },
+ * });
+ */
+export function usePlanQuery(baseOptions: ApolloReactHooks.QueryHookOptions<PlanQuery, PlanQueryVariables> & ({ variables: PlanQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<PlanQuery, PlanQueryVariables>(PlanDocument, options);
+      }
+export function usePlanLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<PlanQuery, PlanQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<PlanQuery, PlanQueryVariables>(PlanDocument, options);
+        }
+
+export type PlanQueryHookResult = ReturnType<typeof usePlanQuery>;
+export type PlanLazyQueryHookResult = ReturnType<typeof usePlanLazyQuery>;
+
+export const UpdatePlanDocument = gql`
+    mutation UpdatePlan($id: ID!, $input: UpdatePlanInput!) {
+  updatePlan(id: $id, input: $input) {
+    id
+    sourceProfileId
+    displayName
+    document
+    updatedAt
+  }
+}
+    `;
+
+
+/**
+ * __useUpdatePlanMutation__
+ *
+ * To run a mutation, you first call `useUpdatePlanMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdatePlanMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updatePlanMutation, { data, loading, error }] = useUpdatePlanMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdatePlanMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<UpdatePlanMutation, UpdatePlanMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<UpdatePlanMutation, UpdatePlanMutationVariables>(UpdatePlanDocument, options);
+      }
+
+
+export const CreatePlanDocument = gql`
+    mutation CreatePlan($input: CreatePlanInput!) {
+  createPlan(input: $input) {
+    id
+    sourceProfileId
+    displayName
+    document
+    createdAt
+    updatedAt
+  }
+}
+    `;
+
+
+/**
+ * __useCreatePlanMutation__
+ *
+ * To run a mutation, you first call `useCreatePlanMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreatePlanMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createPlanMutation, { data, loading, error }] = useCreatePlanMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreatePlanMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<CreatePlanMutation, CreatePlanMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<CreatePlanMutation, CreatePlanMutationVariables>(CreatePlanDocument, options);
       }
 
 

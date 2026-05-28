@@ -122,6 +122,12 @@ export type CreateNoteInput = {
   jobId: Scalars['String']['input'];
 };
 
+export type CreatePlanInput = {
+  displayName: Scalars['String']['input'];
+  document: Scalars['JSON']['input'];
+  sourceProfileId: Scalars['String']['input'];
+};
+
 export type CreateResumeInput = {
   content: Scalars['String']['input'];
   isDefault?: Scalars['Boolean']['input'];
@@ -342,6 +348,7 @@ export type Mutation = {
   createJob: JobType;
   createJobNote: NoteType;
   createJobStageEvent: JobStageEventType;
+  createPlan: PlanType;
   createResume: ResumeType;
   createSourceRun: SourceRunType;
   createSourceTemplate: SourceTemplateType;
@@ -351,6 +358,7 @@ export type Mutation = {
   deleteJobNote: DeleteMutationPayloadType;
   deleteJobStageEvent: DeleteMutationPayloadType;
   deleteMatchAnalysis: DeleteMutationPayloadType;
+  deletePlan: DeleteMutationPayloadType;
   deleteResume: DeleteMutationPayloadType;
   deleteSourceRun: DeleteMutationPayloadType;
   deleteSourceTemplate: DeleteMutationPayloadType;
@@ -365,6 +373,7 @@ export type Mutation = {
   updateJob: JobType;
   updateJobNote: NoteType;
   updateJobStageEvent: JobStageEventType;
+  updatePlan: PlanType;
   updateResume: ResumeType;
   updateSettings: UserSetting;
   updateSourceRun: SourceRunType;
@@ -386,6 +395,11 @@ export type MutationCreateJobNoteArgs = {
 
 export type MutationCreateJobStageEventArgs = {
   input: CreateJobStageEventInput;
+};
+
+
+export type MutationCreatePlanArgs = {
+  input: CreatePlanInput;
 };
 
 
@@ -425,6 +439,11 @@ export type MutationDeleteJobStageEventArgs = {
 
 
 export type MutationDeleteMatchAnalysisArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeletePlanArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -505,6 +524,12 @@ export type MutationUpdateJobStageEventArgs = {
 };
 
 
+export type MutationUpdatePlanArgs = {
+  id: Scalars['ID']['input'];
+  input: UpdatePlanInput;
+};
+
+
 export type MutationUpdateResumeArgs = {
   id: Scalars['ID']['input'];
   input: UpdateResumeInput;
@@ -549,6 +574,16 @@ export type NoteType = {
   userId: Scalars['String']['output'];
 };
 
+export type PlanType = {
+  __typename?: 'PlanType';
+  createdAt: Scalars['DateTime']['output'];
+  displayName: Scalars['String']['output'];
+  document: Scalars['JSON']['output'];
+  id: Scalars['ID']['output'];
+  sourceProfileId: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
 export type PreferenceInput = {
   text: Scalars['String']['input'];
   weight: Weight;
@@ -579,6 +614,8 @@ export type Query = {
   match: MatchAnalysisType;
   matchAnalyses: Array<MatchAnalysisType>;
   me: UserType;
+  plan?: Maybe<PlanType>;
+  plans: Array<PlanType>;
   restructureJobDescriptionWithAI: Scalars['String']['output'];
   resume: ResumeType;
   resumes: Array<ResumeType>;
@@ -665,6 +702,11 @@ export type QueryJobsArgs = {
 
 export type QueryMatchArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type QueryPlanArgs = {
+  sourceProfileId: Scalars['String']['input'];
 };
 
 
@@ -834,6 +876,12 @@ export type UpdateJobStageEventInput = {
 export type UpdateNoteInput = {
   content?: InputMaybe<Scalars['String']['input']>;
   expectedRevision: Scalars['Int']['input'];
+};
+
+export type UpdatePlanInput = {
+  displayName?: InputMaybe<Scalars['String']['input']>;
+  document?: InputMaybe<Scalars['JSON']['input']>;
+  sourceProfileId?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type UpdateResumeInput = {
@@ -1302,6 +1350,33 @@ export type CreateSourceTemplateMutationVariables = Exact<{
 
 
 export type CreateSourceTemplateMutation = { __typename?: 'Mutation', createSourceTemplate: { __typename?: 'SourceTemplateType', id: string, sourceProfileId: string, surfaceUrl: string, scheduleCron?: string | null, scheduleEnabled: boolean, createdAt: any } };
+
+export type PlansQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type PlansQuery = { __typename?: 'Query', plans: Array<{ __typename?: 'PlanType', id: string, sourceProfileId: string, displayName: string }> };
+
+export type PlanQueryVariables = Exact<{
+  sourceProfileId: Scalars['String']['input'];
+}>;
+
+
+export type PlanQuery = { __typename?: 'Query', plan?: { __typename?: 'PlanType', id: string, sourceProfileId: string, displayName: string, document: any, createdAt: any, updatedAt: any } | null };
+
+export type UpdatePlanMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  input: UpdatePlanInput;
+}>;
+
+
+export type UpdatePlanMutation = { __typename?: 'Mutation', updatePlan: { __typename?: 'PlanType', id: string, sourceProfileId: string, displayName: string, document: any, updatedAt: any } };
+
+export type CreatePlanMutationVariables = Exact<{
+  input: CreatePlanInput;
+}>;
+
+
+export type CreatePlanMutation = { __typename?: 'Mutation', createPlan: { __typename?: 'PlanType', id: string, sourceProfileId: string, displayName: string, document: any, createdAt: any, updatedAt: any } };
 
 export type WorkPreferencesQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -2192,6 +2267,50 @@ export const CreateSourceTemplateDocument = gql`
   }
 }
     `;
+export const PlansDocument = gql`
+    query Plans {
+  plans {
+    id
+    sourceProfileId
+    displayName
+  }
+}
+    `;
+export const PlanDocument = gql`
+    query Plan($sourceProfileId: String!) {
+  plan(sourceProfileId: $sourceProfileId) {
+    id
+    sourceProfileId
+    displayName
+    document
+    createdAt
+    updatedAt
+  }
+}
+    `;
+export const UpdatePlanDocument = gql`
+    mutation UpdatePlan($id: ID!, $input: UpdatePlanInput!) {
+  updatePlan(id: $id, input: $input) {
+    id
+    sourceProfileId
+    displayName
+    document
+    updatedAt
+  }
+}
+    `;
+export const CreatePlanDocument = gql`
+    mutation CreatePlan($input: CreatePlanInput!) {
+  createPlan(input: $input) {
+    id
+    sourceProfileId
+    displayName
+    document
+    createdAt
+    updatedAt
+  }
+}
+    `;
 export const WorkPreferencesDocument = gql`
     query WorkPreferences {
   workPreferences {
@@ -2398,6 +2517,18 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     CreateSourceTemplate(variables: CreateSourceTemplateMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<CreateSourceTemplateMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<CreateSourceTemplateMutation>({ document: CreateSourceTemplateDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'CreateSourceTemplate', 'mutation', variables);
+    },
+    Plans(variables?: PlansQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<PlansQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<PlansQuery>({ document: PlansDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'Plans', 'query', variables);
+    },
+    Plan(variables: PlanQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<PlanQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<PlanQuery>({ document: PlanDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'Plan', 'query', variables);
+    },
+    UpdatePlan(variables: UpdatePlanMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<UpdatePlanMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<UpdatePlanMutation>({ document: UpdatePlanDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'UpdatePlan', 'mutation', variables);
+    },
+    CreatePlan(variables: CreatePlanMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<CreatePlanMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<CreatePlanMutation>({ document: CreatePlanDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'CreatePlan', 'mutation', variables);
     },
     WorkPreferences(variables?: WorkPreferencesQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<WorkPreferencesQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<WorkPreferencesQuery>({ document: WorkPreferencesDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'WorkPreferences', 'query', variables);

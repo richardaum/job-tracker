@@ -123,3 +123,14 @@ mutation UpdatePlan($id: ID!, $input: UpdatePlanInput!) {
     updatedAt
   }
 }
+
+mutation CreatePlan($input: CreatePlanInput!) {
+  createPlan(input: $input) {
+    id
+    sourceProfileId
+    displayName
+    document
+    createdAt
+    updatedAt
+  }
+}

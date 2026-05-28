@@ -1,17 +1,44 @@
 "use client";
 
-import { Card, cn, Heading, Skeleton, Stack, Text } from "@job-tracker/ui";
+import {
+  Button,
+  Card,
+  cn,
+  Heading,
+  Skeleton,
+  Stack,
+  Text,
+} from "@job-tracker/ui";
+import { PlusIcon } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 import { usePlansQuery } from "@/gql/hooks";
+import { SourcesHeaderActions } from "@/modules/sources/layout/sources-header.slots";
+import { ImportPlanDialog } from "@/modules/sources/page/ImportPlanDialog";
 
 export default function PlansPage() {
   const router = useRouter();
+  const [importOpen, setImportOpen] = useState(false);
   const { data, loading } = usePlansQuery();
   const plans = data?.plans ?? [];
 
   return (
     <div className={cn("flex h-full min-h-0 flex-1 flex-col")}>
+      <SourcesHeaderActions>
+        <Button
+          type="button"
+          intent="primary"
+          size="md"
+          leftIcon={<PlusIcon size={16} weight="bold" />}
+          onClick={() => setImportOpen(true)}
+        >
+          Import plan
+        </Button>
+      </SourcesHeaderActions>
+
+      <ImportPlanDialog open={importOpen} onOpenChange={setImportOpen} />
+
       <div className={cn("px-4 pb-2 pt-4 sm:px-6 sm:pb-2 sm:pt-6")}>
         <Text size="sm" color="secondary">
           {loading ? "Loading..." : `${plans.length} plans found`}

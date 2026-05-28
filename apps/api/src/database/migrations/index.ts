@@ -27,6 +27,7 @@ import { ExtensionActivityEvents1767970000000 } from "./1767970000000-extension-
 import { ChangePayloadToJsonb1767980000000 } from "./1767980000000-change-payload-to-jsonb";
 import { AddAdminRoleEnum1767990000000 } from "./1767990000000-add-admin-role-enum";
 import { AddKeywordBlockerColumns1768000000000 } from "./1768000000000-add-keyword-blocker-columns";
+import { CreatePlansTable1768010000000 } from "./1768010000000-create-plans-table";
 
 export const migrations = [
   SquashedBaseline1767000000000,
@@ -58,4 +59,5 @@ export const migrations = [
   ChangePayloadToJsonb1767980000000,
   AddAdminRoleEnum1767990000000,
   AddKeywordBlockerColumns1768000000000,
+  CreatePlansTable1768010000000,
 ];

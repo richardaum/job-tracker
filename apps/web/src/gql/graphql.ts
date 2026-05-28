@@ -121,6 +121,12 @@ export type CreateNoteInput = {
   jobId: Scalars['String']['input'];
 };
 
+export type CreatePlanInput = {
+  displayName: Scalars['String']['input'];
+  document: Scalars['JSON']['input'];
+  sourceProfileId: Scalars['String']['input'];
+};
+
 export type CreateResumeInput = {
   content: Scalars['String']['input'];
   isDefault?: Scalars['Boolean']['input'];
@@ -341,6 +347,7 @@ export type Mutation = {
   createJob: JobType;
   createJobNote: NoteType;
   createJobStageEvent: JobStageEventType;
+  createPlan: PlanType;
   createResume: ResumeType;
   createSourceRun: SourceRunType;
   createSourceTemplate: SourceTemplateType;
@@ -350,6 +357,7 @@ export type Mutation = {
   deleteJobNote: DeleteMutationPayloadType;
   deleteJobStageEvent: DeleteMutationPayloadType;
   deleteMatchAnalysis: DeleteMutationPayloadType;
+  deletePlan: DeleteMutationPayloadType;
   deleteResume: DeleteMutationPayloadType;
   deleteSourceRun: DeleteMutationPayloadType;
   deleteSourceTemplate: DeleteMutationPayloadType;
@@ -364,6 +372,7 @@ export type Mutation = {
   updateJob: JobType;
   updateJobNote: NoteType;
   updateJobStageEvent: JobStageEventType;
+  updatePlan: PlanType;
   updateResume: ResumeType;
   updateSettings: UserSetting;
   updateSourceRun: SourceRunType;
@@ -385,6 +394,11 @@ export type MutationCreateJobNoteArgs = {
 
 export type MutationCreateJobStageEventArgs = {
   input: CreateJobStageEventInput;
+};
+
+
+export type MutationCreatePlanArgs = {
+  input: CreatePlanInput;
 };
 
 
@@ -424,6 +438,11 @@ export type MutationDeleteJobStageEventArgs = {
 
 
 export type MutationDeleteMatchAnalysisArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeletePlanArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -504,6 +523,12 @@ export type MutationUpdateJobStageEventArgs = {
 };
 
 
+export type MutationUpdatePlanArgs = {
+  id: Scalars['ID']['input'];
+  input: UpdatePlanInput;
+};
+
+
 export type MutationUpdateResumeArgs = {
   id: Scalars['ID']['input'];
   input: UpdateResumeInput;
@@ -548,6 +573,16 @@ export type NoteType = {
   userId: Scalars['String']['output'];
 };
 
+export type PlanType = {
+  __typename?: 'PlanType';
+  createdAt: Scalars['DateTime']['output'];
+  displayName: Scalars['String']['output'];
+  document: Scalars['JSON']['output'];
+  id: Scalars['ID']['output'];
+  sourceProfileId: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
 export type PreferenceInput = {
   text: Scalars['String']['input'];
   weight: Weight;
@@ -578,6 +613,8 @@ export type Query = {
   match: MatchAnalysisType;
   matchAnalyses: Array<MatchAnalysisType>;
   me: UserType;
+  plan?: Maybe<PlanType>;
+  plans: Array<PlanType>;
   restructureJobDescriptionWithAI: Scalars['String']['output'];
   resume: ResumeType;
   resumes: Array<ResumeType>;
@@ -664,6 +701,11 @@ export type QueryJobsArgs = {
 
 export type QueryMatchArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type QueryPlanArgs = {
+  sourceProfileId: Scalars['String']['input'];
 };
 
 
@@ -833,6 +875,12 @@ export type UpdateJobStageEventInput = {
 export type UpdateNoteInput = {
   content?: InputMaybe<Scalars['String']['input']>;
   expectedRevision: Scalars['Int']['input'];
+};
+
+export type UpdatePlanInput = {
+  displayName?: InputMaybe<Scalars['String']['input']>;
+  document?: InputMaybe<Scalars['JSON']['input']>;
+  sourceProfileId?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type UpdateResumeInput = {
@@ -1314,6 +1362,33 @@ export type CreateSourceTemplateMutationVariables = Exact<{
 
 export type CreateSourceTemplateMutation = { __typename?: 'Mutation', createSourceTemplate: { __typename?: 'SourceTemplateType', id: string, sourceProfileId: string, surfaceUrl: string, scheduleCron?: string | null, scheduleEnabled: boolean, createdAt: any } };
 
+export type PlansQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type PlansQuery = { __typename?: 'Query', plans: Array<{ __typename?: 'PlanType', id: string, sourceProfileId: string, displayName: string }> };
+
+export type PlanQueryVariables = Exact<{
+  sourceProfileId: Scalars['String']['input'];
+}>;
+
+
+export type PlanQuery = { __typename?: 'Query', plan?: { __typename?: 'PlanType', id: string, sourceProfileId: string, displayName: string, document: any, createdAt: any, updatedAt: any } | null };
+
+export type UpdatePlanMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  input: UpdatePlanInput;
+}>;
+
+
+export type UpdatePlanMutation = { __typename?: 'Mutation', updatePlan: { __typename?: 'PlanType', id: string, sourceProfileId: string, displayName: string, document: any, updatedAt: any } };
+
+export type CreatePlanMutationVariables = Exact<{
+  input: CreatePlanInput;
+}>;
+
+
+export type CreatePlanMutation = { __typename?: 'Mutation', createPlan: { __typename?: 'PlanType', id: string, sourceProfileId: string, displayName: string, document: any, createdAt: any, updatedAt: any } };
+
 export type WorkPreferencesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -1388,5 +1463,9 @@ export const SourcesForSourceProfileDocument = {"kind":"Document","definitions":
 export const UpdateSourceTemplateDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateSourceTemplate"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UpdateSourceTemplateInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateSourceTemplate"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}},{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"sourceProfileId"}},{"kind":"Field","name":{"kind":"Name","value":"scheduleCron"}},{"kind":"Field","name":{"kind":"Name","value":"scheduleEnabled"}},{"kind":"Field","name":{"kind":"Name","value":"surfaceUrl"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"runs"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"startedAt"}}]}}]}}]}}]} as unknown as DocumentNode<UpdateSourceTemplateMutation, UpdateSourceTemplateMutationVariables>;
 export const DeleteSourceTemplateDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"DeleteSourceTemplate"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"deleteSourceTemplate"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"success"}},{"kind":"Field","name":{"kind":"Name","value":"deletedId"}}]}}]}}]} as unknown as DocumentNode<DeleteSourceTemplateMutation, DeleteSourceTemplateMutationVariables>;
 export const CreateSourceTemplateDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateSourceTemplate"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateSourceTemplateInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createSourceTemplate"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"sourceProfileId"}},{"kind":"Field","name":{"kind":"Name","value":"surfaceUrl"}},{"kind":"Field","name":{"kind":"Name","value":"scheduleCron"}},{"kind":"Field","name":{"kind":"Name","value":"scheduleEnabled"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}}]}}]} as unknown as DocumentNode<CreateSourceTemplateMutation, CreateSourceTemplateMutationVariables>;
+export const PlansDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"Plans"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"plans"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"sourceProfileId"}},{"kind":"Field","name":{"kind":"Name","value":"displayName"}}]}}]}}]} as unknown as DocumentNode<PlansQuery, PlansQueryVariables>;
+export const PlanDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"Plan"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"sourceProfileId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"plan"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"sourceProfileId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"sourceProfileId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"sourceProfileId"}},{"kind":"Field","name":{"kind":"Name","value":"displayName"}},{"kind":"Field","name":{"kind":"Name","value":"document"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]} as unknown as DocumentNode<PlanQuery, PlanQueryVariables>;
+export const UpdatePlanDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdatePlan"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UpdatePlanInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updatePlan"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}},{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"sourceProfileId"}},{"kind":"Field","name":{"kind":"Name","value":"displayName"}},{"kind":"Field","name":{"kind":"Name","value":"document"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]} as unknown as DocumentNode<UpdatePlanMutation, UpdatePlanMutationVariables>;
+export const CreatePlanDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreatePlan"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreatePlanInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createPlan"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"sourceProfileId"}},{"kind":"Field","name":{"kind":"Name","value":"displayName"}},{"kind":"Field","name":{"kind":"Name","value":"document"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]} as unknown as DocumentNode<CreatePlanMutation, CreatePlanMutationVariables>;
 export const WorkPreferencesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"WorkPreferences"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"workPreferences"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"text"}},{"kind":"Field","name":{"kind":"Name","value":"weight"}}]}}]}}]} as unknown as DocumentNode<WorkPreferencesQuery, WorkPreferencesQueryVariables>;
 export const UpdateWorkPreferencesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateWorkPreferences"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"items"}},"type":{"kind":"NonNullType","type":{"kind":"ListType","type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"PreferenceInput"}}}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateWorkPreferences"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"items"},"value":{"kind":"Variable","name":{"kind":"Name","value":"items"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"text"}},{"kind":"Field","name":{"kind":"Name","value":"weight"}}]}}]}}]} as unknown as DocumentNode<UpdateWorkPreferencesMutation, UpdateWorkPreferencesMutationVariables>;
