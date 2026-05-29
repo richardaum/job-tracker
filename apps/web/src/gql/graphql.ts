@@ -26,7 +26,8 @@ export enum ApplicationQuickFilter {
   Draft = 'DRAFT',
   Duplicated = 'DUPLICATED',
   Incoming = 'INCOMING',
-  New = 'NEW'
+  New = 'NEW',
+  Rejected = 'REJECTED'
 }
 
 export enum ApplicationStage {
@@ -65,6 +66,19 @@ export type AuthAccount = {
 export enum AuthProvider {
   Google = 'GOOGLE'
 }
+
+export type BlockedKeyword = {
+  __typename?: 'BlockedKeyword';
+  keyword: Scalars['String']['output'];
+  matchMode: MatchMode;
+  scope: KeywordScope;
+};
+
+export type BlockedKeywordInput = {
+  keyword: Scalars['String']['input'];
+  matchMode: MatchMode;
+  scope: KeywordScope;
+};
 
 export type CompanyType = {
   __typename?: 'CompanyType';
@@ -269,6 +283,12 @@ export type JobType = {
   workRegion?: Maybe<Scalars['String']['output']>;
 };
 
+export enum KeywordScope {
+  Company = 'COMPANY',
+  Description = 'DESCRIPTION',
+  Title = 'TITLE'
+}
+
 export type MatchAnalysisType = {
   __typename?: 'MatchAnalysisType';
   classification?: Maybe<FitClassification>;
@@ -298,6 +318,11 @@ export type MatchItemType = {
   verdict: MatchVerdict;
   weight?: Maybe<Weight>;
 };
+
+export enum MatchMode {
+  Exact = 'EXACT',
+  Partial = 'PARTIAL'
+}
 
 export enum MatchSource {
   Preference = 'Preference',
@@ -820,6 +845,8 @@ export type UpdateSettingsInput = {
   autoFillEnabled?: InputMaybe<Scalars['Boolean']['input']>;
   autoMatchEnabled?: InputMaybe<Scalars['Boolean']['input']>;
   autoSummaryEnabled?: InputMaybe<Scalars['Boolean']['input']>;
+  blockedCompanies?: InputMaybe<Array<Scalars['String']['input']>>;
+  blockedKeywords?: InputMaybe<Array<BlockedKeywordInput>>;
   duplicateWindowDays?: InputMaybe<Scalars['Int']['input']>;
 };
 
@@ -838,6 +865,8 @@ export type UserSetting = {
   autoFillEnabled: Scalars['Boolean']['output'];
   autoMatchEnabled: Scalars['Boolean']['output'];
   autoSummaryEnabled: Scalars['Boolean']['output'];
+  blockedCompanies?: Maybe<Array<Scalars['String']['output']>>;
+  blockedKeywords?: Maybe<Array<BlockedKeyword>>;
   duplicateWindowDays: Scalars['Int']['output'];
   id: Scalars['ID']['output'];
   userId: Scalars['String']['output'];
@@ -1215,14 +1244,14 @@ export type DeleteResumeMutation = { __typename?: 'Mutation', deleteResume: { __
 export type SettingsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type SettingsQuery = { __typename?: 'Query', settings: { __typename?: 'UserSetting', id: string, autoFillEnabled: boolean, autoSummaryEnabled: boolean, autoMatchEnabled: boolean, duplicateWindowDays: number } };
+export type SettingsQuery = { __typename?: 'Query', settings: { __typename?: 'UserSetting', id: string, autoFillEnabled: boolean, autoSummaryEnabled: boolean, autoMatchEnabled: boolean, duplicateWindowDays: number, blockedCompanies?: Array<string> | null, blockedKeywords?: Array<{ __typename?: 'BlockedKeyword', keyword: string, scope: KeywordScope, matchMode: MatchMode }> | null } };
 
 export type UpdateSettingsMutationVariables = Exact<{
   input: UpdateSettingsInput;
 }>;
 
 
-export type UpdateSettingsMutation = { __typename?: 'Mutation', updateSettings: { __typename?: 'UserSetting', id: string, autoFillEnabled: boolean, autoSummaryEnabled: boolean, autoMatchEnabled: boolean, duplicateWindowDays: number } };
+export type UpdateSettingsMutation = { __typename?: 'Mutation', updateSettings: { __typename?: 'UserSetting', id: string, autoFillEnabled: boolean, autoSummaryEnabled: boolean, autoMatchEnabled: boolean, duplicateWindowDays: number, blockedCompanies?: Array<string> | null, blockedKeywords?: Array<{ __typename?: 'BlockedKeyword', keyword: string, scope: KeywordScope, matchMode: MatchMode }> | null } };
 
 export type SourceProfilesListQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -1348,8 +1377,8 @@ export const ResumeDocument = {"kind":"Document","definitions":[{"kind":"Operati
 export const CreateResumeDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateResume"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateResumeInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createResume"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"content"}},{"kind":"Field","name":{"kind":"Name","value":"isDefault"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]} as unknown as DocumentNode<CreateResumeMutation, CreateResumeMutationVariables>;
 export const UpdateResumeDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateResume"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UpdateResumeInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateResume"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}},{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"content"}},{"kind":"Field","name":{"kind":"Name","value":"isDefault"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]} as unknown as DocumentNode<UpdateResumeMutation, UpdateResumeMutationVariables>;
 export const DeleteResumeDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"DeleteResume"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"deleteResume"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"success"}},{"kind":"Field","name":{"kind":"Name","value":"deletedId"}}]}}]}}]} as unknown as DocumentNode<DeleteResumeMutation, DeleteResumeMutationVariables>;
-export const SettingsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"Settings"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"settings"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"autoFillEnabled"}},{"kind":"Field","name":{"kind":"Name","value":"autoSummaryEnabled"}},{"kind":"Field","name":{"kind":"Name","value":"autoMatchEnabled"}},{"kind":"Field","name":{"kind":"Name","value":"duplicateWindowDays"}}]}}]}}]} as unknown as DocumentNode<SettingsQuery, SettingsQueryVariables>;
-export const UpdateSettingsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateSettings"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UpdateSettingsInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateSettings"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"autoFillEnabled"}},{"kind":"Field","name":{"kind":"Name","value":"autoSummaryEnabled"}},{"kind":"Field","name":{"kind":"Name","value":"autoMatchEnabled"}},{"kind":"Field","name":{"kind":"Name","value":"duplicateWindowDays"}}]}}]}}]} as unknown as DocumentNode<UpdateSettingsMutation, UpdateSettingsMutationVariables>;
+export const SettingsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"Settings"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"settings"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"autoFillEnabled"}},{"kind":"Field","name":{"kind":"Name","value":"autoSummaryEnabled"}},{"kind":"Field","name":{"kind":"Name","value":"autoMatchEnabled"}},{"kind":"Field","name":{"kind":"Name","value":"duplicateWindowDays"}},{"kind":"Field","name":{"kind":"Name","value":"blockedKeywords"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"keyword"}},{"kind":"Field","name":{"kind":"Name","value":"scope"}},{"kind":"Field","name":{"kind":"Name","value":"matchMode"}}]}},{"kind":"Field","name":{"kind":"Name","value":"blockedCompanies"}}]}}]}}]} as unknown as DocumentNode<SettingsQuery, SettingsQueryVariables>;
+export const UpdateSettingsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateSettings"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UpdateSettingsInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateSettings"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"autoFillEnabled"}},{"kind":"Field","name":{"kind":"Name","value":"autoSummaryEnabled"}},{"kind":"Field","name":{"kind":"Name","value":"autoMatchEnabled"}},{"kind":"Field","name":{"kind":"Name","value":"duplicateWindowDays"}},{"kind":"Field","name":{"kind":"Name","value":"blockedKeywords"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"keyword"}},{"kind":"Field","name":{"kind":"Name","value":"scope"}},{"kind":"Field","name":{"kind":"Name","value":"matchMode"}}]}},{"kind":"Field","name":{"kind":"Name","value":"blockedCompanies"}}]}}]}}]} as unknown as DocumentNode<UpdateSettingsMutation, UpdateSettingsMutationVariables>;
 export const SourceProfilesListDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"SourceProfilesList"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"sourceProfiles"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"onlyWithSourceTemplate"},"value":{"kind":"BooleanValue","value":true}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"sourceProfileId"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}}]} as unknown as DocumentNode<SourceProfilesListQuery, SourceProfilesListQueryVariables>;
 export const SourceProfilesListAllDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"SourceProfilesListAll"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"sourceProfiles"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"sourceProfileId"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}}]} as unknown as DocumentNode<SourceProfilesListAllQuery, SourceProfilesListAllQueryVariables>;
 export const RerunSourceTemplateDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"RerunSourceTemplate"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"templateId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"rerunSourceTemplate"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"templateId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"templateId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"startedAt"}},{"kind":"Field","name":{"kind":"Name","value":"surfaceUrl"}},{"kind":"Field","name":{"kind":"Name","value":"sourceProfileId"}}]}}]}}]} as unknown as DocumentNode<RerunSourceTemplateMutation, RerunSourceTemplateMutationVariables>;
