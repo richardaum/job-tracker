@@ -6,7 +6,6 @@
     "outDir": "./dist",
     "sourceMap": true,
     "inlineSources": true,
-    "baseUrl": ".",
     "paths": { "@api/*": ["./src/*"] },
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true

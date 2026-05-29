@@ -9,7 +9,6 @@
     "jsx": "react-jsx",
     "declaration": true,
     "outDir": "./dist",
-    "baseUrl": ".",
     "paths": { "@ui/*": ["./src/*"] }
   },
   "include": ["src/**/*", "vitest.setup.ts"],
