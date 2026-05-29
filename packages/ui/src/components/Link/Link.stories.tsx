@@ -1,4 +1,4 @@
-import { ArrowSquareOut } from "@phosphor-icons/react";
+import { ArrowSquareOutIcon } from "@phosphor-icons/react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { Link } from "./Link";
@@ -20,7 +20,7 @@ export const WithIcon: Story = {
     children: (
       <>
         Open dashboard
-        <ArrowSquareOut size={16} weight="regular" />
+        <ArrowSquareOutIcon size={16} weight="regular" />
       </>
     ),
     href: "#",

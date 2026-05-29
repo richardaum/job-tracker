@@ -1,4 +1,4 @@
-import { ArrowRight, FloppyDisk } from "@phosphor-icons/react";
+import { ArrowRightIcon, FloppyDiskIcon } from "@phosphor-icons/react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { Button } from "./Button";
@@ -31,13 +31,13 @@ export const Loading: Story = {
   args: {
     children: "Saving...",
     state: "loading",
-    leftIcon: <FloppyDisk size={16} weight="regular" />,
+    leftIcon: <FloppyDiskIcon size={16} weight="regular" />,
   },
 };
 
 export const WithRightIcon: Story = {
   args: {
     children: "Continue",
-    rightIcon: <ArrowRight size={16} weight="regular" />,
+    rightIcon: <ArrowRightIcon size={16} weight="regular" />,
   },
 };

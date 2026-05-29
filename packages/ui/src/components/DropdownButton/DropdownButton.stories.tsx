@@ -1,7 +1,7 @@
 import {
   CopyIcon,
   FloppyDiskIcon,
-  Plus,
+  PlusIcon,
   TrashIcon,
 } from "@phosphor-icons/react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
@@ -69,7 +69,7 @@ export const Destructive: Story = {
 };
 
 export const WithIcon: Story = {
-  args: { children: <Plus size={16} weight="bold" />, content: menuContent },
+  args: { children: <PlusIcon size={16} weight="bold" />, content: menuContent },
 };
 
 export const Small: Story = {
