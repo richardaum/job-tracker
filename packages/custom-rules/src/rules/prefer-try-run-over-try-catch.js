@@ -13,10 +13,8 @@ export const preferTryRunOverTryCatch = {
     },
   },
 
-  /** @returns {import('eslint').Rule.RuleListener} */
   create(context) {
     return {
-      /** @param {import('estree').TryStatement} node */
       TryStatement(node) {
         if (!node.handler) {
           return;

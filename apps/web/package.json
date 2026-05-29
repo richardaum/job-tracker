@@ -8,8 +8,8 @@
     "build": "next build",
     "start": "next start --hostname 0.0.0.0 --port ${PORT:-3100}",
     "codegen": "graphql-codegen --config codegen.ts && node ./scripts/postprocess-codegen-hooks.mjs",
-    "lint": "eslint . --max-warnings=0 --no-warn-ignored && tsc --noEmit",
-    "lint:fix": "eslint . --fix --max-warnings=0 --no-warn-ignored && tsc --noEmit",
+    "lint": "oxlint . --max-warnings 0",
+    "lint:fix": "oxlint . --fix --max-warnings 0",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "e2e": "playwright test"

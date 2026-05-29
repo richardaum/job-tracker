@@ -18,8 +18,8 @@
     "schema:generate": "NODE_OPTIONS=\"--import ./node_modules/tsx/dist/loader.mjs\" nest start --entryFile generate-schema",
     "build": "nest build && tsc-alias -p tsconfig.build.json",
     "start": "node dist/main",
-    "lint": "eslint . --fix --max-warnings=0 --no-warn-ignored && tsc --noEmit",
-    "lint:fix": "eslint . --fix --max-warnings=0 --no-warn-ignored && tsc --noEmit",
+    "lint": "oxlint . --fix --max-warnings 0",
+    "lint:fix": "oxlint . --fix --max-warnings 0",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },
