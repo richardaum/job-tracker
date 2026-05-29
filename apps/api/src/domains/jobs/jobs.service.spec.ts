@@ -1,6 +1,7 @@
 import { SourceRunEntity } from "@api/database/entities/source-run.entity";
 import { CompanyDescriptionService } from "@api/domains/companies/ai/company-description.service";
 import { CompanyService } from "@api/domains/companies/companies.service";
+import { NoteService } from "@api/domains/notes/notes.service";
 import { LocationInferenceService } from "@api/lib/ai";
 import { NotFoundException } from "@nestjs/common";
 import type { Repository } from "typeorm";
@@ -17,6 +18,7 @@ import { JobsRepository } from "./jobs.repository";
 import { Job } from "./jobs.schema";
 import { JobsService } from "./jobs.service";
 import { JobsListQuery } from "./jobs-list.query";
+import { KeywordBlockerService } from "./keyword-blocker.service";
 import { SalaryService } from "./salary/salary.service";
 import { StageEventSourceEnum } from "./stage-event-source.enum";
 import { TagService } from "./tags/tag.service";
@@ -81,6 +83,8 @@ describe("JobsService", () => {
   let companyDescriptionService: CompanyDescriptionService;
   let locationInferenceService: LocationInferenceService;
   let fillService: JobAutomaticFillService;
+  let keywordBlockerService: { evaluate: ReturnType<typeof vi.fn> };
+  let noteService: { createPlainTextNote: ReturnType<typeof vi.fn> };
 
   beforeEach(() => {
     sourceRunsRepo = { findOne: vi.fn().mockResolvedValue(null) };
@@ -134,6 +138,11 @@ describe("JobsService", () => {
       fillJobAutomatically: vi.fn(),
     } as unknown as JobAutomaticFillService;
 
+    keywordBlockerService = { evaluate: vi.fn().mockResolvedValue(null) };
+    noteService = {
+      createPlainTextNote: vi.fn().mockResolvedValue({ id: "note-1" }),
+    };
+
     eventBus = { emit: vi.fn() } as unknown as JobEventBus;
 
     service = new JobsService(
@@ -149,6 +158,8 @@ describe("JobsService", () => {
       locationInferenceService,
       eventBus as unknown as JobEventBus,
       fillService,
+      keywordBlockerService as unknown as KeywordBlockerService,
+      noteService as unknown as NoteService,
     );
   });
 
@@ -564,6 +575,238 @@ describe("JobsService", () => {
       });
 
       expect(fillService.fillJobAutomatically).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("keyword blocker integration", () => {
+    const blockerInput = {
+      title: "Engineer",
+      company: "Acme",
+      description: JSON.stringify({
+        type: "doc",
+        content: [{ type: "paragraph", content: [] }],
+      }),
+    };
+
+    function mockCreate(): Job {
+      const app = makeJob();
+      vi.mocked(companyService.findOrCreateByName).mockResolvedValue(co(app));
+      vi.mocked(repo.create).mockResolvedValue(app);
+      vi.mocked(repo.findOneByIdAndUserId).mockResolvedValue(app);
+      return app;
+    }
+
+    it("calls keywordBlockerService.evaluate() after normalization", async () => {
+      mockCreate();
+      vi.mocked(keywordBlockerService.evaluate).mockResolvedValue(null);
+      vi.mocked(stageEventsRepo.createStageEvent).mockResolvedValue(
+        makeEvent({
+          toStage: ApplicationStageEnum.NEW,
+          source: StageEventSourceEnum.System,
+        }),
+      );
+
+      await service.create("user-1", blockerInput);
+
+      expect(keywordBlockerService.evaluate).toHaveBeenCalledWith(
+        "user-1",
+        "Engineer",
+        expect.any(String),
+        "Acme",
+      );
+    });
+
+    it("sets stage to REJECTED when blocker matches", async () => {
+      const app = mockCreate();
+      vi.mocked(keywordBlockerService.evaluate).mockResolvedValue({
+        matched: true,
+        keyword: "Engineer",
+        scope: "TITLE",
+      });
+      vi.mocked(stageEventsRepo.createStageEvent).mockResolvedValue(
+        makeEvent({
+          toStage: ApplicationStageEnum.REJECTED,
+          source: StageEventSourceEnum.System,
+        }),
+      );
+      vi.mocked(
+        stageEventsRepo.findLatestStageSummariesByJobIds,
+      ).mockResolvedValue(
+        new Map([
+          [
+            app.id,
+            {
+              toStage: ApplicationStageEnum.REJECTED,
+              reason: null,
+              statusAt: new Date(),
+            },
+          ],
+        ]),
+      );
+
+      const result = await service.create("user-1", blockerInput);
+
+      expect(result.currentStage).toBe(ApplicationStageEnum.REJECTED);
+      expect(repo.setPersistedStage).toHaveBeenCalledWith(
+        "user-1",
+        app.id,
+        ApplicationStageEnum.REJECTED,
+      );
+    });
+
+    it("skips duplicate detection when blocker matches", async () => {
+      mockCreate();
+      vi.mocked(keywordBlockerService.evaluate).mockResolvedValue({
+        matched: true,
+        keyword: "Engineer",
+        scope: "TITLE",
+      });
+
+      await service.create("user-1", blockerInput);
+
+      expect(
+        jobDuplicateService.resolveInitialStageOnCreate,
+      ).not.toHaveBeenCalled();
+    });
+
+    it("creates stage event with SYSTEM source and REJECTED toStage when blocker matches", async () => {
+      const app = mockCreate();
+      vi.mocked(keywordBlockerService.evaluate).mockResolvedValue({
+        matched: true,
+        keyword: "Engineer",
+        scope: "TITLE",
+      });
+      vi.mocked(stageEventsRepo.createStageEvent).mockResolvedValue(
+        makeEvent({
+          toStage: ApplicationStageEnum.REJECTED,
+          source: StageEventSourceEnum.System,
+        }),
+      );
+
+      await service.create("user-1", blockerInput);
+
+      expect(stageEventsRepo.createStageEvent).toHaveBeenCalledWith(
+        "user-1",
+        app.id,
+        {
+          fromStage: null,
+          toStage: ApplicationStageEnum.REJECTED,
+          source: StageEventSourceEnum.System,
+          reason: null,
+          scheduledAt: null,
+        },
+      );
+    });
+
+    it("calls noteService.createPlainTextNote with correct content when blocker matches", async () => {
+      const app = mockCreate();
+      vi.mocked(keywordBlockerService.evaluate).mockResolvedValue({
+        matched: true,
+        keyword: "QA Engineer",
+        scope: "TITLE",
+      });
+
+      await service.create("user-1", blockerInput);
+
+      expect(noteService.createPlainTextNote).toHaveBeenCalledWith("user-1", {
+        jobId: app.id,
+        content:
+          'Auto-rejected by keyword blocker: keyword "QA Engineer" matched in TITLE',
+      });
+    });
+
+    it("does not fail when note creation fails (best-effort)", async () => {
+      const app = mockCreate();
+      vi.mocked(keywordBlockerService.evaluate).mockResolvedValue({
+        matched: true,
+        keyword: "Engineer",
+        scope: "TITLE",
+      });
+      vi.mocked(noteService.createPlainTextNote).mockRejectedValue(
+        new Error("DB timeout"),
+      );
+      vi.mocked(stageEventsRepo.createStageEvent).mockResolvedValue(
+        makeEvent({
+          toStage: ApplicationStageEnum.REJECTED,
+          source: StageEventSourceEnum.System,
+        }),
+      );
+
+      await expect(
+        service.create("user-1", blockerInput),
+      ).resolves.toBeDefined();
+
+      expect(repo.setPersistedStage).toHaveBeenCalledWith(
+        "user-1",
+        app.id,
+        ApplicationStageEnum.REJECTED,
+      );
+    });
+
+    it("continues normal flow when blocker returns null (no match)", async () => {
+      const app = mockCreate();
+      vi.mocked(keywordBlockerService.evaluate).mockResolvedValue(null);
+      vi.mocked(
+        jobDuplicateService.resolveInitialStageOnCreate,
+      ).mockResolvedValue(ApplicationStageEnum.NEW);
+      vi.mocked(stageEventsRepo.createStageEvent).mockResolvedValue(
+        makeEvent({
+          toStage: ApplicationStageEnum.NEW,
+          source: StageEventSourceEnum.System,
+        }),
+      );
+
+      await service.create("user-1", blockerInput);
+
+      expect(
+        jobDuplicateService.resolveInitialStageOnCreate,
+      ).toHaveBeenCalled();
+      expect(repo.setPersistedStage).toHaveBeenCalledWith(
+        "user-1",
+        app.id,
+        ApplicationStageEnum.NEW,
+      );
+    });
+
+    it("does not call blocker for draft capture flow", async () => {
+      const saved = makeJob({
+        description: null,
+        htmlContent: "<p>test</p>",
+        companyId: null,
+        urls: ["https://example.com/job"],
+      });
+      (saved as { company?: unknown }).company = undefined;
+
+      vi.mocked(repo.create).mockResolvedValue(saved);
+      vi.mocked(repo.findOneByIdAndUserId).mockResolvedValue(saved);
+      vi.mocked(
+        stageEventsRepo.findLatestStageSummariesByJobIds,
+      ).mockResolvedValue(
+        new Map([
+          [
+            saved.id,
+            {
+              toStage: ApplicationStageEnum.DRAFT,
+              reason: null,
+              statusAt: new Date(),
+            },
+          ],
+        ]),
+      );
+      vi.mocked(stageEventsRepo.createStageEvent).mockResolvedValue(
+        makeEvent({
+          toStage: ApplicationStageEnum.DRAFT,
+          source: StageEventSourceEnum.System,
+        }),
+      );
+
+      await service.create("user-1", {
+        htmlContent: "<p>test</p>",
+        urls: ["https://example.com/job"],
+        createAsDraftCapture: true,
+      });
+
+      expect(keywordBlockerService.evaluate).not.toHaveBeenCalled();
     });
   });
 

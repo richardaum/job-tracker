@@ -1,4 +1,5 @@
 import { UserEntity } from "@api/database/entities/user.entity";
+import type { BlockedKeyword } from "@api/domains/settings/keyword-blocker.types";
 import {
   Column,
   CreateDateColumn,
@@ -29,6 +30,12 @@ export class UserSettingEntity {
 
   @Column({ name: "duplicate_window_days", type: "int", default: 30 })
   duplicateWindowDays!: number;
+
+  @Column({ name: "blocked_keywords", type: "jsonb", default: [] })
+  blockedKeywords!: BlockedKeyword[];
+
+  @Column({ name: "blocked_companies", type: "jsonb", default: [] })
+  blockedCompanies!: string[];
 
   @CreateDateColumn({ name: "created_at", type: "timestamptz" })
   createdAt!: Date;

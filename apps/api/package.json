@@ -14,6 +14,8 @@
     "fix:generated-at:dry-run": "ts-node -r tsconfig-paths/register --project tsconfig.json src/scripts/fix-generated-at.ts --dry-run",
     "fix:scoring-logic": "ts-node -r tsconfig-paths/register --project tsconfig.json src/scripts/fix-scoring-logic.ts",
     "fix:scoring-logic:dry-run": "ts-node -r tsconfig-paths/register --project tsconfig.json src/scripts/fix-scoring-logic.ts --dry-run",
+    "fix:seed-blocked-keywords": "tsx --tsconfig tsconfig.json scripts/fix-seed-blocked-keywords.ts",
+    "fix:seed-blocked-keywords:dry-run": "tsx --tsconfig tsconfig.json scripts/fix-seed-blocked-keywords.ts --dry-run",
     "db:migrate:squash": "tsx --tsconfig tsconfig.json scripts/squash-migrations.ts",
     "schema:generate": "NODE_OPTIONS=\"--import ./node_modules/tsx/dist/loader.mjs\" nest start --entryFile generate-schema",
     "build": "nest build && tsc-alias -p tsconfig.build.json",
@@ -25,6 +27,7 @@
   },
   "dependencies": {
     "@apollo/server": "^5.5.0",
+    "@as-integrations/express5": "^1.1.2",
     "@job-tracker/html-sanitize": "workspace:*",
     "@job-tracker/logger": "workspace:*",
     "@job-tracker/tiptap": "workspace:*",

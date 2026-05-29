@@ -53,6 +53,19 @@ export class NoteService {
     return note;
   }
 
+  async createPlainTextNote(userId: string, dto: CreateNoteDto): Promise<Note> {
+    const exists = await this.repo.hasJob(dto.jobId, userId);
+    if (!exists) throw new BadRequestException("Job not found");
+
+    const note = await this.repo.create(userId, {
+      jobId: dto.jobId,
+      content: dto.content,
+    });
+
+    this.eventBus.emit(new JobUpdated(dto.jobId, userId));
+    return note;
+  }
+
   async updateNote(
     noteId: string,
     userId: string,

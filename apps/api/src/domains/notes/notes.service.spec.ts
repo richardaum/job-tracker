@@ -99,6 +99,71 @@ describe("NoteService", () => {
     expect(repo.create).toHaveBeenCalledOnce();
   });
 
+  describe("createPlainTextNote", () => {
+    const plainContent =
+      'Auto-rejected by keyword blocker: keyword "test" matched in TITLE';
+
+    it("creates note successfully with plain text", async () => {
+      vi.mocked(repo.hasJob).mockResolvedValue(true);
+      vi.mocked(repo.create).mockResolvedValue(
+        makeNote({ content: plainContent }),
+      );
+
+      const note = await service.createPlainTextNote("user-1", {
+        jobId: "app-1",
+        content: plainContent,
+      });
+
+      expect(note.content).toBe(plainContent);
+      expect(repo.hasJob).toHaveBeenCalledWith("app-1", "user-1");
+      expect(repo.create).toHaveBeenCalledWith("user-1", {
+        jobId: "app-1",
+        content: plainContent,
+      });
+    });
+
+    it("throws BadRequestException when job does not exist", async () => {
+      vi.mocked(repo.hasJob).mockResolvedValue(false);
+
+      await expect(
+        service.createPlainTextNote("user-1", {
+          jobId: "app-1",
+          content: plainContent,
+        }),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it("emits JobUpdated event on successful creation", async () => {
+      vi.mocked(repo.hasJob).mockResolvedValue(true);
+      vi.mocked(repo.create).mockResolvedValue(
+        makeNote({ content: plainContent }),
+      );
+
+      await service.createPlainTextNote("user-1", {
+        jobId: "app-1",
+        content: plainContent,
+      });
+
+      expect(eventBus.emit).toHaveBeenCalledWith(
+        expect.objectContaining({ jobId: "app-1" }),
+      );
+    });
+
+    it("does not validate TipTap content", async () => {
+      vi.mocked(repo.hasJob).mockResolvedValue(true);
+      vi.mocked(repo.create).mockResolvedValue(
+        makeNote({ content: "plain text without tiptap structure" }),
+      );
+
+      const note = await service.createPlainTextNote("user-1", {
+        jobId: "app-1",
+        content: "plain text without tiptap structure",
+      });
+
+      expect(note.content).toBe("plain text without tiptap structure");
+    });
+  });
+
   it("updateNote throws when note is not found", async () => {
     vi.mocked(repo.findByIdAndUserId).mockResolvedValue(null);
 

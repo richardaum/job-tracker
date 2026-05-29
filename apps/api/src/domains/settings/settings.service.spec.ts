@@ -5,6 +5,7 @@ import { Test } from "@nestjs/testing";
 import { getRepositoryToken } from "@nestjs/typeorm";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { KeywordScope, MatchMode } from "./keyword-blocker.types";
 import { SettingsService } from "./settings.service";
 
 describe("SettingsService", () => {
@@ -37,6 +38,8 @@ describe("SettingsService", () => {
       autoSummaryEnabled: false,
       autoMatchEnabled: false,
       duplicateWindowDays: 30,
+      blockedKeywords: [],
+      blockedCompanies: [],
     });
 
     const result = await service.getSettings("user-1");
@@ -49,6 +52,8 @@ describe("SettingsService", () => {
       autoSummaryEnabled: false,
       autoMatchEnabled: false,
       duplicateWindowDays: 30,
+      blockedKeywords: [],
+      blockedCompanies: [],
     });
   });
 
@@ -58,6 +63,14 @@ describe("SettingsService", () => {
       autoFillEnabled: true,
       autoSummaryEnabled: false,
       duplicateWindowDays: 7,
+      blockedKeywords: [
+        {
+          keyword: "test",
+          scope: KeywordScope.TITLE,
+          matchMode: MatchMode.PARTIAL,
+        },
+      ],
+      blockedCompanies: ["Acme"],
     };
     repo.findOne.mockResolvedValue(existing);
 
@@ -70,6 +83,14 @@ describe("SettingsService", () => {
       autoFillEnabled: true,
       autoSummaryEnabled: false,
       duplicateWindowDays: 7,
+      blockedKeywords: [
+        {
+          keyword: "test",
+          scope: KeywordScope.TITLE,
+          matchMode: MatchMode.PARTIAL,
+        },
+      ],
+      blockedCompanies: ["Acme"],
     });
   });
 
@@ -80,6 +101,8 @@ describe("SettingsService", () => {
       autoSummaryEnabled: false,
       autoMatchEnabled: false,
       duplicateWindowDays: 30,
+      blockedKeywords: [],
+      blockedCompanies: [],
     };
     repo.findOne.mockResolvedValue(existing);
     repo.save.mockImplementation((entity) => Promise.resolve(entity));
@@ -101,6 +124,8 @@ describe("SettingsService", () => {
       autoSummaryEnabled: false,
       autoMatchEnabled: false,
       duplicateWindowDays: 30,
+      blockedKeywords: [],
+      blockedCompanies: [],
     };
     repo.findOne.mockResolvedValue(existing);
     repo.save.mockImplementation((entity) => Promise.resolve(entity));
@@ -111,5 +136,40 @@ describe("SettingsService", () => {
     expect(result.autoFillEnabled).toBe(false);
     expect(result.autoSummaryEnabled).toBe(false);
     expect(result.duplicateWindowDays).toBe(30);
+  });
+
+  it("updateSettings with blockedKeywords and blockedCompanies — persists arrays", async () => {
+    const existing = {
+      userId: "user-1",
+      autoFillEnabled: false,
+      autoSummaryEnabled: false,
+      autoMatchEnabled: false,
+      duplicateWindowDays: 30,
+      blockedKeywords: [],
+      blockedCompanies: [],
+    };
+    repo.findOne.mockResolvedValue(existing);
+    repo.save.mockImplementation((entity) => Promise.resolve(entity));
+
+    const result = await service.updateSettings("user-1", {
+      blockedKeywords: [
+        {
+          keyword: "test",
+          scope: KeywordScope.TITLE,
+          matchMode: MatchMode.PARTIAL,
+        },
+      ],
+      blockedCompanies: ["Acme Corp"],
+    });
+
+    expect(repo.save).toHaveBeenCalled();
+    expect(result.blockedKeywords).toEqual([
+      {
+        keyword: "test",
+        scope: KeywordScope.TITLE,
+        matchMode: MatchMode.PARTIAL,
+      },
+    ]);
+    expect(result.blockedCompanies).toEqual(["Acme Corp"]);
   });
 });
