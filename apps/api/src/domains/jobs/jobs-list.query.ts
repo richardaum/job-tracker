@@ -104,6 +104,11 @@ export class JobsListQuery {
         userId,
         stage: ApplicationStageEnum.DUPLICATED,
       });
+    } else if (filter === ApplicationQuickFilterEnum.REJECTED) {
+      qb.andWhere(`${latestStageSub} = :stage`, {
+        userId,
+        stage: ApplicationStageEnum.REJECTED,
+      });
     } else if (filter === ApplicationQuickFilterEnum.APPLIED) {
       qb.andWhere(`${latestStageSub} = :stage`, {
         userId,

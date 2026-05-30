@@ -1,9 +1,11 @@
 import { SourceRunEntity } from "@api/database/entities/source-run.entity";
 import { CompanyDescriptionService } from "@api/domains/companies/ai/company-description.service";
 import { CompanyService } from "@api/domains/companies/companies.service";
+import { NoteService } from "@api/domains/notes/notes.service";
 import { LocationInferenceService } from "@api/lib/ai";
 import { sanitizeCapturedHtml } from "@job-tracker/html-sanitize";
 import { isTipTapDocumentString, tipTapToPlainText } from "@job-tracker/tiptap";
+import { tryRun } from "@job-tracker/try-run";
 import {
   BadRequestException,
   forwardRef,
@@ -32,6 +34,7 @@ import {
 } from "./jobs.repository";
 import { Job } from "./jobs.schema";
 import { JobsListQuery } from "./jobs-list.query";
+import { KeywordBlockerService } from "./keyword-blocker.service";
 import { SalaryService } from "./salary/salary.service";
 import { SalaryPeriodEnum } from "./salary/salary-period.enum";
 import { StageEventSourceEnum } from "./stage-event-source.enum";
@@ -100,6 +103,9 @@ export class JobsService {
     private readonly eventBus: JobEventBus,
     @Inject(forwardRef(() => JobAutomaticFillService))
     private readonly fillService: JobAutomaticFillService,
+    private readonly keywordBlockerService: KeywordBlockerService,
+    @Inject(forwardRef(() => NoteService))
+    private readonly noteService: NoteService,
   ) {}
 
   async findAll(
@@ -304,6 +310,52 @@ export class JobsService {
     };
 
     const job = await this.repo.create(userId, repoDto);
+
+    const blockerVerdict = await this.keywordBlockerService.evaluate(
+      userId,
+      dto.title ?? "",
+      dto.description ?? null,
+      dto.company ?? "",
+    );
+
+    if (blockerVerdict) {
+      await this.repo.setPersistedStage(
+        userId,
+        job.id,
+        ApplicationStageEnum.REJECTED,
+      );
+
+      await this.stageEventsRepo.createStageEvent(userId, job.id, {
+        fromStage: null,
+        toStage: ApplicationStageEnum.REJECTED,
+        source: StageEventSourceEnum.System,
+        reason: null,
+        scheduledAt: null,
+      });
+
+      const noteContent = `Auto-rejected by keyword blocker: keyword "${blockerVerdict.keyword}" matched in ${blockerVerdict.scope}`;
+      const [noteError] = await tryRun(
+        this.noteService.createPlainTextNote(userId, {
+          jobId: job.id,
+          content: noteContent,
+        }),
+      );
+      if (noteError) {
+        this.logger.warn(
+          `[KeywordBlocker] Auto-note creation failed for job ${job.id}: ${noteError.message}`,
+        );
+      } else {
+        this.logger.log(`[KeywordBlocker] Auto-note created for job ${job.id}`);
+      }
+
+      const hydrated = await this.findOne(job.id, userId);
+
+      if (dto.sourceRunId) {
+        this.eventBus.emit(new JobCreated(job.id, userId, dto.autoMatch));
+      }
+
+      return hydrated;
+    }
 
     const initialStage =
       await this.jobDuplicateService.resolveInitialStageOnCreate({

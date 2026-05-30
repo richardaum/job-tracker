@@ -15,7 +15,9 @@ type SettingsToggleField =
   | "autoFillEnabled"
   | "autoSummaryEnabled"
   | "autoMatchEnabled";
-type PendingSettingField = SettingsToggleField | "duplicateWindowDays";
+type PendingSettingField =
+  | SettingsToggleField
+  | "duplicateWindowDays";
 
 type SettingsValues = NonNullable<
   NonNullable<ReturnType<typeof useSettingsQuery>["data"]>["settings"]
@@ -41,6 +43,8 @@ function buildOptimisticSettings(
     autoMatchEnabled: input.autoMatchEnabled ?? settings.autoMatchEnabled,
     duplicateWindowDays:
       input.duplicateWindowDays ?? settings.duplicateWindowDays,
+    blockedKeywords: null,
+    blockedCompanies: null,
   };
 }
 

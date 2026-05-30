@@ -6,9 +6,10 @@ import { JobStageEventEntity } from "@api/database/entities/job-stage-event.enti
 import { SourceRunEntity } from "@api/database/entities/source-run.entity";
 import { AuthModule } from "@api/domains/auth/auth.module";
 import { CompaniesModule } from "@api/domains/companies/companies.module";
+import { NotesModule } from "@api/domains/notes/notes.module";
 import { SettingsModule } from "@api/domains/settings/settings.module";
 import { LibAiModule } from "@api/lib/ai";
-import { Module } from "@nestjs/common";
+import { forwardRef, Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 
 import { DraftExtractionService } from "./ai/draft-extraction.service";
@@ -23,6 +24,7 @@ import { JobsResolver } from "./jobs.resolver";
 import { JobsService } from "./jobs.service";
 import { JobsEventsResolver } from "./jobs-events.resolver";
 import { JobsListQuery } from "./jobs-list.query";
+import { KeywordBlockerService } from "./keyword-blocker.service";
 import { SalaryModule } from "./salary/salary.module";
 import { JobSummaryService } from "./summary/job-summary.service";
 import { SummaryAiService } from "./summary/summary-ai.service";
@@ -45,6 +47,7 @@ import { TagsModule } from "./tags/tags.module";
     LibAiModule,
     SalaryModule,
     TagsModule,
+    forwardRef(() => NotesModule),
   ],
   controllers: [],
   providers: [
@@ -63,6 +66,7 @@ import { TagsModule } from "./tags/tags.module";
     SummaryEventListener,
     JobSummaryService,
     SummaryAiService,
+    KeywordBlockerService,
   ],
   exports: [
     JobsService,

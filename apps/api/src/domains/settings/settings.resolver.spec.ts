@@ -31,6 +31,8 @@ describe("SettingsResolver (integration)", () => {
       autoSummaryEnabled: false,
       autoMatchEnabled: false,
       duplicateWindowDays: 30,
+      blockedKeywords: [],
+      blockedCompanies: [],
     };
 
     service = {
@@ -81,7 +83,7 @@ describe("SettingsResolver (integration)", () => {
       .post("/graphql")
       .set(auth)
       .send({
-        query: `{ settings { id userId autoFillEnabled autoSummaryEnabled autoMatchEnabled duplicateWindowDays } }`,
+        query: `{ settings { id userId autoFillEnabled autoSummaryEnabled autoMatchEnabled duplicateWindowDays blockedKeywords { keyword scope matchMode } blockedCompanies } }`,
       });
 
     expect(res.statusCode).toBe(200);
@@ -92,6 +94,8 @@ describe("SettingsResolver (integration)", () => {
       autoSummaryEnabled: false,
       autoMatchEnabled: false,
       duplicateWindowDays: 30,
+      blockedKeywords: [],
+      blockedCompanies: [],
     });
     expect(service.getSettings).toHaveBeenCalledWith("user-1");
   });
@@ -113,13 +117,15 @@ describe("SettingsResolver (integration)", () => {
       autoFillEnabled: true,
       autoSummaryEnabled: false,
       duplicateWindowDays: 30,
+      blockedKeywords: [],
+      blockedCompanies: [],
     });
 
     const res = await request(app.getHttpServer())
       .post("/graphql")
       .set(auth)
       .send({
-        query: `mutation { updateSettings(input: { autoFillEnabled: true }) { userId autoFillEnabled autoSummaryEnabled duplicateWindowDays } }`,
+        query: `mutation { updateSettings(input: { autoFillEnabled: true }) { userId autoFillEnabled autoSummaryEnabled duplicateWindowDays blockedKeywords { keyword scope matchMode } blockedCompanies } }`,
       });
 
     expect(res.statusCode).toBe(200);
@@ -127,6 +133,8 @@ describe("SettingsResolver (integration)", () => {
       autoFillEnabled: true,
       autoSummaryEnabled: false,
       duplicateWindowDays: 30,
+      blockedKeywords: [],
+      blockedCompanies: [],
     });
     expect(service.updateSettings).toHaveBeenCalledWith("user-1", {
       autoFillEnabled: true,
@@ -140,6 +148,8 @@ describe("SettingsResolver (integration)", () => {
       autoFillEnabled: false,
       autoSummaryEnabled: true,
       duplicateWindowDays: 7,
+      blockedKeywords: [],
+      blockedCompanies: [],
     });
 
     const res = await request(app.getHttpServer())

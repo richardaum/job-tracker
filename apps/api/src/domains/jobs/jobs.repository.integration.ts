@@ -238,6 +238,48 @@ describe.skipIf(!hasDb)("Jobs domain persistence (integration)", () => {
     expect(incoming.map((app) => app.id)).not.toContain(appliedAppWithEvent.id);
   });
 
+  it("rejected quick filter returns only REJECTED-stage jobs", async () => {
+    const company = await createTestCompany(userId, "Rejected Filter Corp");
+
+    const rejectedApp = await repo.create(userId, {
+      title: "Rejected App",
+      companyId: company.id,
+      urls: [],
+    });
+    await stageEventsRepo.createStageEvent(userId, rejectedApp.id, {
+      fromStage: null,
+      toStage: ApplicationStageEnum.NEW,
+      source: StageEventSourceEnum.Manual,
+      scheduledAt: null,
+    });
+    await stageEventsRepo.createStageEvent(userId, rejectedApp.id, {
+      fromStage: ApplicationStageEnum.NEW,
+      toStage: ApplicationStageEnum.REJECTED,
+      source: StageEventSourceEnum.System,
+      scheduledAt: null,
+    });
+
+    const newApp = await repo.create(userId, {
+      title: "New App",
+      companyId: company.id,
+      urls: [],
+    });
+    await stageEventsRepo.createStageEvent(userId, newApp.id, {
+      fromStage: null,
+      toStage: ApplicationStageEnum.NEW,
+      source: StageEventSourceEnum.Manual,
+      scheduledAt: null,
+    });
+
+    const rejectedFiltered = await listQuery.findAllByUserId(
+      userId,
+      ApplicationQuickFilterEnum.REJECTED,
+    );
+
+    expect(rejectedFiltered.map((a) => a.id)).toContain(rejectedApp.id);
+    expect(rejectedFiltered.map((a) => a.id)).not.toContain(newApp.id);
+  });
+
   it("new quick filter excludes duplicated latest stage", async () => {
     const company = await createTestCompany(userId, "New Vs Dup Corp");
 

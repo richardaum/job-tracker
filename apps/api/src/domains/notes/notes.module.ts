@@ -4,7 +4,7 @@ import { JobNoteEntity } from "@api/database/entities/job-note.entity";
 import { AuthModule } from "@api/domains/auth/auth.module";
 import { JobsModule } from "@api/domains/jobs/jobs.module";
 import { LibAiModule } from "@api/lib/ai";
-import { Module } from "@nestjs/common";
+import { forwardRef, Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 
 import { NoteGenerationService } from "./ai/note-generation.service";
@@ -16,7 +16,7 @@ import { NoteService } from "./notes.service";
   imports: [
     DatabaseModule,
     TypeOrmModule.forFeature([JobEntity, JobNoteEntity]),
-    JobsModule,
+    forwardRef(() => JobsModule),
     AuthModule,
     LibAiModule,
   ],

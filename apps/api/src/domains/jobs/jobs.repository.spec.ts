@@ -204,6 +204,28 @@ describe("JobsRepository", () => {
     );
   });
 
+  it("findAllByUserId REJECTED restricts latest stage filter", async () => {
+    const qb = makeMainJobsQb([]);
+    vi.mocked(jobsRepo.createQueryBuilder).mockReturnValue(qb as never);
+
+    const listQuery = new JobsListQuery(
+      jobsRepo as unknown as Repository<JobEntity>,
+    );
+
+    await listQuery.findAllByUserId(
+      "u1",
+      ApplicationQuickFilterEnum.REJECTED,
+    );
+
+    expect(qb.andWhere).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({
+        userId: "u1",
+        stage: ApplicationStageEnum.REJECTED,
+      }),
+    );
+  });
+
   it("findAllByUserId INCOMING adds scheduled events EXISTS clause", async () => {
     const qb = makeMainJobsQb([]);
     vi.mocked(jobsRepo.createQueryBuilder).mockReturnValue(qb as never);
@@ -267,6 +289,10 @@ describe("JobsRepository", () => {
 
   it("includes DRAFT quick filter after draft→jobs migration", () => {
     expect(ApplicationQuickFilterEnum.DRAFT).toBe("DRAFT");
+  });
+
+  it("includes REJECTED quick filter for blocked-job discoverability", () => {
+    expect(ApplicationQuickFilterEnum.REJECTED).toBe("REJECTED");
   });
 
   it("create saves row with scalar salary_* columns populated", async () => {

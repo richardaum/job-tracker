@@ -27,7 +27,8 @@ export enum ApplicationQuickFilter {
   Draft = 'DRAFT',
   Duplicated = 'DUPLICATED',
   Incoming = 'INCOMING',
-  New = 'NEW'
+  New = 'NEW',
+  Rejected = 'REJECTED'
 }
 
 export enum ApplicationStage {
@@ -66,6 +67,19 @@ export type AuthAccount = {
 export enum AuthProvider {
   Google = 'GOOGLE'
 }
+
+export type BlockedKeyword = {
+  __typename?: 'BlockedKeyword';
+  keyword: Scalars['String']['output'];
+  matchMode: MatchMode;
+  scope: KeywordScope;
+};
+
+export type BlockedKeywordInput = {
+  keyword: Scalars['String']['input'];
+  matchMode: MatchMode;
+  scope: KeywordScope;
+};
 
 export type CompanyType = {
   __typename?: 'CompanyType';
@@ -270,6 +284,12 @@ export type JobType = {
   workRegion?: Maybe<Scalars['String']['output']>;
 };
 
+export enum KeywordScope {
+  Company = 'COMPANY',
+  Description = 'DESCRIPTION',
+  Title = 'TITLE'
+}
+
 export type MatchAnalysisType = {
   __typename?: 'MatchAnalysisType';
   classification?: Maybe<FitClassification>;
@@ -299,6 +319,11 @@ export type MatchItemType = {
   verdict: MatchVerdict;
   weight?: Maybe<Weight>;
 };
+
+export enum MatchMode {
+  Exact = 'EXACT',
+  Partial = 'PARTIAL'
+}
 
 export enum MatchSource {
   Preference = 'Preference',
@@ -821,6 +846,8 @@ export type UpdateSettingsInput = {
   autoFillEnabled?: InputMaybe<Scalars['Boolean']['input']>;
   autoMatchEnabled?: InputMaybe<Scalars['Boolean']['input']>;
   autoSummaryEnabled?: InputMaybe<Scalars['Boolean']['input']>;
+  blockedCompanies?: InputMaybe<Array<Scalars['String']['input']>>;
+  blockedKeywords?: InputMaybe<Array<BlockedKeywordInput>>;
   duplicateWindowDays?: InputMaybe<Scalars['Int']['input']>;
 };
 
@@ -839,6 +866,8 @@ export type UserSetting = {
   autoFillEnabled: Scalars['Boolean']['output'];
   autoMatchEnabled: Scalars['Boolean']['output'];
   autoSummaryEnabled: Scalars['Boolean']['output'];
+  blockedCompanies?: Maybe<Array<Scalars['String']['output']>>;
+  blockedKeywords?: Maybe<Array<BlockedKeyword>>;
   duplicateWindowDays: Scalars['Int']['output'];
   id: Scalars['ID']['output'];
   userId: Scalars['String']['output'];
@@ -1204,14 +1233,14 @@ export type DeleteResumeMutation = { __typename?: 'Mutation', deleteResume: { __
 export type SettingsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type SettingsQuery = { __typename?: 'Query', settings: { __typename?: 'UserSetting', id: string, autoFillEnabled: boolean, autoSummaryEnabled: boolean, autoMatchEnabled: boolean, duplicateWindowDays: number } };
+export type SettingsQuery = { __typename?: 'Query', settings: { __typename?: 'UserSetting', id: string, autoFillEnabled: boolean, autoSummaryEnabled: boolean, autoMatchEnabled: boolean, duplicateWindowDays: number, blockedCompanies?: Array<string> | null, blockedKeywords?: Array<{ __typename?: 'BlockedKeyword', keyword: string, scope: KeywordScope, matchMode: MatchMode }> | null } };
 
 export type UpdateSettingsMutationVariables = Exact<{
   input: UpdateSettingsInput;
 }>;
 
 
-export type UpdateSettingsMutation = { __typename?: 'Mutation', updateSettings: { __typename?: 'UserSetting', id: string, autoFillEnabled: boolean, autoSummaryEnabled: boolean, autoMatchEnabled: boolean, duplicateWindowDays: number } };
+export type UpdateSettingsMutation = { __typename?: 'Mutation', updateSettings: { __typename?: 'UserSetting', id: string, autoFillEnabled: boolean, autoSummaryEnabled: boolean, autoMatchEnabled: boolean, duplicateWindowDays: number, blockedCompanies?: Array<string> | null, blockedKeywords?: Array<{ __typename?: 'BlockedKeyword', keyword: string, scope: KeywordScope, matchMode: MatchMode }> | null } };
 
 export type SourceProfilesListQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -2031,6 +2060,12 @@ export const SettingsDocument = gql`
     autoSummaryEnabled
     autoMatchEnabled
     duplicateWindowDays
+    blockedKeywords {
+      keyword
+      scope
+      matchMode
+    }
+    blockedCompanies
   }
 }
     `;
@@ -2042,6 +2077,12 @@ export const UpdateSettingsDocument = gql`
     autoSummaryEnabled
     autoMatchEnabled
     duplicateWindowDays
+    blockedKeywords {
+      keyword
+      scope
+      matchMode
+    }
+    blockedCompanies
   }
 }
     `;
