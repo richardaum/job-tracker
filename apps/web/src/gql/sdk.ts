@@ -100,6 +100,7 @@ export type CreateJobInput = {
   description?: InputMaybe<Scalars['String']['input']>;
   htmlContent?: InputMaybe<Scalars['String']['input']>;
   location?: InputMaybe<Scalars['String']['input']>;
+  publishedAt?: InputMaybe<Scalars['DateTime']['input']>;
   salary?: InputMaybe<JobSalaryInput>;
   source?: InputMaybe<JobSource>;
   sourceRunId?: InputMaybe<Scalars['ID']['input']>;
@@ -279,6 +280,7 @@ export type JobType = {
   id: Scalars['ID']['output'];
   location?: Maybe<Scalars['String']['output']>;
   match?: Maybe<MatchAnalysisType>;
+  publishedAt?: Maybe<Scalars['DateTime']['output']>;
   salary?: Maybe<JobSalary>;
   source?: Maybe<JobSource>;
   sourceRunId?: Maybe<Scalars['ID']['output']>;

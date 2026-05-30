@@ -1,337 +1,354 @@
 /* eslint-disable */
-import { TypedDocumentNode as DocumentNode } from "@graphql-typed-document-node/core";
+import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/core';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = T | null | undefined;
-export type Exact<T extends { [key: string]: unknown }> = {
-  [K in keyof T]: T[K];
-};
-export type MakeOptional<T, K extends keyof T> = Omit<T, K> & {
-  [SubKey in K]?: Maybe<T[SubKey]>;
-};
-export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & {
-  [SubKey in K]: Maybe<T[SubKey]>;
-};
-export type MakeEmpty<
-  T extends { [key: string]: unknown },
-  K extends keyof T,
-> = { [_ in K]?: never };
-export type Incremental<T> =
-  | T
-  | {
-      [P in keyof T]?: P extends " $fragmentName" | "__typename" ? T[P] : never;
-    };
+export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
+export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
+export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
+export type MakeEmpty<T extends { [key: string]: unknown }, K extends keyof T> = { [_ in K]?: never };
+export type Incremental<T> = T | { [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never };
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
-  ID: { input: string; output: string };
-  String: { input: string; output: string };
-  Boolean: { input: boolean; output: boolean };
-  Int: { input: number; output: number };
-  Float: { input: number; output: number };
+  ID: { input: string; output: string; }
+  String: { input: string; output: string; }
+  Boolean: { input: boolean; output: boolean; }
+  Int: { input: number; output: number; }
+  Float: { input: number; output: number; }
   /** A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format. */
-  DateTime: { input: any; output: any };
+  DateTime: { input: any; output: any; }
   /** The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf). */
-  JSON: { input: any; output: any };
+  JSON: { input: any; output: any; }
 };
 
 export enum ApplicationQuickFilter {
-  Active = "ACTIVE",
-  Applied = "APPLIED",
-  Draft = "DRAFT",
-  Duplicated = "DUPLICATED",
-  Incoming = "INCOMING",
-  New = "NEW",
+  Active = 'ACTIVE',
+  Applied = 'APPLIED',
+  Draft = 'DRAFT',
+  Duplicated = 'DUPLICATED',
+  Incoming = 'INCOMING',
+  New = 'NEW',
+  Rejected = 'REJECTED'
 }
 
 export enum ApplicationStage {
-  Applied = "APPLIED",
-  CulturalFit = "CULTURAL_FIT",
-  Draft = "DRAFT",
-  Duplicated = "DUPLICATED",
-  New = "NEW",
-  Offer = "OFFER",
-  RecruiterScreen = "RECRUITER_SCREEN",
-  Rejected = "REJECTED",
-  Technical = "TECHNICAL",
+  Applied = 'APPLIED',
+  CulturalFit = 'CULTURAL_FIT',
+  Draft = 'DRAFT',
+  Duplicated = 'DUPLICATED',
+  New = 'NEW',
+  Offer = 'OFFER',
+  RecruiterScreen = 'RECRUITER_SCREEN',
+  Rejected = 'REJECTED',
+  Technical = 'TECHNICAL'
 }
 
 export enum AsyncMetadataStatus {
-  Completed = "COMPLETED",
-  Failed = "FAILED",
-  Processing = "PROCESSING",
+  Completed = 'COMPLETED',
+  Failed = 'FAILED',
+  Processing = 'PROCESSING'
 }
 
 export type AsyncMetadataType = {
-  __typename?: "AsyncMetadataType";
-  error?: Maybe<Scalars["String"]["output"]>;
+  __typename?: 'AsyncMetadataType';
+  error?: Maybe<Scalars['String']['output']>;
   status?: Maybe<AsyncMetadataStatus>;
-  timestamp?: Maybe<Scalars["DateTime"]["output"]>;
+  timestamp?: Maybe<Scalars['DateTime']['output']>;
 };
 
 export type AuthAccount = {
-  __typename?: "AuthAccount";
-  createdAt: Scalars["DateTime"]["output"];
-  id: Scalars["ID"]["output"];
-  providerAccountId: Scalars["String"]["output"];
+  __typename?: 'AuthAccount';
+  createdAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  providerAccountId: Scalars['String']['output'];
   providerName: AuthProvider;
 };
 
 export enum AuthProvider {
-  Google = "GOOGLE",
+  Google = 'GOOGLE'
 }
 
+export type BlockedKeyword = {
+  __typename?: 'BlockedKeyword';
+  keyword: Scalars['String']['output'];
+  matchMode: MatchMode;
+  scope: KeywordScope;
+};
+
+export type BlockedKeywordInput = {
+  keyword: Scalars['String']['input'];
+  matchMode: MatchMode;
+  scope: KeywordScope;
+};
+
 export type CompanyType = {
-  __typename?: "CompanyType";
-  createdAt: Scalars["DateTime"]["output"];
-  description?: Maybe<Scalars["String"]["output"]>;
-  id: Scalars["ID"]["output"];
-  name: Scalars["String"]["output"];
-  updatedAt: Scalars["DateTime"]["output"];
-  userId: Scalars["String"]["output"];
+  __typename?: 'CompanyType';
+  createdAt: Scalars['DateTime']['output'];
+  description?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+  userId: Scalars['String']['output'];
 };
 
 export type CreateJobInput = {
-  autoFill?: InputMaybe<Scalars["Boolean"]["input"]>;
-  autoMatch?: InputMaybe<Scalars["Boolean"]["input"]>;
-  company?: InputMaybe<Scalars["String"]["input"]>;
-  companyId?: InputMaybe<Scalars["ID"]["input"]>;
-  createAsDraftCapture?: InputMaybe<Scalars["Boolean"]["input"]>;
-  description?: InputMaybe<Scalars["String"]["input"]>;
-  htmlContent?: InputMaybe<Scalars["String"]["input"]>;
-  location?: InputMaybe<Scalars["String"]["input"]>;
+  autoFill?: InputMaybe<Scalars['Boolean']['input']>;
+  autoMatch?: InputMaybe<Scalars['Boolean']['input']>;
+  company?: InputMaybe<Scalars['String']['input']>;
+  companyId?: InputMaybe<Scalars['ID']['input']>;
+  createAsDraftCapture?: InputMaybe<Scalars['Boolean']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  htmlContent?: InputMaybe<Scalars['String']['input']>;
+  location?: InputMaybe<Scalars['String']['input']>;
+  publishedAt?: InputMaybe<Scalars['DateTime']['input']>;
   salary?: InputMaybe<JobSalaryInput>;
   source?: InputMaybe<JobSource>;
-  sourceRunId?: InputMaybe<Scalars["ID"]["input"]>;
-  tags?: InputMaybe<Array<Scalars["String"]["input"]>>;
-  title?: InputMaybe<Scalars["String"]["input"]>;
-  urls?: InputMaybe<Array<Scalars["String"]["input"]>>;
-  workRegion?: InputMaybe<Scalars["String"]["input"]>;
+  sourceRunId?: InputMaybe<Scalars['ID']['input']>;
+  tags?: InputMaybe<Array<Scalars['String']['input']>>;
+  title?: InputMaybe<Scalars['String']['input']>;
+  urls?: InputMaybe<Array<Scalars['String']['input']>>;
+  workRegion?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type CreateJobStageEventInput = {
-  jobId: Scalars["String"]["input"];
-  reason?: InputMaybe<Scalars["String"]["input"]>;
-  scheduledAt?: InputMaybe<Scalars["DateTime"]["input"]>;
+  jobId: Scalars['String']['input'];
+  reason?: InputMaybe<Scalars['String']['input']>;
+  scheduledAt?: InputMaybe<Scalars['DateTime']['input']>;
   source?: InputMaybe<StageEventSource>;
   toStage: ApplicationStage;
 };
 
 export type CreateNoteInput = {
-  content: Scalars["String"]["input"];
-  jobId: Scalars["String"]["input"];
+  content: Scalars['String']['input'];
+  jobId: Scalars['String']['input'];
 };
 
 export type CreatePlanInput = {
-  displayName: Scalars["String"]["input"];
-  document: Scalars["JSON"]["input"];
+  displayName: Scalars['String']['input'];
+  document: Scalars['JSON']['input'];
 };
 
 export type CreateResumeInput = {
-  content: Scalars["String"]["input"];
-  isDefault?: Scalars["Boolean"]["input"];
-  title: Scalars["String"]["input"];
+  content: Scalars['String']['input'];
+  isDefault?: Scalars['Boolean']['input'];
+  title: Scalars['String']['input'];
 };
 
-export type CreateSourceRunInput = { planId: Scalars["ID"]["input"] };
+export type CreateSourceRunInput = {
+  planId: Scalars['ID']['input'];
+};
 
 export type CreateSourceTemplateInput = {
-  planId: Scalars["ID"]["input"];
-  surfaceUrl: Scalars["String"]["input"];
+  config?: InputMaybe<Scalars['JSON']['input']>;
+  planId: Scalars['ID']['input'];
+  surfaceUrl: Scalars['String']['input'];
 };
 
 export type CurrencyRates = {
-  __typename?: "CurrencyRates";
-  base: Scalars["String"]["output"];
+  __typename?: 'CurrencyRates';
+  base: Scalars['String']['output'];
   rates: Array<ExchangeRate>;
 };
 
 export type DeleteMutationPayloadType = {
-  __typename?: "DeleteMutationPayloadType";
-  deletedId: Scalars["ID"]["output"];
-  success: Scalars["Boolean"]["output"];
+  __typename?: 'DeleteMutationPayloadType';
+  deletedId: Scalars['ID']['output'];
+  success: Scalars['Boolean']['output'];
 };
 
 export type ExchangeRate = {
-  __typename?: "ExchangeRate";
-  currency: Scalars["String"]["output"];
-  rate: Scalars["Float"]["output"];
+  __typename?: 'ExchangeRate';
+  currency: Scalars['String']['output'];
+  rate: Scalars['Float']['output'];
 };
 
 export type ExtensionActivityEvent = {
-  __typename?: "ExtensionActivityEvent";
+  __typename?: 'ExtensionActivityEvent';
   /** Browser user-agent or name. */
-  browser?: Maybe<Scalars["String"]["output"]>;
+  browser?: Maybe<Scalars['String']['output']>;
   /** Groups related events (e.g. run ID). */
-  correlationId?: Maybe<Scalars["String"]["output"]>;
+  correlationId?: Maybe<Scalars['String']['output']>;
   /** Extension version that reported the event. */
-  extensionVersion?: Maybe<Scalars["String"]["output"]>;
+  extensionVersion?: Maybe<Scalars['String']['output']>;
   /** Unique event identifier. */
-  id: Scalars["ID"]["output"];
+  id: Scalars['ID']['output'];
   /** When the event actually happened (client-reported). */
-  occurredAt: Scalars["DateTime"]["output"];
+  occurredAt: Scalars['DateTime']['output'];
   /** Arbitrary JSON payload with event details. */
-  payload?: Maybe<Scalars["JSON"]["output"]>;
+  payload?: Maybe<Scalars['JSON']['output']>;
   /** Human-readable summary of what happened. */
-  summary: Scalars["String"]["output"];
+  summary: Scalars['String']['output'];
   /** Event category (source run lifecycle, import, auth). */
   type: ExtensionActivityEventType;
 };
 
 export enum ExtensionActivityEventType {
-  AuthFailed = "AuthFailed",
-  AuthRefreshed = "AuthRefreshed",
-  ImportJobCompleted = "ImportJobCompleted",
-  ImportJobFailed = "ImportJobFailed",
-  ImportJobStarted = "ImportJobStarted",
-  SourceRunClaimSkipped = "SourceRunClaimSkipped",
-  SourceRunCompleted = "SourceRunCompleted",
-  SourceRunFailed = "SourceRunFailed",
-  SourceRunJobImported = "SourceRunJobImported",
-  SourceRunReceived = "SourceRunReceived",
-  SourceRunPageCollected = "SourceRunPageCollected",
-  SourceRunStarted = "SourceRunStarted",
-  SourceRunStopConditionMet = "SourceRunStopConditionMet",
+  AuthFailed = 'AuthFailed',
+  AuthRefreshed = 'AuthRefreshed',
+  ImportJobCompleted = 'ImportJobCompleted',
+  ImportJobFailed = 'ImportJobFailed',
+  ImportJobStarted = 'ImportJobStarted',
+  SourceRunClaimSkipped = 'SourceRunClaimSkipped',
+  SourceRunCompleted = 'SourceRunCompleted',
+  SourceRunFailed = 'SourceRunFailed',
+  SourceRunJobImported = 'SourceRunJobImported',
+  SourceRunPageCollected = 'SourceRunPageCollected',
+  SourceRunReceived = 'SourceRunReceived',
+  SourceRunStarted = 'SourceRunStarted',
+  SourceRunStopConditionMet = 'SourceRunStopConditionMet'
 }
 
 export enum FitClassification {
-  Negative = "Negative",
-  Neutral = "Neutral",
-  Positive = "Positive",
+  Negative = 'Negative',
+  Neutral = 'Neutral',
+  Positive = 'Positive'
 }
 
 export type GenerateMatchInput = {
-  jobId: Scalars["ID"]["input"];
-  resumeId: Scalars["ID"]["input"];
+  jobId: Scalars['ID']['input'];
+  resumeId: Scalars['ID']['input'];
 };
 
 export type JobFillStatusEventType = {
-  __typename?: "JobFillStatusEventType";
-  error?: Maybe<Scalars["String"]["output"]>;
-  jobId: Scalars["ID"]["output"];
-  status: Scalars["String"]["output"];
+  __typename?: 'JobFillStatusEventType';
+  error?: Maybe<Scalars['String']['output']>;
+  jobId: Scalars['ID']['output'];
+  status: Scalars['String']['output'];
 };
 
 export type JobMatchStatusEventType = {
-  __typename?: "JobMatchStatusEventType";
-  jobId: Scalars["ID"]["output"];
-  matchId: Scalars["ID"]["output"];
-  status: Scalars["String"]["output"];
+  __typename?: 'JobMatchStatusEventType';
+  jobId: Scalars['ID']['output'];
+  matchId: Scalars['ID']['output'];
+  status: Scalars['String']['output'];
 };
 
 export type JobSalary = {
-  __typename?: "JobSalary";
-  currency?: Maybe<Scalars["String"]["output"]>;
-  maxCents?: Maybe<Scalars["Int"]["output"]>;
-  minCents?: Maybe<Scalars["Int"]["output"]>;
+  __typename?: 'JobSalary';
+  currency?: Maybe<Scalars['String']['output']>;
+  maxCents?: Maybe<Scalars['Int']['output']>;
+  minCents?: Maybe<Scalars['Int']['output']>;
   period?: Maybe<SalaryPeriod>;
 };
 
 export type JobSalaryInput = {
-  currency?: InputMaybe<Scalars["String"]["input"]>;
-  maxCents?: InputMaybe<Scalars["Int"]["input"]>;
-  minCents?: InputMaybe<Scalars["Int"]["input"]>;
+  currency?: InputMaybe<Scalars['String']['input']>;
+  maxCents?: InputMaybe<Scalars['Int']['input']>;
+  minCents?: InputMaybe<Scalars['Int']['input']>;
   period?: InputMaybe<SalaryPeriod>;
 };
 
 export enum JobSource {
-  Jack = "JACK",
-  Linkedin = "LINKEDIN",
-  RemoteYeah = "REMOTE_YEAH",
-  Wellfound = "WELLFOUND",
+  Jack = 'JACK',
+  Linkedin = 'LINKEDIN',
+  RemoteYeah = 'REMOTE_YEAH',
+  Wellfound = 'WELLFOUND'
 }
 
 export type JobStageEventType = {
-  __typename?: "JobStageEventType";
-  createdAt: Scalars["DateTime"]["output"];
+  __typename?: 'JobStageEventType';
+  createdAt: Scalars['DateTime']['output'];
   fromStage?: Maybe<ApplicationStage>;
-  id: Scalars["ID"]["output"];
-  jobId: Scalars["String"]["output"];
-  reason?: Maybe<Scalars["String"]["output"]>;
-  scheduledAt?: Maybe<Scalars["DateTime"]["output"]>;
+  id: Scalars['ID']['output'];
+  jobId: Scalars['String']['output'];
+  reason?: Maybe<Scalars['String']['output']>;
+  scheduledAt?: Maybe<Scalars['DateTime']['output']>;
   source: StageEventSource;
   toStage: ApplicationStage;
-  userId: Scalars["String"]["output"];
+  userId: Scalars['String']['output'];
 };
 
 export type JobSummaryStatusEventType = {
-  __typename?: "JobSummaryStatusEventType";
-  jobId: Scalars["ID"]["output"];
-  status: Scalars["String"]["output"];
-  summary?: Maybe<Scalars["String"]["output"]>;
+  __typename?: 'JobSummaryStatusEventType';
+  jobId: Scalars['ID']['output'];
+  status: Scalars['String']['output'];
+  summary?: Maybe<Scalars['String']['output']>;
   summaryMetadata?: Maybe<AsyncMetadataType>;
 };
 
 export type JobType = {
-  __typename?: "JobType";
+  __typename?: 'JobType';
   company?: Maybe<CompanyType>;
-  companyId?: Maybe<Scalars["ID"]["output"]>;
-  createdAt: Scalars["DateTime"]["output"];
+  companyId?: Maybe<Scalars['ID']['output']>;
+  createdAt: Scalars['DateTime']['output'];
   currentStage: ApplicationStage;
-  currentStageAt: Scalars["DateTime"]["output"];
-  currentStageReason?: Maybe<Scalars["String"]["output"]>;
-  description?: Maybe<Scalars["String"]["output"]>;
+  currentStageAt: Scalars['DateTime']['output'];
+  currentStageReason?: Maybe<Scalars['String']['output']>;
+  description?: Maybe<Scalars['String']['output']>;
   fillMetadata?: Maybe<AsyncMetadataType>;
-  htmlContent?: Maybe<Scalars["String"]["output"]>;
-  id: Scalars["ID"]["output"];
-  location?: Maybe<Scalars["String"]["output"]>;
+  htmlContent?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  location?: Maybe<Scalars['String']['output']>;
   match?: Maybe<MatchAnalysisType>;
+  publishedAt?: Maybe<Scalars['DateTime']['output']>;
   salary?: Maybe<JobSalary>;
   source?: Maybe<JobSource>;
-  sourceRunId?: Maybe<Scalars["ID"]["output"]>;
-  summary?: Maybe<Scalars["String"]["output"]>;
+  sourceRunId?: Maybe<Scalars['ID']['output']>;
+  summary?: Maybe<Scalars['String']['output']>;
   summaryMetadata?: Maybe<AsyncMetadataType>;
-  tags: Array<Scalars["String"]["output"]>;
-  title?: Maybe<Scalars["String"]["output"]>;
-  updatedAt: Scalars["DateTime"]["output"];
-  urls: Array<Scalars["String"]["output"]>;
-  userId: Scalars["String"]["output"];
-  workRegion?: Maybe<Scalars["String"]["output"]>;
+  tags: Array<Scalars['String']['output']>;
+  title?: Maybe<Scalars['String']['output']>;
+  updatedAt: Scalars['DateTime']['output'];
+  urls: Array<Scalars['String']['output']>;
+  userId: Scalars['String']['output'];
+  workRegion?: Maybe<Scalars['String']['output']>;
 };
 
+export enum KeywordScope {
+  Company = 'COMPANY',
+  Description = 'DESCRIPTION',
+  Title = 'TITLE'
+}
+
 export type MatchAnalysisType = {
-  __typename?: "MatchAnalysisType";
+  __typename?: 'MatchAnalysisType';
   classification?: Maybe<FitClassification>;
-  createdAt: Scalars["DateTime"]["output"];
-  gapCount: Scalars["Int"]["output"];
+  createdAt: Scalars['DateTime']['output'];
+  gapCount: Scalars['Int']['output'];
   generationMetadata?: Maybe<AsyncMetadataType>;
-  id: Scalars["ID"]["output"];
+  id: Scalars['ID']['output'];
   items: Array<MatchItemType>;
   job?: Maybe<JobType>;
-  jobId: Scalars["ID"]["output"];
-  matchCount: Scalars["Int"]["output"];
-  resumeId: Scalars["ID"]["output"];
-  scoreRatio?: Maybe<Scalars["Float"]["output"]>;
-  unclearCount: Scalars["Int"]["output"];
-  updatedAt: Scalars["DateTime"]["output"];
+  jobId: Scalars['ID']['output'];
+  matchCount: Scalars['Int']['output'];
+  resumeId: Scalars['ID']['output'];
+  scoreRatio?: Maybe<Scalars['Float']['output']>;
+  unclearCount: Scalars['Int']['output'];
+  updatedAt: Scalars['DateTime']['output'];
 };
 
 export type MatchItemType = {
-  __typename?: "MatchItemType";
-  id: Scalars["ID"]["output"];
-  jdQuote: Scalars["String"]["output"];
-  requirement: Scalars["String"]["output"];
+  __typename?: 'MatchItemType';
+  id: Scalars['ID']['output'];
+  jdQuote: Scalars['String']['output'];
+  requirement: Scalars['String']['output'];
   source: MatchSource;
-  sourceQuotes: Array<Scalars["String"]["output"]>;
-  suggestion?: Maybe<Scalars["String"]["output"]>;
+  sourceQuotes: Array<Scalars['String']['output']>;
+  suggestion?: Maybe<Scalars['String']['output']>;
   type: RequirementType;
   verdict: MatchVerdict;
   weight?: Maybe<Weight>;
 };
 
+export enum MatchMode {
+  Exact = 'EXACT',
+  Partial = 'PARTIAL'
+}
+
 export enum MatchSource {
-  Preference = "Preference",
-  Resume = "Resume",
+  Preference = 'Preference',
+  Resume = 'Resume'
 }
 
 export enum MatchVerdict {
-  Fit = "Fit",
-  Gap = "Gap",
-  Unclear = "Unclear",
+  Fit = 'Fit',
+  Gap = 'Gap',
+  Unclear = 'Unclear'
 }
 
 export type Mutation = {
-  __typename?: "Mutation";
-  clearSourceRuns: Scalars["Boolean"]["output"];
-  clearSourceTemplateRuns: Scalars["Int"]["output"];
+  __typename?: 'Mutation';
+  clearSourceRuns: Scalars['Boolean']['output'];
+  clearSourceTemplateRuns: Scalars['Int']['output'];
   createJob: JobType;
   createJobNote: NoteType;
   createJobStageEvent: JobStageEventType;
@@ -616,6 +633,7 @@ export type Query = {
   resumes: Array<ResumeType>;
   rewriteTextWithAI: Scalars['String']['output'];
   settings: UserSetting;
+  sourceRunActivityEvents: Array<SourceRunActivityEvent>;
   sourceRuns: Array<SourceRunType>;
   sourceTemplate: SourceTemplateType;
   sourceTemplates: Array<SourceTemplateType>;
@@ -724,6 +742,11 @@ export type QueryRewriteTextWithAiArgs = {
 };
 
 
+export type QuerySourceRunActivityEventsArgs = {
+  runId: Scalars['ID']['input'];
+};
+
+
 export type QuerySourceTemplateArgs = {
   id: Scalars['ID']['input'];
 };
@@ -761,6 +784,14 @@ export enum SalaryPeriod {
   Year = 'YEAR'
 }
 
+export type SourceRunActivityEvent = {
+  __typename?: 'SourceRunActivityEvent';
+  occurredAt: Scalars['DateTime']['output'];
+  payload?: Maybe<Scalars['JSON']['output']>;
+  summary: Scalars['String']['output'];
+  type: Scalars['String']['output'];
+};
+
 export type SourceRunEvent = {
   __typename?: 'SourceRunEvent';
   occurredAt: Scalars['DateTime']['output'];
@@ -784,6 +815,7 @@ export type SourceRunType = {
   catchUpThreshold?: Maybe<Scalars['Int']['output']>;
   errorMessage?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
+  jobCount: Scalars['Int']['output'];
   maxPages?: Maybe<Scalars['Int']['output']>;
   olderThanDays?: Maybe<Scalars['Int']['output']>;
   planId: Scalars['ID']['output'];
@@ -796,6 +828,7 @@ export type SourceRunType = {
 
 export type SourceTemplateType = {
   __typename?: 'SourceTemplateType';
+  config?: Maybe<Scalars['JSON']['output']>;
   createdAt: Scalars['DateTime']['output'];
   id: Scalars['ID']['output'];
   plan: PlanType;
@@ -886,6 +919,8 @@ export type UpdateSettingsInput = {
   autoFillEnabled?: InputMaybe<Scalars['Boolean']['input']>;
   autoMatchEnabled?: InputMaybe<Scalars['Boolean']['input']>;
   autoSummaryEnabled?: InputMaybe<Scalars['Boolean']['input']>;
+  blockedCompanies?: InputMaybe<Array<Scalars['String']['input']>>;
+  blockedKeywords?: InputMaybe<Array<BlockedKeywordInput>>;
   duplicateWindowDays?: InputMaybe<Scalars['Int']['input']>;
 };
 
@@ -894,6 +929,7 @@ export type UpdateSourceRunInput = {
 };
 
 export type UpdateSourceTemplateInput = {
+  config?: InputMaybe<Scalars['JSON']['input']>;
   scheduleCron?: InputMaybe<Scalars['String']['input']>;
   scheduleEnabled?: InputMaybe<Scalars['Boolean']['input']>;
   surfaceUrl?: InputMaybe<Scalars['String']['input']>;
@@ -904,6 +940,8 @@ export type UserSetting = {
   autoFillEnabled: Scalars['Boolean']['output'];
   autoMatchEnabled: Scalars['Boolean']['output'];
   autoSummaryEnabled: Scalars['Boolean']['output'];
+  blockedCompanies?: Maybe<Array<Scalars['String']['output']>>;
+  blockedKeywords?: Maybe<Array<BlockedKeyword>>;
   duplicateWindowDays: Scalars['Int']['output'];
   id: Scalars['ID']['output'];
   userId: Scalars['String']['output'];
