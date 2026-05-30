@@ -34,6 +34,12 @@ GraphQL screens should keep rendering thin: put API-to-display shaping (derived 
 | React 19/Compiler | Follow React 19 rules (prefer plain derivations; avoid default memoization). |
 | Size | Split large hooks by concern. |
 
+## Sort from API, not client
+
+Sort list data on the API (resolver/service/database) rather than client-side. Sorting in the browser adds re-render cost, hides the canonical order from other consumers, and fragments logic across files. When a query returns a list that has a natural sort order (name, date, title), add `.sort()` in the resolver or service.
+
+Exception: sorting by a user-selected column/order in a data table, where API-driven sorting would require a dedicated argument per column.
+
 ## List Consistency
 
 ### Delete mutations cache
