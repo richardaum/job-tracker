@@ -57,6 +57,7 @@ type CreateDto = {
   location?: string | null;
   workRegion?: string | null;
   htmlContent?: string | null;
+  publishedAt?: Date | null;
   draftJobId?: string | null;
   sourceRunId?: string | null;
   createAsDraftCapture?: boolean | null;
@@ -236,6 +237,7 @@ export class JobsService {
         tags,
         location: dto.location ?? null,
         workRegion: dto.workRegion ?? null,
+        publishedAt: dto.publishedAt ?? null,
         draftJobId: null,
         sourceRunId: dto.sourceRunId ?? null,
         salary: salaryEmbedded,
@@ -304,6 +306,7 @@ export class JobsService {
       tags,
       location: dto.location ?? null,
       workRegion: dto.workRegion ?? null,
+      publishedAt: dto.publishedAt ?? null,
       draftJobId: dto.draftJobId ?? null,
       sourceRunId: dto.sourceRunId ?? null,
       salary: salaryEmbedded,

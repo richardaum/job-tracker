@@ -35,6 +35,7 @@ export type CreateJobRepoDto = Pick<
   | "tags"
   | "location"
   | "workRegion"
+  | "publishedAt"
 > & {
   salary?: SalaryEmbedded;
   draftJobId?: string | null;

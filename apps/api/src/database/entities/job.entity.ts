@@ -93,6 +93,9 @@ export class JobEntity {
   @Column(() => AsyncMetadataEmbedded, { prefix: "summary" })
   summaryMetadata?: AsyncMetadataEmbedded | null;
 
+  @Column({ name: "published_at", type: "timestamptz", nullable: true })
+  publishedAt!: Date | null;
+
   @Column({ name: "source_run_id", type: "text", nullable: true })
   sourceRunId!: string | null;
 

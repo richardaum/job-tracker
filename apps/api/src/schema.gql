@@ -236,6 +236,7 @@ type JobType {
   salary: JobSalary
   createdAt: DateTime!
   updatedAt: DateTime!
+  publishedAt: DateTime
   sourceRunId: ID
   summary: String
   summaryMetadata: AsyncMetadataType
@@ -475,6 +476,7 @@ input CreateJobInput {
   location: String
   workRegion: String
   htmlContent: String
+  publishedAt: DateTime
   sourceRunId: ID
   createAsDraftCapture: Boolean
   autoFill: Boolean

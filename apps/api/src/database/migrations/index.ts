@@ -34,6 +34,7 @@ import { AddSourceRunErrorMessage1768070000000 } from "./1768070000000-add-sourc
 import { DropPlanSourceProfileId1768080000000 } from "./1768080000000-drop-plan-source-profile-id";
 import { AddSourceTemplateConfigJsonb1768090000000 } from "./1768090000000-add-source-template-config-jsonb";
 import { NormalizeStopwhenToArray1768100000000 } from "./1768100000000-normalize-stopwhen-to-array";
+import { AddJobPublishedAt1768110000000 } from "./1768110000000-add-job-published-at";
 
 export const migrations = [
   SquashedBaseline1767000000000,
@@ -72,4 +73,5 @@ export const migrations = [
   DropPlanSourceProfileId1768080000000,
   AddSourceTemplateConfigJsonb1768090000000,
   NormalizeStopwhenToArray1768100000000,
+  AddJobPublishedAt1768110000000,
 ];

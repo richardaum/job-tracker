@@ -45,6 +45,9 @@ export class CreateJobInput {
   @MaxLength(5_242_880)
   htmlContent?: string | null;
 
+  @Field(() => Date, { nullable: true })
+  publishedAt?: Date | null;
+
   @Field(() => ID, { nullable: true })
   sourceRunId?: string | null;
 
