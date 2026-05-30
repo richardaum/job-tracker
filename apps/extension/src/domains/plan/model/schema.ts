@@ -48,6 +48,31 @@ export const PlanStepCollectJobsSurfaceFieldSchema = z
         validationRegex: FieldValidationRegexSchema.optional(),
       })
       .strict(),
+    z
+      .object({
+        key: z.string().min(1).max(LIMITS.fieldKey),
+        type: z.literal("regex"),
+        value: z.string().min(1).max(LIMITS.regexPattern),
+        sourceField: z
+          .string()
+          .min(1)
+          .max(LIMITS.fieldKey)
+          .optional()
+          .describe("which collected field to parse (default: concat all)"),
+        flags: z.string().max(LIMITS.regexFlags).optional(),
+        group: z.number().int().min(0).max(9).optional().default(1),
+        required: z.boolean().optional().default(false),
+      })
+      .strict()
+      .superRefine(({ value, flags }, ctx) => {
+        const [regErr] = tryRun(() => void new RegExp(value, flags));
+        if (regErr) {
+          ctx.addIssue({
+            code: "custom",
+            message: "Invalid regex pattern or flags",
+          });
+        }
+      }),
   ])
   .describe("Collect jobs surface field");
 
@@ -76,10 +101,35 @@ export const PlanStepCollectJobsDetailsFieldSchema = z
   ])
   .describe("Collect jobs details field");
 
+const ParseRegexFieldSchema = z
+  .object({
+    key: z.string().min(1).max(LIMITS.fieldKey),
+    pattern: z.string().min(1).max(LIMITS.regexPattern),
+    flags: z.string().max(LIMITS.regexFlags).optional(),
+    group: z
+      .number()
+      .int()
+      .min(0)
+      .max(9)
+      .optional()
+      .describe("capture group index (default 1)"),
+    required: z
+      .boolean()
+      .optional()
+      .describe("if true, fail when pattern does not match"),
+  })
+  .strict()
+  .superRefine(({ pattern, flags }, ctx) => {
+    const [regErr] = tryRun(() => void new RegExp(pattern, flags));
+    if (regErr) {
+      ctx.addIssue({ code: "custom", message: "Invalid pattern or flags" });
+    }
+  });
+
 /** Combined list surface + per-item detail extraction (single-tab flow). */
 export const PlanStepCollectJobsInputSchema = z
   .object({
-    containerSector: CssSelectorSchema.describe("list container"),
+    containerSelector: CssSelectorSchema.describe("list container"),
     itemSelector: CssSelectorSchema.describe("row"),
     detailsUrlField: z
       .string()
@@ -114,6 +164,13 @@ export const PlanStepCollectJobsInputSchema = z
     detailsFields: z
       .array(PlanStepCollectJobsDetailsFieldSchema)
       .max(LIMITS.listFields),
+    direction: z
+      .enum(["up", "down"])
+      .optional()
+      .default("down")
+      .describe(
+        "`down` (default) iterates top-to-bottom; `up` iterates bottom-to-top with incremental scroll for virtual-scroll containers",
+      ),
     parallelDetailsTabs: z
       .number()
       .int()
@@ -132,19 +189,35 @@ const PlanStepActionScopeSchema = z
   .optional()
   .describe("If set, step result is returned under `data[id]`.");
 
+export const PlanStepParseRegexInputSchema = z
+  .object({
+    text: z.string().min(1).max(LIMITS.regexTextInput),
+    fields: z.array(ParseRegexFieldSchema).min(1).max(LIMITS.listFields),
+  })
+  .strict();
+
+export const CollectJobsPlanStepActionSchema = z
+  .object({
+    kind: z.literal("collect.jobs"),
+    input: PlanStepCollectJobsInputSchema,
+    scope: PlanStepActionScopeSchema,
+    skipDelay: z
+      .boolean()
+      .optional()
+      .describe(
+        "when true, skip short delays around scroll-into-view and click on each row",
+      ),
+  })
+  .strict();
+
 export const PlanStepActionSchema = z
   .discriminatedUnion("kind", [
+    CollectJobsPlanStepActionSchema,
     z
       .object({
-        kind: z.literal("collect.jobs"),
-        input: PlanStepCollectJobsInputSchema,
+        kind: z.literal("parse.regex"),
+        input: PlanStepParseRegexInputSchema,
         scope: PlanStepActionScopeSchema,
-        skipDelay: z
-          .boolean()
-          .optional()
-          .describe(
-            "when true, skip short delays around scroll-into-view and click on each row",
-          ),
       })
       .strict(),
   ])

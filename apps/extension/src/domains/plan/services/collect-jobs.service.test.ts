@@ -1,15 +1,15 @@
 import { describe, expect, it, vi } from "vitest";
 
-import type { PlanStepAction } from "@/domains/plan/model/types";
+import type { CollectJobsAction } from "@/domains/plan/model/types";
 
 import { CollectJobsService } from "./collect-jobs.service";
 import { StringTemplateService } from "./string-template.service";
 
-function actionWithKey(template: string | undefined): PlanStepAction {
+function actionWithKey(template: string | undefined): CollectJobsAction {
   return {
     kind: "collect.jobs",
     input: {
-      containerSector: ".list",
+      containerSelector: ".list",
       itemSelector: ".card",
       detailsUrlField: "detailUrl",
       ...(template != null ? { key: template } : {}),
@@ -17,7 +17,7 @@ function actionWithKey(template: string | undefined): PlanStepAction {
       surfaceFields: [],
       detailsFields: [],
     },
-  } as unknown as PlanStepAction;
+  } as unknown as CollectJobsAction;
 }
 
 describe("CollectJobsService", () => {

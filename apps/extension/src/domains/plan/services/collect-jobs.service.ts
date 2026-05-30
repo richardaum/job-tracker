@@ -5,7 +5,7 @@ import { JobDetailsMessagingService } from "@/domains/job-details/job-details-me
 import { JobsListMessagingService } from "@/domains/jobs-list/jobs-list-messaging.service";
 import { LogService } from "@/domains/log/log.service";
 import { PaginationMessagingService } from "@/domains/pagination/pagination-messaging.service";
-import type { PlanStepAction } from "@/domains/plan/model/types";
+import type { CollectJobsAction } from "@/domains/plan/model/types";
 import type { PlanExecuteOptions } from "@/domains/plan/plan-execute-options";
 import { TabService } from "@/domains/tab/types";
 
@@ -51,7 +51,7 @@ export class CollectJobsService {
     private readonly stringTemplateService: StringTemplateService,
   ) {}
 
-  async execute(action: PlanStepAction, options: PlanExecuteOptions) {
+  async execute(action: CollectJobsAction, options: PlanExecuteOptions) {
     const surfaceTabId = await this.tabManager.openWindow(options.surfaceUrl, {
       focus: true,
     });
@@ -69,6 +69,12 @@ export class CollectJobsService {
           action,
           surfaceTabId,
         );
+
+        if (list == null) {
+          throw new Error(
+            "listJobs returned null (content script unavailable)",
+          );
+        }
 
         await Promise.all(
           list.map((job) =>
@@ -106,7 +112,7 @@ export class CollectJobsService {
   }
 
   private async collectJobDetails(
-    action: PlanStepAction,
+    action: CollectJobsAction,
     job: Job,
     surfaceWindowId: number,
   ) {
@@ -130,7 +136,7 @@ export class CollectJobsService {
     return jobWithDetails;
   }
 
-  private generateJobKey(action: PlanStepAction, job: Job): string {
+  private generateJobKey(action: CollectJobsAction, job: Job): string {
     const keyTemplate = action.input.key;
     if (keyTemplate != null && keyTemplate.trim().length > 0) {
       const parsedKey = this.stringTemplateService.parse(keyTemplate, job);

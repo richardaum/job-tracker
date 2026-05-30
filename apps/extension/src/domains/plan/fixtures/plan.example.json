@@ -6,12 +6,12 @@
       "action": {
         "kind": "collect.jobs",
         "input": {
-          "containerSector": ".scaffold-layout__list-container",
+          "containerSelector": ".scaffold-layout__list-container",
           "itemSelector": "li[data-occludable-job-id]",
           "detailsUrlField": "detailUrl",
           "pagination": {
             "kind": "next-button",
-            "containerSector": ".artdeco-pagination",
+            "containerSelector": ".artdeco-pagination",
             "nextButtonPartialMatch": "Next"
           },
           "surfaceFields": [
