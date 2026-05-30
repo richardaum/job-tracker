@@ -232,6 +232,7 @@ export const PlanSchema = z
   .object({
     id: z.uuid(),
     steps: z.array(PlanStepSchema).max(LIMITS.planSteps),
+    boardType: z.enum(["Sequential", "NonSequential"]),
   })
   .strict()
   .describe("Strict JSON plan");

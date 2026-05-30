@@ -1,0 +1,3 @@
+query IsJobDuplicate($company: String!, $title: String!) {
+  isJobDuplicate(company: $company, title: $title)
+}

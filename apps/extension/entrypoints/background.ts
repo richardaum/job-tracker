@@ -110,7 +110,6 @@ export default defineBackground(() => {
 
     void contextMenuService.setup();
   });
-
   registerMessageListenerByKind({
     "admin.get-status": (message) =>
       adminExtensionStatusService.handleGetStatusMessage(message),

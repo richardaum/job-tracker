@@ -7,5 +7,9 @@ query SourceRuns {
     status
     errorMessage
     startedAt
+    stopWhen
+    catchUpThreshold
+    maxPages
+    olderThanDays
   }
 }

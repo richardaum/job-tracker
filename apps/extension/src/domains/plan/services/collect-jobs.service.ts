@@ -7,6 +7,7 @@ import { LogService } from "@/domains/log/log.service";
 import { PaginationMessagingService } from "@/domains/pagination/pagination-messaging.service";
 import type { CollectJobsAction } from "@/domains/plan/model/types";
 import type { PlanExecuteOptions } from "@/domains/plan/plan-execute-options";
+import { StopWhen } from "@/gql/graphql";
 import { TabService } from "@/domains/tab/types";
 
 import { StringTemplateService } from "./string-template.service";
@@ -58,6 +59,7 @@ export class CollectJobsService {
     const surfaceWindowId = await this.tabManager.getTabWindowId(surfaceTabId);
 
     const jobs: Map<string, Job> = new Map();
+    let consecutiveDuplicates = 0;
 
     try {
       const limitDetailTabs = pLimit(
@@ -88,11 +90,38 @@ export class CollectJobsService {
               const firstVisit = !jobs.has(key);
               jobs.set(key, jobWithDetails);
               if (firstVisit) {
-                await options?.onJobCollected?.(jobWithDetails);
+                const result = await options?.onJobCollected?.(jobWithDetails);
+                if (result && "duplicate" in result) {
+                  if (result.duplicate) {
+                    consecutiveDuplicates += 1;
+                  } else {
+                    consecutiveDuplicates = 0;
+                  }
+                }
               }
             }),
           ),
         );
+
+        await options?.onPageCollected?.(iteration, jobs.size);
+
+        if (
+          this.shouldStopAfterPage(iteration, options, consecutiveDuplicates, list)
+        ) {
+          const stopReason = this.formatStopReason(
+            iteration,
+            options,
+            consecutiveDuplicates,
+          );
+          logService.debug("collect-jobs:stop-condition-met", {
+            iteration,
+            stopWhen: options.stopWhen,
+            consecutiveDuplicates,
+            stopReason,
+          });
+          await options?.onStopConditionMet?.(iteration, stopReason);
+          break;
+        }
 
         const canNavigate =
           await this.paginationMessaging.canNavigateToNextPage(
@@ -108,6 +137,67 @@ export class CollectJobsService {
       return jobs;
     } finally {
       await this.tabManager.closeWindow(surfaceTabId);
+    }
+  }
+
+  private shouldStopAfterPage(
+    page: number,
+    opts: PlanExecuteOptions,
+    consecutiveDupes: number,
+    pageJobs: Job[],
+  ): boolean {
+    const conditions = typeof opts.stopWhen === "string"
+      ? [opts.stopWhen]
+      : (opts.stopWhen ?? []);
+    return conditions.some((sw) => this.evaluateStopCondition(sw, page, opts, consecutiveDupes, pageJobs));
+  }
+
+  private evaluateStopCondition(
+    sw: StopWhen,
+    page: number,
+    opts: PlanExecuteOptions,
+    consecutiveDupes: number,
+    pageJobs: Job[],
+  ): boolean {
+    switch (sw) {
+      case StopWhen.CatchUp:
+        return (
+          opts.boardType === "Sequential" &&
+          consecutiveDupes >= (opts.catchUpThreshold ?? Infinity)
+        );
+      case StopWhen.FirstRunMaxPages:
+        return page >= (opts.maxPages ?? 1);
+      case StopWhen.OlderThan: {
+        if (opts.publishedAtField == null || opts.olderThanDays == null) {
+          return false;
+        }
+        const cutoff = new Date();
+        cutoff.setDate(cutoff.getDate() - opts.olderThanDays);
+        return pageJobs.every((job) => {
+          const raw = job[opts.publishedAtField!];
+          if (raw == null) return false;
+          const d = new Date(String(raw));
+          if (isNaN(d.getTime())) return false;
+          return d < cutoff;
+        });
+      }
+    }
+  }
+
+  private formatStopReason(
+    page: number,
+    opts: PlanExecuteOptions,
+    consecutiveDupes: number,
+  ): string {
+    switch (opts.stopWhen) {
+      case "CatchUp":
+        return `CatchUp: consecutiveDuplicates=${consecutiveDupes} >= threshold=${opts.catchUpThreshold}`;
+      case "FirstRunMaxPages":
+        return `FirstRunMaxPages: page=${page} >= maxPages=${opts.maxPages}`;
+      case "OlderThan":
+        return `OlderThan: page=${page} olderThanDays=${opts.olderThanDays}`;
+      default:
+        return "no-stop-condition";
     }
   }
 

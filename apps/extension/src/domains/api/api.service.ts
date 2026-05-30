@@ -12,6 +12,7 @@ import {
   CreateDraftCaptureJobDocument,
   CreateJobDocument,
   type CreateJobInput,
+  IsJobDuplicateDocument,
   MeDocument,
   ReportExtensionActivityDocument,
   type ReportExtensionActivityInput,
@@ -90,6 +91,23 @@ export class ApiService {
     if (err) return null;
 
     return result.data?.me?.email ?? null;
+  }
+
+  async isJobDuplicate(
+    company: string,
+    title: string,
+  ): Promise<boolean> {
+    const [err, result] = await tryRun(
+      this.client.query({
+        query: IsJobDuplicateDocument,
+        variables: { company, title },
+        fetchPolicy: "network-only",
+      }),
+    );
+
+    if (err) return false;
+
+    return result.data?.isJobDuplicate ?? false;
   }
 
   async reportExtensionActivity(input: ReportExtensionActivityInput) {

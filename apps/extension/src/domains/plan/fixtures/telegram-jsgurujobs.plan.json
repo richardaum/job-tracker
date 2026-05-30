@@ -1,5 +1,6 @@
 {
   "id": "bb0d3a10-4f5d-4c9e-8f1a-2d7e6c8b0a92",
+  "boardType": "NonSequential",
   "steps": [
     {
       "id": "collect-telegram",

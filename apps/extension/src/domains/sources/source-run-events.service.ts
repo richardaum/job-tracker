@@ -4,9 +4,14 @@ import type { ApiService } from "@/domains/api/api.service";
 import type { ExtensionActivityReporterService } from "@/domains/extension-activity/extension-activity-reporter.service";
 import type { LogService } from "@/domains/log/log.service";
 import { mapCollectedJobToCreateJobInput } from "@/domains/plan/map-collected-job-to-create-job-input";
+import type { CollectJobsStepInput, Plan } from "@/domains/plan/model/types";
 import type { PlanService } from "@/domains/plan/services/plan.service";
 import { planForSourceRun } from "@/domains/sources/source-run-plan";
-import { ExtensionActivityEventType, SourceRunStatus } from "@/gql/graphql";
+import {
+  ExtensionActivityEventType,
+  type SourceRunType,
+  SourceRunStatus,
+} from "@/gql/graphql";
 
 export class SourceRunEventsService {
   constructor(
@@ -33,6 +38,10 @@ export class SourceRunEventsService {
         runId: run.id,
         surfaceUrl: run.surfaceUrl,
         planId: run.planId,
+        stopWhen: run.stopWhen,
+        catchUpThreshold: run.catchUpThreshold,
+        maxPages: run.maxPages,
+        olderThanDays: run.olderThanDays,
       });
     }
   }
@@ -42,7 +51,7 @@ export class SourceRunEventsService {
       this.logService.error("source-run:invalid-message", { params });
       return;
     }
-    const { runId, surfaceUrl, planId } = params;
+    const { runId, surfaceUrl, planId, stopWhen, catchUpThreshold, maxPages, olderThanDays } = params;
 
     this.activityReporter?.report(
       ExtensionActivityEventType.SourceRunStarted,
@@ -51,24 +60,48 @@ export class SourceRunEventsService {
     );
 
     const plan = planForSourceRun(planId);
+    const publishedAtField = getPublishedAtFieldName(plan);
 
     const [runErr] = await tryRun(
       (async () => {
         await this.planService.execute(plan, {
           surfaceUrl: surfaceUrl.trim(),
+          boardType: plan.boardType,
+          stopWhen: stopWhen ?? undefined,
+          catchUpThreshold: catchUpThreshold ?? undefined,
+          maxPages: maxPages ?? undefined,
+          olderThanDays: olderThanDays ?? undefined,
+          publishedAtField,
           onJobCollected: async (job) => {
-            const input = {
-              ...mapCollectedJobToCreateJobInput(job),
-              sourceRunId: runId,
-            };
-            const [createErr] = await tryRun(this.apiService.createJob(input));
-            if (createErr) {
-              this.logService.error("source-run:create-job-failed", {
-                runId,
-                error: createErr,
-                title: job.title,
-              });
-              return;
+            const company = typeof job.company === "string" ? job.company : "";
+            const title = typeof job.title === "string" ? job.title : "";
+            const [dupErr, isDuplicate] = await tryRun(
+              this.apiService.isJobDuplicate(company, title),
+            );
+
+            if (dupErr) {
+              this.logService.warn?.(
+                "source-run:is-job-duplicate-failed",
+                { runId, error: dupErr, company, title },
+              );
+            }
+
+            const duplicate = !dupErr && isDuplicate;
+
+            if (!duplicate) {
+              const input = {
+                ...mapCollectedJobToCreateJobInput(job),
+                sourceRunId: runId,
+              };
+              const [createErr] = await tryRun(this.apiService.createJob(input));
+              if (createErr) {
+                this.logService.error("source-run:create-job-failed", {
+                  runId,
+                  error: createErr,
+                  title: job.title,
+                });
+                return { duplicate: false };
+              }
             }
 
             this.activityReporter?.report(
@@ -76,6 +109,22 @@ export class SourceRunEventsService {
               typeof job.title === "string" && job.title.trim()
                 ? job.title.trim()
                 : surfaceUrl,
+              { correlationId: runId, payload: JSON.stringify({ duplicate }) },
+            );
+
+            return { duplicate };
+          },
+          onPageCollected: async (page, jobCount) => {
+            this.activityReporter?.report(
+              ExtensionActivityEventType.SourceRunPageCollected,
+              `Page ${page} · ${jobCount} jobs`,
+              { correlationId: runId },
+            );
+          },
+          onStopConditionMet: async (page, reason) => {
+            this.activityReporter?.report(
+              ExtensionActivityEventType.SourceRunStopConditionMet,
+              `Page ${page}: ${reason}`,
               { correlationId: runId },
             );
           },
@@ -115,10 +164,24 @@ export class SourceRunEventsService {
   }
 }
 
+function getPublishedAtFieldName(plan: Plan): string | undefined {
+  for (const step of plan.steps) {
+    if (step.action.kind !== "collect.jobs") continue;
+    const input = step.action.input as CollectJobsStepInput;
+    const field = input.surfaceFields?.find((f) => f.key === "publishedAt");
+    if (field) return field.key;
+  }
+  return undefined;
+}
+
 type SourceRunStartMessage = {
   runId: string;
   surfaceUrl: string;
   planId: string;
+  stopWhen?: SourceRunType["stopWhen"];
+  catchUpThreshold?: SourceRunType["catchUpThreshold"];
+  maxPages?: SourceRunType["maxPages"];
+  olderThanDays?: SourceRunType["olderThanDays"];
 };
 
 function isSourceRunStartMessage(
