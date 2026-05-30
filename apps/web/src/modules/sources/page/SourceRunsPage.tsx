@@ -21,6 +21,8 @@ import {
   CaretDownIcon,
   ClockIcon,
   LinkIcon,
+  ListIcon,
+  StopCircleIcon,
   TrashIcon,
 } from "@phosphor-icons/react";
 import type { Route } from "next";
@@ -43,7 +45,9 @@ import { DeleteSourceRunDialog } from "@/modules/sources/page/DeleteSourceRunDia
 import { DeleteSourceTemplateDialog } from "@/modules/sources/page/DeleteSourceTemplateDialog";
 import { RunSourceTemplateButton } from "@/modules/sources/page/RunSourceTemplateButton";
 import { scheduleSummary } from "@/modules/sources/page/source-template-list.shared";
+import { SourceRunActivityEventsDialog } from "@/modules/sources/page/SourceRunActivityEventsDialog";
 import { SourceScheduleDialog } from "@/modules/sources/page/SourceScheduleDialog";
+import { SourceStopConfigDialog } from "@/modules/sources/page/SourceStopConfigDialog";
 import { SourceSurfaceUrlDialog } from "@/modules/sources/page/SourceSurfaceUrlDialog";
 
 interface PageProps {
@@ -77,6 +81,7 @@ export default function SourceRunsPage({ params }: PageProps) {
   const [actionsMenuOpen, setActionsMenuOpen] = React.useState(false);
   const [surfaceUrlDialogOpen, setSurfaceUrlDialogOpen] = React.useState(false);
   const [scheduleDialogOpen, setScheduleDialogOpen] = React.useState(false);
+  const [stopConfigDialogOpen, setStopConfigDialogOpen] = React.useState(false);
   const [deleteTemplateDialogOpen, setDeleteTemplateDialogOpen] =
     React.useState(false);
   const [clearRunsDialogOpen, setClearRunsDialogOpen] = React.useState(false);
@@ -118,6 +123,12 @@ export default function SourceRunsPage({ params }: PageProps) {
             icon={<ClockIcon size={14} weight="regular" />}
           >
             Edit schedule
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onSelect={() => setStopConfigDialogOpen(true)}
+            icon={<StopCircleIcon size={14} weight="regular" />}
+          >
+            Edit stop condition
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
@@ -218,6 +229,20 @@ export default function SourceRunsPage({ params }: PageProps) {
                         <BriefcaseIcon size={13} weight="regular" aria-hidden />
                       </NextLink>
                     </IconButton>
+                    <SourceRunActivityEventsDialog
+                      runId={run.id}
+                      runLabel={runLabel(index, template.runs.length)}
+                      trigger={
+                        <IconButton
+                          intent="ghost"
+                          size="sm"
+                          label={`Events for ${runLabel(index, template.runs.length)}`}
+                          tooltip="View events"
+                          className={cn(ListItemCard.actionIconButtonClassName)}
+                          icon={<ListIcon size={13} weight="regular" />}
+                        />
+                      }
+                    />
                     <DeleteSourceRunDialog
                       trigger={
                         <IconButton
@@ -228,11 +253,11 @@ export default function SourceRunsPage({ params }: PageProps) {
                            className={cn(ListItemCard.actionIconButtonClassName)}
                            icon={<TrashIcon size={13} weight="regular" />}
                          />
-                       }
-                       runId={run.id}
-                       templateId={template.id}
-                       runLabel={runLabel(index, template.runs.length)}
-                    />
+                        }
+                        runId={run.id}
+                        templateId={template.id}
+                        runLabel={runLabel(index, template.runs.length)}
+                     />
                   </ListItemCard.Actions>
                 }
                 description={
@@ -255,6 +280,11 @@ export default function SourceRunsPage({ params }: PageProps) {
       <SourceScheduleDialog
         template={scheduleDialogOpen ? template : null}
         onOpenChange={setScheduleDialogOpen}
+      />
+
+      <SourceStopConfigDialog
+        template={stopConfigDialogOpen ? template : null}
+        onOpenChange={setStopConfigDialogOpen}
       />
 
       <ClearSourceRunsDialog

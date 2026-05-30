@@ -9,7 +9,7 @@ import {
   Stack,
   Text,
 } from "@job-tracker/ui";
-import { ClockIcon, LinkIcon, TrashIcon } from "@phosphor-icons/react";
+import { ClockIcon, LinkIcon, StopCircleIcon, TrashIcon } from "@phosphor-icons/react";
 import NextLink from "next/link";
 import { useCallback, useMemo, useState } from "react";
 
@@ -21,6 +21,7 @@ import { RunSourceTemplateButton } from "@/modules/sources/page/RunSourceTemplat
 import type { SourceListItem } from "@/modules/sources/page/source-template-list.shared";
 import { scheduleSummary } from "@/modules/sources/page/source-template-list.shared";
 import { SourceScheduleDialog } from "@/modules/sources/page/SourceScheduleDialog";
+import { SourceStopConfigDialog } from "@/modules/sources/page/SourceStopConfigDialog";
 import { SourceSurfaceUrlDialog } from "@/modules/sources/page/SourceSurfaceUrlDialog";
 
 export function TemplateCardsSkeleton({ count = 3 }: { count?: number }) {
@@ -44,6 +45,8 @@ export function PlanTemplatesList({ planId }: { planId: string }) {
     useState<SourceListItem | null>(null);
   const [scheduleDialogTemplate, setScheduleDialogTemplate] =
     useState<SourceListItem | null>(null);
+  const [stopConfigDialogTemplate, setStopConfigDialogTemplate] =
+    useState<SourceListItem | null>(null);
 
   const { data, loading, error } = useSourceTemplatesAllQuery();
 
@@ -59,6 +62,9 @@ export function PlanTemplatesList({ planId }: { planId: string }) {
       t?.id === templateId ? null : t,
     );
     setScheduleDialogTemplate((t: SourceListItem | null) =>
+      t?.id === templateId ? null : t,
+    );
+    setStopConfigDialogTemplate((t: SourceListItem | null) =>
       t?.id === templateId ? null : t,
     );
   }, []);
@@ -143,6 +149,15 @@ export function PlanTemplatesList({ planId }: { planId: string }) {
                   icon={<ClockIcon size={13} weight="regular" />}
                   onClick={() => setScheduleDialogTemplate(template)}
                 />
+                <IconButton
+                  intent="ghost"
+                  size="sm"
+                  label="Edit stop condition"
+                  tooltip="Edit stop condition"
+                  className={cn(ListItemCard.actionIconButtonClassName)}
+                  icon={<StopCircleIcon size={13} weight="regular" />}
+                  onClick={() => setStopConfigDialogTemplate(template)}
+                />
                 <DeleteSourceDialog
                   trigger={
                     <IconButton
@@ -189,6 +204,15 @@ export function PlanTemplatesList({ planId }: { planId: string }) {
           if (!open) setScheduleDialogTemplate(null);
         }}
         onScheduleSaved={(id, patch) => patchTemplateIfSame(id, patch)}
+      />
+      <SourceStopConfigDialog
+        template={stopConfigDialogTemplate}
+        onOpenChange={(open) => {
+          if (!open) setStopConfigDialogTemplate(null);
+        }}
+        onStopConfigSaved={(id, config) =>
+          patchTemplateIfSame(id, { config } as Partial<SourceListItem>)
+        }
       />
     </>
   );

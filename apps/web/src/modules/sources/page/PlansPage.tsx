@@ -9,6 +9,7 @@ import {
   Stack,
   Text,
 } from "@job-tracker/ui";
+import { EmptyState } from "@/components/empty-state";
 import { PlusIcon } from "@phosphor-icons/react";
 import NextLink from "next/link";
 import { useState } from "react";
@@ -56,6 +57,12 @@ export default function PlansPage() {
               </Card>
             ))}
           </Stack>
+        ) : plans.length === 0 ? (
+          <EmptyState
+            variant="default"
+            message="No plans yet."
+            detail="Import a plan to start tracking sources."
+          />
         ) : (
           <Stack gap="md">
             {plans.map((plan) => (

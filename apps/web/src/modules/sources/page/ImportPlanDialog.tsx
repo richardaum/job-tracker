@@ -7,6 +7,7 @@ import {
   Dialog,
   FormField,
   Input,
+  Select,
   Stack,
   Tabs,
   TabsContent,
@@ -50,6 +51,7 @@ export function ImportPlanDialog({
   const [jsonMode, setJsonMode] = useState<JsonInputMode>("type");
   const [documentJson, setDocumentJson] = useState("");
   const [fileName, setFileName] = useState<string | null>(null);
+  const [boardType, setBoardType] = useState("");
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [parseError, setParseError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -59,6 +61,7 @@ export function ImportPlanDialog({
 
   const resetState = useCallback(() => {
     setDisplayName("");
+    setBoardType("");
     setJsonMode("type");
     setDocumentJson("");
     setFileName(null);
@@ -107,12 +110,17 @@ export function ImportPlanDialog({
       return;
     }
 
+    if (!boardType) {
+      setSubmitError("Board type is required.");
+      return;
+    }
+
     const parsed = tryParseJson(trimmedDocument);
     if (!parsed.ok) {
       setParseError("Invalid JSON. Please check the document syntax.");
       return;
     }
-    const document = parsed.value;
+    const document = { ...parsed.value, boardType };
     setParseError(null);
 
     setSaving(true);
@@ -156,6 +164,23 @@ export function ImportPlanDialog({
             value={displayName}
             onChange={(e) => setDisplayName(e.target.value)}
             disabled={saving}
+          />
+        </FormField>
+
+        <FormField label="Board Type" required>
+          <Select
+            placeholder="Select board type"
+            options={[
+              { label: "Sequential", value: "Sequential" },
+              { label: "NonSequential", value: "NonSequential" },
+            ]}
+            value={boardType || undefined}
+            onValueChange={(v) => {
+              setBoardType(v);
+              setSubmitError(null);
+            }}
+            disabled={saving}
+            required
           />
         </FormField>
 
@@ -251,7 +276,7 @@ export function ImportPlanDialog({
           <Button
             intent="primary"
             state={saving ? "loading" : "default"}
-            disabled={!displayName.trim() || !hasJson}
+            disabled={!displayName.trim() || !boardType || !hasJson}
             onClick={() => void handleImport()}
           >
             Import plan

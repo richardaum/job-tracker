@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, cn, Text } from "@job-tracker/ui";
+import { Button, cn, FormField, Select, Text } from "@job-tracker/ui";
 import React from "react";
 
 import { usePlanQuery, useUpdatePlanMutation } from "@/gql/hooks";
@@ -20,12 +20,16 @@ export default function PlanDocumentTabContent({
   const [updatePlan] = useUpdatePlanMutation();
   const plan = data?.plan ?? null;
 
+  const [boardType, setBoardType] = React.useState("");
   const [dirty, setDirty] = React.useState(false);
   const [saving, setSaving] = React.useState(false);
 
   const documentRef = React.useRef<unknown>(null);
   React.useEffect(() => {
     if (plan) {
+      const doc = plan.document as Record<string, unknown> | null;
+      const bt = typeof doc?.boardType === "string" ? doc.boardType : "";
+      setBoardType(bt);
       documentRef.current = plan.document;
     }
   }, [plan]);
@@ -36,7 +40,15 @@ export default function PlanDocumentTabContent({
     if (!plan) return;
     setSaving(true);
     await updatePlan({
-      variables: { id: plan.id, input: { document: documentRef.current } },
+      variables: {
+        id: plan.id,
+        input: {
+          document: {
+            ...(documentRef.current as Record<string, unknown>),
+            boardType,
+          },
+        },
+      },
     });
     setSaving(false);
     setDirty(false);
@@ -63,6 +75,22 @@ export default function PlanDocumentTabContent({
         </Text>
       </PlanTabDescription>
       <PlanHeaderActions>{saveButton}</PlanHeaderActions>
+      <div className={cn("mb-3")}>
+        <FormField label="Board Type" required>
+          <Select
+            placeholder={boardType ? undefined : "Select board type"}
+            options={[
+              { label: "Sequential", value: "Sequential" },
+              { label: "NonSequential", value: "NonSequential" },
+            ]}
+            value={boardType || undefined}
+            onValueChange={(v) => {
+              setBoardType(v);
+              setDirty(true);
+            }}
+          />
+        </FormField>
+      </div>
       <div
         className={cn(
           "min-h-0 flex-1 overflow-auto rounded-lg border border-border-subtle bg-bg-app p-4",
