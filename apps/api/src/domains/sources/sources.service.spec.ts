@@ -229,7 +229,7 @@ describe("SourcesService", () => {
 
     it("creates template with valid CatchUp config", async () => {
       const plan = planEntity();
-      const config = { stopWhen: "CatchUp", catchUpThreshold: 5 };
+      const config = { stopWhen: ["CatchUp"], catchUpThreshold: 5 };
       const template = {
         id: "tmpl-1",
         userId: "user-1",
@@ -264,7 +264,7 @@ describe("SourcesService", () => {
         service.createSourceTemplate("user-1", {
           planId: "plan-1",
           surfaceUrl: "https://example.com",
-          config: { stopWhen: "CatchUp" },
+          config: { stopWhen: ["CatchUp"] },
         }),
       ).rejects.toThrow(BadRequestException);
       expect(repo.findOrCreateTemplate).not.toHaveBeenCalled();
@@ -275,7 +275,7 @@ describe("SourcesService", () => {
         service.createSourceTemplate("user-1", {
           planId: "plan-1",
           surfaceUrl: "https://example.com",
-          config: { stopWhen: "FirstRunMaxPages" },
+          config: { stopWhen: ["FirstRunMaxPages"] },
         }),
       ).rejects.toThrow(BadRequestException);
       expect(repo.findOrCreateTemplate).not.toHaveBeenCalled();
@@ -286,7 +286,7 @@ describe("SourcesService", () => {
         service.createSourceTemplate("user-1", {
           planId: "plan-with-publishedAt",
           surfaceUrl: "https://example.com",
-          config: { stopWhen: "OlderThan" },
+          config: { stopWhen: ["OlderThan"] },
         }),
       ).rejects.toThrow(BadRequestException);
       expect(repo.findOrCreateTemplate).not.toHaveBeenCalled();
@@ -297,14 +297,14 @@ describe("SourcesService", () => {
         service.createSourceTemplate("user-1", {
           planId: "plan-1",
           surfaceUrl: "https://example.com",
-          config: { stopWhen: "OlderThan", olderThanDays: 30 },
+          config: { stopWhen: ["OlderThan"], olderThanDays: 30 },
         }),
       ).rejects.toThrow(BadRequestException);
       expect(repo.findOrCreateTemplate).not.toHaveBeenCalled();
     });
 
     it("accepts OlderThan when plan has publishedAt surfaceField", async () => {
-      const config = { stopWhen: "OlderThan", olderThanDays: 30 };
+      const config = { stopWhen: ["OlderThan"], olderThanDays: 30 };
       const template = {
         id: "tmpl-1",
         userId: "user-1",
@@ -330,7 +330,7 @@ describe("SourcesService", () => {
 
     it("ignores config when template already exists", async () => {
       const plan = planEntity();
-      const config = { stopWhen: "CatchUp", catchUpThreshold: 5 };
+      const config = { stopWhen: ["CatchUp"], catchUpThreshold: 5 };
       const existingTemplate = {
         id: "tmpl-1",
         userId: "user-1",
@@ -373,12 +373,12 @@ describe("SourcesService", () => {
       vi.mocked(repo.findTemplateByUserAndId).mockResolvedValue(template);
       vi.mocked(repo.patchSourceTemplate).mockResolvedValue({
         ...template,
-        config: { stopWhen: "CatchUp", catchUpThreshold: 5 },
+        config: { stopWhen: ["CatchUp"], catchUpThreshold: 5 },
       });
       vi.mocked(repo.findRunsForTemplate).mockResolvedValue([]);
 
       const result = await service.updateSourceTemplate("user-1", "tmpl-1", {
-        config: { stopWhen: "CatchUp", catchUpThreshold: 5 },
+        config: { stopWhen: ["CatchUp"], catchUpThreshold: 5 },
       });
 
       expect(repo.patchSourceTemplate).toHaveBeenCalledWith(
@@ -386,7 +386,7 @@ describe("SourcesService", () => {
           userId: "user-1",
           id: "tmpl-1",
           patch: expect.objectContaining({
-            config: { stopWhen: "CatchUp", catchUpThreshold: 5 },
+            config: { stopWhen: ["CatchUp"], catchUpThreshold: 5 },
           }),
         }),
       );
@@ -409,7 +409,7 @@ describe("SourcesService", () => {
 
       await expect(
         service.updateSourceTemplate("user-1", "tmpl-1", {
-          config: { stopWhen: "CatchUp" },
+          config: { stopWhen: ["CatchUp"] },
         }),
       ).rejects.toThrow(BadRequestException);
       expect(repo.patchSourceTemplate).not.toHaveBeenCalled();
@@ -431,7 +431,7 @@ describe("SourcesService", () => {
 
       await expect(
         service.updateSourceTemplate("user-1", "tmpl-1", {
-          config: { stopWhen: "OlderThan", olderThanDays: 30 },
+          config: { stopWhen: ["OlderThan"], olderThanDays: 30 },
         }),
       ).rejects.toThrow(BadRequestException);
       expect(repo.patchSourceTemplate).not.toHaveBeenCalled();
@@ -473,7 +473,7 @@ describe("SourcesService", () => {
 
   describe("toGql — SourceRun stop config fields", () => {
     it("returns stop config fields from template config", async () => {
-      const config = { stopWhen: "CatchUp", catchUpThreshold: 5 };
+      const config = { stopWhen: ["CatchUp"], catchUpThreshold: 5 };
       const plan = planEntity();
       const template = {
         id: "tmpl-1",
@@ -537,7 +537,7 @@ describe("SourcesService", () => {
     });
 
     it("returns FirstRunMaxPages config fields", async () => {
-      const config = { stopWhen: "FirstRunMaxPages", maxPages: 3 };
+      const config = { stopWhen: ["FirstRunMaxPages"], maxPages: 3 };
       const plan = planEntity();
       const template = {
         id: "tmpl-1",
@@ -570,7 +570,7 @@ describe("SourcesService", () => {
     });
 
     it("returns OlderThan config fields", async () => {
-      const config = { stopWhen: "OlderThan", olderThanDays: 14 };
+      const config = { stopWhen: ["OlderThan"], olderThanDays: 14 };
       const plan = planEntity();
       const template = {
         id: "tmpl-1",
