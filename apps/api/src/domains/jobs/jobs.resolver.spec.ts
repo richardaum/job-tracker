@@ -28,6 +28,7 @@ import {
 } from "vitest";
 
 import { JobAutomaticFillService } from "./job-automatic-fill.service";
+import { JobDuplicateService } from "./job-duplicate.service";
 import { JobsResolver } from "./jobs.resolver";
 import type { Job } from "./jobs.schema";
 import { JobsService } from "./jobs.service";
@@ -76,6 +77,7 @@ describe("JobsResolver (integration)", () => {
     generateCompanyDescription: ReturnType<typeof vi.fn>;
   };
   let fillService: { fillJobAutomatically: ReturnType<typeof vi.fn> };
+  let duplicateService: { checkDuplicate: ReturnType<typeof vi.fn> };
 
   beforeAll(async () => {
     service = {
@@ -96,6 +98,10 @@ describe("JobsResolver (integration)", () => {
         .mockResolvedValue(mockJobWithFillProcessing),
     };
 
+    duplicateService = {
+      checkDuplicate: vi.fn(),
+    };
+
     const moduleRef = await Test.createTestingModule({
       imports: [
         GraphQLModule.forRoot<ApolloDriverConfig>({
@@ -108,6 +114,7 @@ describe("JobsResolver (integration)", () => {
         JobsResolver,
         { provide: JobsService, useValue: service },
         { provide: JobAutomaticFillService, useValue: fillService },
+        { provide: JobDuplicateService, useValue: duplicateService },
         { provide: JobSummaryService, useValue: { requestSummary: vi.fn() } },
       ],
     })
@@ -153,6 +160,7 @@ describe("JobsResolver (integration)", () => {
     service.generateCompanyDescription
       .mockReset()
       .mockResolvedValue(JSON.stringify({ type: "doc", content: [] }));
+    duplicateService.checkDuplicate.mockReset();
   });
 
   function graphqlRequest() {
@@ -352,5 +360,33 @@ describe("JobsResolver (integration)", () => {
       success: true,
       deletedId: "event-1",
     });
+  });
+
+  it("isJobDuplicate returns true when duplicate exists", async () => {
+    duplicateService.checkDuplicate.mockResolvedValue(true);
+
+    const res = await graphqlRequest().send({
+      query: `query { isJobDuplicate(company: "Acme", title: "Engineer") }`,
+    });
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body.data.isJobDuplicate).toBe(true);
+    expect(duplicateService.checkDuplicate).toHaveBeenCalledWith(
+      "Acme",
+      "Engineer",
+      "user-1",
+    );
+  });
+
+  it("isJobDuplicate returns false when no duplicate exists", async () => {
+    duplicateService.checkDuplicate.mockResolvedValue(false);
+
+    const res = await graphqlRequest().send({
+      query:
+        'query { isJobDuplicate(company: "Unknown", title: "Nope") }',
+    });
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body.data.isJobDuplicate).toBe(false);
   });
 });

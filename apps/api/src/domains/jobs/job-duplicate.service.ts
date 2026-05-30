@@ -1,4 +1,5 @@
 import { JobEntity } from "@api/database/entities/job.entity";
+import { CompanyRepository } from "@api/domains/companies/companies.repository";
 import { SettingsService } from "@api/domains/settings/settings.service";
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
@@ -22,6 +23,7 @@ export class JobDuplicateService {
     @InjectRepository(JobEntity)
     private readonly jobsRepo: Repository<JobEntity>,
     private readonly settings: SettingsService,
+    private readonly companyRepo: CompanyRepository,
   ) {}
 
   async resolveInitialStageOnCreate(
@@ -68,5 +70,42 @@ export class JobDuplicateService {
       .andWhere("a.created_at >= :cutoff", { cutoff })
       .getCount();
     return count > 0;
+  }
+
+  async checkDuplicate(
+    company: string,
+    title: string,
+    userId: string,
+  ): Promise<boolean> {
+    const trimmedTitle = (title ?? "").trim();
+    if (!trimmedTitle) {
+      return false;
+    }
+
+    const trimmedCompany = (company ?? "").trim();
+    if (!trimmedCompany) {
+      return false;
+    }
+
+    const companyEntity =
+      await this.companyRepo.findOneByNameInsensitiveTrimmed(
+        userId,
+        trimmedCompany,
+      );
+    if (!companyEntity) {
+      return false;
+    }
+
+    const userSettings = await this.settings.getSettings(userId);
+    const lookbackMs = userSettings.duplicateWindowDays * MS_PER_DAY;
+
+    return this.hasRecentDuplicateSameRoleAndCompany(
+      userId,
+      "",
+      companyEntity.id,
+      trimmedTitle,
+      new Date(),
+      lookbackMs,
+    );
   }
 }

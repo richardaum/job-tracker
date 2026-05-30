@@ -14,9 +14,15 @@ import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
 import { FitClassificationEnum } from "./fit-classification.enum";
-import { MatchAnalysisResolver } from "./match-analysis.resolver";
+import { JobType } from "@api/domains/jobs/job.type";
+
+import {
+  JobMatchResolver,
+  MatchAnalysisResolver,
+} from "./match-analysis.resolver";
 import type { MatchAnalysis } from "./match-analysis.schema";
 import { MatchAnalysisService } from "./match-analysis.service";
+import { MatchAnalysisType } from "./match-analysis.type";
 
 const created = new Date("2026-03-01T00:00:00.000Z");
 const updated = new Date("2026-03-01T00:00:00.000Z");
@@ -150,5 +156,39 @@ describe("MatchAnalysisResolver (GraphQL integration smoke)", () => {
 
     expect(res.statusCode).toBe(400);
     expect(JSON.stringify(res.body)).toContain("draftJob");
+  });
+});
+
+describe("JobMatchResolver — @ResolveField match on JobType", () => {
+  const service = { findForJob: vi.fn() };
+  const resolver = new JobMatchResolver(service as unknown as MatchAnalysisService);
+
+  it("calls findForJob per parent job (N+1 behavior)", async () => {
+    vi.mocked(service.findForJob).mockResolvedValue(null);
+
+    const result = await resolver.match(
+      { id: "job-1" } as JobType,
+      { userId: "user-1" },
+    );
+
+    expect(result).toBeNull();
+    expect(service.findForJob).toHaveBeenCalledWith("job-1", "user-1");
+  });
+});
+
+describe("MatchAnalysisResolver — @ResolveField job on MatchAnalysisType", () => {
+  const service = { findJobById: vi.fn() };
+  const resolver = new MatchAnalysisResolver(service as unknown as MatchAnalysisService);
+
+  it("calls findJobById per parent match analysis (N+1 behavior)", async () => {
+    vi.mocked(service.findJobById).mockResolvedValue(null);
+
+    const result = await resolver.job(
+      { jobId: "job-1" } as MatchAnalysisType,
+      { userId: "user-1" },
+    );
+
+    expect(result).toBeNull();
+    expect(service.findJobById).toHaveBeenCalledWith("job-1", "user-1");
   });
 });

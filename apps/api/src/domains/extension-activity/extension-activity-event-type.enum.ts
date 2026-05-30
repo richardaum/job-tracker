@@ -4,6 +4,8 @@ export enum ExtensionActivityEventTypeEnum {
   SourceRunReceived = "SOURCE_RUN_RECEIVED",
   SourceRunClaimSkipped = "SOURCE_RUN_CLAIM_SKIPPED",
   SourceRunStarted = "SOURCE_RUN_STARTED",
+  SourceRunPageCollected = "SOURCE_RUN_PAGE_COLLECTED",
+  SourceRunStopConditionMet = "SOURCE_RUN_STOP_CONDITION_MET",
   SourceRunJobImported = "SOURCE_RUN_JOB_IMPORTED",
   SourceRunCompleted = "SOURCE_RUN_COMPLETED",
   SourceRunFailed = "SOURCE_RUN_FAILED",
