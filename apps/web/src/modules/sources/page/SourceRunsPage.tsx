@@ -238,6 +238,7 @@ export default function SourceRunsPage({ params }: PageProps) {
                 description={
                   <Text size="sm" color="secondary">
                     Started {formatDateTime(String(run.startedAt))}
+                    {run.jobCount !== undefined && ` · ${run.jobCount} jobs`}
                   </Text>
                 }
               />

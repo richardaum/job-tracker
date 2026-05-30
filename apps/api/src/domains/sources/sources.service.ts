@@ -17,6 +17,10 @@ import { SourceRunEventTypeEnum } from "./source-run-event-type.enum";
 import { SourceRunReported } from "./sources.events";
 import { SourcesRepository } from "./sources.repository";
 import { SourcesEventBus } from "./sources-event.bus";
+import {
+  planHasPublishedAt,
+  SourceTemplateConfigSchema,
+} from "./source-template-config.schema";
 
 function extensionMayTransitionStatus(
   from: SourceRunStatusEnum,
@@ -91,13 +95,17 @@ export class SourcesService implements OnModuleInit {
 
   async createSourceTemplate(
     userId: string,
-    input: { planId: string; surfaceUrl: string },
+    input: { planId: string; surfaceUrl: string; config?: Record<string, unknown> | null },
   ): Promise<SourceTemplateType> {
     const plan = await this.planService.findById(input.planId);
+    if (input.config !== undefined && input.config !== null) {
+      this.validateConfig(input.config, plan.document as Record<string, unknown>);
+    }
     const template = await this.repo.findOrCreateTemplate({
       userId,
       planId: plan.id,
       surfaceUrl: input.surfaceUrl,
+      config: input.config ?? undefined,
     });
     return this.templateToGql(template);
   }
@@ -193,8 +201,22 @@ export class SourcesService implements OnModuleInit {
       scheduleCron?: string | null;
       scheduleEnabled?: boolean | null;
       surfaceUrl?: string;
+      config?: Record<string, unknown> | null;
     },
   ): Promise<SourceTemplateType> {
+    if (patch.config !== undefined && patch.config !== null) {
+      const template = await this.repo.findTemplateByUserAndId({
+        userId,
+        id: templateId,
+      });
+      if (!template) {
+        throw new NotFoundException(`Source template ${templateId} not found`);
+      }
+      this.validateConfig(
+        patch.config,
+        template.plan.document as Record<string, unknown>,
+      );
+    }
     const updated = await this.repo.patchSourceTemplate({
       userId,
       id: templateId,
@@ -202,6 +224,7 @@ export class SourcesService implements OnModuleInit {
         scheduleCron: patch.scheduleCron,
         scheduleEnabled: patch.scheduleEnabled,
         surfaceUrl: patch.surfaceUrl,
+        config: patch.config,
       },
     });
     if (!updated) {
@@ -362,6 +385,12 @@ export class SourcesService implements OnModuleInit {
       userId: template.userId,
       templateId: template.id,
     });
+
+    const jobCounts = await this.jobRepo.countBySourceRunIds(
+      template.userId,
+      runs.map((r) => r.id),
+    );
+
     return {
       id: template.id,
       planId: template.planId,
@@ -376,11 +405,39 @@ export class SourcesService implements OnModuleInit {
       scheduleEnabled: template.scheduleEnabled,
       surfaceUrl: template.surfaceUrl,
       createdAt: template.createdAt,
-      runs: runs.map((r) => this.toGql(r)),
+      runs: runs.map((r) => this.toGql(r, jobCounts)),
     };
   }
 
-  private toGql(row: SourceRunEntity): SourceRunType {
+  private validateConfig(
+    config: Record<string, unknown>,
+    planDocument: Record<string, unknown>,
+  ): void {
+    const result = SourceTemplateConfigSchema.safeParse(config);
+    if (!result.success) {
+      const messages = result.error.issues.map(
+        (i) => `${i.path.join(".")}: ${i.message}`,
+      );
+      throw new BadRequestException(
+        `Invalid stop config: ${messages.join("; ")}`,
+      );
+    }
+
+    if (result.data.stopWhen === "OlderThan") {
+      if (!planHasPublishedAt(planDocument)) {
+        throw new BadRequestException(
+          "Stop condition OlderThan requires a surface field with key 'publishedAt' in the plan",
+        );
+      }
+    }
+  }
+
+  private toGql(
+    row: SourceRunEntity,
+    jobCounts?: Map<string, number>,
+  ): SourceRunType {
+    const config = row.template?.config as Record<string, unknown> | undefined;
+
     return {
       id: row.id,
       templateId: row.templateId,
@@ -389,6 +446,13 @@ export class SourcesService implements OnModuleInit {
       status: row.status,
       errorMessage: row.errorMessage ?? null,
       startedAt: row.startedAt,
+      stopWhen: (config?.stopWhen as SourceRunType["stopWhen"]) ?? null,
+      catchUpThreshold:
+        (config?.catchUpThreshold as SourceRunType["catchUpThreshold"]) ?? null,
+      maxPages: (config?.maxPages as SourceRunType["maxPages"]) ?? null,
+      olderThanDays:
+        (config?.olderThanDays as SourceRunType["olderThanDays"]) ?? null,
+      jobCount: (jobCounts?.get(row.id) ?? 0),
     };
   }
 }

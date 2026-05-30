@@ -108,6 +108,24 @@ export class JobsRepository {
     return result.affected ?? 0;
   }
 
+  async countBySourceRunIds(
+    userId: string,
+    sourceRunIds: string[],
+  ): Promise<Map<string, number>> {
+    if (sourceRunIds.length === 0) return new Map();
+
+    const rows = await this.jobsRepo
+      .createQueryBuilder("job")
+      .select("job.source_run_id", "sourceRunId")
+      .addSelect("COUNT(*)", "count")
+      .where("job.user_id = :userId", { userId })
+      .andWhere("job.source_run_id IN (:...ids)", { ids: sourceRunIds })
+      .groupBy("job.source_run_id")
+      .getRawMany<{ sourceRunId: string; count: string }>();
+
+    return new Map(rows.map((r) => [r.sourceRunId, Number(r.count)]));
+  }
+
   async deleteBySourceRunId(
     sourceRunId: string,
     userId: string,

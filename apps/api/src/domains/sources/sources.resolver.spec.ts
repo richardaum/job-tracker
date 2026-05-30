@@ -36,6 +36,7 @@ describe("SourcesResolver", () => {
           surfaceUrl: "https://example.com",
           status: SourceRunStatusEnum.Pending,
           startedAt: new Date("2026-05-01T12:00:01.000Z"),
+          jobCount: 0,
         },
       }),
     ];

@@ -139,6 +139,7 @@ export type CreateSourceRunInput = {
 };
 
 export type CreateSourceTemplateInput = {
+  config?: InputMaybe<Scalars['JSON']['input']>;
   planId: Scalars['ID']['input'];
   surfaceUrl: Scalars['String']['input'];
 };
@@ -614,6 +615,7 @@ export type Query = {
   generateJobLocationWithAI?: Maybe<Scalars['String']['output']>;
   generateJobNoteWithAI: Scalars['String']['output'];
   generateJobWorkRegionWithAI?: Maybe<Scalars['String']['output']>;
+  isJobDuplicate: Scalars['Boolean']['output'];
   job: JobType;
   jobMatch?: Maybe<MatchAnalysisType>;
   jobNotes: Array<NoteType>;
@@ -676,6 +678,12 @@ export type QueryGenerateJobNoteWithAiArgs = {
 
 export type QueryGenerateJobWorkRegionWithAiArgs = {
   jobId: Scalars['ID']['input'];
+};
+
+
+export type QueryIsJobDuplicateArgs = {
+  company: Scalars['String']['input'];
+  title: Scalars['String']['input'];
 };
 
 
@@ -788,17 +796,23 @@ export enum SourceRunStatus {
 
 export type SourceRunType = {
   __typename?: 'SourceRunType';
+  catchUpThreshold?: Maybe<Scalars['Int']['output']>;
   errorMessage?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
+  jobCount: Scalars['Int']['output'];
+  maxPages?: Maybe<Scalars['Int']['output']>;
+  olderThanDays?: Maybe<Scalars['Int']['output']>;
   planId: Scalars['ID']['output'];
   startedAt: Scalars['DateTime']['output'];
   status: SourceRunStatus;
+  stopWhen?: Maybe<StopWhen>;
   surfaceUrl: Scalars['String']['output'];
   templateId: Scalars['ID']['output'];
 };
 
 export type SourceTemplateType = {
   __typename?: 'SourceTemplateType';
+  config?: Maybe<Scalars['JSON']['output']>;
   createdAt: Scalars['DateTime']['output'];
   id: Scalars['ID']['output'];
   plan: PlanType;
@@ -812,6 +826,12 @@ export type SourceTemplateType = {
 export enum StageEventSource {
   Manual = 'Manual',
   System = 'System'
+}
+
+export enum StopWhen {
+  CatchUp = 'CatchUp',
+  FirstRunMaxPages = 'FirstRunMaxPages',
+  OlderThan = 'OlderThan'
 }
 
 export type Subscription = {
@@ -893,6 +913,7 @@ export type UpdateSourceRunInput = {
 };
 
 export type UpdateSourceTemplateInput = {
+  config?: InputMaybe<Scalars['JSON']['input']>;
   scheduleCron?: InputMaybe<Scalars['String']['input']>;
   scheduleEnabled?: InputMaybe<Scalars['Boolean']['input']>;
   surfaceUrl?: InputMaybe<Scalars['String']['input']>;
@@ -1312,12 +1333,12 @@ export type SourceTemplateQueryVariables = Exact<{
 }>;
 
 
-export type SourceTemplateQuery = { __typename?: 'Query', sourceTemplate: { __typename?: 'SourceTemplateType', id: string, planId: string, scheduleCron?: string | null, scheduleEnabled: boolean, surfaceUrl: string, createdAt: any, runs: Array<{ __typename?: 'SourceRunType', id: string, status: SourceRunStatus, errorMessage?: string | null, startedAt: any }> } };
+export type SourceTemplateQuery = { __typename?: 'Query', sourceTemplate: { __typename?: 'SourceTemplateType', id: string, planId: string, scheduleCron?: string | null, scheduleEnabled: boolean, surfaceUrl: string, createdAt: any, config?: any | null, runs: Array<{ __typename?: 'SourceRunType', id: string, status: SourceRunStatus, errorMessage?: string | null, startedAt: any, jobCount: number }> } };
 
 export type SourceTemplatesAllQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type SourceTemplatesAllQuery = { __typename?: 'Query', sourceTemplates: Array<{ __typename?: 'SourceTemplateType', id: string, planId: string, scheduleCron?: string | null, scheduleEnabled: boolean, surfaceUrl: string, createdAt: any, runs: Array<{ __typename?: 'SourceRunType', id: string, status: SourceRunStatus, errorMessage?: string | null, startedAt: any }> }> };
+export type SourceTemplatesAllQuery = { __typename?: 'Query', sourceTemplates: Array<{ __typename?: 'SourceTemplateType', id: string, planId: string, scheduleCron?: string | null, scheduleEnabled: boolean, surfaceUrl: string, createdAt: any, config?: any | null, runs: Array<{ __typename?: 'SourceRunType', id: string, status: SourceRunStatus, errorMessage?: string | null, startedAt: any, jobCount: number }> }> };
 
 export type UpdateSourceTemplateMutationVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -1325,7 +1346,7 @@ export type UpdateSourceTemplateMutationVariables = Exact<{
 }>;
 
 
-export type UpdateSourceTemplateMutation = { __typename?: 'Mutation', updateSourceTemplate: { __typename?: 'SourceTemplateType', id: string, planId: string, scheduleCron?: string | null, scheduleEnabled: boolean, surfaceUrl: string, createdAt: any, runs: Array<{ __typename?: 'SourceRunType', id: string, status: SourceRunStatus, errorMessage?: string | null, startedAt: any }> } };
+export type UpdateSourceTemplateMutation = { __typename?: 'Mutation', updateSourceTemplate: { __typename?: 'SourceTemplateType', id: string, planId: string, scheduleCron?: string | null, scheduleEnabled: boolean, surfaceUrl: string, createdAt: any, config?: any | null, runs: Array<{ __typename?: 'SourceRunType', id: string, status: SourceRunStatus, errorMessage?: string | null, startedAt: any, jobCount: number }> } };
 
 export type DeleteSourceTemplateMutationVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -1339,19 +1360,19 @@ export type CreateSourceTemplateMutationVariables = Exact<{
 }>;
 
 
-export type CreateSourceTemplateMutation = { __typename?: 'Mutation', createSourceTemplate: { __typename?: 'SourceTemplateType', id: string, planId: string, surfaceUrl: string, scheduleCron?: string | null, scheduleEnabled: boolean, createdAt: any } };
+export type CreateSourceTemplateMutation = { __typename?: 'Mutation', createSourceTemplate: { __typename?: 'SourceTemplateType', id: string, planId: string, surfaceUrl: string, scheduleCron?: string | null, scheduleEnabled: boolean, createdAt: any, config?: any | null } };
 
 export type PlansQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type PlansQuery = { __typename?: 'Query', plans: Array<{ __typename?: 'PlanType', id: string, displayName: string, templates: Array<{ __typename?: 'SourceTemplateType', id: string, surfaceUrl: string, createdAt: any, runs: Array<{ __typename?: 'SourceRunType', id: string, status: SourceRunStatus, errorMessage?: string | null, startedAt: any }> }> }> };
+export type PlansQuery = { __typename?: 'Query', plans: Array<{ __typename?: 'PlanType', id: string, displayName: string, templates: Array<{ __typename?: 'SourceTemplateType', id: string, surfaceUrl: string, createdAt: any, config?: any | null, runs: Array<{ __typename?: 'SourceRunType', id: string, status: SourceRunStatus, errorMessage?: string | null, startedAt: any, jobCount: number }> }> }> };
 
 export type PlanQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type PlanQuery = { __typename?: 'Query', plan?: { __typename?: 'PlanType', id: string, displayName: string, document: any, createdAt: any, updatedAt: any, templates: Array<{ __typename?: 'SourceTemplateType', id: string, planId: string, surfaceUrl: string, scheduleCron?: string | null, scheduleEnabled: boolean, createdAt: any, runs: Array<{ __typename?: 'SourceRunType', id: string, status: SourceRunStatus, errorMessage?: string | null, startedAt: any }> }> } | null };
+export type PlanQuery = { __typename?: 'Query', plan?: { __typename?: 'PlanType', id: string, displayName: string, document: any, createdAt: any, updatedAt: any, templates: Array<{ __typename?: 'SourceTemplateType', id: string, planId: string, surfaceUrl: string, scheduleCron?: string | null, scheduleEnabled: boolean, createdAt: any, config?: any | null, runs: Array<{ __typename?: 'SourceRunType', id: string, status: SourceRunStatus, errorMessage?: string | null, startedAt: any, jobCount: number }> }> } | null };
 
 export type UpdatePlanMutationVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -3688,11 +3709,13 @@ export const SourceTemplateDocument = gql`
     scheduleEnabled
     surfaceUrl
     createdAt
+    config
     runs {
       id
       status
       errorMessage
       startedAt
+      jobCount
     }
   }
 }
@@ -3735,11 +3758,13 @@ export const SourceTemplatesAllDocument = gql`
     scheduleEnabled
     surfaceUrl
     createdAt
+    config
     runs {
       id
       status
       errorMessage
       startedAt
+      jobCount
     }
   }
 }
@@ -3781,11 +3806,13 @@ export const UpdateSourceTemplateDocument = gql`
     scheduleEnabled
     surfaceUrl
     createdAt
+    config
     runs {
       id
       status
       errorMessage
       startedAt
+      jobCount
     }
   }
 }
@@ -3858,6 +3885,7 @@ export const CreateSourceTemplateDocument = gql`
     scheduleCron
     scheduleEnabled
     createdAt
+    config
   }
 }
     `;
@@ -3895,11 +3923,13 @@ export const PlansDocument = gql`
       id
       surfaceUrl
       createdAt
+      config
       runs {
         id
         status
         errorMessage
         startedAt
+        jobCount
       }
     }
   }
@@ -3948,11 +3978,13 @@ export const PlanDocument = gql`
       scheduleCron
       scheduleEnabled
       createdAt
+      config
       runs {
         id
         status
         errorMessage
         startedAt
+        jobCount
       }
     }
   }
