@@ -73,7 +73,7 @@ export class WebBridgeService {
       kind: "source-run.start",
       runId: request.runId,
       surfaceUrl: request.surfaceUrl,
-      sourceProfileId: request.sourceProfileId,
+      planId: request.planId,
     });
   }
 }

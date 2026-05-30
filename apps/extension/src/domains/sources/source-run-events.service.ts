@@ -25,16 +25,14 @@ export class SourceRunEventsService {
 
     const outstandingRuns =
       response.data?.sourceRuns?.filter(
-        (run) =>
-          run.status === SourceRunStatus.Running ||
-          run.status === SourceRunStatus.InProgress,
+        (run) => run.status === SourceRunStatus.Pending,
       ) ?? [];
 
     for (const run of outstandingRuns) {
       await this.executeSourceRun({
         runId: run.id,
         surfaceUrl: run.surfaceUrl,
-        sourceProfileId: run.sourceProfileId,
+        planId: run.planId,
       });
     }
   }
@@ -44,20 +42,15 @@ export class SourceRunEventsService {
       this.logService.error("source-run:invalid-message", { params });
       return;
     }
-    const { runId, surfaceUrl, sourceProfileId } = params;
-
-    await this.apiService.updateSourceRunStatus(
-      runId,
-      SourceRunStatus.InProgress,
-    );
+    const { runId, surfaceUrl, planId } = params;
 
     this.activityReporter?.report(
       ExtensionActivityEventType.SourceRunStarted,
-      `${sourceProfileId} · ${surfaceUrl}`,
+      surfaceUrl,
       { correlationId: runId },
     );
 
-    const plan = planForSourceRun({ sourceProfileId });
+    const plan = planForSourceRun(planId);
 
     const [runErr] = await tryRun(
       (async () => {
@@ -82,7 +75,7 @@ export class SourceRunEventsService {
               ExtensionActivityEventType.SourceRunJobImported,
               typeof job.title === "string" && job.title.trim()
                 ? job.title.trim()
-                : `${sourceProfileId} · ${surfaceUrl}`,
+                : surfaceUrl,
               { correlationId: runId },
             );
           },
@@ -95,9 +88,12 @@ export class SourceRunEventsService {
     );
 
     if (runErr) {
+      const errorMessage =
+        runErr instanceof Error ? runErr.message : String(runErr);
       await this.apiService.updateSourceRunStatus(
         runId,
         SourceRunStatus.Failed,
+        errorMessage,
       );
       this.logService.error("source-run:execution-failed", {
         runId,
@@ -105,7 +101,7 @@ export class SourceRunEventsService {
       });
       this.activityReporter?.report(
         ExtensionActivityEventType.SourceRunFailed,
-        `${sourceProfileId} · ${surfaceUrl}`,
+        surfaceUrl,
         { correlationId: runId },
       );
       return;
@@ -113,7 +109,7 @@ export class SourceRunEventsService {
 
     this.activityReporter?.report(
       ExtensionActivityEventType.SourceRunCompleted,
-      `${sourceProfileId} · ${surfaceUrl}`,
+      surfaceUrl,
       { correlationId: runId },
     );
   }
@@ -122,7 +118,7 @@ export class SourceRunEventsService {
 type SourceRunStartMessage = {
   runId: string;
   surfaceUrl: string;
-  sourceProfileId: string;
+  planId: string;
 };
 
 function isSourceRunStartMessage(
@@ -133,6 +129,6 @@ function isSourceRunStartMessage(
   return (
     typeof m.runId === "string" &&
     typeof m.surfaceUrl === "string" &&
-    typeof m.sourceProfileId === "string"
+    typeof m.planId === "string"
   );
 }

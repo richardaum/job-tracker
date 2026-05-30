@@ -1,33 +1,28 @@
 import { z } from "zod";
 
-import { PlanStepActionSchema } from "@/domains/plan/model/schema";
+import { CollectJobsPlanStepActionSchema } from "@/domains/plan/model/schema";
 
-/**
- * Content-script requests carry `action: PlanStepAction`. For `collect.jobs`,
- * concurrent detail-tab work is capped by `action.input.parallelDetailsTabs`
- * (see plan schema); background applies that limit when opening detail tabs.
- */
 export const RuntimeKindSchema = z.enum(["popup", "background", "content"]);
 export const MessageModeSchema = z.enum(["request", "response", "event"]);
 
 export const JobsListMessageSchema = z.object({
   kind: z.literal("jobs.list"),
-  action: PlanStepActionSchema,
+  action: CollectJobsPlanStepActionSchema,
 });
 
 export const JobDetailsMessageSchema = z.object({
   kind: z.literal("job.details"),
-  action: PlanStepActionSchema,
+  action: CollectJobsPlanStepActionSchema,
 });
 
 export const NavigateNextPageMessageSchema = z.object({
   kind: z.literal("navigate.next.page"),
-  action: PlanStepActionSchema,
+  action: CollectJobsPlanStepActionSchema,
 });
 
 export const CanNavigateNextPageMessageSchema = z.object({
   kind: z.literal("can.navigate.next.page"),
-  action: PlanStepActionSchema,
+  action: CollectJobsPlanStepActionSchema,
 });
 
 export const ImportJobMessageSchema = z.object({

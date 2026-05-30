@@ -11,7 +11,7 @@ const REMOTEYEAH_SURFACE_URL =
   "https://remoteyeah.com/remote-frontend-engineer+reactjs-jobs-in-brazil+latin-america+worldwide";
 
 describe("SourceRunEventsService", () => {
-  it("transitions to IN_PROGRESS, executes plan, then COMPLETED", async () => {
+  it("executes plan then COMPLETED", async () => {
     const setup = createSetup();
 
     const service = new SourceRunEventsService(
@@ -23,16 +23,11 @@ describe("SourceRunEventsService", () => {
     await service.executeSourceRun({
       runId: "run-1",
       surfaceUrl: REMOTEYEAH_SURFACE_URL,
-      sourceProfileId: "remoteyeah",
+      planId: "2e84cb8d-d9f2-4a02-947e-80909eb76709",
     });
 
-    expect(setup.updateSourceRunStatus).toHaveBeenNthCalledWith(
-      1,
-      "run-1",
-      SourceRunStatus.InProgress,
-    );
-    expect(setup.updateSourceRunStatus).toHaveBeenNthCalledWith(
-      2,
+    expect(setup.updateSourceRunStatus).toHaveBeenCalledTimes(1);
+    expect(setup.updateSourceRunStatus).toHaveBeenCalledWith(
       "run-1",
       SourceRunStatus.Completed,
     );
@@ -55,28 +50,24 @@ describe("SourceRunEventsService", () => {
     await service.executeSourceRun({
       runId: "run-1",
       surfaceUrl: REMOTEYEAH_SURFACE_URL,
-      sourceProfileId: "remoteyeah",
+      planId: "2e84cb8d-d9f2-4a02-947e-80909eb76709",
     });
 
-    expect(setup.updateSourceRunStatus).toHaveBeenNthCalledWith(
-      1,
-      "run-1",
-      SourceRunStatus.InProgress,
-    );
-    expect(setup.updateSourceRunStatus).toHaveBeenNthCalledWith(
-      2,
+    expect(setup.updateSourceRunStatus).toHaveBeenCalledTimes(1);
+    expect(setup.updateSourceRunStatus).toHaveBeenCalledWith(
       "run-1",
       SourceRunStatus.Failed,
+      "boom",
     );
   });
 
-  it("recovers RUNNING and IN_PROGRESS runs on startup", async () => {
+  it("recovers Pending runs on startup", async () => {
     const setup = createSetup({
       sourceRunsValue: {
         data: {
           sourceRuns: [
-            createRun({ id: "run-1", status: SourceRunStatus.Running }),
-            createRun({ id: "run-2", status: SourceRunStatus.InProgress }),
+            createRun({ id: "run-1", status: SourceRunStatus.Pending }),
+            createRun({ id: "run-2", status: SourceRunStatus.Pending }),
             createRun({ id: "run-3", status: SourceRunStatus.Completed }),
           ],
         },
@@ -91,19 +82,11 @@ describe("SourceRunEventsService", () => {
 
     await service.recoverOutstandingRuns();
 
-    expect(setup.updateSourceRunStatus).toHaveBeenCalledWith(
-      "run-1",
-      SourceRunStatus.InProgress,
-    );
-    expect(setup.updateSourceRunStatus).toHaveBeenCalledWith(
-      "run-2",
-      SourceRunStatus.InProgress,
-    );
-    expect(setup.updateSourceRunStatus).not.toHaveBeenCalledWith(
-      "run-3",
-      expect.anything(),
-    );
     expect(setup.executePlan).toHaveBeenCalledTimes(2);
+    expect(setup.executePlan).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({ surfaceUrl: REMOTEYEAH_SURFACE_URL }),
+    );
   });
 
   it("handles recovery query errors gracefully", async () => {
@@ -176,8 +159,7 @@ function createRun({ id, status }: { id: string; status: SourceRunStatus }) {
   return {
     id,
     status,
-    sourceProfileId: "remoteyeah",
-    sourceProfile: "database",
+    planId: "2e84cb8d-d9f2-4a02-947e-80909eb76709",
     surfaceUrl: REMOTEYEAH_SURFACE_URL,
   };
 }

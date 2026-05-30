@@ -22,7 +22,7 @@ export interface TimerService {
   ): Promise<NonNullable<T>>;
 }
 
-export const SMALL_DELAY_MS = 75;
+const SMALL_DELAY_MS = 75;
 const LONG_DELAY_MAX_MS = 2000;
 
 export class DefaultTimerService implements TimerService {

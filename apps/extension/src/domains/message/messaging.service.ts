@@ -67,7 +67,21 @@ export class MessagingService {
       if (tabId == null) {
         throw new Error("tabId is required when target is content");
       }
-      return await chrome.tabs.sendMessage(tabId, requestEnvelope);
+      for (let attempt = 1; attempt <= 3; attempt++) {
+        // eslint-disable-next-line job-tracker/prefer-try-run-over-try-catch
+        try {
+          return await chrome.tabs.sendMessage(tabId, requestEnvelope);
+        } catch (err) {
+          const isChannelClosed =
+            err instanceof Error &&
+            err.message.includes("message channel closed");
+          if (isChannelClosed && attempt < 3) {
+            await new Promise((r) => setTimeout(r, 2000));
+            continue;
+          }
+          throw err;
+        }
+      }
     }
 
     return await chrome.runtime.sendMessage(requestEnvelope);
@@ -136,7 +150,10 @@ export class MessagingService {
 
           Promise.resolve(handler(payloadResult.data))
             .then((result) => sendResponse(result))
-            .catch(() => sendResponse(null));
+            .catch((err) => {
+              const msg = err instanceof Error ? err.message : String(err);
+              sendResponse({ __handlerError: true, errorMessage: msg });
+            });
           return true;
         }
 

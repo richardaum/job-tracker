@@ -22,6 +22,9 @@ export class FieldValueService {
   ) {}
 
   getFieldValue(element: CollectFieldElement, field: CollectField) {
+    // regex-type fields are resolved in CollectJobsService, not via DOM
+    if (field.type === "regex") return null;
+
     const value = this.getRawFieldValue(element, field);
     this.assertValidationRegex(value, field);
 
@@ -44,7 +47,7 @@ export class FieldValueService {
     value: string | null | undefined,
     field: CollectField,
   ) {
-    if (!field.validationRegex) {
+    if (!("validationRegex" in field) || !field.validationRegex) {
       return;
     }
 

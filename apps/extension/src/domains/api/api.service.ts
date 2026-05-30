@@ -57,10 +57,14 @@ export class ApiService {
     });
   }
 
-  async updateSourceRunStatus(id: string, status: SourceRunStatus) {
+  async updateSourceRunStatus(
+    id: string,
+    status: SourceRunStatus,
+    errorMessage?: string | null,
+  ) {
     return await this.client.mutate({
       mutation: UpdateSourceRunStatusDocument,
-      variables: { id, status },
+      variables: { id, status, errorMessage: errorMessage ?? null },
     });
   }
 

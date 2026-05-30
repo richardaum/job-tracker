@@ -1,11 +1,11 @@
 import { MessagingService } from "@/domains/message/messaging.service";
-import type { PlanStepAction } from "@/domains/plan/model/types";
+import type { CollectJobsAction } from "@/domains/plan/model/types";
 
 export class PaginationMessagingService {
   constructor(private readonly messagingService: MessagingService) {}
 
   async canNavigateToNextPage(
-    action: PlanStepAction,
+    action: CollectJobsAction,
     tabId: number,
   ): Promise<boolean> {
     return await this.messagingService.request<
@@ -19,7 +19,7 @@ export class PaginationMessagingService {
   }
 
   async navigateToNextPage(
-    action: PlanStepAction,
+    action: CollectJobsAction,
     tabId: number,
   ): Promise<void> {
     await this.messagingService.request<"navigate.next.page", void>({

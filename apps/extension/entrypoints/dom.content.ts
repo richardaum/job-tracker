@@ -10,6 +10,7 @@ import { MessagingService } from "@/domains/message/messaging.service";
 import type { RequestType } from "@/domains/message/types";
 import { NextButtonService } from "@/domains/pagination/next-button.service";
 import { PaginationService } from "@/domains/pagination/pagination.service";
+import { StringTemplateService } from "@/domains/plan/services/string-template.service";
 import { DefaultTimerService } from "@/domains/timer/timer.service";
 
 export default defineContentScript({
@@ -31,6 +32,7 @@ export default defineContentScript({
         new FieldValueService(),
         new DefaultTimerService(),
         popupLogService,
+        new StringTemplateService(),
       ),
       new JobDetailsService(new FieldValueService(), new DefaultTimerService()),
       new PaginationService(new NextButtonService()),

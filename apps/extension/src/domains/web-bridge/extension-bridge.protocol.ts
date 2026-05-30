@@ -67,7 +67,7 @@ export type SourceRunStartRequest = {
   source: typeof EXTENSION_BRIDGE_SOURCE;
   runId: string;
   surfaceUrl: string;
-  sourceProfileId: string;
+  planId: string;
 };
 
 export function isSourceRunStartRequest(
@@ -80,8 +80,7 @@ export function isSourceRunStartRequest(
     record.type === EXTENSION_BRIDGE_MESSAGE_TYPE.sourceRunStart &&
     record.source === EXTENSION_BRIDGE_SOURCE &&
     typeof record.runId === "string" &&
-    typeof record.surfaceUrl === "string" &&
-    typeof record.sourceProfileId === "string"
+    typeof record.surfaceUrl === "string"
   );
 }
 

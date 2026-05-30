@@ -1,12 +1,12 @@
 import type { Job } from "@/domains/dom/types";
 import { MessagingService } from "@/domains/message/messaging.service";
-import type { PlanStepAction } from "@/domains/plan/model/types";
+import type { CollectJobsAction } from "@/domains/plan/model/types";
 
 export class JobDetailsMessagingService {
   constructor(private readonly messagingService: MessagingService) {}
 
   async getJobDetails(
-    action: PlanStepAction,
+    action: CollectJobsAction,
     tabId: number,
   ): Promise<Job | undefined> {
     return await this.messagingService.request<"job.details", Job | undefined>({
