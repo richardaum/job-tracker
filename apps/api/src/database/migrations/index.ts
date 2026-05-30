@@ -28,6 +28,10 @@ import { ChangePayloadToJsonb1767980000000 } from "./1767980000000-change-payloa
 import { AddAdminRoleEnum1767990000000 } from "./1767990000000-add-admin-role-enum";
 import { AddKeywordBlockerColumns1768000000000 } from "./1768000000000-add-keyword-blocker-columns";
 import { CreatePlansTable1768010000000 } from "./1768010000000-create-plans-table";
+import { MergeSourceProfileIntoPlan1768050000000 } from "./1768050000000-merge-source-profile-into-plan";
+import { NormalizeSourceRunStatusPascalcase1768060000000 } from "./1768060000000-normalize-source-run-status-pascalcase";
+import { AddSourceRunErrorMessage1768070000000 } from "./1768070000000-add-source-run-error-message";
+import { DropPlanSourceProfileId1768080000000 } from "./1768080000000-drop-plan-source-profile-id";
 
 export const migrations = [
   SquashedBaseline1767000000000,
@@ -60,4 +64,8 @@ export const migrations = [
   AddAdminRoleEnum1767990000000,
   AddKeywordBlockerColumns1768000000000,
   CreatePlansTable1768010000000,
+  MergeSourceProfileIntoPlan1768050000000,
+  NormalizeSourceRunStatusPascalcase1768060000000,
+  AddSourceRunErrorMessage1768070000000,
+  DropPlanSourceProfileId1768080000000,
 ];
