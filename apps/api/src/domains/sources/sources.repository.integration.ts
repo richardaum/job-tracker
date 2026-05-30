@@ -89,4 +89,93 @@ describe.skipIf(!hasDb)("SourcesRepository (integration)", () => {
 
     expect(runs.map((r) => r.id)).toEqual([newer.id, older.id]);
   });
+
+  it("listTemplatesByUserAndPlanId returns templates for a plan", async () => {
+    const plans = dataSource.getRepository(PlanEntity);
+    const planB = await plans.save(
+      plans.create({
+        displayName: "Plan B",
+        document: { steps: [] },
+      }),
+    );
+
+    const templates = dataSource.getRepository(SourceTemplateEntity);
+    await templates.save(
+      templates.create({
+        userId,
+        planId,
+        surfaceUrl: "https://example.com/planA",
+        scheduleEnabled: false,
+        scheduleCron: null,
+      }),
+    );
+    await templates.save(
+      templates.create({
+        userId,
+        planId: planB.id,
+        surfaceUrl: "https://example.com/planB",
+        scheduleEnabled: false,
+        scheduleCron: null,
+      }),
+    );
+
+    const result = await repo.listTemplatesByUserAndPlanId(userId, planId);
+
+    expect(result).toHaveLength(1);
+    expect(result[0].surfaceUrl).toBe("https://example.com/planA");
+  });
+
+  it("listTemplatesByUserAndPlanId returns empty for unknown plan", async () => {
+    const result = await repo.listTemplatesByUserAndPlanId(
+      userId,
+      "00000000-0000-0000-0000-000000000000",
+    );
+
+    expect(result).toEqual([]);
+  });
+
+  it("deleteRunsByTemplateId removes runs and returns count", async () => {
+    const templates = dataSource.getRepository(SourceTemplateEntity);
+    const template = await templates.save(
+      templates.create({
+        userId,
+        planId,
+        surfaceUrl: "https://example.com/todelete",
+        scheduleEnabled: false,
+        scheduleCron: null,
+      }),
+    );
+
+    const runRepo = dataSource.getRepository(SourceRunEntity);
+    await runRepo.save(
+      runRepo.create({
+        userId,
+        templateId: template.id,
+        surfaceUrl: "https://example.com/r1",
+        status: SourceRunStatusEnum.Completed,
+        startedAt: new Date(),
+      }),
+    );
+    await runRepo.save(
+      runRepo.create({
+        userId,
+        templateId: template.id,
+        surfaceUrl: "https://example.com/r2",
+        status: SourceRunStatusEnum.Completed,
+        startedAt: new Date(),
+      }),
+    );
+
+    const count = await repo.deleteRunsByTemplateId({
+      userId,
+      templateId: template.id,
+    });
+
+    expect(count).toBe(2);
+
+    const remaining = await runRepo.find({
+      where: { userId, templateId: template.id },
+    });
+    expect(remaining).toEqual([]);
+  });
 });

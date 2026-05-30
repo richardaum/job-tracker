@@ -161,9 +161,11 @@ describe("MatchAnalysisResolver (GraphQL integration smoke)", () => {
 
 describe("JobMatchResolver — @ResolveField match on JobType", () => {
   const service = { findForJob: vi.fn() };
-  const resolver = new JobMatchResolver(service as unknown as MatchAnalysisService);
+  const resolver = new JobMatchResolver(
+    service as unknown as MatchAnalysisService,
+  );
 
-  it("calls findForJob per parent job (N+1 behavior)", async () => {
+  it("calls service.findForJob per parent job", async () => {
     vi.mocked(service.findForJob).mockResolvedValue(null);
 
     const result = await resolver.match(
@@ -178,9 +180,11 @@ describe("JobMatchResolver — @ResolveField match on JobType", () => {
 
 describe("MatchAnalysisResolver — @ResolveField job on MatchAnalysisType", () => {
   const service = { findJobById: vi.fn() };
-  const resolver = new MatchAnalysisResolver(service as unknown as MatchAnalysisService);
+  const resolver = new MatchAnalysisResolver(
+    service as unknown as MatchAnalysisService,
+  );
 
-  it("calls findJobById per parent match analysis (N+1 behavior)", async () => {
+  it("calls service.findJobById per parent match analysis", async () => {
     vi.mocked(service.findJobById).mockResolvedValue(null);
 
     const result = await resolver.job(

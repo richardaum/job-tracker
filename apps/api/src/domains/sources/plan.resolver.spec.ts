@@ -11,11 +11,14 @@ describe("PlanResolver — @ResolveField templates on PlanType", () => {
     update: vi.fn(),
     delete: vi.fn(),
   };
-  const sourcesService = { listTemplatesForPlan: vi.fn() };
-  const resolver = new PlanResolver(planService as never, sourcesService as never);
+  const templatesLoader = { load: vi.fn() };
+  const resolver = new PlanResolver(
+    planService as never,
+    templatesLoader as never,
+  );
 
-  it("calls listTemplatesForPlan per parent plan (N+1 behavior)", async () => {
-    vi.mocked(sourcesService.listTemplatesForPlan).mockResolvedValue([]);
+  it("calls templatesLoader.load per parent plan (batched via DataLoader)", async () => {
+    vi.mocked(templatesLoader.load).mockResolvedValue([]);
 
     const result = await resolver.templates(
       { id: "plan-1" } as PlanType,
@@ -23,9 +26,6 @@ describe("PlanResolver — @ResolveField templates on PlanType", () => {
     );
 
     expect(result).toEqual([]);
-    expect(sourcesService.listTemplatesForPlan).toHaveBeenCalledWith(
-      "user-1",
-      "plan-1",
-    );
+    expect(templatesLoader.load).toHaveBeenCalledWith("plan-1");
   });
 });

@@ -78,6 +78,7 @@ describe("SourcesService", () => {
     | "patchSourceTemplate"
     | "listTemplatesByUserAndPlanId"
     | "deleteRunsByTemplateId"
+    | "findRunsForTemplate"
   > = {
     listByUserId: vi.fn(),
     findOrCreateTemplate: vi.fn(),
@@ -94,14 +95,19 @@ describe("SourcesService", () => {
     patchSourceTemplate: vi.fn(),
     listTemplatesByUserAndPlanId: vi.fn(),
     deleteRunsByTemplateId: vi.fn(),
+    findRunsForTemplate: vi.fn(),
   };
 
   const jobRepo: Pick<
     JobsRepository,
-    "detachJobsSourceRun" | "countBySourceRunIds" | "deleteBySourceRunId"
+    | "detachJobsSourceRun"
+    | "countBySourceRunIds"
+    | "deleteBySourceRunId"
+    | "deleteBySourceRunId"
   > = {
     detachJobsSourceRun: vi.fn(),
     countBySourceRunIds: vi.fn(),
+    deleteBySourceRunId: vi.fn(),
     deleteBySourceRunId: vi.fn(),
   };
 
@@ -705,32 +711,34 @@ describe("SourcesService", () => {
     expect(jobRepo.detachJobsSourceRun).toHaveBeenCalledWith("run-1", "user-1");
   });
 
-  describe("listTemplatesForPlan — N+1 via templateToGql", () => {
-    it("calls findRunsForTemplate once per template (N+1 behavior)", async () => {
+  describe("listTemplatesForPlan — batch runs", () => {
+    it("calls findRunsForTemplates once with all template IDs", async () => {
       const plan = planEntity();
       const templates = [
         { id: "t1", userId: "user-1", planId: "plan-1", plan },
         { id: "t2", userId: "user-1", planId: "plan-1", plan },
-        { id: "t3", userId: "user-1", planId: "plan-1", plan },
       ] as SourceTemplateEntity[];
 
-      const run = { id: "run-1" };
+      const t1runs = [{ id: "r1", templateId: "t1" }];
+      const t2runs = [{ id: "r2", templateId: "t2" }];
       vi.mocked(repo.listTemplatesByUserAndPlanId).mockResolvedValue(templates);
-      vi.mocked(repo.findRunsForTemplate).mockResolvedValue([run] as never);
+      vi.mocked(repo.findRunsForTemplate).mockResolvedValue(
+        t1runs.concat(t2runs) as never,
+      );
       vi.mocked(jobRepo.countBySourceRunIds).mockResolvedValue(
-        new Map([["run-1", 5]]),
+        new Map([["r1", 3], ["r2", 7]]),
       );
 
       const result = await service.listTemplatesForPlan("user-1", "plan-1");
 
-      expect(result).toHaveLength(3);
-      expect(repo.findRunsForTemplate).toHaveBeenCalledTimes(3);
-      expect(jobRepo.countBySourceRunIds).toHaveBeenCalledTimes(3);
+      expect(result).toHaveLength(2);
+      expect(repo.findRunsForTemplate).toHaveBeenCalledTimes(1);
+      expect(jobRepo.countBySourceRunIds).toHaveBeenCalledTimes(1);
     });
   });
 
-  describe("clearTemplateRuns — for loop with individual DELETE", () => {
-    it("calls deleteBySourceRunId once per run (N+1 behavior)", async () => {
+  describe("clearTemplateRuns — batch DELETE", () => {
+    it("calls deleteBySourceRunIds once with all run IDs", async () => {
       const template = {
         id: "tmpl-1",
         userId: "user-1",
@@ -751,9 +759,11 @@ describe("SourcesService", () => {
         deleteJobs: true,
       });
 
-      expect(jobRepo.deleteBySourceRunId).toHaveBeenCalledTimes(2);
-      expect(jobRepo.deleteBySourceRunId).toHaveBeenCalledWith("run-1", "user-1");
-      expect(jobRepo.deleteBySourceRunId).toHaveBeenCalledWith("run-2", "user-1");
+      expect(jobRepo.deleteBySourceRunId).toHaveBeenCalledTimes(1);
+      expect(jobRepo.deleteBySourceRunId).toHaveBeenCalledWith(
+        ["run-1", "run-2"],
+        "user-1",
+      );
     });
   });
 });
