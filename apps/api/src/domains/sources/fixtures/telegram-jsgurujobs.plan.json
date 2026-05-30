@@ -6,7 +6,7 @@
       "action": {
         "kind": "collect.jobs",
         "input": {
-          "containerSector": ".bubbles-inner",
+          "containerSelector": ".bubbles",
           "itemSelector": ".bubble.channel-post",
           "detailsUrlField": "applyUrl",
           "key": "{{applyUrl}}",

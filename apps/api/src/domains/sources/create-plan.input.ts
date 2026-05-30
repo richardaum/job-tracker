@@ -4,9 +4,6 @@ import GraphQLJSON from "graphql-type-json";
 @InputType()
 export class CreatePlanInput {
   @Field()
-  sourceProfileId!: string;
-
-  @Field()
   displayName!: string;
 
   @Field(() => GraphQLJSON)

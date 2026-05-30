@@ -9,133 +9,19 @@ import type { SourcesService } from "./sources.service";
 import type { SourcesEventBus } from "./sources-event.bus";
 
 describe("SourcesResolver", () => {
-  const service: Pick<
-    SourcesService,
-    "listSourceTemplates" | "listSourceTemplatesForSourceProfile"
-  > = {
+  const service: Pick<SourcesService, "listSourceTemplates"> = {
     listSourceTemplates: vi.fn(),
-    listSourceTemplatesForSourceProfile: vi.fn(),
   };
 
   const eventBus: Pick<SourcesEventBus, "forUser"> = { forUser: vi.fn() };
 
-  const planService = {
-    listSourceProfileDescriptors: vi
-      .fn()
-      .mockResolvedValue([
-        { sourceProfileId: "remoteyeah", name: "RemoteYeah" },
-      ]),
-  };
-
   const resolver = new SourcesResolver(
     service as SourcesService,
-    planService as never,
     eventBus as SourcesEventBus,
   );
 
-  const user = { userId: "user-1" };
-
   beforeEach(() => {
     vi.clearAllMocks();
-  });
-
-  it("sourceProfiles returns all registered source profiles when not filtered", async () => {
-    await expect(resolver.sourceProfiles(user, false)).resolves.toEqual([
-      { sourceProfileId: "remoteyeah", name: "RemoteYeah" },
-    ]);
-    expect(service.listSourceTemplates).not.toHaveBeenCalled();
-  });
-
-  it("sourceProfiles with onlyWithSourceTemplate keeps profiles that have a template", async () => {
-    vi.mocked(service.listSourceTemplates).mockResolvedValue([
-      {
-        id: "tmpl-1",
-        sourceProfileId: "remoteyeah",
-        scheduleCron: null,
-        scheduleEnabled: false,
-        surfaceUrl: "https://example.com",
-        createdAt: new Date("2026-05-01T12:00:00.000Z"),
-        runs: [],
-      },
-    ]);
-
-    await expect(resolver.sourceProfiles(user, true)).resolves.toEqual([
-      {
-        sourceProfileId: "remoteyeah",
-        name: "RemoteYeah",
-        templates: [
-          {
-            id: "tmpl-1",
-            sourceProfileId: "remoteyeah",
-            scheduleCron: null,
-            scheduleEnabled: false,
-            surfaceUrl: "https://example.com",
-            createdAt: new Date("2026-05-01T12:00:00.000Z"),
-            runs: [],
-          },
-        ],
-      },
-    ]);
-    expect(service.listSourceTemplates).toHaveBeenCalledWith("user-1");
-  });
-
-  it("templates resolves from the source profile row when already attached", async () => {
-    const templates = [
-      {
-        id: "tmpl-1",
-        sourceProfileId: "remoteyeah",
-        scheduleCron: null,
-        scheduleEnabled: false,
-        surfaceUrl: "https://example.com",
-        createdAt: new Date("2026-05-01T12:00:00.000Z"),
-        runs: [],
-      },
-    ];
-
-    expect(
-      resolver.templates(
-        { sourceProfileId: "remoteyeah", name: "RemoteYeah", templates },
-        user,
-      ),
-    ).toBe(templates);
-    expect(service.listSourceTemplatesForSourceProfile).not.toHaveBeenCalled();
-  });
-
-  it("templates loads profile-scoped templates when not attached", async () => {
-    vi.mocked(service.listSourceTemplatesForSourceProfile).mockResolvedValue(
-      [],
-    );
-
-    await expect(
-      resolver.templates(
-        { sourceProfileId: "remoteyeah", name: "RemoteYeah" },
-        user,
-      ),
-    ).resolves.toEqual([]);
-    expect(service.listSourceTemplatesForSourceProfile).toHaveBeenCalledWith(
-      "user-1",
-      "remoteyeah",
-    );
-  });
-
-  it("sourceTemplatesForSourceProfile delegates to the service", async () => {
-    vi.mocked(service.listSourceTemplatesForSourceProfile).mockResolvedValue(
-      [],
-    );
-
-    await expect(
-      resolver.sourceTemplatesForSourceProfile(user, "remoteyeah"),
-    ).resolves.toEqual([]);
-    expect(service.listSourceTemplatesForSourceProfile).toHaveBeenCalledWith(
-      "user-1",
-      "remoteyeah",
-    );
-  });
-
-  it("sourceProfiles with onlyWithSourceTemplate drops profiles without a template", async () => {
-    vi.mocked(service.listSourceTemplates).mockResolvedValue([]);
-
-    await expect(resolver.sourceProfiles(user, true)).resolves.toEqual([]);
   });
 
   it("sourceRunEvents yields events for the authenticated user", async () => {
@@ -146,11 +32,10 @@ describe("SourcesResolver", () => {
         run: {
           id: "run-1",
           templateId: "t1",
-          sourceProfileId: "remoteyeah",
+          planId: "p1",
           surfaceUrl: "https://example.com",
-          status: SourceRunStatusEnum.RUNNING,
+          status: SourceRunStatusEnum.Pending,
           startedAt: new Date("2026-05-01T12:00:01.000Z"),
-          sourceProfile: "database" as const,
         },
       }),
     ];
@@ -170,10 +55,8 @@ describe("SourcesResolver", () => {
 
     expect(first.done).toBe(false);
     expect(first.value).toMatchObject({
-      sourceRunEvents: {
-        type: SourceRunEventTypeEnum.SOURCE_RUN_CREATED,
-        run: { id: "run-1", sourceProfileId: "remoteyeah" },
-      },
+      type: SourceRunEventTypeEnum.SOURCE_RUN_CREATED,
+      run: { id: "run-1" },
     });
 
     expect(eventBus.forUser).toHaveBeenCalledWith("user-1");

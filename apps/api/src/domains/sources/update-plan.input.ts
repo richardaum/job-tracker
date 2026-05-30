@@ -4,9 +4,6 @@ import GraphQLJSON from "graphql-type-json";
 @InputType()
 export class UpdatePlanInput {
   @Field({ nullable: true })
-  sourceProfileId?: string;
-
-  @Field({ nullable: true })
   displayName?: string;
 
   @Field(() => GraphQLJSON, { nullable: true })

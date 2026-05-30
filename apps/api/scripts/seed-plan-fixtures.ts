@@ -6,24 +6,21 @@ import { PlanEntity } from "@api/database/entities/plan.entity";
 import remoteyeahFixture from "@api/domains/sources/fixtures/remoteyeah.plan.json";
 import telegramFixture from "@api/domains/sources/fixtures/telegram-jsgurujobs.plan.json";
 import { PlanRepository } from "@api/domains/sources/plan.repository";
-import type { ExecutorPlanDocument } from "@api/domains/sources/source-profiles";
+import type { ExecutorPlanDocument } from "@api/domains/sources/plan.types";
 import { tryRun } from "@job-tracker/try-run";
 import { Module } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import { TypeOrmModule } from "@nestjs/typeorm";
 
 const PLANS_TO_SEED: Array<{
-  sourceProfileId: string;
   displayName: string;
   document: ExecutorPlanDocument;
 }> = [
   {
-    sourceProfileId: "remoteyeah",
     displayName: "RemoteYeah",
     document: remoteyeahFixture as ExecutorPlanDocument,
   },
   {
-    sourceProfileId: "telegram-jsgurujobs",
     displayName: "Telegram JSGuruJobs",
     document: telegramFixture as ExecutorPlanDocument,
   },
@@ -46,29 +43,16 @@ async function main() {
   const dryRun = process.argv.includes("--dry-run");
 
   for (const plan of PLANS_TO_SEED) {
-    const existing = await repo.findBySourceProfileId(plan.sourceProfileId);
-
-    if (existing) {
-      console.log(
-        `[SKIP] ${plan.sourceProfileId} — already exists (id=${existing.id})`,
-      );
-      continue;
-    }
-
     if (dryRun) {
-      console.log(
-        `[DRY-RUN] Would create plan: ${plan.sourceProfileId} ("${plan.displayName}")`,
-      );
+      console.log(`[DRY-RUN] Would create plan: "${plan.displayName}"`);
       continue;
     }
 
     const [error, created] = await tryRun(repo.create(plan));
     if (error) {
-      console.error(`[ERROR] ${plan.sourceProfileId}:`, error);
+      console.error(`[ERROR] "${plan.displayName}":`, error);
     } else {
-      console.log(
-        `[CREATED] ${plan.sourceProfileId} ("${plan.displayName}", id=${created.id})`,
-      );
+      console.log(`[CREATED] "${plan.displayName}" (id=${created.id})`);
     }
   }
 

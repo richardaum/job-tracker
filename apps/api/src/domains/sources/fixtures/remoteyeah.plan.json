@@ -7,7 +7,7 @@
         "scope": "public",
         "kind": "collect.jobs",
         "input": {
-          "containerSector": ".section__content div:has(> article.job-card)",
+          "containerSelector": ".section__content div:has(> article.job-card)",
           "itemSelector": "article.job-card",
           "detailsUrlField": "detailUrl",
           "key": "{{company}}-{{title}}",

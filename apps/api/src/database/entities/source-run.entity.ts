@@ -25,10 +25,13 @@ export class SourceRunEntity {
     type: "enum",
     enum: SourceRunStatusEnum,
     enumName: "source_run_status",
-    default: SourceRunStatusEnum.RUNNING,
+    default: SourceRunStatusEnum.Pending,
   })
   status!: SourceRunStatusEnum;
 
   @Column({ name: "started_at", type: "timestamptz" })
   startedAt!: Date;
+
+  @Column({ name: "error_message", type: "text", nullable: true })
+  errorMessage?: string | null;
 }

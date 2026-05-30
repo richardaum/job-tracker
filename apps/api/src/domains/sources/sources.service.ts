@@ -1,7 +1,6 @@
 import { SourceRunEntity } from "@api/database/entities/source-run.entity";
 import { SourceTemplateEntity } from "@api/database/entities/source-template.entity";
 import { JobsRepository } from "@api/domains/jobs/jobs.repository";
-import { PlanService } from "@api/domains/sources/plan.service";
 import { SourceRunType } from "@api/domains/sources/source-run.type";
 import { SourceRunStatusEnum } from "@api/domains/sources/source-run-status.enum";
 import { SourceTemplateType } from "@api/domains/sources/source-template.type";
@@ -13,6 +12,7 @@ import {
   OnModuleInit,
 } from "@nestjs/common";
 
+import { PlanService } from "./plan.service";
 import { SourceRunEventTypeEnum } from "./source-run-event-type.enum";
 import { SourceRunReported } from "./sources.events";
 import { SourcesRepository } from "./sources.repository";
@@ -26,20 +26,8 @@ function extensionMayTransitionStatus(
     return true;
   }
   if (
-    from === SourceRunStatusEnum.RUNNING &&
-    to === SourceRunStatusEnum.IN_PROGRESS
-  ) {
-    return true;
-  }
-  if (
-    from === SourceRunStatusEnum.IN_PROGRESS &&
-    (to === SourceRunStatusEnum.COMPLETED || to === SourceRunStatusEnum.FAILED)
-  ) {
-    return true;
-  }
-  if (
-    from === SourceRunStatusEnum.RUNNING &&
-    to === SourceRunStatusEnum.FAILED
+    from === SourceRunStatusEnum.Pending &&
+    (to === SourceRunStatusEnum.Completed || to === SourceRunStatusEnum.Failed)
   ) {
     return true;
   }
@@ -48,7 +36,7 @@ function extensionMayTransitionStatus(
 
 @Injectable()
 export class SourcesService implements OnModuleInit {
-  private static readonly STALE_IN_PROGRESS_TIMEOUT_MS = 10 * 60 * 1000;
+  private static readonly STALE_TIMEOUT_MS = 10 * 60 * 1000;
   private readonly logger = new Logger(SourcesService.name);
 
   constructor(
@@ -59,32 +47,30 @@ export class SourcesService implements OnModuleInit {
   ) {}
 
   async onModuleInit(): Promise<void> {
-    const recovered = await this.repo.resetStaleInProgressRuns(
+    const stale = await this.repo.countStalePending(
       this.getStaleCutoff(new Date()),
     );
-    if (recovered > 0) {
+    if (stale > 0) {
       this.logger.warn(
-        `Recovered ${recovered} stale source run(s) back to running`,
+        `Found ${stale} stale pending source run(s) that were never processed`,
       );
     }
   }
 
   async listSourceTemplates(userId: string): Promise<SourceTemplateType[]> {
     const templates = await this.repo.listTemplatesByUserId(userId);
-    return Promise.all(templates.map((t) => this.templateToGql(t, userId)));
+    return Promise.all(templates.map((t) => this.templateToGql(t)));
   }
 
-  async listSourceTemplatesForSourceProfile(
+  async listTemplatesForPlan(
     userId: string,
-    sourceProfileId: string,
+    planId: string,
   ): Promise<SourceTemplateType[]> {
-    const sourceProfileKey =
-      this.planService.normalizeSourceProfileKey(sourceProfileId);
-    const templates = await this.repo.listTemplatesByUserAndSourceProfileId({
+    const templates = await this.repo.listTemplatesByUserAndPlanId(
       userId,
-      sourceProfileId: sourceProfileKey,
-    });
-    return Promise.all(templates.map((t) => this.templateToGql(t, userId)));
+      planId,
+    );
+    return Promise.all(templates.map((t) => this.templateToGql(t)));
   }
 
   async getSourceTemplate(
@@ -95,7 +81,7 @@ export class SourcesService implements OnModuleInit {
     if (!template) {
       throw new NotFoundException(`Source template ${id} not found`);
     }
-    return this.templateToGql(template, userId);
+    return this.templateToGql(template);
   }
 
   async listSourceRuns(userId: string): Promise<SourceRunType[]> {
@@ -103,53 +89,32 @@ export class SourcesService implements OnModuleInit {
     return rows.map((row) => this.toGql(row));
   }
 
-  /**
-   * Ensures at most one template per (user, source profile); reuses an existing row
-   * and only inserts on first use (see DB unique on source_templates).
-   */
   async createSourceTemplate(
     userId: string,
-    input: { sourceProfileId: string; surfaceUrl: string },
+    input: { planId: string; surfaceUrl: string },
   ): Promise<SourceTemplateType> {
-    const sourceProfileKey = this.planService.normalizeSourceProfileKey(
-      input.sourceProfileId,
-    );
-    if (
-      (await this.planService.findPlanDocument(sourceProfileKey)) === undefined
-    ) {
-      throw new BadRequestException(
-        `Unknown source profile: ${input.sourceProfileId}`,
-      );
-    }
+    const plan = await this.planService.findById(input.planId);
     const template = await this.repo.findOrCreateTemplate({
       userId,
-      sourceProfileId: sourceProfileKey,
+      planId: plan.id,
       surfaceUrl: input.surfaceUrl,
     });
-    return this.templateToGql(template, userId);
+    return this.templateToGql(template);
   }
 
   async createSourceRun(
     userId: string,
-    sourceProfileId: string,
+    planId: string,
   ): Promise<SourceRunType> {
-    const sourceProfileKey =
-      this.planService.normalizeSourceProfileKey(sourceProfileId);
-    if (
-      (await this.planService.findPlanDocument(sourceProfileKey)) === undefined
-    ) {
-      throw new BadRequestException(
-        `Unknown source profile: ${sourceProfileId}`,
-      );
-    }
+    const plan = await this.planService.findById(planId);
 
-    const template = await this.repo.findTemplateByUserAndSourceProfile({
+    const template = await this.repo.findTemplateByUserAndPlanId({
       userId,
-      sourceProfileId: sourceProfileKey,
+      planId: plan.id,
     });
     if (!template) {
       throw new BadRequestException(
-        `No source template for profile ${sourceProfileId}. Create one first.`,
+        `No source template for plan ${planId}. Create one first.`,
       );
     }
 
@@ -159,7 +124,7 @@ export class SourcesService implements OnModuleInit {
     const row = await this.repo.createRun({
       userId,
       templateId: template.id,
-      status: SourceRunStatusEnum.RUNNING,
+      status: SourceRunStatusEnum.Pending,
       startedAt,
       surfaceUrl,
     });
@@ -189,21 +154,20 @@ export class SourcesService implements OnModuleInit {
     if (!template) {
       throw new NotFoundException(`Source template ${templateId} not found`);
     }
-    const planDoc = await this.planService.findPlanDocument(
-      template.sourceProfileId,
-    );
-    if (planDoc === undefined) {
+
+    if (!template.plan) {
       throw new BadRequestException(
-        `Unknown source profile: ${template.sourceProfileId}`,
+        `Template ${templateId} has no associated plan`,
       );
     }
+
     const startedAt = new Date();
     const surfaceUrl = template.surfaceUrl.trim();
 
     const row = await this.repo.createRun({
       userId,
       templateId,
-      status: SourceRunStatusEnum.RUNNING,
+      status: SourceRunStatusEnum.Pending,
       startedAt,
       surfaceUrl,
     });
@@ -243,7 +207,7 @@ export class SourcesService implements OnModuleInit {
     if (!updated) {
       throw new NotFoundException(`Source template ${templateId} not found`);
     }
-    return this.templateToGql(updated, userId);
+    return this.templateToGql(updated);
   }
 
   async deleteSourceTemplate(
@@ -318,10 +282,42 @@ export class SourcesService implements OnModuleInit {
     await this.repo.deleteTemplatesByUserId(userId);
   }
 
+  async clearTemplateRuns(
+    userId: string,
+    templateId: string,
+    options?: { deleteJobs?: boolean },
+  ): Promise<number> {
+    const template = await this.repo.findTemplateByUserAndId({
+      userId,
+      id: templateId,
+    });
+    if (!template) {
+      throw new NotFoundException(`Source template ${templateId} not found`);
+    }
+
+    if (options?.deleteJobs) {
+      const runs = await this.repo.findRunsForTemplate({ userId, templateId });
+      for (const run of runs) {
+        await this.jobRepo.deleteBySourceRunId(run.id, userId);
+      }
+    }
+
+    const deleted = await this.repo.deleteRunsByTemplateId({
+      userId,
+      templateId,
+    });
+
+    this.logger.log(
+      `Cleared ${deleted} runs for template ${templateId} (user ${userId})`,
+    );
+    return deleted;
+  }
+
   async updateSourceRunStatus(
     userId: string,
     id: string,
     status: SourceRunStatusEnum,
+    errorMessage?: string | null,
   ): Promise<SourceRunType> {
     const row = await this.repo.findByUserAndId({ id, userId });
     if (!row) {
@@ -336,26 +332,46 @@ export class SourcesService implements OnModuleInit {
       return this.toGql(row);
     }
 
-    await this.repo.updateStatus({ id, userId, status });
+    await this.repo.updateStatus({ id, userId, status, errorMessage });
 
     const next = await this.repo.findByUserAndId({ id, userId });
     if (!next) {
       throw new NotFoundException(`Source run ${id} not found`);
     }
-    return this.toGql(next);
+
+    const run = this.toGql(next);
+    this.eventBus.emit(
+      new SourceRunReported(userId, {
+        type: SourceRunEventTypeEnum.SOURCE_RUN_STATUS_CHANGED,
+        occurredAt: new Date(),
+        run,
+      }),
+    );
+
+    return run;
+  }
+
+  private getStaleCutoff(now: Date): Date {
+    return new Date(now.getTime() - SourcesService.STALE_TIMEOUT_MS);
   }
 
   private async templateToGql(
     template: SourceTemplateEntity,
-    userId: string,
   ): Promise<SourceTemplateType> {
     const runs = await this.repo.findRunsForTemplate({
-      userId,
+      userId: template.userId,
       templateId: template.id,
     });
     return {
       id: template.id,
-      sourceProfileId: template.sourceProfileId,
+      planId: template.planId,
+      plan: {
+        id: template.plan.id,
+        displayName: template.plan.displayName,
+        document: template.plan.document,
+        createdAt: template.plan.createdAt,
+        updatedAt: template.plan.updatedAt,
+      },
       scheduleCron: template.scheduleCron,
       scheduleEnabled: template.scheduleEnabled,
       surfaceUrl: template.surfaceUrl,
@@ -365,26 +381,14 @@ export class SourcesService implements OnModuleInit {
   }
 
   private toGql(row: SourceRunEntity): SourceRunType {
-    const sourceProfileId = row.template?.sourceProfileId;
-    if (!sourceProfileId) {
-      throw new Error(
-        `Source run ${row.id} missing template relation (sourceProfileId)`,
-      );
-    }
     return {
       id: row.id,
       templateId: row.templateId,
-      sourceProfileId,
+      planId: row.template?.plan?.id ?? "",
       surfaceUrl: row.surfaceUrl,
       status: row.status,
+      errorMessage: row.errorMessage ?? null,
       startedAt: row.startedAt,
-      sourceProfile: "database",
     };
-  }
-
-  private getStaleCutoff(now: Date): Date {
-    return new Date(
-      now.getTime() - SourcesService.STALE_IN_PROGRESS_TIMEOUT_MS,
-    );
   }
 }

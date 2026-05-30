@@ -1,24 +1,19 @@
-import { type ExecutorPlanDocument } from "@api/domains/sources/source-profiles";
+import { type ExecutorPlanDocument } from "@api/domains/sources/plan.types";
 import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
+
+import { SourceTemplateEntity } from "./source-template.entity";
 
 @Entity({ name: "plans" })
 export class PlanEntity {
   @PrimaryGeneratedColumn("uuid")
   id!: string;
-
-  @Column({
-    name: "source_profile_id",
-    type: "varchar",
-    length: 256,
-    unique: true,
-  })
-  sourceProfileId!: string;
 
   @Column({ name: "display_name", type: "varchar", length: 256 })
   displayName!: string;
@@ -31,4 +26,7 @@ export class PlanEntity {
 
   @UpdateDateColumn({ name: "updated_at", type: "timestamptz" })
   updatedAt!: Date;
+
+  @OneToMany(() => SourceTemplateEntity, (t) => t.plan)
+  templates?: SourceTemplateEntity[];
 }

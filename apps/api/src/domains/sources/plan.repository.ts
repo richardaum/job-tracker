@@ -18,12 +18,7 @@ export class PlanRepository {
     return this.repo.findOneBy({ id });
   }
 
-  findBySourceProfileId(sourceProfileId: string): Promise<PlanEntity | null> {
-    return this.repo.findOneBy({ sourceProfileId });
-  }
-
   create(params: {
-    sourceProfileId: string;
     displayName: string;
     document: PlanEntity["document"];
   }): Promise<PlanEntity> {
@@ -33,9 +28,7 @@ export class PlanRepository {
 
   async update(
     id: string,
-    params: Partial<
-      Pick<PlanEntity, "sourceProfileId" | "displayName" | "document">
-    >,
+    params: Partial<Pick<PlanEntity, "displayName" | "document">>,
   ): Promise<PlanEntity | null> {
     const result = await this.repo.update(
       { id },

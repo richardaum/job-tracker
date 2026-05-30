@@ -1,10 +1,9 @@
 import { registerEnumType } from "@nestjs/graphql";
 
 export enum SourceRunStatusEnum {
-  RUNNING = "RUNNING",
-  IN_PROGRESS = "IN_PROGRESS",
-  COMPLETED = "COMPLETED",
-  FAILED = "FAILED",
+  Pending = "Pending",
+  Completed = "Completed",
+  Failed = "Failed",
 }
 
 registerEnumType(SourceRunStatusEnum, { name: "SourceRunStatus" });

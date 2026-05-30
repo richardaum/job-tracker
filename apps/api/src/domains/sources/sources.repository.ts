@@ -3,7 +3,7 @@ import { SourceTemplateEntity } from "@api/database/entities/source-template.ent
 import { SourceRunStatusEnum } from "@api/domains/sources/source-run-status.enum";
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import { LessThan, Repository } from "typeorm";
 
 @Injectable()
 export class SourcesRepository {
@@ -17,39 +17,35 @@ export class SourcesRepository {
   async listTemplatesByUserId(userId: string): Promise<SourceTemplateEntity[]> {
     return this.templatesRepo.find({
       where: { userId },
+      relations: { plan: true },
       order: { createdAt: "ASC", id: "ASC" },
-    });
-  }
-
-  async listTemplatesByUserAndSourceProfileId(params: {
-    userId: string;
-    sourceProfileId: string;
-  }): Promise<SourceTemplateEntity[]> {
-    return this.templatesRepo.find({
-      where: { userId: params.userId, sourceProfileId: params.sourceProfileId },
-      order: { createdAt: "DESC", id: "DESC" },
     });
   }
 
   async findOrCreateTemplate(params: {
     userId: string;
-    sourceProfileId: string;
+    planId: string;
     surfaceUrl: string;
   }): Promise<SourceTemplateEntity> {
     const existing = await this.templatesRepo.findOne({
-      where: { userId: params.userId, sourceProfileId: params.sourceProfileId },
+      where: { userId: params.userId, planId: params.planId },
+      relations: { plan: true },
     });
     if (existing) {
       return existing;
     }
     const row = this.templatesRepo.create({
       userId: params.userId,
-      sourceProfileId: params.sourceProfileId,
+      planId: params.planId,
       surfaceUrl: params.surfaceUrl,
       scheduleEnabled: false,
       scheduleCron: null,
     });
-    return this.templatesRepo.save(row);
+    const saved = await this.templatesRepo.save(row);
+    return this.templatesRepo.findOneOrFail({
+      where: { id: saved.id },
+      relations: { plan: true },
+    });
   }
 
   async findTemplateByUserAndId(params: {
@@ -58,15 +54,28 @@ export class SourcesRepository {
   }): Promise<SourceTemplateEntity | null> {
     return this.templatesRepo.findOne({
       where: { id: params.id, userId: params.userId },
+      relations: { plan: true },
     });
   }
 
-  async findTemplateByUserAndSourceProfile(params: {
+  async listTemplatesByUserAndPlanId(
+    userId: string,
+    planId: string,
+  ): Promise<SourceTemplateEntity[]> {
+    return this.templatesRepo.find({
+      where: { userId, planId },
+      relations: { plan: true },
+      order: { createdAt: "DESC", id: "DESC" },
+    });
+  }
+
+  async findTemplateByUserAndPlanId(params: {
     userId: string;
-    sourceProfileId: string;
+    planId: string;
   }): Promise<SourceTemplateEntity | null> {
     return this.templatesRepo.findOne({
-      where: { userId: params.userId, sourceProfileId: params.sourceProfileId },
+      where: { userId: params.userId, planId: params.planId },
+      relations: { plan: true },
     });
   }
 
@@ -127,16 +136,13 @@ export class SourcesRepository {
     return (result.affected ?? 0) > 0;
   }
 
-  /**
-   * Runs are newest-first (`startedAt` desc, then `id` desc) for stable UI lists.
-   */
   async findRunsForTemplate(params: {
     userId: string;
     templateId: string;
   }): Promise<SourceRunEntity[]> {
     return this.runsRepo.find({
       where: { userId: params.userId, templateId: params.templateId },
-      relations: { template: true },
+      relations: { template: { plan: true } },
       order: { startedAt: "DESC", id: "DESC" },
     });
   }
@@ -144,7 +150,7 @@ export class SourcesRepository {
   async listByUserId(userId: string): Promise<SourceRunEntity[]> {
     return this.runsRepo.find({
       where: { userId },
-      relations: { template: true },
+      relations: { template: { plan: true } },
       order: { startedAt: "DESC", id: "DESC" },
     });
   }
@@ -170,6 +176,17 @@ export class SourcesRepository {
     await this.templatesRepo.delete({ userId });
   }
 
+  async deleteRunsByTemplateId(params: {
+    userId: string;
+    templateId: string;
+  }): Promise<number> {
+    const result = await this.runsRepo.delete({
+      userId: params.userId,
+      templateId: params.templateId,
+    });
+    return result.affected ?? 0;
+  }
+
   async deleteByUser(params: { id: string; userId: string }): Promise<boolean> {
     const result = await this.runsRepo.delete({
       id: params.id,
@@ -184,7 +201,7 @@ export class SourcesRepository {
   }): Promise<SourceRunEntity | null> {
     return this.runsRepo.findOne({
       where: { id: params.id, userId: params.userId },
-      relations: { template: true },
+      relations: { template: { plan: true } },
     });
   }
 
@@ -204,48 +221,21 @@ export class SourcesRepository {
     id: string;
     userId: string;
     status: SourceRunStatusEnum;
+    errorMessage?: string | null;
   }): Promise<boolean> {
     const result = await this.runsRepo.update(
       { id: params.id, userId: params.userId },
-      { status: params.status },
+      { status: params.status, errorMessage: params.errorMessage ?? null },
     );
     return (result.affected ?? 0) > 0;
   }
 
-  async resetStaleInProgressRuns(cutoff: Date): Promise<number> {
-    const result = await this.runsRepo
-      .createQueryBuilder()
-      .update(SourceRunEntity)
-      .set({ status: SourceRunStatusEnum.RUNNING })
-      .where("status = :status", { status: SourceRunStatusEnum.IN_PROGRESS })
-      .andWhere("started_at < :cutoff", { cutoff: cutoff.toISOString() })
-      .execute();
-
-    return result.affected ?? 0;
-  }
-
-  /**
-   * Atomic compare-and-swap claim: transitions a run from RUNNING -> IN_PROGRESS.
-   */
-  async claimRunning(params: {
-    id: string;
-    userId: string;
-  }): Promise<SourceRunEntity | null> {
-    const result = await this.runsRepo
-      .createQueryBuilder()
-      .update(SourceRunEntity)
-      .set({ status: SourceRunStatusEnum.IN_PROGRESS })
-      .where("id = :id AND user_id = :userId AND status = :runningStatus", {
-        id: params.id,
-        userId: params.userId,
-        runningStatus: SourceRunStatusEnum.RUNNING,
-      })
-      .execute();
-
-    if ((result.affected ?? 0) === 0) {
-      return null;
-    }
-
-    return this.findByUserAndId({ id: params.id, userId: params.userId });
+  async countStalePending(cutoff: Date): Promise<number> {
+    return this.runsRepo.count({
+      where: {
+        status: SourceRunStatusEnum.Pending,
+        startedAt: LessThan(cutoff),
+      },
+    });
   }
 }

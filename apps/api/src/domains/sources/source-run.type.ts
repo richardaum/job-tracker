@@ -10,8 +10,8 @@ export class SourceRunType {
   @Field(() => ID)
   templateId!: string;
 
-  @Field()
-  sourceProfileId!: string;
+  @Field(() => ID)
+  planId!: string;
 
   /** Surface/listing URL for this execution (persisted). */
   @Field(() => String)
@@ -20,10 +20,9 @@ export class SourceRunType {
   @Field(() => SourceRunStatusEnum)
   status!: SourceRunStatusEnum;
 
+  @Field(() => String, { nullable: true })
+  errorMessage?: string | null;
+
   @Field()
   startedAt!: Date;
-
-  /** Aligns with web `SourceRun.sourceProfile`: server-backed runs use `database`. */
-  @Field()
-  sourceProfile!: string;
 }

@@ -2,12 +2,16 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
+  ManyToOne,
   PrimaryColumn,
   Unique,
 } from "typeorm";
 
+import { PlanEntity } from "./plan.entity";
+
 @Entity({ name: "source_templates" })
-@Unique(["userId", "sourceProfileId"])
+@Unique(["userId", "planId"])
 export class SourceTemplateEntity {
   @PrimaryColumn({ type: "text" })
   id!: string;
@@ -15,8 +19,12 @@ export class SourceTemplateEntity {
   @Column({ name: "user_id", type: "text" })
   userId!: string;
 
-  @Column({ name: "source_profile_id", type: "text" })
-  sourceProfileId!: string;
+  @Column({ name: "plan_id", type: "uuid" })
+  planId!: string;
+
+  @ManyToOne(() => PlanEntity, { onDelete: "CASCADE" })
+  @JoinColumn({ name: "plan_id" })
+  plan!: PlanEntity;
 
   @Column({ name: "schedule_cron", type: "text", nullable: true })
   scheduleCron!: string | null;
