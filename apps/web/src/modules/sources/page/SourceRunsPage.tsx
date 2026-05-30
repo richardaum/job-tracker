@@ -65,8 +65,8 @@ function SourceRunsListSkeleton() {
   );
 }
 
-function runLabel(index: number): string {
-  return `Run ${index + 1}`;
+function runLabel(index: number, total: number): string {
+  return `Run ${total - index}`;
 }
 
 export default function SourceRunsPage({ params }: PageProps) {
@@ -188,7 +188,7 @@ export default function SourceRunsPage({ params }: PageProps) {
                 className={cn("min-w-0")}
                 title={
                   <ListItemCard.Title size="sm">
-                    {runLabel(index)}
+                    {runLabel(index, template.runs.length)}
                   </ListItemCard.Title>
                 }
                 actions={
@@ -210,7 +210,7 @@ export default function SourceRunsPage({ params }: PageProps) {
                       asChild
                       intent="ghost"
                       size="sm"
-                      label={`View jobs from ${runLabel(index)}`}
+                       label={`View jobs from ${runLabel(index, template.runs.length)}`}
                       tooltip="View jobs"
                       className={cn(ListItemCard.actionIconButtonClassName)}
                     >
@@ -223,15 +223,15 @@ export default function SourceRunsPage({ params }: PageProps) {
                         <IconButton
                           intent="ghost"
                           size="sm"
-                          label={`Delete ${runLabel(index)}`}
-                          tooltip="Delete run"
-                          className={cn(ListItemCard.actionIconButtonClassName)}
-                          icon={<TrashIcon size={13} weight="regular" />}
-                        />
-                      }
-                      runId={run.id}
-                      templateId={template.id}
-                      runLabel={runLabel(index)}
+                           label={`Delete ${runLabel(index, template.runs.length)}`}
+                           tooltip="Delete run"
+                           className={cn(ListItemCard.actionIconButtonClassName)}
+                           icon={<TrashIcon size={13} weight="regular" />}
+                         />
+                       }
+                       runId={run.id}
+                       templateId={template.id}
+                       runLabel={runLabel(index, template.runs.length)}
                     />
                   </ListItemCard.Actions>
                 }
