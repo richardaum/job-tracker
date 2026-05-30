@@ -191,8 +191,10 @@ export enum ExtensionActivityEventType {
   SourceRunCompleted = 'SourceRunCompleted',
   SourceRunFailed = 'SourceRunFailed',
   SourceRunJobImported = 'SourceRunJobImported',
+  SourceRunPageCollected = 'SourceRunPageCollected',
   SourceRunReceived = 'SourceRunReceived',
-  SourceRunStarted = 'SourceRunStarted'
+  SourceRunStarted = 'SourceRunStarted',
+  SourceRunStopConditionMet = 'SourceRunStopConditionMet'
 }
 
 export enum FitClassification {
@@ -630,6 +632,7 @@ export type Query = {
   resumes: Array<ResumeType>;
   rewriteTextWithAI: Scalars['String']['output'];
   settings: UserSetting;
+  sourceRunActivityEvents: Array<SourceRunActivityEvent>;
   sourceRuns: Array<SourceRunType>;
   sourceTemplate: SourceTemplateType;
   sourceTemplates: Array<SourceTemplateType>;
@@ -738,6 +741,11 @@ export type QueryRewriteTextWithAiArgs = {
 };
 
 
+export type QuerySourceRunActivityEventsArgs = {
+  runId: Scalars['ID']['input'];
+};
+
+
 export type QuerySourceTemplateArgs = {
   id: Scalars['ID']['input'];
 };
@@ -774,6 +782,14 @@ export enum SalaryPeriod {
   Month = 'MONTH',
   Year = 'YEAR'
 }
+
+export type SourceRunActivityEvent = {
+  __typename?: 'SourceRunActivityEvent';
+  occurredAt: Scalars['DateTime']['output'];
+  payload?: Maybe<Scalars['JSON']['output']>;
+  summary: Scalars['String']['output'];
+  type: Scalars['String']['output'];
+};
 
 export type SourceRunEvent = {
   __typename?: 'SourceRunEvent';
@@ -1365,6 +1381,13 @@ export type PlansQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type PlansQuery = { __typename?: 'Query', plans: Array<{ __typename?: 'PlanType', id: string, displayName: string, templates: Array<{ __typename?: 'SourceTemplateType', id: string, surfaceUrl: string, createdAt: any, config?: any | null, runs: Array<{ __typename?: 'SourceRunType', id: string, status: SourceRunStatus, errorMessage?: string | null, startedAt: any, jobCount: number }> }> }> };
+
+export type SourceRunActivityEventsQueryVariables = Exact<{
+  runId: Scalars['ID']['input'];
+}>;
+
+
+export type SourceRunActivityEventsQuery = { __typename?: 'Query', sourceRunActivityEvents: Array<{ __typename?: 'SourceRunActivityEvent', type: string, summary: string, payload?: any | null, occurredAt: any }> };
 
 export type PlanQueryVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -2309,6 +2332,16 @@ export const PlansDocument = gql`
   }
 }
     `;
+export const SourceRunActivityEventsDocument = gql`
+    query SourceRunActivityEvents($runId: ID!) {
+  sourceRunActivityEvents(runId: $runId) {
+    type
+    summary
+    payload
+    occurredAt
+  }
+}
+    `;
 export const PlanDocument = gql`
     query Plan($id: ID!) {
   plan(id: $id) {
@@ -2566,6 +2599,9 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     Plans(variables?: PlansQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<PlansQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<PlansQuery>({ document: PlansDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'Plans', 'query', variables);
+    },
+    SourceRunActivityEvents(variables: SourceRunActivityEventsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<SourceRunActivityEventsQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<SourceRunActivityEventsQuery>({ document: SourceRunActivityEventsDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'SourceRunActivityEvents', 'query', variables);
     },
     Plan(variables: PlanQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<PlanQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<PlanQuery>({ document: PlanDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'Plan', 'query', variables);

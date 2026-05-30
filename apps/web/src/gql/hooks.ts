@@ -192,8 +192,10 @@ export enum ExtensionActivityEventType {
   SourceRunCompleted = 'SourceRunCompleted',
   SourceRunFailed = 'SourceRunFailed',
   SourceRunJobImported = 'SourceRunJobImported',
+  SourceRunPageCollected = 'SourceRunPageCollected',
   SourceRunReceived = 'SourceRunReceived',
-  SourceRunStarted = 'SourceRunStarted'
+  SourceRunStarted = 'SourceRunStarted',
+  SourceRunStopConditionMet = 'SourceRunStopConditionMet'
 }
 
 export enum FitClassification {
@@ -631,6 +633,7 @@ export type Query = {
   resumes: Array<ResumeType>;
   rewriteTextWithAI: Scalars['String']['output'];
   settings: UserSetting;
+  sourceRunActivityEvents: Array<SourceRunActivityEvent>;
   sourceRuns: Array<SourceRunType>;
   sourceTemplate: SourceTemplateType;
   sourceTemplates: Array<SourceTemplateType>;
@@ -739,6 +742,11 @@ export type QueryRewriteTextWithAiArgs = {
 };
 
 
+export type QuerySourceRunActivityEventsArgs = {
+  runId: Scalars['ID']['input'];
+};
+
+
 export type QuerySourceTemplateArgs = {
   id: Scalars['ID']['input'];
 };
@@ -775,6 +783,14 @@ export enum SalaryPeriod {
   Month = 'MONTH',
   Year = 'YEAR'
 }
+
+export type SourceRunActivityEvent = {
+  __typename?: 'SourceRunActivityEvent';
+  occurredAt: Scalars['DateTime']['output'];
+  payload?: Maybe<Scalars['JSON']['output']>;
+  summary: Scalars['String']['output'];
+  type: Scalars['String']['output'];
+};
 
 export type SourceRunEvent = {
   __typename?: 'SourceRunEvent';
@@ -1366,6 +1382,13 @@ export type PlansQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type PlansQuery = { __typename?: 'Query', plans: Array<{ __typename?: 'PlanType', id: string, displayName: string, templates: Array<{ __typename?: 'SourceTemplateType', id: string, surfaceUrl: string, createdAt: any, config?: any | null, runs: Array<{ __typename?: 'SourceRunType', id: string, status: SourceRunStatus, errorMessage?: string | null, startedAt: any, jobCount: number }> }> }> };
+
+export type SourceRunActivityEventsQueryVariables = Exact<{
+  runId: Scalars['ID']['input'];
+}>;
+
+
+export type SourceRunActivityEventsQuery = { __typename?: 'Query', sourceRunActivityEvents: Array<{ __typename?: 'SourceRunActivityEvent', type: string, summary: string, payload?: any | null, occurredAt: any }> };
 
 export type PlanQueryVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -3962,6 +3985,45 @@ export function usePlansLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOp
 
 export type PlansQueryHookResult = ReturnType<typeof usePlansQuery>;
 export type PlansLazyQueryHookResult = ReturnType<typeof usePlansLazyQuery>;
+
+export const SourceRunActivityEventsDocument = gql`
+    query SourceRunActivityEvents($runId: ID!) {
+  sourceRunActivityEvents(runId: $runId) {
+    type
+    summary
+    payload
+    occurredAt
+  }
+}
+    `;
+
+/**
+ * __useSourceRunActivityEventsQuery__
+ *
+ * To run a query within a React component, call `useSourceRunActivityEventsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useSourceRunActivityEventsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useSourceRunActivityEventsQuery({
+ *   variables: {
+ *      runId: // value for 'runId'
+ *   },
+ * });
+ */
+export function useSourceRunActivityEventsQuery(baseOptions: ApolloReactHooks.QueryHookOptions<SourceRunActivityEventsQuery, SourceRunActivityEventsQueryVariables> & ({ variables: SourceRunActivityEventsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<SourceRunActivityEventsQuery, SourceRunActivityEventsQueryVariables>(SourceRunActivityEventsDocument, options);
+      }
+export function useSourceRunActivityEventsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<SourceRunActivityEventsQuery, SourceRunActivityEventsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<SourceRunActivityEventsQuery, SourceRunActivityEventsQueryVariables>(SourceRunActivityEventsDocument, options);
+        }
+
+export type SourceRunActivityEventsQueryHookResult = ReturnType<typeof useSourceRunActivityEventsQuery>;
+export type SourceRunActivityEventsLazyQueryHookResult = ReturnType<typeof useSourceRunActivityEventsLazyQuery>;
 
 export const PlanDocument = gql`
     query Plan($id: ID!) {

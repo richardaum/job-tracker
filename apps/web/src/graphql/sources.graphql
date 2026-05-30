@@ -128,6 +128,15 @@ query Plans {
   }
 }
 
+query SourceRunActivityEvents($runId: ID!) {
+  sourceRunActivityEvents(runId: $runId) {
+    type
+    summary
+    payload
+    occurredAt
+  }
+}
+
 query Plan($id: ID!) {
   plan(id: $id) {
     id
