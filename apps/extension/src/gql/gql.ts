@@ -1,6 +1,6 @@
 /* eslint-disable */
-import * as types from "./graphql";
-import { TypedDocumentNode as DocumentNode } from "@graphql-typed-document-node/core";
+import * as types from './graphql';
+import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/core';
 
 /**
  * Map of all GraphQL operations in the project.
@@ -14,28 +14,24 @@ import { TypedDocumentNode as DocumentNode } from "@graphql-typed-document-node/
  * Learn more about it here: https://the-guild.dev/graphql/codegen/plugins/presets/preset-client#reducing-bundle-size
  */
 type Documents = {
-  "mutation CreateDraftCaptureJob($input: CreateJobInput!) {\n  createJob(input: $input) {\n    id\n    title\n    urls\n    htmlContent\n    currentStage\n    fillMetadata {\n      status\n      error\n      timestamp\n    }\n    createdAt\n  }\n}": typeof types.CreateDraftCaptureJobDocument;
-  "mutation CreateJob($input: CreateJobInput!) {\n  createJob(input: $input) {\n    id\n    title\n  }\n}": typeof types.CreateJobDocument;
-  "query Me {\n  me {\n    email\n  }\n}": typeof types.MeDocument;
-  "mutation ReportExtensionActivity($input: ReportExtensionActivityInput!) {\n  reportExtensionActivity(input: $input) {\n    id\n    type\n    summary\n    correlationId\n    occurredAt\n  }\n}": typeof types.ReportExtensionActivityDocument;
-  "query SourceRuns {\n  sourceRuns {\n    id\n    templateId\n    planId\n    surfaceUrl\n    status\n    errorMessage\n    startedAt\n  }\n}": typeof types.SourceRunsDocument;
-  "mutation UpdateSourceRunStatus($id: ID!, $status: SourceRunStatus!, $errorMessage: String) {\n  updateSourceRunStatus(id: $id, status: $status, errorMessage: $errorMessage) {\n    id\n    status\n    errorMessage\n  }\n}": typeof types.UpdateSourceRunStatusDocument;
-  "mutation UpdateSourceRun($id: ID!, $input: UpdateSourceRunInput!) {\n  updateSourceRun(id: $id, input: $input) {\n    id\n    surfaceUrl\n  }\n}": typeof types.UpdateSourceRunDocument;
+    "mutation CreateDraftCaptureJob($input: CreateJobInput!) {\n  createJob(input: $input) {\n    id\n    title\n    urls\n    htmlContent\n    currentStage\n    fillMetadata {\n      status\n      error\n      timestamp\n    }\n    createdAt\n  }\n}": typeof types.CreateDraftCaptureJobDocument,
+    "mutation CreateJob($input: CreateJobInput!) {\n  createJob(input: $input) {\n    id\n    title\n  }\n}": typeof types.CreateJobDocument,
+    "query IsJobDuplicate($company: String!, $title: String!) {\n  isJobDuplicate(company: $company, title: $title)\n}": typeof types.IsJobDuplicateDocument,
+    "query Me {\n  me {\n    email\n  }\n}": typeof types.MeDocument,
+    "mutation ReportExtensionActivity($input: ReportExtensionActivityInput!) {\n  reportExtensionActivity(input: $input) {\n    id\n    type\n    summary\n    correlationId\n    occurredAt\n  }\n}": typeof types.ReportExtensionActivityDocument,
+    "query SourceRuns {\n  sourceRuns {\n    id\n    templateId\n    planId\n    surfaceUrl\n    status\n    errorMessage\n    startedAt\n    stopWhen\n    catchUpThreshold\n    maxPages\n    olderThanDays\n  }\n}": typeof types.SourceRunsDocument,
+    "mutation UpdateSourceRunStatus($id: ID!, $status: SourceRunStatus!, $errorMessage: String) {\n  updateSourceRunStatus(id: $id, status: $status, errorMessage: $errorMessage) {\n    id\n    status\n    errorMessage\n  }\n}": typeof types.UpdateSourceRunStatusDocument,
+    "mutation UpdateSourceRun($id: ID!, $input: UpdateSourceRunInput!) {\n  updateSourceRun(id: $id, input: $input) {\n    id\n    surfaceUrl\n  }\n}": typeof types.UpdateSourceRunDocument,
 };
 const documents: Documents = {
-  "mutation CreateDraftCaptureJob($input: CreateJobInput!) {\n  createJob(input: $input) {\n    id\n    title\n    urls\n    htmlContent\n    currentStage\n    fillMetadata {\n      status\n      error\n      timestamp\n    }\n    createdAt\n  }\n}":
-    types.CreateDraftCaptureJobDocument,
-  "mutation CreateJob($input: CreateJobInput!) {\n  createJob(input: $input) {\n    id\n    title\n  }\n}":
-    types.CreateJobDocument,
-  "query Me {\n  me {\n    email\n  }\n}": types.MeDocument,
-  "mutation ReportExtensionActivity($input: ReportExtensionActivityInput!) {\n  reportExtensionActivity(input: $input) {\n    id\n    type\n    summary\n    correlationId\n    occurredAt\n  }\n}":
-    types.ReportExtensionActivityDocument,
-  "query SourceRuns {\n  sourceRuns {\n    id\n    templateId\n    planId\n    surfaceUrl\n    status\n    errorMessage\n    startedAt\n  }\n}":
-    types.SourceRunsDocument,
-  "mutation UpdateSourceRunStatus($id: ID!, $status: SourceRunStatus!, $errorMessage: String) {\n  updateSourceRunStatus(id: $id, status: $status, errorMessage: $errorMessage) {\n    id\n    status\n    errorMessage\n  }\n}":
-    types.UpdateSourceRunStatusDocument,
-  "mutation UpdateSourceRun($id: ID!, $input: UpdateSourceRunInput!) {\n  updateSourceRun(id: $id, input: $input) {\n    id\n    surfaceUrl\n  }\n}":
-    types.UpdateSourceRunDocument,
+    "mutation CreateDraftCaptureJob($input: CreateJobInput!) {\n  createJob(input: $input) {\n    id\n    title\n    urls\n    htmlContent\n    currentStage\n    fillMetadata {\n      status\n      error\n      timestamp\n    }\n    createdAt\n  }\n}": types.CreateDraftCaptureJobDocument,
+    "mutation CreateJob($input: CreateJobInput!) {\n  createJob(input: $input) {\n    id\n    title\n  }\n}": types.CreateJobDocument,
+    "query IsJobDuplicate($company: String!, $title: String!) {\n  isJobDuplicate(company: $company, title: $title)\n}": types.IsJobDuplicateDocument,
+    "query Me {\n  me {\n    email\n  }\n}": types.MeDocument,
+    "mutation ReportExtensionActivity($input: ReportExtensionActivityInput!) {\n  reportExtensionActivity(input: $input) {\n    id\n    type\n    summary\n    correlationId\n    occurredAt\n  }\n}": types.ReportExtensionActivityDocument,
+    "query SourceRuns {\n  sourceRuns {\n    id\n    templateId\n    planId\n    surfaceUrl\n    status\n    errorMessage\n    startedAt\n    stopWhen\n    catchUpThreshold\n    maxPages\n    olderThanDays\n  }\n}": types.SourceRunsDocument,
+    "mutation UpdateSourceRunStatus($id: ID!, $status: SourceRunStatus!, $errorMessage: String) {\n  updateSourceRunStatus(id: $id, status: $status, errorMessage: $errorMessage) {\n    id\n    status\n    errorMessage\n  }\n}": types.UpdateSourceRunStatusDocument,
+    "mutation UpdateSourceRun($id: ID!, $input: UpdateSourceRunInput!) {\n  updateSourceRun(id: $id, input: $input) {\n    id\n    surfaceUrl\n  }\n}": types.UpdateSourceRunDocument,
 };
 
 /**
@@ -55,49 +51,38 @@ export function graphql(source: string): unknown;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(
-  source: "mutation CreateDraftCaptureJob($input: CreateJobInput!) {\n  createJob(input: $input) {\n    id\n    title\n    urls\n    htmlContent\n    currentStage\n    fillMetadata {\n      status\n      error\n      timestamp\n    }\n    createdAt\n  }\n}",
-): (typeof documents)["mutation CreateDraftCaptureJob($input: CreateJobInput!) {\n  createJob(input: $input) {\n    id\n    title\n    urls\n    htmlContent\n    currentStage\n    fillMetadata {\n      status\n      error\n      timestamp\n    }\n    createdAt\n  }\n}"];
+export function graphql(source: "mutation CreateDraftCaptureJob($input: CreateJobInput!) {\n  createJob(input: $input) {\n    id\n    title\n    urls\n    htmlContent\n    currentStage\n    fillMetadata {\n      status\n      error\n      timestamp\n    }\n    createdAt\n  }\n}"): (typeof documents)["mutation CreateDraftCaptureJob($input: CreateJobInput!) {\n  createJob(input: $input) {\n    id\n    title\n    urls\n    htmlContent\n    currentStage\n    fillMetadata {\n      status\n      error\n      timestamp\n    }\n    createdAt\n  }\n}"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(
-  source: "mutation CreateJob($input: CreateJobInput!) {\n  createJob(input: $input) {\n    id\n    title\n  }\n}",
-): (typeof documents)["mutation CreateJob($input: CreateJobInput!) {\n  createJob(input: $input) {\n    id\n    title\n  }\n}"];
+export function graphql(source: "mutation CreateJob($input: CreateJobInput!) {\n  createJob(input: $input) {\n    id\n    title\n  }\n}"): (typeof documents)["mutation CreateJob($input: CreateJobInput!) {\n  createJob(input: $input) {\n    id\n    title\n  }\n}"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(
-  source: "query Me {\n  me {\n    email\n  }\n}",
-): (typeof documents)["query Me {\n  me {\n    email\n  }\n}"];
+export function graphql(source: "query IsJobDuplicate($company: String!, $title: String!) {\n  isJobDuplicate(company: $company, title: $title)\n}"): (typeof documents)["query IsJobDuplicate($company: String!, $title: String!) {\n  isJobDuplicate(company: $company, title: $title)\n}"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(
-  source: "mutation ReportExtensionActivity($input: ReportExtensionActivityInput!) {\n  reportExtensionActivity(input: $input) {\n    id\n    type\n    summary\n    correlationId\n    occurredAt\n  }\n}",
-): (typeof documents)["mutation ReportExtensionActivity($input: ReportExtensionActivityInput!) {\n  reportExtensionActivity(input: $input) {\n    id\n    type\n    summary\n    correlationId\n    occurredAt\n  }\n}"];
+export function graphql(source: "query Me {\n  me {\n    email\n  }\n}"): (typeof documents)["query Me {\n  me {\n    email\n  }\n}"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(
-  source: "query SourceRuns {\n  sourceRuns {\n    id\n    templateId\n    planId\n    surfaceUrl\n    status\n    errorMessage\n    startedAt\n  }\n}",
-): (typeof documents)["query SourceRuns {\n  sourceRuns {\n    id\n    templateId\n    planId\n    surfaceUrl\n    status\n    errorMessage\n    startedAt\n  }\n}"];
+export function graphql(source: "mutation ReportExtensionActivity($input: ReportExtensionActivityInput!) {\n  reportExtensionActivity(input: $input) {\n    id\n    type\n    summary\n    correlationId\n    occurredAt\n  }\n}"): (typeof documents)["mutation ReportExtensionActivity($input: ReportExtensionActivityInput!) {\n  reportExtensionActivity(input: $input) {\n    id\n    type\n    summary\n    correlationId\n    occurredAt\n  }\n}"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(
-  source: "mutation UpdateSourceRunStatus($id: ID!, $status: SourceRunStatus!, $errorMessage: String) {\n  updateSourceRunStatus(id: $id, status: $status, errorMessage: $errorMessage) {\n    id\n    status\n    errorMessage\n  }\n}",
-): (typeof documents)["mutation UpdateSourceRunStatus($id: ID!, $status: SourceRunStatus!, $errorMessage: String) {\n  updateSourceRunStatus(id: $id, status: $status, errorMessage: $errorMessage) {\n    id\n    status\n    errorMessage\n  }\n}"];
+export function graphql(source: "query SourceRuns {\n  sourceRuns {\n    id\n    templateId\n    planId\n    surfaceUrl\n    status\n    errorMessage\n    startedAt\n    stopWhen\n    catchUpThreshold\n    maxPages\n    olderThanDays\n  }\n}"): (typeof documents)["query SourceRuns {\n  sourceRuns {\n    id\n    templateId\n    planId\n    surfaceUrl\n    status\n    errorMessage\n    startedAt\n    stopWhen\n    catchUpThreshold\n    maxPages\n    olderThanDays\n  }\n}"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(
-  source: "mutation UpdateSourceRun($id: ID!, $input: UpdateSourceRunInput!) {\n  updateSourceRun(id: $id, input: $input) {\n    id\n    surfaceUrl\n  }\n}",
-): (typeof documents)["mutation UpdateSourceRun($id: ID!, $input: UpdateSourceRunInput!) {\n  updateSourceRun(id: $id, input: $input) {\n    id\n    surfaceUrl\n  }\n}"];
+export function graphql(source: "mutation UpdateSourceRunStatus($id: ID!, $status: SourceRunStatus!, $errorMessage: String) {\n  updateSourceRunStatus(id: $id, status: $status, errorMessage: $errorMessage) {\n    id\n    status\n    errorMessage\n  }\n}"): (typeof documents)["mutation UpdateSourceRunStatus($id: ID!, $status: SourceRunStatus!, $errorMessage: String) {\n  updateSourceRunStatus(id: $id, status: $status, errorMessage: $errorMessage) {\n    id\n    status\n    errorMessage\n  }\n}"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "mutation UpdateSourceRun($id: ID!, $input: UpdateSourceRunInput!) {\n  updateSourceRun(id: $id, input: $input) {\n    id\n    surfaceUrl\n  }\n}"): (typeof documents)["mutation UpdateSourceRun($id: ID!, $input: UpdateSourceRunInput!) {\n  updateSourceRun(id: $id, input: $input) {\n    id\n    surfaceUrl\n  }\n}"];
 
 export function graphql(source: string) {
   return (documents as any)[source] ?? {};
 }
 
-export type DocumentType<TDocumentNode extends DocumentNode<any, any>> =
-  TDocumentNode extends DocumentNode<infer TType, any> ? TType : never;
+export type DocumentType<TDocumentNode extends DocumentNode<any, any>> = TDocumentNode extends DocumentNode<  infer TType,  any>  ? TType  : never;
