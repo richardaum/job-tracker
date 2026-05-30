@@ -32,6 +32,8 @@ import { MergeSourceProfileIntoPlan1768050000000 } from "./1768050000000-merge-s
 import { NormalizeSourceRunStatusPascalcase1768060000000 } from "./1768060000000-normalize-source-run-status-pascalcase";
 import { AddSourceRunErrorMessage1768070000000 } from "./1768070000000-add-source-run-error-message";
 import { DropPlanSourceProfileId1768080000000 } from "./1768080000000-drop-plan-source-profile-id";
+import { AddSourceTemplateConfigJsonb1768090000000 } from "./1768090000000-add-source-template-config-jsonb";
+import { NormalizeStopwhenToArray1768100000000 } from "./1768100000000-normalize-stopwhen-to-array";
 
 export const migrations = [
   SquashedBaseline1767000000000,
@@ -68,4 +70,6 @@ export const migrations = [
   NormalizeSourceRunStatusPascalcase1768060000000,
   AddSourceRunErrorMessage1768070000000,
   DropPlanSourceProfileId1768080000000,
+  AddSourceTemplateConfigJsonb1768090000000,
+  NormalizeStopwhenToArray1768100000000,
 ];
