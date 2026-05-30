@@ -74,6 +74,10 @@ export function graphqlFormatError(
     };
   }
 
+  log.warn(
+    `[${traceId}] path=${JSON.stringify(formattedError.path)} message=${formattedError.message}`,
+  );
+
   let ext = {
     ...((formattedError.extensions ?? {}) as Record<string, unknown>),
   };

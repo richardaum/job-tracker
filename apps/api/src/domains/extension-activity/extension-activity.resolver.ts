@@ -49,10 +49,10 @@ export class ExtensionActivityResolver {
   })
   async *subscribeExtensionActivityEvents(
     @CurrentUser() user: { userId: string },
-  ): AsyncIterable<{ extensionActivityEvents: ExtensionActivityEvent }> {
+  ): AsyncIterable<ExtensionActivityEvent> {
     const bus = this.eventBus.forUser(user.userId);
     for await (const event of bus.eventsOf(ExtensionActivityReported)) {
-      yield { extensionActivityEvents: event.payload };
+      yield event.payload;
     }
   }
 }
