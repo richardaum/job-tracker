@@ -10,7 +10,7 @@ import {
   Text,
 } from "@job-tracker/ui";
 import { PlusIcon } from "@phosphor-icons/react";
-import { useRouter } from "next/navigation";
+import NextLink from "next/link";
 import { useState } from "react";
 
 import { usePlansQuery } from "@/gql/hooks";
@@ -18,7 +18,6 @@ import { SourcesHeaderActions } from "@/modules/sources/layout/sources-header.sl
 import { ImportPlanDialog } from "@/modules/sources/page/ImportPlanDialog";
 
 export default function PlansPage() {
-  const router = useRouter();
   const [importOpen, setImportOpen] = useState(false);
   const { data, loading } = usePlansQuery();
   const plans = data?.plans ?? [];
@@ -60,31 +59,27 @@ export default function PlansPage() {
         ) : (
           <Stack gap="md">
             {plans.map((plan) => (
-              <button
-                key={plan.id}
-                type="button"
-                onClick={() =>
-                  router.push(`/sources/plans/${plan.sourceProfileId}`)
-                }
-                className={cn(
-                  "w-full cursor-pointer text-start focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-brand rounded-lg",
-                )}
-              >
-                <Card
-                  padding="md"
-                  className={cn("hover:bg-bg-subtle transition-colors")}
-                >
-                  <div className={cn("space-y-3")}>
-                    <div className={cn("flex items-center gap-3")}>
-                      <div className={cn("min-w-0 flex-1")}>
-                        <Heading as="h3" size="base">
+              <Card key={plan.id} padding="md">
+                <div className={cn("space-y-1")}>
+                  <div className={cn("flex items-center gap-3")}>
+                    <div className={cn("min-w-0 flex-1")}>
+                      <Heading as="h3" size="base">
+                        <NextLink
+                          href={`/sources/plans/${plan.id}`}
+                          className={cn(
+                            "text-text hover:text-text-link hover:underline transition-colors",
+                          )}
+                        >
                           {plan.displayName}
-                        </Heading>
-                      </div>
+                        </NextLink>
+                      </Heading>
                     </div>
                   </div>
-                </Card>
-              </button>
+                  <Text size="sm" color="secondary">
+                    {plan.templates.length} template(s)
+                  </Text>
+                </div>
+              </Card>
             ))}
           </Stack>
         )}
