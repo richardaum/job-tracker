@@ -1,10 +1,22 @@
 "use client";
 
-import { Badge, Button, cn, Dialog, IconButton, Input, ListItemCard, Select, Text, Tooltip } from "@job-tracker/ui";
-import { BuildingsIcon, FileTextIcon, PencilSimpleIcon, PlusIcon, TextTIcon, TrashIcon } from "@phosphor-icons/react";
+import {
+  Badge,
+  Button,
+  cn,
+  Dialog,
+  IconButton,
+  Input,
+  ListItemCard,
+  Select,
+  Text,
+  Tooltip,
+} from "@job-tracker/ui";
+import { PencilSimpleIcon, PlusIcon, TrashIcon } from "@phosphor-icons/react";
 import { useState } from "react";
 
 import { KeywordScope, MatchMode } from "@/gql/graphql";
+import { SCOPE_ICON_CONFIG } from "@/modules/profile/blocked-keywords/shared/blocked-keywords.config";
 
 export type BlockedKeywordItem = {
   keyword: string;
@@ -17,12 +29,6 @@ export type BlockedKeywordSectionProps = {
   onAdd: () => void;
   onEdit: (item: BlockedKeywordItem) => void;
   onDelete: (index: number) => void;
-};
-
-const SCOPE_CONFIG: Record<KeywordScope, { label: string; icon: React.ReactNode; badgeIntent: "info" | "warning" | "success" }> = {
-  [KeywordScope.Title]: { label: "Title", icon: <TextTIcon size={14} weight="regular" />, badgeIntent: "info" },
-  [KeywordScope.Description]: { label: "Description", icon: <FileTextIcon size={14} weight="regular" />, badgeIntent: "warning" },
-  [KeywordScope.Company]: { label: "Company", icon: <BuildingsIcon size={14} weight="regular" />, badgeIntent: "success" },
 };
 
 const MATCH_MODE_LABELS: Record<MatchMode, string> = {
@@ -132,51 +138,67 @@ export function BlockedKeywordSection({
     <div className={cn("flex flex-col gap-4")}>
       {items.length > 0 ? (
         <div className={cn("flex flex-wrap gap-4")}>
-          {items.map((item, i) => (
-            <div key={`${item.keyword}|${item.scope}|${item.matchMode}|${i}`} className={cn("w-fit")}>
-              <ListItemCard
-                title={
-                  <ListItemCard.Title className={cn("flex items-center gap-1.5 wrap-break-word")}>
-                    <Tooltip content={`Scope: ${SCOPE_CONFIG[item.scope].label}`}>
-                      <span className={cn("shrink-0 text-text-muted")}>{SCOPE_CONFIG[item.scope].icon}</span>
-                    </Tooltip>
-                    {item.keyword}
-                  </ListItemCard.Title>
-                }
-                actions={
-                  <ListItemCard.Actions>
-                    <Badge intent="default">
-                      {MATCH_MODE_LABELS[item.matchMode]}
-                    </Badge>
-                    <IconButton
-                      intent="ghost"
-                      size="sm"
-                      label={`Edit ${item.keyword}`}
-                      tooltip="Edit"
-                      className={cn(ListItemCard.actionIconButtonClassName)}
-                      icon={<PencilSimpleIcon size={13} weight="regular" />}
-                      onClick={() => onEdit(item)}
-                    />
-                    <IconButton
-                      intent="ghost"
-                      size="sm"
-                      label={`Delete ${item.keyword}`}
-                      tooltip="Delete"
-                      className={cn(ListItemCard.actionIconButtonClassName)}
-                      icon={<TrashIcon size={13} weight="regular" />}
-                      onClick={() => onDelete(i)}
-                    />
-                  </ListItemCard.Actions>
-                }
-              />
-            </div>
-          ))}
+          {items.map((item, i) => {
+            const scopeConfig = SCOPE_ICON_CONFIG[item.scope];
+            const ScopeIcon = scopeConfig.icon;
+            return (
+              <div
+                key={`${item.keyword}|${item.scope}|${item.matchMode}|${i}`}
+                className={cn("w-fit")}
+              >
+                <ListItemCard
+                  title={
+                    <ListItemCard.Title
+                      className={cn(
+                        "flex items-center gap-1.5 wrap-break-word",
+                      )}
+                    >
+                      <Tooltip content={`Scope: ${scopeConfig.label}`}>
+                        <span
+                          className={cn("shrink-0", scopeConfig.colorClass)}
+                        >
+                          <ScopeIcon size={14} weight="regular" />
+                        </span>
+                      </Tooltip>
+                      {item.keyword}
+                    </ListItemCard.Title>
+                  }
+                  actions={
+                    <ListItemCard.Actions>
+                      <Badge intent="default">
+                        {MATCH_MODE_LABELS[item.matchMode]}
+                      </Badge>
+                      <IconButton
+                        intent="ghost"
+                        size="sm"
+                        label={`Edit ${item.keyword}`}
+                        tooltip="Edit"
+                        className={cn(ListItemCard.actionIconButtonClassName)}
+                        icon={<PencilSimpleIcon size={13} weight="regular" />}
+                        onClick={() => onEdit(item)}
+                      />
+                      <IconButton
+                        intent="ghost"
+                        size="sm"
+                        label={`Delete ${item.keyword}`}
+                        tooltip="Delete"
+                        className={cn(ListItemCard.actionIconButtonClassName)}
+                        icon={<TrashIcon size={13} weight="regular" />}
+                        onClick={() => onDelete(i)}
+                      />
+                    </ListItemCard.Actions>
+                  }
+                />
+              </div>
+            );
+          })}
         </div>
       ) : (
         <div className={cn("flex flex-col items-center gap-2 py-12")}>
           <Text color="muted">No blocked items yet</Text>
           <Text size="sm" color="muted">
-            Add keywords, company names, or phrases to automatically reject matching jobs
+            Add keywords, company names, or phrases to automatically reject
+            matching jobs
           </Text>
           <Button size="sm" onClick={onAdd}>
             <PlusIcon size={14} weight="bold" />

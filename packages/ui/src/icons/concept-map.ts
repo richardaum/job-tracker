@@ -8,11 +8,14 @@ import {
   FilesIcon,
   GearIcon,
   LinkIcon,
+  ListIcon,
   PencilSimpleIcon,
   SignOutIcon,
   SparkleIcon,
   StarIcon,
   SuitcaseIcon,
+  TextAlignLeftIcon,
+  TextTIcon,
   TrashIcon,
   UserIcon,
 } from "@phosphor-icons/react";
@@ -74,4 +77,13 @@ export const conceptIcon = {
 
   /** Money, salary, currency */
   money: CurrencyDollarIcon,
+
+  /** Title / heading */
+  title: TextTIcon,
+
+  /** Description / content body */
+  description: TextAlignLeftIcon,
+
+  /** List / all items */
+  list: ListIcon,
 } as const;

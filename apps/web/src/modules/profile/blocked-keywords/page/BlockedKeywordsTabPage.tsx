@@ -1,25 +1,53 @@
 "use client";
 
 import { Button, Tabs, TabsList, TabsTrigger } from "@job-tracker/ui";
-import { BuildingsIcon, FileTextIcon, ListIcon, PlusIcon, TextTIcon } from "@phosphor-icons/react";
+import { PlusIcon } from "@phosphor-icons/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
-import type { KeywordScope, MatchMode, UpdateSettingsMutation } from "@/gql/graphql";
+import type {
+  KeywordScope,
+  MatchMode,
+  UpdateSettingsMutation,
+} from "@/gql/graphql";
+import { KeywordScope as KeywordScopeEnum } from "@/gql/graphql";
 import { useSettingsQuery, useUpdateSettingsMutation } from "@/gql/hooks";
-import { ProfileHeaderActions, ProfileSubTabs } from "@/modules/profile/layout/profile-header.slots";
+import { conceptIcon } from "@job-tracker/ui";
+import {
+  ProfileHeaderActions,
+  ProfileSubTabs,
+} from "@/modules/profile/layout/profile-header.slots";
+import { SCOPE_ICON_CONFIG } from "@/modules/profile/blocked-keywords/shared/blocked-keywords.config";
 import type { BlockedKeywordItem } from "@/modules/profile/settings/components/BlockedKeywordSection";
 import {
   BlockedKeywordItemDialog,
   BlockedKeywordSection,
 } from "@/modules/profile/settings/components/BlockedKeywordSection";
 
-const SCOPE_TABS = [
-  { value: "all", label: "All", icon: <ListIcon size={14} weight="regular" /> },
-  { value: "title", label: "Title", icon: <TextTIcon size={14} weight="regular" /> },
-  { value: "company", label: "Company", icon: <BuildingsIcon size={14} weight="regular" /> },
-  { value: "description", label: "Description", icon: <FileTextIcon size={14} weight="regular" /> },
-] as const;
+const SCOPE_TABS: Array<{
+  value: string;
+  label: string;
+  icon: React.ReactNode;
+}> = [
+  {
+    value: "all",
+    label: "All",
+    icon: <conceptIcon.list size={14} weight="regular" />,
+  },
+  ...[
+    KeywordScopeEnum.Title,
+    KeywordScopeEnum.Description,
+    KeywordScopeEnum.Company,
+  ].map((scope) => {
+    const cfg = SCOPE_ICON_CONFIG[scope];
+    const Icon = cfg.icon;
+    return {
+      value: scope.toLowerCase(),
+      label: cfg.label,
+      icon: <Icon size={14} weight="regular" className={cfg.colorClass} />,
+    };
+  }),
+];
 
 type SettingsValues = NonNullable<
   NonNullable<ReturnType<typeof useSettingsQuery>["data"]>["settings"]
@@ -40,7 +68,8 @@ function buildOptimisticSettings(
     autoMatchEnabled: settings.autoMatchEnabled,
     duplicateWindowDays: settings.duplicateWindowDays,
     blockedKeywords: input.blockedKeywords ?? settings.blockedKeywords ?? null,
-    blockedCompanies: input.blockedCompanies ?? settings.blockedCompanies ?? null,
+    blockedCompanies:
+      input.blockedCompanies ?? settings.blockedCompanies ?? null,
   };
 }
 
@@ -64,13 +93,14 @@ function splitItems(items: BlockedKeywordItem[]): {
 } {
   return {
     keywords: items.filter((i) => i.scope !== "COMPANY"),
-    companies: items
-      .filter((i) => i.scope === "COMPANY")
-      .map((i) => i.keyword),
+    companies: items.filter((i) => i.scope === "COMPANY").map((i) => i.keyword),
   };
 }
 
-function filterItems(items: BlockedKeywordItem[], scope: string): BlockedKeywordItem[] {
+function filterItems(
+  items: BlockedKeywordItem[],
+  scope: string,
+): BlockedKeywordItem[] {
   if (scope === "all") return items;
   return items.filter((i) => i.scope.toLowerCase() === scope);
 }
@@ -83,7 +113,9 @@ export default function BlockedKeywordsTabPage() {
   const settings = data?.settings ?? null;
   const currentScope = searchParams.get("scope") ?? "all";
 
-  const [editingItem, setEditingItem] = useState<BlockedKeywordItem | null>(null);
+  const [editingItem, setEditingItem] = useState<BlockedKeywordItem | null>(
+    null,
+  );
 
   if (loading && !settings) {
     return null;
@@ -99,9 +131,12 @@ export default function BlockedKeywordsTabPage() {
   const filteredItems = filterItems(items, currentScope);
 
   const handleSave = async (updatedItems: BlockedKeywordItem[]) => {
-    const { keywords: newKeywords, companies: newCompanies } = splitItems(updatedItems);
+    const { keywords: newKeywords, companies: newCompanies } =
+      splitItems(updatedItems);
     await updateSettings({
-      variables: { input: { blockedKeywords: newKeywords, blockedCompanies: newCompanies } },
+      variables: {
+        input: { blockedKeywords: newKeywords, blockedCompanies: newCompanies },
+      },
       optimisticResponse: {
         updateSettings: buildOptimisticSettings(settings, {
           blockedKeywords: newKeywords,
@@ -114,16 +149,20 @@ export default function BlockedKeywordsTabPage() {
   const handleSaveItem = (saved: BlockedKeywordItem) => {
     if (!editingItem) return;
     const idx = items.findIndex(
-      (i) => i.keyword === editingItem.keyword && i.scope === editingItem.scope && i.matchMode === editingItem.matchMode,
+      (i) =>
+        i.keyword === editingItem.keyword &&
+        i.scope === editingItem.scope &&
+        i.matchMode === editingItem.matchMode,
     );
-    const next = idx >= 0 ? items.map((i, n) => (n === idx ? saved : i)) : [...items, saved];
+    const next =
+      idx >= 0
+        ? items.map((i, n) => (n === idx ? saved : i))
+        : [...items, saved];
     void handleSave(next);
   };
 
   const handleDelete = (index: number) => {
-    const globalIndex = items.findIndex(
-      (i) => i === filteredItems[index],
-    );
+    const globalIndex = items.findIndex((i) => i === filteredItems[index]);
     if (globalIndex < 0) return;
     void handleSave(items.filter((_, i) => i !== globalIndex));
   };
@@ -136,7 +175,9 @@ export default function BlockedKeywordsTabPage() {
       params.set("scope", scope);
     }
     const qs = params.toString();
-    router.replace(qs ? `/profile/blocked-keywords?${qs}` : "/profile/blocked-keywords");
+    router.replace(
+      qs ? `/profile/blocked-keywords?${qs}` : "/profile/blocked-keywords",
+    );
   };
 
   return (
@@ -145,7 +186,13 @@ export default function BlockedKeywordsTabPage() {
         <Button
           size="md"
           intent="primary"
-          onClick={() => setEditingItem({ keyword: "", scope: "TITLE" as KeywordScope, matchMode: "PARTIAL" as MatchMode })}
+          onClick={() =>
+            setEditingItem({
+              keyword: "",
+              scope: "TITLE" as KeywordScope,
+              matchMode: "PARTIAL" as MatchMode,
+            })
+          }
         >
           <PlusIcon size={14} weight="bold" />
           Add blocked item
@@ -155,7 +202,11 @@ export default function BlockedKeywordsTabPage() {
         <Tabs value={currentScope} onValueChange={setScope}>
           <TabsList>
             {SCOPE_TABS.map((tab) => (
-              <TabsTrigger key={tab.value} value={tab.value} leadingIcon={tab.icon}>
+              <TabsTrigger
+                key={tab.value}
+                value={tab.value}
+                leadingIcon={tab.icon}
+              >
                 {tab.label}
               </TabsTrigger>
             ))}
@@ -164,7 +215,13 @@ export default function BlockedKeywordsTabPage() {
       </ProfileSubTabs>
       <BlockedKeywordSection
         items={filteredItems}
-        onAdd={() => setEditingItem({ keyword: "", scope: "TITLE" as KeywordScope, matchMode: "PARTIAL" as MatchMode })}
+        onAdd={() =>
+          setEditingItem({
+            keyword: "",
+            scope: "TITLE" as KeywordScope,
+            matchMode: "PARTIAL" as MatchMode,
+          })
+        }
         onEdit={(item) => setEditingItem({ ...item })}
         onDelete={handleDelete}
       />
