@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -34,7 +34,7 @@ describe("SourceStopConfigDialog", () => {
     vi.clearAllMocks();
   });
 
-  it("renders stop condition dropdown", () => {
+  it("renders stop conditions with checkboxes", () => {
     render(
       <SourceStopConfigDialog
         template={makeTemplate()}
@@ -43,17 +43,29 @@ describe("SourceStopConfigDialog", () => {
     );
 
     expect(
-      screen.getByRole("combobox", { name: "Select stop condition" }),
+      screen.getByText("Stop Conditions"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("CatchUp"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("First Run Max Pages"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("Older Than"),
     ).toBeInTheDocument();
   });
 
-  it("shows threshold input when CatchUp is selected (default)", () => {
+  it("shows threshold input after enabling CatchUp", async () => {
+    const user = userEvent.setup();
     render(
       <SourceStopConfigDialog
         template={makeTemplate()}
         onOpenChange={() => {}}
       />,
     );
+
+    await user.click(screen.getByText("CatchUp"));
 
     expect(screen.getByPlaceholderText(/e\.g\. 5/i)).toBeInTheDocument();
     expect(screen.queryByPlaceholderText(/e\.g\. 3/i)).not.toBeInTheDocument();
@@ -105,6 +117,8 @@ describe("SourceStopConfigDialog", () => {
       />,
     );
 
+    await user.click(screen.getByText("CatchUp"));
+
     const input = screen.getByPlaceholderText("e.g. 5");
     await user.type(input, "5");
 
@@ -115,7 +129,7 @@ describe("SourceStopConfigDialog", () => {
         variables: {
           id: "tpl-1",
           input: {
-            config: { stopWhen: "CatchUp", catchUpThreshold: 5 },
+            config: { stopWhen: ["CatchUp"], catchUpThreshold: 5 },
           },
         },
       });
@@ -123,7 +137,8 @@ describe("SourceStopConfigDialog", () => {
     });
   });
 
-  it("selecting OlderThan shows days input", async () => {
+  it("shows days input after enabling OlderThan", async () => {
+    const user = userEvent.setup();
     render(
       <SourceStopConfigDialog
         template={makeTemplate()}
@@ -131,9 +146,7 @@ describe("SourceStopConfigDialog", () => {
       />,
     );
 
-    const dropdown = screen.getByRole("combobox", { name: "Select stop condition" });
-    fireEvent.click(dropdown);
-    fireEvent.click(screen.getByText("Older than"));
+    await user.click(screen.getByText("Older Than"));
 
     await waitFor(() => {
       expect(screen.getByPlaceholderText("e.g. 30")).toBeInTheDocument();
