@@ -117,13 +117,13 @@ export type SourceRunStartRequest = {
   source: typeof EXTENSION_BRIDGE_SOURCE;
   runId: string;
   surfaceUrl: string;
-  sourceProfileId: string;
+  planId: string;
 };
 
 export function sendSourceRunStart(
   runId: string,
   surfaceUrl: string,
-  sourceProfileId: string,
+  planId: string,
 ): void {
   if (typeof window === "undefined") return;
 
@@ -132,7 +132,7 @@ export function sendSourceRunStart(
     source: EXTENSION_BRIDGE_SOURCE,
     runId,
     surfaceUrl,
-    sourceProfileId,
+    planId,
   };
 
   window.postMessage(message, window.location.origin);

@@ -50,13 +50,7 @@ const OPEN_ACTIVITY_TYPES = new Set<ExtensionActivityEventType>([
 ]);
 
 export function sourceRunSummary(run: AdminSourceRunRow): string {
-  const profile = run.sourceProfile.trim();
-  const surfaceUrl = run.surfaceUrl.trim();
-
-  if (profile && surfaceUrl) return `${profile} · ${surfaceUrl}`;
-  if (profile) return profile;
-  if (surfaceUrl) return surfaceUrl;
-  return run.sourceProfileId;
+  return run.surfaceUrl.trim() || "Source run";
 }
 
 export function mapSourceRunToExtensionEvent(
@@ -100,9 +94,7 @@ export function mergeExtensionAdminEvents(
 }
 
 export function isInFlightSourceRunStatus(status: SourceRunStatus): boolean {
-  return (
-    status === SourceRunStatus.Running || status === SourceRunStatus.InProgress
-  );
+  return status === SourceRunStatus.Pending;
 }
 
 export function countInFlightSourceRunEvents(
@@ -173,8 +165,7 @@ export function sourceRunStatusBadgeIntent(
       return "success";
     case SourceRunStatus.Failed:
       return "error";
-    case SourceRunStatus.Running:
-    case SourceRunStatus.InProgress:
+    case SourceRunStatus.Pending:
       return "info";
   }
 }

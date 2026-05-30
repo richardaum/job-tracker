@@ -125,7 +125,6 @@ export type CreateNoteInput = {
 export type CreatePlanInput = {
   displayName: Scalars['String']['input'];
   document: Scalars['JSON']['input'];
-  sourceProfileId: Scalars['String']['input'];
 };
 
 export type CreateResumeInput = {
@@ -135,11 +134,11 @@ export type CreateResumeInput = {
 };
 
 export type CreateSourceRunInput = {
-  sourceProfileId: Scalars['String']['input'];
+  planId: Scalars['ID']['input'];
 };
 
 export type CreateSourceTemplateInput = {
-  sourceProfileId: Scalars['String']['input'];
+  planId: Scalars['ID']['input'];
   surfaceUrl: Scalars['String']['input'];
 };
 
@@ -345,6 +344,7 @@ export enum MatchVerdict {
 export type Mutation = {
   __typename?: 'Mutation';
   clearSourceRuns: Scalars['Boolean']['output'];
+  clearSourceTemplateRuns: Scalars['Int']['output'];
   createJob: JobType;
   createJobNote: NoteType;
   createJobStageEvent: JobStageEventType;
@@ -380,6 +380,12 @@ export type Mutation = {
   updateSourceRunStatus: SourceRunType;
   updateSourceTemplate: SourceTemplateType;
   updateWorkPreferences: Array<PreferenceType>;
+};
+
+
+export type MutationClearSourceTemplateRunsArgs = {
+  deleteJobs?: InputMaybe<Scalars['Boolean']['input']>;
+  templateId: Scalars['ID']['input'];
 };
 
 
@@ -548,6 +554,7 @@ export type MutationUpdateSourceRunArgs = {
 
 
 export type MutationUpdateSourceRunStatusArgs = {
+  errorMessage?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['ID']['input'];
   status: SourceRunStatus;
 };
@@ -580,7 +587,7 @@ export type PlanType = {
   displayName: Scalars['String']['output'];
   document: Scalars['JSON']['output'];
   id: Scalars['ID']['output'];
-  sourceProfileId: Scalars['String']['output'];
+  templates: Array<SourceTemplateType>;
   updatedAt: Scalars['DateTime']['output'];
 };
 
@@ -621,11 +628,9 @@ export type Query = {
   resumes: Array<ResumeType>;
   rewriteTextWithAI: Scalars['String']['output'];
   settings: UserSetting;
-  sourceProfiles: Array<SourceProfileType>;
   sourceRuns: Array<SourceRunType>;
   sourceTemplate: SourceTemplateType;
   sourceTemplates: Array<SourceTemplateType>;
-  sourceTemplatesForSourceProfile: Array<SourceTemplateType>;
   users: Array<UserType>;
   workPreferences: Array<PreferenceType>;
 };
@@ -706,7 +711,7 @@ export type QueryMatchArgs = {
 
 
 export type QueryPlanArgs = {
-  sourceProfileId: Scalars['String']['input'];
+  id: Scalars['ID']['input'];
 };
 
 
@@ -725,18 +730,8 @@ export type QueryRewriteTextWithAiArgs = {
 };
 
 
-export type QuerySourceProfilesArgs = {
-  onlyWithSourceTemplate?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
 export type QuerySourceTemplateArgs = {
   id: Scalars['ID']['input'];
-};
-
-
-export type QuerySourceTemplatesForSourceProfileArgs = {
-  sourceProfileId: Scalars['String']['input'];
 };
 
 export type ReportExtensionActivityInput = {
@@ -772,13 +767,6 @@ export enum SalaryPeriod {
   Year = 'YEAR'
 }
 
-export type SourceProfileType = {
-  __typename?: 'SourceProfileType';
-  name: Scalars['String']['output'];
-  sourceProfileId: Scalars['String']['output'];
-  templates: Array<SourceTemplateType>;
-};
-
 export type SourceRunEvent = {
   __typename?: 'SourceRunEvent';
   occurredAt: Scalars['DateTime']['output'];
@@ -787,21 +775,21 @@ export type SourceRunEvent = {
 };
 
 export enum SourceRunEventType {
-  SourceRunCreated = 'SOURCE_RUN_CREATED'
+  SourceRunCreated = 'SOURCE_RUN_CREATED',
+  SourceRunStatusChanged = 'SOURCE_RUN_STATUS_CHANGED'
 }
 
 export enum SourceRunStatus {
-  Completed = 'COMPLETED',
-  Failed = 'FAILED',
-  InProgress = 'IN_PROGRESS',
-  Running = 'RUNNING'
+  Completed = 'Completed',
+  Failed = 'Failed',
+  Pending = 'Pending'
 }
 
 export type SourceRunType = {
   __typename?: 'SourceRunType';
+  errorMessage?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
-  sourceProfile: Scalars['String']['output'];
-  sourceProfileId: Scalars['String']['output'];
+  planId: Scalars['ID']['output'];
   startedAt: Scalars['DateTime']['output'];
   status: SourceRunStatus;
   surfaceUrl: Scalars['String']['output'];
@@ -812,10 +800,11 @@ export type SourceTemplateType = {
   __typename?: 'SourceTemplateType';
   createdAt: Scalars['DateTime']['output'];
   id: Scalars['ID']['output'];
+  plan: PlanType;
+  planId: Scalars['ID']['output'];
   runs: Array<SourceRunType>;
   scheduleCron?: Maybe<Scalars['String']['output']>;
   scheduleEnabled: Scalars['Boolean']['output'];
-  sourceProfileId: Scalars['String']['output'];
   surfaceUrl: Scalars['String']['output'];
 };
 
@@ -881,7 +870,6 @@ export type UpdateNoteInput = {
 export type UpdatePlanInput = {
   displayName?: InputMaybe<Scalars['String']['input']>;
   document?: InputMaybe<Scalars['JSON']['input']>;
-  sourceProfileId?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type UpdateResumeInput = {
@@ -939,7 +927,12 @@ export enum Weight {
 export type AdminSourceRunsListQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type AdminSourceRunsListQuery = { __typename?: 'Query', sourceRuns: Array<{ __typename?: 'SourceRunType', id: string, templateId: string, sourceProfileId: string, surfaceUrl: string, status: SourceRunStatus, startedAt: any, sourceProfile: string }> };
+export type AdminSourceRunsListQuery = { __typename?: 'Query', sourceRuns: Array<{ __typename?: 'SourceRunType', id: string, templateId: string, planId: string, surfaceUrl: string, status: SourceRunStatus, startedAt: any }> };
+
+export type AdminSourceRunEventsSubscriptionVariables = Exact<{ [key: string]: never; }>;
+
+
+export type AdminSourceRunEventsSubscription = { __typename?: 'Subscription', sourceRunEvents: { __typename?: 'SourceRunEvent', type: SourceRunEventType, occurredAt: any, run: { __typename?: 'SourceRunType', id: string, templateId: string, planId: string, surfaceUrl: string, status: SourceRunStatus, startedAt: any } } };
 
 export type AdminExtensionActivityEventsListQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -947,11 +940,6 @@ export type AdminExtensionActivityEventsListQueryVariables = Exact<{
 
 
 export type AdminExtensionActivityEventsListQuery = { __typename?: 'Query', extensionActivityEvents: Array<{ __typename?: 'ExtensionActivityEvent', id: string, type: ExtensionActivityEventType, summary: string, correlationId?: string | null, occurredAt: any }> };
-
-export type AdminSourceRunEventsSubscriptionVariables = Exact<{ [key: string]: never; }>;
-
-
-export type AdminSourceRunEventsSubscription = { __typename?: 'Subscription', sourceRunEvents: { __typename?: 'SourceRunEvent', type: SourceRunEventType, occurredAt: any, run: { __typename?: 'SourceRunType', id: string, templateId: string, sourceProfileId: string, surfaceUrl: string, status: SourceRunStatus, startedAt: any, sourceProfile: string } } };
 
 export type AdminExtensionActivityEventsSubscriptionVariables = Exact<{ [key: string]: never; }>;
 
@@ -1290,22 +1278,25 @@ export type UpdateSettingsMutationVariables = Exact<{
 
 export type UpdateSettingsMutation = { __typename?: 'Mutation', updateSettings: { __typename?: 'UserSetting', id: string, autoFillEnabled: boolean, autoSummaryEnabled: boolean, autoMatchEnabled: boolean, duplicateWindowDays: number, blockedCompanies?: Array<string> | null, blockedKeywords?: Array<{ __typename?: 'BlockedKeyword', keyword: string, scope: KeywordScope, matchMode: MatchMode }> | null } };
 
-export type SourceProfilesListQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type SourceProfilesListQuery = { __typename?: 'Query', sourceProfiles: Array<{ __typename?: 'SourceProfileType', sourceProfileId: string, name: string }> };
-
-export type SourceProfilesListAllQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type SourceProfilesListAllQuery = { __typename?: 'Query', sourceProfiles: Array<{ __typename?: 'SourceProfileType', sourceProfileId: string, name: string }> };
-
 export type RerunSourceTemplateMutationVariables = Exact<{
   templateId: Scalars['ID']['input'];
 }>;
 
 
-export type RerunSourceTemplateMutation = { __typename?: 'Mutation', rerunSourceTemplate: { __typename?: 'SourceRunType', id: string, status: SourceRunStatus, startedAt: any, surfaceUrl: string, sourceProfileId: string } };
+export type RerunSourceTemplateMutation = { __typename?: 'Mutation', rerunSourceTemplate: { __typename?: 'SourceRunType', id: string, status: SourceRunStatus, startedAt: any, surfaceUrl: string, planId: string } };
+
+export type SourceRunEventsSubscriptionVariables = Exact<{ [key: string]: never; }>;
+
+
+export type SourceRunEventsSubscription = { __typename?: 'Subscription', sourceRunEvents: { __typename?: 'SourceRunEvent', type: SourceRunEventType, occurredAt: any, run: { __typename?: 'SourceRunType', id: string, templateId: string, status: SourceRunStatus, errorMessage?: string | null } } };
+
+export type ClearSourceTemplateRunsMutationVariables = Exact<{
+  templateId: Scalars['ID']['input'];
+  deleteJobs?: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+export type ClearSourceTemplateRunsMutation = { __typename?: 'Mutation', clearSourceTemplateRuns: number };
 
 export type DeleteSourceRunMutationVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -1320,14 +1311,12 @@ export type SourceTemplateQueryVariables = Exact<{
 }>;
 
 
-export type SourceTemplateQuery = { __typename?: 'Query', sourceTemplate: { __typename?: 'SourceTemplateType', id: string, sourceProfileId: string, scheduleCron?: string | null, scheduleEnabled: boolean, surfaceUrl: string, createdAt: any, runs: Array<{ __typename?: 'SourceRunType', id: string, status: SourceRunStatus, startedAt: any }> } };
+export type SourceTemplateQuery = { __typename?: 'Query', sourceTemplate: { __typename?: 'SourceTemplateType', id: string, planId: string, scheduleCron?: string | null, scheduleEnabled: boolean, surfaceUrl: string, createdAt: any, runs: Array<{ __typename?: 'SourceRunType', id: string, status: SourceRunStatus, errorMessage?: string | null, startedAt: any }> } };
 
-export type SourcesForSourceProfileQueryVariables = Exact<{
-  sourceProfileId: Scalars['String']['input'];
-}>;
+export type SourceTemplatesAllQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type SourcesForSourceProfileQuery = { __typename?: 'Query', sourceTemplatesForSourceProfile: Array<{ __typename?: 'SourceTemplateType', id: string, sourceProfileId: string, scheduleCron?: string | null, scheduleEnabled: boolean, surfaceUrl: string, createdAt: any, runs: Array<{ __typename?: 'SourceRunType', id: string, status: SourceRunStatus, startedAt: any }> }> };
+export type SourceTemplatesAllQuery = { __typename?: 'Query', sourceTemplates: Array<{ __typename?: 'SourceTemplateType', id: string, planId: string, scheduleCron?: string | null, scheduleEnabled: boolean, surfaceUrl: string, createdAt: any, runs: Array<{ __typename?: 'SourceRunType', id: string, status: SourceRunStatus, errorMessage?: string | null, startedAt: any }> }> };
 
 export type UpdateSourceTemplateMutationVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -1335,7 +1324,7 @@ export type UpdateSourceTemplateMutationVariables = Exact<{
 }>;
 
 
-export type UpdateSourceTemplateMutation = { __typename?: 'Mutation', updateSourceTemplate: { __typename?: 'SourceTemplateType', id: string, sourceProfileId: string, scheduleCron?: string | null, scheduleEnabled: boolean, surfaceUrl: string, createdAt: any, runs: Array<{ __typename?: 'SourceRunType', id: string, status: SourceRunStatus, startedAt: any }> } };
+export type UpdateSourceTemplateMutation = { __typename?: 'Mutation', updateSourceTemplate: { __typename?: 'SourceTemplateType', id: string, planId: string, scheduleCron?: string | null, scheduleEnabled: boolean, surfaceUrl: string, createdAt: any, runs: Array<{ __typename?: 'SourceRunType', id: string, status: SourceRunStatus, errorMessage?: string | null, startedAt: any }> } };
 
 export type DeleteSourceTemplateMutationVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -1349,19 +1338,19 @@ export type CreateSourceTemplateMutationVariables = Exact<{
 }>;
 
 
-export type CreateSourceTemplateMutation = { __typename?: 'Mutation', createSourceTemplate: { __typename?: 'SourceTemplateType', id: string, sourceProfileId: string, surfaceUrl: string, scheduleCron?: string | null, scheduleEnabled: boolean, createdAt: any } };
+export type CreateSourceTemplateMutation = { __typename?: 'Mutation', createSourceTemplate: { __typename?: 'SourceTemplateType', id: string, planId: string, surfaceUrl: string, scheduleCron?: string | null, scheduleEnabled: boolean, createdAt: any } };
 
 export type PlansQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type PlansQuery = { __typename?: 'Query', plans: Array<{ __typename?: 'PlanType', id: string, sourceProfileId: string, displayName: string }> };
+export type PlansQuery = { __typename?: 'Query', plans: Array<{ __typename?: 'PlanType', id: string, displayName: string, templates: Array<{ __typename?: 'SourceTemplateType', id: string, surfaceUrl: string, createdAt: any, runs: Array<{ __typename?: 'SourceRunType', id: string, status: SourceRunStatus, errorMessage?: string | null, startedAt: any }> }> }> };
 
 export type PlanQueryVariables = Exact<{
-  sourceProfileId: Scalars['String']['input'];
+  id: Scalars['ID']['input'];
 }>;
 
 
-export type PlanQuery = { __typename?: 'Query', plan?: { __typename?: 'PlanType', id: string, sourceProfileId: string, displayName: string, document: any, createdAt: any, updatedAt: any } | null };
+export type PlanQuery = { __typename?: 'Query', plan?: { __typename?: 'PlanType', id: string, displayName: string, document: any, createdAt: any, updatedAt: any, templates: Array<{ __typename?: 'SourceTemplateType', id: string, planId: string, surfaceUrl: string, scheduleCron?: string | null, scheduleEnabled: boolean, createdAt: any, runs: Array<{ __typename?: 'SourceRunType', id: string, status: SourceRunStatus, errorMessage?: string | null, startedAt: any }> }> } | null };
 
 export type UpdatePlanMutationVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -1369,14 +1358,14 @@ export type UpdatePlanMutationVariables = Exact<{
 }>;
 
 
-export type UpdatePlanMutation = { __typename?: 'Mutation', updatePlan: { __typename?: 'PlanType', id: string, sourceProfileId: string, displayName: string, document: any, updatedAt: any } };
+export type UpdatePlanMutation = { __typename?: 'Mutation', updatePlan: { __typename?: 'PlanType', id: string, displayName: string, document: any, updatedAt: any } };
 
 export type CreatePlanMutationVariables = Exact<{
   input: CreatePlanInput;
 }>;
 
 
-export type CreatePlanMutation = { __typename?: 'Mutation', createPlan: { __typename?: 'PlanType', id: string, sourceProfileId: string, displayName: string, document: any, createdAt: any, updatedAt: any } };
+export type CreatePlanMutation = { __typename?: 'Mutation', createPlan: { __typename?: 'PlanType', id: string, displayName: string, document: any, createdAt: any, updatedAt: any } };
 
 export type WorkPreferencesQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -1405,22 +1394,10 @@ export const AdminSourceRunsListDocument = gql`
   sourceRuns {
     id
     templateId
-    sourceProfileId
+    planId
     surfaceUrl
     status
     startedAt
-    sourceProfile
-  }
-}
-    `;
-export const AdminExtensionActivityEventsListDocument = gql`
-    query AdminExtensionActivityEventsList($limit: Int) {
-  extensionActivityEvents(limit: $limit) {
-    id
-    type
-    summary
-    correlationId
-    occurredAt
   }
 }
     `;
@@ -1432,12 +1409,22 @@ export const AdminSourceRunEventsDocument = gql`
     run {
       id
       templateId
-      sourceProfileId
+      planId
       surfaceUrl
       status
       startedAt
-      sourceProfile
     }
+  }
+}
+    `;
+export const AdminExtensionActivityEventsListDocument = gql`
+    query AdminExtensionActivityEventsList($limit: Int) {
+  extensionActivityEvents(limit: $limit) {
+    id
+    type
+    summary
+    correlationId
+    occurredAt
   }
 }
     `;
@@ -2161,22 +2148,6 @@ export const UpdateSettingsDocument = gql`
   }
 }
     `;
-export const SourceProfilesListDocument = gql`
-    query SourceProfilesList {
-  sourceProfiles(onlyWithSourceTemplate: true) {
-    sourceProfileId
-    name
-  }
-}
-    `;
-export const SourceProfilesListAllDocument = gql`
-    query SourceProfilesListAll {
-  sourceProfiles {
-    sourceProfileId
-    name
-  }
-}
-    `;
 export const RerunSourceTemplateDocument = gql`
     mutation RerunSourceTemplate($templateId: ID!) {
   rerunSourceTemplate(templateId: $templateId) {
@@ -2184,8 +2155,27 @@ export const RerunSourceTemplateDocument = gql`
     status
     startedAt
     surfaceUrl
-    sourceProfileId
+    planId
   }
+}
+    `;
+export const SourceRunEventsDocument = gql`
+    subscription SourceRunEvents {
+  sourceRunEvents {
+    type
+    occurredAt
+    run {
+      id
+      templateId
+      status
+      errorMessage
+    }
+  }
+}
+    `;
+export const ClearSourceTemplateRunsDocument = gql`
+    mutation ClearSourceTemplateRuns($templateId: ID!, $deleteJobs: Boolean = false) {
+  clearSourceTemplateRuns(templateId: $templateId, deleteJobs: $deleteJobs)
 }
     `;
 export const DeleteSourceRunDocument = gql`
@@ -2200,7 +2190,7 @@ export const SourceTemplateDocument = gql`
     query SourceTemplate($id: ID!) {
   sourceTemplate(id: $id) {
     id
-    sourceProfileId
+    planId
     scheduleCron
     scheduleEnabled
     surfaceUrl
@@ -2208,16 +2198,17 @@ export const SourceTemplateDocument = gql`
     runs {
       id
       status
+      errorMessage
       startedAt
     }
   }
 }
     `;
-export const SourcesForSourceProfileDocument = gql`
-    query SourcesForSourceProfile($sourceProfileId: String!) {
-  sourceTemplatesForSourceProfile(sourceProfileId: $sourceProfileId) {
+export const SourceTemplatesAllDocument = gql`
+    query SourceTemplatesAll {
+  sourceTemplates {
     id
-    sourceProfileId
+    planId
     scheduleCron
     scheduleEnabled
     surfaceUrl
@@ -2225,6 +2216,7 @@ export const SourcesForSourceProfileDocument = gql`
     runs {
       id
       status
+      errorMessage
       startedAt
     }
   }
@@ -2234,7 +2226,7 @@ export const UpdateSourceTemplateDocument = gql`
     mutation UpdateSourceTemplate($id: ID!, $input: UpdateSourceTemplateInput!) {
   updateSourceTemplate(id: $id, input: $input) {
     id
-    sourceProfileId
+    planId
     scheduleCron
     scheduleEnabled
     surfaceUrl
@@ -2242,6 +2234,7 @@ export const UpdateSourceTemplateDocument = gql`
     runs {
       id
       status
+      errorMessage
       startedAt
     }
   }
@@ -2259,7 +2252,7 @@ export const CreateSourceTemplateDocument = gql`
     mutation CreateSourceTemplate($input: CreateSourceTemplateInput!) {
   createSourceTemplate(input: $input) {
     id
-    sourceProfileId
+    planId
     surfaceUrl
     scheduleCron
     scheduleEnabled
@@ -2271,20 +2264,43 @@ export const PlansDocument = gql`
     query Plans {
   plans {
     id
-    sourceProfileId
     displayName
+    templates {
+      id
+      surfaceUrl
+      createdAt
+      runs {
+        id
+        status
+        errorMessage
+        startedAt
+      }
+    }
   }
 }
     `;
 export const PlanDocument = gql`
-    query Plan($sourceProfileId: String!) {
-  plan(sourceProfileId: $sourceProfileId) {
+    query Plan($id: ID!) {
+  plan(id: $id) {
     id
-    sourceProfileId
     displayName
     document
     createdAt
     updatedAt
+    templates {
+      id
+      planId
+      surfaceUrl
+      scheduleCron
+      scheduleEnabled
+      createdAt
+      runs {
+        id
+        status
+        errorMessage
+        startedAt
+      }
+    }
   }
 }
     `;
@@ -2292,7 +2308,6 @@ export const UpdatePlanDocument = gql`
     mutation UpdatePlan($id: ID!, $input: UpdatePlanInput!) {
   updatePlan(id: $id, input: $input) {
     id
-    sourceProfileId
     displayName
     document
     updatedAt
@@ -2303,7 +2318,6 @@ export const CreatePlanDocument = gql`
     mutation CreatePlan($input: CreatePlanInput!) {
   createPlan(input: $input) {
     id
-    sourceProfileId
     displayName
     document
     createdAt
@@ -2338,11 +2352,11 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     AdminSourceRunsList(variables?: AdminSourceRunsListQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<AdminSourceRunsListQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<AdminSourceRunsListQuery>({ document: AdminSourceRunsListDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'AdminSourceRunsList', 'query', variables);
     },
-    AdminExtensionActivityEventsList(variables?: AdminExtensionActivityEventsListQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<AdminExtensionActivityEventsListQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<AdminExtensionActivityEventsListQuery>({ document: AdminExtensionActivityEventsListDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'AdminExtensionActivityEventsList', 'query', variables);
-    },
     AdminSourceRunEvents(variables?: AdminSourceRunEventsSubscriptionVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<AdminSourceRunEventsSubscription> {
       return withWrapper((wrappedRequestHeaders) => client.request<AdminSourceRunEventsSubscription>({ document: AdminSourceRunEventsDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'AdminSourceRunEvents', 'subscription', variables);
+    },
+    AdminExtensionActivityEventsList(variables?: AdminExtensionActivityEventsListQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<AdminExtensionActivityEventsListQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<AdminExtensionActivityEventsListQuery>({ document: AdminExtensionActivityEventsListDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'AdminExtensionActivityEventsList', 'query', variables);
     },
     AdminExtensionActivityEvents(variables?: AdminExtensionActivityEventsSubscriptionVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<AdminExtensionActivityEventsSubscription> {
       return withWrapper((wrappedRequestHeaders) => client.request<AdminExtensionActivityEventsSubscription>({ document: AdminExtensionActivityEventsDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'AdminExtensionActivityEvents', 'subscription', variables);
@@ -2491,14 +2505,14 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     UpdateSettings(variables: UpdateSettingsMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<UpdateSettingsMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<UpdateSettingsMutation>({ document: UpdateSettingsDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'UpdateSettings', 'mutation', variables);
     },
-    SourceProfilesList(variables?: SourceProfilesListQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<SourceProfilesListQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<SourceProfilesListQuery>({ document: SourceProfilesListDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'SourceProfilesList', 'query', variables);
-    },
-    SourceProfilesListAll(variables?: SourceProfilesListAllQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<SourceProfilesListAllQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<SourceProfilesListAllQuery>({ document: SourceProfilesListAllDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'SourceProfilesListAll', 'query', variables);
-    },
     RerunSourceTemplate(variables: RerunSourceTemplateMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<RerunSourceTemplateMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<RerunSourceTemplateMutation>({ document: RerunSourceTemplateDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'RerunSourceTemplate', 'mutation', variables);
+    },
+    SourceRunEvents(variables?: SourceRunEventsSubscriptionVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<SourceRunEventsSubscription> {
+      return withWrapper((wrappedRequestHeaders) => client.request<SourceRunEventsSubscription>({ document: SourceRunEventsDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'SourceRunEvents', 'subscription', variables);
+    },
+    ClearSourceTemplateRuns(variables: ClearSourceTemplateRunsMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<ClearSourceTemplateRunsMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<ClearSourceTemplateRunsMutation>({ document: ClearSourceTemplateRunsDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'ClearSourceTemplateRuns', 'mutation', variables);
     },
     DeleteSourceRun(variables: DeleteSourceRunMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<DeleteSourceRunMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<DeleteSourceRunMutation>({ document: DeleteSourceRunDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'DeleteSourceRun', 'mutation', variables);
@@ -2506,8 +2520,8 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     SourceTemplate(variables: SourceTemplateQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<SourceTemplateQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<SourceTemplateQuery>({ document: SourceTemplateDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'SourceTemplate', 'query', variables);
     },
-    SourcesForSourceProfile(variables: SourcesForSourceProfileQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<SourcesForSourceProfileQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<SourcesForSourceProfileQuery>({ document: SourcesForSourceProfileDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'SourcesForSourceProfile', 'query', variables);
+    SourceTemplatesAll(variables?: SourceTemplatesAllQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<SourceTemplatesAllQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<SourceTemplatesAllQuery>({ document: SourceTemplatesAllDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'SourceTemplatesAll', 'query', variables);
     },
     UpdateSourceTemplate(variables: UpdateSourceTemplateMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<UpdateSourceTemplateMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<UpdateSourceTemplateMutation>({ document: UpdateSourceTemplateDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'UpdateSourceTemplate', 'mutation', variables);

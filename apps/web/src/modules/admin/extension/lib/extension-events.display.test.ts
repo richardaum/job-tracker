@@ -21,11 +21,10 @@ function sourceRun(
   return {
     id: "run-1",
     templateId: "template-1",
-    sourceProfileId: "remoteyeah",
     surfaceUrl: "https://example.com/jobs",
-    status: SourceRunStatus.Running,
+    status: SourceRunStatus.Pending,
     startedAt: "2026-05-25T12:00:00.000Z",
-    sourceProfile: "RemoteYeah",
+    planId: "plan-1",
     ...overrides,
   };
 }
@@ -57,7 +56,7 @@ describe("extension-events.display", () => {
   it("counts in-flight source runs and open activities", () => {
     const events = mergeExtensionAdminEvents(
       [
-        sourceRun({ id: "running", status: SourceRunStatus.Running }),
+        sourceRun({ id: "running", status: SourceRunStatus.Pending }),
         sourceRun({ id: "done", status: SourceRunStatus.Completed }),
       ],
       [
@@ -102,7 +101,7 @@ describe("extension-events.display", () => {
       kind: "source_run",
       id: "run-1",
       type: SourceRunEventType.SourceRunCreated,
-      status: SourceRunStatus.Running,
+      status: SourceRunStatus.Pending,
       occurredAt: "2026-05-25T12:00:00.000Z",
       summary: "RemoteYeah · https://example.com/jobs",
     });

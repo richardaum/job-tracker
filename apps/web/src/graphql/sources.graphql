@@ -1,25 +1,28 @@
-query SourceProfilesList {
-  sourceProfiles(onlyWithSourceTemplate: true) {
-    sourceProfileId
-    name
-  }
-}
-
-query SourceProfilesListAll {
-  sourceProfiles {
-    sourceProfileId
-    name
-  }
-}
-
 mutation RerunSourceTemplate($templateId: ID!) {
   rerunSourceTemplate(templateId: $templateId) {
     id
     status
     startedAt
     surfaceUrl
-    sourceProfileId
+    planId
   }
+}
+
+subscription SourceRunEvents {
+  sourceRunEvents {
+    type
+    occurredAt
+    run {
+      id
+      templateId
+      status
+      errorMessage
+    }
+  }
+}
+
+mutation ClearSourceTemplateRuns($templateId: ID!, $deleteJobs: Boolean = false) {
+  clearSourceTemplateRuns(templateId: $templateId, deleteJobs: $deleteJobs)
 }
 
 mutation DeleteSourceRun($id: ID!, $deleteJobs: Boolean = false) {
@@ -32,7 +35,7 @@ mutation DeleteSourceRun($id: ID!, $deleteJobs: Boolean = false) {
 query SourceTemplate($id: ID!) {
   sourceTemplate(id: $id) {
     id
-    sourceProfileId
+    planId
     scheduleCron
     scheduleEnabled
     surfaceUrl
@@ -40,15 +43,16 @@ query SourceTemplate($id: ID!) {
     runs {
       id
       status
+      errorMessage
       startedAt
     }
   }
 }
 
-query SourcesForSourceProfile($sourceProfileId: String!) {
-  sourceTemplatesForSourceProfile(sourceProfileId: $sourceProfileId) {
+query SourceTemplatesAll {
+  sourceTemplates {
     id
-    sourceProfileId
+    planId
     scheduleCron
     scheduleEnabled
     surfaceUrl
@@ -56,6 +60,7 @@ query SourcesForSourceProfile($sourceProfileId: String!) {
     runs {
       id
       status
+      errorMessage
       startedAt
     }
   }
@@ -64,7 +69,7 @@ query SourcesForSourceProfile($sourceProfileId: String!) {
 mutation UpdateSourceTemplate($id: ID!, $input: UpdateSourceTemplateInput!) {
   updateSourceTemplate(id: $id, input: $input) {
     id
-    sourceProfileId
+    planId
     scheduleCron
     scheduleEnabled
     surfaceUrl
@@ -72,6 +77,7 @@ mutation UpdateSourceTemplate($id: ID!, $input: UpdateSourceTemplateInput!) {
     runs {
       id
       status
+      errorMessage
       startedAt
     }
   }
@@ -87,7 +93,7 @@ mutation DeleteSourceTemplate($id: ID!) {
 mutation CreateSourceTemplate($input: CreateSourceTemplateInput!) {
   createSourceTemplate(input: $input) {
     id
-    sourceProfileId
+    planId
     surfaceUrl
     scheduleCron
     scheduleEnabled
@@ -98,26 +104,48 @@ mutation CreateSourceTemplate($input: CreateSourceTemplateInput!) {
 query Plans {
   plans {
     id
-    sourceProfileId
     displayName
+    templates {
+      id
+      surfaceUrl
+      createdAt
+      runs {
+        id
+        status
+        errorMessage
+        startedAt
+      }
+    }
   }
 }
 
-query Plan($sourceProfileId: String!) {
-  plan(sourceProfileId: $sourceProfileId) {
+query Plan($id: ID!) {
+  plan(id: $id) {
     id
-    sourceProfileId
     displayName
     document
     createdAt
     updatedAt
+    templates {
+      id
+      planId
+      surfaceUrl
+      scheduleCron
+      scheduleEnabled
+      createdAt
+      runs {
+        id
+        status
+        errorMessage
+        startedAt
+      }
+    }
   }
 }
 
 mutation UpdatePlan($id: ID!, $input: UpdatePlanInput!) {
   updatePlan(id: $id, input: $input) {
     id
-    sourceProfileId
     displayName
     document
     updatedAt
@@ -127,7 +155,6 @@ mutation UpdatePlan($id: ID!, $input: UpdatePlanInput!) {
 mutation CreatePlan($input: CreatePlanInput!) {
   createPlan(input: $input) {
     id
-    sourceProfileId
     displayName
     document
     createdAt
