@@ -120,18 +120,21 @@ export type CreateNoteInput = {
   jobId: Scalars["String"]["input"];
 };
 
+export type CreatePlanInput = {
+  displayName: Scalars["String"]["input"];
+  document: Scalars["JSON"]["input"];
+};
+
 export type CreateResumeInput = {
   content: Scalars["String"]["input"];
   isDefault?: Scalars["Boolean"]["input"];
   title: Scalars["String"]["input"];
 };
 
-export type CreateSourceRunInput = {
-  sourceProfileId: Scalars["String"]["input"];
-};
+export type CreateSourceRunInput = { planId: Scalars["ID"]["input"] };
 
 export type CreateSourceTemplateInput = {
-  sourceProfileId: Scalars["String"]["input"];
+  planId: Scalars["ID"]["input"];
   surfaceUrl: Scalars["String"]["input"];
 };
 
@@ -251,6 +254,8 @@ export type JobSummaryStatusEventType = {
   __typename?: "JobSummaryStatusEventType";
   jobId: Scalars["ID"]["output"];
   status: Scalars["String"]["output"];
+  summary?: Maybe<Scalars["String"]["output"]>;
+  summaryMetadata?: Maybe<AsyncMetadataType>;
 };
 
 export type JobType = {
@@ -323,11 +328,12 @@ export enum MatchVerdict {
 
 export type Mutation = {
   __typename?: "Mutation";
-  claimSourceRun?: Maybe<SourceRunType>;
   clearSourceRuns: Scalars["Boolean"]["output"];
+  clearSourceTemplateRuns: Scalars["Int"]["output"];
   createJob: JobType;
   createJobNote: NoteType;
   createJobStageEvent: JobStageEventType;
+  createPlan: PlanType;
   createResume: ResumeType;
   createSourceRun: SourceRunType;
   createSourceTemplate: SourceTemplateType;
@@ -337,6 +343,7 @@ export type Mutation = {
   deleteJobNote: DeleteMutationPayloadType;
   deleteJobStageEvent: DeleteMutationPayloadType;
   deleteMatchAnalysis: DeleteMutationPayloadType;
+  deletePlan: DeleteMutationPayloadType;
   deleteResume: DeleteMutationPayloadType;
   deleteSourceRun: DeleteMutationPayloadType;
   deleteSourceTemplate: DeleteMutationPayloadType;
@@ -351,6 +358,7 @@ export type Mutation = {
   updateJob: JobType;
   updateJobNote: NoteType;
   updateJobStageEvent: JobStageEventType;
+  updatePlan: PlanType;
   updateResume: ResumeType;
   updateSettings: UserSetting;
   updateSourceRun: SourceRunType;
@@ -359,7 +367,10 @@ export type Mutation = {
   updateWorkPreferences: Array<PreferenceType>;
 };
 
-export type MutationClaimSourceRunArgs = { id: Scalars["ID"]["input"] };
+export type MutationClearSourceTemplateRunsArgs = {
+  deleteJobs?: InputMaybe<Scalars["Boolean"]["input"]>;
+  templateId: Scalars["ID"]["input"];
+};
 
 export type MutationCreateJobArgs = { input: CreateJobInput };
 
@@ -368,6 +379,8 @@ export type MutationCreateJobNoteArgs = { input: CreateNoteInput };
 export type MutationCreateJobStageEventArgs = {
   input: CreateJobStageEventInput;
 };
+
+export type MutationCreatePlanArgs = { input: CreatePlanInput };
 
 export type MutationCreateResumeArgs = { input: CreateResumeInput };
 
@@ -386,6 +399,8 @@ export type MutationDeleteJobNoteArgs = { id: Scalars["ID"]["input"] };
 export type MutationDeleteJobStageEventArgs = { id: Scalars["ID"]["input"] };
 
 export type MutationDeleteMatchAnalysisArgs = { id: Scalars["ID"]["input"] };
+
+export type MutationDeletePlanArgs = { id: Scalars["ID"]["input"] };
 
 export type MutationDeleteResumeArgs = { id: Scalars["ID"]["input"] };
 
@@ -441,6 +456,11 @@ export type MutationUpdateJobStageEventArgs = {
   input: UpdateJobStageEventInput;
 };
 
+export type MutationUpdatePlanArgs = {
+  id: Scalars["ID"]["input"];
+  input: UpdatePlanInput;
+};
+
 export type MutationUpdateResumeArgs = {
   id: Scalars["ID"]["input"];
   input: UpdateResumeInput;
@@ -454,6 +474,7 @@ export type MutationUpdateSourceRunArgs = {
 };
 
 export type MutationUpdateSourceRunStatusArgs = {
+  errorMessage?: InputMaybe<Scalars["String"]["input"]>;
   id: Scalars["ID"]["input"];
   status: SourceRunStatus;
 };
@@ -476,6 +497,16 @@ export type NoteType = {
   revision: Scalars["Int"]["output"];
   updatedAt: Scalars["DateTime"]["output"];
   userId: Scalars["String"]["output"];
+};
+
+export type PlanType = {
+  __typename?: "PlanType";
+  createdAt: Scalars["DateTime"]["output"];
+  displayName: Scalars["String"]["output"];
+  document: Scalars["JSON"]["output"];
+  id: Scalars["ID"]["output"];
+  templates: Array<SourceTemplateType>;
+  updatedAt: Scalars["DateTime"]["output"];
 };
 
 export type PreferenceInput = {
@@ -508,16 +539,17 @@ export type Query = {
   match: MatchAnalysisType;
   matchAnalyses: Array<MatchAnalysisType>;
   me: UserType;
+  plan?: Maybe<PlanType>;
+  plans: Array<PlanType>;
   restructureJobDescriptionWithAI: Scalars["String"]["output"];
   resume: ResumeType;
   resumes: Array<ResumeType>;
   rewriteTextWithAI: Scalars["String"]["output"];
   settings: UserSetting;
-  sourceProfiles: Array<SourceProfileType>;
   sourceRuns: Array<SourceRunType>;
   sourceTemplate: SourceTemplateType;
   sourceTemplates: Array<SourceTemplateType>;
-  sourceTemplatesForSourceProfile: Array<SourceTemplateType>;
+  users: Array<UserType>;
   workPreferences: Array<PreferenceType>;
 };
 
@@ -567,6 +599,8 @@ export type QueryJobsArgs = {
 
 export type QueryMatchArgs = { id: Scalars["ID"]["input"] };
 
+export type QueryPlanArgs = { id: Scalars["ID"]["input"] };
+
 export type QueryRestructureJobDescriptionWithAiArgs = {
   text: Scalars["String"]["input"];
 };
@@ -575,15 +609,7 @@ export type QueryResumeArgs = { id: Scalars["ID"]["input"] };
 
 export type QueryRewriteTextWithAiArgs = { text: Scalars["String"]["input"] };
 
-export type QuerySourceProfilesArgs = {
-  onlyWithSourceTemplate?: InputMaybe<Scalars["Boolean"]["input"]>;
-};
-
 export type QuerySourceTemplateArgs = { id: Scalars["ID"]["input"] };
-
-export type QuerySourceTemplatesForSourceProfileArgs = {
-  sourceProfileId: Scalars["String"]["input"];
-};
 
 export type ReportExtensionActivityInput = {
   browser?: InputMaybe<Scalars["String"]["input"]>;
@@ -618,13 +644,6 @@ export enum SalaryPeriod {
   Year = "YEAR",
 }
 
-export type SourceProfileType = {
-  __typename?: "SourceProfileType";
-  name: Scalars["String"]["output"];
-  sourceProfileId: Scalars["String"]["output"];
-  templates: Array<SourceTemplateType>;
-};
-
 export type SourceRunEvent = {
   __typename?: "SourceRunEvent";
   occurredAt: Scalars["DateTime"]["output"];
@@ -634,20 +653,20 @@ export type SourceRunEvent = {
 
 export enum SourceRunEventType {
   SourceRunCreated = "SOURCE_RUN_CREATED",
+  SourceRunStatusChanged = "SOURCE_RUN_STATUS_CHANGED",
 }
 
 export enum SourceRunStatus {
-  Completed = "COMPLETED",
-  Failed = "FAILED",
-  InProgress = "IN_PROGRESS",
-  Running = "RUNNING",
+  Completed = "Completed",
+  Failed = "Failed",
+  Pending = "Pending",
 }
 
 export type SourceRunType = {
   __typename?: "SourceRunType";
+  errorMessage?: Maybe<Scalars["String"]["output"]>;
   id: Scalars["ID"]["output"];
-  sourceProfile: Scalars["String"]["output"];
-  sourceProfileId: Scalars["String"]["output"];
+  planId: Scalars["ID"]["output"];
   startedAt: Scalars["DateTime"]["output"];
   status: SourceRunStatus;
   surfaceUrl: Scalars["String"]["output"];
@@ -658,10 +677,11 @@ export type SourceTemplateType = {
   __typename?: "SourceTemplateType";
   createdAt: Scalars["DateTime"]["output"];
   id: Scalars["ID"]["output"];
+  plan: PlanType;
+  planId: Scalars["ID"]["output"];
   runs: Array<SourceRunType>;
   scheduleCron?: Maybe<Scalars["String"]["output"]>;
   scheduleEnabled: Scalars["Boolean"]["output"];
-  sourceProfileId: Scalars["String"]["output"];
   surfaceUrl: Scalars["String"]["output"];
 };
 
@@ -719,6 +739,11 @@ export type UpdateJobStageEventInput = {
 export type UpdateNoteInput = {
   content?: InputMaybe<Scalars["String"]["input"]>;
   expectedRevision: Scalars["Int"]["input"];
+};
+
+export type UpdatePlanInput = {
+  displayName?: InputMaybe<Scalars["String"]["input"]>;
+  document?: InputMaybe<Scalars["JSON"]["input"]>;
 };
 
 export type UpdateResumeInput = {
@@ -828,17 +853,18 @@ export type SourceRunsQuery = {
     __typename?: "SourceRunType";
     id: string;
     templateId: string;
-    sourceProfileId: string;
+    planId: string;
     surfaceUrl: string;
     status: SourceRunStatus;
+    errorMessage?: string | null;
     startedAt: any;
-    sourceProfile: string;
   }>;
 };
 
 export type UpdateSourceRunStatusMutationVariables = Exact<{
   id: Scalars["ID"]["input"];
   status: SourceRunStatus;
+  errorMessage?: InputMaybe<Scalars["String"]["input"]>;
 }>;
 
 export type UpdateSourceRunStatusMutation = {
@@ -847,6 +873,7 @@ export type UpdateSourceRunStatusMutation = {
     __typename?: "SourceRunType";
     id: string;
     status: SourceRunStatus;
+    errorMessage?: string | null;
   };
 };
 
@@ -1100,17 +1127,14 @@ export const SourceRunsDocument = {
               selections: [
                 { kind: "Field", name: { kind: "Name", value: "id" } },
                 { kind: "Field", name: { kind: "Name", value: "templateId" } },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "sourceProfileId" },
-                },
+                { kind: "Field", name: { kind: "Name", value: "planId" } },
                 { kind: "Field", name: { kind: "Name", value: "surfaceUrl" } },
                 { kind: "Field", name: { kind: "Name", value: "status" } },
-                { kind: "Field", name: { kind: "Name", value: "startedAt" } },
                 {
                   kind: "Field",
-                  name: { kind: "Name", value: "sourceProfile" },
+                  name: { kind: "Name", value: "errorMessage" },
                 },
+                { kind: "Field", name: { kind: "Name", value: "startedAt" } },
               ],
             },
           },
@@ -1149,6 +1173,14 @@ export const UpdateSourceRunStatusDocument = {
             },
           },
         },
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "errorMessage" },
+          },
+          type: { kind: "NamedType", name: { kind: "Name", value: "String" } },
+        },
       ],
       selectionSet: {
         kind: "SelectionSet",
@@ -1173,12 +1205,24 @@ export const UpdateSourceRunStatusDocument = {
                   name: { kind: "Name", value: "status" },
                 },
               },
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "errorMessage" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "errorMessage" },
+                },
+              },
             ],
             selectionSet: {
               kind: "SelectionSet",
               selections: [
                 { kind: "Field", name: { kind: "Name", value: "id" } },
                 { kind: "Field", name: { kind: "Name", value: "status" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "errorMessage" },
+                },
               ],
             },
           },

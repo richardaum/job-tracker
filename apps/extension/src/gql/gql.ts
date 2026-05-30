@@ -18,8 +18,8 @@ type Documents = {
   "mutation CreateJob($input: CreateJobInput!) {\n  createJob(input: $input) {\n    id\n    title\n  }\n}": typeof types.CreateJobDocument;
   "query Me {\n  me {\n    email\n  }\n}": typeof types.MeDocument;
   "mutation ReportExtensionActivity($input: ReportExtensionActivityInput!) {\n  reportExtensionActivity(input: $input) {\n    id\n    type\n    summary\n    correlationId\n    occurredAt\n  }\n}": typeof types.ReportExtensionActivityDocument;
-  "query SourceRuns {\n  sourceRuns {\n    id\n    templateId\n    sourceProfileId\n    surfaceUrl\n    status\n    startedAt\n    sourceProfile\n  }\n}": typeof types.SourceRunsDocument;
-  "mutation UpdateSourceRunStatus($id: ID!, $status: SourceRunStatus!) {\n  updateSourceRunStatus(id: $id, status: $status) {\n    id\n    status\n  }\n}": typeof types.UpdateSourceRunStatusDocument;
+  "query SourceRuns {\n  sourceRuns {\n    id\n    templateId\n    planId\n    surfaceUrl\n    status\n    errorMessage\n    startedAt\n  }\n}": typeof types.SourceRunsDocument;
+  "mutation UpdateSourceRunStatus($id: ID!, $status: SourceRunStatus!, $errorMessage: String) {\n  updateSourceRunStatus(id: $id, status: $status, errorMessage: $errorMessage) {\n    id\n    status\n    errorMessage\n  }\n}": typeof types.UpdateSourceRunStatusDocument;
   "mutation UpdateSourceRun($id: ID!, $input: UpdateSourceRunInput!) {\n  updateSourceRun(id: $id, input: $input) {\n    id\n    surfaceUrl\n  }\n}": typeof types.UpdateSourceRunDocument;
 };
 const documents: Documents = {
@@ -30,9 +30,9 @@ const documents: Documents = {
   "query Me {\n  me {\n    email\n  }\n}": types.MeDocument,
   "mutation ReportExtensionActivity($input: ReportExtensionActivityInput!) {\n  reportExtensionActivity(input: $input) {\n    id\n    type\n    summary\n    correlationId\n    occurredAt\n  }\n}":
     types.ReportExtensionActivityDocument,
-  "query SourceRuns {\n  sourceRuns {\n    id\n    templateId\n    sourceProfileId\n    surfaceUrl\n    status\n    startedAt\n    sourceProfile\n  }\n}":
+  "query SourceRuns {\n  sourceRuns {\n    id\n    templateId\n    planId\n    surfaceUrl\n    status\n    errorMessage\n    startedAt\n  }\n}":
     types.SourceRunsDocument,
-  "mutation UpdateSourceRunStatus($id: ID!, $status: SourceRunStatus!) {\n  updateSourceRunStatus(id: $id, status: $status) {\n    id\n    status\n  }\n}":
+  "mutation UpdateSourceRunStatus($id: ID!, $status: SourceRunStatus!, $errorMessage: String) {\n  updateSourceRunStatus(id: $id, status: $status, errorMessage: $errorMessage) {\n    id\n    status\n    errorMessage\n  }\n}":
     types.UpdateSourceRunStatusDocument,
   "mutation UpdateSourceRun($id: ID!, $input: UpdateSourceRunInput!) {\n  updateSourceRun(id: $id, input: $input) {\n    id\n    surfaceUrl\n  }\n}":
     types.UpdateSourceRunDocument,
@@ -80,14 +80,14 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: "query SourceRuns {\n  sourceRuns {\n    id\n    templateId\n    sourceProfileId\n    surfaceUrl\n    status\n    startedAt\n    sourceProfile\n  }\n}",
-): (typeof documents)["query SourceRuns {\n  sourceRuns {\n    id\n    templateId\n    sourceProfileId\n    surfaceUrl\n    status\n    startedAt\n    sourceProfile\n  }\n}"];
+  source: "query SourceRuns {\n  sourceRuns {\n    id\n    templateId\n    planId\n    surfaceUrl\n    status\n    errorMessage\n    startedAt\n  }\n}",
+): (typeof documents)["query SourceRuns {\n  sourceRuns {\n    id\n    templateId\n    planId\n    surfaceUrl\n    status\n    errorMessage\n    startedAt\n  }\n}"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: "mutation UpdateSourceRunStatus($id: ID!, $status: SourceRunStatus!) {\n  updateSourceRunStatus(id: $id, status: $status) {\n    id\n    status\n  }\n}",
-): (typeof documents)["mutation UpdateSourceRunStatus($id: ID!, $status: SourceRunStatus!) {\n  updateSourceRunStatus(id: $id, status: $status) {\n    id\n    status\n  }\n}"];
+  source: "mutation UpdateSourceRunStatus($id: ID!, $status: SourceRunStatus!, $errorMessage: String) {\n  updateSourceRunStatus(id: $id, status: $status, errorMessage: $errorMessage) {\n    id\n    status\n    errorMessage\n  }\n}",
+): (typeof documents)["mutation UpdateSourceRunStatus($id: ID!, $status: SourceRunStatus!, $errorMessage: String) {\n  updateSourceRunStatus(id: $id, status: $status, errorMessage: $errorMessage) {\n    id\n    status\n    errorMessage\n  }\n}"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
