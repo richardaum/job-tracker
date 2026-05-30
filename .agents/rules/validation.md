@@ -24,6 +24,8 @@ pnpm test:coverage   # alias for validate:coverage
 
 `lint`, `test`, `typecheck` can run in parallel. `test` and `typecheck` depend on `^build` (turbo).
 
+**Agent rule:** always run `lint` and `typecheck` as parallel tool calls, never sequentially. Launch both `pnpm lint` and `pnpm typecheck` in a single message. Waiting for one to finish before starting the other is wasteful — they are independent. Turbo handles the `^build` dependency internally.
+
 ## CI
 
 GitHub Actions: `ci` (Postgres 16-alpine, Node 22, pnpm 10.8.1), `e2e`, `docker-api`. Installs with `pnpm install --frozen-lockfile`. CI fails if lint leaves a dirty tree.
