@@ -289,44 +289,38 @@ type NoteType {
 
 type PlanType {
   id: ID!
-  sourceProfileId: String!
   displayName: String!
   document: JSON!
   createdAt: DateTime!
   updatedAt: DateTime!
+  templates: [SourceTemplateType!]!
 }
 
 type SourceRunType {
   id: ID!
   templateId: ID!
-  sourceProfileId: String!
+  planId: ID!
   surfaceUrl: String!
   status: SourceRunStatus!
+  errorMessage: String
   startedAt: DateTime!
-  sourceProfile: String!
 }
 
 enum SourceRunStatus {
-  RUNNING
-  IN_PROGRESS
-  COMPLETED
-  FAILED
+  Pending
+  Completed
+  Failed
 }
 
 type SourceTemplateType {
   id: ID!
-  sourceProfileId: String!
+  planId: ID!
+  plan: PlanType!
   scheduleCron: String
   scheduleEnabled: Boolean!
   surfaceUrl: String!
   createdAt: DateTime!
   runs: [SourceRunType!]!
-}
-
-type SourceProfileType {
-  sourceProfileId: String!
-  name: String!
-  templates: [SourceTemplateType!]!
 }
 
 type SourceRunEvent {
@@ -337,6 +331,7 @@ type SourceRunEvent {
 
 enum SourceRunEventType {
   SOURCE_RUN_CREATED
+  SOURCE_RUN_STATUS_CHANGED
 }
 
 type PreferenceType {
@@ -359,12 +354,10 @@ type Query {
   settings: UserSetting!
   exchangeRates(base: String!, currencies: [String!]!): CurrencyRates!
   plans: [PlanType!]!
-  plan(sourceProfileId: String!): PlanType
+  plan(id: ID!): PlanType
   sourceRuns: [SourceRunType!]!
   sourceTemplates: [SourceTemplateType!]!
-  sourceTemplatesForSourceProfile(sourceProfileId: String!): [SourceTemplateType!]!
   sourceTemplate(id: ID!): SourceTemplateType!
-  sourceProfiles(onlyWithSourceTemplate: Boolean = false): [SourceProfileType!]!
   extensionActivityEvents(limit: Int): [ExtensionActivityEvent!]!
   jobNotes(jobId: ID!): [NoteType!]!
   generateJobNoteWithAI(jobId: ID!, note: String!): String!
@@ -412,8 +405,9 @@ type Mutation {
   updateSourceRun(id: ID!, input: UpdateSourceRunInput!): SourceRunType!
   detachJobsFromSourceRun(sourceRunId: ID!): Int!
   deleteSourceRun(id: ID!, deleteJobs: Boolean = false): DeleteMutationPayloadType!
+  clearSourceTemplateRuns(templateId: ID!, deleteJobs: Boolean = false): Int!
   clearSourceRuns: Boolean!
-  updateSourceRunStatus(id: ID!, status: SourceRunStatus!): SourceRunType!
+  updateSourceRunStatus(id: ID!, status: SourceRunStatus!, errorMessage: String): SourceRunType!
   reportExtensionActivity(input: ReportExtensionActivityInput!): ExtensionActivityEvent!
   createJobNote(input: CreateNoteInput!): NoteType!
   updateJobNote(id: ID!, input: UpdateNoteInput!): NoteType!
@@ -492,23 +486,21 @@ input UpdateSettingsInput {
 }
 
 input CreatePlanInput {
-  sourceProfileId: String!
   displayName: String!
   document: JSON!
 }
 
 input UpdatePlanInput {
-  sourceProfileId: String
   displayName: String
   document: JSON
 }
 
 input CreateSourceRunInput {
-  sourceProfileId: String!
+  planId: ID!
 }
 
 input CreateSourceTemplateInput {
-  sourceProfileId: String!
+  planId: ID!
   surfaceUrl: String!
 }
 
