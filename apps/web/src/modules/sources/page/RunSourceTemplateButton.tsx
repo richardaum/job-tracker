@@ -7,7 +7,6 @@ import React, { useState } from "react";
 
 import type { SourceRunStatus } from "@/gql/graphql";
 import {
-  SourcesForSourceProfileDocument,
   SourceTemplateDocument,
   useRerunSourceTemplateMutation,
 } from "@/gql/hooks";
@@ -24,7 +23,6 @@ type SourceRunSummary = {
 
 type RunSourceTemplateButtonProps = {
   templateId: string;
-  sourceProfileId: string;
   label: string;
   tooltip: string;
   variant?: "icon" | "button";
@@ -33,7 +31,6 @@ type RunSourceTemplateButtonProps = {
 
 export function RunSourceTemplateButton({
   templateId,
-  sourceProfileId,
   label,
   tooltip,
   variant = "icon",
@@ -42,15 +39,8 @@ export function RunSourceTemplateButton({
   const [running, setRunning] = useState(false);
   const [rerunSourceTemplate] = useRerunSourceTemplateMutation({
     refetchQueries: [
-      ...(sourceProfileId !== ""
-        ? [
-            {
-              query: SourcesForSourceProfileDocument,
-              variables: { sourceProfileId },
-            },
-          ]
-        : []),
       { query: SourceTemplateDocument, variables: { id: templateId } },
+      "SourceTemplatesAll",
     ],
     awaitRefetchQueries: true,
   });
@@ -68,7 +58,7 @@ export function RunSourceTemplateButton({
     }
 
     const run = result.data.rerunSourceTemplate;
-    sendSourceRunStart(run.id, run.surfaceUrl, run.sourceProfileId);
+    sendSourceRunStart(run.id, run.surfaceUrl, run.planId);
     onRunStarted?.(templateId, run);
   }
 

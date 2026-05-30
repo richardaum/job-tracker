@@ -12,40 +12,23 @@ import {
 } from "@job-tracker/ui";
 import React, { useCallback, useState } from "react";
 
-import {
-  SourcesForSourceProfileDocument,
-  useUpdateSourceTemplateMutation,
-} from "@/gql/hooks";
+import { useUpdateSourceTemplateMutation } from "@/gql/hooks";
 import type { SourceListItem } from "@/modules/sources/page/source-template-list.shared";
-
-function useSourceMutationOptions(sourceProfileId: string) {
-  return sourceProfileId
-    ? {
-        refetchQueries: [
-          {
-            query: SourcesForSourceProfileDocument,
-            variables: { sourceProfileId },
-          },
-        ],
-      }
-    : {};
-}
 
 type SourceSurfaceUrlFormInnerProps = {
   template: SourceListItem;
-  sourceProfileId: string;
   close: () => void;
   onSurfaceSaved?: (id: string, surfaceUrl: string) => void;
 };
 
 function SourceSurfaceUrlFormInner({
   template,
-  sourceProfileId,
   close,
   onSurfaceSaved,
 }: SourceSurfaceUrlFormInnerProps) {
-  const refetchSources = useSourceMutationOptions(sourceProfileId);
-  const [updateSource] = useUpdateSourceTemplateMutation(refetchSources);
+  const [updateSource] = useUpdateSourceTemplateMutation({
+    refetchQueries: ["Plans", "SourceTemplatesAll"],
+  });
   const [draft, setDraft] = useState(() => template.surfaceUrl ?? "");
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -111,14 +94,12 @@ function SourceSurfaceUrlFormInner({
 }
 
 type SourceSurfaceUrlDialogProps = {
-  sourceProfileId: string;
   template: SourceListItem | null;
   onOpenChange: (open: boolean) => void;
   onSurfaceSaved?: (id: string, surfaceUrl: string) => void;
 };
 
 export function SourceSurfaceUrlDialog({
-  sourceProfileId,
   template,
   onOpenChange,
   onSurfaceSaved,
@@ -143,7 +124,6 @@ export function SourceSurfaceUrlDialog({
         <SourceSurfaceUrlFormInner
           key={template.id}
           template={template}
-          sourceProfileId={sourceProfileId}
           close={close}
           onSurfaceSaved={onSurfaceSaved}
         />

@@ -13,28 +13,11 @@ import {
 } from "@job-tracker/ui";
 import React, { useCallback, useState } from "react";
 
-import {
-  SourcesForSourceProfileDocument,
-  useUpdateSourceTemplateMutation,
-} from "@/gql/hooks";
+import { useUpdateSourceTemplateMutation } from "@/gql/hooks";
 import type { SourceListItem } from "@/modules/sources/page/source-template-list.shared";
-
-function useSourceMutationOptions(sourceProfileId: string) {
-  return sourceProfileId
-    ? {
-        refetchQueries: [
-          {
-            query: SourcesForSourceProfileDocument,
-            variables: { sourceProfileId },
-          },
-        ],
-      }
-    : {};
-}
 
 type SourceScheduleFormInnerProps = {
   template: SourceListItem;
-  sourceProfileId: string;
   close: () => void;
   onScheduleSaved?: (
     id: string,
@@ -44,12 +27,12 @@ type SourceScheduleFormInnerProps = {
 
 function SourceScheduleFormInner({
   template,
-  sourceProfileId,
   close,
   onScheduleSaved,
 }: SourceScheduleFormInnerProps) {
-  const refetchSources = useSourceMutationOptions(sourceProfileId);
-  const [updateSource] = useUpdateSourceTemplateMutation(refetchSources);
+  const [updateSource] = useUpdateSourceTemplateMutation({
+    refetchQueries: ["Plans", "SourceTemplatesAll"],
+  });
   const [enabledDraft, setEnabledDraft] = useState(
     () => template.scheduleEnabled,
   );
@@ -127,7 +110,6 @@ function SourceScheduleFormInner({
 }
 
 type SourceScheduleDialogProps = {
-  sourceProfileId: string;
   template: SourceListItem | null;
   onOpenChange: (open: boolean) => void;
   onScheduleSaved?: (
@@ -137,7 +119,6 @@ type SourceScheduleDialogProps = {
 };
 
 export function SourceScheduleDialog({
-  sourceProfileId,
   template,
   onOpenChange,
   onScheduleSaved,
@@ -161,7 +142,6 @@ export function SourceScheduleDialog({
         <SourceScheduleFormInner
           key={template.id}
           template={template}
-          sourceProfileId={sourceProfileId}
           close={close}
           onScheduleSaved={onScheduleSaved}
         />

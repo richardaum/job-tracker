@@ -11,8 +11,7 @@ export function sourceRunStatusBadgeIntent(
       return "success";
     case SourceRunStatus.Failed:
       return "error";
-    case SourceRunStatus.Running:
-    case SourceRunStatus.InProgress:
+    case SourceRunStatus.Pending:
       return "info";
   }
 }

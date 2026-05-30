@@ -14,6 +14,7 @@ import {
   Skeleton,
   Stack,
   Text,
+  Tooltip,
 } from "@job-tracker/ui";
 import {
   BriefcaseIcon,
@@ -37,6 +38,7 @@ import {
   sourceRunStatusBadgeIntent,
 } from "@/modules/sources/lib/source-runs.display";
 import { sourceRunJobsHref } from "@/modules/sources/lib/source-runs.routes";
+import { ClearSourceRunsDialog } from "@/modules/sources/page/ClearSourceRunsDialog";
 import { DeleteSourceRunDialog } from "@/modules/sources/page/DeleteSourceRunDialog";
 import { DeleteSourceTemplateDialog } from "@/modules/sources/page/DeleteSourceTemplateDialog";
 import { RunSourceTemplateButton } from "@/modules/sources/page/RunSourceTemplateButton";
@@ -45,7 +47,7 @@ import { SourceScheduleDialog } from "@/modules/sources/page/SourceScheduleDialo
 import { SourceSurfaceUrlDialog } from "@/modules/sources/page/SourceSurfaceUrlDialog";
 
 interface PageProps {
-  params: Promise<{ profileId: string; templateId: string }>;
+  params: Promise<{ planId: string; templateId: string }>;
 }
 
 function SourceRunsListSkeleton() {
@@ -68,7 +70,7 @@ function runLabel(index: number): string {
 }
 
 export default function SourceRunsPage({ params }: PageProps) {
-  const { profileId, templateId } = React.use(params);
+  const { planId, templateId } = React.use(params);
   const { template, error, status, notFound, showInitialLoading } =
     useSourceRunsViewModel(templateId);
 
@@ -77,6 +79,7 @@ export default function SourceRunsPage({ params }: PageProps) {
   const [scheduleDialogOpen, setScheduleDialogOpen] = React.useState(false);
   const [deleteTemplateDialogOpen, setDeleteTemplateDialogOpen] =
     React.useState(false);
+  const [clearRunsDialogOpen, setClearRunsDialogOpen] = React.useState(false);
 
   const headerActions =
     template !== null ? (
@@ -119,6 +122,13 @@ export default function SourceRunsPage({ params }: PageProps) {
           <DropdownMenuSeparator />
           <DropdownMenuItem
             destructive
+            onSelect={() => setClearRunsDialogOpen(true)}
+            icon={<TrashIcon size={14} weight="regular" />}
+          >
+            Remove all runs
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            destructive
             onSelect={() => setDeleteTemplateDialogOpen(true)}
             icon={<TrashIcon size={14} weight="regular" />}
           >
@@ -127,7 +137,6 @@ export default function SourceRunsPage({ params }: PageProps) {
         </DropdownMenu>
         <RunSourceTemplateButton
           templateId={template.id}
-          sourceProfileId={template.sourceProfileId}
           label="Run again"
           tooltip="Run again"
           variant="button"
@@ -138,8 +147,8 @@ export default function SourceRunsPage({ params }: PageProps) {
   return (
     <div className={cn("flex h-full min-h-0 flex-col")}>
       <DetailPageHeader trailing={headerActions}>
-        <BackToLink href={`/sources/profile/${profileId}` as Route}>
-          Back to source profile
+        <BackToLink href={`/sources/plans/${planId}` as Route}>
+          Back to plan
         </BackToLink>
         <Heading as="h1" size="2xl" className={cn("min-w-0")}>
           Source runs
@@ -184,9 +193,19 @@ export default function SourceRunsPage({ params }: PageProps) {
                 }
                 actions={
                   <ListItemCard.Actions>
-                    <Badge intent={sourceRunStatusBadgeIntent(run.status)}>
-                      {formatSourceRunStatusLabel(run.status)}
-                    </Badge>
+                    <Tooltip
+                      content={
+                        <div className={cn("flex flex-col gap-0.5")}>
+                          <span className={cn("font-medium")}>Run failed</span>
+                          <span>{run.errorMessage}</span>
+                        </div>
+                      }
+                      enabled={run.status === "Failed" && !!run.errorMessage}
+                    >
+                      <Badge intent={sourceRunStatusBadgeIntent(run.status)}>
+                        {formatSourceRunStatusLabel(run.status)}
+                      </Badge>
+                    </Tooltip>
                     <IconButton
                       asChild
                       intent="ghost"
@@ -212,7 +231,6 @@ export default function SourceRunsPage({ params }: PageProps) {
                       }
                       runId={run.id}
                       templateId={template.id}
-                      sourceProfileId={template.sourceProfileId}
                       runLabel={runLabel(index)}
                     />
                   </ListItemCard.Actions>
@@ -229,22 +247,26 @@ export default function SourceRunsPage({ params }: PageProps) {
       </div>
 
       <SourceSurfaceUrlDialog
-        sourceProfileId={template?.sourceProfileId ?? ""}
         template={surfaceUrlDialogOpen ? template : null}
         onOpenChange={setSurfaceUrlDialogOpen}
       />
 
       <SourceScheduleDialog
-        sourceProfileId={template?.sourceProfileId ?? ""}
         template={scheduleDialogOpen ? template : null}
         onOpenChange={setScheduleDialogOpen}
+      />
+
+      <ClearSourceRunsDialog
+        open={clearRunsDialogOpen}
+        onOpenChange={setClearRunsDialogOpen}
+        templateId={templateId}
       />
 
       <DeleteSourceTemplateDialog
         open={deleteTemplateDialogOpen}
         onOpenChange={setDeleteTemplateDialogOpen}
         templateId={templateId}
-        sourceProfileId={profileId}
+        planId={planId}
       />
     </div>
   );

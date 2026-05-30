@@ -6,7 +6,6 @@ import React, { useId, useState } from "react";
 
 import {
   JobsDocument,
-  SourcesForSourceProfileDocument,
   SourceTemplateDocument,
   useDeleteSourceRunMutation,
 } from "@/gql/hooks";
@@ -15,7 +14,6 @@ type DeleteSourceRunDialogProps = {
   trigger: React.ReactElement;
   runId: string;
   templateId: string;
-  sourceProfileId: string;
   runLabel: string;
   onDeleted?: (runId: string) => void;
 };
@@ -24,7 +22,6 @@ export function DeleteSourceRunDialog({
   trigger,
   runId,
   templateId,
-  sourceProfileId,
   runLabel,
   onDeleted,
 }: DeleteSourceRunDialogProps) {
@@ -51,15 +48,8 @@ export function DeleteSourceRunDialog({
             variables: { id: runId, deleteJobs },
             refetchQueries: [
               { query: SourceTemplateDocument, variables: { id: templateId } },
-              ...(sourceProfileId !== ""
-                ? [
-                    {
-                      query: SourcesForSourceProfileDocument,
-                      variables: { sourceProfileId },
-                    },
-                  ]
-                : []),
               ...(deleteJobs ? [{ query: JobsDocument }] : []),
+              "SourceTemplatesAll",
             ],
             awaitRefetchQueries: true,
           }),

@@ -120,13 +120,7 @@ export function ImportPlanDialog({
 
     const [err] = await tryRun(
       createPlan({
-        variables: {
-          input: {
-            sourceProfileId: crypto.randomUUID(),
-            displayName: trimmedDisplayName,
-            document,
-          },
-        },
+        variables: { input: { displayName: trimmedDisplayName, document } },
         refetchQueries: ["Plans"],
       }),
     );

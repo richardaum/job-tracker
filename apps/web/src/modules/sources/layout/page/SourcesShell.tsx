@@ -1,40 +1,12 @@
 "use client";
 
 import { SlotsProvider } from "@job-tracker/react-slots";
-import {
-  cn,
-  Heading,
-  Tabs,
-  TabsList,
-  TabsTrigger,
-  Text,
-} from "@job-tracker/ui";
-import type { Route } from "next";
-import { usePathname, useRouter } from "next/navigation";
+import { cn, Heading, Text } from "@job-tracker/ui";
 
 import { DetailPageHeader } from "@/components/detail-page-header";
 import { SourcesHeaderActions } from "@/modules/sources/layout/sources-header.slots";
 
-function deriveTab(pathname: string): string {
-  if (pathname.startsWith("/sources/plans")) return "plans";
-  return "profiles";
-}
-
-const TAB_ROUTES: Record<string, Route> = {
-  plans: "/sources/plans",
-  profiles: "/sources/profiles",
-};
-
 export function SourcesShell({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname();
-  const router = useRouter();
-  const currentTab = deriveTab(pathname);
-
-  function navigateToTab(value: string) {
-    const route = TAB_ROUTES[value] ?? "/sources/profiles";
-    router.push(route);
-  }
-
   return (
     <SlotsProvider>
       <div className={cn("flex h-full min-h-0 flex-col")}>
@@ -54,22 +26,6 @@ export function SourcesShell({ children }: { children: React.ReactNode }) {
           </Text>
         </DetailPageHeader>
         <div className={cn("flex min-h-0 flex-1 flex-col")}>
-          <div
-            className={cn(
-              "flex w-full shrink-0 flex-wrap items-center gap-x-4 gap-y-2 px-4 pt-4 sm:px-6 sm:pt-6",
-            )}
-          >
-            <Tabs
-              value={currentTab}
-              onValueChange={navigateToTab}
-              className={cn("w-fit")}
-            >
-              <TabsList className={cn("w-full justify-start sm:w-fit")}>
-                <TabsTrigger value="plans">Plans</TabsTrigger>
-                <TabsTrigger value="profiles">Profiles</TabsTrigger>
-              </TabsList>
-            </Tabs>
-          </div>
           <div
             className={cn(
               "flex min-h-0 min-w-0 flex-1 flex-col items-stretch overflow-auto",
