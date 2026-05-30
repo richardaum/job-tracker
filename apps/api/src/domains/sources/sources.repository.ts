@@ -1,5 +1,6 @@
 import { SourceRunEntity } from "@api/database/entities/source-run.entity";
 import { SourceTemplateEntity } from "@api/database/entities/source-template.entity";
+import { SourceRunActivityEvent } from "@api/domains/sources/source-run-activity-event.type";
 import { SourceRunStatusEnum } from "@api/domains/sources/source-run-status.enum";
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
@@ -26,6 +27,7 @@ export class SourcesRepository {
     userId: string;
     planId: string;
     surfaceUrl: string;
+    config?: Record<string, unknown> | null;
   }): Promise<SourceTemplateEntity> {
     const existing = await this.templatesRepo.findOne({
       where: { userId: params.userId, planId: params.planId },
@@ -40,6 +42,7 @@ export class SourcesRepository {
       surfaceUrl: params.surfaceUrl,
       scheduleEnabled: false,
       scheduleCron: null,
+      config: params.config ?? null,
     });
     const saved = await this.templatesRepo.save(row);
     return this.templatesRepo.findOneOrFail({
@@ -86,6 +89,7 @@ export class SourcesRepository {
       scheduleCron?: string | null;
       scheduleEnabled?: boolean | null;
       surfaceUrl?: string;
+      config?: Record<string, unknown> | null;
     };
   }): Promise<SourceTemplateEntity | null> {
     const existing = await this.findTemplateByUserAndId({
@@ -112,9 +116,18 @@ export class SourcesRepository {
       surfaceUrl = raw.trim();
     }
 
+    const updateFields: Record<string, unknown> = {
+      scheduleCron,
+      scheduleEnabled,
+      surfaceUrl,
+    };
+    if (params.patch.config !== undefined) {
+      updateFields.config = params.patch.config;
+    }
+
     const result = await this.templatesRepo.update(
       { id: params.id, userId: params.userId },
-      { scheduleCron, scheduleEnabled, surfaceUrl },
+      updateFields,
     );
     if ((result.affected ?? 0) === 0) {
       return null;
@@ -237,5 +250,24 @@ export class SourcesRepository {
         startedAt: LessThan(cutoff),
       },
     });
+  }
+
+  async findActivityEventsByRunId(
+    userId: string,
+    runId: string,
+  ): Promise<SourceRunActivityEvent[]> {
+    const rows = await this.runsRepo.manager.query(
+      `SELECT type, summary, payload, occurred_at
+       FROM extension_activity_events
+       WHERE user_id = $1 AND correlation_id = $2
+       ORDER BY occurred_at ASC, id ASC`,
+      [userId, runId],
+    );
+    return rows.map((r: { type: string; summary: string; payload: Record<string, unknown> | null; occurred_at: string }) => ({
+      type: r.type,
+      summary: r.summary,
+      payload: r.payload,
+      occurredAt: r.occurred_at,
+    }));
   }
 }

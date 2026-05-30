@@ -1,4 +1,5 @@
 import { Field, ID, ObjectType } from "@nestjs/graphql";
+import GraphQLJSON from "graphql-type-json";
 
 import { PlanType } from "./plan.type";
 import { SourceRunType } from "./source-run.type";
@@ -22,6 +23,9 @@ export class SourceTemplateType {
 
   @Field(() => String)
   surfaceUrl!: string;
+
+  @Field(() => GraphQLJSON, { nullable: true })
+  config!: Record<string, unknown> | null;
 
   @Field()
   createdAt!: Date;

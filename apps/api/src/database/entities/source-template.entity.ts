@@ -35,6 +35,9 @@ export class SourceTemplateEntity {
   @Column({ name: "surface_url", type: "text", nullable: false })
   surfaceUrl!: string;
 
+  @Column({ type: "jsonb", nullable: true })
+  config!: Record<string, unknown> | null;
+
   @CreateDateColumn({ name: "created_at", type: "timestamptz" })
   createdAt!: Date;
 }

@@ -17,6 +17,7 @@ import {
 
 import { CreateSourceRunInput } from "./create-source-run.input";
 import { CreateSourceTemplateInput } from "./create-source-template.input";
+import { SourceRunActivityEvent } from "./source-run-activity-event.type";
 import { SourceRunType } from "./source-run.type";
 import { SourceRunEvent } from "./source-run-event.type";
 import { SourceRunStatusEnum } from "./source-run-status.enum";
@@ -74,6 +75,7 @@ export class SourcesResolver {
     return this.service.createSourceTemplate(user.userId, {
       planId: input.planId,
       surfaceUrl: input.surfaceUrl,
+      config: input.config ?? undefined,
     });
   }
 
@@ -95,6 +97,7 @@ export class SourcesResolver {
       scheduleCron: input.scheduleCron,
       scheduleEnabled: input.scheduleEnabled,
       surfaceUrl: input.surfaceUrl,
+      config: input.config ?? undefined,
     });
   }
 
@@ -182,6 +185,14 @@ export class SourcesResolver {
       status,
       errorMessage,
     );
+  }
+
+  @Query(() => [SourceRunActivityEvent])
+  sourceRunActivityEvents(
+    @Args("runId", { type: () => ID }) runId: string,
+    @CurrentUser() user: { userId: string },
+  ): Promise<SourceRunActivityEvent[]> {
+    return this.service.listSourceRunActivityEvents(user.userId, runId);
   }
 
   @Subscription(() => SourceRunEvent)

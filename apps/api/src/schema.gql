@@ -81,6 +81,8 @@ enum ExtensionActivityEventType {
   SourceRunReceived
   SourceRunClaimSkipped
   SourceRunStarted
+  SourceRunPageCollected
+  SourceRunStopConditionMet
   SourceRunJobImported
   SourceRunCompleted
   SourceRunFailed
@@ -349,9 +351,16 @@ type SourceTemplateType {
   scheduleCron: String
   scheduleEnabled: Boolean!
   surfaceUrl: String!
-  createdAt: DateTime!
   config: JSON
+  createdAt: DateTime!
   runs: [SourceRunType!]!
+}
+
+type SourceRunActivityEvent {
+  type: String!
+  summary: String!
+  payload: JSON
+  occurredAt: DateTime!
 }
 
 type SourceRunEvent {
@@ -392,6 +401,7 @@ type Query {
   sourceRuns: [SourceRunType!]!
   sourceTemplates: [SourceTemplateType!]!
   sourceTemplate(id: ID!): SourceTemplateType!
+  sourceRunActivityEvents(runId: ID!): [SourceRunActivityEvent!]!
   extensionActivityEvents(limit: Int): [ExtensionActivityEvent!]!
   resumes: [ResumeType!]!
   resume(id: ID!): ResumeType!

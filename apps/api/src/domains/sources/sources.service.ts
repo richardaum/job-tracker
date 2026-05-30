@@ -1,8 +1,10 @@
 import { SourceRunEntity } from "@api/database/entities/source-run.entity";
 import { SourceTemplateEntity } from "@api/database/entities/source-template.entity";
 import { JobsRepository } from "@api/domains/jobs/jobs.repository";
+import { SourceRunActivityEvent } from "@api/domains/sources/source-run-activity-event.type";
 import { SourceRunType } from "@api/domains/sources/source-run.type";
 import { SourceRunStatusEnum } from "@api/domains/sources/source-run-status.enum";
+import { StopWhenEnum } from "@api/domains/sources/stop-when.enum";
 import { SourceTemplateType } from "@api/domains/sources/source-template.type";
 import {
   BadRequestException,
@@ -374,6 +376,13 @@ export class SourcesService implements OnModuleInit {
     return run;
   }
 
+  async listSourceRunActivityEvents(
+    userId: string,
+    runId: string,
+  ): Promise<SourceRunActivityEvent[]> {
+    return this.repo.findActivityEventsByRunId(userId, runId);
+  }
+
   private getStaleCutoff(now: Date): Date {
     return new Date(now.getTime() - SourcesService.STALE_TIMEOUT_MS);
   }
@@ -404,6 +413,7 @@ export class SourcesService implements OnModuleInit {
       scheduleCron: template.scheduleCron,
       scheduleEnabled: template.scheduleEnabled,
       surfaceUrl: template.surfaceUrl,
+      config: template.config,
       createdAt: template.createdAt,
       runs: runs.map((r) => this.toGql(r, jobCounts)),
     };
@@ -423,7 +433,7 @@ export class SourcesService implements OnModuleInit {
       );
     }
 
-    if (result.data.stopWhen === "OlderThan") {
+    if (result.data.stopWhen.includes(StopWhenEnum.OlderThan)) {
       if (!planHasPublishedAt(planDocument)) {
         throw new BadRequestException(
           "Stop condition OlderThan requires a surface field with key 'publishedAt' in the plan",
@@ -446,7 +456,9 @@ export class SourcesService implements OnModuleInit {
       status: row.status,
       errorMessage: row.errorMessage ?? null,
       startedAt: row.startedAt,
-      stopWhen: (config?.stopWhen as SourceRunType["stopWhen"]) ?? null,
+      stopWhen: Array.isArray(config?.stopWhen)
+        ? (config.stopWhen[0] as StopWhenEnum) ?? null
+        : (config?.stopWhen as SourceRunType["stopWhen"]) ?? null,
       catchUpThreshold:
         (config?.catchUpThreshold as SourceRunType["catchUpThreshold"]) ?? null,
       maxPages: (config?.maxPages as SourceRunType["maxPages"]) ?? null,
