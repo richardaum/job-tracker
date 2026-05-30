@@ -14,6 +14,7 @@ import {
 import React, { useCallback, useMemo, useState } from "react";
 
 import { useUpdateSourceTemplateMutation } from "@/gql/hooks";
+import { useToastQueue } from "@/modules/jobs/shared/hooks/useToastQueue";
 import type { SourceListItem } from "@/modules/sources/page/source-template-list.shared";
 
 type StopWhen = "CatchUp" | "FirstRunMaxPages" | "OlderThan";
@@ -117,6 +118,8 @@ function SourceStopConfigFormInner({
     refetchQueries: ["Plans", "SourceTemplatesAll"],
   });
 
+  const { enqueueToast } = useToastQueue();
+
   const initial = useMemo(
     () => parseConfig(template.config),
     [template.config],
@@ -127,14 +130,12 @@ function SourceStopConfigFormInner({
   );
   const [maxPages, setMaxPages] = useState(initial.maxPages);
   const [olderThanDays, setOlderThanDays] = useState(initial.olderThanDays);
-  const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
   function toggleCondition(value: StopWhen) {
     setStopWhen((prev) =>
       prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value],
     );
-    setError(null);
   }
 
   function paramValue(value: StopWhen): string {
@@ -160,28 +161,27 @@ function SourceStopConfigFormInner({
         setOlderThanDays(v);
         break;
     }
-    setError(null);
   }
 
-  const paramErrors = useMemo(() => {
-    const errors: string[] = [];
-    if (stopWhen.includes("CatchUp") && !catchUpThreshold)
-      errors.push("Consecutive duplicates is required for CatchUp");
-    if (stopWhen.includes("FirstRunMaxPages") && !maxPages)
-      errors.push("Max pages is required for Max Pages");
-    if (stopWhen.includes("OlderThan") && !olderThanDays)
-      errors.push("Max age is required for Older Than");
-    return errors;
-  }, [stopWhen, catchUpThreshold, maxPages, olderThanDays]);
+  function showValidationError(msg: string) {
+    enqueueToast({ title: msg, intent: "error" });
+  }
 
   async function handleSave() {
-    if (paramErrors.length > 0) {
-      setError(paramErrors.join(". "));
+    if (stopWhen.includes("CatchUp") && !catchUpThreshold) {
+      showValidationError("Consecutive duplicates is required for CatchUp");
+      return;
+    }
+    if (stopWhen.includes("FirstRunMaxPages") && !maxPages) {
+      showValidationError("Max pages is required for Max Pages");
+      return;
+    }
+    if (stopWhen.includes("OlderThan") && !olderThanDays) {
+      showValidationError("Max age is required for Older Than");
       return;
     }
 
     setSaving(true);
-    setError(null);
 
     const config = buildConfig({
       stopWhen,
@@ -197,7 +197,7 @@ function SourceStopConfigFormInner({
     setSaving(false);
 
     if (err) {
-      setError("Could not save stop condition. Try again.");
+      enqueueToast({ title: err instanceof Error ? err.message : "Could not save stop condition. Try again.", intent: "error" });
       return;
     }
 
@@ -263,12 +263,6 @@ function SourceStopConfigFormInner({
           );
         })}
       </Stack>
-
-      {error ? (
-        <Text size="sm" color="error">
-          {error}
-        </Text>
-      ) : null}
 
       <div className={cn("flex justify-end gap-2")}>
         <Button intent="secondary" disabled={saving} onClick={close}>

@@ -10,6 +10,7 @@ import {
   Stack,
   Text,
 } from "@job-tracker/ui";
+import { ArrowSquareOutIcon } from "@phosphor-icons/react";
 import React, { useCallback, useState } from "react";
 
 import { useUpdateSourceTemplateMutation } from "@/gql/hooks";
@@ -77,17 +78,30 @@ function SourceSurfaceUrlFormInner({
           {error}
         </Text>
       ) : null}
-      <div className={cn("flex justify-end gap-2")}>
-        <Button intent="secondary" disabled={saving} onClick={close}>
-          Cancel
-        </Button>
-        <Button
-          intent="primary"
-          state={saving ? "loading" : "default"}
-          onClick={() => void handleSave()}
-        >
-          Save
-        </Button>
+      <div className={cn("flex items-center gap-2")}>
+        {template.surfaceUrl ? (
+          <Button
+            intent="ghost"
+            leftIcon={<ArrowSquareOutIcon size={14} weight="regular" />}
+            onClick={() =>
+              window.open(template.surfaceUrl, "_blank", "noopener,noreferrer")
+            }
+          >
+            Open URL
+          </Button>
+        ) : null}
+        <div className={cn("ml-auto flex gap-2")}>
+          <Button intent="secondary" disabled={saving} onClick={close}>
+            Cancel
+          </Button>
+          <Button
+            intent="primary"
+            state={saving ? "loading" : "default"}
+            onClick={() => void handleSave()}
+          >
+            Save
+          </Button>
+        </div>
       </div>
     </Stack>
   );
