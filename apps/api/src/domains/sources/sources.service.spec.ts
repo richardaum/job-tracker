@@ -78,7 +78,6 @@ describe("SourcesService", () => {
     | "patchSourceTemplate"
     | "listTemplatesByUserAndPlanId"
     | "deleteRunsByTemplateId"
-    | "findRunsForTemplate"
   > = {
     listByUserId: vi.fn(),
     findOrCreateTemplate: vi.fn(),
@@ -88,7 +87,6 @@ describe("SourcesService", () => {
     deleteByUser: vi.fn(),
     deleteTemplatesByUserId: vi.fn(),
     findByUserAndId: vi.fn(),
-    findRunsForTemplate: vi.fn(),
     updateStatus: vi.fn(),
     countStalePending: vi.fn(),
     listTemplatesByUserId: vi.fn(),
@@ -103,11 +101,9 @@ describe("SourcesService", () => {
     | "detachJobsSourceRun"
     | "countBySourceRunIds"
     | "deleteBySourceRunId"
-    | "deleteBySourceRunId"
   > = {
     detachJobsSourceRun: vi.fn(),
     countBySourceRunIds: vi.fn(),
-    deleteBySourceRunId: vi.fn(),
     deleteBySourceRunId: vi.fn(),
   };
 
