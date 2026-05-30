@@ -1,4 +1,4 @@
-import { Bell } from "@phosphor-icons/react";
+import { BellIcon } from "@phosphor-icons/react";
 import { fireEvent, render, screen } from "@testing-library/react";
 import React from "react";
 import { describe, expect, it, vi } from "vitest";
@@ -9,7 +9,7 @@ describe("IconButton", () => {
   it("renders an accessible icon button", () => {
     render(
       <IconButton
-        icon={<Bell size={16} weight="regular" />}
+        icon={<BellIcon size={16} weight="regular" />}
         label="Notify"
         tooltip="Notify"
       />,
@@ -21,7 +21,7 @@ describe("IconButton", () => {
     const onClick = vi.fn();
     render(
       <IconButton
-        icon={<Bell size={16} weight="regular" />}
+        icon={<BellIcon size={16} weight="regular" />}
         label="Notify"
         tooltip="Notify"
         onClick={onClick}

@@ -13,10 +13,8 @@ export const noAsUnknownAs = {
     },
   },
 
-  /** @returns {import('eslint').Rule.RuleListener} */
   create(context) {
     return {
-      /** @param {import("@typescript-eslint/typescript-estree").TSESTree.TSAsExpression} node */
       TSAsExpression(node) {
         if (
           node.expression.type === "TSAsExpression" &&

@@ -1,4 +1,4 @@
-import { Info } from "@phosphor-icons/react";
+import { InfoIcon } from "@phosphor-icons/react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Button } from "@ui/components/Button/Button";
 import { IconButton } from "@ui/components/IconButton/IconButton";
@@ -31,7 +31,7 @@ export const WithIconButton: Story = {
       <IconButton
         label="More info"
         tooltip="More info"
-        icon={<Info size={16} weight="regular" />}
+        icon={<InfoIcon size={16} weight="regular" />}
       />
     </Tooltip>
   ),

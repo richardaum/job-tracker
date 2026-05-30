@@ -13,8 +13,8 @@
     "build": "tsc",
     "build-storybook": "storybook build",
     "test-storybook": "vitest run --project=storybook",
-    "lint": "eslint . --max-warnings=0 --no-warn-ignored && tsc --noEmit",
-    "lint:fix": "eslint . --fix --max-warnings=0 --no-warn-ignored && tsc --noEmit",
+    "lint": "oxlint . --max-warnings=0",
+    "lint:fix": "oxlint . --fix --max-warnings=0",
     "typecheck": "tsc --noEmit",
     "test": "vitest run --project=unit",
     "test:coverage": "vitest run --coverage --project=unit"

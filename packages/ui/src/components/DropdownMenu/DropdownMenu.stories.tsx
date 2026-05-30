@@ -1,6 +1,6 @@
 import {
   CopyIcon,
-  DotsThreeOutlineVertical,
+  DotsThreeOutlineVerticalIcon,
   PencilSimpleIcon,
   TrashIcon,
 } from "@phosphor-icons/react";
@@ -30,7 +30,7 @@ export const Default: Story = {
         <IconButton
           label="Open actions menu"
           tooltip="Open actions menu"
-          icon={<DotsThreeOutlineVertical size={16} weight="regular" />}
+          icon={<DotsThreeOutlineVerticalIcon size={16} weight="regular" />}
         />
       }
     >

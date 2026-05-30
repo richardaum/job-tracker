@@ -1,4 +1,4 @@
-import { Bell, Trash } from "@phosphor-icons/react";
+import { BellIcon, TrashIcon } from "@phosphor-icons/react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { IconButton } from "./IconButton";
@@ -17,7 +17,7 @@ export const Default: Story = {
   args: {
     label: "Notifications",
     tooltip: "Notifications",
-    icon: <Bell size={20} weight="regular" />,
+    icon: <BellIcon size={20} weight="regular" />,
   },
 };
 
@@ -26,6 +26,6 @@ export const Destructive: Story = {
     label: "Delete",
     tooltip: "Delete",
     intent: "destructive",
-    icon: <Trash size={20} weight="regular" />,
+    icon: <TrashIcon size={20} weight="regular" />,
   },
 };

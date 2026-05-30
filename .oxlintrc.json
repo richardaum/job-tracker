@@ -1,0 +1,344 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "import"],
+  "categories": { "correctness": "off" },
+  "options": { "typeAware": true },
+  "jsPlugins": ["./packages/custom-rules/src/index.js"],
+  "env": { "builtin": true },
+  "ignorePatterns": [
+    "**/node_modules/**",
+    "**/.next/**",
+    "**/.next-dev/**",
+    "**/dist/**",
+    "**/storybook-static/**",
+    "**/coverage/**",
+    "**/playwright-report/**",
+    "**/test-results/**",
+    "apps/extension/build/**",
+    "apps/extension/.wxt/**",
+    "apps/extension/codegen.ts",
+    "apps/extension/src/gql/**",
+    "apps/web/next-env.d.ts",
+    "apps/web/src/gql/**",
+    "src/gql/**",
+    "apps/web/public/**"
+  ],
+  "rules": {
+    "constructor-super": "error",
+    "for-direction": "error",
+    "getter-return": "error",
+    "no-async-promise-executor": "error",
+    "no-case-declarations": "error",
+    "no-class-assign": "error",
+    "no-compare-neg-zero": "error",
+    "no-cond-assign": "error",
+    "no-const-assign": "error",
+    "no-constant-binary-expression": "error",
+    "no-constant-condition": "error",
+    "no-control-regex": "error",
+    "no-debugger": "error",
+    "no-delete-var": "error",
+    "no-dupe-class-members": "error",
+    "no-dupe-else-if": "error",
+    "no-dupe-keys": "error",
+    "no-duplicate-case": "error",
+    "no-empty": "error",
+    "no-empty-character-class": "error",
+    "no-empty-pattern": "error",
+    "no-empty-static-block": "error",
+    "no-ex-assign": "error",
+    "no-extra-boolean-cast": "error",
+    "no-fallthrough": "error",
+    "no-func-assign": "error",
+    "no-global-assign": "error",
+    "no-import-assign": "error",
+    "no-invalid-regexp": "error",
+    "no-irregular-whitespace": "error",
+    "no-loss-of-precision": "error",
+    "no-misleading-character-class": "error",
+    "no-new-native-nonconstructor": "error",
+    "no-nonoctal-decimal-escape": "error",
+    "no-obj-calls": "error",
+    "no-prototype-builtins": "error",
+    "no-redeclare": "error",
+    "no-regex-spaces": "error",
+    "no-self-assign": "error",
+    "no-setter-return": "error",
+    "no-shadow-restricted-names": "error",
+    "no-sparse-arrays": "error",
+    "no-this-before-super": "error",
+    "no-unreachable": "error",
+    "no-unsafe-finally": "error",
+    "no-unsafe-negation": "error",
+    "no-unsafe-optional-chaining": "error",
+    "no-unused-labels": "error",
+    "no-unused-private-class-members": "error",
+    "no-unused-vars": "error",
+    "no-useless-backreference": "error",
+    "no-useless-catch": "error",
+    "no-useless-escape": "error",
+    "no-with": "error",
+    "require-yield": "error",
+    "use-isnan": "error",
+    "valid-typeof": "error",
+    "no-array-constructor": "error",
+    "no-unused-expressions": "error",
+    "typescript/ban-ts-comment": "error",
+    "typescript/no-duplicate-enum-values": "error",
+    "typescript/no-empty-object-type": "error",
+    "typescript/no-explicit-any": "error",
+    "typescript/no-extra-non-null-assertion": "error",
+    "typescript/no-misused-new": "error",
+    "typescript/no-namespace": "error",
+    "typescript/no-non-null-asserted-optional-chain": "error",
+    "typescript/no-require-imports": "error",
+    "typescript/no-this-alias": "error",
+    "typescript/no-unnecessary-type-constraint": "error",
+    "typescript/no-unsafe-declaration-merging": "error",
+    "typescript/no-unsafe-function-type": "error",
+    "typescript/no-wrapper-object-types": "error",
+    "typescript/prefer-as-const": "error",
+    "typescript/prefer-namespace-keyword": "error",
+    "typescript/triple-slash-reference": "error"
+  },
+  "overrides": [
+    {
+      "files": ["**/*.ts", "**/*.tsx", "**/*.mts", "**/*.cts"],
+      "rules": {
+        "constructor-super": "off",
+        "getter-return": "off",
+        "no-class-assign": "off",
+        "no-const-assign": "off",
+        "no-dupe-class-members": "off",
+        "no-dupe-keys": "off",
+        "no-func-assign": "off",
+        "no-import-assign": "off",
+        "no-new-native-nonconstructor": "off",
+        "no-obj-calls": "off",
+        "no-redeclare": "off",
+        "no-setter-return": "off",
+        "no-this-before-super": "off",
+        "no-unreachable": "off",
+        "no-unsafe-negation": "off",
+        "no-var": "error",
+        "no-with": "off",
+        "prefer-const": "error",
+        "prefer-rest-params": "error",
+        "prefer-spread": "error"
+      }
+    },
+    {
+      "files": ["**/*.{ts,tsx,mts,cts}"],
+      "rules": {
+        "no-unused-vars": [
+          "error",
+          {
+            "argsIgnorePattern": "^_",
+            "varsIgnorePattern": "^_",
+            "caughtErrorsIgnorePattern": "^_",
+            "destructuredArrayIgnorePattern": "^_",
+            "ignoreRestSiblings": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "apps/api/**/*.{js,mjs,cjs,ts,tsx}",
+        "packages/logger/**/*.{js,mjs,cjs,ts,tsx}",
+        "*.config.{js,ts,mjs,cjs}",
+        "scripts/**/*.{js,mjs,cjs,ts,tsx}",
+        "turbo/**/*.{js,mjs,cjs,ts,tsx}"
+      ],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "regex": "(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$)",
+                "message": "Do not import via paths that traverse to a parent directory (..). Prefer workspace/package aliases from tsconfig paths. Same-directory ./ imports are fine."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "apps/extension/**/*.{js,jsx,ts,tsx,mjs,cjs}",
+        "apps/web/**/*.{js,jsx,ts,tsx,mjs,cjs}",
+        "packages/ui/**/*.{js,jsx,ts,tsx,mjs,cjs}"
+      ],
+      "rules": {
+        "react-compiler/react-compiler": "error",
+        "no-restricted-imports": [
+          "error",
+          {
+            "paths": [
+              {
+                "name": "react",
+                "importNames": ["forwardRef"],
+                "message": "Use ref as a standard component prop (React 19), not forwardRef. See docs/CONVENTIONS.mdx (TypeScript)."
+              }
+            ],
+            "patterns": [
+              {
+                "regex": "(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$)",
+                "message": "Do not import via paths that traverse to a parent directory (..). Use the app/package root alias (e.g. @/…) instead. Same-directory ./ imports are fine. docs/CONVENTIONS.mdx (Imports)."
+              },
+              {
+                "group": [
+                  "@/components/empty-state/internals",
+                  "@/components/empty-state/internals/**"
+                ],
+                "message": "Import `EmptyState` from `@/components/empty-state` only; do not import empty-state internals."
+              }
+            ]
+          }
+        ],
+        "react/rules-of-hooks": "error",
+        "react/exhaustive-deps": "warn"
+      },
+      "jsPlugins": ["eslint-plugin-react-compiler"],
+      "plugins": ["react"],
+      "env": { "browser": true, "node": true }
+    },
+    {
+      "files": [
+        "apps/web/**/*.{js,jsx,ts,tsx,mjs,cjs}",
+        "apps/extension/**/*.{js,jsx,ts,tsx,mjs,cjs}",
+        "packages/ui/**/*.{js,jsx,ts,tsx,mjs,cjs}"
+      ],
+      "rules": { "better-tailwindcss/enforce-canonical-classes": "warn" },
+      "jsPlugins": ["eslint-plugin-better-tailwindcss"]
+    },
+    {
+      "files": ["apps/web/**/*.{js,jsx,ts,tsx,mjs,cjs}"],
+      "rules": {
+        "nextjs/google-font-display": "warn",
+        "nextjs/google-font-preconnect": "warn",
+        "nextjs/next-script-for-ga": "warn",
+        "nextjs/no-async-client-component": "warn",
+        "nextjs/no-before-interactive-script-outside-document": "warn",
+        "nextjs/no-css-tags": "warn",
+        "nextjs/no-head-element": "warn",
+        "nextjs/no-html-link-for-pages": "off",
+        "nextjs/no-img-element": "warn",
+        "nextjs/no-page-custom-font": "warn",
+        "nextjs/no-styled-jsx-in-document": "warn",
+        "nextjs/no-sync-scripts": "error",
+        "nextjs/no-title-in-document-head": "warn",
+        "nextjs/no-typos": "warn",
+        "nextjs/no-unwanted-polyfillio": "warn",
+        "nextjs/inline-script-id": "error",
+        "nextjs/no-assign-module-variable": "error",
+        "nextjs/no-document-import-in-page": "error",
+        "nextjs/no-duplicate-head": "error",
+        "nextjs/no-head-import-in-document": "error",
+        "nextjs/no-script-component-in-head": "error",
+        "react/only-export-components": [
+          "error",
+          {
+            "allowExportNames": [
+              "metadata",
+              "generateMetadata",
+              "revalidate",
+              "dynamic",
+              "dynamicParams",
+              "fetchCache",
+              "runtime",
+              "preferredRegion",
+              "maxDuration",
+              "viewport",
+              "generateViewport"
+            ]
+          }
+        ]
+      },
+      "plugins": ["nextjs", "react"]
+    },
+    {
+      "files": ["apps/web/src/**/*.{js,jsx,ts,tsx,mjs,cjs}"],
+      "rules": {
+        "no-restricted-properties": [
+          "warn",
+          {
+            "object": "process",
+            "property": "env",
+            "message": "Avoid direct process.env access in apps/web source. Use typed env modules from src/env instead."
+          }
+        ]
+      }
+    },
+    {
+      "files": ["apps/web/src/env/**"],
+      "rules": { "no-restricted-properties": "off" }
+    },
+    {
+      "files": [
+        "apps/extension/**/*.{test,spec}.{js,jsx,ts,tsx,mjs,cjs}",
+        "apps/web/src/**/*.{test,spec}.{js,jsx,ts,tsx,mjs,cjs}",
+        "packages/ui/**/*.{test,spec}.{js,jsx,ts,tsx,mjs,cjs}"
+      ],
+      "rules": {
+        "testing-library/await-async-events": [
+          "error",
+          { "eventModule": "userEvent" }
+        ],
+        "testing-library/await-async-queries": "error",
+        "testing-library/await-async-utils": "error",
+        "testing-library/no-await-sync-events": [
+          "error",
+          { "eventModules": ["fire-event"] }
+        ],
+        "testing-library/no-await-sync-queries": "error",
+        "testing-library/no-container": "error",
+        "testing-library/no-debugging-utils": "warn",
+        "testing-library/no-dom-import": ["error", "react"],
+        "testing-library/no-global-regexp-flag-in-query": "error",
+        "testing-library/no-manual-cleanup": "error",
+        "testing-library/no-node-access": "error",
+        "testing-library/no-promise-in-fire-event": "error",
+        "testing-library/no-render-in-lifecycle": "error",
+        "testing-library/no-unnecessary-act": "error",
+        "testing-library/no-wait-for-multiple-assertions": "error",
+        "testing-library/no-wait-for-side-effects": "error",
+        "testing-library/no-wait-for-snapshot": "error",
+        "testing-library/prefer-find-by": "error",
+        "testing-library/prefer-presence-queries": "error",
+        "testing-library/prefer-query-by-disappearance": "error",
+        "testing-library/prefer-screen-queries": "error",
+        "testing-library/render-result-naming-convention": "error"
+      },
+      "jsPlugins": ["eslint-plugin-testing-library"]
+    },
+    {
+      "files": ["**/*.{ts,tsx}"],
+      "rules": {
+        "typescript/no-deprecated": "error",
+        "@job-tracker/oxlint-plugin/prefer-try-run-over-try-catch": "warn",
+        "@job-tracker/oxlint-plugin/no-as-unknown-as": "error"
+      }
+    },
+    {
+      "files": [
+        "**/*.{test,spec}.{ts,tsx}",
+        "**/__tests__/**/*.{ts,tsx}",
+        "**/*.config.{ts,tsx}",
+        "**/*.stories.{ts,tsx}",
+        "**/vitest.setup.{ts,tsx}",
+        "**/jest.setup.{ts,tsx}",
+        "**/*.mock.{ts,tsx}"
+      ],
+      "rules": {
+        "@job-tracker/oxlint-plugin/prefer-try-run-over-try-catch": "off",
+        "@job-tracker/oxlint-plugin/no-as-unknown-as": "off"
+      }
+    },
+    {
+      "files": ["**/*.cjs"],
+      "rules": { "typescript/no-require-imports": "off" }
+    }
+  ]
+}

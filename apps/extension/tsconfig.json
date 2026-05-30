@@ -1,8 +1,7 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "baseUrl": ".",
-    "paths": { "@/*": ["src/*"], "@ui/*": ["../../packages/ui/src/*"] },
+    "paths": { "@/*": ["./src/*"], "@ui/*": ["../../packages/ui/src/*"] },
     "jsx": "react-jsx",
     "lib": ["DOM", "DOM.Iterable", "ES2023"],
     "target": "ES2022",

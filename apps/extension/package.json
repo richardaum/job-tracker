@@ -11,8 +11,8 @@
     "build": "wxt build",
     "codegen": "graphql-codegen --config codegen.ts",
     "package": "wxt zip",
-    "lint": "eslint . --max-warnings=0 --no-warn-ignored && tsc --noEmit",
-    "lint:fix": "eslint . --fix --max-warnings=0 --no-warn-ignored && tsc --noEmit",
+    "lint": "oxlint . --max-warnings=0",
+    "lint:fix": "oxlint --fix . --max-warnings=0",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },

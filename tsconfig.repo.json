@@ -6,5 +6,5 @@
     "noEmit": true,
     "types": ["node"]
   },
-  "include": ["eslint.config.ts", "prettier.config.mts"]
+  "include": ["prettier.config.mts"]
 }
