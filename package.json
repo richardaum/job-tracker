@@ -40,15 +40,6 @@
     "docker:build:api": "docker build -f apps/api/Dockerfile -t job-tracker-api:local .",
     "perf:rsdoctor:dev": "pnpm --filter @job-tracker/web run dev:rsdoctor"
   },
-  "lint-staged": {
-    "*.{js,jsx,mjs,cjs,ts,tsx}": [
-      "oxlint --fix --max-warnings=0",
-      "prettier --write"
-    ],
-    "*.{json,md,yml,yaml}": [
-      "prettier --write"
-    ]
-  },
   "devDependencies": {
     "@job-tracker/try-run": "workspace:*",
     "@job-tracker/worktree-cli": "workspace:*",
@@ -63,6 +54,7 @@
     "knip": "^6.14.1",
     "lean-spec": "^0.2.28",
     "lint-staged": "^16.4.0",
+    "oxfmt": "^0.52.0",
     "oxlint": "^1.67.0",
     "oxlint-tsgolint": "^0.23.0",
     "prettier": "^3.8.3",
@@ -71,6 +63,15 @@
     "typescript": "^5.8.3",
     "yaml": "^2.8.2",
     "yargs": "^18.0.0"
+  },
+  "lint-staged": {
+    "*.{js,jsx,mjs,cjs,ts,tsx}": [
+      "oxlint --fix --max-warnings=0",
+      "prettier --write"
+    ],
+    "*.{json,md,yml,yaml}": [
+      "prettier --write"
+    ]
   },
   "engines": {
     "node": ">=22",

@@ -179,13 +179,13 @@
               {
                 "name": "react",
                 "importNames": ["forwardRef"],
-                "message": "Use ref as a standard component prop (React 19), not forwardRef. See docs/CONVENTIONS.mdx (TypeScript)."
+                "message": "Use ref as a standard component prop (React 19), not forwardRef."
               }
             ],
             "patterns": [
               {
                 "regex": "(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$)",
-                "message": "Do not import via paths that traverse to a parent directory (..). Use the app/package root alias (e.g. @/…) instead. Same-directory ./ imports are fine. docs/CONVENTIONS.mdx (Imports)."
+                "message": "Do not import via paths that traverse to a parent directory (..). Use the app/package root alias (e.g. @/…) instead. Same-directory ./ imports are fine."
               },
               {
                 "group": [
