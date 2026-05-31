@@ -180,6 +180,11 @@
                 "name": "react",
                 "importNames": ["forwardRef"],
                 "message": "Use ref as a standard component prop (React 19), not forwardRef."
+              },
+              {
+                "name": "react",
+                "importNames": ["default"],
+                "message": "Use named imports (import { ... } from \"react\") instead of default import (import React from \"react\")."
               }
             ],
             "patterns": [
@@ -337,7 +342,8 @@
       "rules": {
         "typescript/no-deprecated": "error",
         "@job-tracker/oxlint-plugin/prefer-try-run-over-try-catch": "warn",
-        "@job-tracker/oxlint-plugin/no-as-unknown-as": "error"
+        "@job-tracker/oxlint-plugin/no-as-unknown-as": "error",
+        "@job-tracker/oxlint-plugin/no-inline-component-props": "error"
       }
     },
     {
@@ -352,7 +358,8 @@
       ],
       "rules": {
         "@job-tracker/oxlint-plugin/prefer-try-run-over-try-catch": "off",
-        "@job-tracker/oxlint-plugin/no-as-unknown-as": "off"
+        "@job-tracker/oxlint-plugin/no-as-unknown-as": "off",
+        "@job-tracker/oxlint-plugin/no-inline-component-props": "off"
       }
     },
     {
