@@ -1,9 +1,9 @@
 import type { Badge } from "@job-tracker/ui";
-import type React from "react";
+import type { ComponentProps } from "react";
 
 import { SourceRunStatus } from "@/gql/graphql";
 
-export function sourceRunStatusBadgeIntent(status: SourceRunStatus): React.ComponentProps<typeof Badge>["intent"] {
+export function sourceRunStatusBadgeIntent(status: SourceRunStatus): ComponentProps<typeof Badge>["intent"] {
   switch (status) {
     case SourceRunStatus.Completed:
       return "success";

@@ -121,6 +121,21 @@ function PlanEditor({ plan }: PlanEditorProps) {
     else replaceDetailsFields(step, fields as DetailsField[]);
   }
 
+  function handleDeleteField(step: Step, kind: "surface" | "details", index: number) {
+    const input = getCollectJobsInput(step);
+    if (kind === "surface") {
+      replaceSurfaceFields(
+        step,
+        input.surfaceFields.filter((_, i) => i !== index),
+      );
+    } else {
+      replaceDetailsFields(
+        step,
+        input.detailsFields.filter((_, i) => i !== index),
+      );
+    }
+  }
+
   function handleAddField(step: Step, kind: "surface" | "details", field: SurfaceField | DetailsField) {
     const input = getCollectJobsInput(step);
     const fields =
@@ -316,6 +331,10 @@ function PlanEditor({ plan }: PlanEditorProps) {
             else handleSaveField(fieldDialog.step, "surface", fieldDialog.index, f);
             setFieldDialog(null);
           }}
+          onDelete={() => {
+            handleDeleteField(fieldDialog.step, "surface", fieldDialog.index);
+            setFieldDialog(null);
+          }}
         />
       )}
       {fieldDialog?.kind === "details" && fieldDialog.step.action.kind === "collect.jobs" && (
@@ -327,6 +346,10 @@ function PlanEditor({ plan }: PlanEditorProps) {
           onSave={(f) => {
             if (fieldDialog.index === -1) handleAddField(fieldDialog.step, "details", f);
             else handleSaveField(fieldDialog.step, "details", fieldDialog.index, f);
+            setFieldDialog(null);
+          }}
+          onDelete={() => {
+            handleDeleteField(fieldDialog.step, "details", fieldDialog.index);
             setFieldDialog(null);
           }}
         />
