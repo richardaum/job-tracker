@@ -28,3 +28,7 @@ export const Loading: Story = {
 export const WithRightIcon: Story = {
   args: { children: "Continue", rightIcon: <ArrowRightIcon size={16} weight="regular" /> },
 };
+
+export const GhostError: Story = { args: { children: "Remove", intent: "ghost", colorScheme: "error" } };
+
+export const GhostSuccess: Story = { args: { children: "Approved", intent: "ghost", colorScheme: "success" } };
