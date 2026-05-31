@@ -12,6 +12,7 @@
           "detailsUrlField": "applyUrl",
           "key": "{{applyUrl}}",
           "direction": "up",
+          "parallelDetailsTabs": 10,
           "surfaceFields": [
             {
               "key": "publishedAt",
