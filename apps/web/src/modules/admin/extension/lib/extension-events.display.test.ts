@@ -24,8 +24,8 @@ function sourceRun(overrides: Partial<Parameters<typeof mapSourceRunToExtensionE
 }
 
 describe("extension-events.display", () => {
-  it("builds summary from profile and surface URL", () => {
-    expect(sourceRunSummary(sourceRun())).toBe("RemoteYeah · https://example.com/jobs");
+  it("builds summary from surface URL", () => {
+    expect(sourceRunSummary(sourceRun())).toBe("https://example.com/jobs");
   });
 
   it("merges source runs and activity events by occurredAt", () => {
@@ -95,7 +95,7 @@ describe("extension-events.display", () => {
       type: SourceRunEventType.SourceRunCreated,
       status: SourceRunStatus.Pending,
       occurredAt: "2026-05-25T12:00:00.000Z",
-      summary: "RemoteYeah · https://example.com/jobs",
+      summary: "https://example.com/jobs",
     });
   });
 });

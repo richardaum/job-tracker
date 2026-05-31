@@ -31,7 +31,7 @@ describe("PasteDestinationDialog", () => {
 
     expect(screen.getByRole("checkbox", { name: "Fill job fields automatically" })).toBeChecked();
     expect(screen.getByRole("checkbox", { name: "Run match analysis" })).toBeChecked();
-    expect(screen.getByText("After create:")).toBeInTheDocument();
+    expect(screen.getByText("After create")).toBeInTheDocument();
     expect(useSettingsQueryMock).toHaveBeenCalledWith(expect.objectContaining({ fetchPolicy: "cache-first" }));
   });
 

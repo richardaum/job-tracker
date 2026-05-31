@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -48,61 +48,49 @@ function renderWithProviders(ui: ReactNode) {
   );
 }
 
-function getDropdown() {
-  return screen.getAllByRole("combobox")[0];
-}
-
 describe("PlanDocumentTabContent", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it("pre-selects existing boardType in dropdown", async () => {
+  it("renders JSON editor with plan document", async () => {
     planQueryMock.mockReturnValue({ data: { plan: defaultPlan }, loading: false });
 
     renderWithProviders(<PlanDocumentTabContent params={syncParamsResolved({ planId: "p-1" })} />);
 
     await waitFor(() => {
-      expect(getDropdown()).toBeInTheDocument();
+      expect(screen.getByText(/boardType/)).toBeInTheDocument();
     });
-
-    expect(getDropdown()).toHaveTextContent("Sequential");
+    expect(screen.getByText(/Sequential/)).toBeInTheDocument();
+    expect(screen.getByText(/steps/)).toBeInTheDocument();
   });
 
-  it("shows empty state when plan has no boardType", async () => {
-    planQueryMock.mockReturnValue({ data: { plan: { ...defaultPlan, document: { steps: [] } } }, loading: false });
+  it("renders Save button and description", async () => {
+    planQueryMock.mockReturnValue({ data: { plan: defaultPlan }, loading: false });
 
     renderWithProviders(<PlanDocumentTabContent params={syncParamsResolved({ planId: "p-1" })} />);
 
     await waitFor(() => {
-      expect(getDropdown()).toBeInTheDocument();
+      expect(screen.getByText("Configure extraction rules and constraints for this plan.")).toBeInTheDocument();
     });
-
-    expect(getDropdown()).not.toHaveTextContent("Sequential");
-    expect(getDropdown()).not.toHaveTextContent("NonSequential");
+    expect(screen.getByRole("button", { name: "Save" })).toBeInTheDocument();
   });
 
-  it("submits boardType in document JSONB on save", async () => {
-    planQueryMock.mockReturnValue({ data: { plan: { ...defaultPlan, document: { steps: [] } } }, loading: false });
-    updatePlanMock.mockResolvedValue({ data: { updatePlan: { id: "p-1", displayName: "Test Plan", document: {} } } });
+  it("Save button is disabled until document is modified", async () => {
+    planQueryMock.mockReturnValue({ data: { plan: defaultPlan }, loading: false });
 
     renderWithProviders(<PlanDocumentTabContent params={syncParamsResolved({ planId: "p-1" })} />);
 
     await waitFor(() => {
-      expect(getDropdown()).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: "Save" })).toBeDisabled();
     });
+  });
 
-    const dropdown = getDropdown();
-    fireEvent.click(dropdown);
-    fireEvent.click(screen.getByText("NonSequential"));
+  it("returns null when plan is null", () => {
+    planQueryMock.mockReturnValue({ data: { plan: null }, loading: false });
 
-    const saveButton = screen.getByRole("button", { name: "Save" });
-    fireEvent.click(saveButton);
+    renderWithProviders(<PlanDocumentTabContent params={syncParamsResolved({ planId: "p-1" })} />);
 
-    await waitFor(() => {
-      expect(updatePlanMock).toHaveBeenCalledWith({
-        variables: { id: "p-1", input: { document: { steps: [], boardType: "NonSequential" } } },
-      });
-    });
+    expect(screen.queryByRole("button", { name: "Save" })).not.toBeInTheDocument();
   });
 });
