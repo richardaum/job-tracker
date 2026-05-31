@@ -1,6 +1,4 @@
-/** Upper bounds for plan JSON parsing — wired in schema.ts only. */
 export const LIMITS = {
-  /** Max concurrent detail tabs when collecting jobs (`parallelDetailsTabs`). */
   parallelDetailsTabs: 16,
   attrName: 128,
   fieldKey: 128,

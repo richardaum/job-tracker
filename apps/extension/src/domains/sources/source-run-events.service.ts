@@ -4,7 +4,7 @@ import type { ApiService } from "@/domains/api/api.service";
 import type { ExtensionActivityReporterService } from "@/domains/extension-activity/extension-activity-reporter.service";
 import type { LogService } from "@/domains/log/log.service";
 import { mapCollectedJobToCreateJobInput } from "@/domains/plan/map-collected-job-to-create-job-input";
-import type { CollectJobsStepInput, Plan } from "@/domains/plan/model/types";
+import type { CollectJobsStepInput, Plan } from "@job-tracker/plan-schemas";
 import type { PlanService } from "@/domains/plan/services/plan.service";
 import { planForSourceRun } from "@/domains/sources/source-run-plan";
 import { ExtensionActivityEventType, type SourceRunType, SourceRunStatus } from "@/gql/graphql";

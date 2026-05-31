@@ -8,6 +8,7 @@
     "dev:stable": "nest start",
     "db:migrate": "tsx --tsconfig tsconfig.json src/database/run-migrations.ts",
     "db:migrate:mark-applied": "tsx --tsconfig tsconfig.json src/database/mark-migrations-applied.ts",
+    "db:migrate:status": "tsx --tsconfig tsconfig.json src/database/migration-status.ts",
     "fix:generate-summaries": "ts-node -r tsconfig-paths/register --project tsconfig.json src/scripts/fix-generate-summaries.ts",
     "fix:generate-summaries:dry-run": "ts-node -r tsconfig-paths/register --project tsconfig.json src/scripts/fix-generate-summaries.ts --dry-run",
     "fix:generated-at": "ts-node -r tsconfig-paths/register --project tsconfig.json src/scripts/fix-generated-at.ts",

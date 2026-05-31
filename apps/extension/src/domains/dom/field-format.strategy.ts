@@ -2,7 +2,7 @@ import { generateJSON } from "@tiptap/html";
 import StarterKit from "@tiptap/starter-kit";
 
 import { parseSalaryInnerTextForCreateJob } from "@/domains/dom/parse-salary-inner-text-for-job";
-import type { PlanStepCollectJobsDetailsField, PlanStepCollectJobsSurfaceField } from "@/domains/plan/model/types";
+import type { PlanStepCollectJobsDetailsField, PlanStepCollectJobsSurfaceField } from "@job-tracker/plan-schemas";
 
 /** Same extensions as the web app editor so scraped content maps to compatible JSON. */
 const TIPTAP_EXTENSIONS = [StarterKit];

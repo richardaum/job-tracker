@@ -4,7 +4,8 @@ import { FieldValueService } from "@/domains/dom/field-value.service";
 import type { Job } from "@/domains/dom/types";
 import { PopupLogService } from "@/domains/log/popup-log.service";
 import type { ContentActionMessage } from "@/domains/message/types";
-import type { CollectJobsAction, PlanStepCollectJobsSurfaceField, RegexSurfaceField } from "@/domains/plan/model/types";
+import { SkippedJobReporterService } from "@/domains/jobs-list/skipped-job-reporter.service";
+import type { CollectJobsAction, PlanStepCollectJobsSurfaceField, RegexSurfaceField } from "@job-tracker/plan-schemas";
 import { StringTemplateService } from "@/domains/plan/services/string-template.service";
 import { TimerService } from "@/domains/timer/timer.service";
 
@@ -30,6 +31,7 @@ export class JobsListService {
     private readonly timerService: TimerService,
     private readonly popupLogService: PopupLogService,
     private readonly stringTemplateService: StringTemplateService,
+    private readonly skippedReporter: SkippedJobReporterService,
   ) {}
 
   private async waitForTelegramUpdateOrDelay(): Promise<void> {
@@ -75,8 +77,10 @@ export class JobsListService {
   async execute(message: Extract<ContentActionMessage, { kind: "jobs.list" }>) {
     const { input, skipDelay } = message.action;
     const direction = input.direction ?? "down";
-    const sourceRunId =
-      "sourceRunId" in message ? ((message as Record<string, unknown>).sourceRunId as string | undefined) : undefined;
+    const sourceRunId = "sourceRunId" in message ? ((message as Record<string, unknown>).sourceRunId as string) : "";
+    if (!sourceRunId) {
+      throw new Error("sourceRunId is required for jobs.list execution");
+    }
 
     const container = await this.waitForSelector(input.containerSelector, input.itemSelector, 30_000);
 
@@ -106,15 +110,12 @@ export class JobsListService {
       if (direction === "up") {
         for (let i = items.length - 1; i >= 0; i--) {
           const skipConfig = input.skip;
-          if (skipConfig && this.preCheckSkip(items[i], skipConfig)) {
+          if (skipConfig && this.shouldSkip(items[i], skipConfig, input.surfaceFields)) {
             skippedCount++;
-            chrome.runtime
-              .sendMessage({
-                kind: "report.skipped",
-                summary: `Skipped: ${(items[i].textContent ?? "").slice(0, 80).trim()}`,
-                sourceRunId,
-              })
-              .catch(() => {});
+            this.skippedReporter.reportSkipped(
+              `Skipped: ${(items[i].textContent ?? "").slice(0, 80).trim()}`,
+              sourceRunId,
+            );
             continue;
           }
 
@@ -127,15 +128,12 @@ export class JobsListService {
       } else {
         for (let i = 0; i < items.length; i++) {
           const skipConfig = input.skip;
-          if (skipConfig && this.preCheckSkip(items[i], skipConfig)) {
+          if (skipConfig && this.shouldSkip(items[i], skipConfig, input.surfaceFields)) {
             skippedCount++;
-            chrome.runtime
-              .sendMessage({
-                kind: "report.skipped",
-                summary: `Skipped: ${(items[i].textContent ?? "").slice(0, 80).trim()}`,
-                sourceRunId,
-              })
-              .catch(() => {});
+            this.skippedReporter.reportSkipped(
+              `Skipped: ${(items[i].textContent ?? "").slice(0, 80).trim()}`,
+              sourceRunId,
+            );
             continue;
           }
 
@@ -283,11 +281,27 @@ export class JobsListService {
     return mappedItem;
   }
 
-  private preCheckSkip(item: Element, skip: NonNullable<CollectJobsAction["input"]["skip"]>): boolean {
+  private shouldSkip(
+    item: Element,
+    skip: NonNullable<CollectJobsAction["input"]["skip"]>,
+    surfaceFields: CollectJobsAction["input"]["surfaceFields"],
+  ): boolean {
+    if (!skip.sourceField) return false;
+
     const [err, regex] = tryRun(() => new RegExp(skip.value, skip.flags));
     if (err) return false;
-    const text = item.textContent ?? "";
-    return regex.test(text);
+
+    const field = surfaceFields.find(
+      (f): f is PlanStepCollectJobsSurfaceField & { selector: string } =>
+        f.key === skip.sourceField && f.type !== "regex",
+    );
+    if (!field) return false;
+
+    const element = item.matches(field.selector) ? item : item.querySelector(field.selector);
+    if (!element) return false;
+
+    const text = this.fieldValueService.getFieldValue(element as HTMLElement | HTMLInputElement, field);
+    return regex.test(String(text ?? ""));
   }
 
   private matchesSkip(job: Job, skip: { type: "regex"; value: string; sourceField?: string; flags?: string }): boolean {

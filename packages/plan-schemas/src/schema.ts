@@ -3,7 +3,7 @@ import { z } from "zod";
 
 import { LIMITS } from "./constants";
 
-const PlanStepIdSchema = z.string().min(1).max(LIMITS.stepId).describe("Step id");
+const PlanStepIdSchema = z.string().min(1).max(LIMITS.stepId);
 
 const CssSelectorSchema = z.string().min(1).max(LIMITS.selector);
 const FieldValidationRegexSchema = z
@@ -18,75 +18,70 @@ const FieldValidationRegexSchema = z
     }
   });
 
-export const PlanStepCollectJobsSurfaceFieldSchema = z
-  .discriminatedUnion("type", [
-    z
-      .object({
-        key: z.string().min(1).max(LIMITS.fieldKey),
-        selector: CssSelectorSchema,
-        type: z.literal("attribute"),
-        value: z.string().min(1).max(LIMITS.attrName),
-        validationRegex: FieldValidationRegexSchema.optional(),
-      })
-      .strict(),
-    z
-      .object({
-        key: z.string().min(1).max(LIMITS.fieldKey),
-        selector: CssSelectorSchema,
-        type: z.literal("property"),
-        value: z.enum(["innerText", "textContent", "value"]),
-        validationRegex: FieldValidationRegexSchema.optional(),
-      })
-      .strict(),
-    z
-      .object({
-        key: z.string().min(1).max(LIMITS.fieldKey),
-        type: z.literal("regex"),
-        value: z.string().min(1).max(LIMITS.regexPattern),
-        sourceField: z
-          .string()
-          .min(1)
-          .max(LIMITS.fieldKey)
-          .optional()
-          .describe("which collected field to parse (default: concat all)"),
-        flags: z.string().max(LIMITS.regexFlags).optional(),
-        group: z.number().int().min(0).max(9).optional().default(1),
-        required: z.boolean().optional().default(false),
-      })
-      .strict()
-      .superRefine(({ value, flags }, ctx) => {
-        const [regErr] = tryRun(() => void new RegExp(value, flags));
-        if (regErr) {
-          ctx.addIssue({ code: "custom", message: "Invalid regex pattern or flags" });
-        }
-      }),
-  ])
-  .describe("Collect jobs surface field");
+export const PlanStepCollectJobsSurfaceFieldSchema = z.discriminatedUnion("type", [
+  z
+    .object({
+      key: z.string().min(1).max(LIMITS.fieldKey),
+      selector: CssSelectorSchema,
+      type: z.literal("attribute"),
+      value: z.string().min(1).max(LIMITS.attrName),
+      validationRegex: FieldValidationRegexSchema.optional(),
+    })
+    .strict(),
+  z
+    .object({
+      key: z.string().min(1).max(LIMITS.fieldKey),
+      selector: CssSelectorSchema,
+      type: z.literal("property"),
+      value: z.enum(["innerText", "textContent", "value"]),
+      validationRegex: FieldValidationRegexSchema.optional(),
+    })
+    .strict(),
+  z
+    .object({
+      key: z.string().min(1).max(LIMITS.fieldKey),
+      type: z.literal("regex"),
+      value: z.string().min(1).max(LIMITS.regexPattern),
+      sourceField: z
+        .string()
+        .min(1)
+        .max(LIMITS.fieldKey)
+        .optional()
+        .describe("which collected field to parse (default: concat all)"),
+      flags: z.string().max(LIMITS.regexFlags).optional(),
+      group: z.number().int().min(0).max(9).optional().default(1),
+      required: z.boolean().optional().default(false),
+    })
+    .strict()
+    .superRefine(({ value, flags }, ctx) => {
+      const [regErr] = tryRun(() => void new RegExp(value, flags));
+      if (regErr) {
+        ctx.addIssue({ code: "custom", message: "Invalid regex pattern or flags" });
+      }
+    }),
+]);
 
-/** Fields for per-item detail pages (e.g. `innerHTML` + optional `format`). */
-export const PlanStepCollectJobsDetailsFieldSchema = z
-  .discriminatedUnion("type", [
-    z
-      .object({
-        key: z.string().min(1).max(LIMITS.fieldKey),
-        selector: CssSelectorSchema,
-        type: z.literal("attribute"),
-        value: z.string().min(1).max(LIMITS.attrName),
-        validationRegex: FieldValidationRegexSchema.optional(),
-      })
-      .strict(),
-    z
-      .object({
-        key: z.string().min(1).max(LIMITS.fieldKey),
-        selector: CssSelectorSchema,
-        type: z.literal("property"),
-        value: z.enum(["innerText", "textContent", "value", "innerHTML"]),
-        format: z.enum(["tiptap", "salary"]).optional(),
-        validationRegex: FieldValidationRegexSchema.optional(),
-      })
-      .strict(),
-  ])
-  .describe("Collect jobs details field");
+export const PlanStepCollectJobsDetailsFieldSchema = z.discriminatedUnion("type", [
+  z
+    .object({
+      key: z.string().min(1).max(LIMITS.fieldKey),
+      selector: CssSelectorSchema,
+      type: z.literal("attribute"),
+      value: z.string().min(1).max(LIMITS.attrName),
+      validationRegex: FieldValidationRegexSchema.optional(),
+    })
+    .strict(),
+  z
+    .object({
+      key: z.string().min(1).max(LIMITS.fieldKey),
+      selector: CssSelectorSchema,
+      type: z.literal("property"),
+      value: z.enum(["innerText", "textContent", "value", "innerHTML"]),
+      format: z.enum(["tiptap", "salary"]).optional(),
+      validationRegex: FieldValidationRegexSchema.optional(),
+    })
+    .strict(),
+]);
 
 const ParseRegexFieldSchema = z
   .object({
@@ -104,7 +99,6 @@ const ParseRegexFieldSchema = z
     }
   });
 
-/** Combined list surface + per-item detail extraction (single-tab flow). */
 export const PlanStepCollectJobsInputSchema = z
   .object({
     containerSelector: CssSelectorSchema.describe("list container"),

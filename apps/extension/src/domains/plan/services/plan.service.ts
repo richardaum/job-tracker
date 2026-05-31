@@ -1,5 +1,5 @@
 import { LogService } from "@/domains/log/log.service";
-import type { Plan, PlanStep } from "@/domains/plan/model/types";
+import type { Plan, PlanStep } from "@job-tracker/plan-schemas";
 import type { PlanExecuteOptions } from "@/domains/plan/plan-execute-options";
 
 import { CollectJobsService } from "./collect-jobs.service";

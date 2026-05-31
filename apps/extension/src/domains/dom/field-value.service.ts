@@ -1,5 +1,5 @@
 import { createDefaultFieldFormatStrategyPicker } from "@/domains/dom/field-format.strategy";
-import type { PlanStepCollectJobsDetailsField, PlanStepCollectJobsSurfaceField } from "@/domains/plan/model/types";
+import type { PlanStepCollectJobsDetailsField, PlanStepCollectJobsSurfaceField } from "@job-tracker/plan-schemas";
 
 type CollectField = PlanStepCollectJobsSurfaceField | PlanStepCollectJobsDetailsField;
 

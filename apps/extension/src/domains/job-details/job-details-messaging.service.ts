@@ -1,6 +1,6 @@
 import type { Job } from "@/domains/dom/types";
 import { MessagingService } from "@/domains/message/messaging.service";
-import type { CollectJobsAction } from "@/domains/plan/model/types";
+import type { CollectJobsAction } from "@job-tracker/plan-schemas";
 
 export class JobDetailsMessagingService {
   constructor(private readonly messagingService: MessagingService) {}

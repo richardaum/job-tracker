@@ -5,7 +5,7 @@ import { JobDetailsMessagingService } from "@/domains/job-details/job-details-me
 import { JobsListMessagingService } from "@/domains/jobs-list/jobs-list-messaging.service";
 import { LogService } from "@/domains/log/log.service";
 import { PaginationMessagingService } from "@/domains/pagination/pagination-messaging.service";
-import type { CollectJobsAction } from "@/domains/plan/model/types";
+import type { CollectJobsAction } from "@job-tracker/plan-schemas";
 import type { PlanExecuteOptions } from "@/domains/plan/plan-execute-options";
 import { StopWhen } from "@/gql/graphql";
 import { TabService } from "@/domains/tab/types";
@@ -60,7 +60,7 @@ export class CollectJobsService {
       const limitDetailTabs = pLimit(Math.min(action.input.parallelDetailsTabs, MAX_TABS));
 
       for (let iteration = 1; iteration <= MAX_PAGES; iteration += 1) {
-        const result = await this.jobsListMessaging.listJobs(action, surfaceTabId);
+        const result = await this.jobsListMessaging.listJobs(action, surfaceTabId, options.sourceRunId);
         const list = result.jobs;
 
         if (list == null) {

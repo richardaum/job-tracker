@@ -1,7 +1,7 @@
 import { tryRun } from "@job-tracker/try-run";
 
 import { LogService } from "@/domains/log/log.service";
-import type { ParseRegexAction } from "@/domains/plan/model/types";
+import type { ParseRegexAction } from "@job-tracker/plan-schemas";
 
 const logService = new LogService({ prefix: "ParseRegexService", level: "debug" });
 

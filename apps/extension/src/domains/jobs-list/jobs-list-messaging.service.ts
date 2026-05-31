@@ -1,6 +1,6 @@
 import type { Job } from "@/domains/dom/types";
 import { MessagingService } from "@/domains/message/messaging.service";
-import type { CollectJobsAction } from "@/domains/plan/model/types";
+import type { CollectJobsAction } from "@job-tracker/plan-schemas";
 
 type ErrorEnvelope = { __handlerError: true; errorMessage: string };
 
@@ -13,10 +13,10 @@ function isErrorEnvelope(v: unknown): v is ErrorEnvelope {
 export class JobsListMessagingService {
   constructor(private readonly messagingService: MessagingService) {}
 
-  async listJobs(action: CollectJobsAction, tabId: number): Promise<ListJobsResult> {
+  async listJobs(action: CollectJobsAction, tabId: number, sourceRunId?: string): Promise<ListJobsResult> {
     const result = await this.messagingService.request<"jobs.list", ListJobsResult | ErrorEnvelope>({
       to: "content",
-      payload: { kind: "jobs.list", action },
+      payload: { kind: "jobs.list", action, sourceRunId },
       tabId,
     });
 

@@ -1,7 +1,7 @@
 import remoteyeahFixture from "@/domains/plan/fixtures/remoteyeah.plan.json";
 import telegramJsgurujobsFixture from "@/domains/plan/fixtures/telegram-jsgurujobs.plan.json";
-import type { Plan } from "@/domains/plan/model/types";
-import { parsePlan } from "@/domains/plan/parse/parser";
+import type { Plan } from "@job-tracker/plan-schemas";
+import { parsePlan } from "@job-tracker/plan-schemas";
 
 const FIXTURES: Record<string, Record<string, unknown>> = {
   "2e84cb8d-d9f2-4a02-947e-80909eb76709": structuredClone(remoteyeahFixture),

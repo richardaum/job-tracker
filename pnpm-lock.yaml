@@ -264,6 +264,9 @@ importers:
       '@job-tracker/html-sanitize':
         specifier: workspace:*
         version: link:../../packages/html-sanitize
+      '@job-tracker/plan-schemas':
+        specifier: workspace:*
+        version: link:../../packages/plan-schemas
       '@job-tracker/try-run':
         specifier: workspace:*
         version: link:../../packages/try-run
@@ -355,6 +358,9 @@ importers:
       '@job-tracker/html-sanitize':
         specifier: workspace:*
         version: link:../../packages/html-sanitize
+      '@job-tracker/plan-schemas':
+        specifier: workspace:*
+        version: link:../../packages/plan-schemas
       '@job-tracker/react-slots':
         specifier: workspace:*
         version: link:../../packages/react-slots
@@ -566,6 +572,19 @@ importers:
       '@types/node':
         specifier: ^22.15.3
         version: 22.19.17
+      typescript:
+        specifier: ^5.8.3
+        version: 5.9.3
+
+  packages/plan-schemas:
+    dependencies:
+      zod:
+        specifier: ^4.3.6
+        version: 4.3.6
+    devDependencies:
+      '@job-tracker/try-run':
+        specifier: workspace:*
+        version: link:../try-run
       typescript:
         specifier: ^5.8.3
         version: 5.9.3

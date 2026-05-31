@@ -1,5 +1,5 @@
 import { MessagingService } from "@/domains/message/messaging.service";
-import type { CollectJobsAction } from "@/domains/plan/model/types";
+import type { CollectJobsAction } from "@job-tracker/plan-schemas";
 
 export class PaginationMessagingService {
   constructor(private readonly messagingService: MessagingService) {}

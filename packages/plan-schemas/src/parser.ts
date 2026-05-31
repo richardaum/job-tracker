@@ -1,5 +1,5 @@
-import { PlanSchema } from "@/domains/plan/model/schema";
-import type { Plan } from "@/domains/plan/model/types";
+import { PlanSchema } from "./schema";
+import type { Plan } from "./types";
 
 export function parseSerializedPlan(rawPlanJson: string): Plan {
   if (!rawPlanJson.trim()) throw new Error("Invalid plan");

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import type { ParseRegexAction } from "@/domains/plan/model/types";
+import type { ParseRegexAction } from "@job-tracker/plan-schemas";
 
 import { ParseRegexService } from "./parse-regex.service";
 

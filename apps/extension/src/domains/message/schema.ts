@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { CollectJobsPlanStepActionSchema } from "@/domains/plan/model/schema";
+import { CollectJobsPlanStepActionSchema } from "@job-tracker/plan-schemas";
 
 export const RuntimeKindSchema = z.enum(["popup", "background", "content"]);
 export const MessageModeSchema = z.enum(["request", "response", "event"]);

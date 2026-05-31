@@ -1,3 +1,4 @@
+import { ExtensionActivityEventEntity } from "@api/database/entities/extension-activity-event.entity";
 import { SourceRunEntity } from "@api/database/entities/source-run.entity";
 import { SourceTemplateEntity } from "@api/database/entities/source-template.entity";
 import { SourceRunActivityEvent } from "@api/domains/sources/source-run-activity-event.type";
@@ -195,20 +196,15 @@ export class SourcesRepository {
   }
 
   async findActivityEventsByRunId(userId: string, runId: string): Promise<SourceRunActivityEvent[]> {
-    const rows = await this.runsRepo.manager.query(
-      `SELECT type, summary, payload, occurred_at
-       FROM extension_activity_events
-       WHERE user_id = $1 AND correlation_id = $2
-               ORDER BY occurred_at DESC, id DESC`,
-      [userId, runId],
-    );
-    return rows.map(
-      (r: { type: string; summary: string; payload: Record<string, unknown> | null; occurred_at: string }) => ({
-        type: r.type,
-        summary: r.summary,
-        payload: r.payload,
-        occurredAt: r.occurred_at,
-      }),
-    );
+    const rows = await this.runsRepo.manager
+      .createQueryBuilder(ExtensionActivityEventEntity, "e")
+      .select(["e.type", "e.summary", "e.payload", "e.occurredAt"])
+      .where("e.userId = :userId", { userId })
+      .andWhere("e.sourceRunId = :runId", { runId })
+      .orderBy("e.occurredAt", "DESC")
+      .addOrderBy("e.id", "DESC")
+      .getMany();
+
+    return rows.map((r) => ({ type: r.type, summary: r.summary, payload: r.payload, occurredAt: r.occurredAt }));
   }
 }
