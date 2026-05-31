@@ -2,12 +2,8 @@ import type { ReactNode } from "react";
 
 import PlanDetailsLayout from "@/modules/sources/page/PlanDetailsLayout";
 
-export default function Layout({
-  children,
-  params,
-}: {
-  children: ReactNode;
-  params: Promise<{ planId: string }>;
-}) {
+type LayoutProps = { params: Promise<{ planId: string }>; children: ReactNode };
+
+export default function Layout({ children, params }: LayoutProps) {
   return <PlanDetailsLayout params={params}>{children}</PlanDetailsLayout>;
 }

@@ -35,20 +35,30 @@ const extensionSubTabTriggerClass = cn(
   "data-[state=active]:bg-bg-info-subtle data-[state=active]:text-text-brand",
 );
 
+type AdminTabBarProps = {
+  currentTab: string;
+  currentExtensionSubTab: string;
+  onPrimaryTabChange: (value: string) => void;
+  onExtensionSubTabChange: (value: string) => void;
+};
+
 function AdminTabBar({
   currentTab,
   currentExtensionSubTab,
   onPrimaryTabChange,
   onExtensionSubTabChange,
-}: {
-  currentTab: string;
-  currentExtensionSubTab: string;
-  onPrimaryTabChange: (value: string) => void;
-  onExtensionSubTabChange: (value: string) => void;
-}) {
+}: AdminTabBarProps) {
   return (
-    <div className={cn("flex w-full shrink-0 flex-wrap items-center gap-x-4 gap-y-2")}>
-      <Tabs value={currentTab} onValueChange={onPrimaryTabChange} className={cn("w-fit")}>
+    <div
+      className={cn(
+        "flex w-full shrink-0 flex-wrap items-center gap-x-4 gap-y-2",
+      )}
+    >
+      <Tabs
+        value={currentTab}
+        onValueChange={onPrimaryTabChange}
+        className={cn("w-fit")}
+      >
         <TabsList className={cn("w-full justify-start sm:w-fit")}>
           <TabsTrigger value="extension">Extension</TabsTrigger>
           <TabsTrigger value="overview">Overview</TabsTrigger>
@@ -76,7 +86,9 @@ function AdminTabBar({
   );
 }
 
-export function AdminShell({ children }: { children: React.ReactNode }) {
+type AdminShellProps = { children: React.ReactNode };
+
+export function AdminShell({ children }: AdminShellProps) {
   const pathname = usePathname();
   const router = useRouter();
   const currentTab = deriveTab(pathname);

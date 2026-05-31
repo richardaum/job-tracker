@@ -2,10 +2,13 @@
 
 import { Button, cn, Dialog, FormField, Stack } from "@job-tracker/ui";
 import { type DialogControl } from "@job-tracker/ui";
-import React, { useState } from "react";
+import { useState } from "react";
 
 import { JobDocument, JobsDocument, useUpdateJobMutation } from "@/gql/hooks";
-import { TagsInput, type TagWithMetadata } from "@/modules/jobs/shared/components/TagsInput";
+import {
+  TagsInput,
+  type TagWithMetadata,
+} from "@/modules/jobs/shared/components/TagsInput";
 
 interface TagsEditDialogProps {
   control: DialogControl;
@@ -15,12 +18,21 @@ interface TagsEditDialogProps {
   onError?: (message: string) => void;
 }
 
-export function TagsEditDialog({ control, jobId, tags, onSuccess, onError }: TagsEditDialogProps) {
+export function TagsEditDialog({
+  control,
+  jobId,
+  tags,
+  onSuccess,
+  onError,
+}: TagsEditDialogProps) {
   const [draft, setDraft] = useState<TagWithMetadata[]>([]);
   const [saving, setSaving] = useState(false);
 
   const [update] = useUpdateJobMutation({
-    refetchQueries: [{ query: JobDocument, variables: { id: jobId } }, { query: JobsDocument }],
+    refetchQueries: [
+      { query: JobDocument, variables: { id: jobId } },
+      { query: JobsDocument },
+    ],
   });
 
   function handleOpenChange(next: boolean) {
@@ -37,7 +49,9 @@ export function TagsEditDialog({ control, jobId, tags, onSuccess, onError }: Tag
         variables: {
           id: jobId,
           input: {
-            tags: draft.map((tag) => tag.label.trim()).filter((tag) => tag.length > 0),
+            tags: draft
+              .map((tag) => tag.label.trim())
+              .filter((tag) => tag.length > 0),
           },
         },
       });
@@ -58,8 +72,17 @@ export function TagsEditDialog({ control, jobId, tags, onSuccess, onError }: Tag
       onOpenChange={handleOpenChange}
     >
       <Stack gap="sm">
-        <FormField label="Tags" htmlFor="ov-tags" hint="Press Enter or comma to add">
-          <TagsInput id="ov-tags" value={draft} onChange={setDraft} disabled={saving} />
+        <FormField
+          label="Tags"
+          htmlFor="ov-tags"
+          hint="Press Enter or comma to add"
+        >
+          <TagsInput
+            id="ov-tags"
+            value={draft}
+            onChange={setDraft}
+            disabled={saving}
+          />
         </FormField>
         <div className={cn("flex justify-end")}>
           <Button

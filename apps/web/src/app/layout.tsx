@@ -20,7 +20,8 @@ export const metadata: Metadata = {
   description: APP_DESCRIPTION,
 };
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+type RootLayoutProps = { children: ReactNode };
+export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en">
       <body className={cn(outfit.variable, "font-sans")}>

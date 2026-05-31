@@ -1,21 +1,15 @@
 "use client";
 
 import { SlotsProvider } from "@job-tracker/react-slots";
-import {
-  cn,
-  Heading,
-  Tabs,
-  TabsList,
-  TabsTrigger,
-  Text,
-} from "@job-tracker/ui";
+import { cn, Tabs, TabsList, TabsTrigger, Text } from "@job-tracker/ui";
 import type { Route } from "next";
 import NextLink from "next/link";
 import { usePathname } from "next/navigation";
-import React from "react";
+import { use } from "react";
+import type { ReactNode } from "react";
 
 import { BackToLink } from "@/components/back-to-link";
-import { DetailPageHeader } from "@/components/detail-page-header";
+import { DetailPageHeader } from "@/components/detail-page-header/DetailPageHeader";
 import { EntityNotFound } from "@/components/entity-not-found";
 import { usePlanQuery } from "@/gql/hooks";
 import {
@@ -28,14 +22,16 @@ function parsePlanTab(pathname: string): string {
   return "templates";
 }
 
+type PlanDetailsLayoutProps = {
+  children: ReactNode;
+  params: Promise<{ planId: string }>;
+};
+
 export default function PlanDetailsLayout({
   children,
   params,
-}: {
-  children: React.ReactNode;
-  params: Promise<{ planId: string }>;
-}) {
-  const { planId } = React.use(params);
+}: PlanDetailsLayoutProps) {
+  const { planId } = use(params);
   const pathname = usePathname();
   const activeTab = parsePlanTab(pathname);
   const { data, loading } = usePlanQuery({ variables: { id: planId } });
@@ -57,10 +53,12 @@ export default function PlanDetailsLayout({
           >
             Back to plans
           </BackToLink>
-          <Heading as="h1" size="2xl" className={cn("min-w-0")}>
+          <DetailPageHeader.Title>
             {plan?.displayName ?? "Plan"}
-          </Heading>
-          <PlanTabDescription.Slot className={cn("empty:hidden")} />
+          </DetailPageHeader.Title>
+          <DetailPageHeader.Description>
+            <PlanTabDescription.Slot className={cn("empty:hidden")} />
+          </DetailPageHeader.Description>
         </DetailPageHeader>
         <div className={cn("flex flex-1 min-h-0 flex-col gap-4 p-4 sm:p-6")}>
           {plan && (

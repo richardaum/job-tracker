@@ -3,7 +3,10 @@ import { PortalSlotsProvider } from "react-portalslots";
 
 import { ProfileHeaderActions } from "@/modules/profile/layout/profile-header.slots";
 
-export function ProfileHeaderSlotsTestWrapper({ children }: { children: ReactNode }) {
+type ProfileHeaderSlotsTestWrapperProps = { children: ReactNode };
+export function ProfileHeaderSlotsTestWrapper({
+  children,
+}: ProfileHeaderSlotsTestWrapperProps) {
   return (
     <PortalSlotsProvider>
       <ProfileHeaderActions.Slot />

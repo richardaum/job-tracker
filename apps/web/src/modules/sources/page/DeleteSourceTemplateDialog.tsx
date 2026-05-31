@@ -3,7 +3,6 @@
 import { tryRun } from "@job-tracker/try-run";
 import { ConfirmDialog } from "@job-tracker/ui";
 import { useRouter } from "next/navigation";
-import React from "react";
 
 import { useDeleteSourceTemplateMutation } from "@/gql/hooks";
 

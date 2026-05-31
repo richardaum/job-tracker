@@ -1,11 +1,23 @@
 "use client";
 
-import { Badge, Card, cn, Heading, Stack, Text, type TextColor } from "@job-tracker/ui";
-import { ArrowsClockwiseIcon, PulseIcon, ShieldCheckIcon } from "@phosphor-icons/react";
+import {
+  Badge,
+  Card,
+  cn,
+  Heading,
+  Stack,
+  Text,
+  type TextColor,
+} from "@job-tracker/ui";
+import {
+  ArrowsClockwiseIcon,
+  PulseIcon,
+  ShieldCheckIcon,
+} from "@phosphor-icons/react";
 
 import { ExtensionConnectionDetailsCard } from "@/modules/admin/extension/components/ExtensionConnectionDetailsCard";
 import { ExtensionConnectionMetricCard } from "@/modules/admin/extension/components/ExtensionConnectionMetricCard";
-import type { useExtensionConnectionStatus } from "@/modules/admin/extension/hooks/useExtensionConnectionStatus";
+import type { ExtensionConnectionState } from "@/modules/admin/extension/hooks/useExtensionConnectionStatus";
 import {
   authDisplayLabel,
   authTextColor,
@@ -24,27 +36,37 @@ function inFlightTextColor(count: number): TextColor {
   return count > 0 ? "brand" : "muted";
 }
 
-function MetricValueText({ children, color }: { children: React.ReactNode; color?: TextColor }) {
+type MetricValueTextProps = { children: React.ReactNode; color?: TextColor };
+function MetricValueText({ children, color }: MetricValueTextProps) {
   return (
-    <Text size="lg" weight="medium" color={color} className={cn("min-w-0 break-all")}>
+    <Text
+      size="lg"
+      weight="medium"
+      color={color}
+      className={cn("min-w-0 break-all")}
+    >
       {children}
     </Text>
   );
 }
 
-function StatusMetricCard({
-  label,
-  icon,
-  children,
-}: {
+type StatusMetricCardProps = {
   label: string;
   icon: React.ReactNode;
   children: React.ReactNode;
-}) {
+};
+
+function StatusMetricCard({ label, icon, children }: StatusMetricCardProps) {
   return (
     <Card padding="md" className={cn("min-w-0 flex-1")}>
       <Stack gap="sm">
-        <Stack direction="row" gap="sm" align="center" justify="between" className={cn("w-full")}>
+        <Stack
+          direction="row"
+          gap="sm"
+          align="center"
+          justify="between"
+          className={cn("w-full")}
+        >
           <Text size="sm" color="secondary">
             {label}
           </Text>
@@ -58,11 +80,16 @@ function StatusMetricCard({
   );
 }
 
-function ExtensionEventRow({ event }: { event: ExtensionAdminEvent }) {
+type ExtensionEventRowProps = { event: ExtensionAdminEvent };
+function ExtensionEventRow({ event }: ExtensionEventRowProps) {
   const secondaryBadge = adminEventSecondaryBadge(event);
 
   return (
-    <li className={cn("rounded-md border border-border-subtle bg-bg-field px-3 py-2.5")}>
+    <li
+      className={cn(
+        "rounded-md border border-border-subtle bg-bg-field px-3 py-2.5",
+      )}
+    >
       <Stack gap="xs">
         <Stack
           direction="row"
@@ -71,19 +98,34 @@ function ExtensionEventRow({ event }: { event: ExtensionAdminEvent }) {
           justify="between"
           className={cn("w-full min-w-0 gap-3")}
         >
-          <Stack direction="row" gap="sm" align="center" className={cn("min-w-0 flex-1")}>
-            <Text size="sm" weight="medium" className={cn("shrink-0 font-mono uppercase")}>
+          <Stack
+            direction="row"
+            gap="sm"
+            align="center"
+            className={cn("min-w-0 flex-1")}
+          >
+            <Text
+              size="sm"
+              weight="medium"
+              className={cn("shrink-0 font-mono uppercase")}
+            >
               {adminEventTypeLabel(event)}
             </Text>
             {secondaryBadge ? (
-              <Badge intent={secondaryBadge.intent}>{secondaryBadge.label}</Badge>
+              <Badge intent={secondaryBadge.intent}>
+                {secondaryBadge.label}
+              </Badge>
             ) : event.kind === "activity" ? (
               <Badge intent={activityEventBadgeIntent(event.type)}>
                 {activityEventTypeLabel(event.type)}
               </Badge>
             ) : null}
           </Stack>
-          <Text size="xs" color="secondary" className={cn("shrink-0 tabular-nums")}>
+          <Text
+            size="xs"
+            color="secondary"
+            className={cn("shrink-0 tabular-nums")}
+          >
             {formatDateTime(event.occurredAt)}
           </Text>
         </Stack>
@@ -95,15 +137,17 @@ function ExtensionEventRow({ event }: { event: ExtensionAdminEvent }) {
   );
 }
 
+type ExtensionStatusPanelProps = {
+  connection: ExtensionConnectionState;
+  inFlightCount: number;
+  eventsLoading: boolean;
+};
+
 export function ExtensionStatusPanel({
   connection,
   inFlightCount,
   eventsLoading,
-}: {
-  connection: ReturnType<typeof useExtensionConnectionStatus>;
-  inFlightCount: number;
-  eventsLoading: boolean;
-}) {
+}: ExtensionStatusPanelProps) {
   return (
     <Stack gap="lg" align="stretch" className={cn("w-full min-w-0")}>
       <div className={cn("grid gap-3 sm:grid-cols-2 xl:grid-cols-3")}>
@@ -118,8 +162,15 @@ export function ExtensionStatusPanel({
           </MetricValueText>
         </StatusMetricCard>
 
-        <StatusMetricCard label="Active events" icon={<PulseIcon size={18} weight="duotone" />}>
-          <MetricValueText color={eventsLoading ? "secondary" : inFlightTextColor(inFlightCount)}>
+        <StatusMetricCard
+          label="Active events"
+          icon={<PulseIcon size={18} weight="duotone" />}
+        >
+          <MetricValueText
+            color={
+              eventsLoading ? "secondary" : inFlightTextColor(inFlightCount)
+            }
+          >
             {eventsLoading ? "Loading…" : inFlightLabel(inFlightCount)}
           </MetricValueText>
         </StatusMetricCard>
@@ -130,19 +181,27 @@ export function ExtensionStatusPanel({
   );
 }
 
+type ExtensionEventsPanelProps = {
+  events: ExtensionAdminEvent[];
+  loading: boolean;
+  error: boolean;
+};
+
 export function ExtensionEventsPanel({
   events,
   loading,
   error,
-}: {
-  events: ExtensionAdminEvent[];
-  loading: boolean;
-  error: unknown;
-}) {
+}: ExtensionEventsPanelProps) {
   return (
-    <Card padding="md" className={cn("min-w-0")}>
+    <Card padding="md" className={cn("min-w-0 flex-1")}>
       <Stack gap="md">
-        <Stack direction="row" gap="sm" align="center" justify="between" className={cn("w-full")}>
+        <Stack
+          direction="row"
+          gap="sm"
+          align="center"
+          justify="between"
+          className={cn("w-full")}
+        >
           <Heading as="h2" size="lg">
             Extension activity
           </Heading>

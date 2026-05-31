@@ -3,7 +3,7 @@
 import { EMPTY_TIPTAP_DOC } from "@job-tracker/tiptap";
 import { Button, cn, Dialog, Input } from "@job-tracker/ui";
 import { useRouter } from "next/navigation";
-import React from "react";
+import { useState } from "react";
 
 import { ResumesDocument, useCreateResumeMutation } from "@/gql/hooks";
 
@@ -18,11 +18,11 @@ export function AddResumeDialog({ open, onOpenChange }: AddResumeDialogProps) {
     refetchQueries: [{ query: ResumesDocument }],
   });
 
-  const [title, setTitle] = React.useState("");
-  const [creating, setCreating] = React.useState(false);
+  const [title, setTitle] = useState("");
+  const [creating, setCreating] = useState(false);
 
   // Reset state when opening
-  const [prevOpen, setPrevOpen] = React.useState(open);
+  const [prevOpen, setPrevOpen] = useState(open);
   if (open !== prevOpen) {
     setPrevOpen(open);
     if (open) {

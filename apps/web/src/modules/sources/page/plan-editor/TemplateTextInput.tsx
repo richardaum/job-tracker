@@ -15,19 +15,21 @@ export interface TemplateField {
   value: string;
 }
 
+type TemplateTextInputProps = {
+  value: string;
+  onChange: (value: string) => void;
+  fields: TemplateField[];
+  placeholder?: string;
+  onValidationError?: (error: string | null) => void;
+};
+
 export function TemplateTextInput({
   value,
   onChange,
   fields,
   placeholder,
   onValidationError,
-}: {
-  value: string;
-  onChange: (value: string) => void;
-  fields: TemplateField[];
-  placeholder?: string;
-  onValidationError?: (error: string | null) => void;
-}) {
+}: TemplateTextInputProps) {
   const [autocompleteOpen, setAutocompleteOpen] = useState(false);
   const [autocompleteContext, setAutocompleteContext] = useState<{
     prefix: string;

@@ -1,7 +1,7 @@
 "use client";
 
 import { EMPTY_TIPTAP_DOC, normalizeTipTapDocument } from "@job-tracker/tiptap";
-import React from "react";
+import { useState } from "react";
 
 import {
   ResumeDocument,
@@ -11,7 +11,10 @@ import {
 } from "@/gql/hooks";
 import { deriveDetailStatus } from "@/lib/entity-detail-view-status";
 
-export function useResumeDetailsViewModel(resumeId: string, onSaved: () => void) {
+export function useResumeDetailsViewModel(
+  resumeId: string,
+  onSaved: () => void,
+) {
   const { data, loading, error } = useResumeQuery({
     variables: { id: resumeId },
     fetchPolicy: "cache-and-network",
@@ -27,21 +30,26 @@ export function useResumeDetailsViewModel(resumeId: string, onSaved: () => void)
   const resume = data?.resume ?? null;
   const status = deriveDetailStatus(loading, error);
 
-  const [draftState, setDraftState] = React.useState<{
+  const [draftState, setDraftState] = useState<{
     resumeId: string | null;
     title: string;
     content: string;
   }>({ resumeId: null, title: "", content: EMPTY_TIPTAP_DOC });
 
-  const [saving, setSaving] = React.useState(false);
+  const [saving, setSaving] = useState(false);
 
   const currentTitle = resume?.title ?? "";
-  const currentContent = normalizeTipTapDocument(resume?.content ?? EMPTY_TIPTAP_DOC);
+  const currentContent = normalizeTipTapDocument(
+    resume?.content ?? EMPTY_TIPTAP_DOC,
+  );
 
-  const titleDraft = draftState.resumeId === resume?.id ? draftState.title : currentTitle;
-  const contentDraft = draftState.resumeId === resume?.id ? draftState.content : currentContent;
+  const titleDraft =
+    draftState.resumeId === resume?.id ? draftState.title : currentTitle;
+  const contentDraft =
+    draftState.resumeId === resume?.id ? draftState.content : currentContent;
 
-  const hasChanges = titleDraft !== currentTitle || contentDraft !== currentContent;
+  const hasChanges =
+    titleDraft !== currentTitle || contentDraft !== currentContent;
 
   function commitDraft(title: string, content: string) {
     setDraftState({ resumeId: resume?.id ?? null, title, content });

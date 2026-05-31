@@ -2,7 +2,8 @@
 
 import { cn, Tooltip } from "@job-tracker/ui";
 import { XIcon } from "@phosphor-icons/react";
-import React, { useRef, useState } from "react";
+import { useRef, useState } from "react";
+import type { KeyboardEvent } from "react";
 
 export interface TagWithMetadata {
   label: string;
@@ -22,13 +23,16 @@ export function TagsInput({ value, onChange, disabled, id }: TagsInputProps) {
 
   function commit(raw: string) {
     const tagLabel = raw.trim();
-    if (tagLabel && !value.some((t) => t.label.toLowerCase() === tagLabel.toLowerCase())) {
+    if (
+      tagLabel &&
+      !value.some((t) => t.label.toLowerCase() === tagLabel.toLowerCase())
+    ) {
       onChange([...value, { label: tagLabel }]);
     }
     setDraft("");
   }
 
-  function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+  function handleKeyDown(e: KeyboardEvent<HTMLInputElement>) {
     if (e.key === "Enter" || e.key === ",") {
       e.preventDefault();
       commit(draft);
@@ -75,7 +79,9 @@ export function TagsInput({ value, onChange, disabled, id }: TagsInputProps) {
               {tooltipContent ? (
                 <span
                   aria-hidden
-                  className={cn("size-1.5 shrink-0 rounded-full bg-text-muted/70")}
+                  className={cn(
+                    "size-1.5 shrink-0 rounded-full bg-text-muted/70",
+                  )}
                 />
               ) : null}
               <span className={cn("max-w-40 truncate")}>{tag.label}</span>

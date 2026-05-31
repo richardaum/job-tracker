@@ -17,13 +17,16 @@ import {
   Textarea,
 } from "@job-tracker/ui";
 import { UploadSimpleIcon } from "@phosphor-icons/react";
-import React, { useCallback, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
+import type { ChangeEvent } from "react";
 
 import { useCreatePlanMutation } from "@/gql/hooks";
 
 type JsonInputMode = "type" | "upload";
 
-function tryParseJson(raw: string): { ok: true; value: Record<string, unknown> } | { ok: false } {
+function tryParseJson(
+  raw: string,
+): { ok: true; value: Record<string, unknown> } | { ok: false } {
   try {
     return { ok: true, value: JSON.parse(raw) as Record<string, unknown> };
   } catch (e: unknown) {
@@ -41,7 +44,10 @@ type ImportPlanDialogProps = {
   onOpenChange: (open: boolean) => void;
 };
 
-export function ImportPlanDialog({ open, onOpenChange }: ImportPlanDialogProps) {
+export function ImportPlanDialog({
+  open,
+  onOpenChange,
+}: ImportPlanDialogProps) {
   const [displayName, setDisplayName] = useState("");
   const [jsonMode, setJsonMode] = useState<JsonInputMode>("type");
   const [documentJson, setDocumentJson] = useState("");
@@ -74,7 +80,7 @@ export function ImportPlanDialog({ open, onOpenChange }: ImportPlanDialogProps) 
 
   const close = useCallback(() => notifyOpenChange(false), [notifyOpenChange]);
 
-  function handleFileSelected(e: React.ChangeEvent<HTMLInputElement>) {
+  function handleFileSelected(e: ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
     setFileName(file.name);
@@ -188,11 +194,18 @@ export function ImportPlanDialog({ open, onOpenChange }: ImportPlanDialogProps) 
             onChange={handleFileSelected}
           />
 
-          <Tabs value={jsonMode} onValueChange={(v) => handleModeSwitch(v as JsonInputMode)}>
+          <Tabs
+            value={jsonMode}
+            onValueChange={(v) => handleModeSwitch(v as JsonInputMode)}
+          >
             <TabsList>
               <TabsTrigger value="type">Type manually</TabsTrigger>
               <TabsTrigger value="upload">
-                <UploadSimpleIcon size={14} weight="bold" className={cn("mr-1.5")} />
+                <UploadSimpleIcon
+                  size={14}
+                  weight="bold"
+                  className={cn("mr-1.5")}
+                />
                 Upload file
               </TabsTrigger>
             </TabsList>
@@ -224,10 +237,15 @@ export function ImportPlanDialog({ open, onOpenChange }: ImportPlanDialogProps) 
                 tabIndex={0}
                 onClick={() => fileInputRef.current?.click()}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") fileInputRef.current?.click();
+                  if (e.key === "Enter" || e.key === " ")
+                    fileInputRef.current?.click();
                 }}
               >
-                <UploadSimpleIcon size={24} weight="regular" className={cn("text-text-muted")} />
+                <UploadSimpleIcon
+                  size={24}
+                  weight="regular"
+                  className={cn("text-text-muted")}
+                />
                 {fileName ? (
                   <Text size="sm">{fileName}</Text>
                 ) : (

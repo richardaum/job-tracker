@@ -1,10 +1,14 @@
 "use client";
 
-import React from "react";
+import { use } from "react";
 
 import { JobOverviewPage } from "@/modules/jobs/details/page/JobOverviewPage";
 
-export default function JobOverviewRoutePage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = React.use(params);
+type JobOverviewRoutePageProps = { params: Promise<{ id: string }> };
+
+export default function JobOverviewRoutePage({
+  params,
+}: JobOverviewRoutePageProps) {
+  const { id } = use(params);
   return <JobOverviewPage jobId={id} />;
 }

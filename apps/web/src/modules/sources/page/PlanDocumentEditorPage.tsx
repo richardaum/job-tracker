@@ -64,7 +64,8 @@ function getCollectJobsInput(step: Step): CollectJobsInput {
     .input;
 }
 
-function PlanEditor({ plan }: { plan: NonNullable<PlanQuery["plan"]> }) {
+type PlanEditorProps = { plan: NonNullable<PlanQuery["plan"]> };
+function PlanEditor({ plan }: PlanEditorProps) {
   const [updatePlan] = useUpdatePlanMutation();
   const { enqueueToast } = useToastQueue();
   const initialDoc = parseDocument(plan.document);
@@ -273,9 +274,7 @@ function PlanEditor({ plan }: { plan: NonNullable<PlanQuery["plan"]> }) {
   return (
     <>
       <PlanTabDescription>
-        <Text size="sm" color="muted">
-          Configure extraction rules and constraints for this plan.
-        </Text>
+        Configure extraction rules and constraints for this plan.
       </PlanTabDescription>
       <PlanHeaderActions>
         <div className={cn("flex items-center gap-2")}>
@@ -515,11 +514,11 @@ function PlanEditor({ plan }: { plan: NonNullable<PlanQuery["plan"]> }) {
   );
 }
 
+type PlanDocumentEditorPageProps = { params: Promise<{ planId: string }> };
+
 export function PlanDocumentEditorPage({
   params,
-}: {
-  params: Promise<{ planId: string }>;
-}) {
+}: PlanDocumentEditorPageProps) {
   const { planId } = use(params);
   const { data, loading } = usePlanQuery({ variables: { id: planId } });
 

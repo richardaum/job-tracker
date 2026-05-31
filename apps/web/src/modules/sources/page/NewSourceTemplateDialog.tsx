@@ -1,8 +1,17 @@
 "use client";
 
 import { tryRun } from "@job-tracker/try-run";
-import { Button, cn, Dialog, FormField, Input, Select, Stack, Text } from "@job-tracker/ui";
-import React, { useCallback, useState } from "react";
+import {
+  Button,
+  cn,
+  Dialog,
+  FormField,
+  Input,
+  Select,
+  Stack,
+  Text,
+} from "@job-tracker/ui";
+import { useCallback, useState } from "react";
 
 import { useCreateSourceTemplateMutation } from "@/gql/hooks";
 
@@ -95,7 +104,12 @@ export function NewSourceTemplateDialog({
     setSaving(true);
     setSubmitError(null);
 
-    const config = buildConfig(stopWhen, catchUpThreshold, maxPages, olderThanDays);
+    const config = buildConfig(
+      stopWhen,
+      catchUpThreshold,
+      maxPages,
+      olderThanDays,
+    );
 
     const [err] = await tryRun(
       createTemplate({
@@ -183,7 +197,10 @@ export function NewSourceTemplateDialog({
         )}
 
         {stopWhen === "OlderThan" && (
-          <FormField label="Max Age (days)" hint="Stop when jobs are older than this many days">
+          <FormField
+            label="Max Age (days)"
+            hint="Stop when jobs are older than this many days"
+          >
             <Input
               type="number"
               min={1}

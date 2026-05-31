@@ -6,14 +6,15 @@ import { usePathname, useRouter } from "next/navigation";
 import { PortalSlotsProvider } from "react-portalslots";
 
 import { BackToLink } from "@/components/back-to-link";
-import { DetailPageHeader } from "@/components/detail-page-header";
+import { DetailPageHeader } from "@/components/detail-page-header/DetailPageHeader";
 import {
   ProfileHeaderActions,
   ProfileSubTabs,
 } from "@/modules/profile/layout/profile-header.slots";
 
 function deriveTab(pathname: string): string {
-  if (pathname.startsWith("/profile/blocked-keywords")) return "blocked-keywords";
+  if (pathname.startsWith("/profile/blocked-keywords"))
+    return "blocked-keywords";
   if (pathname.startsWith("/profile/settings")) return "settings";
   if (pathname.startsWith("/profile/resumes")) return "resumes";
   if (pathname.startsWith("/profile/preferences")) return "preferences";
@@ -28,7 +29,8 @@ const TAB_ROUTES: Record<string, Route> = {
   "blocked-keywords": "/profile/blocked-keywords",
 };
 
-export function ProfileShell({ children }: { children: React.ReactNode }) {
+type ProfileShellProps = { children: React.ReactNode };
+export function ProfileShell({ children }: ProfileShellProps) {
   const pathname = usePathname();
   const router = useRouter();
   const currentTab = deriveTab(pathname);
@@ -65,7 +67,9 @@ export function ProfileShell({ children }: { children: React.ReactNode }) {
                 <TabsTrigger value="settings">Settings</TabsTrigger>
                 <TabsTrigger value="resumes">Resumes</TabsTrigger>
                 <TabsTrigger value="preferences">Work Preferences</TabsTrigger>
-                <TabsTrigger value="blocked-keywords">Blocked Keywords</TabsTrigger>
+                <TabsTrigger value="blocked-keywords">
+                  Blocked Keywords
+                </TabsTrigger>
               </TabsList>
             </Tabs>
             <ProfileSubTabs.Slot className={cn("empty:hidden")} />

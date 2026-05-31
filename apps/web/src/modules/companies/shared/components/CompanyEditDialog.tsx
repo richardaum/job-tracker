@@ -1,9 +1,13 @@
 "use client";
 
-import { EMPTY_TIPTAP_DOC, normalizeTipTapDocument, tipTapToPlainText } from "@job-tracker/tiptap";
+import {
+  EMPTY_TIPTAP_DOC,
+  normalizeTipTapDocument,
+  tipTapToPlainText,
+} from "@job-tracker/tiptap";
 import { Button, cn, Dialog, FormField, Input, Stack } from "@job-tracker/ui";
 import { type DialogControl } from "@job-tracker/ui";
-import React, { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 import {
   CompaniesDocument,
@@ -52,16 +56,22 @@ export function CompanyEditDialog({
 
   const [updateCompany] = useUpdateCompanyMutation({
     refetchQueries: [
-      ...(job ? [{ query: JobDocument, variables: { id: job.id } }, { query: JobsDocument }] : []),
+      ...(job
+        ? [
+            { query: JobDocument, variables: { id: job.id } },
+            { query: JobsDocument },
+          ]
+        : []),
       ...(refetchCompanies ? [{ query: CompaniesDocument }] : []),
     ],
   });
 
-  const generateCompanyDescriptionAction = useGenerateCompanyDescriptionAiAction({
-    companyName: nameDraft,
-    disabled: saving,
-    onError,
-  });
+  const generateCompanyDescriptionAction =
+    useGenerateCompanyDescriptionAiAction({
+      companyName: nameDraft,
+      disabled: saving,
+      onError,
+    });
   const rewriteCompanyDescriptionAction = useRewriteTextAiAction({
     disabled: saving,
   });
@@ -78,11 +88,14 @@ export function CompanyEditDialog({
 
     const nextName = nameDraft.trim();
     const nextDescription =
-      tipTapToPlainText(descriptionDraft).trim().length > 0 ? descriptionDraft : null;
+      tipTapToPlainText(descriptionDraft).trim().length > 0
+        ? descriptionDraft
+        : null;
 
     const nameChanged = nextName !== editingCompany.name;
     const descriptionChanged =
-      (nextDescription ?? "") !== normalizeTipTapDocument(editingCompany.description);
+      (nextDescription ?? "") !==
+      normalizeTipTapDocument(editingCompany.description);
 
     if (!nextName || (!nameChanged && !descriptionChanged)) {
       _control.close();
@@ -126,7 +139,9 @@ export function CompanyEditDialog({
         _control.onOpenChange(next);
         if (next && sourceCompany) {
           setNameDraft(editingCompany.name);
-          setDescriptionDraft(normalizeTipTapDocument(editingCompany.description));
+          setDescriptionDraft(
+            normalizeTipTapDocument(editingCompany.description),
+          );
         }
       }}
     >
@@ -144,7 +159,9 @@ export function CompanyEditDialog({
           <TipTapEditor
             id="edit-company-description"
             value={descriptionDraft}
-            onChange={(nextValue) => setDescriptionDraft(nextValue || EMPTY_TIPTAP_DOC)}
+            onChange={(nextValue) =>
+              setDescriptionDraft(nextValue || EMPTY_TIPTAP_DOC)
+            }
             autofocus="end"
             disabled={saving}
             aiActions={companyDescriptionAiActions}

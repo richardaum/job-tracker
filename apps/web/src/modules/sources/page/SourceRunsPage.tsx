@@ -27,10 +27,10 @@ import {
 } from "@phosphor-icons/react";
 import type { Route } from "next";
 import NextLink from "next/link";
-import React from "react";
+import { use, useState } from "react";
 
 import { BackToLink } from "@/components/back-to-link";
-import { DetailPageHeader } from "@/components/detail-page-header";
+import { DetailPageHeader } from "@/components/detail-page-header/DetailPageHeader";
 import { EmptyState } from "@/components/empty-state";
 import { EntityNotFound } from "@/components/entity-not-found";
 import { formatDateTime } from "@/modules/jobs/details/utils/job-details.shared";
@@ -74,16 +74,17 @@ function runLabel(index: number, total: number): string {
 }
 
 export default function SourceRunsPage({ params }: PageProps) {
-  const { planId, templateId } = React.use(params);
+  const { planId, templateId } = use(params);
   const { template, error, status, notFound, showInitialLoading } =
     useSourceRunsViewModel(templateId);
 
-  const [actionsMenuOpen, setActionsMenuOpen] = React.useState(false);
-  const [surfaceUrlDialogOpen, setSurfaceUrlDialogOpen] = React.useState(false);
-  const [scheduleDialogOpen, setScheduleDialogOpen] = React.useState(false);
-  const [stopConfigDialogOpen, setStopConfigDialogOpen] = React.useState(false);
-  const [deleteTemplateDialogOpen, setDeleteTemplateDialogOpen] = React.useState(false);
-  const [clearRunsDialogOpen, setClearRunsDialogOpen] = React.useState(false);
+  const [actionsMenuOpen, setActionsMenuOpen] = useState(false);
+  const [surfaceUrlDialogOpen, setSurfaceUrlDialogOpen] = useState(false);
+  const [scheduleDialogOpen, setScheduleDialogOpen] = useState(false);
+  const [stopConfigDialogOpen, setStopConfigDialogOpen] = useState(false);
+  const [deleteTemplateDialogOpen, setDeleteTemplateDialogOpen] =
+    useState(false);
+  const [clearRunsDialogOpen, setClearRunsDialogOpen] = useState(false);
 
   const headerActions =
     template !== null ? (
@@ -157,13 +158,16 @@ export default function SourceRunsPage({ params }: PageProps) {
   return (
     <div className={cn("flex h-full min-h-0 flex-col")}>
       <DetailPageHeader trailing={headerActions}>
-        <BackToLink href={`/sources/plans/${planId}` as Route}>Back to plan</BackToLink>
+        <BackToLink href={`/sources/plans/${planId}` as Route}>
+          Back to plan
+        </BackToLink>
         <Heading as="h1" size="2xl" className={cn("min-w-0")}>
           Source runs
         </Heading>
         {template ? (
           <Text size="sm" color="secondary">
-            {scheduleSummary(template)} · Created {formatDateTime(String(template.createdAt))}
+            {scheduleSummary(template)} · Created{" "}
+            {formatDateTime(String(template.createdAt))}
           </Text>
         ) : null}
       </DetailPageHeader>
@@ -172,13 +176,21 @@ export default function SourceRunsPage({ params }: PageProps) {
         {showInitialLoading ? (
           <SourceRunsListSkeleton />
         ) : notFound ? (
-          <EntityNotFound resource="source" backHref="/sources" backLabel="Back to sources" />
+          <EntityNotFound
+            resource="source"
+            backHref="/sources"
+            backLabel="Back to sources"
+          />
         ) : error && !notFound ? (
           <Text size="sm" color="error">
             Failed to load source runs.
           </Text>
-        ) : status !== "success" || !template ? null : template.runs.length === 0 ? (
-          <EmptyState variant="default" message="No runs for this source yet." />
+        ) : status !== "success" || !template ? null : template.runs.length ===
+          0 ? (
+          <EmptyState
+            variant="default"
+            message="No runs for this source yet."
+          />
         ) : (
           <Stack gap="sm" className={cn("min-w-0")}>
             {template.runs.map((run, index) => (

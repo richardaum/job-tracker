@@ -9,6 +9,21 @@ export interface AutocompleteOption {
   value: string;
 }
 
+type AutocompleteInputProps = {
+  value: string;
+  onChange: (value: string, cursor: number) => void;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  options: AutocompleteOption[];
+  selectedIndex: number;
+  onSelectedIndexChange: (index: number) => void;
+  onSelect?: (option: AutocompleteOption) => void;
+  onCursorChange?: (cursor: number) => void;
+  placeholder?: string;
+  state?: "default" | "error";
+  inputClassName?: string;
+};
+
 export function AutocompleteInput({
   value,
   onChange,
@@ -22,20 +37,7 @@ export function AutocompleteInput({
   placeholder,
   state,
   inputClassName,
-}: {
-  value: string;
-  onChange: (value: string, cursor: number) => void;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  options: AutocompleteOption[];
-  selectedIndex: number;
-  onSelectedIndexChange: (index: number) => void;
-  onSelect?: (option: AutocompleteOption) => void;
-  onCursorChange?: (cursor: number) => void;
-  placeholder?: string;
-  state?: "default" | "error";
-  inputClassName?: string;
-}) {
+}: AutocompleteInputProps) {
   const inputRef = useRef<HTMLInputElement>(null);
 
   function handleKeyDown(event: KeyboardEvent<HTMLInputElement>) {
@@ -47,7 +49,11 @@ export function AutocompleteInput({
     } else if (event.key === "ArrowUp") {
       event.preventDefault();
       onSelectedIndexChange(Math.max(selectedIndex - 1, 0));
-    } else if (event.key === "Enter" && selectedIndex >= 0 && options[selectedIndex]) {
+    } else if (
+      event.key === "Enter" &&
+      selectedIndex >= 0 &&
+      options[selectedIndex]
+    ) {
       event.preventDefault();
       onSelect?.(options[selectedIndex]);
     } else if (event.key === "Escape") {
@@ -65,19 +71,25 @@ export function AutocompleteInput({
           <Input
             ref={inputRef}
             value={value}
-            onChange={(e) => onChange(e.target.value, e.target.selectionStart ?? 0)}
+            onChange={(e) =>
+              onChange(e.target.value, e.target.selectionStart ?? 0)
+            }
             onKeyDown={handleKeyDown}
             onSelect={
               onCursorChange
                 ? function (e) {
-                    onCursorChange((e.target as HTMLInputElement).selectionStart ?? 0);
+                    onCursorChange(
+                      (e.target as HTMLInputElement).selectionStart ?? 0,
+                    );
                   }
                 : undefined
             }
             onKeyUp={
               onCursorChange
                 ? function (e) {
-                    onCursorChange((e.target as HTMLInputElement).selectionStart ?? 0);
+                    onCursorChange(
+                      (e.target as HTMLInputElement).selectionStart ?? 0,
+                    );
                   }
                 : undefined
             }
@@ -92,7 +104,9 @@ export function AutocompleteInput({
     >
       <div className={cn("min-w-48")}>
         {options.length === 0 && (
-          <div className={cn("px-2 py-1.5 text-xs text-text-muted")}>No matching options</div>
+          <div className={cn("px-2 py-1.5 text-xs text-text-muted")}>
+            No matching options
+          </div>
         )}
         {options.map((option, index) => (
           <button
@@ -109,8 +123,12 @@ export function AutocompleteInput({
             onMouseDown={(e) => e.preventDefault()}
             onMouseEnter={() => onSelectedIndexChange(index)}
           >
-            <span className={cn("font-mono text-text-primary")}>{option.value}</span>
-            <span className={cn("text-text-muted ml-auto text-[11px]")}>{option.label}</span>
+            <span className={cn("font-mono text-text-primary")}>
+              {option.value}
+            </span>
+            <span className={cn("text-text-muted ml-auto text-[11px]")}>
+              {option.label}
+            </span>
           </button>
         ))}
       </div>

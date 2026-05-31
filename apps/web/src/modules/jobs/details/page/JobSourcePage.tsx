@@ -8,7 +8,8 @@ import { SourceContentTabContent } from "@/modules/jobs/details/components/Sourc
 import { useJobDetailsViewModel } from "@/modules/jobs/details/hooks/useJobDetailsViewModel";
 import { jobDetailsPath } from "@/modules/jobs/details/utils/job-details-routes";
 
-export function JobSourcePage({ jobId }: { jobId: string }) {
+type JobSourcePageProps = { jobId: string };
+export function JobSourcePage({ jobId }: JobSourcePageProps) {
   const router = useRouter();
   // TODO: consume job data from JobDetailsContext instead of calling
   // useJobDetailsViewModel() here (see TODO in that hook).

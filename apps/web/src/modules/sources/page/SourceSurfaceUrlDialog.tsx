@@ -1,9 +1,17 @@
 "use client";
 
 import { tryRun } from "@job-tracker/try-run";
-import { Button, cn, Dialog, FormField, Input, Stack, Text } from "@job-tracker/ui";
+import {
+  Button,
+  cn,
+  Dialog,
+  FormField,
+  Input,
+  Stack,
+  Text,
+} from "@job-tracker/ui";
 import { ArrowSquareOutIcon } from "@phosphor-icons/react";
-import React, { useCallback, useState } from "react";
+import { useCallback, useState } from "react";
 
 import { useUpdateSourceTemplateMutation } from "@/gql/hooks";
 import type { SourceListItem } from "@/modules/sources/page/source-template-list.shared";
@@ -53,7 +61,10 @@ function SourceSurfaceUrlFormInner({
 
   return (
     <Stack gap="sm">
-      <FormField label="Listing URL" htmlFor={`template-surface-url-${template.id}`}>
+      <FormField
+        label="Listing URL"
+        htmlFor={`template-surface-url-${template.id}`}
+      >
         <Input
           id={`template-surface-url-${template.id}`}
           value={draft}
@@ -72,7 +83,9 @@ function SourceSurfaceUrlFormInner({
           <Button
             intent="ghost"
             leftIcon={<ArrowSquareOutIcon size={14} weight="regular" />}
-            onClick={() => window.open(template.surfaceUrl, "_blank", "noopener,noreferrer")}
+            onClick={() =>
+              window.open(template.surfaceUrl, "_blank", "noopener,noreferrer")
+            }
           >
             Open URL
           </Button>
@@ -116,7 +129,8 @@ export function SourceSurfaceUrlDialog({
       title="Surface URL"
       description={
         <Text size="sm" color="secondary">
-          Used as the listing URL for new and rerun sources. This field is mandatory.
+          Used as the listing URL for new and rerun sources. This field is
+          mandatory.
         </Text>
       }
     >

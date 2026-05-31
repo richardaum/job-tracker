@@ -1,8 +1,17 @@
 "use client";
 
 import { tryRun } from "@job-tracker/try-run";
-import { Button, Checkbox, cn, Dialog, FormField, Input, Stack, Text } from "@job-tracker/ui";
-import React, { useCallback, useMemo, useState } from "react";
+import {
+  Button,
+  Checkbox,
+  cn,
+  Dialog,
+  FormField,
+  Input,
+  Stack,
+  Text,
+} from "@job-tracker/ui";
+import { useCallback, useMemo, useState } from "react";
 
 import { useUpdateSourceTemplateMutation } from "@/gql/hooks";
 import { useToastQueue } from "@/modules/jobs/shared/hooks/useToastQueue";
@@ -54,15 +63,19 @@ const conditionMeta: {
   },
 ];
 
-function parseConfig(config: Record<string, unknown> | null | undefined): StopConfig {
+function parseConfig(
+  config: Record<string, unknown> | null | undefined,
+): StopConfig {
   const c = config ?? {};
   const raw = c.stopWhen;
   const sw: StopWhen[] = Array.isArray(raw)
     ? raw.filter(
         (v): v is StopWhen =>
-          typeof v === "string" && ["CatchUp", "FirstRunMaxPages", "OlderThan"].includes(v),
+          typeof v === "string" &&
+          ["CatchUp", "FirstRunMaxPages", "OlderThan"].includes(v),
       )
-    : typeof raw === "string" && ["CatchUp", "FirstRunMaxPages", "OlderThan"].includes(raw)
+    : typeof raw === "string" &&
+        ["CatchUp", "FirstRunMaxPages", "OlderThan"].includes(raw)
       ? [raw as StopWhen]
       : [];
   return {
@@ -90,7 +103,10 @@ function buildConfig(state: StopConfig): Record<string, unknown> {
 type SourceStopConfigFormInnerProps = {
   template: SourceListItem;
   close: () => void;
-  onStopConfigSaved?: (id: string, config: Record<string, unknown> | null) => void;
+  onStopConfigSaved?: (
+    id: string,
+    config: Record<string, unknown> | null,
+  ) => void;
 };
 
 function SourceStopConfigFormInner({
@@ -104,9 +120,14 @@ function SourceStopConfigFormInner({
 
   const { enqueueToast } = useToastQueue();
 
-  const initial = useMemo(() => parseConfig(template.config), [template.config]);
+  const initial = useMemo(
+    () => parseConfig(template.config),
+    [template.config],
+  );
   const [stopWhen, setStopWhen] = useState<StopWhen[]>(initial.stopWhen);
-  const [catchUpThreshold, setCatchUpThreshold] = useState(initial.catchUpThreshold);
+  const [catchUpThreshold, setCatchUpThreshold] = useState(
+    initial.catchUpThreshold,
+  );
   const [maxPages, setMaxPages] = useState(initial.maxPages);
   const [olderThanDays, setOlderThanDays] = useState(initial.olderThanDays);
   const [saving, setSaving] = useState(false);
@@ -169,13 +190,18 @@ function SourceStopConfigFormInner({
       olderThanDays,
     });
 
-    const [err] = await tryRun(updateSource({ variables: { id: template.id, input: { config } } }));
+    const [err] = await tryRun(
+      updateSource({ variables: { id: template.id, input: { config } } }),
+    );
 
     setSaving(false);
 
     if (err) {
       enqueueToast({
-        title: err instanceof Error ? err.message : "Could not save stop condition. Try again.",
+        title:
+          err instanceof Error
+            ? err.message
+            : "Could not save stop condition. Try again.",
         intent: "error",
       });
       return;
@@ -191,7 +217,10 @@ function SourceStopConfigFormInner({
         {conditionMeta.map((condition) => {
           const checked = stopWhen.includes(condition.value);
           return (
-            <div key={condition.value} className={cn("flex flex-col gap-2 pb-2")}>
+            <div
+              key={condition.value}
+              className={cn("flex flex-col gap-2 pb-2")}
+            >
               <label
                 htmlFor={`stop-${condition.value}-${template.id}`}
                 className={cn("flex cursor-pointer items-start gap-3")}
@@ -227,7 +256,9 @@ function SourceStopConfigFormInner({
                       type="number"
                       min={1}
                       value={paramValue(condition.value)}
-                      onChange={(e) => setParamValue(condition.value, e.target.value)}
+                      onChange={(e) =>
+                        setParamValue(condition.value, e.target.value)
+                      }
                       disabled={saving}
                       placeholder={condition.paramPlaceholder}
                     />
@@ -258,7 +289,10 @@ function SourceStopConfigFormInner({
 type SourceStopConfigDialogProps = {
   template: SourceListItem | null;
   onOpenChange: (open: boolean) => void;
-  onStopConfigSaved?: (id: string, config: Record<string, unknown> | null) => void;
+  onStopConfigSaved?: (
+    id: string,
+    config: Record<string, unknown> | null,
+  ) => void;
 };
 
 export function SourceStopConfigDialog({
@@ -277,8 +311,8 @@ export function SourceStopConfigDialog({
       title="Stop Conditions"
       description={
         <Text size="sm" color="secondary">
-          Configure when to stop scanning jobs. You can enable multiple conditions — the first one
-          met stops the run.
+          Configure when to stop scanning jobs. You can enable multiple
+          conditions — the first one met stops the run.
         </Text>
       }
     >

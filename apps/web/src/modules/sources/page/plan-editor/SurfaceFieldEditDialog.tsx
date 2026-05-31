@@ -1,10 +1,26 @@
 "use client";
 
-import { Button, cn, Dialog, FormField, Input, Select, Textarea } from "@job-tracker/ui";
+import {
+  Button,
+  cn,
+  Dialog,
+  FormField,
+  Input,
+  Select,
+  Textarea,
+} from "@job-tracker/ui";
 import { useState } from "react";
 
 import { FieldTooltip } from "@/modules/sources/page/plan-editor/FieldTooltip";
 import type { SurfaceField } from "@/modules/sources/page/plan-editor/types";
+
+type SurfaceFieldEditDialogProps = {
+  field: SurfaceField | null;
+  open: boolean;
+  availableKeys?: string[];
+  onOpenChange: (open: boolean) => void;
+  onSave: (field: SurfaceField) => void;
+};
 
 export function SurfaceFieldEditDialog({
   field,
@@ -12,13 +28,7 @@ export function SurfaceFieldEditDialog({
   open,
   onOpenChange,
   onSave,
-}: {
-  field: SurfaceField | null;
-  open: boolean;
-  availableKeys?: string[];
-  onOpenChange: (open: boolean) => void;
-  onSave: (field: SurfaceField) => void;
-}) {
+}: SurfaceFieldEditDialogProps) {
   const [draft, setDraft] = useState<SurfaceField>(
     field ?? {
       key: "",
@@ -55,7 +65,9 @@ export function SurfaceFieldEditDialog({
             <Input
               id="sf-key"
               value={draft.key}
-              onChange={(e) => setDraft((prev) => ({ ...prev, key: e.target.value }))}
+              onChange={(e) =>
+                setDraft((prev) => ({ ...prev, key: e.target.value }))
+              }
               placeholder="Field identifier"
             />
           </FormField>
@@ -88,7 +100,9 @@ export function SurfaceFieldEditDialog({
           {draft.type === "property" ? (
             <FormField
               label="Value"
-              tooltip={<FieldTooltip content="Which DOM property to read from the element." />}
+              tooltip={
+                <FieldTooltip content="Which DOM property to read from the element." />
+              }
               htmlFor="sf-value"
               required
             >
@@ -99,7 +113,9 @@ export function SurfaceFieldEditDialog({
                   { label: "value", value: "value" },
                 ]}
                 value={draft.value}
-                onValueChange={(v) => setDraft((prev) => ({ ...prev, value: v }))}
+                onValueChange={(v) =>
+                  setDraft((prev) => ({ ...prev, value: v }))
+                }
               />
             </FormField>
           ) : (
@@ -120,8 +136,12 @@ export function SurfaceFieldEditDialog({
               <Input
                 id="sf-value"
                 value={draft.value}
-                onChange={(e) => setDraft((prev) => ({ ...prev, value: e.target.value }))}
-                placeholder={draft.type === "regex" ? "e.g. 🚀 (.+)" : "e.g. href"}
+                onChange={(e) =>
+                  setDraft((prev) => ({ ...prev, value: e.target.value }))
+                }
+                placeholder={
+                  draft.type === "regex" ? "e.g. 🚀 (.+)" : "e.g. href"
+                }
               />
             </FormField>
           )}
@@ -137,7 +157,9 @@ export function SurfaceFieldEditDialog({
               <Textarea
                 id="sf-selector"
                 value={draft.selector ?? ""}
-                onChange={(e) => setDraft((prev) => ({ ...prev, selector: e.target.value }))}
+                onChange={(e) =>
+                  setDraft((prev) => ({ ...prev, selector: e.target.value }))
+                }
                 placeholder="CSS selector"
                 rows={2}
                 size="sm"
@@ -153,9 +175,13 @@ export function SurfaceFieldEditDialog({
               htmlFor="sf-source"
             >
               <Select
-                options={availableKeys?.map((k) => ({ label: k, value: k })) ?? []}
+                options={
+                  availableKeys?.map((k) => ({ label: k, value: k })) ?? []
+                }
                 value={draft.sourceField ?? availableKeys?.[0] ?? ""}
-                onValueChange={(v) => setDraft((prev) => ({ ...prev, sourceField: v }))}
+                onValueChange={(v) =>
+                  setDraft((prev) => ({ ...prev, sourceField: v }))
+                }
               />
             </FormField>
           )}

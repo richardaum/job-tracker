@@ -30,7 +30,10 @@ import { SourceScheduleDialog } from "@/modules/sources/page/SourceScheduleDialo
 import { SourceStopConfigDialog } from "@/modules/sources/page/SourceStopConfigDialog";
 import { SourceSurfaceUrlDialog } from "@/modules/sources/page/SourceSurfaceUrlDialog";
 
-export function TemplateCardsSkeleton({ count = 3 }: { count?: number }) {
+type TemplateCardsSkeletonProps = { count?: number };
+export function TemplateCardsSkeleton({
+  count = 3,
+}: TemplateCardsSkeletonProps) {
   return (
     <Stack gap="sm" className={cn("min-w-0")}>
       {Array.from({ length: count }, (_, i) => (
@@ -46,7 +49,8 @@ export function TemplateCardsSkeleton({ count = 3 }: { count?: number }) {
   );
 }
 
-export function PlanTemplatesList({ planId }: { planId: string }) {
+type PlanTemplatesListProps = { planId: string };
+export function PlanTemplatesList({ planId }: PlanTemplatesListProps) {
   const [surfaceDialogTemplate, setSurfaceDialogTemplate] =
     useState<SourceListItem | null>(null);
   const [scheduleDialogTemplate, setScheduleDialogTemplate] =

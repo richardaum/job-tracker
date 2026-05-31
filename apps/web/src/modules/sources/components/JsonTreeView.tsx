@@ -3,7 +3,8 @@
 import { cn } from "@job-tracker/ui";
 import { useState } from "react";
 
-function ValueDisplay({ value }: { value: unknown }) {
+type ValueDisplayProps = { value: unknown };
+function ValueDisplay({ value }: ValueDisplayProps) {
   if (typeof value === "string") {
     return <span className={cn("text-text-success")}>"{value}"</span>;
   }
@@ -19,32 +20,38 @@ function ValueDisplay({ value }: { value: unknown }) {
   return <span>{String(value)}</span>;
 }
 
-function CollapseIcon({ expanded }: { expanded: boolean }) {
-  return <span className={cn("w-3 shrink-0 text-xs")}>{expanded ? "▼" : "▶"}</span>;
+type CollapseIconProps = { expanded: boolean };
+function CollapseIcon({ expanded }: CollapseIconProps) {
+  return (
+    <span className={cn("w-3 shrink-0 text-xs")}>{expanded ? "▼" : "▶"}</span>
+  );
 }
 
-function ObjectView({
-  data,
-  label,
-  defaultExpanded = false,
-}: {
+type ObjectViewProps = {
   data: Record<string, unknown>;
   label?: string;
   defaultExpanded?: boolean;
-}) {
+};
+
+function ObjectView({ data, label, defaultExpanded = false }: ObjectViewProps) {
   const [expanded, setExpanded] = useState(defaultExpanded);
   const entries = Object.entries(data);
   const count = entries.length;
-
   return (
     <div>
       <button
         type="button"
         onClick={() => setExpanded(!expanded)}
-        className={cn("flex cursor-pointer items-center gap-1 text-left hover:opacity-75")}
+        className={cn(
+          "flex cursor-pointer items-center gap-1 text-left hover:opacity-75",
+        )}
       >
         <CollapseIcon expanded={expanded} />
-        {label ? <span className={cn("font-medium text-text-secondary")}>{label}: </span> : null}
+        {label ? (
+          <span className={cn("font-medium text-text-secondary")}>
+            {label}:{" "}
+          </span>
+        ) : null}
         <span className={cn("text-text-disabled text-xs")}>
           {"{"}
           {count} {count === 1 ? "key" : "keys"}
@@ -55,7 +62,11 @@ function ObjectView({
         <div className={cn("border-l border-border-subtle pl-3 ml-1")}>
           {entries.map(([key, value]) => (
             <div key={key} className={cn("py-0.5")}>
-              <TreeNodeDisplay label={key} value={value} defaultExpanded={defaultExpanded} />
+              <TreeNodeDisplay
+                label={key}
+                value={value}
+                defaultExpanded={defaultExpanded}
+              />
             </div>
           ))}
         </div>
@@ -64,27 +75,30 @@ function ObjectView({
   );
 }
 
-function ArrayView({
-  data,
-  label,
-  defaultExpanded = false,
-}: {
+type ArrayViewProps = {
   data: unknown[];
   label?: string;
   defaultExpanded?: boolean;
-}) {
+};
+
+function ArrayView({ data, label, defaultExpanded = false }: ArrayViewProps) {
   const [expanded, setExpanded] = useState(defaultExpanded);
   const count = data.length;
-
   return (
     <div>
       <button
         type="button"
         onClick={() => setExpanded(!expanded)}
-        className={cn("flex cursor-pointer items-center gap-1 text-left hover:opacity-75")}
+        className={cn(
+          "flex cursor-pointer items-center gap-1 text-left hover:opacity-75",
+        )}
       >
         <CollapseIcon expanded={expanded} />
-        {label ? <span className={cn("font-medium text-text-secondary")}>{label}: </span> : null}
+        {label ? (
+          <span className={cn("font-medium text-text-secondary")}>
+            {label}:{" "}
+          </span>
+        ) : null}
         <span className={cn("text-text-disabled text-xs")}>
           {"["}
           {count} {count === 1 ? "item" : "items"}
@@ -109,17 +123,19 @@ function ArrayView({
   );
 }
 
+type TreeNodeDisplayProps = {
+  label: string;
+  value: unknown;
+  defaultExpanded?: boolean;
+  compact?: boolean;
+};
+
 function TreeNodeDisplay({
   label,
   value,
   defaultExpanded = false,
   compact,
-}: {
-  label: string;
-  value: unknown;
-  defaultExpanded?: boolean;
-  compact?: boolean;
-}) {
+}: TreeNodeDisplayProps) {
   if (typeof value === "object" && value !== null && !Array.isArray(value)) {
     return (
       <ObjectView
@@ -131,7 +147,9 @@ function TreeNodeDisplay({
   }
 
   if (Array.isArray(value)) {
-    return <ArrayView data={value} label={label} defaultExpanded={defaultExpanded} />;
+    return (
+      <ArrayView data={value} label={label} defaultExpanded={defaultExpanded} />
+    );
   }
 
   if (compact) {
@@ -151,7 +169,8 @@ function TreeNodeDisplay({
   );
 }
 
-export function JsonTreeView({ data }: { data: unknown }) {
+type JsonTreeViewProps = { data: unknown };
+export function JsonTreeView({ data }: JsonTreeViewProps) {
   if (typeof data !== "object" || data === null) {
     return <ValueDisplay value={data} />;
   }

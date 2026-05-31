@@ -6,7 +6,8 @@ import { OverviewTabContent } from "@/modules/jobs/details/components/OverviewTa
 import { useJobDetailsViewModel } from "@/modules/jobs/details/hooks/useJobDetailsViewModel";
 import { useToastQueue } from "@/modules/jobs/shared/hooks/useToastQueue";
 
-export function JobOverviewPage({ jobId }: { jobId: string }) {
+type JobOverviewPageProps = { jobId: string };
+export function JobOverviewPage({ jobId }: JobOverviewPageProps) {
   const { enqueueToast } = useToastQueue();
   // TODO: consume job data from JobDetailsContext instead of calling
   // useJobDetailsViewModel() here (see TODO in that hook).

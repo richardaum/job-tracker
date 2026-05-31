@@ -3,19 +3,20 @@
 import { cn, IconButton } from "@job-tracker/ui";
 import { BriefcaseIcon, FilesIcon } from "@phosphor-icons/react";
 import NextLink from "next/link";
-import React from "react";
 
 import { MatchSource } from "@/gql/hooks";
+
+type SourceBadgeProps = {
+  source: MatchSource;
+  resumeId?: string;
+  onPreferenceClick?: () => void;
+};
 
 export function SourceBadge({
   source,
   resumeId,
   onPreferenceClick,
-}: {
-  source: string;
-  resumeId?: string;
-  onPreferenceClick?: () => void;
-}) {
+}: SourceBadgeProps) {
   if (source === MatchSource.Resume && resumeId) {
     return (
       <NextLink href={`/profile/resumes/${resumeId}`}>

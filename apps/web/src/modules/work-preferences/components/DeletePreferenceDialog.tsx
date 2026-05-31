@@ -1,10 +1,10 @@
 "use client";
 
 import { ConfirmDialog } from "@job-tracker/ui";
-import React from "react";
+import type { ReactElement } from "react";
 
 interface DeletePreferenceDialogProps {
-  trigger: React.ReactElement;
+  trigger: ReactElement;
   preferenceText: string;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;

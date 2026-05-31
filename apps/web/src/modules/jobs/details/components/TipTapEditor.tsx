@@ -5,7 +5,13 @@ import {
   parseTipTapDocument,
   tipTapToPlainText,
 } from "@job-tracker/tiptap";
-import { cn, ConfirmDialog, DropdownMenu, DropdownMenuItem, Tooltip } from "@job-tracker/ui";
+import {
+  cn,
+  ConfirmDialog,
+  DropdownMenu,
+  DropdownMenuItem,
+  Tooltip,
+} from "@job-tracker/ui";
 import {
   ArrowsOutSimpleIcon,
   BroomIcon,
@@ -29,7 +35,8 @@ import Placeholder from "@tiptap/extension-placeholder";
 import { Slice } from "@tiptap/pm/model";
 import { EditorContent, useEditor, useEditorState } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import React from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import type { Ref } from "react";
 
 import type { PdfExportConfig } from "@/lib/pdf-export-config";
 import { type TipTapAiAction } from "@/modules/ai/editor/tiptap-ai-actions";
@@ -50,7 +57,7 @@ import { useHasVerticalOverflow } from "@/modules/jobs/shared/hooks/useHasVertic
 export type { TipTapEditorHandle } from "@/modules/jobs/details/hooks/useTipTapEditorHandle";
 
 interface TipTapEditorProps {
-  ref?: React.Ref<TipTapEditorHandle>;
+  ref?: Ref<TipTapEditorHandle>;
   id?: string;
   value: string | null | undefined;
   onChange: (nextValue: string) => void;
@@ -71,6 +78,17 @@ interface TipTapEditorProps {
   pdfExportConfig?: PdfExportConfig;
 }
 
+type AiSuggestionSegmentedControlProps = {
+  aiGenerationLoading: boolean;
+  actions: TipTapAiAction[];
+  isActionDisabled: (action: TipTapAiAction) => boolean;
+  isApproveDisabled: boolean;
+  isRejectDisabled: boolean;
+  onActionSelect: (action: TipTapAiAction) => void;
+  onApprove: () => void;
+  onReject: () => void;
+};
+
 function AiSuggestionSegmentedControl({
   aiGenerationLoading,
   actions,
@@ -80,18 +98,13 @@ function AiSuggestionSegmentedControl({
   onActionSelect,
   onApprove,
   onReject,
-}: {
-  aiGenerationLoading: boolean;
-  actions: TipTapAiAction[];
-  isActionDisabled: (action: TipTapAiAction) => boolean;
-  isApproveDisabled: boolean;
-  isRejectDisabled: boolean;
-  onActionSelect: (action: TipTapAiAction) => void;
-  onApprove: () => void;
-  onReject: () => void;
-}) {
+}: AiSuggestionSegmentedControlProps) {
   return (
-    <div className={cn("inline-flex overflow-hidden rounded border border-border-subtle")}>
+    <div
+      className={cn(
+        "inline-flex overflow-hidden rounded border border-border-subtle",
+      )}
+    >
       <DropdownMenu
         align="start"
         trigger={
@@ -100,7 +113,11 @@ function AiSuggestionSegmentedControl({
               label={
                 aiGenerationLoading ? (
                   <span className={cn("inline-flex items-center gap-1")}>
-                    <CircleNotchIcon size={12} weight="bold" className={cn("animate-spin")} />
+                    <CircleNotchIcon
+                      size={12}
+                      weight="bold"
+                      className={cn("animate-spin")}
+                    />
                     {"AI..."}
                     <CaretDownIcon size={12} weight="bold" />
                   </span>
@@ -142,7 +159,9 @@ function AiSuggestionSegmentedControl({
           ariaLabel="Approve AI suggestion"
           onClick={onApprove}
           disabled={isApproveDisabled}
-          className={cn("rounded-none border-0 border-l border-border-subtle text-text-success")}
+          className={cn(
+            "rounded-none border-0 border-l border-border-subtle text-text-success",
+          )}
         />
       ) : null}
       {!isRejectDisabled ? (
@@ -151,7 +170,9 @@ function AiSuggestionSegmentedControl({
           ariaLabel="Reject AI suggestion"
           onClick={onReject}
           disabled={isRejectDisabled}
-          className={cn("rounded-none border-0 border-l border-border-subtle text-text-error")}
+          className={cn(
+            "rounded-none border-0 border-l border-border-subtle text-text-error",
+          )}
         />
       ) : null}
     </div>
@@ -164,7 +185,9 @@ const editorContentClasses = {
     "[&_.ProseMirror]:min-h-20 [&_.ProseMirror]:p-3 [&_.ProseMirror]:text-sm [&_.ProseMirror]:outline-none [&_.ProseMirror]:whitespace-pre-wrap [&_.ProseMirror]:wrap-break-word",
     "[&_.ProseMirror_p]:m-0 [&_.ProseMirror_p+p]:mt-2",
   ),
-  bulletList: cn("[&_.ProseMirror_ul]:my-2 [&_.ProseMirror_ul]:list-disc [&_.ProseMirror_ul]:pl-5"),
+  bulletList: cn(
+    "[&_.ProseMirror_ul]:my-2 [&_.ProseMirror_ul]:list-disc [&_.ProseMirror_ul]:pl-5",
+  ),
   orderedList: cn(
     "[&_.ProseMirror_ol]:my-2 [&_.ProseMirror_ol]:list-decimal [&_.ProseMirror_ol]:pl-5",
   ),
@@ -208,12 +231,12 @@ export function TipTapEditor({
   enableImport = false,
   pdfExportConfig,
 }: TipTapEditorProps) {
-  const onHardEnterRef = React.useRef(onHardEnter);
-  const [isGeneratingAiLocally, setIsGeneratingAiLocally] = React.useState(false);
-  const [pendingAiOriginalContent, setPendingAiOriginalContent] = React.useState<string | null>(
-    null,
-  );
-  React.useLayoutEffect(() => {
+  const onHardEnterRef = useRef(onHardEnter);
+  const [isGeneratingAiLocally, setIsGeneratingAiLocally] = useState(false);
+  const [pendingAiOriginalContent, setPendingAiOriginalContent] = useState<
+    string | null
+  >(null);
+  useLayoutEffect(() => {
     onHardEnterRef.current = onHardEnter;
   });
 
@@ -253,14 +276,15 @@ export function TipTapEditor({
   // (restore draft, edit dialog, description tab). Prefer `ref.clear()` to empty the composer.
   // Avoid `setContent` while the editor is ahead of React `value` (common during RTL `user.type`
   // and fast typing); see https://github.com/ueberdosis/tiptap/discussions/4008
-  React.useEffect(() => {
+  useEffect(() => {
     if (!editor) return;
     const incoming = normalizeTipTapDocument(value);
     const current = JSON.stringify(editor.getJSON());
     if (incoming !== current) {
       const plainIn = tipTapToPlainText(incoming).trim();
       const plainCur = tipTapToPlainText(current).trim();
-      const editorAheadWhileFocused = editor.isFocused && plainCur.length > plainIn.length;
+      const editorAheadWhileFocused =
+        editor.isFocused && plainCur.length > plainIn.length;
       const samePlainDifferentJson = plainIn === plainCur && plainIn.length > 0;
       if (!editorAheadWhileFocused && !samePlainDifferentJson) {
         editor.commands.setContent(parseTipTapDocument(value), {
@@ -318,7 +342,9 @@ export function TipTapEditor({
         ? "Heading 3"
         : "Paragraph";
   const hasActiveHeading = Boolean(
-    editorState?.isHeadingLevel1 || editorState?.isHeadingLevel2 || editorState?.isHeadingLevel3,
+    editorState?.isHeadingLevel1 ||
+    editorState?.isHeadingLevel2 ||
+    editorState?.isHeadingLevel3,
   );
   const {
     isListening: isListeningVoiceToText,
@@ -353,7 +379,8 @@ export function TipTapEditor({
   }
 
   const aiGenerationLoading = Boolean(
-    isGeneratingAiLocally || aiActions?.some((action) => Boolean(action.isLoading)),
+    isGeneratingAiLocally ||
+    aiActions?.some((action) => Boolean(action.isLoading)),
   );
 
   async function handleAiAction(action: TipTapAiAction) {
@@ -367,7 +394,9 @@ export function TipTapEditor({
     try {
       if (action.kind === "rewrite") {
         const { from, to } = editor.state.selection;
-        const selectedText = editor.state.doc.textBetween(from, to, "\n\n").trim();
+        const selectedText = editor.state.doc
+          .textBetween(from, to, "\n\n")
+          .trim();
         const hasSelection = from !== to && selectedText.length > 0;
         const sourceText = hasSelection ? selectedText : documentText;
         if (!sourceText.trim()) {
@@ -386,7 +415,11 @@ export function TipTapEditor({
 
         setPendingAiOriginalContent(currentValue);
         if (hasSelection) {
-          editor.chain().focus().insertContentAt({ from, to }, rewrittenText).run();
+          editor
+            .chain()
+            .focus()
+            .insertContentAt({ from, to }, rewrittenText)
+            .run();
         } else {
           const normalizedValue = normalizeTipTapDocument(rewrittenText);
           editor.commands.setContent(parseTipTapDocument(normalizedValue), {
@@ -502,19 +535,25 @@ export function TipTapEditor({
             </DropdownMenuItem>
             <DropdownMenuItem
               icon={<TextHOneIcon size={14} weight="bold" />}
-              onSelect={() => editor.chain().focus().setHeading({ level: 1 }).run()}
+              onSelect={() =>
+                editor.chain().focus().setHeading({ level: 1 }).run()
+              }
             >
               Heading 1
             </DropdownMenuItem>
             <DropdownMenuItem
               icon={<TextHTwoIcon size={14} weight="bold" />}
-              onSelect={() => editor.chain().focus().setHeading({ level: 2 }).run()}
+              onSelect={() =>
+                editor.chain().focus().setHeading({ level: 2 }).run()
+              }
             >
               Heading 2
             </DropdownMenuItem>
             <DropdownMenuItem
               icon={<TextHThreeIcon size={14} weight="bold" />}
-              onSelect={() => editor.chain().focus().setHeading({ level: 3 }).run()}
+              onSelect={() =>
+                editor.chain().focus().setHeading({ level: 3 }).run()
+              }
             >
               Heading 3
             </DropdownMenuItem>
@@ -534,7 +573,11 @@ export function TipTapEditor({
             }}
             disabled={disabled}
           />
-          <SaveAsPdfButton editor={editor} disabled={disabled} pdfExportConfig={pdfExportConfig} />
+          <SaveAsPdfButton
+            editor={editor}
+            disabled={disabled}
+            pdfExportConfig={pdfExportConfig}
+          />
           {enableImport ? (
             <>
               <input
@@ -567,12 +610,20 @@ export function TipTapEditor({
             <ToolbarButton
               label={
                 isListeningVoiceToText ? (
-                  <MicrophoneIcon size={14} weight="fill" className={cn("text-text-error")} />
+                  <MicrophoneIcon
+                    size={14}
+                    weight="fill"
+                    className={cn("text-text-error")}
+                  />
                 ) : (
                   <MicrophoneIcon size={14} weight="bold" />
                 )
               }
-              ariaLabel={isListeningVoiceToText ? "Stop voice to text" : "Start voice to text"}
+              ariaLabel={
+                isListeningVoiceToText
+                  ? "Stop voice to text"
+                  : "Start voice to text"
+              }
               onClick={toggleVoiceToText}
               disabled={disabled || !voiceToTextSupported}
             />
@@ -587,9 +638,15 @@ export function TipTapEditor({
                 }
                 if (action.requiresSourceText || action.kind === "rewrite") {
                   const selectedText = editor.state.doc
-                    .textBetween(editor.state.selection.from, editor.state.selection.to, "\n\n")
+                    .textBetween(
+                      editor.state.selection.from,
+                      editor.state.selection.to,
+                      "\n\n",
+                    )
                     .trim();
-                  const documentText = tipTapToPlainText(JSON.stringify(editor.getJSON())).trim();
+                  const documentText = tipTapToPlainText(
+                    JSON.stringify(editor.getJSON()),
+                  ).trim();
                   return !selectedText && !documentText;
                 }
                 return false;

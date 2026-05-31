@@ -1,19 +1,20 @@
 import { cn } from "@job-tracker/ui";
-import React from "react";
 
 import type { JobDetailsValues } from "@/modules/jobs/details/utils/job-details.shared";
 
 import { DescriptionEditor } from "./DescriptionEditor";
 
+type DescriptionTabContentProps = {
+  job: JobDetailsValues;
+  onSuccess: () => void;
+  onError: () => void;
+};
+
 export function DescriptionTabContent({
   job,
   onSuccess,
   onError,
-}: {
-  job: JobDetailsValues;
-  onSuccess: () => void;
-  onError: () => void;
-}) {
+}: DescriptionTabContentProps) {
   return (
     <div className={cn("h-full min-h-0")}>
       <DescriptionEditor

@@ -24,6 +24,7 @@
     "apps/web/public/**"
   ],
   "rules": {
+    "import/no-default-export": "error",
     "constructor-super": "error",
     "for-direction": "error",
     "getter-return": "error",
@@ -144,13 +145,26 @@
     },
     {
       "files": [
+        "apps/web/src/app/**/{page,layout,loading,error,not-found,global-error,template,default}.{ts,tsx}",
+        "apps/web/src/modules/**/page/*.{ts,tsx}"
+      ],
+      "rules": { "import/no-default-export": "off" }
+    },
+    {
+      "files": ["apps/extension/entrypoints/**/*.{ts,tsx}"],
+      "rules": { "import/no-default-export": "off" }
+    },
+    {
+      "files": [
         "apps/api/**/*.{js,mjs,cjs,ts,tsx}",
         "packages/logger/**/*.{js,mjs,cjs,ts,tsx}",
-        "*.config.{js,ts,mjs,cjs}",
+        "*.{config,codegen}.{js,ts,mjs,cjs}",
+        "**/codegen.{ts,js,mjs}",
         "scripts/**/*.{js,mjs,cjs,ts,tsx}",
         "turbo/**/*.{js,mjs,cjs,ts,tsx}"
       ],
       "rules": {
+        "import/no-default-export": "off",
         "no-restricted-imports": [
           "error",
           {
@@ -338,6 +352,10 @@
       "jsPlugins": ["eslint-plugin-testing-library"]
     },
     {
+      "files": ["**/.storybook/*.{ts,js,mjs}"],
+      "rules": { "import/no-default-export": "off" }
+    },
+    {
       "files": ["**/*.{ts,tsx}"],
       "rules": {
         "typescript/no-deprecated": "error",
@@ -354,9 +372,11 @@
         "**/*.stories.{ts,tsx}",
         "**/vitest.setup.{ts,tsx}",
         "**/jest.setup.{ts,tsx}",
-        "**/*.mock.{ts,tsx}"
+        "**/*.mock.{ts,tsx}",
+        "**/*.stub.{ts,tsx}"
       ],
       "rules": {
+        "import/no-default-export": "off",
         "@job-tracker/oxlint-plugin/prefer-try-run-over-try-catch": "off",
         "@job-tracker/oxlint-plugin/no-as-unknown-as": "off",
         "@job-tracker/oxlint-plugin/no-inline-component-props": "off"
@@ -364,7 +384,10 @@
     },
     {
       "files": ["**/*.cjs"],
-      "rules": { "typescript/no-require-imports": "off" }
+      "rules": {
+        "import/no-default-export": "off",
+        "typescript/no-require-imports": "off"
+      }
     }
   ]
 }

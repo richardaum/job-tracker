@@ -1,7 +1,6 @@
 "use client";
 
 import { Card, cn, Text } from "@job-tracker/ui";
-import React from "react";
 
 import { MatchVerdict, RequirementType, Weight } from "@/gql/hooks";
 
@@ -20,21 +19,24 @@ export interface MatchItem {
   suggestion?: string | null;
 }
 
+type MatchItemCardProps = {
+  item: MatchItem;
+  resumeId?: string;
+  onPreferenceClick?: () => void;
+};
+
 export function MatchItemCard({
   item,
   resumeId,
   onPreferenceClick,
-}: {
-  item: MatchItem;
-  resumeId?: string;
-  onPreferenceClick?: () => void;
-}) {
+}: MatchItemCardProps) {
   const isFit = item.verdict === MatchVerdict.Fit;
   const isGap = item.verdict === MatchVerdict.Gap;
   const isUnclear = item.verdict === MatchVerdict.Unclear;
 
   const displayQuotes = item.sourceQuotes.filter(
-    (quote) => quote.trim().toLowerCase() !== item.requirement.trim().toLowerCase(),
+    (quote) =>
+      quote.trim().toLowerCase() !== item.requirement.trim().toLowerCase(),
   );
 
   return (
@@ -71,7 +73,9 @@ export function MatchItemCard({
           {displayQuotes.map((quote, i) => (
             <blockquote
               key={i}
-              className={cn("border-l-2 border-blue-400 pl-3 text-sm text-text-secondary")}
+              className={cn(
+                "border-l-2 border-blue-400 pl-3 text-sm text-text-secondary",
+              )}
             >
               {quote}
             </blockquote>

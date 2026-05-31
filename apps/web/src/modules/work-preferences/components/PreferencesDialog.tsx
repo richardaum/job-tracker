@@ -1,6 +1,6 @@
 import { Dialog } from "@job-tracker/ui";
 
-import WorkPreferencesEditor from "@/modules/work-preferences/components/WorkPreferencesEditor";
+import { WorkPreferencesEditor } from "@/modules/work-preferences/components/WorkPreferencesEditor";
 
 interface PreferencesDialogProps {
   open: boolean;

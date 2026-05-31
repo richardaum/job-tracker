@@ -2,7 +2,6 @@
 
 import { Badge, cn, Tooltip } from "@job-tracker/ui";
 import { InfoIcon } from "@phosphor-icons/react";
-import React from "react";
 
 import { ApplicationStage } from "@/gql/hooks";
 import { formatStage } from "@/modules/jobs/shared/components/status-badge.utils";
@@ -28,15 +27,13 @@ function getStageBadgeIntent(stage: ApplicationStage) {
   }
 }
 
-export function StatusBadge({
-  stage,
-  reason,
-  className,
-}: {
+type StatusBadgeProps = {
   stage: ApplicationStage;
   reason?: string | null;
   className?: string;
-}) {
+};
+
+export function StatusBadge({ stage, reason, className }: StatusBadgeProps) {
   return (
     <span className={cn("inline-flex items-center gap-1")}>
       <Badge intent={getStageBadgeIntent(stage)} className={className}>
@@ -45,7 +42,9 @@ export function StatusBadge({
       {reason ? (
         <Tooltip content={reason} side="bottom">
           <span
-            className={cn("inline-flex cursor-help text-text-muted hover:text-text-secondary")}
+            className={cn(
+              "inline-flex cursor-help text-text-muted hover:text-text-secondary",
+            )}
             aria-label="Status reason"
           >
             <InfoIcon size={12} weight="regular" />

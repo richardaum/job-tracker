@@ -12,7 +12,8 @@ function guessType(v: string) {
   return v;
 }
 
-function ValueCell({ value, onSave }: { value: unknown; onSave: (next: unknown) => void }) {
+type ValueCellProps = { value: unknown; onSave: (next: unknown) => void };
+function ValueCell({ value, onSave }: ValueCellProps) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(String(value ?? ""));
   const inputRef = useRef<HTMLInputElement>(null);
@@ -68,18 +69,32 @@ function ValueCell({ value, onSave }: { value: unknown; onSave: (next: unknown) 
   );
 }
 
-function CollapseIcon({ expanded }: { expanded: boolean }) {
-  return <span className={cn("w-3 shrink-0 select-none text-xs")}>{expanded ? "▼" : "▶"}</span>;
+type CollapseIconProps = { expanded: boolean };
+function CollapseIcon({ expanded }: CollapseIconProps) {
+  return (
+    <span className={cn("w-3 shrink-0 select-none text-xs")}>
+      {expanded ? "▼" : "▶"}
+    </span>
+  );
 }
 
 function branchMeta(value: unknown): string {
   if (typeof value === "object" && value !== null) {
-    if (Array.isArray(value)) return `[${value.length} item${value.length === 1 ? "" : "s"}]`;
+    if (Array.isArray(value))
+      return `[${value.length} item${value.length === 1 ? "" : "s"}]`;
     const keys = Object.keys(value);
     return `{${keys.length} key${keys.length === 1 ? "" : "s"}}`;
   }
   return "";
 }
+
+type TreeNodeProps = {
+  label: string;
+  value: unknown;
+  path: string;
+  onValueChange: (path: string, value: unknown) => void;
+  defaultExpanded?: boolean;
+};
 
 function TreeNode({
   label,
@@ -87,13 +102,7 @@ function TreeNode({
   path,
   onValueChange,
   defaultExpanded = false,
-}: {
-  label: string;
-  value: unknown;
-  path: string;
-  onValueChange: (path: string, value: unknown) => void;
-  defaultExpanded?: boolean;
-}) {
+}: TreeNodeProps) {
   const [expanded, setExpanded] = useState(defaultExpanded);
   const isArray = Array.isArray(value);
 
@@ -112,8 +121,14 @@ function TreeNode({
           )}
         >
           <CollapseIcon expanded={expanded} />
-          {label ? <span className={cn("font-medium text-text-secondary")}>{label}:</span> : null}
-          <span className={cn("text-text-disabled text-xs")}>{branchMeta(value)}</span>
+          {label ? (
+            <span className={cn("font-medium text-text-secondary")}>
+              {label}:
+            </span>
+          ) : null}
+          <span className={cn("text-text-disabled text-xs")}>
+            {branchMeta(value)}
+          </span>
         </button>
         {expanded && (
           <div className={cn("border-l border-border-subtle pl-3 ml-1")}>
@@ -137,7 +152,9 @@ function TreeNode({
   return (
     <div className={cn("flex items-center gap-1")}>
       {label ? (
-        <span className={cn("shrink-0 font-medium text-text-secondary")}>{label}:</span>
+        <span className={cn("shrink-0 font-medium text-text-secondary")}>
+          {label}:
+        </span>
       ) : null}
       <div className={cn("min-w-0 flex-1")}>
         <ValueCell value={value} onSave={(next) => onValueChange(path, next)} />
@@ -170,13 +187,15 @@ function updateAt(obj: unknown, path: string, value: unknown): unknown {
   return setIn(obj, 0);
 }
 
+type HeadlessJsonEditorProps = {
+  data: unknown;
+  onChange: (data: unknown) => void;
+};
+
 export function HeadlessJsonEditor({
   data,
   onChange,
-}: {
-  data: unknown;
-  onChange: (next: unknown) => void;
-}) {
+}: HeadlessJsonEditorProps) {
   const handleChange = useCallback(
     (path: string, value: unknown) => {
       onChange(updateAt(data, path, value));
@@ -190,7 +209,13 @@ export function HeadlessJsonEditor({
 
   return (
     <div className={cn("font-mono text-sm/relaxed")}>
-      <TreeNode label="" value={data} path="#" onValueChange={handleChange} defaultExpanded />
+      <TreeNode
+        label=""
+        value={data}
+        path="#"
+        onValueChange={handleChange}
+        defaultExpanded
+      />
     </div>
   );
 }

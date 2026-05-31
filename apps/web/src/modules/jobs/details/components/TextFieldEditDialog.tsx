@@ -3,7 +3,7 @@
 import { Button, cn, Dialog, FormField, Input, Stack } from "@job-tracker/ui";
 import { type DialogControl } from "@job-tracker/ui";
 import { SparkleIcon } from "@phosphor-icons/react";
-import React, { useState } from "react";
+import { useState } from "react";
 
 interface TextFieldEditDialogProps {
   control: DialogControl;
@@ -64,7 +64,10 @@ export function TextFieldEditDialog({
       onOpenChange={handleOpenChange}
     >
       <Stack gap="sm">
-        <FormField label={label} htmlFor={`edit-${label.toLowerCase().replace(/\s+/g, "-")}`}>
+        <FormField
+          label={label}
+          htmlFor={`edit-${label.toLowerCase().replace(/\s+/g, "-")}`}
+        >
           <Input
             id={`edit-${label.toLowerCase().replace(/\s+/g, "-")}`}
             value={draft}

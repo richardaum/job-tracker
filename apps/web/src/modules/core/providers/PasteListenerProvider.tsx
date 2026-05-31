@@ -16,14 +16,17 @@ import { useToastQueue } from "@/modules/jobs/shared/hooks/useToastQueue";
 
 import { PasteDestinationDialog } from "./components/PasteDestinationDialog";
 
-export function PasteListenerProvider({ children }: { children: ReactNode }) {
+type PasteListenerProviderProps = { children: ReactNode };
+export function PasteListenerProvider({
+  children,
+}: PasteListenerProviderProps) {
   const router = useRouter();
   const [pastedContent, setPastedContent] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
   const { enqueueToast } = useToastQueue();
 
-  const [createDraftCaptureJob, { loading: createDraftLoading }] = useCreateDraftCaptureJobMutation(
-    {
+  const [createDraftCaptureJob, { loading: createDraftLoading }] =
+    useCreateDraftCaptureJobMutation({
       refetchQueries: [
         {
           query: JobsDocument,
@@ -31,8 +34,7 @@ export function PasteListenerProvider({ children }: { children: ReactNode }) {
         },
       ],
       awaitRefetchQueries: true,
-    },
-  );
+    });
 
   const handlePasteCapture = useCallback((event: ClipboardEvent) => {
     const target = event.target;

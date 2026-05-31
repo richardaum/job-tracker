@@ -2,7 +2,8 @@
 
 import { cn } from "@job-tracker/ui";
 
-export function InlineMetaDot({ className }: { className?: string }) {
+type InlineMetaDotProps = { className?: string };
+export function InlineMetaDot({ className }: InlineMetaDotProps) {
   return (
     <span className={cn("text-text-muted", className)} aria-hidden>
       ·

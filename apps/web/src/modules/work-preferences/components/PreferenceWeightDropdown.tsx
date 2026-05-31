@@ -1,6 +1,12 @@
 "use client";
 
-import { Badge, Button, cn, DropdownMenu, DropdownMenuItem } from "@job-tracker/ui";
+import {
+  Badge,
+  Button,
+  cn,
+  DropdownMenu,
+  DropdownMenuItem,
+} from "@job-tracker/ui";
 import { ArrowDownIcon, ArrowUpIcon } from "@phosphor-icons/react";
 
 import { Weight } from "@/gql/hooks";
@@ -14,24 +20,29 @@ interface PreferenceWeightDropdownProps {
   className?: string;
 }
 
+type PreferenceWeightBadgeProps = {
+  value: Weight;
+  interactive?: boolean;
+  className?: string;
+};
+
 function PreferenceWeightBadge({
   value,
   interactive = false,
   className,
-}: {
-  value: Weight;
-  interactive?: boolean;
-  className?: string;
-}) {
+}: PreferenceWeightBadgeProps) {
   const isHigh = value === Weight.High;
-
   return (
     <Badge
       intent={isHigh ? "success" : "default"}
       interactive={interactive}
       className={cn("inline-flex items-center gap-1", className)}
     >
-      {isHigh ? <ArrowUpIcon size={12} weight="bold" /> : <ArrowDownIcon size={12} weight="bold" />}
+      {isHigh ? (
+        <ArrowUpIcon size={12} weight="bold" />
+      ) : (
+        <ArrowDownIcon size={12} weight="bold" />
+      )}
       {weightLabel(value)}
     </Badge>
   );
@@ -51,7 +62,10 @@ export function PreferenceWeightDropdown({
       <button
         type="button"
         aria-label={`Weight: ${weightLabel(value)}`}
-        className={cn("inline-flex border-0 bg-transparent p-0 leading-none", className)}
+        className={cn(
+          "inline-flex border-0 bg-transparent p-0 leading-none",
+          className,
+        )}
       >
         <PreferenceWeightBadge value={value} interactive />
       </button>
@@ -95,13 +109,25 @@ export function PreferenceWeightDropdown({
   return (
     <DropdownMenu trigger={trigger} align="start">
       <DropdownMenuItem
-        icon={<ArrowUpIcon size={14} weight="bold" className={cn("text-text-success")} />}
+        icon={
+          <ArrowUpIcon
+            size={14}
+            weight="bold"
+            className={cn("text-text-success")}
+          />
+        }
         onSelect={() => onChange(Weight.High)}
       >
         High
       </DropdownMenuItem>
       <DropdownMenuItem
-        icon={<ArrowDownIcon size={14} weight="bold" className={cn("text-text-muted")} />}
+        icon={
+          <ArrowDownIcon
+            size={14}
+            weight="bold"
+            className={cn("text-text-muted")}
+          />
+        }
         onSelect={() => onChange(Weight.Low)}
       >
         Low

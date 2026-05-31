@@ -4,19 +4,24 @@ import { Button, cn, Dialog, FormField, Input, Select } from "@job-tracker/ui";
 import { useState } from "react";
 
 import { FieldTooltip } from "@/modules/sources/page/plan-editor/FieldTooltip";
-import type { CollectJobsInput, Step } from "@/modules/sources/page/plan-editor/types";
+import type {
+  CollectJobsInput,
+  Step,
+} from "@/modules/sources/page/plan-editor/types";
+
+type NavigationDialogProps = {
+  step: Step;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSave: (step: Step) => void;
+};
 
 export function NavigationDialog({
   step,
   open,
   onOpenChange,
   onSave,
-}: {
-  step: Step;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onSave: (step: Step) => void;
-}) {
+}: NavigationDialogProps) {
   const initial =
     step.action.kind === "collect.jobs"
       ? {
@@ -29,12 +34,19 @@ export function NavigationDialog({
   const [parallelTabs, setParallelTabs] = useState(initial.parallelDetailsTabs);
 
   function mergeIntoStep() {
-    const action = step.action as { kind: "collect.jobs"; input: CollectJobsInput };
+    const action = step.action as {
+      kind: "collect.jobs";
+      input: CollectJobsInput;
+    };
     return {
       ...step,
       action: {
         kind: "collect.jobs" as const,
-        input: { ...action.input, direction, parallelDetailsTabs: parallelTabs },
+        input: {
+          ...action.input,
+          direction,
+          parallelDetailsTabs: parallelTabs,
+        },
       },
     };
   }
@@ -68,7 +80,9 @@ export function NavigationDialog({
           </FormField>
           <FormField
             label="Parallel Tabs"
-            tooltip={<FieldTooltip content="Max detail pages to open concurrently." />}
+            tooltip={
+              <FieldTooltip content="Max detail pages to open concurrently." />
+            }
             htmlFor="nav-tabs"
           >
             <Input

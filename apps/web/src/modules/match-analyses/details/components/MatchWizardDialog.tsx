@@ -24,7 +24,7 @@ import {
   TrashIcon,
 } from "@phosphor-icons/react";
 import NextLink from "next/link";
-import React from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { type PreferenceInput, Weight } from "@/gql/hooks";
 import {
@@ -56,7 +56,9 @@ function nextPrefId(): string {
   return `pref-${prefIdCounter}`;
 }
 
-function toLocal(items: readonly { text: string; weight: Weight }[]): LocalPreference[] {
+function toLocal(
+  items: readonly { text: string; weight: Weight }[],
+): LocalPreference[] {
   return items.map((p) => ({
     id: nextPrefId(),
     text: p.text,
@@ -64,17 +66,22 @@ function toLocal(items: readonly { text: string; weight: Weight }[]): LocalPrefe
   }));
 }
 
+type PreferencesEditorProps = {
+  preferences: LocalPreference[];
+  onUpdate: (
+    id: string,
+    updates: Partial<Pick<LocalPreference, "text" | "weight">>,
+  ) => void;
+  onRemove: (id: string) => void;
+  focusedId: string | null;
+};
+
 function PreferencesEditor({
   preferences,
   onUpdate,
   onRemove,
   focusedId,
-}: {
-  preferences: LocalPreference[];
-  onUpdate: (id: string, patch: Partial<Pick<LocalPreference, "text" | "weight">>) => void;
-  onRemove: (id: string) => void;
-  focusedId: string | null;
-}) {
+}: PreferencesEditorProps) {
   return (
     <div className={cn("flex flex-col gap-3")}>
       {preferences.length === 0 ? (
@@ -98,20 +105,24 @@ function PreferencesEditor({
   );
 }
 
+type PreferenceRowProps = {
+  pref: LocalPreference;
+  onUpdate: (
+    id: string,
+    updates: Partial<Pick<LocalPreference, "text" | "weight">>,
+  ) => void;
+  onRemove: (id: string) => void;
+  shouldFocus: boolean;
+};
+
 function PreferenceRow({
   pref,
   onUpdate,
   onRemove,
   shouldFocus,
-}: {
-  pref: LocalPreference;
-  onUpdate: (id: string, patch: Partial<Pick<LocalPreference, "text" | "weight">>) => void;
-  onRemove: (id: string) => void;
-  shouldFocus: boolean;
-}) {
-  const inputRef = React.useRef<HTMLInputElement>(null);
-
-  React.useEffect(() => {
+}: PreferenceRowProps) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  useEffect(() => {
     if (shouldFocus) {
       inputRef.current?.focus();
     }
@@ -134,7 +145,9 @@ function PreferenceRow({
               size="md"
               className={cn(
                 "h-9 shrink-0 px-2",
-                pref.weight === Weight.High ? "text-text-success" : "text-text-muted",
+                pref.weight === Weight.High
+                  ? "text-text-success"
+                  : "text-text-muted",
               )}
             >
               {pref.weight === Weight.High ? (
@@ -147,13 +160,25 @@ function PreferenceRow({
           align="end"
         >
           <DropdownMenuItem
-            icon={<ArrowUpIcon size={14} weight="bold" className={cn("text-text-success")} />}
+            icon={
+              <ArrowUpIcon
+                size={14}
+                weight="bold"
+                className={cn("text-text-success")}
+              />
+            }
             onSelect={() => onUpdate(pref.id, { weight: Weight.High })}
           >
             High
           </DropdownMenuItem>
           <DropdownMenuItem
-            icon={<ArrowDownIcon size={14} weight="bold" className={cn("text-text-muted")} />}
+            icon={
+              <ArrowDownIcon
+                size={14}
+                weight="bold"
+                className={cn("text-text-muted")}
+              />
+            }
             onSelect={() => onUpdate(pref.id, { weight: Weight.Low })}
           >
             Low
@@ -162,7 +187,9 @@ function PreferenceRow({
         <Button
           intent="ghost"
           size="md"
-          className={cn("h-9 shrink-0 px-2 text-text-muted hover:text-text-error")}
+          className={cn(
+            "h-9 shrink-0 px-2 text-text-muted hover:text-text-error",
+          )}
           onClick={() => onRemove(pref.id)}
           aria-label={`Remove preference "${pref.text}"`}
         >
@@ -196,13 +223,15 @@ export function MatchWizardDialog({
   });
   const [updatePreferences] = useUpdateWorkPreferencesMutation();
 
-  const [selectedResumeId, setSelectedResumeId] = React.useState<string>("");
-  const [localItems, setLocalItems] = React.useState<LocalPreference[]>([]);
-  const [focusedId, setFocusedId] = React.useState<string | null>(null);
-  const [prefsDirty, setPrefsDirty] = React.useState(false);
+  const [selectedResumeId, setSelectedResumeId] = useState<string>("");
+  const [localItems, setLocalItems] = useState<LocalPreference[]>([]);
+  const [focusedId, setFocusedId] = useState<string | null>(null);
+  const [prefsDirty, setPrefsDirty] = useState(false);
 
-  const [prevOpen, setPrevOpen] = React.useState(open);
-  const [prevPrefsData, setPrevPrefsData] = React.useState<typeof prefsData | null>(null);
+  const [prevOpen, setPrevOpen] = useState(open);
+  const [prevPrefsData, setPrevPrefsData] = useState<typeof prefsData | null>(
+    null,
+  );
 
   if (open !== prevOpen) {
     setPrevOpen(open);
@@ -225,14 +254,16 @@ export function MatchWizardDialog({
     setLocalItems(toLocal(prefsData.workPreferences));
   }
 
-  const resumeOptions = React.useMemo(() => {
-    return resumesData?.resumes?.map((r) => ({ label: r.title, value: r.id })) ?? [];
+  const resumeOptions = useMemo(() => {
+    return (
+      resumesData?.resumes?.map((r) => ({ label: r.title, value: r.id })) ?? []
+    );
   }, [resumesData]);
 
   const resumes = resumesData?.resumes;
   const isLoadingResumes = open && !resumes && resumesLoading;
 
-  const effectiveResumeId = React.useMemo(() => {
+  const effectiveResumeId = useMemo(() => {
     const optionIds = new Set(resumeOptions.map((option) => option.value));
     if (selectedResumeId && optionIds.has(selectedResumeId)) {
       return selectedResumeId;
@@ -245,13 +276,21 @@ export function MatchWizardDialog({
 
   function addPreference() {
     const newId = nextPrefId();
-    setLocalItems((prev) => [...prev, { id: newId, text: "", weight: Weight.Low }]);
+    setLocalItems((prev) => [
+      ...prev,
+      { id: newId, text: "", weight: Weight.Low },
+    ]);
     setFocusedId(newId);
     setPrefsDirty(true);
   }
 
-  function updatePreference(id: string, patch: Partial<Pick<LocalPreference, "text" | "weight">>) {
-    setLocalItems((prev) => prev.map((p) => (p.id === id ? { ...p, ...patch } : p)));
+  function updatePreference(
+    id: string,
+    patch: Partial<Pick<LocalPreference, "text" | "weight">>,
+  ) {
+    setLocalItems((prev) =>
+      prev.map((p) => (p.id === id ? { ...p, ...patch } : p)),
+    );
     setPrefsDirty(true);
   }
 
@@ -292,7 +331,11 @@ export function MatchWizardDialog({
     <Dialog
       open={open}
       onOpenChange={onOpenChange}
-      title={hasExistingMatch ? "Regenerate match analysis" : "Generate match analysis"}
+      title={
+        hasExistingMatch
+          ? "Regenerate match analysis"
+          : "Generate match analysis"
+      }
       description="Choose a resume and update your preferences before generating."
       size="lg"
       childrenClassName="overflow-auto"
@@ -306,7 +349,11 @@ export function MatchWizardDialog({
             )}
           </div>
           <div className={cn("flex items-center gap-2")}>
-            <Button intent="ghost" size="md" onClick={() => onOpenChange(false)}>
+            <Button
+              intent="ghost"
+              size="md"
+              onClick={() => onOpenChange(false)}
+            >
               Cancel
             </Button>
             <Button
@@ -326,14 +373,19 @@ export function MatchWizardDialog({
         <TabsList>
           <TabsTrigger value="resume">Resume</TabsTrigger>
           <TabsTrigger value="preferences">
-            <BriefcaseIcon size={14} weight="regular" className={cn("mr-1.5")} />
+            <BriefcaseIcon
+              size={14}
+              weight="regular"
+              className={cn("mr-1.5")}
+            />
             Work Preferences
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value="resume" className={cn("flex flex-col gap-2")}>
           <Text size="sm" color="muted">
-            Choose the resume to evaluate against this job description. You can manage your resumes{" "}
+            Choose the resume to evaluate against this job description. You can
+            manage your resumes{" "}
             <Link asChild>
               <NextLink href="/profile/resumes">here</NextLink>
             </Link>
@@ -374,8 +426,8 @@ export function MatchWizardDialog({
         <TabsContent value="preferences" className={cn("flex flex-col gap-2")}>
           <div className={cn("mb-2")}>
             <Text size="sm" color="muted">
-              What matters to you in a job? These preferences are used to evaluate match against job
-              descriptions.
+              What matters to you in a job? These preferences are used to
+              evaluate match against job descriptions.
             </Text>
           </div>
           {prefsLoading ? (

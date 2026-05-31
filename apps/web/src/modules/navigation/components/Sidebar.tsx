@@ -19,7 +19,7 @@ import type { Route } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import React, { useState } from "react";
+import { useState } from "react";
 
 import type { CurrentUser } from "@/hooks/useCurrentUser";
 import { getApiBaseUrl } from "@/lib/api-endpoints";
@@ -136,7 +136,11 @@ export function Sidebar({ open = false, onClose, user }: SidebarProps) {
 
       {/* Nav */}
       <nav className={cn("flex flex-1 flex-col px-3")}>
-        <Text size="xs" weight="semibold" className={cn("mb-2 px-2 uppercase tracking-wider")}>
+        <Text
+          size="xs"
+          weight="semibold"
+          className={cn("mb-2 px-2 uppercase tracking-wider")}
+        >
           Menu
         </Text>
         <div className={cn("flex flex-col gap-0.5")}>
@@ -194,10 +198,17 @@ export function Sidebar({ open = false, onClose, user }: SidebarProps) {
               {user.name}
             </Text>
             <Text size="xs" color="muted" className={cn("truncate")}>
-              <ObfuscatedText text={user.email} obfuscatedText={obfuscateEmail(user.email)} />
+              <ObfuscatedText
+                text={user.email}
+                obfuscatedText={obfuscateEmail(user.email)}
+              />
             </Text>
           </div>
-          <CaretRightIcon size={14} weight="regular" className={cn("shrink-0 text-text-muted")} />
+          <CaretRightIcon
+            size={14}
+            weight="regular"
+            className={cn("shrink-0 text-text-muted")}
+          />
         </Link>
         <div className={cn("mx-1 mb-1 border-t border-border-default")} />
         {bottomItems.map(({ href, label, icon: Icon }) => (
@@ -231,7 +242,9 @@ export function Sidebar({ open = false, onClose, user }: SidebarProps) {
 
   return (
     <>
-      <aside className={cn("hidden h-full w-56 shrink-0 flex-col md:flex")}>{navContent}</aside>
+      <aside className={cn("hidden h-full w-56 shrink-0 flex-col md:flex")}>
+        {navContent}
+      </aside>
 
       <div
         className={cn(

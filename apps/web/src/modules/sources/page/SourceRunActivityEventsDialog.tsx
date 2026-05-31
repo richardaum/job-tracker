@@ -11,7 +11,8 @@ import {
   TimelineItem,
   TimelineMarker,
 } from "@job-tracker/ui";
-import React from "react";
+import { useState } from "react";
+import type { ReactElement } from "react";
 
 import { useSourceRunActivityEventsQuery } from "@/gql/hooks";
 import { formatDateTime } from "@/modules/jobs/details/utils/job-details.shared";
@@ -19,12 +20,13 @@ import { formatDateTime } from "@/modules/jobs/details/utils/job-details.shared"
 type SourceRunActivityEventsDialogProps = {
   runId: string;
   runLabel: string;
-  trigger: React.ReactElement;
+  trigger: ReactElement;
 };
 
 function statusColor(type: string): string {
   if (type.endsWith("_FAILED")) return "text-text-error";
-  if (type.endsWith("_COMPLETED") || type.endsWith("_IMPORTED")) return "text-text-success";
+  if (type.endsWith("_COMPLETED") || type.endsWith("_IMPORTED"))
+    return "text-text-success";
   return "text-text-secondary";
 }
 
@@ -33,7 +35,7 @@ export function SourceRunActivityEventsDialog({
   runLabel,
   trigger,
 }: SourceRunActivityEventsDialogProps) {
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = useState(false);
 
   const { data, loading } = useSourceRunActivityEventsQuery({
     variables: { runId },
@@ -73,13 +75,18 @@ export function SourceRunActivityEventsDialog({
                 <TimelineContent>
                   <div className={cn("flex items-start justify-between gap-2")}>
                     <div className={cn("min-w-0")}>
-                      <Text size="sm" weight="medium" className={cn(statusColor(event.type))}>
+                      <Text
+                        size="sm"
+                        weight="medium"
+                        className={cn(statusColor(event.type))}
+                      >
                         {event.summary}
                       </Text>
                       <Text size="xs" color="muted">
                         {event.type}
                         {event.type === "SOURCE_RUN_JOB_IMPORTED" &&
-                        (event.payload as { duplicate?: boolean } | null)?.duplicate
+                        (event.payload as { duplicate?: boolean } | null)
+                          ?.duplicate
                           ? " · skipped (duplicate)"
                           : null}
                       </Text>

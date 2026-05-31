@@ -1,6 +1,13 @@
 "use client";
 
-import { Badge, Card, cn, IconButton, InfoTooltip, Text } from "@job-tracker/ui";
+import {
+  Badge,
+  Card,
+  cn,
+  IconButton,
+  InfoTooltip,
+  Text,
+} from "@job-tracker/ui";
 import {
   ArrowsDownUpIcon,
   CaretDoubleRightIcon,
@@ -11,6 +18,24 @@ import {
 } from "@phosphor-icons/react";
 
 import type { Step } from "@/modules/sources/page/plan-editor/types";
+
+type StepCardProps = {
+  step: Step;
+  index: number;
+  onEditSelectors: (step: Step) => void;
+  onEditNavigation: (step: Step) => void;
+  onEditPagination: (step: Step) => void;
+  onAddField: (step: Step, kind: "surface" | "details") => void;
+  onEditField: (
+    step: Step,
+    kind: "surface" | "details",
+    fieldIndex: number,
+  ) => void;
+  onEditParse: (step: Step) => void;
+  onAddRegexField: (step: Step) => void;
+  onEditRegexField: (step: Step, fieldIndex: number) => void;
+  onDelete: (id: string) => void;
+};
 
 export function StepCard({
   step,
@@ -24,19 +49,7 @@ export function StepCard({
   onAddRegexField,
   onEditRegexField,
   onDelete,
-}: {
-  step: Step;
-  index: number;
-  onEditSelectors: (step: Step) => void;
-  onEditNavigation: (step: Step) => void;
-  onEditPagination: (step: Step) => void;
-  onAddField: (step: Step, kind: "surface" | "details") => void;
-  onEditField: (step: Step, kind: "surface" | "details", fieldIndex: number) => void;
-  onEditParse: (step: Step) => void;
-  onAddRegexField: (step: Step) => void;
-  onEditRegexField: (step: Step, fieldIndex: number) => void;
-  onDelete: (id: string) => void;
-}) {
+}: StepCardProps) {
   if (step.action.kind === "parse.regex") {
     const fc = step.action.input.fields.length;
     return (
@@ -135,7 +148,9 @@ export function StepCard({
                       )}
                     >
                       {f.key}
-                      {f.required && <span className={cn("text-text-error ml-0.5")}>*</span>}
+                      {f.required && (
+                        <span className={cn("text-text-error ml-0.5")}>*</span>
+                      )}
                     </Badge>
                   </button>
                 ))}
@@ -170,7 +185,9 @@ export function StepCard({
               {" · "}
               {i.direction === "up" ? "⬆ up" : "⬇ down"}
               {" · "}
-              {i.parallelDetailsTabs > 1 ? `${i.parallelDetailsTabs} tabs` : "1 tab"}
+              {i.parallelDetailsTabs > 1
+                ? `${i.parallelDetailsTabs} tabs`
+                : "1 tab"}
               {" · "}
               {i.pagination ? "pag on" : "pag off"}
             </Text>
@@ -249,7 +266,11 @@ export function StepCard({
                   >
                     {f.key}
                     <span className={cn("text-text-muted ml-0.5")}>
-                      {f.type === "regex" ? "~" : f.type === "attribute" ? "@" : "."}
+                      {f.type === "regex"
+                        ? "~"
+                        : f.type === "attribute"
+                          ? "@"
+                          : "."}
                     </span>
                   </Badge>
                 </button>
@@ -294,7 +315,11 @@ export function StepCard({
                     )}
                   >
                     {f.key}
-                    {f.format && <span className={cn("text-text-muted ml-0.5")}>[{f.format}]</span>}
+                    {f.format && (
+                      <span className={cn("text-text-muted ml-0.5")}>
+                        [{f.format}]
+                      </span>
+                    )}
                   </Badge>
                 </button>
               ))}

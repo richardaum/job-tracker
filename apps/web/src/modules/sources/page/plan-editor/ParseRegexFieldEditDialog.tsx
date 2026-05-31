@@ -1,22 +1,31 @@
 "use client";
 
-import { Button, Checkbox, cn, Dialog, FormField, Input } from "@job-tracker/ui";
+import {
+  Button,
+  Checkbox,
+  cn,
+  Dialog,
+  FormField,
+  Input,
+} from "@job-tracker/ui";
 import { useState } from "react";
 
 import { FieldTooltip } from "@/modules/sources/page/plan-editor/FieldTooltip";
 import type { ParseRegexField } from "@/modules/sources/page/plan-editor/types";
+
+type ParseRegexFieldEditDialogProps = {
+  field: ParseRegexField | null;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSave: (field: ParseRegexField) => void;
+};
 
 export function ParseRegexFieldEditDialog({
   field,
   open,
   onOpenChange,
   onSave,
-}: {
-  field: ParseRegexField | null;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onSave: (field: ParseRegexField) => void;
-}) {
+}: ParseRegexFieldEditDialogProps) {
   const [draft, setDraft] = useState<ParseRegexField>(
     field ?? { key: "", pattern: "", group: 1, required: false },
   );
@@ -27,21 +36,29 @@ export function ParseRegexFieldEditDialog({
       onOpenChange={onOpenChange}
       size="md"
       title={field ? "Edit Regex Field" : "Add Regex Field"}
-      description={field ? `Editing "${field.key}".` : "Define a new regex extraction field."}
+      description={
+        field
+          ? `Editing "${field.key}".`
+          : "Define a new regex extraction field."
+      }
       childrenClassName="flex flex-col"
     >
       <div className={cn("flex-1 overflow-auto pe-3")}>
         <div className={cn("flex flex-col gap-4")}>
           <FormField
             label="Key"
-            tooltip={<FieldTooltip content="Identifier for the extracted value." />}
+            tooltip={
+              <FieldTooltip content="Identifier for the extracted value." />
+            }
             htmlFor="prf-key"
             required
           >
             <Input
               id="prf-key"
               value={draft.key}
-              onChange={(e) => setDraft((prev) => ({ ...prev, key: e.target.value }))}
+              onChange={(e) =>
+                setDraft((prev) => ({ ...prev, key: e.target.value }))
+              }
               placeholder="e.g. salary"
             />
           </FormField>
@@ -56,7 +73,9 @@ export function ParseRegexFieldEditDialog({
             <Input
               id="prf-pattern"
               value={draft.pattern}
-              onChange={(e) => setDraft((prev) => ({ ...prev, pattern: e.target.value }))}
+              onChange={(e) =>
+                setDraft((prev) => ({ ...prev, pattern: e.target.value }))
+              }
               placeholder="e.g. R\\$\\s?([\\d,.]+)"
               className={cn("font-mono")}
             />

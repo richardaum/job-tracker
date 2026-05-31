@@ -1,6 +1,10 @@
 "use client";
 
-import { EMPTY_TIPTAP_DOC, normalizeTipTapDocument, tipTapToPlainText } from "@job-tracker/tiptap";
+import {
+  EMPTY_TIPTAP_DOC,
+  normalizeTipTapDocument,
+  tipTapToPlainText,
+} from "@job-tracker/tiptap";
 import {
   Button,
   cn,
@@ -16,10 +20,10 @@ import {
 } from "@job-tracker/ui";
 import { BriefcaseIcon, CaretDownIcon, TrashIcon } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
-import React from "react";
+import { use, useMemo, useState } from "react";
 
 import { BackToLink } from "@/components/back-to-link";
-import { DetailPageHeader } from "@/components/detail-page-header";
+import { DetailPageHeader } from "@/components/detail-page-header/DetailPageHeader";
 import { EntityNotFound } from "@/components/entity-not-found";
 import { CompaniesDocument, useUpdateCompanyMutation } from "@/gql/hooks";
 import { useGenerateCompanyDescriptionAiAction } from "@/modules/ai/actions/useGenerateCompanyDescriptionAiAction";
@@ -35,11 +39,11 @@ interface PageProps {
 }
 
 export default function CompanyDetailsPage({ params }: PageProps) {
-  const { id } = React.use(params);
+  const { id } = use(params);
   const router = useRouter();
   const { enqueueToast } = useToastQueue();
-  const [actionsMenuOpen, setActionsMenuOpen] = React.useState(false);
-  const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
+  const [actionsMenuOpen, setActionsMenuOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const {
     company,
     companyJobs,
@@ -49,21 +53,23 @@ export default function CompanyDetailsPage({ params }: PageProps) {
     showApplicationsInitialLoading,
     notFound,
   } = useCompanyDetailsViewModel(id);
-  const [descriptionDraftState, setDescriptionDraftState] = React.useState<{
+  const [descriptionDraftState, setDescriptionDraftState] = useState<{
     companyId: string | null;
     value: string;
   }>({ companyId: null, value: EMPTY_TIPTAP_DOC });
-  const [updateCompany, { loading: savingDescription }] = useUpdateCompanyMutation({
-    refetchQueries: [{ query: CompaniesDocument }],
-  });
-  const generateCompanyDescriptionAction = useGenerateCompanyDescriptionAiAction({
-    companyName: company?.name ?? "",
-    disabled: savingDescription,
-  });
+  const [updateCompany, { loading: savingDescription }] =
+    useUpdateCompanyMutation({
+      refetchQueries: [{ query: CompaniesDocument }],
+    });
+  const generateCompanyDescriptionAction =
+    useGenerateCompanyDescriptionAiAction({
+      companyName: company?.name ?? "",
+      disabled: savingDescription,
+    });
   const rewriteCompanyDescriptionAction = useRewriteTextAiAction({
     disabled: savingDescription,
   });
-  const companyDescriptionAiActions = React.useMemo(
+  const companyDescriptionAiActions = useMemo(
     () => [generateCompanyDescriptionAction, rewriteCompanyDescriptionAction],
     [generateCompanyDescriptionAction, rewriteCompanyDescriptionAction],
   );
@@ -79,7 +85,9 @@ export default function CompanyDetailsPage({ params }: PageProps) {
       return;
     }
     const nextDescription =
-      tipTapToPlainText(descriptionDraft).trim().length > 0 ? descriptionDraft : null;
+      tipTapToPlainText(descriptionDraft).trim().length > 0
+        ? descriptionDraft
+        : null;
 
     await updateCompany({
       variables: { id: company.id, input: { description: nextDescription } },
@@ -120,7 +128,9 @@ export default function CompanyDetailsPage({ params }: PageProps) {
       align="end"
     >
       <DropdownMenuItem
-        onSelect={() => router.push(`/jobs?company=${encodeURIComponent(company.name)}`)}
+        onSelect={() =>
+          router.push(`/jobs?company=${encodeURIComponent(company.name)}`)
+        }
         icon={<BriefcaseIcon size={14} weight="regular" />}
       >
         View jobs
@@ -151,7 +161,9 @@ export default function CompanyDetailsPage({ params }: PageProps) {
             open={deleteDialogOpen}
             onOpenChange={setDeleteDialogOpen}
             onSuccess={() => router.push("/companies")}
-            onError={(message) => enqueueToast({ title: message, intent: "error" })}
+            onError={(message) =>
+              enqueueToast({ title: message, intent: "error" })
+            }
           />
         ) : null}
       </DetailPageHeader>
@@ -162,14 +174,23 @@ export default function CompanyDetailsPage({ params }: PageProps) {
             Loading company...
           </Text>
         ) : notFound ? (
-          <EntityNotFound resource="company" backHref="/companies" backLabel="Back to companies" />
+          <EntityNotFound
+            resource="company"
+            backHref="/companies"
+            backLabel="Back to companies"
+          />
         ) : companiesError && !notFound ? (
           <Text size="sm" color="error">
             Failed to load company details.
           </Text>
         ) : !company ? null : (
-          <Tabs defaultValue="jobs" className={cn("flex size-full min-h-0  flex-col")}>
-            <TabsList className={cn("w-full shrink-0 flex-wrap")}>{renderTabTriggers()}</TabsList>
+          <Tabs
+            defaultValue="jobs"
+            className={cn("flex size-full min-h-0  flex-col")}
+          >
+            <TabsList className={cn("w-full shrink-0 flex-wrap")}>
+              {renderTabTriggers()}
+            </TabsList>
 
             <TabsContent value="jobs" className={cn("mt-3 overflow-auto")}>
               {showApplicationsInitialLoading ? (
@@ -198,7 +219,10 @@ export default function CompanyDetailsPage({ params }: PageProps) {
               )}
             </TabsContent>
 
-            <TabsContent value="description" className={cn("mt-3 flex-1 min-h-0 overflow-hidden")}>
+            <TabsContent
+              value="description"
+              className={cn("mt-3 flex-1 min-h-0 overflow-hidden")}
+            >
               <div className={cn("flex h-full min-h-0 flex-col gap-3")}>
                 <div className={cn("flex-1 min-h-0")}>
                   <TipTapEditor

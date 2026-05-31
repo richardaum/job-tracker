@@ -1,6 +1,13 @@
 "use client";
 
-import { cn, Text, Timeline, TimelineContent, TimelineItem, TimelineMarker } from "@job-tracker/ui";
+import {
+  cn,
+  Text,
+  Timeline,
+  TimelineContent,
+  TimelineItem,
+  TimelineMarker,
+} from "@job-tracker/ui";
 import { ArrowRightIcon } from "@phosphor-icons/react";
 import type { ReactNode } from "react";
 
@@ -16,29 +23,40 @@ interface StageTimelineItem {
   dateLabel: string;
 }
 
+type StageTimelineProps = {
+  items: StageTimelineItem[];
+  variant?: "default" | "compact";
+  className?: string;
+  renderItemAction?: (item: StageTimelineItem) => ReactNode;
+};
+
 export function StageTimeline({
   items,
   variant = "default",
   className,
   renderItemAction,
-}: {
-  items: StageTimelineItem[];
-  variant?: "default" | "compact";
-  className?: string;
-  renderItemAction?: (item: StageTimelineItem) => ReactNode;
-}) {
+}: StageTimelineProps) {
   const isCompact = variant === "compact";
 
   if (items.length === 0) {
     return (
-      <EmptyState variant="panel" message="No status history yet." size={isCompact ? "xs" : "sm"} />
+      <EmptyState
+        variant="panel"
+        message="No status history yet."
+        size={isCompact ? "xs" : "sm"}
+      />
     );
   }
 
   return (
-    <Timeline className={cn(isCompact ? "space-y-1.5" : "space-y-3", className)}>
+    <Timeline
+      className={cn(isCompact ? "space-y-1.5" : "space-y-3", className)}
+    >
       {items.map((item, index) => (
-        <TimelineItem key={item.id} className={cn(isCompact ? "gap-2" : "gap-3")}>
+        <TimelineItem
+          key={item.id}
+          className={cn(isCompact ? "gap-2" : "gap-3")}
+        >
           <TimelineMarker
             className={cn(isCompact ? "w-3" : "w-4")}
             showTopConnector={index > 0}
@@ -51,11 +69,16 @@ export function StageTimeline({
               isCompact ? "bottom-[calc(50%+8px)]" : "bottom-[calc(50%+16px)]",
             )}
             bottomConnectorClassName={cn(
-              isCompact ? "-bottom-1.5 top-[calc(50%+8px)]" : "-bottom-3 top-[calc(50%+16px)]",
+              isCompact
+                ? "-bottom-1.5 top-[calc(50%+8px)]"
+                : "-bottom-3 top-[calc(50%+16px)]",
             )}
           />
           <TimelineContent
-            className={cn("min-w-0", isCompact ? "border-0 bg-transparent p-0 " : "")}
+            className={cn(
+              "min-w-0",
+              isCompact ? "border-0 bg-transparent p-0 " : "",
+            )}
           >
             <div className={cn("inline-flex items-center gap-1.5")}>
               <Text size={isCompact ? "xs" : "sm"} weight="medium">
@@ -64,7 +87,9 @@ export function StageTimeline({
                     {formatStage(item.fromStage)}{" "}
                     <ArrowRightIcon
                       aria-hidden
-                      className={cn("inline-block shrink-0 align-[-0.125em] text-current")}
+                      className={cn(
+                        "inline-block shrink-0 align-[-0.125em] text-current",
+                      )}
                       size={isCompact ? 12 : 14}
                       weight="bold"
                     />{" "}
@@ -76,7 +101,11 @@ export function StageTimeline({
               </Text>
               {renderItemAction ? renderItemAction(item) : null}
             </div>
-            <Text size="xs" color="muted" className={cn(isCompact ? "" : "mt-1")}>
+            <Text
+              size="xs"
+              color="muted"
+              className={cn(isCompact ? "" : "mt-1")}
+            >
               {item.dateLabel}
             </Text>
           </TimelineContent>

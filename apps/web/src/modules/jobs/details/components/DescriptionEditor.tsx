@@ -1,6 +1,10 @@
 "use client";
 
-import { EMPTY_TIPTAP_DOC, normalizeTipTapDocument, tipTapToPlainText } from "@job-tracker/tiptap";
+import {
+  EMPTY_TIPTAP_DOC,
+  normalizeTipTapDocument,
+  tipTapToPlainText,
+} from "@job-tracker/tiptap";
 import { tryRun } from "@job-tracker/try-run";
 import { Button, cn, Stack } from "@job-tracker/ui";
 import { useState } from "react";
@@ -10,28 +14,33 @@ import { useRestructureJobDescriptionAiAction } from "@/modules/ai/actions/useRe
 
 import { TipTapEditor } from "./TipTapEditor";
 
+type DescriptionEditorProps = {
+  jobId: string;
+  initialDescription: string | null | undefined;
+  onSuccess: () => void;
+  onError: () => void;
+};
+
 export function DescriptionEditor({
   jobId,
   initialDescription,
   onSuccess,
   onError,
-}: {
-  jobId: string;
-  initialDescription?: string | null;
-  onSuccess: () => void;
-  onError: () => void;
-}) {
+}: DescriptionEditorProps) {
   const [description, setDescription] = useState<string>(
     normalizeTipTapDocument(initialDescription),
   );
   const restructureDescriptionAction = useRestructureJobDescriptionAiAction();
-
   const [updateJob, { loading: saving }] = useUpdateJobMutation({
-    refetchQueries: [{ query: JobDocument, variables: { id: jobId } }, { query: JobsDocument }],
+    refetchQueries: [
+      { query: JobDocument, variables: { id: jobId } },
+      { query: JobsDocument },
+    ],
   });
 
   async function handleSaveDescription() {
-    const nextDescription = tipTapToPlainText(description).trim().length > 0 ? description : null;
+    const nextDescription =
+      tipTapToPlainText(description).trim().length > 0 ? description : null;
 
     const [error] = await tryRun(
       updateJob({
@@ -51,7 +60,9 @@ export function DescriptionEditor({
         <TipTapEditor
           id="details-description"
           value={description}
-          onChange={(nextValue) => setDescription(nextValue || EMPTY_TIPTAP_DOC)}
+          onChange={(nextValue) =>
+            setDescription(nextValue || EMPTY_TIPTAP_DOC)
+          }
           placeholder="Add role context, stack, interview notes..."
           disabled={saving}
           autofocus="end"

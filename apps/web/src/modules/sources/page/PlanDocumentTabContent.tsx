@@ -1,7 +1,7 @@
 "use client";
 
-import { Button, cn, Text } from "@job-tracker/ui";
-import React from "react";
+import { Button, cn } from "@job-tracker/ui";
+import { use, useEffect, useRef, useState } from "react";
 
 import { usePlanQuery, useUpdatePlanMutation } from "@/gql/hooks";
 import { HeadlessJsonEditor } from "@/modules/sources/components/HeadlessJsonEditor";
@@ -10,21 +10,21 @@ import {
   PlanTabDescription,
 } from "@/modules/sources/page/plan-details-header.slots";
 
+type PlanDocumentTabContentProps = { params: Promise<{ planId: string }> };
+
 export default function PlanDocumentTabContent({
   params,
-}: {
-  params: Promise<{ planId: string }>;
-}) {
-  const { planId } = React.use(params);
+}: PlanDocumentTabContentProps) {
+  const { planId } = use(params);
   const { data } = usePlanQuery({ variables: { id: planId } });
   const [updatePlan] = useUpdatePlanMutation();
   const plan = data?.plan ?? null;
 
-  const [dirty, setDirty] = React.useState(false);
-  const [saving, setSaving] = React.useState(false);
+  const [dirty, setDirty] = useState(false);
+  const [saving, setSaving] = useState(false);
 
-  const documentRef = React.useRef<unknown>(null);
-  React.useEffect(() => {
+  const documentRef = useRef<unknown>(null);
+  useEffect(() => {
     if (plan) {
       documentRef.current = plan.document;
     }
@@ -61,9 +61,7 @@ export default function PlanDocumentTabContent({
   return (
     <>
       <PlanTabDescription>
-        <Text size="sm" color="secondary">
-          Configure extraction rules and constraints for this plan.
-        </Text>
+        Configure extraction rules and constraints for this plan.
       </PlanTabDescription>
       <PlanHeaderActions>{saveButton}</PlanHeaderActions>
       <div

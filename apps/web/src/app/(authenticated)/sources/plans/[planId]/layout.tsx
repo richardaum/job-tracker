@@ -1,8 +1,9 @@
 "use client";
 
 import { cn } from "@job-tracker/ui";
-import React from "react";
+import type { ReactNode } from "react";
 
-export default function PlanDetailLayout({ children }: { children: React.ReactNode }) {
+type PlanDetailLayoutProps = { children: ReactNode };
+export default function PlanDetailLayout({ children }: PlanDetailLayoutProps) {
   return <div className={cn("flex h-full min-h-0 flex-col")}>{children}</div>;
 }

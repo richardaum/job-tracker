@@ -1,6 +1,6 @@
 import { act, renderHook } from "@testing-library/react";
 import type { ReactNode } from "react";
-import React from "react";
+import { createElement } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { ToastQueueProvider } from "./ToastQueueProvider";
@@ -8,7 +8,7 @@ import { useToastQueue } from "./useToastQueue";
 
 describe("useToastQueue", () => {
   function Wrapper({ children }: { children: ReactNode }) {
-    return React.createElement(ToastQueueProvider, null, children);
+    return createElement(ToastQueueProvider, null, children);
   }
 
   afterEach(() => {
@@ -35,7 +35,9 @@ describe("useToastQueue", () => {
   });
 
   it("dismisses closed toast", () => {
-    vi.spyOn(crypto, "randomUUID").mockReturnValueOnce("toast-1").mockReturnValueOnce("toast-2");
+    vi.spyOn(crypto, "randomUUID")
+      .mockReturnValueOnce("toast-1")
+      .mockReturnValueOnce("toast-2");
 
     const { result } = renderHook(() => useToastQueue(), { wrapper: Wrapper });
 

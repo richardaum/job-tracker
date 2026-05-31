@@ -12,7 +12,8 @@ import {
   Stack,
   Text,
 } from "@job-tracker/ui";
-import React, { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
+import type { ReactNode } from "react";
 
 import {
   ApplicationStage,
@@ -45,7 +46,9 @@ const quickScheduleOptions = [
   { label: "+3d", offsetDays: 3 },
 ] as const;
 
-type JobStageEventRow = NonNullable<JobStageEventsQuery["jobStageEvents"]>[number];
+type JobStageEventRow = NonNullable<
+  JobStageEventsQuery["jobStageEvents"]
+>[number];
 
 function formatStage(value: string) {
   return value
@@ -61,7 +64,7 @@ interface JobTrackingPanelProps {
   onRequestStageEvents: () => void;
   /** When true, only the popover trigger is rendered (e.g. inline with other row actions). */
   inline?: boolean;
-  triggerIcon?: React.ReactNode;
+  triggerIcon?: ReactNode;
   onSuccess: (message: string) => void;
   onError: (message: string) => void;
 }
@@ -75,12 +78,14 @@ export function JobTrackingPanel({
   onSuccess,
   onError,
 }: JobTrackingPanelProps) {
-  const [createStageEvent, { loading: stageSaving }] = useCreateJobStageEventMutation({
-    refetchQueries: [{ query: JobStageEventsDocument, variables: { jobId } }],
-  });
+  const [createStageEvent, { loading: stageSaving }] =
+    useCreateJobStageEventMutation({
+      refetchQueries: [{ query: JobStageEventsDocument, variables: { jobId } }],
+    });
 
   const latestEvent = useMemo(() => stageEvents[0] ?? null, [stageEvents]);
-  const [selectedStageDraft, setSelectedStageDraft] = useState<ApplicationStage | null>(null);
+  const [selectedStageDraft, setSelectedStageDraft] =
+    useState<ApplicationStage | null>(null);
   const [scheduledAtDraft, setScheduledAtDraft] = useState<string | null>(null);
   const [reasonDraft, setReasonDraft] = useState("");
 
@@ -127,7 +132,10 @@ export function JobTrackingPanel({
           size="sm"
           label="Update status"
           tooltip="Update status"
-          className={cn("text-text-muted/80 hover:text-text-muted", inline ? "size-6 " : "size-7 ")}
+          className={cn(
+            "text-text-muted/80 hover:text-text-muted",
+            inline ? "size-6 " : "size-7 ",
+          )}
           icon={triggerIcon}
         />
       }
@@ -140,7 +148,9 @@ export function JobTrackingPanel({
               value={selectedStage}
               onValueChange={(value) => {
                 setSelectedStageDraft(value as ApplicationStage);
-                setScheduledAtDraft((current) => current ?? getDateTimeInputValueFromNow());
+                setScheduledAtDraft(
+                  (current) => current ?? getDateTimeInputValueFromNow(),
+                );
               }}
               options={stageOptions}
               placeholder={`Current: ${formatStage(currentStage)}`}
@@ -149,19 +159,26 @@ export function JobTrackingPanel({
           </FormField>
           {showStageControls ? (
             <>
-              <FormField label="Scheduled at (optional)" htmlFor={`scheduled-at-${jobId}`}>
+              <FormField
+                label="Scheduled at (optional)"
+                htmlFor={`scheduled-at-${jobId}`}
+              >
                 <Stack gap="xs">
                   <Input
                     id={`scheduled-at-${jobId}`}
                     type="datetime-local"
                     size="sm"
                     value={scheduledAtValue}
-                    onChange={(event) => setScheduledAtDraft(event.target.value)}
+                    onChange={(event) =>
+                      setScheduledAtDraft(event.target.value)
+                    }
                     disabled={statusSaving}
                   />
                   <div className={cn("flex flex-wrap gap-1")}>
                     {quickScheduleOptions.map((option) => {
-                      const optionValue = getDateTimeInputValueFromNow(option.offsetDays);
+                      const optionValue = getDateTimeInputValueFromNow(
+                        option.offsetDays,
+                      );
                       return (
                         <Button
                           key={option.label}
@@ -183,7 +200,10 @@ export function JobTrackingPanel({
                   </div>
                 </Stack>
               </FormField>
-              <FormField label="Reason (optional)" htmlFor={`stage-reason-${jobId}`}>
+              <FormField
+                label="Reason (optional)"
+                htmlFor={`stage-reason-${jobId}`}
+              >
                 <Input
                   id={`stage-reason-${jobId}`}
                   type="text"

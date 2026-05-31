@@ -26,16 +26,17 @@ const MAP: Record<
 
 /** Icon chip for spotlight tiles on the dark glass shell (invert-facing). */
 
+type LoginSpotlightGlyphProps = {
+  icon: LoginSpotlightIconKey;
+  className?: string;
+  variant?: "tile" | "hero";
+};
+
 export function LoginSpotlightGlyph({
   icon,
   className,
   variant = "tile",
-}: {
-  icon: LoginSpotlightIconKey;
-  className?: string;
-  /** `hero`: large centered mark for wide-tile accent panels (reference: bold graphic block). */
-  variant?: "tile" | "hero";
-}) {
+}: LoginSpotlightGlyphProps) {
   const Cmp = MAP[icon];
   const isHero = variant === "hero";
   return (
@@ -49,7 +50,10 @@ export function LoginSpotlightGlyph({
       aria-hidden
     >
       <Cmp
-        className={cn("text-text-inverted", isHero ? "size-11 sm:size-12" : "size-5")}
+        className={cn(
+          "text-text-inverted",
+          isHero ? "size-11 sm:size-12" : "size-5",
+        )}
         weight="duotone"
       />
     </span>

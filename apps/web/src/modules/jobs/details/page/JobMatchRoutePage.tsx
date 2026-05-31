@@ -1,10 +1,12 @@
 "use client";
 
-import React from "react";
+import { use } from "react";
 
 import { JobMatchPage } from "@/modules/jobs/details/page/JobMatchPage";
 
-export default function JobMatchRoutePage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = React.use(params);
+type JobMatchRoutePageProps = { params: Promise<{ id: string }> };
+
+export default function JobMatchRoutePage({ params }: JobMatchRoutePageProps) {
+  const { id } = use(params);
   return <JobMatchPage jobId={id} />;
 }

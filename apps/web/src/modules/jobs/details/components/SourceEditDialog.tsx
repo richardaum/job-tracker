@@ -10,7 +10,7 @@ import {
   Stack,
 } from "@job-tracker/ui";
 import { type DialogControl } from "@job-tracker/ui";
-import React, { useState } from "react";
+import { useState } from "react";
 
 import type { JobSource } from "@/gql/hooks";
 import {
@@ -21,23 +21,23 @@ import {
 
 const fieldId = "edit-job-source";
 
+type SourceEditDialogProps = {
+  control: DialogControl;
+  value: JobSource | null | undefined;
+  onSave: (nextValue: JobSource | null) => Promise<void>;
+};
+
 export function SourceEditDialog({
   control,
   value,
   onSave,
-}: {
-  control: DialogControl;
-  value: JobSource | null | undefined;
-  onSave: (next: JobSource | null) => Promise<void>;
-}) {
+}: SourceEditDialogProps) {
   const [draft, setDraft] = useState(() => jobSourceToComboLabel(value));
   const [saving, setSaving] = useState(false);
-
   const parsed = parseJobSourceComboLabel(draft);
   const isValid = parsed !== "invalid";
   const unchanged = isValid && (value ?? null) === parsed;
   const canSave = isValid && !unchanged && !saving;
-
   async function handleSave() {
     if (!canSave) return;
     setSaving(true);

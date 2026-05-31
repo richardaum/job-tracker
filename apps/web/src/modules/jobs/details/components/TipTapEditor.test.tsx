@@ -2,7 +2,8 @@ import { EMPTY_TIPTAP_DOC, tipTapToPlainText } from "@job-tracker/tiptap";
 import { Button, cn } from "@job-tracker/ui";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import React, { createRef, useState } from "react";
+import { createRef, useState } from "react";
+import type { RefObject } from "react";
 import { describe, expect, it, vi } from "vitest";
 
 import { TipTapEditor, type TipTapEditorHandle } from "./TipTapEditor";
@@ -14,12 +15,13 @@ import { TipTapEditor, type TipTapEditorHandle } from "./TipTapEditor";
 function NotesComposerLikeFixture({
   composerRef,
 }: {
-  composerRef: React.RefObject<TipTapEditorHandle | null>;
+  composerRef: RefObject<TipTapEditorHandle | null>;
 }) {
   const [draftNote, setDraftNote] = useState(EMPTY_TIPTAP_DOC);
   const creatingNote = false;
 
-  const canSend = tipTapToPlainText(draftNote).trim().length > 0 && !creatingNote;
+  const canSend =
+    tipTapToPlainText(draftNote).trim().length > 0 && !creatingNote;
 
   function handleSendNote() {
     if (!canSend) return;

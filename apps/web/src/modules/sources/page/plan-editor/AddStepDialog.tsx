@@ -5,17 +5,20 @@ import { useState } from "react";
 
 import { FieldTooltip } from "@/modules/sources/page/plan-editor/FieldTooltip";
 
+type AddStepDialogProps = {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onAdd: (kind: "collect.jobs" | "parse.regex") => void;
+};
+
 export function AddStepDialog({
   open,
   onOpenChange,
   onAdd,
-}: {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onAdd: (kind: "collect.jobs" | "parse.regex") => void;
-}) {
-  const [kind, setKind] = useState<"collect.jobs" | "parse.regex">("collect.jobs");
-
+}: AddStepDialogProps) {
+  const [kind, setKind] = useState<"collect.jobs" | "parse.regex">(
+    "collect.jobs",
+  );
   return (
     <Dialog
       open={open}

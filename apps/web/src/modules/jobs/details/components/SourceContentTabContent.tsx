@@ -4,7 +4,10 @@ import { cn } from "@job-tracker/ui";
 
 import { buildCapturedHtmlSrcDoc } from "@/lib/captured-html-iframe-srcdoc";
 
-export function SourceContentTabContent({ htmlContent }: { htmlContent: string }) {
+type SourceContentTabContentProps = { htmlContent: string };
+export function SourceContentTabContent({
+  htmlContent,
+}: SourceContentTabContentProps) {
   return (
     <div
       className={cn(

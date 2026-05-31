@@ -7,7 +7,8 @@ import { createApolloClient } from "@/lib/make-apollo-client";
 import { PasteListenerProvider } from "@/modules/core/providers/PasteListenerProvider";
 import { ToastQueueProvider } from "@/modules/jobs/shared/hooks/ToastQueueProvider";
 
-export function AppProviders({ children }: { children: ReactNode }) {
+type AppProvidersProps = { children: ReactNode };
+export function AppProviders({ children }: AppProvidersProps) {
   return (
     <ApolloNextAppProvider makeClient={createApolloClient}>
       <ToastQueueProvider>

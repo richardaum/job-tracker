@@ -5,7 +5,9 @@ import { type ReactNode, useCallback, useMemo, useState } from "react";
 
 import { ToastQueueContext } from "./toast-queue.context";
 
-export function ToastQueueProvider({ children }: { children: ReactNode }) {
+type ToastQueueProviderProps = { children: ReactNode };
+
+export function ToastQueueProvider({ children }: ToastQueueProviderProps) {
   const [toasts, setToasts] = useState<ToastItem[]>([]);
 
   const enqueueToast = useCallback(
@@ -18,7 +20,10 @@ export function ToastQueueProvider({ children }: { children: ReactNode }) {
       intent?: ToastIntent;
       description?: string;
     }) => {
-      setToasts((current) => [...current, { id: crypto.randomUUID(), title, intent, description }]);
+      setToasts((current) => [
+        ...current,
+        { id: crypto.randomUUID(), title, intent, description },
+      ]);
     },
     [],
   );

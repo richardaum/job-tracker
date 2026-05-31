@@ -1,10 +1,10 @@
 "use client";
 
 import { ConfirmDialog } from "@job-tracker/ui";
-import React from "react";
+import type { ReactElement } from "react";
 
 interface DeleteResumeDialogProps {
-  trigger: React.ReactElement;
+  trigger: ReactElement;
   resumeId: string;
   resumeTitle: string;
   open?: boolean;

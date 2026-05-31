@@ -1,22 +1,32 @@
 "use client";
 
-import { Button, cn, Dialog, FormField, Input, Select, Textarea } from "@job-tracker/ui";
+import {
+  Button,
+  cn,
+  Dialog,
+  FormField,
+  Input,
+  Select,
+  Textarea,
+} from "@job-tracker/ui";
 import { useState } from "react";
 
 import { FieldTooltip } from "@/modules/sources/page/plan-editor/FieldTooltip";
 import type { DetailsField } from "@/modules/sources/page/plan-editor/types";
+
+type DetailsFieldEditDialogProps = {
+  field: DetailsField | null;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSave: (field: DetailsField) => void;
+};
 
 export function DetailsFieldEditDialog({
   field,
   open,
   onOpenChange,
   onSave,
-}: {
-  field: DetailsField | null;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onSave: (field: DetailsField) => void;
-}) {
+}: DetailsFieldEditDialogProps) {
   const [draft, setDraft] = useState<DetailsField>(
     field ?? { key: "", selector: "", type: "property", value: "innerHTML" },
   );
@@ -47,7 +57,9 @@ export function DetailsFieldEditDialog({
             <Input
               id="df-key"
               value={draft.key}
-              onChange={(e) => setDraft((prev) => ({ ...prev, key: e.target.value }))}
+              onChange={(e) =>
+                setDraft((prev) => ({ ...prev, key: e.target.value }))
+              }
               placeholder="Field identifier"
             />
           </FormField>
@@ -75,7 +87,9 @@ export function DetailsFieldEditDialog({
           {draft.type === "property" ? (
             <FormField
               label="Value"
-              tooltip={<FieldTooltip content="Which DOM property to read from the element." />}
+              tooltip={
+                <FieldTooltip content="Which DOM property to read from the element." />
+              }
               htmlFor="df-value"
               required
             >
@@ -87,20 +101,26 @@ export function DetailsFieldEditDialog({
                   { label: "innerHTML", value: "innerHTML" },
                 ]}
                 value={draft.value}
-                onValueChange={(v) => setDraft((prev) => ({ ...prev, value: v }))}
+                onValueChange={(v) =>
+                  setDraft((prev) => ({ ...prev, value: v }))
+                }
               />
             </FormField>
           ) : (
             <FormField
               label="Value"
-              tooltip={<FieldTooltip content="HTML attribute name to read from the element." />}
+              tooltip={
+                <FieldTooltip content="HTML attribute name to read from the element." />
+              }
               htmlFor="df-value"
               required
             >
               <Input
                 id="df-value"
                 value={draft.value}
-                onChange={(e) => setDraft((prev) => ({ ...prev, value: e.target.value }))}
+                onChange={(e) =>
+                  setDraft((prev) => ({ ...prev, value: e.target.value }))
+                }
                 placeholder="e.g. href"
               />
             </FormField>
@@ -116,7 +136,9 @@ export function DetailsFieldEditDialog({
             <Textarea
               id="df-selector"
               value={draft.selector}
-              onChange={(e) => setDraft((prev) => ({ ...prev, selector: e.target.value }))}
+              onChange={(e) =>
+                setDraft((prev) => ({ ...prev, selector: e.target.value }))
+              }
               placeholder="CSS selector"
               rows={2}
               size="sm"

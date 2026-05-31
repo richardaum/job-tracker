@@ -1,30 +1,51 @@
 "use client";
 
-import { Button, Checkbox, cn, Dialog, FormField, Input, Text, Textarea } from "@job-tracker/ui";
+import {
+  Button,
+  Checkbox,
+  cn,
+  Dialog,
+  FormField,
+  Input,
+  Text,
+  Textarea,
+} from "@job-tracker/ui";
 import { useState } from "react";
 
 import { FieldTooltip } from "@/modules/sources/page/plan-editor/FieldTooltip";
-import type { CollectJobsInput, Pagination, Step } from "@/modules/sources/page/plan-editor/types";
+import type {
+  CollectJobsInput,
+  Pagination,
+  Step,
+} from "@/modules/sources/page/plan-editor/types";
+
+type PaginationDialogProps = {
+  step: Step;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSave: (step: Step) => void;
+};
 
 export function PaginationDialog({
   step,
   open,
   onOpenChange,
   onSave,
-}: {
-  step: Step;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onSave: (step: Step) => void;
-}) {
-  const existing = step.action.kind === "collect.jobs" ? step.action.input.pagination : undefined;
+}: PaginationDialogProps) {
+  const existing =
+    step.action.kind === "collect.jobs"
+      ? step.action.input.pagination
+      : undefined;
   const [enabled, setEnabled] = useState(existing !== undefined);
   const [draft, setDraft] = useState<Pagination>(
     existing ?? { containerSelector: "", nextButtonPartialMatch: "Next" },
   );
 
   function mergeIntoStep() {
-    const action = step.action as { kind: "collect.jobs"; input: CollectJobsInput };
+    const action = step.action as {
+      kind: "collect.jobs";
+      input: CollectJobsInput;
+    };
     return {
       ...step,
       action: {
@@ -46,7 +67,10 @@ export function PaginationDialog({
       <div className={cn("flex-1 overflow-auto pe-3")}>
         <div className={cn("flex flex-col gap-4")}>
           <div className={cn("flex items-center gap-2")}>
-            <Checkbox checked={enabled} onCheckedChange={(c) => setEnabled(c)} />
+            <Checkbox
+              checked={enabled}
+              onCheckedChange={(c) => setEnabled(c)}
+            />
             <Text size="sm">Enable pagination</Text>
             <FieldTooltip content="Enable if the board spans multiple pages with a 'Next' button." />
           </div>
@@ -63,7 +87,10 @@ export function PaginationDialog({
                   id="pag-container"
                   value={draft.containerSelector}
                   onChange={(e) =>
-                    setDraft((prev) => ({ ...prev, containerSelector: e.target.value }))
+                    setDraft((prev) => ({
+                      ...prev,
+                      containerSelector: e.target.value,
+                    }))
                   }
                   placeholder="e.g. .pagination"
                   rows={2}
@@ -83,7 +110,10 @@ export function PaginationDialog({
                   id="pag-next"
                   value={draft.nextButtonPartialMatch}
                   onChange={(e) =>
-                    setDraft((prev) => ({ ...prev, nextButtonPartialMatch: e.target.value }))
+                    setDraft((prev) => ({
+                      ...prev,
+                      nextButtonPartialMatch: e.target.value,
+                    }))
                   }
                   placeholder="e.g. Next"
                 />
