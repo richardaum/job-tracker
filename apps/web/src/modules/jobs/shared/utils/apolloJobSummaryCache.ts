@@ -8,20 +8,13 @@ const jobSummaryCacheExistsFragment = gql`
   }
 `;
 
-export function writeJobSummaryStatusToCache(
-  cache: ApolloCache,
-  jobId: string,
-  status: AsyncMetadataStatus,
-): boolean {
+export function writeJobSummaryStatusToCache(cache: ApolloCache, jobId: string, status: AsyncMetadataStatus): boolean {
   const cacheId = cache.identify({ __typename: "JobType", id: jobId });
   if (!cacheId) {
     return false;
   }
 
-  const existing = cache.readFragment<{ id: string }>({
-    id: cacheId,
-    fragment: jobSummaryCacheExistsFragment,
-  });
+  const existing = cache.readFragment<{ id: string }>({ id: cacheId, fragment: jobSummaryCacheExistsFragment });
   if (!existing) {
     return false;
   }
@@ -29,9 +22,7 @@ export function writeJobSummaryStatusToCache(
   cache.modify({
     id: cacheId,
     fields: {
-      summaryMetadata(
-        existing: AsyncMetadataType | Reference | undefined,
-      ): AsyncMetadataType {
+      summaryMetadata(existing: AsyncMetadataType | Reference | undefined): AsyncMetadataType {
         return {
           ...readStoredAsyncMetadata(existing),
           __typename: "AsyncMetadataType",
@@ -49,21 +40,14 @@ export function writeJobSummaryToCache(
   cache: ApolloCache,
   jobId: string,
   summary: string,
-  metadata: {
-    status?: AsyncMetadataStatus | null;
-    error?: string | null;
-    timestamp?: unknown | null;
-  },
+  metadata: { status?: AsyncMetadataStatus | null; error?: string | null; timestamp?: unknown | null },
 ): boolean {
   const cacheId = cache.identify({ __typename: "JobType", id: jobId });
   if (!cacheId) {
     return false;
   }
 
-  const existing = cache.readFragment<{ id: string }>({
-    id: cacheId,
-    fragment: jobSummaryCacheExistsFragment,
-  });
+  const existing = cache.readFragment<{ id: string }>({ id: cacheId, fragment: jobSummaryCacheExistsFragment });
   if (!existing) {
     return false;
   }
@@ -88,9 +72,7 @@ export function writeJobSummaryToCache(
   return true;
 }
 
-function readStoredAsyncMetadata(
-  existing: AsyncMetadataType | Reference | undefined,
-): AsyncMetadataType {
+function readStoredAsyncMetadata(existing: AsyncMetadataType | Reference | undefined): AsyncMetadataType {
   if (existing == null || isCacheReference(existing)) {
     return {};
   }
@@ -98,8 +80,6 @@ function readStoredAsyncMetadata(
   return existing;
 }
 
-function isCacheReference(
-  value: AsyncMetadataType | Reference,
-): value is Reference {
+function isCacheReference(value: AsyncMetadataType | Reference): value is Reference {
   return "__ref" in value;
 }

@@ -4,9 +4,7 @@ import { isTipTapDocumentString } from "./detection";
 import type { TipTapNode } from "./types";
 import { EMPTY_TIPTAP_DOC } from "./types";
 
-type PlainTextListMatch =
-  | { listType: "bulletList"; itemText: string }
-  | { listType: "orderedList"; itemText: string };
+type PlainTextListMatch = { listType: "bulletList"; itemText: string } | { listType: "orderedList"; itemText: string };
 
 function parsePlainTextListItem(line: string): PlainTextListMatch | null {
   const trimmed = line.trim();
@@ -39,10 +37,7 @@ function collectText(node: TipTapNode): string {
 
 export function plainTextToTipTap(input: string): string {
   const content: TipTapNode[] = [];
-  let openList: {
-    type: "bulletList" | "orderedList";
-    items: TipTapNode[];
-  } | null = null;
+  let openList: { type: "bulletList" | "orderedList"; items: TipTapNode[] } | null = null;
 
   function flushOpenList() {
     if (!openList || openList.items.length === 0) return;
@@ -66,21 +61,13 @@ export function plainTextToTipTap(input: string): string {
 
       openList.items.push({
         type: "listItem",
-        content: [
-          {
-            type: "paragraph",
-            content: [{ type: "text", text: parsedListItem.itemText }],
-          },
-        ],
+        content: [{ type: "paragraph", content: [{ type: "text", text: parsedListItem.itemText }] }],
       });
       continue;
     }
 
     flushOpenList();
-    content.push({
-      type: "paragraph",
-      content: [{ type: "text", text: line }],
-    });
+    content.push({ type: "paragraph", content: [{ type: "text", text: line }] });
   }
 
   flushOpenList();

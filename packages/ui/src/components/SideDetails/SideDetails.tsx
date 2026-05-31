@@ -36,14 +36,9 @@ export interface SideDetailsProps {
   overlayClassName?: string;
 }
 
-function resolveAccessibilityTitle(params: {
-  accessibilityTitle?: string;
-  title?: ReactNode;
-}): string {
-  if (params.accessibilityTitle?.trim())
-    return params.accessibilityTitle.trim();
-  if (typeof params.title === "string" && params.title.trim())
-    return params.title.trim();
+function resolveAccessibilityTitle(params: { accessibilityTitle?: string; title?: ReactNode }): string {
+  if (params.accessibilityTitle?.trim()) return params.accessibilityTitle.trim();
+  if (typeof params.title === "string" && params.title.trim()) return params.title.trim();
   return "Details";
 }
 
@@ -73,24 +68,17 @@ export function SideDetails({
   const titleId = useId();
   const a11yTitle = resolveAccessibilityTitle({ accessibilityTitle, title });
 
-  const hasDescription =
-    typeof description === "string"
-      ? Boolean(description.trim())
-      : Boolean(description);
+  const hasDescription = typeof description === "string" ? Boolean(description.trim()) : Boolean(description);
 
   const usesDefaultHeader = header === undefined;
   const showTitleRow = Boolean(title ?? description);
 
-  const headerChromeClassName =
-    showTitleRow || header !== undefined ? cn("pb-3") : cn("pb-0 pt-3");
+  const headerChromeClassName = showTitleRow || header !== undefined ? cn("pb-3") : cn("pb-0 pt-3");
 
   const columnClassName = cn(
     "relative flex min-h-0 max-w-md flex-col border-border-subtle bg-bg-surface focus:outline-none sm:max-w-lg",
     layout === "overlay"
-      ? cn(
-          "fixed top-0 z-50 size-full max-h-dvh shadow-md",
-          side === "right" ? "right-0 border-l" : "left-0 border-r",
-        )
+      ? cn("fixed top-0 z-50 size-full max-h-dvh shadow-md", side === "right" ? "right-0 border-l" : "left-0 border-r")
       : cn(
           "w-full min-h-0 flex-1 border-t lg:flex-none lg:border-t-0 lg:shrink-0",
           side === "right" ? "lg:border-l" : "lg:border-r",
@@ -104,23 +92,14 @@ export function SideDetails({
     <div className={cn("space-y-1")}>
       {title !== undefined ? (
         layout === "overlay" ? (
-          <RadixDialog.Title
-            className={cn("text-md font-semibold text-text-primary")}
-          >
-            {title}
-          </RadixDialog.Title>
+          <RadixDialog.Title className={cn("text-md font-semibold text-text-primary")}>{title}</RadixDialog.Title>
         ) : (
-          <h2
-            id={titleId}
-            className={cn("text-md font-semibold text-text-primary")}
-          >
+          <h2 id={titleId} className={cn("text-md font-semibold text-text-primary")}>
             {title}
           </h2>
         )
       ) : layout === "overlay" ? (
-        <RadixDialog.Title className={cn("sr-only")}>
-          {a11yTitle}
-        </RadixDialog.Title>
+        <RadixDialog.Title className={cn("sr-only")}>{a11yTitle}</RadixDialog.Title>
       ) : (
         <h2 id={titleId} className={cn("sr-only")}>
           {a11yTitle}
@@ -129,9 +108,7 @@ export function SideDetails({
       {hasDescription ? (
         layout === "overlay" ? (
           <RadixDialog.Description asChild>
-            <div className={cn("text-sm text-text-secondary")}>
-              {description}
-            </div>
+            <div className={cn("text-sm text-text-secondary")}>{description}</div>
           </RadixDialog.Description>
         ) : (
           <div className={cn("text-sm text-text-secondary")}>{description}</div>
@@ -144,9 +121,7 @@ export function SideDetails({
     usesDefaultHeader &&
     !showTitleRow &&
     (layout === "overlay" ? (
-      <RadixDialog.Title className={cn("sr-only")}>
-        {a11yTitle}
-      </RadixDialog.Title>
+      <RadixDialog.Title className={cn("sr-only")}>{a11yTitle}</RadixDialog.Title>
     ) : (
       <h2 id={titleId} className={cn("sr-only")}>
         {a11yTitle}
@@ -157,9 +132,7 @@ export function SideDetails({
     !usesDefaultHeader &&
     (layout === "overlay" ? (
       <>
-        <RadixDialog.Title className={cn("sr-only")}>
-          {a11yTitle}
-        </RadixDialog.Title>
+        <RadixDialog.Title className={cn("sr-only")}>{a11yTitle}</RadixDialog.Title>
         <div>{header}</div>
       </>
     ) : (
@@ -173,65 +146,33 @@ export function SideDetails({
 
   const scrollAndFooter = (
     <>
-      <div
-        className={cn(
-          "flex min-h-0 flex-1 flex-col overflow-hidden border-t border-border-subtle",
-        )}
-      >
-        <div className={cn("flex-1 overflow-auto px-6 py-4", bodyClassName)}>
-          {children}
-        </div>
+      <div className={cn("flex min-h-0 flex-1 flex-col overflow-hidden border-t border-border-subtle")}>
+        <div className={cn("flex-1 overflow-auto px-6 py-4", bodyClassName)}>{children}</div>
       </div>
       {footer ? (
-        <div
-          className={cn(
-            "shrink-0 border-t border-border-subtle px-6 py-4",
-            footerClassName,
-          )}
-        >
-          {footer}
-        </div>
+        <div className={cn("shrink-0 border-t border-border-subtle px-6 py-4", footerClassName)}>{footer}</div>
       ) : null}
     </>
   );
 
   const closeButton = showCloseButton ? (
     layout === "overlay" ? (
-      <RadixDialog.Close
-        aria-label="Close side panel"
-        className={closeIconButtonClassName()}
-      >
+      <RadixDialog.Close aria-label="Close side panel" className={closeIconButtonClassName()}>
         <XIcon size={18} weight="regular" />
       </RadixDialog.Close>
     ) : (
-      <button
-        type="button"
-        aria-label="Close side panel"
-        className={closeIconButtonClassName()}
-        onClick={requestClose}
-      >
+      <button type="button" aria-label="Close side panel" className={closeIconButtonClassName()} onClick={requestClose}>
         <XIcon size={18} weight="regular" />
       </button>
     )
   ) : null;
 
   const closeControl = closeButton ? (
-    <div
-      className={cn(
-        "flex h-lh shrink-0 items-center text-md leading-normal font-semibold",
-      )}
-    >
-      {closeButton}
-    </div>
+    <div className={cn("flex h-lh shrink-0 items-center text-md leading-normal font-semibold")}>{closeButton}</div>
   ) : null;
 
   const headerStack = (
-    <div
-      className={cn(
-        "flex shrink-0 items-start gap-2 border-border-subtle pl-6 pr-4 pt-4",
-        headerChromeClassName,
-      )}
-    >
+    <div className={cn("flex shrink-0 items-start gap-2 border-border-subtle pl-6 pr-4 pt-4", headerChromeClassName)}>
       <div className={cn("flex min-w-0 flex-1 flex-col gap-3")}>
         {defaultHeaderContent}
         {hiddenTitleFallback}
@@ -256,10 +197,7 @@ export function SideDetails({
     <RadixDialog.Root open={open} onOpenChange={onOpenChange} modal>
       <RadixDialog.Portal>
         <RadixDialog.Overlay
-          className={cn(
-            "fixed inset-0 z-40 bg-(--semantic-color-overlay-backdrop)",
-            overlayClassName,
-          )}
+          className={cn("fixed inset-0 z-40 bg-(--semantic-color-overlay-backdrop)", overlayClassName)}
         />
         <RadixDialog.Content
           className={columnClassName}

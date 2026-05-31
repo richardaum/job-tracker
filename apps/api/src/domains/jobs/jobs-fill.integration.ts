@@ -28,9 +28,7 @@ describe.skipIf(!hasDb)("Job async fill metadata (integration)", () => {
     dataSource = await createTestDataSource();
     const jobsRepository = dataSource.getRepository(JobEntity);
     repo = new JobsRepository(jobsRepository);
-    stageEventsRepo = new JobStageEventsRepository(
-      dataSource.getRepository(JobStageEventEntity),
-    );
+    stageEventsRepo = new JobStageEventsRepository(dataSource.getRepository(JobStageEventEntity));
 
     const draftExtractionService = {
       extract: vi
@@ -54,12 +52,7 @@ describe.skipIf(!hasDb)("Job async fill metadata (integration)", () => {
           title: "Filled atomically",
           company: "Tx Atomic Draft Co",
           description: null,
-          salary: {
-            minCents: null,
-            maxCents: null,
-            currency: null,
-            period: null,
-          },
+          salary: { minCents: null, maxCents: null, currency: null, period: null },
           tags: ["from-tx"],
           location: null,
           workRegion: null,
@@ -69,9 +62,7 @@ describe.skipIf(!hasDb)("Job async fill metadata (integration)", () => {
     const companyService = {
       findOrCreateByName: vi.fn(async (uid: string, name: string) => {
         const companyRepo = dataSource.getRepository(CompanyEntity);
-        const existing = await companyRepo.findOne({
-          where: { userId: uid, name },
-        });
+        const existing = await companyRepo.findOne({ where: { userId: uid, name } });
         if (existing) return existing;
         return companyRepo.save(companyRepo.create({ userId: uid, name }));
       }),
@@ -101,9 +92,7 @@ describe.skipIf(!hasDb)("Job async fill metadata (integration)", () => {
 
   afterAll(async () => {
     if (dataSource?.isInitialized) {
-      await dataSource.query(
-        "TRUNCATE companies, jobs, job_stage_events, users CASCADE",
-      );
+      await dataSource.query("TRUNCATE companies, jobs, job_stage_events, users CASCADE");
       await dataSource.destroy();
     }
   });
@@ -115,42 +104,27 @@ describe.skipIf(!hasDb)("Job async fill metadata (integration)", () => {
 
   it("beginFillAutomatically → updateFillMetadataIfStatus COMPLETED on fill_status", async () => {
     const company = await createCompany("Fill Status Co");
-    const job = await repo.create(userId, {
-      title: "T",
-      companyId: company.id,
-      urls: [],
-    });
+    const job = await repo.create(userId, { title: "T", companyId: company.id, urls: [] });
 
     const started = await repo.beginFillAutomaticallyProcessing(job.id, userId);
     expect(started).toBe(true);
 
-    const rows = (await dataSource.query(
-      `SELECT fill_status FROM jobs WHERE id = $1`,
-      [job.id],
-    )) as Array<{ fill_status: string }>;
-    expect(rows[0]?.fill_status).toBe(
-      AsyncMetadataStatusEnum.PROCESSING as string,
-    );
+    const rows = (await dataSource.query(`SELECT fill_status FROM jobs WHERE id = $1`, [job.id])) as Array<{
+      fill_status: string;
+    }>;
+    expect(rows[0]?.fill_status).toBe(AsyncMetadataStatusEnum.PROCESSING as string);
 
-    const done = await repo.updateFillMetadataIfStatus(
-      job.id,
-      userId,
-      AsyncMetadataStatusEnum.PROCESSING,
-      {
-        status: AsyncMetadataStatusEnum.COMPLETED,
-        timestamp: new Date(),
-        error: null,
-      },
-    );
+    const done = await repo.updateFillMetadataIfStatus(job.id, userId, AsyncMetadataStatusEnum.PROCESSING, {
+      status: AsyncMetadataStatusEnum.COMPLETED,
+      timestamp: new Date(),
+      error: null,
+    });
     expect(done).toBe(true);
 
-    const after = (await dataSource.query(
-      `SELECT fill_status, fill_error FROM jobs WHERE id = $1`,
-      [job.id],
-    )) as Array<{ fill_status: string; fill_error: string | null }>;
-    expect(after[0]?.fill_status).toBe(
-      AsyncMetadataStatusEnum.COMPLETED as string,
-    );
+    const after = (await dataSource.query(`SELECT fill_status, fill_error FROM jobs WHERE id = $1`, [
+      job.id,
+    ])) as Array<{ fill_status: string; fill_error: string | null }>;
+    expect(after[0]?.fill_status).toBe(AsyncMetadataStatusEnum.COMPLETED as string);
     expect(after[0]?.fill_error).toBeNull();
   });
 
@@ -163,9 +137,7 @@ describe.skipIf(!hasDb)("Job async fill metadata (integration)", () => {
       htmlContent: "<p>posting</p>",
     });
 
-    await dataSource
-      .getRepository(JobEntity)
-      .update({ id: job.id, userId }, { stage: ApplicationStageEnum.DRAFT });
+    await dataSource.getRepository(JobEntity).update({ id: job.id, userId }, { stage: ApplicationStageEnum.DRAFT });
 
     await stageEventsRepo.createStageEvent(userId, job.id, {
       fromStage: null,
@@ -179,19 +151,15 @@ describe.skipIf(!hasDb)("Job async fill metadata (integration)", () => {
 
     await fillService.processFillJob(userId, job.id);
 
-    const jrow = (await dataSource.query(
-      `SELECT stage::text FROM jobs WHERE id = $1`,
-      [job.id],
-    )) as Array<{ stage: string }>;
+    const jrow = (await dataSource.query(`SELECT stage::text FROM jobs WHERE id = $1`, [job.id])) as Array<{
+      stage: string;
+    }>;
     expect(jrow[0]?.stage).toBe(ApplicationStageEnum.NEW);
 
-    const fills = (await dataSource.query(
-      `SELECT fill_status FROM jobs WHERE id = $1`,
-      [job.id],
-    )) as Array<{ fill_status: string }>;
-    expect(fills[0]?.fill_status).toBe(
-      AsyncMetadataStatusEnum.COMPLETED as string,
-    );
+    const fills = (await dataSource.query(`SELECT fill_status FROM jobs WHERE id = $1`, [job.id])) as Array<{
+      fill_status: string;
+    }>;
+    expect(fills[0]?.fill_status).toBe(AsyncMetadataStatusEnum.COMPLETED as string);
 
     const evCount = (await dataSource.query(
       `SELECT count(*)::text as c FROM job_stage_events WHERE job_id = $1 AND user_id = $2`,
@@ -202,20 +170,15 @@ describe.skipIf(!hasDb)("Job async fill metadata (integration)", () => {
 
   it("resetStaleFillProcessing resets PROCESSING rows", async () => {
     const company = await createCompany("Stale Fill Co");
-    const job = await repo.create(userId, {
-      title: "Stale",
-      companyId: company.id,
-      urls: [],
-    });
+    const job = await repo.create(userId, { title: "Stale", companyId: company.id, urls: [] });
     await repo.beginFillAutomaticallyProcessing(job.id, userId);
 
     const n = await repo.resetStaleFillProcessing();
     expect(n).toBeGreaterThanOrEqual(1);
 
-    const row = (await dataSource.query(
-      `SELECT fill_status FROM jobs WHERE id = $1`,
-      [job.id],
-    )) as Array<{ fill_status: string }>;
+    const row = (await dataSource.query(`SELECT fill_status FROM jobs WHERE id = $1`, [job.id])) as Array<{
+      fill_status: string;
+    }>;
     expect(row[0]?.fill_status).toBe(AsyncMetadataStatusEnum.FAILED as string);
   });
 });

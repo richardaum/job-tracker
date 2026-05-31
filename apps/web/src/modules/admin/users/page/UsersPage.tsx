@@ -26,8 +26,7 @@ function UsersListSkeleton({ count = 4 }: UsersListSkeletonProps) {
 export default function UsersPage() {
   const [query, setQuery] = useState("");
 
-  const { users, filteredUsers, error, showInitialLoading } =
-    useUsersListViewModel(query);
+  const { users, filteredUsers, error, showInitialLoading } = useUsersListViewModel(query);
 
   return (
     <div className={cn("flex h-full flex-col")}>
@@ -43,11 +42,7 @@ export default function UsersPage() {
           ariaLabel="Search users"
         />
 
-        <Text
-          size="sm"
-          color="muted"
-          className={cn("w-full text-left sm:w-auto")}
-        >
+        <Text size="sm" color="muted" className={cn("w-full text-left sm:w-auto")}>
           {users.length} users
         </Text>
       </div>

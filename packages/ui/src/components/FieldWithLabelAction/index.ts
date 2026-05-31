@@ -11,8 +11,5 @@ export const FieldWithLabelAction = Object.assign(FieldWithLabelActionBase, {
 });
 
 export type FieldWithLabelActionProps = FieldWithLabelActionBaseProps;
-export type {
-  FieldWithLabelActionIconActionButtonProps,
-  FieldWithLabelActionTooltipProps,
-};
+export type { FieldWithLabelActionIconActionButtonProps, FieldWithLabelActionTooltipProps };
 export { FieldWithLabelActionIconActionButton, FieldWithLabelActionTooltip };

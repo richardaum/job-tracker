@@ -13,22 +13,12 @@ export function nextPrefId(): string {
   return `pref-${prefIdCounter}`;
 }
 
-export function toLocal(
-  items: readonly { text: string; weight: Weight }[],
-): LocalPreference[] {
-  return items.map((p) => ({
-    id: nextPrefId(),
-    text: p.text,
-    weight: p.weight,
-  }));
+export function toLocal(items: readonly { text: string; weight: Weight }[]): LocalPreference[] {
+  return items.map((p) => ({ id: nextPrefId(), text: p.text, weight: p.weight }));
 }
 
-export function toPreferenceInput(
-  items: readonly LocalPreference[],
-): PreferenceInput[] {
-  return items
-    .filter((p) => p.text.trim().length > 0)
-    .map((p) => ({ text: p.text.trim(), weight: p.weight }));
+export function toPreferenceInput(items: readonly LocalPreference[]): PreferenceInput[] {
+  return items.filter((p) => p.text.trim().length > 0).map((p) => ({ text: p.text.trim(), weight: p.weight }));
 }
 
 export function weightLabel(weight: Weight): string {

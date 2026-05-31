@@ -1,14 +1,6 @@
 "use client";
 
-import {
-  Button,
-  cn,
-  Combobox,
-  type ComboboxOption,
-  Dialog,
-  FormField,
-  Stack,
-} from "@job-tracker/ui";
+import { Button, cn, Combobox, type ComboboxOption, Dialog, FormField, Stack } from "@job-tracker/ui";
 import { type DialogControl } from "@job-tracker/ui";
 import { useState } from "react";
 
@@ -27,11 +19,7 @@ type SourceEditDialogProps = {
   onSave: (nextValue: JobSource | null) => Promise<void>;
 };
 
-export function SourceEditDialog({
-  control,
-  value,
-  onSave,
-}: SourceEditDialogProps) {
+export function SourceEditDialog({ control, value, onSave }: SourceEditDialogProps) {
   const [draft, setDraft] = useState(() => jobSourceToComboLabel(value));
   const [saving, setSaving] = useState(false);
   const parsed = parseJobSourceComboLabel(draft);

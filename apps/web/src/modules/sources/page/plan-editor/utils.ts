@@ -16,11 +16,7 @@ export function defaultParseRegex(): ParseRegexInput {
   return { text: "", fields: [] };
 }
 
-export function updateField<T>(
-  arr: T[],
-  index: number,
-  patch: Partial<T>,
-): T[] {
+export function updateField<T>(arr: T[], index: number, patch: Partial<T>): T[] {
   return arr.map((item, i) => (i === index ? { ...item, ...patch } : item));
 }
 
@@ -37,18 +33,13 @@ export function deepEqual(a: unknown, b: unknown): boolean {
   return aKeys.every(
     (k) =>
       Object.prototype.hasOwnProperty.call(b, k) &&
-      deepEqual(
-        (a as Record<string, unknown>)[k],
-        (b as Record<string, unknown>)[k],
-      ),
+      deepEqual((a as Record<string, unknown>)[k], (b as Record<string, unknown>)[k]),
   );
 }
 
 // ─── Template parsing ──────────────────────────────────────────
 
-export type TemplateToken =
-  | { kind: "text"; value: string }
-  | { kind: "field"; value: string; valid: boolean };
+export type TemplateToken = { kind: "text"; value: string } | { kind: "field"; value: string; valid: boolean };
 
 function tokenize(value: string): string[][] {
   const parts: string[][] = [];
@@ -74,12 +65,8 @@ function tokenize(value: string): string[][] {
 
 function parseTokens(value: string): TemplateToken[] {
   return tokenize(value).map(([kind, content]) => {
-    if (kind === "field")
-      return { kind: "field", value: content, valid: false };
-    return {
-      kind: "text",
-      value: kind === "unclosed" ? `{{${content}` : content,
-    };
+    if (kind === "field") return { kind: "field", value: content, valid: false };
+    return { kind: "text", value: kind === "unclosed" ? `{{${content}` : content };
   });
 }
 
@@ -87,13 +74,9 @@ export function validateTokens(
   value: string,
   validKeys: Set<string>,
 ): { tokens: TemplateToken[]; error: string | null } {
-  const tokens = parseTokens(value).map((t) =>
-    t.kind === "field" ? { ...t, valid: validKeys.has(t.value) } : t,
-  );
+  const tokens = parseTokens(value).map((t) => (t.kind === "field" ? { ...t, valid: validKeys.has(t.value) } : t));
 
-  const raw = tokens
-    .map((t) => (t.kind === "text" ? t.value : `{{${t.value}}}`))
-    .join("");
+  const raw = tokens.map((t) => (t.kind === "text" ? t.value : `{{${t.value}}}`)).join("");
   const stack: number[] = [];
   for (let i = 0; i < raw.length; i++) {
     if (raw[i] === "{" && raw[i + 1] === "{") {
@@ -102,11 +85,9 @@ export function validateTokens(
     } else if (raw[i] === "{" && raw[i + 1] !== "{") {
       return { tokens, error: "Single { is not valid" };
     } else if (raw[i] === "}" && raw[i + 1] === "}") {
-      if (stack.length === 0)
-        return { tokens, error: "Unexpected }} without {{" };
+      if (stack.length === 0) return { tokens, error: "Unexpected }} without {{" };
       const openPos = stack.pop()!;
-      if (raw.slice(openPos + 2, i) === "")
-        return { tokens, error: "Empty field name" };
+      if (raw.slice(openPos + 2, i) === "") return { tokens, error: "Empty field name" };
       i++;
     } else if (raw[i] === "}" && raw[i + 1] !== "}") {
       return { tokens, error: "Single } is not valid" };
@@ -114,17 +95,13 @@ export function validateTokens(
   }
   if (stack.length > 0) return { tokens, error: "Unclosed {{ }}" };
   for (const t of tokens) {
-    if (t.kind === "field" && !t.valid)
-      return { tokens, error: `Unknown field "${t.value}"` };
+    if (t.kind === "field" && !t.valid) return { tokens, error: `Unknown field "${t.value}"` };
   }
   return { tokens, error: null };
 }
 
 /** Detect if cursor is inside `{{ }}` and return the partial typed so far. */
-export function autocompleteAt(
-  value: string,
-  cursor: number,
-): { prefix: string; partial: string } | null {
+export function autocompleteAt(value: string, cursor: number): { prefix: string; partial: string } | null {
   const before = value.slice(0, cursor);
   const lastOpen = before.lastIndexOf("{{");
   if (lastOpen === -1) return null;

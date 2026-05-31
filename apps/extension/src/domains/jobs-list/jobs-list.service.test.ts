@@ -34,12 +34,7 @@ function buildMessage(
 ): Extract<ContentActionMessage, { kind: "jobs.list" }> {
   const { surfaceFields: sf, ...rest } = overrides;
   const surfaceFields = sf ?? [
-    {
-      key: "text",
-      selector: ".translatable-message",
-      type: "property" as const,
-      value: "innerText" as const,
-    },
+    { key: "text", selector: ".translatable-message", type: "property" as const, value: "innerText" as const },
   ];
   return {
     kind: "jobs.list",
@@ -142,35 +137,19 @@ describe("JobsListService", () => {
     const message = buildMessage({
       direction: "down",
       surfaceFields: [
-        {
-          key: "text",
-          selector: ".translatable-message",
-          type: "property" as const,
-          value: "innerText" as const,
-        },
-        {
-          key: "applyUrl",
-          selector: "a",
-          type: "attribute" as const,
-          value: "href" as const,
-        },
+        { key: "text", selector: ".translatable-message", type: "property" as const, value: "innerText" as const },
+        { key: "applyUrl", selector: "a", type: "attribute" as const, value: "href" as const },
       ],
     });
 
     const result = await svc.execute(message);
 
     expect(result).toHaveLength(1);
-    expect(result[0]).toEqual({
-      text: "hello",
-      applyUrl: "https://example.com/job",
-    });
+    expect(result[0]).toEqual({ text: "hello", applyUrl: "https://example.com/job" });
   });
 
   it("extracts cards from real Telegram HTML fixture", async () => {
-    const html = readFileSync(
-      resolve(__dirname, "../plan/fixtures/telegram-jsgurujobs.html"),
-      "utf-8",
-    );
+    const html = readFileSync(resolve(__dirname, "../plan/fixtures/telegram-jsgurujobs.html"), "utf-8");
 
     // Recreate the Telegram bubbles-inner structure inside container
     container.className = "bubbles-inner";
@@ -194,12 +173,7 @@ describe("JobsListService", () => {
       itemSelector: ".bubble.channel-post",
       direction: "down",
       surfaceFields: [
-        {
-          key: "rawText",
-          selector: ".translatable-message",
-          type: "property" as const,
-          value: "innerText" as const,
-        },
+        { key: "rawText", selector: ".translatable-message", type: "property" as const, value: "innerText" as const },
         {
           key: "applyUrl",
           selector:

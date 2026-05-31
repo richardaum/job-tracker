@@ -16,16 +16,9 @@ type UseVoiceToTextOptions = {
 
 type SpeechRecognitionAlternative = { transcript: string };
 
-type SpeechRecognitionResultLike = {
-  isFinal: boolean;
-  0: SpeechRecognitionAlternative;
-  length: number;
-};
+type SpeechRecognitionResultLike = { isFinal: boolean; 0: SpeechRecognitionAlternative; length: number };
 
-type SpeechRecognitionEventLike = {
-  resultIndex: number;
-  results: SpeechRecognitionResultLike[];
-};
+type SpeechRecognitionEventLike = { resultIndex: number; results: SpeechRecognitionResultLike[] };
 
 type SpeechRecognitionLike = {
   lang: string;
@@ -60,11 +53,7 @@ export function useVoiceToText({
   onTranscriptChange,
 }: UseVoiceToTextOptions) {
   const [isListening, setIsListening] = useState(false);
-  const autoRestart = useSpeechRecognitionAutoRestart({
-    enabled,
-    disabled,
-    onListeningChange: setIsListening,
-  });
+  const autoRestart = useSpeechRecognitionAutoRestart({ enabled, disabled, onListeningChange: setIsListening });
   const controllerRef = useRef<VoiceToTextControllerRef>({
     recognition: null,
     dictationBaseText: "",
@@ -77,19 +66,14 @@ export function useVoiceToText({
     onTranscriptChange,
   });
 
-  const speechRecognitionApi =
-    useMemo<SpeechRecognitionConstructor | null>(() => {
-      if (typeof window === "undefined") return null;
-      const speechWindow = window as Window & {
-        SpeechRecognition?: SpeechRecognitionConstructor;
-        webkitSpeechRecognition?: SpeechRecognitionConstructor;
-      };
-      return (
-        speechWindow.SpeechRecognition ??
-        speechWindow.webkitSpeechRecognition ??
-        null
-      );
-    }, []);
+  const speechRecognitionApi = useMemo<SpeechRecognitionConstructor | null>(() => {
+    if (typeof window === "undefined") return null;
+    const speechWindow = window as Window & {
+      SpeechRecognition?: SpeechRecognitionConstructor;
+      webkitSpeechRecognition?: SpeechRecognitionConstructor;
+    };
+    return speechWindow.SpeechRecognition ?? speechWindow.webkitSpeechRecognition ?? null;
+  }, []);
 
   const isSupported = speechRecognitionApi !== null;
 
@@ -101,28 +85,15 @@ export function useVoiceToText({
     controllerRef.current.autoRestart = autoRestart;
     controllerRef.current.getCurrentText = getCurrentText;
     controllerRef.current.onTranscriptChange = onTranscriptChange;
-  }, [
-    autoRestart,
-    disabled,
-    enabled,
-    getCurrentText,
-    language,
-    onTranscriptChange,
-    speechRecognitionApi,
-  ]);
+  }, [autoRestart, disabled, enabled, getCurrentText, language, onTranscriptChange, speechRecognitionApi]);
 
-  const setRecognition = useCallback(
-    (nextRecognition: SpeechRecognitionLike | null) => {
-      controllerRef.current.recognition = nextRecognition;
-    },
-    [],
-  );
+  const setRecognition = useCallback((nextRecognition: SpeechRecognitionLike | null) => {
+    controllerRef.current.recognition = nextRecognition;
+  }, []);
 
   const applyVoiceToTextContent = useCallback((spokenText: string) => {
     const controller = controllerRef.current;
-    const nextText = [controller.dictationBaseText, spokenText]
-      .filter((part) => part.length > 0)
-      .join("\n\n");
+    const nextText = [controller.dictationBaseText, spokenText].filter((part) => part.length > 0).join("\n\n");
     controller.onTranscriptChange(nextText);
   }, []);
 
@@ -133,28 +104,16 @@ export function useVoiceToText({
 
   const start = useCallback(() => {
     const controller = controllerRef.current;
-    if (
-      !controller.enabled ||
-      controller.disabled ||
-      !controller.speechRecognitionApi ||
-      !controller.autoRestart
-    ) {
+    if (!controller.enabled || controller.disabled || !controller.speechRecognitionApi || !controller.autoRestart) {
       return;
     }
     const SpeechRecognitionApi = controller.speechRecognitionApi;
 
-    controller.autoRestart.prepareSessionStart(
-      controller.recognition,
-      setRecognition,
-    );
+    controller.autoRestart.prepareSessionStart(controller.recognition, setRecognition);
 
     const startSession = (preserveBaseText: boolean) => {
       const activeController = controllerRef.current;
-      if (
-        activeController.disabled ||
-        !activeController.enabled ||
-        !activeController.autoRestart
-      ) {
+      if (activeController.disabled || !activeController.enabled || !activeController.autoRestart) {
         setIsListening(false);
         return;
       }
@@ -186,13 +145,8 @@ export function useVoiceToText({
             interimParts.push(transcript);
           }
         }
-        const spokenText = mergeFinalWithInterimSegments(
-          finalParts,
-          interimParts,
-        );
-        controllerRef.current.autoRestart?.markSpeechDetected(
-          spokenText.length,
-        );
+        const spokenText = mergeFinalWithInterimSegments(finalParts, interimParts);
+        controllerRef.current.autoRestart?.markSpeechDetected(spokenText.length);
         applyVoiceToTextContent(spokenText);
       };
       recognition.onerror = () => {
@@ -240,10 +194,7 @@ export function useVoiceToText({
   useEffect(() => {
     const controller = controllerRef.current;
     return () => {
-      controller.autoRestart?.cleanupSession(
-        controller.recognition,
-        setRecognition,
-      );
+      controller.autoRestart?.cleanupSession(controller.recognition, setRecognition);
     };
   }, [setRecognition]);
 

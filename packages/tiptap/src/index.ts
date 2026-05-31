@@ -7,11 +7,5 @@ export { normalizeTipTapDocument } from "./normalize";
 export { parseTipTapDocument } from "./parse";
 export { plainTextToTipTap, tipTapToPlainText } from "./plain-text";
 export { structuredNoteToTipTapDocument } from "./structured";
-export type {
-  StructuredNoteOutput,
-  StructuredNoteSection,
-  TipTapDocument,
-  TipTapMark,
-  TipTapNode,
-} from "./types";
+export type { StructuredNoteOutput, StructuredNoteSection, TipTapDocument, TipTapMark, TipTapNode } from "./types";
 export { EMPTY_TIPTAP_DOC } from "./types";

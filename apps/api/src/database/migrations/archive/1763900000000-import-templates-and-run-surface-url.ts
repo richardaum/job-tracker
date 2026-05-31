@@ -95,9 +95,7 @@ CREATE INDEX IF NOT EXISTS "IDX_applications_import_run"
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(
-      `DROP INDEX IF EXISTS "IDX_applications_import_run"`,
-    );
+    await queryRunner.query(`DROP INDEX IF EXISTS "IDX_applications_import_run"`);
     await queryRunner.query(`
 ALTER TABLE "applications" DROP CONSTRAINT IF EXISTS "FK_applications_import_run";
 `);

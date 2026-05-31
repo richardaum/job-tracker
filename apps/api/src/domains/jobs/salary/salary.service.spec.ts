@@ -21,27 +21,17 @@ describe("SalaryService", () => {
     });
 
     it("throws if amount is provided without currency or period", () => {
-      expect(() => salaryService.getCreateSalary({ minCents: 100 })).toThrow(
-        BadRequestException,
-      );
+      expect(() => salaryService.getCreateSalary({ minCents: 100 })).toThrow(BadRequestException);
     });
 
     it("normalizes currency to uppercase", () => {
-      const result = salaryService.getCreateSalary({
-        minCents: 100,
-        currency: "usd",
-        period: SalaryPeriodEnum.MONTH,
-      });
+      const result = salaryService.getCreateSalary({ minCents: 100, currency: "usd", period: SalaryPeriodEnum.MONTH });
       expect(result.currency).toBe("USD");
     });
 
     it("validates non-negative amounts and min <= max", () => {
       expect(() =>
-        salaryService.getCreateSalary({
-          minCents: -1,
-          currency: "USD",
-          period: SalaryPeriodEnum.MONTH,
-        }),
+        salaryService.getCreateSalary({ minCents: -1, currency: "USD", period: SalaryPeriodEnum.MONTH }),
       ).toThrow(BadRequestException);
 
       expect(() =>
@@ -75,10 +65,7 @@ describe("SalaryService", () => {
     });
 
     it("allows clearing salary range", () => {
-      const result = salaryService.getUpdateSalary(current, {
-        minCents: null,
-        maxCents: null,
-      });
+      const result = salaryService.getUpdateSalary(current, { minCents: null, maxCents: null });
       expect(result?.minCents).toBeNull();
       expect(result?.currency).toBeNull();
     });

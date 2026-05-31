@@ -1,10 +1,7 @@
 import type { Ref, TextareaHTMLAttributes } from "react";
 import { cn } from "@ui/lib/cn";
 
-export interface TextareaProps extends Omit<
-  TextareaHTMLAttributes<HTMLTextAreaElement>,
-  "size"
-> {
+export interface TextareaProps extends Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, "size"> {
   size?: "sm" | "md";
   state?: "default" | "error";
   ref?: Ref<HTMLTextAreaElement>;
@@ -16,20 +13,11 @@ const sizeClasses: Record<NonNullable<TextareaProps["size"]>, string> = {
 };
 
 const stateClasses: Record<NonNullable<TextareaProps["state"]>, string> = {
-  default:
-    "border-border-default focus-visible:border-border-brand focus-visible:ring-border-brand",
-  error:
-    "border-border-error text-text-error focus-visible:border-border-error focus-visible:ring-border-error",
+  default: "border-border-default focus-visible:border-border-brand focus-visible:ring-border-brand",
+  error: "border-border-error text-text-error focus-visible:border-border-error focus-visible:ring-border-error",
 };
 
-export function Textarea({
-  size = "md",
-  state = "default",
-  className,
-  rows = 4,
-  ref,
-  ...props
-}: TextareaProps) {
+export function Textarea({ size = "md", state = "default", className, rows = 4, ref, ...props }: TextareaProps) {
   return (
     <textarea
       {...props}

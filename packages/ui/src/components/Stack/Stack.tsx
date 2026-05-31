@@ -15,17 +15,9 @@ export interface StackProps {
   className?: string;
 }
 
-const directionClasses: Record<Direction, string> = {
-  row: "flex-row",
-  column: "flex-col",
-};
+const directionClasses: Record<Direction, string> = { row: "flex-row", column: "flex-col" };
 
-const gapClasses: Record<Gap, string> = {
-  xs: "gap-2",
-  sm: "gap-3",
-  md: "gap-4",
-  lg: "gap-6",
-};
+const gapClasses: Record<Gap, string> = { xs: "gap-2", sm: "gap-3", md: "gap-4", lg: "gap-6" };
 
 const alignClasses: Record<Align, string> = {
   start: "items-start",

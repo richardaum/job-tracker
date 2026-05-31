@@ -21,9 +21,7 @@ function inferSourceFromSingleUrl(url: string): ApplicationSourceEnum | null {
  * Infers job-board source from one or many URLs (case-insensitive substring match).
  * Order: Linkedin → Jack → Wellfound → RemoteYeah (first match wins).
  */
-export function inferJobSourceEnumFromUrls(
-  urls: string[] | null | undefined,
-): ApplicationSourceEnum | null {
+export function inferJobSourceEnumFromUrls(urls: string[] | null | undefined): ApplicationSourceEnum | null {
   if (!urls || urls.length === 0) {
     return null;
   }

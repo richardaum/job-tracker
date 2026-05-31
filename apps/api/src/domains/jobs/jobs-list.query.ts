@@ -9,10 +9,7 @@ import { ApplicationQuickFilterEnum } from "./job-quick-filter.enum";
 import { ApplicationStageEnum } from "./job-stage.enum";
 import { Job } from "./jobs.schema";
 
-export type JobPostingContextSnippet = {
-  title: string;
-  plainTextDescription: string;
-};
+export type JobPostingContextSnippet = { title: string; plainTextDescription: string };
 
 @Injectable()
 export class JobsListQuery {
@@ -56,9 +53,7 @@ export class JobsListQuery {
 
     const normalizedCompany = company?.trim();
     if (normalizedCompany) {
-      qb.andWhere("LOWER(company.name) = LOWER(:company)", {
-        company: normalizedCompany,
-      });
+      qb.andWhere("LOWER(company.name) = LOWER(:company)", { company: normalizedCompany });
     }
 
     const normalizedRunId = runId?.trim();
@@ -71,16 +66,12 @@ export class JobsListQuery {
     }
 
     if (filter === ApplicationQuickFilterEnum.DRAFT) {
-      qb.andWhere("a.stage = :draftStage", {
-        draftStage: ApplicationStageEnum.DRAFT,
-      });
+      qb.andWhere("a.stage = :draftStage", { draftStage: ApplicationStageEnum.DRAFT });
       return qb.getMany();
     }
 
     /** Non-DRAFT quick filters derive state from stage events — still exclude persisted DRAFT rows. */
-    qb.andWhere("a.stage != :draftExclude", {
-      draftExclude: ApplicationStageEnum.DRAFT,
-    });
+    qb.andWhere("a.stage != :draftExclude", { draftExclude: ApplicationStageEnum.DRAFT });
 
     const latestStageSub = `(${qb
       .subQuery()
@@ -95,25 +86,13 @@ export class JobsListQuery {
       .getQuery()})`;
 
     if (filter === ApplicationQuickFilterEnum.NEW) {
-      qb.andWhere(`${latestStageSub} = :stage`, {
-        userId,
-        stage: ApplicationStageEnum.NEW,
-      });
+      qb.andWhere(`${latestStageSub} = :stage`, { userId, stage: ApplicationStageEnum.NEW });
     } else if (filter === ApplicationQuickFilterEnum.DUPLICATED) {
-      qb.andWhere(`${latestStageSub} = :stage`, {
-        userId,
-        stage: ApplicationStageEnum.DUPLICATED,
-      });
+      qb.andWhere(`${latestStageSub} = :stage`, { userId, stage: ApplicationStageEnum.DUPLICATED });
     } else if (filter === ApplicationQuickFilterEnum.REJECTED) {
-      qb.andWhere(`${latestStageSub} = :stage`, {
-        userId,
-        stage: ApplicationStageEnum.REJECTED,
-      });
+      qb.andWhere(`${latestStageSub} = :stage`, { userId, stage: ApplicationStageEnum.REJECTED });
     } else if (filter === ApplicationQuickFilterEnum.APPLIED) {
-      qb.andWhere(`${latestStageSub} = :stage`, {
-        userId,
-        stage: ApplicationStageEnum.APPLIED,
-      });
+      qb.andWhere(`${latestStageSub} = :stage`, { userId, stage: ApplicationStageEnum.APPLIED });
     } else if (filter === ApplicationQuickFilterEnum.ACTIVE) {
       qb.andWhere(`${latestStageSub} NOT IN (:...stages)`, {
         userId,
@@ -130,11 +109,7 @@ export class JobsListQuery {
     } else if (filter === ApplicationQuickFilterEnum.INCOMING) {
       qb.andWhere(`${latestStageSub} NOT IN (:...stages)`, {
         userId,
-        stages: [
-          ApplicationStageEnum.APPLIED,
-          ApplicationStageEnum.REJECTED,
-          ApplicationStageEnum.DUPLICATED,
-        ],
+        stages: [ApplicationStageEnum.APPLIED, ApplicationStageEnum.REJECTED, ApplicationStageEnum.DUPLICATED],
       })
         .andWhere(`${latestStageSub} != :excludeDraftLatestEvtIncoming`, {
           userId,
@@ -174,12 +149,8 @@ export class JobsListQuery {
       .createQueryBuilder("a")
       .innerJoin("a.company", "c")
       .where("a.user_id = :userId", { userId })
-      .andWhere("a.stage != :excludeDraftPostingSnippet", {
-        excludeDraftPostingSnippet: ApplicationStageEnum.DRAFT,
-      })
-      .andWhere("LOWER(TRIM(c.name)) = LOWER(TRIM(:company))", {
-        company: normalized,
-      })
+      .andWhere("a.stage != :excludeDraftPostingSnippet", { excludeDraftPostingSnippet: ApplicationStageEnum.DRAFT })
+      .andWhere("LOWER(TRIM(c.name)) = LOWER(TRIM(:company))", { company: normalized })
       .andWhere("a.description IS NOT NULL")
       .orderBy("a.updatedAt", "DESC")
       .take(25)

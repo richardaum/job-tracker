@@ -4,17 +4,9 @@ import type { JobDetailsValues } from "@/modules/jobs/details/utils/job-details.
 
 import { DescriptionEditor } from "./DescriptionEditor";
 
-type DescriptionTabContentProps = {
-  job: JobDetailsValues;
-  onSuccess: () => void;
-  onError: () => void;
-};
+type DescriptionTabContentProps = { job: JobDetailsValues; onSuccess: () => void; onError: () => void };
 
-export function DescriptionTabContent({
-  job,
-  onSuccess,
-  onError,
-}: DescriptionTabContentProps) {
+export function DescriptionTabContent({ job, onSuccess, onError }: DescriptionTabContentProps) {
   return (
     <div className={cn("h-full min-h-0")}>
       <DescriptionEditor

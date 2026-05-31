@@ -1,11 +1,7 @@
 import type { User } from "@api/domains/users/users.schema";
 import { UserService } from "@api/domains/users/users.service";
 import { apiEnv } from "@api/env/server";
-import {
-  Injectable,
-  InternalServerErrorException,
-  Logger,
-} from "@nestjs/common";
+import { Injectable, InternalServerErrorException, Logger } from "@nestjs/common";
 
 @Injectable()
 export class DevAuthBypassService {
@@ -20,9 +16,7 @@ export class DevAuthBypassService {
     }
 
     if (apiEnv.AUTH_BYPASS_ENABLED && !this.hasLoggedEnabledState) {
-      this.logger.warn(
-        `Dev auth bypass is ENABLED for ${this.maskEmail(apiEnv.DEV_AUTH_BYPASS_EMAIL)}.`,
-      );
+      this.logger.warn(`Dev auth bypass is ENABLED for ${this.maskEmail(apiEnv.DEV_AUTH_BYPASS_EMAIL)}.`);
       this.hasLoggedEnabledState = true;
     }
 
@@ -32,16 +26,12 @@ export class DevAuthBypassService {
   async getBypassUser(): Promise<User> {
     const email = apiEnv.DEV_AUTH_BYPASS_EMAIL;
     if (!email) {
-      throw new InternalServerErrorException(
-        "DEV_AUTH_BYPASS_EMAIL is required when auth bypass is enabled.",
-      );
+      throw new InternalServerErrorException("DEV_AUTH_BYPASS_EMAIL is required when auth bypass is enabled.");
     }
 
     const user = await this.userService.findByEmail(email);
     if (!user) {
-      throw new InternalServerErrorException(
-        `Auth bypass user not found for email: ${this.maskEmail(email)}`,
-      );
+      throw new InternalServerErrorException(`Auth bypass user not found for email: ${this.maskEmail(email)}`);
     }
 
     return user;

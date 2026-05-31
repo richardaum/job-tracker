@@ -12,9 +12,7 @@ import { EntityManager, IsNull, Not } from "typeorm";
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      ...buildDataSourceOptions(process.env.DATABASE_URL!),
-    }),
+    TypeOrmModule.forRoot({ ...buildDataSourceOptions(process.env.DATABASE_URL!) }),
     TypeOrmModule.forFeature([JobEntity]),
   ],
 })
@@ -26,9 +24,7 @@ function nowUtcIso(): string {
 
 async function main() {
   process.stdout.write("Booting NestJS...\n");
-  const app = await NestFactory.createApplicationContext(ScriptModule, {
-    logger: ["error", "warn"],
-  });
+  const app = await NestFactory.createApplicationContext(ScriptModule, { logger: ["error", "warn"] });
 
   const em = app.get(EntityManager);
   const repo = em.getRepository(JobEntity);
@@ -41,17 +37,11 @@ async function main() {
 
   // Fix 1: summary_metadata COMPLETED with null generatedAt
   const prefix = dryRun ? "[DRY-RUN] " : "";
-  process.stdout.write(
-    `  ${prefix}summary_metadata COMPLETED with null generatedAt... `,
-  );
+  process.stdout.write(`  ${prefix}summary_metadata COMPLETED with null generatedAt... `);
 
-  const appsWithMeta = await repo.find({
-    where: { summaryMetadata: Not(IsNull()) },
-  });
+  const appsWithMeta = await repo.find({ where: { summaryMetadata: Not(IsNull()) } });
   const fix1 = appsWithMeta.filter(
-    (a) =>
-      a.summaryMetadata?.status === AsyncMetadataStatusEnum.COMPLETED &&
-      !a.summaryMetadata.timestamp,
+    (a) => a.summaryMetadata?.status === AsyncMetadataStatusEnum.COMPLETED && !a.summaryMetadata.timestamp,
   );
 
   if (fix1.length === 0) {
@@ -60,10 +50,7 @@ async function main() {
     process.stdout.write(`✓ ${fix1.length} would be fixed\n`);
   } else {
     for (const app of fix1) {
-      app.summaryMetadata = {
-        ...app.summaryMetadata,
-        timestamp: nowUtcIso(),
-      } as never;
+      app.summaryMetadata = { ...app.summaryMetadata, timestamp: nowUtcIso() } as never;
       const [err] = await tryRun(repo.save(app));
       if (err) {
         process.stdout.write(`\n  ❌ ${app.id}: ${err.message.slice(0, 80)}`);
@@ -76,13 +63,9 @@ async function main() {
   }
 
   // Fix 2: summary NOT NULL with null summary_metadata
-  process.stdout.write(
-    `  ${prefix}summary NOT NULL with null summary_metadata... `,
-  );
+  process.stdout.write(`  ${prefix}summary NOT NULL with null summary_metadata... `);
 
-  const appsWithSummary = await repo.find({
-    where: { summary: Not(IsNull()), summaryMetadata: IsNull() },
-  });
+  const appsWithSummary = await repo.find({ where: { summary: Not(IsNull()), summaryMetadata: IsNull() } });
 
   if (appsWithSummary.length === 0) {
     process.stdout.write("✓ none to fix\n");
@@ -92,10 +75,7 @@ async function main() {
     let ok2 = 0;
     let fail2 = 0;
     for (const app of appsWithSummary) {
-      app.summaryMetadata = {
-        status: AsyncMetadataStatusEnum.COMPLETED,
-        timestamp: nowUtcIso(),
-      } as never;
+      app.summaryMetadata = { status: AsyncMetadataStatusEnum.COMPLETED, timestamp: nowUtcIso() } as never;
       const [err] = await tryRun(repo.save(app));
       if (err) {
         process.stdout.write(`\n  ❌ ${app.id}: ${err.message.slice(0, 80)}`);

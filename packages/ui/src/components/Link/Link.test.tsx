@@ -6,10 +6,7 @@ import { Link } from "./Link";
 describe("Link", () => {
   it("renders an anchor with href", () => {
     render(<Link href="/jobs">Jobs</Link>);
-    expect(screen.getByRole("link", { name: /jobs/i })).toHaveAttribute(
-      "href",
-      "/jobs",
-    );
+    expect(screen.getByRole("link", { name: /jobs/i })).toHaveAttribute("href", "/jobs");
   });
 
   it("supports muted variant", () => {
@@ -18,8 +15,6 @@ describe("Link", () => {
         Settings
       </Link>,
     );
-    expect(screen.getByRole("link", { name: /settings/i })).toHaveClass(
-      "text-text-secondary",
-    );
+    expect(screen.getByRole("link", { name: /settings/i })).toHaveClass("text-text-secondary");
   });
 });

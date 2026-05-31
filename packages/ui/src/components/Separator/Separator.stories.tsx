@@ -27,11 +27,7 @@ export const Horizontal: Story = {
 
 export const Vertical: Story = {
   render: () => (
-    <div
-      className={cn(
-        "flex h-24 items-center gap-2 rounded-lg bg-bg-surface p-6",
-      )}
-    >
+    <div className={cn("flex h-24 items-center gap-2 rounded-lg bg-bg-surface p-6")}>
       <p className={cn("text-text-primary")}>Left</p>
       <Separator orientation="vertical" />
       <p className={cn("text-text-primary")}>Right</p>

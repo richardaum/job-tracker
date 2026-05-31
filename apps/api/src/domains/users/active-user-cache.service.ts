@@ -18,10 +18,7 @@ export class ActiveUserCacheService {
   }
 
   set(userId: string, tokenVersion: number, user: User): void {
-    this.cache.set(`${userId}:${tokenVersion}`, {
-      user,
-      exp: Date.now() + ACTIVE_USER_CACHE_TTL_MS,
-    });
+    this.cache.set(`${userId}:${tokenVersion}`, { user, exp: Date.now() + ACTIVE_USER_CACHE_TTL_MS });
   }
 
   invalidate(userId: string): void {

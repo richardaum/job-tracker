@@ -6,13 +6,10 @@ export class StringTemplateService {
    * Missing fields are replaced with an empty segment.
    */
   parse(template: string, values: Job): string {
-    const parsed = template.replaceAll(
-      /\{\{\s*([a-zA-Z0-9_]+)\s*\}\}/g,
-      (_match, fieldName: string): string => {
-        const value = values[fieldName];
-        return this.normalizeTemplateSegment(value);
-      },
-    );
+    const parsed = template.replaceAll(/\{\{\s*([a-zA-Z0-9_]+)\s*\}\}/g, (_match, fieldName: string): string => {
+      const value = values[fieldName];
+      return this.normalizeTemplateSegment(value);
+    });
 
     return parsed.trim().replaceAll(/\s+/g, " ");
   }

@@ -154,11 +154,7 @@ export function useExtensionEventsViewModel(): {
 ```ts
 // apps/extension/src/domains/web-bridge/admin-extension-status.service.ts
 
-export type AdminGetStatusMessage = {
-  kind: "admin.get-status";
-  webAppOrigin: string;
-  refreshAuth?: boolean;
-};
+export type AdminGetStatusMessage = { kind: "admin.get-status"; webAppOrigin: string; refreshAuth?: boolean };
 ```
 
 ### GraphQL Operations

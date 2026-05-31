@@ -1,26 +1,10 @@
 "use client";
 
-import {
-  Button,
-  Card,
-  cn,
-  DropdownMenu,
-  DropdownMenuItem,
-  InfoTooltip,
-  Radio,
-  Text,
-} from "@job-tracker/ui";
-import {
-  CaretDownIcon,
-  DownloadSimpleIcon,
-  PlusIcon,
-} from "@phosphor-icons/react";
+import { Button, Card, cn, DropdownMenu, DropdownMenuItem, InfoTooltip, Radio, Text } from "@job-tracker/ui";
+import { CaretDownIcon, DownloadSimpleIcon, PlusIcon } from "@phosphor-icons/react";
 import { use, useState } from "react";
 
-import {
-  PlanHeaderActions,
-  PlanTabDescription,
-} from "@/modules/sources/page/plan-details-header.slots";
+import { PlanHeaderActions, PlanTabDescription } from "@/modules/sources/page/plan-details-header.slots";
 import { AddStepDialog } from "@/modules/sources/page/plan-editor/AddStepDialog";
 import { DetailsFieldEditDialog } from "@/modules/sources/page/plan-editor/DetailsFieldEditDialog";
 import { NavigationDialog } from "@/modules/sources/page/plan-editor/NavigationDialog";
@@ -38,30 +22,19 @@ import type {
   Step,
   SurfaceField,
 } from "@/modules/sources/page/plan-editor/types";
-import {
-  deepEqual,
-  defaultCollectJobs,
-  defaultParseRegex,
-} from "@/modules/sources/page/plan-editor/utils";
+import { deepEqual, defaultCollectJobs, defaultParseRegex } from "@/modules/sources/page/plan-editor/utils";
 import { usePlanQuery, useUpdatePlanMutation } from "@/gql/hooks";
 import type { PlanQuery } from "@/gql/graphql";
 import { useToastQueue } from "@/modules/jobs/shared/hooks/useToastQueue";
 import { tryRun } from "@job-tracker/try-run";
 
-function parseDocument(document: Record<string, unknown> | null | undefined): {
-  boardType: BoardType;
-  steps: Step[];
-} {
+function parseDocument(document: Record<string, unknown> | null | undefined): { boardType: BoardType; steps: Step[] } {
   const d = document ?? {};
-  return {
-    boardType: (d.boardType as BoardType) || "Sequential",
-    steps: (d.steps as Step[]) || [],
-  };
+  return { boardType: (d.boardType as BoardType) || "Sequential", steps: (d.steps as Step[]) || [] };
 }
 
 function getCollectJobsInput(step: Step): CollectJobsInput {
-  return (step.action as { kind: "collect.jobs"; input: CollectJobsInput })
-    .input;
+  return (step.action as { kind: "collect.jobs"; input: CollectJobsInput }).input;
 }
 
 type PlanEditorProps = { plan: NonNullable<PlanQuery["plan"]> };
@@ -74,8 +47,7 @@ function PlanEditor({ plan }: PlanEditorProps) {
   const [steps, setSteps] = useState<Step[]>(initialDoc.steps);
   const [saving, setSaving] = useState(false);
 
-  const changed =
-    boardType !== initialDoc.boardType || !deepEqual(steps, initialDoc.steps);
+  const changed = boardType !== initialDoc.boardType || !deepEqual(steps, initialDoc.steps);
 
   const [editingSelectors, setEditingSelectors] = useState<Step | null>(null);
   const [editingNavigation, setEditingNavigation] = useState<Step | null>(null);
@@ -96,9 +68,7 @@ function PlanEditor({ plan }: PlanEditorProps) {
   const [actionsMenuOpen, setActionsMenuOpen] = useState(false);
 
   function handleExportJson() {
-    const blob = new Blob([JSON.stringify({ boardType, steps }, null, 2)], {
-      type: "application/json",
-    });
+    const blob = new Blob([JSON.stringify({ boardType, steps }, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -109,49 +79,23 @@ function PlanEditor({ plan }: PlanEditorProps) {
 
   async function handleSave() {
     setSaving(true);
-    const [err] = await tryRun(
-      updatePlan({
-        variables: { id: plan.id, input: { document: { boardType, steps } } },
-      }),
-    );
+    const [err] = await tryRun(updatePlan({ variables: { id: plan.id, input: { document: { boardType, steps } } } }));
     setSaving(false);
     if (err) {
-      enqueueToast({
-        title:
-          err instanceof Error
-            ? err.message
-            : "Could not save plan. Try again.",
-        intent: "error",
-      });
+      enqueueToast({ title: err instanceof Error ? err.message : "Could not save plan. Try again.", intent: "error" });
       return;
     }
     enqueueToast({ title: "Plan saved.", intent: "success" });
   }
 
-  function handleEditField(
-    step: Step,
-    kind: "surface" | "details",
-    fieldIndex: number,
-  ) {
+  function handleEditField(step: Step, kind: "surface" | "details", fieldIndex: number) {
     const fields =
-      kind === "surface"
-        ? getCollectJobsInput(step).surfaceFields
-        : getCollectJobsInput(step).detailsFields;
-    setFieldDialog({
-      step,
-      kind,
-      field: fields[fieldIndex] as SurfaceField | DetailsField,
-      index: fieldIndex,
-    });
+      kind === "surface" ? getCollectJobsInput(step).surfaceFields : getCollectJobsInput(step).detailsFields;
+    setFieldDialog({ step, kind, field: fields[fieldIndex] as SurfaceField | DetailsField, index: fieldIndex });
   }
 
   function handleEditRegexField(step: Step, fieldIndex: number) {
-    const fields = (
-      step.action as {
-        kind: "parse.regex";
-        input: { fields: ParseRegexField[] };
-      }
-    ).input.fields;
+    const fields = (step.action as { kind: "parse.regex"; input: { fields: ParseRegexField[] } }).input.fields;
     setRegexFieldDialog({ step, field: fields[fieldIndex], index: fieldIndex });
   }
 
@@ -161,99 +105,49 @@ function PlanEditor({ plan }: PlanEditorProps) {
 
   function replaceSurfaceFields(step: Step, fields: SurfaceField[]) {
     const input = { ...getCollectJobsInput(step), surfaceFields: fields };
-    setSteps((prev) =>
-      prev.map((s) =>
-        s.id === step.id
-          ? { ...s, action: { kind: "collect.jobs", input } }
-          : s,
-      ),
-    );
+    setSteps((prev) => prev.map((s) => (s.id === step.id ? { ...s, action: { kind: "collect.jobs", input } } : s)));
   }
 
   function replaceDetailsFields(step: Step, fields: DetailsField[]) {
     const input = { ...getCollectJobsInput(step), detailsFields: fields };
-    setSteps((prev) =>
-      prev.map((s) =>
-        s.id === step.id
-          ? { ...s, action: { kind: "collect.jobs", input } }
-          : s,
-      ),
-    );
+    setSteps((prev) => prev.map((s) => (s.id === step.id ? { ...s, action: { kind: "collect.jobs", input } } : s)));
   }
 
-  function handleSaveField(
-    step: Step,
-    kind: "surface" | "details",
-    index: number,
-    field: SurfaceField | DetailsField,
-  ) {
+  function handleSaveField(step: Step, kind: "surface" | "details", index: number, field: SurfaceField | DetailsField) {
     const input = getCollectJobsInput(step);
-    const fields =
-      kind === "surface" ? [...input.surfaceFields] : [...input.detailsFields];
+    const fields = kind === "surface" ? [...input.surfaceFields] : [...input.detailsFields];
     fields[index] = field as SurfaceField & DetailsField;
-    if (kind === "surface")
-      replaceSurfaceFields(step, fields as SurfaceField[]);
+    if (kind === "surface") replaceSurfaceFields(step, fields as SurfaceField[]);
     else replaceDetailsFields(step, fields as DetailsField[]);
   }
 
-  function handleAddField(
-    step: Step,
-    kind: "surface" | "details",
-    field: SurfaceField | DetailsField,
-  ) {
+  function handleAddField(step: Step, kind: "surface" | "details", field: SurfaceField | DetailsField) {
     const input = getCollectJobsInput(step);
     const fields =
       kind === "surface"
         ? [...input.surfaceFields, field as SurfaceField]
         : [...input.detailsFields, field as DetailsField];
-    if (kind === "surface")
-      replaceSurfaceFields(step, fields as SurfaceField[]);
+    if (kind === "surface") replaceSurfaceFields(step, fields as SurfaceField[]);
     else replaceDetailsFields(step, fields as DetailsField[]);
   }
 
-  function handleSaveRegexField(
-    step: Step,
-    index: number,
-    field: ParseRegexField,
-  ) {
-    const action = step.action as {
-      kind: "parse.regex";
-      input: { text: string; fields: ParseRegexField[] };
-    };
+  function handleSaveRegexField(step: Step, index: number, field: ParseRegexField) {
+    const action = step.action as { kind: "parse.regex"; input: { text: string; fields: ParseRegexField[] } };
     const fields = [...action.input.fields];
     fields[index] = field;
     setSteps((prev) =>
       prev.map((s) =>
-        s.id === step.id
-          ? {
-              ...s,
-              action: {
-                kind: "parse.regex",
-                input: { ...action.input, fields },
-              },
-            }
-          : s,
+        s.id === step.id ? { ...s, action: { kind: "parse.regex", input: { ...action.input, fields } } } : s,
       ),
     );
   }
 
   function handleAddRegexField(step: Step, field: ParseRegexField) {
-    const action = step.action as {
-      kind: "parse.regex";
-      input: { text: string; fields: ParseRegexField[] };
-    };
+    const action = step.action as { kind: "parse.regex"; input: { text: string; fields: ParseRegexField[] } };
     const fields = [...action.input.fields, field];
     setSteps((prev) =>
       prev.map((s) =>
-        s.id === step.id
-          ? {
-              ...s,
-              action: {
-                kind: "parse.regex",
-                input: { ...action.input, fields },
-              },
-            }
-          : s,
+        s.id === step.id ? { ...s, action: { kind: "parse.regex", input: { ...action.input, fields } } } : s,
       ),
     );
   }
@@ -273,9 +167,7 @@ function PlanEditor({ plan }: PlanEditorProps) {
 
   return (
     <>
-      <PlanTabDescription>
-        Configure extraction rules and constraints for this plan.
-      </PlanTabDescription>
+      <PlanTabDescription>Configure extraction rules and constraints for this plan.</PlanTabDescription>
       <PlanHeaderActions>
         <div className={cn("flex items-center gap-2")}>
           <DropdownMenu
@@ -287,10 +179,7 @@ function PlanEditor({ plan }: PlanEditorProps) {
                 size="md"
                 rightIcon={
                   <CaretDownIcon
-                    className={cn(
-                      "transition-transform",
-                      actionsMenuOpen && "rotate-180",
-                    )}
+                    className={cn("transition-transform", actionsMenuOpen && "rotate-180")}
                     size={14}
                     weight="bold"
                   />
@@ -300,10 +189,7 @@ function PlanEditor({ plan }: PlanEditorProps) {
               </Button>
             }
           >
-            <DropdownMenuItem
-              icon={<DownloadSimpleIcon size={16} />}
-              onSelect={handleExportJson}
-            >
+            <DropdownMenuItem icon={<DownloadSimpleIcon size={16} />} onSelect={handleExportJson}>
               Export JSON
             </DropdownMenuItem>
           </DropdownMenu>
@@ -319,9 +205,7 @@ function PlanEditor({ plan }: PlanEditorProps) {
         </div>
       </PlanHeaderActions>
 
-      <div
-        className={cn("flex min-h-0 flex-1 flex-col gap-6 overflow-auto pe-3")}
-      >
+      <div className={cn("flex min-h-0 flex-1 flex-col gap-6 overflow-auto pe-3")}>
         <Card padding="md">
           <div className={cn("flex items-center justify-between")}>
             <div className={cn("flex items-center gap-1.5")}>
@@ -331,11 +215,9 @@ function PlanEditor({ plan }: PlanEditorProps) {
               <InfoTooltip
                 content={
                   <>
-                    Sequential: jobs appear in predictable order (newest first).
-                    Enables CatchUp.
+                    Sequential: jobs appear in predictable order (newest first). Enables CatchUp.
                     <br />
-                    NonSequential: jobs appear in no clear order; CatchUp is not
-                    available.
+                    NonSequential: jobs appear in no clear order; CatchUp is not available.
                   </>
                 }
               />
@@ -364,25 +246,16 @@ function PlanEditor({ plan }: PlanEditorProps) {
               onEditSelectors={setEditingSelectors}
               onEditNavigation={setEditingNavigation}
               onEditPagination={setEditingPagination}
-              onAddField={(s, k) =>
-                setFieldDialog({ step: s, kind: k, field: null, index: -1 })
-              }
+              onAddField={(s, k) => setFieldDialog({ step: s, kind: k, field: null, index: -1 })}
               onEditField={handleEditField}
               onEditParse={setEditingParse}
-              onAddRegexField={(s) =>
-                setRegexFieldDialog({ step: s, field: null, index: -1 })
-              }
+              onAddRegexField={(s) => setRegexFieldDialog({ step: s, field: null, index: -1 })}
               onEditRegexField={handleEditRegexField}
               onDelete={handleDeleteStep}
             />
           ))}
           <div>
-            <Button
-              intent="secondary"
-              size="sm"
-              leftIcon={<PlusIcon size={14} />}
-              onClick={() => setAddStepOpen(true)}
-            >
+            <Button intent="secondary" size="sm" leftIcon={<PlusIcon size={14} />} onClick={() => setAddStepOpen(true)}>
               Add Step
             </Button>
           </div>
@@ -425,55 +298,39 @@ function PlanEditor({ plan }: PlanEditorProps) {
           }}
         />
       )}
-      {fieldDialog?.kind === "surface" &&
-        fieldDialog.step.action.kind === "collect.jobs" && (
-          <SurfaceFieldEditDialog
-            key={`surface-${fieldDialog.index}`}
-            field={fieldDialog.field as SurfaceField | null}
-            open
-            availableKeys={fieldDialog.step.action.input.surfaceFields
-              .map((f) => f.key)
-              .filter((key) => {
-                if (fieldDialog.index === -1) return true;
-                if (!fieldDialog.field) return true;
-                return key !== fieldDialog.field.key;
-              })}
-            onOpenChange={() => setFieldDialog(null)}
-            onSave={(f) => {
-              if (fieldDialog.index === -1)
-                handleAddField(fieldDialog.step, "surface", f);
-              else
-                handleSaveField(
-                  fieldDialog.step,
-                  "surface",
-                  fieldDialog.index,
-                  f,
-                );
-              setFieldDialog(null);
-            }}
-          />
-        )}
-      {fieldDialog?.kind === "details" &&
-        fieldDialog.step.action.kind === "collect.jobs" && (
-          <DetailsFieldEditDialog
-            key={`details-${fieldDialog.index}`}
-            field={fieldDialog.field as DetailsField | null}
-            open
-            onOpenChange={() => setFieldDialog(null)}
-            onSave={(f) => {
-              if (fieldDialog.index === -1)
-                handleAddField(fieldDialog.step, "details", f);
-              else
-                handleSaveField(
-                  fieldDialog.step,
-                  "details",
-                  fieldDialog.index,
-                  f,
-                );
-              setFieldDialog(null);
-            }}
-          />
-        )}
+      {fieldDialog?.kind === "surface" && fieldDialog.step.action.kind === "collect.jobs" && (
+        <SurfaceFieldEditDialog
+          key={`surface-${fieldDialog.index}`}
+          field={fieldDialog.field as SurfaceField | null}
+          open
+          availableKeys={fieldDialog.step.action.input.surfaceFields
+            .map((f) => f.key)
+            .filter((key) => {
+              if (fieldDialog.index === -1) return true;
+              if (!fieldDialog.field) return true;
+              return key !== fieldDialog.field.key;
+            })}
+          onOpenChange={() => setFieldDialog(null)}
+          onSave={(f) => {
+            if (fieldDialog.index === -1) handleAddField(fieldDialog.step, "surface", f);
+            else handleSaveField(fieldDialog.step, "surface", fieldDialog.index, f);
+            setFieldDialog(null);
+          }}
+        />
+      )}
+      {fieldDialog?.kind === "details" && fieldDialog.step.action.kind === "collect.jobs" && (
+        <DetailsFieldEditDialog
+          key={`details-${fieldDialog.index}`}
+          field={fieldDialog.field as DetailsField | null}
+          open
+          onOpenChange={() => setFieldDialog(null)}
+          onSave={(f) => {
+            if (fieldDialog.index === -1) handleAddField(fieldDialog.step, "details", f);
+            else handleSaveField(fieldDialog.step, "details", fieldDialog.index, f);
+            setFieldDialog(null);
+          }}
+        />
+      )}
       {editingParse?.action.kind === "parse.regex" && (
         <ParseRegexStepDialog
           key={editingParse.id}
@@ -493,32 +350,20 @@ function PlanEditor({ plan }: PlanEditorProps) {
           open
           onOpenChange={() => setRegexFieldDialog(null)}
           onSave={(f) => {
-            if (regexFieldDialog.index === -1)
-              handleAddRegexField(regexFieldDialog.step, f);
-            else
-              handleSaveRegexField(
-                regexFieldDialog.step,
-                regexFieldDialog.index,
-                f,
-              );
+            if (regexFieldDialog.index === -1) handleAddRegexField(regexFieldDialog.step, f);
+            else handleSaveRegexField(regexFieldDialog.step, regexFieldDialog.index, f);
             setRegexFieldDialog(null);
           }}
         />
       )}
-      <AddStepDialog
-        open={addStepOpen}
-        onOpenChange={setAddStepOpen}
-        onAdd={handleAddStep}
-      />
+      <AddStepDialog open={addStepOpen} onOpenChange={setAddStepOpen} onAdd={handleAddStep} />
     </>
   );
 }
 
 type PlanDocumentEditorPageProps = { params: Promise<{ planId: string }> };
 
-export function PlanDocumentEditorPage({
-  params,
-}: PlanDocumentEditorPageProps) {
+export function PlanDocumentEditorPage({ params }: PlanDocumentEditorPageProps) {
   const { planId } = use(params);
   const { data, loading } = usePlanQuery({ variables: { id: planId } });
 

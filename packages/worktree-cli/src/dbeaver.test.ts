@@ -5,11 +5,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, it } from "node:test";
 
-import {
-  addWorktreeDBeaverConnection,
-  dbeaverConnectionId,
-  removeWorktreeDBeaverConnection,
-} from "./dbeaver.ts";
+import { addWorktreeDBeaverConnection, dbeaverConnectionId, removeWorktreeDBeaverConnection } from "./dbeaver.ts";
 
 const tag = "[test]";
 
@@ -28,18 +24,10 @@ describe("dbeaver", () => {
     };
     writeFileSync(path, `${JSON.stringify(seed, null, 2)}\n`, "utf8");
 
-    const databaseUrl =
-      "postgresql://postgres:postgres@localhost:5432/job_tracker_feat_x";
-    addWorktreeDBeaverConnection({
-      tag,
-      slug: "feat-x",
-      databaseUrl,
-      dataSourcesPath: path,
-    });
+    const databaseUrl = "postgresql://postgres:postgres@localhost:5432/job_tracker_feat_x";
+    addWorktreeDBeaverConnection({ tag, slug: "feat-x", databaseUrl, dataSourcesPath: path });
 
-    const afterAdd = JSON.parse(readFileSync(path, "utf8")) as {
-      connections: Record<string, { name: string }>;
-    };
+    const afterAdd = JSON.parse(readFileSync(path, "utf8")) as { connections: Record<string, { name: string }> };
     const added = afterAdd.connections[dbeaverConnectionId("feat-x")] as {
       name: string;
       configuration: Record<string, unknown>;
@@ -47,19 +35,10 @@ describe("dbeaver", () => {
     assert.equal(added?.name, "feat-x");
     assert.equal("password" in (added?.configuration ?? {}), false);
 
-    removeWorktreeDBeaverConnection({
-      tag,
-      slug: "feat-x",
-      dataSourcesPath: path,
-    });
+    removeWorktreeDBeaverConnection({ tag, slug: "feat-x", dataSourcesPath: path });
 
-    const afterRemove = JSON.parse(readFileSync(path, "utf8")) as {
-      connections: Record<string, unknown>;
-    };
-    assert.equal(
-      afterRemove.connections[dbeaverConnectionId("feat-x")],
-      undefined,
-    );
+    const afterRemove = JSON.parse(readFileSync(path, "utf8")) as { connections: Record<string, unknown> };
+    assert.equal(afterRemove.connections[dbeaverConnectionId("feat-x")], undefined);
 
     rmSync(dir, { recursive: true, force: true });
   });

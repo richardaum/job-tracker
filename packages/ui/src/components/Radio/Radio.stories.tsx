@@ -19,9 +19,7 @@ const fruitOptions = [
   { label: "Orange", value: "orange" },
 ];
 
-export const Default: Story = {
-  args: { options: fruitOptions, defaultValue: "apple" },
-};
+export const Default: Story = { args: { options: fruitOptions, defaultValue: "apple" } };
 
 export const Horizontal: Story = {
   args: {
@@ -34,17 +32,9 @@ export const Horizontal: Story = {
   },
 };
 
-export const Vertical: Story = {
-  args: {
-    options: fruitOptions,
-    defaultValue: "banana",
-    orientation: "vertical",
-  },
-};
+export const Vertical: Story = { args: { options: fruitOptions, defaultValue: "banana", orientation: "vertical" } };
 
-export const Disabled: Story = {
-  args: { options: fruitOptions, defaultValue: "apple", disabled: true },
-};
+export const Disabled: Story = { args: { options: fruitOptions, defaultValue: "apple", disabled: true } };
 
 export const CustomStyled: Story = {
   render: () => (

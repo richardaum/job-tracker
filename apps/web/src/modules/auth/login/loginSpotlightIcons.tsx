@@ -12,10 +12,7 @@ import type { ComponentType } from "react";
 
 import type { LoginSpotlightIconKey } from "@/modules/auth/login/mockLoginSpotlightTiles";
 
-const MAP: Record<
-  LoginSpotlightIconKey,
-  ComponentType<{ className?: string; weight?: IconWeight }>
-> = {
+const MAP: Record<LoginSpotlightIconKey, ComponentType<{ className?: string; weight?: IconWeight }>> = {
   briefcase: BriefcaseIcon,
   chartLineUp: ChartLineUpIcon,
   clipboardText: ClipboardTextIcon,
@@ -26,17 +23,9 @@ const MAP: Record<
 
 /** Icon chip for spotlight tiles on the dark glass shell (invert-facing). */
 
-type LoginSpotlightGlyphProps = {
-  icon: LoginSpotlightIconKey;
-  className?: string;
-  variant?: "tile" | "hero";
-};
+type LoginSpotlightGlyphProps = { icon: LoginSpotlightIconKey; className?: string; variant?: "tile" | "hero" };
 
-export function LoginSpotlightGlyph({
-  icon,
-  className,
-  variant = "tile",
-}: LoginSpotlightGlyphProps) {
+export function LoginSpotlightGlyph({ icon, className, variant = "tile" }: LoginSpotlightGlyphProps) {
   const Cmp = MAP[icon];
   const isHero = variant === "hero";
   return (
@@ -49,13 +38,7 @@ export function LoginSpotlightGlyph({
       )}
       aria-hidden
     >
-      <Cmp
-        className={cn(
-          "text-text-inverted",
-          isHero ? "size-11 sm:size-12" : "size-5",
-        )}
-        weight="duotone"
-      />
+      <Cmp className={cn("text-text-inverted", isHero ? "size-11 sm:size-12" : "size-5")} weight="duotone" />
     </span>
   );
 }

@@ -1,16 +1,7 @@
 "use client";
 
 import { tryRun } from "@job-tracker/try-run";
-import {
-  Button,
-  Checkbox,
-  cn,
-  Dialog,
-  FormField,
-  Input,
-  Stack,
-  Text,
-} from "@job-tracker/ui";
+import { Button, Checkbox, cn, Dialog, FormField, Input, Stack, Text } from "@job-tracker/ui";
 import { useCallback, useState } from "react";
 
 import { useUpdateSourceTemplateMutation } from "@/gql/hooks";
@@ -19,23 +10,12 @@ import type { SourceListItem } from "@/modules/sources/page/source-template-list
 type SourceScheduleFormInnerProps = {
   template: SourceListItem;
   close: () => void;
-  onScheduleSaved?: (
-    id: string,
-    patch: Pick<SourceListItem, "scheduleEnabled" | "scheduleCron">,
-  ) => void;
+  onScheduleSaved?: (id: string, patch: Pick<SourceListItem, "scheduleEnabled" | "scheduleCron">) => void;
 };
 
-function SourceScheduleFormInner({
-  template,
-  close,
-  onScheduleSaved,
-}: SourceScheduleFormInnerProps) {
-  const [updateSource] = useUpdateSourceTemplateMutation({
-    refetchQueries: ["Plans", "SourceTemplatesAll"],
-  });
-  const [enabledDraft, setEnabledDraft] = useState(
-    () => template.scheduleEnabled,
-  );
+function SourceScheduleFormInner({ template, close, onScheduleSaved }: SourceScheduleFormInnerProps) {
+  const [updateSource] = useUpdateSourceTemplateMutation({ refetchQueries: ["Plans", "SourceTemplatesAll"] });
+  const [enabledDraft, setEnabledDraft] = useState(() => template.scheduleEnabled);
   const [cronDraft, setCronDraft] = useState(() => template.scheduleCron ?? "");
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -43,16 +23,12 @@ function SourceScheduleFormInner({
   async function handleSave() {
     setSaving(true);
     setError(null);
-    const input: { scheduleEnabled: boolean; scheduleCron?: string | null } = {
-      scheduleEnabled: enabledDraft,
-    };
+    const input: { scheduleEnabled: boolean; scheduleCron?: string | null } = { scheduleEnabled: enabledDraft };
     if (enabledDraft) {
       const cronTrim = cronDraft.trim();
       input.scheduleCron = cronTrim === "" ? null : cronTrim;
     }
-    const [err] = await tryRun(
-      updateSource({ variables: { id: template.id, input } }),
-    );
+    const [err] = await tryRun(updateSource({ variables: { id: template.id, input } }));
     setSaving(false);
     if (err) {
       setError("Could not save schedule. Try again.");
@@ -76,10 +52,7 @@ function SourceScheduleFormInner({
         />
         <Text size="sm">Enable scheduled sources</Text>
       </label>
-      <FormField
-        label="Cron expression"
-        htmlFor={`template-schedule-cron-${template.id}`}
-      >
+      <FormField label="Cron expression" htmlFor={`template-schedule-cron-${template.id}`}>
         <Input
           id={`template-schedule-cron-${template.id}`}
           value={cronDraft}
@@ -97,11 +70,7 @@ function SourceScheduleFormInner({
         <Button intent="secondary" disabled={saving} onClick={close}>
           Cancel
         </Button>
-        <Button
-          intent="primary"
-          state={saving ? "loading" : "default"}
-          onClick={() => void handleSave()}
-        >
+        <Button intent="primary" state={saving ? "loading" : "default"} onClick={() => void handleSave()}>
           Save
         </Button>
       </div>
@@ -112,17 +81,10 @@ function SourceScheduleFormInner({
 type SourceScheduleDialogProps = {
   template: SourceListItem | null;
   onOpenChange: (open: boolean) => void;
-  onScheduleSaved?: (
-    id: string,
-    patch: Pick<SourceListItem, "scheduleEnabled" | "scheduleCron">,
-  ) => void;
+  onScheduleSaved?: (id: string, patch: Pick<SourceListItem, "scheduleEnabled" | "scheduleCron">) => void;
 };
 
-export function SourceScheduleDialog({
-  template,
-  onOpenChange,
-  onScheduleSaved,
-}: SourceScheduleDialogProps) {
+export function SourceScheduleDialog({ template, onOpenChange, onScheduleSaved }: SourceScheduleDialogProps) {
   const open = template !== null;
   const close = useCallback(() => onOpenChange(false), [onOpenChange]);
 

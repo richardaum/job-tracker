@@ -11,30 +11,19 @@ import { DeleteResumeDialog } from "@/modules/resumes/list/components/DeleteResu
 
 function formatDate(iso: string): string {
   const [err, formatted] = tryRun(() =>
-    new Intl.DateTimeFormat("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    }).format(new Date(iso)),
+    new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric" }).format(new Date(iso)),
   );
   if (!err) return formatted;
   return iso;
 }
 
 interface ResumeCardProps {
-  resume: Pick<
-    ResumeType,
-    "id" | "title" | "content" | "updatedAt" | "isDefault"
-  >;
+  resume: Pick<ResumeType, "id" | "title" | "content" | "updatedAt" | "isDefault">;
   onDelete?: (id: string, title: string) => void;
   onSetAsDefault?: (id: string) => void;
 }
 
-export function ResumeCard({
-  resume,
-  onDelete,
-  onSetAsDefault,
-}: ResumeCardProps) {
+export function ResumeCard({ resume, onDelete, onSetAsDefault }: ResumeCardProps) {
   const descriptionPreview = tipTapToPlainText(resume.content).slice(0, 120);
 
   const title = (
@@ -72,10 +61,7 @@ export function ResumeCard({
             size="sm"
             label={`Delete resume "${resume.title}"`}
             tooltip="Delete resume"
-            className={cn(
-              ListItemCard.actionIconButtonClassName,
-              "hover:text-text-error",
-            )}
+            className={cn(ListItemCard.actionIconButtonClassName, "hover:text-text-error")}
             icon={<TrashIcon size={13} weight="regular" />}
           />
         }
@@ -95,12 +81,5 @@ export function ResumeCard({
     </Text>
   ) : null;
 
-  return (
-    <ListItemCard
-      title={title}
-      actions={actions}
-      meta={meta}
-      description={description}
-    />
-  );
+  return <ListItemCard title={title} actions={actions} meta={meta} description={description} />;
 }

@@ -39,30 +39,17 @@ describe("AuthResolver (integration)", () => {
   beforeAll(async () => {
     deactivateUser = vi.fn().mockResolvedValue(undefined);
     const moduleRef = await Test.createTestingModule({
-      imports: [
-        GraphQLModule.forRoot<ApolloDriverConfig>({
-          driver: ApolloDriver,
-          autoSchemaFile: true,
-        }),
-      ],
+      imports: [GraphQLModule.forRoot<ApolloDriverConfig>({ driver: ApolloDriver, autoSchemaFile: true })],
       providers: [
         AuthResolver,
-        {
-          provide: UserService,
-          useValue: {
-            findById: vi.fn().mockResolvedValue(mockUser),
-            deactivateUser,
-          },
-        },
+        { provide: UserService, useValue: { findById: vi.fn().mockResolvedValue(mockUser), deactivateUser } },
       ],
     })
       .overrideGuard(JwtAuthGuard)
       .useValue({
         canActivate: (ctx: ExecutionContext) => {
           const gqlCtx = GqlExecutionContext.create(ctx);
-          const req = gqlCtx.getContext<{
-            req: Request & { headers: Record<string, string>; user?: unknown };
-          }>().req;
+          const req = gqlCtx.getContext<{ req: Request & { headers: Record<string, string>; user?: unknown } }>().req;
           if (!req.headers["authorization"]) throw new UnauthorizedException();
           req.user = { userId: mockUser.id };
           return true;
@@ -94,9 +81,7 @@ describe("AuthResolver (integration)", () => {
   });
 
   it("me returns UNAUTHENTICATED error when no token provided", async () => {
-    const res = await request(app.getHttpServer())
-      .post("/graphql")
-      .send({ query: "{ me { id email } }" });
+    const res = await request(app.getHttpServer()).post("/graphql").send({ query: "{ me { id email } }" });
 
     expect(res.body.errors).toBeDefined();
     expect(res.body.errors[0].extensions.code).toBe("UNAUTHENTICATED");

@@ -7,12 +7,7 @@ export class PopupLogService {
     await this.messagingService.publish({
       to: "background",
       kind: "log.event",
-      payload: {
-        level: "debug",
-        message,
-        data,
-        timestamp: new Date().toISOString(),
-      },
+      payload: { level: "debug", message, data, timestamp: new Date().toISOString() },
     });
   }
 }

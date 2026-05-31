@@ -4,11 +4,7 @@ import { Button, Dialog, Stack } from "@job-tracker/ui";
 import { useState } from "react";
 import type { ReactElement } from "react";
 
-import {
-  CompaniesDocument,
-  useCompanyJobsCountLazyQuery,
-  useDeleteCompanyMutation,
-} from "@/gql/hooks";
+import { CompaniesDocument, useCompanyJobsCountLazyQuery, useDeleteCompanyMutation } from "@/gql/hooks";
 
 interface DeleteCompanyDialogProps {
   trigger: ReactElement;
@@ -106,22 +102,14 @@ export function DeleteCompanyDialog({
       }}
       footer={
         <Stack direction="row" gap="xs" justify="end">
-          <Button
-            intent="secondary"
-            onClick={() => handleOpenChange(false)}
-            disabled={submitting}
-          >
+          <Button intent="secondary" onClick={() => handleOpenChange(false)} disabled={submitting}>
             Cancel
           </Button>
           <Button
             intent="destructive"
             state={submitting ? "loading" : "default"}
             disabled={submitting}
-            onClick={() =>
-              void (step === "initial"
-                ? handleInitialConfirm()
-                : handleCascadeConfirm())
-            }
+            onClick={() => void (step === "initial" ? handleInitialConfirm() : handleCascadeConfirm())}
           >
             {step === "initial" ? "Delete" : "Delete company and jobs"}
           </Button>

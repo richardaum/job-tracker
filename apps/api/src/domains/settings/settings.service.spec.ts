@@ -10,20 +10,13 @@ import { SettingsService } from "./settings.service";
 
 describe("SettingsService", () => {
   let service: SettingsService;
-  let repo: {
-    findOne: ReturnType<typeof vi.fn>;
-    create: ReturnType<typeof vi.fn>;
-    save: ReturnType<typeof vi.fn>;
-  };
+  let repo: { findOne: ReturnType<typeof vi.fn>; create: ReturnType<typeof vi.fn>; save: ReturnType<typeof vi.fn> };
 
   beforeEach(async () => {
     repo = { findOne: vi.fn(), create: vi.fn(), save: vi.fn() };
 
     const module = await Test.createTestingModule({
-      providers: [
-        SettingsService,
-        { provide: getRepositoryToken(UserSettingEntity), useValue: repo },
-      ],
+      providers: [SettingsService, { provide: getRepositoryToken(UserSettingEntity), useValue: repo }],
     }).compile();
 
     service = module.get(SettingsService);
@@ -63,13 +56,7 @@ describe("SettingsService", () => {
       autoFillEnabled: true,
       autoSummaryEnabled: false,
       duplicateWindowDays: 7,
-      blockedKeywords: [
-        {
-          keyword: "test",
-          scope: KeywordScope.TITLE,
-          matchMode: MatchMode.PARTIAL,
-        },
-      ],
+      blockedKeywords: [{ keyword: "test", scope: KeywordScope.TITLE, matchMode: MatchMode.PARTIAL }],
       blockedCompanies: ["Acme"],
     };
     repo.findOne.mockResolvedValue(existing);
@@ -83,13 +70,7 @@ describe("SettingsService", () => {
       autoFillEnabled: true,
       autoSummaryEnabled: false,
       duplicateWindowDays: 7,
-      blockedKeywords: [
-        {
-          keyword: "test",
-          scope: KeywordScope.TITLE,
-          matchMode: MatchMode.PARTIAL,
-        },
-      ],
+      blockedKeywords: [{ keyword: "test", scope: KeywordScope.TITLE, matchMode: MatchMode.PARTIAL }],
       blockedCompanies: ["Acme"],
     });
   });
@@ -107,9 +88,7 @@ describe("SettingsService", () => {
     repo.findOne.mockResolvedValue(existing);
     repo.save.mockImplementation((entity) => Promise.resolve(entity));
 
-    const result = await service.updateSettings("user-1", {
-      autoFillEnabled: true,
-    });
+    const result = await service.updateSettings("user-1", { autoFillEnabled: true });
 
     expect(repo.save).toHaveBeenCalled();
     expect(result.autoFillEnabled).toBe(true);
@@ -152,23 +131,13 @@ describe("SettingsService", () => {
     repo.save.mockImplementation((entity) => Promise.resolve(entity));
 
     const result = await service.updateSettings("user-1", {
-      blockedKeywords: [
-        {
-          keyword: "test",
-          scope: KeywordScope.TITLE,
-          matchMode: MatchMode.PARTIAL,
-        },
-      ],
+      blockedKeywords: [{ keyword: "test", scope: KeywordScope.TITLE, matchMode: MatchMode.PARTIAL }],
       blockedCompanies: ["Acme Corp"],
     });
 
     expect(repo.save).toHaveBeenCalled();
     expect(result.blockedKeywords).toEqual([
-      {
-        keyword: "test",
-        scope: KeywordScope.TITLE,
-        matchMode: MatchMode.PARTIAL,
-      },
+      { keyword: "test", scope: KeywordScope.TITLE, matchMode: MatchMode.PARTIAL },
     ]);
     expect(result.blockedCompanies).toEqual(["Acme Corp"]);
   });

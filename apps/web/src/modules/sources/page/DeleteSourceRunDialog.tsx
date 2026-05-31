@@ -5,11 +5,7 @@ import { Checkbox, cn, ConfirmDialog, Stack, Text } from "@job-tracker/ui";
 import { useId, useState } from "react";
 import type { ReactElement } from "react";
 
-import {
-  JobsDocument,
-  SourceTemplateDocument,
-  useDeleteSourceRunMutation,
-} from "@/gql/hooks";
+import { JobsDocument, SourceTemplateDocument, useDeleteSourceRunMutation } from "@/gql/hooks";
 
 type DeleteSourceRunDialogProps = {
   trigger: ReactElement;
@@ -19,13 +15,7 @@ type DeleteSourceRunDialogProps = {
   onDeleted?: (runId: string) => void;
 };
 
-export function DeleteSourceRunDialog({
-  trigger,
-  runId,
-  templateId,
-  runLabel,
-  onDeleted,
-}: DeleteSourceRunDialogProps) {
+export function DeleteSourceRunDialog({ trigger, runId, templateId, runLabel, onDeleted }: DeleteSourceRunDialogProps) {
   const checkboxId = useId();
   const [deleteJobs, setDeleteJobs] = useState(false);
   const [deleteSourceRun] = useDeleteSourceRunMutation();
@@ -65,15 +55,8 @@ export function DeleteSourceRunDialog({
             ? "Jobs imported by this run will be deleted permanently."
             : "Jobs imported by this run stay in your list but lose the source run link."}
         </Text>
-        <label
-          htmlFor={checkboxId}
-          className={cn("flex cursor-pointer items-start gap-2")}
-        >
-          <Checkbox
-            id={checkboxId}
-            checked={deleteJobs}
-            onCheckedChange={setDeleteJobs}
-          />
+        <label htmlFor={checkboxId} className={cn("flex cursor-pointer items-start gap-2")}>
+          <Checkbox id={checkboxId} checked={deleteJobs} onCheckedChange={setDeleteJobs} />
           <Text size="sm">Also delete jobs imported by this run</Text>
         </label>
       </Stack>

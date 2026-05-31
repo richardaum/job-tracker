@@ -38,8 +38,7 @@ export const noInlineComponentProps = {
           node.id &&
           isPascalCase(node.id.name) &&
           node.init &&
-          (node.init.type === "ArrowFunctionExpression" ||
-            node.init.type === "FunctionExpression")
+          (node.init.type === "ArrowFunctionExpression" || node.init.type === "FunctionExpression")
         ) {
           reportIfInlineProps(node.init.params[0]);
         }

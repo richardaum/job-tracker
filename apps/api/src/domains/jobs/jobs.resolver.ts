@@ -42,18 +42,12 @@ export class JobsResolver {
   }
 
   @Query(() => JobType)
-  job(
-    @Args("id", { type: () => ID }) id: string,
-    @CurrentUser() user: { userId: string },
-  ): Promise<JobType> {
+  job(@Args("id", { type: () => ID }) id: string, @CurrentUser() user: { userId: string }): Promise<JobType> {
     return this.service.findOne(id, user.userId);
   }
 
   @Mutation(() => JobType)
-  createJob(
-    @Args("input") input: CreateJobInput,
-    @CurrentUser() user: { userId: string },
-  ): Promise<JobType> {
+  createJob(@Args("input") input: CreateJobInput, @CurrentUser() user: { userId: string }): Promise<JobType> {
     return this.service.create(user.userId, input);
   }
 
@@ -82,13 +76,8 @@ export class JobsResolver {
   }
 
   @Query(() => String)
-  generateCompanyDescription(
-    @Args("companyName") companyName: string,
-    @CurrentUser() user: { userId: string },
-  ) {
-    return this.service.generateCompanyDescription(user.userId, {
-      companyName,
-    });
+  generateCompanyDescription(@Args("companyName") companyName: string, @CurrentUser() user: { userId: string }) {
+    return this.service.generateCompanyDescription(user.userId, { companyName });
   }
 
   @Mutation(() => JobType)

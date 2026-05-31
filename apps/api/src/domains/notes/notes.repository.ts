@@ -19,42 +19,24 @@ export class NoteRepository {
   ) {}
 
   async hasJob(jobId: string, userId: string): Promise<boolean> {
-    const count = await this.applicationsRepo.count({
-      where: { id: jobId, userId },
-    });
+    const count = await this.applicationsRepo.count({ where: { id: jobId, userId } });
     return count > 0;
   }
 
-  async findApplicationByIdAndUserId(
-    jobId: string,
-    userId: string,
-  ): Promise<JobEntity | null> {
-    return this.applicationsRepo.findOne({
-      where: { id: jobId, userId },
-      relations: ["company"],
-    });
+  async findApplicationByIdAndUserId(jobId: string, userId: string): Promise<JobEntity | null> {
+    return this.applicationsRepo.findOne({ where: { id: jobId, userId }, relations: ["company"] });
   }
 
   async findByJobIdAndUserId(jobId: string, userId: string): Promise<Note[]> {
-    return this.notesRepo.find({
-      where: { jobId, userId },
-      order: { createdAt: "DESC", id: "DESC" },
-    });
+    return this.notesRepo.find({ where: { jobId, userId }, order: { createdAt: "DESC", id: "DESC" } });
   }
 
-  async findByIdAndUserId(
-    noteId: string,
-    userId: string,
-  ): Promise<Note | null> {
+  async findByIdAndUserId(noteId: string, userId: string): Promise<Note | null> {
     return this.notesRepo.findOne({ where: { id: noteId, userId } });
   }
 
   async create(userId: string, dto: CreateNoteDto): Promise<Note> {
-    const row = this.notesRepo.create({
-      userId,
-      jobId: dto.jobId,
-      content: dto.content,
-    });
+    const row = this.notesRepo.create({ userId, jobId: dto.jobId, content: dto.content });
     return this.notesRepo.save(row);
   }
 
@@ -66,11 +48,7 @@ export class NoteRepository {
   ): Promise<Note | null> {
     const result = await this.notesRepo.update(
       { id: noteId, userId, revision: expectedRevision },
-      {
-        content: dto.content,
-        revision: expectedRevision + 1,
-        updatedAt: new Date(),
-      },
+      { content: dto.content, revision: expectedRevision + 1, updatedAt: new Date() },
     );
     if (!result.affected) {
       return null;

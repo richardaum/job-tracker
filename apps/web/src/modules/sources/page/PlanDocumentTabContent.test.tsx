@@ -10,21 +10,13 @@ const planQueryMock = vi.fn();
 const updatePlanMock = vi.fn();
 
 vi.mock("@/gql/hooks", async () => {
-  const actual =
-    await vi.importActual<typeof import("@/gql/hooks")>("@/gql/hooks");
-  return {
-    ...actual,
-    usePlanQuery: () => planQueryMock(),
-    useUpdatePlanMutation: () => [updatePlanMock],
-  };
+  const actual = await vi.importActual<typeof import("@/gql/hooks")>("@/gql/hooks");
+  return { ...actual, usePlanQuery: () => planQueryMock(), useUpdatePlanMutation: () => [updatePlanMock] };
 });
 
 import { SlotsProvider } from "@job-tracker/react-slots";
 
-import {
-  PlanHeaderActions,
-  PlanTabDescription,
-} from "@/modules/sources/page/plan-details-header.slots";
+import { PlanHeaderActions, PlanTabDescription } from "@/modules/sources/page/plan-details-header.slots";
 import PlanDocumentTabContent from "./PlanDocumentTabContent";
 
 /** Fulfilling thenable lets `React.use(params)` unblock without suspense in jsdom tests. */
@@ -66,14 +58,9 @@ describe("PlanDocumentTabContent", () => {
   });
 
   it("pre-selects existing boardType in dropdown", async () => {
-    planQueryMock.mockReturnValue({
-      data: { plan: defaultPlan },
-      loading: false,
-    });
+    planQueryMock.mockReturnValue({ data: { plan: defaultPlan }, loading: false });
 
-    renderWithProviders(
-      <PlanDocumentTabContent params={syncParamsResolved({ planId: "p-1" })} />,
-    );
+    renderWithProviders(<PlanDocumentTabContent params={syncParamsResolved({ planId: "p-1" })} />);
 
     await waitFor(() => {
       expect(getDropdown()).toBeInTheDocument();
@@ -83,14 +70,9 @@ describe("PlanDocumentTabContent", () => {
   });
 
   it("shows empty state when plan has no boardType", async () => {
-    planQueryMock.mockReturnValue({
-      data: { plan: { ...defaultPlan, document: { steps: [] } } },
-      loading: false,
-    });
+    planQueryMock.mockReturnValue({ data: { plan: { ...defaultPlan, document: { steps: [] } } }, loading: false });
 
-    renderWithProviders(
-      <PlanDocumentTabContent params={syncParamsResolved({ planId: "p-1" })} />,
-    );
+    renderWithProviders(<PlanDocumentTabContent params={syncParamsResolved({ planId: "p-1" })} />);
 
     await waitFor(() => {
       expect(getDropdown()).toBeInTheDocument();
@@ -101,19 +83,10 @@ describe("PlanDocumentTabContent", () => {
   });
 
   it("submits boardType in document JSONB on save", async () => {
-    planQueryMock.mockReturnValue({
-      data: { plan: { ...defaultPlan, document: { steps: [] } } },
-      loading: false,
-    });
-    updatePlanMock.mockResolvedValue({
-      data: {
-        updatePlan: { id: "p-1", displayName: "Test Plan", document: {} },
-      },
-    });
+    planQueryMock.mockReturnValue({ data: { plan: { ...defaultPlan, document: { steps: [] } } }, loading: false });
+    updatePlanMock.mockResolvedValue({ data: { updatePlan: { id: "p-1", displayName: "Test Plan", document: {} } } });
 
-    renderWithProviders(
-      <PlanDocumentTabContent params={syncParamsResolved({ planId: "p-1" })} />,
-    );
+    renderWithProviders(<PlanDocumentTabContent params={syncParamsResolved({ planId: "p-1" })} />);
 
     await waitFor(() => {
       expect(getDropdown()).toBeInTheDocument();
@@ -128,10 +101,7 @@ describe("PlanDocumentTabContent", () => {
 
     await waitFor(() => {
       expect(updatePlanMock).toHaveBeenCalledWith({
-        variables: {
-          id: "p-1",
-          input: { document: { steps: [], boardType: "NonSequential" } },
-        },
+        variables: { id: "p-1", input: { document: { steps: [], boardType: "NonSequential" } } },
       });
     });
   });

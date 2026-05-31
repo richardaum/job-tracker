@@ -5,16 +5,11 @@ import { use, useEffect, useRef, useState } from "react";
 
 import { usePlanQuery, useUpdatePlanMutation } from "@/gql/hooks";
 import { HeadlessJsonEditor } from "@/modules/sources/components/HeadlessJsonEditor";
-import {
-  PlanHeaderActions,
-  PlanTabDescription,
-} from "@/modules/sources/page/plan-details-header.slots";
+import { PlanHeaderActions, PlanTabDescription } from "@/modules/sources/page/plan-details-header.slots";
 
 type PlanDocumentTabContentProps = { params: Promise<{ planId: string }> };
 
-export default function PlanDocumentTabContent({
-  params,
-}: PlanDocumentTabContentProps) {
+export default function PlanDocumentTabContent({ params }: PlanDocumentTabContentProps) {
   const { planId } = use(params);
   const { data } = usePlanQuery({ variables: { id: planId } });
   const [updatePlan] = useUpdatePlanMutation();
@@ -36,10 +31,7 @@ export default function PlanDocumentTabContent({
     if (!plan) return;
     setSaving(true);
     await updatePlan({
-      variables: {
-        id: plan.id,
-        input: { document: documentRef.current as Record<string, unknown> },
-      },
+      variables: { id: plan.id, input: { document: documentRef.current as Record<string, unknown> } },
     });
     setSaving(false);
     setDirty(false);
@@ -60,15 +52,9 @@ export default function PlanDocumentTabContent({
 
   return (
     <>
-      <PlanTabDescription>
-        Configure extraction rules and constraints for this plan.
-      </PlanTabDescription>
+      <PlanTabDescription>Configure extraction rules and constraints for this plan.</PlanTabDescription>
       <PlanHeaderActions>{saveButton}</PlanHeaderActions>
-      <div
-        className={cn(
-          "min-h-0 flex-1 overflow-auto rounded-lg border border-border-subtle bg-bg-app p-4",
-        )}
-      >
+      <div className={cn("min-h-0 flex-1 overflow-auto rounded-lg border border-border-subtle bg-bg-app p-4")}>
         <HeadlessJsonEditor
           key={plan.id}
           data={plan.document}

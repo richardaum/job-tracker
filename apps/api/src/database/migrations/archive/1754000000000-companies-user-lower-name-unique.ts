@@ -41,13 +41,11 @@ export class CompaniesUserLowerNameUnique1754000000000 implements MigrationInter
         if (!orphanId || orphanId === canonicalId) {
           continue;
         }
-        await queryRunner.query(
-          `UPDATE applications SET company_id = $1 WHERE company_id = $2`,
-          [canonicalId, orphanId],
-        );
-        await queryRunner.query(`DELETE FROM companies WHERE id = $1`, [
+        await queryRunner.query(`UPDATE applications SET company_id = $1 WHERE company_id = $2`, [
+          canonicalId,
           orphanId,
         ]);
+        await queryRunner.query(`DELETE FROM companies WHERE id = $1`, [orphanId]);
       }
     }
 
@@ -58,8 +56,6 @@ export class CompaniesUserLowerNameUnique1754000000000 implements MigrationInter
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(
-      `DROP INDEX IF EXISTS "UQ_companies_user_lower_name"`,
-    );
+    await queryRunner.query(`DROP INDEX IF EXISTS "UQ_companies_user_lower_name"`);
   }
 }

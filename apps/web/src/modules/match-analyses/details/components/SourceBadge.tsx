@@ -6,17 +6,9 @@ import NextLink from "next/link";
 
 import { MatchSource } from "@/gql/hooks";
 
-type SourceBadgeProps = {
-  source: MatchSource;
-  resumeId?: string;
-  onPreferenceClick?: () => void;
-};
+type SourceBadgeProps = { source: MatchSource; resumeId?: string; onPreferenceClick?: () => void };
 
-export function SourceBadge({
-  source,
-  resumeId,
-  onPreferenceClick,
-}: SourceBadgeProps) {
+export function SourceBadge({ source, resumeId, onPreferenceClick }: SourceBadgeProps) {
   if (source === MatchSource.Resume && resumeId) {
     return (
       <NextLink href={`/profile/resumes/${resumeId}`}>

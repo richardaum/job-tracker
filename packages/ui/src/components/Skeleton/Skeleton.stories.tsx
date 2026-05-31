@@ -14,8 +14,6 @@ type Story = StoryObj<typeof meta>;
 
 export const Text: Story = { args: { variant: "text", className: "w-48" } };
 
-export const Rectangle: Story = {
-  args: { variant: "rect", className: "w-64" },
-};
+export const Rectangle: Story = { args: { variant: "rect", className: "w-64" } };
 
 export const Circle: Story = { args: { variant: "circle" } };

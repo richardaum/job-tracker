@@ -41,9 +41,7 @@ export const apiSubscribers = [UuidGenerateSubscriber];
 
 export const apiMigrations = migrations;
 
-export function buildDataSourceOptions(
-  databaseUrl: string,
-): DataSourceOptions & { autoLoadEntities?: boolean } {
+export function buildDataSourceOptions(databaseUrl: string): DataSourceOptions & { autoLoadEntities?: boolean } {
   return {
     type: "postgres",
     url: databaseUrl,

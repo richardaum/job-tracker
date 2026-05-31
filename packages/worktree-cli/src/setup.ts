@@ -19,10 +19,7 @@ const repoRoot = findRepoRoot(import.meta.url);
 
 if (!existsSync(join(repoRoot, "node_modules"))) {
   console.log("[worktree:setup] node_modules missing, running pnpm install...");
-  const result = spawnSync("pnpm", ["install"], {
-    cwd: repoRoot,
-    stdio: "inherit",
-  });
+  const result = spawnSync("pnpm", ["install"], { cwd: repoRoot, stdio: "inherit" });
   if (result.status !== 0) {
     process.exit(result.status ?? 1);
   }
@@ -58,16 +55,8 @@ const scriptIdx = raw.findIndex((a) => !a.startsWith("-") || a === "--");
 const userArgs = scriptIdx >= 0 ? raw.slice(scriptIdx + 1) : raw;
 
 const argv = await yargs(userArgs)
-  .option("dry-run", {
-    type: "boolean",
-    default: false,
-    description: "Dry run (print plan only, no writes)",
-  })
-  .option("recreate-db", {
-    type: "boolean",
-    default: true,
-    description: "Drop and re-clone destination DB",
-  })
+  .option("dry-run", { type: "boolean", default: false, description: "Dry run (print plan only, no writes)" })
+  .option("recreate-db", { type: "boolean", default: true, description: "Drop and re-clone destination DB" })
   .option("dbeaver", {
     type: "boolean",
     default: false,
@@ -78,31 +67,18 @@ const argv = await yargs(userArgs)
     default: false,
     description: "Replace existing DBeaver connection (requires --dbeaver)",
   })
-  .option("install", {
-    type: "boolean",
-    default: false,
-    description: "Run pnpm install after core setup",
-  })
+  .option("install", { type: "boolean", default: false, description: "Run pnpm install after core setup" })
   .option("migrate", {
     type: "boolean",
     default: false,
     description: "Run pnpm --filter @job-tracker/api run db:migrate",
   })
-  .option("start", {
-    type: "boolean",
-    default: false,
-    description: "Run pnpm pm2:start",
-  })
-  .option("verify", {
-    type: "boolean",
-    default: false,
-    description: "Verify API/Web/Storybook/WXT health endpoints",
-  })
+  .option("start", { type: "boolean", default: false, description: "Run pnpm pm2:start" })
+  .option("verify", { type: "boolean", default: false, description: "Verify API/Web/Storybook/WXT health endpoints" })
   .option("open", {
     type: "boolean",
     default: true,
-    description:
-      "Open web app in the default browser (default: same as --verify)",
+    description: "Open web app in the default browser (default: same as --verify)",
   })
   .strict()
   .check((args) => {
@@ -121,9 +97,7 @@ const sourceDb = worktreeEnv.WORKTREE_SOURCE_DB;
 const open = argv.open ?? argv.verify;
 if (!sourceDb) {
   console.error(
-    `${tag} WORKTREE_SOURCE_DB is required.\n` +
-      "  export WORKTREE_SOURCE_DB=job_tracker\n" +
-      "  pnpm worktree:setup",
+    `${tag} WORKTREE_SOURCE_DB is required.\n` + "  export WORKTREE_SOURCE_DB=job_tracker\n" + "  pnpm worktree:setup",
   );
   process.exit(1);
 }
@@ -153,14 +127,7 @@ if (argv.dryRun) {
     workspacePath: join(mainRoot, "job-tracker.code-workspace"),
   });
 } else {
-  cloneWorktreeDatabase({
-    tag,
-    slug,
-    sourceDb,
-    destDb,
-    worktreeRoot,
-    recreateDb: argv.recreateDb,
-  });
+  cloneWorktreeDatabase({ tag, slug, sourceDb, destDb, worktreeRoot, recreateDb: argv.recreateDb });
 
   const testDatabaseUrl = buildDestinationTestDatabaseUrl(databaseUrl, slug);
   cloneWorktreeTestDatabase({
@@ -172,24 +139,18 @@ if (argv.dryRun) {
   });
 
   const allocatedPorts = registerWorktreePorts(slug);
-  const { apiEnvPath, webEnvPath, storybookEnvPath, extensionEnvPath } =
-    writeWorktreeAppEnvs({
-      worktreeRoot,
-      mainRoot,
-      ports: allocatedPorts,
-      databaseUrl,
-      e2eDatabaseUrl: testDatabaseUrl,
-    });
+  const { apiEnvPath, webEnvPath, storybookEnvPath, extensionEnvPath } = writeWorktreeAppEnvs({
+    worktreeRoot,
+    mainRoot,
+    ports: allocatedPorts,
+    databaseUrl,
+    e2eDatabaseUrl: testDatabaseUrl,
+  });
 
   addWorktreeToWorkspace({ mainRoot, slug, worktreeRoot, tag });
 
   if (argv.dbeaver) {
-    addWorktreeDBeaverConnection({
-      tag,
-      slug,
-      databaseUrl,
-      force: argv.forceDbeaver,
-    });
+    addWorktreeDBeaverConnection({ tag, slug, databaseUrl, force: argv.forceDbeaver });
   }
 
   logSetupSummary({

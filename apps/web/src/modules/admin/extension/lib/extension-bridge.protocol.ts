@@ -46,9 +46,7 @@ export function createExtensionBridgePing(
   };
 }
 
-export function isExtensionBridgePing(
-  data: unknown,
-): data is ExtensionBridgePing {
+export function isExtensionBridgePing(data: unknown): data is ExtensionBridgePing {
   if (typeof data !== "object" || data == null) return false;
 
   const record = data as Record<string, unknown>;
@@ -60,9 +58,7 @@ export function isExtensionBridgePing(
   );
 }
 
-export async function wakeExtension(
-  timeoutMs = 3_000,
-): Promise<ExtensionBridgePong | null> {
+export async function wakeExtension(timeoutMs = 3_000): Promise<ExtensionBridgePong | null> {
   if (typeof window === "undefined") return null;
 
   const requestId = crypto.randomUUID();
@@ -91,9 +87,7 @@ export async function wakeExtension(
   });
 }
 
-export function isExtensionBridgePong(
-  data: unknown,
-): data is ExtensionBridgePong {
+export function isExtensionBridgePong(data: unknown): data is ExtensionBridgePong {
   if (typeof data !== "object" || data == null) return false;
 
   const record = data as Record<string, unknown>;
@@ -105,10 +99,8 @@ export function isExtensionBridgePong(
     typeof record.browser === "string" &&
     typeof record.lastHeartbeatAt === "string" &&
     typeof record.webAppOrigin === "string" &&
-    (record.authStatus === "authenticated" ||
-      record.authStatus === "unauthenticated") &&
-    (typeof record.authenticatedEmail === "string" ||
-      record.authenticatedEmail === null)
+    (record.authStatus === "authenticated" || record.authStatus === "unauthenticated") &&
+    (typeof record.authenticatedEmail === "string" || record.authenticatedEmail === null)
   );
 }
 
@@ -120,11 +112,7 @@ export type SourceRunStartRequest = {
   planId: string;
 };
 
-export function sendSourceRunStart(
-  runId: string,
-  surfaceUrl: string,
-  planId: string,
-): void {
+export function sendSourceRunStart(runId: string, surfaceUrl: string, planId: string): void {
   if (typeof window === "undefined") return;
 
   const message: SourceRunStartRequest = {

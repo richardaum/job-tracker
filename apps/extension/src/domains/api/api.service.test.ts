@@ -11,19 +11,12 @@ vi.mock("@apollo/client/core", () => {
     stop = vi.fn();
   }
 
-  return {
-    ApolloClient: MockApolloClient,
-    ApolloLink: { from: vi.fn() },
-    HttpLink: vi.fn(),
-    InMemoryCache: vi.fn(),
-  };
+  return { ApolloClient: MockApolloClient, ApolloLink: { from: vi.fn() }, HttpLink: vi.fn(), InMemoryCache: vi.fn() };
 });
 
 vi.mock("@job-tracker/auth", () => ({ createAuthRefreshLink: vi.fn() }));
 
-vi.mock("@/domains/api/create-extension-auth-link", () => ({
-  createExtensionAuthLink: vi.fn(),
-}));
+vi.mock("@/domains/api/create-extension-auth-link", () => ({ createExtensionAuthLink: vi.fn() }));
 
 vi.mock("@/gql/graphql", () => ({ IsJobDuplicateDocument: {} }));
 
@@ -44,9 +37,7 @@ describe("ApiService", () => {
 
       expect(result).toBe(true);
       expect(mockQuery).toHaveBeenCalledWith(
-        expect.objectContaining({
-          variables: { company: "Acme", title: "Engineer" },
-        }),
+        expect.objectContaining({ variables: { company: "Acme", title: "Engineer" } }),
       );
     });
 

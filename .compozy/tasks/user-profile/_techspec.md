@@ -167,13 +167,7 @@ export default function IdentityTabPage() {
   return (
     <div className="flex flex-col items-center gap-6 py-8">
       {user.avatarUrl ? (
-        <Image
-          src={user.avatarUrl}
-          alt={user.name}
-          width={96}
-          height={96}
-          className="rounded-full"
-        />
+        <Image src={user.avatarUrl} alt={user.name} width={96} height={96} className="rounded-full" />
       ) : (
         <div className="flex size-24 items-center justify-center rounded-full bg-bg-brand-subtle text-2xl font-semibold text-text-brand">
           {user.name
@@ -259,9 +253,7 @@ Renders the tab content with its own action bar (no BackToLink — that's in the
 
 ```tsx
 export default function ResumesTabPage() {
-  const { data, loading, error } = useResumesQuery({
-    fetchPolicy: "cache-and-network",
-  });
+  const { data, loading, error } = useResumesQuery({ fetchPolicy: "cache-and-network" });
   // ... setAddDialogOpen, queries/mutations same as ResumesPage
   // ... action bar: Add resume button
   // ... <ResumesList ... />
@@ -333,23 +325,10 @@ export default function PreferencesTabPage() {
 ### Updated `PreferencesDialog`
 
 ```tsx
-export function PreferencesDialog({
-  open,
-  onOpenChange,
-  readOnly = false,
-}: PreferencesDialogProps) {
+export function PreferencesDialog({ open, onOpenChange, readOnly = false }: PreferencesDialogProps) {
   return (
-    <Dialog
-      open={open}
-      onOpenChange={onOpenChange}
-      title="Work Preferences"
-      description="..."
-    >
-      <WorkPreferencesEditor
-        mode="dialog"
-        readOnly={readOnly}
-        onClose={() => onOpenChange(false)}
-      />
+    <Dialog open={open} onOpenChange={onOpenChange} title="Work Preferences" description="...">
+      <WorkPreferencesEditor mode="dialog" readOnly={readOnly} onClose={() => onOpenChange(false)} />
     </Dialog>
   );
 }

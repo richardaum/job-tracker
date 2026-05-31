@@ -8,11 +8,7 @@ interface PreferencesDialogProps {
   readOnly?: boolean;
 }
 
-export function PreferencesDialog({
-  open,
-  onOpenChange,
-  readOnly = false,
-}: PreferencesDialogProps) {
+export function PreferencesDialog({ open, onOpenChange, readOnly = false }: PreferencesDialogProps) {
   return (
     <Dialog
       open={open}
@@ -21,11 +17,7 @@ export function PreferencesDialog({
       description="What matters to you in a job? These preferences are used to evaluate match against job descriptions."
       childrenClassName="overflow-auto"
     >
-      <WorkPreferencesEditor
-        mode="dialog"
-        readOnly={readOnly}
-        onClose={() => onOpenChange(false)}
-      />
+      <WorkPreferencesEditor mode="dialog" readOnly={readOnly} onClose={() => onOpenChange(false)} />
     </Dialog>
   );
 }

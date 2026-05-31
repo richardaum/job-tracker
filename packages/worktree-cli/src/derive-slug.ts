@@ -24,10 +24,7 @@ export function deriveSlug(root: string): string {
   let slug = basenameToSlug(path.basename(root));
 
   if (slug === "job-tracker") {
-    const result = spawnSync("git", ["rev-parse", "--abbrev-ref", "HEAD"], {
-      cwd: root,
-      encoding: "utf8",
-    });
+    const result = spawnSync("git", ["rev-parse", "--abbrev-ref", "HEAD"], { cwd: root, encoding: "utf8" });
     if (result.status === 0 && result.stdout.trim() !== "HEAD") {
       slug = branchToSlug(result.stdout.trim());
     }

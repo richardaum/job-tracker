@@ -1,20 +1,10 @@
 "use client";
 
-import {
-  cn,
-  FieldWithLabelAction,
-  IconButton,
-  Popover,
-  Text,
-  useDialog,
-} from "@job-tracker/ui";
+import { cn, FieldWithLabelAction, IconButton, Popover, Text, useDialog } from "@job-tracker/ui";
 import { ArrowSquareOutIcon, PencilSimpleIcon } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
 
-import {
-  CompanyEditDialog,
-  type CompanyEditDialogJob,
-} from "@/modules/companies/shared/components/CompanyEditDialog";
+import { CompanyEditDialog, type CompanyEditDialogJob } from "@/modules/companies/shared/components/CompanyEditDialog";
 
 import { TipTapContent } from "./TipTapContent";
 
@@ -25,12 +15,7 @@ interface CompanyNameWithPopoverProps {
   onError?: (message: string) => void;
 }
 
-export function CompanyNameWithPopover({
-  job,
-  className,
-  onSuccess,
-  onError,
-}: CompanyNameWithPopoverProps) {
+export function CompanyNameWithPopover({ job, className, onSuccess, onError }: CompanyNameWithPopoverProps) {
   const router = useRouter();
   const editCompany = useDialog();
   const company = job.company;
@@ -62,12 +47,7 @@ export function CompanyNameWithPopover({
     >
       <div className={cn("group max-w-xs p-1")}>
         <div className={cn("mb-2 flex items-center gap-1")}>
-          <Text
-            size="xs"
-            weight="semibold"
-            color="muted"
-            className={cn("block uppercase tracking-wider")}
-          >
+          <Text size="xs" weight="semibold" color="muted" className={cn("block uppercase tracking-wider")}>
             About the company
           </Text>
           <FieldWithLabelAction.IconActionButton
@@ -93,22 +73,14 @@ export function CompanyNameWithPopover({
           />
         </div>
         {hasDescription ? (
-          <TipTapContent
-            content={description}
-            className={cn("text-xs/relaxed text-text-secondary")}
-          />
+          <TipTapContent content={description} className={cn("text-xs/relaxed text-text-secondary")} />
         ) : (
           <Text size="xs" color="muted" className={cn("italic")}>
             No description available.
           </Text>
         )}
       </div>
-      <CompanyEditDialog
-        control={editCompany}
-        job={job}
-        onSuccess={onSuccess}
-        onError={onError}
-      />
+      <CompanyEditDialog control={editCompany} job={job} onSuccess={onSuccess} onError={onError} />
     </Popover>
   );
 }

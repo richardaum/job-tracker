@@ -2,11 +2,7 @@ import { sanitizeCapturedHtml } from "@job-tracker/html-sanitize";
 
 import { CONTEXT_MENU_IMPORT_TITLE } from "./import-job-labels";
 
-export type DraftJobSnapshot = {
-  url: string;
-  title: string;
-  innerHTML: string;
-};
+export type DraftJobSnapshot = { url: string; title: string; innerHTML: string };
 
 export class CurrentTabContentService {
   execute(): DraftJobSnapshot {

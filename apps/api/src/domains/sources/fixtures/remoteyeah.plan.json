@@ -13,36 +13,12 @@
           "detailsUrlField": "detailUrl",
           "key": "{{company}}-{{title}}",
           "parallelDetailsTabs": 10,
-          "pagination": {
-            "kind": "next-button",
-            "containerSelector": ".pagination",
-            "nextButtonPartialMatch": "Next"
-          },
+          "pagination": { "kind": "next-button", "containerSelector": ".pagination", "nextButtonPartialMatch": "Next" },
           "surfaceFields": [
-            {
-              "key": "title",
-              "selector": ".job-card-title-text",
-              "type": "property",
-              "value": "innerText"
-            },
-            {
-              "key": "company",
-              "selector": ".job-card-company",
-              "type": "property",
-              "value": "innerText"
-            },
-            {
-              "key": "detailUrl",
-              "selector": "a.job-card-title",
-              "type": "attribute",
-              "value": "href"
-            },
-            {
-              "key": "publishedAt",
-              "selector": "time.job-card-published",
-              "type": "attribute",
-              "value": "datetime"
-            }
+            { "key": "title", "selector": ".job-card-title-text", "type": "property", "value": "innerText" },
+            { "key": "company", "selector": ".job-card-company", "type": "property", "value": "innerText" },
+            { "key": "detailUrl", "selector": "a.job-card-title", "type": "attribute", "value": "href" },
+            { "key": "publishedAt", "selector": "time.job-card-published", "type": "attribute", "value": "datetime" }
           ],
           "detailsFields": [
             {
@@ -51,10 +27,7 @@
               "type": "property",
               "value": "innerHTML",
               "format": "tiptap",
-              "validationRegex": {
-                "pattern": "Description:|Requirements:|Benefits:",
-                "flags": "i"
-              }
+              "validationRegex": { "pattern": "Description:|Requirements:|Benefits:", "flags": "i" }
             },
             {
               "key": "salary",

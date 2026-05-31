@@ -14,25 +14,14 @@ import { NestFactory } from "@nestjs/core";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { DataSource } from "typeorm";
 
-const PLANS_TO_SEED: Array<{
-  displayName: string;
-  document: ExecutorPlanDocument;
-}> = [
-  {
-    displayName: "RemoteYeah",
-    document: remoteyeahFixture as ExecutorPlanDocument,
-  },
-  {
-    displayName: "Telegram JSGuruJobs",
-    document: telegramFixture as ExecutorPlanDocument,
-  },
+const PLANS_TO_SEED: Array<{ displayName: string; document: ExecutorPlanDocument }> = [
+  { displayName: "RemoteYeah", document: remoteyeahFixture as ExecutorPlanDocument },
+  { displayName: "Telegram JSGuruJobs", document: telegramFixture as ExecutorPlanDocument },
 ];
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      ...buildDataSourceOptions(process.env.DATABASE_URL!),
-    }),
+    TypeOrmModule.forRoot({ ...buildDataSourceOptions(process.env.DATABASE_URL!) }),
     TypeOrmModule.forFeature([PlanEntity, UserEntity]),
   ],
   providers: [PlanRepository],
@@ -63,22 +52,15 @@ async function main() {
   const planRepo = dataSource.getRepository(PlanEntity);
 
   for (const plan of PLANS_TO_SEED) {
-    const existing = await planRepo.findOneBy({
-      displayName: plan.displayName,
-      userId: user.id,
-    });
+    const existing = await planRepo.findOneBy({ displayName: plan.displayName, userId: user.id });
 
     if (existing) {
       if (dryRun) {
-        console.log(
-          `[DRY-RUN] Would update plan: "${plan.displayName}" (id=${existing.id})`,
-        );
+        console.log(`[DRY-RUN] Would update plan: "${plan.displayName}" (id=${existing.id})`);
         continue;
       }
 
-      const [error] = await tryRun(
-        repo.update(existing.id, user.id, { document: plan.document }),
-      );
+      const [error] = await tryRun(repo.update(existing.id, user.id, { document: plan.document }));
       if (error) {
         console.error(`[ERROR] updating "${plan.displayName}":`, error);
       } else {
@@ -90,9 +72,7 @@ async function main() {
         continue;
       }
 
-      const [error, created] = await tryRun(
-        repo.create({ ...plan, userId: user.id }),
-      );
+      const [error, created] = await tryRun(repo.create({ ...plan, userId: user.id }));
       if (error) {
         console.error(`[ERROR] creating "${plan.displayName}":`, error);
       } else {

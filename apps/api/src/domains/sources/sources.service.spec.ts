@@ -26,16 +26,7 @@ function publishedAtPlanEntity() {
       steps: [
         {
           action: {
-            input: {
-              surfaceFields: [
-                {
-                  key: "publishedAt",
-                  selector: ".date",
-                  type: "property",
-                  value: "innerText",
-                },
-              ],
-            },
+            input: { surfaceFields: [{ key: "publishedAt", selector: ".date", type: "property", value: "innerText" }] },
           },
         },
       ],
@@ -43,10 +34,7 @@ function publishedAtPlanEntity() {
   });
 }
 
-function runWithTemplate(
-  planId: string,
-  config?: Record<string, unknown>,
-): SourceRunEntity {
+function runWithTemplate(planId: string, config?: Record<string, unknown>): SourceRunEntity {
   const plan = planEntity();
   const template = {
     id: "tmpl-1",
@@ -106,10 +94,7 @@ describe("SourcesService", () => {
     findRunsForTemplate: vi.fn(),
   };
 
-  const jobRepo: Pick<
-    JobsRepository,
-    "detachJobsSourceRun" | "countBySourceRunIds" | "deleteBySourceRunId"
-  > = {
+  const jobRepo: Pick<JobsRepository, "detachJobsSourceRun" | "countBySourceRunIds" | "deleteBySourceRunId"> = {
     detachJobsSourceRun: vi.fn(),
     countBySourceRunIds: vi.fn(),
     deleteBySourceRunId: vi.fn(),
@@ -158,16 +143,11 @@ describe("SourcesService", () => {
         status: SourceRunStatusEnum.Pending,
         startedAt: new Date("2026-05-01T12:00:00.000Z"),
       } as SourceRunEntity);
-      vi.mocked(repo.findByUserAndId).mockResolvedValue(
-        runWithTemplate("plan-1"),
-      );
+      vi.mocked(repo.findByUserAndId).mockResolvedValue(runWithTemplate("plan-1"));
 
       const result = await service.createSourceRun("user-1", "plan-1");
 
-      expect(repo.findTemplateByUserAndPlanId).toHaveBeenCalledWith({
-        userId: "user-1",
-        planId: "plan-1",
-      });
+      expect(repo.findTemplateByUserAndPlanId).toHaveBeenCalledWith({ userId: "user-1", planId: "plan-1" });
       expect(repo.createRun).toHaveBeenCalledWith(
         expect.objectContaining({
           userId: "user-1",
@@ -190,9 +170,7 @@ describe("SourcesService", () => {
     });
 
     it("rejects unknown plan", async () => {
-      await expect(service.createSourceRun("user-1", "nope")).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(service.createSourceRun("user-1", "nope")).rejects.toThrow(NotFoundException);
       expect(repo.findTemplateByUserAndPlanId).not.toHaveBeenCalled();
     });
   });
@@ -229,10 +207,7 @@ describe("SourcesService", () => {
 
     it("rejects unknown plan", async () => {
       await expect(
-        service.createSourceTemplate("user-1", {
-          planId: "nope",
-          surfaceUrl: "https://example.com",
-        }),
+        service.createSourceTemplate("user-1", { planId: "nope", surfaceUrl: "https://example.com" }),
       ).rejects.toThrow(NotFoundException);
       expect(repo.findOrCreateTemplate).not.toHaveBeenCalled();
     });
@@ -361,9 +336,7 @@ describe("SourcesService", () => {
       });
 
       expect(result.id).toBe("tmpl-1");
-      expect(repo.findOrCreateTemplate).toHaveBeenCalledWith(
-        expect.objectContaining({ config }),
-      );
+      expect(repo.findOrCreateTemplate).toHaveBeenCalledWith(expect.objectContaining({ config }));
     });
   });
 
@@ -395,9 +368,7 @@ describe("SourcesService", () => {
         expect.objectContaining({
           userId: "user-1",
           id: "tmpl-1",
-          patch: expect.objectContaining({
-            config: { stopWhen: ["CatchUp"], catchUpThreshold: 5 },
-          }),
+          patch: expect.objectContaining({ config: { stopWhen: ["CatchUp"], catchUpThreshold: 5 } }),
         }),
       );
       expect(result.id).toBe("tmpl-1");
@@ -418,9 +389,7 @@ describe("SourcesService", () => {
       vi.mocked(repo.findTemplateByUserAndId).mockResolvedValue(template);
 
       await expect(
-        service.updateSourceTemplate("user-1", "tmpl-1", {
-          config: { stopWhen: ["CatchUp"] },
-        }),
+        service.updateSourceTemplate("user-1", "tmpl-1", { config: { stopWhen: ["CatchUp"] } }),
       ).rejects.toThrow(BadRequestException);
       expect(repo.patchSourceTemplate).not.toHaveBeenCalled();
     });
@@ -440,9 +409,7 @@ describe("SourcesService", () => {
       vi.mocked(repo.findTemplateByUserAndId).mockResolvedValue(template);
 
       await expect(
-        service.updateSourceTemplate("user-1", "tmpl-1", {
-          config: { stopWhen: ["OlderThan"], olderThanDays: 30 },
-        }),
+        service.updateSourceTemplate("user-1", "tmpl-1", { config: { stopWhen: ["OlderThan"], olderThanDays: 30 } }),
       ).rejects.toThrow(BadRequestException);
       expect(repo.patchSourceTemplate).not.toHaveBeenCalled();
     });
@@ -460,15 +427,10 @@ describe("SourcesService", () => {
         createdAt: new Date("2026-05-01T12:00:00.000Z"),
       } as unknown as SourceTemplateEntity;
       vi.mocked(repo.findTemplateByUserAndId).mockResolvedValue(template);
-      vi.mocked(repo.patchSourceTemplate).mockResolvedValue({
-        ...template,
-        surfaceUrl: "https://new-url.com",
-      });
+      vi.mocked(repo.patchSourceTemplate).mockResolvedValue({ ...template, surfaceUrl: "https://new-url.com" });
       vi.mocked(repo.findRunsForTemplate).mockResolvedValue([]);
 
-      await service.updateSourceTemplate("user-1", "tmpl-1", {
-        surfaceUrl: "https://new-url.com",
-      });
+      await service.updateSourceTemplate("user-1", "tmpl-1", { surfaceUrl: "https://new-url.com" });
 
       expect(repo.patchSourceTemplate).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -614,20 +576,13 @@ describe("SourcesService", () => {
   describe("deleteSourceRun", () => {
     it("removes run owned by user", async () => {
       vi.mocked(repo.deleteByUser).mockResolvedValue(true);
-      await expect(
-        service.deleteSourceRun("user-1", "run-1"),
-      ).resolves.toBeUndefined();
-      expect(repo.deleteByUser).toHaveBeenCalledWith({
-        userId: "user-1",
-        id: "run-1",
-      });
+      await expect(service.deleteSourceRun("user-1", "run-1")).resolves.toBeUndefined();
+      expect(repo.deleteByUser).toHaveBeenCalledWith({ userId: "user-1", id: "run-1" });
     });
 
     it("rejects missing or other user's run", async () => {
       vi.mocked(repo.deleteByUser).mockResolvedValue(false);
-      await expect(service.deleteSourceRun("user-1", "run-x")).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(service.deleteSourceRun("user-1", "run-x")).rejects.toThrow(NotFoundException);
     });
   });
 
@@ -641,17 +596,10 @@ describe("SourcesService", () => {
       const row = runWithTemplate("plan-1");
       vi.mocked(repo.findByUserAndId)
         .mockResolvedValueOnce(row)
-        .mockResolvedValueOnce({
-          ...row,
-          status: SourceRunStatusEnum.Completed,
-        });
+        .mockResolvedValueOnce({ ...row, status: SourceRunStatusEnum.Completed });
       vi.mocked(repo.updateStatus).mockResolvedValue(true);
 
-      const out = await service.updateSourceRunStatus(
-        "user-1",
-        "run-1",
-        SourceRunStatusEnum.Completed,
-      );
+      const out = await service.updateSourceRunStatus("user-1", "run-1", SourceRunStatusEnum.Completed);
 
       expect(out.status).toBe(SourceRunStatusEnum.Completed);
       expect(repo.updateStatus).toHaveBeenCalledWith({
@@ -662,17 +610,10 @@ describe("SourcesService", () => {
     });
 
     it("idempotent when status unchanged", async () => {
-      const row = {
-        ...runWithTemplate("plan-1"),
-        status: SourceRunStatusEnum.Completed,
-      };
+      const row = { ...runWithTemplate("plan-1"), status: SourceRunStatusEnum.Completed };
       vi.mocked(repo.findByUserAndId).mockResolvedValue(row);
 
-      const out = await service.updateSourceRunStatus(
-        "user-1",
-        "run-1",
-        SourceRunStatusEnum.Completed,
-      );
+      const out = await service.updateSourceRunStatus("user-1", "run-1", SourceRunStatusEnum.Completed);
 
       expect(out.status).toBe(SourceRunStatusEnum.Completed);
       expect(repo.updateStatus).not.toHaveBeenCalled();
@@ -684,13 +625,9 @@ describe("SourcesService", () => {
         status: SourceRunStatusEnum.Completed,
       });
 
-      await expect(
-        service.updateSourceRunStatus(
-          "user-1",
-          "run-1",
-          SourceRunStatusEnum.Pending,
-        ),
-      ).rejects.toThrow(BadRequestException);
+      await expect(service.updateSourceRunStatus("user-1", "run-1", SourceRunStatusEnum.Pending)).rejects.toThrow(
+        BadRequestException,
+      );
       expect(repo.updateStatus).not.toHaveBeenCalled();
     });
   });
@@ -705,9 +642,7 @@ describe("SourcesService", () => {
   });
 
   it("detachJobsFromSourceRun delegates to job repository", async () => {
-    vi.mocked(repo.findByUserAndId).mockResolvedValue(
-      runWithTemplate("plan-1"),
-    );
+    vi.mocked(repo.findByUserAndId).mockResolvedValue(runWithTemplate("plan-1"));
     vi.mocked(jobRepo.detachJobsSourceRun).mockResolvedValue(3);
 
     const result = await service.detachJobsFromSourceRun("user-1", "run-1");
@@ -727,9 +662,7 @@ describe("SourcesService", () => {
       const t1runs = [{ id: "r1", templateId: "t1" }];
       const t2runs = [{ id: "r2", templateId: "t2" }];
       vi.mocked(repo.listTemplatesByUserAndPlanId).mockResolvedValue(templates);
-      vi.mocked(repo.findRunsForTemplate).mockResolvedValue(
-        t1runs.concat(t2runs) as never,
-      );
+      vi.mocked(repo.findRunsForTemplate).mockResolvedValue(t1runs.concat(t2runs) as never);
       vi.mocked(jobRepo.countBySourceRunIds).mockResolvedValue(
         new Map([
           ["r1", 3],
@@ -747,11 +680,7 @@ describe("SourcesService", () => {
 
   describe("clearTemplateRuns — batch DELETE", () => {
     it("calls deleteBySourceRunIds once with all run IDs", async () => {
-      const template = {
-        id: "tmpl-1",
-        userId: "user-1",
-        planId: "plan-1",
-      } as SourceTemplateEntity;
+      const template = { id: "tmpl-1", userId: "user-1", planId: "plan-1" } as SourceTemplateEntity;
 
       const runs = [{ id: "run-1" }, { id: "run-2" }] as SourceRunEntity[];
 
@@ -763,10 +692,7 @@ describe("SourcesService", () => {
       await service.clearTemplateRuns("user-1", "tmpl-1", { deleteJobs: true });
 
       expect(jobRepo.deleteBySourceRunId).toHaveBeenCalledTimes(1);
-      expect(jobRepo.deleteBySourceRunId).toHaveBeenCalledWith(
-        ["run-1", "run-2"],
-        "user-1",
-      );
+      expect(jobRepo.deleteBySourceRunId).toHaveBeenCalledWith(["run-1", "run-2"], "user-1");
     });
   });
 });

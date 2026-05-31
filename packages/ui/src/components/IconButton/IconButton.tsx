@@ -3,18 +3,10 @@ import { Slot } from "@radix-ui/react-slot";
 import { Tooltip } from "@ui/components/Tooltip/Tooltip";
 import { cn } from "@ui/lib/cn";
 
-export type IconButtonIntent =
-  | "primary"
-  | "secondary"
-  | "ghost"
-  | "destructive"
-  | "quiet";
+export type IconButtonIntent = "primary" | "secondary" | "ghost" | "destructive" | "quiet";
 export type IconButtonSize = "xs" | "sm" | "md";
 
-export interface IconButtonProps extends Omit<
-  ButtonHTMLAttributes<HTMLButtonElement>,
-  "size" | "children"
-> {
+export interface IconButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "size" | "children"> {
   icon?: ReactNode;
   label: string;
   tooltip: ReactNode;
@@ -37,11 +29,7 @@ const intentClasses: Record<IconButtonIntent, string> = {
     "border-transparent bg-transparent text-text-muted shadow-none hover:bg-bg-surface-hover hover:text-text-primary data-[state=open]:bg-bg-surface-hover",
 };
 
-const sizeClasses: Record<IconButtonSize, string> = {
-  xs: "size-7",
-  sm: "size-9",
-  md: "size-10",
-};
+const sizeClasses: Record<IconButtonSize, string> = { xs: "size-7", sm: "size-9", md: "size-10" };
 
 export function IconButton({
   icon,
@@ -64,12 +52,7 @@ export function IconButton({
 
   return (
     <Tooltip content={tooltip}>
-      <Component
-        {...(asChild ? {} : { type: "button" as const })}
-        aria-label={label}
-        className={classes}
-        {...props}
-      >
+      <Component {...(asChild ? {} : { type: "button" as const })} aria-label={label} className={classes} {...props}>
         {asChild ? children : <span aria-hidden>{icon}</span>}
       </Component>
     </Tooltip>

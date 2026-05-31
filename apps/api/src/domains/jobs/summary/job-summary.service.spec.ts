@@ -1,9 +1,6 @@
 import { JobNoteEntity } from "@api/database/entities/job-note.entity";
 import { JobStageEventEntity } from "@api/database/entities/job-stage-event.entity";
-import {
-  SummaryGenerationRequested,
-  SummaryStatusChanged,
-} from "@api/domains/jobs/job.events";
+import { SummaryGenerationRequested, SummaryStatusChanged } from "@api/domains/jobs/job.events";
 import { JobEventBus } from "@api/domains/jobs/job-event.bus";
 import { ApplicationStageEnum } from "@api/domains/jobs/job-stage.enum";
 import { JobsRepository } from "@api/domains/jobs/jobs.repository";
@@ -18,19 +15,14 @@ import { SummaryAiService } from "./summary-ai.service";
 
 const TIPTAP_HELLO = JSON.stringify({
   type: "doc",
-  content: [
-    { type: "paragraph", content: [{ type: "text", text: "Hello JD" }] },
-  ],
+  content: [{ type: "paragraph", content: [{ type: "text", text: "Hello JD" }] }],
 });
 
 describe("JobSummaryService", () => {
   let service: JobSummaryService;
   let appRepo: Pick<
     JobsRepository,
-    | "findOneByIdAndUserId"
-    | "updateSummary"
-    | "updateSummaryMetadataIfStatus"
-    | "resetStaleSummaryProcessing"
+    "findOneByIdAndUserId" | "updateSummary" | "updateSummaryMetadataIfStatus" | "resetStaleSummaryProcessing"
   >;
   let summaryAiService: Pick<SummaryAiService, "generateSummary">;
   let eventBus: Pick<JobEventBus, "emit">;
@@ -41,10 +33,7 @@ describe("JobSummaryService", () => {
     addOrderBy: ReturnType<typeof vi.fn>;
     getMany: ReturnType<typeof vi.fn>;
   };
-  let stageEventsRepo: Pick<
-    Repository<JobStageEventEntity>,
-    "createQueryBuilder"
-  >;
+  let stageEventsRepo: Pick<Repository<JobStageEventEntity>, "createQueryBuilder">;
   let notesRepo: Pick<Repository<JobNoteEntity>, "find">;
 
   beforeEach(() => {
@@ -68,9 +57,10 @@ describe("JobSummaryService", () => {
       getMany: vi.fn().mockResolvedValue([]),
     };
 
-    stageEventsRepo = {
-      createQueryBuilder: vi.fn(() => stageTimelineQb),
-    } as unknown as Pick<Repository<JobStageEventEntity>, "createQueryBuilder">;
+    stageEventsRepo = { createQueryBuilder: vi.fn(() => stageTimelineQb) } as unknown as Pick<
+      Repository<JobStageEventEntity>,
+      "createQueryBuilder"
+    >;
 
     service = new JobSummaryService(
       summaryAiService as SummaryAiService,
@@ -86,9 +76,7 @@ describe("JobSummaryService", () => {
 
     service.onModuleInit();
 
-    await vi.waitFor(() =>
-      expect(appRepo.resetStaleSummaryProcessing).toHaveBeenCalledTimes(1),
-    );
+    await vi.waitFor(() => expect(appRepo.resetStaleSummaryProcessing).toHaveBeenCalledTimes(1));
   });
 
   it("requestSummary skips when job is missing", async () => {
@@ -104,11 +92,7 @@ describe("JobSummaryService", () => {
     vi.mocked(appRepo.findOneByIdAndUserId).mockResolvedValue({
       id: "job-1",
       title: "T",
-      summaryMetadata: {
-        status: AsyncMetadataStatusEnum.PROCESSING,
-        error: null,
-        timestamp: null,
-      },
+      summaryMetadata: { status: AsyncMetadataStatusEnum.PROCESSING, error: null, timestamp: null },
     } as never);
 
     await service.requestSummary("job-1", "user-1");
@@ -124,25 +108,16 @@ describe("JobSummaryService", () => {
       description: TIPTAP_HELLO,
       summaryMetadata: null,
     } as never);
-    vi.mocked(appRepo.updateSummaryMetadataIfStatus).mockResolvedValueOnce(
-      true,
-    );
+    vi.mocked(appRepo.updateSummaryMetadataIfStatus).mockResolvedValueOnce(true);
 
     await service.requestSummary("job-1", "user-1");
 
-    expect(appRepo.updateSummaryMetadataIfStatus).toHaveBeenCalledWith(
-      "job-1",
-      "user-1",
-      null,
-      { status: AsyncMetadataStatusEnum.PROCESSING },
-    );
+    expect(appRepo.updateSummaryMetadataIfStatus).toHaveBeenCalledWith("job-1", "user-1", null, {
+      status: AsyncMetadataStatusEnum.PROCESSING,
+    });
 
-    expect(eventBus.emit).toHaveBeenCalledWith(
-      expect.any(SummaryStatusChanged),
-    );
-    expect(eventBus.emit).toHaveBeenCalledWith(
-      expect.any(SummaryGenerationRequested),
-    );
+    expect(eventBus.emit).toHaveBeenCalledWith(expect.any(SummaryStatusChanged));
+    expect(eventBus.emit).toHaveBeenCalledWith(expect.any(SummaryGenerationRequested));
   });
 
   it("requestSummary exits quietly when optimistic update fails", async () => {
@@ -172,33 +147,19 @@ describe("JobSummaryService", () => {
       salary: null,
       summaryMetadata: { status: AsyncMetadataStatusEnum.PROCESSING },
     } as never);
-    vi.mocked(summaryAiService.generateSummary).mockResolvedValue(
-      "# Summary md",
-    );
+    vi.mocked(summaryAiService.generateSummary).mockResolvedValue("# Summary md");
     vi.mocked(appRepo.updateSummaryMetadataIfStatus).mockResolvedValue(true);
     vi.mocked(appRepo.updateSummary).mockResolvedValue(true);
 
     await service.doGenerate("job-1", "user-1");
 
-    expect(stageTimelineQb.orderBy).toHaveBeenCalledWith(
-      "COALESCE(e.schedule_at, e.created_at)",
-      "DESC",
-    );
-    expect(stageTimelineQb.addOrderBy).toHaveBeenNthCalledWith(
-      1,
-      "e.created_at",
-      "DESC",
-    );
-    expect(stageTimelineQb.addOrderBy).toHaveBeenNthCalledWith(
-      2,
-      "e.id",
-      "DESC",
-    );
+    expect(stageTimelineQb.orderBy).toHaveBeenCalledWith("COALESCE(e.schedule_at, e.created_at)", "DESC");
+    expect(stageTimelineQb.addOrderBy).toHaveBeenNthCalledWith(1, "e.created_at", "DESC");
+    expect(stageTimelineQb.addOrderBy).toHaveBeenNthCalledWith(2, "e.id", "DESC");
 
     expect(summaryAiService.generateSummary).toHaveBeenCalled();
 
-    const prompt =
-      vi.mocked(summaryAiService.generateSummary).mock.calls[0]?.[0] ?? "";
+    const prompt = vi.mocked(summaryAiService.generateSummary).mock.calls[0]?.[0] ?? "";
     expect(prompt).toContain(tipTapToPlainText(TIPTAP_HELLO));
 
     expect(appRepo.updateSummaryMetadataIfStatus).toHaveBeenCalledWith(
@@ -208,15 +169,9 @@ describe("JobSummaryService", () => {
       expect.objectContaining({ status: AsyncMetadataStatusEnum.COMPLETED }),
     );
 
-    expect(appRepo.updateSummary).toHaveBeenCalledWith(
-      "job-1",
-      expect.any(String),
-      "user-1",
-    );
+    expect(appRepo.updateSummary).toHaveBeenCalledWith("job-1", expect.any(String), "user-1");
 
-    expect(eventBus.emit).toHaveBeenCalledWith(
-      expect.any(SummaryStatusChanged),
-    );
+    expect(eventBus.emit).toHaveBeenCalledWith(expect.any(SummaryStatusChanged));
   });
 
   it("doGenerate without description omits Description when no posting HTML", async () => {
@@ -240,9 +195,7 @@ describe("JobSummaryService", () => {
     await service.doGenerate("job-1", "user-1");
 
     expect(summaryAiService.generateSummary).toHaveBeenCalled();
-    expect(
-      vi.mocked(summaryAiService.generateSummary).mock.calls[0][0],
-    ).not.toMatch(/^Description:/m);
+    expect(vi.mocked(summaryAiService.generateSummary).mock.calls[0][0]).not.toMatch(/^Description:/m);
   });
 
   it("doGenerate includes posting body from htmlContent when description is empty", async () => {
@@ -266,8 +219,7 @@ describe("JobSummaryService", () => {
 
     await service.doGenerate("job-1", "user-1");
 
-    const ctx =
-      vi.mocked(summaryAiService.generateSummary).mock.calls[0][0] ?? "";
+    const ctx = vi.mocked(summaryAiService.generateSummary).mock.calls[0][0] ?? "";
     expect(ctx).toContain("Description:");
     expect(ctx).toContain(htmlToPlainText(html));
   });
@@ -292,8 +244,7 @@ describe("JobSummaryService", () => {
 
     await service.doGenerate("job-1", "user-1");
 
-    const ctx =
-      vi.mocked(summaryAiService.generateSummary).mock.calls[0][0] ?? "";
+    const ctx = vi.mocked(summaryAiService.generateSummary).mock.calls[0][0] ?? "";
     expect(ctx).toContain(htmlToPlainText("<p>Rust backend focus</p>"));
     expect(ctx).not.toContain(tipTapToPlainText(TIPTAP_HELLO));
   });
@@ -330,9 +281,7 @@ describe("JobSummaryService", () => {
       description: TIPTAP_HELLO,
       summaryMetadata: { status: AsyncMetadataStatusEnum.PROCESSING },
     } as never);
-    vi.mocked(summaryAiService.generateSummary).mockRejectedValue(
-      new Error("quota exceeded"),
-    );
+    vi.mocked(summaryAiService.generateSummary).mockRejectedValue(new Error("quota exceeded"));
     vi.mocked(appRepo.updateSummaryMetadataIfStatus).mockResolvedValue(true);
 
     await service.doGenerate("job-1", "user-1");
@@ -344,20 +293,14 @@ describe("JobSummaryService", () => {
       { status: AsyncMetadataStatusEnum.FAILED },
     );
 
-    expect(eventBus.emit).toHaveBeenCalledWith(
-      expect.any(SummaryStatusChanged),
-    );
+    expect(eventBus.emit).toHaveBeenCalledWith(expect.any(SummaryStatusChanged));
   });
 
   it("requestSummarySync no-ops immediately when PROCESSING metadata", async () => {
     vi.mocked(appRepo.findOneByIdAndUserId).mockResolvedValue({
       id: "job-1",
       title: "T",
-      summaryMetadata: {
-        status: AsyncMetadataStatusEnum.PROCESSING,
-        error: null,
-        timestamp: null,
-      },
+      summaryMetadata: { status: AsyncMetadataStatusEnum.PROCESSING, error: null, timestamp: null },
     } as never);
 
     await service.requestSummarySync("job-1", "user-1");
@@ -391,8 +334,7 @@ describe("JobSummaryService", () => {
 
     await service.doGenerate("job-1", "user-1");
 
-    const ctx =
-      vi.mocked(summaryAiService.generateSummary).mock.calls[0][0] ?? "";
+    const ctx = vi.mocked(summaryAiService.generateSummary).mock.calls[0][0] ?? "";
     expect(ctx).toContain("TECHNICAL");
     expect(ctx).toContain("Loop");
   });

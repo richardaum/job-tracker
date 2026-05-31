@@ -22,10 +22,7 @@ export class ExtensionActivityRepository {
     private readonly repo: Repository<ExtensionActivityEventEntity>,
   ) {}
 
-  async create(
-    userId: string,
-    dto: CreateExtensionActivityEventRepoDto,
-  ): Promise<ExtensionActivityEventEntity> {
+  async create(userId: string, dto: CreateExtensionActivityEventRepoDto): Promise<ExtensionActivityEventEntity> {
     const row = this.repo.create({
       userId,
       type: dto.type,
@@ -39,10 +36,7 @@ export class ExtensionActivityRepository {
     return this.repo.save(row);
   }
 
-  async listRecentByUserId(
-    userId: string,
-    limit: number,
-  ): Promise<ExtensionActivityEventEntity[]> {
+  async listRecentByUserId(userId: string, limit: number): Promise<ExtensionActivityEventEntity[]> {
     return this.repo
       .createQueryBuilder("event")
       .where("event.user_id = :userId", { userId })

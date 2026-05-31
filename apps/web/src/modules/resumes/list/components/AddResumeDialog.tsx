@@ -14,9 +14,7 @@ interface AddResumeDialogProps {
 
 export function AddResumeDialog({ open, onOpenChange }: AddResumeDialogProps) {
   const router = useRouter();
-  const [createResume] = useCreateResumeMutation({
-    refetchQueries: [{ query: ResumesDocument }],
-  });
+  const [createResume] = useCreateResumeMutation({ refetchQueries: [{ query: ResumesDocument }] });
 
   const [title, setTitle] = useState("");
   const [creating, setCreating] = useState(false);
@@ -35,11 +33,7 @@ export function AddResumeDialog({ open, onOpenChange }: AddResumeDialogProps) {
     if (!title.trim()) return;
     setCreating(true);
     try {
-      const { data } = await createResume({
-        variables: {
-          input: { title: title.trim(), content: EMPTY_TIPTAP_DOC },
-        },
-      });
+      const { data } = await createResume({ variables: { input: { title: title.trim(), content: EMPTY_TIPTAP_DOC } } });
 
       if (data?.createResume) {
         onOpenChange(false);

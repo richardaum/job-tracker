@@ -47,9 +47,7 @@ function inlineToNodes(tokens: Token[]): TipTapNode[] {
 
 function blockToNode(token: Token): TipTapNode | null {
   if (token.type === "paragraph") {
-    const content = inlineToNodes(
-      (token as Token & { tokens: Token[] }).tokens,
-    );
+    const content = inlineToNodes((token as Token & { tokens: Token[] }).tokens);
     if (content.length === 0) return null;
     return { type: "paragraph", content };
   }
@@ -57,11 +55,7 @@ function blockToNode(token: Token): TipTapNode | null {
   if (token.type === "heading") {
     const heading = token as Token & { depth: number; tokens: Token[] };
     const content = inlineToNodes(heading.tokens);
-    return {
-      type: "heading",
-      attrs: { level: heading.depth },
-      content: content.length > 0 ? content : undefined,
-    };
+    return { type: "heading", attrs: { level: heading.depth }, content: content.length > 0 ? content : undefined };
   }
 
   if (token.type === "list") {
@@ -69,19 +63,14 @@ function blockToNode(token: Token): TipTapNode | null {
     const items: TipTapNode[] = [];
     for (const item of list.items) {
       const itemToken = item as Token & { tokens: Token[] };
-      const itemContent = itemToken.tokens
-        .map((t) => blockToNode(t))
-        .filter((n): n is TipTapNode => n !== null);
+      const itemContent = itemToken.tokens.map((t) => blockToNode(t)).filter((n): n is TipTapNode => n !== null);
       if (itemContent.length > 0) {
         items.push({ type: "listItem", content: itemContent });
       }
     }
 
     if (items.length === 0) return null;
-    return {
-      type: list.ordered ? "orderedList" : "bulletList",
-      content: items,
-    };
+    return { type: list.ordered ? "orderedList" : "bulletList", content: items };
   }
 
   return null;

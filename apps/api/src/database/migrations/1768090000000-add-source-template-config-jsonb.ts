@@ -4,14 +4,10 @@ export class AddSourceTemplateConfigJsonb1768090000000 implements MigrationInter
   name = "AddSourceTemplateConfigJsonb1768090000000";
 
   async up(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(
-      `ALTER TABLE "source_templates" ADD COLUMN "config" jsonb`,
-    );
+    await queryRunner.query(`ALTER TABLE "source_templates" ADD COLUMN "config" jsonb`);
   }
 
   async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(
-      `ALTER TABLE "source_templates" DROP COLUMN "config"`,
-    );
+    await queryRunner.query(`ALTER TABLE "source_templates" DROP COLUMN "config"`);
   }
 }

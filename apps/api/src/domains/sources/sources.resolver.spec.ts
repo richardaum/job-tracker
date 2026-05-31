@@ -9,16 +9,11 @@ import type { SourcesService } from "./sources.service";
 import type { SourcesEventBus } from "./sources-event.bus";
 
 describe("SourcesResolver", () => {
-  const service: Pick<SourcesService, "listSourceTemplates"> = {
-    listSourceTemplates: vi.fn(),
-  };
+  const service: Pick<SourcesService, "listSourceTemplates"> = { listSourceTemplates: vi.fn() };
 
   const eventBus: Pick<SourcesEventBus, "forUser"> = { forUser: vi.fn() };
 
-  const resolver = new SourcesResolver(
-    service as SourcesService,
-    eventBus as SourcesEventBus,
-  );
+  const resolver = new SourcesResolver(service as SourcesService, eventBus as SourcesEventBus);
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -45,20 +40,13 @@ describe("SourcesResolver", () => {
     async function* makeIter(): AsyncGenerator<SourceRunReported> {
       while (index < events.length) yield events[index++];
     }
-    vi.mocked(eventBus.forUser).mockReturnValue({
-      eventsOf: () => makeIter(),
-    } as unknown as ScopedEventBus);
+    vi.mocked(eventBus.forUser).mockReturnValue({ eventsOf: () => makeIter() } as unknown as ScopedEventBus);
 
-    const iterator = resolver
-      .sourceRunEvents({ userId: "user-1" })
-      [Symbol.asyncIterator]();
+    const iterator = resolver.sourceRunEvents({ userId: "user-1" })[Symbol.asyncIterator]();
     const first = await iterator.next();
 
     expect(first.done).toBe(false);
-    expect(first.value).toMatchObject({
-      type: SourceRunEventTypeEnum.SOURCE_RUN_CREATED,
-      run: { id: "run-1" },
-    });
+    expect(first.value).toMatchObject({ type: SourceRunEventTypeEnum.SOURCE_RUN_CREATED, run: { id: "run-1" } });
 
     expect(eventBus.forUser).toHaveBeenCalledWith("user-1");
   });

@@ -1,17 +1,6 @@
 "use client";
 
-import {
-  Alert,
-  Button,
-  Card,
-  cn,
-  Input,
-  Select,
-  Heading,
-  Spinner,
-  Stack,
-  Text,
-} from "@job-tracker/ui";
+import { Alert, Button, Card, cn, Input, Select, Heading, Spinner, Stack, Text } from "@job-tracker/ui";
 import { SlotsProvider } from "@job-tracker/react-slots";
 import { ArrowsClockwiseIcon } from "@phosphor-icons/react";
 import { useState } from "react";
@@ -37,10 +26,7 @@ const RATE_PERIOD_OPTIONS = SALARY_RATE_PERIOD_BASES.map((period) => ({
   label: SALARY_RATE_PERIOD_LABELS[period],
 }));
 
-const CURRENCY_OPTIONS = CURRENCIES.map((currency) => ({
-  value: currency,
-  label: `${getFlag(currency)} ${currency}`,
-}));
+const CURRENCY_OPTIONS = CURRENCIES.map((currency) => ({ value: currency, label: `${getFlag(currency)} ${currency}` }));
 
 function isStale(lastUpdated: Date | null): boolean {
   if (!lastUpdated) return true;
@@ -59,8 +45,7 @@ function formatStaleTime(lastUpdated: Date | null): string {
 
 export function SalaryCalculatorPage() {
   const [inputValue, setInputValue] = useState("8000");
-  const [sourcePeriod, setSourcePeriod] =
-    useState<SalaryRatePeriodBasis>("monthly");
+  const [sourcePeriod, setSourcePeriod] = useState<SalaryRatePeriodBasis>("monthly");
   const [sourceCurrency, setSourceCurrency] = useState<Currency>("USD");
 
   const numericValue = parseFloat(inputValue) || 0;
@@ -75,30 +60,19 @@ export function SalaryCalculatorPage() {
   };
 
   const targetCurrencies = CURRENCIES.filter(
-    (currency): currency is (typeof CURRENCIES)[number] =>
-      currency !== sourceCurrency,
+    (currency): currency is (typeof CURRENCIES)[number] => currency !== sourceCurrency,
   );
 
-  const { rates, loading, error, lastUpdated, fetchRates } = useExchangeRates(
-    sourceCurrency,
-    targetCurrencies,
-  );
+  const { rates, loading, error, lastUpdated, fetchRates } = useExchangeRates(sourceCurrency, targetCurrencies);
 
-  const conversions = buildConversions({
-    numericValue,
-    sourcePeriod,
-    sourceCurrency,
-    rates,
-  });
+  const conversions = buildConversions({ numericValue, sourcePeriod, sourceCurrency, rates });
 
   return (
     <SlotsProvider>
       <div className={cn("flex h-full min-h-0 flex-col")}>
         <DetailPageHeader
           trailing={
-            <SalaryCalculatorHeaderActions.Slot
-              className={cn("flex shrink-0 items-center gap-2 empty:hidden")}
-            />
+            <SalaryCalculatorHeaderActions.Slot className={cn("flex shrink-0 items-center gap-2 empty:hidden")} />
           }
         >
           <DetailPageHeader.Title>Salary Calculator</DetailPageHeader.Title>
@@ -106,11 +80,7 @@ export function SalaryCalculatorPage() {
             Convert between hourly, monthly, and yearly rates.
           </DetailPageHeader.Description>
         </DetailPageHeader>
-        <div
-          className={cn(
-            "flex min-h-0 flex-1 flex-col self-start overflow-auto p-4 sm:p-6 max-w-4xl",
-          )}
-        >
+        <div className={cn("flex min-h-0 flex-1 flex-col self-start overflow-auto p-4 sm:p-6 max-w-4xl")}>
           <Stack gap="lg">
             <Card padding="lg">
               <Stack gap="lg">
@@ -118,17 +88,9 @@ export function SalaryCalculatorPage() {
                   Enter Rate
                 </Heading>
 
-                <div
-                  className={cn(
-                    "grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3",
-                  )}
-                >
+                <div className={cn("grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3")}>
                   <div>
-                    <Text
-                      size="sm"
-                      weight="medium"
-                      className={cn("mb-1.5 block")}
-                    >
+                    <Text size="sm" weight="medium" className={cn("mb-1.5 block")}>
                       Amount
                     </Text>
                     <NumericFormat
@@ -147,36 +109,24 @@ export function SalaryCalculatorPage() {
                   </div>
 
                   <div>
-                    <Text
-                      size="sm"
-                      weight="medium"
-                      className={cn("mb-1.5 block")}
-                    >
+                    <Text size="sm" weight="medium" className={cn("mb-1.5 block")}>
                       Period
                     </Text>
                     <Select
                       options={RATE_PERIOD_OPTIONS}
                       value={sourcePeriod}
-                      onValueChange={(value) =>
-                        setSourcePeriod(value as SalaryRatePeriodBasis)
-                      }
+                      onValueChange={(value) => setSourcePeriod(value as SalaryRatePeriodBasis)}
                     />
                   </div>
 
                   <div>
-                    <Text
-                      size="sm"
-                      weight="medium"
-                      className={cn("mb-1.5 block")}
-                    >
+                    <Text size="sm" weight="medium" className={cn("mb-1.5 block")}>
                       Base Currency
                     </Text>
                     <Select
                       options={CURRENCY_OPTIONS}
                       value={sourceCurrency}
-                      onValueChange={(value) =>
-                        setSourceCurrency(value as Currency)
-                      }
+                      onValueChange={(value) => setSourceCurrency(value as Currency)}
                     />
                   </div>
                 </div>
@@ -189,20 +139,11 @@ export function SalaryCalculatorPage() {
                       )}
                     >
                       <div className={cn("min-w-0 space-y-1")}>
-                        <p className={cn("text-sm/6 ")}>
-                          We could not refresh exchange rates right now.
-                        </p>
-                        <p className={cn("text-xs text-text-error/80")}>
-                          {error}
-                        </p>
+                        <p className={cn("text-sm/6 ")}>We could not refresh exchange rates right now.</p>
+                        <p className={cn("text-xs text-text-error/80")}>{error}</p>
                       </div>
                       <div className={cn("w-full sm:w-auto sm:shrink-0")}>
-                        <Button
-                          intent="secondary"
-                          size="md"
-                          onClick={fetchRates}
-                          className={cn("w-full sm:w-auto")}
-                        >
+                        <Button intent="secondary" size="md" onClick={fetchRates} className={cn("w-full sm:w-auto")}>
                           Retry
                         </Button>
                       </div>
@@ -214,9 +155,7 @@ export function SalaryCalculatorPage() {
                   <div
                     className={cn(
                       "flex items-center justify-between text-xs",
-                      isStale(lastUpdated)
-                        ? "text-text-error"
-                        : "text-text-muted",
+                      isStale(lastUpdated) ? "text-text-error" : "text-text-muted",
                     )}
                   >
                     <span>Rates updated: {formatStaleTime(lastUpdated)}</span>
@@ -225,12 +164,7 @@ export function SalaryCalculatorPage() {
                       size="md"
                       onClick={fetchRates}
                       state={loading ? "loading" : "default"}
-                      leftIcon={
-                        <ArrowsClockwiseIcon
-                          size={14}
-                          className={cn(loading ? "animate-spin" : "")}
-                        />
-                      }
+                      leftIcon={<ArrowsClockwiseIcon size={14} className={cn(loading ? "animate-spin" : "")} />}
                       className={cn("px-2")}
                     >
                       Refresh
@@ -259,11 +193,7 @@ export function SalaryCalculatorPage() {
                         key={period}
                         padding="md"
                         onClick={() => handleCardClick(period)}
-                        className={cn(
-                          period === sourcePeriod
-                            ? "border-border-brand"
-                            : "border-border-subtle",
-                        )}
+                        className={cn(period === sourcePeriod ? "border-border-brand" : "border-border-subtle")}
                       >
                         <Stack gap="sm">
                           <Text
@@ -271,9 +201,7 @@ export function SalaryCalculatorPage() {
                             weight="semibold"
                             className={cn(
                               "uppercase tracking-wide",
-                              period === sourcePeriod
-                                ? "text-text-brand"
-                                : "text-text-muted",
+                              period === sourcePeriod ? "text-text-brand" : "text-text-muted",
                             )}
                           >
                             {SALARY_RATE_PERIOD_LABELS[period]}
@@ -287,17 +215,13 @@ export function SalaryCalculatorPage() {
                                 key={currency}
                                 className={cn(
                                   "flex items-baseline justify-between",
-                                  currency === sourceCurrency
-                                    ? "font-semibold"
-                                    : "text-text-secondary",
+                                  currency === sourceCurrency ? "font-semibold" : "text-text-secondary",
                                 )}
                               >
                                 <span className={cn("text-sm")}>
                                   {getFlag(currency)} {currency}
                                 </span>
-                                <span className={cn("font-mono text-sm")}>
-                                  {formatCurrency(value, currency)}
-                                </span>
+                                <span className={cn("font-mono text-sm")}>{formatCurrency(value, currency)}</span>
                               </div>
                             );
                           })}
@@ -316,14 +240,7 @@ export function SalaryCalculatorPage() {
 }
 
 function getFlag(currency: string): string {
-  const flags: Record<string, string> = {
-    USD: "🇺🇸",
-    EUR: "🇪🇺",
-    BRL: "🇧🇷",
-    GBP: "🇬🇧",
-    CHF: "🇨🇭",
-    CAD: "🇨🇦",
-  };
+  const flags: Record<string, string> = { USD: "🇺🇸", EUR: "🇪🇺", BRL: "🇧🇷", GBP: "🇬🇧", CHF: "🇨🇭", CAD: "🇨🇦" };
   return flags[currency] ?? "";
 }
 
@@ -340,18 +257,10 @@ function buildConversions({
 }): Record<SalaryRatePeriodBasis, Record<string, number>> | null {
   if (numericValue === 0) return null;
 
-  const results: Record<SalaryRatePeriodBasis, Record<string, number>> = {
-    hourly: {},
-    monthly: {},
-    yearly: {},
-  };
+  const results: Record<SalaryRatePeriodBasis, Record<string, number>> = { hourly: {}, monthly: {}, yearly: {} };
 
   for (const period of SALARY_RATE_PERIOD_BASES) {
-    const baseValue = convertSalaryRateBetweenPeriods(
-      numericValue,
-      sourcePeriod,
-      period,
-    );
+    const baseValue = convertSalaryRateBetweenPeriods(numericValue, sourcePeriod, period);
     results[period][sourceCurrency] = baseValue;
 
     if (!rates) continue;

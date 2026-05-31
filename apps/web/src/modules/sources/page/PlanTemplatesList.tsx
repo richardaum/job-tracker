@@ -1,20 +1,7 @@
 "use client";
 
-import {
-  Card,
-  cn,
-  IconButton,
-  ListItemCard,
-  Skeleton,
-  Stack,
-  Text,
-} from "@job-tracker/ui";
-import {
-  ClockIcon,
-  LinkIcon,
-  StopCircleIcon,
-  TrashIcon,
-} from "@phosphor-icons/react";
+import { Card, cn, IconButton, ListItemCard, Skeleton, Stack, Text } from "@job-tracker/ui";
+import { ClockIcon, LinkIcon, StopCircleIcon, TrashIcon } from "@phosphor-icons/react";
 import type { Route } from "next";
 import NextLink from "next/link";
 import { useCallback, useMemo, useState } from "react";
@@ -31,9 +18,7 @@ import { SourceStopConfigDialog } from "@/modules/sources/page/SourceStopConfigD
 import { SourceSurfaceUrlDialog } from "@/modules/sources/page/SourceSurfaceUrlDialog";
 
 type TemplateCardsSkeletonProps = { count?: number };
-export function TemplateCardsSkeleton({
-  count = 3,
-}: TemplateCardsSkeletonProps) {
+export function TemplateCardsSkeleton({ count = 3 }: TemplateCardsSkeletonProps) {
   return (
     <Stack gap="sm" className={cn("min-w-0")}>
       {Array.from({ length: count }, (_, i) => (
@@ -51,44 +36,25 @@ export function TemplateCardsSkeleton({
 
 type PlanTemplatesListProps = { planId: string };
 export function PlanTemplatesList({ planId }: PlanTemplatesListProps) {
-  const [surfaceDialogTemplate, setSurfaceDialogTemplate] =
-    useState<SourceListItem | null>(null);
-  const [scheduleDialogTemplate, setScheduleDialogTemplate] =
-    useState<SourceListItem | null>(null);
-  const [stopConfigDialogTemplate, setStopConfigDialogTemplate] =
-    useState<SourceListItem | null>(null);
+  const [surfaceDialogTemplate, setSurfaceDialogTemplate] = useState<SourceListItem | null>(null);
+  const [scheduleDialogTemplate, setScheduleDialogTemplate] = useState<SourceListItem | null>(null);
+  const [stopConfigDialogTemplate, setStopConfigDialogTemplate] = useState<SourceListItem | null>(null);
   const { data, loading, error } = useSourceTemplatesAllQuery();
 
-  const templates = useMemo(
-    () => (data?.sourceTemplates ?? []).filter((t) => t.planId === planId),
-    [data, planId],
-  );
+  const templates = useMemo(() => (data?.sourceTemplates ?? []).filter((t) => t.planId === planId), [data, planId]);
 
   const showSkeleton = loading && !data;
 
   const clearDialogsForTemplate = useCallback((templateId: string) => {
-    setSurfaceDialogTemplate((t: SourceListItem | null) =>
-      t?.id === templateId ? null : t,
-    );
-    setScheduleDialogTemplate((t: SourceListItem | null) =>
-      t?.id === templateId ? null : t,
-    );
-    setStopConfigDialogTemplate((t: SourceListItem | null) =>
-      t?.id === templateId ? null : t,
-    );
+    setSurfaceDialogTemplate((t: SourceListItem | null) => (t?.id === templateId ? null : t));
+    setScheduleDialogTemplate((t: SourceListItem | null) => (t?.id === templateId ? null : t));
+    setStopConfigDialogTemplate((t: SourceListItem | null) => (t?.id === templateId ? null : t));
   }, []);
 
-  const patchTemplateIfSame = useCallback(
-    (id: string, patch: Partial<SourceListItem>) => {
-      setSurfaceDialogTemplate((t: SourceListItem | null) =>
-        t?.id === id ? { ...t, ...patch } : t,
-      );
-      setScheduleDialogTemplate((t: SourceListItem | null) =>
-        t?.id === id ? { ...t, ...patch } : t,
-      );
-    },
-    [],
-  );
+  const patchTemplateIfSame = useCallback((id: string, patch: Partial<SourceListItem>) => {
+    setSurfaceDialogTemplate((t: SourceListItem | null) => (t?.id === id ? { ...t, ...patch } : t));
+    setScheduleDialogTemplate((t: SourceListItem | null) => (t?.id === id ? { ...t, ...patch } : t));
+  }, []);
 
   if (showSkeleton) {
     return <TemplateCardsSkeleton />;
@@ -103,9 +69,7 @@ export function PlanTemplatesList({ planId }: PlanTemplatesListProps) {
   }
 
   if (templates.length === 0) {
-    return (
-      <EmptyState variant="default" message="No templates for this plan." />
-    );
+    return <EmptyState variant="default" message="No templates for this plan." />;
   }
 
   return (
@@ -123,25 +87,14 @@ export function PlanTemplatesList({ planId }: PlanTemplatesListProps) {
                   "inline-block max-w-full cursor-pointer border-0 bg-transparent p-0 text-left outline-none",
                 )}
               >
-                <NextLink
-                  href={
-                    `/sources/plans/${planId}/template/${template.id}/runs` as Route
-                  }
-                  title="View runs"
-                >
-                  <span className={cn("truncate")}>
-                    {template.surfaceUrl || "Template"}
-                  </span>
+                <NextLink href={`/sources/plans/${planId}/template/${template.id}/runs` as Route} title="View runs">
+                  <span className={cn("truncate")}>{template.surfaceUrl || "Template"}</span>
                 </NextLink>
               </ListItemCard.Title>
             }
             actions={
               <ListItemCard.Actions>
-                <RunSourceTemplateButton
-                  templateId={template.id}
-                  label="Run"
-                  tooltip="Run template"
-                />
+                <RunSourceTemplateButton templateId={template.id} label="Run" tooltip="Run template" />
                 <IconButton
                   intent="ghost"
                   size="sm"
@@ -192,8 +145,7 @@ export function PlanTemplatesList({ planId }: PlanTemplatesListProps) {
             }
             description={
               <Text size="sm" color="secondary">
-                Created {formatDateTime(String(template.createdAt))} ·{" "}
-                {template.runs.length}{" "}
+                Created {formatDateTime(String(template.createdAt))} · {template.runs.length}{" "}
                 {template.runs.length === 1 ? "run" : "runs"}
               </Text>
             }
@@ -205,9 +157,7 @@ export function PlanTemplatesList({ planId }: PlanTemplatesListProps) {
         onOpenChange={(open) => {
           if (!open) setSurfaceDialogTemplate(null);
         }}
-        onSurfaceSaved={(id, surfaceUrl) =>
-          patchTemplateIfSame(id, { surfaceUrl })
-        }
+        onSurfaceSaved={(id, surfaceUrl) => patchTemplateIfSame(id, { surfaceUrl })}
       />
       <SourceScheduleDialog
         template={scheduleDialogTemplate}
@@ -221,9 +171,7 @@ export function PlanTemplatesList({ planId }: PlanTemplatesListProps) {
         onOpenChange={(open) => {
           if (!open) setStopConfigDialogTemplate(null);
         }}
-        onStopConfigSaved={(id, config) =>
-          patchTemplateIfSame(id, { config } as Partial<SourceListItem>)
-        }
+        onStopConfigSaved={(id, config) => patchTemplateIfSame(id, { config } as Partial<SourceListItem>)}
       />
     </>
   );

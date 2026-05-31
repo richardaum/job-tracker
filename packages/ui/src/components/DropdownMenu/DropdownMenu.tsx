@@ -27,13 +27,7 @@ export interface DropdownMenuGroupProps {
   children: ReactNode;
 }
 
-export function DropdownMenu({
-  trigger,
-  children,
-  align = "end",
-  open,
-  onOpenChange,
-}: DropdownMenuProps) {
+export function DropdownMenu({ trigger, children, align = "end", open, onOpenChange }: DropdownMenuProps) {
   return (
     <RadixDropdownMenu.Root open={open} onOpenChange={onOpenChange}>
       <RadixDropdownMenu.Trigger asChild>{trigger}</RadixDropdownMenu.Trigger>
@@ -41,9 +35,7 @@ export function DropdownMenu({
         <RadixDropdownMenu.Content
           align={align}
           sideOffset={6}
-          className={cn(
-            "z-50 min-w-44 rounded-md border border-border-subtle bg-bg-surface p-2 shadow-md",
-          )}
+          className={cn("z-50 min-w-44 rounded-md border border-border-subtle bg-bg-surface p-2 shadow-md")}
         >
           {children}
         </RadixDropdownMenu.Content>
@@ -74,22 +66,12 @@ export function DropdownMenuItem({
 }
 
 export function DropdownMenuSeparator() {
-  return (
-    <RadixDropdownMenu.Separator className={cn("my-1 h-px bg-border-subtle")} />
-  );
+  return <RadixDropdownMenu.Separator className={cn("my-1 h-px bg-border-subtle")} />;
 }
 
-export function DropdownMenuLabel({
-  children,
-  className,
-}: DropdownMenuLabelProps) {
+export function DropdownMenuLabel({ children, className }: DropdownMenuLabelProps) {
   return (
-    <RadixDropdownMenu.Label
-      className={cn(
-        "px-2 py-1.5 text-xs font-medium text-text-secondary",
-        className,
-      )}
-    >
+    <RadixDropdownMenu.Label className={cn("px-2 py-1.5 text-xs font-medium text-text-secondary", className)}>
       {children}
     </RadixDropdownMenu.Label>
   );

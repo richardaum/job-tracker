@@ -12,17 +12,9 @@ import {
   useClearSourceTemplateRunsMutation,
 } from "@/gql/hooks";
 
-type ClearSourceRunsDialogProps = {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  templateId: string;
-};
+type ClearSourceRunsDialogProps = { open: boolean; onOpenChange: (open: boolean) => void; templateId: string };
 
-export function ClearSourceRunsDialog({
-  open,
-  onOpenChange,
-  templateId,
-}: ClearSourceRunsDialogProps) {
+export function ClearSourceRunsDialog({ open, onOpenChange, templateId }: ClearSourceRunsDialogProps) {
   const checkboxId = useId();
   const [deleteJobs, setDeleteJobs] = useState(false);
   const [clearRuns] = useClearSourceTemplateRunsMutation();
@@ -54,24 +46,17 @@ export function ClearSourceRunsDialog({
                 cache.writeQuery({
                   query: SourceTemplateDocument,
                   variables: { id: templateId },
-                  data: {
-                    ...template,
-                    sourceTemplate: { ...template.sourceTemplate, runs: [] },
-                  },
+                  data: { ...template, sourceTemplate: { ...template.sourceTemplate, runs: [] } },
                 });
               }
 
-              const all = cache.readQuery<SourceTemplatesAllQuery>({
-                query: SourceTemplatesAllDocument,
-              });
+              const all = cache.readQuery<SourceTemplatesAllQuery>({ query: SourceTemplatesAllDocument });
               if (all?.sourceTemplates) {
                 cache.writeQuery({
                   query: SourceTemplatesAllDocument,
                   data: {
                     ...all,
-                    sourceTemplates: all.sourceTemplates.map((t) =>
-                      t.id === templateId ? { ...t, runs: [] } : t,
-                    ),
+                    sourceTemplates: all.sourceTemplates.map((t) => (t.id === templateId ? { ...t, runs: [] } : t)),
                   },
                 });
               }
@@ -87,15 +72,8 @@ export function ClearSourceRunsDialog({
             ? "Jobs imported by these runs will be deleted permanently."
             : "Jobs imported by these runs stay in your list but lose the source run link."}
         </Text>
-        <label
-          htmlFor={checkboxId}
-          className={cn("flex cursor-pointer items-start gap-2")}
-        >
-          <Checkbox
-            id={checkboxId}
-            checked={deleteJobs}
-            onCheckedChange={setDeleteJobs}
-          />
+        <label htmlFor={checkboxId} className={cn("flex cursor-pointer items-start gap-2")}>
+          <Checkbox id={checkboxId} checked={deleteJobs} onCheckedChange={setDeleteJobs} />
           <Text size="sm">Also delete jobs imported by these runs</Text>
         </label>
       </Stack>

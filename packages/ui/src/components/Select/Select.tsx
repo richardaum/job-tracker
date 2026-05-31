@@ -26,10 +26,8 @@ const sizeClasses: Record<NonNullable<SelectProps["size"]>, string> = {
 };
 
 const stateClasses: Record<NonNullable<SelectProps["state"]>, string> = {
-  default:
-    "border-border-default focus-visible:border-border-brand focus-visible:ring-border-brand",
-  error:
-    "border-border-error text-text-error focus-visible:border-border-error focus-visible:ring-border-error",
+  default: "border-border-default focus-visible:border-border-brand focus-visible:ring-border-brand",
+  error: "border-border-error text-text-error focus-visible:border-border-error focus-visible:ring-border-error",
 };
 
 export function Select({
@@ -48,9 +46,7 @@ export function Select({
 
   return (
     <RadixSelect.Root
-      {...(isControlled
-        ? { value: value ?? "", onValueChange }
-        : { defaultValue, onValueChange })}
+      {...(isControlled ? { value: value ?? "", onValueChange } : { defaultValue, onValueChange })}
       disabled={disabled}
       name={name}
       required={required}

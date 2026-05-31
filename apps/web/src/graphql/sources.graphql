@@ -21,10 +21,7 @@ subscription SourceRunEvents {
   }
 }
 
-mutation ClearSourceTemplateRuns(
-  $templateId: ID!
-  $deleteJobs: Boolean = false
-) {
+mutation ClearSourceTemplateRuns($templateId: ID!, $deleteJobs: Boolean = false) {
   clearSourceTemplateRuns(templateId: $templateId, deleteJobs: $deleteJobs)
 }
 

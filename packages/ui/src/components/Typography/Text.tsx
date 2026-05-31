@@ -3,14 +3,7 @@ import { cn } from "@ui/lib/cn";
 
 export type TextSize = "xs" | "sm" | "base" | "md" | "lg";
 export type TextWeight = "regular" | "medium" | "semibold" | "bold";
-export type TextColor =
-  | "primary"
-  | "secondary"
-  | "muted"
-  | "brand"
-  | "error"
-  | "success"
-  | "warning";
+export type TextColor = "primary" | "secondary" | "muted" | "brand" | "error" | "success" | "warning";
 
 export interface TextProps extends HTMLAttributes<HTMLElement> {
   as?: "p" | "span" | "label" | "div";
@@ -54,15 +47,7 @@ export function Text({
   ...props
 }: TextProps) {
   return (
-    <Tag
-      className={cn(
-        sizeClasses[size],
-        weightClasses[weight],
-        colorClasses[color],
-        className,
-      )}
-      {...props}
-    >
+    <Tag className={cn(sizeClasses[size], weightClasses[weight], colorClasses[color], className)} {...props}>
       {children}
     </Tag>
   );

@@ -16,24 +16,9 @@
             "nextButtonPartialMatch": "Next"
           },
           "surfaceFields": [
-            {
-              "key": "title",
-              "selector": ".job-card-list__title strong",
-              "type": "property",
-              "value": "textContent"
-            },
-            {
-              "key": "detailUrl",
-              "selector": "a.job-card-container__link",
-              "type": "attribute",
-              "value": "href"
-            },
-            {
-              "key": "listingId",
-              "selector": ".job-id-proxy",
-              "type": "attribute",
-              "value": "data-occludable-job-id"
-            }
+            { "key": "title", "selector": ".job-card-list__title strong", "type": "property", "value": "textContent" },
+            { "key": "detailUrl", "selector": "a.job-card-container__link", "type": "attribute", "value": "href" },
+            { "key": "listingId", "selector": ".job-id-proxy", "type": "attribute", "value": "data-occludable-job-id" }
           ],
           "detailsFields": [
             {

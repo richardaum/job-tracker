@@ -11,9 +11,6 @@ export function createExtensionAuthLink(graphqlUrl: string): SetContextLink {
       return context;
     }
 
-    return {
-      ...context,
-      headers: { ...context.headers, Authorization: `Bearer ${accessToken}` },
-    };
+    return { ...context, headers: { ...context.headers, Authorization: `Bearer ${accessToken}` } };
   });
 }

@@ -12,9 +12,7 @@ const meta: Meta<typeof InfoTooltip> = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = {
-  args: { content: "This is a helpful explanation." },
-};
+export const Default: Story = { args: { content: "This is a helpful explanation." } };
 
 export const LongContent: Story = {
   args: {

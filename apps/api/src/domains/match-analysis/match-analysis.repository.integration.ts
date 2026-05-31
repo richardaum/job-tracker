@@ -18,9 +18,7 @@ describe.skipIf(!hasDb)("MatchAnalysisRepository (integration)", () => {
 
   beforeAll(async () => {
     dataSource = await createTestDataSource();
-    repo = new MatchAnalysisRepository(
-      dataSource.getRepository(MatchAnalysisEntity),
-    );
+    repo = new MatchAnalysisRepository(dataSource.getRepository(MatchAnalysisEntity));
     entitiesRepo = dataSource.getRepository(MatchAnalysisEntity);
 
     const user = await insertUserWithAuthAccount(dataSource, {
@@ -34,9 +32,7 @@ describe.skipIf(!hasDb)("MatchAnalysisRepository (integration)", () => {
 
   afterAll(async () => {
     if (dataSource?.isInitialized) {
-      await dataSource.query(
-        "TRUNCATE match_analysis, resumes, jobs, users CASCADE",
-      );
+      await dataSource.query("TRUNCATE match_analysis, resumes, jobs, users CASCADE");
       await dataSource.destroy();
     }
   });
@@ -45,15 +41,7 @@ describe.skipIf(!hasDb)("MatchAnalysisRepository (integration)", () => {
     const jobsRepo = dataSource.getRepository(JobEntity);
     const existing = await jobsRepo.findOneBy({ id: jobId });
     if (!existing) {
-      await jobsRepo.save(
-        jobsRepo.create({
-          id: jobId,
-          userId: ownerId,
-          stage: "NEW" as never,
-          urls: [],
-          tags: [],
-        }),
-      );
+      await jobsRepo.save(jobsRepo.create({ id: jobId, userId: ownerId, stage: "NEW" as never, urls: [], tags: [] }));
     }
   }
 
@@ -62,9 +50,7 @@ describe.skipIf(!hasDb)("MatchAnalysisRepository (integration)", () => {
     const resumesRepo = dataSource.getRepository(ResumeEntity);
     const existing = await resumesRepo.findOneBy({ id: resumeId });
     if (!existing) {
-      await resumesRepo.save(
-        resumesRepo.create({ id: resumeId, userId, title: "Test Resume" }),
-      );
+      await resumesRepo.save(resumesRepo.create({ id: resumeId, userId, title: "Test Resume" }));
     }
 
     return entitiesRepo.save(
@@ -116,16 +102,8 @@ describe.skipIf(!hasDb)("MatchAnalysisRepository (integration)", () => {
     it("returns all matches for the user ordered by updatedAt DESC", async () => {
       await ensureJob("job-1");
       await ensureJob("job-2");
-      const old = await insertMatch({
-        id: "match-old",
-        jobId: "job-1",
-        updatedAt: new Date("2026-01-01"),
-      });
-      const recent = await insertMatch({
-        id: "match-recent",
-        jobId: "job-2",
-        updatedAt: new Date("2026-06-01"),
-      });
+      const old = await insertMatch({ id: "match-old", jobId: "job-1", updatedAt: new Date("2026-01-01") });
+      const recent = await insertMatch({ id: "match-recent", jobId: "job-2", updatedAt: new Date("2026-06-01") });
 
       const result = await repo.findAllByUserId(userId);
 

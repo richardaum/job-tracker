@@ -22,12 +22,7 @@ export class JobStageEventEntity {
   })
   fromStage!: ApplicationStageEnum | null;
 
-  @Column({
-    name: "to_stage",
-    type: "enum",
-    enum: ApplicationStageEnum,
-    enumName: "application_stage",
-  })
+  @Column({ name: "to_stage", type: "enum", enum: ApplicationStageEnum, enumName: "application_stage" })
   toStage!: ApplicationStageEnum;
 
   @Column({

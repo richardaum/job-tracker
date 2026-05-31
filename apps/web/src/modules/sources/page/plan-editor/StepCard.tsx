@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  Badge,
-  Card,
-  cn,
-  IconButton,
-  InfoTooltip,
-  Text,
-} from "@job-tracker/ui";
+import { Badge, Card, cn, IconButton, InfoTooltip, Text } from "@job-tracker/ui";
 import {
   ArrowsDownUpIcon,
   CaretDoubleRightIcon,
@@ -26,11 +19,7 @@ type StepCardProps = {
   onEditNavigation: (step: Step) => void;
   onEditPagination: (step: Step) => void;
   onAddField: (step: Step, kind: "surface" | "details") => void;
-  onEditField: (
-    step: Step,
-    kind: "surface" | "details",
-    fieldIndex: number,
-  ) => void;
+  onEditField: (step: Step, kind: "surface" | "details", fieldIndex: number) => void;
   onEditParse: (step: Step) => void;
   onAddRegexField: (step: Step) => void;
   onEditRegexField: (step: Step, fieldIndex: number) => void;
@@ -143,14 +132,10 @@ export function StepCard({
                   >
                     <Badge
                       intent="default"
-                      className={cn(
-                        "font-mono text-xs cursor-pointer hover:bg-bg-surface-hover transition-colors",
-                      )}
+                      className={cn("font-mono text-xs cursor-pointer hover:bg-bg-surface-hover transition-colors")}
                     >
                       {f.key}
-                      {f.required && (
-                        <span className={cn("text-text-error ml-0.5")}>*</span>
-                      )}
+                      {f.required && <span className={cn("text-text-error ml-0.5")}>*</span>}
                     </Badge>
                   </button>
                 ))}
@@ -185,9 +170,7 @@ export function StepCard({
               {" · "}
               {i.direction === "up" ? "⬆ up" : "⬇ down"}
               {" · "}
-              {i.parallelDetailsTabs > 1
-                ? `${i.parallelDetailsTabs} tabs`
-                : "1 tab"}
+              {i.parallelDetailsTabs > 1 ? `${i.parallelDetailsTabs} tabs` : "1 tab"}
               {" · "}
               {i.pagination ? "pag on" : "pag off"}
             </Text>
@@ -235,10 +218,7 @@ export function StepCard({
               <Text size="xs" weight="medium" color="secondary">
                 Surface Fields ({sfc})
               </Text>
-              <InfoTooltip
-                content="Fields extracted from each listing row without opening a detail page."
-                size={12}
-              />
+              <InfoTooltip content="Fields extracted from each listing row without opening a detail page." size={12} />
             </span>
             <IconButton
               icon={<PlusIcon size={12} />}
@@ -260,17 +240,11 @@ export function StepCard({
                 >
                   <Badge
                     intent="default"
-                    className={cn(
-                      "font-mono text-xs cursor-pointer hover:bg-bg-surface-hover transition-colors",
-                    )}
+                    className={cn("font-mono text-xs cursor-pointer hover:bg-bg-surface-hover transition-colors")}
                   >
                     {f.key}
                     <span className={cn("text-text-muted ml-0.5")}>
-                      {f.type === "regex"
-                        ? "~"
-                        : f.type === "attribute"
-                          ? "@"
-                          : "."}
+                      {f.type === "regex" ? "~" : f.type === "attribute" ? "@" : "."}
                     </span>
                   </Badge>
                 </button>
@@ -285,10 +259,7 @@ export function StepCard({
               <Text size="xs" weight="medium" color="secondary">
                 Details Fields ({dfc})
               </Text>
-              <InfoTooltip
-                content="Fields extracted from each listing's detail page after opening it."
-                size={12}
-              />
+              <InfoTooltip content="Fields extracted from each listing's detail page after opening it." size={12} />
             </span>
             <IconButton
               icon={<PlusIcon size={12} />}
@@ -310,16 +281,10 @@ export function StepCard({
                 >
                   <Badge
                     intent="default"
-                    className={cn(
-                      "font-mono text-xs cursor-pointer hover:bg-bg-surface-hover transition-colors",
-                    )}
+                    className={cn("font-mono text-xs cursor-pointer hover:bg-bg-surface-hover transition-colors")}
                   >
                     {f.key}
-                    {f.format && (
-                      <span className={cn("text-text-muted ml-0.5")}>
-                        [{f.format}]
-                      </span>
-                    )}
+                    {f.format && <span className={cn("text-text-muted ml-0.5")}>[{f.format}]</span>}
                   </Badge>
                 </button>
               ))}

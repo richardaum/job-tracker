@@ -12,9 +12,7 @@ describe("PostgreSQL connection (integration)", () => {
 
   beforeAll(async () => {
     if (!hasDb) return;
-    dataSource = new DataSource(
-      buildDataSourceOptions(apiEnv.DATABASE_INTEGRATION_URL!),
-    );
+    dataSource = new DataSource(buildDataSourceOptions(apiEnv.DATABASE_INTEGRATION_URL!));
     await dataSource.initialize();
   });
 
@@ -24,9 +22,7 @@ describe("PostgreSQL connection (integration)", () => {
   });
 
   it.skipIf(!hasDb)("executes a raw SQL query", async () => {
-    const rows = (await dataSource.query("SELECT 1 AS value")) as Array<{
-      value: number;
-    }>;
+    const rows = (await dataSource.query("SELECT 1 AS value")) as Array<{ value: number }>;
     expect(rows[0]?.value).toBe(1);
   });
 });

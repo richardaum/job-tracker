@@ -62,12 +62,7 @@ export class SalaryEmbedded {
   @Column({ type: "text", nullable: true })
   currency!: string | null;
 
-  @Column({
-    type: "enum",
-    enum: SalaryPeriodEnum,
-    enumName: "salary_period",
-    nullable: true,
-  })
+  @Column({ type: "enum", enum: SalaryPeriodEnum, enumName: "salary_period", nullable: true })
   period!: SalaryPeriodEnum | null;
 
   validate(): void {
@@ -151,19 +146,8 @@ export type CreateJobRepoDto = Pick<
 // After
 export type CreateJobRepoDto = Pick<
   NewJob,
-  | "title"
-  | "companyId"
-  | "description"
-  | "urls"
-  | "source"
-  | "tags"
-  | "location"
-  | "workRegion"
-> & {
-  salary?: SalaryEmbedded;
-  draftJobId?: string | null;
-  sourceRunId?: string | null;
-};
+  "title" | "companyId" | "description" | "urls" | "source" | "tags" | "location" | "workRegion"
+> & { salary?: SalaryEmbedded; draftJobId?: string | null; sourceRunId?: string | null };
 ```
 
 **Service DTOs** — `CreateDto` replaces 4 flat salary fields with `salary?: JobSalaryInput`:

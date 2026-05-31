@@ -1,9 +1,4 @@
-import {
-  ApolloClient,
-  ApolloLink,
-  HttpLink,
-  InMemoryCache,
-} from "@apollo/client/core";
+import { ApolloClient, ApolloLink, HttpLink, InMemoryCache } from "@apollo/client/core";
 import { createAuthRefreshLink } from "@job-tracker/auth";
 import { tryRun } from "@job-tracker/try-run";
 
@@ -32,10 +27,9 @@ export class ApiService {
 
   constructor(options?: ApiServiceOptions) {
     const authLink = createExtensionAuthLink(GRAPHQL_URL);
-    const authRefreshLink = createAuthRefreshLink(
-      () => getAuthRefreshUrl(GRAPHQL_URL),
-      { onRefreshResult: options?.onAuthRefreshResult },
-    );
+    const authRefreshLink = createAuthRefreshLink(() => getAuthRefreshUrl(GRAPHQL_URL), {
+      onRefreshResult: options?.onAuthRefreshResult,
+    });
     const httpLink = new HttpLink({ uri: GRAPHQL_URL, credentials: "include" });
 
     this.client = new ApolloClient({
@@ -45,10 +39,7 @@ export class ApiService {
   }
 
   async createJob(input: CreateJobInput) {
-    return await this.client.mutate({
-      mutation: CreateJobDocument,
-      variables: { input },
-    });
+    return await this.client.mutate({ mutation: CreateJobDocument, variables: { input } });
   }
 
   async createDraftCaptureJob(input: CreateJobInput) {
@@ -58,11 +49,7 @@ export class ApiService {
     });
   }
 
-  async updateSourceRunStatus(
-    id: string,
-    status: SourceRunStatus,
-    errorMessage?: string | null,
-  ) {
+  async updateSourceRunStatus(id: string, status: SourceRunStatus, errorMessage?: string | null) {
     return await this.client.mutate({
       mutation: UpdateSourceRunStatusDocument,
       variables: { id, status, errorMessage: errorMessage ?? null },
@@ -70,23 +57,15 @@ export class ApiService {
   }
 
   async updateSourceRunSurfaceUrl(id: string, surfaceUrl: string) {
-    return await this.client.mutate({
-      mutation: UpdateSourceRunDocument,
-      variables: { id, input: { surfaceUrl } },
-    });
+    return await this.client.mutate({ mutation: UpdateSourceRunDocument, variables: { id, input: { surfaceUrl } } });
   }
 
   async sourceRuns() {
-    return await this.client.query({
-      query: SourceRunsDocument,
-      fetchPolicy: "network-only",
-    });
+    return await this.client.query({ query: SourceRunsDocument, fetchPolicy: "network-only" });
   }
 
   async meEmail(): Promise<string | null> {
-    const [err, result] = await tryRun(
-      this.client.query({ query: MeDocument, fetchPolicy: "network-only" }),
-    );
+    const [err, result] = await tryRun(this.client.query({ query: MeDocument, fetchPolicy: "network-only" }));
 
     if (err) return null;
 
@@ -95,11 +74,7 @@ export class ApiService {
 
   async isJobDuplicate(company: string, title: string): Promise<boolean> {
     const [err, result] = await tryRun(
-      this.client.query({
-        query: IsJobDuplicateDocument,
-        variables: { company, title },
-        fetchPolicy: "network-only",
-      }),
+      this.client.query({ query: IsJobDuplicateDocument, variables: { company, title }, fetchPolicy: "network-only" }),
     );
 
     if (err) return false;
@@ -108,10 +83,7 @@ export class ApiService {
   }
 
   async reportExtensionActivity(input: ReportExtensionActivityInput) {
-    return await this.client.mutate({
-      mutation: ReportExtensionActivityDocument,
-      variables: { input },
-    });
+    return await this.client.mutate({ mutation: ReportExtensionActivityDocument, variables: { input } });
   }
 
   dispose(): void {

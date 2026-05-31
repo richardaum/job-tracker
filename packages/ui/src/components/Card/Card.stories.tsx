@@ -14,6 +14,4 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = { args: { children: "Card content" } };
 
-export const Outlined: Story = {
-  args: { variant: "outlined", children: "Outlined card" },
-};
+export const Outlined: Story = { args: { variant: "outlined", children: "Outlined card" } };

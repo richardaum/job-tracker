@@ -5,31 +5,20 @@ import { tryRun } from "@job-tracker/try-run";
 
 type RefreshUrlProvider = () => string;
 
-export type AuthRefreshLinkOptions = {
-  onRefreshResult?: (success: boolean) => void;
-};
+export type AuthRefreshLinkOptions = { onRefreshResult?: (success: boolean) => void };
 
 export const AUTH_MUTATION_HEADER = "X-Auth-Action";
 export const AUTH_MUTATION_VALUE = "1";
 
 export function authMutationRequestInit(init: RequestInit = {}): RequestInit {
-  return {
-    ...init,
-    headers: {
-      ...(init.headers ?? {}),
-      [AUTH_MUTATION_HEADER]: AUTH_MUTATION_VALUE,
-    },
-  };
+  return { ...init, headers: { ...(init.headers ?? {}), [AUTH_MUTATION_HEADER]: AUTH_MUTATION_VALUE } };
 }
 
 let refreshPromise: Promise<boolean> | null = null;
 
 async function refreshAccessToken(refreshUrl: string): Promise<boolean> {
   const [err, response] = await tryRun(
-    fetch(
-      refreshUrl,
-      authMutationRequestInit({ method: "POST", credentials: "include" }),
-    ),
+    fetch(refreshUrl, authMutationRequestInit({ method: "POST", credentials: "include" })),
   );
   if (err) {
     return false;
@@ -39,32 +28,20 @@ async function refreshAccessToken(refreshUrl: string): Promise<boolean> {
 
 function isUnauthorizedError(error: unknown): boolean {
   if (CombinedGraphQLErrors.is(error)) {
-    return error.errors.some(
-      (graphqlError) => graphqlError.extensions?.code === "UNAUTHENTICATED",
-    );
+    return error.errors.some((graphqlError) => graphqlError.extensions?.code === "UNAUTHENTICATED");
   }
 
   if (!error || typeof error !== "object") {
     return false;
   }
 
-  const maybeNetworkError = error as {
-    statusCode?: number;
-    status?: number;
-    response?: { status?: number };
-  };
+  const maybeNetworkError = error as { statusCode?: number; status?: number; response?: { status?: number } };
 
-  const statusCode =
-    maybeNetworkError.statusCode ??
-    maybeNetworkError.status ??
-    maybeNetworkError.response?.status;
+  const statusCode = maybeNetworkError.statusCode ?? maybeNetworkError.status ?? maybeNetworkError.response?.status;
   return statusCode === 401;
 }
 
-export function createAuthRefreshLink(
-  getRefreshUrl: RefreshUrlProvider,
-  options?: AuthRefreshLinkOptions,
-) {
+export function createAuthRefreshLink(getRefreshUrl: RefreshUrlProvider, options?: AuthRefreshLinkOptions) {
   return new ErrorLink(({ error, operation, forward }) => {
     const alreadyRetried = operation.getContext().didRefreshRetry === true;
     if (alreadyRetried || !isUnauthorizedError(error)) {
@@ -93,10 +70,7 @@ export function createAuthRefreshLink(
             return;
           }
 
-          operation.setContext({
-            ...operation.getContext(),
-            didRefreshRetry: true,
-          });
+          operation.setContext({ ...operation.getContext(), didRefreshRetry: true });
 
           subscription = forward(operation).subscribe({
             next: (value) => observer.next(value),

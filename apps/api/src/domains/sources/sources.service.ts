@@ -6,28 +6,16 @@ import { SourceRunType } from "@api/domains/sources/source-run.type";
 import { SourceRunStatusEnum } from "@api/domains/sources/source-run-status.enum";
 import { StopWhenEnum } from "@api/domains/sources/stop-when.enum";
 import { SourceTemplateType } from "@api/domains/sources/source-template.type";
-import {
-  BadRequestException,
-  Injectable,
-  Logger,
-  NotFoundException,
-  OnModuleInit,
-} from "@nestjs/common";
+import { BadRequestException, Injectable, Logger, NotFoundException, OnModuleInit } from "@nestjs/common";
 
 import { PlanService } from "./plan.service";
 import { SourceRunEventTypeEnum } from "./source-run-event-type.enum";
 import { SourceRunReported } from "./sources.events";
 import { SourcesRepository } from "./sources.repository";
 import { SourcesEventBus } from "./sources-event.bus";
-import {
-  planHasPublishedAt,
-  SourceTemplateConfigSchema,
-} from "./source-template-config.schema";
+import { planHasPublishedAt, SourceTemplateConfigSchema } from "./source-template-config.schema";
 
-function extensionMayTransitionStatus(
-  from: SourceRunStatusEnum,
-  to: SourceRunStatusEnum,
-): boolean {
+function extensionMayTransitionStatus(from: SourceRunStatusEnum, to: SourceRunStatusEnum): boolean {
   if (from === to) {
     return true;
   }
@@ -53,13 +41,9 @@ export class SourcesService implements OnModuleInit {
   ) {}
 
   async onModuleInit(): Promise<void> {
-    const stale = await this.repo.countStalePending(
-      this.getStaleCutoff(new Date()),
-    );
+    const stale = await this.repo.countStalePending(this.getStaleCutoff(new Date()));
     if (stale > 0) {
-      this.logger.warn(
-        `Found ${stale} stale pending source run(s) that were never processed`,
-      );
+      this.logger.warn(`Found ${stale} stale pending source run(s) that were never processed`);
     }
   }
 
@@ -68,21 +52,12 @@ export class SourcesService implements OnModuleInit {
     return Promise.all(templates.map((t) => this.templateToGql(t)));
   }
 
-  async listTemplatesForPlan(
-    userId: string,
-    planId: string,
-  ): Promise<SourceTemplateType[]> {
-    const templates = await this.repo.listTemplatesByUserAndPlanId(
-      userId,
-      planId,
-    );
+  async listTemplatesForPlan(userId: string, planId: string): Promise<SourceTemplateType[]> {
+    const templates = await this.repo.listTemplatesByUserAndPlanId(userId, planId);
     return Promise.all(templates.map((t) => this.templateToGql(t)));
   }
 
-  async getSourceTemplate(
-    userId: string,
-    id: string,
-  ): Promise<SourceTemplateType> {
+  async getSourceTemplate(userId: string, id: string): Promise<SourceTemplateType> {
     const template = await this.repo.findTemplateByUserAndId({ userId, id });
     if (!template) {
       throw new NotFoundException(`Source template ${id} not found`);
@@ -97,18 +72,11 @@ export class SourcesService implements OnModuleInit {
 
   async createSourceTemplate(
     userId: string,
-    input: {
-      planId: string;
-      surfaceUrl: string;
-      config?: Record<string, unknown> | null;
-    },
+    input: { planId: string; surfaceUrl: string; config?: Record<string, unknown> | null },
   ): Promise<SourceTemplateType> {
     const plan = await this.planService.findById(input.planId);
     if (input.config !== undefined && input.config !== null) {
-      this.validateConfig(
-        input.config,
-        plan.document as Record<string, unknown>,
-      );
+      this.validateConfig(input.config, plan.document as Record<string, unknown>);
     }
     const template = await this.repo.findOrCreateTemplate({
       userId,
@@ -119,20 +87,12 @@ export class SourcesService implements OnModuleInit {
     return this.templateToGql(template);
   }
 
-  async createSourceRun(
-    userId: string,
-    planId: string,
-  ): Promise<SourceRunType> {
+  async createSourceRun(userId: string, planId: string): Promise<SourceRunType> {
     const plan = await this.planService.findById(planId);
 
-    const template = await this.repo.findTemplateByUserAndPlanId({
-      userId,
-      planId: plan.id,
-    });
+    const template = await this.repo.findTemplateByUserAndPlanId({ userId, planId: plan.id });
     if (!template) {
-      throw new BadRequestException(
-        `No source template for plan ${planId}. Create one first.`,
-      );
+      throw new BadRequestException(`No source template for plan ${planId}. Create one first.`);
     }
 
     const startedAt = new Date();
@@ -146,36 +106,23 @@ export class SourcesService implements OnModuleInit {
       surfaceUrl,
     });
 
-    const loaded =
-      (await this.repo.findByUserAndId({ id: row.id, userId })) ?? row;
+    const loaded = (await this.repo.findByUserAndId({ id: row.id, userId })) ?? row;
     const run = this.toGql(loaded);
     this.eventBus.emit(
-      new SourceRunReported(userId, {
-        type: SourceRunEventTypeEnum.SOURCE_RUN_CREATED,
-        occurredAt: new Date(),
-        run,
-      }),
+      new SourceRunReported(userId, { type: SourceRunEventTypeEnum.SOURCE_RUN_CREATED, occurredAt: new Date(), run }),
     );
 
     return run;
   }
 
-  async rerunSourceTemplate(
-    userId: string,
-    templateId: string,
-  ): Promise<SourceRunType> {
-    const template = await this.repo.findTemplateByUserAndId({
-      userId,
-      id: templateId,
-    });
+  async rerunSourceTemplate(userId: string, templateId: string): Promise<SourceRunType> {
+    const template = await this.repo.findTemplateByUserAndId({ userId, id: templateId });
     if (!template) {
       throw new NotFoundException(`Source template ${templateId} not found`);
     }
 
     if (!template.plan) {
-      throw new BadRequestException(
-        `Template ${templateId} has no associated plan`,
-      );
+      throw new BadRequestException(`Template ${templateId} has no associated plan`);
     }
 
     const startedAt = new Date();
@@ -189,15 +136,10 @@ export class SourcesService implements OnModuleInit {
       surfaceUrl,
     });
 
-    const loaded =
-      (await this.repo.findByUserAndId({ id: row.id, userId })) ?? row;
+    const loaded = (await this.repo.findByUserAndId({ id: row.id, userId })) ?? row;
     const run = this.toGql(loaded);
     this.eventBus.emit(
-      new SourceRunReported(userId, {
-        type: SourceRunEventTypeEnum.SOURCE_RUN_CREATED,
-        occurredAt: new Date(),
-        run,
-      }),
+      new SourceRunReported(userId, { type: SourceRunEventTypeEnum.SOURCE_RUN_CREATED, occurredAt: new Date(), run }),
     );
 
     return run;
@@ -214,17 +156,11 @@ export class SourcesService implements OnModuleInit {
     },
   ): Promise<SourceTemplateType> {
     if (patch.config !== undefined && patch.config !== null) {
-      const template = await this.repo.findTemplateByUserAndId({
-        userId,
-        id: templateId,
-      });
+      const template = await this.repo.findTemplateByUserAndId({ userId, id: templateId });
       if (!template) {
         throw new NotFoundException(`Source template ${templateId} not found`);
       }
-      this.validateConfig(
-        patch.config,
-        template.plan.document as Record<string, unknown>,
-      );
+      this.validateConfig(patch.config, template.plan.document as Record<string, unknown>);
     }
     const updated = await this.repo.patchSourceTemplate({
       userId,
@@ -242,24 +178,14 @@ export class SourcesService implements OnModuleInit {
     return this.templateToGql(updated);
   }
 
-  async deleteSourceTemplate(
-    userId: string,
-    templateId: string,
-  ): Promise<void> {
-    const deleted = await this.repo.deleteTemplateForUser({
-      userId,
-      id: templateId,
-    });
+  async deleteSourceTemplate(userId: string, templateId: string): Promise<void> {
+    const deleted = await this.repo.deleteTemplateForUser({ userId, id: templateId });
     if (!deleted) {
       throw new NotFoundException(`Source template ${templateId} not found`);
     }
   }
 
-  async updateSourceRunSurfaceUrl(
-    userId: string,
-    id: string,
-    surfaceUrl: string,
-  ): Promise<SourceRunType> {
+  async updateSourceRunSurfaceUrl(userId: string, id: string, surfaceUrl: string): Promise<SourceRunType> {
     const row = await this.repo.findByUserAndId({ id, userId });
     if (!row) {
       throw new NotFoundException(`Source run ${id} not found`);
@@ -278,10 +204,7 @@ export class SourcesService implements OnModuleInit {
     return this.toGql(nextRow);
   }
 
-  async detachJobsFromSourceRun(
-    userId: string,
-    sourceRunId: string,
-  ): Promise<number> {
+  async detachJobsFromSourceRun(userId: string, sourceRunId: string): Promise<number> {
     const row = await this.repo.findByUserAndId({ id: sourceRunId, userId });
     if (!row) {
       throw new NotFoundException(`Source run ${sourceRunId} not found`);
@@ -290,11 +213,7 @@ export class SourcesService implements OnModuleInit {
     return this.jobRepo.detachJobsSourceRun(sourceRunId, userId);
   }
 
-  async deleteSourceRun(
-    userId: string,
-    id: string,
-    options?: { deleteJobs?: boolean },
-  ): Promise<void> {
+  async deleteSourceRun(userId: string, id: string, options?: { deleteJobs?: boolean }): Promise<void> {
     const row = await this.repo.findByUserAndId({ id, userId });
     if (!row) {
       throw new NotFoundException(`Source run ${id} not found`);
@@ -314,15 +233,8 @@ export class SourcesService implements OnModuleInit {
     await this.repo.deleteTemplatesByUserId(userId);
   }
 
-  async clearTemplateRuns(
-    userId: string,
-    templateId: string,
-    options?: { deleteJobs?: boolean },
-  ): Promise<number> {
-    const template = await this.repo.findTemplateByUserAndId({
-      userId,
-      id: templateId,
-    });
+  async clearTemplateRuns(userId: string, templateId: string, options?: { deleteJobs?: boolean }): Promise<number> {
+    const template = await this.repo.findTemplateByUserAndId({ userId, id: templateId });
     if (!template) {
       throw new NotFoundException(`Source template ${templateId} not found`);
     }
@@ -334,14 +246,9 @@ export class SourcesService implements OnModuleInit {
       }
     }
 
-    const deleted = await this.repo.deleteRunsByTemplateId({
-      userId,
-      templateId,
-    });
+    const deleted = await this.repo.deleteRunsByTemplateId({ userId, templateId });
 
-    this.logger.log(
-      `Cleared ${deleted} runs for template ${templateId} (user ${userId})`,
-    );
+    this.logger.log(`Cleared ${deleted} runs for template ${templateId} (user ${userId})`);
     return deleted;
   }
 
@@ -356,9 +263,7 @@ export class SourcesService implements OnModuleInit {
       throw new NotFoundException(`Source run ${id} not found`);
     }
     if (!extensionMayTransitionStatus(row.status, status)) {
-      throw new BadRequestException(
-        `Invalid source run transition: ${row.status} -> ${status}`,
-      );
+      throw new BadRequestException(`Invalid source run transition: ${row.status} -> ${status}`);
     }
     if (row.status === status) {
       return this.toGql(row);
@@ -383,10 +288,7 @@ export class SourcesService implements OnModuleInit {
     return run;
   }
 
-  async listSourceRunActivityEvents(
-    userId: string,
-    runId: string,
-  ): Promise<SourceRunActivityEvent[]> {
+  async listSourceRunActivityEvents(userId: string, runId: string): Promise<SourceRunActivityEvent[]> {
     return this.repo.findActivityEventsByRunId(userId, runId);
   }
 
@@ -394,13 +296,8 @@ export class SourcesService implements OnModuleInit {
     return new Date(now.getTime() - SourcesService.STALE_TIMEOUT_MS);
   }
 
-  private async templateToGql(
-    template: SourceTemplateEntity,
-  ): Promise<SourceTemplateType> {
-    const runs = await this.repo.findRunsForTemplate({
-      userId: template.userId,
-      templateId: template.id,
-    });
+  private async templateToGql(template: SourceTemplateEntity): Promise<SourceTemplateType> {
+    const runs = await this.repo.findRunsForTemplate({ userId: template.userId, templateId: template.id });
 
     const jobCounts = await this.jobRepo.countBySourceRunIds(
       template.userId,
@@ -426,18 +323,11 @@ export class SourcesService implements OnModuleInit {
     };
   }
 
-  private validateConfig(
-    config: Record<string, unknown>,
-    planDocument: Record<string, unknown>,
-  ): void {
+  private validateConfig(config: Record<string, unknown>, planDocument: Record<string, unknown>): void {
     const result = SourceTemplateConfigSchema.safeParse(config);
     if (!result.success) {
-      const messages = result.error.issues.map(
-        (i) => `${i.path.join(".")}: ${i.message}`,
-      );
-      throw new BadRequestException(
-        `Invalid stop config: ${messages.join("; ")}`,
-      );
+      const messages = result.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`);
+      throw new BadRequestException(`Invalid stop config: ${messages.join("; ")}`);
     }
 
     if (result.data.stopWhen.includes(StopWhenEnum.OlderThan)) {
@@ -449,10 +339,7 @@ export class SourcesService implements OnModuleInit {
     }
   }
 
-  private toGql(
-    row: SourceRunEntity,
-    jobCounts?: Map<string, number>,
-  ): SourceRunType {
+  private toGql(row: SourceRunEntity, jobCounts?: Map<string, number>): SourceRunType {
     const config = row.template?.config as Record<string, unknown> | undefined;
 
     return {
@@ -466,11 +353,9 @@ export class SourcesService implements OnModuleInit {
       stopWhen: Array.isArray(config?.stopWhen)
         ? ((config.stopWhen[0] as StopWhenEnum) ?? null)
         : ((config?.stopWhen as SourceRunType["stopWhen"]) ?? null),
-      catchUpThreshold:
-        (config?.catchUpThreshold as SourceRunType["catchUpThreshold"]) ?? null,
+      catchUpThreshold: (config?.catchUpThreshold as SourceRunType["catchUpThreshold"]) ?? null,
       maxPages: (config?.maxPages as SourceRunType["maxPages"]) ?? null,
-      olderThanDays:
-        (config?.olderThanDays as SourceRunType["olderThanDays"]) ?? null,
+      olderThanDays: (config?.olderThanDays as SourceRunType["olderThanDays"]) ?? null,
       jobCount: jobCounts?.get(row.id) ?? 0,
     };
   }

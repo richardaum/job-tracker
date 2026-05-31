@@ -20,10 +20,7 @@ function makeQbChain(affected: number) {
 }
 
 describe("AsyncMetadataHelper", () => {
-  const fillColumns = {
-    metadataField: "fillMetadata",
-    statusColumn: "fill_status",
-  };
+  const fillColumns = { metadataField: "fillMetadata", statusColumn: "fill_status" };
 
   it("updateIfStatus matches expected PROCESSING status", async () => {
     const qbChain = makeQbChain(1);
@@ -66,40 +63,24 @@ describe("AsyncMetadataHelper", () => {
 
   it("beginProcessingWhenRestartable sets PROCESSING for restartable rows", async () => {
     const qbChain = makeQbChain(1);
-    const jobsRepo = {
-      createQueryBuilder: vi.fn().mockReturnValue(qbChain),
-    } as unknown as Repository<JobEntity>;
+    const jobsRepo = { createQueryBuilder: vi.fn().mockReturnValue(qbChain) } as unknown as Repository<JobEntity>;
 
     await expect(
-      beginAsyncMetadataProcessingWhenRestartable(
-        JobEntity,
-        jobsRepo,
-        fillColumns,
-        { id: "j1", userId: "u1" },
-      ),
+      beginAsyncMetadataProcessingWhenRestartable(JobEntity, jobsRepo, fillColumns, { id: "j1", userId: "u1" }),
     ).resolves.toBe(true);
 
     expect(qbChain.set).toHaveBeenCalledWith({
-      fillMetadata: expect.objectContaining({
-        status: AsyncMetadataStatusEnum.PROCESSING,
-      }),
+      fillMetadata: expect.objectContaining({ status: AsyncMetadataStatusEnum.PROCESSING }),
     });
   });
 
   it("resetStaleProcessing marks PROCESSING rows as FAILED", async () => {
     const qbChain = makeQbChain(2);
-    const jobsRepo = {
-      createQueryBuilder: vi.fn().mockReturnValue(qbChain),
-    } as unknown as Repository<JobEntity>;
+    const jobsRepo = { createQueryBuilder: vi.fn().mockReturnValue(qbChain) } as unknown as Repository<JobEntity>;
 
-    await expect(
-      resetStaleAsyncMetadataProcessing(
-        JobEntity,
-        jobsRepo,
-        fillColumns,
-        "Server restart",
-      ),
-    ).resolves.toBe(2);
+    await expect(resetStaleAsyncMetadataProcessing(JobEntity, jobsRepo, fillColumns, "Server restart")).resolves.toBe(
+      2,
+    );
 
     expect(qbChain.where).toHaveBeenCalledWith(`"fill_status" = :processing`, {
       processing: AsyncMetadataStatusEnum.PROCESSING,

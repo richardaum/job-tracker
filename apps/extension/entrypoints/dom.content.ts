@@ -55,10 +55,7 @@ export default defineContentScript({
         const result = await domListenerService.execute(payload);
         const durationMs = Math.round(performance.now() - startedAt);
 
-        await popupLogService.publishDebug("content.request", {
-          requestType,
-          durationMs,
-        });
+        await popupLogService.publishDebug("content.request", { requestType, durationMs });
         return result;
       });
     });

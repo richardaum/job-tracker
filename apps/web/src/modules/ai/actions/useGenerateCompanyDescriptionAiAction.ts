@@ -16,8 +16,7 @@ export function useGenerateCompanyDescriptionAiAction({
   disabled = false,
   onError,
 }: UseGenerateCompanyDescriptionAiActionArgs): TipTapAiAction {
-  const [generateCompanyDescription, { loading }] =
-    useGenerateCompanyDescriptionLazyQuery({ fetchPolicy: "no-cache" });
+  const [generateCompanyDescription, { loading }] = useGenerateCompanyDescriptionLazyQuery({ fetchPolicy: "no-cache" });
 
   return useMemo(
     () => ({
@@ -27,9 +26,7 @@ export function useGenerateCompanyDescriptionAiAction({
       disabled: disabled || !companyName.trim(),
       isLoading: loading,
       run: async () => {
-        const result = await generateCompanyDescription({
-          variables: { companyName: companyName.trim() },
-        });
+        const result = await generateCompanyDescription({ variables: { companyName: companyName.trim() } });
         return result.data?.generateCompanyDescription ?? "";
       },
       onError: () => {

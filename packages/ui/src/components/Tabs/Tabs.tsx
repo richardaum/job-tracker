@@ -30,20 +30,9 @@ export interface TabsContentProps {
   className?: string;
 }
 
-export function Tabs({
-  defaultValue,
-  value,
-  onValueChange,
-  children,
-  className,
-}: TabsProps) {
+export function Tabs({ defaultValue, value, onValueChange, children, className }: TabsProps) {
   return (
-    <RadixTabs.Root
-      defaultValue={defaultValue}
-      value={value}
-      onValueChange={onValueChange}
-      className={className}
-    >
+    <RadixTabs.Root defaultValue={defaultValue} value={value} onValueChange={onValueChange} className={className}>
       {children}
     </RadixTabs.Root>
   );
@@ -62,15 +51,7 @@ export function TabsList({ children, className }: TabsListProps) {
   );
 }
 
-export function TabsTrigger({
-  value,
-  children,
-  className,
-  asChild,
-  leadingIcon,
-  ref,
-  ...props
-}: TabsTriggerProps) {
+export function TabsTrigger({ value, children, className, asChild, leadingIcon, ref, ...props }: TabsTriggerProps) {
   if (asChild) {
     return (
       <RadixTabs.Trigger
@@ -98,9 +79,7 @@ export function TabsTrigger({
       )}
       {...props}
     >
-      {leadingIcon && (
-        <span className={cn("mr-1.5 shrink-0")}>{leadingIcon}</span>
-      )}
+      {leadingIcon && <span className={cn("mr-1.5 shrink-0")}>{leadingIcon}</span>}
       {children}
     </RadixTabs.Trigger>
   );
@@ -108,10 +87,7 @@ export function TabsTrigger({
 
 export function TabsContent({ value, children, className }: TabsContentProps) {
   return (
-    <RadixTabs.Content
-      value={value}
-      className={cn("mt-3 focus-visible:outline-none", className)}
-    >
+    <RadixTabs.Content value={value} className={cn("mt-3 focus-visible:outline-none", className)}>
       {children}
     </RadixTabs.Content>
   );

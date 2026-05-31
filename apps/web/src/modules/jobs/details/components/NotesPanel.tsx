@@ -2,14 +2,7 @@
 
 import { EMPTY_TIPTAP_DOC, tipTapToPlainText } from "@job-tracker/tiptap";
 import { tryRun } from "@job-tracker/try-run";
-import {
-  Button,
-  cn,
-  IconButton,
-  Stack,
-  TabsContent,
-  Text,
-} from "@job-tracker/ui";
+import { Button, cn, IconButton, Stack, TabsContent, Text } from "@job-tracker/ui";
 import { PencilSimpleIcon, TrashIcon } from "@phosphor-icons/react";
 import { useMemo, useRef, useState } from "react";
 
@@ -34,23 +27,14 @@ import { TipTapEditor, type TipTapEditorHandle } from "./TipTapEditor";
 
 type NotesPanelProps = { jobId: string; isDialogInstance?: boolean };
 
-export function NotesPanel({
-  jobId,
-  isDialogInstance = false,
-}: NotesPanelProps) {
+export function NotesPanel({ jobId, isDialogInstance = false }: NotesPanelProps) {
   const [draftNote, setDraftNote] = useState(EMPTY_TIPTAP_DOC);
   const [isComposerExpanded, setIsComposerExpanded] = useState(false);
   const composerEditorRef = useRef<TipTapEditorHandle>(null);
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
-  const [editingNoteContent, setEditingNoteContent] =
-    useState(EMPTY_TIPTAP_DOC);
-  const [noteIdPendingDelete, setNoteIdPendingDelete] = useState<string | null>(
-    null,
-  );
-  const { data: notesData } = useJobNotesQuery({
-    variables: { jobId },
-    fetchPolicy: "cache-and-network",
-  });
+  const [editingNoteContent, setEditingNoteContent] = useState(EMPTY_TIPTAP_DOC);
+  const [noteIdPendingDelete, setNoteIdPendingDelete] = useState<string | null>(null);
+  const { data: notesData } = useJobNotesQuery({ variables: { jobId }, fetchPolicy: "cache-and-network" });
   const [createJobNote, { loading: creatingNote }] = useCreateJobNoteMutation({
     refetchQueries: [{ query: JobNotesDocument, variables: { jobId } }],
   });
@@ -64,30 +48,18 @@ export function NotesPanel({
   const jobNotes = useMemo(
     () =>
       (notesData?.jobNotes ?? [])
-        .map((note) => ({
-          ...note,
-          text: tipTapToPlainText(note.content).trim(),
-        }))
+        .map((note) => ({ ...note, text: tipTapToPlainText(note.content).trim() }))
         .filter((note) => note.text.length > 0)
-        .sort(
-          (a, b) =>
-            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
-        ),
+        .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()),
     [notesData?.jobNotes],
   );
-  const canSend =
-    tipTapToPlainText(draftNote).trim().length > 0 && !creatingNote;
+  const canSend = tipTapToPlainText(draftNote).trim().length > 0 && !creatingNote;
   const editingNote = useMemo(
     () => jobNotes.find((note) => note.id === editingNoteId) ?? null,
     [jobNotes, editingNoteId],
   );
-  const composerImproveNoteAction = useImproveJobNoteAiAction({
-    jobId,
-    disabled: !canSend,
-  });
-  const composerRewriteTextAction = useRewriteTextAiAction({
-    disabled: !canSend,
-  });
+  const composerImproveNoteAction = useImproveJobNoteAiAction({ jobId, disabled: !canSend });
+  const composerRewriteTextAction = useRewriteTextAiAction({ disabled: !canSend });
 
   const { notesEndRef, handleNoteSent } = useNotesComposerBehavior({
     hasLoadedMessages: Boolean(notesData),
@@ -99,9 +71,7 @@ export function NotesPanel({
     const noteContent = draftNote;
     composerEditorRef.current?.clear();
 
-    const [error] = await tryRun(
-      createJobNote({ variables: { input: { jobId, content: noteContent } } }),
-    );
+    const [error] = await tryRun(createJobNote({ variables: { input: { jobId, content: noteContent } } }));
     if (error) {
       // Restore draft so user can retry.
       setDraftNote(noteContent);
@@ -121,19 +91,12 @@ export function NotesPanel({
     setEditingNoteContent(EMPTY_TIPTAP_DOC);
   }
 
-  async function handleSaveEditNote(payload: {
-    noteId: string;
-    content: string;
-    expectedRevision: number;
-  }) {
+  async function handleSaveEditNote(payload: { noteId: string; content: string; expectedRevision: number }) {
     const [error] = await tryRun(
       updateJobNote({
         variables: {
           id: payload.noteId,
-          input: {
-            content: payload.content,
-            expectedRevision: payload.expectedRevision,
-          },
+          input: { content: payload.content, expectedRevision: payload.expectedRevision },
         },
       }),
     );
@@ -178,11 +141,7 @@ export function NotesPanel({
                       >
                         <TipTapContent content={note.content} />
                       </div>
-                      <div
-                        className={cn(
-                          "flex items-center justify-between gap-2",
-                        )}
-                      >
+                      <div className={cn("flex items-center justify-between gap-2")}>
                         <Text size="xs" color="muted">
                           {formatDateTime(note.createdAt)}
                         </Text>
@@ -192,16 +151,10 @@ export function NotesPanel({
                             intent="ghost"
                             label="Edit note"
                             tooltip="Edit note"
-                            icon={
-                              <PencilSimpleIcon size={13} weight="regular" />
-                            }
-                            className={cn(
-                              "size-6  text-text-muted/80 hover:text-text-muted",
-                            )}
+                            icon={<PencilSimpleIcon size={13} weight="regular" />}
+                            className={cn("size-6  text-text-muted/80 hover:text-text-muted")}
                             onClick={() => handleStartEditNote(note.id)}
-                            disabled={
-                              creatingNote || updatingNote || deletingNote
-                            }
+                            disabled={creatingNote || updatingNote || deletingNote}
                           />
                           <IconButton
                             size="sm"
@@ -209,13 +162,9 @@ export function NotesPanel({
                             label="Delete note"
                             tooltip="Delete note"
                             icon={<TrashIcon size={13} weight="regular" />}
-                            className={cn(
-                              "size-6  text-text-muted/80 hover:text-text-muted",
-                            )}
+                            className={cn("size-6  text-text-muted/80 hover:text-text-muted")}
                             onClick={() => setNoteIdPendingDelete(note.id)}
-                            disabled={
-                              creatingNote || updatingNote || deletingNote
-                            }
+                            disabled={creatingNote || updatingNote || deletingNote}
                           />
                         </div>
                       </div>
@@ -234,9 +183,7 @@ export function NotesPanel({
               ref={composerEditorRef}
               id={`job-note-composer-${jobId}${isDialogInstance ? "-dialog" : ""}`}
               value={draftNote}
-              onChange={(nextValue) =>
-                setDraftNote(nextValue || EMPTY_TIPTAP_DOC)
-              }
+              onChange={(nextValue) => setDraftNote(nextValue || EMPTY_TIPTAP_DOC)}
               onHardEnter={canSend ? () => void handleSendNote() : undefined}
               placeholder="Write a note..."
               disabled={creatingNote}
@@ -283,15 +230,9 @@ export function NotesPanel({
       />
       <NoteEditDialog
         jobId={jobId}
-        note={
-          editingNote
-            ? { id: editingNote.id, revision: editingNote.revision }
-            : null
-        }
+        note={editingNote ? { id: editingNote.id, revision: editingNote.revision } : null}
         editingNoteContent={editingNoteContent}
-        onEditingNoteContentChange={(nextValue) =>
-          setEditingNoteContent(nextValue || EMPTY_TIPTAP_DOC)
-        }
+        onEditingNoteContentChange={(nextValue) => setEditingNoteContent(nextValue || EMPTY_TIPTAP_DOC)}
         updatingNote={updatingNote}
         deletingNote={deletingNote}
         onClose={handleCancelEditNote}
@@ -302,15 +243,9 @@ export function NotesPanel({
 }
 
 type NotesPanelTabsContentProps = { jobId: string; className?: string };
-export function NotesPanelTabsContent({
-  jobId,
-  className,
-}: NotesPanelTabsContentProps) {
+export function NotesPanelTabsContent({ jobId, className }: NotesPanelTabsContentProps) {
   return (
-    <TabsContent
-      value="notes"
-      className={cn("flex-1 min-h-0 overflow-hidden", className)}
-    >
+    <TabsContent value="notes" className={cn("flex-1 min-h-0 overflow-hidden", className)}>
       <NotesPanel jobId={jobId} />
     </TabsContent>
   );

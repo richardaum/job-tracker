@@ -1,8 +1,4 @@
-mutation UpdateSourceRunStatus(
-  $id: ID!
-  $status: SourceRunStatus!
-  $errorMessage: String
-) {
+mutation UpdateSourceRunStatus($id: ID!, $status: SourceRunStatus!, $errorMessage: String) {
   updateSourceRunStatus(id: $id, status: $status, errorMessage: $errorMessage) {
     id
     status

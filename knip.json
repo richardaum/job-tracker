@@ -8,37 +8,18 @@
     "apps/extension/src/gql/**": ["exports", "types", "files", "enumMembers"]
   },
   "workspaces": {
-    "apps/api": {
-      "ignore": ["src/database/migrations/archive/**/*", "scripts/**/*"]
-    },
+    "apps/api": { "ignore": ["src/database/migrations/archive/**/*", "scripts/**/*"] },
     "apps/web": {
-      "ignore": [
-        "src/gql/gql.ts",
-        "src/gql/index.ts",
-        "src/gql/fragment-masking.ts",
-        "public/pdf.worker.min.mjs"
-      ],
-      "ignoreDependencies": [
-        "tailwindcss",
-        "@rsdoctor/cli",
-        "@rsdoctor/webpack-plugin"
-      ]
+      "ignore": ["src/gql/gql.ts", "src/gql/index.ts", "src/gql/fragment-masking.ts", "public/pdf.worker.min.mjs"],
+      "ignoreDependencies": ["tailwindcss", "@rsdoctor/cli", "@rsdoctor/webpack-plugin"]
     },
     "apps/extension": {
-      "ignore": [
-        "src/gql/fragment-masking.ts",
-        "src/gql/gql.ts",
-        "src/gql/index.ts"
-      ],
+      "ignore": ["src/gql/fragment-masking.ts", "src/gql/gql.ts", "src/gql/index.ts"],
       "ignoreDependencies": ["tailwindcss"]
     },
     "packages/ui": {
       "ignore": ["vitest.shims.d.ts"],
-      "ignoreDependencies": [
-        "@vitejs/plugin-react",
-        "@storybook/test-runner",
-        "eslint-plugin-storybook"
-      ]
+      "ignoreDependencies": ["@vitejs/plugin-react", "@storybook/test-runner", "eslint-plugin-storybook"]
     }
   }
 }

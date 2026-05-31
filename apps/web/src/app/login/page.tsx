@@ -26,17 +26,11 @@ export default function LoginPage() {
   const handleGoogleLogin = () => {
     // Full navigation to API origin for OAuth (not an in-app Next route).
     // eslint-disable-next-line @next/next/no-location-assign-relative-destination
-    window.location.assign(
-      `${getApiBaseUrl()}/auth/google?returnTo=${encodeURIComponent(safeReturnTo)}`,
-    );
+    window.location.assign(`${getApiBaseUrl()}/auth/google?returnTo=${encodeURIComponent(safeReturnTo)}`);
   };
 
   return (
-    <main
-      className={cn(
-        "jt-login-shell-backdrop flex h-svh max-h-dvh flex-col overflow-hidden text-text-primary",
-      )}
-    >
+    <main className={cn("jt-login-shell-backdrop flex h-svh max-h-dvh flex-col overflow-hidden text-text-primary")}>
       <div
         className={cn(
           "relative mx-auto flex min-h-0 w-full max-w-[1340px] flex-1 flex-col px-6 pb-6 pt-8 lg:flex-1 lg:px-12 lg:pb-10 lg:pt-22",
@@ -50,9 +44,7 @@ export default function LoginPage() {
         >
           <span className={cn("inline-flex items-center gap-3")}>
             <AppBrandMark size={38} />
-            <span className={cn("text-lg font-semibold tracking-tight")}>
-              {APP_TITLE}
-            </span>
+            <span className={cn("text-lg font-semibold tracking-tight")}>{APP_TITLE}</span>
           </span>
         </header>
 
@@ -76,11 +68,7 @@ export default function LoginPage() {
               className={cn("shadow-xl")}
             />
           </div>
-          <div
-            className={cn(
-              "flex min-h-0 min-w-0 flex-1 flex-col lg:overflow-hidden lg:pb-2 lg:pr-4 xl:pr-6",
-            )}
-          >
+          <div className={cn("flex min-h-0 min-w-0 flex-1 flex-col lg:overflow-hidden lg:pb-2 lg:pr-4 xl:pr-6")}>
             <LoginSpotlightGrid className={cn("min-h-0 flex-1 py-2 lg:py-0")} />
           </div>
         </div>

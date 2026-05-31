@@ -19,57 +19,16 @@
               "type": "attribute",
               "value": "data-timestamp"
             },
-            {
-              "key": "rawText",
-              "selector": ".translatable-message",
-              "type": "property",
-              "value": "innerText"
-            },
-            {
-              "key": "applyUrl",
-              "type": "regex",
-              "value": "Apply:\\s*(https?://[^\\s]+)",
-              "sourceField": "rawText"
-            },
-            {
-              "key": "title",
-              "type": "regex",
-              "value": "🚀 (.+)",
-              "sourceField": "rawText"
-            },
-            {
-              "key": "company",
-              "type": "regex",
-              "value": "🏢 Company: (.+)",
-              "sourceField": "rawText"
-            },
-            {
-              "key": "location",
-              "type": "regex",
-              "value": "📍 Location: (.+)",
-              "sourceField": "rawText"
-            },
-            {
-              "key": "salary",
-              "type": "regex",
-              "value": "💰 (.+)",
-              "sourceField": "rawText"
-            },
-            {
-              "key": "stack",
-              "type": "regex",
-              "value": "⚡️ Stack: (.+)",
-              "sourceField": "rawText"
-            }
+            { "key": "rawText", "selector": ".translatable-message", "type": "property", "value": "innerText" },
+            { "key": "applyUrl", "type": "regex", "value": "Apply:\\s*(https?://[^\\s]+)", "sourceField": "rawText" },
+            { "key": "title", "type": "regex", "value": "🚀 (.+)", "sourceField": "rawText" },
+            { "key": "company", "type": "regex", "value": "🏢 Company: (.+)", "sourceField": "rawText" },
+            { "key": "location", "type": "regex", "value": "📍 Location: (.+)", "sourceField": "rawText" },
+            { "key": "salary", "type": "regex", "value": "💰 (.+)", "sourceField": "rawText" },
+            { "key": "stack", "type": "regex", "value": "⚡️ Stack: (.+)", "sourceField": "rawText" }
           ],
           "detailsFields": [
-            {
-              "key": "description",
-              "selector": "body",
-              "type": "property",
-              "value": "innerHTML",
-              "format": "tiptap"
-            }
+            { "key": "description", "selector": "body", "type": "property", "value": "innerHTML", "format": "tiptap" }
           ]
         }
       }

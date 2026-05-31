@@ -12,12 +12,7 @@ afterEach(() => {
 
 function actionWithKey(
   template: string | undefined,
-  surfaceFields?: Array<{
-    key: string;
-    selector: string;
-    type: string;
-    value: string;
-  }>,
+  surfaceFields?: Array<{ key: string; selector: string; type: string; value: string }>,
 ): CollectJobsAction {
   return {
     kind: "collect.jobs",
@@ -36,10 +31,7 @@ function actionWithKey(
 function createMocks() {
   const jobsListMessaging = { listJobs: vi.fn().mockResolvedValue([]) };
   const jobDetailsMessaging = { getJobDetails: vi.fn() };
-  const paginationMessaging = {
-    canNavigateToNextPage: vi.fn().mockResolvedValue(false),
-    navigateToNextPage: vi.fn(),
-  };
+  const paginationMessaging = { canNavigateToNextPage: vi.fn().mockResolvedValue(false), navigateToNextPage: vi.fn() };
   const tabManager = {
     openWindow: vi.fn().mockResolvedValue(10),
     getTabWindowId: vi.fn().mockResolvedValue(100),
@@ -50,12 +42,7 @@ function createMocks() {
     getCurrentTab: vi.fn(),
   };
 
-  return {
-    jobsListMessaging,
-    jobDetailsMessaging,
-    paginationMessaging,
-    tabManager,
-  };
+  return { jobsListMessaging, jobDetailsMessaging, paginationMessaging, tabManager };
 }
 
 function createService(mocks: ReturnType<typeof createMocks>) {
@@ -80,23 +67,16 @@ describe("CollectJobsService", () => {
       const onJobCollected = vi.fn().mockResolvedValue(undefined);
 
       const service = createService(mocks);
-      const result = await service.execute(
-        actionWithKey("{{company}}-{{title}}"),
-        {
-          surfaceUrl: "https://example.com/jobs",
-          boardType: "Sequential",
-          onJobCollected,
-        },
-      );
+      const result = await service.execute(actionWithKey("{{company}}-{{title}}"), {
+        surfaceUrl: "https://example.com/jobs",
+        boardType: "Sequential",
+        onJobCollected,
+      });
 
       expect(onJobCollected).toHaveBeenCalledTimes(1);
       expect(result.size).toBe(1);
       expect(result.get("Acme-Dev")).toEqual(
-        expect.objectContaining({
-          company: "Acme",
-          title: "Dev",
-          detailUrl: "https://example.com/b",
-        }),
+        expect.objectContaining({ company: "Acme", title: "Dev", detailUrl: "https://example.com/b" }),
       );
     });
 
@@ -125,36 +105,14 @@ describe("CollectJobsService", () => {
       const mocks = createMocks();
       mocks.jobsListMessaging.listJobs
         .mockResolvedValueOnce([
-          {
-            company: "Acme",
-            title: "Dev1",
-            detailUrl: "https://example.com/1",
-          },
-          {
-            company: "Acme",
-            title: "Dev2",
-            detailUrl: "https://example.com/2",
-          },
+          { company: "Acme", title: "Dev1", detailUrl: "https://example.com/1" },
+          { company: "Acme", title: "Dev2", detailUrl: "https://example.com/2" },
         ])
         .mockResolvedValueOnce([
-          {
-            company: "Acme",
-            title: "Dev3",
-            detailUrl: "https://example.com/3",
-          },
-          {
-            company: "Acme",
-            title: "Dev4",
-            detailUrl: "https://example.com/4",
-          },
+          { company: "Acme", title: "Dev3", detailUrl: "https://example.com/3" },
+          { company: "Acme", title: "Dev4", detailUrl: "https://example.com/4" },
         ])
-        .mockResolvedValueOnce([
-          {
-            company: "Acme",
-            title: "Dev5",
-            detailUrl: "https://example.com/5",
-          },
-        ]);
+        .mockResolvedValueOnce([{ company: "Acme", title: "Dev5", detailUrl: "https://example.com/5" }]);
       mocks.paginationMessaging.canNavigateToNextPage
         .mockResolvedValueOnce(true)
         .mockResolvedValueOnce(true)
@@ -171,36 +129,16 @@ describe("CollectJobsService", () => {
         onJobCollected,
       });
 
-      expect(
-        mocks.paginationMessaging.navigateToNextPage,
-      ).toHaveBeenCalledTimes(1);
+      expect(mocks.paginationMessaging.navigateToNextPage).toHaveBeenCalledTimes(1);
       expect(onJobCollected).toHaveBeenCalledTimes(4);
     });
 
     it("resets counter on non-duplicate", async () => {
       const mocks = createMocks();
       mocks.jobsListMessaging.listJobs
-        .mockResolvedValueOnce([
-          {
-            company: "Acme",
-            title: "Dev1",
-            detailUrl: "https://example.com/1",
-          },
-        ])
-        .mockResolvedValueOnce([
-          {
-            company: "Acme",
-            title: "Dev2",
-            detailUrl: "https://example.com/2",
-          },
-        ])
-        .mockResolvedValueOnce([
-          {
-            company: "Acme",
-            title: "Dev3",
-            detailUrl: "https://example.com/3",
-          },
-        ]);
+        .mockResolvedValueOnce([{ company: "Acme", title: "Dev1", detailUrl: "https://example.com/1" }])
+        .mockResolvedValueOnce([{ company: "Acme", title: "Dev2", detailUrl: "https://example.com/2" }])
+        .mockResolvedValueOnce([{ company: "Acme", title: "Dev3", detailUrl: "https://example.com/3" }]);
       mocks.paginationMessaging.canNavigateToNextPage
         .mockResolvedValueOnce(true)
         .mockResolvedValueOnce(true)
@@ -221,31 +159,15 @@ describe("CollectJobsService", () => {
         onJobCollected,
       });
 
-      expect(
-        mocks.paginationMessaging.navigateToNextPage,
-      ).toHaveBeenCalledTimes(2);
+      expect(mocks.paginationMessaging.navigateToNextPage).toHaveBeenCalledTimes(2);
     });
 
     it("continues when threshold not reached", async () => {
       const mocks = createMocks();
       mocks.jobsListMessaging.listJobs
-        .mockResolvedValueOnce([
-          {
-            company: "Acme",
-            title: "Dev1",
-            detailUrl: "https://example.com/1",
-          },
-        ])
-        .mockResolvedValueOnce([
-          {
-            company: "Acme",
-            title: "Dev2",
-            detailUrl: "https://example.com/2",
-          },
-        ]);
-      mocks.paginationMessaging.canNavigateToNextPage
-        .mockResolvedValueOnce(true)
-        .mockResolvedValueOnce(false);
+        .mockResolvedValueOnce([{ company: "Acme", title: "Dev1", detailUrl: "https://example.com/1" }])
+        .mockResolvedValueOnce([{ company: "Acme", title: "Dev2", detailUrl: "https://example.com/2" }]);
+      mocks.paginationMessaging.canNavigateToNextPage.mockResolvedValueOnce(true).mockResolvedValueOnce(false);
 
       const onJobCollected = vi.fn().mockResolvedValue({ duplicate: true });
 
@@ -258,9 +180,7 @@ describe("CollectJobsService", () => {
         onJobCollected,
       });
 
-      expect(
-        mocks.paginationMessaging.navigateToNextPage,
-      ).toHaveBeenCalledTimes(1);
+      expect(mocks.paginationMessaging.navigateToNextPage).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -268,27 +188,9 @@ describe("CollectJobsService", () => {
     it("stops exactly at maxPages", async () => {
       const mocks = createMocks();
       mocks.jobsListMessaging.listJobs
-        .mockResolvedValueOnce([
-          {
-            company: "Acme",
-            title: "Dev1",
-            detailUrl: "https://example.com/1",
-          },
-        ])
-        .mockResolvedValueOnce([
-          {
-            company: "Acme",
-            title: "Dev2",
-            detailUrl: "https://example.com/2",
-          },
-        ])
-        .mockResolvedValueOnce([
-          {
-            company: "Acme",
-            title: "Dev3",
-            detailUrl: "https://example.com/3",
-          },
-        ]);
+        .mockResolvedValueOnce([{ company: "Acme", title: "Dev1", detailUrl: "https://example.com/1" }])
+        .mockResolvedValueOnce([{ company: "Acme", title: "Dev2", detailUrl: "https://example.com/2" }])
+        .mockResolvedValueOnce([{ company: "Acme", title: "Dev3", detailUrl: "https://example.com/3" }]);
       mocks.paginationMessaging.canNavigateToNextPage.mockResolvedValue(true);
 
       const onJobCollected = vi.fn().mockResolvedValue(undefined);
@@ -302,29 +204,15 @@ describe("CollectJobsService", () => {
         onJobCollected,
       });
 
-      expect(
-        mocks.paginationMessaging.navigateToNextPage,
-      ).toHaveBeenCalledTimes(1);
+      expect(mocks.paginationMessaging.navigateToNextPage).toHaveBeenCalledTimes(1);
       expect(onJobCollected).toHaveBeenCalledTimes(2);
     });
 
     it("maxPages=1 stops after first page", async () => {
       const mocks = createMocks();
       mocks.jobsListMessaging.listJobs
-        .mockResolvedValueOnce([
-          {
-            company: "Acme",
-            title: "Dev1",
-            detailUrl: "https://example.com/1",
-          },
-        ])
-        .mockResolvedValueOnce([
-          {
-            company: "Acme",
-            title: "Dev2",
-            detailUrl: "https://example.com/2",
-          },
-        ]);
+        .mockResolvedValueOnce([{ company: "Acme", title: "Dev1", detailUrl: "https://example.com/1" }])
+        .mockResolvedValueOnce([{ company: "Acme", title: "Dev2", detailUrl: "https://example.com/2" }]);
       mocks.paginationMessaging.canNavigateToNextPage.mockResolvedValue(true);
 
       const onJobCollected = vi.fn().mockResolvedValue(undefined);
@@ -338,9 +226,7 @@ describe("CollectJobsService", () => {
         onJobCollected,
       });
 
-      expect(
-        mocks.paginationMessaging.navigateToNextPage,
-      ).not.toHaveBeenCalled();
+      expect(mocks.paginationMessaging.navigateToNextPage).not.toHaveBeenCalled();
       expect(onJobCollected).toHaveBeenCalledTimes(1);
     });
   });
@@ -352,22 +238,10 @@ describe("CollectJobsService", () => {
 
       const mocks = createMocks();
       mocks.jobsListMessaging.listJobs.mockResolvedValueOnce([
-        {
-          company: "Acme",
-          title: "Dev1",
-          publishedAt: oldDate.toISOString(),
-          detailUrl: "https://example.com/1",
-        },
-        {
-          company: "Acme",
-          title: "Dev2",
-          publishedAt: oldDate.toISOString(),
-          detailUrl: "https://example.com/2",
-        },
+        { company: "Acme", title: "Dev1", publishedAt: oldDate.toISOString(), detailUrl: "https://example.com/1" },
+        { company: "Acme", title: "Dev2", publishedAt: oldDate.toISOString(), detailUrl: "https://example.com/2" },
       ]);
-      mocks.paginationMessaging.canNavigateToNextPage.mockResolvedValueOnce(
-        true,
-      );
+      mocks.paginationMessaging.canNavigateToNextPage.mockResolvedValueOnce(true);
 
       const onJobCollected = vi.fn().mockResolvedValue(undefined);
 
@@ -381,9 +255,7 @@ describe("CollectJobsService", () => {
         onJobCollected,
       });
 
-      expect(
-        mocks.paginationMessaging.navigateToNextPage,
-      ).not.toHaveBeenCalled();
+      expect(mocks.paginationMessaging.navigateToNextPage).not.toHaveBeenCalled();
       expect(onJobCollected).toHaveBeenCalledTimes(2);
     });
 
@@ -394,24 +266,12 @@ describe("CollectJobsService", () => {
       const mocks = createMocks();
       mocks.jobsListMessaging.listJobs
         .mockResolvedValueOnce([
-          {
-            company: "Acme",
-            title: "Dev1",
-            publishedAt: recentDate.toISOString(),
-            detailUrl: "https://example.com/1",
-          },
+          { company: "Acme", title: "Dev1", publishedAt: recentDate.toISOString(), detailUrl: "https://example.com/1" },
         ])
         .mockResolvedValueOnce([
-          {
-            company: "Acme",
-            title: "Dev2",
-            publishedAt: recentDate.toISOString(),
-            detailUrl: "https://example.com/2",
-          },
+          { company: "Acme", title: "Dev2", publishedAt: recentDate.toISOString(), detailUrl: "https://example.com/2" },
         ]);
-      mocks.paginationMessaging.canNavigateToNextPage
-        .mockResolvedValueOnce(true)
-        .mockResolvedValueOnce(false);
+      mocks.paginationMessaging.canNavigateToNextPage.mockResolvedValueOnce(true).mockResolvedValueOnce(false);
 
       const onJobCollected = vi.fn().mockResolvedValue(undefined);
 
@@ -425,9 +285,7 @@ describe("CollectJobsService", () => {
         onJobCollected,
       });
 
-      expect(
-        mocks.paginationMessaging.navigateToNextPage,
-      ).toHaveBeenCalledTimes(1);
+      expect(mocks.paginationMessaging.navigateToNextPage).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -435,27 +293,9 @@ describe("CollectJobsService", () => {
     it("scans all available pages when no stopWhen is provided", async () => {
       const mocks = createMocks();
       mocks.jobsListMessaging.listJobs
-        .mockResolvedValueOnce([
-          {
-            company: "Acme",
-            title: "Dev1",
-            detailUrl: "https://example.com/1",
-          },
-        ])
-        .mockResolvedValueOnce([
-          {
-            company: "Acme",
-            title: "Dev2",
-            detailUrl: "https://example.com/2",
-          },
-        ])
-        .mockResolvedValueOnce([
-          {
-            company: "Acme",
-            title: "Dev3",
-            detailUrl: "https://example.com/3",
-          },
-        ]);
+        .mockResolvedValueOnce([{ company: "Acme", title: "Dev1", detailUrl: "https://example.com/1" }])
+        .mockResolvedValueOnce([{ company: "Acme", title: "Dev2", detailUrl: "https://example.com/2" }])
+        .mockResolvedValueOnce([{ company: "Acme", title: "Dev3", detailUrl: "https://example.com/3" }]);
       mocks.paginationMessaging.canNavigateToNextPage
         .mockResolvedValueOnce(true)
         .mockResolvedValueOnce(true)
@@ -470,9 +310,7 @@ describe("CollectJobsService", () => {
         onJobCollected,
       });
 
-      expect(
-        mocks.paginationMessaging.navigateToNextPage,
-      ).toHaveBeenCalledTimes(2);
+      expect(mocks.paginationMessaging.navigateToNextPage).toHaveBeenCalledTimes(2);
       expect(onJobCollected).toHaveBeenCalledTimes(3);
     });
   });

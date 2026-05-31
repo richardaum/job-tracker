@@ -13,9 +13,7 @@ export function JobHistoryTabPage({ jobId }: JobHistoryTabPageProps) {
     <div className={cn("mt-3 flex flex-1 min-h-0 flex-col overflow-hidden")}>
       <HistoryPanel
         jobId={jobId}
-        onSuccess={(message) =>
-          enqueueToast({ title: message, intent: "success" })
-        }
+        onSuccess={(message) => enqueueToast({ title: message, intent: "success" })}
         onError={(message) => enqueueToast({ title: message, intent: "error" })}
       />
     </div>

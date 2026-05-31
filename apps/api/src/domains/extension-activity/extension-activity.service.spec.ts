@@ -7,20 +7,17 @@ import { BadRequestException } from "@nestjs/common";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 describe("ExtensionActivityService", () => {
-  const repo: Pick<
-    ExtensionActivityRepository,
-    "create" | "listRecentByUserId"
-  > = { create: vi.fn(), listRecentByUserId: vi.fn() };
+  const repo: Pick<ExtensionActivityRepository, "create" | "listRecentByUserId"> = {
+    create: vi.fn(),
+    listRecentByUserId: vi.fn(),
+  };
   const eventBus: Pick<ExtensionActivityEventBus, "emit"> = { emit: vi.fn() };
 
   let service: ExtensionActivityService;
 
   beforeEach(() => {
     vi.clearAllMocks();
-    service = new ExtensionActivityService(
-      repo as ExtensionActivityRepository,
-      eventBus as ExtensionActivityEventBus,
-    );
+    service = new ExtensionActivityService(repo as ExtensionActivityRepository, eventBus as ExtensionActivityEventBus);
   });
 
   it("reportActivity persists and publishes", async () => {
@@ -77,10 +74,7 @@ describe("ExtensionActivityService", () => {
 
   it("reportActivity rejects blank summary", async () => {
     await expect(
-      service.reportActivity("user-1", {
-        type: ExtensionActivityEventTypeEnum.AuthFailed,
-        summary: "   ",
-      }),
+      service.reportActivity("user-1", { type: ExtensionActivityEventTypeEnum.AuthFailed, summary: "   " }),
     ).rejects.toBeInstanceOf(BadRequestException);
   });
 });

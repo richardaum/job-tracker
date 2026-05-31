@@ -1,7 +1,4 @@
-import {
-  MatchAnalysisEntity,
-  RequirementTypeEnum,
-} from "@api/database/entities/match-analysis.entity";
+import { MatchAnalysisEntity, RequirementTypeEnum } from "@api/database/entities/match-analysis.entity";
 import { FitClassificationEnum } from "@api/domains/match-analysis/fit-classification.enum";
 import { MatchSourceEnum } from "@api/domains/match-analysis/match-source.enum";
 import { MatchVerdictEnum } from "@api/domains/match-analysis/match-verdict.enum";
@@ -10,20 +7,14 @@ import { plainToInstance } from "class-transformer";
 import { validate } from "class-validator";
 import { describe, expect, it } from "vitest";
 
-function minimalMatchAnalysis(
-  props: Partial<MatchAnalysisEntity> = {},
-): MatchAnalysisEntity {
+function minimalMatchAnalysis(props: Partial<MatchAnalysisEntity> = {}): MatchAnalysisEntity {
   const now = new Date("2026-01-01T00:00:00.000Z");
   return plainToInstance(MatchAnalysisEntity, {
     id: "match-spec-1",
     jobId: "job-1",
     userId: "user-1",
     resumeId: "resume-1",
-    generationMetadata: {
-      status: AsyncMetadataStatusEnum.COMPLETED,
-      error: null,
-      timestamp: now,
-    },
+    generationMetadata: { status: AsyncMetadataStatusEnum.COMPLETED, error: null, timestamp: now },
     scoreRatio: 0.5,
     classification: FitClassificationEnum.Positive,
     matchCount: 1,

@@ -30,11 +30,7 @@ export class PlanService {
     });
   }
 
-  async update(
-    id: string,
-    input: UpdatePlanInput,
-    userId: string,
-  ): Promise<PlanEntity> {
+  async update(id: string, input: UpdatePlanInput, userId: string): Promise<PlanEntity> {
     const existing = await this.repo.findById(id);
     if (!existing) {
       throw new NotFoundException(`Plan ${id} not found`);

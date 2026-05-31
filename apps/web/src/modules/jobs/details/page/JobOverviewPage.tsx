@@ -11,9 +11,7 @@ export function JobOverviewPage({ jobId }: JobOverviewPageProps) {
   const { enqueueToast } = useToastQueue();
   // TODO: consume job data from JobDetailsContext instead of calling
   // useJobDetailsViewModel() here (see TODO in that hook).
-  const { job, sourcePrimaryText } = useJobDetailsViewModel(jobId, {
-    includeStageEvents: false,
-  });
+  const { job, sourcePrimaryText } = useJobDetailsViewModel(jobId, { includeStageEvents: false });
 
   if (!job) {
     return null;

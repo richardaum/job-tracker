@@ -25,13 +25,9 @@ export const CanNavigateNextPageMessageSchema = z.object({
   action: CollectJobsPlanStepActionSchema,
 });
 
-export const ImportJobMessageSchema = z.object({
-  kind: z.literal("import.job"),
-});
+export const ImportJobMessageSchema = z.object({ kind: z.literal("import.job") });
 
-export const ImportJobMenuLabelMessageSchema = z.object({
-  kind: z.literal("import.job.menu-label"),
-});
+export const ImportJobMenuLabelMessageSchema = z.object({ kind: z.literal("import.job.menu-label") });
 
 export const ContentActionMessageSchema = z.discriminatedUnion("kind", [
   JobsListMessageSchema,
@@ -60,9 +56,7 @@ export const RequestPayloadSchemas = {
   "import.job.menu-label": ImportJobMenuLabelMessageSchema,
 } as const;
 
-export const EventPayloadSchemas = {
-  "log.event": LogEventPayloadSchema,
-} as const;
+export const EventPayloadSchemas = { "log.event": LogEventPayloadSchema } as const;
 
 export const MessageEnvelopeSchema = z.object({
   id: z.string().min(1),

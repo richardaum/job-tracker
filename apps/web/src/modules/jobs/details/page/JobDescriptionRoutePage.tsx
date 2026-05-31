@@ -6,9 +6,7 @@ import { JobDescriptionPage } from "@/modules/jobs/details/page/JobDescriptionPa
 
 type JobDescriptionRoutePageProps = { params: Promise<{ id: string }> };
 
-export default function JobDescriptionRoutePage({
-  params,
-}: JobDescriptionRoutePageProps) {
+export default function JobDescriptionRoutePage({ params }: JobDescriptionRoutePageProps) {
   const { id } = use(params);
   return <JobDescriptionPage jobId={id} />;
 }

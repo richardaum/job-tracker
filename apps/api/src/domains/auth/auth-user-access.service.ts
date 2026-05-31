@@ -12,15 +12,8 @@ export class AuthUserAccessService {
     private readonly roleService: RoleService,
   ) {}
 
-  async assertAuthenticatedUser(
-    userId: string,
-    tokenVersion: number,
-    allowedRoles?: RoleEnum[],
-  ): Promise<User> {
-    const user = await this.userService.validateActiveUser(
-      userId,
-      tokenVersion,
-    );
+  async assertAuthenticatedUser(userId: string, tokenVersion: number, allowedRoles?: RoleEnum[]): Promise<User> {
+    const user = await this.userService.validateActiveUser(userId, tokenVersion);
     if (allowedRoles && !this.roleService.isAllowed(user.role, allowedRoles)) {
       throw new ForbiddenException();
     }

@@ -20,12 +20,6 @@ export class CurrencyConverterResolver {
     @Args("currencies", { type: () => [String] }) currencies: string[],
   ): Promise<CurrencyRates> {
     const rates = await this.service.getRates(base, currencies);
-    return {
-      base,
-      rates: Object.entries(rates).map(([currency, rate]) => ({
-        currency,
-        rate,
-      })),
-    };
+    return { base, rates: Object.entries(rates).map(([currency, rate]) => ({ currency, rate })) };
   }
 }

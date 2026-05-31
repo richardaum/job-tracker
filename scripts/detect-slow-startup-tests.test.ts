@@ -18,18 +18,10 @@ import {
 
 describe("detect-slow-startup-tests.ts", () => {
   it("recognizes vitest startup signals", () => {
+    assert.equal(parseVitestStartupLine(" RUN  v3.0.0 /tmp/project"), " RUN  v3.0.0 /tmp/project");
+    assert.equal(parseVitestStartupLine(" ✓ src/foo.test.ts (3 tests) 12ms"), " ✓ src/foo.test.ts (3 tests) 12ms");
     assert.equal(
-      parseVitestStartupLine(" RUN  v3.0.0 /tmp/project"),
-      " RUN  v3.0.0 /tmp/project",
-    );
-    assert.equal(
-      parseVitestStartupLine(" ✓ src/foo.test.ts (3 tests) 12ms"),
-      " ✓ src/foo.test.ts (3 tests) 12ms",
-    );
-    assert.equal(
-      parseVitestStartupLine(
-        " ✓ src/hooks/useBreakpoint.test.ts > useBreakpoint > returns false 8ms",
-      ),
+      parseVitestStartupLine(" ✓ src/hooks/useBreakpoint.test.ts > useBreakpoint > returns false 8ms"),
       " ✓ src/hooks/useBreakpoint.test.ts > useBreakpoint > returns false 8ms",
     );
     assert.equal(parseVitestStartupLine("collecting tests..."), undefined);
@@ -55,10 +47,7 @@ describe("detect-slow-startup-tests.ts", () => {
       "@job-tracker/web",
       1,
       progress,
-      {
-        startupTimeoutMs: DEFAULT_STARTUP_TIMEOUT_MS,
-        slowStartupMs: DEFAULT_SLOW_STARTUP_MS,
-      },
+      { startupTimeoutMs: DEFAULT_STARTUP_TIMEOUT_MS, slowStartupMs: DEFAULT_SLOW_STARTUP_MS },
       "startup",
     );
     assert.equal(neverStarted?.kind, "neverStarted");

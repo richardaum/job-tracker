@@ -2,15 +2,9 @@
 
 import { Button, cn, Text } from "@job-tracker/ui";
 
-type JobsImportRunFilterBannerProps = {
-  runId: string | null | undefined;
-  onClear: () => void;
-};
+type JobsImportRunFilterBannerProps = { runId: string | null | undefined; onClear: () => void };
 
-export function JobsImportRunFilterBanner({
-  runId,
-  onClear,
-}: JobsImportRunFilterBannerProps) {
+export function JobsImportRunFilterBanner({ runId, onClear }: JobsImportRunFilterBannerProps) {
   if (!runId) return null;
 
   return (

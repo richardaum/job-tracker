@@ -6,10 +6,7 @@ import { firstValueFrom, of } from "rxjs";
 import { tap } from "rxjs/operators";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import {
-  QUERY_WARN_THRESHOLD,
-  REQUEST_WARN_THRESHOLD_MS,
-} from "./request-metrics.constants";
+import { QUERY_WARN_THRESHOLD, REQUEST_WARN_THRESHOLD_MS } from "./request-metrics.constants";
 import { RequestMetricsContext } from "./request-metrics.context";
 import { RequestMetricsInterceptor } from "./request-metrics.interceptor";
 
@@ -31,12 +28,8 @@ describe("RequestMetricsInterceptor", () => {
   beforeEach(() => {
     requestMetricsContext = new RequestMetricsContext();
     interceptor = new RequestMetricsInterceptor(requestMetricsContext);
-    logSpy = vi
-      .spyOn(interceptor["logger"], "log")
-      .mockImplementation(() => {});
-    warnSpy = vi
-      .spyOn(interceptor["logger"], "warn")
-      .mockImplementation(() => {});
+    logSpy = vi.spyOn(interceptor["logger"], "log").mockImplementation(() => {});
+    warnSpy = vi.spyOn(interceptor["logger"], "warn").mockImplementation(() => {});
   });
 
   afterEach(() => {
@@ -51,16 +44,11 @@ describe("RequestMetricsInterceptor", () => {
 
     expect(warnSpy).not.toHaveBeenCalled();
     expect(logSpy).toHaveBeenCalledTimes(1);
-    expect(logSpy.mock.calls[0][0]).toMatch(
-      /http:TestController\.handler took \d+ms with 0 DB queries/,
-    );
+    expect(logSpy.mock.calls[0][0]).toMatch(/http:TestController\.handler took \d+ms with 0 DB queries/);
   });
 
   it("warns when duration meets the request latency threshold", async () => {
-    const nowSpy = vi
-      .spyOn(performance, "now")
-      .mockReturnValueOnce(0)
-      .mockReturnValueOnce(REQUEST_WARN_THRESHOLD_MS);
+    const nowSpy = vi.spyOn(performance, "now").mockReturnValueOnce(0).mockReturnValueOnce(REQUEST_WARN_THRESHOLD_MS);
 
     const ctx = makeHttpContext();
     const handler: CallHandler = { handle: () => of(1) };
@@ -69,9 +57,7 @@ describe("RequestMetricsInterceptor", () => {
 
     expect(warnSpy).toHaveBeenCalledTimes(1);
     expect(warnSpy.mock.calls[0][0]).toMatch(
-      new RegExp(
-        String.raw`http:TestController\.handler took ${REQUEST_WARN_THRESHOLD_MS}ms with 0 DB queries`,
-      ),
+      new RegExp(String.raw`http:TestController\.handler took ${REQUEST_WARN_THRESHOLD_MS}ms with 0 DB queries`),
     );
     expect(logSpy).not.toHaveBeenCalled();
 
@@ -95,9 +81,7 @@ describe("RequestMetricsInterceptor", () => {
 
     expect(warnSpy).toHaveBeenCalledTimes(1);
     expect(warnSpy.mock.calls[0][0]).toMatch(
-      new RegExp(
-        String.raw`http:TestController\.handler took \d+ms with ${QUERY_WARN_THRESHOLD} DB queries`,
-      ),
+      new RegExp(String.raw`http:TestController\.handler took \d+ms with ${QUERY_WARN_THRESHOLD} DB queries`),
     );
   });
 });

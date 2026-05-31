@@ -2,10 +2,7 @@ import { parseTipTapDocument } from "./parse";
 import { plainTextToTipTap } from "./plain-text";
 import type { StructuredNoteOutput, TipTapDocument, TipTapNode } from "./types";
 
-export function structuredNoteToTipTapDocument(
-  structured: StructuredNoteOutput,
-  fallbackText: string,
-): TipTapDocument {
+export function structuredNoteToTipTapDocument(structured: StructuredNoteOutput, fallbackText: string): TipTapDocument {
   const content: TipTapNode[] = [];
 
   for (const section of structured.sections) {
@@ -13,10 +10,7 @@ export function structuredNoteToTipTapDocument(
     const bullets = section.bullets.map((b) => b.trim()).filter(Boolean);
 
     if (heading) {
-      content.push({
-        type: "paragraph",
-        content: [{ type: "text", text: heading }],
-      });
+      content.push({ type: "paragraph", content: [{ type: "text", text: heading }] });
     }
 
     if (bullets.length > 0) {
@@ -24,9 +18,7 @@ export function structuredNoteToTipTapDocument(
         type: "bulletList",
         content: bullets.map((bullet) => ({
           type: "listItem",
-          content: [
-            { type: "paragraph", content: [{ type: "text", text: bullet }] },
-          ],
+          content: [{ type: "paragraph", content: [{ type: "text", text: bullet }] }],
         })),
       });
     }

@@ -27,10 +27,7 @@ export class NoteResolver {
   }
 
   @Mutation(() => NoteType)
-  createJobNote(
-    @Args("input") input: CreateNoteInput,
-    @CurrentUser() user: { userId: string },
-  ): Promise<NoteType> {
+  createJobNote(@Args("input") input: CreateNoteInput, @CurrentUser() user: { userId: string }): Promise<NoteType> {
     return this.service.createNote(user.userId, input);
   }
 

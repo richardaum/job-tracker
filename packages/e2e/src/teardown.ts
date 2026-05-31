@@ -34,14 +34,9 @@ async function dropDatabase(): Promise<void> {
   const client = new pg.Client({ connectionString: postgresUrl.toString() });
   try {
     await client.connect();
-    const exists = await client.query(
-      `SELECT 1 FROM pg_database WHERE datname = $1`,
-      [e2eEnv.E2E_DB_NAME],
-    );
+    const exists = await client.query(`SELECT 1 FROM pg_database WHERE datname = $1`, [e2eEnv.E2E_DB_NAME]);
     if (exists.rows.length === 0) {
-      console.log(
-        `[e2e:teardown] Database ${e2eEnv.E2E_DB_NAME} does not exist — skipping.`,
-      );
+      console.log(`[e2e:teardown] Database ${e2eEnv.E2E_DB_NAME} does not exist — skipping.`);
       return;
     }
     await client.query(
@@ -69,9 +64,7 @@ async function main() {
 
   // 1. Kill E2E API (by port — kills actual nest process, not just pnpm parent)
   const [killErr] = tryRun(() => {
-    execSync(`lsof -ti :${e2eEnv.E2E_API_PORT} | xargs kill -9 2>/dev/null`, {
-      stdio: "ignore",
-    });
+    execSync(`lsof -ti :${e2eEnv.E2E_API_PORT} | xargs kill -9 2>/dev/null`, { stdio: "ignore" });
   });
   if (!killErr) {
     console.log(`[e2e:teardown] Killed E2E API on port ${e2eEnv.E2E_API_PORT}`);

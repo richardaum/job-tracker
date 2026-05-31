@@ -20,10 +20,7 @@ export class MockedTabManager implements TabService {
   private readonly tabWindows = new Map<number, Window>();
   private tabSeq = 0;
 
-  constructor(options: {
-    listingWindow: Window;
-    pagesByUrl: Record<string, string>;
-  }) {
+  constructor(options: { listingWindow: Window; pagesByUrl: Record<string, string> }) {
     this.listingWindow = options.listingWindow;
     this.pagesByUrl = options.pagesByUrl;
   }
@@ -40,8 +37,7 @@ export class MockedTabManager implements TabService {
     void options;
     const id = ++this.tabSeq;
     const pageHtml = this.pagesByUrl[url];
-    const pageWindow =
-      pageHtml != null ? loadHtmlWindow(pageHtml, url) : this.listingWindow;
+    const pageWindow = pageHtml != null ? loadHtmlWindow(pageHtml, url) : this.listingWindow;
     this.tabWindows.set(id, pageWindow);
     globalThis.window = pageWindow as unknown as typeof globalThis.window;
     globalThis.document = pageWindow.document as unknown as Document;
@@ -61,8 +57,7 @@ export class MockedTabManager implements TabService {
       return;
     }
     this.tabWindows.delete(tabId);
-    globalThis.window = this
-      .listingWindow as unknown as typeof globalThis.window;
+    globalThis.window = this.listingWindow as unknown as typeof globalThis.window;
     globalThis.document = this.listingWindow.document as unknown as Document;
   }
 

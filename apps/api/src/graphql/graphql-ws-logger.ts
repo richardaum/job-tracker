@@ -26,17 +26,11 @@ export function createWsSubscribe() {
             },
             return: async () => {
               await iterator.return?.();
-              return {
-                value: undefined,
-                done: true,
-              } as IteratorResult<ExecutionResult>;
+              return { value: undefined, done: true } as IteratorResult<ExecutionResult>;
             },
             throw: async (err: unknown) => {
               await iterator.throw?.(err);
-              return {
-                value: undefined,
-                done: true,
-              } as IteratorResult<ExecutionResult>;
+              return { value: undefined, done: true } as IteratorResult<ExecutionResult>;
             },
           };
         },

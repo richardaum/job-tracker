@@ -1,19 +1,7 @@
 "use client";
 
-import {
-  cn,
-  DropdownMenu,
-  IconButton,
-  ListItemCard,
-  Stack,
-  Text,
-} from "@job-tracker/ui";
-import {
-  ArrowSquareRightIcon,
-  CurrencyDollarIcon,
-  PencilSimpleIcon,
-  TrashIcon,
-} from "@phosphor-icons/react";
+import { cn, DropdownMenu, IconButton, ListItemCard, Stack, Text } from "@job-tracker/ui";
+import { ArrowSquareRightIcon, CurrencyDollarIcon, PencilSimpleIcon, TrashIcon } from "@phosphor-icons/react";
 import NextLink from "next/link";
 
 import { ApplicationStage } from "@/gql/hooks";
@@ -130,18 +118,11 @@ function CurrentStageDateText({
   if (stageEventsRequested && jobStageEvents.length > 0) {
     const currentStageEvent = jobStageEvents[0] ?? null;
     const currentStage = currentStageEvent?.toStage ?? ApplicationStage.New;
-    const statusAt =
-      currentStageEvent?.scheduledAt ??
-      currentStageEvent?.createdAt ??
-      listStatusAt;
+    const statusAt = currentStageEvent?.scheduledAt ?? currentStageEvent?.createdAt ?? listStatusAt;
     return (
       <Text as="span" size="sm" color="secondary">
         {formatStage(currentStage)}{" "}
-        {new Date(statusAt).toLocaleDateString("en-US", {
-          year: "numeric",
-          month: "short",
-          day: "numeric",
-        })}
+        {new Date(statusAt).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}
       </Text>
     );
   }
@@ -149,11 +130,7 @@ function CurrentStageDateText({
   return (
     <Text as="span" size="sm" color="secondary">
       {formatStage(listStage)}{" "}
-      {new Date(listStatusAt).toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-      })}
+      {new Date(listStatusAt).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}
     </Text>
   );
 }
@@ -272,15 +249,8 @@ export function JobCard({ job: app, onSuccess, onError }: JobCardProps) {
         <>
           {displayCompanyMeta ? (
             <>
-              <span
-                className={cn("contents")}
-                data-testid="job-card-company-meta"
-              >
-                <CompanyNameWithPopover
-                  job={app}
-                  onSuccess={onSuccess}
-                  onError={onError}
-                />
+              <span className={cn("contents")} data-testid="job-card-company-meta">
+                <CompanyNameWithPopover job={app} onSuccess={onSuccess} onError={onError} />
               </span>
               <InlineMetaDot />
             </>
@@ -324,11 +294,7 @@ export function JobCard({ job: app, onSuccess, onError }: JobCardProps) {
           {showSalary ? (
             <>
               <InlineMetaDot />
-              <span
-                className={cn(
-                  "inline-flex min-w-0 max-w-full flex-wrap items-center gap-2",
-                )}
-              >
+              <span className={cn("inline-flex min-w-0 max-w-full flex-wrap items-center gap-2")}>
                 {formattedSalary ? (
                   <SalaryPeriodTooltip salary={salary}>
                     <SalaryView salary={formattedSalary} />

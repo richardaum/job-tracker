@@ -154,10 +154,7 @@ apps/api/src/
     userTemplate: string;
     vars: Record<string, unknown>;
     schema: z.ZodType<T>;
-    responseFormat:
-      | "zod-response"
-      | "json-schema"
-      | "json-schema-with-web-search";
+    responseFormat: "zod-response" | "json-schema" | "json-schema-with-web-search";
     model?: string; // defaults to OPENAI_MODEL env
   };
   ```

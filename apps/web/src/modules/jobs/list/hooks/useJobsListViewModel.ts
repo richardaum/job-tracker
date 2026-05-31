@@ -4,10 +4,7 @@ import { useSearchParams } from "next/navigation";
 import { useMemo } from "react";
 
 import { useJobsQuery } from "@/gql/hooks";
-import {
-  useCompanyFilter,
-  useQuickFilter,
-} from "@/modules/jobs/list/hooks/useQuickFilter";
+import { useCompanyFilter, useQuickFilter } from "@/modules/jobs/list/hooks/useQuickFilter";
 
 export function useJobsListViewModel() {
   const searchParams = useSearchParams();
@@ -21,22 +18,10 @@ export function useJobsListViewModel() {
 
   const { data, loading, error } = useJobsQuery({
     fetchPolicy: "cache-and-network",
-    variables: {
-      filter: activeFilter,
-      company: companyFilter,
-      runId: runIdFilter,
-    },
+    variables: { filter: activeFilter, company: companyFilter, runId: runIdFilter },
   });
 
   const jobs = data?.jobs ?? [];
 
-  return {
-    jobs,
-    activeFilter,
-    companyFilter,
-    runIdFilter,
-    loading,
-    error,
-    showInitialLoading: loading && !data,
-  };
+  return { jobs, activeFilter, companyFilter, runIdFilter, loading, error, showInitialLoading: loading && !data };
 }

@@ -25,19 +25,12 @@ describe("useToastQueue", () => {
     });
 
     expect(result.current.toastProps.toasts).toEqual([
-      {
-        id: "toast-1",
-        title: "Saved.",
-        intent: "success",
-        description: undefined,
-      },
+      { id: "toast-1", title: "Saved.", intent: "success", description: undefined },
     ]);
   });
 
   it("dismisses closed toast", () => {
-    vi.spyOn(crypto, "randomUUID")
-      .mockReturnValueOnce("toast-1")
-      .mockReturnValueOnce("toast-2");
+    vi.spyOn(crypto, "randomUUID").mockReturnValueOnce("toast-1").mockReturnValueOnce("toast-2");
 
     const { result } = renderHook(() => useToastQueue(), { wrapper: Wrapper });
 

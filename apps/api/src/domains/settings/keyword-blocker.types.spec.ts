@@ -2,12 +2,7 @@ import "reflect-metadata";
 
 import { describe, expect, it } from "vitest";
 
-import {
-  BlockedKeywordInput,
-  BlockedKeywordType,
-  KeywordScope,
-  MatchMode,
-} from "./keyword-blocker.types";
+import { BlockedKeywordInput, BlockedKeywordType, KeywordScope, MatchMode } from "./keyword-blocker.types";
 
 describe("KeywordScope", () => {
   it("has TITLE member", () => {

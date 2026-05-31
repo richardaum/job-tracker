@@ -7,11 +7,7 @@ import { mapCollectedJobToCreateJobInput } from "@/domains/plan/map-collected-jo
 import type { CollectJobsStepInput, Plan } from "@/domains/plan/model/types";
 import type { PlanService } from "@/domains/plan/services/plan.service";
 import { planForSourceRun } from "@/domains/sources/source-run-plan";
-import {
-  ExtensionActivityEventType,
-  type SourceRunType,
-  SourceRunStatus,
-} from "@/gql/graphql";
+import { ExtensionActivityEventType, type SourceRunType, SourceRunStatus } from "@/gql/graphql";
 
 export class SourceRunEventsService {
   constructor(
@@ -28,10 +24,7 @@ export class SourceRunEventsService {
       return;
     }
 
-    const outstandingRuns =
-      response.data?.sourceRuns?.filter(
-        (run) => run.status === SourceRunStatus.Pending,
-      ) ?? [];
+    const outstandingRuns = response.data?.sourceRuns?.filter((run) => run.status === SourceRunStatus.Pending) ?? [];
 
     for (const run of outstandingRuns) {
       await this.executeSourceRun({
@@ -51,21 +44,9 @@ export class SourceRunEventsService {
       this.logService.error("source-run:invalid-message", { params });
       return;
     }
-    const {
-      runId,
-      surfaceUrl,
-      planId,
-      stopWhen,
-      catchUpThreshold,
-      maxPages,
-      olderThanDays,
-    } = params;
+    const { runId, surfaceUrl, planId, stopWhen, catchUpThreshold, maxPages, olderThanDays } = params;
 
-    this.activityReporter?.report(
-      ExtensionActivityEventType.SourceRunStarted,
-      surfaceUrl,
-      { correlationId: runId },
-    );
+    this.activityReporter?.report(ExtensionActivityEventType.SourceRunStarted, surfaceUrl, { correlationId: runId });
 
     const plan = planForSourceRun(planId);
     const publishedAtField = getPublishedAtFieldName(plan);
@@ -83,44 +64,26 @@ export class SourceRunEventsService {
           onJobCollected: async (job) => {
             const company = typeof job.company === "string" ? job.company : "";
             const title = typeof job.title === "string" ? job.title : "";
-            const [dupErr, isDuplicate] = await tryRun(
-              this.apiService.isJobDuplicate(company, title),
-            );
+            const [dupErr, isDuplicate] = await tryRun(this.apiService.isJobDuplicate(company, title));
 
             if (dupErr) {
-              this.logService.warn?.("source-run:is-job-duplicate-failed", {
-                runId,
-                error: dupErr,
-                company,
-                title,
-              });
+              this.logService.warn?.("source-run:is-job-duplicate-failed", { runId, error: dupErr, company, title });
             }
 
             const duplicate = !dupErr && isDuplicate;
 
             if (!duplicate) {
-              const input = {
-                ...mapCollectedJobToCreateJobInput(job),
-                sourceRunId: runId,
-              };
-              const [createErr] = await tryRun(
-                this.apiService.createJob(input),
-              );
+              const input = { ...mapCollectedJobToCreateJobInput(job), sourceRunId: runId };
+              const [createErr] = await tryRun(this.apiService.createJob(input));
               if (createErr) {
-                this.logService.error("source-run:create-job-failed", {
-                  runId,
-                  error: createErr,
-                  title: job.title,
-                });
+                this.logService.error("source-run:create-job-failed", { runId, error: createErr, title: job.title });
                 return { duplicate: false };
               }
             }
 
             this.activityReporter?.report(
               ExtensionActivityEventType.SourceRunJobImported,
-              typeof job.title === "string" && job.title.trim()
-                ? job.title.trim()
-                : surfaceUrl,
+              typeof job.title === "string" && job.title.trim() ? job.title.trim() : surfaceUrl,
               { correlationId: runId, payload: JSON.stringify({ duplicate }) },
             );
 
@@ -141,38 +104,19 @@ export class SourceRunEventsService {
             );
           },
         });
-        await this.apiService.updateSourceRunStatus(
-          runId,
-          SourceRunStatus.Completed,
-        );
+        await this.apiService.updateSourceRunStatus(runId, SourceRunStatus.Completed);
       })(),
     );
 
     if (runErr) {
-      const errorMessage =
-        runErr instanceof Error ? runErr.message : String(runErr);
-      await this.apiService.updateSourceRunStatus(
-        runId,
-        SourceRunStatus.Failed,
-        errorMessage,
-      );
-      this.logService.error("source-run:execution-failed", {
-        runId,
-        error: runErr,
-      });
-      this.activityReporter?.report(
-        ExtensionActivityEventType.SourceRunFailed,
-        surfaceUrl,
-        { correlationId: runId },
-      );
+      const errorMessage = runErr instanceof Error ? runErr.message : String(runErr);
+      await this.apiService.updateSourceRunStatus(runId, SourceRunStatus.Failed, errorMessage);
+      this.logService.error("source-run:execution-failed", { runId, error: runErr });
+      this.activityReporter?.report(ExtensionActivityEventType.SourceRunFailed, surfaceUrl, { correlationId: runId });
       return;
     }
 
-    this.activityReporter?.report(
-      ExtensionActivityEventType.SourceRunCompleted,
-      surfaceUrl,
-      { correlationId: runId },
-    );
+    this.activityReporter?.report(ExtensionActivityEventType.SourceRunCompleted, surfaceUrl, { correlationId: runId });
   }
 }
 
@@ -196,14 +140,8 @@ type SourceRunStartMessage = {
   olderThanDays?: SourceRunType["olderThanDays"];
 };
 
-function isSourceRunStartMessage(
-  message: unknown,
-): message is SourceRunStartMessage {
+function isSourceRunStartMessage(message: unknown): message is SourceRunStartMessage {
   if (typeof message !== "object" || message === null) return false;
   const m = message as Record<string, unknown>;
-  return (
-    typeof m.runId === "string" &&
-    typeof m.surfaceUrl === "string" &&
-    typeof m.planId === "string"
-  );
+  return typeof m.runId === "string" && typeof m.surfaceUrl === "string" && typeof m.planId === "string";
 }

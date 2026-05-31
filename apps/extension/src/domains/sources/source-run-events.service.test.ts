@@ -14,11 +14,7 @@ describe("SourceRunEventsService", () => {
   it("executes plan then COMPLETED", async () => {
     const setup = createSetup();
 
-    const service = new SourceRunEventsService(
-      setup.apiService,
-      setup.logService,
-      setup.planService,
-    );
+    const service = new SourceRunEventsService(setup.apiService, setup.logService, setup.planService);
 
     await service.executeSourceRun({
       runId: "run-1",
@@ -27,25 +23,16 @@ describe("SourceRunEventsService", () => {
     });
 
     expect(setup.updateSourceRunStatus).toHaveBeenCalledTimes(1);
-    expect(setup.updateSourceRunStatus).toHaveBeenCalledWith(
-      "run-1",
-      SourceRunStatus.Completed,
-    );
+    expect(setup.updateSourceRunStatus).toHaveBeenCalledWith("run-1", SourceRunStatus.Completed);
     expect(setup.executePlan).toHaveBeenCalledTimes(1);
-    const executeOptions = setup.executePlan.mock.calls[0]?.[1] as {
-      surfaceUrl: string;
-    };
+    const executeOptions = setup.executePlan.mock.calls[0]?.[1] as { surfaceUrl: string };
     expect(executeOptions.surfaceUrl).toBe(REMOTEYEAH_SURFACE_URL);
   });
 
   it("marks run FAILED when execution throws", async () => {
     const setup = createSetup({ executePlanError: new Error("boom") });
 
-    const service = new SourceRunEventsService(
-      setup.apiService,
-      setup.logService,
-      setup.planService,
-    );
+    const service = new SourceRunEventsService(setup.apiService, setup.logService, setup.planService);
 
     await service.executeSourceRun({
       runId: "run-1",
@@ -54,11 +41,7 @@ describe("SourceRunEventsService", () => {
     });
 
     expect(setup.updateSourceRunStatus).toHaveBeenCalledTimes(1);
-    expect(setup.updateSourceRunStatus).toHaveBeenCalledWith(
-      "run-1",
-      SourceRunStatus.Failed,
-      "boom",
-    );
+    expect(setup.updateSourceRunStatus).toHaveBeenCalledWith("run-1", SourceRunStatus.Failed, "boom");
   });
 
   it("recovers Pending runs on startup", async () => {
@@ -74,11 +57,7 @@ describe("SourceRunEventsService", () => {
       },
     });
 
-    const service = new SourceRunEventsService(
-      setup.apiService,
-      setup.logService,
-      setup.planService,
-    );
+    const service = new SourceRunEventsService(setup.apiService, setup.logService, setup.planService);
 
     await service.recoverOutstandingRuns();
 
@@ -90,22 +69,13 @@ describe("SourceRunEventsService", () => {
   });
 
   it("handles recovery query errors gracefully", async () => {
-    const setup = createSetup({
-      sourceRunsValue: Promise.reject(new Error("network")),
-    });
+    const setup = createSetup({ sourceRunsValue: Promise.reject(new Error("network")) });
 
-    const service = new SourceRunEventsService(
-      setup.apiService,
-      setup.logService,
-      setup.planService,
-    );
+    const service = new SourceRunEventsService(setup.apiService, setup.logService, setup.planService);
 
     await service.recoverOutstandingRuns();
 
-    expect(setup.logService.error).toHaveBeenCalledWith(
-      "source-run:recovery-error",
-      expect.any(Object),
-    );
+    expect(setup.logService.error).toHaveBeenCalledWith("source-run:recovery-error", expect.any(Object));
     expect(setup.executePlan).not.toHaveBeenCalled();
   });
 });
@@ -115,9 +85,7 @@ function createSetup({
   sourceRunsValue,
 }: {
   executePlanError?: Error;
-  sourceRunsValue?:
-    | { data: { sourceRuns: Array<ReturnType<typeof createRun>> } }
-    | Promise<never>;
+  sourceRunsValue?: { data: { sourceRuns: Array<ReturnType<typeof createRun>> } } | Promise<never>;
 } = {}) {
   const sourceRuns = vi.fn().mockImplementation(async () => {
     if (sourceRunsValue instanceof Promise)
@@ -141,25 +109,11 @@ function createSetup({
     executePlan.mockResolvedValue(undefined);
   }
   const planService = { execute: executePlan } as unknown as PlanService;
-  const logService = {
-    debug: vi.fn(),
-    error: vi.fn(),
-  } as unknown as LogService;
+  const logService = { debug: vi.fn(), error: vi.fn() } as unknown as LogService;
 
-  return {
-    apiService,
-    planService,
-    logService,
-    executePlan,
-    updateSourceRunStatus,
-  };
+  return { apiService, planService, logService, executePlan, updateSourceRunStatus };
 }
 
 function createRun({ id, status }: { id: string; status: SourceRunStatus }) {
-  return {
-    id,
-    status,
-    planId: "2e84cb8d-d9f2-4a02-947e-80909eb76709",
-    surfaceUrl: REMOTEYEAH_SURFACE_URL,
-  };
+  return { id, status, planId: "2e84cb8d-d9f2-4a02-947e-80909eb76709", surfaceUrl: REMOTEYEAH_SURFACE_URL };
 }

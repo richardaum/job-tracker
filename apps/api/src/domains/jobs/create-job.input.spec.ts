@@ -12,10 +12,7 @@ describe("CreateJobInput", () => {
   });
 
   it("rejects oversized title", async () => {
-    const input = plainToInstance(CreateJobInput, {
-      title: "t".repeat(JOB_TITLE_MAX_LENGTH + 1),
-      company: "Acme",
-    });
+    const input = plainToInstance(CreateJobInput, { title: "t".repeat(JOB_TITLE_MAX_LENGTH + 1), company: "Acme" });
     const errs = await validate(input);
     expect(errs.some((e) => e.property === "title")).toBe(true);
   });

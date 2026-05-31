@@ -8,16 +8,7 @@ import type { User } from "@api/domains/users/users.schema";
 import { UserService } from "@api/domains/users/users.service";
 import { apiEnv } from "@api/env/server";
 import { tryRun } from "@job-tracker/try-run";
-import {
-  Controller,
-  Get,
-  HttpCode,
-  Post,
-  Req,
-  Res,
-  UnauthorizedException,
-  UseGuards,
-} from "@nestjs/common";
+import { Controller, Get, HttpCode, Post, Req, Res, UnauthorizedException, UseGuards } from "@nestjs/common";
 import { Throttle, ThrottlerGuard } from "@nestjs/throttler";
 import type { Request, Response } from "express";
 
@@ -32,13 +23,7 @@ const cookieBase = {
   secure: true,
   path: "/",
 };
-const cookieBaseDev = {
-  httpOnly: true,
-  sameSite: "lax" as const,
-  secure: false,
-  domain: "localhost",
-  path: "/",
-};
+const cookieBaseDev = { httpOnly: true, sameSite: "lax" as const, secure: false, domain: "localhost", path: "/" };
 /** Long-lived refresh cookie scoped to `/auth/*` so SSE/other paths do not send it on every reconnect. */
 const REFRESH_COOKIE_PATH = "/auth";
 const DEFAULT_AFTER_LOGIN_PATH = "/login";
@@ -57,10 +42,7 @@ export class AuthController {
   @Get("google")
   @UseGuards(ThrottlerGuard, GoogleAuthGuard)
   @Throttle({ default: { ttl: 60_000, limit: 5 } })
-  googleLogin(
-    @Req() req: Request & { user?: Pick<User, "id" | "tokenVersion"> },
-    @Res() res: Response,
-  ): void {
+  googleLogin(@Req() req: Request & { user?: Pick<User, "id" | "tokenVersion"> }, @Res() res: Response): void {
     if (!this.devAuthBypassService.isEnabled() || !req.user) {
       return;
     }
@@ -71,10 +53,7 @@ export class AuthController {
   @Get("google/callback")
   @UseGuards(ThrottlerGuard, GoogleAuthGuard)
   @Throttle({ default: { ttl: 60_000, limit: 5 } })
-  googleCallback(
-    @Req() req: Request & { user: Pick<User, "id" | "tokenVersion"> },
-    @Res() res: Response,
-  ): void {
+  googleCallback(@Req() req: Request & { user: Pick<User, "id" | "tokenVersion"> }, @Res() res: Response): void {
     void this.finishLogin(req.user, req.query.state, req, res);
   }
 
@@ -105,17 +84,12 @@ export class AuthController {
       throw new UnauthorizedException();
     }
 
-    const [verifyErr, payload] = tryRun(() =>
-      this.authService.verifyRefreshToken(refreshToken),
-    );
+    const [verifyErr, payload] = tryRun(() => this.authService.verifyRefreshToken(refreshToken));
     if (verifyErr || !payload) {
       throw new UnauthorizedException();
     }
 
-    await this.authUserAccessService.assertAuthenticatedUser(
-      payload.userId,
-      payload.tokenVersion,
-    );
+    await this.authUserAccessService.assertAuthenticatedUser(payload.userId, payload.tokenVersion);
 
     const freshUser = await this.userService.findById(payload.userId);
     if (!freshUser?.active) {
@@ -123,8 +97,7 @@ export class AuthController {
     }
 
     const isLegacyToken = payload.jti === undefined;
-    const jtiMatches =
-      payload.jti !== undefined && freshUser.refreshJti === payload.jti;
+    const jtiMatches = payload.jti !== undefined && freshUser.refreshJti === payload.jti;
     const isLegacyMigration = isLegacyToken && freshUser.refreshJti === null;
 
     if (!jtiMatches && !isLegacyMigration) {
@@ -140,24 +113,16 @@ export class AuthController {
       throw new UnauthorizedException();
     }
 
-    const accessToken = this.authService.generateAccessToken(
-      { id: rotatedUser.id },
-      rotatedUser.tokenVersion,
-    );
+    const accessToken = this.authService.generateAccessToken({ id: rotatedUser.id }, rotatedUser.tokenVersion);
     const newRefreshToken = this.authService.generateRefreshToken(
       { id: rotatedUser.id },
       rotatedUser.tokenVersion,
       newJti,
     );
 
-    const cookies = this.devAuthBypassService.isEnabled()
-      ? cookieBaseDev
-      : cookieBase;
+    const cookies = this.devAuthBypassService.isEnabled() ? cookieBaseDev : cookieBase;
 
-    res.cookie("access_token", accessToken, {
-      ...cookies,
-      maxAge: 15 * 60 * 1000,
-    });
+    res.cookie("access_token", accessToken, { ...cookies, maxAge: 15 * 60 * 1000 });
     res.cookie("refresh_token", newRefreshToken, {
       ...cookies,
       path: REFRESH_COOKIE_PATH,
@@ -175,24 +140,12 @@ export class AuthController {
     const jti = randomUUID();
     await this.userService.setRefreshJti(user.id, jti);
 
-    const accessToken = this.authService.generateAccessToken(
-      user,
-      user.tokenVersion,
-    );
-    const refreshToken = this.authService.generateRefreshToken(
-      user,
-      user.tokenVersion,
-      jti,
-    );
+    const accessToken = this.authService.generateAccessToken(user, user.tokenVersion);
+    const refreshToken = this.authService.generateRefreshToken(user, user.tokenVersion, jti);
 
-    const cookies = this.devAuthBypassService.isEnabled()
-      ? cookieBaseDev
-      : cookieBase;
+    const cookies = this.devAuthBypassService.isEnabled() ? cookieBaseDev : cookieBase;
 
-    res.cookie("access_token", accessToken, {
-      ...cookies,
-      maxAge: 15 * 60 * 1000,
-    });
+    res.cookie("access_token", accessToken, { ...cookies, maxAge: 15 * 60 * 1000 });
     res.cookie("refresh_token", refreshToken, {
       ...cookies,
       path: REFRESH_COOKIE_PATH,
@@ -202,16 +155,11 @@ export class AuthController {
     const returnTo = getSafeReturnTo(returnToQueryValue);
     const originHeader = req.headers.origin;
     const forwardedHostHeader = req.headers["x-forwarded-host"];
-    const forwardedHost = Array.isArray(forwardedHostHeader)
-      ? forwardedHostHeader[0]
-      : forwardedHostHeader;
+    const forwardedHost = Array.isArray(forwardedHostHeader) ? forwardedHostHeader[0] : forwardedHostHeader;
     const forwardedProto = req.headers["x-forwarded-proto"];
-    const protocol = Array.isArray(forwardedProto)
-      ? forwardedProto[0]
-      : (forwardedProto ?? req.protocol);
+    const protocol = Array.isArray(forwardedProto) ? forwardedProto[0] : (forwardedProto ?? req.protocol);
     const runtimeWebUrl =
-      (originHeader && originHeader.trim()) ||
-      (forwardedHost ? `${protocol}://${forwardedHost}` : apiEnv.WEB_URL);
+      (originHeader && originHeader.trim()) || (forwardedHost ? `${protocol}://${forwardedHost}` : apiEnv.WEB_URL);
     const redirectUrl = new URL(DEFAULT_AFTER_LOGIN_PATH, runtimeWebUrl);
 
     if (returnTo) {
@@ -224,9 +172,7 @@ export class AuthController {
   private async revokeSessionFromCookies(req: Request): Promise<void> {
     const refreshToken = req.cookies?.refresh_token;
     if (refreshToken) {
-      const [verifyErr, payload] = tryRun(() =>
-        this.authService.verifyRefreshToken(refreshToken),
-      );
+      const [verifyErr, payload] = tryRun(() => this.authService.verifyRefreshToken(refreshToken));
       if (!verifyErr && payload) {
         await tryRun(this.userService.incrementTokenVersion(payload.userId));
         return;
@@ -235,9 +181,7 @@ export class AuthController {
 
     const accessToken = req.cookies?.access_token;
     if (accessToken) {
-      const [verifyErr, payload] = tryRun(() =>
-        this.authService.verifyAccessToken(accessToken),
-      );
+      const [verifyErr, payload] = tryRun(() => this.authService.verifyAccessToken(accessToken));
       if (!verifyErr && payload) {
         await tryRun(this.userService.incrementTokenVersion(payload.userId));
       }

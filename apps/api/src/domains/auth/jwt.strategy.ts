@@ -21,9 +21,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         rawJwtToken: string,
         done: (error: Error | null, secret?: string) => void,
       ) => {
-        const [error, secret] = tryRun(() =>
-          resolveJwtVerificationSecret(rawJwtToken, jwtAccessSecrets),
-        );
+        const [error, secret] = tryRun(() => resolveJwtVerificationSecret(rawJwtToken, jwtAccessSecrets));
         if (error) {
           done(error);
           return;
@@ -33,10 +31,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  validate(payload: { sub: string; tv?: number }): {
-    userId: string;
-    tokenVersion: number;
-  } {
+  validate(payload: { sub: string; tv?: number }): { userId: string; tokenVersion: number } {
     return { userId: payload.sub, tokenVersion: payload.tv ?? 0 };
   }
 }

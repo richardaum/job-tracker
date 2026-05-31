@@ -13,11 +13,7 @@ export class GoogleAuthGuard extends AuthGuard("google") {
 
   override async canActivate(context: ExecutionContext): Promise<boolean> {
     if (this.devAuthBypassService.isEnabled()) {
-      const request = context
-        .switchToHttp()
-        .getRequest<
-          Request & { user?: { id: string; tokenVersion: number } }
-        >();
+      const request = context.switchToHttp().getRequest<Request & { user?: { id: string; tokenVersion: number } }>();
       const user = await this.devAuthBypassService.getBypassUser();
       request.user = { id: user.id, tokenVersion: user.tokenVersion };
       return true;

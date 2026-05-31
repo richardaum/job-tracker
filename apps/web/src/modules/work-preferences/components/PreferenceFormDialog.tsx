@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  Button,
-  cn,
-  Dialog,
-  FieldWithLabelAction,
-  Input,
-} from "@job-tracker/ui";
+import { Button, cn, Dialog, FieldWithLabelAction, Input } from "@job-tracker/ui";
 import { useState } from "react";
 
 import { Weight } from "@/gql/hooks";
@@ -96,14 +90,7 @@ export function PreferenceFormDialog({
         />
         <FieldWithLabelAction
           label="Weight"
-          content={
-            <PreferenceWeightDropdown
-              value={weight}
-              onChange={setWeight}
-              variant="labeled"
-              fullWidth
-            />
-          }
+          content={<PreferenceWeightDropdown value={weight} onChange={setWeight} variant="labeled" fullWidth />}
         />
       </div>
     </Dialog>

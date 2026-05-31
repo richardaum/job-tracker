@@ -23,9 +23,7 @@ describe("SlotsProvider", () => {
       </>,
     );
 
-    expect(screen.getByTestId("portal-slot")).toContainElement(
-      screen.getByRole("button", { name: "Portal action" }),
-    );
+    expect(screen.getByTestId("portal-slot")).toContainElement(screen.getByRole("button", { name: "Portal action" }));
   });
 
   it("ContextSlot Fill + Slot work through SlotsProvider", () => {
@@ -56,9 +54,7 @@ describe("SlotsProvider", () => {
       </>,
     );
 
-    expect(screen.getByTestId("portal-slot")).toContainElement(
-      screen.getByText("Portal only"),
-    );
+    expect(screen.getByTestId("portal-slot")).toContainElement(screen.getByText("Portal only"));
     expect(screen.getByText("Context only")).toBeInTheDocument();
   });
 });

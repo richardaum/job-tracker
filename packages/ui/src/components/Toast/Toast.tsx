@@ -1,17 +1,6 @@
-import {
-  CheckCircleIcon,
-  InfoIcon,
-  WarningCircleIcon,
-  XCircleIcon,
-  XIcon,
-} from "@phosphor-icons/react";
+import { CheckCircleIcon, InfoIcon, WarningCircleIcon, XCircleIcon, XIcon } from "@phosphor-icons/react";
 import { cloneElement, useEffect, useState } from "react";
-import type {
-  MouseEvent,
-  MouseEventHandler,
-  ReactElement,
-  ReactNode,
-} from "react";
+import type { MouseEvent, MouseEventHandler, ReactElement, ReactNode } from "react";
 import * as RadixToast from "@radix-ui/react-toast";
 import { cn } from "@ui/lib/cn";
 
@@ -84,10 +73,7 @@ function ToastProgress({ durationMs }: ToastProgressProps) {
       className={cn(
         "pointer-events-none absolute inset-x-0 bottom-0 h-1 origin-left bg-border-brand/40 transition-transform ease-linear",
       )}
-      style={{
-        transform: collapsed ? "scaleX(0)" : "scaleX(1)",
-        transitionDuration: `${durationMs}ms`,
-      }}
+      style={{ transform: collapsed ? "scaleX(0)" : "scaleX(1)", transitionDuration: `${durationMs}ms` }}
     />
   );
 }
@@ -130,17 +116,7 @@ export function Toast({
   const queue = toasts?.length
     ? toasts
     : title
-      ? [
-          {
-            id: "single",
-            title,
-            description,
-            intent,
-            actionLabel,
-            onAction,
-            open: currentOpen,
-          } satisfies ToastItem,
-        ]
+      ? [{ id: "single", title, description, intent, actionLabel, onAction, open: currentOpen } satisfies ToastItem]
       : [];
 
   return (
@@ -165,22 +141,15 @@ export function Toast({
               intentClasses[currentIntent],
             )}
           >
-            <span
-              aria-hidden
-              className={cn("pt-0.5", intentIconClasses[currentIntent])}
-            >
+            <span aria-hidden className={cn("pt-0.5", intentIconClasses[currentIntent])}>
               {intentIcons[currentIntent]}
             </span>
             <div>
-              <RadixToast.Title
-                className={cn("text-sm font-semibold text-text-primary")}
-              >
+              <RadixToast.Title className={cn("text-sm font-semibold text-text-primary")}>
                 {toastItem.title}
               </RadixToast.Title>
               {toastItem.description ? (
-                <RadixToast.Description
-                  className={cn("mt-1 text-sm text-text-secondary")}
-                >
+                <RadixToast.Description className={cn("mt-1 text-sm text-text-secondary")}>
                   {toastItem.description}
                 </RadixToast.Description>
               ) : null}
@@ -212,11 +181,7 @@ export function Toast({
       })}
 
       {triggerElement}
-      <RadixToast.Viewport
-        className={cn(
-          "fixed right-4 top-4 z-50 flex max-w-sm flex-col gap-2 outline-none",
-        )}
-      />
+      <RadixToast.Viewport className={cn("fixed right-4 top-4 z-50 flex max-w-sm flex-col gap-2 outline-none")} />
     </RadixToast.Provider>
   );
 }

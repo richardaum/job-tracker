@@ -9,11 +9,7 @@ export class ExtensionActivityEventEntity {
   @Column({ name: "user_id", type: "text" })
   userId!: string;
 
-  @Column({
-    type: "enum",
-    enum: ExtensionActivityEventTypeEnum,
-    enumName: "extension_activity_event_type",
-  })
+  @Column({ type: "enum", enum: ExtensionActivityEventTypeEnum, enumName: "extension_activity_event_type" })
   type!: ExtensionActivityEventTypeEnum;
 
   @Column({ type: "text" })

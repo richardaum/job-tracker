@@ -12,10 +12,7 @@ export interface UseExchangeRatesReturn {
   fetchRates: () => void;
 }
 
-export function useExchangeRates(
-  baseCurrency: string,
-  targetCurrencies: string[],
-): UseExchangeRatesReturn {
+export function useExchangeRates(baseCurrency: string, targetCurrencies: string[]): UseExchangeRatesReturn {
   const { data, loading, error, refetch } = useExchangeRatesQuery({
     variables: { base: baseCurrency, currencies: targetCurrencies },
     fetchPolicy: "cache-and-network",
@@ -35,11 +32,5 @@ export function useExchangeRates(
     void refetch();
   }, [refetch]);
 
-  return {
-    rates,
-    loading,
-    error: error?.message ?? null,
-    lastUpdated,
-    fetchRates,
-  };
+  return { rates, loading, error: error?.message ?? null, lastUpdated, fetchRates };
 }

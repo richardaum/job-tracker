@@ -15,10 +15,5 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = { args: { placeholder: "Enter your email" } };
 
 export const Error: Story = {
-  args: {
-    placeholder: "Enter your email",
-    state: "error",
-    value: "invalid-email",
-    readOnly: true,
-  },
+  args: { placeholder: "Enter your email", state: "error", value: "invalid-email", readOnly: true },
 };

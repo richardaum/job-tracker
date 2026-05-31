@@ -1,16 +1,8 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "globalDependencies": [
-    ".oxlintrc.json",
-    "packages/oxlint-plugin/**",
-    ".oxfmtrc.json",
-    "tsconfig.repo.json"
-  ],
+  "globalDependencies": [".oxlintrc.json", "packages/oxlint-plugin/**", ".oxfmtrc.json", "tsconfig.repo.json"],
   "tasks": {
-    "build": {
-      "dependsOn": ["^build"],
-      "outputs": [".next/**", "!.next/cache/**", "dist/**", "build/**"]
-    },
+    "build": { "dependsOn": ["^build"], "outputs": [".next/**", "!.next/cache/**", "dist/**", "build/**"] },
     "dev": { "cache": false, "persistent": true },
     "db:migrate:watch": { "cache": false, "persistent": true },
     "test": { "dependsOn": ["^build"], "outputs": ["coverage/**"] },

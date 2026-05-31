@@ -1,10 +1,5 @@
 import type { HTMLAttributes, ReactNode } from "react";
-import {
-  CheckCircleIcon,
-  InfoIcon,
-  WarningCircleIcon,
-  XCircleIcon,
-} from "@phosphor-icons/react";
+import { CheckCircleIcon, InfoIcon, WarningCircleIcon, XCircleIcon } from "@phosphor-icons/react";
 import { cn } from "@ui/lib/cn";
 
 export type AlertIntent = "info" | "success" | "warning" | "error";
@@ -29,19 +24,8 @@ const intentIcons: Record<AlertIntent, ReactNode> = {
   error: <XCircleIcon size={20} weight="regular" />,
 };
 
-export function Alert({
-  intent = "info",
-  title,
-  icon,
-  className,
-  children,
-  ...props
-}: AlertProps) {
-  const classes = cn(
-    "flex items-start gap-2 rounded-md border p-4 shadow-sm",
-    intentClasses[intent],
-    className,
-  );
+export function Alert({ intent = "info", title, icon, className, children, ...props }: AlertProps) {
+  const classes = cn("flex items-start gap-2 rounded-md border p-4 shadow-sm", intentClasses[intent], className);
 
   return (
     <div role="alert" className={classes} {...props}>

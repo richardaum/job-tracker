@@ -16,10 +16,7 @@ export type CreateStageEventRepoDto = {
   scheduledAt?: Date | null;
 };
 
-type UpdateStageEventRepoDto = Pick<
-  NewJobStageEvent,
-  "toStage" | "reason" | "scheduledAt"
->;
+type UpdateStageEventRepoDto = Pick<NewJobStageEvent, "toStage" | "reason" | "scheduledAt">;
 
 @Injectable()
 export class JobStageEventsRepository {
@@ -28,16 +25,11 @@ export class JobStageEventsRepository {
     private readonly stageEventsRepo: Repository<JobStageEventEntity>,
   ) {}
 
-  private stageEventRepository(
-    manager?: EntityManager,
-  ): Repository<JobStageEventEntity> {
+  private stageEventRepository(manager?: EntityManager): Repository<JobStageEventEntity> {
     return manager?.getRepository(JobStageEventEntity) ?? this.stageEventsRepo;
   }
 
-  async findStageEventsByJobIdAndUserId(
-    jobId: string,
-    userId: string,
-  ): Promise<JobStageEvent[]> {
+  async findStageEventsByJobIdAndUserId(jobId: string, userId: string): Promise<JobStageEvent[]> {
     return this.stageEventsRepo
       .createQueryBuilder("e")
       .where("e.job_id = :jobId AND e.user_id = :userId", { jobId, userId })
@@ -47,10 +39,7 @@ export class JobStageEventsRepository {
       .getMany();
   }
 
-  async findLatestStageEventByJobIdAndUserId(
-    jobId: string,
-    userId: string,
-  ): Promise<JobStageEvent | null> {
+  async findLatestStageEventByJobIdAndUserId(jobId: string, userId: string): Promise<JobStageEvent | null> {
     return this.stageEventsRepo
       .createQueryBuilder("e")
       .where("e.job_id = :jobId AND e.user_id = :userId", { jobId, userId })
@@ -68,24 +57,8 @@ export class JobStageEventsRepository {
   async findLatestStageSummariesByJobIds(
     userId: string,
     jobIds: string[],
-  ): Promise<
-    Map<
-      string,
-      {
-        toStage: NewJobStageEvent["toStage"];
-        reason: string | null;
-        statusAt: Date;
-      }
-    >
-  > {
-    const result = new Map<
-      string,
-      {
-        toStage: NewJobStageEvent["toStage"];
-        reason: string | null;
-        statusAt: Date;
-      }
-    >();
+  ): Promise<Map<string, { toStage: NewJobStageEvent["toStage"]; reason: string | null; statusAt: Date }>> {
+    const result = new Map<string, { toStage: NewJobStageEvent["toStage"]; reason: string | null; statusAt: Date }>();
     if (jobIds.length === 0) {
       return result;
     }
@@ -103,22 +76,13 @@ export class JobStageEventsRepository {
       if (result.has(ev.jobId)) {
         continue;
       }
-      result.set(ev.jobId, {
-        toStage: ev.toStage,
-        reason: ev.reason,
-        statusAt: ev.scheduledAt ?? ev.createdAt,
-      });
+      result.set(ev.jobId, { toStage: ev.toStage, reason: ev.reason, statusAt: ev.scheduledAt ?? ev.createdAt });
     }
     return result;
   }
 
-  async findStageEventByIdAndUserId(
-    stageEventId: string,
-    userId: string,
-  ): Promise<JobStageEvent | null> {
-    return this.stageEventsRepo.findOne({
-      where: { id: stageEventId, userId },
-    });
+  async findStageEventByIdAndUserId(stageEventId: string, userId: string): Promise<JobStageEvent | null> {
+    return this.stageEventsRepo.findOne({ where: { id: stageEventId, userId } });
   }
 
   async createStageEvent(
@@ -145,9 +109,7 @@ export class JobStageEventsRepository {
     userId: string,
     dto: Partial<UpdateStageEventRepoDto>,
   ): Promise<JobStageEvent | null> {
-    const existing = await this.stageEventsRepo.findOne({
-      where: { id: stageEventId, userId },
-    });
+    const existing = await this.stageEventsRepo.findOne({ where: { id: stageEventId, userId } });
     if (!existing) {
       return null;
     }
@@ -163,14 +125,8 @@ export class JobStageEventsRepository {
     return this.stageEventsRepo.save(existing);
   }
 
-  async deleteStageEvent(
-    stageEventId: string,
-    userId: string,
-  ): Promise<boolean> {
-    const result = await this.stageEventsRepo.delete({
-      id: stageEventId,
-      userId,
-    });
+  async deleteStageEvent(stageEventId: string, userId: string): Promise<boolean> {
+    const result = await this.stageEventsRepo.delete({ id: stageEventId, userId });
     return (result.affected ?? 0) > 0;
   }
 }

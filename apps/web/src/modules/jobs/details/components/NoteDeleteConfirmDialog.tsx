@@ -8,11 +8,7 @@ interface NoteDeleteConfirmDialogProps {
   onConfirm: () => Promise<void>;
 }
 
-export function NoteDeleteConfirmDialog({
-  open,
-  onOpenChange,
-  onConfirm,
-}: NoteDeleteConfirmDialogProps) {
+export function NoteDeleteConfirmDialog({ open, onOpenChange, onConfirm }: NoteDeleteConfirmDialogProps) {
   return (
     <ConfirmDialog
       title="Delete note"

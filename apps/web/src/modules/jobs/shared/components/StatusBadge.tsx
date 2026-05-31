@@ -27,11 +27,7 @@ function getStageBadgeIntent(stage: ApplicationStage) {
   }
 }
 
-type StatusBadgeProps = {
-  stage: ApplicationStage;
-  reason?: string | null;
-  className?: string;
-};
+type StatusBadgeProps = { stage: ApplicationStage; reason?: string | null; className?: string };
 
 export function StatusBadge({ stage, reason, className }: StatusBadgeProps) {
   return (
@@ -42,9 +38,7 @@ export function StatusBadge({ stage, reason, className }: StatusBadgeProps) {
       {reason ? (
         <Tooltip content={reason} side="bottom">
           <span
-            className={cn(
-              "inline-flex cursor-help text-text-muted hover:text-text-secondary",
-            )}
+            className={cn("inline-flex cursor-help text-text-muted hover:text-text-secondary")}
             aria-label="Status reason"
           >
             <InfoIcon size={12} weight="regular" />

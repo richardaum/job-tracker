@@ -5,19 +5,13 @@ import { useOptionalToastQueueContext } from "./useToastQueueContext";
 
 interface UseToastQueueReturn {
   toastProps: Pick<ToastProps, "toasts" | "onToastOpenChange">;
-  enqueueToast: (input: {
-    title: string;
-    intent?: ToastIntent;
-    description?: string;
-  }) => void;
+  enqueueToast: (input: { title: string; intent?: ToastIntent; description?: string }) => void;
   dismissToast: (id: string, open: boolean) => void;
 }
 
 export function useToastQueue(): UseToastQueueReturn {
   const context = useOptionalToastQueueContext();
-  const [localToasts, setLocalToasts] = useState<
-    NonNullable<ToastProps["toasts"]>
-  >([]);
+  const [localToasts, setLocalToasts] = useState<NonNullable<ToastProps["toasts"]>>([]);
 
   function localEnqueueToast({
     title,
@@ -28,10 +22,7 @@ export function useToastQueue(): UseToastQueueReturn {
     intent?: ToastIntent;
     description?: string;
   }) {
-    setLocalToasts((current) => [
-      ...current,
-      { id: crypto.randomUUID(), title, intent, description },
-    ]);
+    setLocalToasts((current) => [...current, { id: crypto.randomUUID(), title, intent, description }]);
   }
 
   function localDismissToast(id: string, open: boolean) {
@@ -39,18 +30,11 @@ export function useToastQueue(): UseToastQueueReturn {
     setLocalToasts((current) => current.filter((toast) => toast.id !== id));
   }
 
-  const localToastProps = useMemo(
-    () => ({ toasts: localToasts, onToastOpenChange: localDismissToast }),
-    [localToasts],
-  );
+  const localToastProps = useMemo(() => ({ toasts: localToasts, onToastOpenChange: localDismissToast }), [localToasts]);
 
   if (context) {
     return context;
   }
 
-  return {
-    toastProps: localToastProps,
-    enqueueToast: localEnqueueToast,
-    dismissToast: localDismissToast,
-  };
+  return { toastProps: localToastProps, enqueueToast: localEnqueueToast, dismissToast: localDismissToast };
 }

@@ -5,12 +5,7 @@ export interface FilterChipProps extends ButtonHTMLAttributes<HTMLButtonElement>
   active?: boolean;
 }
 
-export function FilterChip({
-  active = false,
-  className,
-  children,
-  ...props
-}: FilterChipProps) {
+export function FilterChip({ active = false, className, children, ...props }: FilterChipProps) {
   return (
     <button
       type="button"

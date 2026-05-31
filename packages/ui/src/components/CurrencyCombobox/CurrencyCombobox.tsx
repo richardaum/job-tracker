@@ -60,12 +60,10 @@ export function CurrencyCombobox({
     ? presets
     : presets.filter(
         (preset) =>
-          preset.code.toLowerCase().includes(normalizedQuery) ||
-          preset.name.toLowerCase().includes(normalizedQuery),
+          preset.code.toLowerCase().includes(normalizedQuery) || preset.name.toLowerCase().includes(normalizedQuery),
       );
   const isValidCode = useCallback(
-    (candidate: string): boolean =>
-      presets.some((preset) => preset.code === candidate),
+    (candidate: string): boolean => presets.some((preset) => preset.code === candidate),
     [presets],
   );
 
@@ -109,9 +107,7 @@ export function CurrencyCombobox({
         autoComplete={autoComplete}
         maxLength={maxLength}
         spellCheck={false}
-        leading={
-          currentFlag ? <span aria-hidden>{currentFlag}</span> : undefined
-        }
+        leading={currentFlag ? <span aria-hidden>{currentFlag}</span> : undefined}
       />
       <AnchoredCombobox.Portal>
         <AnchoredCombobox.Content className={cn("z-100 p-0.5")}>
@@ -127,31 +123,14 @@ export function CurrencyCombobox({
                   "flex w-full min-w-0 cursor-pointer items-center gap-1.5 rounded-sm px-2 py-1 text-left outline-none hover:bg-bg-surface-hover data-highlighted:bg-bg-surface-hover",
                 )}
               >
-                <span
-                  className={cn("shrink-0 text-base leading-none")}
-                  aria-hidden
-                >
+                <span className={cn("shrink-0 text-base leading-none")} aria-hidden>
                   {preset.flag}
                 </span>
-                <span
-                  className={cn(
-                    "flex min-w-0 flex-1 items-center gap-1.5 overflow-hidden whitespace-nowrap",
-                  )}
-                >
-                  <Text
-                    as="span"
-                    size="sm"
-                    weight="medium"
-                    className={cn("shrink-0")}
-                  >
+                <span className={cn("flex min-w-0 flex-1 items-center gap-1.5 overflow-hidden whitespace-nowrap")}>
+                  <Text as="span" size="sm" weight="medium" className={cn("shrink-0")}>
                     {preset.code}
                   </Text>
-                  <Text
-                    as="span"
-                    size="sm"
-                    color="muted"
-                    className={cn("min-w-0 truncate")}
-                  >
+                  <Text as="span" size="sm" color="muted" className={cn("min-w-0 truncate")}>
                     {preset.name}
                   </Text>
                 </span>

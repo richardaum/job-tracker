@@ -33,20 +33,13 @@ describe.skipIf(!hasDb)("SourcesRepository (integration)", () => {
     userId = user.id;
 
     const plans = dataSource.getRepository(PlanEntity);
-    const plan = await plans.save(
-      plans.create({
-        displayName: "Test Sources Repo",
-        document: { steps: [] },
-      }),
-    );
+    const plan = await plans.save(plans.create({ displayName: "Test Sources Repo", document: { steps: [] } }));
     planId = plan.id;
   });
 
   afterAll(async () => {
     if (dataSource?.isInitialized) {
-      await dataSource.query(
-        "TRUNCATE source_runs, source_templates, plans, users CASCADE",
-      );
+      await dataSource.query("TRUNCATE source_runs, source_templates, plans, users CASCADE");
       await dataSource.destroy();
     }
   });
@@ -82,19 +75,14 @@ describe.skipIf(!hasDb)("SourcesRepository (integration)", () => {
       surfaceUrl: "https://example.com/surface",
     });
 
-    const runs = await repo.findRunsForTemplate({
-      userId,
-      templateId: template.id,
-    });
+    const runs = await repo.findRunsForTemplate({ userId, templateId: template.id });
 
     expect(runs.map((r) => r.id)).toEqual([newer.id, older.id]);
   });
 
   it("listTemplatesByUserAndPlanId returns templates for a plan", async () => {
     const plans = dataSource.getRepository(PlanEntity);
-    const planB = await plans.save(
-      plans.create({ displayName: "Plan B", document: { steps: [] } }),
-    );
+    const planB = await plans.save(plans.create({ displayName: "Plan B", document: { steps: [] } }));
 
     const templates = dataSource.getRepository(SourceTemplateEntity);
     await templates.save(
@@ -123,10 +111,7 @@ describe.skipIf(!hasDb)("SourcesRepository (integration)", () => {
   });
 
   it("listTemplatesByUserAndPlanId returns empty for unknown plan", async () => {
-    const result = await repo.listTemplatesByUserAndPlanId(
-      userId,
-      "00000000-0000-0000-0000-000000000000",
-    );
+    const result = await repo.listTemplatesByUserAndPlanId(userId, "00000000-0000-0000-0000-000000000000");
 
     expect(result).toEqual([]);
   });
@@ -163,16 +148,11 @@ describe.skipIf(!hasDb)("SourcesRepository (integration)", () => {
       }),
     );
 
-    const count = await repo.deleteRunsByTemplateId({
-      userId,
-      templateId: template.id,
-    });
+    const count = await repo.deleteRunsByTemplateId({ userId, templateId: template.id });
 
     expect(count).toBe(2);
 
-    const remaining = await runRepo.find({
-      where: { userId, templateId: template.id },
-    });
+    const remaining = await runRepo.find({ where: { userId, templateId: template.id } });
     expect(remaining).toEqual([]);
   });
 });

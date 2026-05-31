@@ -11,9 +11,7 @@ export const resumeMatchItemSchema = z.object({
   suggestion: z.string().nullable(),
 });
 
-export const resumeMatchAnalysisSchema = z.object({
-  items: z.array(resumeMatchItemSchema),
-});
+export const resumeMatchAnalysisSchema = z.object({ items: z.array(resumeMatchItemSchema) });
 
 export type ResumeMatchItemParsed = z.infer<typeof resumeMatchItemSchema>;
 
@@ -25,10 +23,6 @@ export const preferenceMatchItemSchema = z.object({
   suggestion: z.string().nullable(),
 });
 
-export const preferenceMatchAnalysisSchema = z.object({
-  items: z.array(preferenceMatchItemSchema),
-});
+export const preferenceMatchAnalysisSchema = z.object({ items: z.array(preferenceMatchItemSchema) });
 
-export type PreferenceMatchItemParsed = z.infer<
-  typeof preferenceMatchItemSchema
->;
+export type PreferenceMatchItemParsed = z.infer<typeof preferenceMatchItemSchema>;

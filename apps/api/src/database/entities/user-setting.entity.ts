@@ -1,14 +1,6 @@
 import { UserEntity } from "@api/database/entities/user.entity";
 import type { BlockedKeyword } from "@api/domains/settings/keyword-blocker.types";
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  JoinColumn,
-  OneToOne,
-  PrimaryColumn,
-  UpdateDateColumn,
-} from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinColumn, OneToOne, PrimaryColumn, UpdateDateColumn } from "typeorm";
 
 @Entity({ name: "user_settings" })
 export class UserSettingEntity {

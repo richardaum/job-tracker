@@ -12,9 +12,7 @@ const DRY_RUN = process.argv.includes("--dry-run");
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      ...buildDataSourceOptions(process.env.DATABASE_URL!),
-    }),
+    TypeOrmModule.forRoot({ ...buildDataSourceOptions(process.env.DATABASE_URL!) }),
     TypeOrmModule.forFeature([PlanEntity]),
   ],
 })
@@ -40,9 +38,7 @@ function walkDocument(obj: unknown, path: string, changes: string[]): void {
 }
 
 async function main(): Promise<void> {
-  const ctx = await NestFactory.createApplicationContext(ScriptModule, {
-    logger: false,
-  });
+  const ctx = await NestFactory.createApplicationContext(ScriptModule, { logger: false });
   const em = ctx.get(EntityManager);
 
   const prefix = DRY_RUN ? "[DRY-RUN] " : "";

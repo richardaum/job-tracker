@@ -4,9 +4,7 @@ export class AddSummaryMetadataJsonb1767100000000 implements MigrationInterface 
   name = "AddSummaryMetadataJsonb1767100000000";
 
   async up(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(
-      `ALTER TABLE "applications" ADD COLUMN "summary_metadata" jsonb NULL`,
-    );
+    await queryRunner.query(`ALTER TABLE "applications" ADD COLUMN "summary_metadata" jsonb NULL`);
 
     await queryRunner.query(`
       UPDATE "applications"
@@ -30,27 +28,15 @@ export class AddSummaryMetadataJsonb1767100000000 implements MigrationInterface 
       END
     `);
 
-    await queryRunner.query(
-      `ALTER TABLE "applications" DROP COLUMN "summary_status"`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "applications" DROP COLUMN "summary_error"`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "applications" DROP COLUMN "summary_generated_at"`,
-    );
+    await queryRunner.query(`ALTER TABLE "applications" DROP COLUMN "summary_status"`);
+    await queryRunner.query(`ALTER TABLE "applications" DROP COLUMN "summary_error"`);
+    await queryRunner.query(`ALTER TABLE "applications" DROP COLUMN "summary_generated_at"`);
   }
 
   async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(
-      `ALTER TABLE "applications" ADD COLUMN "summary_status" text NOT NULL DEFAULT 'COMPLETED'`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "applications" ADD COLUMN "summary_error" text NULL`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "applications" ADD COLUMN "summary_generated_at" timestamp NULL`,
-    );
+    await queryRunner.query(`ALTER TABLE "applications" ADD COLUMN "summary_status" text NOT NULL DEFAULT 'COMPLETED'`);
+    await queryRunner.query(`ALTER TABLE "applications" ADD COLUMN "summary_error" text NULL`);
+    await queryRunner.query(`ALTER TABLE "applications" ADD COLUMN "summary_generated_at" timestamp NULL`);
 
     await queryRunner.query(`
       UPDATE "applications"
@@ -69,8 +55,6 @@ export class AddSummaryMetadataJsonb1767100000000 implements MigrationInterface 
         END
     `);
 
-    await queryRunner.query(
-      `ALTER TABLE "applications" DROP COLUMN "summary_metadata"`,
-    );
+    await queryRunner.query(`ALTER TABLE "applications" DROP COLUMN "summary_metadata"`);
   }
 }

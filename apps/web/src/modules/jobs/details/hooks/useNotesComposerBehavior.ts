@@ -2,15 +2,9 @@
 
 import { useCallback, useEffect, useRef } from "react";
 
-type UseNotesComposerBehaviorOptions = {
-  hasLoadedMessages: boolean;
-  notesCount: number;
-};
+type UseNotesComposerBehaviorOptions = { hasLoadedMessages: boolean; notesCount: number };
 
-export function useNotesComposerBehavior({
-  hasLoadedMessages,
-  notesCount,
-}: UseNotesComposerBehaviorOptions) {
+export function useNotesComposerBehavior({ hasLoadedMessages, notesCount }: UseNotesComposerBehaviorOptions) {
   const notesEndRef = useRef<HTMLDivElement | null>(null);
   const hasScrolledInitiallyRef = useRef(false);
   const previousNotesCountRef = useRef(0);

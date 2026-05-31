@@ -10,18 +10,11 @@ export interface InfoTooltipProps {
   className?: string;
 }
 
-export function InfoTooltip({
-  content,
-  size = 14,
-  className,
-}: InfoTooltipProps) {
+export function InfoTooltip({ content, size = 14, className }: InfoTooltipProps) {
   return (
     <Tooltip content={content} side="top" align="center">
       <span
-        className={cn(
-          "inline-flex cursor-help text-text-muted hover:text-text-secondary",
-          className,
-        )}
+        className={cn("inline-flex cursor-help text-text-muted hover:text-text-secondary", className)}
         tabIndex={0}
         role="tooltip"
       >

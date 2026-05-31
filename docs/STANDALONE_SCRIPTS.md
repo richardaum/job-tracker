@@ -23,9 +23,7 @@ import { SomeService } from "@api/domains/some/some.service";
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      ...buildDataSourceOptions(process.env.DATABASE_URL!),
-    }),
+    TypeOrmModule.forRoot({ ...buildDataSourceOptions(process.env.DATABASE_URL!) }),
     TypeOrmModule.forFeature([SomeEntity]),
   ],
   providers: [SomeService],

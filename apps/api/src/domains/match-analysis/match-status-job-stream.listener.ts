@@ -15,14 +15,7 @@ export class MatchStatusJobStreamListener implements OnModuleInit {
 
   onModuleInit(): void {
     this.matchEventBus.on(MatchStatusChanged, (event) => {
-      this.jobEventBus.emit(
-        new JobMatchStatusChanged(
-          event.jobId,
-          event.userId,
-          event.matchId,
-          event.status,
-        ),
-      );
+      this.jobEventBus.emit(new JobMatchStatusChanged(event.jobId, event.userId, event.matchId, event.status));
     });
   }
 }

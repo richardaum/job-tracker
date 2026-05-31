@@ -5,15 +5,7 @@ import { RolesGuard } from "@api/domains/auth/roles.guard";
 import { DeleteMutationPayloadType } from "@api/domains/shared/delete-mutation-payload.type";
 import { RoleEnum } from "@api/domains/users/role.enum";
 import { UseGuards } from "@nestjs/common";
-import {
-  Args,
-  ID,
-  Mutation,
-  Parent,
-  Query,
-  ResolveField,
-  Resolver,
-} from "@nestjs/graphql";
+import { Args, ID, Mutation, Parent, Query, ResolveField, Resolver } from "@nestjs/graphql";
 
 import { CreatePlanInput } from "./create-plan.input";
 import { PlanService } from "./plan.service";
@@ -42,18 +34,12 @@ export class PlanResolver {
   }
 
   @ResolveField(() => [SourceTemplateType])
-  async templates(
-    @Parent() plan: PlanType,
-    @CurrentUser() user: { userId: string },
-  ): Promise<SourceTemplateType[]> {
+  async templates(@Parent() plan: PlanType, @CurrentUser() user: { userId: string }): Promise<SourceTemplateType[]> {
     return this.sourcesService.listTemplatesForPlan(user.userId, plan.id);
   }
 
   @Mutation(() => PlanType)
-  createPlan(
-    @Args("input") input: CreatePlanInput,
-    @CurrentUser() user: { userId: string },
-  ): Promise<PlanType> {
+  createPlan(@Args("input") input: CreatePlanInput, @CurrentUser() user: { userId: string }): Promise<PlanType> {
     return this.service.create(input, user.userId);
   }
 

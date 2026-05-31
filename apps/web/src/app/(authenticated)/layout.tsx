@@ -9,9 +9,7 @@ import { AuthenticatedLayout } from "@/modules/navigation/layouts/AuthenticatedL
  * whole client shell (not only `{children}` inside it) satisfies the static check.
  */
 type AuthenticatedSegmentLayoutProps = { children: ReactNode };
-export default function AuthenticatedSegmentLayout({
-  children,
-}: AuthenticatedSegmentLayoutProps) {
+export default function AuthenticatedSegmentLayout({ children }: AuthenticatedSegmentLayoutProps) {
   return (
     <PreloadQuery query={AuthenticatedShellDocument}>
       <Suspense fallback={null}>

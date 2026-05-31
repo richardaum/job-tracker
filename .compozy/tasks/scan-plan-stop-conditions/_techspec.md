@@ -67,25 +67,13 @@ export const SourceTemplateConfigSchema = z
   .strict()
   .superRefine((data, ctx) => {
     if (data.stopWhen === "CatchUp" && !data.catchUpThreshold) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["catchUpThreshold"],
-        message: "Required when stopWhen is CatchUp",
-      });
+      ctx.addIssue({ code: "custom", path: ["catchUpThreshold"], message: "Required when stopWhen is CatchUp" });
     }
     if (data.stopWhen === "FirstRunMaxPages" && !data.maxPages) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["maxPages"],
-        message: "Required when stopWhen is FirstRunMaxPages",
-      });
+      ctx.addIssue({ code: "custom", path: ["maxPages"], message: "Required when stopWhen is FirstRunMaxPages" });
     }
     if (data.stopWhen === "OlderThan" && !data.olderThanDays) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["olderThanDays"],
-        message: "Required when stopWhen is OlderThan",
-      });
+      ctx.addIssue({ code: "custom", path: ["olderThanDays"], message: "Required when stopWhen is OlderThan" });
     }
   });
 ```

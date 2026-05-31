@@ -46,13 +46,7 @@ export class NormalizeEnumValuesUppercase1767200000000 implements MigrationInter
         name: "draft_application_conversion_status",
         tmp: "draft_application_conversion_status_up",
         values: ["IDLE", "PROCESSING", "SUCCEEDED", "FAILED"],
-        tables: [
-          {
-            table: "draft_applications",
-            col: "conversion_status",
-            def: "IDLE",
-          },
-        ],
+        tables: [{ table: "draft_applications", col: "conversion_status", def: "IDLE" }],
         map: `WHEN 'idle' THEN 'IDLE'::draft_application_conversion_status_up WHEN 'processing' THEN 'PROCESSING'::draft_application_conversion_status_up WHEN 'succeeded' THEN 'SUCCEEDED'::draft_application_conversion_status_up WHEN 'failed' THEN 'FAILED'::draft_application_conversion_status_up`,
       },
       {
@@ -65,16 +59,7 @@ export class NormalizeEnumValuesUppercase1767200000000 implements MigrationInter
       {
         name: "application_stage",
         tmp: "application_stage_up",
-        values: [
-          "NEW",
-          "APPLIED",
-          "RECRUITER_SCREEN",
-          "TECHNICAL",
-          "CULTURAL_FIT",
-          "OFFER",
-          "REJECTED",
-          "DUPLICATED",
-        ],
+        values: ["NEW", "APPLIED", "RECRUITER_SCREEN", "TECHNICAL", "CULTURAL_FIT", "OFFER", "REJECTED", "DUPLICATED"],
         tables: [
           { table: "application_stage_events", col: "to_stage", def: "" },
           { table: "application_stage_events", col: "from_stage", def: "" },
@@ -98,13 +83,9 @@ export class NormalizeEnumValuesUppercase1767200000000 implements MigrationInter
     ];
 
     for (const e of enums) {
-      await queryRunner.query(
-        `CREATE TYPE "${e.tmp}" AS ENUM (${e.values.map((v) => `'${v}'`).join(", ")})`,
-      );
+      await queryRunner.query(`CREATE TYPE "${e.tmp}" AS ENUM (${e.values.map((v) => `'${v}'`).join(", ")})`);
       for (const t of e.tables) {
-        await queryRunner.query(
-          `ALTER TABLE "${t.table}" ALTER COLUMN "${t.col}" DROP DEFAULT`,
-        );
+        await queryRunner.query(`ALTER TABLE "${t.table}" ALTER COLUMN "${t.col}" DROP DEFAULT`);
         await queryRunner.query(
           `ALTER TABLE "${t.table}" ALTER COLUMN "${t.col}" TYPE "${e.tmp}" USING CASE "${t.col}"::text ${e.map} END`,
         );
@@ -159,13 +140,7 @@ export class NormalizeEnumValuesUppercase1767200000000 implements MigrationInter
         name: "draft_application_conversion_status",
         tmp: "dacs_lower",
         values: ["idle", "processing", "succeeded", "failed"],
-        tables: [
-          {
-            table: "draft_applications",
-            col: "conversion_status",
-            def: "idle",
-          },
-        ],
+        tables: [{ table: "draft_applications", col: "conversion_status", def: "idle" }],
         map: `WHEN 'IDLE' THEN 'idle'::dacs_lower WHEN 'PROCESSING' THEN 'processing'::dacs_lower WHEN 'SUCCEEDED' THEN 'succeeded'::dacs_lower WHEN 'FAILED' THEN 'failed'::dacs_lower`,
       },
       {
@@ -178,16 +153,7 @@ export class NormalizeEnumValuesUppercase1767200000000 implements MigrationInter
       {
         name: "application_stage",
         tmp: "as_lower",
-        values: [
-          "new",
-          "applied",
-          "recruiter_screen",
-          "technical",
-          "cultural_fit",
-          "offer",
-          "rejected",
-          "duplicated",
-        ],
+        values: ["new", "applied", "recruiter_screen", "technical", "cultural_fit", "offer", "rejected", "duplicated"],
         tables: [
           { table: "application_stage_events", col: "to_stage", def: "" },
           { table: "application_stage_events", col: "from_stage", def: "" },
@@ -211,13 +177,9 @@ export class NormalizeEnumValuesUppercase1767200000000 implements MigrationInter
     ];
 
     for (const e of enums) {
-      await queryRunner.query(
-        `CREATE TYPE "${e.tmp}" AS ENUM (${e.values.map((v) => `'${v}'`).join(", ")})`,
-      );
+      await queryRunner.query(`CREATE TYPE "${e.tmp}" AS ENUM (${e.values.map((v) => `'${v}'`).join(", ")})`);
       for (const t of e.tables) {
-        await queryRunner.query(
-          `ALTER TABLE "${t.table}" ALTER COLUMN "${t.col}" DROP DEFAULT`,
-        );
+        await queryRunner.query(`ALTER TABLE "${t.table}" ALTER COLUMN "${t.col}" DROP DEFAULT`);
         await queryRunner.query(
           `ALTER TABLE "${t.table}" ALTER COLUMN "${t.col}" TYPE "${e.tmp}" USING CASE "${t.col}"::text ${e.map} END`,
         );

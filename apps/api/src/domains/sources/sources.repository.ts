@@ -45,26 +45,14 @@ export class SourcesRepository {
       config: params.config ?? null,
     });
     const saved = await this.templatesRepo.save(row);
-    return this.templatesRepo.findOneOrFail({
-      where: { id: saved.id },
-      relations: { plan: true },
-    });
+    return this.templatesRepo.findOneOrFail({ where: { id: saved.id }, relations: { plan: true } });
   }
 
-  async findTemplateByUserAndId(params: {
-    userId: string;
-    id: string;
-  }): Promise<SourceTemplateEntity | null> {
-    return this.templatesRepo.findOne({
-      where: { id: params.id, userId: params.userId },
-      relations: { plan: true },
-    });
+  async findTemplateByUserAndId(params: { userId: string; id: string }): Promise<SourceTemplateEntity | null> {
+    return this.templatesRepo.findOne({ where: { id: params.id, userId: params.userId }, relations: { plan: true } });
   }
 
-  async listTemplatesByUserAndPlanId(
-    userId: string,
-    planId: string,
-  ): Promise<SourceTemplateEntity[]> {
+  async listTemplatesByUserAndPlanId(userId: string, planId: string): Promise<SourceTemplateEntity[]> {
     return this.templatesRepo.find({
       where: { userId, planId },
       relations: { plan: true },
@@ -72,10 +60,7 @@ export class SourcesRepository {
     });
   }
 
-  async findTemplateByUserAndPlanId(params: {
-    userId: string;
-    planId: string;
-  }): Promise<SourceTemplateEntity | null> {
+  async findTemplateByUserAndPlanId(params: { userId: string; planId: string }): Promise<SourceTemplateEntity | null> {
     return this.templatesRepo.findOne({
       where: { userId: params.userId, planId: params.planId },
       relations: { plan: true },
@@ -92,10 +77,7 @@ export class SourcesRepository {
       config?: Record<string, unknown> | null;
     };
   }): Promise<SourceTemplateEntity | null> {
-    const existing = await this.findTemplateByUserAndId({
-      userId: params.userId,
-      id: params.id,
-    });
+    const existing = await this.findTemplateByUserAndId({ userId: params.userId, id: params.id });
     if (!existing) {
       return null;
     }
@@ -116,43 +98,24 @@ export class SourcesRepository {
       surfaceUrl = raw.trim();
     }
 
-    const updateFields: Record<string, unknown> = {
-      scheduleCron,
-      scheduleEnabled,
-      surfaceUrl,
-    };
+    const updateFields: Record<string, unknown> = { scheduleCron, scheduleEnabled, surfaceUrl };
     if (params.patch.config !== undefined) {
       updateFields.config = params.patch.config;
     }
 
-    const result = await this.templatesRepo.update(
-      { id: params.id, userId: params.userId },
-      updateFields,
-    );
+    const result = await this.templatesRepo.update({ id: params.id, userId: params.userId }, updateFields);
     if ((result.affected ?? 0) === 0) {
       return null;
     }
-    return this.findTemplateByUserAndId({
-      userId: params.userId,
-      id: params.id,
-    });
+    return this.findTemplateByUserAndId({ userId: params.userId, id: params.id });
   }
 
-  async deleteTemplateForUser(params: {
-    userId: string;
-    id: string;
-  }): Promise<boolean> {
-    const result = await this.templatesRepo.delete({
-      id: params.id,
-      userId: params.userId,
-    });
+  async deleteTemplateForUser(params: { userId: string; id: string }): Promise<boolean> {
+    const result = await this.templatesRepo.delete({ id: params.id, userId: params.userId });
     return (result.affected ?? 0) > 0;
   }
 
-  async findRunsForTemplate(params: {
-    userId: string;
-    templateId: string;
-  }): Promise<SourceRunEntity[]> {
+  async findRunsForTemplate(params: { userId: string; templateId: string }): Promise<SourceRunEntity[]> {
     return this.runsRepo.find({
       where: { userId: params.userId, templateId: params.templateId },
       relations: { template: { plan: true } },
@@ -189,40 +152,24 @@ export class SourcesRepository {
     await this.templatesRepo.delete({ userId });
   }
 
-  async deleteRunsByTemplateId(params: {
-    userId: string;
-    templateId: string;
-  }): Promise<number> {
-    const result = await this.runsRepo.delete({
-      userId: params.userId,
-      templateId: params.templateId,
-    });
+  async deleteRunsByTemplateId(params: { userId: string; templateId: string }): Promise<number> {
+    const result = await this.runsRepo.delete({ userId: params.userId, templateId: params.templateId });
     return result.affected ?? 0;
   }
 
   async deleteByUser(params: { id: string; userId: string }): Promise<boolean> {
-    const result = await this.runsRepo.delete({
-      id: params.id,
-      userId: params.userId,
-    });
+    const result = await this.runsRepo.delete({ id: params.id, userId: params.userId });
     return (result.affected ?? 0) > 0;
   }
 
-  async findByUserAndId(params: {
-    id: string;
-    userId: string;
-  }): Promise<SourceRunEntity | null> {
+  async findByUserAndId(params: { id: string; userId: string }): Promise<SourceRunEntity | null> {
     return this.runsRepo.findOne({
       where: { id: params.id, userId: params.userId },
       relations: { template: { plan: true } },
     });
   }
 
-  async updateRunSurfaceUrl(params: {
-    id: string;
-    userId: string;
-    surfaceUrl: string;
-  }): Promise<boolean> {
+  async updateRunSurfaceUrl(params: { id: string; userId: string; surfaceUrl: string }): Promise<boolean> {
     const result = await this.runsRepo.update(
       { id: params.id, userId: params.userId },
       { surfaceUrl: params.surfaceUrl },
@@ -244,18 +191,10 @@ export class SourcesRepository {
   }
 
   async countStalePending(cutoff: Date): Promise<number> {
-    return this.runsRepo.count({
-      where: {
-        status: SourceRunStatusEnum.Pending,
-        startedAt: LessThan(cutoff),
-      },
-    });
+    return this.runsRepo.count({ where: { status: SourceRunStatusEnum.Pending, startedAt: LessThan(cutoff) } });
   }
 
-  async findActivityEventsByRunId(
-    userId: string,
-    runId: string,
-  ): Promise<SourceRunActivityEvent[]> {
+  async findActivityEventsByRunId(userId: string, runId: string): Promise<SourceRunActivityEvent[]> {
     const rows = await this.runsRepo.manager.query(
       `SELECT type, summary, payload, occurred_at
        FROM extension_activity_events
@@ -264,12 +203,7 @@ export class SourcesRepository {
       [userId, runId],
     );
     return rows.map(
-      (r: {
-        type: string;
-        summary: string;
-        payload: Record<string, unknown> | null;
-        occurred_at: string;
-      }) => ({
+      (r: { type: string; summary: string; payload: Record<string, unknown> | null; occurred_at: string }) => ({
         type: r.type,
         summary: r.summary,
         payload: r.payload,

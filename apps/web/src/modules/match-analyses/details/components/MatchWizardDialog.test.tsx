@@ -9,9 +9,7 @@ const gqlMocks = vi.hoisted(() => ({
   useUpdateWorkPreferencesMutation: vi.fn(),
 }));
 
-vi.mock("@/modules/jobs/shared/hooks/useToastQueue", () => ({
-  useToastQueue: () => ({ enqueueToast: vi.fn() }),
-}));
+vi.mock("@/modules/jobs/shared/hooks/useToastQueue", () => ({ useToastQueue: () => ({ enqueueToast: vi.fn() }) }));
 
 vi.mock("@/gql/hooks", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/gql/hooks")>();
@@ -34,13 +32,8 @@ function setupMocks() {
     loading: false,
     refetch: vi.fn(),
   });
-  gqlMocks.useWorkPreferencesQuery.mockReturnValue({
-    data: { workPreferences: [] },
-    loading: false,
-  });
-  gqlMocks.useUpdateWorkPreferencesMutation.mockReturnValue([
-    vi.fn().mockResolvedValue({}),
-  ]);
+  gqlMocks.useWorkPreferencesQuery.mockReturnValue({ data: { workPreferences: [] }, loading: false });
+  gqlMocks.useUpdateWorkPreferencesMutation.mockReturnValue([vi.fn().mockResolvedValue({})]);
 }
 
 describe("MatchWizardDialog", () => {
@@ -50,11 +43,7 @@ describe("MatchWizardDialog", () => {
   });
 
   it("shows loading state when resumes are not ready yet", () => {
-    gqlMocks.useResumesForPickerQuery.mockReturnValue({
-      data: undefined,
-      loading: true,
-      refetch: vi.fn(),
-    });
+    gqlMocks.useResumesForPickerQuery.mockReturnValue({ data: undefined, loading: true, refetch: vi.fn() });
 
     render(
       <MatchWizardDialog
@@ -81,8 +70,6 @@ describe("MatchWizardDialog", () => {
       />,
     );
 
-    expect(
-      await screen.findByRole("combobox", { name: /select a resume/i }),
-    ).toHaveTextContent("Backend resume");
+    expect(await screen.findByRole("combobox", { name: /select a resume/i })).toHaveTextContent("Backend resume");
   });
 });

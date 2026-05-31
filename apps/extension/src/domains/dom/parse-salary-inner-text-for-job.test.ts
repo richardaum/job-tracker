@@ -26,9 +26,7 @@ describe("parseSalaryInnerTextForCreateJob", () => {
   });
 
   it("parses BRL range with R$", () => {
-    const r = parseSalaryInnerTextForCreateJob(
-      "R$ 120,000 – R$ 150,000 / year",
-    );
+    const r = parseSalaryInnerTextForCreateJob("R$ 120,000 – R$ 150,000 / year");
     expect(r).toEqual({
       salaryMinCents: 120_000_00,
       salaryMaxCents: 150_000_00,

@@ -16,10 +16,7 @@ export type DetailsField = {
   format?: "tiptap" | "salary";
 };
 
-export type Pagination = {
-  containerSelector: string;
-  nextButtonPartialMatch: string;
-};
+export type Pagination = { containerSelector: string; nextButtonPartialMatch: string };
 
 export type CollectJobsInput = {
   containerSelector: string;
@@ -33,19 +30,11 @@ export type CollectJobsInput = {
   detailsFields: DetailsField[];
 };
 
-export type ParseRegexField = {
-  key: string;
-  pattern: string;
-  flags?: string;
-  group?: number;
-  required?: boolean;
-};
+export type ParseRegexField = { key: string; pattern: string; flags?: string; group?: number; required?: boolean };
 
 export type ParseRegexInput = { text: string; fields: ParseRegexField[] };
 
 export type Step = {
   id: string;
-  action:
-    | { kind: "collect.jobs"; input: CollectJobsInput }
-    | { kind: "parse.regex"; input: ParseRegexInput };
+  action: { kind: "collect.jobs"; input: CollectJobsInput } | { kind: "parse.regex"; input: ParseRegexInput };
 };

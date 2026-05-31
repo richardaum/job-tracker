@@ -13,9 +13,7 @@ type JobNotesFocusPageProps = { jobId: string };
 export function JobNotesFocusPage({ jobId }: JobNotesFocusPageProps) {
   // TODO: consume job data from JobDetailsContext instead of calling
   // useJobDetailsViewModel() here (see TODO in that hook).
-  const { status, displayTitle } = useJobDetailsViewModel(jobId, {
-    includeStageEvents: false,
-  });
+  const { status, displayTitle } = useJobDetailsViewModel(jobId, { includeStageEvents: false });
 
   return (
     <div className={cn("flex h-full min-h-0 flex-col")}>
@@ -32,11 +30,7 @@ export function JobNotesFocusPage({ jobId }: JobNotesFocusPageProps) {
             Loading notes...
           </Text>
         ) : status === "notFound" ? (
-          <EntityNotFound
-            resource="job"
-            backHref="/jobs"
-            backLabel="Back to jobs"
-          />
+          <EntityNotFound resource="job" backHref="/jobs" backLabel="Back to jobs" />
         ) : status === "error" ? (
           <Text size="sm" color="error">
             Failed to load notes.

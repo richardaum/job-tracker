@@ -9,17 +9,11 @@ export interface OverviewSectionProps {
   className?: string;
 }
 
-export function OverviewSection({
-  children,
-  layout = "grid",
-  className,
-}: OverviewSectionProps) {
+export function OverviewSection({ children, layout = "grid", className }: OverviewSectionProps) {
   return (
     <div
       className={cn(
-        layout === "stack"
-          ? "flex flex-col gap-3"
-          : "flex flex-wrap items-start gap-x-8 gap-y-4",
+        layout === "stack" ? "flex flex-col gap-3" : "flex flex-wrap items-start gap-x-8 gap-y-4",
         className,
       )}
     >

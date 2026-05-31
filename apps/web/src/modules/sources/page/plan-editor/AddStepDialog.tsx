@@ -11,14 +11,8 @@ type AddStepDialogProps = {
   onAdd: (kind: "collect.jobs" | "parse.regex") => void;
 };
 
-export function AddStepDialog({
-  open,
-  onOpenChange,
-  onAdd,
-}: AddStepDialogProps) {
-  const [kind, setKind] = useState<"collect.jobs" | "parse.regex">(
-    "collect.jobs",
-  );
+export function AddStepDialog({ open, onOpenChange, onAdd }: AddStepDialogProps) {
+  const [kind, setKind] = useState<"collect.jobs" | "parse.regex">("collect.jobs");
   return (
     <Dialog
       open={open}

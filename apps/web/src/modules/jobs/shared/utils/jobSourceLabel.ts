@@ -3,9 +3,7 @@ import { JobSource } from "@/gql/hooks";
 export const JOB_SOURCE_NOT_SET_LABEL = "Not set";
 
 /** Human-readable label for job-board source (GraphQL enum → UI). */
-export function formatJobSourceLabel(
-  source: JobSource | null | undefined,
-): string | null {
+export function formatJobSourceLabel(source: JobSource | null | undefined): string | null {
   if (source == null) {
     return null;
   }
@@ -24,9 +22,7 @@ export function formatJobSourceLabel(
 }
 
 /** Labels shown in the source combobox (fixed list; no free-form values). */
-export function jobSourceToComboLabel(
-  source: JobSource | null | undefined,
-): string {
+export function jobSourceToComboLabel(source: JobSource | null | undefined): string {
   if (source == null) {
     return JOB_SOURCE_NOT_SET_LABEL;
   }
@@ -34,21 +30,12 @@ export function jobSourceToComboLabel(
 }
 
 /** Stable list for comboboxes (GraphQL enum + “Not set”). Built once for stable reference. */
-export const JOB_SOURCE_COMBO_OPTIONS: ReadonlyArray<{
-  value: string;
-  label: string;
-}> = [
+export const JOB_SOURCE_COMBO_OPTIONS: ReadonlyArray<{ value: string; label: string }> = [
   { value: "__none__", label: JOB_SOURCE_NOT_SET_LABEL },
-  ...Object.values(JobSource).map((s) => ({
-    value: s,
-    label: formatJobSourceLabel(s)!,
-  })),
+  ...Object.values(JobSource).map((s) => ({ value: s, label: formatJobSourceLabel(s)! })),
 ];
 
-export function getJobSourceComboOptions(): Array<{
-  value: string;
-  label: string;
-}> {
+export function getJobSourceComboOptions(): Array<{ value: string; label: string }> {
   return [...JOB_SOURCE_COMBO_OPTIONS];
 }
 
@@ -56,9 +43,7 @@ export function getJobSourceComboOptions(): Array<{
  * Resolves combobox text to an enum value or null ("Not set").
  * Returns `"invalid"` when the text is not an exact match for a listed label.
  */
-export function parseJobSourceComboLabel(
-  draft: string,
-): JobSource | null | "invalid" {
+export function parseJobSourceComboLabel(draft: string): JobSource | null | "invalid" {
   const t = draft.trim();
   if (t === JOB_SOURCE_NOT_SET_LABEL) {
     return null;

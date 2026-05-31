@@ -6,12 +6,7 @@ export function SalaryView({ salary, className }: SalaryViewProps) {
   if (!lineStr) return null;
 
   return (
-    <Text
-      as="span"
-      size="sm"
-      color="success"
-      className={cn("min-w-0", className)}
-    >
+    <Text as="span" size="sm" color="success" className={cn("min-w-0", className)}>
       {lineStr}
     </Text>
   );

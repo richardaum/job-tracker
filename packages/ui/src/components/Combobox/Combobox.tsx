@@ -36,16 +36,12 @@ export function Combobox({
   id,
   autoComplete = "one-time-code",
 }: ComboboxProps) {
-  const selectedByStableValue = options.find(
-    (option) => option.value === value,
-  );
+  const selectedByStableValue = options.find((option) => option.value === value);
   const inputDisplayValue = selectedByStableValue?.label ?? value;
 
   const filteredOptions = useMemo(() => {
     if (!inputDisplayValue) return options;
-    return options.filter((option) =>
-      option.label.toLowerCase().includes(inputDisplayValue.toLowerCase()),
-    );
+    return options.filter((option) => option.label.toLowerCase().includes(inputDisplayValue.toLowerCase()));
   }, [options, inputDisplayValue]);
 
   return (
@@ -55,13 +51,7 @@ export function Combobox({
       hasItems={filteredOptions.length > 0}
       disabled={disabled}
     >
-      <AnchoredCombobox.Input
-        placeholder={placeholder}
-        size={size}
-        state={state}
-        id={id}
-        autoComplete={autoComplete}
-      />
+      <AnchoredCombobox.Input placeholder={placeholder} size={size} state={state} id={id} autoComplete={autoComplete} />
       <AnchoredCombobox.Portal>
         <AnchoredCombobox.Content className={cn("z-50 p-1")}>
           <AnchoredCombobox.List className={cn("gap-2")}>

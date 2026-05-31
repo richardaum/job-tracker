@@ -9,23 +9,14 @@ import { TipTapContent } from "@/modules/jobs/shared/components/TipTapContent";
 interface SummaryFieldProps {
   summary: string | null | undefined;
   summaryMetadata:
-    | {
-        status?: AsyncMetadataStatus | null;
-        error?: string | null;
-        timestamp?: string | null;
-      }
+    | { status?: AsyncMetadataStatus | null; error?: string | null; timestamp?: string | null }
     | null
     | undefined;
   onGenerateSummary: () => void;
 }
 
-export function SummaryField({
-  summary,
-  summaryMetadata,
-  onGenerateSummary,
-}: SummaryFieldProps) {
-  const isProcessing =
-    summaryMetadata?.status === AsyncMetadataStatus.Processing;
+export function SummaryField({ summary, summaryMetadata, onGenerateSummary }: SummaryFieldProps) {
+  const isProcessing = summaryMetadata?.status === AsyncMetadataStatus.Processing;
   const isFailed = summaryMetadata?.status === AsyncMetadataStatus.Failed;
 
   return (
@@ -37,13 +28,7 @@ export function SummaryField({
         </Text>
         <FieldWithLabelAction.IconActionButton
           label="Regenerate summary"
-          icon={
-            <ArrowsClockwiseIcon
-              size={14}
-              weight="regular"
-              className={cn(isProcessing && "animate-spin")}
-            />
-          }
+          icon={<ArrowsClockwiseIcon size={14} weight="regular" className={cn(isProcessing && "animate-spin")} />}
           disabled={isProcessing}
           onClick={onGenerateSummary}
         />
@@ -62,8 +47,7 @@ export function SummaryField({
             <TipTapContent content={summary} />
             {summaryMetadata?.timestamp ? (
               <Text size="xs" color="muted">
-                Generated at{" "}
-                {new Date(summaryMetadata.timestamp).toLocaleString()}
+                Generated at {new Date(summaryMetadata.timestamp).toLocaleString()}
               </Text>
             ) : null}
           </div>

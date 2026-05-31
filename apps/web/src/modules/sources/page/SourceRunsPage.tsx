@@ -35,10 +35,7 @@ import { EmptyState } from "@/components/empty-state";
 import { EntityNotFound } from "@/components/entity-not-found";
 import { formatDateTime } from "@/modules/jobs/details/utils/job-details.shared";
 import { useSourceRunsViewModel } from "@/modules/sources/hooks/useSourceRunsViewModel";
-import {
-  formatSourceRunStatusLabel,
-  sourceRunStatusBadgeIntent,
-} from "@/modules/sources/lib/source-runs.display";
+import { formatSourceRunStatusLabel, sourceRunStatusBadgeIntent } from "@/modules/sources/lib/source-runs.display";
 import { sourceRunJobsHref } from "@/modules/sources/lib/source-runs.routes";
 import { ClearSourceRunsDialog } from "@/modules/sources/page/ClearSourceRunsDialog";
 import { DeleteSourceRunDialog } from "@/modules/sources/page/DeleteSourceRunDialog";
@@ -75,15 +72,13 @@ function runLabel(index: number, total: number): string {
 
 export default function SourceRunsPage({ params }: PageProps) {
   const { planId, templateId } = use(params);
-  const { template, error, status, notFound, showInitialLoading } =
-    useSourceRunsViewModel(templateId);
+  const { template, error, status, notFound, showInitialLoading } = useSourceRunsViewModel(templateId);
 
   const [actionsMenuOpen, setActionsMenuOpen] = useState(false);
   const [surfaceUrlDialogOpen, setSurfaceUrlDialogOpen] = useState(false);
   const [scheduleDialogOpen, setScheduleDialogOpen] = useState(false);
   const [stopConfigDialogOpen, setStopConfigDialogOpen] = useState(false);
-  const [deleteTemplateDialogOpen, setDeleteTemplateDialogOpen] =
-    useState(false);
+  const [deleteTemplateDialogOpen, setDeleteTemplateDialogOpen] = useState(false);
   const [clearRunsDialogOpen, setClearRunsDialogOpen] = useState(false);
 
   const headerActions =
@@ -100,10 +95,7 @@ export default function SourceRunsPage({ params }: PageProps) {
                 <CaretDownIcon
                   size={12}
                   weight="bold"
-                  className={cn(
-                    "transition-transform duration-200",
-                    actionsMenuOpen ? "rotate-180" : "rotate-0",
-                  )}
+                  className={cn("transition-transform duration-200", actionsMenuOpen ? "rotate-180" : "rotate-0")}
                 />
               }
             >
@@ -146,28 +138,20 @@ export default function SourceRunsPage({ params }: PageProps) {
             Remove template
           </DropdownMenuItem>
         </DropdownMenu>
-        <RunSourceTemplateButton
-          templateId={template.id}
-          label="Run again"
-          tooltip="Run again"
-          variant="button"
-        />
+        <RunSourceTemplateButton templateId={template.id} label="Run again" tooltip="Run again" variant="button" />
       </div>
     ) : null;
 
   return (
     <div className={cn("flex h-full min-h-0 flex-col")}>
       <DetailPageHeader trailing={headerActions}>
-        <BackToLink href={`/sources/plans/${planId}` as Route}>
-          Back to plan
-        </BackToLink>
+        <BackToLink href={`/sources/plans/${planId}` as Route}>Back to plan</BackToLink>
         <Heading as="h1" size="2xl" className={cn("min-w-0")}>
           Source runs
         </Heading>
         {template ? (
           <Text size="sm" color="secondary">
-            {scheduleSummary(template)} · Created{" "}
-            {formatDateTime(String(template.createdAt))}
+            {scheduleSummary(template)} · Created {formatDateTime(String(template.createdAt))}
           </Text>
         ) : null}
       </DetailPageHeader>
@@ -176,32 +160,20 @@ export default function SourceRunsPage({ params }: PageProps) {
         {showInitialLoading ? (
           <SourceRunsListSkeleton />
         ) : notFound ? (
-          <EntityNotFound
-            resource="source"
-            backHref="/sources"
-            backLabel="Back to sources"
-          />
+          <EntityNotFound resource="source" backHref="/sources" backLabel="Back to sources" />
         ) : error && !notFound ? (
           <Text size="sm" color="error">
             Failed to load source runs.
           </Text>
-        ) : status !== "success" || !template ? null : template.runs.length ===
-          0 ? (
-          <EmptyState
-            variant="default"
-            message="No runs for this source yet."
-          />
+        ) : status !== "success" || !template ? null : template.runs.length === 0 ? (
+          <EmptyState variant="default" message="No runs for this source yet." />
         ) : (
           <Stack gap="sm" className={cn("min-w-0")}>
             {template.runs.map((run, index) => (
               <ListItemCard
                 key={run.id}
                 className={cn("min-w-0")}
-                title={
-                  <ListItemCard.Title size="sm">
-                    {runLabel(index, template.runs.length)}
-                  </ListItemCard.Title>
-                }
+                title={<ListItemCard.Title size="sm">{runLabel(index, template.runs.length)}</ListItemCard.Title>}
                 actions={
                   <ListItemCard.Actions>
                     <Tooltip
@@ -277,21 +249,14 @@ export default function SourceRunsPage({ params }: PageProps) {
         onOpenChange={setSurfaceUrlDialogOpen}
       />
 
-      <SourceScheduleDialog
-        template={scheduleDialogOpen ? template : null}
-        onOpenChange={setScheduleDialogOpen}
-      />
+      <SourceScheduleDialog template={scheduleDialogOpen ? template : null} onOpenChange={setScheduleDialogOpen} />
 
       <SourceStopConfigDialog
         template={stopConfigDialogOpen ? template : null}
         onOpenChange={setStopConfigDialogOpen}
       />
 
-      <ClearSourceRunsDialog
-        open={clearRunsDialogOpen}
-        onOpenChange={setClearRunsDialogOpen}
-        templateId={templateId}
-      />
+      <ClearSourceRunsDialog open={clearRunsDialogOpen} onOpenChange={setClearRunsDialogOpen} templateId={templateId} />
 
       <DeleteSourceTemplateDialog
         open={deleteTemplateDialogOpen}

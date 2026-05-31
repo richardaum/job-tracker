@@ -1,19 +1,12 @@
 import type { ContentActionMessage } from "@/domains/message/types";
 
-type PaginationActionMessage = Extract<
-  ContentActionMessage,
-  { kind: "navigate.next.page" | "can.navigate.next.page" }
->;
+type PaginationActionMessage = Extract<ContentActionMessage, { kind: "navigate.next.page" | "can.navigate.next.page" }>;
 
 export class NextButtonService {
   async execute(message: PaginationActionMessage) {
     const nextButton = this.getNextButton(message);
     if (!nextButton) {
-      return {
-        clicked: false,
-        reason: "next button not found",
-        beforeUrl: window.location.href,
-      };
+      return { clicked: false, reason: "next button not found", beforeUrl: window.location.href };
     }
 
     const beforeUrl = window.location.href;
@@ -45,9 +38,7 @@ export class NextButtonService {
     if (!pagination) return;
 
     // is next button visible?
-    const container = document.querySelector<HTMLDivElement>(
-      pagination.containerSelector,
-    );
+    const container = document.querySelector<HTMLDivElement>(pagination.containerSelector);
     if (!container) return;
 
     const htmlChildren = Array.from(container.children) as HTMLElement[];

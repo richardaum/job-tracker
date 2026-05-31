@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  Badge,
-  cn,
-  DropdownMenu,
-  DropdownMenuItem,
-  Link,
-  Text,
-} from "@job-tracker/ui";
+import { Badge, cn, DropdownMenu, DropdownMenuItem, Link, Text } from "@job-tracker/ui";
 import { useMemo } from "react";
 
 import { normalizeJobUrls } from "./job-urls.utils";
@@ -37,13 +30,7 @@ export function JobUrls({ urls, linkClassName, emptyLabel }: JobUrlsProps) {
 
   return (
     <div className={cn("flex items-center gap-2")}>
-      <Link
-        href={primary}
-        variant="default"
-        className={cn(linkClassName)}
-        target="_blank"
-        rel="noopener noreferrer"
-      >
+      <Link href={primary} variant="default" className={cn(linkClassName)} target="_blank" rel="noopener noreferrer">
         View posting
       </Link>
       {list.length > 1 ? (
@@ -63,16 +50,9 @@ export function JobUrls({ urls, linkClassName, emptyLabel }: JobUrlsProps) {
             {list.map((url, index) => (
               <DropdownMenuItem
                 key={`${url}-${index}`}
-                onSelect={() =>
-                  window.open(url, "_blank", "noopener,noreferrer")
-                }
+                onSelect={() => window.open(url, "_blank", "noopener,noreferrer")}
               >
-                <Text
-                  as="span"
-                  size="sm"
-                  className={cn("block truncate")}
-                  title={url}
-                >
+                <Text as="span" size="sm" className={cn("block truncate")} title={url}>
                   {url}
                 </Text>
               </DropdownMenuItem>

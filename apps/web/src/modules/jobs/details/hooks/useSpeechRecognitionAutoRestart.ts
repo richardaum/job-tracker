@@ -25,10 +25,7 @@ export function useSpeechRecognitionAutoRestart({
   }, []);
 
   const stopSession = useCallback(
-    <T extends { stop: () => void }>(
-      recognition: T | null,
-      setRecognition: (nextRecognition: T | null) => void,
-    ) => {
+    <T extends { stop: () => void }>(recognition: T | null, setRecognition: (nextRecognition: T | null) => void) => {
       setShouldKeepListening(false);
       hasCapturedBaseTextRef.current = false;
       sessionHadSpeechRef.current = false;
@@ -41,10 +38,7 @@ export function useSpeechRecognitionAutoRestart({
   );
 
   const prepareSessionStart = useCallback(
-    <T extends { stop: () => void }>(
-      recognition: T | null,
-      setRecognition: (nextRecognition: T | null) => void,
-    ) => {
+    <T extends { stop: () => void }>(recognition: T | null, setRecognition: (nextRecognition: T | null) => void) => {
       // Stop previous session first so stale `onend` cannot trigger restart.
       setShouldKeepListening(false);
       recognition?.stop();
@@ -56,17 +50,14 @@ export function useSpeechRecognitionAutoRestart({
     [setShouldKeepListening],
   );
 
-  const captureBaseTextIfNeeded = useCallback(
-    (preserveBaseText: boolean, getCurrentText: () => string) => {
-      // On auto-restart (preserveBaseText=true), refresh base text from the editor's
-      // current content so the next recognition cycle appends instead of replacing.
-      const shouldCapture = preserveBaseText || !hasCapturedBaseTextRef.current;
-      if (!shouldCapture) return null;
-      hasCapturedBaseTextRef.current = true;
-      return getCurrentText().trim();
-    },
-    [],
-  );
+  const captureBaseTextIfNeeded = useCallback((preserveBaseText: boolean, getCurrentText: () => string) => {
+    // On auto-restart (preserveBaseText=true), refresh base text from the editor's
+    // current content so the next recognition cycle appends instead of replacing.
+    const shouldCapture = preserveBaseText || !hasCapturedBaseTextRef.current;
+    if (!shouldCapture) return null;
+    hasCapturedBaseTextRef.current = true;
+    return getCurrentText().trim();
+  }, []);
 
   const handleSessionError = useCallback(() => {
     setShouldKeepListening(false);
@@ -83,11 +74,7 @@ export function useSpeechRecognitionAutoRestart({
   }, []);
 
   const handleSessionEnd = useCallback(
-    <T>(
-      currentRecognition: T | null,
-      recognition: T,
-      setRecognition: (nextRecognition: T | null) => void,
-    ) => {
+    <T>(currentRecognition: T | null, recognition: T, setRecognition: (nextRecognition: T | null) => void) => {
       if (currentRecognition === recognition) {
         setRecognition(null);
       }
@@ -98,14 +85,8 @@ export function useSpeechRecognitionAutoRestart({
         consecutiveNoSpeechRestartsRef.current = 0;
       }
       const reachedNoSpeechLimit =
-        wasNoSpeechSession &&
-        consecutiveNoSpeechRestartsRef.current >=
-          MAX_CONSECUTIVE_NO_SPEECH_RESTARTS;
-      const shouldRestart =
-        shouldKeepListeningRef.current &&
-        !disabled &&
-        enabled &&
-        !reachedNoSpeechLimit;
+        wasNoSpeechSession && consecutiveNoSpeechRestartsRef.current >= MAX_CONSECUTIVE_NO_SPEECH_RESTARTS;
+      const shouldRestart = shouldKeepListeningRef.current && !disabled && enabled && !reachedNoSpeechLimit;
       sessionHadSpeechRef.current = false;
       if (!shouldRestart) {
         if (reachedNoSpeechLimit) {
@@ -121,10 +102,7 @@ export function useSpeechRecognitionAutoRestart({
   );
 
   const cleanupSession = useCallback(
-    <T extends { stop: () => void }>(
-      recognition: T | null,
-      setRecognition: (nextRecognition: T | null) => void,
-    ) => {
+    <T extends { stop: () => void }>(recognition: T | null, setRecognition: (nextRecognition: T | null) => void) => {
       setShouldKeepListening(false);
       hasCapturedBaseTextRef.current = false;
       sessionHadSpeechRef.current = false;

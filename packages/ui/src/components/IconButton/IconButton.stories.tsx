@@ -14,18 +14,9 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  args: {
-    label: "Notifications",
-    tooltip: "Notifications",
-    icon: <BellIcon size={20} weight="regular" />,
-  },
+  args: { label: "Notifications", tooltip: "Notifications", icon: <BellIcon size={20} weight="regular" /> },
 };
 
 export const Destructive: Story = {
-  args: {
-    label: "Delete",
-    tooltip: "Delete",
-    intent: "destructive",
-    icon: <TrashIcon size={20} weight="regular" />,
-  },
+  args: { label: "Delete", tooltip: "Delete", intent: "destructive", icon: <TrashIcon size={20} weight="regular" /> },
 };

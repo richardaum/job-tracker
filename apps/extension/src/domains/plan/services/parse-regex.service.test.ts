@@ -4,9 +4,7 @@ import type { ParseRegexAction } from "@/domains/plan/model/types";
 
 import { ParseRegexService } from "./parse-regex.service";
 
-function makeAction(
-  overrides: Partial<ParseRegexAction["input"]> = {},
-): ParseRegexAction {
+function makeAction(overrides: Partial<ParseRegexAction["input"]> = {}): ParseRegexAction {
   return {
     kind: "parse.regex",
     input: {

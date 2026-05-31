@@ -13,25 +13,13 @@ export class AuthService {
     return signJwt({ sub: user.id, tv: tokenVersion }, jwtAccessSecrets, "15m");
   }
 
-  generateRefreshToken(
-    user: JwtSubject,
-    tokenVersion: number,
-    jti: string,
-  ): string {
-    return signJwt(
-      { sub: user.id, tv: tokenVersion, jti },
-      jwtRefreshSecrets,
-      "7d",
-    );
+  generateRefreshToken(user: JwtSubject, tokenVersion: number, jti: string): string {
+    return signJwt({ sub: user.id, tv: tokenVersion, jti }, jwtRefreshSecrets, "7d");
   }
 
   verifyRefreshToken(token: string): TokenPayload {
     const payload = verifyJwt(token, jwtRefreshSecrets);
-    return {
-      userId: payload.sub,
-      tokenVersion: payload.tv ?? 0,
-      jti: payload.jti,
-    };
+    return { userId: payload.sub, tokenVersion: payload.tv ?? 0, jti: payload.jti };
   }
 
   verifyAccessToken(token: string): TokenPayload {

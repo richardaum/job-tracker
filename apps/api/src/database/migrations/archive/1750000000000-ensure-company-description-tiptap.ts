@@ -9,19 +9,14 @@ export class EnsureCompanyDescriptionTiptap1750000000000 implements MigrationInt
   name = "EnsureCompanyDescriptionTiptap1750000000000";
 
   public async up(queryRunner: QueryRunner): Promise<void> {
-    const companies = await queryRunner.query(
-      `SELECT id, description FROM "companies" WHERE description IS NOT NULL`,
-    );
+    const companies = await queryRunner.query(`SELECT id, description FROM "companies" WHERE description IS NOT NULL`);
 
     for (const company of companies) {
       const { id, description } = company;
 
       if (!isTipTapDocumentString(description)) {
         const tiptapDoc = this.plainTextToTipTap(description);
-        await queryRunner.query(
-          `UPDATE "companies" SET description = $1 WHERE id = $2`,
-          [tiptapDoc, id],
-        );
+        await queryRunner.query(`UPDATE "companies" SET description = $1 WHERE id = $2`, [tiptapDoc, id]);
       }
     }
   }
@@ -36,10 +31,7 @@ export class EnsureCompanyDescriptionTiptap1750000000000 implements MigrationInt
       .split("\n")
       .map((line) => line.trimEnd())
       .filter((line) => line.length > 0)
-      .map((line) => ({
-        type: "paragraph",
-        content: [{ type: "text", text: line }],
-      }));
+      .map((line) => ({ type: "paragraph", content: [{ type: "text", text: line }] }));
 
     if (paragraphs.length === 0) {
       return JSON.stringify({ type: "doc", content: [{ type: "paragraph" }] });

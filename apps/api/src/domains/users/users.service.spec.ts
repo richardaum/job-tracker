@@ -32,11 +32,7 @@ describe("UserService", () => {
   beforeEach(() => {
     em = {} as EntityManager;
     repo = {
-      manager: {
-        transaction: vi.fn(
-          async (fn: (manager: EntityManager) => Promise<User>) => fn(em),
-        ),
-      },
+      manager: { transaction: vi.fn(async (fn: (manager: EntityManager) => Promise<User>) => fn(em)) },
       findAccountByProvider: vi.fn(),
       saveUser: vi.fn(),
       insertUser: vi.fn(),
@@ -52,9 +48,7 @@ describe("UserService", () => {
 
   describe("findOrCreateFromGoogle", () => {
     it("updates an existing linked user", async () => {
-      vi.mocked(repo.findAccountByProvider).mockResolvedValue({
-        userId: mockUser.id,
-      } as UserAccountEntity);
+      vi.mocked(repo.findAccountByProvider).mockResolvedValue({ userId: mockUser.id } as UserAccountEntity);
       vi.mocked(repo.saveUser).mockResolvedValue(mockUser);
 
       const profile = {
@@ -66,18 +60,9 @@ describe("UserService", () => {
 
       const result = await service.findOrCreateFromGoogle(profile);
 
-      expect(repo.findAccountByProvider).toHaveBeenCalledWith(
-        AuthProviderEnum.GOOGLE,
-        profile.googleId,
-        em,
-      );
+      expect(repo.findAccountByProvider).toHaveBeenCalledWith(AuthProviderEnum.GOOGLE, profile.googleId, em);
       expect(repo.saveUser).toHaveBeenCalledWith(
-        {
-          id: mockUser.id,
-          email: profile.email,
-          name: profile.name,
-          avatarUrl: profile.avatarUrl,
-        },
+        { id: mockUser.id, email: profile.email, name: profile.name, avatarUrl: profile.avatarUrl },
         em,
       );
       expect(repo.insertUser).not.toHaveBeenCalled();
@@ -90,23 +75,13 @@ describe("UserService", () => {
       vi.mocked(repo.insertUser).mockResolvedValue(mockUser);
       vi.mocked(repo.insertAccount).mockResolvedValue({} as UserAccountEntity);
 
-      const profile = {
-        googleId: "google-456",
-        email: "other@example.com",
-        name: "Other User",
-        avatarUrl: null,
-      };
+      const profile = { googleId: "google-456", email: "other@example.com", name: "Other User", avatarUrl: null };
 
       const result = await service.findOrCreateFromGoogle(profile);
 
       expect(repo.insertUser).toHaveBeenCalledOnce();
       expect(repo.insertUser).toHaveBeenCalledWith(
-        expect.objectContaining({
-          email: profile.email,
-          name: profile.name,
-          avatarUrl: null,
-          role: RoleEnum.User,
-        }),
+        expect.objectContaining({ email: profile.email, name: profile.name, avatarUrl: null, role: RoleEnum.User }),
         em,
       );
       const insertedUser = vi.mocked(repo.insertUser).mock.calls[0]?.[0];
@@ -161,26 +136,17 @@ describe("UserService", () => {
 
     it("throws UnauthorizedException when user not found", async () => {
       vi.mocked(repo.findById).mockResolvedValue(null);
-      await expect(service.validateActiveUser("uuid-1", 0)).rejects.toThrow(
-        UnauthorizedException,
-      );
+      await expect(service.validateActiveUser("uuid-1", 0)).rejects.toThrow(UnauthorizedException);
     });
 
     it("throws UnauthorizedException when user is inactive", async () => {
-      vi.mocked(repo.findById).mockResolvedValue({
-        ...mockUser,
-        active: false,
-      });
-      await expect(service.validateActiveUser("uuid-1", 0)).rejects.toThrow(
-        UnauthorizedException,
-      );
+      vi.mocked(repo.findById).mockResolvedValue({ ...mockUser, active: false });
+      await expect(service.validateActiveUser("uuid-1", 0)).rejects.toThrow(UnauthorizedException);
     });
 
     it("throws UnauthorizedException when tokenVersion mismatches", async () => {
       vi.mocked(repo.findById).mockResolvedValue(mockUser);
-      await expect(service.validateActiveUser("uuid-1", 5)).rejects.toThrow(
-        UnauthorizedException,
-      );
+      await expect(service.validateActiveUser("uuid-1", 5)).rejects.toThrow(UnauthorizedException);
     });
   });
 

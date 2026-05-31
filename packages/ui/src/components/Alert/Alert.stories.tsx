@@ -13,33 +13,15 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Info: Story = {
-  args: {
-    title: "Profile note",
-    children: "Your profile visibility is set to public.",
-    intent: "info",
-  },
+  args: { title: "Profile note", children: "Your profile visibility is set to public.", intent: "info" },
 };
 
-export const Success: Story = {
-  args: {
-    title: "Saved",
-    children: "Job details were updated.",
-    intent: "success",
-  },
-};
+export const Success: Story = { args: { title: "Saved", children: "Job details were updated.", intent: "success" } };
 
 export const Warning: Story = {
-  args: {
-    title: "Missing field",
-    children: "Add a salary expectation to improve matching.",
-    intent: "warning",
-  },
+  args: { title: "Missing field", children: "Add a salary expectation to improve matching.", intent: "warning" },
 };
 
 export const Error: Story = {
-  args: {
-    title: "Failed to save",
-    children: "Try again in a few seconds.",
-    intent: "error",
-  },
+  args: { title: "Failed to save", children: "Try again in a few seconds.", intent: "error" },
 };

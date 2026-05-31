@@ -13,10 +13,7 @@ export class ResumeRepository {
   ) {}
 
   async findAllByUserId(userId: string): Promise<Resume[]> {
-    return this.repo.find({
-      where: { userId },
-      order: { isDefault: "DESC", updatedAt: "DESC" },
-    });
+    return this.repo.find({ where: { userId }, order: { isDefault: "DESC", updatedAt: "DESC" } });
   }
 
   async findDefaultByUserId(userId: string): Promise<Resume | null> {
@@ -40,11 +37,7 @@ export class ResumeRepository {
     return this.repo.save(resume);
   }
 
-  async update(
-    id: string,
-    userId: string,
-    dto: Partial<NewResume>,
-  ): Promise<Resume | null> {
+  async update(id: string, userId: string, dto: Partial<NewResume>): Promise<Resume | null> {
     const resume = await this.findOneById(id, userId);
     if (!resume) {
       return null;

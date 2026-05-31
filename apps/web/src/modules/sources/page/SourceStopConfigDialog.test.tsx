@@ -9,12 +9,8 @@ if (!Element.prototype.hasPointerCapture) {
 const updateSourceTemplateMock = vi.fn();
 
 vi.mock("@/gql/hooks", async () => {
-  const actual =
-    await vi.importActual<typeof import("@/gql/hooks")>("@/gql/hooks");
-  return {
-    ...actual,
-    useUpdateSourceTemplateMutation: () => [updateSourceTemplateMock],
-  };
+  const actual = await vi.importActual<typeof import("@/gql/hooks")>("@/gql/hooks");
+  return { ...actual, useUpdateSourceTemplateMutation: () => [updateSourceTemplateMock] };
 });
 
 import { SourceStopConfigDialog } from "./SourceStopConfigDialog";
@@ -38,12 +34,7 @@ describe("SourceStopConfigDialog", () => {
   });
 
   it("renders stop conditions with checkboxes", () => {
-    render(
-      <SourceStopConfigDialog
-        template={makeTemplate()}
-        onOpenChange={() => {}}
-      />,
-    );
+    render(<SourceStopConfigDialog template={makeTemplate()} onOpenChange={() => {}} />);
 
     expect(screen.getByText("Stop Conditions")).toBeInTheDocument();
     expect(screen.getByText("CatchUp")).toBeInTheDocument();
@@ -53,12 +44,7 @@ describe("SourceStopConfigDialog", () => {
 
   it("shows threshold input after enabling CatchUp", async () => {
     const user = userEvent.setup();
-    render(
-      <SourceStopConfigDialog
-        template={makeTemplate()}
-        onOpenChange={() => {}}
-      />,
-    );
+    render(<SourceStopConfigDialog template={makeTemplate()} onOpenChange={() => {}} />);
 
     await user.click(screen.getByText("CatchUp"));
 
@@ -97,20 +83,10 @@ describe("SourceStopConfigDialog", () => {
     const user = userEvent.setup();
     const onOpenChange = vi.fn();
     updateSourceTemplateMock.mockResolvedValue({
-      data: {
-        updateSourceTemplate: {
-          id: "tpl-1",
-          config: { stopWhen: "CatchUp", catchUpThreshold: 5 },
-        },
-      },
+      data: { updateSourceTemplate: { id: "tpl-1", config: { stopWhen: "CatchUp", catchUpThreshold: 5 } } },
     });
 
-    render(
-      <SourceStopConfigDialog
-        template={makeTemplate()}
-        onOpenChange={onOpenChange}
-      />,
-    );
+    render(<SourceStopConfigDialog template={makeTemplate()} onOpenChange={onOpenChange} />);
 
     await user.click(screen.getByText("CatchUp"));
 
@@ -121,10 +97,7 @@ describe("SourceStopConfigDialog", () => {
 
     await waitFor(() => {
       expect(updateSourceTemplateMock).toHaveBeenCalledWith({
-        variables: {
-          id: "tpl-1",
-          input: { config: { stopWhen: ["CatchUp"], catchUpThreshold: 5 } },
-        },
+        variables: { id: "tpl-1", input: { config: { stopWhen: ["CatchUp"], catchUpThreshold: 5 } } },
       });
       expect(onOpenChange).toHaveBeenCalledWith(false);
     });
@@ -132,12 +105,7 @@ describe("SourceStopConfigDialog", () => {
 
   it("shows days input after enabling OlderThan", async () => {
     const user = userEvent.setup();
-    render(
-      <SourceStopConfigDialog
-        template={makeTemplate()}
-        onOpenChange={() => {}}
-      />,
-    );
+    render(<SourceStopConfigDialog template={makeTemplate()} onOpenChange={() => {}} />);
 
     await user.click(screen.getByText("Older Than"));
 

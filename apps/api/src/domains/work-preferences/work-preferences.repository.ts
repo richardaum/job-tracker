@@ -16,10 +16,7 @@ export class WorkPreferencesRepository {
     return this.repo.findOne({ where: { userId } });
   }
 
-  async upsert(
-    userId: string,
-    items: WorkPreferencesEntity["items"],
-  ): Promise<WorkPreferences> {
+  async upsert(userId: string, items: WorkPreferencesEntity["items"]): Promise<WorkPreferences> {
     const existing = await this.findByUserId(userId);
     if (existing) {
       existing.items = items;

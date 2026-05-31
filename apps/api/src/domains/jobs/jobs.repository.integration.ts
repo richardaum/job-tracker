@@ -85,11 +85,7 @@ describe.skipIf(!hasDb)("JobsRepository (integration)", () => {
       await insertJob({ title: "B", sourceRunId: "run-a" });
       await insertJob({ title: "C", sourceRunId: "run-b" });
 
-      const result = await repo.countBySourceRunIds(userId, [
-        "run-a",
-        "run-b",
-        "run-nonexistent",
-      ]);
+      const result = await repo.countBySourceRunIds(userId, ["run-a", "run-b", "run-nonexistent"]);
 
       expect(result.get("run-a")).toBe(2);
       expect(result.get("run-b")).toBe(1);
@@ -122,9 +118,7 @@ describe.skipIf(!hasDb)("JobsRepository (integration)", () => {
 
       expect(deleted).toBe(2);
 
-      const remaining = await jobsRepo.find({
-        where: { userId, sourceRunId: "run-keep" },
-      });
+      const remaining = await jobsRepo.find({ where: { userId, sourceRunId: "run-keep" } });
       expect(remaining).toHaveLength(1);
     });
 

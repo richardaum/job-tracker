@@ -11,10 +11,7 @@ export type MakeOptional<T, K extends keyof T> = Omit<T, K> & {
 export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & {
   [SubKey in K]: Maybe<T[SubKey]>;
 };
-export type MakeEmpty<
-  T extends { [key: string]: unknown },
-  K extends keyof T,
-> = {
+export type MakeEmpty<T extends { [key: string]: unknown }, K extends keyof T> = {
   [_ in K]?: never;
 };
 export type Incremental<T> =
@@ -89,11 +86,7 @@ export type BlockedKeyword = {
   scope: KeywordScope;
 };
 
-export type BlockedKeywordInput = {
-  keyword: Scalars["String"]["input"];
-  matchMode: MatchMode;
-  scope: KeywordScope;
-};
+export type BlockedKeywordInput = { keyword: Scalars["String"]["input"]; matchMode: MatchMode; scope: KeywordScope };
 
 export type CompanyType = {
   __typename?: "CompanyType";
@@ -132,15 +125,9 @@ export type CreateJobStageEventInput = {
   toStage: ApplicationStage;
 };
 
-export type CreateNoteInput = {
-  content: Scalars["String"]["input"];
-  jobId: Scalars["String"]["input"];
-};
+export type CreateNoteInput = { content: Scalars["String"]["input"]; jobId: Scalars["String"]["input"] };
 
-export type CreatePlanInput = {
-  displayName: Scalars["String"]["input"];
-  document: Scalars["JSON"]["input"];
-};
+export type CreatePlanInput = { displayName: Scalars["String"]["input"]; document: Scalars["JSON"]["input"] };
 
 export type CreateResumeInput = {
   content: Scalars["String"]["input"];
@@ -216,10 +203,7 @@ export enum FitClassification {
   Positive = "Positive",
 }
 
-export type GenerateMatchInput = {
-  jobId: Scalars["ID"]["input"];
-  resumeId: Scalars["ID"]["input"];
-};
+export type GenerateMatchInput = { jobId: Scalars["ID"]["input"]; resumeId: Scalars["ID"]["input"] };
 
 export type JobFillStatusEventType = {
   __typename?: "JobFillStatusEventType";
@@ -408,9 +392,7 @@ export type MutationCreateJobArgs = { input: CreateJobInput };
 
 export type MutationCreateJobNoteArgs = { input: CreateNoteInput };
 
-export type MutationCreateJobStageEventArgs = {
-  input: CreateJobStageEventInput;
-};
+export type MutationCreateJobStageEventArgs = { input: CreateJobStageEventInput };
 
 export type MutationCreatePlanArgs = { input: CreatePlanInput };
 
@@ -418,9 +400,7 @@ export type MutationCreateResumeArgs = { input: CreateResumeInput };
 
 export type MutationCreateSourceRunArgs = { input: CreateSourceRunInput };
 
-export type MutationCreateSourceTemplateArgs = {
-  input: CreateSourceTemplateInput;
-};
+export type MutationCreateSourceTemplateArgs = { input: CreateSourceTemplateInput };
 
 export type MutationDeleteCompanyArgs = { id: Scalars["ID"]["input"] };
 
@@ -443,67 +423,35 @@ export type MutationDeleteSourceRunArgs = {
 
 export type MutationDeleteSourceTemplateArgs = { id: Scalars["ID"]["input"] };
 
-export type MutationDetachJobsFromSourceRunArgs = {
-  sourceRunId: Scalars["ID"]["input"];
-};
+export type MutationDetachJobsFromSourceRunArgs = { sourceRunId: Scalars["ID"]["input"] };
 
-export type MutationFillJobAutomaticallyArgs = {
-  jobId: Scalars["ID"]["input"];
-};
+export type MutationFillJobAutomaticallyArgs = { jobId: Scalars["ID"]["input"] };
 
 export type MutationGenerateJobMatchArgs = { input: GenerateMatchInput };
 
-export type MutationRemoveJobTagArgs = {
-  id: Scalars["ID"]["input"];
-  tag: Scalars["String"]["input"];
-};
+export type MutationRemoveJobTagArgs = { id: Scalars["ID"]["input"]; tag: Scalars["String"]["input"] };
 
-export type MutationReportExtensionActivityArgs = {
-  input: ReportExtensionActivityInput;
-};
+export type MutationReportExtensionActivityArgs = { input: ReportExtensionActivityInput };
 
 export type MutationRequestJobSummaryArgs = { jobId: Scalars["ID"]["input"] };
 
-export type MutationRerunSourceTemplateArgs = {
-  templateId: Scalars["ID"]["input"];
-};
+export type MutationRerunSourceTemplateArgs = { templateId: Scalars["ID"]["input"] };
 
-export type MutationUpdateCompanyArgs = {
-  id: Scalars["ID"]["input"];
-  input: UpdateCompanyInput;
-};
+export type MutationUpdateCompanyArgs = { id: Scalars["ID"]["input"]; input: UpdateCompanyInput };
 
-export type MutationUpdateJobArgs = {
-  id: Scalars["ID"]["input"];
-  input: UpdateJobInput;
-};
+export type MutationUpdateJobArgs = { id: Scalars["ID"]["input"]; input: UpdateJobInput };
 
-export type MutationUpdateJobNoteArgs = {
-  id: Scalars["ID"]["input"];
-  input: UpdateNoteInput;
-};
+export type MutationUpdateJobNoteArgs = { id: Scalars["ID"]["input"]; input: UpdateNoteInput };
 
-export type MutationUpdateJobStageEventArgs = {
-  id: Scalars["ID"]["input"];
-  input: UpdateJobStageEventInput;
-};
+export type MutationUpdateJobStageEventArgs = { id: Scalars["ID"]["input"]; input: UpdateJobStageEventInput };
 
-export type MutationUpdatePlanArgs = {
-  id: Scalars["ID"]["input"];
-  input: UpdatePlanInput;
-};
+export type MutationUpdatePlanArgs = { id: Scalars["ID"]["input"]; input: UpdatePlanInput };
 
-export type MutationUpdateResumeArgs = {
-  id: Scalars["ID"]["input"];
-  input: UpdateResumeInput;
-};
+export type MutationUpdateResumeArgs = { id: Scalars["ID"]["input"]; input: UpdateResumeInput };
 
 export type MutationUpdateSettingsArgs = { input: UpdateSettingsInput };
 
-export type MutationUpdateSourceRunArgs = {
-  id: Scalars["ID"]["input"];
-  input: UpdateSourceRunInput;
-};
+export type MutationUpdateSourceRunArgs = { id: Scalars["ID"]["input"]; input: UpdateSourceRunInput };
 
 export type MutationUpdateSourceRunStatusArgs = {
   errorMessage?: InputMaybe<Scalars["String"]["input"]>;
@@ -511,14 +459,9 @@ export type MutationUpdateSourceRunStatusArgs = {
   status: SourceRunStatus;
 };
 
-export type MutationUpdateSourceTemplateArgs = {
-  id: Scalars["ID"]["input"];
-  input: UpdateSourceTemplateInput;
-};
+export type MutationUpdateSourceTemplateArgs = { id: Scalars["ID"]["input"]; input: UpdateSourceTemplateInput };
 
-export type MutationUpdateWorkPreferencesArgs = {
-  items: Array<PreferenceInput>;
-};
+export type MutationUpdateWorkPreferencesArgs = { items: Array<PreferenceInput> };
 
 export type NoteType = {
   __typename?: "NoteType";
@@ -541,16 +484,9 @@ export type PlanType = {
   updatedAt: Scalars["DateTime"]["output"];
 };
 
-export type PreferenceInput = {
-  text: Scalars["String"]["input"];
-  weight: Weight;
-};
+export type PreferenceInput = { text: Scalars["String"]["input"]; weight: Weight };
 
-export type PreferenceType = {
-  __typename?: "PreferenceType";
-  text: Scalars["String"]["output"];
-  weight: Weight;
-};
+export type PreferenceType = { __typename?: "PreferenceType"; text: Scalars["String"]["output"]; weight: Weight };
 
 export type Query = {
   __typename?: "Query";
@@ -596,31 +532,17 @@ export type QueryExchangeRatesArgs = {
   currencies: Array<Scalars["String"]["input"]>;
 };
 
-export type QueryExtensionActivityEventsArgs = {
-  limit?: InputMaybe<Scalars["Int"]["input"]>;
-};
+export type QueryExtensionActivityEventsArgs = { limit?: InputMaybe<Scalars["Int"]["input"]> };
 
-export type QueryGenerateCompanyDescriptionArgs = {
-  companyName: Scalars["String"]["input"];
-};
+export type QueryGenerateCompanyDescriptionArgs = { companyName: Scalars["String"]["input"] };
 
-export type QueryGenerateJobLocationWithAiArgs = {
-  jobId: Scalars["ID"]["input"];
-};
+export type QueryGenerateJobLocationWithAiArgs = { jobId: Scalars["ID"]["input"] };
 
-export type QueryGenerateJobNoteWithAiArgs = {
-  jobId: Scalars["ID"]["input"];
-  note: Scalars["String"]["input"];
-};
+export type QueryGenerateJobNoteWithAiArgs = { jobId: Scalars["ID"]["input"]; note: Scalars["String"]["input"] };
 
-export type QueryGenerateJobWorkRegionWithAiArgs = {
-  jobId: Scalars["ID"]["input"];
-};
+export type QueryGenerateJobWorkRegionWithAiArgs = { jobId: Scalars["ID"]["input"] };
 
-export type QueryIsJobDuplicateArgs = {
-  company: Scalars["String"]["input"];
-  title: Scalars["String"]["input"];
-};
+export type QueryIsJobDuplicateArgs = { company: Scalars["String"]["input"]; title: Scalars["String"]["input"] };
 
 export type QueryJobArgs = { id: Scalars["ID"]["input"] };
 
@@ -640,17 +562,13 @@ export type QueryMatchArgs = { id: Scalars["ID"]["input"] };
 
 export type QueryPlanArgs = { id: Scalars["ID"]["input"] };
 
-export type QueryRestructureJobDescriptionWithAiArgs = {
-  text: Scalars["String"]["input"];
-};
+export type QueryRestructureJobDescriptionWithAiArgs = { text: Scalars["String"]["input"] };
 
 export type QueryResumeArgs = { id: Scalars["ID"]["input"] };
 
 export type QueryRewriteTextWithAiArgs = { text: Scalars["String"]["input"] };
 
-export type QuerySourceRunActivityEventsArgs = {
-  runId: Scalars["ID"]["input"];
-};
+export type QuerySourceRunActivityEventsArgs = { runId: Scalars["ID"]["input"] };
 
 export type QuerySourceTemplateArgs = { id: Scalars["ID"]["input"] };
 
@@ -762,17 +680,11 @@ export type Subscription = {
   sourceRunEvents: SourceRunEvent;
 };
 
-export type SubscriptionJobFillStatusChangedArgs = {
-  jobId: Scalars["ID"]["input"];
-};
+export type SubscriptionJobFillStatusChangedArgs = { jobId: Scalars["ID"]["input"] };
 
-export type SubscriptionJobMatchStatusChangedArgs = {
-  jobId: Scalars["ID"]["input"];
-};
+export type SubscriptionJobMatchStatusChangedArgs = { jobId: Scalars["ID"]["input"] };
 
-export type SubscriptionJobSummaryStatusChangedArgs = {
-  jobId: Scalars["ID"]["input"];
-};
+export type SubscriptionJobSummaryStatusChangedArgs = { jobId: Scalars["ID"]["input"] };
 
 export type UpdateCompanyInput = {
   description?: InputMaybe<Scalars["String"]["input"]>;
@@ -860,9 +772,7 @@ export enum Weight {
   Low = "Low",
 }
 
-export type CreateDraftCaptureJobMutationVariables = Exact<{
-  input: CreateJobInput;
-}>;
+export type CreateDraftCaptureJobMutationVariables = Exact<{ input: CreateJobInput }>;
 
 export type CreateDraftCaptureJobMutation = {
   __typename?: "Mutation";
@@ -895,21 +805,13 @@ export type IsJobDuplicateQueryVariables = Exact<{
   title: Scalars["String"]["input"];
 }>;
 
-export type IsJobDuplicateQuery = {
-  __typename?: "Query";
-  isJobDuplicate: boolean;
-};
+export type IsJobDuplicateQuery = { __typename?: "Query"; isJobDuplicate: boolean };
 
 export type MeQueryVariables = Exact<{ [key: string]: never }>;
 
-export type MeQuery = {
-  __typename?: "Query";
-  me: { __typename?: "UserType"; email: string };
-};
+export type MeQuery = { __typename?: "Query"; me: { __typename?: "UserType"; email: string } };
 
-export type ReportExtensionActivityMutationVariables = Exact<{
-  input: ReportExtensionActivityInput;
-}>;
+export type ReportExtensionActivityMutationVariables = Exact<{ input: ReportExtensionActivityInput }>;
 
 export type ReportExtensionActivityMutation = {
   __typename?: "Mutation";
@@ -959,18 +861,11 @@ export type UpdateSourceRunStatusMutation = {
   };
 };
 
-export type UpdateSourceRunMutationVariables = Exact<{
-  id: Scalars["ID"]["input"];
-  input: UpdateSourceRunInput;
-}>;
+export type UpdateSourceRunMutationVariables = Exact<{ id: Scalars["ID"]["input"]; input: UpdateSourceRunInput }>;
 
 export type UpdateSourceRunMutation = {
   __typename?: "Mutation";
-  updateSourceRun: {
-    __typename?: "SourceRunType";
-    id: string;
-    surfaceUrl: string;
-  };
+  updateSourceRun: { __typename?: "SourceRunType"; id: string; surfaceUrl: string };
 };
 
 export const CreateDraftCaptureJobDocument = {
@@ -983,17 +878,8 @@ export const CreateDraftCaptureJobDocument = {
       variableDefinitions: [
         {
           kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "input" },
-          },
-          type: {
-            kind: "NonNullType",
-            type: {
-              kind: "NamedType",
-              name: { kind: "Name", value: "CreateJobInput" },
-            },
-          },
+          variable: { kind: "Variable", name: { kind: "Name", value: "input" } },
+          type: { kind: "NonNullType", type: { kind: "NamedType", name: { kind: "Name", value: "CreateJobInput" } } },
         },
       ],
       selectionSet: {
@@ -1006,10 +892,7 @@ export const CreateDraftCaptureJobDocument = {
               {
                 kind: "Argument",
                 name: { kind: "Name", value: "input" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "input" },
-                },
+                value: { kind: "Variable", name: { kind: "Name", value: "input" } },
               },
             ],
             selectionSet: {
@@ -1019,25 +902,16 @@ export const CreateDraftCaptureJobDocument = {
                 { kind: "Field", name: { kind: "Name", value: "title" } },
                 { kind: "Field", name: { kind: "Name", value: "urls" } },
                 { kind: "Field", name: { kind: "Name", value: "htmlContent" } },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "currentStage" },
-                },
+                { kind: "Field", name: { kind: "Name", value: "currentStage" } },
                 {
                   kind: "Field",
                   name: { kind: "Name", value: "fillMetadata" },
                   selectionSet: {
                     kind: "SelectionSet",
                     selections: [
-                      {
-                        kind: "Field",
-                        name: { kind: "Name", value: "status" },
-                      },
+                      { kind: "Field", name: { kind: "Name", value: "status" } },
                       { kind: "Field", name: { kind: "Name", value: "error" } },
-                      {
-                        kind: "Field",
-                        name: { kind: "Name", value: "timestamp" },
-                      },
+                      { kind: "Field", name: { kind: "Name", value: "timestamp" } },
                     ],
                   },
                 },
@@ -1049,10 +923,7 @@ export const CreateDraftCaptureJobDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<
-  CreateDraftCaptureJobMutation,
-  CreateDraftCaptureJobMutationVariables
->;
+} as unknown as DocumentNode<CreateDraftCaptureJobMutation, CreateDraftCaptureJobMutationVariables>;
 export const CreateJobDocument = {
   kind: "Document",
   definitions: [
@@ -1063,17 +934,8 @@ export const CreateJobDocument = {
       variableDefinitions: [
         {
           kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "input" },
-          },
-          type: {
-            kind: "NonNullType",
-            type: {
-              kind: "NamedType",
-              name: { kind: "Name", value: "CreateJobInput" },
-            },
-          },
+          variable: { kind: "Variable", name: { kind: "Name", value: "input" } },
+          type: { kind: "NonNullType", type: { kind: "NamedType", name: { kind: "Name", value: "CreateJobInput" } } },
         },
       ],
       selectionSet: {
@@ -1086,10 +948,7 @@ export const CreateJobDocument = {
               {
                 kind: "Argument",
                 name: { kind: "Name", value: "input" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "input" },
-                },
+                value: { kind: "Variable", name: { kind: "Name", value: "input" } },
               },
             ],
             selectionSet: {
@@ -1115,31 +974,13 @@ export const IsJobDuplicateDocument = {
       variableDefinitions: [
         {
           kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "company" },
-          },
-          type: {
-            kind: "NonNullType",
-            type: {
-              kind: "NamedType",
-              name: { kind: "Name", value: "String" },
-            },
-          },
+          variable: { kind: "Variable", name: { kind: "Name", value: "company" } },
+          type: { kind: "NonNullType", type: { kind: "NamedType", name: { kind: "Name", value: "String" } } },
         },
         {
           kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "title" },
-          },
-          type: {
-            kind: "NonNullType",
-            type: {
-              kind: "NamedType",
-              name: { kind: "Name", value: "String" },
-            },
-          },
+          variable: { kind: "Variable", name: { kind: "Name", value: "title" } },
+          type: { kind: "NonNullType", type: { kind: "NamedType", name: { kind: "Name", value: "String" } } },
         },
       ],
       selectionSet: {
@@ -1152,18 +993,12 @@ export const IsJobDuplicateDocument = {
               {
                 kind: "Argument",
                 name: { kind: "Name", value: "company" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "company" },
-                },
+                value: { kind: "Variable", name: { kind: "Name", value: "company" } },
               },
               {
                 kind: "Argument",
                 name: { kind: "Name", value: "title" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "title" },
-                },
+                value: { kind: "Variable", name: { kind: "Name", value: "title" } },
               },
             ],
           },
@@ -1187,9 +1022,7 @@ export const MeDocument = {
             name: { kind: "Name", value: "me" },
             selectionSet: {
               kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "email" } },
-              ],
+              selections: [{ kind: "Field", name: { kind: "Name", value: "email" } }],
             },
           },
         ],
@@ -1207,16 +1040,10 @@ export const ReportExtensionActivityDocument = {
       variableDefinitions: [
         {
           kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "input" },
-          },
+          variable: { kind: "Variable", name: { kind: "Name", value: "input" } },
           type: {
             kind: "NonNullType",
-            type: {
-              kind: "NamedType",
-              name: { kind: "Name", value: "ReportExtensionActivityInput" },
-            },
+            type: { kind: "NamedType", name: { kind: "Name", value: "ReportExtensionActivityInput" } },
           },
         },
       ],
@@ -1230,10 +1057,7 @@ export const ReportExtensionActivityDocument = {
               {
                 kind: "Argument",
                 name: { kind: "Name", value: "input" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "input" },
-                },
+                value: { kind: "Variable", name: { kind: "Name", value: "input" } },
               },
             ],
             selectionSet: {
@@ -1242,10 +1066,7 @@ export const ReportExtensionActivityDocument = {
                 { kind: "Field", name: { kind: "Name", value: "id" } },
                 { kind: "Field", name: { kind: "Name", value: "type" } },
                 { kind: "Field", name: { kind: "Name", value: "summary" } },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "correlationId" },
-                },
+                { kind: "Field", name: { kind: "Name", value: "correlationId" } },
                 { kind: "Field", name: { kind: "Name", value: "occurredAt" } },
               ],
             },
@@ -1254,10 +1075,7 @@ export const ReportExtensionActivityDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<
-  ReportExtensionActivityMutation,
-  ReportExtensionActivityMutationVariables
->;
+} as unknown as DocumentNode<ReportExtensionActivityMutation, ReportExtensionActivityMutationVariables>;
 export const SourceRunsDocument = {
   kind: "Document",
   definitions: [
@@ -1279,21 +1097,12 @@ export const SourceRunsDocument = {
                 { kind: "Field", name: { kind: "Name", value: "planId" } },
                 { kind: "Field", name: { kind: "Name", value: "surfaceUrl" } },
                 { kind: "Field", name: { kind: "Name", value: "status" } },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "errorMessage" },
-                },
+                { kind: "Field", name: { kind: "Name", value: "errorMessage" } },
                 { kind: "Field", name: { kind: "Name", value: "startedAt" } },
                 { kind: "Field", name: { kind: "Name", value: "stopWhen" } },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "catchUpThreshold" },
-                },
+                { kind: "Field", name: { kind: "Name", value: "catchUpThreshold" } },
                 { kind: "Field", name: { kind: "Name", value: "maxPages" } },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "olderThanDays" },
-                },
+                { kind: "Field", name: { kind: "Name", value: "olderThanDays" } },
               ],
             },
           },
@@ -1313,31 +1122,16 @@ export const UpdateSourceRunStatusDocument = {
         {
           kind: "VariableDefinition",
           variable: { kind: "Variable", name: { kind: "Name", value: "id" } },
-          type: {
-            kind: "NonNullType",
-            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
-          },
+          type: { kind: "NonNullType", type: { kind: "NamedType", name: { kind: "Name", value: "ID" } } },
         },
         {
           kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "status" },
-          },
-          type: {
-            kind: "NonNullType",
-            type: {
-              kind: "NamedType",
-              name: { kind: "Name", value: "SourceRunStatus" },
-            },
-          },
+          variable: { kind: "Variable", name: { kind: "Name", value: "status" } },
+          type: { kind: "NonNullType", type: { kind: "NamedType", name: { kind: "Name", value: "SourceRunStatus" } } },
         },
         {
           kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "errorMessage" },
-          },
+          variable: { kind: "Variable", name: { kind: "Name", value: "errorMessage" } },
           type: { kind: "NamedType", name: { kind: "Name", value: "String" } },
         },
       ],
@@ -1351,26 +1145,17 @@ export const UpdateSourceRunStatusDocument = {
               {
                 kind: "Argument",
                 name: { kind: "Name", value: "id" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "id" },
-                },
+                value: { kind: "Variable", name: { kind: "Name", value: "id" } },
               },
               {
                 kind: "Argument",
                 name: { kind: "Name", value: "status" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "status" },
-                },
+                value: { kind: "Variable", name: { kind: "Name", value: "status" } },
               },
               {
                 kind: "Argument",
                 name: { kind: "Name", value: "errorMessage" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "errorMessage" },
-                },
+                value: { kind: "Variable", name: { kind: "Name", value: "errorMessage" } },
               },
             ],
             selectionSet: {
@@ -1378,10 +1163,7 @@ export const UpdateSourceRunStatusDocument = {
               selections: [
                 { kind: "Field", name: { kind: "Name", value: "id" } },
                 { kind: "Field", name: { kind: "Name", value: "status" } },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "errorMessage" },
-                },
+                { kind: "Field", name: { kind: "Name", value: "errorMessage" } },
               ],
             },
           },
@@ -1389,10 +1171,7 @@ export const UpdateSourceRunStatusDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<
-  UpdateSourceRunStatusMutation,
-  UpdateSourceRunStatusMutationVariables
->;
+} as unknown as DocumentNode<UpdateSourceRunStatusMutation, UpdateSourceRunStatusMutationVariables>;
 export const UpdateSourceRunDocument = {
   kind: "Document",
   definitions: [
@@ -1404,23 +1183,14 @@ export const UpdateSourceRunDocument = {
         {
           kind: "VariableDefinition",
           variable: { kind: "Variable", name: { kind: "Name", value: "id" } },
-          type: {
-            kind: "NonNullType",
-            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
-          },
+          type: { kind: "NonNullType", type: { kind: "NamedType", name: { kind: "Name", value: "ID" } } },
         },
         {
           kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "input" },
-          },
+          variable: { kind: "Variable", name: { kind: "Name", value: "input" } },
           type: {
             kind: "NonNullType",
-            type: {
-              kind: "NamedType",
-              name: { kind: "Name", value: "UpdateSourceRunInput" },
-            },
+            type: { kind: "NamedType", name: { kind: "Name", value: "UpdateSourceRunInput" } },
           },
         },
       ],
@@ -1434,18 +1204,12 @@ export const UpdateSourceRunDocument = {
               {
                 kind: "Argument",
                 name: { kind: "Name", value: "id" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "id" },
-                },
+                value: { kind: "Variable", name: { kind: "Name", value: "id" } },
               },
               {
                 kind: "Argument",
                 name: { kind: "Name", value: "input" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "input" },
-                },
+                value: { kind: "Variable", name: { kind: "Name", value: "input" } },
               },
             ],
             selectionSet: {
@@ -1460,7 +1224,4 @@ export const UpdateSourceRunDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<
-  UpdateSourceRunMutation,
-  UpdateSourceRunMutationVariables
->;
+} as unknown as DocumentNode<UpdateSourceRunMutation, UpdateSourceRunMutationVariables>;

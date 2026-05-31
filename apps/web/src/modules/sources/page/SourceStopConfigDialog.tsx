@@ -1,16 +1,7 @@
 "use client";
 
 import { tryRun } from "@job-tracker/try-run";
-import {
-  Button,
-  Checkbox,
-  cn,
-  Dialog,
-  FormField,
-  Input,
-  Stack,
-  Text,
-} from "@job-tracker/ui";
+import { Button, Checkbox, cn, Dialog, FormField, Input, Stack, Text } from "@job-tracker/ui";
 import { useCallback, useMemo, useState } from "react";
 
 import { useUpdateSourceTemplateMutation } from "@/gql/hooks";
@@ -19,12 +10,7 @@ import type { SourceListItem } from "@/modules/sources/page/source-template-list
 
 type StopWhen = "CatchUp" | "FirstRunMaxPages" | "OlderThan";
 
-type StopConfig = {
-  stopWhen: StopWhen[];
-  catchUpThreshold: string;
-  maxPages: string;
-  olderThanDays: string;
-};
+type StopConfig = { stopWhen: StopWhen[]; catchUpThreshold: string; maxPages: string; olderThanDays: string };
 
 const conditionMeta: {
   value: StopWhen;
@@ -55,27 +41,21 @@ const conditionMeta: {
   {
     value: "OlderThan",
     label: "Older Than",
-    description:
-      "Stop scanning once jobs older than N days are found. Use this for time-sensitive searches.",
+    description: "Stop scanning once jobs older than N days are found. Use this for time-sensitive searches.",
     hint: "Age threshold in days",
     paramLabel: "Max Age (days)",
     paramPlaceholder: "e.g. 30",
   },
 ];
 
-function parseConfig(
-  config: Record<string, unknown> | null | undefined,
-): StopConfig {
+function parseConfig(config: Record<string, unknown> | null | undefined): StopConfig {
   const c = config ?? {};
   const raw = c.stopWhen;
   const sw: StopWhen[] = Array.isArray(raw)
     ? raw.filter(
-        (v): v is StopWhen =>
-          typeof v === "string" &&
-          ["CatchUp", "FirstRunMaxPages", "OlderThan"].includes(v),
+        (v): v is StopWhen => typeof v === "string" && ["CatchUp", "FirstRunMaxPages", "OlderThan"].includes(v),
       )
-    : typeof raw === "string" &&
-        ["CatchUp", "FirstRunMaxPages", "OlderThan"].includes(raw)
+    : typeof raw === "string" && ["CatchUp", "FirstRunMaxPages", "OlderThan"].includes(raw)
       ? [raw as StopWhen]
       : [];
   return {
@@ -103,39 +83,23 @@ function buildConfig(state: StopConfig): Record<string, unknown> {
 type SourceStopConfigFormInnerProps = {
   template: SourceListItem;
   close: () => void;
-  onStopConfigSaved?: (
-    id: string,
-    config: Record<string, unknown> | null,
-  ) => void;
+  onStopConfigSaved?: (id: string, config: Record<string, unknown> | null) => void;
 };
 
-function SourceStopConfigFormInner({
-  template,
-  close,
-  onStopConfigSaved,
-}: SourceStopConfigFormInnerProps) {
-  const [updateSource] = useUpdateSourceTemplateMutation({
-    refetchQueries: ["Plans", "SourceTemplatesAll"],
-  });
+function SourceStopConfigFormInner({ template, close, onStopConfigSaved }: SourceStopConfigFormInnerProps) {
+  const [updateSource] = useUpdateSourceTemplateMutation({ refetchQueries: ["Plans", "SourceTemplatesAll"] });
 
   const { enqueueToast } = useToastQueue();
 
-  const initial = useMemo(
-    () => parseConfig(template.config),
-    [template.config],
-  );
+  const initial = useMemo(() => parseConfig(template.config), [template.config]);
   const [stopWhen, setStopWhen] = useState<StopWhen[]>(initial.stopWhen);
-  const [catchUpThreshold, setCatchUpThreshold] = useState(
-    initial.catchUpThreshold,
-  );
+  const [catchUpThreshold, setCatchUpThreshold] = useState(initial.catchUpThreshold);
   const [maxPages, setMaxPages] = useState(initial.maxPages);
   const [olderThanDays, setOlderThanDays] = useState(initial.olderThanDays);
   const [saving, setSaving] = useState(false);
 
   function toggleCondition(value: StopWhen) {
-    setStopWhen((prev) =>
-      prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value],
-    );
+    setStopWhen((prev) => (prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]));
   }
 
   function paramValue(value: StopWhen): string {
@@ -183,25 +147,15 @@ function SourceStopConfigFormInner({
 
     setSaving(true);
 
-    const config = buildConfig({
-      stopWhen,
-      catchUpThreshold,
-      maxPages,
-      olderThanDays,
-    });
+    const config = buildConfig({ stopWhen, catchUpThreshold, maxPages, olderThanDays });
 
-    const [err] = await tryRun(
-      updateSource({ variables: { id: template.id, input: { config } } }),
-    );
+    const [err] = await tryRun(updateSource({ variables: { id: template.id, input: { config } } }));
 
     setSaving(false);
 
     if (err) {
       enqueueToast({
-        title:
-          err instanceof Error
-            ? err.message
-            : "Could not save stop condition. Try again.",
+        title: err instanceof Error ? err.message : "Could not save stop condition. Try again.",
         intent: "error",
       });
       return;
@@ -217,10 +171,7 @@ function SourceStopConfigFormInner({
         {conditionMeta.map((condition) => {
           const checked = stopWhen.includes(condition.value);
           return (
-            <div
-              key={condition.value}
-              className={cn("flex flex-col gap-2 pb-2")}
-            >
+            <div key={condition.value} className={cn("flex flex-col gap-2 pb-2")}>
               <label
                 htmlFor={`stop-${condition.value}-${template.id}`}
                 className={cn("flex cursor-pointer items-start gap-3")}
@@ -256,9 +207,7 @@ function SourceStopConfigFormInner({
                       type="number"
                       min={1}
                       value={paramValue(condition.value)}
-                      onChange={(e) =>
-                        setParamValue(condition.value, e.target.value)
-                      }
+                      onChange={(e) => setParamValue(condition.value, e.target.value)}
                       disabled={saving}
                       placeholder={condition.paramPlaceholder}
                     />
@@ -274,11 +223,7 @@ function SourceStopConfigFormInner({
         <Button intent="secondary" disabled={saving} onClick={close}>
           Cancel
         </Button>
-        <Button
-          intent="primary"
-          state={saving ? "loading" : "default"}
-          onClick={() => void handleSave()}
-        >
+        <Button intent="primary" state={saving ? "loading" : "default"} onClick={() => void handleSave()}>
           Save
         </Button>
       </div>
@@ -289,17 +234,10 @@ function SourceStopConfigFormInner({
 type SourceStopConfigDialogProps = {
   template: SourceListItem | null;
   onOpenChange: (open: boolean) => void;
-  onStopConfigSaved?: (
-    id: string,
-    config: Record<string, unknown> | null,
-  ) => void;
+  onStopConfigSaved?: (id: string, config: Record<string, unknown> | null) => void;
 };
 
-export function SourceStopConfigDialog({
-  template,
-  onOpenChange,
-  onStopConfigSaved,
-}: SourceStopConfigDialogProps) {
+export function SourceStopConfigDialog({ template, onOpenChange, onStopConfigSaved }: SourceStopConfigDialogProps) {
   const open = template !== null;
   const close = useCallback(() => onOpenChange(false), [onOpenChange]);
 
@@ -311,8 +249,7 @@ export function SourceStopConfigDialog({
       title="Stop Conditions"
       description={
         <Text size="sm" color="secondary">
-          Configure when to stop scanning jobs. You can enable multiple
-          conditions — the first one met stops the run.
+          Configure when to stop scanning jobs. You can enable multiple conditions — the first one met stops the run.
         </Text>
       }
     >

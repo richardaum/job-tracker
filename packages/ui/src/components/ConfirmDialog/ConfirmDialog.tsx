@@ -68,18 +68,10 @@ export function ConfirmDialog({
 
   const footer = (
     <Stack direction="row" gap="xs" justify="end">
-      <Button
-        intent="secondary"
-        onClick={() => handleOpenChange(false)}
-        disabled={submitting}
-      >
+      <Button intent="secondary" onClick={() => handleOpenChange(false)} disabled={submitting}>
         {cancelLabel}
       </Button>
-      <Button
-        intent={confirmIntent}
-        state={submitting ? "loading" : "default"}
-        onClick={() => void handleConfirm()}
-      >
+      <Button intent={confirmIntent} state={submitting ? "loading" : "default"} onClick={() => void handleConfirm()}>
         {confirmLabel}
       </Button>
     </Stack>

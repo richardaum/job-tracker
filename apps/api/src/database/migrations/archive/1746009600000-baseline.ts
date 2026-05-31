@@ -5,9 +5,7 @@ export class Baseline1746009600000 implements MigrationInterface {
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`CREATE TYPE "public"."role" AS ENUM('user')`);
-    await queryRunner.query(
-      `CREATE TYPE "public"."salary_period" AS ENUM('year', 'month', 'hour')`,
-    );
+    await queryRunner.query(`CREATE TYPE "public"."salary_period" AS ENUM('year', 'month', 'hour')`);
     await queryRunner.query(
       `CREATE TYPE "public"."application_stage" AS ENUM('new', 'applied', 'recruiter_screen', 'technical', 'offer', 'rejected')`,
     );
@@ -75,9 +73,7 @@ export class Baseline1746009600000 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(
-      `ALTER TABLE "application_notes" DROP CONSTRAINT "application_notes_user_id_users_id_fk"`,
-    );
+    await queryRunner.query(`ALTER TABLE "application_notes" DROP CONSTRAINT "application_notes_user_id_users_id_fk"`);
     await queryRunner.query(
       `ALTER TABLE "application_notes" DROP CONSTRAINT "application_notes_application_id_applications_id_fk"`,
     );
@@ -87,9 +83,7 @@ export class Baseline1746009600000 implements MigrationInterface {
     await queryRunner.query(
       `ALTER TABLE "application_stage_events" DROP CONSTRAINT "application_stage_events_application_id_applications_id_fk"`,
     );
-    await queryRunner.query(
-      `ALTER TABLE "applications" DROP CONSTRAINT "applications_user_id_users_id_fk"`,
-    );
+    await queryRunner.query(`ALTER TABLE "applications" DROP CONSTRAINT "applications_user_id_users_id_fk"`);
     await queryRunner.query(`DROP TABLE "application_notes"`);
     await queryRunner.query(`DROP TABLE "application_stage_events"`);
     await queryRunner.query(`DROP TABLE "applications"`);

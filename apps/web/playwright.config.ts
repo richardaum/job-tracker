@@ -18,10 +18,5 @@ export default defineConfig({
   reporter: "list",
   use: { baseURL, trace: "on-first-retry" },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
-  webServer: {
-    command: `PORT=${PORT} pnpm start`,
-    url: baseURL,
-    reuseExistingServer: !ci,
-    timeout: 120 * 1000,
-  },
+  webServer: { command: `PORT=${PORT} pnpm start`, url: baseURL, reuseExistingServer: !ci, timeout: 120 * 1000 },
 });

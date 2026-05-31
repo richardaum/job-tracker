@@ -18,11 +18,7 @@ export class PlanRepository {
     return this.repo.findOneBy({ id });
   }
 
-  create(params: {
-    displayName: string;
-    document: PlanEntity["document"];
-    userId: string;
-  }): Promise<PlanEntity> {
+  create(params: { displayName: string; document: PlanEntity["document"]; userId: string }): Promise<PlanEntity> {
     const row = this.repo.create(params);
     return this.repo.save(row);
   }
@@ -32,10 +28,7 @@ export class PlanRepository {
     userId: string,
     params: Partial<Pick<PlanEntity, "displayName" | "document">>,
   ): Promise<PlanEntity | null> {
-    const result = await this.repo.update(
-      { id, userId },
-      params as Parameters<Repository<PlanEntity>["update"]>[1],
-    );
+    const result = await this.repo.update({ id, userId }, params as Parameters<Repository<PlanEntity>["update"]>[1]);
     if ((result.affected ?? 0) === 0) {
       return null;
     }

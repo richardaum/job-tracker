@@ -4,10 +4,7 @@ import { Badge, cn, Stack, Text, Tooltip } from "@job-tracker/ui";
 import NextLink from "next/link";
 
 import { FitClassification as FitClassificationValue } from "@/gql/hooks";
-import {
-  formatMatchClassification,
-  formatMatchLabel,
-} from "@/modules/jobs/shared/utils/matchFormat";
+import { formatMatchClassification, formatMatchLabel } from "@/modules/jobs/shared/utils/matchFormat";
 
 type BadgeVariant = "compact" | "badge" | "detailed";
 
@@ -43,10 +40,8 @@ const colorMap = {
 } as const;
 
 function getStyle(classification: string | null) {
-  if (classification === FitClassificationValue.Positive)
-    return colorMap.positive;
-  if (classification === FitClassificationValue.Negative)
-    return colorMap.negative;
+  if (classification === FitClassificationValue.Positive) return colorMap.positive;
+  if (classification === FitClassificationValue.Negative) return colorMap.negative;
   return colorMap.inconclusive;
 }
 
@@ -58,13 +53,7 @@ type DetailTooltipProps = {
   children: React.ReactElement;
 };
 
-function DetailTooltip({
-  classification,
-  matchCount,
-  gapCount,
-  unclearCount,
-  children,
-}: DetailTooltipProps) {
+function DetailTooltip({ classification, matchCount, gapCount, unclearCount, children }: DetailTooltipProps) {
   const label = formatMatchClassification(classification);
 
   return (
@@ -73,36 +62,12 @@ function DetailTooltip({
         <Stack gap="xs" className={cn("py-0.5 text-text-inverted")}>
           <div className={cn("text-xs font-semibold")}>{label}</div>
           <div className={cn("grid grid-cols-[1fr_auto] gap-x-4 gap-y-0.5")}>
-            <span className={cn("text-xs text-text-inverted opacity-70")}>
-              Matches
-            </span>
-            <span
-              className={cn(
-                "text-xs font-medium tabular-nums text-text-inverted",
-              )}
-            >
-              {matchCount}
-            </span>
-            <span className={cn("text-xs text-text-inverted opacity-70")}>
-              Gaps
-            </span>
-            <span
-              className={cn(
-                "text-xs font-medium tabular-nums text-text-inverted",
-              )}
-            >
-              {gapCount}
-            </span>
-            <span className={cn("text-xs text-text-inverted opacity-70")}>
-              Unclear
-            </span>
-            <span
-              className={cn(
-                "text-xs font-medium tabular-nums text-text-inverted",
-              )}
-            >
-              {unclearCount}
-            </span>
+            <span className={cn("text-xs text-text-inverted opacity-70")}>Matches</span>
+            <span className={cn("text-xs font-medium tabular-nums text-text-inverted")}>{matchCount}</span>
+            <span className={cn("text-xs text-text-inverted opacity-70")}>Gaps</span>
+            <span className={cn("text-xs font-medium tabular-nums text-text-inverted")}>{gapCount}</span>
+            <span className={cn("text-xs text-text-inverted opacity-70")}>Unclear</span>
+            <span className={cn("text-xs font-medium tabular-nums text-text-inverted")}>{unclearCount}</span>
           </div>
         </Stack>
       }
@@ -113,29 +78,14 @@ function DetailTooltip({
   );
 }
 
-function CompactBadge({
-  classification,
-  scoreRatio,
-  matchCount,
-  gapCount,
-  unclearCount,
-}: MatchClassificationProps) {
+function CompactBadge({ classification, scoreRatio, matchCount, gapCount, unclearCount }: MatchClassificationProps) {
   const label = formatMatchClassification(classification);
   const style = getStyle(classification);
 
   const content = (
-    <Text
-      size="sm"
-      weight="medium"
-      color={style.textColor}
-      className={cn("cursor-default leading-none")}
-    >
+    <Text size="sm" weight="medium" color={style.textColor} className={cn("cursor-default leading-none")}>
       {label}
-      {scoreRatio != null && (
-        <span className={cn("ml-1 font-normal opacity-80")}>
-          ({Math.round(scoreRatio)}%)
-        </span>
-      )}
+      {scoreRatio != null && <span className={cn("ml-1 font-normal opacity-80")}>({Math.round(scoreRatio)}%)</span>}
     </Text>
   );
 
@@ -164,12 +114,7 @@ function BadgeBadge({
   const style = getStyle(classification);
 
   const badge = (
-    <Badge
-      intent={style.badgeIntent}
-      className={cn(
-        "cursor-pointer font-medium transition-all hover:brightness-95",
-      )}
-    >
+    <Badge intent={style.badgeIntent} className={cn("cursor-pointer font-medium transition-all hover:brightness-95")}>
       {formatMatchLabel(classification, scoreRatio)}
     </Badge>
   );
@@ -182,10 +127,7 @@ function BadgeBadge({
       unclearCount={unclearCount}
     >
       {jobId !== undefined && jobId !== "" ? (
-        <NextLink
-          href={`/jobs/${jobId}/match`}
-          className={cn("no-underline focus-visible:outline-none")}
-        >
+        <NextLink href={`/jobs/${jobId}/match`} className={cn("no-underline focus-visible:outline-none")}>
           {badge}
         </NextLink>
       ) : (
@@ -196,53 +138,29 @@ function BadgeBadge({
 }
 
 function DetailedBadge(props: MatchClassificationProps) {
-  const { classification, scoreRatio, matchCount, gapCount, unclearCount } =
-    props;
+  const { classification, scoreRatio, matchCount, gapCount, unclearCount } = props;
   const label = formatMatchClassification(classification);
   const style = getStyle(classification);
 
   return (
     <div className={cn("flex flex-wrap items-center gap-2")}>
-      <div
-        className={cn("rounded-lg border px-3 py-1.5 w-fit", style.badgeClass)}
-      >
+      <div className={cn("rounded-lg border px-3 py-1.5 w-fit", style.badgeClass)}>
         <Text size="sm" weight="semibold" className={cn("whitespace-nowrap")}>
           {label}
         </Text>
       </div>
       {scoreRatio !== null && (
-        <div
-          className={cn(
-            "rounded-lg border border-border-subtle bg-surface px-3 py-1.5 w-fit",
-          )}
-        >
+        <div className={cn("rounded-lg border border-border-subtle bg-surface px-3 py-1.5 w-fit")}>
           <Text size="sm" color="secondary" className={cn("whitespace-nowrap")}>
-            Score:{" "}
-            <span className={cn("font-bold text-text-primary")}>
-              {Math.round(scoreRatio)}%
-            </span>
+            Score: <span className={cn("font-bold text-text-primary")}>{Math.round(scoreRatio)}%</span>
           </Text>
         </div>
       )}
-      <div
-        className={cn(
-          "rounded-lg border border-border-subtle bg-surface px-3 py-1.5 w-fit",
-        )}
-      >
+      <div className={cn("rounded-lg border border-border-subtle bg-surface px-3 py-1.5 w-fit")}>
         <Text size="sm" color="secondary" className={cn("whitespace-nowrap")}>
-          <span className={cn("font-medium text-text-primary")}>
-            {matchCount}
-          </span>{" "}
-          match
-          {matchCount !== 1 ? "es" : ""} ·{" "}
-          <span className={cn("font-medium text-text-primary")}>
-            {gapCount}
-          </span>{" "}
-          gap
-          {gapCount !== 1 ? "s" : ""} ·{" "}
-          <span className={cn("font-medium text-text-primary")}>
-            {unclearCount}
-          </span>{" "}
+          <span className={cn("font-medium text-text-primary")}>{matchCount}</span> match
+          {matchCount !== 1 ? "es" : ""} · <span className={cn("font-medium text-text-primary")}>{gapCount}</span> gap
+          {gapCount !== 1 ? "s" : ""} · <span className={cn("font-medium text-text-primary")}>{unclearCount}</span>{" "}
           unclear
         </Text>
       </div>

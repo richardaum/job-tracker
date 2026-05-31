@@ -10,15 +10,9 @@
 
 import { createContext, useContext } from "react";
 
-import {
-  AsyncMetadataStatus,
-  useJobFillStatusChangedSubscription,
-  useJobQuery,
-} from "@/gql/hooks";
+import { AsyncMetadataStatus, useJobFillStatusChangedSubscription, useJobQuery } from "@/gql/hooks";
 
-export const JobFillStatusContext = createContext<JobFillStatusValue | null>(
-  null,
-);
+export const JobFillStatusContext = createContext<JobFillStatusValue | null>(null);
 
 export function useJobFillStatusValue(jobId: string) {
   const {
@@ -26,10 +20,7 @@ export function useJobFillStatusValue(jobId: string) {
     loading: jobLoading,
     error: jobError,
     refetch: refetchJob,
-  } = useJobQuery({
-    variables: { id: jobId },
-    fetchPolicy: "cache-and-network",
-  });
+  } = useJobQuery({ variables: { id: jobId }, fetchPolicy: "cache-and-network" });
 
   const status = jobData?.job?.fillMetadata?.status;
   const error = jobData?.job?.fillMetadata?.error ?? null;
@@ -57,9 +48,7 @@ export type JobFillStatusValue = ReturnType<typeof useJobFillStatusValue>;
 export function useJobFillStatus(): JobFillStatusValue {
   const value = useContext(JobFillStatusContext);
   if (!value) {
-    throw new Error(
-      "useJobFillStatus must be used within JobFillStatusProvider",
-    );
+    throw new Error("useJobFillStatus must be used within JobFillStatusProvider");
   }
   return value;
 }

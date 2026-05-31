@@ -9,23 +9,14 @@ export interface LabelProps {
   required?: boolean;
 }
 
-const sizeClasses: Record<NonNullable<LabelProps["size"]>, string> = {
-  sm: "text-sm",
-  md: "text-base",
-};
+const sizeClasses: Record<NonNullable<LabelProps["size"]>, string> = { sm: "text-sm", md: "text-base" };
 
 const stateClasses: Record<NonNullable<LabelProps["state"]>, string> = {
   default: "text-text-secondary",
   error: "text-text-error",
 };
 
-export function Label({
-  children,
-  htmlFor,
-  size = "md",
-  state = "default",
-  required = false,
-}: LabelProps) {
+export function Label({ children, htmlFor, size = "md", state = "default", required = false }: LabelProps) {
   return (
     <label
       htmlFor={htmlFor}

@@ -10,10 +10,7 @@ interface UseImproveJobNoteAiActionArgs {
   disabled?: boolean;
 }
 
-export function useImproveJobNoteAiAction({
-  jobId,
-  disabled = false,
-}: UseImproveJobNoteAiActionArgs): TipTapAiAction {
+export function useImproveJobNoteAiAction({ jobId, disabled = false }: UseImproveJobNoteAiActionArgs): TipTapAiAction {
   const { generateNote, isLoading } = useJobNoteAiGenerator({ jobId });
 
   return useMemo(

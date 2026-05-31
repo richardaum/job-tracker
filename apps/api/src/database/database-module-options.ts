@@ -10,7 +10,4 @@ import { buildDataSourceOptions } from "./data-source-options";
  * CLI scripts (`run-migrations`, `mark-migrations-applied`) keep `migrationsRun: false`
  * in `buildDataSourceOptions` and control execution explicitly.
  */
-export const databaseModuleOptions = {
-  ...buildDataSourceOptions(apiEnv.DATABASE_URL),
-  migrationsRun: true,
-};
+export const databaseModuleOptions = { ...buildDataSourceOptions(apiEnv.DATABASE_URL), migrationsRun: true };

@@ -1,14 +1,6 @@
 "use client";
 
-import {
-  Button,
-  Card,
-  cn,
-  Heading,
-  Skeleton,
-  Stack,
-  Text,
-} from "@job-tracker/ui";
+import { Button, Card, cn, Heading, Skeleton, Stack, Text } from "@job-tracker/ui";
 import { EmptyState } from "@/components/empty-state";
 import { PlusIcon } from "@phosphor-icons/react";
 import NextLink from "next/link";
@@ -44,11 +36,7 @@ export default function PlansPage() {
           {loading ? "Loading..." : `${plans.length} plans found`}
         </Text>
       </div>
-      <div
-        className={cn(
-          "flex min-h-0 flex-1 flex-col overflow-auto px-4 pb-4 pt-0.5 sm:px-6 sm:pb-6",
-        )}
-      >
+      <div className={cn("flex min-h-0 flex-1 flex-col overflow-auto px-4 pb-4 pt-0.5 sm:px-6 sm:pb-6")}>
         {loading ? (
           <Stack gap="md">
             {Array.from({ length: 3 }, (_, i) => (
@@ -58,11 +46,7 @@ export default function PlansPage() {
             ))}
           </Stack>
         ) : plans.length === 0 ? (
-          <EmptyState
-            variant="default"
-            message="No plans yet."
-            detail="Import a plan to start tracking sources."
-          />
+          <EmptyState variant="default" message="No plans yet." detail="Import a plan to start tracking sources." />
         ) : (
           <Stack gap="md">
             {plans.map((plan) => (
@@ -73,9 +57,7 @@ export default function PlansPage() {
                       <Heading as="h3" size="base">
                         <NextLink
                           href={`/sources/plans/${plan.id}`}
-                          className={cn(
-                            "text-text hover:text-text-link hover:underline transition-colors",
-                          )}
+                          className={cn("text-text hover:text-text-link hover:underline transition-colors")}
                         >
                           {plan.displayName}
                         </NextLink>

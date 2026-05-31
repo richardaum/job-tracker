@@ -34,9 +34,7 @@ export function Popover({
           sideOffset={sideOffset}
           onOpenAutoFocus={(e) => e.preventDefault()}
           onCloseAutoFocus={(e) => e.preventDefault()}
-          className={cn(
-            "z-50 min-w-44 rounded-md border border-border-subtle bg-bg-surface p-2 shadow-md",
-          )}
+          className={cn("z-50 min-w-44 rounded-md border border-border-subtle bg-bg-surface p-2 shadow-md")}
         >
           {children}
         </RadixPopover.Content>

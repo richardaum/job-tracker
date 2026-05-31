@@ -8,14 +8,6 @@ type AppBrandMarkProps = { size?: number; className?: string };
 /** Same raster as favicon toolbar / chrome extension (`src/app/icon.svg`). */
 export function AppBrandMark({ size = 22, className }: AppBrandMarkProps) {
   return (
-    <Image
-      alt=""
-      aria-hidden
-      className={cn("shrink-0", className)}
-      height={size}
-      src={icon}
-      unoptimized
-      width={size}
-    />
+    <Image alt="" aria-hidden className={cn("shrink-0", className)} height={size} src={icon} unoptimized width={size} />
   );
 }

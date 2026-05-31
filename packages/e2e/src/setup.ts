@@ -49,10 +49,7 @@ async function createDatabase(postgresUrl: string): Promise<void> {
   const client = new pg.Client({ connectionString: postgresUrl });
   try {
     await client.connect();
-    const exists = await client.query(
-      `SELECT 1 FROM pg_database WHERE datname = $1`,
-      [e2eEnv.E2E_DB_NAME],
-    );
+    const exists = await client.query(`SELECT 1 FROM pg_database WHERE datname = $1`, [e2eEnv.E2E_DB_NAME]);
     if (exists.rows.length > 0) {
       console.log(`${TAG} Dropping existing ${e2eEnv.E2E_DB_NAME}`);
       await client.query(
@@ -108,9 +105,7 @@ async function main() {
 
   console.log(`${TAG} (1/5) Cleaning up leftover E2E processes`);
   tryRun(() => {
-    execSync(`lsof -ti :${e2eEnv.E2E_API_PORT} | xargs kill -9 2>/dev/null`, {
-      stdio: "ignore",
-    });
+    execSync(`lsof -ti :${e2eEnv.E2E_API_PORT} | xargs kill -9 2>/dev/null`, { stdio: "ignore" });
   });
 
   if (isGitWorktreeCheckout(REPO_ROOT)) {

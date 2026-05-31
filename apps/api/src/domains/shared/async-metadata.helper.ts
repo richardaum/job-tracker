@@ -1,29 +1,15 @@
 import { AsyncMetadataEmbedded } from "@api/database/embeddeds/async-metadata.embedded";
 import { AsyncMetadataStatusEnum } from "@api/domains/shared/async-metadata.type";
-import type {
-  EntityManager,
-  EntityTarget,
-  ObjectLiteral,
-  Repository,
-} from "typeorm";
+import type { EntityManager, EntityTarget, ObjectLiteral, Repository } from "typeorm";
 
-export type AsyncMetadataColumns = {
-  metadataField: string;
-  statusColumn: string;
-};
+export type AsyncMetadataColumns = { metadataField: string; statusColumn: string };
 
-export type AsyncMetadataStatusPatch = Partial<AsyncMetadataEmbedded> & {
-  status: AsyncMetadataEmbedded["status"];
-};
+export type AsyncMetadataStatusPatch = Partial<AsyncMetadataEmbedded> & { status: AsyncMetadataEmbedded["status"] };
 
 export type AsyncMetadataScopedRow = { id: string; userId: string };
 
-function buildMetadataUpdate(
-  patch: AsyncMetadataStatusPatch,
-): Partial<AsyncMetadataEmbedded> {
-  const metadataUpdate: Partial<AsyncMetadataEmbedded> = {
-    status: patch.status,
-  };
+function buildMetadataUpdate(patch: AsyncMetadataStatusPatch): Partial<AsyncMetadataEmbedded> {
+  const metadataUpdate: Partial<AsyncMetadataEmbedded> = { status: patch.status };
   if (patch.error !== undefined) {
     metadataUpdate.error = patch.error;
   }
@@ -51,10 +37,7 @@ export async function updateAsyncMetadataIfStatus<T extends ObjectLiteral>(
     .createQueryBuilder()
     .update(entity)
     .set({ [metadataField]: metadataUpdate } as never)
-    .where(`"id" = :id AND "user_id" = :userId`, {
-      id: scope.id,
-      userId: scope.userId,
-    });
+    .where(`"id" = :id AND "user_id" = :userId`, { id: scope.id, userId: scope.userId });
 
   if (expectedStatus === null) {
     qb.andWhere(`"${statusColumn}" IS NULL`);
@@ -67,9 +50,7 @@ export async function updateAsyncMetadataIfStatus<T extends ObjectLiteral>(
 }
 
 /** Marks lingering PROCESSING rows as FAILED (startup recovery). */
-export async function resetStaleAsyncMetadataProcessing<
-  T extends ObjectLiteral,
->(
+export async function resetStaleAsyncMetadataProcessing<T extends ObjectLiteral>(
   entity: EntityTarget<T>,
   repo: Repository<T>,
   columns: AsyncMetadataColumns,
@@ -79,15 +60,8 @@ export async function resetStaleAsyncMetadataProcessing<
   const result = await repo
     .createQueryBuilder()
     .update(entity)
-    .set({
-      [metadataField]: {
-        status: AsyncMetadataStatusEnum.FAILED,
-        error: errorMessage,
-      },
-    } as never)
-    .where(`"${statusColumn}" = :processing`, {
-      processing: AsyncMetadataStatusEnum.PROCESSING,
-    })
+    .set({ [metadataField]: { status: AsyncMetadataStatusEnum.FAILED, error: errorMessage } } as never)
+    .where(`"${statusColumn}" = :processing`, { processing: AsyncMetadataStatusEnum.PROCESSING })
     .execute();
   return result.affected ?? 0;
 }
@@ -95,9 +69,7 @@ export async function resetStaleAsyncMetadataProcessing<
 /**
  * Starts PROCESSING when status is NULL, FAILED, or COMPLETED (not when already PROCESSING).
  */
-export async function beginAsyncMetadataProcessingWhenRestartable<
-  T extends ObjectLiteral,
->(
+export async function beginAsyncMetadataProcessingWhenRestartable<T extends ObjectLiteral>(
   entity: EntityTarget<T>,
   repo: Repository<T>,
   columns: AsyncMetadataColumns,
@@ -112,21 +84,9 @@ export async function beginAsyncMetadataProcessingWhenRestartable<
   const result = await repo
     .createQueryBuilder()
     .update(entity)
-    .set({
-      [metadataField]: {
-        status: AsyncMetadataStatusEnum.PROCESSING,
-        error: null,
-        timestamp: now,
-      },
-    } as never)
-    .where(`"id" = :id AND "user_id" = :userId`, {
-      id: scope.id,
-      userId: scope.userId,
-    })
-    .andWhere(
-      `("${statusColumn}" IS NULL OR "${statusColumn}" IN (:...restartableStatuses))`,
-      { restartableStatuses },
-    )
+    .set({ [metadataField]: { status: AsyncMetadataStatusEnum.PROCESSING, error: null, timestamp: now } } as never)
+    .where(`"id" = :id AND "user_id" = :userId`, { id: scope.id, userId: scope.userId })
+    .andWhere(`("${statusColumn}" IS NULL OR "${statusColumn}" IN (:...restartableStatuses))`, { restartableStatuses })
     .execute();
   return (result.affected ?? 0) > 0;
 }

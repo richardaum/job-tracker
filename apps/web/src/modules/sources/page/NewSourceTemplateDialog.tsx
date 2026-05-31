@@ -1,16 +1,7 @@
 "use client";
 
 import { tryRun } from "@job-tracker/try-run";
-import {
-  Button,
-  cn,
-  Dialog,
-  FormField,
-  Input,
-  Select,
-  Stack,
-  Text,
-} from "@job-tracker/ui";
+import { Button, cn, Dialog, FormField, Input, Select, Stack, Text } from "@job-tracker/ui";
 import { useCallback, useState } from "react";
 
 import { useCreateSourceTemplateMutation } from "@/gql/hooks";
@@ -41,17 +32,9 @@ function buildConfig(
   return null;
 }
 
-type NewSourceTemplateDialogProps = {
-  open: boolean;
-  planId: string;
-  onOpenChange: (open: boolean) => void;
-};
+type NewSourceTemplateDialogProps = { open: boolean; planId: string; onOpenChange: (open: boolean) => void };
 
-export function NewSourceTemplateDialog({
-  open,
-  planId,
-  onOpenChange,
-}: NewSourceTemplateDialogProps) {
+export function NewSourceTemplateDialog({ open, planId, onOpenChange }: NewSourceTemplateDialogProps) {
   const [surfaceUrl, setSurfaceUrl] = useState("");
   const [stopWhen, setStopWhen] = useState<StopWhen>("CatchUp");
   const [catchUpThreshold, setCatchUpThreshold] = useState("");
@@ -85,9 +68,7 @@ export function NewSourceTemplateDialog({
   );
   const close = useCallback(() => notifyOpenChange(false), [notifyOpenChange]);
 
-  const [createTemplate] = useCreateSourceTemplateMutation({
-    awaitRefetchQueries: true,
-  });
+  const [createTemplate] = useCreateSourceTemplateMutation({ awaitRefetchQueries: true });
 
   async function handleCreate() {
     const trimmed = surfaceUrl.trim();
@@ -104,12 +85,7 @@ export function NewSourceTemplateDialog({
     setSaving(true);
     setSubmitError(null);
 
-    const config = buildConfig(
-      stopWhen,
-      catchUpThreshold,
-      maxPages,
-      olderThanDays,
-    );
+    const config = buildConfig(stopWhen, catchUpThreshold, maxPages, olderThanDays);
 
     const [err] = await tryRun(
       createTemplate({
@@ -162,10 +138,7 @@ export function NewSourceTemplateDialog({
         </FormField>
 
         {stopWhen === "CatchUp" && (
-          <FormField
-            label="Consecutive Duplicates"
-            hint="Number of duplicate jobs in a row before stopping"
-          >
+          <FormField label="Consecutive Duplicates" hint="Number of duplicate jobs in a row before stopping">
             <Input
               type="number"
               min={1}
@@ -197,10 +170,7 @@ export function NewSourceTemplateDialog({
         )}
 
         {stopWhen === "OlderThan" && (
-          <FormField
-            label="Max Age (days)"
-            hint="Stop when jobs are older than this many days"
-          >
+          <FormField label="Max Age (days)" hint="Stop when jobs are older than this many days">
             <Input
               type="number"
               min={1}

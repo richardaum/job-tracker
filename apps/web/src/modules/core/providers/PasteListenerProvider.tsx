@@ -7,34 +7,22 @@ import { useRouter } from "next/navigation";
 import type { ReactNode } from "react";
 import { useCallback, useEffect, useState } from "react";
 
-import {
-  ApplicationQuickFilter,
-  JobsDocument,
-  useCreateDraftCaptureJobMutation,
-} from "@/gql/hooks";
+import { ApplicationQuickFilter, JobsDocument, useCreateDraftCaptureJobMutation } from "@/gql/hooks";
 import { useToastQueue } from "@/modules/jobs/shared/hooks/useToastQueue";
 
 import { PasteDestinationDialog } from "./components/PasteDestinationDialog";
 
 type PasteListenerProviderProps = { children: ReactNode };
-export function PasteListenerProvider({
-  children,
-}: PasteListenerProviderProps) {
+export function PasteListenerProvider({ children }: PasteListenerProviderProps) {
   const router = useRouter();
   const [pastedContent, setPastedContent] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
   const { enqueueToast } = useToastQueue();
 
-  const [createDraftCaptureJob, { loading: createDraftLoading }] =
-    useCreateDraftCaptureJobMutation({
-      refetchQueries: [
-        {
-          query: JobsDocument,
-          variables: { filter: ApplicationQuickFilter.Draft },
-        },
-      ],
-      awaitRefetchQueries: true,
-    });
+  const [createDraftCaptureJob, { loading: createDraftLoading }] = useCreateDraftCaptureJobMutation({
+    refetchQueries: [{ query: JobsDocument, variables: { filter: ApplicationQuickFilter.Draft } }],
+    awaitRefetchQueries: true,
+  });
 
   const handlePasteCapture = useCallback((event: ClipboardEvent) => {
     const target = event.target;
@@ -48,8 +36,7 @@ export function PasteListenerProvider({
       const active = document.activeElement;
       if (
         active instanceof Element &&
-        (active.closest(".ProseMirror, [contenteditable='true']") ||
-          active.classList.contains("ProseMirror"))
+        (active.closest(".ProseMirror, [contenteditable='true']") || active.classList.contains("ProseMirror"))
       ) {
         return;
       }
@@ -81,10 +68,7 @@ export function PasteListenerProvider({
     return "Imported draft";
   }
 
-  async function handleConfirmPasteImport(
-    url: string,
-    afterCreate: { autoFill: boolean; autoMatch: boolean },
-  ) {
+  async function handleConfirmPasteImport(url: string, afterCreate: { autoFill: boolean; autoMatch: boolean }) {
     const [createError, result] = await tryRun(
       createDraftCaptureJob({
         variables: {
@@ -100,10 +84,7 @@ export function PasteListenerProvider({
       }),
     );
     if (createError) {
-      enqueueToast({
-        title: "Could not create draft from pasted content.",
-        intent: "error",
-      });
+      enqueueToast({ title: "Could not create draft from pasted content.", intent: "error" });
       return;
     }
 

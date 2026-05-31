@@ -57,16 +57,12 @@ export function useExtensionEventsViewModel() {
         sourceRunsQuery.data?.sourceRuns ?? [],
         activityQuery.data?.extensionActivityEvents ?? [],
       ),
-    [
-      sourceRunsQuery.data?.sourceRuns,
-      activityQuery.data?.extensionActivityEvents,
-    ],
+    [sourceRunsQuery.data?.sourceRuns, activityQuery.data?.extensionActivityEvents],
   );
 
   const inFlightCount = countInFlightAdminEvents(events);
   const showInitialLoading =
-    (sourceRunsQuery.loading && !sourceRunsQuery.data) ||
-    (activityQuery.loading && !activityQuery.data);
+    (sourceRunsQuery.loading && !sourceRunsQuery.data) || (activityQuery.loading && !activityQuery.data);
   const error = sourceRunsQuery.error ?? activityQuery.error;
 
   function refetch() {

@@ -4,12 +4,8 @@ export class AddStageEventSourceEnum1767750000000 implements MigrationInterface 
   name = "AddStageEventSourceEnum1767750000000";
 
   async up(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(
-      `CREATE TYPE "stage_event_source" AS ENUM ('Manual', 'System')`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "job_stage_events" ALTER COLUMN "source" DROP DEFAULT`,
-    );
+    await queryRunner.query(`CREATE TYPE "stage_event_source" AS ENUM ('Manual', 'System')`);
+    await queryRunner.query(`ALTER TABLE "job_stage_events" ALTER COLUMN "source" DROP DEFAULT`);
     await queryRunner.query(
       `ALTER TABLE "job_stage_events" ALTER COLUMN "source" SET DATA TYPE "stage_event_source" USING CASE "source"
         WHEN 'manual' THEN 'Manual'::"stage_event_source"
@@ -25,15 +21,11 @@ export class AddStageEventSourceEnum1767750000000 implements MigrationInterface 
   }
 
   async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(
-      `ALTER TABLE "job_stage_events" ALTER COLUMN "source" DROP DEFAULT`,
-    );
+    await queryRunner.query(`ALTER TABLE "job_stage_events" ALTER COLUMN "source" DROP DEFAULT`);
     await queryRunner.query(
       `ALTER TABLE "job_stage_events" ALTER COLUMN "source" SET DATA TYPE text USING LOWER("source"::text)`,
     );
-    await queryRunner.query(
-      `ALTER TABLE "job_stage_events" ALTER COLUMN "source" SET DEFAULT 'manual'`,
-    );
+    await queryRunner.query(`ALTER TABLE "job_stage_events" ALTER COLUMN "source" SET DEFAULT 'manual'`);
     await queryRunner.query(`DROP TYPE "stage_event_source"`);
   }
 }

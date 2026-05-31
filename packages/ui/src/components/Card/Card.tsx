@@ -26,13 +26,7 @@ const paddingClasses: Record<NonNullable<CardProps["padding"]>, string> = {
   "5xl": "px-14 py-12",
 };
 
-export function Card({
-  children,
-  variant = "default",
-  padding = "md",
-  className,
-  onClick,
-}: CardProps) {
+export function Card({ children, variant = "default", padding = "md", className, onClick }: CardProps) {
   const Tag = onClick ? "div" : "article";
   return (
     <Tag

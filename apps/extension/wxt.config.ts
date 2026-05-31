@@ -10,10 +10,7 @@ const repoRoot = path.resolve(import.meta.dirname, "../..");
 const DEFAULT_API_URL = "http://localhost:3101";
 const wxtDevPort = Number.parseInt(process.env.WXT_DEV_PORT ?? "3001", 10);
 const worktreeSlug = deriveSlug(repoRoot);
-const extensionDisplayName =
-  worktreeSlug !== "job-tracker"
-    ? `Job Tracker (${worktreeSlug})`
-    : "Job Tracker";
+const extensionDisplayName = worktreeSlug !== "job-tracker" ? `Job Tracker (${worktreeSlug})` : "Job Tracker";
 
 export default defineConfig({
   srcDir: "src",
@@ -25,28 +22,18 @@ export default defineConfig({
   manifest: (env) => ({
     name: extensionDisplayName,
     description: "Job Tracker browser extension (MV3).",
-    permissions: [
-      "cookies",
-      "sidePanel",
-      "scripting",
-      "contextMenus",
-      "windows",
-    ],
+    permissions: ["cookies", "sidePanel", "scripting", "contextMenus", "windows"],
     host_permissions:
       env.command === "serve"
         ? ["<all_urls>"]
         : [
             "https://remoteyeah.com/*",
             "https://*.remoteyeah.com/*",
-            toGraphqlHostPermissionPattern(
-              `${process.env.WXT_PUBLIC_API_URL ?? DEFAULT_API_URL}/graphql`,
-            ),
+            toGraphqlHostPermissionPattern(`${process.env.WXT_PUBLIC_API_URL ?? DEFAULT_API_URL}/graphql`),
           ],
     content_security_policy:
       env.command === "serve"
-        ? {
-            extension_pages: `script-src 'self' 'wasm-unsafe-eval' http://localhost:${wxtDevPort}; object-src 'self'`,
-          }
+        ? { extension_pages: `script-src 'self' 'wasm-unsafe-eval' http://localhost:${wxtDevPort}; object-src 'self'` }
         : undefined,
     icons: {
       16: "assets/icon16.png",
@@ -69,10 +56,7 @@ export default defineConfig({
   vite: () => ({
     plugins: [react()],
     resolve: {
-      alias: {
-        "@": path.resolve(import.meta.dirname, "src"),
-        "@ui": path.join(repoRoot, "packages/ui/src"),
-      },
+      alias: { "@": path.resolve(import.meta.dirname, "src"), "@ui": path.join(repoRoot, "packages/ui/src") },
     },
     server: { fs: { allow: [repoRoot] } },
   }),

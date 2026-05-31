@@ -1,9 +1,6 @@
 "use client";
 
-import {
-  useSourceRunEventsSubscription,
-  useSourceTemplateQuery,
-} from "@/gql/hooks";
+import { useSourceRunEventsSubscription, useSourceTemplateQuery } from "@/gql/hooks";
 import { deriveDetailStatus } from "@/lib/entity-detail-view-status";
 
 export function useSourceRunsViewModel(templateId: string) {
@@ -23,11 +20,5 @@ export function useSourceRunsViewModel(templateId: string) {
   const template = data?.sourceTemplate ?? null;
   const status = deriveDetailStatus(loading, error);
 
-  return {
-    template,
-    error,
-    status,
-    notFound: status === "notFound",
-    showInitialLoading: loading && !data,
-  };
+  return { template, error, status, notFound: status === "notFound", showInitialLoading: loading && !data };
 }

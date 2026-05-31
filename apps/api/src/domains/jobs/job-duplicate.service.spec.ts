@@ -15,9 +15,7 @@ describe("JobDuplicateService", () => {
 
   beforeEach(() => {
     jobsRepo = { createQueryBuilder: vi.fn() };
-    settingsService = {
-      getSettings: vi.fn().mockResolvedValue({ duplicateWindowDays: 30 }),
-    };
+    settingsService = { getSettings: vi.fn().mockResolvedValue({ duplicateWindowDays: 30 }) };
     companyRepo = { findOneByNameInsensitiveTrimmed: vi.fn() };
     service = new JobDuplicateService(
       jobsRepo as Repository<JobEntity>,
@@ -63,9 +61,9 @@ describe("JobDuplicateService", () => {
   });
 
   it("resolveInitialStageOnCreate uses duplicate window days from settings", async () => {
-    vi.mocked(settingsService.getSettings).mockResolvedValue({
-      duplicateWindowDays: 7,
-    } as Awaited<ReturnType<SettingsService["getSettings"]>>);
+    vi.mocked(settingsService.getSettings).mockResolvedValue({ duplicateWindowDays: 7 } as Awaited<
+      ReturnType<SettingsService["getSettings"]>
+    >);
     const referenceTime = new Date("2026-05-25T12:00:00.000Z");
     const hasRecentDuplicateSameRoleAndCompany = vi
       .spyOn(service, "hasRecentDuplicateSameRoleAndCompany")
@@ -90,14 +88,7 @@ describe("JobDuplicateService", () => {
   });
 
   it("hasRecentDuplicateSameRoleAndCompany returns false when title blank", async () => {
-    const hit = await service.hasRecentDuplicateSameRoleAndCompany(
-      "u1",
-      "j1",
-      "c1",
-      "   ",
-      new Date(),
-      86_400_000,
-    );
+    const hit = await service.hasRecentDuplicateSameRoleAndCompany("u1", "j1", "c1", "   ", new Date(), 86_400_000);
 
     expect(hit).toBe(false);
     expect(jobsRepo.createQueryBuilder).not.toHaveBeenCalled();
@@ -111,14 +102,7 @@ describe("JobDuplicateService", () => {
     };
     vi.mocked(jobsRepo.createQueryBuilder).mockReturnValue(qb as never);
 
-    const hit = await service.hasRecentDuplicateSameRoleAndCompany(
-      "user-1",
-      "exclude",
-      "comp",
-      "Title",
-      new Date(),
-      1,
-    );
+    const hit = await service.hasRecentDuplicateSameRoleAndCompany("user-1", "exclude", "comp", "Title", new Date(), 1);
 
     expect(hit).toBe(true);
     expect(qb.getCount).toHaveBeenCalled();
@@ -126,15 +110,9 @@ describe("JobDuplicateService", () => {
 
   describe("checkDuplicate", () => {
     it("returns false when company cannot be resolved", async () => {
-      vi.mocked(companyRepo.findOneByNameInsensitiveTrimmed).mockResolvedValue(
-        null,
-      );
+      vi.mocked(companyRepo.findOneByNameInsensitiveTrimmed).mockResolvedValue(null);
 
-      const result = await service.checkDuplicate(
-        "Unknown Corp",
-        "Engineer",
-        "user-1",
-      );
+      const result = await service.checkDuplicate("Unknown Corp", "Engineer", "user-1");
 
       expect(result).toBe(false);
     });
@@ -152,12 +130,10 @@ describe("JobDuplicateService", () => {
     });
 
     it("returns true when a matching job exists within the duplicate window", async () => {
-      vi.mocked(companyRepo.findOneByNameInsensitiveTrimmed).mockResolvedValue({
-        id: "company-1",
-      } as never);
-      vi.mocked(settingsService.getSettings).mockResolvedValue({
-        duplicateWindowDays: 30,
-      } as Awaited<ReturnType<SettingsService["getSettings"]>>);
+      vi.mocked(companyRepo.findOneByNameInsensitiveTrimmed).mockResolvedValue({ id: "company-1" } as never);
+      vi.mocked(settingsService.getSettings).mockResolvedValue({ duplicateWindowDays: 30 } as Awaited<
+        ReturnType<SettingsService["getSettings"]>
+      >);
 
       const qb = {
         where: vi.fn().mockReturnThis(),
@@ -172,12 +148,10 @@ describe("JobDuplicateService", () => {
     });
 
     it("returns false when no matching job exists within the duplicate window", async () => {
-      vi.mocked(companyRepo.findOneByNameInsensitiveTrimmed).mockResolvedValue({
-        id: "company-1",
-      } as never);
-      vi.mocked(settingsService.getSettings).mockResolvedValue({
-        duplicateWindowDays: 30,
-      } as Awaited<ReturnType<SettingsService["getSettings"]>>);
+      vi.mocked(companyRepo.findOneByNameInsensitiveTrimmed).mockResolvedValue({ id: "company-1" } as never);
+      vi.mocked(settingsService.getSettings).mockResolvedValue({ duplicateWindowDays: 30 } as Awaited<
+        ReturnType<SettingsService["getSettings"]>
+      >);
 
       const qb = {
         where: vi.fn().mockReturnThis(),

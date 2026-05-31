@@ -3,11 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { registerMessageListenerByKind } from "@/domains/message/runtime-message-listener";
 
 describe("registerMessageListenerByKind", () => {
-  let listener: (
-    message: unknown,
-    sender: unknown,
-    sendResponse: (response?: unknown) => void,
-  ) => boolean | undefined;
+  let listener: (message: unknown, sender: unknown, sendResponse: (response?: unknown) => void) => boolean | undefined;
 
   beforeEach(() => {
     listener = vi.fn();
@@ -38,11 +34,7 @@ describe("registerMessageListenerByKind", () => {
       }),
     });
 
-    listener(
-      { kind: "admin.get-status", webAppOrigin: "http://localhost:3103" },
-      {},
-      sendResponse,
-    );
+    listener({ kind: "admin.get-status", webAppOrigin: "http://localhost:3103" }, {}, sendResponse);
 
     expect(sendResponse).toHaveBeenCalledWith({
       extensionVersion: "0.0.3",

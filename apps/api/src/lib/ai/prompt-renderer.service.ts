@@ -5,10 +5,7 @@ import { Injectable } from "@nestjs/common";
 export class PromptRendererService {
   constructor(private readonly templateService: TemplateService) {}
 
-  render(
-    templateSource: string,
-    view: Readonly<Record<string, unknown>>,
-  ): string {
+  render(templateSource: string, view: Readonly<Record<string, unknown>>): string {
     return this.templateService.render(templateSource, view);
   }
 }

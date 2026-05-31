@@ -37,20 +37,8 @@ function renderTile(tile: LoginSpotlightTile) {
       <MosaicCardShell key={tile.id} className={outer}>
         <div className={cn("flex min-w-0 flex-col items-start gap-2")}>
           <LoginSpotlightGlyph icon={tile.icon} />
-          <p
-            className={cn(
-              "text-sm font-semibold tracking-tight text-text-inverted",
-            )}
-          >
-            {tile.title}
-          </p>
-          <p
-            className={cn(
-              "line-clamp-3 text-xs/snug text-text-inverted/80 sm:line-clamp-4",
-            )}
-          >
-            {tile.body}
-          </p>
+          <p className={cn("text-sm font-semibold tracking-tight text-text-inverted")}>{tile.title}</p>
+          <p className={cn("line-clamp-3 text-xs/snug text-text-inverted/80 sm:line-clamp-4")}>{tile.body}</p>
         </div>
       </MosaicCardShell>
     );
@@ -59,31 +47,11 @@ function renderTile(tile: LoginSpotlightTile) {
   if (tile.kind === "wide") {
     return (
       <MosaicCardShell key={tile.id} className={outer}>
-        <div
-          className={cn(
-            "flex min-h-0 flex-1 flex-col gap-3 sm:flex-row sm:items-stretch sm:gap-4",
-          )}
-        >
-          <div
-            className={cn(
-              "flex min-h-0 flex-1 flex-col items-start gap-2 sm:max-w-[55%]",
-            )}
-          >
+        <div className={cn("flex min-h-0 flex-1 flex-col gap-3 sm:flex-row sm:items-stretch sm:gap-4")}>
+          <div className={cn("flex min-h-0 flex-1 flex-col items-start gap-2 sm:max-w-[55%]")}>
             <LoginSpotlightGlyph icon={tile.icon} />
-            <p
-              className={cn(
-                "text-base font-semibold text-text-inverted sm:text-lg",
-              )}
-            >
-              {tile.title}
-            </p>
-            <p
-              className={cn(
-                "line-clamp-3 text-xs/relaxed text-text-inverted/80 sm:line-clamp-4",
-              )}
-            >
-              {tile.body}
-            </p>
+            <p className={cn("text-base font-semibold text-text-inverted sm:text-lg")}>{tile.title}</p>
+            <p className={cn("line-clamp-3 text-xs/relaxed text-text-inverted/80 sm:line-clamp-4")}>{tile.body}</p>
           </div>
           <div
             aria-hidden
@@ -108,27 +76,11 @@ function renderTile(tile: LoginSpotlightTile) {
 
   return (
     <MosaicCardShell key={tile.id} className={cn(outer, "min-h-0")}>
-      <div
-        className={cn(
-          "grid min-h-0 flex-1 grid-rows-[auto_minmax(0,1fr)_auto] gap-3 sm:gap-4",
-        )}
-      >
+      <div className={cn("grid min-h-0 flex-1 grid-rows-[auto_minmax(0,1fr)_auto] gap-3 sm:gap-4")}>
         <div className={cn("flex min-h-0 min-w-0 flex-col items-start gap-2")}>
           <LoginSpotlightGlyph icon={tile.icon} />
-          <p
-            className={cn(
-              "text-sm font-semibold tracking-tight text-text-inverted",
-            )}
-          >
-            {tile.title}
-          </p>
-          <p
-            className={cn(
-              "line-clamp-2 text-xs text-text-inverted/75 sm:line-clamp-3",
-            )}
-          >
-            {tile.body}
-          </p>
+          <p className={cn("text-sm font-semibold tracking-tight text-text-inverted")}>{tile.title}</p>
+          <p className={cn("line-clamp-2 text-xs text-text-inverted/75 sm:line-clamp-3")}>{tile.body}</p>
         </div>
         <div
           aria-hidden
@@ -137,11 +89,7 @@ function renderTile(tile: LoginSpotlightTile) {
             "bg-linear-to-br from-bg-field via-bg-shell to-bg-info-subtle bg-cover bg-center",
           )}
         />
-        {tile.imageCaption ? (
-          <p className={cn("text-[0.6875rem] text-text-inverted/70")}>
-            {tile.imageCaption}
-          </p>
-        ) : null}
+        {tile.imageCaption ? <p className={cn("text-[0.6875rem] text-text-inverted/70")}>{tile.imageCaption}</p> : null}
       </div>
     </MosaicCardShell>
   );
@@ -152,10 +100,7 @@ export function LoginSpotlightGrid({ className }: LoginSpotlightGridProps) {
   return (
     <section
       aria-label="Job Tracker highlights"
-      className={cn(
-        "flex min-h-0 flex-1 flex-col gap-3 overflow-hidden text-text-inverted lg:gap-5",
-        className,
-      )}
+      className={cn("flex min-h-0 flex-1 flex-col gap-3 overflow-hidden text-text-inverted lg:gap-5", className)}
     >
       <div className={cn("min-h-0 min-w-0 flex-1 overflow-hidden")}>
         <div

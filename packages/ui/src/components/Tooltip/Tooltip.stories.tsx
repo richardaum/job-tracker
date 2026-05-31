@@ -28,11 +28,7 @@ export const Default: Story = {
 export const WithIconButton: Story = {
   render: () => (
     <Tooltip content="Container tooltip">
-      <IconButton
-        label="More info"
-        tooltip="More info"
-        icon={<InfoIcon size={16} weight="regular" />}
-      />
+      <IconButton label="More info" tooltip="More info" icon={<InfoIcon size={16} weight="regular" />} />
     </Tooltip>
   ),
 };

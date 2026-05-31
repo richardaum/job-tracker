@@ -18,10 +18,6 @@ const options = [
   { label: "Offer", value: "offer" },
 ];
 
-export const Default: Story = {
-  args: { placeholder: "Select stage", options },
-};
+export const Default: Story = { args: { placeholder: "Select stage", options } };
 
-export const Error: Story = {
-  args: { placeholder: "Select stage", options, state: "error" },
-};
+export const Error: Story = { args: { placeholder: "Select stage", options, state: "error" } };

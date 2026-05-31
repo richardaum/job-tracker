@@ -33,18 +33,12 @@ export function Radio({
       disabled={disabled}
       name={name}
       orientation={orientation}
-      className={cn(
-        "flex gap-4",
-        orientation === "vertical" ? "flex-col" : "flex-row",
-      )}
+      className={cn("flex gap-4", orientation === "vertical" ? "flex-col" : "flex-row")}
     >
       {options.map((option) => (
         <label
           key={option.value}
-          className={cn(
-            "flex cursor-pointer items-center gap-2",
-            disabled && "cursor-not-allowed opacity-60",
-          )}
+          className={cn("flex cursor-pointer items-center gap-2", disabled && "cursor-not-allowed opacity-60")}
         >
           <RadixRadioGroup.Item
             value={option.value}
@@ -56,13 +50,9 @@ export function Radio({
               "data-[state=checked]:border-border-brand data-[state=checked]:bg-bg-brand",
             )}
           >
-            <RadixRadioGroup.Indicator
-              className={cn("flex size-2 rounded-full bg-text-inverted")}
-            />
+            <RadixRadioGroup.Indicator className={cn("flex size-2 rounded-full bg-text-inverted")} />
           </RadixRadioGroup.Item>
-          <span className={cn("text-sm text-text-primary")}>
-            {option.label}
-          </span>
+          <span className={cn("text-sm text-text-primary")}>{option.label}</span>
         </label>
       ))}
     </RadixRadioGroup.Root>

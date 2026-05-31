@@ -4,10 +4,7 @@ import { cn } from "@job-tracker/ui";
 
 import { AsyncMetadataStatus } from "@/gql/hooks";
 
-import {
-  MATCH_STATUS_DOT_CLASS,
-  MATCH_STATUS_PROCESSING_PULSE_CLASS,
-} from "./match-status.shared";
+import { MATCH_STATUS_DOT_CLASS, MATCH_STATUS_PROCESSING_PULSE_CLASS } from "./match-status.shared";
 
 interface MatchStatusBadgeProps {
   status: string | AsyncMetadataStatus;

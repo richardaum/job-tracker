@@ -16,6 +16,4 @@ export enum ExtensionActivityEventTypeEnum {
   AuthFailed = "AUTH_FAILED",
 }
 
-registerEnumType(ExtensionActivityEventTypeEnum, {
-  name: "ExtensionActivityEventType",
-});
+registerEnumType(ExtensionActivityEventTypeEnum, { name: "ExtensionActivityEventType" });

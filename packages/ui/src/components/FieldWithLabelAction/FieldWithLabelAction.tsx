@@ -10,12 +10,7 @@ export type FieldWithLabelActionProps = {
   className?: string;
 };
 
-export function FieldWithLabelAction({
-  label,
-  content,
-  actions,
-  className,
-}: FieldWithLabelActionProps) {
+export function FieldWithLabelAction({ label, content, actions, className }: FieldWithLabelActionProps) {
   const actionItems = Children.toArray(actions);
   const hasActions = actionItems.length > 0;
 

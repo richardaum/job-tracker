@@ -4,15 +4,7 @@ import { ApplicationSourceEnum } from "@api/domains/jobs/job-source.enum";
 import { ApplicationStageEnum } from "@api/domains/jobs/job-stage.enum";
 import { JOB_TITLE_MAX_LENGTH } from "@api/domains/jobs/job-title.constraints";
 import { MaxLength, ValidateIf } from "class-validator";
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  PrimaryColumn,
-  UpdateDateColumn,
-} from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryColumn, UpdateDateColumn } from "typeorm";
 
 import { CompanyEntity } from "./company.entity";
 import { SourceRunEntity } from "./source-run.entity";
@@ -40,31 +32,16 @@ export class JobEntity {
   @Column({ type: "text", nullable: true })
   description!: string | null;
 
-  @Column({
-    name: "urls",
-    type: "text",
-    array: true,
-    default: () => "ARRAY[]::text[]",
-  })
+  @Column({ name: "urls", type: "text", array: true, default: () => "ARRAY[]::text[]" })
   urls!: string[];
 
-  @Column({
-    type: "enum",
-    enum: ApplicationSourceEnum,
-    enumName: "application_source",
-    nullable: true,
-  })
+  @Column({ type: "enum", enum: ApplicationSourceEnum, enumName: "application_source", nullable: true })
   source!: ApplicationSourceEnum | null;
 
   @Column(() => SalaryEmbedded, { prefix: "salary" })
   salary?: SalaryEmbedded | null;
 
-  @Column({
-    name: "tags",
-    type: "text",
-    array: true,
-    default: () => "ARRAY[]::text[]",
-  })
+  @Column({ name: "tags", type: "text", array: true, default: () => "ARRAY[]::text[]" })
   tags!: string[];
 
   @Column({ type: "text", nullable: true })

@@ -19,11 +19,5 @@ export function useDialog(initialOpen = false): DialogControl {
   const doClose = useCallback(() => setOpen(false), []);
   const doToggle = useCallback(() => setOpen((v) => !v), []);
 
-  return {
-    isOpen: open,
-    onOpenChange: handleOpenChange,
-    open: doOpen,
-    close: doClose,
-    toggle: doToggle,
-  };
+  return { isOpen: open, onOpenChange: handleOpenChange, open: doOpen, close: doClose, toggle: doToggle };
 }

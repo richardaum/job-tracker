@@ -32,15 +32,11 @@ export class CreateMatchAnalysis1764400000000 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(
-      `ALTER TABLE "fit_analysis" DROP CONSTRAINT "fit_analysis_resume_id_resumes_id_fk"`,
-    );
+    await queryRunner.query(`ALTER TABLE "fit_analysis" DROP CONSTRAINT "fit_analysis_resume_id_resumes_id_fk"`);
     await queryRunner.query(
       `ALTER TABLE "fit_analysis" DROP CONSTRAINT "fit_analysis_application_id_applications_id_fk"`,
     );
-    await queryRunner.query(
-      `ALTER TABLE "fit_analysis" DROP CONSTRAINT "fit_analysis_application_id_unique"`,
-    );
+    await queryRunner.query(`ALTER TABLE "fit_analysis" DROP CONSTRAINT "fit_analysis_application_id_unique"`);
     await queryRunner.query(`DROP TABLE "fit_analysis"`);
   }
 }

@@ -21,10 +21,7 @@ async function main(): Promise<void> {
   }
   const dataSource = new DataSource(buildDataSourceOptions(url));
   await dataSource.initialize();
-  const executed = await dataSource.runMigrations({
-    fake: true,
-    transaction: "each",
-  });
+  const executed = await dataSource.runMigrations({ fake: true, transaction: "each" });
   for (const m of executed) {
     console.log(`Marked as applied (fake): ${m.name}`);
   }

@@ -16,10 +16,7 @@ export interface TimerService {
    * Runs `predicate` in a loop: wait `intervalMs` between tries until it returns
    * a truthy value or `maxWaitMs` has elapsed since the first check.
    */
-  waitFor<T>(
-    predicate: () => T | null | undefined | false,
-    options: WaitForPollOptions,
-  ): Promise<NonNullable<T>>;
+  waitFor<T>(predicate: () => T | null | undefined | false, options: WaitForPollOptions): Promise<NonNullable<T>>;
 }
 
 const SMALL_DELAY_MAX_MS = 1000;

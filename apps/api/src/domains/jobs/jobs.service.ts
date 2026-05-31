@@ -6,14 +6,7 @@ import { LocationInferenceService } from "@api/lib/ai";
 import { sanitizeCapturedHtml } from "@job-tracker/html-sanitize";
 import { isTipTapDocumentString, tipTapToPlainText } from "@job-tracker/tiptap";
 import { tryRun } from "@job-tracker/try-run";
-import {
-  BadRequestException,
-  forwardRef,
-  Inject,
-  Injectable,
-  Logger,
-  NotFoundException,
-} from "@nestjs/common";
+import { BadRequestException, forwardRef, Inject, Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import type { Repository } from "typeorm";
 
@@ -27,11 +20,7 @@ import { inferJobSourceEnumFromUrls } from "./job-source.util";
 import { ApplicationStageEnum } from "./job-stage.enum";
 import { JobStageEventsRepository } from "./job-stage-events.repository";
 import { JobStageEvent } from "./job-stage-events.schema";
-import {
-  CreateJobRepoDto,
-  JobsRepository,
-  UpdateJobRepoDto,
-} from "./jobs.repository";
+import { CreateJobRepoDto, JobsRepository, UpdateJobRepoDto } from "./jobs.repository";
 import { Job } from "./jobs.schema";
 import { JobsListQuery } from "./jobs-list.query";
 import { KeywordBlockerService } from "./keyword-blocker.service";
@@ -72,11 +61,7 @@ type CreateStageEventDto = {
   reason?: string | null;
   scheduledAt?: Date;
 };
-type UpdateStageEventDto = {
-  toStage?: ApplicationStageEnum;
-  reason?: string | null;
-  scheduledAt?: Date | null;
-};
+type UpdateStageEventDto = { toStage?: ApplicationStageEnum; reason?: string | null; scheduledAt?: Date | null };
 type GenerateCompanyDescriptionDto = { companyName: string };
 
 type JobWithCurrentStage = Job & {
@@ -115,12 +100,7 @@ export class JobsService {
     company?: string,
     runId?: string,
   ): Promise<JobWithCurrentStage[]> {
-    const apps = await this.jobsListQuery.findAllByUserId(
-      userId,
-      filter,
-      company,
-      runId,
-    );
+    const apps = await this.jobsListQuery.findAllByUserId(userId, filter, company, runId);
     return this.attachCurrentStage(
       userId,
       apps.map((app) => ({ ...app, urls: app.urls ?? [] })),
@@ -130,14 +110,10 @@ export class JobsService {
   async findOne(id: string, userId: string): Promise<JobWithCurrentStage> {
     const app = await this.repo.findOneByIdAndUserId(id, userId);
     if (!app) throw new NotFoundException(`Job ${id} not found`);
-    return (
-      await this.attachCurrentStage(userId, [{ ...app, urls: app.urls ?? [] }])
-    )[0]!;
+    return (await this.attachCurrentStage(userId, [{ ...app, urls: app.urls ?? [] }]))[0]!;
   }
 
-  private normalizeHtmlContent(
-    htmlContent: string | null | undefined,
-  ): string | null | undefined {
+  private normalizeHtmlContent(htmlContent: string | null | undefined): string | null | undefined {
     if (htmlContent === undefined) {
       return undefined;
     }
@@ -162,10 +138,7 @@ export class JobsService {
     return Array.from(deduped);
   }
 
-  private async attachCurrentStage(
-    userId: string,
-    apps: Job[],
-  ): Promise<JobWithCurrentStage[]> {
+  private async attachCurrentStage(userId: string, apps: Job[]): Promise<JobWithCurrentStage[]> {
     if (apps.length === 0) {
       return [];
     }
@@ -177,8 +150,7 @@ export class JobsService {
       const s = byId.get(app.id);
       return {
         ...app,
-        currentStage: (s?.toStage ??
-          ApplicationStageEnum.NEW) as ApplicationStageEnum,
+        currentStage: (s?.toStage ?? ApplicationStageEnum.NEW) as ApplicationStageEnum,
         currentStageReason: s?.reason ?? null,
         currentStageAt: s?.statusAt ?? app.createdAt,
       };
@@ -186,54 +158,31 @@ export class JobsService {
   }
 
   async create(userId: string, dto: CreateDto): Promise<JobWithCurrentStage> {
-    if (
-      dto.description !== undefined &&
-      dto.description !== null &&
-      !isTipTapDocumentString(dto.description)
-    ) {
-      throw new BadRequestException(
-        "description must be valid TipTap document JSON",
-      );
+    if (dto.description !== undefined && dto.description !== null && !isTipTapDocumentString(dto.description)) {
+      throw new BadRequestException("description must be valid TipTap document JSON");
     }
 
     if (dto.createAsDraftCapture) {
-      if (
-        dto.description !== undefined &&
-        dto.description !== null &&
-        dto.description.trim() !== ""
-      ) {
-        throw new BadRequestException(
-          "Draft capture jobs cannot carry a TipTap description; use htmlContent.",
-        );
+      if (dto.description !== undefined && dto.description !== null && dto.description.trim() !== "") {
+        throw new BadRequestException("Draft capture jobs cannot carry a TipTap description; use htmlContent.");
       }
       const htmlTrim = dto.htmlContent?.trim() ?? "";
       if (!htmlTrim) {
-        throw new BadRequestException(
-          "Draft capture jobs require htmlContent.",
-        );
+        throw new BadRequestException("Draft capture jobs require htmlContent.");
       }
 
-      const companyId = await this.resolveCompanyId(
-        userId,
-        dto.company,
-        dto.companyId,
-      );
+      const companyId = await this.resolveCompanyId(userId, dto.company, dto.companyId);
 
       const tags = this.tagService.normalizeTags(dto.tags);
       const normalizedUrls = this.normalizeUrls(dto.urls);
-      const salaryEmbedded = this.salaryService.getCreateSalary(
-        dto.salary ?? {},
-      );
+      const salaryEmbedded = this.salaryService.getCreateSalary(dto.salary ?? {});
       const repoDto: CreateJobRepoDto = {
         title: dto.title ?? null,
         companyId: companyId ?? null,
         description: null,
         urls: normalizedUrls,
         htmlContent: this.normalizeHtmlContent(dto.htmlContent) ?? null,
-        source:
-          dto.source !== undefined
-            ? dto.source
-            : inferJobSourceEnumFromUrls(normalizedUrls),
+        source: dto.source !== undefined ? dto.source : inferJobSourceEnumFromUrls(normalizedUrls),
         tags,
         location: dto.location ?? null,
         workRegion: dto.workRegion ?? null,
@@ -245,11 +194,7 @@ export class JobsService {
 
       const job = await this.repo.create(userId, repoDto);
 
-      await this.repo.setPersistedStage(
-        userId,
-        job.id,
-        ApplicationStageEnum.DRAFT,
-      );
+      await this.repo.setPersistedStage(userId, job.id, ApplicationStageEnum.DRAFT);
 
       await this.stageEventsRepo.createStageEvent(userId, job.id, {
         fromStage: null,
@@ -270,21 +215,13 @@ export class JobsService {
     }
 
     if (dto.sourceRunId) {
-      const run = await this.sourceRunsRepo.findOne({
-        where: { id: dto.sourceRunId, userId },
-      });
+      const run = await this.sourceRunsRepo.findOne({ where: { id: dto.sourceRunId, userId } });
       if (!run) {
-        throw new BadRequestException(
-          `Source run ${dto.sourceRunId} not found`,
-        );
+        throw new BadRequestException(`Source run ${dto.sourceRunId} not found`);
       }
     }
 
-    const companyId = await this.resolveCompanyId(
-      userId,
-      dto.company,
-      dto.companyId,
-    );
+    const companyId = await this.resolveCompanyId(userId, dto.company, dto.companyId);
 
     if (!companyId) {
       throw new BadRequestException("Company could not be resolved");
@@ -299,10 +236,7 @@ export class JobsService {
       description: dto.description ?? null,
       urls: normalizedUrls,
       htmlContent: this.normalizeHtmlContent(dto.htmlContent) ?? null,
-      source:
-        dto.source !== undefined
-          ? dto.source
-          : inferJobSourceEnumFromUrls(normalizedUrls),
+      source: dto.source !== undefined ? dto.source : inferJobSourceEnumFromUrls(normalizedUrls),
       tags,
       location: dto.location ?? null,
       workRegion: dto.workRegion ?? null,
@@ -322,11 +256,7 @@ export class JobsService {
     );
 
     if (blockerVerdict) {
-      await this.repo.setPersistedStage(
-        userId,
-        job.id,
-        ApplicationStageEnum.REJECTED,
-      );
+      await this.repo.setPersistedStage(userId, job.id, ApplicationStageEnum.REJECTED);
 
       await this.stageEventsRepo.createStageEvent(userId, job.id, {
         fromStage: null,
@@ -338,15 +268,10 @@ export class JobsService {
 
       const noteContent = `Auto-rejected by keyword blocker: keyword "${blockerVerdict.keyword}" matched in ${blockerVerdict.scope}`;
       const [noteError] = await tryRun(
-        this.noteService.createPlainTextNote(userId, {
-          jobId: job.id,
-          content: noteContent,
-        }),
+        this.noteService.createPlainTextNote(userId, { jobId: job.id, content: noteContent }),
       );
       if (noteError) {
-        this.logger.warn(
-          `[KeywordBlocker] Auto-note creation failed for job ${job.id}: ${noteError.message}`,
-        );
+        this.logger.warn(`[KeywordBlocker] Auto-note creation failed for job ${job.id}: ${noteError.message}`);
       } else {
         this.logger.log(`[KeywordBlocker] Auto-note created for job ${job.id}`);
       }
@@ -360,13 +285,12 @@ export class JobsService {
       return hydrated;
     }
 
-    const initialStage =
-      await this.jobDuplicateService.resolveInitialStageOnCreate({
-        userId,
-        jobId: job.id,
-        companyId,
-        title: dto.title,
-      });
+    const initialStage = await this.jobDuplicateService.resolveInitialStageOnCreate({
+      userId,
+      jobId: job.id,
+      companyId,
+      title: dto.title,
+    });
 
     await this.repo.setPersistedStage(userId, job.id, initialStage);
 
@@ -386,33 +310,23 @@ export class JobsService {
     return hydrated;
   }
 
-  async inferJobLocation(
-    userId: string,
-    jobId: string,
-  ): Promise<string | null> {
+  async inferJobLocation(userId: string, jobId: string): Promise<string | null> {
     const app = await this.findOne(jobId, userId);
     const plainText = tipTapToPlainText(app.description);
     return this.locationInferenceService.inferLocation(plainText);
   }
 
-  async inferJobWorkRegion(
-    userId: string,
-    jobId: string,
-  ): Promise<string | null> {
+  async inferJobWorkRegion(userId: string, jobId: string): Promise<string | null> {
     const app = await this.findOne(jobId, userId);
     const plainText = tipTapToPlainText(app.description);
     return this.locationInferenceService.inferWorkRegion(plainText);
   }
 
-  async generateCompanyDescription(
-    userId: string,
-    dto: GenerateCompanyDescriptionDto,
-  ) {
-    const jobPostingContexts =
-      await this.jobsListQuery.findUpToTwoJobPostingContextsByCompanyName(
-        userId,
-        dto.companyName,
-      );
+  async generateCompanyDescription(userId: string, dto: GenerateCompanyDescriptionDto) {
+    const jobPostingContexts = await this.jobsListQuery.findUpToTwoJobPostingContextsByCompanyName(
+      userId,
+      dto.companyName,
+    );
 
     return this.companyDescriptionService.generateCompanyDescription({
       companyName: dto.companyName,
@@ -420,44 +334,21 @@ export class JobsService {
     });
   }
 
-  async update(
-    id: string,
-    userId: string,
-    dto: UpdateDto,
-  ): Promise<JobWithCurrentStage> {
+  async update(id: string, userId: string, dto: UpdateDto): Promise<JobWithCurrentStage> {
     const existing = await this.findOne(id, userId);
-    if (
-      dto.description !== undefined &&
-      dto.description !== null &&
-      !isTipTapDocumentString(dto.description)
-    ) {
-      throw new BadRequestException(
-        "description must be valid TipTap document JSON",
-      );
+    if (dto.description !== undefined && dto.description !== null && !isTipTapDocumentString(dto.description)) {
+      throw new BadRequestException("description must be valid TipTap document JSON");
     }
 
-    const companyId = await this.resolveCompanyId(
-      userId,
-      dto.company,
-      dto.companyId,
-    );
-    const salaryEmbedded =
-      dto.salary != null
-        ? this.salaryService.getUpdateSalary(existing, dto.salary)
-        : undefined;
-    const tags =
-      dto.tags !== undefined
-        ? this.tagService.normalizeTags(dto.tags)
-        : undefined;
-    const normalizedUrls =
-      dto.urls !== undefined ? this.normalizeUrls(dto.urls) : undefined;
+    const companyId = await this.resolveCompanyId(userId, dto.company, dto.companyId);
+    const salaryEmbedded = dto.salary != null ? this.salaryService.getUpdateSalary(existing, dto.salary) : undefined;
+    const tags = dto.tags !== undefined ? this.tagService.normalizeTags(dto.tags) : undefined;
+    const normalizedUrls = dto.urls !== undefined ? this.normalizeUrls(dto.urls) : undefined;
 
     const repoDto: UpdateJobRepoDto = {
       ...(dto.title !== undefined ? { title: dto.title } : {}),
       ...(companyId !== undefined ? { companyId } : {}),
-      ...(dto.description !== undefined
-        ? { description: dto.description }
-        : {}),
+      ...(dto.description !== undefined ? { description: dto.description } : {}),
       ...(normalizedUrls !== undefined ? { urls: normalizedUrls } : {}),
       ...(dto.source !== undefined
         ? { source: dto.source }
@@ -467,12 +358,8 @@ export class JobsService {
       ...(tags !== undefined ? { tags } : {}),
       ...(dto.location !== undefined ? { location: dto.location } : {}),
       ...(dto.workRegion !== undefined ? { workRegion: dto.workRegion } : {}),
-      ...(salaryEmbedded !== null && salaryEmbedded !== undefined
-        ? { salary: salaryEmbedded }
-        : {}),
-      ...(dto.htmlContent !== undefined
-        ? { htmlContent: this.normalizeHtmlContent(dto.htmlContent) ?? null }
-        : {}),
+      ...(salaryEmbedded !== null && salaryEmbedded !== undefined ? { salary: salaryEmbedded } : {}),
+      ...(dto.htmlContent !== undefined ? { htmlContent: this.normalizeHtmlContent(dto.htmlContent) ?? null } : {}),
     };
 
     const updated = await this.repo.update(id, userId, repoDto);
@@ -496,10 +383,7 @@ export class JobsService {
     }
     const name = typeof companyName === "string" ? companyName.trim() : "";
     if (name) {
-      const company = await this.companyService.findOrCreateByName(
-        userId,
-        name,
-      );
+      const company = await this.companyService.findOrCreateByName(userId, name);
       return company.id;
     }
     return undefined;
@@ -512,62 +396,37 @@ export class JobsService {
     return (await this.attachCurrentStage(userId, [deleted]))[0]!;
   }
 
-  async listStageEvents(
-    jobId: string,
-    userId: string,
-  ): Promise<JobStageEvent[]> {
+  async listStageEvents(jobId: string, userId: string): Promise<JobStageEvent[]> {
     await this.findOne(jobId, userId);
     return this.stageEventsRepo.findStageEventsByJobIdAndUserId(jobId, userId);
   }
 
-  async createStageEvent(
-    userId: string,
-    dto: CreateStageEventDto,
-  ): Promise<JobStageEvent> {
+  async createStageEvent(userId: string, dto: CreateStageEventDto): Promise<JobStageEvent> {
     await this.findOne(dto.jobId, userId);
-    const latest =
-      await this.stageEventsRepo.findLatestStageEventByJobIdAndUserId(
-        dto.jobId,
-        userId,
-      );
-    const event = await this.stageEventsRepo.createStageEvent(
-      userId,
-      dto.jobId,
-      {
-        fromStage: latest?.toStage ?? null,
-        toStage: dto.toStage,
-        source: dto.source ?? StageEventSourceEnum.Manual,
-        reason: dto.reason ?? null,
-        scheduledAt: dto.scheduledAt ?? null,
-      },
-    );
+    const latest = await this.stageEventsRepo.findLatestStageEventByJobIdAndUserId(dto.jobId, userId);
+    const event = await this.stageEventsRepo.createStageEvent(userId, dto.jobId, {
+      fromStage: latest?.toStage ?? null,
+      toStage: dto.toStage,
+      source: dto.source ?? StageEventSourceEnum.Manual,
+      reason: dto.reason ?? null,
+      scheduledAt: dto.scheduledAt ?? null,
+    });
 
     this.eventBus.emit(new JobUpdated(dto.jobId, userId));
     return event;
   }
 
-  async updateStageEvent(
-    stageEventId: string,
-    userId: string,
-    dto: UpdateStageEventDto,
-  ): Promise<JobStageEvent> {
-    const stageEvent = await this.stageEventsRepo.findStageEventByIdAndUserId(
-      stageEventId,
-      userId,
-    );
+  async updateStageEvent(stageEventId: string, userId: string, dto: UpdateStageEventDto): Promise<JobStageEvent> {
+    const stageEvent = await this.stageEventsRepo.findStageEventByIdAndUserId(stageEventId, userId);
     if (!stageEvent) {
       throw new NotFoundException(`Stage event ${stageEventId} not found`);
     }
 
-    const updated = await this.stageEventsRepo.updateStageEvent(
-      stageEventId,
-      userId,
-      {
-        toStage: dto.toStage,
-        reason: dto.reason,
-        scheduledAt: dto.scheduledAt,
-      },
-    );
+    const updated = await this.stageEventsRepo.updateStageEvent(stageEventId, userId, {
+      toStage: dto.toStage,
+      reason: dto.reason,
+      scheduledAt: dto.scheduledAt,
+    });
     if (!updated) {
       throw new NotFoundException(`Stage event ${stageEventId} not found`);
     }
@@ -577,18 +436,12 @@ export class JobsService {
   }
 
   async removeStageEvent(stageEventId: string, userId: string): Promise<void> {
-    const stageEvent = await this.stageEventsRepo.findStageEventByIdAndUserId(
-      stageEventId,
-      userId,
-    );
+    const stageEvent = await this.stageEventsRepo.findStageEventByIdAndUserId(stageEventId, userId);
     if (!stageEvent) {
       throw new NotFoundException(`Stage event ${stageEventId} not found`);
     }
 
-    const deleted = await this.stageEventsRepo.deleteStageEvent(
-      stageEventId,
-      userId,
-    );
+    const deleted = await this.stageEventsRepo.deleteStageEvent(stageEventId, userId);
     if (!deleted) {
       throw new NotFoundException(`Stage event ${stageEventId} not found`);
     }
@@ -596,15 +449,9 @@ export class JobsService {
     this.eventBus.emit(new JobUpdated(stageEvent.jobId, userId));
   }
 
-  async removeTag(
-    id: string,
-    userId: string,
-    tag: string,
-  ): Promise<JobWithCurrentStage> {
+  async removeTag(id: string, userId: string, tag: string): Promise<JobWithCurrentStage> {
     const existing = await this.findOne(id, userId);
-    const tags = (existing.tags ?? []).filter(
-      (t) => t.toLowerCase() !== tag.toLowerCase(),
-    );
+    const tags = (existing.tags ?? []).filter((t) => t.toLowerCase() !== tag.toLowerCase());
     const updated = await this.repo.update(id, userId, { tags });
     if (!updated) throw new NotFoundException(`Job ${id} not found`);
     return (await this.attachCurrentStage(userId, [updated]))[0]!;

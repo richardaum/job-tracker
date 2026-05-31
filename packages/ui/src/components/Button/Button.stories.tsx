@@ -15,29 +15,16 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = { args: { children: "Click me" } };
 
-export const Secondary: Story = {
-  args: { children: "Secondary", intent: "secondary" },
-};
+export const Secondary: Story = { args: { children: "Secondary", intent: "secondary" } };
 
-export const Outlined: Story = {
-  args: { children: "Outlined", intent: "outlined" },
-};
+export const Outlined: Story = { args: { children: "Outlined", intent: "outlined" } };
 
-export const Destructive: Story = {
-  args: { children: "Delete", intent: "destructive" },
-};
+export const Destructive: Story = { args: { children: "Delete", intent: "destructive" } };
 
 export const Loading: Story = {
-  args: {
-    children: "Saving...",
-    state: "loading",
-    leftIcon: <FloppyDiskIcon size={16} weight="regular" />,
-  },
+  args: { children: "Saving...", state: "loading", leftIcon: <FloppyDiskIcon size={16} weight="regular" /> },
 };
 
 export const WithRightIcon: Story = {
-  args: {
-    children: "Continue",
-    rightIcon: <ArrowRightIcon size={16} weight="regular" />,
-  },
+  args: { children: "Continue", rightIcon: <ArrowRightIcon size={16} weight="regular" /> },
 };

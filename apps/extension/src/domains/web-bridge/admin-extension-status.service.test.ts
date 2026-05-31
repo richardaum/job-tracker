@@ -4,13 +4,9 @@ import { AdminExtensionStatusService } from "@/domains/web-bridge/admin-extensio
 
 describe("AdminExtensionStatusService", () => {
   it("returns manifest version and browser metadata", async () => {
-    vi.stubGlobal("chrome", {
-      runtime: { getManifest: () => ({ version: "0.0.3" }) },
-    });
+    vi.stubGlobal("chrome", { runtime: { getManifest: () => ({ version: "0.0.3" }) } });
 
-    const service = new AdminExtensionStatusService({
-      fetchAuthenticatedEmail: async () => null,
-    });
+    const service = new AdminExtensionStatusService({ fetchAuthenticatedEmail: async () => null });
     const status = await service.getStatus("http://localhost:3100");
 
     expect(status.webAppOrigin).toBe("http://localhost:3100");
@@ -22,13 +18,9 @@ describe("AdminExtensionStatusService", () => {
   });
 
   it("parses webAppOrigin from admin.get-status messages", async () => {
-    vi.stubGlobal("chrome", {
-      runtime: { getManifest: () => ({ version: "0.0.3" }) },
-    });
+    vi.stubGlobal("chrome", { runtime: { getManifest: () => ({ version: "0.0.3" }) } });
 
-    const service = new AdminExtensionStatusService({
-      fetchAuthenticatedEmail: async () => "user@example.com",
-    });
+    const service = new AdminExtensionStatusService({ fetchAuthenticatedEmail: async () => "user@example.com" });
     const status = await service.handleGetStatusMessage({
       kind: "admin.get-status",
       webAppOrigin: "http://localhost:3103",
@@ -40,13 +32,9 @@ describe("AdminExtensionStatusService", () => {
   });
 
   it("returns unauthenticated when me lookup fails", async () => {
-    vi.stubGlobal("chrome", {
-      runtime: { getManifest: () => ({ version: "0.0.3" }) },
-    });
+    vi.stubGlobal("chrome", { runtime: { getManifest: () => ({ version: "0.0.3" }) } });
 
-    const service = new AdminExtensionStatusService({
-      fetchAuthenticatedEmail: async () => null,
-    });
+    const service = new AdminExtensionStatusService({ fetchAuthenticatedEmail: async () => null });
     const status = await service.getStatus("http://localhost:3100");
 
     expect(status.authStatus).toBe("unauthenticated");
@@ -54,13 +42,9 @@ describe("AdminExtensionStatusService", () => {
   });
 
   it("authenticates via me even without an access token cookie", async () => {
-    vi.stubGlobal("chrome", {
-      runtime: { getManifest: () => ({ version: "0.0.3" }) },
-    });
+    vi.stubGlobal("chrome", { runtime: { getManifest: () => ({ version: "0.0.3" }) } });
 
-    const service = new AdminExtensionStatusService({
-      fetchAuthenticatedEmail: async () => "user@example.com",
-    });
+    const service = new AdminExtensionStatusService({ fetchAuthenticatedEmail: async () => "user@example.com" });
     const status = await service.getStatus("http://localhost:3100");
 
     expect(status.authStatus).toBe("authenticated");
@@ -68,22 +52,16 @@ describe("AdminExtensionStatusService", () => {
   });
 
   it("revalidates auth when refreshAuth is requested", async () => {
-    vi.stubGlobal("chrome", {
-      runtime: { getManifest: () => ({ version: "0.0.3" }) },
-    });
+    vi.stubGlobal("chrome", { runtime: { getManifest: () => ({ version: "0.0.3" }) } });
 
     let email = "cached@example.com";
-    const service = new AdminExtensionStatusService({
-      fetchAuthenticatedEmail: async () => email,
-    });
+    const service = new AdminExtensionStatusService({ fetchAuthenticatedEmail: async () => email });
 
     const cached = await service.getStatus("http://localhost:3100");
     expect(cached.authenticatedEmail).toBe("cached@example.com");
 
     email = "fresh@example.com";
-    const refreshed = await service.getStatus("http://localhost:3100", {
-      refreshAuth: true,
-    });
+    const refreshed = await service.getStatus("http://localhost:3100", { refreshAuth: true });
 
     expect(refreshed.authenticatedEmail).toBe("fresh@example.com");
   });

@@ -30,10 +30,7 @@ Pasting content while focused on a TipTap editor shows the "Paste detected" dial
 ```ts
 const handlePasteCapture = useCallback((event: ClipboardEvent) => {
   const target = event.target;
-  if (
-    target instanceof Element &&
-    target.closest("input, textarea, [contenteditable='true']")
-  ) {
+  if (target instanceof Element && target.closest("input, textarea, [contenteditable='true']")) {
     return;
   }
   // ...
@@ -100,8 +97,7 @@ In addition to the existing `target.closest()` check, also verify `document.acti
 const active = document.activeElement;
 if (
   active instanceof Element &&
-  (active.closest(".ProseMirror, [contenteditable='true']") ||
-    active.classList.contains("ProseMirror"))
+  (active.closest(".ProseMirror, [contenteditable='true']") || active.classList.contains("ProseMirror"))
 ) {
   return;
 }

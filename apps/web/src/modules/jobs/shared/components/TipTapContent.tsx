@@ -35,10 +35,7 @@ export function TipTapContent({ content, className }: TipTapContentProps) {
 
   const [renderErr, node] = tryRun(() => {
     const doc = parseTipTapDocument(content);
-    return renderToReactElement({
-      extensions: RENDER_EXTENSIONS,
-      content: doc,
-    });
+    return renderToReactElement({ extensions: RENDER_EXTENSIONS, content: doc });
   });
   if (renderErr) {
     rendered = tipTapToPlainText(content);
@@ -48,13 +45,7 @@ export function TipTapContent({ content, className }: TipTapContentProps) {
   }
 
   if (isError) {
-    return (
-      <div
-        className={cn("text-sm whitespace-pre-wrap wrap-break-word", className)}
-      >
-        {rendered}
-      </div>
-    );
+    return <div className={cn("text-sm whitespace-pre-wrap wrap-break-word", className)}>{rendered}</div>;
   }
 
   return (

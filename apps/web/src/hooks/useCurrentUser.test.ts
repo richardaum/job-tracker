@@ -6,12 +6,8 @@ import type { CurrentUser } from "./useCurrentUser";
 const useMeQueryMock = vi.fn();
 
 vi.mock("@/gql/hooks", async () => {
-  const actual =
-    await vi.importActual<typeof import("@/gql/hooks")>("@/gql/hooks");
-  return {
-    ...actual,
-    useMeQuery: (...args: unknown[]) => useMeQueryMock(...args),
-  };
+  const actual = await vi.importActual<typeof import("@/gql/hooks")>("@/gql/hooks");
+  return { ...actual, useMeQuery: (...args: unknown[]) => useMeQueryMock(...args) };
 });
 
 describe("useCurrentUser", () => {
@@ -29,11 +25,7 @@ describe("useCurrentUser", () => {
       accounts: [],
     };
 
-    useMeQueryMock.mockReturnValue({
-      data: { me: mockUser },
-      loading: false,
-      error: undefined,
-    });
+    useMeQueryMock.mockReturnValue({ data: { me: mockUser }, loading: false, error: undefined });
 
     const { useCurrentUser } = await import("./useCurrentUser");
     const { result } = renderHook(() => useCurrentUser());
@@ -44,14 +36,8 @@ describe("useCurrentUser", () => {
   });
 
   it("returns null user when unauthenticated", async () => {
-    const authError = {
-      graphQLErrors: [{ extensions: { code: "UNAUTHENTICATED" } }],
-    };
-    useMeQueryMock.mockReturnValue({
-      data: { me: null },
-      loading: false,
-      error: authError,
-    });
+    const authError = { graphQLErrors: [{ extensions: { code: "UNAUTHENTICATED" } }] };
+    useMeQueryMock.mockReturnValue({ data: { me: null }, loading: false, error: authError });
 
     const { useCurrentUser } = await import("./useCurrentUser");
     const { result } = renderHook(() => useCurrentUser());

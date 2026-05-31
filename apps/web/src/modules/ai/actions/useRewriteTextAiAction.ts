@@ -9,12 +9,8 @@ interface UseRewriteTextAiActionArgs {
   disabled?: boolean;
 }
 
-export function useRewriteTextAiAction({
-  disabled = false,
-}: UseRewriteTextAiActionArgs): TipTapAiAction {
-  const [rewriteTextWithAi, { loading }] = useRewriteTextWithAiLazyQuery({
-    fetchPolicy: "no-cache",
-  });
+export function useRewriteTextAiAction({ disabled = false }: UseRewriteTextAiActionArgs): TipTapAiAction {
+  const [rewriteTextWithAi, { loading }] = useRewriteTextWithAiLazyQuery({ fetchPolicy: "no-cache" });
 
   return useMemo(
     () => ({

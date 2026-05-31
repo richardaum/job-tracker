@@ -19,10 +19,7 @@ import { UserSettingFieldsResolver } from "./user-setting.fields.resolver";
 
 describe("SettingsResolver (integration)", () => {
   let app: INestApplication;
-  let service: {
-    getSettings: ReturnType<typeof vi.fn>;
-    updateSettings: ReturnType<typeof vi.fn>;
-  };
+  let service: { getSettings: ReturnType<typeof vi.fn>; updateSettings: ReturnType<typeof vi.fn> };
 
   beforeAll(async () => {
     const mockSettings = {
@@ -48,19 +45,13 @@ describe("SettingsResolver (integration)", () => {
           formatError: graphqlFormatError,
         }),
       ],
-      providers: [
-        SettingsResolver,
-        UserSettingFieldsResolver,
-        { provide: SettingsService, useValue: service },
-      ],
+      providers: [SettingsResolver, UserSettingFieldsResolver, { provide: SettingsService, useValue: service }],
     })
       .overrideGuard(JwtAuthGuard)
       .useValue({
         canActivate: (ctx: ExecutionContext) => {
           const gqlCtx = GqlExecutionContext.create(ctx);
-          const req = gqlCtx.getContext<{
-            req: Request & { headers: Record<string, string>; user?: unknown };
-          }>().req;
+          const req = gqlCtx.getContext<{ req: Request & { headers: Record<string, string>; user?: unknown } }>().req;
           if (!req.headers["authorization"]) throw new UnauthorizedException();
           req.user = { userId: "user-1" };
           return true;
@@ -101,9 +92,7 @@ describe("SettingsResolver (integration)", () => {
   });
 
   it("settings query returns error for unauthenticated request", async () => {
-    const res = await request(app.getHttpServer())
-      .post("/graphql")
-      .send({ query: `{ settings { userId } }` });
+    const res = await request(app.getHttpServer()).post("/graphql").send({ query: `{ settings { userId } }` });
 
     expect(res.statusCode).toBe(200);
     expect(res.body.errors).toBeDefined();
@@ -136,9 +125,7 @@ describe("SettingsResolver (integration)", () => {
       blockedKeywords: [],
       blockedCompanies: [],
     });
-    expect(service.updateSettings).toHaveBeenCalledWith("user-1", {
-      autoFillEnabled: true,
-    });
+    expect(service.updateSettings).toHaveBeenCalledWith("user-1", { autoFillEnabled: true });
   });
 
   it("updateSettings partial update — only changes provided fields", async () => {
@@ -165,9 +152,6 @@ describe("SettingsResolver (integration)", () => {
       autoSummaryEnabled: true,
       duplicateWindowDays: 7,
     });
-    expect(service.updateSettings).toHaveBeenCalledWith("user-1", {
-      autoSummaryEnabled: true,
-      duplicateWindowDays: 7,
-    });
+    expect(service.updateSettings).toHaveBeenCalledWith("user-1", { autoSummaryEnabled: true, duplicateWindowDays: 7 });
   });
 });

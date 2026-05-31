@@ -4,31 +4,20 @@ import { cn } from "@job-tracker/ui";
 import { Children } from "react";
 import type { ReactElement, ReactNode } from "react";
 
-import {
-  ToolbarButton,
-  type ToolbarButtonProps,
-} from "@/modules/jobs/details/components/ToolbarButton";
+import { ToolbarButton, type ToolbarButtonProps } from "@/modules/jobs/details/components/ToolbarButton";
 
 interface SegmentedToolbarControlProps {
   children: ReactNode;
 }
 
-export function SegmentedToolbarControl({
-  children,
-}: SegmentedToolbarControlProps) {
-  const visibleItems = Children.toArray(children).filter(
-    Boolean,
-  ) as ReactElement<ToolbarButtonProps>[];
+export function SegmentedToolbarControl({ children }: SegmentedToolbarControlProps) {
+  const visibleItems = Children.toArray(children).filter(Boolean) as ReactElement<ToolbarButtonProps>[];
   if (visibleItems.length === 0) {
     return null;
   }
 
   return (
-    <div
-      className={cn(
-        "inline-flex overflow-hidden rounded border border-border-subtle",
-      )}
-    >
+    <div className={cn("inline-flex overflow-hidden rounded border border-border-subtle")}>
       {visibleItems.map((item, index) => {
         const isLastItem = index === visibleItems.length - 1;
         return (

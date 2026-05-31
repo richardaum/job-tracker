@@ -1,26 +1,12 @@
 "use client";
 
 import { tryRun } from "@job-tracker/try-run";
-import {
-  Button,
-  cn,
-  Combobox,
-  Dialog,
-  FormField,
-  Input,
-  Stack,
-  useDialog,
-} from "@job-tracker/ui";
+import { Button, cn, Combobox, Dialog, FormField, Input, Stack, useDialog } from "@job-tracker/ui";
 import { type DialogControl } from "@job-tracker/ui";
 import { useState } from "react";
 import type { ChangeEvent, ReactElement, SyntheticEvent } from "react";
 
-import {
-  JobsDocument,
-  useCompaniesQuery,
-  useCreateJobMutation,
-  useUpdateJobMutation,
-} from "@/gql/hooks";
+import { JobsDocument, useCompaniesQuery, useCreateJobMutation, useUpdateJobMutation } from "@/gql/hooks";
 
 interface JobValues {
   id: string;
@@ -48,14 +34,7 @@ interface JobQuickEditDialogFormProps {
   onClose: () => void;
 }
 
-function JobQuickEditDialogForm({
-  isEdit,
-  job,
-  onSuccess,
-  onError,
-  onCreated,
-  onClose,
-}: JobQuickEditDialogFormProps) {
+function JobQuickEditDialogForm({ isEdit, job, onSuccess, onError, onCreated, onClose }: JobQuickEditDialogFormProps) {
   const [form, setForm] = useState<FormState>({
     title: job?.title ?? "",
     company: job?.company ?? "",
@@ -66,21 +45,12 @@ function JobQuickEditDialogForm({
   const [errors, setErrors] = useState<Partial<FormState>>({});
 
   const refetchQueries = [{ query: JobsDocument }];
-  const [createJob, { loading: creating }] = useCreateJobMutation({
-    refetchQueries,
-    awaitRefetchQueries: true,
-  });
-  const [updateJob, { loading: updating }] = useUpdateJobMutation({
-    refetchQueries,
-    awaitRefetchQueries: true,
-  });
+  const [createJob, { loading: creating }] = useCreateJobMutation({ refetchQueries, awaitRefetchQueries: true });
+  const [updateJob, { loading: updating }] = useUpdateJobMutation({ refetchQueries, awaitRefetchQueries: true });
   const loading = creating || updating;
 
   const { data: companiesData } = useCompaniesQuery();
-  const companyOptions = (companiesData?.companies ?? []).map((c) => ({
-    label: c.name,
-    value: c.id,
-  }));
+  const companyOptions = (companiesData?.companies ?? []).map((c) => ({ label: c.name, value: c.id }));
 
   function set(field: keyof FormState) {
     return (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
@@ -118,9 +88,7 @@ function JobQuickEditDialogForm({
     };
 
     if (isEdit && job) {
-      const [error] = await tryRun(
-        updateJob({ variables: { id: job.id, input } }),
-      );
+      const [error] = await tryRun(updateJob({ variables: { id: job.id, input } }));
       if (error) {
         onError?.("Something went wrong. Please try again.");
         return;
@@ -149,12 +117,7 @@ function JobQuickEditDialogForm({
     <>
       <form id={formId} onSubmit={handleSubmit} noValidate>
         <Stack gap="sm">
-          <FormField
-            label="Job title"
-            htmlFor="job-title"
-            required
-            error={errors.title}
-          >
+          <FormField label="Job title" htmlFor="job-title" required error={errors.title}>
             <Input
               id="job-title"
               value={form.title}
@@ -165,21 +128,12 @@ function JobQuickEditDialogForm({
             />
           </FormField>
 
-          <FormField
-            label="Company"
-            htmlFor="job-company"
-            required
-            error={errors.company}
-          >
+          <FormField label="Company" htmlFor="job-company" required error={errors.company}>
             <Combobox
               id="job-company"
               value={form.company}
-              onInputValueChange={(text) =>
-                setForm((f) => ({ ...f, company: text }))
-              }
-              onValueChange={(option) =>
-                setForm((f) => ({ ...f, company: option.label }))
-              }
+              onInputValueChange={(text) => setForm((f) => ({ ...f, company: text }))}
+              onValueChange={(option) => setForm((f) => ({ ...f, company: option.label }))}
               options={companyOptions}
               placeholder="e.g. Acme Corp"
               state={errors.company ? "error" : "default"}
@@ -187,11 +141,7 @@ function JobQuickEditDialogForm({
             />
           </FormField>
 
-          <FormField
-            label="Job URLs"
-            htmlFor="job-urls"
-            error={errors.urlsText}
-          >
+          <FormField label="Job URLs" htmlFor="job-urls" error={errors.urlsText}>
             <Input
               id="job-urls"
               value={form.urlsText}
@@ -225,21 +175,10 @@ function JobQuickEditDialogForm({
       </form>
 
       <Stack direction="row" gap="xs" justify="end" className={cn("mt-4")}>
-        <Button
-          intent="secondary"
-          size="md"
-          onClick={onClose}
-          disabled={loading}
-        >
+        <Button intent="secondary" size="md" onClick={onClose} disabled={loading}>
           Cancel
         </Button>
-        <Button
-          type="submit"
-          form={formId}
-          intent="primary"
-          size="md"
-          state={loading ? "loading" : "default"}
-        >
+        <Button type="submit" form={formId} intent="primary" size="md" state={loading ? "loading" : "default"}>
           {isEdit ? "Save changes" : "Create"}
         </Button>
       </Stack>

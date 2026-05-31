@@ -1,8 +1,6 @@
 import { CombinedGraphQLErrors } from "@apollo/client/errors";
 
-function readGraphQLErrors(
-  error: unknown,
-): ReadonlyArray<{ readonly message: string; readonly extensions?: unknown }> {
+function readGraphQLErrors(error: unknown): ReadonlyArray<{ readonly message: string; readonly extensions?: unknown }> {
   if (CombinedGraphQLErrors.is(error)) {
     return error.errors;
   }
@@ -12,11 +10,7 @@ function readGraphQLErrors(
     "graphQLErrors" in error &&
     Array.isArray((error as { graphQLErrors?: unknown }).graphQLErrors)
   ) {
-    return (
-      error as {
-        graphQLErrors: ReadonlyArray<{ message: string; extensions?: unknown }>;
-      }
-    ).graphQLErrors;
+    return (error as { graphQLErrors: ReadonlyArray<{ message: string; extensions?: unknown }> }).graphQLErrors;
   }
   return [];
 }

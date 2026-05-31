@@ -4,10 +4,7 @@ import { Button, cn, Dialog, FormField, Input } from "@job-tracker/ui";
 import { useState } from "react";
 
 import { FieldTooltip } from "@/modules/sources/page/plan-editor/FieldTooltip";
-import type {
-  ParseRegexInput,
-  Step,
-} from "@/modules/sources/page/plan-editor/types";
+import type { ParseRegexInput, Step } from "@/modules/sources/page/plan-editor/types";
 import { defaultParseRegex } from "@/modules/sources/page/plan-editor/utils";
 
 type ParseRegexStepDialogProps = {
@@ -17,17 +14,10 @@ type ParseRegexStepDialogProps = {
   onSave: (step: Step) => void;
 };
 
-export function ParseRegexStepDialog({
-  step,
-  open,
-  onOpenChange,
-  onSave,
-}: ParseRegexStepDialogProps) {
+export function ParseRegexStepDialog({ step, open, onOpenChange, onSave }: ParseRegexStepDialogProps) {
   const [stepId, setStepId] = useState(step.id);
   const [draft, setDraft] = useState<ParseRegexInput>(
-    step.action.kind === "parse.regex"
-      ? structuredClone(step.action.input)
-      : defaultParseRegex(),
+    step.action.kind === "parse.regex" ? structuredClone(step.action.input) : defaultParseRegex(),
   );
   return (
     <Dialog
@@ -42,9 +32,7 @@ export function ParseRegexStepDialog({
         <div className={cn("flex flex-col gap-4")}>
           <FormField
             label="Step name"
-            tooltip={
-              <FieldTooltip content="Unique identifier for this step within the plan." />
-            }
+            tooltip={<FieldTooltip content="Unique identifier for this step within the plan." />}
             htmlFor="re-stepId"
           >
             <Input
@@ -63,9 +51,7 @@ export function ParseRegexStepDialog({
             <Input
               id="re-text"
               value={draft.text}
-              onChange={(e) =>
-                setDraft((prev) => ({ ...prev, text: e.target.value }))
-              }
+              onChange={(e) => setDraft((prev) => ({ ...prev, text: e.target.value }))}
               placeholder="e.g. description"
             />
           </FormField>
@@ -78,11 +64,7 @@ export function ParseRegexStepDialog({
         <Button
           intent="primary"
           onClick={() => {
-            onSave({
-              ...step,
-              id: stepId,
-              action: { kind: "parse.regex", input: draft },
-            });
+            onSave({ ...step, id: stepId, action: { kind: "parse.regex", input: draft } });
             onOpenChange(false);
           }}
         >

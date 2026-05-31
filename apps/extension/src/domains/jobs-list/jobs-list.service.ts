@@ -4,10 +4,7 @@ import { FieldValueService } from "@/domains/dom/field-value.service";
 import type { Job } from "@/domains/dom/types";
 import { PopupLogService } from "@/domains/log/popup-log.service";
 import type { ContentActionMessage } from "@/domains/message/types";
-import type {
-  PlanStepCollectJobsSurfaceField,
-  RegexSurfaceField,
-} from "@/domains/plan/model/types";
+import type { PlanStepCollectJobsSurfaceField, RegexSurfaceField } from "@/domains/plan/model/types";
 import { StringTemplateService } from "@/domains/plan/services/string-template.service";
 import { TimerService } from "@/domains/timer/timer.service";
 
@@ -16,11 +13,7 @@ const SCROLLABLE_CHECK_ATTRS = ["overflow-y", "overflow"] as const;
 
 function findScrollableAncestor(el: Element): Element | null {
   let current: Element | null = el;
-  while (
-    current &&
-    current !== document.body &&
-    current !== document.documentElement
-  ) {
+  while (current && current !== document.body && current !== document.documentElement) {
     const style = getComputedStyle(current);
     for (const attr of SCROLLABLE_CHECK_ATTRS) {
       const val = style.getPropertyValue(attr);
@@ -44,23 +37,15 @@ export class JobsListService {
     const { input, skipDelay } = message.action;
     const direction = input.direction ?? "down";
 
-    const container = await this.waitForSelector(
-      input.containerSelector,
-      input.itemSelector,
-      30_000,
-    );
+    const container = await this.waitForSelector(input.containerSelector, input.itemSelector, 30_000);
     if (!container) {
       throw new Error(
         `Failed to load page content: expected container "${input.containerSelector}" not found after 30s. The page may have changed or requires login.`,
       );
     }
 
-    let scrollable =
-      findScrollableAncestor(container) ?? container.parentElement ?? container;
-    if (
-      scrollable === document.body ||
-      scrollable === document.documentElement
-    ) {
+    let scrollable = findScrollableAncestor(container) ?? container.parentElement ?? container;
+    if (scrollable === document.body || scrollable === document.documentElement) {
       scrollable = container;
     }
 
@@ -82,13 +67,7 @@ export class JobsListService {
 
       if (direction === "up") {
         for (let i = items.length - 1; i >= 0; i--) {
-          const job = await this.processItem(
-            items[i],
-            input.surfaceFields,
-            input.key,
-            seen,
-            skipDelay ?? false,
-          );
+          const job = await this.processItem(items[i], input.surfaceFields, input.key, seen, skipDelay ?? false);
           if (!job) continue;
           collected.push(job);
           foundNew = true;
@@ -96,13 +75,7 @@ export class JobsListService {
         }
       } else {
         for (let i = 0; i < items.length; i++) {
-          const job = await this.processItem(
-            items[i],
-            input.surfaceFields,
-            input.key,
-            seen,
-            skipDelay ?? false,
-          );
+          const job = await this.processItem(items[i], input.surfaceFields, input.key, seen, skipDelay ?? false);
           if (!job) continue;
           collected.push(job);
           foundNew = true;
@@ -115,10 +88,7 @@ export class JobsListService {
         if (!canScroll) break;
 
         const prev = scrollable.scrollTop;
-        const atBoundary =
-          direction === "up"
-            ? prev <= 0
-            : prev >= scrollable.scrollHeight - scrollable.clientHeight;
+        const atBoundary = direction === "up" ? prev <= 0 : prev >= scrollable.scrollHeight - scrollable.clientHeight;
         if (atBoundary) break;
 
         const delta = direction === "up" ? -400 : 400;
@@ -181,9 +151,7 @@ export class JobsListService {
     const job = await this.collectFields(item, fields, skipDelay);
 
     const key =
-      keyTemplate != null && keyTemplate.trim().length > 0
-        ? this.stringTemplateService.parse(keyTemplate, job)
-        : "";
+      keyTemplate != null && keyTemplate.trim().length > 0 ? this.stringTemplateService.parse(keyTemplate, job) : "";
 
     if (key.length > 0) {
       if (seen.has(key)) return null;
@@ -199,12 +167,9 @@ export class JobsListService {
     skipDelay: boolean,
   ): Promise<Job> {
     const domFields = fields.filter(
-      (f): f is PlanStepCollectJobsSurfaceField & { selector: string } =>
-        f.type !== "regex",
+      (f): f is PlanStepCollectJobsSurfaceField & { selector: string } => f.type !== "regex",
     );
-    const regexFields = fields.filter(
-      (f): f is RegexSurfaceField => f.type === "regex",
-    );
+    const regexFields = fields.filter((f): f is RegexSurfaceField => f.type === "regex");
 
     // Pass 1: collect DOM fields
     const mappedItem: Job = {};
@@ -214,15 +179,10 @@ export class JobsListService {
         await this.timerService.smallDelay();
       }
 
-      const element = item.matches(field.selector)
-        ? item
-        : item.querySelector(field.selector);
+      const element = item.matches(field.selector) ? item : item.querySelector(field.selector);
       if (!element) throw new Error(`Element not found: ${field.selector}`);
 
-      mappedItem[field.key] = this.fieldValueService.getFieldValue(
-        element as HTMLElement | HTMLInputElement,
-        field,
-      );
+      mappedItem[field.key] = this.fieldValueService.getFieldValue(element as HTMLElement | HTMLInputElement, field);
     }
 
     // Pass 2: resolve regex fields using already-collected data
@@ -245,8 +205,7 @@ export class JobsListService {
       }
 
       const group = field.group ?? 1;
-      mappedItem[field.key] =
-        match != null && match[group] !== undefined ? match[group] : null;
+      mappedItem[field.key] = match != null && match[group] !== undefined ? match[group] : null;
     }
 
     return mappedItem;

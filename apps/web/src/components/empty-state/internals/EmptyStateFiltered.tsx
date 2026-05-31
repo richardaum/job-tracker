@@ -31,22 +31,11 @@ export function EmptyStateFiltered({
   return (
     <EmptyStateCard className={cn(className)} padding={padding} layout={layout}>
       <Stack gap="xs" align="center" className={cn("max-w-sm")}>
-        <Text
-          as="p"
-          size="base"
-          weight="semibold"
-          color="primary"
-          className={cn("leading-snug")}
-        >
+        <Text as="p" size="base" weight="semibold" color="primary" className={cn("leading-snug")}>
           {title}
         </Text>
         {detail ? (
-          <Text
-            as="p"
-            size="sm"
-            color="muted"
-            className={cn("leading-relaxed")}
-          >
+          <Text as="p" size="sm" color="muted" className={cn("leading-relaxed")}>
             {detail}
           </Text>
         ) : null}

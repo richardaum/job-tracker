@@ -7,13 +7,9 @@ export class NormalizeSourceRunStatusPascalcase1768060000000 implements Migratio
     const newValues = ["Pending", "Completed", "Failed"];
     const tmp = "source_run_status_pc";
 
-    await queryRunner.query(
-      `CREATE TYPE "${tmp}" AS ENUM (${newValues.map((v) => `'${v}'`).join(", ")})`,
-    );
+    await queryRunner.query(`CREATE TYPE "${tmp}" AS ENUM (${newValues.map((v) => `'${v}'`).join(", ")})`);
 
-    await queryRunner.query(
-      `ALTER TABLE "source_runs" ALTER COLUMN "status" DROP DEFAULT`,
-    );
+    await queryRunner.query(`ALTER TABLE "source_runs" ALTER COLUMN "status" DROP DEFAULT`);
 
     await queryRunner.query(
       `ALTER TABLE "source_runs" ALTER COLUMN "status" TYPE "${tmp}" USING CASE "status"::text
@@ -25,28 +21,20 @@ export class NormalizeSourceRunStatusPascalcase1768060000000 implements Migratio
       END`,
     );
 
-    await queryRunner.query(
-      `ALTER TABLE "source_runs" ALTER COLUMN "status" SET DEFAULT 'Pending'::"${tmp}"`,
-    );
+    await queryRunner.query(`ALTER TABLE "source_runs" ALTER COLUMN "status" SET DEFAULT 'Pending'::"${tmp}"`);
 
     await queryRunner.query(`DROP TYPE IF EXISTS "source_run_status" CASCADE`);
 
-    await queryRunner.query(
-      `ALTER TYPE "${tmp}" RENAME TO "source_run_status"`,
-    );
+    await queryRunner.query(`ALTER TYPE "${tmp}" RENAME TO "source_run_status"`);
   }
 
   async down(queryRunner: QueryRunner): Promise<void> {
     const newValues = ["RUNNING", "IN_PROGRESS", "COMPLETED", "FAILED"];
     const tmp = "source_run_status_old";
 
-    await queryRunner.query(
-      `CREATE TYPE "${tmp}" AS ENUM (${newValues.map((v) => `'${v}'`).join(", ")})`,
-    );
+    await queryRunner.query(`CREATE TYPE "${tmp}" AS ENUM (${newValues.map((v) => `'${v}'`).join(", ")})`);
 
-    await queryRunner.query(
-      `ALTER TABLE "source_runs" ALTER COLUMN "status" DROP DEFAULT`,
-    );
+    await queryRunner.query(`ALTER TABLE "source_runs" ALTER COLUMN "status" DROP DEFAULT`);
 
     await queryRunner.query(
       `ALTER TABLE "source_runs" ALTER COLUMN "status" TYPE "${tmp}" USING CASE "status"::text
@@ -57,14 +45,10 @@ export class NormalizeSourceRunStatusPascalcase1768060000000 implements Migratio
       END`,
     );
 
-    await queryRunner.query(
-      `ALTER TABLE "source_runs" ALTER COLUMN "status" SET DEFAULT 'RUNNING'::"${tmp}"`,
-    );
+    await queryRunner.query(`ALTER TABLE "source_runs" ALTER COLUMN "status" SET DEFAULT 'RUNNING'::"${tmp}"`);
 
     await queryRunner.query(`DROP TYPE IF EXISTS "source_run_status" CASCADE`);
 
-    await queryRunner.query(
-      `ALTER TYPE "${tmp}" RENAME TO "source_run_status"`,
-    );
+    await queryRunner.query(`ALTER TYPE "${tmp}" RENAME TO "source_run_status"`);
   }
 }

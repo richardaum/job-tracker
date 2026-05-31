@@ -1,10 +1,6 @@
 "use client";
 
-import {
-  EMPTY_TIPTAP_DOC,
-  normalizeTipTapDocument,
-  tipTapToPlainText,
-} from "@job-tracker/tiptap";
+import { EMPTY_TIPTAP_DOC, normalizeTipTapDocument, tipTapToPlainText } from "@job-tracker/tiptap";
 import {
   Button,
   cn,
@@ -44,31 +40,20 @@ export default function CompanyDetailsPage({ params }: PageProps) {
   const { enqueueToast } = useToastQueue();
   const [actionsMenuOpen, setActionsMenuOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const {
-    company,
-    companyJobs,
-    applicationsError,
-    companiesError,
-    status,
-    showApplicationsInitialLoading,
-    notFound,
-  } = useCompanyDetailsViewModel(id);
-  const [descriptionDraftState, setDescriptionDraftState] = useState<{
-    companyId: string | null;
-    value: string;
-  }>({ companyId: null, value: EMPTY_TIPTAP_DOC });
-  const [updateCompany, { loading: savingDescription }] =
-    useUpdateCompanyMutation({
-      refetchQueries: [{ query: CompaniesDocument }],
-    });
-  const generateCompanyDescriptionAction =
-    useGenerateCompanyDescriptionAiAction({
-      companyName: company?.name ?? "",
-      disabled: savingDescription,
-    });
-  const rewriteCompanyDescriptionAction = useRewriteTextAiAction({
+  const { company, companyJobs, applicationsError, companiesError, status, showApplicationsInitialLoading, notFound } =
+    useCompanyDetailsViewModel(id);
+  const [descriptionDraftState, setDescriptionDraftState] = useState<{ companyId: string | null; value: string }>({
+    companyId: null,
+    value: EMPTY_TIPTAP_DOC,
+  });
+  const [updateCompany, { loading: savingDescription }] = useUpdateCompanyMutation({
+    refetchQueries: [{ query: CompaniesDocument }],
+  });
+  const generateCompanyDescriptionAction = useGenerateCompanyDescriptionAiAction({
+    companyName: company?.name ?? "",
     disabled: savingDescription,
   });
+  const rewriteCompanyDescriptionAction = useRewriteTextAiAction({ disabled: savingDescription });
   const companyDescriptionAiActions = useMemo(
     () => [generateCompanyDescriptionAction, rewriteCompanyDescriptionAction],
     [generateCompanyDescriptionAction, rewriteCompanyDescriptionAction],
@@ -76,22 +61,15 @@ export default function CompanyDetailsPage({ params }: PageProps) {
 
   const currentDescription = normalizeTipTapDocument(company?.description);
   const descriptionDraft =
-    descriptionDraftState.companyId === company?.id
-      ? descriptionDraftState.value
-      : currentDescription;
+    descriptionDraftState.companyId === company?.id ? descriptionDraftState.value : currentDescription;
   const descriptionChanged = descriptionDraft !== currentDescription;
   async function handleSaveDescription() {
     if (!company || !descriptionChanged) {
       return;
     }
-    const nextDescription =
-      tipTapToPlainText(descriptionDraft).trim().length > 0
-        ? descriptionDraft
-        : null;
+    const nextDescription = tipTapToPlainText(descriptionDraft).trim().length > 0 ? descriptionDraft : null;
 
-    await updateCompany({
-      variables: { id: company.id, input: { description: nextDescription } },
-    });
+    await updateCompany({ variables: { id: company.id, input: { description: nextDescription } } });
   }
 
   function renderTabTriggers() {
@@ -115,10 +93,7 @@ export default function CompanyDetailsPage({ params }: PageProps) {
             <CaretDownIcon
               size={12}
               weight="bold"
-              className={cn(
-                "transition-transform duration-200",
-                actionsMenuOpen ? "rotate-180" : "rotate-0",
-              )}
+              className={cn("transition-transform duration-200", actionsMenuOpen ? "rotate-180" : "rotate-0")}
             />
           }
         >
@@ -128,9 +103,7 @@ export default function CompanyDetailsPage({ params }: PageProps) {
       align="end"
     >
       <DropdownMenuItem
-        onSelect={() =>
-          router.push(`/jobs?company=${encodeURIComponent(company.name)}`)
-        }
+        onSelect={() => router.push(`/jobs?company=${encodeURIComponent(company.name)}`)}
         icon={<BriefcaseIcon size={14} weight="regular" />}
       >
         View jobs
@@ -161,9 +134,7 @@ export default function CompanyDetailsPage({ params }: PageProps) {
             open={deleteDialogOpen}
             onOpenChange={setDeleteDialogOpen}
             onSuccess={() => router.push("/companies")}
-            onError={(message) =>
-              enqueueToast({ title: message, intent: "error" })
-            }
+            onError={(message) => enqueueToast({ title: message, intent: "error" })}
           />
         ) : null}
       </DetailPageHeader>
@@ -174,23 +145,14 @@ export default function CompanyDetailsPage({ params }: PageProps) {
             Loading company...
           </Text>
         ) : notFound ? (
-          <EntityNotFound
-            resource="company"
-            backHref="/companies"
-            backLabel="Back to companies"
-          />
+          <EntityNotFound resource="company" backHref="/companies" backLabel="Back to companies" />
         ) : companiesError && !notFound ? (
           <Text size="sm" color="error">
             Failed to load company details.
           </Text>
         ) : !company ? null : (
-          <Tabs
-            defaultValue="jobs"
-            className={cn("flex size-full min-h-0  flex-col")}
-          >
-            <TabsList className={cn("w-full shrink-0 flex-wrap")}>
-              {renderTabTriggers()}
-            </TabsList>
+          <Tabs defaultValue="jobs" className={cn("flex size-full min-h-0  flex-col")}>
+            <TabsList className={cn("w-full shrink-0 flex-wrap")}>{renderTabTriggers()}</TabsList>
 
             <TabsContent value="jobs" className={cn("mt-3 overflow-auto")}>
               {showApplicationsInitialLoading ? (
@@ -208,31 +170,20 @@ export default function CompanyDetailsPage({ params }: PageProps) {
               ) : (
                 <div className={cn("space-y-3")}>
                   {companyJobs.map((job) => (
-                    <JobCard
-                      key={job.id}
-                      job={job}
-                      onSuccess={() => undefined}
-                      onError={() => undefined}
-                    />
+                    <JobCard key={job.id} job={job} onSuccess={() => undefined} onError={() => undefined} />
                   ))}
                 </div>
               )}
             </TabsContent>
 
-            <TabsContent
-              value="description"
-              className={cn("mt-3 flex-1 min-h-0 overflow-hidden")}
-            >
+            <TabsContent value="description" className={cn("mt-3 flex-1 min-h-0 overflow-hidden")}>
               <div className={cn("flex h-full min-h-0 flex-col gap-3")}>
                 <div className={cn("flex-1 min-h-0")}>
                   <TipTapEditor
                     id="company-details-description"
                     value={descriptionDraft}
                     onChange={(nextValue) =>
-                      setDescriptionDraftState({
-                        companyId: company?.id ?? null,
-                        value: nextValue || EMPTY_TIPTAP_DOC,
-                      })
+                      setDescriptionDraftState({ companyId: company?.id ?? null, value: nextValue || EMPTY_TIPTAP_DOC })
                     }
                     onHardEnter={() => void handleSaveDescription()}
                     placeholder="Add context about this company..."

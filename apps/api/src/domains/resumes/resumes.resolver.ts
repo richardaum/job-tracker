@@ -24,18 +24,12 @@ export class ResumeResolver {
   }
 
   @Query(() => ResumeType)
-  resume(
-    @Args("id", { type: () => ID }) id: string,
-    @CurrentUser() user: { userId: string },
-  ): Promise<ResumeType> {
+  resume(@Args("id", { type: () => ID }) id: string, @CurrentUser() user: { userId: string }): Promise<ResumeType> {
     return this.service.findOne(id, user.userId);
   }
 
   @Mutation(() => ResumeType)
-  createResume(
-    @Args("input") input: CreateResumeInput,
-    @CurrentUser() user: { userId: string },
-  ): Promise<ResumeType> {
+  createResume(@Args("input") input: CreateResumeInput, @CurrentUser() user: { userId: string }): Promise<ResumeType> {
     return this.service.create(user.userId, { ...input, userId: user.userId });
   }
 

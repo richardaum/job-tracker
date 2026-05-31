@@ -16,10 +16,7 @@ export function returnComboboxFocusToInputOnFirstItemArrowUp(
 }
 
 /** Focus first or last selectable item inside Radix `Menu.Content` (`role="menu"`). */
-export function focusRadixMenuItemEdge(
-  contentRoot: HTMLElement | null,
-  edge: "first" | "last",
-): void {
+export function focusRadixMenuItemEdge(contentRoot: HTMLElement | null, edge: "first" | "last"): void {
   if (!contentRoot) return;
   const items = contentRoot.querySelectorAll<HTMLElement>(
     '[role="menuitem"]:not([data-disabled]):not([aria-disabled="true"])',

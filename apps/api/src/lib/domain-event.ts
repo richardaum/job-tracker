@@ -57,9 +57,7 @@ export abstract class EventBus<Extra = object> {
     };
   }
 
-  private createIterable<T extends DomainEvent>(
-    accept: (event: DomainEvent) => event is T,
-  ): AsyncIterable<T> {
+  private createIterable<T extends DomainEvent>(accept: (event: DomainEvent) => event is T): AsyncIterable<T> {
     const queue: T[] = [];
     let pendingNext: ((value: IteratorResult<T>) => void) | null = null;
     let closed = false;
@@ -80,8 +78,7 @@ export abstract class EventBus<Extra = object> {
       [Symbol.asyncIterator]: (): AsyncIterator<T> => ({
         next: async (): Promise<IteratorResult<T>> => {
           if (queue.length > 0) return { value: queue.shift()!, done: false };
-          if (closed)
-            return { value: undefined, done: true } as IteratorResult<T>;
+          if (closed) return { value: undefined, done: true } as IteratorResult<T>;
           return new Promise<IteratorResult<T>>((resolve) => {
             pendingNext = resolve;
           });

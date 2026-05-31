@@ -7,9 +7,7 @@ import { useQuickFilter } from "./useQuickFilter";
 
 const navigationMocks = { searchParams: "" };
 
-vi.mock("next/navigation", () => ({
-  useSearchParams: () => new URLSearchParams(navigationMocks.searchParams),
-}));
+vi.mock("next/navigation", () => ({ useSearchParams: () => new URLSearchParams(navigationMocks.searchParams) }));
 
 describe("useQuickFilter", () => {
   it("maps q=draft to ApplicationQuickFilter.Draft", () => {

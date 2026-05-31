@@ -10,6 +10,4 @@ export enum ApplicationQuickFilterEnum {
   REJECTED = "REJECTED",
 }
 
-registerEnumType(ApplicationQuickFilterEnum, {
-  name: "ApplicationQuickFilter",
-});
+registerEnumType(ApplicationQuickFilterEnum, { name: "ApplicationQuickFilter" });

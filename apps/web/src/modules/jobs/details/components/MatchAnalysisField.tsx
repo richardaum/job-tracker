@@ -6,10 +6,7 @@ import { useRouter } from "next/navigation";
 
 import { AsyncMetadataStatus, FitClassification } from "@/gql/hooks";
 import type { JobDetailsValues } from "@/modules/jobs/details/utils/job-details.shared";
-import {
-  formatMatchClassification,
-  formatMatchLabel,
-} from "@/modules/jobs/shared/utils/matchFormat";
+import { formatMatchClassification, formatMatchLabel } from "@/modules/jobs/shared/utils/matchFormat";
 
 interface MatchAnalysisFieldProps {
   jobId: string;
@@ -27,37 +24,18 @@ export function MatchAnalysisField({ jobId, match }: MatchAnalysisFieldProps) {
           : "primary"
       : "primary";
 
-  const tooltipContent = match?.generationMetadata?.status ===
-    AsyncMetadataStatus.Completed && (
+  const tooltipContent = match?.generationMetadata?.status === AsyncMetadataStatus.Completed && (
     <div className={cn("space-y-1")}>
       <div className={cn("text-xs font-medium text-text-inverted")}>
         {formatMatchClassification(match.classification)}
       </div>
       <div className={cn("grid grid-cols-[1fr_auto] gap-x-4 gap-y-0.5")}>
-        <span className={cn("text-xs text-text-inverted opacity-70")}>
-          Matches
-        </span>
-        <span
-          className={cn("text-xs font-medium tabular-nums text-text-inverted")}
-        >
-          {match.matchCount}
-        </span>
-        <span className={cn("text-xs text-text-inverted opacity-70")}>
-          Gaps
-        </span>
-        <span
-          className={cn("text-xs font-medium tabular-nums text-text-inverted")}
-        >
-          {match.gapCount}
-        </span>
-        <span className={cn("text-xs text-text-inverted opacity-70")}>
-          Unclear
-        </span>
-        <span
-          className={cn("text-xs font-medium tabular-nums text-text-inverted")}
-        >
-          {match.unclearCount}
-        </span>
+        <span className={cn("text-xs text-text-inverted opacity-70")}>Matches</span>
+        <span className={cn("text-xs font-medium tabular-nums text-text-inverted")}>{match.matchCount}</span>
+        <span className={cn("text-xs text-text-inverted opacity-70")}>Gaps</span>
+        <span className={cn("text-xs font-medium tabular-nums text-text-inverted")}>{match.gapCount}</span>
+        <span className={cn("text-xs text-text-inverted opacity-70")}>Unclear</span>
+        <span className={cn("text-xs font-medium tabular-nums text-text-inverted")}>{match.unclearCount}</span>
       </div>
     </div>
   );
@@ -78,18 +56,13 @@ export function MatchAnalysisField({ jobId, match }: MatchAnalysisFieldProps) {
             <Text size="sm" color="secondary">
               Not analyzed
             </Text>
-          ) : match.generationMetadata?.status ===
-            AsyncMetadataStatus.Processing ? (
+          ) : match.generationMetadata?.status === AsyncMetadataStatus.Processing ? (
             <Text size="sm" color="secondary">
               Analyzing…
             </Text>
-          ) : match.generationMetadata?.status ===
-            AsyncMetadataStatus.Failed ? (
+          ) : match.generationMetadata?.status === AsyncMetadataStatus.Failed ? (
             <FieldWithLabelAction.Tooltip
-              content={
-                match.generationMetadata.error ??
-                "An error occurred during analysis."
-              }
+              content={match.generationMetadata.error ?? "An error occurred during analysis."}
             >
               <Text size="sm" color="error">
                 Failed

@@ -4,9 +4,7 @@ import OpenAI from "openai";
 
 @Injectable()
 export class OpenAIClient {
-  private readonly client: OpenAI | null = apiEnv.OPENAI_API_KEY
-    ? new OpenAI({ apiKey: apiEnv.OPENAI_API_KEY })
-    : null;
+  private readonly client: OpenAI | null = apiEnv.OPENAI_API_KEY ? new OpenAI({ apiKey: apiEnv.OPENAI_API_KEY }) : null;
 
   getClient(): OpenAI {
     if (!this.client) {

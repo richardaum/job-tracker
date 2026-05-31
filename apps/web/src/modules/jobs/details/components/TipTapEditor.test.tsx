@@ -12,16 +12,11 @@ import { TipTapEditor, type TipTapEditorHandle } from "./TipTapEditor";
  * Mirrors {@link NotesPanel} composer: controlled draft, same onChange guard,
  * and clearing via `composerRef.current.clear()` like {@link NotesPanel} after send.
  */
-function NotesComposerLikeFixture({
-  composerRef,
-}: {
-  composerRef: RefObject<TipTapEditorHandle | null>;
-}) {
+function NotesComposerLikeFixture({ composerRef }: { composerRef: RefObject<TipTapEditorHandle | null> }) {
   const [draftNote, setDraftNote] = useState(EMPTY_TIPTAP_DOC);
   const creatingNote = false;
 
-  const canSend =
-    tipTapToPlainText(draftNote).trim().length > 0 && !creatingNote;
+  const canSend = tipTapToPlainText(draftNote).trim().length > 0 && !creatingNote;
 
   function handleSendNote() {
     if (!canSend) return;
@@ -118,14 +113,7 @@ describe("TipTapEditor (integration)", () => {
     const user = userEvent.setup();
     const onHardEnter = vi.fn();
 
-    render(
-      <TipTapEditor
-        value=""
-        onChange={() => {}}
-        onHardEnter={onHardEnter}
-        placeholder="Write a note..."
-      />,
-    );
+    render(<TipTapEditor value="" onChange={() => {}} onHardEnter={onHardEnter} placeholder="Write a note..." />);
 
     const editor = await screen.findByRole("textbox");
     await user.click(editor);
