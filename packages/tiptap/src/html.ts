@@ -43,23 +43,16 @@ function renderInline(node: TipTapNode): string {
 
 function renderBlock(node: TipTapNode): string {
   if (node.type === "paragraph") {
-    const content = Array.isArray(node.content)
-      ? node.content.map(renderInline).join("")
-      : "";
+    const content = Array.isArray(node.content) ? node.content.map(renderInline).join("") : "";
     return `<p>${content}</p>`;
   }
 
   if (node.type === "heading") {
     const level = Math.min(
       6,
-      Math.max(
-        1,
-        Number((node as { attrs?: { level?: unknown } }).attrs?.level ?? 1),
-      ),
+      Math.max(1, Number((node as { attrs?: { level?: unknown } }).attrs?.level ?? 1)),
     );
-    const content = Array.isArray(node.content)
-      ? node.content.map(renderInline).join("")
-      : "";
+    const content = Array.isArray(node.content) ? node.content.map(renderInline).join("") : "";
     return `<h${level}>${content}</h${level}>`;
   }
 

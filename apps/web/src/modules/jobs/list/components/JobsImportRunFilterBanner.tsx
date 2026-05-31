@@ -7,10 +7,7 @@ type JobsImportRunFilterBannerProps = {
   onClear: () => void;
 };
 
-export function JobsImportRunFilterBanner({
-  runId,
-  onClear,
-}: JobsImportRunFilterBannerProps) {
+export function JobsImportRunFilterBanner({ runId, onClear }: JobsImportRunFilterBannerProps) {
   if (!runId) return null;
 
   return (

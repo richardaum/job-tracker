@@ -71,11 +71,7 @@ Error text:
 EntityNotFound props:
 
 ```tsx
-<EntityNotFound
-  resource="resume"
-  backHref="/resumes"
-  backLabel="Back to resumes"
-/>
+<EntityNotFound resource="resume" backHref="/resumes" backLabel="Back to resumes" />
 ```
 
 ## Verification

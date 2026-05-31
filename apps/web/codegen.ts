@@ -14,11 +14,7 @@ const config: CodegenConfig = {
     // Migrate to the client preset (see src/gql/) and delete the hooks.ts
     // output + the postprocess-codegen-hooks.mjs workaround script.
     "src/gql/hooks.ts": {
-      plugins: [
-        "typescript",
-        "typescript-operations",
-        "typescript-react-apollo",
-      ],
+      plugins: ["typescript", "typescript-operations", "typescript-react-apollo"],
       config: {
         withHooks: true,
         withHOC: false,
@@ -30,11 +26,7 @@ const config: CodegenConfig = {
       },
     },
     "src/gql/sdk.ts": {
-      plugins: [
-        "typescript",
-        "typescript-operations",
-        "typescript-graphql-request",
-      ],
+      plugins: ["typescript", "typescript-operations", "typescript-graphql-request"],
       config: { useTypeImports: true, rawRequest: false },
     },
   },

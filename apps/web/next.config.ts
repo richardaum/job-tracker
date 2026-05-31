@@ -10,9 +10,7 @@ const nextConfig: NextConfig = {
   // Side effect: Next rewrites `next-env.d.ts`; this file is treated as generated output.
   distDir: process.env.NODE_ENV === "development" ? ".next-dev" : ".next",
   images: {
-    remotePatterns: [
-      { protocol: "https", hostname: "lh3.googleusercontent.com" },
-    ],
+    remotePatterns: [{ protocol: "https", hostname: "lh3.googleusercontent.com" }],
   },
   allowedDevOrigins: getAllowedDevOrigins(),
   serverExternalPackages: ["pdfjs-dist"],

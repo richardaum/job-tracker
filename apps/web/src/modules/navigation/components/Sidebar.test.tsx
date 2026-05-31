@@ -35,13 +35,7 @@ vi.mock("next/link", () => ({
     "aria-label"?: string;
     [key: string]: unknown;
   }) => (
-    <a
-      href={href}
-      onClick={onClick}
-      aria-label={ariaLabel}
-      data-testid={`link-${href}`}
-      {...props}
-    >
+    <a href={href} onClick={onClick} aria-label={ariaLabel} data-testid={`link-${href}`} {...props}>
       {children}
     </a>
   ),
@@ -59,15 +53,11 @@ vi.mock("@apollo/client/react", async (importOriginal) => {
 });
 
 vi.mock("@/modules/navigation/components/AppBrandMark", () => ({
-  AppBrandMark: ({ size: _size }: { size?: number }) => (
-    <span data-testid="brand-mark" />
-  ),
+  AppBrandMark: ({ size: _size }: { size?: number }) => <span data-testid="brand-mark" />,
 }));
 
 vi.mock("@/modules/navigation/components/ObfuscatedText", () => ({
-  ObfuscatedText: ({ text }: { text: string; obfuscatedText: string }) => (
-    <span>{text}</span>
-  ),
+  ObfuscatedText: ({ text }: { text: string; obfuscatedText: string }) => <span>{text}</span>,
 }));
 
 const mockUser: CurrentUser = {
@@ -151,9 +141,7 @@ describe("Sidebar", () => {
     expect(screen.getAllByText("Jobs").length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText("Sources").length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText("Companies").length).toBeGreaterThanOrEqual(1);
-    expect(
-      screen.getAllByText("Salary Calculator").length,
-    ).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("Salary Calculator").length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText("Admin").length).toBeGreaterThanOrEqual(1);
   });
 

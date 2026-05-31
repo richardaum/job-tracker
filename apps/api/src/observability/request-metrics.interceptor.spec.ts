@@ -6,10 +6,7 @@ import { firstValueFrom, of } from "rxjs";
 import { tap } from "rxjs/operators";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import {
-  QUERY_WARN_THRESHOLD,
-  REQUEST_WARN_THRESHOLD_MS,
-} from "./request-metrics.constants";
+import { QUERY_WARN_THRESHOLD, REQUEST_WARN_THRESHOLD_MS } from "./request-metrics.constants";
 import { RequestMetricsContext } from "./request-metrics.context";
 import { RequestMetricsInterceptor } from "./request-metrics.interceptor";
 
@@ -31,12 +28,8 @@ describe("RequestMetricsInterceptor", () => {
   beforeEach(() => {
     requestMetricsContext = new RequestMetricsContext();
     interceptor = new RequestMetricsInterceptor(requestMetricsContext);
-    logSpy = vi
-      .spyOn(interceptor["logger"], "log")
-      .mockImplementation(() => {});
-    warnSpy = vi
-      .spyOn(interceptor["logger"], "warn")
-      .mockImplementation(() => {});
+    logSpy = vi.spyOn(interceptor["logger"], "log").mockImplementation(() => {});
+    warnSpy = vi.spyOn(interceptor["logger"], "warn").mockImplementation(() => {});
   });
 
   afterEach(() => {

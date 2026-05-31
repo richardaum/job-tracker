@@ -13,13 +13,7 @@ import {
 
 /** Frosted tiles sit on the dark login shell — typography uses inverted ramp (`text-text-inverted` / opacity), not shell-facing `text-text-*` (yale / neutral-500). */
 
-function MosaicCardShell({
-  className,
-  children,
-}: {
-  className?: string;
-  children: ReactNode;
-}) {
+function MosaicCardShell({ className, children }: { className?: string; children: ReactNode }) {
   return (
     <div
       className={cn(
@@ -42,18 +36,10 @@ function renderTile(tile: LoginSpotlightTile) {
       <MosaicCardShell key={tile.id} className={outer}>
         <div className={cn("flex min-w-0 flex-col items-start gap-2")}>
           <LoginSpotlightGlyph icon={tile.icon} />
-          <p
-            className={cn(
-              "text-sm font-semibold tracking-tight text-text-inverted",
-            )}
-          >
+          <p className={cn("text-sm font-semibold tracking-tight text-text-inverted")}>
             {tile.title}
           </p>
-          <p
-            className={cn(
-              "line-clamp-3 text-xs/snug text-text-inverted/80 sm:line-clamp-4",
-            )}
-          >
+          <p className={cn("line-clamp-3 text-xs/snug text-text-inverted/80 sm:line-clamp-4")}>
             {tile.body}
           </p>
         </div>
@@ -65,28 +51,14 @@ function renderTile(tile: LoginSpotlightTile) {
     return (
       <MosaicCardShell key={tile.id} className={outer}>
         <div
-          className={cn(
-            "flex min-h-0 flex-1 flex-col gap-3 sm:flex-row sm:items-stretch sm:gap-4",
-          )}
+          className={cn("flex min-h-0 flex-1 flex-col gap-3 sm:flex-row sm:items-stretch sm:gap-4")}
         >
-          <div
-            className={cn(
-              "flex min-h-0 flex-1 flex-col items-start gap-2 sm:max-w-[55%]",
-            )}
-          >
+          <div className={cn("flex min-h-0 flex-1 flex-col items-start gap-2 sm:max-w-[55%]")}>
             <LoginSpotlightGlyph icon={tile.icon} />
-            <p
-              className={cn(
-                "text-base font-semibold text-text-inverted sm:text-lg",
-              )}
-            >
+            <p className={cn("text-base font-semibold text-text-inverted sm:text-lg")}>
               {tile.title}
             </p>
-            <p
-              className={cn(
-                "line-clamp-3 text-xs/relaxed text-text-inverted/80 sm:line-clamp-4",
-              )}
-            >
+            <p className={cn("line-clamp-3 text-xs/relaxed text-text-inverted/80 sm:line-clamp-4")}>
               {tile.body}
             </p>
           </div>
@@ -113,25 +85,13 @@ function renderTile(tile: LoginSpotlightTile) {
 
   return (
     <MosaicCardShell key={tile.id} className={cn(outer, "min-h-0")}>
-      <div
-        className={cn(
-          "grid min-h-0 flex-1 grid-rows-[auto_minmax(0,1fr)_auto] gap-3 sm:gap-4",
-        )}
-      >
+      <div className={cn("grid min-h-0 flex-1 grid-rows-[auto_minmax(0,1fr)_auto] gap-3 sm:gap-4")}>
         <div className={cn("flex min-h-0 min-w-0 flex-col items-start gap-2")}>
           <LoginSpotlightGlyph icon={tile.icon} />
-          <p
-            className={cn(
-              "text-sm font-semibold tracking-tight text-text-inverted",
-            )}
-          >
+          <p className={cn("text-sm font-semibold tracking-tight text-text-inverted")}>
             {tile.title}
           </p>
-          <p
-            className={cn(
-              "line-clamp-2 text-xs text-text-inverted/75 sm:line-clamp-3",
-            )}
-          >
+          <p className={cn("line-clamp-2 text-xs text-text-inverted/75 sm:line-clamp-3")}>
             {tile.body}
           </p>
         </div>
@@ -143,9 +103,7 @@ function renderTile(tile: LoginSpotlightTile) {
           )}
         />
         {tile.imageCaption ? (
-          <p className={cn("text-[0.6875rem] text-text-inverted/70")}>
-            {tile.imageCaption}
-          </p>
+          <p className={cn("text-[0.6875rem] text-text-inverted/70")}>{tile.imageCaption}</p>
         ) : null}
       </div>
     </MosaicCardShell>

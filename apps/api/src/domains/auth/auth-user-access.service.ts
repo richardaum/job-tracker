@@ -17,10 +17,7 @@ export class AuthUserAccessService {
     tokenVersion: number,
     allowedRoles?: RoleEnum[],
   ): Promise<User> {
-    const user = await this.userService.validateActiveUser(
-      userId,
-      tokenVersion,
-    );
+    const user = await this.userService.validateActiveUser(userId, tokenVersion);
     if (allowedRoles && !this.roleService.isAllowed(user.role, allowedRoles)) {
       throw new ForbiddenException();
     }

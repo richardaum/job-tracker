@@ -101,9 +101,7 @@ describe("DraftExtractionNormalizationService", () => {
 
       expect(result.title).toBe("Senior Engineer");
       expect(result.company).toBe("Acme Inc");
-      expect(result.description).toEqual(
-        expect.stringContaining('"type":"doc"'),
-      );
+      expect(result.description).toEqual(expect.stringContaining('"type":"doc"'));
       expect(result.salary.minCents).toBe(12_000_000);
       expect(result.salary.maxCents).toBe(15_000_000);
       expect(result.salary.currency).toBe("USD");
@@ -151,31 +149,21 @@ describe("DraftExtractionNormalizationService", () => {
     });
 
     it("returns null description for blank or null string inputs", () => {
-      expect(
-        service.normalizeExtraction({ title: "T", description: "  " })
-          .description,
-      ).toBeNull();
-      expect(
-        service.normalizeExtraction({ title: "T", description: null })
-          .description,
-      ).toBeNull();
+      expect(service.normalizeExtraction({ title: "T", description: "  " }).description).toBeNull();
+      expect(service.normalizeExtraction({ title: "T", description: null }).description).toBeNull();
     });
 
     it("returns null description when description field is non-string JSON value", () => {
       expect(
-        service.normalizeExtraction({ title: "T", description: 42 } as Record<
-          string,
-          unknown
-        >).description,
+        service.normalizeExtraction({ title: "T", description: 42 } as Record<string, unknown>)
+          .description,
       ).toBeNull();
     });
 
     it("normalizes description that is already TipTap JSON", () => {
       const doc = {
         type: "doc",
-        content: [
-          { type: "paragraph", content: [{ type: "text", text: "Hello " }] },
-        ],
+        content: [{ type: "paragraph", content: [{ type: "text", text: "Hello " }] }],
       };
       const result = service.normalizeExtraction({
         title: "T",

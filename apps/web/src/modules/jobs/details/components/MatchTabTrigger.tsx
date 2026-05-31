@@ -33,26 +33,16 @@ function MatchTabLabel({
   );
 }
 
-export function MatchTabTrigger({
-  tab,
-  href,
-  label = "Match",
-}: MatchTabTriggerProps) {
+export function MatchTabTrigger({ tab, href, label = "Match" }: MatchTabTriggerProps) {
   const { status, error } = useJobMatchStatus();
-  const tooltipContent = status
-    ? getMatchStatusTooltipContent(status, error)
-    : "";
+  const tooltipContent = status ? getMatchStatusTooltipContent(status, error) : "";
 
   return (
     <TabsTrigger value={tab} asChild>
       <NextLink href={href}>
         {status ? (
           <Tooltip content={tooltipContent} side="bottom">
-            <span
-              className={cn(
-                "-mx-3 inline-flex min-h-8 items-center gap-1.5 px-3",
-              )}
-            >
+            <span className={cn("-mx-3 inline-flex min-h-8 items-center gap-1.5 px-3")}>
               <MatchTabLabel label={label} status={status} />
             </span>
           </Tooltip>

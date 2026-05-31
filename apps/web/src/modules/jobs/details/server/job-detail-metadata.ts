@@ -24,10 +24,7 @@ async function getJobMeta(id: string) {
   return data.job ?? null;
 }
 
-export async function generateJobDetailMetadata(
-  id: string,
-  tabSuffix?: string,
-): Promise<Metadata> {
+export async function generateJobDetailMetadata(id: string, tabSuffix?: string): Promise<Metadata> {
   const meta = await getJobMeta(id);
   const title = formatJobPageTabTitle(meta?.title, meta?.company?.name, {
     tabLabel: tabSuffix,

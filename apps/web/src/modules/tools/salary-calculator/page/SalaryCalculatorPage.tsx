@@ -55,8 +55,7 @@ function formatStaleTime(lastUpdated: Date | null): string {
 
 export function SalaryCalculatorPage() {
   const [inputValue, setInputValue] = useState("8000");
-  const [sourcePeriod, setSourcePeriod] =
-    useState<SalaryRatePeriodBasis>("monthly");
+  const [sourcePeriod, setSourcePeriod] = useState<SalaryRatePeriodBasis>("monthly");
   const [sourceCurrency, setSourceCurrency] = useState<Currency>("USD");
 
   const numericValue = parseFloat(inputValue) || 0;
@@ -71,8 +70,7 @@ export function SalaryCalculatorPage() {
   };
 
   const targetCurrencies = CURRENCIES.filter(
-    (currency): currency is (typeof CURRENCIES)[number] =>
-      currency !== sourceCurrency,
+    (currency): currency is (typeof CURRENCIES)[number] => currency !== sourceCurrency,
   );
 
   const { rates, loading, error, lastUpdated, fetchRates } = useExchangeRates(
@@ -98,8 +96,8 @@ export function SalaryCalculatorPage() {
         </div>
 
         <Text color="muted">
-          Convert between hourly, monthly, and yearly rates. View equivalent
-          values across USD, EUR, BRL, GBP, and CHF.
+          Convert between hourly, monthly, and yearly rates. View equivalent values across USD, EUR,
+          BRL, GBP, and CHF.
         </Text>
 
         <Card padding="lg">
@@ -108,11 +106,7 @@ export function SalaryCalculatorPage() {
               Enter Rate
             </Heading>
 
-            <div
-              className={cn(
-                "grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3",
-              )}
-            >
+            <div className={cn("grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3")}>
               <div>
                 <Text size="sm" weight="medium" className={cn("mb-1.5 block")}>
                   Amount
@@ -139,9 +133,7 @@ export function SalaryCalculatorPage() {
                 <Select
                   options={RATE_PERIOD_OPTIONS}
                   value={sourcePeriod}
-                  onValueChange={(value) =>
-                    setSourcePeriod(value as SalaryRatePeriodBasis)
-                  }
+                  onValueChange={(value) => setSourcePeriod(value as SalaryRatePeriodBasis)}
                 />
               </div>
 
@@ -152,9 +144,7 @@ export function SalaryCalculatorPage() {
                 <Select
                   options={CURRENCY_OPTIONS}
                   value={sourceCurrency}
-                  onValueChange={(value) =>
-                    setSourceCurrency(value as Currency)
-                  }
+                  onValueChange={(value) => setSourceCurrency(value as Currency)}
                 />
               </div>
             </div>
@@ -200,10 +190,7 @@ export function SalaryCalculatorPage() {
                   onClick={fetchRates}
                   state={loading ? "loading" : "default"}
                   leftIcon={
-                    <ArrowsClockwiseIcon
-                      size={14}
-                      className={cn(loading ? "animate-spin" : "")}
-                    />
+                    <ArrowsClockwiseIcon size={14} className={cn(loading ? "animate-spin" : "")} />
                   }
                   className={cn("px-2")}
                 >
@@ -234,9 +221,7 @@ export function SalaryCalculatorPage() {
                     padding="md"
                     onClick={() => handleCardClick(period)}
                     className={cn(
-                      period === sourcePeriod
-                        ? "border-border-brand"
-                        : "border-border-subtle",
+                      period === sourcePeriod ? "border-border-brand" : "border-border-subtle",
                     )}
                   >
                     <Stack gap="sm">
@@ -245,9 +230,7 @@ export function SalaryCalculatorPage() {
                         weight="semibold"
                         className={cn(
                           "uppercase tracking-wide",
-                          period === sourcePeriod
-                            ? "text-text-brand"
-                            : "text-text-muted",
+                          period === sourcePeriod ? "text-text-brand" : "text-text-muted",
                         )}
                       >
                         {SALARY_RATE_PERIOD_LABELS[period]}
@@ -261,9 +244,7 @@ export function SalaryCalculatorPage() {
                             key={currency}
                             className={cn(
                               "flex items-baseline justify-between",
-                              currency === sourceCurrency
-                                ? "font-semibold"
-                                : "text-text-secondary",
+                              currency === sourceCurrency ? "font-semibold" : "text-text-secondary",
                             )}
                           >
                             <span className={cn("text-sm")}>
@@ -319,11 +300,7 @@ function buildConversions({
   };
 
   for (const period of SALARY_RATE_PERIOD_BASES) {
-    const baseValue = convertSalaryRateBetweenPeriods(
-      numericValue,
-      sourcePeriod,
-      period,
-    );
+    const baseValue = convertSalaryRateBetweenPeriods(numericValue, sourcePeriod, period);
     results[period][sourceCurrency] = baseValue;
 
     if (!rates) continue;

@@ -70,8 +70,7 @@ export function useMenuAnchoredCombobox() {
       },
       onPointerDownOutside: (ev: OutsideEvent) => {
         const target = ev.detail.originalEvent.target;
-        if (target instanceof Node && inputRoot.current?.contains(target))
-          return;
+        if (target instanceof Node && inputRoot.current?.contains(target)) return;
         skipClose.current = true;
       },
       onFocusOutside: (ev: OutsideEvent) => {
@@ -91,9 +90,7 @@ export function useMenuAnchoredCombobox() {
       open,
       menuOpen,
       setOpen,
-    }: AnchoredComboInputKeyDownOpts): ((
-      e: KeyboardEvent<HTMLInputElement>,
-    ) => void) => {
+    }: AnchoredComboInputKeyDownOpts): ((e: KeyboardEvent<HTMLInputElement>) => void) => {
       return (e) => {
         if (disabled || !hasItems) return;
         if (e.key === "ArrowDown") {

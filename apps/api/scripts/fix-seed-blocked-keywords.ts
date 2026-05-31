@@ -33,9 +33,7 @@ function readLegacyKeywords(dbPath: string): LegacyKeyword[] {
     allowExtension: false,
   });
   try {
-    const stmt = db.prepare(
-      "SELECT keyword, type FROM forbidden_keywords ORDER BY id",
-    );
+    const stmt = db.prepare("SELECT keyword, type FROM forbidden_keywords ORDER BY id");
     const rows = stmt.all() as { keyword: string; type: string }[];
     return rows;
   } finally {
@@ -72,9 +70,7 @@ async function main() {
 
   process.stdout.write("Connecting to legacy SQLite database...\n");
   if (!existsSync(LEGACY_DB_PATH)) {
-    console.error(
-      `ERROR: Legacy SQLite database not found at ${LEGACY_DB_PATH}`,
-    );
+    console.error(`ERROR: Legacy SQLite database not found at ${LEGACY_DB_PATH}`);
     process.exit(1);
   }
   const legacyKeywords = readLegacyKeywords(LEGACY_DB_PATH);
@@ -134,9 +130,7 @@ async function main() {
       }
 
       const existingSet = new Set(
-        (settings.blockedKeywords ?? []).map(
-          (bk) => `${bk.keyword}|${bk.scope}|${bk.matchMode}`,
-        ),
+        (settings.blockedKeywords ?? []).map((bk) => `${bk.keyword}|${bk.scope}|${bk.matchMode}`),
       );
       const newOnes = mappedKeywords.filter(
         (bk) => !existingSet.has(`${bk.keyword}|${bk.scope}|${bk.matchMode}`),
@@ -147,10 +141,7 @@ async function main() {
           `  All ${mappedKeywords.length} keyword(s) already exist. Nothing to add.\n`,
         );
       } else {
-        settings.blockedKeywords = [
-          ...(settings.blockedKeywords ?? []),
-          ...newOnes,
-        ];
+        settings.blockedKeywords = [...(settings.blockedKeywords ?? []), ...newOnes];
         const [err] = await tryRun(repo.save(settings));
         if (err) {
           console.error(`  ❌ Failed to save settings: ${err.message}`);

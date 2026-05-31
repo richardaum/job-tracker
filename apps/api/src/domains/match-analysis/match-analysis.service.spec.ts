@@ -10,10 +10,7 @@ import { BadRequestException, Logger } from "@nestjs/common";
 import type { Repository } from "typeorm";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import {
-  MatchAnalysisRequested,
-  MatchStatusChanged,
-} from "./match-analysis.events";
+import { MatchAnalysisRequested, MatchStatusChanged } from "./match-analysis.events";
 import { MatchAnalysisRepository } from "./match-analysis.repository";
 import { MatchAnalysisService } from "./match-analysis.service";
 import type { ResumeMatchItemParsed } from "./match-analysis-ai.schema";
@@ -33,16 +30,12 @@ describe("MatchAnalysisService", () => {
 
   const resumeTiTap = JSON.stringify({
     type: "doc",
-    content: [
-      { type: "paragraph", content: [{ type: "text", text: "Resume line" }] },
-    ],
+    content: [{ type: "paragraph", content: [{ type: "text", text: "Resume line" }] }],
   });
 
   const jobDescription = JSON.stringify({
     type: "doc",
-    content: [
-      { type: "paragraph", content: [{ type: "text", text: "Need Rust" }] },
-    ],
+    content: [{ type: "paragraph", content: [{ type: "text", text: "Need Rust" }] }],
   });
 
   beforeEach(() => {
@@ -83,9 +76,7 @@ describe("MatchAnalysisService", () => {
 
   it("onModuleInit resets stale processing records", async () => {
     vi.mocked(repo.resetStaleProcessing).mockResolvedValue(3);
-    const loggerWarnSpy = vi
-      .spyOn(Logger.prototype, "warn")
-      .mockImplementation(() => {});
+    const loggerWarnSpy = vi.spyOn(Logger.prototype, "warn").mockImplementation(() => {});
 
     try {
       await service.onModuleInit();
@@ -106,9 +97,7 @@ describe("MatchAnalysisService", () => {
       htmlContent: "",
     } as never);
 
-    await expect(service.generate("job-1", "res-1", "user-1")).rejects.toThrow(
-      BadRequestException,
-    );
+    await expect(service.generate("job-1", "res-1", "user-1")).rejects.toThrow(BadRequestException);
     await expect(service.generate("job-1", "res-1", "user-1")).rejects.toThrow(
       "Job has no description or htmlContent",
     );
@@ -136,9 +125,7 @@ describe("MatchAnalysisService", () => {
 
     await service.generate("job-1", "res-1", "user-1");
 
-    expect(repo.upsert).toHaveBeenCalledWith(
-      expect.objectContaining({ jobId: "job-1" }),
-    );
+    expect(repo.upsert).toHaveBeenCalledWith(expect.objectContaining({ jobId: "job-1" }));
   });
 
   it("generate rejects missing resume lookups", async () => {
@@ -149,17 +136,13 @@ describe("MatchAnalysisService", () => {
 
     vi.mocked(resumeRepo.findOne).mockResolvedValue(null);
 
-    await expect(service.generate("job-1", "res-z", "user-1")).rejects.toThrow(
-      "Resume not found",
-    );
+    await expect(service.generate("job-1", "res-z", "user-1")).rejects.toThrow("Resume not found");
   });
 
   it("generate rejects missing job lookups", async () => {
     vi.mocked(jobRepo.findOneByIdAndUserId).mockResolvedValue(null);
 
-    await expect(service.generate("job-z", "res-1", "user-1")).rejects.toThrow(
-      "Job not found",
-    );
+    await expect(service.generate("job-z", "res-1", "user-1")).rejects.toThrow("Job not found");
   });
 
   it("generate upserts match and emits PROCESSING lifecycle", async () => {
@@ -218,9 +201,7 @@ describe("MatchAnalysisService", () => {
       content: resumeTiTap,
     } as ResumeEntity);
 
-    vi.mocked(aiService.extractResumeMatchItems).mockResolvedValue([
-      makeResumeParsed("Rust"),
-    ]);
+    vi.mocked(aiService.extractResumeMatchItems).mockResolvedValue([makeResumeParsed("Rust")]);
 
     vi.mocked(repo.updateById).mockResolvedValue(
       Object.assign(new MatchAnalysisEntity(), { id: "m1" }),
@@ -229,9 +210,7 @@ describe("MatchAnalysisService", () => {
     await service.processMatchAnalysis("m1", "user-1", { jobId: "job-1" });
 
     expect(aiService.extractResumeMatchItems).toHaveBeenCalled();
-    expect(
-      vi.mocked(aiService.extractResumeMatchItems).mock.calls[0][0],
-    ).toContain("Need Rust");
+    expect(vi.mocked(aiService.extractResumeMatchItems).mock.calls[0][0]).toContain("Need Rust");
     expect(repo.updateById).toHaveBeenCalledWith(
       "m1",
       AsyncMetadataStatusEnum.PROCESSING,
@@ -276,9 +255,7 @@ describe("MatchAnalysisService", () => {
       content: resumeTiTap,
     } as ResumeEntity);
 
-    vi.mocked(aiService.extractResumeMatchItems).mockResolvedValue([
-      makeResumeParsed("World"),
-    ]);
+    vi.mocked(aiService.extractResumeMatchItems).mockResolvedValue([makeResumeParsed("World")]);
     vi.mocked(repo.updateById).mockResolvedValue(
       Object.assign(new MatchAnalysisEntity(), { id: "m1" }),
     );
@@ -286,14 +263,9 @@ describe("MatchAnalysisService", () => {
     await service.processMatchAnalysis("m1", "user-1", { jobId: "job-html" });
 
     expect(aiService.extractResumeMatchItems).toHaveBeenCalled();
-    expect(
-      vi.mocked(aiService.extractResumeMatchItems).mock.calls[0][0],
-    ).toContain("Hello World");
+    expect(vi.mocked(aiService.extractResumeMatchItems).mock.calls[0][0]).toContain("Hello World");
 
-    expect(aiService.extractPreferenceMatchItems).toHaveBeenCalledWith(
-      expect.any(String),
-      [],
-    );
+    expect(aiService.extractPreferenceMatchItems).toHaveBeenCalledWith(expect.any(String), []);
     expect(hasCompletedLifecycleEmit(eventEmit)).toBe(true);
   });
 
@@ -319,22 +291,16 @@ describe("MatchAnalysisService", () => {
       content: resumeTiTap,
     } as ResumeEntity);
 
-    vi.mocked(aiService.extractResumeMatchItems).mockResolvedValue([
-      makeResumeParsed("Rust"),
-    ]);
+    vi.mocked(aiService.extractResumeMatchItems).mockResolvedValue([makeResumeParsed("Rust")]);
     vi.mocked(repo.updateById).mockResolvedValue(null);
 
-    const warnSpy = vi
-      .spyOn(Logger.prototype, "warn")
-      .mockImplementation(() => {});
+    const warnSpy = vi.spyOn(Logger.prototype, "warn").mockImplementation(() => {});
 
     try {
       await service.processMatchAnalysis("m1", "user-1", { jobId: "job-1" });
 
       expect(hasCompletedLifecycleEmit(eventEmit)).toBe(false);
-      expect(warnSpy).toHaveBeenCalledWith(
-        expect.stringContaining("was already updated or reset"),
-      );
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("was already updated or reset"));
     } finally {
       warnSpy.mockRestore();
     }
@@ -381,9 +347,7 @@ describe("MatchAnalysisService", () => {
     } as never);
     vi.mocked(repo.updateById).mockResolvedValue(null);
 
-    const warnSpy = vi
-      .spyOn(Logger.prototype, "warn")
-      .mockImplementation(() => {});
+    const warnSpy = vi.spyOn(Logger.prototype, "warn").mockImplementation(() => {});
 
     try {
       await service.processMatchAnalysis("m1", "user-1", {
@@ -393,9 +357,7 @@ describe("MatchAnalysisService", () => {
       expect(hasFailedLifecycleEmit(eventEmit)).toBe(false);
       expect(repo.updateById).toHaveBeenCalled();
       expect(warnSpy).toHaveBeenCalledWith(
-        expect.stringContaining(
-          "was not in PROCESSING state; skipping FAILED lifecycle event",
-        ),
+        expect.stringContaining("was not in PROCESSING state; skipping FAILED lifecycle event"),
       );
     } finally {
       warnSpy.mockRestore();
@@ -519,9 +481,7 @@ describe("MatchAnalysisService", () => {
       content: resumeTiTap,
     } as ResumeEntity);
 
-    vi.mocked(aiService.extractResumeMatchItems).mockRejectedValue(
-      new Error("LLM outage"),
-    );
+    vi.mocked(aiService.extractResumeMatchItems).mockRejectedValue(new Error("LLM outage"));
     vi.mocked(repo.updateById).mockResolvedValue(
       Object.assign(new MatchAnalysisEntity(), { id: "m1" }),
     );
@@ -561,23 +521,17 @@ describe("MatchAnalysisService", () => {
       content: resumeTiTap,
     } as ResumeEntity);
 
-    vi.mocked(aiService.extractResumeMatchItems).mockRejectedValue(
-      new Error("LLM outage"),
-    );
+    vi.mocked(aiService.extractResumeMatchItems).mockRejectedValue(new Error("LLM outage"));
     vi.mocked(repo.updateById).mockResolvedValue(null);
 
-    const warnSpy = vi
-      .spyOn(Logger.prototype, "warn")
-      .mockImplementation(() => {});
+    const warnSpy = vi.spyOn(Logger.prototype, "warn").mockImplementation(() => {});
 
     try {
       await service.processMatchAnalysis("m1", "user-1", { jobId: "job-1" });
 
       expect(hasFailedLifecycleEmit(eventEmit)).toBe(false);
       expect(warnSpy).toHaveBeenCalledWith(
-        expect.stringContaining(
-          "was not in PROCESSING state; skipping FAILED lifecycle event",
-        ),
+        expect.stringContaining("was not in PROCESSING state; skipping FAILED lifecycle event"),
       );
     } finally {
       warnSpy.mockRestore();
@@ -599,24 +553,20 @@ describe("MatchAnalysisService", () => {
 function hasFailedLifecycleEmit(spy: ReturnType<typeof vi.fn>): boolean {
   return spy.mock.calls.some(
     (args) =>
-      args[0] instanceof MatchStatusChanged &&
-      args[0].status === AsyncMetadataStatusEnum.FAILED,
+      args[0] instanceof MatchStatusChanged && args[0].status === AsyncMetadataStatusEnum.FAILED,
   );
 }
 
 function hasCompletedLifecycleEmit(spy: ReturnType<typeof vi.fn>): boolean {
   return spy.mock.calls.some(
     (args) =>
-      args[0] instanceof MatchStatusChanged &&
-      args[0].status === AsyncMetadataStatusEnum.COMPLETED,
+      args[0] instanceof MatchStatusChanged && args[0].status === AsyncMetadataStatusEnum.COMPLETED,
   );
 }
 
 type MatchRequestedSource = { jobId: string };
 
-function matchSourcesFromEmit(
-  spy: ReturnType<typeof vi.fn>,
-): MatchRequestedSource[] {
+function matchSourcesFromEmit(spy: ReturnType<typeof vi.fn>): MatchRequestedSource[] {
   const out: MatchRequestedSource[] = [];
   for (const args of spy.mock.calls) {
     const ev = args[0];

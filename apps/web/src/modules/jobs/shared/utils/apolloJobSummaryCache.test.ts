@@ -23,11 +23,7 @@ describe("writeJobSummaryStatusToCache", () => {
       data: { __typename: "JobType", id: "job-1", summaryMetadata: null },
     });
 
-    const updated = writeJobSummaryStatusToCache(
-      cache,
-      "job-1",
-      AsyncMetadataStatus.Processing,
-    );
+    const updated = writeJobSummaryStatusToCache(cache, "job-1", AsyncMetadataStatus.Processing);
 
     expect(updated).toBe(true);
     expect(
@@ -52,11 +48,7 @@ describe("writeJobSummaryStatusToCache", () => {
     });
 
     expect(
-      writeJobSummaryStatusToCache(
-        client.cache,
-        "missing",
-        AsyncMetadataStatus.Processing,
-      ),
+      writeJobSummaryStatusToCache(client.cache, "missing", AsyncMetadataStatus.Processing),
     ).toBe(false);
   });
 });

@@ -14,12 +14,9 @@ export interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
  */
 const intentClasses: Record<BadgeIntent, string> = {
   default: "border-border-default bg-bg-field text-text-secondary",
-  success:
-    "border-transparent bg-bg-success-subtle text-[color:var(--primitive-color-green-700)]",
-  warning:
-    "border-transparent bg-bg-warning-subtle text-[color:var(--primitive-color-yellow-950)]",
-  error:
-    "border-transparent bg-bg-error-subtle text-[color:var(--primitive-color-red-700)]",
+  success: "border-transparent bg-bg-success-subtle text-[color:var(--primitive-color-green-700)]",
+  warning: "border-transparent bg-bg-warning-subtle text-[color:var(--primitive-color-yellow-950)]",
+  error: "border-transparent bg-bg-error-subtle text-[color:var(--primitive-color-red-700)]",
   info: "border-transparent bg-bg-info-subtle text-text-primary",
 };
 

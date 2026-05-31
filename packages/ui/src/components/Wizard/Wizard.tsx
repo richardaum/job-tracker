@@ -31,20 +31,11 @@ export interface WizardProps {
   className?: string;
 }
 
-export function Wizard({
-  steps,
-  currentStep,
-  onStepChange,
-  children,
-  className,
-}: WizardProps) {
+export function Wizard({ steps, currentStep, onStepChange, children, className }: WizardProps) {
   return (
     <WizardContext.Provider value={{ steps, currentStep, onStepChange }}>
       <div
-        className={cn(
-          "grid grid-cols-1 gap-5 md:grid-cols-[minmax(160px,20vw)_1fr]",
-          className,
-        )}
+        className={cn("grid grid-cols-1 gap-5 md:grid-cols-[minmax(160px,20vw)_1fr]", className)}
       >
         {children}
       </div>
@@ -76,13 +67,9 @@ export function WizardSidebar({ className }: WizardSidebarProps) {
                   : "border-border-subtle bg-bg-surface hover:bg-bg-surface-hover",
               )}
             >
-              <div className={cn("text-sm font-medium text-text-primary")}>
-                {step.title}
-              </div>
+              <div className={cn("text-sm font-medium text-text-primary")}>{step.title}</div>
               {step.description ? (
-                <div className={cn("mt-0.5 text-xs text-text-secondary")}>
-                  {step.description}
-                </div>
+                <div className={cn("mt-0.5 text-xs text-text-secondary")}>{step.description}</div>
               ) : null}
             </button>
           );

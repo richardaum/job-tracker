@@ -57,10 +57,7 @@ export function useExtensionEventsViewModel() {
         sourceRunsQuery.data?.sourceRuns ?? [],
         activityQuery.data?.extensionActivityEvents ?? [],
       ),
-    [
-      sourceRunsQuery.data?.sourceRuns,
-      activityQuery.data?.extensionActivityEvents,
-    ],
+    [sourceRunsQuery.data?.sourceRuns, activityQuery.data?.extensionActivityEvents],
   );
 
   const inFlightCount = countInFlightAdminEvents(events);

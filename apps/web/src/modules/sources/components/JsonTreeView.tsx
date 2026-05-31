@@ -20,9 +20,7 @@ function ValueDisplay({ value }: { value: unknown }) {
 }
 
 function CollapseIcon({ expanded }: { expanded: boolean }) {
-  return (
-    <span className={cn("w-3 shrink-0 text-xs")}>{expanded ? "▼" : "▶"}</span>
-  );
+  return <span className={cn("w-3 shrink-0 text-xs")}>{expanded ? "▼" : "▶"}</span>;
 }
 
 function ObjectView({
@@ -43,16 +41,10 @@ function ObjectView({
       <button
         type="button"
         onClick={() => setExpanded(!expanded)}
-        className={cn(
-          "flex cursor-pointer items-center gap-1 text-left hover:opacity-75",
-        )}
+        className={cn("flex cursor-pointer items-center gap-1 text-left hover:opacity-75")}
       >
         <CollapseIcon expanded={expanded} />
-        {label ? (
-          <span className={cn("font-medium text-text-secondary")}>
-            {label}:{" "}
-          </span>
-        ) : null}
+        {label ? <span className={cn("font-medium text-text-secondary")}>{label}: </span> : null}
         <span className={cn("text-text-disabled text-xs")}>
           {"{"}
           {count} {count === 1 ? "key" : "keys"}
@@ -63,11 +55,7 @@ function ObjectView({
         <div className={cn("border-l border-border-subtle pl-3 ml-1")}>
           {entries.map(([key, value]) => (
             <div key={key} className={cn("py-0.5")}>
-              <TreeNodeDisplay
-                label={key}
-                value={value}
-                defaultExpanded={defaultExpanded}
-              />
+              <TreeNodeDisplay label={key} value={value} defaultExpanded={defaultExpanded} />
             </div>
           ))}
         </div>
@@ -93,16 +81,10 @@ function ArrayView({
       <button
         type="button"
         onClick={() => setExpanded(!expanded)}
-        className={cn(
-          "flex cursor-pointer items-center gap-1 text-left hover:opacity-75",
-        )}
+        className={cn("flex cursor-pointer items-center gap-1 text-left hover:opacity-75")}
       >
         <CollapseIcon expanded={expanded} />
-        {label ? (
-          <span className={cn("font-medium text-text-secondary")}>
-            {label}:{" "}
-          </span>
-        ) : null}
+        {label ? <span className={cn("font-medium text-text-secondary")}>{label}: </span> : null}
         <span className={cn("text-text-disabled text-xs")}>
           {"["}
           {count} {count === 1 ? "item" : "items"}
@@ -149,9 +131,7 @@ function TreeNodeDisplay({
   }
 
   if (Array.isArray(value)) {
-    return (
-      <ArrayView data={value} label={label} defaultExpanded={defaultExpanded} />
-    );
+    return <ArrayView data={value} label={label} defaultExpanded={defaultExpanded} />;
   }
 
   if (compact) {

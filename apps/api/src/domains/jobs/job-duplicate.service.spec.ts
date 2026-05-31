@@ -10,10 +10,7 @@ import { ApplicationStageEnum } from "./job-stage.enum";
 describe("JobDuplicateService", () => {
   let jobsRepo: Pick<Repository<JobEntity>, "createQueryBuilder">;
   let settingsService: Pick<SettingsService, "getSettings">;
-  let companyRepo: Pick<
-    CompanyRepository,
-    "findOneByNameInsensitiveTrimmed"
-  >;
+  let companyRepo: Pick<CompanyRepository, "findOneByNameInsensitiveTrimmed">;
   let service: JobDuplicateService;
 
   beforeEach(() => {
@@ -21,9 +18,7 @@ describe("JobDuplicateService", () => {
     settingsService = {
       getSettings: vi.fn().mockResolvedValue({ duplicateWindowDays: 30 }),
     };
-    companyRepo = {
-      findOneByNameInsensitiveTrimmed: vi.fn(),
-    };
+    companyRepo = { findOneByNameInsensitiveTrimmed: vi.fn() };
     service = new JobDuplicateService(
       jobsRepo as Repository<JobEntity>,
       settingsService as SettingsService,
@@ -131,43 +126,29 @@ describe("JobDuplicateService", () => {
 
   describe("checkDuplicate", () => {
     it("returns false when company cannot be resolved", async () => {
-      vi.mocked(
-        companyRepo.findOneByNameInsensitiveTrimmed,
-      ).mockResolvedValue(null);
+      vi.mocked(companyRepo.findOneByNameInsensitiveTrimmed).mockResolvedValue(null);
 
-      const result = await service.checkDuplicate(
-        "Unknown Corp",
-        "Engineer",
-        "user-1",
-      );
+      const result = await service.checkDuplicate("Unknown Corp", "Engineer", "user-1");
 
       expect(result).toBe(false);
     });
 
     it("returns false when title is empty", async () => {
-      const result = await service.checkDuplicate(
-        "Acme",
-        "   ",
-        "user-1",
-      );
+      const result = await service.checkDuplicate("Acme", "   ", "user-1");
 
       expect(result).toBe(false);
     });
 
     it("returns false when company name is empty", async () => {
-      const result = await service.checkDuplicate(
-        "   ",
-        "Engineer",
-        "user-1",
-      );
+      const result = await service.checkDuplicate("   ", "Engineer", "user-1");
 
       expect(result).toBe(false);
     });
 
     it("returns true when a matching job exists within the duplicate window", async () => {
-      vi.mocked(
-        companyRepo.findOneByNameInsensitiveTrimmed,
-      ).mockResolvedValue({ id: "company-1" } as never);
+      vi.mocked(companyRepo.findOneByNameInsensitiveTrimmed).mockResolvedValue({
+        id: "company-1",
+      } as never);
       vi.mocked(settingsService.getSettings).mockResolvedValue({
         duplicateWindowDays: 30,
       } as Awaited<ReturnType<SettingsService["getSettings"]>>);
@@ -179,19 +160,15 @@ describe("JobDuplicateService", () => {
       };
       vi.mocked(jobsRepo.createQueryBuilder).mockReturnValue(qb as never);
 
-      const result = await service.checkDuplicate(
-        "Acme",
-        "Engineer",
-        "user-1",
-      );
+      const result = await service.checkDuplicate("Acme", "Engineer", "user-1");
 
       expect(result).toBe(true);
     });
 
     it("returns false when no matching job exists within the duplicate window", async () => {
-      vi.mocked(
-        companyRepo.findOneByNameInsensitiveTrimmed,
-      ).mockResolvedValue({ id: "company-1" } as never);
+      vi.mocked(companyRepo.findOneByNameInsensitiveTrimmed).mockResolvedValue({
+        id: "company-1",
+      } as never);
       vi.mocked(settingsService.getSettings).mockResolvedValue({
         duplicateWindowDays: 30,
       } as Awaited<ReturnType<SettingsService["getSettings"]>>);
@@ -203,11 +180,7 @@ describe("JobDuplicateService", () => {
       };
       vi.mocked(jobsRepo.createQueryBuilder).mockReturnValue(qb as never);
 
-      const result = await service.checkDuplicate(
-        "Acme",
-        "Engineer",
-        "user-1",
-      );
+      const result = await service.checkDuplicate("Acme", "Engineer", "user-1");
 
       expect(result).toBe(false);
     });

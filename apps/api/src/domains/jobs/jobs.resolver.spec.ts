@@ -8,24 +8,12 @@ import { graphqlFormatError } from "@api/graphql/graphql-format-error";
 import type { ApolloDriverConfig } from "@nestjs/apollo";
 import { ApolloDriver } from "@nestjs/apollo";
 import type { ExecutionContext, INestApplication } from "@nestjs/common";
-import {
-  ForbiddenException,
-  NotFoundException,
-  UnauthorizedException,
-} from "@nestjs/common";
+import { ForbiddenException, NotFoundException, UnauthorizedException } from "@nestjs/common";
 import { GraphQLModule } from "@nestjs/graphql";
 import { GqlExecutionContext } from "@nestjs/graphql";
 import { Test } from "@nestjs/testing";
 import request from "supertest";
-import {
-  afterAll,
-  beforeAll,
-  beforeEach,
-  describe,
-  expect,
-  it,
-  vi,
-} from "vitest";
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { JobAutomaticFillService } from "./job-automatic-fill.service";
 import { JobDuplicateService } from "./job-duplicate.service";
@@ -93,14 +81,10 @@ describe("JobsResolver (integration)", () => {
     };
 
     fillService = {
-      fillJobAutomatically: vi
-        .fn()
-        .mockResolvedValue(mockJobWithFillProcessing),
+      fillJobAutomatically: vi.fn().mockResolvedValue(mockJobWithFillProcessing),
     };
 
-    duplicateService = {
-      checkDuplicate: vi.fn(),
-    };
+    duplicateService = { checkDuplicate: vi.fn() };
 
     const moduleRef = await Test.createTestingModule({
       imports: [
@@ -151,9 +135,7 @@ describe("JobsResolver (integration)", () => {
     service.findAll.mockReset().mockResolvedValue([mockJob]);
     service.findOne.mockReset().mockResolvedValue(mockJob);
     service.create.mockReset().mockResolvedValue(mockJob);
-    fillService.fillJobAutomatically
-      .mockReset()
-      .mockResolvedValue(mockJobWithFillProcessing);
+    fillService.fillJobAutomatically.mockReset().mockResolvedValue(mockJobWithFillProcessing);
     service.update.mockReset().mockResolvedValue(mockJob);
     service.remove.mockReset().mockResolvedValue(mockJob);
     service.removeStageEvent.mockReset().mockResolvedValue(undefined);
@@ -164,9 +146,7 @@ describe("JobsResolver (integration)", () => {
   });
 
   function graphqlRequest() {
-    return request(app.getHttpServer())
-      .post("/graphql")
-      .set("Authorization", "Bearer mock-token");
+    return request(app.getHttpServer()).post("/graphql").set("Authorization", "Bearer mock-token");
   }
 
   it("jobs query returns list", async () => {
@@ -187,12 +167,7 @@ describe("JobsResolver (integration)", () => {
 
     expect(res.statusCode).toBe(200);
     expect(res.body.data.jobs).toHaveLength(1);
-    expect(service.findAll).toHaveBeenLastCalledWith(
-      "user-1",
-      undefined,
-      "Acme Corp",
-      undefined,
-    );
+    expect(service.findAll).toHaveBeenLastCalledWith("user-1", undefined, "Acme Corp", undefined);
   });
 
   it("job query returns one by id", async () => {
@@ -248,13 +223,8 @@ describe("JobsResolver (integration)", () => {
 
     expect(res.statusCode).toBe(200);
     expect(res.body.data.fillJobAutomatically.id).toBe("app-1");
-    expect(res.body.data.fillJobAutomatically.fillMetadata.status).toBe(
-      "PROCESSING",
-    );
-    expect(fillService.fillJobAutomatically).toHaveBeenCalledWith(
-      "user-1",
-      "app-1",
-    );
+    expect(res.body.data.fillJobAutomatically.fillMetadata.status).toBe("PROCESSING");
+    expect(fillService.fillJobAutomatically).toHaveBeenCalledWith("user-1", "app-1");
   });
 
   it("removed legacy draft-create mutation yields GraphQL validation error", async () => {
@@ -281,8 +251,7 @@ describe("JobsResolver (integration)", () => {
 
   it("generateCompanyDescription forwards user id and trimmed company name", async () => {
     const res = await graphqlRequest().send({
-      query:
-        "query ($name: String!) { generateCompanyDescription(companyName: $name) }",
+      query: "query ($name: String!) { generateCompanyDescription(companyName: $name) }",
       variables: { name: "  Acme  " },
     });
 
@@ -307,9 +276,7 @@ describe("JobsResolver (integration)", () => {
 
   it("job query maps missing entity to NOT_FOUND without leaking id", async () => {
     service.findOne.mockRejectedValueOnce(
-      new NotFoundException(
-        "Job 00000000-0000-4000-8000-000000000099 not found",
-      ),
+      new NotFoundException("Job 00000000-0000-4000-8000-000000000099 not found"),
     );
     const res = await graphqlRequest().send({
       query: `{ job(id: "missing") { id } }`,
@@ -351,8 +318,7 @@ describe("JobsResolver (integration)", () => {
 
   it("deleteJobStageEvent mutation returns payload", async () => {
     const res = await graphqlRequest().send({
-      query:
-        'mutation { deleteJobStageEvent(id: "event-1") { success deletedId } }',
+      query: 'mutation { deleteJobStageEvent(id: "event-1") { success deletedId } }',
     });
 
     expect(res.statusCode).toBe(200);
@@ -371,19 +337,14 @@ describe("JobsResolver (integration)", () => {
 
     expect(res.statusCode).toBe(200);
     expect(res.body.data.isJobDuplicate).toBe(true);
-    expect(duplicateService.checkDuplicate).toHaveBeenCalledWith(
-      "Acme",
-      "Engineer",
-      "user-1",
-    );
+    expect(duplicateService.checkDuplicate).toHaveBeenCalledWith("Acme", "Engineer", "user-1");
   });
 
   it("isJobDuplicate returns false when no duplicate exists", async () => {
     duplicateService.checkDuplicate.mockResolvedValue(false);
 
     const res = await graphqlRequest().send({
-      query:
-        'query { isJobDuplicate(company: "Unknown", title: "Nope") }',
+      query: 'query { isJobDuplicate(company: "Unknown", title: "Nope") }',
     });
 
     expect(res.statusCode).toBe(200);

@@ -45,9 +45,7 @@ export class NextButtonService {
     if (!pagination) return;
 
     // is next button visible?
-    const container = document.querySelector<HTMLDivElement>(
-      pagination.containerSelector,
-    );
+    const container = document.querySelector<HTMLDivElement>(pagination.containerSelector);
     if (!container) return;
 
     const htmlChildren = Array.from(container.children) as HTMLElement[];

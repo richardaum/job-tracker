@@ -4,10 +4,7 @@ import { cn, Tooltip } from "@job-tracker/ui";
 import type { ReactNode } from "react";
 
 import type { JobSalary } from "@/gql/graphql";
-import {
-  majorFromCents,
-  salaryPeriodToRateBasis,
-} from "@/modules/jobs/shared/utils/salaryFormat";
+import { majorFromCents, salaryPeriodToRateBasis } from "@/modules/jobs/shared/utils/salaryFormat";
 import {
   formatConvertedSalaryRangeLine,
   SALARY_RATE_PERIOD_BASES,
@@ -28,23 +25,12 @@ export function SalaryPeriodTooltip({
   const minMajor = majorFromCents(salary.minCents);
   const maxMajor = majorFromCents(salary.maxCents);
 
-  if (
-    !curr ||
-    !from ||
-    (minMajor == null && maxMajor == null) ||
-    children == null
-  ) {
+  if (!curr || !from || (minMajor == null && maxMajor == null) || children == null) {
     return children;
   }
 
   const rows = SALARY_RATE_PERIOD_BASES.flatMap((target) => {
-    const text = formatConvertedSalaryRangeLine(
-      minMajor,
-      maxMajor,
-      from,
-      target,
-      curr,
-    );
+    const text = formatConvertedSalaryRangeLine(minMajor, maxMajor, from, target, curr);
     if (!text) return [];
     return [
       {
@@ -70,11 +56,7 @@ export function SalaryPeriodTooltip({
                   : "text-white/80",
               )}
             >
-              <span
-                className={cn("mr-2 text-white/55", active && "text-white/80")}
-              >
-                {label}
-              </span>
+              <span className={cn("mr-2 text-white/55", active && "text-white/80")}>{label}</span>
               {text}
             </div>
           ))}

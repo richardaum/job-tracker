@@ -4,10 +4,7 @@ import { useSearchParams } from "next/navigation";
 import { useMemo } from "react";
 
 import { useJobsQuery } from "@/gql/hooks";
-import {
-  useCompanyFilter,
-  useQuickFilter,
-} from "@/modules/jobs/list/hooks/useQuickFilter";
+import { useCompanyFilter, useQuickFilter } from "@/modules/jobs/list/hooks/useQuickFilter";
 
 export function useJobsListViewModel() {
   const searchParams = useSearchParams();

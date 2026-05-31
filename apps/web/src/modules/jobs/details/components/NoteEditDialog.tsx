@@ -22,11 +22,7 @@ interface NoteEditDialogProps {
   updatingNote: boolean;
   deletingNote: boolean;
   onClose: () => void;
-  onSave: (payload: {
-    noteId: string;
-    content: string;
-    expectedRevision: number;
-  }) => Promise<void>;
+  onSave: (payload: { noteId: string; content: string; expectedRevision: number }) => Promise<void>;
 }
 
 export function NoteEditDialog({
@@ -51,9 +47,7 @@ export function NoteEditDialog({
     [editImproveNoteAction, editRewriteTextAction],
   );
   const canSaveEdit =
-    Boolean(note) &&
-    tipTapToPlainText(editingNoteContent).trim().length > 0 &&
-    !updatingNote;
+    Boolean(note) && tipTapToPlainText(editingNoteContent).trim().length > 0 && !updatingNote;
 
   async function handleSave() {
     if (!note || !canSaveEdit) return;
@@ -88,11 +82,7 @@ export function NoteEditDialog({
           />
         </div>
         <div className={cn("flex items-center justify-end gap-2")}>
-          <Button
-            intent="ghost"
-            onClick={onClose}
-            disabled={updatingNote || deletingNote}
-          >
+          <Button intent="ghost" onClick={onClose} disabled={updatingNote || deletingNote}>
             Cancel
           </Button>
           <Button

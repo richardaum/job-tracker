@@ -32,15 +32,10 @@ export class DatabasePoolInterceptor {
       }
       this.wrappedClients.add(client);
       const originalQuery = client.query.bind(client);
-      client.query = this.instrumentClientQuery(
-        originalQuery,
-      ) as typeof client.query;
+      client.query = this.instrumentClientQuery(originalQuery) as typeof client.query;
     };
 
-    pool.connect = function (
-      this: Pool,
-      cb?: ConnectCallback,
-    ): void | Promise<PoolClient> {
+    pool.connect = function (this: Pool, cb?: ConnectCallback): void | Promise<PoolClient> {
       if (typeof cb === "function") {
         return originalConnect((err, client, done) => {
           if (client) {
@@ -56,9 +51,7 @@ export class DatabasePoolInterceptor {
     } as typeof pool.connect;
   }
 
-  private instrumentClientQuery(
-    originalQuery: PoolClient["query"],
-  ): PoolClient["query"] {
+  private instrumentClientQuery(originalQuery: PoolClient["query"]): PoolClient["query"] {
     return ((...args: unknown[]) => {
       this.requestMetricsContext.incrementQueryCount();
       const startedAt = performance.now();
@@ -71,10 +64,7 @@ export class DatabasePoolInterceptor {
           this.logSlowIfNeeded(startedAt, queryText);
           return userCb(err, result);
         };
-        return (originalQuery as (...a: unknown[]) => unknown)(
-          ...args.slice(0, -1),
-          wrapped,
-        );
+        return (originalQuery as (...a: unknown[]) => unknown)(...args.slice(0, -1), wrapped);
       }
 
       const out = (originalQuery as (...a: unknown[]) => unknown)(...args) as
@@ -101,10 +91,7 @@ export class DatabasePoolInterceptor {
     if (elapsedMs < DATABASE_POOL_SLOW_QUERY_WARN_MS) {
       return;
     }
-    const normalizedQuery = queryText
-      ?.replace(/\s+/g, " ")
-      .trim()
-      .slice(0, 180);
+    const normalizedQuery = queryText?.replace(/\s+/g, " ").trim().slice(0, 180);
     this.logger.warn(
       `[db][slow-query] ${elapsedMs}ms${normalizedQuery ? ` query="${normalizedQuery}"` : ""}`,
     );

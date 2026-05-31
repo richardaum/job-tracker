@@ -21,16 +21,11 @@ export function SourcesShell({ children }: { children: React.ReactNode }) {
             Sources
           </Heading>
           <Text size="sm" color="secondary">
-            Import jobs automatically from external sources through structured
-            plans.
+            Import jobs automatically from external sources through structured plans.
           </Text>
         </DetailPageHeader>
         <div className={cn("flex min-h-0 flex-1 flex-col")}>
-          <div
-            className={cn(
-              "flex min-h-0 min-w-0 flex-1 flex-col items-stretch overflow-auto",
-            )}
-          >
+          <div className={cn("flex min-h-0 min-w-0 flex-1 flex-col items-stretch overflow-auto")}>
             {children}
           </div>
         </div>

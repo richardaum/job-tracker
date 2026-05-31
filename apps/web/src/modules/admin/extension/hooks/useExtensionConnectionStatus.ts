@@ -13,10 +13,7 @@ import {
   isExtensionBridgePong,
 } from "@/modules/admin/extension/lib/extension-bridge.protocol";
 
-export type ExtensionConnectionStatus =
-  | "checking"
-  | "connected"
-  | "disconnected";
+export type ExtensionConnectionStatus = "checking" | "connected" | "disconnected";
 
 export type ExtensionConnectionState = {
   status: ExtensionConnectionStatus;
@@ -42,9 +39,7 @@ const INITIAL_CONNECTION_STATE: ExtensionConnectionState = {
   authenticatedEmail: null,
 };
 
-function connectionFromPong(
-  data: ExtensionBridgePong,
-): ExtensionConnectionState {
+function connectionFromPong(data: ExtensionBridgePong): ExtensionConnectionState {
   return {
     status: "connected",
     extensionVersion: data.extensionVersion,
@@ -56,9 +51,7 @@ function connectionFromPong(
   };
 }
 
-function clearedConnectionFields(
-  current: ExtensionConnectionState,
-): ExtensionConnectionState {
+function clearedConnectionFields(current: ExtensionConnectionState): ExtensionConnectionState {
   return {
     ...current,
     status: "checking",
@@ -70,9 +63,7 @@ function clearedConnectionFields(
   };
 }
 
-function disconnectedConnectionFields(
-  current: ExtensionConnectionState,
-): ExtensionConnectionState {
+function disconnectedConnectionFields(current: ExtensionConnectionState): ExtensionConnectionState {
   return {
     ...current,
     status: "disconnected",
@@ -85,13 +76,10 @@ function disconnectedConnectionFields(
 }
 
 export function useExtensionConnectionStatus(): ExtensionConnectionViewModel {
-  const [connection, setConnection] = useState<ExtensionConnectionState>(
-    () => ({
-      ...INITIAL_CONNECTION_STATE,
-      webAppOrigin:
-        typeof window !== "undefined" ? window.location.origin : null,
-    }),
-  );
+  const [connection, setConnection] = useState<ExtensionConnectionState>(() => ({
+    ...INITIAL_CONNECTION_STATE,
+    webAppOrigin: typeof window !== "undefined" ? window.location.origin : null,
+  }));
   const probeTimeoutRef = useRef<number | null>(null);
   const retryRef = useRef<(() => void) | null>(null);
   const probeStartedRef = useRef(false);
@@ -111,9 +99,7 @@ export function useExtensionConnectionStatus(): ExtensionConnectionViewModel {
       clearProbeTimeout();
       probeTimeoutRef.current = window.setTimeout(() => {
         setConnection((current) =>
-          current.status === "checking"
-            ? disconnectedConnectionFields(current)
-            : current,
+          current.status === "checking" ? disconnectedConnectionFields(current) : current,
         );
       }, EXTENSION_BRIDGE_PROBE_TIMEOUT_MS);
     };

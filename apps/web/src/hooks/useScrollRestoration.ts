@@ -26,9 +26,7 @@ function readSnapshot(key: string): ScrollSnapshot | null {
   const rawValue = window.sessionStorage.getItem(getStorageKey(key));
   if (!rawValue) return null;
 
-  const [err, parsedValue] = tryRun(
-    () => JSON.parse(rawValue) as Partial<ScrollSnapshot>,
-  );
+  const [err, parsedValue] = tryRun(() => JSON.parse(rawValue) as Partial<ScrollSnapshot>);
   if (err || typeof parsedValue.top !== "number") return null;
   return { top: Math.max(0, parsedValue.top) };
 }
@@ -99,17 +97,11 @@ export function useScrollRestoration({
       }
 
       const cleanupTop =
-        lastSavedTopRef.current > 0
-          ? lastSavedTopRef.current
-          : container.scrollTop;
+        lastSavedTopRef.current > 0 ? lastSavedTopRef.current : container.scrollTop;
       const existingSnapshot = readSnapshot(key);
       const shouldPreserveExistingSnapshot =
-        cleanupTop === 0 &&
-        typeof existingSnapshot?.top === "number" &&
-        existingSnapshot.top > 0;
-      const finalTop = shouldPreserveExistingSnapshot
-        ? existingSnapshot.top
-        : cleanupTop;
+        cleanupTop === 0 && typeof existingSnapshot?.top === "number" && existingSnapshot.top > 0;
+      const finalTop = shouldPreserveExistingSnapshot ? existingSnapshot.top : cleanupTop;
 
       writeSnapshot(key, { top: finalTop });
     };

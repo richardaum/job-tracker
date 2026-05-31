@@ -22,10 +22,7 @@ export function ExtensionConnectionDetailsCard({
         <Stack gap="sm">
           <DetailRow
             label="Extension version"
-            value={connectionDetailValue(
-              connection.status,
-              connection.extensionVersion,
-            )}
+            value={connectionDetailValue(connection.status, connection.extensionVersion)}
           />
           <DetailRow
             label="Browser"
@@ -35,15 +32,10 @@ export function ExtensionConnectionDetailsCard({
             label="Last checked"
             value={connectionDetailValue(
               connection.status,
-              connection.lastHeartbeatAt
-                ? formatDateTime(connection.lastHeartbeatAt)
-                : null,
+              connection.lastHeartbeatAt ? formatDateTime(connection.lastHeartbeatAt) : null,
             )}
           />
-          <DetailRow
-            label="Web app origin"
-            value={connection.webAppOrigin ?? "—"}
-          />
+          <DetailRow label="Web app origin" value={connection.webAppOrigin ?? "—"} />
         </Stack>
       </Stack>
     </Card>
@@ -52,9 +44,7 @@ export function ExtensionConnectionDetailsCard({
 
 function DetailRow({ label, value }: { label: string; value: string }) {
   return (
-    <div
-      className={cn("grid gap-1 sm:grid-cols-[9rem_minmax(0,1fr)] sm:gap-3")}
-    >
+    <div className={cn("grid gap-1 sm:grid-cols-[9rem_minmax(0,1fr)] sm:gap-3")}>
       <Text size="sm" color="secondary">
         {label}
       </Text>

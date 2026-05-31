@@ -10,8 +10,8 @@ import { type UpdatePlanInput } from "./update-plan.input";
 export class PlanService {
   constructor(private readonly repo: PlanRepository) {}
 
-  async findAll(): Promise<PlanEntity[]> {
-    return this.repo.findAll();
+  async findAll(userId: string): Promise<PlanEntity[]> {
+    return this.repo.findAll(userId);
   }
 
   async findById(id: string): Promise<PlanEntity> {
@@ -22,20 +22,21 @@ export class PlanService {
     return plan;
   }
 
-  async create(input: CreatePlanInput): Promise<PlanEntity> {
+  async create(input: CreatePlanInput, userId: string): Promise<PlanEntity> {
     return this.repo.create({
       displayName: input.displayName,
       document: input.document as ExecutorPlanDocument,
+      userId,
     });
   }
 
-  async update(id: string, input: UpdatePlanInput): Promise<PlanEntity> {
+  async update(id: string, input: UpdatePlanInput, userId: string): Promise<PlanEntity> {
     const existing = await this.repo.findById(id);
     if (!existing) {
       throw new NotFoundException(`Plan ${id} not found`);
     }
 
-    const patch: Parameters<PlanRepository["update"]>[1] = {};
+    const patch: Parameters<PlanRepository["update"]>[2] = {};
 
     if (input.displayName !== undefined) {
       patch.displayName = input.displayName;
@@ -44,15 +45,15 @@ export class PlanService {
       patch.document = input.document as ExecutorPlanDocument;
     }
 
-    const updated = await this.repo.update(id, patch);
+    const updated = await this.repo.update(id, userId, patch);
     if (!updated) {
       throw new NotFoundException(`Plan ${id} not found after update`);
     }
     return updated;
   }
 
-  async delete(id: string): Promise<void> {
-    const deleted = await this.repo.delete(id);
+  async delete(id: string, userId: string): Promise<void> {
+    const deleted = await this.repo.delete(id, userId);
     if (!deleted) {
       throw new NotFoundException(`Plan ${id} not found`);
     }

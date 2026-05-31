@@ -18,10 +18,7 @@ import {
 
 describe("detect-slow-startup-tests.ts", () => {
   it("recognizes vitest startup signals", () => {
-    assert.equal(
-      parseVitestStartupLine(" RUN  v3.0.0 /tmp/project"),
-      " RUN  v3.0.0 /tmp/project",
-    );
+    assert.equal(parseVitestStartupLine(" RUN  v3.0.0 /tmp/project"), " RUN  v3.0.0 /tmp/project");
     assert.equal(
       parseVitestStartupLine(" ✓ src/foo.test.ts (3 tests) 12ms"),
       " ✓ src/foo.test.ts (3 tests) 12ms",

@@ -9,10 +9,7 @@ import pdfMake from "pdfmake/build/pdfmake";
 import helveticaFonts from "pdfmake/build/standard-fonts/Helvetica";
 
 import { htmlToPdfContent } from "@/lib/html-to-pdf-content";
-import {
-  defaultGetFileName,
-  type PdfExportConfig,
-} from "@/lib/pdf-export-config";
+import { defaultGetFileName, type PdfExportConfig } from "@/lib/pdf-export-config";
 import { ToolbarButton } from "@/modules/jobs/details/components/ToolbarButton";
 
 pdfMake.addFontContainer(helveticaFonts);
@@ -59,9 +56,7 @@ export function SaveAsPdfButton({
             pageSize: "A4",
             pageMargins: [14, 14, 14, 14],
           })
-          .download(
-            (pdfExportConfig?.getFileName ?? defaultGetFileName)(new Date()),
-          );
+          .download((pdfExportConfig?.getFileName ?? defaultGetFileName)(new Date()));
       })(),
     );
     if (error) {

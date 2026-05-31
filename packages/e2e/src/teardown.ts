@@ -34,14 +34,11 @@ async function dropDatabase(): Promise<void> {
   const client = new pg.Client({ connectionString: postgresUrl.toString() });
   try {
     await client.connect();
-    const exists = await client.query(
-      `SELECT 1 FROM pg_database WHERE datname = $1`,
-      [e2eEnv.E2E_DB_NAME],
-    );
+    const exists = await client.query(`SELECT 1 FROM pg_database WHERE datname = $1`, [
+      e2eEnv.E2E_DB_NAME,
+    ]);
     if (exists.rows.length === 0) {
-      console.log(
-        `[e2e:teardown] Database ${e2eEnv.E2E_DB_NAME} does not exist — skipping.`,
-      );
+      console.log(`[e2e:teardown] Database ${e2eEnv.E2E_DB_NAME} does not exist — skipping.`);
       return;
     }
     await client.query(

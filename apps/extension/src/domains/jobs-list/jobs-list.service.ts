@@ -16,11 +16,7 @@ const SCROLLABLE_CHECK_ATTRS = ["overflow-y", "overflow"] as const;
 
 function findScrollableAncestor(el: Element): Element | null {
   let current: Element | null = el;
-  while (
-    current &&
-    current !== document.body &&
-    current !== document.documentElement
-  ) {
+  while (current && current !== document.body && current !== document.documentElement) {
     const style = getComputedStyle(current);
     for (const attr of SCROLLABLE_CHECK_ATTRS) {
       const val = style.getPropertyValue(attr);
@@ -55,12 +51,8 @@ export class JobsListService {
       );
     }
 
-    let scrollable =
-      findScrollableAncestor(container) ?? container.parentElement ?? container;
-    if (
-      scrollable === document.body ||
-      scrollable === document.documentElement
-    ) {
+    let scrollable = findScrollableAncestor(container) ?? container.parentElement ?? container;
+    if (scrollable === document.body || scrollable === document.documentElement) {
       scrollable = container;
     }
 
@@ -199,12 +191,9 @@ export class JobsListService {
     skipDelay: boolean,
   ): Promise<Job> {
     const domFields = fields.filter(
-      (f): f is PlanStepCollectJobsSurfaceField & { selector: string } =>
-        f.type !== "regex",
+      (f): f is PlanStepCollectJobsSurfaceField & { selector: string } => f.type !== "regex",
     );
-    const regexFields = fields.filter(
-      (f): f is RegexSurfaceField => f.type === "regex",
-    );
+    const regexFields = fields.filter((f): f is RegexSurfaceField => f.type === "regex");
 
     // Pass 1: collect DOM fields
     const mappedItem: Job = {};
@@ -243,8 +232,7 @@ export class JobsListService {
       }
 
       const group = field.group ?? 1;
-      mappedItem[field.key] =
-        match != null && match[group] !== undefined ? match[group] : null;
+      mappedItem[field.key] = match != null && match[group] !== undefined ? match[group] : null;
     }
 
     return mappedItem;

@@ -16,8 +16,9 @@ interface UseJobNoteAiGeneratorResult {
 export function useJobNoteAiGenerator({
   jobId,
 }: UseJobNoteAiGeneratorArgs): UseJobNoteAiGeneratorResult {
-  const [generateJobNoteWithAi, { loading }] =
-    useGenerateJobNoteWithAiLazyQuery({ fetchPolicy: "no-cache" });
+  const [generateJobNoteWithAi, { loading }] = useGenerateJobNoteWithAiLazyQuery({
+    fetchPolicy: "no-cache",
+  });
 
   const generateNote = useCallback(
     async (source: string): Promise<string> => {

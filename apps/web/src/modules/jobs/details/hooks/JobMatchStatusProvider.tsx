@@ -16,9 +16,5 @@ export function JobMatchStatusProvider({
 }) {
   const value = useJobMatchStatusValue(jobId);
 
-  return (
-    <JobMatchStatusContext.Provider value={value}>
-      {children}
-    </JobMatchStatusContext.Provider>
-  );
+  return <JobMatchStatusContext.Provider value={value}>{children}</JobMatchStatusContext.Provider>;
 }

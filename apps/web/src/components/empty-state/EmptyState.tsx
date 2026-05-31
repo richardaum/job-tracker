@@ -78,12 +78,6 @@ export function EmptyState(props: EmptyStateProps) {
         />
       );
     case "panel":
-      return (
-        <EmptyStatePanel
-          message={props.message}
-          size={props.size}
-          color={props.color}
-        />
-      );
+      return <EmptyStatePanel message={props.message} size={props.size} color={props.color} />;
   }
 }

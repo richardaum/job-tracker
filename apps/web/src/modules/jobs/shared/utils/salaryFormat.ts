@@ -42,16 +42,12 @@ export function salaryPeriodToRateBasis(
 }
 
 /** Non-negative stored cents → major units for display/math; invalid → null. */
-export function majorFromCents(
-  cents: number | null | undefined,
-): number | null {
+export function majorFromCents(cents: number | null | undefined): number | null {
   if (cents == null || cents < 0) return null;
   return cents / 100;
 }
 
-export function formatSalary(
-  salary: JobSalary | null | undefined,
-): string | null {
+export function formatSalary(salary: JobSalary | null | undefined): string | null {
   if (!salary) return null;
   const has =
     (salary.minCents != null && salary.minCents >= 0) ||
@@ -62,10 +58,8 @@ export function formatSalary(
   const currency = salary.currency;
   const minMajor = majorFromCents(salary.minCents);
   const maxMajor = majorFromCents(salary.maxCents);
-  const minS =
-    minMajor != null ? formatCurrencyWhole(minMajor, currency) : null;
-  const maxS =
-    maxMajor != null ? formatCurrencyWhole(maxMajor, currency) : null;
+  const minS = minMajor != null ? formatCurrencyWhole(minMajor, currency) : null;
+  const maxS = maxMajor != null ? formatCurrencyWhole(maxMajor, currency) : null;
   const p = String(salary.period);
   const per = PERIOD_TO_SUFFIX[p] ?? "";
   if (minS && maxS && minS !== maxS) {
@@ -99,9 +93,7 @@ export function centsToMajorInput(cents: number | null | undefined): string {
 }
 
 /** Max fractional digits for a currency code (Intl / ISO 4217), for masked inputs. */
-export function iso4217MaxFractionDigits(
-  currencyCode: string | null | undefined,
-): number {
+export function iso4217MaxFractionDigits(currencyCode: string | null | undefined): number {
   const currency = (currencyCode?.trim() || "USD").toUpperCase();
   const [intlErr, digits] = tryRun(
     () =>
@@ -123,11 +115,6 @@ export function parseTagInput(s: string): string[] {
     .filter(Boolean);
 }
 
-export function hasSalaryOnCard(params: {
-  line: string | null;
-  tags: string[];
-}): boolean {
-  return (
-    (params.line != null && params.line.length > 0) || params.tags.length > 0
-  );
+export function hasSalaryOnCard(params: { line: string | null; tags: string[] }): boolean {
+  return (params.line != null && params.line.length > 0) || params.tags.length > 0;
 }

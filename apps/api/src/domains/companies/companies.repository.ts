@@ -20,10 +20,7 @@ export class CompanyRepository {
     return this.repo.findOne({ where: { id, userId } });
   }
 
-  async findOneByNameInsensitiveTrimmed(
-    userId: string,
-    name: string,
-  ): Promise<Company | null> {
+  async findOneByNameInsensitiveTrimmed(userId: string, name: string): Promise<Company | null> {
     const trimmed = name.trim();
     if (!trimmed) {
       return null;
@@ -38,10 +35,7 @@ export class CompanyRepository {
 
   async findOrCreateByName(userId: string, name: string): Promise<Company> {
     const trimmed = name.trim();
-    const existing = await this.findOneByNameInsensitiveTrimmed(
-      userId,
-      trimmed,
-    );
+    const existing = await this.findOneByNameInsensitiveTrimmed(userId, trimmed);
     if (existing) {
       return existing;
     }
@@ -56,10 +50,7 @@ export class CompanyRepository {
       saveErr instanceof QueryFailedError &&
       (saveErr.driverError as { code?: string } | undefined)?.code === "23505"
     ) {
-      const afterRace = await this.findOneByNameInsensitiveTrimmed(
-        userId,
-        trimmed,
-      );
+      const afterRace = await this.findOneByNameInsensitiveTrimmed(userId, trimmed);
       if (afterRace) {
         return afterRace;
       }
@@ -72,11 +63,7 @@ export class CompanyRepository {
     return this.repo.save(company);
   }
 
-  async update(
-    id: string,
-    userId: string,
-    dto: Partial<NewCompany>,
-  ): Promise<Company | null> {
+  async update(id: string, userId: string, dto: Partial<NewCompany>): Promise<Company | null> {
     const company = await this.findOneById(id, userId);
     if (!company) {
       return null;

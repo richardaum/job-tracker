@@ -8,11 +8,7 @@ import { AuthenticatedLayout } from "@/modules/navigation/layouts/AuthenticatedL
  * Next 16.3+: `useSearchParams` requires a **server** `Suspense` ancestor. Wrapping the
  * whole client shell (not only `{children}` inside it) satisfies the static check.
  */
-export default function AuthenticatedSegmentLayout({
-  children,
-}: {
-  children: ReactNode;
-}) {
+export default function AuthenticatedSegmentLayout({ children }: { children: ReactNode }) {
   return (
     <PreloadQuery query={AuthenticatedShellDocument}>
       <Suspense fallback={null}>

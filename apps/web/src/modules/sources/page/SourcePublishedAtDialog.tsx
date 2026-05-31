@@ -1,16 +1,7 @@
 "use client";
 
 import { tryRun } from "@job-tracker/try-run";
-import {
-  Button,
-  cn,
-  Dialog,
-  FormField,
-  Input,
-  Select,
-  Stack,
-  Text,
-} from "@job-tracker/ui";
+import { Button, cn, Dialog, FormField, Input, Select, Stack, Text } from "@job-tracker/ui";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 
 import { usePlanQuery, useUpdatePlanMutation } from "@/gql/hooks";
@@ -32,16 +23,13 @@ type PublishedAtForm = {
   sourceField: string;
 };
 
-function parsePublishedAt(
-  document: Record<string, unknown>,
-): PublishedAtForm {
+function parsePublishedAt(document: Record<string, unknown>): PublishedAtForm {
   const steps = (document.steps ?? []) as Array<Record<string, unknown>>;
   for (const step of steps) {
     const action = step.action as Record<string, unknown> | undefined;
     if (action?.kind !== "collect.jobs") continue;
     const input = action.input as Record<string, unknown> | undefined;
-    const surfaceFields = (input?.surfaceFields ??
-      []) as Array<Record<string, unknown>>;
+    const surfaceFields = (input?.surfaceFields ?? []) as Array<Record<string, unknown>>;
     const field = surfaceFields.find((sf) => sf.key === "publishedAt");
     if (field) {
       return {
@@ -77,8 +65,7 @@ function setPublishedAt(
 
   const action = targetStep.action as Record<string, unknown>;
   const input = (action.input ?? {}) as Record<string, unknown>;
-  const surfaceFields = (input.surfaceFields ??
-    []) as Array<Record<string, unknown>>;
+  const surfaceFields = (input.surfaceFields ?? []) as Array<Record<string, unknown>>;
 
   const field: Record<string, unknown> = {
     key: "publishedAt",
@@ -109,9 +96,7 @@ function setPublishedAt(
   return doc;
 }
 
-function removePublishedAt(
-  document: Record<string, unknown>,
-): Record<string, unknown> {
+function removePublishedAt(document: Record<string, unknown>): Record<string, unknown> {
   const doc = JSON.parse(JSON.stringify(document)) as Record<string, unknown>;
   const steps = (doc.steps ?? []) as Array<Record<string, unknown>>;
 
@@ -119,8 +104,7 @@ function removePublishedAt(
     const action = step.action as Record<string, unknown> | undefined;
     if (action?.kind !== "collect.jobs") continue;
     const input = action.input as Record<string, unknown> | undefined;
-    const surfaceFields = (input?.surfaceFields ??
-      []) as Array<Record<string, unknown>>;
+    const surfaceFields = (input?.surfaceFields ?? []) as Array<Record<string, unknown>>;
     const filtered = surfaceFields.filter((sf) => sf.key !== "publishedAt");
     if (input) {
       (action as Record<string, unknown>).input = {
@@ -138,10 +122,7 @@ type SourcePublishedAtDialogProps = {
   onOpenChange: (open: boolean) => void;
 };
 
-export function SourcePublishedAtDialog({
-  template,
-  onOpenChange,
-}: SourcePublishedAtDialogProps) {
+export function SourcePublishedAtDialog({ template, onOpenChange }: SourcePublishedAtDialogProps) {
   const open = template !== null;
   const planId = template?.planId ?? "";
   const close = useCallback(() => onOpenChange(false), [onOpenChange]);
@@ -157,7 +138,10 @@ export function SourcePublishedAtDialog({
 
   const { enqueueToast } = useToastQueue();
 
-  const planDocument = (planData?.plan?.document ?? {}) as Record<string, unknown>;
+  const planDocument = React.useMemo(
+    () => (planData?.plan?.document ?? {}) as Record<string, unknown>,
+    [planData?.plan?.document],
+  );
 
   const initial = useMemo(
     () => (open ? parsePublishedAt(planDocument) : null),
@@ -198,21 +182,26 @@ export function SourcePublishedAtDialog({
       return;
     }
 
+    if (fieldType === "regex" && !sourceField) {
+      enqueueToast({
+        title: "Source field is required for regex type",
+        intent: "error",
+      });
+      return;
+    }
+
     setSaving(true);
 
     const form: PublishedAtForm = { selector, fieldType, value, sourceField };
     const document = setPublishedAt(planDocument, form);
 
-    const [err] = await tryRun(
-      updatePlan({ variables: { id: planId, input: { document } } }),
-    );
+    const [err] = await tryRun(updatePlan({ variables: { id: planId, input: { document } } }));
 
     setSaving(false);
 
     if (err) {
       enqueueToast({
-        title:
-          err instanceof Error ? err.message : "Could not save. Try again.",
+        title: err instanceof Error ? err.message : "Could not save. Try again.",
         intent: "error",
       });
       return;
@@ -221,7 +210,19 @@ export function SourcePublishedAtDialog({
     close();
   }
 
-  const configured = !!(initial?.value);
+  const availableKeys = useMemo(() => {
+    const steps = (planDocument.steps ?? []) as Array<Record<string, unknown>>;
+    for (const step of steps) {
+      const action = step.action as Record<string, unknown> | undefined;
+      if (action?.kind !== "collect.jobs") continue;
+      const input = action.input as Record<string, unknown> | undefined;
+      const surfaceFields = (input?.surfaceFields ?? []) as Array<Record<string, unknown>>;
+      return surfaceFields.map((sf) => sf.key as string).filter((key) => key !== "publishedAt");
+    }
+    return [];
+  }, [planDocument]);
+
+  const configured = !!initial?.value;
 
   return (
     <Dialog
@@ -231,8 +232,8 @@ export function SourcePublishedAtDialog({
       title="Published At"
       description={
         <Text size="sm" color="secondary">
-          Configure how the extension reads the publication timestamp from the
-          page. Required for the Older Than stop condition.
+          Configure how the extension reads the publication timestamp from the page. Required for
+          the Older Than stop condition.
         </Text>
       }
     >
@@ -242,17 +243,18 @@ export function SourcePublishedAtDialog({
             <Select
               options={typeOptions}
               value={fieldType}
-              onValueChange={(v) => setFieldType(v as SurfaceFieldType)}
+              onValueChange={(v) => {
+                setFieldType(v as SurfaceFieldType);
+                if (v === "regex" && !sourceField && availableKeys.length > 0) {
+                  setSourceField(availableKeys[0]);
+                }
+              }}
               disabled={saving}
             />
           </FormField>
 
           {fieldType !== "regex" && (
-            <FormField
-              label="CSS Selector"
-              hint="Element containing the timestamp"
-              required
-            >
+            <FormField label="CSS Selector" hint="Element containing the timestamp" required>
               <Input
                 placeholder='e.g. ".bubble.channel-post"'
                 value={selector}
@@ -288,14 +290,11 @@ export function SourcePublishedAtDialog({
           </FormField>
 
           {fieldType === "regex" && (
-            <FormField
-              label="Source Field"
-              hint="Which collected field to parse (optional)"
-            >
-              <Input
-                placeholder="e.g. rawText"
-                value={sourceField}
-                onChange={(e) => setSourceField(e.target.value)}
+            <FormField label="Source Field" hint="Which collected field to parse" required>
+              <Select
+                options={availableKeys.map((k) => ({ label: k, value: k }))}
+                value={sourceField || availableKeys[0] || ""}
+                onValueChange={(v) => setSourceField(v)}
                 disabled={saving}
               />
             </FormField>
@@ -318,10 +317,7 @@ export function SourcePublishedAtDialog({
                   setSaving(false);
                   if (err) {
                     enqueueToast({
-                      title:
-                        err instanceof Error
-                          ? err.message
-                          : "Could not remove. Try again.",
+                      title: err instanceof Error ? err.message : "Could not remove. Try again.",
                       intent: "error",
                     });
                     return;

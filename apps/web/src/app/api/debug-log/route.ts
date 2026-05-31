@@ -14,17 +14,12 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json();
-  const line =
-    typeof body === "object" && body !== null
-      ? JSON.stringify(body)
-      : String(body);
+  const line = typeof body === "object" && body !== null ? JSON.stringify(body) : String(body);
   const dir = DEBUG_LOG_PATH.substring(0, DEBUG_LOG_PATH.lastIndexOf("/"));
   if (!existsSync(dir)) {
     mkdirSync(dir, { recursive: true });
   }
-  const [err] = await tryRun(
-    appendFile(DEBUG_LOG_PATH, `${new Date().toISOString()} ${line}\n`),
-  );
+  const [err] = await tryRun(appendFile(DEBUG_LOG_PATH, `${new Date().toISOString()} ${line}\n`));
   if (err) {
     console.error("[debug-log] write error", err);
   }

@@ -16,11 +16,7 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   render: () => (
     <Container>
-      <div
-        className={cn(
-          "rounded-lg bg-bg-surface p-6 text-text-primary shadow-sm",
-        )}
-      >
+      <div className={cn("rounded-lg bg-bg-surface p-6 text-text-primary shadow-sm")}>
         Container content
       </div>
     </Container>

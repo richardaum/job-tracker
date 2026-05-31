@@ -23,9 +23,7 @@ describe("job-details-routes", () => {
   });
 
   it("builds side-panel hrefs on the current tab path", () => {
-    expect(jobDetailsHref("abc", "match", "notes")).toBe(
-      "/jobs/abc/match?s=notes",
-    );
+    expect(jobDetailsHref("abc", "match", "notes")).toBe("/jobs/abc/match?s=notes");
   });
 
   it("parses tab from pathname", () => {

@@ -18,10 +18,10 @@ export class EnsureCompanyDescriptionTiptap1750000000000 implements MigrationInt
 
       if (!isTipTapDocumentString(description)) {
         const tiptapDoc = this.plainTextToTipTap(description);
-        await queryRunner.query(
-          `UPDATE "companies" SET description = $1 WHERE id = $2`,
-          [tiptapDoc, id],
-        );
+        await queryRunner.query(`UPDATE "companies" SET description = $1 WHERE id = $2`, [
+          tiptapDoc,
+          id,
+        ]);
       }
     }
   }

@@ -65,9 +65,7 @@ export class AiBaseService {
           throw new BadRequestException(message.refusal);
         }
         if (!message.parsed) {
-          throw new BadRequestException(
-            "AI returned a response that could not be parsed.",
-          );
+          throw new BadRequestException("AI returned a response that could not be parsed.");
         }
 
         return message.parsed;
@@ -111,9 +109,7 @@ export class AiBaseService {
           Promise.resolve().then(() => JSON.parse(response.output_text)),
         );
         if (parseError) {
-          throw new BadRequestException(
-            "AI returned a response that could not be parsed as JSON.",
-          );
+          throw new BadRequestException("AI returned a response that could not be parsed as JSON.");
         }
         return parsed as unknown;
       }

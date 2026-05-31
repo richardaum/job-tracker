@@ -29,28 +29,18 @@ function ColorGrid({ title, tokens }: { title: string; tokens: ColorToken[] }) {
   return (
     <section className={cn("space-y-3")}>
       <h3 className={cn("text-lg font-semibold text-text-primary")}>{title}</h3>
-      <div
-        className={cn("grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3")}
-      >
+      <div className={cn("grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3")}>
         {tokens.map((token) => (
           <div
             key={token.name}
-            className={cn(
-              "rounded-lg border border-border-subtle bg-bg-surface p-6 shadow-sm",
-            )}
+            className={cn("rounded-lg border border-border-subtle bg-bg-surface p-6 shadow-sm")}
           >
             <div
-              className={cn(
-                "mb-2 h-12 w-full rounded-md border border-border-subtle",
-              )}
+              className={cn("mb-2 h-12 w-full rounded-md border border-border-subtle")}
               style={{ backgroundColor: `var(${token.cssVar})` }}
             />
-            <p className={cn("font-mono text-sm text-text-primary")}>
-              {token.name}
-            </p>
-            <p className={cn("font-mono text-xs text-text-secondary")}>
-              {token.cssVar}
-            </p>
+            <p className={cn("font-mono text-sm text-text-primary")}>{token.name}</p>
+            <p className={cn("font-mono text-xs text-text-secondary")}>{token.cssVar}</p>
           </div>
         ))}
       </div>
@@ -62,13 +52,11 @@ function TokensShowcase() {
   return (
     <div className={cn("space-y-6 bg-bg-surface p-6 font-sans")}>
       <section className={cn("space-y-2")}>
-        <h2 className={cn("text-2xl font-bold text-text-primary")}>
-          Design Tokens
-        </h2>
+        <h2 className={cn("text-2xl font-bold text-text-primary")}>Design Tokens</h2>
         <p className={cn("max-w-3xl text-sm text-text-secondary")}>
-          Foundations are documented in two layers: primitive values and
-          semantic aliases. Component-specific defaults stay close to each
-          component implementation for easier debugging.
+          Foundations are documented in two layers: primitive values and semantic aliases.
+          Component-specific defaults stay close to each component implementation for easier
+          debugging.
         </p>
       </section>
 
@@ -79,14 +67,8 @@ function TokensShowcase() {
         <h3 className={cn("text-lg font-semibold text-text-primary")}>
           Typography and Spacing Samples
         </h3>
-        <div
-          className={cn(
-            "rounded-lg border border-border-subtle bg-bg-surface p-6 shadow-sm",
-          )}
-        >
-          <p className={cn("text-2xl font-bold text-text-primary")}>
-            Page Title Token
-          </p>
+        <div className={cn("rounded-lg border border-border-subtle bg-bg-surface p-6 shadow-sm")}>
+          <p className={cn("text-2xl font-bold text-text-primary")}>Page Title Token</p>
           <p className={cn("text-sm text-text-secondary")}>
             Body copy token sample using semantic text colors and spacing.
           </p>

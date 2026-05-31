@@ -26,12 +26,8 @@ export class AddFitAnalysisGenerationMetadata1767400000000 implements MigrationI
     await queryRunner.query(
       `CREATE TYPE "fit_analysis_status" AS ENUM ('PROCESSING', 'COMPLETED', 'FAILED')`,
     );
-    await queryRunner.query(
-      `ALTER TABLE "fit_analysis" ADD COLUMN "status" fit_analysis_status`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "fit_analysis" ADD COLUMN "error" text NULL`,
-    );
+    await queryRunner.query(`ALTER TABLE "fit_analysis" ADD COLUMN "status" fit_analysis_status`);
+    await queryRunner.query(`ALTER TABLE "fit_analysis" ADD COLUMN "error" text NULL`);
 
     await queryRunner.query(`
       UPDATE "fit_analysis"
@@ -40,15 +36,11 @@ export class AddFitAnalysisGenerationMetadata1767400000000 implements MigrationI
         "error" = "generation_metadata"->>'error'
     `);
 
-    await queryRunner.query(
-      `ALTER TABLE "fit_analysis" ALTER COLUMN "status" SET NOT NULL`,
-    );
+    await queryRunner.query(`ALTER TABLE "fit_analysis" ALTER COLUMN "status" SET NOT NULL`);
     await queryRunner.query(
       `ALTER TABLE "fit_analysis" ALTER COLUMN "status" SET DEFAULT 'COMPLETED'::fit_analysis_status`,
     );
 
-    await queryRunner.query(
-      `ALTER TABLE "fit_analysis" DROP COLUMN "generation_metadata"`,
-    );
+    await queryRunner.query(`ALTER TABLE "fit_analysis" DROP COLUMN "generation_metadata"`);
   }
 }

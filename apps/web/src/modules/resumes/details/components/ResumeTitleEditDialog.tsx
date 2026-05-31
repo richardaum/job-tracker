@@ -1,14 +1,6 @@
 "use client";
 
-import {
-  Button,
-  cn,
-  Dialog,
-  type DialogControl,
-  FormField,
-  Input,
-  Stack,
-} from "@job-tracker/ui";
+import { Button, cn, Dialog, type DialogControl, FormField, Input, Stack } from "@job-tracker/ui";
 import React, { useState } from "react";
 
 interface ResumeTitleEditDialogProps {
@@ -17,11 +9,7 @@ interface ResumeTitleEditDialogProps {
   onSave: (nextValue: string) => Promise<void>;
 }
 
-export function ResumeTitleEditDialog({
-  control,
-  value,
-  onSave,
-}: ResumeTitleEditDialogProps) {
+export function ResumeTitleEditDialog({ control, value, onSave }: ResumeTitleEditDialogProps) {
   const [draft, setDraft] = useState(value);
   const [saving, setSaving] = useState(false);
 

@@ -38,9 +38,7 @@ function setupMocks() {
     data: { workPreferences: [] },
     loading: false,
   });
-  gqlMocks.useUpdateWorkPreferencesMutation.mockReturnValue([
-    vi.fn().mockResolvedValue({}),
-  ]);
+  gqlMocks.useUpdateWorkPreferencesMutation.mockReturnValue([vi.fn().mockResolvedValue({})]);
 }
 
 describe("MatchWizardDialog", () => {
@@ -81,8 +79,8 @@ describe("MatchWizardDialog", () => {
       />,
     );
 
-    expect(
-      await screen.findByRole("combobox", { name: /select a resume/i }),
-    ).toHaveTextContent("Backend resume");
+    expect(await screen.findByRole("combobox", { name: /select a resume/i })).toHaveTextContent(
+      "Backend resume",
+    );
   });
 });

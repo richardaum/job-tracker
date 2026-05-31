@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  cn,
-  DropdownMenu,
-  IconButton,
-  ListItemCard,
-  Stack,
-  Text,
-} from "@job-tracker/ui";
+import { cn, DropdownMenu, IconButton, ListItemCard, Stack, Text } from "@job-tracker/ui";
 import {
   ArrowSquareRightIcon,
   CurrencyDollarIcon,
@@ -126,10 +119,7 @@ function CurrentStageDateText({
   if (stageEventsRequested && jobStageEvents.length > 0) {
     const currentStageEvent = jobStageEvents[0] ?? null;
     const currentStage = currentStageEvent?.toStage ?? ApplicationStage.New;
-    const statusAt =
-      currentStageEvent?.scheduledAt ??
-      currentStageEvent?.createdAt ??
-      listStatusAt;
+    const statusAt = currentStageEvent?.scheduledAt ?? currentStageEvent?.createdAt ?? listStatusAt;
     return (
       <Text as="span" size="sm" color="secondary">
         {formatStage(currentStage)}{" "}
@@ -268,15 +258,8 @@ export function JobCard({ job: app, onSuccess, onError }: JobCardProps) {
         <>
           {displayCompanyMeta ? (
             <>
-              <span
-                className={cn("contents")}
-                data-testid="job-card-company-meta"
-              >
-                <CompanyNameWithPopover
-                  job={app}
-                  onSuccess={onSuccess}
-                  onError={onError}
-                />
+              <span className={cn("contents")} data-testid="job-card-company-meta">
+                <CompanyNameWithPopover job={app} onSuccess={onSuccess} onError={onError} />
               </span>
               <InlineMetaDot />
             </>
@@ -320,11 +303,7 @@ export function JobCard({ job: app, onSuccess, onError }: JobCardProps) {
           {showSalary ? (
             <>
               <InlineMetaDot />
-              <span
-                className={cn(
-                  "inline-flex min-w-0 max-w-full flex-wrap items-center gap-2",
-                )}
-              >
+              <span className={cn("inline-flex min-w-0 max-w-full flex-wrap items-center gap-2")}>
                 {formattedSalary ? (
                   <SalaryPeriodTooltip salary={salary}>
                     <SalaryView salary={formattedSalary} />

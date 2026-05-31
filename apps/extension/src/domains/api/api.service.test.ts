@@ -19,17 +19,13 @@ vi.mock("@apollo/client/core", () => {
   };
 });
 
-vi.mock("@job-tracker/auth", () => ({
-  createAuthRefreshLink: vi.fn(),
-}));
+vi.mock("@job-tracker/auth", () => ({ createAuthRefreshLink: vi.fn() }));
 
 vi.mock("@/domains/api/create-extension-auth-link", () => ({
   createExtensionAuthLink: vi.fn(),
 }));
 
-vi.mock("@/gql/graphql", () => ({
-  IsJobDuplicateDocument: {},
-}));
+vi.mock("@/gql/graphql", () => ({ IsJobDuplicateDocument: {} }));
 
 import { ApiService } from "./api.service";
 
@@ -41,9 +37,7 @@ describe("ApiService", () => {
 
   describe("isJobDuplicate", () => {
     it("returns true when server responds with true", async () => {
-      mockQuery.mockResolvedValue({
-        data: { isJobDuplicate: true },
-      });
+      mockQuery.mockResolvedValue({ data: { isJobDuplicate: true } });
 
       const service = new ApiService();
       const result = await service.isJobDuplicate("Acme", "Engineer");
@@ -57,9 +51,7 @@ describe("ApiService", () => {
     });
 
     it("returns false when server responds with false", async () => {
-      mockQuery.mockResolvedValue({
-        data: { isJobDuplicate: false },
-      });
+      mockQuery.mockResolvedValue({ data: { isJobDuplicate: false } });
 
       const service = new ApiService();
       const result = await service.isJobDuplicate("Acme", "Unknown");
@@ -77,9 +69,7 @@ describe("ApiService", () => {
     });
 
     it("returns false when data is null", async () => {
-      mockQuery.mockResolvedValue({
-        data: null,
-      });
+      mockQuery.mockResolvedValue({ data: null });
 
       const service = new ApiService();
       const result = await service.isJobDuplicate("Acme", "Engineer");

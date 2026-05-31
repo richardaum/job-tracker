@@ -6,10 +6,7 @@ export type AdminGetStatusMessage = {
   refreshAuth?: boolean;
 };
 
-type ExtensionAuthSnapshot = Pick<
-  ExtensionBridgeStatus,
-  "authStatus" | "authenticatedEmail"
->;
+type ExtensionAuthSnapshot = Pick<ExtensionBridgeStatus, "authStatus" | "authenticatedEmail">;
 
 type AdminExtensionStatusDeps = {
   fetchAuthenticatedEmail: () => Promise<string | null>;
@@ -40,18 +37,14 @@ export class AdminExtensionStatusService {
     };
   }
 
-  async handleGetStatusMessage(
-    message: unknown,
-  ): Promise<ExtensionBridgeStatus> {
+  async handleGetStatusMessage(message: unknown): Promise<ExtensionBridgeStatus> {
     const parsed = parseAdminGetStatusMessage(message);
     return this.getStatus(parsed.webAppOrigin, {
       refreshAuth: parsed.refreshAuth,
     });
   }
 
-  private async resolveAuth(
-    forceRefresh: boolean,
-  ): Promise<ExtensionAuthSnapshot> {
+  private async resolveAuth(forceRefresh: boolean): Promise<ExtensionAuthSnapshot> {
     if (forceRefresh) {
       this.authCache = null;
     }
@@ -91,9 +84,7 @@ export function parseAdminGetStatusMessage(message: unknown): {
 
   const record = message as Record<string, unknown>;
   const webAppOrigin =
-    "webAppOrigin" in record && typeof record.webAppOrigin === "string"
-      ? record.webAppOrigin
-      : "";
+    "webAppOrigin" in record && typeof record.webAppOrigin === "string" ? record.webAppOrigin : "";
 
   return {
     webAppOrigin,

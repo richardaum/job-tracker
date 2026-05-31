@@ -38,11 +38,7 @@ describe("registerMessageListenerByKind", () => {
       }),
     });
 
-    listener(
-      { kind: "admin.get-status", webAppOrigin: "http://localhost:3103" },
-      {},
-      sendResponse,
-    );
+    listener({ kind: "admin.get-status", webAppOrigin: "http://localhost:3103" }, {}, sendResponse);
 
     expect(sendResponse).toHaveBeenCalledWith({
       extensionVersion: "0.0.3",

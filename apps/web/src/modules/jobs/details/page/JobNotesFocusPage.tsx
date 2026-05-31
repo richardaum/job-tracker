@@ -24,9 +24,7 @@ export function JobNotesFocusPage({ jobId }: { jobId: string }) {
       >
         <BackToLink href={jobDetailsPath(jobId)}>Back to job</BackToLink>
         <Heading as="h1" size="2xl" className={cn("min-w-0")}>
-          <span>
-            {displayTitle !== null ? `${displayTitle} — Notes` : "Job notes"}
-          </span>
+          <span>{displayTitle !== null ? `${displayTitle} — Notes` : "Job notes"}</span>
         </Heading>
       </div>
 
@@ -36,11 +34,7 @@ export function JobNotesFocusPage({ jobId }: { jobId: string }) {
             Loading notes...
           </Text>
         ) : status === "notFound" ? (
-          <EntityNotFound
-            resource="job"
-            backHref="/jobs"
-            backLabel="Back to jobs"
-          />
+          <EntityNotFound resource="job" backHref="/jobs" backLabel="Back to jobs" />
         ) : status === "error" ? (
           <Text size="sm" color="error">
             Failed to load notes.

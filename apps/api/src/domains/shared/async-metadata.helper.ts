@@ -1,11 +1,6 @@
 import { AsyncMetadataEmbedded } from "@api/database/embeddeds/async-metadata.embedded";
 import { AsyncMetadataStatusEnum } from "@api/domains/shared/async-metadata.type";
-import type {
-  EntityManager,
-  EntityTarget,
-  ObjectLiteral,
-  Repository,
-} from "typeorm";
+import type { EntityManager, EntityTarget, ObjectLiteral, Repository } from "typeorm";
 
 export type AsyncMetadataColumns = {
   metadataField: string;
@@ -18,9 +13,7 @@ export type AsyncMetadataStatusPatch = Partial<AsyncMetadataEmbedded> & {
 
 export type AsyncMetadataScopedRow = { id: string; userId: string };
 
-function buildMetadataUpdate(
-  patch: AsyncMetadataStatusPatch,
-): Partial<AsyncMetadataEmbedded> {
+function buildMetadataUpdate(patch: AsyncMetadataStatusPatch): Partial<AsyncMetadataEmbedded> {
   const metadataUpdate: Partial<AsyncMetadataEmbedded> = {
     status: patch.status,
   };
@@ -67,9 +60,7 @@ export async function updateAsyncMetadataIfStatus<T extends ObjectLiteral>(
 }
 
 /** Marks lingering PROCESSING rows as FAILED (startup recovery). */
-export async function resetStaleAsyncMetadataProcessing<
-  T extends ObjectLiteral,
->(
+export async function resetStaleAsyncMetadataProcessing<T extends ObjectLiteral>(
   entity: EntityTarget<T>,
   repo: Repository<T>,
   columns: AsyncMetadataColumns,
@@ -95,9 +86,7 @@ export async function resetStaleAsyncMetadataProcessing<
 /**
  * Starts PROCESSING when status is NULL, FAILED, or COMPLETED (not when already PROCESSING).
  */
-export async function beginAsyncMetadataProcessingWhenRestartable<
-  T extends ObjectLiteral,
->(
+export async function beginAsyncMetadataProcessingWhenRestartable<T extends ObjectLiteral>(
   entity: EntityTarget<T>,
   repo: Repository<T>,
   columns: AsyncMetadataColumns,
@@ -123,10 +112,9 @@ export async function beginAsyncMetadataProcessingWhenRestartable<
       id: scope.id,
       userId: scope.userId,
     })
-    .andWhere(
-      `("${statusColumn}" IS NULL OR "${statusColumn}" IN (:...restartableStatuses))`,
-      { restartableStatuses },
-    )
+    .andWhere(`("${statusColumn}" IS NULL OR "${statusColumn}" IN (:...restartableStatuses))`, {
+      restartableStatuses,
+    })
     .execute();
   return (result.affected ?? 0) > 0;
 }

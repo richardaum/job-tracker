@@ -7,24 +7,16 @@ import type { JobMatchData } from "@/modules/jobs/details/testing/match-tab-test
 export function getMatchStatusChangedHandler(
   subscriptionMock: Mock,
 ): (evt: { status: string }) => void | Promise<void> {
-  const call = subscriptionMock.mock.calls.find(
-    (entry) => entry[0].onData !== undefined,
-  );
+  const call = subscriptionMock.mock.calls.find((entry) => entry[0].onData !== undefined);
   if (!call) {
-    throw new Error(
-      "jobMatchStatusChanged subscription handler not registered",
-    );
+    throw new Error("jobMatchStatusChanged subscription handler not registered");
   }
 
   const onData = call[0].onData as
-    | ((opts: {
-        data: { data?: { jobMatchStatusChanged?: { status: string } } };
-      }) => void)
+    | ((opts: { data: { data?: { jobMatchStatusChanged?: { status: string } } } }) => void)
     | undefined;
   if (!onData) {
-    throw new Error(
-      "jobMatchStatusChanged subscription onData handler not found",
-    );
+    throw new Error("jobMatchStatusChanged subscription onData handler not found");
   }
 
   return (evt: { status: string }) => {
@@ -62,7 +54,5 @@ export function setupReactiveMatchTabGraphqlMocks(
     vi.fn().mockResolvedValue({}),
     { loading: false },
   ]);
-  options.useDeleteMatchAnalysisMutationMock.mockReturnValue([
-    vi.fn().mockResolvedValue({}),
-  ]);
+  options.useDeleteMatchAnalysisMutationMock.mockReturnValue([vi.fn().mockResolvedValue({})]);
 }

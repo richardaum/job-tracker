@@ -23,15 +23,13 @@ describe("jobDetailDisplayTitle", () => {
 describe("formatJobPageTabTitle", () => {
   it("returns fallback when title is missing or blank", () => {
     expect(formatJobPageTabTitle(null, null)).toBe(JOB_PAGE_TAB_TITLE_FALLBACK);
-    expect(formatJobPageTabTitle("   ", "Acme")).toBe(
-      JOB_PAGE_TAB_TITLE_FALLBACK,
-    );
+    expect(formatJobPageTabTitle("   ", "Acme")).toBe(JOB_PAGE_TAB_TITLE_FALLBACK);
   });
 
   it("includes company and tab label when provided", () => {
-    expect(
-      formatJobPageTabTitle("Backend Eng", "Acme", { tabLabel: "Match" }),
-    ).toBe("Backend Eng @ Acme — Match");
+    expect(formatJobPageTabTitle("Backend Eng", "Acme", { tabLabel: "Match" })).toBe(
+      "Backend Eng @ Acme — Match",
+    );
     expect(
       formatJobPageTabTitle("  Backend Eng  ", " Acme ", {
         tabLabel: " Match ",

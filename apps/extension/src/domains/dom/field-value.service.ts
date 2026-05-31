@@ -4,9 +4,7 @@ import type {
   PlanStepCollectJobsSurfaceField,
 } from "@/domains/plan/model/types";
 
-type CollectField =
-  | PlanStepCollectJobsSurfaceField
-  | PlanStepCollectJobsDetailsField;
+type CollectField = PlanStepCollectJobsSurfaceField | PlanStepCollectJobsDetailsField;
 
 type CollectFieldElement = {
   value?: string;
@@ -17,9 +15,7 @@ type CollectFieldElement = {
 };
 
 export class FieldValueService {
-  constructor(
-    private readonly formatStrategies = createDefaultFieldFormatStrategyPicker(),
-  ) {}
+  constructor(private readonly formatStrategies = createDefaultFieldFormatStrategyPicker()) {}
 
   getFieldValue(element: CollectFieldElement, field: CollectField) {
     // regex-type fields are resolved in CollectJobsService, not via DOM
@@ -43,10 +39,7 @@ export class FieldValueService {
     }
   }
 
-  private assertValidationRegex(
-    value: string | null | undefined,
-    field: CollectField,
-  ) {
+  private assertValidationRegex(value: string | null | undefined, field: CollectField) {
     if (!("validationRegex" in field) || !field.validationRegex) {
       return;
     }
@@ -60,9 +53,7 @@ export class FieldValueService {
     const { pattern, flags } = field.validationRegex;
     const regex = new RegExp(pattern, flags);
     if (!regex.test(value)) {
-      throw new Error(
-        `Field '${field.key}' failed validationRegex: /${pattern}/${flags ?? ""}`,
-      );
+      throw new Error(`Field '${field.key}' failed validationRegex: /${pattern}/${flags ?? ""}`);
     }
   }
 

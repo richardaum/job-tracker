@@ -47,16 +47,8 @@ function AdminTabBar({
   onExtensionSubTabChange: (value: string) => void;
 }) {
   return (
-    <div
-      className={cn(
-        "flex w-full shrink-0 flex-wrap items-center gap-x-4 gap-y-2",
-      )}
-    >
-      <Tabs
-        value={currentTab}
-        onValueChange={onPrimaryTabChange}
-        className={cn("w-fit")}
-      >
+    <div className={cn("flex w-full shrink-0 flex-wrap items-center gap-x-4 gap-y-2")}>
+      <Tabs value={currentTab} onValueChange={onPrimaryTabChange} className={cn("w-fit")}>
         <TabsList className={cn("w-full justify-start sm:w-fit")}>
           <TabsTrigger value="extension">Extension</TabsTrigger>
           <TabsTrigger value="overview">Overview</TabsTrigger>

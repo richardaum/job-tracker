@@ -8,9 +8,7 @@ export function normalizeGeneratedTipTapDocument(
   fallbackText: string,
 ): TipTapDocument {
   const noteRecord = asRecord(note);
-  const contentRaw = Array.isArray(noteRecord?.content)
-    ? noteRecord.content
-    : [];
+  const contentRaw = Array.isArray(noteRecord?.content) ? noteRecord.content : [];
   const paragraphs: Array<{
     type: "paragraph";
     content: Array<{ type: "text"; text: string }>;
@@ -21,9 +19,7 @@ export function normalizeGeneratedTipTapDocument(
     if (!blockRecord || blockRecord.type !== "paragraph") {
       continue;
     }
-    const inlineRaw = Array.isArray(blockRecord.content)
-      ? blockRecord.content
-      : [];
+    const inlineRaw = Array.isArray(blockRecord.content) ? blockRecord.content : [];
     const textNodes: Array<{ type: "text"; text: string }> = [];
 
     for (const inline of inlineRaw) {
@@ -31,8 +27,7 @@ export function normalizeGeneratedTipTapDocument(
       if (!inlineRecord || inlineRecord.type !== "text") {
         continue;
       }
-      const text =
-        typeof inlineRecord.text === "string" ? inlineRecord.text.trim() : "";
+      const text = typeof inlineRecord.text === "string" ? inlineRecord.text.trim() : "";
       if (!text) {
         continue;
       }

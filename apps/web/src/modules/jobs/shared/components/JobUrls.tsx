@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  Badge,
-  cn,
-  DropdownMenu,
-  DropdownMenuItem,
-  Link,
-  Text,
-} from "@job-tracker/ui";
+import { Badge, cn, DropdownMenu, DropdownMenuItem, Link, Text } from "@job-tracker/ui";
 import React from "react";
 
 import { normalizeJobUrls } from "./job-urls.utils";
@@ -65,16 +58,9 @@ export function JobUrls({
             {list.map((url, index) => (
               <DropdownMenuItem
                 key={`${url}-${index}`}
-                onSelect={() =>
-                  window.open(url, "_blank", "noopener,noreferrer")
-                }
+                onSelect={() => window.open(url, "_blank", "noopener,noreferrer")}
               >
-                <Text
-                  as="span"
-                  size="sm"
-                  className={cn("block truncate")}
-                  title={url}
-                >
+                <Text as="span" size="sm" className={cn("block truncate")} title={url}>
                   {url}
                 </Text>
               </DropdownMenuItem>

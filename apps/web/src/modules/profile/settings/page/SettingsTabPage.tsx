@@ -6,18 +6,10 @@ import { useState } from "react";
 
 import type { UpdateSettingsMutation } from "@/gql/graphql";
 import { useSettingsQuery, useUpdateSettingsMutation } from "@/gql/hooks";
-import {
-  SettingCard,
-  SettingCardLabel,
-} from "@/modules/profile/settings/components/SettingCard";
+import { SettingCard, SettingCardLabel } from "@/modules/profile/settings/components/SettingCard";
 
-type SettingsToggleField =
-  | "autoFillEnabled"
-  | "autoSummaryEnabled"
-  | "autoMatchEnabled";
-type PendingSettingField =
-  | SettingsToggleField
-  | "duplicateWindowDays";
+type SettingsToggleField = "autoFillEnabled" | "autoSummaryEnabled" | "autoMatchEnabled";
+type PendingSettingField = SettingsToggleField | "duplicateWindowDays";
 
 type SettingsValues = NonNullable<
   NonNullable<ReturnType<typeof useSettingsQuery>["data"]>["settings"]
@@ -28,10 +20,7 @@ function buildOptimisticSettings(
   input: Partial<
     Pick<
       SettingsValues,
-      | "autoFillEnabled"
-      | "autoSummaryEnabled"
-      | "autoMatchEnabled"
-      | "duplicateWindowDays"
+      "autoFillEnabled" | "autoSummaryEnabled" | "autoMatchEnabled" | "duplicateWindowDays"
     >
   >,
 ): UpdateSettingsMutation["updateSettings"] {
@@ -41,8 +30,7 @@ function buildOptimisticSettings(
     autoFillEnabled: input.autoFillEnabled ?? settings.autoFillEnabled,
     autoSummaryEnabled: input.autoSummaryEnabled ?? settings.autoSummaryEnabled,
     autoMatchEnabled: input.autoMatchEnabled ?? settings.autoMatchEnabled,
-    duplicateWindowDays:
-      input.duplicateWindowDays ?? settings.duplicateWindowDays,
+    duplicateWindowDays: input.duplicateWindowDays ?? settings.duplicateWindowDays,
     blockedKeywords: null,
     blockedCompanies: null,
   };
@@ -54,9 +42,7 @@ export default function SettingsTabPage() {
   const settings = data?.settings ?? null;
 
   const [draftDays, setDraftDays] = useState<number | null>(null);
-  const [pendingField, setPendingField] = useState<PendingSettingField | null>(
-    null,
-  );
+  const [pendingField, setPendingField] = useState<PendingSettingField | null>(null);
 
   if (loading && !settings) {
     return <Text>Loading...</Text>;
@@ -72,10 +58,7 @@ export default function SettingsTabPage() {
     input: Partial<
       Pick<
         SettingsValues,
-        | "autoFillEnabled"
-        | "autoSummaryEnabled"
-        | "autoMatchEnabled"
-        | "duplicateWindowDays"
+        "autoFillEnabled" | "autoSummaryEnabled" | "autoMatchEnabled" | "duplicateWindowDays"
       >
     >,
     field: PendingSettingField,
@@ -107,19 +90,14 @@ export default function SettingsTabPage() {
 
   const handleDaysSave = () => {
     if (!isDaysDirty || isDaysSaving) return;
-    void persistSetting(
-      { duplicateWindowDays: displayedDays },
-      "duplicateWindowDays",
-    );
+    void persistSetting({ duplicateWindowDays: displayedDays }, "duplicateWindowDays");
   };
 
   return (
     <div className={cn("flex flex-col gap-3")}>
       <SettingCard
         label={
-          <SettingCardLabel
-            icon={<SparkleIcon size={14} weight="regular" aria-hidden />}
-          >
+          <SettingCardLabel icon={<SparkleIcon size={14} weight="regular" aria-hidden />}>
             Auto-fill job fields
           </SettingCardLabel>
         }
@@ -129,17 +107,13 @@ export default function SettingsTabPage() {
           <Switch
             checked={settings.autoFillEnabled}
             disabled={pendingField === "autoFillEnabled"}
-            onCheckedChange={(checked) =>
-              handleToggle("autoFillEnabled", checked)
-            }
+            onCheckedChange={(checked) => handleToggle("autoFillEnabled", checked)}
           />
         }
       />
       <SettingCard
         label={
-          <SettingCardLabel
-            icon={<SparkleIcon size={14} weight="regular" aria-hidden />}
-          >
+          <SettingCardLabel icon={<SparkleIcon size={14} weight="regular" aria-hidden />}>
             Auto-summary
           </SettingCardLabel>
         }
@@ -149,17 +123,13 @@ export default function SettingsTabPage() {
           <Switch
             checked={settings.autoSummaryEnabled}
             disabled={pendingField === "autoSummaryEnabled"}
-            onCheckedChange={(checked) =>
-              handleToggle("autoSummaryEnabled", checked)
-            }
+            onCheckedChange={(checked) => handleToggle("autoSummaryEnabled", checked)}
           />
         }
       />
       <SettingCard
         label={
-          <SettingCardLabel
-            icon={<SparkleIcon size={14} weight="regular" aria-hidden />}
-          >
+          <SettingCardLabel icon={<SparkleIcon size={14} weight="regular" aria-hidden />}>
             Auto-match
           </SettingCardLabel>
         }
@@ -169,9 +139,7 @@ export default function SettingsTabPage() {
           <Switch
             checked={settings.autoMatchEnabled}
             disabled={pendingField === "autoMatchEnabled"}
-            onCheckedChange={(checked) =>
-              handleToggle("autoMatchEnabled", checked)
-            }
+            onCheckedChange={(checked) => handleToggle("autoMatchEnabled", checked)}
           />
         }
       />

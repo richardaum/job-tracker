@@ -10,7 +10,7 @@ Create fix-seed-blocked-keywords.ts datafix script: read legacy forbidden_keywor
 - Extracted mapping logic to `src/domains/settings/keyword-mapper.ts` for testability
 - Script requires `--user-id <uuid>` flag (required, no default)
 - Upsert uses merge approach: preserves existing keywords, only adds non-duplicates
-- Script follows existing fix-* pattern (NestJS DI, --dry-run, process.exit on error)
+- Script follows existing fix-\* pattern (NestJS DI, --dry-run, process.exit on error)
 
 ## Learnings
 

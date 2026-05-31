@@ -38,9 +38,7 @@ export default function PlanDocumentTabContent({
     await updatePlan({
       variables: {
         id: plan.id,
-        input: {
-          document: documentRef.current as Record<string, unknown>,
-        },
+        input: { document: documentRef.current as Record<string, unknown> },
       },
     });
     setSaving(false);

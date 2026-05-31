@@ -3,15 +3,9 @@ import * as RadixDialog from "@radix-ui/react-dialog";
 import { cn } from "@ui/lib/cn";
 import React from "react";
 
-export type DialogSize =
-  | "xs"
-  | "sm"
-  | "md"
-  | "lg"
-  | "xl"
-  | "2xl"
-  | "3xl"
-  | "4xl";
+import { Separator } from "@ui/components/Separator/Separator";
+
+export type DialogSize = "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl";
 
 export interface DialogProps {
   trigger?: React.ReactElement;
@@ -52,24 +46,14 @@ export function Dialog({
   size = "lg",
 }: DialogProps) {
   const hasDescription =
-    typeof description === "string"
-      ? Boolean(description.trim())
-      : Boolean(description);
+    typeof description === "string" ? Boolean(description.trim()) : Boolean(description);
 
   return (
-    <RadixDialog.Root
-      open={open}
-      defaultOpen={defaultOpen}
-      onOpenChange={onOpenChange}
-    >
-      {trigger ? (
-        <RadixDialog.Trigger asChild>{trigger}</RadixDialog.Trigger>
-      ) : null}
+    <RadixDialog.Root open={open} defaultOpen={defaultOpen} onOpenChange={onOpenChange}>
+      {trigger ? <RadixDialog.Trigger asChild>{trigger}</RadixDialog.Trigger> : null}
       <RadixDialog.Portal>
         <RadixDialog.Overlay
-          className={cn(
-            "fixed inset-0 z-40 bg-(--semantic-color-overlay-backdrop)",
-          )}
+          className={cn("fixed inset-0 z-40 bg-(--semantic-color-overlay-backdrop)")}
         />
         <RadixDialog.Content
           className={cn(
@@ -81,16 +65,12 @@ export function Dialog({
         >
           <div className={cn("mb-3 shrink-0 pr-10")}>
             <div className={cn("space-y-1")}>
-              <RadixDialog.Title
-                className={cn("text-md font-semibold text-text-primary")}
-              >
+              <RadixDialog.Title className={cn("text-md font-semibold text-text-primary")}>
                 {title}
               </RadixDialog.Title>
               {hasDescription ? (
                 <RadixDialog.Description asChild>
-                  <div className={cn("text-sm text-text-secondary")}>
-                    {description}
-                  </div>
+                  <div className={cn("text-sm text-text-secondary")}>{description}</div>
                 </RadixDialog.Description>
               ) : null}
             </div>
@@ -103,10 +83,7 @@ export function Dialog({
           >
             <XIcon size={16} weight="regular" />
           </RadixDialog.Close>
-          <div
-            data-debug-children
-            className={cn("flex-1 min-h-0", childrenClassName)}
-          >
+          <div data-debug-children className={cn("flex-1 min-h-0", childrenClassName)}>
             {children}
           </div>
           {footer ? <div className={cn("mt-4 shrink-0")}>{footer}</div> : null}
@@ -115,3 +92,24 @@ export function Dialog({
     </RadixDialog.Root>
   );
 }
+
+export function DialogBottomActions({
+  children,
+  className,
+  ...props
+}: React.HTMLAttributes<HTMLDivElement>) {
+  return (
+    <div className={cn("shrink-0")}>
+      <div className={cn("py-4")}>
+        <Separator />
+      </div>
+      <div className={cn("flex items-center gap-2", className)} {...props}>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+export type DialogBottomActionsProps = React.HTMLAttributes<HTMLDivElement>;
+
+Dialog.BottomActions = DialogBottomActions;

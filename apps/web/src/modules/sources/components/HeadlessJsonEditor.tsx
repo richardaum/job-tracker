@@ -12,13 +12,7 @@ function guessType(v: string) {
   return v;
 }
 
-function ValueCell({
-  value,
-  onSave,
-}: {
-  value: unknown;
-  onSave: (next: unknown) => void;
-}) {
+function ValueCell({ value, onSave }: { value: unknown; onSave: (next: unknown) => void }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(String(value ?? ""));
   const inputRef = useRef<HTMLInputElement>(null);
@@ -75,17 +69,12 @@ function ValueCell({
 }
 
 function CollapseIcon({ expanded }: { expanded: boolean }) {
-  return (
-    <span className={cn("w-3 shrink-0 select-none text-xs")}>
-      {expanded ? "▼" : "▶"}
-    </span>
-  );
+  return <span className={cn("w-3 shrink-0 select-none text-xs")}>{expanded ? "▼" : "▶"}</span>;
 }
 
 function branchMeta(value: unknown): string {
   if (typeof value === "object" && value !== null) {
-    if (Array.isArray(value))
-      return `[${value.length} item${value.length === 1 ? "" : "s"}]`;
+    if (Array.isArray(value)) return `[${value.length} item${value.length === 1 ? "" : "s"}]`;
     const keys = Object.keys(value);
     return `{${keys.length} key${keys.length === 1 ? "" : "s"}}`;
   }
@@ -123,14 +112,8 @@ function TreeNode({
           )}
         >
           <CollapseIcon expanded={expanded} />
-          {label ? (
-            <span className={cn("font-medium text-text-secondary")}>
-              {label}:
-            </span>
-          ) : null}
-          <span className={cn("text-text-disabled text-xs")}>
-            {branchMeta(value)}
-          </span>
+          {label ? <span className={cn("font-medium text-text-secondary")}>{label}:</span> : null}
+          <span className={cn("text-text-disabled text-xs")}>{branchMeta(value)}</span>
         </button>
         {expanded && (
           <div className={cn("border-l border-border-subtle pl-3 ml-1")}>
@@ -154,9 +137,7 @@ function TreeNode({
   return (
     <div className={cn("flex items-center gap-1")}>
       {label ? (
-        <span className={cn("shrink-0 font-medium text-text-secondary")}>
-          {label}:
-        </span>
+        <span className={cn("shrink-0 font-medium text-text-secondary")}>{label}:</span>
       ) : null}
       <div className={cn("min-w-0 flex-1")}>
         <ValueCell value={value} onSave={(next) => onValueChange(path, next)} />
@@ -209,13 +190,7 @@ export function HeadlessJsonEditor({
 
   return (
     <div className={cn("font-mono text-sm/relaxed")}>
-      <TreeNode
-        label=""
-        value={data}
-        path="#"
-        onValueChange={handleChange}
-        defaultExpanded
-      />
+      <TreeNode label="" value={data} path="#" onValueChange={handleChange} defaultExpanded />
     </div>
   );
 }

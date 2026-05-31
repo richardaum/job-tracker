@@ -6,9 +6,7 @@ import { tipTapToPlainText } from "@job-tracker/tiptap";
  * Plain text used for JD ↔ resume alignment. Prefer captured {@link Job.htmlContent};
  * otherwise TipTap JSON in {@link Job.description}.
  */
-export function resolveJobPostingPlainText(
-  job: Pick<Job, "description" | "htmlContent">,
-): string {
+export function resolveJobPostingPlainText(job: Pick<Job, "description" | "htmlContent">): string {
   const trimmedHtml = job.htmlContent?.trim();
   if (trimmedHtml) {
     const fromHtml = htmlToPlainText(trimmedHtml).trim();

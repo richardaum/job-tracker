@@ -36,9 +36,7 @@ export function Combobox({
   id,
   autoComplete = "one-time-code",
 }: ComboboxProps) {
-  const selectedByStableValue = options.find(
-    (option) => option.value === value,
-  );
+  const selectedByStableValue = options.find((option) => option.value === value);
   const inputDisplayValue = selectedByStableValue?.label ?? value;
 
   const filteredOptions = useMemo(() => {

@@ -55,12 +55,7 @@ export function Text({
 }: TextProps) {
   return (
     <Tag
-      className={cn(
-        sizeClasses[size],
-        weightClasses[weight],
-        colorClasses[color],
-        className,
-      )}
+      className={cn(sizeClasses[size], weightClasses[weight], colorClasses[color], className)}
       {...props}
     >
       {children}

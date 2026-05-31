@@ -45,9 +45,7 @@ export function StatusBadge({
       {reason ? (
         <Tooltip content={reason} side="bottom">
           <span
-            className={cn(
-              "inline-flex cursor-help text-text-muted hover:text-text-secondary",
-            )}
+            className={cn("inline-flex cursor-help text-text-muted hover:text-text-secondary")}
             aria-label="Status reason"
           >
             <InfoIcon size={12} weight="regular" />

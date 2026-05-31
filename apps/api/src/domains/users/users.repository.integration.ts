@@ -29,18 +29,13 @@ describe.skipIf(!hasDb)("UserRepository (integration)", () => {
 
   afterAll(async () => {
     if (dataSource?.isInitialized) {
-      await dataSource.query(
-        "TRUNCATE job_notes, job_stage_events, jobs, users CASCADE",
-      );
+      await dataSource.query("TRUNCATE job_notes, job_stage_events, jobs, users CASCADE");
       await dataSource.destroy();
     }
   });
 
   it("findByProvider returns null when user does not exist", async () => {
-    const result = await repo.findByProvider(
-      AuthProviderEnum.GOOGLE,
-      "nonexistent-id",
-    );
+    const result = await repo.findByProvider(AuthProviderEnum.GOOGLE, "nonexistent-id");
     expect(result).toBeNull();
   });
 
@@ -54,22 +49,17 @@ describe.skipIf(!hasDb)("UserRepository (integration)", () => {
     expect(user.email).toBe("test@example.com");
     expect(user.role).toBe(RoleEnum.User);
     expect(user.id).toBeDefined();
-    const linked = await dataSource
-      .getRepository(UserAccountEntity)
-      .findOne({
-        where: {
-          providerName: AuthProviderEnum.GOOGLE,
-          providerAccountId: "google-123",
-        },
-      });
+    const linked = await dataSource.getRepository(UserAccountEntity).findOne({
+      where: {
+        providerName: AuthProviderEnum.GOOGLE,
+        providerAccountId: "google-123",
+      },
+    });
     expect(linked?.userId).toBe(user.id);
   });
 
   it("findByProvider returns existing user", async () => {
-    const user = await repo.findByProvider(
-      AuthProviderEnum.GOOGLE,
-      "google-123",
-    );
+    const user = await repo.findByProvider(AuthProviderEnum.GOOGLE, "google-123");
     expect(user).not.toBeNull();
     expect(user?.email).toBe("test@example.com");
   });

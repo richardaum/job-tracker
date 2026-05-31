@@ -18,10 +18,7 @@ export function ToastQueueProvider({ children }: { children: ReactNode }) {
       intent?: ToastIntent;
       description?: string;
     }) => {
-      setToasts((current) => [
-        ...current,
-        { id: crypto.randomUUID(), title, intent, description },
-      ]);
+      setToasts((current) => [...current, { id: crypto.randomUUID(), title, intent, description }]);
     },
     [],
   );

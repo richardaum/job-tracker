@@ -78,9 +78,7 @@ export function useFileImport({ editor, onChange }: UseFileImportOptions) {
 
   const handleImportClick = React.useCallback(() => {
     if (!editor) return;
-    const currentContent = tipTapToPlainText(
-      JSON.stringify(editor.getJSON()),
-    ).trim();
+    const currentContent = tipTapToPlainText(JSON.stringify(editor.getJSON())).trim();
     if (currentContent) {
       setShowImportConfirm(true);
     } else {

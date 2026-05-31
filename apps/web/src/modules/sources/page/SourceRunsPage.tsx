@@ -82,8 +82,7 @@ export default function SourceRunsPage({ params }: PageProps) {
   const [surfaceUrlDialogOpen, setSurfaceUrlDialogOpen] = React.useState(false);
   const [scheduleDialogOpen, setScheduleDialogOpen] = React.useState(false);
   const [stopConfigDialogOpen, setStopConfigDialogOpen] = React.useState(false);
-  const [deleteTemplateDialogOpen, setDeleteTemplateDialogOpen] =
-    React.useState(false);
+  const [deleteTemplateDialogOpen, setDeleteTemplateDialogOpen] = React.useState(false);
   const [clearRunsDialogOpen, setClearRunsDialogOpen] = React.useState(false);
 
   const headerActions =
@@ -158,16 +157,13 @@ export default function SourceRunsPage({ params }: PageProps) {
   return (
     <div className={cn("flex h-full min-h-0 flex-col")}>
       <DetailPageHeader trailing={headerActions}>
-        <BackToLink href={`/sources/plans/${planId}` as Route}>
-          Back to plan
-        </BackToLink>
+        <BackToLink href={`/sources/plans/${planId}` as Route}>Back to plan</BackToLink>
         <Heading as="h1" size="2xl" className={cn("min-w-0")}>
           Source runs
         </Heading>
         {template ? (
           <Text size="sm" color="secondary">
-            {scheduleSummary(template)} · Created{" "}
-            {formatDateTime(String(template.createdAt))}
+            {scheduleSummary(template)} · Created {formatDateTime(String(template.createdAt))}
           </Text>
         ) : null}
       </DetailPageHeader>
@@ -176,21 +172,13 @@ export default function SourceRunsPage({ params }: PageProps) {
         {showInitialLoading ? (
           <SourceRunsListSkeleton />
         ) : notFound ? (
-          <EntityNotFound
-            resource="source"
-            backHref="/sources"
-            backLabel="Back to sources"
-          />
+          <EntityNotFound resource="source" backHref="/sources" backLabel="Back to sources" />
         ) : error && !notFound ? (
           <Text size="sm" color="error">
             Failed to load source runs.
           </Text>
-        ) : status !== "success" || !template ? null : template.runs.length ===
-          0 ? (
-          <EmptyState
-            variant="default"
-            message="No runs for this source yet."
-          />
+        ) : status !== "success" || !template ? null : template.runs.length === 0 ? (
+          <EmptyState variant="default" message="No runs for this source yet." />
         ) : (
           <Stack gap="sm" className={cn("min-w-0")}>
             {template.runs.map((run, index) => (
@@ -221,7 +209,7 @@ export default function SourceRunsPage({ params }: PageProps) {
                       asChild
                       intent="ghost"
                       size="sm"
-                       label={`View jobs from ${runLabel(index, template.runs.length)}`}
+                      label={`View jobs from ${runLabel(index, template.runs.length)}`}
                       tooltip="View jobs"
                       className={cn(ListItemCard.actionIconButtonClassName)}
                     >
@@ -248,16 +236,16 @@ export default function SourceRunsPage({ params }: PageProps) {
                         <IconButton
                           intent="ghost"
                           size="sm"
-                           label={`Delete ${runLabel(index, template.runs.length)}`}
-                           tooltip="Delete run"
-                           className={cn(ListItemCard.actionIconButtonClassName)}
-                           icon={<TrashIcon size={13} weight="regular" />}
-                         />
-                        }
-                        runId={run.id}
-                        templateId={template.id}
-                        runLabel={runLabel(index, template.runs.length)}
-                     />
+                          label={`Delete ${runLabel(index, template.runs.length)}`}
+                          tooltip="Delete run"
+                          className={cn(ListItemCard.actionIconButtonClassName)}
+                          icon={<TrashIcon size={13} weight="regular" />}
+                        />
+                      }
+                      runId={run.id}
+                      templateId={template.id}
+                      runLabel={runLabel(index, template.runs.length)}
+                    />
                   </ListItemCard.Actions>
                 }
                 description={

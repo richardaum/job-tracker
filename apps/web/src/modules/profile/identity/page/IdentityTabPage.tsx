@@ -15,9 +15,7 @@ function authProviderLabel(provider: AuthProvider): string {
   }
 }
 
-function primaryProviderLabel(
-  accounts: { providerName: AuthProvider }[],
-): string | null {
+function primaryProviderLabel(accounts: { providerName: AuthProvider }[]): string | null {
   const first = accounts[0];
   return first ? authProviderLabel(first.providerName) : null;
 }
@@ -82,16 +80,10 @@ export default function IdentityTabPage() {
         )}
       >
         <div className={cn("min-w-0 max-w-full sm:max-w-md")}>
-          <FieldWithLabelAction
-            label="Name"
-            content={<Text size="sm">{user.name}</Text>}
-          />
+          <FieldWithLabelAction label="Name" content={<Text size="sm">{user.name}</Text>} />
         </div>
         <div className={cn("min-w-0 max-w-full sm:max-w-md")}>
-          <FieldWithLabelAction
-            label="Email"
-            content={<Text size="sm">{user.email}</Text>}
-          />
+          <FieldWithLabelAction label="Email" content={<Text size="sm">{user.email}</Text>} />
         </div>
         {providerLabel ? (
           <div className={cn("min-w-0 max-w-full sm:max-w-md")}>

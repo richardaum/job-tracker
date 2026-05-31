@@ -1,9 +1,5 @@
 import { NOTE_AI_STRUCTURED_RESPONSE_SCHEMA } from "@api/domains/shared/tiptap.schema";
-import {
-  AiBaseService,
-  OpenAIClient,
-  PromptRendererService,
-} from "@api/lib/ai";
+import { AiBaseService, OpenAIClient, PromptRendererService } from "@api/lib/ai";
 import type { StructuredNoteOutput, TipTapDocument } from "@job-tracker/tiptap";
 import {
   isTipTapDocumentString,
@@ -20,10 +16,7 @@ const rewriteSchema = z.object({ rewritten: z.string() });
 
 @Injectable()
 export class NoteGenerationService extends AiBaseService {
-  constructor(
-    openAIClient: OpenAIClient,
-    promptRenderer: PromptRendererService,
-  ) {
+  constructor(openAIClient: OpenAIClient, promptRenderer: PromptRendererService) {
     super(openAIClient, promptRenderer);
   }
 

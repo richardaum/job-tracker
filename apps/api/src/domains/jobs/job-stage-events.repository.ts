@@ -16,10 +16,7 @@ export type CreateStageEventRepoDto = {
   scheduledAt?: Date | null;
 };
 
-type UpdateStageEventRepoDto = Pick<
-  NewJobStageEvent,
-  "toStage" | "reason" | "scheduledAt"
->;
+type UpdateStageEventRepoDto = Pick<NewJobStageEvent, "toStage" | "reason" | "scheduledAt">;
 
 @Injectable()
 export class JobStageEventsRepository {
@@ -28,16 +25,11 @@ export class JobStageEventsRepository {
     private readonly stageEventsRepo: Repository<JobStageEventEntity>,
   ) {}
 
-  private stageEventRepository(
-    manager?: EntityManager,
-  ): Repository<JobStageEventEntity> {
+  private stageEventRepository(manager?: EntityManager): Repository<JobStageEventEntity> {
     return manager?.getRepository(JobStageEventEntity) ?? this.stageEventsRepo;
   }
 
-  async findStageEventsByJobIdAndUserId(
-    jobId: string,
-    userId: string,
-  ): Promise<JobStageEvent[]> {
+  async findStageEventsByJobIdAndUserId(jobId: string, userId: string): Promise<JobStageEvent[]> {
     return this.stageEventsRepo
       .createQueryBuilder("e")
       .where("e.job_id = :jobId AND e.user_id = :userId", { jobId, userId })
@@ -163,10 +155,7 @@ export class JobStageEventsRepository {
     return this.stageEventsRepo.save(existing);
   }
 
-  async deleteStageEvent(
-    stageEventId: string,
-    userId: string,
-  ): Promise<boolean> {
+  async deleteStageEvent(stageEventId: string, userId: string): Promise<boolean> {
     const result = await this.stageEventsRepo.delete({
       id: stageEventId,
       userId,

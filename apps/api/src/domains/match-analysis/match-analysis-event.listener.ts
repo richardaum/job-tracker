@@ -32,9 +32,7 @@ export class MatchAnalysisEventListener implements OnModuleInit {
       void this.handleMatchAnalysisRequested(event);
     });
 
-    this.logger.log(
-      "Listening for job.created and match.analysis.requested events",
-    );
+    this.logger.log("Listening for job.created and match.analysis.requested events");
   }
 
   private async handleJobCreated(event: JobCreated): Promise<void> {
@@ -45,13 +43,9 @@ export class MatchAnalysisEventListener implements OnModuleInit {
       return;
     }
 
-    const [appErr, job] = await tryRun(
-      this.jobRepo.findOneByIdAndUserId(jobId, userId),
-    );
+    const [appErr, job] = await tryRun(this.jobRepo.findOneByIdAndUserId(jobId, userId));
     if (appErr || !job) {
-      this.logger.warn(
-        `[AutoMatch] Job ${jobId} not found or error: ${appErr?.message}`,
-      );
+      this.logger.warn(`[AutoMatch] Job ${jobId} not found or error: ${appErr?.message}`);
       return;
     }
 
@@ -61,28 +55,20 @@ export class MatchAnalysisEventListener implements OnModuleInit {
     }
 
     if (!resolveJobPostingPlainText(job)) {
-      this.logger.log(
-        `[AutoMatch] Skipping job ${jobId}: no job description or htmlContent`,
-      );
+      this.logger.log(`[AutoMatch] Skipping job ${jobId}: no job description or htmlContent`);
       return;
     }
 
     const defaultResume = await this.resumeRepo.findDefaultByUserId(userId);
     if (!defaultResume) {
-      this.logger.log(
-        `[AutoMatch] Skipping job ${jobId}: no default resume for user ${userId}`,
-      );
+      this.logger.log(`[AutoMatch] Skipping job ${jobId}: no default resume for user ${userId}`);
       return;
     }
 
-    const [err] = await tryRun(
-      this.matchService.generate(jobId, defaultResume.id, userId),
-    );
+    const [err] = await tryRun(this.matchService.generate(jobId, defaultResume.id, userId));
 
     if (err) {
-      this.logger.error(
-        `[AutoMatch] Failed to trigger match for job ${jobId}: ${err.message}`,
-      );
+      this.logger.error(`[AutoMatch] Failed to trigger match for job ${jobId}: ${err.message}`);
     } else {
       this.logger.log(
         `[AutoMatch] Queued match analysis for job ${jobId} (resume: ${defaultResume.id})`,
@@ -90,13 +76,7 @@ export class MatchAnalysisEventListener implements OnModuleInit {
     }
   }
 
-  private async handleMatchAnalysisRequested(
-    event: MatchAnalysisRequested,
-  ): Promise<void> {
-    await this.matchService.processMatchAnalysis(
-      event.matchId,
-      event.userId,
-      event.source,
-    );
+  private async handleMatchAnalysisRequested(event: MatchAnalysisRequested): Promise<void> {
+    await this.matchService.processMatchAnalysis(event.matchId, event.userId, event.source);
   }
 }

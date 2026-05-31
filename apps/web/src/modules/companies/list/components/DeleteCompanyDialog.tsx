@@ -105,11 +105,7 @@ export function DeleteCompanyDialog({
       }}
       footer={
         <Stack direction="row" gap="xs" justify="end">
-          <Button
-            intent="secondary"
-            onClick={() => handleOpenChange(false)}
-            disabled={submitting}
-          >
+          <Button intent="secondary" onClick={() => handleOpenChange(false)} disabled={submitting}>
             Cancel
           </Button>
           <Button
@@ -117,9 +113,7 @@ export function DeleteCompanyDialog({
             state={submitting ? "loading" : "default"}
             disabled={submitting}
             onClick={() =>
-              void (step === "initial"
-                ? handleInitialConfirm()
-                : handleCascadeConfirm())
+              void (step === "initial" ? handleInitialConfirm() : handleCascadeConfirm())
             }
           >
             {step === "initial" ? "Delete" : "Delete company and jobs"}

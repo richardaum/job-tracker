@@ -12,12 +12,7 @@ import {
   Text,
   useDialog,
 } from "@job-tracker/ui";
-import {
-  CaretDownIcon,
-  PencilSimpleIcon,
-  StarIcon,
-  TrashIcon,
-} from "@phosphor-icons/react";
+import { CaretDownIcon, PencilSimpleIcon, StarIcon, TrashIcon } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 
@@ -179,10 +174,7 @@ export default function ResumeDetailPage({ params }: PageProps) {
           <Heading
             as="h1"
             size="2xl"
-            className={cn(
-              "min-w-0 flex-1 truncate",
-              resume ? "" : cn("text-text-secondary"),
-            )}
+            className={cn("min-w-0 flex-1 truncate", resume ? "" : cn("text-text-secondary"))}
           >
             {resume?.title ?? "Resume"}
           </Heading>
@@ -191,11 +183,7 @@ export default function ResumeDetailPage({ params }: PageProps) {
               className={cn("inline-flex shrink-0 items-center gap-1")}
               aria-label="Default resume"
             >
-              <StarIcon
-                size={20}
-                weight="fill"
-                className={cn("text-yellow-500")}
-              />
+              <StarIcon size={20} weight="fill" className={cn("text-yellow-500")} />
             </span>
           ) : null}
         </div>
@@ -239,9 +227,7 @@ export default function ResumeDetailPage({ params }: PageProps) {
               <TipTapEditor
                 id="resume-content-editor"
                 value={contentDraft}
-                onChange={(nextValue) =>
-                  setContentDraft(nextValue || EMPTY_TIPTAP_DOC)
-                }
+                onChange={(nextValue) => setContentDraft(nextValue || EMPTY_TIPTAP_DOC)}
                 onHardEnter={() => void handleSave()}
                 placeholder="Write your resume content here..."
                 disabled={saving}

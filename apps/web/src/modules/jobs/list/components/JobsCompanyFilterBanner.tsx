@@ -7,10 +7,7 @@ type JobsCompanyFilterBannerProps = {
   onClear: () => void;
 };
 
-export function JobsCompanyFilterBanner({
-  companyName,
-  onClear,
-}: JobsCompanyFilterBannerProps) {
+export function JobsCompanyFilterBanner({ companyName, onClear }: JobsCompanyFilterBannerProps) {
   if (!companyName) return null;
 
   return (

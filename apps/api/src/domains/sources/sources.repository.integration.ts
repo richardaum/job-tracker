@@ -44,9 +44,7 @@ describe.skipIf(!hasDb)("SourcesRepository (integration)", () => {
 
   afterAll(async () => {
     if (dataSource?.isInitialized) {
-      await dataSource.query(
-        "TRUNCATE source_runs, source_templates, plans, users CASCADE",
-      );
+      await dataSource.query("TRUNCATE source_runs, source_templates, plans, users CASCADE");
       await dataSource.destroy();
     }
   });
@@ -93,10 +91,7 @@ describe.skipIf(!hasDb)("SourcesRepository (integration)", () => {
   it("listTemplatesByUserAndPlanId returns templates for a plan", async () => {
     const plans = dataSource.getRepository(PlanEntity);
     const planB = await plans.save(
-      plans.create({
-        displayName: "Plan B",
-        document: { steps: [] },
-      }),
+      plans.create({ displayName: "Plan B", document: { steps: [] } }),
     );
 
     const templates = dataSource.getRepository(SourceTemplateEntity);

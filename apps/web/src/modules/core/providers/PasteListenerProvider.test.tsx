@@ -7,9 +7,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { PasteListenerProvider } from "./PasteListenerProvider";
 
 const { createDraftCaptureJobMock } = vi.hoisted(() => ({
-  createDraftCaptureJobMock: vi.fn(() =>
-    Promise.resolve({ data: { createJob: { id: "job-1" } } }),
-  ),
+  createDraftCaptureJobMock: vi.fn(() => Promise.resolve({ data: { createJob: { id: "job-1" } } })),
 }));
 
 // Mock next/navigation
@@ -19,10 +17,7 @@ vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
 vi.mock("@/gql/hooks", () => ({
   ApplicationQuickFilter: { Draft: "DRAFT" },
   JobsDocument: { __brand: "DocumentNode" },
-  useCreateDraftCaptureJobMutation: () => [
-    createDraftCaptureJobMock,
-    { loading: false },
-  ],
+  useCreateDraftCaptureJobMutation: () => [createDraftCaptureJobMock, { loading: false }],
   useSettingsQuery: () => ({
     data: {
       settings: {
@@ -118,11 +113,7 @@ describe("PasteListenerProvider", () => {
     render(
       <TestWrapper>
         <div data-testid="wrapper">
-          <div
-            className={cn("ProseMirror")}
-            contentEditable="true"
-            data-testid="prosemirror"
-          />
+          <div className={cn("ProseMirror")} contentEditable="true" data-testid="prosemirror" />
         </div>
       </TestWrapper>,
     );
@@ -146,11 +137,7 @@ describe("PasteListenerProvider", () => {
   it("skips paste when activeElement is a nested child of ProseMirror", () => {
     render(
       <TestWrapper>
-        <div
-          className={cn("ProseMirror")}
-          contentEditable="true"
-          data-testid="prosemirror"
-        >
+        <div className={cn("ProseMirror")} contentEditable="true" data-testid="prosemirror">
           <p data-testid="paragraph">Some text</p>
         </div>
       </TestWrapper>,

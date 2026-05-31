@@ -102,9 +102,7 @@ export class NormalizeEnumValuesUppercase1767200000000 implements MigrationInter
         `CREATE TYPE "${e.tmp}" AS ENUM (${e.values.map((v) => `'${v}'`).join(", ")})`,
       );
       for (const t of e.tables) {
-        await queryRunner.query(
-          `ALTER TABLE "${t.table}" ALTER COLUMN "${t.col}" DROP DEFAULT`,
-        );
+        await queryRunner.query(`ALTER TABLE "${t.table}" ALTER COLUMN "${t.col}" DROP DEFAULT`);
         await queryRunner.query(
           `ALTER TABLE "${t.table}" ALTER COLUMN "${t.col}" TYPE "${e.tmp}" USING CASE "${t.col}"::text ${e.map} END`,
         );
@@ -215,9 +213,7 @@ export class NormalizeEnumValuesUppercase1767200000000 implements MigrationInter
         `CREATE TYPE "${e.tmp}" AS ENUM (${e.values.map((v) => `'${v}'`).join(", ")})`,
       );
       for (const t of e.tables) {
-        await queryRunner.query(
-          `ALTER TABLE "${t.table}" ALTER COLUMN "${t.col}" DROP DEFAULT`,
-        );
+        await queryRunner.query(`ALTER TABLE "${t.table}" ALTER COLUMN "${t.col}" DROP DEFAULT`);
         await queryRunner.query(
           `ALTER TABLE "${t.table}" ALTER COLUMN "${t.col}" TYPE "${e.tmp}" USING CASE "${t.col}"::text ${e.map} END`,
         );

@@ -35,6 +35,7 @@ import { DropPlanSourceProfileId1768080000000 } from "./1768080000000-drop-plan-
 import { AddSourceTemplateConfigJsonb1768090000000 } from "./1768090000000-add-source-template-config-jsonb";
 import { NormalizeStopwhenToArray1768100000000 } from "./1768100000000-normalize-stopwhen-to-array";
 import { AddJobPublishedAt1768110000000 } from "./1768110000000-add-job-published-at";
+import { AddPlanUserId1768120000000 } from "./1768120000000-add-plan-user-id";
 
 export const migrations = [
   SquashedBaseline1767000000000,
@@ -74,4 +75,5 @@ export const migrations = [
   AddSourceTemplateConfigJsonb1768090000000,
   NormalizeStopwhenToArray1768100000000,
   AddJobPublishedAt1768110000000,
+  AddPlanUserId1768120000000,
 ];

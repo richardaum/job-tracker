@@ -1,9 +1,6 @@
 import { z } from "zod";
 
-import {
-  draftExtractionFieldDefs,
-  draftExtractionModelSchema,
-} from "./draft-extraction.schema";
+import { draftExtractionFieldDefs, draftExtractionModelSchema } from "./draft-extraction.schema";
 
 export type DraftExtractionModel = z.infer<typeof draftExtractionModelSchema>;
 export type DraftExtractionSchemaKey = keyof typeof draftExtractionFieldDefs;

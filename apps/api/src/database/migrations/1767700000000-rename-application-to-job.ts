@@ -6,26 +6,16 @@ export class RenameApplicationToJob1767700000000 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     // ── Table renames (PostgreSQL auto-renames PKs and table-owned indexes/constraints) ──
     await queryRunner.query(`ALTER TABLE "applications" RENAME TO "jobs"`);
-    await queryRunner.query(
-      `ALTER TABLE "application_notes" RENAME TO "job_notes"`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "application_stage_events" RENAME TO "job_stage_events"`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "draft_applications" RENAME TO "draft_jobs"`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "fit_analysis" RENAME TO "match_analysis"`,
-    );
+    await queryRunner.query(`ALTER TABLE "application_notes" RENAME TO "job_notes"`);
+    await queryRunner.query(`ALTER TABLE "application_stage_events" RENAME TO "job_stage_events"`);
+    await queryRunner.query(`ALTER TABLE "draft_applications" RENAME TO "draft_jobs"`);
+    await queryRunner.query(`ALTER TABLE "fit_analysis" RENAME TO "match_analysis"`);
 
     // ── Column renames ──
     await queryRunner.query(
       `ALTER TABLE "jobs" RENAME COLUMN "draft_application_id" TO "draft_job_id"`,
     );
-    await queryRunner.query(
-      `ALTER TABLE "job_notes" RENAME COLUMN "application_id" TO "job_id"`,
-    );
+    await queryRunner.query(`ALTER TABLE "job_notes" RENAME COLUMN "application_id" TO "job_id"`);
     await queryRunner.query(
       `ALTER TABLE "job_stage_events" RENAME COLUMN "application_id" TO "job_id"`,
     );
@@ -38,31 +28,15 @@ export class RenameApplicationToJob1767700000000 implements MigrationInterface {
 
     // ── Index renames (safe — skip if table rename already handled them) ──
     await this.safeRenameIndex(queryRunner, "applications_pkey", "jobs_pkey");
-    await this.safeRenameIndex(
-      queryRunner,
-      "idx_applications_source_run",
-      "idx_jobs_source_run",
-    );
-    await this.safeRenameIndex(
-      queryRunner,
-      "draft_applications_pkey",
-      "draft_jobs_pkey",
-    );
-    await this.safeRenameIndex(
-      queryRunner,
-      "application_notes_pkey",
-      "job_notes_pkey",
-    );
+    await this.safeRenameIndex(queryRunner, "idx_applications_source_run", "idx_jobs_source_run");
+    await this.safeRenameIndex(queryRunner, "draft_applications_pkey", "draft_jobs_pkey");
+    await this.safeRenameIndex(queryRunner, "application_notes_pkey", "job_notes_pkey");
     await this.safeRenameIndex(
       queryRunner,
       "application_stage_events_pkey",
       "job_stage_events_pkey",
     );
-    await this.safeRenameIndex(
-      queryRunner,
-      "fit_analysis_pkey",
-      "match_analysis_pkey",
-    );
+    await this.safeRenameIndex(queryRunner, "fit_analysis_pkey", "match_analysis_pkey");
     await this.safeRenameIndex(
       queryRunner,
       "uq_fit_analysis_application_id",
@@ -223,31 +197,15 @@ export class RenameApplicationToJob1767700000000 implements MigrationInterface {
       "uq_match_analysis_job_id",
       "uq_fit_analysis_application_id",
     );
-    await this.safeRenameIndex(
-      queryRunner,
-      "match_analysis_pkey",
-      "fit_analysis_pkey",
-    );
+    await this.safeRenameIndex(queryRunner, "match_analysis_pkey", "fit_analysis_pkey");
     await this.safeRenameIndex(
       queryRunner,
       "job_stage_events_pkey",
       "application_stage_events_pkey",
     );
-    await this.safeRenameIndex(
-      queryRunner,
-      "job_notes_pkey",
-      "application_notes_pkey",
-    );
-    await this.safeRenameIndex(
-      queryRunner,
-      "draft_jobs_pkey",
-      "draft_applications_pkey",
-    );
-    await this.safeRenameIndex(
-      queryRunner,
-      "idx_jobs_source_run",
-      "idx_applications_source_run",
-    );
+    await this.safeRenameIndex(queryRunner, "job_notes_pkey", "application_notes_pkey");
+    await this.safeRenameIndex(queryRunner, "draft_jobs_pkey", "draft_applications_pkey");
+    await this.safeRenameIndex(queryRunner, "idx_jobs_source_run", "idx_applications_source_run");
     await this.safeRenameIndex(queryRunner, "jobs_pkey", "applications_pkey");
 
     // ── Column renames back ──
@@ -260,26 +218,16 @@ export class RenameApplicationToJob1767700000000 implements MigrationInterface {
     await queryRunner.query(
       `ALTER TABLE "job_stage_events" RENAME COLUMN "job_id" TO "application_id"`,
     );
-    await queryRunner.query(
-      `ALTER TABLE "job_notes" RENAME COLUMN "job_id" TO "application_id"`,
-    );
+    await queryRunner.query(`ALTER TABLE "job_notes" RENAME COLUMN "job_id" TO "application_id"`);
     await queryRunner.query(
       `ALTER TABLE "jobs" RENAME COLUMN "draft_job_id" TO "draft_application_id"`,
     );
 
     // ── Table renames back (reverse order) ──
-    await queryRunner.query(
-      `ALTER TABLE "match_analysis" RENAME TO "fit_analysis"`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "draft_jobs" RENAME TO "draft_applications"`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "job_stage_events" RENAME TO "application_stage_events"`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "job_notes" RENAME TO "application_notes"`,
-    );
+    await queryRunner.query(`ALTER TABLE "match_analysis" RENAME TO "fit_analysis"`);
+    await queryRunner.query(`ALTER TABLE "draft_jobs" RENAME TO "draft_applications"`);
+    await queryRunner.query(`ALTER TABLE "job_stage_events" RENAME TO "application_stage_events"`);
+    await queryRunner.query(`ALTER TABLE "job_notes" RENAME TO "application_notes"`);
     await queryRunner.query(`ALTER TABLE "jobs" RENAME TO "applications"`);
   }
 
@@ -293,9 +241,7 @@ export class RenameApplicationToJob1767700000000 implements MigrationInterface {
       [oldName],
     );
     if (rows.length > 0) {
-      await queryRunner.query(
-        `ALTER INDEX "${oldName}" RENAME TO "${newName}"`,
-      );
+      await queryRunner.query(`ALTER INDEX "${oldName}" RENAME TO "${newName}"`);
     }
   }
 

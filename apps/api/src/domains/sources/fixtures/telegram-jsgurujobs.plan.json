@@ -1,5 +1,6 @@
 {
   "id": "bb0d3a10-4f5d-4c9e-8f1a-2d7e6c8b0a92",
+  "boardType": "NonSequential",
   "steps": [
     {
       "id": "collect-telegram",
@@ -13,6 +14,12 @@
           "direction": "up",
           "surfaceFields": [
             {
+              "key": "publishedAt",
+              "selector": ".bubble.channel-post",
+              "type": "attribute",
+              "value": "data-timestamp"
+            },
+            {
               "key": "rawText",
               "selector": ".translatable-message",
               "type": "property",
@@ -20,9 +27,9 @@
             },
             {
               "key": "applyUrl",
-              "selector": "a[href*='jobs'],a[href*='career'],a[href*='lever'],a[href*='greenhouse'],a[href*='ashby'],a[href*='workable']",
-              "type": "attribute",
-              "value": "href"
+              "type": "regex",
+              "value": "Apply:\\s*(https?://[^\\s]+)",
+              "sourceField": "rawText"
             },
             {
               "key": "title",
@@ -55,7 +62,15 @@
               "sourceField": "rawText"
             }
           ],
-          "detailsFields": []
+          "detailsFields": [
+            {
+              "key": "description",
+              "selector": "body",
+              "type": "property",
+              "value": "innerHTML",
+              "format": "tiptap"
+            }
+          ]
         }
       }
     }

@@ -3,10 +3,14 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
+  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
+
+import { UserEntity } from "./user.entity";
 
 import { SourceTemplateEntity } from "./source-template.entity";
 
@@ -17,6 +21,13 @@ export class PlanEntity {
 
   @Column({ name: "display_name", type: "varchar", length: 256 })
   displayName!: string;
+
+  @Column({ name: "user_id", type: "text" })
+  userId!: string;
+
+  @ManyToOne(() => UserEntity)
+  @JoinColumn({ name: "user_id" })
+  user?: UserEntity;
 
   @Column({ type: "jsonb" })
   document!: ExecutorPlanDocument;

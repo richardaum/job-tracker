@@ -10,9 +10,7 @@ import type {
 /** Same extensions as the web app editor so scraped content maps to compatible JSON. */
 const TIPTAP_EXTENSIONS = [StarterKit];
 
-type CollectField =
-  | PlanStepCollectJobsSurfaceField
-  | PlanStepCollectJobsDetailsField;
+type CollectField = PlanStepCollectJobsSurfaceField | PlanStepCollectJobsDetailsField;
 
 /**
  * Transforms a validated raw string (or null/undefined) into the value stored on the job.

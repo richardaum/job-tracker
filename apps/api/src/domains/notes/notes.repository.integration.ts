@@ -43,9 +43,7 @@ describe.skipIf(!hasDb)("NoteRepository (integration)", () => {
 
   async function createTestApplication(uId: string, companyName: string) {
     const companyRepo = dataSource.getRepository(CompanyEntity);
-    const company = await companyRepo.save(
-      companyRepo.create({ userId: uId, name: companyName }),
-    );
+    const company = await companyRepo.save(companyRepo.create({ userId: uId, name: companyName }));
     const appRepo = dataSource.getRepository(JobEntity);
     return appRepo.save(
       appRepo.create({
@@ -79,20 +77,14 @@ describe.skipIf(!hasDb)("NoteRepository (integration)", () => {
       }),
     });
 
-    const staleUpdate = await repo.updateWithRevision(
-      note.id,
-      userId,
-      note.revision + 1,
-      { content: "Outdated write" },
-    );
+    const staleUpdate = await repo.updateWithRevision(note.id, userId, note.revision + 1, {
+      content: "Outdated write",
+    });
     expect(staleUpdate).toBeNull();
 
-    const validUpdate = await repo.updateWithRevision(
-      note.id,
-      userId,
-      note.revision,
-      { content: "Updated with valid revision" },
-    );
+    const validUpdate = await repo.updateWithRevision(note.id, userId, note.revision, {
+      content: "Updated with valid revision",
+    });
     expect(validUpdate).not.toBeNull();
     expect(validUpdate?.revision).toBe(note.revision + 1);
     expect(validUpdate?.content).toBe("Updated with valid revision");

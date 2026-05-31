@@ -24,8 +24,6 @@ export function useFilteredResults<T>({
       return items as T[];
     }
 
-    return items.filter((item) =>
-      getSearchableText(item).toLowerCase().includes(normalized),
-    );
+    return items.filter((item) => getSearchableText(item).toLowerCase().includes(normalized));
   }, [getSearchableText, items, normalized]);
 }

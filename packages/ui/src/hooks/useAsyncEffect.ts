@@ -3,10 +3,7 @@ import { type DependencyList, useEffect, useRef } from "react";
 type AsyncEffectCleanup = void | (() => void);
 type AsyncEffect = () => Promise<AsyncEffectCleanup> | AsyncEffectCleanup;
 
-export function useAsyncEffect(
-  effect: AsyncEffect,
-  deps: DependencyList,
-): void {
+export function useAsyncEffect(effect: AsyncEffect, deps: DependencyList): void {
   const cleanupRef = useRef<AsyncEffectCleanup>(undefined);
   const depsRef = useRef<DependencyList | undefined>(undefined);
 

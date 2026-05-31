@@ -66,9 +66,7 @@ async function main() {
     analysis.items = nextItems;
     const [err] = await tryRun(repo.save(analysis));
     if (err) {
-      process.stdout.write(
-        `\n  ❌ ${analysis.id}: ${err.message.slice(0, 120)}\n`,
-      );
+      process.stdout.write(`\n  ❌ ${analysis.id}: ${err.message.slice(0, 120)}\n`);
       failed++;
       continue;
     }

@@ -34,15 +34,9 @@ function StatefulSideDetailsStory({
             List column
           </Text>
           <Text size="sm" color="secondary">
-            Select a template label to reopen the pane from the toolbar if you
-            closed it.
+            Select a template label to reopen the pane from the toolbar if you closed it.
           </Text>
-          <Button
-            type="button"
-            intent="outlined"
-            size="sm"
-            onClick={() => setOpen(true)}
-          >
+          <Button type="button" intent="outlined" size="sm" onClick={() => setOpen(true)}>
             Open inline SideDetails
           </Button>
         </Stack>
@@ -60,11 +54,7 @@ function StatefulSideDetailsStory({
         side={side}
         footer={
           <div className={cn("flex justify-end gap-2")}>
-            <Button
-              intent="secondary"
-              type="button"
-              onClick={() => setOpen(false)}
-            >
+            <Button intent="secondary" type="button" onClick={() => setOpen(false)}>
               Close
             </Button>
             <Button intent="primary" type="button">
@@ -75,8 +65,8 @@ function StatefulSideDetailsStory({
       >
         <Stack gap="sm">
           <Text size="sm" color="secondary">
-            Plug any layout into this body; the chrome stays generic for list →
-            panel flows across the product.
+            Plug any layout into this body; the chrome stays generic for list → panel flows across
+            the product.
           </Text>
           <Button intent="outlined" size="sm" type="button">
             Another control

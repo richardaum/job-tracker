@@ -1,11 +1,7 @@
 import { AsyncMetadataStatusEnum } from "@api/domains/shared/async-metadata.type";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import {
-  FillJobStatusChanged,
-  JobMatchStatusChanged,
-  SummaryStatusChanged,
-} from "./job.events";
+import { FillJobStatusChanged, JobMatchStatusChanged, SummaryStatusChanged } from "./job.events";
 import type { JobEventBus } from "./job-event.bus";
 import type { JobsRepository } from "./jobs.repository";
 import { JobsEventsResolver } from "./jobs-events.resolver";
@@ -23,25 +19,14 @@ describe("JobsEventsResolver", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    resolver = new JobsEventsResolver(
-      eventBus as JobEventBus,
-      jobsRepo as JobsRepository,
-    );
+    resolver = new JobsEventsResolver(eventBus as JobEventBus, jobsRepo as JobsRepository);
   });
 
   it("jobSummaryStatusChanged yields only matching SummaryStatusChanged events", async () => {
     vi.mocked(scopedBus.eventsOf).mockReturnValue({
       async *[Symbol.asyncIterator]() {
-        yield new SummaryStatusChanged(
-          "job-1",
-          "user-1",
-          AsyncMetadataStatusEnum.COMPLETED,
-        );
-        yield new SummaryStatusChanged(
-          "job-1",
-          "user-1",
-          AsyncMetadataStatusEnum.PROCESSING,
-        );
+        yield new SummaryStatusChanged("job-1", "user-1", AsyncMetadataStatusEnum.COMPLETED);
+        yield new SummaryStatusChanged("job-1", "user-1", AsyncMetadataStatusEnum.PROCESSING);
       },
     });
     vi.mocked(jobsRepo.findOneByIdAndUserId!).mockResolvedValue({
@@ -84,16 +69,8 @@ describe("JobsEventsResolver", () => {
   it("jobFillStatusChanged yields FillJobStatusChanged events", async () => {
     vi.mocked(scopedBus.eventsOf).mockReturnValue({
       async *[Symbol.asyncIterator]() {
-        yield new FillJobStatusChanged(
-          "job-1",
-          "user-1",
-          AsyncMetadataStatusEnum.PROCESSING,
-        );
-        yield new FillJobStatusChanged(
-          "job-1",
-          "user-1",
-          AsyncMetadataStatusEnum.COMPLETED,
-        );
+        yield new FillJobStatusChanged("job-1", "user-1", AsyncMetadataStatusEnum.PROCESSING);
+        yield new FillJobStatusChanged("job-1", "user-1", AsyncMetadataStatusEnum.COMPLETED);
         yield new FillJobStatusChanged(
           "job-1",
           "user-1",

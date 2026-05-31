@@ -23,9 +23,7 @@ import { EntityManager } from "typeorm";
 })
 class ScriptModule {}
 
-function normalizeType(
-  type: string | null | undefined,
-): RequirementTypeEnum | undefined {
+function normalizeType(type: string | null | undefined): RequirementTypeEnum | undefined {
   if (!type) return undefined;
   const words = type.replace(/_/g, " ").toLowerCase();
   const capitalized = words
@@ -52,15 +50,12 @@ async function main() {
   const dryRun = process.argv.includes("--dry-run");
   const prefix = dryRun ? "[DRY-RUN] " : "";
 
-  process.stdout.write(
-    `\n${prefix}Fixing fit_analysis items -> type (UPPER -> PascalCase)...\n`,
-  );
+  process.stdout.write(`\n${prefix}Fixing fit_analysis items -> type (UPPER -> PascalCase)...\n`);
   const fitRepo = em.getRepository(MatchAnalysisEntity);
   const allFit = await fitRepo.find();
   const fixType = allFit.filter((e) =>
     e.items?.some(
-      (i: MatchItem) =>
-        i.type && normalizeType(i.type) && i.type !== normalizeType(i.type),
+      (i: MatchItem) => i.type && normalizeType(i.type) && i.type !== normalizeType(i.type),
     ),
   );
 

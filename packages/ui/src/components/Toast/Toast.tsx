@@ -157,22 +157,15 @@ export function Toast({
               intentClasses[currentIntent],
             )}
           >
-            <span
-              aria-hidden
-              className={cn("pt-0.5", intentIconClasses[currentIntent])}
-            >
+            <span aria-hidden className={cn("pt-0.5", intentIconClasses[currentIntent])}>
               {intentIcons[currentIntent]}
             </span>
             <div>
-              <RadixToast.Title
-                className={cn("text-sm font-semibold text-text-primary")}
-              >
+              <RadixToast.Title className={cn("text-sm font-semibold text-text-primary")}>
                 {toastItem.title}
               </RadixToast.Title>
               {toastItem.description ? (
-                <RadixToast.Description
-                  className={cn("mt-1 text-sm text-text-secondary")}
-                >
+                <RadixToast.Description className={cn("mt-1 text-sm text-text-secondary")}>
                   {toastItem.description}
                 </RadixToast.Description>
               ) : null}
@@ -205,9 +198,7 @@ export function Toast({
 
       {triggerElement}
       <RadixToast.Viewport
-        className={cn(
-          "fixed right-4 top-4 z-50 flex max-w-sm flex-col gap-2 outline-none",
-        )}
+        className={cn("fixed right-4 top-4 z-50 flex max-w-sm flex-col gap-2 outline-none")}
       />
     </RadixToast.Provider>
   );

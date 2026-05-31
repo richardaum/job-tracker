@@ -87,15 +87,8 @@ export function ClearSourceRunsDialog({
             ? "Jobs imported by these runs will be deleted permanently."
             : "Jobs imported by these runs stay in your list but lose the source run link."}
         </Text>
-        <label
-          htmlFor={checkboxId}
-          className={cn("flex cursor-pointer items-start gap-2")}
-        >
-          <Checkbox
-            id={checkboxId}
-            checked={deleteJobs}
-            onCheckedChange={setDeleteJobs}
-          />
+        <label htmlFor={checkboxId} className={cn("flex cursor-pointer items-start gap-2")}>
+          <Checkbox id={checkboxId} checked={deleteJobs} onCheckedChange={setDeleteJobs} />
           <Text size="sm">Also delete jobs imported by these runs</Text>
         </label>
       </Stack>

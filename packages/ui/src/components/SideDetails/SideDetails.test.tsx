@@ -83,9 +83,7 @@ describe("SideDetails overlay", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /^open$/i }));
 
-    expect(
-      screen.getByRole("dialog", { name: "Custom a11y" }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("dialog", { name: "Custom a11y" })).toBeInTheDocument();
   });
 });
 
@@ -97,12 +95,7 @@ function InlineControlledHarness({ title }: { title?: React.ReactNode }) {
         Open inline
       </button>
       <div className={cn("flex min-h-40 flex-row")}>
-        <SideDetails
-          layout="inline"
-          open={open}
-          onOpenChange={setOpen}
-          title={title}
-        >
+        <SideDetails layout="inline" open={open} onOpenChange={setOpen} title={title}>
           <p>Inline body</p>
         </SideDetails>
       </div>
@@ -115,15 +108,11 @@ describe("SideDetails inline", () => {
     render(<InlineControlledHarness title="Pane title" />);
 
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
-    expect(
-      screen.getByRole("complementary", { name: /pane title/i }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("complementary", { name: /pane title/i })).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: /close side panel/i }));
 
-    expect(
-      screen.queryByRole("complementary", { name: /pane title/i }),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByRole("complementary", { name: /pane title/i })).not.toBeInTheDocument();
   });
 
   it("does not intercept Escape globally", () => {
@@ -131,8 +120,6 @@ describe("SideDetails inline", () => {
 
     fireEvent.keyDown(document, { key: "Escape" });
 
-    expect(
-      screen.getByRole("complementary", { name: /importer/i }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("complementary", { name: /importer/i })).toBeInTheDocument();
   });
 });

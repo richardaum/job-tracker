@@ -26,29 +26,14 @@ export function EmptyStateActionHint({
   layout,
 }: EmptyStateActionHintProps) {
   return (
-    <EmptyStateCard
-      className={cn(className)}
-      padding={padding ?? "5xl"}
-      layout={layout}
-    >
+    <EmptyStateCard className={cn(className)} padding={padding ?? "5xl"} layout={layout}>
       <Stack gap="md" align="center" className={cn("max-w-sm")}>
         <Stack gap="xs" align="center">
-          <Text
-            as="p"
-            size="base"
-            weight="semibold"
-            color="primary"
-            className={cn("leading-snug")}
-          >
+          <Text as="p" size="base" weight="semibold" color="primary" className={cn("leading-snug")}>
             {headline}
           </Text>
           {description ? (
-            <Text
-              as="p"
-              size="sm"
-              color="muted"
-              className={cn("leading-relaxed")}
-            >
+            <Text as="p" size="sm" color="muted" className={cn("leading-relaxed")}>
               {description}
             </Text>
           ) : null}

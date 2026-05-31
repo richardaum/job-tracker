@@ -64,9 +64,7 @@ describe("JobEntity", () => {
 
   it("does not attach max-length errors when title is null", async () => {
     const row = minimalJob({ title: null, stage: ApplicationStageEnum.NEW });
-    const errs = await validate(row).then((list) =>
-      list.filter((e) => e.property === "title"),
-    );
+    const errs = await validate(row).then((list) => list.filter((e) => e.property === "title"));
     expect(errs).toHaveLength(0);
   });
 });

@@ -22,10 +22,7 @@ export function TagsInput({ value, onChange, disabled, id }: TagsInputProps) {
 
   function commit(raw: string) {
     const tagLabel = raw.trim();
-    if (
-      tagLabel &&
-      !value.some((t) => t.label.toLowerCase() === tagLabel.toLowerCase())
-    ) {
+    if (tagLabel && !value.some((t) => t.label.toLowerCase() === tagLabel.toLowerCase())) {
       onChange([...value, { label: tagLabel }]);
     }
     setDraft("");
@@ -78,9 +75,7 @@ export function TagsInput({ value, onChange, disabled, id }: TagsInputProps) {
               {tooltipContent ? (
                 <span
                   aria-hidden
-                  className={cn(
-                    "size-1.5 shrink-0 rounded-full bg-text-muted/70",
-                  )}
+                  className={cn("size-1.5 shrink-0 rounded-full bg-text-muted/70")}
                 />
               ) : null}
               <span className={cn("max-w-40 truncate")}>{tag.label}</span>

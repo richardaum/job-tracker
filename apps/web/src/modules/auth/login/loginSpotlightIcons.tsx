@@ -49,10 +49,7 @@ export function LoginSpotlightGlyph({
       aria-hidden
     >
       <Cmp
-        className={cn(
-          "text-text-inverted",
-          isHero ? "size-11 sm:size-12" : "size-5",
-        )}
+        className={cn("text-text-inverted", isHero ? "size-11 sm:size-12" : "size-5")}
         weight="duotone"
       />
     </span>

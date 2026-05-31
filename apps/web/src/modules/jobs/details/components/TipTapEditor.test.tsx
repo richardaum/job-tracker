@@ -19,8 +19,7 @@ function NotesComposerLikeFixture({
   const [draftNote, setDraftNote] = useState(EMPTY_TIPTAP_DOC);
   const creatingNote = false;
 
-  const canSend =
-    tipTapToPlainText(draftNote).trim().length > 0 && !creatingNote;
+  const canSend = tipTapToPlainText(draftNote).trim().length > 0 && !creatingNote;
 
   function handleSendNote() {
     if (!canSend) return;

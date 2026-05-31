@@ -7,9 +7,7 @@ function toDateTimeLocalValue(date: Date): string {
   return `${year}-${month}-${day}T${hours}:${minutes}`;
 }
 
-export function buildScheduledAtWithBrowserTimezone(
-  dateTimeLocalValue: string,
-): string | null {
+export function buildScheduledAtWithBrowserTimezone(dateTimeLocalValue: string): string | null {
   if (!dateTimeLocalValue) return null;
 
   const parsedDate = new Date(dateTimeLocalValue);
@@ -31,9 +29,7 @@ export function getDateTimeInputValueFromNow(offsetDays = 0): string {
   return toDateTimeLocalValue(date);
 }
 
-export function getDateTimeInputValueFromIso(
-  isoDateTimeValue?: string | null,
-): string {
+export function getDateTimeInputValueFromIso(isoDateTimeValue?: string | null): string {
   if (!isoDateTimeValue) return "";
 
   const date = new Date(isoDateTimeValue);

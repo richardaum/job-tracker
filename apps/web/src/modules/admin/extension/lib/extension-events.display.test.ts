@@ -1,10 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import {
-  ExtensionActivityEventType,
-  SourceRunEventType,
-  SourceRunStatus,
-} from "@/gql/hooks";
+import { ExtensionActivityEventType, SourceRunEventType, SourceRunStatus } from "@/gql/hooks";
 
 import {
   countInFlightActivityEvents,
@@ -15,9 +11,7 @@ import {
   sourceRunSummary,
 } from "./extension-events.display";
 
-function sourceRun(
-  overrides: Partial<Parameters<typeof mapSourceRunToExtensionEvent>[0]> = {},
-) {
+function sourceRun(overrides: Partial<Parameters<typeof mapSourceRunToExtensionEvent>[0]> = {}) {
   return {
     id: "run-1",
     templateId: "template-1",
@@ -31,9 +25,7 @@ function sourceRun(
 
 describe("extension-events.display", () => {
   it("builds summary from profile and surface URL", () => {
-    expect(sourceRunSummary(sourceRun())).toBe(
-      "RemoteYeah · https://example.com/jobs",
-    );
+    expect(sourceRunSummary(sourceRun())).toBe("RemoteYeah · https://example.com/jobs");
   });
 
   it("merges source runs and activity events by occurredAt", () => {

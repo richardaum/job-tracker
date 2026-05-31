@@ -9,9 +9,7 @@ import { describe, expect, it, vi } from "vitest";
 import { RoleService } from "./role.service";
 import { RolesGuard } from "./roles.guard";
 
-function makeContext(
-  user: { userId: string; role?: string } | undefined,
-): ExecutionContext {
+function makeContext(user: { userId: string; role?: string } | undefined): ExecutionContext {
   const request = { user };
   const gqlContext = { req: request };
   const args = [{}, {}, gqlContext, {}];
@@ -40,9 +38,7 @@ describe("RolesGuard", () => {
       findById: vi.fn().mockResolvedValue({ role: RoleEnum.User }),
     } as unknown as UserService;
     const guard = makeGuard(reflector, userService);
-    expect(await guard.canActivate(makeContext({ userId: "user-1" }))).toBe(
-      true,
-    );
+    expect(await guard.canActivate(makeContext({ userId: "user-1" }))).toBe(true);
     expect(userService.findById).toHaveBeenCalledWith("user-1");
   });
 
@@ -54,9 +50,7 @@ describe("RolesGuard", () => {
       findById: vi.fn().mockResolvedValue({ role: RoleEnum.User }),
     } as unknown as UserService;
     const guard = makeGuard(reflector, userService);
-    expect(await guard.canActivate(makeContext({ userId: "user-1" }))).toBe(
-      false,
-    );
+    expect(await guard.canActivate(makeContext({ userId: "user-1" }))).toBe(false);
     expect(userService.findById).toHaveBeenCalledWith("user-1");
   });
 
@@ -68,9 +62,7 @@ describe("RolesGuard", () => {
       findById: vi.fn().mockResolvedValue({ role: RoleEnum.Admin }),
     } as unknown as UserService;
     const guard = makeGuard(reflector, userService);
-    expect(await guard.canActivate(makeContext({ userId: "admin-1" }))).toBe(
-      true,
-    );
+    expect(await guard.canActivate(makeContext({ userId: "admin-1" }))).toBe(true);
     expect(userService.findById).toHaveBeenCalledWith("admin-1");
   });
 
@@ -90,8 +82,6 @@ describe("RolesGuard", () => {
     } as unknown as Reflector;
     const userService = { findById: vi.fn() } as unknown as UserService;
     const guard = makeGuard(reflector, userService);
-    expect(await guard.canActivate(makeContext({} as { userId: string }))).toBe(
-      false,
-    );
+    expect(await guard.canActivate(makeContext({} as { userId: string }))).toBe(false);
   });
 });

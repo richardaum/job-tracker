@@ -101,8 +101,7 @@ const argv = await yargs(userArgs)
   .option("open", {
     type: "boolean",
     default: true,
-    description:
-      "Open web app in the default browser (default: same as --verify)",
+    description: "Open web app in the default browser (default: same as --verify)",
   })
   .strict()
   .check((args) => {
@@ -172,14 +171,13 @@ if (argv.dryRun) {
   });
 
   const allocatedPorts = registerWorktreePorts(slug);
-  const { apiEnvPath, webEnvPath, storybookEnvPath, extensionEnvPath } =
-    writeWorktreeAppEnvs({
-      worktreeRoot,
-      mainRoot,
-      ports: allocatedPorts,
-      databaseUrl,
-      e2eDatabaseUrl: testDatabaseUrl,
-    });
+  const { apiEnvPath, webEnvPath, storybookEnvPath, extensionEnvPath } = writeWorktreeAppEnvs({
+    worktreeRoot,
+    mainRoot,
+    ports: allocatedPorts,
+    databaseUrl,
+    e2eDatabaseUrl: testDatabaseUrl,
+  });
 
   addWorktreeToWorkspace({ mainRoot, slug, worktreeRoot, tag });
 

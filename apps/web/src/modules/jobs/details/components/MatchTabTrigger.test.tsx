@@ -24,8 +24,7 @@ vi.mock("@/gql/hooks", async (importOriginal) => {
   return {
     ...actual,
     useJobMatchQuery: gqlMocks.useJobMatchQuery,
-    useJobMatchStatusChangedSubscription:
-      gqlMocks.useJobMatchStatusChangedSubscription,
+    useJobMatchStatusChangedSubscription: gqlMocks.useJobMatchStatusChangedSubscription,
   };
 });
 
@@ -78,9 +77,10 @@ describe("MatchTabTrigger", () => {
 
     renderMatchTabTrigger();
 
-    expect(
-      screen.getByRole("tab", { name: "Match", selected: true }),
-    ).toHaveAttribute("data-state", "active");
+    expect(screen.getByRole("tab", { name: "Match", selected: true })).toHaveAttribute(
+      "data-state",
+      "active",
+    );
   });
 
   it("shows status tooltip on hover when match has a status", async () => {

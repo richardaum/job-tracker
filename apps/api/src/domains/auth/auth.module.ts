@@ -16,11 +16,7 @@ import { RoleService } from "./role.service";
 import { RolesGuard } from "./roles.guard";
 
 @Module({
-  imports: [
-    UsersModule,
-    PassportModule.register({ session: false }),
-    JwtModule.register({}),
-  ],
+  imports: [UsersModule, PassportModule.register({ session: false }), JwtModule.register({})],
   providers: [
     GoogleStrategy,
     JwtStrategy,

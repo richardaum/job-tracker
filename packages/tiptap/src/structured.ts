@@ -24,9 +24,7 @@ export function structuredNoteToTipTapDocument(
         type: "bulletList",
         content: bullets.map((bullet) => ({
           type: "listItem",
-          content: [
-            { type: "paragraph", content: [{ type: "text", text: bullet }] },
-          ],
+          content: [{ type: "paragraph", content: [{ type: "text", text: bullet }] }],
         })),
       });
     }

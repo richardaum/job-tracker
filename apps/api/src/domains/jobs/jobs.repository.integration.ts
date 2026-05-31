@@ -85,11 +85,7 @@ describe.skipIf(!hasDb)("JobsRepository (integration)", () => {
       await insertJob({ title: "B", sourceRunId: "run-a" });
       await insertJob({ title: "C", sourceRunId: "run-b" });
 
-      const result = await repo.countBySourceRunIds(userId, [
-        "run-a",
-        "run-b",
-        "run-nonexistent",
-      ]);
+      const result = await repo.countBySourceRunIds(userId, ["run-a", "run-b", "run-nonexistent"]);
 
       expect(result.get("run-a")).toBe(2);
       expect(result.get("run-b")).toBe(1);

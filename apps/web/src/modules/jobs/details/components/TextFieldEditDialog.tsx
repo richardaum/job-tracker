@@ -64,10 +64,7 @@ export function TextFieldEditDialog({
       onOpenChange={handleOpenChange}
     >
       <Stack gap="sm">
-        <FormField
-          label={label}
-          htmlFor={`edit-${label.toLowerCase().replace(/\s+/g, "-")}`}
-        >
+        <FormField label={label} htmlFor={`edit-${label.toLowerCase().replace(/\s+/g, "-")}`}>
           <Input
             id={`edit-${label.toLowerCase().replace(/\s+/g, "-")}`}
             value={draft}

@@ -9,10 +9,6 @@ import { WorkPreferencesService } from "./work-preferences.service";
 
 @Module({
   imports: [TypeOrmModule.forFeature([WorkPreferencesEntity]), AuthModule],
-  providers: [
-    WorkPreferencesRepository,
-    WorkPreferencesService,
-    WorkPreferencesResolver,
-  ],
+  providers: [WorkPreferencesRepository, WorkPreferencesService, WorkPreferencesResolver],
 })
 export class WorkPreferencesModule {}

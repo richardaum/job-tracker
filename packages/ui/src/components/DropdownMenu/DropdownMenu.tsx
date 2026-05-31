@@ -74,21 +74,13 @@ export function DropdownMenuItem({
 }
 
 export function DropdownMenuSeparator() {
-  return (
-    <RadixDropdownMenu.Separator className={cn("my-1 h-px bg-border-subtle")} />
-  );
+  return <RadixDropdownMenu.Separator className={cn("my-1 h-px bg-border-subtle")} />;
 }
 
-export function DropdownMenuLabel({
-  children,
-  className,
-}: DropdownMenuLabelProps) {
+export function DropdownMenuLabel({ children, className }: DropdownMenuLabelProps) {
   return (
     <RadixDropdownMenu.Label
-      className={cn(
-        "px-2 py-1.5 text-xs font-medium text-text-secondary",
-        className,
-      )}
+      className={cn("px-2 py-1.5 text-xs font-medium text-text-secondary", className)}
     >
       {children}
     </RadixDropdownMenu.Label>

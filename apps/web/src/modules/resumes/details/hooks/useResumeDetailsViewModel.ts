@@ -11,10 +11,7 @@ import {
 } from "@/gql/hooks";
 import { deriveDetailStatus } from "@/lib/entity-detail-view-status";
 
-export function useResumeDetailsViewModel(
-  resumeId: string,
-  onSaved: () => void,
-) {
+export function useResumeDetailsViewModel(resumeId: string, onSaved: () => void) {
   const { data, loading, error } = useResumeQuery({
     variables: { id: resumeId },
     fetchPolicy: "cache-and-network",
@@ -39,17 +36,12 @@ export function useResumeDetailsViewModel(
   const [saving, setSaving] = React.useState(false);
 
   const currentTitle = resume?.title ?? "";
-  const currentContent = normalizeTipTapDocument(
-    resume?.content ?? EMPTY_TIPTAP_DOC,
-  );
+  const currentContent = normalizeTipTapDocument(resume?.content ?? EMPTY_TIPTAP_DOC);
 
-  const titleDraft =
-    draftState.resumeId === resume?.id ? draftState.title : currentTitle;
-  const contentDraft =
-    draftState.resumeId === resume?.id ? draftState.content : currentContent;
+  const titleDraft = draftState.resumeId === resume?.id ? draftState.title : currentTitle;
+  const contentDraft = draftState.resumeId === resume?.id ? draftState.content : currentContent;
 
-  const hasChanges =
-    titleDraft !== currentTitle || contentDraft !== currentContent;
+  const hasChanges = titleDraft !== currentTitle || contentDraft !== currentContent;
 
   function commitDraft(title: string, content: string) {
     setDraftState({ resumeId: resume?.id ?? null, title, content });

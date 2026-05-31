@@ -54,8 +54,7 @@ export default defineBackground(() => {
   const onAuthRefreshCallbacks: Array<(success: boolean) => void> = [];
 
   const apiService = new ApiService({
-    onAuthRefreshResult: (success) =>
-      onAuthRefreshCallbacks.forEach((cb) => cb(success)),
+    onAuthRefreshResult: (success) => onAuthRefreshCallbacks.forEach((cb) => cb(success)),
   });
 
   const activityReporter = new ExtensionActivityReporterService(
@@ -66,9 +65,7 @@ export default defineBackground(() => {
 
   onAuthRefreshCallbacks.push((success) => {
     activityReporter.report(
-      success
-        ? ExtensionActivityEventType.AuthRefreshed
-        : ExtensionActivityEventType.AuthFailed,
+      success ? ExtensionActivityEventType.AuthRefreshed : ExtensionActivityEventType.AuthFailed,
       success ? "Session token refreshed" : "Session token refresh failed",
       { correlationId: "auth" },
     );
@@ -111,8 +108,7 @@ export default defineBackground(() => {
     void contextMenuService.setup();
   });
   registerMessageListenerByKind({
-    "admin.get-status": (message) =>
-      adminExtensionStatusService.handleGetStatusMessage(message),
+    "admin.get-status": (message) => adminExtensionStatusService.handleGetStatusMessage(message),
     "source-run.start": (message) => {
       void sourceRunEventsService.executeSourceRun(message);
     },

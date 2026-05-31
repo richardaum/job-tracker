@@ -20,8 +20,7 @@ vi.mock("@/gql/hooks", async (importOriginal) => {
   return {
     ...actual,
     useJobQuery: gqlMocks.useJobQuery,
-    useJobFillStatusChangedSubscription:
-      gqlMocks.useJobFillStatusChangedSubscription,
+    useJobFillStatusChangedSubscription: gqlMocks.useJobFillStatusChangedSubscription,
   };
 });
 
@@ -79,15 +78,11 @@ function renderOverviewTabTrigger() {
 }
 
 function getStatusDot() {
-  return document.querySelector(
-    '[data-testid="match-status-badge"]',
-  ) as HTMLElement;
+  return document.querySelector('[data-testid="match-status-badge"]') as HTMLElement;
 }
 
 function getOverviewTabTooltipTrigger() {
-  return within(screen.getByRole("tab", { name: "Overview" })).getByText(
-    "Overview",
-  );
+  return within(screen.getByRole("tab", { name: "Overview" })).getByText("Overview");
 }
 
 function getFillStatusChangedHandler() {
@@ -95,9 +90,7 @@ function getFillStatusChangedHandler() {
     (entry) => entry[0]?.onData !== undefined,
   );
   if (!call) {
-    throw new Error(
-      "jobFillStatusChanged subscription onData handler not found",
-    );
+    throw new Error("jobFillStatusChanged subscription onData handler not found");
   }
 
   return call[0].onData as (evt: {
@@ -121,9 +114,10 @@ describe("OverviewTabTrigger", () => {
 
     renderOverviewTabTrigger();
 
-    expect(
-      screen.getByRole("tab", { name: "Overview", selected: true }),
-    ).toHaveAttribute("data-state", "active");
+    expect(screen.getByRole("tab", { name: "Overview", selected: true })).toHaveAttribute(
+      "data-state",
+      "active",
+    );
   });
 
   it("shows status tooltip on hover when fill has a status", async () => {
@@ -166,8 +160,7 @@ describe("OverviewTabTrigger", () => {
     const user = userEvent.setup();
     gqlMocks.useJobQuery.mockImplementation(() => {
       const [job, setJob] = React.useState<
-        | ReturnType<typeof processingFillJob>
-        | ReturnType<typeof completedFillJob>
+        ReturnType<typeof processingFillJob> | ReturnType<typeof completedFillJob>
       >(processingFillJob());
 
       const refetch = React.useCallback(async () => {
@@ -185,9 +178,9 @@ describe("OverviewTabTrigger", () => {
     expect(processingDot).toHaveClass("bg-text-warning");
 
     await waitFor(() =>
-      expect(
-        gqlMocks.useJobFillStatusChangedSubscription.mock.calls.length,
-      ).toBeGreaterThanOrEqual(1),
+      expect(gqlMocks.useJobFillStatusChangedSubscription.mock.calls.length).toBeGreaterThanOrEqual(
+        1,
+      ),
     );
 
     await act(async () => {

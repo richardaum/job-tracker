@@ -22,8 +22,8 @@ export function PasteListenerProvider({ children }: { children: ReactNode }) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const { enqueueToast } = useToastQueue();
 
-  const [createDraftCaptureJob, { loading: createDraftLoading }] =
-    useCreateDraftCaptureJobMutation({
+  const [createDraftCaptureJob, { loading: createDraftLoading }] = useCreateDraftCaptureJobMutation(
+    {
       refetchQueries: [
         {
           query: JobsDocument,
@@ -31,7 +31,8 @@ export function PasteListenerProvider({ children }: { children: ReactNode }) {
         },
       ],
       awaitRefetchQueries: true,
-    });
+    },
+  );
 
   const handlePasteCapture = useCallback((event: ClipboardEvent) => {
     const target = event.target;

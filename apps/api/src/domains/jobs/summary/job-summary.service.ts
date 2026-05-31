@@ -1,9 +1,6 @@
 import { JobNoteEntity } from "@api/database/entities/job-note.entity";
 import { JobStageEventEntity } from "@api/database/entities/job-stage-event.entity";
-import {
-  SummaryGenerationRequested,
-  SummaryStatusChanged,
-} from "@api/domains/jobs/job.events";
+import { SummaryGenerationRequested, SummaryStatusChanged } from "@api/domains/jobs/job.events";
 import { JobEventBus } from "@api/domains/jobs/job-event.bus";
 import { ApplicationStageEnum } from "@api/domains/jobs/job-stage.enum";
 import { JobsRepository } from "@api/domains/jobs/jobs.repository";
@@ -49,8 +46,7 @@ export class JobSummaryService implements OnModuleInit {
       return;
     }
 
-    if (job.summaryMetadata?.status === AsyncMetadataStatusEnum.PROCESSING)
-      return;
+    if (job.summaryMetadata?.status === AsyncMetadataStatusEnum.PROCESSING) return;
 
     const ok = await this.jobsRepo.updateSummaryMetadataIfStatus(
       jobId,
@@ -60,13 +56,7 @@ export class JobSummaryService implements OnModuleInit {
     );
     if (!ok) return;
 
-    this.eventBus.emit(
-      new SummaryStatusChanged(
-        jobId,
-        userId,
-        AsyncMetadataStatusEnum.PROCESSING,
-      ),
-    );
+    this.eventBus.emit(new SummaryStatusChanged(jobId, userId, AsyncMetadataStatusEnum.PROCESSING));
 
     this.eventBus.emit(new SummaryGenerationRequested(jobId, userId));
   }
@@ -75,8 +65,7 @@ export class JobSummaryService implements OnModuleInit {
     const job = await this.jobsRepo.findOneByIdAndUserId(jobId, userId);
     if (!job) return;
 
-    if (job.summaryMetadata?.status === AsyncMetadataStatusEnum.PROCESSING)
-      return;
+    if (job.summaryMetadata?.status === AsyncMetadataStatusEnum.PROCESSING) return;
 
     const ok = await this.jobsRepo.updateSummaryMetadataIfStatus(
       jobId,
@@ -86,13 +75,7 @@ export class JobSummaryService implements OnModuleInit {
     );
     if (!ok) return;
 
-    this.eventBus.emit(
-      new SummaryStatusChanged(
-        jobId,
-        userId,
-        AsyncMetadataStatusEnum.PROCESSING,
-      ),
-    );
+    this.eventBus.emit(new SummaryStatusChanged(jobId, userId, AsyncMetadataStatusEnum.PROCESSING));
 
     this.eventBus.emit(new SummaryGenerationRequested(jobId, userId));
   }
@@ -104,16 +87,10 @@ export class JobSummaryService implements OnModuleInit {
     const [err] = await tryRun(async () => {
       const companyName = job.company?.name ?? null;
       /** Align with match-analysis: prefer captured HTML posting body when present. */
-      const descPlain = job.description?.trim()
-        ? tipTapToPlainText(job.description).trim()
-        : "";
+      const descPlain = job.description?.trim() ? tipTapToPlainText(job.description).trim() : "";
       const trimmedHtml = job.htmlContent?.trim() ?? "";
       const htmlPlain = trimmedHtml ? htmlToPlainText(trimmedHtml).trim() : "";
-      const bodyPlain = htmlPlain
-        ? htmlPlain
-        : descPlain.trim()
-          ? descPlain
-          : null;
+      const bodyPlain = htmlPlain ? htmlPlain : descPlain.trim() ? descPlain : null;
 
       const notes = await this.notesRepo.find({
         where: { jobId, userId },
@@ -133,19 +110,13 @@ export class JobSummaryService implements OnModuleInit {
         .getMany();
 
       const stagesText = stageEvents
-        .map(
-          (e) => `${e.toStage ?? "unknown"}${e.reason ? `: ${e.reason}` : ""}`,
-        )
+        .map((e) => `${e.toStage ?? "unknown"}${e.reason ? `: ${e.reason}` : ""}`)
         .join(" → ");
 
       const currentStage = stageEvents[0]?.toStage ?? ApplicationStageEnum.NEW;
       const salaryParts = [
-        job.salary?.minCents != null
-          ? `$${(job.salary.minCents / 100).toLocaleString()}`
-          : null,
-        job.salary?.maxCents != null
-          ? `$${(job.salary.maxCents / 100).toLocaleString()}`
-          : null,
+        job.salary?.minCents != null ? `$${(job.salary.minCents / 100).toLocaleString()}` : null,
+        job.salary?.maxCents != null ? `$${(job.salary.maxCents / 100).toLocaleString()}` : null,
         job.salary?.currency ?? null,
         job.salary?.period ?? null,
       ].filter(Boolean);
@@ -188,11 +159,7 @@ export class JobSummaryService implements OnModuleInit {
       await this.jobsRepo.updateSummary(jobId, tipTapJson, userId);
 
       this.eventBus.emit(
-        new SummaryStatusChanged(
-          jobId,
-          userId,
-          AsyncMetadataStatusEnum.COMPLETED,
-        ),
+        new SummaryStatusChanged(jobId, userId, AsyncMetadataStatusEnum.COMPLETED),
       );
     });
 
@@ -208,9 +175,7 @@ export class JobSummaryService implements OnModuleInit {
         { status: AsyncMetadataStatusEnum.FAILED },
       );
 
-      this.eventBus.emit(
-        new SummaryStatusChanged(jobId, userId, AsyncMetadataStatusEnum.FAILED),
-      );
+      this.eventBus.emit(new SummaryStatusChanged(jobId, userId, AsyncMetadataStatusEnum.FAILED));
     }
   }
 }

@@ -21,9 +21,7 @@ export function useHasVerticalOverflow(
     }
 
     const syncOverflowState = () => {
-      setHasVerticalOverflow(
-        element.scrollHeight > element.clientHeight + epsilon,
-      );
+      setHasVerticalOverflow(element.scrollHeight > element.clientHeight + epsilon);
     };
 
     syncOverflowState();

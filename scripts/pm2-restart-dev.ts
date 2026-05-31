@@ -17,9 +17,7 @@ if (devApps.length === 0) {
   process.exit(1);
 }
 
-console.warn(
-  `[pm2:restart] Restarting dev apps (skipping ezpm2gui): ${devApps.join(", ")}`,
-);
+console.warn(`[pm2:restart] Restarting dev apps (skipping ezpm2gui): ${devApps.join(", ")}`);
 
 const result = spawnSync("pm2", ["restart", ...devApps, "--update-env"], {
   cwd: root,

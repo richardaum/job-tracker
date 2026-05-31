@@ -1,5 +1,6 @@
 {
   "id": "8f3c2a10-4b5d-4c9e-9f1a-2d7e6c8b0a91",
+  "boardType": "Sequential",
   "steps": [
     {
       "id": "step-remoteyeah-job-cards",

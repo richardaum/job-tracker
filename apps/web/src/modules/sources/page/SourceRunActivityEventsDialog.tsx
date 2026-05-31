@@ -1,6 +1,16 @@
 "use client";
 
-import { cn, Dialog, Skeleton, Stack, Text, Timeline, TimelineContent, TimelineItem, TimelineMarker } from "@job-tracker/ui";
+import {
+  cn,
+  Dialog,
+  Skeleton,
+  Stack,
+  Text,
+  Timeline,
+  TimelineContent,
+  TimelineItem,
+  TimelineMarker,
+} from "@job-tracker/ui";
 import React from "react";
 
 import { useSourceRunActivityEventsQuery } from "@/gql/hooks";
@@ -68,7 +78,8 @@ export function SourceRunActivityEventsDialog({
                       </Text>
                       <Text size="xs" color="muted">
                         {event.type}
-                        {event.type === "SOURCE_RUN_JOB_IMPORTED" && (event.payload as { duplicate?: boolean } | null)?.duplicate
+                        {event.type === "SOURCE_RUN_JOB_IMPORTED" &&
+                        (event.payload as { duplicate?: boolean } | null)?.duplicate
                           ? " · skipped (duplicate)"
                           : null}
                       </Text>

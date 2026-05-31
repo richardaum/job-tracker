@@ -27,9 +27,9 @@
             },
             {
               "key": "applyUrl",
-              "selector": "a[href*='jobs'],a[href*='career'],a[href*='lever'],a[href*='greenhouse'],a[href*='ashby'],a[href*='workable']",
-              "type": "attribute",
-              "value": "href"
+              "type": "regex",
+              "value": "Apply:\\s*(https?://[^\\s]+)",
+              "sourceField": "rawText"
             },
             {
               "key": "title",
@@ -62,7 +62,15 @@
               "sourceField": "rawText"
             }
           ],
-          "detailsFields": []
+          "detailsFields": [
+            {
+              "key": "description",
+              "selector": "body",
+              "type": "property",
+              "value": "innerHTML",
+              "format": "tiptap"
+            }
+          ]
         }
       }
     }

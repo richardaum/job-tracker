@@ -44,9 +44,7 @@ async function main() {
 
     if (dryRun) {
       const score = computeScore(entity.items);
-      process.stdout.write(
-        ` → Score ${score.scoreRatio.toFixed(2)}%, ${score.classification}\n`,
-      );
+      process.stdout.write(` → Score ${score.scoreRatio.toFixed(2)}%, ${score.classification}\n`);
       continue;
     }
 
@@ -62,16 +60,12 @@ async function main() {
       process.stdout.write(` ❌ ${err.message.slice(0, 80)}\n`);
       fail++;
     } else {
-      process.stdout.write(
-        ` ✅ Score ${score.scoreRatio.toFixed(2)}%, ${score.classification}\n`,
-      );
+      process.stdout.write(` ✅ Score ${score.scoreRatio.toFixed(2)}%, ${score.classification}\n`);
       ok++;
     }
   }
 
-  process.stdout.write(
-    `\nDone. ${ok} updated, ${fail} failed${dryRun ? " (dry-run)" : ""}.\n`,
-  );
+  process.stdout.write(`\nDone. ${ok} updated, ${fail} failed${dryRun ? " (dry-run)" : ""}.\n`);
   await app.close();
 }
 

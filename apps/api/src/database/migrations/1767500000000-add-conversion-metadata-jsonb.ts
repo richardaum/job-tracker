@@ -18,18 +18,10 @@ export class AddConversionMetadataJsonb1767500000000 implements MigrationInterfa
       WHERE "conversion_status" != 'IDLE'
     `);
 
-    await queryRunner.query(
-      `ALTER TABLE "draft_applications" DROP COLUMN "conversion_status"`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "draft_applications" DROP COLUMN "conversion_error"`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "draft_applications" DROP COLUMN "converted_at"`,
-    );
-    await queryRunner.query(
-      `DROP TYPE IF EXISTS "draft_application_conversion_status"`,
-    );
+    await queryRunner.query(`ALTER TABLE "draft_applications" DROP COLUMN "conversion_status"`);
+    await queryRunner.query(`ALTER TABLE "draft_applications" DROP COLUMN "conversion_error"`);
+    await queryRunner.query(`ALTER TABLE "draft_applications" DROP COLUMN "converted_at"`);
+    await queryRunner.query(`DROP TYPE IF EXISTS "draft_application_conversion_status"`);
   }
 
   async down(queryRunner: QueryRunner): Promise<void> {
@@ -62,8 +54,6 @@ export class AddConversionMetadataJsonb1767500000000 implements MigrationInterfa
         END
     `);
 
-    await queryRunner.query(
-      `ALTER TABLE "draft_applications" DROP COLUMN "conversion_metadata"`,
-    );
+    await queryRunner.query(`ALTER TABLE "draft_applications" DROP COLUMN "conversion_metadata"`);
   }
 }

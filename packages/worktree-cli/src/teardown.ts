@@ -18,9 +18,7 @@ function findRepoRoot(from: string): string {
 const repoRoot = findRepoRoot(import.meta.url);
 
 if (!existsSync(join(repoRoot, "node_modules"))) {
-  console.log(
-    "[worktree:teardown] node_modules missing, running pnpm install...",
-  );
+  console.log("[worktree:teardown] node_modules missing, running pnpm install...");
   const result = spawnSync("pnpm", ["install"], {
     cwd: repoRoot,
     stdio: "inherit",
@@ -91,11 +89,7 @@ const argv = await yargs(userArgs)
 
 assertGitWorktree(repoRoot, tag);
 
-const slug = requireTeardownSlug(
-  repoRoot,
-  argv.slug as string | undefined,
-  tag,
-);
+const slug = requireTeardownSlug(repoRoot, argv.slug as string | undefined, tag);
 const pm2Prefix = resolveTeardownPm2Prefix(repoRoot, slug);
 
 if (argv.dryRun) {

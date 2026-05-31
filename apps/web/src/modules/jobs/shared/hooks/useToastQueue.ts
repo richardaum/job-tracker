@@ -5,19 +5,13 @@ import { useOptionalToastQueueContext } from "./useToastQueueContext";
 
 interface UseToastQueueReturn {
   toastProps: Pick<ToastProps, "toasts" | "onToastOpenChange">;
-  enqueueToast: (input: {
-    title: string;
-    intent?: ToastIntent;
-    description?: string;
-  }) => void;
+  enqueueToast: (input: { title: string; intent?: ToastIntent; description?: string }) => void;
   dismissToast: (id: string, open: boolean) => void;
 }
 
 export function useToastQueue(): UseToastQueueReturn {
   const context = useOptionalToastQueueContext();
-  const [localToasts, setLocalToasts] = useState<
-    NonNullable<ToastProps["toasts"]>
-  >([]);
+  const [localToasts, setLocalToasts] = useState<NonNullable<ToastProps["toasts"]>>([]);
 
   function localEnqueueToast({
     title,

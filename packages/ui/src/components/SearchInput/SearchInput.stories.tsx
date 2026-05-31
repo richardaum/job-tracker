@@ -17,18 +17,12 @@ export const DisplayOnly: Story = {
   args: { placeholder: "Search jobs...", shortcutHint: "⌘/" },
 };
 
-function InteractiveSearchInput(
-  args: React.ComponentProps<typeof SearchInput>,
-) {
+function InteractiveSearchInput(args: React.ComponentProps<typeof SearchInput>) {
   const [value, setValue] = useState("");
 
   return (
     <div style={{ width: "320px" }}>
-      <SearchInput
-        {...args}
-        value={value}
-        onChange={(event) => setValue(event.target.value)}
-      />
+      <SearchInput {...args} value={value} onChange={(event) => setValue(event.target.value)} />
     </div>
   );
 }
@@ -39,7 +33,5 @@ export const Interactive: Story = {
     ariaLabel: "Search companies",
     shortcutHint: null,
   },
-  render: (args: React.ComponentProps<typeof SearchInput>) => (
-    <InteractiveSearchInput {...args} />
-  ),
+  render: (args: React.ComponentProps<typeof SearchInput>) => <InteractiveSearchInput {...args} />,
 };

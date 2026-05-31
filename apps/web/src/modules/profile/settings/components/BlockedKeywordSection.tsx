@@ -148,15 +148,9 @@ export function BlockedKeywordSection({
               >
                 <ListItemCard
                   title={
-                    <ListItemCard.Title
-                      className={cn(
-                        "flex items-center gap-1.5 wrap-break-word",
-                      )}
-                    >
+                    <ListItemCard.Title className={cn("flex items-center gap-1.5 wrap-break-word")}>
                       <Tooltip content={`Scope: ${scopeConfig.label}`}>
-                        <span
-                          className={cn("shrink-0", scopeConfig.colorClass)}
-                        >
+                        <span className={cn("shrink-0", scopeConfig.colorClass)}>
                           <ScopeIcon size={14} weight="regular" />
                         </span>
                       </Tooltip>
@@ -165,9 +159,7 @@ export function BlockedKeywordSection({
                   }
                   actions={
                     <ListItemCard.Actions>
-                      <Badge intent="default">
-                        {MATCH_MODE_LABELS[item.matchMode]}
-                      </Badge>
+                      <Badge intent="default">{MATCH_MODE_LABELS[item.matchMode]}</Badge>
                       <IconButton
                         intent="ghost"
                         size="sm"
@@ -197,8 +189,7 @@ export function BlockedKeywordSection({
         <div className={cn("flex flex-col items-center gap-2 py-12")}>
           <Text color="muted">No blocked items yet</Text>
           <Text size="sm" color="muted">
-            Add keywords, company names, or phrases to automatically reject
-            matching jobs
+            Add keywords, company names, or phrases to automatically reject matching jobs
           </Text>
           <Button size="sm" onClick={onAdd}>
             <PlusIcon size={14} weight="bold" />

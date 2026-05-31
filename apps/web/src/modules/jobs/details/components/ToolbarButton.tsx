@@ -38,15 +38,7 @@ export function ToolbarButton({
         disabled && "cursor-not-allowed opacity-50",
       )}
     >
-      {loading ? (
-        <CircleNotchIcon
-          size={14}
-          weight="bold"
-          className={cn("animate-spin")}
-        />
-      ) : (
-        label
-      )}
+      {loading ? <CircleNotchIcon size={14} weight="bold" className={cn("animate-spin")} /> : label}
     </button>
   );
 

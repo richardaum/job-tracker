@@ -39,7 +39,13 @@ export function tryMapLegacyKeyword(
 ): { ok: true; value: MappedBlockedKeyword } | { ok: false; error: string } {
   const scope = LEGACY_TYPE_MAP[legacy.type];
   if (!scope) {
-    return { ok: false, error: `Unknown legacy keyword type: "${legacy.type}"` };
+    return {
+      ok: false,
+      error: `Unknown legacy keyword type: "${legacy.type}"`,
+    };
   }
-  return { ok: true, value: { keyword: legacy.keyword, scope, matchMode: MatchMode.PARTIAL } };
+  return {
+    ok: true,
+    value: { keyword: legacy.keyword, scope, matchMode: MatchMode.PARTIAL },
+  };
 }

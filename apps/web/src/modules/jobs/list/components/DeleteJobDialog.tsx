@@ -4,11 +4,7 @@ import { tryRun } from "@job-tracker/try-run";
 import { ConfirmDialog } from "@job-tracker/ui";
 import React from "react";
 
-import {
-  DeleteJobDocument,
-  JobsDocument,
-  useDeleteJobMutation,
-} from "@/gql/hooks";
+import { DeleteJobDocument, JobsDocument, useDeleteJobMutation } from "@/gql/hooks";
 import { removeDeletedEntityFromListCache } from "@/modules/jobs/shared/utils/apolloDeleteCache";
 
 interface DeleteJobDialogProps {

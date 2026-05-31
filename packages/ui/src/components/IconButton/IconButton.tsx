@@ -3,12 +3,8 @@ import { Tooltip } from "@ui/components/Tooltip/Tooltip";
 import { cn } from "@ui/lib/cn";
 import React from "react";
 
-export type IconButtonIntent =
-  | "primary"
-  | "secondary"
-  | "ghost"
-  | "destructive";
-export type IconButtonSize = "sm" | "md";
+export type IconButtonIntent = "primary" | "secondary" | "ghost" | "destructive" | "quiet";
+export type IconButtonSize = "xs" | "sm" | "md";
 
 export interface IconButtonProps extends Omit<
   React.ButtonHTMLAttributes<HTMLButtonElement>,
@@ -32,9 +28,12 @@ const intentClasses: Record<IconButtonIntent, string> = {
     "border-transparent bg-transparent text-text-brand shadow-none hover:bg-bg-brand-subtle data-[state=open]:bg-bg-brand-subtle",
   destructive:
     "border-border-error bg-bg-error-subtle text-text-error hover:bg-bg-surface data-[state=open]:bg-bg-surface",
+  quiet:
+    "border-transparent bg-transparent text-text-muted shadow-none hover:bg-bg-surface-hover hover:text-text-primary data-[state=open]:bg-bg-surface-hover",
 };
 
 const sizeClasses: Record<IconButtonSize, string> = {
+  xs: "size-7",
   sm: "size-9",
   md: "size-10",
 };

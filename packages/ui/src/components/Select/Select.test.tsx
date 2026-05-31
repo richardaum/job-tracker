@@ -16,9 +16,7 @@ describe("Select", () => {
       />,
     );
 
-    expect(
-      screen.getByRole("combobox", { name: "Choose stage" }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: "Choose stage" })).toBeInTheDocument();
   });
 
   it("opens options list", () => {
@@ -64,9 +62,7 @@ describe("Select", () => {
 
     expect(onValueChange).toHaveBeenCalledWith("offer");
     expect(errorSpy).not.toHaveBeenCalledWith(
-      expect.stringContaining(
-        "Select is changing from uncontrolled to controlled",
-      ),
+      expect.stringContaining("Select is changing from uncontrolled to controlled"),
     );
 
     errorSpy.mockRestore();

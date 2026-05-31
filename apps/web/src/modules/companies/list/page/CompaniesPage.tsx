@@ -37,13 +37,9 @@ function CompaniesListSkeleton({ count = 4 }: { count?: number }) {
 export default function CompaniesPage() {
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const [query, setQuery] = useState("");
-  const [recentlyVisitedCompanyId, setRecentlyVisitedCompanyId] = useState<
-    string | null
-  >(null);
+  const [recentlyVisitedCompanyId, setRecentlyVisitedCompanyId] = useState<string | null>(null);
   const editCompany = useDialog();
-  const [editingCompany, setEditingCompany] = useState<EditingCompany | null>(
-    null,
-  );
+  const [editingCompany, setEditingCompany] = useState<EditingCompany | null>(null);
   const { enqueueToast } = useToastQueue();
 
   const {
@@ -66,9 +62,7 @@ export default function CompaniesPage() {
     if (typeof window === "undefined") return;
     if (loading) return;
 
-    const storedCompanyId = window.sessionStorage.getItem(
-      recentlyVisitedCompanyStorageKey,
-    );
+    const storedCompanyId = window.sessionStorage.getItem(recentlyVisitedCompanyStorageKey);
     if (!storedCompanyId) return;
 
     const companyExistsInCurrentList = filteredCompanies.some(
@@ -112,11 +106,7 @@ export default function CompaniesPage() {
           ariaLabel="Search companies"
         />
 
-        <Text
-          size="sm"
-          color="muted"
-          className={cn("w-full text-left sm:w-auto")}
-        >
+        <Text size="sm" color="muted" className={cn("w-full text-left sm:w-auto")}>
           {companies.length} companies
         </Text>
       </div>
@@ -158,12 +148,8 @@ export default function CompaniesPage() {
                     currentId === company.id ? null : currentId,
                   )
                 }
-                onDeleteSuccess={(message) =>
-                  enqueueToast({ title: message, intent: "success" })
-                }
-                onDeleteError={(message) =>
-                  enqueueToast({ title: message, intent: "error" })
-                }
+                onDeleteSuccess={(message) => enqueueToast({ title: message, intent: "success" })}
+                onDeleteError={(message) => enqueueToast({ title: message, intent: "error" })}
               />
             ))}
           </Stack>

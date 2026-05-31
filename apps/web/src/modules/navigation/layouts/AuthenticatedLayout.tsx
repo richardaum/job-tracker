@@ -10,9 +10,7 @@ import { Sidebar } from "@/modules/navigation/components/Sidebar";
 
 function AuthenticatedFullscreenLoadingScreen() {
   return (
-    <div
-      className={cn("flex h-screen items-center justify-center bg-bg-shell")}
-    >
+    <div className={cn("flex h-screen items-center justify-center bg-bg-shell")}>
       <Text as="span" size="sm" color="secondary">
         Loading…
       </Text>
@@ -42,21 +40,11 @@ export function AuthenticatedLayout({ children }: { children: ReactNode }) {
 
   return (
     <div className={cn("flex h-screen bg-bg-shell")}>
-      <Sidebar
-        user={user}
-        open={isNavOpen}
-        onClose={() => setIsNavOpen(false)}
-      />
+      <Sidebar user={user} open={isNavOpen} onClose={() => setIsNavOpen(false)} />
 
       <div className={cn("flex flex-1 overflow-hidden p-2 md:pl-0")}>
-        <div
-          className={cn(
-            "flex flex-1 flex-col overflow-hidden rounded-xl bg-bg-surface",
-          )}
-        >
-          <div
-            className={cn("border-b border-border-subtle px-4 py-3 md:hidden")}
-          >
+        <div className={cn("flex flex-1 flex-col overflow-hidden rounded-xl bg-bg-surface")}>
+          <div className={cn("border-b border-border-subtle px-4 py-3 md:hidden")}>
             <button
               type="button"
               onClick={() => setIsNavOpen(true)}

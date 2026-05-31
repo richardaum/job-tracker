@@ -24,9 +24,7 @@ describe("ConfirmDialog", () => {
     fireEvent.click(screen.getByRole("button", { name: /^remove$/i }));
     await waitFor(() => expect(onConfirm).toHaveBeenCalled());
     await waitFor(() =>
-      expect(
-        screen.queryByText("This cannot be undone."),
-      ).not.toBeInTheDocument(),
+      expect(screen.queryByText("This cannot be undone.")).not.toBeInTheDocument(),
     );
   });
 

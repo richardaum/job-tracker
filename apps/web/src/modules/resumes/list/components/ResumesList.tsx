@@ -7,10 +7,7 @@ import type { ResumeType } from "@/gql/hooks";
 import { ResumeCard } from "@/modules/resumes/list/components/ResumeCard";
 
 interface ResumesListProps {
-  resumes: Pick<
-    ResumeType,
-    "id" | "title" | "content" | "isDefault" | "createdAt" | "updatedAt"
-  >[];
+  resumes: Pick<ResumeType, "id" | "title" | "content" | "isDefault" | "createdAt" | "updatedAt">[];
   loading: boolean;
   error?: Error;
   onDelete: (id: string, title: string) => Promise<void>;
@@ -65,10 +62,7 @@ function ResumesListCardSkeleton() {
     >
       <div className={cn("flex min-w-0 flex-col gap-1")}>
         <div className={cn("flex min-w-0 flex-wrap items-center gap-2")}>
-          <Skeleton
-            variant="text"
-            className={cn("h-5 w-[min(12rem,100%)] max-w-full")}
-          />
+          <Skeleton variant="text" className={cn("h-5 w-[min(12rem,100%)] max-w-full")} />
         </div>
         <div className={cn("flex flex-wrap items-center gap-2")}>
           <Skeleton variant="text" className={cn("h-4 w-44 max-w-full")} />

@@ -8,10 +8,7 @@ import { isGitWorktreeCheckout } from "@job-tracker/worktree-cli";
 
 const DEFAULT_PORTS: readonly number[] = [3100, 3101, 6006];
 
-function parseCommaPorts(
-  raw: string,
-  tag: string,
-): readonly number[] | undefined {
+function parseCommaPorts(raw: string, tag: string): readonly number[] | undefined {
   const list = raw
     .split(",")
     .map((s) => Number.parseInt(s.trim(), 10))
@@ -30,11 +27,7 @@ export function resolveListenPorts(
   opts?: { tag?: string },
 ): readonly number[] {
   const tag = opts?.tag ?? "[ports:kill]";
-  const explicit =
-    env.PM2_RESET_PORTS?.trim() ||
-    env.PORTS?.trim() ||
-    env.KILL_PORTS?.trim() ||
-    "";
+  const explicit = env.PM2_RESET_PORTS?.trim() || env.PORTS?.trim() || env.KILL_PORTS?.trim() || "";
   if (!explicit) return DEFAULT_PORTS;
   const parsed = parseCommaPorts(explicit, tag);
   if (!parsed) process.exit(1);
@@ -48,15 +41,11 @@ function pidsListeningOnTcpPort(port: number): readonly string[] {
   });
   if (result.status !== 0) return [];
   const uniq = new Set<string>();
-  for (const line of result.stdout.trim().split(/\n/))
-    if (/^\d+$/.test(line)) uniq.add(line);
+  for (const line of result.stdout.trim().split(/\n/)) if (/^\d+$/.test(line)) uniq.add(line);
   return [...uniq];
 }
 
-export function killTcpListenPorts(
-  ports: readonly number[],
-  opts?: { tag?: string },
-): void {
+export function killTcpListenPorts(ports: readonly number[], opts?: { tag?: string }): void {
   const tag = opts?.tag ?? "[ports:kill]";
   for (const port of ports) {
     const pids = pidsListeningOnTcpPort(port);
@@ -71,16 +60,13 @@ export function killTcpListenPorts(
 
 const selfResolved = path.resolve(fileURLToPath(import.meta.url));
 const invokedDirectly =
-  typeof process.argv[1] === "string" &&
-  path.resolve(process.argv[1]) === selfResolved;
+  typeof process.argv[1] === "string" && path.resolve(process.argv[1]) === selfResolved;
 
 if (invokedDirectly) {
   const tag = "[ports:kill]";
   const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
   if (isGitWorktreeCheckout(root) && !process.env.PM2_RESET_PORTS?.trim()) {
-    console.error(
-      `${tag} Refusing default port kill in a git worktree without PM2_RESET_PORTS.`,
-    );
+    console.error(`${tag} Refusing default port kill in a git worktree without PM2_RESET_PORTS.`);
     process.exit(1);
   }
   const ports = resolveListenPorts(process.env, { tag });

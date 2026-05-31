@@ -39,25 +39,15 @@ export function DetailPageHeader({
     >
       {hasTrailing ? (
         <div
-          className={cn(
-            "pointer-events-none absolute inset-e-4 top-4 z-1 sm:inset-e-6 sm:top-5",
-          )}
+          className={cn("pointer-events-none absolute inset-e-4 top-4 z-1 sm:inset-e-6 sm:top-5")}
         >
-          <div
-            className={cn(
-              "pointer-events-auto flex shrink-0 items-start justify-end gap-2",
-            )}
-          >
+          <div className={cn("pointer-events-auto flex shrink-0 items-start justify-end gap-2")}>
             {trailing}
           </div>
         </div>
       ) : null}
       <div
-        className={cn(
-          "flex flex-col",
-          stackClassName,
-          hasTrailing ? reserveClassName : undefined,
-        )}
+        className={cn("flex flex-col", stackClassName, hasTrailing ? reserveClassName : undefined)}
       >
         {children}
       </div>

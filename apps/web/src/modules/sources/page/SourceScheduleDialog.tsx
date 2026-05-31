@@ -1,16 +1,7 @@
 "use client";
 
 import { tryRun } from "@job-tracker/try-run";
-import {
-  Button,
-  Checkbox,
-  cn,
-  Dialog,
-  FormField,
-  Input,
-  Stack,
-  Text,
-} from "@job-tracker/ui";
+import { Button, Checkbox, cn, Dialog, FormField, Input, Stack, Text } from "@job-tracker/ui";
 import React, { useCallback, useState } from "react";
 
 import { useUpdateSourceTemplateMutation } from "@/gql/hooks";
@@ -33,9 +24,7 @@ function SourceScheduleFormInner({
   const [updateSource] = useUpdateSourceTemplateMutation({
     refetchQueries: ["Plans", "SourceTemplatesAll"],
   });
-  const [enabledDraft, setEnabledDraft] = useState(
-    () => template.scheduleEnabled,
-  );
+  const [enabledDraft, setEnabledDraft] = useState(() => template.scheduleEnabled);
   const [cronDraft, setCronDraft] = useState(() => template.scheduleCron ?? "");
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -50,9 +39,7 @@ function SourceScheduleFormInner({
       const cronTrim = cronDraft.trim();
       input.scheduleCron = cronTrim === "" ? null : cronTrim;
     }
-    const [err] = await tryRun(
-      updateSource({ variables: { id: template.id, input } }),
-    );
+    const [err] = await tryRun(updateSource({ variables: { id: template.id, input } }));
     setSaving(false);
     if (err) {
       setError("Could not save schedule. Try again.");
@@ -76,10 +63,7 @@ function SourceScheduleFormInner({
         />
         <Text size="sm">Enable scheduled sources</Text>
       </label>
-      <FormField
-        label="Cron expression"
-        htmlFor={`template-schedule-cron-${template.id}`}
-      >
+      <FormField label="Cron expression" htmlFor={`template-schedule-cron-${template.id}`}>
         <Input
           id={`template-schedule-cron-${template.id}`}
           value={cronDraft}

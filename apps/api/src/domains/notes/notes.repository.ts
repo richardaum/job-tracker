@@ -25,10 +25,7 @@ export class NoteRepository {
     return count > 0;
   }
 
-  async findApplicationByIdAndUserId(
-    jobId: string,
-    userId: string,
-  ): Promise<JobEntity | null> {
+  async findApplicationByIdAndUserId(jobId: string, userId: string): Promise<JobEntity | null> {
     return this.applicationsRepo.findOne({
       where: { id: jobId, userId },
       relations: ["company"],
@@ -42,10 +39,7 @@ export class NoteRepository {
     });
   }
 
-  async findByIdAndUserId(
-    noteId: string,
-    userId: string,
-  ): Promise<Note | null> {
+  async findByIdAndUserId(noteId: string, userId: string): Promise<Note | null> {
     return this.notesRepo.findOne({ where: { id: noteId, userId } });
   }
 

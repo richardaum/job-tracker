@@ -21,10 +21,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 
 import { resolveJobPostingPlainText } from "./job-posting-plain-text.util";
-import {
-  MatchAnalysisRequested,
-  MatchStatusChanged,
-} from "./match-analysis.events";
+import { MatchAnalysisRequested, MatchStatusChanged } from "./match-analysis.events";
 import { MatchAnalysisRepository } from "./match-analysis.repository";
 import { MatchAnalysis } from "./match-analysis.schema";
 import { MatchAnalysisAiService } from "./match-analysis-ai.service";
@@ -51,9 +48,7 @@ export class MatchAnalysisService implements OnModuleInit {
   async onModuleInit() {
     const recovered = await this.repo.resetStaleProcessing();
     if (recovered > 0) {
-      this.logger.warn(
-        `Recovered ${recovered} stale match analysis records back to failed`,
-      );
+      this.logger.warn(`Recovered ${recovered} stale match analysis records back to failed`);
     }
   }
 
@@ -65,10 +60,7 @@ export class MatchAnalysisService implements OnModuleInit {
     return match;
   }
 
-  async findForJob(
-    jobId: string,
-    userId: string,
-  ): Promise<MatchAnalysis | null> {
+  async findForJob(jobId: string, userId: string): Promise<MatchAnalysis | null> {
     return this.repo.findByJobId(jobId, userId);
   }
 
@@ -87,11 +79,7 @@ export class MatchAnalysisService implements OnModuleInit {
     return this.jobRepo.findOneByIdAndUserId(id, userId);
   }
 
-  async generate(
-    jobId: string,
-    resumeId: string,
-    userId: string,
-  ): Promise<MatchAnalysis> {
+  async generate(jobId: string, resumeId: string, userId: string): Promise<MatchAnalysis> {
     const job = await this.jobRepo.findOneByIdAndUserId(jobId, userId);
     if (!job) {
       throw new BadRequestException("Job not found.");
@@ -133,12 +121,7 @@ export class MatchAnalysisService implements OnModuleInit {
     const saved = await this.repo.upsert(entity);
 
     this.eventBus.emit(
-      new MatchStatusChanged(
-        saved.id,
-        userId,
-        jobId,
-        AsyncMetadataStatusEnum.PROCESSING,
-      ),
+      new MatchStatusChanged(saved.id, userId, jobId, AsyncMetadataStatusEnum.PROCESSING),
     );
     this.eventBus.emit(new MatchAnalysisRequested(saved.id, userId, { jobId }));
 
@@ -173,12 +156,7 @@ export class MatchAnalysisService implements OnModuleInit {
     }
 
     this.eventBus.emit(
-      new MatchStatusChanged(
-        matchId,
-        userId,
-        jobId,
-        AsyncMetadataStatusEnum.FAILED,
-      ),
+      new MatchStatusChanged(matchId, userId, jobId, AsyncMetadataStatusEnum.FAILED),
     );
   }
 
@@ -195,12 +173,7 @@ export class MatchAnalysisService implements OnModuleInit {
       const job = await this.jobRepo.findOneByIdAndUserId(source.jobId, userId);
 
       if (!job) {
-        await this.failMatchProcessing(
-          matchId,
-          userId,
-          source.jobId,
-          "Job not found.",
-        );
+        await this.failMatchProcessing(matchId, userId, source.jobId, "Job not found.");
         return;
       }
 
@@ -230,28 +203,19 @@ export class MatchAnalysisService implements OnModuleInit {
         where: { id: resume.resumeId, userId },
       });
       if (!resumeEntity) {
-        await this.failMatchProcessing(
-          matchId,
-          userId,
-          source.jobId,
-          "Resume not found.",
-        );
+        await this.failMatchProcessing(matchId, userId, source.jobId, "Resume not found.");
         return;
       }
 
       const resumeText = tipTapToPlainText(resumeEntity.content);
 
-      const resumeMatchItems = await this.aiService.extractResumeMatchItems(
-        jdText,
-        resumeText,
-      );
+      const resumeMatchItems = await this.aiService.extractResumeMatchItems(jdText, resumeText);
 
       const preferenceItems = preferences?.items ?? [];
-      const preferenceMatchItems =
-        await this.aiService.extractPreferenceMatchItems(
-          jdText,
-          preferenceItems,
-        );
+      const preferenceMatchItems = await this.aiService.extractPreferenceMatchItems(
+        jdText,
+        preferenceItems,
+      );
 
       const items: MatchItem[] = [
         ...resumeMatchItems.map(
@@ -312,12 +276,7 @@ export class MatchAnalysisService implements OnModuleInit {
       }
 
       this.eventBus.emit(
-        new MatchStatusChanged(
-          matchId,
-          userId,
-          source.jobId,
-          AsyncMetadataStatusEnum.COMPLETED,
-        ),
+        new MatchStatusChanged(matchId, userId, source.jobId, AsyncMetadataStatusEnum.COMPLETED),
       );
     });
 

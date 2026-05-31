@@ -7,9 +7,7 @@ describe("hasGraphQLCode", () => {
   it("returns true for NOT_FOUND code", () => {
     const error = new CombinedGraphQLErrors({
       data: null,
-      errors: [
-        { message: "Resource not found", extensions: { code: "NOT_FOUND" } },
-      ],
+      errors: [{ message: "Resource not found", extensions: { code: "NOT_FOUND" } }],
     });
     expect(hasGraphQLCode(error, "NOT_FOUND")).toBe(true);
   });
@@ -33,9 +31,7 @@ describe("hasGraphQLCode", () => {
   });
 
   it("returns false for transport-level errors without graphQLErrors", () => {
-    expect(hasGraphQLCode(new TypeError("Failed to fetch"), "NOT_FOUND")).toBe(
-      false,
-    );
+    expect(hasGraphQLCode(new TypeError("Failed to fetch"), "NOT_FOUND")).toBe(false);
   });
 
   it("handles ApolloError with graphQLErrors", () => {

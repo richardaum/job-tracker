@@ -27,9 +27,7 @@ describe("ProfileShell", () => {
     expect(screen.getByRole("tab", { name: "Identity" })).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: "Settings" })).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: "Resumes" })).toBeInTheDocument();
-    expect(
-      screen.getByRole("tab", { name: "Work Preferences" }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "Work Preferences" })).toBeInTheDocument();
   });
 
   it("active tab matches current pathname — /profile selects Identity", () => {
@@ -93,12 +91,7 @@ describe("ProfileShell", () => {
 
   it("renders heading and back link", () => {
     renderShell("/profile");
-    expect(
-      screen.getByRole("heading", { name: "Profile" }),
-    ).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /back to jobs/i })).toHaveAttribute(
-      "href",
-      "/jobs",
-    );
+    expect(screen.getByRole("heading", { name: "Profile" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /back to jobs/i })).toHaveAttribute("href", "/jobs");
   });
 });

@@ -39,10 +39,7 @@ export class ExtensionActivityRepository {
     return this.repo.save(row);
   }
 
-  async listRecentByUserId(
-    userId: string,
-    limit: number,
-  ): Promise<ExtensionActivityEventEntity[]> {
+  async listRecentByUserId(userId: string, limit: number): Promise<ExtensionActivityEventEntity[]> {
     return this.repo
       .createQueryBuilder("event")
       .where("event.user_id = :userId", { userId })

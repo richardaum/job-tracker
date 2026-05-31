@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  cn,
-  FieldWithLabelAction,
-  IconButton,
-  Popover,
-  Text,
-  useDialog,
-} from "@job-tracker/ui";
+import { cn, FieldWithLabelAction, IconButton, Popover, Text, useDialog } from "@job-tracker/ui";
 import { ArrowSquareOutIcon, PencilSimpleIcon } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
 import React from "react";
@@ -104,12 +97,7 @@ export function CompanyNameWithPopover({
           </Text>
         )}
       </div>
-      <CompanyEditDialog
-        control={editCompany}
-        job={job}
-        onSuccess={onSuccess}
-        onError={onError}
-      />
+      <CompanyEditDialog control={editCompany} job={job} onSuccess={onSuccess} onError={onError} />
     </Popover>
   );
 }

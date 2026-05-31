@@ -50,9 +50,7 @@ export function Checkbox({
       value={value}
       checked={checked}
       defaultChecked={defaultChecked}
-      onCheckedChange={
-        onCheckedChange ? (next) => onCheckedChange(toBoolean(next)) : undefined
-      }
+      onCheckedChange={onCheckedChange ? (next) => onCheckedChange(toBoolean(next)) : undefined}
       disabled={disabled}
       required={required}
       className={cn(

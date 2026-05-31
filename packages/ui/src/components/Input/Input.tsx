@@ -1,10 +1,7 @@
 import { cn } from "@ui/lib/cn";
 import React from "react";
 
-export interface InputProps extends Omit<
-  React.InputHTMLAttributes<HTMLInputElement>,
-  "size"
-> {
+export interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "size"> {
   size?: "sm" | "md";
   state?: "default" | "error";
   ref?: React.Ref<HTMLInputElement>;
@@ -22,13 +19,7 @@ const stateClasses: Record<NonNullable<InputProps["state"]>, string> = {
     "border-border-error text-text-error focus-visible:border-border-error focus-visible:ring-border-error",
 };
 
-export function Input({
-  size = "md",
-  state = "default",
-  className,
-  ref,
-  ...props
-}: InputProps) {
+export function Input({ size = "md", state = "default", className, ref, ...props }: InputProps) {
   return (
     <input
       {...props}

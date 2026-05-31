@@ -38,10 +38,7 @@ export function TimelineMarker({
 }: TimelineMarkerProps) {
   return (
     <div
-      className={cn(
-        "relative flex w-4 shrink-0 items-center justify-center",
-        className,
-      )}
+      className={cn("relative flex w-4 shrink-0 items-center justify-center", className)}
       role="presentation"
     >
       {showTopConnector ? (
@@ -52,12 +49,7 @@ export function TimelineMarker({
           )}
         />
       ) : null}
-      <span
-        className={cn(
-          "block size-2.5  shrink-0 rounded-full bg-current",
-          dotClassName,
-        )}
-      />
+      <span className={cn("block size-2.5  shrink-0 rounded-full bg-current", dotClassName)} />
       {showBottomConnector ? (
         <span
           className={cn(

@@ -6,8 +6,7 @@ import type { CurrentUser } from "./useCurrentUser";
 const useMeQueryMock = vi.fn();
 
 vi.mock("@/gql/hooks", async () => {
-  const actual =
-    await vi.importActual<typeof import("@/gql/hooks")>("@/gql/hooks");
+  const actual = await vi.importActual<typeof import("@/gql/hooks")>("@/gql/hooks");
   return {
     ...actual,
     useMeQuery: (...args: unknown[]) => useMeQueryMock(...args),

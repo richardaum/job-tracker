@@ -10,8 +10,7 @@ const QUICK_FILTERS = [
   {
     key: "incoming",
     label: "Incoming",
-    tooltip:
-      "Non-rejected and non-applied with interviews scheduled from today onwards",
+    tooltip: "Non-rejected and non-applied with interviews scheduled from today onwards",
   },
   {
     key: "active",
@@ -62,18 +61,11 @@ export function QuickFilters() {
   }
 
   return (
-    <div
-      className={cn(
-        "flex items-center gap-2 border-b border-border-subtle px-4 py-2 sm:px-6",
-      )}
-    >
+    <div className={cn("flex items-center gap-2 border-b border-border-subtle px-4 py-2 sm:px-6")}>
       <div className={cn("flex flex-wrap items-center gap-1.5")}>
         {QUICK_FILTERS.map(({ key, label, tooltip }) => (
           <Tooltip key={key} content={tooltip} side="bottom">
-            <FilterChip
-              active={activeFilter === key}
-              onClick={() => toggle(key)}
-            >
+            <FilterChip active={activeFilter === key} onClick={() => toggle(key)}>
               {label}
             </FilterChip>
           </Tooltip>

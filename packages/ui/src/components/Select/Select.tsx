@@ -49,9 +49,7 @@ export function Select({
 
   return (
     <RadixSelect.Root
-      {...(isControlled
-        ? { value: value ?? "", onValueChange }
-        : { defaultValue, onValueChange })}
+      {...(isControlled ? { value: value ?? "", onValueChange } : { defaultValue, onValueChange })}
       disabled={disabled}
       name={name}
       required={required}

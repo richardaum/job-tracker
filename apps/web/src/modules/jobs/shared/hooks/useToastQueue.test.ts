@@ -35,9 +35,7 @@ describe("useToastQueue", () => {
   });
 
   it("dismisses closed toast", () => {
-    vi.spyOn(crypto, "randomUUID")
-      .mockReturnValueOnce("toast-1")
-      .mockReturnValueOnce("toast-2");
+    vi.spyOn(crypto, "randomUUID").mockReturnValueOnce("toast-1").mockReturnValueOnce("toast-2");
 
     const { result } = renderHook(() => useToastQueue(), { wrapper: Wrapper });
 

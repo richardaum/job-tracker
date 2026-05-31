@@ -15,10 +15,7 @@ describe("SourcesResolver", () => {
 
   const eventBus: Pick<SourcesEventBus, "forUser"> = { forUser: vi.fn() };
 
-  const resolver = new SourcesResolver(
-    service as SourcesService,
-    eventBus as SourcesEventBus,
-  );
+  const resolver = new SourcesResolver(service as SourcesService, eventBus as SourcesEventBus);
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -49,9 +46,7 @@ describe("SourcesResolver", () => {
       eventsOf: () => makeIter(),
     } as unknown as ScopedEventBus);
 
-    const iterator = resolver
-      .sourceRunEvents({ userId: "user-1" })
-      [Symbol.asyncIterator]();
+    const iterator = resolver.sourceRunEvents({ userId: "user-1" })[Symbol.asyncIterator]();
     const first = await iterator.next();
 
     expect(first.done).toBe(false);

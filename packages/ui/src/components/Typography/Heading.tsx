@@ -27,19 +27,10 @@ const defaultSizeByLevel: Record<HeadingLevel, HeadingSize> = {
   h6: "base",
 };
 
-export function Heading({
-  as: Tag = "h2",
-  size,
-  className,
-  children,
-  ...props
-}: HeadingProps) {
+export function Heading({ as: Tag = "h2", size, className, children, ...props }: HeadingProps) {
   const resolvedSize = size ?? defaultSizeByLevel[Tag];
   return (
-    <Tag
-      className={cn("text-text-primary", sizeClasses[resolvedSize], className)}
-      {...props}
-    >
+    <Tag className={cn("text-text-primary", sizeClasses[resolvedSize], className)} {...props}>
       {children}
     </Tag>
   );

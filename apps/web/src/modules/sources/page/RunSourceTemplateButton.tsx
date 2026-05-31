@@ -6,10 +6,7 @@ import { PlayIcon } from "@phosphor-icons/react";
 import React, { useState } from "react";
 
 import type { SourceRunStatus } from "@/gql/graphql";
-import {
-  SourceTemplateDocument,
-  useRerunSourceTemplateMutation,
-} from "@/gql/hooks";
+import { SourceTemplateDocument, useRerunSourceTemplateMutation } from "@/gql/hooks";
 import {
   sendSourceRunStart,
   wakeExtension,
@@ -49,9 +46,7 @@ export function RunSourceTemplateButton({
     setRunning(true);
     const wakeResult = await wakeExtension();
     console.log("[source] wakeExtension result", wakeResult ? "ok" : "timeout");
-    const [err, result] = await tryRun(
-      rerunSourceTemplate({ variables: { templateId } }),
-    );
+    const [err, result] = await tryRun(rerunSourceTemplate({ variables: { templateId } }));
     setRunning(false);
     if (err || !result.data?.rerunSourceTemplate) {
       return;

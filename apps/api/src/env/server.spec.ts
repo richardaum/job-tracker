@@ -3,8 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const ORIGINAL_ENV = { ...process.env };
 
 const REQUIRED_ENV = {
-  DATABASE_URL:
-    "postgresql://postgres:postgres@localhost:5432/job_tracker_test",
+  DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/job_tracker_test",
   JWT_ACCESS_SECRET: "test-access-secret",
   JWT_REFRESH_SECRET: "test-refresh-secret",
   GOOGLE_CLIENT_ID: "test-client-id",
@@ -40,9 +39,7 @@ describe("API server env schema", () => {
   });
 
   it("rejects non-31xx PORT values in development", async () => {
-    await expect(
-      loadEnv({ NODE_ENV: "development", PORT: "4000" }),
-    ).rejects.toThrow(
+    await expect(loadEnv({ NODE_ENV: "development", PORT: "4000" })).rejects.toThrow(
       "PORT must stay in the 31xx range for local/test environments.",
     );
   });
@@ -86,8 +83,8 @@ describe("API server env schema", () => {
   });
 
   it("rejects RATE_LIMIT_DISABLED in production", async () => {
-    await expect(
-      loadEnv({ NODE_ENV: "production", RATE_LIMIT_DISABLED: "true" }),
-    ).rejects.toThrow("RATE_LIMIT_DISABLED cannot be enabled in production.");
+    await expect(loadEnv({ NODE_ENV: "production", RATE_LIMIT_DISABLED: "true" })).rejects.toThrow(
+      "RATE_LIMIT_DISABLED cannot be enabled in production.",
+    );
   });
 });

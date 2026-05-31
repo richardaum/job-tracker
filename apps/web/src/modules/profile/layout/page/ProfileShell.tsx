@@ -7,7 +7,10 @@ import { PortalSlotsProvider } from "react-portalslots";
 
 import { BackToLink } from "@/components/back-to-link";
 import { DetailPageHeader } from "@/components/detail-page-header";
-import { ProfileHeaderActions, ProfileSubTabs } from "@/modules/profile/layout/profile-header.slots";
+import {
+  ProfileHeaderActions,
+  ProfileSubTabs,
+} from "@/modules/profile/layout/profile-header.slots";
 
 function deriveTab(pathname: string): string {
   if (pathname.startsWith("/profile/blocked-keywords")) return "blocked-keywords";

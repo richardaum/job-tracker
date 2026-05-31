@@ -32,9 +32,7 @@ export class AuthResolver {
   @Mutation(() => Boolean)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(RoleEnum.User, RoleEnum.Admin)
-  async deactivateAccount(
-    @CurrentUser() currentUser: { userId: string },
-  ): Promise<boolean> {
+  async deactivateAccount(@CurrentUser() currentUser: { userId: string }): Promise<boolean> {
     await this.userService.deactivateUser(currentUser.userId);
     return true;
   }

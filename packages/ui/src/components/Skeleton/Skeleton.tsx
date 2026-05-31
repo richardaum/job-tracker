@@ -13,16 +13,8 @@ const variantClasses: Record<SkeletonVariant, string> = {
   circle: "size-10 rounded-full",
 };
 
-export function Skeleton({
-  variant = "rect",
-  className,
-  ...props
-}: SkeletonProps) {
-  const classes = cn(
-    "animate-pulse bg-bg-surface-hover",
-    variantClasses[variant],
-    className,
-  );
+export function Skeleton({ variant = "rect", className, ...props }: SkeletonProps) {
+  const classes = cn("animate-pulse bg-bg-surface-hover", variantClasses[variant], className);
 
   return <div aria-hidden className={classes} {...props} />;
 }

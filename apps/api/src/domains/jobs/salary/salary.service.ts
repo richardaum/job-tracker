@@ -17,10 +17,7 @@ export class SalaryService {
     return embedded;
   }
 
-  getUpdateSalary(
-    current: Job,
-    input: Partial<JobSalaryInput>,
-  ): SalaryEmbedded | null {
+  getUpdateSalary(current: Job, input: Partial<JobSalaryInput>): SalaryEmbedded | null {
     const anyKey =
       input.minCents !== undefined ||
       input.maxCents !== undefined ||
@@ -30,13 +27,9 @@ export class SalaryService {
 
     const embedded = new SalaryEmbedded();
     embedded.minCents =
-      input.minCents === undefined
-        ? (current.salary?.minCents ?? null)
-        : input.minCents;
+      input.minCents === undefined ? (current.salary?.minCents ?? null) : input.minCents;
     embedded.maxCents =
-      input.maxCents === undefined
-        ? (current.salary?.maxCents ?? null)
-        : input.maxCents;
+      input.maxCents === undefined ? (current.salary?.maxCents ?? null) : input.maxCents;
     embedded.currency =
       input.currency === undefined
         ? (current.salary?.currency ?? null)
@@ -44,10 +37,7 @@ export class SalaryService {
           ? null
           : input.currency;
 
-    embedded.period =
-      input.period === undefined
-        ? (current.salary?.period ?? null)
-        : input.period;
+    embedded.period = input.period === undefined ? (current.salary?.period ?? null) : input.period;
 
     const hasAmount = embedded.minCents != null || embedded.maxCents != null;
     if (!hasAmount) {

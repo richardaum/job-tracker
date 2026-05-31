@@ -11,10 +11,7 @@ vi.mock("@/modules/resumes/list/components/ResumeCard", () => ({
     onDelete,
     onSetAsDefault,
   }: {
-    resume: Pick<
-      ResumeType,
-      "id" | "title" | "content" | "isDefault" | "createdAt" | "updatedAt"
-    >;
+    resume: Pick<ResumeType, "id" | "title" | "content" | "isDefault" | "createdAt" | "updatedAt">;
     onDelete?: (id: string, title: string) => void;
     onSetAsDefault?: (id: string) => void;
   }) => (
@@ -24,25 +21,16 @@ vi.mock("@/modules/resumes/list/components/ResumeCard", () => ({
         aria-label={`delete-${resume.id}`}
         onClick={() => onDelete?.(resume.id, resume.title)}
       />
-      <button
-        aria-label={`star-${resume.id}`}
-        onClick={() => onSetAsDefault?.(resume.id)}
-      />
+      <button aria-label={`star-${resume.id}`} onClick={() => onSetAsDefault?.(resume.id)} />
     </div>
   ),
 }));
 
 function createResume(
   overrides: Partial<
-    Pick<
-      ResumeType,
-      "id" | "title" | "content" | "isDefault" | "createdAt" | "updatedAt"
-    >
+    Pick<ResumeType, "id" | "title" | "content" | "isDefault" | "createdAt" | "updatedAt">
   > = {},
-): Pick<
-  ResumeType,
-  "id" | "title" | "content" | "isDefault" | "createdAt" | "updatedAt"
-> {
+): Pick<ResumeType, "id" | "title" | "content" | "isDefault" | "createdAt" | "updatedAt"> {
   return {
     id: "res-1",
     title: "Test Resume",
@@ -78,9 +66,7 @@ describe("ResumesList", () => {
     );
     expect(screen.getByText("No resumes yet.")).toBeInTheDocument();
     expect(
-      screen.getByText(
-        "Add your first resume to start tracking your profile versions.",
-      ),
+      screen.getByText("Add your first resume to start tracking your profile versions."),
     ).toBeInTheDocument();
   });
 

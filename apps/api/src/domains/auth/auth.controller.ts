@@ -105,17 +105,12 @@ export class AuthController {
       throw new UnauthorizedException();
     }
 
-    const [verifyErr, payload] = tryRun(() =>
-      this.authService.verifyRefreshToken(refreshToken),
-    );
+    const [verifyErr, payload] = tryRun(() => this.authService.verifyRefreshToken(refreshToken));
     if (verifyErr || !payload) {
       throw new UnauthorizedException();
     }
 
-    await this.authUserAccessService.assertAuthenticatedUser(
-      payload.userId,
-      payload.tokenVersion,
-    );
+    await this.authUserAccessService.assertAuthenticatedUser(payload.userId, payload.tokenVersion);
 
     const freshUser = await this.userService.findById(payload.userId);
     if (!freshUser?.active) {
@@ -123,8 +118,7 @@ export class AuthController {
     }
 
     const isLegacyToken = payload.jti === undefined;
-    const jtiMatches =
-      payload.jti !== undefined && freshUser.refreshJti === payload.jti;
+    const jtiMatches = payload.jti !== undefined && freshUser.refreshJti === payload.jti;
     const isLegacyMigration = isLegacyToken && freshUser.refreshJti === null;
 
     if (!jtiMatches && !isLegacyMigration) {
@@ -150,9 +144,7 @@ export class AuthController {
       newJti,
     );
 
-    const cookies = this.devAuthBypassService.isEnabled()
-      ? cookieBaseDev
-      : cookieBase;
+    const cookies = this.devAuthBypassService.isEnabled() ? cookieBaseDev : cookieBase;
 
     res.cookie("access_token", accessToken, {
       ...cookies,
@@ -175,19 +167,10 @@ export class AuthController {
     const jti = randomUUID();
     await this.userService.setRefreshJti(user.id, jti);
 
-    const accessToken = this.authService.generateAccessToken(
-      user,
-      user.tokenVersion,
-    );
-    const refreshToken = this.authService.generateRefreshToken(
-      user,
-      user.tokenVersion,
-      jti,
-    );
+    const accessToken = this.authService.generateAccessToken(user, user.tokenVersion);
+    const refreshToken = this.authService.generateRefreshToken(user, user.tokenVersion, jti);
 
-    const cookies = this.devAuthBypassService.isEnabled()
-      ? cookieBaseDev
-      : cookieBase;
+    const cookies = this.devAuthBypassService.isEnabled() ? cookieBaseDev : cookieBase;
 
     res.cookie("access_token", accessToken, {
       ...cookies,
@@ -224,9 +207,7 @@ export class AuthController {
   private async revokeSessionFromCookies(req: Request): Promise<void> {
     const refreshToken = req.cookies?.refresh_token;
     if (refreshToken) {
-      const [verifyErr, payload] = tryRun(() =>
-        this.authService.verifyRefreshToken(refreshToken),
-      );
+      const [verifyErr, payload] = tryRun(() => this.authService.verifyRefreshToken(refreshToken));
       if (!verifyErr && payload) {
         await tryRun(this.userService.incrementTokenVersion(payload.userId));
         return;
@@ -235,9 +216,7 @@ export class AuthController {
 
     const accessToken = req.cookies?.access_token;
     if (accessToken) {
-      const [verifyErr, payload] = tryRun(() =>
-        this.authService.verifyAccessToken(accessToken),
-      );
+      const [verifyErr, payload] = tryRun(() => this.authService.verifyAccessToken(accessToken));
       if (!verifyErr && payload) {
         await tryRun(this.userService.incrementTokenVersion(payload.userId));
       }

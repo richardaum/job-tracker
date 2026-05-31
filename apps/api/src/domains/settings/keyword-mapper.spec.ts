@@ -3,10 +3,7 @@ import "reflect-metadata";
 import { describe, expect, it } from "vitest";
 
 import { KeywordScope, MatchMode } from "./keyword-blocker.types";
-import {
-  mapLegacyKeyword,
-  mapLegacyType,
-} from "./keyword-mapper";
+import { mapLegacyKeyword, mapLegacyType } from "./keyword-mapper";
 
 describe("mapLegacyType", () => {
   it('maps "title" to TITLE scope', () => {
@@ -26,15 +23,11 @@ describe("mapLegacyType", () => {
   });
 
   it("throws on unknown legacy type", () => {
-    expect(() => mapLegacyType("unknown")).toThrow(
-      'Unknown legacy keyword type: "unknown"',
-    );
+    expect(() => mapLegacyType("unknown")).toThrow('Unknown legacy keyword type: "unknown"');
   });
 
   it("throws on empty string type", () => {
-    expect(() => mapLegacyType("")).toThrow(
-      'Unknown legacy keyword type: ""',
-    );
+    expect(() => mapLegacyType("")).toThrow('Unknown legacy keyword type: ""');
   });
 });
 
@@ -79,8 +72,6 @@ describe("mapLegacyKeyword", () => {
   });
 
   it("throws on unknown legacy type in keyword mapping", () => {
-    expect(() =>
-      mapLegacyKeyword({ keyword: "test", type: "invalid" }),
-    ).toThrow();
+    expect(() => mapLegacyKeyword({ keyword: "test", type: "invalid" })).toThrow();
   });
 });

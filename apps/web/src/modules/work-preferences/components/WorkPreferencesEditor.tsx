@@ -7,10 +7,7 @@ import React from "react";
 
 import { EmptyState } from "@/components/empty-state";
 import { Weight } from "@/gql/hooks";
-import {
-  useUpdateWorkPreferencesMutation,
-  useWorkPreferencesQuery,
-} from "@/gql/hooks";
+import { useUpdateWorkPreferencesMutation, useWorkPreferencesQuery } from "@/gql/hooks";
 import { useToastQueue } from "@/modules/jobs/shared/hooks/useToastQueue";
 import { PreferenceCard } from "@/modules/work-preferences/components/PreferenceCard";
 import { PreferenceFormDialog } from "@/modules/work-preferences/components/PreferenceFormDialog";
@@ -25,9 +22,7 @@ interface WorkPreferencesEditorProps {
   mode: "inline" | "dialog";
   readOnly?: boolean;
   onClose?: () => void;
-  onAddActionChange?: (
-    action: { add: () => void; disabled: boolean } | null,
-  ) => void;
+  onAddActionChange?: (action: { add: () => void; disabled: boolean } | null) => void;
 }
 
 export default function WorkPreferencesEditor({
@@ -101,14 +96,9 @@ export default function WorkPreferencesEditor({
     let next: LocalPreference[];
 
     if (formMode === "create") {
-      next = [
-        ...localItems,
-        { id: nextPrefId(), text: values.text, weight: values.weight },
-      ];
+      next = [...localItems, { id: nextPrefId(), text: values.text, weight: values.weight }];
     } else if (editingId) {
-      next = localItems.map((item) =>
-        item.id === editingId ? { ...item, ...values } : item,
-      );
+      next = localItems.map((item) => (item.id === editingId ? { ...item, ...values } : item));
     } else {
       return;
     }
@@ -124,9 +114,7 @@ export default function WorkPreferencesEditor({
   }
 
   async function handleWeightChange(id: string, weight: Weight) {
-    const next = localItems.map((item) =>
-      item.id === id ? { ...item, weight } : item,
-    );
+    const next = localItems.map((item) => (item.id === id ? { ...item, weight } : item));
     setLocalItems(next);
     await persistPreferences(next);
   }
@@ -214,8 +202,8 @@ export default function WorkPreferencesEditor({
     return (
       <div>
         <Text size="sm" color="muted" className={cn("px-1 mb-4")}>
-          What matters to you in a job? These preferences are used to evaluate
-          match against job descriptions.
+          What matters to you in a job? These preferences are used to evaluate match against job
+          descriptions.
         </Text>
         {editorBody}
       </div>

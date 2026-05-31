@@ -7,10 +7,7 @@ import { Dialog } from "./Dialog";
 describe("Dialog", () => {
   it("opens and closes from user actions", () => {
     render(
-      <Dialog
-        trigger={<button type="button">Open</button>}
-        title="Dialog title"
-      >
+      <Dialog trigger={<button type="button">Open</button>} title="Dialog title">
         <p>Dialog content</p>
       </Dialog>,
     );
@@ -24,11 +21,7 @@ describe("Dialog", () => {
 
   it("closes on escape key", () => {
     render(
-      <Dialog
-        defaultOpen
-        trigger={<button type="button">Open</button>}
-        title="Dialog title"
-      >
+      <Dialog defaultOpen trigger={<button type="button">Open</button>} title="Dialog title">
         <p>Dialog content</p>
       </Dialog>,
     );

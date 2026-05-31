@@ -34,8 +34,7 @@ export function MatchItemCard({
   const isUnclear = item.verdict === MatchVerdict.Unclear;
 
   const displayQuotes = item.sourceQuotes.filter(
-    (quote) =>
-      quote.trim().toLowerCase() !== item.requirement.trim().toLowerCase(),
+    (quote) => quote.trim().toLowerCase() !== item.requirement.trim().toLowerCase(),
   );
 
   return (
@@ -72,9 +71,7 @@ export function MatchItemCard({
           {displayQuotes.map((quote, i) => (
             <blockquote
               key={i}
-              className={cn(
-                "border-l-2 border-blue-400 pl-3 text-sm text-text-secondary",
-              )}
+              className={cn("border-l-2 border-blue-400 pl-3 text-sm text-text-secondary")}
             >
               {quote}
             </blockquote>

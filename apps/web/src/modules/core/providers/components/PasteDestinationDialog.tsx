@@ -1,15 +1,7 @@
 "use client";
 
 import { tryRun } from "@job-tracker/try-run";
-import {
-  Button,
-  Checkbox,
-  cn,
-  Dialog,
-  FormField,
-  Input,
-  Text,
-} from "@job-tracker/ui";
+import { Button, Checkbox, cn, Dialog, FormField, Input, Text } from "@job-tracker/ui";
 import { SparkleIcon } from "@phosphor-icons/react";
 import { useMemo, useState } from "react";
 
@@ -25,22 +17,18 @@ interface PasteDestinationDialogProps {
   pastedContent: string;
   submitting?: boolean;
   onOpenChange: (open: boolean) => void;
-  onConfirm: (
-    url: string,
-    afterCreate: PasteAfterCreateOptions,
-  ) => Promise<void>;
+  onConfirm: (url: string, afterCreate: PasteAfterCreateOptions) => Promise<void>;
 }
 
 type PasteAction = "draft";
 
-const PASTE_ACTIONS: { id: PasteAction; label: string; description: string }[] =
-  [
-    {
-      id: "draft",
-      label: "Save as draft",
-      description: "Create a new draft job from the pasted content",
-    },
-  ];
+const PASTE_ACTIONS: { id: PasteAction; label: string; description: string }[] = [
+  {
+    id: "draft",
+    label: "Save as draft",
+    description: "Create a new draft job from the pasted content",
+  },
+];
 
 function truncatePreview(content: string, maxLength = 300) {
   if (content.length <= maxLength) return content;
@@ -60,16 +48,9 @@ export function PasteDestinationDialog({
   const [selectedAction, setSelectedAction] = useState<PasteAction>("draft");
   const [url, setUrl] = useState("");
   const [urlError, setUrlError] = useState<string | null>(null);
-  const [autoFillOverride, setAutoFillOverride] = useState<boolean | null>(
-    null,
-  );
-  const [autoMatchOverride, setAutoMatchOverride] = useState<boolean | null>(
-    null,
-  );
-  const preview = useMemo(
-    () => truncatePreview(pastedContent),
-    [pastedContent],
-  );
+  const [autoFillOverride, setAutoFillOverride] = useState<boolean | null>(null);
+  const [autoMatchOverride, setAutoMatchOverride] = useState<boolean | null>(null);
+  const preview = useMemo(() => truncatePreview(pastedContent), [pastedContent]);
 
   const defaultAutoFill = settingsData?.settings.autoFillEnabled ?? false;
   const defaultAutoMatch = settingsData?.settings.autoMatchEnabled ?? false;
@@ -166,11 +147,7 @@ export function PasteDestinationDialog({
           </div>
         </FormField>
 
-        <FormField
-          label="URL (optional)"
-          error={urlError ?? undefined}
-          htmlFor="paste-url"
-        >
+        <FormField label="URL (optional)" error={urlError ?? undefined} htmlFor="paste-url">
           <Input
             id="paste-url"
             type="url"

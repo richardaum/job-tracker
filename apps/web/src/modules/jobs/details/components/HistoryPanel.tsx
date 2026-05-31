@@ -13,11 +13,7 @@ import {
   Stack,
   TabsContent,
 } from "@job-tracker/ui";
-import {
-  ChatCircleTextIcon,
-  PencilSimpleIcon,
-  TrashIcon,
-} from "@phosphor-icons/react";
+import { ChatCircleTextIcon, PencilSimpleIcon, TrashIcon } from "@phosphor-icons/react";
 import React from "react";
 
 import { EmptyState } from "@/components/empty-state";
@@ -66,12 +62,8 @@ export function HistoryPanel({
   onSuccess?: (message: string) => void;
   onError?: (message: string) => void;
 }) {
-  const [editingEventId, setEditingEventId] = React.useState<string | null>(
-    null,
-  );
-  const [selectedStage, setSelectedStage] = React.useState<
-    ApplicationStage | undefined
-  >();
+  const [editingEventId, setEditingEventId] = React.useState<string | null>(null);
+  const [selectedStage, setSelectedStage] = React.useState<ApplicationStage | undefined>();
   const [scheduledAtDraft, setScheduledAtDraft] = React.useState("");
   const [reasonDraft, setReasonDraft] = React.useState("");
 
@@ -79,30 +71,25 @@ export function HistoryPanel({
     variables: { jobId },
     fetchPolicy: "cache-and-network",
   });
-  const [updateStageEvent, { loading: updatingStageEvent }] =
-    useUpdateJobStageEventMutation({
-      refetchQueries: [{ query: JobStageEventsDocument, variables: { jobId } }],
-    });
-  const [deleteStageEvent, { loading: deletingStageEvent }] =
-    useDeleteJobStageEventMutation({
-      refetchQueries: [{ query: JobStageEventsDocument, variables: { jobId } }],
-    });
+  const [updateStageEvent, { loading: updatingStageEvent }] = useUpdateJobStageEventMutation({
+    refetchQueries: [{ query: JobStageEventsDocument, variables: { jobId } }],
+  });
+  const [deleteStageEvent, { loading: deletingStageEvent }] = useDeleteJobStageEventMutation({
+    refetchQueries: [{ query: JobStageEventsDocument, variables: { jobId } }],
+  });
 
   const stageEvents = eventsData?.jobStageEvents ?? [];
   const currentStage = stageEvents[0]?.toStage ?? ApplicationStage.New;
   const editingEvent = stageEvents.find((event) => event.id === editingEventId);
   const isMutatingStageEvent = updatingStageEvent || deletingStageEvent;
-  const canSaveEdit = Boolean(
-    editingEvent && selectedStage && !isMutatingStageEvent,
-  );
+  const canSaveEdit = Boolean(editingEvent && selectedStage && !isMutatingStageEvent);
 
   function openEditDialog(eventId: string) {
     const event = stageEvents.find((candidate) => candidate.id === eventId);
     if (!event) return;
     const fallbackIsoValue = event.scheduledAt ?? event.createdAt ?? null;
     const nextScheduledAtDraft =
-      getDateTimeInputValueFromIso(fallbackIsoValue) ||
-      getDateTimeInputValueFromNow();
+      getDateTimeInputValueFromIso(fallbackIsoValue) || getDateTimeInputValueFromNow();
     setEditingEventId(event.id);
     setSelectedStage(event.toStage);
     setScheduledAtDraft(nextScheduledAtDraft);
@@ -125,9 +112,7 @@ export function HistoryPanel({
           id: editingEventId,
           input: {
             toStage: selectedStage,
-            scheduledAt: buildScheduledAtWithBrowserTimezone(
-              scheduledAtDraft.trim(),
-            ),
+            scheduledAt: buildScheduledAtWithBrowserTimezone(scheduledAtDraft.trim()),
             reason: reasonDraft.trim() || null,
           },
         },
@@ -144,9 +129,7 @@ export function HistoryPanel({
   async function handleDeleteEvent(eventId: string) {
     if (isMutatingStageEvent) return;
 
-    const [error] = await tryRun(
-      deleteStageEvent({ variables: { id: eventId } }),
-    );
+    const [error] = await tryRun(deleteStageEvent({ variables: { id: eventId } }));
     if (error) {
       onError?.("Could not remove history item.");
       throw new Error("Could not remove history item.");
@@ -244,17 +227,12 @@ export function HistoryPanel({
           <FormField label="Status" htmlFor={`edit-history-status-${jobId}`}>
             <Select
               value={selectedStage}
-              onValueChange={(value) =>
-                setSelectedStage(value as ApplicationStage)
-              }
+              onValueChange={(value) => setSelectedStage(value as ApplicationStage)}
               options={stageOptions}
               size="sm"
             />
           </FormField>
-          <FormField
-            label="Scheduled at (optional)"
-            htmlFor={`edit-history-scheduled-at-${jobId}`}
-          >
+          <FormField label="Scheduled at (optional)" htmlFor={`edit-history-scheduled-at-${jobId}`}>
             <Stack gap="xs">
               <Input
                 id={`edit-history-scheduled-at-${jobId}`}
@@ -266,9 +244,7 @@ export function HistoryPanel({
               />
               <div className={cn("flex flex-wrap gap-1")}>
                 {quickScheduleOptions.map((option) => {
-                  const optionValue = getDateTimeInputValueFromNow(
-                    option.offsetDays,
-                  );
+                  const optionValue = getDateTimeInputValueFromNow(option.offsetDays);
                   return (
                     <Button
                       key={option.label}
@@ -290,10 +266,7 @@ export function HistoryPanel({
               </div>
             </Stack>
           </FormField>
-          <FormField
-            label="Reason (optional)"
-            htmlFor={`edit-history-reason-${jobId}`}
-          >
+          <FormField label="Reason (optional)" htmlFor={`edit-history-reason-${jobId}`}>
             <Input
               id={`edit-history-reason-${jobId}`}
               type="text"
@@ -333,10 +306,7 @@ export function HistoryPanelTabsContent({
   onError?: (message: string) => void;
 }) {
   return (
-    <TabsContent
-      value="history"
-      className={cn("flex-1 min-h-0 overflow-hidden", className)}
-    >
+    <TabsContent value="history" className={cn("flex-1 min-h-0 overflow-hidden", className)}>
       <HistoryPanel jobId={jobId} onSuccess={onSuccess} onError={onError} />
     </TabsContent>
   );

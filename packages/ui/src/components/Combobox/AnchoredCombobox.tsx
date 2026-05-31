@@ -41,15 +41,12 @@ type AnchoredComboboxContextValue = {
   >["createInputKeyDownHandler"];
 };
 
-const AnchoredComboboxContext =
-  createContext<AnchoredComboboxContextValue | null>(null);
+const AnchoredComboboxContext = createContext<AnchoredComboboxContextValue | null>(null);
 
 function useAnchoredComboboxCtx(): AnchoredComboboxContextValue {
   const ctx = useContext(AnchoredComboboxContext);
   if (!ctx) {
-    throw new Error(
-      "`AnchoredCombobox` primitives must render inside `<AnchoredCombobox.Root>`.",
-    );
+    throw new Error("`AnchoredCombobox` primitives must render inside `<AnchoredCombobox.Root>`.");
   }
   return ctx;
 }
@@ -74,12 +71,8 @@ function Root({
   normalizeInput = (raw: string): string => raw,
 }: AnchoredComboboxRootProps) {
   const [open, setOpen] = useState(false);
-  const {
-    inputRef,
-    menuContentRef,
-    anchoredMenuDismissLayerProps,
-    createInputKeyDownHandler,
-  } = useMenuAnchoredCombobox();
+  const { inputRef, menuContentRef, anchoredMenuDismissLayerProps, createInputKeyDownHandler } =
+    useMenuAnchoredCombobox();
 
   const menuOpen = open && hasItems;
 
@@ -131,23 +124,12 @@ function Root({
 
 export type AnchoredComboboxInputProps = Omit<
   InputProps,
-  | "value"
-  | "defaultValue"
-  | "onChange"
-  | "onKeyDown"
-  | "onClick"
-  | "ref"
-  | "disabled"
+  "value" | "defaultValue" | "onChange" | "onKeyDown" | "onClick" | "ref" | "disabled"
 > & { ignoreBlurWithinMenu?: boolean; leading?: ReactElement };
 
 /** Anchors the input under `Menu.Root` and wires menu open + keyboard routing. */
 function ComboInput(props: AnchoredComboboxInputProps): React.ReactElement {
-  const {
-    ignoreBlurWithinMenu = false,
-    leading,
-    onBlur,
-    ...inputProps
-  } = props;
+  const { ignoreBlurWithinMenu = false, leading, onBlur, ...inputProps } = props;
   const {
     value,
     onValueChange,
@@ -196,9 +178,7 @@ function ComboInput(props: AnchoredComboboxInputProps): React.ReactElement {
           onBlur={(event) => {
             if (ignoreBlurWithinMenu) {
               const relatedRole =
-                (event.relatedTarget as HTMLElement | null)?.getAttribute(
-                  "role",
-                ) ?? null;
+                (event.relatedTarget as HTMLElement | null)?.getAttribute("role") ?? null;
               if (relatedRole === "menuitem" || relatedRole === "menu") {
                 return;
               }
@@ -223,8 +203,7 @@ export type AnchoredComboboxContentProps = {
 };
 
 function ComboContent({ children, className }: AnchoredComboboxContentProps) {
-  const { menuContentRef, anchoredMenuDismissLayerProps } =
-    useAnchoredComboboxCtx();
+  const { menuContentRef, anchoredMenuDismissLayerProps } = useAnchoredComboboxCtx();
 
   return (
     <Menu.Content
@@ -248,9 +227,7 @@ function ComboList({ children, className }: AnchoredComboboxListProps) {
   return <div className={cn("flex flex-col", className)}>{children}</div>;
 }
 
-export type AnchoredComboboxItemProps = React.ComponentPropsWithoutRef<
-  typeof Menu.Item
->;
+export type AnchoredComboboxItemProps = React.ComponentPropsWithoutRef<typeof Menu.Item>;
 
 function ComboItem({
   className,
@@ -261,19 +238,13 @@ function ComboItem({
 
   const mergedKeyDown = useCallback(
     (e: KeyboardEvent<HTMLDivElement>) => {
-      returnComboboxFocusToInputOnFirstItemArrowUp(
-        e,
-        menuContentRef.current,
-        inputRef.current,
-      );
+      returnComboboxFocusToInputOnFirstItemArrowUp(e, menuContentRef.current, inputRef.current);
       onKeyDown?.(e);
     },
     [menuContentRef, inputRef, onKeyDown],
   );
 
-  return (
-    <Menu.Item className={className} {...props} onKeyDown={mergedKeyDown} />
-  );
+  return <Menu.Item className={className} {...props} onKeyDown={mergedKeyDown} />;
 }
 
 /**

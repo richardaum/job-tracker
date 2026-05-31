@@ -4,9 +4,7 @@ import type {
   ExtensionConnectionState,
   ExtensionConnectionStatus,
 } from "@/modules/admin/extension/hooks/useExtensionConnectionStatus";
-export function connectionTextColor(
-  status: ExtensionConnectionStatus,
-): TextColor | undefined {
+export function connectionTextColor(status: ExtensionConnectionStatus): TextColor | undefined {
   switch (status) {
     case "connected":
       return "success";

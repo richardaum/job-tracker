@@ -1,14 +1,6 @@
 "use client";
 
-import {
-  Button,
-  Card,
-  cn,
-  Heading,
-  Skeleton,
-  Stack,
-  Text,
-} from "@job-tracker/ui";
+import { Button, Card, cn, Heading, Skeleton, Stack, Text } from "@job-tracker/ui";
 import { EmptyState } from "@/components/empty-state";
 import { PlusIcon } from "@phosphor-icons/react";
 import NextLink from "next/link";

@@ -17,15 +17,14 @@ const MONTHS_PER_YEAR = 12;
 const DEFAULT_LOCALE = "en-US";
 
 /** Hourly / monthly / yearly rate bases used by the salary calculator math. */
-export const SALARY_RATE_PERIOD_BASES = [
-  "hourly",
-  "monthly",
-  "yearly",
-] as const;
+export const SALARY_RATE_PERIOD_BASES = ["hourly", "monthly", "yearly"] as const;
 export type SalaryRatePeriodBasis = (typeof SALARY_RATE_PERIOD_BASES)[number];
 
-export const SALARY_RATE_PERIOD_LABELS: Record<SalaryRatePeriodBasis, string> =
-  { hourly: "Hourly", monthly: "Monthly", yearly: "Yearly" };
+export const SALARY_RATE_PERIOD_LABELS: Record<SalaryRatePeriodBasis, string> = {
+  hourly: "Hourly",
+  monthly: "Monthly",
+  yearly: "Yearly",
+};
 
 function formatCurrencyIntl(
   value: number,
@@ -52,11 +51,7 @@ function formatCurrencyIntl(
 }
 
 /** Currency with fractional cents (salary calculator, FX outputs). */
-export function formatCurrency(
-  value: number,
-  currency: string,
-  locale = DEFAULT_LOCALE,
-): string {
+export function formatCurrency(value: number, currency: string, locale = DEFAULT_LOCALE): string {
   return formatCurrencyIntl(value, currency, 2, 2, locale);
 }
 

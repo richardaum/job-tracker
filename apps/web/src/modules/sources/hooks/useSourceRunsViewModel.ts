@@ -1,9 +1,6 @@
 "use client";
 
-import {
-  useSourceRunEventsSubscription,
-  useSourceTemplateQuery,
-} from "@/gql/hooks";
+import { useSourceRunEventsSubscription, useSourceTemplateQuery } from "@/gql/hooks";
 import { deriveDetailStatus } from "@/lib/entity-detail-view-status";
 
 export function useSourceRunsViewModel(templateId: string) {

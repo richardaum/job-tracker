@@ -37,11 +37,7 @@ export default function PlanTemplatesTabContent({
           New template
         </Button>
       </PlanHeaderActions>
-      <NewSourceTemplateDialog
-        open={importOpen}
-        planId={planId}
-        onOpenChange={setImportOpen}
-      />
+      <NewSourceTemplateDialog open={importOpen} planId={planId} onOpenChange={setImportOpen} />
       <div className={cn("flex flex-col gap-3")}>
         <PlanTemplatesList planId={planId} />
       </div>

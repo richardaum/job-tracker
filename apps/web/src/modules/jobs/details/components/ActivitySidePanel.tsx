@@ -1,11 +1,4 @@
-import {
-  cn,
-  Link,
-  Tabs,
-  TabsList,
-  TabsTrigger,
-  Tooltip,
-} from "@job-tracker/ui";
+import { cn, Link, Tabs, TabsList, TabsTrigger, Tooltip } from "@job-tracker/ui";
 import { ArrowSquareOutIcon } from "@phosphor-icons/react";
 import NextLink from "next/link";
 import React from "react";
@@ -42,9 +35,7 @@ export function ActivitySidePanel({
       <TabsList className={cn("w-full")}>
         <TabsTrigger
           value="notes"
-          className={cn(
-            "group flex-1 flex items-center justify-center gap-1.5",
-          )}
+          className={cn("group flex-1 flex items-center justify-center gap-1.5")}
         >
           <span>Notes</span>
           <Tooltip content="Open full page">
@@ -55,10 +46,7 @@ export function ActivitySidePanel({
                 "opacity-0 transition-opacity group-hover:opacity-100 data-[state=active]:opacity-100 no-underline hover:no-underline",
               )}
             >
-              <NextLink
-                href={jobDetailsNotesFocusPath(jobId)}
-                aria-label="Open full page"
-              >
+              <NextLink href={jobDetailsNotesFocusPath(jobId)} aria-label="Open full page">
                 <ArrowSquareOutIcon size={14} weight="regular" />
               </NextLink>
             </Link>

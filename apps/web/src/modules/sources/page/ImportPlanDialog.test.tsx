@@ -9,8 +9,7 @@ if (!Element.prototype.hasPointerCapture) {
 const createPlanMock = vi.fn();
 
 vi.mock("@/gql/hooks", async () => {
-  const actual =
-    await vi.importActual<typeof import("@/gql/hooks")>("@/gql/hooks");
+  const actual = await vi.importActual<typeof import("@/gql/hooks")>("@/gql/hooks");
   return { ...actual, useCreatePlanMutation: () => [createPlanMock] };
 });
 
@@ -24,7 +23,9 @@ describe("ImportPlanDialog", () => {
   it("renders board type dropdown with Sequential and NonSequential options", () => {
     render(<ImportPlanDialog open={true} onOpenChange={() => {}} />);
 
-    const dropdown = screen.getByRole("combobox", { name: "Select board type" });
+    const dropdown = screen.getByRole("combobox", {
+      name: "Select board type",
+    });
     expect(dropdown).toBeInTheDocument();
     expect(screen.getByPlaceholderText(/e\.g\. RemoteYeah/i)).toBeInTheDocument();
 
@@ -44,22 +45,22 @@ describe("ImportPlanDialog", () => {
     const user = userEvent.setup();
     const onOpenChange = vi.fn();
     createPlanMock.mockResolvedValue({
-      data: { createPlan: { id: "p-1", displayName: "Test Plan", document: {} } },
+      data: {
+        createPlan: { id: "p-1", displayName: "Test Plan", document: {} },
+      },
     });
 
     render(<ImportPlanDialog open={true} onOpenChange={onOpenChange} />);
 
-    await user.type(
-      screen.getByPlaceholderText(/e\.g\. RemoteYeah/i),
-      "Test Plan",
-    );
+    await user.type(screen.getByPlaceholderText(/e\.g\. RemoteYeah/i), "Test Plan");
 
-    fireEvent.change(
-      screen.getByPlaceholderText(/paste your plan document json here/i),
-      { target: { value: '{"steps": []}' } },
-    );
+    fireEvent.change(screen.getByPlaceholderText(/paste your plan document json here/i), {
+      target: { value: '{"steps": []}' },
+    });
 
-    const dropdown = screen.getByRole("combobox", { name: "Select board type" });
+    const dropdown = screen.getByRole("combobox", {
+      name: "Select board type",
+    });
     fireEvent.click(dropdown);
     fireEvent.click(screen.getByText("Sequential"));
 
@@ -87,19 +88,17 @@ describe("ImportPlanDialog", () => {
     const importButton = screen.getByRole("button", { name: "Import plan" });
     expect(importButton).toBeDisabled();
 
-    await user.type(
-      screen.getByPlaceholderText(/e\.g\. RemoteYeah/i),
-      "Test Plan",
-    );
+    await user.type(screen.getByPlaceholderText(/e\.g\. RemoteYeah/i), "Test Plan");
 
-    fireEvent.change(
-      screen.getByPlaceholderText(/paste your plan document json here/i),
-      { target: { value: '{"steps": []}' } },
-    );
+    fireEvent.change(screen.getByPlaceholderText(/paste your plan document json here/i), {
+      target: { value: '{"steps": []}' },
+    });
 
     expect(importButton).toBeDisabled();
 
-    const dropdown = screen.getByRole("combobox", { name: "Select board type" });
+    const dropdown = screen.getByRole("combobox", {
+      name: "Select board type",
+    });
     fireEvent.click(dropdown);
     fireEvent.click(screen.getByText("NonSequential"));
 

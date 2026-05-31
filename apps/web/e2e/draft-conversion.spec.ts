@@ -39,10 +39,7 @@ async function pasteJobHtml(page: Page, html: string) {
 
 async function waitForCreateDraftCaptureJobResponse(page: Page) {
   const response = await page.waitForResponse(async (resp) => {
-    if (
-      !resp.url().includes("/graphql") ||
-      resp.request().method() !== "POST"
-    ) {
+    if (!resp.url().includes("/graphql") || resp.request().method() !== "POST") {
       return false;
     }
 
@@ -60,9 +57,7 @@ async function waitForCreateDraftCaptureJobResponse(page: Page) {
   }>;
 }
 
-test("paste HTML → draft created with server-side auto-fill when enabled", async ({
-  page,
-}) => {
+test("paste HTML → draft created with server-side auto-fill when enabled", async ({ page }) => {
   await loginWithAuthBypass(page, "/profile/settings");
   await ensureAutoFillSettingEnabled(page);
 
@@ -92,9 +87,7 @@ test("paste HTML → draft created with server-side auto-fill when enabled", asy
   expect(page.url()).not.toContain("autoConvert");
 });
 
-test("paste HTML → draft created without auto-fill when checkbox unchecked", async ({
-  page,
-}) => {
+test("paste HTML → draft created without auto-fill when checkbox unchecked", async ({ page }) => {
   await loginWithAuthBypass(page, "/profile/settings");
   await ensureAutoFillSettingEnabled(page);
 
@@ -128,7 +121,5 @@ test("paste HTML → draft created without auto-fill when checkbox unchecked", a
   const actionsButton = page.getByRole("button", { name: "Actions" });
   await expect(actionsButton).toBeVisible();
   await actionsButton.click();
-  await expect(
-    page.getByRole("menuitem", { name: "Fill job fields automatically" }),
-  ).toBeEnabled();
+  await expect(page.getByRole("menuitem", { name: "Fill job fields automatically" })).toBeEnabled();
 });

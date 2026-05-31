@@ -7,11 +7,7 @@ import { RoleEnum } from "@api/domains/users/role.enum";
 import { UseGuards } from "@nestjs/common";
 import { Args, ID, Resolver, Subscription } from "@nestjs/graphql";
 
-import {
-  FillJobStatusChanged,
-  JobMatchStatusChanged,
-  SummaryStatusChanged,
-} from "./job.events";
+import { FillJobStatusChanged, JobMatchStatusChanged, SummaryStatusChanged } from "./job.events";
 import { JobEventBus } from "./job-event.bus";
 import {
   JobFillStatusEventType,
@@ -42,10 +38,7 @@ export class JobsEventsResolver {
       };
 
       if (event.status === AsyncMetadataStatusEnum.COMPLETED) {
-        const job = await this.jobsRepo.findOneByIdAndUserId(
-          jobId,
-          user.userId,
-        );
+        const job = await this.jobsRepo.findOneByIdAndUserId(jobId, user.userId);
         if (job) {
           payload.summary = job.summary;
           payload.summaryMetadata = job.summaryMetadata;

@@ -10,8 +10,7 @@ const planQueryMock = vi.fn();
 const updatePlanMock = vi.fn();
 
 vi.mock("@/gql/hooks", async () => {
-  const actual =
-    await vi.importActual<typeof import("@/gql/hooks")>("@/gql/hooks");
+  const actual = await vi.importActual<typeof import("@/gql/hooks")>("@/gql/hooks");
   return {
     ...actual,
     usePlanQuery: () => planQueryMock(),
@@ -71,11 +70,7 @@ describe("PlanDocumentTabContent", () => {
       loading: false,
     });
 
-    renderWithProviders(
-      <PlanDocumentTabContent
-        params={syncParamsResolved({ planId: "p-1" })}
-      />,
-    );
+    renderWithProviders(<PlanDocumentTabContent params={syncParamsResolved({ planId: "p-1" })} />);
 
     await waitFor(() => {
       expect(getDropdown()).toBeInTheDocument();
@@ -86,20 +81,11 @@ describe("PlanDocumentTabContent", () => {
 
   it("shows empty state when plan has no boardType", async () => {
     planQueryMock.mockReturnValue({
-      data: {
-        plan: {
-          ...defaultPlan,
-          document: { steps: [] },
-        },
-      },
+      data: { plan: { ...defaultPlan, document: { steps: [] } } },
       loading: false,
     });
 
-    renderWithProviders(
-      <PlanDocumentTabContent
-        params={syncParamsResolved({ planId: "p-1" })}
-      />,
-    );
+    renderWithProviders(<PlanDocumentTabContent params={syncParamsResolved({ planId: "p-1" })} />);
 
     await waitFor(() => {
       expect(getDropdown()).toBeInTheDocument();
@@ -115,14 +101,12 @@ describe("PlanDocumentTabContent", () => {
       loading: false,
     });
     updatePlanMock.mockResolvedValue({
-      data: { updatePlan: { id: "p-1", displayName: "Test Plan", document: {} } },
+      data: {
+        updatePlan: { id: "p-1", displayName: "Test Plan", document: {} },
+      },
     });
 
-    renderWithProviders(
-      <PlanDocumentTabContent
-        params={syncParamsResolved({ planId: "p-1" })}
-      />,
-    );
+    renderWithProviders(<PlanDocumentTabContent params={syncParamsResolved({ planId: "p-1" })} />);
 
     await waitFor(() => {
       expect(getDropdown()).toBeInTheDocument();
@@ -139,9 +123,7 @@ describe("PlanDocumentTabContent", () => {
       expect(updatePlanMock).toHaveBeenCalledWith({
         variables: {
           id: "p-1",
-          input: {
-            document: { steps: [], boardType: "NonSequential" },
-          },
+          input: { document: { steps: [], boardType: "NonSequential" } },
         },
       });
     });

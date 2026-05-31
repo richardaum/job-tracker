@@ -1,11 +1,7 @@
 "use client";
 
 import { cn, Heading } from "@job-tracker/ui";
-import {
-  AppleLogoIcon,
-  FacebookLogoIcon,
-  GoogleLogoIcon,
-} from "@phosphor-icons/react";
+import { AppleLogoIcon, FacebookLogoIcon, GoogleLogoIcon } from "@phosphor-icons/react";
 import type { ReactNode } from "react";
 
 /**
@@ -17,21 +13,13 @@ function SocialDivider() {
   return (
     <div className={cn("flex items-center gap-4")}>
       <div className={cn("h-px flex-1 bg-border-subtle")} aria-hidden />
-      <span className={cn("shrink-0 text-xs font-medium text-text-muted")}>
-        Or continue with
-      </span>
+      <span className={cn("shrink-0 text-xs font-medium text-text-muted")}>Or continue with</span>
       <div className={cn("h-px flex-1 bg-border-subtle")} aria-hidden />
     </div>
   );
 }
 
-function SocialComingSoonGlyph({
-  label,
-  children,
-}: {
-  label: string;
-  children: ReactNode;
-}) {
+function SocialComingSoonGlyph({ label, children }: { label: string; children: ReactNode }) {
   return (
     <button
       type="button"
@@ -71,8 +59,8 @@ export function LoginSocialPanel({
         Get started
       </Heading>
       <p className={cn("mt-2 text-sm text-text-muted")}>
-        Welcome to {brandName} — sign in with a social account. We never store a
-        password for this path.
+        Welcome to {brandName} — sign in with a social account. We never store a password for this
+        path.
       </p>
 
       {!!error && (
@@ -100,33 +88,21 @@ export function LoginSocialPanel({
             "hover:bg-bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-brand focus-visible:ring-offset-2 focus-visible:ring-offset-bg-surface",
           )}
         >
-          <GoogleLogoIcon
-            className={cn("size-6")}
-            weight="regular"
-            aria-hidden
-          />
+          <GoogleLogoIcon className={cn("size-6")} weight="regular" aria-hidden />
         </button>
 
         <SocialComingSoonGlyph label="Facebook">
-          <FacebookLogoIcon
-            className={cn("size-6")}
-            weight="regular"
-            aria-hidden
-          />
+          <FacebookLogoIcon className={cn("size-6")} weight="regular" aria-hidden />
         </SocialComingSoonGlyph>
 
         <SocialComingSoonGlyph label="Apple">
-          <AppleLogoIcon
-            className={cn("size-6")}
-            weight="regular"
-            aria-hidden
-          />
+          <AppleLogoIcon className={cn("size-6")} weight="regular" aria-hidden />
         </SocialComingSoonGlyph>
       </div>
 
       <p className={cn("mt-8 text-center text-xs text-text-muted")}>
-        By continuing you agree to follow this app&apos;s terms and privacy
-        practices for authentication data.
+        By continuing you agree to follow this app&apos;s terms and privacy practices for
+        authentication data.
       </p>
     </div>
   );

@@ -1,10 +1,6 @@
 "use client";
 
-import {
-  EMPTY_TIPTAP_DOC,
-  normalizeTipTapDocument,
-  tipTapToPlainText,
-} from "@job-tracker/tiptap";
+import { EMPTY_TIPTAP_DOC, normalizeTipTapDocument, tipTapToPlainText } from "@job-tracker/tiptap";
 import { tryRun } from "@job-tracker/try-run";
 import { Button, cn, Stack } from "@job-tracker/ui";
 import { useState } from "react";
@@ -31,15 +27,11 @@ export function DescriptionEditor({
   const restructureDescriptionAction = useRestructureJobDescriptionAiAction();
 
   const [updateJob, { loading: saving }] = useUpdateJobMutation({
-    refetchQueries: [
-      { query: JobDocument, variables: { id: jobId } },
-      { query: JobsDocument },
-    ],
+    refetchQueries: [{ query: JobDocument, variables: { id: jobId } }, { query: JobsDocument }],
   });
 
   async function handleSaveDescription() {
-    const nextDescription =
-      tipTapToPlainText(description).trim().length > 0 ? description : null;
+    const nextDescription = tipTapToPlainText(description).trim().length > 0 ? description : null;
 
     const [error] = await tryRun(
       updateJob({
@@ -59,9 +51,7 @@ export function DescriptionEditor({
         <TipTapEditor
           id="details-description"
           value={description}
-          onChange={(nextValue) =>
-            setDescription(nextValue || EMPTY_TIPTAP_DOC)
-          }
+          onChange={(nextValue) => setDescription(nextValue || EMPTY_TIPTAP_DOC)}
           placeholder="Add role context, stack, interview notes..."
           disabled={saving}
           autofocus="end"

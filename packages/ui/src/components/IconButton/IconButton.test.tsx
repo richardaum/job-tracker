@@ -8,11 +8,7 @@ import { IconButton } from "./IconButton";
 describe("IconButton", () => {
   it("renders an accessible icon button", () => {
     render(
-      <IconButton
-        icon={<BellIcon size={16} weight="regular" />}
-        label="Notify"
-        tooltip="Notify"
-      />,
+      <IconButton icon={<BellIcon size={16} weight="regular" />} label="Notify" tooltip="Notify" />,
     );
     expect(screen.getByRole("button", { name: /notify/i })).toBeInTheDocument();
   });

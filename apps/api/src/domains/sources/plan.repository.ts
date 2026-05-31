@@ -10,8 +10,8 @@ export class PlanRepository {
     private readonly repo: Repository<PlanEntity>,
   ) {}
 
-  findAll(): Promise<PlanEntity[]> {
-    return this.repo.find({ order: { displayName: "ASC" } });
+  findAll(userId: string): Promise<PlanEntity[]> {
+    return this.repo.find({ where: { userId }, order: { displayName: "ASC" } });
   }
 
   findById(id: string): Promise<PlanEntity | null> {
@@ -21,6 +21,7 @@ export class PlanRepository {
   create(params: {
     displayName: string;
     document: PlanEntity["document"];
+    userId: string;
   }): Promise<PlanEntity> {
     const row = this.repo.create(params);
     return this.repo.save(row);
@@ -28,10 +29,11 @@ export class PlanRepository {
 
   async update(
     id: string,
+    userId: string,
     params: Partial<Pick<PlanEntity, "displayName" | "document">>,
   ): Promise<PlanEntity | null> {
     const result = await this.repo.update(
-      { id },
+      { id, userId },
       params as Parameters<Repository<PlanEntity>["update"]>[1],
     );
     if ((result.affected ?? 0) === 0) {
@@ -40,8 +42,8 @@ export class PlanRepository {
     return this.findById(id);
   }
 
-  async delete(id: string): Promise<boolean> {
-    const result = await this.repo.delete({ id });
+  async delete(id: string, userId: string): Promise<boolean> {
+    const result = await this.repo.delete({ id, userId });
     return (result.affected ?? 0) > 0;
   }
 }

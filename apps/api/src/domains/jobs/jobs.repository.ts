@@ -86,9 +86,7 @@ export class JobsRepository {
   async create(userId: string, dto: CreateJobRepoDto): Promise<Job> {
     const { draftJobId, sourceRunId, ...rest } = dto;
     const draftPk =
-      typeof draftJobId === "string" && draftJobId.trim().length > 0
-        ? draftJobId.trim()
-        : null;
+      typeof draftJobId === "string" && draftJobId.trim().length > 0 ? draftJobId.trim() : null;
     const row = this.jobsRepo.create({
       userId,
       ...rest,
@@ -98,21 +96,12 @@ export class JobsRepository {
     return this.jobsRepo.save(row);
   }
 
-  async detachJobsSourceRun(
-    sourceRunId: string,
-    userId: string,
-  ): Promise<number> {
-    const result = await this.jobsRepo.update(
-      { userId, sourceRunId },
-      { sourceRunId: null },
-    );
+  async detachJobsSourceRun(sourceRunId: string, userId: string): Promise<number> {
+    const result = await this.jobsRepo.update({ userId, sourceRunId }, { sourceRunId: null });
     return result.affected ?? 0;
   }
 
-  async countBySourceRunIds(
-    userId: string,
-    sourceRunIds: string[],
-  ): Promise<Map<string, number>> {
+  async countBySourceRunIds(userId: string, sourceRunIds: string[]): Promise<Map<string, number>> {
     if (sourceRunIds.length === 0) return new Map();
 
     const rows = await this.jobsRepo
@@ -127,19 +116,12 @@ export class JobsRepository {
     return new Map(rows.map((r) => [r.sourceRunId, Number(r.count)]));
   }
 
-  async deleteBySourceRunId(
-    sourceRunId: string,
-    userId: string,
-  ): Promise<number> {
+  async deleteBySourceRunId(sourceRunId: string, userId: string): Promise<number> {
     const result = await this.jobsRepo.delete({ userId, sourceRunId });
     return result.affected ?? 0;
   }
 
-  async update(
-    id: string,
-    userId: string,
-    dto: UpdateJobRepoDto,
-  ): Promise<Job | null> {
+  async update(id: string, userId: string, dto: UpdateJobRepoDto): Promise<Job | null> {
     const existing = await this.findOneByIdAndUserId(id, userId);
     if (!existing) {
       return null;
@@ -157,15 +139,8 @@ export class JobsRepository {
     return existing;
   }
 
-  async updateSummary(
-    jobId: string,
-    summary: string,
-    userId: string,
-  ): Promise<boolean> {
-    const result = await this.jobsRepo.update(
-      { id: jobId, userId },
-      { summary },
-    );
+  async updateSummary(jobId: string, summary: string, userId: string): Promise<boolean> {
+    const result = await this.jobsRepo.update({ id: jobId, userId }, { summary });
     return (result.affected ?? 0) > 0;
   }
 
@@ -209,16 +184,11 @@ export class JobsRepository {
     );
   }
 
-  async beginFillAutomaticallyProcessing(
-    jobId: string,
-    userId: string,
-  ): Promise<boolean> {
-    return beginAsyncMetadataProcessingWhenRestartable(
-      JobEntity,
-      this.jobsRepo,
-      FILL_METADATA,
-      { id: jobId, userId },
-    );
+  async beginFillAutomaticallyProcessing(jobId: string, userId: string): Promise<boolean> {
+    return beginAsyncMetadataProcessingWhenRestartable(JobEntity, this.jobsRepo, FILL_METADATA, {
+      id: jobId,
+      userId,
+    });
   }
 
   async resetStaleFillProcessing(): Promise<number> {

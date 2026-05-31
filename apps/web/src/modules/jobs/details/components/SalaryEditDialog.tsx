@@ -17,12 +17,7 @@ import { TrashIcon } from "@phosphor-icons/react";
 import React, { useState } from "react";
 import { NumericFormat } from "react-number-format";
 
-import {
-  JobDocument,
-  JobsDocument,
-  SalaryPeriod,
-  useUpdateJobMutation,
-} from "@/gql/hooks";
+import { JobDocument, JobsDocument, SalaryPeriod, useUpdateJobMutation } from "@/gql/hooks";
 import type { JobDetailsValues } from "@/modules/jobs/details/utils/job-details.shared";
 import {
   centsToMajorInput,
@@ -69,13 +64,9 @@ type SalaryEditDialogDraftProps = {
   idPrefix?: string;
 };
 
-export type SalaryEditDialogProps =
-  | SalaryEditDialogJobProps
-  | SalaryEditDialogDraftProps;
+export type SalaryEditDialogProps = SalaryEditDialogJobProps | SalaryEditDialogDraftProps;
 
-function isDraftProps(
-  p: SalaryEditDialogProps,
-): p is SalaryEditDialogDraftProps {
+function isDraftProps(p: SalaryEditDialogProps): p is SalaryEditDialogDraftProps {
   return "mode" in p && p.mode === "draft";
 }
 
@@ -182,9 +173,7 @@ export function SalaryEditDialog(props: SalaryEditDialogProps) {
     const minC = majorToCents(form.salaryMin);
     const maxC = majorToCents(form.salaryMax);
     const rawCur = form.salaryCurrency.trim().toUpperCase();
-    const periodVal = form.salaryPeriod
-      ? (form.salaryPeriod as SalaryPeriod)
-      : null;
+    const periodVal = form.salaryPeriod ? (form.salaryPeriod as SalaryPeriod) : null;
     const hasAmount = minC != null || maxC != null;
     const salaryCurrency = !hasAmount
       ? null
@@ -223,9 +212,7 @@ export function SalaryEditDialog(props: SalaryEditDialogProps) {
       if (isDraft) {
         props.onError?.("Could not update salary.");
       } else {
-        (props as SalaryEditDialogJobProps).onError?.(
-          "Could not update salary.",
-        );
+        (props as SalaryEditDialogJobProps).onError?.("Could not update salary.");
       }
     } finally {
       setSaving(false);
@@ -264,9 +251,7 @@ export function SalaryEditDialog(props: SalaryEditDialogProps) {
       if (isDraft) {
         props.onError?.("Could not remove salary.");
       } else {
-        (props as SalaryEditDialogJobProps).onError?.(
-          "Could not remove salary.",
-        );
+        (props as SalaryEditDialogJobProps).onError?.("Could not remove salary.");
       }
     } finally {
       setSaving(false);
@@ -294,9 +279,7 @@ export function SalaryEditDialog(props: SalaryEditDialogProps) {
               fixedDecimalScale={false}
               value={form.salaryMin}
               valueIsNumericString
-              onValueChange={(vals) =>
-                setForm((f) => ({ ...f, salaryMin: vals.value }))
-              }
+              onValueChange={(vals) => setForm((f) => ({ ...f, salaryMin: vals.value }))}
               disabled={saving || disabledInputs}
             />
           </FormField>
@@ -312,26 +295,17 @@ export function SalaryEditDialog(props: SalaryEditDialogProps) {
               fixedDecimalScale={false}
               value={form.salaryMax}
               valueIsNumericString
-              onValueChange={(vals) =>
-                setForm((f) => ({ ...f, salaryMax: vals.value }))
-              }
+              onValueChange={(vals) => setForm((f) => ({ ...f, salaryMax: vals.value }))}
               disabled={saving || disabledInputs}
             />
           </FormField>
         </div>
         <div className={cn("grid grid-cols-1 gap-2 sm:grid-cols-2")}>
-          <FormField
-            label="Currency"
-            htmlFor={`${idPrefix}-cur`}
-            required
-            error={error}
-          >
+          <FormField label="Currency" htmlFor={`${idPrefix}-cur`} required error={error}>
             <CurrencyCombobox
               id={`${idPrefix}-cur`}
               value={form.salaryCurrency}
-              onValueChange={(salaryCurrency) =>
-                setForm((f) => ({ ...f, salaryCurrency }))
-              }
+              onValueChange={(salaryCurrency) => setForm((f) => ({ ...f, salaryCurrency }))}
               disabled={saving || disabledInputs}
               placeholder={defaultSalaryCurrency}
             />

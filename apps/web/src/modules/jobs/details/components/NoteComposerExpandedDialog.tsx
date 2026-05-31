@@ -52,9 +52,7 @@ export function NoteComposerExpandedDialog({
           <TipTapEditor
             id={`job-note-composer-expanded-${jobId}${isDialogInstance ? "-dialog" : ""}`}
             value={draftNote}
-            onChange={(nextValue) =>
-              onDraftNoteChange(nextValue || EMPTY_TIPTAP_DOC)
-            }
+            onChange={(nextValue) => onDraftNoteChange(nextValue || EMPTY_TIPTAP_DOC)}
             onHardEnter={canSend ? () => void onSendNote() : undefined}
             placeholder="Write a note..."
             disabled={creatingNote}

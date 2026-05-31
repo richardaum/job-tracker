@@ -7,11 +7,7 @@ import {
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { IconButton } from "@ui/components/IconButton/IconButton";
 
-import {
-  DropdownMenu,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-} from "./DropdownMenu";
+import { DropdownMenu, DropdownMenuItem, DropdownMenuSeparator } from "./DropdownMenu";
 
 const meta: Meta<typeof DropdownMenu> = {
   title: "Components/DropdownMenu",
@@ -37,14 +33,9 @@ export const Default: Story = {
       <DropdownMenuItem icon={<PencilSimpleIcon size={14} weight="regular" />}>
         Edit job
       </DropdownMenuItem>
-      <DropdownMenuItem icon={<CopyIcon size={14} weight="regular" />}>
-        Duplicate
-      </DropdownMenuItem>
+      <DropdownMenuItem icon={<CopyIcon size={14} weight="regular" />}>Duplicate</DropdownMenuItem>
       <DropdownMenuSeparator />
-      <DropdownMenuItem
-        destructive
-        icon={<TrashIcon size={14} weight="regular" />}
-      >
+      <DropdownMenuItem destructive icon={<TrashIcon size={14} weight="regular" />}>
         Delete
       </DropdownMenuItem>
     </DropdownMenu>

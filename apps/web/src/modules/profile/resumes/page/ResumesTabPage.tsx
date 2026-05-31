@@ -47,9 +47,7 @@ export default function ResumesTabPage() {
   }
 
   async function handleSetAsDefault(id: string) {
-    const [err] = await tryRun(
-      updateResume({ variables: { id, input: { isDefault: true } } }),
-    );
+    const [err] = await tryRun(updateResume({ variables: { id, input: { isDefault: true } } }));
     if (err) {
       showToast(err.message, "error");
       return;
@@ -69,11 +67,7 @@ export default function ResumesTabPage() {
   return (
     <div className={cn("flex min-h-0 flex-1 flex-col overflow-auto")}>
       <ProfileHeaderActions>
-        <Button
-          intent="primary"
-          size="md"
-          onClick={() => setAddDialogOpen(true)}
-        >
+        <Button intent="primary" size="md" onClick={() => setAddDialogOpen(true)}>
           <PlusIcon size={16} weight="bold" className={cn("mr-2")} />
           Add resume
         </Button>

@@ -1,9 +1,4 @@
-import {
-  ApolloClient,
-  ApolloLink,
-  HttpLink,
-  InMemoryCache,
-} from "@apollo/client/core";
+import { ApolloClient, ApolloLink, HttpLink, InMemoryCache } from "@apollo/client/core";
 import { createAuthRefreshLink } from "@job-tracker/auth";
 import { tryRun } from "@job-tracker/try-run";
 
@@ -32,10 +27,9 @@ export class ApiService {
 
   constructor(options?: ApiServiceOptions) {
     const authLink = createExtensionAuthLink(GRAPHQL_URL);
-    const authRefreshLink = createAuthRefreshLink(
-      () => getAuthRefreshUrl(GRAPHQL_URL),
-      { onRefreshResult: options?.onAuthRefreshResult },
-    );
+    const authRefreshLink = createAuthRefreshLink(() => getAuthRefreshUrl(GRAPHQL_URL), {
+      onRefreshResult: options?.onAuthRefreshResult,
+    });
     const httpLink = new HttpLink({ uri: GRAPHQL_URL, credentials: "include" });
 
     this.client = new ApolloClient({
@@ -58,11 +52,7 @@ export class ApiService {
     });
   }
 
-  async updateSourceRunStatus(
-    id: string,
-    status: SourceRunStatus,
-    errorMessage?: string | null,
-  ) {
+  async updateSourceRunStatus(id: string, status: SourceRunStatus, errorMessage?: string | null) {
     return await this.client.mutate({
       mutation: UpdateSourceRunStatusDocument,
       variables: { id, status, errorMessage: errorMessage ?? null },
@@ -93,10 +83,7 @@ export class ApiService {
     return result.data?.me?.email ?? null;
   }
 
-  async isJobDuplicate(
-    company: string,
-    title: string,
-  ): Promise<boolean> {
+  async isJobDuplicate(company: string, title: string): Promise<boolean> {
     const [err, result] = await tryRun(
       this.client.query({
         query: IsJobDuplicateDocument,

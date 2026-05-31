@@ -47,10 +47,7 @@ export interface UseJobDetailsViewModelOptions {
   includeStageEvents?: boolean;
 }
 
-export function useJobDetailsViewModel(
-  jobId: string,
-  options?: UseJobDetailsViewModelOptions,
-) {
+export function useJobDetailsViewModel(jobId: string, options?: UseJobDetailsViewModelOptions) {
   const includeStageEvents = options?.includeStageEvents ?? true;
   const apolloClient = useApolloClient();
 
@@ -59,12 +56,11 @@ export function useJobDetailsViewModel(
     fetchPolicy: "cache-and-network",
   });
 
-  const { data: stageEventsData, refetch: refetchStageEvents } =
-    useJobStageEventsQuery({
-      variables: { jobId },
-      skip: !includeStageEvents,
-      fetchPolicy: "cache-and-network",
-    });
+  const { data: stageEventsData, refetch: refetchStageEvents } = useJobStageEventsQuery({
+    variables: { jobId },
+    skip: !includeStageEvents,
+    fetchPolicy: "cache-and-network",
+  });
 
   const refetchJobAndTimeline = useCallback(async () => {
     await Promise.all([
@@ -135,8 +131,9 @@ export function useJobDetailsViewModel(
       ]
     : [{ query: JobDocument, variables: { id: jobId } }];
 
-  const [fillJobAutomatically, { loading: fillMutationLoading }] =
-    useFillJobAutomaticallyMutation({ refetchQueries });
+  const [fillJobAutomatically, { loading: fillMutationLoading }] = useFillJobAutomaticallyMutation({
+    refetchQueries,
+  });
 
   const triggerFillAutomatically = useCallback(async () => {
     const [err] = await tryRun(fillJobAutomatically({ variables: { jobId } }));
@@ -146,8 +143,7 @@ export function useJobDetailsViewModel(
   }, [fillJobAutomatically, jobId]);
 
   const job = data?.job as JobDetailsValues | undefined;
-  const currentStage =
-    stageEventsData?.jobStageEvents[0]?.toStage ?? ApplicationStage.New;
+  const currentStage = stageEventsData?.jobStageEvents[0]?.toStage ?? ApplicationStage.New;
   const currentStageReason = stageEventsData?.jobStageEvents[0]?.reason ?? null;
 
   const sourcePrimaryText = formatJobSourceLabel(job?.source);
@@ -155,10 +151,7 @@ export function useJobDetailsViewModel(
 
   const displayTitle = job ? jobDetailDisplayTitle(job.title) : null;
 
-  const fillButtonState = deriveJobFillButtonState(
-    job?.fillMetadata?.status,
-    fillMutationLoading,
-  );
+  const fillButtonState = deriveJobFillButtonState(job?.fillMetadata?.status, fillMutationLoading);
 
   return {
     job,

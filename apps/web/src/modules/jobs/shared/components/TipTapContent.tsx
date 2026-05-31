@@ -49,11 +49,7 @@ export function TipTapContent({ content, className }: TipTapContentProps) {
 
   if (isError) {
     return (
-      <div
-        className={cn("text-sm whitespace-pre-wrap wrap-break-word", className)}
-      >
-        {rendered}
-      </div>
+      <div className={cn("text-sm whitespace-pre-wrap wrap-break-word", className)}>{rendered}</div>
     );
   }
 

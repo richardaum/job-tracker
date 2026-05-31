@@ -5,15 +5,7 @@ import { RolesGuard } from "@api/domains/auth/roles.guard";
 import { DeleteMutationPayloadType } from "@api/domains/shared/delete-mutation-payload.type";
 import { RoleEnum } from "@api/domains/users/role.enum";
 import { UseGuards } from "@nestjs/common";
-import {
-  Args,
-  ID,
-  Mutation,
-  Parent,
-  Query,
-  ResolveField,
-  Resolver,
-} from "@nestjs/graphql";
+import { Args, ID, Mutation, Parent, Query, ResolveField, Resolver } from "@nestjs/graphql";
 
 import { CreatePlanInput } from "./create-plan.input";
 import { PlanService } from "./plan.service";
@@ -32,8 +24,8 @@ export class PlanResolver {
   ) {}
 
   @Query(() => [PlanType])
-  plans(): Promise<PlanType[]> {
-    return this.service.findAll();
+  plans(@CurrentUser() user: { userId: string }): Promise<PlanType[]> {
+    return this.service.findAll(user.userId);
   }
 
   @Query(() => PlanType, { nullable: true })
@@ -50,26 +42,28 @@ export class PlanResolver {
   }
 
   @Mutation(() => PlanType)
-  @Roles(RoleEnum.Admin)
-  createPlan(@Args("input") input: CreatePlanInput): Promise<PlanType> {
-    return this.service.create(input);
+  createPlan(
+    @Args("input") input: CreatePlanInput,
+    @CurrentUser() user: { userId: string },
+  ): Promise<PlanType> {
+    return this.service.create(input, user.userId);
   }
 
   @Mutation(() => PlanType)
-  @Roles(RoleEnum.Admin)
   updatePlan(
     @Args("id", { type: () => ID }) id: string,
     @Args("input") input: UpdatePlanInput,
+    @CurrentUser() user: { userId: string },
   ): Promise<PlanType> {
-    return this.service.update(id, input);
+    return this.service.update(id, input, user.userId);
   }
 
   @Mutation(() => DeleteMutationPayloadType)
-  @Roles(RoleEnum.Admin)
   async deletePlan(
     @Args("id", { type: () => ID }) id: string,
+    @CurrentUser() user: { userId: string },
   ): Promise<DeleteMutationPayloadType> {
-    await this.service.delete(id);
+    await this.service.delete(id, user.userId);
     return { success: true, deletedId: id };
   }
 }

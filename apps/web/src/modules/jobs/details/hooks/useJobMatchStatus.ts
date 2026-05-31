@@ -8,9 +8,7 @@ import {
   useJobMatchStatusChangedSubscription,
 } from "@/gql/hooks";
 
-export const JobMatchStatusContext = createContext<JobMatchStatusValue | null>(
-  null,
-);
+export const JobMatchStatusContext = createContext<JobMatchStatusValue | null>(null);
 
 export function useJobMatchStatusValue(jobId: string) {
   const {
@@ -60,9 +58,7 @@ export type JobMatchStatusValue = ReturnType<typeof useJobMatchStatusValue>;
 export function useJobMatchStatus(): JobMatchStatusValue {
   const value = useContext(JobMatchStatusContext);
   if (!value) {
-    throw new Error(
-      "useJobMatchStatus must be used within JobMatchStatusProvider",
-    );
+    throw new Error("useJobMatchStatus must be used within JobMatchStatusProvider");
   }
   return value;
 }

@@ -1,13 +1,7 @@
 "use client";
 
 import { tryRun } from "@job-tracker/try-run";
-import {
-  cn,
-  FieldWithLabelAction,
-  OverviewSection,
-  Text,
-  useDialog,
-} from "@job-tracker/ui";
+import { cn, FieldWithLabelAction, OverviewSection, Text, useDialog } from "@job-tracker/ui";
 import { PencilSimpleIcon } from "@phosphor-icons/react";
 
 import {
@@ -59,17 +53,11 @@ export function OverviewTabContent({
   const workRegionDialog = useDialog();
 
   const [updateJob] = useUpdateJobMutation({
-    refetchQueries: [
-      { query: JobDocument, variables: { id: job.id } },
-      { query: JobsDocument },
-    ],
+    refetchQueries: [{ query: JobDocument, variables: { id: job.id } }, { query: JobsDocument }],
   });
 
   const [removeJobTag] = useRemoveJobTagMutation({
-    refetchQueries: [
-      { query: JobDocument, variables: { id: job.id } },
-      { query: JobsDocument },
-    ],
+    refetchQueries: [{ query: JobDocument, variables: { id: job.id } }, { query: JobsDocument }],
   });
 
   const [inferLocation] = useGenerateJobLocationWithAiLazyQuery();
@@ -77,9 +65,7 @@ export function OverviewTabContent({
   const [requestSummary] = useRequestJobSummaryMutation();
 
   async function handleRemoveTag(tag: string) {
-    const [error] = await tryRun(
-      removeJobTag({ variables: { id: job.id, tag } }),
-    );
+    const [error] = await tryRun(removeJobTag({ variables: { id: job.id, tag } }));
     if (error) {
       onError?.("Could not remove tag.");
       return;
@@ -230,11 +216,7 @@ export function OverviewTabContent({
           label="Company"
           content={
             showCompanyMeta ? (
-              <CompanyNameWithPopover
-                job={job}
-                onSuccess={onSuccess}
-                onError={onError}
-              />
+              <CompanyNameWithPopover job={job} onSuccess={onSuccess} onError={onError} />
             ) : (
               <Text size="sm" color="muted">
                 Not set
@@ -263,11 +245,7 @@ export function OverviewTabContent({
         <FieldWithLabelAction
           label="Job URLs"
           content={
-            <JobUrls
-              urls={job.urls}
-              linkClassName="block leading-normal"
-              emptyLabel="Not set"
-            />
+            <JobUrls urls={job.urls} linkClassName="block leading-normal" emptyLabel="Not set" />
           }
           actions={
             <FieldWithLabelAction.IconActionButton
@@ -277,11 +255,7 @@ export function OverviewTabContent({
             />
           }
         />
-        <UrlFieldEditDialog
-          control={urlDialog}
-          value={job.urls}
-          onSave={handleSaveUrl}
-        />
+        <UrlFieldEditDialog control={urlDialog} value={job.urls} onSave={handleSaveUrl} />
       </div>
 
       <div className={cn("max-w-full")}>
@@ -304,11 +278,7 @@ export function OverviewTabContent({
             />
           }
         />
-        <SourceEditDialog
-          control={sourceDialog}
-          value={job.source}
-          onSave={handleSaveSource}
-        />
+        <SourceEditDialog control={sourceDialog} value={job.source} onSave={handleSaveSource} />
       </div>
 
       <div className={cn("max-w-full")}>

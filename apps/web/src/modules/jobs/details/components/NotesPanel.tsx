@@ -2,14 +2,7 @@
 
 import { EMPTY_TIPTAP_DOC, tipTapToPlainText } from "@job-tracker/tiptap";
 import { tryRun } from "@job-tracker/try-run";
-import {
-  Button,
-  cn,
-  IconButton,
-  Stack,
-  TabsContent,
-  Text,
-} from "@job-tracker/ui";
+import { Button, cn, IconButton, Stack, TabsContent, Text } from "@job-tracker/ui";
 import { PencilSimpleIcon, TrashIcon } from "@phosphor-icons/react";
 import React, { useMemo, useRef, useState } from "react";
 
@@ -43,11 +36,8 @@ export function NotesPanel({
   const [isComposerExpanded, setIsComposerExpanded] = useState(false);
   const composerEditorRef = useRef<TipTapEditorHandle>(null);
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
-  const [editingNoteContent, setEditingNoteContent] =
-    useState(EMPTY_TIPTAP_DOC);
-  const [noteIdPendingDelete, setNoteIdPendingDelete] = useState<string | null>(
-    null,
-  );
+  const [editingNoteContent, setEditingNoteContent] = useState(EMPTY_TIPTAP_DOC);
+  const [noteIdPendingDelete, setNoteIdPendingDelete] = useState<string | null>(null);
 
   const { data: notesData } = useJobNotesQuery({
     variables: { jobId },
@@ -71,14 +61,10 @@ export function NotesPanel({
           text: tipTapToPlainText(note.content).trim(),
         }))
         .filter((note) => note.text.length > 0)
-        .sort(
-          (a, b) =>
-            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
-        ),
+        .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()),
     [notesData?.jobNotes],
   );
-  const canSend =
-    tipTapToPlainText(draftNote).trim().length > 0 && !creatingNote;
+  const canSend = tipTapToPlainText(draftNote).trim().length > 0 && !creatingNote;
   const editingNote = useMemo(
     () => jobNotes.find((note) => note.id === editingNoteId) ?? null,
     [jobNotes, editingNoteId],
@@ -180,11 +166,7 @@ export function NotesPanel({
                       >
                         <TipTapContent content={note.content} />
                       </div>
-                      <div
-                        className={cn(
-                          "flex items-center justify-between gap-2",
-                        )}
-                      >
+                      <div className={cn("flex items-center justify-between gap-2")}>
                         <Text size="xs" color="muted">
                           {formatDateTime(note.createdAt)}
                         </Text>
@@ -194,16 +176,10 @@ export function NotesPanel({
                             intent="ghost"
                             label="Edit note"
                             tooltip="Edit note"
-                            icon={
-                              <PencilSimpleIcon size={13} weight="regular" />
-                            }
-                            className={cn(
-                              "size-6  text-text-muted/80 hover:text-text-muted",
-                            )}
+                            icon={<PencilSimpleIcon size={13} weight="regular" />}
+                            className={cn("size-6  text-text-muted/80 hover:text-text-muted")}
                             onClick={() => handleStartEditNote(note.id)}
-                            disabled={
-                              creatingNote || updatingNote || deletingNote
-                            }
+                            disabled={creatingNote || updatingNote || deletingNote}
                           />
                           <IconButton
                             size="sm"
@@ -211,13 +187,9 @@ export function NotesPanel({
                             label="Delete note"
                             tooltip="Delete note"
                             icon={<TrashIcon size={13} weight="regular" />}
-                            className={cn(
-                              "size-6  text-text-muted/80 hover:text-text-muted",
-                            )}
+                            className={cn("size-6  text-text-muted/80 hover:text-text-muted")}
                             onClick={() => setNoteIdPendingDelete(note.id)}
-                            disabled={
-                              creatingNote || updatingNote || deletingNote
-                            }
+                            disabled={creatingNote || updatingNote || deletingNote}
                           />
                         </div>
                       </div>
@@ -236,9 +208,7 @@ export function NotesPanel({
               ref={composerEditorRef}
               id={`job-note-composer-${jobId}${isDialogInstance ? "-dialog" : ""}`}
               value={draftNote}
-              onChange={(nextValue) =>
-                setDraftNote(nextValue || EMPTY_TIPTAP_DOC)
-              }
+              onChange={(nextValue) => setDraftNote(nextValue || EMPTY_TIPTAP_DOC)}
               onHardEnter={canSend ? () => void handleSendNote() : undefined}
               placeholder="Write a note..."
               disabled={creatingNote}
@@ -285,11 +255,7 @@ export function NotesPanel({
       />
       <NoteEditDialog
         jobId={jobId}
-        note={
-          editingNote
-            ? { id: editingNote.id, revision: editingNote.revision }
-            : null
-        }
+        note={editingNote ? { id: editingNote.id, revision: editingNote.revision } : null}
         editingNoteContent={editingNoteContent}
         onEditingNoteContentChange={(nextValue) =>
           setEditingNoteContent(nextValue || EMPTY_TIPTAP_DOC)
@@ -303,18 +269,9 @@ export function NotesPanel({
   );
 }
 
-export function NotesPanelTabsContent({
-  jobId,
-  className,
-}: {
-  jobId: string;
-  className?: string;
-}) {
+export function NotesPanelTabsContent({ jobId, className }: { jobId: string; className?: string }) {
   return (
-    <TabsContent
-      value="notes"
-      className={cn("flex-1 min-h-0 overflow-hidden", className)}
-    >
+    <TabsContent value="notes" className={cn("flex-1 min-h-0 overflow-hidden", className)}>
       <NotesPanel jobId={jobId} />
     </TabsContent>
   );

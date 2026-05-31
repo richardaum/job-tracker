@@ -1,7 +1,4 @@
-import {
-  MatchItem,
-  RequirementTypeEnum,
-} from "@api/database/entities/match-analysis.entity";
+import { MatchItem, RequirementTypeEnum } from "@api/database/entities/match-analysis.entity";
 import { FitClassificationEnum } from "@api/domains/match-analysis/fit-classification.enum";
 import { MatchSourceEnum } from "@api/domains/match-analysis/match-source.enum";
 import { MatchVerdictEnum } from "@api/domains/match-analysis/match-verdict.enum";
@@ -52,10 +49,7 @@ function resumeUnclear(overrides?: Partial<MatchItem>): MatchItem {
   return resumeFit({ verdict: MatchVerdictEnum.Unclear, ...overrides });
 }
 
-function prefFit(
-  weight: WeightEnum,
-  overrides?: Partial<MatchItem>,
-): MatchItem {
+function prefFit(weight: WeightEnum, overrides?: Partial<MatchItem>): MatchItem {
   return resumeFit({
     source: MatchSourceEnum.Preference,
     weight,
@@ -145,10 +139,7 @@ describe("computeScore", () => {
 
     it("neutral if ratio is high but has must_have gap", () => {
       // 10x nice_to_have FIT (20) + must_have GAP (0) = 20 / 25 = 80%
-      const items = [
-        ...Array.from({ length: 10 }, () => resumeFit()),
-        mustHaveGap(),
-      ];
+      const items = [...Array.from({ length: 10 }, () => resumeFit()), mustHaveGap()];
       const result = computeScore(items);
       expect(result.scoreRatio).toBe(80);
       expect(result.classification).toBe(FitClassificationEnum.Neutral);
@@ -157,12 +148,7 @@ describe("computeScore", () => {
 
   describe("unclear majority override", () => {
     it("neutral when unclear > 50% of items", () => {
-      const items = [
-        resumeUnclear(),
-        resumeUnclear(),
-        resumeUnclear(),
-        resumeFit(),
-      ];
+      const items = [resumeUnclear(), resumeUnclear(), resumeUnclear(), resumeFit()];
       const result = computeScore(items);
       expect(result.classification).toBe(FitClassificationEnum.Neutral);
     });

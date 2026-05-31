@@ -33,26 +33,16 @@ function OverviewTabLabel({
   );
 }
 
-export function OverviewTabTrigger({
-  tab,
-  href,
-  label = "Overview",
-}: OverviewTabTriggerProps) {
+export function OverviewTabTrigger({ tab, href, label = "Overview" }: OverviewTabTriggerProps) {
   const { status, error } = useJobFillStatus();
-  const tooltipContent = status
-    ? getFillStatusTooltipContent(status, error)
-    : "";
+  const tooltipContent = status ? getFillStatusTooltipContent(status, error) : "";
 
   return (
     <TabsTrigger value={tab} asChild>
       <NextLink href={href}>
         {status ? (
           <Tooltip content={tooltipContent} side="bottom">
-            <span
-              className={cn(
-                "-mx-3 inline-flex min-h-8 items-center gap-1.5 px-3",
-              )}
-            >
+            <span className={cn("-mx-3 inline-flex min-h-8 items-center gap-1.5 px-3")}>
               <OverviewTabLabel label={label} status={status} />
             </span>
           </Tooltip>

@@ -22,14 +22,10 @@ export class CreateCompanies1749000000000 implements MigrationInterface {
     );
 
     // 3. Add company_id to applications (initially nullable)
-    await queryRunner.query(
-      `ALTER TABLE "applications" ADD COLUMN "company_id" text`,
-    );
+    await queryRunner.query(`ALTER TABLE "applications" ADD COLUMN "company_id" text`);
 
     // 4. Migrate existing data
-    const applications = await queryRunner.query(
-      `SELECT id, user_id, company FROM "applications"`,
-    );
+    const applications = await queryRunner.query(`SELECT id, user_id, company FROM "applications"`);
 
     // We want to create unique companies per user/name
     const companiesMap = new Map<string, string>(); // "userId:companyName" -> companyId
@@ -47,16 +43,14 @@ export class CreateCompanies1749000000000 implements MigrationInterface {
         companiesMap.set(key, companyId);
       }
 
-      await queryRunner.query(
-        `UPDATE "applications" SET company_id = $1 WHERE id = $2`,
-        [companyId, app.id],
-      );
+      await queryRunner.query(`UPDATE "applications" SET company_id = $1 WHERE id = $2`, [
+        companyId,
+        app.id,
+      ]);
     }
 
     // 5. Make company_id NOT NULL and add foreign key
-    await queryRunner.query(
-      `ALTER TABLE "applications" ALTER COLUMN "company_id" SET NOT NULL`,
-    );
+    await queryRunner.query(`ALTER TABLE "applications" ALTER COLUMN "company_id" SET NOT NULL`);
     await queryRunner.query(
       `ALTER TABLE "applications" ADD CONSTRAINT "applications_company_id_companies_id_fk" FOREIGN KEY ("company_id") REFERENCES "public"."companies"("id") ON DELETE cascade ON UPDATE no action`,
     );
@@ -67,9 +61,7 @@ export class CreateCompanies1749000000000 implements MigrationInterface {
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     // Add company column back
-    await queryRunner.query(
-      `ALTER TABLE "applications" ADD COLUMN "company" text`,
-    );
+    await queryRunner.query(`ALTER TABLE "applications" ADD COLUMN "company" text`);
 
     // Restore data
     await queryRunner.query(`
@@ -77,17 +69,13 @@ export class CreateCompanies1749000000000 implements MigrationInterface {
       SET company = (SELECT name FROM "companies" WHERE "companies".id = "applications".company_id)
     `);
 
-    await queryRunner.query(
-      `ALTER TABLE "applications" ALTER COLUMN "company" SET NOT NULL`,
-    );
+    await queryRunner.query(`ALTER TABLE "applications" ALTER COLUMN "company" SET NOT NULL`);
 
     // Drop constraints and column
     await queryRunner.query(
       `ALTER TABLE "applications" DROP CONSTRAINT "applications_company_id_companies_id_fk"`,
     );
-    await queryRunner.query(
-      `ALTER TABLE "applications" DROP COLUMN "company_id"`,
-    );
+    await queryRunner.query(`ALTER TABLE "applications" DROP COLUMN "company_id"`);
 
     // Drop companies table
     await queryRunner.query(`DROP TABLE "companies"`);

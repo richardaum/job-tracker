@@ -29,9 +29,7 @@ export function writeJobSummaryStatusToCache(
   cache.modify({
     id: cacheId,
     fields: {
-      summaryMetadata(
-        existing: AsyncMetadataType | Reference | undefined,
-      ): AsyncMetadataType {
+      summaryMetadata(existing: AsyncMetadataType | Reference | undefined): AsyncMetadataType {
         return {
           ...readStoredAsyncMetadata(existing),
           __typename: "AsyncMetadataType",
@@ -98,8 +96,6 @@ function readStoredAsyncMetadata(
   return existing;
 }
 
-function isCacheReference(
-  value: AsyncMetadataType | Reference,
-): value is Reference {
+function isCacheReference(value: AsyncMetadataType | Reference): value is Reference {
   return "__ref" in value;
 }

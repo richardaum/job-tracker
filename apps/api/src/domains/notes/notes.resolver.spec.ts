@@ -44,9 +44,7 @@ describe("NoteResolver (integration)", () => {
       removeNote: vi.fn().mockResolvedValue(mockNote),
       generateNoteWithAI: vi
         .fn()
-        .mockResolvedValue(
-          JSON.stringify({ type: "doc", content: [{ type: "paragraph" }] }),
-        ),
+        .mockResolvedValue(JSON.stringify({ type: "doc", content: [{ type: "paragraph" }] })),
     };
 
     const moduleRef = await Test.createTestingModule({
@@ -126,12 +124,9 @@ describe("NoteResolver (integration)", () => {
   });
 
   it("deleteJobNote mutation returns payload", async () => {
-    const res = await request(app.getHttpServer())
-      .post("/graphql")
-      .set(auth)
-      .send({
-        query: 'mutation { deleteJobNote(id: "note-1") { success deletedId } }',
-      });
+    const res = await request(app.getHttpServer()).post("/graphql").set(auth).send({
+      query: 'mutation { deleteJobNote(id: "note-1") { success deletedId } }',
+    });
 
     expect(res.statusCode).toBe(200);
     expect(res.body.data.deleteJobNote).toEqual({

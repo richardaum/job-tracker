@@ -65,33 +65,21 @@ describe("conversion", () => {
 
   describe("convertSalaryRateBetweenPeriods", () => {
     it("returns same value when from === to", () => {
-      expect(convertSalaryRateBetweenPeriods(100, "hourly", "hourly")).toBe(
-        100,
-      );
-      expect(convertSalaryRateBetweenPeriods(100, "monthly", "monthly")).toBe(
-        100,
-      );
-      expect(convertSalaryRateBetweenPeriods(100, "yearly", "yearly")).toBe(
-        100,
-      );
+      expect(convertSalaryRateBetweenPeriods(100, "hourly", "hourly")).toBe(100);
+      expect(convertSalaryRateBetweenPeriods(100, "monthly", "monthly")).toBe(100);
+      expect(convertSalaryRateBetweenPeriods(100, "yearly", "yearly")).toBe(100);
     });
 
     it("converts hourly to yearly", () => {
-      expect(
-        convertSalaryRateBetweenPeriods(50, "hourly", "yearly"),
-      ).toBeCloseTo(104000, 2);
+      expect(convertSalaryRateBetweenPeriods(50, "hourly", "yearly")).toBeCloseTo(104000, 2);
     });
 
     it("converts yearly to monthly", () => {
-      expect(convertSalaryRateBetweenPeriods(120000, "yearly", "monthly")).toBe(
-        10000,
-      );
+      expect(convertSalaryRateBetweenPeriods(120000, "yearly", "monthly")).toBe(10000);
     });
 
     it("converts monthly to hourly", () => {
-      expect(
-        convertSalaryRateBetweenPeriods(8666.67, "monthly", "hourly"),
-      ).toBeCloseTo(50, 2);
+      expect(convertSalaryRateBetweenPeriods(8666.67, "monthly", "hourly")).toBeCloseTo(50, 2);
     });
   });
 
@@ -136,21 +124,13 @@ describe("conversion", () => {
 
   describe("formatConvertedSalaryRangeLine", () => {
     it("formats a range converted to yearly", () => {
-      expect(
-        formatConvertedSalaryRangeLine(
-          8333.33,
-          8333.33,
-          "monthly",
-          "yearly",
-          "USD",
-        ),
-      ).toBe("$100,000");
+      expect(formatConvertedSalaryRangeLine(8333.33, 8333.33, "monthly", "yearly", "USD")).toBe(
+        "$100,000",
+      );
     });
 
     it("returns Up to when only max is set", () => {
-      expect(
-        formatConvertedSalaryRangeLine(null, 50, "hourly", "hourly", "USD"),
-      ).toBe("Up to $50");
+      expect(formatConvertedSalaryRangeLine(null, 50, "hourly", "hourly", "USD")).toBe("Up to $50");
     });
   });
 });

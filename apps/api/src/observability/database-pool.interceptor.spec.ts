@@ -6,13 +6,9 @@ import { DatabasePoolInterceptor } from "./database-pool.interceptor";
 import { DATABASE_POOL_SLOW_QUERY_WARN_MS } from "./request-metrics.constants";
 import { RequestMetricsContext } from "./request-metrics.context";
 
-function createPooledClientMock(
-  queryImpl: (...a: unknown[]) => ReturnType<PoolClient["query"]>,
-) {
+function createPooledClientMock(queryImpl: (...a: unknown[]) => ReturnType<PoolClient["query"]>) {
   return {
-    query: vi.fn((...a: unknown[]) =>
-      queryImpl(...a),
-    ) as unknown as PoolClient["query"],
+    query: vi.fn((...a: unknown[]) => queryImpl(...a)) as unknown as PoolClient["query"],
     release: vi.fn(),
   } as unknown as PoolClient;
 }
@@ -96,11 +92,9 @@ describe("DatabasePoolInterceptor", () => {
   });
 
   it("increments once for pg-pool-style connect + client.query (callback) path", async () => {
-    const clientQuery = vi.fn(
-      (text: string, cb: (e: Error | null, r: unknown) => void) => {
-        cb(null, { rows: [] });
-      },
-    ) as unknown as PoolClient["query"];
+    const clientQuery = vi.fn((text: string, cb: (e: Error | null, r: unknown) => void) => {
+      cb(null, { rows: [] });
+    }) as unknown as PoolClient["query"];
     const client = {
       query: clientQuery,
       release: vi.fn(),

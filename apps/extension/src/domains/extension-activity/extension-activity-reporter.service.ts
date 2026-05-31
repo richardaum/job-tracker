@@ -2,10 +2,7 @@ import { tryRun } from "@job-tracker/try-run";
 
 import type { ApiService } from "@/domains/api/api.service";
 import type { LogService } from "@/domains/log/log.service";
-import {
-  ExtensionActivityEventType,
-  type ReportExtensionActivityInput,
-} from "@/gql/graphql";
+import { ExtensionActivityEventType, type ReportExtensionActivityInput } from "@/gql/graphql";
 
 type ExtensionActivityReporterDeps = {
   extensionVersion: string;

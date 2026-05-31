@@ -18,9 +18,7 @@ describe.skipIf(!hasDb)("MatchAnalysisRepository (integration)", () => {
 
   beforeAll(async () => {
     dataSource = await createTestDataSource();
-    repo = new MatchAnalysisRepository(
-      dataSource.getRepository(MatchAnalysisEntity),
-    );
+    repo = new MatchAnalysisRepository(dataSource.getRepository(MatchAnalysisEntity));
     entitiesRepo = dataSource.getRepository(MatchAnalysisEntity);
 
     const user = await insertUserWithAuthAccount(dataSource, {
@@ -60,9 +58,7 @@ describe.skipIf(!hasDb)("MatchAnalysisRepository (integration)", () => {
     const resumesRepo = dataSource.getRepository(ResumeEntity);
     const existing = await resumesRepo.findOneBy({ id: resumeId });
     if (!existing) {
-      await resumesRepo.save(
-        resumesRepo.create({ id: resumeId, userId, title: "Test Resume" }),
-      );
+      await resumesRepo.save(resumesRepo.create({ id: resumeId, userId, title: "Test Resume" }));
     }
 
     return entitiesRepo.save(

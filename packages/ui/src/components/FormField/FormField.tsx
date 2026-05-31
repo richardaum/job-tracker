@@ -9,6 +9,7 @@ export interface FormFieldProps {
   error?: string;
   required?: boolean;
   size?: "sm" | "md";
+  tooltip?: React.ReactNode;
   children: React.ReactNode;
 }
 
@@ -19,15 +20,19 @@ export function FormField({
   error,
   required = false,
   size = "md",
+  tooltip,
   children,
 }: FormFieldProps) {
   const state = error ? "error" : "default";
 
   return (
     <div className={cn("flex w-full flex-col gap-2")}>
-      <Label htmlFor={htmlFor} required={required} size={size} state={state}>
-        {label}
-      </Label>
+      <div className={cn("inline-flex items-center gap-1")}>
+        <Label htmlFor={htmlFor} required={required} size={size} state={state}>
+          {label}
+        </Label>
+        {tooltip && <span className={cn("inline-flex")}>{tooltip}</span>}
+      </div>
       {children}
       {error ? (
         <p className={cn("text-sm text-text-error")} role="alert">

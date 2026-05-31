@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  Button,
-  cn,
-  Dialog,
-  FieldWithLabelAction,
-  Input,
-} from "@job-tracker/ui";
+import { Button, cn, Dialog, FieldWithLabelAction, Input } from "@job-tracker/ui";
 import React from "react";
 
 import { Weight } from "@/gql/hooks";

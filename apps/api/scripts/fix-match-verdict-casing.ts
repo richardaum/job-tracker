@@ -2,10 +2,7 @@ import "reflect-metadata";
 import "dotenv/config";
 
 import { buildDataSourceOptions } from "@api/database/data-source-options";
-import {
-  MatchAnalysisEntity,
-  type MatchItem,
-} from "@api/database/entities/match-analysis.entity";
+import { MatchAnalysisEntity, type MatchItem } from "@api/database/entities/match-analysis.entity";
 import { MatchVerdictEnum } from "@api/domains/match-analysis/match-verdict.enum";
 import { tryRun } from "@job-tracker/try-run";
 import { Module } from "@nestjs/common";
@@ -23,12 +20,9 @@ import { EntityManager } from "typeorm";
 })
 class ScriptModule {}
 
-function normalizeVerdict(
-  verdict: string | null | undefined,
-): MatchVerdictEnum | undefined {
+function normalizeVerdict(verdict: string | null | undefined): MatchVerdictEnum | undefined {
   if (!verdict) return undefined;
-  const capitalized =
-    verdict.charAt(0).toUpperCase() + verdict.slice(1).toLowerCase();
+  const capitalized = verdict.charAt(0).toUpperCase() + verdict.slice(1).toLowerCase();
   if (
     capitalized === MatchVerdictEnum.Fit ||
     capitalized === MatchVerdictEnum.Gap ||
@@ -49,17 +43,14 @@ async function main() {
   const dryRun = process.argv.includes("--dry-run");
   const prefix = dryRun ? "[DRY-RUN] " : "";
 
-  process.stdout.write(
-    `\n${prefix}Fixing match_analysis items -> verdict (lower -> UPPER)...\n`,
-  );
+  process.stdout.write(`\n${prefix}Fixing match_analysis items -> verdict (lower -> UPPER)...\n`);
   const fitRepo = em.getRepository(MatchAnalysisEntity);
   const allFit = await fitRepo.find();
   const fixVerdict = allFit.filter((e) =>
     e.items?.some(
       (i: MatchItem) =>
         i.verdict &&
-        i.verdict !==
-          i.verdict.charAt(0).toUpperCase() + i.verdict.slice(1).toLowerCase(),
+        i.verdict !== i.verdict.charAt(0).toUpperCase() + i.verdict.slice(1).toLowerCase(),
     ),
   );
 
@@ -73,9 +64,7 @@ async function main() {
     for (const e of fixVerdict) {
       e.items = e.items.map((i: MatchItem) => ({
         ...i,
-        verdict: i.verdict
-          ? (normalizeVerdict(i.verdict) as MatchItem["verdict"])
-          : i.verdict,
+        verdict: i.verdict ? (normalizeVerdict(i.verdict) as MatchItem["verdict"]) : i.verdict,
       }));
       const [err] = await tryRun(fitRepo.save(e));
       if (err) {

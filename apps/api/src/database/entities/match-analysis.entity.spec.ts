@@ -10,9 +10,7 @@ import { plainToInstance } from "class-transformer";
 import { validate } from "class-validator";
 import { describe, expect, it } from "vitest";
 
-function minimalMatchAnalysis(
-  props: Partial<MatchAnalysisEntity> = {},
-): MatchAnalysisEntity {
+function minimalMatchAnalysis(props: Partial<MatchAnalysisEntity> = {}): MatchAnalysisEntity {
   const now = new Date("2026-01-01T00:00:00.000Z");
   return plainToInstance(MatchAnalysisEntity, {
     id: "match-spec-1",

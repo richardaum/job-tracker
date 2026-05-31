@@ -1,14 +1,7 @@
 "use client";
 
 import { SlotsProvider } from "@job-tracker/react-slots";
-import {
-  cn,
-  Heading,
-  Tabs,
-  TabsList,
-  TabsTrigger,
-  Text,
-} from "@job-tracker/ui";
+import { cn, Heading, Tabs, TabsList, TabsTrigger, Text } from "@job-tracker/ui";
 import type { Route } from "next";
 import NextLink from "next/link";
 import { usePathname } from "next/navigation";
@@ -51,10 +44,7 @@ export default function PlanDetailsLayout({
             />
           }
         >
-          <BackToLink
-            href={"/sources/plans" as Route}
-            className={cn("self-start")}
-          >
+          <BackToLink href={"/sources/plans" as Route} className={cn("self-start")}>
             Back to plans
           </BackToLink>
           <Heading as="h1" size="2xl" className={cn("min-w-0")}>
@@ -67,14 +57,10 @@ export default function PlanDetailsLayout({
             <Tabs value={activeTab}>
               <TabsList>
                 <TabsTrigger value="templates" asChild>
-                  <NextLink href={`/sources/plans/${planId}`}>
-                    Templates
-                  </NextLink>
+                  <NextLink href={`/sources/plans/${planId}`}>Templates</NextLink>
                 </TabsTrigger>
                 <TabsTrigger value="document" asChild>
-                  <NextLink href={`/sources/plans/${planId}/document`}>
-                    Document
-                  </NextLink>
+                  <NextLink href={`/sources/plans/${planId}/document`}>Document</NextLink>
                 </TabsTrigger>
               </TabsList>
             </Tabs>
@@ -89,11 +75,7 @@ export default function PlanDetailsLayout({
                 <Text color="secondary">Loading...</Text>
               </div>
             ) : !plan ? (
-              <EntityNotFound
-                resource="plan"
-                backHref="/sources/plans"
-                backLabel="Back to plans"
-              />
+              <EntityNotFound resource="plan" backHref="/sources/plans" backLabel="Back to plans" />
             ) : (
               children
             )}

@@ -29,6 +29,4 @@ export const preferenceMatchAnalysisSchema = z.object({
   items: z.array(preferenceMatchItemSchema),
 });
 
-export type PreferenceMatchItemParsed = z.infer<
-  typeof preferenceMatchItemSchema
->;
+export type PreferenceMatchItemParsed = z.infer<typeof preferenceMatchItemSchema>;

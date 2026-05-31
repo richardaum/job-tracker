@@ -3,8 +3,7 @@ import { AsyncMetadataStatus } from "@/gql/hooks";
 const FILL_STATUS_TOOLTIP: Record<string, string> = {
   [AsyncMetadataStatus.Processing]:
     "Filling job fields automatically. Updates will appear when complete.",
-  [AsyncMetadataStatus.Completed]:
-    "Job fields were filled automatically. Open Overview to review.",
+  [AsyncMetadataStatus.Completed]: "Job fields were filled automatically. Open Overview to review.",
   [AsyncMetadataStatus.Failed]:
     "Automatic fill failed. Retry from Actions or review fields on Overview.",
 };

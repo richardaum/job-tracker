@@ -138,10 +138,7 @@ export class SourcesRepository {
     });
   }
 
-  async deleteTemplateForUser(params: {
-    userId: string;
-    id: string;
-  }): Promise<boolean> {
+  async deleteTemplateForUser(params: { userId: string; id: string }): Promise<boolean> {
     const result = await this.templatesRepo.delete({
       id: params.id,
       userId: params.userId,
@@ -189,10 +186,7 @@ export class SourcesRepository {
     await this.templatesRepo.delete({ userId });
   }
 
-  async deleteRunsByTemplateId(params: {
-    userId: string;
-    templateId: string;
-  }): Promise<number> {
+  async deleteRunsByTemplateId(params: { userId: string; templateId: string }): Promise<number> {
     const result = await this.runsRepo.delete({
       userId: params.userId,
       templateId: params.templateId,
@@ -208,10 +202,7 @@ export class SourcesRepository {
     return (result.affected ?? 0) > 0;
   }
 
-  async findByUserAndId(params: {
-    id: string;
-    userId: string;
-  }): Promise<SourceRunEntity | null> {
+  async findByUserAndId(params: { id: string; userId: string }): Promise<SourceRunEntity | null> {
     return this.runsRepo.findOne({
       where: { id: params.id, userId: params.userId },
       relations: { template: { plan: true } },
@@ -263,11 +254,18 @@ export class SourcesRepository {
        ORDER BY occurred_at ASC, id ASC`,
       [userId, runId],
     );
-    return rows.map((r: { type: string; summary: string; payload: Record<string, unknown> | null; occurred_at: string }) => ({
-      type: r.type,
-      summary: r.summary,
-      payload: r.payload,
-      occurredAt: r.occurred_at,
-    }));
+    return rows.map(
+      (r: {
+        type: string;
+        summary: string;
+        payload: Record<string, unknown> | null;
+        occurred_at: string;
+      }) => ({
+        type: r.type,
+        summary: r.summary,
+        payload: r.payload,
+        occurredAt: r.occurred_at,
+      }),
+    );
   }
 }

@@ -30,9 +30,7 @@ describe("MatchAnalysisField", () => {
 
     render(<MatchAnalysisField jobId="job-42" match={match} />);
 
-    await user.click(
-      screen.getByRole("button", { name: "View full match analysis" }),
-    );
+    await user.click(screen.getByRole("button", { name: "View full match analysis" }));
 
     expect(routerPushSpy).toHaveBeenCalledWith("/jobs/job-42/match");
   });

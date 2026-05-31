@@ -11,9 +11,7 @@ const DEFAULT_API_URL = "http://localhost:3101";
 const wxtDevPort = Number.parseInt(process.env.WXT_DEV_PORT ?? "3001", 10);
 const worktreeSlug = deriveSlug(repoRoot);
 const extensionDisplayName =
-  worktreeSlug !== "job-tracker"
-    ? `Job Tracker (${worktreeSlug})`
-    : "Job Tracker";
+  worktreeSlug !== "job-tracker" ? `Job Tracker (${worktreeSlug})` : "Job Tracker";
 
 export default defineConfig({
   srcDir: "src",
@@ -25,13 +23,7 @@ export default defineConfig({
   manifest: (env) => ({
     name: extensionDisplayName,
     description: "Job Tracker browser extension (MV3).",
-    permissions: [
-      "cookies",
-      "sidePanel",
-      "scripting",
-      "contextMenus",
-      "windows",
-    ],
+    permissions: ["cookies", "sidePanel", "scripting", "contextMenus", "windows"],
     host_permissions:
       env.command === "serve"
         ? ["<all_urls>"]

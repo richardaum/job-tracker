@@ -12,9 +12,7 @@ interface SegmentedToolbarControlProps {
   children: React.ReactNode;
 }
 
-export function SegmentedToolbarControl({
-  children,
-}: SegmentedToolbarControlProps) {
+export function SegmentedToolbarControl({ children }: SegmentedToolbarControlProps) {
   const visibleItems = React.Children.toArray(children).filter(
     Boolean,
   ) as React.ReactElement<ToolbarButtonProps>[];
@@ -23,11 +21,7 @@ export function SegmentedToolbarControl({
   }
 
   return (
-    <div
-      className={cn(
-        "inline-flex overflow-hidden rounded border border-border-subtle",
-      )}
-    >
+    <div className={cn("inline-flex overflow-hidden rounded border border-border-subtle")}>
       {visibleItems.map((item, index) => {
         const isLastItem = index === visibleItems.length - 1;
         return (

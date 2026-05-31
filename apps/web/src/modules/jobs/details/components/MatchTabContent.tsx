@@ -43,8 +43,7 @@ export function MatchTabContent({ jobId }: MatchTabContentProps) {
   function emptyFilterMessage(): string {
     if (vm.matchFilterTab === MatchVerdict.Fit) return "No fits found";
     if (vm.matchFilterTab === MatchVerdict.Gap) return "No gaps found";
-    if (vm.matchFilterTab === MatchVerdict.Unclear)
-      return "No unclear requirements found";
+    if (vm.matchFilterTab === MatchVerdict.Unclear) return "No unclear requirements found";
     return "Nothing to display yet.";
   }
 
@@ -138,17 +137,10 @@ export function MatchTabContent({ jobId }: MatchTabContentProps) {
         <EmptyState
           variant="default"
           message="Analysis failed"
-          detail={
-            vm.matchAnalysis?.generationMetadata?.error ??
-            "Something went wrong. Try again."
-          }
+          detail={vm.matchAnalysis?.generationMetadata?.error ?? "Something went wrong. Try again."}
         />
         <div>
-          <Button
-            intent="primary"
-            size="md"
-            onClick={() => vm.setWizardOpen(true)}
-          >
+          <Button intent="primary" size="md" onClick={() => vm.setWizardOpen(true)}>
             Retry analysis
           </Button>
         </div>
@@ -198,30 +190,19 @@ export function MatchTabContent({ jobId }: MatchTabContentProps) {
     <JobDetailsSubTabs>
       <Tabs
         value={vm.matchFilterTab}
-        onValueChange={(v) =>
-          vm.setMatchFilterTab(v as typeof vm.matchFilterTab)
-        }
+        onValueChange={(v) => vm.setMatchFilterTab(v as typeof vm.matchFilterTab)}
       >
         <TabsList className={cn("border-border-brand/40")}>
           <TabsTrigger value="all" className={matchSubTabTriggerClass}>
             All
           </TabsTrigger>
-          <TabsTrigger
-            value={MatchVerdict.Fit}
-            className={matchSubTabTriggerClass}
-          >
+          <TabsTrigger value={MatchVerdict.Fit} className={matchSubTabTriggerClass}>
             Fits
           </TabsTrigger>
-          <TabsTrigger
-            value={MatchVerdict.Gap}
-            className={matchSubTabTriggerClass}
-          >
+          <TabsTrigger value={MatchVerdict.Gap} className={matchSubTabTriggerClass}>
             Gaps
           </TabsTrigger>
-          <TabsTrigger
-            value={MatchVerdict.Unclear}
-            className={matchSubTabTriggerClass}
-          >
+          <TabsTrigger value={MatchVerdict.Unclear} className={matchSubTabTriggerClass}>
             Unclear
           </TabsTrigger>
         </TabsList>
@@ -232,15 +213,9 @@ export function MatchTabContent({ jobId }: MatchTabContentProps) {
   return (
     <div className={cn("flex min-h-0 flex-col gap-4")}>
       {matchFilterTabs}
-      {generateButton ? (
-        <JobHeaderActions>{generateButton}</JobHeaderActions>
-      ) : null}
+      {generateButton ? <JobHeaderActions>{generateButton}</JobHeaderActions> : null}
       <JobActionsMenuItems>{matchActionsMenuItems}</JobActionsMenuItems>
-      <div
-        className={cn(
-          "@container w-full min-w-0 flex min-h-0 flex-1 flex-col gap-4",
-        )}
-      >
+      <div className={cn("@container w-full min-w-0 flex min-h-0 flex-1 flex-col gap-4")}>
         {body}
       </div>
 
@@ -253,11 +228,7 @@ export function MatchTabContent({ jobId }: MatchTabContentProps) {
         initialResumeId={vm.matchAnalysis?.resumeId ?? null}
       />
 
-      <PreferencesDialog
-        open={prefsOpen}
-        onOpenChange={setPrefsOpen}
-        readOnly
-      />
+      <PreferencesDialog open={prefsOpen} onOpenChange={setPrefsOpen} readOnly />
     </div>
   );
 }

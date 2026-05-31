@@ -6,9 +6,7 @@ export class SquashedBaseline1767000000000 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     // ── Enums ──────────────────────────────────────────────────────
     await queryRunner.query(`CREATE TYPE "role" AS ENUM('user')`);
-    await queryRunner.query(
-      `CREATE TYPE "salary_period" AS ENUM('year', 'month', 'hour')`,
-    );
+    await queryRunner.query(`CREATE TYPE "salary_period" AS ENUM('year', 'month', 'hour')`);
     await queryRunner.query(
       `CREATE TYPE "application_stage" AS ENUM('new', 'applied', 'recruiter_screen', 'technical', 'cultural_fit', 'offer', 'rejected', 'duplicated')`,
     );
