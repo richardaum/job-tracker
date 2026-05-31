@@ -1,14 +1,7 @@
 "use client";
 
-import { Badge, Card, cn, IconButton, InfoTooltip, Text } from "@job-tracker/ui";
-import {
-  ArrowsDownUpIcon,
-  CaretDoubleRightIcon,
-  GearSixIcon,
-  ListMagnifyingGlassIcon,
-  PlusIcon,
-  TrashIcon,
-} from "@phosphor-icons/react";
+import { Badge, Card, cn, IconButton, InfoTooltip, Text, Tooltip } from "@job-tracker/ui";
+import { PlusIcon, TrashIcon } from "@phosphor-icons/react";
 
 import type { Step } from "@/modules/sources/page/plan-editor/types";
 
@@ -44,40 +37,30 @@ export function StepCard({
     return (
       <Card padding="md">
         <div className={cn("flex flex-col gap-3")}>
-          <div className={cn("flex items-start justify-between")}>
-            <div className={cn("flex min-w-0 flex-col gap-1")}>
-              <div className={cn("flex items-center gap-2")}>
-                <Text size="xs" color="muted" className={cn("tabular-nums")}>
-                  {index + 1}.
-                </Text>
-                <Text size="sm" weight="medium" className={cn("font-mono")}>
-                  {step.id}
-                </Text>
-                <Badge intent="warning">parse regex</Badge>
-              </div>
-              <Text size="xs" color="muted" className={cn("font-mono")}>
-                Text: {step.action.input.text}
+          <div className={cn("flex flex-col gap-1")}>
+            <div className={cn("flex items-center gap-2")}>
+              <Text size="xs" color="muted" className={cn("tabular-nums")}>
+                {index + 1}.
               </Text>
+              <Text size="sm" weight="medium" className={cn("font-mono")}>
+                {step.id}
+              </Text>
+              <Badge intent="warning">parse regex</Badge>
+              <div className={cn("flex shrink-0 items-center gap-1")}>
+                <IconButton
+                  icon={<TrashIcon size={12} />}
+                  label="Delete step"
+                  tooltip="Delete step"
+                  size="xs"
+                  intent="quiet"
+                  className="hover:!text-text-error"
+                  onClick={() => onDelete(step.id)}
+                />
+              </div>
             </div>
-            <div className={cn("flex shrink-0 items-center gap-1")}>
-              <IconButton
-                icon={<GearSixIcon size={12} />}
-                label="Edit step config"
-                tooltip="Edit step configuration (text source)"
-                size="xs"
-                intent="quiet"
-                onClick={() => onEditParse(step)}
-              />
-              <IconButton
-                icon={<TrashIcon size={12} />}
-                label="Delete step"
-                tooltip="Delete step"
-                size="xs"
-                intent="quiet"
-                className="hover:!text-text-error"
-                onClick={() => onDelete(step.id)}
-              />
-            </div>
+            <Text size="xs" color="muted" className={cn("font-mono")}>
+              Text: {step.action.input.text}
+            </Text>
           </div>
 
           <div className={cn("border-t border-border-subtle pt-2")}>
@@ -154,61 +137,78 @@ export function StepCard({
   return (
     <Card padding="md">
       <div className={cn("flex flex-col gap-3")}>
-        <div className={cn("flex items-start justify-between")}>
-          <div className={cn("flex min-w-0 flex-col gap-1")}>
-            <div className={cn("flex items-center gap-2")}>
-              <Text size="xs" color="muted" className={cn("tabular-nums")}>
-                {index + 1}.
-              </Text>
-              <Text size="sm" weight="medium" className={cn("font-mono")}>
-                {step.id}
-              </Text>
-              <Badge intent="info">collect jobs</Badge>
-            </div>
-            <Text size="xs" color="muted" className={cn("font-mono")}>
-              {i.containerSelector} · {i.itemSelector}
-              {" · "}
-              {i.direction === "up" ? "⬆ up" : "⬇ down"}
-              {" · "}
-              {i.parallelDetailsTabs > 1 ? `${i.parallelDetailsTabs} tabs` : "1 tab"}
-              {" · "}
-              {i.pagination ? "pag on" : "pag off"}
+        <div className={cn("flex flex-col gap-1")}>
+          <div className={cn("flex items-center gap-2")}>
+            <Text size="xs" color="muted" className={cn("tabular-nums")}>
+              {index + 1}.
             </Text>
+            <Text size="sm" weight="medium" className={cn("font-mono")}>
+              {step.id}
+            </Text>
+            <Badge intent="info">collect jobs</Badge>
+            <div className={cn("flex shrink-0 items-center gap-1")}>
+              <IconButton
+                icon={<TrashIcon size={12} />}
+                label="Delete step"
+                tooltip="Delete step"
+                size="xs"
+                intent="quiet"
+                className="hover:!text-text-error"
+                onClick={() => onDelete(step.id)}
+              />
+            </div>
           </div>
-          <div className={cn("flex shrink-0 items-center gap-1")}>
-            <IconButton
-              icon={<ListMagnifyingGlassIcon size={12} />}
-              label="Edit selectors"
-              tooltip="Edit selectors (container, item, key)"
-              size="xs"
-              intent="quiet"
-              onClick={() => onEditSelectors(step)}
-            />
-            <IconButton
-              icon={<ArrowsDownUpIcon size={12} />}
-              label="Edit navigation"
-              tooltip="Edit navigation (direction, tabs)"
-              size="xs"
-              intent="quiet"
-              onClick={() => onEditNavigation(step)}
-            />
-            <IconButton
-              icon={<CaretDoubleRightIcon size={12} />}
-              label="Edit pagination"
-              tooltip="Edit pagination"
-              size="xs"
-              intent="quiet"
-              onClick={() => onEditPagination(step)}
-            />
-            <IconButton
-              icon={<TrashIcon size={12} />}
-              label="Delete step"
-              tooltip="Delete step"
-              size="xs"
-              intent="quiet"
-              className="hover:!text-text-error"
-              onClick={() => onDelete(step.id)}
-            />
+          <div className={cn("flex flex-wrap gap-1.5")}>
+            <Tooltip content="Container CSS selector">
+              <button type="button" onClick={() => onEditSelectors(step)}>
+                <Badge
+                  intent="default"
+                  className={cn("font-mono text-xs cursor-pointer hover:bg-bg-surface-hover transition-colors")}
+                >
+                  {i.containerSelector}
+                </Badge>
+              </button>
+            </Tooltip>
+            <Tooltip content="Item CSS selector">
+              <button type="button" onClick={() => onEditSelectors(step)}>
+                <Badge
+                  intent="default"
+                  className={cn("font-mono text-xs cursor-pointer hover:bg-bg-surface-hover transition-colors")}
+                >
+                  {i.itemSelector}
+                </Badge>
+              </button>
+            </Tooltip>
+            <Tooltip content="Scroll direction">
+              <button type="button" onClick={() => onEditNavigation(step)}>
+                <Badge
+                  intent="default"
+                  className={cn("text-xs cursor-pointer hover:bg-bg-surface-hover transition-colors")}
+                >
+                  {i.direction === "up" ? "⬆ up" : "⬇ down"}
+                </Badge>
+              </button>
+            </Tooltip>
+            <Tooltip content="Max detail pages opened concurrently">
+              <button type="button" onClick={() => onEditNavigation(step)}>
+                <Badge
+                  intent="default"
+                  className={cn("text-xs cursor-pointer hover:bg-bg-surface-hover transition-colors")}
+                >
+                  {i.parallelDetailsTabs > 1 ? `${i.parallelDetailsTabs} tabs` : "1 tab"}
+                </Badge>
+              </button>
+            </Tooltip>
+            <Tooltip content="Pagination (next-page navigation)">
+              <button type="button" onClick={() => onEditPagination(step)}>
+                <Badge
+                  intent="default"
+                  className={cn("text-xs cursor-pointer hover:bg-bg-surface-hover transition-colors")}
+                >
+                  {i.pagination ? "pagination ✓" : "pagination ✗"}
+                </Badge>
+              </button>
+            </Tooltip>
           </div>
         </div>
 

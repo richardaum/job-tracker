@@ -61,7 +61,7 @@ export function NavigationDialog({ step, open, onOpenChange, onSave }: Navigatio
             />
           </FormField>
           <FormField
-            label="Parallel Tabs"
+            label="Parallel Details Tabs"
             tooltip={<FieldTooltip content="Max detail pages to open concurrently." />}
             htmlFor="nav-tabs"
           >
