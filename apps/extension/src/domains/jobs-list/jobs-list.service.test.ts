@@ -6,11 +6,17 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { FieldValueService } from "@/domains/dom/field-value.service";
 import type { ContentActionMessage } from "@/domains/message/types";
-import type { CollectJobsAction } from "@/domains/plan/model/types";
+import type { CollectJobsAction } from "@job-tracker/plan-schemas";
 import { StringTemplateService } from "@/domains/plan/services/string-template.service";
 import { DefaultTimerService } from "@/domains/timer/timer.service";
 
 import { JobsListService } from "./jobs-list.service";
+
+import { SkippedJobReporterService } from "./skipped-job-reporter.service";
+
+function mockSkippedReporter(): SkippedJobReporterService {
+  return { reportSkipped: vi.fn() } as never;
+}
 
 function makeBubble(mid: string, text: string, applyUrl?: string) {
   const div = document.createElement("div");
@@ -31,6 +37,7 @@ function makeBubble(mid: string, text: string, applyUrl?: string) {
 
 function buildMessage(
   overrides: Partial<CollectJobsAction["input"]> = {},
+  actionOverrides: { skipDelay?: boolean } = {},
 ): Extract<ContentActionMessage, { kind: "jobs.list" }> {
   const { surfaceFields: sf, ...rest } = overrides;
   const surfaceFields = sf ?? [
@@ -38,8 +45,10 @@ function buildMessage(
   ];
   return {
     kind: "jobs.list",
+    sourceRunId: "test-source-run",
     action: {
       kind: "collect.jobs",
+      skipDelay: actionOverrides.skipDelay,
       input: {
         containerSelector: ".list",
         itemSelector: ".bubble.channel-post",
@@ -78,6 +87,7 @@ describe("JobsListService", () => {
       new DefaultTimerService(),
       { publishDebug: vi.fn() } as never,
       new StringTemplateService(),
+      mockSkippedReporter(),
     );
 
     const result = await svc.execute(buildMessage({ direction: "down" }));
@@ -98,6 +108,7 @@ describe("JobsListService", () => {
       new DefaultTimerService(),
       { publishDebug: vi.fn() } as never,
       new StringTemplateService(),
+      mockSkippedReporter(),
     );
 
     const result = await svc.execute(buildMessage({ direction: "up" }));
@@ -116,6 +127,7 @@ describe("JobsListService", () => {
       new DefaultTimerService(),
       { publishDebug: vi.fn() } as never,
       new StringTemplateService(),
+      mockSkippedReporter(),
     );
 
     const result = await svc.execute(buildMessage({ direction: "up" }));
@@ -132,6 +144,7 @@ describe("JobsListService", () => {
       new DefaultTimerService(),
       { publishDebug: vi.fn() } as never,
       new StringTemplateService(),
+      mockSkippedReporter(),
     );
 
     const message = buildMessage({
@@ -166,24 +179,27 @@ describe("JobsListService", () => {
       new DefaultTimerService(),
       { publishDebug: vi.fn() } as never,
       new StringTemplateService(),
+      mockSkippedReporter(),
     );
 
-    const message = buildMessage({
-      containerSelector: ".bubbles-inner",
-      itemSelector: ".bubble.channel-post",
-      direction: "down",
-      surfaceFields: [
-        { key: "rawText", selector: ".translatable-message", type: "property" as const, value: "innerText" as const },
-        {
-          key: "applyUrl",
-          selector:
-            "a[href*='jobs'],a[href*='career'],a[href*='lever'],a[href*='greenhouse'],a[href*='ashby'],a[href*='workable']",
-          type: "attribute" as const,
-          value: "href" as const,
-        },
-      ],
-    });
-
+    const message = buildMessage(
+      {
+        containerSelector: ".bubbles-inner",
+        itemSelector: ".bubble.channel-post",
+        direction: "down",
+        surfaceFields: [
+          { key: "rawText", selector: ".translatable-message", type: "property" as const, value: "innerText" as const },
+          {
+            key: "applyUrl",
+            selector:
+              "a[href*='jobs'],a[href*='career'],a[href*='lever'],a[href*='greenhouse'],a[href*='ashby'],a[href*='workable']",
+            type: "attribute" as const,
+            value: "href" as const,
+          },
+        ],
+      },
+      { skipDelay: true },
+    );
     const result = await svc.execute(message);
 
     // Should have at least 10 job cards (excluding date separators)
