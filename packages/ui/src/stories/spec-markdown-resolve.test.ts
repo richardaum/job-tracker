@@ -6,7 +6,9 @@ describe("rewriteLocalMarkdownLinks", () => {
   it("resolves ./CONVENTIONS.mdx from docs/PROJECT.mdx", () => {
     const md = "See [CONVENTIONS](./CONVENTIONS.mdx).";
     const out = rewriteLocalMarkdownLinks(md, "docs/PROJECT.mdx");
-    expect(out).toBe("See [CONVENTIONS](?path=/docs/documentation-conventions--docs).");
+    expect(out).toBe(
+      "See [CONVENTIONS](?path=/docs/documentation-conventions--docs).",
+    );
   });
 
   it("resolves ./COSTS.mdx from docs/PROJECT.mdx", () => {

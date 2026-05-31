@@ -4,9 +4,24 @@ export class RenameEmbeddedColumnsToSnakeCase1767740000000 implements MigrationI
   name = "RenameEmbeddedColumnsToSnakeCase1767740000000";
 
   async up(queryRunner: QueryRunner): Promise<void> {
-    await this.safeRenameColumn(queryRunner, "jobs", "summary_Status", "summary_status");
-    await this.safeRenameColumn(queryRunner, "jobs", "summary_Error", "summary_error");
-    await this.safeRenameColumn(queryRunner, "jobs", "summary_Timestamp", "summary_timestamp");
+    await this.safeRenameColumn(
+      queryRunner,
+      "jobs",
+      "summary_Status",
+      "summary_status",
+    );
+    await this.safeRenameColumn(
+      queryRunner,
+      "jobs",
+      "summary_Error",
+      "summary_error",
+    );
+    await this.safeRenameColumn(
+      queryRunner,
+      "jobs",
+      "summary_Timestamp",
+      "summary_timestamp",
+    );
 
     await this.safeRenameColumn(
       queryRunner,
@@ -14,7 +29,12 @@ export class RenameEmbeddedColumnsToSnakeCase1767740000000 implements MigrationI
       "conversion_Status",
       "conversion_status",
     );
-    await this.safeRenameColumn(queryRunner, "draft_jobs", "conversion_Error", "conversion_error");
+    await this.safeRenameColumn(
+      queryRunner,
+      "draft_jobs",
+      "conversion_Error",
+      "conversion_error",
+    );
     await this.safeRenameColumn(
       queryRunner,
       "draft_jobs",
@@ -43,9 +63,24 @@ export class RenameEmbeddedColumnsToSnakeCase1767740000000 implements MigrationI
   }
 
   async down(queryRunner: QueryRunner): Promise<void> {
-    await this.safeRenameColumn(queryRunner, "jobs", "summary_status", "summary_Status");
-    await this.safeRenameColumn(queryRunner, "jobs", "summary_error", "summary_Error");
-    await this.safeRenameColumn(queryRunner, "jobs", "summary_timestamp", "summary_Timestamp");
+    await this.safeRenameColumn(
+      queryRunner,
+      "jobs",
+      "summary_status",
+      "summary_Status",
+    );
+    await this.safeRenameColumn(
+      queryRunner,
+      "jobs",
+      "summary_error",
+      "summary_Error",
+    );
+    await this.safeRenameColumn(
+      queryRunner,
+      "jobs",
+      "summary_timestamp",
+      "summary_Timestamp",
+    );
 
     await this.safeRenameColumn(
       queryRunner,
@@ -53,7 +88,12 @@ export class RenameEmbeddedColumnsToSnakeCase1767740000000 implements MigrationI
       "conversion_status",
       "conversion_Status",
     );
-    await this.safeRenameColumn(queryRunner, "draft_jobs", "conversion_error", "conversion_Error");
+    await this.safeRenameColumn(
+      queryRunner,
+      "draft_jobs",
+      "conversion_error",
+      "conversion_Error",
+    );
     await this.safeRenameColumn(
       queryRunner,
       "draft_jobs",
@@ -92,7 +132,9 @@ export class RenameEmbeddedColumnsToSnakeCase1767740000000 implements MigrationI
       [table, oldName],
     );
     if (rows.length > 0) {
-      await queryRunner.query(`ALTER TABLE "${table}" RENAME COLUMN "${oldName}" TO "${newName}"`);
+      await queryRunner.query(
+        `ALTER TABLE "${table}" RENAME COLUMN "${oldName}" TO "${newName}"`,
+      );
     }
   }
 }

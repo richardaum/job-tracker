@@ -18,7 +18,11 @@ import { SourcesEventBus } from "./sources-event.bus";
 @Module({
   imports: [
     DatabaseModule,
-    TypeOrmModule.forFeature([SourceRunEntity, SourceTemplateEntity, PlanEntity]),
+    TypeOrmModule.forFeature([
+      SourceRunEntity,
+      SourceTemplateEntity,
+      PlanEntity,
+    ]),
     JobsModule,
     AuthModule,
   ],

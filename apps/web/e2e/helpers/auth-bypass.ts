@@ -16,9 +16,14 @@ function getApiBaseUrl(): string {
 }
 
 /** Dev auth bypass via API origin (same flow as the login page Google button). */
-export async function loginWithAuthBypass(page: Page, returnTo: string): Promise<void> {
+export async function loginWithAuthBypass(
+  page: Page,
+  returnTo: string,
+): Promise<void> {
   const apiUrl = getApiBaseUrl();
-  await page.goto(`${apiUrl}/auth/google?returnTo=${encodeURIComponent(returnTo)}`);
+  await page.goto(
+    `${apiUrl}/auth/google?returnTo=${encodeURIComponent(returnTo)}`,
+  );
   await page.waitForURL((url) => new URL(url).pathname === returnTo, {
     timeout: 15000,
   });

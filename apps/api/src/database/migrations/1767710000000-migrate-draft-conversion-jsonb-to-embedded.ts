@@ -4,8 +4,12 @@ export class MigrateDraftConversionJsonbToEmbedded1767710000000 implements Migra
   name = "MigrateDraftConversionJsonbToEmbedded1767710000000";
 
   async up(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`ALTER TABLE "draft_jobs" ADD COLUMN "conversion_status" text NULL`);
-    await queryRunner.query(`ALTER TABLE "draft_jobs" ADD COLUMN "conversion_error" text NULL`);
+    await queryRunner.query(
+      `ALTER TABLE "draft_jobs" ADD COLUMN "conversion_status" text NULL`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE "draft_jobs" ADD COLUMN "conversion_error" text NULL`,
+    );
     await queryRunner.query(
       `ALTER TABLE "draft_jobs" ADD COLUMN "conversion_timestamp" timestamptz NULL`,
     );
@@ -19,11 +23,15 @@ export class MigrateDraftConversionJsonbToEmbedded1767710000000 implements Migra
       WHERE "conversion_metadata" IS NOT NULL
     `);
 
-    await queryRunner.query(`ALTER TABLE "draft_jobs" DROP COLUMN "conversion_metadata"`);
+    await queryRunner.query(
+      `ALTER TABLE "draft_jobs" DROP COLUMN "conversion_metadata"`,
+    );
   }
 
   async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`ALTER TABLE "draft_jobs" ADD COLUMN "conversion_metadata" jsonb NULL`);
+    await queryRunner.query(
+      `ALTER TABLE "draft_jobs" ADD COLUMN "conversion_metadata" jsonb NULL`,
+    );
 
     await queryRunner.query(`
       UPDATE "draft_jobs"
@@ -35,8 +43,14 @@ export class MigrateDraftConversionJsonbToEmbedded1767710000000 implements Migra
       WHERE "conversion_status" IS NOT NULL
     `);
 
-    await queryRunner.query(`ALTER TABLE "draft_jobs" DROP COLUMN "conversion_status"`);
-    await queryRunner.query(`ALTER TABLE "draft_jobs" DROP COLUMN "conversion_error"`);
-    await queryRunner.query(`ALTER TABLE "draft_jobs" DROP COLUMN "conversion_timestamp"`);
+    await queryRunner.query(
+      `ALTER TABLE "draft_jobs" DROP COLUMN "conversion_status"`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE "draft_jobs" DROP COLUMN "conversion_error"`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE "draft_jobs" DROP COLUMN "conversion_timestamp"`,
+    );
   }
 }

@@ -21,6 +21,8 @@ WHERE cardinality("urls") = 0
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`ALTER TABLE "applications" DROP COLUMN IF EXISTS "urls"`);
+    await queryRunner.query(
+      `ALTER TABLE "applications" DROP COLUMN IF EXISTS "urls"`,
+    );
   }
 }

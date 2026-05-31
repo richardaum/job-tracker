@@ -36,8 +36,12 @@ describe("PasteDestinationDialog", () => {
       />,
     );
 
-    expect(screen.getByRole("checkbox", { name: "Fill job fields automatically" })).toBeChecked();
-    expect(screen.getByRole("checkbox", { name: "Run match analysis" })).toBeChecked();
+    expect(
+      screen.getByRole("checkbox", { name: "Fill job fields automatically" }),
+    ).toBeChecked();
+    expect(
+      screen.getByRole("checkbox", { name: "Run match analysis" }),
+    ).toBeChecked();
     expect(screen.getByText("After create:")).toBeInTheDocument();
     expect(useSettingsQueryMock).toHaveBeenCalledWith(
       expect.objectContaining({ fetchPolicy: "cache-first" }),
@@ -68,7 +72,9 @@ describe("PasteDestinationDialog", () => {
     expect(
       screen.getByRole("checkbox", { name: "Fill job fields automatically" }),
     ).not.toBeChecked();
-    expect(screen.getByRole("checkbox", { name: "Run match analysis" })).not.toBeChecked();
+    expect(
+      screen.getByRole("checkbox", { name: "Run match analysis" }),
+    ).not.toBeChecked();
   });
 
   it("passes toggled after-create values to onConfirm", async () => {
@@ -95,8 +101,12 @@ describe("PasteDestinationDialog", () => {
       />,
     );
 
-    await user.click(screen.getByRole("checkbox", { name: "Fill job fields automatically" }));
-    await user.click(screen.getByRole("checkbox", { name: "Run match analysis" }));
+    await user.click(
+      screen.getByRole("checkbox", { name: "Fill job fields automatically" }),
+    );
+    await user.click(
+      screen.getByRole("checkbox", { name: "Run match analysis" }),
+    );
     await user.click(screen.getByRole("button", { name: "Create draft" }));
 
     expect(onConfirm).toHaveBeenCalledWith("", {

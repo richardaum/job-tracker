@@ -1,7 +1,10 @@
 export type { CallAiOptions } from "./ai-base.service";
 export { AiBaseService } from "./ai-base.service";
 export { LibAiModule } from "./lib-ai.module";
-export { locationInferenceSchema, workRegionInferenceSchema } from "./location-inference.schema";
+export {
+  locationInferenceSchema,
+  workRegionInferenceSchema,
+} from "./location-inference.schema";
 export { LocationInferenceService } from "./location-inference.service";
 export {
   LOCATION_INFERENCE_SYSTEM_TEMPLATE,

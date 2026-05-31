@@ -12,7 +12,9 @@ export type ParsedSalaryForCreateJobInput = {
 };
 
 /** `Job` is untyped; only accept values our parser produced (or same shape). */
-export function isParsedSalaryForCreateJobInput(v: unknown): v is ParsedSalaryForCreateJobInput {
+export function isParsedSalaryForCreateJobInput(
+  v: unknown,
+): v is ParsedSalaryForCreateJobInput {
   if (v == null || typeof v !== "object") return false;
   const o = v as Record<string, unknown>;
   return (

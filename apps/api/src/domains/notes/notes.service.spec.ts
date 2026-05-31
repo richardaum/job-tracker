@@ -1,5 +1,9 @@
 import { JobEventBus } from "@api/domains/jobs/job-event.bus";
-import { BadRequestException, ConflictException, NotFoundException } from "@nestjs/common";
+import {
+  BadRequestException,
+  ConflictException,
+  NotFoundException,
+} from "@nestjs/common";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { NoteGenerationService } from "./ai/note-generation.service";
@@ -46,7 +50,9 @@ describe("NoteService", () => {
   it("listNotes throws when job is not found", async () => {
     vi.mocked(repo.hasJob).mockResolvedValue(false);
 
-    await expect(service.listNotes("app-1", "user-1")).rejects.toThrow(NotFoundException);
+    await expect(service.listNotes("app-1", "user-1")).rejects.toThrow(
+      NotFoundException,
+    );
   });
 
   it("listNotes returns notes for owned job", async () => {
@@ -94,11 +100,14 @@ describe("NoteService", () => {
   });
 
   describe("createPlainTextNote", () => {
-    const plainContent = 'Auto-rejected by keyword blocker: keyword "test" matched in TITLE';
+    const plainContent =
+      'Auto-rejected by keyword blocker: keyword "test" matched in TITLE';
 
     it("creates note successfully with plain text", async () => {
       vi.mocked(repo.hasJob).mockResolvedValue(true);
-      vi.mocked(repo.create).mockResolvedValue(makeNote({ content: plainContent }));
+      vi.mocked(repo.create).mockResolvedValue(
+        makeNote({ content: plainContent }),
+      );
 
       const note = await service.createPlainTextNote("user-1", {
         jobId: "app-1",
@@ -126,14 +135,18 @@ describe("NoteService", () => {
 
     it("emits JobUpdated event on successful creation", async () => {
       vi.mocked(repo.hasJob).mockResolvedValue(true);
-      vi.mocked(repo.create).mockResolvedValue(makeNote({ content: plainContent }));
+      vi.mocked(repo.create).mockResolvedValue(
+        makeNote({ content: plainContent }),
+      );
 
       await service.createPlainTextNote("user-1", {
         jobId: "app-1",
         content: plainContent,
       });
 
-      expect(eventBus.emit).toHaveBeenCalledWith(expect.objectContaining({ jobId: "app-1" }));
+      expect(eventBus.emit).toHaveBeenCalledWith(
+        expect.objectContaining({ jobId: "app-1" }),
+      );
     });
 
     it("does not validate TipTap content", async () => {
@@ -154,9 +167,9 @@ describe("NoteService", () => {
   it("updateNote throws when note is not found", async () => {
     vi.mocked(repo.findByIdAndUserId).mockResolvedValue(null);
 
-    await expect(service.updateNote("note-1", "user-1", { expectedRevision: 1 })).rejects.toThrow(
-      NotFoundException,
-    );
+    await expect(
+      service.updateNote("note-1", "user-1", { expectedRevision: 1 }),
+    ).rejects.toThrow(NotFoundException);
   });
 
   it("updateNote validates TipTap JSON", async () => {
@@ -187,7 +200,9 @@ describe("NoteService", () => {
 
   it("updateNote updates successfully", async () => {
     vi.mocked(repo.findByIdAndUserId).mockResolvedValue(makeNote());
-    vi.mocked(repo.updateWithRevision).mockResolvedValue(makeNote({ revision: 2 }));
+    vi.mocked(repo.updateWithRevision).mockResolvedValue(
+      makeNote({ revision: 2 }),
+    );
 
     const updated = await service.updateNote("note-1", "user-1", {
       expectedRevision: 1,
@@ -203,7 +218,9 @@ describe("NoteService", () => {
   it("removeNote throws when note is missing", async () => {
     vi.mocked(repo.findByIdAndUserId).mockResolvedValue(null);
 
-    await expect(service.removeNote("note-1", "user-1")).rejects.toThrow(NotFoundException);
+    await expect(service.removeNote("note-1", "user-1")).rejects.toThrow(
+      NotFoundException,
+    );
   });
 
   it("removeNote deletes note when present", async () => {
@@ -217,9 +234,9 @@ describe("NoteService", () => {
   it("generateNoteWithAI throws when job is not found", async () => {
     vi.mocked(repo.findApplicationByIdAndUserId).mockResolvedValue(null);
 
-    await expect(service.generateNoteWithAI("user-1", "app-1", "draft note")).rejects.toThrow(
-      NotFoundException,
-    );
+    await expect(
+      service.generateNoteWithAI("user-1", "app-1", "draft note"),
+    ).rejects.toThrow(NotFoundException);
   });
 
   it("generateNoteWithAI returns tiptap JSON string", async () => {
@@ -235,7 +252,11 @@ describe("NoteService", () => {
       content: [{ type: "paragraph" }],
     });
 
-    const result = await service.generateNoteWithAI("user-1", "app-1", "draft note");
+    const result = await service.generateNoteWithAI(
+      "user-1",
+      "app-1",
+      "draft note",
+    );
 
     expect(result).toContain('"type":"doc"');
   });

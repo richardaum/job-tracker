@@ -138,7 +138,10 @@ export class SourcesRepository {
     });
   }
 
-  async deleteTemplateForUser(params: { userId: string; id: string }): Promise<boolean> {
+  async deleteTemplateForUser(params: {
+    userId: string;
+    id: string;
+  }): Promise<boolean> {
     const result = await this.templatesRepo.delete({
       id: params.id,
       userId: params.userId,
@@ -186,7 +189,10 @@ export class SourcesRepository {
     await this.templatesRepo.delete({ userId });
   }
 
-  async deleteRunsByTemplateId(params: { userId: string; templateId: string }): Promise<number> {
+  async deleteRunsByTemplateId(params: {
+    userId: string;
+    templateId: string;
+  }): Promise<number> {
     const result = await this.runsRepo.delete({
       userId: params.userId,
       templateId: params.templateId,
@@ -202,7 +208,10 @@ export class SourcesRepository {
     return (result.affected ?? 0) > 0;
   }
 
-  async findByUserAndId(params: { id: string; userId: string }): Promise<SourceRunEntity | null> {
+  async findByUserAndId(params: {
+    id: string;
+    userId: string;
+  }): Promise<SourceRunEntity | null> {
     return this.runsRepo.findOne({
       where: { id: params.id, userId: params.userId },
       relations: { template: { plan: true } },

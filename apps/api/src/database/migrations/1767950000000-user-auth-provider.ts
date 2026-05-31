@@ -17,11 +17,15 @@ export class UserAuthProvider1767950000000 implements MigrationInterface {
       ALTER TABLE "users" ALTER COLUMN "provider_account_id" SET NOT NULL
     `);
     // Baseline (`uq_users_google_id`) vs older restores (`users_google_id_unique`).
-    await queryRunner.query(`ALTER TABLE "users" DROP CONSTRAINT IF EXISTS "uq_users_google_id"`);
+    await queryRunner.query(
+      `ALTER TABLE "users" DROP CONSTRAINT IF EXISTS "uq_users_google_id"`,
+    );
     await queryRunner.query(
       `ALTER TABLE "users" DROP CONSTRAINT IF EXISTS "users_google_id_unique"`,
     );
-    await queryRunner.query(`ALTER TABLE "users" DROP COLUMN IF EXISTS "google_id"`);
+    await queryRunner.query(
+      `ALTER TABLE "users" DROP COLUMN IF EXISTS "google_id"`,
+    );
     await queryRunner.query(`
       ALTER TABLE "users"
         ADD CONSTRAINT "uq_users_provider"
@@ -33,7 +37,9 @@ export class UserAuthProvider1767950000000 implements MigrationInterface {
   }
 
   async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`ALTER TABLE "users" DROP CONSTRAINT "uq_users_provider"`);
+    await queryRunner.query(
+      `ALTER TABLE "users" DROP CONSTRAINT "uq_users_provider"`,
+    );
     await queryRunner.query(`
       ALTER TABLE "users" ADD COLUMN "google_id" text
     `);
@@ -49,7 +55,9 @@ export class UserAuthProvider1767950000000 implements MigrationInterface {
       ALTER TABLE "users" ADD CONSTRAINT "uq_users_google_id"
         UNIQUE ("google_id")
     `);
-    await queryRunner.query(`ALTER TABLE "users" DROP COLUMN "provider_account_id"`);
+    await queryRunner.query(
+      `ALTER TABLE "users" DROP COLUMN "provider_account_id"`,
+    );
     await queryRunner.query(`ALTER TABLE "users" DROP COLUMN "provider_name"`);
     await queryRunner.query(`DROP TYPE "auth_provider"`);
   }

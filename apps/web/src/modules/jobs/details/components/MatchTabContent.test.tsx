@@ -47,7 +47,8 @@ vi.mock("@/gql/hooks", async (importOriginal) => {
     useJobMatchQuery: gqlMocks.useJobMatchQuery,
     useGenerateJobMatchMutation: gqlMocks.useGenerateJobMatchMutation,
     useDeleteMatchAnalysisMutation: gqlMocks.useDeleteMatchAnalysisMutation,
-    useJobMatchStatusChangedSubscription: gqlMocks.useJobMatchStatusChangedSubscription,
+    useJobMatchStatusChangedSubscription:
+      gqlMocks.useJobMatchStatusChangedSubscription,
   };
 });
 
@@ -69,32 +70,39 @@ vi.mock("@/modules/work-preferences/components/PreferencesDialog", () => ({
     ) : null,
 }));
 
-vi.mock("@/modules/match-analyses/details/components/MatchWizardDialog", () => ({
-  MatchWizardDialog: ({
-    open,
-    hasExistingMatch,
-    generating,
-    onOpenChange,
-  }: {
-    open: boolean;
-    hasExistingMatch: boolean;
-    generating?: boolean;
-    onOpenChange: (next: boolean) => void;
-  }) =>
-    open ? (
-      <div
-        role="dialog"
-        aria-label="match-wizard-dialog"
-        data-has-existing-match={hasExistingMatch ? "true" : "false"}
-        data-generating={generating ? "true" : "false"}
-      >
-        <button type="button" onClick={() => onOpenChange(false)} aria-label="Close wizard dialog">
-          Close wizard
-        </button>
-        mock wizard panel
-      </div>
-    ) : null,
-}));
+vi.mock(
+  "@/modules/match-analyses/details/components/MatchWizardDialog",
+  () => ({
+    MatchWizardDialog: ({
+      open,
+      hasExistingMatch,
+      generating,
+      onOpenChange,
+    }: {
+      open: boolean;
+      hasExistingMatch: boolean;
+      generating?: boolean;
+      onOpenChange: (next: boolean) => void;
+    }) =>
+      open ? (
+        <div
+          role="dialog"
+          aria-label="match-wizard-dialog"
+          data-has-existing-match={hasExistingMatch ? "true" : "false"}
+          data-generating={generating ? "true" : "false"}
+        >
+          <button
+            type="button"
+            onClick={() => onOpenChange(false)}
+            aria-label="Close wizard dialog"
+          >
+            Close wizard
+          </button>
+          mock wizard panel
+        </div>
+      ) : null,
+  }),
+);
 
 function setupApolloMocks(options: {
   jobMatch?: JobMatchData | undefined;
@@ -105,9 +113,11 @@ function setupApolloMocks(options: {
 }) {
   const refetch =
     options.refetch ??
-    vi.fn().mockResolvedValue({
-      data: options.jobMatch ? { jobMatch: options.jobMatch } : null,
-    });
+    vi
+      .fn()
+      .mockResolvedValue({
+        data: options.jobMatch ? { jobMatch: options.jobMatch } : null,
+      });
 
   gqlMocks.useJobMatchQuery.mockReturnValue({
     data: options.jobMatch ? { jobMatch: options.jobMatch } : undefined,
@@ -175,12 +185,13 @@ describe("MatchTabContent", () => {
     await user.click(screen.getByRole("button", { name: /generate match$/i }));
 
     await waitFor(() => {
-      expect(screen.getByRole("dialog", { name: "match-wizard-dialog" })).toBeInTheDocument();
+      expect(
+        screen.getByRole("dialog", { name: "match-wizard-dialog" }),
+      ).toBeInTheDocument();
     });
-    expect(screen.getByRole("dialog", { name: "match-wizard-dialog" })).toHaveAttribute(
-      "data-has-existing-match",
-      "false",
-    );
+    expect(
+      screen.getByRole("dialog", { name: "match-wizard-dialog" }),
+    ).toHaveAttribute("data-has-existing-match", "false");
   });
 
   it("renders processing state when generation metadata is PROCESSING", () => {
@@ -220,7 +231,9 @@ describe("MatchTabContent", () => {
 
     await user.click(screen.getByRole("button", { name: /retry analysis/i }));
 
-    expect(await screen.findByRole("dialog", { name: "match-wizard-dialog" })).toBeInTheDocument();
+    expect(
+      await screen.findByRole("dialog", { name: "match-wizard-dialog" }),
+    ).toBeInTheDocument();
   });
 
   it("navigates to resume when Actions View resume is selected", async () => {
@@ -249,16 +262,24 @@ describe("MatchTabContent", () => {
 
     await user.click(screen.getByRole("button", { name: /^actions$/i }));
 
-    expect(screen.getByRole("menuitem", { name: /view preferences/i })).toBeInTheDocument();
-    expect(screen.queryByRole("menuitem", { name: /view resume/i })).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("menuitem", { name: /view preferences/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("menuitem", { name: /view resume/i }),
+    ).not.toBeInTheDocument();
   });
 
   it("renders error message when jobMatch query fails", () => {
     setupApolloMocks({ error: new Error("network"), jobMatch: undefined });
     renderMatchTab(<MatchTabContent jobId="job-1" />);
 
-    expect(screen.getByText(/failed to load match analysis/i)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /^generate$/i })).toBeInTheDocument();
+    expect(
+      screen.getByText(/failed to load match analysis/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /^generate$/i }),
+    ).toBeInTheDocument();
   });
 
   it("hides header Generate during initial loading without cached match", () => {
@@ -273,7 +294,9 @@ describe("MatchTabContent", () => {
     setupApolloMocks({ loading: false, jobMatch: completedJobMatch(items) });
     rerender(<MatchTabContent jobId="job-1" />);
 
-    expect(screen.getByRole("button", { name: /^regenerate$/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /^regenerate$/i }),
+    ).toBeInTheDocument();
   });
 
   it("opens preferences dialog from Actions menu View preferences", async () => {
@@ -285,7 +308,9 @@ describe("MatchTabContent", () => {
     });
 
     await user.click(screen.getByRole("button", { name: /^actions$/i }));
-    await user.click(screen.getByRole("menuitem", { name: /view preferences/i }));
+    await user.click(
+      screen.getByRole("menuitem", { name: /view preferences/i }),
+    );
 
     const dialog = await screen.findByRole("dialog", {
       name: "preferences-dialog",
@@ -308,7 +333,9 @@ describe("MatchTabContent", () => {
 
     await user.click(screen.getByRole("button", { name: /work preferences/i }));
 
-    expect(await screen.findByRole("dialog", { name: "preferences-dialog" })).toBeVisible();
+    expect(
+      await screen.findByRole("dialog", { name: "preferences-dialog" }),
+    ).toBeVisible();
   });
 
   it("shows match header menu items while tab content loads", async () => {
@@ -328,8 +355,12 @@ describe("MatchTabContent", () => {
 
     await user.click(screen.getByRole("button", { name: /^actions$/i }));
     expect(screen.getByText("Match")).toBeInTheDocument();
-    expect(screen.getByRole("menuitem", { name: /view resume/i })).toBeInTheDocument();
-    expect(screen.getByRole("menuitem", { name: /view preferences/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("menuitem", { name: /view resume/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("menuitem", { name: /view preferences/i }),
+    ).toBeInTheDocument();
   });
 
   it("renders completed match analysis content", async () => {
@@ -462,18 +493,18 @@ describe("MatchTabContent", () => {
 
     await user.click(screen.getByRole("button", { name: /^regenerate$/i }));
     await waitFor(() =>
-      expect(screen.getByRole("dialog", { name: "match-wizard-dialog" })).toHaveAttribute(
-        "data-has-existing-match",
-        "true",
-      ),
+      expect(
+        screen.getByRole("dialog", { name: "match-wizard-dialog" }),
+      ).toHaveAttribute("data-has-existing-match", "true"),
     );
   });
 
   it("subscription: invokes refetch after COMPLETED event", async () => {
     const { refetch } = setupApolloMocks({
-      jobMatch: completedJobMatch([mockMatchItem({ verdict: MatchVerdict.Fit })], {
-        id: "live-match",
-      }),
+      jobMatch: completedJobMatch(
+        [mockMatchItem({ verdict: MatchVerdict.Fit })],
+        { id: "live-match" },
+      ),
     });
     renderMatchTab(<MatchTabContent jobId="job-live" />);
     await waitFor(() =>
@@ -481,7 +512,9 @@ describe("MatchTabContent", () => {
         gqlMocks.useJobMatchStatusChangedSubscription.mock.calls.length,
       ).toBeGreaterThanOrEqual(1),
     );
-    const onEvent = getMatchStatusChangedHandler(gqlMocks.useJobMatchStatusChangedSubscription);
+    const onEvent = getMatchStatusChangedHandler(
+      gqlMocks.useJobMatchStatusChangedSubscription,
+    );
     await onEvent({ status: AsyncMetadataStatus.Completed });
 
     await waitFor(() => expect(refetch).toHaveBeenCalled());
@@ -497,7 +530,9 @@ describe("MatchTabContent", () => {
         gqlMocks.useJobMatchStatusChangedSubscription.mock.calls.length,
       ).toBeGreaterThanOrEqual(1),
     );
-    const onEvent = getMatchStatusChangedHandler(gqlMocks.useJobMatchStatusChangedSubscription);
+    const onEvent = getMatchStatusChangedHandler(
+      gqlMocks.useJobMatchStatusChangedSubscription,
+    );
     await onEvent({ status: AsyncMetadataStatus.Failed });
 
     await waitFor(() => expect(refetch).toHaveBeenCalled());
@@ -512,7 +547,8 @@ describe("MatchTabContent", () => {
       initial: processingJobMatch({ id: "stream-match" }),
       afterRefetch: completedJobMatch([fitItem], { id: "stream-match" }),
       useGenerateJobMatchMutationMock: gqlMocks.useGenerateJobMatchMutation,
-      useDeleteMatchAnalysisMutationMock: gqlMocks.useDeleteMatchAnalysisMutation,
+      useDeleteMatchAnalysisMutationMock:
+        gqlMocks.useDeleteMatchAnalysisMutation,
     });
 
     renderMatchTab(<MatchTabContent jobId="job-stream-ui" />);
@@ -525,11 +561,13 @@ describe("MatchTabContent", () => {
       ).toBeGreaterThanOrEqual(1),
     );
 
-    await getMatchStatusChangedHandler(gqlMocks.useJobMatchStatusChangedSubscription)({
-      status: AsyncMetadataStatus.Completed,
-    });
+    await getMatchStatusChangedHandler(
+      gqlMocks.useJobMatchStatusChangedSubscription,
+    )({ status: AsyncMetadataStatus.Completed });
 
-    expect(await screen.findByText(/react streams into view/i)).toBeInTheDocument();
+    expect(
+      await screen.findByText(/react streams into view/i),
+    ).toBeInTheDocument();
     expect(screen.getByText(/76%/i)).toBeInTheDocument();
     expect(screen.queryByText(/analyzing your match/i)).not.toBeInTheDocument();
   });
@@ -541,7 +579,8 @@ describe("MatchTabContent", () => {
         id: "stream-fail-match",
       }),
       useGenerateJobMatchMutationMock: gqlMocks.useGenerateJobMatchMutation,
-      useDeleteMatchAnalysisMutationMock: gqlMocks.useDeleteMatchAnalysisMutation,
+      useDeleteMatchAnalysisMutationMock:
+        gqlMocks.useDeleteMatchAnalysisMutation,
     });
 
     renderMatchTab(<MatchTabContent jobId="job-stream-fail-ui" />);
@@ -554,9 +593,9 @@ describe("MatchTabContent", () => {
       ).toBeGreaterThanOrEqual(1),
     );
 
-    await getMatchStatusChangedHandler(gqlMocks.useJobMatchStatusChangedSubscription)({
-      status: AsyncMetadataStatus.Failed,
-    });
+    await getMatchStatusChangedHandler(
+      gqlMocks.useJobMatchStatusChangedSubscription,
+    )({ status: AsyncMetadataStatus.Failed });
 
     expect(await screen.findByText(/analysis failed/i)).toBeInTheDocument();
     expect(screen.getByText(/llm unreachable/i)).toBeInTheDocument();

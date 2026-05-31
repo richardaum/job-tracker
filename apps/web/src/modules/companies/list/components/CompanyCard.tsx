@@ -1,7 +1,11 @@
 "use client";
 
 import { cn, IconButton, ListItemCard, Text } from "@job-tracker/ui";
-import { ArrowSquareOutIcon, PencilSimpleIcon, TrashIcon } from "@phosphor-icons/react";
+import {
+  ArrowSquareOutIcon,
+  PencilSimpleIcon,
+  TrashIcon,
+} from "@phosphor-icons/react";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -64,13 +68,20 @@ export function CompanyCard({
         title={
           <ListItemCard.Title
             asChild
-            className={cn("inline-block max-w-full font-semibold focus-visible:ring-inset")}
+            className={cn(
+              "inline-block max-w-full font-semibold focus-visible:ring-inset",
+            )}
           >
             <Link
               href={`/companies/${encodeURIComponent(company.id)}`}
               onClick={() => onOpenDetails?.(company.id)}
             >
-              <Text as="span" size="base" weight="semibold" className={cn("wrap-break-word")}>
+              <Text
+                as="span"
+                size="base"
+                weight="semibold"
+                className={cn("wrap-break-word")}
+              >
                 {company.name}
               </Text>
             </Link>
@@ -86,7 +97,9 @@ export function CompanyCard({
               tooltip="View jobs"
               className={cn(ListItemCard.actionIconButtonClassName)}
             >
-              <Link href={`/jobs?q=all&company=${encodeURIComponent(company.name)}`}>
+              <Link
+                href={`/jobs?q=all&company=${encodeURIComponent(company.name)}`}
+              >
                 <ArrowSquareOutIcon size={13} weight="regular" />
               </Link>
             </IconButton>
@@ -119,7 +132,10 @@ export function CompanyCard({
         }
         description={
           company.description ? (
-            <TipTapContent content={company.description} className={cn("text-text-secondary")} />
+            <TipTapContent
+              content={company.description}
+              className={cn("text-text-secondary")}
+            />
           ) : (
             <Text size="sm" color="muted" className={cn("italic")}>
               No description available.

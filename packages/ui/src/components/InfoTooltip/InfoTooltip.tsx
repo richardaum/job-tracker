@@ -10,7 +10,11 @@ export interface InfoTooltipProps {
   className?: string;
 }
 
-export function InfoTooltip({ content, size = 14, className }: InfoTooltipProps) {
+export function InfoTooltip({
+  content,
+  size = 14,
+  className,
+}: InfoTooltipProps) {
   return (
     <Tooltip content={content} side="top" align="center">
       <span

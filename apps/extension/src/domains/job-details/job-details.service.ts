@@ -11,18 +11,24 @@ export class JobDetailsService {
     private readonly timerService: TimerService,
   ) {}
 
-  async execute(message: Extract<ContentActionMessage, { kind: "job.details" }>) {
+  async execute(
+    message: Extract<ContentActionMessage, { kind: "job.details" }>,
+  ) {
     const { input } = message.action;
     const result: Job = {};
 
     for (const field of input.detailsFields) {
       await this.timerService.smallDelay();
-      const element = document.querySelector<HTMLElement | HTMLInputElement>(field.selector);
+      const element = document.querySelector<HTMLElement | HTMLInputElement>(
+        field.selector,
+      );
       if (!element) {
         continue;
       }
 
-      const [fieldErr, value] = tryRun(() => this.fieldValueService.getFieldValue(element, field));
+      const [fieldErr, value] = tryRun(() =>
+        this.fieldValueService.getFieldValue(element, field),
+      );
       if (!fieldErr) {
         result[field.key] = value;
       }

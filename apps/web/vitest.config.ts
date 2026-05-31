@@ -25,7 +25,10 @@ export default defineConfig({
     alias: [
       {
         find: "@/app/icon.svg",
-        replacement: path.resolve(__dirname, "./src/test/stubs/jobTrackerAppIcon.stub.ts"),
+        replacement: path.resolve(
+          __dirname,
+          "./src/test/stubs/jobTrackerAppIcon.stub.ts",
+        ),
       },
       { find: "@", replacement: path.resolve(__dirname, "./src") },
       {

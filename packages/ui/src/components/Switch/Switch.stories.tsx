@@ -17,7 +17,10 @@ export const Default: Story = {
   render: () => (
     <div className={cn("flex items-center gap-2")}>
       <Switch id="notifications" />
-      <label htmlFor="notifications" className={cn("text-sm text-text-secondary")}>
+      <label
+        htmlFor="notifications"
+        className={cn("text-sm text-text-secondary")}
+      >
         Enable notifications
       </label>
     </div>

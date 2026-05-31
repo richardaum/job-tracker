@@ -7,7 +7,10 @@ import {
 } from "@/modules/admin/extension/lib/extension-auth.display";
 
 function authConnection(
-  overrides: Pick<ExtensionConnectionState, "status" | "authStatus" | "authenticatedEmail">,
+  overrides: Pick<
+    ExtensionConnectionState,
+    "status" | "authStatus" | "authenticatedEmail"
+  >,
 ): ExtensionConnectionState {
   return {
     extensionVersion: null,

@@ -19,7 +19,9 @@ export class CreateResumes1764100000000 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`ALTER TABLE "resumes" DROP CONSTRAINT "resumes_user_id_users_id_fk"`);
+    await queryRunner.query(
+      `ALTER TABLE "resumes" DROP CONSTRAINT "resumes_user_id_users_id_fk"`,
+    );
     await queryRunner.query(`DROP TABLE "resumes"`);
   }
 }

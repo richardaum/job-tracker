@@ -10,7 +10,8 @@ const createResumeMock = vi.fn();
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push: pushMock }) }));
 
 vi.mock("@/gql/hooks", async () => {
-  const actual = await vi.importActual<typeof import("@/gql/hooks")>("@/gql/hooks");
+  const actual =
+    await vi.importActual<typeof import("@/gql/hooks")>("@/gql/hooks");
   return { ...actual, useCreateResumeMutation: () => [createResumeMock] };
 });
 
@@ -22,7 +23,9 @@ describe("AddResumeDialog", () => {
   it("renders when open", () => {
     render(<AddResumeDialog open={true} onOpenChange={() => {}} />);
     expect(screen.getByText("Add Resume")).toBeInTheDocument();
-    expect(screen.getByPlaceholderText(/e.g. Senior Software Engineer/i)).toBeInTheDocument();
+    expect(
+      screen.getByPlaceholderText(/e.g. Senior Software Engineer/i),
+    ).toBeInTheDocument();
   });
 
   it("calls createResume and redirects on success", async () => {

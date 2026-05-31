@@ -1,4 +1,7 @@
-import { JobUpdated, SummaryGenerationRequested } from "@api/domains/jobs/job.events";
+import {
+  JobUpdated,
+  SummaryGenerationRequested,
+} from "@api/domains/jobs/job.events";
 import { JobEventBus } from "@api/domains/jobs/job-event.bus";
 import { ApplicationStageEnum } from "@api/domains/jobs/job-stage.enum";
 import type { JobsRepository } from "@api/domains/jobs/jobs.repository";
@@ -24,7 +27,9 @@ describe("SummaryEventListener", () => {
       getSettings: vi.fn().mockResolvedValue({ autoSummaryEnabled: true }),
     };
     jobsRepository = {
-      findOneByIdAndUserId: vi.fn().mockResolvedValue({ stage: ApplicationStageEnum.NEW }),
+      findOneByIdAndUserId: vi
+        .fn()
+        .mockResolvedValue({ stage: ApplicationStageEnum.NEW }),
     };
   });
 
@@ -42,9 +47,14 @@ describe("SummaryEventListener", () => {
 
     bus.emit(new JobUpdated("job-x", "user-y"));
 
-    await vi.waitFor(() => expect(settingsService.getSettings).toHaveBeenCalledWith("user-y"));
     await vi.waitFor(() =>
-      expect(summaryService.requestSummary).toHaveBeenCalledWith("job-x", "user-y"),
+      expect(settingsService.getSettings).toHaveBeenCalledWith("user-y"),
+    );
+    await vi.waitFor(() =>
+      expect(summaryService.requestSummary).toHaveBeenCalledWith(
+        "job-x",
+        "user-y",
+      ),
     );
   });
 
@@ -57,7 +67,9 @@ describe("SummaryEventListener", () => {
 
     bus.emit(new JobUpdated("job-x", "user-y"));
 
-    await vi.waitFor(() => expect(settingsService.getSettings).toHaveBeenCalledWith("user-y"));
+    await vi.waitFor(() =>
+      expect(settingsService.getSettings).toHaveBeenCalledWith("user-y"),
+    );
     expect(summaryService.requestSummary).not.toHaveBeenCalled();
   });
 
@@ -71,7 +83,10 @@ describe("SummaryEventListener", () => {
     bus.emit(new JobUpdated("job-x", "user-y"));
 
     await vi.waitFor(() =>
-      expect(jobsRepository.findOneByIdAndUserId).toHaveBeenCalledWith("job-x", "user-y"),
+      expect(jobsRepository.findOneByIdAndUserId).toHaveBeenCalledWith(
+        "job-x",
+        "user-y",
+      ),
     );
     expect(summaryService.requestSummary).not.toHaveBeenCalled();
   });

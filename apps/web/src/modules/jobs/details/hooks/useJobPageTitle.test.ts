@@ -11,10 +11,15 @@ describe("useJobPageTitle", () => {
 
   it("sets document.title when job data is available", () => {
     renderHook(() =>
-      useJobPageTitle({ title: "Backend Eng", company: { name: "Acme" } }, "description"),
+      useJobPageTitle(
+        { title: "Backend Eng", company: { name: "Acme" } },
+        "description",
+      ),
     );
 
-    expect(document.title).toBe(TITLE_TEMPLATE.replace("%s", "Backend Eng @ Acme — Description"));
+    expect(document.title).toBe(
+      TITLE_TEMPLATE.replace("%s", "Backend Eng @ Acme — Description"),
+    );
   });
 
   it("does not overwrite document.title while job is loading", () => {
@@ -36,6 +41,8 @@ describe("useJobPageTitle", () => {
 
     rerender({ title: "Backend Eng" });
 
-    expect(document.title).toBe(TITLE_TEMPLATE.replace("%s", "Backend Eng @ Acme"));
+    expect(document.title).toBe(
+      TITLE_TEMPLATE.replace("%s", "Backend Eng @ Acme"),
+    );
   });
 });

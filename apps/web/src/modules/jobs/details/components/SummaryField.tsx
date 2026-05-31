@@ -19,8 +19,13 @@ interface SummaryFieldProps {
   onGenerateSummary: () => void;
 }
 
-export function SummaryField({ summary, summaryMetadata, onGenerateSummary }: SummaryFieldProps) {
-  const isProcessing = summaryMetadata?.status === AsyncMetadataStatus.Processing;
+export function SummaryField({
+  summary,
+  summaryMetadata,
+  onGenerateSummary,
+}: SummaryFieldProps) {
+  const isProcessing =
+    summaryMetadata?.status === AsyncMetadataStatus.Processing;
   const isFailed = summaryMetadata?.status === AsyncMetadataStatus.Failed;
 
   return (
@@ -57,7 +62,8 @@ export function SummaryField({ summary, summaryMetadata, onGenerateSummary }: Su
             <TipTapContent content={summary} />
             {summaryMetadata?.timestamp ? (
               <Text size="xs" color="muted">
-                Generated at {new Date(summaryMetadata.timestamp).toLocaleString()}
+                Generated at{" "}
+                {new Date(summaryMetadata.timestamp).toLocaleString()}
               </Text>
             ) : null}
           </div>

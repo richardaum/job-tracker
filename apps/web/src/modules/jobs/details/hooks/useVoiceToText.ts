@@ -77,14 +77,19 @@ export function useVoiceToText({
     onTranscriptChange,
   });
 
-  const speechRecognitionApi = useMemo<SpeechRecognitionConstructor | null>(() => {
-    if (typeof window === "undefined") return null;
-    const speechWindow = window as Window & {
-      SpeechRecognition?: SpeechRecognitionConstructor;
-      webkitSpeechRecognition?: SpeechRecognitionConstructor;
-    };
-    return speechWindow.SpeechRecognition ?? speechWindow.webkitSpeechRecognition ?? null;
-  }, []);
+  const speechRecognitionApi =
+    useMemo<SpeechRecognitionConstructor | null>(() => {
+      if (typeof window === "undefined") return null;
+      const speechWindow = window as Window & {
+        SpeechRecognition?: SpeechRecognitionConstructor;
+        webkitSpeechRecognition?: SpeechRecognitionConstructor;
+      };
+      return (
+        speechWindow.SpeechRecognition ??
+        speechWindow.webkitSpeechRecognition ??
+        null
+      );
+    }, []);
 
   const isSupported = speechRecognitionApi !== null;
 
@@ -106,9 +111,12 @@ export function useVoiceToText({
     speechRecognitionApi,
   ]);
 
-  const setRecognition = useCallback((nextRecognition: SpeechRecognitionLike | null) => {
-    controllerRef.current.recognition = nextRecognition;
-  }, []);
+  const setRecognition = useCallback(
+    (nextRecognition: SpeechRecognitionLike | null) => {
+      controllerRef.current.recognition = nextRecognition;
+    },
+    [],
+  );
 
   const applyVoiceToTextContent = useCallback((spokenText: string) => {
     const controller = controllerRef.current;
@@ -135,11 +143,18 @@ export function useVoiceToText({
     }
     const SpeechRecognitionApi = controller.speechRecognitionApi;
 
-    controller.autoRestart.prepareSessionStart(controller.recognition, setRecognition);
+    controller.autoRestart.prepareSessionStart(
+      controller.recognition,
+      setRecognition,
+    );
 
     const startSession = (preserveBaseText: boolean) => {
       const activeController = controllerRef.current;
-      if (activeController.disabled || !activeController.enabled || !activeController.autoRestart) {
+      if (
+        activeController.disabled ||
+        !activeController.enabled ||
+        !activeController.autoRestart
+      ) {
         setIsListening(false);
         return;
       }
@@ -171,8 +186,13 @@ export function useVoiceToText({
             interimParts.push(transcript);
           }
         }
-        const spokenText = mergeFinalWithInterimSegments(finalParts, interimParts);
-        controllerRef.current.autoRestart?.markSpeechDetected(spokenText.length);
+        const spokenText = mergeFinalWithInterimSegments(
+          finalParts,
+          interimParts,
+        );
+        controllerRef.current.autoRestart?.markSpeechDetected(
+          spokenText.length,
+        );
         applyVoiceToTextContent(spokenText);
       };
       recognition.onerror = () => {
@@ -220,7 +240,10 @@ export function useVoiceToText({
   useEffect(() => {
     const controller = controllerRef.current;
     return () => {
-      controller.autoRestart?.cleanupSession(controller.recognition, setRecognition);
+      controller.autoRestart?.cleanupSession(
+        controller.recognition,
+        setRecognition,
+      );
     };
   }, [setRecognition]);
 

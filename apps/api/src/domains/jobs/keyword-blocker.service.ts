@@ -3,7 +3,11 @@ import { tipTapToPlainText } from "@job-tracker/tiptap";
 import { Injectable, Logger } from "@nestjs/common";
 
 import type { BlockVerdict } from "./keyword-blocker.types";
-import { type BlockedKeyword, KeywordScope, MatchMode } from "./keyword-blocker.types";
+import {
+  type BlockedKeyword,
+  KeywordScope,
+  MatchMode,
+} from "./keyword-blocker.types";
 
 @Injectable()
 export class KeywordBlockerService {
@@ -22,7 +26,9 @@ export class KeywordBlockerService {
     const keywords = (settings.blockedKeywords ?? []) as BlockedKeyword[];
 
     if (companies.some((c) => c.toLowerCase() === companyName.toLowerCase())) {
-      this.logger.log(`[KeywordBlocker] Blocked — company "${companyName}" matched in COMPANY`);
+      this.logger.log(
+        `[KeywordBlocker] Blocked — company "${companyName}" matched in COMPANY`,
+      );
       return {
         matched: true,
         keyword: companyName,

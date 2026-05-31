@@ -21,7 +21,10 @@ export class SettingsService {
     return this.repo.save(created);
   }
 
-  async updateSettings(userId: string, input: UpdateSettingsInput): Promise<UserSettingEntity> {
+  async updateSettings(
+    userId: string,
+    input: UpdateSettingsInput,
+  ): Promise<UserSettingEntity> {
     const settings = await this.getSettings(userId);
     Object.assign(settings, input);
     return this.repo.save(settings);

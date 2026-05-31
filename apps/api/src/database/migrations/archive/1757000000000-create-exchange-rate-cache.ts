@@ -24,7 +24,9 @@ export class CreateExchangeRateCache1757000000000 implements MigrationInterface 
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query("DROP INDEX IF EXISTS idx_exchange_rate_base_currency");
+    await queryRunner.query(
+      "DROP INDEX IF EXISTS idx_exchange_rate_base_currency",
+    );
     await queryRunner.query("DROP TABLE IF EXISTS exchange_rate_cache");
   }
 }

@@ -6,7 +6,11 @@ import { graphqlFormatError } from "@api/graphql/graphql-format-error";
 import type { ApolloDriverConfig } from "@nestjs/apollo";
 import { ApolloDriver } from "@nestjs/apollo";
 import type { ExecutionContext, INestApplication } from "@nestjs/common";
-import { ForbiddenException, NotFoundException, UnauthorizedException } from "@nestjs/common";
+import {
+  ForbiddenException,
+  NotFoundException,
+  UnauthorizedException,
+} from "@nestjs/common";
 import { GraphQLModule } from "@nestjs/graphql";
 import { GqlExecutionContext } from "@nestjs/graphql";
 import { Test } from "@nestjs/testing";
@@ -85,7 +89,9 @@ describe("ResumeResolver (integration)", () => {
   const auth = { Authorization: "Bearer mock-token" };
 
   it("resume maps NotFound to NOT_FOUND", async () => {
-    service.findOne.mockRejectedValueOnce(new NotFoundException("Resume r not found"));
+    service.findOne.mockRejectedValueOnce(
+      new NotFoundException("Resume r not found"),
+    );
     const res = await request(app.getHttpServer())
       .post("/graphql")
       .set(auth)

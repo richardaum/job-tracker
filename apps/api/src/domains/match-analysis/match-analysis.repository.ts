@@ -13,14 +13,20 @@ export class MatchAnalysisRepository {
     private readonly repo: Repository<MatchAnalysisEntity>,
   ) {}
 
-  async findById(id: string, userId?: string): Promise<MatchAnalysisEntity | null> {
+  async findById(
+    id: string,
+    userId?: string,
+  ): Promise<MatchAnalysisEntity | null> {
     const entity = await this.repo.findOne({
       where: { id, ...(userId ? { userId } : {}) },
     });
     return normalizeMatchAnalysisEntity(entity);
   }
 
-  async findByJobId(jobId: string, userId?: string): Promise<MatchAnalysisEntity | null> {
+  async findByJobId(
+    jobId: string,
+    userId?: string,
+  ): Promise<MatchAnalysisEntity | null> {
     const entity = await this.repo.findOne({
       where: { jobId, ...(userId ? { userId } : {}) },
     });
@@ -36,7 +42,10 @@ export class MatchAnalysisRepository {
   }
 
   async upsert(entity: MatchAnalysisEntity): Promise<MatchAnalysisEntity> {
-    const existing = await this.findByJobId(entity.jobId, entity.userId ?? undefined);
+    const existing = await this.findByJobId(
+      entity.jobId,
+      entity.userId ?? undefined,
+    );
 
     if (existing) {
       entity.id = existing.id;
@@ -51,7 +60,10 @@ export class MatchAnalysisRepository {
     return (result.affected ?? 0) > 0;
   }
 
-  async deleteByApplicationId(jobId: string, userId?: string): Promise<boolean> {
+  async deleteByApplicationId(
+    jobId: string,
+    userId?: string,
+  ): Promise<boolean> {
     const result = await this.repo.delete({
       jobId,
       ...(userId ? { userId } : {}),

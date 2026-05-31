@@ -1,6 +1,9 @@
 "use client";
 
-export function mergeFinalWithInterimSegments(finalSegments: string[], interimSegments: string[]) {
+export function mergeFinalWithInterimSegments(
+  finalSegments: string[],
+  interimSegments: string[],
+) {
   const interimTranscript = interimSegments.join(" ").trim();
   let mergedFinalTranscript = "";
   for (const rawSegment of finalSegments) {
@@ -23,7 +26,8 @@ export function mergeFinalWithInterimSegments(finalSegments: string[], interimSe
         break;
       }
     }
-    mergedFinalTranscript = `${mergedFinalTranscript}${segment.slice(overlapLength)}`.trim();
+    mergedFinalTranscript =
+      `${mergedFinalTranscript}${segment.slice(overlapLength)}`.trim();
   }
   return `${mergedFinalTranscript} ${interimTranscript}`.trim();
 }

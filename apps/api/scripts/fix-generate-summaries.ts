@@ -59,16 +59,21 @@ async function main() {
     .getRepository(JobEntity)
     .createQueryBuilder("a")
     .select(["a.id", "a.userId"])
-    .where(`(${latestStageSub}) = :applied OR (${latestStageSub}) NOT IN (:...terminal)`, {
-      applied: "APPLIED",
-      terminal: ["NEW", "APPLIED", "REJECTED", "DUPLICATED"],
-    })
-    .andWhere(`a.summary_metadata IS NULL OR a.summary_metadata->>'status' != :processing`, {
-      processing: "PROCESSING",
-    })
-    .andWhere(`a.summary IS NULL OR a.summary = '' OR a.summary_metadata->>'status' = :failed`, {
-      failed: "FAILED",
-    })
+    .where(
+      `(${latestStageSub}) = :applied OR (${latestStageSub}) NOT IN (:...terminal)`,
+      {
+        applied: "APPLIED",
+        terminal: ["NEW", "APPLIED", "REJECTED", "DUPLICATED"],
+      },
+    )
+    .andWhere(
+      `a.summary_metadata IS NULL OR a.summary_metadata->>'status' != :processing`,
+      { processing: "PROCESSING" },
+    )
+    .andWhere(
+      `a.summary IS NULL OR a.summary = '' OR a.summary_metadata->>'status' = :failed`,
+      { failed: "FAILED" },
+    )
     .orderBy("a.id")
     .getMany();
 
@@ -81,7 +86,9 @@ async function main() {
     const prefix = dryRun ? "[DRY-RUN] " : "";
     process.stdout.write(`  ${prefix}${row.id}`);
     if (!dryRun) {
-      const [err] = await tryRun(summaryService.requestSummarySync(row.id, row.userId));
+      const [err] = await tryRun(
+        summaryService.requestSummarySync(row.id, row.userId),
+      );
       if (err) {
         process.stdout.write(` ❌ ${err.message.slice(0, 80)}`);
         fail++;

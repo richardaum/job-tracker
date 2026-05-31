@@ -57,7 +57,8 @@ export const LOGIN_SPOTLIGHT_TILES: readonly LoginSpotlightTile[] = [
     icon: "briefcase",
     title: "Every job in one place",
     body: "Companies, postings, stages, and notes stay linked so follow-ups stay quick.",
-    layoutClassName: "h-full min-h-0 lg:col-span-4 lg:col-start-1 lg:row-start-1",
+    layoutClassName:
+      "h-full min-h-0 lg:col-span-4 lg:col-start-1 lg:row-start-1",
   },
   {
     kind: "card",
@@ -65,7 +66,8 @@ export const LOGIN_SPOTLIGHT_TILES: readonly LoginSpotlightTile[] = [
     icon: "chartLineUp",
     title: "Pipeline at a glance",
     body: "Skim statuses and next steps instead of bouncing between spreadsheets and bookmarks.",
-    layoutClassName: "h-full min-h-0 lg:col-span-4 lg:col-start-5 lg:row-start-1",
+    layoutClassName:
+      "h-full min-h-0 lg:col-span-4 lg:col-start-5 lg:row-start-1",
   },
   {
     kind: "card",
@@ -73,7 +75,8 @@ export const LOGIN_SPOTLIGHT_TILES: readonly LoginSpotlightTile[] = [
     icon: "rss",
     title: "Save roles from the browser",
     body: "Capture listings with the Job Tracker Chrome extension next to everything else you track.",
-    layoutClassName: "h-full min-h-0 lg:col-span-4 lg:col-start-9 lg:row-start-1",
+    layoutClassName:
+      "h-full min-h-0 lg:col-span-4 lg:col-start-9 lg:row-start-1",
   },
   {
     kind: "visual",
@@ -81,7 +84,8 @@ export const LOGIN_SPOTLIGHT_TILES: readonly LoginSpotlightTile[] = [
     icon: "folders",
     title: "Importer templates",
     body: "Reusable import setups and rerun history replace one-off spreadsheets when feeds or boards change.",
-    layoutClassName: "h-full min-h-0 lg:col-span-8 lg:col-start-1 lg:row-start-2",
+    layoutClassName:
+      "h-full min-h-0 lg:col-span-8 lg:col-start-1 lg:row-start-2",
     imageCaption: "Templates & reruns preview",
   },
   {
@@ -90,7 +94,8 @@ export const LOGIN_SPOTLIGHT_TILES: readonly LoginSpotlightTile[] = [
     icon: "clipboardText",
     title: "Interview cadence",
     body: "Prep notes and outcomes sit beside each role so debriefs and offer comparisons stay grounded.",
-    layoutClassName: "h-full min-h-0 lg:col-span-4 lg:col-start-9 lg:row-span-2 lg:row-start-2",
+    layoutClassName:
+      "h-full min-h-0 lg:col-span-4 lg:col-start-9 lg:row-span-2 lg:row-start-2",
     imageCaption: "Review-ready context",
   },
   {
@@ -99,7 +104,8 @@ export const LOGIN_SPOTLIGHT_TILES: readonly LoginSpotlightTile[] = [
     icon: "pulse",
     title: "Progress without noise",
     body: "A light dashboard reminds you when timing matters—not to live inside another analytics tool.",
-    layoutClassName: "h-full min-h-0 lg:col-span-4 lg:col-start-1 lg:row-start-3",
+    layoutClassName:
+      "h-full min-h-0 lg:col-span-4 lg:col-start-1 lg:row-start-3",
   },
   {
     kind: "card",
@@ -107,7 +113,8 @@ export const LOGIN_SPOTLIGHT_TILES: readonly LoginSpotlightTile[] = [
     icon: "rss",
     title: "From URL to next step",
     body: "One card holds the posting link, title, stage, and the action you owe yourself this week.",
-    layoutClassName: "h-full min-h-0 lg:col-span-4 lg:col-start-5 lg:row-start-3",
+    layoutClassName:
+      "h-full min-h-0 lg:col-span-4 lg:col-start-5 lg:row-start-3",
   },
 ] satisfies readonly LoginSpotlightTile[];
 

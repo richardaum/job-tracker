@@ -9,7 +9,11 @@ import { ExchangeRateService } from "./exchange-rate.service";
 
 @Module({
   imports: [AuthModule, TypeOrmModule.forFeature([ExchangeRateEntity])],
-  providers: [ExchangeRateService, CurrencyConverterService, CurrencyConverterResolver],
+  providers: [
+    ExchangeRateService,
+    CurrencyConverterService,
+    CurrencyConverterResolver,
+  ],
   exports: [CurrencyConverterService],
 })
 export class CurrencyConverterModule {}

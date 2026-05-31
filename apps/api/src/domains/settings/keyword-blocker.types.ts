@@ -1,4 +1,9 @@
-import { Field, InputType, ObjectType, registerEnumType } from "@nestjs/graphql";
+import {
+  Field,
+  InputType,
+  ObjectType,
+  registerEnumType,
+} from "@nestjs/graphql";
 
 export enum KeywordScope {
   TITLE = "TITLE",

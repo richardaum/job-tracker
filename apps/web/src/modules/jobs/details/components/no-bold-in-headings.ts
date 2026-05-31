@@ -12,14 +12,20 @@ export function isInHeading(editor: Editor | null): boolean {
 
 const headingTypes = new Set(["heading", "h1", "h2", "h3"]);
 
-export function transformPastedHeadingBold(slice: Slice, editor: Editor | null): Slice {
+export function transformPastedHeadingBold(
+  slice: Slice,
+  editor: Editor | null,
+): Slice {
   const cursorInHeading = isInHeading(editor);
   const boldMark = editor?.state.schema.marks.bold;
   if (!boldMark) return slice;
 
   let modified = false;
 
-  function stripBoldInHeadingScope(fragment: Fragment, insideHeading = false): Fragment {
+  function stripBoldInHeadingScope(
+    fragment: Fragment,
+    insideHeading = false,
+  ): Fragment {
     const nodes: import("@tiptap/pm/model").Node[] = [];
     fragment.forEach((node) => {
       const nodeIsHeading = headingTypes.has(node.type.name);
@@ -34,7 +40,12 @@ export function transformPastedHeadingBold(slice: Slice, editor: Editor | null):
         }
       } else if (node.content.size > 0) {
         nodes.push(
-          node.copy(stripBoldInHeadingScope(node.content, insideHeading || nodeIsHeading)),
+          node.copy(
+            stripBoldInHeadingScope(
+              node.content,
+              insideHeading || nodeIsHeading,
+            ),
+          ),
         );
       } else {
         nodes.push(node);

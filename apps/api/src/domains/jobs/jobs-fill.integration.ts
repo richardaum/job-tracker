@@ -28,36 +28,42 @@ describe.skipIf(!hasDb)("Job async fill metadata (integration)", () => {
     dataSource = await createTestDataSource();
     const jobsRepository = dataSource.getRepository(JobEntity);
     repo = new JobsRepository(jobsRepository);
-    stageEventsRepo = new JobStageEventsRepository(dataSource.getRepository(JobStageEventEntity));
+    stageEventsRepo = new JobStageEventsRepository(
+      dataSource.getRepository(JobStageEventEntity),
+    );
 
     const draftExtractionService = {
-      extract: vi.fn().mockResolvedValue({
-        title: "Filled atomically",
-        company: "Tx Atomic Draft Co",
-        url: null,
-        description: "",
-        salary: { min: null, max: null, currency: null, period: null },
-        tags: ["from-tx"],
-        location: null,
-        workRegion: null,
-      }),
+      extract: vi
+        .fn()
+        .mockResolvedValue({
+          title: "Filled atomically",
+          company: "Tx Atomic Draft Co",
+          url: null,
+          description: "",
+          salary: { min: null, max: null, currency: null, period: null },
+          tags: ["from-tx"],
+          location: null,
+          workRegion: null,
+        }),
     } as never;
 
     const draftExtractionNormalizationService = {
-      normalizeExtraction: vi.fn().mockReturnValue({
-        title: "Filled atomically",
-        company: "Tx Atomic Draft Co",
-        description: null,
-        salary: {
-          minCents: null,
-          maxCents: null,
-          currency: null,
-          period: null,
-        },
-        tags: ["from-tx"],
-        location: null,
-        workRegion: null,
-      }),
+      normalizeExtraction: vi
+        .fn()
+        .mockReturnValue({
+          title: "Filled atomically",
+          company: "Tx Atomic Draft Co",
+          description: null,
+          salary: {
+            minCents: null,
+            maxCents: null,
+            currency: null,
+            period: null,
+          },
+          tags: ["from-tx"],
+          location: null,
+          workRegion: null,
+        }),
     } as never;
 
     const companyService = {
@@ -95,7 +101,9 @@ describe.skipIf(!hasDb)("Job async fill metadata (integration)", () => {
 
   afterAll(async () => {
     if (dataSource?.isInitialized) {
-      await dataSource.query("TRUNCATE companies, jobs, job_stage_events, users CASCADE");
+      await dataSource.query(
+        "TRUNCATE companies, jobs, job_stage_events, users CASCADE",
+      );
       await dataSource.destroy();
     }
   });
@@ -116,10 +124,13 @@ describe.skipIf(!hasDb)("Job async fill metadata (integration)", () => {
     const started = await repo.beginFillAutomaticallyProcessing(job.id, userId);
     expect(started).toBe(true);
 
-    const rows = (await dataSource.query(`SELECT fill_status FROM jobs WHERE id = $1`, [
-      job.id,
-    ])) as Array<{ fill_status: string }>;
-    expect(rows[0]?.fill_status).toBe(AsyncMetadataStatusEnum.PROCESSING as string);
+    const rows = (await dataSource.query(
+      `SELECT fill_status FROM jobs WHERE id = $1`,
+      [job.id],
+    )) as Array<{ fill_status: string }>;
+    expect(rows[0]?.fill_status).toBe(
+      AsyncMetadataStatusEnum.PROCESSING as string,
+    );
 
     const done = await repo.updateFillMetadataIfStatus(
       job.id,
@@ -137,7 +148,9 @@ describe.skipIf(!hasDb)("Job async fill metadata (integration)", () => {
       `SELECT fill_status, fill_error FROM jobs WHERE id = $1`,
       [job.id],
     )) as Array<{ fill_status: string; fill_error: string | null }>;
-    expect(after[0]?.fill_status).toBe(AsyncMetadataStatusEnum.COMPLETED as string);
+    expect(after[0]?.fill_status).toBe(
+      AsyncMetadataStatusEnum.COMPLETED as string,
+    );
     expect(after[0]?.fill_error).toBeNull();
   });
 
@@ -166,15 +179,19 @@ describe.skipIf(!hasDb)("Job async fill metadata (integration)", () => {
 
     await fillService.processFillJob(userId, job.id);
 
-    const jrow = (await dataSource.query(`SELECT stage::text FROM jobs WHERE id = $1`, [
-      job.id,
-    ])) as Array<{ stage: string }>;
+    const jrow = (await dataSource.query(
+      `SELECT stage::text FROM jobs WHERE id = $1`,
+      [job.id],
+    )) as Array<{ stage: string }>;
     expect(jrow[0]?.stage).toBe(ApplicationStageEnum.NEW);
 
-    const fills = (await dataSource.query(`SELECT fill_status FROM jobs WHERE id = $1`, [
-      job.id,
-    ])) as Array<{ fill_status: string }>;
-    expect(fills[0]?.fill_status).toBe(AsyncMetadataStatusEnum.COMPLETED as string);
+    const fills = (await dataSource.query(
+      `SELECT fill_status FROM jobs WHERE id = $1`,
+      [job.id],
+    )) as Array<{ fill_status: string }>;
+    expect(fills[0]?.fill_status).toBe(
+      AsyncMetadataStatusEnum.COMPLETED as string,
+    );
 
     const evCount = (await dataSource.query(
       `SELECT count(*)::text as c FROM job_stage_events WHERE job_id = $1 AND user_id = $2`,
@@ -195,9 +212,10 @@ describe.skipIf(!hasDb)("Job async fill metadata (integration)", () => {
     const n = await repo.resetStaleFillProcessing();
     expect(n).toBeGreaterThanOrEqual(1);
 
-    const row = (await dataSource.query(`SELECT fill_status FROM jobs WHERE id = $1`, [
-      job.id,
-    ])) as Array<{ fill_status: string }>;
+    const row = (await dataSource.query(
+      `SELECT fill_status FROM jobs WHERE id = $1`,
+      [job.id],
+    )) as Array<{ fill_status: string }>;
     expect(row[0]?.fill_status).toBe(AsyncMetadataStatusEnum.FAILED as string);
   });
 });

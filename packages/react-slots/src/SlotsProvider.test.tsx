@@ -56,7 +56,9 @@ describe("SlotsProvider", () => {
       </>,
     );
 
-    expect(screen.getByTestId("portal-slot")).toContainElement(screen.getByText("Portal only"));
+    expect(screen.getByTestId("portal-slot")).toContainElement(
+      screen.getByText("Portal only"),
+    );
     expect(screen.getByText("Context only")).toBeInTheDocument();
   });
 });

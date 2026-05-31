@@ -10,6 +10,12 @@ export function getAllowedDevOrigins(): string[] {
     .map((entry) => entry.address);
 
   return Array.from(
-    new Set(["localhost", "127.0.0.1", "*.ngrok-free.app", "*.ngrok.io", ...localIpv4Addresses]),
+    new Set([
+      "localhost",
+      "127.0.0.1",
+      "*.ngrok-free.app",
+      "*.ngrok.io",
+      ...localIpv4Addresses,
+    ]),
   );
 }

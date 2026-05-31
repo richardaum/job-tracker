@@ -13,12 +13,17 @@ describe("MatchAnalysisEventListener", () => {
   let matchEventBus: MatchAnalysisEventBus;
   let jobRepo: Pick<JobsRepository, "findOneByIdAndUserId">;
   let resumeRepo: Pick<ResumeRepository, "findDefaultByUserId">;
-  let matchService: Pick<MatchAnalysisService, "generate" | "processMatchAnalysis">;
+  let matchService: Pick<
+    MatchAnalysisService,
+    "generate" | "processMatchAnalysis"
+  >;
   beforeEach(() => {
     jobEventBus = new JobEventBus();
     matchEventBus = new MatchAnalysisEventBus();
     jobRepo = {
-      findOneByIdAndUserId: vi.fn().mockResolvedValue({ id: "job-1", htmlContent: "<p>JD</p>" }),
+      findOneByIdAndUserId: vi
+        .fn()
+        .mockResolvedValue({ id: "job-1", htmlContent: "<p>JD</p>" }),
     };
     resumeRepo = {
       findDefaultByUserId: vi.fn().mockResolvedValue({ id: "resume-1" }),
@@ -45,7 +50,11 @@ describe("MatchAnalysisEventListener", () => {
     jobEventBus.emit(new JobCreated("job-1", "user-1", true));
 
     await vi.waitFor(() =>
-      expect(matchService.generate).toHaveBeenCalledWith("job-1", "resume-1", "user-1"),
+      expect(matchService.generate).toHaveBeenCalledWith(
+        "job-1",
+        "resume-1",
+        "user-1",
+      ),
     );
   });
 

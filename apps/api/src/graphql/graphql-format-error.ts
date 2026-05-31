@@ -8,14 +8,18 @@ const log = new Logger("GraphQLFormatError");
 
 export const RESOURCE_NOT_FOUND_MESSAGE = "Resource not found";
 
-function stripSensitiveExtensions(extensions: Record<string, unknown>): Record<string, unknown> {
+function stripSensitiveExtensions(
+  extensions: Record<string, unknown>,
+): Record<string, unknown> {
   const next = { ...extensions };
   delete next.status;
   delete next.statusCode;
   return next;
 }
 
-function stripTracesForProd(extensions: Record<string, unknown>): Record<string, unknown> {
+function stripTracesForProd(
+  extensions: Record<string, unknown>,
+): Record<string, unknown> {
   if (process.env.NODE_ENV === "production") {
     const next = { ...extensions };
     delete next.stacktrace;
@@ -31,7 +35,9 @@ function stripTracesForProd(extensions: Record<string, unknown>): Record<string,
 }
 
 function shouldMaskAsNotFound(root: unknown): boolean {
-  return root instanceof NotFoundException || root instanceof ForbiddenException;
+  return (
+    root instanceof NotFoundException || root instanceof ForbiddenException
+  );
 }
 
 /**

@@ -60,8 +60,11 @@ export function mapCollectedJobToCreateJobInput(job: Job): CreateJobInput {
 
   const detailUrl = str(job.detailUrl);
   const tags = tagsFromLocationRequirements(job.locationRequirements);
-  const salary = isParsedSalaryForCreateJobInput(job.salary) ? job.salary : undefined;
-  const source = detailUrl != null ? inferJobSourceFromUrls([detailUrl]) : undefined;
+  const salary = isParsedSalaryForCreateJobInput(job.salary)
+    ? job.salary
+    : undefined;
+  const source =
+    detailUrl != null ? inferJobSourceFromUrls([detailUrl]) : undefined;
   const publishedAt = parsePublishedAtTimestamp(job.publishedAt);
 
   return {

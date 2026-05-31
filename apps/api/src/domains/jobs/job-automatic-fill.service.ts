@@ -77,14 +77,23 @@ export class JobAutomaticFillService implements OnModuleInit {
       throw new BadRequestException("Fill already in progress");
     }
 
-    const started = await this.repo.beginFillAutomaticallyProcessing(jobId, userId);
+    const started = await this.repo.beginFillAutomaticallyProcessing(
+      jobId,
+      userId,
+    );
     if (!started) {
       throw new BadRequestException(
         "Could not start fill — the job fill state changed. Try again.",
       );
     }
 
-    this.eventBus.emit(new FillJobStatusChanged(jobId, userId, AsyncMetadataStatusEnum.PROCESSING));
+    this.eventBus.emit(
+      new FillJobStatusChanged(
+        jobId,
+        userId,
+        AsyncMetadataStatusEnum.PROCESSING,
+      ),
+    );
 
     return this.jobsService.findOne(jobId, userId);
   }
@@ -109,7 +118,12 @@ export class JobAutomaticFillService implements OnModuleInit {
       );
       if (ok) {
         this.eventBus.emit(
-          new FillJobStatusChanged(jobId, userId, AsyncMetadataStatusEnum.FAILED, "Job not found."),
+          new FillJobStatusChanged(
+            jobId,
+            userId,
+            AsyncMetadataStatusEnum.FAILED,
+            "Job not found.",
+          ),
         );
       }
       return;
@@ -119,16 +133,20 @@ export class JobAutomaticFillService implements OnModuleInit {
       return;
     }
 
-    const stageSummary = await this.stageEventsRepo.findLatestStageSummariesByJobIds(userId, [
-      jobId,
-    ]);
+    const stageSummary =
+      await this.stageEventsRepo.findLatestStageSummariesByJobIds(userId, [
+        jobId,
+      ]);
     const currentStage = stageSummary.get(jobId)?.toStage;
     const shouldPromoteDraftToNew = currentStage === ApplicationStageEnum.DRAFT;
 
     const [extractError, raw] = await tryRun(
       this.draftExtractionService.extract({
         title: row.title?.trim() ?? "",
-        url: typeof row.urls?.[0] === "string" && row.urls[0].trim() ? row.urls[0].trim() : null,
+        url:
+          typeof row.urls?.[0] === "string" && row.urls[0].trim()
+            ? row.urls[0].trim()
+            : null,
         htmlContent: row.htmlContent?.trim() ?? "",
       }),
     );
@@ -142,9 +160,10 @@ export class JobAutomaticFillService implements OnModuleInit {
       return;
     }
 
-    const normalized = this.draftExtractionNormalizationService.normalizeExtraction(
-      raw as Record<string, unknown>,
-    );
+    const normalized =
+      this.draftExtractionNormalizationService.normalizeExtraction(
+        raw as Record<string, unknown>,
+      );
 
     const [salaryErr, salaryEmbedded] = await tryRun(() =>
       this.salaryService.getUpdateSalary(row, normalized.salary),
@@ -154,15 +173,25 @@ export class JobAutomaticFillService implements OnModuleInit {
       await this.persistFillFailure(
         jobId,
         userId,
-        salaryErr instanceof Error ? salaryErr.message : "Salary validation failed.",
+        salaryErr instanceof Error
+          ? salaryErr.message
+          : "Salary validation failed.",
       );
       return;
     }
 
-    const companyId = await this.resolveCompanyId(userId, normalized.company, undefined);
+    const companyId = await this.resolveCompanyId(
+      userId,
+      normalized.company,
+      undefined,
+    );
 
     if (!companyId) {
-      await this.persistFillFailure(jobId, userId, "Company could not be resolved");
+      await this.persistFillFailure(
+        jobId,
+        userId,
+        "Company could not be resolved",
+      );
       return;
     }
 
@@ -177,7 +206,12 @@ export class JobAutomaticFillService implements OnModuleInit {
     };
 
     const [txnErr, result] = await tryRun(
-      this.finalizeExtractedFill(jobId, userId, repoDto, shouldPromoteDraftToNew),
+      this.finalizeExtractedFill(
+        jobId,
+        userId,
+        repoDto,
+        shouldPromoteDraftToNew,
+      ),
     );
 
     if (txnErr != null) {
@@ -201,7 +235,13 @@ export class JobAutomaticFillService implements OnModuleInit {
       return;
     }
 
-    this.eventBus.emit(new FillJobStatusChanged(jobId, userId, AsyncMetadataStatusEnum.COMPLETED));
+    this.eventBus.emit(
+      new FillJobStatusChanged(
+        jobId,
+        userId,
+        AsyncMetadataStatusEnum.COMPLETED,
+      ),
+    );
     this.eventBus.emit(new JobUpdated(jobId, userId));
   }
 
@@ -217,7 +257,11 @@ export class JobAutomaticFillService implements OnModuleInit {
   ): Promise<FinalizeExtractedFillResult> {
     const [err, result] = await tryRun(
       this.dataSource.transaction(async (manager) => {
-        const existing = await this.repo.findOneByIdAndUserId(jobId, userId, manager);
+        const existing = await this.repo.findOneByIdAndUserId(
+          jobId,
+          userId,
+          manager,
+        );
         if (!existing) {
           return { ok: false as const, reason: "not_found" as const };
         }
@@ -270,7 +314,11 @@ export class JobAutomaticFillService implements OnModuleInit {
     return result;
   }
 
-  private async persistFillFailure(jobId: string, userId: string, message: string): Promise<void> {
+  private async persistFillFailure(
+    jobId: string,
+    userId: string,
+    message: string,
+  ): Promise<void> {
     const ok = await this.repo.updateFillMetadataIfStatus(
       jobId,
       userId,
@@ -288,7 +336,12 @@ export class JobAutomaticFillService implements OnModuleInit {
       return;
     }
     this.eventBus.emit(
-      new FillJobStatusChanged(jobId, userId, AsyncMetadataStatusEnum.FAILED, message),
+      new FillJobStatusChanged(
+        jobId,
+        userId,
+        AsyncMetadataStatusEnum.FAILED,
+        message,
+      ),
     );
   }
 
@@ -304,7 +357,10 @@ export class JobAutomaticFillService implements OnModuleInit {
     }
     const name = typeof companyName === "string" ? companyName.trim() : "";
     if (name) {
-      const company = await this.companyService.findOrCreateByName(userId, name);
+      const company = await this.companyService.findOrCreateByName(
+        userId,
+        name,
+      );
       return company.id;
     }
     return undefined;

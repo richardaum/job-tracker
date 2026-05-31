@@ -9,7 +9,14 @@ import { ExtensionActivityEvent } from "@api/domains/extension-activity/extensio
 import { ReportExtensionActivityInput } from "@api/domains/extension-activity/report-extension-activity.input";
 import { RoleEnum } from "@api/domains/users/role.enum";
 import { UseGuards } from "@nestjs/common";
-import { Args, Int, Mutation, Query, Resolver, Subscription } from "@nestjs/graphql";
+import {
+  Args,
+  Int,
+  Mutation,
+  Query,
+  Resolver,
+  Subscription,
+} from "@nestjs/graphql";
 
 @Resolver()
 @UseGuards(JwtAuthGuard, RolesGuard)

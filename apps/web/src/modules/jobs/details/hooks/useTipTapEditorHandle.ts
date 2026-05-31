@@ -28,7 +28,11 @@ type UseTipTapEditorHandleOptions = {
  * Imperative API for `TipTapEditor`: wires `ref.clear()` via `useImperativeHandle`
  * and returns `clearDocument` for in-editor actions (e.g. toolbar Clear with focus).
  */
-export function useTipTapEditorHandle({ ref, editor, onChange }: UseTipTapEditorHandleOptions) {
+export function useTipTapEditorHandle({
+  ref,
+  editor,
+  onChange,
+}: UseTipTapEditorHandleOptions) {
   const clearDocument = useCallback(
     (focusEditor?: boolean) => {
       if (editor && !editor.isDestroyed) {

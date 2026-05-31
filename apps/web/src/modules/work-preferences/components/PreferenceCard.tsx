@@ -30,7 +30,11 @@ export function PreferenceCard({
     <ListItemCard.Title>{preference.text}</ListItemCard.Title>
   ) : (
     <ListItemCard.Title asChild>
-      <button type="button" onClick={() => onEdit?.(preference.id)} className={cn("text-left")}>
+      <button
+        type="button"
+        onClick={() => onEdit?.(preference.id)}
+        className={cn("text-left")}
+      >
         {preference.text}
       </button>
     </ListItemCard.Title>
@@ -67,7 +71,10 @@ export function PreferenceCard({
                 size="sm"
                 label={`Delete preference "${preference.text}"`}
                 tooltip="Delete preference"
-                className={cn(ListItemCard.actionIconButtonClassName, "hover:text-text-error")}
+                className={cn(
+                  ListItemCard.actionIconButtonClassName,
+                  "hover:text-text-error",
+                )}
                 icon={<TrashIcon size={13} weight="regular" />}
               />
             }

@@ -3,7 +3,11 @@ import { z } from "zod";
 
 import { LIMITS } from "./constants";
 
-const PlanStepIdSchema = z.string().min(1).max(LIMITS.stepId).describe("Step id");
+const PlanStepIdSchema = z
+  .string()
+  .min(1)
+  .max(LIMITS.stepId)
+  .describe("Step id");
 
 const CssSelectorSchema = z.string().min(1).max(LIMITS.selector);
 const FieldValidationRegexSchema = z
@@ -102,8 +106,17 @@ const ParseRegexFieldSchema = z
     key: z.string().min(1).max(LIMITS.fieldKey),
     pattern: z.string().min(1).max(LIMITS.regexPattern),
     flags: z.string().max(LIMITS.regexFlags).optional(),
-    group: z.number().int().min(0).max(9).optional().describe("capture group index (default 1)"),
-    required: z.boolean().optional().describe("if true, fail when pattern does not match"),
+    group: z
+      .number()
+      .int()
+      .min(0)
+      .max(9)
+      .optional()
+      .describe("capture group index (default 1)"),
+    required: z
+      .boolean()
+      .optional()
+      .describe("if true, fail when pattern does not match"),
   })
   .strict()
   .superRefine(({ pattern, flags }, ctx) => {
@@ -122,7 +135,9 @@ export const PlanStepCollectJobsInputSchema = z
       .string()
       .min(1)
       .max(LIMITS.fieldKey)
-      .describe("key from `surfaceFields` holding the detail page URL for each listing"),
+      .describe(
+        "key from `surfaceFields` holding the detail page URL for each listing",
+      ),
     key: z
       .string()
       .min(1)
@@ -143,8 +158,12 @@ export const PlanStepCollectJobsInputSchema = z
       })
       .strict()
       .optional(),
-    surfaceFields: z.array(PlanStepCollectJobsSurfaceFieldSchema).max(LIMITS.listFields),
-    detailsFields: z.array(PlanStepCollectJobsDetailsFieldSchema).max(LIMITS.listFields),
+    surfaceFields: z
+      .array(PlanStepCollectJobsSurfaceFieldSchema)
+      .max(LIMITS.listFields),
+    detailsFields: z
+      .array(PlanStepCollectJobsDetailsFieldSchema)
+      .max(LIMITS.listFields),
     direction: z
       .enum(["up", "down"])
       .optional()
@@ -159,7 +178,9 @@ export const PlanStepCollectJobsInputSchema = z
       .max(LIMITS.parallelDetailsTabs)
       .optional()
       .default(1)
-      .describe("max concurrent detail tabs when fetching `detailsFields` per listing row"),
+      .describe(
+        "max concurrent detail tabs when fetching `detailsFields` per listing row",
+      ),
   })
   .strict();
 
@@ -183,7 +204,9 @@ export const CollectJobsPlanStepActionSchema = z
     skipDelay: z
       .boolean()
       .optional()
-      .describe("when true, skip short delays around scroll-into-view and click on each row"),
+      .describe(
+        "when true, skip short delays around scroll-into-view and click on each row",
+      ),
   })
   .strict();
 

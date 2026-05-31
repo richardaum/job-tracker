@@ -10,7 +10,9 @@ function isTipTapDocument(value: unknown): value is TipTapDocument {
   return candidate.type === "doc" && Array.isArray(candidate.content);
 }
 
-export function parseTipTapDocument(input: string | null | undefined): TipTapDocument {
+export function parseTipTapDocument(
+  input: string | null | undefined,
+): TipTapDocument {
   const normalized = normalizeTipTapDocument(input);
 
   const [parseErr, parsed] = tryRun(() => JSON.parse(normalized));

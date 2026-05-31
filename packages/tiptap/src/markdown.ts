@@ -47,7 +47,9 @@ function inlineToNodes(tokens: Token[]): TipTapNode[] {
 
 function blockToNode(token: Token): TipTapNode | null {
   if (token.type === "paragraph") {
-    const content = inlineToNodes((token as Token & { tokens: Token[] }).tokens);
+    const content = inlineToNodes(
+      (token as Token & { tokens: Token[] }).tokens,
+    );
     if (content.length === 0) return null;
     return { type: "paragraph", content };
   }

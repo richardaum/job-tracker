@@ -39,13 +39,16 @@ vi.mock("@/gql/hooks", () => ({
     RemoteYeah: "REMOTE_YEAH",
     Wellfound: "WELLFOUND",
   },
-  useJobStageEventsQuery: (options?: { skip?: boolean }) => useJobStageEventsQueryMock(options),
+  useJobStageEventsQuery: (options?: { skip?: boolean }) =>
+    useJobStageEventsQueryMock(options),
 }));
 
 vi.mock("./JobQuickEditDialog", () => ({ JobQuickEditDialog: () => null }));
 
 vi.mock("./DeleteJobDialog", () => ({
-  DeleteJobDialog: ({ trigger }: { trigger: ReactNode }) => <div>{trigger}</div>,
+  DeleteJobDialog: ({ trigger }: { trigger: ReactNode }) => (
+    <div>{trigger}</div>
+  ),
 }));
 
 vi.mock("@/modules/jobs/details/components/SalaryEditDialog", () => ({
@@ -53,7 +56,9 @@ vi.mock("@/modules/jobs/details/components/SalaryEditDialog", () => ({
 }));
 
 vi.mock("./JobTrackingPanel", () => ({
-  JobTrackingPanel: () => <div data-testid="tracking-panel">Tracking panel</div>,
+  JobTrackingPanel: () => (
+    <div data-testid="tracking-panel">Tracking panel</div>
+  ),
 }));
 
 function createJobFixture(overrides: Partial<JobCardJob> = {}): JobCardJob {
@@ -91,16 +96,18 @@ function createJobFixture(overrides: Partial<JobCardJob> = {}): JobCardJob {
 
 describe("JobCard", () => {
   beforeEach(() => {
-    useJobStageEventsQueryMock.mockImplementation((options: { skip?: boolean } | undefined) => {
-      if (options?.skip) {
-        return { data: undefined, loading: false, error: undefined };
-      }
-      return {
-        data: { jobStageEvents: [] },
-        loading: false,
-        error: undefined,
-      };
-    });
+    useJobStageEventsQueryMock.mockImplementation(
+      (options: { skip?: boolean } | undefined) => {
+        if (options?.skip) {
+          return { data: undefined, loading: false, error: undefined };
+        }
+        return {
+          data: { jobStageEvents: [] },
+          loading: false,
+          error: undefined,
+        };
+      },
+    );
   });
 
   it("shows Draft status badge when currentStage is Draft", () => {
@@ -138,7 +145,9 @@ describe("JobCard", () => {
         onError={() => {}}
       />,
     );
-    expect(screen.getByRole("link", { name: JOB_DETAIL_TITLE_PLACEHOLDER })).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: JOB_DETAIL_TITLE_PLACEHOLDER }),
+    ).toBeInTheDocument();
   });
 
   it("shows actual title when title is present", () => {
@@ -149,11 +158,19 @@ describe("JobCard", () => {
         onError={() => {}}
       />,
     );
-    expect(screen.getByRole("link", { name: "Product Designer" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: "Product Designer" }),
+    ).toBeInTheDocument();
   });
 
   it("shows company meta when company has a non-empty name", () => {
-    render(<JobCard job={createJobFixture()} onSuccess={() => {}} onError={() => {}} />);
+    render(
+      <JobCard
+        job={createJobFixture()}
+        onSuccess={() => {}}
+        onError={() => {}}
+      />,
+    );
     expect(screen.getByTestId("job-card-company-meta")).toBeInTheDocument();
     expect(screen.getByText("Acme Corp")).toBeInTheDocument();
   });
@@ -168,7 +185,9 @@ describe("JobCard", () => {
         onError={() => {}}
       />,
     );
-    expect(screen.queryByTestId("job-card-company-meta")).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId("job-card-company-meta"),
+    ).not.toBeInTheDocument();
   });
 
   it("omits company from meta row when company name is whitespace only", () => {
@@ -181,6 +200,8 @@ describe("JobCard", () => {
         onError={() => {}}
       />,
     );
-    expect(screen.queryByTestId("job-card-company-meta")).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId("job-card-company-meta"),
+    ).not.toBeInTheDocument();
   });
 });

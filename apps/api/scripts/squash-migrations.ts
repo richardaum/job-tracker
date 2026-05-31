@@ -38,7 +38,9 @@ function findPgDump(): string {
     }
   }
 
-  throw new Error("pg_dump not found in PATH. Install PostgreSQL client tools: brew install libpq");
+  throw new Error(
+    "pg_dump not found in PATH. Install PostgreSQL client tools: brew install libpq",
+  );
 }
 
 function findInPath(name: string): string | null {
@@ -132,8 +134,13 @@ function buildUrl(template: string, dbName: string): string {
   return url.toString();
 }
 
-async function createDatabase(sourceUrl: string, dbName: string): Promise<void> {
-  const ds = new DataSource(buildDataSourceOptions(buildUrl(sourceUrl, "postgres")));
+async function createDatabase(
+  sourceUrl: string,
+  dbName: string,
+): Promise<void> {
+  const ds = new DataSource(
+    buildDataSourceOptions(buildUrl(sourceUrl, "postgres")),
+  );
   await ds.initialize();
   const [error] = await tryRun(ds.query(`CREATE DATABASE "${dbName}"`));
   await ds.destroy();
@@ -141,7 +148,9 @@ async function createDatabase(sourceUrl: string, dbName: string): Promise<void> 
 }
 
 async function dropDatabase(sourceUrl: string, dbName: string): Promise<void> {
-  const ds = new DataSource(buildDataSourceOptions(buildUrl(sourceUrl, "postgres")));
+  const ds = new DataSource(
+    buildDataSourceOptions(buildUrl(sourceUrl, "postgres")),
+  );
   await ds.initialize();
 
   const [, terminateErr] = await tryRun(
@@ -154,7 +163,9 @@ async function dropDatabase(sourceUrl: string, dbName: string): Promise<void> {
     ),
   );
   if (terminateErr) {
-    console.warn(`[squash] warning: failed to terminate connections: ${String(terminateErr)}`);
+    console.warn(
+      `[squash] warning: failed to terminate connections: ${String(terminateErr)}`,
+    );
   }
 
   const [dropError] = await tryRun(ds.query(`DROP DATABASE "${dbName}"`));
@@ -213,7 +224,10 @@ function escapeSql(sql: string): string {
   return sql.replace(/\\/g, "\\\\").replace(/`/g, "\\`").replace(/\$/g, "\\$");
 }
 
-function generateMigrationFile(statements: string[], className: string): string {
+function generateMigrationFile(
+  statements: string[],
+  className: string,
+): string {
   const now = new Date().toISOString();
 
   const header = [
@@ -264,7 +278,9 @@ async function verifyMigrationsApplied(): Promise<void> {
   }
 
   if (!tableResult[0]?.exists) {
-    console.log("[squash] typeorm_migrations table does not exist — skipping verification");
+    console.log(
+      "[squash] typeorm_migrations table does not exist — skipping verification",
+    );
     await ds.destroy();
     return;
   }
@@ -277,7 +293,9 @@ async function verifyMigrationsApplied(): Promise<void> {
     throw appliedError;
   }
 
-  const appliedNames = new Set((applied as { name: string }[]).map((r) => r.name));
+  const appliedNames = new Set(
+    (applied as { name: string }[]).map((r) => r.name),
+  );
 
   const allNames = allMigrations.map((Ctor) => new Ctor().name);
 
@@ -286,13 +304,17 @@ async function verifyMigrationsApplied(): Promise<void> {
   await ds.destroy();
 
   if (pending.length > 0) {
-    console.error(`[squash] ERROR: ${pending.length} migration(s) not applied on source DB:`);
+    console.error(
+      `[squash] ERROR: ${pending.length} migration(s) not applied on source DB:`,
+    );
     for (const m of pending) console.error(`  - ${m}`);
     console.error("[squash] Run pnpm db:migrate first, then retry.");
     process.exit(1);
   }
 
-  console.log(`[squash] verified: all ${allNames.length} migrations are applied`);
+  console.log(
+    `[squash] verified: all ${allNames.length} migrations are applied`,
+  );
 }
 
 async function main(): Promise<void> {
@@ -307,7 +329,9 @@ async function main(): Promise<void> {
     console.log(
       `[squash] dry-run: would squash ${allMigrations.length} migration(s) into a single baseline`,
     );
-    console.log("[squash] dry-run passed — re-run without --dry-run to execute.");
+    console.log(
+      "[squash] dry-run passed — re-run without --dry-run to execute.",
+    );
     return;
   }
 
@@ -316,25 +340,35 @@ async function main(): Promise<void> {
   console.log(`[squash] creating temp database: ${tempDbName}`);
   await createDatabase(sourceUrl, tempDbName);
 
-  const [dumpError, output] = await tryRun(runDump(sourceUrl, tempDbName, args));
+  const [dumpError, output] = await tryRun(
+    runDump(sourceUrl, tempDbName, args),
+  );
 
   console.log("[squash] dropping temp database...");
   const [, dropErr] = await tryRun(dropDatabase(sourceUrl, tempDbName));
   if (dropErr) {
-    console.warn(`[squash] warning: failed to drop temp database: ${String(dropErr)}`);
+    console.warn(
+      `[squash] warning: failed to drop temp database: ${String(dropErr)}`,
+    );
   }
 
   if (dumpError) throw dumpError;
   console.log(output);
 }
 
-async function runDump(sourceUrl: string, tempDbName: string, args: CliArgs): Promise<string> {
+async function runDump(
+  sourceUrl: string,
+  tempDbName: string,
+  args: CliArgs,
+): Promise<string> {
   console.log("[squash] running migrations on temp database...");
   const tempUrl = buildUrl(sourceUrl, tempDbName);
   const ds = new DataSource(buildDataSourceOptions(tempUrl));
   await ds.initialize();
 
-  const [migrateError, result] = await tryRun(ds.runMigrations({ transaction: "each" }));
+  const [migrateError, result] = await tryRun(
+    ds.runMigrations({ transaction: "each" }),
+  );
   await ds.destroy();
 
   if (migrateError) throw migrateError;

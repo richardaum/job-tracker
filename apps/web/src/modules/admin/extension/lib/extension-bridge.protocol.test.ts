@@ -43,6 +43,8 @@ describe("extension-bridge.protocol", () => {
 
     expect(isExtensionBridgePong(pong)).toBe(true);
     expect(isExtensionBridgePong({ ...pong, extensionVersion: 1 })).toBe(false);
-    expect(isExtensionBridgePong({ ...pong, authStatus: "unknown" })).toBe(false);
+    expect(isExtensionBridgePong({ ...pong, authStatus: "unknown" })).toBe(
+      false,
+    );
   });
 });

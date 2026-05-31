@@ -12,7 +12,9 @@ describe("PostgreSQL connection (integration)", () => {
 
   beforeAll(async () => {
     if (!hasDb) return;
-    dataSource = new DataSource(buildDataSourceOptions(apiEnv.DATABASE_INTEGRATION_URL!));
+    dataSource = new DataSource(
+      buildDataSourceOptions(apiEnv.DATABASE_INTEGRATION_URL!),
+    );
     await dataSource.initialize();
   });
 

@@ -3,7 +3,10 @@ import { fileURLToPath } from "node:url";
 
 import ecosystemConfig from "./ecosystem.config.ts";
 
-const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const repoRoot = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "..",
+);
 
 export { ecosystemConfig };
 

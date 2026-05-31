@@ -10,6 +10,11 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true
   },
-  "include": ["src/**/*", "scripts/**/*", "vitest.config.ts", "vitest.setup.ts"],
+  "include": [
+    "src/**/*",
+    "scripts/**/*",
+    "vitest.config.ts",
+    "vitest.setup.ts"
+  ],
   "exclude": ["node_modules", "dist"]
 }

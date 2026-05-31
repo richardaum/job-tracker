@@ -6,7 +6,11 @@ import { graphqlFormatError } from "@api/graphql/graphql-format-error";
 import type { ApolloDriverConfig } from "@nestjs/apollo";
 import { ApolloDriver } from "@nestjs/apollo";
 import type { ExecutionContext, INestApplication } from "@nestjs/common";
-import { ForbiddenException, NotFoundException, UnauthorizedException } from "@nestjs/common";
+import {
+  ForbiddenException,
+  NotFoundException,
+  UnauthorizedException,
+} from "@nestjs/common";
 import { GraphQLModule } from "@nestjs/graphql";
 import { GqlExecutionContext } from "@nestjs/graphql";
 import { Test } from "@nestjs/testing";
@@ -52,7 +56,10 @@ describe("CompaniesResolver (integration)", () => {
           formatError: graphqlFormatError,
         }),
       ],
-      providers: [CompaniesResolver, { provide: CompanyService, useValue: service }],
+      providers: [
+        CompaniesResolver,
+        { provide: CompanyService, useValue: service },
+      ],
     })
       .overrideGuard(JwtAuthGuard)
       .useValue({
@@ -89,7 +96,9 @@ describe("CompaniesResolver (integration)", () => {
   });
 
   it("company query maps NotFound to NOT_FOUND without leaking id", async () => {
-    service.findOne.mockRejectedValueOnce(new NotFoundException("Company secret-id not found"));
+    service.findOne.mockRejectedValueOnce(
+      new NotFoundException("Company secret-id not found"),
+    );
     const res = await request(app.getHttpServer())
       .post("/graphql")
       .set(auth)

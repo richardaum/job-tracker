@@ -2,7 +2,12 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Text } from "@ui/components/Typography/Text";
 import { cn } from "@ui/lib/cn";
 
-import { Timeline, TimelineContent, TimelineItem, TimelineMarker } from "./Timeline";
+import {
+  Timeline,
+  TimelineContent,
+  TimelineItem,
+  TimelineMarker,
+} from "./Timeline";
 
 const meta: Meta<typeof Timeline> = {
   title: "Components/Timeline",

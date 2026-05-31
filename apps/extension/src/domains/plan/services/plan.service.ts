@@ -23,7 +23,10 @@ export class PlanService {
     return output;
   }
 
-  private async runPlanSteps(steps: Plan["steps"], options: PlanExecuteOptions) {
+  private async runPlanSteps(
+    steps: Plan["steps"],
+    options: PlanExecuteOptions,
+  ) {
     for (const step of steps) {
       const stepResult = await this.runPlanStep(step, options);
       this.memory.set(step.id, stepResult);

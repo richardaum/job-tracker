@@ -92,10 +92,17 @@ export class WxtTabService implements TabService {
       };
 
       const timeoutId = globalThis.setTimeout(() => {
-        finish(new Error(`waitUntilTabComplete(${tabId}) timed out after ${TIMEOUT_MS}ms`));
+        finish(
+          new Error(
+            `waitUntilTabComplete(${tabId}) timed out after ${TIMEOUT_MS}ms`,
+          ),
+        );
       }, TIMEOUT_MS);
 
-      const onUpdated = (updatedTabId: number, _changeInfo: chrome.tabs.TabChangeInfo): void => {
+      const onUpdated = (
+        updatedTabId: number,
+        _changeInfo: chrome.tabs.TabChangeInfo,
+      ): void => {
         if (updatedTabId !== tabId) return;
         tryFinishIfComplete();
       };

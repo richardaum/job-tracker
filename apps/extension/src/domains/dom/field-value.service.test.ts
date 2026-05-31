@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { FieldFormatStrategyPicker, PassthroughFieldFormatStrategy } from "./field-format.strategy";
+import {
+  FieldFormatStrategyPicker,
+  PassthroughFieldFormatStrategy,
+} from "./field-format.strategy";
 import { FieldValueService } from "./field-value.service";
 
 describe("FieldValueService", () => {
@@ -74,7 +77,8 @@ describe("FieldValueService", () => {
       value: "innerText" as const,
       format: "salary" as const,
       validationRegex: {
-        pattern: "\\$\\s?\\d[\\d,.]*\\s*\\p{Pd}\\s*\\$?\\s?\\d[\\d,.]*\\s*/\\s*(year|month|hour)",
+        pattern:
+          "\\$\\s?\\d[\\d,.]*\\s*\\p{Pd}\\s*\\$?\\s?\\d[\\d,.]*\\s*/\\s*(year|month|hour)",
         flags: "iu",
       },
     };
@@ -103,6 +107,8 @@ describe("FieldValueService", () => {
       value: "innerHTML" as const,
       format: "tiptap" as const,
     };
-    expect(() => svc.getFieldValue(el, field)).toThrow(/Unknown field format "tiptap"/);
+    expect(() => svc.getFieldValue(el, field)).toThrow(
+      /Unknown field format "tiptap"/,
+    );
   });
 });

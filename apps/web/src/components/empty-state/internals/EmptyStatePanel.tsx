@@ -8,7 +8,11 @@ export type EmptyStatePanelProps = {
   color?: Extract<TextProps["color"], "muted" | "secondary">;
 };
 
-export function EmptyStatePanel({ message, size = "sm", color = "muted" }: EmptyStatePanelProps) {
+export function EmptyStatePanel({
+  message,
+  size = "sm",
+  color = "muted",
+}: EmptyStatePanelProps) {
   return (
     <Text size={size} color={color}>
       {message}

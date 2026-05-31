@@ -16,7 +16,9 @@ vi.mock("next/navigation", () => ({
 function queryFromRouterPush(callIndex = 0) {
   const target = routerPushSpy.mock.calls[callIndex]?.[0] as string | undefined;
   expect(target).toBeDefined();
-  const [pathnameWithMaybeQuery] = (typeof target === "string" ? target : "").split("#");
+  const [pathnameWithMaybeQuery] = (
+    typeof target === "string" ? target : ""
+  ).split("#");
   const queryStart = pathnameWithMaybeQuery.indexOf("?");
   if (queryStart === -1) return new URLSearchParams();
   return new URLSearchParams(pathnameWithMaybeQuery.slice(queryStart + 1));

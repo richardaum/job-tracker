@@ -4,9 +4,15 @@ import { spawnSync } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { isGitWorktreeCheckout, loadWorktreeEnvIntoProcess } from "@job-tracker/worktree-cli";
+import {
+  isGitWorktreeCheckout,
+  loadWorktreeEnvIntoProcess,
+} from "@job-tracker/worktree-cli";
 
-import { killTcpListenPorts, resolveListenPorts } from "./kill-tcp-listen-ports.ts";
+import {
+  killTcpListenPorts,
+  resolveListenPorts,
+} from "./kill-tcp-listen-ports.ts";
 
 const resetTag = "[pm2:reset]";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");

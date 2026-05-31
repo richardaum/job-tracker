@@ -1,12 +1,16 @@
 import { FitClassification, RequirementType } from "@/gql/hooks";
 
-export function formatMatchClassification(classification: string | null | undefined): string {
+export function formatMatchClassification(
+  classification: string | null | undefined,
+): string {
   if (classification === FitClassification.Positive) return "Strong match";
   if (classification === FitClassification.Negative) return "Weak match";
   return "Inconclusive";
 }
 
-export function formatMatchScore(scoreRatio: number | null | undefined): string | null {
+export function formatMatchScore(
+  scoreRatio: number | null | undefined,
+): string | null {
   if (scoreRatio == null) return null;
   return `${Math.round(scoreRatio)}%`;
 }

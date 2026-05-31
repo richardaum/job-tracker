@@ -14,7 +14,7 @@ Individual steps:
 ```
 pnpm fix:imports     # import sorting (fast, no type-checking)
 pnpm lint            # turbo lint (ESLint)
-pnpm format          # prettier --write
+pnpm format          # oxfmt --write
 pnpm typecheck       # turbo typecheck (tsc --noEmit)
 pnpm test            # turbo test (Vitest/Jest)
 pnpm test:coverage   # alias for validate:coverage
@@ -35,7 +35,7 @@ GitHub Actions: `ci` (Postgres 16-alpine, Node 22, pnpm 10.8.1), `e2e`, `docker-
 ```
 node --experimental-strip-types scripts/fix-imports.ts
 eslint --fix --max-warnings=0 --no-warn-ignored
-prettier --write
+oxfmt --write
 ```
 
 ## AI pair review

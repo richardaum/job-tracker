@@ -51,7 +51,8 @@ vi.mock("@/gql/hooks", () => ({
   },
   SalaryPeriod: { Year: "YEAR", Month: "MONTH", Hour: "HOUR" },
   useJobsQuery: (...args: unknown[]) => useJobsQueryMock(...args),
-  useJobStageEventsQuery: (...args: unknown[]) => useJobStageEventsQueryMock(...args),
+  useJobStageEventsQuery: (...args: unknown[]) =>
+    useJobStageEventsQueryMock(...args),
 }));
 
 vi.mock("@/hooks/useCurrentUser", () => ({
@@ -59,11 +60,15 @@ vi.mock("@/hooks/useCurrentUser", () => ({
 }));
 
 vi.mock("../components/JobQuickEditDialog", () => ({
-  JobQuickEditDialog: ({ trigger }: { trigger: React.ReactNode }) => <div>{trigger}</div>,
+  JobQuickEditDialog: ({ trigger }: { trigger: React.ReactNode }) => (
+    <div>{trigger}</div>
+  ),
 }));
 
 vi.mock("../components/DeleteJobDialog", () => ({
-  DeleteJobDialog: ({ trigger }: { trigger: React.ReactNode }) => <div>{trigger}</div>,
+  DeleteJobDialog: ({ trigger }: { trigger: React.ReactNode }) => (
+    <div>{trigger}</div>
+  ),
 }));
 
 vi.mock("../components/JobTrackingPanel", () => ({
@@ -120,16 +125,18 @@ describe("JobsPage", () => {
 
   it("falls back to INCOMING Jobs filter when URL has an unknown q token", () => {
     navigationMocks.searchParams = "q=not-a-filter";
-    useJobStageEventsQueryMock.mockImplementation((options: { skip?: boolean } | undefined) => {
-      if (options?.skip) {
-        return { data: undefined, loading: false, error: undefined };
-      }
-      return {
-        data: { jobStageEvents: [] },
-        loading: false,
-        error: undefined,
-      };
-    });
+    useJobStageEventsQueryMock.mockImplementation(
+      (options: { skip?: boolean } | undefined) => {
+        if (options?.skip) {
+          return { data: undefined, loading: false, error: undefined };
+        }
+        return {
+          data: { jobStageEvents: [] },
+          loading: false,
+          error: undefined,
+        };
+      },
+    );
     useCurrentUserMock.mockReturnValue({
       user: {
         id: "user-1",
@@ -155,16 +162,18 @@ describe("JobsPage", () => {
 
   it("passes null filter when URL has q=all for unrestricted jobs list", () => {
     navigationMocks.searchParams = "q=all";
-    useJobStageEventsQueryMock.mockImplementation((options: { skip?: boolean } | undefined) => {
-      if (options?.skip) {
-        return { data: undefined, loading: false, error: undefined };
-      }
-      return {
-        data: { jobStageEvents: [] },
-        loading: false,
-        error: undefined,
-      };
-    });
+    useJobStageEventsQueryMock.mockImplementation(
+      (options: { skip?: boolean } | undefined) => {
+        if (options?.skip) {
+          return { data: undefined, loading: false, error: undefined };
+        }
+        return {
+          data: { jobStageEvents: [] },
+          loading: false,
+          error: undefined,
+        };
+      },
+    );
     useCurrentUserMock.mockReturnValue({
       user: {
         id: "user-1",
@@ -189,18 +198,21 @@ describe("JobsPage", () => {
   });
 
   it("clearing company filter removes only company from the URL", async () => {
-    navigationMocks.searchParams = "q=draft&company=Acme%20Labs&runId=should-remain";
+    navigationMocks.searchParams =
+      "q=draft&company=Acme%20Labs&runId=should-remain";
 
-    useJobStageEventsQueryMock.mockImplementation((options: { skip?: boolean } | undefined) => {
-      if (options?.skip) {
-        return { data: undefined, loading: false, error: undefined };
-      }
-      return {
-        data: { jobStageEvents: [] },
-        loading: false,
-        error: undefined,
-      };
-    });
+    useJobStageEventsQueryMock.mockImplementation(
+      (options: { skip?: boolean } | undefined) => {
+        if (options?.skip) {
+          return { data: undefined, loading: false, error: undefined };
+        }
+        return {
+          data: { jobStageEvents: [] },
+          loading: false,
+          error: undefined,
+        };
+      },
+    );
 
     useCurrentUserMock.mockReturnValue({
       user: {
@@ -235,16 +247,18 @@ describe("JobsPage", () => {
   it("clearing runId filter preserves q and unrelated params", async () => {
     navigationMocks.searchParams = "company=PinnedCo&q=all&runId=run-z";
 
-    useJobStageEventsQueryMock.mockImplementation((options: { skip?: boolean } | undefined) => {
-      if (options?.skip) {
-        return { data: undefined, loading: false, error: undefined };
-      }
-      return {
-        data: { jobStageEvents: [] },
-        loading: false,
-        error: undefined,
-      };
-    });
+    useJobStageEventsQueryMock.mockImplementation(
+      (options: { skip?: boolean } | undefined) => {
+        if (options?.skip) {
+          return { data: undefined, loading: false, error: undefined };
+        }
+        return {
+          data: { jobStageEvents: [] },
+          loading: false,
+          error: undefined,
+        };
+      },
+    );
 
     useCurrentUserMock.mockReturnValue({
       user: {
@@ -419,6 +433,8 @@ describe("JobsPage", () => {
     render(<JobsPage />);
 
     expect(screen.getByText(/no jobs yet/i)).toBeInTheDocument();
-    expect(screen.getByText(/add your first one to start tracking/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/add your first one to start tracking/i),
+    ).toBeInTheDocument();
   });
 });

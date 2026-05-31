@@ -22,7 +22,9 @@ export const MATCH_STATUS_DOT_CLASS: Record<string, string> = {
 
 export const MATCH_STATUS_PROCESSING_PULSE_CLASS = "animate-match-status-pulse";
 
-export function getMatchStatusLabel(status: string | AsyncMetadataStatus): string {
+export function getMatchStatusLabel(
+  status: string | AsyncMetadataStatus,
+): string {
   return MATCH_STATUS_LABEL[status] ?? status;
 }
 
@@ -30,7 +32,8 @@ export function getMatchStatusTooltipContent(
   status: string | AsyncMetadataStatus,
   error?: string | null,
 ): string {
-  const description = MATCH_STATUS_TOOLTIP[status] ?? getMatchStatusLabel(status);
+  const description =
+    MATCH_STATUS_TOOLTIP[status] ?? getMatchStatusLabel(status);
 
   if (status === AsyncMetadataStatus.Failed && error) {
     return `${description} ${error}`;

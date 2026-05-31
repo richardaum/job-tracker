@@ -11,8 +11,17 @@ import { CompaniesResolver } from "./companies.resolver";
 import { CompanyService } from "./companies.service";
 
 @Module({
-  imports: [TypeOrmModule.forFeature([CompanyEntity, JobEntity]), AuthModule, LibAiModule],
-  providers: [CompanyRepository, CompanyService, CompaniesResolver, CompanyDescriptionService],
+  imports: [
+    TypeOrmModule.forFeature([CompanyEntity, JobEntity]),
+    AuthModule,
+    LibAiModule,
+  ],
+  providers: [
+    CompanyRepository,
+    CompanyService,
+    CompaniesResolver,
+    CompanyDescriptionService,
+  ],
   exports: [CompanyService, CompanyDescriptionService, CompanyRepository],
 })
 export class CompaniesModule {}

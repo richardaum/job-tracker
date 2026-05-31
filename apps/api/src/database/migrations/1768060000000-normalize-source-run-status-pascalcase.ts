@@ -11,7 +11,9 @@ export class NormalizeSourceRunStatusPascalcase1768060000000 implements Migratio
       `CREATE TYPE "${tmp}" AS ENUM (${newValues.map((v) => `'${v}'`).join(", ")})`,
     );
 
-    await queryRunner.query(`ALTER TABLE "source_runs" ALTER COLUMN "status" DROP DEFAULT`);
+    await queryRunner.query(
+      `ALTER TABLE "source_runs" ALTER COLUMN "status" DROP DEFAULT`,
+    );
 
     await queryRunner.query(
       `ALTER TABLE "source_runs" ALTER COLUMN "status" TYPE "${tmp}" USING CASE "status"::text
@@ -29,7 +31,9 @@ export class NormalizeSourceRunStatusPascalcase1768060000000 implements Migratio
 
     await queryRunner.query(`DROP TYPE IF EXISTS "source_run_status" CASCADE`);
 
-    await queryRunner.query(`ALTER TYPE "${tmp}" RENAME TO "source_run_status"`);
+    await queryRunner.query(
+      `ALTER TYPE "${tmp}" RENAME TO "source_run_status"`,
+    );
   }
 
   async down(queryRunner: QueryRunner): Promise<void> {
@@ -40,7 +44,9 @@ export class NormalizeSourceRunStatusPascalcase1768060000000 implements Migratio
       `CREATE TYPE "${tmp}" AS ENUM (${newValues.map((v) => `'${v}'`).join(", ")})`,
     );
 
-    await queryRunner.query(`ALTER TABLE "source_runs" ALTER COLUMN "status" DROP DEFAULT`);
+    await queryRunner.query(
+      `ALTER TABLE "source_runs" ALTER COLUMN "status" DROP DEFAULT`,
+    );
 
     await queryRunner.query(
       `ALTER TABLE "source_runs" ALTER COLUMN "status" TYPE "${tmp}" USING CASE "status"::text
@@ -57,6 +63,8 @@ export class NormalizeSourceRunStatusPascalcase1768060000000 implements Migratio
 
     await queryRunner.query(`DROP TYPE IF EXISTS "source_run_status" CASCADE`);
 
-    await queryRunner.query(`ALTER TYPE "${tmp}" RENAME TO "source_run_status"`);
+    await queryRunner.query(
+      `ALTER TYPE "${tmp}" RENAME TO "source_run_status"`,
+    );
   }
 }

@@ -16,8 +16,20 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   render: () => (
     <Stack>
-      <div className={cn("rounded-md bg-bg-surface p-2 text-text-primary shadow-sm")}>Item A</div>
-      <div className={cn("rounded-md bg-bg-surface p-2 text-text-primary shadow-sm")}>Item B</div>
+      <div
+        className={cn(
+          "rounded-md bg-bg-surface p-2 text-text-primary shadow-sm",
+        )}
+      >
+        Item A
+      </div>
+      <div
+        className={cn(
+          "rounded-md bg-bg-surface p-2 text-text-primary shadow-sm",
+        )}
+      >
+        Item B
+      </div>
     </Stack>
   ),
 };
@@ -25,8 +37,20 @@ export const Default: Story = {
 export const Row: Story = {
   render: () => (
     <Stack direction="row" gap="xs" align="center">
-      <div className={cn("rounded-md bg-bg-surface p-2 text-text-primary shadow-sm")}>Item A</div>
-      <div className={cn("rounded-md bg-bg-surface p-2 text-text-primary shadow-sm")}>Item B</div>
+      <div
+        className={cn(
+          "rounded-md bg-bg-surface p-2 text-text-primary shadow-sm",
+        )}
+      >
+        Item A
+      </div>
+      <div
+        className={cn(
+          "rounded-md bg-bg-surface p-2 text-text-primary shadow-sm",
+        )}
+      >
+        Item B
+      </div>
     </Stack>
   ),
 };

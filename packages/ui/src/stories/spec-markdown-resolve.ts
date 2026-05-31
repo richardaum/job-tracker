@@ -51,24 +51,33 @@ export function docTitleToStorybookHref(title: string) {
  * Rewrite markdown `[text](./foo.md)` links so AnchorMdx can navigate to the target docs page.
  * Preserves `#hash` and `?query` on the URL when present.
  */
-export function rewriteLocalMarkdownLinks(markdown: string, sourceFile: string) {
-  return markdown.replace(/(?<!!)\[([^\]]*)\]\(([^)]+)\)/g, (full, text, rawUrl: string) => {
-    const url = String(rawUrl).trim();
-    const hashIdx = url.indexOf("#");
-    const pathPart = hashIdx === -1 ? url : url.slice(0, hashIdx);
-    const hash = hashIdx === -1 ? "" : url.slice(hashIdx);
-    if (!isLocalMarkdownHref(pathPart)) return full;
+export function rewriteLocalMarkdownLinks(
+  markdown: string,
+  sourceFile: string,
+) {
+  return markdown.replace(
+    /(?<!!)\[([^\]]*)\]\(([^)]+)\)/g,
+    (full, text, rawUrl: string) => {
+      const url = String(rawUrl).trim();
+      const hashIdx = url.indexOf("#");
+      const pathPart = hashIdx === -1 ? url : url.slice(0, hashIdx);
+      const hash = hashIdx === -1 ? "" : url.slice(hashIdx);
+      if (!isLocalMarkdownHref(pathPart)) return full;
 
-    const resolved = resolveRepoRelative(sourceFile, pathPart);
-    const docTitle = filePathToDocTitle(resolved);
-    if (!docTitle) return full;
+      const resolved = resolveRepoRelative(sourceFile, pathPart);
+      const docTitle = filePathToDocTitle(resolved);
+      if (!docTitle) return full;
 
-    const next = docTitleToStorybookHref(docTitle) + hash;
-    return `[${text}](${next})`;
-  });
+      const next = docTitleToStorybookHref(docTitle) + hash;
+      return `[${text}](${next})`;
+    },
+  );
 }
 
 /** Pre-transform MDX from repo `docs/*.mdx` for in-doc navigation in Storybook. */
-export function rewriteSpecMarkdownForStorybook(markdown: string, sourceFile: string) {
+export function rewriteSpecMarkdownForStorybook(
+  markdown: string,
+  sourceFile: string,
+) {
   return rewriteLocalMarkdownLinks(markdown, sourceFile);
 }

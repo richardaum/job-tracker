@@ -18,7 +18,12 @@ describe("getFillStatusTooltipContent", () => {
   });
 
   it("includes error details when fill failed", () => {
-    expect(getFillStatusTooltipContent(AsyncMetadataStatus.Failed, "LLM unreachable")).toBe(
+    expect(
+      getFillStatusTooltipContent(
+        AsyncMetadataStatus.Failed,
+        "LLM unreachable",
+      ),
+    ).toBe(
       "Automatic fill failed. Retry from Actions or review fields on Overview. LLM unreachable",
     );
   });

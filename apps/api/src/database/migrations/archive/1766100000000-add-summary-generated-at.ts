@@ -10,6 +10,8 @@ export class AddSummaryGeneratedAt1766100000000 implements MigrationInterface {
   }
 
   async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`ALTER TABLE "applications" DROP COLUMN "summary_generated_at"`);
+    await queryRunner.query(
+      `ALTER TABLE "applications" DROP COLUMN "summary_generated_at"`,
+    );
   }
 }

@@ -5,7 +5,10 @@ import type { CollectJobsAction } from "@/domains/plan/model/types";
 export class JobDetailsMessagingService {
   constructor(private readonly messagingService: MessagingService) {}
 
-  async getJobDetails(action: CollectJobsAction, tabId: number): Promise<Job | undefined> {
+  async getJobDetails(
+    action: CollectJobsAction,
+    tabId: number,
+  ): Promise<Job | undefined> {
     return await this.messagingService.request<"job.details", Job | undefined>({
       to: "content",
       payload: { kind: "job.details", action },

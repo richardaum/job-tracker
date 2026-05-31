@@ -40,10 +40,14 @@ export class SalaryEmbedded {
     if (!hasAmount) return;
 
     if (this.currency == null || this.period == null) {
-      throw new BadRequestException("A salary range requires currency and period");
+      throw new BadRequestException(
+        "A salary range requires currency and period",
+      );
     }
     if (!CURRENCY_RE.test(this.currency)) {
-      throw new BadRequestException("currency must be a 3-letter ISO 4217 code (e.g. BRL, USD)");
+      throw new BadRequestException(
+        "currency must be a 3-letter ISO 4217 code (e.g. BRL, USD)",
+      );
     }
     if (this.minCents != null && this.minCents < 0) {
       throw new BadRequestException("minCents must be non-negative");
@@ -51,8 +55,14 @@ export class SalaryEmbedded {
     if (this.maxCents != null && this.maxCents < 0) {
       throw new BadRequestException("maxCents must be non-negative");
     }
-    if (this.minCents != null && this.maxCents != null && this.minCents > this.maxCents) {
-      throw new BadRequestException("minCents must be less than or equal to maxCents");
+    if (
+      this.minCents != null &&
+      this.maxCents != null &&
+      this.minCents > this.maxCents
+    ) {
+      throw new BadRequestException(
+        "minCents must be less than or equal to maxCents",
+      );
     }
   }
 

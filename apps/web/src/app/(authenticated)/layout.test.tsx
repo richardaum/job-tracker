@@ -37,7 +37,9 @@ describe("AuthenticatedLayout", () => {
 
     renderAuthenticatedLayout(<div>Private Area</div>);
 
-    expect(replaceMock).toHaveBeenCalledWith("/login?returnTo=%2Fjobs%3Fstatus%3DOPEN");
+    expect(replaceMock).toHaveBeenCalledWith(
+      "/login?returnTo=%2Fjobs%3Fstatus%3DOPEN",
+    );
   });
 
   it("renders children when authenticated", () => {

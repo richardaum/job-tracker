@@ -11,7 +11,10 @@ export type MakeOptional<T, K extends keyof T> = Omit<T, K> & {
 export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & {
   [SubKey in K]: Maybe<T[SubKey]>;
 };
-export type MakeEmpty<T extends { [key: string]: unknown }, K extends keyof T> = {
+export type MakeEmpty<
+  T extends { [key: string]: unknown },
+  K extends keyof T,
+> = {
   [_ in K]?: never;
 };
 export type Incremental<T> =
@@ -1046,7 +1049,10 @@ export const CreateDraftCaptureJobDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<CreateDraftCaptureJobMutation, CreateDraftCaptureJobMutationVariables>;
+} as unknown as DocumentNode<
+  CreateDraftCaptureJobMutation,
+  CreateDraftCaptureJobMutationVariables
+>;
 export const CreateJobDocument = {
   kind: "Document",
   definitions: [
@@ -1181,7 +1187,9 @@ export const MeDocument = {
             name: { kind: "Name", value: "me" },
             selectionSet: {
               kind: "SelectionSet",
-              selections: [{ kind: "Field", name: { kind: "Name", value: "email" } }],
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "email" } },
+              ],
             },
           },
         ],
@@ -1381,7 +1389,10 @@ export const UpdateSourceRunStatusDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<UpdateSourceRunStatusMutation, UpdateSourceRunStatusMutationVariables>;
+} as unknown as DocumentNode<
+  UpdateSourceRunStatusMutation,
+  UpdateSourceRunStatusMutationVariables
+>;
 export const UpdateSourceRunDocument = {
   kind: "Document",
   definitions: [
@@ -1449,4 +1460,7 @@ export const UpdateSourceRunDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<UpdateSourceRunMutation, UpdateSourceRunMutationVariables>;
+} as unknown as DocumentNode<
+  UpdateSourceRunMutation,
+  UpdateSourceRunMutationVariables
+>;

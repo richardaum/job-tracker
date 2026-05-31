@@ -8,7 +8,10 @@ import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 
 @Module({
-  imports: [TypeOrmModule.forFeature([ExtensionActivityEventEntity]), AuthModule],
+  imports: [
+    TypeOrmModule.forFeature([ExtensionActivityEventEntity]),
+    AuthModule,
+  ],
   providers: [
     ExtensionActivityEventBus,
     ExtensionActivityRepository,

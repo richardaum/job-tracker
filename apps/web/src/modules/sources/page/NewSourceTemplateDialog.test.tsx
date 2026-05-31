@@ -9,7 +9,8 @@ if (!Element.prototype.hasPointerCapture) {
 const createSourceTemplateMock = vi.fn();
 
 vi.mock("@/gql/hooks", async () => {
-  const actual = await vi.importActual<typeof import("@/gql/hooks")>("@/gql/hooks");
+  const actual =
+    await vi.importActual<typeof import("@/gql/hooks")>("@/gql/hooks");
   return {
     ...actual,
     useCreateSourceTemplateMutation: () => [createSourceTemplateMock],
@@ -24,13 +25,27 @@ describe("NewSourceTemplateDialog", () => {
   });
 
   it("renders stop condition dropdown", () => {
-    render(<NewSourceTemplateDialog open={true} planId="plan-1" onOpenChange={() => {}} />);
+    render(
+      <NewSourceTemplateDialog
+        open={true}
+        planId="plan-1"
+        onOpenChange={() => {}}
+      />,
+    );
 
-    expect(screen.getByRole("combobox", { name: "Select stop condition" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("combobox", { name: "Select stop condition" }),
+    ).toBeInTheDocument();
   });
 
   it("shows CatchUp threshold input by default", () => {
-    render(<NewSourceTemplateDialog open={true} planId="plan-1" onOpenChange={() => {}} />);
+    render(
+      <NewSourceTemplateDialog
+        open={true}
+        planId="plan-1"
+        onOpenChange={() => {}}
+      />,
+    );
 
     expect(screen.getByPlaceholderText("e.g. 5")).toBeInTheDocument();
     expect(screen.queryByPlaceholderText("e.g. 3")).not.toBeInTheDocument();
@@ -38,7 +53,13 @@ describe("NewSourceTemplateDialog", () => {
   });
 
   it("selecting FirstRunMaxPages shows maxPages input", async () => {
-    render(<NewSourceTemplateDialog open={true} planId="plan-1" onOpenChange={() => {}} />);
+    render(
+      <NewSourceTemplateDialog
+        open={true}
+        planId="plan-1"
+        onOpenChange={() => {}}
+      />,
+    );
 
     const dropdown = screen.getByRole("combobox", {
       name: "Select stop condition",
@@ -53,7 +74,13 @@ describe("NewSourceTemplateDialog", () => {
   });
 
   it("selecting OlderThan shows days input", async () => {
-    render(<NewSourceTemplateDialog open={true} planId="plan-1" onOpenChange={() => {}} />);
+    render(
+      <NewSourceTemplateDialog
+        open={true}
+        planId="plan-1"
+        onOpenChange={() => {}}
+      />,
+    );
 
     const dropdown = screen.getByRole("combobox", {
       name: "Select stop condition",
@@ -84,9 +111,18 @@ describe("NewSourceTemplateDialog", () => {
       },
     });
 
-    render(<NewSourceTemplateDialog open={true} planId="plan-1" onOpenChange={onOpenChange} />);
+    render(
+      <NewSourceTemplateDialog
+        open={true}
+        planId="plan-1"
+        onOpenChange={onOpenChange}
+      />,
+    );
 
-    await user.type(screen.getByPlaceholderText("https://…"), "https://example.com");
+    await user.type(
+      screen.getByPlaceholderText("https://…"),
+      "https://example.com",
+    );
 
     const thresholdInput = screen.getByPlaceholderText("e.g. 5");
     await user.clear(thresholdInput);

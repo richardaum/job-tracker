@@ -6,7 +6,15 @@ import { JobType } from "@api/domains/jobs/job.type";
 import { DeleteMutationPayloadType } from "@api/domains/shared/delete-mutation-payload.type";
 import { RoleEnum } from "@api/domains/users/role.enum";
 import { UseGuards } from "@nestjs/common";
-import { Args, ID, Mutation, Parent, Query, ResolveField, Resolver } from "@nestjs/graphql";
+import {
+  Args,
+  ID,
+  Mutation,
+  Parent,
+  Query,
+  ResolveField,
+  Resolver,
+} from "@nestjs/graphql";
 
 import { GenerateMatchInput } from "./generate-match.input";
 import { MatchAnalysisService } from "./match-analysis.service";
@@ -19,7 +27,9 @@ export class MatchAnalysisResolver {
   constructor(private readonly service: MatchAnalysisService) {}
 
   @Query(() => [MatchAnalysisType])
-  async matchAnalyses(@CurrentUser() user: { userId: string }): Promise<MatchAnalysisType[]> {
+  async matchAnalyses(
+    @CurrentUser() user: { userId: string },
+  ): Promise<MatchAnalysisType[]> {
     return this.service.findAll(user.userId);
   }
 
@@ -40,7 +50,10 @@ export class MatchAnalysisResolver {
   }
 
   @ResolveField(() => JobType, { nullable: true })
-  async job(@Parent() matchAnalysis: MatchAnalysisType, @CurrentUser() user: { userId: string }) {
+  async job(
+    @Parent() matchAnalysis: MatchAnalysisType,
+    @CurrentUser() user: { userId: string },
+  ) {
     return this.service.findJobById(matchAnalysis.jobId, user.userId);
   }
 

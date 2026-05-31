@@ -33,7 +33,9 @@ describe("UserService", () => {
     em = {} as EntityManager;
     repo = {
       manager: {
-        transaction: vi.fn(async (fn: (manager: EntityManager) => Promise<User>) => fn(em)),
+        transaction: vi.fn(
+          async (fn: (manager: EntityManager) => Promise<User>) => fn(em),
+        ),
       },
       findAccountByProvider: vi.fn(),
       saveUser: vi.fn(),
@@ -159,7 +161,9 @@ describe("UserService", () => {
 
     it("throws UnauthorizedException when user not found", async () => {
       vi.mocked(repo.findById).mockResolvedValue(null);
-      await expect(service.validateActiveUser("uuid-1", 0)).rejects.toThrow(UnauthorizedException);
+      await expect(service.validateActiveUser("uuid-1", 0)).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
 
     it("throws UnauthorizedException when user is inactive", async () => {
@@ -167,12 +171,16 @@ describe("UserService", () => {
         ...mockUser,
         active: false,
       });
-      await expect(service.validateActiveUser("uuid-1", 0)).rejects.toThrow(UnauthorizedException);
+      await expect(service.validateActiveUser("uuid-1", 0)).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
 
     it("throws UnauthorizedException when tokenVersion mismatches", async () => {
       vi.mocked(repo.findById).mockResolvedValue(mockUser);
-      await expect(service.validateActiveUser("uuid-1", 5)).rejects.toThrow(UnauthorizedException);
+      await expect(service.validateActiveUser("uuid-1", 5)).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
   });
 

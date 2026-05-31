@@ -4,11 +4,17 @@ import { spawnSync } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { ecosystemConfig, ecosystemConfigPath, ecosystemPm2Args } from "./pm2-ecosystem.ts";
+import {
+  ecosystemConfig,
+  ecosystemConfigPath,
+  ecosystemPm2Args,
+} from "./pm2-ecosystem.ts";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
-const guiApp = ecosystemConfig.apps.find((app) => app.name.endsWith("ezpm2gui"));
+const guiApp = ecosystemConfig.apps.find((app) =>
+  app.name.endsWith("ezpm2gui"),
+);
 
 if (!guiApp) {
   console.error("[pm2:gui] ezpm2gui app not found in ecosystem.config.ts");

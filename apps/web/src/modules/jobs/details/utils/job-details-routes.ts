@@ -10,7 +10,10 @@ export function jobDetailsNotesFocusPath(jobId: string): Route {
   return `/jobs/${jobId}/notes/focus` as Route;
 }
 
-export function jobDetailsPath(jobId: string, tab: JobDetailsTab = "overview"): Route {
+export function jobDetailsPath(
+  jobId: string,
+  tab: JobDetailsTab = "overview",
+): Route {
   if (tab === "overview") {
     return `/jobs/${jobId}` as Route;
   }
@@ -31,7 +34,9 @@ export function jobDetailsHref(
 }
 
 export function parseJobDetailsTab(pathname: string): JobDetailsTab {
-  const match = pathname.match(/^\/jobs\/[^/]+\/(description|source|match|notes|history)$/);
+  const match = pathname.match(
+    /^\/jobs\/[^/]+\/(description|source|match|notes|history)$/,
+  );
   if (!match) {
     return "overview";
   }
@@ -53,10 +58,14 @@ export function parseJobSidePanel(value: string | null): JobSidePanel | null {
   return null;
 }
 
-export function isJobDetailsMainTab(tab: JobDetailsTab): tab is JobDetailsMainTab {
+export function isJobDetailsMainTab(
+  tab: JobDetailsTab,
+): tab is JobDetailsMainTab {
   return tab !== "notes" && tab !== "history";
 }
 
-export function isJobDetailsSidePanelTab(tab: JobDetailsTab): tab is JobSidePanel {
+export function isJobDetailsSidePanelTab(
+  tab: JobDetailsTab,
+): tab is JobSidePanel {
   return tab === "notes" || tab === "history";
 }

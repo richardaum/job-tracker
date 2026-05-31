@@ -80,11 +80,14 @@ describe("CollectJobsService", () => {
       const onJobCollected = vi.fn().mockResolvedValue(undefined);
 
       const service = createService(mocks);
-      const result = await service.execute(actionWithKey("{{company}}-{{title}}"), {
-        surfaceUrl: "https://example.com/jobs",
-        boardType: "Sequential",
-        onJobCollected,
-      });
+      const result = await service.execute(
+        actionWithKey("{{company}}-{{title}}"),
+        {
+          surfaceUrl: "https://example.com/jobs",
+          boardType: "Sequential",
+          onJobCollected,
+        },
+      );
 
       expect(onJobCollected).toHaveBeenCalledTimes(1);
       expect(result.size).toBe(1);
@@ -168,7 +171,9 @@ describe("CollectJobsService", () => {
         onJobCollected,
       });
 
-      expect(mocks.paginationMessaging.navigateToNextPage).toHaveBeenCalledTimes(1);
+      expect(
+        mocks.paginationMessaging.navigateToNextPage,
+      ).toHaveBeenCalledTimes(1);
       expect(onJobCollected).toHaveBeenCalledTimes(4);
     });
 
@@ -216,7 +221,9 @@ describe("CollectJobsService", () => {
         onJobCollected,
       });
 
-      expect(mocks.paginationMessaging.navigateToNextPage).toHaveBeenCalledTimes(2);
+      expect(
+        mocks.paginationMessaging.navigateToNextPage,
+      ).toHaveBeenCalledTimes(2);
     });
 
     it("continues when threshold not reached", async () => {
@@ -251,7 +258,9 @@ describe("CollectJobsService", () => {
         onJobCollected,
       });
 
-      expect(mocks.paginationMessaging.navigateToNextPage).toHaveBeenCalledTimes(1);
+      expect(
+        mocks.paginationMessaging.navigateToNextPage,
+      ).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -293,7 +302,9 @@ describe("CollectJobsService", () => {
         onJobCollected,
       });
 
-      expect(mocks.paginationMessaging.navigateToNextPage).toHaveBeenCalledTimes(1);
+      expect(
+        mocks.paginationMessaging.navigateToNextPage,
+      ).toHaveBeenCalledTimes(1);
       expect(onJobCollected).toHaveBeenCalledTimes(2);
     });
 
@@ -327,7 +338,9 @@ describe("CollectJobsService", () => {
         onJobCollected,
       });
 
-      expect(mocks.paginationMessaging.navigateToNextPage).not.toHaveBeenCalled();
+      expect(
+        mocks.paginationMessaging.navigateToNextPage,
+      ).not.toHaveBeenCalled();
       expect(onJobCollected).toHaveBeenCalledTimes(1);
     });
   });
@@ -352,7 +365,9 @@ describe("CollectJobsService", () => {
           detailUrl: "https://example.com/2",
         },
       ]);
-      mocks.paginationMessaging.canNavigateToNextPage.mockResolvedValueOnce(true);
+      mocks.paginationMessaging.canNavigateToNextPage.mockResolvedValueOnce(
+        true,
+      );
 
       const onJobCollected = vi.fn().mockResolvedValue(undefined);
 
@@ -366,7 +381,9 @@ describe("CollectJobsService", () => {
         onJobCollected,
       });
 
-      expect(mocks.paginationMessaging.navigateToNextPage).not.toHaveBeenCalled();
+      expect(
+        mocks.paginationMessaging.navigateToNextPage,
+      ).not.toHaveBeenCalled();
       expect(onJobCollected).toHaveBeenCalledTimes(2);
     });
 
@@ -408,7 +425,9 @@ describe("CollectJobsService", () => {
         onJobCollected,
       });
 
-      expect(mocks.paginationMessaging.navigateToNextPage).toHaveBeenCalledTimes(1);
+      expect(
+        mocks.paginationMessaging.navigateToNextPage,
+      ).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -451,7 +470,9 @@ describe("CollectJobsService", () => {
         onJobCollected,
       });
 
-      expect(mocks.paginationMessaging.navigateToNextPage).toHaveBeenCalledTimes(2);
+      expect(
+        mocks.paginationMessaging.navigateToNextPage,
+      ).toHaveBeenCalledTimes(2);
       expect(onJobCollected).toHaveBeenCalledTimes(3);
     });
   });

@@ -8,7 +8,9 @@ export class MergeSourceProfileIntoPlan1768050000000 implements MigrationInterfa
       `SELECT conname FROM pg_constraint WHERE conrelid = 'source_templates'::regclass AND contype = 'u'`,
     );
 
-    await queryRunner.query(`ALTER TABLE "source_templates" ADD COLUMN "plan_id" uuid`);
+    await queryRunner.query(
+      `ALTER TABLE "source_templates" ADD COLUMN "plan_id" uuid`,
+    );
 
     await queryRunner.query(`
       UPDATE "source_templates" st
@@ -17,7 +19,9 @@ export class MergeSourceProfileIntoPlan1768050000000 implements MigrationInterfa
       WHERE st."source_profile_id" = p."source_profile_id"
     `);
 
-    await queryRunner.query(`ALTER TABLE "source_templates" ALTER COLUMN "plan_id" SET NOT NULL`);
+    await queryRunner.query(
+      `ALTER TABLE "source_templates" ALTER COLUMN "plan_id" SET NOT NULL`,
+    );
 
     await queryRunner.query(`
       ALTER TABLE "source_templates"
@@ -25,9 +29,13 @@ export class MergeSourceProfileIntoPlan1768050000000 implements MigrationInterfa
       FOREIGN KEY ("plan_id") REFERENCES "plans"("id") ON DELETE CASCADE
     `);
 
-    await queryRunner.query(`ALTER TABLE "source_templates" DROP CONSTRAINT "${conname}"`);
+    await queryRunner.query(
+      `ALTER TABLE "source_templates" DROP CONSTRAINT "${conname}"`,
+    );
 
-    await queryRunner.query(`ALTER TABLE "source_templates" DROP COLUMN "source_profile_id"`);
+    await queryRunner.query(
+      `ALTER TABLE "source_templates" DROP COLUMN "source_profile_id"`,
+    );
 
     await queryRunner.query(
       `CREATE UNIQUE INDEX "uq_source_templates_user_plan" ON "source_templates" ("user_id", "plan_id")`,
@@ -35,9 +43,13 @@ export class MergeSourceProfileIntoPlan1768050000000 implements MigrationInterfa
   }
 
   async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`DROP INDEX IF EXISTS "uq_source_templates_user_plan"`);
+    await queryRunner.query(
+      `DROP INDEX IF EXISTS "uq_source_templates_user_plan"`,
+    );
 
-    await queryRunner.query(`ALTER TABLE "source_templates" ADD COLUMN "source_profile_id" text`);
+    await queryRunner.query(
+      `ALTER TABLE "source_templates" ADD COLUMN "source_profile_id" text`,
+    );
 
     await queryRunner.query(`
       UPDATE "source_templates" st
@@ -59,6 +71,8 @@ export class MergeSourceProfileIntoPlan1768050000000 implements MigrationInterfa
       `ALTER TABLE "source_templates" DROP CONSTRAINT "fk_source_templates_plan_id"`,
     );
 
-    await queryRunner.query(`ALTER TABLE "source_templates" DROP COLUMN "plan_id"`);
+    await queryRunner.query(
+      `ALTER TABLE "source_templates" DROP COLUMN "plan_id"`,
+    );
   }
 }

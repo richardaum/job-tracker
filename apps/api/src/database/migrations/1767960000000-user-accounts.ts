@@ -33,9 +33,15 @@ export class UserAccounts1767960000000 implements MigrationInterface {
         "provider_account_id"
       FROM "users"
     `);
-    await queryRunner.query(`ALTER TABLE "users" DROP CONSTRAINT IF EXISTS "uq_users_provider"`);
-    await queryRunner.query(`ALTER TABLE "users" DROP COLUMN IF EXISTS "provider_account_id"`);
-    await queryRunner.query(`ALTER TABLE "users" DROP COLUMN IF EXISTS "provider_name"`);
+    await queryRunner.query(
+      `ALTER TABLE "users" DROP CONSTRAINT IF EXISTS "uq_users_provider"`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE "users" DROP COLUMN IF EXISTS "provider_account_id"`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE "users" DROP COLUMN IF EXISTS "provider_name"`,
+    );
   }
 
   async down(queryRunner: QueryRunner): Promise<void> {

@@ -16,7 +16,10 @@ import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { FitClassificationEnum } from "./fit-classification.enum";
 import { JobType } from "@api/domains/jobs/job.type";
 
-import { JobMatchResolver, MatchAnalysisResolver } from "./match-analysis.resolver";
+import {
+  JobMatchResolver,
+  MatchAnalysisResolver,
+} from "./match-analysis.resolver";
 import type { MatchAnalysis } from "./match-analysis.schema";
 import { MatchAnalysisService } from "./match-analysis.service";
 import { MatchAnalysisType } from "./match-analysis.type";
@@ -44,7 +47,12 @@ describe("MatchAnalysisResolver (GraphQL integration smoke)", () => {
   let app: INestApplication;
   const service: Pick<
     MatchAnalysisService,
-    "findAll" | "findById" | "findForJob" | "generate" | "remove" | "findJobById"
+    | "findAll"
+    | "findById"
+    | "findForJob"
+    | "generate"
+    | "remove"
+    | "findJobById"
   > = {
     findAll: vi.fn().mockResolvedValue([mockMatch]),
     findById: vi.fn().mockResolvedValue(mockMatch),
@@ -63,7 +71,10 @@ describe("MatchAnalysisResolver (GraphQL integration smoke)", () => {
           formatError: graphqlFormatError,
         }),
       ],
-      providers: [MatchAnalysisResolver, { provide: MatchAnalysisService, useValue: service }],
+      providers: [
+        MatchAnalysisResolver,
+        { provide: MatchAnalysisService, useValue: service },
+      ],
     })
       .overrideGuard(JwtAuthGuard)
       .useValue({
@@ -90,9 +101,12 @@ describe("MatchAnalysisResolver (GraphQL integration smoke)", () => {
   const authHeader = { Authorization: "Bearer mock-token" };
 
   it("jobMatch returns analyses keyed by jobId only", async () => {
-    const res = await request(app.getHttpServer()).post("/graphql").set(authHeader).send({
-      query: `{ jobMatch(jobId: "job-1") { id jobId resumeId matchCount createdAt classification } }`,
-    });
+    const res = await request(app.getHttpServer())
+      .post("/graphql")
+      .set(authHeader)
+      .send({
+        query: `{ jobMatch(jobId: "job-1") { id jobId resumeId matchCount createdAt classification } }`,
+      });
 
     expect(res.statusCode).toBe(200);
     expect(res.body.errors).toBeUndefined();
@@ -147,7 +161,9 @@ describe("MatchAnalysisResolver (GraphQL integration smoke)", () => {
 
 describe("JobMatchResolver — @ResolveField match on JobType", () => {
   const service = { findForJob: vi.fn() };
-  const resolver = new JobMatchResolver(service as unknown as MatchAnalysisService);
+  const resolver = new JobMatchResolver(
+    service as unknown as MatchAnalysisService,
+  );
 
   it("calls service.findForJob per parent job", async () => {
     vi.mocked(service.findForJob).mockResolvedValue(null);
@@ -163,7 +179,9 @@ describe("JobMatchResolver — @ResolveField match on JobType", () => {
 
 describe("MatchAnalysisResolver — @ResolveField job on MatchAnalysisType", () => {
   const service = { findJobById: vi.fn() };
-  const resolver = new MatchAnalysisResolver(service as unknown as MatchAnalysisService);
+  const resolver = new MatchAnalysisResolver(
+    service as unknown as MatchAnalysisService,
+  );
 
   it("calls service.findJobById per parent match analysis", async () => {
     vi.mocked(service.findJobById).mockResolvedValue(null);

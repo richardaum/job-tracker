@@ -35,8 +35,11 @@ export const Default: Story = {
   args: {
     trigger: <Button>Open dialog</Button>,
     title: "Delete job",
-    description: "This action cannot be undone. You will permanently remove this job.",
-    children: <p className={cn("text-sm text-text-secondary")}>Are you sure?</p>,
+    description:
+      "This action cannot be undone. You will permanently remove this job.",
+    children: (
+      <p className={cn("text-sm text-text-secondary")}>Are you sure?</p>
+    ),
     footer: (
       <div className={cn("flex justify-end gap-2")}>
         <Button intent="secondary">Cancel</Button>
@@ -49,18 +52,20 @@ export const Default: Story = {
 export const Sizes: Story = {
   render: () => (
     <Stack gap="md" align="start">
-      {(["xs", "sm", "md", "lg", "xl", "2xl", "3xl", "4xl"] as const).map((size) => (
-        <Dialog
-          key={size}
-          size={size}
-          trigger={<Button>Open {size} dialog</Button>}
-          title={`${size.toUpperCase()} Dialog`}
-        >
-          <div className={cn("py-10 text-center")}>
-            <Text>This is a {size} sized dialog.</Text>
-          </div>
-        </Dialog>
-      ))}
+      {(["xs", "sm", "md", "lg", "xl", "2xl", "3xl", "4xl"] as const).map(
+        (size) => (
+          <Dialog
+            key={size}
+            size={size}
+            trigger={<Button>Open {size} dialog</Button>}
+            title={`${size.toUpperCase()} Dialog`}
+          >
+            <div className={cn("py-10 text-center")}>
+              <Text>This is a {size} sized dialog.</Text>
+            </div>
+          </Dialog>
+        ),
+      )}
     </Stack>
   ),
 };

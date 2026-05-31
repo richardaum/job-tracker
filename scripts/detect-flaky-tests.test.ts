@@ -134,8 +134,14 @@ describe("detect-flaky-tests.ts", () => {
 
   it("tracks live progress and detects newly flaky tests", () => {
     const progress = createLiveRunProgress();
-    applyVitestVerboseLine(progress, " ✓ src/a.test.ts > suite > flaky test 1ms");
-    applyVitestVerboseLine(progress, " × src/a.test.ts > suite > flaky test 2ms");
+    applyVitestVerboseLine(
+      progress,
+      " ✓ src/a.test.ts > suite > flaky test 1ms",
+    );
+    applyVitestVerboseLine(
+      progress,
+      " × src/a.test.ts > suite > flaky test 2ms",
+    );
 
     assert.equal(progress.completedTests, 2);
     assert.equal(progress.failedTests, 1);
@@ -176,7 +182,14 @@ describe("detect-flaky-tests.ts", () => {
         runner: "vitest",
         args: [],
       }),
-      ["--filter", "@job-tracker/web", "exec", "vitest", "run", "--reporter=verbose"],
+      [
+        "--filter",
+        "@job-tracker/web",
+        "exec",
+        "vitest",
+        "run",
+        "--reporter=verbose",
+      ],
     );
     assert.deepEqual(
       buildFilteredPnpmTestCommand(
@@ -188,9 +201,19 @@ describe("detect-flaky-tests.ts", () => {
         },
         { playwrightReporters: ["list"] },
       ),
-      ["--filter", "@job-tracker/web", "exec", "playwright", "test", "--reporter=list"],
+      [
+        "--filter",
+        "@job-tracker/web",
+        "exec",
+        "playwright",
+        "test",
+        "--reporter=list",
+      ],
     );
-    assert.equal(resolvePnpmFilter({ id: "@job-tracker/web:e2e" }), "@job-tracker/web");
+    assert.equal(
+      resolvePnpmFilter({ id: "@job-tracker/web:e2e" }),
+      "@job-tracker/web",
+    );
   });
 
   it("strips pnpm passthrough separator before parsing", () => {
@@ -224,7 +247,13 @@ describe("detect-flaky-tests.ts", () => {
   });
 
   it("accepts options after pnpm passthrough separator", async () => {
-    const options = await parseFlakyDetectionArgs(["--", "--runs", "4", "--scope", "e2e"]);
+    const options = await parseFlakyDetectionArgs([
+      "--",
+      "--runs",
+      "4",
+      "--scope",
+      "e2e",
+    ]);
 
     assert.equal(options.runs, 4);
     assert.equal(options.scope, "e2e");

@@ -10,7 +10,8 @@ const planQueryMock = vi.fn();
 const updatePlanMock = vi.fn();
 
 vi.mock("@/gql/hooks", async () => {
-  const actual = await vi.importActual<typeof import("@/gql/hooks")>("@/gql/hooks");
+  const actual =
+    await vi.importActual<typeof import("@/gql/hooks")>("@/gql/hooks");
   return {
     ...actual,
     usePlanQuery: () => planQueryMock(),
@@ -70,7 +71,9 @@ describe("PlanDocumentTabContent", () => {
       loading: false,
     });
 
-    renderWithProviders(<PlanDocumentTabContent params={syncParamsResolved({ planId: "p-1" })} />);
+    renderWithProviders(
+      <PlanDocumentTabContent params={syncParamsResolved({ planId: "p-1" })} />,
+    );
 
     await waitFor(() => {
       expect(getDropdown()).toBeInTheDocument();
@@ -85,7 +88,9 @@ describe("PlanDocumentTabContent", () => {
       loading: false,
     });
 
-    renderWithProviders(<PlanDocumentTabContent params={syncParamsResolved({ planId: "p-1" })} />);
+    renderWithProviders(
+      <PlanDocumentTabContent params={syncParamsResolved({ planId: "p-1" })} />,
+    );
 
     await waitFor(() => {
       expect(getDropdown()).toBeInTheDocument();
@@ -106,7 +111,9 @@ describe("PlanDocumentTabContent", () => {
       },
     });
 
-    renderWithProviders(<PlanDocumentTabContent params={syncParamsResolved({ planId: "p-1" })} />);
+    renderWithProviders(
+      <PlanDocumentTabContent params={syncParamsResolved({ planId: "p-1" })} />,
+    );
 
     await waitFor(() => {
       expect(getDropdown()).toBeInTheDocument();

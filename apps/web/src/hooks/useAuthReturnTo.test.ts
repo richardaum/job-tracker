@@ -18,12 +18,16 @@ describe("useAuthReturnTo", () => {
 
     const { result } = renderHook(() => useAuthReturnTo());
 
-    expect(result.current.loginRedirectUrl).toBe("/login?returnTo=%2Fjobs%3Fstatus%3DOPEN");
+    expect(result.current.loginRedirectUrl).toBe(
+      "/login?returnTo=%2Fjobs%3Fstatus%3DOPEN",
+    );
   });
 
   it("returns safe returnTo from query param", () => {
     usePathnameMock.mockReturnValue("/login");
-    useSearchParamsMock.mockReturnValue(new URLSearchParams("returnTo=%2Fjobs%2F123"));
+    useSearchParamsMock.mockReturnValue(
+      new URLSearchParams("returnTo=%2Fjobs%2F123"),
+    );
 
     const { result } = renderHook(() => useAuthReturnTo());
 
@@ -32,7 +36,9 @@ describe("useAuthReturnTo", () => {
 
   it("falls back to home for unsafe returnTo", () => {
     usePathnameMock.mockReturnValue("/login");
-    useSearchParamsMock.mockReturnValue(new URLSearchParams("returnTo=https%3A%2F%2Fevil.example"));
+    useSearchParamsMock.mockReturnValue(
+      new URLSearchParams("returnTo=https%3A%2F%2Fevil.example"),
+    );
 
     const { result } = renderHook(() => useAuthReturnTo());
 

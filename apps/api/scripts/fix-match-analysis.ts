@@ -92,7 +92,12 @@ function parseArgs(): {
 class ScriptModule {}
 
 async function main() {
-  const { active: activeOnly, email, resumeId: explicitResumeId, dryRun } = parseArgs();
+  const {
+    active: activeOnly,
+    email,
+    resumeId: explicitResumeId,
+    dryRun,
+  } = parseArgs();
 
   process.stdout.write("Booting NestJS...\n");
   const app = await NestFactory.createApplicationContext(ScriptModule, {
@@ -119,19 +124,27 @@ async function main() {
     const defaultResume = await resumeRepo.findDefaultByUserId(userId);
     if (defaultResume) {
       resumeId = defaultResume.id;
-      console.log(`Using default resume: "${defaultResume.title}" (${resumeId})`);
+      console.log(
+        `Using default resume: "${defaultResume.title}" (${resumeId})`,
+      );
     } else {
       const resumes = await resumeRepo.findAllByUserId(userId);
       if (resumes.length === 0) {
-        console.error("No resumes found. Create one via the web UI or pass --resume-id.");
+        console.error(
+          "No resumes found. Create one via the web UI or pass --resume-id.",
+        );
         await app.close();
         process.exit(1);
       }
       resumeId = resumes[0]!.id;
-      console.log(`No default resume. Using most recent: "${resumes[0]!.title}" (${resumeId})`);
+      console.log(
+        `No default resume. Using most recent: "${resumes[0]!.title}" (${resumeId})`,
+      );
     }
   } else {
-    const resume = await em.getRepository(ResumeEntity).findOne({ where: { id: resumeId } });
+    const resume = await em
+      .getRepository(ResumeEntity)
+      .findOne({ where: { id: resumeId } });
     if (!resume || resume.userId !== userId) {
       console.error(`Resume not found: ${resumeId}`);
       await app.close();
@@ -145,7 +158,9 @@ async function main() {
     : await listQuery.findAllByUserId(userId); // Omitting filter follows PRD "All jobs" semantics (includes DRAFT).
 
   // Batch only rows with persisted TipTap description; unparsed drafts (often description-null) skip here.
-  const jobsToProcess = allJobs.filter((a) => a.description?.trim() && a.description.length > 0);
+  const jobsToProcess = allJobs.filter(
+    (a) => a.description?.trim() && a.description.length > 0,
+  );
 
   if (jobsToProcess.length === 0) {
     console.log("No jobs with descriptions found.");
@@ -153,12 +168,16 @@ async function main() {
     return;
   }
 
-  console.log(`\nFound ${allJobs.length} jobs, ${jobsToProcess.length} with descriptions.\n`);
+  console.log(
+    `\nFound ${allJobs.length} jobs, ${jobsToProcess.length} with descriptions.\n`,
+  );
 
   const skipResults = await Promise.all(
     jobsToProcess.map(async (job) => {
       const existing = await matchRepo.findByJobId(job.id);
-      const skip = existing?.generationMetadata?.status === AsyncMetadataStatusEnum.COMPLETED;
+      const skip =
+        existing?.generationMetadata?.status ===
+        AsyncMetadataStatusEnum.COMPLETED;
       if (skip) console.log(`  SKIP  ${job.title} — match already completed`);
       return { job, skip };
     }),
@@ -179,7 +198,9 @@ async function main() {
   }
 
   if (dryRun) {
-    console.log(`\n[DRY-RUN] Would trigger match analysis for ${toGenerate.length} jobs:\n`);
+    console.log(
+      `\n[DRY-RUN] Would trigger match analysis for ${toGenerate.length} jobs:\n`,
+    );
     for (const job of toGenerate) {
       console.log(`  ${job.title} @ ${job.companyName}`);
     }
@@ -208,7 +229,9 @@ async function main() {
     for (const result of results) {
       if (result.status === "fulfilled") {
         triggered.add(result.value.id);
-        console.log(`  QUEUE ${result.value.title} @ ${result.value.companyName}`);
+        console.log(
+          `  QUEUE ${result.value.title} @ ${result.value.companyName}`,
+        );
       } else {
         console.error(`  FAIL  ${result.reason.message}`);
       }
@@ -236,9 +259,13 @@ async function main() {
       const entity = await matchRepo.findByJobId(id);
       if (!entity) continue;
 
-      if (entity.generationMetadata?.status === AsyncMetadataStatusEnum.COMPLETED) {
+      if (
+        entity.generationMetadata?.status === AsyncMetadataStatusEnum.COMPLETED
+      ) {
         completed.add(id);
-      } else if (entity.generationMetadata?.status === AsyncMetadataStatusEnum.FAILED) {
+      } else if (
+        entity.generationMetadata?.status === AsyncMetadataStatusEnum.FAILED
+      ) {
         failed.add(id);
       }
     }
@@ -254,20 +281,27 @@ async function main() {
     }
     const meta = entity.generationMetadata;
     if (meta?.status === AsyncMetadataStatusEnum.COMPLETED) {
-      const scorePct = entity.scoreRatio != null ? `${Math.round(entity.scoreRatio)}%` : "N/A";
+      const scorePct =
+        entity.scoreRatio != null ? `${Math.round(entity.scoreRatio)}%` : "N/A";
       console.log(
         `  OK    ${job.title} @ ${job.companyName} — ${scorePct} (${entity.classification ?? "N/A"})`,
       );
     } else if (meta?.status === AsyncMetadataStatusEnum.FAILED) {
-      console.log(`  FAIL  ${job.title} @ ${job.companyName} — ${meta.error ?? "Unknown error"}`);
+      console.log(
+        `  FAIL  ${job.title} @ ${job.companyName} — ${meta.error ?? "Unknown error"}`,
+      );
     } else {
-      console.log(`  ?     ${job.title} @ ${job.companyName}: status=${meta?.status ?? "null"}`);
+      console.log(
+        `  ?     ${job.title} @ ${job.companyName}: status=${meta?.status ?? "null"}`,
+      );
     }
   }
 
   const successCount = completed.size;
   const failedCount = failed.size;
-  console.log(`\nDone. ${successCount} succeeded, ${failedCount} failed out of ${triggered.size}.`);
+  console.log(
+    `\nDone. ${successCount} succeeded, ${failedCount} failed out of ${triggered.size}.`,
+  );
   await app.close();
 }
 

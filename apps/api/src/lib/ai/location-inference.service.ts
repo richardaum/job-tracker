@@ -2,7 +2,10 @@ import { Injectable } from "@nestjs/common";
 import { z } from "zod";
 
 import { AiBaseService } from "./ai-base.service";
-import { locationInferenceSchema, workRegionInferenceSchema } from "./location-inference.schema";
+import {
+  locationInferenceSchema,
+  workRegionInferenceSchema,
+} from "./location-inference.schema";
 import {
   LOCATION_INFERENCE_SYSTEM_TEMPLATE,
   LOCATION_INFERENCE_USER_TEMPLATE,
@@ -14,7 +17,10 @@ import { PromptRendererService } from "./prompt-renderer.service";
 
 @Injectable()
 export class LocationInferenceService extends AiBaseService {
-  constructor(openAIClient: OpenAIClient, promptRenderer: PromptRendererService) {
+  constructor(
+    openAIClient: OpenAIClient,
+    promptRenderer: PromptRendererService,
+  ) {
     super(openAIClient, promptRenderer);
   }
 
@@ -23,9 +29,10 @@ export class LocationInferenceService extends AiBaseService {
 
     const result = await this.callAi({
       systemMessage: LOCATION_INFERENCE_SYSTEM_TEMPLATE,
-      userMessage: this.promptRenderer.render(LOCATION_INFERENCE_USER_TEMPLATE, {
-        description: descriptionPlainText,
-      }),
+      userMessage: this.promptRenderer.render(
+        LOCATION_INFERENCE_USER_TEMPLATE,
+        { description: descriptionPlainText },
+      ),
       schema: locationInferenceSchema,
       responseFormat: "zod-response",
     });
@@ -38,9 +45,10 @@ export class LocationInferenceService extends AiBaseService {
 
     const result = await this.callAi({
       systemMessage: WORK_REGION_INFERENCE_SYSTEM_TEMPLATE,
-      userMessage: this.promptRenderer.render(WORK_REGION_INFERENCE_USER_TEMPLATE, {
-        description: descriptionPlainText,
-      }),
+      userMessage: this.promptRenderer.render(
+        WORK_REGION_INFERENCE_USER_TEMPLATE,
+        { description: descriptionPlainText },
+      ),
       schema: workRegionInferenceSchema,
       responseFormat: "zod-response",
     });

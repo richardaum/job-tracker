@@ -31,7 +31,10 @@ export function signJwt(
   });
 }
 
-export function verifyJwt(token: string, secrets: JwtSecretPair): JwtPayloadWithSubject {
+export function verifyJwt(
+  token: string,
+  secrets: JwtSecretPair,
+): JwtPayloadWithSubject {
   const decoded = jwt.decode(token, { complete: true });
   if (!decoded || typeof decoded === "string") {
     throw new jwt.JsonWebTokenError("invalid token");
@@ -41,7 +44,9 @@ export function verifyJwt(token: string, secrets: JwtSecretPair): JwtPayloadWith
   let lastError: unknown;
 
   for (const secret of secretsToTry) {
-    const [error, payload] = tryRun(() => jwt.verify(token, secret) as JwtPayloadWithSubject);
+    const [error, payload] = tryRun(
+      () => jwt.verify(token, secret) as JwtPayloadWithSubject,
+    );
     if (!error) {
       return payload;
     }
@@ -51,7 +56,10 @@ export function verifyJwt(token: string, secrets: JwtSecretPair): JwtPayloadWith
   throw lastError ?? new jwt.JsonWebTokenError("invalid token");
 }
 
-export function resolveJwtVerificationSecret(token: string, secrets: JwtSecretPair): string {
+export function resolveJwtVerificationSecret(
+  token: string,
+  secrets: JwtSecretPair,
+): string {
   const decoded = jwt.decode(token, { complete: true });
   if (!decoded || typeof decoded === "string") {
     throw new jwt.JsonWebTokenError("invalid token");

@@ -1,8 +1,17 @@
-import { CallHandler, ExecutionContext, Injectable, Logger, NestInterceptor } from "@nestjs/common";
+import {
+  CallHandler,
+  ExecutionContext,
+  Injectable,
+  Logger,
+  NestInterceptor,
+} from "@nestjs/common";
 import { GqlExecutionContext } from "@nestjs/graphql";
 import { finalize, Observable } from "rxjs";
 
-import { QUERY_WARN_THRESHOLD, REQUEST_WARN_THRESHOLD_MS } from "./request-metrics.constants";
+import {
+  QUERY_WARN_THRESHOLD,
+  REQUEST_WARN_THRESHOLD_MS,
+} from "./request-metrics.constants";
 import { RequestMetricsContext } from "./request-metrics.context";
 
 @Injectable()
@@ -26,7 +35,10 @@ export class RequestMetricsInterceptor implements NestInterceptor {
               const queryCount = this.requestMetricsContext.getQueryCount();
               const message = `${requestName} took ${durationMs}ms with ${queryCount} DB queries`;
 
-              if (durationMs >= REQUEST_WARN_THRESHOLD_MS || queryCount >= QUERY_WARN_THRESHOLD) {
+              if (
+                durationMs >= REQUEST_WARN_THRESHOLD_MS ||
+                queryCount >= QUERY_WARN_THRESHOLD
+              ) {
                 this.logger.warn(message);
                 return;
               }
@@ -51,7 +63,9 @@ export class RequestMetricsInterceptor implements NestInterceptor {
       const info = gqlContext.getInfo();
       const operationName = info.operation.name?.value;
       const fieldName = info.fieldName;
-      return operationName ? `graphql:${operationName}.${fieldName}` : `graphql:${fieldName}`;
+      return operationName
+        ? `graphql:${operationName}.${fieldName}`
+        : `graphql:${fieldName}`;
     }
 
     const handlerName = context.getHandler()?.name ?? "unknown-handler";

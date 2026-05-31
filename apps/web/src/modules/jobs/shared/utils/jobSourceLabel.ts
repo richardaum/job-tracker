@@ -3,7 +3,9 @@ import { JobSource } from "@/gql/hooks";
 export const JOB_SOURCE_NOT_SET_LABEL = "Not set";
 
 /** Human-readable label for job-board source (GraphQL enum → UI). */
-export function formatJobSourceLabel(source: JobSource | null | undefined): string | null {
+export function formatJobSourceLabel(
+  source: JobSource | null | undefined,
+): string | null {
   if (source == null) {
     return null;
   }
@@ -22,7 +24,9 @@ export function formatJobSourceLabel(source: JobSource | null | undefined): stri
 }
 
 /** Labels shown in the source combobox (fixed list; no free-form values). */
-export function jobSourceToComboLabel(source: JobSource | null | undefined): string {
+export function jobSourceToComboLabel(
+  source: JobSource | null | undefined,
+): string {
   if (source == null) {
     return JOB_SOURCE_NOT_SET_LABEL;
   }
@@ -52,7 +56,9 @@ export function getJobSourceComboOptions(): Array<{
  * Resolves combobox text to an enum value or null ("Not set").
  * Returns `"invalid"` when the text is not an exact match for a listed label.
  */
-export function parseJobSourceComboLabel(draft: string): JobSource | null | "invalid" {
+export function parseJobSourceComboLabel(
+  draft: string,
+): JobSource | null | "invalid" {
   const t = draft.trim();
   if (t === JOB_SOURCE_NOT_SET_LABEL) {
     return null;

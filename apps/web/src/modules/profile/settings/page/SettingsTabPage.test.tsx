@@ -7,7 +7,8 @@ const settingsQueryMock = vi.fn();
 const updateSettingsMock = vi.fn();
 
 vi.mock("@/gql/hooks", async () => {
-  const actual = await vi.importActual<typeof import("@/gql/hooks")>("@/gql/hooks");
+  const actual =
+    await vi.importActual<typeof import("@/gql/hooks")>("@/gql/hooks");
   return {
     ...actual,
     useSettingsQuery: () => settingsQueryMock(),
@@ -62,16 +63,24 @@ describe("SettingsTabPage", () => {
     settingsQueryMock.mockReturnValue(mockSettings());
     render(<SettingsTabPage />);
     expect(
-      screen.getByText("Fill job fields automatically when creating a draft from pasted content"),
+      screen.getByText(
+        "Fill job fields automatically when creating a draft from pasted content",
+      ),
     ).toBeInTheDocument();
     expect(
-      screen.getByText("Generate summaries automatically when job fields change"),
+      screen.getByText(
+        "Generate summaries automatically when job fields change",
+      ),
     ).toBeInTheDocument();
     expect(
-      screen.getByText("Run match analysis automatically when a job is created"),
+      screen.getByText(
+        "Run match analysis automatically when a job is created",
+      ),
     ).toBeInTheDocument();
     expect(
-      screen.getByText("Time range in days for detecting duplicate applications"),
+      screen.getByText(
+        "Time range in days for detecting duplicate applications",
+      ),
     ).toBeInTheDocument();
   });
 
@@ -150,19 +159,25 @@ describe("SettingsTabPage", () => {
     fireEvent.click(autoFillSwitch);
 
     expect(autoFillSwitch).toBeDisabled();
-    expect(screen.queryByRole("status", { name: "Saving setting" })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("status", { name: "Saving setting" }),
+    ).not.toBeInTheDocument();
 
     act(() => {
       vi.advanceTimersByTime(300);
     });
-    expect(screen.getByRole("status", { name: "Saving setting" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("status", { name: "Saving setting" }),
+    ).toBeInTheDocument();
 
     await act(async () => {
       resolveUpdate?.();
       await Promise.resolve();
     });
     expect(autoFillSwitch).not.toBeDisabled();
-    expect(screen.queryByRole("status", { name: "Saving setting" })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("status", { name: "Saving setting" }),
+    ).not.toBeInTheDocument();
     vi.useRealTimers();
   });
 
@@ -178,12 +193,16 @@ describe("SettingsTabPage", () => {
       await Promise.resolve();
     });
 
-    expect(screen.queryByRole("status", { name: "Saving setting" })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("status", { name: "Saving setting" }),
+    ).not.toBeInTheDocument();
 
     act(() => {
       vi.advanceTimersByTime(300);
     });
-    expect(screen.queryByRole("status", { name: "Saving setting" })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("status", { name: "Saving setting" }),
+    ).not.toBeInTheDocument();
     vi.useRealTimers();
   });
 
@@ -194,7 +213,9 @@ describe("SettingsTabPage", () => {
 
     const numberInput = screen.getByRole("spinbutton");
     fireEvent.change(numberInput, { target: { value: "60" } });
-    fireEvent.submit(screen.getByRole("form", { name: "Duplicate detection window" }));
+    fireEvent.submit(
+      screen.getByRole("form", { name: "Duplicate detection window" }),
+    );
 
     expect(updateSettingsMock).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -319,7 +340,9 @@ describe("SettingsTabPage", () => {
   });
 
   it("shows blocked companies from settings", async () => {
-    settingsQueryMock.mockReturnValue(mockSettings({ blockedCompanies: ["Acme Corp"] }));
+    settingsQueryMock.mockReturnValue(
+      mockSettings({ blockedCompanies: ["Acme Corp"] }),
+    );
     render(<SettingsTabPage />);
     fireEvent.click(screen.getByText("Blocked Keywords"));
     expect(screen.getByText("Acme Corp")).toBeInTheDocument();
@@ -340,12 +363,16 @@ describe("SettingsTabPage", () => {
       expect.objectContaining({
         variables: {
           input: {
-            blockedKeywords: [{ keyword: "react", scope: "TITLE", matchMode: "PARTIAL" }],
+            blockedKeywords: [
+              { keyword: "react", scope: "TITLE", matchMode: "PARTIAL" },
+            ],
           },
         },
         optimisticResponse: {
           updateSettings: expect.objectContaining({
-            blockedKeywords: [{ keyword: "react", scope: "TITLE", matchMode: "PARTIAL" }],
+            blockedKeywords: [
+              { keyword: "react", scope: "TITLE", matchMode: "PARTIAL" },
+            ],
           }),
         },
       }),
@@ -383,7 +410,9 @@ describe("SettingsTabPage", () => {
     render(<SettingsTabPage />);
     fireEvent.click(screen.getByText("Blocked Keywords"));
 
-    const input = screen.getByPlaceholderText("Type a company name and press Enter");
+    const input = screen.getByPlaceholderText(
+      "Type a company name and press Enter",
+    );
     fireEvent.change(input, { target: { value: "Evil Corp" } });
     fireEvent.keyDown(input, { key: "Enter" });
 
@@ -395,7 +424,9 @@ describe("SettingsTabPage", () => {
   });
 
   it("delete company calls updateSettings with remaining companies", async () => {
-    settingsQueryMock.mockReturnValue(mockSettings({ blockedCompanies: ["Evil Corp"] }));
+    settingsQueryMock.mockReturnValue(
+      mockSettings({ blockedCompanies: ["Evil Corp"] }),
+    );
     render(<SettingsTabPage />);
     fireEvent.click(screen.getByText("Blocked Keywords"));
 

@@ -1,5 +1,12 @@
 import { WeightEnum } from "@api/domains/work-preferences/weight.enum";
-import { Column, CreateDateColumn, Entity, Index, PrimaryColumn, UpdateDateColumn } from "typeorm";
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  Index,
+  PrimaryColumn,
+  UpdateDateColumn,
+} from "typeorm";
 
 export interface PreferenceItem {
   text: string;

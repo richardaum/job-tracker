@@ -5,7 +5,9 @@ import { playwright } from "@vitest/browser-playwright";
 import path from "path";
 import { defineConfig } from "vitest/config";
 const dirname =
-  typeof __dirname !== "undefined" ? __dirname : path.dirname(fileURLToPath(import.meta.url));
+  typeof __dirname !== "undefined"
+    ? __dirname
+    : path.dirname(fileURLToPath(import.meta.url));
 
 // More info at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon
 export default defineConfig({
@@ -14,7 +16,10 @@ export default defineConfig({
     coverage: {
       reporter: ["text", "lcov"],
       include: ["src/components/**/*.{ts,tsx}"],
-      exclude: ["src/components/**/*.test.{ts,tsx}", "src/components/**/*.stories.{ts,tsx}"],
+      exclude: [
+        "src/components/**/*.test.{ts,tsx}",
+        "src/components/**/*.stories.{ts,tsx}",
+      ],
       thresholds: { lines: 80 },
     },
     projects: [

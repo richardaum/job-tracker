@@ -11,7 +11,10 @@ import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 
 import { MatchAnalysisRepository } from "./match-analysis.repository";
-import { JobMatchResolver, MatchAnalysisResolver } from "./match-analysis.resolver";
+import {
+  JobMatchResolver,
+  MatchAnalysisResolver,
+} from "./match-analysis.resolver";
 import { MatchAnalysisService } from "./match-analysis.service";
 import { MatchAnalysisAiService } from "./match-analysis-ai.service";
 import { MatchAnalysisEventBus } from "./match-analysis-event.bus";
@@ -20,7 +23,11 @@ import { MatchStatusJobStreamListener } from "./match-status-job-stream.listener
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([MatchAnalysisEntity, ResumeEntity, WorkPreferencesEntity]),
+    TypeOrmModule.forFeature([
+      MatchAnalysisEntity,
+      ResumeEntity,
+      WorkPreferencesEntity,
+    ]),
     AuthModule,
     LibAiModule,
     TemplateModule,
@@ -39,6 +46,10 @@ import { MatchStatusJobStreamListener } from "./match-status-job-stream.listener
     MatchAnalysisEventListener,
     MatchStatusJobStreamListener,
   ],
-  exports: [MatchAnalysisService, MatchAnalysisRepository, MatchAnalysisEventBus],
+  exports: [
+    MatchAnalysisService,
+    MatchAnalysisRepository,
+    MatchAnalysisEventBus,
+  ],
 })
 export class MatchAnalysisModule {}

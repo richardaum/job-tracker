@@ -26,7 +26,10 @@ let refreshPromise: Promise<boolean> | null = null;
 
 async function refreshAccessToken(refreshUrl: string): Promise<boolean> {
   const [err, response] = await tryRun(
-    fetch(refreshUrl, authMutationRequestInit({ method: "POST", credentials: "include" })),
+    fetch(
+      refreshUrl,
+      authMutationRequestInit({ method: "POST", credentials: "include" }),
+    ),
   );
   if (err) {
     return false;
@@ -36,7 +39,9 @@ async function refreshAccessToken(refreshUrl: string): Promise<boolean> {
 
 function isUnauthorizedError(error: unknown): boolean {
   if (CombinedGraphQLErrors.is(error)) {
-    return error.errors.some((graphqlError) => graphqlError.extensions?.code === "UNAUTHENTICATED");
+    return error.errors.some(
+      (graphqlError) => graphqlError.extensions?.code === "UNAUTHENTICATED",
+    );
   }
 
   if (!error || typeof error !== "object") {
@@ -50,7 +55,9 @@ function isUnauthorizedError(error: unknown): boolean {
   };
 
   const statusCode =
-    maybeNetworkError.statusCode ?? maybeNetworkError.status ?? maybeNetworkError.response?.status;
+    maybeNetworkError.statusCode ??
+    maybeNetworkError.status ??
+    maybeNetworkError.response?.status;
   return statusCode === 401;
 }
 

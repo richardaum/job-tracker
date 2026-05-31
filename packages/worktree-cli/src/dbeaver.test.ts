@@ -28,7 +28,8 @@ describe("dbeaver", () => {
     };
     writeFileSync(path, `${JSON.stringify(seed, null, 2)}\n`, "utf8");
 
-    const databaseUrl = "postgresql://postgres:postgres@localhost:5432/job_tracker_feat_x";
+    const databaseUrl =
+      "postgresql://postgres:postgres@localhost:5432/job_tracker_feat_x";
     addWorktreeDBeaverConnection({
       tag,
       slug: "feat-x",
@@ -55,7 +56,10 @@ describe("dbeaver", () => {
     const afterRemove = JSON.parse(readFileSync(path, "utf8")) as {
       connections: Record<string, unknown>;
     };
-    assert.equal(afterRemove.connections[dbeaverConnectionId("feat-x")], undefined);
+    assert.equal(
+      afterRemove.connections[dbeaverConnectionId("feat-x")],
+      undefined,
+    );
 
     rmSync(dir, { recursive: true, force: true });
   });

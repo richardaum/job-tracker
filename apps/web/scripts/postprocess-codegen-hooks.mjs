@@ -14,7 +14,10 @@ const cleaned = original
   .replace(/^\s*\/\/ @ts-ignore\s*$/gm, "")
   // Remove generated suspense overloads/implementation blocks that are
   // currently incompatible with Next.js typecheck in this setup.
-  .replace(/export function use\w+SuspenseQuery[\s\S]*?(?=export type \w+QueryHookResult)/gm, "")
+  .replace(
+    /export function use\w+SuspenseQuery[\s\S]*?(?=export type \w+QueryHookResult)/gm,
+    "",
+  )
   .replace(/^\s*export type \w+SuspenseQueryHookResult.*$/gm, "")
   .replace(/^\s*export type \w+QueryResult.*$/gm, "")
   // Apollo v4 removed/renamed several mutation types — strip unused re-exports.

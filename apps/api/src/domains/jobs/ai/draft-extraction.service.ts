@@ -1,5 +1,9 @@
 import { htmlToPlainText } from "@api/domains/shared/html-plain-text.util";
-import { AiBaseService, OpenAIClient, PromptRendererService } from "@api/lib/ai";
+import {
+  AiBaseService,
+  OpenAIClient,
+  PromptRendererService,
+} from "@api/lib/ai";
 import { BadRequestException, Injectable } from "@nestjs/common";
 
 import {
@@ -36,9 +40,10 @@ export class DraftExtractionService extends AiBaseService {
     }
 
     const raw = await this.callAi({
-      systemMessage: this.promptRenderer.render(DRAFT_EXTRACTION_SYSTEM_TEMPLATE, {
-        fields: formatSystemPromptFields(DRAFT_EXTRACTION_FIELD_SPECS),
-      }),
+      systemMessage: this.promptRenderer.render(
+        DRAFT_EXTRACTION_SYSTEM_TEMPLATE,
+        { fields: formatSystemPromptFields(DRAFT_EXTRACTION_FIELD_SPECS) },
+      ),
       userMessage: this.promptRenderer.render(DRAFT_EXTRACTION_USER_TEMPLATE, {
         title: input.title,
         url: input.url,

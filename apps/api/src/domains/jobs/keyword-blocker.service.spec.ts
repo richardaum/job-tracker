@@ -57,8 +57,15 @@ describe("KeywordBlockerService", () => {
     });
 
     it("returns verdict on blocked company exact match", async () => {
-      const service = makeService(makeSettings({ blockedCompanies: ["Acme Corp"] }));
-      const result = await service.evaluate("user-1", "Engineer", null, "Acme Corp");
+      const service = makeService(
+        makeSettings({ blockedCompanies: ["Acme Corp"] }),
+      );
+      const result = await service.evaluate(
+        "user-1",
+        "Engineer",
+        null,
+        "Acme Corp",
+      );
       expect(result).toEqual({
         matched: true,
         keyword: "Acme Corp",
@@ -67,8 +74,15 @@ describe("KeywordBlockerService", () => {
     });
 
     it("returns verdict on blocked company case-insensitive match", async () => {
-      const service = makeService(makeSettings({ blockedCompanies: ["acme corp"] }));
-      const result = await service.evaluate("user-1", "Engineer", null, "Acme Corp");
+      const service = makeService(
+        makeSettings({ blockedCompanies: ["acme corp"] }),
+      );
+      const result = await service.evaluate(
+        "user-1",
+        "Engineer",
+        null,
+        "Acme Corp",
+      );
       expect(result).toEqual({
         matched: true,
         keyword: "Acme Corp",
@@ -77,8 +91,15 @@ describe("KeywordBlockerService", () => {
     });
 
     it("returns null when blocked company does not match", async () => {
-      const service = makeService(makeSettings({ blockedCompanies: ["Other Corp"] }));
-      const result = await service.evaluate("user-1", "Engineer", null, "Acme Corp");
+      const service = makeService(
+        makeSettings({ blockedCompanies: ["Other Corp"] }),
+      );
+      const result = await service.evaluate(
+        "user-1",
+        "Engineer",
+        null,
+        "Acme Corp",
+      );
       expect(result).toBeNull();
     });
 
@@ -94,7 +115,12 @@ describe("KeywordBlockerService", () => {
           ],
         }),
       );
-      const result = await service.evaluate("user-1", "Senior Engineer", null, "Acme");
+      const result = await service.evaluate(
+        "user-1",
+        "Senior Engineer",
+        null,
+        "Acme",
+      );
       expect(result).toEqual({
         matched: true,
         keyword: "Senior Engineer",
@@ -114,7 +140,12 @@ describe("KeywordBlockerService", () => {
           ],
         }),
       );
-      const result = await service.evaluate("user-1", "Senior Engineer", null, "Acme");
+      const result = await service.evaluate(
+        "user-1",
+        "Senior Engineer",
+        null,
+        "Acme",
+      );
       expect(result).toEqual({
         matched: true,
         keyword: "senior",
@@ -134,7 +165,12 @@ describe("KeywordBlockerService", () => {
           ],
         }),
       );
-      const result = await service.evaluate("user-1", "Senior Engineer", null, "Acme");
+      const result = await service.evaluate(
+        "user-1",
+        "Senior Engineer",
+        null,
+        "Acme",
+      );
       expect(result).toBeNull();
     });
 
@@ -150,7 +186,12 @@ describe("KeywordBlockerService", () => {
           ],
         }),
       );
-      const result = await service.evaluate("user-1", "Engineer", TIPTAP_DESCRIPTION, "Acme");
+      const result = await service.evaluate(
+        "user-1",
+        "Engineer",
+        TIPTAP_DESCRIPTION,
+        "Acme",
+      );
       expect(result).toEqual({
         matched: true,
         keyword: "We are looking for a senior engineer",
@@ -170,7 +211,12 @@ describe("KeywordBlockerService", () => {
           ],
         }),
       );
-      const result = await service.evaluate("user-1", "Engineer", TIPTAP_DESCRIPTION, "Acme");
+      const result = await service.evaluate(
+        "user-1",
+        "Engineer",
+        TIPTAP_DESCRIPTION,
+        "Acme",
+      );
       expect(result).toEqual({
         matched: true,
         keyword: "senior",
@@ -190,7 +236,12 @@ describe("KeywordBlockerService", () => {
           ],
         }),
       );
-      const result = await service.evaluate("user-1", "Engineer", TIPTAP_DESCRIPTION, "Acme");
+      const result = await service.evaluate(
+        "user-1",
+        "Engineer",
+        TIPTAP_DESCRIPTION,
+        "Acme",
+      );
       expect(result).toBeNull();
     });
 
@@ -206,7 +257,12 @@ describe("KeywordBlockerService", () => {
           ],
         }),
       );
-      const result = await service.evaluate("user-1", "Engineer", null, "Acme Corp");
+      const result = await service.evaluate(
+        "user-1",
+        "Engineer",
+        null,
+        "Acme Corp",
+      );
       expect(result).toEqual({
         matched: true,
         keyword: "acme",
@@ -231,7 +287,12 @@ describe("KeywordBlockerService", () => {
           ],
         }),
       );
-      const result = await service.evaluate("user-1", "Senior Engineer", null, "Acme");
+      const result = await service.evaluate(
+        "user-1",
+        "Senior Engineer",
+        null,
+        "Acme",
+      );
       expect(result).toEqual({
         matched: true,
         keyword: "senior",

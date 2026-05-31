@@ -67,7 +67,10 @@ export function runGit(
   return { ok: true, stdout: (result.stdout || "").trim() };
 }
 
-function gitPathReal(cwd: string, flag: "--git-dir" | "--git-common-dir"): string | undefined {
+function gitPathReal(
+  cwd: string,
+  flag: "--git-dir" | "--git-common-dir",
+): string | undefined {
   const resolved = runGit(["rev-parse", flag], cwd);
   if (!resolved.ok) return undefined;
   const raw = resolved.stdout;
@@ -127,9 +130,9 @@ export function readGlobalRegistry(): GlobalRegistry {
   if (!existsSync(GLOBAL_REGISTRY_PATH)) {
     return { slugs: {} };
   }
-  const parsed = parseJsonOrUndefined(readFileSync(GLOBAL_REGISTRY_PATH, "utf8")) as
-    | GlobalRegistry
-    | undefined;
+  const parsed = parseJsonOrUndefined(
+    readFileSync(GLOBAL_REGISTRY_PATH, "utf8"),
+  ) as GlobalRegistry | undefined;
   if (parsed && typeof parsed.slugs === "object") return parsed;
   return { slugs: {} };
 }
@@ -143,7 +146,9 @@ export function writeGlobalRegistry(registry: GlobalRegistry): void {
 export function readSlugRegistry(slug: string): SlugPorts | undefined {
   const path = slugRegistryPath(slug);
   if (!existsSync(path)) return undefined;
-  const parsed = parseJsonOrUndefined(readFileSync(path, "utf8")) as SlugPorts | undefined;
+  const parsed = parseJsonOrUndefined(readFileSync(path, "utf8")) as
+    | SlugPorts
+    | undefined;
   if (
     parsed &&
     Number.isInteger(parsed.api) &&
@@ -196,11 +201,20 @@ function portRangeFor(key: PortKey): { min: number; max: number } {
 }
 
 /** Allows keeping a port when it is ours in the registry or nothing is listening. */
-function canReusePort(port: number, slug: string, key: PortKey, registry: GlobalRegistry): boolean {
+function canReusePort(
+  port: number,
+  slug: string,
+  key: PortKey,
+  registry: GlobalRegistry,
+): boolean {
   if (MAIN_RESERVED_PORTS.has(port)) return false;
   const owner = Object.entries(registry.slugs).find(
     ([s, p]) =>
-      s !== slug && (p.api === port || p.web === port || p.storybook === port || p.wxt === port),
+      s !== slug &&
+      (p.api === port ||
+        p.web === port ||
+        p.storybook === port ||
+        p.wxt === port),
   );
   if (owner) return false;
   if (!isPortListening(port)) return true;
@@ -209,14 +223,20 @@ function canReusePort(port: number, slug: string, key: PortKey, registry: Global
 }
 
 /** Picks free ports per slug, preferring prior registry values when still valid. */
-export function allocatePorts(slug: string, registry: GlobalRegistry): SlugPorts {
+export function allocatePorts(
+  slug: string,
+  registry: GlobalRegistry,
+): SlugPorts {
   const existing = registry.slugs[slug] ?? readSlugRegistry(slug);
   const allocated = allAllocatedPorts(registry);
   const result = {} as SlugPorts;
 
   for (const key of ["api", "web", "storybook", "wxt"] as const) {
     const preferred = existing?.[key];
-    if (preferred !== undefined && canReusePort(preferred, slug, key, registry)) {
+    if (
+      preferred !== undefined &&
+      canReusePort(preferred, slug, key, registry)
+    ) {
       result[key] = preferred;
       allocated.delete(preferred);
       continue;
@@ -231,7 +251,9 @@ export function allocatePorts(slug: string, registry: GlobalRegistry): SlugPorts
       break;
     }
     if (found === undefined) {
-      throw new Error(`No free port for ${key} in range ${min}-${max} (slug=${slug}).`);
+      throw new Error(
+        `No free port for ${key} in range ${min}-${max} (slug=${slug}).`,
+      );
     }
     result[key] = found;
     allocated.add(found);
@@ -283,7 +305,9 @@ export function extractRequiredSecrets(apiEnv: WorktreeEnvMap): WorktreeEnvMap {
     else out[key] = value;
   }
   if (missing.length > 0) {
-    throw new Error(`Missing required secrets in source apps/api/.env: ${missing.join(", ")}`);
+    throw new Error(
+      `Missing required secrets in source apps/api/.env: ${missing.join(", ")}`,
+    );
   }
   for (const optional of [
     "OPENAI_API_KEY",
@@ -308,15 +332,21 @@ export function formatDatabaseUrlForLog(databaseUrl: string): string {
   if (!urlErr && url) {
     const host = url.hostname || "localhost";
     const port = url.port || "5432";
-    const database = parseDatabaseName(databaseUrl) ?? url.pathname.replace(/^\//, "");
+    const database =
+      parseDatabaseName(databaseUrl) ?? url.pathname.replace(/^\//, "");
     return `host=${host} port=${port} database=${database || "(missing)"}`;
   }
   const database = parseDatabaseName(databaseUrl);
-  return database ? `database=${database} (could not parse host/port)` : "database=(invalid url)";
+  return database
+    ? `database=${database} (could not parse host/port)`
+    : "database=(invalid url)";
 }
 
 /** Rewrites only the DB name to `job_tracker_<slug>` while keeping host/credentials. */
-export function buildDestinationDatabaseUrl(sourceUrl: string, slug: string): string {
+export function buildDestinationDatabaseUrl(
+  sourceUrl: string,
+  slug: string,
+): string {
   const url = new URL(sourceUrl);
   url.pathname = `/${dbNameForSlug(slug)}`;
   return url.toString();
@@ -328,7 +358,10 @@ export function dbNameForSlug(slug: string): string {
 }
 
 /** Rewrites only the DB name to `job_tracker_test_<slug>` for the E2E test database. */
-export function buildDestinationTestDatabaseUrl(sourceUrl: string, slug: string): string {
+export function buildDestinationTestDatabaseUrl(
+  sourceUrl: string,
+  slug: string,
+): string {
   const url = new URL(sourceUrl);
   url.pathname = `/${testDbNameForSlug(slug)}`;
   return url.toString();
@@ -356,10 +389,11 @@ function composeFilesForPostgres(repoRoot: string): string[] {
 
 /** Resolves the running `postgres` service container id from a compose file. */
 function dockerComposePostgresId(composeFile: string): string | undefined {
-  const result = spawnSync("docker", ["compose", "-f", composeFile, "ps", "-q", "postgres"], {
-    encoding: "utf8",
-    stdio: ["ignore", "pipe", "pipe"],
-  });
+  const result = spawnSync(
+    "docker",
+    ["compose", "-f", composeFile, "ps", "-q", "postgres"],
+    { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] },
+  );
   if (result.status !== 0) return undefined;
   return result.stdout
     ?.trim()
@@ -406,7 +440,11 @@ function pgSpawn(
   const maxBuffer = 50 * 1024 * 1024;
   const stdio =
     opts?.stdio ??
-    (opts?.encoding ? ["pipe", "pipe", "pipe"] : opts?.input !== undefined ? "pipe" : "inherit");
+    (opts?.encoding
+      ? ["pipe", "pipe", "pipe"]
+      : opts?.input !== undefined
+        ? "pipe"
+        : "inherit");
 
   if (!container) {
     return spawnSync(command, args, {
@@ -430,10 +468,16 @@ function pgSpawn(
 }
 
 /** Like `pgSpawn` but surfaces non-zero exit as an Error. */
-function pgSpawnOrThrow(repoRoot: string, command: string, args: string[]): void {
+function pgSpawnOrThrow(
+  repoRoot: string,
+  command: string,
+  args: string[],
+): void {
   const result = pgSpawn(repoRoot, command, args, { stdio: "inherit" });
   if (result.status !== 0) {
-    throw new Error(`${command} ${args.join(" ")} failed (exit ${result.status ?? "?"}).`);
+    throw new Error(
+      `${command} ${args.join(" ")} failed (exit ${result.status ?? "?"}).`,
+    );
   }
 }
 
@@ -479,7 +523,8 @@ export function checkDatabaseExists(
     };
   }
   const stdout = result.stdout;
-  const text = typeof stdout === "string" ? stdout : (stdout?.toString("utf8") ?? "");
+  const text =
+    typeof stdout === "string" ? stdout : (stdout?.toString("utf8") ?? "");
   return { status: text.trim() === "1" ? "exists" : "missing" };
 }
 
@@ -488,7 +533,11 @@ export function databaseExists(dbName: string, repoRoot: string): boolean {
   return checkDatabaseExists(dbName, repoRoot).status === "exists";
 }
 
-function tryDropDatabaseQuiet(dbName: string, repoRoot: string, tag: string): void {
+function tryDropDatabaseQuiet(
+  dbName: string,
+  repoRoot: string,
+  tag: string,
+): void {
   if (checkDatabaseExists(dbName, repoRoot).status !== "exists") return;
   const [err] = tryRun(() => dropDatabase(dbName, repoRoot));
   if (err) {
@@ -513,7 +562,9 @@ export function cloneDatabase(
 
   const existsCheck = checkDatabaseExists(destDb, repoRoot);
   if (existsCheck.status === "error") {
-    throw new Error(`Could not check database ${destDb}: ${existsCheck.detail ?? "psql failed"}`);
+    throw new Error(
+      `Could not check database ${destDb}: ${existsCheck.detail ?? "psql failed"}`,
+    );
   }
   if (existsCheck.status === "exists" && !opts?.force) {
     console.warn(`${tag} Database ${destDb} already exists — skipping clone.`);
@@ -528,9 +579,11 @@ export function cloneDatabase(
   if (container) {
     const user = pgUser();
     const script = `pg_dump -U ${user} --no-owner ${shellQuote(sourceDb)} | psql -U ${user} ${shellQuote(destDb)}`;
-    const result = spawnSync("docker", ["exec", container, "sh", "-c", script], {
-      stdio: "inherit",
-    });
+    const result = spawnSync(
+      "docker",
+      ["exec", container, "sh", "-c", script],
+      { stdio: "inherit" },
+    );
     if (result.status !== 0) {
       tryDropDatabaseQuiet(destDb, repoRoot, tag);
       throw new Error(
@@ -545,7 +598,9 @@ export function cloneDatabase(
   });
   if (dump.status !== 0) {
     tryDropDatabaseQuiet(destDb, repoRoot, tag);
-    throw new Error(`pg_dump failed for ${sourceDb}: ${dump.stderr || dump.stdout}`);
+    throw new Error(
+      `pg_dump failed for ${sourceDb}: ${dump.stderr || dump.stdout}`,
+    );
   }
   const load = pgSpawn(repoRoot, "psql", [destDb], {
     input: dump.stdout as string,
@@ -553,7 +608,9 @@ export function cloneDatabase(
   });
   if (load.status !== 0) {
     tryDropDatabaseQuiet(destDb, repoRoot, tag);
-    throw new Error(`psql load failed for ${destDb}: ${load.stderr || load.stdout}`);
+    throw new Error(
+      `psql load failed for ${destDb}: ${load.stderr || load.stdout}`,
+    );
   }
 }
 
@@ -564,7 +621,10 @@ export function dropDatabase(dbName: string, repoRoot: string): void {
 }
 
 /** Serializes a flat env map with safe value quoting and optional header lines. */
-export function formatEnvFile(entries: WorktreeEnvMap, header?: string[]): string {
+export function formatEnvFile(
+  entries: WorktreeEnvMap,
+  header?: string[],
+): string {
   const lines = header ? [...header, ""] : [];
   for (const [key, value] of Object.entries(entries)) {
     lines.push(`${key}=${escapeEnvValue(value)}`);
@@ -574,7 +634,10 @@ export function formatEnvFile(entries: WorktreeEnvMap, header?: string[]): strin
 }
 
 /** Merges `overrides` into an existing `.env` file map (override wins when key exists). */
-export function mergeEnvMap(base: WorktreeEnvMap, overrides: WorktreeEnvMap): WorktreeEnvMap {
+export function mergeEnvMap(
+  base: WorktreeEnvMap,
+  overrides: WorktreeEnvMap,
+): WorktreeEnvMap {
   return { ...base, ...overrides };
 }
 
@@ -603,7 +666,9 @@ export function buildWorktreeApiEnv(params: {
 }
 
 /** Web-specific vars to write into worktree's `apps/web/.env`. */
-export function buildWorktreeWebEnv(params: { ports: SlugPorts }): WorktreeEnvMap {
+export function buildWorktreeWebEnv(params: {
+  ports: SlugPorts;
+}): WorktreeEnvMap {
   const { ports } = params;
 
   return {
@@ -614,12 +679,16 @@ export function buildWorktreeWebEnv(params: { ports: SlugPorts }): WorktreeEnvMa
 }
 
 /** Storybook port — written to `packages/ui/.env`. */
-export function buildWorktreeStorybookEnv(params: { ports: SlugPorts }): WorktreeEnvMap {
+export function buildWorktreeStorybookEnv(params: {
+  ports: SlugPorts;
+}): WorktreeEnvMap {
   return { STORYBOOK_PORT: String(params.ports.storybook) };
 }
 
 /** Extension port and URLs — written to `apps/extension/.env`. */
-export function buildWorktreeExtensionEnv(params: { ports: SlugPorts }): WorktreeEnvMap {
+export function buildWorktreeExtensionEnv(params: {
+  ports: SlugPorts;
+}): WorktreeEnvMap {
   const { ports } = params;
 
   return {
@@ -666,9 +735,13 @@ export function resolveWorkspacePath(repoRoot: string): string {
 /** Parses workspace JSON, returning folders array and settings object. */
 function readWorkspace(
   workspacePath: string,
-): { folders: { name: string; path: string }[]; settings: unknown } | undefined {
+):
+  | { folders: { name: string; path: string }[]; settings: unknown }
+  | undefined {
   if (!existsSync(workspacePath)) return undefined;
-  const [err, parsed] = tryRun(() => JSON.parse(readFileSync(workspacePath, "utf8")) as unknown);
+  const [err, parsed] = tryRun(
+    () => JSON.parse(readFileSync(workspacePath, "utf8")) as unknown,
+  );
   if (err || !parsed || typeof parsed !== "object") return undefined;
   const ws = parsed as Record<string, unknown>;
   const folders = Array.isArray(ws.folders) ? ws.folders : [];
@@ -703,14 +776,18 @@ export function addWorktreeToWorkspace(params: {
   const workspacePath = resolveWorkspacePath(mainRoot);
   const ws = readWorkspace(workspacePath);
   if (!ws) {
-    console.warn(`${tag} workspace file not found or invalid at ${workspacePath} — skipping.`);
+    console.warn(
+      `${tag} workspace file not found or invalid at ${workspacePath} — skipping.`,
+    );
     return;
   }
 
   const relPath = relative(mainRoot, worktreeRoot);
   const alreadyExists = ws.folders.some((f) => f.path === relPath);
   if (alreadyExists) {
-    console.warn(`${tag} workspace already has entry for ${slug} (${relPath}) — skipping.`);
+    console.warn(
+      `${tag} workspace already has entry for ${slug} (${relPath}) — skipping.`,
+    );
     return;
   }
 
@@ -729,7 +806,9 @@ export function removeWorktreeFromWorkspace(params: {
   const workspacePath = resolveWorkspacePath(mainRoot);
   const ws = readWorkspace(workspacePath);
   if (!ws) {
-    console.warn(`${tag} workspace file not found or invalid at ${workspacePath} — skipping.`);
+    console.warn(
+      `${tag} workspace file not found or invalid at ${workspacePath} — skipping.`,
+    );
     return;
   }
 
@@ -741,7 +820,9 @@ export function removeWorktreeFromWorkspace(params: {
 
   const removed = ws.folders.splice(index, 1)[0];
   writeWorkspace(workspacePath, ws.folders, ws.settings);
-  console.warn(`${tag} removed ${slug} (${removed.path}) from ${WORKSPACE_FILE}`);
+  console.warn(
+    `${tag} removed ${slug} (${removed.path}) from ${WORKSPACE_FILE}`,
+  );
 }
 
 export const WORKTREE_SETUP_TAG = "[worktree:setup]";
@@ -756,11 +837,20 @@ export function worktreeFail(tag: string, message: string): never {
 
 /** PM2 process names for the four dev apps under a worktree prefix. */
 export function worktreePm2AppNames(prefix: string): string[] {
-  return [`${prefix}-api`, `${prefix}-web`, `${prefix}-storybook`, `${prefix}-extension`];
+  return [
+    `${prefix}-api`,
+    `${prefix}-web`,
+    `${prefix}-storybook`,
+    `${prefix}-extension`,
+  ];
 }
 
 /** Runs `pm2 delete` and fails on non-zero exit. */
-export function pm2DeleteApps(repoRoot: string, names: string[], tag: string): void {
+export function pm2DeleteApps(
+  repoRoot: string,
+  names: string[],
+  tag: string,
+): void {
   if (names.length === 0) return;
   const result = spawnSync("pm2", ["delete", ...names], {
     cwd: repoRoot,
@@ -783,7 +873,10 @@ function spawnPnpmOrFail(
     env: env ? { ...process.env, ...env } : process.env,
   });
   if (result.status !== 0) {
-    worktreeFail(tag, `pnpm ${args.join(" ")} failed (exit ${result.status ?? "?"}).`);
+    worktreeFail(
+      tag,
+      `pnpm ${args.join(" ")} failed (exit ${result.status ?? "?"}).`,
+    );
   }
 }
 
@@ -854,7 +947,10 @@ export function requireValidSlug(repoRoot: string, tag: string): string {
 }
 
 /** Ensures clone source DB name is set via CLI arg or worktreeEnv. */
-export function requireSourceDb(sourceDb: string | undefined, tag: string): string {
+export function requireSourceDb(
+  sourceDb: string | undefined,
+  tag: string,
+): string {
   if (sourceDb) return sourceDb;
   worktreeFail(
     tag,
@@ -869,7 +965,10 @@ export function requireSourceDb(sourceDb: string | undefined, tag: string): stri
 export function requireMainWorktreeRoot(repoRoot: string, tag: string): string {
   const mainRoot = resolveMainWorktreeRoot(repoRoot);
   if (mainRoot) return mainRoot;
-  worktreeFail(tag, "Could not resolve main worktree (source for apps/api/.env secrets).");
+  worktreeFail(
+    tag,
+    "Could not resolve main worktree (source for apps/api/.env secrets).",
+  );
 }
 
 export type MainApiEnvForWorktree = {
@@ -938,7 +1037,9 @@ export function cloneWorktreeTestDatabase(params: {
     );
   }
   if (existsCheck.status === "exists" && !recreateDb) {
-    console.warn(`${tag} Test database ${testDbName} already exists — skipping.`);
+    console.warn(
+      `${tag} Test database ${testDbName} already exists — skipping.`,
+    );
     return;
   }
   if (existsCheck.status === "exists" && recreateDb) {
@@ -1024,7 +1125,9 @@ export function writeWorktreeAppEnvs(params: {
   const webEnv = buildWorktreeWebEnv({ ports });
   writeFileSync(
     webEnvPath,
-    formatEnvFile(webEnv, ["# Worktree env — generated by pnpm worktree:setup."]),
+    formatEnvFile(webEnv, [
+      "# Worktree env — generated by pnpm worktree:setup.",
+    ]),
     "utf8",
   );
 
@@ -1032,7 +1135,9 @@ export function writeWorktreeAppEnvs(params: {
   const storybookEnv = buildWorktreeStorybookEnv({ ports });
   writeFileSync(
     storybookEnvPath,
-    formatEnvFile(storybookEnv, ["# Worktree env — generated by pnpm worktree:setup."]),
+    formatEnvFile(storybookEnv, [
+      "# Worktree env — generated by pnpm worktree:setup.",
+    ]),
     "utf8",
   );
 
@@ -1040,7 +1145,9 @@ export function writeWorktreeAppEnvs(params: {
   const extensionEnv = buildWorktreeExtensionEnv({ ports });
   writeFileSync(
     extensionEnvPath,
-    formatEnvFile(extensionEnv, ["# Worktree env — generated by pnpm worktree:setup."]),
+    formatEnvFile(extensionEnv, [
+      "# Worktree env — generated by pnpm worktree:setup.",
+    ]),
     "utf8",
   );
 
@@ -1110,8 +1217,12 @@ export function logSetupDryRun(params: {
   console.warn(`${tag} [dry-run] worktree ${worktreeRoot}`);
   console.warn(`${tag} [dry-run] main     ${mainRoot}`);
   console.warn(`${tag} [dry-run] slug     ${slug}`);
-  console.warn(`${tag} [dry-run] database ${sourceDb} → ${destDb}: ${cloneAction}`);
-  console.warn(`${tag} [dry-run] DATABASE_URL ${formatDatabaseUrlForLog(databaseUrl)}`);
+  console.warn(
+    `${tag} [dry-run] database ${sourceDb} → ${destDb}: ${cloneAction}`,
+  );
+  console.warn(
+    `${tag} [dry-run] DATABASE_URL ${formatDatabaseUrlForLog(databaseUrl)}`,
+  );
   console.warn(
     `${tag} [dry-run] DATABASE_INTEGRATION_URL ${formatDatabaseUrlForLog(e2eDatabaseUrl)}`,
   );
@@ -1121,8 +1232,12 @@ export function logSetupDryRun(params: {
   console.warn(
     `${tag} [dry-run] would write ${apiEnvPath}, ${webEnvPath}, ${storybookEnvPath}, ${extensionEnvPath}`,
   );
-  console.warn(`${tag} [dry-run] would update ${GLOBAL_REGISTRY_PATH}, ${slugRegistryPath(slug)}`);
-  console.warn(`${tag} [dry-run] would add ${slug} (${relPath}) to ${workspacePath}`);
+  console.warn(
+    `${tag} [dry-run] would update ${GLOBAL_REGISTRY_PATH}, ${slugRegistryPath(slug)}`,
+  );
+  console.warn(
+    `${tag} [dry-run] would add ${slug} (${relPath}) to ${workspacePath}`,
+  );
   if (dbeaver) {
     console.warn(
       `${tag} [dry-run] would add DBeaver connection "${slug}" (Job Tracker/Worktrees)${forceDbeaver ? " (--force-dbeaver)" : ""}`,
@@ -1130,14 +1245,20 @@ export function logSetupDryRun(params: {
   }
   if (install) console.warn(`${tag} [dry-run] would run: pnpm install`);
   if (migrate) {
-    console.warn(`${tag} [dry-run] would run: pnpm --filter @job-tracker/api run db:migrate`);
+    console.warn(
+      `${tag} [dry-run] would run: pnpm --filter @job-tracker/api run db:migrate`,
+    );
   }
   if (start) console.warn(`${tag} [dry-run] would run: pnpm pm2:start`);
   if (verify) {
-    console.warn(`${tag} [dry-run] would verify API/Web/Storybook/WXT health endpoints`);
+    console.warn(
+      `${tag} [dry-run] would verify API/Web/Storybook/WXT health endpoints`,
+    );
   }
   if (open) {
-    console.warn(`${tag} [dry-run] would open browser ${worktreeWebUrl(ports)}`);
+    console.warn(
+      `${tag} [dry-run] would open browser ${worktreeWebUrl(ports)}`,
+    );
   }
   if (!install && !migrate && !start && !verify && !open) {
     console.warn(
@@ -1157,7 +1278,8 @@ export function runWorktreePostSetup(params: {
   verify: boolean;
   open: boolean;
 }): void {
-  const { tag, repoRoot, ports, install, migrate, start, verify, open } = params;
+  const { tag, repoRoot, ports, install, migrate, start, verify, open } =
+    params;
   const webUrl = worktreeWebUrl(ports);
 
   if (install) {
@@ -1166,7 +1288,11 @@ export function runWorktreePostSetup(params: {
   }
   if (migrate) {
     console.warn(`${tag} pnpm --filter @job-tracker/api run db:migrate`);
-    spawnPnpmOrFail(repoRoot, ["--filter", "@job-tracker/api", "run", "db:migrate"], tag);
+    spawnPnpmOrFail(
+      repoRoot,
+      ["--filter", "@job-tracker/api", "run", "db:migrate"],
+      tag,
+    );
   }
   if (start) {
     console.warn(`${tag} pnpm pm2:start`);
@@ -1230,7 +1356,9 @@ export function logSetupSummary(params: {
   console.warn(`${tag} SB   http://localhost:${ports.storybook}`);
   console.warn(`${tag} WXT  http://localhost:${ports.wxt}`);
   console.warn(`${tag} DB   ${parseDatabaseName(databaseUrl) ?? destDb}`);
-  console.warn(`${tag} E2E  ${parseDatabaseName(e2eDatabaseUrl) ?? "test_" + destDb}`);
+  console.warn(
+    `${tag} E2E  ${parseDatabaseName(e2eDatabaseUrl) ?? "test_" + destDb}`,
+  );
   console.warn(
     `${tag} Post-steps: pass --install=true --migrate=true --start=true --verify=true --open=true`,
   );
@@ -1254,18 +1382,28 @@ export function requireTeardownSlug(
     slug = deriveSlug(root);
   }
   if (!slug || !validateSlug(slug)) {
-    worktreeFail(tag, "Could not determine slug. Pass as argument or run from a linked worktree.");
+    worktreeFail(
+      tag,
+      "Could not determine slug. Pass as argument or run from a linked worktree.",
+    );
   }
   return slug;
 }
 
 /** PM2 name prefix — defaults to the worktree slug. */
-export function resolveTeardownPm2Prefix(_repoRoot: string, slug: string): string {
+export function resolveTeardownPm2Prefix(
+  _repoRoot: string,
+  slug: string,
+): string {
   return slug;
 }
 
 /** Deletes prefixed PM2 apps for this worktree. */
-export function stopWorktreePm2Apps(repoRoot: string, prefix: string, tag: string): void {
+export function stopWorktreePm2Apps(
+  repoRoot: string,
+  prefix: string,
+  tag: string,
+): void {
   const appNames = worktreePm2AppNames(prefix);
   console.warn(`${tag} pm2 delete ${appNames.join(" ")}`);
   pm2DeleteApps(repoRoot, appNames, tag);
@@ -1309,7 +1447,9 @@ export function dropWorktreeTestDatabase(
   }
   const check = checkDatabaseExists(testDbName, repoRoot);
   if (check.status !== "exists") {
-    console.warn(`${tag} test database ${testDbName} does not exist — skipping.`);
+    console.warn(
+      `${tag} test database ${testDbName} does not exist — skipping.`,
+    );
     return;
   }
   const container = resolvePostgresContainer(repoRoot);
@@ -1326,7 +1466,9 @@ export function dropWorktreeTestDatabase(
 export function logWorktreeRemoveHint(repoRoot: string, tag: string): void {
   const wtRoot = runGit(["rev-parse", "--show-toplevel"], repoRoot);
   if (!wtRoot.ok) return;
-  console.warn(`${tag} git worktree remove is manual: git worktree remove ${wtRoot.stdout}`);
+  console.warn(
+    `${tag} git worktree remove is manual: git worktree remove ${wtRoot.stdout}`,
+  );
 }
 
 /** Prints the full teardown plan when `--dry-run` is set. */
@@ -1361,11 +1503,15 @@ export function logTeardownDryRun(params: {
       `${tag} [dry-run] would dropdb ${dbName}${container ? ` via docker (${container})` : ""}`,
     );
   } else {
-    console.warn(`${tag} [dry-run] would keep database ${dbName} (--drop-db=false)`);
+    console.warn(
+      `${tag} [dry-run] would keep database ${dbName} (--drop-db=false)`,
+    );
   }
   console.warn(
     `${tag} [dry-run] would update ${GLOBAL_REGISTRY_PATH} and remove ${slugRegistryPath(slug)}`,
   );
-  console.warn(`${tag} [dry-run] re-run with --apply=true to execute (no stdin prompt).`);
+  console.warn(
+    `${tag} [dry-run] re-run with --apply=true to execute (no stdin prompt).`,
+  );
   logWorktreeRemoveHint(repoRoot, `${tag} [dry-run]`);
 }

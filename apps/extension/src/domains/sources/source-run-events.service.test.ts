@@ -27,7 +27,10 @@ describe("SourceRunEventsService", () => {
     });
 
     expect(setup.updateSourceRunStatus).toHaveBeenCalledTimes(1);
-    expect(setup.updateSourceRunStatus).toHaveBeenCalledWith("run-1", SourceRunStatus.Completed);
+    expect(setup.updateSourceRunStatus).toHaveBeenCalledWith(
+      "run-1",
+      SourceRunStatus.Completed,
+    );
     expect(setup.executePlan).toHaveBeenCalledTimes(1);
     const executeOptions = setup.executePlan.mock.calls[0]?.[1] as {
       surfaceUrl: string;
@@ -112,7 +115,9 @@ function createSetup({
   sourceRunsValue,
 }: {
   executePlanError?: Error;
-  sourceRunsValue?: { data: { sourceRuns: Array<ReturnType<typeof createRun>> } } | Promise<never>;
+  sourceRunsValue?:
+    | { data: { sourceRuns: Array<ReturnType<typeof createRun>> } }
+    | Promise<never>;
 } = {}) {
   const sourceRuns = vi.fn().mockImplementation(async () => {
     if (sourceRunsValue instanceof Promise)

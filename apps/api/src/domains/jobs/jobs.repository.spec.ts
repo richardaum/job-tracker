@@ -42,7 +42,14 @@ function makeMainJobsQb(returnedRows: Job[]) {
 describe("JobsRepository", () => {
   let jobsRepo: Pick<
     Repository<JobEntity>,
-    "findOne" | "create" | "save" | "update" | "delete" | "createQueryBuilder" | "find" | "manager"
+    | "findOne"
+    | "create"
+    | "save"
+    | "update"
+    | "delete"
+    | "createQueryBuilder"
+    | "find"
+    | "manager"
   >;
   let stageEventsRepo: Pick<
     Repository<JobStageEventEntity>,
@@ -77,7 +84,9 @@ describe("JobsRepository", () => {
     const row = { id: "j1", userId: "u1" } as Job;
     vi.mocked(jobsRepo.findOne).mockResolvedValue(row as JobEntity);
 
-    const repo = new JobsRepository(jobsRepo as unknown as Repository<JobEntity>);
+    const repo = new JobsRepository(
+      jobsRepo as unknown as Repository<JobEntity>,
+    );
 
     const result = await repo.findOneByIdAndUserId("j1", "u1");
 
@@ -92,7 +101,9 @@ describe("JobsRepository", () => {
     const qb = makeMainJobsQb([]);
     vi.mocked(jobsRepo.createQueryBuilder).mockReturnValue(qb as never);
 
-    const listQuery = new JobsListQuery(jobsRepo as unknown as Repository<JobEntity>);
+    const listQuery = new JobsListQuery(
+      jobsRepo as unknown as Repository<JobEntity>,
+    );
 
     await listQuery.findAllByUserId("u1");
 
@@ -115,7 +126,9 @@ describe("JobsRepository", () => {
     const qb = makeMainJobsQb([]);
     vi.mocked(jobsRepo.createQueryBuilder).mockReturnValue(qb as never);
 
-    const listQuery = new JobsListQuery(jobsRepo as unknown as Repository<JobEntity>);
+    const listQuery = new JobsListQuery(
+      jobsRepo as unknown as Repository<JobEntity>,
+    );
 
     await listQuery.findAllByUserId("u1", ApplicationQuickFilterEnum.ACTIVE);
 
@@ -134,8 +147,8 @@ describe("JobsRepository", () => {
             typeof bindings === "object" &&
             !Array.isArray(bindings) &&
             "excludeDraftLatestEvtActive" in bindings &&
-            (bindings as { excludeDraftLatestEvtActive: unknown }).excludeDraftLatestEvtActive ===
-              ApplicationStageEnum.DRAFT,
+            (bindings as { excludeDraftLatestEvtActive: unknown })
+              .excludeDraftLatestEvtActive === ApplicationStageEnum.DRAFT,
         ),
     ).toBe(true);
     expect(
@@ -143,7 +156,9 @@ describe("JobsRepository", () => {
         .mocked(qb.andWhere)
         .mock.calls.some(
           ([sql]) =>
-            typeof sql === "string" && sql.includes("NOT IN") && sql.includes(":...stages"),
+            typeof sql === "string" &&
+            sql.includes("NOT IN") &&
+            sql.includes(":...stages"),
         ),
     ).toBe(true);
   });
@@ -152,7 +167,9 @@ describe("JobsRepository", () => {
     const qb = makeMainJobsQb([]);
     vi.mocked(jobsRepo.createQueryBuilder).mockReturnValue(qb as never);
 
-    const listQuery = new JobsListQuery(jobsRepo as unknown as Repository<JobEntity>);
+    const listQuery = new JobsListQuery(
+      jobsRepo as unknown as Repository<JobEntity>,
+    );
 
     await listQuery.findAllByUserId("u1", ApplicationQuickFilterEnum.APPLIED);
 
@@ -169,9 +186,14 @@ describe("JobsRepository", () => {
     const qb = makeMainJobsQb([]);
     vi.mocked(jobsRepo.createQueryBuilder).mockReturnValue(qb as never);
 
-    const listQuery = new JobsListQuery(jobsRepo as unknown as Repository<JobEntity>);
+    const listQuery = new JobsListQuery(
+      jobsRepo as unknown as Repository<JobEntity>,
+    );
 
-    await listQuery.findAllByUserId("u1", ApplicationQuickFilterEnum.DUPLICATED);
+    await listQuery.findAllByUserId(
+      "u1",
+      ApplicationQuickFilterEnum.DUPLICATED,
+    );
 
     expect(qb.andWhere).toHaveBeenCalledWith(
       expect.any(String),
@@ -186,7 +208,9 @@ describe("JobsRepository", () => {
     const qb = makeMainJobsQb([]);
     vi.mocked(jobsRepo.createQueryBuilder).mockReturnValue(qb as never);
 
-    const listQuery = new JobsListQuery(jobsRepo as unknown as Repository<JobEntity>);
+    const listQuery = new JobsListQuery(
+      jobsRepo as unknown as Repository<JobEntity>,
+    );
 
     await listQuery.findAllByUserId("u1", ApplicationQuickFilterEnum.REJECTED);
 
@@ -203,7 +227,9 @@ describe("JobsRepository", () => {
     const qb = makeMainJobsQb([]);
     vi.mocked(jobsRepo.createQueryBuilder).mockReturnValue(qb as never);
 
-    const listQuery = new JobsListQuery(jobsRepo as unknown as Repository<JobEntity>);
+    const listQuery = new JobsListQuery(
+      jobsRepo as unknown as Repository<JobEntity>,
+    );
 
     await listQuery.findAllByUserId("u1", ApplicationQuickFilterEnum.INCOMING);
 
@@ -229,7 +255,9 @@ describe("JobsRepository", () => {
     expect(
       vi
         .mocked(qb.andWhere)
-        .mock.calls.some(([frag]) => typeof frag === "string" && frag.includes("EXISTS")),
+        .mock.calls.some(
+          ([frag]) => typeof frag === "string" && frag.includes("EXISTS"),
+        ),
     ).toBe(true);
   });
 
@@ -237,7 +265,9 @@ describe("JobsRepository", () => {
     const qb = makeMainJobsQb([]);
     vi.mocked(jobsRepo.createQueryBuilder).mockReturnValue(qb as never);
 
-    const listQuery = new JobsListQuery(jobsRepo as unknown as Repository<JobEntity>);
+    const listQuery = new JobsListQuery(
+      jobsRepo as unknown as Repository<JobEntity>,
+    );
 
     await listQuery.findAllByUserId("u1", ApplicationQuickFilterEnum.NEW);
 
@@ -267,7 +297,9 @@ describe("JobsRepository", () => {
     const saved = { id: "j1", userId: "u1" } as JobEntity;
     vi.mocked(jobsRepo.save).mockResolvedValue(saved);
 
-    const repo = new JobsRepository(jobsRepo as unknown as Repository<JobEntity>);
+    const repo = new JobsRepository(
+      jobsRepo as unknown as Repository<JobEntity>,
+    );
 
     const dto = {
       title: "T",
@@ -290,7 +322,8 @@ describe("JobsRepository", () => {
     await repo.create("u1", dto);
 
     expect(jobsRepo.create).toHaveBeenCalledTimes(1);
-    const noDraftPayload = vi.mocked(jobsRepo.create).mock.calls[0]![0] as Record<string, unknown>;
+    const noDraftPayload = vi.mocked(jobsRepo.create).mock
+      .calls[0]![0] as Record<string, unknown>;
     expect(noDraftPayload).not.toHaveProperty("id");
     expect(noDraftPayload).not.toHaveProperty("draftJobId");
     expect(jobsRepo.create).toHaveBeenCalledWith(
@@ -321,7 +354,9 @@ describe("JobsRepository", () => {
     const saved = { id: "draft-pk", userId: "u1" } as JobEntity;
     vi.mocked(jobsRepo.save).mockResolvedValue(saved);
 
-    const repo = new JobsRepository(jobsRepo as unknown as Repository<JobEntity>);
+    const repo = new JobsRepository(
+      jobsRepo as unknown as Repository<JobEntity>,
+    );
 
     const dto = {
       title: "T",
@@ -361,7 +396,9 @@ describe("JobsRepository", () => {
     const saved = { id: "j1", userId: "u1" } as JobEntity;
     vi.mocked(jobsRepo.save).mockResolvedValue(saved);
 
-    const repo = new JobsRepository(jobsRepo as unknown as Repository<JobEntity>);
+    const repo = new JobsRepository(
+      jobsRepo as unknown as Repository<JobEntity>,
+    );
 
     await repo.create("u1", {
       title: "T",
@@ -381,14 +418,19 @@ describe("JobsRepository", () => {
       draftJobId: "   ",
     });
 
-    const payload = vi.mocked(jobsRepo.create).mock.calls[0]![0] as Record<string, unknown>;
+    const payload = vi.mocked(jobsRepo.create).mock.calls[0]![0] as Record<
+      string,
+      unknown
+    >;
     expect(payload).not.toHaveProperty("id");
   });
 
   it("setPersistedStage updates jobs.stage scoped to id and userId", async () => {
     vi.mocked(jobsRepo.update).mockResolvedValue({ affected: 1 } as never);
 
-    const repo = new JobsRepository(jobsRepo as unknown as Repository<JobEntity>);
+    const repo = new JobsRepository(
+      jobsRepo as unknown as Repository<JobEntity>,
+    );
 
     await repo.setPersistedStage("u1", "j1", ApplicationStageEnum.TECHNICAL);
 
@@ -410,7 +452,9 @@ describe("JobsRepository", () => {
     vi.mocked(jobsRepo.findOne).mockResolvedValue(existing);
     vi.mocked(jobsRepo.save).mockResolvedValue(existing);
 
-    const repo = new JobsRepository(jobsRepo as unknown as Repository<JobEntity>);
+    const repo = new JobsRepository(
+      jobsRepo as unknown as Repository<JobEntity>,
+    );
 
     await repo.update("j1", "u1", { title: "New" });
 
@@ -421,7 +465,9 @@ describe("JobsRepository", () => {
   it("update returns null when job not owned", async () => {
     vi.mocked(jobsRepo.findOne).mockResolvedValue(null);
 
-    const repo = new JobsRepository(jobsRepo as unknown as Repository<JobEntity>);
+    const repo = new JobsRepository(
+      jobsRepo as unknown as Repository<JobEntity>,
+    );
 
     const result = await repo.update("missing", "u1", { title: "X" });
 
@@ -437,9 +483,13 @@ describe("JobsRepository", () => {
       andWhere: vi.fn().mockReturnThis(),
       execute: vi.fn().mockResolvedValue({ affected: 1 }),
     };
-    vi.mocked(jobsRepo.manager.createQueryBuilder).mockReturnValue(qbChain as never);
+    vi.mocked(jobsRepo.manager.createQueryBuilder).mockReturnValue(
+      qbChain as never,
+    );
 
-    const repo = new JobsRepository(jobsRepo as unknown as Repository<JobEntity>);
+    const repo = new JobsRepository(
+      jobsRepo as unknown as Repository<JobEntity>,
+    );
 
     const ok = await repo.updateSummaryMetadataIfStatus(
       "j1",
@@ -462,9 +512,13 @@ describe("JobsRepository", () => {
       andWhere: vi.fn().mockReturnThis(),
       execute: vi.fn().mockResolvedValue({ affected: 0 }),
     };
-    vi.mocked(jobsRepo.manager.createQueryBuilder).mockReturnValue(qbChain as never);
+    vi.mocked(jobsRepo.manager.createQueryBuilder).mockReturnValue(
+      qbChain as never,
+    );
 
-    const repo = new JobsRepository(jobsRepo as unknown as Repository<JobEntity>);
+    const repo = new JobsRepository(
+      jobsRepo as unknown as Repository<JobEntity>,
+    );
 
     await repo.updateSummaryMetadataIfStatus("j1", "u1", null, {
       status: AsyncMetadataStatusEnum.PROCESSING,
@@ -483,16 +537,23 @@ describe("JobsRepository", () => {
     };
     vi.mocked(jobsRepo.createQueryBuilder).mockReturnValue(qbChain as never);
 
-    const repo = new JobsRepository(jobsRepo as unknown as Repository<JobEntity>);
+    const repo = new JobsRepository(
+      jobsRepo as unknown as Repository<JobEntity>,
+    );
 
-    await expect(repo.beginFillAutomaticallyProcessing("j1", "u1")).resolves.toBe(true);
+    await expect(
+      repo.beginFillAutomaticallyProcessing("j1", "u1"),
+    ).resolves.toBe(true);
 
     expect(qbChain.andWhere).toHaveBeenCalledWith(
       expect.stringContaining(
         '("fill_status" IS NULL OR "fill_status" IN (:...restartableStatuses))',
       ),
       expect.objectContaining({
-        restartableStatuses: [AsyncMetadataStatusEnum.FAILED, AsyncMetadataStatusEnum.COMPLETED],
+        restartableStatuses: [
+          AsyncMetadataStatusEnum.FAILED,
+          AsyncMetadataStatusEnum.COMPLETED,
+        ],
       }),
     );
     expect(qbChain.set).toHaveBeenCalledWith({
@@ -512,9 +573,13 @@ describe("JobsRepository", () => {
     };
     vi.mocked(jobsRepo.createQueryBuilder).mockReturnValue(qbChain as never);
 
-    const repo = new JobsRepository(jobsRepo as unknown as Repository<JobEntity>);
+    const repo = new JobsRepository(
+      jobsRepo as unknown as Repository<JobEntity>,
+    );
 
-    await expect(repo.beginFillAutomaticallyProcessing("j1", "u1")).resolves.toBe(false);
+    await expect(
+      repo.beginFillAutomaticallyProcessing("j1", "u1"),
+    ).resolves.toBe(false);
   });
 
   it("findUpToTwoJobPostingContextsByCompanyName trims and skips empty plaintext", async () => {
@@ -531,16 +596,23 @@ describe("JobsRepository", () => {
         title: "Engineer",
         description: JSON.stringify({
           type: "doc",
-          content: [{ type: "paragraph", content: [{ type: "text", text: "Plain" }] }],
+          content: [
+            { type: "paragraph", content: [{ type: "text", text: "Plain" }] },
+          ],
         }),
       }),
     ] as JobEntity[]);
 
     vi.mocked(jobsRepo.createQueryBuilder).mockReturnValue(qb as never);
 
-    const listQuery = new JobsListQuery(jobsRepo as unknown as Repository<JobEntity>);
+    const listQuery = new JobsListQuery(
+      jobsRepo as unknown as Repository<JobEntity>,
+    );
 
-    const rows = await listQuery.findUpToTwoJobPostingContextsByCompanyName("user-1", "Acme ");
+    const rows = await listQuery.findUpToTwoJobPostingContextsByCompanyName(
+      "user-1",
+      "Acme ",
+    );
 
     expect(qb.andWhere).toHaveBeenCalledWith(
       expect.stringContaining("stage"),
@@ -565,7 +637,9 @@ describe("JobsRepository", () => {
     vi.mocked(jobsRepo.findOne).mockResolvedValue(existing);
     vi.mocked(jobsRepo.delete).mockResolvedValue({ affected: 1 } as never);
 
-    const repo = new JobsRepository(jobsRepo as unknown as Repository<JobEntity>);
+    const repo = new JobsRepository(
+      jobsRepo as unknown as Repository<JobEntity>,
+    );
 
     const deleted = await repo.delete("j1", "u1");
 
@@ -576,7 +650,9 @@ describe("JobsRepository", () => {
   it("detachJobsSourceRun zeroes matching source_run_id", async () => {
     vi.mocked(jobsRepo.update).mockResolvedValue({ affected: 3 } as never);
 
-    const repo = new JobsRepository(jobsRepo as unknown as Repository<JobEntity>);
+    const repo = new JobsRepository(
+      jobsRepo as unknown as Repository<JobEntity>,
+    );
 
     const affected = await repo.detachJobsSourceRun("run-x", "u1");
 
@@ -596,7 +672,9 @@ describe("JobsRepository", () => {
     };
     vi.mocked(jobsRepo.createQueryBuilder).mockReturnValue(qbStale as never);
 
-    const repo = new JobsRepository(jobsRepo as unknown as Repository<JobEntity>);
+    const repo = new JobsRepository(
+      jobsRepo as unknown as Repository<JobEntity>,
+    );
 
     await expect(repo.resetStaleSummaryProcessing()).resolves.toBe(4);
   });
@@ -610,7 +688,9 @@ describe("JobsRepository", () => {
     };
     vi.mocked(jobsRepo.createQueryBuilder).mockReturnValue(qbStale as never);
 
-    const repo = new JobsRepository(jobsRepo as unknown as Repository<JobEntity>);
+    const repo = new JobsRepository(
+      jobsRepo as unknown as Repository<JobEntity>,
+    );
 
     await expect(repo.resetStaleFillProcessing()).resolves.toBe(2);
     expect(qbStale.where).toHaveBeenCalledWith(
@@ -629,9 +709,13 @@ describe("JobsRepository", () => {
       andWhere: vi.fn().mockReturnThis(),
       execute: vi.fn().mockResolvedValue({ affected: 1 }),
     };
-    vi.mocked(jobsRepo.manager.createQueryBuilder).mockReturnValue(qbChain as never);
+    vi.mocked(jobsRepo.manager.createQueryBuilder).mockReturnValue(
+      qbChain as never,
+    );
 
-    const repo = new JobsRepository(jobsRepo as unknown as Repository<JobEntity>);
+    const repo = new JobsRepository(
+      jobsRepo as unknown as Repository<JobEntity>,
+    );
 
     const ok = await repo.updateFillMetadataIfStatus(
       "j1",
@@ -658,9 +742,13 @@ describe("JobsRepository", () => {
       andWhere: vi.fn().mockReturnThis(),
       execute: vi.fn().mockResolvedValue({ affected: 0 }),
     };
-    vi.mocked(jobsRepo.manager.createQueryBuilder).mockReturnValue(qbChain as never);
+    vi.mocked(jobsRepo.manager.createQueryBuilder).mockReturnValue(
+      qbChain as never,
+    );
 
-    const repo = new JobsRepository(jobsRepo as unknown as Repository<JobEntity>);
+    const repo = new JobsRepository(
+      jobsRepo as unknown as Repository<JobEntity>,
+    );
 
     const ok = await repo.updateFillMetadataIfStatus(
       "j1",
@@ -680,23 +768,37 @@ describe("JobsRepository", () => {
       andWhere: vi.fn().mockReturnThis(),
       execute: vi.fn().mockResolvedValue({ affected: 1 }),
     };
-    vi.mocked(jobsRepo.manager.createQueryBuilder).mockReturnValue(qbChain as never);
+    vi.mocked(jobsRepo.manager.createQueryBuilder).mockReturnValue(
+      qbChain as never,
+    );
 
-    const repo = new JobsRepository(jobsRepo as unknown as Repository<JobEntity>);
+    const repo = new JobsRepository(
+      jobsRepo as unknown as Repository<JobEntity>,
+    );
 
     await expect(
-      repo.updateFillMetadataIfStatus("j1", "u1", AsyncMetadataStatusEnum.PROCESSING, {
-        status: AsyncMetadataStatusEnum.COMPLETED,
-        timestamp: new Date(),
-        error: null,
-      }),
+      repo.updateFillMetadataIfStatus(
+        "j1",
+        "u1",
+        AsyncMetadataStatusEnum.PROCESSING,
+        {
+          status: AsyncMetadataStatusEnum.COMPLETED,
+          timestamp: new Date(),
+          error: null,
+        },
+      ),
     ).resolves.toBe(true);
     await expect(
-      repo.updateFillMetadataIfStatus("j1", "u1", AsyncMetadataStatusEnum.PROCESSING, {
-        status: AsyncMetadataStatusEnum.FAILED,
-        error: "boom",
-        timestamp: new Date(),
-      }),
+      repo.updateFillMetadataIfStatus(
+        "j1",
+        "u1",
+        AsyncMetadataStatusEnum.PROCESSING,
+        {
+          status: AsyncMetadataStatusEnum.FAILED,
+          error: "boom",
+          timestamp: new Date(),
+        },
+      ),
     ).resolves.toBe(true);
     expect(qbChain.execute).toHaveBeenCalledTimes(2);
   });
@@ -714,7 +816,10 @@ describe("JobsRepository", () => {
       stageEventsRepo as unknown as Repository<JobStageEventEntity>,
     );
 
-    const rows = await stageEvents.findStageEventsByJobIdAndUserId("job-1", "user-1");
+    const rows = await stageEvents.findStageEventsByJobIdAndUserId(
+      "job-1",
+      "user-1",
+    );
 
     expect(stageEventsRepo.createQueryBuilder).toHaveBeenCalledWith("e");
     expect(qb.getMany).toHaveBeenCalled();
@@ -764,7 +869,11 @@ describe("JobsRepository", () => {
       stageEventsRepo as unknown as Repository<JobStageEventEntity>,
     );
 
-    const map = await stageEvents.findLatestStageSummariesByJobIds("u1", ["j1", "j2", "missing"]);
+    const map = await stageEvents.findLatestStageSummariesByJobIds("u1", [
+      "j1",
+      "j2",
+      "missing",
+    ]);
 
     expect(map.get("j1")?.toStage).toBe(ApplicationStageEnum.NEW);
     expect(map.get("j2")?.toStage).toBe(ApplicationStageEnum.APPLIED);
@@ -798,7 +907,9 @@ describe("JobsRepository", () => {
   });
 
   it("findUpToTwoJobPostingContextsByCompanyName skips DB when trimmed name empty", async () => {
-    const listQuery = new JobsListQuery(jobsRepo as unknown as Repository<JobEntity>);
+    const listQuery = new JobsListQuery(
+      jobsRepo as unknown as Repository<JobEntity>,
+    );
 
     await expect(
       listQuery.findUpToTwoJobPostingContextsByCompanyName("user-1", "   "),
@@ -810,20 +921,25 @@ describe("JobsRepository", () => {
     const qb = makeMainJobsQb([]);
     vi.mocked(jobsRepo.createQueryBuilder).mockReturnValue(qb as never);
 
-    const listQuery = new JobsListQuery(jobsRepo as unknown as Repository<JobEntity>);
+    const listQuery = new JobsListQuery(
+      jobsRepo as unknown as Repository<JobEntity>,
+    );
 
     await listQuery.findAllByUserId("u1", undefined, " MegaCorp ");
 
-    expect(qb.andWhere).toHaveBeenCalledWith("LOWER(company.name) = LOWER(:company)", {
-      company: "MegaCorp",
-    });
+    expect(qb.andWhere).toHaveBeenCalledWith(
+      "LOWER(company.name) = LOWER(:company)",
+      { company: "MegaCorp" },
+    );
   });
 
   it("findAllByUserId restricts by source run UUID when supplied", async () => {
     const qb = makeMainJobsQb([]);
     vi.mocked(jobsRepo.createQueryBuilder).mockReturnValue(qb as never);
 
-    const listQuery = new JobsListQuery(jobsRepo as unknown as Repository<JobEntity>);
+    const listQuery = new JobsListQuery(
+      jobsRepo as unknown as Repository<JobEntity>,
+    );
 
     await listQuery.findAllByUserId("u1", undefined, undefined, "run-uuid");
 
@@ -850,14 +966,20 @@ describe("JobsRepository", () => {
       stageEventsRepo as unknown as Repository<JobStageEventEntity>,
     );
 
-    const latest = await stageEvents.findLatestStageEventByJobIdAndUserId("j1", "user-1");
+    const latest = await stageEvents.findLatestStageEventByJobIdAndUserId(
+      "j1",
+      "user-1",
+    );
 
     expect(stageEventsRepo.createQueryBuilder).toHaveBeenCalledWith("e");
-    expect(qb.where).toHaveBeenCalledWith("e.job_id = :jobId AND e.user_id = :userId", {
-      jobId: "j1",
-      userId: "user-1",
-    });
-    expect(qb.orderBy).toHaveBeenCalledWith("COALESCE(e.schedule_at, e.created_at)", "DESC");
+    expect(qb.where).toHaveBeenCalledWith(
+      "e.job_id = :jobId AND e.user_id = :userId",
+      { jobId: "j1", userId: "user-1" },
+    );
+    expect(qb.orderBy).toHaveBeenCalledWith(
+      "COALESCE(e.schedule_at, e.created_at)",
+      "DESC",
+    );
     expect(qb.addOrderBy).toHaveBeenCalledWith("e.created_at", "DESC");
     expect(qb.addOrderBy).toHaveBeenCalledWith("e.id", "DESC");
     expect(qb.limit).toHaveBeenCalledWith(1);
@@ -868,7 +990,9 @@ describe("JobsRepository", () => {
   it("delete returns null when job row missing before delete", async () => {
     vi.mocked(jobsRepo.findOne).mockResolvedValue(null);
 
-    const repo = new JobsRepository(jobsRepo as unknown as Repository<JobEntity>);
+    const repo = new JobsRepository(
+      jobsRepo as unknown as Repository<JobEntity>,
+    );
 
     await expect(repo.delete("missing", "u1")).resolves.toBeNull();
     expect(jobsRepo.delete).not.toHaveBeenCalled();
@@ -877,7 +1001,9 @@ describe("JobsRepository", () => {
   it("updateSummary toggles textual summary TipTap blob", async () => {
     vi.mocked(jobsRepo.update).mockResolvedValue({ affected: 1 } as never);
 
-    const repo = new JobsRepository(jobsRepo as unknown as Repository<JobEntity>);
+    const repo = new JobsRepository(
+      jobsRepo as unknown as Repository<JobEntity>,
+    );
 
     const ok = await repo.updateSummary("j1", '{"type":"doc"}', "user-1");
     expect(ok).toBe(true);
@@ -935,6 +1061,8 @@ describe("JobsRepository", () => {
       stageEventsRepo as unknown as Repository<JobStageEventEntity>,
     );
 
-    await expect(stageEvents.deleteStageEvent("ev-1", "u1")).resolves.toBe(true);
+    await expect(stageEvents.deleteStageEvent("ev-1", "u1")).resolves.toBe(
+      true,
+    );
   });
 });

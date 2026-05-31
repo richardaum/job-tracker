@@ -4,7 +4,9 @@ export class RenameUserPreferencesToWorkPreferences1767600000000 implements Migr
   name = "RenameUserPreferencesToWorkPreferences1767600000000";
 
   public async up(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`ALTER TABLE "user_preferences" RENAME TO "work_preferences"`);
+    await queryRunner.query(
+      `ALTER TABLE "user_preferences" RENAME TO "work_preferences"`,
+    );
     await this.safeRenameIndex(
       queryRunner,
       "uq_user_preferences_user_id",
@@ -13,7 +15,9 @@ export class RenameUserPreferencesToWorkPreferences1767600000000 implements Migr
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`ALTER TABLE "work_preferences" RENAME TO "user_preferences"`);
+    await queryRunner.query(
+      `ALTER TABLE "work_preferences" RENAME TO "user_preferences"`,
+    );
     await this.safeRenameIndex(
       queryRunner,
       "uq_work_preferences_user_id",
@@ -31,7 +35,9 @@ export class RenameUserPreferencesToWorkPreferences1767600000000 implements Migr
       [oldName],
     );
     if (rows.length > 0) {
-      await queryRunner.query(`ALTER INDEX "${oldName}" RENAME TO "${newName}"`);
+      await queryRunner.query(
+        `ALTER INDEX "${oldName}" RENAME TO "${newName}"`,
+      );
     }
   }
 }

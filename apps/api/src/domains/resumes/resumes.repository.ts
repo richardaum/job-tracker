@@ -40,7 +40,11 @@ export class ResumeRepository {
     return this.repo.save(resume);
   }
 
-  async update(id: string, userId: string, dto: Partial<NewResume>): Promise<Resume | null> {
+  async update(
+    id: string,
+    userId: string,
+    dto: Partial<NewResume>,
+  ): Promise<Resume | null> {
     const resume = await this.findOneById(id, userId);
     if (!resume) {
       return null;

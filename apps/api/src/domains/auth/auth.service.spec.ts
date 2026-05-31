@@ -122,7 +122,10 @@ describe("AuthService JWT secret rotation", () => {
   beforeEach(() => {
     vi.resetModules();
     vi.doMock("@api/env/server", async () => {
-      const actual = await vi.importActual<typeof import("@api/env/server")>("@api/env/server");
+      const actual =
+        await vi.importActual<typeof import("@api/env/server")>(
+          "@api/env/server",
+        );
       return { ...actual, ...rotationSecrets };
     });
   });

@@ -19,7 +19,12 @@ export function UserCard({ user }: UserCardProps) {
     <ListItemCard
       title={
         <ListItemCard.Title>
-          <Text as="span" size="base" weight="semibold" className={cn("wrap-break-word")}>
+          <Text
+            as="span"
+            size="base"
+            weight="semibold"
+            className={cn("wrap-break-word")}
+          >
             {user.name}
           </Text>
         </ListItemCard.Title>

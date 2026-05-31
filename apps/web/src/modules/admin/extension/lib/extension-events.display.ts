@@ -32,7 +32,9 @@ export type ExtensionActivityEvent = {
   correlationId: string | null;
 };
 
-export type ExtensionAdminEvent = ExtensionSourceRunEvent | ExtensionActivityEvent;
+export type ExtensionAdminEvent =
+  | ExtensionSourceRunEvent
+  | ExtensionActivityEvent;
 
 const SOURCE_RUN_POLL_INTERVAL_MS = 5_000;
 const ACTIVITY_EVENTS_LIMIT = 100;
@@ -51,7 +53,9 @@ export function sourceRunSummary(run: AdminSourceRunRow): string {
   return run.surfaceUrl.trim() || "Source run";
 }
 
-export function mapSourceRunToExtensionEvent(run: AdminSourceRunRow): ExtensionSourceRunEvent {
+export function mapSourceRunToExtensionEvent(
+  run: AdminSourceRunRow,
+): ExtensionSourceRunEvent {
   return {
     kind: "source_run",
     id: run.id,
@@ -62,7 +66,9 @@ export function mapSourceRunToExtensionEvent(run: AdminSourceRunRow): ExtensionS
   };
 }
 
-export function mapActivityToExtensionEvent(event: AdminActivityEventRow): ExtensionActivityEvent {
+export function mapActivityToExtensionEvent(
+  event: AdminActivityEventRow,
+): ExtensionActivityEvent {
   return {
     kind: "activity",
     id: event.id,
@@ -82,18 +88,25 @@ export function mergeExtensionAdminEvents(
     ...activityEvents.map(mapActivityToExtensionEvent),
   ];
 
-  return merged.sort((left, right) => Date.parse(right.occurredAt) - Date.parse(left.occurredAt));
+  return merged.sort(
+    (left, right) => Date.parse(right.occurredAt) - Date.parse(left.occurredAt),
+  );
 }
 
 export function isInFlightSourceRunStatus(status: SourceRunStatus): boolean {
   return status === SourceRunStatus.Pending;
 }
 
-export function countInFlightSourceRunEvents(events: ExtensionSourceRunEvent[]): number {
-  return events.filter((event) => isInFlightSourceRunStatus(event.status)).length;
+export function countInFlightSourceRunEvents(
+  events: ExtensionSourceRunEvent[],
+): number {
+  return events.filter((event) => isInFlightSourceRunStatus(event.status))
+    .length;
 }
 
-export function countInFlightActivityEvents(events: ExtensionActivityEvent[]): number {
+export function countInFlightActivityEvents(
+  events: ExtensionActivityEvent[],
+): number {
   const latestByCorrelation = new Map<string, ExtensionActivityEventType>();
 
   for (const event of [...events].sort(
@@ -112,7 +125,9 @@ export function countInFlightActivityEvents(events: ExtensionActivityEvent[]): n
   return count;
 }
 
-export function countInFlightAdminEvents(events: ExtensionAdminEvent[]): number {
+export function countInFlightAdminEvents(
+  events: ExtensionAdminEvent[],
+): number {
   const sourceRuns = events.filter(
     (event): event is ExtensionSourceRunEvent => event.kind === "source_run",
   );
@@ -120,7 +135,10 @@ export function countInFlightAdminEvents(events: ExtensionAdminEvent[]): number 
     (event): event is ExtensionActivityEvent => event.kind === "activity",
   );
 
-  return countInFlightSourceRunEvents(sourceRuns) + countInFlightActivityEvents(activities);
+  return (
+    countInFlightSourceRunEvents(sourceRuns) +
+    countInFlightActivityEvents(activities)
+  );
 }
 
 export function inFlightLabel(count: number): string {
@@ -133,7 +151,9 @@ export function sourceRunStatusLabel(status: SourceRunStatus): string {
   return status.replaceAll("_", " ");
 }
 
-export function activityEventTypeLabel(type: ExtensionActivityEventType): string {
+export function activityEventTypeLabel(
+  type: ExtensionActivityEventType,
+): string {
   return type.replaceAll("_", " ");
 }
 
@@ -173,7 +193,9 @@ export function activityEventBadgeIntent(
 }
 
 export function adminEventTypeLabel(event: ExtensionAdminEvent): string {
-  return event.kind === "source_run" ? event.type : activityEventTypeLabel(event.type);
+  return event.kind === "source_run"
+    ? event.type
+    : activityEventTypeLabel(event.type);
 }
 
 export function adminEventSecondaryBadge(

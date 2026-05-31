@@ -49,7 +49,9 @@ describe("AuthUserAccessService", () => {
     const service = makeService(userService);
 
     await expect(
-      service.assertAuthenticatedUser(mockUser.id, mockUser.tokenVersion, [RoleEnum.Admin]),
+      service.assertAuthenticatedUser(mockUser.id, mockUser.tokenVersion, [
+        RoleEnum.Admin,
+      ]),
     ).rejects.toBeInstanceOf(ForbiddenException);
   });
 
@@ -64,9 +66,13 @@ describe("AuthUserAccessService", () => {
     const service = new AuthUserAccessService(userService, roleService);
 
     await expect(
-      service.assertAuthenticatedUser(adminUser.id, adminUser.tokenVersion, [RoleEnum.User]),
+      service.assertAuthenticatedUser(adminUser.id, adminUser.tokenVersion, [
+        RoleEnum.User,
+      ]),
     ).resolves.toEqual(adminUser);
-    expect(roleService.isAllowed).toHaveBeenCalledWith(RoleEnum.Admin, [RoleEnum.User]);
+    expect(roleService.isAllowed).toHaveBeenCalledWith(RoleEnum.Admin, [
+      RoleEnum.User,
+    ]);
   });
 
   it("returns user when role is in allowedRoles", async () => {
@@ -76,7 +82,9 @@ describe("AuthUserAccessService", () => {
     const service = makeService(userService);
 
     await expect(
-      service.assertAuthenticatedUser(mockUser.id, mockUser.tokenVersion, [RoleEnum.User]),
+      service.assertAuthenticatedUser(mockUser.id, mockUser.tokenVersion, [
+        RoleEnum.User,
+      ]),
     ).resolves.toEqual(mockUser);
   });
 });

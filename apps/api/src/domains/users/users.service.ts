@@ -103,7 +103,10 @@ export class UserService {
     this.activeUserCache.invalidate(id);
   }
 
-  async validateActiveUser(userId: string, tokenVersion: number): Promise<User> {
+  async validateActiveUser(
+    userId: string,
+    tokenVersion: number,
+  ): Promise<User> {
     const cached = this.activeUserCache.get(userId, tokenVersion);
     if (cached) {
       return cached;

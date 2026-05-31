@@ -70,11 +70,15 @@ async function main() {
 
     if (existing) {
       if (dryRun) {
-        console.log(`[DRY-RUN] Would update plan: "${plan.displayName}" (id=${existing.id})`);
+        console.log(
+          `[DRY-RUN] Would update plan: "${plan.displayName}" (id=${existing.id})`,
+        );
         continue;
       }
 
-      const [error] = await tryRun(repo.update(existing.id, user.id, { document: plan.document }));
+      const [error] = await tryRun(
+        repo.update(existing.id, user.id, { document: plan.document }),
+      );
       if (error) {
         console.error(`[ERROR] updating "${plan.displayName}":`, error);
       } else {
@@ -86,7 +90,9 @@ async function main() {
         continue;
       }
 
-      const [error, created] = await tryRun(repo.create({ ...plan, userId: user.id }));
+      const [error, created] = await tryRun(
+        repo.create({ ...plan, userId: user.id }),
+      );
       if (error) {
         console.error(`[ERROR] creating "${plan.displayName}":`, error);
       } else {

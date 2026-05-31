@@ -1,6 +1,14 @@
-import { CopyIcon, FloppyDiskIcon, PlusIcon, TrashIcon } from "@phosphor-icons/react";
+import {
+  CopyIcon,
+  FloppyDiskIcon,
+  PlusIcon,
+  TrashIcon,
+} from "@phosphor-icons/react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { DropdownMenuItem, DropdownMenuSeparator } from "@ui/components/DropdownMenu/DropdownMenu";
+import {
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from "@ui/components/DropdownMenu/DropdownMenu";
 
 import { DropdownButton } from "./DropdownButton";
 
@@ -24,10 +32,17 @@ type Story = StoryObj<typeof meta>;
 
 const menuContent = (
   <>
-    <DropdownMenuItem icon={<FloppyDiskIcon size={14} weight="regular" />}>Save</DropdownMenuItem>
-    <DropdownMenuItem icon={<CopyIcon size={14} weight="regular" />}>Save as</DropdownMenuItem>
+    <DropdownMenuItem icon={<FloppyDiskIcon size={14} weight="regular" />}>
+      Save
+    </DropdownMenuItem>
+    <DropdownMenuItem icon={<CopyIcon size={14} weight="regular" />}>
+      Save as
+    </DropdownMenuItem>
     <DropdownMenuSeparator />
-    <DropdownMenuItem destructive icon={<TrashIcon size={14} weight="regular" />}>
+    <DropdownMenuItem
+      destructive
+      icon={<TrashIcon size={14} weight="regular" />}
+    >
       Delete
     </DropdownMenuItem>
   </>

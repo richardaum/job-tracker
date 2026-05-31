@@ -44,7 +44,9 @@ describe.skipIf(!hasDb)("SourcesRepository (integration)", () => {
 
   afterAll(async () => {
     if (dataSource?.isInitialized) {
-      await dataSource.query("TRUNCATE source_runs, source_templates, plans, users CASCADE");
+      await dataSource.query(
+        "TRUNCATE source_runs, source_templates, plans, users CASCADE",
+      );
       await dataSource.destroy();
     }
   });

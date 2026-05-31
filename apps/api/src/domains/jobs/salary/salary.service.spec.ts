@@ -21,7 +21,9 @@ describe("SalaryService", () => {
     });
 
     it("throws if amount is provided without currency or period", () => {
-      expect(() => salaryService.getCreateSalary({ minCents: 100 })).toThrow(BadRequestException);
+      expect(() => salaryService.getCreateSalary({ minCents: 100 })).toThrow(
+        BadRequestException,
+      );
     });
 
     it("normalizes currency to uppercase", () => {

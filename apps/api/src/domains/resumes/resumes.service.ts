@@ -1,5 +1,9 @@
 import { isTipTapDocumentString } from "@job-tracker/tiptap";
-import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 
 import { ResumeRepository } from "./resumes.repository";
 import { NewResume, Resume } from "./resumes.schema";
@@ -26,7 +30,9 @@ export class ResumeService {
 
   async create(userId: string, dto: NewResume): Promise<Resume> {
     if (dto.content && !isTipTapDocumentString(dto.content)) {
-      throw new BadRequestException("content must be valid TipTap document JSON");
+      throw new BadRequestException(
+        "content must be valid TipTap document JSON",
+      );
     }
 
     const isFirstResume = (await this.repo.countByUserId(userId)) === 0;
@@ -39,9 +45,15 @@ export class ResumeService {
     return this.repo.create({ ...dto, userId, isDefault: shouldBeDefault });
   }
 
-  async update(id: string, userId: string, dto: Partial<NewResume>): Promise<Resume> {
+  async update(
+    id: string,
+    userId: string,
+    dto: Partial<NewResume>,
+  ): Promise<Resume> {
     if (dto.content !== undefined && !isTipTapDocumentString(dto.content)) {
-      throw new BadRequestException("content must be valid TipTap document JSON");
+      throw new BadRequestException(
+        "content must be valid TipTap document JSON",
+      );
     }
 
     if (dto.isDefault === true) {

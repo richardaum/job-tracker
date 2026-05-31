@@ -1,4 +1,8 @@
-import { AiBaseService, OpenAIClient, PromptRendererService } from "@api/lib/ai";
+import {
+  AiBaseService,
+  OpenAIClient,
+  PromptRendererService,
+} from "@api/lib/ai";
 import { isTipTapDocumentString, plainTextToTipTap } from "@job-tracker/tiptap";
 import { BadRequestException, Injectable } from "@nestjs/common";
 
@@ -18,11 +22,16 @@ const COMPANY_DESCRIPTION_SCHEMA: Record<string, unknown> = {
 
 @Injectable()
 export class CompanyDescriptionService extends AiBaseService {
-  constructor(openAIClient: OpenAIClient, promptRenderer: PromptRendererService) {
+  constructor(
+    openAIClient: OpenAIClient,
+    promptRenderer: PromptRendererService,
+  ) {
     super(openAIClient, promptRenderer);
   }
 
-  async generateCompanyDescription(input: GenerateCompanyDescriptionInput): Promise<string> {
+  async generateCompanyDescription(
+    input: GenerateCompanyDescriptionInput,
+  ): Promise<string> {
     const companyName = input.companyName.trim();
     if (!companyName) {
       throw new BadRequestException("Company name cannot be empty.");
@@ -57,7 +66,8 @@ export class CompanyDescriptionService extends AiBaseService {
         "They are verbatim excerpts from TipTap-backed descriptions:",
         "",
         ...input.jobPostingContexts.map(
-          (j, idx) => `Posting ${idx + 1} — Title: ${j.title}\nText:\n${j.plainTextDescription}`,
+          (j, idx) =>
+            `Posting ${idx + 1} — Title: ${j.title}\nText:\n${j.plainTextDescription}`,
         ),
         "",
         "Treat them only as verbatim context; authoritative URLs remain subject to mandatory web sourcing rules.",
@@ -78,6 +88,8 @@ export class CompanyDescriptionService extends AiBaseService {
       return plainTextToTipTap("");
     }
 
-    return isTipTapDocumentString(description) ? description : plainTextToTipTap(description);
+    return isTipTapDocumentString(description)
+      ? description
+      : plainTextToTipTap(description);
   }
 }

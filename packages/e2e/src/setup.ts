@@ -49,9 +49,10 @@ async function createDatabase(postgresUrl: string): Promise<void> {
   const client = new pg.Client({ connectionString: postgresUrl });
   try {
     await client.connect();
-    const exists = await client.query(`SELECT 1 FROM pg_database WHERE datname = $1`, [
-      e2eEnv.E2E_DB_NAME,
-    ]);
+    const exists = await client.query(
+      `SELECT 1 FROM pg_database WHERE datname = $1`,
+      [e2eEnv.E2E_DB_NAME],
+    );
     if (exists.rows.length > 0) {
       console.log(`${TAG} Dropping existing ${e2eEnv.E2E_DB_NAME}`);
       await client.query(

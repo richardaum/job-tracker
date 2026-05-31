@@ -6,7 +6,10 @@ import { databaseModuleOptions } from "./database-module-options";
 import { DatabasePoolHookService } from "./database-pool-hook.service";
 
 @Module({
-  imports: [ObservabilityModule, TypeOrmModule.forRoot({ ...databaseModuleOptions })],
+  imports: [
+    ObservabilityModule,
+    TypeOrmModule.forRoot({ ...databaseModuleOptions }),
+  ],
   providers: [DatabasePoolHookService],
   exports: [TypeOrmModule],
 })

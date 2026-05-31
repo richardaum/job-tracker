@@ -9,7 +9,8 @@ if (!Element.prototype.hasPointerCapture) {
 const createPlanMock = vi.fn();
 
 vi.mock("@/gql/hooks", async () => {
-  const actual = await vi.importActual<typeof import("@/gql/hooks")>("@/gql/hooks");
+  const actual =
+    await vi.importActual<typeof import("@/gql/hooks")>("@/gql/hooks");
   return { ...actual, useCreatePlanMutation: () => [createPlanMock] };
 });
 
@@ -27,7 +28,9 @@ describe("ImportPlanDialog", () => {
       name: "Select board type",
     });
     expect(dropdown).toBeInTheDocument();
-    expect(screen.getByPlaceholderText(/e\.g\. RemoteYeah/i)).toBeInTheDocument();
+    expect(
+      screen.getByPlaceholderText(/e\.g\. RemoteYeah/i),
+    ).toBeInTheDocument();
 
     fireEvent.click(dropdown);
     expect(screen.getByText("Sequential")).toBeInTheDocument();
@@ -52,11 +55,15 @@ describe("ImportPlanDialog", () => {
 
     render(<ImportPlanDialog open={true} onOpenChange={onOpenChange} />);
 
-    await user.type(screen.getByPlaceholderText(/e\.g\. RemoteYeah/i), "Test Plan");
+    await user.type(
+      screen.getByPlaceholderText(/e\.g\. RemoteYeah/i),
+      "Test Plan",
+    );
 
-    fireEvent.change(screen.getByPlaceholderText(/paste your plan document json here/i), {
-      target: { value: '{"steps": []}' },
-    });
+    fireEvent.change(
+      screen.getByPlaceholderText(/paste your plan document json here/i),
+      { target: { value: '{"steps": []}' } },
+    );
 
     const dropdown = screen.getByRole("combobox", {
       name: "Select board type",
@@ -88,11 +95,15 @@ describe("ImportPlanDialog", () => {
     const importButton = screen.getByRole("button", { name: "Import plan" });
     expect(importButton).toBeDisabled();
 
-    await user.type(screen.getByPlaceholderText(/e\.g\. RemoteYeah/i), "Test Plan");
+    await user.type(
+      screen.getByPlaceholderText(/e\.g\. RemoteYeah/i),
+      "Test Plan",
+    );
 
-    fireEvent.change(screen.getByPlaceholderText(/paste your plan document json here/i), {
-      target: { value: '{"steps": []}' },
-    });
+    fireEvent.change(
+      screen.getByPlaceholderText(/paste your plan document json here/i),
+      { target: { value: '{"steps": []}' } },
+    );
 
     expect(importButton).toBeDisabled();
 

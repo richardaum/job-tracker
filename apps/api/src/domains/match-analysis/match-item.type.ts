@@ -1,4 +1,7 @@
-import { MatchItem, RequirementTypeEnum } from "@api/database/entities/match-analysis.entity";
+import {
+  MatchItem,
+  RequirementTypeEnum,
+} from "@api/database/entities/match-analysis.entity";
 import { MatchSourceEnum } from "@api/domains/match-analysis/match-source.enum";
 import { MatchVerdictEnum } from "@api/domains/match-analysis/match-verdict.enum";
 import { WeightEnum } from "@api/domains/work-preferences/weight.enum";

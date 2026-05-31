@@ -34,7 +34,9 @@ export class NoteService {
 
   async createNote(userId: string, dto: CreateNoteDto): Promise<Note> {
     if (!isTipTapDocumentString(dto.content)) {
-      throw new BadRequestException("content must be valid TipTap document JSON");
+      throw new BadRequestException(
+        "content must be valid TipTap document JSON",
+      );
     }
 
     const hasJob = await this.repo.hasJob(dto.jobId, userId);
@@ -64,7 +66,11 @@ export class NoteService {
     return note;
   }
 
-  async updateNote(noteId: string, userId: string, dto: UpdateNoteDto): Promise<Note> {
+  async updateNote(
+    noteId: string,
+    userId: string,
+    dto: UpdateNoteDto,
+  ): Promise<Note> {
     const note = await this.repo.findByIdAndUserId(noteId, userId);
     if (!note) {
       throw new NotFoundException(`Job note ${noteId} not found`);
@@ -72,12 +78,17 @@ export class NoteService {
 
     const nextContent = dto.content ?? note.content;
     if (!isTipTapDocumentString(nextContent)) {
-      throw new BadRequestException("content must be valid TipTap document JSON");
+      throw new BadRequestException(
+        "content must be valid TipTap document JSON",
+      );
     }
 
-    const updated = await this.repo.updateWithRevision(noteId, userId, dto.expectedRevision, {
-      content: nextContent,
-    });
+    const updated = await this.repo.updateWithRevision(
+      noteId,
+      userId,
+      dto.expectedRevision,
+      { content: nextContent },
+    );
 
     if (!updated) {
       throw new ConflictException(`Job note ${noteId} revision mismatch`);
@@ -102,7 +113,11 @@ export class NoteService {
     return deleted;
   }
 
-  async generateNoteWithAI(userId: string, jobId: string, note: string): Promise<string> {
+  async generateNoteWithAI(
+    userId: string,
+    jobId: string,
+    note: string,
+  ): Promise<string> {
     const job = await this.repo.findApplicationByIdAndUserId(jobId, userId);
     if (!job) {
       throw new NotFoundException(`Job ${jobId} not found`);

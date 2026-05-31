@@ -71,10 +71,12 @@ describe("AsyncMetadataHelper", () => {
     } as unknown as Repository<JobEntity>;
 
     await expect(
-      beginAsyncMetadataProcessingWhenRestartable(JobEntity, jobsRepo, fillColumns, {
-        id: "j1",
-        userId: "u1",
-      }),
+      beginAsyncMetadataProcessingWhenRestartable(
+        JobEntity,
+        jobsRepo,
+        fillColumns,
+        { id: "j1", userId: "u1" },
+      ),
     ).resolves.toBe(true);
 
     expect(qbChain.set).toHaveBeenCalledWith({
@@ -91,7 +93,12 @@ describe("AsyncMetadataHelper", () => {
     } as unknown as Repository<JobEntity>;
 
     await expect(
-      resetStaleAsyncMetadataProcessing(JobEntity, jobsRepo, fillColumns, "Server restart"),
+      resetStaleAsyncMetadataProcessing(
+        JobEntity,
+        jobsRepo,
+        fillColumns,
+        "Server restart",
+      ),
     ).resolves.toBe(2);
 
     expect(qbChain.where).toHaveBeenCalledWith(`"fill_status" = :processing`, {

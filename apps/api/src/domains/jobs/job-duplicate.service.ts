@@ -41,7 +41,9 @@ export class JobDuplicateService {
       lookbackMs,
     );
 
-    return isDuplicate ? ApplicationStageEnum.DUPLICATED : ApplicationStageEnum.NEW;
+    return isDuplicate
+      ? ApplicationStageEnum.DUPLICATED
+      : ApplicationStageEnum.NEW;
   }
 
   async hasRecentDuplicateSameRoleAndCompany(
@@ -70,7 +72,11 @@ export class JobDuplicateService {
     return count > 0;
   }
 
-  async checkDuplicate(company: string, title: string, userId: string): Promise<boolean> {
+  async checkDuplicate(
+    company: string,
+    title: string,
+    userId: string,
+  ): Promise<boolean> {
     const trimmedTitle = (title ?? "").trim();
     if (!trimmedTitle) {
       return false;
@@ -81,10 +87,11 @@ export class JobDuplicateService {
       return false;
     }
 
-    const companyEntity = await this.companyRepo.findOneByNameInsensitiveTrimmed(
-      userId,
-      trimmedCompany,
-    );
+    const companyEntity =
+      await this.companyRepo.findOneByNameInsensitiveTrimmed(
+        userId,
+        trimmedCompany,
+      );
     if (!companyEntity) {
       return false;
     }

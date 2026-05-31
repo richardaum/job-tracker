@@ -169,5 +169,7 @@ function convertList(el: HTMLElement): PdfContent {
     items.push(inline || "");
   }
 
-  return ordered ? { ol: items, margin: [0, 2, 0, 4] } : { ul: items, margin: [0, 2, 0, 4] };
+  return ordered
+    ? { ol: items, margin: [0, 2, 0, 4] }
+    : { ul: items, margin: [0, 2, 0, 4] };
 }

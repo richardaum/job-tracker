@@ -31,7 +31,11 @@ type SettingCardLabelProps = {
   className?: string;
 };
 
-export function SettingCardLabel({ icon, children, className }: SettingCardLabelProps) {
+export function SettingCardLabel({
+  icon,
+  children,
+  className,
+}: SettingCardLabelProps) {
   return (
     <div className={cn("flex items-center gap-1.5", className)}>
       {icon}
@@ -56,7 +60,9 @@ function warnIfSettingCardLabelViolates(label: ReactNode): void {
   const invalidLabel = labelSegments.some(
     (child) =>
       child != null &&
-      (typeof child !== "object" || !("type" in child) || child.type !== SettingCardLabel),
+      (typeof child !== "object" ||
+        !("type" in child) ||
+        child.type !== SettingCardLabel),
   );
   if (invalidLabel) {
     console.warn(
@@ -65,13 +71,22 @@ function warnIfSettingCardLabelViolates(label: ReactNode): void {
   }
 }
 
-export function SettingCard({ label, description, control, pending = false }: SettingCardProps) {
+export function SettingCard({
+  label,
+  description,
+  control,
+  pending = false,
+}: SettingCardProps) {
   warnIfSettingCardLabelViolates(label);
 
   const showSpinner = useDelayedTrue(pending, SAVING_SPINNER_DELAY_MS);
 
   return (
-    <div className={cn("flex items-center gap-4 rounded-lg border border-border-subtle p-4")}>
+    <div
+      className={cn(
+        "flex items-center gap-4 rounded-lg border border-border-subtle p-4",
+      )}
+    >
       <div className={cn("flex flex-col gap-0.5")}>
         <div className={cn("flex items-center gap-2")}>
           {label}

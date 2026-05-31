@@ -7,10 +7,10 @@ import { BadRequestException } from "@nestjs/common";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 describe("ExtensionActivityService", () => {
-  const repo: Pick<ExtensionActivityRepository, "create" | "listRecentByUserId"> = {
-    create: vi.fn(),
-    listRecentByUserId: vi.fn(),
-  };
+  const repo: Pick<
+    ExtensionActivityRepository,
+    "create" | "listRecentByUserId"
+  > = { create: vi.fn(), listRecentByUserId: vi.fn() };
   const eventBus: Pick<ExtensionActivityEventBus, "emit"> = { emit: vi.fn() };
 
   let service: ExtensionActivityService;

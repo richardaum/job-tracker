@@ -99,9 +99,13 @@ export function useSpeechRecognitionAutoRestart({
       }
       const reachedNoSpeechLimit =
         wasNoSpeechSession &&
-        consecutiveNoSpeechRestartsRef.current >= MAX_CONSECUTIVE_NO_SPEECH_RESTARTS;
+        consecutiveNoSpeechRestartsRef.current >=
+          MAX_CONSECUTIVE_NO_SPEECH_RESTARTS;
       const shouldRestart =
-        shouldKeepListeningRef.current && !disabled && enabled && !reachedNoSpeechLimit;
+        shouldKeepListeningRef.current &&
+        !disabled &&
+        enabled &&
+        !reachedNoSpeechLimit;
       sessionHadSpeechRef.current = false;
       if (!shouldRestart) {
         if (reachedNoSpeechLimit) {

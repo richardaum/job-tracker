@@ -24,7 +24,10 @@ export const preferTryRunOverTryCatch = {
           return;
         }
 
-        if (node.handler.param && usesInstanceOf(node.handler.param, node.handler.body)) {
+        if (
+          node.handler.param &&
+          usesInstanceOf(node.handler.param, node.handler.body)
+        ) {
           return;
         }
 
@@ -57,7 +60,8 @@ function findInstanceOf(node, paramName) {
     const child = node[key];
     if (Array.isArray(child)) {
       for (const c of child) {
-        if (c && typeof c === "object" && findInstanceOf(c, paramName)) return true;
+        if (c && typeof c === "object" && findInstanceOf(c, paramName))
+          return true;
       }
     } else if (child && typeof child === "object") {
       if (findInstanceOf(child, paramName)) return true;

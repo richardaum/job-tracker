@@ -9,7 +9,10 @@ const rewriteSchema = z.object({ rewritten: z.string() });
 
 @Injectable()
 export class RewriteTextService extends AiBaseService {
-  constructor(openAIClient: OpenAIClient, promptRenderer: PromptRendererService) {
+  constructor(
+    openAIClient: OpenAIClient,
+    promptRenderer: PromptRendererService,
+  ) {
     super(openAIClient, promptRenderer);
   }
 

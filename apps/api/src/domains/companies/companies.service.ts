@@ -29,13 +29,19 @@ export class CompanyService {
     return this.repo.findOrCreateByName(userId, name);
   }
 
-  async update(id: string, userId: string, dto: Partial<NewCompany>): Promise<Company> {
+  async update(
+    id: string,
+    userId: string,
+    dto: Partial<NewCompany>,
+  ): Promise<Company> {
     if (
       dto.description !== undefined &&
       dto.description !== null &&
       !isTipTapDocumentString(dto.description)
     ) {
-      throw new BadRequestException("description must be valid TipTap document JSON");
+      throw new BadRequestException(
+        "description must be valid TipTap document JSON",
+      );
     }
 
     let patch = dto;
@@ -44,9 +50,14 @@ export class CompanyService {
       if (!trimmed) {
         throw new BadRequestException("Company name cannot be empty.");
       }
-      const clash = await this.repo.findOneByNameInsensitiveTrimmed(userId, trimmed);
+      const clash = await this.repo.findOneByNameInsensitiveTrimmed(
+        userId,
+        trimmed,
+      );
       if (clash && clash.id !== id) {
-        throw new ConflictException("Another company already uses this name (case-insensitive).");
+        throw new ConflictException(
+          "Another company already uses this name (case-insensitive).",
+        );
       }
       patch = { ...dto, name: trimmed };
     }

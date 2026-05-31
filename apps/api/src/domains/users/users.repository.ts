@@ -66,11 +66,17 @@ export class UserRepository {
     });
   }
 
-  async saveUser(user: SaveUserRepoDto, manager?: EntityManager): Promise<User> {
+  async saveUser(
+    user: SaveUserRepoDto,
+    manager?: EntityManager,
+  ): Promise<User> {
     return this.users(manager).save(user);
   }
 
-  async insertUser(data: InsertUserRepoDto, manager?: EntityManager): Promise<User> {
+  async insertUser(
+    data: InsertUserRepoDto,
+    manager?: EntityManager,
+  ): Promise<User> {
     const row = this.users(manager).create(data);
     return this.users(manager).save(row);
   }

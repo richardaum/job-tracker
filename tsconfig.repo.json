@@ -6,5 +6,5 @@
     "noEmit": true,
     "types": ["node"]
   },
-  "include": ["prettier.config.mts"]
+  "include": []
 }

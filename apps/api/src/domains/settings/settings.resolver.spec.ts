@@ -79,9 +79,12 @@ describe("SettingsResolver (integration)", () => {
   const auth = { Authorization: "Bearer mock-token" };
 
   it("settings query returns UserSetting for authenticated user", async () => {
-    const res = await request(app.getHttpServer()).post("/graphql").set(auth).send({
-      query: `{ settings { id userId autoFillEnabled autoSummaryEnabled autoMatchEnabled duplicateWindowDays blockedKeywords { keyword scope matchMode } blockedCompanies } }`,
-    });
+    const res = await request(app.getHttpServer())
+      .post("/graphql")
+      .set(auth)
+      .send({
+        query: `{ settings { id userId autoFillEnabled autoSummaryEnabled autoMatchEnabled duplicateWindowDays blockedKeywords { keyword scope matchMode } blockedCompanies } }`,
+      });
 
     expect(res.statusCode).toBe(200);
     expect(res.body.data.settings).toMatchObject({
@@ -118,9 +121,12 @@ describe("SettingsResolver (integration)", () => {
       blockedCompanies: [],
     });
 
-    const res = await request(app.getHttpServer()).post("/graphql").set(auth).send({
-      query: `mutation { updateSettings(input: { autoFillEnabled: true }) { userId autoFillEnabled autoSummaryEnabled duplicateWindowDays blockedKeywords { keyword scope matchMode } blockedCompanies } }`,
-    });
+    const res = await request(app.getHttpServer())
+      .post("/graphql")
+      .set(auth)
+      .send({
+        query: `mutation { updateSettings(input: { autoFillEnabled: true }) { userId autoFillEnabled autoSummaryEnabled duplicateWindowDays blockedKeywords { keyword scope matchMode } blockedCompanies } }`,
+      });
 
     expect(res.statusCode).toBe(200);
     expect(res.body.data.updateSettings).toMatchObject({
@@ -146,9 +152,12 @@ describe("SettingsResolver (integration)", () => {
       blockedCompanies: [],
     });
 
-    const res = await request(app.getHttpServer()).post("/graphql").set(auth).send({
-      query: `mutation { updateSettings(input: { autoSummaryEnabled: true, duplicateWindowDays: 7 }) { userId autoFillEnabled autoSummaryEnabled duplicateWindowDays } }`,
-    });
+    const res = await request(app.getHttpServer())
+      .post("/graphql")
+      .set(auth)
+      .send({
+        query: `mutation { updateSettings(input: { autoSummaryEnabled: true, duplicateWindowDays: 7 }) { userId autoFillEnabled autoSummaryEnabled duplicateWindowDays } }`,
+      });
 
     expect(res.statusCode).toBe(200);
     expect(res.body.data.updateSettings).toMatchObject({

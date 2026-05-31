@@ -48,7 +48,12 @@ function asOptionalCurrency(value: unknown): string | null {
 }
 
 function asRecord(value: unknown): Record<string, unknown> | null {
-  if (value !== null && value !== undefined && typeof value === "object" && !Array.isArray(value)) {
+  if (
+    value !== null &&
+    value !== undefined &&
+    typeof value === "object" &&
+    !Array.isArray(value)
+  ) {
     return value as Record<string, unknown>;
   }
   return null;
@@ -76,7 +81,9 @@ export class DraftExtractionNormalizationService {
     return String(raw.company ?? "").trim() || "Unknown company";
   }
 
-  private normalizeDraftDescription(raw: Record<string, unknown>): string | null {
+  private normalizeDraftDescription(
+    raw: Record<string, unknown>,
+  ): string | null {
     const descRaw = raw.description;
     if (typeof descRaw !== "string" || !descRaw.trim()) return null;
     const d = descRaw.trim();
@@ -87,7 +94,9 @@ export class DraftExtractionNormalizationService {
     return JSON.stringify(normalized);
   }
 
-  private normalizeDraftSalaryFields(raw: Record<string, unknown>): SalaryEmbedded {
+  private normalizeDraftSalaryFields(
+    raw: Record<string, unknown>,
+  ): SalaryEmbedded {
     const embedded = new SalaryEmbedded();
     const salary = asRecord(raw.salary);
     if (salary) {
@@ -106,7 +115,9 @@ export class DraftExtractionNormalizationService {
 
   private normalizeDraftTags(raw: Record<string, unknown>): string[] {
     const tagsRaw = raw.tags;
-    return Array.isArray(tagsRaw) ? tagsRaw.filter((t): t is string => typeof t === "string") : [];
+    return Array.isArray(tagsRaw)
+      ? tagsRaw.filter((t): t is string => typeof t === "string")
+      : [];
   }
 
   private normalizeDraftLocation(raw: Record<string, unknown>): string | null {
@@ -114,7 +125,9 @@ export class DraftExtractionNormalizationService {
     return typeof v === "string" && v.trim() ? v.trim() : null;
   }
 
-  private normalizeDraftWorkRegion(raw: Record<string, unknown>): string | null {
+  private normalizeDraftWorkRegion(
+    raw: Record<string, unknown>,
+  ): string | null {
     const v = raw.workRegion;
     return typeof v === "string" && v.trim() ? v.trim() : null;
   }

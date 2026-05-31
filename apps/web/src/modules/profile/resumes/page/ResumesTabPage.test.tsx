@@ -14,7 +14,8 @@ const enqueueToastMock = vi.fn();
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
 
 vi.mock("@/gql/hooks", async () => {
-  const actual = await vi.importActual<typeof import("@/gql/hooks")>("@/gql/hooks");
+  const actual =
+    await vi.importActual<typeof import("@/gql/hooks")>("@/gql/hooks");
   return {
     ...actual,
     useResumesQuery: () => useResumesQueryMock(),
@@ -69,7 +70,9 @@ describe("ResumesTabPage", () => {
   it("renders Add resume button via header portal", () => {
     useResumesQueryMock.mockReturnValue(mockResumes());
     render(<ResumesTabPage />, { wrapper: ProfileHeaderSlotsTestWrapper });
-    expect(screen.getByRole("button", { name: /add resume/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /add resume/i }),
+    ).toBeInTheDocument();
   });
 
   it("clicking Add resume opens dialog", async () => {
@@ -79,7 +82,9 @@ describe("ResumesTabPage", () => {
 
     await user.click(screen.getByRole("button", { name: /add resume/i }));
     expect(screen.getByText("Add Resume")).toBeInTheDocument();
-    expect(screen.getByPlaceholderText(/e.g. Senior Software Engineer/i)).toBeInTheDocument();
+    expect(
+      screen.getByPlaceholderText(/e.g. Senior Software Engineer/i),
+    ).toBeInTheDocument();
   });
 
   it("shows empty state when no resumes", () => {

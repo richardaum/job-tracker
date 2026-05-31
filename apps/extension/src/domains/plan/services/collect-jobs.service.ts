@@ -62,19 +62,30 @@ export class CollectJobsService {
     let consecutiveDuplicates = 0;
 
     try {
-      const limitDetailTabs = pLimit(Math.min(action.input.parallelDetailsTabs, MAX_TABS));
+      const limitDetailTabs = pLimit(
+        Math.min(action.input.parallelDetailsTabs, MAX_TABS),
+      );
 
       for (let iteration = 1; iteration <= MAX_PAGES; iteration += 1) {
-        const list = await this.jobsListMessaging.listJobs(action, surfaceTabId);
+        const list = await this.jobsListMessaging.listJobs(
+          action,
+          surfaceTabId,
+        );
 
         if (list == null) {
-          throw new Error("listJobs returned null (content script unavailable)");
+          throw new Error(
+            "listJobs returned null (content script unavailable)",
+          );
         }
 
         await Promise.all(
           list.map((job) =>
             limitDetailTabs(async () => {
-              const jobWithDetails = await this.collectJobDetails(action, job, surfaceWindowId);
+              const jobWithDetails = await this.collectJobDetails(
+                action,
+                job,
+                surfaceWindowId,
+              );
               const key = this.generateJobKey(action, jobWithDetails);
               const firstVisit = !jobs.has(key);
               jobs.set(key, jobWithDetails);
@@ -94,8 +105,19 @@ export class CollectJobsService {
 
         await options?.onPageCollected?.(iteration, jobs.size);
 
-        if (this.shouldStopAfterPage(iteration, options, consecutiveDuplicates, list)) {
-          const stopReason = this.formatStopReason(iteration, options, consecutiveDuplicates);
+        if (
+          this.shouldStopAfterPage(
+            iteration,
+            options,
+            consecutiveDuplicates,
+            list,
+          )
+        ) {
+          const stopReason = this.formatStopReason(
+            iteration,
+            options,
+            consecutiveDuplicates,
+          );
           logService.debug("collect-jobs:stop-condition-met", {
             iteration,
             stopWhen: options.stopWhen,
@@ -106,10 +128,11 @@ export class CollectJobsService {
           break;
         }
 
-        const canNavigate = await this.paginationMessaging.canNavigateToNextPage(
-          action,
-          surfaceTabId,
-        );
+        const canNavigate =
+          await this.paginationMessaging.canNavigateToNextPage(
+            action,
+            surfaceTabId,
+          );
         if (!canNavigate) break;
 
         await this.paginationMessaging.navigateToNextPage(action, surfaceTabId);
@@ -128,7 +151,10 @@ export class CollectJobsService {
     consecutiveDupes: number,
     pageJobs: Job[],
   ): boolean {
-    const conditions = typeof opts.stopWhen === "string" ? [opts.stopWhen] : (opts.stopWhen ?? []);
+    const conditions =
+      typeof opts.stopWhen === "string"
+        ? [opts.stopWhen]
+        : (opts.stopWhen ?? []);
     return conditions.some((sw) =>
       this.evaluateStopCondition(sw, page, opts, consecutiveDupes, pageJobs),
     );
@@ -144,7 +170,8 @@ export class CollectJobsService {
     switch (sw) {
       case StopWhen.CatchUp:
         return (
-          opts.boardType === "Sequential" && consecutiveDupes >= (opts.catchUpThreshold ?? Infinity)
+          opts.boardType === "Sequential" &&
+          consecutiveDupes >= (opts.catchUpThreshold ?? Infinity)
         );
       case StopWhen.FirstRunMaxPages:
         return page >= (opts.maxPages ?? 1);
@@ -182,7 +209,11 @@ export class CollectJobsService {
     }
   }
 
-  private async collectJobDetails(action: CollectJobsAction, job: Job, surfaceWindowId: number) {
+  private async collectJobDetails(
+    action: CollectJobsAction,
+    job: Job,
+    surfaceWindowId: number,
+  ) {
     if (action.input.detailsFields.length === 0) return job;
 
     const detailUrl = job[action.input.detailsUrlField] as string;
@@ -191,7 +222,10 @@ export class CollectJobsService {
     const detailTabId = await this.tabManager.openTab(detailUrl, {
       windowId: surfaceWindowId,
     });
-    const details = await this.jobDetailsMessaging.getJobDetails(action, detailTabId);
+    const details = await this.jobDetailsMessaging.getJobDetails(
+      action,
+      detailTabId,
+    );
 
     logService.debug("Job details collected", { details });
 

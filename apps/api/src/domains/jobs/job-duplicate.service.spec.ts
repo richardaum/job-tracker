@@ -126,9 +126,15 @@ describe("JobDuplicateService", () => {
 
   describe("checkDuplicate", () => {
     it("returns false when company cannot be resolved", async () => {
-      vi.mocked(companyRepo.findOneByNameInsensitiveTrimmed).mockResolvedValue(null);
+      vi.mocked(companyRepo.findOneByNameInsensitiveTrimmed).mockResolvedValue(
+        null,
+      );
 
-      const result = await service.checkDuplicate("Unknown Corp", "Engineer", "user-1");
+      const result = await service.checkDuplicate(
+        "Unknown Corp",
+        "Engineer",
+        "user-1",
+      );
 
       expect(result).toBe(false);
     });

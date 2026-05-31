@@ -9,7 +9,8 @@ if (!Element.prototype.hasPointerCapture) {
 const updateSourceTemplateMock = vi.fn();
 
 vi.mock("@/gql/hooks", async () => {
-  const actual = await vi.importActual<typeof import("@/gql/hooks")>("@/gql/hooks");
+  const actual =
+    await vi.importActual<typeof import("@/gql/hooks")>("@/gql/hooks");
   return {
     ...actual,
     useUpdateSourceTemplateMutation: () => [updateSourceTemplateMock],
@@ -37,7 +38,12 @@ describe("SourceStopConfigDialog", () => {
   });
 
   it("renders stop conditions with checkboxes", () => {
-    render(<SourceStopConfigDialog template={makeTemplate()} onOpenChange={() => {}} />);
+    render(
+      <SourceStopConfigDialog
+        template={makeTemplate()}
+        onOpenChange={() => {}}
+      />,
+    );
 
     expect(screen.getByText("Stop Conditions")).toBeInTheDocument();
     expect(screen.getByText("CatchUp")).toBeInTheDocument();
@@ -47,7 +53,12 @@ describe("SourceStopConfigDialog", () => {
 
   it("shows threshold input after enabling CatchUp", async () => {
     const user = userEvent.setup();
-    render(<SourceStopConfigDialog template={makeTemplate()} onOpenChange={() => {}} />);
+    render(
+      <SourceStopConfigDialog
+        template={makeTemplate()}
+        onOpenChange={() => {}}
+      />,
+    );
 
     await user.click(screen.getByText("CatchUp"));
 
@@ -94,7 +105,12 @@ describe("SourceStopConfigDialog", () => {
       },
     });
 
-    render(<SourceStopConfigDialog template={makeTemplate()} onOpenChange={onOpenChange} />);
+    render(
+      <SourceStopConfigDialog
+        template={makeTemplate()}
+        onOpenChange={onOpenChange}
+      />,
+    );
 
     await user.click(screen.getByText("CatchUp"));
 
@@ -116,7 +132,12 @@ describe("SourceStopConfigDialog", () => {
 
   it("shows days input after enabling OlderThan", async () => {
     const user = userEvent.setup();
-    render(<SourceStopConfigDialog template={makeTemplate()} onOpenChange={() => {}} />);
+    render(
+      <SourceStopConfigDialog
+        template={makeTemplate()}
+        onOpenChange={() => {}}
+      />,
+    );
 
     await user.click(screen.getByText("Older Than"));
 

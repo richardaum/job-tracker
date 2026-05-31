@@ -1,4 +1,7 @@
-import { type MatchItem, RequirementTypeEnum } from "@api/database/entities/match-analysis.entity";
+import {
+  type MatchItem,
+  RequirementTypeEnum,
+} from "@api/database/entities/match-analysis.entity";
 import { describe, expect, it } from "vitest";
 
 import { MatchSourceEnum } from "./match-source.enum";
@@ -24,12 +27,24 @@ describe("normalizeMatchItems", () => {
   });
 
   it("normalizes requirement type case-insensitively", () => {
-    expect(normalizeRequirementType("musthave")).toBe(RequirementTypeEnum.MustHave);
-    expect(normalizeRequirementType("MUST_HAVE")).toBe(RequirementTypeEnum.MustHave);
-    expect(normalizeRequirementType("niceToHave")).toBe(RequirementTypeEnum.NiceToHave);
-    expect(normalizeRequirementType("NICE_TO_HAVE")).toBe(RequirementTypeEnum.NiceToHave);
-    expect(normalizeRequirementType("softskill")).toBe(RequirementTypeEnum.SoftSkill);
-    expect(normalizeRequirementType("SOFT_SKILL")).toBe(RequirementTypeEnum.SoftSkill);
+    expect(normalizeRequirementType("musthave")).toBe(
+      RequirementTypeEnum.MustHave,
+    );
+    expect(normalizeRequirementType("MUST_HAVE")).toBe(
+      RequirementTypeEnum.MustHave,
+    );
+    expect(normalizeRequirementType("niceToHave")).toBe(
+      RequirementTypeEnum.NiceToHave,
+    );
+    expect(normalizeRequirementType("NICE_TO_HAVE")).toBe(
+      RequirementTypeEnum.NiceToHave,
+    );
+    expect(normalizeRequirementType("softskill")).toBe(
+      RequirementTypeEnum.SoftSkill,
+    );
+    expect(normalizeRequirementType("SOFT_SKILL")).toBe(
+      RequirementTypeEnum.SoftSkill,
+    );
   });
 
   it("normalizes legacy lowercase match item fields for GraphQL", () => {

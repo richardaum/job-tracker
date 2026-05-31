@@ -33,11 +33,23 @@ END $$;
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`ALTER TABLE "applications" DROP COLUMN IF EXISTS "salary_tags"`);
-    await queryRunner.query(`ALTER TABLE "applications" DROP COLUMN IF EXISTS "salary_period"`);
-    await queryRunner.query(`ALTER TABLE "applications" DROP COLUMN IF EXISTS "salary_currency"`);
-    await queryRunner.query(`ALTER TABLE "applications" DROP COLUMN IF EXISTS "salary_max_cents"`);
-    await queryRunner.query(`ALTER TABLE "applications" DROP COLUMN IF EXISTS "salary_min_cents"`);
-    await queryRunner.query(`DROP TYPE IF EXISTS "public"."salary_period" CASCADE`);
+    await queryRunner.query(
+      `ALTER TABLE "applications" DROP COLUMN IF EXISTS "salary_tags"`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE "applications" DROP COLUMN IF EXISTS "salary_period"`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE "applications" DROP COLUMN IF EXISTS "salary_currency"`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE "applications" DROP COLUMN IF EXISTS "salary_max_cents"`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE "applications" DROP COLUMN IF EXISTS "salary_min_cents"`,
+    );
+    await queryRunner.query(
+      `DROP TYPE IF EXISTS "public"."salary_period" CASCADE`,
+    );
   }
 }

@@ -23,7 +23,9 @@ describe("mapLegacyType", () => {
   });
 
   it("throws on unknown legacy type", () => {
-    expect(() => mapLegacyType("unknown")).toThrow('Unknown legacy keyword type: "unknown"');
+    expect(() => mapLegacyType("unknown")).toThrow(
+      'Unknown legacy keyword type: "unknown"',
+    );
   });
 
   it("throws on empty string type", () => {
@@ -72,6 +74,8 @@ describe("mapLegacyKeyword", () => {
   });
 
   it("throws on unknown legacy type in keyword mapping", () => {
-    expect(() => mapLegacyKeyword({ keyword: "test", type: "invalid" })).toThrow();
+    expect(() =>
+      mapLegacyKeyword({ keyword: "test", type: "invalid" }),
+    ).toThrow();
   });
 });

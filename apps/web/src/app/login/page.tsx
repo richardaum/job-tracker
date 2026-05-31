@@ -50,7 +50,9 @@ export default function LoginPage() {
         >
           <span className={cn("inline-flex items-center gap-3")}>
             <AppBrandMark size={38} />
-            <span className={cn("text-lg font-semibold tracking-tight")}>{APP_TITLE}</span>
+            <span className={cn("text-lg font-semibold tracking-tight")}>
+              {APP_TITLE}
+            </span>
           </span>
         </header>
 

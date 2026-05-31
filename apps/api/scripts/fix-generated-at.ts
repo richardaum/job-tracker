@@ -41,7 +41,9 @@ async function main() {
 
   // Fix 1: summary_metadata COMPLETED with null generatedAt
   const prefix = dryRun ? "[DRY-RUN] " : "";
-  process.stdout.write(`  ${prefix}summary_metadata COMPLETED with null generatedAt... `);
+  process.stdout.write(
+    `  ${prefix}summary_metadata COMPLETED with null generatedAt... `,
+  );
 
   const appsWithMeta = await repo.find({
     where: { summaryMetadata: Not(IsNull()) },
@@ -74,7 +76,9 @@ async function main() {
   }
 
   // Fix 2: summary NOT NULL with null summary_metadata
-  process.stdout.write(`  ${prefix}summary NOT NULL with null summary_metadata... `);
+  process.stdout.write(
+    `  ${prefix}summary NOT NULL with null summary_metadata... `,
+  );
 
   const appsWithSummary = await repo.find({
     where: { summary: Not(IsNull()), summaryMetadata: IsNull() },

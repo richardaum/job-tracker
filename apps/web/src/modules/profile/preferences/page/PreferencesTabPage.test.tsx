@@ -10,7 +10,8 @@ const workPreferencesQueryMock = vi.fn();
 const updatePreferencesMock = vi.fn();
 
 vi.mock("@/gql/hooks", async () => {
-  const actual = await vi.importActual<typeof import("@/gql/hooks")>("@/gql/hooks");
+  const actual =
+    await vi.importActual<typeof import("@/gql/hooks")>("@/gql/hooks");
   return {
     ...actual,
     useWorkPreferencesQuery: () => workPreferencesQueryMock(),
@@ -44,8 +45,12 @@ describe("PreferencesTabPage", () => {
     });
     render(<PreferencesTabPage />, { wrapper: ProfileHeaderSlotsTestWrapper });
 
-    expect(screen.getByRole("button", { name: /add preference/i })).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: /save changes/i })).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /add preference/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /save changes/i }),
+    ).not.toBeInTheDocument();
   });
 
   it("clicking Add preference opens form dialog", async () => {
@@ -58,8 +63,12 @@ describe("PreferencesTabPage", () => {
 
     await user.click(screen.getByRole("button", { name: /add preference/i }));
 
-    expect(screen.getByRole("dialog", { name: /add preference/i })).toBeInTheDocument();
-    expect(screen.getByPlaceholderText("e.g. Remote-first company")).toBeInTheDocument();
+    expect(
+      screen.getByRole("dialog", { name: /add preference/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByPlaceholderText("e.g. Remote-first company"),
+    ).toBeInTheDocument();
   });
 
   it("does not render footer save or discard controls", () => {
@@ -69,7 +78,11 @@ describe("PreferencesTabPage", () => {
     });
     render(<PreferencesTabPage />, { wrapper: ProfileHeaderSlotsTestWrapper });
 
-    expect(screen.queryByRole("button", { name: /save changes/i })).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: /discard/i })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /save changes/i }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /discard/i }),
+    ).not.toBeInTheDocument();
   });
 });

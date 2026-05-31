@@ -121,7 +121,9 @@ export function buildFilteredPnpmTestCommand(
       ...target.args,
       ...grepArgs,
       ...reporters.map((reporter) => `--reporter=${reporter}`),
-      ...(options?.vitestOutputFile ? [`--outputFile=${options.vitestOutputFile}`] : []),
+      ...(options?.vitestOutputFile
+        ? [`--outputFile=${options.vitestOutputFile}`]
+        : []),
     ];
   }
 
@@ -145,7 +147,9 @@ export type ParsedVitestVerboseLine = {
 
 const VITEST_VERBOSE_LINE = /^\s*([✓×✗↓])\s+(.+?)\s>\s*(.+?)(?:\s+\d+m?s)?\s*$/;
 
-export function parseVitestVerboseLine(line: string): ParsedVitestVerboseLine | undefined {
+export function parseVitestVerboseLine(
+  line: string,
+): ParsedVitestVerboseLine | undefined {
   const match = VITEST_VERBOSE_LINE.exec(line.trimEnd());
   if (!match) return undefined;
 
@@ -357,7 +361,9 @@ export async function parseFlakyDetectionArgs(
         throw new Error(`${TAG} --runs must be an integer >= 2.`);
       }
       if (!Number.isFinite(timeoutMultiplier) || timeoutMultiplier <= 0) {
-        throw new Error(`${TAG} --timeout-multiplier must be a positive number.`);
+        throw new Error(
+          `${TAG} --timeout-multiplier must be a positive number.`,
+        );
       }
       if (!Number.isInteger(idleTimeoutMs) || idleTimeoutMs < 1_000) {
         throw new Error(`${TAG} --idle-timeout-ms must be an integer >= 1000.`);
@@ -377,7 +383,9 @@ export async function parseFlakyDetectionArgs(
     .parse();
 
   const grep = typeof parsed.grep === "string" ? parsed.grep : undefined;
-  const [, compiledNameFilter] = grep ? tryRun(() => new RegExp(grep)) : [undefined, undefined];
+  const [, compiledNameFilter] = grep
+    ? tryRun(() => new RegExp(grep))
+    : [undefined, undefined];
 
   return {
     runs: parsed.runs,
@@ -408,7 +416,10 @@ function normalizeStatus(raw: string | undefined): TestStatus {
   }
 }
 
-export function parseVitestReport(targetId: string, report: VitestJsonReport): ParsedTestResult[] {
+export function parseVitestReport(
+  targetId: string,
+  report: VitestJsonReport,
+): ParsedTestResult[] {
   const results: ParsedTestResult[] = [];
   for (const suite of report.testResults ?? []) {
     const file = suite.name ?? "<unknown>";
@@ -466,7 +477,9 @@ export function parsePlaywrightReport(
   return results;
 }
 
-function testKey(result: Pick<ParsedTestResult, "targetId" | "file" | "fullName">): string {
+function testKey(
+  result: Pick<ParsedTestResult, "targetId" | "file" | "fullName">,
+): string {
   return `${result.targetId}::${result.file}::${result.fullName}`;
 }
 
@@ -560,7 +573,10 @@ export function classifyStats(stats: TestRunStats[]): {
     stable.push(entry);
   }
 
-  flaky.sort((a, b) => b.failCount / b.runs - a.failCount / a.runs || b.failCount - a.failCount);
+  flaky.sort(
+    (a, b) =>
+      b.failCount / b.runs - a.failCount / a.runs || b.failCount - a.failCount,
+  );
   alwaysFailing.sort((a, b) => b.failCount - a.failCount);
 
   return { flaky, alwaysFailing, stable };
@@ -579,7 +595,9 @@ function resolveTargets(options: FlakyDetectionOptions): TestTarget[] {
   const match = byScope.filter((target) => target.id === options.packageFilter);
   if (match.length === 0) {
     const available = byScope.map((target) => target.id).join(", ");
-    throw new Error(`Unknown package "${options.packageFilter}". Available: ${available}`);
+    throw new Error(
+      `Unknown package "${options.packageFilter}". Available: ${available}`,
+    );
   }
   return match;
 }
@@ -721,7 +739,11 @@ function spawnPnpmWithLiveDetection(
             ? `no output for ${context.idleTimeoutMs}ms (last activity ${Math.round(idleForMs / 1000)}s ago)`
             : `exceeded suite timeout ${context.timeoutMs}ms (baseline ${context.baselineMs}ms × ${context.timeoutMultiplier})`;
 
-        reject(new Error(`${target.id} stale run detected: ${reason}. Last seen: ${lastTest}`));
+        reject(
+          new Error(
+            `${target.id} stale run detected: ${reason}. Last seen: ${lastTest}`,
+          ),
+        );
         return;
       }
 
@@ -746,21 +768,30 @@ async function runTargetOnce(
 
   const env = {
     ...process.env,
-    ...(target.runner === "playwright" ? { PLAYWRIGHT_JSON_OUTPUT_NAME: outputFile } : {}),
+    ...(target.runner === "playwright"
+      ? { PLAYWRIGHT_JSON_OUTPUT_NAME: outputFile }
+      : {}),
   };
 
   const startedAt = Date.now();
   const timeoutMs = resolveTargetTimeoutMs(target.id, timeoutMultiplier);
-  const baselineMs = TARGET_BASELINE_MS[target.id] ?? DEFAULT_TARGET_BASELINE_MS;
+  const baselineMs =
+    TARGET_BASELINE_MS[target.id] ?? DEFAULT_TARGET_BASELINE_MS;
 
-  const result = await spawnPnpmWithLiveDetection(command, REPO_ROOT, env, target, {
-    outputFile,
-    startedAt,
-    timeoutMs,
-    idleTimeoutMs,
-    baselineMs,
-    timeoutMultiplier,
-  });
+  const result = await spawnPnpmWithLiveDetection(
+    command,
+    REPO_ROOT,
+    env,
+    target,
+    {
+      outputFile,
+      startedAt,
+      timeoutMs,
+      idleTimeoutMs,
+      baselineMs,
+      timeoutMultiplier,
+    },
+  );
 
   let parsed: ParsedTestResult[] = [];
   const [parseError, parsedFromReport] = tryRun(() => {
@@ -771,7 +802,9 @@ async function runTargetOnce(
       : parsePlaywrightReport(target.id, report as PlaywrightJsonReport);
   });
   if (parseError) {
-    console.warn(`${TAG} Could not parse JSON report for ${target.id}: ${parseError.message}`);
+    console.warn(
+      `${TAG} Could not parse JSON report for ${target.id}: ${parseError.message}`,
+    );
   } else {
     parsed = parsedFromReport;
   }
@@ -781,7 +814,9 @@ async function runTargetOnce(
   }
 
   const elapsedSec = ((Date.now() - startedAt) / 1000).toFixed(1);
-  console.log(`${TAG}    done in ${elapsedSec}s — ${formatProgressSummary(result.progress)}`);
+  console.log(
+    `${TAG}    done in ${elapsedSec}s — ${formatProgressSummary(result.progress)}`,
+  );
 
   return parsed;
 }
@@ -845,7 +880,10 @@ export async function detectFlakyTests(
     for (let run = 1; run <= options.runs; run += 1) {
       console.log(`\n${TAG} Run ${run}/${options.runs}`);
       for (const target of targets) {
-        const outputFile = join(tempDir, `${safeTargetFileStem(target.id)}-${run}.json`);
+        const outputFile = join(
+          tempDir,
+          `${safeTargetFileStem(target.id)}-${run}.json`,
+        );
         console.log(`${TAG}  → ${target.id}`);
         const runResults = await runTargetOnce(
           target,
@@ -875,7 +913,8 @@ export async function detectFlakyTests(
 
 const selfResolved = resolve(fileURLToPath(import.meta.url));
 const invokedDirectly =
-  typeof process.argv[1] === "string" && resolve(process.argv[1]) === selfResolved;
+  typeof process.argv[1] === "string" &&
+  resolve(process.argv[1]) === selfResolved;
 
 if (invokedDirectly) {
   parseFlakyDetectionArgs(process.argv.slice(2))

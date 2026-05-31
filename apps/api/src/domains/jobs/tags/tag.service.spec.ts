@@ -16,10 +16,9 @@ describe("TagService", () => {
     });
 
     it("trims and removes duplicates (case-insensitive keys)", () => {
-      expect(tagService.normalizeTags([" React ", "react", " TypeScript "])).toEqual([
-        "React",
-        "TypeScript",
-      ]);
+      expect(
+        tagService.normalizeTags([" React ", "react", " TypeScript "]),
+      ).toEqual(["React", "TypeScript"]);
     });
 
     it("limits count and length", () => {

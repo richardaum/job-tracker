@@ -8,7 +8,8 @@ import IdentityTabPage from "./IdentityTabPage";
 const useMeQueryMock = vi.fn();
 
 vi.mock("@/gql/hooks", async () => {
-  const actual = await vi.importActual<typeof import("@/gql/hooks")>("@/gql/hooks");
+  const actual =
+    await vi.importActual<typeof import("@/gql/hooks")>("@/gql/hooks");
   return { ...actual, useMeQuery: () => useMeQueryMock() };
 });
 

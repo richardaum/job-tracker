@@ -45,7 +45,9 @@ export function planHasPublishedAt(document: Record<string, unknown>): boolean {
   return steps.some((step) => {
     const action = step.action as Record<string, unknown> | undefined;
     const input = action?.input as Record<string, unknown> | undefined;
-    const surfaceFields = input?.surfaceFields as Array<Record<string, unknown>> | undefined;
+    const surfaceFields = input?.surfaceFields as
+      | Array<Record<string, unknown>>
+      | undefined;
     return surfaceFields?.some((sf) => sf.key === "publishedAt") ?? false;
   });
 }

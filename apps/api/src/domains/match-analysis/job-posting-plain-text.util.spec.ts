@@ -37,6 +37,8 @@ describe("resolveJobPostingPlainText", () => {
   });
 
   it("returns empty string when neither source yields text", () => {
-    expect(resolveJobPostingPlainText({ htmlContent: "", description: "" })).toBe("");
+    expect(
+      resolveJobPostingPlainText({ htmlContent: "", description: "" }),
+    ).toBe("");
   });
 });

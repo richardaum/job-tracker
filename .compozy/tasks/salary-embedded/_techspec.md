@@ -151,7 +151,14 @@ export type CreateJobRepoDto = Pick<
 // After
 export type CreateJobRepoDto = Pick<
   NewJob,
-  "title" | "companyId" | "description" | "urls" | "source" | "tags" | "location" | "workRegion"
+  | "title"
+  | "companyId"
+  | "description"
+  | "urls"
+  | "source"
+  | "tags"
+  | "location"
+  | "workRegion"
 > & {
   salary?: SalaryEmbedded;
   draftJobId?: string | null;

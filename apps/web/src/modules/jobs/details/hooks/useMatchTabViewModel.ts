@@ -3,7 +3,11 @@
 import { tryRun } from "@job-tracker/try-run";
 import { useMemo, useState } from "react";
 
-import { AsyncMetadataStatus, MatchVerdict, useGenerateJobMatchMutation } from "@/gql/hooks";
+import {
+  AsyncMetadataStatus,
+  MatchVerdict,
+  useGenerateJobMatchMutation,
+} from "@/gql/hooks";
 import { useJobMatchStatus } from "@/modules/jobs/details/hooks/useJobMatchStatus";
 import { useToastQueue } from "@/modules/jobs/shared/hooks/useToastQueue";
 
@@ -14,26 +18,38 @@ export function useMatchTabViewModel(jobId: string) {
 
   const [wizardOpen, setWizardOpen] = useState(false);
 
-  const [matchFilterTab, setMatchFilterTab] = useState<MatchTabFilterTab>("all");
+  const [matchFilterTab, setMatchFilterTab] =
+    useState<MatchTabFilterTab>("all");
 
-  const { matchAnalysis, matchPk, status, matchLoading, matchError, refetchJobMatch } =
-    useJobMatchStatus();
+  const {
+    matchAnalysis,
+    matchPk,
+    status,
+    matchLoading,
+    matchError,
+    refetchJobMatch,
+  } = useJobMatchStatus();
 
-  const [generateJobMatch, { loading: generating }] = useGenerateJobMatchMutation();
+  const [generateJobMatch, { loading: generating }] =
+    useGenerateJobMatchMutation();
 
   const isProcessing = status === AsyncMetadataStatus.Processing;
   const isFailed = status === AsyncMetadataStatus.Failed;
   const isCompleted = status === AsyncMetadataStatus.Completed;
 
   /** True when toolbar should offer Regenerate vs Generate (parity with standalone page). */
-  const hasRenderableMatchRecord = !!matchAnalysis && !isProcessing && !isFailed;
+  const hasRenderableMatchRecord =
+    !!matchAnalysis && !isProcessing && !isFailed;
 
   const filteredItems = useMemo(() => {
     const items = matchAnalysis?.items ?? [];
     return items.filter((item) => {
-      if (matchFilterTab === MatchVerdict.Fit) return item.verdict === MatchVerdict.Fit;
-      if (matchFilterTab === MatchVerdict.Gap) return item.verdict === MatchVerdict.Gap;
-      if (matchFilterTab === MatchVerdict.Unclear) return item.verdict === MatchVerdict.Unclear;
+      if (matchFilterTab === MatchVerdict.Fit)
+        return item.verdict === MatchVerdict.Fit;
+      if (matchFilterTab === MatchVerdict.Gap)
+        return item.verdict === MatchVerdict.Gap;
+      if (matchFilterTab === MatchVerdict.Unclear)
+        return item.verdict === MatchVerdict.Unclear;
       return true;
     });
   }, [matchAnalysis, matchFilterTab]);

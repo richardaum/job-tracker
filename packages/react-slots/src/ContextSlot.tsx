@@ -1,13 +1,20 @@
 "use client";
 
-import { type PropsWithChildren, useContext, useLayoutEffect, useSyncExternalStore } from "react";
+import {
+  type PropsWithChildren,
+  useContext,
+  useLayoutEffect,
+  useSyncExternalStore,
+} from "react";
 
 import { ContextSlotsContext } from "./ContextSlotsProvider";
 
 function useContextSlotsRegistry() {
   const registry = useContext(ContextSlotsContext);
   if (!registry) {
-    throw new Error("ContextSlot must be used within a SlotsProvider (or ContextSlotsProvider)");
+    throw new Error(
+      "ContextSlot must be used within a SlotsProvider (or ContextSlotsProvider)",
+    );
   }
   return registry;
 }

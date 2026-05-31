@@ -3,7 +3,7 @@
   "globalDependencies": [
     ".oxlintrc.json",
     "packages/oxlint-plugin/**",
-    "prettier.config.mts",
+    ".oxfmtrc.json",
     "tsconfig.repo.json"
   ],
   "tasks": {

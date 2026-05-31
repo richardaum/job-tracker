@@ -339,7 +339,12 @@ export function PreferencesDialog({
   readOnly = false,
 }: PreferencesDialogProps) {
   return (
-    <Dialog open={open} onOpenChange={onOpenChange} title="Work Preferences" description="...">
+    <Dialog
+      open={open}
+      onOpenChange={onOpenChange}
+      title="Work Preferences"
+      description="..."
+    >
       <WorkPreferencesEditor
         mode="dialog"
         readOnly={readOnly}

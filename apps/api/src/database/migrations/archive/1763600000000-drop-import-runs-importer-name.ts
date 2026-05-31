@@ -4,7 +4,9 @@ export class DropImportRunsImporterName1763600000000 implements MigrationInterfa
   name = "DropImportRunsImporterName1763600000000";
 
   async up(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`ALTER TABLE "import_runs" DROP COLUMN "importer_name"`);
+    await queryRunner.query(
+      `ALTER TABLE "import_runs" DROP COLUMN "importer_name"`,
+    );
   }
 
   async down(queryRunner: QueryRunner): Promise<void> {

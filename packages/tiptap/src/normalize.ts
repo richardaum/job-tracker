@@ -21,7 +21,9 @@ function fixTipTapNodes(node: unknown): unknown {
   return fixed;
 }
 
-export function normalizeTipTapDocument(input: string | null | undefined): string {
+export function normalizeTipTapDocument(
+  input: string | null | undefined,
+): string {
   if (!input) return EMPTY_TIPTAP_DOC;
   const text = input.trim();
   if (!text) return EMPTY_TIPTAP_DOC;

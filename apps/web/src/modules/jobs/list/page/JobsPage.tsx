@@ -1,6 +1,14 @@
 "use client";
 
-import { Button, Card, cn, Skeleton, Stack, Text, useDialog } from "@job-tracker/ui";
+import {
+  Button,
+  Card,
+  cn,
+  Skeleton,
+  Stack,
+  Text,
+  useDialog,
+} from "@job-tracker/ui";
 import { SearchInput } from "@job-tracker/ui";
 import { PlusIcon } from "@phosphor-icons/react";
 import type { Route } from "next";
@@ -15,7 +23,10 @@ import { QuickFilters } from "@/modules/jobs/list/components/QuickFilters";
 import { useJobsListViewModel } from "@/modules/jobs/list/hooks/useJobsListViewModel";
 import { useToastQueue } from "@/modules/jobs/shared/hooks/useToastQueue";
 
-function stripSearchKeys(currentSearch: string, keysToRemove: Array<string>): string {
+function stripSearchKeys(
+  currentSearch: string,
+  keysToRemove: Array<string>,
+): string {
   const params = new URLSearchParams(currentSearch);
   for (const key of keysToRemove) params.delete(key);
   return params.toString();
@@ -24,10 +35,17 @@ function stripSearchKeys(currentSearch: string, keysToRemove: Array<string>): st
 function JobListCardSkeleton() {
   return (
     <Card padding="sm">
-      <div className={cn("flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between")}>
+      <div
+        className={cn(
+          "flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between",
+        )}
+      >
         <div className={cn("flex min-w-0 flex-col gap-1")}>
           <div className={cn("flex min-w-0 flex-wrap items-center gap-2")}>
-            <Skeleton variant="text" className={cn("h-5 w-[min(12rem,100%)] max-w-full")} />
+            <Skeleton
+              variant="text"
+              className={cn("h-5 w-[min(12rem,100%)] max-w-full")}
+            />
             <Skeleton className={cn("h-6 w-20 shrink-0 rounded-full")} />
             <div className={cn("flex items-center gap-1")}>
               <Skeleton className={cn("size-6 rounded-sm")} />
@@ -78,7 +96,8 @@ export default function JobsPage() {
     router.push((qs ? `${pathname}?${qs}` : pathname) as Route);
   }
 
-  const { jobs, companyFilter, error, runIdFilter, showInitialLoading } = useJobsListViewModel();
+  const { jobs, companyFilter, error, runIdFilter, showInitialLoading } =
+    useJobsListViewModel();
 
   const { enqueueToast } = useToastQueue();
 
@@ -126,7 +145,9 @@ export default function JobsPage() {
       />
 
       {/* Content */}
-      <div className={cn("flex min-h-0 flex-1 flex-col overflow-auto p-4 sm:p-6")}>
+      <div
+        className={cn("flex min-h-0 flex-1 flex-col overflow-auto p-4 sm:p-6")}
+      >
         {showInitialLoading ? (
           <JobsListSkeleton />
         ) : error ? (

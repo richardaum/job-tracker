@@ -5,7 +5,11 @@ import { PlusIcon } from "@phosphor-icons/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
-import type { KeywordScope, MatchMode, UpdateSettingsMutation } from "@/gql/graphql";
+import type {
+  KeywordScope,
+  MatchMode,
+  UpdateSettingsMutation,
+} from "@/gql/graphql";
 import { KeywordScope as KeywordScopeEnum } from "@/gql/graphql";
 import { useSettingsQuery, useUpdateSettingsMutation } from "@/gql/hooks";
 import { conceptIcon } from "@job-tracker/ui";
@@ -30,17 +34,19 @@ const SCOPE_TABS: Array<{
     label: "All",
     icon: <conceptIcon.list size={14} weight="regular" />,
   },
-  ...[KeywordScopeEnum.Title, KeywordScopeEnum.Description, KeywordScopeEnum.Company].map(
-    (scope) => {
-      const cfg = SCOPE_ICON_CONFIG[scope];
-      const Icon = cfg.icon;
-      return {
-        value: scope.toLowerCase(),
-        label: cfg.label,
-        icon: <Icon size={14} weight="regular" className={cfg.colorClass} />,
-      };
-    },
-  ),
+  ...[
+    KeywordScopeEnum.Title,
+    KeywordScopeEnum.Description,
+    KeywordScopeEnum.Company,
+  ].map((scope) => {
+    const cfg = SCOPE_ICON_CONFIG[scope];
+    const Icon = cfg.icon;
+    return {
+      value: scope.toLowerCase(),
+      label: cfg.label,
+      icon: <Icon size={14} weight="regular" className={cfg.colorClass} />,
+    };
+  }),
 ];
 
 type SettingsValues = NonNullable<
@@ -62,11 +68,15 @@ function buildOptimisticSettings(
     autoMatchEnabled: settings.autoMatchEnabled,
     duplicateWindowDays: settings.duplicateWindowDays,
     blockedKeywords: input.blockedKeywords ?? settings.blockedKeywords ?? null,
-    blockedCompanies: input.blockedCompanies ?? settings.blockedCompanies ?? null,
+    blockedCompanies:
+      input.blockedCompanies ?? settings.blockedCompanies ?? null,
   };
 }
 
-function mergeItems(keywords: BlockedKeywordItem[], companies: string[]): BlockedKeywordItem[] {
+function mergeItems(
+  keywords: BlockedKeywordItem[],
+  companies: string[],
+): BlockedKeywordItem[] {
   return [
     ...keywords,
     ...companies.map((c) => ({
@@ -87,7 +97,10 @@ function splitItems(items: BlockedKeywordItem[]): {
   };
 }
 
-function filterItems(items: BlockedKeywordItem[], scope: string): BlockedKeywordItem[] {
+function filterItems(
+  items: BlockedKeywordItem[],
+  scope: string,
+): BlockedKeywordItem[] {
   if (scope === "all") return items;
   return items.filter((i) => i.scope.toLowerCase() === scope);
 }
@@ -100,7 +113,9 @@ export default function BlockedKeywordsTabPage() {
   const settings = data?.settings ?? null;
   const currentScope = searchParams.get("scope") ?? "all";
 
-  const [editingItem, setEditingItem] = useState<BlockedKeywordItem | null>(null);
+  const [editingItem, setEditingItem] = useState<BlockedKeywordItem | null>(
+    null,
+  );
 
   if (loading && !settings) {
     return null;
@@ -116,7 +131,8 @@ export default function BlockedKeywordsTabPage() {
   const filteredItems = filterItems(items, currentScope);
 
   const handleSave = async (updatedItems: BlockedKeywordItem[]) => {
-    const { keywords: newKeywords, companies: newCompanies } = splitItems(updatedItems);
+    const { keywords: newKeywords, companies: newCompanies } =
+      splitItems(updatedItems);
     await updateSettings({
       variables: {
         input: { blockedKeywords: newKeywords, blockedCompanies: newCompanies },
@@ -138,7 +154,10 @@ export default function BlockedKeywordsTabPage() {
         i.scope === editingItem.scope &&
         i.matchMode === editingItem.matchMode,
     );
-    const next = idx >= 0 ? items.map((i, n) => (n === idx ? saved : i)) : [...items, saved];
+    const next =
+      idx >= 0
+        ? items.map((i, n) => (n === idx ? saved : i))
+        : [...items, saved];
     void handleSave(next);
   };
 
@@ -156,7 +175,9 @@ export default function BlockedKeywordsTabPage() {
       params.set("scope", scope);
     }
     const qs = params.toString();
-    router.replace(qs ? `/profile/blocked-keywords?${qs}` : "/profile/blocked-keywords");
+    router.replace(
+      qs ? `/profile/blocked-keywords?${qs}` : "/profile/blocked-keywords",
+    );
   };
 
   return (
@@ -181,7 +202,11 @@ export default function BlockedKeywordsTabPage() {
         <Tabs value={currentScope} onValueChange={setScope}>
           <TabsList>
             {SCOPE_TABS.map((tab) => (
-              <TabsTrigger key={tab.value} value={tab.value} leadingIcon={tab.icon}>
+              <TabsTrigger
+                key={tab.value}
+                value={tab.value}
+                leadingIcon={tab.icon}
+              >
                 {tab.label}
               </TabsTrigger>
             ))}

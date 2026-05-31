@@ -63,7 +63,8 @@ export class CurrencyConverterService implements OnModuleInit {
     }
 
     const fetchedRates: Record<string, number> | null =
-      (await this.fetchFromPrimary(base)) ?? (await this.fetchFromFallback(base));
+      (await this.fetchFromPrimary(base)) ??
+      (await this.fetchFromFallback(base));
 
     if (!fetchedRates) {
       const err = new Error("Failed to fetch exchange rates from all sources");
@@ -71,7 +72,9 @@ export class CurrencyConverterService implements OnModuleInit {
       throw err;
     }
 
-    const [cacheErr] = await tryRun(this.cacheService.set(base, fetchedRates, ttlSeconds));
+    const [cacheErr] = await tryRun(
+      this.cacheService.set(base, fetchedRates, ttlSeconds),
+    );
 
     if (cacheErr) {
       this.logger.error(`Failed to fetch rates for ${base}`, cacheErr);
@@ -90,12 +93,16 @@ export class CurrencyConverterService implements OnModuleInit {
     return this.getRates(base, targets, ttlSeconds);
   }
 
-  private async fetchFromPrimary(base: string): Promise<Record<string, number> | null> {
+  private async fetchFromPrimary(
+    base: string,
+  ): Promise<Record<string, number> | null> {
     if (!FRANKFURTER_SUPPORTED.has(base)) {
       return null;
     }
 
-    const [fetchErr, response] = await tryRun(fetch(`${CURRENCY_API_BASE}/latest?from=${base}`));
+    const [fetchErr, response] = await tryRun(
+      fetch(`${CURRENCY_API_BASE}/latest?from=${base}`),
+    );
     if (fetchErr || !response.ok) return null;
     const [jsonErr, data] = await tryRun(
       response.json() as Promise<{ rates: Record<string, number> }>,
@@ -104,8 +111,12 @@ export class CurrencyConverterService implements OnModuleInit {
     return data.rates;
   }
 
-  private async fetchFromFallback(base: string): Promise<Record<string, number> | null> {
-    const [fetchErr, response] = await tryRun(fetch(`${FALLBACK_API_BASE}/${base}`));
+  private async fetchFromFallback(
+    base: string,
+  ): Promise<Record<string, number> | null> {
+    const [fetchErr, response] = await tryRun(
+      fetch(`${FALLBACK_API_BASE}/${base}`),
+    );
     if (fetchErr || !response.ok) return null;
     const [jsonErr, data] = await tryRun(
       response.json() as Promise<{ rates: Record<string, number> }>,

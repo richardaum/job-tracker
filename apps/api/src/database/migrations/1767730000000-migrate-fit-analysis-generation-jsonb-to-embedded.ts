@@ -7,7 +7,9 @@ export class MigrateFitAnalysisGenerationJsonbToEmbedded1767730000000 implements
     await queryRunner.query(
       `ALTER TABLE "match_analysis" ADD COLUMN "generation_status" text NULL`,
     );
-    await queryRunner.query(`ALTER TABLE "match_analysis" ADD COLUMN "generation_error" text NULL`);
+    await queryRunner.query(
+      `ALTER TABLE "match_analysis" ADD COLUMN "generation_error" text NULL`,
+    );
     await queryRunner.query(
       `ALTER TABLE "match_analysis" ADD COLUMN "generation_timestamp" timestamptz NULL`,
     );
@@ -21,7 +23,9 @@ export class MigrateFitAnalysisGenerationJsonbToEmbedded1767730000000 implements
       WHERE "generation_metadata" IS NOT NULL
     `);
 
-    await queryRunner.query(`ALTER TABLE "match_analysis" DROP COLUMN "generation_metadata"`);
+    await queryRunner.query(
+      `ALTER TABLE "match_analysis" DROP COLUMN "generation_metadata"`,
+    );
   }
 
   async down(queryRunner: QueryRunner): Promise<void> {
@@ -39,8 +43,14 @@ export class MigrateFitAnalysisGenerationJsonbToEmbedded1767730000000 implements
       WHERE "generation_status" IS NOT NULL
     `);
 
-    await queryRunner.query(`ALTER TABLE "match_analysis" DROP COLUMN "generation_status"`);
-    await queryRunner.query(`ALTER TABLE "match_analysis" DROP COLUMN "generation_error"`);
-    await queryRunner.query(`ALTER TABLE "match_analysis" DROP COLUMN "generation_timestamp"`);
+    await queryRunner.query(
+      `ALTER TABLE "match_analysis" DROP COLUMN "generation_status"`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE "match_analysis" DROP COLUMN "generation_error"`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE "match_analysis" DROP COLUMN "generation_timestamp"`,
+    );
   }
 }

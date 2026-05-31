@@ -9,7 +9,10 @@ const restructureSchema = z.object({ restructured: z.string() });
 
 @Injectable()
 export class RestructureJDService extends AiBaseService {
-  constructor(openAIClient: OpenAIClient, promptRenderer: PromptRendererService) {
+  constructor(
+    openAIClient: OpenAIClient,
+    promptRenderer: PromptRendererService,
+  ) {
     super(openAIClient, promptRenderer);
   }
 
@@ -25,7 +28,8 @@ export class RestructureJDService extends AiBaseService {
         "If information is uncertain or contradictory, keep it unchanged from the original.",
         "Return plain text only (no markdown code fences); headings are plain uppercase or title-case single lines ending with ':' is allowed only if faithful to originals or section labels you add.",
       ].join("\n"),
-      userMessage: "Restructure this job description without losing any data:\n\n" + text,
+      userMessage:
+        "Restructure this job description without losing any data:\n\n" + text,
       schema: restructureSchema,
       responseFormat: "zod-response",
     });

@@ -5,7 +5,9 @@ function trimTrailingSlash(value: string): string {
 }
 
 export function getApiBaseUrl(): string {
-  return clientEnv.NEXT_PUBLIC_API_URL ? trimTrailingSlash(clientEnv.NEXT_PUBLIC_API_URL) : "";
+  return clientEnv.NEXT_PUBLIC_API_URL
+    ? trimTrailingSlash(clientEnv.NEXT_PUBLIC_API_URL)
+    : "";
 }
 
 export function getApiGraphqlUrl(): string {

@@ -1,4 +1,10 @@
-import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  renameSync,
+  writeFileSync,
+} from "node:fs";
 import { homedir } from "node:os";
 import { dirname, join } from "node:path";
 
@@ -43,13 +49,22 @@ export function defaultDBeaverDataSourcesPath(): string {
 
   const home = homedir();
   if (process.platform === "darwin") {
-    return join(home, "Library/DBeaverData/workspace6/General/.dbeaver/data-sources.json");
+    return join(
+      home,
+      "Library/DBeaverData/workspace6/General/.dbeaver/data-sources.json",
+    );
   }
   if (process.platform === "win32") {
     const appData = process.env.APPDATA ?? join(home, "AppData/Roaming");
-    return join(appData, "DBeaverData/workspace6/General/.dbeaver/data-sources.json");
+    return join(
+      appData,
+      "DBeaverData/workspace6/General/.dbeaver/data-sources.json",
+    );
   }
-  return join(home, ".local/share/DBeaverData/workspace6/General/.dbeaver/data-sources.json");
+  return join(
+    home,
+    ".local/share/DBeaverData/workspace6/General/.dbeaver/data-sources.json",
+  );
 }
 
 /** Stable connection key derived from the worktree slug. */
@@ -90,7 +105,9 @@ function parsePgDatabaseUrl(databaseUrl: string): {
   const url = new URL(databaseUrl);
   const database = url.pathname.replace(/^\//, "");
   if (!database) {
-    throw new Error(`Invalid DATABASE_URL (missing database name): ${databaseUrl}`);
+    throw new Error(
+      `Invalid DATABASE_URL (missing database name): ${databaseUrl}`,
+    );
   }
   return {
     host: url.hostname || "localhost",
@@ -163,7 +180,8 @@ export function addWorktreeDBeaverConnection(params: {
   force?: boolean;
 }): void {
   const path = params.dataSourcesPath ?? defaultDBeaverDataSourcesPath();
-  const database = parseDatabaseName(params.databaseUrl) ?? dbNameForSlug(params.slug);
+  const database =
+    parseDatabaseName(params.databaseUrl) ?? dbNameForSlug(params.slug);
 
   const [readErr, data] = tryRun(() => readDataSources(path));
   if (readErr) {
@@ -179,13 +197,17 @@ export function addWorktreeDBeaverConnection(params: {
   const { id, entry } = buildConnection(params.slug, params.databaseUrl);
 
   if (existingId && !params.force) {
-    console.warn(`${params.tag} DBeaver connection already exists (${existingId}, db=${database})`);
+    console.warn(
+      `${params.tag} DBeaver connection already exists (${existingId}, db=${database})`,
+    );
     return;
   }
 
   if (existingId && params.force) {
     delete data!.connections[existingId];
-    console.warn(`${params.tag} DBeaver updating existing connection (${existingId})`);
+    console.warn(
+      `${params.tag} DBeaver updating existing connection (${existingId})`,
+    );
   }
 
   data!.connections[id] = entry;
@@ -195,7 +217,9 @@ export function addWorktreeDBeaverConnection(params: {
     worktreeFail(params.tag, writeErr.message);
   }
 
-  console.warn(`${params.tag} DBeaver added ${entry.name} → ${path} (${WORKTREE_FOLDER})`);
+  console.warn(
+    `${params.tag} DBeaver added ${entry.name} → ${path} (${WORKTREE_FOLDER})`,
+  );
 }
 
 /** Removes connection by slug id or by matching database name. */
@@ -223,7 +247,9 @@ export function removeWorktreeDBeaverConnection(params: {
       : findConnectionIdByDatabase(data!.connections, database);
 
   if (!id) {
-    console.warn(`${params.tag} DBeaver connection not found for db=${database} — skip`);
+    console.warn(
+      `${params.tag} DBeaver connection not found for db=${database} — skip`,
+    );
     return;
   }
 

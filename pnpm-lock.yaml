@@ -59,9 +59,6 @@ importers:
       oxlint-tsgolint:
         specifier: ^0.23.0
         version: 0.23.0
-      prettier:
-        specifier: ^3.8.3
-        version: 3.8.3
       tsx:
         specifier: ^4.21.0
         version: 4.21.0
@@ -21725,7 +21722,8 @@ snapshots:
 
   prelude-ls@1.2.1: {}
 
-  prettier@3.8.3: {}
+  prettier@3.8.3:
+    optional: true
 
   pretty-format@27.5.1:
     dependencies:
