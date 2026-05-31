@@ -40,6 +40,7 @@ import { NormalizeExtensionActivityEventTypePascalCase1768130000000 } from "./17
 import { NormalizeRoleEnumPascalcase1768140000000 } from "./1768140000000-normalize-role-enum-pascalcase";
 import { AddSourceRunJobSkipped1768150000000 } from "./1768150000000-add-source-run-job-skipped";
 import { NormalizeEnumValuesPascalcase1768160000000 } from "./1768160000000-normalize-enum-values-pascalcase";
+import { RenameCorrelationIdToSourceRunId1768170000000 } from "./1768170000000-rename-correlation-id-to-source-run-id";
 
 export const migrations = [
   SquashedBaseline1767000000000,
@@ -84,4 +85,5 @@ export const migrations = [
   NormalizeRoleEnumPascalcase1768140000000,
   AddSourceRunJobSkipped1768150000000,
   NormalizeEnumValuesPascalcase1768160000000,
+  RenameCorrelationIdToSourceRunId1768170000000,
 ];

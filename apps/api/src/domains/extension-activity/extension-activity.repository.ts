@@ -8,7 +8,7 @@ import { ExtensionActivityEventTypeEnum } from "./extension-activity-event-type.
 export type CreateExtensionActivityEventRepoDto = {
   type: ExtensionActivityEventTypeEnum;
   summary: string;
-  correlationId?: string | null;
+  sourceRunId?: string | null;
   payload?: Record<string, unknown> | null;
   extensionVersion?: string | null;
   browser?: string | null;
@@ -27,7 +27,7 @@ export class ExtensionActivityRepository {
       userId,
       type: dto.type,
       summary: dto.summary,
-      correlationId: dto.correlationId ?? null,
+      sourceRunId: dto.sourceRunId ?? null,
       payload: dto.payload ?? null,
       extensionVersion: dto.extensionVersion ?? null,
       browser: dto.browser ?? null,

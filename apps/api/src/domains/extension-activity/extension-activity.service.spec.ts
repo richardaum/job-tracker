@@ -27,7 +27,7 @@ describe("ExtensionActivityService", () => {
       userId: "user-1",
       type: ExtensionActivityEventTypeEnum.SourceRunStarted,
       summary: "RemoteYeah run started",
-      correlationId: "run-1",
+      sourceRunId: "run-1",
       payload: null,
       extensionVersion: "1.0.0",
       browser: "Chrome",
@@ -38,7 +38,7 @@ describe("ExtensionActivityService", () => {
     const input: ReportExtensionActivityInput = {
       type: ExtensionActivityEventTypeEnum.SourceRunStarted,
       summary: "RemoteYeah run started",
-      correlationId: "run-1",
+      sourceRunId: "run-1",
       extensionVersion: "1.0.0",
       browser: "Chrome",
     };
@@ -48,7 +48,7 @@ describe("ExtensionActivityService", () => {
     expect(repo.create).toHaveBeenCalledWith("user-1", {
       type: ExtensionActivityEventTypeEnum.SourceRunStarted,
       summary: "RemoteYeah run started",
-      correlationId: "run-1",
+      sourceRunId: "run-1",
       payload: null,
       extensionVersion: "1.0.0",
       browser: "Chrome",
@@ -61,7 +61,7 @@ describe("ExtensionActivityService", () => {
           id: "evt-1",
           type: ExtensionActivityEventTypeEnum.SourceRunStarted,
           summary: "RemoteYeah run started",
-          correlationId: "run-1",
+          sourceRunId: "run-1",
           payload: null,
           extensionVersion: "1.0.0",
           browser: "Chrome",

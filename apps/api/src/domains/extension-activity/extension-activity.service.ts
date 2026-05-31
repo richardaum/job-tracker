@@ -31,7 +31,7 @@ export class ExtensionActivityService {
     const row = await this.repo.create(userId, {
       type: input.type,
       summary,
-      correlationId: input.correlationId ?? null,
+      sourceRunId: input.sourceRunId ?? null,
       payload: input.payload ?? null,
       extensionVersion: input.extensionVersion ?? null,
       browser: input.browser ?? null,
@@ -55,7 +55,7 @@ export class ExtensionActivityService {
       id: row.id,
       type: row.type,
       summary: row.summary,
-      correlationId: row.correlationId,
+      sourceRunId: row.sourceRunId,
       payload: row.payload,
       extensionVersion: row.extensionVersion,
       browser: row.browser,

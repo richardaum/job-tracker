@@ -15,8 +15,8 @@ export class ExtensionActivityEventEntity {
   @Column({ type: "text" })
   summary!: string;
 
-  @Column({ name: "correlation_id", type: "text", nullable: true })
-  correlationId!: string | null;
+  @Column({ name: "source_run_id", type: "text", nullable: true })
+  sourceRunId!: string | null;
 
   @Column({ type: "jsonb", nullable: true })
   payload!: Record<string, unknown> | null;

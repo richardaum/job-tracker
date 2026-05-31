@@ -15,7 +15,7 @@ export class ExtensionActivityEvent {
   summary!: string;
 
   @Field(() => String, { nullable: true, description: "Groups related events (e.g. run ID)." })
-  correlationId!: string | null;
+  sourceRunId!: string | null;
 
   @Field(() => GraphQLJSON, { nullable: true, description: "Arbitrary JSON payload with event details." })
   payload!: Record<string, unknown> | null;

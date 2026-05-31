@@ -62,7 +62,7 @@ type ExtensionActivityEvent {
   summary: String!
 
   """Groups related events (e.g. run ID)."""
-  correlationId: String
+  sourceRunId: String
 
   """Arbitrary JSON payload with event details."""
   payload: JSON
@@ -583,7 +583,7 @@ input UpdateSourceRunInput {
 input ReportExtensionActivityInput {
   type: ExtensionActivityEventType!
   summary: String!
-  correlationId: String
+  sourceRunId: String
   payload: JSON
   extensionVersion: String
   browser: String
