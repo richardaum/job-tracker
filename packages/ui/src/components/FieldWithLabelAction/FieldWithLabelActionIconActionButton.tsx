@@ -1,9 +1,9 @@
+import type { ComponentProps } from "react";
 import { IconButton } from "@ui/components/IconButton/IconButton";
 import { cn } from "@ui/lib/cn";
-import React from "react";
 
 export type FieldWithLabelActionIconActionButtonProps = Omit<
-  React.ComponentProps<typeof IconButton>,
+  ComponentProps<typeof IconButton>,
   "intent" | "size" | "tooltip"
 > & { label: string };
 

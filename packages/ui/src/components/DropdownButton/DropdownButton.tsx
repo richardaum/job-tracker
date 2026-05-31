@@ -1,12 +1,12 @@
+import type { ReactNode } from "react";
 import { CaretDownIcon } from "@phosphor-icons/react";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { ButtonIntent, ButtonSize } from "@ui/components/Button/Button";
 import { cn } from "@ui/lib/cn";
-import React from "react";
 
 export interface DropdownButtonProps {
-  children: React.ReactNode;
-  content: React.ReactNode;
+  children: ReactNode;
+  content: ReactNode;
   onClick?: () => void;
   intent?: ButtonIntent;
   size?: ButtonSize;
@@ -18,10 +18,12 @@ export interface DropdownButtonProps {
 }
 
 const intentClasses: Record<ButtonIntent, string> = {
-  primary: "border-r border-white/20 bg-bg-brand text-text-inverted hover:bg-bg-brand-hover",
+  primary:
+    "border-r border-white/20 bg-bg-brand text-text-inverted hover:bg-bg-brand-hover",
   secondary:
     "border-l-[1.5px] border-t-[1.5px] border-b-[1.5px] border-border-default bg-bg-surface text-text-primary hover:bg-bg-surface-hover",
-  ghost: "border-transparent bg-transparent text-text-brand shadow-none hover:bg-bg-brand-subtle",
+  ghost:
+    "border-transparent bg-transparent text-text-brand shadow-none hover:bg-bg-brand-subtle",
   outlined:
     "border-l border-t border-b border-border-default bg-transparent text-text-primary shadow-none hover:bg-bg-surface-hover",
   destructive:
@@ -29,7 +31,8 @@ const intentClasses: Record<ButtonIntent, string> = {
 };
 
 const dropdownIntentClasses: Record<ButtonIntent, string> = {
-  primary: "bg-bg-brand text-text-inverted hover:bg-bg-brand-hover rounded-r-md",
+  primary:
+    "bg-bg-brand text-text-inverted hover:bg-bg-brand-hover rounded-r-md",
   secondary:
     "border-[1.5px] border-border-default bg-bg-surface text-text-primary hover:bg-bg-surface-hover rounded-r-md",
   ghost: "bg-transparent text-text-brand hover:bg-bg-brand-subtle rounded-r-md",
@@ -60,7 +63,12 @@ export function DropdownButton({
 }: DropdownButtonProps) {
   return (
     <DropdownMenu.Root open={open} onOpenChange={onOpenChange}>
-      <div className={cn("inline-flex items-stretch rounded-md bg-bg-surface", className)}>
+      <div
+        className={cn(
+          "inline-flex items-stretch rounded-md bg-bg-surface",
+          className,
+        )}
+      >
         <button
           type="button"
           onClick={onClick}
@@ -68,7 +76,9 @@ export function DropdownButton({
             "inline-flex items-center cursor-pointer rounded-l-md font-medium whitespace-nowrap transition-colors hover:bg-bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-brand focus-visible:ring-inset focus-visible:ring-offset-0",
             intentClasses[intent],
             sizeClasses[size],
-            (intent === "outlined" || intent === "secondary" || intent === "destructive") &&
+            (intent === "outlined" ||
+              intent === "secondary" ||
+              intent === "destructive") &&
               "rounded-r-none",
             buttonClassName,
           )}

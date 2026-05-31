@@ -1,5 +1,4 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import React from "react";
 import { describe, expect, it, vi } from "vitest";
 
 import { Button } from "./Button";
@@ -7,7 +6,9 @@ import { Button } from "./Button";
 describe("Button", () => {
   it("renders children in the document", () => {
     render(<Button>Click me</Button>);
-    expect(screen.getByRole("button", { name: /click me/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /click me/i }),
+    ).toBeInTheDocument();
   });
 
   it("calls onClick when clicked", async () => {
@@ -19,12 +20,16 @@ describe("Button", () => {
 
   it("renders with explicit intent classes", () => {
     render(<Button intent="secondary">Secondary action</Button>);
-    expect(screen.getByRole("button", { name: /secondary action/i })).toHaveClass("bg-bg-surface");
+    expect(
+      screen.getByRole("button", { name: /secondary action/i }),
+    ).toHaveClass("bg-bg-surface");
   });
 
   it("renders outlined intent with transparent background", () => {
     render(<Button intent="outlined">Outline</Button>);
-    expect(screen.getByRole("button", { name: /outline/i })).toHaveClass("bg-transparent");
+    expect(screen.getByRole("button", { name: /outline/i })).toHaveClass(
+      "bg-transparent",
+    );
   });
 
   it("is disabled while loading", () => {

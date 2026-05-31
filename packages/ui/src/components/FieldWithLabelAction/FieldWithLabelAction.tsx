@@ -1,11 +1,12 @@
+import { Children } from "react";
+import type { ReactNode } from "react";
 import { Text } from "@ui/components/Typography/Text";
 import { cn } from "@ui/lib/cn";
-import React from "react";
 
 export type FieldWithLabelActionProps = {
   label: string;
-  content: React.ReactNode;
-  actions?: React.ReactNode | React.ReactNode[];
+  content: ReactNode;
+  actions?: ReactNode | ReactNode[];
   className?: string;
 };
 
@@ -15,7 +16,7 @@ export function FieldWithLabelAction({
   actions,
   className,
 }: FieldWithLabelActionProps) {
-  const actionItems = React.Children.toArray(actions);
+  const actionItems = Children.toArray(actions);
   const hasActions = actionItems.length > 0;
 
   return (

@@ -1,7 +1,6 @@
 import { CaretDownIcon } from "@phosphor-icons/react";
 import * as RadixSelect from "@radix-ui/react-select";
 import { cn } from "@ui/lib/cn";
-import React from "react";
 
 export interface SelectOption {
   label: string;
@@ -49,7 +48,9 @@ export function Select({
 
   return (
     <RadixSelect.Root
-      {...(isControlled ? { value: value ?? "", onValueChange } : { defaultValue, onValueChange })}
+      {...(isControlled
+        ? { value: value ?? "", onValueChange }
+        : { defaultValue, onValueChange })}
       disabled={disabled}
       name={name}
       required={required}

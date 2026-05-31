@@ -1,9 +1,12 @@
 import { SignOutIcon, UserIcon } from "@phosphor-icons/react";
 import { fireEvent, render, screen } from "@testing-library/react";
-import React from "react";
 import { describe, expect, it, vi } from "vitest";
 
-import { DropdownMenu, DropdownMenuItem, DropdownMenuSeparator } from "./DropdownMenu";
+import {
+  DropdownMenu,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from "./DropdownMenu";
 
 describe("DropdownMenu", () => {
   it("opens content from trigger click", async () => {
@@ -23,7 +26,10 @@ describe("DropdownMenu", () => {
     const onSelect = vi.fn();
     render(
       <DropdownMenu trigger={<button type="button">Open menu</button>}>
-        <DropdownMenuItem onSelect={onSelect} icon={<SignOutIcon size={14} weight="regular" />}>
+        <DropdownMenuItem
+          onSelect={onSelect}
+          icon={<SignOutIcon size={14} weight="regular" />}
+        >
           Sign out
         </DropdownMenuItem>
         <DropdownMenuSeparator />

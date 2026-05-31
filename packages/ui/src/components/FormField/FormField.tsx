@@ -1,6 +1,6 @@
+import type { ReactNode } from "react";
 import { Label } from "@ui/components/Label/Label";
 import { cn } from "@ui/lib/cn";
-import React from "react";
 
 export interface FormFieldProps {
   label: string;
@@ -9,8 +9,8 @@ export interface FormFieldProps {
   error?: string;
   required?: boolean;
   size?: "sm" | "md";
-  tooltip?: React.ReactNode;
-  children: React.ReactNode;
+  tooltip?: ReactNode;
+  children: ReactNode;
 }
 
 export function FormField({

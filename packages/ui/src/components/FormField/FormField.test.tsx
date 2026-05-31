@@ -1,6 +1,5 @@
 import { render, screen } from "@testing-library/react";
 import { Input } from "@ui/components/Input/Input";
-import React from "react";
 import { describe, expect, it } from "vitest";
 
 import { FormField } from "./FormField";

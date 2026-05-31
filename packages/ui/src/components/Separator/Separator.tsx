@@ -1,5 +1,4 @@
 import * as RadixSeparator from "@radix-ui/react-separator";
-import React from "react";
 
 export interface SeparatorProps {
   orientation?: "horizontal" | "vertical";

@@ -1,7 +1,8 @@
 import { XIcon } from "@phosphor-icons/react";
 import * as RadixDialog from "@radix-ui/react-dialog";
 import { cn } from "@ui/lib/cn";
-import React, { useId } from "react";
+import { useId } from "react";
+import type { ReactNode } from "react";
 
 export type SideDetailsSide = "left" | "right";
 
@@ -14,19 +15,19 @@ export interface SideDetailsProps {
   layout?: SideDetailsLayout;
   open: boolean;
   onOpenChange: (next: boolean) => void;
-  children: React.ReactNode;
+  children: ReactNode;
   /** Visible heading row; maps to Radix Dialog.Title when overlay, or `<h2>` when inline. */
-  title?: React.ReactNode;
+  title?: ReactNode;
   /**
    * Plain accessible name used when no visible `title` is provided, or alongside a custom `header`.
    */
   accessibilityTitle?: string;
   /** Optional muted line under the default title row. */
-  description?: React.ReactNode;
+  description?: ReactNode;
   /** Replaces the default title + description header block while keeping close chrome. */
-  header?: React.ReactNode;
+  header?: ReactNode;
   /** Pinned footer under the scrolling body (actions, summaries, etc.). */
-  footer?: React.ReactNode;
+  footer?: ReactNode;
   side?: SideDetailsSide;
   showCloseButton?: boolean;
   contentClassName?: string;
@@ -37,10 +38,12 @@ export interface SideDetailsProps {
 
 function resolveAccessibilityTitle(params: {
   accessibilityTitle?: string;
-  title?: React.ReactNode;
+  title?: ReactNode;
 }): string {
-  if (params.accessibilityTitle?.trim()) return params.accessibilityTitle.trim();
-  if (typeof params.title === "string" && params.title.trim()) return params.title.trim();
+  if (params.accessibilityTitle?.trim())
+    return params.accessibilityTitle.trim();
+  if (typeof params.title === "string" && params.title.trim())
+    return params.title.trim();
   return "Details";
 }
 
@@ -71,12 +74,15 @@ export function SideDetails({
   const a11yTitle = resolveAccessibilityTitle({ accessibilityTitle, title });
 
   const hasDescription =
-    typeof description === "string" ? Boolean(description.trim()) : Boolean(description);
+    typeof description === "string"
+      ? Boolean(description.trim())
+      : Boolean(description);
 
   const usesDefaultHeader = header === undefined;
   const showTitleRow = Boolean(title ?? description);
 
-  const headerChromeClassName = showTitleRow || header !== undefined ? cn("pb-3") : cn("pb-0 pt-3");
+  const headerChromeClassName =
+    showTitleRow || header !== undefined ? cn("pb-3") : cn("pb-0 pt-3");
 
   const columnClassName = cn(
     "relative flex min-h-0 max-w-md flex-col border-border-subtle bg-bg-surface focus:outline-none sm:max-w-lg",
@@ -98,16 +104,23 @@ export function SideDetails({
     <div className={cn("space-y-1")}>
       {title !== undefined ? (
         layout === "overlay" ? (
-          <RadixDialog.Title className={cn("text-md font-semibold text-text-primary")}>
+          <RadixDialog.Title
+            className={cn("text-md font-semibold text-text-primary")}
+          >
             {title}
           </RadixDialog.Title>
         ) : (
-          <h2 id={titleId} className={cn("text-md font-semibold text-text-primary")}>
+          <h2
+            id={titleId}
+            className={cn("text-md font-semibold text-text-primary")}
+          >
             {title}
           </h2>
         )
       ) : layout === "overlay" ? (
-        <RadixDialog.Title className={cn("sr-only")}>{a11yTitle}</RadixDialog.Title>
+        <RadixDialog.Title className={cn("sr-only")}>
+          {a11yTitle}
+        </RadixDialog.Title>
       ) : (
         <h2 id={titleId} className={cn("sr-only")}>
           {a11yTitle}
@@ -116,7 +129,9 @@ export function SideDetails({
       {hasDescription ? (
         layout === "overlay" ? (
           <RadixDialog.Description asChild>
-            <div className={cn("text-sm text-text-secondary")}>{description}</div>
+            <div className={cn("text-sm text-text-secondary")}>
+              {description}
+            </div>
           </RadixDialog.Description>
         ) : (
           <div className={cn("text-sm text-text-secondary")}>{description}</div>
@@ -129,7 +144,9 @@ export function SideDetails({
     usesDefaultHeader &&
     !showTitleRow &&
     (layout === "overlay" ? (
-      <RadixDialog.Title className={cn("sr-only")}>{a11yTitle}</RadixDialog.Title>
+      <RadixDialog.Title className={cn("sr-only")}>
+        {a11yTitle}
+      </RadixDialog.Title>
     ) : (
       <h2 id={titleId} className={cn("sr-only")}>
         {a11yTitle}
@@ -140,7 +157,9 @@ export function SideDetails({
     !usesDefaultHeader &&
     (layout === "overlay" ? (
       <>
-        <RadixDialog.Title className={cn("sr-only")}>{a11yTitle}</RadixDialog.Title>
+        <RadixDialog.Title className={cn("sr-only")}>
+          {a11yTitle}
+        </RadixDialog.Title>
         <div>{header}</div>
       </>
     ) : (
@@ -155,12 +174,21 @@ export function SideDetails({
   const scrollAndFooter = (
     <>
       <div
-        className={cn("flex min-h-0 flex-1 flex-col overflow-hidden border-t border-border-subtle")}
+        className={cn(
+          "flex min-h-0 flex-1 flex-col overflow-hidden border-t border-border-subtle",
+        )}
       >
-        <div className={cn("flex-1 overflow-auto px-6 py-4", bodyClassName)}>{children}</div>
+        <div className={cn("flex-1 overflow-auto px-6 py-4", bodyClassName)}>
+          {children}
+        </div>
       </div>
       {footer ? (
-        <div className={cn("shrink-0 border-t border-border-subtle px-6 py-4", footerClassName)}>
+        <div
+          className={cn(
+            "shrink-0 border-t border-border-subtle px-6 py-4",
+            footerClassName,
+          )}
+        >
           {footer}
         </div>
       ) : null}
@@ -169,7 +197,10 @@ export function SideDetails({
 
   const closeButton = showCloseButton ? (
     layout === "overlay" ? (
-      <RadixDialog.Close aria-label="Close side panel" className={closeIconButtonClassName()}>
+      <RadixDialog.Close
+        aria-label="Close side panel"
+        className={closeIconButtonClassName()}
+      >
         <XIcon size={18} weight="regular" />
       </RadixDialog.Close>
     ) : (
@@ -185,7 +216,11 @@ export function SideDetails({
   ) : null;
 
   const closeControl = closeButton ? (
-    <div className={cn("flex h-lh shrink-0 items-center text-md leading-normal font-semibold")}>
+    <div
+      className={cn(
+        "flex h-lh shrink-0 items-center text-md leading-normal font-semibold",
+      )}
+    >
       {closeButton}
     </div>
   ) : null;

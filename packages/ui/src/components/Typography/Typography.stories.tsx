@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { cn } from "@ui/lib/cn";
-import React from "react";
 
 import { Heading } from "./Heading";
 import { Text } from "./Text";

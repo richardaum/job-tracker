@@ -1,5 +1,4 @@
 import { cn } from "@ui/lib/cn";
-import React from "react";
 
 export interface GoogleLoginButtonProps {
   onClick?: () => void;

@@ -1,36 +1,42 @@
+import type { ComponentRef, ReactNode, Ref } from "react";
 import * as RadixTabs from "@radix-ui/react-tabs";
 import { cn } from "@ui/lib/cn";
-import React from "react";
 
 export interface TabsProps {
   defaultValue?: string;
   value?: string;
   onValueChange?: (value: string) => void;
-  children: React.ReactNode;
+  children: ReactNode;
   className?: string;
 }
 
 export interface TabsListProps {
-  children: React.ReactNode;
+  children: ReactNode;
   className?: string;
 }
 
 export interface TabsTriggerProps {
   value: string;
-  children: React.ReactNode;
+  children: ReactNode;
   className?: string;
   asChild?: boolean;
-  leadingIcon?: React.ReactNode;
-  ref?: React.Ref<React.ComponentRef<typeof RadixTabs.Trigger>>;
+  leadingIcon?: ReactNode;
+  ref?: Ref<ComponentRef<typeof RadixTabs.Trigger>>;
 }
 
 export interface TabsContentProps {
   value: string;
-  children: React.ReactNode;
+  children: ReactNode;
   className?: string;
 }
 
-export function Tabs({ defaultValue, value, onValueChange, children, className }: TabsProps) {
+export function Tabs({
+  defaultValue,
+  value,
+  onValueChange,
+  children,
+  className,
+}: TabsProps) {
   return (
     <RadixTabs.Root
       defaultValue={defaultValue}
@@ -92,7 +98,9 @@ export function TabsTrigger({
       )}
       {...props}
     >
-      {leadingIcon && <span className={cn("mr-1.5 shrink-0")}>{leadingIcon}</span>}
+      {leadingIcon && (
+        <span className={cn("mr-1.5 shrink-0")}>{leadingIcon}</span>
+      )}
       {children}
     </RadixTabs.Trigger>
   );
@@ -100,7 +108,10 @@ export function TabsTrigger({
 
 export function TabsContent({ value, children, className }: TabsContentProps) {
   return (
-    <RadixTabs.Content value={value} className={cn("mt-3 focus-visible:outline-none", className)}>
+    <RadixTabs.Content
+      value={value}
+      className={cn("mt-3 focus-visible:outline-none", className)}
+    >
       {children}
     </RadixTabs.Content>
   );

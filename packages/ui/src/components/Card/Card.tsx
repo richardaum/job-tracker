@@ -1,8 +1,8 @@
+import type { ReactNode } from "react";
 import { cn } from "@ui/lib/cn";
-import React from "react";
 
 export interface CardProps {
-  children: React.ReactNode;
+  children: ReactNode;
   variant?: "default" | "outlined";
   padding?: "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl" | "5xl";
   className?: string;

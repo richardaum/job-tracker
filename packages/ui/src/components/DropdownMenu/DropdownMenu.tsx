@@ -1,30 +1,30 @@
+import type { ReactElement, ReactNode } from "react";
 import * as RadixDropdownMenu from "@radix-ui/react-dropdown-menu";
 import { cn } from "@ui/lib/cn";
-import React from "react";
 
 export interface DropdownMenuProps {
-  trigger: React.ReactElement;
-  children: React.ReactNode;
+  trigger: ReactElement;
+  children: ReactNode;
   align?: "start" | "center" | "end";
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
 }
 
 export interface DropdownMenuItemProps {
-  children: React.ReactNode;
+  children: ReactNode;
   onSelect?: () => void;
   disabled?: boolean;
   destructive?: boolean;
-  icon?: React.ReactNode;
+  icon?: ReactNode;
 }
 
 export interface DropdownMenuLabelProps {
-  children: React.ReactNode;
+  children: ReactNode;
   className?: string;
 }
 
 export interface DropdownMenuGroupProps {
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 export function DropdownMenu({
@@ -74,13 +74,21 @@ export function DropdownMenuItem({
 }
 
 export function DropdownMenuSeparator() {
-  return <RadixDropdownMenu.Separator className={cn("my-1 h-px bg-border-subtle")} />;
+  return (
+    <RadixDropdownMenu.Separator className={cn("my-1 h-px bg-border-subtle")} />
+  );
 }
 
-export function DropdownMenuLabel({ children, className }: DropdownMenuLabelProps) {
+export function DropdownMenuLabel({
+  children,
+  className,
+}: DropdownMenuLabelProps) {
   return (
     <RadixDropdownMenu.Label
-      className={cn("px-2 py-1.5 text-xs font-medium text-text-secondary", className)}
+      className={cn(
+        "px-2 py-1.5 text-xs font-medium text-text-secondary",
+        className,
+      )}
     >
       {children}
     </RadixDropdownMenu.Label>

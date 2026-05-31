@@ -1,6 +1,5 @@
 import * as RadixCheckbox from "@radix-ui/react-checkbox";
 import { cn } from "@ui/lib/cn";
-import React from "react";
 
 export interface CheckboxProps {
   checked?: boolean;
@@ -50,7 +49,9 @@ export function Checkbox({
       value={value}
       checked={checked}
       defaultChecked={defaultChecked}
-      onCheckedChange={onCheckedChange ? (next) => onCheckedChange(toBoolean(next)) : undefined}
+      onCheckedChange={
+        onCheckedChange ? (next) => onCheckedChange(toBoolean(next)) : undefined
+      }
       disabled={disabled}
       required={required}
       className={cn(

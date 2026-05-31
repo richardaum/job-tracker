@@ -1,8 +1,12 @@
 import { render, screen } from "@testing-library/react";
-import React from "react";
 import { describe, expect, it } from "vitest";
 
-import { Timeline, TimelineContent, TimelineItem, TimelineMarker } from "./Timeline";
+import {
+  Timeline,
+  TimelineContent,
+  TimelineItem,
+  TimelineMarker,
+} from "./Timeline";
 
 describe("Timeline", () => {
   it("renders items and marker connectors", () => {

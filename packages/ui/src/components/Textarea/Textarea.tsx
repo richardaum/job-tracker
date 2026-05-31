@@ -1,13 +1,13 @@
+import type { Ref, TextareaHTMLAttributes } from "react";
 import { cn } from "@ui/lib/cn";
-import React from "react";
 
 export interface TextareaProps extends Omit<
-  React.TextareaHTMLAttributes<HTMLTextAreaElement>,
+  TextareaHTMLAttributes<HTMLTextAreaElement>,
   "size"
 > {
   size?: "sm" | "md";
   state?: "default" | "error";
-  ref?: React.Ref<HTMLTextAreaElement>;
+  ref?: Ref<HTMLTextAreaElement>;
 }
 
 const sizeClasses: Record<NonNullable<TextareaProps["size"]>, string> = {

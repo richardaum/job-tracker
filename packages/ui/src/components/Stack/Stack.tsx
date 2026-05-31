@@ -1,5 +1,5 @@
+import type { ReactNode } from "react";
 import { cn } from "@ui/lib/cn";
-import React from "react";
 
 type Direction = "row" | "column";
 type Gap = "xs" | "sm" | "md" | "lg";
@@ -7,7 +7,7 @@ type Align = "start" | "center" | "end" | "stretch";
 type Justify = "start" | "center" | "end" | "between";
 
 export interface StackProps {
-  children: React.ReactNode;
+  children: ReactNode;
   direction?: Direction;
   gap?: Gap;
   align?: Align;

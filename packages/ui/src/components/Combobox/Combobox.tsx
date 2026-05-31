@@ -1,6 +1,6 @@
 import { Text } from "@ui/components/Typography/Text";
 import { cn } from "@ui/lib/cn";
-import React, { useMemo } from "react";
+import { useMemo } from "react";
 
 import { AnchoredCombobox } from "./AnchoredCombobox";
 
@@ -36,7 +36,9 @@ export function Combobox({
   id,
   autoComplete = "one-time-code",
 }: ComboboxProps) {
-  const selectedByStableValue = options.find((option) => option.value === value);
+  const selectedByStableValue = options.find(
+    (option) => option.value === value,
+  );
   const inputDisplayValue = selectedByStableValue?.label ?? value;
 
   const filteredOptions = useMemo(() => {

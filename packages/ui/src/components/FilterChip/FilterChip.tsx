@@ -1,11 +1,16 @@
+import type { ButtonHTMLAttributes } from "react";
 import { cn } from "@ui/lib/cn";
-import React from "react";
 
-export interface FilterChipProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+export interface FilterChipProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   active?: boolean;
 }
 
-export function FilterChip({ active = false, className, children, ...props }: FilterChipProps) {
+export function FilterChip({
+  active = false,
+  className,
+  children,
+  ...props
+}: FilterChipProps) {
   return (
     <button
       type="button"

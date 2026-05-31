@@ -1,22 +1,27 @@
+import type { ButtonHTMLAttributes, ReactNode } from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { Tooltip } from "@ui/components/Tooltip/Tooltip";
 import { cn } from "@ui/lib/cn";
-import React from "react";
 
-export type IconButtonIntent = "primary" | "secondary" | "ghost" | "destructive" | "quiet";
+export type IconButtonIntent =
+  | "primary"
+  | "secondary"
+  | "ghost"
+  | "destructive"
+  | "quiet";
 export type IconButtonSize = "xs" | "sm" | "md";
 
 export interface IconButtonProps extends Omit<
-  React.ButtonHTMLAttributes<HTMLButtonElement>,
+  ButtonHTMLAttributes<HTMLButtonElement>,
   "size" | "children"
 > {
-  icon?: React.ReactNode;
+  icon?: ReactNode;
   label: string;
-  tooltip: React.ReactNode;
+  tooltip: ReactNode;
   intent?: IconButtonIntent;
   size?: IconButtonSize;
   asChild?: boolean;
-  children?: React.ReactNode;
+  children?: ReactNode;
 }
 
 const intentClasses: Record<IconButtonIntent, string> = {

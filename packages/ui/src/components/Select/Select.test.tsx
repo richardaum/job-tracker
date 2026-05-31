@@ -1,5 +1,5 @@
+import { useState } from "react";
 import { fireEvent, render, screen } from "@testing-library/react";
-import React from "react";
 import { describe, expect, it, vi } from "vitest";
 
 import { Select } from "./Select";
@@ -16,7 +16,9 @@ describe("Select", () => {
       />,
     );
 
-    expect(screen.getByRole("combobox", { name: "Choose stage" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("combobox", { name: "Choose stage" }),
+    ).toBeInTheDocument();
   });
 
   it("opens options list", () => {
@@ -37,7 +39,7 @@ describe("Select", () => {
   it("stays controlled when value starts undefined and a selection is made", () => {
     const onValueChange = vi.fn();
     function ControlledSelect() {
-      const [value, setValue] = React.useState<string | undefined>(undefined);
+      const [value, setValue] = useState<string | undefined>(undefined);
       return (
         <Select
           placeholder="Choose stage"
@@ -62,7 +64,9 @@ describe("Select", () => {
 
     expect(onValueChange).toHaveBeenCalledWith("offer");
     expect(errorSpy).not.toHaveBeenCalledWith(
-      expect.stringContaining("Select is changing from uncontrolled to controlled"),
+      expect.stringContaining(
+        "Select is changing from uncontrolled to controlled",
+      ),
     );
 
     errorSpy.mockRestore();

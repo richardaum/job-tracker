@@ -1,10 +1,10 @@
+import type { ReactElement, ReactNode } from "react";
 import * as RadixPopover from "@radix-ui/react-popover";
 import { cn } from "@ui/lib/cn";
-import React from "react";
 
 export interface PopoverProps {
-  trigger: React.ReactElement;
-  children: React.ReactNode;
+  trigger: ReactElement;
+  children: ReactNode;
   align?: "start" | "center" | "end";
   sideOffset?: number;
   enabled?: boolean;

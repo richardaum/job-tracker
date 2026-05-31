@@ -1,13 +1,18 @@
-import { CheckCircleIcon, InfoIcon, WarningCircleIcon, XCircleIcon } from "@phosphor-icons/react";
+import type { HTMLAttributes, ReactNode } from "react";
+import {
+  CheckCircleIcon,
+  InfoIcon,
+  WarningCircleIcon,
+  XCircleIcon,
+} from "@phosphor-icons/react";
 import { cn } from "@ui/lib/cn";
-import React from "react";
 
 export type AlertIntent = "info" | "success" | "warning" | "error";
 
-export interface AlertProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface AlertProps extends HTMLAttributes<HTMLDivElement> {
   intent?: AlertIntent;
   title?: string;
-  icon?: React.ReactNode;
+  icon?: ReactNode;
 }
 
 const intentClasses: Record<AlertIntent, string> = {
@@ -17,14 +22,21 @@ const intentClasses: Record<AlertIntent, string> = {
   error: "border-border-error bg-bg-error-subtle text-text-error",
 };
 
-const intentIcons: Record<AlertIntent, React.ReactNode> = {
+const intentIcons: Record<AlertIntent, ReactNode> = {
   info: <InfoIcon size={20} weight="regular" />,
   success: <CheckCircleIcon size={20} weight="regular" />,
   warning: <WarningCircleIcon size={20} weight="regular" />,
   error: <XCircleIcon size={20} weight="regular" />,
 };
 
-export function Alert({ intent = "info", title, icon, className, children, ...props }: AlertProps) {
+export function Alert({
+  intent = "info",
+  title,
+  icon,
+  className,
+  children,
+  ...props
+}: AlertProps) {
   const classes = cn(
     "flex items-start gap-2 rounded-md border p-4 shadow-sm",
     intentClasses[intent],

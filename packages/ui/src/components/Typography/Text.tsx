@@ -1,5 +1,5 @@
+import type { HTMLAttributes } from "react";
 import { cn } from "@ui/lib/cn";
-import React from "react";
 
 export type TextSize = "xs" | "sm" | "base" | "md" | "lg";
 export type TextWeight = "regular" | "medium" | "semibold" | "bold";
@@ -12,7 +12,7 @@ export type TextColor =
   | "success"
   | "warning";
 
-export interface TextProps extends React.HTMLAttributes<HTMLElement> {
+export interface TextProps extends HTMLAttributes<HTMLElement> {
   as?: "p" | "span" | "label" | "div";
   size?: TextSize;
   weight?: TextWeight;
@@ -55,7 +55,12 @@ export function Text({
 }: TextProps) {
   return (
     <Tag
-      className={cn(sizeClasses[size], weightClasses[weight], colorClasses[color], className)}
+      className={cn(
+        sizeClasses[size],
+        weightClasses[weight],
+        colorClasses[color],
+        className,
+      )}
       {...props}
     >
       {children}

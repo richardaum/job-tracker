@@ -1,7 +1,8 @@
 import { AnchoredCombobox } from "@ui/components/Combobox/AnchoredCombobox";
 import { Text } from "@ui/components/Typography/Text";
 import { cn } from "@ui/lib/cn";
-import React, { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
+import type { FocusEventHandler } from "react";
 
 export type CurrencyPreset = {
   /** ISO 4217 code */
@@ -25,7 +26,7 @@ export const MAIN_MARKET_CURRENCY_PRESETS: CurrencyPreset[] = [
 export interface CurrencyComboboxProps {
   value: string;
   onValueChange: (value: string) => void;
-  onBlur?: React.FocusEventHandler<HTMLInputElement>;
+  onBlur?: FocusEventHandler<HTMLInputElement>;
   onOpenChange?: (open: boolean) => void;
   presets?: CurrencyPreset[];
   placeholder?: string;
@@ -63,7 +64,8 @@ export function CurrencyCombobox({
           preset.name.toLowerCase().includes(normalizedQuery),
       );
   const isValidCode = useCallback(
-    (candidate: string): boolean => presets.some((preset) => preset.code === candidate),
+    (candidate: string): boolean =>
+      presets.some((preset) => preset.code === candidate),
     [presets],
   );
 
@@ -73,7 +75,7 @@ export function CurrencyCombobox({
     }
   }, [isValidCode, value]);
 
-  const handleInputBlur: React.FocusEventHandler<HTMLInputElement> = (event) => {
+  const handleInputBlur: FocusEventHandler<HTMLInputElement> = (event) => {
     if (!isValidCode(value)) {
       onValueChange(lastValidValueRef.current);
     }
@@ -107,7 +109,9 @@ export function CurrencyCombobox({
         autoComplete={autoComplete}
         maxLength={maxLength}
         spellCheck={false}
-        leading={currentFlag ? <span aria-hidden>{currentFlag}</span> : undefined}
+        leading={
+          currentFlag ? <span aria-hidden>{currentFlag}</span> : undefined
+        }
       />
       <AnchoredCombobox.Portal>
         <AnchoredCombobox.Content className={cn("z-100 p-0.5")}>
@@ -123,7 +127,10 @@ export function CurrencyCombobox({
                   "flex w-full min-w-0 cursor-pointer items-center gap-1.5 rounded-sm px-2 py-1 text-left outline-none hover:bg-bg-surface-hover data-highlighted:bg-bg-surface-hover",
                 )}
               >
-                <span className={cn("shrink-0 text-base leading-none")} aria-hidden>
+                <span
+                  className={cn("shrink-0 text-base leading-none")}
+                  aria-hidden
+                >
                   {preset.flag}
                 </span>
                 <span
@@ -131,10 +138,20 @@ export function CurrencyCombobox({
                     "flex min-w-0 flex-1 items-center gap-1.5 overflow-hidden whitespace-nowrap",
                   )}
                 >
-                  <Text as="span" size="sm" weight="medium" className={cn("shrink-0")}>
+                  <Text
+                    as="span"
+                    size="sm"
+                    weight="medium"
+                    className={cn("shrink-0")}
+                  >
                     {preset.code}
                   </Text>
-                  <Text as="span" size="sm" color="muted" className={cn("min-w-0 truncate")}>
+                  <Text
+                    as="span"
+                    size="sm"
+                    color="muted"
+                    className={cn("min-w-0 truncate")}
+                  >
                     {preset.name}
                   </Text>
                 </span>

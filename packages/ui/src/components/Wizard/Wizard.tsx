@@ -1,5 +1,6 @@
+import { createContext, useContext } from "react";
+import type { ReactNode } from "react";
 import { cn } from "@ui/lib/cn";
-import React from "react";
 
 export interface WizardStep {
   id: string;
@@ -13,10 +14,10 @@ interface WizardContextValue {
   onStepChange?: (index: number) => void;
 }
 
-const WizardContext = React.createContext<WizardContextValue | null>(null);
+const WizardContext = createContext<WizardContextValue | null>(null);
 
 function useWizardContext() {
-  const context = React.useContext(WizardContext);
+  const context = useContext(WizardContext);
   if (!context) {
     throw new Error("Wizard components must be used inside <Wizard>.");
   }
@@ -27,15 +28,24 @@ export interface WizardProps {
   steps: WizardStep[];
   currentStep: number;
   onStepChange?: (index: number) => void;
-  children: React.ReactNode;
+  children: ReactNode;
   className?: string;
 }
 
-export function Wizard({ steps, currentStep, onStepChange, children, className }: WizardProps) {
+export function Wizard({
+  steps,
+  currentStep,
+  onStepChange,
+  children,
+  className,
+}: WizardProps) {
   return (
     <WizardContext.Provider value={{ steps, currentStep, onStepChange }}>
       <div
-        className={cn("grid grid-cols-1 gap-5 md:grid-cols-[minmax(160px,20vw)_1fr]", className)}
+        className={cn(
+          "grid grid-cols-1 gap-5 md:grid-cols-[minmax(160px,20vw)_1fr]",
+          className,
+        )}
       >
         {children}
       </div>
@@ -67,9 +77,13 @@ export function WizardSidebar({ className }: WizardSidebarProps) {
                   : "border-border-subtle bg-bg-surface hover:bg-bg-surface-hover",
               )}
             >
-              <div className={cn("text-sm font-medium text-text-primary")}>{step.title}</div>
+              <div className={cn("text-sm font-medium text-text-primary")}>
+                {step.title}
+              </div>
               {step.description ? (
-                <div className={cn("mt-0.5 text-xs text-text-secondary")}>{step.description}</div>
+                <div className={cn("mt-0.5 text-xs text-text-secondary")}>
+                  {step.description}
+                </div>
               ) : null}
             </button>
           );
@@ -81,7 +95,7 @@ export function WizardSidebar({ className }: WizardSidebarProps) {
 
 export interface WizardMainProps {
   className?: string;
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 export function WizardMain({ className, children }: WizardMainProps) {

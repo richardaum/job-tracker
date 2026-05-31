@@ -1,6 +1,5 @@
 import * as RadixSwitch from "@radix-ui/react-switch";
 import { cn } from "@ui/lib/cn";
-import React from "react";
 
 export interface SwitchProps {
   checked?: boolean;

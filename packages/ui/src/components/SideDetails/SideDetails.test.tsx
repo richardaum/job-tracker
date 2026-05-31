@@ -1,6 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { cn } from "@ui/lib/cn";
-import React, { useState } from "react";
+import { useState } from "react";
+import type { ReactNode } from "react";
 import { describe, expect, it } from "vitest";
 
 import { SideDetails } from "./SideDetails";
@@ -10,7 +11,7 @@ function ControlledHarness({
   title,
 }: {
   accessibilityTitle?: string;
-  title?: React.ReactNode;
+  title?: ReactNode;
 }) {
   const [open, setOpen] = useState(true);
   return (
@@ -35,7 +36,7 @@ function OpenViaButtonHarness({
   title,
 }: {
   accessibilityTitle?: string;
-  title?: React.ReactNode;
+  title?: ReactNode;
 }) {
   const [open, setOpen] = useState(false);
   return (
@@ -83,11 +84,13 @@ describe("SideDetails overlay", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /^open$/i }));
 
-    expect(screen.getByRole("dialog", { name: "Custom a11y" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("dialog", { name: "Custom a11y" }),
+    ).toBeInTheDocument();
   });
 });
 
-function InlineControlledHarness({ title }: { title?: React.ReactNode }) {
+function InlineControlledHarness({ title }: { title?: ReactNode }) {
   const [open, setOpen] = useState(true);
   return (
     <>
@@ -95,7 +98,12 @@ function InlineControlledHarness({ title }: { title?: React.ReactNode }) {
         Open inline
       </button>
       <div className={cn("flex min-h-40 flex-row")}>
-        <SideDetails layout="inline" open={open} onOpenChange={setOpen} title={title}>
+        <SideDetails
+          layout="inline"
+          open={open}
+          onOpenChange={setOpen}
+          title={title}
+        >
           <p>Inline body</p>
         </SideDetails>
       </div>
@@ -108,11 +116,15 @@ describe("SideDetails inline", () => {
     render(<InlineControlledHarness title="Pane title" />);
 
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
-    expect(screen.getByRole("complementary", { name: /pane title/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("complementary", { name: /pane title/i }),
+    ).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: /close side panel/i }));
 
-    expect(screen.queryByRole("complementary", { name: /pane title/i })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("complementary", { name: /pane title/i }),
+    ).not.toBeInTheDocument();
   });
 
   it("does not intercept Escape globally", () => {
@@ -120,6 +132,8 @@ describe("SideDetails inline", () => {
 
     fireEvent.keyDown(document, { key: "Escape" });
 
-    expect(screen.getByRole("complementary", { name: /importer/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("complementary", { name: /importer/i }),
+    ).toBeInTheDocument();
   });
 });

@@ -1,9 +1,9 @@
+import type { HTMLAttributes } from "react";
 import { cn } from "@ui/lib/cn";
-import React from "react";
 
 export type SpinnerSize = "sm" | "md" | "lg";
 
-export interface SpinnerProps extends React.HTMLAttributes<HTMLSpanElement> {
+export interface SpinnerProps extends HTMLAttributes<HTMLSpanElement> {
   size?: SpinnerSize;
   label?: string;
 }
@@ -14,12 +14,19 @@ const sizeClasses: Record<SpinnerSize, string> = {
   lg: "size-7 border-[3px]",
 };
 
-export function Spinner({ size = "md", label = "Loading", className, ...props }: SpinnerProps) {
+export function Spinner({
+  size = "md",
+  label = "Loading",
+  className,
+  ...props
+}: SpinnerProps) {
   const classes = cn(
     "inline-block animate-spin rounded-full border-bg-surface border-t-border-brand",
     sizeClasses[size],
     className,
   );
 
-  return <span role="status" aria-label={label} className={classes} {...props} />;
+  return (
+    <span role="status" aria-label={label} className={classes} {...props} />
+  );
 }

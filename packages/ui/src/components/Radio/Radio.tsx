@@ -1,6 +1,5 @@
 import * as RadixRadioGroup from "@radix-ui/react-radio-group";
 import { cn } from "@ui/lib/cn";
-import React from "react";
 
 export interface RadioOption {
   label: string;
@@ -34,7 +33,10 @@ export function Radio({
       disabled={disabled}
       name={name}
       orientation={orientation}
-      className={cn("flex gap-4", orientation === "vertical" ? "flex-col" : "flex-row")}
+      className={cn(
+        "flex gap-4",
+        orientation === "vertical" ? "flex-col" : "flex-row",
+      )}
     >
       {options.map((option) => (
         <label
@@ -58,7 +60,9 @@ export function Radio({
               className={cn("flex size-2 rounded-full bg-text-inverted")}
             />
           </RadixRadioGroup.Item>
-          <span className={cn("text-sm text-text-primary")}>{option.label}</span>
+          <span className={cn("text-sm text-text-primary")}>
+            {option.label}
+          </span>
         </label>
       ))}
     </RadixRadioGroup.Root>

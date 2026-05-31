@@ -1,8 +1,8 @@
+import type { ReactNode } from "react";
 import { cn } from "@ui/lib/cn";
-import React from "react";
 
 export interface TimelineProps {
-  children: React.ReactNode;
+  children: ReactNode;
   className?: string;
 }
 
@@ -11,7 +11,7 @@ export function Timeline({ children, className }: TimelineProps) {
 }
 
 export interface TimelineItemProps {
-  children: React.ReactNode;
+  children: ReactNode;
   className?: string;
 }
 
@@ -38,7 +38,10 @@ export function TimelineMarker({
 }: TimelineMarkerProps) {
   return (
     <div
-      className={cn("relative flex w-4 shrink-0 items-center justify-center", className)}
+      className={cn(
+        "relative flex w-4 shrink-0 items-center justify-center",
+        className,
+      )}
       role="presentation"
     >
       {showTopConnector ? (
@@ -49,7 +52,12 @@ export function TimelineMarker({
           )}
         />
       ) : null}
-      <span className={cn("block size-2.5  shrink-0 rounded-full bg-current", dotClassName)} />
+      <span
+        className={cn(
+          "block size-2.5  shrink-0 rounded-full bg-current",
+          dotClassName,
+        )}
+      />
       {showBottomConnector ? (
         <span
           className={cn(
@@ -63,7 +71,7 @@ export function TimelineMarker({
 }
 
 export interface TimelineContentProps {
-  children: React.ReactNode;
+  children: ReactNode;
   className?: string;
 }
 

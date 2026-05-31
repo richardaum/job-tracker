@@ -1,5 +1,4 @@
 import { Tooltip, TooltipProps } from "@ui/components/Tooltip/Tooltip";
-import React from "react";
 
 export type FieldWithLabelActionTooltipProps = TooltipProps;
 
