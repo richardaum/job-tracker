@@ -4,7 +4,7 @@ import { FieldValueService } from "@/domains/dom/field-value.service";
 import type { Job } from "@/domains/dom/types";
 import { PopupLogService } from "@/domains/log/popup-log.service";
 import type { ContentActionMessage } from "@/domains/message/types";
-import type { PlanStepCollectJobsSurfaceField, RegexSurfaceField } from "@/domains/plan/model/types";
+import type { CollectJobsAction, PlanStepCollectJobsSurfaceField, RegexSurfaceField } from "@/domains/plan/model/types";
 import { StringTemplateService } from "@/domains/plan/services/string-template.service";
 import { TimerService } from "@/domains/timer/timer.service";
 
@@ -23,7 +23,6 @@ function findScrollableAncestor(el: Element): Element | null {
   }
   return null;
 }
-const BATCH_WAIT_MS = 300;
 
 export class JobsListService {
   constructor(
@@ -33,30 +32,65 @@ export class JobsListService {
     private readonly stringTemplateService: StringTemplateService,
   ) {}
 
+  private async waitForTelegramUpdateOrDelay(): Promise<void> {
+    const getText = (): string => document.querySelector(".input-search-placeholder")?.textContent ?? "";
+
+    const text = getText();
+
+    if (!text) {
+      await this.timerService.smallDelay();
+      return;
+    }
+
+    const waitForUpdatingDone = async (): Promise<void> => {
+      await tryRun(
+        this.timerService.waitFor(() => !getText().toLowerCase().includes("updating"), {
+          intervalMs: 200,
+          maxWaitMs: 10_000,
+        }),
+      );
+    };
+
+    if (text.toLowerCase().includes("updating")) {
+      await waitForUpdatingDone();
+      return;
+    }
+
+    await tryRun(
+      this.timerService.waitFor(
+        () => {
+          const t = getText().toLowerCase();
+          if (t.includes("updating")) return "UPDATING";
+          return null;
+        },
+        { intervalMs: 200, maxWaitMs: 3_000 },
+      ),
+    );
+
+    if (getText().toLowerCase().includes("updating")) {
+      await waitForUpdatingDone();
+    }
+  }
+
   async execute(message: Extract<ContentActionMessage, { kind: "jobs.list" }>) {
     const { input, skipDelay } = message.action;
     const direction = input.direction ?? "down";
-    const correlationId =
-      "correlationId" in message
-        ? ((message as Record<string, unknown>).correlationId as string | undefined)
-        : undefined;
+    const sourceRunId =
+      "sourceRunId" in message ? ((message as Record<string, unknown>).sourceRunId as string | undefined) : undefined;
 
     const container = await this.waitForSelector(input.containerSelector, input.itemSelector, 30_000);
+
     if (!container) {
       throw new Error(
         `Failed to load page content: expected container "${input.containerSelector}" not found after 30s. The page may have changed or requires login.`,
       );
     }
 
+    await this.waitForTelegramUpdateOrDelay();
+
     let scrollable = findScrollableAncestor(container) ?? container.parentElement ?? container;
     if (scrollable === document.body || scrollable === document.documentElement) {
       scrollable = container;
-    }
-
-    // Initial scroll: bottom for "up" (newest first), top for "down"
-    if (scrollable) {
-      scrollable.scrollTop = direction === "up" ? scrollable.scrollHeight : 0;
-      await new Promise((r) => setTimeout(r, BATCH_WAIT_MS));
     }
 
     const collected: Job[] = [];
@@ -64,28 +98,26 @@ export class JobsListService {
     let emptyPasses = 0;
     let skippedCount = 0;
 
-    const skipConfig = input.skip;
-    const skipRegex = skipConfig ? (tryRun(() => new RegExp(skipConfig.value, skipConfig.flags))[1] ?? null) : null;
-
     while (collected.length < MAX_JOBS_COLLECT && emptyPasses < 5) {
       const items = container.querySelectorAll(input.itemSelector);
-      let foundNew = false;
 
-      if (items.length > 0 && collected.length >= items.length) break;
+      let foundNew = false;
 
       if (direction === "up") {
         for (let i = items.length - 1; i >= 0; i--) {
-          if (skipRegex && skipRegex.test(items[i].textContent ?? "")) {
+          const skipConfig = input.skip;
+          if (skipConfig && this.preCheckSkip(items[i], skipConfig)) {
             skippedCount++;
             chrome.runtime
               .sendMessage({
                 kind: "report.skipped",
                 summary: `Skipped: ${(items[i].textContent ?? "").slice(0, 80).trim()}`,
-                correlationId,
+                sourceRunId,
               })
               .catch(() => {});
             continue;
           }
+
           const job = await this.processItem(items[i], input.surfaceFields, input.key, seen, skipDelay ?? false);
           if (!job) continue;
           collected.push(job);
@@ -94,17 +126,19 @@ export class JobsListService {
         }
       } else {
         for (let i = 0; i < items.length; i++) {
-          if (skipRegex && skipRegex.test(items[i].textContent ?? "")) {
+          const skipConfig = input.skip;
+          if (skipConfig && this.preCheckSkip(items[i], skipConfig)) {
             skippedCount++;
             chrome.runtime
               .sendMessage({
                 kind: "report.skipped",
                 summary: `Skipped: ${(items[i].textContent ?? "").slice(0, 80).trim()}`,
-                correlationId,
+                sourceRunId,
               })
               .catch(() => {});
             continue;
           }
+
           const job = await this.processItem(items[i], input.surfaceFields, input.key, seen, skipDelay ?? false);
           if (!job) continue;
           collected.push(job);
@@ -113,24 +147,32 @@ export class JobsListService {
         }
       }
 
-      if (!foundNew && scrollable) {
-        const canScroll = scrollable.scrollHeight > scrollable.clientHeight;
-        if (!canScroll) break;
+      if (foundNew) emptyPasses = 0;
 
-        const prev = scrollable.scrollTop;
-        const atBoundary = direction === "up" ? prev <= 0 : prev >= scrollable.scrollHeight - scrollable.clientHeight;
-        if (atBoundary) break;
-
-        const delta = direction === "up" ? -400 : 400;
-        scrollable.scrollTop = Math.max(0, scrollable.scrollTop + delta);
-
-        await this.timerService.smallDelay();
-        emptyPasses++;
-      } else if (foundNew) {
-        emptyPasses = 0;
-      } else {
-        emptyPasses++;
+      if (!scrollable) {
+        if (!foundNew) emptyPasses++;
+        continue;
       }
+
+      if (scrollable.scrollHeight <= scrollable.clientHeight) {
+        if (!foundNew) emptyPasses++;
+        break;
+      }
+
+      const prev = scrollable.scrollTop;
+      const atBoundary = direction === "up" ? prev <= 0 : prev >= scrollable.scrollHeight - scrollable.clientHeight;
+
+      if (atBoundary) {
+        if (!foundNew) emptyPasses++;
+        break;
+      }
+
+      const delta = direction === "up" ? -400 : 400;
+      scrollable.scrollTop = Math.max(0, scrollable.scrollTop + delta);
+
+      await this.waitForTelegramUpdateOrDelay();
+
+      if (!foundNew) emptyPasses++;
     }
 
     return { jobs: collected, skippedCount };
@@ -184,7 +226,9 @@ export class JobsListService {
       keyTemplate != null && keyTemplate.trim().length > 0 ? this.stringTemplateService.parse(keyTemplate, job) : "";
 
     if (key.length > 0) {
-      if (seen.has(key)) return null;
+      if (seen.has(key)) {
+        return null;
+      }
       seen.add(key);
     }
 
@@ -201,7 +245,6 @@ export class JobsListService {
     );
     const regexFields = fields.filter((f): f is RegexSurfaceField => f.type === "regex");
 
-    // Pass 1: collect DOM fields
     const mappedItem: Job = {};
     for (const field of domFields) {
       item.scrollIntoView({ behavior: "instant" });
@@ -215,7 +258,6 @@ export class JobsListService {
       mappedItem[field.key] = this.fieldValueService.getFieldValue(element as HTMLElement | HTMLInputElement, field);
     }
 
-    // Pass 2: resolve regex fields using already-collected data
     for (const field of regexFields) {
       const sourceText = this.resolveRegexText(mappedItem, field.sourceField);
       if (!sourceText) {
@@ -239,6 +281,22 @@ export class JobsListService {
     }
 
     return mappedItem;
+  }
+
+  private preCheckSkip(item: Element, skip: NonNullable<CollectJobsAction["input"]["skip"]>): boolean {
+    const [err, regex] = tryRun(() => new RegExp(skip.value, skip.flags));
+    if (err) return false;
+    const text = item.textContent ?? "";
+    return regex.test(text);
+  }
+
+  private matchesSkip(job: Job, skip: { type: "regex"; value: string; sourceField?: string; flags?: string }): boolean {
+    const sourceText = this.resolveRegexText(job, skip.sourceField);
+    if (!sourceText) return false;
+    const [err, regex] = tryRun(() => new RegExp(skip.value, skip.flags));
+    if (err) return false;
+    const result = regex.test(sourceText);
+    return result;
   }
 
   private resolveRegexText(job: Job, sourceField?: string): string {

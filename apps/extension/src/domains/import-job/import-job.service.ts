@@ -29,9 +29,9 @@ export class ImportJobService {
     });
 
     const summary = snapshot.title.trim() || snapshot.url.trim() || "Current page";
-    const correlationId = crypto.randomUUID();
+    const sourceRunId = crypto.randomUUID();
 
-    this.activityReporter?.report(ExtensionActivityEventType.ImportJobStarted, summary, { correlationId });
+    this.activityReporter?.report(ExtensionActivityEventType.ImportJobStarted, summary, { sourceRunId });
 
     const [error, result] = await tryRun(
       this.apiService.createDraftCaptureJob({
@@ -44,18 +44,18 @@ export class ImportJobService {
     );
 
     if (error) {
-      this.activityReporter?.report(ExtensionActivityEventType.ImportJobFailed, summary, { correlationId });
+      this.activityReporter?.report(ExtensionActivityEventType.ImportJobFailed, summary, { sourceRunId });
       throw new Error("Failed to create draft job", { cause: error });
     }
 
     const id = result?.data?.createJob?.id;
     if (!id) {
-      this.activityReporter?.report(ExtensionActivityEventType.ImportJobFailed, summary, { correlationId });
+      this.activityReporter?.report(ExtensionActivityEventType.ImportJobFailed, summary, { sourceRunId });
       throw new Error("Failed to create draft job");
     }
 
     this.activityReporter?.report(ExtensionActivityEventType.ImportJobCompleted, summary, {
-      correlationId,
+      sourceRunId,
       payload: JSON.stringify({ jobId: id }),
     });
 

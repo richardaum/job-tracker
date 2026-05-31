@@ -7,7 +7,7 @@ import { ExtensionActivityEventType, type ReportExtensionActivityInput } from "@
 type ExtensionActivityReporterDeps = { extensionVersion: string; browser: string };
 
 export type ReportExtensionActivityOptions = {
-  correlationId?: string | null;
+  sourceRunId?: string | null;
   payload?: string | null;
   occurredAt?: string;
 };
@@ -23,7 +23,7 @@ export class ExtensionActivityReporterService {
     const input: ReportExtensionActivityInput = {
       type,
       summary,
-      correlationId: options?.correlationId ?? null,
+      sourceRunId: options?.sourceRunId ?? null,
       payload: options?.payload ?? null,
       extensionVersion: this.deps.extensionVersion,
       browser: this.deps.browser,

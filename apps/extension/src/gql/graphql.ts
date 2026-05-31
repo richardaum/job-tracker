@@ -153,8 +153,6 @@ export type ExtensionActivityEvent = {
   __typename?: "ExtensionActivityEvent";
   /** Browser user-agent or name. */
   browser?: Maybe<Scalars["String"]["output"]>;
-  /** Groups related events (e.g. run ID). */
-  correlationId?: Maybe<Scalars["String"]["output"]>;
   /** Extension version that reported the event. */
   extensionVersion?: Maybe<Scalars["String"]["output"]>;
   /** Unique event identifier. */
@@ -163,6 +161,8 @@ export type ExtensionActivityEvent = {
   occurredAt: Scalars["DateTime"]["output"];
   /** Arbitrary JSON payload with event details. */
   payload?: Maybe<Scalars["JSON"]["output"]>;
+  /** Groups related events (e.g. run ID). */
+  sourceRunId?: Maybe<Scalars["String"]["output"]>;
   /** Human-readable summary of what happened. */
   summary: Scalars["String"]["output"];
   /** Event category (source run lifecycle, import, auth). */
@@ -563,10 +563,10 @@ export type QuerySourceTemplateArgs = { id: Scalars["ID"]["input"] };
 
 export type ReportExtensionActivityInput = {
   browser?: InputMaybe<Scalars["String"]["input"]>;
-  correlationId?: InputMaybe<Scalars["String"]["input"]>;
   extensionVersion?: InputMaybe<Scalars["String"]["input"]>;
   occurredAt?: InputMaybe<Scalars["DateTime"]["input"]>;
   payload?: InputMaybe<Scalars["JSON"]["input"]>;
+  sourceRunId?: InputMaybe<Scalars["String"]["input"]>;
   summary: Scalars["String"]["input"];
   type: ExtensionActivityEventType;
 };
@@ -809,7 +809,7 @@ export type ReportExtensionActivityMutation = {
     id: string;
     type: ExtensionActivityEventType;
     summary: string;
-    correlationId?: string | null;
+    sourceRunId?: string | null;
     occurredAt: any;
   };
 };
@@ -1055,7 +1055,7 @@ export const ReportExtensionActivityDocument = {
                 { kind: "Field", name: { kind: "Name", value: "id" } },
                 { kind: "Field", name: { kind: "Name", value: "type" } },
                 { kind: "Field", name: { kind: "Name", value: "summary" } },
-                { kind: "Field", name: { kind: "Name", value: "correlationId" } },
+                { kind: "Field", name: { kind: "Name", value: "sourceRunId" } },
                 { kind: "Field", name: { kind: "Name", value: "occurredAt" } },
               ],
             },

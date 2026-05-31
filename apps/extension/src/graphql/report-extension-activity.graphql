@@ -3,7 +3,7 @@ mutation ReportExtensionActivity($input: ReportExtensionActivityInput!) {
     id
     type
     summary
-    correlationId
+    sourceRunId
     occurredAt
   }
 }

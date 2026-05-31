@@ -60,7 +60,7 @@ export default defineBackground(() => {
     activityReporter.report(
       success ? ExtensionActivityEventType.AuthRefreshed : ExtensionActivityEventType.AuthFailed,
       success ? "Session token refreshed" : "Session token refresh failed",
-      { correlationId: "auth" },
+      { sourceRunId: "auth" },
     );
   });
 
@@ -92,9 +92,9 @@ export default defineBackground(() => {
       void sourceRunEventsService.executeSourceRun(message);
     },
     "report.skipped": (message) => {
-      const msg = message as { summary?: string; correlationId?: string };
+      const msg = message as { summary?: string; sourceRunId?: string };
       activityReporter.report(ExtensionActivityEventType.SourceRunJobSkipped, msg.summary ?? "job skipped by filter", {
-        correlationId: msg.correlationId ?? null,
+        sourceRunId: msg.sourceRunId ?? null,
       });
     },
   });

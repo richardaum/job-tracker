@@ -18,7 +18,7 @@ type Documents = {
   "mutation CreateJob($input: CreateJobInput!) {\n  createJob(input: $input) {\n    id\n    title\n  }\n}": typeof types.CreateJobDocument;
   "query IsJobDuplicate($company: String!, $title: String!) {\n  isJobDuplicate(company: $company, title: $title)\n}": typeof types.IsJobDuplicateDocument;
   "query Me {\n  me {\n    email\n  }\n}": typeof types.MeDocument;
-  "mutation ReportExtensionActivity($input: ReportExtensionActivityInput!) {\n  reportExtensionActivity(input: $input) {\n    id\n    type\n    summary\n    correlationId\n    occurredAt\n  }\n}": typeof types.ReportExtensionActivityDocument;
+  "mutation ReportExtensionActivity($input: ReportExtensionActivityInput!) {\n  reportExtensionActivity(input: $input) {\n    id\n    type\n    summary\n    sourceRunId\n    occurredAt\n  }\n}": typeof types.ReportExtensionActivityDocument;
   "query SourceRuns {\n  sourceRuns {\n    id\n    templateId\n    planId\n    surfaceUrl\n    status\n    errorMessage\n    startedAt\n    stopWhen\n    catchUpThreshold\n    maxPages\n    olderThanDays\n  }\n}": typeof types.SourceRunsDocument;
   "mutation UpdateSourceRunStatus($id: ID!, $status: SourceRunStatus!, $errorMessage: String) {\n  updateSourceRunStatus(id: $id, status: $status, errorMessage: $errorMessage) {\n    id\n    status\n    errorMessage\n  }\n}": typeof types.UpdateSourceRunStatusDocument;
   "mutation UpdateSourceRun($id: ID!, $input: UpdateSourceRunInput!) {\n  updateSourceRun(id: $id, input: $input) {\n    id\n    surfaceUrl\n  }\n}": typeof types.UpdateSourceRunDocument;
@@ -31,7 +31,7 @@ const documents: Documents = {
   "query IsJobDuplicate($company: String!, $title: String!) {\n  isJobDuplicate(company: $company, title: $title)\n}":
     types.IsJobDuplicateDocument,
   "query Me {\n  me {\n    email\n  }\n}": types.MeDocument,
-  "mutation ReportExtensionActivity($input: ReportExtensionActivityInput!) {\n  reportExtensionActivity(input: $input) {\n    id\n    type\n    summary\n    correlationId\n    occurredAt\n  }\n}":
+  "mutation ReportExtensionActivity($input: ReportExtensionActivityInput!) {\n  reportExtensionActivity(input: $input) {\n    id\n    type\n    summary\n    sourceRunId\n    occurredAt\n  }\n}":
     types.ReportExtensionActivityDocument,
   "query SourceRuns {\n  sourceRuns {\n    id\n    templateId\n    planId\n    surfaceUrl\n    status\n    errorMessage\n    startedAt\n    stopWhen\n    catchUpThreshold\n    maxPages\n    olderThanDays\n  }\n}":
     types.SourceRunsDocument,
@@ -83,8 +83,8 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: "mutation ReportExtensionActivity($input: ReportExtensionActivityInput!) {\n  reportExtensionActivity(input: $input) {\n    id\n    type\n    summary\n    correlationId\n    occurredAt\n  }\n}",
-): (typeof documents)["mutation ReportExtensionActivity($input: ReportExtensionActivityInput!) {\n  reportExtensionActivity(input: $input) {\n    id\n    type\n    summary\n    correlationId\n    occurredAt\n  }\n}"];
+  source: "mutation ReportExtensionActivity($input: ReportExtensionActivityInput!) {\n  reportExtensionActivity(input: $input) {\n    id\n    type\n    summary\n    sourceRunId\n    occurredAt\n  }\n}",
+): (typeof documents)["mutation ReportExtensionActivity($input: ReportExtensionActivityInput!) {\n  reportExtensionActivity(input: $input) {\n    id\n    type\n    summary\n    sourceRunId\n    occurredAt\n  }\n}"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

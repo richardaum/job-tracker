@@ -46,7 +46,7 @@ export class SourceRunEventsService {
     }
     const { runId, surfaceUrl, planId, stopWhen, catchUpThreshold, maxPages, olderThanDays } = params;
 
-    this.activityReporter?.report(ExtensionActivityEventType.SourceRunStarted, surfaceUrl, { correlationId: runId });
+    this.activityReporter?.report(ExtensionActivityEventType.SourceRunStarted, surfaceUrl, { sourceRunId: runId });
 
     const plan = planForSourceRun(planId);
     const publishedAtField = getPublishedAtFieldName(plan);
@@ -56,7 +56,7 @@ export class SourceRunEventsService {
         await this.planService.execute(plan, {
           surfaceUrl: surfaceUrl.trim(),
           boardType: plan.boardType,
-          correlationId: runId,
+          sourceRunId: runId,
           stopWhen: stopWhen ?? undefined,
           catchUpThreshold: catchUpThreshold ?? undefined,
           maxPages: maxPages ?? undefined,
@@ -85,7 +85,7 @@ export class SourceRunEventsService {
             this.activityReporter?.report(
               ExtensionActivityEventType.SourceRunJobImported,
               typeof job.title === "string" && job.title.trim() ? job.title.trim() : surfaceUrl,
-              { correlationId: runId, payload: JSON.stringify({ duplicate }) },
+              { sourceRunId: runId, payload: JSON.stringify({ duplicate }) },
             );
 
             return { duplicate };
@@ -94,14 +94,14 @@ export class SourceRunEventsService {
             this.activityReporter?.report(
               ExtensionActivityEventType.SourceRunPageCollected,
               `Page ${page} · ${jobCount} jobs`,
-              { correlationId: runId },
+              { sourceRunId: runId },
             );
           },
           onStopConditionMet: async (page, reason) => {
             this.activityReporter?.report(
               ExtensionActivityEventType.SourceRunStopConditionMet,
               `Page ${page}: ${reason}`,
-              { correlationId: runId },
+              { sourceRunId: runId },
             );
           },
         });
@@ -113,11 +113,11 @@ export class SourceRunEventsService {
       const errorMessage = runErr instanceof Error ? runErr.message : String(runErr);
       await this.apiService.updateSourceRunStatus(runId, SourceRunStatus.Failed, errorMessage);
       this.logService.error("source-run:execution-failed", { runId, error: runErr });
-      this.activityReporter?.report(ExtensionActivityEventType.SourceRunFailed, surfaceUrl, { correlationId: runId });
+      this.activityReporter?.report(ExtensionActivityEventType.SourceRunFailed, surfaceUrl, { sourceRunId: runId });
       return;
     }
 
-    this.activityReporter?.report(ExtensionActivityEventType.SourceRunCompleted, surfaceUrl, { correlationId: runId });
+    this.activityReporter?.report(ExtensionActivityEventType.SourceRunCompleted, surfaceUrl, { sourceRunId: runId });
   }
 }
 
