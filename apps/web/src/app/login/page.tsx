@@ -64,7 +64,7 @@ export default function LoginPage() {
             <LoginSocialPanel
               brandName={APP_TITLE}
               onGoogleClick={handleGoogleLogin}
-              error={error}
+              error={error?.message}
               className={cn("shadow-xl")}
             />
           </div>

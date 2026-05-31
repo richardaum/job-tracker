@@ -16,7 +16,7 @@ import { useToastQueue } from "@/modules/jobs/shared/hooks/useToastQueue";
 import { removeDeletedEntityFromListCache } from "@/modules/jobs/shared/utils/apolloDeleteCache";
 import { ProfileHeaderActions } from "@/modules/profile/layout/profile-header.slots";
 import { AddResumeDialog } from "@/modules/resumes/list/components/AddResumeDialog";
-import ResumesList from "@/modules/resumes/list/components/ResumesList";
+import { ResumesList } from "@/modules/resumes/list/components/ResumesList";
 
 export default function ResumesTabPage() {
   const { data, loading, error } = useResumesQuery({ fetchPolicy: "cache-and-network" });

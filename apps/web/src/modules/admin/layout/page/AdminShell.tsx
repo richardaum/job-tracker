@@ -6,7 +6,7 @@ import type { Route } from "next";
 import { usePathname, useRouter } from "next/navigation";
 
 import { BackToLink } from "@/components/back-to-link";
-import { DetailPageHeader } from "@/components/detail-page-header";
+import { DetailPageHeader } from "@/components/detail-page-header/DetailPageHeader";
 import { AdminHeaderActions } from "@/modules/admin/layout/admin-header.slots";
 
 function deriveTab(pathname: string): string {

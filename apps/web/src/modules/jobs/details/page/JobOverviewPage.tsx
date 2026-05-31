@@ -26,8 +26,8 @@ export function JobOverviewPage({ jobId }: JobOverviewPageProps) {
       <OverviewTabContent
         job={job}
         sourcePrimaryText={sourcePrimaryText}
-        onSuccess={(message) => showToast(message, "success")}
-        onError={(message) => showToast(message, "error")}
+        onSuccess={(message) => showToast(message ?? "", "success")}
+        onError={(message) => showToast(message ?? "", "error")}
       />
     </div>
   );

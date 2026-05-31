@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import type { ResumeType } from "@/gql/hooks";
 
-import ResumesList from "./ResumesList";
+import { ResumesList } from "./ResumesList";
 
 vi.mock("@/modules/resumes/list/components/ResumeCard", () => ({
   ResumeCard: ({

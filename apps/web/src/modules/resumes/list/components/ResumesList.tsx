@@ -14,7 +14,7 @@ interface ResumesListProps {
   onSetAsDefault: (id: string) => Promise<void>;
 }
 
-export default function ResumesList({ resumes, loading, error, onDelete, onSetAsDefault }: ResumesListProps) {
+export function ResumesList({ resumes, loading, error, onDelete, onSetAsDefault }: ResumesListProps) {
   if (loading) {
     return <ResumesListSkeleton />;
   }

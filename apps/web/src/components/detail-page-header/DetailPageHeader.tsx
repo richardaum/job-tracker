@@ -49,7 +49,7 @@ type DescriptionProps = { children: ReactNode; className?: string };
 
 function Description({ children, className }: DescriptionProps) {
   return (
-    <Text size="sm" color="secondary" className={cn(className)}>
+    <Text as="div" size="sm" color="secondary" className={cn(className)}>
       {children}
     </Text>
   );

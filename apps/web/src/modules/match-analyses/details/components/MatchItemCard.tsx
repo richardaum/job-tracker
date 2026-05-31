@@ -2,7 +2,7 @@
 
 import { Card, cn, Text } from "@job-tracker/ui";
 
-import { MatchVerdict, RequirementType, Weight } from "@/gql/hooks";
+import { MatchSource, MatchVerdict, RequirementType, Weight } from "@/gql/hooks";
 
 import { RelevanceIcon } from "./RelevanceIcon";
 import { SourceBadge } from "./SourceBadge";
@@ -35,8 +35,8 @@ export function MatchItemCard({ item, resumeId, onPreferenceClick }: MatchItemCa
       <div className={cn("flex items-center gap-1")}>
         <VerdictBadge verdict={item.verdict} />
         <div className={cn("ml-auto flex items-center gap-2")}>
-          <SourceBadge source={item.source} resumeId={resumeId} onPreferenceClick={onPreferenceClick} />
-          <RelevanceIcon weight={item.weight} type={item.type} />
+          <SourceBadge source={item.source as MatchSource} resumeId={resumeId} onPreferenceClick={onPreferenceClick} />
+          <RelevanceIcon weight={item.weight ?? undefined} type={item.type ?? undefined} />
         </div>
       </div>
 
