@@ -1,1 +1,1 @@
-export { default } from "@/modules/sources/page/PlanDocumentEditorPage";
+export { PlanDocumentEditorPage as default } from "@/modules/sources/page/PlanDocumentEditorPage";

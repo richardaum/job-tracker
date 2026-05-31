@@ -10,8 +10,12 @@ import {
   Radio,
   Text,
 } from "@job-tracker/ui";
-import { CaretDownIcon, DownloadSimpleIcon, PlusIcon } from "@phosphor-icons/react";
-import { use, useEffect, useMemo, useState } from "react";
+import {
+  CaretDownIcon,
+  DownloadSimpleIcon,
+  PlusIcon,
+} from "@phosphor-icons/react";
+import { use, useState } from "react";
 
 import {
   PlanHeaderActions,
@@ -34,8 +38,13 @@ import type {
   Step,
   SurfaceField,
 } from "@/modules/sources/page/plan-editor/types";
-import { defaultCollectJobs, defaultParseRegex } from "@/modules/sources/page/plan-editor/utils";
+import {
+  deepEqual,
+  defaultCollectJobs,
+  defaultParseRegex,
+} from "@/modules/sources/page/plan-editor/utils";
 import { usePlanQuery, useUpdatePlanMutation } from "@/gql/hooks";
+import type { PlanQuery } from "@/gql/graphql";
 import { useToastQueue } from "@/modules/jobs/shared/hooks/useToastQueue";
 import { tryRun } from "@job-tracker/try-run";
 
@@ -50,36 +59,22 @@ function parseDocument(document: Record<string, unknown> | null | undefined): {
   };
 }
 
-export default function PlanDocumentEditorPage({
-  params,
-}: {
-  params: Promise<{ planId: string }>;
-}) {
-  const { planId } = use(params);
-  const { data, loading } = usePlanQuery({ variables: { id: planId } });
+function getCollectJobsInput(step: Step): CollectJobsInput {
+  return (step.action as { kind: "collect.jobs"; input: CollectJobsInput })
+    .input;
+}
+
+function PlanEditor({ plan }: { plan: NonNullable<PlanQuery["plan"]> }) {
   const [updatePlan] = useUpdatePlanMutation();
   const { enqueueToast } = useToastQueue();
+  const initialDoc = parseDocument(plan.document);
 
-  const plan = data?.plan ?? null;
-  const initialDoc = useMemo(() => (plan ? parseDocument(plan.document) : null), [plan]);
-
-  const [boardType, setBoardType] = useState<BoardType>("Sequential");
-  const [steps, setSteps] = useState<Step[]>([]);
-  const [initialized, setInitialized] = useState(false);
+  const [boardType, setBoardType] = useState<BoardType>(initialDoc.boardType);
+  const [steps, setSteps] = useState<Step[]>(initialDoc.steps);
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
-    if (initialDoc && !initialized) {
-      setBoardType(initialDoc.boardType);
-      setSteps(initialDoc.steps);
-      setInitialized(true);
-    }
-  }, [initialDoc, initialized]);
-
   const changed =
-    initialized &&
-    (boardType !== initialDoc?.boardType ||
-      JSON.stringify(steps) !== JSON.stringify(initialDoc?.steps));
+    boardType !== initialDoc.boardType || !deepEqual(steps, initialDoc.steps);
 
   const [editingSelectors, setEditingSelectors] = useState<Step | null>(null);
   const [editingNavigation, setEditingNavigation] = useState<Step | null>(null);
@@ -112,7 +107,6 @@ export default function PlanDocumentEditorPage({
   }
 
   async function handleSave() {
-    if (!plan || !initialized) return;
     setSaving(true);
     const [err] = await tryRun(
       updatePlan({
@@ -122,7 +116,10 @@ export default function PlanDocumentEditorPage({
     setSaving(false);
     if (err) {
       enqueueToast({
-        title: err instanceof Error ? err.message : "Could not save plan. Try again.",
+        title:
+          err instanceof Error
+            ? err.message
+            : "Could not save plan. Try again.",
         intent: "error",
       });
       return;
@@ -130,27 +127,56 @@ export default function PlanDocumentEditorPage({
     enqueueToast({ title: "Plan saved.", intent: "success" });
   }
 
+  function handleEditField(
+    step: Step,
+    kind: "surface" | "details",
+    fieldIndex: number,
+  ) {
+    const fields =
+      kind === "surface"
+        ? getCollectJobsInput(step).surfaceFields
+        : getCollectJobsInput(step).detailsFields;
+    setFieldDialog({
+      step,
+      kind,
+      field: fields[fieldIndex] as SurfaceField | DetailsField,
+      index: fieldIndex,
+    });
+  }
+
+  function handleEditRegexField(step: Step, fieldIndex: number) {
+    const fields = (
+      step.action as {
+        kind: "parse.regex";
+        input: { fields: ParseRegexField[] };
+      }
+    ).input.fields;
+    setRegexFieldDialog({ step, field: fields[fieldIndex], index: fieldIndex });
+  }
+
   function replaceStep(old: Step, updated: Step) {
     setSteps((prev) => prev.map((s) => (s.id === old.id ? updated : s)));
   }
 
   function replaceSurfaceFields(step: Step, fields: SurfaceField[]) {
-    const input = {
-      ...(step.action as { kind: "collect.jobs"; input: CollectJobsInput }).input,
-      surfaceFields: fields,
-    };
+    const input = { ...getCollectJobsInput(step), surfaceFields: fields };
     setSteps((prev) =>
-      prev.map((s) => (s.id === step.id ? { ...s, action: { kind: "collect.jobs", input } } : s)),
+      prev.map((s) =>
+        s.id === step.id
+          ? { ...s, action: { kind: "collect.jobs", input } }
+          : s,
+      ),
     );
   }
 
   function replaceDetailsFields(step: Step, fields: DetailsField[]) {
-    const input = {
-      ...(step.action as { kind: "collect.jobs"; input: CollectJobsInput }).input,
-      detailsFields: fields,
-    };
+    const input = { ...getCollectJobsInput(step), detailsFields: fields };
     setSteps((prev) =>
-      prev.map((s) => (s.id === step.id ? { ...s, action: { kind: "collect.jobs", input } } : s)),
+      prev.map((s) =>
+        s.id === step.id
+          ? { ...s, action: { kind: "collect.jobs", input } }
+          : s,
+      ),
     );
   }
 
@@ -160,10 +186,12 @@ export default function PlanDocumentEditorPage({
     index: number,
     field: SurfaceField | DetailsField,
   ) {
-    const input = (step.action as { kind: "collect.jobs"; input: CollectJobsInput }).input;
-    const fields = kind === "surface" ? [...input.surfaceFields] : [...input.detailsFields];
+    const input = getCollectJobsInput(step);
+    const fields =
+      kind === "surface" ? [...input.surfaceFields] : [...input.detailsFields];
     fields[index] = field as SurfaceField & DetailsField;
-    if (kind === "surface") replaceSurfaceFields(step, fields as SurfaceField[]);
+    if (kind === "surface")
+      replaceSurfaceFields(step, fields as SurfaceField[]);
     else replaceDetailsFields(step, fields as DetailsField[]);
   }
 
@@ -172,16 +200,21 @@ export default function PlanDocumentEditorPage({
     kind: "surface" | "details",
     field: SurfaceField | DetailsField,
   ) {
-    const input = (step.action as { kind: "collect.jobs"; input: CollectJobsInput }).input;
+    const input = getCollectJobsInput(step);
     const fields =
       kind === "surface"
         ? [...input.surfaceFields, field as SurfaceField]
         : [...input.detailsFields, field as DetailsField];
-    if (kind === "surface") replaceSurfaceFields(step, fields as SurfaceField[]);
+    if (kind === "surface")
+      replaceSurfaceFields(step, fields as SurfaceField[]);
     else replaceDetailsFields(step, fields as DetailsField[]);
   }
 
-  function handleSaveRegexField(step: Step, index: number, field: ParseRegexField) {
+  function handleSaveRegexField(
+    step: Step,
+    index: number,
+    field: ParseRegexField,
+  ) {
     const action = step.action as {
       kind: "parse.regex";
       input: { text: string; fields: ParseRegexField[] };
@@ -237,22 +270,6 @@ export default function PlanDocumentEditorPage({
     setSteps((prev) => [...prev, step]);
   }
 
-  if (loading || !initialized) {
-    return (
-      <div className={cn("flex h-full items-center justify-center")}>
-        <Text color="muted">Loading...</Text>
-      </div>
-    );
-  }
-
-  if (!plan) {
-    return (
-      <div className={cn("flex h-full items-center justify-center")}>
-        <Text color="muted">Plan not found.</Text>
-      </div>
-    );
-  }
-
   return (
     <>
       <PlanTabDescription>
@@ -271,7 +288,10 @@ export default function PlanDocumentEditorPage({
                 size="md"
                 rightIcon={
                   <CaretDownIcon
-                    className={cn("transition-transform", actionsMenuOpen && "rotate-180")}
+                    className={cn(
+                      "transition-transform",
+                      actionsMenuOpen && "rotate-180",
+                    )}
                     size={14}
                     weight="bold"
                   />
@@ -281,7 +301,10 @@ export default function PlanDocumentEditorPage({
               </Button>
             }
           >
-            <DropdownMenuItem icon={<DownloadSimpleIcon size={16} />} onSelect={handleExportJson}>
+            <DropdownMenuItem
+              icon={<DownloadSimpleIcon size={16} />}
+              onSelect={handleExportJson}
+            >
               Export JSON
             </DropdownMenuItem>
           </DropdownMenu>
@@ -297,7 +320,9 @@ export default function PlanDocumentEditorPage({
         </div>
       </PlanHeaderActions>
 
-      <div className={cn("flex min-h-0 flex-1 flex-col gap-6 overflow-auto pe-3")}>
+      <div
+        className={cn("flex min-h-0 flex-1 flex-col gap-6 overflow-auto pe-3")}
+      >
         <Card padding="md">
           <div className={cn("flex items-center justify-between")}>
             <div className={cn("flex items-center gap-1.5")}>
@@ -307,9 +332,11 @@ export default function PlanDocumentEditorPage({
               <InfoTooltip
                 content={
                   <>
-                    Sequential: jobs appear in predictable order (newest first). Enables CatchUp.
+                    Sequential: jobs appear in predictable order (newest first).
+                    Enables CatchUp.
                     <br />
-                    NonSequential: jobs appear in no clear order; CatchUp is not available.
+                    NonSequential: jobs appear in no clear order; CatchUp is not
+                    available.
                   </>
                 }
               />
@@ -338,40 +365,15 @@ export default function PlanDocumentEditorPage({
               onEditSelectors={setEditingSelectors}
               onEditNavigation={setEditingNavigation}
               onEditPagination={setEditingPagination}
-              onAddField={(s, k) => setFieldDialog({ step: s, kind: k, field: null, index: -1 })}
-              onEditField={(s, k, fi) => {
-                const fields =
-                  k === "surface"
-                    ? (
-                        s.action as {
-                          kind: "collect.jobs";
-                          input: CollectJobsInput;
-                        }
-                      ).input.surfaceFields
-                    : (
-                        s.action as {
-                          kind: "collect.jobs";
-                          input: CollectJobsInput;
-                        }
-                      ).input.detailsFields;
-                setFieldDialog({
-                  step: s,
-                  kind: k,
-                  field: fields[fi] as SurfaceField | DetailsField,
-                  index: fi,
-                });
-              }}
+              onAddField={(s, k) =>
+                setFieldDialog({ step: s, kind: k, field: null, index: -1 })
+              }
+              onEditField={handleEditField}
               onEditParse={setEditingParse}
-              onAddRegexField={(s) => setRegexFieldDialog({ step: s, field: null, index: -1 })}
-              onEditRegexField={(s, fi) => {
-                const fields = (
-                  s.action as {
-                    kind: "parse.regex";
-                    input: { fields: ParseRegexField[] };
-                  }
-                ).input.fields;
-                setRegexFieldDialog({ step: s, field: fields[fi], index: fi });
-              }}
+              onAddRegexField={(s) =>
+                setRegexFieldDialog({ step: s, field: null, index: -1 })
+              }
+              onEditRegexField={handleEditRegexField}
               onDelete={handleDeleteStep}
             />
           ))}
@@ -424,39 +426,55 @@ export default function PlanDocumentEditorPage({
           }}
         />
       )}
-      {fieldDialog?.kind === "surface" && fieldDialog.step.action.kind === "collect.jobs" && (
-        <SurfaceFieldEditDialog
-          key={`surface-${fieldDialog.index}`}
-          field={fieldDialog.field as SurfaceField | null}
-          open
-          availableKeys={fieldDialog.step.action.input.surfaceFields
-            .map((f) => f.key)
-            .filter((key) => {
-              if (fieldDialog.index === -1) return true;
-              if (!fieldDialog.field) return true;
-              return key !== fieldDialog.field.key;
-            })}
-          onOpenChange={() => setFieldDialog(null)}
-          onSave={(f) => {
-            if (fieldDialog.index === -1) handleAddField(fieldDialog.step, "surface", f);
-            else handleSaveField(fieldDialog.step, "surface", fieldDialog.index, f);
-            setFieldDialog(null);
-          }}
-        />
-      )}
-      {fieldDialog?.kind === "details" && fieldDialog.step.action.kind === "collect.jobs" && (
-        <DetailsFieldEditDialog
-          key={`details-${fieldDialog.index}`}
-          field={fieldDialog.field as DetailsField | null}
-          open
-          onOpenChange={() => setFieldDialog(null)}
-          onSave={(f) => {
-            if (fieldDialog.index === -1) handleAddField(fieldDialog.step, "details", f);
-            else handleSaveField(fieldDialog.step, "details", fieldDialog.index, f);
-            setFieldDialog(null);
-          }}
-        />
-      )}
+      {fieldDialog?.kind === "surface" &&
+        fieldDialog.step.action.kind === "collect.jobs" && (
+          <SurfaceFieldEditDialog
+            key={`surface-${fieldDialog.index}`}
+            field={fieldDialog.field as SurfaceField | null}
+            open
+            availableKeys={fieldDialog.step.action.input.surfaceFields
+              .map((f) => f.key)
+              .filter((key) => {
+                if (fieldDialog.index === -1) return true;
+                if (!fieldDialog.field) return true;
+                return key !== fieldDialog.field.key;
+              })}
+            onOpenChange={() => setFieldDialog(null)}
+            onSave={(f) => {
+              if (fieldDialog.index === -1)
+                handleAddField(fieldDialog.step, "surface", f);
+              else
+                handleSaveField(
+                  fieldDialog.step,
+                  "surface",
+                  fieldDialog.index,
+                  f,
+                );
+              setFieldDialog(null);
+            }}
+          />
+        )}
+      {fieldDialog?.kind === "details" &&
+        fieldDialog.step.action.kind === "collect.jobs" && (
+          <DetailsFieldEditDialog
+            key={`details-${fieldDialog.index}`}
+            field={fieldDialog.field as DetailsField | null}
+            open
+            onOpenChange={() => setFieldDialog(null)}
+            onSave={(f) => {
+              if (fieldDialog.index === -1)
+                handleAddField(fieldDialog.step, "details", f);
+              else
+                handleSaveField(
+                  fieldDialog.step,
+                  "details",
+                  fieldDialog.index,
+                  f,
+                );
+              setFieldDialog(null);
+            }}
+          />
+        )}
       {editingParse?.action.kind === "parse.regex" && (
         <ParseRegexStepDialog
           key={editingParse.id}
@@ -476,13 +494,52 @@ export default function PlanDocumentEditorPage({
           open
           onOpenChange={() => setRegexFieldDialog(null)}
           onSave={(f) => {
-            if (regexFieldDialog.index === -1) handleAddRegexField(regexFieldDialog.step, f);
-            else handleSaveRegexField(regexFieldDialog.step, regexFieldDialog.index, f);
+            if (regexFieldDialog.index === -1)
+              handleAddRegexField(regexFieldDialog.step, f);
+            else
+              handleSaveRegexField(
+                regexFieldDialog.step,
+                regexFieldDialog.index,
+                f,
+              );
             setRegexFieldDialog(null);
           }}
         />
       )}
-      <AddStepDialog open={addStepOpen} onOpenChange={setAddStepOpen} onAdd={handleAddStep} />
+      <AddStepDialog
+        open={addStepOpen}
+        onOpenChange={setAddStepOpen}
+        onAdd={handleAddStep}
+      />
     </>
   );
+}
+
+export function PlanDocumentEditorPage({
+  params,
+}: {
+  params: Promise<{ planId: string }>;
+}) {
+  const { planId } = use(params);
+  const { data, loading } = usePlanQuery({ variables: { id: planId } });
+
+  const plan = data?.plan ?? null;
+
+  if (loading) {
+    return (
+      <div className={cn("flex h-full items-center justify-center")}>
+        <Text color="muted">Loading...</Text>
+      </div>
+    );
+  }
+
+  if (!plan) {
+    return (
+      <div className={cn("flex h-full items-center justify-center")}>
+        <Text color="muted">Plan not found.</Text>
+      </div>
+    );
+  }
+
+  return <PlanEditor key={plan.id} plan={plan} />;
 }
