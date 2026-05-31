@@ -14,6 +14,7 @@
           "key": "{{applyUrl}}",
           "direction": "up",
           "parallelDetailsTabs": 10,
+          "readyCheck": { "selector": ".input-search-placeholder", "value": "updating" },
           "surfaceFields": [
             {
               "key": "publishedAt",

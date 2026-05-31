@@ -15,6 +15,14 @@
             "containerSelector": ".artdeco-pagination",
             "nextButtonPartialMatch": "Next"
           },
+          "readyCheck": {
+            "selector": ".loading-indicator",
+            "mode": "text",
+            "value": "updating",
+            "resolveTimeoutMs": 10000,
+            "watchTimeoutMs": 3000,
+            "pollIntervalMs": 200
+          },
           "surfaceFields": [
             { "key": "title", "selector": ".job-card-list__title strong", "type": "property", "value": "textContent" },
             { "key": "detailUrl", "selector": "a.job-card-container__link", "type": "attribute", "value": "href" },

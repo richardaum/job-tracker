@@ -215,4 +215,137 @@ describe("JobsListService", () => {
     expect(withUrl.length).toBeGreaterThan(0);
     expect(withUrl[0].applyUrl).toMatch(/^https?:\/\//);
   });
+
+  it("readyCheck no-op when config is undefined", async () => {
+    container.appendChild(makeBubble("1", "first"));
+    container.appendChild(makeBubble("2", "second"));
+
+    const svc = new JobsListService(
+      new FieldValueService(),
+      new DefaultTimerService(),
+      { publishDebug: vi.fn() } as never,
+      new StringTemplateService(),
+      mockSkippedReporter(),
+    );
+
+    const result = await svc.execute(buildMessage({ direction: "down" }));
+
+    expect(result.jobs).toHaveLength(2);
+    expect(result.jobs[0].text).toBe("first");
+    expect(result.jobs[1].text).toBe("second");
+  });
+
+  it("readyCheck silent when selector not found", async () => {
+    container.appendChild(makeBubble("1", "first"));
+
+    const svc = new JobsListService(
+      new FieldValueService(),
+      new DefaultTimerService(),
+      { publishDebug: vi.fn() } as never,
+      new StringTemplateService(),
+      mockSkippedReporter(),
+    );
+
+    const result = await svc.execute(
+      buildMessage({
+        direction: "down",
+        readyCheck: {
+          selector: ".nonexistent",
+          mode: "text",
+          value: "updating",
+          resolveTimeoutMs: 10_000,
+          watchTimeoutMs: 3_000,
+          pollIntervalMs: 200,
+        } as const,
+      }),
+    );
+
+    expect(result.jobs).toHaveLength(1);
+    expect(result.jobs[0].text).toBe("first");
+  });
+
+  it("readyCheck waits for trigger text to resolve", async () => {
+    const statusEl = document.createElement("div");
+    statusEl.className = "input-search-placeholder";
+    statusEl.textContent = "Updating...";
+    document.body.appendChild(statusEl);
+
+    setTimeout(() => {
+      statusEl.textContent = "Ready";
+    }, 50);
+
+    container.appendChild(makeBubble("1", "first"));
+
+    const svc = new JobsListService(
+      new FieldValueService(),
+      new DefaultTimerService(),
+      { publishDebug: vi.fn() } as never,
+      new StringTemplateService(),
+      mockSkippedReporter(),
+    );
+
+    const msg = buildMessage({
+      direction: "down",
+      readyCheck: {
+        selector: ".input-search-placeholder",
+        mode: "text",
+        value: "updating",
+        resolveTimeoutMs: 2000,
+        watchTimeoutMs: 3_000,
+        pollIntervalMs: 20,
+      } as const,
+    });
+
+    const result = await svc.execute(msg);
+
+    expect(result.jobs).toHaveLength(1);
+    expect(result.jobs[0].text).toBe("first");
+  });
+
+  it("readyCheck runs only once per execute", async () => {
+    for (let i = 0; i < 15; i++) {
+      container.appendChild(makeBubble(String(i), `item-${i}`));
+    }
+
+    // Enable scrolling by overriding dimension properties
+    Object.defineProperty(container, "scrollHeight", { value: 3000, configurable: true });
+    Object.defineProperty(container, "clientHeight", { value: 300, configurable: true });
+
+    const statusEl = document.createElement("div");
+    statusEl.className = "input-search-placeholder";
+    statusEl.textContent = "Ready";
+    document.body.appendChild(statusEl);
+
+    const waitForSpy = vi.spyOn(DefaultTimerService.prototype, "waitFor");
+
+    const svc = new JobsListService(
+      new FieldValueService(),
+      new DefaultTimerService(),
+      { publishDebug: vi.fn() } as never,
+      new StringTemplateService(),
+      mockSkippedReporter(),
+    );
+
+    const msg = buildMessage(
+      {
+        direction: "down",
+        key: "{{text}}",
+        readyCheck: {
+          selector: ".input-search-placeholder",
+          mode: "text",
+          value: "updating",
+          resolveTimeoutMs: 10_000,
+          watchTimeoutMs: 300,
+          pollIntervalMs: 10,
+        } as const,
+      },
+      { skipDelay: true },
+    );
+
+    const result = await svc.execute(msg);
+
+    expect(result.jobs).toHaveLength(15);
+    // waitFor is only called from waitForReadyCheck — once means no per-scroll re-check
+    expect(waitForSpy).toHaveBeenCalledTimes(1);
+  });
 });

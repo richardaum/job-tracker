@@ -5,7 +5,12 @@ import type { Job } from "@/domains/dom/types";
 import { PopupLogService } from "@/domains/log/popup-log.service";
 import type { ContentActionMessage } from "@/domains/message/types";
 import { SkippedJobReporterService } from "@/domains/jobs-list/skipped-job-reporter.service";
-import type { CollectJobsAction, PlanStepCollectJobsSurfaceField, RegexSurfaceField } from "@job-tracker/plan-schemas";
+import type {
+  CollectJobsAction,
+  PlanStepCollectJobsSurfaceField,
+  ReadyCheckConfig,
+  RegexSurfaceField,
+} from "@job-tracker/plan-schemas";
 import { StringTemplateService } from "@/domains/plan/services/string-template.service";
 import { TimerService } from "@/domains/timer/timer.service";
 
@@ -34,27 +39,28 @@ export class JobsListService {
     private readonly skippedReporter: SkippedJobReporterService,
   ) {}
 
-  private async waitForTelegramUpdateOrDelay(): Promise<void> {
-    const getText = (): string => document.querySelector(".input-search-placeholder")?.textContent ?? "";
+  private async waitForReadyCheck(config?: ReadyCheckConfig): Promise<void> {
+    if (!config) return;
 
+    const el = document.querySelector(config.selector);
+    if (!el) return;
+
+    const getText = () => el.textContent ?? "";
     const text = getText();
 
-    if (!text) {
-      await this.timerService.smallDelay();
-      return;
-    }
+    if (!text) return;
 
-    const waitForUpdatingDone = async (): Promise<void> => {
+    const waitForResolve = async () => {
       await tryRun(
-        this.timerService.waitFor(() => !getText().toLowerCase().includes("updating"), {
-          intervalMs: 200,
-          maxWaitMs: 10_000,
+        this.timerService.waitFor(() => !getText().toLowerCase().includes(config.value.toLowerCase()), {
+          intervalMs: config.pollIntervalMs!,
+          maxWaitMs: config.resolveTimeoutMs!,
         }),
       );
     };
 
-    if (text.toLowerCase().includes("updating")) {
-      await waitForUpdatingDone();
+    if (text.toLowerCase().includes(config.value!.toLowerCase())) {
+      await waitForResolve();
       return;
     }
 
@@ -62,15 +68,15 @@ export class JobsListService {
       this.timerService.waitFor(
         () => {
           const t = getText().toLowerCase();
-          if (t.includes("updating")) return "UPDATING";
+          if (t.includes(config.value!.toLowerCase())) return "ACTIVE";
           return null;
         },
-        { intervalMs: 200, maxWaitMs: 3_000 },
+        { intervalMs: config.pollIntervalMs!, maxWaitMs: config.watchTimeoutMs! },
       ),
     );
 
-    if (getText().toLowerCase().includes("updating")) {
-      await waitForUpdatingDone();
+    if (getText().toLowerCase().includes(config.value!.toLowerCase())) {
+      await waitForResolve();
     }
   }
 
@@ -90,7 +96,7 @@ export class JobsListService {
       );
     }
 
-    await this.waitForTelegramUpdateOrDelay();
+    await this.waitForReadyCheck(message.action.input.readyCheck);
 
     let scrollable = findScrollableAncestor(container) ?? container.parentElement ?? container;
     if (scrollable === document.body || scrollable === document.documentElement) {
@@ -167,8 +173,6 @@ export class JobsListService {
 
       const delta = direction === "up" ? -400 : 400;
       scrollable.scrollTop = Math.max(0, scrollable.scrollTop + delta);
-
-      await this.waitForTelegramUpdateOrDelay();
 
       if (!foundNew) emptyPasses++;
     }
