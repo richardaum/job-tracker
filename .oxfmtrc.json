@@ -3,7 +3,7 @@
   "semi": true,
   "singleQuote": false,
   "objectWrap": "collapse",
-  "printWidth": 80,
+  "printWidth": 120,
   "sortPackageJson": false,
   "ignorePatterns": [
     "node_modules",
