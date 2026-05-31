@@ -5,26 +5,26 @@ import { describe, expect, it } from "vitest";
 import { BlockedKeywordInput, BlockedKeywordType, KeywordScopeEnum, MatchModeEnum } from "./keyword-blocker.types";
 
 describe("KeywordScope", () => {
-  it("has TITLE member", () => {
-    expect(KeywordScopeEnum.Title).toBe("TITLE");
+  it("has Title member", () => {
+    expect(KeywordScopeEnum.Title).toBe("Title");
   });
 
-  it("has DESCRIPTION member", () => {
-    expect(KeywordScopeEnum.Description).toBe("DESCRIPTION");
+  it("has Description member", () => {
+    expect(KeywordScopeEnum.Description).toBe("Description");
   });
 
-  it("has COMPANY member", () => {
-    expect(KeywordScopeEnum.Company).toBe("COMPANY");
+  it("has Company member", () => {
+    expect(KeywordScopeEnum.Company).toBe("Company");
   });
 });
 
 describe("MatchMode", () => {
-  it("has PARTIAL member", () => {
-    expect(MatchModeEnum.Partial).toBe("PARTIAL");
+  it("has Partial member", () => {
+    expect(MatchModeEnum.Partial).toBe("Partial");
   });
 
-  it("has EXACT member", () => {
-    expect(MatchModeEnum.Exact).toBe("EXACT");
+  it("has Exact member", () => {
+    expect(MatchModeEnum.Exact).toBe("Exact");
   });
 });
 

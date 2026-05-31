@@ -228,12 +228,12 @@ describe("JobsRepository", () => {
     );
   });
 
-  it("includes DRAFT quick filter after draft→jobs migration", () => {
-    expect(ApplicationQuickFilterEnum.Draft).toBe("DRAFT");
+  it("includes Draft quick filter after draft→jobs migration", () => {
+    expect(ApplicationQuickFilterEnum.Draft).toBe("Draft");
   });
 
-  it("includes REJECTED quick filter for blocked-job discoverability", () => {
-    expect(ApplicationQuickFilterEnum.Rejected).toBe("REJECTED");
+  it("includes Rejected quick filter for blocked-job discoverability", () => {
+    expect(ApplicationQuickFilterEnum.Rejected).toBe("Rejected");
   });
 
   it("create saves row with scalar salary_* columns populated", async () => {

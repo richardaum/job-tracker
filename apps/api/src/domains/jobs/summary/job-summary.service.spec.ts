@@ -335,7 +335,7 @@ describe("JobSummaryService", () => {
     await service.doGenerate("job-1", "user-1");
 
     const ctx = vi.mocked(summaryAiService.generateSummary).mock.calls[0][0] ?? "";
-    expect(ctx).toContain("TECHNICAL");
+    expect(ctx).toContain("Technical");
     expect(ctx).toContain("Loop");
   });
 });

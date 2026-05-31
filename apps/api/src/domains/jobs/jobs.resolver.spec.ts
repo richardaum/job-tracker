@@ -204,7 +204,7 @@ describe("JobsResolver (integration)", () => {
 
     expect(res.statusCode).toBe(200);
     expect(res.body.data.fillJobAutomatically.id).toBe("app-1");
-    expect(res.body.data.fillJobAutomatically.fillMetadata.status).toBe("PROCESSING");
+    expect(res.body.data.fillJobAutomatically.fillMetadata.status).toBe("Processing");
     expect(fillService.fillJobAutomatically).toHaveBeenCalledWith("user-1", "app-1");
   });
 
