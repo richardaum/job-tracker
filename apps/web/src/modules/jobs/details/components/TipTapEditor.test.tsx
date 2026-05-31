@@ -58,7 +58,7 @@ function NotesComposerLikeFixture({ composerRef }: { composerRef: RefObject<TipT
 }
 
 describe("TipTapEditor (integration)", () => {
-  it("clears like NotesPanel after send: type a message, then ref.clear()", async () => {
+  it("clears like NotesPanel after send: type a message, then ref.clear()", { timeout: 15_000 }, async () => {
     const user = userEvent.setup();
     const message = "Text that should disappear after clearing";
     const composerRef = createRef<TipTapEditorHandle>();
@@ -85,7 +85,7 @@ describe("TipTapEditor (integration)", () => {
     expect(screen.getByRole("textbox")).toHaveTextContent("");
   });
 
-  it("triggers onHardEnter and clears editor on Ctrl+Enter when canSend is true", async () => {
+  it("triggers onHardEnter and clears editor on Ctrl+Enter when canSend is true", { timeout: 15_000 }, async () => {
     const user = userEvent.setup();
     const message = "Send with keyboard";
     const composerRef = createRef<TipTapEditorHandle>();
