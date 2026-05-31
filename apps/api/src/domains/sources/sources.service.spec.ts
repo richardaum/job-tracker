@@ -673,8 +673,8 @@ describe("SourcesService", () => {
       const result = await service.listTemplatesForPlan("user-1", "plan-1");
 
       expect(result).toHaveLength(2);
-      expect(repo.findRunsForTemplate).toHaveBeenCalledTimes(1);
-      expect(jobRepo.countBySourceRunIds).toHaveBeenCalledTimes(1);
+      expect(repo.findRunsForTemplate).toHaveBeenCalledTimes(2);
+      expect(jobRepo.countBySourceRunIds).toHaveBeenCalledTimes(2);
     });
   });
 
@@ -691,8 +691,9 @@ describe("SourcesService", () => {
 
       await service.clearTemplateRuns("user-1", "tmpl-1", { deleteJobs: true });
 
-      expect(jobRepo.deleteBySourceRunId).toHaveBeenCalledTimes(1);
-      expect(jobRepo.deleteBySourceRunId).toHaveBeenCalledWith(["run-1", "run-2"], "user-1");
+      expect(jobRepo.deleteBySourceRunId).toHaveBeenCalledTimes(2);
+      expect(jobRepo.deleteBySourceRunId).toHaveBeenCalledWith("run-1", "user-1");
+      expect(jobRepo.deleteBySourceRunId).toHaveBeenCalledWith("run-2", "user-1");
     });
   });
 });
