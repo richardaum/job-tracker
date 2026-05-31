@@ -60,7 +60,7 @@ export function SourceRunActivityEventsDialog({ runId, runLabel, trigger }: Sour
     skip: !open,
     onData: ({ data }) => {
       const event = data.data?.extensionActivityEvents;
-      if (!event || event.correlationId !== runId) return;
+      if (!event || event.sourceRunId !== runId) return;
 
       const key = `${event.type}-${event.summary}-${String(event.occurredAt)}`;
       if (seenKeys.current.has(key)) return;

@@ -29,7 +29,7 @@ query AdminExtensionActivityEventsList($limit: Int) {
     id
     type
     summary
-    correlationId
+    sourceRunId
     occurredAt
   }
 }
@@ -39,7 +39,7 @@ subscription AdminExtensionActivityEvents {
     id
     type
     summary
-    correlationId
+    sourceRunId
     occurredAt
   }
 }

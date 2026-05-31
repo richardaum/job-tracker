@@ -28,7 +28,7 @@ export type ExtensionActivityEvent = {
   type: ExtensionActivityEventType;
   occurredAt: string;
   summary: string;
-  correlationId: string | null;
+  sourceRunId: string | null;
 };
 
 export type ExtensionAdminEvent = ExtensionSourceRunEvent | ExtensionActivityEvent;
@@ -68,7 +68,7 @@ export function mapActivityToExtensionEvent(event: AdminActivityEventRow): Exten
     type: event.type,
     occurredAt: String(event.occurredAt),
     summary: event.summary,
-    correlationId: event.correlationId ?? null,
+    sourceRunId: event.sourceRunId ?? null,
   };
 }
 
@@ -93,7 +93,7 @@ export function countInFlightActivityEvents(events: ExtensionActivityEvent[]): n
   const latestByCorrelation = new Map<string, ExtensionActivityEventType>();
 
   for (const event of [...events].sort((left, right) => Date.parse(left.occurredAt) - Date.parse(right.occurredAt))) {
-    const key = event.correlationId ?? event.id;
+    const key = event.sourceRunId ?? event.id;
     latestByCorrelation.set(key, event.type);
   }
 

@@ -167,8 +167,6 @@ export type ExtensionActivityEvent = {
   __typename?: 'ExtensionActivityEvent';
   /** Browser user-agent or name. */
   browser?: Maybe<Scalars['String']['output']>;
-  /** Groups related events (e.g. run ID). */
-  correlationId?: Maybe<Scalars['String']['output']>;
   /** Extension version that reported the event. */
   extensionVersion?: Maybe<Scalars['String']['output']>;
   /** Unique event identifier. */
@@ -177,6 +175,8 @@ export type ExtensionActivityEvent = {
   occurredAt: Scalars['DateTime']['output'];
   /** Arbitrary JSON payload with event details. */
   payload?: Maybe<Scalars['JSON']['output']>;
+  /** Groups related events (e.g. run ID). */
+  sourceRunId?: Maybe<Scalars['String']['output']>;
   /** Human-readable summary of what happened. */
   summary: Scalars['String']['output'];
   /** Event category (source run lifecycle, import, auth). */
@@ -756,10 +756,10 @@ export type QuerySourceTemplateArgs = {
 
 export type ReportExtensionActivityInput = {
   browser?: InputMaybe<Scalars['String']['input']>;
-  correlationId?: InputMaybe<Scalars['String']['input']>;
   extensionVersion?: InputMaybe<Scalars['String']['input']>;
   occurredAt?: InputMaybe<Scalars['DateTime']['input']>;
   payload?: InputMaybe<Scalars['JSON']['input']>;
+  sourceRunId?: InputMaybe<Scalars['String']['input']>;
   summary: Scalars['String']['input'];
   type: ExtensionActivityEventType;
 };
@@ -980,12 +980,12 @@ export type AdminExtensionActivityEventsListQueryVariables = Exact<{
 }>;
 
 
-export type AdminExtensionActivityEventsListQuery = { __typename?: 'Query', extensionActivityEvents: Array<{ __typename?: 'ExtensionActivityEvent', id: string, type: ExtensionActivityEventType, summary: string, correlationId?: string | null, occurredAt: any }> };
+export type AdminExtensionActivityEventsListQuery = { __typename?: 'Query', extensionActivityEvents: Array<{ __typename?: 'ExtensionActivityEvent', id: string, type: ExtensionActivityEventType, summary: string, sourceRunId?: string | null, occurredAt: any }> };
 
 export type AdminExtensionActivityEventsSubscriptionVariables = Exact<{ [key: string]: never; }>;
 
 
-export type AdminExtensionActivityEventsSubscription = { __typename?: 'Subscription', extensionActivityEvents: { __typename?: 'ExtensionActivityEvent', id: string, type: ExtensionActivityEventType, summary: string, correlationId?: string | null, occurredAt: any } };
+export type AdminExtensionActivityEventsSubscription = { __typename?: 'Subscription', extensionActivityEvents: { __typename?: 'ExtensionActivityEvent', id: string, type: ExtensionActivityEventType, summary: string, sourceRunId?: string | null, occurredAt: any } };
 
 export type AdminUsersQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -1396,7 +1396,7 @@ export type SourceRunActivityEventsQuery = { __typename?: 'Query', sourceRunActi
 export type SourceRunActivityEventsLiveSubscriptionVariables = Exact<{ [key: string]: never; }>;
 
 
-export type SourceRunActivityEventsLiveSubscription = { __typename?: 'Subscription', extensionActivityEvents: { __typename?: 'ExtensionActivityEvent', id: string, type: ExtensionActivityEventType, summary: string, payload?: any | null, occurredAt: any, correlationId?: string | null } };
+export type SourceRunActivityEventsLiveSubscription = { __typename?: 'Subscription', extensionActivityEvents: { __typename?: 'ExtensionActivityEvent', id: string, type: ExtensionActivityEventType, summary: string, payload?: any | null, occurredAt: any, sourceRunId?: string | null } };
 
 export type PlanQueryVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -1526,7 +1526,7 @@ export const AdminExtensionActivityEventsListDocument = gql`
     id
     type
     summary
-    correlationId
+    sourceRunId
     occurredAt
   }
 }
@@ -1566,7 +1566,7 @@ export const AdminExtensionActivityEventsDocument = gql`
     id
     type
     summary
-    correlationId
+    sourceRunId
     occurredAt
   }
 }
@@ -4041,7 +4041,7 @@ export const SourceRunActivityEventsLiveDocument = gql`
     summary
     payload
     occurredAt
-    correlationId
+    sourceRunId
   }
 }
     `;
