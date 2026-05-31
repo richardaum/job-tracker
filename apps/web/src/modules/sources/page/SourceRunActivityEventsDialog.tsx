@@ -27,7 +27,18 @@ interface EventDisplayItem {
   occurredAt: unknown;
 }
 
-function statusColor(type: string): string {
+function isSkipped(type: string, payload?: unknown): boolean {
+  if (type === ExtensionActivityEventType.SourceRunJobSkipped) return true;
+  if (
+    type === ExtensionActivityEventType.SourceRunJobImported &&
+    (payload as { duplicate?: boolean } | null)?.duplicate
+  )
+    return true;
+  return false;
+}
+
+function statusColor(type: string, payload?: unknown): string {
+  if (isSkipped(type, payload)) return "text-text-warning";
   if (type.endsWith("Failed")) return "text-text-error";
   if (type.endsWith("Completed") || type.endsWith("Imported")) return "text-text-success";
   return "text-text-secondary";
@@ -82,7 +93,7 @@ export function SourceRunActivityEventsDialog({ runId, runLabel, trigger }: Sour
       open={open}
       onOpenChange={handleOpenChange}
       title={`Events — ${runLabel}`}
-      size="lg"
+      size="4xl"
       childrenClassName="flex flex-col"
     >
       <div className={cn("flex-1 min-h-0 overflow-auto pe-3")}>
@@ -101,18 +112,15 @@ export function SourceRunActivityEventsDialog({ runId, runLabel, trigger }: Sour
             {events.map((event, i) => (
               <TimelineItem key={`${event.occurredAt}-${i}`}>
                 <TimelineMarker showTopConnector={i > 0} showBottomConnector={i < events.length - 1} />
-                <TimelineContent>
+                <TimelineContent className={cn(isSkipped(event.type, event.payload) && "!bg-bg-warning-subtle")}>
                   <div className={cn("flex items-start justify-between gap-2")}>
                     <div className={cn("min-w-0")}>
-                      <Text size="sm" weight="medium" className={cn(statusColor(event.type))}>
+                      <Text size="sm" weight="medium" className={cn(statusColor(event.type, event.payload))}>
                         {event.summary}
                       </Text>
                       <Text size="xs" color="muted">
                         {event.type}
-                        {event.type === ExtensionActivityEventType.SourceRunJobImported &&
-                        (event.payload as { duplicate?: boolean } | null)?.duplicate
-                          ? " · skipped (duplicate)"
-                          : null}
+                        {isSkipped(event.type, event.payload) ? " · skipped" : null}
                       </Text>
                     </div>
                     <Text size="xs" color="muted" className={cn("shrink-0")}>
