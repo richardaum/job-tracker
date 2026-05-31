@@ -8,6 +8,7 @@ import {
   PlanStepCollectJobsSurfaceFieldSchema,
   PlanStepParseRegexInputSchema,
   PlanStepSchema,
+  ReadyCheckConfigSchema,
 } from "./schema";
 
 export type Plan = z.infer<typeof PlanSchema>;
@@ -19,5 +20,6 @@ export type CollectJobsStepInput = z.infer<typeof PlanStepCollectJobsInputSchema
 export type ParseRegexStepInput = z.infer<typeof PlanStepParseRegexInputSchema>;
 export type CollectJobsAction = Extract<PlanStepAction, { kind: "collect.jobs" }>;
 export type ParseRegexAction = Extract<PlanStepAction, { kind: "parse.regex" }>;
+export type ReadyCheckConfig = z.infer<typeof ReadyCheckConfigSchema>;
 export type DomSurfaceField = Exclude<PlanStepCollectJobsSurfaceField, { type: "regex" }>;
 export type RegexSurfaceField = Extract<PlanStepCollectJobsSurfaceField, { type: "regex" }>;

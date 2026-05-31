@@ -18,6 +18,19 @@ const FieldValidationRegexSchema = z
     }
   });
 
+export const ReadyCheckModeSchema = z.enum(["text"]);
+
+export const ReadyCheckConfigSchema = z
+  .object({
+    selector: z.string().min(1).max(LIMITS.selector),
+    mode: ReadyCheckModeSchema.default("text"),
+    value: z.string().min(1).max(LIMITS.regexPattern).describe("text to detect on the element (e.g. 'updating')"),
+    resolveTimeoutMs: z.number().int().positive().optional().default(10_000),
+    watchTimeoutMs: z.number().int().positive().optional().default(3_000),
+    pollIntervalMs: z.number().int().positive().optional().default(200),
+  })
+  .strict();
+
 export const PlanStepCollectJobsSurfaceFieldSchema = z.discriminatedUnion("type", [
   z
     .object({
@@ -126,6 +139,7 @@ export const PlanStepCollectJobsInputSchema = z
       })
       .strict()
       .optional(),
+    readyCheck: ReadyCheckConfigSchema.optional(),
     surfaceFields: z.array(PlanStepCollectJobsSurfaceFieldSchema).max(LIMITS.listFields),
     detailsFields: z.array(PlanStepCollectJobsDetailsFieldSchema).max(LIMITS.listFields),
     direction: z

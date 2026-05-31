@@ -8,6 +8,8 @@ export {
   PlanStepCollectJobsSurfaceFieldSchema,
   PlanStepParseRegexInputSchema,
   PlanStepSchema,
+  ReadyCheckConfigSchema,
+  ReadyCheckModeSchema,
 } from "./schema";
 export { parsePlan, parseSerializedPlan } from "./parser";
 export type {
@@ -15,6 +17,7 @@ export type {
   CollectJobsStepInput,
   DomSurfaceField,
   ParseRegexAction,
+  ReadyCheckConfig,
   ParseRegexStepInput,
   Plan,
   PlanStep,
