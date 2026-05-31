@@ -22,31 +22,31 @@ export type Scalars = {
 };
 
 export enum ApplicationQuickFilter {
-  Active = 'ACTIVE',
-  Applied = 'APPLIED',
-  Draft = 'DRAFT',
-  Duplicated = 'DUPLICATED',
-  Incoming = 'INCOMING',
-  New = 'NEW',
-  Rejected = 'REJECTED'
+  Active = 'Active',
+  Applied = 'Applied',
+  Draft = 'Draft',
+  Duplicated = 'Duplicated',
+  Incoming = 'Incoming',
+  New = 'New',
+  Rejected = 'Rejected'
 }
 
 export enum ApplicationStage {
-  Applied = 'APPLIED',
-  CulturalFit = 'CULTURAL_FIT',
-  Draft = 'DRAFT',
-  Duplicated = 'DUPLICATED',
-  New = 'NEW',
-  Offer = 'OFFER',
-  RecruiterScreen = 'RECRUITER_SCREEN',
-  Rejected = 'REJECTED',
-  Technical = 'TECHNICAL'
+  Applied = 'Applied',
+  CulturalFit = 'CulturalFit',
+  Draft = 'Draft',
+  Duplicated = 'Duplicated',
+  New = 'New',
+  Offer = 'Offer',
+  RecruiterScreen = 'RecruiterScreen',
+  Rejected = 'Rejected',
+  Technical = 'Technical'
 }
 
 export enum AsyncMetadataStatus {
-  Completed = 'COMPLETED',
-  Failed = 'FAILED',
-  Processing = 'PROCESSING'
+  Completed = 'Completed',
+  Failed = 'Failed',
+  Processing = 'Processing'
 }
 
 export type AsyncMetadataType = {
@@ -65,7 +65,7 @@ export type AuthAccount = {
 };
 
 export enum AuthProvider {
-  Google = 'GOOGLE'
+  Google = 'Google'
 }
 
 export type BlockedKeyword = {
@@ -192,6 +192,7 @@ export enum ExtensionActivityEventType {
   SourceRunCompleted = 'SourceRunCompleted',
   SourceRunFailed = 'SourceRunFailed',
   SourceRunJobImported = 'SourceRunJobImported',
+  SourceRunJobSkipped = 'SourceRunJobSkipped',
   SourceRunPageCollected = 'SourceRunPageCollected',
   SourceRunReceived = 'SourceRunReceived',
   SourceRunStarted = 'SourceRunStarted',
@@ -239,10 +240,10 @@ export type JobSalaryInput = {
 };
 
 export enum JobSource {
-  Jack = 'JACK',
-  Linkedin = 'LINKEDIN',
-  RemoteYeah = 'REMOTE_YEAH',
-  Wellfound = 'WELLFOUND'
+  Jack = 'Jack',
+  Linkedin = 'Linkedin',
+  RemoteYeah = 'RemoteYeah',
+  Wellfound = 'Wellfound'
 }
 
 export type JobStageEventType = {
@@ -295,9 +296,9 @@ export type JobType = {
 };
 
 export enum KeywordScope {
-  Company = 'COMPANY',
-  Description = 'DESCRIPTION',
-  Title = 'TITLE'
+  Company = 'Company',
+  Description = 'Description',
+  Title = 'Title'
 }
 
 export type MatchAnalysisType = {
@@ -331,8 +332,8 @@ export type MatchItemType = {
 };
 
 export enum MatchMode {
-  Exact = 'EXACT',
-  Partial = 'PARTIAL'
+  Exact = 'Exact',
+  Partial = 'Partial'
 }
 
 export enum MatchSource {
@@ -780,9 +781,9 @@ export type ResumeType = {
 };
 
 export enum SalaryPeriod {
-  Hour = 'HOUR',
-  Month = 'MONTH',
-  Year = 'YEAR'
+  Hour = 'Hour',
+  Month = 'Month',
+  Year = 'Year'
 }
 
 export type SourceRunActivityEvent = {
@@ -801,8 +802,8 @@ export type SourceRunEvent = {
 };
 
 export enum SourceRunEventType {
-  SourceRunCreated = 'SOURCE_RUN_CREATED',
-  SourceRunStatusChanged = 'SOURCE_RUN_STATUS_CHANGED'
+  SourceRunCreated = 'SourceRunCreated',
+  SourceRunStatusChanged = 'SourceRunStatusChanged'
 }
 
 export enum SourceRunStatus {
@@ -1390,6 +1391,11 @@ export type SourceRunActivityEventsQueryVariables = Exact<{
 
 
 export type SourceRunActivityEventsQuery = { __typename?: 'Query', sourceRunActivityEvents: Array<{ __typename?: 'SourceRunActivityEvent', type: string, summary: string, payload?: any | null, occurredAt: any }> };
+
+export type SourceRunActivityEventsLiveSubscriptionVariables = Exact<{ [key: string]: never; }>;
+
+
+export type SourceRunActivityEventsLiveSubscription = { __typename?: 'Subscription', extensionActivityEvents: { __typename?: 'ExtensionActivityEvent', id: string, type: ExtensionActivityEventType, summary: string, payload?: any | null, occurredAt: any, correlationId?: string | null } };
 
 export type PlanQueryVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -2344,6 +2350,18 @@ export const SourceRunActivityEventsDocument = gql`
   }
 }
     `;
+export const SourceRunActivityEventsLiveDocument = gql`
+    subscription SourceRunActivityEventsLive {
+  extensionActivityEvents {
+    id
+    type
+    summary
+    payload
+    occurredAt
+    correlationId
+  }
+}
+    `;
 export const PlanDocument = gql`
     query Plan($id: ID!) {
   plan(id: $id) {
@@ -2604,6 +2622,9 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     SourceRunActivityEvents(variables: SourceRunActivityEventsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<SourceRunActivityEventsQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<SourceRunActivityEventsQuery>({ document: SourceRunActivityEventsDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'SourceRunActivityEvents', 'query', variables);
+    },
+    SourceRunActivityEventsLive(variables?: SourceRunActivityEventsLiveSubscriptionVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<SourceRunActivityEventsLiveSubscription> {
+      return withWrapper((wrappedRequestHeaders) => client.request<SourceRunActivityEventsLiveSubscription>({ document: SourceRunActivityEventsLiveDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'SourceRunActivityEventsLive', 'subscription', variables);
     },
     Plan(variables: PlanQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<PlanQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<PlanQuery>({ document: PlanDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'Plan', 'query', variables);

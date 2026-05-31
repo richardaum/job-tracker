@@ -18,6 +18,8 @@ export type DetailsField = {
 
 export type Pagination = { containerSelector: string; nextButtonPartialMatch: string };
 
+export type Skip = { type: "regex"; value: string; sourceField?: string; flags?: string };
+
 export type CollectJobsInput = {
   containerSelector: string;
   itemSelector: string;
@@ -26,6 +28,7 @@ export type CollectJobsInput = {
   direction: "up" | "down";
   parallelDetailsTabs: number;
   pagination?: Pagination;
+  skip?: Skip;
   surfaceFields: SurfaceField[];
   detailsFields: DetailsField[];
 };

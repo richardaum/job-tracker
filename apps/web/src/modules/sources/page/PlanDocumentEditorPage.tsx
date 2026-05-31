@@ -13,6 +13,7 @@ import { ParseRegexFieldEditDialog } from "@/modules/sources/page/plan-editor/Pa
 import { ParseRegexStepDialog } from "@/modules/sources/page/plan-editor/ParseRegexStepDialog";
 import { SelectorsDialog } from "@/modules/sources/page/plan-editor/SelectorsDialog";
 import { StepCard } from "@/modules/sources/page/plan-editor/StepCard";
+import { SkipDialog } from "@/modules/sources/page/plan-editor/SkipDialog";
 import { SurfaceFieldEditDialog } from "@/modules/sources/page/plan-editor/SurfaceFieldEditDialog";
 import type {
   BoardType,
@@ -52,6 +53,7 @@ function PlanEditor({ plan }: PlanEditorProps) {
   const [editingSelectors, setEditingSelectors] = useState<Step | null>(null);
   const [editingNavigation, setEditingNavigation] = useState<Step | null>(null);
   const [editingPagination, setEditingPagination] = useState<Step | null>(null);
+  const [editingSkip, setEditingSkip] = useState<Step | null>(null);
   const [editingParse, setEditingParse] = useState<Step | null>(null);
   const [regexFieldDialog, setRegexFieldDialog] = useState<{
     step: Step;
@@ -261,6 +263,7 @@ function PlanEditor({ plan }: PlanEditorProps) {
               onEditSelectors={setEditingSelectors}
               onEditNavigation={setEditingNavigation}
               onEditPagination={setEditingPagination}
+              onEditSkip={setEditingSkip}
               onAddField={(s, k) => setFieldDialog({ step: s, kind: k, field: null, index: -1 })}
               onEditField={handleEditField}
               onEditParse={setEditingParse}
@@ -310,6 +313,18 @@ function PlanEditor({ plan }: PlanEditorProps) {
           onSave={(s: Step) => {
             replaceStep(editingPagination, s);
             setEditingPagination(null);
+          }}
+        />
+      )}
+      {editingSkip?.action.kind === "collect.jobs" && (
+        <SkipDialog
+          key={editingSkip.id}
+          step={editingSkip}
+          open
+          onOpenChange={() => setEditingSkip(null)}
+          onSave={(s: Step) => {
+            replaceStep(editingSkip, s);
+            setEditingSkip(null);
           }}
         />
       )}

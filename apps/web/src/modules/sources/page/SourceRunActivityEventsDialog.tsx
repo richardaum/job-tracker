@@ -11,38 +11,82 @@ import {
   TimelineItem,
   TimelineMarker,
 } from "@job-tracker/ui";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { ReactElement } from "react";
 
-import { useSourceRunActivityEventsQuery } from "@/gql/hooks";
+import { useSourceRunActivityEventsLiveSubscription, useSourceRunActivityEventsQuery } from "@/gql/hooks";
+import { ExtensionActivityEventType } from "@/gql/graphql";
 import { formatDateTime } from "@/modules/jobs/details/utils/job-details.shared";
 
 type SourceRunActivityEventsDialogProps = { runId: string; runLabel: string; trigger: ReactElement };
 
+interface EventDisplayItem {
+  type: string;
+  summary: string;
+  payload?: unknown;
+  occurredAt: unknown;
+}
+
 function statusColor(type: string): string {
-  if (type.endsWith("_FAILED")) return "text-text-error";
-  if (type.endsWith("_COMPLETED") || type.endsWith("_IMPORTED")) return "text-text-success";
+  if (type.endsWith("Failed")) return "text-text-error";
+  if (type.endsWith("Completed") || type.endsWith("Imported")) return "text-text-success";
   return "text-text-secondary";
 }
 
 export function SourceRunActivityEventsDialog({ runId, runLabel, trigger }: SourceRunActivityEventsDialogProps) {
   const [open, setOpen] = useState(false);
 
-  const { data, loading } = useSourceRunActivityEventsQuery({ variables: { runId }, skip: !open });
+  const [liveEvents, setLiveEvents] = useState<EventDisplayItem[]>([]);
+  const seenKeys = useRef(new Set<string>());
 
-  const events = data?.sourceRunActivityEvents ?? [];
+  function handleOpenChange(next: boolean) {
+    setOpen(next);
+    if (next) {
+      setLiveEvents([]);
+      seenKeys.current.clear();
+    }
+  }
+
+  const { data: queryData, loading } = useSourceRunActivityEventsQuery({ variables: { runId }, skip: !open });
+
+  useEffect(() => {
+    if (!queryData?.sourceRunActivityEvents) return;
+    for (const e of queryData.sourceRunActivityEvents) {
+      seenKeys.current.add(`${e.type}-${e.summary}-${String(e.occurredAt)}`);
+    }
+  }, [queryData]);
+
+  useSourceRunActivityEventsLiveSubscription({
+    skip: !open,
+    onData: ({ data }) => {
+      const event = data.data?.extensionActivityEvents;
+      if (!event || event.correlationId !== runId) return;
+
+      const key = `${event.type}-${event.summary}-${String(event.occurredAt)}`;
+      if (seenKeys.current.has(key)) return;
+      seenKeys.current.add(key);
+
+      setLiveEvents((prev) => [
+        { type: event.type, summary: event.summary, payload: event.payload, occurredAt: event.occurredAt },
+        ...prev,
+      ]);
+    },
+  });
+
+  const queryEvents = queryData?.sourceRunActivityEvents ?? [];
+  const events = [...liveEvents, ...queryEvents];
 
   return (
     <Dialog
       trigger={trigger}
       open={open}
-      onOpenChange={setOpen}
+      onOpenChange={handleOpenChange}
       title={`Events — ${runLabel}`}
       size="lg"
       childrenClassName="flex flex-col"
     >
       <div className={cn("flex-1 min-h-0 overflow-auto pe-3")}>
-        {loading ? (
+        {loading && events.length === 0 ? (
           <Stack gap="sm">
             {Array.from({ length: 4 }, (_, i) => (
               <Skeleton key={i} variant="text" className={cn("h-10 w-full")} />
@@ -65,7 +109,7 @@ export function SourceRunActivityEventsDialog({ runId, runLabel, trigger }: Sour
                       </Text>
                       <Text size="xs" color="muted">
                         {event.type}
-                        {event.type === "SOURCE_RUN_JOB_IMPORTED" &&
+                        {event.type === ExtensionActivityEventType.SourceRunJobImported &&
                         (event.payload as { duplicate?: boolean } | null)?.duplicate
                           ? " · skipped (duplicate)"
                           : null}

@@ -5,8 +5,8 @@ import { PlusIcon } from "@phosphor-icons/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
-import type { KeywordScope, MatchMode, UpdateSettingsMutation } from "@/gql/graphql";
-import { KeywordScope as KeywordScopeEnum } from "@/gql/graphql";
+import type { KeywordScope, UpdateSettingsMutation } from "@/gql/graphql";
+import { KeywordScope as KeywordScopeEnum, MatchMode } from "@/gql/graphql";
 import { useSettingsQuery, useUpdateSettingsMutation } from "@/gql/hooks";
 import { conceptIcon } from "@job-tracker/ui";
 import { ProfileHeaderActions, ProfileSubTabs } from "@/modules/profile/layout/profile-header.slots";
@@ -51,14 +51,14 @@ function buildOptimisticSettings(
 function mergeItems(keywords: BlockedKeywordItem[], companies: string[]): BlockedKeywordItem[] {
   return [
     ...keywords,
-    ...companies.map((c) => ({ keyword: c, scope: "COMPANY" as KeywordScope, matchMode: "EXACT" as MatchMode })),
+    ...companies.map((c) => ({ keyword: c, scope: KeywordScopeEnum.Company, matchMode: MatchMode.Exact })),
   ];
 }
 
 function splitItems(items: BlockedKeywordItem[]): { keywords: BlockedKeywordItem[]; companies: string[] } {
   return {
-    keywords: items.filter((i) => i.scope !== "COMPANY"),
-    companies: items.filter((i) => i.scope === "COMPANY").map((i) => i.keyword),
+    keywords: items.filter((i) => i.scope !== KeywordScopeEnum.Company),
+    companies: items.filter((i) => i.scope === KeywordScopeEnum.Company).map((i) => i.keyword),
   };
 }
 
@@ -136,9 +136,7 @@ export default function BlockedKeywordsTabPage() {
         <Button
           size="md"
           intent="primary"
-          onClick={() =>
-            setEditingItem({ keyword: "", scope: "TITLE" as KeywordScope, matchMode: "PARTIAL" as MatchMode })
-          }
+          onClick={() => setEditingItem({ keyword: "", scope: KeywordScopeEnum.Title, matchMode: MatchMode.Partial })}
         >
           <PlusIcon size={14} weight="bold" />
           Add blocked item

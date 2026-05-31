@@ -137,6 +137,17 @@ query SourceRunActivityEvents($runId: ID!) {
   }
 }
 
+subscription SourceRunActivityEventsLive {
+  extensionActivityEvents {
+    id
+    type
+    summary
+    payload
+    occurredAt
+    correlationId
+  }
+}
+
 query Plan($id: ID!) {
   plan(id: $id) {
     id

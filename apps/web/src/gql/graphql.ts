@@ -21,31 +21,31 @@ export type Scalars = {
 };
 
 export enum ApplicationQuickFilter {
-  Active = 'ACTIVE',
-  Applied = 'APPLIED',
-  Draft = 'DRAFT',
-  Duplicated = 'DUPLICATED',
-  Incoming = 'INCOMING',
-  New = 'NEW',
-  Rejected = 'REJECTED'
+  Active = 'Active',
+  Applied = 'Applied',
+  Draft = 'Draft',
+  Duplicated = 'Duplicated',
+  Incoming = 'Incoming',
+  New = 'New',
+  Rejected = 'Rejected'
 }
 
 export enum ApplicationStage {
-  Applied = 'APPLIED',
-  CulturalFit = 'CULTURAL_FIT',
-  Draft = 'DRAFT',
-  Duplicated = 'DUPLICATED',
-  New = 'NEW',
-  Offer = 'OFFER',
-  RecruiterScreen = 'RECRUITER_SCREEN',
-  Rejected = 'REJECTED',
-  Technical = 'TECHNICAL'
+  Applied = 'Applied',
+  CulturalFit = 'CulturalFit',
+  Draft = 'Draft',
+  Duplicated = 'Duplicated',
+  New = 'New',
+  Offer = 'Offer',
+  RecruiterScreen = 'RecruiterScreen',
+  Rejected = 'Rejected',
+  Technical = 'Technical'
 }
 
 export enum AsyncMetadataStatus {
-  Completed = 'COMPLETED',
-  Failed = 'FAILED',
-  Processing = 'PROCESSING'
+  Completed = 'Completed',
+  Failed = 'Failed',
+  Processing = 'Processing'
 }
 
 export type AsyncMetadataType = {
@@ -64,7 +64,7 @@ export type AuthAccount = {
 };
 
 export enum AuthProvider {
-  Google = 'GOOGLE'
+  Google = 'Google'
 }
 
 export type BlockedKeyword = {
@@ -191,6 +191,7 @@ export enum ExtensionActivityEventType {
   SourceRunCompleted = 'SourceRunCompleted',
   SourceRunFailed = 'SourceRunFailed',
   SourceRunJobImported = 'SourceRunJobImported',
+  SourceRunJobSkipped = 'SourceRunJobSkipped',
   SourceRunPageCollected = 'SourceRunPageCollected',
   SourceRunReceived = 'SourceRunReceived',
   SourceRunStarted = 'SourceRunStarted',
@@ -238,10 +239,10 @@ export type JobSalaryInput = {
 };
 
 export enum JobSource {
-  Jack = 'JACK',
-  Linkedin = 'LINKEDIN',
-  RemoteYeah = 'REMOTE_YEAH',
-  Wellfound = 'WELLFOUND'
+  Jack = 'Jack',
+  Linkedin = 'Linkedin',
+  RemoteYeah = 'RemoteYeah',
+  Wellfound = 'Wellfound'
 }
 
 export type JobStageEventType = {
@@ -294,9 +295,9 @@ export type JobType = {
 };
 
 export enum KeywordScope {
-  Company = 'COMPANY',
-  Description = 'DESCRIPTION',
-  Title = 'TITLE'
+  Company = 'Company',
+  Description = 'Description',
+  Title = 'Title'
 }
 
 export type MatchAnalysisType = {
@@ -330,8 +331,8 @@ export type MatchItemType = {
 };
 
 export enum MatchMode {
-  Exact = 'EXACT',
-  Partial = 'PARTIAL'
+  Exact = 'Exact',
+  Partial = 'Partial'
 }
 
 export enum MatchSource {
@@ -779,9 +780,9 @@ export type ResumeType = {
 };
 
 export enum SalaryPeriod {
-  Hour = 'HOUR',
-  Month = 'MONTH',
-  Year = 'YEAR'
+  Hour = 'Hour',
+  Month = 'Month',
+  Year = 'Year'
 }
 
 export type SourceRunActivityEvent = {
@@ -800,8 +801,8 @@ export type SourceRunEvent = {
 };
 
 export enum SourceRunEventType {
-  SourceRunCreated = 'SOURCE_RUN_CREATED',
-  SourceRunStatusChanged = 'SOURCE_RUN_STATUS_CHANGED'
+  SourceRunCreated = 'SourceRunCreated',
+  SourceRunStatusChanged = 'SourceRunStatusChanged'
 }
 
 export enum SourceRunStatus {
@@ -1402,6 +1403,11 @@ export type SourceRunActivityEventsQueryVariables = Exact<{
 
 export type SourceRunActivityEventsQuery = { __typename?: 'Query', sourceRunActivityEvents: Array<{ __typename?: 'SourceRunActivityEvent', type: string, summary: string, payload?: any | null, occurredAt: any }> };
 
+export type SourceRunActivityEventsLiveSubscriptionVariables = Exact<{ [key: string]: never; }>;
+
+
+export type SourceRunActivityEventsLiveSubscription = { __typename?: 'Subscription', extensionActivityEvents: { __typename?: 'ExtensionActivityEvent', id: string, type: ExtensionActivityEventType, summary: string, payload?: any | null, occurredAt: any, correlationId?: string | null } };
+
 export type PlanQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
@@ -1500,6 +1506,7 @@ export const DeleteSourceTemplateDocument = {"kind":"Document","definitions":[{"
 export const CreateSourceTemplateDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateSourceTemplate"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateSourceTemplateInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createSourceTemplate"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"planId"}},{"kind":"Field","name":{"kind":"Name","value":"surfaceUrl"}},{"kind":"Field","name":{"kind":"Name","value":"scheduleCron"}},{"kind":"Field","name":{"kind":"Name","value":"scheduleEnabled"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"config"}}]}}]}}]} as unknown as DocumentNode<CreateSourceTemplateMutation, CreateSourceTemplateMutationVariables>;
 export const PlansDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"Plans"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"plans"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"displayName"}},{"kind":"Field","name":{"kind":"Name","value":"templates"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"surfaceUrl"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"config"}},{"kind":"Field","name":{"kind":"Name","value":"runs"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"errorMessage"}},{"kind":"Field","name":{"kind":"Name","value":"startedAt"}},{"kind":"Field","name":{"kind":"Name","value":"jobCount"}}]}}]}}]}}]}}]} as unknown as DocumentNode<PlansQuery, PlansQueryVariables>;
 export const SourceRunActivityEventsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"SourceRunActivityEvents"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"runId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"sourceRunActivityEvents"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"runId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"runId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"summary"}},{"kind":"Field","name":{"kind":"Name","value":"payload"}},{"kind":"Field","name":{"kind":"Name","value":"occurredAt"}}]}}]}}]} as unknown as DocumentNode<SourceRunActivityEventsQuery, SourceRunActivityEventsQueryVariables>;
+export const SourceRunActivityEventsLiveDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"subscription","name":{"kind":"Name","value":"SourceRunActivityEventsLive"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"extensionActivityEvents"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"summary"}},{"kind":"Field","name":{"kind":"Name","value":"payload"}},{"kind":"Field","name":{"kind":"Name","value":"occurredAt"}},{"kind":"Field","name":{"kind":"Name","value":"correlationId"}}]}}]}}]} as unknown as DocumentNode<SourceRunActivityEventsLiveSubscription, SourceRunActivityEventsLiveSubscriptionVariables>;
 export const PlanDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"Plan"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"plan"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"displayName"}},{"kind":"Field","name":{"kind":"Name","value":"document"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"templates"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"planId"}},{"kind":"Field","name":{"kind":"Name","value":"surfaceUrl"}},{"kind":"Field","name":{"kind":"Name","value":"scheduleCron"}},{"kind":"Field","name":{"kind":"Name","value":"scheduleEnabled"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"config"}},{"kind":"Field","name":{"kind":"Name","value":"runs"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"errorMessage"}},{"kind":"Field","name":{"kind":"Name","value":"startedAt"}},{"kind":"Field","name":{"kind":"Name","value":"jobCount"}}]}}]}}]}}]}}]} as unknown as DocumentNode<PlanQuery, PlanQueryVariables>;
 export const UpdatePlanDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdatePlan"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UpdatePlanInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updatePlan"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}},{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"displayName"}},{"kind":"Field","name":{"kind":"Name","value":"document"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]} as unknown as DocumentNode<UpdatePlanMutation, UpdatePlanMutationVariables>;
 export const CreatePlanDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreatePlan"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreatePlanInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createPlan"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"displayName"}},{"kind":"Field","name":{"kind":"Name","value":"document"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]} as unknown as DocumentNode<CreatePlanMutation, CreatePlanMutationVariables>;

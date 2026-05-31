@@ -11,6 +11,7 @@ type StepCardProps = {
   onEditSelectors: (step: Step) => void;
   onEditNavigation: (step: Step) => void;
   onEditPagination: (step: Step) => void;
+  onEditSkip: (step: Step) => void;
   onAddField: (step: Step, kind: "surface" | "details") => void;
   onEditField: (step: Step, kind: "surface" | "details", fieldIndex: number) => void;
   onEditParse: (step: Step) => void;
@@ -25,6 +26,7 @@ export function StepCard({
   onEditSelectors,
   onEditNavigation,
   onEditPagination,
+  onEditSkip,
   onAddField,
   onEditField,
   onEditParse,
@@ -206,6 +208,16 @@ export function StepCard({
                   className={cn("text-xs cursor-pointer hover:bg-bg-surface-hover transition-colors")}
                 >
                   {i.pagination ? "pagination on" : "pagination off"}
+                </Badge>
+              </button>
+            </Tooltip>
+            <Tooltip content="Skip filter regex">
+              <button type="button" onClick={() => onEditSkip(step)}>
+                <Badge
+                  intent={i.skip ? "warning" : "default"}
+                  className={cn("text-xs cursor-pointer hover:bg-bg-surface-hover transition-colors")}
+                >
+                  {i.skip ? "skip on" : "skip off"}
                 </Badge>
               </button>
             </Tooltip>

@@ -25,7 +25,15 @@ export function AddStepDialog({ open, onOpenChange, onAdd }: AddStepDialogProps)
         <FormField
           label="Step Type"
           tooltip={
-            <FieldTooltip content="Collect jobs: extract listings from a page using CSS selectors. Parse regex: extract structured data from a text field using regex patterns." />
+            <FieldTooltip
+              content={
+                <>
+                  Collect jobs: extract listings from a page using CSS selectors.
+                  <br />
+                  Parse regex: extract structured data from a text field using regex patterns.
+                </>
+              }
+            />
           }
           htmlFor="add-kind"
         >
