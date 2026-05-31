@@ -66,7 +66,7 @@ describe.skipIf(!hasDb)("MatchAnalysisRepository — generation metadata (integr
     it("reads generation_status via snake_case column mapping", async () => {
       const match = await createMatch({
         generationMetadata: {
-          status: AsyncMetadataStatusEnum.PROCESSING,
+          status: AsyncMetadataStatusEnum.Processing,
           error: null,
           timestamp: new Date("2025-01-01"),
         },
@@ -76,7 +76,7 @@ describe.skipIf(!hasDb)("MatchAnalysisRepository — generation metadata (integr
         `SELECT generation_status, generation_error, generation_timestamp FROM match_analysis WHERE id = $1`,
         [match.id],
       );
-      expect(row[0].generation_status).toBe(AsyncMetadataStatusEnum.PROCESSING);
+      expect(row[0].generation_status).toBe(AsyncMetadataStatusEnum.Processing);
       expect(row[0].generation_error).toBeNull();
       expect(row[0].generation_timestamp).toBeTruthy();
     });
@@ -94,40 +94,40 @@ describe.skipIf(!hasDb)("MatchAnalysisRepository — generation metadata (integr
   describe("updateById with expectedStatus", () => {
     it("updates when expectedStatus matches", async () => {
       const match = await createMatch({
-        generationMetadata: { status: AsyncMetadataStatusEnum.PROCESSING, error: null, timestamp: new Date() },
+        generationMetadata: { status: AsyncMetadataStatusEnum.Processing, error: null, timestamp: new Date() },
       });
 
       const updated = await repo.updateById(
         match.id,
-        AsyncMetadataStatusEnum.PROCESSING,
+        AsyncMetadataStatusEnum.Processing,
         {
-          generationMetadata: { status: AsyncMetadataStatusEnum.COMPLETED, error: null, timestamp: new Date() },
+          generationMetadata: { status: AsyncMetadataStatusEnum.Completed, error: null, timestamp: new Date() },
           scoreRatio: 0.85,
         },
         userId,
       );
       expect(updated).not.toBeNull();
-      expect(updated?.generationMetadata?.status).toBe(AsyncMetadataStatusEnum.COMPLETED);
+      expect(updated?.generationMetadata?.status).toBe(AsyncMetadataStatusEnum.Completed);
       expect(updated?.scoreRatio).toBe(0.85);
     });
 
     it("returns null when expectedStatus does not match", async () => {
       const match = await createMatch({
-        generationMetadata: { status: AsyncMetadataStatusEnum.COMPLETED, error: null, timestamp: new Date() },
+        generationMetadata: { status: AsyncMetadataStatusEnum.Completed, error: null, timestamp: new Date() },
       });
 
       const updated = await repo.updateById(
         match.id,
-        AsyncMetadataStatusEnum.PROCESSING,
+        AsyncMetadataStatusEnum.Processing,
         {
-          generationMetadata: { status: AsyncMetadataStatusEnum.FAILED, error: "stale update", timestamp: new Date() },
+          generationMetadata: { status: AsyncMetadataStatusEnum.Failed, error: "stale update", timestamp: new Date() },
         },
         userId,
       );
       expect(updated).toBeNull();
 
       const row = await dataSource.query(`SELECT generation_status FROM match_analysis WHERE id = $1`, [match.id]);
-      expect(row[0].generation_status).toBe(AsyncMetadataStatusEnum.COMPLETED);
+      expect(row[0].generation_status).toBe(AsyncMetadataStatusEnum.Completed);
     });
   });
 
@@ -136,13 +136,13 @@ describe.skipIf(!hasDb)("MatchAnalysisRepository — generation metadata (integr
       await dataSource.query("TRUNCATE match_analysis CASCADE");
 
       const m1 = await createMatch({
-        generationMetadata: { status: AsyncMetadataStatusEnum.PROCESSING, error: null, timestamp: new Date() },
+        generationMetadata: { status: AsyncMetadataStatusEnum.Processing, error: null, timestamp: new Date() },
       });
       const m2 = await createMatch({
-        generationMetadata: { status: AsyncMetadataStatusEnum.PROCESSING, error: null, timestamp: new Date() },
+        generationMetadata: { status: AsyncMetadataStatusEnum.Processing, error: null, timestamp: new Date() },
       });
       const m3 = await createMatch({
-        generationMetadata: { status: AsyncMetadataStatusEnum.COMPLETED, error: null, timestamp: new Date() },
+        generationMetadata: { status: AsyncMetadataStatusEnum.Completed, error: null, timestamp: new Date() },
       });
 
       const count = await repo.resetStaleProcessing();
@@ -155,10 +155,10 @@ describe.skipIf(!hasDb)("MatchAnalysisRepository — generation metadata (integr
         );
 
       const byId = Object.fromEntries(rows.map((r) => [r.id, r]));
-      expect(byId[m1.id].generation_status).toBe(AsyncMetadataStatusEnum.FAILED);
+      expect(byId[m1.id].generation_status).toBe(AsyncMetadataStatusEnum.Failed);
       expect(byId[m1.id].generation_error).toBeTruthy();
-      expect(byId[m2.id].generation_status).toBe(AsyncMetadataStatusEnum.FAILED);
-      expect(byId[m3.id].generation_status).toBe(AsyncMetadataStatusEnum.COMPLETED);
+      expect(byId[m2.id].generation_status).toBe(AsyncMetadataStatusEnum.Failed);
+      expect(byId[m3.id].generation_status).toBe(AsyncMetadataStatusEnum.Completed);
     });
   });
 });

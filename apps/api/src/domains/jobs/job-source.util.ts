@@ -3,16 +3,16 @@ import { ApplicationSourceEnum } from "./job-source.enum";
 function inferSourceFromSingleUrl(url: string): ApplicationSourceEnum | null {
   const lower = url.toLowerCase();
   if (lower.includes("linkedin")) {
-    return ApplicationSourceEnum.LINKEDIN;
+    return ApplicationSourceEnum.Linkedin;
   }
   if (lower.includes("jack")) {
-    return ApplicationSourceEnum.JACK;
+    return ApplicationSourceEnum.Jack;
   }
   if (lower.includes("wellfound")) {
-    return ApplicationSourceEnum.WELLFOUND;
+    return ApplicationSourceEnum.Wellfound;
   }
   if (lower.includes("remoteyeah")) {
-    return ApplicationSourceEnum.REMOTE_YEAH;
+    return ApplicationSourceEnum.RemoteYeah;
   }
   return null;
 }

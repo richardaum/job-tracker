@@ -22,7 +22,7 @@ describe("SourcesResolver", () => {
   it("sourceRunEvents yields events for the authenticated user", async () => {
     const events = [
       new SourceRunReported("user-1", {
-        type: SourceRunEventTypeEnum.SOURCE_RUN_CREATED,
+        type: SourceRunEventTypeEnum.SourceRunCreated,
         occurredAt: new Date("2026-05-01T12:00:01.000Z"),
         run: {
           id: "run-1",
@@ -46,7 +46,7 @@ describe("SourcesResolver", () => {
     const first = await iterator.next();
 
     expect(first.done).toBe(false);
-    expect(first.value).toMatchObject({ type: SourceRunEventTypeEnum.SOURCE_RUN_CREATED, run: { id: "run-1" } });
+    expect(first.value).toMatchObject({ type: SourceRunEventTypeEnum.SourceRunCreated, run: { id: "run-1" } });
 
     expect(eventBus.forUser).toHaveBeenCalledWith("user-1");
   });

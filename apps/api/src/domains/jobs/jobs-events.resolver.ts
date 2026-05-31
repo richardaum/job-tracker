@@ -30,7 +30,7 @@ export class JobsEventsResolver {
     for await (const event of bus.eventsOf(SummaryStatusChanged)) {
       const payload: JobSummaryStatusEventType = { jobId: event.jobId, status: event.status };
 
-      if (event.status === AsyncMetadataStatusEnum.COMPLETED) {
+      if (event.status === AsyncMetadataStatusEnum.Completed) {
         const job = await this.jobsRepo.findOneByIdAndUserId(jobId, user.userId);
         if (job) {
           payload.summary = job.summary;

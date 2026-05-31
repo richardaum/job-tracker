@@ -18,7 +18,7 @@ describe("FillJobEventListener", () => {
   it("delegates FillJobStatusChanged PROCESSING to processFillJob (async)", async () => {
     new FillJobEventListener(bus, fillService as JobAutomaticFillService).onModuleInit();
 
-    bus.emit(new FillJobStatusChanged("job-x", "user-y", AsyncMetadataStatusEnum.PROCESSING));
+    bus.emit(new FillJobStatusChanged("job-x", "user-y", AsyncMetadataStatusEnum.Processing));
 
     await vi.waitFor(() => expect(fillService.processFillJob).toHaveBeenCalledWith("user-y", "job-x"));
   });
@@ -26,7 +26,7 @@ describe("FillJobEventListener", () => {
   it("ignores FillJobStatusChanged COMPLETED", () => {
     new FillJobEventListener(bus, fillService as JobAutomaticFillService).onModuleInit();
 
-    bus.emit(new FillJobStatusChanged("job-x", "user-y", AsyncMetadataStatusEnum.COMPLETED));
+    bus.emit(new FillJobStatusChanged("job-x", "user-y", AsyncMetadataStatusEnum.Completed));
 
     expect(fillService.processFillJob).not.toHaveBeenCalled();
   });

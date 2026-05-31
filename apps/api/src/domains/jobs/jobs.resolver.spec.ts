@@ -47,7 +47,7 @@ const mockJob: Job = {
 const mockJobWithFillProcessing = {
   ...mockJob,
   fillMetadata: {
-    status: AsyncMetadataStatusEnum.PROCESSING,
+    status: AsyncMetadataStatusEnum.Processing,
     error: null,
     timestamp: new Date("2026-01-02T00:00:00.000Z"),
   },

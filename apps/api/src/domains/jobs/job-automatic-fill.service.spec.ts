@@ -53,7 +53,7 @@ function co(job: Job): NonNullable<Job["company"]> {
 function makeJobWithStage(overrides: Partial<Job> = {}) {
   return {
     ...makeJob(overrides),
-    currentStage: ApplicationStageEnum.NEW,
+    currentStage: ApplicationStageEnum.New,
     currentStageReason: null,
     currentStageAt: new Date(),
   };
@@ -126,7 +126,7 @@ describe("JobAutomaticFillService", () => {
     it("throws BadRequestException when fill metadata is PROCESSING", async () => {
       vi.mocked(jobsService.findOne).mockResolvedValue(
         makeJobWithStage({
-          fillMetadata: { status: AsyncMetadataStatusEnum.PROCESSING, error: null, timestamp: new Date() },
+          fillMetadata: { status: AsyncMetadataStatusEnum.Processing, error: null, timestamp: new Date() },
         }),
       );
 
@@ -138,7 +138,7 @@ describe("JobAutomaticFillService", () => {
     it("begins PROCESSING via repository when restartable and emits FillJobStatusChanged PROCESSING", async () => {
       const jobIdle = makeJobWithStage({ fillMetadata: undefined });
       const jobAfterProcessing = makeJobWithStage({
-        fillMetadata: { status: AsyncMetadataStatusEnum.PROCESSING, error: null, timestamp: new Date() },
+        fillMetadata: { status: AsyncMetadataStatusEnum.Processing, error: null, timestamp: new Date() },
       });
 
       vi.mocked(jobsService.findOne).mockResolvedValueOnce(jobIdle).mockResolvedValueOnce(jobAfterProcessing);
@@ -154,16 +154,16 @@ describe("JobAutomaticFillService", () => {
             e instanceof FillJobStatusChanged &&
             e.jobId === "app-1" &&
             e.userId === "user-1" &&
-            e.status === AsyncMetadataStatusEnum.PROCESSING,
+            e.status === AsyncMetadataStatusEnum.Processing,
         ),
       ).toBe(true);
-      expect(result.fillMetadata?.status).toBe(AsyncMetadataStatusEnum.PROCESSING);
+      expect(result.fillMetadata?.status).toBe(AsyncMetadataStatusEnum.Processing);
     });
 
     it("throws BadRequestException when status update affects zero rows", async () => {
       vi.mocked(jobsService.findOne).mockResolvedValue(
         makeJobWithStage({
-          fillMetadata: { status: AsyncMetadataStatusEnum.COMPLETED, error: null, timestamp: new Date() },
+          fillMetadata: { status: AsyncMetadataStatusEnum.Completed, error: null, timestamp: new Date() },
         }),
       );
       vi.mocked(repo.beginFillAutomaticallyProcessing).mockResolvedValue(false);
@@ -182,14 +182,14 @@ describe("JobAutomaticFillService", () => {
       jobEventBusEmit.mockClear();
 
       const base = makeJob({
-        fillMetadata: { status: AsyncMetadataStatusEnum.PROCESSING, error: null, timestamp: new Date() },
+        fillMetadata: { status: AsyncMetadataStatusEnum.Processing, error: null, timestamp: new Date() },
         htmlContent: "<html><body>Posting</body></html>",
         urls: [],
         title: null as never,
       });
       vi.mocked(repo.findOneByIdAndUserId).mockResolvedValue(base);
       vi.mocked(stageEventsRepo.findLatestStageSummariesByJobIds).mockResolvedValue(
-        new Map([["app-1", { toStage: ApplicationStageEnum.APPLIED, reason: null, statusAt: new Date() }]]),
+        new Map([["app-1", { toStage: ApplicationStageEnum.Applied, reason: null, statusAt: new Date() }]]),
       );
       vi.mocked(draftExtractionService.extract).mockResolvedValue({
         title: "Role",
@@ -228,14 +228,14 @@ describe("JobAutomaticFillService", () => {
       expect(repo.updateFillMetadataIfStatus).toHaveBeenCalledWith(
         "app-1",
         "user-1",
-        AsyncMetadataStatusEnum.PROCESSING,
-        expect.objectContaining({ status: AsyncMetadataStatusEnum.COMPLETED }),
+        AsyncMetadataStatusEnum.Processing,
+        expect.objectContaining({ status: AsyncMetadataStatusEnum.Completed }),
         expect.anything(),
       );
       expect(repo.setPersistedStage).not.toHaveBeenCalled();
       expect(
         jobEventBusEmit.mock.calls.some(
-          ([e]) => e instanceof FillJobStatusChanged && e.status === AsyncMetadataStatusEnum.COMPLETED,
+          ([e]) => e instanceof FillJobStatusChanged && e.status === AsyncMetadataStatusEnum.Completed,
         ),
       ).toBe(true);
       expect(jobEventBusEmit.mock.calls.some(([e]) => e instanceof JobUpdated)).toBe(true);
@@ -245,14 +245,14 @@ describe("JobAutomaticFillService", () => {
       jobEventBusEmit.mockClear();
 
       const base = makeJob({
-        fillMetadata: { status: AsyncMetadataStatusEnum.PROCESSING, error: null, timestamp: new Date() },
+        fillMetadata: { status: AsyncMetadataStatusEnum.Processing, error: null, timestamp: new Date() },
         htmlContent: null,
         urls: ["  https://roles.example/job  "],
         title: "",
       });
       vi.mocked(repo.findOneByIdAndUserId).mockResolvedValue(base);
       vi.mocked(stageEventsRepo.findLatestStageSummariesByJobIds).mockResolvedValue(
-        new Map([["app-1", { toStage: ApplicationStageEnum.NEW, reason: null, statusAt: new Date() }]]),
+        new Map([["app-1", { toStage: ApplicationStageEnum.New, reason: null, statusAt: new Date() }]]),
       );
       vi.mocked(draftExtractionService.extract).mockResolvedValue({
         title: "Role",
@@ -288,13 +288,13 @@ describe("JobAutomaticFillService", () => {
       jobEventBusEmit.mockClear();
 
       const base = makeJob({
-        fillMetadata: { status: AsyncMetadataStatusEnum.PROCESSING, error: null, timestamp: new Date() },
+        fillMetadata: { status: AsyncMetadataStatusEnum.Processing, error: null, timestamp: new Date() },
         htmlContent: "<p>x</p>",
         urls: [],
       });
       vi.mocked(repo.findOneByIdAndUserId).mockResolvedValue(base);
       vi.mocked(stageEventsRepo.findLatestStageSummariesByJobIds).mockResolvedValue(
-        new Map([["app-1", { toStage: ApplicationStageEnum.DRAFT, reason: null, statusAt: new Date() }]]),
+        new Map([["app-1", { toStage: ApplicationStageEnum.Draft, reason: null, statusAt: new Date() }]]),
       );
       vi.mocked(draftExtractionService.extract).mockResolvedValue({
         title: "Role",
@@ -320,13 +320,13 @@ describe("JobAutomaticFillService", () => {
       await service.processFillJob("user-1", "app-1");
 
       expect(repo.saveJob).toHaveBeenCalledWith(
-        expect.objectContaining({ title: "Role", companyId: co(base).id, stage: ApplicationStageEnum.NEW }),
+        expect.objectContaining({ title: "Role", companyId: co(base).id, stage: ApplicationStageEnum.New }),
         expect.anything(),
       );
       expect(stageEventsRepo.createStageEvent).toHaveBeenCalledWith(
         "user-1",
         "app-1",
-        expect.objectContaining({ fromStage: ApplicationStageEnum.DRAFT, toStage: ApplicationStageEnum.NEW }),
+        expect.objectContaining({ fromStage: ApplicationStageEnum.Draft, toStage: ApplicationStageEnum.New }),
         expect.anything(),
       );
       expect(repo.setPersistedStage).not.toHaveBeenCalled();
@@ -336,12 +336,12 @@ describe("JobAutomaticFillService", () => {
       jobEventBusEmit.mockClear();
 
       const base = makeJob({
-        fillMetadata: { status: AsyncMetadataStatusEnum.PROCESSING, error: null, timestamp: new Date() },
+        fillMetadata: { status: AsyncMetadataStatusEnum.Processing, error: null, timestamp: new Date() },
         htmlContent: "<p>x</p>",
       });
       vi.mocked(repo.findOneByIdAndUserId).mockResolvedValue(base);
       vi.mocked(stageEventsRepo.findLatestStageSummariesByJobIds).mockResolvedValue(
-        new Map([["app-1", { toStage: ApplicationStageEnum.NEW, reason: null, statusAt: new Date() }]]),
+        new Map([["app-1", { toStage: ApplicationStageEnum.New, reason: null, statusAt: new Date() }]]),
       );
       vi.mocked(draftExtractionService.extract).mockRejectedValue(new Error("extract went wrong"));
       vi.mocked(repo.updateFillMetadataIfStatus).mockResolvedValue(true);
@@ -351,14 +351,14 @@ describe("JobAutomaticFillService", () => {
       expect(repo.updateFillMetadataIfStatus).toHaveBeenCalledWith(
         "app-1",
         "user-1",
-        AsyncMetadataStatusEnum.PROCESSING,
-        expect.objectContaining({ status: AsyncMetadataStatusEnum.FAILED, error: "extract went wrong" }),
+        AsyncMetadataStatusEnum.Processing,
+        expect.objectContaining({ status: AsyncMetadataStatusEnum.Failed, error: "extract went wrong" }),
       );
       expect(
         jobEventBusEmit.mock.calls.some(
           ([e]) =>
             e instanceof FillJobStatusChanged &&
-            e.status === AsyncMetadataStatusEnum.FAILED &&
+            e.status === AsyncMetadataStatusEnum.Failed &&
             e.error === "extract went wrong" &&
             e.jobId === "app-1",
         ),
@@ -370,12 +370,12 @@ describe("JobAutomaticFillService", () => {
       jobEventBusEmit.mockClear();
 
       const base = makeJob({
-        fillMetadata: { status: AsyncMetadataStatusEnum.PROCESSING, error: null, timestamp: new Date() },
+        fillMetadata: { status: AsyncMetadataStatusEnum.Processing, error: null, timestamp: new Date() },
         htmlContent: "<p>x</p>",
       });
       vi.mocked(repo.findOneByIdAndUserId).mockResolvedValueOnce(base).mockResolvedValueOnce(null);
       vi.mocked(stageEventsRepo.findLatestStageSummariesByJobIds).mockResolvedValue(
-        new Map([["app-1", { toStage: ApplicationStageEnum.NEW, reason: null, statusAt: new Date() }]]),
+        new Map([["app-1", { toStage: ApplicationStageEnum.New, reason: null, statusAt: new Date() }]]),
       );
       vi.mocked(draftExtractionService.extract).mockResolvedValue({
         title: "Role",
@@ -404,8 +404,8 @@ describe("JobAutomaticFillService", () => {
       expect(repo.updateFillMetadataIfStatus).toHaveBeenCalledWith(
         "app-1",
         "user-1",
-        AsyncMetadataStatusEnum.PROCESSING,
-        expect.objectContaining({ status: AsyncMetadataStatusEnum.FAILED, error: "Job was deleted." }),
+        AsyncMetadataStatusEnum.Processing,
+        expect.objectContaining({ status: AsyncMetadataStatusEnum.Failed, error: "Job was deleted." }),
       );
     });
 
@@ -413,12 +413,12 @@ describe("JobAutomaticFillService", () => {
       jobEventBusEmit.mockClear();
 
       const base = makeJob({
-        fillMetadata: { status: AsyncMetadataStatusEnum.PROCESSING, error: null, timestamp: new Date() },
+        fillMetadata: { status: AsyncMetadataStatusEnum.Processing, error: null, timestamp: new Date() },
         htmlContent: "<p>x</p>",
       });
       vi.mocked(repo.findOneByIdAndUserId).mockResolvedValue(base);
       vi.mocked(stageEventsRepo.findLatestStageSummariesByJobIds).mockResolvedValue(
-        new Map([["app-1", { toStage: ApplicationStageEnum.NEW, reason: null, statusAt: new Date() }]]),
+        new Map([["app-1", { toStage: ApplicationStageEnum.New, reason: null, statusAt: new Date() }]]),
       );
       vi.mocked(draftExtractionService.extract).mockResolvedValue({
         title: "Role",
@@ -449,7 +449,7 @@ describe("JobAutomaticFillService", () => {
 
     it("does nothing when fillMetadata is not PROCESSING", async () => {
       const base = makeJob({
-        fillMetadata: { status: AsyncMetadataStatusEnum.COMPLETED, error: null, timestamp: new Date() },
+        fillMetadata: { status: AsyncMetadataStatusEnum.Completed, error: null, timestamp: new Date() },
       });
       vi.mocked(repo.findOneByIdAndUserId).mockResolvedValue(base);
 

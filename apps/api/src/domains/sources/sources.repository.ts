@@ -199,7 +199,7 @@ export class SourcesRepository {
       `SELECT type, summary, payload, occurred_at
        FROM extension_activity_events
        WHERE user_id = $1 AND correlation_id = $2
-       ORDER BY occurred_at ASC, id ASC`,
+               ORDER BY occurred_at DESC, id DESC`,
       [userId, runId],
     );
     return rows.map(

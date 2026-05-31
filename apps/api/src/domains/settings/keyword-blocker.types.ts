@@ -1,24 +1,24 @@
 import { Field, InputType, ObjectType, registerEnumType } from "@nestjs/graphql";
 
-export enum KeywordScope {
-  TITLE = "TITLE",
-  DESCRIPTION = "DESCRIPTION",
-  COMPANY = "COMPANY",
+export enum KeywordScopeEnum {
+  Title = "Title",
+  Description = "Description",
+  Company = "Company",
 }
 
-registerEnumType(KeywordScope, { name: "KeywordScope" });
+registerEnumType(KeywordScopeEnum, { name: "KeywordScope" });
 
-export enum MatchMode {
-  PARTIAL = "PARTIAL",
-  EXACT = "EXACT",
+export enum MatchModeEnum {
+  Partial = "Partial",
+  Exact = "Exact",
 }
 
-registerEnumType(MatchMode, { name: "MatchMode" });
+registerEnumType(MatchModeEnum, { name: "MatchMode" });
 
 export interface BlockedKeyword {
   keyword: string;
-  scope: KeywordScope;
-  matchMode: MatchMode;
+  scope: KeywordScopeEnum;
+  matchMode: MatchModeEnum;
 }
 
 @ObjectType("BlockedKeyword")
@@ -26,11 +26,11 @@ export class BlockedKeywordType {
   @Field()
   keyword!: string;
 
-  @Field(() => KeywordScope)
-  scope!: KeywordScope;
+  @Field(() => KeywordScopeEnum)
+  scope!: KeywordScopeEnum;
 
-  @Field(() => MatchMode)
-  matchMode!: MatchMode;
+  @Field(() => MatchModeEnum)
+  matchMode!: MatchModeEnum;
 }
 
 @InputType("BlockedKeywordInput")
@@ -38,9 +38,9 @@ export class BlockedKeywordInput {
   @Field()
   keyword!: string;
 
-  @Field(() => KeywordScope)
-  scope!: KeywordScope;
+  @Field(() => KeywordScopeEnum)
+  scope!: KeywordScopeEnum;
 
-  @Field(() => MatchMode)
-  matchMode!: MatchMode;
+  @Field(() => MatchModeEnum)
+  matchMode!: MatchModeEnum;
 }

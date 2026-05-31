@@ -5,7 +5,7 @@ import { Test } from "@nestjs/testing";
 import { getRepositoryToken } from "@nestjs/typeorm";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { KeywordScope, MatchMode } from "./keyword-blocker.types";
+import { KeywordScopeEnum, MatchModeEnum } from "./keyword-blocker.types";
 import { SettingsService } from "./settings.service";
 
 describe("SettingsService", () => {
@@ -56,7 +56,7 @@ describe("SettingsService", () => {
       autoFillEnabled: true,
       autoSummaryEnabled: false,
       duplicateWindowDays: 7,
-      blockedKeywords: [{ keyword: "test", scope: KeywordScope.TITLE, matchMode: MatchMode.PARTIAL }],
+      blockedKeywords: [{ keyword: "test", scope: KeywordScopeEnum.Title, matchMode: MatchModeEnum.Partial }],
       blockedCompanies: ["Acme"],
     };
     repo.findOne.mockResolvedValue(existing);
@@ -70,7 +70,7 @@ describe("SettingsService", () => {
       autoFillEnabled: true,
       autoSummaryEnabled: false,
       duplicateWindowDays: 7,
-      blockedKeywords: [{ keyword: "test", scope: KeywordScope.TITLE, matchMode: MatchMode.PARTIAL }],
+      blockedKeywords: [{ keyword: "test", scope: KeywordScopeEnum.Title, matchMode: MatchModeEnum.Partial }],
       blockedCompanies: ["Acme"],
     });
   });
@@ -131,13 +131,13 @@ describe("SettingsService", () => {
     repo.save.mockImplementation((entity) => Promise.resolve(entity));
 
     const result = await service.updateSettings("user-1", {
-      blockedKeywords: [{ keyword: "test", scope: KeywordScope.TITLE, matchMode: MatchMode.PARTIAL }],
+      blockedKeywords: [{ keyword: "test", scope: KeywordScopeEnum.Title, matchMode: MatchModeEnum.Partial }],
       blockedCompanies: ["Acme Corp"],
     });
 
     expect(repo.save).toHaveBeenCalled();
     expect(result.blockedKeywords).toEqual([
-      { keyword: "test", scope: KeywordScope.TITLE, matchMode: MatchMode.PARTIAL },
+      { keyword: "test", scope: KeywordScopeEnum.Title, matchMode: MatchModeEnum.Partial },
     ]);
     expect(result.blockedCompanies).toEqual(["Acme Corp"]);
   });

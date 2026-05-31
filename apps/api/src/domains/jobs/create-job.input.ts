@@ -51,7 +51,7 @@ export class CreateJobInput {
   @Field(() => ID, { nullable: true })
   sourceRunId?: string | null;
 
-  /** When true, creates a persisted `jobs` row in {@link ApplicationStageEnum.DRAFT} (replacement for legacy draft-job create). */
+  /** When true, creates a persisted `jobs` row in {@link ApplicationStageEnum.Draft} (replacement for legacy draft-job create). */
   @Field(() => Boolean, { nullable: true })
   createAsDraftCapture?: boolean | null;
 

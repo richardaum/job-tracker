@@ -109,7 +109,7 @@ export class SourcesService implements OnModuleInit {
     const loaded = (await this.repo.findByUserAndId({ id: row.id, userId })) ?? row;
     const run = this.toGql(loaded);
     this.eventBus.emit(
-      new SourceRunReported(userId, { type: SourceRunEventTypeEnum.SOURCE_RUN_CREATED, occurredAt: new Date(), run }),
+      new SourceRunReported(userId, { type: SourceRunEventTypeEnum.SourceRunCreated, occurredAt: new Date(), run }),
     );
 
     return run;
@@ -139,7 +139,7 @@ export class SourcesService implements OnModuleInit {
     const loaded = (await this.repo.findByUserAndId({ id: row.id, userId })) ?? row;
     const run = this.toGql(loaded);
     this.eventBus.emit(
-      new SourceRunReported(userId, { type: SourceRunEventTypeEnum.SOURCE_RUN_CREATED, occurredAt: new Date(), run }),
+      new SourceRunReported(userId, { type: SourceRunEventTypeEnum.SourceRunCreated, occurredAt: new Date(), run }),
     );
 
     return run;
@@ -279,7 +279,7 @@ export class SourcesService implements OnModuleInit {
     const run = this.toGql(next);
     this.eventBus.emit(
       new SourceRunReported(userId, {
-        type: SourceRunEventTypeEnum.SOURCE_RUN_STATUS_CHANGED,
+        type: SourceRunEventTypeEnum.SourceRunStatusChanged,
         occurredAt: new Date(),
         run,
       }),

@@ -66,7 +66,7 @@ describe.skipIf(!hasDb)("JobsRepository (integration)", () => {
       jobsRepo.create({
         id: overrides?.id ?? undefined,
         userId,
-        stage: ApplicationStageEnum.NEW,
+        stage: ApplicationStageEnum.New,
         urls: [],
         tags: [],
         ...overrides,

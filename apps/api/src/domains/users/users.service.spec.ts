@@ -60,7 +60,7 @@ describe("UserService", () => {
 
       const result = await service.findOrCreateFromGoogle(profile);
 
-      expect(repo.findAccountByProvider).toHaveBeenCalledWith(AuthProviderEnum.GOOGLE, profile.googleId, em);
+      expect(repo.findAccountByProvider).toHaveBeenCalledWith(AuthProviderEnum.Google, profile.googleId, em);
       expect(repo.saveUser).toHaveBeenCalledWith(
         { id: mockUser.id, email: profile.email, name: profile.name, avatarUrl: profile.avatarUrl },
         em,
@@ -89,7 +89,7 @@ describe("UserService", () => {
       expect(repo.insertAccount).toHaveBeenCalledWith(
         expect.objectContaining({
           userId: insertedUser?.id,
-          providerName: AuthProviderEnum.GOOGLE,
+          providerName: AuthProviderEnum.Google,
           providerAccountId: profile.googleId,
         }),
         em,

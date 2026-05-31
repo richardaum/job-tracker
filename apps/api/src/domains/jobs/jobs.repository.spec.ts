@@ -108,12 +108,12 @@ describe("JobsRepository", () => {
 
     const listQuery = new JobsListQuery(jobsRepo as unknown as Repository<JobEntity>);
 
-    await listQuery.findAllByUserId("u1", ApplicationQuickFilterEnum.ACTIVE);
+    await listQuery.findAllByUserId("u1", ApplicationQuickFilterEnum.Active);
 
     expect(qb.andWhere).toHaveBeenCalled();
     expect(qb.andWhere).toHaveBeenCalledWith(
       expect.any(String),
-      expect.objectContaining({ draftExclude: ApplicationStageEnum.DRAFT }),
+      expect.objectContaining({ draftExclude: ApplicationStageEnum.Draft }),
     );
     expect(
       vi
@@ -126,7 +126,7 @@ describe("JobsRepository", () => {
             !Array.isArray(bindings) &&
             "excludeDraftLatestEvtActive" in bindings &&
             (bindings as { excludeDraftLatestEvtActive: unknown }).excludeDraftLatestEvtActive ===
-              ApplicationStageEnum.DRAFT,
+              ApplicationStageEnum.Draft,
         ),
     ).toBe(true);
     expect(
@@ -142,11 +142,11 @@ describe("JobsRepository", () => {
 
     const listQuery = new JobsListQuery(jobsRepo as unknown as Repository<JobEntity>);
 
-    await listQuery.findAllByUserId("u1", ApplicationQuickFilterEnum.APPLIED);
+    await listQuery.findAllByUserId("u1", ApplicationQuickFilterEnum.Applied);
 
     expect(qb.andWhere).toHaveBeenCalledWith(
       expect.any(String),
-      expect.objectContaining({ userId: "u1", stage: ApplicationStageEnum.APPLIED }),
+      expect.objectContaining({ userId: "u1", stage: ApplicationStageEnum.Applied }),
     );
   });
 
@@ -156,11 +156,11 @@ describe("JobsRepository", () => {
 
     const listQuery = new JobsListQuery(jobsRepo as unknown as Repository<JobEntity>);
 
-    await listQuery.findAllByUserId("u1", ApplicationQuickFilterEnum.DUPLICATED);
+    await listQuery.findAllByUserId("u1", ApplicationQuickFilterEnum.Duplicated);
 
     expect(qb.andWhere).toHaveBeenCalledWith(
       expect.any(String),
-      expect.objectContaining({ userId: "u1", stage: ApplicationStageEnum.DUPLICATED }),
+      expect.objectContaining({ userId: "u1", stage: ApplicationStageEnum.Duplicated }),
     );
   });
 
@@ -170,11 +170,11 @@ describe("JobsRepository", () => {
 
     const listQuery = new JobsListQuery(jobsRepo as unknown as Repository<JobEntity>);
 
-    await listQuery.findAllByUserId("u1", ApplicationQuickFilterEnum.REJECTED);
+    await listQuery.findAllByUserId("u1", ApplicationQuickFilterEnum.Rejected);
 
     expect(qb.andWhere).toHaveBeenCalledWith(
       expect.any(String),
-      expect.objectContaining({ userId: "u1", stage: ApplicationStageEnum.REJECTED }),
+      expect.objectContaining({ userId: "u1", stage: ApplicationStageEnum.Rejected }),
     );
   });
 
@@ -184,12 +184,12 @@ describe("JobsRepository", () => {
 
     const listQuery = new JobsListQuery(jobsRepo as unknown as Repository<JobEntity>);
 
-    await listQuery.findAllByUserId("u1", ApplicationQuickFilterEnum.INCOMING);
+    await listQuery.findAllByUserId("u1", ApplicationQuickFilterEnum.Incoming);
 
     expect(qb.andWhere).toHaveBeenCalled();
     expect(qb.andWhere).toHaveBeenCalledWith(
       expect.any(String),
-      expect.objectContaining({ draftExclude: ApplicationStageEnum.DRAFT }),
+      expect.objectContaining({ draftExclude: ApplicationStageEnum.Draft }),
     );
     expect(
       vi
@@ -202,7 +202,7 @@ describe("JobsRepository", () => {
             !Array.isArray(bindings) &&
             "excludeDraftLatestEvtIncoming" in bindings &&
             (bindings as { excludeDraftLatestEvtIncoming: unknown }).excludeDraftLatestEvtIncoming ===
-              ApplicationStageEnum.DRAFT,
+              ApplicationStageEnum.Draft,
         ),
     ).toBe(true);
     expect(
@@ -216,24 +216,24 @@ describe("JobsRepository", () => {
 
     const listQuery = new JobsListQuery(jobsRepo as unknown as Repository<JobEntity>);
 
-    await listQuery.findAllByUserId("u1", ApplicationQuickFilterEnum.NEW);
+    await listQuery.findAllByUserId("u1", ApplicationQuickFilterEnum.New);
 
     expect(qb.andWhere).toHaveBeenCalledWith(
       expect.any(String),
-      expect.objectContaining({ draftExclude: ApplicationStageEnum.DRAFT }),
+      expect.objectContaining({ draftExclude: ApplicationStageEnum.Draft }),
     );
     expect(qb.andWhere).toHaveBeenCalledWith(
       expect.any(String),
-      expect.objectContaining({ userId: "u1", stage: ApplicationStageEnum.NEW }),
+      expect.objectContaining({ userId: "u1", stage: ApplicationStageEnum.New }),
     );
   });
 
   it("includes DRAFT quick filter after draft→jobs migration", () => {
-    expect(ApplicationQuickFilterEnum.DRAFT).toBe("DRAFT");
+    expect(ApplicationQuickFilterEnum.Draft).toBe("DRAFT");
   });
 
   it("includes REJECTED quick filter for blocked-job discoverability", () => {
-    expect(ApplicationQuickFilterEnum.REJECTED).toBe("REJECTED");
+    expect(ApplicationQuickFilterEnum.Rejected).toBe("REJECTED");
   });
 
   it("create saves row with scalar salary_* columns populated", async () => {
@@ -338,9 +338,9 @@ describe("JobsRepository", () => {
 
     const repo = new JobsRepository(jobsRepo as unknown as Repository<JobEntity>);
 
-    await repo.setPersistedStage("u1", "j1", ApplicationStageEnum.TECHNICAL);
+    await repo.setPersistedStage("u1", "j1", ApplicationStageEnum.Technical);
 
-    expect(jobsRepo.update).toHaveBeenCalledWith({ id: "j1", userId: "u1" }, { stage: ApplicationStageEnum.TECHNICAL });
+    expect(jobsRepo.update).toHaveBeenCalledWith({ id: "j1", userId: "u1" }, { stage: ApplicationStageEnum.Technical });
   });
 
   it("update merges dto into existing entity and saves", async () => {
@@ -386,8 +386,8 @@ describe("JobsRepository", () => {
 
     const repo = new JobsRepository(jobsRepo as unknown as Repository<JobEntity>);
 
-    const ok = await repo.updateSummaryMetadataIfStatus("j1", "u1", AsyncMetadataStatusEnum.PROCESSING, {
-      status: AsyncMetadataStatusEnum.COMPLETED,
+    const ok = await repo.updateSummaryMetadataIfStatus("j1", "u1", AsyncMetadataStatusEnum.Processing, {
+      status: AsyncMetadataStatusEnum.Completed,
     });
 
     expect(ok).toBe(true);
@@ -406,7 +406,7 @@ describe("JobsRepository", () => {
 
     const repo = new JobsRepository(jobsRepo as unknown as Repository<JobEntity>);
 
-    await repo.updateSummaryMetadataIfStatus("j1", "u1", null, { status: AsyncMetadataStatusEnum.PROCESSING });
+    await repo.updateSummaryMetadataIfStatus("j1", "u1", null, { status: AsyncMetadataStatusEnum.Processing });
 
     expect(qbChain.andWhere).toHaveBeenCalledWith(`"summary_status" IS NULL`);
   });
@@ -428,11 +428,11 @@ describe("JobsRepository", () => {
     expect(qbChain.andWhere).toHaveBeenCalledWith(
       expect.stringContaining('("fill_status" IS NULL OR "fill_status" IN (:...restartableStatuses))'),
       expect.objectContaining({
-        restartableStatuses: [AsyncMetadataStatusEnum.FAILED, AsyncMetadataStatusEnum.COMPLETED],
+        restartableStatuses: [AsyncMetadataStatusEnum.Failed, AsyncMetadataStatusEnum.Completed],
       }),
     );
     expect(qbChain.set).toHaveBeenCalledWith({
-      fillMetadata: expect.objectContaining({ status: AsyncMetadataStatusEnum.PROCESSING }),
+      fillMetadata: expect.objectContaining({ status: AsyncMetadataStatusEnum.Processing }),
     });
   });
 
@@ -475,7 +475,7 @@ describe("JobsRepository", () => {
 
     expect(qb.andWhere).toHaveBeenCalledWith(
       expect.stringContaining("stage"),
-      expect.objectContaining({ excludeDraftPostingSnippet: ApplicationStageEnum.DRAFT }),
+      expect.objectContaining({ excludeDraftPostingSnippet: ApplicationStageEnum.Draft }),
     );
     expect(rows).toHaveLength(1);
     expect(rows[0]).toMatchObject({ title: "Engineer", plainTextDescription: expect.stringContaining("Plain") });
@@ -533,7 +533,7 @@ describe("JobsRepository", () => {
     await expect(repo.resetStaleFillProcessing()).resolves.toBe(2);
     expect(qbStale.where).toHaveBeenCalledWith(
       `"fill_status" = :processing`,
-      expect.objectContaining({ processing: AsyncMetadataStatusEnum.PROCESSING }),
+      expect.objectContaining({ processing: AsyncMetadataStatusEnum.Processing }),
     );
   });
 
@@ -549,15 +549,15 @@ describe("JobsRepository", () => {
 
     const repo = new JobsRepository(jobsRepo as unknown as Repository<JobEntity>);
 
-    const ok = await repo.updateFillMetadataIfStatus("j1", "u1", AsyncMetadataStatusEnum.PROCESSING, {
-      status: AsyncMetadataStatusEnum.COMPLETED,
+    const ok = await repo.updateFillMetadataIfStatus("j1", "u1", AsyncMetadataStatusEnum.Processing, {
+      status: AsyncMetadataStatusEnum.Completed,
       timestamp: new Date(),
       error: null,
     });
 
     expect(ok).toBe(true);
     expect(qbChain.andWhere).toHaveBeenCalledWith(`"fill_status" = :expected`, {
-      expected: AsyncMetadataStatusEnum.PROCESSING,
+      expected: AsyncMetadataStatusEnum.Processing,
     });
   });
 
@@ -573,8 +573,8 @@ describe("JobsRepository", () => {
 
     const repo = new JobsRepository(jobsRepo as unknown as Repository<JobEntity>);
 
-    const ok = await repo.updateFillMetadataIfStatus("j1", "u1", AsyncMetadataStatusEnum.PROCESSING, {
-      status: AsyncMetadataStatusEnum.FAILED,
+    const ok = await repo.updateFillMetadataIfStatus("j1", "u1", AsyncMetadataStatusEnum.Processing, {
+      status: AsyncMetadataStatusEnum.Failed,
       error: "x",
     });
 
@@ -594,15 +594,15 @@ describe("JobsRepository", () => {
     const repo = new JobsRepository(jobsRepo as unknown as Repository<JobEntity>);
 
     await expect(
-      repo.updateFillMetadataIfStatus("j1", "u1", AsyncMetadataStatusEnum.PROCESSING, {
-        status: AsyncMetadataStatusEnum.COMPLETED,
+      repo.updateFillMetadataIfStatus("j1", "u1", AsyncMetadataStatusEnum.Processing, {
+        status: AsyncMetadataStatusEnum.Completed,
         timestamp: new Date(),
         error: null,
       }),
     ).resolves.toBe(true);
     await expect(
-      repo.updateFillMetadataIfStatus("j1", "u1", AsyncMetadataStatusEnum.PROCESSING, {
-        status: AsyncMetadataStatusEnum.FAILED,
+      repo.updateFillMetadataIfStatus("j1", "u1", AsyncMetadataStatusEnum.Processing, {
+        status: AsyncMetadataStatusEnum.Failed,
         error: "boom",
         timestamp: new Date(),
       }),
@@ -635,7 +635,7 @@ describe("JobsRepository", () => {
       id: "e1",
       jobId: "j1",
       userId: "u1",
-      toStage: ApplicationStageEnum.OFFER,
+      toStage: ApplicationStageEnum.Offer,
       reason: null,
       scheduledAt: null,
       createdAt: new Date("2026-01-01"),
@@ -644,7 +644,7 @@ describe("JobsRepository", () => {
       id: "e2",
       jobId: "j1",
       userId: "u1",
-      toStage: ApplicationStageEnum.NEW,
+      toStage: ApplicationStageEnum.New,
       reason: null,
       scheduledAt: null,
       createdAt: new Date("2026-01-03"),
@@ -653,7 +653,7 @@ describe("JobsRepository", () => {
       id: "e3",
       jobId: "j2",
       userId: "u1",
-      toStage: ApplicationStageEnum.APPLIED,
+      toStage: ApplicationStageEnum.Applied,
       reason: null,
       scheduledAt: null,
       createdAt: new Date("2026-01-05"),
@@ -671,8 +671,8 @@ describe("JobsRepository", () => {
 
     const map = await stageEvents.findLatestStageSummariesByJobIds("u1", ["j1", "j2", "missing"]);
 
-    expect(map.get("j1")?.toStage).toBe(ApplicationStageEnum.NEW);
-    expect(map.get("j2")?.toStage).toBe(ApplicationStageEnum.APPLIED);
+    expect(map.get("j1")?.toStage).toBe(ApplicationStageEnum.New);
+    expect(map.get("j2")?.toStage).toBe(ApplicationStageEnum.Applied);
     expect(map.has("missing")).toBe(false);
   });
 
@@ -684,11 +684,11 @@ describe("JobsRepository", () => {
     const stageEvents = new JobStageEventsRepository(stageEventsRepo as unknown as Repository<JobStageEventEntity>);
 
     const created = await stageEvents.createStageEvent("u1", "j1", {
-      toStage: ApplicationStageEnum.TECHNICAL,
+      toStage: ApplicationStageEnum.Technical,
       reason: null,
       scheduledAt: null,
       source: undefined,
-      fromStage: ApplicationStageEnum.NEW,
+      fromStage: ApplicationStageEnum.New,
     });
 
     expect(stageEventsRepo.create).toHaveBeenCalled();
@@ -786,7 +786,7 @@ describe("JobsRepository", () => {
     const existing = Object.assign(new JobStageEventEntity(), {
       id: "ev-1",
       userId: "u1",
-      toStage: ApplicationStageEnum.NEW,
+      toStage: ApplicationStageEnum.New,
       scheduledAt: null,
       reason: null,
     });
@@ -796,12 +796,12 @@ describe("JobsRepository", () => {
     const stageEvents = new JobStageEventsRepository(stageEventsRepo as unknown as Repository<JobStageEventEntity>);
 
     const updated = await stageEvents.updateStageEvent("ev-1", "u1", {
-      toStage: ApplicationStageEnum.OFFER,
+      toStage: ApplicationStageEnum.Offer,
       scheduledAt: new Date("2026-02-01"),
       reason: "Advance",
     });
 
-    expect(updated?.toStage).toBe(ApplicationStageEnum.OFFER);
+    expect(updated?.toStage).toBe(ApplicationStageEnum.Offer);
     expect(updated?.reason).toBe("Advance");
   });
 

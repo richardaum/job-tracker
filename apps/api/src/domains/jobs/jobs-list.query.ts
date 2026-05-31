@@ -65,13 +65,13 @@ export class JobsListQuery {
       return qb.getMany();
     }
 
-    if (filter === ApplicationQuickFilterEnum.DRAFT) {
-      qb.andWhere("a.stage = :draftStage", { draftStage: ApplicationStageEnum.DRAFT });
+    if (filter === ApplicationQuickFilterEnum.Draft) {
+      qb.andWhere("a.stage = :draftStage", { draftStage: ApplicationStageEnum.Draft });
       return qb.getMany();
     }
 
     /** Non-DRAFT quick filters derive state from stage events — still exclude persisted DRAFT rows. */
-    qb.andWhere("a.stage != :draftExclude", { draftExclude: ApplicationStageEnum.DRAFT });
+    qb.andWhere("a.stage != :draftExclude", { draftExclude: ApplicationStageEnum.Draft });
 
     const latestStageSub = `(${qb
       .subQuery()
@@ -85,35 +85,35 @@ export class JobsListQuery {
       .limit(1)
       .getQuery()})`;
 
-    if (filter === ApplicationQuickFilterEnum.NEW) {
-      qb.andWhere(`${latestStageSub} = :stage`, { userId, stage: ApplicationStageEnum.NEW });
-    } else if (filter === ApplicationQuickFilterEnum.DUPLICATED) {
-      qb.andWhere(`${latestStageSub} = :stage`, { userId, stage: ApplicationStageEnum.DUPLICATED });
-    } else if (filter === ApplicationQuickFilterEnum.REJECTED) {
-      qb.andWhere(`${latestStageSub} = :stage`, { userId, stage: ApplicationStageEnum.REJECTED });
-    } else if (filter === ApplicationQuickFilterEnum.APPLIED) {
-      qb.andWhere(`${latestStageSub} = :stage`, { userId, stage: ApplicationStageEnum.APPLIED });
-    } else if (filter === ApplicationQuickFilterEnum.ACTIVE) {
+    if (filter === ApplicationQuickFilterEnum.New) {
+      qb.andWhere(`${latestStageSub} = :stage`, { userId, stage: ApplicationStageEnum.New });
+    } else if (filter === ApplicationQuickFilterEnum.Duplicated) {
+      qb.andWhere(`${latestStageSub} = :stage`, { userId, stage: ApplicationStageEnum.Duplicated });
+    } else if (filter === ApplicationQuickFilterEnum.Rejected) {
+      qb.andWhere(`${latestStageSub} = :stage`, { userId, stage: ApplicationStageEnum.Rejected });
+    } else if (filter === ApplicationQuickFilterEnum.Applied) {
+      qb.andWhere(`${latestStageSub} = :stage`, { userId, stage: ApplicationStageEnum.Applied });
+    } else if (filter === ApplicationQuickFilterEnum.Active) {
       qb.andWhere(`${latestStageSub} NOT IN (:...stages)`, {
         userId,
         stages: [
-          ApplicationStageEnum.NEW,
-          ApplicationStageEnum.APPLIED,
-          ApplicationStageEnum.REJECTED,
-          ApplicationStageEnum.DUPLICATED,
+          ApplicationStageEnum.New,
+          ApplicationStageEnum.Applied,
+          ApplicationStageEnum.Rejected,
+          ApplicationStageEnum.Duplicated,
         ],
       }).andWhere(`${latestStageSub} != :excludeDraftLatestEvtActive`, {
         userId,
-        excludeDraftLatestEvtActive: ApplicationStageEnum.DRAFT,
+        excludeDraftLatestEvtActive: ApplicationStageEnum.Draft,
       });
-    } else if (filter === ApplicationQuickFilterEnum.INCOMING) {
+    } else if (filter === ApplicationQuickFilterEnum.Incoming) {
       qb.andWhere(`${latestStageSub} NOT IN (:...stages)`, {
         userId,
-        stages: [ApplicationStageEnum.APPLIED, ApplicationStageEnum.REJECTED, ApplicationStageEnum.DUPLICATED],
+        stages: [ApplicationStageEnum.Applied, ApplicationStageEnum.Rejected, ApplicationStageEnum.Duplicated],
       })
         .andWhere(`${latestStageSub} != :excludeDraftLatestEvtIncoming`, {
           userId,
-          excludeDraftLatestEvtIncoming: ApplicationStageEnum.DRAFT,
+          excludeDraftLatestEvtIncoming: ApplicationStageEnum.Draft,
         })
         .andWhere(
           `EXISTS ${qb
@@ -149,7 +149,7 @@ export class JobsListQuery {
       .createQueryBuilder("a")
       .innerJoin("a.company", "c")
       .where("a.user_id = :userId", { userId })
-      .andWhere("a.stage != :excludeDraftPostingSnippet", { excludeDraftPostingSnippet: ApplicationStageEnum.DRAFT })
+      .andWhere("a.stage != :excludeDraftPostingSnippet", { excludeDraftPostingSnippet: ApplicationStageEnum.Draft })
       .andWhere("LOWER(TRIM(c.name)) = LOWER(TRIM(:company))", { company: normalized })
       .andWhere("a.description IS NOT NULL")
       .orderBy("a.updatedAt", "DESC")

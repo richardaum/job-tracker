@@ -33,13 +33,13 @@ describe("AsyncMetadataHelper", () => {
       jobsRepo,
       fillColumns,
       { id: "j1", userId: "u1" },
-      AsyncMetadataStatusEnum.PROCESSING,
-      { status: AsyncMetadataStatusEnum.COMPLETED },
+      AsyncMetadataStatusEnum.Processing,
+      { status: AsyncMetadataStatusEnum.Completed },
     );
 
     expect(ok).toBe(true);
     expect(qbChain.andWhere).toHaveBeenCalledWith(`"fill_status" = :expected`, {
-      expected: AsyncMetadataStatusEnum.PROCESSING,
+      expected: AsyncMetadataStatusEnum.Processing,
     });
   });
 
@@ -55,7 +55,7 @@ describe("AsyncMetadataHelper", () => {
       { metadataField: "summaryMetadata", statusColumn: "summary_status" },
       { id: "j1", userId: "u1" },
       null,
-      { status: AsyncMetadataStatusEnum.PROCESSING },
+      { status: AsyncMetadataStatusEnum.Processing },
     );
 
     expect(qbChain.andWhere).toHaveBeenCalledWith(`"summary_status" IS NULL`);
@@ -70,7 +70,7 @@ describe("AsyncMetadataHelper", () => {
     ).resolves.toBe(true);
 
     expect(qbChain.set).toHaveBeenCalledWith({
-      fillMetadata: expect.objectContaining({ status: AsyncMetadataStatusEnum.PROCESSING }),
+      fillMetadata: expect.objectContaining({ status: AsyncMetadataStatusEnum.Processing }),
     });
   });
 
@@ -83,7 +83,7 @@ describe("AsyncMetadataHelper", () => {
     );
 
     expect(qbChain.where).toHaveBeenCalledWith(`"fill_status" = :processing`, {
-      processing: AsyncMetadataStatusEnum.PROCESSING,
+      processing: AsyncMetadataStatusEnum.Processing,
     });
   });
 });

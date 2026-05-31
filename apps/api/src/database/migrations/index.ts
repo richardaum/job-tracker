@@ -36,6 +36,10 @@ import { AddSourceTemplateConfigJsonb1768090000000 } from "./1768090000000-add-s
 import { NormalizeStopwhenToArray1768100000000 } from "./1768100000000-normalize-stopwhen-to-array";
 import { AddJobPublishedAt1768110000000 } from "./1768110000000-add-job-published-at";
 import { AddPlanUserId1768120000000 } from "./1768120000000-add-plan-user-id";
+import { NormalizeExtensionActivityEventTypePascalCase1768130000000 } from "./1768130000000-normalize-extension-activity-event-type-pascalcase";
+import { NormalizeRoleEnumPascalcase1768140000000 } from "./1768140000000-normalize-role-enum-pascalcase";
+import { AddSourceRunJobSkipped1768150000000 } from "./1768150000000-add-source-run-job-skipped";
+import { NormalizeEnumValuesPascalcase1768160000000 } from "./1768160000000-normalize-enum-values-pascalcase";
 
 export const migrations = [
   SquashedBaseline1767000000000,
@@ -76,4 +80,8 @@ export const migrations = [
   NormalizeStopwhenToArray1768100000000,
   AddJobPublishedAt1768110000000,
   AddPlanUserId1768120000000,
+  NormalizeExtensionActivityEventTypePascalCase1768130000000,
+  NormalizeRoleEnumPascalcase1768140000000,
+  AddSourceRunJobSkipped1768150000000,
+  NormalizeEnumValuesPascalcase1768160000000,
 ];

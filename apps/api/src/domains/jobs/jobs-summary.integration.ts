@@ -54,25 +54,25 @@ describe.skipIf(!hasDb)("Job async summary metadata (integration)", () => {
       expect(row[0].summary_status).toBeNull();
 
       const ok = await repo.updateSummaryMetadataIfStatus(job.id, userId, null, {
-        status: AsyncMetadataStatusEnum.PROCESSING,
+        status: AsyncMetadataStatusEnum.Processing,
       });
       expect(ok).toBe(true);
 
       const updated = await dataSource.query(`SELECT summary_status, summary_error FROM jobs WHERE id = $1`, [job.id]);
-      expect(updated[0].summary_status).toBe(AsyncMetadataStatusEnum.PROCESSING);
+      expect(updated[0].summary_status).toBe(AsyncMetadataStatusEnum.Processing);
       expect(updated[0].summary_error).toBeNull();
     });
 
     it("PROCESSING → COMPLETED", async () => {
       const job = await createJob("Summary Completed");
       await dataSource.query(`UPDATE jobs SET summary_status = $1 WHERE id = $2`, [
-        AsyncMetadataStatusEnum.PROCESSING,
+        AsyncMetadataStatusEnum.Processing,
         job.id,
       ]);
 
       const now = new Date();
-      const ok = await repo.updateSummaryMetadataIfStatus(job.id, userId, AsyncMetadataStatusEnum.PROCESSING, {
-        status: AsyncMetadataStatusEnum.COMPLETED,
+      const ok = await repo.updateSummaryMetadataIfStatus(job.id, userId, AsyncMetadataStatusEnum.Processing, {
+        status: AsyncMetadataStatusEnum.Completed,
         timestamp: now,
       });
       expect(ok).toBe(true);
@@ -80,37 +80,37 @@ describe.skipIf(!hasDb)("Job async summary metadata (integration)", () => {
       const updated = await dataSource.query(`SELECT summary_status, summary_timestamp FROM jobs WHERE id = $1`, [
         job.id,
       ]);
-      expect(updated[0].summary_status).toBe(AsyncMetadataStatusEnum.COMPLETED);
+      expect(updated[0].summary_status).toBe(AsyncMetadataStatusEnum.Completed);
     });
 
     it("PROCESSING → FAILED with error", async () => {
       const job = await createJob("Summary Failed");
       await dataSource.query(`UPDATE jobs SET summary_status = $1 WHERE id = $2`, [
-        AsyncMetadataStatusEnum.PROCESSING,
+        AsyncMetadataStatusEnum.Processing,
         job.id,
       ]);
 
-      const ok = await repo.updateSummaryMetadataIfStatus(job.id, userId, AsyncMetadataStatusEnum.PROCESSING, {
-        status: AsyncMetadataStatusEnum.FAILED,
+      const ok = await repo.updateSummaryMetadataIfStatus(job.id, userId, AsyncMetadataStatusEnum.Processing, {
+        status: AsyncMetadataStatusEnum.Failed,
         error: "AI service unavailable",
         timestamp: new Date(),
       });
       expect(ok).toBe(true);
 
       const updated = await dataSource.query(`SELECT summary_status, summary_error FROM jobs WHERE id = $1`, [job.id]);
-      expect(updated[0].summary_status).toBe(AsyncMetadataStatusEnum.FAILED);
+      expect(updated[0].summary_status).toBe(AsyncMetadataStatusEnum.Failed);
       expect(updated[0].summary_error).toBe("AI service unavailable");
     });
 
     it("rejects when expected status does not match (race condition)", async () => {
       const job = await createJob("Summary Race");
       await dataSource.query(`UPDATE jobs SET summary_status = $1 WHERE id = $2`, [
-        AsyncMetadataStatusEnum.COMPLETED,
+        AsyncMetadataStatusEnum.Completed,
         job.id,
       ]);
 
-      const ok = await repo.updateSummaryMetadataIfStatus(job.id, userId, AsyncMetadataStatusEnum.PROCESSING, {
-        status: AsyncMetadataStatusEnum.COMPLETED,
+      const ok = await repo.updateSummaryMetadataIfStatus(job.id, userId, AsyncMetadataStatusEnum.Processing, {
+        status: AsyncMetadataStatusEnum.Completed,
       });
       expect(ok).toBe(false);
     });
@@ -119,7 +119,7 @@ describe.skipIf(!hasDb)("Job async summary metadata (integration)", () => {
       const job = await createJob("Summary Wrong User");
 
       const ok = await repo.updateSummaryMetadataIfStatus(job.id, "wrong-user-id", null, {
-        status: AsyncMetadataStatusEnum.PROCESSING,
+        status: AsyncMetadataStatusEnum.Processing,
       });
       expect(ok).toBe(false);
     });
@@ -134,15 +134,15 @@ describe.skipIf(!hasDb)("Job async summary metadata (integration)", () => {
       const job3 = await createJob("Stale Summary 3");
 
       await dataSource.query(`UPDATE jobs SET summary_status = $1 WHERE id = $2`, [
-        AsyncMetadataStatusEnum.PROCESSING,
+        AsyncMetadataStatusEnum.Processing,
         job1.id,
       ]);
       await dataSource.query(`UPDATE jobs SET summary_status = $1 WHERE id = $2`, [
-        AsyncMetadataStatusEnum.PROCESSING,
+        AsyncMetadataStatusEnum.Processing,
         job2.id,
       ]);
       await dataSource.query(`UPDATE jobs SET summary_status = $1 WHERE id = $2`, [
-        AsyncMetadataStatusEnum.COMPLETED,
+        AsyncMetadataStatusEnum.Completed,
         job3.id,
       ]);
 
@@ -155,10 +155,10 @@ describe.skipIf(!hasDb)("Job async summary metadata (integration)", () => {
       );
 
       const byId = Object.fromEntries(rows.map((r) => [r.id, r]));
-      expect(byId[job1.id].summary_status).toBe(AsyncMetadataStatusEnum.FAILED);
+      expect(byId[job1.id].summary_status).toBe(AsyncMetadataStatusEnum.Failed);
       expect(byId[job1.id].summary_error).toBeTruthy();
-      expect(byId[job2.id].summary_status).toBe(AsyncMetadataStatusEnum.FAILED);
-      expect(byId[job3.id].summary_status).toBe(AsyncMetadataStatusEnum.COMPLETED);
+      expect(byId[job2.id].summary_status).toBe(AsyncMetadataStatusEnum.Failed);
+      expect(byId[job3.id].summary_status).toBe(AsyncMetadataStatusEnum.Completed);
     });
   });
 });

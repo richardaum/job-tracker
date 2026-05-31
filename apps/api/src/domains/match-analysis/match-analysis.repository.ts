@@ -70,11 +70,11 @@ export class MatchAnalysisRepository {
   async resetStaleProcessing(): Promise<number> {
     const stale = await this.repo
       .createQueryBuilder("f")
-      .where("f.generation_status = :status", { status: AsyncMetadataStatusEnum.PROCESSING })
+      .where("f.generation_status = :status", { status: AsyncMetadataStatusEnum.Processing })
       .getMany();
     for (const entity of stale) {
       entity.generationMetadata = {
-        status: AsyncMetadataStatusEnum.FAILED,
+        status: AsyncMetadataStatusEnum.Failed,
         error: "Analysis interrupted and reset to failed after server restart.",
         timestamp: new Date(),
       };

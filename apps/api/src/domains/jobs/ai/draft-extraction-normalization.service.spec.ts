@@ -39,7 +39,7 @@ describe("DraftExtractionNormalizationService", () => {
       expect(result.salary.minCents).toBe(10000);
       expect(result.salary.maxCents).toBe(15000);
       expect(result.salary.currency).toBe("USD");
-      expect(result.salary.period).toBe(SalaryPeriodEnum.YEAR);
+      expect(result.salary.period).toBe(SalaryPeriodEnum.Year);
     });
 
     it("handles missing salary object → salary with nulls", () => {
@@ -77,7 +77,7 @@ describe("DraftExtractionNormalizationService", () => {
       expect(result.salary.minCents).toBe(50000);
       expect(result.salary.maxCents).toBe(75000);
       expect(result.salary.currency).toBe("EUR");
-      expect(result.salary.period).toBe(SalaryPeriodEnum.YEAR);
+      expect(result.salary.period).toBe(SalaryPeriodEnum.Year);
     });
 
     it("normalizes a fully populated extraction record", () => {
@@ -97,7 +97,7 @@ describe("DraftExtractionNormalizationService", () => {
       expect(result.salary.minCents).toBe(12_000_000);
       expect(result.salary.maxCents).toBe(15_000_000);
       expect(result.salary.currency).toBe("USD");
-      expect(result.salary.period).toBe(SalaryPeriodEnum.YEAR);
+      expect(result.salary.period).toBe(SalaryPeriodEnum.Year);
       expect(result.tags).toEqual(["typescript", "react"]);
       expect(result.location).toBe("Remote US");
       expect(result.workRegion).toBe("AMER");
@@ -123,7 +123,7 @@ describe("DraftExtractionNormalizationService", () => {
       expect(result.salary.minCents).toBe(50000);
       expect(result.salary.maxCents).toBe(60000);
       expect(result.salary.currency).toBe("eur");
-      expect(result.salary.period).toBe(SalaryPeriodEnum.MONTH);
+      expect(result.salary.period).toBe(SalaryPeriodEnum.Month);
     });
 
     it("allows negative salary majors and missing currency (pass-through / nulls)", () => {

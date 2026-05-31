@@ -14,7 +14,7 @@ function minimalMatchAnalysis(props: Partial<MatchAnalysisEntity> = {}): MatchAn
     jobId: "job-1",
     userId: "user-1",
     resumeId: "resume-1",
-    generationMetadata: { status: AsyncMetadataStatusEnum.COMPLETED, error: null, timestamp: now },
+    generationMetadata: { status: AsyncMetadataStatusEnum.Completed, error: null, timestamp: now },
     scoreRatio: 0.5,
     classification: FitClassificationEnum.Positive,
     matchCount: 1,

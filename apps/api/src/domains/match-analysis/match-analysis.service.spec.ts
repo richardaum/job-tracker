@@ -139,7 +139,7 @@ describe("MatchAnalysisService", () => {
     expect(repo.upsert).toHaveBeenCalledWith(
       expect.objectContaining({
         jobId: "job-1",
-        generationMetadata: expect.objectContaining({ status: AsyncMetadataStatusEnum.PROCESSING }),
+        generationMetadata: expect.objectContaining({ status: AsyncMetadataStatusEnum.Processing }),
       }),
     );
     expect(eventEmit).toHaveBeenCalled();
@@ -170,7 +170,7 @@ describe("MatchAnalysisService", () => {
     expect(vi.mocked(aiService.extractResumeMatchItems).mock.calls[0][0]).toContain("Need Rust");
     expect(repo.updateById).toHaveBeenCalledWith(
       "m1",
-      AsyncMetadataStatusEnum.PROCESSING,
+      AsyncMetadataStatusEnum.Processing,
       expect.objectContaining({ items: [expect.objectContaining({ id: expect.any(String), requirement: "Rust" })] }),
       "user-1",
     );
@@ -252,10 +252,10 @@ describe("MatchAnalysisService", () => {
     expect(aiService.extractResumeMatchItems).not.toHaveBeenCalled();
     expect(repo.updateById).toHaveBeenCalledWith(
       "m1",
-      AsyncMetadataStatusEnum.PROCESSING,
+      AsyncMetadataStatusEnum.Processing,
       expect.objectContaining({
         generationMetadata: expect.objectContaining({
-          status: AsyncMetadataStatusEnum.FAILED,
+          status: AsyncMetadataStatusEnum.Failed,
           error: "Job has no description or htmlContent.",
         }),
       }),
@@ -298,10 +298,10 @@ describe("MatchAnalysisService", () => {
     expect(aiService.extractResumeMatchItems).not.toHaveBeenCalled();
     expect(repo.updateById).toHaveBeenCalledWith(
       "m1",
-      AsyncMetadataStatusEnum.PROCESSING,
+      AsyncMetadataStatusEnum.Processing,
       expect.objectContaining({
         generationMetadata: expect.objectContaining({
-          status: AsyncMetadataStatusEnum.FAILED,
+          status: AsyncMetadataStatusEnum.Failed,
           error: "Job not found.",
         }),
       }),
@@ -324,10 +324,10 @@ describe("MatchAnalysisService", () => {
     expect(aiService.extractResumeMatchItems).not.toHaveBeenCalled();
     expect(repo.updateById).toHaveBeenCalledWith(
       "m1",
-      AsyncMetadataStatusEnum.PROCESSING,
+      AsyncMetadataStatusEnum.Processing,
       expect.objectContaining({
         generationMetadata: expect.objectContaining({
-          status: AsyncMetadataStatusEnum.FAILED,
+          status: AsyncMetadataStatusEnum.Failed,
           error: "Match analysis has no resume linked.",
         }),
       }),
@@ -351,10 +351,10 @@ describe("MatchAnalysisService", () => {
     expect(aiService.extractResumeMatchItems).not.toHaveBeenCalled();
     expect(repo.updateById).toHaveBeenCalledWith(
       "m1",
-      AsyncMetadataStatusEnum.PROCESSING,
+      AsyncMetadataStatusEnum.Processing,
       expect.objectContaining({
         generationMetadata: expect.objectContaining({
-          status: AsyncMetadataStatusEnum.FAILED,
+          status: AsyncMetadataStatusEnum.Failed,
           error: "Resume not found.",
         }),
       }),
@@ -384,9 +384,9 @@ describe("MatchAnalysisService", () => {
 
     expect(repo.updateById).toHaveBeenCalledWith(
       "m1",
-      AsyncMetadataStatusEnum.PROCESSING,
+      AsyncMetadataStatusEnum.Processing,
       expect.objectContaining({
-        generationMetadata: expect.objectContaining({ status: AsyncMetadataStatusEnum.FAILED, error: "LLM outage" }),
+        generationMetadata: expect.objectContaining({ status: AsyncMetadataStatusEnum.Failed, error: "LLM outage" }),
       }),
       "user-1",
     );
@@ -438,13 +438,13 @@ describe("MatchAnalysisService", () => {
 
 function hasFailedLifecycleEmit(spy: ReturnType<typeof vi.fn>): boolean {
   return spy.mock.calls.some(
-    (args) => args[0] instanceof MatchStatusChanged && args[0].status === AsyncMetadataStatusEnum.FAILED,
+    (args) => args[0] instanceof MatchStatusChanged && args[0].status === AsyncMetadataStatusEnum.Failed,
   );
 }
 
 function hasCompletedLifecycleEmit(spy: ReturnType<typeof vi.fn>): boolean {
   return spy.mock.calls.some(
-    (args) => args[0] instanceof MatchStatusChanged && args[0].status === AsyncMetadataStatusEnum.COMPLETED,
+    (args) => args[0] instanceof MatchStatusChanged && args[0].status === AsyncMetadataStatusEnum.Completed,
   );
 }
 

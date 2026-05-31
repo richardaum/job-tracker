@@ -26,7 +26,7 @@ export async function insertUserWithAuthAccount(ds: DataSource, seed: OAuthInteg
     accounts.create({
       id: randomUUID(),
       userId: user.id,
-      providerName: AuthProviderEnum.GOOGLE,
+      providerName: AuthProviderEnum.Google,
       providerAccountId: seed.providerAccountId,
     }),
   );

@@ -161,7 +161,7 @@ describe("SourcesService", () => {
         expect.objectContaining({
           userId: "user-1",
           payload: expect.objectContaining({
-            type: SourceRunEventTypeEnum.SOURCE_RUN_CREATED,
+            type: SourceRunEventTypeEnum.SourceRunCreated,
             run: expect.objectContaining({ id: "run-1" }),
           }),
         }),

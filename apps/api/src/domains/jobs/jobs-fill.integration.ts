@@ -112,10 +112,10 @@ describe.skipIf(!hasDb)("Job async fill metadata (integration)", () => {
     const rows = (await dataSource.query(`SELECT fill_status FROM jobs WHERE id = $1`, [job.id])) as Array<{
       fill_status: string;
     }>;
-    expect(rows[0]?.fill_status).toBe(AsyncMetadataStatusEnum.PROCESSING as string);
+    expect(rows[0]?.fill_status).toBe(AsyncMetadataStatusEnum.Processing as string);
 
-    const done = await repo.updateFillMetadataIfStatus(job.id, userId, AsyncMetadataStatusEnum.PROCESSING, {
-      status: AsyncMetadataStatusEnum.COMPLETED,
+    const done = await repo.updateFillMetadataIfStatus(job.id, userId, AsyncMetadataStatusEnum.Processing, {
+      status: AsyncMetadataStatusEnum.Completed,
       timestamp: new Date(),
       error: null,
     });
@@ -124,7 +124,7 @@ describe.skipIf(!hasDb)("Job async fill metadata (integration)", () => {
     const after = (await dataSource.query(`SELECT fill_status, fill_error FROM jobs WHERE id = $1`, [
       job.id,
     ])) as Array<{ fill_status: string; fill_error: string | null }>;
-    expect(after[0]?.fill_status).toBe(AsyncMetadataStatusEnum.COMPLETED as string);
+    expect(after[0]?.fill_status).toBe(AsyncMetadataStatusEnum.Completed as string);
     expect(after[0]?.fill_error).toBeNull();
   });
 
@@ -137,11 +137,11 @@ describe.skipIf(!hasDb)("Job async fill metadata (integration)", () => {
       htmlContent: "<p>posting</p>",
     });
 
-    await dataSource.getRepository(JobEntity).update({ id: job.id, userId }, { stage: ApplicationStageEnum.DRAFT });
+    await dataSource.getRepository(JobEntity).update({ id: job.id, userId }, { stage: ApplicationStageEnum.Draft });
 
     await stageEventsRepo.createStageEvent(userId, job.id, {
       fromStage: null,
-      toStage: ApplicationStageEnum.DRAFT,
+      toStage: ApplicationStageEnum.Draft,
       source: undefined,
       reason: null,
       scheduledAt: null,
@@ -154,12 +154,12 @@ describe.skipIf(!hasDb)("Job async fill metadata (integration)", () => {
     const jrow = (await dataSource.query(`SELECT stage::text FROM jobs WHERE id = $1`, [job.id])) as Array<{
       stage: string;
     }>;
-    expect(jrow[0]?.stage).toBe(ApplicationStageEnum.NEW);
+    expect(jrow[0]?.stage).toBe(ApplicationStageEnum.New);
 
     const fills = (await dataSource.query(`SELECT fill_status FROM jobs WHERE id = $1`, [job.id])) as Array<{
       fill_status: string;
     }>;
-    expect(fills[0]?.fill_status).toBe(AsyncMetadataStatusEnum.COMPLETED as string);
+    expect(fills[0]?.fill_status).toBe(AsyncMetadataStatusEnum.Completed as string);
 
     const evCount = (await dataSource.query(
       `SELECT count(*)::text as c FROM job_stage_events WHERE job_id = $1 AND user_id = $2`,
@@ -179,6 +179,6 @@ describe.skipIf(!hasDb)("Job async fill metadata (integration)", () => {
     const row = (await dataSource.query(`SELECT fill_status FROM jobs WHERE id = $1`, [job.id])) as Array<{
       fill_status: string;
     }>;
-    expect(row[0]?.fill_status).toBe(AsyncMetadataStatusEnum.FAILED as string);
+    expect(row[0]?.fill_status).toBe(AsyncMetadataStatusEnum.Failed as string);
   });
 });

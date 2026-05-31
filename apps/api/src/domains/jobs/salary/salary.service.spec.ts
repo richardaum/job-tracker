@@ -25,13 +25,13 @@ describe("SalaryService", () => {
     });
 
     it("normalizes currency to uppercase", () => {
-      const result = salaryService.getCreateSalary({ minCents: 100, currency: "usd", period: SalaryPeriodEnum.MONTH });
+      const result = salaryService.getCreateSalary({ minCents: 100, currency: "usd", period: SalaryPeriodEnum.Month });
       expect(result.currency).toBe("USD");
     });
 
     it("validates non-negative amounts and min <= max", () => {
       expect(() =>
-        salaryService.getCreateSalary({ minCents: -1, currency: "USD", period: SalaryPeriodEnum.MONTH }),
+        salaryService.getCreateSalary({ minCents: -1, currency: "USD", period: SalaryPeriodEnum.Month }),
       ).toThrow(BadRequestException);
 
       expect(() =>
@@ -39,7 +39,7 @@ describe("SalaryService", () => {
           minCents: 200,
           maxCents: 100,
           currency: "USD",
-          period: SalaryPeriodEnum.MONTH,
+          period: SalaryPeriodEnum.Month,
         }),
       ).toThrow(BadRequestException);
     });
@@ -50,7 +50,7 @@ describe("SalaryService", () => {
     embedded.minCents = 5000;
     embedded.maxCents = 7000;
     embedded.currency = "USD";
-    embedded.period = SalaryPeriodEnum.MONTH;
+    embedded.period = SalaryPeriodEnum.Month;
 
     const current: Job = { salary: embedded } as unknown as Job;
 

@@ -28,7 +28,7 @@ export class JobDuplicateService {
 
   async resolveInitialStageOnCreate(
     params: ResolveInitialStageOnCreateParams,
-  ): Promise<ApplicationStageEnum.NEW | ApplicationStageEnum.DUPLICATED> {
+  ): Promise<ApplicationStageEnum.New | ApplicationStageEnum.Duplicated> {
     const userSettings = await this.settings.getSettings(params.userId);
     const lookbackMs = userSettings.duplicateWindowDays * MS_PER_DAY;
     const referenceTime = params.referenceTime ?? new Date();
@@ -41,7 +41,7 @@ export class JobDuplicateService {
       lookbackMs,
     );
 
-    return isDuplicate ? ApplicationStageEnum.DUPLICATED : ApplicationStageEnum.NEW;
+    return isDuplicate ? ApplicationStageEnum.Duplicated : ApplicationStageEnum.New;
   }
 
   async hasRecentDuplicateSameRoleAndCompany(

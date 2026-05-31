@@ -1,15 +1,15 @@
 import { registerEnumType } from "@nestjs/graphql";
 
 export enum ApplicationStageEnum {
-  DRAFT = "DRAFT",
-  NEW = "NEW",
-  APPLIED = "APPLIED",
-  RECRUITER_SCREEN = "RECRUITER_SCREEN",
-  TECHNICAL = "TECHNICAL",
-  CULTURAL_FIT = "CULTURAL_FIT",
-  OFFER = "OFFER",
-  REJECTED = "REJECTED",
-  DUPLICATED = "DUPLICATED",
+  Draft = "Draft",
+  New = "New",
+  Applied = "Applied",
+  RecruiterScreen = "RecruiterScreen",
+  Technical = "Technical",
+  CulturalFit = "CulturalFit",
+  Offer = "Offer",
+  Rejected = "Rejected",
+  Duplicated = "Duplicated",
 }
 
 registerEnumType(ApplicationStageEnum, { name: "ApplicationStage" });

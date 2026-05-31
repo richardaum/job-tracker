@@ -3,7 +3,7 @@ import "reflect-metadata";
 import { describe, expect, it, vi } from "vitest";
 
 import { KeywordBlockerService } from "./keyword-blocker.service";
-import { KeywordScope, MatchMode } from "./keyword-blocker.types";
+import { KeywordScopeEnum, MatchModeEnum } from "./keyword-blocker.types";
 
 const TIPTAP_DESCRIPTION = JSON.stringify({
   type: "doc",
@@ -12,7 +12,7 @@ const TIPTAP_DESCRIPTION = JSON.stringify({
 
 function makeSettings(
   overrides: Partial<{
-    blockedKeywords: { keyword: string; scope: KeywordScope; matchMode: MatchMode }[];
+    blockedKeywords: { keyword: string; scope: KeywordScopeEnum; matchMode: MatchModeEnum }[];
     blockedCompanies: string[];
   }> = {},
 ) {
@@ -50,13 +50,13 @@ describe("KeywordBlockerService", () => {
     it("returns verdict on blocked company exact match", async () => {
       const service = makeService(makeSettings({ blockedCompanies: ["Acme Corp"] }));
       const result = await service.evaluate("user-1", "Engineer", null, "Acme Corp");
-      expect(result).toEqual({ matched: true, keyword: "Acme Corp", scope: KeywordScope.COMPANY });
+      expect(result).toEqual({ matched: true, keyword: "Acme Corp", scope: KeywordScopeEnum.Company });
     });
 
     it("returns verdict on blocked company case-insensitive match", async () => {
       const service = makeService(makeSettings({ blockedCompanies: ["acme corp"] }));
       const result = await service.evaluate("user-1", "Engineer", null, "Acme Corp");
-      expect(result).toEqual({ matched: true, keyword: "Acme Corp", scope: KeywordScope.COMPANY });
+      expect(result).toEqual({ matched: true, keyword: "Acme Corp", scope: KeywordScopeEnum.Company });
     });
 
     it("returns null when blocked company does not match", async () => {
@@ -68,27 +68,29 @@ describe("KeywordBlockerService", () => {
     it("returns verdict on keyword EXACT match on TITLE", async () => {
       const service = makeService(
         makeSettings({
-          blockedKeywords: [{ keyword: "Senior Engineer", scope: KeywordScope.TITLE, matchMode: MatchMode.EXACT }],
+          blockedKeywords: [
+            { keyword: "Senior Engineer", scope: KeywordScopeEnum.Title, matchMode: MatchModeEnum.Exact },
+          ],
         }),
       );
       const result = await service.evaluate("user-1", "Senior Engineer", null, "Acme");
-      expect(result).toEqual({ matched: true, keyword: "Senior Engineer", scope: KeywordScope.TITLE });
+      expect(result).toEqual({ matched: true, keyword: "Senior Engineer", scope: KeywordScopeEnum.Title });
     });
 
     it("returns verdict on keyword PARTIAL match on TITLE", async () => {
       const service = makeService(
         makeSettings({
-          blockedKeywords: [{ keyword: "senior", scope: KeywordScope.TITLE, matchMode: MatchMode.PARTIAL }],
+          blockedKeywords: [{ keyword: "senior", scope: KeywordScopeEnum.Title, matchMode: MatchModeEnum.Partial }],
         }),
       );
       const result = await service.evaluate("user-1", "Senior Engineer", null, "Acme");
-      expect(result).toEqual({ matched: true, keyword: "senior", scope: KeywordScope.TITLE });
+      expect(result).toEqual({ matched: true, keyword: "senior", scope: KeywordScopeEnum.Title });
     });
 
     it("returns null when keyword does not match TITLE", async () => {
       const service = makeService(
         makeSettings({
-          blockedKeywords: [{ keyword: "junior", scope: KeywordScope.TITLE, matchMode: MatchMode.PARTIAL }],
+          blockedKeywords: [{ keyword: "junior", scope: KeywordScopeEnum.Title, matchMode: MatchModeEnum.Partial }],
         }),
       );
       const result = await service.evaluate("user-1", "Senior Engineer", null, "Acme");
@@ -101,8 +103,8 @@ describe("KeywordBlockerService", () => {
           blockedKeywords: [
             {
               keyword: "We are looking for a senior engineer",
-              scope: KeywordScope.DESCRIPTION,
-              matchMode: MatchMode.EXACT,
+              scope: KeywordScopeEnum.Description,
+              matchMode: MatchModeEnum.Exact,
             },
           ],
         }),
@@ -111,24 +113,28 @@ describe("KeywordBlockerService", () => {
       expect(result).toEqual({
         matched: true,
         keyword: "We are looking for a senior engineer",
-        scope: KeywordScope.DESCRIPTION,
+        scope: KeywordScopeEnum.Description,
       });
     });
 
     it("returns verdict on keyword PARTIAL match on DESCRIPTION (TipTap JSON)", async () => {
       const service = makeService(
         makeSettings({
-          blockedKeywords: [{ keyword: "senior", scope: KeywordScope.DESCRIPTION, matchMode: MatchMode.PARTIAL }],
+          blockedKeywords: [
+            { keyword: "senior", scope: KeywordScopeEnum.Description, matchMode: MatchModeEnum.Partial },
+          ],
         }),
       );
       const result = await service.evaluate("user-1", "Engineer", TIPTAP_DESCRIPTION, "Acme");
-      expect(result).toEqual({ matched: true, keyword: "senior", scope: KeywordScope.DESCRIPTION });
+      expect(result).toEqual({ matched: true, keyword: "senior", scope: KeywordScopeEnum.Description });
     });
 
     it("returns null when keyword does not match DESCRIPTION", async () => {
       const service = makeService(
         makeSettings({
-          blockedKeywords: [{ keyword: "junior", scope: KeywordScope.DESCRIPTION, matchMode: MatchMode.PARTIAL }],
+          blockedKeywords: [
+            { keyword: "junior", scope: KeywordScopeEnum.Description, matchMode: MatchModeEnum.Partial },
+          ],
         }),
       );
       const result = await service.evaluate("user-1", "Engineer", TIPTAP_DESCRIPTION, "Acme");
@@ -138,30 +144,30 @@ describe("KeywordBlockerService", () => {
     it("returns verdict on keyword COMPANY scope matching company name", async () => {
       const service = makeService(
         makeSettings({
-          blockedKeywords: [{ keyword: "acme", scope: KeywordScope.COMPANY, matchMode: MatchMode.PARTIAL }],
+          blockedKeywords: [{ keyword: "acme", scope: KeywordScopeEnum.Company, matchMode: MatchModeEnum.Partial }],
         }),
       );
       const result = await service.evaluate("user-1", "Engineer", null, "Acme Corp");
-      expect(result).toEqual({ matched: true, keyword: "acme", scope: KeywordScope.COMPANY });
+      expect(result).toEqual({ matched: true, keyword: "acme", scope: KeywordScopeEnum.Company });
     });
 
     it("first matching keyword wins (order of keywords array)", async () => {
       const service = makeService(
         makeSettings({
           blockedKeywords: [
-            { keyword: "senior", scope: KeywordScope.TITLE, matchMode: MatchMode.PARTIAL },
-            { keyword: "engineer", scope: KeywordScope.TITLE, matchMode: MatchMode.PARTIAL },
+            { keyword: "senior", scope: KeywordScopeEnum.Title, matchMode: MatchModeEnum.Partial },
+            { keyword: "engineer", scope: KeywordScopeEnum.Title, matchMode: MatchModeEnum.Partial },
           ],
         }),
       );
       const result = await service.evaluate("user-1", "Senior Engineer", null, "Acme");
-      expect(result).toEqual({ matched: true, keyword: "senior", scope: KeywordScope.TITLE });
+      expect(result).toEqual({ matched: true, keyword: "senior", scope: KeywordScopeEnum.Title });
     });
 
     it("null description does not throw", async () => {
       const service = makeService(
         makeSettings({
-          blockedKeywords: [{ keyword: "test", scope: KeywordScope.DESCRIPTION, matchMode: MatchMode.PARTIAL }],
+          blockedKeywords: [{ keyword: "test", scope: KeywordScopeEnum.Description, matchMode: MatchModeEnum.Partial }],
         }),
       );
       const result = await service.evaluate("user-1", "Engineer", null, "Acme");
@@ -171,7 +177,7 @@ describe("KeywordBlockerService", () => {
     it("empty description does not throw", async () => {
       const service = makeService(
         makeSettings({
-          blockedKeywords: [{ keyword: "test", scope: KeywordScope.DESCRIPTION, matchMode: MatchMode.PARTIAL }],
+          blockedKeywords: [{ keyword: "test", scope: KeywordScopeEnum.Description, matchMode: MatchModeEnum.Partial }],
         }),
       );
       const result = await service.evaluate("user-1", "Engineer", "", "Acme");
@@ -182,11 +188,11 @@ describe("KeywordBlockerService", () => {
       const service = makeService(
         makeSettings({
           blockedCompanies: ["Acme"],
-          blockedKeywords: [{ keyword: "Engineer", scope: KeywordScope.TITLE, matchMode: MatchMode.PARTIAL }],
+          blockedKeywords: [{ keyword: "Engineer", scope: KeywordScopeEnum.Title, matchMode: MatchModeEnum.Partial }],
         }),
       );
       const result = await service.evaluate("user-1", "Engineer", null, "Acme");
-      expect(result).toEqual({ matched: true, keyword: "Acme", scope: KeywordScope.COMPANY });
+      expect(result).toEqual({ matched: true, keyword: "Acme", scope: KeywordScopeEnum.Company });
     });
   });
 });

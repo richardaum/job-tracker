@@ -35,7 +35,7 @@ export class UserService {
     avatarUrl: string | null;
   }): Promise<User> {
     return this.upsertFromProvider({
-      providerName: AuthProviderEnum.GOOGLE,
+      providerName: AuthProviderEnum.Google,
       providerAccountId: profile.googleId,
       email: profile.email,
       name: profile.name,

@@ -58,13 +58,13 @@ export class JobAutomaticFillService implements OnModuleInit {
   }
 
   /**
-   * Starts async fill: transitions to {@link AsyncMetadataStatusEnum.PROCESSING}, emits
+   * Starts async fill: transitions to {@link AsyncMetadataStatusEnum.Processing}, emits
    * {@link FillJobStatusChanged} on {@link JobEventBus}, returns immediately.
    */
   async fillJobAutomatically(userId: string, jobId: string) {
     const existing = await this.jobsService.findOne(jobId, userId);
 
-    if (existing.fillMetadata?.status === AsyncMetadataStatusEnum.PROCESSING) {
+    if (existing.fillMetadata?.status === AsyncMetadataStatusEnum.Processing) {
       throw new BadRequestException("Fill already in progress");
     }
 
@@ -73,7 +73,7 @@ export class JobAutomaticFillService implements OnModuleInit {
       throw new BadRequestException("Could not start fill — the job fill state changed. Try again.");
     }
 
-    this.eventBus.emit(new FillJobStatusChanged(jobId, userId, AsyncMetadataStatusEnum.PROCESSING));
+    this.eventBus.emit(new FillJobStatusChanged(jobId, userId, AsyncMetadataStatusEnum.Processing));
 
     return this.jobsService.findOne(jobId, userId);
   }
@@ -81,29 +81,29 @@ export class JobAutomaticFillService implements OnModuleInit {
   /**
    * Background worker: extracts from `htmlContent` (preferred) with URL fallback via
    * {@link DraftExtractionService}, normalizes fields, updates the job row in place, then
-   * completes or fails `fillMetadata` when still {@link AsyncMetadataStatusEnum.PROCESSING}.
+   * completes or fails `fillMetadata` when still {@link AsyncMetadataStatusEnum.Processing}.
    */
   async processFillJob(userId: string, jobId: string): Promise<void> {
     const row = await this.repo.findOneByIdAndUserId(jobId, userId);
     if (!row) {
-      const ok = await this.repo.updateFillMetadataIfStatus(jobId, userId, AsyncMetadataStatusEnum.PROCESSING, {
-        status: AsyncMetadataStatusEnum.FAILED,
+      const ok = await this.repo.updateFillMetadataIfStatus(jobId, userId, AsyncMetadataStatusEnum.Processing, {
+        status: AsyncMetadataStatusEnum.Failed,
         error: "Job not found.",
         timestamp: new Date(),
       });
       if (ok) {
-        this.eventBus.emit(new FillJobStatusChanged(jobId, userId, AsyncMetadataStatusEnum.FAILED, "Job not found."));
+        this.eventBus.emit(new FillJobStatusChanged(jobId, userId, AsyncMetadataStatusEnum.Failed, "Job not found."));
       }
       return;
     }
 
-    if (row.fillMetadata?.status !== AsyncMetadataStatusEnum.PROCESSING) {
+    if (row.fillMetadata?.status !== AsyncMetadataStatusEnum.Processing) {
       return;
     }
 
     const stageSummary = await this.stageEventsRepo.findLatestStageSummariesByJobIds(userId, [jobId]);
     const currentStage = stageSummary.get(jobId)?.toStage;
-    const shouldPromoteDraftToNew = currentStage === ApplicationStageEnum.DRAFT;
+    const shouldPromoteDraftToNew = currentStage === ApplicationStageEnum.Draft;
 
     const [extractError, raw] = await tryRun(
       this.draftExtractionService.extract({
@@ -173,7 +173,7 @@ export class JobAutomaticFillService implements OnModuleInit {
       return;
     }
 
-    this.eventBus.emit(new FillJobStatusChanged(jobId, userId, AsyncMetadataStatusEnum.COMPLETED));
+    this.eventBus.emit(new FillJobStatusChanged(jobId, userId, AsyncMetadataStatusEnum.Completed));
     this.eventBus.emit(new JobUpdated(jobId, userId));
   }
 
@@ -196,7 +196,7 @@ export class JobAutomaticFillService implements OnModuleInit {
 
         Object.assign(existing, dto);
         if (shouldPromoteDraftToNew) {
-          existing.stage = ApplicationStageEnum.NEW;
+          existing.stage = ApplicationStageEnum.New;
         }
         await this.repo.saveJob(existing, manager);
 
@@ -205,8 +205,8 @@ export class JobAutomaticFillService implements OnModuleInit {
             userId,
             jobId,
             {
-              fromStage: ApplicationStageEnum.DRAFT,
-              toStage: ApplicationStageEnum.NEW,
+              fromStage: ApplicationStageEnum.Draft,
+              toStage: ApplicationStageEnum.New,
               source: StageEventSourceEnum.System,
             },
             manager,
@@ -216,8 +216,8 @@ export class JobAutomaticFillService implements OnModuleInit {
         const completed = await this.repo.updateFillMetadataIfStatus(
           jobId,
           userId,
-          AsyncMetadataStatusEnum.PROCESSING,
-          { status: AsyncMetadataStatusEnum.COMPLETED, timestamp: new Date(), error: null },
+          AsyncMetadataStatusEnum.Processing,
+          { status: AsyncMetadataStatusEnum.Completed, timestamp: new Date(), error: null },
           manager,
         );
         if (!completed) {
@@ -239,8 +239,8 @@ export class JobAutomaticFillService implements OnModuleInit {
   }
 
   private async persistFillFailure(jobId: string, userId: string, message: string): Promise<void> {
-    const ok = await this.repo.updateFillMetadataIfStatus(jobId, userId, AsyncMetadataStatusEnum.PROCESSING, {
-      status: AsyncMetadataStatusEnum.FAILED,
+    const ok = await this.repo.updateFillMetadataIfStatus(jobId, userId, AsyncMetadataStatusEnum.Processing, {
+      status: AsyncMetadataStatusEnum.Failed,
       error: message,
       timestamp: new Date(),
     });
@@ -248,7 +248,7 @@ export class JobAutomaticFillService implements OnModuleInit {
       this.logger.warn(`[${jobId}] Could not persist fill failure (${message}) — status mismatch or stale.`);
       return;
     }
-    this.eventBus.emit(new FillJobStatusChanged(jobId, userId, AsyncMetadataStatusEnum.FAILED, message));
+    this.eventBus.emit(new FillJobStatusChanged(jobId, userId, AsyncMetadataStatusEnum.Failed, message));
   }
 
   private async resolveCompanyId(

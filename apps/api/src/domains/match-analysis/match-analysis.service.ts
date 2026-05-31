@@ -94,7 +94,7 @@ export class MatchAnalysisService implements OnModuleInit {
     entity.jobId = jobId;
     entity.userId = userId;
     entity.resumeId = resumeId;
-    entity.generationMetadata = { status: AsyncMetadataStatusEnum.PROCESSING, error: null, timestamp: new Date() };
+    entity.generationMetadata = { status: AsyncMetadataStatusEnum.Processing, error: null, timestamp: new Date() };
     entity.items = [];
     entity.scoreRatio = null;
     entity.classification = null;
@@ -104,7 +104,7 @@ export class MatchAnalysisService implements OnModuleInit {
 
     const saved = await this.repo.upsert(entity);
 
-    this.eventBus.emit(new MatchStatusChanged(saved.id, userId, jobId, AsyncMetadataStatusEnum.PROCESSING));
+    this.eventBus.emit(new MatchStatusChanged(saved.id, userId, jobId, AsyncMetadataStatusEnum.Processing));
     this.eventBus.emit(new MatchAnalysisRequested(saved.id, userId, { jobId }));
 
     return saved;
@@ -114,8 +114,8 @@ export class MatchAnalysisService implements OnModuleInit {
   private async failMatchProcessing(matchId: string, userId: string, jobId: string, message: string): Promise<void> {
     const updated = await this.repo.updateById(
       matchId,
-      AsyncMetadataStatusEnum.PROCESSING,
-      { generationMetadata: { status: AsyncMetadataStatusEnum.FAILED, error: message, timestamp: new Date() } },
+      AsyncMetadataStatusEnum.Processing,
+      { generationMetadata: { status: AsyncMetadataStatusEnum.Failed, error: message, timestamp: new Date() } },
       userId,
     );
 
@@ -126,7 +126,7 @@ export class MatchAnalysisService implements OnModuleInit {
       return;
     }
 
-    this.eventBus.emit(new MatchStatusChanged(matchId, userId, jobId, AsyncMetadataStatusEnum.FAILED));
+    this.eventBus.emit(new MatchStatusChanged(matchId, userId, jobId, AsyncMetadataStatusEnum.Failed));
   }
 
   async processMatchAnalysis(matchId: string, userId: string, source: { jobId: string }): Promise<void> {
@@ -198,9 +198,9 @@ export class MatchAnalysisService implements OnModuleInit {
 
       const updated = await this.repo.updateById(
         matchId,
-        AsyncMetadataStatusEnum.PROCESSING,
+        AsyncMetadataStatusEnum.Processing,
         {
-          generationMetadata: { status: AsyncMetadataStatusEnum.COMPLETED, error: null, timestamp: new Date() },
+          generationMetadata: { status: AsyncMetadataStatusEnum.Completed, error: null, timestamp: new Date() },
           resumeId: resume.resumeId,
           items,
           scoreRatio: score.scoreRatio,
@@ -217,7 +217,7 @@ export class MatchAnalysisService implements OnModuleInit {
         return;
       }
 
-      this.eventBus.emit(new MatchStatusChanged(matchId, userId, source.jobId, AsyncMetadataStatusEnum.COMPLETED));
+      this.eventBus.emit(new MatchStatusChanged(matchId, userId, source.jobId, AsyncMetadataStatusEnum.Completed));
     });
 
     if (err) {

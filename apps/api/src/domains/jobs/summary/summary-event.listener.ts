@@ -40,7 +40,7 @@ export class SummaryEventListener {
     }
 
     const job = await this.jobsRepository.findOneByIdAndUserId(event.jobId, event.userId);
-    if (job?.stage === ApplicationStageEnum.DUPLICATED) {
+    if (job?.stage === ApplicationStageEnum.Duplicated) {
       return;
     }
 

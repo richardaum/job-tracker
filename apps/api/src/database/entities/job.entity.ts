@@ -60,7 +60,7 @@ export class JobEntity {
     type: "enum",
     enum: ApplicationStageEnum,
     enumName: "application_stage",
-    default: ApplicationStageEnum.NEW,
+    default: ApplicationStageEnum.New,
   })
   stage!: ApplicationStageEnum;
 

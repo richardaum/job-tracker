@@ -41,7 +41,7 @@ async function main() {
 
   const appsWithMeta = await repo.find({ where: { summaryMetadata: Not(IsNull()) } });
   const fix1 = appsWithMeta.filter(
-    (a) => a.summaryMetadata?.status === AsyncMetadataStatusEnum.COMPLETED && !a.summaryMetadata.timestamp,
+    (a) => a.summaryMetadata?.status === AsyncMetadataStatusEnum.Completed && !a.summaryMetadata.timestamp,
   );
 
   if (fix1.length === 0) {
@@ -75,7 +75,7 @@ async function main() {
     let ok2 = 0;
     let fail2 = 0;
     for (const app of appsWithSummary) {
-      app.summaryMetadata = { status: AsyncMetadataStatusEnum.COMPLETED, timestamp: nowUtcIso() } as never;
+      app.summaryMetadata = { status: AsyncMetadataStatusEnum.Completed, timestamp: nowUtcIso() } as never;
       const [err] = await tryRun(repo.save(app));
       if (err) {
         process.stdout.write(`\n  ❌ ${app.id}: ${err.message.slice(0, 80)}`);

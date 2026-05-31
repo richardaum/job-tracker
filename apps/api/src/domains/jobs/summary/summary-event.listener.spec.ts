@@ -21,7 +21,7 @@ describe("SummaryEventListener", () => {
       doGenerate: vi.fn().mockResolvedValue(undefined),
     };
     settingsService = { getSettings: vi.fn().mockResolvedValue({ autoSummaryEnabled: true }) };
-    jobsRepository = { findOneByIdAndUserId: vi.fn().mockResolvedValue({ stage: ApplicationStageEnum.NEW }) };
+    jobsRepository = { findOneByIdAndUserId: vi.fn().mockResolvedValue({ stage: ApplicationStageEnum.New }) };
   });
 
   function createListener() {
@@ -57,7 +57,7 @@ describe("SummaryEventListener", () => {
 
   it("skips summary generation when job stage is Duplicated", async () => {
     vi.mocked(jobsRepository.findOneByIdAndUserId).mockResolvedValue({
-      stage: ApplicationStageEnum.DUPLICATED,
+      stage: ApplicationStageEnum.Duplicated,
     } as Awaited<ReturnType<JobsRepository["findOneByIdAndUserId"]>>);
 
     createListener().onModuleInit();

@@ -92,7 +92,7 @@ describe("JobSummaryService", () => {
     vi.mocked(appRepo.findOneByIdAndUserId).mockResolvedValue({
       id: "job-1",
       title: "T",
-      summaryMetadata: { status: AsyncMetadataStatusEnum.PROCESSING, error: null, timestamp: null },
+      summaryMetadata: { status: AsyncMetadataStatusEnum.Processing, error: null, timestamp: null },
     } as never);
 
     await service.requestSummary("job-1", "user-1");
@@ -113,7 +113,7 @@ describe("JobSummaryService", () => {
     await service.requestSummary("job-1", "user-1");
 
     expect(appRepo.updateSummaryMetadataIfStatus).toHaveBeenCalledWith("job-1", "user-1", null, {
-      status: AsyncMetadataStatusEnum.PROCESSING,
+      status: AsyncMetadataStatusEnum.Processing,
     });
 
     expect(eventBus.emit).toHaveBeenCalledWith(expect.any(SummaryStatusChanged));
@@ -145,7 +145,7 @@ describe("JobSummaryService", () => {
       workRegion: null,
       source: null,
       salary: null,
-      summaryMetadata: { status: AsyncMetadataStatusEnum.PROCESSING },
+      summaryMetadata: { status: AsyncMetadataStatusEnum.Processing },
     } as never);
     vi.mocked(summaryAiService.generateSummary).mockResolvedValue("# Summary md");
     vi.mocked(appRepo.updateSummaryMetadataIfStatus).mockResolvedValue(true);
@@ -165,8 +165,8 @@ describe("JobSummaryService", () => {
     expect(appRepo.updateSummaryMetadataIfStatus).toHaveBeenCalledWith(
       "job-1",
       "user-1",
-      AsyncMetadataStatusEnum.PROCESSING,
-      expect.objectContaining({ status: AsyncMetadataStatusEnum.COMPLETED }),
+      AsyncMetadataStatusEnum.Processing,
+      expect.objectContaining({ status: AsyncMetadataStatusEnum.Completed }),
     );
 
     expect(appRepo.updateSummary).toHaveBeenCalledWith("job-1", expect.any(String), "user-1");
@@ -186,7 +186,7 @@ describe("JobSummaryService", () => {
       location: null,
       workRegion: null,
       source: null,
-      summaryMetadata: { status: AsyncMetadataStatusEnum.PROCESSING },
+      summaryMetadata: { status: AsyncMetadataStatusEnum.Processing },
     } as never);
     vi.mocked(summaryAiService.generateSummary).mockResolvedValue("x");
     vi.mocked(appRepo.updateSummaryMetadataIfStatus).mockResolvedValue(true);
@@ -211,7 +211,7 @@ describe("JobSummaryService", () => {
       location: null,
       workRegion: null,
       source: null,
-      summaryMetadata: { status: AsyncMetadataStatusEnum.PROCESSING },
+      summaryMetadata: { status: AsyncMetadataStatusEnum.Processing },
     } as never);
     vi.mocked(summaryAiService.generateSummary).mockResolvedValue("ok");
     vi.mocked(appRepo.updateSummaryMetadataIfStatus).mockResolvedValue(true);
@@ -236,7 +236,7 @@ describe("JobSummaryService", () => {
       location: null,
       workRegion: null,
       source: null,
-      summaryMetadata: { status: AsyncMetadataStatusEnum.PROCESSING },
+      summaryMetadata: { status: AsyncMetadataStatusEnum.Processing },
     } as never);
     vi.mocked(summaryAiService.generateSummary).mockResolvedValue("ok");
     vi.mocked(appRepo.updateSummaryMetadataIfStatus).mockResolvedValue(true);
@@ -256,7 +256,7 @@ describe("JobSummaryService", () => {
       company: undefined,
       description: null,
       tags: [],
-      summaryMetadata: { status: AsyncMetadataStatusEnum.PROCESSING },
+      summaryMetadata: { status: AsyncMetadataStatusEnum.Processing },
     } as never);
     vi.mocked(summaryAiService.generateSummary).mockResolvedValue("ok");
     vi.mocked(appRepo.updateSummaryMetadataIfStatus).mockResolvedValue(true);
@@ -268,8 +268,8 @@ describe("JobSummaryService", () => {
     expect(appRepo.updateSummaryMetadataIfStatus).toHaveBeenCalledWith(
       "job-1",
       "user-1",
-      AsyncMetadataStatusEnum.PROCESSING,
-      expect.objectContaining({ status: AsyncMetadataStatusEnum.COMPLETED }),
+      AsyncMetadataStatusEnum.Processing,
+      expect.objectContaining({ status: AsyncMetadataStatusEnum.Completed }),
     );
   });
 
@@ -279,7 +279,7 @@ describe("JobSummaryService", () => {
       title: "Role",
       company: null,
       description: TIPTAP_HELLO,
-      summaryMetadata: { status: AsyncMetadataStatusEnum.PROCESSING },
+      summaryMetadata: { status: AsyncMetadataStatusEnum.Processing },
     } as never);
     vi.mocked(summaryAiService.generateSummary).mockRejectedValue(new Error("quota exceeded"));
     vi.mocked(appRepo.updateSummaryMetadataIfStatus).mockResolvedValue(true);
@@ -289,8 +289,8 @@ describe("JobSummaryService", () => {
     expect(appRepo.updateSummaryMetadataIfStatus).toHaveBeenCalledWith(
       "job-1",
       "user-1",
-      AsyncMetadataStatusEnum.PROCESSING,
-      { status: AsyncMetadataStatusEnum.FAILED },
+      AsyncMetadataStatusEnum.Processing,
+      { status: AsyncMetadataStatusEnum.Failed },
     );
 
     expect(eventBus.emit).toHaveBeenCalledWith(expect.any(SummaryStatusChanged));
@@ -300,7 +300,7 @@ describe("JobSummaryService", () => {
     vi.mocked(appRepo.findOneByIdAndUserId).mockResolvedValue({
       id: "job-1",
       title: "T",
-      summaryMetadata: { status: AsyncMetadataStatusEnum.PROCESSING, error: null, timestamp: null },
+      summaryMetadata: { status: AsyncMetadataStatusEnum.Processing, error: null, timestamp: null },
     } as never);
 
     await service.requestSummarySync("job-1", "user-1");
@@ -313,7 +313,7 @@ describe("JobSummaryService", () => {
       id: "e1",
       jobId: "job-1",
       userId: "user-1",
-      toStage: ApplicationStageEnum.TECHNICAL,
+      toStage: ApplicationStageEnum.Technical,
       reason: "Loop",
       createdAt: new Date(),
       scheduledAt: null,
@@ -326,7 +326,7 @@ describe("JobSummaryService", () => {
       title: "Role",
       company: null,
       description: TIPTAP_HELLO,
-      summaryMetadata: { status: AsyncMetadataStatusEnum.PROCESSING },
+      summaryMetadata: { status: AsyncMetadataStatusEnum.Processing },
     } as never);
     vi.mocked(summaryAiService.generateSummary).mockResolvedValue("s");
     vi.mocked(appRepo.updateSummaryMetadataIfStatus).mockResolvedValue(true);

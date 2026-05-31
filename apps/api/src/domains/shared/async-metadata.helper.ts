@@ -60,8 +60,8 @@ export async function resetStaleAsyncMetadataProcessing<T extends ObjectLiteral>
   const result = await repo
     .createQueryBuilder()
     .update(entity)
-    .set({ [metadataField]: { status: AsyncMetadataStatusEnum.FAILED, error: errorMessage } } as never)
-    .where(`"${statusColumn}" = :processing`, { processing: AsyncMetadataStatusEnum.PROCESSING })
+    .set({ [metadataField]: { status: AsyncMetadataStatusEnum.Failed, error: errorMessage } } as never)
+    .where(`"${statusColumn}" = :processing`, { processing: AsyncMetadataStatusEnum.Processing })
     .execute();
   return result.affected ?? 0;
 }
@@ -75,8 +75,8 @@ export async function beginAsyncMetadataProcessingWhenRestartable<T extends Obje
   columns: AsyncMetadataColumns,
   scope: AsyncMetadataScopedRow,
   restartableStatuses: AsyncMetadataEmbedded["status"][] = [
-    AsyncMetadataStatusEnum.FAILED,
-    AsyncMetadataStatusEnum.COMPLETED,
+    AsyncMetadataStatusEnum.Failed,
+    AsyncMetadataStatusEnum.Completed,
   ],
 ): Promise<boolean> {
   const { metadataField, statusColumn } = columns;
@@ -84,7 +84,7 @@ export async function beginAsyncMetadataProcessingWhenRestartable<T extends Obje
   const result = await repo
     .createQueryBuilder()
     .update(entity)
-    .set({ [metadataField]: { status: AsyncMetadataStatusEnum.PROCESSING, error: null, timestamp: now } } as never)
+    .set({ [metadataField]: { status: AsyncMetadataStatusEnum.Processing, error: null, timestamp: now } } as never)
     .where(`"id" = :id AND "user_id" = :userId`, { id: scope.id, userId: scope.userId })
     .andWhere(`("${statusColumn}" IS NULL OR "${statusColumn}" IN (:...restartableStatuses))`, { restartableStatuses })
     .execute();

@@ -44,7 +44,7 @@ describe("SalaryEmbedded", () => {
       const salary = new SalaryEmbedded();
       salary.minCents = 1000;
       salary.currency = "us";
-      salary.period = SalaryPeriodEnum.MONTH;
+      salary.period = SalaryPeriodEnum.Month;
       expect(() => salary.validate()).toThrow(BadRequestException);
     });
 
@@ -52,7 +52,7 @@ describe("SalaryEmbedded", () => {
       const salary = new SalaryEmbedded();
       salary.minCents = -1;
       salary.currency = "USD";
-      salary.period = SalaryPeriodEnum.MONTH;
+      salary.period = SalaryPeriodEnum.Month;
       expect(() => salary.validate()).toThrow(BadRequestException);
     });
 
@@ -60,7 +60,7 @@ describe("SalaryEmbedded", () => {
       const salary = new SalaryEmbedded();
       salary.maxCents = -1;
       salary.currency = "USD";
-      salary.period = SalaryPeriodEnum.MONTH;
+      salary.period = SalaryPeriodEnum.Month;
       expect(() => salary.validate()).toThrow(BadRequestException);
     });
 
@@ -69,7 +69,7 @@ describe("SalaryEmbedded", () => {
       salary.minCents = 200;
       salary.maxCents = 100;
       salary.currency = "USD";
-      salary.period = SalaryPeriodEnum.MONTH;
+      salary.period = SalaryPeriodEnum.Month;
       expect(() => salary.validate()).toThrow(BadRequestException);
     });
 
@@ -78,7 +78,7 @@ describe("SalaryEmbedded", () => {
       salary.minCents = 1000;
       salary.maxCents = 2000;
       salary.currency = "USD";
-      salary.period = SalaryPeriodEnum.MONTH;
+      salary.period = SalaryPeriodEnum.Month;
       expect(() => salary.validate()).not.toThrow();
     });
   });

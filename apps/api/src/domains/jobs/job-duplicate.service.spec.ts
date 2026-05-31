@@ -39,7 +39,7 @@ describe("JobDuplicateService", () => {
       title: "Engineer",
     });
 
-    expect(stage).toBe(ApplicationStageEnum.NEW);
+    expect(stage).toBe(ApplicationStageEnum.New);
   });
 
   it("resolveInitialStageOnCreate returns Duplicated when a match exists", async () => {
@@ -57,7 +57,7 @@ describe("JobDuplicateService", () => {
       title: "Engineer",
     });
 
-    expect(stage).toBe(ApplicationStageEnum.DUPLICATED);
+    expect(stage).toBe(ApplicationStageEnum.Duplicated);
   });
 
   it("resolveInitialStageOnCreate uses duplicate window days from settings", async () => {

@@ -49,7 +49,7 @@ export class MatchAnalysisEventListener implements OnModuleInit {
       return;
     }
 
-    if (job.stage === ApplicationStageEnum.DUPLICATED) {
+    if (job.stage === ApplicationStageEnum.Duplicated) {
       this.logger.log(`[AutoMatch] Skipping job ${jobId}: stage=DUPLICATED`);
       return;
     }

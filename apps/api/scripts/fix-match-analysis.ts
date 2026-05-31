@@ -125,7 +125,7 @@ async function main() {
   }
 
   const allJobs = activeOnly
-    ? await listQuery.findAllByUserId(userId, ApplicationQuickFilterEnum.ACTIVE)
+    ? await listQuery.findAllByUserId(userId, ApplicationQuickFilterEnum.Active)
     : await listQuery.findAllByUserId(userId); // Omitting filter follows PRD "All jobs" semantics (includes DRAFT).
 
   // Batch only rows with persisted TipTap description; unparsed drafts (often description-null) skip here.
@@ -142,7 +142,7 @@ async function main() {
   const skipResults = await Promise.all(
     jobsToProcess.map(async (job) => {
       const existing = await matchRepo.findByJobId(job.id);
-      const skip = existing?.generationMetadata?.status === AsyncMetadataStatusEnum.COMPLETED;
+      const skip = existing?.generationMetadata?.status === AsyncMetadataStatusEnum.Completed;
       if (skip) console.log(`  SKIP  ${job.title} — match already completed`);
       return { job, skip };
     }),
@@ -216,9 +216,9 @@ async function main() {
       const entity = await matchRepo.findByJobId(id);
       if (!entity) continue;
 
-      if (entity.generationMetadata?.status === AsyncMetadataStatusEnum.COMPLETED) {
+      if (entity.generationMetadata?.status === AsyncMetadataStatusEnum.Completed) {
         completed.add(id);
-      } else if (entity.generationMetadata?.status === AsyncMetadataStatusEnum.FAILED) {
+      } else if (entity.generationMetadata?.status === AsyncMetadataStatusEnum.Failed) {
         failed.add(id);
       }
     }
@@ -233,10 +233,10 @@ async function main() {
       continue;
     }
     const meta = entity.generationMetadata;
-    if (meta?.status === AsyncMetadataStatusEnum.COMPLETED) {
+    if (meta?.status === AsyncMetadataStatusEnum.Completed) {
       const scorePct = entity.scoreRatio != null ? `${Math.round(entity.scoreRatio)}%` : "N/A";
       console.log(`  OK    ${job.title} @ ${job.companyName} — ${scorePct} (${entity.classification ?? "N/A"})`);
-    } else if (meta?.status === AsyncMetadataStatusEnum.FAILED) {
+    } else if (meta?.status === AsyncMetadataStatusEnum.Failed) {
       console.log(`  FAIL  ${job.title} @ ${job.companyName} — ${meta.error ?? "Unknown error"}`);
     } else {
       console.log(`  ?     ${job.title} @ ${job.companyName}: status=${meta?.status ?? "null"}`);

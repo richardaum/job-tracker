@@ -150,7 +150,7 @@ export class JobsService {
       const s = byId.get(app.id);
       return {
         ...app,
-        currentStage: (s?.toStage ?? ApplicationStageEnum.NEW) as ApplicationStageEnum,
+        currentStage: (s?.toStage ?? ApplicationStageEnum.New) as ApplicationStageEnum,
         currentStageReason: s?.reason ?? null,
         currentStageAt: s?.statusAt ?? app.createdAt,
       };
@@ -194,11 +194,11 @@ export class JobsService {
 
       const job = await this.repo.create(userId, repoDto);
 
-      await this.repo.setPersistedStage(userId, job.id, ApplicationStageEnum.DRAFT);
+      await this.repo.setPersistedStage(userId, job.id, ApplicationStageEnum.Draft);
 
       await this.stageEventsRepo.createStageEvent(userId, job.id, {
         fromStage: null,
-        toStage: ApplicationStageEnum.DRAFT,
+        toStage: ApplicationStageEnum.Draft,
         source: StageEventSourceEnum.System,
         reason: null,
         scheduledAt: null,
@@ -256,11 +256,11 @@ export class JobsService {
     );
 
     if (blockerVerdict) {
-      await this.repo.setPersistedStage(userId, job.id, ApplicationStageEnum.REJECTED);
+      await this.repo.setPersistedStage(userId, job.id, ApplicationStageEnum.Rejected);
 
       await this.stageEventsRepo.createStageEvent(userId, job.id, {
         fromStage: null,
-        toStage: ApplicationStageEnum.REJECTED,
+        toStage: ApplicationStageEnum.Rejected,
         source: StageEventSourceEnum.System,
         reason: null,
         scheduledAt: null,
@@ -303,7 +303,7 @@ export class JobsService {
     });
     const hydrated = await this.findOne(job.id, userId);
 
-    if (dto.sourceRunId && initialStage !== ApplicationStageEnum.DUPLICATED) {
+    if (dto.sourceRunId && initialStage !== ApplicationStageEnum.Duplicated) {
       this.eventBus.emit(new JobCreated(job.id, userId, dto.autoMatch));
     }
 
