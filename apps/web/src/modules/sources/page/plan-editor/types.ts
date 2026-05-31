@@ -20,6 +20,15 @@ export type Pagination = { containerSelector: string; nextButtonPartialMatch: st
 
 export type Skip = { type: "regex"; value: string; sourceField?: string; flags?: string };
 
+export type ReadyCheck = {
+  selector: string;
+  mode?: "text";
+  value?: string;
+  resolveTimeoutMs?: number;
+  watchTimeoutMs?: number;
+  pollIntervalMs?: number;
+};
+
 export type CollectJobsInput = {
   containerSelector: string;
   itemSelector: string;
@@ -29,6 +38,7 @@ export type CollectJobsInput = {
   parallelDetailsTabs: number;
   pagination?: Pagination;
   skip?: Skip;
+  readyCheck?: ReadyCheck;
   surfaceFields: SurfaceField[];
   detailsFields: DetailsField[];
 };

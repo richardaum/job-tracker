@@ -12,6 +12,7 @@ type StepCardProps = {
   onEditNavigation: (step: Step) => void;
   onEditPagination: (step: Step) => void;
   onEditSkip: (step: Step) => void;
+  onEditReadyCheck: (step: Step) => void;
   onAddField: (step: Step, kind: "surface" | "details") => void;
   onEditField: (step: Step, kind: "surface" | "details", fieldIndex: number) => void;
   onEditParse: (step: Step) => void;
@@ -27,6 +28,7 @@ export function StepCard({
   onEditNavigation,
   onEditPagination,
   onEditSkip,
+  onEditReadyCheck,
   onAddField,
   onEditField,
   onEditParse,
@@ -218,6 +220,16 @@ export function StepCard({
                   className={cn("text-xs cursor-pointer hover:bg-bg-surface-hover transition-colors")}
                 >
                   {i.skip ? "skip on" : "skip off"}
+                </Badge>
+              </button>
+            </Tooltip>
+            <Tooltip content="Ready Check (wait for page to stabilize)">
+              <button type="button" onClick={() => onEditReadyCheck(step)}>
+                <Badge
+                  intent={i.readyCheck ? "warning" : "default"}
+                  className={cn("text-xs cursor-pointer hover:bg-bg-surface-hover transition-colors")}
+                >
+                  {i.readyCheck ? "ready check on" : "ready check off"}
                 </Badge>
               </button>
             </Tooltip>

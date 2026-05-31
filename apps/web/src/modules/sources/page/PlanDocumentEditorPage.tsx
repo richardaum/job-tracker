@@ -11,6 +11,7 @@ import { NavigationDialog } from "@/modules/sources/page/plan-editor/NavigationD
 import { PaginationDialog } from "@/modules/sources/page/plan-editor/PaginationDialog";
 import { ParseRegexFieldEditDialog } from "@/modules/sources/page/plan-editor/ParseRegexFieldEditDialog";
 import { ParseRegexStepDialog } from "@/modules/sources/page/plan-editor/ParseRegexStepDialog";
+import { ReadyCheckDialog } from "@/modules/sources/page/plan-editor/ReadyCheckDialog";
 import { SelectorsDialog } from "@/modules/sources/page/plan-editor/SelectorsDialog";
 import { StepCard } from "@/modules/sources/page/plan-editor/StepCard";
 import { SkipDialog } from "@/modules/sources/page/plan-editor/SkipDialog";
@@ -55,6 +56,7 @@ function PlanEditor({ plan }: PlanEditorProps) {
   const [editingPagination, setEditingPagination] = useState<Step | null>(null);
   const [editingSkip, setEditingSkip] = useState<Step | null>(null);
   const [editingParse, setEditingParse] = useState<Step | null>(null);
+  const [editingReadyCheck, setEditingReadyCheck] = useState<Step | null>(null);
   const [regexFieldDialog, setRegexFieldDialog] = useState<{
     step: Step;
     field: ParseRegexField | null;
@@ -264,6 +266,7 @@ function PlanEditor({ plan }: PlanEditorProps) {
               onEditNavigation={setEditingNavigation}
               onEditPagination={setEditingPagination}
               onEditSkip={setEditingSkip}
+              onEditReadyCheck={setEditingReadyCheck}
               onAddField={(s, k) => setFieldDialog({ step: s, kind: k, field: null, index: -1 })}
               onEditField={handleEditField}
               onEditParse={setEditingParse}
@@ -325,6 +328,18 @@ function PlanEditor({ plan }: PlanEditorProps) {
           onSave={(s: Step) => {
             replaceStep(editingSkip, s);
             setEditingSkip(null);
+          }}
+        />
+      )}
+      {editingReadyCheck?.action.kind === "collect.jobs" && (
+        <ReadyCheckDialog
+          key={editingReadyCheck.id}
+          step={editingReadyCheck}
+          open
+          onOpenChange={() => setEditingReadyCheck(null)}
+          onSave={(s: Step) => {
+            replaceStep(editingReadyCheck, s);
+            setEditingReadyCheck(null);
           }}
         />
       )}
