@@ -4,7 +4,7 @@
 
 - **TypeScript**: `PascalCase` + `Enum` suffix (`FooEnum`)
 - **GraphQL**: `registerEnumType(FooEnum, { name: "Foo" })` — strip the `Enum` suffix
-- **Values**: UPPERCASE strings (`MANUAL = "MANUAL"`), matching PostgreSQL enum labels
+- **Values**: PascalCase strings, matching the member key (`Draft = "Draft"`)
 
 ## End-to-end flow
 
@@ -16,8 +16,8 @@ When a `text` column or `String` GraphQL field needs to become an enum:
 import { registerEnumType } from "@nestjs/graphql";
 
 export enum FooEnum {
-  BAR = "BAR",
-  BAZ = "BAZ",
+  Bar = "Bar",
+  Baz = "Baz",
 }
 
 registerEnumType(FooEnum, { name: "Foo" });
@@ -25,7 +25,7 @@ registerEnumType(FooEnum, { name: "Foo" });
 
 ### 2. DB — handle existing data
 
-- **PG column**: migration with `CREATE TYPE` + `ALTER COLUMN ... USING CASE` (see template below)
+- **PG column**: migration with `CREATE TYPE` + `ALTER COLUMN ... USING CASE`, or `ALTER TYPE ... RENAME VALUE` for existing values (see template below)
 - **JSONB field**: datafix script (NestJS DI, `--dry-run`, no raw SQL) **before** changing TS types
 
 ### 3. Backend — wire the enum
@@ -46,8 +46,8 @@ pnpm --filter @job-tracker/web run codegen
 ```ts
 // Before
 if (field === "bar") { ... }
-// After  
-if (field === Foo.Bar) { ... }
+// After
+if (field === FooEnum.Bar) { ... }
 ```
 
 Import from `@/gql/hooks`.
@@ -55,14 +55,16 @@ Import from `@/gql/hooks`.
 ## Migration template (PG column)
 
 ```ts
-await queryRunner.query(`CREATE TYPE "foo" AS ENUM ('BAR', 'BAZ')`);
+await queryRunner.query(`CREATE TYPE "foo" AS ENUM ('Bar', 'Baz')`);
 await queryRunner.query(
   `ALTER TABLE "t" ALTER COLUMN "c" SET DATA TYPE "foo" USING CASE "c"
-    WHEN 'bar' THEN 'BAR'::"foo"
-    ELSE UPPER("c")::"foo"
+    WHEN 'bar' THEN 'Bar'::"foo"
+    ELSE INITCAP("c")::"foo"
   END`
 );
 ```
+
+To rename an existing enum value in PostgreSQL 10+: `ALTER TYPE "foo" RENAME VALUE 'old' TO 'new'`.
 
 Register in `apps/api/src/database/migrations/index.ts`.
 
@@ -73,7 +75,7 @@ Create `apps/api/scripts/fix-<field>-casing.ts`. Follow `fix-normalize-enum-casi
 ## Checklist
 
 - [ ] Query DB for all distinct values — never assume only documented values exist
-- [ ] Enum values are UPPERCASE
+- [ ] Enum values are PascalCase (matching the member key)
 - [ ] `registerEnumType` with correct GraphQL name (no `Enum` suffix)
 - [ ] PG: migration | JSONB: datafix (`--dry-run` first)
 - [ ] Update entity, type, service, scoring, specs
