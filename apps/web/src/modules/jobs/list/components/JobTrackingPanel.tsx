@@ -114,11 +114,11 @@ export function JobTrackingPanel({
       }}
       trigger={
         <IconButton
-          intent="ghost"
+          intent="quiet"
           size="sm"
           label="Update status"
           tooltip="Update status"
-          className={cn("text-text-muted/80 hover:text-text-muted", inline ? "size-6 " : "size-7 ")}
+          className={cn(inline ? "size-6" : "size-7")}
           icon={triggerIcon}
         />
       }

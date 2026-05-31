@@ -111,7 +111,8 @@ function PreferenceRow({ pref, onUpdate, onRemove, shouldFocus }: PreferenceRowP
             <Button
               intent="ghost"
               size="md"
-              className={cn("h-9 shrink-0 px-2", pref.weight === Weight.High ? "text-text-success" : "text-text-muted")}
+              colorScheme={pref.weight === Weight.High ? "success" : undefined}
+              className={cn("h-9 shrink-0 px-2", pref.weight !== Weight.High && "text-text-muted")}
             >
               {pref.weight === Weight.High ? (
                 <ArrowUpIcon size={14} weight="bold" />

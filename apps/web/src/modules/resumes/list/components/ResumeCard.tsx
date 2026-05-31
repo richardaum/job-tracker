@@ -59,9 +59,10 @@ export function ResumeCard({ resume, onDelete, onSetAsDefault }: ResumeCardProps
           <IconButton
             intent="ghost"
             size="sm"
+            colorScheme="error"
             label={`Delete resume "${resume.title}"`}
             tooltip="Delete resume"
-            className={cn(ListItemCard.actionIconButtonClassName, "hover:text-text-error")}
+            className={cn(ListItemCard.actionIconButtonClassName)}
             icon={<TrashIcon size={13} weight="regular" />}
           />
         }

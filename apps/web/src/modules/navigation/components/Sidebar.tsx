@@ -189,11 +189,9 @@ export function Sidebar({ open = false, onClose, user }: SidebarProps) {
         <Button
           intent="ghost"
           size="md"
+          colorScheme="error"
           onClick={() => void handleLogout()}
           state={loggingOut ? "loading" : "default"}
-          className={cn(
-            "flex w-full items-center justify-start gap-3 rounded-md px-4 py-2 text-left text-sm font-medium text-text-error transition-colors hover:bg-bg-error-subtle hover:text-text-error",
-          )}
           leftIcon={<SignOutIcon size={16} />}
         >
           Log Out

@@ -65,9 +65,10 @@ export function PreferenceCard({
               <IconButton
                 intent="ghost"
                 size="sm"
+                colorScheme="error"
                 label={`Delete preference "${preference.text}"`}
                 tooltip="Delete preference"
-                className={cn(ListItemCard.actionIconButtonClassName, "hover:text-text-error")}
+                className={cn(ListItemCard.actionIconButtonClassName)}
                 icon={<TrashIcon size={13} weight="regular" />}
               />
             }
