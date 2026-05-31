@@ -150,11 +150,15 @@
       ],
       "rules": { "import/no-default-export": "off" }
     },
-    { "files": ["apps/extension/entrypoints/**/*.{ts,tsx}"], "rules": { "import/no-default-export": "off" } },
+    {
+      "files": ["apps/extension/entrypoints/**/*.{ts,tsx}"],
+      "rules": { "import/no-default-export": "off" }
+    },
     {
       "files": [
         "apps/api/**/*.{js,mjs,cjs,ts,tsx}",
         "packages/logger/**/*.{js,mjs,cjs,ts,tsx}",
+        "packages/custom-rules/**/*.{js,mjs,cjs,ts,tsx}",
         "*.{config,codegen}.{js,ts,mjs,cjs}",
         "**/codegen.{ts,js,mjs}",
         "scripts/**/*.{js,mjs,cjs,ts,tsx}",
@@ -204,7 +208,10 @@
                 "message": "Do not import via paths that traverse to a parent directory (..). Use the app/package root alias (e.g. @/…) instead. Same-directory ./ imports are fine."
               },
               {
-                "group": ["@/components/empty-state/internals", "@/components/empty-state/internals/**"],
+                "group": [
+                  "@/components/empty-state/internals",
+                  "@/components/empty-state/internals/**"
+                ],
                 "message": "Import `EmptyState` from `@/components/empty-state` only; do not import empty-state internals."
               }
             ]
@@ -303,7 +310,10 @@
         ]
       }
     },
-    { "files": ["apps/web/src/env/**"], "rules": { "no-restricted-properties": "off" } },
+    {
+      "files": ["apps/web/src/env/**"],
+      "rules": { "no-restricted-properties": "off" }
+    },
     {
       "files": [
         "apps/extension/**/*.{test,spec}.{js,jsx,ts,tsx,mjs,cjs}",
@@ -311,10 +321,16 @@
         "packages/ui/**/*.{test,spec}.{js,jsx,ts,tsx,mjs,cjs}"
       ],
       "rules": {
-        "testing-library/await-async-events": ["error", { "eventModule": "userEvent" }],
+        "testing-library/await-async-events": [
+          "error",
+          { "eventModule": "userEvent" }
+        ],
         "testing-library/await-async-queries": "error",
         "testing-library/await-async-utils": "error",
-        "testing-library/no-await-sync-events": ["error", { "eventModules": ["fire-event"] }],
+        "testing-library/no-await-sync-events": [
+          "error",
+          { "eventModules": ["fire-event"] }
+        ],
         "testing-library/no-await-sync-queries": "error",
         "testing-library/no-container": "error",
         "testing-library/no-debugging-utils": "warn",
@@ -336,11 +352,15 @@
       },
       "jsPlugins": ["eslint-plugin-testing-library"]
     },
-    { "files": ["**/.storybook/*.{ts,js,mjs}"], "rules": { "import/no-default-export": "off" } },
+    {
+      "files": ["**/.storybook/*.{ts,js,mjs}"],
+      "rules": { "import/no-default-export": "off" }
+    },
     {
       "files": ["**/*.{ts,tsx}"],
       "rules": {
         "typescript/no-deprecated": "error",
+        "@job-tracker/oxlint-plugin/prefer-cn-for-classname": "error",
         "@job-tracker/oxlint-plugin/prefer-try-run-over-try-catch": "warn",
         "@job-tracker/oxlint-plugin/no-as-unknown-as": "error",
         "@job-tracker/oxlint-plugin/no-inline-component-props": "error"
@@ -359,11 +379,18 @@
       ],
       "rules": {
         "import/no-default-export": "off",
+        "@job-tracker/oxlint-plugin/prefer-cn-for-classname": "off",
         "@job-tracker/oxlint-plugin/prefer-try-run-over-try-catch": "off",
         "@job-tracker/oxlint-plugin/no-as-unknown-as": "off",
         "@job-tracker/oxlint-plugin/no-inline-component-props": "off"
       }
     },
-    { "files": ["**/*.cjs"], "rules": { "import/no-default-export": "off", "typescript/no-require-imports": "off" } }
+    {
+      "files": ["**/*.cjs"],
+      "rules": {
+        "import/no-default-export": "off",
+        "typescript/no-require-imports": "off"
+      }
+    }
   ]
 }
