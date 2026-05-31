@@ -60,7 +60,8 @@ export class CollectJobsService {
       const limitDetailTabs = pLimit(Math.min(action.input.parallelDetailsTabs, MAX_TABS));
 
       for (let iteration = 1; iteration <= MAX_PAGES; iteration += 1) {
-        const list = await this.jobsListMessaging.listJobs(action, surfaceTabId);
+        const result = await this.jobsListMessaging.listJobs(action, surfaceTabId);
+        const list = result.jobs;
 
         if (list == null) {
           throw new Error("listJobs returned null (content script unavailable)");

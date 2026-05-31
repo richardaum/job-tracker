@@ -36,6 +36,10 @@ export class JobsListService {
   async execute(message: Extract<ContentActionMessage, { kind: "jobs.list" }>) {
     const { input, skipDelay } = message.action;
     const direction = input.direction ?? "down";
+    const correlationId =
+      "correlationId" in message
+        ? ((message as Record<string, unknown>).correlationId as string | undefined)
+        : undefined;
 
     const container = await this.waitForSelector(input.containerSelector, input.itemSelector, 30_000);
     if (!container) {
@@ -58,6 +62,10 @@ export class JobsListService {
     const collected: Job[] = [];
     const seen = new Set<string>();
     let emptyPasses = 0;
+    let skippedCount = 0;
+
+    const skipConfig = input.skip;
+    const skipRegex = skipConfig ? (tryRun(() => new RegExp(skipConfig.value, skipConfig.flags))[1] ?? null) : null;
 
     while (collected.length < MAX_JOBS_COLLECT && emptyPasses < 5) {
       const items = container.querySelectorAll(input.itemSelector);
@@ -67,6 +75,17 @@ export class JobsListService {
 
       if (direction === "up") {
         for (let i = items.length - 1; i >= 0; i--) {
+          if (skipRegex && skipRegex.test(items[i].textContent ?? "")) {
+            skippedCount++;
+            chrome.runtime
+              .sendMessage({
+                kind: "report.skipped",
+                summary: `Skipped: ${(items[i].textContent ?? "").slice(0, 80).trim()}`,
+                correlationId,
+              })
+              .catch(() => {});
+            continue;
+          }
           const job = await this.processItem(items[i], input.surfaceFields, input.key, seen, skipDelay ?? false);
           if (!job) continue;
           collected.push(job);
@@ -75,6 +94,17 @@ export class JobsListService {
         }
       } else {
         for (let i = 0; i < items.length; i++) {
+          if (skipRegex && skipRegex.test(items[i].textContent ?? "")) {
+            skippedCount++;
+            chrome.runtime
+              .sendMessage({
+                kind: "report.skipped",
+                summary: `Skipped: ${(items[i].textContent ?? "").slice(0, 80).trim()}`,
+                correlationId,
+              })
+              .catch(() => {});
+            continue;
+          }
           const job = await this.processItem(items[i], input.surfaceFields, input.key, seen, skipDelay ?? false);
           if (!job) continue;
           collected.push(job);
@@ -103,7 +133,7 @@ export class JobsListService {
       }
     }
 
-    return collected;
+    return { jobs: collected, skippedCount };
   }
 
   private async waitForSelector(

@@ -91,5 +91,11 @@ export default defineBackground(() => {
     "source-run.start": (message) => {
       void sourceRunEventsService.executeSourceRun(message);
     },
+    "report.skipped": (message) => {
+      const msg = message as { summary?: string; correlationId?: string };
+      activityReporter.report(ExtensionActivityEventType.SourceRunJobSkipped, msg.summary ?? "job skipped by filter", {
+        correlationId: msg.correlationId ?? null,
+      });
+    },
   });
 });

@@ -2,23 +2,11 @@
 import { TypedDocumentNode as DocumentNode } from "@graphql-typed-document-node/core";
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = T | null | undefined;
-export type Exact<T extends { [key: string]: unknown }> = {
-  [K in keyof T]: T[K];
-};
-export type MakeOptional<T, K extends keyof T> = Omit<T, K> & {
-  [SubKey in K]?: Maybe<T[SubKey]>;
-};
-export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & {
-  [SubKey in K]: Maybe<T[SubKey]>;
-};
-export type MakeEmpty<T extends { [key: string]: unknown }, K extends keyof T> = {
-  [_ in K]?: never;
-};
-export type Incremental<T> =
-  | T
-  | {
-      [P in keyof T]?: P extends " $fragmentName" | "__typename" ? T[P] : never;
-    };
+export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
+export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
+export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
+export type MakeEmpty<T extends { [key: string]: unknown }, K extends keyof T> = { [_ in K]?: never };
+export type Incremental<T> = T | { [P in keyof T]?: P extends " $fragmentName" | "__typename" ? T[P] : never };
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
   ID: { input: string; output: string };
@@ -33,31 +21,31 @@ export type Scalars = {
 };
 
 export enum ApplicationQuickFilter {
-  Active = "ACTIVE",
-  Applied = "APPLIED",
-  Draft = "DRAFT",
-  Duplicated = "DUPLICATED",
-  Incoming = "INCOMING",
-  New = "NEW",
-  Rejected = "REJECTED",
+  Active = "Active",
+  Applied = "Applied",
+  Draft = "Draft",
+  Duplicated = "Duplicated",
+  Incoming = "Incoming",
+  New = "New",
+  Rejected = "Rejected",
 }
 
 export enum ApplicationStage {
-  Applied = "APPLIED",
-  CulturalFit = "CULTURAL_FIT",
-  Draft = "DRAFT",
-  Duplicated = "DUPLICATED",
-  New = "NEW",
-  Offer = "OFFER",
-  RecruiterScreen = "RECRUITER_SCREEN",
-  Rejected = "REJECTED",
-  Technical = "TECHNICAL",
+  Applied = "Applied",
+  CulturalFit = "CulturalFit",
+  Draft = "Draft",
+  Duplicated = "Duplicated",
+  New = "New",
+  Offer = "Offer",
+  RecruiterScreen = "RecruiterScreen",
+  Rejected = "Rejected",
+  Technical = "Technical",
 }
 
 export enum AsyncMetadataStatus {
-  Completed = "COMPLETED",
-  Failed = "FAILED",
-  Processing = "PROCESSING",
+  Completed = "Completed",
+  Failed = "Failed",
+  Processing = "Processing",
 }
 
 export type AsyncMetadataType = {
@@ -76,7 +64,7 @@ export type AuthAccount = {
 };
 
 export enum AuthProvider {
-  Google = "GOOGLE",
+  Google = "Google",
 }
 
 export type BlockedKeyword = {
@@ -191,6 +179,7 @@ export enum ExtensionActivityEventType {
   SourceRunCompleted = "SourceRunCompleted",
   SourceRunFailed = "SourceRunFailed",
   SourceRunJobImported = "SourceRunJobImported",
+  SourceRunJobSkipped = "SourceRunJobSkipped",
   SourceRunPageCollected = "SourceRunPageCollected",
   SourceRunReceived = "SourceRunReceived",
   SourceRunStarted = "SourceRunStarted",
@@ -235,10 +224,10 @@ export type JobSalaryInput = {
 };
 
 export enum JobSource {
-  Jack = "JACK",
-  Linkedin = "LINKEDIN",
-  RemoteYeah = "REMOTE_YEAH",
-  Wellfound = "WELLFOUND",
+  Jack = "Jack",
+  Linkedin = "Linkedin",
+  RemoteYeah = "RemoteYeah",
+  Wellfound = "Wellfound",
 }
 
 export type JobStageEventType = {
@@ -291,9 +280,9 @@ export type JobType = {
 };
 
 export enum KeywordScope {
-  Company = "COMPANY",
-  Description = "DESCRIPTION",
-  Title = "TITLE",
+  Company = "Company",
+  Description = "Description",
+  Title = "Title",
 }
 
 export type MatchAnalysisType = {
@@ -327,8 +316,8 @@ export type MatchItemType = {
 };
 
 export enum MatchMode {
-  Exact = "EXACT",
-  Partial = "PARTIAL",
+  Exact = "Exact",
+  Partial = "Partial",
 }
 
 export enum MatchSource {
@@ -600,9 +589,9 @@ export type ResumeType = {
 };
 
 export enum SalaryPeriod {
-  Hour = "HOUR",
-  Month = "MONTH",
-  Year = "YEAR",
+  Hour = "Hour",
+  Month = "Month",
+  Year = "Year",
 }
 
 export type SourceRunActivityEvent = {
@@ -621,8 +610,8 @@ export type SourceRunEvent = {
 };
 
 export enum SourceRunEventType {
-  SourceRunCreated = "SOURCE_RUN_CREATED",
-  SourceRunStatusChanged = "SOURCE_RUN_STATUS_CHANGED",
+  SourceRunCreated = "SourceRunCreated",
+  SourceRunStatusChanged = "SourceRunStatusChanged",
 }
 
 export enum SourceRunStatus {

@@ -4,6 +4,8 @@ import type { CollectJobsAction } from "@/domains/plan/model/types";
 
 type ErrorEnvelope = { __handlerError: true; errorMessage: string };
 
+export type ListJobsResult = { jobs: Job[]; skippedCount: number };
+
 function isErrorEnvelope(v: unknown): v is ErrorEnvelope {
   return v != null && typeof v === "object" && (v as Record<string, unknown>).__handlerError === true;
 }
@@ -11,8 +13,8 @@ function isErrorEnvelope(v: unknown): v is ErrorEnvelope {
 export class JobsListMessagingService {
   constructor(private readonly messagingService: MessagingService) {}
 
-  async listJobs(action: CollectJobsAction, tabId: number): Promise<Job[]> {
-    const result = await this.messagingService.request<"jobs.list", Job[] | ErrorEnvelope>({
+  async listJobs(action: CollectJobsAction, tabId: number): Promise<ListJobsResult> {
+    const result = await this.messagingService.request<"jobs.list", ListJobsResult | ErrorEnvelope>({
       to: "content",
       payload: { kind: "jobs.list", action },
       tabId,

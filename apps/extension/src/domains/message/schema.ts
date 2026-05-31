@@ -8,6 +8,7 @@ export const MessageModeSchema = z.enum(["request", "response", "event"]);
 export const JobsListMessageSchema = z.object({
   kind: z.literal("jobs.list"),
   action: CollectJobsPlanStepActionSchema,
+  correlationId: z.string().optional(),
 });
 
 export const JobDetailsMessageSchema = z.object({

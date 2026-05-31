@@ -7,7 +7,8 @@
       "action": {
         "kind": "collect.jobs",
         "input": {
-          "containerSelector": ".bubbles",
+          "containerSelector": ".bubbles .scrollable",
+          "skip": { "type": "regex", "value": "^(?!.*🚀\\s+.+🏢 Company:)", "sourceField": "rawText" },
           "itemSelector": ".bubble.channel-post",
           "detailsUrlField": "applyUrl",
           "key": "{{applyUrl}}",

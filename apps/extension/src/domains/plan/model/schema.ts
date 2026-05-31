@@ -149,6 +149,27 @@ export const PlanStepCollectJobsInputSchema = z
       .optional()
       .default(1)
       .describe("max concurrent detail tabs when fetching `detailsFields` per listing row"),
+    skip: z
+      .object({
+        type: z.literal("regex"),
+        value: z.string().min(1).max(LIMITS.regexPattern).describe("regex that matches items to skip"),
+        sourceField: z
+          .string()
+          .min(1)
+          .max(LIMITS.fieldKey)
+          .optional()
+          .describe("use a specific collected field instead of the concatenated text"),
+        flags: z.string().max(LIMITS.regexFlags).optional(),
+      })
+      .strict()
+      .superRefine(({ value, flags }, ctx) => {
+        const [regErr] = tryRun(() => void new RegExp(value, flags));
+        if (regErr) {
+          ctx.addIssue({ code: "custom", message: "Invalid skip regex or flags" });
+        }
+      })
+      .optional()
+      .describe("when set, items matching the regex are excluded from collection"),
   })
   .strict();
 

@@ -82,10 +82,10 @@ describe("JobsListService", () => {
 
     const result = await svc.execute(buildMessage({ direction: "down" }));
 
-    expect(result).toHaveLength(3);
-    expect(result[0].text).toBe("first");
-    expect(result[1].text).toBe("second");
-    expect(result[2].text).toBe("third");
+    expect(result.jobs).toHaveLength(3);
+    expect(result.jobs[0].text).toBe("first");
+    expect(result.jobs[1].text).toBe("second");
+    expect(result.jobs[2].text).toBe("third");
   });
 
   it("collects items bottom-to-top when direction=up", async () => {
@@ -102,10 +102,10 @@ describe("JobsListService", () => {
 
     const result = await svc.execute(buildMessage({ direction: "up" }));
 
-    expect(result).toHaveLength(3);
-    expect(result[0].text).toBe("third");
-    expect(result[1].text).toBe("second");
-    expect(result[2].text).toBe("first");
+    expect(result.jobs).toHaveLength(3);
+    expect(result.jobs[0].text).toBe("third");
+    expect(result.jobs[1].text).toBe("second");
+    expect(result.jobs[2].text).toBe("first");
   });
 
   it("handles single item in container when direction=up", async () => {
@@ -120,8 +120,8 @@ describe("JobsListService", () => {
 
     const result = await svc.execute(buildMessage({ direction: "up" }));
 
-    expect(result).toHaveLength(1);
-    expect(result[0].text).toBe("only");
+    expect(result.jobs).toHaveLength(1);
+    expect(result.jobs[0].text).toBe("only");
   });
 
   it("collects fields from each item", async () => {
@@ -144,8 +144,8 @@ describe("JobsListService", () => {
 
     const result = await svc.execute(message);
 
-    expect(result).toHaveLength(1);
-    expect(result[0]).toEqual({ text: "hello", applyUrl: "https://example.com/job" });
+    expect(result.jobs).toHaveLength(1);
+    expect(result.jobs[0]).toEqual({ text: "hello", applyUrl: "https://example.com/job" });
   });
 
   it("extracts cards from real Telegram HTML fixture", async () => {
@@ -187,15 +187,15 @@ describe("JobsListService", () => {
     const result = await svc.execute(message);
 
     // Should have at least 10 job cards (excluding date separators)
-    expect(result.length).toBeGreaterThanOrEqual(10);
+    expect(result.jobs.length).toBeGreaterThanOrEqual(10);
 
     // First card should have rawText and applyUrl
-    expect(result[0].rawText).toBeTruthy();
-    expect(typeof result[0].rawText).toBe("string");
-    expect(result[0].rawText).toContain("🚀");
+    expect(result.jobs[0].rawText).toBeTruthy();
+    expect(typeof result.jobs[0].rawText).toBe("string");
+    expect(result.jobs[0].rawText).toContain("🚀");
 
     // At least some cards should have an applyUrl
-    const withUrl = result.filter((j) => j.applyUrl != null);
+    const withUrl = result.jobs.filter((j) => j.applyUrl != null);
     expect(withUrl.length).toBeGreaterThan(0);
     expect(withUrl[0].applyUrl).toMatch(/^https?:\/\//);
   });

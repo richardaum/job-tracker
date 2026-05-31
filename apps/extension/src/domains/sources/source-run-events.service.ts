@@ -56,6 +56,7 @@ export class SourceRunEventsService {
         await this.planService.execute(plan, {
           surfaceUrl: surfaceUrl.trim(),
           boardType: plan.boardType,
+          correlationId: runId,
           stopWhen: stopWhen ?? undefined,
           catchUpThreshold: catchUpThreshold ?? undefined,
           maxPages: maxPages ?? undefined,
