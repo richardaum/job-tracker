@@ -1,4 +1,4 @@
-import remoteyeahPlan from "@api/domains/sources/fixtures/remoteyeah.plan.json";
+import remoteyeahPlan from "@api/domains/sources/fixtures/plan3.example.json";
 import type { MigrationInterface, QueryRunner } from "typeorm";
 
 export class CreatePlansTable1768010000000 implements MigrationInterface {

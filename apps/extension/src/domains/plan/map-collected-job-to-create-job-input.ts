@@ -10,7 +10,7 @@ function str(v: unknown): string | undefined {
 }
 
 /**
- * CreateJobInput coverage from scraped `Job` (see `remoteyeah.plan.json` keys):
+ * CreateJobInput coverage from scraped `Job` (see `plan3.example.json` keys):
  *
  * | Input field        | Job source              | Notes |
  * | ------------------ | ----------------------- | ----- |

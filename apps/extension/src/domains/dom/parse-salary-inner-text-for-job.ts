@@ -1,6 +1,6 @@
 import { SalaryPeriod } from "@/gql/graphql";
 
-/** Aligned with `remoteyeah.plan.json` salary validationRegex. */
+/** Aligned with `plan3.example.json` salary validationRegex. */
 const SALARY_LINE = /(?:BRL\s+|R\s*\$|\$)?\s*([\d,]+)\s*\p{Pd}\s*(?:R\s*\$|\$)?\s*([\d,]+)\s*\/\s*(year|month|hour)/iu;
 
 export type ParsedSalaryForCreateJobInput = {

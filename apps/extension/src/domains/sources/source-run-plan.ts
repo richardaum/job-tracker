@@ -1,5 +1,5 @@
-import remoteyeahFixture from "@/domains/plan/fixtures/remoteyeah.plan.json";
-import telegramJsgurujobsFixture from "@/domains/plan/fixtures/telegram-jsgurujobs.plan.json";
+import remoteyeahFixture from "@/domains/plan/fixtures/plan3.example.json";
+import telegramJsgurujobsFixture from "@/domains/plan/fixtures/plan2.example.json";
 import type { Plan } from "@job-tracker/plan-schemas";
 import { parsePlan } from "@job-tracker/plan-schemas";
 
