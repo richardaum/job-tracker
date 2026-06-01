@@ -38,6 +38,7 @@ vi.mock("@/gql/hooks", async (importOriginal) => {
   };
 });
 
+const lazyQueryFn = vi.fn();
 vi.mock("@apollo/client/react", () => ({
   useApolloClient: () => ({
     cache: {
@@ -49,6 +50,7 @@ vi.mock("@apollo/client/react", () => ({
       evict: vi.fn(),
     },
   }),
+  useLazyQuery: () => [lazyQueryFn, { data: undefined, loading: false, error: undefined }],
 }));
 
 vi.mock("@/modules/work-preferences/components/PreferencesDialog", () => ({ PreferencesDialog: () => null }));

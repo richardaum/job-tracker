@@ -23,24 +23,24 @@ vi.mock("next/image", () => ({
 
 vi.mock("@/gql/hooks", () => ({
   ApplicationQuickFilter: {
-    Active: "ACTIVE",
-    Applied: "APPLIED",
-    Incoming: "INCOMING",
-    New: "NEW",
-    Duplicated: "DUPLICATED",
-    Draft: "DRAFT",
+    Active: "Active",
+    Applied: "Applied",
+    Incoming: "Incoming",
+    New: "New",
+    Duplicated: "Duplicated",
+    Draft: "Draft",
   },
   JobSource: { Jack: "JACK", Linkedin: "LINKEDIN", RemoteYeah: "REMOTE_YEAH", Wellfound: "WELLFOUND" },
   ApplicationStage: {
-    New: "NEW",
-    Duplicated: "DUPLICATED",
-    Applied: "APPLIED",
-    RecruiterScreen: "RECRUITER_SCREEN",
-    Technical: "TECHNICAL",
-    CulturalFit: "CULTURAL_FIT",
-    Offer: "OFFER",
-    Rejected: "REJECTED",
-    Draft: "DRAFT",
+    New: "New",
+    Duplicated: "Duplicated",
+    Applied: "Applied",
+    RecruiterScreen: "RecruiterScreen",
+    Technical: "Technical",
+    CulturalFit: "CulturalFit",
+    Offer: "Offer",
+    Rejected: "Rejected",
+    Draft: "Draft",
   },
   SalaryPeriod: { Year: "YEAR", Month: "MONTH", Hour: "HOUR" },
   useJobsQuery: (...args: unknown[]) => useJobsQueryMock(...args),
@@ -84,7 +84,7 @@ describe("JobsPage", () => {
     render(<JobsPage />);
 
     expect(useJobsQueryMock).toHaveBeenCalledWith(
-      expect.objectContaining({ variables: expect.objectContaining({ filter: "DRAFT" }) }),
+      expect.objectContaining({ variables: expect.objectContaining({ filter: "Draft" }) }),
     );
   });
 
@@ -104,7 +104,7 @@ describe("JobsPage", () => {
     render(<JobsPage />);
 
     expect(useJobsQueryMock).toHaveBeenCalledWith(
-      expect.objectContaining({ variables: expect.objectContaining({ filter: "INCOMING" }) }),
+      expect.objectContaining({ variables: expect.objectContaining({ filter: "Incoming" }) }),
     );
   });
 
@@ -194,7 +194,7 @@ describe("JobsPage", () => {
       if (options.skip) {
         return { data: undefined, loading: false, error: undefined };
       }
-      return { data: { jobStageEvents: [{ id: "event-1", toStage: "technical" }] }, loading: false, error: undefined };
+      return { data: { jobStageEvents: [{ id: "event-1", toStage: "Technical" }] }, loading: false, error: undefined };
     });
     useCurrentUserMock.mockReturnValue({
       user: { id: "user-1", name: "Test User", email: "test@example.com", avatarUrl: null },
@@ -210,7 +210,7 @@ describe("JobsPage", () => {
             description: null,
             urls: ["https://example.com"],
             createdAt: "2026-04-20T00:00:00.000Z",
-            currentStage: "technical",
+            currentStage: "Technical",
             currentStageReason: null,
             currentStageAt: "2026-04-20T00:00:00.000Z",
             salary: { minCents: null, maxCents: null, currency: null, period: null },
@@ -254,7 +254,7 @@ describe("JobsPage", () => {
             description: null,
             urls: ["https://example.com"],
             createdAt: "2026-04-20T00:00:00.000Z",
-            currentStage: "new",
+            currentStage: "New",
             currentStageReason: null,
             currentStageAt: "2026-04-20T00:00:00.000Z",
             salary: { minCents: null, maxCents: null, currency: null, period: null },
