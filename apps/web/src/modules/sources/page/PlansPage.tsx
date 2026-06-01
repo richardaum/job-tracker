@@ -1,19 +1,22 @@
 "use client";
 
-import { Button, Card, cn, Heading, Skeleton, Stack, Text } from "@job-tracker/ui";
+import { Button, Card, cn, DropdownMenu, DropdownMenuItem, Heading, Skeleton, Stack, Text } from "@job-tracker/ui";
 import { EmptyState } from "@/components/empty-state";
-import { PlusIcon } from "@phosphor-icons/react";
+import { CaretDownIcon, PencilIcon, PlusIcon } from "@phosphor-icons/react";
 import NextLink from "next/link";
 import { useState } from "react";
 
 import { usePlansQuery } from "@/gql/hooks";
 import { SourcesHeaderActions } from "@/modules/sources/layout/sources-header.slots";
 import { ImportPlanDialog } from "@/modules/sources/page/ImportPlanDialog";
+import { RenamePlanDialog } from "@/modules/sources/page/RenamePlanDialog";
 
 export default function PlansPage() {
   const [importOpen, setImportOpen] = useState(false);
   const { data, loading } = usePlansQuery();
   const plans = data?.plans ?? [];
+
+  const [renameTarget, setRenameTarget] = useState<{ id: string; name: string } | null>(null);
 
   return (
     <div className={cn("flex h-full min-h-0 flex-1 flex-col")}>
@@ -30,6 +33,15 @@ export default function PlansPage() {
       </SourcesHeaderActions>
 
       <ImportPlanDialog open={importOpen} onOpenChange={setImportOpen} />
+
+      <RenamePlanDialog
+        planId={renameTarget?.id ?? ""}
+        currentName={renameTarget?.name ?? ""}
+        open={renameTarget != null}
+        onOpenChange={(open) => {
+          if (!open) setRenameTarget(null);
+        }}
+      />
 
       <div className={cn("px-4 pb-2 pt-4 sm:px-6 sm:pb-2 sm:pt-6")}>
         <Text size="sm" color="secondary">
@@ -63,6 +75,21 @@ export default function PlansPage() {
                         </NextLink>
                       </Heading>
                     </div>
+                    <DropdownMenu
+                      trigger={
+                        <Button intent="secondary" size="sm" rightIcon={<CaretDownIcon size={14} weight="bold" />}>
+                          Actions
+                        </Button>
+                      }
+                      align="end"
+                    >
+                      <DropdownMenuItem
+                        icon={<PencilIcon size={16} weight="regular" />}
+                        onSelect={() => setRenameTarget({ id: plan.id, name: plan.displayName })}
+                      >
+                        Edit name
+                      </DropdownMenuItem>
+                    </DropdownMenu>
                   </div>
                   <Text size="sm" color="secondary">
                     {plan.templates.length} template(s)
