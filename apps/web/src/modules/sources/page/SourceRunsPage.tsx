@@ -20,6 +20,7 @@ import {
   BriefcaseIcon,
   CaretDownIcon,
   ClockIcon,
+  CopyIcon,
   LinkIcon,
   ListIcon,
   StopCircleIcon,
@@ -189,6 +190,15 @@ export default function SourceRunsPage({ params }: PageProps) {
                         {formatSourceRunStatusLabel(run.status)}
                       </Badge>
                     </Tooltip>
+                    <IconButton
+                      intent="ghost"
+                      size="sm"
+                      label={`Copy run ID`}
+                      tooltip="Copy run ID"
+                      className={cn(ListItemCard.actionIconButtonClassName)}
+                      icon={<CopyIcon size={13} weight="regular" />}
+                      onClick={() => navigator.clipboard.writeText(run.id)}
+                    />
                     <IconButton
                       asChild
                       intent="ghost"
