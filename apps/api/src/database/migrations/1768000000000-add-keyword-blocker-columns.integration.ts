@@ -15,14 +15,19 @@ describe.runIf(hasDbUrl())("AddKeywordBlockerColumns migration", () => {
   }
 
   async function cleanMigrationRecord(dataSource: import("typeorm").DataSource) {
-    await dataSource.query(`DELETE FROM "migrations" WHERE "name" = '${MIGRATION_NAME}'`);
+    await dataSource.query(`DELETE FROM "typeorm_migrations" WHERE "name" = '${MIGRATION_NAME}'`);
   }
 
   it("migration up and down work correctly", async () => {
     const { DataSource } = await import("typeorm");
     const url = process.env.DATABASE_INTEGRATION_URL || process.env.DATABASE_URL!;
 
-    const dataSource = new DataSource({ type: "postgres", url, migrations: [AddKeywordBlockerColumns1768000000000] });
+    const dataSource = new DataSource({
+      type: "postgres",
+      url,
+      migrations: [AddKeywordBlockerColumns1768000000000],
+      migrationsTableName: "typeorm_migrations",
+    });
 
     await dataSource.initialize();
 
@@ -58,7 +63,12 @@ describe.runIf(hasDbUrl())("AddKeywordBlockerColumns migration", () => {
     const { DataSource } = await import("typeorm");
     const url = process.env.DATABASE_INTEGRATION_URL || process.env.DATABASE_URL!;
 
-    const dataSource = new DataSource({ type: "postgres", url, migrations: [AddKeywordBlockerColumns1768000000000] });
+    const dataSource = new DataSource({
+      type: "postgres",
+      url,
+      migrations: [AddKeywordBlockerColumns1768000000000],
+      migrationsTableName: "typeorm_migrations",
+    });
 
     await dataSource.initialize();
 
