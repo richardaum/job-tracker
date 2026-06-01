@@ -2,6 +2,7 @@ import type { MigrationInterface, QueryRunner } from "typeorm";
 
 export class AddSourceRunJobSurfaceAndDetailsImport1780272917000 implements MigrationInterface {
   name = "AddSourceRunJobSurfaceAndDetailsImport1780272917000";
+  transaction = false;
 
   async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`ALTER TYPE "extension_activity_event_type" ADD VALUE 'SourceRunJobSurfaceImport'`);

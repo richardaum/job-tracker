@@ -13,22 +13,14 @@ cd {path} && {code-agent}
 - **`{path}`** — absolute filesystem path to the worktree root (`git rev-parse --show-toplevel` from that checkout, or the path you just created).
 - **`{code-agent}`** — CLI for the coding agent the user chose (see table below). Do not invent a default.
 
-### Ask which code agent
+### Which code agent
 
-If the user has not said which agent they use, ask once:
-
-> Which code agent — **OpenCode**, **Cursor**, or **Claude Code**?
-
-| Choice        | `{code-agent}` |
-| ------------- | -------------- |
-| OpenCode      | `opencode`     |
-| Cursor        | `cursor`       |
-| Claude Code   | `claude`       |
-
-Example (after `git worktree add` or when pointing at an existing checkout):
+Do not ask. Show all three commands:
 
 ```bash
-cd /Users/me/projects/job-tracker-worktrees/my-feature && cursor
+cd <path> && opencode
+cd <path> && cursor
+cd <path> && claude
 ```
 
 Do not omit this line when the task involves a worktree path. Do not split `cd` and the agent across multiple blocks.
