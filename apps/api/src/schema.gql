@@ -83,7 +83,8 @@ enum ExtensionActivityEventType {
   SourceRunStarted
   SourceRunPageCollected
   SourceRunStopConditionMet
-  SourceRunJobImported
+  SourceRunJobSurfaceImport
+  SourceRunJobDetailsImport
   SourceRunJobSkipped
   SourceRunCompleted
   SourceRunFailed

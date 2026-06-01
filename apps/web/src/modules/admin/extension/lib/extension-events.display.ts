@@ -41,7 +41,8 @@ export { ACTIVITY_EVENTS_LIMIT, SOURCE_RUN_POLL_INTERVAL_MS };
 const OPEN_ACTIVITY_TYPES = new Set<ExtensionActivityEventType>([
   ExtensionActivityEventType.SourceRunReceived,
   ExtensionActivityEventType.SourceRunStarted,
-  ExtensionActivityEventType.SourceRunJobImported,
+  ExtensionActivityEventType.SourceRunJobSurfaceImport,
+  ExtensionActivityEventType.SourceRunJobDetailsImport,
   ExtensionActivityEventType.ImportJobStarted,
   ExtensionActivityEventType.AuthFailed,
 ]);
@@ -152,7 +153,8 @@ export function activityEventBadgeIntent(type: ExtensionActivityEventType): Comp
       return "warning";
     case ExtensionActivityEventType.SourceRunReceived:
     case ExtensionActivityEventType.SourceRunStarted:
-    case ExtensionActivityEventType.SourceRunJobImported:
+    case ExtensionActivityEventType.SourceRunJobSurfaceImport:
+    case ExtensionActivityEventType.SourceRunJobDetailsImport:
     case ExtensionActivityEventType.ImportJobStarted:
       return "info";
   }
