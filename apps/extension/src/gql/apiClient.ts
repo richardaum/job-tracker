@@ -1,12 +1,13 @@
-/* eslint-disable */
-import { TypedDocumentNode as DocumentNode } from "@graphql-typed-document-node/core";
+import type { GraphQLClient, RequestOptions } from "graphql-request";
+import gql from "graphql-tag";
 export type Maybe<T> = T | null;
-export type InputMaybe<T> = T | null | undefined;
+export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
 export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
 export type MakeEmpty<T extends { [key: string]: unknown }, K extends keyof T> = { [_ in K]?: never };
 export type Incremental<T> = T | { [P in keyof T]?: P extends " $fragmentName" | "__typename" ? T[P] : never };
+type GraphQLClientRequestHeaders = RequestOptions["requestHeaders"];
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
   ID: { input: string; output: string };
@@ -864,401 +865,271 @@ export type UpdateSourceRunMutation = {
   updateSourceRun: { __typename?: "SourceRunType"; id: string; surfaceUrl: string };
 };
 
-export const CreateDraftCaptureJobDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "mutation",
-      name: { kind: "Name", value: "CreateDraftCaptureJob" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: { kind: "Variable", name: { kind: "Name", value: "input" } },
-          type: { kind: "NonNullType", type: { kind: "NamedType", name: { kind: "Name", value: "CreateJobInput" } } },
-        },
-      ],
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "createJob" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "input" },
-                value: { kind: "Variable", name: { kind: "Name", value: "input" } },
-              },
-            ],
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                { kind: "Field", name: { kind: "Name", value: "title" } },
-                { kind: "Field", name: { kind: "Name", value: "urls" } },
-                { kind: "Field", name: { kind: "Name", value: "htmlContent" } },
-                { kind: "Field", name: { kind: "Name", value: "currentStage" } },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "fillMetadata" },
-                  selectionSet: {
-                    kind: "SelectionSet",
-                    selections: [
-                      { kind: "Field", name: { kind: "Name", value: "status" } },
-                      { kind: "Field", name: { kind: "Name", value: "error" } },
-                      { kind: "Field", name: { kind: "Name", value: "timestamp" } },
-                    ],
-                  },
-                },
-                { kind: "Field", name: { kind: "Name", value: "createdAt" } },
-              ],
-            },
-          },
-        ],
-      },
+export const CreateDraftCaptureJobDocument = gql`
+  mutation CreateDraftCaptureJob($input: CreateJobInput!) {
+    createJob(input: $input) {
+      id
+      title
+      urls
+      htmlContent
+      currentStage
+      fillMetadata {
+        status
+        error
+        timestamp
+      }
+      createdAt
+    }
+  }
+`;
+export const CreateJobDocument = gql`
+  mutation CreateJob($input: CreateJobInput!) {
+    createJob(input: $input) {
+      id
+      title
+    }
+  }
+`;
+export const IsJobDuplicateDocument = gql`
+  query IsJobDuplicate($company: String!, $title: String!) {
+    isJobDuplicate(company: $company, title: $title)
+  }
+`;
+export const MeDocument = gql`
+  query Me {
+    me {
+      email
+    }
+  }
+`;
+export const PlanDocument = gql`
+  query Plan($id: ID!) {
+    plan(id: $id) {
+      id
+      displayName
+      document
+    }
+  }
+`;
+export const ReportExtensionActivityDocument = gql`
+  mutation ReportExtensionActivity($input: ReportExtensionActivityInput!) {
+    reportExtensionActivity(input: $input) {
+      id
+      type
+      summary
+      sourceRunId
+      occurredAt
+    }
+  }
+`;
+export const SourceRunsDocument = gql`
+  query SourceRuns {
+    sourceRuns {
+      id
+      templateId
+      planId
+      surfaceUrl
+      status
+      errorMessage
+      startedAt
+      stopWhen
+      catchUpThreshold
+      maxPages
+      olderThanDays
+    }
+  }
+`;
+export const UpdateSourceRunStatusDocument = gql`
+  mutation UpdateSourceRunStatus($id: ID!, $status: SourceRunStatus!, $errorMessage: String) {
+    updateSourceRunStatus(id: $id, status: $status, errorMessage: $errorMessage) {
+      id
+      status
+      errorMessage
+    }
+  }
+`;
+export const UpdateSourceRunDocument = gql`
+  mutation UpdateSourceRun($id: ID!, $input: UpdateSourceRunInput!) {
+    updateSourceRun(id: $id, input: $input) {
+      id
+      surfaceUrl
+    }
+  }
+`;
+
+export type SdkFunctionWrapper = <T>(
+  action: (requestHeaders?: Record<string, string>) => Promise<T>,
+  operationName: string,
+  operationType?: string,
+  variables?: any,
+) => Promise<T>;
+
+const defaultWrapper: SdkFunctionWrapper = (action, _operationName, _operationType, _variables) => action();
+
+export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = defaultWrapper) {
+  return {
+    CreateDraftCaptureJob(
+      variables: CreateDraftCaptureJobMutationVariables,
+      requestHeaders?: GraphQLClientRequestHeaders,
+      signal?: RequestInit["signal"],
+    ): Promise<CreateDraftCaptureJobMutation> {
+      return withWrapper(
+        (wrappedRequestHeaders) =>
+          client.request<CreateDraftCaptureJobMutation>({
+            document: CreateDraftCaptureJobDocument,
+            variables,
+            requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
+            signal,
+          }),
+        "CreateDraftCaptureJob",
+        "mutation",
+        variables,
+      );
     },
-  ],
-} as unknown as DocumentNode<CreateDraftCaptureJobMutation, CreateDraftCaptureJobMutationVariables>;
-export const CreateJobDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "mutation",
-      name: { kind: "Name", value: "CreateJob" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: { kind: "Variable", name: { kind: "Name", value: "input" } },
-          type: { kind: "NonNullType", type: { kind: "NamedType", name: { kind: "Name", value: "CreateJobInput" } } },
-        },
-      ],
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "createJob" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "input" },
-                value: { kind: "Variable", name: { kind: "Name", value: "input" } },
-              },
-            ],
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                { kind: "Field", name: { kind: "Name", value: "title" } },
-              ],
-            },
-          },
-        ],
-      },
+    CreateJob(
+      variables: CreateJobMutationVariables,
+      requestHeaders?: GraphQLClientRequestHeaders,
+      signal?: RequestInit["signal"],
+    ): Promise<CreateJobMutation> {
+      return withWrapper(
+        (wrappedRequestHeaders) =>
+          client.request<CreateJobMutation>({
+            document: CreateJobDocument,
+            variables,
+            requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
+            signal,
+          }),
+        "CreateJob",
+        "mutation",
+        variables,
+      );
     },
-  ],
-} as unknown as DocumentNode<CreateJobMutation, CreateJobMutationVariables>;
-export const IsJobDuplicateDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "query",
-      name: { kind: "Name", value: "IsJobDuplicate" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: { kind: "Variable", name: { kind: "Name", value: "company" } },
-          type: { kind: "NonNullType", type: { kind: "NamedType", name: { kind: "Name", value: "String" } } },
-        },
-        {
-          kind: "VariableDefinition",
-          variable: { kind: "Variable", name: { kind: "Name", value: "title" } },
-          type: { kind: "NonNullType", type: { kind: "NamedType", name: { kind: "Name", value: "String" } } },
-        },
-      ],
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "isJobDuplicate" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "company" },
-                value: { kind: "Variable", name: { kind: "Name", value: "company" } },
-              },
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "title" },
-                value: { kind: "Variable", name: { kind: "Name", value: "title" } },
-              },
-            ],
-          },
-        ],
-      },
+    IsJobDuplicate(
+      variables: IsJobDuplicateQueryVariables,
+      requestHeaders?: GraphQLClientRequestHeaders,
+      signal?: RequestInit["signal"],
+    ): Promise<IsJobDuplicateQuery> {
+      return withWrapper(
+        (wrappedRequestHeaders) =>
+          client.request<IsJobDuplicateQuery>({
+            document: IsJobDuplicateDocument,
+            variables,
+            requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
+            signal,
+          }),
+        "IsJobDuplicate",
+        "query",
+        variables,
+      );
     },
-  ],
-} as unknown as DocumentNode<IsJobDuplicateQuery, IsJobDuplicateQueryVariables>;
-export const MeDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "query",
-      name: { kind: "Name", value: "Me" },
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "me" },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [{ kind: "Field", name: { kind: "Name", value: "email" } }],
-            },
-          },
-        ],
-      },
+    Me(
+      variables?: MeQueryVariables,
+      requestHeaders?: GraphQLClientRequestHeaders,
+      signal?: RequestInit["signal"],
+    ): Promise<MeQuery> {
+      return withWrapper(
+        (wrappedRequestHeaders) =>
+          client.request<MeQuery>({
+            document: MeDocument,
+            variables,
+            requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
+            signal,
+          }),
+        "Me",
+        "query",
+        variables,
+      );
     },
-  ],
-} as unknown as DocumentNode<MeQuery, MeQueryVariables>;
-export const PlanDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "query",
-      name: { kind: "Name", value: "Plan" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: { kind: "Variable", name: { kind: "Name", value: "id" } },
-          type: { kind: "NonNullType", type: { kind: "NamedType", name: { kind: "Name", value: "ID" } } },
-        },
-      ],
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "plan" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "id" },
-                value: { kind: "Variable", name: { kind: "Name", value: "id" } },
-              },
-            ],
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                { kind: "Field", name: { kind: "Name", value: "displayName" } },
-                { kind: "Field", name: { kind: "Name", value: "document" } },
-              ],
-            },
-          },
-        ],
-      },
+    Plan(
+      variables: PlanQueryVariables,
+      requestHeaders?: GraphQLClientRequestHeaders,
+      signal?: RequestInit["signal"],
+    ): Promise<PlanQuery> {
+      return withWrapper(
+        (wrappedRequestHeaders) =>
+          client.request<PlanQuery>({
+            document: PlanDocument,
+            variables,
+            requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
+            signal,
+          }),
+        "Plan",
+        "query",
+        variables,
+      );
     },
-  ],
-} as unknown as DocumentNode<PlanQuery, PlanQueryVariables>;
-export const ReportExtensionActivityDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "mutation",
-      name: { kind: "Name", value: "ReportExtensionActivity" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: { kind: "Variable", name: { kind: "Name", value: "input" } },
-          type: {
-            kind: "NonNullType",
-            type: { kind: "NamedType", name: { kind: "Name", value: "ReportExtensionActivityInput" } },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "reportExtensionActivity" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "input" },
-                value: { kind: "Variable", name: { kind: "Name", value: "input" } },
-              },
-            ],
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                { kind: "Field", name: { kind: "Name", value: "type" } },
-                { kind: "Field", name: { kind: "Name", value: "summary" } },
-                { kind: "Field", name: { kind: "Name", value: "sourceRunId" } },
-                { kind: "Field", name: { kind: "Name", value: "occurredAt" } },
-              ],
-            },
-          },
-        ],
-      },
+    ReportExtensionActivity(
+      variables: ReportExtensionActivityMutationVariables,
+      requestHeaders?: GraphQLClientRequestHeaders,
+      signal?: RequestInit["signal"],
+    ): Promise<ReportExtensionActivityMutation> {
+      return withWrapper(
+        (wrappedRequestHeaders) =>
+          client.request<ReportExtensionActivityMutation>({
+            document: ReportExtensionActivityDocument,
+            variables,
+            requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
+            signal,
+          }),
+        "ReportExtensionActivity",
+        "mutation",
+        variables,
+      );
     },
-  ],
-} as unknown as DocumentNode<ReportExtensionActivityMutation, ReportExtensionActivityMutationVariables>;
-export const SourceRunsDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "query",
-      name: { kind: "Name", value: "SourceRuns" },
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "sourceRuns" },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                { kind: "Field", name: { kind: "Name", value: "templateId" } },
-                { kind: "Field", name: { kind: "Name", value: "planId" } },
-                { kind: "Field", name: { kind: "Name", value: "surfaceUrl" } },
-                { kind: "Field", name: { kind: "Name", value: "status" } },
-                { kind: "Field", name: { kind: "Name", value: "errorMessage" } },
-                { kind: "Field", name: { kind: "Name", value: "startedAt" } },
-                { kind: "Field", name: { kind: "Name", value: "stopWhen" } },
-                { kind: "Field", name: { kind: "Name", value: "catchUpThreshold" } },
-                { kind: "Field", name: { kind: "Name", value: "maxPages" } },
-                { kind: "Field", name: { kind: "Name", value: "olderThanDays" } },
-              ],
-            },
-          },
-        ],
-      },
+    SourceRuns(
+      variables?: SourceRunsQueryVariables,
+      requestHeaders?: GraphQLClientRequestHeaders,
+      signal?: RequestInit["signal"],
+    ): Promise<SourceRunsQuery> {
+      return withWrapper(
+        (wrappedRequestHeaders) =>
+          client.request<SourceRunsQuery>({
+            document: SourceRunsDocument,
+            variables,
+            requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
+            signal,
+          }),
+        "SourceRuns",
+        "query",
+        variables,
+      );
     },
-  ],
-} as unknown as DocumentNode<SourceRunsQuery, SourceRunsQueryVariables>;
-export const UpdateSourceRunStatusDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "mutation",
-      name: { kind: "Name", value: "UpdateSourceRunStatus" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: { kind: "Variable", name: { kind: "Name", value: "id" } },
-          type: { kind: "NonNullType", type: { kind: "NamedType", name: { kind: "Name", value: "ID" } } },
-        },
-        {
-          kind: "VariableDefinition",
-          variable: { kind: "Variable", name: { kind: "Name", value: "status" } },
-          type: { kind: "NonNullType", type: { kind: "NamedType", name: { kind: "Name", value: "SourceRunStatus" } } },
-        },
-        {
-          kind: "VariableDefinition",
-          variable: { kind: "Variable", name: { kind: "Name", value: "errorMessage" } },
-          type: { kind: "NamedType", name: { kind: "Name", value: "String" } },
-        },
-      ],
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "updateSourceRunStatus" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "id" },
-                value: { kind: "Variable", name: { kind: "Name", value: "id" } },
-              },
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "status" },
-                value: { kind: "Variable", name: { kind: "Name", value: "status" } },
-              },
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "errorMessage" },
-                value: { kind: "Variable", name: { kind: "Name", value: "errorMessage" } },
-              },
-            ],
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                { kind: "Field", name: { kind: "Name", value: "status" } },
-                { kind: "Field", name: { kind: "Name", value: "errorMessage" } },
-              ],
-            },
-          },
-        ],
-      },
+    UpdateSourceRunStatus(
+      variables: UpdateSourceRunStatusMutationVariables,
+      requestHeaders?: GraphQLClientRequestHeaders,
+      signal?: RequestInit["signal"],
+    ): Promise<UpdateSourceRunStatusMutation> {
+      return withWrapper(
+        (wrappedRequestHeaders) =>
+          client.request<UpdateSourceRunStatusMutation>({
+            document: UpdateSourceRunStatusDocument,
+            variables,
+            requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
+            signal,
+          }),
+        "UpdateSourceRunStatus",
+        "mutation",
+        variables,
+      );
     },
-  ],
-} as unknown as DocumentNode<UpdateSourceRunStatusMutation, UpdateSourceRunStatusMutationVariables>;
-export const UpdateSourceRunDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "mutation",
-      name: { kind: "Name", value: "UpdateSourceRun" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: { kind: "Variable", name: { kind: "Name", value: "id" } },
-          type: { kind: "NonNullType", type: { kind: "NamedType", name: { kind: "Name", value: "ID" } } },
-        },
-        {
-          kind: "VariableDefinition",
-          variable: { kind: "Variable", name: { kind: "Name", value: "input" } },
-          type: {
-            kind: "NonNullType",
-            type: { kind: "NamedType", name: { kind: "Name", value: "UpdateSourceRunInput" } },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "updateSourceRun" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "id" },
-                value: { kind: "Variable", name: { kind: "Name", value: "id" } },
-              },
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "input" },
-                value: { kind: "Variable", name: { kind: "Name", value: "input" } },
-              },
-            ],
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                { kind: "Field", name: { kind: "Name", value: "surfaceUrl" } },
-              ],
-            },
-          },
-        ],
-      },
+    UpdateSourceRun(
+      variables: UpdateSourceRunMutationVariables,
+      requestHeaders?: GraphQLClientRequestHeaders,
+      signal?: RequestInit["signal"],
+    ): Promise<UpdateSourceRunMutation> {
+      return withWrapper(
+        (wrappedRequestHeaders) =>
+          client.request<UpdateSourceRunMutation>({
+            document: UpdateSourceRunDocument,
+            variables,
+            requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders },
+            signal,
+          }),
+        "UpdateSourceRun",
+        "mutation",
+        variables,
+      );
     },
-  ],
-} as unknown as DocumentNode<UpdateSourceRunMutation, UpdateSourceRunMutationVariables>;
+  };
+}
+export type Sdk = ReturnType<typeof getSdk>;

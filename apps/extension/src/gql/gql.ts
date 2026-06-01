@@ -18,6 +18,7 @@ type Documents = {
   "mutation CreateJob($input: CreateJobInput!) {\n  createJob(input: $input) {\n    id\n    title\n  }\n}": typeof types.CreateJobDocument;
   "query IsJobDuplicate($company: String!, $title: String!) {\n  isJobDuplicate(company: $company, title: $title)\n}": typeof types.IsJobDuplicateDocument;
   "query Me {\n  me {\n    email\n  }\n}": typeof types.MeDocument;
+  "query Plan($id: ID!) {\n  plan(id: $id) {\n    id\n    displayName\n    document\n  }\n}": typeof types.PlanDocument;
   "mutation ReportExtensionActivity($input: ReportExtensionActivityInput!) {\n  reportExtensionActivity(input: $input) {\n    id\n    type\n    summary\n    sourceRunId\n    occurredAt\n  }\n}": typeof types.ReportExtensionActivityDocument;
   "query SourceRuns {\n  sourceRuns {\n    id\n    templateId\n    planId\n    surfaceUrl\n    status\n    errorMessage\n    startedAt\n    stopWhen\n    catchUpThreshold\n    maxPages\n    olderThanDays\n  }\n}": typeof types.SourceRunsDocument;
   "mutation UpdateSourceRunStatus($id: ID!, $status: SourceRunStatus!, $errorMessage: String) {\n  updateSourceRunStatus(id: $id, status: $status, errorMessage: $errorMessage) {\n    id\n    status\n    errorMessage\n  }\n}": typeof types.UpdateSourceRunStatusDocument;
@@ -31,6 +32,7 @@ const documents: Documents = {
   "query IsJobDuplicate($company: String!, $title: String!) {\n  isJobDuplicate(company: $company, title: $title)\n}":
     types.IsJobDuplicateDocument,
   "query Me {\n  me {\n    email\n  }\n}": types.MeDocument,
+  "query Plan($id: ID!) {\n  plan(id: $id) {\n    id\n    displayName\n    document\n  }\n}": types.PlanDocument,
   "mutation ReportExtensionActivity($input: ReportExtensionActivityInput!) {\n  reportExtensionActivity(input: $input) {\n    id\n    type\n    summary\n    sourceRunId\n    occurredAt\n  }\n}":
     types.ReportExtensionActivityDocument,
   "query SourceRuns {\n  sourceRuns {\n    id\n    templateId\n    planId\n    surfaceUrl\n    status\n    errorMessage\n    startedAt\n    stopWhen\n    catchUpThreshold\n    maxPages\n    olderThanDays\n  }\n}":
@@ -79,6 +81,12 @@ export function graphql(
 export function graphql(
   source: "query Me {\n  me {\n    email\n  }\n}",
 ): (typeof documents)["query Me {\n  me {\n    email\n  }\n}"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: "query Plan($id: ID!) {\n  plan(id: $id) {\n    id\n    displayName\n    document\n  }\n}",
+): (typeof documents)["query Plan($id: ID!) {\n  plan(id: $id) {\n    id\n    displayName\n    document\n  }\n}"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

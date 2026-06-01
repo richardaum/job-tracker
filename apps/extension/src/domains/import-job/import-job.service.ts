@@ -1,6 +1,6 @@
 import { tryRun } from "@job-tracker/try-run";
 
-import { ApiService } from "@/domains/api/api.service";
+import { api } from "@/gql/api";
 import type { ExtensionActivityReporterService } from "@/domains/extension-activity/extension-activity-reporter.service";
 import { MessagingService } from "@/domains/message/messaging.service";
 import { WxtTabService } from "@/domains/tab/wxt-tab.service";
@@ -15,7 +15,6 @@ export class ImportJobService {
   constructor(
     private readonly messagingService: MessagingService,
     private readonly tabService: WxtTabService,
-    private readonly apiService: ApiService,
     private readonly activityReporter?: ExtensionActivityReporterService,
   ) {}
 
@@ -34,12 +33,15 @@ export class ImportJobService {
     this.activityReporter?.report(ExtensionActivityEventType.ImportJobStarted, summary, { sourceRunId });
 
     const [error, result] = await tryRun(
-      this.apiService.createDraftCaptureJob({
-        company: "",
-        title: snapshot.title,
-        urls: snapshot.url?.trim() ? [snapshot.url.trim()] : [],
-        htmlContent: snapshot.innerHTML,
-        autoFill: true,
+      api.CreateDraftCaptureJob({
+        input: {
+          company: "",
+          title: snapshot.title,
+          urls: snapshot.url?.trim() ? [snapshot.url.trim()] : [],
+          htmlContent: snapshot.innerHTML,
+          autoFill: true,
+          createAsDraftCapture: true,
+        },
       }),
     );
 
@@ -48,7 +50,7 @@ export class ImportJobService {
       throw new Error("Failed to create draft job", { cause: error });
     }
 
-    const id = result?.data?.createJob?.id;
+    const id = result?.createJob?.id;
     if (!id) {
       this.activityReporter?.report(ExtensionActivityEventType.ImportJobFailed, summary, { sourceRunId });
       throw new Error("Failed to create draft job");
@@ -56,7 +58,7 @@ export class ImportJobService {
 
     this.activityReporter?.report(ExtensionActivityEventType.ImportJobCompleted, summary, {
       sourceRunId,
-      payload: JSON.stringify({ jobId: id }),
+      payload: { jobId: id },
     });
 
     await this.tabService.openTab(`${WEB_URL}/jobs/${id}`, { focus: true });

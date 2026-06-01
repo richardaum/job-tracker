@@ -17,8 +17,6 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@apollo/client": "^4.1.7",
-    "@graphql-typed-document-node/core": "^3.2.0",
     "@job-tracker/auth": "workspace:*",
     "@job-tracker/html-sanitize": "workspace:*",
     "@job-tracker/plan-schemas": "workspace:*",
@@ -26,7 +24,10 @@
     "@job-tracker/ui": "workspace:*",
     "@tiptap/html": "^3.23.1",
     "@tiptap/starter-kit": "^3.23.1",
+    "@graphql-typed-document-node/core": "^3.2.0",
     "graphql": "^16.13.2",
+    "graphql-request": "^7.1.2",
+    "graphql-tag": "^2.12.6",
     "p-limit": "^7.3.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
@@ -35,9 +36,11 @@
   "devDependencies": {
     "@graphql-codegen/cli": "^6.3.1",
     "@graphql-codegen/client-preset": "^5.3.0",
+    "@graphql-codegen/typescript-graphql-request": "^6.2.0",
     "@job-tracker/worktree-cli": "workspace:*",
     "@tailwindcss/postcss": "^4.2.4",
     "@types/chrome": "^0.0.326",
+    "@types/node": "^22.19.17",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
     "@vitejs/plugin-react": "^6.0.1",

@@ -1,6 +1,6 @@
 import { defineBackground } from "wxt/utils/define-background";
 
-import { ApiService } from "@/domains/api/api.service";
+import { api, onAuthRefresh } from "@/gql/api";
 import { ContextMenuService } from "@/domains/context-menu/context-menu.service";
 import { ExtensionActivityReporterService } from "@/domains/extension-activity/extension-activity-reporter.service";
 import { ImportJobService } from "@/domains/import-job/import-job.service";
@@ -47,16 +47,9 @@ export default defineBackground(() => {
   );
 
   const activityReporterDeps = { extensionVersion: chrome.runtime.getManifest().version, browser: navigator.userAgent };
+  const activityReporter = new ExtensionActivityReporterService(logService, activityReporterDeps);
 
-  const onAuthRefreshCallbacks: Array<(success: boolean) => void> = [];
-
-  const apiService = new ApiService({
-    onAuthRefreshResult: (success) => onAuthRefreshCallbacks.forEach((cb) => cb(success)),
-  });
-
-  const activityReporter = new ExtensionActivityReporterService(apiService, logService, activityReporterDeps);
-
-  onAuthRefreshCallbacks.push((success) => {
+  onAuthRefresh((success) => {
     activityReporter.report(
       success ? ExtensionActivityEventType.AuthRefreshed : ExtensionActivityEventType.AuthFailed,
       success ? "Session token refreshed" : "Session token refresh failed",
@@ -64,22 +57,22 @@ export default defineBackground(() => {
     );
   });
 
-  const importJobService = new ImportJobService(messagingService, new WxtTabService(), apiService, activityReporter);
+  const importJobService = new ImportJobService(messagingService, new WxtTabService(), activityReporter);
 
   const adminExtensionStatusService = new AdminExtensionStatusService({
-    fetchAuthenticatedEmail: () => apiService.meEmail(),
+    fetchAuthenticatedEmail: () =>
+      api
+        .Me()
+        .then((r) => r.me?.email ?? null)
+        .catch(() => null),
   });
 
-  const sourceRunEventsService = new SourceRunEventsService(apiService, logService, planService, activityReporter);
+  const sourceRunEventsService = new SourceRunEventsService(logService, planService, activityReporter);
   void sourceRunEventsService.recoverOutstandingRuns();
 
   const contextMenuService = new ContextMenuService(importJobService);
   void contextMenuService.setup();
   contextMenuService.bindListeners();
-
-  chrome.runtime.onSuspend.addListener(() => {
-    apiService.dispose();
-  });
 
   chrome.runtime.onInstalled.addListener((details) => {
     console.info("[job-tracker] extension installed:", details.reason, "v" + chrome.runtime.getManifest().version);
@@ -92,9 +85,10 @@ export default defineBackground(() => {
       void sourceRunEventsService.executeSourceRun(message);
     },
     "report.skipped": (message) => {
-      const msg = message as { summary?: string; sourceRunId?: string };
+      const msg = message as { summary?: string; sourceRunId?: string; sourceFieldContent?: string };
       activityReporter.report(ExtensionActivityEventType.SourceRunJobSkipped, msg.summary ?? "job skipped by filter", {
         sourceRunId: msg.sourceRunId ?? null,
+        payload: msg.sourceFieldContent ? { sourceFieldContent: msg.sourceFieldContent } : null,
       });
     },
   });

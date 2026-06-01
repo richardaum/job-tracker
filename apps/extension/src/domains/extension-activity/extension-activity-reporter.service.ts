@@ -1,6 +1,6 @@
 import { tryRun } from "@job-tracker/try-run";
 
-import type { ApiService } from "@/domains/api/api.service";
+import { api } from "@/gql/api";
 import type { LogService } from "@/domains/log/log.service";
 import { ExtensionActivityEventType, type ReportExtensionActivityInput } from "@/gql/graphql";
 
@@ -8,13 +8,12 @@ type ExtensionActivityReporterDeps = { extensionVersion: string; browser: string
 
 export type ReportExtensionActivityOptions = {
   sourceRunId?: string | null;
-  payload?: string | null;
+  payload?: Record<string, unknown> | null;
   occurredAt?: string;
 };
 
 export class ExtensionActivityReporterService {
   constructor(
-    private readonly apiService: ApiService,
     private readonly logService: LogService,
     private readonly deps: ExtensionActivityReporterDeps,
   ) {}
@@ -34,7 +33,7 @@ export class ExtensionActivityReporterService {
   }
 
   private async send(input: ReportExtensionActivityInput): Promise<void> {
-    const [err] = await tryRun(this.apiService.reportExtensionActivity(input));
+    const [err] = await tryRun(api.ReportExtensionActivity({ input }));
     if (err) {
       this.logService.error("extension-activity:report-failed", { type: input.type, error: err });
     }
