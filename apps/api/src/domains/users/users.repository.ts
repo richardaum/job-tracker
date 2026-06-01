@@ -5,11 +5,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import type { EntityManager, Repository } from "typeorm";
 
 import { AuthProviderEnum } from "./auth-provider.enum";
-import type {
-  InsertAccountRepoDto,
-  InsertUserRepoDto,
-  SaveUserRepoDto,
-} from "./users.repository.schema";
+import type { InsertAccountRepoDto, InsertUserRepoDto, SaveUserRepoDto } from "./users.repository.schema";
 import type { User } from "./users.schema";
 
 @Injectable()
@@ -45,14 +41,8 @@ export class UserRepository {
     return this.usersRepo.findOne({ where: { email } });
   }
 
-  async findByProvider(
-    providerName: AuthProviderEnum,
-    providerAccountId: string,
-  ): Promise<User | null> {
-    const link = await this.accountsRepo.findOne({
-      where: { providerName, providerAccountId },
-      relations: ["user"],
-    });
+  async findByProvider(providerName: AuthProviderEnum, providerAccountId: string): Promise<User | null> {
+    const link = await this.accountsRepo.findOne({ where: { providerName, providerAccountId }, relations: ["user"] });
     return link?.user ?? null;
   }
 
@@ -61,30 +51,19 @@ export class UserRepository {
     providerAccountId: string,
     manager?: EntityManager,
   ): Promise<UserAccountEntity | null> {
-    return this.accounts(manager).findOne({
-      where: { providerName, providerAccountId },
-    });
+    return this.accounts(manager).findOne({ where: { providerName, providerAccountId } });
   }
 
-  async saveUser(
-    user: SaveUserRepoDto,
-    manager?: EntityManager,
-  ): Promise<User> {
+  async saveUser(user: SaveUserRepoDto, manager?: EntityManager): Promise<User> {
     return this.users(manager).save(user);
   }
 
-  async insertUser(
-    data: InsertUserRepoDto,
-    manager?: EntityManager,
-  ): Promise<User> {
+  async insertUser(data: InsertUserRepoDto, manager?: EntityManager): Promise<User> {
     const row = this.users(manager).create(data);
     return this.users(manager).save(row);
   }
 
-  async insertAccount(
-    data: InsertAccountRepoDto,
-    manager?: EntityManager,
-  ): Promise<UserAccountEntity> {
+  async insertAccount(data: InsertAccountRepoDto, manager?: EntityManager): Promise<UserAccountEntity> {
     const row = this.accounts(manager).create(data);
     return this.accounts(manager).save(row);
   }

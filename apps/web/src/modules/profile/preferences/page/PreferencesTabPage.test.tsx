@@ -10,8 +10,7 @@ const workPreferencesQueryMock = vi.fn();
 const updatePreferencesMock = vi.fn();
 
 vi.mock("@/gql/hooks", async () => {
-  const actual =
-    await vi.importActual<typeof import("@/gql/hooks")>("@/gql/hooks");
+  const actual = await vi.importActual<typeof import("@/gql/hooks")>("@/gql/hooks");
   return {
     ...actual,
     useWorkPreferencesQuery: () => workPreferencesQueryMock(),
@@ -19,16 +18,11 @@ vi.mock("@/gql/hooks", async () => {
   };
 });
 
-vi.mock("@/modules/jobs/shared/hooks/useToastQueue", () => ({
-  useToastQueue: () => ({ enqueueToast: vi.fn() }),
-}));
+vi.mock("@/modules/jobs/shared/hooks/useToastQueue", () => ({ useToastQueue: () => ({ enqueueToast: vi.fn() }) }));
 
 describe("PreferencesTabPage", () => {
   it("renders WorkPreferencesEditor with mode=inline", () => {
-    workPreferencesQueryMock.mockReturnValue({
-      loading: false,
-      data: { workPreferences: [] },
-    });
+    workPreferencesQueryMock.mockReturnValue({ loading: false, data: { workPreferences: [] } });
     render(<PreferencesTabPage />, { wrapper: ProfileHeaderSlotsTestWrapper });
 
     expect(
@@ -39,50 +33,29 @@ describe("PreferencesTabPage", () => {
   });
 
   it("renders Add preference button via header portal", () => {
-    workPreferencesQueryMock.mockReturnValue({
-      loading: false,
-      data: { workPreferences: [] },
-    });
+    workPreferencesQueryMock.mockReturnValue({ loading: false, data: { workPreferences: [] } });
     render(<PreferencesTabPage />, { wrapper: ProfileHeaderSlotsTestWrapper });
 
-    expect(
-      screen.getByRole("button", { name: /add preference/i }),
-    ).toBeInTheDocument();
-    expect(
-      screen.queryByRole("button", { name: /save changes/i }),
-    ).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /add preference/i })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /save changes/i })).not.toBeInTheDocument();
   });
 
   it("clicking Add preference opens form dialog", async () => {
     const user = userEvent.setup();
-    workPreferencesQueryMock.mockReturnValue({
-      loading: false,
-      data: { workPreferences: [] },
-    });
+    workPreferencesQueryMock.mockReturnValue({ loading: false, data: { workPreferences: [] } });
     render(<PreferencesTabPage />, { wrapper: ProfileHeaderSlotsTestWrapper });
 
     await user.click(screen.getByRole("button", { name: /add preference/i }));
 
-    expect(
-      screen.getByRole("dialog", { name: /add preference/i }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByPlaceholderText("e.g. Remote-first company"),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("dialog", { name: /add preference/i })).toBeInTheDocument();
+    expect(screen.getByPlaceholderText("e.g. Remote-first company")).toBeInTheDocument();
   });
 
   it("does not render footer save or discard controls", () => {
-    workPreferencesQueryMock.mockReturnValue({
-      loading: false,
-      data: { workPreferences: [] },
-    });
+    workPreferencesQueryMock.mockReturnValue({ loading: false, data: { workPreferences: [] } });
     render(<PreferencesTabPage />, { wrapper: ProfileHeaderSlotsTestWrapper });
 
-    expect(
-      screen.queryByRole("button", { name: /save changes/i }),
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByRole("button", { name: /discard/i }),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /save changes/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /discard/i })).not.toBeInTheDocument();
   });
 });

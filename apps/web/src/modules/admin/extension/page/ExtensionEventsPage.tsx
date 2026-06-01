@@ -37,7 +37,7 @@ export default function ExtensionEventsPage() {
       <ExtensionEventsPanel
         events={eventsViewModel.events}
         loading={eventsViewModel.showInitialLoading}
-        error={eventsViewModel.error}
+        error={!!eventsViewModel.error}
       />
     </Stack>
   );

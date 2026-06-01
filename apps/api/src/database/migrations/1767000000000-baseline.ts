@@ -6,24 +6,16 @@ export class SquashedBaseline1767000000000 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     // ── Enums ──────────────────────────────────────────────────────
     await queryRunner.query(`CREATE TYPE "role" AS ENUM('user')`);
-    await queryRunner.query(
-      `CREATE TYPE "salary_period" AS ENUM('year', 'month', 'hour')`,
-    );
+    await queryRunner.query(`CREATE TYPE "salary_period" AS ENUM('year', 'month', 'hour')`);
     await queryRunner.query(
       `CREATE TYPE "application_stage" AS ENUM('new', 'applied', 'recruiter_screen', 'technical', 'cultural_fit', 'offer', 'rejected', 'duplicated')`,
     );
-    await queryRunner.query(
-      `CREATE TYPE "application_source" AS ENUM('Linkedin', 'Jack', 'Wellfound', 'RemoteYeah')`,
-    );
-    await queryRunner.query(
-      `CREATE TYPE "source_run_status" AS ENUM('running', 'in_progress', 'completed', 'failed')`,
-    );
+    await queryRunner.query(`CREATE TYPE "application_source" AS ENUM('Linkedin', 'Jack', 'Wellfound', 'RemoteYeah')`);
+    await queryRunner.query(`CREATE TYPE "source_run_status" AS ENUM('running', 'in_progress', 'completed', 'failed')`);
     await queryRunner.query(
       `CREATE TYPE "draft_application_conversion_status" AS ENUM('idle', 'processing', 'succeeded', 'failed')`,
     );
-    await queryRunner.query(
-      `CREATE TYPE "fit_analysis_status" AS ENUM('processing', 'completed', 'failed')`,
-    );
+    await queryRunner.query(`CREATE TYPE "fit_analysis_status" AS ENUM('processing', 'completed', 'failed')`);
 
     // ── users ──────────────────────────────────────────────────────
     await queryRunner.query(`

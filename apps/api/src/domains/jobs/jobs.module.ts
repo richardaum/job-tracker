@@ -34,13 +34,7 @@ import { TagsModule } from "./tags/tags.module";
 @Module({
   imports: [
     DatabaseModule,
-    TypeOrmModule.forFeature([
-      JobEntity,
-      JobNoteEntity,
-      JobStageEventEntity,
-      CompanyEntity,
-      SourceRunEntity,
-    ]),
+    TypeOrmModule.forFeature([JobEntity, JobNoteEntity, JobStageEventEntity, CompanyEntity, SourceRunEntity]),
     AuthModule,
     CompaniesModule,
     SettingsModule,
@@ -68,12 +62,6 @@ import { TagsModule } from "./tags/tags.module";
     SummaryAiService,
     KeywordBlockerService,
   ],
-  exports: [
-    JobsService,
-    JobsRepository,
-    JobEventBus,
-    DraftExtractionNormalizationService,
-    DraftExtractionService,
-  ],
+  exports: [JobsService, JobsRepository, JobEventBus, DraftExtractionNormalizationService, DraftExtractionService],
 })
 export class JobsModule {}

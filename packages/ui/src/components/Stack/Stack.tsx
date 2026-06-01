@@ -1,5 +1,5 @@
+import type { ReactNode } from "react";
 import { cn } from "@ui/lib/cn";
-import React from "react";
 
 type Direction = "row" | "column";
 type Gap = "xs" | "sm" | "md" | "lg";
@@ -7,7 +7,7 @@ type Align = "start" | "center" | "end" | "stretch";
 type Justify = "start" | "center" | "end" | "between";
 
 export interface StackProps {
-  children: React.ReactNode;
+  children: ReactNode;
   direction?: Direction;
   gap?: Gap;
   align?: Align;
@@ -15,17 +15,9 @@ export interface StackProps {
   className?: string;
 }
 
-const directionClasses: Record<Direction, string> = {
-  row: "flex-row",
-  column: "flex-col",
-};
+const directionClasses: Record<Direction, string> = { row: "flex-row", column: "flex-col" };
 
-const gapClasses: Record<Gap, string> = {
-  xs: "gap-2",
-  sm: "gap-3",
-  md: "gap-4",
-  lg: "gap-6",
-};
+const gapClasses: Record<Gap, string> = { xs: "gap-2", sm: "gap-3", md: "gap-4", lg: "gap-6" };
 
 const alignClasses: Record<Align, string> = {
   start: "items-start",

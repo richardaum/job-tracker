@@ -2,7 +2,5 @@ import type { MatchAnalysisEntity } from "@api/database/entities/match-analysis.
 
 export type MatchAnalysis = MatchAnalysisEntity;
 
-export type NewMatchAnalysis = Partial<
-  Omit<MatchAnalysisEntity, "id" | "createdAt" | "updatedAt">
-> &
+export type NewMatchAnalysis = Partial<Omit<MatchAnalysisEntity, "id" | "createdAt" | "updatedAt">> &
   Pick<Partial<MatchAnalysisEntity>, "jobId" | "resumeId">;

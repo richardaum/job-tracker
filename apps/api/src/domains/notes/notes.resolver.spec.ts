@@ -42,29 +42,18 @@ describe("NoteResolver (integration)", () => {
       createNote: vi.fn().mockResolvedValue(mockNote),
       updateNote: vi.fn().mockResolvedValue({ ...mockNote, revision: 2 }),
       removeNote: vi.fn().mockResolvedValue(mockNote),
-      generateNoteWithAI: vi
-        .fn()
-        .mockResolvedValue(
-          JSON.stringify({ type: "doc", content: [{ type: "paragraph" }] }),
-        ),
+      generateNoteWithAI: vi.fn().mockResolvedValue(JSON.stringify({ type: "doc", content: [{ type: "paragraph" }] })),
     };
 
     const moduleRef = await Test.createTestingModule({
-      imports: [
-        GraphQLModule.forRoot<ApolloDriverConfig>({
-          driver: ApolloDriver,
-          autoSchemaFile: true,
-        }),
-      ],
+      imports: [GraphQLModule.forRoot<ApolloDriverConfig>({ driver: ApolloDriver, autoSchemaFile: true })],
       providers: [NoteResolver, { provide: NoteService, useValue: service }],
     })
       .overrideGuard(JwtAuthGuard)
       .useValue({
         canActivate: (ctx: ExecutionContext) => {
           const gqlCtx = GqlExecutionContext.create(ctx);
-          const req = gqlCtx.getContext<{
-            req: Request & { headers: Record<string, string>; user?: unknown };
-          }>().req;
+          const req = gqlCtx.getContext<{ req: Request & { headers: Record<string, string>; user?: unknown } }>().req;
           if (!req.headers["authorization"]) throw new UnauthorizedException();
           req.user = { userId: "user-1" };
           return true;
@@ -129,15 +118,10 @@ describe("NoteResolver (integration)", () => {
     const res = await request(app.getHttpServer())
       .post("/graphql")
       .set(auth)
-      .send({
-        query: 'mutation { deleteJobNote(id: "note-1") { success deletedId } }',
-      });
+      .send({ query: 'mutation { deleteJobNote(id: "note-1") { success deletedId } }' });
 
     expect(res.statusCode).toBe(200);
-    expect(res.body.data.deleteJobNote).toEqual({
-      success: true,
-      deletedId: "note-1",
-    });
+    expect(res.body.data.deleteJobNote).toEqual({ success: true, deletedId: "note-1" });
   });
 
   it("generateJobNoteWithAI query returns generated content", async () => {

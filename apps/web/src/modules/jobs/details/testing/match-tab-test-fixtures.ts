@@ -79,11 +79,6 @@ export function failedJobMatch(
   return {
     ...completedJobMatch([], options),
     items: [],
-    generationMetadata: {
-      __typename: "AsyncMetadataType",
-      status: AsyncMetadataStatus.Failed,
-      error,
-      timestamp: null,
-    },
+    generationMetadata: { __typename: "AsyncMetadataType", status: AsyncMetadataStatus.Failed, error, timestamp: null },
   };
 }

@@ -4,11 +4,7 @@ import "dotenv/config";
 import { buildDataSourceOptions } from "@api/database/data-source-options";
 import { JobEntity } from "@api/database/entities/job.entity";
 import { JobStageEventEntity } from "@api/database/entities/job-stage-event.entity";
-import {
-  MatchAnalysisEntity,
-  type MatchItem,
-  RequirementTypeEnum,
-} from "@api/database/entities/match-analysis.entity";
+import { MatchAnalysisEntity, type MatchItem, RequirementTypeEnum } from "@api/database/entities/match-analysis.entity";
 import type { PreferenceItem } from "@api/database/entities/work-preferences.entity";
 import { WorkPreferencesEntity } from "@api/database/entities/work-preferences.entity";
 import { AsyncMetadataStatusEnum } from "@api/domains/shared/async-metadata.type";
@@ -21,15 +17,8 @@ import { EntityManager } from "typeorm";
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      ...buildDataSourceOptions(process.env.DATABASE_URL!),
-    }),
-    TypeOrmModule.forFeature([
-      JobEntity,
-      MatchAnalysisEntity,
-      WorkPreferencesEntity,
-      JobStageEventEntity,
-    ]),
+    TypeOrmModule.forRoot({ ...buildDataSourceOptions(process.env.DATABASE_URL!) }),
+    TypeOrmModule.forFeature([JobEntity, MatchAnalysisEntity, WorkPreferencesEntity, JobStageEventEntity]),
   ],
 })
 class ScriptModule {}
@@ -38,36 +27,26 @@ function upper(val: string | null | undefined): string | null | undefined {
   return val?.toUpperCase();
 }
 
-function normalizeWeight(
-  weight: string | null | undefined,
-): WeightEnum | undefined {
+function normalizeWeight(weight: string | null | undefined): WeightEnum | undefined {
   if (!weight) return undefined;
-  const capitalized =
-    weight.charAt(0).toUpperCase() + weight.slice(1).toLowerCase();
+  const capitalized = weight.charAt(0).toUpperCase() + weight.slice(1).toLowerCase();
   if (capitalized === WeightEnum.High || capitalized === WeightEnum.Low) {
     return capitalized as WeightEnum;
   }
   return undefined;
 }
 
-async function fixJsonbFields(
-  em: EntityManager,
-  dryRun: boolean,
-): Promise<{ ok: number; fail: number }> {
+async function fixJsonbFields(em: EntityManager, dryRun: boolean): Promise<{ ok: number; fail: number }> {
   const prefix = dryRun ? "[DRY-RUN] " : "";
   let ok = 0;
   let fail = 0;
 
   // 1. summary_metadata -> status
-  process.stdout.write(
-    `  ${prefix}summary_metadata -> status (lower -> UPPER)... `,
-  );
+  process.stdout.write(`  ${prefix}summary_metadata -> status (lower -> UPPER)... `);
   const jobRepo = em.getRepository(JobEntity);
   const allJobs = await jobRepo.find();
   const fixStatus = allJobs.filter(
-    (a) =>
-      a.summaryMetadata?.status &&
-      a.summaryMetadata.status !== upper(a.summaryMetadata.status),
+    (a) => a.summaryMetadata?.status && a.summaryMetadata.status !== upper(a.summaryMetadata.status),
   );
   if (fixStatus.length === 0) {
     process.stdout.write("✓ none to fix\n");
@@ -75,9 +54,7 @@ async function fixJsonbFields(
     process.stdout.write(`✓ ${fixStatus.length} would be fixed\n`);
   } else {
     for (const a of fixStatus) {
-      a.summaryMetadata!.status = upper(
-        a.summaryMetadata!.status,
-      )! as AsyncMetadataStatusEnum;
+      a.summaryMetadata!.status = upper(a.summaryMetadata!.status)! as AsyncMetadataStatusEnum;
       const [err] = await tryRun(jobRepo.save(a));
       if (err) {
         process.stdout.write(`\n  ❌ ${a.id}: ${err.message.slice(0, 80)}`);
@@ -90,14 +67,10 @@ async function fixJsonbFields(
   }
 
   // 2. match_analysis items -> type
-  process.stdout.write(
-    `  ${prefix}match_analysis items -> type (lower -> UPPER)... `,
-  );
+  process.stdout.write(`  ${prefix}match_analysis items -> type (lower -> UPPER)... `);
   const matchRepo = em.getRepository(MatchAnalysisEntity);
   const allMatch = await matchRepo.find();
-  const fixType = allMatch.filter((e) =>
-    e.items?.some((i) => i.type && i.type !== upper(i.type)),
-  );
+  const fixType = allMatch.filter((e) => e.items?.some((i) => i.type && i.type !== upper(i.type)));
   if (fixType.length === 0) {
     process.stdout.write("✓ none to fix\n");
   } else if (dryRun) {
@@ -105,10 +78,7 @@ async function fixJsonbFields(
   } else {
     let ok2 = 0;
     for (const e of fixType) {
-      e.items = e.items.map((i) => ({
-        ...i,
-        type: i.type ? (upper(i.type) as RequirementTypeEnum) : i.type,
-      }));
+      e.items = e.items.map((i) => ({ ...i, type: i.type ? (upper(i.type) as RequirementTypeEnum) : i.type }));
       const [err] = await tryRun(matchRepo.save(e));
       if (err) {
         process.stdout.write(`\n  ❌ ${e.id}: ${err.message.slice(0, 80)}`);
@@ -122,13 +92,9 @@ async function fixJsonbFields(
   }
 
   // 3. match_analysis items -> weight
-  process.stdout.write(
-    `  ${prefix}match_analysis items -> weight (-> PascalCase)... `,
-  );
+  process.stdout.write(`  ${prefix}match_analysis items -> weight (-> PascalCase)... `);
   const fixWeight = allMatch.filter((e) =>
-    e.items?.some(
-      (i) => i.weight && normalizeWeight(String(i.weight)) !== i.weight,
-    ),
+    e.items?.some((i) => i.weight && normalizeWeight(String(i.weight)) !== i.weight),
   );
   if (fixWeight.length === 0) {
     process.stdout.write("✓ none to fix\n");
@@ -139,9 +105,7 @@ async function fixJsonbFields(
     for (const e of fixWeight) {
       e.items = e.items.map((i) => ({
         ...i,
-        weight: i.weight
-          ? (normalizeWeight(String(i.weight)) as MatchItem["weight"])
-          : i.weight,
+        weight: i.weight ? (normalizeWeight(String(i.weight)) as MatchItem["weight"]) : i.weight,
       }));
       const [err] = await tryRun(matchRepo.save(e));
       if (err) {
@@ -156,15 +120,11 @@ async function fixJsonbFields(
   }
 
   // 4. work_preferences items -> weight
-  process.stdout.write(
-    `  ${prefix}work_preferences items -> weight (-> PascalCase)... `,
-  );
+  process.stdout.write(`  ${prefix}work_preferences items -> weight (-> PascalCase)... `);
   const prefsRepo = em.getRepository(WorkPreferencesEntity);
   const allPrefs = await prefsRepo.find();
   const fixPrefWeight = allPrefs.filter((e) =>
-    e.items?.some(
-      (i) => i.weight && normalizeWeight(String(i.weight)) !== i.weight,
-    ),
+    e.items?.some((i) => i.weight && normalizeWeight(String(i.weight)) !== i.weight),
   );
   if (fixPrefWeight.length === 0) {
     process.stdout.write("✓ none to fix\n");
@@ -175,9 +135,7 @@ async function fixJsonbFields(
     for (const e of fixPrefWeight) {
       e.items = e.items.map((i) => ({
         ...i,
-        weight: i.weight
-          ? (normalizeWeight(String(i.weight)) as PreferenceItem["weight"])
-          : i.weight,
+        weight: i.weight ? (normalizeWeight(String(i.weight)) as PreferenceItem["weight"]) : i.weight,
       }));
       const [err] = await tryRun(prefsRepo.save(e));
       if (err) {
@@ -199,51 +157,32 @@ async function scanEnumColumns(em: EntityManager): Promise<void> {
   let totalLower = 0;
 
   const stageRepo = em.getRepository(JobStageEventEntity);
-  const allStages = await stageRepo
-    .createQueryBuilder("e")
-    .select(["e.id", "e.toStage", "e.fromStage"])
-    .getMany();
+  const allStages = await stageRepo.createQueryBuilder("e").select(["e.id", "e.toStage", "e.fromStage"]).getMany();
 
-  const lowerToStage = allStages.filter(
-    (e) => e.toStage && e.toStage !== upper(e.toStage),
-  );
+  const lowerToStage = allStages.filter((e) => e.toStage && e.toStage !== upper(e.toStage));
   if (lowerToStage.length > 0) {
-    process.stdout.write(
-      `  !  application_stage_events.to_stage: ${lowerToStage.length} row(s) with lowercase\n`,
-    );
+    process.stdout.write(`  !  application_stage_events.to_stage: ${lowerToStage.length} row(s) with lowercase\n`);
     totalLower += lowerToStage.length;
   }
 
-  const lowerFromStage = allStages.filter(
-    (e) => e.fromStage && e.fromStage !== upper(e.fromStage),
-  );
+  const lowerFromStage = allStages.filter((e) => e.fromStage && e.fromStage !== upper(e.fromStage));
   if (lowerFromStage.length > 0) {
-    process.stdout.write(
-      `  !  application_stage_events.from_stage: ${lowerFromStage.length} row(s) with lowercase\n`,
-    );
+    process.stdout.write(`  !  application_stage_events.from_stage: ${lowerFromStage.length} row(s) with lowercase\n`);
     totalLower += lowerFromStage.length;
   }
 
   const jobRepo = em.getRepository(JobEntity);
   const allJobs = await jobRepo.find({ select: ["id", "source", "salary"] });
 
-  const lowerSource = allJobs.filter(
-    (a) => a.source && a.source !== upper(a.source),
-  );
+  const lowerSource = allJobs.filter((a) => a.source && a.source !== upper(a.source));
   if (lowerSource.length > 0) {
-    process.stdout.write(
-      `  !  applications.source: ${lowerSource.length} row(s) with lowercase\n`,
-    );
+    process.stdout.write(`  !  applications.source: ${lowerSource.length} row(s) with lowercase\n`);
     totalLower += lowerSource.length;
   }
 
-  const lowerPeriod = allJobs.filter(
-    (a) => a.salary?.period && a.salary?.period !== upper(a.salary?.period),
-  );
+  const lowerPeriod = allJobs.filter((a) => a.salary?.period && a.salary?.period !== upper(a.salary?.period));
   if (lowerPeriod.length > 0) {
-    process.stdout.write(
-      `  !  applications.salary_period: ${lowerPeriod.length} row(s) with lowercase\n`,
-    );
+    process.stdout.write(`  !  applications.salary_period: ${lowerPeriod.length} row(s) with lowercase\n`);
     totalLower += lowerPeriod.length;
   }
 
@@ -254,9 +193,7 @@ async function scanEnumColumns(em: EntityManager): Promise<void> {
 
 async function main() {
   process.stdout.write("Booting NestJS...\n");
-  const app = await NestFactory.createApplicationContext(ScriptModule, {
-    logger: ["error", "warn"],
-  });
+  const app = await NestFactory.createApplicationContext(ScriptModule, { logger: ["error", "warn"] });
 
   const em = app.get(EntityManager);
   const dryRun = process.argv.includes("--dry-run");

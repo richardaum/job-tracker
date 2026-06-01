@@ -1,10 +1,10 @@
+import type { ReactElement, ReactNode } from "react";
 import * as RadixPopover from "@radix-ui/react-popover";
 import { cn } from "@ui/lib/cn";
-import React from "react";
 
 export interface PopoverProps {
-  trigger: React.ReactElement;
-  children: React.ReactNode;
+  trigger: ReactElement;
+  children: ReactNode;
   align?: "start" | "center" | "end";
   sideOffset?: number;
   enabled?: boolean;
@@ -32,9 +32,9 @@ export function Popover({
         <RadixPopover.Content
           align={align}
           sideOffset={sideOffset}
-          className={cn(
-            "z-50 min-w-44 rounded-md border border-border-subtle bg-bg-surface p-2 shadow-md",
-          )}
+          onOpenAutoFocus={(e) => e.preventDefault()}
+          onCloseAutoFocus={(e) => e.preventDefault()}
+          className={cn("z-50 min-w-44 rounded-md border border-border-subtle bg-bg-surface p-2 shadow-md")}
         >
           {children}
         </RadixPopover.Content>

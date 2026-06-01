@@ -7,14 +7,14 @@
   "scripts": {
     "typecheck": "tsc --noEmit"
   },
+  "dependencies": {
+    "marked": "^18.0.3"
+  },
   "devDependencies": {
     "@job-tracker/try-run": "workspace:*",
     "typescript": "^5.8.3"
   },
   "peerDependencies": {
     "@job-tracker/try-run": "workspace:*"
-  },
-  "dependencies": {
-    "marked": "^18.0.3"
   }
 }

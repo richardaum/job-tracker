@@ -14,9 +14,6 @@ export class UserTypeFieldsResolver {
 
   @ResolveField(() => [AuthAccountType])
   async accounts(@Parent() user: { id: string }): Promise<AuthAccountType[]> {
-    return this.accountsRepo.find({
-      where: { userId: user.id },
-      order: { createdAt: "ASC" },
-    });
+    return this.accountsRepo.find({ where: { userId: user.id }, order: { createdAt: "ASC" } });
   }
 }

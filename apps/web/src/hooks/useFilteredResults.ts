@@ -12,11 +12,7 @@ export type UseFilteredResultsOptions<T> = {
  * Client-side substring filter: empty `search` returns `items` as-is; otherwise keeps items
  * whose searchable text includes the normalized search string.
  */
-export function useFilteredResults<T>({
-  items,
-  search,
-  getSearchableText,
-}: UseFilteredResultsOptions<T>): T[] {
+export function useFilteredResults<T>({ items, search, getSearchableText }: UseFilteredResultsOptions<T>): T[] {
   const normalized = search.trim().toLowerCase();
 
   return useMemo(() => {
@@ -24,8 +20,6 @@ export function useFilteredResults<T>({
       return items as T[];
     }
 
-    return items.filter((item) =>
-      getSearchableText(item).toLowerCase().includes(normalized),
-    );
+    return items.filter((item) => getSearchableText(item).toLowerCase().includes(normalized));
   }, [getSearchableText, items, normalized]);
 }

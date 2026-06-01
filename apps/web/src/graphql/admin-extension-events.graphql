@@ -2,21 +2,10 @@ query AdminSourceRunsList {
   sourceRuns {
     id
     templateId
-    sourceProfileId
+    planId
     surfaceUrl
     status
     startedAt
-    sourceProfile
-  }
-}
-
-query AdminExtensionActivityEventsList($limit: Int) {
-  extensionActivityEvents(limit: $limit) {
-    id
-    type
-    summary
-    correlationId
-    occurredAt
   }
 }
 
@@ -27,12 +16,21 @@ subscription AdminSourceRunEvents {
     run {
       id
       templateId
-      sourceProfileId
+      planId
       surfaceUrl
       status
       startedAt
-      sourceProfile
     }
+  }
+}
+
+query AdminExtensionActivityEventsList($limit: Int) {
+  extensionActivityEvents(limit: $limit) {
+    id
+    type
+    summary
+    sourceRunId
+    occurredAt
   }
 }
 
@@ -41,7 +39,7 @@ subscription AdminExtensionActivityEvents {
     id
     type
     summary
-    correlationId
+    sourceRunId
     occurredAt
   }
 }

@@ -109,23 +109,14 @@ describe("AuthService", () => {
 
 describe("AuthService JWT secret rotation", () => {
   const rotationSecrets = {
-    jwtAccessSecrets: {
-      current: "new-access-secret",
-      previous: "old-access-secret",
-    },
-    jwtRefreshSecrets: {
-      current: "new-refresh-secret",
-      previous: "old-refresh-secret",
-    },
+    jwtAccessSecrets: { current: "new-access-secret", previous: "old-access-secret" },
+    jwtRefreshSecrets: { current: "new-refresh-secret", previous: "old-refresh-secret" },
   };
 
   beforeEach(() => {
     vi.resetModules();
     vi.doMock("@api/env/server", async () => {
-      const actual =
-        await vi.importActual<typeof import("@api/env/server")>(
-          "@api/env/server",
-        );
+      const actual = await vi.importActual<typeof import("@api/env/server")>("@api/env/server");
       return { ...actual, ...rotationSecrets };
     });
   });

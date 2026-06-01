@@ -4,20 +4,14 @@ import { useCallback, useMemo, useRef } from "react";
 
 type OutsideEvent = {
   readonly detail: {
-    readonly originalEvent: {
-      readonly target: EventTarget | null;
-      readonly relatedTarget?: EventTarget | null;
-    };
+    readonly originalEvent: { readonly target: EventTarget | null; readonly relatedTarget?: EventTarget | null };
   };
   preventDefault(): void;
 };
 
 type AnchoredDismissInputRef = RefObject<HTMLInputElement | null>;
 
-function anchoredMenuInteractOutsidePreserveInput(
-  ev: OutsideEvent,
-  inputRef: AnchoredDismissInputRef,
-): void {
+function anchoredMenuInteractOutsidePreserveInput(ev: OutsideEvent, inputRef: AnchoredDismissInputRef): void {
   const target = ev.detail.originalEvent.target;
   if (target instanceof Node && inputRef.current?.contains(target)) {
     ev.preventDefault();
@@ -70,8 +64,7 @@ export function useMenuAnchoredCombobox() {
       },
       onPointerDownOutside: (ev: OutsideEvent) => {
         const target = ev.detail.originalEvent.target;
-        if (target instanceof Node && inputRoot.current?.contains(target))
-          return;
+        if (target instanceof Node && inputRoot.current?.contains(target)) return;
         skipClose.current = true;
       },
       onFocusOutside: (ev: OutsideEvent) => {
@@ -79,8 +72,7 @@ export function useMenuAnchoredCombobox() {
         if (rt instanceof Node && inputRoot.current?.contains(rt)) return;
         skipClose.current = true;
       },
-      onInteractOutside: (ev: OutsideEvent) =>
-        anchoredMenuInteractOutsidePreserveInput(ev, inputRoot),
+      onInteractOutside: (ev: OutsideEvent) => anchoredMenuInteractOutsidePreserveInput(ev, inputRoot),
     };
   }, []);
 
@@ -91,9 +83,7 @@ export function useMenuAnchoredCombobox() {
       open,
       menuOpen,
       setOpen,
-    }: AnchoredComboInputKeyDownOpts): ((
-      e: KeyboardEvent<HTMLInputElement>,
-    ) => void) => {
+    }: AnchoredComboInputKeyDownOpts): ((e: KeyboardEvent<HTMLInputElement>) => void) => {
       return (e) => {
         if (disabled || !hasItems) return;
         if (e.key === "ArrowDown") {
@@ -119,10 +109,5 @@ export function useMenuAnchoredCombobox() {
     [],
   );
 
-  return {
-    inputRef,
-    menuContentRef,
-    anchoredMenuDismissLayerProps,
-    createInputKeyDownHandler,
-  };
+  return { inputRef, menuContentRef, anchoredMenuDismissLayerProps, createInputKeyDownHandler };
 }

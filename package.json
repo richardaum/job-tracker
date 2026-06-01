@@ -27,8 +27,8 @@
     "e2e": "pnpm --filter @job-tracker/e2e run setup && pnpm turbo build --filter=@job-tracker/web && pnpm --filter @job-tracker/web run e2e; pnpm --filter @job-tracker/e2e run teardown",
     "knip": "knip",
     "lint": "turbo lint",
-    "format": "prettier --write .",
-    "format:check": "prettier --check .",
+    "format": "oxfmt --write .",
+    "format:check": "oxfmt --check .",
     "lint-staged": "lint-staged",
     "prepare": "husky",
     "typecheck": "turbo typecheck",
@@ -40,15 +40,6 @@
     "docker:build:api": "docker build -f apps/api/Dockerfile -t job-tracker-api:local .",
     "perf:rsdoctor:dev": "pnpm --filter @job-tracker/web run dev:rsdoctor"
   },
-  "lint-staged": {
-    "*.{js,jsx,mjs,cjs,ts,tsx}": [
-      "oxlint --fix --max-warnings=0",
-      "prettier --write"
-    ],
-    "*.{json,md,yml,yaml}": [
-      "prettier --write"
-    ]
-  },
   "devDependencies": {
     "@job-tracker/try-run": "workspace:*",
     "@job-tracker/worktree-cli": "workspace:*",
@@ -58,19 +49,30 @@
     "dotenv": "^16.6.1",
     "eslint-plugin-better-tailwindcss": "^4.5.0",
     "eslint-plugin-react-compiler": "19.1.0-rc.2",
+    "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-testing-library": "^7.16.2",
     "husky": "^9.1.7",
     "knip": "^6.14.1",
     "lean-spec": "^0.2.28",
     "lint-staged": "^16.4.0",
+    "oxfmt": "^0.52.0",
     "oxlint": "^1.67.0",
     "oxlint-tsgolint": "^0.23.0",
-    "prettier": "^3.8.3",
     "tsx": "^4.21.0",
     "turbo": "^2.5.3",
     "typescript": "^5.8.3",
     "yaml": "^2.8.2",
-    "yargs": "^18.0.0"
+    "yargs": "^18.0.0",
+    "zod-validation-error": "^4"
+  },
+  "lint-staged": {
+    "*.{js,jsx,mjs,cjs,ts,tsx}": [
+      "oxlint --fix --max-warnings=0",
+      "oxfmt --write"
+    ],
+    "*.{json,md,yml,yaml}": [
+      "oxfmt --write"
+    ]
   },
   "engines": {
     "node": ">=22",

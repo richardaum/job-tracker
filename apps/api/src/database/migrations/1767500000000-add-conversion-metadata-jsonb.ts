@@ -4,9 +4,7 @@ export class AddConversionMetadataJsonb1767500000000 implements MigrationInterfa
   name = "AddConversionMetadataJsonb1767500000000";
 
   async up(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(
-      `ALTER TABLE "draft_applications" ADD COLUMN "conversion_metadata" jsonb NULL`,
-    );
+    await queryRunner.query(`ALTER TABLE "draft_applications" ADD COLUMN "conversion_metadata" jsonb NULL`);
 
     await queryRunner.query(`
       UPDATE "draft_applications"
@@ -18,18 +16,10 @@ export class AddConversionMetadataJsonb1767500000000 implements MigrationInterfa
       WHERE "conversion_status" != 'IDLE'
     `);
 
-    await queryRunner.query(
-      `ALTER TABLE "draft_applications" DROP COLUMN "conversion_status"`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "draft_applications" DROP COLUMN "conversion_error"`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "draft_applications" DROP COLUMN "converted_at"`,
-    );
-    await queryRunner.query(
-      `DROP TYPE IF EXISTS "draft_application_conversion_status"`,
-    );
+    await queryRunner.query(`ALTER TABLE "draft_applications" DROP COLUMN "conversion_status"`);
+    await queryRunner.query(`ALTER TABLE "draft_applications" DROP COLUMN "conversion_error"`);
+    await queryRunner.query(`ALTER TABLE "draft_applications" DROP COLUMN "converted_at"`);
+    await queryRunner.query(`DROP TYPE IF EXISTS "draft_application_conversion_status"`);
   }
 
   async down(queryRunner: QueryRunner): Promise<void> {
@@ -40,12 +30,8 @@ export class AddConversionMetadataJsonb1767500000000 implements MigrationInterfa
     await queryRunner.query(
       `ALTER TABLE "draft_applications" ADD COLUMN "conversion_status" draft_application_conversion_status NOT NULL DEFAULT 'IDLE'`,
     );
-    await queryRunner.query(
-      `ALTER TABLE "draft_applications" ADD COLUMN "conversion_error" text NULL`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "draft_applications" ADD COLUMN "converted_at" timestamptz NULL`,
-    );
+    await queryRunner.query(`ALTER TABLE "draft_applications" ADD COLUMN "conversion_error" text NULL`);
+    await queryRunner.query(`ALTER TABLE "draft_applications" ADD COLUMN "converted_at" timestamptz NULL`);
 
     await queryRunner.query(`
       UPDATE "draft_applications"
@@ -62,8 +48,6 @@ export class AddConversionMetadataJsonb1767500000000 implements MigrationInterfa
         END
     `);
 
-    await queryRunner.query(
-      `ALTER TABLE "draft_applications" DROP COLUMN "conversion_metadata"`,
-    );
+    await queryRunner.query(`ALTER TABLE "draft_applications" DROP COLUMN "conversion_metadata"`);
   }
 }

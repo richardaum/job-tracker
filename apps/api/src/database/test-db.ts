@@ -6,9 +6,7 @@ import { buildDataSourceOptions } from "./data-source-options";
 
 export async function createTestDataSource(): Promise<DataSource> {
   if (!apiEnv.DATABASE_INTEGRATION_URL) {
-    throw new Error(
-      "DATABASE_INTEGRATION_URL is required for integration tests",
-    );
+    throw new Error("DATABASE_INTEGRATION_URL is required for integration tests");
   }
   const databaseUrl = apiEnv.DATABASE_INTEGRATION_URL;
 

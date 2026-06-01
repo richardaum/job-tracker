@@ -15,9 +15,7 @@ function authProviderLabel(provider: AuthProvider): string {
   }
 }
 
-function primaryProviderLabel(
-  accounts: { providerName: AuthProvider }[],
-): string | null {
+function primaryProviderLabel(accounts: { providerName: AuthProvider }[]): string | null {
   const first = accounts[0];
   return first ? authProviderLabel(first.providerName) : null;
 }
@@ -49,19 +47,9 @@ export default function IdentityTabPage() {
         <FieldWithLabelAction
           label="Photo"
           content={
-            <div
-              className={cn(
-                "flex shrink-0 justify-start pt-0.5 max-sm:flex-col max-sm:items-start",
-              )}
-            >
+            <div className={cn("flex shrink-0 justify-start pt-0.5 max-sm:flex-col max-sm:items-start")}>
               {user.avatarUrl ? (
-                <Image
-                  src={user.avatarUrl}
-                  alt={user.name}
-                  width={96}
-                  height={96}
-                  className={cn("rounded-full")}
-                />
+                <Image src={user.avatarUrl} alt={user.name} width={96} height={96} className={cn("rounded-full")} />
               ) : (
                 <div
                   className={cn(
@@ -82,23 +70,14 @@ export default function IdentityTabPage() {
         )}
       >
         <div className={cn("min-w-0 max-w-full sm:max-w-md")}>
-          <FieldWithLabelAction
-            label="Name"
-            content={<Text size="sm">{user.name}</Text>}
-          />
+          <FieldWithLabelAction label="Name" content={<Text size="sm">{user.name}</Text>} />
         </div>
         <div className={cn("min-w-0 max-w-full sm:max-w-md")}>
-          <FieldWithLabelAction
-            label="Email"
-            content={<Text size="sm">{user.email}</Text>}
-          />
+          <FieldWithLabelAction label="Email" content={<Text size="sm">{user.email}</Text>} />
         </div>
         {providerLabel ? (
           <div className={cn("min-w-0 max-w-full sm:max-w-md")}>
-            <FieldWithLabelAction
-              label="Provider"
-              content={<Text size="sm">{providerLabel}</Text>}
-            />
+            <FieldWithLabelAction label="Provider" content={<Text size="sm">{providerLabel}</Text>} />
           </div>
         ) : null}
       </div>

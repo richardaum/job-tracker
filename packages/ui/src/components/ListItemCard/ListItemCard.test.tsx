@@ -1,5 +1,4 @@
 import { render, screen } from "@testing-library/react";
-import React from "react";
 import { describe, expect, it } from "vitest";
 
 import { ListItemCard } from "./ListItemCard";
@@ -37,11 +36,7 @@ describe("ListItemCard", () => {
   });
 
   it("applies titleSize sm to Title", () => {
-    render(
-      <ListItemCard
-        title={<ListItemCard.Title size="sm">Small title</ListItemCard.Title>}
-      />,
-    );
+    render(<ListItemCard title={<ListItemCard.Title size="sm">Small title</ListItemCard.Title>} />);
     const el = screen.getByText("Small title");
     expect(el).toHaveClass("text-sm");
     expect(el).not.toHaveClass("text-base");
@@ -49,9 +44,7 @@ describe("ListItemCard", () => {
 
   it("applies interactive styles when interactive or asChild is set", () => {
     const { rerender } = render(
-      <ListItemCard
-        title={<ListItemCard.Title interactive>Interactive</ListItemCard.Title>}
-      />,
+      <ListItemCard title={<ListItemCard.Title interactive>Interactive</ListItemCard.Title>} />,
     );
     expect(screen.getByText("Interactive")).toHaveClass("hover:underline");
 

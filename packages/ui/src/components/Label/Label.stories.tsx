@@ -14,6 +14,4 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = { args: { children: "Email", htmlFor: "email" } };
 
-export const Error: Story = {
-  args: { children: "Email", htmlFor: "email", state: "error", required: true },
-};
+export const Error: Story = { args: { children: "Email", htmlFor: "email", state: "error", required: true } };

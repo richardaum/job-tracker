@@ -1,10 +1,6 @@
 "use client";
 
-import {
-  EMPTY_TIPTAP_DOC,
-  normalizeTipTapDocument,
-  tipTapToPlainText,
-} from "@job-tracker/tiptap";
+import { EMPTY_TIPTAP_DOC, normalizeTipTapDocument, tipTapToPlainText } from "@job-tracker/tiptap";
 import { tryRun } from "@job-tracker/try-run";
 import { Button, cn, Stack } from "@job-tracker/ui";
 import { useState } from "react";
@@ -14,38 +10,24 @@ import { useRestructureJobDescriptionAiAction } from "@/modules/ai/actions/useRe
 
 import { TipTapEditor } from "./TipTapEditor";
 
-export function DescriptionEditor({
-  jobId,
-  initialDescription,
-  onSuccess,
-  onError,
-}: {
+type DescriptionEditorProps = {
   jobId: string;
-  initialDescription?: string | null;
+  initialDescription: string | null | undefined;
   onSuccess: () => void;
   onError: () => void;
-}) {
-  const [description, setDescription] = useState<string>(
-    normalizeTipTapDocument(initialDescription),
-  );
-  const restructureDescriptionAction = useRestructureJobDescriptionAiAction();
+};
 
+export function DescriptionEditor({ jobId, initialDescription, onSuccess, onError }: DescriptionEditorProps) {
+  const [description, setDescription] = useState<string>(normalizeTipTapDocument(initialDescription));
+  const restructureDescriptionAction = useRestructureJobDescriptionAiAction();
   const [updateJob, { loading: saving }] = useUpdateJobMutation({
-    refetchQueries: [
-      { query: JobDocument, variables: { id: jobId } },
-      { query: JobsDocument },
-    ],
+    refetchQueries: [{ query: JobDocument, variables: { id: jobId } }, { query: JobsDocument }],
   });
 
   async function handleSaveDescription() {
-    const nextDescription =
-      tipTapToPlainText(description).trim().length > 0 ? description : null;
+    const nextDescription = tipTapToPlainText(description).trim().length > 0 ? description : null;
 
-    const [error] = await tryRun(
-      updateJob({
-        variables: { id: jobId, input: { description: nextDescription } },
-      }),
-    );
+    const [error] = await tryRun(updateJob({ variables: { id: jobId, input: { description: nextDescription } } }));
     if (error) {
       onError();
       return;
@@ -59,9 +41,7 @@ export function DescriptionEditor({
         <TipTapEditor
           id="details-description"
           value={description}
-          onChange={(nextValue) =>
-            setDescription(nextValue || EMPTY_TIPTAP_DOC)
-          }
+          onChange={(nextValue) => setDescription(nextValue || EMPTY_TIPTAP_DOC)}
           placeholder="Add role context, stack, interview notes..."
           disabled={saving}
           autofocus="end"
@@ -70,12 +50,7 @@ export function DescriptionEditor({
         />
       </div>
       <div className={cn("flex justify-end")}>
-        <Button
-          intent="primary"
-          size="md"
-          onClick={handleSaveDescription}
-          state={saving ? "loading" : "default"}
-        >
+        <Button intent="primary" size="md" onClick={handleSaveDescription} state={saving ? "loading" : "default"}>
           Save description
         </Button>
       </div>

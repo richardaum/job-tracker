@@ -1,13 +1,8 @@
-import {
-  CheckCircleIcon,
-  InfoIcon,
-  WarningCircleIcon,
-  XCircleIcon,
-  XIcon,
-} from "@phosphor-icons/react";
+import { CheckCircleIcon, InfoIcon, WarningCircleIcon, XCircleIcon, XIcon } from "@phosphor-icons/react";
+import { cloneElement, useEffect, useState } from "react";
+import type { MouseEvent, MouseEventHandler, ReactElement, ReactNode } from "react";
 import * as RadixToast from "@radix-ui/react-toast";
 import { cn } from "@ui/lib/cn";
-import React from "react";
 
 export type ToastIntent = "info" | "success" | "warning" | "error";
 
@@ -22,7 +17,7 @@ export interface ToastItem {
 }
 
 export interface ToastProps {
-  trigger?: React.ReactElement<{ onClick?: React.MouseEventHandler }>;
+  trigger?: ReactElement<{ onClick?: MouseEventHandler }>;
   title?: string;
   description?: string;
   intent?: ToastIntent;
@@ -50,17 +45,19 @@ const intentIconClasses: Record<ToastIntent, string> = {
   error: "text-text-error",
 };
 
-const intentIcons: Record<ToastIntent, React.ReactNode> = {
+const intentIcons: Record<ToastIntent, ReactNode> = {
   info: <InfoIcon size={18} weight="regular" />,
   success: <CheckCircleIcon size={18} weight="regular" />,
   warning: <WarningCircleIcon size={18} weight="regular" />,
   error: <XCircleIcon size={18} weight="regular" />,
 };
 
-function ToastProgress({ durationMs }: { durationMs: number }) {
-  const [collapsed, setCollapsed] = React.useState(false);
+type ToastProgressProps = { durationMs: number };
 
-  React.useEffect(() => {
+function ToastProgress({ durationMs }: ToastProgressProps) {
+  const [collapsed, setCollapsed] = useState(false);
+
+  useEffect(() => {
     const frameId = window.requestAnimationFrame(() => {
       setCollapsed(true);
     });
@@ -76,10 +73,7 @@ function ToastProgress({ durationMs }: { durationMs: number }) {
       className={cn(
         "pointer-events-none absolute inset-x-0 bottom-0 h-1 origin-left bg-border-brand/40 transition-transform ease-linear",
       )}
-      style={{
-        transform: collapsed ? "scaleX(0)" : "scaleX(1)",
-        transitionDuration: `${durationMs}ms`,
-      }}
+      style={{ transform: collapsed ? "scaleX(0)" : "scaleX(1)", transitionDuration: `${durationMs}ms` }}
     />
   );
 }
@@ -98,7 +92,7 @@ export function Toast({
   toasts,
   onToastOpenChange,
 }: ToastProps) {
-  const [internalOpen, setInternalOpen] = React.useState(defaultOpen ?? false);
+  const [internalOpen, setInternalOpen] = useState(defaultOpen ?? false);
   const isControlled = open !== undefined;
   const currentOpen = isControlled ? open : internalOpen;
 
@@ -111,8 +105,8 @@ export function Toast({
   }
 
   const triggerElement = trigger
-    ? React.cloneElement(trigger, {
-        onClick: (event: React.MouseEvent) => {
+    ? cloneElement(trigger, {
+        onClick: (event: MouseEvent) => {
           trigger.props.onClick?.(event);
           handleOpenChange(true);
         },
@@ -122,17 +116,7 @@ export function Toast({
   const queue = toasts?.length
     ? toasts
     : title
-      ? [
-          {
-            id: "single",
-            title,
-            description,
-            intent,
-            actionLabel,
-            onAction,
-            open: currentOpen,
-          } satisfies ToastItem,
-        ]
+      ? [{ id: "single", title, description, intent, actionLabel, onAction, open: currentOpen } satisfies ToastItem]
       : [];
 
   return (
@@ -157,22 +141,15 @@ export function Toast({
               intentClasses[currentIntent],
             )}
           >
-            <span
-              aria-hidden
-              className={cn("pt-0.5", intentIconClasses[currentIntent])}
-            >
+            <span aria-hidden className={cn("pt-0.5", intentIconClasses[currentIntent])}>
               {intentIcons[currentIntent]}
             </span>
             <div>
-              <RadixToast.Title
-                className={cn("text-sm font-semibold text-text-primary")}
-              >
+              <RadixToast.Title className={cn("text-sm font-semibold text-text-primary")}>
                 {toastItem.title}
               </RadixToast.Title>
               {toastItem.description ? (
-                <RadixToast.Description
-                  className={cn("mt-1 text-sm text-text-secondary")}
-                >
+                <RadixToast.Description className={cn("mt-1 text-sm text-text-secondary")}>
                   {toastItem.description}
                 </RadixToast.Description>
               ) : null}
@@ -204,11 +181,7 @@ export function Toast({
       })}
 
       {triggerElement}
-      <RadixToast.Viewport
-        className={cn(
-          "fixed right-4 top-4 z-50 flex max-w-sm flex-col gap-2 outline-none",
-        )}
-      />
+      <RadixToast.Viewport className={cn("fixed right-4 top-4 z-50 flex max-w-sm flex-col gap-2 outline-none")} />
     </RadixToast.Provider>
   );
 }

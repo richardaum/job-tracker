@@ -1,15 +1,6 @@
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  PrimaryColumn,
-  UpdateDateColumn,
-} from "typeorm";
+import { Column, CreateDateColumn, Entity, PrimaryColumn, UpdateDateColumn } from "typeorm";
 
-const EMPTY_TIPTAP_DOC = JSON.stringify({
-  type: "doc",
-  content: [{ type: "paragraph" }],
-});
+const EMPTY_TIPTAP_DOC = JSON.stringify({ type: "doc", content: [{ type: "paragraph" }] });
 
 @Entity({ name: "resumes" })
 export class ResumeEntity {

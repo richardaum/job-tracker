@@ -4,10 +4,7 @@ import { resolveJobPostingPlainText } from "./job-posting-plain-text.util";
 
 describe("resolveJobPostingPlainText", () => {
   const tiptap = (text: string) =>
-    JSON.stringify({
-      type: "doc",
-      content: [{ type: "paragraph", content: [{ type: "text", text }] }],
-    });
+    JSON.stringify({ type: "doc", content: [{ type: "paragraph", content: [{ type: "text", text }] }] });
 
   it("prefers htmlContent converted to plain text when both sources exist", () => {
     const plain = resolveJobPostingPlainText({
@@ -19,26 +16,18 @@ describe("resolveJobPostingPlainText", () => {
   });
 
   it("uses TipTap description when htmlContent is absent", () => {
-    expect(
-      resolveJobPostingPlainText({
-        description: tiptap("Only TipTap"),
-        htmlContent: "",
-      }),
-    ).toContain("Only TipTap");
+    expect(resolveJobPostingPlainText({ description: tiptap("Only TipTap"), htmlContent: "" })).toContain(
+      "Only TipTap",
+    );
   });
 
   it("falls back to description when html parses to whitespace only", () => {
-    expect(
-      resolveJobPostingPlainText({
-        htmlContent: "<br/>",
-        description: tiptap("Fallback text"),
-      }),
-    ).toContain("Fallback");
+    expect(resolveJobPostingPlainText({ htmlContent: "<br/>", description: tiptap("Fallback text") })).toContain(
+      "Fallback",
+    );
   });
 
   it("returns empty string when neither source yields text", () => {
-    expect(
-      resolveJobPostingPlainText({ htmlContent: "", description: "" }),
-    ).toBe("");
+    expect(resolveJobPostingPlainText({ htmlContent: "", description: "" })).toBe("");
   });
 });

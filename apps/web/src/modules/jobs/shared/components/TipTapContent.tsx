@@ -5,7 +5,7 @@ import { tryRun } from "@job-tracker/try-run";
 import { cn } from "@job-tracker/ui";
 import StarterKit from "@tiptap/starter-kit";
 import { renderToReactElement } from "@tiptap/static-renderer/pm/react";
-import React from "react";
+import type { ReactNode } from "react";
 
 const RENDER_EXTENSIONS = [StarterKit];
 
@@ -30,15 +30,12 @@ const tipTapContentClasses = {
 export function TipTapContent({ content, className }: TipTapContentProps) {
   if (!content) return null;
 
-  let rendered: React.ReactNode;
+  let rendered: ReactNode;
   let isError = false;
 
   const [renderErr, node] = tryRun(() => {
     const doc = parseTipTapDocument(content);
-    return renderToReactElement({
-      extensions: RENDER_EXTENSIONS,
-      content: doc,
-    });
+    return renderToReactElement({ extensions: RENDER_EXTENSIONS, content: doc });
   });
   if (renderErr) {
     rendered = tipTapToPlainText(content);
@@ -48,13 +45,7 @@ export function TipTapContent({ content, className }: TipTapContentProps) {
   }
 
   if (isError) {
-    return (
-      <div
-        className={cn("text-sm whitespace-pre-wrap wrap-break-word", className)}
-      >
-        {rendered}
-      </div>
-    );
+    return <div className={cn("text-sm whitespace-pre-wrap wrap-break-word", className)}>{rendered}</div>;
   }
 
   return (

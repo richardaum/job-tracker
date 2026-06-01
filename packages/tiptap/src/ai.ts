@@ -21,8 +21,5 @@ export function fixTipTapNode(node: unknown): unknown {
 
 export function normalizeAITipTapDocument(doc: TipTapDocument): TipTapDocument {
   const content = Array.isArray(doc.content) ? doc.content : [];
-  return {
-    ...doc,
-    content: content.map((node) => fixTipTapNode(node) as TipTapNode),
-  };
+  return { ...doc, content: content.map((node) => fixTipTapNode(node) as TipTapNode) };
 }

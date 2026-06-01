@@ -2,10 +2,7 @@ import type { ContentActionMessage } from "@/domains/message/types";
 
 import { NextButtonService } from "./next-button.service";
 
-type PaginationActionMessage = Extract<
-  ContentActionMessage,
-  { kind: "navigate.next.page" | "can.navigate.next.page" }
->;
+type PaginationActionMessage = Extract<ContentActionMessage, { kind: "navigate.next.page" | "can.navigate.next.page" }>;
 
 export class PaginationService {
   constructor(private readonly nextButtonService: NextButtonService) {}

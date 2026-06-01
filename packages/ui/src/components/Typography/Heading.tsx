@@ -1,10 +1,10 @@
+import type { HTMLAttributes } from "react";
 import { cn } from "@ui/lib/cn";
-import React from "react";
 
 export type HeadingLevel = "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
 export type HeadingSize = "4xl" | "3xl" | "2xl" | "xl" | "lg" | "base";
 
-export interface HeadingProps extends React.HTMLAttributes<HTMLHeadingElement> {
+export interface HeadingProps extends HTMLAttributes<HTMLHeadingElement> {
   as?: HeadingLevel;
   size?: HeadingSize;
 }
@@ -27,19 +27,10 @@ const defaultSizeByLevel: Record<HeadingLevel, HeadingSize> = {
   h6: "base",
 };
 
-export function Heading({
-  as: Tag = "h2",
-  size,
-  className,
-  children,
-  ...props
-}: HeadingProps) {
+export function Heading({ as: Tag = "h2", size, className, children, ...props }: HeadingProps) {
   const resolvedSize = size ?? defaultSizeByLevel[Tag];
   return (
-    <Tag
-      className={cn("text-text-primary", sizeClasses[resolvedSize], className)}
-      {...props}
-    >
+    <Tag className={cn("text-text-primary", sizeClasses[resolvedSize], className)} {...props}>
       {children}
     </Tag>
   );

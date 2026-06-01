@@ -18,10 +18,7 @@ describe.skipIf(!hasDb)("NoteRepository (integration)", () => {
 
   beforeAll(async () => {
     dataSource = await createTestDataSource();
-    repo = new NoteRepository(
-      dataSource.getRepository(JobEntity),
-      dataSource.getRepository(JobNoteEntity),
-    );
+    repo = new NoteRepository(dataSource.getRepository(JobEntity), dataSource.getRepository(JobNoteEntity));
 
     const user = await insertUserWithAuthAccount(dataSource, {
       providerAccountId: "google-note-repo-test",
@@ -34,27 +31,16 @@ describe.skipIf(!hasDb)("NoteRepository (integration)", () => {
 
   afterAll(async () => {
     if (dataSource?.isInitialized) {
-      await dataSource.query(
-        "TRUNCATE companies, job_notes, job_stage_events, jobs, users CASCADE",
-      );
+      await dataSource.query("TRUNCATE companies, job_notes, job_stage_events, jobs, users CASCADE");
       await dataSource.destroy();
     }
   });
 
   async function createTestApplication(uId: string, companyName: string) {
     const companyRepo = dataSource.getRepository(CompanyEntity);
-    const company = await companyRepo.save(
-      companyRepo.create({ userId: uId, name: companyName }),
-    );
+    const company = await companyRepo.save(companyRepo.create({ userId: uId, name: companyName }));
     const appRepo = dataSource.getRepository(JobEntity);
-    return appRepo.save(
-      appRepo.create({
-        userId: uId,
-        title: "Backend Engineer",
-        companyId: company.id,
-        urls: [],
-      }),
-    );
+    return appRepo.save(appRepo.create({ userId: uId, title: "Backend Engineer", companyId: company.id, urls: [] }));
   }
 
   it("hasJob returns true for owned app", async () => {
@@ -73,26 +59,17 @@ describe.skipIf(!hasDb)("NoteRepository (integration)", () => {
     const app = await createTestApplication(userId, "Revision Corp");
     const note = await repo.create(userId, {
       jobId: app.id,
-      content: JSON.stringify({
-        type: "doc",
-        content: [{ type: "paragraph" }],
-      }),
+      content: JSON.stringify({ type: "doc", content: [{ type: "paragraph" }] }),
     });
 
-    const staleUpdate = await repo.updateWithRevision(
-      note.id,
-      userId,
-      note.revision + 1,
-      { content: "Outdated write" },
-    );
+    const staleUpdate = await repo.updateWithRevision(note.id, userId, note.revision + 1, {
+      content: "Outdated write",
+    });
     expect(staleUpdate).toBeNull();
 
-    const validUpdate = await repo.updateWithRevision(
-      note.id,
-      userId,
-      note.revision,
-      { content: "Updated with valid revision" },
-    );
+    const validUpdate = await repo.updateWithRevision(note.id, userId, note.revision, {
+      content: "Updated with valid revision",
+    });
     expect(validUpdate).not.toBeNull();
     expect(validUpdate?.revision).toBe(note.revision + 1);
     expect(validUpdate?.content).toBe("Updated with valid revision");
@@ -127,10 +104,7 @@ describe.skipIf(!hasDb)("NoteRepository (integration)", () => {
 
   it("delete removes and returns note", async () => {
     const app = await createTestApplication(userId, "Delete Corp");
-    const note = await repo.create(userId, {
-      jobId: app.id,
-      content: "to-delete",
-    });
+    const note = await repo.create(userId, { jobId: app.id, content: "to-delete" });
 
     const deleted = await repo.delete(note.id, userId);
     expect(deleted?.id).toBe(note.id);

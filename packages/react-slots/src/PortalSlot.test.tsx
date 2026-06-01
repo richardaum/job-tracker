@@ -17,9 +17,7 @@ describe("PortalSlot", () => {
       </PortalSlotsProvider>,
     );
 
-    expect(screen.getByTestId("portal-target")).toContainElement(
-      screen.getByRole("button", { name: "Portaled" }),
-    );
+    expect(screen.getByTestId("portal-target")).toContainElement(screen.getByRole("button", { name: "Portaled" }));
   });
 
   it("Fill without provider throws", () => {

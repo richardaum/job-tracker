@@ -1,6 +1,6 @@
+import type { ReactNode } from "react";
 import { Label } from "@ui/components/Label/Label";
 import { cn } from "@ui/lib/cn";
-import React from "react";
 
 export interface FormFieldProps {
   label: string;
@@ -9,7 +9,8 @@ export interface FormFieldProps {
   error?: string;
   required?: boolean;
   size?: "sm" | "md";
-  children: React.ReactNode;
+  tooltip?: ReactNode;
+  children: ReactNode;
 }
 
 export function FormField({
@@ -19,15 +20,19 @@ export function FormField({
   error,
   required = false,
   size = "md",
+  tooltip,
   children,
 }: FormFieldProps) {
   const state = error ? "error" : "default";
 
   return (
     <div className={cn("flex w-full flex-col gap-2")}>
-      <Label htmlFor={htmlFor} required={required} size={size} state={state}>
-        {label}
-      </Label>
+      <div className={cn("inline-flex items-center gap-1")}>
+        <Label htmlFor={htmlFor} required={required} size={size} state={state}>
+          {label}
+        </Label>
+        {tooltip && <span className={cn("inline-flex")}>{tooltip}</span>}
+      </div>
       {children}
       {error ? (
         <p className={cn("text-sm text-text-error")} role="alert">

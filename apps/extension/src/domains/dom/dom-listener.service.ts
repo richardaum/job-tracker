@@ -15,10 +15,7 @@ export class DomListenerService {
   ) {}
 
   async execute(message: ContentActionMessage) {
-    await this.popupLogService.publishDebug("DomListenerService executing", {
-      kind: message.kind,
-      message,
-    });
+    await this.popupLogService.publishDebug("DomListenerService executing", { kind: message.kind, message });
 
     switch (message.kind) {
       case "jobs.list":

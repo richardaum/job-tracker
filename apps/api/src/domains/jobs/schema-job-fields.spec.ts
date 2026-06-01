@@ -17,15 +17,14 @@ describe("schema.gql Job / enum surface (task 03)", () => {
     expect(match).not.toContain("draftJobId");
   });
 
-  it("registers ApplicationStage with DRAFT", () => {
+  it("registers ApplicationStage with Draft", () => {
     const chunk = schema.match(/enum ApplicationStage \{[^}]+\}/s)?.[0] ?? "";
-    expect(chunk.split("\n").map((s) => s.trim())).toContain("DRAFT");
+    expect(chunk.split("\n").map((s) => s.trim())).toContain("Draft");
   });
 
-  it("registers ApplicationQuickFilter with DRAFT", () => {
-    const chunk =
-      schema.match(/enum ApplicationQuickFilter \{[^}]+\}/s)?.[0] ?? "";
-    expect(chunk.split("\n").map((s) => s.trim())).toContain("DRAFT");
+  it("registers ApplicationQuickFilter with Draft", () => {
+    const chunk = schema.match(/enum ApplicationQuickFilter \{[^}]+\}/s)?.[0] ?? "";
+    expect(chunk.split("\n").map((s) => s.trim())).toContain("Draft");
   });
 
   it("drops draftJobId from CreateJobInput", () => {
@@ -33,9 +32,7 @@ describe("schema.gql Job / enum surface (task 03)", () => {
     expect(chunk.length).toBeGreaterThan(0);
     expect(chunk).not.toContain("draftJobId");
     expect(chunk).toContain("htmlContent");
-    expect(chunk.split("\n").map((s) => s.trim())).toContain(
-      "createAsDraftCapture: Boolean",
-    );
+    expect(chunk.split("\n").map((s) => s.trim())).toContain("createAsDraftCapture: Boolean");
     expect(chunk).toContain("company: String\n");
     expect(chunk).not.toContain("company: String!");
   });

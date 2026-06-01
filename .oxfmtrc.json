@@ -1,0 +1,28 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "semi": true,
+  "singleQuote": false,
+  "objectWrap": "collapse",
+  "printWidth": 120,
+  "sortPackageJson": false,
+  "ignorePatterns": [
+    "node_modules",
+    ".next",
+    "dist",
+    "storybook-static",
+    "docs/specs",
+    "coverage",
+    "playwright-report",
+    "test-results",
+    "pnpm-lock.yaml",
+    ".turbo",
+    "apps/extension/build",
+    "apps/extension/.wxt",
+    ".agents",
+    ".claude/skills",
+    ".cursor/skills",
+    ".windsurf/skills",
+    "specs/INDEX.md",
+    "apps/web/src/gql"
+  ]
+}

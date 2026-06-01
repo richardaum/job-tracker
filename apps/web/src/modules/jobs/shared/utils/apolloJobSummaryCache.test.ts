@@ -23,40 +23,19 @@ describe("writeJobSummaryStatusToCache", () => {
       data: { __typename: "JobType", id: "job-1", summaryMetadata: null },
     });
 
-    const updated = writeJobSummaryStatusToCache(
-      cache,
-      "job-1",
-      AsyncMetadataStatus.Processing,
-    );
+    const updated = writeJobSummaryStatusToCache(cache, "job-1", AsyncMetadataStatus.Processing);
 
     expect(updated).toBe(true);
-    expect(
-      cache.readFragment({
-        id: "JobType:job-1",
-        fragment: jobSummaryPatchFragment,
-      }),
-    ).toEqual({
+    expect(cache.readFragment({ id: "JobType:job-1", fragment: jobSummaryPatchFragment })).toEqual({
       __typename: "JobType",
       id: "job-1",
-      summaryMetadata: {
-        __typename: "AsyncMetadataType",
-        status: AsyncMetadataStatus.Processing,
-      },
+      summaryMetadata: { __typename: "AsyncMetadataType", status: AsyncMetadataStatus.Processing },
     });
   });
 
   it("returns false when the job is not in cache", () => {
-    const client = new ApolloClient({
-      cache: new InMemoryCache(),
-      link: { request: () => null } as never,
-    });
+    const client = new ApolloClient({ cache: new InMemoryCache(), link: { request: () => null } as never });
 
-    expect(
-      writeJobSummaryStatusToCache(
-        client.cache,
-        "missing",
-        AsyncMetadataStatus.Processing,
-      ),
-    ).toBe(false);
+    expect(writeJobSummaryStatusToCache(client.cache, "missing", AsyncMetadataStatus.Processing)).toBe(false);
   });
 });

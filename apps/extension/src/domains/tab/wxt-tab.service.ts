@@ -8,20 +8,14 @@ const logService = new LogService({ prefix: "WxtTabService", level: "debug" });
 
 export class WxtTabService implements TabService {
   async getCurrentTab(): Promise<number> {
-    const [tab] = await chrome.tabs.query({
-      active: true,
-      currentWindow: true,
-    });
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     if (!tab?.id) throw new Error("Unable to get current tab");
     await this.waitUntilTabComplete(tab.id);
     return tab.id;
   }
 
   async openWindow(url: string, options?: OpenWindowOptions): Promise<number> {
-    const window = await chrome.windows.create({
-      url,
-      focused: options?.focus ?? false,
-    });
+    const window = await chrome.windows.create({ url, focused: options?.focus ?? false });
     const tabId = window.tabs?.[0]?.id;
     if (tabId == null) {
       throw new Error("Unable to open window tab: missing tab id");
@@ -92,17 +86,10 @@ export class WxtTabService implements TabService {
       };
 
       const timeoutId = globalThis.setTimeout(() => {
-        finish(
-          new Error(
-            `waitUntilTabComplete(${tabId}) timed out after ${TIMEOUT_MS}ms`,
-          ),
-        );
+        finish(new Error(`waitUntilTabComplete(${tabId}) timed out after ${TIMEOUT_MS}ms`));
       }, TIMEOUT_MS);
 
-      const onUpdated = (
-        updatedTabId: number,
-        _changeInfo: chrome.tabs.TabChangeInfo,
-      ): void => {
+      const onUpdated = (updatedTabId: number, _changeInfo: chrome.tabs.TabChangeInfo): void => {
         if (updatedTabId !== tabId) return;
         tryFinishIfComplete();
       };

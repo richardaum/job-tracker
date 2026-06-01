@@ -2,11 +2,7 @@ import type { JwtSecretPair } from "@api/env/jwt-secrets";
 import { tryRun } from "@job-tracker/try-run";
 import * as jwt from "jsonwebtoken";
 
-type JwtPayloadWithSubject = jwt.JwtPayload & {
-  sub: string;
-  tv?: number;
-  jti?: string;
-};
+type JwtPayloadWithSubject = jwt.JwtPayload & { sub: string; tv?: number; jti?: string };
 
 function getSecretsForKid(kid: unknown, secrets: JwtSecretPair): string[] {
   if (kid === "previous") {
@@ -31,10 +27,7 @@ export function signJwt(
   });
 }
 
-export function verifyJwt(
-  token: string,
-  secrets: JwtSecretPair,
-): JwtPayloadWithSubject {
+export function verifyJwt(token: string, secrets: JwtSecretPair): JwtPayloadWithSubject {
   const decoded = jwt.decode(token, { complete: true });
   if (!decoded || typeof decoded === "string") {
     throw new jwt.JsonWebTokenError("invalid token");
@@ -44,9 +37,7 @@ export function verifyJwt(
   let lastError: unknown;
 
   for (const secret of secretsToTry) {
-    const [error, payload] = tryRun(
-      () => jwt.verify(token, secret) as JwtPayloadWithSubject,
-    );
+    const [error, payload] = tryRun(() => jwt.verify(token, secret) as JwtPayloadWithSubject);
     if (!error) {
       return payload;
     }
@@ -56,10 +47,7 @@ export function verifyJwt(
   throw lastError ?? new jwt.JsonWebTokenError("invalid token");
 }
 
-export function resolveJwtVerificationSecret(
-  token: string,
-  secrets: JwtSecretPair,
-): string {
+export function resolveJwtVerificationSecret(token: string, secrets: JwtSecretPair): string {
   const decoded = jwt.decode(token, { complete: true });
   if (!decoded || typeof decoded === "string") {
     throw new jwt.JsonWebTokenError("invalid token");

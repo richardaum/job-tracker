@@ -1,17 +1,10 @@
 import type { ApolloCache, DocumentNode, Reference } from "@apollo/client";
 
-type RemoveDeletedEntityFromListCacheParams = {
-  mutationData: unknown;
-  mutation: DocumentNode;
-  query: DocumentNode;
-};
+type RemoveDeletedEntityFromListCacheParams = { mutationData: unknown; mutation: DocumentNode; query: DocumentNode };
 
 function getFirstQueryFieldName(query: DocumentNode): string | null {
   for (const definition of query.definitions) {
-    if (
-      definition.kind === "OperationDefinition" &&
-      definition.operation === "query"
-    ) {
+    if (definition.kind === "OperationDefinition" && definition.operation === "query") {
       const firstSelection = definition.selectionSet.selections[0];
       if (firstSelection?.kind === "Field") {
         return firstSelection.name.value;
@@ -23,10 +16,7 @@ function getFirstQueryFieldName(query: DocumentNode): string | null {
 
 function getFirstMutationFieldName(mutation: DocumentNode): string | null {
   for (const definition of mutation.definitions) {
-    if (
-      definition.kind === "OperationDefinition" &&
-      definition.operation === "mutation"
-    ) {
+    if (definition.kind === "OperationDefinition" && definition.operation === "mutation") {
       const firstSelection = definition.selectionSet.selections[0];
       if (firstSelection?.kind === "Field") {
         return firstSelection.name.value;
@@ -36,23 +26,16 @@ function getFirstMutationFieldName(mutation: DocumentNode): string | null {
   return null;
 }
 
-function getDeletedIdFromMutationResult(
-  mutationData: unknown,
-  mutationFieldName: string,
-): string | null {
+function getDeletedIdFromMutationResult(mutationData: unknown, mutationFieldName: string): string | null {
   if (!mutationData || typeof mutationData !== "object") {
     return null;
   }
-  const rootField = (mutationData as Record<string, unknown>)[
-    mutationFieldName
-  ];
+  const rootField = (mutationData as Record<string, unknown>)[mutationFieldName];
   if (!rootField || typeof rootField !== "object") {
     return null;
   }
   const deletedId = (rootField as Record<string, unknown>).deletedId;
-  return typeof deletedId === "string" && deletedId.length > 0
-    ? deletedId
-    : null;
+  return typeof deletedId === "string" && deletedId.length > 0 ? deletedId : null;
 }
 
 export function removeDeletedEntityFromListCache(
@@ -72,10 +55,7 @@ export function removeDeletedEntityFromListCache(
   let removedRefId: string | null = null;
   cache.modify({
     fields: {
-      [listField](
-        existing: unknown,
-        { readField }: { readField: (name: string, ref: Reference) => unknown },
-      ) {
+      [listField](existing: unknown, { readField }: { readField: (name: string, ref: Reference) => unknown }) {
         if (!Array.isArray(existing)) {
           return existing;
         }

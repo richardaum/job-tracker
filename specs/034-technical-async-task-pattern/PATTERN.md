@@ -251,15 +251,11 @@ Completed  → content + "Generated at [metadata.generatedAt]"
 import { AsyncMetadataStatus } from "@/gql/hooks";
 
 const sseUrl = `${getApiBaseUrl()}/<domain>/<id>/stream`;
-useEventSource<{ domainId: string; status: AsyncMetadataStatus }>(
-  sseUrl,
-  "<domain>_status_changed",
-  (data) => {
-    if (refetch) {
-      void refetch();
-    }
-  },
-);
+useEventSource<{ domainId: string; status: AsyncMetadataStatus }>(sseUrl, "<domain>_status_changed", (data) => {
+  if (refetch) {
+    void refetch();
+  }
+});
 ```
 
 SSE endpoint is a `@Sse(':id/stream')` controller behind `JwtAuthGuard` that emits named events from the domain's event bus. See spec 038 for SSE infrastructure.

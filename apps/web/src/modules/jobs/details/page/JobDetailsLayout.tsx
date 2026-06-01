@@ -13,18 +13,15 @@ import {
   TabsTrigger,
   Text,
 } from "@job-tracker/ui";
-import {
-  ArrowSquareRightIcon,
-  CaretDownIcon,
-  SparkleIcon,
-  TrashIcon,
-} from "@phosphor-icons/react";
+import { ArrowSquareRightIcon, CaretDownIcon, SparkleIcon, TrashIcon } from "@phosphor-icons/react";
 import type { Route } from "next";
 import NextLink from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import React, { useCallback, useEffect, useState } from "react";
+import { use, useCallback, useEffect, useState } from "react";
+import type { ReactNode } from "react";
 
 import { BackToLink } from "@/components/back-to-link";
+import { DetailPageHeader } from "@/components/detail-page-header/DetailPageHeader";
 import { EntityNotFound } from "@/components/entity-not-found";
 import { useBreakpoint } from "@/hooks/useBreakpoint";
 import { ActivitySidePanel } from "@/modules/jobs/details/components/ActivitySidePanel";
@@ -60,64 +57,42 @@ import { useToastQueue } from "@/modules/jobs/shared/hooks/useToastQueue";
 
 interface JobDetailsLayoutProps {
   params: Promise<{ id: string }>;
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
-function DesktopMainTabTrigger({
-  jobId,
-  tab,
-  label,
-  sidePanel,
-}: {
+type DesktopMainTabTriggerProps = {
   jobId: string;
   tab: JobDetailsMainTab;
   label: string;
   sidePanel: JobSidePanel | null;
-}) {
+};
+
+function DesktopMainTabTrigger({ jobId, tab, label, sidePanel }: DesktopMainTabTriggerProps) {
   return (
-    <TabsTrigger value={tab} asChild>
-      <NextLink href={jobDetailsHref(jobId, tab, sidePanel ?? undefined)}>
-        {label}
-      </NextLink>
+    <TabsTrigger value={tab}>
+      <NextLink href={jobDetailsHref(jobId, tab, sidePanel ?? undefined)}>{label}</NextLink>
     </TabsTrigger>
   );
 }
 
-function MobileTabTrigger({
-  jobId,
-  tab,
-  label,
-}: {
-  jobId: string;
-  tab: JobDetailsTab;
-  label: string;
-}) {
+type MobileTabTriggerProps = { jobId: string; tab: JobDetailsTab; label: string };
+
+function MobileTabTrigger({ jobId, tab, label }: MobileTabTriggerProps) {
   return (
-    <TabsTrigger value={tab} asChild>
+    <TabsTrigger value={tab}>
       <NextLink href={jobDetailsPath(jobId, tab)}>{label}</NextLink>
     </TabsTrigger>
   );
 }
 
-function JobDetailsTabList({
-  jobId,
-  showSourceContent,
-  className,
-}: {
-  jobId: string;
-  showSourceContent: boolean;
-  className?: string;
-}) {
+type JobDetailsTabListProps = { jobId: string; showSourceContent: boolean; className?: string };
+
+function JobDetailsTabList({ jobId, showSourceContent, className }: JobDetailsTabListProps) {
   return (
     <TabsList className={cn("w-fit max-w-full shrink-0 self-start", className)}>
-      <OverviewTabTrigger
-        tab="overview"
-        href={jobDetailsPath(jobId, "overview")}
-      />
+      <OverviewTabTrigger tab="overview" href={jobDetailsPath(jobId, "overview")} />
       <MobileTabTrigger jobId={jobId} tab="description" label="Description" />
-      {showSourceContent ? (
-        <MobileTabTrigger jobId={jobId} tab="source" label="Source content" />
-      ) : null}
+      {showSourceContent ? <MobileTabTrigger jobId={jobId} tab="source" label="Source content" /> : null}
       <MatchTabTrigger tab="match" href={jobDetailsPath(jobId, "match")} />
       <MobileTabTrigger jobId={jobId} tab="notes" label="Notes" />
       <MobileTabTrigger jobId={jobId} tab="history" label="History" />
@@ -125,48 +100,52 @@ function JobDetailsTabList({
   );
 }
 
-function JobDetailsTabBar({
-  children,
-  className,
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) {
+type JobDetailsTabBarProps = { children: ReactNode; className?: string };
+
+function JobDetailsTabBar({ children, className }: JobDetailsTabBarProps) {
   return (
-    <div
-      className={cn("flex flex-wrap items-center gap-x-4 gap-y-2", className)}
-    >
+    <div className={cn("flex flex-wrap items-center gap-x-4 gap-y-2", className)}>
       {children}
       <JobDetailsSubTabs.Slot className={cn("empty:hidden")} />
     </div>
   );
 }
 
+type JobDetailsFullWidthTabLayoutProps = {
+  jobId: string;
+  showSourceContent: boolean;
+  activeTab: JobDetailsTab;
+  children: ReactNode;
+};
+
 function JobDetailsFullWidthTabLayout({
   jobId,
   showSourceContent,
   activeTab,
   children,
-}: {
-  jobId: string;
-  showSourceContent: boolean;
-  activeTab: JobDetailsTab;
-  children: React.ReactNode;
-}) {
+}: JobDetailsFullWidthTabLayoutProps) {
   return (
-    <Tabs value={activeTab} className={cn("flex size-full min-h-0 flex-col")}>
+    <Tabs value={activeTab}>
       <JobDetailsTabBar>
-        <JobDetailsTabList
-          jobId={jobId}
-          showSourceContent={showSourceContent}
-          className={cn("flex-wrap")}
-        />
+        <JobDetailsTabList jobId={jobId} showSourceContent={showSourceContent} className={cn("flex-wrap")} />
       </JobDetailsTabBar>
 
       <div className={cn("mt-3 flex flex-1 min-h-0 flex-col")}>{children}</div>
     </Tabs>
   );
 }
+
+type JobDetailsSplitTabLayoutProps = {
+  jobId: string;
+  showSourceContent: boolean;
+  activeTab: JobDetailsMainTab;
+  sidePanel: JobSidePanel | null;
+  effectiveSidePanel: JobSidePanel;
+  onSidePanelChange: (sidePanel: JobSidePanel) => void;
+  onSuccess: (message: string) => void;
+  onError: (message: string) => void;
+  children: ReactNode;
+};
 
 function JobDetailsSplitTabLayout({
   jobId,
@@ -178,61 +157,25 @@ function JobDetailsSplitTabLayout({
   onSuccess,
   onError,
   children,
-}: {
-  jobId: string;
-  showSourceContent: boolean;
-  activeTab: JobDetailsMainTab;
-  sidePanel: JobSidePanel | null;
-  effectiveSidePanel: JobSidePanel;
-  onSidePanelChange: (sidePanel: JobSidePanel) => void;
-  onSuccess: (message: string) => void;
-  onError: (message: string) => void;
-  children: React.ReactNode;
-}) {
+}: JobDetailsSplitTabLayoutProps) {
   return (
-    <div
-      className={cn(
-        "grid h-full min-h-0 gap-4 lg:grid-cols-[minmax(0,1fr)_360px]",
-      )}
-    >
+    <div className={cn("grid h-full min-h-0 gap-4 lg:grid-cols-[minmax(0,1fr)_360px]")}>
       <Tabs value={activeTab} className={cn("flex size-full min-h-0 flex-col")}>
         <JobDetailsTabBar>
           <TabsList className={cn("w-fit self-start")}>
-            <OverviewTabTrigger
-              tab="overview"
-              href={jobDetailsHref(jobId, "overview", sidePanel ?? undefined)}
-            />
-            <DesktopMainTabTrigger
-              jobId={jobId}
-              tab="description"
-              label="Description"
-              sidePanel={sidePanel}
-            />
+            <OverviewTabTrigger tab="overview" href={jobDetailsHref(jobId, "overview", sidePanel ?? undefined)} />
+            <DesktopMainTabTrigger jobId={jobId} tab="description" label="Description" sidePanel={sidePanel} />
             {showSourceContent ? (
-              <DesktopMainTabTrigger
-                jobId={jobId}
-                tab="source"
-                label="Source content"
-                sidePanel={sidePanel}
-              />
+              <DesktopMainTabTrigger jobId={jobId} tab="source" label="Source content" sidePanel={sidePanel} />
             ) : null}
-            <MatchTabTrigger
-              tab="match"
-              href={jobDetailsHref(jobId, "match", sidePanel ?? undefined)}
-            />
+            <MatchTabTrigger tab="match" href={jobDetailsHref(jobId, "match", sidePanel ?? undefined)} />
           </TabsList>
         </JobDetailsTabBar>
 
-        <div className={cn("mt-3 flex flex-1 min-h-0 flex-col")}>
-          {children}
-        </div>
+        <div className={cn("mt-3 flex flex-1 min-h-0 flex-col")}>{children}</div>
       </Tabs>
 
-      <div
-        className={cn(
-          "min-h-0 overflow-hidden border-l border-border-subtle pl-4",
-        )}
-      >
+      <div className={cn("min-h-0 overflow-hidden border-l border-border-subtle pl-4")}>
         <ActivitySidePanel
           jobId={jobId}
           sidePanel={effectiveSidePanel}
@@ -245,11 +188,8 @@ function JobDetailsSplitTabLayout({
   );
 }
 
-export default function JobDetailsLayout({
-  params,
-  children,
-}: JobDetailsLayoutProps) {
-  const { id } = React.use(params);
+export default function JobDetailsLayout({ params, children }: JobDetailsLayoutProps) {
+  const { id } = use(params);
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -267,15 +207,8 @@ export default function JobDetailsLayout({
   // useJobFillStatusChangedSubscription is also duplicated by
   // JobFillStatusProvider -> useJobFillStatusValue below. The layout-level
   // subscription should be removed once the provider is the single source.
-  const {
-    job,
-    currentStage,
-    currentStageReason,
-    status,
-    displayTitle,
-    fillButtonState,
-    triggerFillAutomatically,
-  } = useJobDetailsViewModel(id);
+  const { job, currentStage, currentStageReason, status, displayTitle, fillButtonState, triggerFillAutomatically } =
+    useJobDetailsViewModel(id);
   const isDesktop = useBreakpoint("(min-width: 1024px)");
 
   useJobPageTitle(job, activeTab);
@@ -294,16 +227,10 @@ export default function JobDetailsLayout({
     [enqueueToast],
   );
 
-  const handleEntitySuccess = useCallback(
-    (message: string) => showToast(message, "success"),
-    [showToast],
-  );
-  const handleEntityError = useCallback(
-    (message: string) => showToast(message, "error"),
-    [showToast],
-  );
+  const handleEntitySuccess = useCallback((message: string) => showToast(message, "success"), [showToast]);
+  const handleEntityError = useCallback((message: string) => showToast(message, "error"), [showToast]);
 
-  const handleFillAutomatically = React.useCallback(async () => {
+  const handleFillAutomatically = useCallback(async () => {
     const { error } = await triggerFillAutomatically();
     if (error) {
       enqueueToast({
@@ -344,10 +271,7 @@ export default function JobDetailsLayout({
             <CaretDownIcon
               size={12}
               weight="bold"
-              className={cn(
-                "transition-transform duration-200",
-                actionsMenuOpen ? "rotate-180" : "rotate-0",
-              )}
+              className={cn("transition-transform duration-200", actionsMenuOpen ? "rotate-180" : "rotate-0")}
             />
           }
         >
@@ -386,38 +310,23 @@ export default function JobDetailsLayout({
       <JobFillStatusProvider jobId={id}>
         <JobMatchStatusProvider jobId={id}>
           <div className={cn("flex h-full min-h-0 flex-col")}>
-            <div
-              className={cn(
-                "relative flex flex-col gap-2 border-b border-border-subtle p-4 sm:px-6 sm:py-5",
-              )}
+            <DetailPageHeader
+              trailing={
+                job ? (
+                  <>
+                    {actionsMenu}
+                    <JobHeaderActions.Slot className={cn("flex shrink-0 items-center gap-2 empty:hidden")} />
+                  </>
+                ) : undefined
+              }
+              reserveClassName="pr-36 sm:pr-64"
             >
-              {job ? (
-                <div
-                  className={cn(
-                    "absolute top-4 right-4 z-10 flex shrink-0 flex-wrap items-center justify-end gap-2 sm:top-5 sm:right-6",
-                  )}
-                >
-                  {actionsMenu}
-                  <JobHeaderActions.Slot
-                    className={cn(
-                      "flex shrink-0 items-center gap-2 empty:hidden",
-                    )}
-                  />
-                </div>
-              ) : null}
               <div className={cn("flex items-center gap-3")}>
                 <BackToLink href="/jobs">Back to jobs</BackToLink>
               </div>
-              <div
-                className={cn(
-                  "flex items-center gap-3",
-                  job ? "pr-36 sm:pr-64" : undefined,
-                )}
-              >
+              <div className={cn("flex items-center gap-3")}>
                 <Heading as="h1" size="2xl" className={cn("min-w-0")}>
-                  <span>
-                    {displayTitle !== null ? displayTitle : "Job details"}
-                  </span>{" "}
+                  <span>{displayTitle !== null ? displayTitle : "Job details"}</span>{" "}
                 </Heading>
                 {job ? (
                   <StatusBadge
@@ -448,7 +357,7 @@ export default function JobDetailsLayout({
                   />
                 </>
               ) : null}
-            </div>
+            </DetailPageHeader>
 
             <div className={cn("flex-1 min-h-0 overflow-hidden p-4 sm:p-6")}>
               {status === "loading" ? (
@@ -456,11 +365,7 @@ export default function JobDetailsLayout({
                   Loading job...
                 </Text>
               ) : status === "notFound" ? (
-                <EntityNotFound
-                  resource="job"
-                  backHref="/jobs"
-                  backLabel="Back to jobs"
-                />
+                <EntityNotFound resource="job" backHref="/jobs" backLabel="Back to jobs" />
               ) : status === "error" ? (
                 <Text size="sm" color="error">
                   Failed to load job details.

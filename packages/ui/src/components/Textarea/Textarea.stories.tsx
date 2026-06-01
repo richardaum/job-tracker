@@ -14,6 +14,4 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = { args: { placeholder: "Add interview notes" } };
 
-export const Error: Story = {
-  args: { placeholder: "Add interview notes", state: "error" },
-};
+export const Error: Story = { args: { placeholder: "Add interview notes", state: "error" } };

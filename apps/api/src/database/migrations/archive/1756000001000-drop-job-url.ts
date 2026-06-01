@@ -8,15 +8,11 @@ export class DropJobUrl1756000001000 implements MigrationInterface {
   name = "DropJobUrl1756000001000";
 
   public async up(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(
-      `ALTER TABLE "applications" DROP COLUMN IF EXISTS "url"`,
-    );
+    await queryRunner.query(`ALTER TABLE "applications" DROP COLUMN IF EXISTS "url"`);
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(
-      `ALTER TABLE "applications" ADD COLUMN IF NOT EXISTS "url" text`,
-    );
+    await queryRunner.query(`ALTER TABLE "applications" ADD COLUMN IF NOT EXISTS "url" text`);
     await queryRunner.query(`
 UPDATE "applications"
 SET "url" = "urls"[1]

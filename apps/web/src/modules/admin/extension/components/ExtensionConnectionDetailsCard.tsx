@@ -6,13 +6,9 @@ import type { ExtensionConnectionState } from "@/modules/admin/extension/hooks/u
 import { connectionDetailValue } from "@/modules/admin/extension/lib/extension-connection.display";
 import { formatDateTime } from "@/modules/jobs/details/utils/job-details.shared";
 
-type ExtensionConnectionDetailsCardProps = {
-  connection: ExtensionConnectionState;
-};
+type ExtensionConnectionDetailsCardProps = { connection: ExtensionConnectionState };
 
-export function ExtensionConnectionDetailsCard({
-  connection,
-}: ExtensionConnectionDetailsCardProps) {
+export function ExtensionConnectionDetailsCard({ connection }: ExtensionConnectionDetailsCardProps) {
   return (
     <Card padding="md" className={cn("min-w-0 max-w-xl")}>
       <Stack gap="md">
@@ -22,39 +18,27 @@ export function ExtensionConnectionDetailsCard({
         <Stack gap="sm">
           <DetailRow
             label="Extension version"
-            value={connectionDetailValue(
-              connection.status,
-              connection.extensionVersion,
-            )}
+            value={connectionDetailValue(connection.status, connection.extensionVersion)}
           />
-          <DetailRow
-            label="Browser"
-            value={connectionDetailValue(connection.status, connection.browser)}
-          />
+          <DetailRow label="Browser" value={connectionDetailValue(connection.status, connection.browser)} />
           <DetailRow
             label="Last checked"
             value={connectionDetailValue(
               connection.status,
-              connection.lastHeartbeatAt
-                ? formatDateTime(connection.lastHeartbeatAt)
-                : null,
+              connection.lastHeartbeatAt ? formatDateTime(connection.lastHeartbeatAt) : null,
             )}
           />
-          <DetailRow
-            label="Web app origin"
-            value={connection.webAppOrigin ?? "—"}
-          />
+          <DetailRow label="Web app origin" value={connection.webAppOrigin ?? "—"} />
         </Stack>
       </Stack>
     </Card>
   );
 }
 
-function DetailRow({ label, value }: { label: string; value: string }) {
+type DetailRowProps = { label: string; value: string };
+function DetailRow({ label, value }: DetailRowProps) {
   return (
-    <div
-      className={cn("grid gap-1 sm:grid-cols-[9rem_minmax(0,1fr)] sm:gap-3")}
-    >
+    <div className={cn("grid gap-1 sm:grid-cols-[9rem_minmax(0,1fr)] sm:gap-3")}>
       <Text size="sm" color="secondary">
         {label}
       </Text>

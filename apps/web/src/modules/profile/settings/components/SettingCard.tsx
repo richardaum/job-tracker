@@ -25,17 +25,9 @@ function useDelayedTrue(value: boolean, delayMs: number): boolean {
   return value && showDelayed;
 }
 
-type SettingCardLabelProps = {
-  icon?: ReactNode;
-  children: ReactNode;
-  className?: string;
-};
+type SettingCardLabelProps = { icon?: ReactNode; children: ReactNode; className?: string };
 
-export function SettingCardLabel({
-  icon,
-  children,
-  className,
-}: SettingCardLabelProps) {
+export function SettingCardLabel({ icon, children, className }: SettingCardLabelProps) {
   return (
     <div className={cn("flex items-center gap-1.5", className)}>
       {icon}
@@ -46,47 +38,27 @@ export function SettingCardLabel({
   );
 }
 
-type SettingCardProps = {
-  label: ReactNode;
-  description: string;
-  control: ReactNode;
-  pending?: boolean;
-};
+type SettingCardProps = { label: ReactNode; description: string; control: ReactNode; pending?: boolean };
 
 function warnIfSettingCardLabelViolates(label: ReactNode): void {
   if (clientEnv.NODE_ENV !== "development") return;
 
   const labelSegments = Array.isArray(label) ? label : [label];
   const invalidLabel = labelSegments.some(
-    (child) =>
-      child != null &&
-      (typeof child !== "object" ||
-        !("type" in child) ||
-        child.type !== SettingCardLabel),
+    (child) => child != null && (typeof child !== "object" || !("type" in child) || child.type !== SettingCardLabel),
   );
   if (invalidLabel) {
-    console.warn(
-      "[SettingCard] Pass `label` using only `<SettingCard.Label>...</SettingCard.Label>`.",
-    );
+    console.warn("[SettingCard] Pass `label` using only `<SettingCard.Label>...</SettingCard.Label>`.");
   }
 }
 
-export function SettingCard({
-  label,
-  description,
-  control,
-  pending = false,
-}: SettingCardProps) {
+export function SettingCard({ label, description, control, pending = false }: SettingCardProps) {
   warnIfSettingCardLabelViolates(label);
 
   const showSpinner = useDelayedTrue(pending, SAVING_SPINNER_DELAY_MS);
 
   return (
-    <div
-      className={cn(
-        "flex items-center gap-4 rounded-lg border border-border-subtle p-4",
-      )}
-    >
+    <div className={cn("flex items-center gap-4 rounded-lg border border-border-subtle p-4")}>
       <div className={cn("flex flex-col gap-0.5")}>
         <div className={cn("flex items-center gap-2")}>
           {label}

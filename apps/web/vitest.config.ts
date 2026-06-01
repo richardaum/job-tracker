@@ -11,30 +11,16 @@ export default defineConfig({
     include: ["src/**/*.test.{ts,tsx}", "config/**/*.test.{ts,tsx}"],
     coverage: {
       reporter: ["text", "lcov"],
-      include: [
-        "src/app/page.tsx",
-        "src/hooks/**/*.{ts,tsx}",
-        "src/env/client.ts",
-        "src/lib/make-apollo-client.ts",
-      ],
+      include: ["src/app/page.tsx", "src/hooks/**/*.{ts,tsx}", "src/env/client.ts", "src/lib/make-apollo-client.ts"],
       exclude: ["**/*.test.{ts,tsx}"],
       thresholds: { lines: 80 },
     },
   },
   resolve: {
     alias: [
-      {
-        find: "@/app/icon.svg",
-        replacement: path.resolve(
-          __dirname,
-          "./src/test/stubs/jobTrackerAppIcon.stub.ts",
-        ),
-      },
+      { find: "@/app/icon.svg", replacement: path.resolve(__dirname, "./src/test/stubs/jobTrackerAppIcon.stub.ts") },
       { find: "@", replacement: path.resolve(__dirname, "./src") },
-      {
-        find: "@ui",
-        replacement: path.resolve(__dirname, "../../packages/ui/src"),
-      },
+      { find: "@ui", replacement: path.resolve(__dirname, "../../packages/ui/src") },
     ],
   },
 });

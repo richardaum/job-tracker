@@ -1,27 +1,18 @@
 import { MessagingService } from "@/domains/message/messaging.service";
-import type { PlanStepAction } from "@/domains/plan/model/types";
+import type { CollectJobsAction } from "@job-tracker/plan-schemas";
 
 export class PaginationMessagingService {
   constructor(private readonly messagingService: MessagingService) {}
 
-  async canNavigateToNextPage(
-    action: PlanStepAction,
-    tabId: number,
-  ): Promise<boolean> {
-    return await this.messagingService.request<
-      "can.navigate.next.page",
-      boolean
-    >({
+  async canNavigateToNextPage(action: CollectJobsAction, tabId: number): Promise<boolean> {
+    return await this.messagingService.request<"can.navigate.next.page", boolean>({
       to: "content",
       payload: { kind: "can.navigate.next.page", action },
       tabId,
     });
   }
 
-  async navigateToNextPage(
-    action: PlanStepAction,
-    tabId: number,
-  ): Promise<void> {
+  async navigateToNextPage(action: CollectJobsAction, tabId: number): Promise<void> {
     await this.messagingService.request<"navigate.next.page", void>({
       to: "content",
       payload: { kind: "navigate.next.page", action },

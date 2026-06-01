@@ -7,9 +7,7 @@ import { join } from "path";
 async function main() {
   process.stdout.write("Booting NestJS to generate schema.gql...\n");
 
-  const app = await NestFactory.createApplicationContext(AppModule, {
-    logger: ["error", "warn"],
-  });
+  const app = await NestFactory.createApplicationContext(AppModule, { logger: ["error", "warn"] });
 
   const schemaPath = join(process.cwd(), "src/schema.gql");
   process.stdout.write(`Generated ${schemaPath}\n`);

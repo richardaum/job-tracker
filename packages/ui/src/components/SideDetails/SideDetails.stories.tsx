@@ -3,7 +3,8 @@ import { Button } from "@ui/components/Button/Button";
 import { Stack } from "@ui/components/Stack/Stack";
 import { Text } from "@ui/components/Typography/Text";
 import { cn } from "@ui/lib/cn";
-import React, { useState } from "react";
+import { useState } from "react";
+import type { ComponentProps } from "react";
 
 import { SideDetails } from "./SideDetails";
 
@@ -11,8 +12,8 @@ function StatefulSideDetailsStory({
   side,
   layout = "overlay",
 }: {
-  side?: React.ComponentProps<typeof SideDetails>["side"];
-  layout?: React.ComponentProps<typeof SideDetails>["layout"];
+  side?: ComponentProps<typeof SideDetails>["side"];
+  layout?: ComponentProps<typeof SideDetails>["layout"];
 }) {
   const [open, setOpen] = useState(layout === "inline");
   return (
@@ -26,23 +27,15 @@ function StatefulSideDetailsStory({
       {layout === "inline" ? (
         <Stack
           gap="sm"
-          className={cn(
-            "min-h-0 min-w-0 flex-1 shrink overflow-auto border-r border-border-subtle bg-bg-field p-4",
-          )}
+          className={cn("min-h-0 min-w-0 flex-1 shrink overflow-auto border-r border-border-subtle bg-bg-field p-4")}
         >
           <Text size="sm" weight="semibold">
             List column
           </Text>
           <Text size="sm" color="secondary">
-            Select a template label to reopen the pane from the toolbar if you
-            closed it.
+            Select a template label to reopen the pane from the toolbar if you closed it.
           </Text>
-          <Button
-            type="button"
-            intent="outlined"
-            size="sm"
-            onClick={() => setOpen(true)}
-          >
+          <Button type="button" intent="outlined" size="sm" onClick={() => setOpen(true)}>
             Open inline SideDetails
           </Button>
         </Stack>
@@ -60,11 +53,7 @@ function StatefulSideDetailsStory({
         side={side}
         footer={
           <div className={cn("flex justify-end gap-2")}>
-            <Button
-              intent="secondary"
-              type="button"
-              onClick={() => setOpen(false)}
-            >
+            <Button intent="secondary" type="button" onClick={() => setOpen(false)}>
               Close
             </Button>
             <Button intent="primary" type="button">
@@ -75,8 +64,7 @@ function StatefulSideDetailsStory({
       >
         <Stack gap="sm">
           <Text size="sm" color="secondary">
-            Plug any layout into this body; the chrome stays generic for list →
-            panel flows across the product.
+            Plug any layout into this body; the chrome stays generic for list → panel flows across the product.
           </Text>
           <Button intent="outlined" size="sm" type="button">
             Another control
@@ -107,9 +95,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = { render: () => <StatefulSideDetailsStory /> };
 
-export const FromLeft: Story = {
-  render: () => <StatefulSideDetailsStory side="left" />,
-};
+export const FromLeft: Story = { render: () => <StatefulSideDetailsStory side="left" /> };
 
 export const InlineBesideList: Story = {
   parameters: { layout: "padded" },

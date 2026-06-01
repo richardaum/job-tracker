@@ -12,17 +12,12 @@ import {
   Text,
   useDialog,
 } from "@job-tracker/ui";
-import {
-  CaretDownIcon,
-  PencilSimpleIcon,
-  StarIcon,
-  TrashIcon,
-} from "@phosphor-icons/react";
+import { CaretDownIcon, PencilSimpleIcon, StarIcon, TrashIcon } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import { use, useState } from "react";
 
 import { BackToLink } from "@/components/back-to-link";
-import { DetailPageHeader } from "@/components/detail-page-header";
+import { DetailPageHeader } from "@/components/detail-page-header/DetailPageHeader";
 import { EntityNotFound } from "@/components/entity-not-found";
 import { ResumesDocument, useDeleteResumeMutation } from "@/gql/hooks";
 import { TipTapEditor } from "@/modules/jobs/details/components/TipTapEditor";
@@ -36,7 +31,7 @@ interface PageProps {
 }
 
 export default function ResumeDetailPage({ params }: PageProps) {
-  const { id } = React.use(params);
+  const { id } = use(params);
   const router = useRouter();
   const { enqueueToast } = useToastQueue();
   const [actionsMenuOpen, setActionsMenuOpen] = useState(false);
@@ -61,18 +56,13 @@ export default function ResumeDetailPage({ params }: PageProps) {
     handleSave,
     persistResumeTitle,
     setResumeDefault,
-  } = useResumeDetailsViewModel(id, () =>
-    enqueueToast({ title: "Resume saved.", intent: "success" }),
-  );
+  } = useResumeDetailsViewModel(id, () => enqueueToast({ title: "Resume saved.", intent: "success" }));
 
   async function handleDelete() {
     if (!resume) return;
     const [err] = await tryRun(deleteResume({ variables: { id: resume.id } }));
     if (err) {
-      enqueueToast({
-        title: `Failed to delete "${titleDraft}".`,
-        intent: "error",
-      });
+      enqueueToast({ title: `Failed to delete "${titleDraft}".`, intent: "error" });
       return;
     }
     enqueueToast({ title: `"${titleDraft}" deleted.`, intent: "success" });
@@ -82,10 +72,7 @@ export default function ResumeDetailPage({ params }: PageProps) {
   async function handlePersistTitle(nextTitle: string) {
     const [err] = await tryRun(persistResumeTitle(nextTitle));
     if (err) {
-      enqueueToast({
-        title: err.message ?? "Failed to update title.",
-        intent: "error",
-      });
+      enqueueToast({ title: err.message ?? "Failed to update title.", intent: "error" });
       return;
     }
     enqueueToast({ title: "Resume title updated.", intent: "success" });
@@ -94,10 +81,7 @@ export default function ResumeDetailPage({ params }: PageProps) {
   async function handleSetAsDefault() {
     const [err] = await tryRun(setResumeDefault());
     if (err) {
-      enqueueToast({
-        title: err.message ?? "Failed to update default resume.",
-        intent: "error",
-      });
+      enqueueToast({ title: err.message ?? "Failed to update default resume.", intent: "error" });
       return;
     }
     enqueueToast({ title: "Default resume updated.", intent: "success" });
@@ -115,10 +99,7 @@ export default function ResumeDetailPage({ params }: PageProps) {
             <CaretDownIcon
               size={12}
               weight="bold"
-              className={cn(
-                "transition-transform duration-200",
-                actionsMenuOpen ? "rotate-180" : "rotate-0",
-              )}
+              className={cn("transition-transform duration-200", actionsMenuOpen ? "rotate-180" : "rotate-0")}
             />
           }
         >
@@ -179,23 +160,13 @@ export default function ResumeDetailPage({ params }: PageProps) {
           <Heading
             as="h1"
             size="2xl"
-            className={cn(
-              "min-w-0 flex-1 truncate",
-              resume ? "" : cn("text-text-secondary"),
-            )}
+            className={cn("min-w-0 flex-1 truncate", resume ? "" : cn("text-text-secondary"))}
           >
             {resume?.title ?? "Resume"}
           </Heading>
           {resume?.isDefault ? (
-            <span
-              className={cn("inline-flex shrink-0 items-center gap-1")}
-              aria-label="Default resume"
-            >
-              <StarIcon
-                size={20}
-                weight="fill"
-                className={cn("text-yellow-500")}
-              />
+            <span className={cn("inline-flex shrink-0 items-center gap-1")} aria-label="Default resume">
+              <StarIcon size={20} weight="fill" className={cn("text-yellow-500")} />
             </span>
           ) : null}
         </div>
@@ -224,11 +195,7 @@ export default function ResumeDetailPage({ params }: PageProps) {
             Loading resume...
           </Text>
         ) : notFound ? (
-          <EntityNotFound
-            resource="resume"
-            backHref="/profile/resumes"
-            backLabel="Back to resumes"
-          />
+          <EntityNotFound resource="resume" backHref="/profile/resumes" backLabel="Back to resumes" />
         ) : error && !notFound ? (
           <Text size="sm" color="error">
             Failed to load resume details.
@@ -239,9 +206,7 @@ export default function ResumeDetailPage({ params }: PageProps) {
               <TipTapEditor
                 id="resume-content-editor"
                 value={contentDraft}
-                onChange={(nextValue) =>
-                  setContentDraft(nextValue || EMPTY_TIPTAP_DOC)
-                }
+                onChange={(nextValue) => setContentDraft(nextValue || EMPTY_TIPTAP_DOC)}
                 onHardEnter={() => void handleSave()}
                 placeholder="Write your resume content here..."
                 disabled={saving}

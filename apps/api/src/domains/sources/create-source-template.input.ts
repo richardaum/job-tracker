@@ -1,12 +1,14 @@
-import { Field, InputType } from "@nestjs/graphql";
+import { Field, ID, InputType } from "@nestjs/graphql";
+import GraphQLJSON from "graphql-type-json";
 
 @InputType()
 export class CreateSourceTemplateInput {
-  /** Registry key, e.g. `remoteyeah`. */
-  @Field()
-  sourceProfileId!: string;
+  @Field(() => ID)
+  planId!: string;
 
-  /** Initial surface/listing URL for the template. */
   @Field()
   surfaceUrl!: string;
+
+  @Field(() => GraphQLJSON, { nullable: true })
+  config?: Record<string, unknown> | null;
 }

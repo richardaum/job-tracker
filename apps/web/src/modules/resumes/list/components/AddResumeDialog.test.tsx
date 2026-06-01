@@ -10,8 +10,7 @@ const createResumeMock = vi.fn();
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push: pushMock }) }));
 
 vi.mock("@/gql/hooks", async () => {
-  const actual =
-    await vi.importActual<typeof import("@/gql/hooks")>("@/gql/hooks");
+  const actual = await vi.importActual<typeof import("@/gql/hooks")>("@/gql/hooks");
   return { ...actual, useCreateResumeMutation: () => [createResumeMock] };
 });
 
@@ -23,17 +22,13 @@ describe("AddResumeDialog", () => {
   it("renders when open", () => {
     render(<AddResumeDialog open={true} onOpenChange={() => {}} />);
     expect(screen.getByText("Add Resume")).toBeInTheDocument();
-    expect(
-      screen.getByPlaceholderText(/e.g. Senior Software Engineer/i),
-    ).toBeInTheDocument();
+    expect(screen.getByPlaceholderText(/e.g. Senior Software Engineer/i)).toBeInTheDocument();
   });
 
   it("calls createResume and redirects on success", async () => {
     const user = userEvent.setup();
     const onOpenChange = vi.fn();
-    createResumeMock.mockResolvedValue({
-      data: { createResume: { id: "res-1", title: "My Resume" } },
-    });
+    createResumeMock.mockResolvedValue({ data: { createResume: { id: "res-1", title: "My Resume" } } });
 
     render(<AddResumeDialog open={true} onOpenChange={onOpenChange} />);
 
@@ -45,9 +40,7 @@ describe("AddResumeDialog", () => {
 
     await waitFor(() => {
       expect(createResumeMock).toHaveBeenCalledWith({
-        variables: {
-          input: { title: "My Resume", content: expect.any(String) },
-        },
+        variables: { input: { title: "My Resume", content: expect.any(String) } },
       });
       expect(pushMock).toHaveBeenCalledWith("/profile/resumes/res-1");
       expect(onOpenChange).toHaveBeenCalledWith(false);

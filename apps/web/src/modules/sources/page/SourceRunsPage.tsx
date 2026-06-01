@@ -14,38 +14,42 @@ import {
   Skeleton,
   Stack,
   Text,
+  Tooltip,
 } from "@job-tracker/ui";
 import {
   BriefcaseIcon,
   CaretDownIcon,
   ClockIcon,
+  CopyIcon,
   LinkIcon,
+  ListIcon,
+  StopCircleIcon,
   TrashIcon,
 } from "@phosphor-icons/react";
 import type { Route } from "next";
 import NextLink from "next/link";
-import React from "react";
+import { use, useState } from "react";
 
 import { BackToLink } from "@/components/back-to-link";
-import { DetailPageHeader } from "@/components/detail-page-header";
+import { DetailPageHeader } from "@/components/detail-page-header/DetailPageHeader";
 import { EmptyState } from "@/components/empty-state";
 import { EntityNotFound } from "@/components/entity-not-found";
 import { formatDateTime } from "@/modules/jobs/details/utils/job-details.shared";
 import { useSourceRunsViewModel } from "@/modules/sources/hooks/useSourceRunsViewModel";
-import {
-  formatSourceRunStatusLabel,
-  sourceRunStatusBadgeIntent,
-} from "@/modules/sources/lib/source-runs.display";
+import { formatSourceRunStatusLabel, sourceRunStatusBadgeIntent } from "@/modules/sources/lib/source-runs.display";
 import { sourceRunJobsHref } from "@/modules/sources/lib/source-runs.routes";
+import { ClearSourceRunsDialog } from "@/modules/sources/page/ClearSourceRunsDialog";
 import { DeleteSourceRunDialog } from "@/modules/sources/page/DeleteSourceRunDialog";
 import { DeleteSourceTemplateDialog } from "@/modules/sources/page/DeleteSourceTemplateDialog";
 import { RunSourceTemplateButton } from "@/modules/sources/page/RunSourceTemplateButton";
 import { scheduleSummary } from "@/modules/sources/page/source-template-list.shared";
+import { SourceRunActivityEventsDialog } from "@/modules/sources/page/SourceRunActivityEventsDialog";
 import { SourceScheduleDialog } from "@/modules/sources/page/SourceScheduleDialog";
+import { SourceStopConfigDialog } from "@/modules/sources/page/SourceStopConfigDialog";
 import { SourceSurfaceUrlDialog } from "@/modules/sources/page/SourceSurfaceUrlDialog";
 
 interface PageProps {
-  params: Promise<{ profileId: string; templateId: string }>;
+  params: Promise<{ planId: string; templateId: string }>;
 }
 
 function SourceRunsListSkeleton() {
@@ -63,20 +67,20 @@ function SourceRunsListSkeleton() {
   );
 }
 
-function runLabel(index: number): string {
-  return `Run ${index + 1}`;
+function runLabel(index: number, total: number): string {
+  return `Run ${total - index}`;
 }
 
 export default function SourceRunsPage({ params }: PageProps) {
-  const { profileId, templateId } = React.use(params);
-  const { template, error, status, notFound, showInitialLoading } =
-    useSourceRunsViewModel(templateId);
+  const { planId, templateId } = use(params);
+  const { template, error, status, notFound, showInitialLoading } = useSourceRunsViewModel(templateId);
 
-  const [actionsMenuOpen, setActionsMenuOpen] = React.useState(false);
-  const [surfaceUrlDialogOpen, setSurfaceUrlDialogOpen] = React.useState(false);
-  const [scheduleDialogOpen, setScheduleDialogOpen] = React.useState(false);
-  const [deleteTemplateDialogOpen, setDeleteTemplateDialogOpen] =
-    React.useState(false);
+  const [actionsMenuOpen, setActionsMenuOpen] = useState(false);
+  const [surfaceUrlDialogOpen, setSurfaceUrlDialogOpen] = useState(false);
+  const [scheduleDialogOpen, setScheduleDialogOpen] = useState(false);
+  const [stopConfigDialogOpen, setStopConfigDialogOpen] = useState(false);
+  const [deleteTemplateDialogOpen, setDeleteTemplateDialogOpen] = useState(false);
+  const [clearRunsDialogOpen, setClearRunsDialogOpen] = useState(false);
 
   const headerActions =
     template !== null ? (
@@ -92,10 +96,7 @@ export default function SourceRunsPage({ params }: PageProps) {
                 <CaretDownIcon
                   size={12}
                   weight="bold"
-                  className={cn(
-                    "transition-transform duration-200",
-                    actionsMenuOpen ? "rotate-180" : "rotate-0",
-                  )}
+                  className={cn("transition-transform duration-200", actionsMenuOpen ? "rotate-180" : "rotate-0")}
                 />
               }
             >
@@ -116,7 +117,20 @@ export default function SourceRunsPage({ params }: PageProps) {
           >
             Edit schedule
           </DropdownMenuItem>
+          <DropdownMenuItem
+            onSelect={() => setStopConfigDialogOpen(true)}
+            icon={<StopCircleIcon size={14} weight="regular" />}
+          >
+            Edit stop condition
+          </DropdownMenuItem>
           <DropdownMenuSeparator />
+          <DropdownMenuItem
+            destructive
+            onSelect={() => setClearRunsDialogOpen(true)}
+            icon={<TrashIcon size={14} weight="regular" />}
+          >
+            Remove all runs
+          </DropdownMenuItem>
           <DropdownMenuItem
             destructive
             onSelect={() => setDeleteTemplateDialogOpen(true)}
@@ -125,29 +139,20 @@ export default function SourceRunsPage({ params }: PageProps) {
             Remove template
           </DropdownMenuItem>
         </DropdownMenu>
-        <RunSourceTemplateButton
-          templateId={template.id}
-          sourceProfileId={template.sourceProfileId}
-          label="Run again"
-          tooltip="Run again"
-          variant="button"
-        />
+        <RunSourceTemplateButton templateId={template.id} label="Run again" tooltip="Run again" variant="button" />
       </div>
     ) : null;
 
   return (
     <div className={cn("flex h-full min-h-0 flex-col")}>
       <DetailPageHeader trailing={headerActions}>
-        <BackToLink href={`/sources/profile/${profileId}` as Route}>
-          Back to source profile
-        </BackToLink>
+        <BackToLink href={`/sources/plans/${planId}` as Route}>Back to plan</BackToLink>
         <Heading as="h1" size="2xl" className={cn("min-w-0")}>
           Source runs
         </Heading>
         {template ? (
           <Text size="sm" color="secondary">
-            {scheduleSummary(template)} · Created{" "}
-            {formatDateTime(String(template.createdAt))}
+            {scheduleSummary(template)} · Created {formatDateTime(String(template.createdAt))}
           </Text>
         ) : null}
       </DetailPageHeader>
@@ -156,42 +161,49 @@ export default function SourceRunsPage({ params }: PageProps) {
         {showInitialLoading ? (
           <SourceRunsListSkeleton />
         ) : notFound ? (
-          <EntityNotFound
-            resource="source"
-            backHref="/sources"
-            backLabel="Back to sources"
-          />
+          <EntityNotFound resource="source" backHref="/sources" backLabel="Back to sources" />
         ) : error && !notFound ? (
           <Text size="sm" color="error">
             Failed to load source runs.
           </Text>
-        ) : status !== "success" || !template ? null : template.runs.length ===
-          0 ? (
-          <EmptyState
-            variant="default"
-            message="No runs for this source yet."
-          />
+        ) : status !== "success" || !template ? null : template.runs.length === 0 ? (
+          <EmptyState variant="default" message="No runs for this source yet." />
         ) : (
           <Stack gap="sm" className={cn("min-w-0")}>
             {template.runs.map((run, index) => (
               <ListItemCard
                 key={run.id}
                 className={cn("min-w-0")}
-                title={
-                  <ListItemCard.Title size="sm">
-                    {runLabel(index)}
-                  </ListItemCard.Title>
-                }
+                title={<ListItemCard.Title size="sm">{runLabel(index, template.runs.length)}</ListItemCard.Title>}
                 actions={
                   <ListItemCard.Actions>
-                    <Badge intent={sourceRunStatusBadgeIntent(run.status)}>
-                      {formatSourceRunStatusLabel(run.status)}
-                    </Badge>
+                    <Tooltip
+                      content={
+                        <div className={cn("flex flex-col gap-0.5")}>
+                          <span className={cn("font-medium")}>Run failed</span>
+                          <span>{run.errorMessage}</span>
+                        </div>
+                      }
+                      enabled={run.status === "Failed" && !!run.errorMessage}
+                    >
+                      <Badge intent={sourceRunStatusBadgeIntent(run.status)}>
+                        {formatSourceRunStatusLabel(run.status)}
+                      </Badge>
+                    </Tooltip>
+                    <IconButton
+                      intent="ghost"
+                      size="sm"
+                      label={`Copy run ID`}
+                      tooltip="Copy run ID"
+                      className={cn(ListItemCard.actionIconButtonClassName)}
+                      icon={<CopyIcon size={13} weight="regular" />}
+                      onClick={() => navigator.clipboard.writeText(run.id)}
+                    />
                     <IconButton
                       asChild
                       intent="ghost"
                       size="sm"
-                      label={`View jobs from ${runLabel(index)}`}
+                      label={`View jobs from ${runLabel(index, template.runs.length)}`}
                       tooltip="View jobs"
                       className={cn(ListItemCard.actionIconButtonClassName)}
                     >
@@ -199,12 +211,26 @@ export default function SourceRunsPage({ params }: PageProps) {
                         <BriefcaseIcon size={13} weight="regular" aria-hidden />
                       </NextLink>
                     </IconButton>
+                    <SourceRunActivityEventsDialog
+                      runId={run.id}
+                      runLabel={runLabel(index, template.runs.length)}
+                      trigger={
+                        <IconButton
+                          intent="ghost"
+                          size="sm"
+                          label={`Events for ${runLabel(index, template.runs.length)}`}
+                          tooltip="View events"
+                          className={cn(ListItemCard.actionIconButtonClassName)}
+                          icon={<ListIcon size={13} weight="regular" />}
+                        />
+                      }
+                    />
                     <DeleteSourceRunDialog
                       trigger={
                         <IconButton
                           intent="ghost"
                           size="sm"
-                          label={`Delete ${runLabel(index)}`}
+                          label={`Delete ${runLabel(index, template.runs.length)}`}
                           tooltip="Delete run"
                           className={cn(ListItemCard.actionIconButtonClassName)}
                           icon={<TrashIcon size={13} weight="regular" />}
@@ -212,14 +238,14 @@ export default function SourceRunsPage({ params }: PageProps) {
                       }
                       runId={run.id}
                       templateId={template.id}
-                      sourceProfileId={template.sourceProfileId}
-                      runLabel={runLabel(index)}
+                      runLabel={runLabel(index, template.runs.length)}
                     />
                   </ListItemCard.Actions>
                 }
                 description={
                   <Text size="sm" color="secondary">
                     Started {formatDateTime(String(run.startedAt))}
+                    {run.jobCount !== undefined && ` · ${run.jobCount} jobs`}
                   </Text>
                 }
               />
@@ -229,22 +255,24 @@ export default function SourceRunsPage({ params }: PageProps) {
       </div>
 
       <SourceSurfaceUrlDialog
-        sourceProfileId={template?.sourceProfileId ?? ""}
         template={surfaceUrlDialogOpen ? template : null}
         onOpenChange={setSurfaceUrlDialogOpen}
       />
 
-      <SourceScheduleDialog
-        sourceProfileId={template?.sourceProfileId ?? ""}
-        template={scheduleDialogOpen ? template : null}
-        onOpenChange={setScheduleDialogOpen}
+      <SourceScheduleDialog template={scheduleDialogOpen ? template : null} onOpenChange={setScheduleDialogOpen} />
+
+      <SourceStopConfigDialog
+        template={stopConfigDialogOpen ? template : null}
+        onOpenChange={setStopConfigDialogOpen}
       />
+
+      <ClearSourceRunsDialog open={clearRunsDialogOpen} onOpenChange={setClearRunsDialogOpen} templateId={templateId} />
 
       <DeleteSourceTemplateDialog
         open={deleteTemplateDialogOpen}
         onOpenChange={setDeleteTemplateDialogOpen}
         templateId={templateId}
-        sourceProfileId={profileId}
+        planId={planId}
       />
     </div>
   );

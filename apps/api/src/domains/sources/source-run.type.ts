@@ -1,6 +1,7 @@
-import { Field, ID, ObjectType } from "@nestjs/graphql";
+import { Field, ID, Int, ObjectType } from "@nestjs/graphql";
 
 import { SourceRunStatusEnum } from "./source-run-status.enum";
+import { StopWhenEnum } from "./stop-when.enum";
 
 @ObjectType()
 export class SourceRunType {
@@ -10,8 +11,8 @@ export class SourceRunType {
   @Field(() => ID)
   templateId!: string;
 
-  @Field()
-  sourceProfileId!: string;
+  @Field(() => ID)
+  planId!: string;
 
   /** Surface/listing URL for this execution (persisted). */
   @Field(() => String)
@@ -20,10 +21,24 @@ export class SourceRunType {
   @Field(() => SourceRunStatusEnum)
   status!: SourceRunStatusEnum;
 
+  @Field(() => String, { nullable: true })
+  errorMessage?: string | null;
+
   @Field()
   startedAt!: Date;
 
-  /** Aligns with web `SourceRun.sourceProfile`: server-backed runs use `database`. */
-  @Field()
-  sourceProfile!: string;
+  @Field(() => StopWhenEnum, { nullable: true })
+  stopWhen?: StopWhenEnum | null;
+
+  @Field(() => Int, { nullable: true })
+  catchUpThreshold?: number | null;
+
+  @Field(() => Int, { nullable: true })
+  maxPages?: number | null;
+
+  @Field(() => Int, { nullable: true })
+  olderThanDays?: number | null;
+
+  @Field(() => Int)
+  jobCount!: number;
 }

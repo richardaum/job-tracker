@@ -10,7 +10,7 @@ function str(v: unknown): string | undefined {
 }
 
 /**
- * CreateJobInput coverage from scraped `Job` (see `remoteyeah.plan.json` keys):
+ * CreateJobInput coverage from scraped `Job` (see `plan3.example.json` keys):
  *
  * | Input field        | Job source              | Notes |
  * | ------------------ | ----------------------- | ----- |
@@ -21,8 +21,7 @@ function str(v: unknown): string | undefined {
  * | salary*            | salary                  | `format: "salary"` → parsed payload for input. |
  * | source             | detailUrl               | Inferred via URL substrings (same as API: Linkedin, Jack, Wellfound, RemoteYeah). |
  * | companyId          | —                       | Not on job; needs company lookup / resolver. |
- *
- * Also on job but unused here: `publishedAt` (could become metadata if API gains a field).
+ * | publishedAt        | publishedAt             | Unix timestamp (seconds) → ISO string. |
  */
 /** Delimiters between location badges (RemoteYeah uses newlines in `innerText`). */
 const LOCATION_TAG_SPLIT = /[\r\n,\u00B7|;]+/u;
@@ -61,11 +60,9 @@ export function mapCollectedJobToCreateJobInput(job: Job): CreateJobInput {
 
   const detailUrl = str(job.detailUrl);
   const tags = tagsFromLocationRequirements(job.locationRequirements);
-  const salary = isParsedSalaryForCreateJobInput(job.salary)
-    ? job.salary
-    : undefined;
-  const source =
-    detailUrl != null ? inferJobSourceFromUrls([detailUrl]) : undefined;
+  const salary = isParsedSalaryForCreateJobInput(job.salary) ? job.salary : undefined;
+  const source = detailUrl != null ? inferJobSourceFromUrls([detailUrl]) : undefined;
+  const publishedAt = parsePublishedAtTimestamp(job.publishedAt);
 
   return {
     title,
@@ -84,5 +81,17 @@ export function mapCollectedJobToCreateJobInput(job: Job): CreateJobInput {
           },
         }
       : {}),
+    ...(publishedAt != null ? { publishedAt } : {}),
   };
+}
+
+/**
+ * Converts a Unix timestamp (seconds) from `data-timestamp` attribute to a Date ISO string.
+ * Telegram HTML uses seconds-based Unix timestamps.
+ */
+function parsePublishedAtTimestamp(raw: unknown): string | undefined {
+  if (typeof raw !== "string" && typeof raw !== "number") return undefined;
+  const num = typeof raw === "string" ? Number(raw) : raw;
+  if (!Number.isFinite(num) || num <= 0) return undefined;
+  return new Date(num * 1000).toISOString();
 }

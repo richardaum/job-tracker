@@ -6,7 +6,7 @@ import type { Route } from "next";
 import { usePathname, useRouter } from "next/navigation";
 
 import { BackToLink } from "@/components/back-to-link";
-import { DetailPageHeader } from "@/components/detail-page-header";
+import { DetailPageHeader } from "@/components/detail-page-header/DetailPageHeader";
 import { AdminHeaderActions } from "@/modules/admin/layout/admin-header.slots";
 
 function deriveTab(pathname: string): string {
@@ -31,32 +31,24 @@ const EXTENSION_SUB_TAB_ROUTES: Record<string, Route> = {
   events: "/admin/extension/events",
 };
 
-const extensionSubTabTriggerClass = cn(
-  "data-[state=active]:bg-bg-info-subtle data-[state=active]:text-text-brand",
-);
+const extensionSubTabTriggerClass = cn("data-[state=active]:bg-bg-info-subtle data-[state=active]:text-text-brand");
+
+type AdminTabBarProps = {
+  currentTab: string;
+  currentExtensionSubTab: string;
+  onPrimaryTabChange: (value: string) => void;
+  onExtensionSubTabChange: (value: string) => void;
+};
 
 function AdminTabBar({
   currentTab,
   currentExtensionSubTab,
   onPrimaryTabChange,
   onExtensionSubTabChange,
-}: {
-  currentTab: string;
-  currentExtensionSubTab: string;
-  onPrimaryTabChange: (value: string) => void;
-  onExtensionSubTabChange: (value: string) => void;
-}) {
+}: AdminTabBarProps) {
   return (
-    <div
-      className={cn(
-        "flex w-full shrink-0 flex-wrap items-center gap-x-4 gap-y-2",
-      )}
-    >
-      <Tabs
-        value={currentTab}
-        onValueChange={onPrimaryTabChange}
-        className={cn("w-fit")}
-      >
+    <div className={cn("flex w-full shrink-0 flex-wrap items-center gap-x-4 gap-y-2")}>
+      <Tabs value={currentTab} onValueChange={onPrimaryTabChange} className={cn("w-fit")}>
         <TabsList className={cn("w-full justify-start sm:w-fit")}>
           <TabsTrigger value="extension">Extension</TabsTrigger>
           <TabsTrigger value="overview">Overview</TabsTrigger>
@@ -65,11 +57,7 @@ function AdminTabBar({
       </Tabs>
 
       {currentTab === "extension" ? (
-        <Tabs
-          value={currentExtensionSubTab}
-          onValueChange={onExtensionSubTabChange}
-          className={cn("w-fit")}
-        >
+        <Tabs value={currentExtensionSubTab} onValueChange={onExtensionSubTabChange} className={cn("w-fit")}>
           <TabsList className={cn("border-border-brand/40")}>
             <TabsTrigger value="status" className={extensionSubTabTriggerClass}>
               Status
@@ -84,7 +72,9 @@ function AdminTabBar({
   );
 }
 
-export function AdminShell({ children }: { children: React.ReactNode }) {
+type AdminShellProps = { children: React.ReactNode };
+
+export function AdminShell({ children }: AdminShellProps) {
   const pathname = usePathname();
   const router = useRouter();
   const currentTab = deriveTab(pathname);
@@ -104,11 +94,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
     <SlotsProvider>
       <div className={cn("flex h-full min-h-0 flex-col")}>
         <DetailPageHeader
-          trailing={
-            <AdminHeaderActions.Slot
-              className={cn("flex shrink-0 items-center gap-2 empty:hidden")}
-            />
-          }
+          trailing={<AdminHeaderActions.Slot className={cn("flex shrink-0 items-center gap-2 empty:hidden")} />}
         >
           <BackToLink href="/jobs">Back to jobs</BackToLink>
           <Heading as="h1" size="2xl" className={cn("min-w-0")}>
@@ -122,11 +108,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
             onPrimaryTabChange={navigateToTab}
             onExtensionSubTabChange={navigateToExtensionSubTab}
           />
-          <div
-            className={cn(
-              "flex min-h-0 min-w-0 flex-1 flex-col items-stretch overflow-auto pe-2 pb-1 text-start",
-            )}
-          >
+          <div className={cn("flex min-h-0 min-w-0 flex-1 flex-col items-stretch overflow-auto pe-2 pb-1 text-start")}>
             {children}
           </div>
         </div>

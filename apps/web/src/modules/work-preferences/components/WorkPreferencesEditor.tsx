@@ -3,14 +3,11 @@
 import { tryRun } from "@job-tracker/try-run";
 import { Button, cn, Stack, Text } from "@job-tracker/ui";
 import { PlusIcon } from "@phosphor-icons/react";
-import React from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { EmptyState } from "@/components/empty-state";
 import { Weight } from "@/gql/hooks";
-import {
-  useUpdateWorkPreferencesMutation,
-  useWorkPreferencesQuery,
-} from "@/gql/hooks";
+import { useUpdateWorkPreferencesMutation, useWorkPreferencesQuery } from "@/gql/hooks";
 import { useToastQueue } from "@/modules/jobs/shared/hooks/useToastQueue";
 import { PreferenceCard } from "@/modules/work-preferences/components/PreferenceCard";
 import { PreferenceFormDialog } from "@/modules/work-preferences/components/PreferenceFormDialog";
@@ -25,43 +22,36 @@ interface WorkPreferencesEditorProps {
   mode: "inline" | "dialog";
   readOnly?: boolean;
   onClose?: () => void;
-  onAddActionChange?: (
-    action: { add: () => void; disabled: boolean } | null,
-  ) => void;
+  onAddActionChange?: (action: { add: () => void; disabled: boolean } | null) => void;
 }
 
-export default function WorkPreferencesEditor({
+export function WorkPreferencesEditor({
   mode,
   readOnly = false,
   onClose,
   onAddActionChange,
 }: WorkPreferencesEditorProps) {
-  const { data, loading } = useWorkPreferencesQuery({
-    fetchPolicy: "cache-and-network",
-  });
+  const { data, loading } = useWorkPreferencesQuery({ fetchPolicy: "cache-and-network" });
   const [updatePreferences] = useUpdateWorkPreferencesMutation();
   const { enqueueToast } = useToastQueue();
 
-  const [localItems, setLocalItems] = React.useState<LocalPreference[]>([]);
-  const [formOpen, setFormOpen] = React.useState(false);
-  const [formMode, setFormMode] = React.useState<"create" | "edit">("create");
-  const [editingId, setEditingId] = React.useState<string | null>(null);
-  const hasHydratedRef = React.useRef(false);
+  const [localItems, setLocalItems] = useState<LocalPreference[]>([]);
+  const [formOpen, setFormOpen] = useState(false);
+  const [formMode, setFormMode] = useState<"create" | "edit">("create");
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const hasHydratedRef = useRef(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!hasHydratedRef.current && data?.workPreferences) {
       setLocalItems(toLocal(data.workPreferences));
       hasHydratedRef.current = true;
     }
   }, [data?.workPreferences]);
 
-  const persistPreferences = React.useCallback(
+  const persistPreferences = useCallback(
     async (items: LocalPreference[]) => {
       const [err] = await tryRun(
-        updatePreferences({
-          variables: { items: toPreferenceInput(items) },
-          refetchQueries: ["WorkPreferences"],
-        }),
+        updatePreferences({ variables: { items: toPreferenceInput(items) }, refetchQueries: ["WorkPreferences"] }),
       );
       if (err) {
         enqueueToast({ title: "Failed to save preferences.", intent: "error" });
@@ -70,13 +60,13 @@ export default function WorkPreferencesEditor({
     [enqueueToast, updatePreferences],
   );
 
-  const openCreateDialog = React.useCallback(() => {
+  const openCreateDialog = useCallback(() => {
     setFormMode("create");
     setEditingId(null);
     setFormOpen(true);
   }, []);
 
-  const openEditDialog = React.useCallback((id: string) => {
+  const openEditDialog = useCallback((id: string) => {
     setFormMode("edit");
     setEditingId(id);
     setFormOpen(true);
@@ -84,7 +74,7 @@ export default function WorkPreferencesEditor({
 
   const addInHeader = mode === "inline" && !!onAddActionChange && !readOnly;
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!addInHeader) {
       onAddActionChange?.(null);
       return;
@@ -101,14 +91,9 @@ export default function WorkPreferencesEditor({
     let next: LocalPreference[];
 
     if (formMode === "create") {
-      next = [
-        ...localItems,
-        { id: nextPrefId(), text: values.text, weight: values.weight },
-      ];
+      next = [...localItems, { id: nextPrefId(), text: values.text, weight: values.weight }];
     } else if (editingId) {
-      next = localItems.map((item) =>
-        item.id === editingId ? { ...item, ...values } : item,
-      );
+      next = localItems.map((item) => (item.id === editingId ? { ...item, ...values } : item));
     } else {
       return;
     }
@@ -124,16 +109,12 @@ export default function WorkPreferencesEditor({
   }
 
   async function handleWeightChange(id: string, weight: Weight) {
-    const next = localItems.map((item) =>
-      item.id === id ? { ...item, weight } : item,
-    );
+    const next = localItems.map((item) => (item.id === id ? { ...item, weight } : item));
     setLocalItems(next);
     await persistPreferences(next);
   }
 
-  const editingPreference = editingId
-    ? localItems.find((item) => item.id === editingId)
-    : undefined;
+  const editingPreference = editingId ? localItems.find((item) => item.id === editingId) : undefined;
 
   const isLoaded = !!data?.workPreferences;
 
@@ -143,11 +124,7 @@ export default function WorkPreferencesEditor({
         Loading preferences...
       </Text>
     ) : localItems.length === 0 ? (
-      <EmptyState
-        variant="default"
-        message="No preferences yet."
-        detail='Add things like "remote only" or "equity".'
-      />
+      <EmptyState variant="default" message="No preferences yet." detail='Add things like "remote only" or "equity".' />
     ) : (
       <Stack gap="sm">
         {localItems.map((preference) => (
@@ -214,8 +191,7 @@ export default function WorkPreferencesEditor({
     return (
       <div>
         <Text size="sm" color="muted" className={cn("px-1 mb-4")}>
-          What matters to you in a job? These preferences are used to evaluate
-          match against job descriptions.
+          What matters to you in a job? These preferences are used to evaluate match against job descriptions.
         </Text>
         {editorBody}
       </div>

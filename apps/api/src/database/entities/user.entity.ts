@@ -1,12 +1,5 @@
 import { RoleEnum } from "@api/domains/users/role.enum";
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  OneToMany,
-  PrimaryColumn,
-  UpdateDateColumn,
-} from "typeorm";
+import { Column, CreateDateColumn, Entity, OneToMany, PrimaryColumn, UpdateDateColumn } from "typeorm";
 
 import { UserAccountEntity } from "./user-account.entity";
 
@@ -18,9 +11,7 @@ export class UserEntity {
   @Column({ type: "text", unique: true })
   email!: string;
 
-  @OneToMany(() => UserAccountEntity, (account) => account.user, {
-    cascade: false,
-  })
+  @OneToMany(() => UserAccountEntity, (account) => account.user, { cascade: false })
   accounts!: UserAccountEntity[];
 
   @Column({ type: "text" })
@@ -29,12 +20,7 @@ export class UserEntity {
   @Column({ name: "avatar_url", type: "text", nullable: true })
   avatarUrl!: string | null;
 
-  @Column({
-    type: "enum",
-    enum: RoleEnum,
-    enumName: "role",
-    default: RoleEnum.User,
-  })
+  @Column({ type: "enum", enum: RoleEnum, enumName: "role", default: RoleEnum.User })
   role!: RoleEnum;
 
   @Column({ type: "boolean", default: true })

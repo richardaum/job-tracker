@@ -10,16 +10,8 @@ import { UserRepository } from "./users.repository";
 import { UserService } from "./users.service";
 
 @Module({
-  imports: [
-    DatabaseModule,
-    TypeOrmModule.forFeature([UserEntity, UserAccountEntity]),
-  ],
-  providers: [
-    ActiveUserCacheService,
-    UserRepository,
-    UserService,
-    UserTypeFieldsResolver,
-  ],
+  imports: [DatabaseModule, TypeOrmModule.forFeature([UserEntity, UserAccountEntity])],
+  providers: [ActiveUserCacheService, UserRepository, UserService, UserTypeFieldsResolver],
   exports: [UserService],
 })
 export class UsersModule {}

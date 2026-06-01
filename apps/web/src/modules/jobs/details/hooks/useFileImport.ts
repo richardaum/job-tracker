@@ -1,11 +1,8 @@
 "use client";
 
-import {
-  normalizeTipTapDocument,
-  parseTipTapDocument,
-  tipTapToPlainText,
-} from "@job-tracker/tiptap";
-import React from "react";
+import { normalizeTipTapDocument, parseTipTapDocument, tipTapToPlainText } from "@job-tracker/tiptap";
+import { useCallback, useRef, useState } from "react";
+import type { ChangeEvent } from "react";
 
 interface UseFileImportOptions {
   editor: import("@tiptap/core").Editor | null;
@@ -13,12 +10,12 @@ interface UseFileImportOptions {
 }
 
 export function useFileImport({ editor, onChange }: UseFileImportOptions) {
-  const [showImportConfirm, setShowImportConfirm] = React.useState(false);
-  const [isImporting, setIsImporting] = React.useState(false);
-  const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const [showImportConfirm, setShowImportConfirm] = useState(false);
+  const [isImporting, setIsImporting] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleImportFile = React.useCallback(
-    async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImportFile = useCallback(
+    async (event: ChangeEvent<HTMLInputElement>) => {
       const file = event.target.files?.[0];
       if (!file) return;
       if (!editor) return;
@@ -36,16 +33,12 @@ export function useFileImport({ editor, onChange }: UseFileImportOptions) {
           for (let i = 1; i <= pdf.numPages; i++) {
             const page = await pdf.getPage(i);
             const content = await page.getTextContent();
-            const pageText = content.items
-              .map((item) => ("str" in item ? (item.str ?? "") : ""))
-              .join(" ");
+            const pageText = content.items.map((item) => ("str" in item ? (item.str ?? "") : "")).join(" ");
             textParts.push(pageText);
           }
           text = textParts.join("\n\n");
           const normalizedValue = normalizeTipTapDocument(text);
-          editor.commands.setContent(parseTipTapDocument(normalizedValue), {
-            emitUpdate: false,
-          });
+          editor.commands.setContent(parseTipTapDocument(normalizedValue), { emitUpdate: false });
           onChange(normalizedValue);
         } else if (file.name.endsWith(".html") || file.type === "text/html") {
           const html = await file.text();
@@ -60,9 +53,7 @@ export function useFileImport({ editor, onChange }: UseFileImportOptions) {
         } else {
           text = await file.text();
           const normalizedValue = normalizeTipTapDocument(text);
-          editor.commands.setContent(parseTipTapDocument(normalizedValue), {
-            emitUpdate: false,
-          });
+          editor.commands.setContent(parseTipTapDocument(normalizedValue), { emitUpdate: false });
           onChange(normalizedValue);
         }
       } catch (err) {
@@ -76,11 +67,9 @@ export function useFileImport({ editor, onChange }: UseFileImportOptions) {
     [editor, onChange],
   );
 
-  const handleImportClick = React.useCallback(() => {
+  const handleImportClick = useCallback(() => {
     if (!editor) return;
-    const currentContent = tipTapToPlainText(
-      JSON.stringify(editor.getJSON()),
-    ).trim();
+    const currentContent = tipTapToPlainText(JSON.stringify(editor.getJSON())).trim();
     if (currentContent) {
       setShowImportConfirm(true);
     } else {
@@ -88,7 +77,7 @@ export function useFileImport({ editor, onChange }: UseFileImportOptions) {
     }
   }, [editor]);
 
-  const handleConfirmImport = React.useCallback(() => {
+  const handleConfirmImport = useCallback(() => {
     setShowImportConfirm(false);
     fileInputRef.current?.click();
   }, []);

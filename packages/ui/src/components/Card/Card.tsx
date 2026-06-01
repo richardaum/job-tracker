@@ -1,8 +1,8 @@
+import type { ReactNode } from "react";
 import { cn } from "@ui/lib/cn";
-import React from "react";
 
 export interface CardProps {
-  children: React.ReactNode;
+  children: ReactNode;
   variant?: "default" | "outlined";
   padding?: "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl" | "5xl";
   className?: string;
@@ -26,13 +26,7 @@ const paddingClasses: Record<NonNullable<CardProps["padding"]>, string> = {
   "5xl": "px-14 py-12",
 };
 
-export function Card({
-  children,
-  variant = "default",
-  padding = "md",
-  className,
-  onClick,
-}: CardProps) {
+export function Card({ children, variant = "default", padding = "md", className, onClick }: CardProps) {
   const Tag = onClick ? "div" : "article";
   return (
     <Tag

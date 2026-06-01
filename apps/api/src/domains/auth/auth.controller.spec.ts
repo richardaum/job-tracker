@@ -1,10 +1,7 @@
 import "reflect-metadata";
 
 import { UserAccountEntity } from "@api/database/entities/user-account.entity";
-import {
-  AUTH_ACTION_HEADER,
-  AUTH_ACTION_VALUE,
-} from "@api/domains/auth/auth-mutation.util";
+import { AUTH_ACTION_HEADER, AUTH_ACTION_VALUE } from "@api/domains/auth/auth-mutation.util";
 import { AuthUserAccessService } from "@api/domains/auth/auth-user-access.service";
 import { RoleEnum } from "@api/domains/users/role.enum";
 import type { User } from "@api/domains/users/users.schema";
@@ -54,23 +51,11 @@ describe("AuthController (integration)", () => {
     setRefreshJti = vi.fn().mockResolvedValue(undefined);
     findById = vi
       .fn()
-      .mockResolvedValueOnce({
-        ...mockUser,
-        refreshJti: currentJti,
-        tokenVersion: mockUser.tokenVersion,
-      })
-      .mockResolvedValue({
-        ...mockUser,
-        refreshJti: currentJti,
-        tokenVersion: 1,
-      });
+      .mockResolvedValueOnce({ ...mockUser, refreshJti: currentJti, tokenVersion: mockUser.tokenVersion })
+      .mockResolvedValue({ ...mockUser, refreshJti: currentJti, tokenVersion: 1 });
     verifyRefreshToken = vi
       .fn()
-      .mockReturnValue({
-        userId: mockUser.id,
-        tokenVersion: mockUser.tokenVersion,
-        jti: currentJti,
-      });
+      .mockReturnValue({ userId: mockUser.id, tokenVersion: mockUser.tokenVersion, jti: currentJti });
 
     const moduleRef = await Test.createTestingModule({
       controllers: [AuthController],
@@ -86,13 +71,7 @@ describe("AuthController (integration)", () => {
         {
           provide: UserService,
           useValue: {
-            validateActiveUser: vi
-              .fn()
-              .mockResolvedValue({
-                ...mockUser,
-                active: true,
-                tokenVersion: 0,
-              }),
+            validateActiveUser: vi.fn().mockResolvedValue({ ...mockUser, active: true, tokenVersion: 0 }),
             incrementTokenVersion,
             setRefreshJti,
             findById,
@@ -101,13 +80,7 @@ describe("AuthController (integration)", () => {
         {
           provide: AuthUserAccessService,
           useValue: {
-            assertAuthenticatedUser: vi
-              .fn()
-              .mockResolvedValue({
-                ...mockUser,
-                active: true,
-                tokenVersion: 0,
-              }),
+            assertAuthenticatedUser: vi.fn().mockResolvedValue({ ...mockUser, active: true, tokenVersion: 0 }),
           },
         },
         { provide: DevAuthBypassService, useValue: { isEnabled: () => false } },
@@ -134,24 +107,18 @@ describe("AuthController (integration)", () => {
   });
 
   it("GET /auth/google/callback sets cookies and redirects to login", async () => {
-    const res = await request(app.getHttpServer())
-      .get("/auth/google/callback")
-      .set("Host", host);
+    const res = await request(app.getHttpServer()).get("/auth/google/callback").set("Host", host);
 
     expect(res.statusCode).toBe(302);
     expect(setRefreshJti).toHaveBeenCalledWith(
       mockUser.id,
-      expect.stringMatching(
-        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
-      ),
+      expect.stringMatching(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i),
     );
     expect(res.headers.location).toBe(loginUrl);
 
     const cookies = ([] as string[]).concat(res.headers["set-cookie"] ?? []);
     expect(cookies.some((c) => c.startsWith("access_token="))).toBe(true);
-    expect(cookies.some((c) => c.toLowerCase().includes("samesite=none"))).toBe(
-      true,
-    );
+    expect(cookies.some((c) => c.toLowerCase().includes("samesite=none"))).toBe(true);
     expect(cookies.some((c) => c.toLowerCase().includes("secure"))).toBe(true);
     expect(
       cookies.some(
@@ -169,9 +136,7 @@ describe("AuthController (integration)", () => {
       .set("Host", host);
 
     expect(res.statusCode).toBe(302);
-    expect(res.headers.location).toBe(
-      `${loginUrl}?returnTo=%2Fapplications%2F123`,
-    );
+    expect(res.headers.location).toBe(`${loginUrl}?returnTo=%2Fapplications%2F123`);
   });
 
   it("GET /auth/google/callback ignores unsafe oauth state", async () => {
@@ -193,16 +158,12 @@ describe("AuthController (integration)", () => {
     expect(incrementTokenVersion).toHaveBeenCalledWith(mockUser.id);
     const cookies = ([] as string[]).concat(res.headers["set-cookie"] ?? []);
     expect(cookies.some((c) => c.startsWith("access_token=;"))).toBe(true);
-    const refreshClears = cookies.filter((c) =>
-      c.startsWith("refresh_token=;"),
-    );
+    const refreshClears = cookies.filter((c) => c.startsWith("refresh_token=;"));
     expect(refreshClears.length).toBe(2);
   });
 
   it("POST /auth/logout handles missing refresh token gracefully", async () => {
-    const res = await request(app.getHttpServer())
-      .post("/auth/logout")
-      .set(authMutationHeader);
+    const res = await request(app.getHttpServer()).post("/auth/logout").set(authMutationHeader);
 
     expect(res.statusCode).toBe(200);
   });
@@ -216,9 +177,7 @@ describe("AuthController (integration)", () => {
     expect(res.statusCode).toBe(200);
     expect(setRefreshJti).toHaveBeenCalledWith(
       mockUser.id,
-      expect.stringMatching(
-        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
-      ),
+      expect.stringMatching(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i),
     );
     expect(incrementTokenVersion).toHaveBeenCalledWith(mockUser.id);
     expect(findById).toHaveBeenCalledWith(mockUser.id);
@@ -234,11 +193,7 @@ describe("AuthController (integration)", () => {
       tokenVersion: mockUser.tokenVersion,
       jti: "reused-jti",
     });
-    findById.mockResolvedValueOnce({
-      ...mockUser,
-      refreshJti: currentJti,
-      tokenVersion: mockUser.tokenVersion,
-    });
+    findById.mockResolvedValueOnce({ ...mockUser, refreshJti: currentJti, tokenVersion: mockUser.tokenVersion });
 
     const res = await request(app.getHttpServer())
       .post("/auth/refresh")
@@ -251,21 +206,10 @@ describe("AuthController (integration)", () => {
   });
 
   it("POST /auth/refresh allows legacy tokens without jti once and rotates", async () => {
-    verifyRefreshToken.mockReturnValueOnce({
-      userId: mockUser.id,
-      tokenVersion: mockUser.tokenVersion,
-    });
+    verifyRefreshToken.mockReturnValueOnce({ userId: mockUser.id, tokenVersion: mockUser.tokenVersion });
     findById
-      .mockResolvedValueOnce({
-        ...mockUser,
-        refreshJti: null,
-        tokenVersion: mockUser.tokenVersion,
-      })
-      .mockResolvedValueOnce({
-        ...mockUser,
-        refreshJti: currentJti,
-        tokenVersion: 1,
-      });
+      .mockResolvedValueOnce({ ...mockUser, refreshJti: null, tokenVersion: mockUser.tokenVersion })
+      .mockResolvedValueOnce({ ...mockUser, refreshJti: currentJti, tokenVersion: 1 });
 
     const res = await request(app.getHttpServer())
       .post("/auth/refresh")
@@ -275,17 +219,13 @@ describe("AuthController (integration)", () => {
     expect(res.statusCode).toBe(200);
     expect(setRefreshJti).toHaveBeenCalledWith(
       mockUser.id,
-      expect.stringMatching(
-        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
-      ),
+      expect.stringMatching(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i),
     );
     expect(incrementTokenVersion).toHaveBeenCalledWith(mockUser.id);
   });
 
   it("POST /auth/refresh returns 401 without refresh cookie", async () => {
-    const res = await request(app.getHttpServer())
-      .post("/auth/refresh")
-      .set(authMutationHeader);
+    const res = await request(app.getHttpServer()).post("/auth/refresh").set(authMutationHeader);
     expect(res.statusCode).toBe(401);
   });
 
@@ -295,9 +235,7 @@ describe("AuthController (integration)", () => {
   });
 
   it("POST /auth/refresh returns 401 without X-Auth-Action header", async () => {
-    const res = await request(app.getHttpServer())
-      .post("/auth/refresh")
-      .set("Cookie", ["refresh_token=valid-refresh"]);
+    const res = await request(app.getHttpServer()).post("/auth/refresh").set("Cookie", ["refresh_token=valid-refresh"]);
     expect(res.statusCode).toBe(401);
   });
 

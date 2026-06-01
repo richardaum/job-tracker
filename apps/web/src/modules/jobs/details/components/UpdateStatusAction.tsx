@@ -1,16 +1,9 @@
 "use client";
 
 import { tryRun } from "@job-tracker/try-run";
-import {
-  Button,
-  cn,
-  Dialog,
-  FormField,
-  Input,
-  Select,
-  Stack,
-} from "@job-tracker/ui";
-import React, { useMemo, useState } from "react";
+import { Button, cn, Dialog, FormField, Input, Select, Stack } from "@job-tracker/ui";
+import { useMemo, useState } from "react";
+import type { ReactElement } from "react";
 
 import {
   ApplicationStage,
@@ -43,6 +36,16 @@ const quickScheduleOptions = [
   { label: "+3d", offsetDays: 3 },
 ] as const;
 
+type UpdateStatusActionProps = {
+  jobId: string;
+  currentStage: ApplicationStage;
+  trigger?: ReactElement;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  onSuccess?: (message: string) => void;
+  onError?: (message: string) => void;
+};
+
 export function UpdateStatusAction({
   jobId,
   currentStage,
@@ -51,33 +54,19 @@ export function UpdateStatusAction({
   onOpenChange,
   onSuccess,
   onError,
-}: {
-  jobId: string;
-  currentStage: ApplicationStage;
-  trigger?: React.ReactElement;
-  open?: boolean;
-  onOpenChange?: (open: boolean) => void;
-  onSuccess?: (message: string) => void;
-  onError?: (message: string) => void;
-}) {
+}: UpdateStatusActionProps) {
   const [internalOpen, setInternalOpen] = useState(false);
-  const [selectedStage, setSelectedStage] = useState<
-    ApplicationStage | undefined
-  >(undefined);
+  const [selectedStage, setSelectedStage] = useState<ApplicationStage | undefined>(undefined);
   const [scheduledAtDraft, setScheduledAtDraft] = useState("");
   const [reasonDraft, setReasonDraft] = useState("");
 
-  const [createStageEvent, { loading: stageSaving }] =
-    useCreateJobStageEventMutation({
-      refetchQueries: [{ query: JobStageEventsDocument, variables: { jobId } }],
-    });
+  const [createStageEvent, { loading: stageSaving }] = useCreateJobStageEventMutation({
+    refetchQueries: [{ query: JobStageEventsDocument, variables: { jobId } }],
+  });
   const saving = stageSaving;
   const canSave = Boolean(selectedStage) && !saving;
   const scheduledAtValue = scheduledAtDraft.trim();
-  const selectOptions = useMemo(
-    () => stageOptions.map((option) => ({ ...option, value: option.value })),
-    [],
-  );
+  const selectOptions = useMemo(() => stageOptions.map((option) => ({ ...option, value: option.value })), []);
 
   const resolvedOpen = open ?? internalOpen;
 
@@ -88,9 +77,7 @@ export function UpdateStatusAction({
     onOpenChange?.(nextOpen);
     if (nextOpen) {
       setSelectedStage(undefined);
-      setScheduledAtDraft(
-        (current) => current || getDateTimeInputValueFromNow(),
-      );
+      setScheduledAtDraft((current) => current || getDateTimeInputValueFromNow());
       setReasonDraft("");
     }
   }
@@ -131,18 +118,13 @@ export function UpdateStatusAction({
         <FormField label="Status" htmlFor={`history-status-${jobId}`}>
           <Select
             value={selectedStage}
-            onValueChange={(value) =>
-              setSelectedStage(value as ApplicationStage)
-            }
+            onValueChange={(value) => setSelectedStage(value as ApplicationStage)}
             options={selectOptions}
             placeholder={`Current: ${formatStage(currentStage)}`}
             size="sm"
           />
         </FormField>
-        <FormField
-          label="Scheduled at (optional)"
-          htmlFor={`history-scheduled-at-${jobId}`}
-        >
+        <FormField label="Scheduled at (optional)" htmlFor={`history-scheduled-at-${jobId}`}>
           <Stack gap="xs">
             <Input
               id={`history-scheduled-at-${jobId}`}
@@ -154,9 +136,7 @@ export function UpdateStatusAction({
             />
             <div className={cn("flex flex-wrap gap-1")}>
               {quickScheduleOptions.map((option) => {
-                const optionValue = getDateTimeInputValueFromNow(
-                  option.offsetDays,
-                );
+                const optionValue = getDateTimeInputValueFromNow(option.offsetDays);
                 return (
                   <Button
                     key={option.label}
@@ -178,10 +158,7 @@ export function UpdateStatusAction({
             </div>
           </Stack>
         </FormField>
-        <FormField
-          label="Reason (optional)"
-          htmlFor={`history-reason-${jobId}`}
-        >
+        <FormField label="Reason (optional)" htmlFor={`history-reason-${jobId}`}>
           <Input
             id={`history-reason-${jobId}`}
             type="text"

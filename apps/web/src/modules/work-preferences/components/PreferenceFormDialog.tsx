@@ -1,13 +1,7 @@
 "use client";
 
-import {
-  Button,
-  cn,
-  Dialog,
-  FieldWithLabelAction,
-  Input,
-} from "@job-tracker/ui";
-import React from "react";
+import { Button, cn, Dialog, FieldWithLabelAction, Input } from "@job-tracker/ui";
+import { useState } from "react";
 
 import { Weight } from "@/gql/hooks";
 import { PreferenceWeightDropdown } from "@/modules/work-preferences/components/PreferenceWeightDropdown";
@@ -29,11 +23,11 @@ export function PreferenceFormDialog({
   initialWeight = Weight.Low,
   onSubmit,
 }: PreferenceFormDialogProps) {
-  const [text, setText] = React.useState(initialText);
-  const [weight, setWeight] = React.useState(initialWeight);
-  const [saving, setSaving] = React.useState(false);
+  const [text, setText] = useState(initialText);
+  const [weight, setWeight] = useState(initialWeight);
+  const [saving, setSaving] = useState(false);
 
-  const [prevOpen, setPrevOpen] = React.useState(open);
+  const [prevOpen, setPrevOpen] = useState(open);
   if (open !== prevOpen) {
     setPrevOpen(open);
     if (open) {
@@ -96,14 +90,7 @@ export function PreferenceFormDialog({
         />
         <FieldWithLabelAction
           label="Weight"
-          content={
-            <PreferenceWeightDropdown
-              value={weight}
-              onChange={setWeight}
-              variant="labeled"
-              fullWidth
-            />
-          }
+          content={<PreferenceWeightDropdown value={weight} onChange={setWeight} variant="labeled" fullWidth />}
         />
       </div>
     </Dialog>

@@ -25,8 +25,7 @@ export const DEFAULT_STARTUP_TIMEOUT_MS = 60_000;
 export const DEFAULT_SLOW_STARTUP_MS = 15_000;
 
 const VITEST_RUN_LINE = /^\s*RUN\s+/;
-const VITEST_FILE_LINE =
-  /^\s*[✓×✗↓]\s+(.+\.(?:test|spec)\.[cm]?[jt]sx?)\s*(?:\(\d+\s+tests?\))?/;
+const VITEST_FILE_LINE = /^\s*[✓×✗↓]\s+(.+\.(?:test|spec)\.[cm]?[jt]sx?)\s*(?:\(\d+\s+tests?\))?/;
 
 const PLAYWRIGHT_RUNNING = /Running \d+ tests? using/;
 const PLAYWRIGHT_TEST_LINE = /^\s*[✓×✗]\s+\d+\s+/;
@@ -73,10 +72,7 @@ export function markStartupOutput(progress: StartupProgress): void {
   progress.lastActivityAt = Date.now();
 }
 
-export function markTestsStarted(
-  progress: StartupProgress,
-  signal: string,
-): void {
+export function markTestsStarted(progress: StartupProgress, signal: string): void {
   if (progress.firstTestAt === undefined) {
     progress.firstTestAt = Date.now();
     progress.firstTestSignal = signal.trim();
@@ -98,10 +94,7 @@ function parseVitestFileStartupLine(line: string): string | undefined {
   return match ? line.trimEnd() : undefined;
 }
 
-export function applyVitestStartupLine(
-  progress: StartupProgress,
-  line: string,
-): string | undefined {
+export function applyVitestStartupLine(progress: StartupProgress, line: string): string | undefined {
   progress.lastLine = line.trim();
 
   const trimmed = line.trimEnd();
@@ -125,10 +118,7 @@ export function applyVitestStartupLine(
   return undefined;
 }
 
-export function applyPlaywrightStartupLine(
-  progress: StartupProgress,
-  line: string,
-): string | undefined {
+export function applyPlaywrightStartupLine(progress: StartupProgress, line: string): string | undefined {
   progress.lastLine = line.trim();
   const trimmed = line.trimEnd();
 
@@ -154,10 +144,7 @@ export function classifyStartupRun(
   targetId: string,
   run: number,
   progress: StartupProgress,
-  options: Pick<
-    SlowStartupDetectionOptions,
-    "startupTimeoutMs" | "slowStartupMs"
-  >,
+  options: Pick<SlowStartupDetectionOptions, "startupTimeoutMs" | "slowStartupMs">,
   timedOutReason?: "startup" | "suite",
 ): StartupFinding | undefined {
   const elapsedMs = Date.now() - progress.startedAt;
@@ -193,9 +180,7 @@ export function classifyStartupRun(
   return undefined;
 }
 
-export function mergeStartupFindings(
-  findings: StartupFinding[],
-): StartupFinding[] {
+export function mergeStartupFindings(findings: StartupFinding[]): StartupFinding[] {
   const byKey = new Map<string, StartupFinding>();
 
   for (const finding of findings) {
@@ -207,16 +192,11 @@ export function mergeStartupFindings(
   }
 
   return [...byKey.values()].sort(
-    (a, b) =>
-      a.targetId.localeCompare(b.targetId) ||
-      a.kind.localeCompare(b.kind) ||
-      b.startupMs - a.startupMs,
+    (a, b) => a.targetId.localeCompare(b.targetId) || a.kind.localeCompare(b.kind) || b.startupMs - a.startupMs,
   );
 }
 
-export async function parseSlowStartupDetectionArgs(
-  argv: readonly string[],
-): Promise<SlowStartupDetectionOptions> {
+export async function parseSlowStartupDetectionArgs(argv: readonly string[]): Promise<SlowStartupDetectionOptions> {
   const { default: yargs } = await import("yargs");
   const userArgs = stripScriptArgv(argv);
 
@@ -228,34 +208,16 @@ export async function parseSlowStartupDetectionArgs(
         "Streams output live, kills runs that produce no test activity within the startup\n" +
         "timeout, and flags targets whose first test signal exceeds the slow threshold.",
     )
-    .option("runs", {
-      type: "number",
-      default: 1,
-      description: "Number of repetitions per target",
-    })
+    .option("runs", { type: "number", default: 1, description: "Number of repetitions per target" })
     .option("scope", {
       choices: ["unit", "e2e", "all"] as const,
       default: "unit" as const,
       description: "Which tests to run",
     })
-    .option("package", {
-      type: "string",
-      description: "Run only one target (e.g. @job-tracker/web)",
-    })
-    .option("grep", {
-      type: "string",
-      description: "Filter tests by name (regex)",
-    })
-    .option("build", {
-      type: "boolean",
-      default: true,
-      description: 'Run "pnpm turbo build" before unit runs',
-    })
-    .option("fail", {
-      type: "boolean",
-      default: true,
-      description: "Exit 1 when slow or stuck startups are found",
-    })
+    .option("package", { type: "string", description: "Run only one target (e.g. @job-tracker/web)" })
+    .option("grep", { type: "string", description: "Filter tests by name (regex)" })
+    .option("build", { type: "boolean", default: true, description: 'Run "pnpm turbo build" before unit runs' })
+    .option("fail", { type: "boolean", default: true, description: "Exit 1 when slow or stuck startups are found" })
     .option("startup-timeout-ms", {
       type: "number",
       default: DEFAULT_STARTUP_TIMEOUT_MS,
@@ -266,14 +228,8 @@ export async function parseSlowStartupDetectionArgs(
       default: DEFAULT_SLOW_STARTUP_MS,
       description: "Flag when first test activity takes longer than n ms",
     })
-    .example(
-      "pnpm test:slow-startup",
-      "Check unit targets for slow or stuck startup",
-    )
-    .example(
-      "pnpm test:slow-startup -- --package @job-tracker/web --runs 3",
-      "Repeat web unit startup check 3 times",
-    )
+    .example("pnpm test:slow-startup", "Check unit targets for slow or stuck startup")
+    .example("pnpm test:slow-startup -- --package @job-tracker/web --runs 3", "Repeat web unit startup check 3 times")
     .help()
     .alias("h", "help")
     .strict()
@@ -285,9 +241,7 @@ export async function parseSlowStartupDetectionArgs(
         throw new Error(`${TAG} --runs must be an integer >= 1.`);
       }
       if (!Number.isInteger(startupTimeoutMs) || startupTimeoutMs < 1_000) {
-        throw new Error(
-          `${TAG} --startup-timeout-ms must be an integer >= 1000.`,
-        );
+        throw new Error(`${TAG} --startup-timeout-ms must be an integer >= 1000.`);
       }
       if (!Number.isInteger(slowStartupMs) || slowStartupMs < 1) {
         throw new Error(`${TAG} --slow-startup-ms must be an integer >= 1.`);
@@ -307,9 +261,7 @@ export async function parseSlowStartupDetectionArgs(
     .parse();
 
   const grep = typeof parsed.grep === "string" ? parsed.grep : undefined;
-  const [, compiledNameFilter] = grep
-    ? tryRun(() => new RegExp(grep))
-    : [undefined, undefined];
+  const [, compiledNameFilter] = grep ? tryRun(() => new RegExp(grep)) : [undefined, undefined];
 
   return {
     runs: parsed.runs,
@@ -336,20 +288,14 @@ function resolveTargets(options: SlowStartupDetectionOptions): TestTarget[] {
   const match = byScope.filter((target) => target.id === options.packageFilter);
   if (match.length === 0) {
     const available = byScope.map((target) => target.id).join(", ");
-    throw new Error(
-      `Unknown package "${options.packageFilter}". Available: ${available}`,
-    );
+    throw new Error(`Unknown package "${options.packageFilter}". Available: ${available}`);
   }
   return match;
 }
 
 function runBuild(): void {
   console.log(`${TAG} Building workspace dependencies...`);
-  const result = spawnSync("pnpm", ["turbo", "build"], {
-    cwd: REPO_ROOT,
-    stdio: "inherit",
-    env: process.env,
-  });
+  const result = spawnSync("pnpm", ["turbo", "build"], { cwd: REPO_ROOT, stdio: "inherit", env: process.env });
   if (result.status !== 0) {
     throw new Error("turbo build failed");
   }
@@ -357,17 +303,10 @@ function runBuild(): void {
 
 function formatStartupSummary(progress: StartupProgress): string {
   const started =
-    progress.firstTestSignal ??
-    (progress.firstOutputAt
-      ? "output only (tests not started)"
-      : "waiting for output");
+    progress.firstTestSignal ?? (progress.firstOutputAt ? "output only (tests not started)" : "waiting for output");
   const startup = startupMs(progress);
   const startupLabel =
-    startup === undefined
-      ? "not started"
-      : startup < 1_000
-        ? `${startup}ms`
-        : `${Math.round(startup / 1000)}s`;
+    startup === undefined ? "not started" : startup < 1_000 ? `${startup}ms` : `${Math.round(startup / 1000)}s`;
   return `startup ${startupLabel} — first signal: ${started}`;
 }
 
@@ -411,11 +350,7 @@ function spawnTargetWithStartupDetection(
     const stdoutLineBuffer = { partial: "" };
     let timedOutReason: "startup" | "suite" | undefined;
 
-    const child = spawn("pnpm", [...command], {
-      cwd,
-      env,
-      stdio: ["ignore", "pipe", "pipe"],
-    });
+    const child = spawn("pnpm", [...command], { cwd, env, stdio: ["ignore", "pipe", "pipe"] });
 
     const killChild = (reason: "startup" | "suite") => {
       timedOutReason = reason;
@@ -440,9 +375,7 @@ function spawnTargetWithStartupDetection(
         return;
       }
 
-      console.log(
-        `${TAG}    … ${formatStartupSummary(progress)} (elapsed ${Math.round(elapsedMs / 1000)}s)`,
-      );
+      console.log(`${TAG}    … ${formatStartupSummary(progress)} (elapsed ${Math.round(elapsedMs / 1000)}s)`);
     }, PROGRESS_LOG_INTERVAL_MS);
 
     child.stdout?.on("data", (chunk) => {
@@ -482,28 +415,16 @@ async function runTargetStartupCheck(
     playwrightReporters: ["list"],
   });
 
-  const suiteTimeoutMs = Math.max(
-    options.startupTimeoutMs * 4,
-    options.startupTimeoutMs + 120_000,
-  );
+  const suiteTimeoutMs = Math.max(options.startupTimeoutMs * 4, options.startupTimeoutMs + 120_000);
 
   console.log(`${TAG}  → ${target.id} (run ${run}/${options.runs})`);
 
-  const result = await spawnTargetWithStartupDetection(
-    command,
-    REPO_ROOT,
-    process.env,
-    target,
-    { startupTimeoutMs: options.startupTimeoutMs, suiteTimeoutMs },
-  );
+  const result = await spawnTargetWithStartupDetection(command, REPO_ROOT, process.env, target, {
+    startupTimeoutMs: options.startupTimeoutMs,
+    suiteTimeoutMs,
+  });
 
-  const finding = classifyStartupRun(
-    target.id,
-    run,
-    result.progress,
-    options,
-    result.timedOutReason,
-  );
+  const finding = classifyStartupRun(target.id, run, result.progress, options, result.timedOutReason);
 
   if (finding) {
     const detail =
@@ -519,24 +440,16 @@ async function runTargetStartupCheck(
   }
 
   const measuredStartupMs = startupMs(result.progress);
-  console.log(
-    `${TAG}    ok in ${measuredStartupMs ?? 0}ms — ${formatStartupSummary(result.progress)}`,
-  );
+  console.log(`${TAG}    ok in ${measuredStartupMs ?? 0}ms — ${formatStartupSummary(result.progress)}`);
 
   if (result.status !== 0 && result.timedOutReason === undefined) {
-    console.log(
-      `${TAG}    note: target exited ${result.status ?? "with signal"} after startup`,
-    );
+    console.log(`${TAG}    note: target exited ${result.status ?? "with signal"} after startup`);
   }
 
   return undefined;
 }
 
-function printReport(
-  findings: StartupFinding[],
-  runs: number,
-  targetCount: number,
-): void {
+function printReport(findings: StartupFinding[], runs: number, targetCount: number): void {
   const merged = mergeStartupFindings(findings);
   const neverStarted = merged.filter((entry) => entry.kind === "neverStarted");
   const slowStartup = merged.filter((entry) => entry.kind === "slowStartup");
@@ -551,9 +464,7 @@ function printReport(
     for (const entry of neverStarted) {
       console.log(
         `  - [${entry.targetId}] run ${entry.run}: waited ${entry.startupMs}ms` +
-          (entry.firstOutputMs !== undefined
-            ? ` (first output ${entry.firstOutputMs}ms)`
-            : " (no output)") +
+          (entry.firstOutputMs !== undefined ? ` (first output ${entry.firstOutputMs}ms)` : " (no output)") +
           `\n    last line: ${entry.lastLine}`,
       );
     }
@@ -564,18 +475,14 @@ function printReport(
     for (const entry of slowStartup) {
       console.log(
         `  - [${entry.targetId}] run ${entry.run}: ${entry.startupMs}ms` +
-          (entry.firstOutputMs !== undefined
-            ? ` (first output ${entry.firstOutputMs}ms)`
-            : "") +
+          (entry.firstOutputMs !== undefined ? ` (first output ${entry.firstOutputMs}ms)` : "") +
           `\n    first signal: ${entry.firstTestSignal ?? entry.lastLine}`,
       );
     }
   }
 }
 
-export async function detectSlowStartupTests(
-  options: SlowStartupDetectionOptions,
-): Promise<StartupFinding[]> {
+export async function detectSlowStartupTests(options: SlowStartupDetectionOptions): Promise<StartupFinding[]> {
   const targets = resolveTargets(options);
   const findings: StartupFinding[] = [];
 
@@ -596,9 +503,7 @@ export async function detectSlowStartupTests(
 }
 
 const selfResolved = resolve(fileURLToPath(import.meta.url));
-const invokedDirectly =
-  typeof process.argv[1] === "string" &&
-  resolve(process.argv[1]) === selfResolved;
+const invokedDirectly = typeof process.argv[1] === "string" && resolve(process.argv[1]) === selfResolved;
 
 if (invokedDirectly) {
   parseSlowStartupDetectionArgs(process.argv.slice(2))

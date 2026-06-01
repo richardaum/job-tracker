@@ -1,16 +1,10 @@
 import { describe, expect, it } from "vitest";
 
 import type { ExtensionConnectionState } from "@/modules/admin/extension/hooks/useExtensionConnectionStatus";
-import {
-  authDisplayLabel,
-  authTextColor,
-} from "@/modules/admin/extension/lib/extension-auth.display";
+import { authDisplayLabel, authTextColor } from "@/modules/admin/extension/lib/extension-auth.display";
 
 function authConnection(
-  overrides: Pick<
-    ExtensionConnectionState,
-    "status" | "authStatus" | "authenticatedEmail"
-  >,
+  overrides: Pick<ExtensionConnectionState, "status" | "authStatus" | "authenticatedEmail">,
 ): ExtensionConnectionState {
   return {
     extensionVersion: null,
@@ -23,11 +17,7 @@ function authConnection(
 
 describe("extension-auth.display", () => {
   it("shows unavailable when disconnected", () => {
-    const connection = authConnection({
-      status: "disconnected",
-      authStatus: null,
-      authenticatedEmail: null,
-    });
+    const connection = authConnection({ status: "disconnected", authStatus: null, authenticatedEmail: null });
 
     expect(authDisplayLabel(connection)).toBe("Unavailable");
     expect(authTextColor(connection)).toBe("muted");
@@ -45,11 +35,7 @@ describe("extension-auth.display", () => {
   });
 
   it("shows not signed in when connected but unauthenticated", () => {
-    const connection = authConnection({
-      status: "connected",
-      authStatus: "unauthenticated",
-      authenticatedEmail: null,
-    });
+    const connection = authConnection({ status: "connected", authStatus: "unauthenticated", authenticatedEmail: null });
 
     expect(authDisplayLabel(connection)).toBe("Not signed in");
     expect(authTextColor(connection)).toBe("warning");

@@ -7,11 +7,7 @@ function normalizeError(error: unknown): Error {
 }
 
 function isPromiseLike<T>(value: unknown): value is PromiseLike<T> {
-  return (
-    typeof value === "object" &&
-    value !== null &&
-    typeof (value as PromiseLike<T>).then === "function"
-  );
+  return typeof value === "object" && value !== null && typeof (value as PromiseLike<T>).then === "function";
 }
 
 type Tuple<T> = [error: null, data: T] | [error: Error, data: null];
@@ -27,9 +23,7 @@ type Tuple<T> = [error: null, data: T] | [error: Error, data: null];
 export function tryRun<T>(source: Promise<T>): Promise<Tuple<T>>;
 export function tryRun<T>(fn: () => T): Tuple<T>;
 export function tryRun<T>(fn: () => Promise<T>): Promise<Tuple<T>>;
-export function tryRun<T>(
-  source: Promise<T> | (() => T | Promise<T>),
-): Tuple<T> | Promise<Tuple<T>> {
+export function tryRun<T>(source: Promise<T> | (() => T | Promise<T>)): Tuple<T> | Promise<Tuple<T>> {
   if (typeof source === "function") {
     try {
       const result = (source as () => T | Promise<T>)();

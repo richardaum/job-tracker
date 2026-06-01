@@ -8,7 +8,7 @@ import { ExtensionActivityEventTypeEnum } from "./extension-activity-event-type.
 export type CreateExtensionActivityEventRepoDto = {
   type: ExtensionActivityEventTypeEnum;
   summary: string;
-  correlationId?: string | null;
+  sourceRunId?: string | null;
   payload?: Record<string, unknown> | null;
   extensionVersion?: string | null;
   browser?: string | null;
@@ -22,15 +22,12 @@ export class ExtensionActivityRepository {
     private readonly repo: Repository<ExtensionActivityEventEntity>,
   ) {}
 
-  async create(
-    userId: string,
-    dto: CreateExtensionActivityEventRepoDto,
-  ): Promise<ExtensionActivityEventEntity> {
+  async create(userId: string, dto: CreateExtensionActivityEventRepoDto): Promise<ExtensionActivityEventEntity> {
     const row = this.repo.create({
       userId,
       type: dto.type,
       summary: dto.summary,
-      correlationId: dto.correlationId ?? null,
+      sourceRunId: dto.sourceRunId ?? null,
       payload: dto.payload ?? null,
       extensionVersion: dto.extensionVersion ?? null,
       browser: dto.browser ?? null,
@@ -39,10 +36,7 @@ export class ExtensionActivityRepository {
     return this.repo.save(row);
   }
 
-  async listRecentByUserId(
-    userId: string,
-    limit: number,
-  ): Promise<ExtensionActivityEventEntity[]> {
+  async listRecentByUserId(userId: string, limit: number): Promise<ExtensionActivityEventEntity[]> {
     return this.repo
       .createQueryBuilder("event")
       .where("event.user_id = :userId", { userId })

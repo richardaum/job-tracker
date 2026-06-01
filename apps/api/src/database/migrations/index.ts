@@ -27,6 +27,21 @@ import { ExtensionActivityEvents1767970000000 } from "./1767970000000-extension-
 import { ChangePayloadToJsonb1767980000000 } from "./1767980000000-change-payload-to-jsonb";
 import { AddAdminRoleEnum1767990000000 } from "./1767990000000-add-admin-role-enum";
 import { AddKeywordBlockerColumns1768000000000 } from "./1768000000000-add-keyword-blocker-columns";
+import { CreatePlansTable1768010000000 } from "./1768010000000-create-plans-table";
+import { MergeSourceProfileIntoPlan1768050000000 } from "./1768050000000-merge-source-profile-into-plan";
+import { NormalizeSourceRunStatusPascalcase1768060000000 } from "./1768060000000-normalize-source-run-status-pascalcase";
+import { AddSourceRunErrorMessage1768070000000 } from "./1768070000000-add-source-run-error-message";
+import { DropPlanSourceProfileId1768080000000 } from "./1768080000000-drop-plan-source-profile-id";
+import { AddSourceTemplateConfigJsonb1768090000000 } from "./1768090000000-add-source-template-config-jsonb";
+import { NormalizeStopwhenToArray1768100000000 } from "./1768100000000-normalize-stopwhen-to-array";
+import { AddJobPublishedAt1768110000000 } from "./1768110000000-add-job-published-at";
+import { AddPlanUserId1768120000000 } from "./1768120000000-add-plan-user-id";
+import { NormalizeExtensionActivityEventTypePascalCase1768130000000 } from "./1768130000000-normalize-extension-activity-event-type-pascalcase";
+import { NormalizeRoleEnumPascalcase1768140000000 } from "./1768140000000-normalize-role-enum-pascalcase";
+import { AddSourceRunJobSkipped1768150000000 } from "./1768150000000-add-source-run-job-skipped";
+import { NormalizeEnumValuesPascalcase1768160000000 } from "./1768160000000-normalize-enum-values-pascalcase";
+import { RenameCorrelationIdToSourceRunId1768170000000 } from "./1768170000000-rename-correlation-id-to-source-run-id";
+import { AddSourceRunJobSurfaceAndDetailsImport1780272917000 } from "./1780272917000-add-source-run-job-surface-and-details-import";
 
 export const migrations = [
   SquashedBaseline1767000000000,
@@ -58,4 +73,19 @@ export const migrations = [
   ChangePayloadToJsonb1767980000000,
   AddAdminRoleEnum1767990000000,
   AddKeywordBlockerColumns1768000000000,
+  CreatePlansTable1768010000000,
+  MergeSourceProfileIntoPlan1768050000000,
+  NormalizeSourceRunStatusPascalcase1768060000000,
+  AddSourceRunErrorMessage1768070000000,
+  DropPlanSourceProfileId1768080000000,
+  AddSourceTemplateConfigJsonb1768090000000,
+  NormalizeStopwhenToArray1768100000000,
+  AddJobPublishedAt1768110000000,
+  AddPlanUserId1768120000000,
+  NormalizeExtensionActivityEventTypePascalCase1768130000000,
+  NormalizeRoleEnumPascalcase1768140000000,
+  AddSourceRunJobSkipped1768150000000,
+  NormalizeEnumValuesPascalcase1768160000000,
+  RenameCorrelationIdToSourceRunId1768170000000,
+  AddSourceRunJobSurfaceAndDetailsImport1780272917000,
 ];

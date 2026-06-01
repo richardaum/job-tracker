@@ -54,7 +54,7 @@ const makeEvent = (overrides: Partial<JobStageEvent> = {}): JobStageEvent =>
     jobId: "app-1",
     userId: "user-1",
     fromStage: null,
-    toStage: ApplicationStageEnum.NEW,
+    toStage: ApplicationStageEnum.New,
     source: StageEventSourceEnum.Manual,
     reason: null,
     createdAt: new Date("2026-01-02"),
@@ -103,9 +103,7 @@ describe("JobsService", () => {
     } as unknown as JobsListQuery;
 
     jobDuplicateService = {
-      resolveInitialStageOnCreate: vi
-        .fn()
-        .mockResolvedValue(ApplicationStageEnum.NEW),
+      resolveInitialStageOnCreate: vi.fn().mockResolvedValue(ApplicationStageEnum.New),
     } as unknown as JobDuplicateService;
 
     stageEventsRepo = {
@@ -118,30 +116,20 @@ describe("JobsService", () => {
       deleteStageEvent: vi.fn(),
     } as unknown as JobStageEventsRepository;
 
-    companyService = {
-      findOne: vi.fn(),
-      findOrCreateByName: vi.fn(),
-      update: vi.fn(),
-    } as unknown as CompanyService;
+    companyService = { findOne: vi.fn(), findOrCreateByName: vi.fn(), update: vi.fn() } as unknown as CompanyService;
 
     salaryService = new SalaryService();
     tagService = new TagService();
-    companyDescriptionService = {
-      generateCompanyDescription: vi.fn(),
-    } as unknown as CompanyDescriptionService;
+    companyDescriptionService = { generateCompanyDescription: vi.fn() } as unknown as CompanyDescriptionService;
     locationInferenceService = {
       inferLocation: vi.fn(),
       inferWorkRegion: vi.fn(),
     } as unknown as LocationInferenceService;
 
-    fillService = {
-      fillJobAutomatically: vi.fn(),
-    } as unknown as JobAutomaticFillService;
+    fillService = { fillJobAutomatically: vi.fn() } as unknown as JobAutomaticFillService;
 
     keywordBlockerService = { evaluate: vi.fn().mockResolvedValue(null) };
-    noteService = {
-      createPlainTextNote: vi.fn().mockResolvedValue({ id: "note-1" }),
-    };
+    noteService = { createPlainTextNote: vi.fn().mockResolvedValue({ id: "note-1" }) };
 
     eventBus = { emit: vi.fn() } as unknown as JobEventBus;
 
@@ -165,89 +153,50 @@ describe("JobsService", () => {
 
   it("source-run import marks Duplicated and skips JobCreated auto-match", async () => {
     const app = makeJob({ sourceRunId: "run-1" });
-    vi.mocked(sourceRunsRepo.findOne).mockResolvedValue({
-      id: "run-1",
-      userId: "user-1",
-    } as SourceRunEntity);
+    vi.mocked(sourceRunsRepo.findOne).mockResolvedValue({ id: "run-1", userId: "user-1" } as SourceRunEntity);
     vi.mocked(companyService.findOrCreateByName).mockResolvedValue(co(app));
     vi.mocked(repo.create).mockResolvedValue(app);
     vi.mocked(repo.findOneByIdAndUserId).mockResolvedValue(app);
-    vi.mocked(
-      jobDuplicateService.resolveInitialStageOnCreate,
-    ).mockResolvedValue(ApplicationStageEnum.DUPLICATED);
+    vi.mocked(jobDuplicateService.resolveInitialStageOnCreate).mockResolvedValue(ApplicationStageEnum.Duplicated);
     vi.mocked(stageEventsRepo.createStageEvent).mockResolvedValue(
-      makeEvent({
-        toStage: ApplicationStageEnum.DUPLICATED,
-        source: StageEventSourceEnum.System,
-      }),
+      makeEvent({ toStage: ApplicationStageEnum.Duplicated, source: StageEventSourceEnum.System }),
     );
-    vi.mocked(
-      stageEventsRepo.findLatestStageSummariesByJobIds,
-    ).mockResolvedValue(
-      new Map([
-        [
-          app.id,
-          {
-            toStage: ApplicationStageEnum.DUPLICATED,
-            reason: null,
-            statusAt: new Date(),
-          },
-        ],
-      ]),
+    vi.mocked(stageEventsRepo.findLatestStageSummariesByJobIds).mockResolvedValue(
+      new Map([[app.id, { toStage: ApplicationStageEnum.Duplicated, reason: null, statusAt: new Date() }]]),
     );
 
     const result = await service.create("user-1", {
       title: "Engineer",
       company: "Acme",
       sourceRunId: "run-1",
-      description: JSON.stringify({
-        type: "doc",
-        content: [{ type: "paragraph", content: [] }],
-      }),
+      description: JSON.stringify({ type: "doc", content: [{ type: "paragraph", content: [] }] }),
     });
 
-    expect(result.currentStage).toBe(ApplicationStageEnum.DUPLICATED);
+    expect(result.currentStage).toBe(ApplicationStageEnum.Duplicated);
     expect(jobDuplicateService.resolveInitialStageOnCreate).toHaveBeenCalled();
     expect(eventBus.emit).not.toHaveBeenCalled();
-    expect(repo.setPersistedStage).toHaveBeenCalledWith(
-      "user-1",
-      app.id,
-      ApplicationStageEnum.DUPLICATED,
-    );
+    expect(repo.setPersistedStage).toHaveBeenCalledWith("user-1", app.id, ApplicationStageEnum.Duplicated);
   });
 
   it("source-run import emits JobCreated when stage is New", async () => {
     const app = makeJob({ sourceRunId: "run-1" });
-    vi.mocked(sourceRunsRepo.findOne).mockResolvedValue({
-      id: "run-1",
-      userId: "user-1",
-    } as SourceRunEntity);
+    vi.mocked(sourceRunsRepo.findOne).mockResolvedValue({ id: "run-1", userId: "user-1" } as SourceRunEntity);
     vi.mocked(companyService.findOrCreateByName).mockResolvedValue(co(app));
     vi.mocked(repo.create).mockResolvedValue(app);
     vi.mocked(repo.findOneByIdAndUserId).mockResolvedValue(app);
-    vi.mocked(
-      jobDuplicateService.resolveInitialStageOnCreate,
-    ).mockResolvedValue(ApplicationStageEnum.NEW);
+    vi.mocked(jobDuplicateService.resolveInitialStageOnCreate).mockResolvedValue(ApplicationStageEnum.New);
     vi.mocked(stageEventsRepo.createStageEvent).mockResolvedValue(
-      makeEvent({
-        toStage: ApplicationStageEnum.NEW,
-        source: StageEventSourceEnum.System,
-      }),
+      makeEvent({ toStage: ApplicationStageEnum.New, source: StageEventSourceEnum.System }),
     );
 
     await service.create("user-1", {
       title: "Engineer",
       company: "Acme",
       sourceRunId: "run-1",
-      description: JSON.stringify({
-        type: "doc",
-        content: [{ type: "paragraph", content: [] }],
-      }),
+      description: JSON.stringify({ type: "doc", content: [{ type: "paragraph", content: [] }] }),
     });
 
-    expect(eventBus.emit).toHaveBeenCalledWith(
-      expect.objectContaining({ jobId: app.id, userId: "user-1" }),
-    );
+    expect(eventBus.emit).toHaveBeenCalledWith(expect.objectContaining({ jobId: app.id, userId: "user-1" }));
   });
 
   it("findAll delegates to repo and attaches current stage", async () => {
@@ -255,33 +204,22 @@ describe("JobsService", () => {
     vi.mocked(jobsListQuery.findAllByUserId).mockResolvedValue([app]);
     const result = await service.findAll("user-1");
     expect(result).toHaveLength(1);
-    expect(jobsListQuery.findAllByUserId).toHaveBeenCalledWith(
-      "user-1",
-      undefined,
-      undefined,
-      undefined,
-    );
-    expect(
-      vi.mocked(stageEventsRepo.findLatestStageSummariesByJobIds),
-    ).toHaveBeenCalledWith("user-1", [app.id]);
-    expect(result[0]?.currentStage).toBe(ApplicationStageEnum.NEW);
+    expect(jobsListQuery.findAllByUserId).toHaveBeenCalledWith("user-1", undefined, undefined, undefined);
+    expect(vi.mocked(stageEventsRepo.findLatestStageSummariesByJobIds)).toHaveBeenCalledWith("user-1", [app.id]);
+    expect(result[0]?.currentStage).toBe(ApplicationStageEnum.New);
   });
 
   it("findOne returns job when found", async () => {
     vi.mocked(repo.findOneByIdAndUserId).mockResolvedValue(makeJob());
     const result = await service.findOne("app-1", "user-1");
     expect(result.id).toBe("app-1");
-    expect(
-      vi.mocked(stageEventsRepo.findLatestStageSummariesByJobIds),
-    ).toHaveBeenCalledWith("user-1", ["app-1"]);
-    expect(result.currentStage).toBe(ApplicationStageEnum.NEW);
+    expect(vi.mocked(stageEventsRepo.findLatestStageSummariesByJobIds)).toHaveBeenCalledWith("user-1", ["app-1"]);
+    expect(result.currentStage).toBe(ApplicationStageEnum.New);
   });
 
   it("findOne throws NotFoundException when not found", async () => {
     vi.mocked(repo.findOneByIdAndUserId).mockResolvedValue(null);
-    await expect(service.findOne("app-1", "user-1")).rejects.toThrow(
-      NotFoundException,
-    );
+    await expect(service.findOne("app-1", "user-1")).rejects.toThrow(NotFoundException);
   });
 
   it("create persists job and emits initial New stage event", async () => {
@@ -290,59 +228,32 @@ describe("JobsService", () => {
     vi.mocked(repo.create).mockResolvedValue(app);
     vi.mocked(repo.findOneByIdAndUserId).mockResolvedValue(app);
     vi.mocked(stageEventsRepo.createStageEvent).mockResolvedValue(
-      makeEvent({
-        toStage: ApplicationStageEnum.NEW,
-        source: StageEventSourceEnum.System,
-      }),
+      makeEvent({ toStage: ApplicationStageEnum.New, source: StageEventSourceEnum.System }),
     );
     const result = await service.create("user-1", {
       title: "Engineer",
       company: "Acme",
       description: JSON.stringify({
         type: "doc",
-        content: [
-          {
-            type: "paragraph",
-            content: [{ type: "text", text: "React role" }],
-          },
-        ],
+        content: [{ type: "paragraph", content: [{ type: "text", text: "React role" }] }],
       }),
     });
     expect(result).toEqual(
-      expect.objectContaining({
-        id: app.id,
-        currentStage: ApplicationStageEnum.NEW,
-        currentStageReason: null,
-      }),
+      expect.objectContaining({ id: app.id, currentStage: ApplicationStageEnum.New, currentStageReason: null }),
     );
-    expect(companyService.findOrCreateByName).toHaveBeenCalledWith(
-      "user-1",
-      "Acme",
-    );
-    expect(repo.setPersistedStage).toHaveBeenCalledWith(
-      "user-1",
-      app.id,
-      ApplicationStageEnum.NEW,
-    );
-    expect(
-      vi.mocked(repo.setPersistedStage).mock.invocationCallOrder[0],
-    ).toBeLessThan(
+    expect(companyService.findOrCreateByName).toHaveBeenCalledWith("user-1", "Acme");
+    expect(repo.setPersistedStage).toHaveBeenCalledWith("user-1", app.id, ApplicationStageEnum.New);
+    expect(vi.mocked(repo.setPersistedStage).mock.invocationCallOrder[0]).toBeLessThan(
       vi.mocked(stageEventsRepo.createStageEvent).mock.invocationCallOrder[0]!,
     );
-    expect(stageEventsRepo.createStageEvent).toHaveBeenCalledWith(
-      "user-1",
-      app.id,
-      {
-        fromStage: null,
-        toStage: ApplicationStageEnum.NEW,
-        source: StageEventSourceEnum.System,
-        reason: null,
-        scheduledAt: null,
-      },
-    );
-    expect(
-      jobDuplicateService.resolveInitialStageOnCreate,
-    ).toHaveBeenCalledWith({
+    expect(stageEventsRepo.createStageEvent).toHaveBeenCalledWith("user-1", app.id, {
+      fromStage: null,
+      toStage: ApplicationStageEnum.New,
+      source: StageEventSourceEnum.System,
+      reason: null,
+      scheduledAt: null,
+    });
+    expect(jobDuplicateService.resolveInitialStageOnCreate).toHaveBeenCalledWith({
       userId: "user-1",
       jobId: app.id,
       companyId: co(app).id,
@@ -355,59 +266,30 @@ describe("JobsService", () => {
     vi.mocked(companyService.findOrCreateByName).mockResolvedValue(co(app));
     vi.mocked(repo.create).mockResolvedValue(app);
     vi.mocked(repo.findOneByIdAndUserId).mockResolvedValue(app);
-    vi.mocked(
-      jobDuplicateService.resolveInitialStageOnCreate,
-    ).mockResolvedValue(ApplicationStageEnum.DUPLICATED);
-    vi.mocked(
-      stageEventsRepo.findLatestStageSummariesByJobIds,
-    ).mockResolvedValue(
-      new Map([
-        [
-          app.id,
-          {
-            toStage: ApplicationStageEnum.DUPLICATED,
-            reason: null,
-            statusAt: new Date(),
-          },
-        ],
-      ]),
+    vi.mocked(jobDuplicateService.resolveInitialStageOnCreate).mockResolvedValue(ApplicationStageEnum.Duplicated);
+    vi.mocked(stageEventsRepo.findLatestStageSummariesByJobIds).mockResolvedValue(
+      new Map([[app.id, { toStage: ApplicationStageEnum.Duplicated, reason: null, statusAt: new Date() }]]),
     );
     vi.mocked(stageEventsRepo.createStageEvent).mockResolvedValue(
-      makeEvent({
-        toStage: ApplicationStageEnum.DUPLICATED,
-        source: StageEventSourceEnum.System,
-      }),
+      makeEvent({ toStage: ApplicationStageEnum.Duplicated, source: StageEventSourceEnum.System }),
     );
     const result = await service.create("user-1", {
       title: "Engineer",
       company: "Acme",
-      description: JSON.stringify({
-        type: "doc",
-        content: [{ type: "paragraph", content: [] }],
-      }),
+      description: JSON.stringify({ type: "doc", content: [{ type: "paragraph", content: [] }] }),
     });
-    expect(result.currentStage).toBe(ApplicationStageEnum.DUPLICATED);
-    expect(repo.setPersistedStage).toHaveBeenCalledWith(
-      "user-1",
-      app.id,
-      ApplicationStageEnum.DUPLICATED,
-    );
-    expect(
-      vi.mocked(repo.setPersistedStage).mock.invocationCallOrder[0],
-    ).toBeLessThan(
+    expect(result.currentStage).toBe(ApplicationStageEnum.Duplicated);
+    expect(repo.setPersistedStage).toHaveBeenCalledWith("user-1", app.id, ApplicationStageEnum.Duplicated);
+    expect(vi.mocked(repo.setPersistedStage).mock.invocationCallOrder[0]).toBeLessThan(
       vi.mocked(stageEventsRepo.createStageEvent).mock.invocationCallOrder[0]!,
     );
-    expect(stageEventsRepo.createStageEvent).toHaveBeenCalledWith(
-      "user-1",
-      app.id,
-      {
-        fromStage: null,
-        toStage: ApplicationStageEnum.DUPLICATED,
-        source: StageEventSourceEnum.System,
-        reason: null,
-        scheduledAt: null,
-      },
-    );
+    expect(stageEventsRepo.createStageEvent).toHaveBeenCalledWith("user-1", app.id, {
+      fromStage: null,
+      toStage: ApplicationStageEnum.Duplicated,
+      source: StageEventSourceEnum.System,
+      reason: null,
+      scheduledAt: null,
+    });
   });
 
   it("draft capture persists without resolved company when none is provided", async () => {
@@ -422,25 +304,11 @@ describe("JobsService", () => {
 
     vi.mocked(repo.create).mockResolvedValue(saved);
     vi.mocked(repo.findOneByIdAndUserId).mockResolvedValue(saved);
-    vi.mocked(
-      stageEventsRepo.findLatestStageSummariesByJobIds,
-    ).mockResolvedValue(
-      new Map([
-        [
-          saved.id,
-          {
-            toStage: ApplicationStageEnum.DRAFT,
-            reason: null,
-            statusAt: new Date(),
-          },
-        ],
-      ]),
+    vi.mocked(stageEventsRepo.findLatestStageSummariesByJobIds).mockResolvedValue(
+      new Map([[saved.id, { toStage: ApplicationStageEnum.Draft, reason: null, statusAt: new Date() }]]),
     );
     vi.mocked(stageEventsRepo.createStageEvent).mockResolvedValue(
-      makeEvent({
-        toStage: ApplicationStageEnum.DRAFT,
-        source: StageEventSourceEnum.System,
-      }),
+      makeEvent({ toStage: ApplicationStageEnum.Draft, source: StageEventSourceEnum.System }),
     );
 
     const result = await service.create("user-1", {
@@ -450,20 +318,11 @@ describe("JobsService", () => {
     });
 
     expect(companyService.findOrCreateByName).not.toHaveBeenCalled();
-    expect(repo.create).toHaveBeenCalledWith(
-      "user-1",
-      expect.objectContaining({ companyId: null }),
-    );
-    expect(
-      jobDuplicateService.resolveInitialStageOnCreate,
-    ).not.toHaveBeenCalled();
-    expect(result.currentStage).toBe(ApplicationStageEnum.DRAFT);
-    expect(eventBus.emit).toHaveBeenCalledWith(
-      expect.objectContaining({ jobId: saved.id, userId: "user-1" }),
-    );
-    expect(vi.mocked(eventBus.emit).mock.calls[0]?.[0]).toBeInstanceOf(
-      JobCreated,
-    );
+    expect(repo.create).toHaveBeenCalledWith("user-1", expect.objectContaining({ companyId: null }));
+    expect(jobDuplicateService.resolveInitialStageOnCreate).not.toHaveBeenCalled();
+    expect(result.currentStage).toBe(ApplicationStageEnum.Draft);
+    expect(eventBus.emit).toHaveBeenCalledWith(expect.objectContaining({ jobId: saved.id, userId: "user-1" }));
+    expect(vi.mocked(eventBus.emit).mock.calls[0]?.[0]).toBeInstanceOf(JobCreated);
   });
 
   describe("draft capture auto-fill gate", () => {
@@ -476,25 +335,11 @@ describe("JobsService", () => {
     function mockDraftCaptureCreate(saved: Job): void {
       vi.mocked(repo.create).mockResolvedValue(saved);
       vi.mocked(repo.findOneByIdAndUserId).mockResolvedValue(saved);
-      vi.mocked(
-        stageEventsRepo.findLatestStageSummariesByJobIds,
-      ).mockResolvedValue(
-        new Map([
-          [
-            saved.id,
-            {
-              toStage: ApplicationStageEnum.DRAFT,
-              reason: null,
-              statusAt: new Date(),
-            },
-          ],
-        ]),
+      vi.mocked(stageEventsRepo.findLatestStageSummariesByJobIds).mockResolvedValue(
+        new Map([[saved.id, { toStage: ApplicationStageEnum.Draft, reason: null, statusAt: new Date() }]]),
       );
       vi.mocked(stageEventsRepo.createStageEvent).mockResolvedValue(
-        makeEvent({
-          toStage: ApplicationStageEnum.DRAFT,
-          source: StageEventSourceEnum.System,
-        }),
+        makeEvent({ toStage: ApplicationStageEnum.Draft, source: StageEventSourceEnum.System }),
       );
     }
 
@@ -508,16 +353,11 @@ describe("JobsService", () => {
       (saved as { company?: unknown }).company = undefined;
 
       mockDraftCaptureCreate(saved);
-      vi.mocked(fillService.fillJobAutomatically).mockResolvedValue(
-        saved as never,
-      );
+      vi.mocked(fillService.fillJobAutomatically).mockResolvedValue(saved as never);
 
       await service.create("user-1", { ...draftCaptureInput, autoFill: true });
 
-      expect(fillService.fillJobAutomatically).toHaveBeenCalledWith(
-        "user-1",
-        saved.id,
-      );
+      expect(fillService.fillJobAutomatically).toHaveBeenCalledWith("user-1", saved.id);
     });
 
     it("does not call fill when autoFill is false", async () => {
@@ -558,19 +398,13 @@ describe("JobsService", () => {
       vi.mocked(repo.create).mockResolvedValue(app);
       vi.mocked(repo.findOneByIdAndUserId).mockResolvedValue(app);
       vi.mocked(stageEventsRepo.createStageEvent).mockResolvedValue(
-        makeEvent({
-          toStage: ApplicationStageEnum.NEW,
-          source: StageEventSourceEnum.System,
-        }),
+        makeEvent({ toStage: ApplicationStageEnum.New, source: StageEventSourceEnum.System }),
       );
 
       await service.create("user-1", {
         title: "Engineer",
         company: "Acme",
-        description: JSON.stringify({
-          type: "doc",
-          content: [{ type: "paragraph", content: [] }],
-        }),
+        description: JSON.stringify({ type: "doc", content: [{ type: "paragraph", content: [] }] }),
         autoFill: true,
       });
 
@@ -582,10 +416,7 @@ describe("JobsService", () => {
     const blockerInput = {
       title: "Engineer",
       company: "Acme",
-      description: JSON.stringify({
-        type: "doc",
-        content: [{ type: "paragraph", content: [] }],
-      }),
+      description: JSON.stringify({ type: "doc", content: [{ type: "paragraph", content: [] }] }),
     };
 
     function mockCreate(): Job {
@@ -600,20 +431,12 @@ describe("JobsService", () => {
       mockCreate();
       vi.mocked(keywordBlockerService.evaluate).mockResolvedValue(null);
       vi.mocked(stageEventsRepo.createStageEvent).mockResolvedValue(
-        makeEvent({
-          toStage: ApplicationStageEnum.NEW,
-          source: StageEventSourceEnum.System,
-        }),
+        makeEvent({ toStage: ApplicationStageEnum.New, source: StageEventSourceEnum.System }),
       );
 
       await service.create("user-1", blockerInput);
 
-      expect(keywordBlockerService.evaluate).toHaveBeenCalledWith(
-        "user-1",
-        "Engineer",
-        expect.any(String),
-        "Acme",
-      );
+      expect(keywordBlockerService.evaluate).toHaveBeenCalledWith("user-1", "Engineer", expect.any(String), "Acme");
     });
 
     it("sets stage to REJECTED when blocker matches", async () => {
@@ -624,34 +447,16 @@ describe("JobsService", () => {
         scope: "TITLE",
       });
       vi.mocked(stageEventsRepo.createStageEvent).mockResolvedValue(
-        makeEvent({
-          toStage: ApplicationStageEnum.REJECTED,
-          source: StageEventSourceEnum.System,
-        }),
+        makeEvent({ toStage: ApplicationStageEnum.Rejected, source: StageEventSourceEnum.System }),
       );
-      vi.mocked(
-        stageEventsRepo.findLatestStageSummariesByJobIds,
-      ).mockResolvedValue(
-        new Map([
-          [
-            app.id,
-            {
-              toStage: ApplicationStageEnum.REJECTED,
-              reason: null,
-              statusAt: new Date(),
-            },
-          ],
-        ]),
+      vi.mocked(stageEventsRepo.findLatestStageSummariesByJobIds).mockResolvedValue(
+        new Map([[app.id, { toStage: ApplicationStageEnum.Rejected, reason: null, statusAt: new Date() }]]),
       );
 
       const result = await service.create("user-1", blockerInput);
 
-      expect(result.currentStage).toBe(ApplicationStageEnum.REJECTED);
-      expect(repo.setPersistedStage).toHaveBeenCalledWith(
-        "user-1",
-        app.id,
-        ApplicationStageEnum.REJECTED,
-      );
+      expect(result.currentStage).toBe(ApplicationStageEnum.Rejected);
+      expect(repo.setPersistedStage).toHaveBeenCalledWith("user-1", app.id, ApplicationStageEnum.Rejected);
     });
 
     it("skips duplicate detection when blocker matches", async () => {
@@ -664,9 +469,7 @@ describe("JobsService", () => {
 
       await service.create("user-1", blockerInput);
 
-      expect(
-        jobDuplicateService.resolveInitialStageOnCreate,
-      ).not.toHaveBeenCalled();
+      expect(jobDuplicateService.resolveInitialStageOnCreate).not.toHaveBeenCalled();
     });
 
     it("creates stage event with SYSTEM source and REJECTED toStage when blocker matches", async () => {
@@ -677,25 +480,18 @@ describe("JobsService", () => {
         scope: "TITLE",
       });
       vi.mocked(stageEventsRepo.createStageEvent).mockResolvedValue(
-        makeEvent({
-          toStage: ApplicationStageEnum.REJECTED,
-          source: StageEventSourceEnum.System,
-        }),
+        makeEvent({ toStage: ApplicationStageEnum.Rejected, source: StageEventSourceEnum.System }),
       );
 
       await service.create("user-1", blockerInput);
 
-      expect(stageEventsRepo.createStageEvent).toHaveBeenCalledWith(
-        "user-1",
-        app.id,
-        {
-          fromStage: null,
-          toStage: ApplicationStageEnum.REJECTED,
-          source: StageEventSourceEnum.System,
-          reason: null,
-          scheduledAt: null,
-        },
-      );
+      expect(stageEventsRepo.createStageEvent).toHaveBeenCalledWith("user-1", app.id, {
+        fromStage: null,
+        toStage: ApplicationStageEnum.Rejected,
+        source: StageEventSourceEnum.System,
+        reason: null,
+        scheduledAt: null,
+      });
     });
 
     it("calls noteService.createPlainTextNote with correct content when blocker matches", async () => {
@@ -710,8 +506,7 @@ describe("JobsService", () => {
 
       expect(noteService.createPlainTextNote).toHaveBeenCalledWith("user-1", {
         jobId: app.id,
-        content:
-          'Auto-rejected by keyword blocker: keyword "QA Engineer" matched in TITLE',
+        content: 'Auto-rejected by keyword blocker: keyword "QA Engineer" matched in TITLE',
       });
     });
 
@@ -722,50 +517,28 @@ describe("JobsService", () => {
         keyword: "Engineer",
         scope: "TITLE",
       });
-      vi.mocked(noteService.createPlainTextNote).mockRejectedValue(
-        new Error("DB timeout"),
-      );
+      vi.mocked(noteService.createPlainTextNote).mockRejectedValue(new Error("DB timeout"));
       vi.mocked(stageEventsRepo.createStageEvent).mockResolvedValue(
-        makeEvent({
-          toStage: ApplicationStageEnum.REJECTED,
-          source: StageEventSourceEnum.System,
-        }),
+        makeEvent({ toStage: ApplicationStageEnum.Rejected, source: StageEventSourceEnum.System }),
       );
 
-      await expect(
-        service.create("user-1", blockerInput),
-      ).resolves.toBeDefined();
+      await expect(service.create("user-1", blockerInput)).resolves.toBeDefined();
 
-      expect(repo.setPersistedStage).toHaveBeenCalledWith(
-        "user-1",
-        app.id,
-        ApplicationStageEnum.REJECTED,
-      );
+      expect(repo.setPersistedStage).toHaveBeenCalledWith("user-1", app.id, ApplicationStageEnum.Rejected);
     });
 
     it("continues normal flow when blocker returns null (no match)", async () => {
       const app = mockCreate();
       vi.mocked(keywordBlockerService.evaluate).mockResolvedValue(null);
-      vi.mocked(
-        jobDuplicateService.resolveInitialStageOnCreate,
-      ).mockResolvedValue(ApplicationStageEnum.NEW);
+      vi.mocked(jobDuplicateService.resolveInitialStageOnCreate).mockResolvedValue(ApplicationStageEnum.New);
       vi.mocked(stageEventsRepo.createStageEvent).mockResolvedValue(
-        makeEvent({
-          toStage: ApplicationStageEnum.NEW,
-          source: StageEventSourceEnum.System,
-        }),
+        makeEvent({ toStage: ApplicationStageEnum.New, source: StageEventSourceEnum.System }),
       );
 
       await service.create("user-1", blockerInput);
 
-      expect(
-        jobDuplicateService.resolveInitialStageOnCreate,
-      ).toHaveBeenCalled();
-      expect(repo.setPersistedStage).toHaveBeenCalledWith(
-        "user-1",
-        app.id,
-        ApplicationStageEnum.NEW,
-      );
+      expect(jobDuplicateService.resolveInitialStageOnCreate).toHaveBeenCalled();
+      expect(repo.setPersistedStage).toHaveBeenCalledWith("user-1", app.id, ApplicationStageEnum.New);
     });
 
     it("does not call blocker for draft capture flow", async () => {
@@ -779,25 +552,11 @@ describe("JobsService", () => {
 
       vi.mocked(repo.create).mockResolvedValue(saved);
       vi.mocked(repo.findOneByIdAndUserId).mockResolvedValue(saved);
-      vi.mocked(
-        stageEventsRepo.findLatestStageSummariesByJobIds,
-      ).mockResolvedValue(
-        new Map([
-          [
-            saved.id,
-            {
-              toStage: ApplicationStageEnum.DRAFT,
-              reason: null,
-              statusAt: new Date(),
-            },
-          ],
-        ]),
+      vi.mocked(stageEventsRepo.findLatestStageSummariesByJobIds).mockResolvedValue(
+        new Map([[saved.id, { toStage: ApplicationStageEnum.Draft, reason: null, statusAt: new Date() }]]),
       );
       vi.mocked(stageEventsRepo.createStageEvent).mockResolvedValue(
-        makeEvent({
-          toStage: ApplicationStageEnum.DRAFT,
-          source: StageEventSourceEnum.System,
-        }),
+        makeEvent({ toStage: ApplicationStageEnum.Draft, source: StageEventSourceEnum.System }),
       );
 
       await service.create("user-1", {
@@ -812,42 +571,24 @@ describe("JobsService", () => {
 
   it("update throws NotFoundException when job not found", async () => {
     vi.mocked(repo.findOneByIdAndUserId).mockResolvedValue(null);
-    await expect(
-      service.update("app-1", "user-1", { title: "X" }),
-    ).rejects.toThrow(NotFoundException);
+    await expect(service.update("app-1", "user-1", { title: "X" })).rejects.toThrow(NotFoundException);
   });
 
   it("create throws for invalid TipTap description JSON", async () => {
     await expect(
-      service.create("user-1", {
-        title: "Engineer",
-        company: "Acme",
-        description: "plain text",
-      }),
+      service.create("user-1", { title: "Engineer", company: "Acme", description: "plain text" }),
     ).rejects.toThrow("description must be valid TipTap document JSON");
   });
 
   it("generateCompanyDescription loads postings and forwards to company AI", async () => {
-    const snippets = [
-      { title: "Engineer", plainTextDescription: "Product analytics team" },
-    ];
-    vi.mocked(
-      jobsListQuery.findUpToTwoJobPostingContextsByCompanyName,
-    ).mockResolvedValue(snippets);
-    vi.mocked(
-      companyDescriptionService.generateCompanyDescription,
-    ).mockResolvedValue("{}");
+    const snippets = [{ title: "Engineer", plainTextDescription: "Product analytics team" }];
+    vi.mocked(jobsListQuery.findUpToTwoJobPostingContextsByCompanyName).mockResolvedValue(snippets);
+    vi.mocked(companyDescriptionService.generateCompanyDescription).mockResolvedValue("{}");
 
-    await service.generateCompanyDescription("user-1", {
-      companyName: "  Acme  ",
-    });
+    await service.generateCompanyDescription("user-1", { companyName: "  Acme  " });
 
-    expect(
-      jobsListQuery.findUpToTwoJobPostingContextsByCompanyName,
-    ).toHaveBeenCalledWith("user-1", "  Acme  ");
-    expect(
-      vi.mocked(companyDescriptionService.generateCompanyDescription),
-    ).toHaveBeenCalledWith({
+    expect(jobsListQuery.findUpToTwoJobPostingContextsByCompanyName).toHaveBeenCalledWith("user-1", "  Acme  ");
+    expect(vi.mocked(companyDescriptionService.generateCompanyDescription)).toHaveBeenCalledWith({
       companyName: "  Acme  ",
       jobPostingContexts: snippets,
     });
@@ -856,98 +597,71 @@ describe("JobsService", () => {
   it("update throws for invalid TipTap description JSON", async () => {
     vi.mocked(repo.findOneByIdAndUserId).mockResolvedValue(makeJob());
 
-    await expect(
-      service.update("app-1", "user-1", { description: "plain text" }),
-    ).rejects.toThrow("description must be valid TipTap document JSON");
+    await expect(service.update("app-1", "user-1", { description: "plain text" })).rejects.toThrow(
+      "description must be valid TipTap document JSON",
+    );
   });
 
   it("remove throws NotFoundException when job not found", async () => {
     vi.mocked(repo.findOneByIdAndUserId).mockResolvedValue(null);
-    await expect(service.remove("app-1", "user-1")).rejects.toThrow(
-      NotFoundException,
-    );
+    await expect(service.remove("app-1", "user-1")).rejects.toThrow(NotFoundException);
   });
 
   it("listStageEvents returns ordered events for owned job", async () => {
     vi.mocked(repo.findOneByIdAndUserId).mockResolvedValue(makeJob());
-    vi.mocked(
-      stageEventsRepo.findStageEventsByJobIdAndUserId,
-    ).mockResolvedValue([makeEvent()]);
+    vi.mocked(stageEventsRepo.findStageEventsByJobIdAndUserId).mockResolvedValue([makeEvent()]);
 
     const events = await service.listStageEvents("app-1", "user-1");
     expect(events).toHaveLength(1);
-    expect(events[0].toStage).toBe(ApplicationStageEnum.NEW);
+    expect(events[0].toStage).toBe(ApplicationStageEnum.New);
   });
 
   it("createStageEvent uses previous stage as fromStage", async () => {
     vi.mocked(repo.findOneByIdAndUserId).mockResolvedValue(makeJob());
-    vi.mocked(
-      stageEventsRepo.findLatestStageEventByJobIdAndUserId,
-    ).mockResolvedValue(makeEvent({ toStage: ApplicationStageEnum.TECHNICAL }));
+    vi.mocked(stageEventsRepo.findLatestStageEventByJobIdAndUserId).mockResolvedValue(
+      makeEvent({ toStage: ApplicationStageEnum.Technical }),
+    );
     vi.mocked(stageEventsRepo.createStageEvent).mockResolvedValue(
-      makeEvent({
-        fromStage: ApplicationStageEnum.TECHNICAL,
-        toStage: ApplicationStageEnum.OFFER,
-      }),
+      makeEvent({ fromStage: ApplicationStageEnum.Technical, toStage: ApplicationStageEnum.Offer }),
     );
 
-    const created = await service.createStageEvent("user-1", {
-      jobId: "app-1",
-      toStage: ApplicationStageEnum.OFFER,
+    const created = await service.createStageEvent("user-1", { jobId: "app-1", toStage: ApplicationStageEnum.Offer });
+
+    expect(created.fromStage).toBe(ApplicationStageEnum.Technical);
+    expect(stageEventsRepo.createStageEvent).toHaveBeenCalledWith("user-1", "app-1", {
+      fromStage: ApplicationStageEnum.Technical,
+      toStage: ApplicationStageEnum.Offer,
+      source: StageEventSourceEnum.Manual,
+      reason: null,
+      scheduledAt: null,
     });
-
-    expect(created.fromStage).toBe(ApplicationStageEnum.TECHNICAL);
-    expect(stageEventsRepo.createStageEvent).toHaveBeenCalledWith(
-      "user-1",
-      "app-1",
-      {
-        fromStage: ApplicationStageEnum.TECHNICAL,
-        toStage: ApplicationStageEnum.OFFER,
-        source: StageEventSourceEnum.Manual,
-        reason: null,
-        scheduledAt: null,
-      },
-    );
   });
 
   it("updateStageEvent updates existing event", async () => {
-    vi.mocked(stageEventsRepo.findStageEventByIdAndUserId).mockResolvedValue(
-      makeEvent(),
-    );
+    vi.mocked(stageEventsRepo.findStageEventByIdAndUserId).mockResolvedValue(makeEvent());
     vi.mocked(stageEventsRepo.updateStageEvent).mockResolvedValue(
-      makeEvent({ toStage: ApplicationStageEnum.TECHNICAL }),
+      makeEvent({ toStage: ApplicationStageEnum.Technical }),
     );
 
     const updated = await service.updateStageEvent("event-1", "user-1", {
-      toStage: ApplicationStageEnum.TECHNICAL,
+      toStage: ApplicationStageEnum.Technical,
       scheduledAt: null,
     });
 
-    expect(updated.toStage).toBe(ApplicationStageEnum.TECHNICAL);
-    expect(stageEventsRepo.updateStageEvent).toHaveBeenCalledWith(
-      "event-1",
-      "user-1",
-      {
-        toStage: ApplicationStageEnum.TECHNICAL,
-        reason: undefined,
-        scheduledAt: null,
-      },
-    );
+    expect(updated.toStage).toBe(ApplicationStageEnum.Technical);
+    expect(stageEventsRepo.updateStageEvent).toHaveBeenCalledWith("event-1", "user-1", {
+      toStage: ApplicationStageEnum.Technical,
+      reason: undefined,
+      scheduledAt: null,
+    });
   });
 
   it("removeStageEvent deletes existing event", async () => {
-    vi.mocked(stageEventsRepo.findStageEventByIdAndUserId).mockResolvedValue(
-      makeEvent(),
-    );
+    vi.mocked(stageEventsRepo.findStageEventByIdAndUserId).mockResolvedValue(makeEvent());
     vi.mocked(stageEventsRepo.deleteStageEvent).mockResolvedValue(true);
 
-    await expect(
-      service.removeStageEvent("event-1", "user-1"),
-    ).resolves.toBeUndefined();
-    expect(stageEventsRepo.deleteStageEvent).toHaveBeenCalledWith(
-      "event-1",
-      "user-1",
-    );
+    await expect(service.removeStageEvent("event-1", "user-1")).resolves.toBeUndefined();
+    expect(stageEventsRepo.deleteStageEvent).toHaveBeenCalledWith("event-1", "user-1");
   });
 
   it("removeTag removes matching tag and updates job", async () => {
@@ -957,9 +671,7 @@ describe("JobsService", () => {
 
     const result = await service.removeTag("app-1", "user-1", "react");
     expect(result.tags).toEqual(["typescript"]);
-    expect(repo.update).toHaveBeenCalledWith("app-1", "user-1", {
-      tags: ["typescript"],
-    });
+    expect(repo.update).toHaveBeenCalledWith("app-1", "user-1", { tags: ["typescript"] });
   });
 
   it("removeTag is case-insensitive", async () => {
@@ -972,13 +684,9 @@ describe("JobsService", () => {
   });
 
   it("removeTag throws NotFoundException when update returns null", async () => {
-    vi.mocked(repo.findOneByIdAndUserId).mockResolvedValue(
-      makeJob({ tags: ["react"] }),
-    );
+    vi.mocked(repo.findOneByIdAndUserId).mockResolvedValue(makeJob({ tags: ["react"] }));
     vi.mocked(repo.update).mockResolvedValue(null);
 
-    await expect(service.removeTag("app-1", "user-1", "react")).rejects.toThrow(
-      NotFoundException,
-    );
+    await expect(service.removeTag("app-1", "user-1", "react")).rejects.toThrow(NotFoundException);
   });
 });

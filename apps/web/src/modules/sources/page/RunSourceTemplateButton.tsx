@@ -3,28 +3,16 @@
 import { tryRun } from "@job-tracker/try-run";
 import { Button, cn, IconButton, ListItemCard } from "@job-tracker/ui";
 import { PlayIcon } from "@phosphor-icons/react";
-import React, { useState } from "react";
+import { useState } from "react";
 
 import type { SourceRunStatus } from "@/gql/graphql";
-import {
-  SourcesForSourceProfileDocument,
-  SourceTemplateDocument,
-  useRerunSourceTemplateMutation,
-} from "@/gql/hooks";
-import {
-  sendSourceRunStart,
-  wakeExtension,
-} from "@/modules/admin/extension/lib/extension-bridge.protocol";
+import { SourceTemplateDocument, useRerunSourceTemplateMutation } from "@/gql/hooks";
+import { sendSourceRunStart, wakeExtension } from "@/modules/admin/extension/lib/extension-bridge.protocol";
 
-type SourceRunSummary = {
-  id: string;
-  status: SourceRunStatus;
-  startedAt: unknown;
-};
+type SourceRunSummary = { id: string; status: SourceRunStatus; startedAt: unknown };
 
 type RunSourceTemplateButtonProps = {
   templateId: string;
-  sourceProfileId: string;
   label: string;
   tooltip: string;
   variant?: "icon" | "button";
@@ -33,7 +21,6 @@ type RunSourceTemplateButtonProps = {
 
 export function RunSourceTemplateButton({
   templateId,
-  sourceProfileId,
   label,
   tooltip,
   variant = "icon",
@@ -41,17 +28,7 @@ export function RunSourceTemplateButton({
 }: RunSourceTemplateButtonProps) {
   const [running, setRunning] = useState(false);
   const [rerunSourceTemplate] = useRerunSourceTemplateMutation({
-    refetchQueries: [
-      ...(sourceProfileId !== ""
-        ? [
-            {
-              query: SourcesForSourceProfileDocument,
-              variables: { sourceProfileId },
-            },
-          ]
-        : []),
-      { query: SourceTemplateDocument, variables: { id: templateId } },
-    ],
+    refetchQueries: [{ query: SourceTemplateDocument, variables: { id: templateId } }, "SourceTemplatesAll"],
     awaitRefetchQueries: true,
   });
 
@@ -59,16 +36,14 @@ export function RunSourceTemplateButton({
     setRunning(true);
     const wakeResult = await wakeExtension();
     console.log("[source] wakeExtension result", wakeResult ? "ok" : "timeout");
-    const [err, result] = await tryRun(
-      rerunSourceTemplate({ variables: { templateId } }),
-    );
+    const [err, result] = await tryRun(rerunSourceTemplate({ variables: { templateId } }));
     setRunning(false);
     if (err || !result.data?.rerunSourceTemplate) {
       return;
     }
 
     const run = result.data.rerunSourceTemplate;
-    sendSourceRunStart(run.id, run.surfaceUrl, run.sourceProfileId);
+    sendSourceRunStart(run.id, run.surfaceUrl, run.planId);
     onRunStarted?.(templateId, run);
   }
 

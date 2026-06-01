@@ -47,30 +47,20 @@ export interface UseJobDetailsViewModelOptions {
   includeStageEvents?: boolean;
 }
 
-export function useJobDetailsViewModel(
-  jobId: string,
-  options?: UseJobDetailsViewModelOptions,
-) {
+export function useJobDetailsViewModel(jobId: string, options?: UseJobDetailsViewModelOptions) {
   const includeStageEvents = options?.includeStageEvents ?? true;
   const apolloClient = useApolloClient();
 
-  const { data, loading, error, refetch } = useJobQuery({
-    variables: { id: jobId },
+  const { data, loading, error, refetch } = useJobQuery({ variables: { id: jobId }, fetchPolicy: "cache-and-network" });
+
+  const { data: stageEventsData, refetch: refetchStageEvents } = useJobStageEventsQuery({
+    variables: { jobId },
+    skip: !includeStageEvents,
     fetchPolicy: "cache-and-network",
   });
 
-  const { data: stageEventsData, refetch: refetchStageEvents } =
-    useJobStageEventsQuery({
-      variables: { jobId },
-      skip: !includeStageEvents,
-      fetchPolicy: "cache-and-network",
-    });
-
   const refetchJobAndTimeline = useCallback(async () => {
-    await Promise.all([
-      refetch(),
-      includeStageEvents ? refetchStageEvents() : Promise.resolve(undefined),
-    ]);
+    await Promise.all([refetch(), includeStageEvents ? refetchStageEvents() : Promise.resolve(undefined)]);
   }, [refetch, refetchStageEvents, includeStageEvents]);
 
   useJobSummaryStatusChangedSubscription({
@@ -94,21 +84,13 @@ export function useJobDetailsViewModel(
       }
 
       if (eventData.status === AsyncMetadataStatus.Processing) {
-        const patched = writeJobSummaryStatusToCache(
-          apolloClient.cache,
-          jobId,
-          AsyncMetadataStatus.Processing,
-        );
+        const patched = writeJobSummaryStatusToCache(apolloClient.cache, jobId, AsyncMetadataStatus.Processing);
         if (!patched) void refetchJobAndTimeline();
         return;
       }
 
       if (eventData.status === AsyncMetadataStatus.Failed) {
-        const patched = writeJobSummaryStatusToCache(
-          apolloClient.cache,
-          jobId,
-          AsyncMetadataStatus.Failed,
-        );
+        const patched = writeJobSummaryStatusToCache(apolloClient.cache, jobId, AsyncMetadataStatus.Failed);
         if (!patched) void refetchJobAndTimeline();
       }
     },
@@ -119,10 +101,7 @@ export function useJobDetailsViewModel(
     onData: ({ data }) => {
       const eventData = data.data!.jobFillStatusChanged;
 
-      if (
-        eventData.status === AsyncMetadataStatus.Completed ||
-        eventData.status === AsyncMetadataStatus.Failed
-      ) {
+      if (eventData.status === AsyncMetadataStatus.Completed || eventData.status === AsyncMetadataStatus.Failed) {
         void refetchJobAndTimeline();
       }
     },
@@ -135,19 +114,15 @@ export function useJobDetailsViewModel(
       ]
     : [{ query: JobDocument, variables: { id: jobId } }];
 
-  const [fillJobAutomatically, { loading: fillMutationLoading }] =
-    useFillJobAutomaticallyMutation({ refetchQueries });
+  const [fillJobAutomatically, { loading: fillMutationLoading }] = useFillJobAutomaticallyMutation({ refetchQueries });
 
   const triggerFillAutomatically = useCallback(async () => {
     const [err] = await tryRun(fillJobAutomatically({ variables: { jobId } }));
-    return {
-      error: err instanceof Error ? err : err ? new Error(String(err)) : null,
-    };
+    return { error: err instanceof Error ? err : err ? new Error(String(err)) : null };
   }, [fillJobAutomatically, jobId]);
 
   const job = data?.job as JobDetailsValues | undefined;
-  const currentStage =
-    stageEventsData?.jobStageEvents[0]?.toStage ?? ApplicationStage.New;
+  const currentStage = stageEventsData?.jobStageEvents[0]?.toStage ?? ApplicationStage.New;
   const currentStageReason = stageEventsData?.jobStageEvents[0]?.reason ?? null;
 
   const sourcePrimaryText = formatJobSourceLabel(job?.source);
@@ -155,10 +130,7 @@ export function useJobDetailsViewModel(
 
   const displayTitle = job ? jobDetailDisplayTitle(job.title) : null;
 
-  const fillButtonState = deriveJobFillButtonState(
-    job?.fillMetadata?.status,
-    fillMutationLoading,
-  );
+  const fillButtonState = deriveJobFillButtonState(job?.fillMetadata?.status, fillMutationLoading);
 
   return {
     job,

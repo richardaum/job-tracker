@@ -1,11 +1,4 @@
-type InlineSegment = {
-  text: string;
-  bold?: boolean;
-  italics?: boolean;
-  link?: string;
-  color?: string;
-  font?: string;
-};
+type InlineSegment = { text: string; bold?: boolean; italics?: boolean; link?: string; color?: string; font?: string };
 
 type PdfContent =
   | string
@@ -24,15 +17,7 @@ type PdfContent =
   | { ul: unknown[]; margin?: [number, number, number, number] }
   | { ol: unknown[]; margin?: [number, number, number, number] }
   | {
-      canvas: {
-        type: string;
-        x1: number;
-        y1: number;
-        x2: number;
-        y2: number;
-        lineWidth: number;
-        lineColor: string;
-      }[];
+      canvas: { type: string; x1: number; y1: number; x2: number; y2: number; lineWidth: number; lineColor: string }[];
       margin: [number, number, number, number];
     }
   | null;
@@ -74,11 +59,7 @@ function convertElement(el: HTMLElement): PdfContent {
     case "h1":
       return { text: el.textContent || "", style: "h1", margin: [0, 0, 0, 2] };
     case "h2":
-      return {
-        text: (el.textContent || "").toUpperCase(),
-        style: "h2",
-        margin: [0, 10, 0, 4],
-      };
+      return { text: (el.textContent || "").toUpperCase(), style: "h2", margin: [0, 10, 0, 4] };
     case "h3":
       return { text: el.textContent || "", style: "h3", margin: [0, 8, 0, 2] };
     case "ul":
@@ -86,17 +67,7 @@ function convertElement(el: HTMLElement): PdfContent {
       return convertList(el);
     case "hr":
       return {
-        canvas: [
-          {
-            type: "line",
-            x1: 0,
-            y1: 0,
-            x2: 515,
-            y2: 0,
-            lineWidth: 0.5,
-            lineColor: "#ccc",
-          },
-        ],
+        canvas: [{ type: "line", x1: 0, y1: 0, x2: 515, y2: 0, lineWidth: 0.5, lineColor: "#ccc" }],
         margin: [0, 6, 0, 6],
       };
     default: {
@@ -127,11 +98,7 @@ function processInline(el: HTMLElement): string | InlineSegment[] | null {
           parts.push({ text: child.textContent || "", italics: true });
           break;
         case "a":
-          parts.push({
-            text: child.textContent || "",
-            link: child.getAttribute("href") || "",
-            color: "#1d4ed8",
-          });
+          parts.push({ text: child.textContent || "", link: child.getAttribute("href") || "", color: "#1d4ed8" });
           break;
         case "br":
           parts.push({ text: "" });
@@ -146,13 +113,7 @@ function processInline(el: HTMLElement): string | InlineSegment[] | null {
   }
 
   if (parts.length === 0) return null;
-  if (
-    parts.length === 1 &&
-    !parts[0].bold &&
-    !parts[0].italics &&
-    !parts[0].link &&
-    !parts[0].font
-  ) {
+  if (parts.length === 1 && !parts[0].bold && !parts[0].italics && !parts[0].link && !parts[0].font) {
     return parts[0].text;
   }
 
@@ -169,7 +130,5 @@ function convertList(el: HTMLElement): PdfContent {
     items.push(inline || "");
   }
 
-  return ordered
-    ? { ol: items, margin: [0, 2, 0, 4] }
-    : { ul: items, margin: [0, 2, 0, 4] };
+  return ordered ? { ol: items, margin: [0, 2, 0, 4] } : { ul: items, margin: [0, 2, 0, 4] };
 }

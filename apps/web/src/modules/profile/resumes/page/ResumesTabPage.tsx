@@ -16,19 +16,13 @@ import { useToastQueue } from "@/modules/jobs/shared/hooks/useToastQueue";
 import { removeDeletedEntityFromListCache } from "@/modules/jobs/shared/utils/apolloDeleteCache";
 import { ProfileHeaderActions } from "@/modules/profile/layout/profile-header.slots";
 import { AddResumeDialog } from "@/modules/resumes/list/components/AddResumeDialog";
-import ResumesList from "@/modules/resumes/list/components/ResumesList";
+import { ResumesList } from "@/modules/resumes/list/components/ResumesList";
 
 export default function ResumesTabPage() {
-  const { data, loading, error } = useResumesQuery({
-    fetchPolicy: "cache-and-network",
-  });
+  const { data, loading, error } = useResumesQuery({ fetchPolicy: "cache-and-network" });
   const [deleteResume] = useDeleteResumeMutation({
     update(cache, { data: mutationData }) {
-      removeDeletedEntityFromListCache(cache, {
-        mutationData,
-        mutation: DeleteResumeDocument,
-        query: ResumesDocument,
-      });
+      removeDeletedEntityFromListCache(cache, { mutationData, mutation: DeleteResumeDocument, query: ResumesDocument });
     },
   });
   const [updateResume] = useUpdateResumeMutation({
@@ -47,9 +41,7 @@ export default function ResumesTabPage() {
   }
 
   async function handleSetAsDefault(id: string) {
-    const [err] = await tryRun(
-      updateResume({ variables: { id, input: { isDefault: true } } }),
-    );
+    const [err] = await tryRun(updateResume({ variables: { id, input: { isDefault: true } } }));
     if (err) {
       showToast(err.message, "error");
       return;
@@ -69,11 +61,7 @@ export default function ResumesTabPage() {
   return (
     <div className={cn("flex min-h-0 flex-1 flex-col overflow-auto")}>
       <ProfileHeaderActions>
-        <Button
-          intent="primary"
-          size="md"
-          onClick={() => setAddDialogOpen(true)}
-        >
+        <Button intent="primary" size="md" onClick={() => setAddDialogOpen(true)}>
           <PlusIcon size={16} weight="bold" className={cn("mr-2")} />
           Add resume
         </Button>

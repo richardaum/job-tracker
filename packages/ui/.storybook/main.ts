@@ -21,24 +21,14 @@ const config: StorybookConfig = {
   addons: [
     {
       name: getAbsolutePath("@storybook/addon-docs"),
-      options: {
-        mdxPluginOptions: {
-          mdxCompileOptions: { remarkPlugins: [remarkGfm, mdxMermaid] },
-        },
-      },
+      options: { mdxPluginOptions: { mdxCompileOptions: { remarkPlugins: [remarkGfm, mdxMermaid] } } },
     },
     getAbsolutePath("@storybook/addon-vitest"),
   ],
   framework: { name: getAbsolutePath("@storybook/react-vite"), options: {} },
   async viteFinal(baseConfig) {
     return mergeConfig(
-      {
-        ...baseConfig,
-        plugins: [
-          storybookDocsRewritePlugin(repoRoot),
-          ...(baseConfig.plugins ?? []),
-        ],
-      },
+      { ...baseConfig, plugins: [storybookDocsRewritePlugin(repoRoot), ...(baseConfig.plugins ?? [])] },
       {
         plugins: [tailwindcss()],
         resolve: {
@@ -56,7 +46,5 @@ const config: StorybookConfig = {
 export default config;
 
 function getAbsolutePath(value: string): string {
-  return path.dirname(
-    fileURLToPath(import.meta.resolve(`${value}/package.json`)),
-  );
+  return path.dirname(fileURLToPath(import.meta.resolve(`${value}/package.json`)));
 }

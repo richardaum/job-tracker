@@ -21,9 +21,7 @@ export class ExchangeRateService {
   ) {}
 
   async get(baseCurrency: string): Promise<CachedExchangeRates | null> {
-    const [findErr, entry] = await tryRun(
-      this.repo.findOne({ where: { baseCurrency } }),
-    );
+    const [findErr, entry] = await tryRun(this.repo.findOne({ where: { baseCurrency } }));
     if (findErr) {
       this.logger.error(`Failed to read cache for ${baseCurrency}`, findErr);
       return null;
@@ -48,18 +46,11 @@ export class ExchangeRateService {
     };
   }
 
-  async set(
-    baseCurrency: string,
-    rates: Record<string, number>,
-    ttlSeconds: number,
-  ): Promise<void> {
+  async set(baseCurrency: string, rates: Record<string, number>, ttlSeconds: number): Promise<void> {
     const expiresAt = new Date(Date.now() + ttlSeconds * 1000);
 
     const [upsertErr] = await tryRun(
-      this.repo.upsert(
-        { baseCurrency, ratesJson: rates, ttlSeconds, expiresAt },
-        ["baseCurrency"],
-      ),
+      this.repo.upsert({ baseCurrency, ratesJson: rates, ttlSeconds, expiresAt }, ["baseCurrency"]),
     );
 
     if (upsertErr) {
@@ -80,9 +71,7 @@ export class ExchangeRateService {
   }
 
   async cleanExpired(): Promise<number> {
-    const [cleanErr, result] = await tryRun(
-      this.repo.delete({ expiresAt: new Date() }),
-    );
+    const [cleanErr, result] = await tryRun(this.repo.delete({ expiresAt: new Date() }));
     if (cleanErr) {
       this.logger.error("Failed to clean expired cache entries", cleanErr);
       return 0;

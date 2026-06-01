@@ -1,13 +1,7 @@
 "use client";
 
 import { tryRun } from "@job-tracker/try-run";
-import {
-  cn,
-  FieldWithLabelAction,
-  OverviewSection,
-  Text,
-  useDialog,
-} from "@job-tracker/ui";
+import { cn, FieldWithLabelAction, OverviewSection, Text, useDialog } from "@job-tracker/ui";
 import { PencilSimpleIcon } from "@phosphor-icons/react";
 
 import {
@@ -18,10 +12,7 @@ import {
   useRequestJobSummaryMutation,
   useUpdateJobMutation,
 } from "@/gql/hooks";
-import {
-  useGenerateJobLocationWithAiLazyQuery,
-  useGenerateJobWorkRegionWithAiLazyQuery,
-} from "@/gql/hooks";
+import { useGenerateJobLocationWithAiLazyQuery, useGenerateJobWorkRegionWithAiLazyQuery } from "@/gql/hooks";
 import { CompanyEditDialog } from "@/modules/companies/shared/components/CompanyEditDialog";
 import { jobDetailDisplayTitle } from "@/modules/jobs/details/utils/job-detail-title";
 import type { JobDetailsValues } from "@/modules/jobs/details/utils/job-details.shared";
@@ -38,17 +29,14 @@ import { TagsEditDialog } from "./TagsEditDialog";
 import { TextFieldEditDialog } from "./TextFieldEditDialog";
 import { UrlFieldEditDialog } from "./UrlFieldEditDialog";
 
-export function OverviewTabContent({
-  job,
-  sourcePrimaryText,
-  onSuccess,
-  onError,
-}: {
+type OverviewTabContentProps = {
   job: JobDetailsValues;
-  sourcePrimaryText: string | null;
-  onSuccess?: (message: string) => void;
-  onError?: (message: string) => void;
-}) {
+  sourcePrimaryText: string | null | undefined;
+  onSuccess?: (message?: string) => void;
+  onError?: (message?: string) => void;
+};
+
+export function OverviewTabContent({ job, sourcePrimaryText, onSuccess, onError }: OverviewTabContentProps) {
   const titleDialog = useDialog();
   const urlDialog = useDialog();
   const sourceDialog = useDialog();
@@ -57,19 +45,12 @@ export function OverviewTabContent({
   const salaryDialog = useDialog();
   const locationDialog = useDialog();
   const workRegionDialog = useDialog();
-
   const [updateJob] = useUpdateJobMutation({
-    refetchQueries: [
-      { query: JobDocument, variables: { id: job.id } },
-      { query: JobsDocument },
-    ],
+    refetchQueries: [{ query: JobDocument, variables: { id: job.id } }, { query: JobsDocument }],
   });
 
   const [removeJobTag] = useRemoveJobTagMutation({
-    refetchQueries: [
-      { query: JobDocument, variables: { id: job.id } },
-      { query: JobsDocument },
-    ],
+    refetchQueries: [{ query: JobDocument, variables: { id: job.id } }, { query: JobsDocument }],
   });
 
   const [inferLocation] = useGenerateJobLocationWithAiLazyQuery();
@@ -77,9 +58,7 @@ export function OverviewTabContent({
   const [requestSummary] = useRequestJobSummaryMutation();
 
   async function handleRemoveTag(tag: string) {
-    const [error] = await tryRun(
-      removeJobTag({ variables: { id: job.id, tag } }),
-    );
+    const [error] = await tryRun(removeJobTag({ variables: { id: job.id, tag } }));
     if (error) {
       onError?.("Could not remove tag.");
       return;
@@ -88,9 +67,7 @@ export function OverviewTabContent({
   }
 
   async function handleSaveTitle(nextValue: string) {
-    const [error] = await tryRun(
-      updateJob({ variables: { id: job.id, input: { title: nextValue } } }),
-    );
+    const [error] = await tryRun(updateJob({ variables: { id: job.id, input: { title: nextValue } } }));
     if (error) {
       onError?.("Could not update title.");
       return;
@@ -99,9 +76,7 @@ export function OverviewTabContent({
   }
 
   async function handleSaveUrl(nextValue: string[]) {
-    const [error] = await tryRun(
-      updateJob({ variables: { id: job.id, input: { urls: nextValue } } }),
-    );
+    const [error] = await tryRun(updateJob({ variables: { id: job.id, input: { urls: nextValue } } }));
     if (error) {
       onError?.("Could not update job URL.");
       return;
@@ -110,9 +85,7 @@ export function OverviewTabContent({
   }
 
   async function handleSaveSource(nextValue: JobSource | null) {
-    const [error] = await tryRun(
-      updateJob({ variables: { id: job.id, input: { source: nextValue } } }),
-    );
+    const [error] = await tryRun(updateJob({ variables: { id: job.id, input: { source: nextValue } } }));
     if (error) {
       onError?.("Could not update source.");
       return;
@@ -121,11 +94,7 @@ export function OverviewTabContent({
   }
 
   async function handleSaveLocation(nextValue: string) {
-    const [error] = await tryRun(
-      updateJob({
-        variables: { id: job.id, input: { location: nextValue || null } },
-      }),
-    );
+    const [error] = await tryRun(updateJob({ variables: { id: job.id, input: { location: nextValue || null } } }));
     if (error) {
       onError?.("Could not update location.");
       return;
@@ -134,11 +103,7 @@ export function OverviewTabContent({
   }
 
   async function handleSaveWorkRegion(nextValue: string) {
-    const [error] = await tryRun(
-      updateJob({
-        variables: { id: job.id, input: { workRegion: nextValue || null } },
-      }),
-    );
+    const [error] = await tryRun(updateJob({ variables: { id: job.id, input: { workRegion: nextValue || null } } }));
     if (error) {
       onError?.("Could not update work region.");
       return;
@@ -147,9 +112,7 @@ export function OverviewTabContent({
   }
 
   async function handleInferLocation(): Promise<string | null> {
-    const { data, error: queryError } = await inferLocation({
-      variables: { jobId: job.id },
-    });
+    const { data, error: queryError } = await inferLocation({ variables: { jobId: job.id } });
     if (queryError) {
       onError?.("Could not infer location.");
       return null;
@@ -163,9 +126,7 @@ export function OverviewTabContent({
   }
 
   async function handleInferWorkRegion(): Promise<string | null> {
-    const { data, error: queryError } = await inferWorkRegion({
-      variables: { jobId: job.id },
-    });
+    const { data, error: queryError } = await inferWorkRegion({ variables: { jobId: job.id } });
     if (queryError) {
       onError?.("Could not infer work region.");
       return null;
@@ -230,11 +191,7 @@ export function OverviewTabContent({
           label="Company"
           content={
             showCompanyMeta ? (
-              <CompanyNameWithPopover
-                job={job}
-                onSuccess={onSuccess}
-                onError={onError}
-              />
+              <CompanyNameWithPopover job={job} onSuccess={onSuccess} onError={onError} />
             ) : (
               <Text size="sm" color="muted">
                 Not set
@@ -251,24 +208,13 @@ export function OverviewTabContent({
             ) : null
           }
         />
-        <CompanyEditDialog
-          control={companyDialog}
-          job={job}
-          onSuccess={onSuccess}
-          onError={onError}
-        />
+        <CompanyEditDialog control={companyDialog} job={job} onSuccess={onSuccess} onError={onError} />
       </div>
 
       <div className={cn("max-w-full")}>
         <FieldWithLabelAction
           label="Job URLs"
-          content={
-            <JobUrls
-              urls={job.urls}
-              linkClassName="block leading-normal"
-              emptyLabel="Not set"
-            />
-          }
+          content={<JobUrls urls={job.urls} linkClassName="block leading-normal" emptyLabel="Not set" />}
           actions={
             <FieldWithLabelAction.IconActionButton
               label="Edit job URL"
@@ -277,11 +223,7 @@ export function OverviewTabContent({
             />
           }
         />
-        <UrlFieldEditDialog
-          control={urlDialog}
-          value={job.urls}
-          onSave={handleSaveUrl}
-        />
+        <UrlFieldEditDialog control={urlDialog} value={job.urls} onSave={handleSaveUrl} />
       </div>
 
       <div className={cn("max-w-full")}>
@@ -304,11 +246,7 @@ export function OverviewTabContent({
             />
           }
         />
-        <SourceEditDialog
-          control={sourceDialog}
-          value={job.source}
-          onSave={handleSaveSource}
-        />
+        <SourceEditDialog control={sourceDialog} value={job.source} onSave={handleSaveSource} />
       </div>
 
       <div className={cn("max-w-full")}>
@@ -391,12 +329,7 @@ export function OverviewTabContent({
             />
           }
         />
-        <SalaryEditDialog
-          control={salaryDialog}
-          job={job}
-          onSuccess={onSuccess}
-          onError={onError}
-        />
+        <SalaryEditDialog control={salaryDialog} job={job} onSuccess={onSuccess} onError={onError} />
       </div>
 
       <MatchAnalysisField jobId={job.id} match={job.match} />
@@ -421,13 +354,7 @@ export function OverviewTabContent({
             />
           }
         />
-        <TagsEditDialog
-          control={tagsDialog}
-          jobId={job.id}
-          tags={tags}
-          onSuccess={onSuccess}
-          onError={onError}
-        />
+        <TagsEditDialog control={tagsDialog} jobId={job.id} tags={tags} onSuccess={onSuccess} onError={onError} />
       </div>
     </OverviewSection>
   );

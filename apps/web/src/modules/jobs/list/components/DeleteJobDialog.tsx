@@ -2,17 +2,13 @@
 
 import { tryRun } from "@job-tracker/try-run";
 import { ConfirmDialog } from "@job-tracker/ui";
-import React from "react";
+import type { ReactElement } from "react";
 
-import {
-  DeleteJobDocument,
-  JobsDocument,
-  useDeleteJobMutation,
-} from "@/gql/hooks";
+import { DeleteJobDocument, JobsDocument, useDeleteJobMutation } from "@/gql/hooks";
 import { removeDeletedEntityFromListCache } from "@/modules/jobs/shared/utils/apolloDeleteCache";
 
 interface DeleteJobDialogProps {
-  trigger: React.ReactElement;
+  trigger: ReactElement;
   jobId: string;
   jobTitle: string;
   open?: boolean;
@@ -32,11 +28,7 @@ export function DeleteJobDialog({
 }: DeleteJobDialogProps) {
   const [deleteJob] = useDeleteJobMutation({
     update(cache, { data }) {
-      removeDeletedEntityFromListCache(cache, {
-        mutationData: data,
-        mutation: DeleteJobDocument,
-        query: JobsDocument,
-      });
+      removeDeletedEntityFromListCache(cache, { mutationData: data, mutation: DeleteJobDocument, query: JobsDocument });
     },
   });
 

@@ -9,13 +9,5 @@ export function getAllowedDevOrigins(): string[] {
     .filter((entry) => entry.family === "IPv4" && entry.internal === false)
     .map((entry) => entry.address);
 
-  return Array.from(
-    new Set([
-      "localhost",
-      "127.0.0.1",
-      "*.ngrok-free.app",
-      "*.ngrok.io",
-      ...localIpv4Addresses,
-    ]),
-  );
+  return Array.from(new Set(["localhost", "127.0.0.1", "*.ngrok-free.app", "*.ngrok.io", ...localIpv4Addresses]));
 }

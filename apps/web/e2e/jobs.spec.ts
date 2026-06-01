@@ -8,7 +8,5 @@ test("jobs list page renders", async ({ page }) => {
 test("draft jobs filter on jobs list renders", async ({ page }) => {
   await page.goto("/jobs?q=draft");
   await expect(page).toHaveURL(/[?&]q=draft/);
-  await expect(
-    page.getByRole("textbox", { name: "Search jobs..." }),
-  ).toBeVisible();
+  await expect(page.getByRole("textbox", { name: "Search jobs..." })).toBeVisible();
 });

@@ -24,14 +24,12 @@ import { WorkPreferencesModule } from "./domains/work-preferences/work-preferenc
 import { apiEnv } from "./env/server";
 import { fixSubscriptionResolve } from "./graphql/fix-subscription-resolve";
 import { graphqlFormatError } from "./graphql/graphql-format-error";
+import { createWsSubscribe } from "./graphql/graphql-ws-logger";
 
 @Module({
   imports: [
     // TODO(infra): Remove ThrottlerModule when WAF/CloudFront rate limits replace in-app auth throttling.
-    ThrottlerModule.forRoot({
-      throttlers: [{ ttl: 60_000, limit: 20 }],
-      skipIf: () => apiEnv.RATE_LIMIT_DISABLED,
-    }),
+    ThrottlerModule.forRoot({ throttlers: [{ ttl: 60_000, limit: 20 }], skipIf: () => apiEnv.RATE_LIMIT_DISABLED }),
     DatabaseModule,
     AuthModule,
     JobsModule,
@@ -51,13 +49,15 @@ import { graphqlFormatError } from "./graphql/graphql-format-error";
       playground: true,
       plugins: apolloGraphOsPlugins(),
       formatError: graphqlFormatError,
-      subscriptions: { "graphql-ws": { path: "/graphql" } },
+      subscriptions: {
+        "graphql-ws": { path: "/graphql", subscribe: createWsSubscribe() } as Record<string, unknown> & {
+          path: string;
+        },
+      },
       transformSchema: fixSubscriptionResolve,
-      context: (ctx: {
-        req?: Request;
-        connectionParams?: Record<string, unknown>;
-        extra?: { request: Request };
-      }) => ({ req: ctx.req ?? ctx.extra?.request }),
+      context: (ctx: { req?: Request; connectionParams?: Record<string, unknown>; extra?: { request: Request } }) => ({
+        req: ctx.req ?? ctx.extra?.request,
+      }),
     }),
   ],
   controllers: [AppController],

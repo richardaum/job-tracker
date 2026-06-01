@@ -1,14 +1,12 @@
 "use client";
 
-import React from "react";
+import { use } from "react";
 
 import { JobNotesFocusPage } from "@/modules/jobs/details/page/JobNotesFocusPage";
 
-export default function JobNotesFocusRoutePage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = React.use(params);
+type JobNotesFocusRoutePageProps = { params: Promise<{ id: string }> };
+
+export default function JobNotesFocusRoutePage({ params }: JobNotesFocusRoutePageProps) {
+  const { id } = use(params);
   return <JobNotesFocusPage jobId={id} />;
 }

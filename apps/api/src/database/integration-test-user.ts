@@ -14,27 +14,19 @@ export type OAuthIntegrationUserSeed = {
 };
 
 /** Persists user + OAuth account row (integration tests against migrated schema). */
-export async function insertUserWithAuthAccount(
-  ds: DataSource,
-  seed: OAuthIntegrationUserSeed,
-): Promise<UserEntity> {
+export async function insertUserWithAuthAccount(ds: DataSource, seed: OAuthIntegrationUserSeed): Promise<UserEntity> {
   const userRepo = ds.getRepository(UserEntity);
   const accounts = ds.getRepository(UserAccountEntity);
 
   const user = await userRepo.save(
-    userRepo.create({
-      email: seed.email,
-      name: seed.name,
-      avatarUrl: seed.avatarUrl ?? null,
-      role: RoleEnum.User,
-    }),
+    userRepo.create({ email: seed.email, name: seed.name, avatarUrl: seed.avatarUrl ?? null, role: RoleEnum.User }),
   );
 
   await accounts.save(
     accounts.create({
       id: randomUUID(),
       userId: user.id,
-      providerName: AuthProviderEnum.GOOGLE,
+      providerName: AuthProviderEnum.Google,
       providerAccountId: seed.providerAccountId,
     }),
   );

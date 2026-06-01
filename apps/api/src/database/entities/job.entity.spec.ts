@@ -21,7 +21,7 @@ function minimalJob(props: Partial<JobEntity> = {}): JobEntity {
     workRegion: null,
     htmlContent: null,
     fillMetadata: null,
-    stage: ApplicationStageEnum.DRAFT,
+    stage: ApplicationStageEnum.Draft,
     summary: null,
     summaryMetadata: null,
     sourceRunId: null,
@@ -37,7 +37,7 @@ describe("JobEntity", () => {
       title: null,
       htmlContent: "<html>h</html>",
       fillMetadata: undefined,
-      stage: ApplicationStageEnum.NEW,
+      stage: ApplicationStageEnum.New,
     });
     expect(row.title).toBeNull();
     expect(row.htmlContent).toContain("h");
@@ -46,27 +46,19 @@ describe("JobEntity", () => {
   });
 
   it("accepts max-length title boundary", async () => {
-    const row = minimalJob({
-      title: "x".repeat(JOB_TITLE_MAX_LENGTH),
-      stage: ApplicationStageEnum.NEW,
-    });
+    const row = minimalJob({ title: "x".repeat(JOB_TITLE_MAX_LENGTH), stage: ApplicationStageEnum.New });
     expect(await validate(row)).toHaveLength(0);
   });
 
   it("rejects oversized title strings", async () => {
-    const row = minimalJob({
-      title: "x".repeat(JOB_TITLE_MAX_LENGTH + 1),
-      stage: ApplicationStageEnum.NEW,
-    });
+    const row = minimalJob({ title: "x".repeat(JOB_TITLE_MAX_LENGTH + 1), stage: ApplicationStageEnum.New });
     const errs = await validate(row);
     expect(errs.some((e) => e.property === "title")).toBe(true);
   });
 
   it("does not attach max-length errors when title is null", async () => {
-    const row = minimalJob({ title: null, stage: ApplicationStageEnum.NEW });
-    const errs = await validate(row).then((list) =>
-      list.filter((e) => e.property === "title"),
-    );
+    const row = minimalJob({ title: null, stage: ApplicationStageEnum.New });
+    const errs = await validate(row).then((list) => list.filter((e) => e.property === "title"));
     expect(errs).toHaveLength(0);
   });
 });

@@ -4,18 +4,15 @@ import { Input as TextInput } from "@ui/components/Input/Input";
 import { cn } from "@ui/lib/cn";
 import { returnComboboxFocusToInputOnFirstItemArrowUp } from "@ui/lib/focusRadixMenuItem";
 import { useMenuAnchoredCombobox } from "@ui/lib/menuAnchoredCombobox";
-import React, {
-  createContext,
-  type Dispatch,
-  type KeyboardEvent,
-  type ReactElement,
-  type ReactNode,
-  type RefObject,
-  type SetStateAction,
-  useCallback,
-  useContext,
-  useMemo,
-  useState,
+import { createContext, useCallback, useContext, useMemo, useState } from "react";
+import type {
+  ComponentPropsWithoutRef,
+  Dispatch,
+  KeyboardEvent,
+  ReactElement,
+  ReactNode,
+  RefObject,
+  SetStateAction,
 } from "react";
 
 const MENU_CONTENT_BASE = cn(
@@ -33,23 +30,16 @@ type AnchoredComboboxContextValue = {
   hasItems: boolean;
   inputRef: RefObject<HTMLInputElement | null>;
   menuContentRef: RefObject<HTMLDivElement | null>;
-  anchoredMenuDismissLayerProps: ReturnType<
-    typeof useMenuAnchoredCombobox
-  >["anchoredMenuDismissLayerProps"];
-  createInputKeyDownHandler: ReturnType<
-    typeof useMenuAnchoredCombobox
-  >["createInputKeyDownHandler"];
+  anchoredMenuDismissLayerProps: ReturnType<typeof useMenuAnchoredCombobox>["anchoredMenuDismissLayerProps"];
+  createInputKeyDownHandler: ReturnType<typeof useMenuAnchoredCombobox>["createInputKeyDownHandler"];
 };
 
-const AnchoredComboboxContext =
-  createContext<AnchoredComboboxContextValue | null>(null);
+const AnchoredComboboxContext = createContext<AnchoredComboboxContextValue | null>(null);
 
 function useAnchoredComboboxCtx(): AnchoredComboboxContextValue {
   const ctx = useContext(AnchoredComboboxContext);
   if (!ctx) {
-    throw new Error(
-      "`AnchoredCombobox` primitives must render inside `<AnchoredCombobox.Root>`.",
-    );
+    throw new Error("`AnchoredCombobox` primitives must render inside `<AnchoredCombobox.Root>`.");
   }
   return ctx;
 }
@@ -74,12 +64,8 @@ function Root({
   normalizeInput = (raw: string): string => raw,
 }: AnchoredComboboxRootProps) {
   const [open, setOpen] = useState(false);
-  const {
-    inputRef,
-    menuContentRef,
-    anchoredMenuDismissLayerProps,
-    createInputKeyDownHandler,
-  } = useMenuAnchoredCombobox();
+  const { inputRef, menuContentRef, anchoredMenuDismissLayerProps, createInputKeyDownHandler } =
+    useMenuAnchoredCombobox();
 
   const menuOpen = open && hasItems;
 
@@ -131,23 +117,12 @@ function Root({
 
 export type AnchoredComboboxInputProps = Omit<
   InputProps,
-  | "value"
-  | "defaultValue"
-  | "onChange"
-  | "onKeyDown"
-  | "onClick"
-  | "ref"
-  | "disabled"
+  "value" | "defaultValue" | "onChange" | "onKeyDown" | "onClick" | "ref" | "disabled"
 > & { ignoreBlurWithinMenu?: boolean; leading?: ReactElement };
 
 /** Anchors the input under `Menu.Root` and wires menu open + keyboard routing. */
-function ComboInput(props: AnchoredComboboxInputProps): React.ReactElement {
-  const {
-    ignoreBlurWithinMenu = false,
-    leading,
-    onBlur,
-    ...inputProps
-  } = props;
+function ComboInput(props: AnchoredComboboxInputProps): ReactElement {
+  const { ignoreBlurWithinMenu = false, leading, onBlur, ...inputProps } = props;
   const {
     value,
     onValueChange,
@@ -161,13 +136,7 @@ function ComboInput(props: AnchoredComboboxInputProps): React.ReactElement {
     createInputKeyDownHandler,
   } = useAnchoredComboboxCtx();
 
-  const onInputKeyDown = createInputKeyDownHandler({
-    disabled,
-    hasItems,
-    open,
-    menuOpen,
-    setOpen,
-  });
+  const onInputKeyDown = createInputKeyDownHandler({ disabled, hasItems, open, menuOpen, setOpen });
 
   return (
     <Menu.Anchor asChild>
@@ -195,10 +164,7 @@ function ComboInput(props: AnchoredComboboxInputProps): React.ReactElement {
           onKeyDown={onInputKeyDown}
           onBlur={(event) => {
             if (ignoreBlurWithinMenu) {
-              const relatedRole =
-                (event.relatedTarget as HTMLElement | null)?.getAttribute(
-                  "role",
-                ) ?? null;
+              const relatedRole = (event.relatedTarget as HTMLElement | null)?.getAttribute("role") ?? null;
               if (relatedRole === "menuitem" || relatedRole === "menu") {
                 return;
               }
@@ -213,18 +179,16 @@ function ComboInput(props: AnchoredComboboxInputProps): React.ReactElement {
   );
 }
 
-function ComboPortal({ children }: { children: ReactNode }) {
+type ComboPortalProps = { children: ReactNode };
+
+function ComboPortal({ children }: ComboPortalProps) {
   return <Menu.Portal>{children}</Menu.Portal>;
 }
 
-export type AnchoredComboboxContentProps = {
-  children: ReactNode;
-  className?: string;
-};
+export type AnchoredComboboxContentProps = { children: ReactNode; className?: string };
 
 function ComboContent({ children, className }: AnchoredComboboxContentProps) {
-  const { menuContentRef, anchoredMenuDismissLayerProps } =
-    useAnchoredComboboxCtx();
+  const { menuContentRef, anchoredMenuDismissLayerProps } = useAnchoredComboboxCtx();
 
   return (
     <Menu.Content
@@ -239,41 +203,26 @@ function ComboContent({ children, className }: AnchoredComboboxContentProps) {
   );
 }
 
-export type AnchoredComboboxListProps = {
-  children: ReactNode;
-  className?: string;
-};
+export type AnchoredComboboxListProps = { children: ReactNode; className?: string };
 
 function ComboList({ children, className }: AnchoredComboboxListProps) {
   return <div className={cn("flex flex-col", className)}>{children}</div>;
 }
 
-export type AnchoredComboboxItemProps = React.ComponentPropsWithoutRef<
-  typeof Menu.Item
->;
+export type AnchoredComboboxItemProps = ComponentPropsWithoutRef<typeof Menu.Item>;
 
-function ComboItem({
-  className,
-  onKeyDown,
-  ...props
-}: AnchoredComboboxItemProps): React.ReactElement {
+function ComboItem({ className, onKeyDown, ...props }: AnchoredComboboxItemProps): ReactElement {
   const { menuContentRef, inputRef } = useAnchoredComboboxCtx();
 
   const mergedKeyDown = useCallback(
     (e: KeyboardEvent<HTMLDivElement>) => {
-      returnComboboxFocusToInputOnFirstItemArrowUp(
-        e,
-        menuContentRef.current,
-        inputRef.current,
-      );
+      returnComboboxFocusToInputOnFirstItemArrowUp(e, menuContentRef.current, inputRef.current);
       onKeyDown?.(e);
     },
     [menuContentRef, inputRef, onKeyDown],
   );
 
-  return (
-    <Menu.Item className={className} {...props} onKeyDown={mergedKeyDown} />
-  );
+  return <Menu.Item className={className} {...props} onKeyDown={mergedKeyDown} />;
 }
 
 /**

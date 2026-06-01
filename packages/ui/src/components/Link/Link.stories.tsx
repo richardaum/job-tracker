@@ -27,6 +27,4 @@ export const WithIcon: Story = {
   },
 };
 
-export const Muted: Story = {
-  args: { children: "View history", href: "#", variant: "muted" },
-};
+export const Muted: Story = { args: { children: "View history", href: "#", variant: "muted" } };

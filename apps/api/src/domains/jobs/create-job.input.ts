@@ -45,10 +45,13 @@ export class CreateJobInput {
   @MaxLength(5_242_880)
   htmlContent?: string | null;
 
+  @Field(() => Date, { nullable: true })
+  publishedAt?: Date | null;
+
   @Field(() => ID, { nullable: true })
   sourceRunId?: string | null;
 
-  /** When true, creates a persisted `jobs` row in {@link ApplicationStageEnum.DRAFT} (replacement for legacy draft-job create). */
+  /** When true, creates a persisted `jobs` row in {@link ApplicationStageEnum.Draft} (replacement for legacy draft-job create). */
   @Field(() => Boolean, { nullable: true })
   createAsDraftCapture?: boolean | null;
 

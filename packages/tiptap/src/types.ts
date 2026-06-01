@@ -1,7 +1,4 @@
-export const EMPTY_TIPTAP_DOC = JSON.stringify({
-  type: "doc",
-  content: [{ type: "paragraph" }],
-});
+export const EMPTY_TIPTAP_DOC = JSON.stringify({ type: "doc", content: [{ type: "paragraph" }] });
 
 export type TipTapMark = { type: string; attrs?: Record<string, unknown> };
 

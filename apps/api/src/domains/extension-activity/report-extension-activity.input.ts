@@ -12,7 +12,7 @@ export class ReportExtensionActivityInput {
   summary!: string;
 
   @Field(() => String, { nullable: true })
-  correlationId?: string | null;
+  sourceRunId?: string | null;
 
   @Field(() => GraphQLJSON, { nullable: true })
   payload?: Record<string, unknown> | null;

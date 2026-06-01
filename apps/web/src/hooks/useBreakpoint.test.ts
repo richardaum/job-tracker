@@ -23,17 +23,12 @@ function makeMatchMedia(initialMatches: boolean) {
 
 describe("useBreakpoint", () => {
   beforeEach(() => {
-    Object.defineProperty(window, "matchMedia", {
-      writable: true,
-      value: vi.fn(),
-    });
+    Object.defineProperty(window, "matchMedia", { writable: true, value: vi.fn() });
   });
 
   it("returns false when query does not match", () => {
     const mq = makeMatchMedia(false);
-    vi.mocked(window.matchMedia).mockReturnValue(
-      mq as unknown as MediaQueryList,
-    );
+    vi.mocked(window.matchMedia).mockReturnValue(mq as unknown as MediaQueryList);
 
     const { result } = renderHook(() => useBreakpoint("(min-width: 768px)"));
 
@@ -42,9 +37,7 @@ describe("useBreakpoint", () => {
 
   it("returns true when query matches on mount", () => {
     const mq = makeMatchMedia(true);
-    vi.mocked(window.matchMedia).mockReturnValue(
-      mq as unknown as MediaQueryList,
-    );
+    vi.mocked(window.matchMedia).mockReturnValue(mq as unknown as MediaQueryList);
 
     const { result } = renderHook(() => useBreakpoint("(min-width: 768px)"));
 
@@ -53,9 +46,7 @@ describe("useBreakpoint", () => {
 
   it("updates state when media query fires a change event", () => {
     const mq = makeMatchMedia(false);
-    vi.mocked(window.matchMedia).mockReturnValue(
-      mq as unknown as MediaQueryList,
-    );
+    vi.mocked(window.matchMedia).mockReturnValue(mq as unknown as MediaQueryList);
 
     const { result } = renderHook(() => useBreakpoint("(min-width: 768px)"));
     expect(result.current).toBe(false);
@@ -69,16 +60,11 @@ describe("useBreakpoint", () => {
 
   it("removes the event listener on unmount", () => {
     const mq = makeMatchMedia(false);
-    vi.mocked(window.matchMedia).mockReturnValue(
-      mq as unknown as MediaQueryList,
-    );
+    vi.mocked(window.matchMedia).mockReturnValue(mq as unknown as MediaQueryList);
 
     const { unmount } = renderHook(() => useBreakpoint("(min-width: 768px)"));
     unmount();
 
-    expect(mq.removeEventListener).toHaveBeenCalledWith(
-      "change",
-      expect.any(Function),
-    );
+    expect(mq.removeEventListener).toHaveBeenCalledWith("change", expect.any(Function));
   });
 });

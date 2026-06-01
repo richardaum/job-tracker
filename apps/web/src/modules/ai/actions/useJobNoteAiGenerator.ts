@@ -13,18 +13,13 @@ interface UseJobNoteAiGeneratorResult {
   generateNote: (source: string) => Promise<string>;
 }
 
-export function useJobNoteAiGenerator({
-  jobId,
-}: UseJobNoteAiGeneratorArgs): UseJobNoteAiGeneratorResult {
-  const [generateJobNoteWithAi, { loading }] =
-    useGenerateJobNoteWithAiLazyQuery({ fetchPolicy: "no-cache" });
+export function useJobNoteAiGenerator({ jobId }: UseJobNoteAiGeneratorArgs): UseJobNoteAiGeneratorResult {
+  const [generateJobNoteWithAi, { loading }] = useGenerateJobNoteWithAiLazyQuery({ fetchPolicy: "no-cache" });
 
   const generateNote = useCallback(
     async (source: string): Promise<string> => {
       const note = source.trim();
-      const result = await generateJobNoteWithAi({
-        variables: { jobId, note },
-      });
+      const result = await generateJobNoteWithAi({ variables: { jobId, note } });
 
       return result.data?.generateJobNoteWithAI ?? note;
     },

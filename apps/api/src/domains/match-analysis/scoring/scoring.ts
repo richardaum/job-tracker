@@ -58,15 +58,9 @@ export function computeScore(items: MatchItem[]): ScoreResult {
   const total = items.reduce((sum, item) => sum + itemPoints(item), 0);
   const max = maxPossible(items);
 
-  const matchCount = items.filter(
-    (i) => i.verdict === MatchVerdictEnum.Fit,
-  ).length;
-  const gapCount = items.filter(
-    (i) => i.verdict === MatchVerdictEnum.Gap,
-  ).length;
-  const unclearCount = items.filter(
-    (i) => i.verdict === MatchVerdictEnum.Unclear,
-  ).length;
+  const matchCount = items.filter((i) => i.verdict === MatchVerdictEnum.Fit).length;
+  const gapCount = items.filter((i) => i.verdict === MatchVerdictEnum.Gap).length;
+  const unclearCount = items.filter((i) => i.verdict === MatchVerdictEnum.Unclear).length;
 
   const hasMustHaveGap = items.some(
     (i) =>

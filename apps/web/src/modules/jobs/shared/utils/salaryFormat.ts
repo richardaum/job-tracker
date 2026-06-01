@@ -7,10 +7,7 @@ import { tryRun } from "@job-tracker/try-run";
 
 import type { JobSalary } from "@/gql/graphql";
 import { SalaryPeriod } from "@/gql/hooks";
-import {
-  formatCurrencyWhole,
-  type SalaryRatePeriodBasis,
-} from "@/modules/tools/salary-calculator/lib/conversion";
+import { formatCurrencyWhole, type SalaryRatePeriodBasis } from "@/modules/tools/salary-calculator/lib/conversion";
 
 export const SALARY_PERIODS: Array<{
   value: SalaryPeriod;
@@ -19,53 +16,34 @@ export const SALARY_PERIODS: Array<{
   basis: SalaryRatePeriodBasis;
 }> = [
   { value: SalaryPeriod.Year, label: "Per year", short: "yr", basis: "yearly" },
-  {
-    value: SalaryPeriod.Month,
-    label: "Per month",
-    short: "mo",
-    basis: "monthly",
-  },
+  { value: SalaryPeriod.Month, label: "Per month", short: "mo", basis: "monthly" },
   { value: SalaryPeriod.Hour, label: "Per hour", short: "hr", basis: "hourly" },
 ];
 
-const PERIOD_TO_SUFFIX: Record<string, string> = {
-  YEAR: "/yr",
-  MONTH: "/mo",
-  HOUR: "/hr",
-};
+const PERIOD_TO_SUFFIX: Record<string, string> = { YEAR: "/yr", MONTH: "/mo", HOUR: "/hr" };
 
-export function salaryPeriodToRateBasis(
-  period: SalaryPeriod | null | undefined,
-): SalaryRatePeriodBasis | undefined {
+export function salaryPeriodToRateBasis(period: SalaryPeriod | null | undefined): SalaryRatePeriodBasis | undefined {
   if (period == null) return undefined;
   return SALARY_PERIODS.find((p) => p.value === period)?.basis;
 }
 
 /** Non-negative stored cents → major units for display/math; invalid → null. */
-export function majorFromCents(
-  cents: number | null | undefined,
-): number | null {
+export function majorFromCents(cents: number | null | undefined): number | null {
   if (cents == null || cents < 0) return null;
   return cents / 100;
 }
 
-export function formatSalary(
-  salary: JobSalary | null | undefined,
-): string | null {
+export function formatSalary(salary: JobSalary | null | undefined): string | null {
   if (!salary) return null;
-  const has =
-    (salary.minCents != null && salary.minCents >= 0) ||
-    (salary.maxCents != null && salary.maxCents >= 0);
+  const has = (salary.minCents != null && salary.minCents >= 0) || (salary.maxCents != null && salary.maxCents >= 0);
   if (!has || !salary.currency || !salary.period) {
     return null;
   }
   const currency = salary.currency;
   const minMajor = majorFromCents(salary.minCents);
   const maxMajor = majorFromCents(salary.maxCents);
-  const minS =
-    minMajor != null ? formatCurrencyWhole(minMajor, currency) : null;
-  const maxS =
-    maxMajor != null ? formatCurrencyWhole(maxMajor, currency) : null;
+  const minS = minMajor != null ? formatCurrencyWhole(minMajor, currency) : null;
+  const maxS = maxMajor != null ? formatCurrencyWhole(maxMajor, currency) : null;
   const p = String(salary.period);
   const per = PERIOD_TO_SUFFIX[p] ?? "";
   if (minS && maxS && minS !== maxS) {
@@ -99,16 +77,10 @@ export function centsToMajorInput(cents: number | null | undefined): string {
 }
 
 /** Max fractional digits for a currency code (Intl / ISO 4217), for masked inputs. */
-export function iso4217MaxFractionDigits(
-  currencyCode: string | null | undefined,
-): number {
+export function iso4217MaxFractionDigits(currencyCode: string | null | undefined): number {
   const currency = (currencyCode?.trim() || "USD").toUpperCase();
   const [intlErr, digits] = tryRun(
-    () =>
-      new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency,
-      }).resolvedOptions().maximumFractionDigits,
+    () => new Intl.NumberFormat("en-US", { style: "currency", currency }).resolvedOptions().maximumFractionDigits,
   );
   if (intlErr) {
     return 2;
@@ -123,11 +95,6 @@ export function parseTagInput(s: string): string[] {
     .filter(Boolean);
 }
 
-export function hasSalaryOnCard(params: {
-  line: string | null;
-  tags: string[];
-}): boolean {
-  return (
-    (params.line != null && params.line.length > 0) || params.tags.length > 0
-  );
+export function hasSalaryOnCard(params: { line: string | null; tags: string[] }): boolean {
+  return (params.line != null && params.line.length > 0) || params.tags.length > 0;
 }

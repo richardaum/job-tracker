@@ -1,14 +1,16 @@
 import { LogService } from "@/domains/log/log.service";
-import type { Plan, PlanStep } from "@/domains/plan/model/types";
+import type { Plan, PlanStep } from "@job-tracker/plan-schemas";
 import type { PlanExecuteOptions } from "@/domains/plan/plan-execute-options";
 
 import { CollectJobsService } from "./collect-jobs.service";
+import { ParseRegexService } from "./parse-regex.service";
 
 export class PlanService {
   private readonly memory: Map<string, unknown> = new Map();
 
   constructor(
     private readonly collectJobsService: CollectJobsService,
+    private readonly parseRegexService: ParseRegexService,
     private readonly logService: LogService,
   ) {
     this.logService.debug("PlanService initialized");
@@ -21,10 +23,7 @@ export class PlanService {
     return output;
   }
 
-  private async runPlanSteps(
-    steps: Plan["steps"],
-    options: PlanExecuteOptions,
-  ) {
+  private async runPlanSteps(steps: Plan["steps"], options: PlanExecuteOptions) {
     for (const step of steps) {
       const stepResult = await this.runPlanStep(step, options);
       this.memory.set(step.id, stepResult);
@@ -36,6 +35,8 @@ export class PlanService {
     switch (step.action.kind) {
       case "collect.jobs":
         return await this.collectJobsService.execute(step.action, options);
+      case "parse.regex":
+        return this.parseRegexService.execute(step.action);
     }
   }
 

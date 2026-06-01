@@ -2,11 +2,7 @@ import "reflect-metadata";
 import "dotenv/config";
 
 import { buildDataSourceOptions } from "@api/database/data-source-options";
-import {
-  MatchAnalysisEntity,
-  type MatchItem,
-  RequirementTypeEnum,
-} from "@api/database/entities/match-analysis.entity";
+import { MatchAnalysisEntity, type MatchItem, RequirementTypeEnum } from "@api/database/entities/match-analysis.entity";
 import { tryRun } from "@job-tracker/try-run";
 import { Module } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
@@ -15,17 +11,13 @@ import { EntityManager } from "typeorm";
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      ...buildDataSourceOptions(process.env.DATABASE_URL!),
-    }),
+    TypeOrmModule.forRoot({ ...buildDataSourceOptions(process.env.DATABASE_URL!) }),
     TypeOrmModule.forFeature([MatchAnalysisEntity]),
   ],
 })
 class ScriptModule {}
 
-function normalizeType(
-  type: string | null | undefined,
-): RequirementTypeEnum | undefined {
+function normalizeType(type: string | null | undefined): RequirementTypeEnum | undefined {
   if (!type) return undefined;
   const words = type.replace(/_/g, " ").toLowerCase();
   const capitalized = words
@@ -44,24 +36,17 @@ function normalizeType(
 
 async function main() {
   process.stdout.write("Booting NestJS...\n");
-  const app = await NestFactory.createApplicationContext(ScriptModule, {
-    logger: ["error", "warn"],
-  });
+  const app = await NestFactory.createApplicationContext(ScriptModule, { logger: ["error", "warn"] });
 
   const em = app.get(EntityManager);
   const dryRun = process.argv.includes("--dry-run");
   const prefix = dryRun ? "[DRY-RUN] " : "";
 
-  process.stdout.write(
-    `\n${prefix}Fixing fit_analysis items -> type (UPPER -> PascalCase)...\n`,
-  );
+  process.stdout.write(`\n${prefix}Fixing fit_analysis items -> type (UPPER -> PascalCase)...\n`);
   const fitRepo = em.getRepository(MatchAnalysisEntity);
   const allFit = await fitRepo.find();
   const fixType = allFit.filter((e) =>
-    e.items?.some(
-      (i: MatchItem) =>
-        i.type && normalizeType(i.type) && i.type !== normalizeType(i.type),
-    ),
+    e.items?.some((i: MatchItem) => i.type && normalizeType(i.type) && i.type !== normalizeType(i.type)),
   );
 
   if (fixType.length === 0) {

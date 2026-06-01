@@ -32,11 +32,7 @@ WHERE "source" IS NULL;
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(
-      `ALTER TABLE "applications" DROP COLUMN IF EXISTS "source"`,
-    );
-    await queryRunner.query(
-      `DROP TYPE IF EXISTS "public"."application_source"`,
-    );
+    await queryRunner.query(`ALTER TABLE "applications" DROP COLUMN IF EXISTS "source"`);
+    await queryRunner.query(`DROP TYPE IF EXISTS "public"."application_source"`);
   }
 }

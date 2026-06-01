@@ -17,9 +17,7 @@ export class WorkPreferencesResolver {
   constructor(private readonly service: WorkPreferencesService) {}
 
   @Query(() => [PreferenceType])
-  workPreferences(
-    @CurrentUser() user: { userId: string },
-  ): Promise<PreferenceType[]> {
+  workPreferences(@CurrentUser() user: { userId: string }): Promise<PreferenceType[]> {
     return this.service.findPreferences(user.userId);
   }
 

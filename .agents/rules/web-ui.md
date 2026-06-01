@@ -13,6 +13,7 @@ Use `state` (`"default" | "loading"`), not a boolean `loading` prop. Loading dis
 
 - Implement in dedicated files, not inline in page/panel components.
 - `Dialog`: flex layout — use `childrenClassName="flex flex-col"` and `flex-1 min-h-0` on children that should fill height and scroll internally.
+- Scrollable containers in dialogs must have `pe-3` (padding-right) so content isn't hidden behind the scrollbar grip.
 - `ConfirmDialog` (`@job-tracker/ui`) for confirmations, especially destructive actions — not `window.confirm` / `alert` / `prompt`.
 - Prefer small feature components wrapping `ConfirmDialog` over duplicating cancel + confirm footers.
 - Storybook: Components → ConfirmDialog.

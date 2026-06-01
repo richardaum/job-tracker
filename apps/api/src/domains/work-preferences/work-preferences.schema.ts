@@ -2,7 +2,5 @@ import type { WorkPreferencesEntity } from "@api/database/entities/work-preferen
 
 export type WorkPreferences = WorkPreferencesEntity;
 
-export type NewWorkPreferences = Partial<
-  Omit<WorkPreferencesEntity, "id" | "createdAt" | "updatedAt">
-> &
+export type NewWorkPreferences = Partial<Omit<WorkPreferencesEntity, "id" | "createdAt" | "updatedAt">> &
   Pick<WorkPreferencesEntity, "userId">;

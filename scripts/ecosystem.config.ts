@@ -56,10 +56,7 @@ export default {
       args: "run dev",
       interpreter: "none",
       log_date_format: "YYYY-MM-DD HH:mm:ss Z",
-      env: {
-        NODE_ENV: "development",
-        ...loadEnvFile(path.join(root, "apps/web/.env")),
-      },
+      env: { NODE_ENV: "development", ...loadEnvFile(path.join(root, "apps/web/.env")) },
       watch: false,
     },
     {
@@ -70,11 +67,7 @@ export default {
       args: "run dev",
       interpreter: "none",
       log_date_format: "YYYY-MM-DD HH:mm:ss Z",
-      env: {
-        NODE_ENV: "development",
-        CI: "true",
-        ...loadEnvFile(path.join(root, "packages/ui/.env")),
-      },
+      env: { NODE_ENV: "development", CI: "true", ...loadEnvFile(path.join(root, "packages/ui/.env")) },
       watch: ["src", ".storybook"],
       ignore_watch: ["node_modules", ".git", "dist", "storybook-static"],
     },

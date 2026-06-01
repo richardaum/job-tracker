@@ -32,12 +32,7 @@ export function SearchInput({
         className,
       )}
     >
-      <MagnifyingGlassIcon
-        size={14}
-        weight="regular"
-        className={cn("shrink-0 text-text-muted")}
-        aria-hidden
-      />
+      <MagnifyingGlassIcon size={14} weight="regular" className={cn("shrink-0 text-text-muted")} aria-hidden />
       <Input
         size="sm"
         value={value}
@@ -50,11 +45,7 @@ export function SearchInput({
         )}
       />
       {shortcutHint ? (
-        <span
-          className={cn(
-            "rounded border border-border-subtle px-1.5 py-0.5 text-xs text-text-muted",
-          )}
-        >
+        <span className={cn("rounded border border-border-subtle px-1.5 py-0.5 text-xs text-text-muted")}>
           {shortcutHint}
         </span>
       ) : null}

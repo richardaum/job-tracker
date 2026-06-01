@@ -1,9 +1,9 @@
 import { Field, ObjectType, registerEnumType } from "@nestjs/graphql";
 
 export enum AsyncMetadataStatusEnum {
-  PROCESSING = "PROCESSING",
-  COMPLETED = "COMPLETED",
-  FAILED = "FAILED",
+  Processing = "Processing",
+  Completed = "Completed",
+  Failed = "Failed",
 }
 registerEnumType(AsyncMetadataStatusEnum, { name: "AsyncMetadataStatus" });
 

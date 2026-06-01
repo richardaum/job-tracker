@@ -35,7 +35,7 @@ export class UserService {
     avatarUrl: string | null;
   }): Promise<User> {
     return this.upsertFromProvider({
-      providerName: AuthProviderEnum.GOOGLE,
+      providerName: AuthProviderEnum.Google,
       providerAccountId: profile.googleId,
       email: profile.email,
       name: profile.name,
@@ -53,12 +53,7 @@ export class UserService {
 
       if (existingLink) {
         return this.userRepository.saveUser(
-          {
-            id: existingLink.userId,
-            email: profile.email,
-            name: profile.name,
-            avatarUrl: profile.avatarUrl,
-          },
+          { id: existingLink.userId, email: profile.email, name: profile.name, avatarUrl: profile.avatarUrl },
           em,
         );
       }
@@ -75,12 +70,7 @@ export class UserService {
         em,
       );
       await this.userRepository.insertAccount(
-        {
-          id: randomUUID(),
-          userId,
-          providerName: profile.providerName,
-          providerAccountId: profile.providerAccountId,
-        },
+        { id: randomUUID(), userId, providerName: profile.providerName, providerAccountId: profile.providerAccountId },
         em,
       );
       return user;
@@ -103,10 +93,7 @@ export class UserService {
     this.activeUserCache.invalidate(id);
   }
 
-  async validateActiveUser(
-    userId: string,
-    tokenVersion: number,
-  ): Promise<User> {
+  async validateActiveUser(userId: string, tokenVersion: number): Promise<User> {
     const cached = this.activeUserCache.get(userId, tokenVersion);
     if (cached) {
       return cached;

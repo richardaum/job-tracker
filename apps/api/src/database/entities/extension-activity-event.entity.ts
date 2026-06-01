@@ -9,18 +9,14 @@ export class ExtensionActivityEventEntity {
   @Column({ name: "user_id", type: "text" })
   userId!: string;
 
-  @Column({
-    type: "enum",
-    enum: ExtensionActivityEventTypeEnum,
-    enumName: "extension_activity_event_type",
-  })
+  @Column({ type: "enum", enum: ExtensionActivityEventTypeEnum, enumName: "extension_activity_event_type" })
   type!: ExtensionActivityEventTypeEnum;
 
   @Column({ type: "text" })
   summary!: string;
 
-  @Column({ name: "correlation_id", type: "text", nullable: true })
-  correlationId!: string | null;
+  @Column({ name: "source_run_id", type: "text", nullable: true })
+  sourceRunId!: string | null;
 
   @Column({ type: "jsonb", nullable: true })
   payload!: Record<string, unknown> | null;

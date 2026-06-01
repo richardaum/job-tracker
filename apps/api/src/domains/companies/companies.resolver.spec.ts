@@ -6,11 +6,7 @@ import { graphqlFormatError } from "@api/graphql/graphql-format-error";
 import type { ApolloDriverConfig } from "@nestjs/apollo";
 import { ApolloDriver } from "@nestjs/apollo";
 import type { ExecutionContext, INestApplication } from "@nestjs/common";
-import {
-  ForbiddenException,
-  NotFoundException,
-  UnauthorizedException,
-} from "@nestjs/common";
+import { ForbiddenException, NotFoundException, UnauthorizedException } from "@nestjs/common";
 import { GraphQLModule } from "@nestjs/graphql";
 import { GqlExecutionContext } from "@nestjs/graphql";
 import { Test } from "@nestjs/testing";
@@ -56,18 +52,13 @@ describe("CompaniesResolver (integration)", () => {
           formatError: graphqlFormatError,
         }),
       ],
-      providers: [
-        CompaniesResolver,
-        { provide: CompanyService, useValue: service },
-      ],
+      providers: [CompaniesResolver, { provide: CompanyService, useValue: service }],
     })
       .overrideGuard(JwtAuthGuard)
       .useValue({
         canActivate: (ctx: ExecutionContext) => {
           const gqlCtx = GqlExecutionContext.create(ctx);
-          const req = gqlCtx.getContext<{
-            req: Request & { headers: Record<string, string>; user?: unknown };
-          }>().req;
+          const req = gqlCtx.getContext<{ req: Request & { headers: Record<string, string>; user?: unknown } }>().req;
           if (!req.headers["authorization"]) throw new UnauthorizedException();
           req.user = { userId: "user-1" };
           return true;
@@ -96,9 +87,7 @@ describe("CompaniesResolver (integration)", () => {
   });
 
   it("company query maps NotFound to NOT_FOUND without leaking id", async () => {
-    service.findOne.mockRejectedValueOnce(
-      new NotFoundException("Company secret-id not found"),
-    );
+    service.findOne.mockRejectedValueOnce(new NotFoundException("Company secret-id not found"));
     const res = await request(app.getHttpServer())
       .post("/graphql")
       .set(auth)

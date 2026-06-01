@@ -7,17 +7,9 @@ import { RoleEnum } from "@api/domains/users/role.enum";
 import { UseGuards } from "@nestjs/common";
 import { Args, ID, Resolver, Subscription } from "@nestjs/graphql";
 
-import {
-  FillJobStatusChanged,
-  JobMatchStatusChanged,
-  SummaryStatusChanged,
-} from "./job.events";
+import { FillJobStatusChanged, JobMatchStatusChanged, SummaryStatusChanged } from "./job.events";
 import { JobEventBus } from "./job-event.bus";
-import {
-  JobFillStatusEventType,
-  JobMatchStatusEventType,
-  JobSummaryStatusEventType,
-} from "./job-event.types";
+import { JobFillStatusEventType, JobMatchStatusEventType, JobSummaryStatusEventType } from "./job-event.types";
 import { JobsRepository } from "./jobs.repository";
 
 @Resolver()
@@ -36,16 +28,10 @@ export class JobsEventsResolver {
   ): AsyncIterable<JobSummaryStatusEventType> {
     const bus = this.eventBus.forJob(user.userId, jobId);
     for await (const event of bus.eventsOf(SummaryStatusChanged)) {
-      const payload: JobSummaryStatusEventType = {
-        jobId: event.jobId,
-        status: event.status,
-      };
+      const payload: JobSummaryStatusEventType = { jobId: event.jobId, status: event.status };
 
-      if (event.status === AsyncMetadataStatusEnum.COMPLETED) {
-        const job = await this.jobsRepo.findOneByIdAndUserId(
-          jobId,
-          user.userId,
-        );
+      if (event.status === AsyncMetadataStatusEnum.Completed) {
+        const job = await this.jobsRepo.findOneByIdAndUserId(jobId, user.userId);
         if (job) {
           payload.summary = job.summary;
           payload.summaryMetadata = job.summaryMetadata;
@@ -74,11 +60,7 @@ export class JobsEventsResolver {
   ): AsyncIterable<JobMatchStatusEventType> {
     const bus = this.eventBus.forJob(user.userId, jobId);
     for await (const event of bus.eventsOf(JobMatchStatusChanged)) {
-      yield {
-        jobId: event.jobId,
-        matchId: event.matchId,
-        status: event.status,
-      };
+      yield { jobId: event.jobId, matchId: event.matchId, status: event.status };
     }
   }
 }

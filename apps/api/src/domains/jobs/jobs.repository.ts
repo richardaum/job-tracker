@@ -27,20 +27,8 @@ export const SUMMARY_METADATA = {
 
 export type CreateJobRepoDto = Pick<
   NewJob,
-  | "title"
-  | "companyId"
-  | "description"
-  | "urls"
-  | "source"
-  | "tags"
-  | "location"
-  | "workRegion"
-> & {
-  salary?: SalaryEmbedded;
-  draftJobId?: string | null;
-  sourceRunId?: string | null;
-  htmlContent?: string | null;
-};
+  "title" | "companyId" | "description" | "urls" | "source" | "tags" | "location" | "workRegion" | "publishedAt"
+> & { salary?: SalaryEmbedded; draftJobId?: string | null; sourceRunId?: string | null; htmlContent?: string | null };
 export type UpdateJobRepoDto = Partial<CreateJobRepoDto>;
 
 @Injectable()
@@ -54,15 +42,8 @@ export class JobsRepository {
     return manager?.getRepository(JobEntity) ?? this.jobsRepo;
   }
 
-  async findOneByIdAndUserId(
-    id: string,
-    userId: string,
-    manager?: EntityManager,
-  ): Promise<Job | null> {
-    return this.jobRepository(manager).findOne({
-      where: { id, userId },
-      relations: ["company"],
-    });
+  async findOneByIdAndUserId(id: string, userId: string, manager?: EntityManager): Promise<Job | null> {
+    return this.jobRepository(manager).findOne({ where: { id, userId }, relations: ["company"] });
   }
 
   async saveJob(job: Job, manager?: EntityManager): Promise<Job> {
@@ -74,20 +55,13 @@ export class JobsRepository {
    * first system stage event). Required when converting a DRAFT row via `create` + reused PK: plain
    * `save()` would leave stale `stage = DRAFT` despite `NEW`/`DUPLICATED` events.
    */
-  async setPersistedStage(
-    userId: string,
-    jobId: string,
-    stage: ApplicationStageEnum,
-  ): Promise<void> {
+  async setPersistedStage(userId: string, jobId: string, stage: ApplicationStageEnum): Promise<void> {
     await this.jobsRepo.update({ id: jobId, userId }, { stage });
   }
 
   async create(userId: string, dto: CreateJobRepoDto): Promise<Job> {
     const { draftJobId, sourceRunId, ...rest } = dto;
-    const draftPk =
-      typeof draftJobId === "string" && draftJobId.trim().length > 0
-        ? draftJobId.trim()
-        : null;
+    const draftPk = typeof draftJobId === "string" && draftJobId.trim().length > 0 ? draftJobId.trim() : null;
     const row = this.jobsRepo.create({
       userId,
       ...rest,
@@ -97,30 +71,32 @@ export class JobsRepository {
     return this.jobsRepo.save(row);
   }
 
-  async detachJobsSourceRun(
-    sourceRunId: string,
-    userId: string,
-  ): Promise<number> {
-    const result = await this.jobsRepo.update(
-      { userId, sourceRunId },
-      { sourceRunId: null },
-    );
+  async detachJobsSourceRun(sourceRunId: string, userId: string): Promise<number> {
+    const result = await this.jobsRepo.update({ userId, sourceRunId }, { sourceRunId: null });
     return result.affected ?? 0;
   }
 
-  async deleteBySourceRunId(
-    sourceRunId: string,
-    userId: string,
-  ): Promise<number> {
+  async countBySourceRunIds(userId: string, sourceRunIds: string[]): Promise<Map<string, number>> {
+    if (sourceRunIds.length === 0) return new Map();
+
+    const rows = await this.jobsRepo
+      .createQueryBuilder("job")
+      .select("job.source_run_id", "sourceRunId")
+      .addSelect("COUNT(*)", "count")
+      .where("job.user_id = :userId", { userId })
+      .andWhere("job.source_run_id IN (:...ids)", { ids: sourceRunIds })
+      .groupBy("job.source_run_id")
+      .getRawMany<{ sourceRunId: string; count: string }>();
+
+    return new Map(rows.map((r) => [r.sourceRunId, Number(r.count)]));
+  }
+
+  async deleteBySourceRunId(sourceRunId: string, userId: string): Promise<number> {
     const result = await this.jobsRepo.delete({ userId, sourceRunId });
     return result.affected ?? 0;
   }
 
-  async update(
-    id: string,
-    userId: string,
-    dto: UpdateJobRepoDto,
-  ): Promise<Job | null> {
+  async update(id: string, userId: string, dto: UpdateJobRepoDto): Promise<Job | null> {
     const existing = await this.findOneByIdAndUserId(id, userId);
     if (!existing) {
       return null;
@@ -138,15 +114,8 @@ export class JobsRepository {
     return existing;
   }
 
-  async updateSummary(
-    jobId: string,
-    summary: string,
-    userId: string,
-  ): Promise<boolean> {
-    const result = await this.jobsRepo.update(
-      { id: jobId, userId },
-      { summary },
-    );
+  async updateSummary(jobId: string, summary: string, userId: string): Promise<boolean> {
+    const result = await this.jobsRepo.update({ id: jobId, userId }, { summary });
     return (result.affected ?? 0) > 0;
   }
 
@@ -154,9 +123,7 @@ export class JobsRepository {
     jobId: string,
     userId: string,
     expectedStatus: AsyncMetadataEmbedded["status"] | null,
-    patch: Partial<AsyncMetadataEmbedded> & {
-      status: AsyncMetadataEmbedded["status"];
-    },
+    patch: Partial<AsyncMetadataEmbedded> & { status: AsyncMetadataEmbedded["status"] },
     manager?: EntityManager,
   ): Promise<boolean> {
     return updateAsyncMetadataIfStatus(
@@ -174,9 +141,7 @@ export class JobsRepository {
     jobId: string,
     userId: string,
     expectedStatus: AsyncMetadataEmbedded["status"] | null,
-    patch: Partial<AsyncMetadataEmbedded> & {
-      status: AsyncMetadataEmbedded["status"];
-    },
+    patch: Partial<AsyncMetadataEmbedded> & { status: AsyncMetadataEmbedded["status"] },
     manager?: EntityManager,
   ): Promise<boolean> {
     return updateAsyncMetadataIfStatus(
@@ -190,16 +155,8 @@ export class JobsRepository {
     );
   }
 
-  async beginFillAutomaticallyProcessing(
-    jobId: string,
-    userId: string,
-  ): Promise<boolean> {
-    return beginAsyncMetadataProcessingWhenRestartable(
-      JobEntity,
-      this.jobsRepo,
-      FILL_METADATA,
-      { id: jobId, userId },
-    );
+  async beginFillAutomaticallyProcessing(jobId: string, userId: string): Promise<boolean> {
+    return beginAsyncMetadataProcessingWhenRestartable(JobEntity, this.jobsRepo, FILL_METADATA, { id: jobId, userId });
   }
 
   async resetStaleFillProcessing(): Promise<number> {
@@ -212,11 +169,6 @@ export class JobsRepository {
   }
 
   async resetStaleSummaryProcessing(): Promise<number> {
-    return resetStaleAsyncMetadataProcessing(
-      JobEntity,
-      this.jobsRepo,
-      SUMMARY_METADATA,
-      "Server restart",
-    );
+    return resetStaleAsyncMetadataProcessing(JobEntity, this.jobsRepo, SUMMARY_METADATA, "Server restart");
   }
 }

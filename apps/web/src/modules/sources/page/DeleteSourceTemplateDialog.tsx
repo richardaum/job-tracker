@@ -3,26 +3,21 @@
 import { tryRun } from "@job-tracker/try-run";
 import { ConfirmDialog } from "@job-tracker/ui";
 import { useRouter } from "next/navigation";
-import React from "react";
 
-import {
-  SourceProfilesListAllDocument,
-  SourcesForSourceProfileDocument,
-  useDeleteSourceTemplateMutation,
-} from "@/gql/hooks";
+import { useDeleteSourceTemplateMutation } from "@/gql/hooks";
 
 type DeleteSourceTemplateDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   templateId: string;
-  sourceProfileId: string;
+  planId: string;
 };
 
 export function DeleteSourceTemplateDialog({
   open,
   onOpenChange,
   templateId,
-  sourceProfileId,
+  planId,
 }: DeleteSourceTemplateDialogProps) {
   const router = useRouter();
   const [deleteSourceTemplate] = useDeleteSourceTemplateMutation();
@@ -38,19 +33,13 @@ export function DeleteSourceTemplateDialog({
         const [err] = await tryRun(
           deleteSourceTemplate({
             variables: { id: templateId },
-            refetchQueries: [
-              { query: SourceProfilesListAllDocument },
-              {
-                query: SourcesForSourceProfileDocument,
-                variables: { sourceProfileId },
-              },
-            ],
+            refetchQueries: ["Plans", "SourceTemplatesAll"],
             awaitRefetchQueries: true,
           }),
         );
         if (err) throw err;
         onOpenChange(false);
-        router.push(`/sources/profile/${sourceProfileId}`);
+        router.push(`/sources/plans/${planId}`);
       }}
     />
   );

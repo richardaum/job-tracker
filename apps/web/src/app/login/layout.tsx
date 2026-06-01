@@ -5,6 +5,7 @@ import { staticPageMetadata } from "@/app/metadata";
 
 export const metadata: Metadata = staticPageMetadata("Login");
 
-export default function LoginLayout({ children }: { children: ReactNode }) {
+type LoginLayoutProps = { children: ReactNode };
+export default function LoginLayout({ children }: LoginLayoutProps) {
   return <Suspense fallback={null}>{children}</Suspense>;
 }

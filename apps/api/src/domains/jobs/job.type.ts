@@ -69,6 +69,9 @@ export class JobType {
   @Field()
   updatedAt!: Date;
 
+  @Field(() => Date, { nullable: true })
+  publishedAt!: Date | null;
+
   @Field(() => ID, { nullable: true })
   sourceRunId!: string | null;
 

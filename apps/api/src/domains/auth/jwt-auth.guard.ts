@@ -36,10 +36,7 @@ export class JwtAuthGuard extends AuthGuard("jwt") {
     const jwtUser = request.user as JwtUser | undefined;
     if (!jwtUser?.userId) return false;
 
-    const dbUser = await this.authUserAccessService.assertAuthenticatedUser(
-      jwtUser.userId,
-      jwtUser.tokenVersion,
-    );
+    const dbUser = await this.authUserAccessService.assertAuthenticatedUser(jwtUser.userId, jwtUser.tokenVersion);
 
     request.user = { userId: dbUser.id };
     return true;

@@ -30,9 +30,7 @@ export type ExtensionBridgePong = ExtensionBridgeStatus & {
   requestId: string;
 };
 
-export function isExtensionBridgePing(
-  data: unknown,
-): data is ExtensionBridgePing {
+export function isExtensionBridgePing(data: unknown): data is ExtensionBridgePing {
   if (typeof data !== "object" || data == null) return false;
 
   const record = data as Record<string, unknown>;
@@ -44,9 +42,7 @@ export function isExtensionBridgePing(
   );
 }
 
-export function isAdminGetStatusResponse(
-  data: unknown,
-): data is ExtensionBridgeStatus {
+export function isAdminGetStatusResponse(data: unknown): data is ExtensionBridgeStatus {
   if (typeof data !== "object" || data == null) return false;
 
   const record = data as Record<string, unknown>;
@@ -55,10 +51,8 @@ export function isAdminGetStatusResponse(
     typeof record.browser === "string" &&
     typeof record.lastHeartbeatAt === "string" &&
     typeof record.webAppOrigin === "string" &&
-    (record.authStatus === "authenticated" ||
-      record.authStatus === "unauthenticated") &&
-    (typeof record.authenticatedEmail === "string" ||
-      record.authenticatedEmail === null)
+    (record.authStatus === "authenticated" || record.authStatus === "unauthenticated") &&
+    (typeof record.authenticatedEmail === "string" || record.authenticatedEmail === null)
   );
 }
 
@@ -67,12 +61,10 @@ export type SourceRunStartRequest = {
   source: typeof EXTENSION_BRIDGE_SOURCE;
   runId: string;
   surfaceUrl: string;
-  sourceProfileId: string;
+  planId: string;
 };
 
-export function isSourceRunStartRequest(
-  data: unknown,
-): data is SourceRunStartRequest {
+export function isSourceRunStartRequest(data: unknown): data is SourceRunStartRequest {
   if (typeof data !== "object" || data == null) return false;
 
   const record = data as Record<string, unknown>;
@@ -80,8 +72,7 @@ export function isSourceRunStartRequest(
     record.type === EXTENSION_BRIDGE_MESSAGE_TYPE.sourceRunStart &&
     record.source === EXTENSION_BRIDGE_SOURCE &&
     typeof record.runId === "string" &&
-    typeof record.surfaceUrl === "string" &&
-    typeof record.sourceProfileId === "string"
+    typeof record.surfaceUrl === "string"
   );
 }
 

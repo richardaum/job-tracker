@@ -9,9 +9,7 @@ test("profile page renders 4 tabs after login", async ({ page }) => {
   await expect(page.getByRole("tab", { name: "Identity" })).toBeVisible();
   await expect(page.getByRole("tab", { name: "Settings" })).toBeVisible();
   await expect(page.getByRole("tab", { name: "Resumes" })).toBeVisible();
-  await expect(
-    page.getByRole("tab", { name: "Work Preferences" }),
-  ).toBeVisible();
+  await expect(page.getByRole("tab", { name: "Work Preferences" })).toBeVisible();
 });
 
 test("settings tab renders and toggles work", async ({ page }) => {

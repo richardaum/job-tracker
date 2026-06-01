@@ -14,8 +14,9 @@ export function useRestructureJobDescriptionAiAction({
   disabled = false,
   onError,
 }: UseRestructureJobDescriptionAiActionArgs = {}): TipTapAiAction {
-  const [restructureJobDescriptionWithAi, { loading }] =
-    useRestructureJobDescriptionWithAiLazyQuery({ fetchPolicy: "no-cache" });
+  const [restructureJobDescriptionWithAi, { loading }] = useRestructureJobDescriptionWithAiLazyQuery({
+    fetchPolicy: "no-cache",
+  });
 
   return useMemo(
     () => ({
@@ -27,9 +28,7 @@ export function useRestructureJobDescriptionAiAction({
       isLoading: loading,
       run: async ({ sourceText }) => {
         const text = sourceText.trim();
-        const result = await restructureJobDescriptionWithAi({
-          variables: { text },
-        });
+        const result = await restructureJobDescriptionWithAi({ variables: { text } });
         return result.data?.restructureJobDescriptionWithAI ?? text;
       },
       onError: () => {

@@ -25,11 +25,7 @@ async function pasteJobHtml(page: Page, html: string) {
       dataTransfer.setData("text/html", html);
       dataTransfer.setData("text/plain", html);
 
-      const pasteEvent = new ClipboardEvent("paste", {
-        bubbles: true,
-        cancelable: true,
-        clipboardData: dataTransfer,
-      });
+      const pasteEvent = new ClipboardEvent("paste", { bubbles: true, cancelable: true, clipboardData: dataTransfer });
 
       document.body.dispatchEvent(pasteEvent);
     },
@@ -39,10 +35,7 @@ async function pasteJobHtml(page: Page, html: string) {
 
 async function waitForCreateDraftCaptureJobResponse(page: Page) {
   const response = await page.waitForResponse(async (resp) => {
-    if (
-      !resp.url().includes("/graphql") ||
-      resp.request().method() !== "POST"
-    ) {
+    if (!resp.url().includes("/graphql") || resp.request().method() !== "POST") {
       return false;
     }
 
@@ -51,18 +44,11 @@ async function waitForCreateDraftCaptureJobResponse(page: Page) {
   });
 
   return response.json() as Promise<{
-    data?: {
-      createJob?: {
-        id: string;
-        fillMetadata?: { status?: string | null } | null;
-      };
-    };
+    data?: { createJob?: { id: string; fillMetadata?: { status?: string | null } | null } };
   }>;
 }
 
-test("paste HTML → draft created with server-side auto-fill when enabled", async ({
-  page,
-}) => {
+test("paste HTML → draft created with server-side auto-fill when enabled", async ({ page }) => {
   await loginWithAuthBypass(page, "/profile/settings");
   await ensureAutoFillSettingEnabled(page);
 
@@ -78,9 +64,7 @@ test("paste HTML → draft created with server-side auto-fill when enabled", asy
   await expect(dialog).toBeVisible();
   await expect(dialog.getByText(title)).toBeVisible();
 
-  const autoFillCheckbox = dialog.getByRole("checkbox", {
-    name: "Fill job fields automatically",
-  });
+  const autoFillCheckbox = dialog.getByRole("checkbox", { name: "Fill job fields automatically" });
   await expect(autoFillCheckbox).toBeChecked();
 
   await dialog.getByRole("button", { name: "Create draft" }).click();
@@ -92,9 +76,7 @@ test("paste HTML → draft created with server-side auto-fill when enabled", asy
   expect(page.url()).not.toContain("autoConvert");
 });
 
-test("paste HTML → draft created without auto-fill when checkbox unchecked", async ({
-  page,
-}) => {
+test("paste HTML → draft created without auto-fill when checkbox unchecked", async ({ page }) => {
   await loginWithAuthBypass(page, "/profile/settings");
   await ensureAutoFillSettingEnabled(page);
 
@@ -109,9 +91,7 @@ test("paste HTML → draft created without auto-fill when checkbox unchecked", a
   const dialog = page.getByRole("dialog", { name: "Paste detected" });
   await expect(dialog).toBeVisible();
 
-  const autoFillCheckbox = dialog.getByRole("checkbox", {
-    name: "Fill job fields automatically",
-  });
+  const autoFillCheckbox = dialog.getByRole("checkbox", { name: "Fill job fields automatically" });
   await expect(autoFillCheckbox).toBeChecked();
   await autoFillCheckbox.click();
   await expect(autoFillCheckbox).not.toBeChecked();
@@ -128,7 +108,5 @@ test("paste HTML → draft created without auto-fill when checkbox unchecked", a
   const actionsButton = page.getByRole("button", { name: "Actions" });
   await expect(actionsButton).toBeVisible();
   await actionsButton.click();
-  await expect(
-    page.getByRole("menuitem", { name: "Fill job fields automatically" }),
-  ).toBeEnabled();
+  await expect(page.getByRole("menuitem", { name: "Fill job fields automatically" })).toBeEnabled();
 });

@@ -15,15 +15,9 @@ const TAB_LABEL: Record<JobDetailsTab, string | undefined> = {
   history: "History",
 };
 
-type JobPageTitleSource = {
-  title?: string | null;
-  company?: { name?: string | null } | null;
-};
+type JobPageTitleSource = { title?: string | null; company?: { name?: string | null } | null };
 
-export function useJobPageTitle(
-  job: JobPageTitleSource | null | undefined,
-  tab: JobDetailsTab,
-): void {
+export function useJobPageTitle(job: JobPageTitleSource | null | undefined, tab: JobDetailsTab): void {
   const title = job?.title;
   const companyName = job?.company?.name;
   const tabLabel = TAB_LABEL[tab];

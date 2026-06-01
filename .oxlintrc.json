@@ -24,6 +24,7 @@
     "apps/web/public/**"
   ],
   "rules": {
+    "import/no-default-export": "error",
     "constructor-super": "error",
     "for-direction": "error",
     "getter-return": "error",
@@ -144,13 +145,24 @@
     },
     {
       "files": [
+        "apps/web/src/app/**/{page,layout,loading,error,not-found,global-error,template,default}.{ts,tsx}",
+        "apps/web/src/modules/**/page/*.{ts,tsx}"
+      ],
+      "rules": { "import/no-default-export": "off" }
+    },
+    { "files": ["apps/extension/entrypoints/**/*.{ts,tsx}"], "rules": { "import/no-default-export": "off" } },
+    {
+      "files": [
         "apps/api/**/*.{js,mjs,cjs,ts,tsx}",
         "packages/logger/**/*.{js,mjs,cjs,ts,tsx}",
-        "*.config.{js,ts,mjs,cjs}",
+        "packages/custom-rules/**/*.{js,mjs,cjs,ts,tsx}",
+        "*.{config,codegen}.{js,ts,mjs,cjs}",
+        "**/codegen.{ts,js,mjs}",
         "scripts/**/*.{js,mjs,cjs,ts,tsx}",
         "turbo/**/*.{js,mjs,cjs,ts,tsx}"
       ],
       "rules": {
+        "import/no-default-export": "off",
         "no-restricted-imports": [
           "error",
           {
@@ -179,28 +191,49 @@
               {
                 "name": "react",
                 "importNames": ["forwardRef"],
-                "message": "Use ref as a standard component prop (React 19), not forwardRef. See docs/CONVENTIONS.mdx (TypeScript)."
+                "message": "Use ref as a standard component prop (React 19), not forwardRef."
+              },
+              {
+                "name": "react",
+                "importNames": ["default"],
+                "message": "Use named imports (import { ... } from \"react\") instead of default import (import React from \"react\")."
               }
             ],
             "patterns": [
               {
                 "regex": "(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$)",
-                "message": "Do not import via paths that traverse to a parent directory (..). Use the app/package root alias (e.g. @/…) instead. Same-directory ./ imports are fine. docs/CONVENTIONS.mdx (Imports)."
+                "message": "Do not import via paths that traverse to a parent directory (..). Use the app/package root alias (e.g. @/…) instead. Same-directory ./ imports are fine."
               },
               {
-                "group": [
-                  "@/components/empty-state/internals",
-                  "@/components/empty-state/internals/**"
-                ],
+                "group": ["@/components/empty-state/internals", "@/components/empty-state/internals/**"],
                 "message": "Import `EmptyState` from `@/components/empty-state` only; do not import empty-state internals."
               }
             ]
           }
         ],
         "react/rules-of-hooks": "error",
-        "react/exhaustive-deps": "warn"
+        "react/exhaustive-deps": "warn",
+        "react-hooks-js/config": "error",
+        "react-hooks-js/error-boundaries": "error",
+        "react-hooks-js/gating": "error",
+        "react-hooks-js/globals": "error",
+        "react-hooks-js/immutability": "error",
+        "react-hooks-js/incompatible-library": "error",
+        "react-hooks-js/no-deriving-state-in-effects": "error",
+        "react-hooks-js/preserve-manual-memoization": "error",
+        "react-hooks-js/purity": "error",
+        "react-hooks-js/refs": "error",
+        "react-hooks-js/set-state-in-effect": "error",
+        "react-hooks-js/set-state-in-render": "error",
+        "react-hooks-js/static-components": "error",
+        "react-hooks-js/unsupported-syntax": "error",
+        "react-hooks-js/use-memo": "error",
+        "react-hooks-js/void-use-memo": "error"
       },
-      "jsPlugins": ["eslint-plugin-react-compiler"],
+      "jsPlugins": [
+        "eslint-plugin-react-compiler",
+        { "name": "react-hooks-js", "specifier": "eslint-plugin-react-hooks" }
+      ],
       "plugins": ["react"],
       "env": { "browser": true, "node": true }
     },
@@ -271,10 +304,7 @@
         ]
       }
     },
-    {
-      "files": ["apps/web/src/env/**"],
-      "rules": { "no-restricted-properties": "off" }
-    },
+    { "files": ["apps/web/src/env/**"], "rules": { "no-restricted-properties": "off" } },
     {
       "files": [
         "apps/extension/**/*.{test,spec}.{js,jsx,ts,tsx,mjs,cjs}",
@@ -282,16 +312,10 @@
         "packages/ui/**/*.{test,spec}.{js,jsx,ts,tsx,mjs,cjs}"
       ],
       "rules": {
-        "testing-library/await-async-events": [
-          "error",
-          { "eventModule": "userEvent" }
-        ],
+        "testing-library/await-async-events": ["error", { "eventModule": "userEvent" }],
         "testing-library/await-async-queries": "error",
         "testing-library/await-async-utils": "error",
-        "testing-library/no-await-sync-events": [
-          "error",
-          { "eventModules": ["fire-event"] }
-        ],
+        "testing-library/no-await-sync-events": ["error", { "eventModules": ["fire-event"] }],
         "testing-library/no-await-sync-queries": "error",
         "testing-library/no-container": "error",
         "testing-library/no-debugging-utils": "warn",
@@ -313,12 +337,16 @@
       },
       "jsPlugins": ["eslint-plugin-testing-library"]
     },
+    { "files": ["**/.storybook/*.{ts,js,mjs}"], "rules": { "import/no-default-export": "off" } },
     {
       "files": ["**/*.{ts,tsx}"],
       "rules": {
         "typescript/no-deprecated": "error",
+        "@job-tracker/oxlint-plugin/enum-pascalcase": "error",
+        "@job-tracker/oxlint-plugin/prefer-cn-for-classname": "error",
         "@job-tracker/oxlint-plugin/prefer-try-run-over-try-catch": "warn",
-        "@job-tracker/oxlint-plugin/no-as-unknown-as": "error"
+        "@job-tracker/oxlint-plugin/no-as-unknown-as": "error",
+        "@job-tracker/oxlint-plugin/no-inline-component-props": "error"
       }
     },
     {
@@ -329,16 +357,18 @@
         "**/*.stories.{ts,tsx}",
         "**/vitest.setup.{ts,tsx}",
         "**/jest.setup.{ts,tsx}",
-        "**/*.mock.{ts,tsx}"
+        "**/*.mock.{ts,tsx}",
+        "**/*.stub.{ts,tsx}"
       ],
       "rules": {
+        "import/no-default-export": "off",
+        "@job-tracker/oxlint-plugin/enum-pascalcase": "off",
+        "@job-tracker/oxlint-plugin/prefer-cn-for-classname": "off",
         "@job-tracker/oxlint-plugin/prefer-try-run-over-try-catch": "off",
-        "@job-tracker/oxlint-plugin/no-as-unknown-as": "off"
+        "@job-tracker/oxlint-plugin/no-as-unknown-as": "off",
+        "@job-tracker/oxlint-plugin/no-inline-component-props": "off"
       }
     },
-    {
-      "files": ["**/*.cjs"],
-      "rules": { "typescript/no-require-imports": "off" }
-    }
+    { "files": ["**/*.cjs"], "rules": { "import/no-default-export": "off", "typescript/no-require-imports": "off" } }
   ]
 }

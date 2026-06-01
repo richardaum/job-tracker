@@ -3,16 +3,16 @@ import { ApplicationSourceEnum } from "./job-source.enum";
 function inferSourceFromSingleUrl(url: string): ApplicationSourceEnum | null {
   const lower = url.toLowerCase();
   if (lower.includes("linkedin")) {
-    return ApplicationSourceEnum.LINKEDIN;
+    return ApplicationSourceEnum.Linkedin;
   }
   if (lower.includes("jack")) {
-    return ApplicationSourceEnum.JACK;
+    return ApplicationSourceEnum.Jack;
   }
   if (lower.includes("wellfound")) {
-    return ApplicationSourceEnum.WELLFOUND;
+    return ApplicationSourceEnum.Wellfound;
   }
   if (lower.includes("remoteyeah")) {
-    return ApplicationSourceEnum.REMOTE_YEAH;
+    return ApplicationSourceEnum.RemoteYeah;
   }
   return null;
 }
@@ -21,9 +21,7 @@ function inferSourceFromSingleUrl(url: string): ApplicationSourceEnum | null {
  * Infers job-board source from one or many URLs (case-insensitive substring match).
  * Order: Linkedin → Jack → Wellfound → RemoteYeah (first match wins).
  */
-export function inferJobSourceEnumFromUrls(
-  urls: string[] | null | undefined,
-): ApplicationSourceEnum | null {
+export function inferJobSourceEnumFromUrls(urls: string[] | null | undefined): ApplicationSourceEnum | null {
   if (!urls || urls.length === 0) {
     return null;
   }

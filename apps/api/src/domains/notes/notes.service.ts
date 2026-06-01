@@ -1,12 +1,7 @@
 import { JobUpdated } from "@api/domains/jobs/job.events";
 import { JobEventBus } from "@api/domains/jobs/job-event.bus";
 import { isTipTapDocumentString } from "@job-tracker/tiptap";
-import {
-  BadRequestException,
-  ConflictException,
-  Injectable,
-  NotFoundException,
-} from "@nestjs/common";
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from "@nestjs/common";
 
 import { NoteGenerationService } from "./ai/note-generation.service";
 import { NoteRepository } from "./notes.repository";
@@ -34,9 +29,7 @@ export class NoteService {
 
   async createNote(userId: string, dto: CreateNoteDto): Promise<Note> {
     if (!isTipTapDocumentString(dto.content)) {
-      throw new BadRequestException(
-        "content must be valid TipTap document JSON",
-      );
+      throw new BadRequestException("content must be valid TipTap document JSON");
     }
 
     const hasJob = await this.repo.hasJob(dto.jobId, userId);
@@ -44,10 +37,7 @@ export class NoteService {
       throw new NotFoundException(`Job ${dto.jobId} not found`);
     }
 
-    const note = await this.repo.create(userId, {
-      jobId: dto.jobId,
-      content: dto.content,
-    });
+    const note = await this.repo.create(userId, { jobId: dto.jobId, content: dto.content });
 
     this.eventBus.emit(new JobUpdated(dto.jobId, userId));
     return note;
@@ -57,20 +47,13 @@ export class NoteService {
     const exists = await this.repo.hasJob(dto.jobId, userId);
     if (!exists) throw new BadRequestException("Job not found");
 
-    const note = await this.repo.create(userId, {
-      jobId: dto.jobId,
-      content: dto.content,
-    });
+    const note = await this.repo.create(userId, { jobId: dto.jobId, content: dto.content });
 
     this.eventBus.emit(new JobUpdated(dto.jobId, userId));
     return note;
   }
 
-  async updateNote(
-    noteId: string,
-    userId: string,
-    dto: UpdateNoteDto,
-  ): Promise<Note> {
+  async updateNote(noteId: string, userId: string, dto: UpdateNoteDto): Promise<Note> {
     const note = await this.repo.findByIdAndUserId(noteId, userId);
     if (!note) {
       throw new NotFoundException(`Job note ${noteId} not found`);
@@ -78,17 +61,10 @@ export class NoteService {
 
     const nextContent = dto.content ?? note.content;
     if (!isTipTapDocumentString(nextContent)) {
-      throw new BadRequestException(
-        "content must be valid TipTap document JSON",
-      );
+      throw new BadRequestException("content must be valid TipTap document JSON");
     }
 
-    const updated = await this.repo.updateWithRevision(
-      noteId,
-      userId,
-      dto.expectedRevision,
-      { content: nextContent },
-    );
+    const updated = await this.repo.updateWithRevision(noteId, userId, dto.expectedRevision, { content: nextContent });
 
     if (!updated) {
       throw new ConflictException(`Job note ${noteId} revision mismatch`);
@@ -113,11 +89,7 @@ export class NoteService {
     return deleted;
   }
 
-  async generateNoteWithAI(
-    userId: string,
-    jobId: string,
-    note: string,
-  ): Promise<string> {
+  async generateNoteWithAI(userId: string, jobId: string, note: string): Promise<string> {
     const job = await this.repo.findApplicationByIdAndUserId(jobId, userId);
     if (!job) {
       throw new NotFoundException(`Job ${jobId} not found`);
@@ -125,10 +97,7 @@ export class NoteService {
     const companyName = job.company?.name?.trim() || "Unknown company";
     const description = job.description?.trim() ?? "";
     const context = `Title: ${job.title}\nCompany: ${companyName}\nDescription: ${description}`;
-    const generated = await this.noteAiService.generateNote({
-      description: context,
-      note,
-    });
+    const generated = await this.noteAiService.generateNote({ description: context, note });
     return JSON.stringify(generated);
   }
 }

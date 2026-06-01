@@ -6,10 +6,13 @@ import { CurrentTabContentService } from "@/domains/import-job/current-tab-conte
 import { JobDetailsService } from "@/domains/job-details/job-details.service";
 import { JobsListService } from "@/domains/jobs-list/jobs-list.service";
 import { PopupLogService } from "@/domains/log/popup-log.service";
+import { SkippedJobReporterService } from "@/domains/jobs-list/skipped-job-reporter.service";
+import { SurfaceCollectedReporterService } from "@/domains/jobs-list/surface-collected-reporter.service";
 import { MessagingService } from "@/domains/message/messaging.service";
 import type { RequestType } from "@/domains/message/types";
 import { NextButtonService } from "@/domains/pagination/next-button.service";
 import { PaginationService } from "@/domains/pagination/pagination.service";
+import { StringTemplateService } from "@/domains/plan/services/string-template.service";
 import { DefaultTimerService } from "@/domains/timer/timer.service";
 
 export default defineContentScript({
@@ -25,12 +28,14 @@ export default defineContentScript({
     const messagingService = new MessagingService("content");
     const popupLogService = new PopupLogService(messagingService);
     const currentTabContentService = new CurrentTabContentService();
-
     const domListenerService = new DomListenerService(
       new JobsListService(
         new FieldValueService(),
         new DefaultTimerService(),
         popupLogService,
+        new StringTemplateService(),
+        new SkippedJobReporterService(),
+        new SurfaceCollectedReporterService(),
       ),
       new JobDetailsService(new FieldValueService(), new DefaultTimerService()),
       new PaginationService(new NextButtonService()),
@@ -53,10 +58,7 @@ export default defineContentScript({
         const result = await domListenerService.execute(payload);
         const durationMs = Math.round(performance.now() - startedAt);
 
-        await popupLogService.publishDebug("content.request", {
-          requestType,
-          durationMs,
-        });
+        await popupLogService.publishDebug("content.request", { requestType, durationMs });
         return result;
       });
     });

@@ -10,7 +10,7 @@ type AuthAccount {
 }
 
 enum AuthProvider {
-  GOOGLE
+  Google
 }
 
 """
@@ -62,7 +62,7 @@ type ExtensionActivityEvent {
   summary: String!
 
   """Groups related events (e.g. run ID)."""
-  correlationId: String
+  sourceRunId: String
 
   """Arbitrary JSON payload with event details."""
   payload: JSON
@@ -81,7 +81,11 @@ enum ExtensionActivityEventType {
   SourceRunReceived
   SourceRunClaimSkipped
   SourceRunStarted
-  SourceRunJobImported
+  SourceRunPageCollected
+  SourceRunStopConditionMet
+  SourceRunJobSurfaceImport
+  SourceRunJobDetailsImport
+  SourceRunJobSkipped
   SourceRunCompleted
   SourceRunFailed
   ImportJobStarted
@@ -113,14 +117,14 @@ type BlockedKeyword {
 }
 
 enum KeywordScope {
-  TITLE
-  DESCRIPTION
-  COMPANY
+  Title
+  Description
+  Company
 }
 
 enum MatchMode {
-  PARTIAL
-  EXACT
+  Partial
+  Exact
 }
 
 type UserSetting {
@@ -141,9 +145,9 @@ type AsyncMetadataType {
 }
 
 enum AsyncMetadataStatus {
-  PROCESSING
-  COMPLETED
-  FAILED
+  Processing
+  Completed
+  Failed
 }
 
 type MatchItemType {
@@ -210,9 +214,9 @@ type JobSalary {
 }
 
 enum SalaryPeriod {
-  YEAR
-  MONTH
-  HOUR
+  Year
+  Month
+  Hour
 }
 
 type JobType {
@@ -234,6 +238,7 @@ type JobType {
   salary: JobSalary
   createdAt: DateTime!
   updatedAt: DateTime!
+  publishedAt: DateTime
   sourceRunId: ID
   summary: String
   summaryMetadata: AsyncMetadataType
@@ -242,22 +247,22 @@ type JobType {
 }
 
 enum JobSource {
-  LINKEDIN
-  JACK
-  WELLFOUND
-  REMOTE_YEAH
+  Linkedin
+  Jack
+  Wellfound
+  RemoteYeah
 }
 
 enum ApplicationStage {
-  DRAFT
-  NEW
-  APPLIED
-  RECRUITER_SCREEN
-  TECHNICAL
-  CULTURAL_FIT
-  OFFER
-  REJECTED
-  DUPLICATED
+  Draft
+  New
+  Applied
+  RecruiterScreen
+  Technical
+  CulturalFit
+  Offer
+  Rejected
+  Duplicated
 }
 
 type JobStageEventType {
@@ -306,37 +311,59 @@ type ResumeType {
   updatedAt: DateTime!
 }
 
+type PlanType {
+  id: ID!
+  displayName: String!
+  document: JSON!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  templates: [SourceTemplateType!]!
+}
+
 type SourceRunType {
   id: ID!
   templateId: ID!
-  sourceProfileId: String!
+  planId: ID!
   surfaceUrl: String!
   status: SourceRunStatus!
+  errorMessage: String
   startedAt: DateTime!
-  sourceProfile: String!
+  stopWhen: StopWhen
+  catchUpThreshold: Int
+  maxPages: Int
+  olderThanDays: Int
+  jobCount: Int!
 }
 
 enum SourceRunStatus {
-  RUNNING
-  IN_PROGRESS
-  COMPLETED
-  FAILED
+  Pending
+  Completed
+  Failed
+}
+
+enum StopWhen {
+  CatchUp
+  FirstRunMaxPages
+  OlderThan
 }
 
 type SourceTemplateType {
   id: ID!
-  sourceProfileId: String!
+  planId: ID!
+  plan: PlanType!
   scheduleCron: String
   scheduleEnabled: Boolean!
   surfaceUrl: String!
+  config: JSON
   createdAt: DateTime!
   runs: [SourceRunType!]!
 }
 
-type SourceProfileType {
-  sourceProfileId: String!
-  name: String!
-  templates: [SourceTemplateType!]!
+type SourceRunActivityEvent {
+  type: String!
+  summary: String!
+  payload: JSON
+  occurredAt: DateTime!
 }
 
 type SourceRunEvent {
@@ -346,7 +373,8 @@ type SourceRunEvent {
 }
 
 enum SourceRunEventType {
-  SOURCE_RUN_CREATED
+  SourceRunCreated
+  SourceRunStatusChanged
 }
 
 type PreferenceType {
@@ -362,6 +390,7 @@ type Query {
   generateJobLocationWithAI(jobId: ID!): String
   generateJobWorkRegionWithAI(jobId: ID!): String
   generateCompanyDescription(companyName: String!): String!
+  isJobDuplicate(company: String!, title: String!): Boolean!
   jobStageEvents(jobId: ID!): [JobStageEventType!]!
   companies: [CompanyType!]!
   company(id: ID!): CompanyType!
@@ -370,11 +399,12 @@ type Query {
   jobNotes(jobId: ID!): [NoteType!]!
   generateJobNoteWithAI(jobId: ID!, note: String!): String!
   exchangeRates(base: String!, currencies: [String!]!): CurrencyRates!
+  plans: [PlanType!]!
+  plan(id: ID!): PlanType
   sourceRuns: [SourceRunType!]!
   sourceTemplates: [SourceTemplateType!]!
-  sourceTemplatesForSourceProfile(sourceProfileId: String!): [SourceTemplateType!]!
   sourceTemplate(id: ID!): SourceTemplateType!
-  sourceProfiles(onlyWithSourceTemplate: Boolean = false): [SourceProfileType!]!
+  sourceRunActivityEvents(runId: ID!): [SourceRunActivityEvent!]!
   extensionActivityEvents(limit: Int): [ExtensionActivityEvent!]!
   resumes: [ResumeType!]!
   resume(id: ID!): ResumeType!
@@ -387,13 +417,13 @@ type Query {
 }
 
 enum ApplicationQuickFilter {
-  DRAFT
-  INCOMING
-  ACTIVE
-  APPLIED
-  NEW
-  DUPLICATED
-  REJECTED
+  Draft
+  Incoming
+  Active
+  Applied
+  New
+  Duplicated
+  Rejected
 }
 
 type Mutation {
@@ -413,6 +443,9 @@ type Mutation {
   createJobNote(input: CreateNoteInput!): NoteType!
   updateJobNote(id: ID!, input: UpdateNoteInput!): NoteType!
   deleteJobNote(id: ID!): DeleteMutationPayloadType!
+  createPlan(input: CreatePlanInput!): PlanType!
+  updatePlan(id: ID!, input: UpdatePlanInput!): PlanType!
+  deletePlan(id: ID!): DeleteMutationPayloadType!
   createSourceRun(input: CreateSourceRunInput!): SourceRunType!
   createSourceTemplate(input: CreateSourceTemplateInput!): SourceTemplateType!
   rerunSourceTemplate(templateId: ID!): SourceRunType!
@@ -421,8 +454,9 @@ type Mutation {
   updateSourceRun(id: ID!, input: UpdateSourceRunInput!): SourceRunType!
   detachJobsFromSourceRun(sourceRunId: ID!): Int!
   deleteSourceRun(id: ID!, deleteJobs: Boolean = false): DeleteMutationPayloadType!
+  clearSourceTemplateRuns(templateId: ID!, deleteJobs: Boolean = false): Int!
   clearSourceRuns: Boolean!
-  updateSourceRunStatus(id: ID!, status: SourceRunStatus!): SourceRunType!
+  updateSourceRunStatus(id: ID!, status: SourceRunStatus!, errorMessage: String): SourceRunType!
   reportExtensionActivity(input: ReportExtensionActivityInput!): ExtensionActivityEvent!
   createResume(input: CreateResumeInput!): ResumeType!
   updateResume(id: ID!, input: UpdateResumeInput!): ResumeType!
@@ -444,6 +478,7 @@ input CreateJobInput {
   location: String
   workRegion: String
   htmlContent: String
+  publishedAt: DateTime
   sourceRunId: ID
   createAsDraftCapture: Boolean
   autoFill: Boolean
@@ -515,19 +550,31 @@ input UpdateNoteInput {
   expectedRevision: Int!
 }
 
+input CreatePlanInput {
+  displayName: String!
+  document: JSON!
+}
+
+input UpdatePlanInput {
+  displayName: String
+  document: JSON
+}
+
 input CreateSourceRunInput {
-  sourceProfileId: String!
+  planId: ID!
 }
 
 input CreateSourceTemplateInput {
-  sourceProfileId: String!
+  planId: ID!
   surfaceUrl: String!
+  config: JSON
 }
 
 input UpdateSourceTemplateInput {
   scheduleCron: String
   scheduleEnabled: Boolean
   surfaceUrl: String
+  config: JSON
 }
 
 input UpdateSourceRunInput {
@@ -537,7 +584,7 @@ input UpdateSourceRunInput {
 input ReportExtensionActivityInput {
   type: ExtensionActivityEventType!
   summary: String!
-  correlationId: String
+  sourceRunId: String
   payload: JSON
   extensionVersion: String
   browser: String

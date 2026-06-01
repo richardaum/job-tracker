@@ -25,32 +25,16 @@ import type { HeadingProps } from "@job-tracker/ui";
 import { Heading } from "@job-tracker/ui";
 import { cn } from "@/lib/utils";
 
-type EntityNotFoundProps = {
-  resource: string;
-  backHref: string;
-  backLabel: string;
-};
+type EntityNotFoundProps = { resource: string; backHref: string; backLabel: string };
 
-export function EntityNotFound({
-  resource,
-  backHref,
-  backLabel,
-}: EntityNotFoundProps) {
+export function EntityNotFound({ resource, backHref, backLabel }: EntityNotFoundProps) {
   return (
-    <div
-      className={cn("flex flex-col items-center justify-center gap-4 py-12")}
-    >
+    <div className={cn("flex flex-col items-center justify-center gap-4 py-12")}>
       <Heading level="h2">{resource} not found</Heading>
       <p className={cn("max-w-md text-center text-sm text-text-secondary")}>
-        The {resource} was not found or you don&apos;t have access to it. Please
-        try again or contact support.
+        The {resource} was not found or you don&apos;t have access to it. Please try again or contact support.
       </p>
-      <Link
-        href={backHref}
-        className={cn(
-          "text-sm text-text-secondary underline-offset-2 hover:underline",
-        )}
-      >
+      <Link href={backHref} className={cn("text-sm text-text-secondary underline-offset-2 hover:underline")}>
         {backLabel}
       </Link>
     </div>

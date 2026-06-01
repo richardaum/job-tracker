@@ -7,9 +7,7 @@ describe("hasGraphQLCode", () => {
   it("returns true for NOT_FOUND code", () => {
     const error = new CombinedGraphQLErrors({
       data: null,
-      errors: [
-        { message: "Resource not found", extensions: { code: "NOT_FOUND" } },
-      ],
+      errors: [{ message: "Resource not found", extensions: { code: "NOT_FOUND" } }],
     });
     expect(hasGraphQLCode(error, "NOT_FOUND")).toBe(true);
   });
@@ -17,12 +15,7 @@ describe("hasGraphQLCode", () => {
   it("returns false for a different code", () => {
     const error = new CombinedGraphQLErrors({
       data: null,
-      errors: [
-        {
-          message: "Something went wrong",
-          extensions: { code: "INTERNAL_SERVER_ERROR" },
-        },
-      ],
+      errors: [{ message: "Something went wrong", extensions: { code: "INTERNAL_SERVER_ERROR" } }],
     });
     expect(hasGraphQLCode(error, "NOT_FOUND")).toBe(false);
   });
@@ -33,20 +26,12 @@ describe("hasGraphQLCode", () => {
   });
 
   it("returns false for transport-level errors without graphQLErrors", () => {
-    expect(hasGraphQLCode(new TypeError("Failed to fetch"), "NOT_FOUND")).toBe(
-      false,
-    );
+    expect(hasGraphQLCode(new TypeError("Failed to fetch"), "NOT_FOUND")).toBe(false);
   });
 
   it("handles ApolloError with graphQLErrors", () => {
     expect(
-      hasGraphQLCode(
-        {
-          graphQLErrors: [{ extensions: { code: "NOT_FOUND" } }],
-          networkError: null,
-        },
-        "NOT_FOUND",
-      ),
+      hasGraphQLCode({ graphQLErrors: [{ extensions: { code: "NOT_FOUND" } }], networkError: null }, "NOT_FOUND"),
     ).toBe(true);
   });
 });

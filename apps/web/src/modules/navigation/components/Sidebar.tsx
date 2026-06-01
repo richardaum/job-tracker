@@ -19,7 +19,7 @@ import type { Route } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import React, { useState } from "react";
+import { useState } from "react";
 
 import type { CurrentUser } from "@/hooks/useCurrentUser";
 import { getApiBaseUrl } from "@/lib/api-endpoints";
@@ -28,27 +28,15 @@ import { ObfuscatedText } from "@/modules/navigation/components/ObfuscatedText";
 
 const API_URL = getApiBaseUrl();
 
-const navItems: Array<{
-  href: Route;
-  label: string;
-  icon: typeof BriefcaseIcon;
-}> = [
+const navItems: Array<{ href: Route; label: string; icon: typeof BriefcaseIcon }> = [
   { href: "/jobs", label: "Jobs", icon: BriefcaseIcon },
   { href: "/sources", label: "Sources", icon: DownloadSimpleIcon },
   { href: "/companies", label: "Companies", icon: BuildingsIcon },
-  {
-    href: "/tools/salary-calculator",
-    label: "Salary Calculator",
-    icon: CalculatorIcon,
-  },
+  { href: "/tools/salary-calculator", label: "Salary Calculator", icon: CalculatorIcon },
   { href: "/admin", label: "Admin", icon: GaugeIcon },
 ];
 
-const bottomItems: Array<{
-  href: Route;
-  label: string;
-  icon: typeof QuestionIcon;
-}> = [
+const bottomItems: Array<{ href: Route; label: string; icon: typeof QuestionIcon }> = [
   { href: "#" as Route, label: "Help Center", icon: QuestionIcon },
   { href: "/profile/settings", label: "Settings", icon: GearIcon },
 ];
@@ -87,10 +75,7 @@ export function Sidebar({ open = false, onClose, user }: SidebarProps) {
   async function handleLogout() {
     setLoggingOut(true);
     try {
-      await fetch(
-        `${API_URL}/auth/logout`,
-        authMutationRequestInit({ method: "POST", credentials: "include" }),
-      );
+      await fetch(`${API_URL}/auth/logout`, authMutationRequestInit({ method: "POST", credentials: "include" }));
       await apolloClient.clearStore();
       onClose?.();
       router.replace("/login");
@@ -116,31 +101,17 @@ export function Sidebar({ open = false, onClose, user }: SidebarProps) {
             "flex items-center gap-2 rounded-md border border-border-default bg-bg-surface px-3 py-2 shadow-sm",
           )}
         >
-          <MagnifyingGlassIcon
-            size={14}
-            weight="regular"
-            className={cn("shrink-0 text-text-muted")}
-          />
+          <MagnifyingGlassIcon size={14} weight="regular" className={cn("shrink-0 text-text-muted")} />
           <Text as="span" size="sm" color="muted" className={cn("flex-1")}>
             Search here...
           </Text>
-          <span
-            className={cn(
-              "rounded border border-border-subtle px-1.5 py-0.5 text-xs text-text-muted",
-            )}
-          >
-            ⌘/
-          </span>
+          <span className={cn("rounded border border-border-subtle px-1.5 py-0.5 text-xs text-text-muted")}>⌘/</span>
         </div>
       </div>
 
       {/* Nav */}
       <nav className={cn("flex flex-1 flex-col px-3")}>
-        <Text
-          size="xs"
-          weight="semibold"
-          className={cn("mb-2 px-2 uppercase tracking-wider")}
-        >
+        <Text size="xs" weight="semibold" className={cn("mb-2 px-2 uppercase tracking-wider")}>
           Menu
         </Text>
         <div className={cn("flex flex-col gap-0.5")}>
@@ -153,9 +124,7 @@ export function Sidebar({ open = false, onClose, user }: SidebarProps) {
                 onClick={() => onClose?.()}
                 className={cn(
                   "flex items-center gap-3 rounded-md px-4 py-2.5 text-sm font-medium transition-colors",
-                  isActive
-                    ? "bg-bg-brand text-text-inverted"
-                    : "text-text-secondary hover:bg-bg-surface",
+                  isActive ? "bg-bg-brand text-text-inverted" : "text-text-secondary hover:bg-bg-surface",
                 )}
               >
                 <Icon size={16} weight={isActive ? "fill" : "regular"} />
@@ -198,17 +167,10 @@ export function Sidebar({ open = false, onClose, user }: SidebarProps) {
               {user.name}
             </Text>
             <Text size="xs" color="muted" className={cn("truncate")}>
-              <ObfuscatedText
-                text={user.email}
-                obfuscatedText={obfuscateEmail(user.email)}
-              />
+              <ObfuscatedText text={user.email} obfuscatedText={obfuscateEmail(user.email)} />
             </Text>
           </div>
-          <CaretRightIcon
-            size={14}
-            weight="regular"
-            className={cn("shrink-0 text-text-muted")}
-          />
+          <CaretRightIcon size={14} weight="regular" className={cn("shrink-0 text-text-muted")} />
         </Link>
         <div className={cn("mx-1 mb-1 border-t border-border-default")} />
         {bottomItems.map(({ href, label, icon: Icon }) => (
@@ -227,11 +189,9 @@ export function Sidebar({ open = false, onClose, user }: SidebarProps) {
         <Button
           intent="ghost"
           size="md"
+          colorScheme="error"
           onClick={() => void handleLogout()}
           state={loggingOut ? "loading" : "default"}
-          className={cn(
-            "flex w-full items-center justify-start gap-3 rounded-md px-4 py-2 text-left text-sm font-medium text-text-error transition-colors hover:bg-bg-error-subtle hover:text-text-error",
-          )}
           leftIcon={<SignOutIcon size={16} />}
         >
           Log Out
@@ -242,25 +202,17 @@ export function Sidebar({ open = false, onClose, user }: SidebarProps) {
 
   return (
     <>
-      <aside className={cn("hidden h-full w-56 shrink-0 flex-col md:flex")}>
-        {navContent}
-      </aside>
+      <aside className={cn("hidden h-full w-56 shrink-0 flex-col md:flex")}>{navContent}</aside>
 
       <div
-        className={cn(
-          "fixed inset-0 z-50 md:hidden",
-          open ? "pointer-events-auto" : "pointer-events-none",
-        )}
+        className={cn("fixed inset-0 z-50 md:hidden", open ? "pointer-events-auto" : "pointer-events-none")}
         aria-hidden={!open}
       >
         <button
           type="button"
           aria-label="Close menu"
           onClick={() => onClose?.()}
-          className={cn(
-            "absolute inset-0 bg-black/35 transition-opacity",
-            open ? "opacity-100" : "opacity-0",
-          )}
+          className={cn("absolute inset-0 bg-black/35 transition-opacity", open ? "opacity-100" : "opacity-0")}
         />
         <aside
           className={cn(

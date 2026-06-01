@@ -2,7 +2,8 @@ import { Tabs, TabsList } from "@job-tracker/ui";
 import { act, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { Route } from "next";
-import React from "react";
+import { useCallback, useState } from "react";
+import type { ReactNode, Ref } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { AsyncMetadataStatus } from "@/gql/hooks";
@@ -10,18 +11,14 @@ import { JobFillStatusProvider } from "@/modules/jobs/details/hooks/JobFillStatu
 
 import { OverviewTabTrigger } from "./OverviewTabTrigger";
 
-const gqlMocks = vi.hoisted(() => ({
-  useJobQuery: vi.fn(),
-  useJobFillStatusChangedSubscription: vi.fn(),
-}));
+const gqlMocks = vi.hoisted(() => ({ useJobQuery: vi.fn(), useJobFillStatusChangedSubscription: vi.fn() }));
 
 vi.mock("@/gql/hooks", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/gql/hooks")>();
   return {
     ...actual,
     useJobQuery: gqlMocks.useJobQuery,
-    useJobFillStatusChangedSubscription:
-      gqlMocks.useJobFillStatusChangedSubscription,
+    useJobFillStatusChangedSubscription: gqlMocks.useJobFillStatusChangedSubscription,
   };
 });
 
@@ -31,9 +28,9 @@ vi.mock("next/link", () => ({
     href,
     ...props
   }: {
-    children: React.ReactNode;
+    children: ReactNode;
     href: string;
-    ref?: React.Ref<HTMLAnchorElement>;
+    ref?: Ref<HTMLAnchorElement>;
     [key: string]: unknown;
   }) => (
     <a href={href} {...props}>
@@ -79,30 +76,20 @@ function renderOverviewTabTrigger() {
 }
 
 function getStatusDot() {
-  return document.querySelector(
-    '[data-testid="match-status-badge"]',
-  ) as HTMLElement;
+  return document.querySelector('[data-testid="match-status-badge"]') as HTMLElement;
 }
 
 function getOverviewTabTooltipTrigger() {
-  return within(screen.getByRole("tab", { name: "Overview" })).getByText(
-    "Overview",
-  );
+  return within(screen.getByRole("tab", { name: "Overview" })).getByText("Overview");
 }
 
 function getFillStatusChangedHandler() {
-  const call = gqlMocks.useJobFillStatusChangedSubscription.mock.calls.find(
-    (entry) => entry[0]?.onData !== undefined,
-  );
+  const call = gqlMocks.useJobFillStatusChangedSubscription.mock.calls.find((entry) => entry[0]?.onData !== undefined);
   if (!call) {
-    throw new Error(
-      "jobFillStatusChanged subscription onData handler not found",
-    );
+    throw new Error("jobFillStatusChanged subscription onData handler not found");
   }
 
-  return call[0].onData as (evt: {
-    data: { data: { jobFillStatusChanged: { status: string } } };
-  }) => void;
+  return call[0].onData as (evt: { data: { data: { jobFillStatusChanged: { status: string } } } }) => void;
 }
 
 describe("OverviewTabTrigger", () => {
@@ -121,9 +108,7 @@ describe("OverviewTabTrigger", () => {
 
     renderOverviewTabTrigger();
 
-    expect(
-      screen.getByRole("tab", { name: "Overview", selected: true }),
-    ).toHaveAttribute("data-state", "active");
+    expect(screen.getByRole("tab", { name: "Overview", selected: true })).toHaveAttribute("data-state", "active");
   });
 
   it("shows status tooltip on hover when fill has a status", async () => {
@@ -165,12 +150,11 @@ describe("OverviewTabTrigger", () => {
   it("updates tab dot from processing pulse to completed on subscription event", async () => {
     const user = userEvent.setup();
     gqlMocks.useJobQuery.mockImplementation(() => {
-      const [job, setJob] = React.useState<
-        | ReturnType<typeof processingFillJob>
-        | ReturnType<typeof completedFillJob>
-      >(processingFillJob());
+      const [job, setJob] = useState<ReturnType<typeof processingFillJob> | ReturnType<typeof completedFillJob>>(
+        processingFillJob(),
+      );
 
-      const refetch = React.useCallback(async () => {
+      const refetch = useCallback(async () => {
         setJob(completedFillJob());
         return { data: { job: completedFillJob() } };
       }, []);
@@ -185,18 +169,12 @@ describe("OverviewTabTrigger", () => {
     expect(processingDot).toHaveClass("bg-text-warning");
 
     await waitFor(() =>
-      expect(
-        gqlMocks.useJobFillStatusChangedSubscription.mock.calls.length,
-      ).toBeGreaterThanOrEqual(1),
+      expect(gqlMocks.useJobFillStatusChangedSubscription.mock.calls.length).toBeGreaterThanOrEqual(1),
     );
 
     await act(async () => {
       await getFillStatusChangedHandler()({
-        data: {
-          data: {
-            jobFillStatusChanged: { status: AsyncMetadataStatus.Completed },
-          },
-        },
+        data: { data: { jobFillStatusChanged: { status: AsyncMetadataStatus.Completed } } },
       });
     });
 

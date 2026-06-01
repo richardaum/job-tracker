@@ -10,25 +10,12 @@ const QUICK_FILTERS = [
   {
     key: "incoming",
     label: "Incoming",
-    tooltip:
-      "Non-rejected and non-applied with interviews scheduled from today onwards",
+    tooltip: "Non-rejected and non-applied with interviews scheduled from today onwards",
   },
-  {
-    key: "active",
-    label: "Active",
-    tooltip: "In-progress jobs (not new, applied, or rejected)",
-  },
-  {
-    key: "applied",
-    label: "Applied",
-    tooltip: "Submitted jobs awaiting response",
-  },
+  { key: "active", label: "Active", tooltip: "In-progress jobs (not new, applied, or rejected)" },
+  { key: "applied", label: "Applied", tooltip: "Submitted jobs awaiting response" },
   { key: "new", label: "New", tooltip: "Recently added, not yet acted on" },
-  {
-    key: "duplicated",
-    label: "Duplicated",
-    tooltip: "Marked as duplicate of another job",
-  },
+  { key: "duplicated", label: "Duplicated", tooltip: "Marked as duplicate of another job" },
 ] as const;
 
 type QuickFilterKey = (typeof QUICK_FILTERS)[number]["key"];
@@ -62,18 +49,11 @@ export function QuickFilters() {
   }
 
   return (
-    <div
-      className={cn(
-        "flex items-center gap-2 border-b border-border-subtle px-4 py-2 sm:px-6",
-      )}
-    >
+    <div className={cn("flex items-center gap-2 border-b border-border-subtle px-4 py-2 sm:px-6")}>
       <div className={cn("flex flex-wrap items-center gap-1.5")}>
         {QUICK_FILTERS.map(({ key, label, tooltip }) => (
           <Tooltip key={key} content={tooltip} side="bottom">
-            <FilterChip
-              active={activeFilter === key}
-              onClick={() => toggle(key)}
-            >
+            <FilterChip active={activeFilter === key} onClick={() => toggle(key)}>
               {label}
             </FilterChip>
           </Tooltip>

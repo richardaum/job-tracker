@@ -8,11 +8,7 @@ interface ObfuscatedTextProps {
   revealDelayMs?: number;
 }
 
-export function ObfuscatedText({
-  text,
-  obfuscatedText,
-  revealDelayMs = 3000,
-}: ObfuscatedTextProps) {
+export function ObfuscatedText({ text, obfuscatedText, revealDelayMs = 3000 }: ObfuscatedTextProps) {
   const hoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [isVisible, setIsVisible] = useState(false);
 

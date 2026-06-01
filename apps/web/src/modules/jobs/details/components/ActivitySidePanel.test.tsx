@@ -14,13 +14,7 @@ vi.mock("@/modules/jobs/details/components/HistoryPanel", () => ({
 
 describe("ActivitySidePanel", () => {
   it("links expand control to notes focus full page", () => {
-    render(
-      <ActivitySidePanel
-        jobId="job-42"
-        sidePanel="notes"
-        onSidePanelChange={vi.fn()}
-      />,
-    );
+    render(<ActivitySidePanel jobId="job-42" sidePanel="notes" onSidePanelChange={vi.fn()} />);
 
     const expandLink = screen.getByRole("link", { name: "Open full page" });
     expect(expandLink).toHaveAttribute("href", "/jobs/job-42/notes/focus");
@@ -30,13 +24,7 @@ describe("ActivitySidePanel", () => {
     const user = userEvent.setup();
     const onSidePanelChange = vi.fn();
 
-    render(
-      <ActivitySidePanel
-        jobId="job-42"
-        sidePanel="notes"
-        onSidePanelChange={onSidePanelChange}
-      />,
-    );
+    render(<ActivitySidePanel jobId="job-42" sidePanel="notes" onSidePanelChange={onSidePanelChange} />);
 
     await user.click(screen.getByRole("tab", { name: /history/i }));
 

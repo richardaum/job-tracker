@@ -6,10 +6,7 @@ export function authDisplayLabel(connection: ExtensionConnectionState): string {
   if (connection.status === "checking") return "Checking…";
   if (connection.status === "disconnected") return "Unavailable";
 
-  if (
-    connection.authStatus === "authenticated" &&
-    connection.authenticatedEmail
-  ) {
+  if (connection.authStatus === "authenticated" && connection.authenticatedEmail) {
     return connection.authenticatedEmail;
   }
 
@@ -18,9 +15,7 @@ export function authDisplayLabel(connection: ExtensionConnectionState): string {
   return "Not signed in";
 }
 
-export function authTextColor(
-  connection: ExtensionConnectionState,
-): TextColor | undefined {
+export function authTextColor(connection: ExtensionConnectionState): TextColor | undefined {
   if (connection.status === "disconnected") return "muted";
   if (connection.status === "checking") return "secondary";
   if (connection.authStatus === "authenticated") return undefined;

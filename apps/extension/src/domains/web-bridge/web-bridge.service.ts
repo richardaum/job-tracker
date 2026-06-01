@@ -44,9 +44,7 @@ export class WebBridgeService {
     };
 
     const [err, response] = await tryRun(
-      chrome.runtime.sendMessage<AdminGetStatusMessage, ExtensionBridgeStatus>(
-        message,
-      ),
+      chrome.runtime.sendMessage<AdminGetStatusMessage, ExtensionBridgeStatus>(message),
     );
 
     if (err) {
@@ -66,14 +64,12 @@ export class WebBridgeService {
     );
   }
 
-  private async forwardSourceRunStart(
-    request: SourceRunStartRequest,
-  ): Promise<void> {
+  private async forwardSourceRunStart(request: SourceRunStartRequest): Promise<void> {
     await chrome.runtime.sendMessage({
       kind: "source-run.start",
       runId: request.runId,
       surfaceUrl: request.surfaceUrl,
-      sourceProfileId: request.sourceProfileId,
+      planId: request.planId,
     });
   }
 }

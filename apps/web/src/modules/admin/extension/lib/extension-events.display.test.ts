@@ -1,10 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import {
-  ExtensionActivityEventType,
-  SourceRunEventType,
-  SourceRunStatus,
-} from "@/gql/hooks";
+import { ExtensionActivityEventType, SourceRunEventType, SourceRunStatus } from "@/gql/hooks";
 
 import {
   countInFlightActivityEvents,
@@ -15,26 +11,21 @@ import {
   sourceRunSummary,
 } from "./extension-events.display";
 
-function sourceRun(
-  overrides: Partial<Parameters<typeof mapSourceRunToExtensionEvent>[0]> = {},
-) {
+function sourceRun(overrides: Partial<Parameters<typeof mapSourceRunToExtensionEvent>[0]> = {}) {
   return {
     id: "run-1",
     templateId: "template-1",
-    sourceProfileId: "remoteyeah",
     surfaceUrl: "https://example.com/jobs",
-    status: SourceRunStatus.Running,
+    status: SourceRunStatus.Pending,
     startedAt: "2026-05-25T12:00:00.000Z",
-    sourceProfile: "RemoteYeah",
+    planId: "plan-1",
     ...overrides,
   };
 }
 
 describe("extension-events.display", () => {
-  it("builds summary from profile and surface URL", () => {
-    expect(sourceRunSummary(sourceRun())).toBe(
-      "RemoteYeah · https://example.com/jobs",
-    );
+  it("builds summary from surface URL", () => {
+    expect(sourceRunSummary(sourceRun())).toBe("https://example.com/jobs");
   });
 
   it("merges source runs and activity events by occurredAt", () => {
@@ -45,7 +36,7 @@ describe("extension-events.display", () => {
           id: "act-new",
           type: ExtensionActivityEventType.ImportJobStarted,
           summary: "LinkedIn page",
-          correlationId: "import-1",
+          sourceRunId: "import-1",
           occurredAt: "2026-05-25T12:00:00.000Z",
         },
       ],
@@ -57,7 +48,7 @@ describe("extension-events.display", () => {
   it("counts in-flight source runs and open activities", () => {
     const events = mergeExtensionAdminEvents(
       [
-        sourceRun({ id: "running", status: SourceRunStatus.Running }),
+        sourceRun({ id: "running", status: SourceRunStatus.Pending }),
         sourceRun({ id: "done", status: SourceRunStatus.Completed }),
       ],
       [
@@ -65,14 +56,14 @@ describe("extension-events.display", () => {
           id: "act-1",
           type: ExtensionActivityEventType.ImportJobStarted,
           summary: "Import",
-          correlationId: "import-1",
+          sourceRunId: "import-1",
           occurredAt: "2026-05-25T11:00:00.000Z",
         },
         {
           id: "act-2",
           type: ExtensionActivityEventType.ImportJobCompleted,
           summary: "Import",
-          correlationId: "import-1",
+          sourceRunId: "import-1",
           occurredAt: "2026-05-25T12:00:00.000Z",
         },
       ],
@@ -89,7 +80,7 @@ describe("extension-events.display", () => {
         id: "act-1",
         type: ExtensionActivityEventType.SourceRunStarted,
         summary: "RemoteYeah",
-        correlationId: "run-1",
+        sourceRunId: "run-1",
         occurredAt: "2026-05-25T12:00:00.000Z",
       },
     ]);
@@ -102,9 +93,9 @@ describe("extension-events.display", () => {
       kind: "source_run",
       id: "run-1",
       type: SourceRunEventType.SourceRunCreated,
-      status: SourceRunStatus.Running,
+      status: SourceRunStatus.Pending,
       occurredAt: "2026-05-25T12:00:00.000Z",
-      summary: "RemoteYeah · https://example.com/jobs",
+      summary: "https://example.com/jobs",
     });
   });
 });

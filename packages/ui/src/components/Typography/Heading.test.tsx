@@ -1,6 +1,5 @@
 import { render, screen } from "@testing-library/react";
 import { cn } from "@ui/lib/cn";
-import React from "react";
 import { describe, expect, it } from "vitest";
 
 import { Heading } from "./Heading";

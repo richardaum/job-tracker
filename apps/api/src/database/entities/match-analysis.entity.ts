@@ -4,13 +4,7 @@ import { MatchSourceEnum } from "@api/domains/match-analysis/match-source.enum";
 import { MatchVerdictEnum } from "@api/domains/match-analysis/match-verdict.enum";
 import { WeightEnum } from "@api/domains/work-preferences/weight.enum";
 import { IsNotEmpty, IsString } from "class-validator";
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  PrimaryColumn,
-  UpdateDateColumn,
-} from "typeorm";
+import { Column, CreateDateColumn, Entity, PrimaryColumn, UpdateDateColumn } from "typeorm";
 
 export enum RequirementTypeEnum {
   MustHave = "MustHave",
@@ -54,12 +48,7 @@ export class MatchAnalysisEntity {
   @Column({ name: "score_ratio", type: "float", nullable: true })
   scoreRatio!: number | null;
 
-  @Column({
-    type: "enum",
-    enum: FitClassificationEnum,
-    enumName: "fit_classification",
-    nullable: true,
-  })
+  @Column({ type: "enum", enum: FitClassificationEnum, enumName: "fit_classification", nullable: true })
   classification!: FitClassificationEnum | null;
 
   @Column({ name: "fit_count", type: "integer", default: 0 })

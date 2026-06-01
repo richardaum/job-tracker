@@ -1,28 +1,13 @@
 "use client";
 
-import {
-  Badge,
-  Button,
-  cn,
-  Dialog,
-  IconButton,
-  Input,
-  ListItemCard,
-  Select,
-  Text,
-  Tooltip,
-} from "@job-tracker/ui";
+import { Badge, Button, cn, Dialog, IconButton, Input, ListItemCard, Select, Text, Tooltip } from "@job-tracker/ui";
 import { PencilSimpleIcon, PlusIcon, TrashIcon } from "@phosphor-icons/react";
 import { useState } from "react";
 
 import { KeywordScope, MatchMode } from "@/gql/graphql";
 import { SCOPE_ICON_CONFIG } from "@/modules/profile/blocked-keywords/shared/blocked-keywords.config";
 
-export type BlockedKeywordItem = {
-  keyword: string;
-  scope: KeywordScope;
-  matchMode: MatchMode;
-};
+export type BlockedKeywordItem = { keyword: string; scope: KeywordScope; matchMode: MatchMode };
 
 export type BlockedKeywordSectionProps = {
   items: BlockedKeywordItem[];
@@ -31,26 +16,20 @@ export type BlockedKeywordSectionProps = {
   onDelete: (index: number) => void;
 };
 
-const MATCH_MODE_LABELS: Record<MatchMode, string> = {
-  [MatchMode.Partial]: "Partial",
-  [MatchMode.Exact]: "Exact",
-};
+const MATCH_MODE_LABELS: Record<MatchMode, string> = { [MatchMode.Partial]: "Partial", [MatchMode.Exact]: "Exact" };
 
-export function BlockedKeywordItemDialog({
-  editing,
-  onSave,
-  onOpenChange,
-}: {
+type BlockedKeywordItemDialogProps = {
   editing: BlockedKeywordItem | null;
   onSave: (item: BlockedKeywordItem) => void;
   onOpenChange: (open: boolean) => void;
-}) {
+};
+
+export function BlockedKeywordItemDialog({ editing, onSave, onOpenChange }: BlockedKeywordItemDialogProps) {
   const open = editing !== null;
   const [keyword, setKeyword] = useState("");
   const [scope, setScope] = useState<KeywordScope>(KeywordScope.Title);
   const [matchMode, setMatchMode] = useState<MatchMode>(MatchMode.Partial);
   const [prevOpen, setPrevOpen] = useState(false);
-
   if (open !== prevOpen) {
     setPrevOpen(open);
     if (open) {
@@ -128,12 +107,7 @@ export function BlockedKeywordItemDialog({
   );
 }
 
-export function BlockedKeywordSection({
-  items,
-  onAdd,
-  onEdit,
-  onDelete,
-}: BlockedKeywordSectionProps) {
+export function BlockedKeywordSection({ items, onAdd, onEdit, onDelete }: BlockedKeywordSectionProps) {
   return (
     <div className={cn("flex flex-col gap-4")}>
       {items.length > 0 ? (
@@ -142,21 +116,12 @@ export function BlockedKeywordSection({
             const scopeConfig = SCOPE_ICON_CONFIG[item.scope];
             const ScopeIcon = scopeConfig.icon;
             return (
-              <div
-                key={`${item.keyword}|${item.scope}|${item.matchMode}|${i}`}
-                className={cn("w-fit")}
-              >
+              <div key={`${item.keyword}|${item.scope}|${item.matchMode}|${i}`} className={cn("w-fit")}>
                 <ListItemCard
                   title={
-                    <ListItemCard.Title
-                      className={cn(
-                        "flex items-center gap-1.5 wrap-break-word",
-                      )}
-                    >
+                    <ListItemCard.Title className={cn("flex items-center gap-1.5 wrap-break-word")}>
                       <Tooltip content={`Scope: ${scopeConfig.label}`}>
-                        <span
-                          className={cn("shrink-0", scopeConfig.colorClass)}
-                        >
+                        <span className={cn("shrink-0", scopeConfig.colorClass)}>
                           <ScopeIcon size={14} weight="regular" />
                         </span>
                       </Tooltip>
@@ -165,9 +130,7 @@ export function BlockedKeywordSection({
                   }
                   actions={
                     <ListItemCard.Actions>
-                      <Badge intent="default">
-                        {MATCH_MODE_LABELS[item.matchMode]}
-                      </Badge>
+                      <Badge intent="default">{MATCH_MODE_LABELS[item.matchMode]}</Badge>
                       <IconButton
                         intent="ghost"
                         size="sm"
@@ -197,8 +160,7 @@ export function BlockedKeywordSection({
         <div className={cn("flex flex-col items-center gap-2 py-12")}>
           <Text color="muted">No blocked items yet</Text>
           <Text size="sm" color="muted">
-            Add keywords, company names, or phrases to automatically reject
-            matching jobs
+            Add keywords, company names, or phrases to automatically reject matching jobs
           </Text>
           <Button size="sm" onClick={onAdd}>
             <PlusIcon size={14} weight="bold" />

@@ -2,7 +2,7 @@
 
 import { tipTapToPlainText } from "@job-tracker/tiptap";
 import { Button, cn, Dialog, Stack } from "@job-tracker/ui";
-import React, { useMemo } from "react";
+import { useMemo } from "react";
 
 import { useImproveJobNoteAiAction } from "@/modules/ai/actions/useImproveJobNoteAiAction";
 import { useRewriteTextAiAction } from "@/modules/ai/actions/useRewriteTextAiAction";
@@ -22,11 +22,7 @@ interface NoteEditDialogProps {
   updatingNote: boolean;
   deletingNote: boolean;
   onClose: () => void;
-  onSave: (payload: {
-    noteId: string;
-    content: string;
-    expectedRevision: number;
-  }) => Promise<void>;
+  onSave: (payload: { noteId: string; content: string; expectedRevision: number }) => Promise<void>;
 }
 
 export function NoteEditDialog({
@@ -39,29 +35,17 @@ export function NoteEditDialog({
   onClose,
   onSave,
 }: NoteEditDialogProps) {
-  const editImproveNoteAction = useImproveJobNoteAiAction({
-    jobId,
-    disabled: !note || updatingNote || deletingNote,
-  });
-  const editRewriteTextAction = useRewriteTextAiAction({
-    disabled: !note || updatingNote || deletingNote,
-  });
+  const editImproveNoteAction = useImproveJobNoteAiAction({ jobId, disabled: !note || updatingNote || deletingNote });
+  const editRewriteTextAction = useRewriteTextAiAction({ disabled: !note || updatingNote || deletingNote });
   const editAiActions = useMemo(
     () => [editImproveNoteAction, editRewriteTextAction],
     [editImproveNoteAction, editRewriteTextAction],
   );
-  const canSaveEdit =
-    Boolean(note) &&
-    tipTapToPlainText(editingNoteContent).trim().length > 0 &&
-    !updatingNote;
+  const canSaveEdit = Boolean(note) && tipTapToPlainText(editingNoteContent).trim().length > 0 && !updatingNote;
 
   async function handleSave() {
     if (!note || !canSaveEdit) return;
-    await onSave({
-      noteId: note.id,
-      content: editingNoteContent,
-      expectedRevision: note.revision,
-    });
+    await onSave({ noteId: note.id, content: editingNoteContent, expectedRevision: note.revision });
   }
 
   return (
@@ -88,11 +72,7 @@ export function NoteEditDialog({
           />
         </div>
         <div className={cn("flex items-center justify-end gap-2")}>
-          <Button
-            intent="ghost"
-            onClick={onClose}
-            disabled={updatingNote || deletingNote}
-          >
+          <Button intent="ghost" onClick={onClose} disabled={updatingNote || deletingNote}>
             Cancel
           </Button>
           <Button

@@ -9,6 +9,7 @@ import { Args, ID, Mutation, Query, Resolver } from "@nestjs/graphql";
 
 import { CreateJobInput } from "./create-job.input";
 import { CreateJobStageEventInput } from "./create-job-stage-event.input";
+import { JobDuplicateService } from "./job-duplicate.service";
 import { JobType } from "./job.type";
 import { JobAutomaticFillService } from "./job-automatic-fill.service";
 import { ApplicationQuickFilterEnum } from "./job-quick-filter.enum";
@@ -26,6 +27,7 @@ export class JobsResolver {
     private readonly service: JobsService,
     private readonly fillService: JobAutomaticFillService,
     private readonly summaryService: JobSummaryService,
+    private readonly duplicateService: JobDuplicateService,
   ) {}
 
   @Query(() => [JobType])
@@ -40,18 +42,12 @@ export class JobsResolver {
   }
 
   @Query(() => JobType)
-  job(
-    @Args("id", { type: () => ID }) id: string,
-    @CurrentUser() user: { userId: string },
-  ): Promise<JobType> {
+  job(@Args("id", { type: () => ID }) id: string, @CurrentUser() user: { userId: string }): Promise<JobType> {
     return this.service.findOne(id, user.userId);
   }
 
   @Mutation(() => JobType)
-  createJob(
-    @Args("input") input: CreateJobInput,
-    @CurrentUser() user: { userId: string },
-  ): Promise<JobType> {
+  createJob(@Args("input") input: CreateJobInput, @CurrentUser() user: { userId: string }): Promise<JobType> {
     return this.service.create(user.userId, input);
   }
 
@@ -80,13 +76,8 @@ export class JobsResolver {
   }
 
   @Query(() => String)
-  generateCompanyDescription(
-    @Args("companyName") companyName: string,
-    @CurrentUser() user: { userId: string },
-  ) {
-    return this.service.generateCompanyDescription(user.userId, {
-      companyName,
-    });
+  generateCompanyDescription(@Args("companyName") companyName: string, @CurrentUser() user: { userId: string }) {
+    return this.service.generateCompanyDescription(user.userId, { companyName });
   }
 
   @Mutation(() => JobType)
@@ -123,6 +114,15 @@ export class JobsResolver {
   ): Promise<DeleteMutationPayloadType> {
     await this.service.remove(id, user.userId);
     return { success: true, deletedId: id };
+  }
+
+  @Query(() => Boolean)
+  isJobDuplicate(
+    @Args("company", { type: () => String }) company: string,
+    @Args("title", { type: () => String }) title: string,
+    @CurrentUser() user: { userId: string },
+  ): Promise<boolean> {
+    return this.duplicateService.checkDuplicate(company, title, user.userId);
   }
 
   @Query(() => [JobStageEventType])

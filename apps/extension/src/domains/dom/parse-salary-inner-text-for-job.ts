@@ -1,8 +1,7 @@
 import { SalaryPeriod } from "@/gql/graphql";
 
-/** Aligned with `remoteyeah.plan.json` salary validationRegex. */
-const SALARY_LINE =
-  /(?:BRL\s+|R\s*\$|\$)?\s*([\d,]+)\s*\p{Pd}\s*(?:R\s*\$|\$)?\s*([\d,]+)\s*\/\s*(year|month|hour)/iu;
+/** Aligned with `plan3.example.json` salary validationRegex. */
+const SALARY_LINE = /(?:BRL\s+|R\s*\$|\$)?\s*([\d,]+)\s*\p{Pd}\s*(?:R\s*\$|\$)?\s*([\d,]+)\s*\/\s*(year|month|hour)/iu;
 
 export type ParsedSalaryForCreateJobInput = {
   salaryMinCents: number;
@@ -12,9 +11,7 @@ export type ParsedSalaryForCreateJobInput = {
 };
 
 /** `Job` is untyped; only accept values our parser produced (or same shape). */
-export function isParsedSalaryForCreateJobInput(
-  v: unknown,
-): v is ParsedSalaryForCreateJobInput {
+export function isParsedSalaryForCreateJobInput(v: unknown): v is ParsedSalaryForCreateJobInput {
   if (v == null || typeof v !== "object") return false;
   const o = v as Record<string, unknown>;
   return (
@@ -48,9 +45,7 @@ function inferSalaryCurrency(trimmedLine: string): string {
 /**
  * Parses a salary line (innerText) into fields that map 1:1 onto {@link CreateJobInput}.
  */
-export function parseSalaryInnerTextForCreateJob(
-  raw: string,
-): ParsedSalaryForCreateJobInput | null {
+export function parseSalaryInnerTextForCreateJob(raw: string): ParsedSalaryForCreateJobInput | null {
   const trimmed = raw.trim();
   const m = trimmed.match(SALARY_LINE);
   if (!m) return null;
@@ -63,11 +58,7 @@ export function parseSalaryInnerTextForCreateJob(
 
   const periodWord = m[3]!.toLowerCase();
   const salaryPeriod =
-    periodWord === "year"
-      ? SalaryPeriod.Year
-      : periodWord === "month"
-        ? SalaryPeriod.Month
-        : SalaryPeriod.Hour;
+    periodWord === "year" ? SalaryPeriod.Year : periodWord === "month" ? SalaryPeriod.Month : SalaryPeriod.Hour;
 
   const salaryMinCents = dollarsWholeToCents(minWhole);
   const salaryMaxCents = dollarsWholeToCents(maxWhole);
@@ -80,10 +71,5 @@ export function parseSalaryInnerTextForCreateJob(
     return null;
   }
 
-  return {
-    salaryMinCents,
-    salaryMaxCents,
-    salaryCurrency: inferSalaryCurrency(trimmed),
-    salaryPeriod,
-  };
+  return { salaryMinCents, salaryMaxCents, salaryCurrency: inferSalaryCurrency(trimmed), salaryPeriod };
 }

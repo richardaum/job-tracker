@@ -1,15 +1,13 @@
 import { cn } from "@job-tracker/ui";
 import { act, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import React from "react";
+import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { PasteListenerProvider } from "./PasteListenerProvider";
 
 const { createDraftCaptureJobMock } = vi.hoisted(() => ({
-  createDraftCaptureJobMock: vi.fn(() =>
-    Promise.resolve({ data: { createJob: { id: "job-1" } } }),
-  ),
+  createDraftCaptureJobMock: vi.fn(() => Promise.resolve({ data: { createJob: { id: "job-1" } } })),
 }));
 
 // Mock next/navigation
@@ -19,39 +17,27 @@ vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
 vi.mock("@/gql/hooks", () => ({
   ApplicationQuickFilter: { Draft: "DRAFT" },
   JobsDocument: { __brand: "DocumentNode" },
-  useCreateDraftCaptureJobMutation: () => [
-    createDraftCaptureJobMock,
-    { loading: false },
-  ],
+  useCreateDraftCaptureJobMutation: () => [createDraftCaptureJobMock, { loading: false }],
   useSettingsQuery: () => ({
     data: {
-      settings: {
-        autoFillEnabled: true,
-        autoMatchEnabled: false,
-        autoSummaryEnabled: false,
-        duplicateWindowDays: 30,
-      },
+      settings: { autoFillEnabled: true, autoMatchEnabled: false, autoSummaryEnabled: false, duplicateWindowDays: 30 },
     },
     loading: false,
   }),
 }));
 
 // Mock toast queue
-vi.mock("@/modules/jobs/shared/hooks/useToastQueue", () => ({
-  useToastQueue: () => ({ enqueueToast: vi.fn() }),
-}));
+vi.mock("@/modules/jobs/shared/hooks/useToastQueue", () => ({ useToastQueue: () => ({ enqueueToast: vi.fn() }) }));
 
 function dispatchPasteEvent(clipboardData: Record<string, string> = {}) {
   const event = new Event("paste", { bubbles: true, cancelable: true });
-  Object.defineProperty(event, "clipboardData", {
-    value: { getData: (type: string) => clipboardData[type] || "" },
-  });
+  Object.defineProperty(event, "clipboardData", { value: { getData: (type: string) => clipboardData[type] || "" } });
   Object.defineProperty(event, "preventDefault", { value: vi.fn() });
   window.dispatchEvent(event);
   return event;
 }
 
-function TestWrapper({ children }: { children: React.ReactNode }) {
+function TestWrapper({ children }: { children: ReactNode }) {
   return <PasteListenerProvider>{children}</PasteListenerProvider>;
 }
 
@@ -69,9 +55,7 @@ describe("PasteListenerProvider", () => {
 
     const editor = screen.getByTestId("editor");
     const event = new Event("paste", { bubbles: true, cancelable: true });
-    Object.defineProperty(event, "clipboardData", {
-      value: { getData: () => "pasted text" },
-    });
+    Object.defineProperty(event, "clipboardData", { value: { getData: () => "pasted text" } });
     Object.defineProperty(event, "preventDefault", { value: vi.fn() });
 
     editor.dispatchEvent(event);
@@ -87,9 +71,7 @@ describe("PasteListenerProvider", () => {
 
     const input = screen.getByTestId("input");
     const event = new Event("paste", { bubbles: true, cancelable: true });
-    Object.defineProperty(event, "clipboardData", {
-      value: { getData: () => "pasted text" },
-    });
+    Object.defineProperty(event, "clipboardData", { value: { getData: () => "pasted text" } });
     Object.defineProperty(event, "preventDefault", { value: vi.fn() });
 
     input.dispatchEvent(event);
@@ -105,9 +87,7 @@ describe("PasteListenerProvider", () => {
 
     const textarea = screen.getByTestId("textarea");
     const event = new Event("paste", { bubbles: true, cancelable: true });
-    Object.defineProperty(event, "clipboardData", {
-      value: { getData: () => "pasted text" },
-    });
+    Object.defineProperty(event, "clipboardData", { value: { getData: () => "pasted text" } });
     Object.defineProperty(event, "preventDefault", { value: vi.fn() });
 
     textarea.dispatchEvent(event);
@@ -118,11 +98,7 @@ describe("PasteListenerProvider", () => {
     render(
       <TestWrapper>
         <div data-testid="wrapper">
-          <div
-            className={cn("ProseMirror")}
-            contentEditable="true"
-            data-testid="prosemirror"
-          />
+          <div className={cn("ProseMirror")} contentEditable="true" data-testid="prosemirror" />
         </div>
       </TestWrapper>,
     );
@@ -134,9 +110,7 @@ describe("PasteListenerProvider", () => {
 
     const wrapper = screen.getByTestId("wrapper");
     const event = new Event("paste", { bubbles: true, cancelable: true });
-    Object.defineProperty(event, "clipboardData", {
-      value: { getData: () => "pasted text" },
-    });
+    Object.defineProperty(event, "clipboardData", { value: { getData: () => "pasted text" } });
     Object.defineProperty(event, "preventDefault", { value: vi.fn() });
 
     wrapper.dispatchEvent(event);
@@ -146,11 +120,7 @@ describe("PasteListenerProvider", () => {
   it("skips paste when activeElement is a nested child of ProseMirror", () => {
     render(
       <TestWrapper>
-        <div
-          className={cn("ProseMirror")}
-          contentEditable="true"
-          data-testid="prosemirror"
-        >
+        <div className={cn("ProseMirror")} contentEditable="true" data-testid="prosemirror">
           <p data-testid="paragraph">Some text</p>
         </div>
       </TestWrapper>,
@@ -162,9 +132,7 @@ describe("PasteListenerProvider", () => {
     });
 
     const event = new Event("paste", { bubbles: true, cancelable: true });
-    Object.defineProperty(event, "clipboardData", {
-      value: { getData: () => "pasted text" },
-    });
+    Object.defineProperty(event, "clipboardData", { value: { getData: () => "pasted text" } });
     Object.defineProperty(event, "preventDefault", { value: vi.fn() });
 
     paragraph.dispatchEvent(event);
@@ -198,9 +166,7 @@ describe("PasteListenerProvider", () => {
       dispatchPasteEvent({ "text/plain": "https://example.com/job-posting" });
     });
 
-    const checkbox = await screen.findByRole("checkbox", {
-      name: "Fill job fields automatically",
-    });
+    const checkbox = await screen.findByRole("checkbox", { name: "Fill job fields automatically" });
     expect(checkbox).toBeChecked();
 
     await user.click(checkbox);
@@ -213,11 +179,7 @@ describe("PasteListenerProvider", () => {
     expect(createDraftCaptureJobMock).toHaveBeenCalledWith(
       expect.objectContaining({
         variables: {
-          input: expect.objectContaining({
-            autoFill: false,
-            autoMatch: false,
-            createAsDraftCapture: true,
-          }),
+          input: expect.objectContaining({ autoFill: false, autoMatch: false, createAsDraftCapture: true }),
         },
       }),
     );
@@ -236,9 +198,7 @@ describe("PasteListenerProvider", () => {
       dispatchPasteEvent({ "text/plain": "https://example.com/job-posting" });
     });
 
-    const autoMatchCheckbox = await screen.findByRole("checkbox", {
-      name: "Run match analysis",
-    });
+    const autoMatchCheckbox = await screen.findByRole("checkbox", { name: "Run match analysis" });
     expect(autoMatchCheckbox).not.toBeChecked();
 
     await user.click(autoMatchCheckbox);
@@ -250,12 +210,7 @@ describe("PasteListenerProvider", () => {
 
     expect(createDraftCaptureJobMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        variables: {
-          input: expect.objectContaining({
-            autoMatch: true,
-            createAsDraftCapture: true,
-          }),
-        },
+        variables: { input: expect.objectContaining({ autoMatch: true, createAsDraftCapture: true }) },
       }),
     );
   });
@@ -273,9 +228,7 @@ describe("PasteListenerProvider", () => {
       dispatchPasteEvent({ "text/plain": "https://example.com/job-posting" });
     });
 
-    await screen.findByRole("checkbox", {
-      name: "Fill job fields automatically",
-    });
+    await screen.findByRole("checkbox", { name: "Fill job fields automatically" });
     await user.click(screen.getByRole("button", { name: "Create draft" }));
 
     await act(async () => {
@@ -284,13 +237,7 @@ describe("PasteListenerProvider", () => {
 
     expect(createDraftCaptureJobMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        variables: {
-          input: expect.objectContaining({
-            autoFill: true,
-            autoMatch: false,
-            createAsDraftCapture: true,
-          }),
-        },
+        variables: { input: expect.objectContaining({ autoFill: true, autoMatch: false, createAsDraftCapture: true }) },
       }),
     );
   });

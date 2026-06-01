@@ -1,0 +1,40 @@
+{
+  "id": "bb0d3a10-4f5d-4c9e-8f1a-2d7e6c8b0a92",
+  "boardType": "NonSequential",
+  "steps": [
+    {
+      "id": "collect-telegram",
+      "action": {
+        "kind": "collect.jobs",
+        "input": {
+          "containerSelector": ".bubbles .scrollable",
+          "skip": { "type": "regex", "value": "^(?!.*🚀\\s+.+🏢 Company:)", "flags": "gs", "sourceField": "rawText" },
+          "itemSelector": ".bubble.channel-post",
+          "detailsUrlField": "applyUrl",
+          "key": "{{applyUrl}}",
+          "direction": "up",
+          "parallelDetailsTabs": 10,
+          "readyCheck": { "selector": ".input-search-placeholder", "value": "updating" },
+          "surfaceFields": [
+            {
+              "key": "publishedAt",
+              "selector": ".bubble.channel-post",
+              "type": "attribute",
+              "value": "data-timestamp"
+            },
+            { "key": "rawText", "selector": ".translatable-message", "type": "property", "value": "innerText" },
+            { "key": "applyUrl", "type": "regex", "value": "Apply:\\s*(https?://[^\\s]+)", "sourceField": "rawText" },
+            { "key": "title", "type": "regex", "value": "🚀 (.+)", "sourceField": "rawText" },
+            { "key": "company", "type": "regex", "value": "🏢 Company: (.+)", "sourceField": "rawText" },
+            { "key": "location", "type": "regex", "value": "📍 Location: (.+)", "sourceField": "rawText" },
+            { "key": "salary", "type": "regex", "value": "💰 (.+)", "sourceField": "rawText" },
+            { "key": "stack", "type": "regex", "value": "⚡️ Stack: (.+)", "sourceField": "rawText" }
+          ],
+          "detailsFields": [
+            { "key": "description", "selector": "body", "type": "property", "value": "innerHTML", "format": "tiptap" }
+          ]
+        }
+      }
+    }
+  ]
+}

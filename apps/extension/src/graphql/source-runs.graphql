@@ -2,10 +2,14 @@ query SourceRuns {
   sourceRuns {
     id
     templateId
-    sourceProfileId
+    planId
     surfaceUrl
     status
+    errorMessage
     startedAt
-    sourceProfile
+    stopWhen
+    catchUpThreshold
+    maxPages
+    olderThanDays
   }
 }

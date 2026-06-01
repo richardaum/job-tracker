@@ -12,9 +12,7 @@ import { EntityManager } from "typeorm";
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      ...buildDataSourceOptions(process.env.DATABASE_URL!),
-    }),
+    TypeOrmModule.forRoot({ ...buildDataSourceOptions(process.env.DATABASE_URL!) }),
     TypeOrmModule.forFeature([MatchAnalysisEntity]),
   ],
 })
@@ -25,9 +23,7 @@ async function main() {
   const prefix = dryRun ? "[DRY-RUN] " : "";
 
   process.stdout.write("Booting NestJS...\n");
-  const app = await NestFactory.createApplicationContext(ScriptModule, {
-    logger: ["error", "warn"],
-  });
+  const app = await NestFactory.createApplicationContext(ScriptModule, { logger: ["error", "warn"] });
 
   const em = app.get(EntityManager);
   const repo = em.getRepository(MatchAnalysisEntity);
@@ -66,9 +62,7 @@ async function main() {
     analysis.items = nextItems;
     const [err] = await tryRun(repo.save(analysis));
     if (err) {
-      process.stdout.write(
-        `\n  ❌ ${analysis.id}: ${err.message.slice(0, 120)}\n`,
-      );
+      process.stdout.write(`\n  ❌ ${analysis.id}: ${err.message.slice(0, 120)}\n`);
       failed++;
       continue;
     }

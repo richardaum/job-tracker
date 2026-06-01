@@ -14,15 +14,11 @@ import {
 } from "@job-tracker/ui";
 import { type DialogControl } from "@job-tracker/ui";
 import { TrashIcon } from "@phosphor-icons/react";
-import React, { useState } from "react";
+import { useState } from "react";
+import type { ReactElement } from "react";
 import { NumericFormat } from "react-number-format";
 
-import {
-  JobDocument,
-  JobsDocument,
-  SalaryPeriod,
-  useUpdateJobMutation,
-} from "@/gql/hooks";
+import { JobDocument, JobsDocument, SalaryPeriod, useUpdateJobMutation } from "@/gql/hooks";
 import type { JobDetailsValues } from "@/modules/jobs/details/utils/job-details.shared";
 import {
   centsToMajorInput,
@@ -48,7 +44,7 @@ type DraftSalary = {
 
 type SalaryEditDialogJobProps = {
   control?: DialogControl;
-  trigger?: React.ReactElement;
+  trigger?: ReactElement;
   job: JobDetailsValues;
   onSuccess?: (message: string) => void;
   onError?: (message: string) => void;
@@ -69,22 +65,13 @@ type SalaryEditDialogDraftProps = {
   idPrefix?: string;
 };
 
-export type SalaryEditDialogProps =
-  | SalaryEditDialogJobProps
-  | SalaryEditDialogDraftProps;
+export type SalaryEditDialogProps = SalaryEditDialogJobProps | SalaryEditDialogDraftProps;
 
-function isDraftProps(
-  p: SalaryEditDialogProps,
-): p is SalaryEditDialogDraftProps {
+function isDraftProps(p: SalaryEditDialogProps): p is SalaryEditDialogDraftProps {
   return "mode" in p && p.mode === "draft";
 }
 
-const defaultForm = {
-  salaryMin: "",
-  salaryMax: "",
-  salaryCurrency: defaultSalaryCurrency,
-  salaryPeriod: "",
-};
+const defaultForm = { salaryMin: "", salaryMax: "", salaryCurrency: defaultSalaryCurrency, salaryPeriod: "" };
 
 function initialFormFromProps(p: SalaryEditDialogProps) {
   if (isDraftProps(p)) {
@@ -120,10 +107,7 @@ export function SalaryEditDialog(props: SalaryEditDialogProps) {
     refetchQueries: isDraft
       ? []
       : [
-          {
-            query: JobDocument,
-            variables: { id: (props as SalaryEditDialogJobProps).job.id },
-          },
+          { query: JobDocument, variables: { id: (props as SalaryEditDialogJobProps).job.id } },
           { query: JobsDocument },
         ],
   });
@@ -182,15 +166,9 @@ export function SalaryEditDialog(props: SalaryEditDialogProps) {
     const minC = majorToCents(form.salaryMin);
     const maxC = majorToCents(form.salaryMax);
     const rawCur = form.salaryCurrency.trim().toUpperCase();
-    const periodVal = form.salaryPeriod
-      ? (form.salaryPeriod as SalaryPeriod)
-      : null;
+    const periodVal = form.salaryPeriod ? (form.salaryPeriod as SalaryPeriod) : null;
     const hasAmount = minC != null || maxC != null;
-    const salaryCurrency = !hasAmount
-      ? null
-      : /^[A-Z]{3}$/.test(rawCur)
-        ? rawCur
-        : defaultSalaryCurrency;
+    const salaryCurrency = !hasAmount ? null : /^[A-Z]{3}$/.test(rawCur) ? rawCur : defaultSalaryCurrency;
     const payload = {
       salaryMinCents: hasAmount ? minC : null,
       salaryMaxCents: hasAmount ? maxC : null,
@@ -223,9 +201,7 @@ export function SalaryEditDialog(props: SalaryEditDialogProps) {
       if (isDraft) {
         props.onError?.("Could not update salary.");
       } else {
-        (props as SalaryEditDialogJobProps).onError?.(
-          "Could not update salary.",
-        );
+        (props as SalaryEditDialogJobProps).onError?.("Could not update salary.");
       }
     } finally {
       setSaving(false);
@@ -236,26 +212,14 @@ export function SalaryEditDialog(props: SalaryEditDialogProps) {
     setSaving(true);
     try {
       if (isDraft) {
-        props.onSalarySave({
-          salaryMinCents: null,
-          salaryMaxCents: null,
-          salaryCurrency: null,
-          salaryPeriod: null,
-        });
+        props.onSalarySave({ salaryMinCents: null, salaryMaxCents: null, salaryCurrency: null, salaryPeriod: null });
         control.close();
         return;
       }
       await update({
         variables: {
           id: props.job.id,
-          input: {
-            salary: {
-              minCents: null,
-              maxCents: null,
-              currency: null,
-              period: null,
-            },
-          },
+          input: { salary: { minCents: null, maxCents: null, currency: null, period: null } },
         },
       });
       props.onSuccess?.("Salary removed.");
@@ -264,9 +228,7 @@ export function SalaryEditDialog(props: SalaryEditDialogProps) {
       if (isDraft) {
         props.onError?.("Could not remove salary.");
       } else {
-        (props as SalaryEditDialogJobProps).onError?.(
-          "Could not remove salary.",
-        );
+        (props as SalaryEditDialogJobProps).onError?.("Could not remove salary.");
       }
     } finally {
       setSaving(false);
@@ -274,12 +236,7 @@ export function SalaryEditDialog(props: SalaryEditDialogProps) {
   }
 
   return (
-    <Dialog
-      trigger={trigger}
-      title="Edit salary"
-      open={control.isOpen}
-      onOpenChange={handleOpenChange}
-    >
+    <Dialog trigger={trigger} title="Edit salary" open={control.isOpen} onOpenChange={handleOpenChange}>
       <Stack gap="sm">
         <div className={cn("grid grid-cols-1 gap-2 sm:grid-cols-2")}>
           <FormField label="Minimum" htmlFor={`${idPrefix}-min`}>
@@ -294,9 +251,7 @@ export function SalaryEditDialog(props: SalaryEditDialogProps) {
               fixedDecimalScale={false}
               value={form.salaryMin}
               valueIsNumericString
-              onValueChange={(vals) =>
-                setForm((f) => ({ ...f, salaryMin: vals.value }))
-              }
+              onValueChange={(vals) => setForm((f) => ({ ...f, salaryMin: vals.value }))}
               disabled={saving || disabledInputs}
             />
           </FormField>
@@ -312,26 +267,17 @@ export function SalaryEditDialog(props: SalaryEditDialogProps) {
               fixedDecimalScale={false}
               value={form.salaryMax}
               valueIsNumericString
-              onValueChange={(vals) =>
-                setForm((f) => ({ ...f, salaryMax: vals.value }))
-              }
+              onValueChange={(vals) => setForm((f) => ({ ...f, salaryMax: vals.value }))}
               disabled={saving || disabledInputs}
             />
           </FormField>
         </div>
         <div className={cn("grid grid-cols-1 gap-2 sm:grid-cols-2")}>
-          <FormField
-            label="Currency"
-            htmlFor={`${idPrefix}-cur`}
-            required
-            error={error}
-          >
+          <FormField label="Currency" htmlFor={`${idPrefix}-cur`} required error={error}>
             <CurrencyCombobox
               id={`${idPrefix}-cur`}
               value={form.salaryCurrency}
-              onValueChange={(salaryCurrency) =>
-                setForm((f) => ({ ...f, salaryCurrency }))
-              }
+              onValueChange={(salaryCurrency) => setForm((f) => ({ ...f, salaryCurrency }))}
               disabled={saving || disabledInputs}
               placeholder={defaultSalaryCurrency}
             />
@@ -341,12 +287,7 @@ export function SalaryEditDialog(props: SalaryEditDialogProps) {
               name={`${idPrefix}-period`}
               options={periodOptions}
               value={form.salaryPeriod ? form.salaryPeriod : periodNone}
-              onValueChange={(v) =>
-                setForm((f) => ({
-                  ...f,
-                  salaryPeriod: v === periodNone ? "" : v,
-                }))
-              }
+              onValueChange={(v) => setForm((f) => ({ ...f, salaryPeriod: v === periodNone ? "" : v }))}
               disabled={saving || disabledInputs}
               size="md"
             />

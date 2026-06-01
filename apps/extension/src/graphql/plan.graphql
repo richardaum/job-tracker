@@ -1,0 +1,7 @@
+query Plan($id: ID!) {
+  plan(id: $id) {
+    id
+    displayName
+    document
+  }
+}

@@ -4,15 +4,14 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { Weight } from "@/gql/hooks";
 
-import WorkPreferencesEditor from "./WorkPreferencesEditor";
+import { WorkPreferencesEditor } from "./WorkPreferencesEditor";
 
 const workPreferencesQueryMock = vi.fn();
 const updatePreferencesMock = vi.fn();
 const enqueueToastMock = vi.fn();
 
 vi.mock("@/gql/hooks", async () => {
-  const actual =
-    await vi.importActual<typeof import("@/gql/hooks")>("@/gql/hooks");
+  const actual = await vi.importActual<typeof import("@/gql/hooks")>("@/gql/hooks");
   return {
     ...actual,
     useWorkPreferencesQuery: () => workPreferencesQueryMock(),
@@ -67,12 +66,8 @@ describe("WorkPreferencesEditor", () => {
 
     expect(screen.getByText("Remote")).toBeInTheDocument();
     expect(screen.getByText("Equity")).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: /add preference/i }),
-    ).toBeInTheDocument();
-    expect(
-      screen.queryByRole("button", { name: /save changes/i }),
-    ).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /add preference/i })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /save changes/i })).not.toBeInTheDocument();
   });
 
   it("dialog mode: renders content without duplicated page title text", () => {
@@ -87,9 +82,7 @@ describe("WorkPreferencesEditor", () => {
     render(<WorkPreferencesEditor mode="dialog" />);
 
     expect(screen.getByRole("button", { name: /cancel/i })).toBeInTheDocument();
-    expect(
-      screen.queryByRole("button", { name: /^save$/i }),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /^save$/i })).not.toBeInTheDocument();
   });
 
   it("add item: opens form dialog and persists on submit", async () => {
@@ -100,14 +93,9 @@ describe("WorkPreferencesEditor", () => {
     expect(screen.getByText(/no preferences yet/i)).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: /add preference/i }));
-    expect(
-      screen.getByRole("dialog", { name: /add preference/i }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("dialog", { name: /add preference/i })).toBeInTheDocument();
 
-    await user.type(
-      screen.getByPlaceholderText("e.g. Remote-first company"),
-      "Remote-first",
-    );
+    await user.type(screen.getByPlaceholderText("e.g. Remote-first company"), "Remote-first");
     await user.click(screen.getByRole("button", { name: /^add$/i }));
 
     expect(updatePreferencesMock).toHaveBeenCalledWith({
@@ -122,12 +110,8 @@ describe("WorkPreferencesEditor", () => {
     workPreferencesQueryMock.mockReturnValue(mockWithItems());
     render(<WorkPreferencesEditor mode="inline" />);
 
-    await user.click(
-      screen.getByRole("button", { name: /edit preference "remote"/i }),
-    );
-    expect(
-      screen.getByRole("dialog", { name: /edit preference/i }),
-    ).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: /edit preference "remote"/i }));
+    expect(screen.getByRole("dialog", { name: /edit preference/i })).toBeInTheDocument();
 
     const input = screen.getByPlaceholderText("e.g. Remote-first company");
     await user.clear(input);
@@ -150,9 +134,7 @@ describe("WorkPreferencesEditor", () => {
     workPreferencesQueryMock.mockReturnValue(mockWithItems());
     render(<WorkPreferencesEditor mode="inline" />);
 
-    await user.click(
-      screen.getByRole("button", { name: /delete preference "remote"/i }),
-    );
+    await user.click(screen.getByRole("button", { name: /delete preference "remote"/i }));
     await user.click(screen.getByRole("button", { name: /^delete$/i }));
 
     expect(screen.queryByText("Remote")).not.toBeInTheDocument();
@@ -185,15 +167,9 @@ describe("WorkPreferencesEditor", () => {
     workPreferencesQueryMock.mockReturnValue(mockWithItems());
     render(<WorkPreferencesEditor mode="inline" readOnly />);
 
-    expect(
-      screen.queryByRole("button", { name: /add preference/i }),
-    ).toBeNull();
-    expect(
-      screen.queryByRole("button", { name: /edit preference/i }),
-    ).toBeNull();
-    expect(
-      screen.queryByRole("button", { name: /delete preference/i }),
-    ).toBeNull();
+    expect(screen.queryByRole("button", { name: /add preference/i })).toBeNull();
+    expect(screen.queryByRole("button", { name: /edit preference/i })).toBeNull();
+    expect(screen.queryByRole("button", { name: /delete preference/i })).toBeNull();
 
     expect(screen.getByText("Remote")).toBeInTheDocument();
     expect(screen.getByText("Equity")).toBeInTheDocument();

@@ -6,9 +6,7 @@ import { AsyncMetadataStatus } from "@/gql/hooks";
 import { MatchStatusBadge } from "./MatchStatusBadge";
 
 function getStatusBadge() {
-  return document.querySelector(
-    '[data-testid="match-status-badge"]',
-  ) as HTMLElement;
+  return document.querySelector('[data-testid="match-status-badge"]') as HTMLElement;
 }
 
 describe("MatchStatusBadge", () => {

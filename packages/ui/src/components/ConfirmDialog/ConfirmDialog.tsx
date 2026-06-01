@@ -4,13 +4,14 @@ import type { ButtonIntent } from "@ui/components/Button/Button";
 import { Button } from "@ui/components/Button/Button";
 import { Dialog } from "@ui/components/Dialog/Dialog";
 import { Stack } from "@ui/components/Stack/Stack";
-import React, { useState } from "react";
+import { useState } from "react";
+import type { ReactElement, ReactNode } from "react";
 
 export interface ConfirmDialogProps {
-  trigger?: React.ReactElement;
+  trigger?: ReactElement;
   title: string;
   description: string;
-  children?: React.ReactNode;
+  children?: ReactNode;
   /** Primary action label (default: "Delete"). */
   confirmLabel?: string;
   cancelLabel?: string;
@@ -67,18 +68,10 @@ export function ConfirmDialog({
 
   const footer = (
     <Stack direction="row" gap="xs" justify="end">
-      <Button
-        intent="secondary"
-        onClick={() => handleOpenChange(false)}
-        disabled={submitting}
-      >
+      <Button intent="secondary" onClick={() => handleOpenChange(false)} disabled={submitting}>
         {cancelLabel}
       </Button>
-      <Button
-        intent={confirmIntent}
-        state={submitting ? "loading" : "default"}
-        onClick={() => void handleConfirm()}
-      >
+      <Button intent={confirmIntent} state={submitting ? "loading" : "default"} onClick={() => void handleConfirm()}>
         {confirmLabel}
       </Button>
     </Stack>

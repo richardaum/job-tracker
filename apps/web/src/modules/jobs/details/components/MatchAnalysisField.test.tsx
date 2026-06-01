@@ -9,9 +9,7 @@ import { MatchAnalysisField } from "./MatchAnalysisField";
 
 const routerPushSpy = vi.fn();
 
-vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push: routerPushSpy }),
-}));
+vi.mock("next/navigation", () => ({ useRouter: () => ({ push: routerPushSpy }) }));
 
 describe("MatchAnalysisField", () => {
   it("navigates to /jobs/:jobId/match when opening full analysis", async () => {
@@ -30,9 +28,7 @@ describe("MatchAnalysisField", () => {
 
     render(<MatchAnalysisField jobId="job-42" match={match} />);
 
-    await user.click(
-      screen.getByRole("button", { name: "View full match analysis" }),
-    );
+    await user.click(screen.getByRole("button", { name: "View full match analysis" }));
 
     expect(routerPushSpy).toHaveBeenCalledWith("/jobs/job-42/match");
   });

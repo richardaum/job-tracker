@@ -16,19 +16,13 @@ export class ExtensionActivityService {
     private readonly eventBus: ExtensionActivityEventBus,
   ) {}
 
-  async listActivityEvents(
-    userId: string,
-    limit?: number | null,
-  ): Promise<ExtensionActivityEvent[]> {
+  async listActivityEvents(userId: string, limit?: number | null): Promise<ExtensionActivityEvent[]> {
     const resolvedLimit = this.resolveListLimit(limit);
     const rows = await this.repo.listRecentByUserId(userId, resolvedLimit);
     return rows.map((row) => this.toGql(row));
   }
 
-  async reportActivity(
-    userId: string,
-    input: ReportExtensionActivityInput,
-  ): Promise<ExtensionActivityEvent> {
+  async reportActivity(userId: string, input: ReportExtensionActivityInput): Promise<ExtensionActivityEvent> {
     const summary = input.summary.trim();
     if (!summary) {
       throw new BadRequestException("Activity summary is required");
@@ -37,7 +31,7 @@ export class ExtensionActivityService {
     const row = await this.repo.create(userId, {
       type: input.type,
       summary,
-      correlationId: input.correlationId ?? null,
+      sourceRunId: input.sourceRunId ?? null,
       payload: input.payload ?? null,
       extensionVersion: input.extensionVersion ?? null,
       browser: input.browser ?? null,
@@ -61,7 +55,7 @@ export class ExtensionActivityService {
       id: row.id,
       type: row.type,
       summary: row.summary,
-      correlationId: row.correlationId,
+      sourceRunId: row.sourceRunId,
       payload: row.payload,
       extensionVersion: row.extensionVersion,
       browser: row.browser,

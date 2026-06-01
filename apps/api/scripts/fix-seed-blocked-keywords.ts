@@ -19,23 +19,16 @@ const LEGACY_DB_PATH = "/Users/richardaum/projects/linkedin/linkedin_jobs.db";
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      ...buildDataSourceOptions(process.env.DATABASE_URL!),
-    }),
+    TypeOrmModule.forRoot({ ...buildDataSourceOptions(process.env.DATABASE_URL!) }),
     TypeOrmModule.forFeature([UserSettingEntity]),
   ],
 })
 class ScriptModule {}
 
 function readLegacyKeywords(dbPath: string): LegacyKeyword[] {
-  const db = new DatabaseSync(dbPath, {
-    readOnly: true,
-    allowExtension: false,
-  });
+  const db = new DatabaseSync(dbPath, { readOnly: true, allowExtension: false });
   try {
-    const stmt = db.prepare(
-      "SELECT keyword, type FROM forbidden_keywords ORDER BY id",
-    );
+    const stmt = db.prepare("SELECT keyword, type FROM forbidden_keywords ORDER BY id");
     const rows = stmt.all() as { keyword: string; type: string }[];
     return rows;
   } finally {
@@ -59,9 +52,7 @@ async function main() {
   const dryRun = process.argv.includes("--dry-run");
   const userIdIndex = process.argv.indexOf("--user-id");
   const targetUserId =
-    userIdIndex >= 0 && userIdIndex + 1 < process.argv.length
-      ? process.argv[userIdIndex + 1]
-      : undefined;
+    userIdIndex >= 0 && userIdIndex + 1 < process.argv.length ? process.argv[userIdIndex + 1] : undefined;
 
   if (!targetUserId) {
     console.error("ERROR: --user-id <uuid> is required");
@@ -72,9 +63,7 @@ async function main() {
 
   process.stdout.write("Connecting to legacy SQLite database...\n");
   if (!existsSync(LEGACY_DB_PATH)) {
-    console.error(
-      `ERROR: Legacy SQLite database not found at ${LEGACY_DB_PATH}`,
-    );
+    console.error(`ERROR: Legacy SQLite database not found at ${LEGACY_DB_PATH}`);
     process.exit(1);
   }
   const legacyKeywords = readLegacyKeywords(LEGACY_DB_PATH);
@@ -93,9 +82,7 @@ async function main() {
     if (result.ok) {
       mappedKeywords.push(result.value);
     } else {
-      process.stdout.write(
-        `  ⚠ Skipping legacy keyword "${lk.keyword}" (type: "${lk.type}"): ${result.error}\n`,
-      );
+      process.stdout.write(`  ⚠ Skipping legacy keyword "${lk.keyword}" (type: "${lk.type}"): ${result.error}\n`);
     }
   }
 
@@ -104,9 +91,7 @@ async function main() {
   );
 
   process.stdout.write("Booting NestJS (PostgreSQL connection)...\n");
-  const app = await NestFactory.createApplicationContext(ScriptModule, {
-    logger: ["error", "warn"],
-  });
+  const app = await NestFactory.createApplicationContext(ScriptModule, { logger: ["error", "warn"] });
 
   try {
     const em = app.get(EntityManager);
@@ -119,9 +104,7 @@ async function main() {
     if (dryRun) {
       process.stdout.write("\n[DRY-RUN] Would insert:\n");
       for (const bk of mappedKeywords) {
-        process.stdout.write(
-          `  keyword="${bk.keyword}" scope=${bk.scope} matchMode=${bk.matchMode}\n`,
-        );
+        process.stdout.write(`  keyword="${bk.keyword}" scope=${bk.scope} matchMode=${bk.matchMode}\n`);
       }
       process.stdout.write(
         `\n[DRY-RUN] Summary for user ${targetUserId}: ${mappedKeywords.length} keyword(s) would be upserted\n`,
@@ -134,23 +117,14 @@ async function main() {
       }
 
       const existingSet = new Set(
-        (settings.blockedKeywords ?? []).map(
-          (bk) => `${bk.keyword}|${bk.scope}|${bk.matchMode}`,
-        ),
+        (settings.blockedKeywords ?? []).map((bk) => `${bk.keyword}|${bk.scope}|${bk.matchMode}`),
       );
-      const newOnes = mappedKeywords.filter(
-        (bk) => !existingSet.has(`${bk.keyword}|${bk.scope}|${bk.matchMode}`),
-      );
+      const newOnes = mappedKeywords.filter((bk) => !existingSet.has(`${bk.keyword}|${bk.scope}|${bk.matchMode}`));
 
       if (newOnes.length === 0) {
-        process.stdout.write(
-          `  All ${mappedKeywords.length} keyword(s) already exist. Nothing to add.\n`,
-        );
+        process.stdout.write(`  All ${mappedKeywords.length} keyword(s) already exist. Nothing to add.\n`);
       } else {
-        settings.blockedKeywords = [
-          ...(settings.blockedKeywords ?? []),
-          ...newOnes,
-        ];
+        settings.blockedKeywords = [...(settings.blockedKeywords ?? []), ...newOnes];
         const [err] = await tryRun(repo.save(settings));
         if (err) {
           console.error(`  ❌ Failed to save settings: ${err.message}`);

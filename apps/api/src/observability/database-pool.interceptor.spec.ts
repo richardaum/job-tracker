@@ -6,13 +6,9 @@ import { DatabasePoolInterceptor } from "./database-pool.interceptor";
 import { DATABASE_POOL_SLOW_QUERY_WARN_MS } from "./request-metrics.constants";
 import { RequestMetricsContext } from "./request-metrics.context";
 
-function createPooledClientMock(
-  queryImpl: (...a: unknown[]) => ReturnType<PoolClient["query"]>,
-) {
+function createPooledClientMock(queryImpl: (...a: unknown[]) => ReturnType<PoolClient["query"]>) {
   return {
-    query: vi.fn((...a: unknown[]) =>
-      queryImpl(...a),
-    ) as unknown as PoolClient["query"],
+    query: vi.fn((...a: unknown[]) => queryImpl(...a)) as unknown as PoolClient["query"],
     release: vi.fn(),
   } as unknown as PoolClient;
 }
@@ -72,11 +68,7 @@ describe("DatabasePoolInterceptor", () => {
     const client = createPooledClientMock((text) => backend(text as string));
     const pool = {
       connect(
-        callback?: (
-          err: Error | undefined,
-          c: PoolClient | undefined,
-          r: (e?: Error | boolean) => void,
-        ) => void,
+        callback?: (err: Error | undefined, c: PoolClient | undefined, r: (e?: Error | boolean) => void) => void,
       ): void | Promise<PoolClient> {
         if (typeof callback === "function") {
           callback(undefined, client, () => {});
@@ -96,22 +88,13 @@ describe("DatabasePoolInterceptor", () => {
   });
 
   it("increments once for pg-pool-style connect + client.query (callback) path", async () => {
-    const clientQuery = vi.fn(
-      (text: string, cb: (e: Error | null, r: unknown) => void) => {
-        cb(null, { rows: [] });
-      },
-    ) as unknown as PoolClient["query"];
-    const client = {
-      query: clientQuery,
-      release: vi.fn(),
-    } as unknown as PoolClient;
+    const clientQuery = vi.fn((text: string, cb: (e: Error | null, r: unknown) => void) => {
+      cb(null, { rows: [] });
+    }) as unknown as PoolClient["query"];
+    const client = { query: clientQuery, release: vi.fn() } as unknown as PoolClient;
     const pool = {
       connect(
-        callback?: (
-          e: Error | undefined,
-          c: PoolClient | undefined,
-          r: (e2?: Error | boolean) => void,
-        ) => void,
+        callback?: (e: Error | undefined, c: PoolClient | undefined, r: (e2?: Error | boolean) => void) => void,
       ): void | Promise<PoolClient> {
         if (typeof callback === "function") {
           callback(undefined, client, () => {});
@@ -134,11 +117,7 @@ describe("DatabasePoolInterceptor", () => {
     const client = createPooledClientMock((text) => backend(text as string));
     const pool = {
       connect(
-        callback?: (
-          e: Error | undefined,
-          c: PoolClient | undefined,
-          r: (e2?: Error | boolean) => void,
-        ) => void,
+        callback?: (e: Error | undefined, c: PoolClient | undefined, r: (e2?: Error | boolean) => void) => void,
       ): void | Promise<PoolClient> {
         if (typeof callback === "function") {
           callback(undefined, client, () => {});
@@ -161,11 +140,7 @@ describe("DatabasePoolInterceptor", () => {
     const client = createPooledClientMock((text) => backend(text as string));
     const pool = {
       connect(
-        callback?: (
-          e: Error | undefined,
-          c: PoolClient | undefined,
-          r: (e2?: Error | boolean) => void,
-        ) => void,
+        callback?: (e: Error | undefined, c: PoolClient | undefined, r: (e2?: Error | boolean) => void) => void,
       ): void | Promise<PoolClient> {
         if (typeof callback === "function") {
           callback(undefined, client, () => {});

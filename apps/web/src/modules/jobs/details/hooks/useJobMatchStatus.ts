@@ -2,15 +2,9 @@
 
 import { createContext, useContext } from "react";
 
-import {
-  AsyncMetadataStatus,
-  useJobMatchQuery,
-  useJobMatchStatusChangedSubscription,
-} from "@/gql/hooks";
+import { AsyncMetadataStatus, useJobMatchQuery, useJobMatchStatusChangedSubscription } from "@/gql/hooks";
 
-export const JobMatchStatusContext = createContext<JobMatchStatusValue | null>(
-  null,
-);
+export const JobMatchStatusContext = createContext<JobMatchStatusValue | null>(null);
 
 export function useJobMatchStatusValue(jobId: string) {
   const {
@@ -18,10 +12,7 @@ export function useJobMatchStatusValue(jobId: string) {
     loading: matchLoading,
     error: matchError,
     refetch: refetchJobMatch,
-  } = useJobMatchQuery({
-    variables: { jobId },
-    fetchPolicy: "cache-and-network",
-  });
+  } = useJobMatchQuery({ variables: { jobId }, fetchPolicy: "cache-and-network" });
 
   const matchAnalysis = matchData?.jobMatch ?? null;
   const matchPk = matchAnalysis?.id ?? null;
@@ -44,15 +35,7 @@ export function useJobMatchStatusValue(jobId: string) {
     },
   });
 
-  return {
-    matchAnalysis,
-    matchPk,
-    status,
-    error,
-    matchLoading,
-    matchError,
-    refetchJobMatch,
-  };
+  return { matchAnalysis, matchPk, status, error, matchLoading, matchError, refetchJobMatch };
 }
 
 export type JobMatchStatusValue = ReturnType<typeof useJobMatchStatusValue>;
@@ -60,9 +43,7 @@ export type JobMatchStatusValue = ReturnType<typeof useJobMatchStatusValue>;
 export function useJobMatchStatus(): JobMatchStatusValue {
   const value = useContext(JobMatchStatusContext);
   if (!value) {
-    throw new Error(
-      "useJobMatchStatus must be used within JobMatchStatusProvider",
-    );
+    throw new Error("useJobMatchStatus must be used within JobMatchStatusProvider");
   }
   return value;
 }

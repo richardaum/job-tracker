@@ -18,9 +18,7 @@ vi.mock("next/navigation", () => ({
 }));
 
 vi.mock("next/image", () => ({
-  default: (props: { alt?: string }) => (
-    <span data-testid="mock-image" aria-label={props.alt ?? ""} />
-  ),
+  default: (props: { alt?: string }) => <span data-testid="mock-image" aria-label={props.alt ?? ""} />,
 }));
 
 vi.mock("@/gql/hooks", () => ({
@@ -32,12 +30,7 @@ vi.mock("@/gql/hooks", () => ({
     Duplicated: "DUPLICATED",
     Draft: "DRAFT",
   },
-  JobSource: {
-    Jack: "JACK",
-    Linkedin: "LINKEDIN",
-    RemoteYeah: "REMOTE_YEAH",
-    Wellfound: "WELLFOUND",
-  },
+  JobSource: { Jack: "JACK", Linkedin: "LINKEDIN", RemoteYeah: "REMOTE_YEAH", Wellfound: "WELLFOUND" },
   ApplicationStage: {
     New: "NEW",
     Duplicated: "DUPLICATED",
@@ -51,33 +44,22 @@ vi.mock("@/gql/hooks", () => ({
   },
   SalaryPeriod: { Year: "YEAR", Month: "MONTH", Hour: "HOUR" },
   useJobsQuery: (...args: unknown[]) => useJobsQueryMock(...args),
-  useJobStageEventsQuery: (...args: unknown[]) =>
-    useJobStageEventsQueryMock(...args),
+  useJobStageEventsQuery: (...args: unknown[]) => useJobStageEventsQueryMock(...args),
 }));
 
-vi.mock("@/hooks/useCurrentUser", () => ({
-  useCurrentUser: () => useCurrentUserMock(),
-}));
+vi.mock("@/hooks/useCurrentUser", () => ({ useCurrentUser: () => useCurrentUserMock() }));
 
 vi.mock("../components/JobQuickEditDialog", () => ({
-  JobQuickEditDialog: ({ trigger }: { trigger: React.ReactNode }) => (
-    <div>{trigger}</div>
-  ),
+  JobQuickEditDialog: ({ trigger }: { trigger: React.ReactNode }) => <div>{trigger}</div>,
 }));
 
 vi.mock("../components/DeleteJobDialog", () => ({
-  DeleteJobDialog: ({ trigger }: { trigger: React.ReactNode }) => (
-    <div>{trigger}</div>
-  ),
+  DeleteJobDialog: ({ trigger }: { trigger: React.ReactNode }) => <div>{trigger}</div>,
 }));
 
-vi.mock("../components/JobTrackingPanel", () => ({
-  JobTrackingPanel: () => <div>Tracking panel</div>,
-}));
+vi.mock("../components/JobTrackingPanel", () => ({ JobTrackingPanel: () => <div>Tracking panel</div> }));
 
-vi.mock("@/modules/jobs/details/components/SalaryEditDialog", () => ({
-  SalaryEditDialog: () => null,
-}));
+vi.mock("@/modules/jobs/details/components/SalaryEditDialog", () => ({ SalaryEditDialog: () => null }));
 
 describe("JobsPage", () => {
   beforeEach(() => {
@@ -88,146 +70,79 @@ describe("JobsPage", () => {
 
   it("passes DRAFT filter to Jobs query when URL has q=draft", () => {
     navigationMocks.searchParams = "q=draft";
-    useJobStageEventsQueryMock.mockImplementation(
-      (options: { variables?: { jobId: string }; skip?: boolean } = {}) => {
-        if (options.skip) {
-          return { data: undefined, loading: false, error: undefined };
-        }
-        return {
-          data: { jobStageEvents: [] },
-          loading: false,
-          error: undefined,
-        };
-      },
-    );
+    useJobStageEventsQueryMock.mockImplementation((options: { variables?: { jobId: string }; skip?: boolean } = {}) => {
+      if (options.skip) {
+        return { data: undefined, loading: false, error: undefined };
+      }
+      return { data: { jobStageEvents: [] }, loading: false, error: undefined };
+    });
     useCurrentUserMock.mockReturnValue({
-      user: {
-        id: "user-1",
-        name: "Test User",
-        email: "test@example.com",
-        avatarUrl: null,
-      },
+      user: { id: "user-1", name: "Test User", email: "test@example.com", avatarUrl: null },
     });
-    useJobsQueryMock.mockReturnValue({
-      data: { jobs: [] },
-      loading: false,
-      error: undefined,
-    });
+    useJobsQueryMock.mockReturnValue({ data: { jobs: [] }, loading: false, error: undefined });
 
     render(<JobsPage />);
 
     expect(useJobsQueryMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        variables: expect.objectContaining({ filter: "DRAFT" }),
-      }),
+      expect.objectContaining({ variables: expect.objectContaining({ filter: "DRAFT" }) }),
     );
   });
 
   it("falls back to INCOMING Jobs filter when URL has an unknown q token", () => {
     navigationMocks.searchParams = "q=not-a-filter";
-    useJobStageEventsQueryMock.mockImplementation(
-      (options: { skip?: boolean } | undefined) => {
-        if (options?.skip) {
-          return { data: undefined, loading: false, error: undefined };
-        }
-        return {
-          data: { jobStageEvents: [] },
-          loading: false,
-          error: undefined,
-        };
-      },
-    );
+    useJobStageEventsQueryMock.mockImplementation((options: { skip?: boolean } | undefined) => {
+      if (options?.skip) {
+        return { data: undefined, loading: false, error: undefined };
+      }
+      return { data: { jobStageEvents: [] }, loading: false, error: undefined };
+    });
     useCurrentUserMock.mockReturnValue({
-      user: {
-        id: "user-1",
-        name: "Test User",
-        email: "test@example.com",
-        avatarUrl: null,
-      },
+      user: { id: "user-1", name: "Test User", email: "test@example.com", avatarUrl: null },
     });
-    useJobsQueryMock.mockReturnValue({
-      data: { jobs: [] },
-      loading: false,
-      error: undefined,
-    });
+    useJobsQueryMock.mockReturnValue({ data: { jobs: [] }, loading: false, error: undefined });
 
     render(<JobsPage />);
 
     expect(useJobsQueryMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        variables: expect.objectContaining({ filter: "INCOMING" }),
-      }),
+      expect.objectContaining({ variables: expect.objectContaining({ filter: "INCOMING" }) }),
     );
   });
 
   it("passes null filter when URL has q=all for unrestricted jobs list", () => {
     navigationMocks.searchParams = "q=all";
-    useJobStageEventsQueryMock.mockImplementation(
-      (options: { skip?: boolean } | undefined) => {
-        if (options?.skip) {
-          return { data: undefined, loading: false, error: undefined };
-        }
-        return {
-          data: { jobStageEvents: [] },
-          loading: false,
-          error: undefined,
-        };
-      },
-    );
+    useJobStageEventsQueryMock.mockImplementation((options: { skip?: boolean } | undefined) => {
+      if (options?.skip) {
+        return { data: undefined, loading: false, error: undefined };
+      }
+      return { data: { jobStageEvents: [] }, loading: false, error: undefined };
+    });
     useCurrentUserMock.mockReturnValue({
-      user: {
-        id: "user-1",
-        name: "Test User",
-        email: "test@example.com",
-        avatarUrl: null,
-      },
+      user: { id: "user-1", name: "Test User", email: "test@example.com", avatarUrl: null },
     });
-    useJobsQueryMock.mockReturnValue({
-      data: { jobs: [] },
-      loading: false,
-      error: undefined,
-    });
+    useJobsQueryMock.mockReturnValue({ data: { jobs: [] }, loading: false, error: undefined });
 
     render(<JobsPage />);
 
     expect(useJobsQueryMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        variables: expect.objectContaining({ filter: null }),
-      }),
+      expect.objectContaining({ variables: expect.objectContaining({ filter: null }) }),
     );
   });
 
   it("clearing company filter removes only company from the URL", async () => {
-    navigationMocks.searchParams =
-      "q=draft&company=Acme%20Labs&runId=should-remain";
+    navigationMocks.searchParams = "q=draft&company=Acme%20Labs&runId=should-remain";
 
-    useJobStageEventsQueryMock.mockImplementation(
-      (options: { skip?: boolean } | undefined) => {
-        if (options?.skip) {
-          return { data: undefined, loading: false, error: undefined };
-        }
-        return {
-          data: { jobStageEvents: [] },
-          loading: false,
-          error: undefined,
-        };
-      },
-    );
+    useJobStageEventsQueryMock.mockImplementation((options: { skip?: boolean } | undefined) => {
+      if (options?.skip) {
+        return { data: undefined, loading: false, error: undefined };
+      }
+      return { data: { jobStageEvents: [] }, loading: false, error: undefined };
+    });
 
     useCurrentUserMock.mockReturnValue({
-      user: {
-        id: "user-1",
-        name: "Test User",
-        email: "test@example.com",
-        avatarUrl: null,
-      },
+      user: { id: "user-1", name: "Test User", email: "test@example.com", avatarUrl: null },
     });
 
-    useJobsQueryMock.mockReturnValue({
-      data: { jobs: [] },
-      loading: false,
-      error: undefined,
-    });
+    useJobsQueryMock.mockReturnValue({ data: { jobs: [] }, loading: false, error: undefined });
 
     const user = userEvent.setup();
     render(<JobsPage />);
@@ -247,33 +162,18 @@ describe("JobsPage", () => {
   it("clearing runId filter preserves q and unrelated params", async () => {
     navigationMocks.searchParams = "company=PinnedCo&q=all&runId=run-z";
 
-    useJobStageEventsQueryMock.mockImplementation(
-      (options: { skip?: boolean } | undefined) => {
-        if (options?.skip) {
-          return { data: undefined, loading: false, error: undefined };
-        }
-        return {
-          data: { jobStageEvents: [] },
-          loading: false,
-          error: undefined,
-        };
-      },
-    );
+    useJobStageEventsQueryMock.mockImplementation((options: { skip?: boolean } | undefined) => {
+      if (options?.skip) {
+        return { data: undefined, loading: false, error: undefined };
+      }
+      return { data: { jobStageEvents: [] }, loading: false, error: undefined };
+    });
 
     useCurrentUserMock.mockReturnValue({
-      user: {
-        id: "user-1",
-        name: "Test User",
-        email: "test@example.com",
-        avatarUrl: null,
-      },
+      user: { id: "user-1", name: "Test User", email: "test@example.com", avatarUrl: null },
     });
 
-    useJobsQueryMock.mockReturnValue({
-      data: { jobs: [] },
-      loading: false,
-      error: undefined,
-    });
+    useJobsQueryMock.mockReturnValue({ data: { jobs: [] }, loading: false, error: undefined });
 
     const user = userEvent.setup();
     render(<JobsPage />);
@@ -290,25 +190,14 @@ describe("JobsPage", () => {
   });
 
   it("renders current stage from job when list includes currentStage", () => {
-    useJobStageEventsQueryMock.mockImplementation(
-      (options: { variables?: { jobId: string }; skip?: boolean } = {}) => {
-        if (options.skip) {
-          return { data: undefined, loading: false, error: undefined };
-        }
-        return {
-          data: { jobStageEvents: [{ id: "event-1", toStage: "technical" }] },
-          loading: false,
-          error: undefined,
-        };
-      },
-    );
+    useJobStageEventsQueryMock.mockImplementation((options: { variables?: { jobId: string }; skip?: boolean } = {}) => {
+      if (options.skip) {
+        return { data: undefined, loading: false, error: undefined };
+      }
+      return { data: { jobStageEvents: [{ id: "event-1", toStage: "technical" }] }, loading: false, error: undefined };
+    });
     useCurrentUserMock.mockReturnValue({
-      user: {
-        id: "user-1",
-        name: "Test User",
-        email: "test@example.com",
-        avatarUrl: null,
-      },
+      user: { id: "user-1", name: "Test User", email: "test@example.com", avatarUrl: null },
     });
     useJobsQueryMock.mockReturnValue({
       data: {
@@ -324,12 +213,7 @@ describe("JobsPage", () => {
             currentStage: "technical",
             currentStageReason: null,
             currentStageAt: "2026-04-20T00:00:00.000Z",
-            salary: {
-              minCents: null,
-              maxCents: null,
-              currency: null,
-              period: null,
-            },
+            salary: { minCents: null, maxCents: null, currency: null, period: null },
             tags: [],
           },
         ],
@@ -346,33 +230,18 @@ describe("JobsPage", () => {
     expect(postingLink).toBeVisible();
     expect(postingLink).toHaveAttribute("target", "_blank");
     expect(screen.getAllByText("Technical").length).toBeGreaterThan(0);
-    expect(
-      screen.getByRole("button", {
-        name: /open status history for technical/i,
-      }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /open status history for technical/i })).toBeInTheDocument();
   });
 
   it("renders jobs list from query data", () => {
-    useJobStageEventsQueryMock.mockImplementation(
-      (options: { variables?: { jobId: string }; skip?: boolean } = {}) => {
-        if (options.skip) {
-          return { data: undefined, loading: false, error: undefined };
-        }
-        return {
-          data: { jobStageEvents: [] },
-          loading: false,
-          error: undefined,
-        };
-      },
-    );
+    useJobStageEventsQueryMock.mockImplementation((options: { variables?: { jobId: string }; skip?: boolean } = {}) => {
+      if (options.skip) {
+        return { data: undefined, loading: false, error: undefined };
+      }
+      return { data: { jobStageEvents: [] }, loading: false, error: undefined };
+    });
     useCurrentUserMock.mockReturnValue({
-      user: {
-        id: "user-1",
-        name: "Test User",
-        email: "test@example.com",
-        avatarUrl: null,
-      },
+      user: { id: "user-1", name: "Test User", email: "test@example.com", avatarUrl: null },
     });
     useJobsQueryMock.mockReturnValue({
       data: {
@@ -388,12 +257,7 @@ describe("JobsPage", () => {
             currentStage: "new",
             currentStageReason: null,
             currentStageAt: "2026-04-20T00:00:00.000Z",
-            salary: {
-              minCents: null,
-              maxCents: null,
-              currency: null,
-              period: null,
-            },
+            salary: { minCents: null, maxCents: null, currency: null, period: null },
             tags: [],
           },
         ],
@@ -413,28 +277,15 @@ describe("JobsPage", () => {
   });
 
   it("renders empty state when user has no jobs", () => {
-    useJobStageEventsQueryMock.mockReturnValue({
-      data: { jobStageEvents: [] },
-    });
+    useJobStageEventsQueryMock.mockReturnValue({ data: { jobStageEvents: [] } });
     useCurrentUserMock.mockReturnValue({
-      user: {
-        id: "user-1",
-        name: "Test User",
-        email: "test@example.com",
-        avatarUrl: null,
-      },
+      user: { id: "user-1", name: "Test User", email: "test@example.com", avatarUrl: null },
     });
-    useJobsQueryMock.mockReturnValue({
-      data: { jobs: [] },
-      loading: false,
-      error: undefined,
-    });
+    useJobsQueryMock.mockReturnValue({ data: { jobs: [] }, loading: false, error: undefined });
 
     render(<JobsPage />);
 
     expect(screen.getByText(/no jobs yet/i)).toBeInTheDocument();
-    expect(
-      screen.getByText(/add your first one to start tracking/i),
-    ).toBeInTheDocument();
+    expect(screen.getByText(/add your first one to start tracking/i)).toBeInTheDocument();
   });
 });

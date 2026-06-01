@@ -3,72 +3,40 @@ import { JwtAuthGuard } from "@api/domains/auth/jwt-auth.guard";
 import { Roles } from "@api/domains/auth/roles.decorator";
 import { RolesGuard } from "@api/domains/auth/roles.guard";
 import { DeleteMutationPayloadType } from "@api/domains/shared/delete-mutation-payload.type";
-import { SourceProfileRegistryService } from "@api/domains/sources/source-profile-registry.service";
 import { RoleEnum } from "@api/domains/users/role.enum";
-import { Inject, UseGuards } from "@nestjs/common";
-import {
-  Args,
-  ID,
-  Int,
-  Mutation,
-  Parent,
-  Query,
-  ResolveField,
-  Resolver,
-  Subscription,
-} from "@nestjs/graphql";
+import { UseGuards } from "@nestjs/common";
+import { Args, ID, Int, Mutation, Query, Resolver, Subscription } from "@nestjs/graphql";
 
 import { CreateSourceRunInput } from "./create-source-run.input";
 import { CreateSourceTemplateInput } from "./create-source-template.input";
-import { SourceProfileType } from "./source-profile.type";
+import { SourceRunActivityEvent } from "./source-run-activity-event.type";
 import { SourceRunType } from "./source-run.type";
 import { SourceRunEvent } from "./source-run-event.type";
 import { SourceRunStatusEnum } from "./source-run-status.enum";
 import { SourceTemplateType } from "./source-template.type";
+import { SourceRunReported } from "./sources.events";
 import { SourcesService } from "./sources.service";
-import {
-  SOURCES_EVENTS_PUBLISHER,
-  type SourcesEventsPublisher,
-} from "./sources-events.publisher";
+import { SourcesEventBus } from "./sources-event.bus";
 import { UpdateSourceRunInput } from "./update-source-run.input";
 import { UpdateSourceTemplateInput } from "./update-source-template.input";
 
-type SourceRunEventsSubscriptionRoot = { sourceRunEvents: SourceRunEvent };
-
-@Resolver(() => SourceProfileType)
+@Resolver()
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(RoleEnum.User)
 export class SourcesResolver {
   constructor(
     private readonly service: SourcesService,
-    private readonly sourceProfileRegistry: SourceProfileRegistryService,
-    @Inject(SOURCES_EVENTS_PUBLISHER)
-    private readonly eventsPublisher: SourcesEventsPublisher,
+    private readonly eventBus: SourcesEventBus,
   ) {}
 
   @Query(() => [SourceRunType])
-  sourceRuns(
-    @CurrentUser() user: { userId: string },
-  ): Promise<SourceRunType[]> {
+  sourceRuns(@CurrentUser() user: { userId: string }): Promise<SourceRunType[]> {
     return this.service.listSourceRuns(user.userId);
   }
 
   @Query(() => [SourceTemplateType])
-  sourceTemplates(
-    @CurrentUser() user: { userId: string },
-  ): Promise<SourceTemplateType[]> {
+  sourceTemplates(@CurrentUser() user: { userId: string }): Promise<SourceTemplateType[]> {
     return this.service.listSourceTemplates(user.userId);
-  }
-
-  @Query(() => [SourceTemplateType])
-  sourceTemplatesForSourceProfile(
-    @CurrentUser() user: { userId: string },
-    @Args("sourceProfileId") sourceProfileId: string,
-  ): Promise<SourceTemplateType[]> {
-    return this.service.listSourceTemplatesForSourceProfile(
-      user.userId,
-      sourceProfileId,
-    );
   }
 
   @Query(() => SourceTemplateType)
@@ -79,52 +47,12 @@ export class SourcesResolver {
     return this.service.getSourceTemplate(user.userId, id);
   }
 
-  @Query(() => [SourceProfileType])
-  async sourceProfiles(
-    @CurrentUser() user: { userId: string },
-    @Args("onlyWithSourceTemplate", {
-      type: () => Boolean,
-      nullable: true,
-      defaultValue: false,
-    })
-    onlyWithSourceTemplate: boolean,
-  ): Promise<SourceProfileType[]> {
-    const all = [...this.sourceProfileRegistry.listSourceProfileDescriptors()];
-    if (!onlyWithSourceTemplate) {
-      return all;
-    }
-    const templates = await this.service.listSourceTemplates(user.userId);
-    const sourceProfileIds = new Set(
-      templates.map((template) => template.sourceProfileId),
-    );
-    return all
-      .filter((row) => sourceProfileIds.has(row.sourceProfileId))
-      .map((row) => ({
-        ...row,
-        templates: templates.filter(
-          (template) => template.sourceProfileId === row.sourceProfileId,
-        ),
-      }));
-  }
-
-  @ResolveField(() => [SourceTemplateType])
-  templates(
-    @Parent() sourceProfile: SourceProfileType,
-    @CurrentUser() user: { userId: string },
-  ): Promise<SourceTemplateType[]> | SourceTemplateType[] {
-    if (sourceProfile.templates) return sourceProfile.templates;
-    return this.service.listSourceTemplatesForSourceProfile(
-      user.userId,
-      sourceProfile.sourceProfileId,
-    );
-  }
-
   @Mutation(() => SourceRunType)
   createSourceRun(
     @Args("input") input: CreateSourceRunInput,
     @CurrentUser() user: { userId: string },
   ): Promise<SourceRunType> {
-    return this.service.createSourceRun(user.userId, input.sourceProfileId);
+    return this.service.createSourceRun(user.userId, input.planId);
   }
 
   @Mutation(() => SourceTemplateType)
@@ -132,7 +60,11 @@ export class SourcesResolver {
     @Args("input") input: CreateSourceTemplateInput,
     @CurrentUser() user: { userId: string },
   ): Promise<SourceTemplateType> {
-    return this.service.createSourceTemplate(user.userId, input);
+    return this.service.createSourceTemplate(user.userId, {
+      planId: input.planId,
+      surfaceUrl: input.surfaceUrl,
+      config: input.config ?? undefined,
+    });
   }
 
   @Mutation(() => SourceRunType)
@@ -153,6 +85,7 @@ export class SourcesResolver {
       scheduleCron: input.scheduleCron,
       scheduleEnabled: input.scheduleEnabled,
       surfaceUrl: input.surfaceUrl,
+      config: input.config ?? undefined,
     });
   }
 
@@ -171,11 +104,7 @@ export class SourcesResolver {
     @Args("input") input: UpdateSourceRunInput,
     @CurrentUser() user: { userId: string },
   ): Promise<SourceRunType> {
-    return this.service.updateSourceRunSurfaceUrl(
-      user.userId,
-      id,
-      input.surfaceUrl,
-    );
+    return this.service.updateSourceRunSurfaceUrl(user.userId, id, input.surfaceUrl);
   }
 
   @Mutation(() => Int)
@@ -189,11 +118,7 @@ export class SourcesResolver {
   @Mutation(() => DeleteMutationPayloadType)
   async deleteSourceRun(
     @Args("id", { type: () => ID }) id: string,
-    @Args("deleteJobs", {
-      type: () => Boolean,
-      nullable: true,
-      defaultValue: false,
-    })
+    @Args("deleteJobs", { type: () => Boolean, nullable: true, defaultValue: false })
     deleteJobs: boolean,
     @CurrentUser() user: { userId: string },
   ): Promise<DeleteMutationPayloadType> {
@@ -201,10 +126,18 @@ export class SourcesResolver {
     return { success: true, deletedId: id };
   }
 
-  @Mutation(() => Boolean)
-  async clearSourceRuns(
+  @Mutation(() => Int)
+  async clearSourceTemplateRuns(
+    @Args("templateId", { type: () => ID }) templateId: string,
+    @Args("deleteJobs", { type: () => Boolean, nullable: true, defaultValue: false })
+    deleteJobs: boolean,
     @CurrentUser() user: { userId: string },
-  ): Promise<boolean> {
+  ): Promise<number> {
+    return this.service.clearTemplateRuns(user.userId, templateId, { deleteJobs });
+  }
+
+  @Mutation(() => Boolean)
+  async clearSourceRuns(@CurrentUser() user: { userId: string }): Promise<boolean> {
     await this.service.clearSourceRuns(user.userId);
     return true;
   }
@@ -214,18 +147,26 @@ export class SourcesResolver {
     @Args("id", { type: () => ID }) id: string,
     @Args("status", { type: () => SourceRunStatusEnum })
     status: SourceRunStatusEnum,
+    @Args("errorMessage", { type: () => String, nullable: true })
+    errorMessage: string | null,
     @CurrentUser() user: { userId: string },
   ): Promise<SourceRunType> {
-    return this.service.updateSourceRunStatus(user.userId, id, status);
+    return this.service.updateSourceRunStatus(user.userId, id, status, errorMessage);
+  }
+
+  @Query(() => [SourceRunActivityEvent])
+  sourceRunActivityEvents(
+    @Args("runId", { type: () => ID }) runId: string,
+    @CurrentUser() user: { userId: string },
+  ): Promise<SourceRunActivityEvent[]> {
+    return this.service.listSourceRunActivityEvents(user.userId, runId);
   }
 
   @Subscription(() => SourceRunEvent)
-  async *sourceRunEvents(
-    @CurrentUser() user: { userId: string },
-  ): AsyncIterable<SourceRunEventsSubscriptionRoot> {
-    for await (const event of this.eventsPublisher.subscribe()) {
-      if (event.userId !== user.userId) continue;
-      yield { sourceRunEvents: event.payload };
+  async *sourceRunEvents(@CurrentUser() user: { userId: string }): AsyncIterable<SourceRunEvent> {
+    const bus = this.eventBus.forUser(user.userId);
+    for await (const event of bus.eventsOf(SourceRunReported)) {
+      yield event.payload;
     }
   }
 }

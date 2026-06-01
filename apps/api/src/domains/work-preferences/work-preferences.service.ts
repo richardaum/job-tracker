@@ -20,10 +20,7 @@ export class WorkPreferencesService {
     return prefs.items;
   }
 
-  async updatePreferences(
-    userId: string,
-    items: PreferenceItemDto[],
-  ): Promise<PreferenceItemDto[]> {
+  async updatePreferences(userId: string, items: PreferenceItemDto[]): Promise<PreferenceItemDto[]> {
     await this.repo.upsert(userId, items);
     return items;
   }

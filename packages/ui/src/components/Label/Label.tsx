@@ -1,31 +1,22 @@
+import type { ReactNode } from "react";
 import { cn } from "@ui/lib/cn";
-import React from "react";
 
 export interface LabelProps {
-  children: React.ReactNode;
+  children: ReactNode;
   htmlFor?: string;
   size?: "sm" | "md";
   state?: "default" | "error";
   required?: boolean;
 }
 
-const sizeClasses: Record<NonNullable<LabelProps["size"]>, string> = {
-  sm: "text-sm",
-  md: "text-base",
-};
+const sizeClasses: Record<NonNullable<LabelProps["size"]>, string> = { sm: "text-sm", md: "text-base" };
 
 const stateClasses: Record<NonNullable<LabelProps["state"]>, string> = {
   default: "text-text-secondary",
   error: "text-text-error",
 };
 
-export function Label({
-  children,
-  htmlFor,
-  size = "md",
-  state = "default",
-  required = false,
-}: LabelProps) {
+export function Label({ children, htmlFor, size = "md", state = "default", required = false }: LabelProps) {
   return (
     <label
       htmlFor={htmlFor}

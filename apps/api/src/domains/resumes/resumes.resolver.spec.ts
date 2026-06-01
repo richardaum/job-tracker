@@ -6,11 +6,7 @@ import { graphqlFormatError } from "@api/graphql/graphql-format-error";
 import type { ApolloDriverConfig } from "@nestjs/apollo";
 import { ApolloDriver } from "@nestjs/apollo";
 import type { ExecutionContext, INestApplication } from "@nestjs/common";
-import {
-  ForbiddenException,
-  NotFoundException,
-  UnauthorizedException,
-} from "@nestjs/common";
+import { ForbiddenException, NotFoundException, UnauthorizedException } from "@nestjs/common";
 import { GraphQLModule } from "@nestjs/graphql";
 import { GqlExecutionContext } from "@nestjs/graphql";
 import { Test } from "@nestjs/testing";
@@ -22,10 +18,7 @@ import { ResumeService } from "./resumes.service";
 
 describe("ResumeResolver (integration)", () => {
   let app: INestApplication;
-  let service: {
-    findAll: ReturnType<typeof vi.fn>;
-    findOne: ReturnType<typeof vi.fn>;
-  };
+  let service: { findAll: ReturnType<typeof vi.fn>; findOne: ReturnType<typeof vi.fn> };
 
   beforeAll(async () => {
     const mockResume = {
@@ -38,10 +31,7 @@ describe("ResumeResolver (integration)", () => {
       updatedAt: new Date(),
     };
 
-    service = {
-      findAll: vi.fn().mockResolvedValue([mockResume]),
-      findOne: vi.fn().mockResolvedValue(mockResume),
-    };
+    service = { findAll: vi.fn().mockResolvedValue([mockResume]), findOne: vi.fn().mockResolvedValue(mockResume) };
 
     const moduleRef = await Test.createTestingModule({
       imports: [
@@ -53,24 +43,14 @@ describe("ResumeResolver (integration)", () => {
       ],
       providers: [
         ResumeResolver,
-        {
-          provide: ResumeService,
-          useValue: {
-            ...service,
-            create: vi.fn(),
-            update: vi.fn(),
-            remove: vi.fn(),
-          },
-        },
+        { provide: ResumeService, useValue: { ...service, create: vi.fn(), update: vi.fn(), remove: vi.fn() } },
       ],
     })
       .overrideGuard(JwtAuthGuard)
       .useValue({
         canActivate: (ctx: ExecutionContext) => {
           const gqlCtx = GqlExecutionContext.create(ctx);
-          const req = gqlCtx.getContext<{
-            req: Request & { headers: Record<string, string>; user?: unknown };
-          }>().req;
+          const req = gqlCtx.getContext<{ req: Request & { headers: Record<string, string>; user?: unknown } }>().req;
           if (!req.headers["authorization"]) throw new UnauthorizedException();
           req.user = { userId: "user-1" };
           return true;
@@ -89,9 +69,7 @@ describe("ResumeResolver (integration)", () => {
   const auth = { Authorization: "Bearer mock-token" };
 
   it("resume maps NotFound to NOT_FOUND", async () => {
-    service.findOne.mockRejectedValueOnce(
-      new NotFoundException("Resume r not found"),
-    );
+    service.findOne.mockRejectedValueOnce(new NotFoundException("Resume r not found"));
     const res = await request(app.getHttpServer())
       .post("/graphql")
       .set(auth)

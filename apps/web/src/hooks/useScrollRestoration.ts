@@ -26,9 +26,7 @@ function readSnapshot(key: string): ScrollSnapshot | null {
   const rawValue = window.sessionStorage.getItem(getStorageKey(key));
   if (!rawValue) return null;
 
-  const [err, parsedValue] = tryRun(
-    () => JSON.parse(rawValue) as Partial<ScrollSnapshot>,
-  );
+  const [err, parsedValue] = tryRun(() => JSON.parse(rawValue) as Partial<ScrollSnapshot>);
   if (err || typeof parsedValue.top !== "number") return null;
   return { top: Math.max(0, parsedValue.top) };
 }
@@ -49,12 +47,7 @@ function clearSnapshot(key: string) {
   });
 }
 
-export function useScrollRestoration({
-  key,
-  containerRef,
-  enabled = true,
-  ready = true,
-}: UseScrollRestorationOptions) {
+export function useScrollRestoration({ key, containerRef, enabled = true, ready = true }: UseScrollRestorationOptions) {
   const didRestoreRef = useRef(false);
   const lastSavedTopRef = useRef(0);
   const suppressNextScrollPersistRef = useRef(false);
@@ -88,9 +81,7 @@ export function useScrollRestoration({
       });
     }
 
-    container.addEventListener("scroll", persistScrollPosition, {
-      passive: true,
-    });
+    container.addEventListener("scroll", persistScrollPosition, { passive: true });
 
     return () => {
       container.removeEventListener("scroll", persistScrollPosition);
@@ -98,18 +89,11 @@ export function useScrollRestoration({
         window.cancelAnimationFrame(frameId);
       }
 
-      const cleanupTop =
-        lastSavedTopRef.current > 0
-          ? lastSavedTopRef.current
-          : container.scrollTop;
+      const cleanupTop = lastSavedTopRef.current > 0 ? lastSavedTopRef.current : container.scrollTop;
       const existingSnapshot = readSnapshot(key);
       const shouldPreserveExistingSnapshot =
-        cleanupTop === 0 &&
-        typeof existingSnapshot?.top === "number" &&
-        existingSnapshot.top > 0;
-      const finalTop = shouldPreserveExistingSnapshot
-        ? existingSnapshot.top
-        : cleanupTop;
+        cleanupTop === 0 && typeof existingSnapshot?.top === "number" && existingSnapshot.top > 0;
+      const finalTop = shouldPreserveExistingSnapshot ? existingSnapshot.top : cleanupTop;
 
       writeSnapshot(key, { top: finalTop });
     };

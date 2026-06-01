@@ -10,13 +10,6 @@
     "noEmit": true,
     "types": ["chrome"]
   },
-  "include": [
-    ".wxt/wxt.d.ts",
-    "entrypoints/**/*",
-    "modules/**/*",
-    "src/**/*",
-    "wxt.config.ts",
-    "vitest.config.ts"
-  ],
+  "include": [".wxt/wxt.d.ts", "entrypoints/**/*", "modules/**/*", "src/**/*", "wxt.config.ts", "vitest.config.ts"],
   "exclude": ["node_modules", "build"]
 }

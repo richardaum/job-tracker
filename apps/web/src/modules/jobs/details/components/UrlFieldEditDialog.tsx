@@ -2,7 +2,7 @@
 
 import { Button, cn, Dialog, FormField, Input, Stack } from "@job-tracker/ui";
 import { type DialogControl } from "@job-tracker/ui";
-import React, { useState } from "react";
+import { useState } from "react";
 
 interface UrlFieldEditDialogProps {
   control: DialogControl;
@@ -10,11 +10,7 @@ interface UrlFieldEditDialogProps {
   onSave: (nextValue: string[]) => Promise<void>;
 }
 
-export function UrlFieldEditDialog({
-  control,
-  value,
-  onSave,
-}: UrlFieldEditDialogProps) {
+export function UrlFieldEditDialog({ control, value, onSave }: UrlFieldEditDialogProps) {
   const [draft, setDraft] = useState<string[]>(value.length > 0 ? value : [""]);
   const [saving, setSaving] = useState(false);
   const normalized = value.join("\n");
@@ -68,35 +64,24 @@ export function UrlFieldEditDialog({
       <Stack gap="sm">
         {draft.map((item, index) => {
           const trimmed = item.trim();
-          const isRowValid =
-            trimmed.length === 0 || /^https?:\/\/.+/.test(trimmed);
+          const isRowValid = trimmed.length === 0 || /^https?:\/\/.+/.test(trimmed);
           return (
             <FormField
               key={`job-url-${index}`}
               label={index === 0 ? "Job URLs" : ""}
               htmlFor={`edit-job-url-${index}`}
-              error={
-                !isRowValid
-                  ? "URL must start with http:// or https://"
-                  : undefined
-              }
+              error={!isRowValid ? "URL must start with http:// or https://" : undefined}
             >
               <div className={cn("flex items-center gap-2")}>
                 <Input
                   id={`edit-job-url-${index}`}
                   value={item}
-                  onChange={(event) =>
-                    handleChangeAt(index, event.target.value)
-                  }
+                  onChange={(event) => handleChangeAt(index, event.target.value)}
                   placeholder="https://example.com/jobs/123"
                   disabled={saving}
                   state={!isRowValid ? "error" : "default"}
                 />
-                <Button
-                  intent="ghost"
-                  onClick={() => handleRemoveAt(index)}
-                  disabled={saving}
-                >
+                <Button intent="ghost" onClick={() => handleRemoveAt(index)} disabled={saving}>
                   Remove
                 </Button>
               </div>
@@ -104,17 +89,11 @@ export function UrlFieldEditDialog({
           );
         })}
         <div className={cn("flex items-center justify-between")}>
-          <Button
-            intent="secondary"
-            onClick={handleAddUrl}
-            disabled={saving || hasEmptyInput}
-          >
+          <Button intent="secondary" onClick={handleAddUrl} disabled={saving || hasEmptyInput}>
             Add URL
           </Button>
           {hasDuplicates ? (
-            <span className={cn("text-xs text-text-error")}>
-              Duplicate URLs are not allowed.
-            </span>
+            <span className={cn("text-xs text-text-error")}>Duplicate URLs are not allowed.</span>
           ) : null}
         </div>
         <div className={cn("flex justify-end")}>

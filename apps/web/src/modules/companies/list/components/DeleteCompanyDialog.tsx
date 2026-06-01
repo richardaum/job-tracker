@@ -1,16 +1,13 @@
 "use client";
 
 import { Button, Dialog, Stack } from "@job-tracker/ui";
-import React from "react";
+import { useState } from "react";
+import type { ReactElement } from "react";
 
-import {
-  CompaniesDocument,
-  useCompanyJobsCountLazyQuery,
-  useDeleteCompanyMutation,
-} from "@/gql/hooks";
+import { CompaniesDocument, useCompanyJobsCountLazyQuery, useDeleteCompanyMutation } from "@/gql/hooks";
 
 interface DeleteCompanyDialogProps {
-  trigger: React.ReactElement;
+  trigger: ReactElement;
   companyId: string;
   companyName: string;
   open?: boolean;
@@ -28,10 +25,10 @@ export function DeleteCompanyDialog({
   onSuccess,
   onError,
 }: DeleteCompanyDialogProps) {
-  const [internalOpen, setInternalOpen] = React.useState(false);
-  const [step, setStep] = React.useState<"initial" | "cascade">("initial");
-  const [associatedJobsCount, setAssociatedJobsCount] = React.useState(0);
-  const [submitting, setSubmitting] = React.useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const [step, setStep] = useState<"initial" | "cascade">("initial");
+  const [associatedJobsCount, setAssociatedJobsCount] = useState(0);
+  const [submitting, setSubmitting] = useState(false);
   const dialogOpen = open ?? internalOpen;
 
   function handleOpenChange(nextOpen: boolean) {
@@ -105,22 +102,14 @@ export function DeleteCompanyDialog({
       }}
       footer={
         <Stack direction="row" gap="xs" justify="end">
-          <Button
-            intent="secondary"
-            onClick={() => handleOpenChange(false)}
-            disabled={submitting}
-          >
+          <Button intent="secondary" onClick={() => handleOpenChange(false)} disabled={submitting}>
             Cancel
           </Button>
           <Button
             intent="destructive"
             state={submitting ? "loading" : "default"}
             disabled={submitting}
-            onClick={() =>
-              void (step === "initial"
-                ? handleInitialConfirm()
-                : handleCascadeConfirm())
-            }
+            onClick={() => void (step === "initial" ? handleInitialConfirm() : handleCascadeConfirm())}
           >
             {step === "initial" ? "Delete" : "Delete company and jobs"}
           </Button>

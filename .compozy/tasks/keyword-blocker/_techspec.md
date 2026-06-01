@@ -78,12 +78,7 @@ export class KeywordBlockerService {
 
     // Check keywords by scope
     for (const bk of keywords) {
-      const target =
-        bk.scope === "TITLE"
-          ? title
-          : bk.scope === "DESCRIPTION"
-            ? (description ?? "")
-            : companyName;
+      const target = bk.scope === "TITLE" ? title : bk.scope === "DESCRIPTION" ? (description ?? "") : companyName;
       const match =
         bk.matchMode === "EXACT"
           ? target.toLowerCase() === bk.keyword.toLowerCase()

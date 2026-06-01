@@ -18,13 +18,8 @@ function findRepoRoot(from: string): string {
 const repoRoot = findRepoRoot(import.meta.url);
 
 if (!existsSync(join(repoRoot, "node_modules"))) {
-  console.log(
-    "[worktree:teardown] node_modules missing, running pnpm install...",
-  );
-  const result = spawnSync("pnpm", ["install"], {
-    cwd: repoRoot,
-    stdio: "inherit",
-  });
+  console.log("[worktree:teardown] node_modules missing, running pnpm install...");
+  const result = spawnSync("pnpm", ["install"], { cwd: repoRoot, stdio: "inherit" });
   if (result.status !== 0) {
     process.exit(result.status ?? 1);
   }
@@ -53,30 +48,11 @@ const scriptIdx = raw.findIndex((a) => !a.startsWith("-") || a === "--");
 const userArgs = scriptIdx >= 0 ? raw.slice(scriptIdx + 1) : raw;
 
 const argv = await yargs(userArgs)
-  .option("dry-run", {
-    type: "boolean",
-    default: false,
-    description: "Dry run (print plan only, no writes)",
-  })
-  .option("apply", {
-    type: "boolean",
-    default: false,
-    description: "Execute teardown",
-  })
-  .option("drop-db", {
-    type: "boolean",
-    default: true,
-    description: "Drop the worktree database",
-  })
-  .option("dbeaver", {
-    type: "boolean",
-    default: false,
-    description: "Remove DBeaver connection",
-  })
-  .positional("slug", {
-    type: "string",
-    description: "Worktree slug (optional, derived from directory name)",
-  })
+  .option("dry-run", { type: "boolean", default: false, description: "Dry run (print plan only, no writes)" })
+  .option("apply", { type: "boolean", default: false, description: "Execute teardown" })
+  .option("drop-db", { type: "boolean", default: true, description: "Drop the worktree database" })
+  .option("dbeaver", { type: "boolean", default: false, description: "Remove DBeaver connection" })
+  .positional("slug", { type: "string", description: "Worktree slug (optional, derived from directory name)" })
   .check((args) => {
     if (args.dryRun && args.apply) {
       throw new Error("Arguments dry-run and apply are mutually exclusive");
@@ -91,32 +67,17 @@ const argv = await yargs(userArgs)
 
 assertGitWorktree(repoRoot, tag);
 
-const slug = requireTeardownSlug(
-  repoRoot,
-  argv.slug as string | undefined,
-  tag,
-);
+const slug = requireTeardownSlug(repoRoot, argv.slug as string | undefined, tag);
 const pm2Prefix = resolveTeardownPm2Prefix(repoRoot, slug);
 
 if (argv.dryRun) {
-  logTeardownDryRun({
-    tag,
-    repoRoot,
-    slug,
-    pm2Prefix,
-    dropDb: argv.dropDb,
-    dbeaver: argv.dbeaver,
-  });
+  logTeardownDryRun({ tag, repoRoot, slug, pm2Prefix, dropDb: argv.dropDb, dbeaver: argv.dbeaver });
 } else {
   stopWorktreePm2Apps(repoRoot, pm2Prefix, tag);
   if (argv.dbeaver) {
     removeWorktreeDBeaverConnection({ tag, slug });
   }
-  removeWorktreeFromWorkspace({
-    mainRoot: requireMainWorktreeRoot(repoRoot, tag),
-    slug,
-    tag,
-  });
+  removeWorktreeFromWorkspace({ mainRoot: requireMainWorktreeRoot(repoRoot, tag), slug, tag });
   dropWorktreeDatabase(repoRoot, slug, argv.dropDb, tag);
   dropWorktreeTestDatabase(repoRoot, slug, argv.dropDb, tag);
   removeSlugFromRegistry(slug);

@@ -1,1 +1,1 @@
-{ "extends": "./tsconfig.repo.json", "include": ["prettier.config.mts"] }
+{ "extends": "./tsconfig.repo.json", "include": [] }

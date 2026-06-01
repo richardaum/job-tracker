@@ -9,12 +9,7 @@ export const draftExtractionFieldDefs = {
     kind: "string",
     hint: "Job or role title (plain text). Synthesize if too long, e.g. 'Senior Node.js Engineer' instead of 'Senior Node.js Engineer (Remote, Full-time, $150k-$200k)'.",
   },
-  company: {
-    schema: z.string(),
-    required: true,
-    kind: "string",
-    hint: "Employer or company name (plain text).",
-  },
+  company: { schema: z.string(), required: true, kind: "string", hint: "Employer or company name (plain text)." },
   url: {
     schema: z.string().nullable(),
     required: true,

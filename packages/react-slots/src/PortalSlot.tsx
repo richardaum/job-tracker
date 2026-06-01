@@ -15,9 +15,7 @@ import { PortalSlotsContext } from "./PortalSlotsProvider";
 function usePortalSlotsRegistry() {
   const registry = useContext(PortalSlotsContext);
   if (!registry) {
-    throw new Error(
-      "PortalSlot must be used within a SlotsProvider (or PortalSlotsProvider)",
-    );
+    throw new Error("PortalSlot must be used within a SlotsProvider (or PortalSlotsProvider)");
   }
   return registry;
 }
@@ -52,11 +50,7 @@ export function PortalSlot(name = "portal") {
     }, [registry]);
 
     return (
-      <div
-        ref={slotRef}
-        className={`react-slots-portal ${name} ${className}`.trim()}
-        {...props}
-      >
+      <div ref={slotRef} className={`react-slots-portal ${name} ${className}`.trim()} {...props}>
         {children}
       </div>
     );

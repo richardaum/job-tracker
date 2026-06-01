@@ -5,12 +5,8 @@ export class RenameImportToSource1765400000000 implements MigrationInterface {
 
   async up(queryRunner: QueryRunner): Promise<void> {
     // 1. Drop FK + index on applications before table rename
-    await queryRunner.query(
-      `ALTER TABLE "applications" DROP CONSTRAINT IF EXISTS "FK_applications_import_run"`,
-    );
-    await queryRunner.query(
-      `DROP INDEX IF EXISTS "public"."IDX_applications_import_run"`,
-    );
+    await queryRunner.query(`ALTER TABLE "applications" DROP CONSTRAINT IF EXISTS "FK_applications_import_run"`);
+    await queryRunner.query(`DROP INDEX IF EXISTS "public"."IDX_applications_import_run"`);
 
     // 2. Rename enum (may already be renamed from a partial run)
     await queryRunner.query(`
@@ -116,12 +112,8 @@ export class RenameImportToSource1765400000000 implements MigrationInterface {
 
   async down(queryRunner: QueryRunner): Promise<void> {
     // 1. Drop new FK and index
-    await queryRunner.query(
-      `ALTER TABLE "applications" DROP CONSTRAINT IF EXISTS "FK_applications_source_run"`,
-    );
-    await queryRunner.query(
-      `DROP INDEX IF EXISTS "public"."IDX_applications_source_run"`,
-    );
+    await queryRunner.query(`ALTER TABLE "applications" DROP CONSTRAINT IF EXISTS "FK_applications_source_run"`);
+    await queryRunner.query(`DROP INDEX IF EXISTS "public"."IDX_applications_source_run"`);
 
     // 2. Rename indexes back
     await queryRunner.query(`

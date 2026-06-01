@@ -16,7 +16,7 @@ export class FillJobEventListener {
 
   onModuleInit(): void {
     this.eventBus.on(FillJobStatusChanged, (event) => {
-      if (event.status !== AsyncMetadataStatusEnum.PROCESSING) return;
+      if (event.status !== AsyncMetadataStatusEnum.Processing) return;
       void this.fillService
         .processFillJob(event.userId, event.jobId)
         .catch((err) =>

@@ -13,39 +13,23 @@ export class MatchAnalysisRepository {
     private readonly repo: Repository<MatchAnalysisEntity>,
   ) {}
 
-  async findById(
-    id: string,
-    userId?: string,
-  ): Promise<MatchAnalysisEntity | null> {
-    const entity = await this.repo.findOne({
-      where: { id, ...(userId ? { userId } : {}) },
-    });
+  async findById(id: string, userId?: string): Promise<MatchAnalysisEntity | null> {
+    const entity = await this.repo.findOne({ where: { id, ...(userId ? { userId } : {}) } });
     return normalizeMatchAnalysisEntity(entity);
   }
 
-  async findByJobId(
-    jobId: string,
-    userId?: string,
-  ): Promise<MatchAnalysisEntity | null> {
-    const entity = await this.repo.findOne({
-      where: { jobId, ...(userId ? { userId } : {}) },
-    });
+  async findByJobId(jobId: string, userId?: string): Promise<MatchAnalysisEntity | null> {
+    const entity = await this.repo.findOne({ where: { jobId, ...(userId ? { userId } : {}) } });
     return normalizeMatchAnalysisEntity(entity);
   }
 
   async findAllByUserId(userId: string): Promise<MatchAnalysisEntity[]> {
-    const entities = await this.repo.find({
-      where: { userId },
-      order: { updatedAt: "DESC" },
-    });
+    const entities = await this.repo.find({ where: { userId }, order: { updatedAt: "DESC" } });
     return entities.map((entity) => normalizeMatchAnalysisEntity(entity)!);
   }
 
   async upsert(entity: MatchAnalysisEntity): Promise<MatchAnalysisEntity> {
-    const existing = await this.findByJobId(
-      entity.jobId,
-      entity.userId ?? undefined,
-    );
+    const existing = await this.findByJobId(entity.jobId, entity.userId ?? undefined);
 
     if (existing) {
       entity.id = existing.id;
@@ -60,14 +44,8 @@ export class MatchAnalysisRepository {
     return (result.affected ?? 0) > 0;
   }
 
-  async deleteByApplicationId(
-    jobId: string,
-    userId?: string,
-  ): Promise<boolean> {
-    const result = await this.repo.delete({
-      jobId,
-      ...(userId ? { userId } : {}),
-    });
+  async deleteByApplicationId(jobId: string, userId?: string): Promise<boolean> {
+    const result = await this.repo.delete({ jobId, ...(userId ? { userId } : {}) });
     return (result.affected ?? 0) > 0;
   }
 
@@ -79,10 +57,7 @@ export class MatchAnalysisRepository {
   ): Promise<MatchAnalysisEntity | null> {
     const qb = this.repo
       .createQueryBuilder("f")
-      .where("f.id = :id AND f.generation_status = :expectedStatus", {
-        id,
-        expectedStatus,
-      });
+      .where("f.id = :id AND f.generation_status = :expectedStatus", { id, expectedStatus });
     if (userId) {
       qb.andWhere("f.user_id = :userId", { userId });
     }
@@ -95,13 +70,11 @@ export class MatchAnalysisRepository {
   async resetStaleProcessing(): Promise<number> {
     const stale = await this.repo
       .createQueryBuilder("f")
-      .where("f.generation_status = :status", {
-        status: AsyncMetadataStatusEnum.PROCESSING,
-      })
+      .where("f.generation_status = :status", { status: AsyncMetadataStatusEnum.Processing })
       .getMany();
     for (const entity of stale) {
       entity.generationMetadata = {
-        status: AsyncMetadataStatusEnum.FAILED,
+        status: AsyncMetadataStatusEnum.Failed,
         error: "Analysis interrupted and reset to failed after server restart.",
         timestamp: new Date(),
       };

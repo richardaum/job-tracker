@@ -15,9 +15,7 @@ vi.mock("next/navigation", () => ({
   useSearchParams: () => new URLSearchParams("status=OPEN"),
 }));
 
-vi.mock("@/hooks/useCurrentUser", () => ({
-  useCurrentUser: () => useCurrentUserMock(),
-}));
+vi.mock("@/hooks/useCurrentUser", () => ({ useCurrentUser: () => useCurrentUserMock() }));
 
 function renderAuthenticatedLayout(children: ReactNode) {
   return render(
@@ -29,27 +27,16 @@ function renderAuthenticatedLayout(children: ReactNode) {
 
 describe("AuthenticatedLayout", () => {
   it("redirects unauthenticated users to /login with returnTo", () => {
-    useCurrentUserMock.mockReturnValue({
-      user: null,
-      loading: false,
-      error: undefined,
-    });
+    useCurrentUserMock.mockReturnValue({ user: null, loading: false, error: undefined });
 
     renderAuthenticatedLayout(<div>Private Area</div>);
 
-    expect(replaceMock).toHaveBeenCalledWith(
-      "/login?returnTo=%2Fjobs%3Fstatus%3DOPEN",
-    );
+    expect(replaceMock).toHaveBeenCalledWith("/login?returnTo=%2Fjobs%3Fstatus%3DOPEN");
   });
 
   it("renders children when authenticated", () => {
     useCurrentUserMock.mockReturnValue({
-      user: {
-        id: "user-1",
-        name: "Test User",
-        email: "test@example.com",
-        avatarUrl: null,
-      },
+      user: { id: "user-1", name: "Test User", email: "test@example.com", avatarUrl: null },
       loading: false,
       error: undefined,
     });

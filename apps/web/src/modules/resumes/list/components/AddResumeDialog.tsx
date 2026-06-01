@@ -3,7 +3,7 @@
 import { EMPTY_TIPTAP_DOC } from "@job-tracker/tiptap";
 import { Button, cn, Dialog, Input } from "@job-tracker/ui";
 import { useRouter } from "next/navigation";
-import React from "react";
+import { useState } from "react";
 
 import { ResumesDocument, useCreateResumeMutation } from "@/gql/hooks";
 
@@ -14,15 +14,13 @@ interface AddResumeDialogProps {
 
 export function AddResumeDialog({ open, onOpenChange }: AddResumeDialogProps) {
   const router = useRouter();
-  const [createResume] = useCreateResumeMutation({
-    refetchQueries: [{ query: ResumesDocument }],
-  });
+  const [createResume] = useCreateResumeMutation({ refetchQueries: [{ query: ResumesDocument }] });
 
-  const [title, setTitle] = React.useState("");
-  const [creating, setCreating] = React.useState(false);
+  const [title, setTitle] = useState("");
+  const [creating, setCreating] = useState(false);
 
   // Reset state when opening
-  const [prevOpen, setPrevOpen] = React.useState(open);
+  const [prevOpen, setPrevOpen] = useState(open);
   if (open !== prevOpen) {
     setPrevOpen(open);
     if (open) {
@@ -35,11 +33,7 @@ export function AddResumeDialog({ open, onOpenChange }: AddResumeDialogProps) {
     if (!title.trim()) return;
     setCreating(true);
     try {
-      const { data } = await createResume({
-        variables: {
-          input: { title: title.trim(), content: EMPTY_TIPTAP_DOC },
-        },
-      });
+      const { data } = await createResume({ variables: { input: { title: title.trim(), content: EMPTY_TIPTAP_DOC } } });
 
       if (data?.createResume) {
         onOpenChange(false);

@@ -1,15 +1,7 @@
 import { NOTE_AI_STRUCTURED_RESPONSE_SCHEMA } from "@api/domains/shared/tiptap.schema";
-import {
-  AiBaseService,
-  OpenAIClient,
-  PromptRendererService,
-} from "@api/lib/ai";
+import { AiBaseService, OpenAIClient, PromptRendererService } from "@api/lib/ai";
 import type { StructuredNoteOutput, TipTapDocument } from "@job-tracker/tiptap";
-import {
-  isTipTapDocumentString,
-  parseTipTapDocument,
-  structuredNoteToTipTapDocument,
-} from "@job-tracker/tiptap";
+import { isTipTapDocumentString, parseTipTapDocument, structuredNoteToTipTapDocument } from "@job-tracker/tiptap";
 import { Injectable } from "@nestjs/common";
 import { z } from "zod";
 
@@ -20,10 +12,7 @@ const rewriteSchema = z.object({ rewritten: z.string() });
 
 @Injectable()
 export class NoteGenerationService extends AiBaseService {
-  constructor(
-    openAIClient: OpenAIClient,
-    promptRenderer: PromptRendererService,
-  ) {
+  constructor(openAIClient: OpenAIClient, promptRenderer: PromptRendererService) {
     super(openAIClient, promptRenderer);
   }
 
@@ -48,10 +37,7 @@ export class NoteGenerationService extends AiBaseService {
     const sections = Array.isArray(result.sections) ? result.sections : [];
     if (sections.length === 0) throw new Error("Failed to generate note.");
 
-    const tiptapDoc = structuredNoteToTipTapDocument(
-      { sections } as StructuredNoteOutput,
-      input.note,
-    );
+    const tiptapDoc = structuredNoteToTipTapDocument({ sections } as StructuredNoteOutput, input.note);
     const noteString = JSON.stringify(tiptapDoc);
     if (!isTipTapDocumentString(noteString)) {
       throw new Error("Invalid note format.");

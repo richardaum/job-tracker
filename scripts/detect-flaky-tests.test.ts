@@ -29,11 +29,7 @@ describe("detect-flaky-tests.ts", () => {
           name: "src/foo.spec.ts",
           assertionResults: [
             { fullName: "foo works", status: "passed", failureMessages: [] },
-            {
-              fullName: "foo fails sometimes",
-              status: "failed",
-              failureMessages: ["boom"],
-            },
+            { fullName: "foo fails sometimes", status: "failed", failureMessages: ["boom"] },
           ],
         },
       ],
@@ -50,12 +46,7 @@ describe("detect-flaky-tests.ts", () => {
         {
           title: "jobs",
           file: "e2e/jobs.spec.ts",
-          specs: [
-            {
-              title: "lists jobs",
-              tests: [{ results: [{ status: "passed" }] }],
-            },
-          ],
+          specs: [{ title: "lists jobs", tests: [{ results: [{ status: "passed" }] }] }],
         },
       ],
     });
@@ -69,12 +60,7 @@ describe("detect-flaky-tests.ts", () => {
     let stats = new Map<string, TestRunStats>();
 
     stats = mergeRunResults(stats, [
-      {
-        targetId: "@job-tracker/web",
-        file: "src/a.test.ts",
-        fullName: "flaky test",
-        status: "passed",
-      },
+      { targetId: "@job-tracker/web", file: "src/a.test.ts", fullName: "flaky test", status: "passed" },
     ]);
     stats = mergeRunResults(stats, [
       {
@@ -86,12 +72,7 @@ describe("detect-flaky-tests.ts", () => {
       },
     ]);
     stats = mergeRunResults(stats, [
-      {
-        targetId: "@job-tracker/web",
-        file: "src/a.test.ts",
-        fullName: "stable test",
-        status: "passed",
-      },
+      { targetId: "@job-tracker/web", file: "src/a.test.ts", fullName: "stable test", status: "passed" },
       {
         targetId: "@job-tracker/web",
         file: "src/b.test.ts",
@@ -110,14 +91,8 @@ describe("detect-flaky-tests.ts", () => {
   });
 
   it("derives per-target timeout from observed baseline × multiplier", () => {
-    assert.equal(
-      resolveTargetTimeoutMs("@job-tracker/api"),
-      Math.ceil(17_655 * DEFAULT_TIMEOUT_MULTIPLIER),
-    );
-    assert.equal(
-      resolveTargetTimeoutMs("@job-tracker/web"),
-      Math.ceil(15_300 * DEFAULT_TIMEOUT_MULTIPLIER),
-    );
+    assert.equal(resolveTargetTimeoutMs("@job-tracker/api"), Math.ceil(17_655 * DEFAULT_TIMEOUT_MULTIPLIER));
+    assert.equal(resolveTargetTimeoutMs("@job-tracker/web"), Math.ceil(15_300 * DEFAULT_TIMEOUT_MULTIPLIER));
     assert.equal(resolveTargetTimeoutMs("@job-tracker/react-slots"), 30_000);
   });
 
@@ -134,25 +109,14 @@ describe("detect-flaky-tests.ts", () => {
 
   it("tracks live progress and detects newly flaky tests", () => {
     const progress = createLiveRunProgress();
-    applyVitestVerboseLine(
-      progress,
-      " ✓ src/a.test.ts > suite > flaky test 1ms",
-    );
-    applyVitestVerboseLine(
-      progress,
-      " × src/a.test.ts > suite > flaky test 2ms",
-    );
+    applyVitestVerboseLine(progress, " ✓ src/a.test.ts > suite > flaky test 1ms");
+    applyVitestVerboseLine(progress, " × src/a.test.ts > suite > flaky test 2ms");
 
     assert.equal(progress.completedTests, 2);
     assert.equal(progress.failedTests, 1);
 
     let stats = mergeRunResults(new Map(), [
-      {
-        targetId: "@job-tracker/web",
-        file: "src/a.test.ts",
-        fullName: "suite > flaky test",
-        status: "passed",
-      },
+      { targetId: "@job-tracker/web", file: "src/a.test.ts", fullName: "suite > flaky test", status: "passed" },
     ]);
     const previous = stats;
     stats = mergeRunResults(stats, [
@@ -176,52 +140,21 @@ describe("detect-flaky-tests.ts", () => {
 
   it("builds pnpm --filter test commands from targets", () => {
     assert.deepEqual(
-      buildFilteredPnpmTestCommand({
-        id: "@job-tracker/web",
-        cwd: "apps/web",
-        runner: "vitest",
-        args: [],
-      }),
-      [
-        "--filter",
-        "@job-tracker/web",
-        "exec",
-        "vitest",
-        "run",
-        "--reporter=verbose",
-      ],
+      buildFilteredPnpmTestCommand({ id: "@job-tracker/web", cwd: "apps/web", runner: "vitest", args: [] }),
+      ["--filter", "@job-tracker/web", "exec", "vitest", "run", "--reporter=verbose"],
     );
     assert.deepEqual(
       buildFilteredPnpmTestCommand(
-        {
-          id: "@job-tracker/web:e2e",
-          cwd: "apps/web",
-          runner: "playwright",
-          args: [],
-        },
+        { id: "@job-tracker/web:e2e", cwd: "apps/web", runner: "playwright", args: [] },
         { playwrightReporters: ["list"] },
       ),
-      [
-        "--filter",
-        "@job-tracker/web",
-        "exec",
-        "playwright",
-        "test",
-        "--reporter=list",
-      ],
+      ["--filter", "@job-tracker/web", "exec", "playwright", "test", "--reporter=list"],
     );
-    assert.equal(
-      resolvePnpmFilter({ id: "@job-tracker/web:e2e" }),
-      "@job-tracker/web",
-    );
+    assert.equal(resolvePnpmFilter({ id: "@job-tracker/web:e2e" }), "@job-tracker/web");
   });
 
   it("strips pnpm passthrough separator before parsing", () => {
-    assert.deepEqual(stripScriptArgv(["--", "--runs", "5", "--no-build"]), [
-      "--runs",
-      "5",
-      "--no-build",
-    ]);
+    assert.deepEqual(stripScriptArgv(["--", "--runs", "5", "--no-build"]), ["--runs", "5", "--no-build"]);
     assert.deepEqual(stripScriptArgv(["--runs", "5"]), ["--runs", "5"]);
   });
 
@@ -247,13 +180,7 @@ describe("detect-flaky-tests.ts", () => {
   });
 
   it("accepts options after pnpm passthrough separator", async () => {
-    const options = await parseFlakyDetectionArgs([
-      "--",
-      "--runs",
-      "4",
-      "--scope",
-      "e2e",
-    ]);
+    const options = await parseFlakyDetectionArgs(["--", "--runs", "4", "--scope", "e2e"]);
 
     assert.equal(options.runs, 4);
     assert.equal(options.scope, "e2e");

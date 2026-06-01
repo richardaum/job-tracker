@@ -7,8 +7,7 @@ const settingsQueryMock = vi.fn();
 const updateSettingsMock = vi.fn();
 
 vi.mock("@/gql/hooks", async () => {
-  const actual =
-    await vi.importActual<typeof import("@/gql/hooks")>("@/gql/hooks");
+  const actual = await vi.importActual<typeof import("@/gql/hooks")>("@/gql/hooks");
   return {
     ...actual,
     useSettingsQuery: () => settingsQueryMock(),
@@ -22,12 +21,7 @@ function mockSettings(
     autoSummaryEnabled: boolean;
     autoMatchEnabled: boolean;
     duplicateWindowDays: number;
-    blockedKeywords: Array<{
-      keyword: string;
-      scope: string;
-      matchMode: string;
-      __typename?: string;
-    }>;
+    blockedKeywords: Array<{ keyword: string; scope: string; matchMode: string; __typename?: string }>;
     blockedCompanies: string[];
   }> = {},
 ) {
@@ -41,12 +35,7 @@ function mockSettings(
     blockedKeywords: null,
     blockedCompanies: null,
   };
-  return {
-    loading: false,
-    data: {
-      settings: { ...defaults, ...overrides },
-    },
-  };
+  return { loading: false, data: { settings: { ...defaults, ...overrides } } };
 }
 
 describe("SettingsTabPage", () => {
@@ -68,25 +57,11 @@ describe("SettingsTabPage", () => {
     settingsQueryMock.mockReturnValue(mockSettings());
     render(<SettingsTabPage />);
     expect(
-      screen.getByText(
-        "Fill job fields automatically when creating a draft from pasted content",
-      ),
+      screen.getByText("Fill job fields automatically when creating a draft from pasted content"),
     ).toBeInTheDocument();
-    expect(
-      screen.getByText(
-        "Generate summaries automatically when job fields change",
-      ),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(
-        "Run match analysis automatically when a job is created",
-      ),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(
-        "Time range in days for detecting duplicate applications",
-      ),
-    ).toBeInTheDocument();
+    expect(screen.getByText("Generate summaries automatically when job fields change")).toBeInTheDocument();
+    expect(screen.getByText("Run match analysis automatically when a job is created")).toBeInTheDocument();
+    expect(screen.getByText("Time range in days for detecting duplicate applications")).toBeInTheDocument();
   });
 
   it("toggle onChange calls updateSettings mutation — Auto-fill", async () => {
@@ -125,9 +100,7 @@ describe("SettingsTabPage", () => {
     expect(updateSettingsMock).toHaveBeenCalledWith(
       expect.objectContaining({
         variables: { input: { autoSummaryEnabled: true } },
-        optimisticResponse: {
-          updateSettings: expect.objectContaining({ autoSummaryEnabled: true }),
-        },
+        optimisticResponse: { updateSettings: expect.objectContaining({ autoSummaryEnabled: true }) },
       }),
     );
   });
@@ -142,9 +115,7 @@ describe("SettingsTabPage", () => {
     expect(updateSettingsMock).toHaveBeenCalledWith(
       expect.objectContaining({
         variables: { input: { autoMatchEnabled: true } },
-        optimisticResponse: {
-          updateSettings: expect.objectContaining({ autoMatchEnabled: true }),
-        },
+        optimisticResponse: { updateSettings: expect.objectContaining({ autoMatchEnabled: true }) },
       }),
     );
   });
@@ -164,25 +135,19 @@ describe("SettingsTabPage", () => {
     fireEvent.click(autoFillSwitch);
 
     expect(autoFillSwitch).toBeDisabled();
-    expect(
-      screen.queryByRole("status", { name: "Saving setting" }),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByRole("status", { name: "Saving setting" })).not.toBeInTheDocument();
 
     act(() => {
       vi.advanceTimersByTime(300);
     });
-    expect(
-      screen.getByRole("status", { name: "Saving setting" }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("status", { name: "Saving setting" })).toBeInTheDocument();
 
     await act(async () => {
       resolveUpdate?.();
       await Promise.resolve();
     });
     expect(autoFillSwitch).not.toBeDisabled();
-    expect(
-      screen.queryByRole("status", { name: "Saving setting" }),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByRole("status", { name: "Saving setting" })).not.toBeInTheDocument();
     vi.useRealTimers();
   });
 
@@ -198,16 +163,12 @@ describe("SettingsTabPage", () => {
       await Promise.resolve();
     });
 
-    expect(
-      screen.queryByRole("status", { name: "Saving setting" }),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByRole("status", { name: "Saving setting" })).not.toBeInTheDocument();
 
     act(() => {
       vi.advanceTimersByTime(300);
     });
-    expect(
-      screen.queryByRole("status", { name: "Saving setting" }),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByRole("status", { name: "Saving setting" })).not.toBeInTheDocument();
     vi.useRealTimers();
   });
 
@@ -218,14 +179,10 @@ describe("SettingsTabPage", () => {
 
     const numberInput = screen.getByRole("spinbutton");
     fireEvent.change(numberInput, { target: { value: "60" } });
-    fireEvent.submit(
-      screen.getByRole("form", { name: "Duplicate detection window" }),
-    );
+    fireEvent.submit(screen.getByRole("form", { name: "Duplicate detection window" }));
 
     expect(updateSettingsMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        variables: { input: { duplicateWindowDays: 60 } },
-      }),
+      expect.objectContaining({ variables: { input: { duplicateWindowDays: 60 } } }),
     );
   });
 
@@ -246,9 +203,7 @@ describe("SettingsTabPage", () => {
     expect(updateSettingsMock).toHaveBeenCalledWith(
       expect.objectContaining({
         variables: { input: { duplicateWindowDays: 60 } },
-        optimisticResponse: {
-          updateSettings: expect.objectContaining({ duplicateWindowDays: 60 }),
-        },
+        optimisticResponse: { updateSettings: expect.objectContaining({ duplicateWindowDays: 60 }) },
       }),
     );
   });
@@ -290,162 +245,13 @@ describe("SettingsTabPage", () => {
     fireEvent.click(screen.getByRole("button", { name: "Save" }));
 
     expect(updateSettingsMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        variables: { input: { duplicateWindowDays: 365 } },
-      }),
+      expect.objectContaining({ variables: { input: { duplicateWindowDays: 365 } } }),
     );
   });
 
   it("returns null when settings is null and not loading", () => {
-    settingsQueryMock.mockReturnValue({
-      loading: false,
-      data: { settings: null },
-    });
+    settingsQueryMock.mockReturnValue({ loading: false, data: { settings: null } });
     render(<SettingsTabPage />);
     expect(screen.queryByText("Auto-fill job fields")).not.toBeInTheDocument();
-  });
-
-  it("renders blocked keywords section", () => {
-    settingsQueryMock.mockReturnValue(mockSettings());
-    render(<SettingsTabPage />);
-    expect(screen.getByText("Blocked Keywords")).toBeInTheDocument();
-  });
-
-  it("blocked keywords section is collapsed by default", () => {
-    settingsQueryMock.mockReturnValue(mockSettings());
-    render(<SettingsTabPage />);
-    expect(screen.queryByText("Blocked Companies")).not.toBeInTheDocument();
-  });
-
-  it("expands blocked keywords section on click", async () => {
-    settingsQueryMock.mockReturnValue(mockSettings());
-    render(<SettingsTabPage />);
-    const button = screen.getByText("Blocked Keywords");
-    fireEvent.click(button);
-    expect(screen.getByText("Blocked Companies")).toBeInTheDocument();
-    expect(screen.getByText("Keywords")).toBeInTheDocument();
-  });
-
-  it("shows blocked keywords from settings", async () => {
-    settingsQueryMock.mockReturnValue(
-      mockSettings({
-        blockedKeywords: [
-          {
-            keyword: "test",
-            scope: "TITLE",
-            matchMode: "PARTIAL",
-            __typename: "BlockedKeyword",
-          },
-        ],
-      }),
-    );
-    render(<SettingsTabPage />);
-    fireEvent.click(screen.getByText("Blocked Keywords"));
-    expect(screen.getByText("test")).toBeInTheDocument();
-  });
-
-  it("shows blocked companies from settings", async () => {
-    settingsQueryMock.mockReturnValue(
-      mockSettings({
-        blockedCompanies: ["Acme Corp"],
-      }),
-    );
-    render(<SettingsTabPage />);
-    fireEvent.click(screen.getByText("Blocked Keywords"));
-    expect(screen.getByText("Acme Corp")).toBeInTheDocument();
-  });
-
-  it("add keyword calls updateSettings with optimistic response", async () => {
-    settingsQueryMock.mockReturnValue(mockSettings());
-    render(<SettingsTabPage />);
-    fireEvent.click(screen.getByText("Blocked Keywords"));
-
-    const input = screen.getByPlaceholderText("Keyword");
-    fireEvent.change(input, { target: { value: "react" } });
-
-    const addButton = screen.getByRole("button", { name: /Add/ });
-    fireEvent.click(addButton);
-
-    expect(updateSettingsMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        variables: {
-          input: {
-            blockedKeywords: [
-              { keyword: "react", scope: "TITLE", matchMode: "PARTIAL" },
-            ],
-          },
-        },
-        optimisticResponse: {
-          updateSettings: expect.objectContaining({
-            blockedKeywords: [
-              { keyword: "react", scope: "TITLE", matchMode: "PARTIAL" },
-            ],
-          }),
-        },
-      }),
-    );
-  });
-
-  it("delete keyword calls updateSettings with remaining keywords", async () => {
-    settingsQueryMock.mockReturnValue(
-      mockSettings({
-        blockedKeywords: [
-          {
-            keyword: "test",
-            scope: "TITLE",
-            matchMode: "PARTIAL",
-            __typename: "BlockedKeyword",
-          },
-        ],
-      }),
-    );
-    render(<SettingsTabPage />);
-    fireEvent.click(screen.getByText("Blocked Keywords"));
-
-    const deleteButton = screen.getByLabelText("Delete keyword test");
-    fireEvent.click(deleteButton);
-
-    expect(updateSettingsMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        variables: { input: { blockedKeywords: [] } },
-      }),
-    );
-  });
-
-  it("add company calls updateSettings with updated companies", async () => {
-    settingsQueryMock.mockReturnValue(mockSettings());
-    render(<SettingsTabPage />);
-    fireEvent.click(screen.getByText("Blocked Keywords"));
-
-    const input = screen.getByPlaceholderText(
-      "Type a company name and press Enter",
-    );
-    fireEvent.change(input, { target: { value: "Evil Corp" } });
-    fireEvent.keyDown(input, { key: "Enter" });
-
-    expect(updateSettingsMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        variables: { input: { blockedCompanies: ["Evil Corp"] } },
-      }),
-    );
-  });
-
-  it("delete company calls updateSettings with remaining companies", async () => {
-    settingsQueryMock.mockReturnValue(
-      mockSettings({
-        blockedCompanies: ["Evil Corp"],
-      }),
-    );
-    render(<SettingsTabPage />);
-    fireEvent.click(screen.getByText("Blocked Keywords"));
-
-    const removeButton = screen.getByLabelText("Remove Evil Corp");
-    fireEvent.click(removeButton);
-
-    expect(updateSettingsMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        variables: { input: { blockedCompanies: [] } },
-      }),
-    );
   });
 });

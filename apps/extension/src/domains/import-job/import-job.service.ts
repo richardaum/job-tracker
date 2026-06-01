@@ -1,6 +1,6 @@
 import { tryRun } from "@job-tracker/try-run";
 
-import { ApiService } from "@/domains/api/api.service";
+import { api } from "@/gql/api";
 import type { ExtensionActivityReporterService } from "@/domains/extension-activity/extension-activity-reporter.service";
 import { MessagingService } from "@/domains/message/messaging.service";
 import { WxtTabService } from "@/domains/tab/wxt-tab.service";
@@ -15,62 +15,51 @@ export class ImportJobService {
   constructor(
     private readonly messagingService: MessagingService,
     private readonly tabService: WxtTabService,
-    private readonly apiService: ApiService,
     private readonly activityReporter?: ExtensionActivityReporterService,
   ) {}
 
   async execute(): Promise<void> {
     const tabId = await this.tabService.getCurrentTab();
 
-    const snapshot = await this.messagingService.request<
-      "import.job",
-      DraftJobSnapshot
-    >({ to: "content", payload: { kind: "import.job" }, tabId });
+    const snapshot = await this.messagingService.request<"import.job", DraftJobSnapshot>({
+      to: "content",
+      payload: { kind: "import.job" },
+      tabId,
+    });
 
-    const summary =
-      snapshot.title.trim() || snapshot.url.trim() || "Current page";
-    const correlationId = crypto.randomUUID();
+    const summary = snapshot.title.trim() || snapshot.url.trim() || "Current page";
+    const sourceRunId = crypto.randomUUID();
 
-    this.activityReporter?.report(
-      ExtensionActivityEventType.ImportJobStarted,
-      summary,
-      { correlationId },
-    );
+    this.activityReporter?.report(ExtensionActivityEventType.ImportJobStarted, summary, { sourceRunId });
 
     const [error, result] = await tryRun(
-      this.apiService.createDraftCaptureJob({
-        company: "",
-        title: snapshot.title,
-        urls: snapshot.url?.trim() ? [snapshot.url.trim()] : [],
-        htmlContent: snapshot.innerHTML,
-        autoFill: true,
+      api.CreateDraftCaptureJob({
+        input: {
+          company: "",
+          title: snapshot.title,
+          urls: snapshot.url?.trim() ? [snapshot.url.trim()] : [],
+          htmlContent: snapshot.innerHTML,
+          autoFill: true,
+          createAsDraftCapture: true,
+        },
       }),
     );
 
     if (error) {
-      this.activityReporter?.report(
-        ExtensionActivityEventType.ImportJobFailed,
-        summary,
-        { correlationId },
-      );
+      this.activityReporter?.report(ExtensionActivityEventType.ImportJobFailed, summary, { sourceRunId });
       throw new Error("Failed to create draft job", { cause: error });
     }
 
-    const id = result?.data?.createJob?.id;
+    const id = result?.createJob?.id;
     if (!id) {
-      this.activityReporter?.report(
-        ExtensionActivityEventType.ImportJobFailed,
-        summary,
-        { correlationId },
-      );
+      this.activityReporter?.report(ExtensionActivityEventType.ImportJobFailed, summary, { sourceRunId });
       throw new Error("Failed to create draft job");
     }
 
-    this.activityReporter?.report(
-      ExtensionActivityEventType.ImportJobCompleted,
-      summary,
-      { correlationId, payload: JSON.stringify({ jobId: id }) },
-    );
+    this.activityReporter?.report(ExtensionActivityEventType.ImportJobCompleted, summary, {
+      sourceRunId,
+      payload: { jobId: id },
+    });
 
     await this.tabService.openTab(`${WEB_URL}/jobs/${id}`, { focus: true });
   }
@@ -82,9 +71,11 @@ export class ImportJobService {
     }
 
     const [msgErr, response] = await tryRun(
-      this.messagingService.request<"import.job.menu-label", { label: string }>(
-        { to: "content", payload: { kind: "import.job.menu-label" }, tabId },
-      ),
+      this.messagingService.request<"import.job.menu-label", { label: string }>({
+        to: "content",
+        payload: { kind: "import.job.menu-label" },
+        tabId,
+      }),
     );
 
     if (msgErr) {

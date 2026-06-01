@@ -1,4 +1,4 @@
-import { KeywordScope, MatchMode } from "./keyword-blocker.types";
+import { KeywordScopeEnum, MatchModeEnum } from "./keyword-blocker.types";
 
 export interface LegacyKeyword {
   keyword: string;
@@ -7,18 +7,18 @@ export interface LegacyKeyword {
 
 export interface MappedBlockedKeyword {
   keyword: string;
-  scope: KeywordScope;
-  matchMode: MatchMode;
+  scope: KeywordScopeEnum;
+  matchMode: MatchModeEnum;
 }
 
-const LEGACY_TYPE_MAP: Record<string, KeywordScope> = {
-  title: KeywordScope.TITLE,
-  partial: KeywordScope.DESCRIPTION,
-  company: KeywordScope.COMPANY,
-  job: KeywordScope.DESCRIPTION,
+const LEGACY_TYPE_MAP: Record<string, KeywordScopeEnum> = {
+  title: KeywordScopeEnum.Title,
+  partial: KeywordScopeEnum.Description,
+  company: KeywordScopeEnum.Company,
+  job: KeywordScopeEnum.Description,
 };
 
-export function mapLegacyType(type: string): KeywordScope {
+export function mapLegacyType(type: string): KeywordScopeEnum {
   const scope = LEGACY_TYPE_MAP[type];
   if (!scope) {
     throw new Error(`Unknown legacy keyword type: "${type}"`);
@@ -27,11 +27,7 @@ export function mapLegacyType(type: string): KeywordScope {
 }
 
 export function mapLegacyKeyword(legacy: LegacyKeyword): MappedBlockedKeyword {
-  return {
-    keyword: legacy.keyword,
-    scope: mapLegacyType(legacy.type),
-    matchMode: MatchMode.PARTIAL,
-  };
+  return { keyword: legacy.keyword, scope: mapLegacyType(legacy.type), matchMode: MatchModeEnum.Partial };
 }
 
 export function tryMapLegacyKeyword(
@@ -41,5 +37,5 @@ export function tryMapLegacyKeyword(
   if (!scope) {
     return { ok: false, error: `Unknown legacy keyword type: "${legacy.type}"` };
   }
-  return { ok: true, value: { keyword: legacy.keyword, scope, matchMode: MatchMode.PARTIAL } };
+  return { ok: true, value: { keyword: legacy.keyword, scope, matchMode: MatchModeEnum.Partial } };
 }

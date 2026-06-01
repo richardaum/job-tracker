@@ -2,30 +2,23 @@ import { Tabs, TabsList } from "@job-tracker/ui";
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { Route } from "next";
-import React from "react";
+import type { ReactNode, Ref } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { AsyncMetadataStatus } from "@/gql/hooks";
 import { JobMatchStatusProvider } from "@/modules/jobs/details/hooks/JobMatchStatusProvider";
-import {
-  completedJobMatch,
-  processingJobMatch,
-} from "@/modules/jobs/details/testing/match-tab-test-fixtures";
+import { completedJobMatch, processingJobMatch } from "@/modules/jobs/details/testing/match-tab-test-fixtures";
 
 import { MatchTabTrigger } from "./MatchTabTrigger";
 
-const gqlMocks = vi.hoisted(() => ({
-  useJobMatchQuery: vi.fn(),
-  useJobMatchStatusChangedSubscription: vi.fn(),
-}));
+const gqlMocks = vi.hoisted(() => ({ useJobMatchQuery: vi.fn(), useJobMatchStatusChangedSubscription: vi.fn() }));
 
 vi.mock("@/gql/hooks", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/gql/hooks")>();
   return {
     ...actual,
     useJobMatchQuery: gqlMocks.useJobMatchQuery,
-    useJobMatchStatusChangedSubscription:
-      gqlMocks.useJobMatchStatusChangedSubscription,
+    useJobMatchStatusChangedSubscription: gqlMocks.useJobMatchStatusChangedSubscription,
   };
 });
 
@@ -35,9 +28,9 @@ vi.mock("next/link", () => ({
     href,
     ...props
   }: {
-    children: React.ReactNode;
+    children: ReactNode;
     href: string;
-    ref?: React.Ref<HTMLAnchorElement>;
+    ref?: Ref<HTMLAnchorElement>;
     [key: string]: unknown;
   }) => (
     <a href={href} {...props}>
@@ -78,9 +71,7 @@ describe("MatchTabTrigger", () => {
 
     renderMatchTabTrigger();
 
-    expect(
-      screen.getByRole("tab", { name: "Match", selected: true }),
-    ).toHaveAttribute("data-state", "active");
+    expect(screen.getByRole("tab", { name: "Match", selected: true })).toHaveAttribute("data-state", "active");
   });
 
   it("shows status tooltip on hover when match has a status", async () => {

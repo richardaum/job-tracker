@@ -7,11 +7,7 @@ import { EmptyStateDefault } from "./internals/EmptyStateDefault";
 import { EmptyStateFiltered } from "./internals/EmptyStateFiltered";
 import { EmptyStatePanel } from "./internals/EmptyStatePanel";
 
-type CardOptions = {
-  className?: string;
-  padding?: CardProps["padding"];
-  layout?: "list" | "compact";
-};
+type CardOptions = { className?: string; padding?: CardProps["padding"]; layout?: "list" | "compact" };
 
 export type EmptyStateProps =
   | ({ variant: "default"; message: string; detail?: string } & CardOptions)
@@ -78,12 +74,6 @@ export function EmptyState(props: EmptyStateProps) {
         />
       );
     case "panel":
-      return (
-        <EmptyStatePanel
-          message={props.message}
-          size={props.size}
-          color={props.color}
-        />
-      );
+      return <EmptyStatePanel message={props.message} size={props.size} color={props.color} />;
   }
 }

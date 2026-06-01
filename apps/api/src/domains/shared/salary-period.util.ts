@@ -5,9 +5,9 @@ export function asSalaryPeriod(value: unknown): SalaryPeriodEnum | null {
 
   const normalized = value.toLowerCase().trim();
 
-  if (normalized.startsWith("year")) return SalaryPeriodEnum.YEAR;
-  if (normalized.startsWith("month")) return SalaryPeriodEnum.MONTH;
-  if (normalized.startsWith("hour")) return SalaryPeriodEnum.HOUR;
+  if (normalized.startsWith("year")) return SalaryPeriodEnum.Year;
+  if (normalized.startsWith("month")) return SalaryPeriodEnum.Month;
+  if (normalized.startsWith("hour")) return SalaryPeriodEnum.Hour;
 
   return null;
 }

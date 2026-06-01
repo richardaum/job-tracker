@@ -1,15 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { cn } from "@ui/lib/cn";
-import React from "react";
 
 import { Heading } from "./Heading";
 import { Text } from "./Text";
 
-const meta: Meta = {
-  title: "Foundations/Typography",
-  parameters: { layout: "padded" },
-  tags: ["autodocs"],
-};
+const meta: Meta = { title: "Foundations/Typography", parameters: { layout: "padded" }, tags: ["autodocs"] };
 
 export default meta;
 type Story = StoryObj<typeof meta>;

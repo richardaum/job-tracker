@@ -1,7 +1,4 @@
-import {
-  JobUpdated,
-  SummaryGenerationRequested,
-} from "@api/domains/jobs/job.events";
+import { JobUpdated, SummaryGenerationRequested } from "@api/domains/jobs/job.events";
 import { JobEventBus } from "@api/domains/jobs/job-event.bus";
 import { ApplicationStageEnum } from "@api/domains/jobs/job-stage.enum";
 import { JobsRepository } from "@api/domains/jobs/jobs.repository";
@@ -42,20 +39,15 @@ export class SummaryEventListener {
       return;
     }
 
-    const job = await this.jobsRepository.findOneByIdAndUserId(
-      event.jobId,
-      event.userId,
-    );
-    if (job?.stage === ApplicationStageEnum.DUPLICATED) {
+    const job = await this.jobsRepository.findOneByIdAndUserId(event.jobId, event.userId);
+    if (job?.stage === ApplicationStageEnum.Duplicated) {
       return;
     }
 
     await this.summaryService.requestSummary(event.jobId, event.userId);
   }
 
-  private async handleSummaryGenerationRequested(
-    event: SummaryGenerationRequested,
-  ): Promise<void> {
+  private async handleSummaryGenerationRequested(event: SummaryGenerationRequested): Promise<void> {
     await this.summaryService.doGenerate(event.jobId, event.userId);
   }
 }

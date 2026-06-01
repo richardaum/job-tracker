@@ -2,7 +2,6 @@
 
 import { EMPTY_TIPTAP_DOC } from "@job-tracker/tiptap";
 import { Button, cn, Dialog, Stack } from "@job-tracker/ui";
-import React from "react";
 
 import { useImproveJobNoteAiAction } from "@/modules/ai/actions/useImproveJobNoteAiAction";
 import { useRewriteTextAiAction } from "@/modules/ai/actions/useRewriteTextAiAction";
@@ -32,10 +31,7 @@ export function NoteComposerExpandedDialog({
   creatingNote,
   onSendNote,
 }: NoteComposerExpandedDialogProps) {
-  const improveNoteAction = useImproveJobNoteAiAction({
-    jobId,
-    disabled: !canSend,
-  });
+  const improveNoteAction = useImproveJobNoteAiAction({ jobId, disabled: !canSend });
   const rewriteTextAction = useRewriteTextAiAction({ disabled: !canSend });
 
   return (
@@ -52,9 +48,7 @@ export function NoteComposerExpandedDialog({
           <TipTapEditor
             id={`job-note-composer-expanded-${jobId}${isDialogInstance ? "-dialog" : ""}`}
             value={draftNote}
-            onChange={(nextValue) =>
-              onDraftNoteChange(nextValue || EMPTY_TIPTAP_DOC)
-            }
+            onChange={(nextValue) => onDraftNoteChange(nextValue || EMPTY_TIPTAP_DOC)}
             onHardEnter={canSend ? () => void onSendNote() : undefined}
             placeholder="Write a note..."
             disabled={creatingNote}

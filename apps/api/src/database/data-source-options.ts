@@ -7,6 +7,7 @@ import { JobEntity } from "./entities/job.entity";
 import { JobNoteEntity } from "./entities/job-note.entity";
 import { JobStageEventEntity } from "./entities/job-stage-event.entity";
 import { MatchAnalysisEntity } from "./entities/match-analysis.entity";
+import { PlanEntity } from "./entities/plan.entity";
 import { ResumeEntity } from "./entities/resume.entity";
 import { SourceRunEntity } from "./entities/source-run.entity";
 import { SourceTemplateEntity } from "./entities/source-template.entity";
@@ -25,6 +26,7 @@ export const apiEntities = [
   JobStageEventEntity,
   JobNoteEntity,
   CompanyEntity,
+  PlanEntity,
   SourceRunEntity,
   SourceTemplateEntity,
   ExtensionActivityEventEntity,
@@ -39,9 +41,7 @@ export const apiSubscribers = [UuidGenerateSubscriber];
 
 export const apiMigrations = migrations;
 
-export function buildDataSourceOptions(
-  databaseUrl: string,
-): DataSourceOptions & { autoLoadEntities?: boolean } {
+export function buildDataSourceOptions(databaseUrl: string): DataSourceOptions & { autoLoadEntities?: boolean } {
   return {
     type: "postgres",
     url: databaseUrl,

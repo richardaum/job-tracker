@@ -1,9 +1,8 @@
 "use client";
 
 import { Card, cn, Text } from "@job-tracker/ui";
-import React from "react";
 
-import { MatchVerdict, RequirementType, Weight } from "@/gql/hooks";
+import { MatchSource, MatchVerdict, RequirementType, Weight } from "@/gql/hooks";
 
 import { RelevanceIcon } from "./RelevanceIcon";
 import { SourceBadge } from "./SourceBadge";
@@ -20,22 +19,15 @@ export interface MatchItem {
   suggestion?: string | null;
 }
 
-export function MatchItemCard({
-  item,
-  resumeId,
-  onPreferenceClick,
-}: {
-  item: MatchItem;
-  resumeId?: string;
-  onPreferenceClick?: () => void;
-}) {
+type MatchItemCardProps = { item: MatchItem; resumeId?: string; onPreferenceClick?: () => void };
+
+export function MatchItemCard({ item, resumeId, onPreferenceClick }: MatchItemCardProps) {
   const isFit = item.verdict === MatchVerdict.Fit;
   const isGap = item.verdict === MatchVerdict.Gap;
   const isUnclear = item.verdict === MatchVerdict.Unclear;
 
   const displayQuotes = item.sourceQuotes.filter(
-    (quote) =>
-      quote.trim().toLowerCase() !== item.requirement.trim().toLowerCase(),
+    (quote) => quote.trim().toLowerCase() !== item.requirement.trim().toLowerCase(),
   );
 
   return (
@@ -43,12 +35,8 @@ export function MatchItemCard({
       <div className={cn("flex items-center gap-1")}>
         <VerdictBadge verdict={item.verdict} />
         <div className={cn("ml-auto flex items-center gap-2")}>
-          <SourceBadge
-            source={item.source}
-            resumeId={resumeId}
-            onPreferenceClick={onPreferenceClick}
-          />
-          <RelevanceIcon weight={item.weight} type={item.type} />
+          <SourceBadge source={item.source as MatchSource} resumeId={resumeId} onPreferenceClick={onPreferenceClick} />
+          <RelevanceIcon weight={item.weight ?? undefined} type={item.type ?? undefined} />
         </div>
       </div>
 
@@ -70,12 +58,7 @@ export function MatchItemCard({
       {displayQuotes.length > 0 && (
         <div className={cn("flex flex-col gap-1")}>
           {displayQuotes.map((quote, i) => (
-            <blockquote
-              key={i}
-              className={cn(
-                "border-l-2 border-blue-400 pl-3 text-sm text-text-secondary",
-              )}
-            >
+            <blockquote key={i} className={cn("border-l-2 border-blue-400 pl-3 text-sm text-text-secondary")}>
               {quote}
             </blockquote>
           ))}

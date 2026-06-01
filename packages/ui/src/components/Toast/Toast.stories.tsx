@@ -27,12 +27,7 @@ export const Queue: Story = {
   args: {
     toasts: [
       { id: "a", intent: "info", title: "Import running" },
-      {
-        id: "b",
-        intent: "success",
-        title: "Job saved",
-        description: "The item is now available in your list.",
-      },
+      { id: "b", intent: "success", title: "Job saved", description: "The item is now available in your list." },
     ],
   },
 };

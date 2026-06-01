@@ -10,14 +10,10 @@ import { JobCard } from "./JobCard";
 
 const useJobStageEventsQueryMock = vi.fn();
 
-vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push: vi.fn(), prefetch: vi.fn(), replace: vi.fn() }),
-}));
+vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn(), prefetch: vi.fn(), replace: vi.fn() }) }));
 
 vi.mock("next/image", () => ({
-  default: (props: { alt?: string }) => (
-    <span data-testid="mock-image" aria-label={props.alt ?? ""} />
-  ),
+  default: (props: { alt?: string }) => <span data-testid="mock-image" aria-label={props.alt ?? ""} />,
 }));
 
 vi.mock("@/gql/hooks", () => ({
@@ -33,32 +29,20 @@ vi.mock("@/gql/hooks", () => ({
     Draft: "DRAFT",
   },
   SalaryPeriod: { Year: "YEAR", Month: "MONTH", Hour: "HOUR" },
-  JobSource: {
-    Jack: "JACK",
-    Linkedin: "LINKEDIN",
-    RemoteYeah: "REMOTE_YEAH",
-    Wellfound: "WELLFOUND",
-  },
-  useJobStageEventsQuery: (options?: { skip?: boolean }) =>
-    useJobStageEventsQueryMock(options),
+  JobSource: { Jack: "JACK", Linkedin: "LINKEDIN", RemoteYeah: "REMOTE_YEAH", Wellfound: "WELLFOUND" },
+  useJobStageEventsQuery: (options?: { skip?: boolean }) => useJobStageEventsQueryMock(options),
 }));
 
 vi.mock("./JobQuickEditDialog", () => ({ JobQuickEditDialog: () => null }));
 
 vi.mock("./DeleteJobDialog", () => ({
-  DeleteJobDialog: ({ trigger }: { trigger: ReactNode }) => (
-    <div>{trigger}</div>
-  ),
+  DeleteJobDialog: ({ trigger }: { trigger: ReactNode }) => <div>{trigger}</div>,
 }));
 
-vi.mock("@/modules/jobs/details/components/SalaryEditDialog", () => ({
-  SalaryEditDialog: () => null,
-}));
+vi.mock("@/modules/jobs/details/components/SalaryEditDialog", () => ({ SalaryEditDialog: () => null }));
 
 vi.mock("./JobTrackingPanel", () => ({
-  JobTrackingPanel: () => (
-    <div data-testid="tracking-panel">Tracking panel</div>
-  ),
+  JobTrackingPanel: () => <div data-testid="tracking-panel">Tracking panel</div>,
 }));
 
 function createJobFixture(overrides: Partial<JobCardJob> = {}): JobCardJob {
@@ -96,18 +80,12 @@ function createJobFixture(overrides: Partial<JobCardJob> = {}): JobCardJob {
 
 describe("JobCard", () => {
   beforeEach(() => {
-    useJobStageEventsQueryMock.mockImplementation(
-      (options: { skip?: boolean } | undefined) => {
-        if (options?.skip) {
-          return { data: undefined, loading: false, error: undefined };
-        }
-        return {
-          data: { jobStageEvents: [] },
-          loading: false,
-          error: undefined,
-        };
-      },
-    );
+    useJobStageEventsQueryMock.mockImplementation((options: { skip?: boolean } | undefined) => {
+      if (options?.skip) {
+        return { data: undefined, loading: false, error: undefined };
+      }
+      return { data: { jobStageEvents: [] }, loading: false, error: undefined };
+    });
   });
 
   it("shows Draft status badge when currentStage is Draft", () => {
@@ -118,9 +96,7 @@ describe("JobCard", () => {
         onError={() => {}}
       />,
     );
-    expect(
-      screen.getByRole("button", { name: /open status history for draft/i }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /open status history for draft/i })).toBeInTheDocument();
   });
 
   it("does not advertise Draft stage when job is Applied", () => {
@@ -137,40 +113,21 @@ describe("JobCard", () => {
   it("shows Untitled Draft when title is null", () => {
     render(
       <JobCard
-        job={createJobFixture({
-          title: null,
-          currentStage: ApplicationStage.New,
-        })}
+        job={createJobFixture({ title: null, currentStage: ApplicationStage.New })}
         onSuccess={() => {}}
         onError={() => {}}
       />,
     );
-    expect(
-      screen.getByRole("link", { name: JOB_DETAIL_TITLE_PLACEHOLDER }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: JOB_DETAIL_TITLE_PLACEHOLDER })).toBeInTheDocument();
   });
 
   it("shows actual title when title is present", () => {
-    render(
-      <JobCard
-        job={createJobFixture({ title: "Product Designer" })}
-        onSuccess={() => {}}
-        onError={() => {}}
-      />,
-    );
-    expect(
-      screen.getByRole("link", { name: "Product Designer" }),
-    ).toBeInTheDocument();
+    render(<JobCard job={createJobFixture({ title: "Product Designer" })} onSuccess={() => {}} onError={() => {}} />);
+    expect(screen.getByRole("link", { name: "Product Designer" })).toBeInTheDocument();
   });
 
   it("shows company meta when company has a non-empty name", () => {
-    render(
-      <JobCard
-        job={createJobFixture()}
-        onSuccess={() => {}}
-        onError={() => {}}
-      />,
-    );
+    render(<JobCard job={createJobFixture()} onSuccess={() => {}} onError={() => {}} />);
     expect(screen.getByTestId("job-card-company-meta")).toBeInTheDocument();
     expect(screen.getByText("Acme Corp")).toBeInTheDocument();
   });
@@ -178,30 +135,22 @@ describe("JobCard", () => {
   it("omits company from meta row when company name is empty", () => {
     render(
       <JobCard
-        job={createJobFixture({
-          company: { id: "company-1", name: "", description: null },
-        })}
+        job={createJobFixture({ company: { id: "company-1", name: "", description: null } })}
         onSuccess={() => {}}
         onError={() => {}}
       />,
     );
-    expect(
-      screen.queryByTestId("job-card-company-meta"),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByTestId("job-card-company-meta")).not.toBeInTheDocument();
   });
 
   it("omits company from meta row when company name is whitespace only", () => {
     render(
       <JobCard
-        job={createJobFixture({
-          company: { id: "company-1", name: "   ", description: null },
-        })}
+        job={createJobFixture({ company: { id: "company-1", name: "   ", description: null } })}
         onSuccess={() => {}}
         onError={() => {}}
       />,
     );
-    expect(
-      screen.queryByTestId("job-card-company-meta"),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByTestId("job-card-company-meta")).not.toBeInTheDocument();
   });
 });

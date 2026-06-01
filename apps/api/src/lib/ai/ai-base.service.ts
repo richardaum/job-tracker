@@ -8,13 +8,7 @@ import { OpenAIClient } from "./openai.client";
 import { PromptRendererService } from "./prompt-renderer.service";
 
 export type CallAiOptions =
-  | {
-      systemMessage: string;
-      userMessage: string;
-      model?: string;
-      responseFormat: "zod-response";
-      schema: ZodType;
-    }
+  | { systemMessage: string; userMessage: string; model?: string; responseFormat: "zod-response"; schema: ZodType }
   | {
       systemMessage: string;
       userMessage: string;
@@ -49,9 +43,7 @@ export class AiBaseService {
         );
 
         if (error) {
-          throw new BadRequestException(
-            `AI call failed: ${error instanceof Error ? error.message : String(error)}`,
-          );
+          throw new BadRequestException(`AI call failed: ${error instanceof Error ? error.message : String(error)}`);
         }
         if (!response) {
           throw new BadRequestException("AI returned no response.");
@@ -65,9 +57,7 @@ export class AiBaseService {
           throw new BadRequestException(message.refusal);
         }
         if (!message.parsed) {
-          throw new BadRequestException(
-            "AI returned a response that could not be parsed.",
-          );
+          throw new BadRequestException("AI returned a response that could not be parsed.");
         }
 
         return message.parsed;
@@ -82,38 +72,22 @@ export class AiBaseService {
               { role: "system", content: opts.systemMessage },
               { role: "user", content: opts.userMessage },
             ],
-            text: {
-              format: {
-                type: "json_schema",
-                name: "response",
-                strict: true,
-                schema: opts.schemaJson,
-              },
-            },
-            tools:
-              opts.responseFormat === "json-schema-with-web-search"
-                ? [{ type: "web_search_preview" }]
-                : undefined,
+            text: { format: { type: "json_schema", name: "response", strict: true, schema: opts.schemaJson } },
+            tools: opts.responseFormat === "json-schema-with-web-search" ? [{ type: "web_search_preview" }] : undefined,
             temperature: 0.1,
           }),
         );
 
         if (error) {
-          throw new BadRequestException(
-            `AI call failed: ${error instanceof Error ? error.message : String(error)}`,
-          );
+          throw new BadRequestException(`AI call failed: ${error instanceof Error ? error.message : String(error)}`);
         }
         if (!response) {
           throw new BadRequestException("AI returned no response.");
         }
 
-        const [parseError, parsed] = await tryRun(
-          Promise.resolve().then(() => JSON.parse(response.output_text)),
-        );
+        const [parseError, parsed] = await tryRun(Promise.resolve().then(() => JSON.parse(response.output_text)));
         if (parseError) {
-          throw new BadRequestException(
-            "AI returned a response that could not be parsed as JSON.",
-          );
+          throw new BadRequestException("AI returned a response that could not be parsed as JSON.");
         }
         return parsed as unknown;
       }

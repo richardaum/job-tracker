@@ -23,8 +23,7 @@ describe("SourceContentTabContent", () => {
     const html = `<p>Captured</p><script>alert(1)</script>`;
     render(<SourceContentTabContent htmlContent={html} />);
 
-    const srcDoc =
-      screen.getByTitle("Source posting HTML").getAttribute("srcDoc") ?? "";
+    const srcDoc = screen.getByTitle("Source posting HTML").getAttribute("srcDoc") ?? "";
     expect(srcDoc).toContain("Captured");
     expect(srcDoc).not.toContain("<script");
   });

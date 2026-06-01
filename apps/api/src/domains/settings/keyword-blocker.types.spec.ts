@@ -2,34 +2,29 @@ import "reflect-metadata";
 
 import { describe, expect, it } from "vitest";
 
-import {
-  BlockedKeywordInput,
-  BlockedKeywordType,
-  KeywordScope,
-  MatchMode,
-} from "./keyword-blocker.types";
+import { BlockedKeywordInput, BlockedKeywordType, KeywordScopeEnum, MatchModeEnum } from "./keyword-blocker.types";
 
 describe("KeywordScope", () => {
-  it("has TITLE member", () => {
-    expect(KeywordScope.TITLE).toBe("TITLE");
+  it("has Title member", () => {
+    expect(KeywordScopeEnum.Title).toBe("Title");
   });
 
-  it("has DESCRIPTION member", () => {
-    expect(KeywordScope.DESCRIPTION).toBe("DESCRIPTION");
+  it("has Description member", () => {
+    expect(KeywordScopeEnum.Description).toBe("Description");
   });
 
-  it("has COMPANY member", () => {
-    expect(KeywordScope.COMPANY).toBe("COMPANY");
+  it("has Company member", () => {
+    expect(KeywordScopeEnum.Company).toBe("Company");
   });
 });
 
 describe("MatchMode", () => {
-  it("has PARTIAL member", () => {
-    expect(MatchMode.PARTIAL).toBe("PARTIAL");
+  it("has Partial member", () => {
+    expect(MatchModeEnum.Partial).toBe("Partial");
   });
 
-  it("has EXACT member", () => {
-    expect(MatchMode.EXACT).toBe("EXACT");
+  it("has Exact member", () => {
+    expect(MatchModeEnum.Exact).toBe("Exact");
   });
 });
 
@@ -37,12 +32,12 @@ describe("BlockedKeywordType", () => {
   it("constructs with keyword, scope, and matchMode fields", () => {
     const instance = new BlockedKeywordType();
     instance.keyword = "test";
-    instance.scope = KeywordScope.TITLE;
-    instance.matchMode = MatchMode.PARTIAL;
+    instance.scope = KeywordScopeEnum.Title;
+    instance.matchMode = MatchModeEnum.Partial;
 
     expect(instance.keyword).toBe("test");
-    expect(instance.scope).toBe(KeywordScope.TITLE);
-    expect(instance.matchMode).toBe(MatchMode.PARTIAL);
+    expect(instance.scope).toBe(KeywordScopeEnum.Title);
+    expect(instance.matchMode).toBe(MatchModeEnum.Partial);
   });
 });
 
@@ -50,11 +45,11 @@ describe("BlockedKeywordInput", () => {
   it("constructs with keyword, scope, and matchMode fields", () => {
     const instance = new BlockedKeywordInput();
     instance.keyword = "test";
-    instance.scope = KeywordScope.DESCRIPTION;
-    instance.matchMode = MatchMode.EXACT;
+    instance.scope = KeywordScopeEnum.Description;
+    instance.matchMode = MatchModeEnum.Exact;
 
     expect(instance.keyword).toBe("test");
-    expect(instance.scope).toBe(KeywordScope.DESCRIPTION);
-    expect(instance.matchMode).toBe(MatchMode.EXACT);
+    expect(instance.scope).toBe(KeywordScopeEnum.Description);
+    expect(instance.matchMode).toBe(MatchModeEnum.Exact);
   });
 });

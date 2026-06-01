@@ -9,10 +9,7 @@ import pdfMake from "pdfmake/build/pdfmake";
 import helveticaFonts from "pdfmake/build/standard-fonts/Helvetica";
 
 import { htmlToPdfContent } from "@/lib/html-to-pdf-content";
-import {
-  defaultGetFileName,
-  type PdfExportConfig,
-} from "@/lib/pdf-export-config";
+import { defaultGetFileName, type PdfExportConfig } from "@/lib/pdf-export-config";
 import { ToolbarButton } from "@/modules/jobs/details/components/ToolbarButton";
 
 pdfMake.addFontContainer(helveticaFonts);
@@ -23,11 +20,7 @@ interface SaveAsPdfButtonProps {
   pdfExportConfig?: PdfExportConfig;
 }
 
-export function SaveAsPdfButton({
-  editor,
-  disabled = false,
-  pdfExportConfig,
-}: SaveAsPdfButtonProps) {
+export function SaveAsPdfButton({ editor, disabled = false, pdfExportConfig }: SaveAsPdfButtonProps) {
   async function handleExportPdf() {
     const [error] = await tryRun(
       (async () => {
@@ -40,28 +33,16 @@ export function SaveAsPdfButton({
         pdfMake
           .createPdf({
             content,
-            defaultStyle: {
-              font: "Helvetica",
-              fontSize: 10,
-              lineHeight: 1.4,
-              color: "#111",
-            },
+            defaultStyle: { font: "Helvetica", fontSize: 10, lineHeight: 1.4, color: "#111" },
             styles: {
               h1: { fontSize: 18, bold: true, margin: [0, 0, 0, 2] },
-              h2: {
-                fontSize: 11,
-                bold: true,
-                margin: [10, 0, 4, 0],
-                color: "#111",
-              },
+              h2: { fontSize: 11, bold: true, margin: [10, 0, 4, 0], color: "#111" },
               h3: { fontSize: 10, bold: true, margin: [8, 0, 2, 0] },
             },
             pageSize: "A4",
             pageMargins: [14, 14, 14, 14],
           })
-          .download(
-            (pdfExportConfig?.getFileName ?? defaultGetFileName)(new Date()),
-          );
+          .download((pdfExportConfig?.getFileName ?? defaultGetFileName)(new Date()));
       })(),
     );
     if (error) {

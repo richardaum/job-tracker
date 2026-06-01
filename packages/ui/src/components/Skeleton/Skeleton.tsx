@@ -1,9 +1,9 @@
+import type { HTMLAttributes } from "react";
 import { cn } from "@ui/lib/cn";
-import React from "react";
 
 export type SkeletonVariant = "text" | "rect" | "circle";
 
-export interface SkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface SkeletonProps extends HTMLAttributes<HTMLDivElement> {
   variant?: SkeletonVariant;
 }
 
@@ -13,16 +13,8 @@ const variantClasses: Record<SkeletonVariant, string> = {
   circle: "size-10 rounded-full",
 };
 
-export function Skeleton({
-  variant = "rect",
-  className,
-  ...props
-}: SkeletonProps) {
-  const classes = cn(
-    "animate-pulse bg-bg-surface-hover",
-    variantClasses[variant],
-    className,
-  );
+export function Skeleton({ variant = "rect", className, ...props }: SkeletonProps) {
+  const classes = cn("animate-pulse bg-bg-surface-hover", variantClasses[variant], className);
 
   return <div aria-hidden className={classes} {...props} />;
 }

@@ -8,7 +8,13 @@ const here = fileURLToPath(new URL(".", import.meta.url));
 const config: CodegenConfig = {
   schema: join(here, "../api/src/schema.gql"),
   documents: ["src/graphql/**/*.graphql"],
-  generates: { "src/gql/": { preset: "client" } },
+  generates: {
+    "src/gql/": { preset: "client" },
+    "src/gql/apiClient.ts": {
+      plugins: ["typescript", "typescript-operations", "typescript-graphql-request"],
+      config: { useTypeImports: true, rawRequest: false },
+    },
+  },
   ignoreNoDocuments: false,
 };
 

@@ -32,12 +32,9 @@ vi.mock("@/gql/hooks", async (importOriginal) => {
     useJobQuery: gqlMocks.useJobQuery,
     useGenerateJobMatchMutation: gqlMocks.useGenerateJobMatchMutation,
     useDeleteMatchAnalysisMutation: gqlMocks.useDeleteMatchAnalysisMutation,
-    useJobSummaryStatusChangedSubscription:
-      gqlMocks.useJobSummaryStatusChangedSubscription,
-    useJobFillStatusChangedSubscription:
-      gqlMocks.useJobFillStatusChangedSubscription,
-    useJobMatchStatusChangedSubscription:
-      gqlMocks.useJobMatchStatusChangedSubscription,
+    useJobSummaryStatusChangedSubscription: gqlMocks.useJobSummaryStatusChangedSubscription,
+    useJobFillStatusChangedSubscription: gqlMocks.useJobFillStatusChangedSubscription,
+    useJobMatchStatusChangedSubscription: gqlMocks.useJobMatchStatusChangedSubscription,
   };
 });
 
@@ -54,14 +51,9 @@ vi.mock("@apollo/client/react", () => ({
   }),
 }));
 
-vi.mock("@/modules/work-preferences/components/PreferencesDialog", () => ({
-  PreferencesDialog: () => null,
-}));
+vi.mock("@/modules/work-preferences/components/PreferencesDialog", () => ({ PreferencesDialog: () => null }));
 
-vi.mock(
-  "@/modules/match-analyses/details/components/MatchWizardDialog",
-  () => ({ MatchWizardDialog: () => null }),
-);
+vi.mock("@/modules/match-analyses/details/components/MatchWizardDialog", () => ({ MatchWizardDialog: () => null }));
 
 /** Fulfilling thenable lets `React.use(params)` unblock without suspense in jsdom tests. */
 function syncParamsResolved<T>(value: T) {
@@ -88,13 +80,10 @@ vi.mock("next/navigation", () => ({
   useSearchParams: () => useSearchParamsMock(),
 }));
 
-vi.mock("@/hooks/useBreakpoint", () => ({
-  useBreakpoint: (...args: unknown[]) => useBreakpointMock(...args),
-}));
+vi.mock("@/hooks/useBreakpoint", () => ({ useBreakpoint: (...args: unknown[]) => useBreakpointMock(...args) }));
 
 vi.mock("@/modules/jobs/details/hooks/useJobDetailsViewModel", () => ({
-  useJobDetailsViewModel: (id: string, options?: unknown) =>
-    useJobDetailsViewModelMock(id, options),
+  useJobDetailsViewModel: (id: string, options?: unknown) => useJobDetailsViewModelMock(id, options),
 }));
 
 vi.mock("@/modules/jobs/details/page/JobOverviewPage", () => ({
@@ -113,14 +102,10 @@ vi.mock("@/modules/jobs/details/components/ActivitySidePanel", () => ({
   ActivitySidePanel: () => <div data-testid="activity-mock" />,
 }));
 
-vi.mock("@/modules/jobs/details/components/UpdateStatusAction", () => ({
-  UpdateStatusAction: () => null,
-}));
+vi.mock("@/modules/jobs/details/components/UpdateStatusAction", () => ({ UpdateStatusAction: () => null }));
 
 vi.mock("@/modules/jobs/list/components/DeleteJobDialog", () => ({
-  DeleteJobDialog: ({ trigger }: { trigger: ReactNode }) => (
-    <div>{trigger}</div>
-  ),
+  DeleteJobDialog: ({ trigger }: { trigger: ReactNode }) => <div>{trigger}</div>,
 }));
 
 function setupMatchTabMocks(options: { jobMatch?: JobMatchData | undefined }) {
@@ -128,19 +113,10 @@ function setupMatchTabMocks(options: { jobMatch?: JobMatchData | undefined }) {
     data: options.jobMatch ? { jobMatch: options.jobMatch } : undefined,
     loading: false,
     error: undefined,
-    refetch: vi
-      .fn()
-      .mockResolvedValue({
-        data: options.jobMatch ? { jobMatch: options.jobMatch } : null,
-      }),
+    refetch: vi.fn().mockResolvedValue({ data: options.jobMatch ? { jobMatch: options.jobMatch } : null }),
   });
-  gqlMocks.useGenerateJobMatchMutation.mockReturnValue([
-    vi.fn().mockResolvedValue({}),
-    { loading: false },
-  ]);
-  gqlMocks.useDeleteMatchAnalysisMutation.mockReturnValue([
-    vi.fn().mockResolvedValue({}),
-  ]);
+  gqlMocks.useGenerateJobMatchMutation.mockReturnValue([vi.fn().mockResolvedValue({}), { loading: false }]);
+  gqlMocks.useDeleteMatchAnalysisMutation.mockReturnValue([vi.fn().mockResolvedValue({})]);
 }
 
 describe("JobDetailsLayout", () => {
@@ -198,15 +174,9 @@ describe("JobDetailsLayout", () => {
     const actions = screen.getByRole("button", { name: "Actions" });
     await user.click(actions);
 
-    expect(
-      screen.queryByRole("menuitem", { name: "Match analysis" }),
-    ).toBeNull();
-    expect(
-      screen.getByRole("menuitem", { name: "Fill job fields automatically" }),
-    ).toBeDefined();
-    expect(
-      screen.getByRole("menuitem", { name: "Update status" }),
-    ).toBeDefined();
+    expect(screen.queryByRole("menuitem", { name: "Match analysis" })).toBeNull();
+    expect(screen.getByRole("menuitem", { name: "Fill job fields automatically" })).toBeDefined();
+    expect(screen.getByRole("menuitem", { name: "Update status" })).toBeDefined();
     expect(screen.getByRole("menuitem", { name: "Remove" })).toBeDefined();
   });
 
@@ -217,13 +187,9 @@ describe("JobDetailsLayout", () => {
       </JobDetailsLayout>,
     );
 
-    expect(
-      await screen.findByRole("tab", { name: "Match" }),
-    ).toBeInTheDocument();
+    expect(await screen.findByRole("tab", { name: "Match" })).toBeInTheDocument();
 
-    expect(
-      await screen.findByRole("tab", { name: "Overview" }),
-    ).toBeInTheDocument();
+    expect(await screen.findByRole("tab", { name: "Overview" })).toBeInTheDocument();
   });
 
   it("selects Match tab when route is /jobs/[id]/match", async () => {
@@ -235,9 +201,7 @@ describe("JobDetailsLayout", () => {
       </JobDetailsLayout>,
     );
 
-    expect(
-      await screen.findByRole("tab", { name: "Match", selected: true }),
-    ).toBeInTheDocument();
+    expect(await screen.findByRole("tab", { name: "Match", selected: true })).toBeInTheDocument();
     expect(screen.getByTestId("match-child")).toBeInTheDocument();
   });
 
@@ -250,9 +214,7 @@ describe("JobDetailsLayout", () => {
       </JobDetailsLayout>,
     );
 
-    expect(
-      await screen.findByRole("tab", { name: "Notes", selected: true }),
-    ).toBeInTheDocument();
+    expect(await screen.findByRole("tab", { name: "Notes", selected: true })).toBeInTheDocument();
     expect(screen.getByTestId("notes-child")).toBeInTheDocument();
   });
 
@@ -266,12 +228,8 @@ describe("JobDetailsLayout", () => {
       </JobDetailsLayout>,
     );
 
-    expect(
-      await screen.findByRole("tab", { name: "Notes", selected: true }),
-    ).toBeInTheDocument();
-    expect(
-      await screen.findByRole("tab", { name: "History" }),
-    ).toBeInTheDocument();
+    expect(await screen.findByRole("tab", { name: "Notes", selected: true })).toBeInTheDocument();
+    expect(await screen.findByRole("tab", { name: "History" })).toBeInTheDocument();
     expect(screen.queryByTestId("activity-mock")).toBeNull();
   });
 
@@ -285,12 +243,8 @@ describe("JobDetailsLayout", () => {
       </JobDetailsLayout>,
     );
 
-    expect(
-      await screen.findByRole("tab", { name: "History", selected: true }),
-    ).toBeInTheDocument();
-    expect(
-      await screen.findByRole("tab", { name: "Notes" }),
-    ).toBeInTheDocument();
+    expect(await screen.findByRole("tab", { name: "History", selected: true })).toBeInTheDocument();
+    expect(await screen.findByRole("tab", { name: "Notes" })).toBeInTheDocument();
     expect(screen.queryByTestId("activity-mock")).toBeNull();
   });
 
@@ -321,17 +275,13 @@ describe("JobDetailsLayout", () => {
     await user.click(screen.getByRole("button", { name: "Actions" }));
 
     expect(screen.queryByRole("menuitem", { name: /view resume/i })).toBeNull();
-    expect(
-      screen.queryByRole("menuitem", { name: /view preferences/i }),
-    ).toBeNull();
+    expect(screen.queryByRole("menuitem", { name: /view preferences/i })).toBeNull();
   });
 
   it("shows match Actions menu items when MatchTabContent is mounted on match route", async () => {
     usePathnameMock.mockReturnValue("/jobs/job-1/match");
     const user = userEvent.setup();
-    const items = [
-      mockMatchItem({ verdict: MatchVerdict.Fit, requirement: "Skill A fit" }),
-    ];
+    const items = [mockMatchItem({ verdict: MatchVerdict.Fit, requirement: "Skill A fit" })];
     setupMatchTabMocks({ jobMatch: completedJobMatch(items) });
 
     render(
@@ -340,21 +290,15 @@ describe("JobDetailsLayout", () => {
       </JobDetailsLayout>,
     );
 
-    expect(
-      await screen.findByRole("button", { name: /^regenerate$/i }),
-    ).toBeInTheDocument();
+    expect(await screen.findByRole("button", { name: /^regenerate$/i })).toBeInTheDocument();
 
     expect(await screen.findByRole("tab", { name: "All" })).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: "Fits" })).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "Actions" }));
 
-    expect(
-      screen.getByRole("menuitem", { name: /view resume/i }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("menuitem", { name: /view preferences/i }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("menuitem", { name: /view resume/i })).toBeInTheDocument();
+    expect(screen.getByRole("menuitem", { name: /view preferences/i })).toBeInTheDocument();
   });
 
   it("preserves ?s= in desktop main tab links", async () => {
@@ -367,9 +311,6 @@ describe("JobDetailsLayout", () => {
       </JobDetailsLayout>,
     );
 
-    expect(screen.getByRole("tab", { name: "Match" })).toHaveAttribute(
-      "href",
-      "/jobs/job-1/match?s=history",
-    );
+    expect(screen.getByRole("tab", { name: "Match" })).toHaveAttribute("href", "/jobs/job-1/match?s=history");
   });
 });

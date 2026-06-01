@@ -3,11 +3,7 @@ import { tipTapToPlainText } from "@job-tracker/tiptap";
 import { Injectable, Logger } from "@nestjs/common";
 
 import type { BlockVerdict } from "./keyword-blocker.types";
-import {
-  type BlockedKeyword,
-  KeywordScope,
-  MatchMode,
-} from "./keyword-blocker.types";
+import { type BlockedKeyword, KeywordScopeEnum, MatchModeEnum } from "./keyword-blocker.types";
 
 @Injectable()
 export class KeywordBlockerService {
@@ -26,35 +22,27 @@ export class KeywordBlockerService {
     const keywords = (settings.blockedKeywords ?? []) as BlockedKeyword[];
 
     if (companies.some((c) => c.toLowerCase() === companyName.toLowerCase())) {
-      this.logger.log(
-        `[KeywordBlocker] Blocked — company "${companyName}" matched in COMPANY`,
-      );
-      return {
-        matched: true,
-        keyword: companyName,
-        scope: KeywordScope.COMPANY,
-      };
+      this.logger.log(`[KeywordBlocker] Blocked — company "${companyName}" matched in COMPANY`);
+      return { matched: true, keyword: companyName, scope: KeywordScopeEnum.Company };
     }
 
     const descriptionText = description ? tipTapToPlainText(description) : "";
 
     for (const bk of keywords) {
       const target =
-        bk.scope === KeywordScope.TITLE
+        bk.scope === KeywordScopeEnum.Title
           ? title
-          : bk.scope === KeywordScope.DESCRIPTION
+          : bk.scope === KeywordScopeEnum.Description
             ? descriptionText
             : companyName;
 
       const match =
-        bk.matchMode === MatchMode.EXACT
+        bk.matchMode === MatchModeEnum.Exact
           ? target.toLowerCase() === bk.keyword.toLowerCase()
           : target.toLowerCase().includes(bk.keyword.toLowerCase());
 
       if (match) {
-        this.logger.log(
-          `[KeywordBlocker] Blocked — keyword "${bk.keyword}" matched in ${bk.scope}`,
-        );
+        this.logger.log(`[KeywordBlocker] Blocked — keyword "${bk.keyword}" matched in ${bk.scope}`);
         return { matched: true, keyword: bk.keyword, scope: bk.scope };
       }
     }

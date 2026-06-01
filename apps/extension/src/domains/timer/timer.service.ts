@@ -8,26 +8,23 @@ export type WaitForPollOptions = {
 
 /** Delays and polling for DOM automation; inject a fake in tests. */
 export interface TimerService {
-  /** Short fixed pause (e.g. before scroll/click). */
+  /** Short random pause up to 2s (e.g. before scroll/click). */
   smallDelay(): Promise<void>;
-  /** Longer random pause (e.g. human-like jitter before a row). */
+  /** Longer random pause up to 5s (e.g. human-like jitter before a row). */
   longDelay(): Promise<void>;
   /**
    * Runs `predicate` in a loop: wait `intervalMs` between tries until it returns
    * a truthy value or `maxWaitMs` has elapsed since the first check.
    */
-  waitFor<T>(
-    predicate: () => T | null | undefined | false,
-    options: WaitForPollOptions,
-  ): Promise<NonNullable<T>>;
+  waitFor<T>(predicate: () => T | null | undefined | false, options: WaitForPollOptions): Promise<NonNullable<T>>;
 }
 
-export const SMALL_DELAY_MS = 75;
-const LONG_DELAY_MAX_MS = 2000;
+const SMALL_DELAY_MAX_MS = 1000;
+const LONG_DELAY_MAX_MS = 3000;
 
 export class DefaultTimerService implements TimerService {
   async smallDelay(): Promise<void> {
-    await sleep(SMALL_DELAY_MS);
+    await sleep(Math.random() * SMALL_DELAY_MAX_MS);
   }
 
   async longDelay(): Promise<void> {

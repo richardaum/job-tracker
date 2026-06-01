@@ -16,9 +16,7 @@ vi.mock("next/navigation", () => ({
 }));
 
 vi.mock("next/image", () => ({
-  default: (props: { alt?: string; src?: string }) => (
-    <span data-testid="mock-image" aria-label={props.alt ?? ""} />
-  ),
+  default: (props: { alt?: string; src?: string }) => <span data-testid="mock-image" aria-label={props.alt ?? ""} />,
 }));
 
 vi.mock("next/link", () => ({
@@ -35,21 +33,13 @@ vi.mock("next/link", () => ({
     "aria-label"?: string;
     [key: string]: unknown;
   }) => (
-    <a
-      href={href}
-      onClick={onClick}
-      aria-label={ariaLabel}
-      data-testid={`link-${href}`}
-      {...props}
-    >
+    <a href={href} onClick={onClick} aria-label={ariaLabel} data-testid={`link-${href}`} {...props}>
       {children}
     </a>
   ),
 }));
 
-vi.mock("@/lib/api-endpoints", () => ({
-  getApiBaseUrl: () => "http://localhost:3101",
-}));
+vi.mock("@/lib/api-endpoints", () => ({ getApiBaseUrl: () => "http://localhost:3101" }));
 
 const clearStoreMock = vi.fn().mockResolvedValue(undefined);
 
@@ -59,15 +49,11 @@ vi.mock("@apollo/client/react", async (importOriginal) => {
 });
 
 vi.mock("@/modules/navigation/components/AppBrandMark", () => ({
-  AppBrandMark: ({ size: _size }: { size?: number }) => (
-    <span data-testid="brand-mark" />
-  ),
+  AppBrandMark: ({ size: _size }: { size?: number }) => <span data-testid="brand-mark" />,
 }));
 
 vi.mock("@/modules/navigation/components/ObfuscatedText", () => ({
-  ObfuscatedText: ({ text }: { text: string; obfuscatedText: string }) => (
-    <span>{text}</span>
-  ),
+  ObfuscatedText: ({ text }: { text: string; obfuscatedText: string }) => <span>{text}</span>,
 }));
 
 const mockUser: CurrentUser = {
@@ -103,10 +89,7 @@ describe("Sidebar", () => {
   });
 
   it("user card shows avatar image when avatarUrl present", () => {
-    const userWithAvatar: CurrentUser = {
-      ...mockUser,
-      avatarUrl: "https://example.com/avatar.jpg",
-    };
+    const userWithAvatar: CurrentUser = { ...mockUser, avatarUrl: "https://example.com/avatar.jpg" };
     render(<Sidebar user={userWithAvatar} />);
     const imgs = screen.getAllByTestId("mock-image");
     expect(imgs.length).toBeGreaterThanOrEqual(1);
@@ -151,9 +134,7 @@ describe("Sidebar", () => {
     expect(screen.getAllByText("Jobs").length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText("Sources").length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText("Companies").length).toBeGreaterThanOrEqual(1);
-    expect(
-      screen.getAllByText("Salary Calculator").length,
-    ).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("Salary Calculator").length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText("Admin").length).toBeGreaterThanOrEqual(1);
   });
 

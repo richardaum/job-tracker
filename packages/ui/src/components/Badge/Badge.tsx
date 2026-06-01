@@ -1,9 +1,9 @@
+import type { HTMLAttributes } from "react";
 import { cn } from "@ui/lib/cn";
-import React from "react";
 
 export type BadgeIntent = "default" | "success" | "warning" | "error" | "info";
 
-export interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
+export interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
   intent?: BadgeIntent;
   interactive?: boolean;
 }
@@ -14,22 +14,13 @@ export interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
  */
 const intentClasses: Record<BadgeIntent, string> = {
   default: "border-border-default bg-bg-field text-text-secondary",
-  success:
-    "border-transparent bg-bg-success-subtle text-[color:var(--primitive-color-green-700)]",
-  warning:
-    "border-transparent bg-bg-warning-subtle text-[color:var(--primitive-color-yellow-950)]",
-  error:
-    "border-transparent bg-bg-error-subtle text-[color:var(--primitive-color-red-700)]",
+  success: "border-transparent bg-bg-success-subtle text-[color:var(--primitive-color-green-700)]",
+  warning: "border-transparent bg-bg-warning-subtle text-[color:var(--primitive-color-yellow-950)]",
+  error: "border-transparent bg-bg-error-subtle text-[color:var(--primitive-color-red-700)]",
   info: "border-transparent bg-bg-info-subtle text-text-primary",
 };
 
-export function Badge({
-  intent = "default",
-  interactive,
-  className,
-  children,
-  ...props
-}: BadgeProps) {
+export function Badge({ intent = "default", interactive, className, children, ...props }: BadgeProps) {
   const classes = cn(
     "inline-flex items-center rounded border px-1.5 py-0.5 text-[11px]/4 font-normal",
     intentClasses[intent],

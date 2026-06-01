@@ -13,49 +13,19 @@ const REPO_ROOT = resolve(fileURLToPath(new URL("..", import.meta.url)));
 
 type TestStatus = "passed" | "failed" | "skipped" | "pending" | "timedOut";
 
-export type TestTarget = {
-  id: string;
-  cwd: string;
-  runner: "vitest" | "playwright";
-  args: readonly string[];
-};
+export type TestTarget = { id: string; cwd: string; runner: "vitest" | "playwright"; args: readonly string[] };
 
 export const VITEST_TARGETS: readonly TestTarget[] = [
   { id: "@job-tracker/api", cwd: "apps/api", runner: "vitest", args: [] },
   { id: "@job-tracker/web", cwd: "apps/web", runner: "vitest", args: [] },
-  {
-    id: "@job-tracker/ui",
-    cwd: "packages/ui",
-    runner: "vitest",
-    args: ["--project=unit"],
-  },
-  {
-    id: "@job-tracker/react-slots",
-    cwd: "packages/react-slots",
-    runner: "vitest",
-    args: [],
-  },
-  {
-    id: "@job-tracker/html-sanitize",
-    cwd: "packages/html-sanitize",
-    runner: "vitest",
-    args: [],
-  },
-  {
-    id: "@job-tracker/extension",
-    cwd: "apps/extension",
-    runner: "vitest",
-    args: [],
-  },
+  { id: "@job-tracker/ui", cwd: "packages/ui", runner: "vitest", args: ["--project=unit"] },
+  { id: "@job-tracker/react-slots", cwd: "packages/react-slots", runner: "vitest", args: [] },
+  { id: "@job-tracker/html-sanitize", cwd: "packages/html-sanitize", runner: "vitest", args: [] },
+  { id: "@job-tracker/extension", cwd: "apps/extension", runner: "vitest", args: [] },
 ];
 
 export const E2E_TARGETS: readonly TestTarget[] = [
-  {
-    id: "@job-tracker/web:e2e",
-    cwd: "apps/web",
-    runner: "playwright",
-    args: [],
-  },
+  { id: "@job-tracker/web:e2e", cwd: "apps/web", runner: "playwright", args: [] },
 ];
 
 /** Wall-clock ms from last valid run (2026-05-24, local dev). */
@@ -75,10 +45,7 @@ export const MIN_TARGET_TIMEOUT_MS = 30_000;
 export const DEFAULT_IDLE_TIMEOUT_MS = 60_000;
 export const PROGRESS_LOG_INTERVAL_MS = 5_000;
 
-export function resolveTargetTimeoutMs(
-  targetId: string,
-  multiplier = DEFAULT_TIMEOUT_MULTIPLIER,
-): number {
+export function resolveTargetTimeoutMs(targetId: string, multiplier = DEFAULT_TIMEOUT_MULTIPLIER): number {
   const baseline = TARGET_BASELINE_MS[targetId] ?? DEFAULT_TARGET_BASELINE_MS;
   return Math.max(MIN_TARGET_TIMEOUT_MS, Math.ceil(baseline * multiplier));
 }
@@ -121,9 +88,7 @@ export function buildFilteredPnpmTestCommand(
       ...target.args,
       ...grepArgs,
       ...reporters.map((reporter) => `--reporter=${reporter}`),
-      ...(options?.vitestOutputFile
-        ? [`--outputFile=${options.vitestOutputFile}`]
-        : []),
+      ...(options?.vitestOutputFile ? [`--outputFile=${options.vitestOutputFile}`] : []),
     ];
   }
 
@@ -139,29 +104,17 @@ export function buildFilteredPnpmTestCommand(
   ];
 }
 
-export type ParsedVitestVerboseLine = {
-  status: "passed" | "failed" | "skipped";
-  file: string;
-  fullName: string;
-};
+export type ParsedVitestVerboseLine = { status: "passed" | "failed" | "skipped"; file: string; fullName: string };
 
 const VITEST_VERBOSE_LINE = /^\s*([✓×✗↓])\s+(.+?)\s>\s*(.+?)(?:\s+\d+m?s)?\s*$/;
 
-export function parseVitestVerboseLine(
-  line: string,
-): ParsedVitestVerboseLine | undefined {
+export function parseVitestVerboseLine(line: string): ParsedVitestVerboseLine | undefined {
   const match = VITEST_VERBOSE_LINE.exec(line.trimEnd());
   if (!match) return undefined;
 
   const symbol = match[1];
   const status =
-    symbol === "✓"
-      ? "passed"
-      : symbol === "↓"
-        ? "skipped"
-        : symbol === "×" || symbol === "✗"
-          ? "failed"
-          : undefined;
+    symbol === "✓" ? "passed" : symbol === "↓" ? "skipped" : symbol === "×" || symbol === "✗" ? "failed" : undefined;
   if (!status) return undefined;
 
   return { status, file: match[2].trim(), fullName: match[3].trim() };
@@ -189,10 +142,7 @@ export function createLiveRunProgress(startedAt = Date.now()): LiveRunProgress {
   };
 }
 
-export function applyVitestVerboseLine(
-  progress: LiveRunProgress,
-  line: string,
-): ParsedVitestVerboseLine | undefined {
+export function applyVitestVerboseLine(progress: LiveRunProgress, line: string): ParsedVitestVerboseLine | undefined {
   progress.lastActivityAt = Date.now();
   progress.lastLine = line.trim();
 
@@ -249,33 +199,17 @@ export type FlakyDetectionOptions = {
   idleTimeoutMs: number;
 };
 
-type VitestAssertionResult = {
-  fullName?: string;
-  status?: string;
-  failureMessages?: string[];
-};
+type VitestAssertionResult = { fullName?: string; status?: string; failureMessages?: string[] };
 
-type VitestJsonReport = {
-  testResults?: Array<{
-    name?: string;
-    assertionResults?: VitestAssertionResult[];
-  }>;
-};
+type VitestJsonReport = { testResults?: Array<{ name?: string; assertionResults?: VitestAssertionResult[] }> };
 
 type PlaywrightJsonReport = { suites?: PlaywrightSuite[] };
 
-type PlaywrightSuite = {
-  title?: string;
-  file?: string;
-  suites?: PlaywrightSuite[];
-  specs?: PlaywrightSpec[];
-};
+type PlaywrightSuite = { title?: string; file?: string; suites?: PlaywrightSuite[]; specs?: PlaywrightSpec[] };
 
 type PlaywrightSpec = { title?: string; tests?: PlaywrightTest[] };
 
-type PlaywrightTest = {
-  results?: Array<{ status?: string; error?: { message?: string } }>;
-};
+type PlaywrightTest = { results?: Array<{ status?: string; error?: { message?: string } }> };
 
 type SpawnCaptureResult = {
   status: number | null;
@@ -291,9 +225,7 @@ export function stripScriptArgv(argv: readonly string[]): string[] {
   return separatorIndex >= 0 ? argv.slice(separatorIndex + 1) : [...argv];
 }
 
-export async function parseFlakyDetectionArgs(
-  argv: readonly string[],
-): Promise<FlakyDetectionOptions> {
+export async function parseFlakyDetectionArgs(argv: readonly string[]): Promise<FlakyDetectionOptions> {
   const { default: yargs } = await import("yargs");
   const userArgs = stripScriptArgv(argv);
 
@@ -305,34 +237,16 @@ export async function parseFlakyDetectionArgs(
         "Streams test output live, detects stale runs when output stops, and flags flaky\n" +
         "tests as soon as pass/fail outcomes diverge across repetitions.",
     )
-    .option("runs", {
-      type: "number",
-      default: 10,
-      description: "Number of repetitions per target",
-    })
+    .option("runs", { type: "number", default: 10, description: "Number of repetitions per target" })
     .option("scope", {
       choices: ["unit", "e2e", "all"] as const,
       default: "unit" as const,
       description: "Which tests to run",
     })
-    .option("package", {
-      type: "string",
-      description: "Run only one target (e.g. @job-tracker/web)",
-    })
-    .option("grep", {
-      type: "string",
-      description: "Filter tests by name (regex)",
-    })
-    .option("build", {
-      type: "boolean",
-      default: true,
-      description: 'Run "pnpm turbo build" before unit runs',
-    })
-    .option("fail", {
-      type: "boolean",
-      default: true,
-      description: "Exit 1 when flaky tests are found",
-    })
+    .option("package", { type: "string", description: "Run only one target (e.g. @job-tracker/web)" })
+    .option("grep", { type: "string", description: "Filter tests by name (regex)" })
+    .option("build", { type: "boolean", default: true, description: 'Run "pnpm turbo build" before unit runs' })
+    .option("fail", { type: "boolean", default: true, description: "Exit 1 when flaky tests are found" })
     .option("timeout-multiplier", {
       type: "number",
       default: DEFAULT_TIMEOUT_MULTIPLIER,
@@ -344,10 +258,7 @@ export async function parseFlakyDetectionArgs(
       description: "Kill when no output for n ms",
     })
     .example("pnpm test:flaky", "Run 10 unit repetitions per target")
-    .example(
-      "pnpm test:flaky -- --runs 20 --package @job-tracker/web",
-      "Repeat web unit tests 20 times",
-    )
+    .example("pnpm test:flaky -- --runs 20 --package @job-tracker/web", "Repeat web unit tests 20 times")
     .example("pnpm test:flaky -- --scope e2e --runs 5", "Run e2e suite 5 times")
     .example('pnpm test:flaky -- --grep "JobCard"', "Filter by test name")
     .help()
@@ -361,9 +272,7 @@ export async function parseFlakyDetectionArgs(
         throw new Error(`${TAG} --runs must be an integer >= 2.`);
       }
       if (!Number.isFinite(timeoutMultiplier) || timeoutMultiplier <= 0) {
-        throw new Error(
-          `${TAG} --timeout-multiplier must be a positive number.`,
-        );
+        throw new Error(`${TAG} --timeout-multiplier must be a positive number.`);
       }
       if (!Number.isInteger(idleTimeoutMs) || idleTimeoutMs < 1_000) {
         throw new Error(`${TAG} --idle-timeout-ms must be an integer >= 1000.`);
@@ -383,9 +292,7 @@ export async function parseFlakyDetectionArgs(
     .parse();
 
   const grep = typeof parsed.grep === "string" ? parsed.grep : undefined;
-  const [, compiledNameFilter] = grep
-    ? tryRun(() => new RegExp(grep))
-    : [undefined, undefined];
+  const [, compiledNameFilter] = grep ? tryRun(() => new RegExp(grep)) : [undefined, undefined];
 
   return {
     runs: parsed.runs,
@@ -416,10 +323,7 @@ function normalizeStatus(raw: string | undefined): TestStatus {
   }
 }
 
-export function parseVitestReport(
-  targetId: string,
-  report: VitestJsonReport,
-): ParsedTestResult[] {
+export function parseVitestReport(targetId: string, report: VitestJsonReport): ParsedTestResult[] {
   const results: ParsedTestResult[] = [];
   for (const suite of report.testResults ?? []) {
     const file = suite.name ?? "<unknown>";
@@ -466,10 +370,7 @@ function collectPlaywrightSpecResults(
   }
 }
 
-export function parsePlaywrightReport(
-  targetId: string,
-  report: PlaywrightJsonReport,
-): ParsedTestResult[] {
+export function parsePlaywrightReport(targetId: string, report: PlaywrightJsonReport): ParsedTestResult[] {
   const results: ParsedTestResult[] = [];
   for (const suite of report.suites ?? []) {
     collectPlaywrightSpecResults(targetId, suite, [], results);
@@ -477,9 +378,7 @@ export function parsePlaywrightReport(
   return results;
 }
 
-function testKey(
-  result: Pick<ParsedTestResult, "targetId" | "file" | "fullName">,
-): string {
+function testKey(result: Pick<ParsedTestResult, "targetId" | "file" | "fullName">): string {
   return `${result.targetId}::${result.file}::${result.fullName}`;
 }
 
@@ -573,10 +472,7 @@ export function classifyStats(stats: TestRunStats[]): {
     stable.push(entry);
   }
 
-  flaky.sort(
-    (a, b) =>
-      b.failCount / b.runs - a.failCount / a.runs || b.failCount - a.failCount,
-  );
+  flaky.sort((a, b) => b.failCount / b.runs - a.failCount / a.runs || b.failCount - a.failCount);
   alwaysFailing.sort((a, b) => b.failCount - a.failCount);
 
   return { flaky, alwaysFailing, stable };
@@ -595,20 +491,14 @@ function resolveTargets(options: FlakyDetectionOptions): TestTarget[] {
   const match = byScope.filter((target) => target.id === options.packageFilter);
   if (match.length === 0) {
     const available = byScope.map((target) => target.id).join(", ");
-    throw new Error(
-      `Unknown package "${options.packageFilter}". Available: ${available}`,
-    );
+    throw new Error(`Unknown package "${options.packageFilter}". Available: ${available}`);
   }
   return match;
 }
 
 function runBuild(): void {
   console.log(`${TAG} Building workspace dependencies...`);
-  const result = spawnSync("pnpm", ["turbo", "build"], {
-    cwd: REPO_ROOT,
-    stdio: "inherit",
-    env: process.env,
-  });
+  const result = spawnSync("pnpm", ["turbo", "build"], { cwd: REPO_ROOT, stdio: "inherit", env: process.env });
   if (result.status !== 0) {
     throw new Error("turbo build failed");
   }
@@ -668,11 +558,7 @@ function spawnPnpmWithLiveDetection(
     let timedOut = false;
     let staleReason: "idle" | "suite" | undefined;
 
-    const child = spawn("pnpm", [...command], {
-      cwd,
-      env,
-      stdio: ["ignore", "pipe", "pipe"],
-    });
+    const child = spawn("pnpm", [...command], { cwd, env, stdio: ["ignore", "pipe", "pipe"] });
 
     const killChild = (reason: "idle" | "suite") => {
       staleReason = reason;
@@ -697,9 +583,7 @@ function spawnPnpmWithLiveDetection(
           return;
         }
 
-        console.log(
-          `${TAG}    … ${formatProgressSummary(progress)} (idle ${Math.round(idleForMs / 1000)}s)`,
-        );
+        console.log(`${TAG}    … ${formatProgressSummary(progress)} (idle ${Math.round(idleForMs / 1000)}s)`);
       }, PROGRESS_LOG_INTERVAL_MS),
     ];
 
@@ -739,11 +623,7 @@ function spawnPnpmWithLiveDetection(
             ? `no output for ${context.idleTimeoutMs}ms (last activity ${Math.round(idleForMs / 1000)}s ago)`
             : `exceeded suite timeout ${context.timeoutMs}ms (baseline ${context.baselineMs}ms × ${context.timeoutMultiplier})`;
 
-        reject(
-          new Error(
-            `${target.id} stale run detected: ${reason}. Last seen: ${lastTest}`,
-          ),
-        );
+        reject(new Error(`${target.id} stale run detected: ${reason}. Last seen: ${lastTest}`));
         return;
       }
 
@@ -768,30 +648,21 @@ async function runTargetOnce(
 
   const env = {
     ...process.env,
-    ...(target.runner === "playwright"
-      ? { PLAYWRIGHT_JSON_OUTPUT_NAME: outputFile }
-      : {}),
+    ...(target.runner === "playwright" ? { PLAYWRIGHT_JSON_OUTPUT_NAME: outputFile } : {}),
   };
 
   const startedAt = Date.now();
   const timeoutMs = resolveTargetTimeoutMs(target.id, timeoutMultiplier);
-  const baselineMs =
-    TARGET_BASELINE_MS[target.id] ?? DEFAULT_TARGET_BASELINE_MS;
+  const baselineMs = TARGET_BASELINE_MS[target.id] ?? DEFAULT_TARGET_BASELINE_MS;
 
-  const result = await spawnPnpmWithLiveDetection(
-    command,
-    REPO_ROOT,
-    env,
-    target,
-    {
-      outputFile,
-      startedAt,
-      timeoutMs,
-      idleTimeoutMs,
-      baselineMs,
-      timeoutMultiplier,
-    },
-  );
+  const result = await spawnPnpmWithLiveDetection(command, REPO_ROOT, env, target, {
+    outputFile,
+    startedAt,
+    timeoutMs,
+    idleTimeoutMs,
+    baselineMs,
+    timeoutMultiplier,
+  });
 
   let parsed: ParsedTestResult[] = [];
   const [parseError, parsedFromReport] = tryRun(() => {
@@ -802,9 +673,7 @@ async function runTargetOnce(
       : parsePlaywrightReport(target.id, report as PlaywrightJsonReport);
   });
   if (parseError) {
-    console.warn(
-      `${TAG} Could not parse JSON report for ${target.id}: ${parseError.message}`,
-    );
+    console.warn(`${TAG} Could not parse JSON report for ${target.id}: ${parseError.message}`);
   } else {
     parsed = parsedFromReport;
   }
@@ -814,9 +683,7 @@ async function runTargetOnce(
   }
 
   const elapsedSec = ((Date.now() - startedAt) / 1000).toFixed(1);
-  console.log(
-    `${TAG}    done in ${elapsedSec}s — ${formatProgressSummary(result.progress)}`,
-  );
+  console.log(`${TAG}    done in ${elapsedSec}s — ${formatProgressSummary(result.progress)}`);
 
   return parsed;
 }
@@ -855,9 +722,7 @@ function printReport(
   if (classified.alwaysFailing.length > 0) {
     console.log(`\n${TAG} Always failing (not flaky, but broken):`);
     for (const entry of classified.alwaysFailing) {
-      console.log(
-        `  - [${entry.targetId}] ${entry.fullName} (${entry.failCount}/${entry.runs} fails)`,
-      );
+      console.log(`  - [${entry.targetId}] ${entry.fullName} (${entry.failCount}/${entry.runs} fails)`);
     }
   }
 
@@ -880,10 +745,7 @@ export async function detectFlakyTests(
     for (let run = 1; run <= options.runs; run += 1) {
       console.log(`\n${TAG} Run ${run}/${options.runs}`);
       for (const target of targets) {
-        const outputFile = join(
-          tempDir,
-          `${safeTargetFileStem(target.id)}-${run}.json`,
-        );
+        const outputFile = join(tempDir, `${safeTargetFileStem(target.id)}-${run}.json`);
         console.log(`${TAG}  → ${target.id}`);
         const runResults = await runTargetOnce(
           target,
@@ -912,9 +774,7 @@ export async function detectFlakyTests(
 }
 
 const selfResolved = resolve(fileURLToPath(import.meta.url));
-const invokedDirectly =
-  typeof process.argv[1] === "string" &&
-  resolve(process.argv[1]) === selfResolved;
+const invokedDirectly = typeof process.argv[1] === "string" && resolve(process.argv[1]) === selfResolved;
 
 if (invokedDirectly) {
   parseFlakyDetectionArgs(process.argv.slice(2))

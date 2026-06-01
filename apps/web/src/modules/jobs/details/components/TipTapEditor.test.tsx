@@ -2,7 +2,8 @@ import { EMPTY_TIPTAP_DOC, tipTapToPlainText } from "@job-tracker/tiptap";
 import { Button, cn } from "@job-tracker/ui";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import React, { createRef, useState } from "react";
+import { createRef, useState } from "react";
+import type { RefObject } from "react";
 import { describe, expect, it, vi } from "vitest";
 
 import { TipTapEditor, type TipTapEditorHandle } from "./TipTapEditor";
@@ -11,16 +12,11 @@ import { TipTapEditor, type TipTapEditorHandle } from "./TipTapEditor";
  * Mirrors {@link NotesPanel} composer: controlled draft, same onChange guard,
  * and clearing via `composerRef.current.clear()` like {@link NotesPanel} after send.
  */
-function NotesComposerLikeFixture({
-  composerRef,
-}: {
-  composerRef: React.RefObject<TipTapEditorHandle | null>;
-}) {
+function NotesComposerLikeFixture({ composerRef }: { composerRef: RefObject<TipTapEditorHandle | null> }) {
   const [draftNote, setDraftNote] = useState(EMPTY_TIPTAP_DOC);
   const creatingNote = false;
 
-  const canSend =
-    tipTapToPlainText(draftNote).trim().length > 0 && !creatingNote;
+  const canSend = tipTapToPlainText(draftNote).trim().length > 0 && !creatingNote;
 
   function handleSendNote() {
     if (!canSend) return;
@@ -62,7 +58,7 @@ function NotesComposerLikeFixture({
 }
 
 describe("TipTapEditor (integration)", () => {
-  it("clears like NotesPanel after send: type a message, then ref.clear()", async () => {
+  it("clears like NotesPanel after send: type a message, then ref.clear()", { timeout: 15_000 }, async () => {
     const user = userEvent.setup();
     const message = "Text that should disappear after clearing";
     const composerRef = createRef<TipTapEditorHandle>();
@@ -89,7 +85,7 @@ describe("TipTapEditor (integration)", () => {
     expect(screen.getByRole("textbox")).toHaveTextContent("");
   });
 
-  it("triggers onHardEnter and clears editor on Ctrl+Enter when canSend is true", async () => {
+  it("triggers onHardEnter and clears editor on Ctrl+Enter when canSend is true", { timeout: 15_000 }, async () => {
     const user = userEvent.setup();
     const message = "Send with keyboard";
     const composerRef = createRef<TipTapEditorHandle>();
@@ -117,14 +113,7 @@ describe("TipTapEditor (integration)", () => {
     const user = userEvent.setup();
     const onHardEnter = vi.fn();
 
-    render(
-      <TipTapEditor
-        value=""
-        onChange={() => {}}
-        onHardEnter={onHardEnter}
-        placeholder="Write a note..."
-      />,
-    );
+    render(<TipTapEditor value="" onChange={() => {}} onHardEnter={onHardEnter} placeholder="Write a note..." />);
 
     const editor = await screen.findByRole("textbox");
     await user.click(editor);

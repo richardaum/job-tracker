@@ -21,31 +21,31 @@ export type Scalars = {
 };
 
 export enum ApplicationQuickFilter {
-  Active = 'ACTIVE',
-  Applied = 'APPLIED',
-  Draft = 'DRAFT',
-  Duplicated = 'DUPLICATED',
-  Incoming = 'INCOMING',
-  New = 'NEW',
-  Rejected = 'REJECTED'
+  Active = 'Active',
+  Applied = 'Applied',
+  Draft = 'Draft',
+  Duplicated = 'Duplicated',
+  Incoming = 'Incoming',
+  New = 'New',
+  Rejected = 'Rejected'
 }
 
 export enum ApplicationStage {
-  Applied = 'APPLIED',
-  CulturalFit = 'CULTURAL_FIT',
-  Draft = 'DRAFT',
-  Duplicated = 'DUPLICATED',
-  New = 'NEW',
-  Offer = 'OFFER',
-  RecruiterScreen = 'RECRUITER_SCREEN',
-  Rejected = 'REJECTED',
-  Technical = 'TECHNICAL'
+  Applied = 'Applied',
+  CulturalFit = 'CulturalFit',
+  Draft = 'Draft',
+  Duplicated = 'Duplicated',
+  New = 'New',
+  Offer = 'Offer',
+  RecruiterScreen = 'RecruiterScreen',
+  Rejected = 'Rejected',
+  Technical = 'Technical'
 }
 
 export enum AsyncMetadataStatus {
-  Completed = 'COMPLETED',
-  Failed = 'FAILED',
-  Processing = 'PROCESSING'
+  Completed = 'Completed',
+  Failed = 'Failed',
+  Processing = 'Processing'
 }
 
 export type AsyncMetadataType = {
@@ -64,7 +64,7 @@ export type AuthAccount = {
 };
 
 export enum AuthProvider {
-  Google = 'GOOGLE'
+  Google = 'Google'
 }
 
 export type BlockedKeyword = {
@@ -99,6 +99,7 @@ export type CreateJobInput = {
   description?: InputMaybe<Scalars['String']['input']>;
   htmlContent?: InputMaybe<Scalars['String']['input']>;
   location?: InputMaybe<Scalars['String']['input']>;
+  publishedAt?: InputMaybe<Scalars['DateTime']['input']>;
   salary?: InputMaybe<JobSalaryInput>;
   source?: InputMaybe<JobSource>;
   sourceRunId?: InputMaybe<Scalars['ID']['input']>;
@@ -121,6 +122,11 @@ export type CreateNoteInput = {
   jobId: Scalars['String']['input'];
 };
 
+export type CreatePlanInput = {
+  displayName: Scalars['String']['input'];
+  document: Scalars['JSON']['input'];
+};
+
 export type CreateResumeInput = {
   content: Scalars['String']['input'];
   isDefault?: Scalars['Boolean']['input'];
@@ -128,11 +134,12 @@ export type CreateResumeInput = {
 };
 
 export type CreateSourceRunInput = {
-  sourceProfileId: Scalars['String']['input'];
+  planId: Scalars['ID']['input'];
 };
 
 export type CreateSourceTemplateInput = {
-  sourceProfileId: Scalars['String']['input'];
+  config?: InputMaybe<Scalars['JSON']['input']>;
+  planId: Scalars['ID']['input'];
   surfaceUrl: Scalars['String']['input'];
 };
 
@@ -158,8 +165,6 @@ export type ExtensionActivityEvent = {
   __typename?: 'ExtensionActivityEvent';
   /** Browser user-agent or name. */
   browser?: Maybe<Scalars['String']['output']>;
-  /** Groups related events (e.g. run ID). */
-  correlationId?: Maybe<Scalars['String']['output']>;
   /** Extension version that reported the event. */
   extensionVersion?: Maybe<Scalars['String']['output']>;
   /** Unique event identifier. */
@@ -168,6 +173,8 @@ export type ExtensionActivityEvent = {
   occurredAt: Scalars['DateTime']['output'];
   /** Arbitrary JSON payload with event details. */
   payload?: Maybe<Scalars['JSON']['output']>;
+  /** Groups related events (e.g. run ID). */
+  sourceRunId?: Maybe<Scalars['String']['output']>;
   /** Human-readable summary of what happened. */
   summary: Scalars['String']['output'];
   /** Event category (source run lifecycle, import, auth). */
@@ -183,9 +190,13 @@ export enum ExtensionActivityEventType {
   SourceRunClaimSkipped = 'SourceRunClaimSkipped',
   SourceRunCompleted = 'SourceRunCompleted',
   SourceRunFailed = 'SourceRunFailed',
-  SourceRunJobImported = 'SourceRunJobImported',
+  SourceRunJobDetailsImport = 'SourceRunJobDetailsImport',
+  SourceRunJobSkipped = 'SourceRunJobSkipped',
+  SourceRunJobSurfaceImport = 'SourceRunJobSurfaceImport',
+  SourceRunPageCollected = 'SourceRunPageCollected',
   SourceRunReceived = 'SourceRunReceived',
-  SourceRunStarted = 'SourceRunStarted'
+  SourceRunStarted = 'SourceRunStarted',
+  SourceRunStopConditionMet = 'SourceRunStopConditionMet'
 }
 
 export enum FitClassification {
@@ -229,10 +240,10 @@ export type JobSalaryInput = {
 };
 
 export enum JobSource {
-  Jack = 'JACK',
-  Linkedin = 'LINKEDIN',
-  RemoteYeah = 'REMOTE_YEAH',
-  Wellfound = 'WELLFOUND'
+  Jack = 'Jack',
+  Linkedin = 'Linkedin',
+  RemoteYeah = 'RemoteYeah',
+  Wellfound = 'Wellfound'
 }
 
 export type JobStageEventType = {
@@ -270,6 +281,7 @@ export type JobType = {
   id: Scalars['ID']['output'];
   location?: Maybe<Scalars['String']['output']>;
   match?: Maybe<MatchAnalysisType>;
+  publishedAt?: Maybe<Scalars['DateTime']['output']>;
   salary?: Maybe<JobSalary>;
   source?: Maybe<JobSource>;
   sourceRunId?: Maybe<Scalars['ID']['output']>;
@@ -284,9 +296,9 @@ export type JobType = {
 };
 
 export enum KeywordScope {
-  Company = 'COMPANY',
-  Description = 'DESCRIPTION',
-  Title = 'TITLE'
+  Company = 'Company',
+  Description = 'Description',
+  Title = 'Title'
 }
 
 export type MatchAnalysisType = {
@@ -320,8 +332,8 @@ export type MatchItemType = {
 };
 
 export enum MatchMode {
-  Exact = 'EXACT',
-  Partial = 'PARTIAL'
+  Exact = 'Exact',
+  Partial = 'Partial'
 }
 
 export enum MatchSource {
@@ -338,9 +350,11 @@ export enum MatchVerdict {
 export type Mutation = {
   __typename?: 'Mutation';
   clearSourceRuns: Scalars['Boolean']['output'];
+  clearSourceTemplateRuns: Scalars['Int']['output'];
   createJob: JobType;
   createJobNote: NoteType;
   createJobStageEvent: JobStageEventType;
+  createPlan: PlanType;
   createResume: ResumeType;
   createSourceRun: SourceRunType;
   createSourceTemplate: SourceTemplateType;
@@ -350,6 +364,7 @@ export type Mutation = {
   deleteJobNote: DeleteMutationPayloadType;
   deleteJobStageEvent: DeleteMutationPayloadType;
   deleteMatchAnalysis: DeleteMutationPayloadType;
+  deletePlan: DeleteMutationPayloadType;
   deleteResume: DeleteMutationPayloadType;
   deleteSourceRun: DeleteMutationPayloadType;
   deleteSourceTemplate: DeleteMutationPayloadType;
@@ -364,12 +379,19 @@ export type Mutation = {
   updateJob: JobType;
   updateJobNote: NoteType;
   updateJobStageEvent: JobStageEventType;
+  updatePlan: PlanType;
   updateResume: ResumeType;
   updateSettings: UserSetting;
   updateSourceRun: SourceRunType;
   updateSourceRunStatus: SourceRunType;
   updateSourceTemplate: SourceTemplateType;
   updateWorkPreferences: Array<PreferenceType>;
+};
+
+
+export type MutationClearSourceTemplateRunsArgs = {
+  deleteJobs?: InputMaybe<Scalars['Boolean']['input']>;
+  templateId: Scalars['ID']['input'];
 };
 
 
@@ -385,6 +407,11 @@ export type MutationCreateJobNoteArgs = {
 
 export type MutationCreateJobStageEventArgs = {
   input: CreateJobStageEventInput;
+};
+
+
+export type MutationCreatePlanArgs = {
+  input: CreatePlanInput;
 };
 
 
@@ -424,6 +451,11 @@ export type MutationDeleteJobStageEventArgs = {
 
 
 export type MutationDeleteMatchAnalysisArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeletePlanArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -504,6 +536,12 @@ export type MutationUpdateJobStageEventArgs = {
 };
 
 
+export type MutationUpdatePlanArgs = {
+  id: Scalars['ID']['input'];
+  input: UpdatePlanInput;
+};
+
+
 export type MutationUpdateResumeArgs = {
   id: Scalars['ID']['input'];
   input: UpdateResumeInput;
@@ -522,6 +560,7 @@ export type MutationUpdateSourceRunArgs = {
 
 
 export type MutationUpdateSourceRunStatusArgs = {
+  errorMessage?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['ID']['input'];
   status: SourceRunStatus;
 };
@@ -548,6 +587,16 @@ export type NoteType = {
   userId: Scalars['String']['output'];
 };
 
+export type PlanType = {
+  __typename?: 'PlanType';
+  createdAt: Scalars['DateTime']['output'];
+  displayName: Scalars['String']['output'];
+  document: Scalars['JSON']['output'];
+  id: Scalars['ID']['output'];
+  templates: Array<SourceTemplateType>;
+  updatedAt: Scalars['DateTime']['output'];
+};
+
 export type PreferenceInput = {
   text: Scalars['String']['input'];
   weight: Weight;
@@ -570,6 +619,7 @@ export type Query = {
   generateJobLocationWithAI?: Maybe<Scalars['String']['output']>;
   generateJobNoteWithAI: Scalars['String']['output'];
   generateJobWorkRegionWithAI?: Maybe<Scalars['String']['output']>;
+  isJobDuplicate: Scalars['Boolean']['output'];
   job: JobType;
   jobMatch?: Maybe<MatchAnalysisType>;
   jobNotes: Array<NoteType>;
@@ -578,16 +628,17 @@ export type Query = {
   match: MatchAnalysisType;
   matchAnalyses: Array<MatchAnalysisType>;
   me: UserType;
+  plan?: Maybe<PlanType>;
+  plans: Array<PlanType>;
   restructureJobDescriptionWithAI: Scalars['String']['output'];
   resume: ResumeType;
   resumes: Array<ResumeType>;
   rewriteTextWithAI: Scalars['String']['output'];
   settings: UserSetting;
-  sourceProfiles: Array<SourceProfileType>;
+  sourceRunActivityEvents: Array<SourceRunActivityEvent>;
   sourceRuns: Array<SourceRunType>;
   sourceTemplate: SourceTemplateType;
   sourceTemplates: Array<SourceTemplateType>;
-  sourceTemplatesForSourceProfile: Array<SourceTemplateType>;
   users: Array<UserType>;
   workPreferences: Array<PreferenceType>;
 };
@@ -635,6 +686,12 @@ export type QueryGenerateJobWorkRegionWithAiArgs = {
 };
 
 
+export type QueryIsJobDuplicateArgs = {
+  company: Scalars['String']['input'];
+  title: Scalars['String']['input'];
+};
+
+
 export type QueryJobArgs = {
   id: Scalars['ID']['input'];
 };
@@ -667,6 +724,11 @@ export type QueryMatchArgs = {
 };
 
 
+export type QueryPlanArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type QueryRestructureJobDescriptionWithAiArgs = {
   text: Scalars['String']['input'];
 };
@@ -682,8 +744,8 @@ export type QueryRewriteTextWithAiArgs = {
 };
 
 
-export type QuerySourceProfilesArgs = {
-  onlyWithSourceTemplate?: InputMaybe<Scalars['Boolean']['input']>;
+export type QuerySourceRunActivityEventsArgs = {
+  runId: Scalars['ID']['input'];
 };
 
 
@@ -691,17 +753,12 @@ export type QuerySourceTemplateArgs = {
   id: Scalars['ID']['input'];
 };
 
-
-export type QuerySourceTemplatesForSourceProfileArgs = {
-  sourceProfileId: Scalars['String']['input'];
-};
-
 export type ReportExtensionActivityInput = {
   browser?: InputMaybe<Scalars['String']['input']>;
-  correlationId?: InputMaybe<Scalars['String']['input']>;
   extensionVersion?: InputMaybe<Scalars['String']['input']>;
   occurredAt?: InputMaybe<Scalars['DateTime']['input']>;
   payload?: InputMaybe<Scalars['JSON']['input']>;
+  sourceRunId?: InputMaybe<Scalars['String']['input']>;
   summary: Scalars['String']['input'];
   type: ExtensionActivityEventType;
 };
@@ -724,16 +781,17 @@ export type ResumeType = {
 };
 
 export enum SalaryPeriod {
-  Hour = 'HOUR',
-  Month = 'MONTH',
-  Year = 'YEAR'
+  Hour = 'Hour',
+  Month = 'Month',
+  Year = 'Year'
 }
 
-export type SourceProfileType = {
-  __typename?: 'SourceProfileType';
-  name: Scalars['String']['output'];
-  sourceProfileId: Scalars['String']['output'];
-  templates: Array<SourceTemplateType>;
+export type SourceRunActivityEvent = {
+  __typename?: 'SourceRunActivityEvent';
+  occurredAt: Scalars['DateTime']['output'];
+  payload?: Maybe<Scalars['JSON']['output']>;
+  summary: Scalars['String']['output'];
+  type: Scalars['String']['output'];
 };
 
 export type SourceRunEvent = {
@@ -744,41 +802,54 @@ export type SourceRunEvent = {
 };
 
 export enum SourceRunEventType {
-  SourceRunCreated = 'SOURCE_RUN_CREATED'
+  SourceRunCreated = 'SourceRunCreated',
+  SourceRunStatusChanged = 'SourceRunStatusChanged'
 }
 
 export enum SourceRunStatus {
-  Completed = 'COMPLETED',
-  Failed = 'FAILED',
-  InProgress = 'IN_PROGRESS',
-  Running = 'RUNNING'
+  Completed = 'Completed',
+  Failed = 'Failed',
+  Pending = 'Pending'
 }
 
 export type SourceRunType = {
   __typename?: 'SourceRunType';
+  catchUpThreshold?: Maybe<Scalars['Int']['output']>;
+  errorMessage?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
-  sourceProfile: Scalars['String']['output'];
-  sourceProfileId: Scalars['String']['output'];
+  jobCount: Scalars['Int']['output'];
+  maxPages?: Maybe<Scalars['Int']['output']>;
+  olderThanDays?: Maybe<Scalars['Int']['output']>;
+  planId: Scalars['ID']['output'];
   startedAt: Scalars['DateTime']['output'];
   status: SourceRunStatus;
+  stopWhen?: Maybe<StopWhen>;
   surfaceUrl: Scalars['String']['output'];
   templateId: Scalars['ID']['output'];
 };
 
 export type SourceTemplateType = {
   __typename?: 'SourceTemplateType';
+  config?: Maybe<Scalars['JSON']['output']>;
   createdAt: Scalars['DateTime']['output'];
   id: Scalars['ID']['output'];
+  plan: PlanType;
+  planId: Scalars['ID']['output'];
   runs: Array<SourceRunType>;
   scheduleCron?: Maybe<Scalars['String']['output']>;
   scheduleEnabled: Scalars['Boolean']['output'];
-  sourceProfileId: Scalars['String']['output'];
   surfaceUrl: Scalars['String']['output'];
 };
 
 export enum StageEventSource {
   Manual = 'Manual',
   System = 'System'
+}
+
+export enum StopWhen {
+  CatchUp = 'CatchUp',
+  FirstRunMaxPages = 'FirstRunMaxPages',
+  OlderThan = 'OlderThan'
 }
 
 export type Subscription = {
@@ -835,6 +906,11 @@ export type UpdateNoteInput = {
   expectedRevision: Scalars['Int']['input'];
 };
 
+export type UpdatePlanInput = {
+  displayName?: InputMaybe<Scalars['String']['input']>;
+  document?: InputMaybe<Scalars['JSON']['input']>;
+};
+
 export type UpdateResumeInput = {
   content?: InputMaybe<Scalars['String']['input']>;
   isDefault?: InputMaybe<Scalars['Boolean']['input']>;
@@ -855,6 +931,7 @@ export type UpdateSourceRunInput = {
 };
 
 export type UpdateSourceTemplateInput = {
+  config?: InputMaybe<Scalars['JSON']['input']>;
   scheduleCron?: InputMaybe<Scalars['String']['input']>;
   scheduleEnabled?: InputMaybe<Scalars['Boolean']['input']>;
   surfaceUrl?: InputMaybe<Scalars['String']['input']>;
@@ -890,24 +967,24 @@ export enum Weight {
 export type AdminSourceRunsListQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type AdminSourceRunsListQuery = { __typename?: 'Query', sourceRuns: Array<{ __typename?: 'SourceRunType', id: string, templateId: string, sourceProfileId: string, surfaceUrl: string, status: SourceRunStatus, startedAt: any, sourceProfile: string }> };
+export type AdminSourceRunsListQuery = { __typename?: 'Query', sourceRuns: Array<{ __typename?: 'SourceRunType', id: string, templateId: string, planId: string, surfaceUrl: string, status: SourceRunStatus, startedAt: any }> };
+
+export type AdminSourceRunEventsSubscriptionVariables = Exact<{ [key: string]: never; }>;
+
+
+export type AdminSourceRunEventsSubscription = { __typename?: 'Subscription', sourceRunEvents: { __typename?: 'SourceRunEvent', type: SourceRunEventType, occurredAt: any, run: { __typename?: 'SourceRunType', id: string, templateId: string, planId: string, surfaceUrl: string, status: SourceRunStatus, startedAt: any } } };
 
 export type AdminExtensionActivityEventsListQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']['input']>;
 }>;
 
 
-export type AdminExtensionActivityEventsListQuery = { __typename?: 'Query', extensionActivityEvents: Array<{ __typename?: 'ExtensionActivityEvent', id: string, type: ExtensionActivityEventType, summary: string, correlationId?: string | null, occurredAt: any }> };
-
-export type AdminSourceRunEventsSubscriptionVariables = Exact<{ [key: string]: never; }>;
-
-
-export type AdminSourceRunEventsSubscription = { __typename?: 'Subscription', sourceRunEvents: { __typename?: 'SourceRunEvent', type: SourceRunEventType, occurredAt: any, run: { __typename?: 'SourceRunType', id: string, templateId: string, sourceProfileId: string, surfaceUrl: string, status: SourceRunStatus, startedAt: any, sourceProfile: string } } };
+export type AdminExtensionActivityEventsListQuery = { __typename?: 'Query', extensionActivityEvents: Array<{ __typename?: 'ExtensionActivityEvent', id: string, type: ExtensionActivityEventType, summary: string, sourceRunId?: string | null, occurredAt: any }> };
 
 export type AdminExtensionActivityEventsSubscriptionVariables = Exact<{ [key: string]: never; }>;
 
 
-export type AdminExtensionActivityEventsSubscription = { __typename?: 'Subscription', extensionActivityEvents: { __typename?: 'ExtensionActivityEvent', id: string, type: ExtensionActivityEventType, summary: string, correlationId?: string | null, occurredAt: any } };
+export type AdminExtensionActivityEventsSubscription = { __typename?: 'Subscription', extensionActivityEvents: { __typename?: 'ExtensionActivityEvent', id: string, type: ExtensionActivityEventType, summary: string, sourceRunId?: string | null, occurredAt: any } };
 
 export type AdminUsersQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -1253,22 +1330,25 @@ export type UpdateSettingsMutationVariables = Exact<{
 
 export type UpdateSettingsMutation = { __typename?: 'Mutation', updateSettings: { __typename?: 'UserSetting', id: string, autoFillEnabled: boolean, autoSummaryEnabled: boolean, autoMatchEnabled: boolean, duplicateWindowDays: number, blockedCompanies?: Array<string> | null, blockedKeywords?: Array<{ __typename?: 'BlockedKeyword', keyword: string, scope: KeywordScope, matchMode: MatchMode }> | null } };
 
-export type SourceProfilesListQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type SourceProfilesListQuery = { __typename?: 'Query', sourceProfiles: Array<{ __typename?: 'SourceProfileType', sourceProfileId: string, name: string }> };
-
-export type SourceProfilesListAllQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type SourceProfilesListAllQuery = { __typename?: 'Query', sourceProfiles: Array<{ __typename?: 'SourceProfileType', sourceProfileId: string, name: string }> };
-
 export type RerunSourceTemplateMutationVariables = Exact<{
   templateId: Scalars['ID']['input'];
 }>;
 
 
-export type RerunSourceTemplateMutation = { __typename?: 'Mutation', rerunSourceTemplate: { __typename?: 'SourceRunType', id: string, status: SourceRunStatus, startedAt: any, surfaceUrl: string, sourceProfileId: string } };
+export type RerunSourceTemplateMutation = { __typename?: 'Mutation', rerunSourceTemplate: { __typename?: 'SourceRunType', id: string, status: SourceRunStatus, startedAt: any, surfaceUrl: string, planId: string } };
+
+export type SourceRunEventsSubscriptionVariables = Exact<{ [key: string]: never; }>;
+
+
+export type SourceRunEventsSubscription = { __typename?: 'Subscription', sourceRunEvents: { __typename?: 'SourceRunEvent', type: SourceRunEventType, occurredAt: any, run: { __typename?: 'SourceRunType', id: string, templateId: string, status: SourceRunStatus, errorMessage?: string | null } } };
+
+export type ClearSourceTemplateRunsMutationVariables = Exact<{
+  templateId: Scalars['ID']['input'];
+  deleteJobs?: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+export type ClearSourceTemplateRunsMutation = { __typename?: 'Mutation', clearSourceTemplateRuns: number };
 
 export type DeleteSourceRunMutationVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -1283,14 +1363,12 @@ export type SourceTemplateQueryVariables = Exact<{
 }>;
 
 
-export type SourceTemplateQuery = { __typename?: 'Query', sourceTemplate: { __typename?: 'SourceTemplateType', id: string, sourceProfileId: string, scheduleCron?: string | null, scheduleEnabled: boolean, surfaceUrl: string, createdAt: any, runs: Array<{ __typename?: 'SourceRunType', id: string, status: SourceRunStatus, startedAt: any }> } };
+export type SourceTemplateQuery = { __typename?: 'Query', sourceTemplate: { __typename?: 'SourceTemplateType', id: string, planId: string, scheduleCron?: string | null, scheduleEnabled: boolean, surfaceUrl: string, createdAt: any, config?: any | null, runs: Array<{ __typename?: 'SourceRunType', id: string, status: SourceRunStatus, errorMessage?: string | null, startedAt: any, jobCount: number }> } };
 
-export type SourcesForSourceProfileQueryVariables = Exact<{
-  sourceProfileId: Scalars['String']['input'];
-}>;
+export type SourceTemplatesAllQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type SourcesForSourceProfileQuery = { __typename?: 'Query', sourceTemplatesForSourceProfile: Array<{ __typename?: 'SourceTemplateType', id: string, sourceProfileId: string, scheduleCron?: string | null, scheduleEnabled: boolean, surfaceUrl: string, createdAt: any, runs: Array<{ __typename?: 'SourceRunType', id: string, status: SourceRunStatus, startedAt: any }> }> };
+export type SourceTemplatesAllQuery = { __typename?: 'Query', sourceTemplates: Array<{ __typename?: 'SourceTemplateType', id: string, planId: string, scheduleCron?: string | null, scheduleEnabled: boolean, surfaceUrl: string, createdAt: any, config?: any | null, runs: Array<{ __typename?: 'SourceRunType', id: string, status: SourceRunStatus, errorMessage?: string | null, startedAt: any, jobCount: number }> }> };
 
 export type UpdateSourceTemplateMutationVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -1298,7 +1376,7 @@ export type UpdateSourceTemplateMutationVariables = Exact<{
 }>;
 
 
-export type UpdateSourceTemplateMutation = { __typename?: 'Mutation', updateSourceTemplate: { __typename?: 'SourceTemplateType', id: string, sourceProfileId: string, scheduleCron?: string | null, scheduleEnabled: boolean, surfaceUrl: string, createdAt: any, runs: Array<{ __typename?: 'SourceRunType', id: string, status: SourceRunStatus, startedAt: any }> } };
+export type UpdateSourceTemplateMutation = { __typename?: 'Mutation', updateSourceTemplate: { __typename?: 'SourceTemplateType', id: string, planId: string, scheduleCron?: string | null, scheduleEnabled: boolean, surfaceUrl: string, createdAt: any, config?: any | null, runs: Array<{ __typename?: 'SourceRunType', id: string, status: SourceRunStatus, errorMessage?: string | null, startedAt: any, jobCount: number }> } };
 
 export type DeleteSourceTemplateMutationVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -1312,7 +1390,46 @@ export type CreateSourceTemplateMutationVariables = Exact<{
 }>;
 
 
-export type CreateSourceTemplateMutation = { __typename?: 'Mutation', createSourceTemplate: { __typename?: 'SourceTemplateType', id: string, sourceProfileId: string, surfaceUrl: string, scheduleCron?: string | null, scheduleEnabled: boolean, createdAt: any } };
+export type CreateSourceTemplateMutation = { __typename?: 'Mutation', createSourceTemplate: { __typename?: 'SourceTemplateType', id: string, planId: string, surfaceUrl: string, scheduleCron?: string | null, scheduleEnabled: boolean, createdAt: any, config?: any | null } };
+
+export type PlansQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type PlansQuery = { __typename?: 'Query', plans: Array<{ __typename?: 'PlanType', id: string, displayName: string, templates: Array<{ __typename?: 'SourceTemplateType', id: string, surfaceUrl: string, createdAt: any, config?: any | null, runs: Array<{ __typename?: 'SourceRunType', id: string, status: SourceRunStatus, errorMessage?: string | null, startedAt: any, jobCount: number }> }> }> };
+
+export type SourceRunActivityEventsQueryVariables = Exact<{
+  runId: Scalars['ID']['input'];
+}>;
+
+
+export type SourceRunActivityEventsQuery = { __typename?: 'Query', sourceRunActivityEvents: Array<{ __typename?: 'SourceRunActivityEvent', type: string, summary: string, payload?: any | null, occurredAt: any }> };
+
+export type SourceRunActivityEventsLiveSubscriptionVariables = Exact<{ [key: string]: never; }>;
+
+
+export type SourceRunActivityEventsLiveSubscription = { __typename?: 'Subscription', extensionActivityEvents: { __typename?: 'ExtensionActivityEvent', id: string, type: ExtensionActivityEventType, summary: string, payload?: any | null, occurredAt: any, sourceRunId?: string | null } };
+
+export type PlanQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type PlanQuery = { __typename?: 'Query', plan?: { __typename?: 'PlanType', id: string, displayName: string, document: any, createdAt: any, updatedAt: any, templates: Array<{ __typename?: 'SourceTemplateType', id: string, planId: string, surfaceUrl: string, scheduleCron?: string | null, scheduleEnabled: boolean, createdAt: any, config?: any | null, runs: Array<{ __typename?: 'SourceRunType', id: string, status: SourceRunStatus, errorMessage?: string | null, startedAt: any, jobCount: number }> }> } | null };
+
+export type UpdatePlanMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  input: UpdatePlanInput;
+}>;
+
+
+export type UpdatePlanMutation = { __typename?: 'Mutation', updatePlan: { __typename?: 'PlanType', id: string, displayName: string, document: any, updatedAt: any } };
+
+export type CreatePlanMutationVariables = Exact<{
+  input: CreatePlanInput;
+}>;
+
+
+export type CreatePlanMutation = { __typename?: 'Mutation', createPlan: { __typename?: 'PlanType', id: string, displayName: string, document: any, createdAt: any, updatedAt: any } };
 
 export type WorkPreferencesQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -1327,10 +1444,10 @@ export type UpdateWorkPreferencesMutationVariables = Exact<{
 export type UpdateWorkPreferencesMutation = { __typename?: 'Mutation', updateWorkPreferences: Array<{ __typename?: 'PreferenceType', text: string, weight: Weight }> };
 
 export const JobSalarySelectionFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"JobSalarySelection"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"JobType"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"salary"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"minCents"}},{"kind":"Field","name":{"kind":"Name","value":"maxCents"}},{"kind":"Field","name":{"kind":"Name","value":"currency"}},{"kind":"Field","name":{"kind":"Name","value":"period"}}]}}]}}]} as unknown as DocumentNode<JobSalarySelectionFragment, unknown>;
-export const AdminSourceRunsListDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"AdminSourceRunsList"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"sourceRuns"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"templateId"}},{"kind":"Field","name":{"kind":"Name","value":"sourceProfileId"}},{"kind":"Field","name":{"kind":"Name","value":"surfaceUrl"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"startedAt"}},{"kind":"Field","name":{"kind":"Name","value":"sourceProfile"}}]}}]}}]} as unknown as DocumentNode<AdminSourceRunsListQuery, AdminSourceRunsListQueryVariables>;
-export const AdminExtensionActivityEventsListDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"AdminExtensionActivityEventsList"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"limit"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"extensionActivityEvents"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"limit"},"value":{"kind":"Variable","name":{"kind":"Name","value":"limit"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"summary"}},{"kind":"Field","name":{"kind":"Name","value":"correlationId"}},{"kind":"Field","name":{"kind":"Name","value":"occurredAt"}}]}}]}}]} as unknown as DocumentNode<AdminExtensionActivityEventsListQuery, AdminExtensionActivityEventsListQueryVariables>;
-export const AdminSourceRunEventsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"subscription","name":{"kind":"Name","value":"AdminSourceRunEvents"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"sourceRunEvents"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"occurredAt"}},{"kind":"Field","name":{"kind":"Name","value":"run"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"templateId"}},{"kind":"Field","name":{"kind":"Name","value":"sourceProfileId"}},{"kind":"Field","name":{"kind":"Name","value":"surfaceUrl"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"startedAt"}},{"kind":"Field","name":{"kind":"Name","value":"sourceProfile"}}]}}]}}]}}]} as unknown as DocumentNode<AdminSourceRunEventsSubscription, AdminSourceRunEventsSubscriptionVariables>;
-export const AdminExtensionActivityEventsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"subscription","name":{"kind":"Name","value":"AdminExtensionActivityEvents"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"extensionActivityEvents"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"summary"}},{"kind":"Field","name":{"kind":"Name","value":"correlationId"}},{"kind":"Field","name":{"kind":"Name","value":"occurredAt"}}]}}]}}]} as unknown as DocumentNode<AdminExtensionActivityEventsSubscription, AdminExtensionActivityEventsSubscriptionVariables>;
+export const AdminSourceRunsListDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"AdminSourceRunsList"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"sourceRuns"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"templateId"}},{"kind":"Field","name":{"kind":"Name","value":"planId"}},{"kind":"Field","name":{"kind":"Name","value":"surfaceUrl"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"startedAt"}}]}}]}}]} as unknown as DocumentNode<AdminSourceRunsListQuery, AdminSourceRunsListQueryVariables>;
+export const AdminSourceRunEventsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"subscription","name":{"kind":"Name","value":"AdminSourceRunEvents"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"sourceRunEvents"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"occurredAt"}},{"kind":"Field","name":{"kind":"Name","value":"run"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"templateId"}},{"kind":"Field","name":{"kind":"Name","value":"planId"}},{"kind":"Field","name":{"kind":"Name","value":"surfaceUrl"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"startedAt"}}]}}]}}]}}]} as unknown as DocumentNode<AdminSourceRunEventsSubscription, AdminSourceRunEventsSubscriptionVariables>;
+export const AdminExtensionActivityEventsListDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"AdminExtensionActivityEventsList"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"limit"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"extensionActivityEvents"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"limit"},"value":{"kind":"Variable","name":{"kind":"Name","value":"limit"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"summary"}},{"kind":"Field","name":{"kind":"Name","value":"sourceRunId"}},{"kind":"Field","name":{"kind":"Name","value":"occurredAt"}}]}}]}}]} as unknown as DocumentNode<AdminExtensionActivityEventsListQuery, AdminExtensionActivityEventsListQueryVariables>;
+export const AdminExtensionActivityEventsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"subscription","name":{"kind":"Name","value":"AdminExtensionActivityEvents"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"extensionActivityEvents"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"summary"}},{"kind":"Field","name":{"kind":"Name","value":"sourceRunId"}},{"kind":"Field","name":{"kind":"Name","value":"occurredAt"}}]}}]}}]} as unknown as DocumentNode<AdminExtensionActivityEventsSubscription, AdminExtensionActivityEventsSubscriptionVariables>;
 export const AdminUsersDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"AdminUsers"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"users"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"email"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"role"}},{"kind":"Field","name":{"kind":"Name","value":"avatarUrl"}}]}}]}}]} as unknown as DocumentNode<AdminUsersQuery, AdminUsersQueryVariables>;
 export const AuthenticatedShellDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"AuthenticatedShell"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"me"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"email"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"role"}},{"kind":"Field","name":{"kind":"Name","value":"avatarUrl"}},{"kind":"Field","name":{"kind":"Name","value":"accounts"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"providerName"}},{"kind":"Field","name":{"kind":"Name","value":"providerAccountId"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"settings"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"autoFillEnabled"}},{"kind":"Field","name":{"kind":"Name","value":"autoSummaryEnabled"}},{"kind":"Field","name":{"kind":"Name","value":"autoMatchEnabled"}},{"kind":"Field","name":{"kind":"Name","value":"duplicateWindowDays"}}]}}]}}]} as unknown as DocumentNode<AuthenticatedShellQuery, AuthenticatedShellQueryVariables>;
 export const UpdateCompanyDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateCompany"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UpdateCompanyInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateCompany"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}},{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"description"}}]}}]}}]} as unknown as DocumentNode<UpdateCompanyMutation, UpdateCompanyMutationVariables>;
@@ -1379,14 +1496,20 @@ export const UpdateResumeDocument = {"kind":"Document","definitions":[{"kind":"O
 export const DeleteResumeDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"DeleteResume"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"deleteResume"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"success"}},{"kind":"Field","name":{"kind":"Name","value":"deletedId"}}]}}]}}]} as unknown as DocumentNode<DeleteResumeMutation, DeleteResumeMutationVariables>;
 export const SettingsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"Settings"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"settings"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"autoFillEnabled"}},{"kind":"Field","name":{"kind":"Name","value":"autoSummaryEnabled"}},{"kind":"Field","name":{"kind":"Name","value":"autoMatchEnabled"}},{"kind":"Field","name":{"kind":"Name","value":"duplicateWindowDays"}},{"kind":"Field","name":{"kind":"Name","value":"blockedKeywords"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"keyword"}},{"kind":"Field","name":{"kind":"Name","value":"scope"}},{"kind":"Field","name":{"kind":"Name","value":"matchMode"}}]}},{"kind":"Field","name":{"kind":"Name","value":"blockedCompanies"}}]}}]}}]} as unknown as DocumentNode<SettingsQuery, SettingsQueryVariables>;
 export const UpdateSettingsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateSettings"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UpdateSettingsInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateSettings"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"autoFillEnabled"}},{"kind":"Field","name":{"kind":"Name","value":"autoSummaryEnabled"}},{"kind":"Field","name":{"kind":"Name","value":"autoMatchEnabled"}},{"kind":"Field","name":{"kind":"Name","value":"duplicateWindowDays"}},{"kind":"Field","name":{"kind":"Name","value":"blockedKeywords"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"keyword"}},{"kind":"Field","name":{"kind":"Name","value":"scope"}},{"kind":"Field","name":{"kind":"Name","value":"matchMode"}}]}},{"kind":"Field","name":{"kind":"Name","value":"blockedCompanies"}}]}}]}}]} as unknown as DocumentNode<UpdateSettingsMutation, UpdateSettingsMutationVariables>;
-export const SourceProfilesListDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"SourceProfilesList"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"sourceProfiles"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"onlyWithSourceTemplate"},"value":{"kind":"BooleanValue","value":true}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"sourceProfileId"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}}]} as unknown as DocumentNode<SourceProfilesListQuery, SourceProfilesListQueryVariables>;
-export const SourceProfilesListAllDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"SourceProfilesListAll"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"sourceProfiles"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"sourceProfileId"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}}]} as unknown as DocumentNode<SourceProfilesListAllQuery, SourceProfilesListAllQueryVariables>;
-export const RerunSourceTemplateDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"RerunSourceTemplate"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"templateId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"rerunSourceTemplate"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"templateId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"templateId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"startedAt"}},{"kind":"Field","name":{"kind":"Name","value":"surfaceUrl"}},{"kind":"Field","name":{"kind":"Name","value":"sourceProfileId"}}]}}]}}]} as unknown as DocumentNode<RerunSourceTemplateMutation, RerunSourceTemplateMutationVariables>;
+export const RerunSourceTemplateDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"RerunSourceTemplate"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"templateId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"rerunSourceTemplate"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"templateId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"templateId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"startedAt"}},{"kind":"Field","name":{"kind":"Name","value":"surfaceUrl"}},{"kind":"Field","name":{"kind":"Name","value":"planId"}}]}}]}}]} as unknown as DocumentNode<RerunSourceTemplateMutation, RerunSourceTemplateMutationVariables>;
+export const SourceRunEventsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"subscription","name":{"kind":"Name","value":"SourceRunEvents"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"sourceRunEvents"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"occurredAt"}},{"kind":"Field","name":{"kind":"Name","value":"run"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"templateId"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"errorMessage"}}]}}]}}]}}]} as unknown as DocumentNode<SourceRunEventsSubscription, SourceRunEventsSubscriptionVariables>;
+export const ClearSourceTemplateRunsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"ClearSourceTemplateRuns"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"templateId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"deleteJobs"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Boolean"}},"defaultValue":{"kind":"BooleanValue","value":false}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"clearSourceTemplateRuns"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"templateId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"templateId"}}},{"kind":"Argument","name":{"kind":"Name","value":"deleteJobs"},"value":{"kind":"Variable","name":{"kind":"Name","value":"deleteJobs"}}}]}]}}]} as unknown as DocumentNode<ClearSourceTemplateRunsMutation, ClearSourceTemplateRunsMutationVariables>;
 export const DeleteSourceRunDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"DeleteSourceRun"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"deleteJobs"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Boolean"}},"defaultValue":{"kind":"BooleanValue","value":false}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"deleteSourceRun"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}},{"kind":"Argument","name":{"kind":"Name","value":"deleteJobs"},"value":{"kind":"Variable","name":{"kind":"Name","value":"deleteJobs"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"success"}},{"kind":"Field","name":{"kind":"Name","value":"deletedId"}}]}}]}}]} as unknown as DocumentNode<DeleteSourceRunMutation, DeleteSourceRunMutationVariables>;
-export const SourceTemplateDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"SourceTemplate"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"sourceTemplate"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"sourceProfileId"}},{"kind":"Field","name":{"kind":"Name","value":"scheduleCron"}},{"kind":"Field","name":{"kind":"Name","value":"scheduleEnabled"}},{"kind":"Field","name":{"kind":"Name","value":"surfaceUrl"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"runs"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"startedAt"}}]}}]}}]}}]} as unknown as DocumentNode<SourceTemplateQuery, SourceTemplateQueryVariables>;
-export const SourcesForSourceProfileDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"SourcesForSourceProfile"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"sourceProfileId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"sourceTemplatesForSourceProfile"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"sourceProfileId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"sourceProfileId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"sourceProfileId"}},{"kind":"Field","name":{"kind":"Name","value":"scheduleCron"}},{"kind":"Field","name":{"kind":"Name","value":"scheduleEnabled"}},{"kind":"Field","name":{"kind":"Name","value":"surfaceUrl"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"runs"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"startedAt"}}]}}]}}]}}]} as unknown as DocumentNode<SourcesForSourceProfileQuery, SourcesForSourceProfileQueryVariables>;
-export const UpdateSourceTemplateDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateSourceTemplate"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UpdateSourceTemplateInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateSourceTemplate"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}},{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"sourceProfileId"}},{"kind":"Field","name":{"kind":"Name","value":"scheduleCron"}},{"kind":"Field","name":{"kind":"Name","value":"scheduleEnabled"}},{"kind":"Field","name":{"kind":"Name","value":"surfaceUrl"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"runs"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"startedAt"}}]}}]}}]}}]} as unknown as DocumentNode<UpdateSourceTemplateMutation, UpdateSourceTemplateMutationVariables>;
+export const SourceTemplateDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"SourceTemplate"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"sourceTemplate"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"planId"}},{"kind":"Field","name":{"kind":"Name","value":"scheduleCron"}},{"kind":"Field","name":{"kind":"Name","value":"scheduleEnabled"}},{"kind":"Field","name":{"kind":"Name","value":"surfaceUrl"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"config"}},{"kind":"Field","name":{"kind":"Name","value":"runs"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"errorMessage"}},{"kind":"Field","name":{"kind":"Name","value":"startedAt"}},{"kind":"Field","name":{"kind":"Name","value":"jobCount"}}]}}]}}]}}]} as unknown as DocumentNode<SourceTemplateQuery, SourceTemplateQueryVariables>;
+export const SourceTemplatesAllDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"SourceTemplatesAll"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"sourceTemplates"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"planId"}},{"kind":"Field","name":{"kind":"Name","value":"scheduleCron"}},{"kind":"Field","name":{"kind":"Name","value":"scheduleEnabled"}},{"kind":"Field","name":{"kind":"Name","value":"surfaceUrl"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"config"}},{"kind":"Field","name":{"kind":"Name","value":"runs"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"errorMessage"}},{"kind":"Field","name":{"kind":"Name","value":"startedAt"}},{"kind":"Field","name":{"kind":"Name","value":"jobCount"}}]}}]}}]}}]} as unknown as DocumentNode<SourceTemplatesAllQuery, SourceTemplatesAllQueryVariables>;
+export const UpdateSourceTemplateDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateSourceTemplate"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UpdateSourceTemplateInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateSourceTemplate"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}},{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"planId"}},{"kind":"Field","name":{"kind":"Name","value":"scheduleCron"}},{"kind":"Field","name":{"kind":"Name","value":"scheduleEnabled"}},{"kind":"Field","name":{"kind":"Name","value":"surfaceUrl"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"config"}},{"kind":"Field","name":{"kind":"Name","value":"runs"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"errorMessage"}},{"kind":"Field","name":{"kind":"Name","value":"startedAt"}},{"kind":"Field","name":{"kind":"Name","value":"jobCount"}}]}}]}}]}}]} as unknown as DocumentNode<UpdateSourceTemplateMutation, UpdateSourceTemplateMutationVariables>;
 export const DeleteSourceTemplateDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"DeleteSourceTemplate"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"deleteSourceTemplate"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"success"}},{"kind":"Field","name":{"kind":"Name","value":"deletedId"}}]}}]}}]} as unknown as DocumentNode<DeleteSourceTemplateMutation, DeleteSourceTemplateMutationVariables>;
-export const CreateSourceTemplateDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateSourceTemplate"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateSourceTemplateInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createSourceTemplate"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"sourceProfileId"}},{"kind":"Field","name":{"kind":"Name","value":"surfaceUrl"}},{"kind":"Field","name":{"kind":"Name","value":"scheduleCron"}},{"kind":"Field","name":{"kind":"Name","value":"scheduleEnabled"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}}]}}]} as unknown as DocumentNode<CreateSourceTemplateMutation, CreateSourceTemplateMutationVariables>;
+export const CreateSourceTemplateDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateSourceTemplate"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateSourceTemplateInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createSourceTemplate"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"planId"}},{"kind":"Field","name":{"kind":"Name","value":"surfaceUrl"}},{"kind":"Field","name":{"kind":"Name","value":"scheduleCron"}},{"kind":"Field","name":{"kind":"Name","value":"scheduleEnabled"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"config"}}]}}]}}]} as unknown as DocumentNode<CreateSourceTemplateMutation, CreateSourceTemplateMutationVariables>;
+export const PlansDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"Plans"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"plans"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"displayName"}},{"kind":"Field","name":{"kind":"Name","value":"templates"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"surfaceUrl"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"config"}},{"kind":"Field","name":{"kind":"Name","value":"runs"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"errorMessage"}},{"kind":"Field","name":{"kind":"Name","value":"startedAt"}},{"kind":"Field","name":{"kind":"Name","value":"jobCount"}}]}}]}}]}}]}}]} as unknown as DocumentNode<PlansQuery, PlansQueryVariables>;
+export const SourceRunActivityEventsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"SourceRunActivityEvents"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"runId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"sourceRunActivityEvents"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"runId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"runId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"summary"}},{"kind":"Field","name":{"kind":"Name","value":"payload"}},{"kind":"Field","name":{"kind":"Name","value":"occurredAt"}}]}}]}}]} as unknown as DocumentNode<SourceRunActivityEventsQuery, SourceRunActivityEventsQueryVariables>;
+export const SourceRunActivityEventsLiveDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"subscription","name":{"kind":"Name","value":"SourceRunActivityEventsLive"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"extensionActivityEvents"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"summary"}},{"kind":"Field","name":{"kind":"Name","value":"payload"}},{"kind":"Field","name":{"kind":"Name","value":"occurredAt"}},{"kind":"Field","name":{"kind":"Name","value":"sourceRunId"}}]}}]}}]} as unknown as DocumentNode<SourceRunActivityEventsLiveSubscription, SourceRunActivityEventsLiveSubscriptionVariables>;
+export const PlanDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"Plan"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"plan"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"displayName"}},{"kind":"Field","name":{"kind":"Name","value":"document"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"templates"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"planId"}},{"kind":"Field","name":{"kind":"Name","value":"surfaceUrl"}},{"kind":"Field","name":{"kind":"Name","value":"scheduleCron"}},{"kind":"Field","name":{"kind":"Name","value":"scheduleEnabled"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"config"}},{"kind":"Field","name":{"kind":"Name","value":"runs"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"errorMessage"}},{"kind":"Field","name":{"kind":"Name","value":"startedAt"}},{"kind":"Field","name":{"kind":"Name","value":"jobCount"}}]}}]}}]}}]}}]} as unknown as DocumentNode<PlanQuery, PlanQueryVariables>;
+export const UpdatePlanDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdatePlan"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UpdatePlanInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updatePlan"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}},{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"displayName"}},{"kind":"Field","name":{"kind":"Name","value":"document"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]} as unknown as DocumentNode<UpdatePlanMutation, UpdatePlanMutationVariables>;
+export const CreatePlanDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreatePlan"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreatePlanInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createPlan"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"displayName"}},{"kind":"Field","name":{"kind":"Name","value":"document"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]} as unknown as DocumentNode<CreatePlanMutation, CreatePlanMutationVariables>;
 export const WorkPreferencesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"WorkPreferences"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"workPreferences"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"text"}},{"kind":"Field","name":{"kind":"Name","value":"weight"}}]}}]}}]} as unknown as DocumentNode<WorkPreferencesQuery, WorkPreferencesQueryVariables>;
 export const UpdateWorkPreferencesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateWorkPreferences"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"items"}},"type":{"kind":"NonNullType","type":{"kind":"ListType","type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"PreferenceInput"}}}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateWorkPreferences"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"items"},"value":{"kind":"Variable","name":{"kind":"Name","value":"items"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"text"}},{"kind":"Field","name":{"kind":"Name","value":"weight"}}]}}]}}]} as unknown as DocumentNode<UpdateWorkPreferencesMutation, UpdateWorkPreferencesMutationVariables>;

@@ -1,7 +1,4 @@
-import {
-  JobUpdated,
-  SummaryGenerationRequested,
-} from "@api/domains/jobs/job.events";
+import { JobUpdated, SummaryGenerationRequested } from "@api/domains/jobs/job.events";
 import { JobEventBus } from "@api/domains/jobs/job-event.bus";
 import { ApplicationStageEnum } from "@api/domains/jobs/job-stage.enum";
 import type { JobsRepository } from "@api/domains/jobs/jobs.repository";
@@ -23,14 +20,8 @@ describe("SummaryEventListener", () => {
       requestSummary: vi.fn().mockResolvedValue(undefined),
       doGenerate: vi.fn().mockResolvedValue(undefined),
     };
-    settingsService = {
-      getSettings: vi.fn().mockResolvedValue({ autoSummaryEnabled: true }),
-    };
-    jobsRepository = {
-      findOneByIdAndUserId: vi
-        .fn()
-        .mockResolvedValue({ stage: ApplicationStageEnum.NEW }),
-    };
+    settingsService = { getSettings: vi.fn().mockResolvedValue({ autoSummaryEnabled: true }) };
+    jobsRepository = { findOneByIdAndUserId: vi.fn().mockResolvedValue({ stage: ApplicationStageEnum.New }) };
   });
 
   function createListener() {
@@ -47,47 +38,33 @@ describe("SummaryEventListener", () => {
 
     bus.emit(new JobUpdated("job-x", "user-y"));
 
-    await vi.waitFor(() =>
-      expect(settingsService.getSettings).toHaveBeenCalledWith("user-y"),
-    );
-    await vi.waitFor(() =>
-      expect(summaryService.requestSummary).toHaveBeenCalledWith(
-        "job-x",
-        "user-y",
-      ),
-    );
+    await vi.waitFor(() => expect(settingsService.getSettings).toHaveBeenCalledWith("user-y"));
+    await vi.waitFor(() => expect(summaryService.requestSummary).toHaveBeenCalledWith("job-x", "user-y"));
   });
 
   it("skips summary generation on JobUpdated when autoSummaryEnabled is false", async () => {
-    vi.mocked(settingsService.getSettings).mockResolvedValue({
-      autoSummaryEnabled: false,
-    } as Awaited<ReturnType<SettingsService["getSettings"]>>);
+    vi.mocked(settingsService.getSettings).mockResolvedValue({ autoSummaryEnabled: false } as Awaited<
+      ReturnType<SettingsService["getSettings"]>
+    >);
 
     createListener().onModuleInit();
 
     bus.emit(new JobUpdated("job-x", "user-y"));
 
-    await vi.waitFor(() =>
-      expect(settingsService.getSettings).toHaveBeenCalledWith("user-y"),
-    );
+    await vi.waitFor(() => expect(settingsService.getSettings).toHaveBeenCalledWith("user-y"));
     expect(summaryService.requestSummary).not.toHaveBeenCalled();
   });
 
   it("skips summary generation when job stage is Duplicated", async () => {
     vi.mocked(jobsRepository.findOneByIdAndUserId).mockResolvedValue({
-      stage: ApplicationStageEnum.DUPLICATED,
+      stage: ApplicationStageEnum.Duplicated,
     } as Awaited<ReturnType<JobsRepository["findOneByIdAndUserId"]>>);
 
     createListener().onModuleInit();
 
     bus.emit(new JobUpdated("job-x", "user-y"));
 
-    await vi.waitFor(() =>
-      expect(jobsRepository.findOneByIdAndUserId).toHaveBeenCalledWith(
-        "job-x",
-        "user-y",
-      ),
-    );
+    await vi.waitFor(() => expect(jobsRepository.findOneByIdAndUserId).toHaveBeenCalledWith("job-x", "user-y"));
     expect(summaryService.requestSummary).not.toHaveBeenCalled();
   });
 
@@ -96,9 +73,7 @@ describe("SummaryEventListener", () => {
 
     bus.emit(new SummaryGenerationRequested("job-x", "user-y"));
 
-    await vi.waitFor(() =>
-      expect(summaryService.doGenerate).toHaveBeenCalledWith("job-x", "user-y"),
-    );
+    await vi.waitFor(() => expect(summaryService.doGenerate).toHaveBeenCalledWith("job-x", "user-y"));
     expect(settingsService.getSettings).not.toHaveBeenCalled();
   });
 });
