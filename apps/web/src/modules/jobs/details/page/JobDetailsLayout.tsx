@@ -25,6 +25,7 @@ import { DetailPageHeader } from "@/components/detail-page-header/DetailPageHead
 import { EntityNotFound } from "@/components/entity-not-found";
 import { useBreakpoint } from "@/hooks/useBreakpoint";
 import { ActivitySidePanel } from "@/modules/jobs/details/components/ActivitySidePanel";
+import { ExportJobMdMenuItem } from "@/modules/jobs/details/components/ExportJobMdMenuItem";
 import { MatchTabTrigger } from "@/modules/jobs/details/components/MatchTabTrigger";
 import { OverviewTabTrigger } from "@/modules/jobs/details/components/OverviewTabTrigger";
 import { UpdateStatusAction } from "@/modules/jobs/details/components/UpdateStatusAction";
@@ -125,7 +126,7 @@ function JobDetailsFullWidthTabLayout({
   children,
 }: JobDetailsFullWidthTabLayoutProps) {
   return (
-    <Tabs value={activeTab}>
+    <Tabs value={activeTab} className={cn("flex size-full min-h-0 flex-col")}>
       <JobDetailsTabBar>
         <JobDetailsTabList jobId={jobId} showSourceContent={showSourceContent} className={cn("flex-wrap")} />
       </JobDetailsTabBar>
@@ -294,6 +295,7 @@ export default function JobDetailsLayout({ params, children }: JobDetailsLayoutP
       >
         Update status
       </DropdownMenuItem>
+      <ExportJobMdMenuItem jobId={id} job={job} />
       <DropdownMenuSeparator />
       <DropdownMenuItem
         destructive
