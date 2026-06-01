@@ -24,40 +24,42 @@ async function refreshToken(): Promise<boolean> {
   return !err && res.ok;
 }
 
-function createFetchWithAuth(): typeof fetch {
+async function fetchWithAuth(url: RequestInfo | URL, init?: RequestInit): Promise<Response> {
   const cookieOrigin = new URL(GRAPHQL_URL).origin;
+  const token = await getAccessTokenFromCookie(cookieOrigin);
 
-  return async function fetchWithAuth(url, init) {
-    const token = await getAccessTokenFromCookie(cookieOrigin);
-    const res = await fetch(url, {
-      ...init,
-      headers: { ...init?.headers, ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-      credentials: "include",
+  const headers: Record<string, string> = {};
+  if (init?.headers) {
+    const h = new Headers(init.headers);
+    h.forEach((value, key) => { headers[key] = value; });
+  }
+  headers["content-type"] = "application/json";
+  headers["apollo-require-preflight"] = "1";
+  if (token) headers.Authorization = `Bearer ${token}`;
+
+  const res = await fetch(url, { ...init, headers, credentials: "include" });
+
+  if (res.status !== 401) return res;
+
+  refreshPromise ??= refreshToken()
+    .then((ok) => {
+      authRefreshCallbacks.forEach((cb) => cb(ok));
+      return ok;
+    })
+    .finally(() => {
+      refreshPromise = null;
     });
 
-    if (res.status !== 401) return res;
+  if (!(await refreshPromise)) return res;
 
-    refreshPromise ??= refreshToken()
-      .then((ok) => {
-        authRefreshCallbacks.forEach((cb) => cb(ok));
-        return ok;
-      })
-      .finally(() => {
-        refreshPromise = null;
-      });
+  const newToken = await getAccessTokenFromCookie(cookieOrigin);
+  const retryHeaders: Record<string, string> = { ...headers };
+  if (newToken) retryHeaders.Authorization = `Bearer ${newToken}`;
 
-    if (!(await refreshPromise)) return res;
-
-    const newToken = await getAccessTokenFromCookie(cookieOrigin);
-    return fetch(url, {
-      ...init,
-      headers: { ...init?.headers, ...(newToken ? { Authorization: `Bearer ${newToken}` } : {}) },
-      credentials: "include",
-    });
-  };
+  return fetch(url, { ...init, headers: retryHeaders, credentials: "include" });
 }
 
-const client = new GraphQLClient(GRAPHQL_URL, { fetch: createFetchWithAuth() });
+const client = new GraphQLClient(GRAPHQL_URL, { fetch: fetchWithAuth });
 
 export const api = getSdk(client);
 export type Api = typeof api;
