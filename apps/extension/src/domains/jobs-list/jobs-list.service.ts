@@ -5,6 +5,8 @@ import type { Job } from "@/domains/dom/types";
 import { PopupLogService } from "@/domains/log/popup-log.service";
 import type { ContentActionMessage } from "@/domains/message/types";
 import { SkippedJobReporterService } from "@/domains/jobs-list/skipped-job-reporter.service";
+import { SurfaceCollectedReporterService } from "@/domains/jobs-list/surface-collected-reporter.service";
+import { EmptyPassesTracker } from "@/domains/jobs-list/empty-passes-tracker";
 import type {
   CollectJobsAction,
   PlanStepCollectJobsSurfaceField,
@@ -15,6 +17,7 @@ import { StringTemplateService } from "@/domains/plan/services/string-template.s
 import { TimerService } from "@/domains/timer/timer.service";
 
 const MAX_JOBS_COLLECT = 50;
+const MAX_EMPTY_PASSES = 5;
 const SCROLLABLE_CHECK_ATTRS = ["overflow-y", "overflow"] as const;
 
 function findScrollableAncestor(el: Element): Element | null {
@@ -37,7 +40,90 @@ export class JobsListService {
     private readonly popupLogService: PopupLogService,
     private readonly stringTemplateService: StringTemplateService,
     private readonly skippedReporter: SkippedJobReporterService,
+    private readonly surfaceCollectedReporter: SurfaceCollectedReporterService,
   ) {}
+
+  async execute(message: Extract<ContentActionMessage, { kind: "jobs.list" }>) {
+    const { input, skipDelay } = message.action;
+    const direction = input.direction ?? "down";
+    const sourceRunId = "sourceRunId" in message ? ((message as Record<string, unknown>).sourceRunId as string) : "";
+    if (!sourceRunId) {
+      throw new Error("sourceRunId is required for jobs.list execution");
+    }
+
+    const container = await this.waitForSelector(input.containerSelector, input.itemSelector, 30_000);
+
+    if (!container) {
+      throw new Error(
+        `Failed to load page content: expected container "${input.containerSelector}" not found after 30s. The page may have changed or requires login.`,
+      );
+    }
+
+    await this.waitForReadyCheck(message.action.input.readyCheck);
+
+    let scrollable = findScrollableAncestor(container) ?? container.parentElement ?? container;
+    if (scrollable === document.body || scrollable === document.documentElement) {
+      scrollable = container;
+    }
+
+    const collected: Job[] = [];
+    const seen = new Set<string>();
+    const emptyPasses = new EmptyPassesTracker(MAX_EMPTY_PASSES);
+
+    while (collected.length < MAX_JOBS_COLLECT && !emptyPasses.isExhausted) {
+      const items = container.querySelectorAll(input.itemSelector);
+
+      let foundNew = false;
+
+      const indices = Array.from({ length: items.length }, (_, i) => i);
+      const order = direction === "up" ? indices.reverse() : indices;
+
+      for (const i of order) {
+        const skipConfig = input.skip;
+        const sourceFieldContent = skipConfig && this.shouldSkip(items[i], skipConfig, input.surfaceFields);
+        const summary = (items[i].textContent ?? "").slice(0, 80).trim();
+        if (sourceFieldContent !== false) {
+          this.skippedReporter.reportSkipped(`Skipped: ${summary}`, sourceRunId, sourceFieldContent);
+          continue;
+        }
+
+        this.surfaceCollectedReporter.reportSurfaceCollected(summary, sourceRunId);
+
+        const job = await this.processItem(items[i], input.surfaceFields, input.key, seen, skipDelay ?? false);
+        if (!job) continue;
+        collected.push(job);
+        foundNew = true;
+        if (collected.length >= MAX_JOBS_COLLECT) break;
+      }
+
+      if (foundNew) emptyPasses.reset();
+
+      if (!scrollable) {
+        if (!foundNew) emptyPasses.increment();
+        continue;
+      }
+
+      if (scrollable.scrollHeight <= scrollable.clientHeight) {
+        if (!foundNew) emptyPasses.increment();
+        break;
+      }
+
+      const prev = scrollable.scrollTop;
+      const atBoundary = direction === "up" ? prev <= 0 : prev >= scrollable.scrollHeight - scrollable.clientHeight;
+
+      if (atBoundary) {
+        if (!foundNew) emptyPasses.increment();
+        break;
+      }
+
+      const delta = direction === "up" ? -400 : 400;
+      scrollable.scrollTop = Math.max(0, scrollable.scrollTop + delta);
+
+      if (!foundNew) emptyPasses.increment();
+    }
+
+    return { jobs: collected };
+  }
 
   private async waitForReadyCheck(config?: ReadyCheckConfig): Promise<void> {
     if (!config) return;
@@ -78,110 +164,6 @@ export class JobsListService {
     if (getText().toLowerCase().includes(config.value!.toLowerCase())) {
       await waitForResolve();
     }
-  }
-
-  async execute(message: Extract<ContentActionMessage, { kind: "jobs.list" }>) {
-    const { input, skipDelay } = message.action;
-    const direction = input.direction ?? "down";
-    const sourceRunId = "sourceRunId" in message ? ((message as Record<string, unknown>).sourceRunId as string) : "";
-    if (!sourceRunId) {
-      throw new Error("sourceRunId is required for jobs.list execution");
-    }
-
-    const container = await this.waitForSelector(input.containerSelector, input.itemSelector, 30_000);
-
-    if (!container) {
-      throw new Error(
-        `Failed to load page content: expected container "${input.containerSelector}" not found after 30s. The page may have changed or requires login.`,
-      );
-    }
-
-    await this.waitForReadyCheck(message.action.input.readyCheck);
-
-    let scrollable = findScrollableAncestor(container) ?? container.parentElement ?? container;
-    if (scrollable === document.body || scrollable === document.documentElement) {
-      scrollable = container;
-    }
-
-    const collected: Job[] = [];
-    const seen = new Set<string>();
-    let emptyPasses = 0;
-    let skippedCount = 0;
-
-    while (collected.length < MAX_JOBS_COLLECT && emptyPasses < 5) {
-      const items = container.querySelectorAll(input.itemSelector);
-
-      let foundNew = false;
-
-      if (direction === "up") {
-        for (let i = items.length - 1; i >= 0; i--) {
-          const skipConfig = input.skip;
-          const sourceFieldContent = skipConfig && this.shouldSkip(items[i], skipConfig, input.surfaceFields);
-          if (sourceFieldContent !== false) {
-            skippedCount++;
-            this.skippedReporter.reportSkipped(
-              `Skipped: ${(items[i].textContent ?? "").slice(0, 80).trim()}`,
-              sourceRunId,
-              sourceFieldContent,
-            );
-            continue;
-          }
-
-          const job = await this.processItem(items[i], input.surfaceFields, input.key, seen, skipDelay ?? false);
-          if (!job) continue;
-          collected.push(job);
-          foundNew = true;
-          if (collected.length >= MAX_JOBS_COLLECT) break;
-        }
-      } else {
-        for (let i = 0; i < items.length; i++) {
-          const skipConfig = input.skip;
-          const sourceFieldContent = skipConfig && this.shouldSkip(items[i], skipConfig, input.surfaceFields);
-          if (sourceFieldContent !== false) {
-            skippedCount++;
-            this.skippedReporter.reportSkipped(
-              `Skipped: ${(items[i].textContent ?? "").slice(0, 80).trim()}`,
-              sourceRunId,
-              sourceFieldContent,
-            );
-            continue;
-          }
-
-          const job = await this.processItem(items[i], input.surfaceFields, input.key, seen, skipDelay ?? false);
-          if (!job) continue;
-          collected.push(job);
-          foundNew = true;
-          if (collected.length >= MAX_JOBS_COLLECT) break;
-        }
-      }
-
-      if (foundNew) emptyPasses = 0;
-
-      if (!scrollable) {
-        if (!foundNew) emptyPasses++;
-        continue;
-      }
-
-      if (scrollable.scrollHeight <= scrollable.clientHeight) {
-        if (!foundNew) emptyPasses++;
-        break;
-      }
-
-      const prev = scrollable.scrollTop;
-      const atBoundary = direction === "up" ? prev <= 0 : prev >= scrollable.scrollHeight - scrollable.clientHeight;
-
-      if (atBoundary) {
-        if (!foundNew) emptyPasses++;
-        break;
-      }
-
-      const delta = direction === "up" ? -400 : 400;
-      scrollable.scrollTop = Math.max(0, scrollable.scrollTop + delta);
-
-      if (!foundNew) emptyPasses++;
-    }
-
-    return { jobs: collected, skippedCount };
   }
 
   private async waitForSelector(
@@ -312,15 +294,6 @@ export class JobsListService {
     const textStr = String(text ?? "");
     if (!regex.test(textStr)) return false;
     return textStr;
-  }
-
-  private matchesSkip(job: Job, skip: { type: "regex"; value: string; sourceField?: string; flags?: string }): boolean {
-    const sourceText = this.resolveRegexText(job, skip.sourceField);
-    if (!sourceText) return false;
-    const [err, regex] = tryRun(() => new RegExp(skip.value, skip.flags));
-    if (err) return false;
-    const result = regex.test(sourceText);
-    return result;
   }
 
   private resolveRegexText(job: Job, sourceField?: string): string {

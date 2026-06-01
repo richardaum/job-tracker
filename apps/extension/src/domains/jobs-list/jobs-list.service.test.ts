@@ -13,9 +13,14 @@ import { DefaultTimerService } from "@/domains/timer/timer.service";
 import { JobsListService } from "./jobs-list.service";
 
 import { SkippedJobReporterService } from "./skipped-job-reporter.service";
+import { SurfaceCollectedReporterService } from "./surface-collected-reporter.service";
 
 function mockSkippedReporter(): SkippedJobReporterService {
   return { reportSkipped: vi.fn() } as never;
+}
+
+function mockSurfaceCollectedReporter(): SurfaceCollectedReporterService {
+  return { reportSurfaceCollected: vi.fn() } as never;
 }
 
 function makeBubble(mid: string, text: string, applyUrl?: string) {
@@ -88,6 +93,7 @@ describe("JobsListService", () => {
       { publishDebug: vi.fn() } as never,
       new StringTemplateService(),
       mockSkippedReporter(),
+      mockSurfaceCollectedReporter(),
     );
 
     const result = await svc.execute(buildMessage({ direction: "down" }));
@@ -109,6 +115,7 @@ describe("JobsListService", () => {
       { publishDebug: vi.fn() } as never,
       new StringTemplateService(),
       mockSkippedReporter(),
+      mockSurfaceCollectedReporter(),
     );
 
     const result = await svc.execute(buildMessage({ direction: "up" }));
@@ -128,6 +135,7 @@ describe("JobsListService", () => {
       { publishDebug: vi.fn() } as never,
       new StringTemplateService(),
       mockSkippedReporter(),
+      mockSurfaceCollectedReporter(),
     );
 
     const result = await svc.execute(buildMessage({ direction: "up" }));
@@ -145,6 +153,7 @@ describe("JobsListService", () => {
       { publishDebug: vi.fn() } as never,
       new StringTemplateService(),
       mockSkippedReporter(),
+      mockSurfaceCollectedReporter(),
     );
 
     const message = buildMessage({
@@ -180,6 +189,7 @@ describe("JobsListService", () => {
       { publishDebug: vi.fn() } as never,
       new StringTemplateService(),
       mockSkippedReporter(),
+      mockSurfaceCollectedReporter(),
     );
 
     const message = buildMessage(
@@ -226,6 +236,7 @@ describe("JobsListService", () => {
       { publishDebug: vi.fn() } as never,
       new StringTemplateService(),
       mockSkippedReporter(),
+      mockSurfaceCollectedReporter(),
     );
 
     const result = await svc.execute(buildMessage({ direction: "down" }));
@@ -244,6 +255,7 @@ describe("JobsListService", () => {
       { publishDebug: vi.fn() } as never,
       new StringTemplateService(),
       mockSkippedReporter(),
+      mockSurfaceCollectedReporter(),
     );
 
     const result = await svc.execute(
@@ -282,6 +294,7 @@ describe("JobsListService", () => {
       { publishDebug: vi.fn() } as never,
       new StringTemplateService(),
       mockSkippedReporter(),
+      mockSurfaceCollectedReporter(),
     );
 
     const msg = buildMessage({
@@ -324,6 +337,7 @@ describe("JobsListService", () => {
       { publishDebug: vi.fn() } as never,
       new StringTemplateService(),
       mockSkippedReporter(),
+      mockSurfaceCollectedReporter(),
     );
 
     const msg = buildMessage(

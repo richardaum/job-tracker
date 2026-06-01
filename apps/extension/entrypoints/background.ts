@@ -91,5 +91,13 @@ export default defineBackground(() => {
         payload: msg.sourceFieldContent ? { sourceFieldContent: msg.sourceFieldContent } : null,
       });
     },
+    "report.surface-collected": (message) => {
+      const msg = message as { summary?: string; sourceRunId?: string };
+      activityReporter.report(
+        ExtensionActivityEventType.SourceRunJobSurfaceImport,
+        msg.summary ?? "job collected from surface",
+        { sourceRunId: msg.sourceRunId ?? null },
+      );
+    },
   });
 });

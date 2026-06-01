@@ -7,6 +7,7 @@ import { JobDetailsService } from "@/domains/job-details/job-details.service";
 import { JobsListService } from "@/domains/jobs-list/jobs-list.service";
 import { PopupLogService } from "@/domains/log/popup-log.service";
 import { SkippedJobReporterService } from "@/domains/jobs-list/skipped-job-reporter.service";
+import { SurfaceCollectedReporterService } from "@/domains/jobs-list/surface-collected-reporter.service";
 import { MessagingService } from "@/domains/message/messaging.service";
 import type { RequestType } from "@/domains/message/types";
 import { NextButtonService } from "@/domains/pagination/next-button.service";
@@ -34,6 +35,7 @@ export default defineContentScript({
         popupLogService,
         new StringTemplateService(),
         new SkippedJobReporterService(),
+        new SurfaceCollectedReporterService(),
       ),
       new JobDetailsService(new FieldValueService(), new DefaultTimerService()),
       new PaginationService(new NextButtonService()),

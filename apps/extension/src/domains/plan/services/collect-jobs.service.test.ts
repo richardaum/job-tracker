@@ -29,7 +29,7 @@ function actionWithKey(
 }
 
 function createMocks() {
-  const jobsListMessaging = { listJobs: vi.fn().mockResolvedValue({ jobs: [], skippedCount: 0 }) };
+  const jobsListMessaging = { listJobs: vi.fn().mockResolvedValue({ jobs: [] }) };
   const jobDetailsMessaging = { getJobDetails: vi.fn() };
   const paginationMessaging = { canNavigateToNextPage: vi.fn().mockResolvedValue(false), navigateToNextPage: vi.fn() };
   const tabManager = {
@@ -64,7 +64,6 @@ describe("CollectJobsService", () => {
           { company: "Acme", title: "Dev", detailUrl: "https://example.com/a" },
           { company: "Acme", title: "Dev", detailUrl: "https://example.com/b" },
         ],
-        skippedCount: 0,
       });
 
       const onJobCollected = vi.fn().mockResolvedValue(undefined);
@@ -90,7 +89,6 @@ describe("CollectJobsService", () => {
           { company: "Acme", title: "A", detailUrl: "https://example.com/a" },
           { company: "Acme", title: "B", detailUrl: "https://example.com/b" },
         ],
-        skippedCount: 0,
       });
 
       const onJobCollected = vi.fn().mockResolvedValue(undefined);
@@ -115,19 +113,14 @@ describe("CollectJobsService", () => {
             { company: "Acme", title: "Dev1", detailUrl: "https://example.com/1" },
             { company: "Acme", title: "Dev2", detailUrl: "https://example.com/2" },
           ],
-          skippedCount: 0,
         })
         .mockResolvedValueOnce({
           jobs: [
             { company: "Acme", title: "Dev3", detailUrl: "https://example.com/3" },
             { company: "Acme", title: "Dev4", detailUrl: "https://example.com/4" },
           ],
-          skippedCount: 0,
         })
-        .mockResolvedValueOnce({
-          jobs: [{ company: "Acme", title: "Dev5", detailUrl: "https://example.com/5" }],
-          skippedCount: 0,
-        });
+        .mockResolvedValueOnce({ jobs: [{ company: "Acme", title: "Dev5", detailUrl: "https://example.com/5" }] });
       mocks.paginationMessaging.canNavigateToNextPage
         .mockResolvedValueOnce(true)
         .mockResolvedValueOnce(true)
@@ -151,18 +144,9 @@ describe("CollectJobsService", () => {
     it("resets counter on non-duplicate", async () => {
       const mocks = createMocks();
       mocks.jobsListMessaging.listJobs
-        .mockResolvedValueOnce({
-          jobs: [{ company: "Acme", title: "Dev1", detailUrl: "https://example.com/1" }],
-          skippedCount: 0,
-        })
-        .mockResolvedValueOnce({
-          jobs: [{ company: "Acme", title: "Dev2", detailUrl: "https://example.com/2" }],
-          skippedCount: 0,
-        })
-        .mockResolvedValueOnce({
-          jobs: [{ company: "Acme", title: "Dev3", detailUrl: "https://example.com/3" }],
-          skippedCount: 0,
-        });
+        .mockResolvedValueOnce({ jobs: [{ company: "Acme", title: "Dev1", detailUrl: "https://example.com/1" }] })
+        .mockResolvedValueOnce({ jobs: [{ company: "Acme", title: "Dev2", detailUrl: "https://example.com/2" }] })
+        .mockResolvedValueOnce({ jobs: [{ company: "Acme", title: "Dev3", detailUrl: "https://example.com/3" }] });
       mocks.paginationMessaging.canNavigateToNextPage
         .mockResolvedValueOnce(true)
         .mockResolvedValueOnce(true)
@@ -189,14 +173,8 @@ describe("CollectJobsService", () => {
     it("continues when threshold not reached", async () => {
       const mocks = createMocks();
       mocks.jobsListMessaging.listJobs
-        .mockResolvedValueOnce({
-          jobs: [{ company: "Acme", title: "Dev1", detailUrl: "https://example.com/1" }],
-          skippedCount: 0,
-        })
-        .mockResolvedValueOnce({
-          jobs: [{ company: "Acme", title: "Dev2", detailUrl: "https://example.com/2" }],
-          skippedCount: 0,
-        });
+        .mockResolvedValueOnce({ jobs: [{ company: "Acme", title: "Dev1", detailUrl: "https://example.com/1" }] })
+        .mockResolvedValueOnce({ jobs: [{ company: "Acme", title: "Dev2", detailUrl: "https://example.com/2" }] });
       mocks.paginationMessaging.canNavigateToNextPage.mockResolvedValueOnce(true).mockResolvedValueOnce(false);
 
       const onJobCollected = vi.fn().mockResolvedValue({ duplicate: true });
@@ -218,18 +196,9 @@ describe("CollectJobsService", () => {
     it("stops exactly at maxPages", async () => {
       const mocks = createMocks();
       mocks.jobsListMessaging.listJobs
-        .mockResolvedValueOnce({
-          jobs: [{ company: "Acme", title: "Dev1", detailUrl: "https://example.com/1" }],
-          skippedCount: 0,
-        })
-        .mockResolvedValueOnce({
-          jobs: [{ company: "Acme", title: "Dev2", detailUrl: "https://example.com/2" }],
-          skippedCount: 0,
-        })
-        .mockResolvedValueOnce({
-          jobs: [{ company: "Acme", title: "Dev3", detailUrl: "https://example.com/3" }],
-          skippedCount: 0,
-        });
+        .mockResolvedValueOnce({ jobs: [{ company: "Acme", title: "Dev1", detailUrl: "https://example.com/1" }] })
+        .mockResolvedValueOnce({ jobs: [{ company: "Acme", title: "Dev2", detailUrl: "https://example.com/2" }] })
+        .mockResolvedValueOnce({ jobs: [{ company: "Acme", title: "Dev3", detailUrl: "https://example.com/3" }] });
       mocks.paginationMessaging.canNavigateToNextPage.mockResolvedValue(true);
 
       const onJobCollected = vi.fn().mockResolvedValue(undefined);
@@ -250,14 +219,8 @@ describe("CollectJobsService", () => {
     it("maxPages=1 stops after first page", async () => {
       const mocks = createMocks();
       mocks.jobsListMessaging.listJobs
-        .mockResolvedValueOnce({
-          jobs: [{ company: "Acme", title: "Dev1", detailUrl: "https://example.com/1" }],
-          skippedCount: 0,
-        })
-        .mockResolvedValueOnce({
-          jobs: [{ company: "Acme", title: "Dev2", detailUrl: "https://example.com/2" }],
-          skippedCount: 0,
-        });
+        .mockResolvedValueOnce({ jobs: [{ company: "Acme", title: "Dev1", detailUrl: "https://example.com/1" }] })
+        .mockResolvedValueOnce({ jobs: [{ company: "Acme", title: "Dev2", detailUrl: "https://example.com/2" }] });
       mocks.paginationMessaging.canNavigateToNextPage.mockResolvedValue(true);
 
       const onJobCollected = vi.fn().mockResolvedValue(undefined);
@@ -287,7 +250,6 @@ describe("CollectJobsService", () => {
           { company: "Acme", title: "Dev1", publishedAt: oldDate.toISOString(), detailUrl: "https://example.com/1" },
           { company: "Acme", title: "Dev2", publishedAt: oldDate.toISOString(), detailUrl: "https://example.com/2" },
         ],
-        skippedCount: 0,
       });
       mocks.paginationMessaging.canNavigateToNextPage.mockResolvedValueOnce(true);
 
@@ -322,7 +284,6 @@ describe("CollectJobsService", () => {
               detailUrl: "https://example.com/1",
             },
           ],
-          skippedCount: 0,
         })
         .mockResolvedValueOnce({
           jobs: [
@@ -333,7 +294,6 @@ describe("CollectJobsService", () => {
               detailUrl: "https://example.com/2",
             },
           ],
-          skippedCount: 0,
         });
       mocks.paginationMessaging.canNavigateToNextPage.mockResolvedValueOnce(true).mockResolvedValueOnce(false);
 
@@ -357,18 +317,9 @@ describe("CollectJobsService", () => {
     it("scans all available pages when no stopWhen is provided", async () => {
       const mocks = createMocks();
       mocks.jobsListMessaging.listJobs
-        .mockResolvedValueOnce({
-          jobs: [{ company: "Acme", title: "Dev1", detailUrl: "https://example.com/1" }],
-          skippedCount: 0,
-        })
-        .mockResolvedValueOnce({
-          jobs: [{ company: "Acme", title: "Dev2", detailUrl: "https://example.com/2" }],
-          skippedCount: 0,
-        })
-        .mockResolvedValueOnce({
-          jobs: [{ company: "Acme", title: "Dev3", detailUrl: "https://example.com/3" }],
-          skippedCount: 0,
-        });
+        .mockResolvedValueOnce({ jobs: [{ company: "Acme", title: "Dev1", detailUrl: "https://example.com/1" }] })
+        .mockResolvedValueOnce({ jobs: [{ company: "Acme", title: "Dev2", detailUrl: "https://example.com/2" }] })
+        .mockResolvedValueOnce({ jobs: [{ company: "Acme", title: "Dev3", detailUrl: "https://example.com/3" }] });
       mocks.paginationMessaging.canNavigateToNextPage
         .mockResolvedValueOnce(true)
         .mockResolvedValueOnce(true)

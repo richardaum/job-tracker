@@ -4,7 +4,7 @@ import type { CollectJobsAction } from "@job-tracker/plan-schemas";
 
 type ErrorEnvelope = { __handlerError: true; errorMessage: string };
 
-export type ListJobsResult = { jobs: Job[]; skippedCount: number };
+export type ListJobsResult = { jobs: Job[] };
 
 function isErrorEnvelope(v: unknown): v is ErrorEnvelope {
   return v != null && typeof v === "object" && (v as Record<string, unknown>).__handlerError === true;

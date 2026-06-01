@@ -61,7 +61,7 @@ export class SourceRunEventsService {
       return;
     }
 
-    const plan = parsePlan(planResult.plan.document);
+    const plan = parsePlan({ id: planResult.plan.id, ...planResult.plan.document });
     const publishedAtField = getPublishedAtFieldName(plan);
 
     const [runErr] = await tryRun(
@@ -95,7 +95,7 @@ export class SourceRunEventsService {
             }
 
             this.activityReporter?.report(
-              ExtensionActivityEventType.SourceRunJobImported,
+              ExtensionActivityEventType.SourceRunJobDetailsImport,
               typeof job.title === "string" && job.title.trim() ? job.title.trim() : surfaceUrl,
               { sourceRunId: runId, payload: { duplicate: isDuplicate } },
             );
