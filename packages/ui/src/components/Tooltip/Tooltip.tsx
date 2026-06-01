@@ -44,12 +44,14 @@ function buildShapePath(bodyWidth: number, bodyHeight: number, side: string): st
       return [
         `M ${centerX} 0`,
         `L ${centerX + halfArrow} ${ARROW_OFFSET}`,
-        `L ${bodyWidth} ${ARROW_OFFSET}`,
+        `L ${bodyWidth - CORNER_RADIUS} ${ARROW_OFFSET}`,
+        `A ${CORNER_RADIUS} ${CORNER_RADIUS} 0 0 1 ${bodyWidth} ${ARROW_OFFSET + CORNER_RADIUS}`,
         `L ${bodyWidth} ${bodyHeight + ARROW_OFFSET - CORNER_RADIUS}`,
         `A ${CORNER_RADIUS} ${CORNER_RADIUS} 0 0 1 ${bodyWidth - CORNER_RADIUS} ${bodyHeight + ARROW_OFFSET}`,
         `L ${CORNER_RADIUS} ${bodyHeight + ARROW_OFFSET}`,
         `A ${CORNER_RADIUS} ${CORNER_RADIUS} 0 0 1 0 ${bodyHeight + ARROW_OFFSET - CORNER_RADIUS}`,
-        `L 0 ${ARROW_OFFSET}`,
+        `L 0 ${ARROW_OFFSET + CORNER_RADIUS}`,
+        `A ${CORNER_RADIUS} ${CORNER_RADIUS} 0 0 1 ${CORNER_RADIUS} ${ARROW_OFFSET}`,
         `L ${centerX - halfArrow} ${ARROW_OFFSET}`,
         `Z`,
       ].join(" ");
