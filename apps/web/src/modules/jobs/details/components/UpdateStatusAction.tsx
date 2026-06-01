@@ -11,7 +11,7 @@ import {
   StageEventSource,
   useCreateJobStageEventMutation,
 } from "@/gql/hooks";
-import { formatStage } from "@/modules/jobs/details/utils/job-details.shared";
+import { formatStage } from "@/modules/jobs/shared/components/status-badge.utils";
 import {
   buildScheduledAtWithBrowserTimezone,
   getDateTimeInputValueFromNow,

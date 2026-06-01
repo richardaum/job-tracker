@@ -36,15 +36,9 @@ const quickScheduleOptions = [
   { label: "+3d", offsetDays: 3 },
 ] as const;
 
-type JobStageEventRow = NonNullable<JobStageEventsQuery["jobStageEvents"]>[number];
+import { formatStage } from "@/modules/jobs/shared/components/status-badge.utils";
 
-function formatStage(value: string) {
-  return value
-    .toLowerCase()
-    .split("_")
-    .map((part) => part[0].toUpperCase() + part.slice(1))
-    .join(" ");
-}
+type JobStageEventRow = NonNullable<JobStageEventsQuery["jobStageEvents"]>[number];
 
 interface JobTrackingPanelProps {
   jobId: string;

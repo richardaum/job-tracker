@@ -2,14 +2,6 @@ import { ApplicationStage, type JobQuery } from "@/gql/hooks";
 
 export type JobDetailsValues = JobQuery["job"];
 
-export function formatStage(value: ApplicationStage) {
-  return value
-    .toLowerCase()
-    .split("_")
-    .map((part) => part[0].toUpperCase() + part.slice(1))
-    .join(" ");
-}
-
 export function getStageTimelineDotColor(stage: ApplicationStage) {
   switch (stage) {
     case ApplicationStage.Draft:
