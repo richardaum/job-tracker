@@ -1,12 +1,6 @@
 import { cn } from "@ui/lib/cn";
 import * as RadixTooltip from "@radix-ui/react-tooltip";
-import {
-  useRef,
-  useLayoutEffect,
-  useState,
-  type ReactNode,
-  type ReactElement,
-} from "react";
+import { useRef, useLayoutEffect, useState, type ReactNode, type ReactElement } from "react";
 
 export interface TooltipProps {
   content: ReactNode;
@@ -25,11 +19,7 @@ const CORNER_RADIUS = 4;
 const PAD_X = 8;
 const PAD_Y = 6;
 
-function buildShapePath(
-  bodyWidth: number,
-  bodyHeight: number,
-  side: string,
-): string {
+function buildShapePath(bodyWidth: number, bodyHeight: number, side: string): string {
   const halfArrow = ARROW_WIDTH / 2;
   const centerX = bodyWidth / 2;
   const centerY = bodyHeight / 2;
@@ -56,9 +46,9 @@ function buildShapePath(
         `L ${centerX + halfArrow} ${ARROW_OFFSET}`,
         `L ${bodyWidth} ${ARROW_OFFSET}`,
         `L ${bodyWidth} ${bodyHeight + ARROW_OFFSET - CORNER_RADIUS}`,
-        `A ${CORNER_RADIUS} ${CORNER_RADIUS} 0 0 0 ${bodyWidth - CORNER_RADIUS} ${bodyHeight + ARROW_OFFSET}`,
+        `A ${CORNER_RADIUS} ${CORNER_RADIUS} 0 0 1 ${bodyWidth - CORNER_RADIUS} ${bodyHeight + ARROW_OFFSET}`,
         `L ${CORNER_RADIUS} ${bodyHeight + ARROW_OFFSET}`,
-        `A ${CORNER_RADIUS} ${CORNER_RADIUS} 0 0 0 0 ${bodyHeight + ARROW_OFFSET - CORNER_RADIUS}`,
+        `A ${CORNER_RADIUS} ${CORNER_RADIUS} 0 0 1 0 ${bodyHeight + ARROW_OFFSET - CORNER_RADIUS}`,
         `L 0 ${ARROW_OFFSET}`,
         `L ${centerX - halfArrow} ${ARROW_OFFSET}`,
         `Z`,
@@ -101,26 +91,11 @@ function getViewBox(side: string, bodyWidth: number, bodyHeight: number) {
   switch (side) {
     case "top":
     case "bottom":
-      return {
-        x: 0,
-        y: 0,
-        width: bodyWidth,
-        height: bodyHeight + ARROW_OFFSET,
-      };
+      return { x: 0, y: 0, width: bodyWidth, height: bodyHeight + ARROW_OFFSET };
     case "right":
-      return {
-        x: -ARROW_OFFSET,
-        y: 0,
-        width: bodyWidth + ARROW_OFFSET,
-        height: bodyHeight,
-      };
+      return { x: -ARROW_OFFSET, y: 0, width: bodyWidth + ARROW_OFFSET, height: bodyHeight };
     case "left":
-      return {
-        x: 0,
-        y: 0,
-        width: bodyWidth + ARROW_OFFSET,
-        height: bodyHeight,
-      };
+      return { x: 0, y: 0, width: bodyWidth + ARROW_OFFSET, height: bodyHeight };
   }
   return { x: 0, y: 0, width: bodyWidth, height: bodyHeight };
 }
@@ -147,10 +122,7 @@ function UnifiedTooltipContent({ content, side }: UnifiedTooltipContentProps) {
 
     const svg = path?.closest("svg");
     if (svg) {
-      svg.setAttribute(
-        "viewBox",
-        `${dimensions.x} ${dimensions.y} ${dimensions.width} ${dimensions.height}`,
-      );
+      svg.setAttribute("viewBox", `${dimensions.x} ${dimensions.y} ${dimensions.width} ${dimensions.height}`);
       svg.setAttribute("width", String(dimensions.width));
       svg.setAttribute("height", String(dimensions.height));
     }
@@ -172,13 +144,7 @@ function UnifiedTooltipContent({ content, side }: UnifiedTooltipContentProps) {
           filter: "drop-shadow(0 1px 2px rgb(0 0 0 / 0.3))",
         }}
       >
-        <path
-          ref={pathRef}
-          fill="var(--color-tooltip)"
-          stroke="white"
-          strokeWidth={2}
-          strokeLinejoin="round"
-        />
+        <path ref={pathRef} fill="var(--color-tooltip)" stroke="white" strokeWidth={2} strokeLinejoin="round" />
       </svg>
       <div
         ref={textRef}
@@ -189,6 +155,7 @@ function UnifiedTooltipContent({ content, side }: UnifiedTooltipContentProps) {
           whiteSpace: "nowrap",
           position: "relative",
           zIndex: 1,
+          marginTop: side === "bottom" ? ARROW_OFFSET : 0,
         }}
       >
         {content}
@@ -222,12 +189,7 @@ export function Tooltip({
       >
         <RadixTooltip.Trigger asChild>{children}</RadixTooltip.Trigger>
         <RadixTooltip.Portal>
-          <RadixTooltip.Content
-            side={side}
-            align={align}
-            sideOffset={6}
-            className={cn("z-50")}
-          >
+          <RadixTooltip.Content side={side} align={align} sideOffset={6} className={cn("z-50")}>
             <UnifiedTooltipContent content={content} side={side} />
           </RadixTooltip.Content>
         </RadixTooltip.Portal>
