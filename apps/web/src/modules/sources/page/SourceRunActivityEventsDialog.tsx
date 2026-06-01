@@ -30,7 +30,7 @@ interface EventDisplayItem {
 function isSkipped(type: string, payload?: unknown): boolean {
   if (type === ExtensionActivityEventType.SourceRunJobSkipped) return true;
   if (
-    type === ExtensionActivityEventType.SourceRunJobImported &&
+    type === ExtensionActivityEventType.SourceRunJobDetailsImport &&
     (payload as { duplicate?: boolean } | null)?.duplicate
   )
     return true;
@@ -40,7 +40,12 @@ function isSkipped(type: string, payload?: unknown): boolean {
 function statusColor(type: string, payload?: unknown): string {
   if (isSkipped(type, payload)) return "text-text-warning";
   if (type.endsWith("Failed")) return "text-text-error";
-  if (type.endsWith("Completed") || type.endsWith("Imported")) return "text-text-success";
+  if (
+    type.endsWith("Completed") ||
+    type === ExtensionActivityEventType.SourceRunJobDetailsImport ||
+    type === ExtensionActivityEventType.SourceRunJobSurfaceImport
+  )
+    return "text-text-success";
   return "text-text-secondary";
 }
 
