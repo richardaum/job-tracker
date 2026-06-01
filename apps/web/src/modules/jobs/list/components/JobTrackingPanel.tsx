@@ -1,7 +1,7 @@
 "use client";
 
 import { tryRun } from "@job-tracker/try-run";
-import { Button, cn, FormField, IconButton, Input, Popover, Select, Stack, Text } from "@job-tracker/ui";
+import { Button, Checkbox, cn, FormField, IconButton, Input, Popover, Select, Stack, Text } from "@job-tracker/ui";
 import { useMemo, useState } from "react";
 import type { ReactNode } from "react";
 
@@ -14,6 +14,7 @@ import {
 } from "@/gql/hooks";
 import {
   buildScheduledAtWithBrowserTimezone,
+  getDateOnlyFromDateTimeInput,
   getDateTimeInputValueFromNow,
 } from "@/modules/jobs/details/utils/scheduled-at";
 
@@ -30,7 +31,6 @@ const stageOptions: Array<{ value: ApplicationStage; label: string }> = [
 ];
 
 const quickScheduleOptions = [
-  { label: "Now", offsetDays: 0 },
   { label: "Tomorrow", offsetDays: 1 },
   { label: "+2d", offsetDays: 2 },
   { label: "+3d", offsetDays: 3 },
@@ -66,12 +66,13 @@ export function JobTrackingPanel({
 
   const latestEvent = useMemo(() => stageEvents[0] ?? null, [stageEvents]);
   const [selectedStageDraft, setSelectedStageDraft] = useState<ApplicationStage | null>(null);
-  const [scheduledAtDraft, setScheduledAtDraft] = useState<string | null>(null);
+  const [scheduledEnabled, setScheduledEnabled] = useState(false);
+  const [scheduledAtDraft, setScheduledAtDraft] = useState("");
   const [reasonDraft, setReasonDraft] = useState("");
 
   const currentStage = latestEvent?.toStage ?? ApplicationStage.New;
   const selectedStage = selectedStageDraft ?? undefined;
-  const scheduledAtValue = scheduledAtDraft ?? "";
+  const scheduledAtValue = scheduledAtDraft;
   const canSaveStageUpdate = selectedStageDraft !== null;
   const statusSaving = stageSaving;
   const showStageControls = selectedStageDraft !== null;
@@ -84,7 +85,7 @@ export function JobTrackingPanel({
           input: {
             jobId,
             toStage: selectedStageDraft,
-            scheduledAt: buildScheduledAtWithBrowserTimezone(scheduledAtValue),
+            scheduledAt: scheduledEnabled ? buildScheduledAtWithBrowserTimezone(scheduledAtValue) : null,
             source: StageEventSource.Manual,
             reason: reasonDraft.trim() || null,
           },
@@ -95,7 +96,8 @@ export function JobTrackingPanel({
       onError("Could not save status update.");
       return;
     }
-    setScheduledAtDraft(null);
+    setScheduledEnabled(false);
+    setScheduledAtDraft("");
     setSelectedStageDraft(null);
     setReasonDraft("");
     onSuccess("Status update saved.");
@@ -125,7 +127,6 @@ export function JobTrackingPanel({
               value={selectedStage}
               onValueChange={(value) => {
                 setSelectedStageDraft(value as ApplicationStage);
-                setScheduledAtDraft((current) => current ?? getDateTimeInputValueFromNow());
               }}
               options={stageOptions}
               placeholder={`Current: ${formatStage(currentStage)}`}
@@ -134,7 +135,21 @@ export function JobTrackingPanel({
           </FormField>
           {showStageControls ? (
             <>
-              <FormField label="Scheduled at (optional)" htmlFor={`scheduled-at-${jobId}`}>
+              <label className={cn("flex cursor-pointer items-center gap-2")}>
+                <Checkbox
+                  id={`schedule-check-${jobId}`}
+                  checked={scheduledEnabled}
+                  onCheckedChange={(checked) => {
+                    setScheduledEnabled(checked);
+                    if (checked) {
+                      setScheduledAtDraft(getDateTimeInputValueFromNow());
+                    }
+                  }}
+                  disabled={statusSaving}
+                />
+                <span className={cn("text-sm text-text-default")}>Custom date</span>
+              </label>
+              {scheduledEnabled && (
                 <Stack gap="xs">
                   <Input
                     id={`scheduled-at-${jobId}`}
@@ -155,7 +170,8 @@ export function JobTrackingPanel({
                           intent="outlined"
                           className={cn(
                             "h-7 px-2 text-xs",
-                            scheduledAtValue === optionValue &&
+                            getDateOnlyFromDateTimeInput(scheduledAtValue) ===
+                              getDateOnlyFromDateTimeInput(optionValue) &&
                               "border-border-brand bg-bg-brand-subtle text-text-brand hover:bg-bg-brand-subtle",
                           )}
                           onClick={() => setScheduledAtDraft(optionValue)}
@@ -167,7 +183,7 @@ export function JobTrackingPanel({
                     })}
                   </div>
                 </Stack>
-              </FormField>
+              )}
               <FormField label="Reason (optional)" htmlFor={`stage-reason-${jobId}`}>
                 <Input
                   id={`stage-reason-${jobId}`}
@@ -182,7 +198,7 @@ export function JobTrackingPanel({
             </>
           ) : (
             <Text size="xs" color="muted">
-              Select a status to define optional schedule and one note.
+              Select a status to define optional reason and schedule.
             </Text>
           )}
           <Button

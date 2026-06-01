@@ -29,6 +29,10 @@ export function getDateTimeInputValueFromNow(offsetDays = 0): string {
   return toDateTimeLocalValue(date);
 }
 
+export function getDateOnlyFromDateTimeInput(value: string): string {
+  return value.split("T")[0] ?? value;
+}
+
 export function getDateTimeInputValueFromIso(isoDateTimeValue?: string | null): string {
   if (!isoDateTimeValue) return "";
 

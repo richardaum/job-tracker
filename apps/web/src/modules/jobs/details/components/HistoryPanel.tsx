@@ -3,6 +3,7 @@
 import { tryRun } from "@job-tracker/try-run";
 import {
   Button,
+  Checkbox,
   cn,
   ConfirmDialog,
   Dialog,
@@ -27,6 +28,7 @@ import {
 import { formatDateTime } from "@/modules/jobs/details/utils/job-details.shared";
 import {
   buildScheduledAtWithBrowserTimezone,
+  getDateOnlyFromDateTimeInput,
   getDateTimeInputValueFromIso,
   getDateTimeInputValueFromNow,
 } from "@/modules/jobs/details/utils/scheduled-at";
@@ -47,7 +49,6 @@ const stageOptions: Array<{ value: ApplicationStage; label: string }> = [
 ];
 
 const quickScheduleOptions = [
-  { label: "Now", offsetDays: 0 },
   { label: "Tomorrow", offsetDays: 1 },
   { label: "+2d", offsetDays: 2 },
   { label: "+3d", offsetDays: 3 },
@@ -58,6 +59,7 @@ type HistoryPanelProps = { jobId: string; onSuccess?: (message: string) => void;
 export function HistoryPanel({ jobId, onSuccess, onError }: HistoryPanelProps) {
   const [editingEventId, setEditingEventId] = useState<string | null>(null);
   const [selectedStage, setSelectedStage] = useState<ApplicationStage | undefined>();
+  const [scheduledEnabled, setScheduledEnabled] = useState(false);
   const [scheduledAtDraft, setScheduledAtDraft] = useState("");
   const [reasonDraft, setReasonDraft] = useState("");
   const { data: eventsData } = useJobStageEventsQuery({ variables: { jobId }, fetchPolicy: "cache-and-network" });
@@ -77,17 +79,22 @@ export function HistoryPanel({ jobId, onSuccess, onError }: HistoryPanelProps) {
   function openEditDialog(eventId: string) {
     const event = stageEvents.find((candidate) => candidate.id === eventId);
     if (!event) return;
-    const fallbackIsoValue = event.scheduledAt ?? event.createdAt ?? null;
-    const nextScheduledAtDraft = getDateTimeInputValueFromIso(fallbackIsoValue) || getDateTimeInputValueFromNow();
     setEditingEventId(event.id);
     setSelectedStage(event.toStage);
-    setScheduledAtDraft(nextScheduledAtDraft);
+    if (event.scheduledAt) {
+      setScheduledEnabled(true);
+      setScheduledAtDraft(getDateTimeInputValueFromIso(event.scheduledAt) || getDateTimeInputValueFromNow());
+    } else {
+      setScheduledEnabled(false);
+      setScheduledAtDraft("");
+    }
     setReasonDraft(event.reason ?? "");
   }
 
   function closeEditDialog() {
     setEditingEventId(null);
     setSelectedStage(undefined);
+    setScheduledEnabled(false);
     setScheduledAtDraft("");
     setReasonDraft("");
   }
@@ -101,7 +108,7 @@ export function HistoryPanel({ jobId, onSuccess, onError }: HistoryPanelProps) {
           id: editingEventId,
           input: {
             toStage: selectedStage,
-            scheduledAt: buildScheduledAtWithBrowserTimezone(scheduledAtDraft.trim()),
+            scheduledAt: scheduledEnabled ? buildScheduledAtWithBrowserTimezone(scheduledAtDraft.trim()) : null,
             reason: reasonDraft.trim() || null,
           },
         },
@@ -219,7 +226,21 @@ export function HistoryPanel({ jobId, onSuccess, onError }: HistoryPanelProps) {
               size="sm"
             />
           </FormField>
-          <FormField label="Scheduled at (optional)" htmlFor={`edit-history-scheduled-at-${jobId}`}>
+          <label className={cn("flex cursor-pointer items-center gap-2")}>
+            <Checkbox
+              id={`edit-history-schedule-check-${jobId}`}
+              checked={scheduledEnabled}
+              onCheckedChange={(checked) => {
+                setScheduledEnabled(checked);
+                if (checked) {
+                  setScheduledAtDraft(getDateTimeInputValueFromNow());
+                }
+              }}
+              disabled={isMutatingStageEvent}
+            />
+            <span className={cn("text-sm text-text-default")}>Custom date</span>
+          </label>
+          {scheduledEnabled && (
             <Stack gap="xs">
               <Input
                 id={`edit-history-scheduled-at-${jobId}`}
@@ -240,7 +261,7 @@ export function HistoryPanel({ jobId, onSuccess, onError }: HistoryPanelProps) {
                       intent="outlined"
                       className={cn(
                         "h-7 px-2 text-xs",
-                        scheduledAtDraft === optionValue &&
+                        getDateOnlyFromDateTimeInput(scheduledAtDraft) === getDateOnlyFromDateTimeInput(optionValue) &&
                           "border-border-brand bg-bg-brand-subtle text-text-brand hover:bg-bg-brand-subtle",
                       )}
                       onClick={() => setScheduledAtDraft(optionValue)}
@@ -252,7 +273,7 @@ export function HistoryPanel({ jobId, onSuccess, onError }: HistoryPanelProps) {
                 })}
               </div>
             </Stack>
-          </FormField>
+          )}
           <FormField label="Reason (optional)" htmlFor={`edit-history-reason-${jobId}`}>
             <Input
               id={`edit-history-reason-${jobId}`}

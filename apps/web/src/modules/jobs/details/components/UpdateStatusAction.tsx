@@ -1,7 +1,7 @@
 "use client";
 
 import { tryRun } from "@job-tracker/try-run";
-import { Button, cn, Dialog, FormField, Input, Select, Stack } from "@job-tracker/ui";
+import { Button, Checkbox, cn, Dialog, FormField, Input, Select, Stack } from "@job-tracker/ui";
 import { useMemo, useState } from "react";
 import type { ReactElement } from "react";
 
@@ -14,6 +14,7 @@ import {
 import { formatStage } from "@/modules/jobs/shared/components/status-badge.utils";
 import {
   buildScheduledAtWithBrowserTimezone,
+  getDateOnlyFromDateTimeInput,
   getDateTimeInputValueFromNow,
 } from "@/modules/jobs/details/utils/scheduled-at";
 
@@ -30,7 +31,6 @@ const stageOptions: Array<{ value: ApplicationStage; label: string }> = [
 ];
 
 const quickScheduleOptions = [
-  { label: "Now", offsetDays: 0 },
   { label: "Tomorrow", offsetDays: 1 },
   { label: "+2d", offsetDays: 2 },
   { label: "+3d", offsetDays: 3 },
@@ -57,6 +57,7 @@ export function UpdateStatusAction({
 }: UpdateStatusActionProps) {
   const [internalOpen, setInternalOpen] = useState(false);
   const [selectedStage, setSelectedStage] = useState<ApplicationStage | undefined>(undefined);
+  const [scheduledEnabled, setScheduledEnabled] = useState(false);
   const [scheduledAtDraft, setScheduledAtDraft] = useState("");
   const [reasonDraft, setReasonDraft] = useState("");
 
@@ -77,7 +78,8 @@ export function UpdateStatusAction({
     onOpenChange?.(nextOpen);
     if (nextOpen) {
       setSelectedStage(undefined);
-      setScheduledAtDraft((current) => current || getDateTimeInputValueFromNow());
+      setScheduledEnabled(false);
+      setScheduledAtDraft("");
       setReasonDraft("");
     }
   }
@@ -91,7 +93,7 @@ export function UpdateStatusAction({
           input: {
             jobId,
             toStage: selectedStage,
-            scheduledAt: buildScheduledAtWithBrowserTimezone(scheduledAtValue),
+            scheduledAt: scheduledEnabled ? buildScheduledAtWithBrowserTimezone(scheduledAtValue) : null,
             source: StageEventSource.Manual,
             reason: reasonDraft.trim() || null,
           },
@@ -124,7 +126,21 @@ export function UpdateStatusAction({
             size="sm"
           />
         </FormField>
-        <FormField label="Scheduled at (optional)" htmlFor={`history-scheduled-at-${jobId}`}>
+        <label className={cn("flex cursor-pointer items-center gap-2")}>
+          <Checkbox
+            id={`history-schedule-check-${jobId}`}
+            checked={scheduledEnabled}
+            onCheckedChange={(checked) => {
+              setScheduledEnabled(checked);
+              if (checked) {
+                setScheduledAtDraft(getDateTimeInputValueFromNow());
+              }
+            }}
+            disabled={saving}
+          />
+          <span className={cn("text-sm text-text-default")}>Custom date</span>
+        </label>
+        {scheduledEnabled && (
           <Stack gap="xs">
             <Input
               id={`history-scheduled-at-${jobId}`}
@@ -145,7 +161,7 @@ export function UpdateStatusAction({
                     intent="outlined"
                     className={cn(
                       "h-7 px-2 text-xs",
-                      scheduledAtDraft === optionValue &&
+                      getDateOnlyFromDateTimeInput(scheduledAtDraft) === getDateOnlyFromDateTimeInput(optionValue) &&
                         "border-border-brand bg-bg-brand-subtle text-text-brand hover:bg-bg-brand-subtle",
                     )}
                     onClick={() => setScheduledAtDraft(optionValue)}
@@ -157,7 +173,7 @@ export function UpdateStatusAction({
               })}
             </div>
           </Stack>
-        </FormField>
+        )}
         <FormField label="Reason (optional)" htmlFor={`history-reason-${jobId}`}>
           <Input
             id={`history-reason-${jobId}`}
