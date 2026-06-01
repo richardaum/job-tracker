@@ -116,11 +116,13 @@ export class JobsListService {
       if (direction === "up") {
         for (let i = items.length - 1; i >= 0; i--) {
           const skipConfig = input.skip;
-          if (skipConfig && this.shouldSkip(items[i], skipConfig, input.surfaceFields)) {
+          const sourceFieldContent = skipConfig && this.shouldSkip(items[i], skipConfig, input.surfaceFields);
+          if (sourceFieldContent !== false) {
             skippedCount++;
             this.skippedReporter.reportSkipped(
               `Skipped: ${(items[i].textContent ?? "").slice(0, 80).trim()}`,
               sourceRunId,
+              sourceFieldContent,
             );
             continue;
           }
@@ -134,11 +136,13 @@ export class JobsListService {
       } else {
         for (let i = 0; i < items.length; i++) {
           const skipConfig = input.skip;
-          if (skipConfig && this.shouldSkip(items[i], skipConfig, input.surfaceFields)) {
+          const sourceFieldContent = skipConfig && this.shouldSkip(items[i], skipConfig, input.surfaceFields);
+          if (sourceFieldContent !== false) {
             skippedCount++;
             this.skippedReporter.reportSkipped(
               `Skipped: ${(items[i].textContent ?? "").slice(0, 80).trim()}`,
               sourceRunId,
+              sourceFieldContent,
             );
             continue;
           }
@@ -289,7 +293,7 @@ export class JobsListService {
     item: Element,
     skip: NonNullable<CollectJobsAction["input"]["skip"]>,
     surfaceFields: CollectJobsAction["input"]["surfaceFields"],
-  ): boolean {
+  ): string | false {
     if (!skip.sourceField) return false;
 
     const [err, regex] = tryRun(() => new RegExp(skip.value, skip.flags));
@@ -305,7 +309,9 @@ export class JobsListService {
     if (!element) return false;
 
     const text = this.fieldValueService.getFieldValue(element as HTMLElement | HTMLInputElement, field);
-    return regex.test(String(text ?? ""));
+    const textStr = String(text ?? "");
+    if (!regex.test(textStr)) return false;
+    return textStr;
   }
 
   private matchesSkip(job: Job, skip: { type: "regex"; value: string; sourceField?: string; flags?: string }): boolean {
