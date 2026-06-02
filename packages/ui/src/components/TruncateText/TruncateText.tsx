@@ -2,8 +2,8 @@
 
 import { useLayoutEffect, useRef, useState } from "react";
 
-import { cn } from "../../lib/cn";
-import { Tooltip } from "../Tooltip/Tooltip";
+import { cn } from "@ui/lib/cn";
+import { Tooltip } from "@ui/components/Tooltip/Tooltip";
 
 export interface TruncateTextProps {
   children: string;
