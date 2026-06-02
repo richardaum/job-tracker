@@ -1,14 +1,17 @@
 {
   "$schema": "./node_modules/knip/schema.json",
-  "ignore": [],
+  "ignore": ["ecosystem.config.cjs"],
   "ignoreBinaries": ["pm2"],
-  "ignoreDependencies": [],
+  "ignoreDependencies": ["tsx"],
   "ignoreIssues": {
     "apps/web/src/gql/**": ["exports", "types", "files", "enumMembers"],
     "apps/extension/src/gql/**": ["exports", "types", "files", "enumMembers"]
   },
   "workspaces": {
-    "apps/api": { "ignore": ["src/database/migrations/archive/**/*", "scripts/**/*", "src/generate-schema.ts"] },
+    "apps/api": {
+      "ignore": ["src/database/migrations/archive/**/*", "scripts/**/*", "src/generate-schema.ts"],
+      "ignoreDependencies": ["@as-integrations/express5"]
+    },
     "apps/web": {
       "ignore": ["public/pdf.worker.min.mjs"],
       "ignoreDependencies": ["tailwindcss", "@rsdoctor/cli", "@rsdoctor/webpack-plugin"]
