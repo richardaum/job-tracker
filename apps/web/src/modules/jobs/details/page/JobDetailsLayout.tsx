@@ -2,8 +2,8 @@
 
 import { SlotsProvider } from "@job-tracker/react-slots";
 import { cn, Heading, Tabs, TabsList, Text } from "@job-tracker/ui";
-import { use, useState } from "react";
 import type { ReactNode } from "react";
+import { use, useState } from "react";
 
 import { BackToLink } from "@/components/back-to-link";
 import { DetailPageHeader } from "@/components/detail-page-header/DetailPageHeader";
@@ -11,15 +11,16 @@ import { EntityNotFound } from "@/components/entity-not-found";
 import { useBreakpoint } from "@/hooks/useBreakpoint";
 import { ActivitySidePanelTabs } from "@/modules/jobs/details/components/ActivitySidePanelTabs";
 import { AiChatSideTabTrigger } from "@/modules/jobs/details/components/AiChatSideTabTrigger";
+import { AiChatTab } from "@/modules/jobs/details/components/AiChatTab";
+import { AiChatTabPanel } from "@/modules/jobs/details/components/AiChatTabPanel";
+import { DescriptionTab } from "@/modules/jobs/details/components/DescriptionTab";
 import { HistoryTabPanel } from "@/modules/jobs/details/components/HistoryPanel";
 import { HistorySideTabTrigger } from "@/modules/jobs/details/components/HistorySideTabTrigger";
+import { HistoryTab } from "@/modules/jobs/details/components/HistoryTab";
 import { JobActionsMenu } from "@/modules/jobs/details/components/JobActionsMenu";
+import { MatchTab } from "@/modules/jobs/details/components/MatchTab";
 import { NotesTabPanel } from "@/modules/jobs/details/components/NotesPanel";
 import { NotesSideTabTrigger } from "@/modules/jobs/details/components/NotesSideTabTrigger";
-import { DescriptionTab } from "@/modules/jobs/details/components/DescriptionTab";
-import { AiChatTab } from "@/modules/jobs/details/components/AiChatTab";
-import { HistoryTab } from "@/modules/jobs/details/components/HistoryTab";
-import { MatchTab } from "@/modules/jobs/details/components/MatchTab";
 import { NotesTab } from "@/modules/jobs/details/components/NotesTab";
 import { OverviewTab } from "@/modules/jobs/details/components/OverviewTab";
 import { SourceTab } from "@/modules/jobs/details/components/SourceTab";
@@ -206,16 +207,15 @@ export default function JobDetailsLayout({ params, children }: JobDetailsLayoutP
                       tabs={{
                         notes: {
                           trigger: <NotesSideTabTrigger jobId={job.id} />,
-                          content: <NotesTabPanel jobId={job.id} />,
+                          content: <NotesTabPanel jobId={job.id} className={cn("mt-3")} />,
                         },
-                        history: { trigger: <HistorySideTabTrigger />, content: <HistoryTabPanel jobId={job.id} /> },
+                        history: {
+                          trigger: <HistorySideTabTrigger />,
+                          content: <HistoryTabPanel jobId={job.id} className={cn("mt-3")} />,
+                        },
                         chat: {
                           trigger: <AiChatSideTabTrigger />,
-                          content: (
-                            <div className={cn("flex items-center justify-center h-full text-sm text-text-secondary")}>
-                              AI Chat
-                            </div>
-                          ),
+                          content: <AiChatTabPanel jobId={job.id} className={cn("mt-3")} />,
                         },
                       }}
                     />
