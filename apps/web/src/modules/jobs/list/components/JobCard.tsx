@@ -2,6 +2,7 @@
 
 import { cn, DropdownMenu, IconButton, ListItemCard, Stack, Text } from "@job-tracker/ui";
 import { ArrowSquareRightIcon, CurrencyDollarIcon, PencilSimpleIcon, TrashIcon } from "@phosphor-icons/react";
+import type { Route } from "next";
 import { SafeLink } from "@/components/safe-link";
 
 import { ApplicationStage } from "@/gql/hooks";
@@ -157,7 +158,7 @@ export function JobCard({ job: app, onSuccess, onError }: JobCardProps) {
     <ListItemCard
       title={
         <ListItemCard.Title asChild>
-          <SafeLink href={`/jobs/${app.id}`}>{displayTitle}</SafeLink>
+          <SafeLink href={`/jobs/${app.id}` as Route}>{displayTitle}</SafeLink>
         </ListItemCard.Title>
       }
       actions={

@@ -1,6 +1,7 @@
 "use client";
 
 import { Badge, cn, Stack, Text, Tooltip } from "@job-tracker/ui";
+import type { Route } from "next";
 import { SafeLink } from "@/components/safe-link";
 
 import { FitClassification as FitClassificationValue } from "@/gql/hooks";
@@ -127,7 +128,7 @@ function BadgeBadge({
       unclearCount={unclearCount}
     >
       {jobId !== undefined && jobId !== "" ? (
-        <SafeLink href={`/jobs/${jobId}/match`} className={cn("no-underline focus-visible:outline-none")}>
+        <SafeLink href={`/jobs/${jobId}/match` as Route} className={cn("no-underline focus-visible:outline-none")}>
           {badge}
         </SafeLink>
       ) : (

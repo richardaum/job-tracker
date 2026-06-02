@@ -21,7 +21,6 @@ describe("ActivitySidePanelTabs", () => {
             trigger: <TabsTrigger value="history">History</TabsTrigger>,
             content: <div data-testid="history-panel" />,
           },
-          chat: { trigger: <TabsTrigger value="chat">Chat</TabsTrigger>, content: <div data-testid="chat-panel" /> },
         }}
       />,
     );

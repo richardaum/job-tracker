@@ -3,6 +3,7 @@
 import { Button, Card, cn, DropdownMenu, DropdownMenuItem, Heading, Skeleton, Stack, Text } from "@job-tracker/ui";
 import { EmptyState } from "@/components/empty-state";
 import { CaretDownIcon, PencilIcon, PlusIcon } from "@phosphor-icons/react";
+import type { Route } from "next";
 import { SafeLink } from "@/components/safe-link";
 import { useState } from "react";
 
@@ -68,7 +69,7 @@ export default function PlansPage() {
                     <div className={cn("min-w-0 flex-1")}>
                       <Heading as="h3" size="base">
                         <SafeLink
-                          href={`/sources/plans/${plan.id}`}
+                          href={`/sources/plans/${plan.id}` as Route}
                           className={cn("text-text hover:text-text-link hover:underline transition-colors")}
                         >
                           {plan.displayName}

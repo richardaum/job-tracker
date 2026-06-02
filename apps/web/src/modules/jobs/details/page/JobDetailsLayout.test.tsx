@@ -111,10 +111,6 @@ vi.mock("@/modules/jobs/details/components/ActivitySidePanelTabs", () => ({
   ActivitySidePanelTabs: () => <div data-testid="activity-mock" />,
 }));
 
-vi.mock("@/modules/jobs/details/components/ChatTabPanel", () => ({
-  ChatTabPanel: () => <div data-testid="chat-mock" />,
-}));
-
 vi.mock("@/modules/jobs/details/components/UpdateStatusDialog", () => ({ UpdateStatusDialog: () => null }));
 
 vi.mock("@/modules/jobs/list/components/DeleteJobDialog", () => ({

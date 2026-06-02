@@ -10,15 +10,14 @@ import { DetailPageHeader } from "@/components/detail-page-header/DetailPageHead
 import { EntityNotFound } from "@/components/entity-not-found";
 import { useBreakpoint } from "@/hooks/useBreakpoint";
 import { ActivitySidePanelTabs } from "@/modules/jobs/details/components/ActivitySidePanelTabs";
-import { ChatTabPanel } from "@/modules/jobs/details/components/ChatTabPanel";
 import { AiChatSideTabTrigger } from "@/modules/jobs/details/components/AiChatSideTabTrigger";
 import { HistoryTabPanel } from "@/modules/jobs/details/components/HistoryPanel";
 import { HistorySideTabTrigger } from "@/modules/jobs/details/components/HistorySideTabTrigger";
 import { JobActionsMenu } from "@/modules/jobs/details/components/JobActionsMenu";
 import { NotesTabPanel } from "@/modules/jobs/details/components/NotesPanel";
 import { NotesSideTabTrigger } from "@/modules/jobs/details/components/NotesSideTabTrigger";
-import { AiChatTab } from "@/modules/jobs/details/components/AiChatTab";
 import { DescriptionTab } from "@/modules/jobs/details/components/DescriptionTab";
+import { AiChatTab } from "@/modules/jobs/details/components/AiChatTab";
 import { HistoryTab } from "@/modules/jobs/details/components/HistoryTab";
 import { MatchTab } from "@/modules/jobs/details/components/MatchTab";
 import { NotesTab } from "@/modules/jobs/details/components/NotesTab";
@@ -207,15 +206,16 @@ export default function JobDetailsLayout({ params, children }: JobDetailsLayoutP
                       tabs={{
                         notes: {
                           trigger: <NotesSideTabTrigger jobId={job.id} />,
-                          content: <NotesTabPanel jobId={job.id} className={cn("pt-3")} />,
+                          content: <NotesTabPanel jobId={job.id} />,
                         },
-                        history: {
-                          trigger: <HistorySideTabTrigger />,
-                          content: <HistoryTabPanel jobId={job.id} className={cn("pt-3")} />,
-                        },
+                        history: { trigger: <HistorySideTabTrigger />, content: <HistoryTabPanel jobId={job.id} /> },
                         chat: {
                           trigger: <AiChatSideTabTrigger />,
-                          content: <ChatTabPanel jobId={job.id} className={cn("pt-3")} />,
+                          content: (
+                            <div className={cn("flex items-center justify-center h-full text-sm text-text-secondary")}>
+                              AI Chat
+                            </div>
+                          ),
                         },
                       }}
                     />

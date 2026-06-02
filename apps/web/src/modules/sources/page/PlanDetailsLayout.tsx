@@ -47,7 +47,7 @@ export default function PlanDetailsLayout({ children, params }: PlanDetailsLayou
             <Tabs value={activeTab}>
               <TabsList>
                 <TabsTrigger value="templates" asChild>
-                  <SafeLink href={`/sources/plans/${planId}`}>Templates</SafeLink>
+                  <SafeLink href={`/sources/plans/${planId}` as Route}>Templates</SafeLink>
                 </TabsTrigger>
                 <TabsTrigger value="document" asChild>
                   <SafeLink href={`/sources/plans/${planId}/document` as Route}>Document</SafeLink>
