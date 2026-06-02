@@ -1,63 +1,45 @@
 "use client";
 
 import { SlotsProvider } from "@job-tracker/react-slots";
-import {
-  Button,
-  cn,
-  DropdownMenu,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  Heading,
-  Tabs,
-  TabsList,
-  Text,
-} from "@job-tracker/ui";
-import { ArrowSquareRightIcon, CaretDownIcon, SparkleIcon, TrashIcon } from "@phosphor-icons/react";
-import type { Route } from "next";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { use, useCallback, useEffect, useState } from "react";
+import { cn, Heading, Tabs, TabsList, Text } from "@job-tracker/ui";
+import { use, useState } from "react";
 import type { ReactNode } from "react";
 
 import { BackToLink } from "@/components/back-to-link";
 import { DetailPageHeader } from "@/components/detail-page-header/DetailPageHeader";
 import { EntityNotFound } from "@/components/entity-not-found";
 import { useBreakpoint } from "@/hooks/useBreakpoint";
-import { ActivitySidePanel } from "@/modules/jobs/details/components/ActivitySidePanel";
+import { ActivitySidePanelTabs } from "@/modules/jobs/details/components/ActivitySidePanelTabs";
+import { ChatTabPanel } from "@/modules/jobs/details/components/ChatTabPanel";
+import { AiChatSideTabTrigger } from "@/modules/jobs/details/components/AiChatSideTabTrigger";
+import { HistoryTabPanel } from "@/modules/jobs/details/components/HistoryPanel";
+import { HistorySideTabTrigger } from "@/modules/jobs/details/components/HistorySideTabTrigger";
+import { JobActionsMenu } from "@/modules/jobs/details/components/JobActionsMenu";
+import { NotesTabPanel } from "@/modules/jobs/details/components/NotesPanel";
+import { NotesSideTabTrigger } from "@/modules/jobs/details/components/NotesSideTabTrigger";
 import { AiChatTab } from "@/modules/jobs/details/components/AiChatTab";
-import { CopyJobMdMenuItem } from "@/modules/jobs/details/components/CopyJobMdMenuItem";
 import { DescriptionTab } from "@/modules/jobs/details/components/DescriptionTab";
-import { ExportJobMdMenuItem } from "@/modules/jobs/details/components/ExportJobMdMenuItem";
 import { HistoryTab } from "@/modules/jobs/details/components/HistoryTab";
 import { MatchTab } from "@/modules/jobs/details/components/MatchTab";
 import { NotesTab } from "@/modules/jobs/details/components/NotesTab";
 import { OverviewTab } from "@/modules/jobs/details/components/OverviewTab";
 import { SourceTab } from "@/modules/jobs/details/components/SourceTab";
-import { UpdateStatusAction } from "@/modules/jobs/details/components/UpdateStatusAction";
+import { UpdateStatusDialog } from "@/modules/jobs/details/components/UpdateStatusDialog";
 import { JobFillStatusProvider } from "@/modules/jobs/details/hooks/JobFillStatusProvider";
 import { JobMatchStatusProvider } from "@/modules/jobs/details/hooks/JobMatchStatusProvider";
-import {
-  useJobDetailsMainTab,
-  useJobDetailsTab,
-  useJobSidePanel,
-} from "@/modules/jobs/details/hooks/useJobDetailsRoute";
+import { useJobDetailsRouteState } from "@/modules/jobs/details/hooks/useJobDetailsRouteState";
+
 import { useJobDetailsViewModel } from "@/modules/jobs/details/hooks/useJobDetailsViewModel";
 import { useJobPageTitle } from "@/modules/jobs/details/hooks/useJobPageTitle";
-import {
-  JobActionsMenuItems,
-  JobDetailsSubTabs,
-  JobHeaderActions,
-} from "@/modules/jobs/details/job-details-header.slots";
+import { JobDetailsSubTabs, JobHeaderActions } from "@/modules/jobs/details/job-details-header.slots";
 import { jobDetailDisplayTitle } from "@/modules/jobs/details/utils/job-detail-title";
 import {
   isJobDetailsSidePanelTab,
   type JobDetailsMainTab,
-  jobDetailsPath,
   type JobDetailsTab,
-  type JobSidePanel,
 } from "@/modules/jobs/details/utils/job-details-routes";
 import { DeleteJobDialog } from "@/modules/jobs/list/components/DeleteJobDialog";
 import { StatusBadge } from "@/modules/jobs/shared/components/StatusBadge";
-import { useToastQueue } from "@/modules/jobs/shared/hooks/useToastQueue";
 
 interface JobDetailsLayoutProps {
   params: Promise<{ id: string }>;
@@ -75,11 +57,7 @@ function JobDetailsTabBar({ children, className }: JobDetailsTabBarProps) {
   );
 }
 
-type JobDetailsFullWidthTabLayoutProps = {
-  activeTab: JobDetailsTab;
-  tabBar: ReactNode;
-  children: ReactNode;
-};
+type JobDetailsFullWidthTabLayoutProps = { activeTab: JobDetailsTab; tabBar: ReactNode; children: ReactNode };
 
 function JobDetailsFullWidthTabLayout({ activeTab, tabBar, children }: JobDetailsFullWidthTabLayoutProps) {
   return (
@@ -111,123 +89,21 @@ function JobDetailsSplitTabLayout({ activeTab, tabBar, sidePanel, children }: Jo
 
 export default function JobDetailsLayout({ params, children }: JobDetailsLayoutProps) {
   const { id } = use(params);
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const activeTab = useJobDetailsTab();
-  const mainTab = useJobDetailsMainTab();
-  const sidePanelFromQuery = useJobSidePanel();
-  const [actionsMenuOpen, setActionsMenuOpen] = useState(false);
-  const [actionsOpen, setActionsOpen] = useState(false);
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const { enqueueToast } = useToastQueue();
-
-  // TODO: extract subscription creation from useJobDetailsViewModel into a
-  // JobDetailsContext provider mounted here. Tab pages should consume context
-  // instead of calling useJobDetailsViewModel independently.
-  // useJobFillStatusChangedSubscription is also duplicated by
-  // JobFillStatusProvider -> useJobFillStatusValue below. The layout-level
-  // subscription should be removed once the provider is the single source.
-  const { job, currentStage, currentStageReason, status, displayTitle, fillButtonState, triggerFillAutomatically } =
-    useJobDetailsViewModel(id);
   const isDesktop = useBreakpoint("(min-width: 1024px)");
 
+  const { activeTab, mainTab, sidePanelFromQuery, setSidePanel } = useJobDetailsRouteState(id, isDesktop);
+
+  const [actionsOpen, setActionsOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+
+  const { job, currentStage, currentStageReason, status, displayTitle, fillButtonState, triggerFillAutomatically } =
+    useJobDetailsViewModel(id);
+
   useJobPageTitle(job, activeTab);
-
-  useEffect(() => {
-    if (isDesktop || !sidePanelFromQuery) {
-      return;
-    }
-    router.replace(jobDetailsPath(id, sidePanelFromQuery));
-  }, [id, isDesktop, router, sidePanelFromQuery]);
-
-  const showToast = useCallback(
-    (message: string, intent: "success" | "error") => {
-      enqueueToast({ title: message, intent });
-    },
-    [enqueueToast],
-  );
-
-  const handleEntitySuccess = useCallback((message: string) => showToast(message, "success"), [showToast]);
-  const handleEntityError = useCallback((message: string) => showToast(message, "error"), [showToast]);
-
-  const handleFillAutomatically = useCallback(async () => {
-    const { error } = await triggerFillAutomatically();
-    if (error) {
-      enqueueToast({
-        title:
-          error instanceof Error
-            ? error.message.replace("Bad Request Exception: ", "")
-            : "Failed to start automatic fill.",
-        intent: "error",
-      });
-      return;
-    }
-    enqueueToast({ title: "Automatic fill queued.", intent: "success" });
-  }, [enqueueToast, triggerFillAutomatically]);
-
-  const setSidePanel = useCallback(
-    (sidePanel: JobSidePanel) => {
-      const next = new URLSearchParams(searchParams.toString());
-      next.set("s", sidePanel);
-      router.replace(`${pathname}?${next.toString()}` as Route);
-    },
-    [pathname, router, searchParams],
-  );
-
-  const effectiveSidePanel = sidePanelFromQuery ?? "notes";
 
   const showSourceContent = Boolean(job?.htmlContent);
   const isSidePanelRoute = isJobDetailsSidePanelTab(activeTab);
 
-  const actionsMenu = job ? (
-    <DropdownMenu
-      open={actionsMenuOpen}
-      onOpenChange={setActionsMenuOpen}
-      trigger={
-        <Button
-          intent="secondary"
-          size="md"
-          rightIcon={
-            <CaretDownIcon
-              size={12}
-              weight="bold"
-              className={cn("transition-transform duration-200", actionsMenuOpen ? "rotate-180" : "rotate-0")}
-            />
-          }
-        >
-          Actions
-        </Button>
-      }
-      align="end"
-    >
-      <JobActionsMenuItems.Slot />
-      <DropdownMenuItem
-        disabled={fillButtonState === "loading"}
-        onSelect={() => void handleFillAutomatically()}
-        icon={<SparkleIcon size={14} weight="regular" />}
-      >
-        Fill job fields automatically
-      </DropdownMenuItem>
-      <DropdownMenuItem
-        onSelect={() => setActionsOpen(true)}
-        icon={<ArrowSquareRightIcon size={14} weight="regular" />}
-      >
-        Update status
-      </DropdownMenuItem>
-      <DropdownMenuSeparator />
-      <ExportJobMdMenuItem jobId={id} job={job} />
-      <CopyJobMdMenuItem jobId={id} job={job} />
-      <DropdownMenuSeparator />
-      <DropdownMenuItem
-        destructive
-        onSelect={() => setDeleteDialogOpen(true)}
-        icon={<TrashIcon size={14} weight="regular" />}
-      >
-        Remove
-      </DropdownMenuItem>
-    </DropdownMenu>
-  ) : null;
 
   return (
     <SlotsProvider>
@@ -238,7 +114,13 @@ export default function JobDetailsLayout({ params, children }: JobDetailsLayoutP
               trailing={
                 job ? (
                   <>
-                    {actionsMenu}
+                    <JobActionsMenu
+                      job={job}
+                      fillButtonState={fillButtonState}
+                      triggerFillAutomatically={triggerFillAutomatically}
+                      onUpdateStatus={() => setActionsOpen(true)}
+                      onDelete={() => setDeleteDialogOpen(true)}
+                    />
                     <JobHeaderActions.Slot className={cn("flex shrink-0 items-center gap-2 empty:hidden")} />
                   </>
                 ) : undefined
@@ -262,13 +144,11 @@ export default function JobDetailsLayout({ params, children }: JobDetailsLayoutP
               </div>
               {job ? (
                 <>
-                  <UpdateStatusAction
+                  <UpdateStatusDialog
                     jobId={job.id}
                     currentStage={currentStage}
                     open={actionsOpen}
                     onOpenChange={setActionsOpen}
-                    onSuccess={handleEntitySuccess}
-                    onError={handleEntityError}
                   />
                   <DeleteJobDialog
                     trigger={<span aria-hidden style={{ display: "none" }} />}
@@ -276,8 +156,6 @@ export default function JobDetailsLayout({ params, children }: JobDetailsLayoutP
                     jobTitle={jobDetailDisplayTitle(job.title)}
                     open={deleteDialogOpen}
                     onOpenChange={setDeleteDialogOpen}
-                    onSuccess={() => router.push("/jobs")}
-                    onError={(msg) => handleEntityError(msg)}
                   />
                 </>
               ) : null}
@@ -323,12 +201,23 @@ export default function JobDetailsLayout({ params, children }: JobDetailsLayoutP
                     </TabsList>
                   }
                   sidePanel={
-                    <ActivitySidePanel
-                      jobId={job.id}
-                      sidePanel={effectiveSidePanel}
+                    <ActivitySidePanelTabs
+                      sidePanel={sidePanelFromQuery ?? "notes"}
                       onSidePanelChange={setSidePanel}
-                      onSuccess={handleEntitySuccess}
-                      onError={handleEntityError}
+                      tabs={{
+                        notes: {
+                          trigger: <NotesSideTabTrigger jobId={job.id} />,
+                          content: <NotesTabPanel jobId={job.id} className={cn("pt-3")} />,
+                        },
+                        history: {
+                          trigger: <HistorySideTabTrigger />,
+                          content: <HistoryTabPanel jobId={job.id} className={cn("pt-3")} />,
+                        },
+                        chat: {
+                          trigger: <AiChatSideTabTrigger />,
+                          content: <ChatTabPanel jobId={job.id} className={cn("pt-3")} />,
+                        },
+                      }}
                     />
                   }
                 >

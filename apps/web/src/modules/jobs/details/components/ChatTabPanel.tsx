@@ -6,9 +6,9 @@ import { useChatPanelViewModel } from "@/modules/jobs/details/hooks/useChatPanel
 
 import { ChatPanel } from "./ChatPanel";
 
-type ChatPanelTabsContentProps = { jobId: string; className?: string };
+type ChatTabPanelProps = { jobId: string; className?: string };
 
-export function ChatPanelTabsContent({ jobId, className }: ChatPanelTabsContentProps) {
+export function ChatTabPanel({ jobId, className }: ChatTabPanelProps) {
   const vm = useChatPanelViewModel(jobId);
 
   return (

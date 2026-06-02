@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import type { UseChatPanelViewModelReturn } from "@/modules/jobs/details/hooks/useChatPanelViewModel";
 
-import { ChatPanelTabsContent } from "./ChatPanelTabsContent";
+import { ChatTabPanel } from "./ChatTabPanel";
 
 const mockViewModel = vi.hoisted(() => ({
   useChatPanelViewModel: vi.fn<(jobId: string) => UseChatPanelViewModelReturn>(),
@@ -15,9 +15,7 @@ vi.mock("@/modules/jobs/details/hooks/useChatPanelViewModel", () => ({
   useChatPanelViewModel: mockViewModel.useChatPanelViewModel,
 }));
 
-function buildMockViewModel(
-  overrides?: Partial<UseChatPanelViewModelReturn>,
-): UseChatPanelViewModelReturn {
+function buildMockViewModel(overrides?: Partial<UseChatPanelViewModelReturn>): UseChatPanelViewModelReturn {
   return {
     conversations: overrides?.conversations ?? [],
     conversationsLoading: false,
@@ -35,11 +33,11 @@ function buildMockViewModel(
   };
 }
 
-describe("ChatPanelTabsContent", () => {
+describe("ChatTabPanel", () => {
   function renderWithTabs() {
     return render(
       <Tabs value="chat" onValueChange={() => {}}>
-        <ChatPanelTabsContent jobId="job-42" />
+        <ChatTabPanel jobId="job-42" />
       </Tabs>,
     );
   }
@@ -55,9 +53,7 @@ describe("ChatPanelTabsContent", () => {
 
   it("calls createConversation when start button is clicked", async () => {
     const createConversation = vi.fn().mockResolvedValue(undefined);
-    mockViewModel.useChatPanelViewModel.mockReturnValue(
-      buildMockViewModel({ createConversation }),
-    );
+    mockViewModel.useChatPanelViewModel.mockReturnValue(buildMockViewModel({ createConversation }));
 
     const user = userEvent.setup();
     renderWithTabs();
@@ -70,9 +66,7 @@ describe("ChatPanelTabsContent", () => {
   it("shows conversation list when conversations exist", () => {
     mockViewModel.useChatPanelViewModel.mockReturnValue(
       buildMockViewModel({
-        conversations: [
-          { id: "conv-1", title: "Chat 1", createdAt: "2025-01-01T00:00:00Z" },
-        ],
+        conversations: [{ id: "conv-1", title: "Chat 1", createdAt: "2025-01-01T00:00:00Z" }],
         activeConversationId: "conv-1",
       }),
     );
@@ -87,9 +81,7 @@ describe("ChatPanelTabsContent", () => {
     const askQuestion = vi.fn().mockResolvedValue(undefined);
     mockViewModel.useChatPanelViewModel.mockReturnValue(
       buildMockViewModel({
-        conversations: [
-          { id: "conv-1", title: "Chat 1", createdAt: "2025-01-01T00:00:00Z" },
-        ],
+        conversations: [{ id: "conv-1", title: "Chat 1", createdAt: "2025-01-01T00:00:00Z" }],
         activeConversationId: "conv-1",
         askQuestion,
       }),
@@ -108,9 +100,7 @@ describe("ChatPanelTabsContent", () => {
     const deleteConversation = vi.fn().mockResolvedValue(undefined);
     mockViewModel.useChatPanelViewModel.mockReturnValue(
       buildMockViewModel({
-        conversations: [
-          { id: "conv-1", title: "Chat 1", createdAt: "2025-01-01T00:00:00Z" },
-        ],
+        conversations: [{ id: "conv-1", title: "Chat 1", createdAt: "2025-01-01T00:00:00Z" }],
         activeConversationId: "conv-1",
         deleteConversation,
       }),

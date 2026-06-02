@@ -93,18 +93,22 @@ vi.mock("@/modules/jobs/details/page/JobOverviewPage", () => ({
 }));
 
 vi.mock("@/modules/jobs/details/components/NotesPanel", () => ({
-  NotesPanelTabsContent: () => <div data-testid="notes-mock" />,
+  NotesTabPanel: () => <div data-testid="notes-mock" />,
 }));
 
 vi.mock("@/modules/jobs/details/components/HistoryPanel", () => ({
-  HistoryPanelTabsContent: () => <div data-testid="history-mock" />,
+  HistoryTabPanel: () => <div data-testid="history-mock" />,
 }));
 
-vi.mock("@/modules/jobs/details/components/ActivitySidePanel", () => ({
-  ActivitySidePanel: () => <div data-testid="activity-mock" />,
+vi.mock("@/modules/jobs/details/components/ActivitySidePanelTabs", () => ({
+  ActivitySidePanelTabs: () => <div data-testid="activity-mock" />,
 }));
 
-vi.mock("@/modules/jobs/details/components/UpdateStatusAction", () => ({ UpdateStatusAction: () => null }));
+vi.mock("@/modules/jobs/details/components/ChatTabPanel", () => ({
+  ChatTabPanel: () => <div data-testid="chat-mock" />,
+}));
+
+vi.mock("@/modules/jobs/details/components/UpdateStatusDialog", () => ({ UpdateStatusDialog: () => null }));
 
 vi.mock("@/modules/jobs/list/components/DeleteJobDialog", () => ({
   DeleteJobDialog: ({ trigger }: { trigger: ReactNode }) => <div>{trigger}</div>,

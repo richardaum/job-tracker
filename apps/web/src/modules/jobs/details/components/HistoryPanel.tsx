@@ -15,7 +15,9 @@ import {
   TabsContent,
 } from "@job-tracker/ui";
 import { ChatCircleTextIcon, PencilSimpleIcon, TrashIcon } from "@phosphor-icons/react";
-import { useState } from "react";
+import { useCallback, useState } from "react";
+
+import { useToastQueue } from "@/modules/jobs/shared/hooks/useToastQueue";
 
 import { EmptyState } from "@/components/empty-state";
 import {
@@ -34,7 +36,7 @@ import {
 } from "@/modules/jobs/details/utils/scheduled-at";
 import { StageTimeline } from "@/modules/jobs/shared/components/StageTimeline";
 
-import { UpdateStatusAction } from "./UpdateStatusAction";
+import { UpdateStatusDialog } from "./UpdateStatusDialog";
 
 const stageOptions: Array<{ value: ApplicationStage; label: string }> = [
   { value: ApplicationStage.Draft, label: "Draft" },
@@ -54,9 +56,19 @@ const quickScheduleOptions = [
   { label: "+3d", offsetDays: 3 },
 ] as const;
 
-type HistoryPanelProps = { jobId: string; onSuccess?: (message: string) => void; onError?: (message: string) => void };
+type HistoryPanelProps = { jobId: string };
 
-export function HistoryPanel({ jobId, onSuccess, onError }: HistoryPanelProps) {
+export function HistoryPanel({ jobId }: HistoryPanelProps) {
+  const { enqueueToast } = useToastQueue();
+  const handleSuccess = useCallback(
+    (message: string) => enqueueToast({ title: message, intent: "success" }),
+    [enqueueToast],
+  );
+  const handleError = useCallback(
+    (message: string) => enqueueToast({ title: message, intent: "error" }),
+    [enqueueToast],
+  );
+
   const [editingEventId, setEditingEventId] = useState<string | null>(null);
   const [selectedStage, setSelectedStage] = useState<ApplicationStage | undefined>();
   const [scheduledEnabled, setScheduledEnabled] = useState(false);
@@ -115,11 +127,11 @@ export function HistoryPanel({ jobId, onSuccess, onError }: HistoryPanelProps) {
       }),
     );
     if (error) {
-      onError?.("Could not update history item.");
+      handleError("Could not update history item.");
       return;
     }
     closeEditDialog();
-    onSuccess?.("History item updated.");
+    handleSuccess("History item updated.");
   }
 
   async function handleDeleteEvent(eventId: string) {
@@ -127,24 +139,22 @@ export function HistoryPanel({ jobId, onSuccess, onError }: HistoryPanelProps) {
 
     const [error] = await tryRun(deleteStageEvent({ variables: { id: eventId } }));
     if (error) {
-      onError?.("Could not remove history item.");
+      handleError("Could not remove history item.");
       throw new Error("Could not remove history item.");
     }
     if (editingEventId === eventId) {
       closeEditDialog();
     }
-    onSuccess?.("History item removed.");
+    handleSuccess("History item removed.");
   }
 
   return (
     <>
       <div className={cn("h-full min-h-0 overflow-auto pr-1")}>
         <div className={cn("mb-2")}>
-          <UpdateStatusAction
+          <UpdateStatusDialog
             jobId={jobId}
             currentStage={currentStage}
-            onSuccess={onSuccess}
-            onError={onError}
             trigger={
               <Button intent="secondary" size="md" className={cn("w-full")}>
                 Update status
@@ -302,17 +312,12 @@ export function HistoryPanel({ jobId, onSuccess, onError }: HistoryPanelProps) {
   );
 }
 
-type HistoryPanelTabsContentProps = {
-  jobId: string;
-  className?: string;
-  onSuccess?: (message: string) => void;
-  onError?: (message: string) => void;
-};
+type HistoryTabPanelProps = { jobId: string; className?: string };
 
-export function HistoryPanelTabsContent({ jobId, className, onSuccess, onError }: HistoryPanelTabsContentProps) {
+export function HistoryTabPanel({ jobId, className }: HistoryTabPanelProps) {
   return (
     <TabsContent value="history" className={cn("flex-1 min-h-0 overflow-hidden", className)}>
-      <HistoryPanel jobId={jobId} onSuccess={onSuccess} onError={onError} />
+      <HistoryPanel jobId={jobId} />
     </TabsContent>
   );
 }

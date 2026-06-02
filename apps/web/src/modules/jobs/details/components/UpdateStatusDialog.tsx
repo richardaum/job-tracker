@@ -2,8 +2,10 @@
 
 import { tryRun } from "@job-tracker/try-run";
 import { Button, Checkbox, cn, Dialog, FormField, Input, Select, Stack } from "@job-tracker/ui";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import type { ReactElement } from "react";
+
+import { useToastQueue } from "@/modules/jobs/shared/hooks/useToastQueue";
 
 import {
   ApplicationStage,
@@ -36,25 +38,20 @@ const quickScheduleOptions = [
   { label: "+3d", offsetDays: 3 },
 ] as const;
 
-type UpdateStatusActionProps = {
+type UpdateStatusDialogProps = {
   jobId: string;
   currentStage: ApplicationStage;
   trigger?: ReactElement;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
-  onSuccess?: (message: string) => void;
-  onError?: (message: string) => void;
 };
 
-export function UpdateStatusAction({
-  jobId,
-  currentStage,
-  trigger,
-  open,
-  onOpenChange,
-  onSuccess,
-  onError,
-}: UpdateStatusActionProps) {
+export function UpdateStatusDialog({ jobId, currentStage, trigger, open, onOpenChange }: UpdateStatusDialogProps) {
+  const { enqueueToast } = useToastQueue();
+  const handleToast = useCallback(
+    (message: string, intent: "success" | "error") => enqueueToast({ title: message, intent }),
+    [enqueueToast],
+  );
   const [internalOpen, setInternalOpen] = useState(false);
   const [selectedStage, setSelectedStage] = useState<ApplicationStage | undefined>(undefined);
   const [scheduledEnabled, setScheduledEnabled] = useState(false);
@@ -101,11 +98,11 @@ export function UpdateStatusAction({
       }),
     );
     if (error) {
-      onError?.("Could not save status update.");
+      handleToast("Could not save status update.", "error");
       return;
     }
     handleOpenChange(false);
-    onSuccess?.("Status update saved.");
+    handleToast("Status update saved.", "success");
   }
 
   return (

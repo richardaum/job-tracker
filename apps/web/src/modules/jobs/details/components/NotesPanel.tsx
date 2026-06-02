@@ -242,8 +242,8 @@ export function NotesPanel({ jobId, isDialogInstance = false }: NotesPanelProps)
   );
 }
 
-type NotesPanelTabsContentProps = { jobId: string; className?: string };
-export function NotesPanelTabsContent({ jobId, className }: NotesPanelTabsContentProps) {
+type NotesTabPanelProps = { jobId: string; className?: string };
+export function NotesTabPanel({ jobId, className }: NotesTabPanelProps) {
   return (
     <TabsContent value="notes" className={cn("flex-1 min-h-0 overflow-hidden", className)}>
       <NotesPanel jobId={jobId} />
