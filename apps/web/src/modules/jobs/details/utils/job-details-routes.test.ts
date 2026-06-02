@@ -20,6 +20,7 @@ describe("job-details-routes", () => {
     expect(jobDetailsPath("abc", "match")).toBe("/jobs/abc/match");
     expect(jobDetailsPath("abc", "notes")).toBe("/jobs/abc/notes");
     expect(jobDetailsPath("abc", "history")).toBe("/jobs/abc/history");
+    expect(jobDetailsPath("abc", "chat")).toBe("/jobs/abc/chat");
   });
 
   it("builds side-panel hrefs on the current tab path", () => {
@@ -31,23 +32,27 @@ describe("job-details-routes", () => {
     expect(parseJobDetailsTab("/jobs/abc/match")).toBe("match");
     expect(parseJobDetailsTab("/jobs/abc/notes")).toBe("notes");
     expect(parseJobDetailsTab("/jobs/abc/history")).toBe("history");
+    expect(parseJobDetailsTab("/jobs/abc/chat")).toBe("chat");
   });
 
   it("parses main tab from pathname", () => {
     expect(parseJobDetailsMainTab("/jobs/abc")).toBe("overview");
     expect(parseJobDetailsMainTab("/jobs/abc/match")).toBe("match");
     expect(parseJobDetailsMainTab("/jobs/abc/notes")).toBe("overview");
+    expect(parseJobDetailsMainTab("/jobs/abc/chat")).toBe("overview");
   });
 
   it("parses side panel query values", () => {
     expect(parseJobSidePanel("notes")).toBe("notes");
     expect(parseJobSidePanel("history")).toBe("history");
+    expect(parseJobSidePanel("chat")).toBe("chat");
     expect(parseJobSidePanel("other")).toBeNull();
   });
 
   it("detects side-panel tabs", () => {
     expect(isJobDetailsSidePanelTab("notes")).toBe(true);
     expect(isJobDetailsSidePanelTab("history")).toBe(true);
+    expect(isJobDetailsSidePanelTab("chat")).toBe(true);
     expect(isJobDetailsSidePanelTab("overview")).toBe(false);
     expect(isJobDetailsSidePanelTab("match")).toBe(false);
     expect(isJobDetailsSidePanelTab("description")).toBe(false);

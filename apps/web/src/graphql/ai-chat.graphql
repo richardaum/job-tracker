@@ -1,0 +1,60 @@
+fragment AiConversationFields on AiConversationType {
+  id
+  jobId
+  title
+  createdAt
+  updatedAt
+}
+
+fragment AiMessageFields on AiMessageType {
+  id
+  conversationId
+  role
+  content
+  createdAt
+}
+
+fragment AiMessageStreamEventFields on AiMessageStreamEventType {
+  conversationId
+  token
+  completed
+  userMessageId
+  aiMessageId
+}
+
+query AiConversations($jobId: ID!) {
+  aiConversations(jobId: $jobId) {
+    ...AiConversationFields
+  }
+}
+
+query AiMessages($conversationId: ID!) {
+  aiMessages(conversationId: $conversationId) {
+    ...AiMessageFields
+  }
+}
+
+mutation CreateAiConversation($jobId: ID!) {
+  createAiConversation(jobId: $jobId) {
+    ...AiConversationFields
+  }
+}
+
+mutation DeleteAiConversation($id: ID!) {
+  deleteAiConversation(id: $id) {
+    success
+    deletedId
+  }
+}
+
+mutation AskAiQuestion($conversationId: ID!, $content: String!) {
+  askAiQuestion(conversationId: $conversationId, content: $content) {
+    success
+  }
+}
+
+subscription AiMessageStreamed($conversationId: ID!) {
+  aiMessageStreamed(conversationId: $conversationId) {
+    ...AiMessageStreamEventFields
+  }
+}

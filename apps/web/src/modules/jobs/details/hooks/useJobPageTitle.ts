@@ -13,6 +13,7 @@ const TAB_LABEL: Record<JobDetailsTab, string | undefined> = {
   match: "Match",
   notes: "Notes",
   history: "History",
+  chat: "AI Chat",
 };
 
 type JobPageTitleSource = { title?: string | null; company?: { name?: string | null } | null };

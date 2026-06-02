@@ -21,6 +21,33 @@ export type Scalars = {
   JSON: { input: any; output: any; }
 };
 
+export type AiConversationType = {
+  __typename?: 'AiConversationType';
+  createdAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  jobId: Scalars['ID']['output'];
+  title: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type AiMessageStreamEventType = {
+  __typename?: 'AiMessageStreamEventType';
+  aiMessageId?: Maybe<Scalars['ID']['output']>;
+  completed: Scalars['Boolean']['output'];
+  conversationId: Scalars['ID']['output'];
+  token?: Maybe<Scalars['String']['output']>;
+  userMessageId?: Maybe<Scalars['ID']['output']>;
+};
+
+export type AiMessageType = {
+  __typename?: 'AiMessageType';
+  content: Scalars['String']['output'];
+  conversationId: Scalars['ID']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  role: Scalars['String']['output'];
+};
+
 export enum ApplicationQuickFilter {
   Active = 'Active',
   Applied = 'Applied',
@@ -42,6 +69,11 @@ export enum ApplicationStage {
   Rejected = 'Rejected',
   Technical = 'Technical'
 }
+
+export type AskQuestionPayloadType = {
+  __typename?: 'AskQuestionPayloadType';
+  success: Scalars['Boolean']['output'];
+};
 
 export enum AsyncMetadataStatus {
   Completed = 'Completed',
@@ -350,8 +382,10 @@ export enum MatchVerdict {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  askAiQuestion: AskQuestionPayloadType;
   clearSourceRuns: Scalars['Boolean']['output'];
   clearSourceTemplateRuns: Scalars['Int']['output'];
+  createAiConversation: AiConversationType;
   createJob: JobType;
   createJobNote: NoteType;
   createJobStageEvent: JobStageEventType;
@@ -360,6 +394,7 @@ export type Mutation = {
   createSourceRun: SourceRunType;
   createSourceTemplate: SourceTemplateType;
   deactivateAccount: Scalars['Boolean']['output'];
+  deleteAiConversation: DeleteMutationPayloadType;
   deleteCompany: DeleteMutationPayloadType;
   deleteJob: DeleteMutationPayloadType;
   deleteJobNote: DeleteMutationPayloadType;
@@ -390,9 +425,20 @@ export type Mutation = {
 };
 
 
+export type MutationAskAiQuestionArgs = {
+  content: Scalars['String']['input'];
+  conversationId: Scalars['ID']['input'];
+};
+
+
 export type MutationClearSourceTemplateRunsArgs = {
   deleteJobs?: InputMaybe<Scalars['Boolean']['input']>;
   templateId: Scalars['ID']['input'];
+};
+
+
+export type MutationCreateAiConversationArgs = {
+  jobId: Scalars['ID']['input'];
 };
 
 
@@ -428,6 +474,11 @@ export type MutationCreateSourceRunArgs = {
 
 export type MutationCreateSourceTemplateArgs = {
   input: CreateSourceTemplateInput;
+};
+
+
+export type MutationDeleteAiConversationArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
@@ -611,6 +662,8 @@ export type PreferenceType = {
 
 export type Query = {
   __typename?: 'Query';
+  aiConversations: Array<AiConversationType>;
+  aiMessages: Array<AiMessageType>;
   companies: Array<CompanyType>;
   company: CompanyType;
   companyJobsCount: Scalars['Int']['output'];
@@ -642,6 +695,16 @@ export type Query = {
   sourceTemplates: Array<SourceTemplateType>;
   users: Array<UserType>;
   workPreferences: Array<PreferenceType>;
+};
+
+
+export type QueryAiConversationsArgs = {
+  jobId: Scalars['ID']['input'];
+};
+
+
+export type QueryAiMessagesArgs = {
+  conversationId: Scalars['ID']['input'];
 };
 
 
@@ -855,11 +918,17 @@ export enum StopWhen {
 
 export type Subscription = {
   __typename?: 'Subscription';
+  aiMessageStreamed: AiMessageStreamEventType;
   extensionActivityEvents: ExtensionActivityEvent;
   jobFillStatusChanged: JobFillStatusEventType;
   jobMatchStatusChanged: JobMatchStatusEventType;
   jobSummaryStatusChanged: JobSummaryStatusEventType;
   sourceRunEvents: SourceRunEvent;
+};
+
+
+export type SubscriptionAiMessageStreamedArgs = {
+  conversationId: Scalars['ID']['input'];
 };
 
 
@@ -991,6 +1060,55 @@ export type AdminUsersQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type AdminUsersQuery = { __typename?: 'Query', users: Array<{ __typename?: 'UserType', id: string, email: string, name: string, role: string, avatarUrl?: string | null }> };
+
+export type AiConversationFieldsFragment = { __typename?: 'AiConversationType', id: string, jobId: string, title: string, createdAt: any, updatedAt: any };
+
+export type AiMessageFieldsFragment = { __typename?: 'AiMessageType', id: string, conversationId: string, role: string, content: string, createdAt: any };
+
+export type AiMessageStreamEventFieldsFragment = { __typename?: 'AiMessageStreamEventType', conversationId: string, token?: string | null, completed: boolean, userMessageId?: string | null, aiMessageId?: string | null };
+
+export type AiConversationsQueryVariables = Exact<{
+  jobId: Scalars['ID']['input'];
+}>;
+
+
+export type AiConversationsQuery = { __typename?: 'Query', aiConversations: Array<{ __typename?: 'AiConversationType', id: string, jobId: string, title: string, createdAt: any, updatedAt: any }> };
+
+export type AiMessagesQueryVariables = Exact<{
+  conversationId: Scalars['ID']['input'];
+}>;
+
+
+export type AiMessagesQuery = { __typename?: 'Query', aiMessages: Array<{ __typename?: 'AiMessageType', id: string, conversationId: string, role: string, content: string, createdAt: any }> };
+
+export type CreateAiConversationMutationVariables = Exact<{
+  jobId: Scalars['ID']['input'];
+}>;
+
+
+export type CreateAiConversationMutation = { __typename?: 'Mutation', createAiConversation: { __typename?: 'AiConversationType', id: string, jobId: string, title: string, createdAt: any, updatedAt: any } };
+
+export type DeleteAiConversationMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteAiConversationMutation = { __typename?: 'Mutation', deleteAiConversation: { __typename?: 'DeleteMutationPayloadType', success: boolean, deletedId: string } };
+
+export type AskAiQuestionMutationVariables = Exact<{
+  conversationId: Scalars['ID']['input'];
+  content: Scalars['String']['input'];
+}>;
+
+
+export type AskAiQuestionMutation = { __typename?: 'Mutation', askAiQuestion: { __typename?: 'AskQuestionPayloadType', success: boolean } };
+
+export type AiMessageStreamedSubscriptionVariables = Exact<{
+  conversationId: Scalars['ID']['input'];
+}>;
+
+
+export type AiMessageStreamedSubscription = { __typename?: 'Subscription', aiMessageStreamed: { __typename?: 'AiMessageStreamEventType', conversationId: string, token?: string | null, completed: boolean, userMessageId?: string | null, aiMessageId?: string | null } };
 
 export type AuthenticatedShellQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -1432,6 +1550,33 @@ export type UpdateWorkPreferencesMutationVariables = Exact<{
 
 export type UpdateWorkPreferencesMutation = { __typename?: 'Mutation', updateWorkPreferences: Array<{ __typename?: 'PreferenceType', text: string, weight: Weight }> };
 
+export const AiConversationFieldsFragmentDoc = gql`
+    fragment AiConversationFields on AiConversationType {
+  id
+  jobId
+  title
+  createdAt
+  updatedAt
+}
+    `;
+export const AiMessageFieldsFragmentDoc = gql`
+    fragment AiMessageFields on AiMessageType {
+  id
+  conversationId
+  role
+  content
+  createdAt
+}
+    `;
+export const AiMessageStreamEventFieldsFragmentDoc = gql`
+    fragment AiMessageStreamEventFields on AiMessageStreamEventType {
+  conversationId
+  token
+  completed
+  userMessageId
+  aiMessageId
+}
+    `;
 export const JobSalarySelectionFragmentDoc = gql`
     fragment JobSalarySelection on JobType {
   salary {
@@ -1503,6 +1648,49 @@ export const AdminUsersDocument = gql`
   }
 }
     `;
+export const AiConversationsDocument = gql`
+    query AiConversations($jobId: ID!) {
+  aiConversations(jobId: $jobId) {
+    ...AiConversationFields
+  }
+}
+    ${AiConversationFieldsFragmentDoc}`;
+export const AiMessagesDocument = gql`
+    query AiMessages($conversationId: ID!) {
+  aiMessages(conversationId: $conversationId) {
+    ...AiMessageFields
+  }
+}
+    ${AiMessageFieldsFragmentDoc}`;
+export const CreateAiConversationDocument = gql`
+    mutation CreateAiConversation($jobId: ID!) {
+  createAiConversation(jobId: $jobId) {
+    ...AiConversationFields
+  }
+}
+    ${AiConversationFieldsFragmentDoc}`;
+export const DeleteAiConversationDocument = gql`
+    mutation DeleteAiConversation($id: ID!) {
+  deleteAiConversation(id: $id) {
+    success
+    deletedId
+  }
+}
+    `;
+export const AskAiQuestionDocument = gql`
+    mutation AskAiQuestion($conversationId: ID!, $content: String!) {
+  askAiQuestion(conversationId: $conversationId, content: $content) {
+    success
+  }
+}
+    `;
+export const AiMessageStreamedDocument = gql`
+    subscription AiMessageStreamed($conversationId: ID!) {
+  aiMessageStreamed(conversationId: $conversationId) {
+    ...AiMessageStreamEventFields
+  }
+}
+    ${AiMessageStreamEventFieldsFragmentDoc}`;
 export const AuthenticatedShellDocument = gql`
     query AuthenticatedShell {
   me {
@@ -2449,6 +2637,24 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     AdminUsers(variables?: AdminUsersQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<AdminUsersQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<AdminUsersQuery>({ document: AdminUsersDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'AdminUsers', 'query', variables);
+    },
+    AiConversations(variables: AiConversationsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<AiConversationsQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<AiConversationsQuery>({ document: AiConversationsDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'AiConversations', 'query', variables);
+    },
+    AiMessages(variables: AiMessagesQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<AiMessagesQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<AiMessagesQuery>({ document: AiMessagesDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'AiMessages', 'query', variables);
+    },
+    CreateAiConversation(variables: CreateAiConversationMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<CreateAiConversationMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<CreateAiConversationMutation>({ document: CreateAiConversationDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'CreateAiConversation', 'mutation', variables);
+    },
+    DeleteAiConversation(variables: DeleteAiConversationMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<DeleteAiConversationMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<DeleteAiConversationMutation>({ document: DeleteAiConversationDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'DeleteAiConversation', 'mutation', variables);
+    },
+    AskAiQuestion(variables: AskAiQuestionMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<AskAiQuestionMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<AskAiQuestionMutation>({ document: AskAiQuestionDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'AskAiQuestion', 'mutation', variables);
+    },
+    AiMessageStreamed(variables: AiMessageStreamedSubscriptionVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<AiMessageStreamedSubscription> {
+      return withWrapper((wrappedRequestHeaders) => client.request<AiMessageStreamedSubscription>({ document: AiMessageStreamedDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'AiMessageStreamed', 'subscription', variables);
     },
     AuthenticatedShell(variables?: AuthenticatedShellQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<AuthenticatedShellQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<AuthenticatedShellQuery>({ document: AuthenticatedShellDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'AuthenticatedShell', 'query', variables);

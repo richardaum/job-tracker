@@ -12,6 +12,11 @@ vi.mock("@/modules/jobs/details/components/HistoryPanel", () => ({
   HistoryPanelTabsContent: () => <div data-testid="history-panel" />,
 }));
 
+vi.mock("@/modules/jobs/details/components/ChatPanelTabsContent", () => ({
+  default: () => <div data-testid="chat-panel" />,
+  ChatPanelTabsContent: () => <div data-testid="chat-panel" />,
+}));
+
 describe("ActivitySidePanel", () => {
   it("links expand control to notes focus full page", () => {
     render(<ActivitySidePanel jobId="job-42" sidePanel="notes" onSidePanelChange={vi.fn()} />);

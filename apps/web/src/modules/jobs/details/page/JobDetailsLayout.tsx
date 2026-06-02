@@ -98,6 +98,12 @@ function JobDetailsTabList({ jobId, showSourceContent, className }: JobDetailsTa
       <MatchTabTrigger tab="match" href={jobDetailsPath(jobId, "match")} />
       <MobileTabTrigger jobId={jobId} tab="notes" label="Notes" />
       <MobileTabTrigger jobId={jobId} tab="history" label="History" />
+      <TabsTrigger value="chat">
+        <NextLink href={jobDetailsPath(jobId, "chat")} className={cn("flex items-center gap-1.5")}>
+          <SparkleIcon size={14} weight="regular" />
+          <span>AI Chat</span>
+        </NextLink>
+      </TabsTrigger>
     </TabsList>
   );
 }

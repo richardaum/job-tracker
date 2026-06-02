@@ -22,6 +22,33 @@ export type Scalars = {
   JSON: { input: any; output: any; }
 };
 
+export type AiConversationType = {
+  __typename?: 'AiConversationType';
+  createdAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  jobId: Scalars['ID']['output'];
+  title: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type AiMessageStreamEventType = {
+  __typename?: 'AiMessageStreamEventType';
+  aiMessageId?: Maybe<Scalars['ID']['output']>;
+  completed: Scalars['Boolean']['output'];
+  conversationId: Scalars['ID']['output'];
+  token?: Maybe<Scalars['String']['output']>;
+  userMessageId?: Maybe<Scalars['ID']['output']>;
+};
+
+export type AiMessageType = {
+  __typename?: 'AiMessageType';
+  content: Scalars['String']['output'];
+  conversationId: Scalars['ID']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  role: Scalars['String']['output'];
+};
+
 export enum ApplicationQuickFilter {
   Active = 'Active',
   Applied = 'Applied',
@@ -43,6 +70,11 @@ export enum ApplicationStage {
   Rejected = 'Rejected',
   Technical = 'Technical'
 }
+
+export type AskQuestionPayloadType = {
+  __typename?: 'AskQuestionPayloadType';
+  success: Scalars['Boolean']['output'];
+};
 
 export enum AsyncMetadataStatus {
   Completed = 'Completed',
@@ -351,8 +383,10 @@ export enum MatchVerdict {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  askAiQuestion: AskQuestionPayloadType;
   clearSourceRuns: Scalars['Boolean']['output'];
   clearSourceTemplateRuns: Scalars['Int']['output'];
+  createAiConversation: AiConversationType;
   createJob: JobType;
   createJobNote: NoteType;
   createJobStageEvent: JobStageEventType;
@@ -361,6 +395,7 @@ export type Mutation = {
   createSourceRun: SourceRunType;
   createSourceTemplate: SourceTemplateType;
   deactivateAccount: Scalars['Boolean']['output'];
+  deleteAiConversation: DeleteMutationPayloadType;
   deleteCompany: DeleteMutationPayloadType;
   deleteJob: DeleteMutationPayloadType;
   deleteJobNote: DeleteMutationPayloadType;
@@ -391,9 +426,20 @@ export type Mutation = {
 };
 
 
+export type MutationAskAiQuestionArgs = {
+  content: Scalars['String']['input'];
+  conversationId: Scalars['ID']['input'];
+};
+
+
 export type MutationClearSourceTemplateRunsArgs = {
   deleteJobs?: InputMaybe<Scalars['Boolean']['input']>;
   templateId: Scalars['ID']['input'];
+};
+
+
+export type MutationCreateAiConversationArgs = {
+  jobId: Scalars['ID']['input'];
 };
 
 
@@ -429,6 +475,11 @@ export type MutationCreateSourceRunArgs = {
 
 export type MutationCreateSourceTemplateArgs = {
   input: CreateSourceTemplateInput;
+};
+
+
+export type MutationDeleteAiConversationArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
@@ -612,6 +663,8 @@ export type PreferenceType = {
 
 export type Query = {
   __typename?: 'Query';
+  aiConversations: Array<AiConversationType>;
+  aiMessages: Array<AiMessageType>;
   companies: Array<CompanyType>;
   company: CompanyType;
   companyJobsCount: Scalars['Int']['output'];
@@ -643,6 +696,16 @@ export type Query = {
   sourceTemplates: Array<SourceTemplateType>;
   users: Array<UserType>;
   workPreferences: Array<PreferenceType>;
+};
+
+
+export type QueryAiConversationsArgs = {
+  jobId: Scalars['ID']['input'];
+};
+
+
+export type QueryAiMessagesArgs = {
+  conversationId: Scalars['ID']['input'];
 };
 
 
@@ -856,11 +919,17 @@ export enum StopWhen {
 
 export type Subscription = {
   __typename?: 'Subscription';
+  aiMessageStreamed: AiMessageStreamEventType;
   extensionActivityEvents: ExtensionActivityEvent;
   jobFillStatusChanged: JobFillStatusEventType;
   jobMatchStatusChanged: JobMatchStatusEventType;
   jobSummaryStatusChanged: JobSummaryStatusEventType;
   sourceRunEvents: SourceRunEvent;
+};
+
+
+export type SubscriptionAiMessageStreamedArgs = {
+  conversationId: Scalars['ID']['input'];
 };
 
 
@@ -992,6 +1061,55 @@ export type AdminUsersQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type AdminUsersQuery = { __typename?: 'Query', users: Array<{ __typename?: 'UserType', id: string, email: string, name: string, role: string, avatarUrl?: string | null }> };
+
+export type AiConversationFieldsFragment = { __typename?: 'AiConversationType', id: string, jobId: string, title: string, createdAt: any, updatedAt: any };
+
+export type AiMessageFieldsFragment = { __typename?: 'AiMessageType', id: string, conversationId: string, role: string, content: string, createdAt: any };
+
+export type AiMessageStreamEventFieldsFragment = { __typename?: 'AiMessageStreamEventType', conversationId: string, token?: string | null, completed: boolean, userMessageId?: string | null, aiMessageId?: string | null };
+
+export type AiConversationsQueryVariables = Exact<{
+  jobId: Scalars['ID']['input'];
+}>;
+
+
+export type AiConversationsQuery = { __typename?: 'Query', aiConversations: Array<{ __typename?: 'AiConversationType', id: string, jobId: string, title: string, createdAt: any, updatedAt: any }> };
+
+export type AiMessagesQueryVariables = Exact<{
+  conversationId: Scalars['ID']['input'];
+}>;
+
+
+export type AiMessagesQuery = { __typename?: 'Query', aiMessages: Array<{ __typename?: 'AiMessageType', id: string, conversationId: string, role: string, content: string, createdAt: any }> };
+
+export type CreateAiConversationMutationVariables = Exact<{
+  jobId: Scalars['ID']['input'];
+}>;
+
+
+export type CreateAiConversationMutation = { __typename?: 'Mutation', createAiConversation: { __typename?: 'AiConversationType', id: string, jobId: string, title: string, createdAt: any, updatedAt: any } };
+
+export type DeleteAiConversationMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteAiConversationMutation = { __typename?: 'Mutation', deleteAiConversation: { __typename?: 'DeleteMutationPayloadType', success: boolean, deletedId: string } };
+
+export type AskAiQuestionMutationVariables = Exact<{
+  conversationId: Scalars['ID']['input'];
+  content: Scalars['String']['input'];
+}>;
+
+
+export type AskAiQuestionMutation = { __typename?: 'Mutation', askAiQuestion: { __typename?: 'AskQuestionPayloadType', success: boolean } };
+
+export type AiMessageStreamedSubscriptionVariables = Exact<{
+  conversationId: Scalars['ID']['input'];
+}>;
+
+
+export type AiMessageStreamedSubscription = { __typename?: 'Subscription', aiMessageStreamed: { __typename?: 'AiMessageStreamEventType', conversationId: string, token?: string | null, completed: boolean, userMessageId?: string | null, aiMessageId?: string | null } };
 
 export type AuthenticatedShellQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -1433,6 +1551,33 @@ export type UpdateWorkPreferencesMutationVariables = Exact<{
 
 export type UpdateWorkPreferencesMutation = { __typename?: 'Mutation', updateWorkPreferences: Array<{ __typename?: 'PreferenceType', text: string, weight: Weight }> };
 
+export const AiConversationFieldsFragmentDoc = gql`
+    fragment AiConversationFields on AiConversationType {
+  id
+  jobId
+  title
+  createdAt
+  updatedAt
+}
+    `;
+export const AiMessageFieldsFragmentDoc = gql`
+    fragment AiMessageFields on AiMessageType {
+  id
+  conversationId
+  role
+  content
+  createdAt
+}
+    `;
+export const AiMessageStreamEventFieldsFragmentDoc = gql`
+    fragment AiMessageStreamEventFields on AiMessageStreamEventType {
+  conversationId
+  token
+  completed
+  userMessageId
+  aiMessageId
+}
+    `;
 export const JobSalarySelectionFragmentDoc = gql`
     fragment JobSalarySelection on JobType {
   salary {
@@ -1632,6 +1777,206 @@ export function useAdminUsersLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryH
 
 export type AdminUsersQueryHookResult = ReturnType<typeof useAdminUsersQuery>;
 export type AdminUsersLazyQueryHookResult = ReturnType<typeof useAdminUsersLazyQuery>;
+
+export const AiConversationsDocument = gql`
+    query AiConversations($jobId: ID!) {
+  aiConversations(jobId: $jobId) {
+    ...AiConversationFields
+  }
+}
+    ${AiConversationFieldsFragmentDoc}`;
+
+/**
+ * __useAiConversationsQuery__
+ *
+ * To run a query within a React component, call `useAiConversationsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useAiConversationsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useAiConversationsQuery({
+ *   variables: {
+ *      jobId: // value for 'jobId'
+ *   },
+ * });
+ */
+export function useAiConversationsQuery(baseOptions: ApolloReactHooks.QueryHookOptions<AiConversationsQuery, AiConversationsQueryVariables> & ({ variables: AiConversationsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<AiConversationsQuery, AiConversationsQueryVariables>(AiConversationsDocument, options);
+      }
+export function useAiConversationsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<AiConversationsQuery, AiConversationsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<AiConversationsQuery, AiConversationsQueryVariables>(AiConversationsDocument, options);
+        }
+
+export type AiConversationsQueryHookResult = ReturnType<typeof useAiConversationsQuery>;
+export type AiConversationsLazyQueryHookResult = ReturnType<typeof useAiConversationsLazyQuery>;
+
+export const AiMessagesDocument = gql`
+    query AiMessages($conversationId: ID!) {
+  aiMessages(conversationId: $conversationId) {
+    ...AiMessageFields
+  }
+}
+    ${AiMessageFieldsFragmentDoc}`;
+
+/**
+ * __useAiMessagesQuery__
+ *
+ * To run a query within a React component, call `useAiMessagesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useAiMessagesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useAiMessagesQuery({
+ *   variables: {
+ *      conversationId: // value for 'conversationId'
+ *   },
+ * });
+ */
+export function useAiMessagesQuery(baseOptions: ApolloReactHooks.QueryHookOptions<AiMessagesQuery, AiMessagesQueryVariables> & ({ variables: AiMessagesQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<AiMessagesQuery, AiMessagesQueryVariables>(AiMessagesDocument, options);
+      }
+export function useAiMessagesLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<AiMessagesQuery, AiMessagesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<AiMessagesQuery, AiMessagesQueryVariables>(AiMessagesDocument, options);
+        }
+
+export type AiMessagesQueryHookResult = ReturnType<typeof useAiMessagesQuery>;
+export type AiMessagesLazyQueryHookResult = ReturnType<typeof useAiMessagesLazyQuery>;
+
+export const CreateAiConversationDocument = gql`
+    mutation CreateAiConversation($jobId: ID!) {
+  createAiConversation(jobId: $jobId) {
+    ...AiConversationFields
+  }
+}
+    ${AiConversationFieldsFragmentDoc}`;
+
+
+/**
+ * __useCreateAiConversationMutation__
+ *
+ * To run a mutation, you first call `useCreateAiConversationMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateAiConversationMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createAiConversationMutation, { data, loading, error }] = useCreateAiConversationMutation({
+ *   variables: {
+ *      jobId: // value for 'jobId'
+ *   },
+ * });
+ */
+export function useCreateAiConversationMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<CreateAiConversationMutation, CreateAiConversationMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<CreateAiConversationMutation, CreateAiConversationMutationVariables>(CreateAiConversationDocument, options);
+      }
+
+
+export const DeleteAiConversationDocument = gql`
+    mutation DeleteAiConversation($id: ID!) {
+  deleteAiConversation(id: $id) {
+    success
+    deletedId
+  }
+}
+    `;
+
+
+/**
+ * __useDeleteAiConversationMutation__
+ *
+ * To run a mutation, you first call `useDeleteAiConversationMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteAiConversationMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteAiConversationMutation, { data, loading, error }] = useDeleteAiConversationMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteAiConversationMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DeleteAiConversationMutation, DeleteAiConversationMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<DeleteAiConversationMutation, DeleteAiConversationMutationVariables>(DeleteAiConversationDocument, options);
+      }
+
+
+export const AskAiQuestionDocument = gql`
+    mutation AskAiQuestion($conversationId: ID!, $content: String!) {
+  askAiQuestion(conversationId: $conversationId, content: $content) {
+    success
+  }
+}
+    `;
+
+
+/**
+ * __useAskAiQuestionMutation__
+ *
+ * To run a mutation, you first call `useAskAiQuestionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAskAiQuestionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [askAiQuestionMutation, { data, loading, error }] = useAskAiQuestionMutation({
+ *   variables: {
+ *      conversationId: // value for 'conversationId'
+ *      content: // value for 'content'
+ *   },
+ * });
+ */
+export function useAskAiQuestionMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<AskAiQuestionMutation, AskAiQuestionMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<AskAiQuestionMutation, AskAiQuestionMutationVariables>(AskAiQuestionDocument, options);
+      }
+
+
+export const AiMessageStreamedDocument = gql`
+    subscription AiMessageStreamed($conversationId: ID!) {
+  aiMessageStreamed(conversationId: $conversationId) {
+    ...AiMessageStreamEventFields
+  }
+}
+    ${AiMessageStreamEventFieldsFragmentDoc}`;
+
+/**
+ * __useAiMessageStreamedSubscription__
+ *
+ * To run a query within a React component, call `useAiMessageStreamedSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useAiMessageStreamedSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useAiMessageStreamedSubscription({
+ *   variables: {
+ *      conversationId: // value for 'conversationId'
+ *   },
+ * });
+ */
+export function useAiMessageStreamedSubscription(baseOptions: ApolloReactHooks.SubscriptionHookOptions<AiMessageStreamedSubscription, AiMessageStreamedSubscriptionVariables> & ({ variables: AiMessageStreamedSubscriptionVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useSubscription<AiMessageStreamedSubscription, AiMessageStreamedSubscriptionVariables>(AiMessageStreamedDocument, options);
+      }
+export type AiMessageStreamedSubscriptionHookResult = ReturnType<typeof useAiMessageStreamedSubscription>;
 
 export const AuthenticatedShellDocument = gql`
     query AuthenticatedShell {

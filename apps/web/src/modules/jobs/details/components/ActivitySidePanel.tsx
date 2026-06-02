@@ -1,9 +1,10 @@
 import { cn, Link, Tabs, TabsList, TabsTrigger, Tooltip } from "@job-tracker/ui";
-import { ArrowSquareOutIcon } from "@phosphor-icons/react";
+import { ArrowSquareOutIcon, SparkleIcon } from "@phosphor-icons/react";
 import NextLink from "next/link";
 
 import { jobDetailsNotesFocusPath, type JobSidePanel } from "@/modules/jobs/details/utils/job-details-routes";
 
+import { ChatPanelTabsContent } from "./ChatPanelTabsContent";
 import { HistoryPanelTabsContent } from "./HistoryPanel";
 import { NotesPanelTabsContent } from "./NotesPanel";
 
@@ -42,10 +43,15 @@ export function ActivitySidePanel({ jobId, sidePanel, onSidePanelChange, onSucce
         <TabsTrigger value="history" className={cn("flex-1")}>
           History
         </TabsTrigger>
+        <TabsTrigger value="chat" className={cn("flex-1 flex items-center gap-1.5")}>
+          <SparkleIcon size={14} weight="regular" />
+          <span>AI Chat</span>
+        </TabsTrigger>
       </TabsList>
 
       <NotesPanelTabsContent jobId={jobId} className={cn("pt-3")} />
       <HistoryPanelTabsContent jobId={jobId} className={cn("pt-3")} onSuccess={onSuccess} onError={onError} />
+      <ChatPanelTabsContent jobId={jobId} className={cn("pt-3")} />
     </Tabs>
   );
 }

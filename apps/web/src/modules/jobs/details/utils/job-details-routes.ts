@@ -2,7 +2,7 @@ import type { Route } from "next";
 
 export type JobDetailsMainTab = "overview" | "description" | "source" | "match";
 
-export type JobSidePanel = "notes" | "history";
+export type JobSidePanel = "notes" | "history" | "chat";
 
 export type JobDetailsTab = JobDetailsMainTab | JobSidePanel;
 
@@ -27,8 +27,11 @@ export function jobDetailsHref(jobId: string, tab: JobDetailsMainTab, sidePanel?
 }
 
 export function parseJobDetailsTab(pathname: string): JobDetailsTab {
-  const match = pathname.match(/^\/jobs\/[^/]+\/(description|source|match|notes|history)$/);
+  const match = pathname.match(/^\/jobs\/[^/]+\/(description|source|match|notes|history|chat)(?:\/|$)/);
   if (!match) {
+    return "overview";
+  }
+  if (pathname.endsWith("/notes/focus")) {
     return "overview";
   }
   return match[1] as JobDetailsTab;
@@ -36,23 +39,23 @@ export function parseJobDetailsTab(pathname: string): JobDetailsTab {
 
 export function parseJobDetailsMainTab(pathname: string): JobDetailsMainTab {
   const tab = parseJobDetailsTab(pathname);
-  if (tab === "notes" || tab === "history") {
+  if (tab === "notes" || tab === "history" || tab === "chat") {
     return "overview";
   }
   return tab;
 }
 
 export function parseJobSidePanel(value: string | null): JobSidePanel | null {
-  if (value === "notes" || value === "history") {
+  if (value === "notes" || value === "history" || value === "chat") {
     return value;
   }
   return null;
 }
 
 export function isJobDetailsMainTab(tab: JobDetailsTab): tab is JobDetailsMainTab {
-  return tab !== "notes" && tab !== "history";
+  return tab !== "notes" && tab !== "history" && tab !== "chat";
 }
 
 export function isJobDetailsSidePanelTab(tab: JobDetailsTab): tab is JobSidePanel {
-  return tab === "notes" || tab === "history";
+  return tab === "notes" || tab === "history" || tab === "chat";
 }
