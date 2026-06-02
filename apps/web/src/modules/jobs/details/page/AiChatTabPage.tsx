@@ -4,8 +4,8 @@ import type { Route } from "next";
 import { useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-import { useChatPanelViewModel } from "../hooks/useChatPanelViewModel";
-import { ChatPanel } from "../components/ChatPanel";
+import { useChatPanelViewModel } from "@/modules/jobs/details/hooks/useChatPanelViewModel";
+import { ChatPanel } from "@/modules/jobs/details/components/ChatPanel";
 
 type AiChatTabPageProps = { jobId: string };
 
@@ -24,7 +24,7 @@ export function AiChatTabPage({ jobId }: AiChatTabPageProps) {
     if (!vm.activeConversationId && vm.conversations[0]) {
       vm.switchConversation(vm.conversations[0].id);
     }
-  }, [vm.conversations, vm.activeConversationId, vm.switchConversation]);
+  }, [vm]);
 
   const handleCreate = useCallback(async () => {
     const id = await vm.createConversation();

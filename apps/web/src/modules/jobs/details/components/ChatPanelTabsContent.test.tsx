@@ -25,6 +25,7 @@ function buildMockViewModel(
     messages: overrides?.messages ?? [],
     isStreaming: false,
     streamingContent: "",
+    isCreatingConversation: false,
     error: undefined,
     createConversation: vi.fn(),
     deleteConversation: vi.fn(),

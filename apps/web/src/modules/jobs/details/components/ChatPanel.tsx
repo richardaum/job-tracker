@@ -74,17 +74,13 @@ export function ChatPanel({
     return () => observer.disconnect();
   }, []);
 
-  useEffect(() => {
-    if (activeConversationId) setShowList(false);
-  }, [activeConversationId]);
-
   const handleSelectConversation = useCallback(
     (id: string) => {
       if (onNavigateToConversation) {
         onNavigateToConversation(id);
-        return;
+      } else {
+        setActiveConversationId(id);
       }
-      setActiveConversationId(id);
       if (isNarrow) setShowList(false);
     },
     [setActiveConversationId, isNarrow, onNavigateToConversation],

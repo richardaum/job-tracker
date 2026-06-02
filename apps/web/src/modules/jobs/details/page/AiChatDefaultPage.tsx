@@ -3,9 +3,9 @@
 import { cn } from "@job-tracker/ui";
 import { useEffect } from "react";
 
-import { useAiChatContext } from "../hooks/AiChatContext";
-import { ChatPanelComposer } from "../components/ChatPanelComposer";
-import { ChatPanelMessageList } from "../components/ChatPanelMessageList";
+import { useAiChatContext } from "@/modules/jobs/details/hooks/AiChatContext";
+import { ChatPanelComposer } from "@/modules/jobs/details/components/ChatPanelComposer";
+import { ChatPanelMessageList } from "@/modules/jobs/details/components/ChatPanelMessageList";
 
 export default function AiChatDefaultPage() {
   const vm = useAiChatContext();
@@ -14,7 +14,7 @@ export default function AiChatDefaultPage() {
     if (!vm.activeConversationId && vm.conversations[0]) {
       vm.switchConversation(vm.conversations[0].id);
     }
-  }, [vm.conversations, vm.activeConversationId, vm.switchConversation]);
+  }, [vm]);
 
   if (vm.conversations.length === 0) {
     return (

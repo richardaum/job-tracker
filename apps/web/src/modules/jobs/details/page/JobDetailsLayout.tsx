@@ -10,12 +10,10 @@ import {
   Heading,
   Tabs,
   TabsList,
-  TabsTrigger,
   Text,
 } from "@job-tracker/ui";
 import { ArrowSquareRightIcon, CaretDownIcon, SparkleIcon, TrashIcon } from "@phosphor-icons/react";
 import type { Route } from "next";
-import NextLink from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { use, useCallback, useEffect, useState } from "react";
 import type { ReactNode } from "react";
@@ -25,10 +23,15 @@ import { DetailPageHeader } from "@/components/detail-page-header/DetailPageHead
 import { EntityNotFound } from "@/components/entity-not-found";
 import { useBreakpoint } from "@/hooks/useBreakpoint";
 import { ActivitySidePanel } from "@/modules/jobs/details/components/ActivitySidePanel";
+import { AiChatTab } from "@/modules/jobs/details/components/AiChatTab";
 import { CopyJobMdMenuItem } from "@/modules/jobs/details/components/CopyJobMdMenuItem";
+import { DescriptionTab } from "@/modules/jobs/details/components/DescriptionTab";
 import { ExportJobMdMenuItem } from "@/modules/jobs/details/components/ExportJobMdMenuItem";
-import { MatchTabTrigger } from "@/modules/jobs/details/components/MatchTabTrigger";
-import { OverviewTabTrigger } from "@/modules/jobs/details/components/OverviewTabTrigger";
+import { HistoryTab } from "@/modules/jobs/details/components/HistoryTab";
+import { MatchTab } from "@/modules/jobs/details/components/MatchTab";
+import { NotesTab } from "@/modules/jobs/details/components/NotesTab";
+import { OverviewTab } from "@/modules/jobs/details/components/OverviewTab";
+import { SourceTab } from "@/modules/jobs/details/components/SourceTab";
 import { UpdateStatusAction } from "@/modules/jobs/details/components/UpdateStatusAction";
 import { JobFillStatusProvider } from "@/modules/jobs/details/hooks/JobFillStatusProvider";
 import { JobMatchStatusProvider } from "@/modules/jobs/details/hooks/JobMatchStatusProvider";
@@ -47,7 +50,6 @@ import {
 import { jobDetailDisplayTitle } from "@/modules/jobs/details/utils/job-detail-title";
 import {
   isJobDetailsSidePanelTab,
-  jobDetailsHref,
   type JobDetailsMainTab,
   jobDetailsPath,
   type JobDetailsTab,
@@ -62,52 +64,6 @@ interface JobDetailsLayoutProps {
   children: ReactNode;
 }
 
-type DesktopMainTabTriggerProps = {
-  jobId: string;
-  tab: JobDetailsMainTab;
-  label: string;
-  sidePanel: JobSidePanel | null;
-};
-
-function DesktopMainTabTrigger({ jobId, tab, label, sidePanel }: DesktopMainTabTriggerProps) {
-  return (
-    <TabsTrigger value={tab}>
-      <NextLink href={jobDetailsHref(jobId, tab, sidePanel ?? undefined)}>{label}</NextLink>
-    </TabsTrigger>
-  );
-}
-
-type MobileTabTriggerProps = { jobId: string; tab: JobDetailsTab; label: string };
-
-function MobileTabTrigger({ jobId, tab, label }: MobileTabTriggerProps) {
-  return (
-    <TabsTrigger value={tab}>
-      <NextLink href={jobDetailsPath(jobId, tab)}>{label}</NextLink>
-    </TabsTrigger>
-  );
-}
-
-type JobDetailsTabListProps = { jobId: string; showSourceContent: boolean; className?: string };
-
-function JobDetailsTabList({ jobId, showSourceContent, className }: JobDetailsTabListProps) {
-  return (
-    <TabsList className={cn("w-fit max-w-full shrink-0 self-start", className)}>
-      <OverviewTabTrigger tab="overview" href={jobDetailsPath(jobId, "overview")} />
-      <MobileTabTrigger jobId={jobId} tab="description" label="Description" />
-      {showSourceContent ? <MobileTabTrigger jobId={jobId} tab="source" label="Source content" /> : null}
-      <MatchTabTrigger tab="match" href={jobDetailsPath(jobId, "match")} />
-      <MobileTabTrigger jobId={jobId} tab="notes" label="Notes" />
-      <MobileTabTrigger jobId={jobId} tab="history" label="History" />
-      <TabsTrigger value="chat">
-        <NextLink href={jobDetailsPath(jobId, "chat")} className={cn("flex items-center gap-1.5")}>
-          <SparkleIcon size={14} weight="regular" />
-          <span>AI Chat</span>
-        </NextLink>
-      </TabsTrigger>
-    </TabsList>
-  );
-}
-
 type JobDetailsTabBarProps = { children: ReactNode; className?: string };
 
 function JobDetailsTabBar({ children, className }: JobDetailsTabBarProps) {
@@ -120,78 +76,35 @@ function JobDetailsTabBar({ children, className }: JobDetailsTabBarProps) {
 }
 
 type JobDetailsFullWidthTabLayoutProps = {
-  jobId: string;
-  showSourceContent: boolean;
   activeTab: JobDetailsTab;
+  tabBar: ReactNode;
   children: ReactNode;
 };
 
-function JobDetailsFullWidthTabLayout({
-  jobId,
-  showSourceContent,
-  activeTab,
-  children,
-}: JobDetailsFullWidthTabLayoutProps) {
+function JobDetailsFullWidthTabLayout({ activeTab, tabBar, children }: JobDetailsFullWidthTabLayoutProps) {
   return (
     <Tabs value={activeTab} className={cn("flex size-full min-h-0 flex-col")}>
-      <JobDetailsTabBar>
-        <JobDetailsTabList jobId={jobId} showSourceContent={showSourceContent} className={cn("flex-wrap")} />
-      </JobDetailsTabBar>
-
+      <JobDetailsTabBar>{tabBar}</JobDetailsTabBar>
       <div className={cn("mt-3 flex flex-1 min-h-0 flex-col")}>{children}</div>
     </Tabs>
   );
 }
 
 type JobDetailsSplitTabLayoutProps = {
-  jobId: string;
-  showSourceContent: boolean;
   activeTab: JobDetailsMainTab;
-  sidePanel: JobSidePanel | null;
-  effectiveSidePanel: JobSidePanel;
-  onSidePanelChange: (sidePanel: JobSidePanel) => void;
-  onSuccess: (message: string) => void;
-  onError: (message: string) => void;
+  tabBar: ReactNode;
+  sidePanel: ReactNode;
   children: ReactNode;
 };
 
-function JobDetailsSplitTabLayout({
-  jobId,
-  showSourceContent,
-  activeTab,
-  sidePanel,
-  effectiveSidePanel,
-  onSidePanelChange,
-  onSuccess,
-  onError,
-  children,
-}: JobDetailsSplitTabLayoutProps) {
+function JobDetailsSplitTabLayout({ activeTab, tabBar, sidePanel, children }: JobDetailsSplitTabLayoutProps) {
   return (
     <div className={cn("grid h-full min-h-0 gap-4 lg:grid-cols-[minmax(0,1fr)_360px]")}>
       <Tabs value={activeTab} className={cn("flex size-full min-h-0 flex-col")}>
-        <JobDetailsTabBar>
-          <TabsList className={cn("w-fit self-start")}>
-            <OverviewTabTrigger tab="overview" href={jobDetailsHref(jobId, "overview", sidePanel ?? undefined)} />
-            <DesktopMainTabTrigger jobId={jobId} tab="description" label="Description" sidePanel={sidePanel} />
-            {showSourceContent ? (
-              <DesktopMainTabTrigger jobId={jobId} tab="source" label="Source content" sidePanel={sidePanel} />
-            ) : null}
-            <MatchTabTrigger tab="match" href={jobDetailsHref(jobId, "match", sidePanel ?? undefined)} />
-          </TabsList>
-        </JobDetailsTabBar>
-
+        <JobDetailsTabBar>{tabBar}</JobDetailsTabBar>
         <div className={cn("mt-3 flex flex-1 min-h-0 flex-col")}>{children}</div>
       </Tabs>
-
-      <div className={cn("min-h-0 overflow-hidden border-l border-border-subtle pl-4")}>
-        <ActivitySidePanel
-          jobId={jobId}
-          sidePanel={effectiveSidePanel}
-          onSidePanelChange={onSidePanelChange}
-          onSuccess={onSuccess}
-          onError={onError}
-        />
-      </div>
+      <div className={cn("min-h-0 overflow-hidden border-l border-border-subtle pl-4")}>{sidePanel}</div>
     </div>
   );
 }
@@ -383,22 +296,41 @@ export default function JobDetailsLayout({ params, children }: JobDetailsLayoutP
                 </Text>
               ) : !job ? null : !isDesktop || isSidePanelRoute ? (
                 <JobDetailsFullWidthTabLayout
-                  jobId={job.id}
-                  showSourceContent={showSourceContent}
                   activeTab={activeTab}
+                  tabBar={
+                    <TabsList className={cn("w-fit max-w-full shrink-0 self-start flex-wrap")}>
+                      <OverviewTab jobId={job.id} />
+                      <DescriptionTab jobId={job.id} />
+                      {showSourceContent ? <SourceTab jobId={job.id} /> : null}
+                      <MatchTab jobId={job.id} />
+                      <NotesTab jobId={job.id} />
+                      <HistoryTab jobId={job.id} />
+                      <AiChatTab jobId={job.id} />
+                    </TabsList>
+                  }
                 >
                   {children}
                 </JobDetailsFullWidthTabLayout>
               ) : (
                 <JobDetailsSplitTabLayout
-                  jobId={job.id}
-                  showSourceContent={showSourceContent}
                   activeTab={mainTab}
-                  sidePanel={sidePanelFromQuery}
-                  effectiveSidePanel={effectiveSidePanel}
-                  onSidePanelChange={setSidePanel}
-                  onSuccess={handleEntitySuccess}
-                  onError={handleEntityError}
+                  tabBar={
+                    <TabsList className={cn("w-fit self-start")}>
+                      <OverviewTab jobId={job.id} sidePanel={sidePanelFromQuery} />
+                      <DescriptionTab jobId={job.id} sidePanel={sidePanelFromQuery} />
+                      {showSourceContent ? <SourceTab jobId={job.id} sidePanel={sidePanelFromQuery} /> : null}
+                      <MatchTab jobId={job.id} sidePanel={sidePanelFromQuery} />
+                    </TabsList>
+                  }
+                  sidePanel={
+                    <ActivitySidePanel
+                      jobId={job.id}
+                      sidePanel={effectiveSidePanel}
+                      onSidePanelChange={setSidePanel}
+                      onSuccess={handleEntitySuccess}
+                      onError={handleEntityError}
+                    />
+                  }
                 >
                   {children}
                 </JobDetailsSplitTabLayout>

@@ -6,8 +6,9 @@ import type { Route } from "next";
 import { useParams, useRouter } from "next/navigation";
 import { useCallback, type ReactNode } from "react";
 
-import { AiChatProvider, useAiChatContext } from "../hooks/AiChatContext";
-import { ChatPanelConversationList } from "../components/ChatPanelConversationList";
+import { AiChatProvider } from "@/modules/jobs/details/hooks/AiChatProvider";
+import { useAiChatContext } from "@/modules/jobs/details/hooks/AiChatContext";
+import { ChatPanelConversationList } from "@/modules/jobs/details/components/ChatPanelConversationList";
 
 type AiChatLayoutProps = { children: ReactNode };
 
