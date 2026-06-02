@@ -14,22 +14,20 @@ import {
 type SalaryPeriodTooltipProps = { salary: JobSalary | null | undefined; children: ReactNode };
 
 export function SalaryPeriodTooltip({ salary, children }: SalaryPeriodTooltipProps) {
-  if (!salary) return children;
+  const curr = salary?.currency?.trim();
+  const from = salary ? salaryPeriodToRateBasis(salary.period) : null;
+  const minMajor = salary ? majorFromCents(salary.minCents) : null;
+  const maxMajor = salary ? majorFromCents(salary.maxCents) : null;
 
-  const curr = salary.currency?.trim();
-  const from = salaryPeriodToRateBasis(salary.period);
-  const minMajor = majorFromCents(salary.minCents);
-  const maxMajor = majorFromCents(salary.maxCents);
+  const hasContent = Boolean(salary && curr && from && (minMajor != null || maxMajor != null));
 
-  if (!curr || !from || (minMajor == null && maxMajor == null) || children == null) {
-    return children;
-  }
-
-  const rows = SALARY_RATE_PERIOD_BASES.flatMap((target) => {
-    const text = formatConvertedSalaryRangeLine(minMajor, maxMajor, from, target, curr);
-    if (!text) return [];
-    return [{ target, text, label: SALARY_RATE_PERIOD_LABELS[target], active: from === target }];
-  });
+  const rows = hasContent
+    ? SALARY_RATE_PERIOD_BASES.flatMap((target) => {
+        const text = formatConvertedSalaryRangeLine(minMajor!, maxMajor!, from!, target, curr!);
+        if (!text) return [];
+        return [{ target, text, label: SALARY_RATE_PERIOD_LABELS[target], active: from === target }];
+      })
+    : [];
 
   return (
     <Tooltip
@@ -51,10 +49,11 @@ export function SalaryPeriodTooltip({ salary, children }: SalaryPeriodTooltipPro
       }
       side="bottom"
       align="start"
+      enabled={hasContent}
     >
       <span
         className={cn(
-          "inline-flex max-w-full min-w-0 cursor-help underline decoration-dashed decoration-text-muted/30 underline-offset-2",
+          "inline-flex max-w-full min-w-0 cursor-help underline decoration-dashed underline-offset-2 text-decoration-color-text-muted/30",
         )}
       >
         {children}
