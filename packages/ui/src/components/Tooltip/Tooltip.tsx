@@ -1,3 +1,5 @@
+"use client";
+
 import { cn } from "@ui/lib/cn";
 import * as RadixTooltip from "@radix-ui/react-tooltip";
 import { useRef, useLayoutEffect, useState, type ReactNode, type ReactElement } from "react";

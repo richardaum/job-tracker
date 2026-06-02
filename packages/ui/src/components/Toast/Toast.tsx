@@ -1,3 +1,5 @@
+"use client";
+
 import { CheckCircleIcon, InfoIcon, WarningCircleIcon, XCircleIcon, XIcon } from "@phosphor-icons/react";
 import { cloneElement, useEffect, useState } from "react";
 import type { MouseEvent, MouseEventHandler, ReactElement, ReactNode } from "react";

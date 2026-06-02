@@ -1,3 +1,5 @@
+"use client";
+
 import { AnchoredCombobox } from "@ui/components/Combobox/AnchoredCombobox";
 import { Text } from "@ui/components/Typography/Text";
 import { cn } from "@ui/lib/cn";

@@ -1,3 +1,5 @@
+"use client";
+
 import type { ReactNode } from "react";
 import { CaretDownIcon } from "@phosphor-icons/react";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";

@@ -1,3 +1,5 @@
+"use client";
+
 import * as Menu from "@radix-ui/react-menu";
 import type { InputProps } from "@ui/components/Input/Input";
 import { Input as TextInput } from "@ui/components/Input/Input";

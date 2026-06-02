@@ -1,8 +1,11 @@
+"use client";
+
 import {
   ArrowsClockwiseIcon,
   ArrowSquareOutIcon,
   BriefcaseIcon,
   BuildingsIcon,
+  ChatDotsIcon,
   ClockIcon,
   CurrencyDollarIcon,
   FilesIcon,
@@ -74,6 +77,9 @@ export const conceptIcon = {
 
   /** AI, sparkle, generation */
   ai: SparkleIcon,
+
+  /** Chat, conversation, messages */
+  chat: ChatDotsIcon,
 
   /** Money, salary, currency */
   money: CurrencyDollarIcon,

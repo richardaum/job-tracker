@@ -87,7 +87,7 @@ export function TabsTrigger({ value, children, className, asChild, leadingIcon, 
 
 export function TabsContent({ value, children, className }: TabsContentProps) {
   return (
-    <RadixTabs.Content value={value} className={cn("mt-3 focus-visible:outline-none", className)}>
+    <RadixTabs.Content value={value} className={cn("focus-visible:outline-none", className)}>
       {children}
     </RadixTabs.Content>
   );

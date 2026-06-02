@@ -1,4 +1,3 @@
-export {};
 export type { AlertIntent, AlertProps } from "./components/Alert/Alert";
 export { Alert } from "./components/Alert/Alert";
 export type { BadgeIntent, BadgeProps } from "./components/Badge/Badge";

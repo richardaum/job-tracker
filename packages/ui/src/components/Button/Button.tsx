@@ -1,3 +1,5 @@
+"use client";
+
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 import { CircleNotchIcon } from "@phosphor-icons/react";
 import { Slot } from "@radix-ui/react-slot";

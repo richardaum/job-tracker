@@ -1,3 +1,5 @@
+"use client";
+
 import { InfoIcon } from "@phosphor-icons/react";
 import { cn } from "@ui/lib/cn";
 import type { ReactNode } from "react";

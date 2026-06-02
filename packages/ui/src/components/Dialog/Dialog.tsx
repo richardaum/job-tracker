@@ -1,3 +1,5 @@
+"use client";
+
 import type { HTMLAttributes, ReactElement, ReactNode } from "react";
 import { XIcon } from "@phosphor-icons/react";
 import * as RadixDialog from "@radix-ui/react-dialog";

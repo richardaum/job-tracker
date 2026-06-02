@@ -1,3 +1,5 @@
+"use client";
+
 import { CaretDownIcon } from "@phosphor-icons/react";
 import * as RadixSelect from "@radix-ui/react-select";
 import { cn } from "@ui/lib/cn";

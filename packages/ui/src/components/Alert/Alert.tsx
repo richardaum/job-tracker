@@ -1,3 +1,5 @@
+"use client";
+
 import type { HTMLAttributes, ReactNode } from "react";
 import { CheckCircleIcon, InfoIcon, WarningCircleIcon, XCircleIcon } from "@phosphor-icons/react";
 import { cn } from "@ui/lib/cn";
