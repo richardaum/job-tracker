@@ -44,6 +44,9 @@ const apiEnvSchema = z.object({
   DEV_AUTH_BYPASS_EMAIL: z.email().optional(),
   /** Dev/E2E only — skips @nestjs/throttler and in-app IP rate limits. */
   RATE_LIMIT_DISABLED: z.preprocess((value) => parseEnvBoolean(value, false), z.boolean()),
+
+  /** Dev only — random delay (300ms–2s) added to every request. */
+  SIMULATED_LATENCY_ENABLED: z.preprocess((value) => parseEnvBoolean(value, false), z.boolean()),
 });
 
 export const apiEnv = apiEnvSchema
@@ -67,6 +70,10 @@ export const apiEnv = apiEnvSchema
   .refine(({ NODE_ENV, RATE_LIMIT_DISABLED }) => NODE_ENV !== "production" || !RATE_LIMIT_DISABLED, {
     message: "RATE_LIMIT_DISABLED cannot be enabled in production.",
     path: ["RATE_LIMIT_DISABLED"],
+  })
+  .refine(({ NODE_ENV, SIMULATED_LATENCY_ENABLED }) => NODE_ENV !== "production" || !SIMULATED_LATENCY_ENABLED, {
+    message: "SIMULATED_LATENCY_ENABLED cannot be enabled in production.",
+    path: ["SIMULATED_LATENCY_ENABLED"],
   })
   .parse(process.env);
 
