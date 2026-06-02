@@ -3,7 +3,7 @@ import { Observable, delay } from "rxjs";
 
 import { apiEnv } from "@api/env/server";
 
-const MIN_DELAY = 300;
+const MIN_DELAY = 1000;
 const MAX_DELAY = 2000;
 
 @Injectable()
