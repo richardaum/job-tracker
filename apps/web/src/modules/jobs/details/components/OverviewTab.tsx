@@ -1,11 +1,11 @@
 "use client";
 
 import { cn, Tooltip } from "@job-tracker/ui";
-import type { Route } from "next";
 
 import { getFillStatusTooltipContent } from "@/modules/jobs/details/components/fill-status.shared";
 import { useJobFillStatus } from "@/modules/jobs/details/hooks/useJobFillStatus";
 
+import { jobDetailsHref } from "@/modules/jobs/details/utils/job-details-url";
 import { MatchStatusBadge } from "@/modules/match-analyses/details/components/MatchStatusBadge";
 
 import { DetailsTabTrigger } from "./DetailsTabTrigger";
@@ -13,7 +13,7 @@ import { DetailsTabTrigger } from "./DetailsTabTrigger";
 type OverviewTabProps = { jobId: string; sidePanel?: string | null };
 
 export function OverviewTab({ jobId, sidePanel }: OverviewTabProps) {
-  const href: Route = sidePanel != null ? (`/jobs/${jobId}?s=${sidePanel}` as Route) : (`/jobs/${jobId}` as Route);
+  const href = jobDetailsHref(`/jobs/${jobId}`, { sidePanel });
   const { status, error } = useJobFillStatus();
   const tooltipContent = status ? getFillStatusTooltipContent(status, error) : "";
 

@@ -1,20 +1,19 @@
 "use client";
 
 import { cn, Tooltip } from "@job-tracker/ui";
-import type { Route } from "next";
 
 import { useJobMatchStatus } from "@/modules/jobs/details/hooks/useJobMatchStatus";
 
 import { getMatchStatusTooltipContent } from "@/modules/match-analyses/details/components/match-status.shared";
 import { MatchStatusBadge } from "@/modules/match-analyses/details/components/MatchStatusBadge";
 
+import { jobDetailsHref } from "@/modules/jobs/details/utils/job-details-url";
 import { DetailsTabTrigger } from "./DetailsTabTrigger";
 
 type MatchTabProps = { jobId: string; sidePanel?: string | null };
 
 export function MatchTab({ jobId, sidePanel }: MatchTabProps) {
-  const href: Route =
-    sidePanel != null ? (`/jobs/${jobId}/match?s=${sidePanel}` as Route) : (`/jobs/${jobId}/match` as Route);
+  const href = jobDetailsHref(`/jobs/${jobId}/match`, { sidePanel });
   const { status, error } = useJobMatchStatus();
   const tooltipContent = status ? getMatchStatusTooltipContent(status, error) : "";
 

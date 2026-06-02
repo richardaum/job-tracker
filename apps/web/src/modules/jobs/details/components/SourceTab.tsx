@@ -1,14 +1,13 @@
 "use client";
 
-import type { Route } from "next";
+import { jobDetailsHref } from "@/modules/jobs/details/utils/job-details-url";
 
 import { DetailsTabTrigger } from "./DetailsTabTrigger";
 
 type SourceTabProps = { jobId: string; sidePanel?: string | null };
 
 export function SourceTab({ jobId, sidePanel }: SourceTabProps) {
-  const href: Route =
-    sidePanel != null ? (`/jobs/${jobId}/source?s=${sidePanel}` as Route) : (`/jobs/${jobId}/source` as Route);
+  const href = jobDetailsHref(`/jobs/${jobId}/source`, { sidePanel });
   return (
     <DetailsTabTrigger tab="source" href={href}>
       Source content
