@@ -129,4 +129,4 @@ Package: `@job-tracker/worktree-cli` (`packages/worktree-cli/`).
 | `derive-slug.cjs` | CommonJS slug helper for `ecosystem.config.cjs` (PM2)                 |
 | `src/*.test.ts`   | Unit tests (`pnpm --filter @job-tracker/worktree-cli run test`)       |
 
-Agent rules: `.agents/rules/worktree.md`. Setup/teardown: `@worktree-env` (`.agents/skills/worktree-env/SKILL.md`). Feature execution loop: `@worktree-loop` (`.agents/skills/worktree-loop/SKILL.md`). PM2/ports: `.agents/rules/ops-docker-pm2.md`.
+Agent rules: `.agents/rules/ops/worktree.md`. Setup/teardown: `@worktree-env` (`.agents/skills/worktree-env/SKILL.md`). Feature execution loop: `@worktree-loop` (`.agents/skills/worktree-loop/SKILL.md`). PM2/ports: `.agents/rules/ops/docker-pm2.md`.

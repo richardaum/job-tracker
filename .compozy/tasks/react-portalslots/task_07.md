@@ -11,7 +11,7 @@ dependencies:
 
 ## Overview
 
-Add a short, actionable section to `.agents/rules/web-ui.md` describing when nested tabs/routes should contribute actions to a shared detail header via `react-portalslots`, and when simpler patterns suffice. This enables Profile and future detail layouts to follow the same convention.
+Add a short, actionable section to `.agents/rules/frontend/web-ui.md` describing when nested tabs/routes should contribute actions to a shared detail header via `react-portalslots`, and when simpler patterns suffice. This enables Profile and future detail layouts to follow the same convention.
 
 <critical>
 - ALWAYS READ the PRD before starting
@@ -21,7 +21,7 @@ Add a short, actionable section to `.agents/rules/web-ui.md` describing when nes
 </critical>
 
 <requirements>
-- MUST add section **"Header actions from nested tabs/routes"** to `.agents/rules/web-ui.md`
+- MUST add section **"Header actions from nested tabs/routes"** to `.agents/rules/frontend/web-ui.md`
 - MUST document **When**: shared layout + child tab/route owns header actions
 - MUST document **How**: `react-portalslots`, co-located `*.slots.ts`, `PortalSlotsProvider` in layout, slot fill in tab content
 - MUST document **When not**: Radix overlays (dialogs/popovers), simple inline `trailing={...}` on same component
@@ -60,7 +60,7 @@ Place after existing Detail layout bullets (~line 64 in current `web-ui.md`).
 
 ### Relevant Files
 
-- `.agents/rules/web-ui.md` — add section
+- `.agents/rules/frontend/web-ui.md` — add section
 
 ### Dependent Files
 

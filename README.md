@@ -30,7 +30,7 @@ pnpm pm2:start
 pnpm worktree:teardown   # -- --dry-run=true|false --apply=true|false --drop-db=true|false --dbeaver=true|false
 ```
 
-See `apps/api/.env.example`, `apps/web/.env.example`, `apps/extension/.env.example`, and `.agents/rules/ops-docker-pm2.md`.
+See `apps/api/.env.example`, `apps/web/.env.example`, `apps/extension/.env.example`, and `.agents/rules/ops/docker-pm2.md`.
 
 Validate before a PR (specs, lint, typecheck, coverage, format, knip, build):
 

@@ -30,7 +30,7 @@ Add two JSONB columns (`blocked_keywords` and `blocked_companies`) to the `user_
 - MUST add `blockedKeywords` and `blockedCompanies` fields to `UserSettingType` (nullable, arrays)
 - MUST add `blockedKeywords` and `blockedCompanies` fields to `UpdateSettingsInput` (optional, arrays)
 - MUST NOT change existing settings fields or behavior
-- MUST follow JSONB column patterns from repository-architecture.md § Async task JSONB metadata
+- MUST follow JSONB column patterns from backend/database.md § Async task JSONB metadata
 - MUST register new migration in `apps/api/src/database/migrations/index.ts` (import + array entry)
 </requirements>
 

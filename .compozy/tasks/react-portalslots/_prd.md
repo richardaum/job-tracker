@@ -2,7 +2,7 @@
 
 ## Summary
 
-Replace ad-hoc React context + manual `createPortal` used to lift job Match tab actions into the shared job details header with **named portal slots** via [`react-portalslots`](https://github.com/beautyfree/react-portalslots). Document the pattern in `.agents/rules/web-ui.md` so Profile (and future detail layouts) can reuse it.
+Replace ad-hoc React context + manual `createPortal` used to lift job Match tab actions into the shared job details header with **named portal slots** via [`react-portalslots`](https://github.com/beautyfree/react-portalslots). Document the pattern in `.agents/rules/frontend/web-ui.md` so Profile (and future detail layouts) can reuse it.
 
 ## Problem
 
@@ -52,7 +52,7 @@ This couples the layout to Match-tab specifics and duplicates a pattern Profile 
 
 ### Fase 2 — Convention
 
-8. Add section **"Header actions from nested tabs/routes"** to `.agents/rules/web-ui.md`.
+8. Add section **"Header actions from nested tabs/routes"** to `.agents/rules/frontend/web-ui.md`.
 9. (Optional) Add keyword index row in root `AGENTS.md`.
 
 ### Fase 3 — Profile (deferred)

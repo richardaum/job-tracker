@@ -46,7 +46,7 @@ Insert in `AGENTS.md` keyword index section (~line 65, near `detail page`, `Tabs
 
 ### Dependent Files
 
-- `.agents/rules/web-ui.md` — section added in task 07
+- `.agents/rules/frontend/web-ui.md` — section added in task 07
 
 ## Deliverables
 

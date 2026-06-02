@@ -51,4 +51,4 @@ The original implementation used raw `@Sse()` controller + `EventSource` browser
 
 ## Convention
 
-Single mechanism for real-time events: **GraphQL Subscription** over `graphql-sse`. Do not add raw `@Sse()` controllers, `EventSource`, or `useEventSource` hooks. See `.agents/rules/repository-architecture.md` § Real-time events.
+Single mechanism for real-time events: **GraphQL Subscription** over `graphql-sse`. Do not add raw `@Sse()` controllers, `EventSource`, or `useEventSource` hooks. See `.agents/rules/backend/architecture.md` § Real-time events.

@@ -66,7 +66,7 @@ See PRD Fase 3 and task 07 convention doc.
 
 ### Dependent Files
 
-- `.agents/rules/web-ui.md` — convention reference (task 07)
+- `.agents/rules/frontend/web-ui.md` — convention reference (task 07)
 
 ## Deliverables
 
