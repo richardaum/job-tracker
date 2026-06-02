@@ -17,7 +17,7 @@ import {
   Text,
 } from "@job-tracker/ui";
 import { ArrowDownIcon, ArrowUpIcon, BriefcaseIcon, PlusIcon, TrashIcon } from "@phosphor-icons/react";
-import NextLink from "next/link";
+import { SafeLink } from "@/components/safe-link";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { type PreferenceInput, Weight } from "@/gql/hooks";
@@ -307,7 +307,7 @@ export function MatchWizardDialog({
           <Text size="sm" color="muted">
             Choose the resume to evaluate against this job description. You can manage your resumes{" "}
             <Link asChild>
-              <NextLink href="/profile/resumes">here</NextLink>
+              <SafeLink href="/profile/resumes">here</SafeLink>
             </Link>
             .
           </Text>

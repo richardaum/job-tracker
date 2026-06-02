@@ -2,7 +2,7 @@
 
 import { cn, DropdownMenu, IconButton, ListItemCard, Stack, Text } from "@job-tracker/ui";
 import { ArrowSquareRightIcon, CurrencyDollarIcon, PencilSimpleIcon, TrashIcon } from "@phosphor-icons/react";
-import NextLink from "next/link";
+import { SafeLink } from "@/components/safe-link";
 
 import { ApplicationStage } from "@/gql/hooks";
 import { SalaryEditDialog } from "@/modules/jobs/details/components/SalaryEditDialog";
@@ -157,7 +157,7 @@ export function JobCard({ job: app, onSuccess, onError }: JobCardProps) {
     <ListItemCard
       title={
         <ListItemCard.Title asChild>
-          <NextLink href={`/jobs/${app.id}`}>{displayTitle}</NextLink>
+          <SafeLink href={`/jobs/${app.id}`}>{displayTitle}</SafeLink>
         </ListItemCard.Title>
       }
       actions={

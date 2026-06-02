@@ -3,7 +3,7 @@
 import { Card, cn, IconButton, ListItemCard, Skeleton, Stack, Text } from "@job-tracker/ui";
 import { ClockIcon, LinkIcon, StopCircleIcon, TrashIcon } from "@phosphor-icons/react";
 import type { Route } from "next";
-import NextLink from "next/link";
+import { SafeLink } from "@/components/safe-link";
 import { useCallback, useMemo, useState } from "react";
 
 import { EmptyState } from "@/components/empty-state";
@@ -87,9 +87,9 @@ export function PlanTemplatesList({ planId }: PlanTemplatesListProps) {
                   "inline-block max-w-full cursor-pointer border-0 bg-transparent p-0 text-left outline-none",
                 )}
               >
-                <NextLink href={`/sources/plans/${planId}/template/${template.id}/runs` as Route} title="View runs">
+                <SafeLink href={`/sources/plans/${planId}/template/${template.id}/runs` as Route} title="View runs">
                   <span className={cn("truncate")}>{template.surfaceUrl || "Template"}</span>
-                </NextLink>
+                </SafeLink>
               </ListItemCard.Title>
             }
             actions={

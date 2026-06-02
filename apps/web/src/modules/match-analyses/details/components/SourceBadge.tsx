@@ -2,7 +2,7 @@
 
 import { cn, IconButton } from "@job-tracker/ui";
 import { BriefcaseIcon, FilesIcon } from "@phosphor-icons/react";
-import NextLink from "next/link";
+import { SafeLink } from "@/components/safe-link";
 
 import { MatchSource } from "@/gql/hooks";
 
@@ -11,7 +11,7 @@ type SourceBadgeProps = { source: MatchSource; resumeId?: string; onPreferenceCl
 export function SourceBadge({ source, resumeId, onPreferenceClick }: SourceBadgeProps) {
   if (source === MatchSource.Resume && resumeId) {
     return (
-      <NextLink href={`/profile/resumes/${resumeId}`}>
+      <SafeLink href={`/profile/resumes/${resumeId}`}>
         <IconButton
           icon={<FilesIcon size={16} weight="regular" />}
           label="View resume"
@@ -20,7 +20,7 @@ export function SourceBadge({ source, resumeId, onPreferenceClick }: SourceBadge
           intent="ghost"
           className={cn("size-7")}
         />
-      </NextLink>
+      </SafeLink>
     );
   }
 

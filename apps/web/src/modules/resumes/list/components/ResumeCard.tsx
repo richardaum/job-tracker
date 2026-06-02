@@ -4,7 +4,7 @@ import { tipTapToPlainText } from "@job-tracker/tiptap";
 import { tryRun } from "@job-tracker/try-run";
 import { cn, IconButton, ListItemCard, Text } from "@job-tracker/ui";
 import { StarIcon, TrashIcon } from "@phosphor-icons/react";
-import NextLink from "next/link";
+import { SafeLink } from "@/components/safe-link";
 
 import type { ResumeType } from "@/gql/hooks";
 import { DeleteResumeDialog } from "@/modules/resumes/list/components/DeleteResumeDialog";
@@ -28,9 +28,9 @@ export function ResumeCard({ resume, onDelete, onSetAsDefault }: ResumeCardProps
 
   const title = (
     <ListItemCard.Title asChild size="sm" className={cn("font-semibold")}>
-      <NextLink href={`/profile/resumes/${resume.id}`}>
+      <SafeLink href={`/profile/resumes/${resume.id}`}>
         <span>{resume.title}</span>
-      </NextLink>
+      </SafeLink>
     </ListItemCard.Title>
   );
 

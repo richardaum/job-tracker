@@ -3,7 +3,7 @@
 import { SlotsProvider } from "@job-tracker/react-slots";
 import { cn, Tabs, TabsList, TabsTrigger, Text } from "@job-tracker/ui";
 import type { Route } from "next";
-import NextLink from "next/link";
+import { SafeLink } from "@/components/safe-link";
 import { usePathname } from "next/navigation";
 import { use } from "react";
 import type { ReactNode } from "react";
@@ -47,10 +47,10 @@ export default function PlanDetailsLayout({ children, params }: PlanDetailsLayou
             <Tabs value={activeTab}>
               <TabsList>
                 <TabsTrigger value="templates" asChild>
-                  <NextLink href={`/sources/plans/${planId}`}>Templates</NextLink>
+                  <SafeLink href={`/sources/plans/${planId}`}>Templates</SafeLink>
                 </TabsTrigger>
                 <TabsTrigger value="document" asChild>
-                  <NextLink href={`/sources/plans/${planId}/document` as Route}>Document</NextLink>
+                  <SafeLink href={`/sources/plans/${planId}/document` as Route}>Document</SafeLink>
                 </TabsTrigger>
               </TabsList>
             </Tabs>

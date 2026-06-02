@@ -27,7 +27,7 @@ import {
   TrashIcon,
 } from "@phosphor-icons/react";
 import type { Route } from "next";
-import NextLink from "next/link";
+import { SafeLink } from "@/components/safe-link";
 import { use, useState } from "react";
 
 import { BackToLink } from "@/components/back-to-link";
@@ -207,9 +207,9 @@ export default function SourceRunsPage({ params }: PageProps) {
                       tooltip="View jobs"
                       className={cn(ListItemCard.actionIconButtonClassName)}
                     >
-                      <NextLink href={sourceRunJobsHref(run.id)}>
+                      <SafeLink href={sourceRunJobsHref(run.id)}>
                         <BriefcaseIcon size={13} weight="regular" aria-hidden />
-                      </NextLink>
+                      </SafeLink>
                     </IconButton>
                     <SourceRunActivityEventsDialog
                       runId={run.id}
