@@ -43,14 +43,13 @@ describe("ChatTabPanel", () => {
     );
   }
 
-  it("renders empty state with composer", () => {
+  it("renders empty state prompting to start a conversation", () => {
     mockViewModel.useChatPanelViewModel.mockReturnValue(buildMockViewModel());
 
     renderWithTabs();
 
-    expect(screen.getByText("Send a message to start the conversation.")).toBeInTheDocument();
-    expect(screen.getByRole("textbox")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Send" })).toBeInTheDocument();
+    expect(screen.getByText("No conversations yet")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Start new conversation" })).toBeInTheDocument();
   });
 
   it("calls createAndSendFirstMessage when user sends the first message", async () => {
@@ -59,6 +58,8 @@ describe("ChatTabPanel", () => {
 
     const user = userEvent.setup();
     renderWithTabs();
+
+    await user.click(screen.getByRole("button", { name: "Start new conversation" }));
 
     const textarea = screen.getByRole("textbox");
     await user.type(textarea, "Hello, AI!{Enter}");
