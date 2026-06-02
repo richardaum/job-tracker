@@ -7,7 +7,7 @@ CLI is built with **yargs**. Boolean flags use `--flag` / `--no-flag` convention
 ## Prerequisites
 
 - Run from a **linked worktree** checkout (not the main repo root). Both scripts call `assertGitWorktree` and exit on the main checkout.
-- Source DB name: `WORKTREE_SOURCE_DB` or `--source-db=…` (typically `job_tracker`).
+- Source DB name: `WORKTREE_SOURCE_DB` (typically `job_tracker`).
 - Main checkout `apps/api/.env` must exist (secrets are copied from there).
 - PostgreSQL reachable locally or via Docker (`docker compose` postgres service, or `WORKTREE_POSTGRES_DOCKER`).
 
@@ -21,25 +21,23 @@ From the **worktree root**:
 export WORKTREE_SOURCE_DB=job_tracker
 
 # Setup — dry-run first, then apply
-pnpm worktree:setup -- \
+WORKTREE_SOURCE_DB=job_tracker pnpm worktree:setup -- \
   --dry-run \
   --dbeaver \
   --install \
   --migrate \
   --start \
   --verify \
-  --open \
-  --source-db=job_tracker
+  --open
 
-pnpm worktree:setup -- \
+WORKTREE_SOURCE_DB=job_tracker pnpm worktree:setup -- \
   --no-dry-run \
   --dbeaver \
   --install \
   --migrate \
   --start \
   --verify \
-  --open \
-  --source-db=job_tracker
+  --open
 
 # Teardown — dry-run first, then apply
 pnpm worktree:teardown -- \
@@ -73,9 +71,8 @@ node --experimental-strip-types packages/worktree-cli/src/teardown.ts -- \
 | `--start`          | boolean | `false` | `true`: `pnpm pm2:start`                                           |
 | `--verify`         | boolean | `false` | `true`: curl API/Web/Storybook/WXT (WXT failure is warning only)   |
 | `--open`           | boolean | verify  | `true`: open web app in default browser after post-setup           |
-| `--source-db=NAME` | string  | —       | Database to clone (default: `WORKTREE_SOURCE_DB`)                  |
 
-At least one of `WORKTREE_SOURCE_DB` or `--source-db=…` must be set before setup runs.
+**Note:** `WORKTREE_SOURCE_DB` environment variable must be set before setup runs.
 
 **Core setup** (when `--no-dry-run`): clone DB → allocate ports → write per-app `.env` files → optional DBeaver → optional post-steps.
 
