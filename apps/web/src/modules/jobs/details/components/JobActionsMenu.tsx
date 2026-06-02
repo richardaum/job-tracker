@@ -94,7 +94,7 @@ export function JobActionsMenu({
           <DropdownMenuSeparator />
           <DropdownMenuLabel>View</DropdownMenuLabel>
           <DropdownMenuItem
-            icon={<SidebarSimpleIcon size={14} weight="regular" />}
+            icon={<SidebarSimpleIcon size={14} weight="regular" className={cn("-scale-x-100")} />}
             onSelect={() => fullWidth && onToggleFullWidth()}
           >
             <span className={cn("flex items-center gap-2 flex-1")}>
