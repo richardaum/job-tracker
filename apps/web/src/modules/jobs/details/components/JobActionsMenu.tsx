@@ -1,7 +1,15 @@
 "use client";
 
-import { Button, cn, DropdownMenu, DropdownMenuItem, DropdownMenuSeparator } from "@job-tracker/ui";
-import { ArrowSquareRightIcon, CaretDownIcon, SparkleIcon, TrashIcon } from "@phosphor-icons/react";
+import { Button, cn, DropdownMenu, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from "@job-tracker/ui";
+import {
+  ArrowSquareRightIcon,
+  ArrowsOutIcon,
+  CaretDownIcon,
+  CheckIcon,
+  SidebarSimpleIcon,
+  SparkleIcon,
+  TrashIcon,
+} from "@phosphor-icons/react";
 import { useCallback, useState } from "react";
 
 import { CopyJobMdMenuItem } from "@/modules/jobs/details/components/CopyJobMdMenuItem";
@@ -16,6 +24,8 @@ interface JobActionsMenuProps {
   triggerFillAutomatically: () => Promise<{ error: Error | null }>;
   onUpdateStatus: () => void;
   onDelete: () => void;
+  fullWidth?: boolean;
+  onToggleFullWidth?: () => void;
 }
 
 export function JobActionsMenu({
@@ -24,6 +34,8 @@ export function JobActionsMenu({
   triggerFillAutomatically,
   onUpdateStatus,
   onDelete,
+  fullWidth,
+  onToggleFullWidth,
 }: JobActionsMenuProps) {
   const { enqueueToast } = useToastQueue();
   const [open, setOpen] = useState(false);
@@ -77,6 +89,30 @@ export function JobActionsMenu({
       </DropdownMenuItem>
       <ExportJobMdMenuItem jobId={job.id} job={job} />
       <CopyJobMdMenuItem jobId={job.id} job={job} />
+      {onToggleFullWidth && (
+        <>
+          <DropdownMenuSeparator />
+          <DropdownMenuLabel>View</DropdownMenuLabel>
+          <DropdownMenuItem
+            icon={<SidebarSimpleIcon size={14} weight="regular" />}
+            onSelect={() => fullWidth && onToggleFullWidth()}
+          >
+            <span className={cn("flex items-center gap-2 flex-1")}>
+              <span className={cn(!fullWidth ? "font-medium" : "")}>Side panel</span>
+              {!fullWidth && <CheckIcon size={14} weight="bold" className={cn("ml-auto")} />}
+            </span>
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            icon={<ArrowsOutIcon size={14} weight="regular" />}
+            onSelect={() => !fullWidth && onToggleFullWidth()}
+          >
+            <span className={cn("flex items-center gap-2 flex-1")}>
+              <span className={cn(fullWidth ? "font-medium" : "")}>Full width</span>
+              {fullWidth && <CheckIcon size={14} weight="bold" className={cn("ml-auto")} />}
+            </span>
+          </DropdownMenuItem>
+        </>
+      )}
       <DropdownMenuSeparator />
       <DropdownMenuItem destructive onSelect={() => onDelete()} icon={<TrashIcon size={14} weight="regular" />}>
         Remove

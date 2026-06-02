@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -23,6 +23,19 @@ const gqlMocks = vi.hoisted(() => ({
   useJobFillStatusChangedSubscription: vi.fn(),
   useJobMatchStatusChangedSubscription: vi.fn(),
 }));
+
+const replaceMock = vi.hoisted(() => vi.fn());
+const useSelectedLayoutSegmentMock = vi.hoisted(() => vi.fn<() => string | null>(() => null));
+vi.mock("next/navigation", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/navigation")>();
+  return {
+    ...actual,
+    useRouter: () => ({ push: vi.fn(), replace: replaceMock }),
+    usePathname: () => usePathnameMock(),
+    useSearchParams: () => useSearchParamsMock(),
+    useSelectedLayoutSegment: () => useSelectedLayoutSegmentMock(),
+  };
+});
 
 vi.mock("@/gql/hooks", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/gql/hooks")>();
@@ -75,12 +88,6 @@ const useJobDetailsViewModelMock = vi.fn();
 const useBreakpointMock = vi.fn();
 const usePathnameMock = vi.fn();
 const useSearchParamsMock = vi.fn();
-
-vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
-  usePathname: () => usePathnameMock(),
-  useSearchParams: () => useSearchParamsMock(),
-}));
 
 vi.mock("@/hooks/useBreakpoint", () => ({ useBreakpoint: (...args: unknown[]) => useBreakpointMock(...args) }));
 
@@ -135,6 +142,7 @@ describe("JobDetailsLayout", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    useSelectedLayoutSegmentMock.mockImplementation(() => null);
     gqlMocks.useJobMatchQuery.mockReset();
     gqlMocks.useJobQuery.mockReset();
     gqlMocks.useGenerateJobMatchMutation.mockReset();
@@ -199,7 +207,7 @@ describe("JobDetailsLayout", () => {
   });
 
   it("selects Match tab when route is /jobs/[id]/match", async () => {
-    usePathnameMock.mockReturnValue("/jobs/job-1/match");
+    useSelectedLayoutSegmentMock.mockReturnValue("match");
 
     render(
       <JobDetailsLayout params={syncParamsResolved({ id: "job-1" })}>
@@ -212,7 +220,7 @@ describe("JobDetailsLayout", () => {
   });
 
   it("selects Notes tab when route is /jobs/[id]/notes", async () => {
-    usePathnameMock.mockReturnValue("/jobs/job-1/notes");
+    useSelectedLayoutSegmentMock.mockReturnValue("notes");
 
     render(
       <JobDetailsLayout params={syncParamsResolved({ id: "job-1" })}>
@@ -224,9 +232,9 @@ describe("JobDetailsLayout", () => {
     expect(screen.getByTestId("notes-child")).toBeInTheDocument();
   });
 
-  it("hides ActivitySidePanel on desktop when route is /jobs/[id]/notes", async () => {
+  it("redirects /jobs/[id]/notes to /jobs/[id]?s=notes on desktop", async () => {
     useBreakpointMock.mockReturnValue(true);
-    usePathnameMock.mockReturnValue("/jobs/job-1/notes");
+    useSelectedLayoutSegmentMock.mockReturnValue("notes");
 
     render(
       <JobDetailsLayout params={syncParamsResolved({ id: "job-1" })}>
@@ -234,14 +242,14 @@ describe("JobDetailsLayout", () => {
       </JobDetailsLayout>,
     );
 
-    expect(await screen.findByRole("tab", { name: "Notes", selected: true })).toBeInTheDocument();
-    expect(await screen.findByRole("tab", { name: "History" })).toBeInTheDocument();
-    expect(screen.queryByTestId("activity-mock")).toBeNull();
+    await waitFor(() => {
+      expect(replaceMock).toHaveBeenCalledWith("/jobs/job-1?s=notes");
+    });
   });
 
-  it("selects History tab and hides ActivitySidePanel on desktop /jobs/[id]/history", async () => {
+  it("redirects /jobs/[id]/history to /jobs/[id]?s=history on desktop", async () => {
     useBreakpointMock.mockReturnValue(true);
-    usePathnameMock.mockReturnValue("/jobs/job-1/history");
+    useSelectedLayoutSegmentMock.mockReturnValue("history");
 
     render(
       <JobDetailsLayout params={syncParamsResolved({ id: "job-1" })}>
@@ -249,9 +257,9 @@ describe("JobDetailsLayout", () => {
       </JobDetailsLayout>,
     );
 
-    expect(await screen.findByRole("tab", { name: "History", selected: true })).toBeInTheDocument();
-    expect(await screen.findByRole("tab", { name: "Notes" })).toBeInTheDocument();
-    expect(screen.queryByTestId("activity-mock")).toBeNull();
+    await waitFor(() => {
+      expect(replaceMock).toHaveBeenCalledWith("/jobs/job-1?s=history");
+    });
   });
 
   it("shows ActivitySidePanel on desktop overview route", async () => {

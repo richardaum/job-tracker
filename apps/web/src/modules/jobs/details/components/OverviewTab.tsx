@@ -5,16 +5,15 @@ import type { Route } from "next";
 
 import { getFillStatusTooltipContent } from "@/modules/jobs/details/components/fill-status.shared";
 import { useJobFillStatus } from "@/modules/jobs/details/hooks/useJobFillStatus";
-import type { JobSidePanel } from "@/modules/jobs/details/utils/job-details-routes";
-import { jobDetailsHref, jobDetailsPath } from "@/modules/jobs/details/utils/job-details-routes";
+
 import { MatchStatusBadge } from "@/modules/match-analyses/details/components/MatchStatusBadge";
 
 import { DetailsTabTrigger } from "./DetailsTabTrigger";
 
-type OverviewTabProps = { jobId: string; sidePanel?: JobSidePanel | null };
+type OverviewTabProps = { jobId: string; sidePanel?: string | null };
 
 export function OverviewTab({ jobId, sidePanel }: OverviewTabProps) {
-  const href: Route = sidePanel != null ? jobDetailsHref(jobId, "overview", sidePanel) : jobDetailsPath(jobId, "overview");
+  const href: Route = sidePanel != null ? (`/jobs/${jobId}?s=${sidePanel}` as Route) : (`/jobs/${jobId}` as Route);
   const { status, error } = useJobFillStatus();
   const tooltipContent = status ? getFillStatusTooltipContent(status, error) : "";
 

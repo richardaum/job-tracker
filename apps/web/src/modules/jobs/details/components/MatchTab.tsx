@@ -4,17 +4,17 @@ import { cn, Tooltip } from "@job-tracker/ui";
 import type { Route } from "next";
 
 import { useJobMatchStatus } from "@/modules/jobs/details/hooks/useJobMatchStatus";
-import type { JobSidePanel } from "@/modules/jobs/details/utils/job-details-routes";
-import { jobDetailsHref, jobDetailsPath } from "@/modules/jobs/details/utils/job-details-routes";
+
 import { getMatchStatusTooltipContent } from "@/modules/match-analyses/details/components/match-status.shared";
 import { MatchStatusBadge } from "@/modules/match-analyses/details/components/MatchStatusBadge";
 
 import { DetailsTabTrigger } from "./DetailsTabTrigger";
 
-type MatchTabProps = { jobId: string; sidePanel?: JobSidePanel | null };
+type MatchTabProps = { jobId: string; sidePanel?: string | null };
 
 export function MatchTab({ jobId, sidePanel }: MatchTabProps) {
-  const href: Route = sidePanel != null ? jobDetailsHref(jobId, "match", sidePanel) : jobDetailsPath(jobId, "match");
+  const href: Route =
+    sidePanel != null ? (`/jobs/${jobId}/match?s=${sidePanel}` as Route) : (`/jobs/${jobId}/match` as Route);
   const { status, error } = useJobMatchStatus();
   const tooltipContent = status ? getMatchStatusTooltipContent(status, error) : "";
 

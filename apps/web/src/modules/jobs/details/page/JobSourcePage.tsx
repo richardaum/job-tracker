@@ -6,7 +6,6 @@ import { useEffect } from "react";
 
 import { SourceContentTabContent } from "@/modules/jobs/details/components/SourceContentTabContent";
 import { useJobDetailsViewModel } from "@/modules/jobs/details/hooks/useJobDetailsViewModel";
-import { jobDetailsPath } from "@/modules/jobs/details/utils/job-details-routes";
 
 type JobSourcePageProps = { jobId: string };
 export function JobSourcePage({ jobId }: JobSourcePageProps) {
@@ -17,7 +16,7 @@ export function JobSourcePage({ jobId }: JobSourcePageProps) {
 
   useEffect(() => {
     if (job && !job.htmlContent) {
-      router.replace(jobDetailsPath(jobId));
+      router.replace(`/jobs/${jobId}`);
     }
   }, [job, jobId, router]);
 

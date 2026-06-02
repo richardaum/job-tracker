@@ -33,11 +33,7 @@ import { useJobDetailsViewModel } from "@/modules/jobs/details/hooks/useJobDetai
 import { useJobPageTitle } from "@/modules/jobs/details/hooks/useJobPageTitle";
 import { JobDetailsSubTabs, JobHeaderActions } from "@/modules/jobs/details/job-details-header.slots";
 import { jobDetailDisplayTitle } from "@/modules/jobs/details/utils/job-detail-title";
-import {
-  isJobDetailsSidePanelTab,
-  type JobDetailsMainTab,
-  type JobDetailsTab,
-} from "@/modules/jobs/details/utils/job-details-routes";
+
 import { DeleteJobDialog } from "@/modules/jobs/list/components/DeleteJobDialog";
 import { StatusBadge } from "@/modules/jobs/shared/components/StatusBadge";
 
@@ -57,7 +53,7 @@ function JobDetailsTabBar({ children, className }: JobDetailsTabBarProps) {
   );
 }
 
-type JobDetailsFullWidthTabLayoutProps = { activeTab: JobDetailsTab; tabBar: ReactNode; children: ReactNode };
+type JobDetailsFullWidthTabLayoutProps = { activeTab: string; tabBar: ReactNode; children: ReactNode };
 
 function JobDetailsFullWidthTabLayout({ activeTab, tabBar, children }: JobDetailsFullWidthTabLayoutProps) {
   return (
@@ -69,7 +65,7 @@ function JobDetailsFullWidthTabLayout({ activeTab, tabBar, children }: JobDetail
 }
 
 type JobDetailsSplitTabLayoutProps = {
-  activeTab: JobDetailsMainTab;
+  activeTab: string;
   tabBar: ReactNode;
   sidePanel: ReactNode;
   children: ReactNode;
@@ -91,7 +87,8 @@ export default function JobDetailsLayout({ params, children }: JobDetailsLayoutP
   const { id } = use(params);
   const isDesktop = useBreakpoint("(min-width: 1024px)");
 
-  const { activeTab, mainTab, sidePanelFromQuery, setSidePanel } = useJobDetailsRouteState(id, isDesktop);
+  const { activeTab, sidePanelFromQuery, fullWidth, toggleFullWidth, setSidePanel, needsRedirect } =
+    useJobDetailsRouteState(id, isDesktop);
 
   const [actionsOpen, setActionsOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -102,7 +99,8 @@ export default function JobDetailsLayout({ params, children }: JobDetailsLayoutP
   useJobPageTitle(job, activeTab);
 
   const showSourceContent = Boolean(job?.htmlContent);
-  const isSidePanelRoute = isJobDetailsSidePanelTab(activeTab);
+
+  if (needsRedirect) return null;
 
 
   return (
@@ -120,6 +118,8 @@ export default function JobDetailsLayout({ params, children }: JobDetailsLayoutP
                       triggerFillAutomatically={triggerFillAutomatically}
                       onUpdateStatus={() => setActionsOpen(true)}
                       onDelete={() => setDeleteDialogOpen(true)}
+                      fullWidth={fullWidth}
+                      onToggleFullWidth={isDesktop ? toggleFullWidth : undefined}
                     />
                     <JobHeaderActions.Slot className={cn("flex shrink-0 items-center gap-2 empty:hidden")} />
                   </>
@@ -172,7 +172,7 @@ export default function JobDetailsLayout({ params, children }: JobDetailsLayoutP
                 <Text size="sm" color="error">
                   Failed to load job details.
                 </Text>
-              ) : !job ? null : !isDesktop || isSidePanelRoute ? (
+              ) : !job ? null : !isDesktop || fullWidth ? (
                 <JobDetailsFullWidthTabLayout
                   activeTab={activeTab}
                   tabBar={
@@ -181,9 +181,9 @@ export default function JobDetailsLayout({ params, children }: JobDetailsLayoutP
                       <DescriptionTab jobId={job.id} />
                       {showSourceContent ? <SourceTab jobId={job.id} /> : null}
                       <MatchTab jobId={job.id} />
-                      <NotesTab jobId={job.id} />
-                      <HistoryTab jobId={job.id} />
-                      <AiChatTab jobId={job.id} />
+                      <NotesTab jobId={job.id} fullWidth={fullWidth} />
+                      <HistoryTab jobId={job.id} fullWidth={fullWidth} />
+                      <AiChatTab jobId={job.id} fullWidth={fullWidth} />
                     </TabsList>
                   }
                 >
@@ -191,7 +191,7 @@ export default function JobDetailsLayout({ params, children }: JobDetailsLayoutP
                 </JobDetailsFullWidthTabLayout>
               ) : (
                 <JobDetailsSplitTabLayout
-                  activeTab={mainTab}
+                  activeTab={activeTab}
                   tabBar={
                     <TabsList className={cn("w-fit self-start")}>
                       <OverviewTab jobId={job.id} sidePanel={sidePanelFromQuery} />

@@ -2,15 +2,15 @@
 
 import type { Route } from "next";
 
-import type { JobSidePanel } from "@/modules/jobs/details/utils/job-details-routes";
-import { jobDetailsHref, jobDetailsPath } from "@/modules/jobs/details/utils/job-details-routes";
-
 import { DetailsTabTrigger } from "./DetailsTabTrigger";
 
-type DescriptionTabProps = { jobId: string; sidePanel?: JobSidePanel | null };
+type DescriptionTabProps = { jobId: string; sidePanel?: string | null };
 
 export function DescriptionTab({ jobId, sidePanel }: DescriptionTabProps) {
-  const href: Route = sidePanel != null ? jobDetailsHref(jobId, "description", sidePanel) : jobDetailsPath(jobId, "description");
+  const href: Route =
+    sidePanel != null
+      ? (`/jobs/${jobId}/description?s=${sidePanel}` as Route)
+      : (`/jobs/${jobId}/description` as Route);
   return (
     <DetailsTabTrigger tab="description" href={href}>
       Description

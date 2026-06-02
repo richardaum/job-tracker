@@ -1,14 +1,15 @@
 "use client";
 
-import { jobDetailsPath } from "@/modules/jobs/details/utils/job-details-routes";
+import type { Route } from "next";
 
 import { DetailsTabTrigger } from "./DetailsTabTrigger";
 
-type NotesTabProps = { jobId: string };
+type NotesTabProps = { jobId: string; fullWidth?: boolean };
 
-export function NotesTab({ jobId }: NotesTabProps) {
+export function NotesTab({ jobId, fullWidth }: NotesTabProps) {
+  const href = fullWidth ? (`/jobs/${jobId}/notes?w=full` as Route) : (`/jobs/${jobId}/notes` as Route);
   return (
-    <DetailsTabTrigger tab="notes" href={jobDetailsPath(jobId, "notes")}>
+    <DetailsTabTrigger tab="notes" href={href}>
       Notes
     </DetailsTabTrigger>
   );

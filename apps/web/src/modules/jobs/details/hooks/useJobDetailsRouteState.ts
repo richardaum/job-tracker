@@ -1,34 +1,43 @@
 "use client";
 
 import type { Route } from "next";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams, useSelectedLayoutSegment } from "next/navigation";
 import { useCallback, useEffect } from "react";
 
-import {
-  useJobDetailsMainTab,
-  useJobDetailsTab,
-  useJobSidePanel,
-  type JobSidePanel,
-} from "@/modules/jobs/details/hooks/useJobDetailsRoute";
-import { jobDetailsPath } from "@/modules/jobs/details/utils/job-details-routes";
+const sidePanelTabs: string[] = ["notes", "history", "chat"];
 
 export function useJobDetailsRouteState(id: string, isDesktop: boolean) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const activeTab = useJobDetailsTab();
-  const mainTab = useJobDetailsMainTab();
-  const sidePanelFromQuery = useJobSidePanel();
+  const segment = useSelectedLayoutSegment();
+  const activeTab = segment ?? "overview";
+
+  const sidePanelParam = searchParams.get("s");
+  const sidePanelFromQuery = sidePanelParam && sidePanelTabs.includes(sidePanelParam) ? sidePanelParam : null;
+  const fullWidth = searchParams.get("w") === "full";
+
+  const isSidePanelTab = sidePanelTabs.includes(activeTab);
+  const needsRedirect = isDesktop && isSidePanelTab && !fullWidth;
 
   useEffect(() => {
-    if (isDesktop || !sidePanelFromQuery) {
+    if (isDesktop) {
+      if (!needsRedirect) return;
+      const params = new URLSearchParams();
+      params.set("s", activeTab);
+      if (searchParams.get("w") === "full") params.set("w", "full");
+      router.replace(`/jobs/${id}?${params.toString()}` as Route);
       return;
     }
-    router.replace(jobDetailsPath(id, sidePanelFromQuery));
-  }, [id, isDesktop, router, sidePanelFromQuery]);
+    if (!sidePanelFromQuery) return;
+    const params = new URLSearchParams();
+    if (searchParams.get("w") === "full") params.set("w", "full");
+    const qs = params.toString();
+    router.replace(`/jobs/${id}/${sidePanelFromQuery}${qs ? `?${qs}` : ""}` as Route);
+  }, [id, isDesktop, router, sidePanelFromQuery, needsRedirect, activeTab, searchParams]);
 
   const setSidePanel = useCallback(
-    (sidePanel: JobSidePanel) => {
+    (sidePanel: string) => {
       const next = new URLSearchParams(searchParams.toString());
       next.set("s", sidePanel);
       router.replace(`${pathname}?${next.toString()}` as Route);
@@ -36,5 +45,16 @@ export function useJobDetailsRouteState(id: string, isDesktop: boolean) {
     [pathname, router, searchParams],
   );
 
-  return { activeTab, mainTab, sidePanelFromQuery, setSidePanel };
+  const toggleFullWidth = useCallback(() => {
+    const next = new URLSearchParams(searchParams.toString());
+    if (fullWidth) {
+      next.delete("w");
+    } else {
+      next.set("w", "full");
+    }
+    const qs = next.toString();
+    router.replace(`${pathname}${qs ? `?${qs}` : ""}` as Route);
+  }, [pathname, router, searchParams, fullWidth]);
+
+  return { activeTab, sidePanelFromQuery, fullWidth, toggleFullWidth, setSidePanel, needsRedirect };
 }

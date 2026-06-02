@@ -1,14 +1,15 @@
 "use client";
 
-import { jobDetailsPath } from "@/modules/jobs/details/utils/job-details-routes";
+import type { Route } from "next";
 
 import { DetailsTabTrigger } from "./DetailsTabTrigger";
 
-type HistoryTabProps = { jobId: string };
+type HistoryTabProps = { jobId: string; fullWidth?: boolean };
 
-export function HistoryTab({ jobId }: HistoryTabProps) {
+export function HistoryTab({ jobId, fullWidth }: HistoryTabProps) {
+  const href = fullWidth ? (`/jobs/${jobId}/history?w=full` as Route) : (`/jobs/${jobId}/history` as Route);
   return (
-    <DetailsTabTrigger tab="history" href={jobDetailsPath(jobId, "history")}>
+    <DetailsTabTrigger tab="history" href={href}>
       History
     </DetailsTabTrigger>
   );

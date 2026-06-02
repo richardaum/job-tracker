@@ -1,13 +1,13 @@
 "use client";
 
 import { cn, Text } from "@job-tracker/ui";
+import type { Route } from "next";
 
 import { BackToLink } from "@/components/back-to-link";
 import { DetailPageHeader } from "@/components/detail-page-header/DetailPageHeader";
 import { EntityNotFound } from "@/components/entity-not-found";
 import { NotesPanel } from "@/modules/jobs/details/components/NotesPanel";
 import { useJobDetailsViewModel } from "@/modules/jobs/details/hooks/useJobDetailsViewModel";
-import { jobDetailsPath } from "@/modules/jobs/details/utils/job-details-routes";
 
 type JobNotesFocusPageProps = { jobId: string };
 export function JobNotesFocusPage({ jobId }: JobNotesFocusPageProps) {
@@ -18,7 +18,7 @@ export function JobNotesFocusPage({ jobId }: JobNotesFocusPageProps) {
   return (
     <div className={cn("flex h-full min-h-0 flex-col")}>
       <DetailPageHeader>
-        <BackToLink href={jobDetailsPath(jobId)}>Back to job</BackToLink>
+        <BackToLink href={`/jobs/${jobId}` as Route}>Back to job</BackToLink>
         <DetailPageHeader.Title>
           {displayTitle !== null ? `${displayTitle} — Notes` : "Job notes"}
         </DetailPageHeader.Title>
