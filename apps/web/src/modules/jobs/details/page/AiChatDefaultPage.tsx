@@ -6,20 +6,32 @@ import { useEffect } from "react";
 import { useAiChatContext } from "@/modules/jobs/details/hooks/AiChatContext";
 import { ChatPanelComposer } from "@/modules/jobs/details/components/ChatPanelComposer";
 import { ChatPanelMessageList } from "@/modules/jobs/details/components/ChatPanelMessageList";
+import { useSafeRouter } from "@/modules/jobs/details/hooks/useSafeRouter";
+import { useParams } from "next/navigation";
 
 export default function AiChatDefaultPage() {
+  const params = useParams<{ id: string }>();
+  const jobId = params.id;
   const vm = useAiChatContext();
+  const { push } = useSafeRouter();
 
   useEffect(() => {
-    if (!vm.activeConversationId && vm.conversations[0]) {
+    if (vm.conversationsLoading) return;
+    if (vm.conversations.length === 0) {
+      push(`/jobs/${jobId}/chat/new`);
+    } else if (!vm.activeConversationId && vm.conversations[0]) {
       vm.switchConversation(vm.conversations[0].id);
     }
-  }, [vm]);
+  }, [vm, push, jobId]);
 
-  if (vm.conversations.length === 0) {
+  if (vm.conversations.length === 0 && !vm.conversationsLoading) {
+    return null;
+  }
+
+  if (vm.conversationsLoading) {
     return (
       <div className={cn("flex h-full flex-1 min-h-0 flex-col items-center justify-center")}>
-        <p className={cn("text-text-muted text-sm")}>No conversations yet</p>
+        <p className={cn("text-text-muted text-sm")}>Loading...</p>
       </div>
     );
   }
@@ -39,10 +51,7 @@ export default function AiChatDefaultPage() {
         isStreaming={vm.isStreaming}
         streamingContent={vm.streamingContent}
       />
-      <ChatPanelComposer
-        onSend={vm.askQuestion}
-        disabled={vm.isStreaming}
-      />
+      <ChatPanelComposer onSend={vm.askQuestion} disabled={vm.isStreaming} />
     </div>
   );
 }

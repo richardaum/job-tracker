@@ -1,23 +1,20 @@
 "use client";
 
-import { Button, cn } from "@job-tracker/ui";
-import { ArrowLeftIcon } from "@phosphor-icons/react";
+import { Button, cn, Skeleton, Text } from "@job-tracker/ui";
+import { ArrowLeftIcon, PlusIcon } from "@phosphor-icons/react";
 import { type Ref, useCallback, useEffect, useRef, useState } from "react";
 
 import { useControllableState } from "@/modules/jobs/shared/hooks/useControllableState";
 
 import { ChatPanelComposer, type ChatPanelComposerHandle } from "./ChatPanelComposer";
 import { ChatPanelConversationList, type Conversation } from "./ChatPanelConversationList";
-import { ChatPanelEmptyState } from "./ChatPanelEmptyState";
 import { ChatPanelMessageList, type ChatMessage } from "./ChatPanelMessageList";
 
-export type ChatPanelHandle = {
-  focusComposer: () => void;
-  scrollToBottom: () => void;
-};
+export type ChatPanelHandle = { focusComposer: () => void; scrollToBottom: () => void };
 
 type ChatPanelProps = {
   conversations: Conversation[];
+  conversationsLoading?: boolean;
   messages: ChatMessage[];
   activeConversationId?: string;
   defaultActiveConversationId?: string;
@@ -29,12 +26,16 @@ type ChatPanelProps = {
   onCreateConversation: () => void;
   onDeleteConversation: (id: string) => void;
   onSendMessage: (content: string) => void;
+  onNewConversationSend?: (content: string) => void;
+  isNewConversation?: boolean;
+  onNewConversationCancel?: () => void;
   onRetry?: () => void;
   ref?: Ref<ChatPanelHandle>;
 };
 
 export function ChatPanel({
   conversations,
+  conversationsLoading = false,
   messages,
   activeConversationId: activeConversationIdProp,
   defaultActiveConversationId,
@@ -46,6 +47,9 @@ export function ChatPanel({
   onCreateConversation,
   onDeleteConversation,
   onSendMessage,
+  onNewConversationSend,
+  isNewConversation = false,
+  onNewConversationCancel,
   onRetry,
   ref,
 }: ChatPanelProps) {
@@ -113,15 +117,47 @@ export function ChatPanel({
     };
   }, [setPanelRef]);
 
-  if (conversations.length === 0) {
+  if (conversationsLoading) {
     return (
-      <div ref={containerRef} className={cn("flex h-full min-h-0 flex-col items-center justify-center")}>
-        <ChatPanelEmptyState onCreateConversation={onCreateConversation} loading={isCreatingConversation} />
+      <div ref={containerRef} className={cn("flex h-full min-h-0 flex-col")}>
+        {isNarrow ? (
+          <div className={cn("flex h-full flex-col gap-2 p-3")}>
+            <Skeleton variant="text" className={cn("h-8 w-full max-w-32")} />
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Skeleton key={i} variant="text" className={cn("h-5 w-full")} />
+            ))}
+          </div>
+        ) : (
+          <div className={cn("flex min-h-0 flex-1")}>
+            <div className={cn("flex w-48 flex-col gap-2 border-r border-border-subtle p-3")}>
+              <Skeleton variant="text" className={cn("h-8 w-full")} />
+              {Array.from({ length: 4 }).map((_, i) => (
+                <Skeleton key={i} variant="text" className={cn("h-5 w-full")} />
+              ))}
+            </div>
+            <div className={cn("flex flex-1 items-center justify-center p-3")}>
+              <Skeleton variant="text" className={cn("h-4 w-48")} />
+            </div>
+          </div>
+        )}
       </div>
     );
   }
 
-  const chatContent = (
+  const newConversationContent = (
+    <div className={cn("flex min-h-0 flex-1 flex-col")}>
+      <div className={cn("flex flex-1 items-center justify-center")}>
+        <Text size="sm" color="muted">
+          Send a message to start the conversation.
+        </Text>
+      </div>
+      <ChatPanelComposer onSend={onNewConversationSend ?? onSendMessage} />
+    </div>
+  );
+
+  const chatContent = isNewConversation ? (
+    newConversationContent
+  ) : (
     <div className={cn("flex min-h-0 flex-1 flex-col")}>
       <ChatPanelMessageList
         messages={messages}
@@ -130,11 +166,7 @@ export function ChatPanel({
         onRetry={onRetry}
       />
       <div ref={messagesEndRef} />
-      <ChatPanelComposer
-        ref={composerRef}
-        onSend={onSendMessage}
-        disabled={isStreaming}
-      />
+      <ChatPanelComposer ref={composerRef} onSend={onSendMessage} disabled={isStreaming} />
     </div>
   );
 
@@ -145,6 +177,7 @@ export function ChatPanel({
       onConversationChange={handleSelectConversation}
       onDeleteConversation={onDeleteConversation}
       onCreateConversation={onCreateConversation}
+      isCreatingConversation={isCreatingConversation}
       isNarrow={isNarrow}
     />
   );
@@ -152,28 +185,47 @@ export function ChatPanel({
   return (
     <div ref={containerRef} className={cn("flex h-full min-h-0 flex-col")}>
       {isNarrow ? (
-        showList ? (
+        isNewConversation || !showList ? (
           <div className={cn("flex min-h-0 flex-1 flex-col")}>
-            <div className={cn("shrink-0 border-b border-border-subtle px-3 py-2")}>
-              <Button size="sm" intent="primary" onClick={onCreateConversation} state={isCreatingConversation ? "loading" : "default"}>
-                New chat
-              </Button>
-            </div>
-            {conversationList}
+            {isNewConversation ? (
+              <div className={cn("shrink-0 border-b border-border-subtle px-3 py-2")}>
+                <Button
+                  intent="ghost"
+                  size="sm"
+                  onClick={onNewConversationCancel ?? handleBackToList}
+                  leftIcon={<ArrowLeftIcon size={14} weight="bold" />}
+                >
+                  Conversations
+                </Button>
+              </div>
+            ) : (
+              <div className={cn("shrink-0 border-b border-border-subtle px-3 py-2")}>
+                <Button
+                  intent="ghost"
+                  size="sm"
+                  onClick={handleBackToList}
+                  leftIcon={<ArrowLeftIcon size={14} weight="bold" />}
+                >
+                  Conversations
+                </Button>
+              </div>
+            )}
+            {chatContent}
           </div>
         ) : (
           <div className={cn("flex min-h-0 flex-1 flex-col")}>
             <div className={cn("shrink-0 border-b border-border-subtle px-3 py-2")}>
               <Button
-                intent="ghost"
                 size="sm"
-                onClick={handleBackToList}
-                leftIcon={<ArrowLeftIcon size={14} weight="bold" />}
+                intent="ghost"
+                onClick={onCreateConversation}
+                state={isCreatingConversation ? "loading" : "default"}
               >
-                Conversations
+                <PlusIcon size={14} weight="bold" />
+                New chat
               </Button>
             </div>
-            {chatContent}
+            {conversationList}
           </div>
         )
       ) : (

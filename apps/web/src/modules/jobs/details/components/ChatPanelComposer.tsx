@@ -1,7 +1,7 @@
 "use client";
 
 import { Button, cn } from "@job-tracker/ui";
-import { type Ref, useImperativeHandle, useRef } from "react";
+import { type Ref, useEffect, useImperativeHandle, useRef } from "react";
 
 type ChatPanelComposerProps = {
   onSend: (content: string) => void;
@@ -10,12 +10,14 @@ type ChatPanelComposerProps = {
   ref?: Ref<ChatPanelComposerHandle>;
 };
 
-export type ChatPanelComposerHandle = {
-  focus: () => void;
-  clear: () => void;
-};
+export type ChatPanelComposerHandle = { focus: () => void; clear: () => void };
 
-function ChatPanelComposerInner({ onSend, disabled = false, placeholder = "Ask anything about this job...", ref }: ChatPanelComposerProps) {
+function ChatPanelComposerInner({
+  onSend,
+  disabled = false,
+  placeholder = "Ask anything about this job...",
+  ref,
+}: ChatPanelComposerProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
@@ -35,21 +37,33 @@ function ChatPanelComposerInner({ onSend, disabled = false, placeholder = "Ask a
     textarea.style.height = "auto";
   }
 
-  useImperativeHandle(ref, () => ({
-    focus: () => textareaRef.current?.focus(),
-    clear: () => {
-      if (textareaRef.current) {
-        textareaRef.current.value = "";
-        textareaRef.current.style.height = "auto";
-      }
-    },
-  }), []);
+  useImperativeHandle(
+    ref,
+    () => ({
+      focus: () => textareaRef.current?.focus(),
+      clear: () => {
+        if (textareaRef.current) {
+          textareaRef.current.value = "";
+          textareaRef.current.style.height = "auto";
+        }
+      },
+    }),
+    [],
+  );
+
+  useEffect(() => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+    textarea.style.height = `${textarea.scrollHeight}px`;
+  }, []);
 
   function handleInput() {
     const textarea = textareaRef.current;
     if (!textarea) return;
+    const prevHeight = textarea.offsetHeight;
     textarea.style.height = "auto";
-    textarea.style.height = `${textarea.scrollHeight}px`;
+    const newHeight = textarea.scrollHeight;
+    textarea.style.height = `${Math.max(newHeight, prevHeight)}px`;
   }
 
   return (
@@ -57,7 +71,7 @@ function ChatPanelComposerInner({ onSend, disabled = false, placeholder = "Ask a
       <textarea
         ref={textareaRef}
         className={cn(
-          "min-h-[36px] max-h-32 flex-1 resize-none rounded-lg border border-border-subtle bg-bg-surface px-3 py-2 text-sm outline-none transition-colors placeholder:text-text-muted/50 focus:border-border-focus focus:ring-1 focus:ring-border-focus",
+          "min-h-[36px] max-h-32 flex-1 resize-none overflow-y-hidden rounded-lg border border-border-subtle bg-bg-surface px-3 py-2 text-sm outline-none transition-colors placeholder:text-text-muted/50 focus:border-border-focus focus:ring-1 focus:ring-border-focus",
         )}
         placeholder={placeholder}
         rows={1}
@@ -65,13 +79,7 @@ function ChatPanelComposerInner({ onSend, disabled = false, placeholder = "Ask a
         onInput={handleInput}
         disabled={disabled}
       />
-      <Button
-        size="md"
-        intent="primary"
-        onClick={handleSend}
-        disabled={disabled}
-        className={cn("shrink-0")}
-      >
+      <Button size="md" intent="primary" onClick={handleSend} disabled={disabled} className={cn("shrink-0")}>
         Send
       </Button>
     </div>

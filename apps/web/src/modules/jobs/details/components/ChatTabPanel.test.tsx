@@ -26,6 +26,7 @@ function buildMockViewModel(overrides?: Partial<UseChatPanelViewModelReturn>): U
     isCreatingConversation: false,
     error: undefined,
     createConversation: vi.fn(),
+    createAndSendFirstMessage: vi.fn(),
     deleteConversation: vi.fn(),
     askQuestion: vi.fn(),
     switchConversation: vi.fn(),
@@ -42,25 +43,27 @@ describe("ChatTabPanel", () => {
     );
   }
 
-  it("renders empty state initially", () => {
+  it("renders empty state with composer", () => {
     mockViewModel.useChatPanelViewModel.mockReturnValue(buildMockViewModel());
 
     renderWithTabs();
 
-    expect(screen.getByText("No conversations yet")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Start new conversation" })).toBeInTheDocument();
+    expect(screen.getByText("Send a message to start the conversation.")).toBeInTheDocument();
+    expect(screen.getByRole("textbox")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Send" })).toBeInTheDocument();
   });
 
-  it("calls createConversation when start button is clicked", async () => {
-    const createConversation = vi.fn().mockResolvedValue(undefined);
-    mockViewModel.useChatPanelViewModel.mockReturnValue(buildMockViewModel({ createConversation }));
+  it("calls createAndSendFirstMessage when user sends the first message", async () => {
+    const createAndSendFirstMessage = vi.fn().mockResolvedValue("conv-1");
+    mockViewModel.useChatPanelViewModel.mockReturnValue(buildMockViewModel({ createAndSendFirstMessage }));
 
     const user = userEvent.setup();
     renderWithTabs();
 
-    await user.click(screen.getByRole("button", { name: "Start new conversation" }));
+    const textarea = screen.getByRole("textbox");
+    await user.type(textarea, "Hello, AI!{Enter}");
 
-    expect(createConversation).toHaveBeenCalledOnce();
+    expect(createAndSendFirstMessage).toHaveBeenCalledWith("Hello, AI!");
   });
 
   it("shows conversation list when conversations exist", () => {

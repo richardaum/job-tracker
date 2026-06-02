@@ -1,23 +1,22 @@
 "use client";
 
-import type { Route } from "next";
 import { useCallback, useEffect } from "react";
-import { useRouter } from "next/navigation";
 
 import { useChatPanelViewModel } from "@/modules/jobs/details/hooks/useChatPanelViewModel";
 import { ChatPanel } from "@/modules/jobs/details/components/ChatPanel";
+import { useSafeRouter } from "@/modules/jobs/details/hooks/useSafeRouter";
 
 type AiChatTabPageProps = { jobId: string };
 
 export function AiChatTabPage({ jobId }: AiChatTabPageProps) {
-  const router = useRouter();
   const vm = useChatPanelViewModel(jobId);
+  const { push } = useSafeRouter();
 
   const handleNavigate = useCallback(
     (id: string) => {
-      router.push(`/jobs/${jobId}/chat/${id}` as Route);
+      push(`/jobs/${jobId}/chat/${id}`);
     },
-    [jobId, router],
+    [jobId, push],
   );
 
   useEffect(() => {
@@ -26,10 +25,9 @@ export function AiChatTabPage({ jobId }: AiChatTabPageProps) {
     }
   }, [vm]);
 
-  const handleCreate = useCallback(async () => {
-    const id = await vm.createConversation();
-    if (id) router.push(`/jobs/${jobId}/chat/${id}` as Route);
-  }, [vm, jobId, router]);
+  const handleCreate = useCallback(() => {
+    push(`/jobs/${jobId}/chat/new`);
+  }, [jobId, push]);
 
   return (
     <ChatPanel

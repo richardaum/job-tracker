@@ -18,23 +18,16 @@ import type { ChatMessage } from "@/modules/jobs/details/components/ChatPanelMes
 import { removeDeletedEntityFromListCache } from "@/modules/jobs/shared/utils/apolloDeleteCache";
 
 export function useChatPanelViewModel(jobId: string) {
-
   const {
     data: conversationsData,
     loading: conversationsLoading,
     error: conversationsError,
     refetch: refetchConversations,
-  } = useAiConversationsQuery({
-    variables: { jobId },
-    fetchPolicy: "cache-and-network",
-  });
+  } = useAiConversationsQuery({ variables: { jobId }, fetchPolicy: "cache-and-network" });
 
   const [activeConversationId, setActiveConversationId] = useState<string | undefined>(undefined);
 
-  const {
-    data: messagesData,
-    refetch: refetchMessages,
-  } = useAiMessagesQuery({
+  const { data: messagesData, refetch: refetchMessages } = useAiMessagesQuery({
     variables: { conversationId: activeConversationId! },
     skip: !activeConversationId,
     fetchPolicy: "cache-and-network",
@@ -131,11 +124,7 @@ export function useChatPanelViewModel(jobId: string) {
       setStreamingContent("");
       setStreamError(undefined);
 
-      const [err] = await tryRun(
-        askQuestionMut({
-          variables: { conversationId: activeConversationId, content },
-        }),
-      );
+      const [err] = await tryRun(askQuestionMut({ variables: { conversationId: activeConversationId, content } }));
 
       if (err) {
         setIsStreaming(false);
@@ -144,6 +133,44 @@ export function useChatPanelViewModel(jobId: string) {
       }
     },
     [askQuestionMut, activeConversationId],
+  );
+
+  const createAndSendFirstMessage = useCallback(
+    async (content: string): Promise<string | undefined> => {
+      const [createErr, result] = await tryRun(
+        createConversationMut({
+          variables: { jobId },
+          refetchQueries: [{ query: AiConversationsDocument, variables: { jobId } }],
+        }),
+      );
+      if (createErr || !result?.data?.createAiConversation) return;
+
+      const newId = result.data.createAiConversation.id;
+      setActiveConversationId(newId);
+
+      const userMsg: ChatMessage = {
+        id: crypto.randomUUID(),
+        role: "user",
+        content,
+        createdAt: new Date().toISOString(),
+      };
+
+      setOptimisticMessages((prev) => [...prev, userMsg]);
+      setIsStreaming(true);
+      setStreamingContent("");
+      setStreamError(undefined);
+
+      const [askErr] = await tryRun(askQuestionMut({ variables: { conversationId: newId, content } }));
+
+      if (askErr) {
+        setIsStreaming(false);
+        setStreamingContent("");
+        setStreamError(askErr.message);
+      }
+
+      return newId;
+    },
+    [createConversationMut, askQuestionMut, jobId],
   );
 
   const switchConversation = useCallback((id: string) => {
@@ -189,6 +216,7 @@ export function useChatPanelViewModel(jobId: string) {
     isCreatingConversation,
     error,
     createConversation,
+    createAndSendFirstMessage,
     deleteConversation,
     askQuestion,
     switchConversation,

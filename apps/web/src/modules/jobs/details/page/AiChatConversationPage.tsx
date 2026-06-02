@@ -12,10 +12,11 @@ export default function AiChatConversationPage() {
   const params = useParams<{ id: string; conversationId: string }>();
   const conversationId = params.conversationId;
   const vm = useAiChatContext();
+  const { switchConversation } = vm;
 
   useEffect(() => {
-    vm.switchConversation(conversationId);
-  }, [conversationId, vm]);
+    switchConversation(conversationId);
+  }, [conversationId, switchConversation]);
 
   if (!vm.conversations.find((c) => c.id === conversationId)) {
     return (
@@ -32,10 +33,7 @@ export default function AiChatConversationPage() {
         isStreaming={vm.isStreaming}
         streamingContent={vm.streamingContent}
       />
-      <ChatPanelComposer
-        onSend={vm.askQuestion}
-        disabled={vm.isStreaming}
-      />
+      <ChatPanelComposer onSend={vm.askQuestion} disabled={vm.isStreaming} />
     </div>
   );
 }
