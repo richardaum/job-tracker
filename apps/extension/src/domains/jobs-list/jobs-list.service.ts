@@ -80,9 +80,9 @@ export class JobsListService {
 
       for (const i of order) {
         const skipConfig = input.skip;
-        const sourceFieldContent = skipConfig && this.shouldSkip(items[i], skipConfig, input.surfaceFields);
+        const sourceFieldContent = skipConfig ? this.shouldSkip(items[i], skipConfig, input.surfaceFields) : false;
         const summary = (items[i].textContent ?? "").slice(0, 80).trim();
-        if (sourceFieldContent !== false) {
+        if (sourceFieldContent) {
           this.skippedReporter.reportSkipped(`Skipped: ${summary}`, sourceRunId, sourceFieldContent);
           continue;
         }

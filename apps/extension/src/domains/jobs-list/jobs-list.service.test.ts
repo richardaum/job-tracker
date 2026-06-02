@@ -25,7 +25,7 @@ function mockSurfaceCollectedReporter(): SurfaceCollectedReporterService {
 
 function makeBubble(mid: string, text: string, applyUrl?: string) {
   const div = document.createElement("div");
-  div.className = "bubble channel-post";
+  div.classList.add("bubble", "channel-post");
   div.setAttribute("data-mid", mid);
   const msg = document.createElement("div");
   msg.className = "translatable-message";
@@ -74,6 +74,10 @@ describe("JobsListService", () => {
   beforeEach(() => {
     container = document.createElement("div");
     container.className = "list";
+    Object.defineProperties(container, {
+      scrollHeight: { value: 50, writable: true, configurable: true },
+      clientHeight: { value: 50, writable: true, configurable: true },
+    });
     document.body.appendChild(container);
   });
 
