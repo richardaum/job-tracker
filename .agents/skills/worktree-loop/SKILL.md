@@ -27,7 +27,7 @@ GIT_COMMON_ABS="$(realpath "$(git rev-parse --git-common-dir)")"
 [ "$GIT_DIR_ABS" != "$GIT_COMMON_ABS" ] && git rev-parse --show-toplevel
 ```
 
-Resolve feature docs per `.agents/rules/worktree.md` § Reintegration (slug → `.compozy/tasks/<slug>/`, linked `specs/`, `plans/`). Pass doc paths and scope into subagent prompts.
+Resolve feature docs per `.agents/rules/ops/worktree.md` § Reintegration (slug → `.compozy/tasks/<slug>/`, linked `specs/`, `plans/`). Pass doc paths and scope into subagent prompts.
 
 ## Pipeline
 
@@ -101,7 +101,7 @@ Task is accepted only when:
 - Checklist shows A complete and **both** B reviewers passed in the latest round.
 - Post-task verification from `execution-workflow.md` / `validation.md` was run inside A (or a final verify subagent if split).
 
-Then reintegration may proceed per `.agents/rules/worktree.md` § Reintegration.
+Then reintegration may proceed per `.agents/rules/ops/worktree.md` § Reintegration.
 
 ## Do not
 
@@ -113,7 +113,7 @@ Then reintegration may proceed per `.agents/rules/worktree.md` § Reintegration.
 
 | Topic | File |
 | ----- | ---- |
-| Worktrees, reintegration, handoff | `.agents/rules/worktree.md` |
+| Worktrees, reintegration, handoff | `.agents/rules/ops/worktree.md` |
 | Env / PM2 setup | `@worktree-env` → `.agents/skills/worktree-env/SKILL.md` |
 | Worktree CLI (setup/teardown impl) | `packages/worktree-cli/README.md` (`@job-tracker/worktree-cli`) |
 | Task execution | `cy-execute-task` |

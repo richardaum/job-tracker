@@ -51,8 +51,8 @@ After teardown (manual): `git worktree remove <path>`, `git branch -D <slug>`.
 
 | Topic                               | File                                       |
 | ----------------------------------- | ------------------------------------------ |
-| Worktrees, code-agent handoff       | `.agents/rules/worktree.md`                |
-| PM2, worktree registry, port policy | `.agents/rules/ops-docker-pm2.md`          |
+| Worktrees, code-agent handoff       | `.agents/rules/ops/worktree.md`                |
+| PM2, worktree registry, port policy | `.agents/rules/ops/docker-pm2.md`          |
 | CLI flags, package layout           | `packages/worktree-cli/README.md`          |
-| Migrations                          | `.agents/rules/repository-architecture.md` |
-| Lint/typecheck/test                 | `.agents/rules/validation.md`              |
+| Migrations                          | `.agents/rules/backend/database.md` |
+| Lint/typecheck/test                 | `.agents/rules/ops/validation.md`              |

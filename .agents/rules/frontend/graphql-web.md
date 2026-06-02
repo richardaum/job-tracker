@@ -10,15 +10,6 @@ Prefer generated query and mutation hooks from `@/gql/hooks` (e.g. `useApplicati
 - Post-process: `scripts/postprocess-codegen-hooks.mjs`
 - Run: `pnpm --filter @job-tracker/web run codegen`
 
-## Agent skill: `job-tracker-api`
-
-The skill `.agents/skills/job-tracker-api/SKILL.md` is the canonical copy. Edit only there.
-
-Keep the skill aligned with the live GraphQL contract whenever API capabilities change:
-- Source of truth for types and operations: `apps/api/src/schema.gql` (generated)
-- Update skill in the same change set as API changes
-- Typical triggers: new/removed queries/mutations/types, renamed fields, input shapes, enum members, validation rules
-
 ## View Models
 
 GraphQL screens should keep rendering thin: put API-to-display shaping (derived lists, formatted fields, empty/loading/error flags, props from query results) in view-model hooks, not large page or panel components.
