@@ -41,6 +41,7 @@ import { NormalizeRoleEnumPascalcase1768140000000 } from "./1768140000000-normal
 import { AddSourceRunJobSkipped1768150000000 } from "./1768150000000-add-source-run-job-skipped";
 import { NormalizeEnumValuesPascalcase1768160000000 } from "./1768160000000-normalize-enum-values-pascalcase";
 import { RenameCorrelationIdToSourceRunId1768170000000 } from "./1768170000000-rename-correlation-id-to-source-run-id";
+import { CreateAiConversationsAndMessages1768180000000 } from "./1768180000000-create-ai-conversations-and-messages";
 import { AddSourceRunJobSurfaceAndDetailsImport1780272917000 } from "./1780272917000-add-source-run-job-surface-and-details-import";
 
 export const migrations = [
@@ -87,5 +88,6 @@ export const migrations = [
   AddSourceRunJobSkipped1768150000000,
   NormalizeEnumValuesPascalcase1768160000000,
   RenameCorrelationIdToSourceRunId1768170000000,
+  CreateAiConversationsAndMessages1768180000000,
   AddSourceRunJobSurfaceAndDetailsImport1780272917000,
 ];

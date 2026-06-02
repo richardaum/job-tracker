@@ -41,65 +41,6 @@ type CompanyType {
   updatedAt: DateTime!
 }
 
-type ExchangeRate {
-  currency: String!
-  rate: Float!
-}
-
-type CurrencyRates {
-  base: String!
-  rates: [ExchangeRate!]!
-}
-
-type ExtensionActivityEvent {
-  """Unique event identifier."""
-  id: ID!
-
-  """Event category (source run lifecycle, import, auth)."""
-  type: ExtensionActivityEventType!
-
-  """Human-readable summary of what happened."""
-  summary: String!
-
-  """Groups related events (e.g. run ID)."""
-  sourceRunId: String
-
-  """Arbitrary JSON payload with event details."""
-  payload: JSON
-
-  """Extension version that reported the event."""
-  extensionVersion: String
-
-  """Browser user-agent or name."""
-  browser: String
-
-  """When the event actually happened (client-reported)."""
-  occurredAt: DateTime!
-}
-
-enum ExtensionActivityEventType {
-  SourceRunReceived
-  SourceRunClaimSkipped
-  SourceRunStarted
-  SourceRunPageCollected
-  SourceRunStopConditionMet
-  SourceRunJobSurfaceImport
-  SourceRunJobDetailsImport
-  SourceRunJobSkipped
-  SourceRunCompleted
-  SourceRunFailed
-  ImportJobStarted
-  ImportJobCompleted
-  ImportJobFailed
-  AuthRefreshed
-  AuthFailed
-}
-
-"""
-The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
-"""
-scalar JSON
-
 type NoteType {
   id: ID!
   jobId: String
@@ -311,6 +252,93 @@ type ResumeType {
   updatedAt: DateTime!
 }
 
+type AiMessageStreamEventType {
+  conversationId: ID!
+  token: String
+  completed: Boolean!
+  userMessageId: ID
+  aiMessageId: ID
+}
+
+type AiConversationType {
+  id: ID!
+  jobId: ID!
+  title: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type AiMessageType {
+  id: ID!
+  conversationId: ID!
+  role: String!
+  content: String!
+  createdAt: DateTime!
+}
+
+type AskQuestionPayloadType {
+  success: Boolean!
+}
+
+type ExchangeRate {
+  currency: String!
+  rate: Float!
+}
+
+type CurrencyRates {
+  base: String!
+  rates: [ExchangeRate!]!
+}
+
+type ExtensionActivityEvent {
+  """Unique event identifier."""
+  id: ID!
+
+  """Event category (source run lifecycle, import, auth)."""
+  type: ExtensionActivityEventType!
+
+  """Human-readable summary of what happened."""
+  summary: String!
+
+  """Groups related events (e.g. run ID)."""
+  sourceRunId: String
+
+  """Arbitrary JSON payload with event details."""
+  payload: JSON
+
+  """Extension version that reported the event."""
+  extensionVersion: String
+
+  """Browser user-agent or name."""
+  browser: String
+
+  """When the event actually happened (client-reported)."""
+  occurredAt: DateTime!
+}
+
+enum ExtensionActivityEventType {
+  SourceRunReceived
+  SourceRunClaimSkipped
+  SourceRunStarted
+  SourceRunPageCollected
+  SourceRunStopConditionMet
+  SourceRunJobSurfaceImport
+  SourceRunJobDetailsImport
+  SourceRunJobSkipped
+  SourceRunCompleted
+  SourceRunFailed
+  ImportJobStarted
+  ImportJobCompleted
+  ImportJobFailed
+  AuthRefreshed
+  AuthFailed
+}
+
+"""
+The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+"""
+scalar JSON
+
 type PlanType {
   id: ID!
   displayName: String!
@@ -412,6 +440,8 @@ type Query {
   matchAnalyses: [MatchAnalysisType!]!
   match(id: ID!): MatchAnalysisType!
   jobMatch(jobId: ID!): MatchAnalysisType
+  aiConversations(jobId: ID!): [AiConversationType!]!
+  aiMessages(conversationId: ID!): [AiMessageType!]!
   rewriteTextWithAI(text: String!): String!
   restructureJobDescriptionWithAI(text: String!): String!
 }
@@ -464,6 +494,9 @@ type Mutation {
   updateWorkPreferences(items: [PreferenceInput!]!): [PreferenceType!]!
   generateJobMatch(input: GenerateMatchInput!): MatchAnalysisType!
   deleteMatchAnalysis(id: ID!): DeleteMutationPayloadType!
+  createAiConversation(jobId: ID!): AiConversationType!
+  deleteAiConversation(id: ID!): DeleteMutationPayloadType!
+  askAiQuestion(conversationId: ID!, content: String!): AskQuestionPayloadType!
 }
 
 input CreateJobInput {
@@ -619,4 +652,5 @@ type Subscription {
   jobMatchStatusChanged(jobId: ID!): JobMatchStatusEventType!
   sourceRunEvents: SourceRunEvent!
   extensionActivityEvents: ExtensionActivityEvent!
+  aiMessageStreamed(conversationId: ID!): AiMessageStreamEventType!
 }

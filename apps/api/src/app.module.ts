@@ -9,6 +9,7 @@ import { join } from "path";
 
 import { AppController } from "./app.controller";
 import { DatabaseModule } from "./database/database.module";
+import { AiChatModule } from "./domains/ai-chat/ai-chat.module";
 import { AiModule } from "./domains/ai/ai.module";
 import { AuthModule } from "./domains/auth/auth.module";
 import { CompaniesModule } from "./domains/companies/companies.module";
@@ -42,6 +43,7 @@ import { createWsSubscribe } from "./graphql/graphql-ws-logger";
     SettingsModule,
     WorkPreferencesModule,
     MatchAnalysisModule,
+    AiChatModule,
     AiModule,
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,

@@ -21,6 +21,6 @@ import { NoteService } from "./notes.service";
     LibAiModule,
   ],
   providers: [NoteRepository, NoteService, NoteResolver, NoteGenerationService],
-  exports: [NoteService, NoteGenerationService],
+  exports: [NoteService, NoteRepository, NoteGenerationService],
 })
 export class NotesModule {}

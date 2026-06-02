@@ -1,5 +1,7 @@
 import type { DataSourceOptions } from "typeorm";
 
+import { AiConversationEntity } from "./entities/ai-conversation.entity";
+import { AiMessageEntity } from "./entities/ai-message.entity";
 import { CompanyEntity } from "./entities/company.entity";
 import { ExchangeRateEntity } from "./entities/exchange-rate.entity";
 import { ExtensionActivityEventEntity } from "./entities/extension-activity-event.entity";
@@ -20,6 +22,8 @@ import { SnakeCaseNamingStrategy } from "./naming-strategy";
 import { UuidGenerateSubscriber } from "./subscribers/uuid-generate.subscriber";
 
 export const apiEntities = [
+  AiConversationEntity,
+  AiMessageEntity,
   UserEntity,
   UserAccountEntity,
   JobEntity,
