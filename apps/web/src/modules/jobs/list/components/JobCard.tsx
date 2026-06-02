@@ -240,8 +240,6 @@ export function JobCard({ job: app, onSuccess, onError }: JobCardProps) {
             }
             jobId={app.id}
             jobTitle={displayTitle}
-            onSuccess={onSuccess}
-            onError={onError}
           />
         </ListItemCard.Actions>
       }

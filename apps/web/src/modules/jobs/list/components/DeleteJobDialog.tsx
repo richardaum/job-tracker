@@ -2,7 +2,10 @@
 
 import { tryRun } from "@job-tracker/try-run";
 import { ConfirmDialog } from "@job-tracker/ui";
+import { useRouter } from "next/navigation";
 import type { ReactElement } from "react";
+
+import { useToastQueue } from "@/modules/jobs/shared/hooks/useToastQueue";
 
 import { DeleteJobDocument, JobsDocument, useDeleteJobMutation } from "@/gql/hooks";
 import { removeDeletedEntityFromListCache } from "@/modules/jobs/shared/utils/apolloDeleteCache";
@@ -13,19 +16,12 @@ interface DeleteJobDialogProps {
   jobTitle: string;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
-  onSuccess?: (message: string) => void;
-  onError?: (message: string) => void;
 }
 
-export function DeleteJobDialog({
-  trigger,
-  jobId,
-  jobTitle,
-  open,
-  onOpenChange,
-  onSuccess,
-  onError,
-}: DeleteJobDialogProps) {
+export function DeleteJobDialog({ trigger, jobId, jobTitle, open, onOpenChange }: DeleteJobDialogProps) {
+  const router = useRouter();
+  const { enqueueToast } = useToastQueue();
+
   const [deleteJob] = useDeleteJobMutation({
     update(cache, { data }) {
       removeDeletedEntityFromListCache(cache, { mutationData: data, mutation: DeleteJobDocument, query: JobsDocument });
@@ -43,10 +39,11 @@ export function DeleteJobDialog({
       onConfirm={async () => {
         const [err] = await tryRun(deleteJob({ variables: { id: jobId } }));
         if (err) {
-          onError?.("Could not delete the job. Please try again.");
+          enqueueToast({ title: "Could not delete the job. Please try again.", intent: "error" });
           throw err;
         }
-        onSuccess?.(`"${jobTitle}" was deleted.`);
+        enqueueToast({ title: `"${jobTitle}" was deleted.`, intent: "success" });
+        router.push("/jobs");
       }}
     />
   );
