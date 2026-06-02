@@ -1,21 +1,20 @@
 {
   "$schema": "./node_modules/knip/schema.json",
-  "ignore": ["scripts/ecosystem.config.ts", "ecosystem.config.cjs"],
+  "ignore": [],
   "ignoreBinaries": ["pm2"],
-  "ignoreDependencies": ["dotenv"],
+  "ignoreDependencies": [],
   "ignoreIssues": {
     "apps/web/src/gql/**": ["exports", "types", "files", "enumMembers"],
     "apps/extension/src/gql/**": ["exports", "types", "files", "enumMembers"]
   },
   "workspaces": {
-    "apps/api": { "ignore": ["src/database/migrations/archive/**/*", "scripts/**/*"] },
+    "apps/api": { "ignore": ["src/database/migrations/archive/**/*", "scripts/**/*", "src/generate-schema.ts"] },
     "apps/web": {
-      "ignore": ["src/gql/gql.ts", "src/gql/index.ts", "src/gql/fragment-masking.ts", "public/pdf.worker.min.mjs"],
+      "ignore": ["public/pdf.worker.min.mjs"],
       "ignoreDependencies": ["tailwindcss", "@rsdoctor/cli", "@rsdoctor/webpack-plugin"]
     },
     "apps/extension": {
-      "ignore": ["src/gql/fragment-masking.ts", "src/gql/gql.ts", "src/gql/index.ts"],
-      "ignoreDependencies": ["tailwindcss"]
+      "ignoreDependencies": ["tailwindcss", "@graphql-codegen/typescript", "@graphql-codegen/typescript-operations"]
     },
     "packages/ui": {
       "ignore": ["vitest.shims.d.ts"],
