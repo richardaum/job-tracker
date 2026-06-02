@@ -42,7 +42,7 @@ export function TabsList({ children, className }: TabsListProps) {
   return (
     <RadixTabs.List
       className={cn(
-        "inline-flex items-center gap-1 rounded-md border border-border-subtle bg-bg-surface p-1",
+        "inline-flex flex-wrap items-center gap-1 rounded-md border border-border-subtle bg-bg-surface p-1",
         className,
       )}
     >
@@ -59,7 +59,7 @@ export function TabsTrigger({ value, children, className, asChild, leadingIcon, 
         value={value}
         asChild
         className={cn(
-          "inline-flex h-8 cursor-pointer items-center justify-center rounded-sm px-3 text-sm font-medium text-text-secondary transition-colors hover:bg-bg-surface-hover hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-brand focus-visible:ring-offset-0 data-[state=active]:bg-bg-brand-subtle data-[state=active]:text-text-brand",
+          "inline-flex h-8 shrink-0 cursor-pointer items-center justify-center whitespace-nowrap rounded-sm px-3 text-sm font-medium text-text-secondary transition-colors hover:bg-bg-surface-hover hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-brand focus-visible:ring-offset-0 data-[state=active]:bg-bg-brand-subtle data-[state=active]:text-text-brand",
           className,
         )}
         {...props}
@@ -74,7 +74,7 @@ export function TabsTrigger({ value, children, className, asChild, leadingIcon, 
       ref={ref}
       value={value}
       className={cn(
-        "inline-flex h-8 cursor-pointer items-center justify-center rounded-sm px-3 text-sm font-medium text-text-secondary transition-colors hover:bg-bg-surface-hover hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-brand focus-visible:ring-offset-0 data-[state=active]:bg-bg-brand-subtle data-[state=active]:text-text-brand",
+        "inline-flex h-8 cursor-pointer items-center justify-center whitespace-nowrap rounded-sm px-3 text-sm font-medium text-text-secondary transition-colors hover:bg-bg-surface-hover hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-brand focus-visible:ring-offset-0 data-[state=active]:bg-bg-brand-subtle data-[state=active]:text-text-brand",
         className,
       )}
       {...props}
