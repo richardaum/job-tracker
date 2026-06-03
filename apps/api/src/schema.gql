@@ -273,9 +273,14 @@ type AiConversationType {
 type AiMessageType {
   id: ID!
   conversationId: ID!
-  role: String!
+  role: AiMessageRole!
   content: String!
   createdAt: DateTime!
+}
+
+enum AiMessageRole {
+  User
+  Assistant
 }
 
 type AskQuestionPayloadType {

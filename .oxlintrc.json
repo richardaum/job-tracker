@@ -344,10 +344,14 @@
         "typescript/no-deprecated": "error",
         "@job-tracker/oxlint-plugin/enum-pascalcase": "error",
         "@job-tracker/oxlint-plugin/prefer-cn-for-classname": "error",
-        "@job-tracker/oxlint-plugin/prefer-try-run-over-try-catch": "warn",
+        "@job-tracker/oxlint-plugin/prefer-try-run-over-try-catch": "error",
         "@job-tracker/oxlint-plugin/no-as-unknown-as": "error",
         "@job-tracker/oxlint-plugin/no-inline-component-props": "error"
       }
+    },
+    {
+      "files": ["packages/try-run/**/*.{ts,tsx}"],
+      "rules": { "@job-tracker/oxlint-plugin/prefer-try-run-over-try-catch": "off" }
     },
     {
       "files": [
