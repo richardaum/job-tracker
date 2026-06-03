@@ -258,12 +258,14 @@ type AiMessageStreamEventType {
   completed: Boolean!
   userMessageId: ID
   aiMessageId: ID
+  error: String
 }
 
 type AiConversationType {
   id: ID!
   jobId: ID!
   title: String!
+  generatingStatus: AsyncMetadataType
   createdAt: DateTime!
   updatedAt: DateTime!
 }

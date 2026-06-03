@@ -10,7 +10,7 @@ registerEnumType(AsyncMetadataStatusEnum, { name: "AsyncMetadataStatus" });
 export interface AsyncMetadata {
   status: AsyncMetadataStatusEnum;
   error?: string;
-  timestamp?: string;
+  timestamp?: Date;
 }
 
 @ObjectType()

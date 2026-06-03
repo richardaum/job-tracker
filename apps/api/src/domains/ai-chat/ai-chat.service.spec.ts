@@ -3,9 +3,9 @@ import { NotFoundException } from "@nestjs/common";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { AiChatEventBus } from "./ai-chat-event.bus";
-import { AiChatGenerationService } from "./ai-chat-generation.service";
 import { AiChatRepository } from "./ai-chat.repository";
 import { AiChatService } from "./ai-chat.service";
+import { AiChatRequested } from "./ai-chat.events";
 
 const makeConversation = (overrides: Record<string, unknown> = {}) => ({
   id: "conv-1",
@@ -30,7 +30,6 @@ describe("AiChatService", () => {
   let service: AiChatService;
   let repo: AiChatRepository;
   let jobsRepo: JobsRepository;
-  let generationService: AiChatGenerationService;
   let eventBus: AiChatEventBus;
 
   beforeEach(() => {
@@ -41,21 +40,16 @@ describe("AiChatService", () => {
       deleteConversation: vi.fn(),
       findMessagesByConversationId: vi.fn(),
       createMessagesBatch: vi.fn(),
+      createMessage: vi.fn(),
+      updateGeneratingStatus: vi.fn(),
+      resetStaleGeneratingStatus: vi.fn().mockResolvedValue(0),
     } as unknown as AiChatRepository;
 
-    jobsRepo = {
-      findOneByIdAndUserId: vi.fn(),
-    } as unknown as JobsRepository;
+    jobsRepo = { findOneByIdAndUserId: vi.fn() } as unknown as JobsRepository;
 
-    generationService = {
-      generateAnswer: vi.fn(),
-    } as unknown as AiChatGenerationService;
+    eventBus = { emit: vi.fn() } as unknown as AiChatEventBus;
 
-    eventBus = {
-      emit: vi.fn(),
-    } as unknown as AiChatEventBus;
-
-    service = new AiChatService(repo, jobsRepo, generationService, eventBus);
+    service = new AiChatService(repo, jobsRepo, eventBus);
   });
 
   describe("createConversation", () => {
@@ -111,14 +105,20 @@ describe("AiChatService", () => {
   });
 
   describe("askQuestion", () => {
-    it("returns success and starts streaming when conversation exists", async () => {
+    it("persists user message and emits AiChatRequested", async () => {
       vi.mocked(repo.findConversationById).mockResolvedValue(makeConversation({ jobId: "job-1" }));
-      vi.mocked(generationService.generateAnswer).mockResolvedValue("Full AI response");
 
       const result = await service.askQuestion("conv-1", "user-1", "What is this job?");
 
       expect(result).toEqual({ success: true });
-      expect(generationService.generateAnswer).toHaveBeenCalledWith("conv-1", "user-1", "job-1", "What is this job?");
+      expect(repo.createMessage).toHaveBeenCalledWith(
+        expect.objectContaining({ conversationId: "conv-1", role: "user", content: "What is this job?" }),
+      );
+      expect(repo.updateGeneratingStatus).toHaveBeenCalledWith(
+        "conv-1",
+        expect.objectContaining({ status: "Processing" }),
+      );
+      expect(eventBus.emit).toHaveBeenCalledWith(expect.any(AiChatRequested));
     });
 
     it("throws NotFoundException when conversation does not exist", async () => {

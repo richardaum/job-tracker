@@ -9,6 +9,7 @@ import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 
 import { AiChatEventBus } from "./ai-chat-event.bus";
+import { AiChatEventListener } from "./ai-chat-event.listener";
 import { AiChatGenerationService } from "./ai-chat-generation.service";
 import { AiChatRepository } from "./ai-chat.repository";
 import { AiChatResolver } from "./ai-chat.resolver";
@@ -23,6 +24,13 @@ import { AiChatService } from "./ai-chat.service";
     MatchAnalysisModule,
     LibAiModule,
   ],
-  providers: [AiChatRepository, AiChatService, AiChatResolver, AiChatEventBus, AiChatGenerationService],
+  providers: [
+    AiChatRepository,
+    AiChatService,
+    AiChatResolver,
+    AiChatEventBus,
+    AiChatGenerationService,
+    AiChatEventListener,
+  ],
 })
 export class AiChatModule {}

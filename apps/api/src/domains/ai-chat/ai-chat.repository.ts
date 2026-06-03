@@ -1,5 +1,6 @@
 import { AiConversationEntity } from "@api/database/entities/ai-conversation.entity";
 import { AiMessageEntity } from "@api/database/entities/ai-message.entity";
+import { AsyncMetadata, AsyncMetadataStatusEnum } from "@api/domains/shared/async-metadata.type";
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
@@ -41,8 +42,36 @@ export class AiChatRepository {
     return this.msgRepo.find({ where: { conversationId }, order: { createdAt: "ASC" } });
   }
 
+  async createMessage(data: Partial<AiMessageEntity>): Promise<AiMessageEntity> {
+    const row = this.msgRepo.create(data);
+    return this.msgRepo.save(row);
+  }
+
   async updateConversationTitle(id: string, title: string): Promise<void> {
     await this.convRepo.update({ id }, { title });
+  }
+
+  async updateGeneratingStatus(id: string, status: AsyncMetadata): Promise<void> {
+    await this.convRepo.update({ id }, { generatingStatus: status });
+  }
+
+  async resetStaleGeneratingStatus(): Promise<number> {
+    const staleThreshold = new Date(Date.now() - 1000 * 60 * 5); // 5 minutes
+    const result = await this.convRepo
+      .createQueryBuilder()
+      .update(AiConversationEntity)
+      .set({
+        generatingStatus: {
+          status: AsyncMetadataStatusEnum.Failed,
+          error: "Stale generation process timed out.",
+          timestamp: new Date(),
+        },
+      })
+      .where("generating_status->>'status' = :status", { status: AsyncMetadataStatusEnum.Processing })
+      .andWhere("updated_at < :threshold", { threshold: staleThreshold })
+      .execute();
+
+    return result.affected || 0;
   }
 
   async createMessagesBatch(messages: Partial<AiMessageEntity>[]): Promise<AiMessageEntity[]> {

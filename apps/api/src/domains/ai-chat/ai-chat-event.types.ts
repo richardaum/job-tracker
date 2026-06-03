@@ -16,4 +16,7 @@ export class AiMessageStreamEventType {
 
   @Field(() => ID, { nullable: true })
   aiMessageId?: string | null;
+
+  @Field(() => String, { nullable: true })
+  error?: string | null;
 }

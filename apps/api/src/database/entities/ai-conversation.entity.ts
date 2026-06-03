@@ -1,4 +1,5 @@
 import { Column, CreateDateColumn, Entity, PrimaryColumn, UpdateDateColumn } from "typeorm";
+import { AsyncMetadata } from "@api/domains/shared/async-metadata.type";
 
 @Entity({ name: "ai_conversations" })
 export class AiConversationEntity {
@@ -13,6 +14,9 @@ export class AiConversationEntity {
 
   @Column({ type: "text", default: "New conversation" })
   title!: string;
+
+  @Column({ name: "generating_status", type: "jsonb", nullable: true })
+  generatingStatus?: AsyncMetadata | null;
 
   @CreateDateColumn({ name: "created_at", type: "timestamptz" })
   createdAt!: Date;

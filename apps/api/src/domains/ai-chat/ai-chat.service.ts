@@ -1,25 +1,35 @@
 import { JobsRepository } from "@api/domains/jobs/jobs.repository";
+import { AsyncMetadataStatusEnum } from "@api/domains/shared/async-metadata.type";
 import { DeleteMutationPayloadType } from "@api/domains/shared/delete-mutation-payload.type";
-import { Injectable, Logger, NotFoundException } from "@nestjs/common";
+import { Injectable, Logger, NotFoundException, OnModuleInit } from "@nestjs/common";
 
 import { AiChatEventBus } from "./ai-chat-event.bus";
-import { AiChatGenerationService } from "./ai-chat-generation.service";
+import { AiChatRequested } from "./ai-chat.events";
 import { AiChatRepository } from "./ai-chat.repository";
 import { AiConversationType } from "./ai-conversation.type";
 import { AiMessageType } from "./ai-message.type";
-import { AiMessageCompleted } from "./ai-chat.events";
 import { AskQuestionPayloadType } from "./ask-question-payload.type";
 
 @Injectable()
-export class AiChatService {
+export class AiChatService implements OnModuleInit {
   private readonly logger = new Logger(AiChatService.name);
 
   constructor(
     private readonly repo: AiChatRepository,
     private readonly jobsRepo: JobsRepository,
-    private readonly generationService: AiChatGenerationService,
     private readonly eventBus: AiChatEventBus,
   ) {}
+
+  onModuleInit(): void {
+    void this.resetStaleProcessing();
+  }
+
+  private async resetStaleProcessing(): Promise<void> {
+    const count = await this.repo.resetStaleGeneratingStatus();
+    if (count > 0) {
+      this.logger.warn(`Recovered ${count} stale AI chat generating states`);
+    }
+  }
 
   async createConversation(jobId: string, userId: string): Promise<AiConversationType> {
     const job = await this.jobsRepo.findOneByIdAndUserId(jobId, userId);
@@ -57,76 +67,25 @@ export class AiChatService {
     return this.repo.findMessagesByConversationId(conversationId);
   }
 
-  async askQuestion(
-    conversationId: string,
-    userId: string,
-    content: string,
-  ): Promise<AskQuestionPayloadType> {
+  async askQuestion(conversationId: string, userId: string, content: string): Promise<AskQuestionPayloadType> {
     const conversation = await this.repo.findConversationById(conversationId, userId);
     if (!conversation) {
       throw new NotFoundException(`AiConversation ${conversationId} not found`);
     }
 
-    this.startBackgroundStream(conversationId, userId, conversation.jobId, content);
+    // Persist user message immediately
+    const userMessageId = crypto.randomUUID();
+    await this.repo.createMessage({ id: userMessageId, conversationId, role: "user", content });
+
+    // Update generating status to Processing
+    await this.repo.updateGeneratingStatus(conversationId, {
+      status: AsyncMetadataStatusEnum.Processing,
+      timestamp: new Date(),
+    });
+
+    // Request background processing
+    this.eventBus.emit(new AiChatRequested(conversationId, userId, conversation.jobId, content, userMessageId));
 
     return { success: true };
-  }
-
-  private async generateTitleIfFirstMessage(
-    conversationId: string,
-    userId: string,
-    content: string,
-  ): Promise<void> {
-    const conversation = await this.repo.findConversationById(conversationId, userId);
-    if (!conversation || conversation.title !== "New conversation") return;
-
-    try {
-      const title = await this.generationService.generateTitle(content);
-      await this.repo.updateConversationTitle(conversationId, title);
-      this.logger.log(`Auto-title generated: conversationId=${conversationId}, title="${title}"`);
-    } catch (error) {
-      this.logger.warn(
-        `Auto-title generation failed: conversationId=${conversationId}, error=${error instanceof Error ? error.message : String(error)}`,
-      );
-    }
-  }
-
-  private startBackgroundStream(
-    conversationId: string,
-    userId: string,
-    jobId: string,
-    content: string,
-  ): void {
-    this.generationService
-      .generateAnswer(conversationId, userId, jobId, content)
-      .then(async (fullContent) => {
-        if (!fullContent) {
-          this.eventBus.emit(new AiMessageCompleted(conversationId, userId, "", ""));
-          return;
-        }
-
-        const userMessageId = crypto.randomUUID();
-        const aiMessageId = crypto.randomUUID();
-
-        await this.repo.createMessagesBatch([
-          { id: userMessageId, conversationId, role: "user", content },
-          { id: aiMessageId, conversationId, role: "assistant", content: fullContent },
-        ]);
-
-        this.logger.log(
-          `Messages persisted: conversationId=${conversationId}, userMessageId=${userMessageId}, aiMessageId=${aiMessageId}`,
-        );
-
-        await this.generateTitleIfFirstMessage(conversationId, userId, content);
-
-        this.eventBus.emit(new AiMessageCompleted(conversationId, userId, userMessageId, aiMessageId));
-      })
-      .catch((error) => {
-        this.logger.error(
-          `AI stream failed: conversationId=${conversationId}, error=${error instanceof Error ? error.message : String(error)}`,
-        );
-
-        this.eventBus.emit(new AiMessageCompleted(conversationId, userId, "", ""));
-      });
   }
 }

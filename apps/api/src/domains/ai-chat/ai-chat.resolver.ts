@@ -9,10 +9,9 @@ import { Args, ID, Mutation, Query, Resolver, Subscription } from "@nestjs/graph
 
 import { AiChatEventBus } from "./ai-chat-event.bus";
 import { AiMessageStreamEventType } from "./ai-chat-event.types";
-import { AiMessageCompleted, AiMessageTokenReceived } from "./ai-chat.events";
+import { AiChatService } from "./ai-chat.service";
 import { AiConversationType } from "./ai-conversation.type";
 import { AiMessageType } from "./ai-message.type";
-import { AiChatService } from "./ai-chat.service";
 import { AskQuestionPayloadType } from "./ask-question-payload.type";
 
 @Resolver(() => AiConversationType)
@@ -70,39 +69,6 @@ export class AiChatResolver {
     @Args("conversationId", { type: () => ID }) conversationId: string,
     @CurrentUser() user: { userId: string },
   ): AsyncIterable<AiMessageStreamEventType> {
-    const bus = this.eventBus.forConversation(user.userId, conversationId);
-
-    const tokenIter = bus.eventsOf(AiMessageTokenReceived)[Symbol.asyncIterator]();
-    const completedIter = bus.eventsOf(AiMessageCompleted)[Symbol.asyncIterator]();
-
-    const completedRace = completedIter.next().then((r) => ({ kind: "completed" as const, r }));
-
-    while (true) {
-      const result = await Promise.race([
-        tokenIter.next().then((r) => ({ kind: "token" as const, r })),
-        completedRace,
-      ]);
-
-      if (result.kind === "completed") {
-        yield {
-          conversationId,
-          token: null,
-          completed: true,
-          userMessageId: result.r.value.userMessageId || null,
-          aiMessageId: result.r.value.aiMessageId || null,
-        } as AiMessageStreamEventType;
-        return;
-      }
-
-      if (result.r.done) break;
-
-      yield {
-        conversationId,
-        token: result.r.value.token,
-        completed: false,
-        userMessageId: null,
-        aiMessageId: null,
-      } as AiMessageStreamEventType;
-    }
+    yield* this.eventBus.createMessageStream(user.userId, conversationId);
   }
 }
