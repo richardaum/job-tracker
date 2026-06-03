@@ -44,6 +44,7 @@ import { RenameCorrelationIdToSourceRunId1768170000000 } from "./1768170000000-r
 import { CreateAiConversationsAndMessages1768180000000 } from "./1768180000000-create-ai-conversations-and-messages";
 import { AddSourceRunJobSurfaceAndDetailsImport1780272917000 } from "./1780272917000-add-source-run-job-surface-and-details-import";
 import { ChangeAiMessageRoleToEnum1780272918000 } from "./1780272918000-change-ai-message-role-to-enum";
+import { AddAiConversationGeneratingStatus1780272919000 } from "./1780272919000-add-ai-conversation-generating-status";
 
 export const migrations = [
   SquashedBaseline1767000000000,
@@ -92,4 +93,5 @@ export const migrations = [
   CreateAiConversationsAndMessages1768180000000,
   AddSourceRunJobSurfaceAndDetailsImport1780272917000,
   ChangeAiMessageRoleToEnum1780272918000,
+  AddAiConversationGeneratingStatus1780272919000,
 ];
