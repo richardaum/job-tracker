@@ -1,4 +1,5 @@
 import { Field, ID, ObjectType } from "@nestjs/graphql";
+import { AiMessageRoleEnum } from "./ai-message-role.enum";
 
 @ObjectType()
 export class AiMessageType {
@@ -8,8 +9,8 @@ export class AiMessageType {
   @Field(() => ID)
   conversationId!: string;
 
-  @Field()
-  role!: string;
+  @Field(() => AiMessageRoleEnum)
+  role!: AiMessageRoleEnum;
 
   @Field()
   content!: string;

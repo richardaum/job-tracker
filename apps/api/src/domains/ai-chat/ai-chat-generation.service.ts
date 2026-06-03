@@ -25,12 +25,7 @@ export class AiChatGenerationService extends AiBaseService {
     super(openAIClient, promptRenderer);
   }
 
-  async generateAnswer(
-    conversationId: string,
-    userId: string,
-    jobId: string,
-    question: string,
-  ): Promise<string> {
+  async generateAnswer(conversationId: string, userId: string, jobId: string, question: string): Promise<string> {
     this.logger.log(`Asking AI question: conversationId=${conversationId}, jobId=${jobId}`);
 
     const job = await this.jobsRepo.findOneByIdAndUserId(jobId, userId);
@@ -93,7 +88,11 @@ export class AiChatGenerationService extends AiBaseService {
   }
 
   private buildSystemPrompt(
-    job: { title: string | null; description: string | null; company?: { name: string; description?: string | null; industry?: string | null } | null },
+    job: {
+      title: string | null;
+      description: string | null;
+      company?: { name: string; description?: string | null; industry?: string | null } | null;
+    },
     matchAnalysis: { summary?: string | null; items?: unknown[] | null } | null,
     notes: Array<{ content: string; createdAt: Date }>,
     stageEvents: Array<{ toStage: string; fromStage?: string | null; reason?: string | null; createdAt: Date }>,

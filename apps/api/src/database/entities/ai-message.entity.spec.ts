@@ -1,3 +1,4 @@
+import { AiMessageRoleEnum } from "@api/domains/ai-chat/ai-message-role.enum";
 import { AiMessageEntity } from "@api/database/entities/ai-message.entity";
 import { describe, expect, it } from "vitest";
 
@@ -6,12 +7,12 @@ describe("AiMessageEntity", () => {
     const entity = new AiMessageEntity();
     entity.id = "msg-1";
     entity.conversationId = "conv-1";
-    entity.role = "user";
+    entity.role = AiMessageRoleEnum.User;
     entity.content = "Hello";
 
     expect(entity.id).toBe("msg-1");
     expect(entity.conversationId).toBe("conv-1");
-    expect(entity.role).toBe("user");
+    expect(entity.role).toBe(AiMessageRoleEnum.User);
     expect(entity.content).toBe("Hello");
   });
 

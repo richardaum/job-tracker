@@ -1,3 +1,4 @@
+import { AiMessageRoleEnum } from "./ai-message-role.enum";
 import { Injectable, Logger, OnModuleInit } from "@nestjs/common";
 import { AiChatEventBus } from "./ai-chat-event.bus";
 import { AiChatGenerationService } from "./ai-chat-generation.service";
@@ -34,7 +35,12 @@ export class AiChatEventListener implements OnModuleInit {
       }
 
       const aiMessageId = crypto.randomUUID();
-      await this.repo.createMessage({ id: aiMessageId, conversationId, role: "assistant", content: fullContent });
+      await this.repo.createMessage({
+        id: aiMessageId,
+        conversationId,
+        role: AiMessageRoleEnum.Assistant,
+        content: fullContent,
+      });
 
       // Update generating status to Completed
       await this.repo.updateGeneratingStatus(conversationId, {

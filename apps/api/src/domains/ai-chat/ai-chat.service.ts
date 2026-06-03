@@ -1,3 +1,4 @@
+import { AiMessageRoleEnum } from "./ai-message-role.enum";
 import { JobsRepository } from "@api/domains/jobs/jobs.repository";
 import { AsyncMetadataStatusEnum } from "@api/domains/shared/async-metadata.type";
 import { DeleteMutationPayloadType } from "@api/domains/shared/delete-mutation-payload.type";
@@ -75,7 +76,7 @@ export class AiChatService implements OnModuleInit {
 
     // Persist user message immediately
     const userMessageId = crypto.randomUUID();
-    await this.repo.createMessage({ id: userMessageId, conversationId, role: "user", content });
+    await this.repo.createMessage({ id: userMessageId, conversationId, role: AiMessageRoleEnum.User, content });
 
     // Update generating status to Processing
     await this.repo.updateGeneratingStatus(conversationId, {

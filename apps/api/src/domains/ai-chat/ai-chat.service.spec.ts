@@ -1,3 +1,4 @@
+import { AiMessageRoleEnum } from "./ai-message-role.enum";
 import { JobsRepository } from "@api/domains/jobs/jobs.repository";
 import { NotFoundException } from "@nestjs/common";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -20,7 +21,7 @@ const makeConversation = (overrides: Record<string, unknown> = {}) => ({
 const makeMessage = (overrides: Record<string, unknown> = {}) => ({
   id: "msg-1",
   conversationId: "conv-1",
-  role: "user",
+  role: AiMessageRoleEnum.User,
   content: "Hello",
   createdAt: new Date("2026-01-01"),
   ...overrides,
@@ -112,7 +113,11 @@ describe("AiChatService", () => {
 
       expect(result).toEqual({ success: true });
       expect(repo.createMessage).toHaveBeenCalledWith(
-        expect.objectContaining({ conversationId: "conv-1", role: "user", content: "What is this job?" }),
+        expect.objectContaining({
+          conversationId: "conv-1",
+          role: AiMessageRoleEnum.User,
+          content: "What is this job?",
+        }),
       );
       expect(repo.updateGeneratingStatus).toHaveBeenCalledWith(
         "conv-1",
