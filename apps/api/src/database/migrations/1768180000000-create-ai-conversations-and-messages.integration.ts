@@ -21,12 +21,7 @@ describe.runIf(hasDbUrl())("CreateAiConversationsAndMessages migration", () => {
   async function createDataSource(migrations: (new (...args: unknown[]) => import("typeorm").MigrationInterface)[]) {
     const { DataSource } = await import("typeorm");
     const url = process.env.DATABASE_INTEGRATION_URL || process.env.DATABASE_URL!;
-    return new DataSource({
-      type: "postgres",
-      url,
-      migrations,
-      migrationsTableName: "typeorm_migrations",
-    });
+    return new DataSource({ type: "postgres", url, migrations, migrationsTableName: "typeorm_migrations" });
   }
 
   it("migration up and down work correctly", async () => {

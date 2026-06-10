@@ -3,6 +3,7 @@ import { MatchAnalysisEntity } from "@api/database/entities/match-analysis.entit
 import { ResumeEntity } from "@api/database/entities/resume.entity";
 import { insertUserWithAuthAccount } from "@api/database/integration-test-user";
 import { createTestDataSource } from "@api/database/test-db";
+import { ApplicationStageEnum } from "@api/domains/jobs/job-stage.enum";
 import { MatchAnalysisRepository } from "@api/domains/match-analysis/match-analysis.repository";
 import { apiEnv } from "@api/env/server";
 import type { DataSource } from "typeorm";
@@ -41,7 +42,9 @@ describe.skipIf(!hasDb)("MatchAnalysisRepository (integration)", () => {
     const jobsRepo = dataSource.getRepository(JobEntity);
     const existing = await jobsRepo.findOneBy({ id: jobId });
     if (!existing) {
-      await jobsRepo.save(jobsRepo.create({ id: jobId, userId: ownerId, stage: "NEW" as never, urls: [], tags: [] }));
+      await jobsRepo.save(
+        jobsRepo.create({ id: jobId, userId: ownerId, stage: ApplicationStageEnum.New, urls: [], tags: [] }),
+      );
     }
   }
 

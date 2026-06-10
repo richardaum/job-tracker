@@ -12,7 +12,6 @@ import { Test } from "@nestjs/testing";
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
-import { AiChatEventBus } from "./ai-chat-event.bus";
 import { AiChatResolver } from "./ai-chat.resolver";
 import { AiChatService } from "./ai-chat.service";
 
@@ -27,7 +26,7 @@ const mockConversation = {
 const mockMessage = {
   id: "msg-1",
   conversationId: "conv-1",
-  role: "user",
+  role: "User",
   content: "Hello",
   createdAt: new Date("2026-01-01T00:00:00.000Z"),
 };
@@ -56,7 +55,7 @@ describe("AiChatResolver (integration)", () => {
       providers: [
         AiChatResolver,
         { provide: AiChatService, useValue: service },
-        { provide: AiChatEventBus, useValue: { emit: vi.fn(), forConversation: vi.fn() } },
+        { provide: "PUB_SUB", useValue: { asyncIterableIterator: vi.fn() } },
       ],
     })
       .overrideGuard(JwtAuthGuard)

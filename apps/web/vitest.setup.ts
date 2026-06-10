@@ -48,3 +48,4 @@ Range.prototype.getClientRects = stubGetClientRects;
 Document.prototype.elementFromPoint = vi.fn(() => null);
 
 Element.prototype.scrollIntoView = vi.fn();
+Element.prototype.scrollTo = vi.fn();

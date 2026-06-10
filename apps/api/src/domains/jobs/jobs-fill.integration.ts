@@ -8,10 +8,16 @@ import { apiEnv } from "@api/env/server";
 import type { DataSource } from "typeorm";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
+import type { CompanyService } from "@api/domains/companies/companies.service";
+import type { DraftExtractionNormalizationService } from "@api/domains/jobs/ai/draft-extraction-normalization.service";
+import type { DraftExtractionService } from "@api/domains/jobs/ai/draft-extraction.service";
+
 import { JobAutomaticFillService } from "./job-automatic-fill.service";
+import type { JobEventBus } from "./job-event.bus";
 import { ApplicationStageEnum } from "./job-stage.enum";
 import { JobStageEventsRepository } from "./job-stage-events.repository";
 import { JobsRepository } from "./jobs.repository";
+import type { JobsService } from "./jobs.service";
 import { SalaryService } from "./salary/salary.service";
 import { TagService } from "./tags/tag.service";
 
@@ -43,7 +49,7 @@ describe.skipIf(!hasDb)("Job async fill metadata (integration)", () => {
           location: null,
           workRegion: null,
         }),
-    } as never;
+    } as DraftExtractionService;
 
     const draftExtractionNormalizationService = {
       normalizeExtraction: vi
@@ -57,7 +63,7 @@ describe.skipIf(!hasDb)("Job async fill metadata (integration)", () => {
           location: null,
           workRegion: null,
         }),
-    } as never;
+    } as DraftExtractionNormalizationService;
 
     const companyService = {
       findOrCreateByName: vi.fn(async (uid: string, name: string) => {
@@ -66,19 +72,19 @@ describe.skipIf(!hasDb)("Job async fill metadata (integration)", () => {
         if (existing) return existing;
         return companyRepo.save(companyRepo.create({ userId: uid, name }));
       }),
-    } as never;
+    } as CompanyService;
 
     fillService = new JobAutomaticFillService(
       dataSource,
       repo,
       stageEventsRepo,
-      { findOne: vi.fn() } as never,
+      { findOne: vi.fn() } as JobsService,
       companyService,
       new SalaryService(),
       new TagService(),
       draftExtractionService,
       draftExtractionNormalizationService,
-      { emit: vi.fn() } as never,
+      { emit: vi.fn() } as JobEventBus,
     );
 
     const user = await insertUserWithAuthAccount(dataSource, {

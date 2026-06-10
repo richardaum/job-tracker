@@ -1,12 +1,13 @@
-import { AiMessageRoleEnum } from "./ai-message-role.enum";
 import { JobsRepository } from "@api/domains/jobs/jobs.repository";
 import { NotFoundException } from "@nestjs/common";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { AiChatEventBus } from "./ai-chat-event.bus";
+import { AiChatPubSub } from "./ai-chat.pubsub";
+import { AiChatSubEventEnum } from "./ai-chat-sub-event.enum";
+import { AiMessageRoleEnum } from "./ai-message-role.enum";
+import { AiMessageStreamPhaseEnum } from "./ai-message-stream-phase.enum";
 import { AiChatRepository } from "./ai-chat.repository";
 import { AiChatService } from "./ai-chat.service";
-import { AiChatRequested } from "./ai-chat.events";
 
 const makeConversation = (overrides: Record<string, unknown> = {}) => ({
   id: "conv-1",
@@ -31,7 +32,7 @@ describe("AiChatService", () => {
   let service: AiChatService;
   let repo: AiChatRepository;
   let jobsRepo: JobsRepository;
-  let eventBus: AiChatEventBus;
+  let pubSub: AiChatPubSub;
 
   beforeEach(() => {
     repo = {
@@ -48,9 +49,9 @@ describe("AiChatService", () => {
 
     jobsRepo = { findOneByIdAndUserId: vi.fn() } as unknown as JobsRepository;
 
-    eventBus = { emit: vi.fn() } as unknown as AiChatEventBus;
+    pubSub = { publish: vi.fn(), asyncIterableIterator: vi.fn() } as unknown as AiChatPubSub;
 
-    service = new AiChatService(repo, jobsRepo, eventBus);
+    service = new AiChatService(repo, jobsRepo, pubSub);
   });
 
   describe("createConversation", () => {
@@ -106,8 +107,9 @@ describe("AiChatService", () => {
   });
 
   describe("askQuestion", () => {
-    it("persists user message and emits AiChatRequested", async () => {
+    it("persists user message and publishes aiChatRequested", async () => {
       vi.mocked(repo.findConversationById).mockResolvedValue(makeConversation({ jobId: "job-1" }));
+      vi.mocked(repo.createMessage).mockResolvedValue(makeMessage({ id: "user-msg-1", content: "What is this job?" }));
 
       const result = await service.askQuestion("conv-1", "user-1", "What is this job?");
 
@@ -123,13 +125,51 @@ describe("AiChatService", () => {
         "conv-1",
         expect.objectContaining({ status: "Processing" }),
       );
-      expect(eventBus.emit).toHaveBeenCalledWith(expect.any(AiChatRequested));
+      expect(pubSub.publish).toHaveBeenCalledWith(
+        AiChatSubEventEnum.AiChatRequested,
+        expect.objectContaining({
+          conversationId: "conv-1",
+          userId: "user-1",
+          content: "What is this job?",
+          userMessageId: "user-msg-1",
+        }),
+      );
     });
 
     it("throws NotFoundException when conversation does not exist", async () => {
       vi.mocked(repo.findConversationById).mockResolvedValue(null);
 
       await expect(service.askQuestion("conv-1", "user-1", "test")).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe("subscribeStream", () => {
+    it("yields Ready then filters pubsub events by conversationId", async () => {
+      const pubSubEvents = [
+        { conversationId: "conv-1", phase: AiMessageStreamPhaseEnum.Streaming, token: "Hi" },
+        { conversationId: "conv-2", phase: AiMessageStreamPhaseEnum.Streaming, token: "other" },
+        { conversationId: "conv-1", phase: AiMessageStreamPhaseEnum.Complete },
+      ];
+
+      async function* mockIterator() {
+        for (const event of pubSubEvents) {
+          yield event;
+        }
+      }
+
+      vi.mocked(pubSub.asyncIterableIterator).mockReturnValue(mockIterator());
+
+      const received = [];
+      for await (const event of service.subscribeStream("conv-1")) {
+        received.push(event);
+      }
+
+      expect(received).toEqual([
+        { conversationId: "conv-1", phase: AiMessageStreamPhaseEnum.Ready },
+        { conversationId: "conv-1", phase: AiMessageStreamPhaseEnum.Streaming, token: "Hi" },
+        { conversationId: "conv-1", phase: AiMessageStreamPhaseEnum.Complete },
+      ]);
+      expect(pubSub.asyncIterableIterator).toHaveBeenCalledWith(AiChatSubEventEnum.AiMessageStreamed);
     });
   });
 
