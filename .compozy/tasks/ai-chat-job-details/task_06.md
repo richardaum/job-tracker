@@ -57,6 +57,7 @@ Wire the ChatPanel component to real backend data. Define GraphQL operations (qu
 The ViewModel manages local state for the streaming message (tokens accumulated during streaming) and uses Apollo cache reads for conversation/message data.
 
 Streaming flow in ViewModel:
+
 1. `askQuestion` calls the mutation → starts streaming on server
 2. Subscribe to `AiMessageStreamed` with the active conversationId
 3. In `onData`, accumulate tokens in local state

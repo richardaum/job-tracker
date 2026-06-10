@@ -69,14 +69,14 @@ This feature adds an "AI Chat" tab to the job details side panel (alongside Note
 
 ### States
 
-| State | What the user sees |
-|---|---|
-| No conversations | Empty state: icon + "No conversations yet" + "Start new conversation" button |
-| AI is processing | User message in chat + "AI is thinking…" with subtle pulse animation |
-| AI is streaming | AI message with incremental text appearing character-by-character, pulsing cursor at end |
-| AI response complete | Full AI message with AI avatar |
-| Error | AI message shows "Failed to generate response" + "Retry" link |
-| Conversation list | Compact vertical list of conversation titles, newest first, scrollable |
+| State                | What the user sees                                                                       |
+| -------------------- | ---------------------------------------------------------------------------------------- |
+| No conversations     | Empty state: icon + "No conversations yet" + "Start new conversation" button             |
+| AI is processing     | User message in chat + "AI is thinking…" with subtle pulse animation                     |
+| AI is streaming      | AI message with incremental text appearing character-by-character, pulsing cursor at end |
+| AI response complete | Full AI message with AI avatar                                                           |
+| Error                | AI message shows "Failed to generate response" + "Retry" link                            |
+| Conversation list    | Compact vertical list of conversation titles, newest first, scrollable                   |
 
 ### Mobile behavior
 
@@ -105,6 +105,7 @@ This feature adds an "AI Chat" tab to the job details side panel (alongside Note
 ## Phased Rollout Plan
 
 ### MVP (Phase 1)
+
 - AI Chat tab in the side panel
 - Multiple persistent conversations per job
 - Streaming AI responses with full job context
@@ -113,6 +114,7 @@ This feature adds an "AI Chat" tab to the job details side panel (alongside Note
 - **Exit criteria:** 50% of test users start at least one AI conversation per job viewed
 
 ### Phase 2
+
 - Function calling tools (search other jobs, fetch company data, fetch match analysis from other jobs)
 - Conversation search and filtering
 - Empty state "Ask AI" button also available in Notes panel header
@@ -120,6 +122,7 @@ This feature adds an "AI Chat" tab to the job details side panel (alongside Note
 - **Exit criteria:** tools adoption > 30% of conversations
 
 ### Phase 3
+
 - Follow-up suggestions from AI
 - Pre-defined conversation templates ("Analyze job fit", "Prepare for interview")
 - Export conversation as text/markdown
@@ -127,22 +130,22 @@ This feature adds an "AI Chat" tab to the job details side panel (alongside Note
 
 ## Success Metrics
 
-| Metric | Target | How to measure |
-|---|---|---|
-| Conversation creation rate | > 3 conversations per user per week | Count conversations created |
-| Messages per conversation | > 4 (i.e., more than 1 Q&A) | Average message count per conversation |
-| Error rate | < 5% of AI calls fail | Subscription error events |
-| Streaming latency | First token < 2s | Client-side TTFB measurement |
+| Metric                     | Target                              | How to measure                         |
+| -------------------------- | ----------------------------------- | -------------------------------------- |
+| Conversation creation rate | > 3 conversations per user per week | Count conversations created            |
+| Messages per conversation  | > 4 (i.e., more than 1 Q&A)         | Average message count per conversation |
+| Error rate                 | < 5% of AI calls fail               | Subscription error events              |
+| Streaming latency          | First token < 2s                    | Client-side TTFB measurement           |
 
 ## Risks and Mitigations
 
-| Risk | Impact | Mitigation |
-|---|---|---|
-| AI costs increase with adoption | High | Monitor cost per conversation; add rate limiting in Phase 2 if needed |
-| AI hallucinates job data | Medium | System prompt grounds answers in provided context; consider citations in Phase 2 |
-| Users don't discover the feature | High | Prominent "AI Chat" tab in side panel; potentially add "Ask AI" button in Notes header too |
-| Users create too many conversations | Low | Conversation list stays manageable; delete is one click |
-| Streaming adds backend complexity | Medium | Reuse existing EventBus + Subscription pattern from jobs-events |
+| Risk                                | Impact | Mitigation                                                                                 |
+| ----------------------------------- | ------ | ------------------------------------------------------------------------------------------ |
+| AI costs increase with adoption     | High   | Monitor cost per conversation; add rate limiting in Phase 2 if needed                      |
+| AI hallucinates job data            | Medium | System prompt grounds answers in provided context; consider citations in Phase 2           |
+| Users don't discover the feature    | High   | Prominent "AI Chat" tab in side panel; potentially add "Ask AI" button in Notes header too |
+| Users create too many conversations | Low    | Conversation list stays manageable; delete is one click                                    |
+| Streaming adds backend complexity   | Medium | Reuse existing EventBus + Subscription pattern from jobs-events                            |
 
 ## Architecture Decision Records
 

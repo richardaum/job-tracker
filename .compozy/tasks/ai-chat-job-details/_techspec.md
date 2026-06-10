@@ -81,11 +81,7 @@ export class AiChatService {
   async listConversations(jobId: string, userId: string): Promise<AiConversationType[]>;
   async deleteConversation(id: string, userId: string): Promise<DeleteMutationPayloadType>;
 
-  async askQuestion(
-    conversationId: string,
-    userId: string,
-    content: string,
-  ): Promise<AskQuestionPayloadType> {
+  async askQuestion(conversationId: string, userId: string, content: string): Promise<AskQuestionPayloadType> {
     // 1. Validate job access
     // 2. Start background AI stream (non-blocking)
     // 3. Return success immediately
@@ -100,7 +96,9 @@ export class AiChatEventBus extends EventBus<{ readonly conversationId: string }
   forConversation(userId: string, conversationId: string) {
     const bus = this.forUser(userId);
     return {
-      eventsOf: <T extends DomainEvent & { readonly conversationId: string }>(EventClass: new (...args: any[]) => T) => ({
+      eventsOf: <T extends DomainEvent & { readonly conversationId: string }>(
+        EventClass: new (...args: any[]) => T,
+      ) => ({
         [Symbol.asyncIterator]: async function* () {
           for await (const event of bus.eventsOf(EventClass)) {
             if (event.conversationId === conversationId) yield event;
@@ -200,10 +198,10 @@ type AiMessage {
 
 type AiMessageStreamEvent {
   conversationId: ID!
-  token: String             # null on completion
+  token: String # null on completion
   completed: Boolean!
-  userMessageId: ID         # null during streaming, set on completion
-  aiMessageId: ID           # null during streaming, set on completion
+  userMessageId: ID # null during streaming, set on completion
+  aiMessageId: ID # null during streaming, set on completion
 }
 ```
 
@@ -211,23 +209,23 @@ type AiMessageStreamEvent {
 
 **Queries:**
 
-| Operation | Description |
-|---|---|
-| `aiConversations(jobId: ID!): [AiConversation!]!` | List conversations for a job |
-| `aiMessages(conversationId: ID!): [AiMessage!]!` | List messages in a conversation |
+| Operation                                         | Description                     |
+| ------------------------------------------------- | ------------------------------- |
+| `aiConversations(jobId: ID!): [AiConversation!]!` | List conversations for a job    |
+| `aiMessages(conversationId: ID!): [AiMessage!]!`  | List messages in a conversation |
 
 **Mutations:**
 
-| Operation | Description |
-|---|---|
-| `createAiConversation(jobId: ID!): AiConversation!` | Create new conversation |
-| `deleteAiConversation(id: ID!): DeleteMutationPayload!` | Delete conversation + its messages |
+| Operation                                                                   | Description                                                               |
+| --------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| `createAiConversation(jobId: ID!): AiConversation!`                         | Create new conversation                                                   |
+| `deleteAiConversation(id: ID!): DeleteMutationPayload!`                     | Delete conversation + its messages                                        |
 | `askAiQuestion(conversationId: ID!, content: String!): AskQuestionPayload!` | Start streaming AI response, returns immediately with `{ success: true }` |
 
 **Subscriptions:**
 
-| Operation | Description |
-|---|---|
+| Operation                                                       | Description                                        |
+| --------------------------------------------------------------- | -------------------------------------------------- |
 | `aiMessageStreamed(conversationId: ID!): AiMessageStreamEvent!` | Receive streaming tokens for the active AI message |
 
 **Flow detail:**
@@ -255,16 +253,16 @@ type AiMessageStreamEvent {
 
 ## Impact Analysis
 
-| Component | Impact Type | Description | Required Action |
-|---|---|---|---|
-| `ActivitySidePanel.tsx` | Modified | Add "AI Chat" tab trigger + `ChatPanelTabsContent` | Add tab to TabsList |
-| `job-details-routes.ts` | Modified | Add `"chat"` to `JobSidePanel` type + `parseJobSidePanel` | Extend union type and parser |
-| `JobDetailsLayout.tsx` | Unchanged | Side panel already generic — `?s=chat` flows automatically | None |
-| `AiChatRoutePage.tsx` | New | Chat route page for mobile full-width mode | Create file + app router page |
-| `ChatPanel.tsx` | New | Main chat UI component | Create in components/ |
-| `NotesPanel.tsx` | Unchanged | No changes needed | None |
-| `apps/api/src/domains/ai-chat/` | New | Full domain module (`AiChatModule`) | Create module, resolver, service, repo, types |
-| `Database migrations` | New | Two new tables | Create migration, register in index |
+| Component                       | Impact Type | Description                                                | Required Action                               |
+| ------------------------------- | ----------- | ---------------------------------------------------------- | --------------------------------------------- |
+| `ActivitySidePanel.tsx`         | Modified    | Add "AI Chat" tab trigger + `ChatPanelTabsContent`         | Add tab to TabsList                           |
+| `job-details-routes.ts`         | Modified    | Add `"chat"` to `JobSidePanel` type + `parseJobSidePanel`  | Extend union type and parser                  |
+| `JobDetailsLayout.tsx`          | Unchanged   | Side panel already generic — `?s=chat` flows automatically | None                                          |
+| `AiChatRoutePage.tsx`           | New         | Chat route page for mobile full-width mode                 | Create file + app router page                 |
+| `ChatPanel.tsx`                 | New         | Main chat UI component                                     | Create in components/                         |
+| `NotesPanel.tsx`                | Unchanged   | No changes needed                                          | None                                          |
+| `apps/api/src/domains/ai-chat/` | New         | Full domain module (`AiChatModule`)                        | Create module, resolver, service, repo, types |
+| `Database migrations`           | New         | Two new tables                                             | Create migration, register in index           |
 
 ## Testing Approach
 
@@ -307,12 +305,12 @@ type AiMessageStreamEvent {
 
 ### Key Metrics
 
-| Metric | Source | Threshold |
-|---|---|---|
-| AI response latency (time to first token) | Client-side measurement | p95 < 3s |
-| AI response errors | AiChatService error log | < 5% of invocations |
-| Messages created per conversation | DB query | Monitor growth |
-| Subscription delivery lag | Server-side event timestamp | < 500ms |
+| Metric                                    | Source                      | Threshold           |
+| ----------------------------------------- | --------------------------- | ------------------- |
+| AI response latency (time to first token) | Client-side measurement     | p95 < 3s            |
+| AI response errors                        | AiChatService error log     | < 5% of invocations |
+| Messages created per conversation         | DB query                    | Monitor growth      |
+| Subscription delivery lag                 | Server-side event timestamp | < 500ms             |
 
 ### Log Events
 
@@ -328,21 +326,21 @@ type AiMessageStreamEvent {
 
 ### Key Decisions
 
-| Decision | Choice | Rationale | Trade-off |
-|---|---|---|---|
-| Data model | Normalized tables (ADR-003) | Queryable rows, consistent with existing entities | Additional table vs JSONB simplicity |
-| Streaming | Stream first, persist on completion (ADR-004) | Single batch write, no orphaned rows | Message IDs only at end; partial lost on disconnect |
-| Side panel tab | Always visible | Consistent UX, same as Notes/History | Always visible even if unused |
-| AI service | New `AiChatGenerationService` | Follows existing domain-specific AI pattern (`NoteGenerationService`) | New file vs. generic AI service |
+| Decision       | Choice                                        | Rationale                                                             | Trade-off                                           |
+| -------------- | --------------------------------------------- | --------------------------------------------------------------------- | --------------------------------------------------- |
+| Data model     | Normalized tables (ADR-003)                   | Queryable rows, consistent with existing entities                     | Additional table vs JSONB simplicity                |
+| Streaming      | Stream first, persist on completion (ADR-004) | Single batch write, no orphaned rows                                  | Message IDs only at end; partial lost on disconnect |
+| Side panel tab | Always visible                                | Consistent UX, same as Notes/History                                  | Always visible even if unused                       |
+| AI service     | New `AiChatGenerationService`                 | Follows existing domain-specific AI pattern (`NoteGenerationService`) | New file vs. generic AI service                     |
 
 ### Known Risks
 
-| Risk | Likelihood | Mitigation |
-|---|---|---|
-| Client disconnect mid-stream loses partial response | Low | User can re-ask; server stops stream on socket close |
-| Conversation list grows large for power users | Medium | Soft delete + archive after 50 conversations per job |
-| AI hallucinates job data | Medium | System prompt enforces grounding: AI must only answer from provided context, cite source sections (job description, notes, match analysis) for each claim, and state when information is not found in the context. Responses that cannot be grounded must be prefixed with a disclaimer. |
-| OpenAI API latency spikes | Low | Timeout per request (30s); retry once on transient error |
+| Risk                                                | Likelihood | Mitigation                                                                                                                                                                                                                                                                               |
+| --------------------------------------------------- | ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Client disconnect mid-stream loses partial response | Low        | User can re-ask; server stops stream on socket close                                                                                                                                                                                                                                     |
+| Conversation list grows large for power users       | Medium     | Soft delete + archive after 50 conversations per job                                                                                                                                                                                                                                     |
+| AI hallucinates job data                            | Medium     | System prompt enforces grounding: AI must only answer from provided context, cite source sections (job description, notes, match analysis) for each claim, and state when information is not found in the context. Responses that cannot be grounded must be prefixed with a disclaimer. |
+| OpenAI API latency spikes                           | Low        | Timeout per request (30s); retry once on transient error                                                                                                                                                                                                                                 |
 
 ## Architecture Decision Records
 

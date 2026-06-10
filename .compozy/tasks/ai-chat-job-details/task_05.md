@@ -4,7 +4,7 @@ title: ChatPanel component
 type: web
 complexity: high
 dependencies:
-    - task_04
+  - task_04
 ---
 
 # Task 05: ChatPanel component

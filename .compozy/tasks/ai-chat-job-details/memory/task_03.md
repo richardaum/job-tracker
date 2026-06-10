@@ -36,4 +36,3 @@ Implement streaming AI responses: `AiChatEventBus`, domain events (`AiMessageTok
 - [x] Modified `ai-chat.resolver.ts` (askAiQuestion + aiMessageStreamed)
 - [x] Modified `ai-chat.module.ts` (wire event bus + generation service)
 - [x] Test coverage — 16 tests passed (2 files)
-

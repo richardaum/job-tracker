@@ -4,7 +4,7 @@ title: Side panel integration
 type: web
 complexity: medium
 dependencies:
-    - task_01
+  - task_01
 ---
 
 # Task 04: Side panel integration

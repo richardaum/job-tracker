@@ -4,7 +4,7 @@ title: Streaming AI responses
 type: api
 complexity: medium
 dependencies:
-    - task_02
+  - task_02
 ---
 
 # Task 03: Streaming AI responses
@@ -55,6 +55,7 @@ Follow the exact EventBus pattern from `jobs-events.resolver.ts` and `extension-
 Job context assembly: in `AiChatGenerationService`, fetch job details, company, match analysis, notes, and stage events via existing repositories, then format into the system prompt.
 
 System prompt structure:
+
 ```
 You are an AI assistant helping with job applications. You have access to the following context about this job:
 - Job title and description
