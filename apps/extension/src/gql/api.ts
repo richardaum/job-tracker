@@ -31,7 +31,9 @@ async function fetchWithAuth(url: RequestInfo | URL, init?: RequestInit): Promis
   const headers: Record<string, string> = {};
   if (init?.headers) {
     const h = new Headers(init.headers);
-    h.forEach((value, key) => { headers[key] = value; });
+    h.forEach((value, key) => {
+      headers[key] = value;
+    });
   }
   headers["content-type"] = "application/json";
   headers["apollo-require-preflight"] = "1";

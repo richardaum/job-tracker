@@ -254,11 +254,18 @@ type ResumeType {
 
 type AiMessageStreamEventType {
   conversationId: ID!
+  phase: AiMessageStreamPhase!
   token: String
-  completed: Boolean!
   userMessageId: ID
   aiMessageId: ID
   error: String
+}
+
+enum AiMessageStreamPhase {
+  Ready
+  Streaming
+  Complete
+  Failed
 }
 
 type AiConversationType {

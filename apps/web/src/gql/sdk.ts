@@ -24,20 +24,34 @@ export type Scalars = {
 export type AiConversationType = {
   __typename?: 'AiConversationType';
   createdAt: Scalars['DateTime']['output'];
+  generatingStatus?: Maybe<AsyncMetadataType>;
   id: Scalars['ID']['output'];
   jobId: Scalars['ID']['output'];
   title: Scalars['String']['output'];
   updatedAt: Scalars['DateTime']['output'];
 };
 
+export enum AiMessageRole {
+  Assistant = 'Assistant',
+  User = 'User'
+}
+
 export type AiMessageStreamEventType = {
   __typename?: 'AiMessageStreamEventType';
   aiMessageId?: Maybe<Scalars['ID']['output']>;
-  completed: Scalars['Boolean']['output'];
   conversationId: Scalars['ID']['output'];
+  error?: Maybe<Scalars['String']['output']>;
+  phase: AiMessageStreamPhase;
   token?: Maybe<Scalars['String']['output']>;
   userMessageId?: Maybe<Scalars['ID']['output']>;
 };
+
+export enum AiMessageStreamPhase {
+  Complete = 'Complete',
+  Failed = 'Failed',
+  Ready = 'Ready',
+  Streaming = 'Streaming'
+}
 
 export type AiMessageType = {
   __typename?: 'AiMessageType';
@@ -45,7 +59,7 @@ export type AiMessageType = {
   conversationId: Scalars['ID']['output'];
   createdAt: Scalars['DateTime']['output'];
   id: Scalars['ID']['output'];
-  role: Scalars['String']['output'];
+  role: AiMessageRole;
 };
 
 export enum ApplicationQuickFilter {
@@ -1063,9 +1077,9 @@ export type AdminUsersQuery = { __typename?: 'Query', users: Array<{ __typename?
 
 export type AiConversationFieldsFragment = { __typename?: 'AiConversationType', id: string, jobId: string, title: string, createdAt: any, updatedAt: any };
 
-export type AiMessageFieldsFragment = { __typename?: 'AiMessageType', id: string, conversationId: string, role: string, content: string, createdAt: any };
+export type AiMessageFieldsFragment = { __typename?: 'AiMessageType', id: string, conversationId: string, role: AiMessageRole, content: string, createdAt: any };
 
-export type AiMessageStreamEventFieldsFragment = { __typename?: 'AiMessageStreamEventType', conversationId: string, token?: string | null, completed: boolean, userMessageId?: string | null, aiMessageId?: string | null };
+export type AiMessageStreamEventFieldsFragment = { __typename?: 'AiMessageStreamEventType', conversationId: string, phase: AiMessageStreamPhase, token?: string | null, userMessageId?: string | null, aiMessageId?: string | null, error?: string | null };
 
 export type AiConversationsQueryVariables = Exact<{
   jobId: Scalars['ID']['input'];
@@ -1079,7 +1093,7 @@ export type AiMessagesQueryVariables = Exact<{
 }>;
 
 
-export type AiMessagesQuery = { __typename?: 'Query', aiMessages: Array<{ __typename?: 'AiMessageType', id: string, conversationId: string, role: string, content: string, createdAt: any }> };
+export type AiMessagesQuery = { __typename?: 'Query', aiMessages: Array<{ __typename?: 'AiMessageType', id: string, conversationId: string, role: AiMessageRole, content: string, createdAt: any }> };
 
 export type CreateAiConversationMutationVariables = Exact<{
   jobId: Scalars['ID']['input'];
@@ -1108,7 +1122,7 @@ export type AiMessageStreamedSubscriptionVariables = Exact<{
 }>;
 
 
-export type AiMessageStreamedSubscription = { __typename?: 'Subscription', aiMessageStreamed: { __typename?: 'AiMessageStreamEventType', conversationId: string, token?: string | null, completed: boolean, userMessageId?: string | null, aiMessageId?: string | null } };
+export type AiMessageStreamedSubscription = { __typename?: 'Subscription', aiMessageStreamed: { __typename?: 'AiMessageStreamEventType', conversationId: string, phase: AiMessageStreamPhase, token?: string | null, userMessageId?: string | null, aiMessageId?: string | null, error?: string | null } };
 
 export type AuthenticatedShellQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -1571,10 +1585,11 @@ export const AiMessageFieldsFragmentDoc = gql`
 export const AiMessageStreamEventFieldsFragmentDoc = gql`
     fragment AiMessageStreamEventFields on AiMessageStreamEventType {
   conversationId
+  phase
   token
-  completed
   userMessageId
   aiMessageId
+  error
 }
     `;
 export const JobSalarySelectionFragmentDoc = gql`
