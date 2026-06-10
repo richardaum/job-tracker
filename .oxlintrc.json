@@ -345,6 +345,7 @@
         "@job-tracker/oxlint-plugin/enum-pascalcase": "error",
         "@job-tracker/oxlint-plugin/prefer-cn-for-classname": "error",
         "@job-tracker/oxlint-plugin/prefer-try-run-over-try-catch": "error",
+        "@job-tracker/oxlint-plugin/no-as-never": "error",
         "@job-tracker/oxlint-plugin/no-as-unknown-as": "error",
         "@job-tracker/oxlint-plugin/no-inline-component-props": "error"
       }
@@ -362,13 +363,15 @@
         "**/vitest.setup.{ts,tsx}",
         "**/jest.setup.{ts,tsx}",
         "**/*.mock.{ts,tsx}",
-        "**/*.stub.{ts,tsx}"
+        "**/*.stub.{ts,tsx}",
+        "**/*.integration.ts"
       ],
       "rules": {
         "import/no-default-export": "off",
         "@job-tracker/oxlint-plugin/enum-pascalcase": "off",
         "@job-tracker/oxlint-plugin/prefer-cn-for-classname": "off",
         "@job-tracker/oxlint-plugin/prefer-try-run-over-try-catch": "off",
+        "@job-tracker/oxlint-plugin/no-as-never": "off",
         "@job-tracker/oxlint-plugin/no-as-unknown-as": "off",
         "@job-tracker/oxlint-plugin/no-inline-component-props": "off"
       }

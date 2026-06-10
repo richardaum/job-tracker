@@ -13,6 +13,7 @@ const pathnameMock = vi.fn(() => "/jobs");
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: pushMock, replace: replaceMock }),
   usePathname: () => pathnameMock(),
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 vi.mock("next/image", () => ({

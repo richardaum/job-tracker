@@ -7,7 +7,11 @@ import { ProfileShell } from "./ProfileShell";
 const pushMock = vi.fn();
 const pathnameMock = vi.fn(() => "/profile");
 
-vi.mock("next/navigation", () => ({ useRouter: () => ({ push: pushMock }), usePathname: () => pathnameMock() }));
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push: pushMock }),
+  usePathname: () => pathnameMock(),
+  useSearchParams: () => new URLSearchParams(),
+}));
 
 function renderShell(pathname: string) {
   pathnameMock.mockReturnValue(pathname);

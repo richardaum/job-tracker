@@ -27,7 +27,10 @@ vi.mock("@/modules/jobs/shared/hooks/useToastQueue", () => ({ useToastQueue: () 
 
 const routerPushSpy = vi.fn();
 
-vi.mock("next/navigation", () => ({ useRouter: () => ({ push: routerPushSpy }) }));
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push: routerPushSpy }),
+  useSearchParams: () => new URLSearchParams(),
+}));
 
 const gqlMocks = vi.hoisted(() => ({
   useJobMatchQuery: vi.fn(),

@@ -49,3 +49,13 @@ Document.prototype.elementFromPoint = vi.fn(() => null);
 
 Element.prototype.scrollIntoView = vi.fn();
 Element.prototype.scrollTo = vi.fn();
+
+vi.mock("next/navigation", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/navigation")>();
+  return {
+    ...actual,
+    useSearchParams: () => new URLSearchParams(),
+    useRouter: () => ({ push: vi.fn(), replace: vi.fn(), prefetch: vi.fn(), back: vi.fn() }),
+    usePathname: () => "/",
+  };
+});

@@ -33,7 +33,8 @@ describe.skipIf(!hasDb)("JobsRepository (integration)", () => {
     userId = user.id;
 
     const [{ id }] = await dataSource.query(
-      `INSERT INTO plans (display_name, document) VALUES ('Jobs Repo Plan', '{"steps":[]}'::jsonb) RETURNING id`,
+      `INSERT INTO plans (display_name, document, user_id) VALUES ('Jobs Repo Plan', '{"steps":[]}'::jsonb, $1) RETURNING id`,
+      [userId],
     );
     const [{ id: tid }] = await dataSource.query(
       `INSERT INTO source_templates (id, user_id, plan_id, surface_url, schedule_enabled)

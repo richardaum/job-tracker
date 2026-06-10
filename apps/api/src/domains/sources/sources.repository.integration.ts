@@ -33,7 +33,7 @@ describe.skipIf(!hasDb)("SourcesRepository (integration)", () => {
     userId = user.id;
 
     const plans = dataSource.getRepository(PlanEntity);
-    const plan = await plans.save(plans.create({ displayName: "Test Sources Repo", document: { steps: [] } }));
+    const plan = await plans.save(plans.create({ displayName: "Test Sources Repo", document: { steps: [] }, userId }));
     planId = plan.id;
   });
 
@@ -82,7 +82,7 @@ describe.skipIf(!hasDb)("SourcesRepository (integration)", () => {
 
   it("listTemplatesByUserAndPlanId returns templates for a plan", async () => {
     const plans = dataSource.getRepository(PlanEntity);
-    const planB = await plans.save(plans.create({ displayName: "Plan B", document: { steps: [] } }));
+    const planB = await plans.save(plans.create({ displayName: "Plan B", document: { steps: [] }, userId }));
 
     const templates = dataSource.getRepository(SourceTemplateEntity);
     await templates.save(

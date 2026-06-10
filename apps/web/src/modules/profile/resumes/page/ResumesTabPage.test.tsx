@@ -11,7 +11,10 @@ const deleteResumeMock = vi.fn();
 const updateResumeMock = vi.fn();
 const enqueueToastMock = vi.fn();
 
-vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
+}));
 
 vi.mock("@/gql/hooks", async () => {
   const actual = await vi.importActual<typeof import("@/gql/hooks")>("@/gql/hooks");

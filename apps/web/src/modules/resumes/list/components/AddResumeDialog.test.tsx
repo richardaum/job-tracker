@@ -7,7 +7,10 @@ import { AddResumeDialog } from "./AddResumeDialog";
 const pushMock = vi.fn();
 const createResumeMock = vi.fn();
 
-vi.mock("next/navigation", () => ({ useRouter: () => ({ push: pushMock }) }));
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push: pushMock }),
+  useSearchParams: () => new URLSearchParams(),
+}));
 
 vi.mock("@/gql/hooks", async () => {
   const actual = await vi.importActual<typeof import("@/gql/hooks")>("@/gql/hooks");

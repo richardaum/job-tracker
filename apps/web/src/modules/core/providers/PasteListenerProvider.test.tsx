@@ -11,7 +11,10 @@ const { createDraftCaptureJobMock } = vi.hoisted(() => ({
 }));
 
 // Mock next/navigation
-vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
+}));
 
 // Mock GraphQL hooks
 vi.mock("@/gql/hooks", () => ({

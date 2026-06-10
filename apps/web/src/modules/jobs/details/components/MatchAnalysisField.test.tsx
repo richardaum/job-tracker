@@ -9,7 +9,10 @@ import { MatchAnalysisField } from "./MatchAnalysisField";
 
 const routerPushSpy = vi.fn();
 
-vi.mock("next/navigation", () => ({ useRouter: () => ({ push: routerPushSpy }) }));
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push: routerPushSpy }),
+  useSearchParams: () => new URLSearchParams(),
+}));
 
 describe("MatchAnalysisField", () => {
   it("navigates to /jobs/:jobId/match when opening full analysis", async () => {

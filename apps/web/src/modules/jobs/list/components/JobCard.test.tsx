@@ -10,7 +10,10 @@ import { JobCard } from "./JobCard";
 
 const useJobStageEventsQueryMock = vi.fn();
 
-vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn(), prefetch: vi.fn(), replace: vi.fn() }) }));
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push: vi.fn(), prefetch: vi.fn(), replace: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
+}));
 
 vi.mock("next/image", () => ({
   default: (props: { alt?: string }) => <span data-testid="mock-image" aria-label={props.alt ?? ""} />,
