@@ -1,4 +1,5 @@
 import { enumPascalCase } from "./rules/enum-pascalcase.js";
+import { noAsNever } from "./rules/no-as-never.js";
 import { noAsUnknownAs } from "./rules/no-as-unknown-as.js";
 import { noInlineComponentProps } from "./rules/no-inline-component-props.js";
 import { preferCnForClassName } from "./rules/prefer-cn-for-classname.js";
@@ -12,6 +13,7 @@ const plugin = {
     "no-inline-component-props": noInlineComponentProps,
     "prefer-cn-for-classname": preferCnForClassName,
     "prefer-try-run-over-try-catch": preferTryRunOverTryCatch,
+    "no-as-never": noAsNever,
     "no-as-unknown-as": noAsUnknownAs,
   },
 };
