@@ -1,5 +1,6 @@
 import { cn, conceptIcon, TabsTrigger } from "@job-tracker/ui";
 
+/** Side column tab trigger for the AI chat panel. */
 export function AiChatSideTabTrigger() {
   return (
     <TabsTrigger value="chat" leadingIcon={<conceptIcon.ai size={14} weight="regular" />} className={cn("flex-1")}>

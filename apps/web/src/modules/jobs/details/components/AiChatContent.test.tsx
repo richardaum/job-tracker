@@ -45,7 +45,21 @@ function createDefaultVm(overrides: Record<string, unknown> = {}) {
     sendMessage: vi.fn().mockResolvedValue(undefined),
     switchConversation: vi.fn(),
   };
-  return { ...defaults, ...overrides } as ReturnType<typeof mockViewModel>;
+  const merged = { ...defaults, ...overrides };
+  const conversations = merged.conversations as Array<{ id: string; title: string }>;
+  const activeConversationId = merged.activeConversationId as string | null;
+  const isNewConversation = merged.isNewConversation as boolean;
+
+  if (!("conversationTitle" in overrides)) {
+    merged.conversationTitle = activeConversationId
+      ? (conversations.find((c) => c.id === activeConversationId)?.title ?? "")
+      : "";
+  }
+  if (!("hasActiveView" in overrides)) {
+    merged.hasActiveView = activeConversationId !== null || isNewConversation;
+  }
+
+  return merged as ReturnType<typeof mockViewModel>;
 }
 
 describe("AiChatContent", () => {

@@ -6,6 +6,7 @@ import { DetailsTabTrigger } from "./DetailsTabTrigger";
 
 type AiChatTabProps = { jobId: string; fullWidth?: boolean };
 
+/** Primary tab trigger linking to the job AI chat route. */
 export function AiChatTab({ jobId, fullWidth }: AiChatTabProps) {
   const href = jobDetailsHref(`/jobs/${jobId}/chat`, { fullWidth });
   return (

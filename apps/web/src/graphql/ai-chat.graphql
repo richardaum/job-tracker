@@ -16,10 +16,11 @@ fragment AiMessageFields on AiMessageType {
 
 fragment AiMessageStreamEventFields on AiMessageStreamEventType {
   conversationId
+  phase
   token
-  completed
   userMessageId
   aiMessageId
+  error
 }
 
 query AiConversations($jobId: ID!) {
