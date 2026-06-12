@@ -13,8 +13,9 @@ import {
   TabsList,
   TabsTrigger,
   Text,
+  useDialog,
 } from "@job-tracker/ui";
-import { BriefcaseIcon, CaretDownIcon, TrashIcon } from "@phosphor-icons/react";
+import { BriefcaseIcon, CaretDownIcon, PencilSimpleIcon, TrashIcon } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
 import { use, useMemo, useState } from "react";
 
@@ -26,6 +27,7 @@ import { useGenerateCompanyDescriptionAiAction } from "@/modules/ai/actions/useG
 import { useRewriteTextAiAction } from "@/modules/ai/actions/useRewriteTextAiAction";
 import { useCompanyDetailsViewModel } from "@/modules/companies/details/hooks/useCompanyDetailsViewModel";
 import { DeleteCompanyDialog } from "@/modules/companies/list/components/DeleteCompanyDialog";
+import { CompanyEditDialog } from "@/modules/companies/shared/components/CompanyEditDialog";
 import { TipTapEditor } from "@/modules/jobs/details/components/TipTapEditor";
 import { JobCard } from "@/modules/jobs/list/components/JobCard";
 import { useToastQueue } from "@/modules/jobs/shared/hooks/useToastQueue";
@@ -40,6 +42,7 @@ export default function CompanyDetailsPage({ params }: PageProps) {
   const { enqueueToast } = useToastQueue();
   const [actionsMenuOpen, setActionsMenuOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const editCompany = useDialog();
   const { company, companyJobs, applicationsError, companiesError, status, showApplicationsInitialLoading, notFound } =
     useCompanyDetailsViewModel(id);
   const [descriptionDraftState, setDescriptionDraftState] = useState<{ companyId: string | null; value: string }>({
@@ -108,6 +111,9 @@ export default function CompanyDetailsPage({ params }: PageProps) {
       >
         View jobs
       </DropdownMenuItem>
+      <DropdownMenuItem onSelect={editCompany.open} icon={<PencilSimpleIcon size={14} weight="regular" />}>
+        Edit company
+      </DropdownMenuItem>
       <DropdownMenuSeparator />
       <DropdownMenuItem
         destructive
@@ -127,15 +133,24 @@ export default function CompanyDetailsPage({ params }: PageProps) {
           {company?.name ?? "Company details"}
         </Heading>
         {company ? (
-          <DeleteCompanyDialog
-            trigger={<span aria-hidden style={{ display: "none" }} />}
-            companyId={company.id}
-            companyName={company.name}
-            open={deleteDialogOpen}
-            onOpenChange={setDeleteDialogOpen}
-            onSuccess={() => router.push("/companies")}
-            onError={(message) => enqueueToast({ title: message, intent: "error" })}
-          />
+          <>
+            <DeleteCompanyDialog
+              trigger={<span aria-hidden style={{ display: "none" }} />}
+              companyId={company.id}
+              companyName={company.name}
+              open={deleteDialogOpen}
+              onOpenChange={setDeleteDialogOpen}
+              onSuccess={() => router.push("/companies")}
+              onError={(message) => enqueueToast({ title: message, intent: "error" })}
+            />
+            <CompanyEditDialog
+              control={editCompany}
+              company={company}
+              refetchCompanies
+              onSuccess={(message) => enqueueToast({ title: message, intent: "success" })}
+              onError={(message) => enqueueToast({ title: message, intent: "error" })}
+            />
+          </>
         ) : null}
       </DetailPageHeader>
 

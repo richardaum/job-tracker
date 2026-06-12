@@ -102,7 +102,8 @@ export class JobsRepository {
       return null;
     }
     Object.assign(existing, dto);
-    return this.jobsRepo.save(existing);
+    await this.jobsRepo.save(existing);
+    return this.findOneByIdAndUserId(id, userId);
   }
 
   async delete(id: string, userId: string): Promise<Job | null> {

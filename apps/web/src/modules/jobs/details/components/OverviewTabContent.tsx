@@ -1,8 +1,17 @@
 "use client";
 
 import { tryRun } from "@job-tracker/try-run";
-import { cn, FieldWithLabelAction, OverviewSection, Text, useDialog } from "@job-tracker/ui";
-import { PencilSimpleIcon } from "@phosphor-icons/react";
+import {
+  cn,
+  DropdownMenu,
+  DropdownMenuItem,
+  FieldWithLabelAction,
+  OverviewSection,
+  Text,
+  useDialog,
+} from "@job-tracker/ui";
+import { ArrowSquareOutIcon, DotsThreeOutlineVerticalIcon, PencilSimpleIcon } from "@phosphor-icons/react";
+import { useRouter } from "next/navigation";
 
 import {
   JobDocument,
@@ -13,7 +22,7 @@ import {
   useUpdateJobMutation,
 } from "@/gql/hooks";
 import { useGenerateJobLocationWithAiLazyQuery, useGenerateJobWorkRegionWithAiLazyQuery } from "@/gql/hooks";
-import { CompanyEditDialog } from "@/modules/companies/shared/components/CompanyEditDialog";
+import { CompanySwitchDialog } from "@/modules/jobs/shared/components/CompanySwitchDialog";
 import { jobDetailDisplayTitle } from "@/modules/jobs/details/utils/job-detail-title";
 import type { JobDetailsValues } from "@/modules/jobs/details/utils/job-details.shared";
 import { CompanyNameWithPopover } from "@/modules/jobs/shared/components/CompanyNameWithPopover";
@@ -37,11 +46,12 @@ type OverviewTabContentProps = {
 };
 
 export function OverviewTabContent({ job, sourcePrimaryText, onSuccess, onError }: OverviewTabContentProps) {
+  const router = useRouter();
   const titleDialog = useDialog();
   const urlDialog = useDialog();
   const sourceDialog = useDialog();
   const tagsDialog = useDialog();
-  const companyDialog = useDialog();
+  const switchCompanyDialog = useDialog();
   const salaryDialog = useDialog();
   const locationDialog = useDialog();
   const workRegionDialog = useDialog();
@@ -200,15 +210,37 @@ export function OverviewTabContent({ job, sourcePrimaryText, onSuccess, onError 
           }
           actions={
             showCompanyMeta ? (
-              <FieldWithLabelAction.IconActionButton
-                label="Edit company"
-                icon={<PencilSimpleIcon size={14} weight="regular" />}
-                onClick={companyDialog.open}
-              />
+              <DropdownMenu
+                trigger={
+                  <FieldWithLabelAction.IconActionButton
+                    label="Company actions"
+                    icon={<DotsThreeOutlineVerticalIcon size={14} weight="regular" />}
+                  />
+                }
+              >
+                <DropdownMenuItem
+                  icon={<ArrowSquareOutIcon size={14} weight="regular" />}
+                  onSelect={() => router.push(`/companies/${encodeURIComponent(job.company!.id)}`)}
+                >
+                  View company
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  icon={<PencilSimpleIcon size={14} weight="regular" />}
+                  onSelect={switchCompanyDialog.open}
+                >
+                  Switch company
+                </DropdownMenuItem>
+              </DropdownMenu>
             ) : null
           }
         />
-        <CompanyEditDialog control={companyDialog} job={job} onSuccess={onSuccess} onError={onError} />
+        <CompanySwitchDialog
+          control={switchCompanyDialog}
+          jobId={job.id}
+          currentCompanyId={job.company?.id}
+          onSuccess={onSuccess}
+          onError={onError}
+        />
       </div>
 
       <div className={cn("max-w-full")}>

@@ -11,6 +11,15 @@ export type { CheckboxProps } from "./components/Checkbox/Checkbox";
 export { Checkbox } from "./components/Checkbox/Checkbox";
 export type { ComboboxOption, ComboboxProps } from "./components/Combobox/Combobox";
 export { Combobox } from "./components/Combobox/Combobox";
+
+export type {
+  AnchoredComboboxContentProps,
+  AnchoredComboboxInputProps,
+  AnchoredComboboxItemProps,
+  AnchoredComboboxListProps,
+  AnchoredComboboxRootProps,
+} from "./components/Combobox/AnchoredCombobox";
+export { AnchoredCombobox } from "./components/Combobox/AnchoredCombobox";
 export type { ConfirmDialogProps } from "./components/ConfirmDialog/ConfirmDialog";
 export { ConfirmDialog } from "./components/ConfirmDialog/ConfirmDialog";
 export type { ContainerProps } from "./components/Container/Container";
