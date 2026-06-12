@@ -48,6 +48,7 @@
     "cookie-parser": "^1.4.7",
     "dotenv": "^16.6.1",
     "graphql": "^16.13.2",
+    "graphql-subscriptions": "3.0.0",
     "graphql-type-json": "^0.3.2",
     "graphql-ws": "^6.0.8",
     "jsonwebtoken": "^9.0.3",

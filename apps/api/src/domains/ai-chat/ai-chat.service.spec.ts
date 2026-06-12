@@ -145,6 +145,8 @@ describe("AiChatService", () => {
 
   describe("subscribeStream", () => {
     it("yields Ready then filters pubsub events by conversationId", async () => {
+      vi.mocked(repo.findConversationById).mockResolvedValue(makeConversation());
+
       const pubSubEvents = [
         { conversationId: "conv-1", phase: AiMessageStreamPhaseEnum.Streaming, token: "Hi" },
         { conversationId: "conv-2", phase: AiMessageStreamPhaseEnum.Streaming, token: "other" },
@@ -160,7 +162,7 @@ describe("AiChatService", () => {
       vi.mocked(pubSub.asyncIterableIterator).mockReturnValue(mockIterator());
 
       const received = [];
-      for await (const event of service.subscribeStream("conv-1")) {
+      for await (const event of service.subscribeStream("conv-1", "user-1")) {
         received.push(event);
       }
 
@@ -169,7 +171,19 @@ describe("AiChatService", () => {
         { conversationId: "conv-1", phase: AiMessageStreamPhaseEnum.Streaming, token: "Hi" },
         { conversationId: "conv-1", phase: AiMessageStreamPhaseEnum.Complete },
       ]);
+      expect(repo.findConversationById).toHaveBeenCalledWith("conv-1", "user-1");
       expect(pubSub.asyncIterableIterator).toHaveBeenCalledWith(AiChatSubEventEnum.AiMessageStreamed);
+    });
+
+    it("throws NotFoundException when conversation does not exist", async () => {
+      vi.mocked(repo.findConversationById).mockResolvedValue(null);
+
+      const stream = service.subscribeStream("conv-1", "user-1");
+      await expect(async () => {
+        for await (const _event of stream) {
+          // consume generator
+        }
+      }).rejects.toThrow(NotFoundException);
     });
   });
 

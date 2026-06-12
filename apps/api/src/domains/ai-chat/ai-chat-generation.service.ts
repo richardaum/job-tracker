@@ -6,8 +6,9 @@ import { apiEnv } from "@api/env/server";
 import { AiBaseService, OpenAIClient, PromptRendererService } from "@api/lib/ai";
 import { Injectable, Logger } from "@nestjs/common";
 
-import { AiChatEventBus } from "./ai-chat-event.bus";
-import { AiMessageTokenReceived } from "./ai-chat.events";
+import { AiChatPubSub } from "./ai-chat.pubsub";
+import { AiChatSubEventEnum } from "./ai-chat-sub-event.enum";
+import { AiMessageStreamPhaseEnum } from "./ai-message-stream-phase.enum";
 
 @Injectable()
 export class AiChatGenerationService extends AiBaseService {
@@ -20,7 +21,7 @@ export class AiChatGenerationService extends AiBaseService {
     private readonly matchAnalysisRepo: MatchAnalysisRepository,
     private readonly notesRepo: NoteRepository,
     private readonly stageEventsRepo: JobStageEventsRepository,
-    private readonly eventBus: AiChatEventBus,
+    private readonly pubSub: AiChatPubSub,
   ) {
     super(openAIClient, promptRenderer);
   }
@@ -60,7 +61,11 @@ export class AiChatGenerationService extends AiBaseService {
       if (!token) continue;
 
       fullContent += token;
-      this.eventBus.emit(new AiMessageTokenReceived(conversationId, userId, token));
+      await this.pubSub.publish(AiChatSubEventEnum.AiMessageStreamed, {
+        conversationId,
+        phase: AiMessageStreamPhaseEnum.Streaming,
+        token,
+      });
     }
 
     this.logger.log(`AI stream completed: conversationId=${conversationId}, tokens=${fullContent.length}`);

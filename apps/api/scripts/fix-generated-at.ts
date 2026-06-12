@@ -18,10 +18,6 @@ import { EntityManager, IsNull, Not } from "typeorm";
 })
 class ScriptModule {}
 
-function nowUtcIso(): string {
-  return new Date().toISOString();
-}
-
 async function main() {
   process.stdout.write("Booting NestJS...\n");
   const app = await NestFactory.createApplicationContext(ScriptModule, { logger: ["error", "warn"] });
@@ -50,7 +46,8 @@ async function main() {
     process.stdout.write(`✓ ${fix1.length} would be fixed\n`);
   } else {
     for (const app of fix1) {
-      app.summaryMetadata = { ...app.summaryMetadata, timestamp: nowUtcIso() } as never;
+      if (!app.summaryMetadata) continue;
+      app.summaryMetadata.timestamp = new Date();
       const [err] = await tryRun(repo.save(app));
       if (err) {
         process.stdout.write(`\n  ❌ ${app.id}: ${err.message.slice(0, 80)}`);
@@ -75,7 +72,7 @@ async function main() {
     let ok2 = 0;
     let fail2 = 0;
     for (const app of appsWithSummary) {
-      app.summaryMetadata = { status: AsyncMetadataStatusEnum.Completed, timestamp: nowUtcIso() } as never;
+      app.summaryMetadata = { status: AsyncMetadataStatusEnum.Completed, error: null, timestamp: new Date() };
       const [err] = await tryRun(repo.save(app));
       if (err) {
         process.stdout.write(`\n  ❌ ${app.id}: ${err.message.slice(0, 80)}`);

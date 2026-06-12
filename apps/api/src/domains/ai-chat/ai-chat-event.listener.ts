@@ -1,9 +1,11 @@
-import { AiMessageRoleEnum } from "./ai-message-role.enum";
 import { Injectable, Logger, OnModuleInit } from "@nestjs/common";
-import { AiChatEventBus } from "./ai-chat-event.bus";
+
+import { AiChatPubSub } from "./ai-chat.pubsub";
+import { AiMessageRoleEnum } from "./ai-message-role.enum";
+import { AiChatSubEventEnum } from "./ai-chat-sub-event.enum";
+import { AiMessageStreamPhaseEnum } from "./ai-message-stream-phase.enum";
 import { AiChatGenerationService } from "./ai-chat-generation.service";
 import { AiChatRepository } from "./ai-chat.repository";
-import { AiChatRequested, AiMessageCompleted, AiMessageError } from "./ai-chat.events";
 import { AsyncMetadataStatusEnum } from "@api/domains/shared/async-metadata.type";
 
 @Injectable()
@@ -11,20 +13,28 @@ export class AiChatEventListener implements OnModuleInit {
   private readonly logger = new Logger(AiChatEventListener.name);
 
   constructor(
-    private readonly eventBus: AiChatEventBus,
+    private readonly pubSub: AiChatPubSub,
     private readonly generationService: AiChatGenerationService,
     private readonly repo: AiChatRepository,
   ) {}
 
   onModuleInit(): void {
-    this.eventBus.on(AiChatRequested, (event) => {
-      void this.handleChatRequested(event);
-    });
+    (async () => {
+      for await (const event of this.pubSub.asyncIterableIterator(AiChatSubEventEnum.AiChatRequested)) {
+        void this.handleChatRequested(event);
+      }
+    })();
 
-    this.logger.log("Listening for ai.chat.requested events");
+    this.logger.log(`Listening for ${AiChatSubEventEnum.AiChatRequested} events`);
   }
 
-  private async handleChatRequested(event: AiChatRequested): Promise<void> {
+  private async handleChatRequested(event: {
+    conversationId: string;
+    userId: string;
+    jobId: string;
+    content: string;
+    userMessageId: string;
+  }): Promise<void> {
     const { conversationId, userId, jobId, content, userMessageId } = event;
 
     try {
@@ -34,9 +44,7 @@ export class AiChatEventListener implements OnModuleInit {
         throw new Error("AI returned no content");
       }
 
-      const aiMessageId = crypto.randomUUID();
-      await this.repo.createMessage({
-        id: aiMessageId,
+      const aiMessage = await this.repo.createMessage({
         conversationId,
         role: AiMessageRoleEnum.Assistant,
         content: fullContent,
@@ -48,23 +56,31 @@ export class AiChatEventListener implements OnModuleInit {
         timestamp: new Date(),
       });
 
-      this.logger.log(`AI message persisted: conversationId=${conversationId}, aiMessageId=${aiMessageId}`);
+      this.logger.log(`AI message persisted: conversationId=${conversationId}, aiMessageId=${aiMessage.id}`);
 
       await this.generateTitleIfFirstMessage(conversationId, userId, content);
 
-      this.eventBus.emit(new AiMessageCompleted(conversationId, userId, userMessageId, aiMessageId));
+      await this.pubSub.publish(AiChatSubEventEnum.AiMessageStreamed, {
+        conversationId,
+        phase: AiMessageStreamPhaseEnum.Complete,
+        userMessageId,
+        aiMessageId: aiMessage.id,
+      });
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       this.logger.error(`AI generation failed: conversationId=${conversationId}, error=${errorMessage}`);
 
-      // Update generating status to Failed
       await this.repo.updateGeneratingStatus(conversationId, {
         status: AsyncMetadataStatusEnum.Failed,
         error: errorMessage,
         timestamp: new Date(),
       });
 
-      this.eventBus.emit(new AiMessageError(conversationId, userId, errorMessage));
+      await this.pubSub.publish(AiChatSubEventEnum.AiMessageStreamed, {
+        conversationId,
+        phase: AiMessageStreamPhaseEnum.Failed,
+        error: errorMessage,
+      });
     }
   }
 

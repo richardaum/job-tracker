@@ -1,15 +1,31 @@
 import { Field, ID, ObjectType } from "@nestjs/graphql";
 
+import { AiChatSubEventEnum } from "./ai-chat-sub-event.enum";
+import { AiMessageStreamPhaseEnum } from "./ai-message-stream-phase.enum";
+
+export type AiChatRequestedPayload = {
+  conversationId: string;
+  userId: string;
+  jobId: string;
+  content: string;
+  userMessageId: string;
+};
+
+export type AiChatPubSubEvents = {
+  [AiChatSubEventEnum.AiMessageStreamed]: AiMessageStreamEventType;
+  [AiChatSubEventEnum.AiChatRequested]: AiChatRequestedPayload;
+};
+
 @ObjectType()
 export class AiMessageStreamEventType {
   @Field(() => ID)
   conversationId!: string;
 
+  @Field(() => AiMessageStreamPhaseEnum)
+  phase!: AiMessageStreamPhaseEnum;
+
   @Field(() => String, { nullable: true })
   token?: string | null;
-
-  @Field()
-  completed!: boolean;
 
   @Field(() => ID, { nullable: true })
   userMessageId?: string | null;

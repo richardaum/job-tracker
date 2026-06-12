@@ -1,6 +1,7 @@
 import { AsyncMetadataEmbedded } from "@api/database/embeddeds/async-metadata.embedded";
 import { AsyncMetadataStatusEnum } from "@api/domains/shared/async-metadata.type";
 import type { EntityManager, EntityTarget, ObjectLiteral, Repository } from "typeorm";
+import type { QueryDeepPartialEntity } from "typeorm/query-builder/QueryPartialEntity";
 
 export type AsyncMetadataColumns = { metadataField: string; statusColumn: string };
 
@@ -17,6 +18,14 @@ function buildMetadataUpdate(patch: AsyncMetadataStatusPatch): Partial<AsyncMeta
     metadataUpdate.timestamp = patch.timestamp;
   }
   return metadataUpdate;
+}
+
+/** TypeORM `.set()` cannot infer dynamic JSONB column keys — payload is typed at the ORM boundary. */
+function metadataSetPayload<T extends ObjectLiteral>(
+  metadataField: string,
+  patch: Partial<AsyncMetadataEmbedded>,
+): QueryDeepPartialEntity<T> {
+  return { [metadataField]: patch } as QueryDeepPartialEntity<T>;
 }
 
 /**
@@ -36,7 +45,7 @@ export async function updateAsyncMetadataIfStatus<T extends ObjectLiteral>(
   const qb = (manager ?? repo.manager)
     .createQueryBuilder()
     .update(entity)
-    .set({ [metadataField]: metadataUpdate } as never)
+    .set(metadataSetPayload<T>(metadataField, metadataUpdate))
     .where(`"id" = :id AND "user_id" = :userId`, { id: scope.id, userId: scope.userId });
 
   if (expectedStatus === null) {
@@ -60,7 +69,12 @@ export async function resetStaleAsyncMetadataProcessing<T extends ObjectLiteral>
   const result = await repo
     .createQueryBuilder()
     .update(entity)
-    .set({ [metadataField]: { status: AsyncMetadataStatusEnum.Failed, error: errorMessage } } as never)
+    .set(
+      metadataSetPayload<T>(
+        metadataField,
+        buildMetadataUpdate({ status: AsyncMetadataStatusEnum.Failed, error: errorMessage }),
+      ),
+    )
     .where(`"${statusColumn}" = :processing`, { processing: AsyncMetadataStatusEnum.Processing })
     .execute();
   return result.affected ?? 0;
@@ -84,7 +98,12 @@ export async function beginAsyncMetadataProcessingWhenRestartable<T extends Obje
   const result = await repo
     .createQueryBuilder()
     .update(entity)
-    .set({ [metadataField]: { status: AsyncMetadataStatusEnum.Processing, error: null, timestamp: now } } as never)
+    .set(
+      metadataSetPayload<T>(
+        metadataField,
+        buildMetadataUpdate({ status: AsyncMetadataStatusEnum.Processing, error: null, timestamp: now }),
+      ),
+    )
     .where(`"id" = :id AND "user_id" = :userId`, { id: scope.id, userId: scope.userId })
     .andWhere(`("${statusColumn}" IS NULL OR "${statusColumn}" IN (:...restartableStatuses))`, { restartableStatuses })
     .execute();

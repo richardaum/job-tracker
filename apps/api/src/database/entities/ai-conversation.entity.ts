@@ -1,9 +1,9 @@
-import { Column, CreateDateColumn, Entity, PrimaryColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { AsyncMetadata } from "@api/domains/shared/async-metadata.type";
 
 @Entity({ name: "ai_conversations" })
 export class AiConversationEntity {
-  @PrimaryColumn({ type: "text" })
+  @PrimaryGeneratedColumn("uuid")
   id!: string;
 
   @Column({ name: "job_id", type: "text" })

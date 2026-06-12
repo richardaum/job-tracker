@@ -7,7 +7,6 @@ import { RoleEnum } from "@api/domains/users/role.enum";
 import { UseGuards } from "@nestjs/common";
 import { Args, ID, Mutation, Query, Resolver, Subscription } from "@nestjs/graphql";
 
-import { AiChatEventBus } from "./ai-chat-event.bus";
 import { AiMessageStreamEventType } from "./ai-chat-event.types";
 import { AiChatService } from "./ai-chat.service";
 import { AiConversationType } from "./ai-conversation.type";
@@ -18,10 +17,7 @@ import { AskQuestionPayloadType } from "./ask-question-payload.type";
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(RoleEnum.User)
 export class AiChatResolver {
-  constructor(
-    private readonly service: AiChatService,
-    private readonly eventBus: AiChatEventBus,
-  ) {}
+  constructor(private readonly service: AiChatService) {}
 
   @Query(() => [AiConversationType])
   aiConversations(
@@ -65,10 +61,10 @@ export class AiChatResolver {
   }
 
   @Subscription(() => AiMessageStreamEventType)
-  async *aiMessageStreamed(
+  aiMessageStreamed(
     @Args("conversationId", { type: () => ID }) conversationId: string,
     @CurrentUser() user: { userId: string },
   ): AsyncIterable<AiMessageStreamEventType> {
-    yield* this.eventBus.createMessageStream(user.userId, conversationId);
+    return this.service.subscribeStream(conversationId, user.userId);
   }
 }

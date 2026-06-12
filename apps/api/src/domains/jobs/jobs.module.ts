@@ -62,6 +62,13 @@ import { TagsModule } from "./tags/tags.module";
     SummaryAiService,
     KeywordBlockerService,
   ],
-  exports: [JobsService, JobsRepository, JobStageEventsRepository, JobEventBus, DraftExtractionNormalizationService, DraftExtractionService],
+  exports: [
+    JobsService,
+    JobsRepository,
+    JobStageEventsRepository,
+    JobEventBus,
+    DraftExtractionNormalizationService,
+    DraftExtractionService,
+  ],
 })
 export class JobsModule {}

@@ -8,12 +8,12 @@ import { LibAiModule } from "@api/lib/ai";
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 
-import { AiChatEventBus } from "./ai-chat-event.bus";
-import { AiChatEventListener } from "./ai-chat-event.listener";
+import { AiChatPubSub } from "./ai-chat.pubsub";
 import { AiChatGenerationService } from "./ai-chat-generation.service";
 import { AiChatRepository } from "./ai-chat.repository";
 import { AiChatResolver } from "./ai-chat.resolver";
 import { AiChatService } from "./ai-chat.service";
+import { AiChatEventListener } from "./ai-chat-event.listener";
 
 @Module({
   imports: [
@@ -25,10 +25,10 @@ import { AiChatService } from "./ai-chat.service";
     LibAiModule,
   ],
   providers: [
+    AiChatPubSub,
     AiChatRepository,
     AiChatService,
     AiChatResolver,
-    AiChatEventBus,
     AiChatGenerationService,
     AiChatEventListener,
   ],

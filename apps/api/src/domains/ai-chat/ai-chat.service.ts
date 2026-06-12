@@ -1,11 +1,12 @@
 import { AiMessageRoleEnum } from "./ai-message-role.enum";
+import { AiMessageStreamEventType } from "./ai-chat-event.types";
+import { AiMessageStreamPhaseEnum } from "./ai-message-stream-phase.enum";
+import { AiChatPubSub } from "./ai-chat.pubsub";
+import { AiChatSubEventEnum } from "./ai-chat-sub-event.enum";
 import { JobsRepository } from "@api/domains/jobs/jobs.repository";
 import { AsyncMetadataStatusEnum } from "@api/domains/shared/async-metadata.type";
 import { DeleteMutationPayloadType } from "@api/domains/shared/delete-mutation-payload.type";
 import { Injectable, Logger, NotFoundException, OnModuleInit } from "@nestjs/common";
-
-import { AiChatEventBus } from "./ai-chat-event.bus";
-import { AiChatRequested } from "./ai-chat.events";
 import { AiChatRepository } from "./ai-chat.repository";
 import { AiConversationType } from "./ai-conversation.type";
 import { AiMessageType } from "./ai-message.type";
@@ -18,7 +19,7 @@ export class AiChatService implements OnModuleInit {
   constructor(
     private readonly repo: AiChatRepository,
     private readonly jobsRepo: JobsRepository,
-    private readonly eventBus: AiChatEventBus,
+    private readonly pubSub: AiChatPubSub,
   ) {}
 
   onModuleInit(): void {
@@ -74,19 +75,35 @@ export class AiChatService implements OnModuleInit {
       throw new NotFoundException(`AiConversation ${conversationId} not found`);
     }
 
-    // Persist user message immediately
-    const userMessageId = crypto.randomUUID();
-    await this.repo.createMessage({ id: userMessageId, conversationId, role: AiMessageRoleEnum.User, content });
+    const userMessage = await this.repo.createMessage({ conversationId, role: AiMessageRoleEnum.User, content });
 
-    // Update generating status to Processing
     await this.repo.updateGeneratingStatus(conversationId, {
       status: AsyncMetadataStatusEnum.Processing,
       timestamp: new Date(),
     });
 
-    // Request background processing
-    this.eventBus.emit(new AiChatRequested(conversationId, userId, conversation.jobId, content, userMessageId));
+    await this.pubSub.publish(AiChatSubEventEnum.AiChatRequested, {
+      conversationId,
+      userId,
+      jobId: conversation.jobId,
+      content,
+      userMessageId: userMessage.id,
+    });
 
     return { success: true };
+  }
+
+  async *subscribeStream(conversationId: string, userId: string): AsyncIterable<AiMessageStreamEventType> {
+    const conversation = await this.repo.findConversationById(conversationId, userId);
+    if (!conversation) throw new NotFoundException(`AiConversation ${conversationId} not found`);
+
+    yield { conversationId, phase: AiMessageStreamPhaseEnum.Ready };
+
+    const iterator = this.pubSub.asyncIterableIterator(AiChatSubEventEnum.AiMessageStreamed);
+    for await (const event of iterator) {
+      if (event.conversationId === conversationId) {
+        yield event;
+      }
+    }
   }
 }
