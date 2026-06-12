@@ -128,6 +128,27 @@ describe("useChatPanelViewModel", () => {
     expect(result.current.isNewConversation).toBe(false);
   });
 
+  it("conversationTitle is empty when no active conversation", () => {
+    const { result } = renderHook(() => useChatPanelViewModel("job-1"));
+    expect(result.current.conversationTitle).toBe("");
+  });
+
+  it("hasActiveView is false when no conversation is active", () => {
+    const { result } = renderHook(() => useChatPanelViewModel("job-1"));
+    expect(result.current.hasActiveView).toBe(false);
+  });
+
+  it("conversationTitle resolves from the active conversation", () => {
+    const { result } = renderHook(() => useChatPanelViewModel("job-1"));
+
+    act(() => {
+      result.current.switchConversation("conv-1");
+    });
+
+    expect(result.current.conversationTitle).toBe("Second conv");
+    expect(result.current.hasActiveView).toBe(true);
+  });
+
   describe("switchConversation", () => {
     it("sets active conversation id", () => {
       const { result } = renderHook(() => useChatPanelViewModel("job-1"));
