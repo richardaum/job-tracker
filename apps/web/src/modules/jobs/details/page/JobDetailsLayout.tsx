@@ -102,7 +102,6 @@ export default function JobDetailsLayout({ params, children }: JobDetailsLayoutP
 
   if (needsRedirect) return null;
 
-
   return (
     <SlotsProvider>
       <JobFillStatusProvider jobId={id}>
