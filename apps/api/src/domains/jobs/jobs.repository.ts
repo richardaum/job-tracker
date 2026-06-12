@@ -101,8 +101,14 @@ export class JobsRepository {
     if (!existing) {
       return null;
     }
-    Object.assign(existing, dto);
-    await this.jobsRepo.save(existing);
+
+    await this.jobsRepo
+      .createQueryBuilder()
+      .update()
+      .set({ ...dto, updatedAt: new Date() })
+      .where("id = :id AND user_id = :userId", { id, userId })
+      .execute();
+
     return this.findOneByIdAndUserId(id, userId);
   }
 
