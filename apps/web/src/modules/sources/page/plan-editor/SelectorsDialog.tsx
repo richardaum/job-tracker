@@ -1,21 +1,11 @@
 "use client";
 
-import {
-  Button,
-  cn,
-  Dialog,
-  FormField,
-  Select,
-  Textarea,
-} from "@job-tracker/ui";
+import { Button, cn, Dialog, FormField, Select, Textarea } from "@job-tracker/ui";
 import { useState } from "react";
 
 import { FieldTooltip } from "@/modules/sources/page/plan-editor/FieldTooltip";
 import { TemplateTextInput } from "@/modules/sources/page/plan-editor/TemplateTextInput";
-import type {
-  CollectJobsInput,
-  Step,
-} from "@/modules/sources/page/plan-editor/types";
+import type { CollectJobsInput, Step } from "@/modules/sources/page/plan-editor/types";
 
 type SelectorsDialogProps = {
   step: Step;
@@ -24,12 +14,7 @@ type SelectorsDialogProps = {
   onSave: (step: Step) => void;
 };
 
-export function SelectorsDialog({
-  step,
-  open,
-  onOpenChange,
-  onSave,
-}: SelectorsDialogProps) {
+export function SelectorsDialog({ step, open, onOpenChange, onSave }: SelectorsDialogProps) {
   const initial =
     step.action.kind === "collect.jobs"
       ? {
@@ -38,37 +23,19 @@ export function SelectorsDialog({
           detailsUrlField: step.action.input.detailsUrlField,
           key: step.action.input.key,
         }
-      : {
-          containerSelector: "",
-          itemSelector: "",
-          detailsUrlField: "",
-          key: "",
-        };
+      : { containerSelector: "", itemSelector: "", detailsUrlField: "", key: "" };
   const [draft, setDraft] = useState(initial);
   const [templateError, setTemplateError] = useState<string | null>(null);
 
   const input = step.action.kind === "collect.jobs" ? step.action.input : null;
   const fieldOptions = [
-    ...(input?.surfaceFields
-      ?.filter((f) => f.key)
-      .map((f) => ({ label: f.key, value: f.key })) ?? []),
-    ...(input?.detailsFields
-      ?.filter((f) => f.key)
-      .map((f) => ({ label: f.key, value: f.key })) ?? []),
+    ...(input?.surfaceFields?.filter((f) => f.key).map((f) => ({ label: f.key, value: f.key })) ?? []),
+    ...(input?.detailsFields?.filter((f) => f.key).map((f) => ({ label: f.key, value: f.key })) ?? []),
   ];
 
   function mergeIntoStep() {
-    const action = step.action as {
-      kind: "collect.jobs";
-      input: CollectJobsInput;
-    };
-    return {
-      ...step,
-      action: {
-        kind: "collect.jobs" as const,
-        input: { ...action.input, ...draft },
-      },
-    };
+    const action = step.action as { kind: "collect.jobs"; input: CollectJobsInput };
+    return { ...step, action: { kind: "collect.jobs" as const, input: { ...action.input, ...draft } } };
   }
 
   return (
@@ -84,21 +51,14 @@ export function SelectorsDialog({
         <div className={cn("flex flex-col gap-4")}>
           <FormField
             label="Container Selector"
-            tooltip={
-              <FieldTooltip content="CSS selector for the wrapper element containing all job listings." />
-            }
+            tooltip={<FieldTooltip content="CSS selector for the wrapper element containing all job listings." />}
             htmlFor="sel-container"
             required
           >
             <Textarea
               id="sel-container"
               value={draft.containerSelector}
-              onChange={(e) =>
-                setDraft((prev) => ({
-                  ...prev,
-                  containerSelector: e.target.value,
-                }))
-              }
+              onChange={(e) => setDraft((prev) => ({ ...prev, containerSelector: e.target.value }))}
               placeholder="e.g. .job-list"
               rows={2}
               size="sm"
@@ -107,18 +67,14 @@ export function SelectorsDialog({
           </FormField>
           <FormField
             label="Item Selector"
-            tooltip={
-              <FieldTooltip content="CSS selector for each individual job listing row." />
-            }
+            tooltip={<FieldTooltip content="CSS selector for each individual job listing row." />}
             htmlFor="sel-item"
             required
           >
             <Textarea
               id="sel-item"
               value={draft.itemSelector}
-              onChange={(e) =>
-                setDraft((prev) => ({ ...prev, itemSelector: e.target.value }))
-              }
+              onChange={(e) => setDraft((prev) => ({ ...prev, itemSelector: e.target.value }))}
               placeholder="e.g. .job-card"
               rows={2}
               size="sm"
@@ -127,9 +83,7 @@ export function SelectorsDialog({
           </FormField>
           <FormField
             label="Details URL Field"
-            tooltip={
-              <FieldTooltip content="Which field contains the URL to each detail page." />
-            }
+            tooltip={<FieldTooltip content="Which field contains the URL to each detail page." />}
             htmlFor="sel-detailsUrl"
             required
           >
@@ -137,9 +91,7 @@ export function SelectorsDialog({
               placeholder="Select a field..."
               options={fieldOptions}
               value={draft.detailsUrlField || undefined}
-              onValueChange={(v) =>
-                setDraft((prev) => ({ ...prev, detailsUrlField: v }))
-              }
+              onValueChange={(v) => setDraft((prev) => ({ ...prev, detailsUrlField: v }))}
             />
           </FormField>
           <FormField
