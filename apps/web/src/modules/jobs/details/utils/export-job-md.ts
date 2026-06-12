@@ -189,6 +189,10 @@ export function formatJobAsMarkdown(data: ExportJobData): string {
   return lines.join("\n").trim() + "\n";
 }
 
+export async function copyMarkdown(content: string): Promise<void> {
+  await navigator.clipboard.writeText(content);
+}
+
 export function downloadMarkdown(content: string, filename: string): void {
   const blob = new Blob([content], { type: "text/markdown" });
   const url = URL.createObjectURL(blob);

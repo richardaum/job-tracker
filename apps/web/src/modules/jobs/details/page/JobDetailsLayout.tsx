@@ -25,6 +25,7 @@ import { DetailPageHeader } from "@/components/detail-page-header/DetailPageHead
 import { EntityNotFound } from "@/components/entity-not-found";
 import { useBreakpoint } from "@/hooks/useBreakpoint";
 import { ActivitySidePanel } from "@/modules/jobs/details/components/ActivitySidePanel";
+import { CopyJobMdMenuItem } from "@/modules/jobs/details/components/CopyJobMdMenuItem";
 import { ExportJobMdMenuItem } from "@/modules/jobs/details/components/ExportJobMdMenuItem";
 import { MatchTabTrigger } from "@/modules/jobs/details/components/MatchTabTrigger";
 import { OverviewTabTrigger } from "@/modules/jobs/details/components/OverviewTabTrigger";
@@ -295,7 +296,9 @@ export default function JobDetailsLayout({ params, children }: JobDetailsLayoutP
       >
         Update status
       </DropdownMenuItem>
+      <DropdownMenuSeparator />
       <ExportJobMdMenuItem jobId={id} job={job} />
+      <CopyJobMdMenuItem jobId={id} job={job} />
       <DropdownMenuSeparator />
       <DropdownMenuItem
         destructive
