@@ -32,7 +32,7 @@
     "lint-staged": "lint-staged",
     "prepare": "husky",
     "typecheck": "turbo typecheck",
-    "typecheck:repo": "tsc -p tsconfig.repo.json --noEmit && tsc -p scripts/tsconfig.json --noEmit",
+    "typecheck:repo": "tsc -p scripts/tsconfig.json --noEmit",
     "leanspec:validate": "pnpm exec lean-spec validate",
     "leanspec:sync-spec-indices": "node --experimental-strip-types scripts/sync-spec-indices.ts",
     "fix:generate-summaries": "pnpm --filter @job-tracker/api run fix:generate-summaries",

@@ -60,17 +60,17 @@ node --experimental-strip-types packages/worktree-cli/src/teardown.ts -- \
 
 ## Setup flags
 
-| Flag               | Type    | Default | Effect                                                             |
-| ------------------ | ------- | ------- | ------------------------------------------------------------------ |
-| `--dry-run`        | boolean | `false` | `true`: print plan only (no writes, no post-steps)                 |
-| `--recreate-db`    | boolean | `false` | `true`: drop and re-clone destination DB                           |
-| `--dbeaver`        | boolean | `false` | `true`: add DBeaver connection under Job Tracker/Worktrees         |
-| `--force-dbeaver`  | boolean | `false` | `true`: replace existing DBeaver connection (requires `--dbeaver`) |
-| `--install`        | boolean | `false` | `true`: `pnpm install` (after core setup)                          |
-| `--migrate`        | boolean | `false` | `true`: `pnpm --filter @job-tracker/api run db:migrate`            |
-| `--start`          | boolean | `false` | `true`: `pnpm pm2:start`                                           |
-| `--verify`         | boolean | `false` | `true`: curl API/Web/Storybook/WXT (WXT failure is warning only)   |
-| `--open`           | boolean | verify  | `true`: open web app in default browser after post-setup           |
+| Flag              | Type    | Default | Effect                                                             |
+| ----------------- | ------- | ------- | ------------------------------------------------------------------ |
+| `--dry-run`       | boolean | `false` | `true`: print plan only (no writes, no post-steps)                 |
+| `--recreate-db`   | boolean | `false` | `true`: drop and re-clone destination DB                           |
+| `--dbeaver`       | boolean | `false` | `true`: add DBeaver connection under Job Tracker/Worktrees         |
+| `--force-dbeaver` | boolean | `false` | `true`: replace existing DBeaver connection (requires `--dbeaver`) |
+| `--install`       | boolean | `false` | `true`: `pnpm install` (after core setup)                          |
+| `--migrate`       | boolean | `false` | `true`: `pnpm --filter @job-tracker/api run db:migrate`            |
+| `--start`         | boolean | `false` | `true`: `pnpm pm2:start`                                           |
+| `--verify`        | boolean | `false` | `true`: curl API/Web/Storybook/WXT (WXT failure is warning only)   |
+| `--open`          | boolean | verify  | `true`: open web app in default browser after post-setup           |
 
 **Note:** `WORKTREE_SOURCE_DB` environment variable must be set before setup runs.
 
