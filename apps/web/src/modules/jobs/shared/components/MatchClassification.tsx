@@ -3,6 +3,7 @@
 import { Badge, cn, Stack, Text, Tooltip } from "@job-tracker/ui";
 import type { Route } from "next";
 import { SafeLink } from "@/components/safe-link";
+import { JOB_DETAILS_LINK_QUERY_PARAMS } from "@/modules/jobs/details/utils/job-details-url";
 
 import { FitClassification as FitClassificationValue } from "@/gql/hooks";
 import { formatMatchClassification, formatMatchLabel } from "@/modules/jobs/shared/utils/matchFormat";
@@ -128,7 +129,11 @@ function BadgeBadge({
       unclearCount={unclearCount}
     >
       {jobId !== undefined && jobId !== "" ? (
-        <SafeLink href={`/jobs/${jobId}/match` as Route} className={cn("no-underline focus-visible:outline-none")}>
+        <SafeLink
+          href={`/jobs/${jobId}/match` as Route}
+          preserveQueryParams={JOB_DETAILS_LINK_QUERY_PARAMS}
+          className={cn("no-underline focus-visible:outline-none")}
+        >
           {badge}
         </SafeLink>
       ) : (

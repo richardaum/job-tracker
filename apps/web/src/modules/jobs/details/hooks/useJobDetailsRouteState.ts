@@ -4,6 +4,8 @@ import type { Route } from "next";
 import { usePathname, useRouter, useSearchParams, useSelectedLayoutSegment } from "next/navigation";
 import { useCallback, useEffect } from "react";
 
+import { copySearchParams, JOB_DETAILS_LAYOUT_QUERY_PARAMS } from "@/modules/jobs/details/utils/job-details-url";
+
 const sidePanelTabs: string[] = ["notes", "history", "chat"];
 
 export function useJobDetailsRouteState(id: string, isDesktop: boolean) {
@@ -25,13 +27,13 @@ export function useJobDetailsRouteState(id: string, isDesktop: boolean) {
       if (!needsRedirect) return;
       const params = new URLSearchParams();
       params.set("s", activeTab);
-      if (searchParams.get("w") === "full") params.set("w", "full");
+      copySearchParams(params, searchParams, JOB_DETAILS_LAYOUT_QUERY_PARAMS);
       router.replace(`/jobs/${id}?${params.toString()}` as Route);
       return;
     }
     if (!sidePanelFromQuery) return;
     const params = new URLSearchParams();
-    if (searchParams.get("w") === "full") params.set("w", "full");
+    copySearchParams(params, searchParams, JOB_DETAILS_LAYOUT_QUERY_PARAMS);
     const qs = params.toString();
     router.replace(`/jobs/${id}/${sidePanelFromQuery}${qs ? `?${qs}` : ""}` as Route);
   }, [id, isDesktop, router, sidePanelFromQuery, needsRedirect, activeTab, searchParams]);
@@ -40,6 +42,7 @@ export function useJobDetailsRouteState(id: string, isDesktop: boolean) {
     (sidePanel: string) => {
       const next = new URLSearchParams(searchParams.toString());
       next.set("s", sidePanel);
+      if (sidePanel !== "chat") next.delete("cid");
       router.replace(`${pathname}?${next.toString()}` as Route);
     },
     [pathname, router, searchParams],
