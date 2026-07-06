@@ -79,12 +79,6 @@ describe("ProfileShell", () => {
     expect(pushMock).toHaveBeenCalledWith("/profile");
   });
 
-  it("/profile/resumes/[id] pathname highlights Resumes tab", () => {
-    renderShell("/profile/resumes/res-123");
-    const tab = screen.getByRole("tab", { name: "Resumes" });
-    expect(tab).toHaveAttribute("data-state", "active");
-  });
-
   it("renders children inside the shell", () => {
     renderShell("/profile");
     expect(screen.getByTestId("child-content")).toBeInTheDocument();

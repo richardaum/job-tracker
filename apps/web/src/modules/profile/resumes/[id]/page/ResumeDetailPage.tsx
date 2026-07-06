@@ -157,11 +157,7 @@ export default function ResumeDetailPage({ params }: PageProps) {
         <BackToLink href="/profile/resumes">Back to resumes</BackToLink>
 
         <div className={cn("flex min-w-0 flex-wrap items-center gap-2")}>
-          <Heading
-            as="h1"
-            size="2xl"
-            className={cn("min-w-0 flex-1 truncate", resume ? "" : cn("text-text-secondary"))}
-          >
+          <Heading as="h1" size="2xl" className={cn("min-w-0 truncate", resume ? "" : cn("text-text-secondary"))}>
             {resume?.title ?? "Resume"}
           </Heading>
           {resume?.isDefault ? (
