@@ -12,7 +12,14 @@ import {
   Text,
   useDialog,
 } from "@job-tracker/ui";
-import { CaretDownIcon, CopyIcon, PencilSimpleIcon, StarIcon, TrashIcon } from "@phosphor-icons/react";
+import {
+  CaretDownIcon,
+  CopyIcon,
+  DownloadSimpleIcon,
+  PencilSimpleIcon,
+  StarIcon,
+  TrashIcon,
+} from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
 import { use, useState } from "react";
 
@@ -87,10 +94,39 @@ export default function ResumeDetailPage({ params }: PageProps) {
     enqueueToast({ title: "Default resume updated.", intent: "success" });
   }
 
+  async function handleDownloadAsMarkdown() {
+    if (!resume) return;
+    const md = tipTapToMarkdown(resume.content);
+    const filename = resume.title
+      .toLowerCase()
+      .replace(/[/\\?%*:|"<>]/g, "")
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-")
+      .replace(/^-|-$/g, "");
+    const blob = new Blob([md], { type: "text/markdown" });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = `${filename}.md`;
+    document.body.appendChild(anchor);
+    anchor.click();
+    document.body.removeChild(anchor);
+    URL.revokeObjectURL(url);
+    enqueueToast({ title: "Resume downloaded as markdown.", intent: "success" });
+  }
+
   async function handleCopyAsMarkdown() {
     if (!resume) return;
     const md = tipTapToMarkdown(resume.content);
-    await navigator.clipboard.writeText(md);
+    if (!navigator?.clipboard) {
+      enqueueToast({ title: "Clipboard not available.", intent: "error" });
+      return;
+    }
+    const [err] = await tryRun(navigator.clipboard.writeText(md));
+    if (err) {
+      enqueueToast({ title: "Failed to copy to clipboard.", intent: "error" });
+      return;
+    }
     enqueueToast({ title: "Resume copied as markdown.", intent: "success" });
   }
 
@@ -117,6 +153,12 @@ export default function ResumeDetailPage({ params }: PageProps) {
     >
       <DropdownMenuItem onSelect={() => void handleCopyAsMarkdown()} icon={<CopyIcon size={14} weight="regular" />}>
         Copy as markdown
+      </DropdownMenuItem>
+      <DropdownMenuItem
+        onSelect={() => void handleDownloadAsMarkdown()}
+        icon={<DownloadSimpleIcon size={14} weight="regular" />}
+      >
+        Download as markdown
       </DropdownMenuItem>
       <DropdownMenuItem
         onSelect={() => queueMicrotask(() => titleDialog.open())}
