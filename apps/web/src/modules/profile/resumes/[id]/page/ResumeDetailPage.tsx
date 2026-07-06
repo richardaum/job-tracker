@@ -1,6 +1,6 @@
 "use client";
 
-import { EMPTY_TIPTAP_DOC } from "@job-tracker/tiptap";
+import { EMPTY_TIPTAP_DOC, tipTapToMarkdown } from "@job-tracker/tiptap";
 import { tryRun } from "@job-tracker/try-run";
 import {
   Button,
@@ -12,7 +12,7 @@ import {
   Text,
   useDialog,
 } from "@job-tracker/ui";
-import { CaretDownIcon, PencilSimpleIcon, StarIcon, TrashIcon } from "@phosphor-icons/react";
+import { CaretDownIcon, CopyIcon, PencilSimpleIcon, StarIcon, TrashIcon } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
 import { use, useState } from "react";
 
@@ -87,6 +87,13 @@ export default function ResumeDetailPage({ params }: PageProps) {
     enqueueToast({ title: "Default resume updated.", intent: "success" });
   }
 
+  async function handleCopyAsMarkdown() {
+    if (!resume) return;
+    const md = tipTapToMarkdown(resume.content);
+    await navigator.clipboard.writeText(md);
+    enqueueToast({ title: "Resume copied as markdown.", intent: "success" });
+  }
+
   const actionsMenu = resume ? (
     <DropdownMenu
       open={actionsMenuOpen}
@@ -108,6 +115,9 @@ export default function ResumeDetailPage({ params }: PageProps) {
       }
       align="end"
     >
+      <DropdownMenuItem onSelect={() => void handleCopyAsMarkdown()} icon={<CopyIcon size={14} weight="regular" />}>
+        Copy as markdown
+      </DropdownMenuItem>
       <DropdownMenuItem
         onSelect={() => queueMicrotask(() => titleDialog.open())}
         icon={<PencilSimpleIcon size={14} weight="regular" />}
