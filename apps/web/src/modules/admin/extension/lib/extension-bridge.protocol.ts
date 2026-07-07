@@ -1,3 +1,5 @@
+import { generateUuid } from "@/lib/generate-uuid";
+
 export const EXTENSION_BRIDGE_SOURCE = "job-tracker-extension-bridge" as const;
 
 export const EXTENSION_BRIDGE_MESSAGE_TYPE = {
@@ -61,7 +63,7 @@ export function isExtensionBridgePing(data: unknown): data is ExtensionBridgePin
 export async function wakeExtension(timeoutMs = 3_000): Promise<ExtensionBridgePong | null> {
   if (typeof window === "undefined") return null;
 
-  const requestId = crypto.randomUUID();
+  const requestId = generateUuid();
   const ping = createExtensionBridgePing(requestId);
   const origin = window.location.origin;
 

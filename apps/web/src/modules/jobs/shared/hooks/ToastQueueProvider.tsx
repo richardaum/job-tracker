@@ -3,6 +3,8 @@
 import { Toast, type ToastIntent, type ToastItem } from "@job-tracker/ui";
 import { type ReactNode, useCallback, useMemo, useState } from "react";
 
+import { generateUuid } from "@/lib/generate-uuid";
+
 import { ToastQueueContext } from "./toast-queue.context";
 
 type ToastQueueProviderProps = { children: ReactNode };
@@ -12,7 +14,7 @@ export function ToastQueueProvider({ children }: ToastQueueProviderProps) {
 
   const enqueueToast = useCallback(
     ({ title, intent = "info", description }: { title: string; intent?: ToastIntent; description?: string }) => {
-      setToasts((current) => [...current, { id: crypto.randomUUID(), title, intent, description }]);
+      setToasts((current) => [...current, { id: generateUuid(), title, intent, description }]);
     },
     [],
   );

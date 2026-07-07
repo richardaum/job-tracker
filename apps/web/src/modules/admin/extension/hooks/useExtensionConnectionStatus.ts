@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import { generateUuid } from "@/lib/generate-uuid";
+
 import type {
   ExtensionBridgeAuthStatus,
   ExtensionBridgePong,
@@ -114,7 +116,7 @@ export function useExtensionConnectionStatus(): ExtensionConnectionViewModel {
         setConnection((current) => clearedConnectionFields(current));
       }
 
-      const ping = createExtensionBridgePing(crypto.randomUUID(), options);
+      const ping = createExtensionBridgePing(generateUuid(), options);
       scheduleProbeTimeout();
       window.postMessage(ping, webAppOrigin);
     };

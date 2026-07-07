@@ -1,6 +1,7 @@
 import { type ToastIntent, type ToastProps } from "@job-tracker/ui";
 import { useMemo, useState } from "react";
 
+import { generateUuid } from "@/lib/generate-uuid";
 import { useOptionalToastQueueContext } from "./useToastQueueContext";
 
 interface UseToastQueueReturn {
@@ -22,7 +23,7 @@ export function useToastQueue(): UseToastQueueReturn {
     intent?: ToastIntent;
     description?: string;
   }) {
-    setLocalToasts((current) => [...current, { id: crypto.randomUUID(), title, intent, description }]);
+    setLocalToasts((current) => [...current, { id: generateUuid(), title, intent, description }]);
   }
 
   function localDismissToast(id: string, open: boolean) {

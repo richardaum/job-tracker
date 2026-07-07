@@ -6,6 +6,10 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { ToastQueueProvider } from "./ToastQueueProvider";
 import { useToastQueue } from "./useToastQueue";
 
+vi.mock("@/lib/generate-uuid", () => ({ generateUuid: vi.fn() }));
+
+import { generateUuid } from "@/lib/generate-uuid";
+
 describe("useToastQueue", () => {
   function Wrapper({ children }: { children: ReactNode }) {
     return createElement(ToastQueueProvider, null, children);
@@ -16,7 +20,7 @@ describe("useToastQueue", () => {
   });
 
   it("enqueues toast with generated id and intent", () => {
-    vi.spyOn(crypto, "randomUUID").mockReturnValue("toast-1");
+    vi.mocked(generateUuid).mockReturnValue("toast-1");
 
     const { result } = renderHook(() => useToastQueue(), { wrapper: Wrapper });
 
@@ -30,7 +34,7 @@ describe("useToastQueue", () => {
   });
 
   it("dismisses closed toast", () => {
-    vi.spyOn(crypto, "randomUUID").mockReturnValueOnce("toast-1").mockReturnValueOnce("toast-2");
+    vi.mocked(generateUuid).mockReturnValueOnce("toast-1").mockReturnValueOnce("toast-2");
 
     const { result } = renderHook(() => useToastQueue(), { wrapper: Wrapper });
 
