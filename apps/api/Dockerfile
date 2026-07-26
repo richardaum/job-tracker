@@ -13,11 +13,8 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json ./
 COPY apps/api/package.json ./apps/api/package.json
 COPY packages/ ./packages/
 
-# Use flat node_modules layout (no symlinks) so workspace .bin scripts resolve in Docker
-RUN echo "node-linker=hoisted" > .npmrc
-
-# Install all dependencies (including devDependencies for build)
-RUN pnpm install --frozen-lockfile
+# Install only deps needed by the API and its workspace dependencies
+RUN pnpm --filter @job-tracker/api... install --frozen-lockfile
 
 # Copy app source
 COPY apps/api/ ./apps/api/
@@ -40,14 +37,20 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/api/package.json ./apps/api/package.json
 COPY packages/ ./packages/
 
-# Install production dependencies only (--ignore-scripts skips husky prepare hook)
-RUN pnpm install --frozen-lockfile --prod --ignore-scripts
+# Install production dependencies only for the API
+RUN pnpm --filter @job-tracker/api... install --frozen-lockfile --prod --ignore-scripts
 
 # Copy built output from builder
 COPY --from=builder /app/apps/api/dist ./apps/api/dist
 
+# Copy entrypoint
+COPY apps/api/docker-entrypoint.sh ./apps/api/docker-entrypoint.sh
+RUN chmod +x ./apps/api/docker-entrypoint.sh
+
 WORKDIR /app/apps/api
 
-EXPOSE 3001
+ARG PORT=3001
+EXPOSE $PORT
 
+ENTRYPOINT ["./docker-entrypoint.sh"]
 CMD ["node", "dist/main"]
