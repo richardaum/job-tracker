@@ -20,6 +20,7 @@ vi.mock("next/navigation", () => ({
 vi.mock("@/gql/hooks", () => ({
   ApplicationQuickFilter: { Draft: "DRAFT" },
   JobsDocument: { __brand: "DocumentNode" },
+  QuickFilterCountsDocument: { __brand: "DocumentNode" },
   useCreateDraftCaptureJobMutation: () => [createDraftCaptureJobMock, { loading: false }],
   useSettingsQuery: () => ({
     data: {

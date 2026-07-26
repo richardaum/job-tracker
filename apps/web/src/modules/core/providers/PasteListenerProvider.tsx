@@ -7,7 +7,12 @@ import { useRouter } from "next/navigation";
 import type { ReactNode } from "react";
 import { useCallback, useEffect, useState } from "react";
 
-import { ApplicationQuickFilter, JobsDocument, useCreateDraftCaptureJobMutation } from "@/gql/hooks";
+import {
+  ApplicationQuickFilter,
+  JobsDocument,
+  QuickFilterCountsDocument,
+  useCreateDraftCaptureJobMutation,
+} from "@/gql/hooks";
 import { useToastQueue } from "@/modules/jobs/shared/hooks/useToastQueue";
 
 import { PasteDestinationDialog } from "./components/PasteDestinationDialog";
@@ -20,7 +25,10 @@ export function PasteListenerProvider({ children }: PasteListenerProviderProps) 
   const { enqueueToast } = useToastQueue();
 
   const [createDraftCaptureJob, { loading: createDraftLoading }] = useCreateDraftCaptureJobMutation({
-    refetchQueries: [{ query: JobsDocument, variables: { filter: ApplicationQuickFilter.Draft } }],
+    refetchQueries: [
+      { query: JobsDocument, variables: { filter: ApplicationQuickFilter.Draft } },
+      { query: QuickFilterCountsDocument },
+    ],
     awaitRefetchQueries: true,
   });
 
