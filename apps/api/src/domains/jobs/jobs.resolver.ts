@@ -11,9 +11,11 @@ import { CreateJobInput } from "./create-job.input";
 import { CreateJobStageEventInput } from "./create-job-stage-event.input";
 import { JobDuplicateService } from "./job-duplicate.service";
 import { JobType } from "./job.type";
+import { FilterCountType } from "./filter-count.type";
 import { JobAutomaticFillService } from "./job-automatic-fill.service";
 import { ApplicationQuickFilterEnum } from "./job-quick-filter.enum";
 import { JobStageEventType } from "./job-stage-event.type";
+import { JobsListQuery } from "./jobs-list.query";
 import { JobsService } from "./jobs.service";
 import { JobSummaryService } from "./summary/job-summary.service";
 import { UpdateJobInput } from "./update-job.input";
@@ -28,6 +30,7 @@ export class JobsResolver {
     private readonly fillService: JobAutomaticFillService,
     private readonly summaryService: JobSummaryService,
     private readonly duplicateService: JobDuplicateService,
+    private readonly jobsListQuery: JobsListQuery,
   ) {}
 
   @Query(() => [JobType])
@@ -39,6 +42,15 @@ export class JobsResolver {
     @Args("runId", { type: () => ID, nullable: true }) runId?: string,
   ): Promise<JobType[]> {
     return this.service.findAll(user.userId, filter, company, runId);
+  }
+
+  @Query(() => [FilterCountType])
+  quickFilterCounts(
+    @CurrentUser() user: { userId: string },
+    @Args("company", { type: () => String, nullable: true }) company?: string,
+    @Args("runId", { type: () => ID, nullable: true }) runId?: string,
+  ): Promise<FilterCountType[]> {
+    return this.jobsListQuery.countByQuickFilter(user.userId, company, runId);
   }
 
   @Query(() => JobType)

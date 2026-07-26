@@ -15,8 +15,11 @@ import { Test } from "@nestjs/testing";
 import request from "supertest";
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
+import { FilterCountType } from "./filter-count.type";
+import { ApplicationQuickFilterEnum } from "./job-quick-filter.enum";
 import { JobAutomaticFillService } from "./job-automatic-fill.service";
 import { JobDuplicateService } from "./job-duplicate.service";
+import { JobsListQuery } from "./jobs-list.query";
 import { JobsResolver } from "./jobs.resolver";
 import type { Job } from "./jobs.schema";
 import { JobsService } from "./jobs.service";
@@ -66,6 +69,7 @@ describe("JobsResolver (integration)", () => {
   };
   let fillService: { fillJobAutomatically: ReturnType<typeof vi.fn> };
   let duplicateService: { checkDuplicate: ReturnType<typeof vi.fn> };
+  let jobsListQuery: { countByQuickFilter: ReturnType<typeof vi.fn> };
 
   beforeAll(async () => {
     service = {
@@ -82,6 +86,8 @@ describe("JobsResolver (integration)", () => {
 
     duplicateService = { checkDuplicate: vi.fn() };
 
+    jobsListQuery = { countByQuickFilter: vi.fn() };
+
     const moduleRef = await Test.createTestingModule({
       imports: [
         GraphQLModule.forRoot<ApolloDriverConfig>({
@@ -95,6 +101,7 @@ describe("JobsResolver (integration)", () => {
         { provide: JobsService, useValue: service },
         { provide: JobAutomaticFillService, useValue: fillService },
         { provide: JobDuplicateService, useValue: duplicateService },
+        { provide: JobsListQuery, useValue: jobsListQuery },
         { provide: JobSummaryService, useValue: { requestSummary: vi.fn() } },
       ],
     })
@@ -133,6 +140,7 @@ describe("JobsResolver (integration)", () => {
     service.removeStageEvent.mockReset().mockResolvedValue(undefined);
     service.generateCompanyDescription.mockReset().mockResolvedValue(JSON.stringify({ type: "doc", content: [] }));
     duplicateService.checkDuplicate.mockReset();
+    jobsListQuery.countByQuickFilter.mockReset();
   });
 
   function graphqlRequest() {
@@ -307,5 +315,57 @@ describe("JobsResolver (integration)", () => {
 
     expect(res.statusCode).toBe(200);
     expect(res.body.data.isJobDuplicate).toBe(false);
+  });
+
+  describe("quickFilterCounts", () => {
+    const mockCounts: FilterCountType[] = [
+      { key: ApplicationQuickFilterEnum.Draft, count: 2 },
+      { key: ApplicationQuickFilterEnum.New, count: 3 },
+      { key: ApplicationQuickFilterEnum.Applied, count: 1 },
+      { key: ApplicationQuickFilterEnum.Duplicated, count: 0 },
+      { key: ApplicationQuickFilterEnum.Rejected, count: 1 },
+      { key: ApplicationQuickFilterEnum.Active, count: 4 },
+      { key: ApplicationQuickFilterEnum.Incoming, count: 2 },
+    ];
+
+    it("delegates to countByQuickFilter with correct userId", async () => {
+      jobsListQuery.countByQuickFilter.mockResolvedValue(mockCounts);
+
+      const res = await graphqlRequest().send({ query: "{ quickFilterCounts { key count } }" });
+
+      expect(res.statusCode).toBe(200);
+      expect(jobsListQuery.countByQuickFilter).toHaveBeenCalledWith("user-1", undefined, undefined);
+    });
+
+    it("passes company and runId arguments through correctly", async () => {
+      jobsListQuery.countByQuickFilter.mockResolvedValue(mockCounts);
+
+      const res = await graphqlRequest().send({
+        query: '{ quickFilterCounts(company: "Acme Corp", runId: "run-123") { key count } }',
+      });
+
+      expect(res.statusCode).toBe(200);
+      expect(jobsListQuery.countByQuickFilter).toHaveBeenCalledWith("user-1", "Acme Corp", "run-123");
+    });
+
+    it("returns correct FilterCountType[] shape and values", async () => {
+      jobsListQuery.countByQuickFilter.mockResolvedValue(mockCounts);
+
+      const res = await graphqlRequest().send({ query: "{ quickFilterCounts { key count } }" });
+
+      expect(res.statusCode).toBe(200);
+      expect(res.body.data.quickFilterCounts).toHaveLength(7);
+      expect(res.body.data.quickFilterCounts[0]).toEqual({ key: "Draft", count: 2 });
+      expect(res.body.data.quickFilterCounts[1]).toEqual({ key: "New", count: 3 });
+    });
+
+    it("returns empty array when countByQuickFilter returns empty", async () => {
+      jobsListQuery.countByQuickFilter.mockResolvedValue([]);
+
+      const res = await graphqlRequest().send({ query: "{ quickFilterCounts { key count } }" });
+
+      expect(res.statusCode).toBe(200);
+      expect(res.body.data.quickFilterCounts).toEqual([]);
+    });
   });
 });

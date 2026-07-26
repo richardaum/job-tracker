@@ -353,14 +353,25 @@ describe("JobsRepository", () => {
       urls: [],
     });
     vi.mocked(jobsRepo.findOne).mockResolvedValue(existing);
-    vi.mocked(jobsRepo.save).mockResolvedValue(existing);
+
+    const qbChain = {
+      update: vi.fn().mockReturnThis(),
+      set: vi.fn().mockReturnThis(),
+      where: vi.fn().mockReturnThis(),
+      execute: vi.fn().mockResolvedValue(undefined),
+    };
+    vi.mocked(jobsRepo.createQueryBuilder).mockReturnValue(qbChain as never);
+
+    vi.mocked(jobsRepo.findOne).mockResolvedValue({ ...existing, title: "New" });
 
     const repo = new JobsRepository(jobsRepo as unknown as Repository<JobEntity>);
 
     await repo.update("j1", "u1", { title: "New" });
 
-    expect(existing.title).toBe("New");
-    expect(jobsRepo.save).toHaveBeenCalledWith(existing);
+    expect(qbChain.update).toHaveBeenCalled();
+    expect(qbChain.set).toHaveBeenCalledWith(expect.objectContaining({ title: "New" }));
+    expect(qbChain.where).toHaveBeenCalledWith("id = :id AND user_id = :userId", { id: "j1", userId: "u1" });
+    expect(qbChain.execute).toHaveBeenCalled();
   });
 
   it("update returns null when job not owned", async () => {

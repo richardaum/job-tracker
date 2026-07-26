@@ -206,6 +206,21 @@ enum ApplicationStage {
   Duplicated
 }
 
+type FilterCountType {
+  key: ApplicationQuickFilter!
+  count: Int!
+}
+
+enum ApplicationQuickFilter {
+  Draft
+  Incoming
+  Active
+  Applied
+  New
+  Duplicated
+  Rejected
+}
+
 type JobStageEventType {
   id: ID!
   jobId: String!
@@ -428,6 +443,7 @@ type Query {
   users: [UserType!]!
   me: UserType!
   jobs(filter: ApplicationQuickFilter, company: String, runId: ID): [JobType!]!
+  quickFilterCounts(company: String, runId: ID): [FilterCountType!]!
   job(id: ID!): JobType!
   generateJobLocationWithAI(jobId: ID!): String
   generateJobWorkRegionWithAI(jobId: ID!): String
@@ -458,16 +474,6 @@ type Query {
   aiMessages(conversationId: ID!): [AiMessageType!]!
   rewriteTextWithAI(text: String!): String!
   restructureJobDescriptionWithAI(text: String!): String!
-}
-
-enum ApplicationQuickFilter {
-  Draft
-  Incoming
-  Active
-  Applied
-  New
-  Duplicated
-  Rejected
 }
 
 type Mutation {

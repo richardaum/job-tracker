@@ -9,6 +9,8 @@ import { ApplicationQuickFilterEnum } from "./job-quick-filter.enum";
 import { ApplicationStageEnum } from "./job-stage.enum";
 import { Job } from "./jobs.schema";
 
+import { FilterCountType } from "./filter-count.type";
+
 export type JobPostingContextSnippet = { title: string; plainTextDescription: string };
 
 @Injectable()
@@ -129,6 +131,46 @@ export class JobsListQuery {
     }
 
     return qb.getMany();
+  }
+
+  async countByQuickFilter(userId: string, company?: string, runId?: string): Promise<FilterCountType[]> {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const sql = `
+      SELECT
+        COUNT(*) FILTER (WHERE stage = 'Draft') AS "Draft",
+        COUNT(*) FILTER (WHERE stage != 'Draft' AND latest_stage = 'New') AS "New",
+        COUNT(*) FILTER (WHERE stage != 'Draft' AND latest_stage = 'Applied') AS "Applied",
+        COUNT(*) FILTER (WHERE stage != 'Draft' AND latest_stage = 'Duplicated') AS "Duplicated",
+        COUNT(*) FILTER (WHERE stage != 'Draft' AND latest_stage = 'Rejected') AS "Rejected",
+        COUNT(*) FILTER (WHERE stage != 'Draft' AND latest_stage NOT IN ('New', 'Applied', 'Rejected', 'Duplicated', 'Draft')) AS "Active",
+        COUNT(*) FILTER (WHERE stage != 'Draft' AND latest_stage NOT IN ('Applied', 'Rejected', 'Duplicated', 'Draft') AND has_future_scheduled = true) AS "Incoming"
+      FROM (
+        SELECT a.stage,
+          (SELECT e.to_stage FROM job_stage_events e
+           WHERE e.job_id = a.id AND e.user_id = $1
+           ORDER BY COALESCE(e.schedule_at, e.created_at) DESC, e.created_at DESC, e.id DESC
+           LIMIT 1) AS latest_stage,
+          EXISTS (SELECT 1 FROM job_stage_events e
+                  WHERE e.job_id = a.id AND e.user_id = $1
+                  AND e.schedule_at >= $4::timestamptz) AS has_future_scheduled
+        FROM jobs a
+        LEFT JOIN companies c ON c.id = a.company_id
+        WHERE a.user_id = $1
+          AND ($2::text IS NULL OR LOWER(c.name) = LOWER($2))
+          AND ($3::text IS NULL OR a.source_run_id = $3)
+      ) sub
+    `;
+
+    const params: unknown[] = [userId, company?.trim() ?? null, runId?.trim() ?? null, today.toISOString()];
+    const rows = await this.jobsRepo.manager.query(sql, params);
+    const row = rows[0] as Record<string, string>;
+
+    return Object.entries(row).map(([key, count]) => ({
+      key: key as ApplicationQuickFilterEnum,
+      count: Number(count) || 0,
+    }));
   }
 
   /**
