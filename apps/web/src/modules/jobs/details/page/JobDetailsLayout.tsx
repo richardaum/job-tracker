@@ -34,6 +34,8 @@ import { useJobPageTitle } from "@/modules/jobs/details/hooks/useJobPageTitle";
 import { JobDetailsSubTabs, JobHeaderActions } from "@/modules/jobs/details/job-details-header.slots";
 import { jobDetailDisplayTitle } from "@/modules/jobs/details/utils/job-detail-title";
 
+import { useRouter } from "next/navigation";
+
 import { DeleteJobDialog } from "@/modules/jobs/list/components/DeleteJobDialog";
 import { StatusBadge } from "@/modules/jobs/shared/components/StatusBadge";
 
@@ -85,6 +87,7 @@ function JobDetailsSplitTabLayout({ activeTab, tabBar, sidePanel, children }: Jo
 
 export default function JobDetailsLayout({ params, children }: JobDetailsLayoutProps) {
   const { id } = use(params);
+  const router = useRouter();
   const isDesktop = useBreakpoint("(min-width: 1024px)");
 
   const { activeTab, sidePanelFromQuery, fullWidth, toggleFullWidth, setSidePanel, needsRedirect } =
@@ -155,6 +158,7 @@ export default function JobDetailsLayout({ params, children }: JobDetailsLayoutP
                     jobTitle={jobDetailDisplayTitle(job.title)}
                     open={deleteDialogOpen}
                     onOpenChange={setDeleteDialogOpen}
+                    onDeleted={() => router.push("/jobs")}
                   />
                 </>
               ) : null}
