@@ -4,6 +4,8 @@ import { cn, FilterChip, Tooltip } from "@job-tracker/ui";
 import type { Route } from "next";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
+import { ApplicationQuickFilter, useQuickFilterCountsQuery } from "@/gql/hooks";
+
 const QUICK_FILTERS = [
   { key: "all", label: "All", tooltip: "Show all jobs" },
   { key: "draft", label: "Draft", tooltip: "Imported jobs awaiting fill" },
@@ -20,6 +22,15 @@ const QUICK_FILTERS = [
 
 type QuickFilterKey = (typeof QUICK_FILTERS)[number]["key"];
 
+const FILTER_COUNT_KEY_MAP: Record<string, QuickFilterKey> = {
+  [ApplicationQuickFilter.Draft]: "draft",
+  [ApplicationQuickFilter.Incoming]: "incoming",
+  [ApplicationQuickFilter.Active]: "active",
+  [ApplicationQuickFilter.Applied]: "applied",
+  [ApplicationQuickFilter.New]: "new",
+  [ApplicationQuickFilter.Duplicated]: "duplicated",
+};
+
 function resolveActiveQuickFilterKey(raw: string | null): QuickFilterKey {
   if (!raw) return "incoming";
   const match = QUICK_FILTERS.find((f) => f.key === raw);
@@ -31,6 +42,22 @@ export function QuickFilters() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const activeFilter = resolveActiveQuickFilterKey(searchParams.get("q"));
+
+  const company = searchParams.get("company");
+  const runId = searchParams.get("runId");
+  const { data } = useQuickFilterCountsQuery({ variables: { company, runId }, fetchPolicy: "cache-and-network" });
+
+  const entries = data?.quickFilterCounts ?? [];
+  const counts: Record<string, number> = {};
+  let allCount = 0;
+  for (const entry of entries) {
+    const chipKey = FILTER_COUNT_KEY_MAP[entry.key];
+    if (chipKey) {
+      counts[chipKey] = entry.count;
+    }
+    allCount += entry.count;
+  }
+  counts.all = allCount;
 
   function toggle(key: QuickFilterKey) {
     const params = new URLSearchParams(searchParams.toString());
@@ -55,6 +82,7 @@ export function QuickFilters() {
           <Tooltip key={key} content={tooltip} side="bottom">
             <FilterChip active={activeFilter === key} onClick={() => toggle(key)}>
               {label}
+              {counts[key] > 0 && <span className={cn("ml-1")}>({counts[key]})</span>}
             </FilterChip>
           </Tooltip>
         ))}

@@ -1,0 +1,6 @@
+query QuickFilterCounts($company: String, $runId: ID) {
+  quickFilterCounts(company: $company, runId: $runId) {
+    key
+    count
+  }
+}

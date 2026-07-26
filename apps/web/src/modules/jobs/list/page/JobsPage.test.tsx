@@ -9,6 +9,7 @@ const navigationMocks = { searchParams: "" };
 const useJobsQueryMock = vi.fn();
 const useJobStageEventsQueryMock = vi.fn();
 const useCurrentUserMock = vi.fn();
+const useQuickFilterCountsQueryMock = vi.fn();
 const routerPushSpy = vi.fn();
 
 vi.mock("next/navigation", () => ({
@@ -45,6 +46,7 @@ vi.mock("@/gql/hooks", () => ({
   SalaryPeriod: { Year: "YEAR", Month: "MONTH", Hour: "HOUR" },
   useJobsQuery: (...args: unknown[]) => useJobsQueryMock(...args),
   useJobStageEventsQuery: (...args: unknown[]) => useJobStageEventsQueryMock(...args),
+  useQuickFilterCountsQuery: (...args: unknown[]) => useQuickFilterCountsQueryMock(...args),
 }));
 
 vi.mock("@/hooks/useCurrentUser", () => ({ useCurrentUser: () => useCurrentUserMock() }));
@@ -66,6 +68,7 @@ describe("JobsPage", () => {
     navigationMocks.searchParams = "";
     routerPushSpy.mockClear();
     vi.clearAllMocks();
+    useQuickFilterCountsQueryMock.mockReturnValue({ data: { quickFilterCounts: [] }, loading: false });
   });
 
   it("passes DRAFT filter to Jobs query when URL has q=draft", () => {

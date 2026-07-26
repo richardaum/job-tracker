@@ -6,7 +6,13 @@ import { type DialogControl } from "@job-tracker/ui";
 import { useState } from "react";
 import type { ChangeEvent, ReactElement, SyntheticEvent } from "react";
 
-import { JobsDocument, useCompaniesQuery, useCreateJobMutation, useUpdateJobMutation } from "@/gql/hooks";
+import {
+  JobsDocument,
+  QuickFilterCountsDocument,
+  useCompaniesQuery,
+  useCreateJobMutation,
+  useUpdateJobMutation,
+} from "@/gql/hooks";
 
 interface JobValues {
   id: string;
@@ -44,7 +50,7 @@ function JobQuickEditDialogForm({ isEdit, job, onSuccess, onError, onCreated, on
   });
   const [errors, setErrors] = useState<Partial<FormState>>({});
 
-  const refetchQueries = [{ query: JobsDocument }];
+  const refetchQueries = [{ query: JobsDocument }, { query: QuickFilterCountsDocument }];
   const [createJob, { loading: creating }] = useCreateJobMutation({ refetchQueries, awaitRefetchQueries: true });
   const [updateJob, { loading: updating }] = useUpdateJobMutation({ refetchQueries, awaitRefetchQueries: true });
   const loading = creating || updating;
