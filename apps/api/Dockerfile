@@ -19,8 +19,8 @@ RUN pnpm --filter @job-tracker/api... install --frozen-lockfile
 # Copy app source
 COPY apps/api/ ./apps/api/
 
-# Compile directly with tsc — equivalent to nest build for projects without nest-cli.json
-RUN /app/node_modules/.bin/tsc -p /app/apps/api/tsconfig.build.json
+# Build (same command as local: nest build && tsc-alias)
+RUN pnpm --filter @job-tracker/api build
 
 # ---- Stage 2: production ----
 FROM node:22-alpine AS production
