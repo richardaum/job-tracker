@@ -247,6 +247,12 @@ export enum ExtensionActivityEventType {
   SourceRunStopConditionMet = 'SourceRunStopConditionMet'
 }
 
+export type FilterCountType = {
+  __typename?: 'FilterCountType';
+  count: Scalars['Int']['output'];
+  key: ApplicationQuickFilter;
+};
+
 export enum FitClassification {
   Negative = 'Negative',
   Neutral = 'Neutral',
@@ -699,6 +705,7 @@ export type Query = {
   me: UserType;
   plan?: Maybe<PlanType>;
   plans: Array<PlanType>;
+  quickFilterCounts: Array<FilterCountType>;
   restructureJobDescriptionWithAI: Scalars['String']['output'];
   resume: ResumeType;
   resumes: Array<ResumeType>;
@@ -805,6 +812,12 @@ export type QueryMatchArgs = {
 
 export type QueryPlanArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type QueryQuickFilterCountsArgs = {
+  company?: InputMaybe<Scalars['String']['input']>;
+  runId?: InputMaybe<Scalars['ID']['input']>;
 };
 
 
@@ -1400,6 +1413,14 @@ export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type MeQuery = { __typename?: 'Query', me: { __typename?: 'UserType', id: string, email: string, name: string, role: string, avatarUrl?: string | null, accounts: Array<{ __typename?: 'AuthAccount', id: string, providerName: AuthProvider, providerAccountId: string, createdAt: any }> } };
+
+export type QuickFilterCountsQueryVariables = Exact<{
+  company?: InputMaybe<Scalars['String']['input']>;
+  runId?: InputMaybe<Scalars['ID']['input']>;
+}>;
+
+
+export type QuickFilterCountsQuery = { __typename?: 'Query', quickFilterCounts: Array<{ __typename?: 'FilterCountType', key: ApplicationQuickFilter, count: number }> };
 
 export type ResumesQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -3640,6 +3661,44 @@ export function useMeLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptio
 
 export type MeQueryHookResult = ReturnType<typeof useMeQuery>;
 export type MeLazyQueryHookResult = ReturnType<typeof useMeLazyQuery>;
+
+export const QuickFilterCountsDocument = gql`
+    query QuickFilterCounts($company: String, $runId: ID) {
+  quickFilterCounts(company: $company, runId: $runId) {
+    key
+    count
+  }
+}
+    `;
+
+/**
+ * __useQuickFilterCountsQuery__
+ *
+ * To run a query within a React component, call `useQuickFilterCountsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useQuickFilterCountsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useQuickFilterCountsQuery({
+ *   variables: {
+ *      company: // value for 'company'
+ *      runId: // value for 'runId'
+ *   },
+ * });
+ */
+export function useQuickFilterCountsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<QuickFilterCountsQuery, QuickFilterCountsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<QuickFilterCountsQuery, QuickFilterCountsQueryVariables>(QuickFilterCountsDocument, options);
+      }
+export function useQuickFilterCountsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<QuickFilterCountsQuery, QuickFilterCountsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<QuickFilterCountsQuery, QuickFilterCountsQueryVariables>(QuickFilterCountsDocument, options);
+        }
+
+export type QuickFilterCountsQueryHookResult = ReturnType<typeof useQuickFilterCountsQuery>;
+export type QuickFilterCountsLazyQueryHookResult = ReturnType<typeof useQuickFilterCountsLazyQuery>;
 
 export const ResumesDocument = gql`
     query Resumes {

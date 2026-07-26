@@ -246,6 +246,12 @@ export enum ExtensionActivityEventType {
   SourceRunStopConditionMet = 'SourceRunStopConditionMet'
 }
 
+export type FilterCountType = {
+  __typename?: 'FilterCountType';
+  count: Scalars['Int']['output'];
+  key: ApplicationQuickFilter;
+};
+
 export enum FitClassification {
   Negative = 'Negative',
   Neutral = 'Neutral',
@@ -698,6 +704,7 @@ export type Query = {
   me: UserType;
   plan?: Maybe<PlanType>;
   plans: Array<PlanType>;
+  quickFilterCounts: Array<FilterCountType>;
   restructureJobDescriptionWithAI: Scalars['String']['output'];
   resume: ResumeType;
   resumes: Array<ResumeType>;
@@ -804,6 +811,12 @@ export type QueryMatchArgs = {
 
 export type QueryPlanArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type QueryQuickFilterCountsArgs = {
+  company?: InputMaybe<Scalars['String']['input']>;
+  runId?: InputMaybe<Scalars['ID']['input']>;
 };
 
 
@@ -1399,6 +1412,14 @@ export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type MeQuery = { __typename?: 'Query', me: { __typename?: 'UserType', id: string, email: string, name: string, role: string, avatarUrl?: string | null, accounts: Array<{ __typename?: 'AuthAccount', id: string, providerName: AuthProvider, providerAccountId: string, createdAt: any }> } };
+
+export type QuickFilterCountsQueryVariables = Exact<{
+  company?: InputMaybe<Scalars['String']['input']>;
+  runId?: InputMaybe<Scalars['ID']['input']>;
+}>;
+
+
+export type QuickFilterCountsQuery = { __typename?: 'Query', quickFilterCounts: Array<{ __typename?: 'FilterCountType', key: ApplicationQuickFilter, count: number }> };
 
 export type ResumesQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -2304,6 +2325,14 @@ export const MeDocument = gql`
   }
 }
     `;
+export const QuickFilterCountsDocument = gql`
+    query QuickFilterCounts($company: String, $runId: ID) {
+  quickFilterCounts(company: $company, runId: $runId) {
+    key
+    count
+  }
+}
+    `;
 export const ResumesDocument = gql`
     query Resumes {
   resumes {
@@ -2787,6 +2816,9 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     Me(variables?: MeQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<MeQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<MeQuery>({ document: MeDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'Me', 'query', variables);
+    },
+    QuickFilterCounts(variables?: QuickFilterCountsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<QuickFilterCountsQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<QuickFilterCountsQuery>({ document: QuickFilterCountsDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'QuickFilterCounts', 'query', variables);
     },
     Resumes(variables?: ResumesQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<ResumesQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ResumesQuery>({ document: ResumesDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'Resumes', 'query', variables);
