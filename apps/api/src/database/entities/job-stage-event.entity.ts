@@ -1,6 +1,8 @@
 import { ApplicationStageEnum } from "@api/domains/jobs/job-stage.enum";
 import { StageEventSourceEnum } from "@api/domains/jobs/stage-event-source.enum";
-import { Column, CreateDateColumn, Entity, PrimaryColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryColumn } from "typeorm";
+
+import { JobEntity } from "./job.entity";
 
 @Entity({ name: "job_stage_events" })
 export class JobStageEventEntity {
@@ -9,6 +11,10 @@ export class JobStageEventEntity {
 
   @Column({ name: "job_id", type: "text" })
   jobId!: string;
+
+  @ManyToOne(() => JobEntity, { onDelete: "CASCADE", nullable: false })
+  @JoinColumn({ name: "job_id" })
+  job?: JobEntity;
 
   @Column({ name: "user_id", type: "text" })
   userId!: string;
