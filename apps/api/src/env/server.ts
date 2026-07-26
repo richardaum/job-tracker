@@ -26,6 +26,7 @@ function parseEnvBoolean(value: unknown, defaultValue = false): boolean {
 const apiEnvSchema = z.object({
   NODE_ENV: nodeEnvSchema,
   DATABASE_URL: z.url().startsWith("postgresql://"),
+  DATABASE_SSL_ENABLED: z.coerce.boolean().default(false),
   SENTRY_DSN: z.url().optional(),
   PORT: z.coerce.number().int().min(1).max(65535).default(3101),
   TRUST_PROXY_HOPS: z.coerce.number().int().min(0).max(10).default(0),
