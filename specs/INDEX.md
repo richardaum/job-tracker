@@ -2,8 +2,8 @@
 formatVersion: 1
 generator: "scripts/sync-spec-indices.ts"
 specCount: 41
-requirementIdCount: 579
-historyCount: 84
+requirementIdCount: 580
+historyCount: 85
 ---
 
 # LeanSpec index
