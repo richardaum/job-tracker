@@ -19,8 +19,19 @@ RUN pnpm --filter @job-tracker/api... install --frozen-lockfile
 # Copy app source
 COPY apps/api/ ./apps/api/
 
+# Build workspace packages to CJS (compile dist/ but keep original package.json for the API build)
+RUN pnpm --filter @job-tracker/html-sanitize build && \
+    pnpm --filter @job-tracker/logger build && \
+    pnpm --filter @job-tracker/tiptap build && \
+    pnpm --filter @job-tracker/try-run build
+
 # Build (same command as local: nest build && tsc-alias)
 RUN pnpm --filter @job-tracker/api build
+
+# After the API build, point workspace packages' main/export to compiled CJS dist
+RUN for pkg in html-sanitize logger tiptap try-run; do \
+      node -e "const p=require('./packages/'+process.argv[1]+'/package.json');p.main='./dist/index.js';p.types='./dist/index.d.ts';delete p.type;require('fs').writeFileSync('./packages/'+process.argv[1]+'/package.json',JSON.stringify(p,null,2)+'\n')" "$pkg"; \
+    done
 
 # ---- Stage 2: production ----
 FROM node:22-alpine AS production
@@ -39,6 +50,16 @@ COPY packages/ ./packages/
 
 # Install production dependencies only for the API
 RUN pnpm --filter @job-tracker/api... install --frozen-lockfile --prod --ignore-scripts
+
+# Override workspace packages with compiled CJS output from builder
+COPY --from=builder /app/packages/html-sanitize/dist ./packages/html-sanitize/dist
+COPY --from=builder /app/packages/html-sanitize/package.json ./packages/html-sanitize/package.json
+COPY --from=builder /app/packages/logger/dist ./packages/logger/dist
+COPY --from=builder /app/packages/logger/package.json ./packages/logger/package.json
+COPY --from=builder /app/packages/tiptap/dist ./packages/tiptap/dist
+COPY --from=builder /app/packages/tiptap/package.json ./packages/tiptap/package.json
+COPY --from=builder /app/packages/try-run/dist ./packages/try-run/dist
+COPY --from=builder /app/packages/try-run/package.json ./packages/try-run/package.json
 
 # Copy built output from builder
 COPY --from=builder /app/apps/api/dist ./apps/api/dist
