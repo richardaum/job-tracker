@@ -15,7 +15,8 @@ async function main(): Promise<void> {
     console.error("DATABASE_URL is required to run migrations.");
     process.exit(1);
   }
-  const dataSource = new DataSource(buildDataSourceOptions(url));
+  const ssl = process.env.DATABASE_SSL_ENABLED === "true";
+  const dataSource = new DataSource(buildDataSourceOptions(url, { ssl }));
   await dataSource.initialize();
   const executed = await dataSource.runMigrations({ transaction: "each" });
   for (const m of executed) {
