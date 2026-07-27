@@ -105,14 +105,14 @@ Exactly one of `--dry-run` or `--apply` must be set (they conflict).
 
 ## Artifacts
 
-| Path                                 | Role                                                                       |
-| ------------------------------------ | -------------------------------------------------------------------------- |
-| `apps/api/.env`                      | API: DATABASE_URL, PORT, GOOGLE_CALLBACK_URL, WEB_URL (worktree overrides) |
-| `apps/web/.env`                      | Web: PORT, NEXT_PUBLIC_API_URL, E2E_PORT (worktree overrides)              |
-| `packages/ui/.env`                   | Storybook: STORYBOOK_PORT (worktree override)                              |
-| `apps/extension/.env.development`    | Extension: WXT*DEV_PORT, WXT_PUBLIC*\* (worktree override)                 |
-| `/tmp/job-tracker-ports.json`        | Global slug → port map                                                     |
-| `/tmp/job-tracker-<slug>.ports.json` | Per-slug port cache (includes PM2_RESET_PORTS for scripts)                 |
+| Path                                 | Role                                                          |
+| ------------------------------------ | ------------------------------------------------------------- |
+| `apps/api/.env`                      | API: DATABASE_URL, PORT, WEB_URL (worktree overrides)         |
+| `apps/web/.env`                      | Web: PORT, NEXT_PUBLIC_API_URL, E2E_PORT (worktree overrides) |
+| `packages/ui/.env`                   | Storybook: STORYBOOK_PORT (worktree override)                 |
+| `apps/extension/.env.development`    | Extension: WXT*DEV_PORT, WXT_PUBLIC*\* (worktree override)    |
+| `/tmp/job-tracker-ports.json`        | Global slug → port map                                        |
+| `/tmp/job-tracker-<slug>.ports.json` | Per-slug port cache (includes PM2_RESET_PORTS for scripts)    |
 
 Main checkout ports **3100, 3101, 6006, 3001** are reserved and never assigned to worktrees.
 

@@ -174,7 +174,7 @@ async function main() {
       AUTH_BYPASS_ENABLED: "true",
       GOOGLE_CLIENT_ID: apiEnv.GOOGLE_CLIENT_ID ?? "",
       GOOGLE_CLIENT_SECRET: apiEnv.GOOGLE_CLIENT_SECRET ?? "",
-      GOOGLE_CALLBACK_URL: `http://localhost:${e2eEnv.E2E_API_PORT}/auth/google/callback`,
+
       JWT_ACCESS_SECRET: apiEnv.JWT_ACCESS_SECRET ?? "",
       JWT_REFRESH_SECRET: apiEnv.JWT_REFRESH_SECRET ?? "",
       WEB_URL: `http://localhost:${e2eEnv.E2E_WEB_PORT}`,

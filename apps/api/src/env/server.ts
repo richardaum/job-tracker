@@ -32,7 +32,7 @@ const apiEnvSchema = z.object({
   TRUST_PROXY_HOPS: z.coerce.number().int().min(0).max(10).default(0),
   GOOGLE_CLIENT_ID: z.string(),
   GOOGLE_CLIENT_SECRET: z.string(),
-  GOOGLE_CALLBACK_URL: z.url().default("http://localhost:3101/auth/google/callback"),
+
   JWT_ACCESS_SECRET: z.string().optional(),
   JWT_REFRESH_SECRET: z.string().optional(),
   JWT_ACCESS_SECRETS: z.string().optional(),

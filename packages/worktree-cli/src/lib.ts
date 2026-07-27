@@ -538,7 +538,7 @@ export function buildWorktreeApiEnv(params: {
     DATABASE_URL: databaseUrl,
     DATABASE_INTEGRATION_URL: e2eDatabaseUrl,
     PORT: String(ports.api),
-    GOOGLE_CALLBACK_URL: `http://localhost:${ports.api}/auth/google/callback`,
+
     WEB_URL: `http://localhost:${ports.web}`,
     RATE_LIMIT_DISABLED: "true",
   };
