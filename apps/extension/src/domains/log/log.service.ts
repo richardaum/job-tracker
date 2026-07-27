@@ -6,8 +6,10 @@ export class LogService {
   constructor(private readonly params?: LogServiceParams) {}
 
   private isEnabled(level: (typeof levels)[number]) {
+    const configuredLevel = this.params?.level ?? "off";
+    if (configuredLevel === "off") return false;
     const levelIndex = levels.indexOf(level);
-    const paramsLevelIndex = levels.indexOf(this.params?.level ?? "off");
+    const paramsLevelIndex = levels.indexOf(configuredLevel);
     return levelIndex >= paramsLevelIndex;
   }
 
