@@ -47,6 +47,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Ensure lean-spec binary is executable
+        run: find node_modules -path "*leanspec*cli-linux-x64*" -name "lean-spec" -exec chmod +x {} \;
+
       - name: Validate LeanSpec (specs/)
         run: pnpm leanspec:validate
 
