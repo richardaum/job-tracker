@@ -1,0 +1,13 @@
+[mcp_servers.caveman-shrink]
+command = "npx"
+args = [
+    "-y",
+    "caveman-shrink",
+]
+
+[mcp_servers.lean-spec]
+command = "npx"
+args = [
+    "-y",
+    "@leanspec/mcp",
+]

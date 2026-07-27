@@ -9,13 +9,10 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@job-tracker/try-run": "workspace:*",
     "marked": "^18.0.3"
   },
   "devDependencies": {
-    "@job-tracker/try-run": "workspace:*",
     "typescript": "^5.8.3"
-  },
-  "peerDependencies": {
-    "@job-tracker/try-run": "workspace:*"
   }
 }
