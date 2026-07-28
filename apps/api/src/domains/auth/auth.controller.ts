@@ -66,9 +66,11 @@ export class AuthController {
 
     await this.revokeSessionFromCookies(req);
 
-    res.clearCookie("access_token", { path: "/" });
-    res.clearCookie("refresh_token", { path: "/" });
-    res.clearCookie("refresh_token", { path: REFRESH_COOKIE_PATH });
+    const cookies = this.devAuthBypassService.isEnabled() ? cookieBaseDev : cookieBase;
+
+    res.clearCookie("access_token", { ...cookies, path: "/" });
+    res.clearCookie("refresh_token", { ...cookies, path: "/" });
+    res.clearCookie("refresh_token", { ...cookies, path: REFRESH_COOKIE_PATH });
     res.json({ ok: true });
   }
 
