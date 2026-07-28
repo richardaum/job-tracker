@@ -22,7 +22,7 @@ async function bootstrap() {
   }
   app.use(cookieParser());
   app.use(passport.initialize());
-  app.enableCors({ origin: true, credentials: true });
+  app.enableCors({ origin: apiEnv.CORS_ORIGINS ?? true, credentials: true });
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
   await app.listen(apiEnv.PORT, "0.0.0.0");
 }

@@ -48,6 +48,15 @@ const apiEnvSchema = z.object({
 
   /** Dev only — random delay (300ms–2s) added to every request. */
   SIMULATED_LATENCY_ENABLED: z.preprocess((value) => parseEnvBoolean(value, false), z.boolean()),
+
+  /** Comma-separated CORS origins. Use "*" or omit for all origins (reflect mode). */
+  CORS_ORIGINS: z
+    .string()
+    .optional()
+    .transform((val) => {
+      if (!val || val === "*") return undefined;
+      return val.split(",").map((s) => s.trim());
+    }),
 });
 
 export const apiEnv = apiEnvSchema
