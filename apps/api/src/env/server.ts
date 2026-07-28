@@ -24,31 +24,46 @@ function parseEnvBoolean(value: unknown, defaultValue = false): boolean {
 }
 
 const apiEnvSchema = z.object({
+  /** Runtime environment: development, test, or production. */
   NODE_ENV: nodeEnvSchema,
+  /** PostgreSQL connection string for the main application database. */
   DATABASE_URL: z.url().startsWith("postgresql://"),
+  /** Enables SSL for database connections, required for cloud-hosted PostgreSQL. */
   DATABASE_SSL_ENABLED: z.coerce.boolean().default(false),
+  /** Sentry Data Source Name for error monitoring and distributed tracing. */
   SENTRY_DSN: z.url().optional(),
+  /** HTTP port the API server binds to, must stay in 31xx for local/test environments. */
   PORT: z.coerce.number().int().min(1).max(65535).default(3101),
+  /** Number of trusted reverse-proxy hops for correct client IP resolution via X-Forwarded-For. */
   TRUST_PROXY_HOPS: z.coerce.number().int().min(0).max(10).default(0),
+  /** Google OAuth2 client ID for authentication via Google strategy. */
   GOOGLE_CLIENT_ID: z.string(),
+  /** Google OAuth2 client secret for authentication via Google strategy. */
   GOOGLE_CLIENT_SECRET: z.string(),
-
+  /** Single access JWT secret — prefer JWT_ACCESS_SECRETS for key rotation support. */
   JWT_ACCESS_SECRET: z.string().optional(),
+  /** Single refresh JWT secret — prefer JWT_REFRESH_SECRETS for key rotation support. */
   JWT_REFRESH_SECRET: z.string().optional(),
+  /** JSON object with current access JWT secret and optional previous secret for zero-downtime key rotation. */
   JWT_ACCESS_SECRETS: z.string().optional(),
+  /** JSON object with current refresh JWT secret and optional previous secret for zero-downtime key rotation. */
   JWT_REFRESH_SECRETS: z.string().optional(),
+  /** Separate PostgreSQL connection string for integration tests, isolated from the main database. */
   DATABASE_INTEGRATION_URL: z.url().optional(),
+  /** Base URL of the web frontend, used for CORS origin validation and OAuth redirects. */
   WEB_URL: z.url().default("http://localhost:3100"),
+  /** OpenAI API key for AI-powered features such as job matching, summaries, and fill generation. */
   OPENAI_API_KEY: z.string().optional(),
+  /** OpenAI model identifier for AI features, defaults to gpt-4.1-mini for cost efficiency. */
   OPENAI_MODEL: z.string().default("gpt-4.1-mini"),
+  /** Skips Google OAuth flow in dev/E2E, authenticating as DEV_AUTH_BYPASS_EMAIL without credentials. */
   AUTH_BYPASS_ENABLED: z.coerce.boolean().default(false),
+  /** Email identity used when auth bypass is enabled, must be set whenever AUTH_BYPASS_ENABLED is true. */
   DEV_AUTH_BYPASS_EMAIL: z.email().optional(),
   /** Dev/E2E only — skips @nestjs/throttler and in-app IP rate limits. */
   RATE_LIMIT_DISABLED: z.preprocess((value) => parseEnvBoolean(value, false), z.boolean()),
-
   /** Dev only — random delay (300ms–2s) added to every request. */
   SIMULATED_LATENCY_ENABLED: z.preprocess((value) => parseEnvBoolean(value, false), z.boolean()),
-
   /** Comma-separated CORS origins. Use "*" or omit for all origins (reflect mode). */
   CORS_ORIGINS: z
     .string()
