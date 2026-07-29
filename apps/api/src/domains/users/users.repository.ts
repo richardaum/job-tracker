@@ -55,7 +55,9 @@ export class UserRepository {
   }
 
   async saveUser(user: SaveUserRepoDto, manager?: EntityManager): Promise<User> {
-    return this.users(manager).save(user);
+    const repo = this.users(manager);
+    const existing = await repo.findOneByOrFail({ id: user.id });
+    return repo.save(repo.merge(existing, user));
   }
 
   async insertUser(data: InsertUserRepoDto, manager?: EntityManager): Promise<User> {
