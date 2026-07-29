@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 
-import { Injectable, UnauthorizedException } from "@nestjs/common";
+import { Injectable, Logger, UnauthorizedException } from "@nestjs/common";
 
 import { ActiveUserCacheService } from "./active-user-cache.service";
 import { AuthProviderEnum } from "./auth-provider.enum";
@@ -10,6 +10,8 @@ import type { NewUser, User } from "./users.schema";
 
 @Injectable()
 export class UserService {
+  private readonly logger = new Logger(UserService.name);
+
   constructor(
     private readonly userRepository: UserRepository,
     private readonly activeUserCache: ActiveUserCacheService,
@@ -100,10 +102,18 @@ export class UserService {
     }
 
     const user = await this.findById(userId);
-    if (!user || !user.active) {
+    if (!user) {
+      this.logger.warn(`auth denied userId=${userId} reason=user_not_found`);
+      throw new UnauthorizedException();
+    }
+    if (!user.active) {
+      this.logger.warn(`auth denied userId=${userId} reason=user_inactive`);
       throw new UnauthorizedException();
     }
     if (user.tokenVersion !== tokenVersion) {
+      this.logger.warn(
+        `auth denied userId=${userId} reason=token_version_mismatch tokenVersion=${tokenVersion} currentVersion=${user.tokenVersion}`,
+      );
       throw new UnauthorizedException();
     }
 

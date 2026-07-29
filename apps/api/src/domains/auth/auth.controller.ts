@@ -8,7 +8,7 @@ import type { User } from "@api/domains/users/users.schema";
 import { UserService } from "@api/domains/users/users.service";
 import { apiEnv } from "@api/env/server";
 import { tryRun } from "@job-tracker/try-run";
-import { Controller, Get, HttpCode, Post, Req, Res, UnauthorizedException, UseGuards } from "@nestjs/common";
+import { Controller, Get, HttpCode, Logger, Post, Req, Res, UnauthorizedException, UseGuards } from "@nestjs/common";
 import { Throttle, ThrottlerGuard } from "@nestjs/throttler";
 import type { Request, Response } from "express";
 
@@ -32,6 +32,8 @@ const DEFAULT_AFTER_LOGIN_PATH = "/login";
 // Suggested edge limits: google/callback 5/min, refresh 10/min, logout 20/min per IP.
 @Controller("auth")
 export class AuthController {
+  private readonly logger = new Logger(AuthController.name);
+
   constructor(
     private readonly authService: AuthService,
     private readonly devAuthBypassService: DevAuthBypassService,
@@ -83,11 +85,15 @@ export class AuthController {
 
     const refreshToken = req.cookies?.refresh_token;
     if (!refreshToken) {
+      this.logger.warn("refresh denied reason=no_refresh_cookie");
       throw new UnauthorizedException();
     }
 
     const [verifyErr, payload] = tryRun(() => this.authService.verifyRefreshToken(refreshToken));
     if (verifyErr || !payload) {
+      this.logger.warn(
+        `refresh denied reason=verify_failed err=${verifyErr instanceof Error ? `${verifyErr.name}: ${verifyErr.message}` : String(verifyErr)}`,
+      );
       throw new UnauthorizedException();
     }
 
@@ -103,6 +109,7 @@ export class AuthController {
     const isLegacyMigration = isLegacyToken && freshUser.refreshJti === null;
 
     if (!jtiMatches && !isLegacyMigration) {
+      this.logger.warn(`refresh denied userId=${payload.userId} reason=jti_reuse_detected`);
       await this.userService.incrementTokenVersion(payload.userId);
       throw new UnauthorizedException();
     }

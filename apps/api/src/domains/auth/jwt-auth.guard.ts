@@ -1,4 +1,4 @@
-import { ExecutionContext, Injectable } from "@nestjs/common";
+import { ExecutionContext, Injectable, Logger, UnauthorizedException } from "@nestjs/common";
 import { GqlExecutionContext } from "@nestjs/graphql";
 import { AuthGuard } from "@nestjs/passport";
 
@@ -9,11 +9,25 @@ type JwtUser = { userId: string; tokenVersion: number };
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard("jwt") {
+  private readonly logger = new Logger(JwtAuthGuard.name);
+
   constructor(
     private readonly devAuthBypassService: DevAuthBypassService,
     private readonly authUserAccessService: AuthUserAccessService,
   ) {
     super();
+  }
+
+  override handleRequest<TUser = unknown>(err: unknown, user: TUser, info: unknown): TUser {
+    if (err || !user) {
+      const infoName = info instanceof Error ? info.name : undefined;
+      const infoMessage = info instanceof Error ? info.message : info ? String(info) : undefined;
+      this.logger.warn(
+        `jwt auth denied err=${err instanceof Error ? `${err.name}: ${err.message}` : String(err)} info=${infoName ?? "none"}:${infoMessage ?? "none"}`,
+      );
+      throw err instanceof Error ? err : new UnauthorizedException();
+    }
+    return user;
   }
 
   getRequest(context: ExecutionContext) {
