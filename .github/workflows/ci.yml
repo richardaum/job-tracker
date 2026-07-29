@@ -65,6 +65,20 @@ jobs:
       - name: Typecheck
         run: pnpm turbo typecheck
 
+      - name: Write API .env for CI
+        run: |
+          cat > apps/api/.env << 'EOF'
+          DATABASE_URL=postgresql://postgres:postgres@localhost:5432/job_tracker_test
+          PORT=3101
+          GOOGLE_CLIENT_ID=ci-dummy
+          GOOGLE_CLIENT_SECRET=ci-dummy
+          JWT_ACCESS_SECRET=ci-dummy-access
+          JWT_REFRESH_SECRET=ci-dummy-refresh
+          WEB_URL=http://localhost:3100
+          AUTH_BYPASS_ENABLED=true
+          DEV_AUTH_BYPASS_EMAIL=ci@test.local
+          EOF
+
       - name: Test
         run: pnpm turbo test -- --coverage --coverage.thresholds.lines=80
 
