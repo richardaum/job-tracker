@@ -80,6 +80,7 @@ BAZ="quoted"
     assert.equal(env.PORT, "3105");
 
     assert.equal(env.WEB_URL, "http://localhost:3106");
+    assert.equal(env.CORS_ORIGINS, "http://localhost:3106");
     assert.equal(env.RATE_LIMIT_DISABLED, "true");
   });
 

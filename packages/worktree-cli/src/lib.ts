@@ -540,6 +540,7 @@ export function buildWorktreeApiEnv(params: {
     PORT: String(ports.api),
 
     WEB_URL: `http://localhost:${ports.web}`,
+    CORS_ORIGINS: `http://localhost:${ports.web}`,
     RATE_LIMIT_DISABLED: "true",
   };
 }
