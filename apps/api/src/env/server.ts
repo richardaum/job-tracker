@@ -72,6 +72,10 @@ const apiEnvSchema = z.object({
       if (!val || val === "*") return undefined;
       return val.split(",").map((s) => s.trim());
     }),
+  /** AES-256-GCM master key (32 bytes base64-encoded) for encrypting per-user OpenAI API keys at rest. */
+  SETTINGS_ENCRYPTION_KEY: z.string(),
+  /** Maximum number of AI calls allowed on the shared trial quota per user before requiring a personal key. */
+  TRIAL_AI_CALL_LIMIT: z.coerce.number().int().positive().default(50),
 });
 
 export const apiEnv = apiEnvSchema

@@ -8,6 +8,7 @@ const REQUIRED_ENV = {
   JWT_REFRESH_SECRET: "test-refresh-secret",
   GOOGLE_CLIENT_ID: "test-client-id",
   GOOGLE_CLIENT_SECRET: "test-client-secret",
+  SETTINGS_ENCRYPTION_KEY: "test-encryption-key-32-bytes-long==",
 };
 
 function loadEnv(overrides: Record<string, string | undefined> = {}) {
@@ -76,5 +77,27 @@ describe("API server env schema", () => {
     await expect(loadEnv({ NODE_ENV: "production", RATE_LIMIT_DISABLED: "true" })).rejects.toThrow(
       "RATE_LIMIT_DISABLED cannot be enabled in production.",
     );
+  });
+
+  it("rejects env when SETTINGS_ENCRYPTION_KEY is missing", async () => {
+    await expect(loadEnv({ SETTINGS_ENCRYPTION_KEY: undefined })).rejects.toThrow();
+  });
+
+  it("exposes SETTINGS_ENCRYPTION_KEY as a string when present", async () => {
+    const env = await loadEnv({ SETTINGS_ENCRYPTION_KEY: "test-key-value" });
+
+    expect(env.apiEnv.SETTINGS_ENCRYPTION_KEY).toBe("test-key-value");
+  });
+
+  it("defaults TRIAL_AI_CALL_LIMIT to 50 when not set", async () => {
+    const env = await loadEnv({ TRIAL_AI_CALL_LIMIT: undefined });
+
+    expect(env.apiEnv.TRIAL_AI_CALL_LIMIT).toBe(50);
+  });
+
+  it("parses TRIAL_AI_CALL_LIMIT as a number when set", async () => {
+    const env = await loadEnv({ TRIAL_AI_CALL_LIMIT: "100" });
+
+    expect(env.apiEnv.TRIAL_AI_CALL_LIMIT).toBe(100);
   });
 });

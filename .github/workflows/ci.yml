@@ -77,6 +77,8 @@ jobs:
           WEB_URL=http://localhost:3100
           AUTH_BYPASS_ENABLED=true
           DEV_AUTH_BYPASS_EMAIL=ci@test.local
+          SETTINGS_ENCRYPTION_KEY=ci-dummy-encryption-key-32-bytes-b64==
+          TRIAL_AI_CALL_LIMIT=50
           EOF
 
       - name: Test
@@ -135,6 +137,8 @@ jobs:
           WEB_URL=http://localhost:3100
           AUTH_BYPASS_ENABLED=true
           DEV_AUTH_BYPASS_EMAIL=ci@test.local
+          SETTINGS_ENCRYPTION_KEY=ci-dummy-encryption-key-32-bytes-b64==
+          TRIAL_AI_CALL_LIMIT=50
           EOF
 
       - name: Run migrations (seed source DB for clone)
