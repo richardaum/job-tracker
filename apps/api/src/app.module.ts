@@ -15,6 +15,7 @@ import { AuthModule } from "./domains/auth/auth.module";
 import { CompaniesModule } from "./domains/companies/companies.module";
 import { CurrencyConverterModule } from "./domains/currency-converter/currency-converter.module";
 import { ExtensionActivityModule } from "./domains/extension-activity/extension-activity.module";
+import { FeatureFlagsModule } from "./domains/feature-flags/feature-flags.module";
 import { JobsModule } from "./domains/jobs/jobs.module";
 import { MatchAnalysisModule } from "./domains/match-analysis/match-analysis.module";
 import { NotesModule } from "./domains/notes/notes.module";
@@ -32,6 +33,7 @@ import { createWsSubscribe } from "./graphql/graphql-ws-logger";
     // TODO(infra): Remove ThrottlerModule when WAF/CloudFront rate limits replace in-app auth throttling.
     ThrottlerModule.forRoot({ throttlers: [{ ttl: 60_000, limit: 20 }], skipIf: () => apiEnv.RATE_LIMIT_DISABLED }),
     DatabaseModule,
+    FeatureFlagsModule,
     AuthModule,
     JobsModule,
     CompaniesModule,

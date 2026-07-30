@@ -7,6 +7,8 @@ import { RoleEnum } from "@api/domains/users/role.enum";
 import { UseGuards } from "@nestjs/common";
 import { Args, ID, Int, Mutation, Query, Resolver, Subscription } from "@nestjs/graphql";
 
+import { FeatureFlag } from "@api/domains/feature-flags/feature-flag.decorator";
+import { FeatureFlagGuard } from "@api/domains/feature-flags/feature-flag.guard";
 import { CreateSourceRunInput } from "./create-source-run.input";
 import { CreateSourceTemplateInput } from "./create-source-template.input";
 import { SourceRunActivityEvent } from "./source-run-activity-event.type";
@@ -21,8 +23,9 @@ import { UpdateSourceRunInput } from "./update-source-run.input";
 import { UpdateSourceTemplateInput } from "./update-source-template.input";
 
 @Resolver()
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAuthGuard, RolesGuard, FeatureFlagGuard)
 @Roles(RoleEnum.User)
+@FeatureFlag("sources-enabled")
 export class SourcesResolver {
   constructor(
     private readonly service: SourcesService,
