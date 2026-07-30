@@ -3,7 +3,7 @@ import { JobsRepository } from "@api/domains/jobs/jobs.repository";
 import { MatchAnalysisRepository } from "@api/domains/match-analysis/match-analysis.repository";
 import { NoteRepository } from "@api/domains/notes/notes.repository";
 import { apiEnv } from "@api/env/server";
-import { AiBaseService, OpenAIClient, PromptRendererService } from "@api/lib/ai";
+import { AiAccessService, AiBaseService, OpenAIClient, PromptRendererService } from "@api/lib/ai";
 import { Injectable, Logger } from "@nestjs/common";
 
 import { AiChatPubSub } from "./ai-chat.pubsub";
@@ -17,13 +17,14 @@ export class AiChatGenerationService extends AiBaseService {
   constructor(
     openAIClient: OpenAIClient,
     promptRenderer: PromptRendererService,
+    aiAccess: AiAccessService,
     private readonly jobsRepo: JobsRepository,
     private readonly matchAnalysisRepo: MatchAnalysisRepository,
     private readonly notesRepo: NoteRepository,
     private readonly stageEventsRepo: JobStageEventsRepository,
     private readonly pubSub: AiChatPubSub,
   ) {
-    super(openAIClient, promptRenderer);
+    super(openAIClient, promptRenderer, aiAccess);
   }
 
   async generateAnswer(conversationId: string, userId: string, jobId: string, question: string): Promise<string> {
@@ -43,7 +44,8 @@ export class AiChatGenerationService extends AiBaseService {
 
     const systemPrompt = this.buildSystemPrompt(job, matchAnalysis, notes, stageEvents);
 
-    const client = this.openAIClient.getClient();
+    const key = await this.aiAccess.resolveClientKey(userId);
+    const client = this.openAIClient.getClientFor(key);
     const model = apiEnv.OPENAI_MODEL;
     const stream = await client.chat.completions.create({
       model,
@@ -72,8 +74,9 @@ export class AiChatGenerationService extends AiBaseService {
     return fullContent;
   }
 
-  async generateTitle(question: string): Promise<string> {
-    const client = this.openAIClient.getClient();
+  async generateTitle(userId: string, question: string): Promise<string> {
+    const key = await this.aiAccess.resolveClientKey(userId);
+    const client = this.openAIClient.getClientFor(key);
     const model = apiEnv.OPENAI_MODEL;
     const response = await client.chat.completions.create({
       model,

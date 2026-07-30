@@ -160,10 +160,10 @@ export class MatchAnalysisService implements OnModuleInit {
 
       const resumeText = tipTapToPlainText(resumeEntity.content);
 
-      const resumeMatchItems = await this.aiService.extractResumeMatchItems(jdText, resumeText);
+      const resumeMatchItems = await this.aiService.extractResumeMatchItems(userId, jdText, resumeText);
 
       const preferenceItems = preferences?.items ?? [];
-      const preferenceMatchItems = await this.aiService.extractPreferenceMatchItems(jdText, preferenceItems);
+      const preferenceMatchItems = await this.aiService.extractPreferenceMatchItems(userId, jdText, preferenceItems);
 
       const items: MatchItem[] = [
         ...resumeMatchItems.map(

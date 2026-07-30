@@ -214,7 +214,7 @@ describe("JobAutomaticFillService", () => {
 
       await service.processFillJob("user-1", "app-1");
 
-      expect(draftExtractionService.extract).toHaveBeenCalledWith({
+      expect(draftExtractionService.extract).toHaveBeenCalledWith("user-1", {
         title: "",
         url: null,
         htmlContent: base.htmlContent,
@@ -277,7 +277,7 @@ describe("JobAutomaticFillService", () => {
 
       await service.processFillJob("user-1", "app-1");
 
-      expect(draftExtractionService.extract).toHaveBeenCalledWith({
+      expect(draftExtractionService.extract).toHaveBeenCalledWith("user-1", {
         title: "",
         url: "https://roles.example/job",
         htmlContent: "",

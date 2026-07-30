@@ -1,3 +1,4 @@
+import { CurrentUser } from "@api/domains/auth/current-user.decorator";
 import { JwtAuthGuard } from "@api/domains/auth/jwt-auth.guard";
 import { Roles } from "@api/domains/auth/roles.decorator";
 import { RolesGuard } from "@api/domains/auth/roles.guard";
@@ -16,12 +17,15 @@ export class AiResolver {
   ) {}
 
   @Query(() => String)
-  rewriteTextWithAI(@Args("text") text: string): Promise<string> {
-    return this.rewriteTextService.rewriteTextAsSingleParagraph(text);
+  rewriteTextWithAI(@Args("text") text: string, @CurrentUser() user: { userId: string }): Promise<string> {
+    return this.rewriteTextService.rewriteTextAsSingleParagraph(user.userId, text);
   }
 
   @Query(() => String)
-  restructureJobDescriptionWithAI(@Args("text") text: string): Promise<string> {
-    return this.restructureJDService.restructureJobDescription(text);
+  restructureJobDescriptionWithAI(
+    @Args("text") text: string,
+    @CurrentUser() user: { userId: string },
+  ): Promise<string> {
+    return this.restructureJDService.restructureJobDescription(user.userId, text);
   }
 }

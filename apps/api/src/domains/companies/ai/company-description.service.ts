@@ -1,4 +1,4 @@
-import { AiBaseService, OpenAIClient, PromptRendererService } from "@api/lib/ai";
+import { AiAccessService, AiBaseService, OpenAIClient, PromptRendererService } from "@api/lib/ai";
 import { isTipTapDocumentString, plainTextToTipTap } from "@job-tracker/tiptap";
 import { BadRequestException, Injectable } from "@nestjs/common";
 
@@ -15,11 +15,11 @@ const COMPANY_DESCRIPTION_SCHEMA: Record<string, unknown> = {
 
 @Injectable()
 export class CompanyDescriptionService extends AiBaseService {
-  constructor(openAIClient: OpenAIClient, promptRenderer: PromptRendererService) {
-    super(openAIClient, promptRenderer);
+  constructor(openAIClient: OpenAIClient, promptRenderer: PromptRendererService, aiAccess: AiAccessService) {
+    super(openAIClient, promptRenderer, aiAccess);
   }
 
-  async generateCompanyDescription(input: GenerateCompanyDescriptionInput): Promise<string> {
+  async generateCompanyDescription(userId: string, input: GenerateCompanyDescriptionInput): Promise<string> {
     const companyName = input.companyName.trim();
     if (!companyName) {
       throw new BadRequestException("Company name cannot be empty.");
@@ -63,6 +63,7 @@ export class CompanyDescriptionService extends AiBaseService {
     userParts.push(`Company name: ${companyName}`);
 
     const result = (await this.callAi({
+      userId,
       systemMessage,
       userMessage: userParts.join("\n"),
       schemaJson: COMPANY_DESCRIPTION_SCHEMA,

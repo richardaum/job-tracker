@@ -106,7 +106,7 @@ export class JobAutomaticFillService implements OnModuleInit {
     const shouldPromoteDraftToNew = currentStage === ApplicationStageEnum.Draft;
 
     const [extractError, raw] = await tryRun(
-      this.draftExtractionService.extract({
+      this.draftExtractionService.extract(userId, {
         title: row.title?.trim() ?? "",
         url: typeof row.urls?.[0] === "string" && row.urls[0].trim() ? row.urls[0].trim() : null,
         htmlContent: row.htmlContent?.trim() ?? "",

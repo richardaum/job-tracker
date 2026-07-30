@@ -580,7 +580,7 @@ describe("JobsService", () => {
     ).rejects.toThrow("description must be valid TipTap document JSON");
   });
 
-  it("generateCompanyDescription loads postings and forwards to company AI", async () => {
+  it("generateCompanyDescription loads postings and forwards to company AI with userId", async () => {
     const snippets = [{ title: "Engineer", plainTextDescription: "Product analytics team" }];
     vi.mocked(jobsListQuery.findUpToTwoJobPostingContextsByCompanyName).mockResolvedValue(snippets);
     vi.mocked(companyDescriptionService.generateCompanyDescription).mockResolvedValue("{}");
@@ -588,10 +588,32 @@ describe("JobsService", () => {
     await service.generateCompanyDescription("user-1", { companyName: "  Acme  " });
 
     expect(jobsListQuery.findUpToTwoJobPostingContextsByCompanyName).toHaveBeenCalledWith("user-1", "  Acme  ");
-    expect(vi.mocked(companyDescriptionService.generateCompanyDescription)).toHaveBeenCalledWith({
+    expect(vi.mocked(companyDescriptionService.generateCompanyDescription)).toHaveBeenCalledWith("user-1", {
       companyName: "  Acme  ",
       jobPostingContexts: snippets,
     });
+  });
+
+  it("inferJobLocation passes userId to locationInferenceService", async () => {
+    const job = makeJob({ description: '{"type":"doc","content":[]}' });
+    vi.mocked(repo.findOneByIdAndUserId).mockResolvedValue(job);
+    vi.mocked(stageEventsRepo.findLatestStageSummariesByJobIds).mockResolvedValue(new Map());
+    vi.mocked(locationInferenceService.inferLocation).mockResolvedValue("New York, NY");
+
+    await service.inferJobLocation("user-1", "app-1");
+
+    expect(vi.mocked(locationInferenceService.inferLocation)).toHaveBeenCalledWith("user-1", expect.any(String));
+  });
+
+  it("inferJobWorkRegion passes userId to locationInferenceService", async () => {
+    const job = makeJob({ description: '{"type":"doc","content":[]}' });
+    vi.mocked(repo.findOneByIdAndUserId).mockResolvedValue(job);
+    vi.mocked(stageEventsRepo.findLatestStageSummariesByJobIds).mockResolvedValue(new Map());
+    vi.mocked(locationInferenceService.inferWorkRegion).mockResolvedValue("United States");
+
+    await service.inferJobWorkRegion("user-1", "app-1");
+
+    expect(vi.mocked(locationInferenceService.inferWorkRegion)).toHaveBeenCalledWith("user-1", expect.any(String));
   });
 
   it("update throws for invalid TipTap description JSON", async () => {

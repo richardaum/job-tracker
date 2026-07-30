@@ -1,5 +1,5 @@
 import { htmlToPlainText } from "@api/domains/shared/html-plain-text.util";
-import { AiBaseService, OpenAIClient, PromptRendererService } from "@api/lib/ai";
+import { AiAccessService, AiBaseService, OpenAIClient, PromptRendererService } from "@api/lib/ai";
 import { BadRequestException, Injectable } from "@nestjs/common";
 
 import {
@@ -17,18 +17,23 @@ export class DraftExtractionService extends AiBaseService {
   constructor(
     openAIClient: OpenAIClient,
     promptRenderer: PromptRendererService,
+    aiAccess: AiAccessService,
     private readonly normalizationService: DraftExtractionNormalizationService,
   ) {
-    super(openAIClient, promptRenderer);
+    super(openAIClient, promptRenderer, aiAccess);
   }
 
-  async extract(input: { title: string; url: string | null; htmlContent: string }): Promise<DraftExtractionModel> {
+  async extract(
+    userId: string,
+    input: { title: string; url: string | null; htmlContent: string },
+  ): Promise<DraftExtractionModel> {
     const postingPlainText = htmlToPlainText(input.htmlContent);
     if (!postingPlainText.trim() && !input.title.trim() && !input.url?.trim()) {
       throw new BadRequestException("Draft has no usable content to extract.");
     }
 
     const raw = await this.callAi({
+      userId,
       systemMessage: this.promptRenderer.render(DRAFT_EXTRACTION_SYSTEM_TEMPLATE, {
         fields: formatSystemPromptFields(DRAFT_EXTRACTION_FIELD_SPECS),
       }),

@@ -1,5 +1,5 @@
 import { NOTE_AI_STRUCTURED_RESPONSE_SCHEMA } from "@api/domains/shared/tiptap.schema";
-import { AiBaseService, OpenAIClient, PromptRendererService } from "@api/lib/ai";
+import { AiAccessService, AiBaseService, OpenAIClient, PromptRendererService } from "@api/lib/ai";
 import type { StructuredNoteOutput, TipTapDocument } from "@job-tracker/tiptap";
 import { isTipTapDocumentString, parseTipTapDocument, structuredNoteToTipTapDocument } from "@job-tracker/tiptap";
 import { Injectable } from "@nestjs/common";
@@ -12,12 +12,13 @@ const rewriteSchema = z.object({ rewritten: z.string() });
 
 @Injectable()
 export class NoteGenerationService extends AiBaseService {
-  constructor(openAIClient: OpenAIClient, promptRenderer: PromptRendererService) {
-    super(openAIClient, promptRenderer);
+  constructor(openAIClient: OpenAIClient, promptRenderer: PromptRendererService, aiAccess: AiAccessService) {
+    super(openAIClient, promptRenderer, aiAccess);
   }
 
-  async generateNote(input: GenerateNoteInput): Promise<TipTapDocument> {
+  async generateNote(userId: string, input: GenerateNoteInput): Promise<TipTapDocument> {
     const result = (await this.callAi({
+      userId,
       systemMessage: [
         "Rewrite the original note in English into a clearer, better-structured version while preserving 100% of the original meaning.",
         "Do not add new facts, assumptions, or details that are not present in the original note.",
@@ -46,8 +47,9 @@ export class NoteGenerationService extends AiBaseService {
     return parseTipTapDocument(noteString);
   }
 
-  async rewriteTextAsSingleParagraph(input: RewriteTextInput): Promise<string> {
+  async rewriteTextAsSingleParagraph(userId: string, input: RewriteTextInput): Promise<string> {
     const result = await this.callAi({
+      userId,
       systemMessage: [
         "Rewrite the provided text in English as a single paragraph.",
         "Preserve 100% of the original meaning.",

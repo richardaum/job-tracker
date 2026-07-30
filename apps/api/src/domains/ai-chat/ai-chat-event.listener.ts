@@ -89,7 +89,7 @@ export class AiChatEventListener implements OnModuleInit {
     if (!conversation || (conversation.title !== "New conversation" && conversation.title !== null)) return;
 
     try {
-      const title = await this.generationService.generateTitle(content);
+      const title = await this.generationService.generateTitle(userId, content);
       await this.repo.updateConversationTitle(conversationId, title);
       this.logger.log(`Auto-title generated: conversationId=${conversationId}, title="${title}"`);
     } catch (error) {

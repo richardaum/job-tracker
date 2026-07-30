@@ -167,7 +167,7 @@ describe("MatchAnalysisService", () => {
     await service.processMatchAnalysis("m1", "user-1", { jobId: "job-1" });
 
     expect(aiService.extractResumeMatchItems).toHaveBeenCalled();
-    expect(vi.mocked(aiService.extractResumeMatchItems).mock.calls[0][0]).toContain("Need Rust");
+    expect(vi.mocked(aiService.extractResumeMatchItems).mock.calls[0][1]).toContain("Need Rust");
     expect(repo.updateById).toHaveBeenCalledWith(
       "m1",
       AsyncMetadataStatusEnum.Processing,
@@ -204,9 +204,9 @@ describe("MatchAnalysisService", () => {
     await service.processMatchAnalysis("m1", "user-1", { jobId: "job-html" });
 
     expect(aiService.extractResumeMatchItems).toHaveBeenCalled();
-    expect(vi.mocked(aiService.extractResumeMatchItems).mock.calls[0][0]).toContain("Hello World");
+    expect(vi.mocked(aiService.extractResumeMatchItems).mock.calls[0][1]).toContain("Hello World");
 
-    expect(aiService.extractPreferenceMatchItems).toHaveBeenCalledWith(expect.any(String), []);
+    expect(aiService.extractPreferenceMatchItems).toHaveBeenCalledWith("user-1", expect.any(String), []);
     expect(hasCompletedLifecycleEmit(eventEmit)).toBe(true);
   });
 

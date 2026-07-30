@@ -129,7 +129,7 @@ export class JobSummaryService implements OnModuleInit {
         .filter(Boolean)
         .join("\n\n");
 
-      const plainText = await this.summaryAiService.generateSummary(context);
+      const plainText = await this.summaryAiService.generateSummary(userId, context);
       const tipTapJson = markdownToTipTap(plainText);
 
       const ok = await this.jobsRepo.updateSummaryMetadataIfStatus(jobId, userId, AsyncMetadataStatusEnum.Processing, {

@@ -97,7 +97,7 @@ export class NoteService {
     const companyName = job.company?.name?.trim() || "Unknown company";
     const description = job.description?.trim() ?? "";
     const context = `Title: ${job.title}\nCompany: ${companyName}\nDescription: ${description}`;
-    const generated = await this.noteAiService.generateNote({ description: context, note });
+    const generated = await this.noteAiService.generateNote(userId, { description: context, note });
     return JSON.stringify(generated);
   }
 }

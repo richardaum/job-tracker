@@ -1,5 +1,5 @@
 import { apiEnv } from "@api/env/server";
-import { AiBaseService, OpenAIClient, PromptRendererService } from "@api/lib/ai";
+import { AiAccessService, AiBaseService, OpenAIClient, PromptRendererService } from "@api/lib/ai";
 import { Injectable } from "@nestjs/common";
 
 const SUMMARY_SCHEMA: Record<string, unknown> = {
@@ -33,12 +33,13 @@ const SUMMARY_SYSTEM_PROMPT = [
 
 @Injectable()
 export class SummaryAiService extends AiBaseService {
-  constructor(openAIClient: OpenAIClient, promptRenderer: PromptRendererService) {
-    super(openAIClient, promptRenderer);
+  constructor(openAIClient: OpenAIClient, promptRenderer: PromptRendererService, aiAccess: AiAccessService) {
+    super(openAIClient, promptRenderer, aiAccess);
   }
 
-  async generateSummary(context: string): Promise<string> {
+  async generateSummary(userId: string, context: string): Promise<string> {
     const result = (await this.callAi({
+      userId,
       systemMessage: SUMMARY_SYSTEM_PROMPT,
       userMessage: `Summarize this job:\n\n${context}`,
       schemaJson: SUMMARY_SCHEMA,

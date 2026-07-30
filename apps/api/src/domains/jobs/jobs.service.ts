@@ -313,13 +313,13 @@ export class JobsService {
   async inferJobLocation(userId: string, jobId: string): Promise<string | null> {
     const app = await this.findOne(jobId, userId);
     const plainText = tipTapToPlainText(app.description);
-    return this.locationInferenceService.inferLocation(plainText);
+    return this.locationInferenceService.inferLocation(userId, plainText);
   }
 
   async inferJobWorkRegion(userId: string, jobId: string): Promise<string | null> {
     const app = await this.findOne(jobId, userId);
     const plainText = tipTapToPlainText(app.description);
-    return this.locationInferenceService.inferWorkRegion(plainText);
+    return this.locationInferenceService.inferWorkRegion(userId, plainText);
   }
 
   async generateCompanyDescription(userId: string, dto: GenerateCompanyDescriptionDto) {
@@ -328,7 +328,7 @@ export class JobsService {
       dto.companyName,
     );
 
-    return this.companyDescriptionService.generateCompanyDescription({
+    return this.companyDescriptionService.generateCompanyDescription(userId, {
       companyName: dto.companyName,
       jobPostingContexts,
     });

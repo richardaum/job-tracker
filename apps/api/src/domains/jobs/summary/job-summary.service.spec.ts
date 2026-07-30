@@ -159,7 +159,7 @@ describe("JobSummaryService", () => {
 
     expect(summaryAiService.generateSummary).toHaveBeenCalled();
 
-    const prompt = vi.mocked(summaryAiService.generateSummary).mock.calls[0]?.[0] ?? "";
+    const prompt = vi.mocked(summaryAiService.generateSummary).mock.calls[0]?.[1] ?? "";
     expect(prompt).toContain(tipTapToPlainText(TIPTAP_HELLO));
 
     expect(appRepo.updateSummaryMetadataIfStatus).toHaveBeenCalledWith(
@@ -219,7 +219,7 @@ describe("JobSummaryService", () => {
 
     await service.doGenerate("job-1", "user-1");
 
-    const ctx = vi.mocked(summaryAiService.generateSummary).mock.calls[0][0] ?? "";
+    const ctx = vi.mocked(summaryAiService.generateSummary).mock.calls[0][1] ?? "";
     expect(ctx).toContain("Description:");
     expect(ctx).toContain(htmlToPlainText(html));
   });
@@ -244,7 +244,7 @@ describe("JobSummaryService", () => {
 
     await service.doGenerate("job-1", "user-1");
 
-    const ctx = vi.mocked(summaryAiService.generateSummary).mock.calls[0][0] ?? "";
+    const ctx = vi.mocked(summaryAiService.generateSummary).mock.calls[0][1] ?? "";
     expect(ctx).toContain(htmlToPlainText("<p>Rust backend focus</p>"));
     expect(ctx).not.toContain(tipTapToPlainText(TIPTAP_HELLO));
   });
@@ -334,7 +334,7 @@ describe("JobSummaryService", () => {
 
     await service.doGenerate("job-1", "user-1");
 
-    const ctx = vi.mocked(summaryAiService.generateSummary).mock.calls[0][0] ?? "";
+    const ctx = vi.mocked(summaryAiService.generateSummary).mock.calls[0][1] ?? "";
     expect(ctx).toContain("Technical");
     expect(ctx).toContain("Loop");
   });
