@@ -1,2 +1,5 @@
+[defaults]
+ide = "claude"
+
 [tasks]
 types = ["api", "web", "extension", "ui", "test", "infra", "docs", "chore"]
