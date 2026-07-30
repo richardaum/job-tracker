@@ -2,6 +2,8 @@ import { UserEntity } from "@api/database/entities/user.entity";
 import type { BlockedKeyword } from "@api/domains/settings/keyword-blocker.types";
 import { Column, CreateDateColumn, Entity, JoinColumn, OneToOne, PrimaryColumn, UpdateDateColumn } from "typeorm";
 
+import { EncryptedColumnTransformer } from "@api/lib/crypto/encrypted-column.transformer";
+
 @Entity({ name: "user_settings" })
 export class UserSettingEntity {
   @PrimaryColumn({ name: "user_id", type: "text" })
@@ -28,6 +30,20 @@ export class UserSettingEntity {
 
   @Column({ name: "blocked_companies", type: "jsonb", default: [] })
   blockedCompanies!: string[];
+
+  @Column({ name: "ai_enabled", type: "boolean", default: true })
+  aiEnabled!: boolean;
+
+  @Column({
+    name: "openai_api_key_encrypted",
+    type: "text",
+    nullable: true,
+    transformer: new EncryptedColumnTransformer(),
+  })
+  openaiApiKeyEncrypted!: string | null;
+
+  @Column({ name: "trial_calls_used", type: "int", default: 0 })
+  trialCallsUsed!: number;
 
   @CreateDateColumn({ name: "created_at", type: "timestamptz" })
   createdAt!: Date;
