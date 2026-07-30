@@ -193,6 +193,7 @@ export function Sidebar({ open = false, onClose, user }: SidebarProps) {
           onClick={() => void handleLogout()}
           state={loggingOut ? "loading" : "default"}
           leftIcon={<SignOutIcon size={16} />}
+          className={cn("justify-start gap-3 border-0 text-sm")}
         >
           Log Out
         </Button>
