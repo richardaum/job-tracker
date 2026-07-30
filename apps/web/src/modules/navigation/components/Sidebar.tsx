@@ -19,7 +19,8 @@ import type { Route } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useFeatureFlagEnabled, usePostHog } from "posthog-js/react";
+import { useEffect, useState } from "react";
 
 import type { CurrentUser } from "@/hooks/useCurrentUser";
 import { getApiBaseUrl } from "@/lib/api-endpoints";
@@ -65,6 +66,13 @@ export function Sidebar({ open = false, onClose, user }: SidebarProps) {
   const router = useRouter();
   const apolloClient = useApolloClient();
   const [loggingOut, setLoggingOut] = useState(false);
+  const posthog = usePostHog();
+  const sourcesEnabled = useFeatureFlagEnabled("sources-enabled") ?? false;
+  const visibleNavItems = navItems.filter((item) => item.href !== "/sources" || sourcesEnabled);
+
+  useEffect(() => {
+    posthog?.identify(user.id, { email: user.email, name: user.name });
+  }, [posthog, user.id, user.email, user.name]);
   const initials = user.name
     .split(" ")
     .slice(0, 2)
@@ -115,7 +123,7 @@ export function Sidebar({ open = false, onClose, user }: SidebarProps) {
           Menu
         </Text>
         <div className={cn("flex flex-col gap-0.5")}>
-          {navItems.map(({ href, label, icon: Icon }) => {
+          {visibleNavItems.map(({ href, label, icon: Icon }) => {
             const isActive = pathname.startsWith(href);
             return (
               <Link
