@@ -4,10 +4,11 @@ import { BadRequestException, Injectable } from "@nestjs/common";
 import { zodResponseFormat } from "openai/helpers/zod";
 import type { ZodType } from "zod";
 
+import { AiAccessService } from "./ai-access.service";
 import { OpenAIClient } from "./openai.client";
 import { PromptRendererService } from "./prompt-renderer.service";
 
-export type CallAiOptions =
+export type CallAiOptions = (
   | { systemMessage: string; userMessage: string; model?: string; responseFormat: "zod-response"; schema: ZodType }
   | {
       systemMessage: string;
@@ -15,17 +16,20 @@ export type CallAiOptions =
       model?: string;
       responseFormat: "json-schema" | "json-schema-with-web-search";
       schemaJson: Record<string, unknown>;
-    };
+    }
+) & { userId: string };
 
 @Injectable()
 export class AiBaseService {
   constructor(
     protected readonly openAIClient: OpenAIClient,
     protected readonly promptRenderer: PromptRendererService,
+    protected readonly aiAccess: AiAccessService,
   ) {}
 
   async callAi(opts: CallAiOptions): Promise<unknown> {
-    const client = this.openAIClient.getClient();
+    const key = await this.aiAccess.resolveClientKey(opts.userId);
+    const client = this.openAIClient.getClientFor(key);
     const model = opts.model ?? apiEnv.OPENAI_MODEL;
 
     switch (opts.responseFormat) {

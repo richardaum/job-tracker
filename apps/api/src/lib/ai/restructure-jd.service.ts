@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { z } from "zod";
 
+import { AiAccessService } from "./ai-access.service";
 import { AiBaseService } from "./ai-base.service";
 import { OpenAIClient } from "./openai.client";
 import { PromptRendererService } from "./prompt-renderer.service";
@@ -9,12 +10,13 @@ const restructureSchema = z.object({ restructured: z.string() });
 
 @Injectable()
 export class RestructureJDService extends AiBaseService {
-  constructor(openAIClient: OpenAIClient, promptRenderer: PromptRendererService) {
-    super(openAIClient, promptRenderer);
+  constructor(openAIClient: OpenAIClient, promptRenderer: PromptRendererService, aiAccess: AiAccessService) {
+    super(openAIClient, promptRenderer, aiAccess);
   }
 
-  async restructureJobDescription(text: string): Promise<string> {
+  async restructureJobDescription(userId: string, text: string): Promise<string> {
     const result = await this.callAi({
+      userId,
       systemMessage: [
         "Restructure the provided job posting text in English for readability only: add plain-text section headings on their own lines, then use hyphen bullets.",
         "Strict lossless fidelity: keep every substantive detail from the source. Prefer copying phrases sentence-by-sentence; do not summarize, shorten, generalized, euphemized, soften, tighten, omit, reinterpret, hedge, reorder meaning, invent roles, perks, thresholds, timelines, percentages, tooling, certifications, disclaimers, or legal/compliance nuances.",

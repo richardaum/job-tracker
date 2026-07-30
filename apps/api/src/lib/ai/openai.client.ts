@@ -12,4 +12,8 @@ export class OpenAIClient {
     }
     return this.client;
   }
+
+  getClientFor(apiKey: string): OpenAI {
+    return new OpenAI({ apiKey });
+  }
 }

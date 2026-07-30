@@ -1,0 +1,231 @@
+import { UserSettingEntity } from "@api/database/entities/user-setting.entity";
+import { Test, TestingModule } from "@nestjs/testing";
+import { getRepositoryToken } from "@nestjs/typeorm";
+import { GraphQLError } from "graphql";
+import { describe, it, expect, beforeEach, vi } from "vitest";
+
+import { EncryptedColumnTransformer } from "@api/lib/crypto/encrypted-column.transformer";
+import { apiEnv } from "@api/env/server";
+import { SettingsEventBus } from "@api/domains/settings/settings-event.bus";
+import { AiAccessService } from "./ai-access.service";
+import { AI_ERROR_CODES } from "./ai-errors.constants";
+
+describe("AiAccessService", () => {
+  let service: AiAccessService;
+  let mockSettingsRepo: Record<"findOneByOrFail" | "createQueryBuilder", ReturnType<typeof vi.fn>>;
+  let mockEncryption: Record<"from", ReturnType<typeof vi.fn>>;
+  let mockEventBus: { emit: ReturnType<typeof vi.fn> };
+
+  beforeEach(async () => {
+    mockSettingsRepo = { findOneByOrFail: vi.fn(), createQueryBuilder: vi.fn() };
+
+    mockEncryption = { from: vi.fn() };
+
+    mockEventBus = { emit: vi.fn() };
+
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        AiAccessService,
+        { provide: getRepositoryToken(UserSettingEntity), useValue: mockSettingsRepo },
+        { provide: EncryptedColumnTransformer, useValue: mockEncryption },
+        { provide: SettingsEventBus, useValue: mockEventBus },
+      ],
+    }).compile();
+
+    service = module.get<AiAccessService>(AiAccessService);
+  });
+
+  describe("resolveClientKey", () => {
+    const userId = "test-user-123";
+
+    describe("toggle off → AI_DISABLED_BY_USER", () => {
+      it("throws AI_DISABLED_BY_USER when aiEnabled is false", async () => {
+        mockSettingsRepo.findOneByOrFail.mockResolvedValue({
+          userId,
+          aiEnabled: false,
+          openaiApiKeyEncrypted: null,
+          trialCallsUsed: 0,
+        });
+
+        await expect(service.resolveClientKey(userId)).rejects.toThrow(GraphQLError);
+
+        try {
+          await service.resolveClientKey(userId);
+        } catch (err) {
+          if (err instanceof GraphQLError) {
+            expect(err.extensions.code).toBe(AI_ERROR_CODES.AI_DISABLED_BY_USER);
+          }
+        }
+      });
+
+      it("throws AI_DISABLED_BY_USER even if personal key is set", async () => {
+        mockSettingsRepo.findOneByOrFail.mockResolvedValue({
+          userId,
+          aiEnabled: false,
+          openaiApiKeyEncrypted: "encrypted-key-value",
+          trialCallsUsed: 0,
+        });
+
+        try {
+          await service.resolveClientKey(userId);
+        } catch (err) {
+          if (err instanceof GraphQLError) {
+            expect(err.extensions.code).toBe(AI_ERROR_CODES.AI_DISABLED_BY_USER);
+          }
+        }
+      });
+    });
+
+    describe("personal key path → returns decrypted key, no quota mutation", () => {
+      it("returns decrypted personal key without modifying quota", async () => {
+        const encryptedKey = "base64-encrypted-key-data";
+        const decryptedKey = "sk-12345-actual-key";
+
+        mockSettingsRepo.findOneByOrFail.mockResolvedValue({
+          userId,
+          aiEnabled: true,
+          openaiApiKeyEncrypted: encryptedKey,
+          trialCallsUsed: 10,
+        });
+
+        mockEncryption.from.mockReturnValue(decryptedKey);
+
+        const key = await service.resolveClientKey(userId);
+
+        expect(key).toBe(decryptedKey);
+        expect(mockEncryption.from).toHaveBeenCalledWith(encryptedKey);
+        // Verify no database update was performed
+        expect(mockSettingsRepo.createQueryBuilder).not.toHaveBeenCalled();
+      });
+
+      it("decrypts personal key even if trial quota is exhausted", async () => {
+        const encryptedKey = "base64-encrypted-key-data";
+        const decryptedKey = "sk-12345-actual-key";
+
+        mockSettingsRepo.findOneByOrFail.mockResolvedValue({
+          userId,
+          aiEnabled: true,
+          openaiApiKeyEncrypted: encryptedKey,
+          trialCallsUsed: apiEnv.TRIAL_AI_CALL_LIMIT,
+        });
+
+        mockEncryption.from.mockReturnValue(decryptedKey);
+
+        const key = await service.resolveClientKey(userId);
+
+        expect(key).toBe(decryptedKey);
+      });
+    });
+
+    describe("trial quota path → atomic increment and system key", () => {
+      it("increments trial_calls_used and returns system key when quota remains", async () => {
+        mockSettingsRepo.findOneByOrFail.mockResolvedValue({
+          userId,
+          aiEnabled: true,
+          openaiApiKeyEncrypted: null,
+          trialCallsUsed: 10,
+        });
+
+        const mockQueryBuilder = {
+          update: vi.fn().mockReturnThis(),
+          set: vi.fn().mockReturnThis(),
+          where: vi.fn().mockReturnThis(),
+          execute: vi.fn().mockResolvedValue({ affected: 1 }),
+        };
+
+        mockSettingsRepo.createQueryBuilder.mockReturnValue(mockQueryBuilder);
+
+        const key = await service.resolveClientKey(userId);
+
+        expect(key).toBe(apiEnv.OPENAI_API_KEY);
+        expect(mockSettingsRepo.createQueryBuilder).toHaveBeenCalled();
+        expect(mockQueryBuilder.update).toHaveBeenCalledWith(UserSettingEntity);
+        expect(mockQueryBuilder.set).toHaveBeenCalledWith({ trialCallsUsed: expect.any(Function) });
+        expect(mockQueryBuilder.where).toHaveBeenCalledWith("user_id = :userId AND trial_calls_used < :limit", {
+          userId,
+          limit: apiEnv.TRIAL_AI_CALL_LIMIT,
+        });
+      });
+
+      it("throws AI_KEY_REQUIRED when quota exhausted (affected = 0)", async () => {
+        mockSettingsRepo.findOneByOrFail.mockResolvedValue({
+          userId,
+          aiEnabled: true,
+          openaiApiKeyEncrypted: null,
+          trialCallsUsed: apiEnv.TRIAL_AI_CALL_LIMIT,
+        });
+
+        const mockQueryBuilder = {
+          update: vi.fn().mockReturnThis(),
+          set: vi.fn().mockReturnThis(),
+          where: vi.fn().mockReturnThis(),
+          execute: vi.fn().mockResolvedValue({ affected: 0 }),
+        };
+
+        mockSettingsRepo.createQueryBuilder.mockReturnValue(mockQueryBuilder);
+
+        try {
+          await service.resolveClientKey(userId);
+        } catch (err) {
+          if (err instanceof GraphQLError) {
+            expect(err.extensions.code).toBe(AI_ERROR_CODES.AI_KEY_REQUIRED);
+          }
+        }
+      });
+
+      it("does not increment beyond limit due to atomic WHERE clause", async () => {
+        mockSettingsRepo.findOneByOrFail.mockResolvedValue({
+          userId,
+          aiEnabled: true,
+          openaiApiKeyEncrypted: null,
+          trialCallsUsed: apiEnv.TRIAL_AI_CALL_LIMIT - 1,
+        });
+
+        const mockQueryBuilder = {
+          update: vi.fn().mockReturnThis(),
+          set: vi.fn().mockReturnThis(),
+          where: vi.fn().mockReturnThis(),
+          execute: vi.fn().mockResolvedValue({ affected: 1 }),
+        };
+
+        mockSettingsRepo.createQueryBuilder.mockReturnValue(mockQueryBuilder);
+
+        const key = await service.resolveClientKey(userId);
+
+        expect(key).toBe(apiEnv.OPENAI_API_KEY);
+        // The WHERE clause should protect against going beyond the limit
+        expect(mockQueryBuilder.where).toHaveBeenCalledWith("user_id = :userId AND trial_calls_used < :limit", {
+          userId,
+          limit: apiEnv.TRIAL_AI_CALL_LIMIT,
+        });
+      });
+    });
+
+    describe("error handling", () => {
+      it("throws when user setting is not found", async () => {
+        mockSettingsRepo.findOneByOrFail.mockRejectedValue(new Error("User setting not found"));
+
+        await expect(service.resolveClientKey(userId)).rejects.toThrow();
+      });
+
+      it("throws GraphQLError with correct extension code structure", async () => {
+        mockSettingsRepo.findOneByOrFail.mockResolvedValue({
+          userId,
+          aiEnabled: false,
+          openaiApiKeyEncrypted: null,
+          trialCallsUsed: 0,
+        });
+
+        try {
+          await service.resolveClientKey(userId);
+        } catch (err) {
+          expect(err).toBeInstanceOf(GraphQLError);
+          if (err instanceof GraphQLError) {
+            expect(err.extensions).toBeDefined();
+            expect(err.extensions.code).toBe(AI_ERROR_CODES.AI_DISABLED_BY_USER);
+          }
+        }
+      });
+    });
+  });
+});

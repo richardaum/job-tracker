@@ -1,5 +1,7 @@
 export type { CallAiOptions } from "./ai-base.service";
+export { AiAccessService } from "./ai-access.service";
 export { AiBaseService } from "./ai-base.service";
+export { AI_ERROR_CODES } from "./ai-errors.constants";
 export { LibAiModule } from "./lib-ai.module";
 export { locationInferenceSchema, workRegionInferenceSchema } from "./location-inference.schema";
 export { LocationInferenceService } from "./location-inference.service";
