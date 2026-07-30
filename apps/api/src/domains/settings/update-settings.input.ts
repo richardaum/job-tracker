@@ -13,6 +13,9 @@ export class UpdateSettingsInput {
   @Field(() => Boolean, { nullable: true })
   autoMatchEnabled?: boolean;
 
+  @Field(() => Boolean, { nullable: true })
+  aiEnabled?: boolean;
+
   @Field(() => Int, { nullable: true })
   duplicateWindowDays?: number;
 

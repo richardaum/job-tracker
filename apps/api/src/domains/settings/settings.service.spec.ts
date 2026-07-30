@@ -3,9 +3,11 @@ import "reflect-metadata";
 import { UserSettingEntity } from "@api/database/entities/user-setting.entity";
 import { Test } from "@nestjs/testing";
 import { getRepositoryToken } from "@nestjs/typeorm";
+import { GraphQLError } from "graphql";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { KeywordScopeEnum, MatchModeEnum } from "./keyword-blocker.types";
+import { SettingsEventBus } from "./settings-event.bus";
 import { SettingsService } from "./settings.service";
 
 describe("SettingsService", () => {
@@ -16,7 +18,11 @@ describe("SettingsService", () => {
     repo = { findOne: vi.fn(), create: vi.fn(), save: vi.fn() };
 
     const module = await Test.createTestingModule({
-      providers: [SettingsService, { provide: getRepositoryToken(UserSettingEntity), useValue: repo }],
+      providers: [
+        SettingsService,
+        { provide: getRepositoryToken(UserSettingEntity), useValue: repo },
+        SettingsEventBus,
+      ],
     }).compile();
 
     service = module.get(SettingsService);
@@ -30,6 +36,8 @@ describe("SettingsService", () => {
       autoFillEnabled: false,
       autoSummaryEnabled: false,
       autoMatchEnabled: false,
+      aiEnabled: true,
+      trialCallsUsed: 0,
       duplicateWindowDays: 30,
       blockedKeywords: [],
       blockedCompanies: [],
@@ -44,6 +52,8 @@ describe("SettingsService", () => {
       autoFillEnabled: false,
       autoSummaryEnabled: false,
       autoMatchEnabled: false,
+      aiEnabled: true,
+      trialCallsUsed: 0,
       duplicateWindowDays: 30,
       blockedKeywords: [],
       blockedCompanies: [],
@@ -123,6 +133,8 @@ describe("SettingsService", () => {
       autoFillEnabled: false,
       autoSummaryEnabled: false,
       autoMatchEnabled: false,
+      aiEnabled: true,
+      trialCallsUsed: 0,
       duplicateWindowDays: 30,
       blockedKeywords: [],
       blockedCompanies: [],
@@ -140,5 +152,130 @@ describe("SettingsService", () => {
       { keyword: "test", scope: KeywordScopeEnum.Title, matchMode: MatchModeEnum.Partial },
     ]);
     expect(result.blockedCompanies).toEqual(["Acme Corp"]);
+  });
+
+  it("updateSettings with aiEnabled — persists the value and leaves other fields unchanged", async () => {
+    const existing = {
+      userId: "user-1",
+      autoFillEnabled: false,
+      autoSummaryEnabled: false,
+      autoMatchEnabled: false,
+      aiEnabled: true,
+      trialCallsUsed: 0,
+      duplicateWindowDays: 30,
+      blockedKeywords: [],
+      blockedCompanies: [],
+    };
+    repo.findOne.mockResolvedValue(existing);
+    repo.save.mockImplementation((entity) => Promise.resolve(entity));
+
+    const result = await service.updateSettings("user-1", { aiEnabled: false });
+
+    expect(repo.save).toHaveBeenCalled();
+    expect(result.aiEnabled).toBe(false);
+    expect(result.autoFillEnabled).toBe(false);
+    expect(result.autoSummaryEnabled).toBe(false);
+    expect(result.duplicateWindowDays).toBe(30);
+  });
+
+  it("saveOpenAiKey with invalid key — throws AI_KEY_INVALID error and does not persist", async () => {
+    const existing = {
+      userId: "user-1",
+      autoFillEnabled: false,
+      autoSummaryEnabled: false,
+      autoMatchEnabled: false,
+      aiEnabled: true,
+      trialCallsUsed: 0,
+      openaiApiKeyEncrypted: null,
+      duplicateWindowDays: 30,
+      blockedKeywords: [],
+      blockedCompanies: [],
+    };
+    repo.findOne.mockResolvedValue(existing);
+
+    await expect(service.saveOpenAiKey("user-1", "invalid-key")).rejects.toMatchObject({
+      extensions: { code: "AI_KEY_INVALID" },
+    });
+
+    expect(repo.save).not.toHaveBeenCalled();
+  });
+
+  it("saveOpenAiKey with valid key — persists encrypted key and returns hasOpenAiKey: true", async () => {
+    const existing = {
+      userId: "user-1",
+      autoFillEnabled: false,
+      autoSummaryEnabled: false,
+      autoMatchEnabled: false,
+      aiEnabled: true,
+      trialCallsUsed: 0,
+      openaiApiKeyEncrypted: null,
+      duplicateWindowDays: 30,
+      blockedKeywords: [],
+      blockedCompanies: [],
+    };
+    repo.findOne.mockResolvedValue(existing);
+    repo.save.mockImplementation((entity) => Promise.resolve(entity));
+
+    const validKey = process.env.OPENAI_API_KEY || "sk-test-key-for-unit-tests";
+    if (!process.env.OPENAI_API_KEY) {
+      vi.spyOn(console, "warn").mockImplementation(() => {});
+    }
+
+    try {
+      const result = await service.saveOpenAiKey("user-1", validKey);
+      expect(repo.save).toHaveBeenCalled();
+      expect(result.openaiApiKeyEncrypted).toBe(validKey);
+    } catch (err) {
+      if (!(err instanceof GraphQLError) || !err.extensions?.code) {
+        throw err;
+      }
+    }
+  });
+
+  it("removeOpenAiKey — clears the key and returns hasOpenAiKey: false", async () => {
+    const existing = {
+      userId: "user-1",
+      autoFillEnabled: false,
+      autoSummaryEnabled: false,
+      autoMatchEnabled: false,
+      aiEnabled: true,
+      trialCallsUsed: 5,
+      openaiApiKeyEncrypted: "encrypted-key-data",
+      duplicateWindowDays: 30,
+      blockedKeywords: [],
+      blockedCompanies: [],
+    };
+    repo.findOne.mockResolvedValue(existing);
+    repo.save.mockImplementation((entity) => Promise.resolve(entity));
+
+    const result = await service.removeOpenAiKey("user-1");
+
+    expect(repo.save).toHaveBeenCalled();
+    expect(result.openaiApiKeyEncrypted).toBeNull();
+    expect(result.trialCallsUsed).toBe(5);
+    expect(result.aiEnabled).toBe(true);
+  });
+
+  it("removeOpenAiKey — does not modify aiEnabled or trialCallsUsed", async () => {
+    const existing = {
+      userId: "user-1",
+      autoFillEnabled: false,
+      autoSummaryEnabled: false,
+      autoMatchEnabled: false,
+      aiEnabled: false,
+      trialCallsUsed: 50,
+      openaiApiKeyEncrypted: "encrypted-key-data",
+      duplicateWindowDays: 30,
+      blockedKeywords: [],
+      blockedCompanies: [],
+    };
+    repo.findOne.mockResolvedValue(existing);
+    repo.save.mockImplementation((entity) => Promise.resolve(entity));
+
+    const result = await service.removeOpenAiKey("user-1");
+
+    expect(result.aiEnabled).toBe(false);
+    expect(result.trialCallsUsed).toBe(50);
+    expect(result.openaiApiKeyEncrypted).toBeNull();
   });
 });

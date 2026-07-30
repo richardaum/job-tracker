@@ -27,28 +27,9 @@ type UserType {
   accounts: [AuthAccount!]!
 }
 
-type DeleteMutationPayloadType {
-  success: Boolean!
-  deletedId: ID!
-}
-
-type CompanyType {
-  id: ID!
-  userId: String!
-  name: String!
-  description: String
-  createdAt: DateTime!
-  updatedAt: DateTime!
-}
-
-type NoteType {
-  id: ID!
-  jobId: String
-  userId: String!
-  content: String!
-  revision: Int!
-  createdAt: DateTime!
-  updatedAt: DateTime!
+type AiUsageChangedEventType {
+  trialCallsUsed: Int!
+  hasOpenAiKey: Boolean!
 }
 
 type BlockedKeyword {
@@ -73,10 +54,38 @@ type UserSetting {
   autoFillEnabled: Boolean!
   autoSummaryEnabled: Boolean!
   autoMatchEnabled: Boolean!
+  aiEnabled: Boolean!
+  hasOpenAiKey: Boolean!
   duplicateWindowDays: Int!
+  trialCallsUsed: Int!
+  trialCallsLimit: Int!
   blockedKeywords: [BlockedKeyword!]
   blockedCompanies: [String!]
   id: ID!
+}
+
+type DeleteMutationPayloadType {
+  success: Boolean!
+  deletedId: ID!
+}
+
+type CompanyType {
+  id: ID!
+  userId: String!
+  name: String!
+  description: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type NoteType {
+  id: ID!
+  jobId: String
+  userId: String!
+  content: String!
+  revision: Int!
+  createdAt: DateTime!
+  updatedAt: DateTime!
 }
 
 type AsyncMetadataType {
@@ -490,6 +499,8 @@ type Mutation {
   updateCompany(id: ID!, input: UpdateCompanyInput!): CompanyType!
   deleteCompany(id: ID!): DeleteMutationPayloadType!
   updateSettings(input: UpdateSettingsInput!): UserSetting!
+  saveOpenAiKey(key: String!): UserSetting!
+  removeOpenAiKey: UserSetting!
   createJobNote(input: CreateNoteInput!): NoteType!
   updateJobNote(id: ID!, input: UpdateNoteInput!): NoteType!
   deleteJobNote(id: ID!): DeleteMutationPayloadType!
@@ -582,6 +593,7 @@ input UpdateSettingsInput {
   autoFillEnabled: Boolean
   autoSummaryEnabled: Boolean
   autoMatchEnabled: Boolean
+  aiEnabled: Boolean
   duplicateWindowDays: Int
   blockedKeywords: [BlockedKeywordInput!]
   blockedCompanies: [String!]
@@ -670,6 +682,7 @@ type Subscription {
   jobSummaryStatusChanged(jobId: ID!): JobSummaryStatusEventType!
   jobFillStatusChanged(jobId: ID!): JobFillStatusEventType!
   jobMatchStatusChanged(jobId: ID!): JobMatchStatusEventType!
+  aiUsageChanged: AiUsageChangedEventType!
   sourceRunEvents: SourceRunEvent!
   extensionActivityEvents: ExtensionActivityEvent!
   aiMessageStreamed(conversationId: ID!): AiMessageStreamEventType!

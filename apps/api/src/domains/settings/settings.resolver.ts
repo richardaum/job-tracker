@@ -1,3 +1,4 @@
+import { UserSettingEntity } from "@api/database/entities/user-setting.entity";
 import { CurrentUser } from "@api/domains/auth/current-user.decorator";
 import { JwtAuthGuard } from "@api/domains/auth/jwt-auth.guard";
 import { Roles } from "@api/domains/auth/roles.decorator";
@@ -17,7 +18,7 @@ export class SettingsResolver {
   constructor(private readonly service: SettingsService) {}
 
   @Query(() => UserSettingType)
-  settings(@CurrentUser() user: { userId: string }): Promise<UserSettingType> {
+  settings(@CurrentUser() user: { userId: string }): Promise<UserSettingEntity> {
     return this.service.getSettings(user.userId);
   }
 
@@ -26,7 +27,17 @@ export class SettingsResolver {
     @Args("input", { type: () => UpdateSettingsInput })
     input: UpdateSettingsInput,
     @CurrentUser() user: { userId: string },
-  ): Promise<UserSettingType> {
+  ): Promise<UserSettingEntity> {
     return this.service.updateSettings(user.userId, input);
+  }
+
+  @Mutation(() => UserSettingType)
+  saveOpenAiKey(@Args("key") key: string, @CurrentUser() user: { userId: string }): Promise<UserSettingEntity> {
+    return this.service.saveOpenAiKey(user.userId, key);
+  }
+
+  @Mutation(() => UserSettingType)
+  removeOpenAiKey(@CurrentUser() user: { userId: string }): Promise<UserSettingEntity> {
+    return this.service.removeOpenAiKey(user.userId);
   }
 }

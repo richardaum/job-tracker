@@ -16,8 +16,20 @@ export class UserSettingType {
   @Field()
   autoMatchEnabled!: boolean;
 
+  @Field()
+  aiEnabled!: boolean;
+
+  @Field()
+  hasOpenAiKey!: boolean;
+
   @Field(() => Int)
   duplicateWindowDays!: number;
+
+  @Field(() => Int)
+  trialCallsUsed!: number;
+
+  @Field(() => Int)
+  trialCallsLimit!: number;
 
   @Field(() => [BlockedKeywordType], { nullable: true })
   blockedKeywords?: BlockedKeywordType[];
